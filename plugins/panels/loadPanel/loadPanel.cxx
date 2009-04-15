@@ -574,7 +574,7 @@ loadPanel::loadPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Pa
   getBaseWidgetFrame()->setCaption("loadPanelBaseWidget");
 
 #ifdef DEBUG_loadPanel
-  printf("loadPanel::loadPanel(), exited\n");
+  printf("loadPanel::loadPanel(), constructor exited\n");
 #endif
 
 
@@ -1060,19 +1060,30 @@ void loadPanel::vMPLoadPageShowButtonSelected()
   vMPLoadMPICommandLineedit->setText( allOfIt.ascii() );
 
 //  vMPLoadMPICommandLineedit->setText(vMPLoadParallelPrefixLineedit->text());
+
 #ifdef DEBUG_loadPanel
-  printf("vMPLoadPageShowButtonSelected(), vMPLoadParallelPrefixLineedit->text()=%s\n",
+  if ( !vMPLoadParallelPrefixLineedit->text().isEmpty() ) {
+    printf("vMPLoadPageShowButtonSelected(), vMPLoadParallelPrefixLineedit->text()=%s\n",
           vMPLoadParallelPrefixLineedit->text().ascii() );
+  }
 #endif
+
 //  vMPLoadMPICommandLineedit->setText(vMPLoadPageLoadMPProgName.ascii());
+
 #ifdef DEBUG_loadPanel
-  printf("vMPLoadPageShowButtonSelected(), vMPLoadPageLoadMPProgName.ascii()=%s\n",
+  if ( !vMPLoadPageLoadMPProgName.isEmpty() ) {
+    printf("vMPLoadPageShowButtonSelected(), vMPLoadPageLoadMPProgName.ascii()=%s\n",
           vMPLoadPageLoadMPProgName.ascii() );
+  }
 #endif
+
 //  vMPLoadMPICommandLineedit->setText(vMPLoadCommandArgumentsLineedit->text());
+
 #ifdef DEBUG_loadPanel
-  printf("vMPLoadPageShowButtonSelected(), vMPLoadCommandArgumentsLineedit->text()=%s\n",
+  if ( !vMPLoadCommandArgumentsLineedit->text().isEmpty() ) {
+     printf("vMPLoadPageShowButtonSelected(), vMPLoadCommandArgumentsLineedit->text()=%s\n",
           vMPLoadCommandArgumentsLineedit->text().ascii() );
+  }
 #endif
 
 
@@ -1099,7 +1110,9 @@ void loadPanel::vMPLoadPageLoadButtonSelected()
   } else {
 
 #ifdef DEBUG_loadPanel
-   printf("vMPLoadPageLoadButtonSelected(), mw->executableName.ascii()=%s\n", mw->executableName.ascii() );
+   if ( !mw->executableName.isEmpty() ) {
+      printf("vMPLoadPageLoadButtonSelected(), mw->executableName.ascii()=%s\n", mw->executableName.ascii() );
+   }
 #endif
 
    vMPLoadPageLoadMPProgName = mw->executableName.ascii();
@@ -1108,16 +1121,20 @@ void loadPanel::vMPLoadPageLoadButtonSelected()
    printf("loadPanel::vMPLoadPageLoadButtonSelected(), mw->argsStr.isEmpty()=%d\n",
           mw->argsStr.isEmpty() );
    if (!mw->argsStr.isEmpty() ) {
+      if ( !vMPLoadCommandArgumentsLineedit->text().isEmpty() ) {
        printf("loadPanel::vMPLoadPageLoadButtonSelected(), vMPLoadCommandArgumentsLineedit->text()=%s\n",
               vMPLoadCommandArgumentsLineedit->text().ascii() );
+      }
    }
 #endif
    if( !mw->argsStr.isEmpty() ) {
       vMPLoadCommandArgumentsLineedit->setText( mw->argsStr.ascii() );;
 
 #ifdef DEBUG_loadPanel
-      printf("loadPanel::vMPLoadPageLoadButtonSelected(), vMPLoadCommandArgumentsLineedit->text()=%s\n",
-             vMPLoadCommandArgumentsLineedit->text().ascii() );
+      if ( !vMPLoadCommandArgumentsLineedit->text().isEmpty() ) {
+         printf("loadPanel::vMPLoadPageLoadButtonSelected(), vMPLoadCommandArgumentsLineedit->text()=%s\n",
+                vMPLoadCommandArgumentsLineedit->text().ascii() );
+      }
 #endif
    }
 
@@ -1494,8 +1511,10 @@ void loadPanel::vMPLoadPageFinishButtonSelected()
   }
 
 #ifdef DEBUG_loadPanel
-    printf("loadPanel::vMPLoadPageFinishButtonSelected(), vMPLoadCommandArgumentsLineedit->text()=%s\n",
-          vMPLoadCommandArgumentsLineedit->text().ascii() );
+    if (! vMPLoadCommandArgumentsLineedit->text().isEmpty() ) {
+      printf("loadPanel::vMPLoadPageFinishButtonSelected(), vMPLoadCommandArgumentsLineedit->text()=%s\n",
+            vMPLoadCommandArgumentsLineedit->text().ascii() );
+    }
     printf("loadPanel::vMPLoadPageFinishButtonSelected(),else clause call vSummaryPageFinishButtonSelected()\n" );
 #endif
     // Parallel Call
@@ -1544,8 +1563,10 @@ void loadPanel::finishButtonSelected()
       mw->argsStr =  vMPLoadCommandArgumentsLineedit->text().ascii();
     }
 #ifdef DEBUG_loadPanel
-    printf("loadPanel::finishButtonSelected(),else clause,vMPLoadCommandArgumentsLineedit->text()=%s\n",
+    if ( !vMPLoadCommandArgumentsLineedit->text().isEmpty() ) {
+      printf("loadPanel::finishButtonSelected(),else clause,vMPLoadCommandArgumentsLineedit->text()=%s\n",
           vMPLoadCommandArgumentsLineedit->text().ascii() );
+    }
     printf("loadPanel::finishButtonSelected(),else clause call vSummaryPageFinishButtonSelected()\n" );
 #endif
     // Parallel Call
@@ -1611,8 +1632,12 @@ void loadPanel::vSummaryPageFinishButtonSelected(bool wasIdoingParallel)
           }
 
 #ifdef DEBUG_loadPanel
-        printf("loadPanel::vSummaryPageFinishButtonSelected(), executable name was specified as: %s\n", mw->executableName.ascii());
-        printf("loadPanel::vSummaryPageFinishButtonSelected(), parallelPrefix was specified as: %s\n", mw->parallelPrefixCommandStr.ascii());
+        if ( !mw->executableName.isEmpty() ) {
+          printf("loadPanel::vSummaryPageFinishButtonSelected(), executable name was specified as: %s\n", mw->executableName.ascii());
+        }
+        if ( !mw->parallelPrefixCommandStr.isEmpty() ) {
+          printf("loadPanel::vSummaryPageFinishButtonSelected(), parallelPrefix was specified as: %s\n", mw->parallelPrefixCommandStr.ascii());
+        }
 #endif
 
         // Do this check again because the user may have canceled out of
@@ -1764,7 +1789,10 @@ loadPanel::listener(void *msg)
   MessageObject *messageObject = (MessageObject *)msg;
 
 #ifdef DEBUG_loadPanel
-  printf("loadPanel::listener() messageObject->msgType = %s\n", messageObject->msgType.ascii() );
+  if ( !messageObject->msgType.isEmpty() ) {
+    printf("loadPanel::listener() messageObject->msgType = %s\n", 
+            messageObject->msgType.ascii() );
+  }
 #endif
   if( messageObject->msgType == getName() )
   {
