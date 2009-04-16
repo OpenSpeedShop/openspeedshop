@@ -17,6 +17,7 @@ then
   exit
 fi
 
+
 #
 #
 debug_flag=1
@@ -210,9 +211,9 @@ then
 else
   echo "NOTE: Creating default_test_config file"
   cat > default_test_config << EOF
-2
-16
-pgi
+4
+32
+all
 jegkas@gmail.com
 EOF
 
@@ -243,7 +244,7 @@ echo "smg2000 executable path directory is:" \$executable
 #
 # script defaults
 NodeCount=2
-RankCount=32
+RankCount=16
 CompilerType="intel"
 EmailAddress="jegkas@gmail.com,jeg@krellinst.org"
 
@@ -316,7 +317,7 @@ fi
 #
 # Run pcsamp and analyze the results
 #
-openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 25 25 25" pcsamp
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 40 40 40" pcsamp
 ls *.openss | grep "smg2000-pcsamp\." > smg2000_${thiscompiler}_mvapich_create_pcsamp
 echo "-------------------------------------"
 echo "BEGIN Analyzing smg2000 pcsamp experiment"
@@ -335,7 +336,7 @@ echo "-------------------------------------"
 #
 # Run usertime and analyze the results
 #
-openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 25 25 25" usertime
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 40 40 40" usertime
 ls *.openss | grep "smg2000-usertime\." > smg2000_${thiscompiler}_mvapich_create_usertime
 
 echo "-------------------------------------"
@@ -355,7 +356,7 @@ echo ""
 
 
 
-openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 25 25 25" hwc
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 40 40 40" hwc
 ls *.openss | grep "smg2000-hwc\." > smg2000_${thiscompiler}_mvapich_create_hwc
 
 echo ""
@@ -373,7 +374,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 25 25 25" hwctime
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 40 40 40" hwctime
 ls *.openss | grep "smg2000-hwctime\." > smg2000_${thiscompiler}_mvapich_create_hwctime
 
 echo ""
@@ -393,7 +394,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 25 25 25" io
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 40 40 40" io
 ls *.openss | grep "smg2000-io\." > smg2000_${thiscompiler}_mvapich_create_io
 
 echo ""
@@ -413,7 +414,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 25 25 25" iot
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 40 40 40" iot
 ls *.openss | grep "smg2000-iot\." > smg2000_${thiscompiler}_mvapich_create_iot
 
 echo ""
@@ -576,7 +577,8 @@ fi
 # email subject
 SUBJECT="OpenSpeedShop MPI smg2000 executable test results"
 # Email To ?
-EMAIL="jegkas@gmail.com"
+EMAIL=\$EmailAddress
+#EMAIL="jegkas@gmail.com"
 # Email text/message
 EMAILMESSAGE="/tmp/openss_test_message.txt"
 echo " OpenSpeedShop Performance Tool SMG2000 Test Results" >\$EMAILMESSAGE
@@ -942,7 +944,12 @@ echo "log -f sweep3d_${thiscompiler}_mvapich_io_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "630  __libc_read" sweep3d_${thiscompiler}_mvapich_io_results.log | cat > sweep3d_${thiscompiler}_mvapich_io_results.status
+readCount=\$RankCount*12
+echo \$readCount
+
+grep "lseek" sweep3d_${thiscompiler}_mvapich_io_results.log | cat > sweep3d_${thiscompiler}_mvapich_io_results.status
+#grep "12 *lseek" sweep3d_${thiscompiler}_mvapich_io_results.log | cat > sweep3d_${thiscompiler}_mvapich_io_results.status
+#grep "\$readCount  __libc_read" sweep3d_${thiscompiler}_mvapich_io_results.log | cat > sweep3d_${thiscompiler}_mvapich_io_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi io experiment"
@@ -962,7 +969,12 @@ echo "log -f sweep3d_${thiscompiler}_mvapich_iot_results.log" >> new_input.scrip
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "630  __libc_read" sweep3d_${thiscompiler}_mvapich_iot_results.log | cat > sweep3d_${thiscompiler}_mvapich_iot_results.status
+readCount=\$RankCount*12
+echo \$readCount
+
+grep "lseek" sweep3d_${thiscompiler}_mvapich_iot_results.log | cat > sweep3d_${thiscompiler}_mvapich_iot_results.status
+#grep "12 *lseek" sweep3d_${thiscompiler}_mvapich_iot_results.log | cat > sweep3d_${thiscompiler}_mvapich_iot_results.status
+#grep "\$readCount  __libc_read" sweep3d_${thiscompiler}_mvapich_iot_results.log | cat > sweep3d_${thiscompiler}_mvapich_iot_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi iot experiment"
