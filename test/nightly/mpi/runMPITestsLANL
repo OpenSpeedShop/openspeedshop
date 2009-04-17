@@ -1,7 +1,7 @@
 #! /bin/bash
 
 #
-#  This script is focused on running on Sandia systems
+#  This script is focused on running on LANL systems
 #
 if [ "$1" == "help" -o "$1" = "--help" ]
 then
@@ -22,45 +22,22 @@ fi
 #
 debug_flag=1
 
-
 ##set -x
 basedir=`pwd`
 
-# Try looking for LANL run environment
-#found_lanl=0
-#
-#if [ $LANL ]; then
-#  echo "Found LANL environment variable: ", $LANL
-#  found_lanl=1
-#  echo "NOTE: CLEAR ALL MODULE SETTINGS"
-#  source /users/jegsgi/cshrc-mine
-#  module purge
-#  module load openss_mrnet
-#  echo "NOTE: load openss_run_openmpi module"
-#  module load openmpi-gcc/1.2.4
-#  echo "NOTE: load openmpi-gcc/1.2.4 module"
-#else
-#  echo "Did not find LANL environment variable: "
-#  found_lanl=0
-#fi
-#
-#if [ $found_lanl == 0 ]
-#then
-#  echo "Did not find LANL environment variable: Are we running this script on the correct system?"
-#  exit
-#fi
-#source /users/jegsgi/cshrc-mine
+. ${MODULESHOME}/init/sh
 export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
-#alias module=`/usr/bin/modulecmd bash !*`
-export PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin:$PATH
-export PATH=/users/jegsgi/yr-mrnet/opt/OSS/bin:$PATH
-export LD_LIBRARY_PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/users/jegsgi/yr-mrnet/opt/OSS/lib64:$LD_LIBRARY_PATH
+#export PATH=/users/jegsgi/yr-mrnet/opt/OSS/bin:$PATH
+#export LD_LIBRARY_PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/lib:$LD_LIBRARY_PATH
+#export LD_LIBRARY_PATH=/users/jegsgi/yr-mrnet/opt/OSS/lib64:$LD_LIBRARY_PATH
 
 module purge
-module load openss_mrnet
-echo "NOTE: load openss_run_openmpi module"
+echo "NOTE: load openss-mrnet module"
+module load openss-mrnet
+echo "NOTE: load openmpi-gcc/1.2.4 module"
 module load openmpi-gcc/1.2.4
+
+NEWNAME=""
 
 for testname in `ls *.tar.gz`
 do
@@ -87,33 +64,28 @@ do
 #  for thiscompiler in intel pgi gnu
 
 #  loop here through a compiler list
-   for thiscompiler in gnu
-   do
+for thiscompiler in gnu
+do
+ if [ debug_flag == 1 ]
+ then
+   echo "thiscompiler=" $thiscompiler  
+   echo "testsuffix=" $testsuffix
+   echo "testCC=" $testCC
+ fi
 
-
-
-     if [ debug_flag == 1 ]
-     then
-       echo "thiscompiler=" $thiscompiler  
-       echo "testsuffix=" $testsuffix
-       echo "testCC=" $testCC
-     fi
-
-     if [ $thiscompiler == "gnu" ] 
-     then
-        module load openmpi-gcc/1.2.4
-     elif  [ $thiscompiler == "pgi" ]
-     then
-        module load openmpi-pgi/1.2.4
-     elif  [ $thiscompiler == "intel" ]
-     then
-        module load openmpi-intel/1.2.4
-     elif  [ $thiscompiler == "pathscale" ]
-     then
-        module load openmpi-pathscale/1.2.4
-     fi
-
-
+ if [ $thiscompiler == "gnu" ] 
+ then
+    module load openmpi-gcc/1.2.4
+ elif  [ $thiscompiler == "pgi" ]
+ then
+    module load openmpi-pgi/1.2.4
+ elif  [ $thiscompiler == "intel" ]
+ then
+    module load openmpi-intel/1.2.4
+ elif  [ $thiscompiler == "pathscale" ]
+ then
+    module load openmpi-pathscale/1.2.4
+ fi
 
 hostabi=`uname -m`
 ulimit -c unlimited
@@ -121,17 +93,32 @@ ulimit -c unlimited
 # setup the path and information with regards to building the MPI applicaton you will be running
 #
 testexe=$NEWNAME
-
-currentdir=`pwd`
-testpathbase=$currentdir
-
-echo $currentdir
+echo "before testexe.tar.gz unpacking, NEWNAME=" $NEWNAME
 
 gunzip $testexe.tar.gz
 tar -xvf $testexe.tar
 gzip $testexe.tar
 
-cd $testexe
+currentdir=`pwd`
+echo "first currentdir=" $currentdir
+testpathbase=$currentdir
+echo "testpathbase=" $testpathbase
+
+# keep two copies, the previous and the current
+# if previous already exists remove it.
+if [ -a prev_${testexe}_${thiscompiler} ]
+then
+   rm -rf prev_${testexe}_${thiscompiler}
+fi
+
+mv -f  ${testexe}_${thiscompiler} prev_${testexe}_${thiscompiler}
+mv ${testexe} ${testexe}_${thiscompiler}
+cd ${testexe}_${thiscompiler}
+echo "first ${testexe}_${thiscompiler}=" ${testexe}_${thiscompiler}
+
+currentdir=`pwd`
+#echo $currentdir
+echo "second currentdir=" $currentdir
 
 thismpicc=`which mpicc`
 echo "which mpicc=" $thismpicc
@@ -149,18 +136,18 @@ fi
 
 if [ "$testexe" == "smg2000" ]
 then
-   testpath=$testpathbase/smg2000/test
+   testpath=$testpathbase/${testexe}_${thiscompiler}/test
    testexepath=$testpath
    testexeargs='-n 35 35 35'
    testprogram=$testexepath/$testexe
 elif [ "$testexe" == "sweep3d" ]
 then
-   testpath=$testpathbase/$testexe
+   testpath=$testpathbase/${testexe}_${thiscompiler}
    testexepath=$testpath
    testexeargs=''
    testprogram=$testexepath/$testexe.mpi
 else
-   testpath=$testpathbase/$testexe
+   testpath=$testpathbase/${testexe}_${thiscompiler}
    testexepath=$testpath
    testexeargs=''
    testprogram=$testexepath/$testexe
@@ -180,6 +167,7 @@ sleep 2
 #export DYNINST_DEBUG_STARTUP=1
 #export DYNINST_DEBUG_SYMTAB=1
 
+echo "testpath=" $testpath
 cd $testpath
 
 #
@@ -200,12 +188,16 @@ then
 else
   echo "NOTE: Creating default_test_config file"
 cat > default_test_config << EOF
-2
-16
-pgi
+4
+32
+all
 jegkas@gmail.com
 EOF
 fi
+
+# define the NodeCount for the launch script (msub) so it knows how many nodes to request
+# they should be the same as the default_test_config file above
+NodeCount=4
 
 
 cat > common_commands << EOF
@@ -217,23 +209,27 @@ EOF
 
 if [ "$testexe" == "smg2000" ]
 then
-cat > smg2000_pgi_openmpi_script.sh << EOF
+
+cat > smg2000_${thiscompiler}_openmpi_script.sh << EOF
 #!/bin/bash
 #
+. ${MODULESHOME}/init/sh
 export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
+
 #alias module=\`/usr/bin/modulecmd bash !*\`
 #
-export PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin:$PATH
-export PATH=/users/jegsgi/yr-mrnet/opt/OSS/bin:$PATH
-export LD_LIBRARY_PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/users/jegsgi/yr-mrnet/opt/OSS/lib64:$LD_LIBRARY_PATH
+#export PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin:$PATH
+#export PATH=/users/jegsgi/yr-mrnet/opt/OSS/bin:$PATH
+#export LD_LIBRARY_PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/lib:$LD_LIBRARY_PATH
+#export LD_LIBRARY_PATH=/users/jegsgi/yr-mrnet/opt/OSS/lib64:$LD_LIBRARY_PATH
 
-#module purge
-#module load openmpi-gcc/1.2.4
-#module load modules openss_mrnet
-#module list
+module purge
+module load openmpi-gcc/1.2.4
+module load modules openss-mrnet
+module list
 
 which openss
+export PATH=.:$PATH
 executable=`which smg2000`
 echo "Current directory is:" `\$pwd`
 echo "smg2000 executable path directory is:" \$executable
@@ -250,28 +246,34 @@ EmailAddress="jegkas@gmail.com"
 
 if [ -a default_test_config ] 
 then
-  echo "Current directory is:" `\$pwd`
-else
-  n=0
-  while read curline; do
-    n=`expr \$n + 1`
-    echo "\$curline"
-    echo "\$n" 
+  echo "Reading the existing default_test_config file"
+  BAKIFS=\$IFS
+  IFS=\$(echo -en "\n\b")
+  exec 3<&0
+  exec 0<default_test_config
 
-    if [ \$n == 1 ]
-    then
-       NodeCount=\$curline
-    elif [ \$n == 2 ]
-    then
-       RankCount=\$curline
-    elif [ \$n == 3 ]
-    then
-       CompilerType=\$curline
-    elif [ \$n == 4 ]
-    then
-       EmailAddress=\$curline
-    fi
-  done < "default_test_config"
+  read curline
+  echo "NodeCount: \$curline"
+  NodeCount=\$curline
+#
+  read curline
+  echo "RankCount: \$curline"
+  RankCount=\$curline
+#
+  read curline
+  echo "CompilerType: \$curline"
+  CompilerType=\$curline
+#
+  read curline
+  echo "EmailAddress: \$curline"
+  EmailAddress=\$curline
+
+  exec 0<&3
+
+# restore IFS which was used to determine what the field separators are
+#
+  IFS=\$BAKIFS
+#
 fi
 
 #
@@ -288,21 +290,24 @@ fi
 # Run all experiments
 #
 
+echo "Using openss=" $theopenss
+echo "Using the raw data directory storage environment variable: OPENSS_RAWDATA_DIR=" $OPENSS_RAWDATA_DIR
+
 cd $testpath
 #
 # Run pcsamp and analyze the results
 #
 openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" pcsamp
-ls *.openss | grep "smg2000-pcsamp\." > smg2000_pgi_openmpi_create_pcsamp
+ls *.openss | grep "smg2000-pcsamp\." > smg2000_${thiscompiler}_openmpi_create_pcsamp
 echo "-------------------------------------"
 echo "BEGIN Analyzing smg2000 pcsamp experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' smg2000_pgi_openmpi_create_pcsamp > new_input.script
-echo "log -f smg2000_pgi_openmpi_pcsamp_results.log" >> new_input.script
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_openmpi_create_pcsamp > new_input.script
+echo "log -f smg2000_${thiscompiler}_openmpi_pcsamp_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_pgi_openmpi_pcsamp_results.log | cat > smg2000_pgi_openmpi_pcsamp_results.status
+grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_${thiscompiler}_openmpi_pcsamp_results.log | cat > smg2000_${thiscompiler}_openmpi_pcsamp_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 pcsamp experiment"
@@ -312,17 +317,17 @@ echo "-------------------------------------"
 # Run usertime and analyze the results
 #
 openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" usertime
-ls *.openss | grep "smg2000-usertime\." > smg2000_pgi_openmpi_create_usertime
+ls *.openss | grep "smg2000-usertime\." > smg2000_${thiscompiler}_openmpi_create_usertime
 
 echo "-------------------------------------"
 echo "BEGIN Analyzing smg2000 usertime experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' smg2000_pgi_openmpi_create_usertime > new_input.script
-echo "log -f smg2000_pgi_openmpi_usertime_results.log" >> new_input.script
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_openmpi_create_usertime > new_input.script
+echo "log -f smg2000_${thiscompiler}_openmpi_usertime_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_pgi_openmpi_usertime_results.log | cat > smg2000_pgi_openmpi_usertime_results.status
+grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_${thiscompiler}_openmpi_usertime_results.log | cat > smg2000_${thiscompiler}_openmpi_usertime_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 usertime experiment"
@@ -332,16 +337,16 @@ echo ""
 
 
 openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" hwc
-ls *.openss | grep "smg2000-hwc\." > smg2000_pgi_openmpi_create_hwc
+ls *.openss | grep "smg2000-hwc\." > smg2000_${thiscompiler}_openmpi_create_hwc
 
 echo ""
 echo "BEGIN Analyzing smg2000 hwc experiment"
-sed 's/^/exprestore -f /' smg2000_pgi_openmpi_create_hwc > new_input.script
-echo "log -f smg2000_pgi_openmpi_hwc_results.log" >> new_input.script
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_openmpi_create_hwc > new_input.script
+echo "log -f smg2000_${thiscompiler}_openmpi_hwc_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_pgi_openmpi_hwc_results.log | cat > smg2000_pgi_openmpi_hwc_results.status
+grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_${thiscompiler}_openmpi_hwc_results.log | cat > smg2000_${thiscompiler}_openmpi_hwc_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 hwc experiment"
@@ -350,18 +355,18 @@ echo ""
 
 
 openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" hwctime
-ls *.openss | grep "smg2000-hwctime\." > smg2000_pgi_openmpi_create_hwctime
+ls *.openss | grep "smg2000-hwctime\." > smg2000_${thiscompiler}_openmpi_create_hwctime
 
 echo ""
 echo "-------------------------------------"
 echo "BEGIN Analyzing smg2000 hwctime experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' smg2000_pgi_openmpi_create_hwctime > new_input.script
-echo "log -f smg2000_pgi_openmpi_hwctime_results.log" >> new_input.script
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_openmpi_create_hwctime > new_input.script
+echo "log -f smg2000_${thiscompiler}_openmpi_hwctime_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_pgi_openmpi_hwctime_results.log | cat > smg2000_pgi_openmpi_hwctime_results.status
+grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_${thiscompiler}_openmpi_hwctime_results.log | cat > smg2000_${thiscompiler}_openmpi_hwctime_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 hwctime experiment"
@@ -370,18 +375,18 @@ echo ""
 
 
 openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" io
-ls *.openss | grep "smg2000-io\." > smg2000_pgi_openmpi_create_io
+ls *.openss | grep "smg2000-io\." > smg2000_${thiscompiler}_openmpi_create_io
 
 echo ""
 echo "-------------------------------------"
 echo "BEGIN Analyzing smg2000 io experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' smg2000_pgi_openmpi_create_io > new_input.script
-echo "log -f smg2000_pgi_openmpi_io_results.log" >> new_input.script
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_openmpi_create_io > new_input.script
+echo "log -f smg2000_${thiscompiler}_openmpi_io_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "2016  __libc_open" smg2000_pgi_openmpi_io_results.log | cat > smg2000_pgi_openmpi_io_results.status
+grep "2016  __libc_open" smg2000_${thiscompiler}_openmpi_io_results.log | cat > smg2000_${thiscompiler}_openmpi_io_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 io experiment"
@@ -390,18 +395,18 @@ echo ""
 
 
 openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" iot
-ls *.openss | grep "smg2000-iot\." > smg2000_pgi_openmpi_create_iot
+ls *.openss | grep "smg2000-iot\." > smg2000_${thiscompiler}_openmpi_create_iot
 
 echo ""
 echo "-------------------------------------"
 echo "BEGIN Analyzing smg2000 iot experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' smg2000_pgi_openmpi_create_iot > new_input.script
-echo "log -f smg2000_pgi_openmpi_iot_results.log" >> new_input.script
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_openmpi_create_iot > new_input.script
+echo "log -f smg2000_${thiscompiler}_openmpi_iot_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "2016  __libc_open" smg2000_pgi_openmpi_iot_results.log | cat > smg2000_pgi_openmpi_iot_results.status
+grep "2016  __libc_open" smg2000_${thiscompiler}_openmpi_iot_results.log | cat > smg2000_${thiscompiler}_openmpi_iot_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 iot experiment"
@@ -410,18 +415,18 @@ echo ""
 
 
 openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 5 5 5" mpi
-ls *.openss | grep "smg2000-mpi\-" > smg2000_pgi_openmpi_create_mpi
+ls *.openss | grep "smg2000-mpi\-" > smg2000_${thiscompiler}_openmpi_create_mpi
 
 echo ""
 echo "-------------------------------------"
 echo "BEGIN Analyzing smg2000 mpi experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' smg2000_pgi_openmpi_create_mpi > new_input.script
-echo "log -f smg2000_pgi_openmpi_mpi_results.log" >> new_input.script
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_openmpi_create_mpi > new_input.script
+echo "log -f smg2000_${thiscompiler}_openmpi_mpi_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "\$RankCount  PMPI_Finalize" smg2000_pgi_openmpi_mpi_results.log | cat > smg2000_pgi_openmpi_mpi_results.status
+grep "\$RankCount  PMPI_Finalize" smg2000_${thiscompiler}_openmpi_mpi_results.log | cat > smg2000_${thiscompiler}_openmpi_mpi_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 mpi experiment"
@@ -434,7 +439,7 @@ openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 5 5 5" mpit
 #
 # Find corresponding experiment database files and create files that can be used to restore the databases
 #
-ls *.openss | grep "smg2000-mpit\-" > smg2000_pgi_openmpi_create_mpit
+ls *.openss | grep "smg2000-mpit\-" > smg2000_${thiscompiler}_openmpi_create_mpit
 
 #
 # Use the corresponding experiment database file names to restore the database and print out the status and results for the experiments
@@ -443,12 +448,12 @@ echo ""
 echo "-------------------------------------"
 echo "BEGIN Analyzing smg2000 mpit experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' smg2000_pgi_openmpi_create_mpit > new_input.script
-echo "log -f smg2000_pgi_openmpi_mpit_results.log" >> new_input.script
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_openmpi_create_mpit > new_input.script
+echo "log -f smg2000_${thiscompiler}_openmpi_mpit_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "\$RankCount  PMPI_Finalize" smg2000_pgi_openmpi_mpit_results.log | cat > smg2000_pgi_openmpi_mpit_results.status
+grep "\$RankCount  PMPI_Finalize" smg2000_${thiscompiler}_openmpi_mpit_results.log | cat > smg2000_${thiscompiler}_openmpi_mpit_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 mpit experiment"
@@ -480,9 +485,9 @@ echo " Completed tests: " \$testval>> \$EMAILMESSAGE
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a smg2000_pgi_openmpi_pcsamp_results.status ]
+if [ -a smg2000_${thiscompiler}_openmpi_pcsamp_results.status ]
 then
-  if [ -s smg2000_pgi_openmpi_pcsamp_results.status ]
+  if [ -s smg2000_${thiscompiler}_openmpi_pcsamp_results.status ]
   then
     echo " PCSAMP EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -496,9 +501,9 @@ fi
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a smg2000_pgi_openmpi_usertime_results.status ]
+if [ -a smg2000_${thiscompiler}_openmpi_usertime_results.status ]
 then
-  if [ -s smg2000_pgi_openmpi_usertime_results.status ]
+  if [ -s smg2000_${thiscompiler}_openmpi_usertime_results.status ]
   then
     echo " USERTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -512,9 +517,9 @@ fi
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a smg2000_pgi_openmpi_hwc_results.status ]
+if [ -a smg2000_${thiscompiler}_openmpi_hwc_results.status ]
 then
-  if [ -s smg2000_pgi_openmpi_usertime_results.status ]
+  if [ -s smg2000_${thiscompiler}_openmpi_usertime_results.status ]
   then
     echo " HWC EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -528,9 +533,9 @@ fi
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a smg2000_pgi_openmpi_hwctime_results.status ]
+if [ -a smg2000_${thiscompiler}_openmpi_hwctime_results.status ]
 then
-  if [ -s smg2000_pgi_openmpi_hwctime_results.status ]
+  if [ -s smg2000_${thiscompiler}_openmpi_hwctime_results.status ]
   then
     echo " HWCTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -544,9 +549,9 @@ fi
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a smg2000_pgi_openmpi_io_results.status ]
+if [ -a smg2000_${thiscompiler}_openmpi_io_results.status ]
 then
-  if [ -s smg2000_pgi_openmpi_io_results.status ]
+  if [ -s smg2000_${thiscompiler}_openmpi_io_results.status ]
   then
     echo " I/O EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -560,9 +565,9 @@ fi
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a smg2000_pgi_openmpi_iot_results.status ]
+if [ -a smg2000_${thiscompiler}_openmpi_iot_results.status ]
 then
-  if [ -s smg2000_pgi_openmpi_iot_results.status ]
+  if [ -s smg2000_${thiscompiler}_openmpi_iot_results.status ]
   then
     echo " I/O TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -576,9 +581,9 @@ fi
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a smg2000_pgi_openmpi_mpi_results.status ]
+if [ -a smg2000_${thiscompiler}_openmpi_mpi_results.status ]
 then
-  if [ -s smg2000_pgi_openmpi_mpi_results.status ]
+  if [ -s smg2000_${thiscompiler}_openmpi_mpi_results.status ]
   then
     echo " MPI EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -592,9 +597,9 @@ fi
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a smg2000_pgi_openmpi_mpit_results.status ]
+if [ -a smg2000_${thiscompiler}_openmpi_mpit_results.status ]
 then
-  if [ -s smg2000_pgi_openmpi_mpit_results.status ]
+  if [ -s smg2000_${thiscompiler}_openmpi_mpit_results.status ]
   then
     echo " MPI TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -620,36 +625,61 @@ RUN_DIR=$testpath
 echo "RUN_DIR=$RUN_DIR"
 cd $RUN_DIR
 REQ_WALLTIME=1:00
-REQ_NNODES=2
-REQ_SCRIPT="$RUN_DIR/smg2000_pgi_openmpi_script.sh"
+REQ_NNODES=$NodeCount
+echo "REQ_NNODES=$REQ_NNODES"
+REQ_SCRIPT="$RUN_DIR/smg2000_${thiscompiler}_openmpi_script.sh"
 #sbatch --account=FY093085 --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
-msub ${REQ_SCRIPT}
+
+cat > moab_smg2000_${thiscompiler}_openmpi_script.tcsh << EOF
+#!/bin/tcsh
+#MSUB -o $testpath/smg2000_${thiscompiler}_openmpi_output.txt
+#MSUB -j oe
+#MSUB -l nodes=$NodeCount:ppn=8
+#MSUB -l walltime=200
+#MSUB -N  $testpath/smg2000_${thiscompiler}_openmpi_script.sh
+
+echo Shell is $SHELL
+echo Program is $0
+
+echo "BEFORE: Kick off readfile.sh"
+sh  $testpath/smg2000_${thiscompiler}_openmpi_script.sh
+echo "AFTER: Kick off readfile.sh"
+
+EOF
+
+msub moab_smg2000_${thiscompiler}_openmpi_script.tcsh
+
+#msub ${REQ_SCRIPT}
 
 # This now part of the above script
 # email script here
 # Send out the results for smg2000
-# smg2000_pgi_openmpi_email.sh
-#EMAIL_REQ_SCRIPT="$RUN_DIR/smg2000_pgi_openmpi_email.sh"
+# smg2000_${thiscompiler}_openmpi_email.sh
+#EMAIL_REQ_SCRIPT="$RUN_DIR/smg2000_${thiscompiler}_openmpi_email.sh"
 #sh ${EMAIL_REQ_SCRIPT}
 
 elif [ "$testexe" == "sweep3d" ]
 then
 
-cat > sweep3d_pgi_openmpi_script.sh << EOF
+cat > sweep3d_${thiscompiler}_openmpi_script.sh << EOF
 #!/bin/bash
+
+. ${MODULESHOME}/init/sh
+export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
 
 module purge
 module load openmpi-gcc/1.2.4
-module load modules openss_mrnet
+module load modules openss-mrnet
 module list
 
-export PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin:$PATH
-export PATH=/users/jegsgi/yr-mrnet/opt/OSS/bin:$PATH
-export LD_LIBRARY_PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/users/jegsgi/yr-mrnet/opt/OSS/lib64:$LD_LIBRARY_PATH
+#export PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin:$PATH
+#export PATH=/users/jegsgi/yr-mrnet/opt/OSS/bin:$PATH
+#export LD_LIBRARY_PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/lib:$LD_LIBRARY_PATH
+#export LD_LIBRARY_PATH=/users/jegsgi/yr-mrnet/opt/OSS/lib64:$LD_LIBRARY_PATH
 
 which openss
 #
+export PATH=.:$PATH
 executable=`which sweep3d.mpi`
 echo "Current directory is:" `\$pwd`
 echo "sweep3d.mpi executable path directory is:" \$executable
@@ -664,30 +694,59 @@ RankCount=16
 CompilerType="gnu"
 EmailAddress="jegkas@gmail.com"
 
+testCompiler="${thiscompiler}"
+
 if [ -a default_test_config ] 
 then
-  echo "Current directory is:" `\$pwd`
-else
-  n=0
-  while read curline; do
-    n=`expr \$n + 1`
-    echo "\$curline"
-    echo "\$n" 
+  echo "Reading the existing default_test_config file"
+  BAKIFS=\$IFS
+  IFS=\$(echo -en "\n\b")
+  exec 3<&0
+  exec 0<default_test_config
 
-    if [ \$n == 1 ]
-    then
-       NodeCount=\$curline
-    elif [ \$n == 2 ]
-    then
-       RankCount=\$curline
-    elif [ \$n == 3 ]
-    then
-       CompilerType=\$curline
-    elif [ \$n == 4 ]
-    then
-       EmailAddress=\$curline
-    fi
-  done < "default_test_config"
+  read curline
+  echo "NodeCount: \$curline"
+  NodeCount=\$curline
+#
+  read curline
+  echo "RankCount: \$curline"
+  RankCount=\$curline
+#
+  read curline
+  echo "CompilerType: \$curline"
+  CompilerType=\$curline
+#
+  read curline
+  echo "EmailAddress: \$curline"
+  EmailAddress=\$curline
+
+  exec 0<&3
+
+# restore IFS which was used to determine what the field separators are
+  IFS=\$BAKIFS
+#
+#  echo "Current directory is:" `\$pwd`
+#else
+#  n=0
+#  while read curline; do
+#    n=`expr \$n + 1`
+#    echo "\$curline"
+#    echo "\$n" 
+#
+#    if [ \$n == 1 ]
+#    then
+#       NodeCount=\$curline
+#    elif [ \$n == 2 ]
+#    then
+#       RankCount=\$curline
+#    elif [ \$n == 3 ]
+#    then
+#       CompilerType=\$curline
+#    elif [ \$n == 4 ]
+#    then
+#       EmailAddress=\$curline
+#    fi
+#  done < "default_test_config"
 fi
 
 #
@@ -702,22 +761,26 @@ fi
 #
 # Run all experiments
 #
+
+echo "Using openss=" $theopenss
+echo "Using the raw data directory storage environment variable: OPENSS_RAWDATA_DIR=" $OPENSS_RAWDATA_DIR
+
 cd \$testpath
 
 #
 # Run pcsamp and analyze the results
 #
 openss -offline -f "\$mpicommand -np \$RankCount \$executable" pcsamp
-ls *.openss | grep "sweep3d.mpi-pcsamp\." > sweep3d_pgi_openmpi_create_pcsamp
+ls *.openss | grep "sweep3d.mpi-pcsamp\." > sweep3d_${thiscompiler}_openmpi_create_pcsamp
 echo "-------------------------------------"
 echo "BEGIN Analyzing sweep3d.mpi pcsamp experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' sweep3d_pgi_openmpi_create_pcsamp > new_input.script
-echo "log -f sweep3d_pgi_openmpi_pcsamp_results.log" >> new_input.script
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_openmpi_create_pcsamp > new_input.script
+echo "log -f sweep3d_${thiscompiler}_openmpi_pcsamp_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_pgi_openmpi_pcsamp_results.log | cat > sweep3d_pgi_openmpi_pcsamp_results.status
+grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_${thiscompiler}_openmpi_pcsamp_results.log | cat > sweep3d_${thiscompiler}_openmpi_pcsamp_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi pcsamp experiment"
@@ -727,17 +790,17 @@ echo "-------------------------------------"
 # Run usertime and analyze the results
 #
 openss -offline -f "\$mpicommand -np \$RankCount \$executable" usertime
-ls *.openss | grep "sweep3d.mpi-usertime\." > sweep3d_pgi_openmpi_create_usertime
+ls *.openss | grep "sweep3d.mpi-usertime\." > sweep3d_${thiscompiler}_openmpi_create_usertime
 
 echo "-------------------------------------"
 echo "BEGIN Analyzing sweep3d.mpi usertime experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' sweep3d_pgi_openmpi_create_usertime > new_input.script
-echo "log -f sweep3d_pgi_openmpi_usertime_results.log" >> new_input.script
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_openmpi_create_usertime > new_input.script
+echo "log -f sweep3d_${thiscompiler}_openmpi_usertime_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_pgi_openmpi_usertime_results.log | cat > sweep3d_pgi_openmpi_usertime_results.status
+grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_${thiscompiler}_openmpi_usertime_results.log | cat > sweep3d_${thiscompiler}_openmpi_usertime_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi usertime experiment"
@@ -747,16 +810,16 @@ echo ""
 
 
 openss -offline -f "\$mpicommand -np \$RankCount \$executable" hwc
-ls *.openss | grep "sweep3d.mpi-hwc\." > sweep3d_pgi_openmpi_create_hwc
+ls *.openss | grep "sweep3d.mpi-hwc\." > sweep3d_${thiscompiler}_openmpi_create_hwc
 
 echo ""
 echo "BEGIN Analyzing sweep3d.mpi hwc experiment"
-sed 's/^/exprestore -f /' sweep3d_pgi_openmpi_create_hwc > new_input.script
-echo "log -f sweep3d_pgi_openmpi_hwc_results.log" >> new_input.script
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_openmpi_create_hwc > new_input.script
+echo "log -f sweep3d_${thiscompiler}_openmpi_hwc_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_pgi_openmpi_hwc_results.log | cat > sweep3d_pgi_openmpi_hwc_results.status
+grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_${thiscompiler}_openmpi_hwc_results.log | cat > sweep3d_${thiscompiler}_openmpi_hwc_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi hwc experiment"
@@ -765,18 +828,18 @@ echo ""
 
 
 openss -offline -f "\$mpicommand -np \$RankCount \$executable" hwctime
-ls *.openss | grep "sweep3d.mpi-hwctime\." > sweep3d_pgi_openmpi_create_hwctime
+ls *.openss | grep "sweep3d.mpi-hwctime\." > sweep3d_${thiscompiler}_openmpi_create_hwctime
 
 echo ""
 echo "-------------------------------------"
 echo "BEGIN Analyzing sweep3d.mpi hwctime experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' sweep3d_pgi_openmpi_create_hwctime > new_input.script
-echo "log -f sweep3d_pgi_openmpi_hwctime_results.log" >> new_input.script
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_openmpi_create_hwctime > new_input.script
+echo "log -f sweep3d_${thiscompiler}_openmpi_hwctime_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_pgi_openmpi_hwctime_results.log | cat > sweep3d_pgi_openmpi_hwctime_results.status
+grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_${thiscompiler}_openmpi_hwctime_results.log | cat > sweep3d_${thiscompiler}_openmpi_hwctime_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi hwctime experiment"
@@ -785,18 +848,18 @@ echo ""
 
 
 openss -offline -f "\$mpicommand -np \$RankCount \$executable" io
-ls *.openss | grep "sweep3d.mpi-io\." > sweep3d_pgi_openmpi_create_io
+ls *.openss | grep "sweep3d.mpi-io\." > sweep3d_${thiscompiler}_openmpi_create_io
 
 echo ""
 echo "-------------------------------------"
 echo "BEGIN Analyzing sweep3d.mpi io experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' sweep3d_pgi_openmpi_create_io > new_input.script
-echo "log -f sweep3d_pgi_openmpi_io_results.log" >> new_input.script
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_openmpi_create_io > new_input.script
+echo "log -f sweep3d_${thiscompiler}_openmpi_io_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "630  __libc_read" sweep3d_pgi_openmpi_io_results.log | cat > sweep3d_pgi_openmpi_io_results.status
+grep "630  __libc_read" sweep3d_${thiscompiler}_openmpi_io_results.log | cat > sweep3d_${thiscompiler}_openmpi_io_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi io experiment"
@@ -805,18 +868,18 @@ echo ""
 
 
 openss -offline -f "\$mpicommand -np \$RankCount \$executable" iot
-ls *.openss | grep "sweep3d.mpi-iot\." > sweep3d_pgi_openmpi_create_iot
+ls *.openss | grep "sweep3d.mpi-iot\." > sweep3d_${thiscompiler}_openmpi_create_iot
 
 echo ""
 echo "-------------------------------------"
 echo "BEGIN Analyzing sweep3d.mpi iot experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' sweep3d_pgi_openmpi_create_iot > new_input.script
-echo "log -f sweep3d_pgi_openmpi_iot_results.log" >> new_input.script
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_openmpi_create_iot > new_input.script
+echo "log -f sweep3d_${thiscompiler}_openmpi_iot_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "630  __libc_read" sweep3d_pgi_openmpi_iot_results.log | cat > sweep3d_pgi_openmpi_iot_results.status
+grep "630  __libc_read" sweep3d_${thiscompiler}_openmpi_iot_results.log | cat > sweep3d_${thiscompiler}_openmpi_iot_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi iot experiment"
@@ -825,18 +888,18 @@ echo ""
 
 
 openss -offline -f "\$mpicommand -np \$RankCount \$executable" mpi
-ls *.openss | grep "sweep3d.mpi-mpi\-" > sweep3d_pgi_openmpi_create_mpi
+ls *.openss | grep "sweep3d.mpi-mpi\-" > sweep3d_${thiscompiler}_openmpi_create_mpi
 
 echo ""
 echo "-------------------------------------"
 echo "BEGIN Analyzing sweep3d.mpi mpi experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' sweep3d_pgi_openmpi_create_mpi > new_input.script
-echo "log -f sweep3d_pgi_openmpi_mpi_results.log" >> new_input.script
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_openmpi_create_mpi > new_input.script
+echo "log -f sweep3d_${thiscompiler}_openmpi_mpi_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "\$RankCount  PMPI_Finalize" sweep3d_pgi_openmpi_mpi_results.log | cat > sweep3d_pgi_openmpi_mpi_results.status
+grep "\$RankCount  PMPI_Finalize" sweep3d_${thiscompiler}_openmpi_mpi_results.log | cat > sweep3d_${thiscompiler}_openmpi_mpi_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi mpi experiment"
@@ -849,7 +912,7 @@ openss -offline -f "\$mpicommand -np \$RankCount \$executable" mpit
 #
 # Find corresponding experiment database files and create files that can be used to restore the databases
 #
-ls *.openss | grep "sweep3d.mpi-mpit\-" > sweep3d_pgi_openmpi_create_mpit
+ls *.openss | grep "sweep3d.mpi-mpit\-" > sweep3d_${thiscompiler}_openmpi_create_mpit
 
 #
 # Use the corresponding experiment database file names to restore the database and print out the status and results for the experiments
@@ -858,12 +921,12 @@ echo ""
 echo "-------------------------------------"
 echo "BEGIN Analyzing sweep3d.mpi mpit experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' sweep3d_pgi_openmpi_create_mpit > new_input.script
-echo "log -f sweep3d_pgi_openmpi_mpit_results.log" >> new_input.script
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_openmpi_create_mpit > new_input.script
+echo "log -f sweep3d_${thiscompiler}_openmpi_mpit_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "\$RankCount  PMPI_Finalize" sweep3d_pgi_openmpi_mpit_results.log | cat > sweep3d_pgi_openmpi_mpit_results.status
+grep "\$RankCount  PMPI_Finalize" sweep3d_${thiscompiler}_openmpi_mpit_results.log | cat > sweep3d_${thiscompiler}_openmpi_mpit_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi mpit experiment"
@@ -895,9 +958,9 @@ echo " Completed tests: " \$testval>> \$EMAILMESSAGE
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a sweep3d_pgi_openmpi_pcsamp_results.status ]
+if [ -a sweep3d_${thiscompiler}_openmpi_pcsamp_results.status ]
 then
-  if [ -s sweep3d_pgi_openmpi_pcsamp_results.status ]
+  if [ -s sweep3d_${thiscompiler}_openmpi_pcsamp_results.status ]
   then
     echo " PCSAMP EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -911,9 +974,9 @@ fi
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a sweep3d_pgi_openmpi_usertime_results.status ]
+if [ -a sweep3d_${thiscompiler}_openmpi_usertime_results.status ]
 then
-  if [ -s sweep3d_pgi_openmpi_usertime_results.status ]
+  if [ -s sweep3d_${thiscompiler}_openmpi_usertime_results.status ]
   then
     echo " USERTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -927,9 +990,9 @@ fi
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a sweep3d_pgi_openmpi_hwc_results.status ]
+if [ -a sweep3d_${thiscompiler}_openmpi_hwc_results.status ]
 then
-  if [ -s sweep3d_pgi_openmpi_usertime_results.status ]
+  if [ -s sweep3d_${thiscompiler}_openmpi_usertime_results.status ]
   then
     echo " HWC EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -943,9 +1006,9 @@ fi
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a sweep3d_pgi_openmpi_hwctime_results.status ]
+if [ -a sweep3d_${thiscompiler}_openmpi_hwctime_results.status ]
 then
-  if [ -s sweep3d_pgi_openmpi_hwctime_results.status ]
+  if [ -s sweep3d_${thiscompiler}_openmpi_hwctime_results.status ]
   then
     echo " HWCTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -959,9 +1022,9 @@ fi
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a sweep3d_pgi_openmpi_io_results.status ]
+if [ -a sweep3d_${thiscompiler}_openmpi_io_results.status ]
 then
-  if [ -s sweep3d_pgi_openmpi_io_results.status ]
+  if [ -s sweep3d_${thiscompiler}_openmpi_io_results.status ]
   then
     echo " I/O EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -975,9 +1038,9 @@ fi
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a sweep3d_pgi_openmpi_iot_results.status ]
+if [ -a sweep3d_${thiscompiler}_openmpi_iot_results.status ]
 then
-  if [ -s sweep3d_pgi_openmpi_iot_results.status ]
+  if [ -s sweep3d_${thiscompiler}_openmpi_iot_results.status ]
   then
     echo " I/O TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -991,9 +1054,9 @@ fi
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a sweep3d_pgi_openmpi_mpi_results.status ]
+if [ -a sweep3d_${thiscompiler}_openmpi_mpi_results.status ]
 then
-  if [ -s sweep3d_pgi_openmpi_mpi_results.status ]
+  if [ -s sweep3d_${thiscompiler}_openmpi_mpi_results.status ]
   then
     echo " MPI EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -1007,9 +1070,9 @@ fi
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a sweep3d_pgi_openmpi_mpit_results.status ]
+if [ -a sweep3d_${thiscompiler}_openmpi_mpit_results.status ]
 then
-  if [ -s sweep3d_pgi_openmpi_mpit_results.status ]
+  if [ -s sweep3d_${thiscompiler}_openmpi_mpit_results.status ]
   then
     echo " MPI TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
@@ -1035,21 +1098,42 @@ RUN_DIR=$testpath
 echo "RUN_DIR=$RUN_DIR"
 cd $RUN_DIR
 REQ_WALLTIME=1:00
-REQ_NNODES=2
-REQ_SCRIPT="$RUN_DIR/sweep3d_pgi_openmpi_script.sh"
+REQ_NNODES=$NodeCount
+echo "REQ_NNODES=$REQ_NNODES"
+REQ_SCRIPT="$RUN_DIR/sweep3d_${thiscompiler}_openmpi_script.sh"
 #sbatch --account=FY093085 --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
-msub ${REQ_SCRIPT}
+
+cat > moab_sweep3d_${thiscompiler}_openmpi_script.tcsh << EOF
+#!/bin/tcsh
+#MSUB -o $testpath/sweep3d_${thiscompiler}_openmpi_output.txt
+#MSUB -j oe
+#MSUB -l nodes=$NodeCount:ppn=8
+#MSUB -l walltime=200
+#MSUB -N  $testpath/sweep3d_${thiscompiler}_openmpi_script.sh
+
+echo Shell is $SHELL
+echo Program is $0
+
+echo "BEFORE: Kick off readfile.sh"
+sh  $testpath/sweep3d_${thiscompiler}_openmpi_script.sh
+echo "AFTER: Kick off readfile.sh"
+
+EOF
+
+msub moab_sweep3d_${thiscompiler}_openmpi_script.tcsh
+
 fi
 
 
 # Send out the results for sweep3d.mpi
-# sweep_pgi_openmpi_email.sh
-#EMAIL_REQ_SCRIPT="$RUN_DIR/sweep_pgi_openmpi_email.sh"
+# sweep_${thiscompiler}_openmpi_email.sh
+#EMAIL_REQ_SCRIPT="$RUN_DIR/sweep_${thiscompiler}_openmpi_email.sh"
 #sh ${EMAIL_REQ_SCRIPT}
 
 
 cd $testpathbase
-mv $testexe ${testexe}_${thiscompiler}
+echo "bottom of the compiler loop, testpathbase=" $testpathbase
+#mv $testexe ${testexe}_${thiscompiler}
 
 
 # end loop through the compiler list
