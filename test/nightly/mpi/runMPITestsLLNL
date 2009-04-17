@@ -57,16 +57,12 @@ found_llnl=1
 
 if [ $found_llnl == 0 ]
 then
-  echo "Did not find SYS_TYPE environment variable: Are we running this script on the correct system?"
+  echo "WARNING: Did not find SYS_TYPE environment variable: Are we running this script on the correct system?"
   exit
 fi
 
 for testname in `ls *.tar.gz`
 do
-  if [ debug_flag == 1 ]
-  then
-     echo "1st loop, testname=" $testname
-   fi
    NEWNAME=$(echo "$testname" | sed -e 's/.tar.gz//')
    if [ debug_flag == 1 ]
    then
@@ -78,7 +74,6 @@ do
      echo "1st loop, basedir=" $basedir
    fi
 
-#   thiscompiler="intel"
 
 #  loop here through a compiler list
 #   for thiscompiler in pgi
@@ -89,11 +84,8 @@ if [ debug_flag == 1 ]
 then
   echo "testsuffix=" $testsuffix
   echo "testCC=" $testCC
-  echo $thiscompiler  
+  echo "thiscompiler=" $thiscompiler  
 fi
-
-print_compiler=$thiscompiler
-echo "print_compiler="$print_compiler
 
 hostabi=`uname -m`
 ulimit -c unlimited
@@ -105,7 +97,10 @@ testexe=$NEWNAME
 currentdir=`pwd`
 testpathbase=$currentdir
 
-echo $currentdir
+if [ debug_flag == 1 ]
+then
+  echo "currentdir=" $currentdir
+fi
 
 gunzip $testexe.tar.gz
 tar -xvf $testexe.tar
@@ -119,6 +114,10 @@ then
 fi
 
 cd $testexe
+
+#
+# Here we change the mpi compiler script name to match with the compiler
+#
 
 if [ "$testexe" == "smg2000" ]
 then
@@ -143,6 +142,10 @@ then
 fi
 
 thismpicc=`which mpicc`
+
+#
+# Move the new makefile into the filename it is expected to be
+#
 if [ $found_llnl == 0 ]
 then
   echo "which mpicc=" $thismpicc
@@ -197,13 +200,20 @@ cd $testpath
 # setup the path to OpenSpeedShop
 #
 theopenss=`which openss`
-#theopenss=/g/g24/jeg/chaos_4_x86_64_ib/opt/OSS-mrnet/bin/openss
 
 echo "NOTE: Using openss=" $theopenss
 echo "NOTE: Using the raw data directory storage environment variable: OPENSS_RAWDATA_DIR=" $OPENSS_RAWDATA_DIR
 
 #
 # Create the default test configuration file if it does not exist
+# CHANGE THIS FILE CAT TO ADD YOUR EMAIL and NODE/RANK COUNTS
+# For sweep3d.mpi to execute properly please keep the rank count a power of two.
+# Also, the compiler setting "all" is ignored right now.
+# The default_test_config file is defined as:
+# Number of nodes
+# Number of ranked processes
+# Compiler setting: all, pgi, intel, gnu, pathscale  (currently ignored)
+# Email address where the test reports are sent
 #
 if [ -a default_test_config ]
 then
@@ -237,39 +247,34 @@ cat > smg2000_${thiscompiler}_mvapich_script.sh << EOF
 use openss_mrnet_x86_64
 which openss
 executable=`which smg2000`
-echo "Current directory is:" `\$pwd`
-echo "smg2000 executable path directory is:" \$executable
+echo "NOTE: Current test directory is:" `\$pwd`
+echo "TE: smg2000 executable path directory is:" \$executable
 #
 # Read in test parameters
 #
-# script defaults
-NodeCount=2
-RankCount=16
-CompilerType="intel"
-EmailAddress="jegkas@gmail.com,jeg@krellinst.org"
 
 if [ -a default_test_config ] 
 then
-  echo "Reading the existing default_test_config file"
+  echo "NOTE: Reading the existing default_test_config file"
   BAKIFS=\$IFS
   IFS=\$(echo -en "\n\b")
   exec 3<&0
   exec 0<default_test_config
 
   read curline
-  echo "NodeCount: \$curline"
+  echo "NOTE: NodeCount: \$curline"
   NodeCount=\$curline
 #
   read curline
-  echo "RankCount: \$curline"
+  echo "NOTE: RankCount: \$curline"
   RankCount=\$curline
 #
   read curline
-  echo "CompilerType: \$curline"
+  echo "NOTE: CompilerType: \$curline"
   CompilerType=\$curline
 #
   read curline
-  echo "EmailAddress: \$curline"
+  echo "NOTE: EmailAddress: \$curline"
   EmailAddress=\$curline
 
   exec 0<&3
@@ -278,27 +283,6 @@ then
 #
   IFS=\$BAKIFS
 #
-#  declare -i n=0
-#  while read curline; do
-##    n=`expr \$n + 1`
-#    let \"n += 1\"
-#    echo "\$curline"
-#    echo "\$n" 
-#
-#    if [ \$n == 1 ]
-#    then
-#       NodeCount=\$curline
-#    elif [ \$n == 2 ]
-#    then
-#       RankCount=\$curline
-#    elif [ \$n == 3 ]
-#    then
-#       CompilerType=\$curline
-#    elif [ \$n == 4 ]
-#    then
-#       EmailAddress=\$curline
-#    fi
-#  done < "default_test_config"
 fi
 
 #
@@ -406,7 +390,7 @@ echo "log -f smg2000_${thiscompiler}_mvapich_io_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "2016  __libc_open" smg2000_${thiscompiler}_mvapich_io_results.log | cat > smg2000_${thiscompiler}_mvapich_io_results.status
+grep "libc_open" smg2000_${thiscompiler}_mvapich_io_results.log | cat > smg2000_${thiscompiler}_mvapich_io_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 io experiment"
@@ -426,7 +410,7 @@ echo "log -f smg2000_${thiscompiler}_mvapich_iot_results.log" >> new_input.scrip
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "2016  __libc_open" smg2000_${thiscompiler}_mvapich_iot_results.log | cat > smg2000_${thiscompiler}_mvapich_iot_results.status
+grep "libc_open" smg2000_${thiscompiler}_mvapich_iot_results.log | cat > smg2000_${thiscompiler}_mvapich_iot_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 iot experiment"
@@ -504,11 +488,6 @@ cat > smg2000_${thiscompiler}_mvapich_email.sh << EOF
 #
 # Read in test parameters
 #
-# script defaults
-NodeCount=2
-RankCount=16
-CompilerType="gnu"
-EmailAddress="jegkas@gmail.com"
 
 testCompiler="${thiscompiler}"
 
@@ -540,27 +519,7 @@ then
 
 # restore IFS which was used to determine what the field separators are
   IFS=\$BAKIFS
-#  declare -i n=0
-#  while read curline; do
-##    n=`expr \$n + 1`
-#    let \"n += 1\"
-#    echo "\$curline"
-#    echo "\$n" 
 #
-#    if [ \$n == 1 ]
-#    then
-#       NodeCount=\$curline
-#    elif [ \$n == 2 ]
-#    then
-#       RankCount=\$curline
-#    elif [ \$n == 3 ]
-#    then
-#       CompilerType=\$curline
-#    elif [ \$n == 4 ]
-#    then
-#       EmailAddress=\$curline
-#    fi
-#  done < "default_test_config"
 fi
 
 #
@@ -747,11 +706,6 @@ echo "sweep3d.mpi executable path directory is:" \$executable
 #
 # Read in test parameters
 #
-# script defaults
-NodeCount=2
-RankCount=16
-CompilerType="gnu"
-EmailAddress="jegkas@gmail.com"
 
 if [ -a default_test_config ] 
 then
@@ -782,27 +736,6 @@ then
 # restore IFS which was used to determine what the field separators are
   IFS=\$BAKIFS
 
-#  declare -i n=0
-#  while read curline; do
-##    n=`expr \$n + 1`
-#    let \"n += 1\"
-#    echo "\$curline"
-#    echo "\$n" 
-#
-#    if [ \$n == 1 ]
-#    then
-#       NodeCount=\$curline
-#    elif [ \$n == 2 ]
-#    then
-#       RankCount=\$curline
-#    elif [ \$n == 3 ]
-#    then
-#       CompilerType=\$curline
-#    elif [ \$n == 4 ]
-#    then
-#       EmailAddress=\$curline
-#    fi
-#  done < "default_test_config"
 fi
 
 #
@@ -1055,11 +988,6 @@ cat > sweep_${thiscompiler}_mvapich_email.sh << EOF
 #
 # Read in test parameters
 #
-# script defaults
-NodeCount=2
-RankCount=16
-CompilerType="gnu"
-EmailAddress="jegkas@gmail.com"
 
 testCompiler="${thiscompiler}"
 
@@ -1093,30 +1021,6 @@ then
 # restore IFS which was used to determine what the field separators are
 
   IFS=\$BAKIFS
-
-
-
-#  declare -i n=0
-#  while read curline; do
-##    n=`expr \$n + 1`
-#    let \"n += 1\"
-#    echo "\$curline"
-#    echo "\$n" 
-#
-#    if [ \$n == 1 ]
-#    then
-#       NodeCount=\$curline
-#    elif [ \$n == 2 ]
-#    then
-#       RankCount=\$curline
-#    elif [ \$n == 3 ]
-#    then
-#       CompilerType=\$curline
-#    elif [ \$n == 4 ]
-#    then
-#       EmailAddress=\$curline
-#    fi
-#  done < "default_test_config"
 
 fi
 
@@ -1292,6 +1196,23 @@ fi
 
 
 cd $testpathbase
+
+#
+# only keep the previous copy, if one already exists delete it
+#
+if [ -a prev_${testexe}_${thiscompiler} ]
+then
+   rm -rf prev_${testexe}_${thiscompiler}
+fi
+
+#
+# keep the previous run as a previous copy
+#
+if [ -a ${testexe}_${thiscompiler} ]
+then
+   mv -f ${testexe}_${thiscompiler} prev_${testexe}_${thiscompiler}
+fi
+
 mv $testexe ${testexe}_${thiscompiler}
 
 # end loop through the compiler list
