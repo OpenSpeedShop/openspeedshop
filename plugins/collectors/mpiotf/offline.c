@@ -32,7 +32,34 @@
 #include "blobs.h"
 #include "MPIOTFTraceableFunctions.h"
 
-uint64_t mpiotf_time_started;
+int OpenSS_mpi_rank = -1;
+
+/** Type defining the items stored in thread-local storage. */
+typedef struct {
+
+        uint64_t time_started;
+	int is_tracing;
+
+} TLS;
+
+#ifdef USE_EXPLICIT_TLS
+
+/**
+ * Thread-local storage key.
+ *
+ * Key used for looking up our thread-local storage. This key <em>must</em>
+ * be globally unique across the entire Open|SpeedShop code base.
+ */
+
+static const uint32_t TLSKey = 0x0000FEFF;
+
+#else
+
+/** Thread-local storage. */
+static __thread TLS the_tls;
+
+#endif
+
 
 /**
  * Start offline sampling.
@@ -45,6 +72,27 @@ uint64_t mpiotf_time_started;
  */
 void offline_start_sampling(const char* in_arguments)
 {
+    /* Create and access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+    if (tls == NULL) {
+        tls = malloc(sizeof(TLS));
+        Assert(tls != NULL);
+        OpenSS_SetTLS(TLSKey, tls);
+	tls->is_tracing = 0;
+    }
+    
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    if (tls->is_tracing) {
+	return;
+    }
+
+    tls->is_tracing = 1;
+
     mpiotf_start_tracing_args args;
     char arguments[3 * sizeof(mpiotf_start_tracing_args)];
 
@@ -56,7 +104,7 @@ void offline_start_sampling(const char* in_arguments)
 			    (xdrproc_t)xdr_mpiotf_start_tracing_args,
 			    arguments);
     
-    mpiotf_time_started = OpenSS_GetTime();
+    tls->time_started = OpenSS_GetTime();
 
     /* Start sampling */
     mpiotf_start_tracing(arguments);
@@ -75,8 +123,20 @@ void offline_start_sampling(const char* in_arguments)
  */
 void offline_stop_sampling(const char* in_arguments, const int finished)
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     OpenSS_DataHeader header;
     openss_expinfo info;
+
+    if (!tls->is_tracing) {
+	return;
+    }
 
     /* Stop sampling */
     mpiotf_stop_tracing(NULL);
@@ -131,6 +191,14 @@ void offline_record_dso(const char* dsoname,
 			uint64_t begin, uint64_t end,
 			uint8_t is_dlopen)
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     OpenSS_DataHeader header;
     openss_objects objects;
     
@@ -142,7 +210,7 @@ void offline_record_dso(const char* dsoname,
     if (is_dlopen) {
 	header.time_begin = OpenSS_GetTime();
     } else {
-	header.time_begin = mpiotf_time_started;
+	header.time_begin = tls->time_started;
     }
     header.time_end = is_dlopen ? -1ULL : OpenSS_GetTime();
     

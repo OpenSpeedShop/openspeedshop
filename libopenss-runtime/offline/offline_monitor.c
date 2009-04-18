@@ -49,6 +49,8 @@
 #include "config.h"
 #endif
 
+#include "RuntimeAPI.h"
+
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
@@ -60,10 +62,32 @@ extern void offline_stop_sampling(const char* arguments, const int finished);
 extern void offline_record_dso(const char* dsoname);
 extern void offline_defer_sampling(const int flag);
 
-int sampling_active = 0;
-int process_is_terminating = 0;
-int thread_is_terminating = 0;
-OpenSS_Monitor_Type OpenSS_monitor_type = OpenSS_Monitor_Default;
+/** Type defining the items stored in thread-local storage. */
+typedef struct {
+
+    int sampling_active;
+    int process_is_terminating;
+    int thread_is_terminating;
+    OpenSS_Monitor_Type OpenSS_monitor_type;
+} TLS;
+
+#ifdef USE_EXPLICIT_TLS
+
+/**
+ * Thread-local storage key.
+ *
+ * Key used for looking up our thread-local storage. This key <em>must</em>
+ * be globally unique across the entire Open|SpeedShop code base.
+ */
+static const uint32_t TLSKey = 0x0000FAB1;
+
+#else
+
+/** Thread-local storage. */
+static __thread TLS the_tls;
+
+#endif
+
 
 #define OPENSS_HANDLE_UNWIND_SEGV 1
 
@@ -100,22 +124,40 @@ int OpenSS_SetSEGVhandler(void)
  */
 void monitor_fini_process(int how, void *data)
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     /*collector stop_sampling does not use the arguments param */
     //fprintf(stderr,"monitor_fini_process STOP SAMPLING %d\n",getpid());
     static int f = 0;
     if (f > 0)
       raise(SIGSEGV);
     f++;
-    sampling_active = 0;
-    process_is_terminating = 1;
+    tls->sampling_active = 0;
+    tls->process_is_terminating = 1;
     offline_stop_sampling(NULL, 1);
 }
 
 void *monitor_init_process(int *argc, char **argv, void *data)
 {
-    //fprintf(stderr,"monitor_init_process START SAMPLING %d\n",getpid());
-    OpenSS_monitor_type = OpenSS_Monitor_Proc;
-    sampling_active = 1;
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    //fprintf(stderr,"monitor_init_process MALLOC TLS %d\n",getpid());
+    TLS* tls = malloc(sizeof(TLS));
+    Assert(tls != NULL);
+    OpenSS_SetTLS(TLSKey, tls);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    tls->OpenSS_monitor_type = OpenSS_Monitor_Proc;
+    tls->sampling_active = 1;
     offline_start_sampling(NULL);
     return (data);
 }
@@ -140,17 +182,34 @@ void monitor_fini_library(void)
  */
 void monitor_fini_thread(void *ptr)
 {
-    //fprintf(stderr,"monitor_fini_thread STOP SAMPLING %d\n",getpid());
-    sampling_active = 0;
-    thread_is_terminating = 1;
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    tls->sampling_active = 0;
+    tls->thread_is_terminating = 1;
     offline_stop_sampling(NULL,1);
 }
 
 void *monitor_init_thread(int tid, void *data)
 {
-    //fprintf(stderr,"monitor_init_thread START SAMPLING %d\n",getpid());
-    OpenSS_monitor_type = OpenSS_Monitor_Thread;
-    sampling_active = 1;
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    //fprintf(stderr,"monitor_init_thread MALLOC TLS %d\n",getpid());
+    TLS* tls = malloc(sizeof(TLS));
+    Assert(tls != NULL);
+    OpenSS_SetTLS(TLSKey, tls);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    tls->OpenSS_monitor_type = OpenSS_Monitor_Thread;
+    tls->sampling_active = 1;
     offline_start_sampling(NULL);
     return(data);
 }
@@ -164,13 +223,20 @@ void monitor_init_thread_support(void)
  */
 void monitor_dlopen(const char *library, int flags, void *handle)
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     /* TODO:
      * if OpenSS_GetDLInfo does not handle errors do so here.
      */
     int retval = OpenSS_GetDLInfo(getpid(), library);
-    if (!sampling_active) {
-	//fprintf(stderr,"monitor_dlopen RESUME SAMPLING %d\n",getpid());
-	sampling_active = 1;
+    if (!tls->sampling_active) {
+	tls->sampling_active = 1;
 	offline_start_sampling(NULL);
     }
 }
@@ -178,9 +244,16 @@ void monitor_dlopen(const char *library, int flags, void *handle)
 void
 monitor_pre_dlopen(const char *path, int flags)
 {
-    if (sampling_active) {
-	//fprintf(stderr,"monitor_pre_dlopen PAUSE SAMPLING %d\n",getpid());
-	sampling_active = 0;
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    if (tls->sampling_active) {
+	tls->sampling_active = 0;
 	offline_stop_sampling(NULL,0);
     }
 }
@@ -188,10 +261,17 @@ monitor_pre_dlopen(const char *path, int flags)
 void
 monitor_dlclose(void *handle)
 {
-    if (!thread_is_terminating || !process_is_terminating) {
-	if (sampling_active) {
-	    //fprintf(stderr,"monitor_dlclose PAUSE SAMPLING %d\n",getpid());
-	    sampling_active = 0;
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    if (!tls->thread_is_terminating || !tls->process_is_terminating) {
+	if (tls->sampling_active) {
+	    tls->sampling_active = 0;
 	    offline_stop_sampling(NULL,0);
 	}
     }
@@ -200,10 +280,17 @@ monitor_dlclose(void *handle)
 void
 monitor_post_dlclose(void *handle, int ret)
 {
-    if (!thread_is_terminating || !process_is_terminating) {
-	if (!sampling_active) {
-	    //fprintf(stderr,"monitor_post_dlclose RESUME SAMPLING %d\n",getpid());
-	    sampling_active = 1;
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    if (!tls->thread_is_terminating || !tls->process_is_terminating) {
+	if (!tls->sampling_active) {
+	    tls->sampling_active = 1;
 	    offline_start_sampling(NULL);
 	}
     }
@@ -214,10 +301,17 @@ monitor_post_dlclose(void *handle, int ret)
  */
 void * monitor_pre_fork(void)
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     /* Stop sampling prior to real fork. */
-    if (sampling_active) {
-	//fprintf(stderr,"monitor_pre_fork PAUSE SAMPLING %d\n",getpid());
-	sampling_active = 0;
+    if (tls->sampling_active) {
+	tls->sampling_active = 0;
 	offline_stop_sampling(NULL,1);
     }
     return (NULL);
@@ -225,11 +319,18 @@ void * monitor_pre_fork(void)
 
 void monitor_post_fork(pid_t child, void *data)
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     /* Resume/start sampling forked process. */
-    if (!sampling_active) {
-	//fprintf(stderr,"monitor_post_fork RESUME SAMPLING %d\n",getpid());
-	OpenSS_monitor_type = OpenSS_Monitor_Proc;
-	sampling_active = 1;
+    if (!tls->sampling_active) {
+	tls->OpenSS_monitor_type = OpenSS_Monitor_Proc;
+	tls->sampling_active = 1;
 	offline_start_sampling(NULL);
     }
 }
@@ -240,9 +341,16 @@ void monitor_post_fork(pid_t child, void *data)
 
 void monitor_mpi_pre_init(void)
 {
-    if (sampling_active) {
-	//fprintf(stderr,"monitor_mpi_pre_init PAUSE SAMPLING %d\n",getpid());
-	sampling_active = 0;
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    if (tls->sampling_active) {
+	tls->sampling_active = 0;
 	offline_stop_sampling(NULL,0);
     }
 }
@@ -250,11 +358,17 @@ void monitor_mpi_pre_init(void)
 void
 monitor_init_mpi(int *argc, char ***argv)
 {
-    //fprintf(stderr,"ENTER monitor_init_mpi RANK %s\n",monitor_mpi_comm_rank());
-    if (!sampling_active) {
-	sampling_active = 1;
-	//fprintf(stderr,"monitor_init_mpi RESUME SAMPLING %d\n",getpid());
-	OpenSS_monitor_type = OpenSS_Monitor_Proc;
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    if (!tls->sampling_active) {
+	tls->sampling_active = 1;
+	tls->OpenSS_monitor_type = OpenSS_Monitor_Proc;
 	offline_start_sampling(NULL);
     }
 }
@@ -274,17 +388,29 @@ void OpenSS_AdjustStackTrace(int index, unsigned* stacktrace_size,
      * to deal with them.  OpenSS_Monitor_Default means no change.
      */
 
-    if (OpenSS_monitor_type == OpenSS_Monitor_Proc) {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    if (tls->OpenSS_monitor_type == OpenSS_Monitor_Proc) {
+	//fprintf(stderr,"OpenSS_AdjustStackTrace OpenSS_Monitor_Proc\n");
 	/* PROCESS CASE */
         stacktrace[index-4] = stacktrace[index-3];
         stacktrace[index-3] = stacktrace[index-1];
         stacktrace[index-2] = stacktrace[index-1] = 0;
         *stacktrace_size = index - 2;
-    } else if (OpenSS_monitor_type == OpenSS_Monitor_Thread) {
+    } else if (tls->OpenSS_monitor_type == OpenSS_Monitor_Thread) {
+	//fprintf(stderr,"OpenSS_AdjustStackTrace OpenSS_Monitor_Thread\n");
 	/* THREAD CASE */
         stacktrace[index-3] = stacktrace[index-2];
         stacktrace[index-2] = stacktrace[index-1];
         stacktrace[index-1] = 0;
         *stacktrace_size = index - 1;
+    } else {
+	//fprintf(stderr,"OpenSS_AdjustStackTrace OpenSS_Monitor_Default\n");
     }
 }

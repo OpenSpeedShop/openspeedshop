@@ -32,7 +32,30 @@
 #include "blobs.h"
 #include <fenv.h>
 
-static uint64_t fpe_time_started;
+/** Type defining the items stored in thread-local storage. */
+typedef struct {
+
+	uint64_t time_started;
+
+} TLS;
+
+#ifdef USE_EXPLICIT_TLS
+
+/**
+ * Thread-local storage key.
+ *
+ * Key used for looking up our thread-local storage. This key <em>must</em>
+ * be globally unique across the entire Open|SpeedShop code base.
+  */
+
+static const uint32_t TLSKey = 0x0000FEFC;
+
+#else
+
+/** Thread-local storage. */
+static __thread TLS the_tls;
+
+#endif
 
 /**
  * Start offline sampling.
@@ -45,6 +68,16 @@ static uint64_t fpe_time_started;
  */
 void offline_start_sampling(const char* in_arguments)
 {
+    /* Create and access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = malloc(sizeof(TLS));
+    Assert(tls != NULL);
+    OpenSS_SetTLS(TLSKey, tls);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     fpe_start_tracing_args args;
     char arguments[3 * sizeof(fpe_start_tracing_args)];
 
@@ -57,7 +90,7 @@ void offline_start_sampling(const char* in_arguments)
 			    arguments);
 
         
-    fpe_time_started = OpenSS_GetTime();
+    tls->time_started = OpenSS_GetTime();
 
     /* Start sampling */
     fpe_start_tracing(arguments);
@@ -131,6 +164,15 @@ void offline_record_dso(const char* dsoname,
 			uint64_t begin, uint64_t end,
 			uint8_t is_dlopen)
 {
+
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     OpenSS_DataHeader header;
     openss_objects objects;
     
@@ -142,7 +184,7 @@ void offline_record_dso(const char* dsoname,
     if (is_dlopen) {
 	header.time_begin = OpenSS_GetTime();
     } else {
-	header.time_begin = fpe_time_started;
+	header.time_begin = tls->time_started;
     }
     header.time_end = is_dlopen ? -1ULL : OpenSS_GetTime();
     

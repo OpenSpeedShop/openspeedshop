@@ -32,7 +32,30 @@
 #include "PapiAPI.h"
 #include "blobs.h"
 
-static uint64_t hwctime_time_started;
+/** Type defining the items stored in thread-local storage. */
+typedef struct {
+
+        uint64_t time_started;
+
+} TLS;
+
+#ifdef USE_EXPLICIT_TLS
+
+/**
+ * Thread-local storage key.
+ *
+ * Key used for looking up our thread-local storage. This key <em>must</em>
+ * be globally unique across the entire Open|SpeedShop code base.
+ */
+
+static const uint32_t TLSKey = 0x0000FEF6;
+
+#else
+
+/** Thread-local storage. */
+static __thread TLS the_tls;
+
+#endif
 
 extern void hwctime_resume_papi();
 extern void hwctime_suspend_papi();
@@ -48,6 +71,16 @@ extern void hwctime_suspend_papi();
  */
 void offline_start_sampling(const char* in_arguments)
 {
+    /* Create and access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = malloc(sizeof(TLS));
+    Assert(tls != NULL);
+    OpenSS_SetTLS(TLSKey, tls);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
     hwctime_start_sampling_args args;
     char arguments[3 * sizeof(hwctime_start_sampling_args)];
 
@@ -76,13 +109,13 @@ void offline_start_sampling(const char* in_arguments)
 
     args.collector = 1;
     args.experiment = 0;
-    args.hwctime_event = PAPI_NULL;  /*hwc_start_sampling will set args.hwc_event. */
+    args.hwctime_event = PAPI_NULL;  /*hwctime_start_sampling will set args.hwctime_event. */
     OpenSS_EncodeParameters(&args,
 			    (xdrproc_t)xdr_hwctime_start_sampling_args,
 			    arguments);
     
         
-    hwctime_time_started = OpenSS_GetTime();
+    tls->time_started = OpenSS_GetTime();
 
     /* Start sampling */
     hwctime_start_sampling(arguments);
@@ -101,6 +134,7 @@ void offline_start_sampling(const char* in_arguments)
  */
 void offline_stop_sampling(const char* in_arguments, const int finished)
 {
+
     OpenSS_DataHeader header;
     openss_expinfo info;
 
@@ -173,8 +207,18 @@ void offline_record_dso(const char* dsoname,
 			uint64_t begin, uint64_t end,
 			uint8_t is_dlopen)
 {
-    if (is_dlopen)
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    if (is_dlopen) {
         hwctime_suspend_papi();
+    }
+
     OpenSS_DataHeader header;
     openss_objects objects;
     
@@ -186,7 +230,7 @@ void offline_record_dso(const char* dsoname,
     if (is_dlopen) {
 	header.time_begin = OpenSS_GetTime();
     } else {
-	header.time_begin = hwctime_time_started;
+	header.time_begin = tls->time_started;
     }
     header.time_end = is_dlopen ? -1ULL : OpenSS_GetTime();
     
@@ -199,6 +243,7 @@ void offline_record_dso(const char* dsoname,
     /* Send the offline "dso" blob */
     OpenSS_SetSendToFile("hwctime", "openss-dsos");
     OpenSS_Send(&header, (xdrproc_t)xdr_openss_objects, &objects);
+
     if (is_dlopen)
         hwctime_resume_papi();
 }
