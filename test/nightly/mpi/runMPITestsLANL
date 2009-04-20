@@ -27,15 +27,15 @@ basedir=`pwd`
 
 . ${MODULESHOME}/init/sh
 export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
-#export PATH=/users/jegsgi/yr-mrnet/opt/OSS/bin:$PATH
-#export LD_LIBRARY_PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/lib:$LD_LIBRARY_PATH
-#export LD_LIBRARY_PATH=/users/jegsgi/yr-mrnet/opt/OSS/lib64:$LD_LIBRARY_PATH
 
 module purge
 echo "NOTE: load openss-mrnet module"
 module load openss-mrnet
-echo "NOTE: load openmpi-gcc/1.2.4 module"
-module load openmpi-gcc/1.2.4
+#echo "NOTE: load openmpi-gcc/1.2.4 module"
+#module load openmpi-gcc/1.2.4
+echo "NOTE: start MODULE LIST - TOP OF SCRIPT"
+module list
+echo "NOTE: end   MODULE LIST - TOP OF SCRIPT"
 
 NEWNAME=""
 
@@ -64,7 +64,7 @@ do
 #  for thiscompiler in intel pgi gnu
 
 #  loop here through a compiler list
-for thiscompiler in gnu
+for thiscompiler in gnu intel pgi pathscale
 do
  if [ debug_flag == 1 ]
  then
@@ -73,19 +73,29 @@ do
    echo "testCC=" $testCC
  fi
 
+ module purge
+ module load modules openss-mrnet
+
  if [ $thiscompiler == "gnu" ] 
  then
     module load openmpi-gcc/1.2.4
  elif  [ $thiscompiler == "pgi" ]
  then
+    module load pgi/7.2-5
     module load openmpi-pgi/1.2.4
  elif  [ $thiscompiler == "intel" ]
  then
+    module load intel-c/10.0.023
     module load openmpi-intel/1.2.4
  elif  [ $thiscompiler == "pathscale" ]
  then
+    module load pathscale/3.0
     module load openmpi-pathscale/1.2.4
  fi
+
+echo "NOTE: start MODULE LIST - AFTER COMPILER SELECTION"
+module list
+echo "NOTE: end   MODULE LIST - AFTER COMPILER SELECTION"
 
 hostabi=`uname -m`
 ulimit -c unlimited
@@ -93,16 +103,16 @@ ulimit -c unlimited
 # setup the path and information with regards to building the MPI applicaton you will be running
 #
 testexe=$NEWNAME
-echo "before testexe.tar.gz unpacking, NEWNAME=" $NEWNAME
+echo "test independent, before testexe.tar.gz unpacking, NEWNAME=" $NEWNAME
 
 gunzip $testexe.tar.gz
 tar -xvf $testexe.tar
 gzip $testexe.tar
 
 currentdir=`pwd`
-echo "first currentdir=" $currentdir
+echo "test independent, first currentdir=" $currentdir
 testpathbase=$currentdir
-echo "testpathbase=" $testpathbase
+echo "test independent, testpathbase=" $testpathbase
 
 # keep two copies, the previous and the current
 # if previous already exists remove it.
@@ -114,11 +124,11 @@ fi
 mv -f  ${testexe}_${thiscompiler} prev_${testexe}_${thiscompiler}
 mv ${testexe} ${testexe}_${thiscompiler}
 cd ${testexe}_${thiscompiler}
-echo "first ${testexe}_${thiscompiler}=" ${testexe}_${thiscompiler}
+echo "test independent, first ${testexe}_${thiscompiler}=" ${testexe}_${thiscompiler}
 
 currentdir=`pwd`
 #echo $currentdir
-echo "second currentdir=" $currentdir
+echo "test independent, second currentdir=" $currentdir
 
 thismpicc=`which mpicc`
 echo "which mpicc=" $thismpicc
@@ -179,9 +189,19 @@ theopenss=`which openss`
 echo "Using openss=" $theopenss
 echo "Using the raw data directory storage environment variable: OPENSS_RAWDATA_DIR=" $OPENSS_RAWDATA_DIR
 
-#
+# 
 # Create the default test configuration file if it does not exist
 #
+# CHANGE THIS FILE CAT TO ADD YOUR EMAIL and NODE/RANK COUNTS
+# For sweep3d.mpi to execute properly please keep the rank count a power of two.
+# Also, the compiler setting "all" is ignored right now.
+# The default_test_config file is defined as:
+# Number of nodes
+# Number of ranked processes
+# Compiler setting: all, pgi, intel, gnu, pathscale  (currently ignored)
+# Email address where the test reports are sent
+#
+
 if [ -a default_test_config ]
 then
   echo "NOTE: Using default_test_config file which already exists"
@@ -216,33 +236,50 @@ cat > smg2000_${thiscompiler}_openmpi_script.sh << EOF
 . ${MODULESHOME}/init/sh
 export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
 
-#alias module=\`/usr/bin/modulecmd bash !*\`
-#
-#export PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin:$PATH
-#export PATH=/users/jegsgi/yr-mrnet/opt/OSS/bin:$PATH
-#export LD_LIBRARY_PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/lib:$LD_LIBRARY_PATH
-#export LD_LIBRARY_PATH=/users/jegsgi/yr-mrnet/opt/OSS/lib64:$LD_LIBRARY_PATH
-
+echo "NOTE: smg2000 test, thiscompiler=" $thiscompiler
 module purge
-module load openmpi-gcc/1.2.4
 module load modules openss-mrnet
+if [ $thiscompiler == "gnu" ] 
+then
+    module load openmpi-gcc/1.2.4
+elif  [ $thiscompiler == "pgi" ]
+then
+    module load pgi/7.2-5
+    module load openmpi-pgi/1.2.4
+elif  [ $thiscompiler == "intel" ]
+then
+    module load intel-c/10.0.023
+    module load openmpi-intel/1.2.4
+elif  [ $thiscompiler == "pathscale" ]
+then
+    module load pathscale/3.0
+    module load openmpi-pathscale/1.2.4
+fi
+
+echo "NOTE: smg2000 test, start MODULE LIST="
 module list
+echo "NOTE: smg2000 test, end MODULE LIST="
+echo "NOTE: smg2000 test, PATH=" $PATH
+
+# setup separate unique raw data directories for each compiler/test combination
+rm -rf /scratch3/jegsgi/smg2000_${thiscompiler}_RAW
+mkdir /scratch3/jegsgi/smg2000_${thiscompiler}_RAW
+export OPENSS_RAWDATA_DIR=/scratch3/jegsgi/smg2000_${thiscompiler}_RAW
+echo "NOTE: smg2000 test, OPENSS_RAWDATA_DIR=" $OPENSS_RAWDATA_DIR
 
 which openss
 export PATH=.:$PATH
+echo "NOTE: smg2000 test, after ., PATH=" $PATH
 executable=`which smg2000`
-echo "Current directory is:" `\$pwd`
-echo "smg2000 executable path directory is:" \$executable
+echo "NOTE: smg2000 test, current directory is:" `\$pwd`
+echo "NOTE: smg2000 test, executable path directory is:" \$executable
 mpicommand=`which mpirun`
-echo "mpirun command path directory is:" \$mpicommand
+echo "smg2000 test, mpirun command path directory is:" \$mpicommand
 #
 # Read in test parameters
 #
-# script defaults
-NodeCount=2
-RankCount=16
-CompilerType="gnu"
-EmailAddress="jegkas@gmail.com"
+
+echo "ls of default_test_config=`ls -lastr default_test_config`"
 
 if [ -a default_test_config ] 
 then
@@ -253,19 +290,19 @@ then
   exec 0<default_test_config
 
   read curline
-  echo "NodeCount: \$curline"
+  echo "NOTE: NodeCount: \$curline"
   NodeCount=\$curline
 #
   read curline
-  echo "RankCount: \$curline"
+  echo "NOTE: RankCount: \$curline"
   RankCount=\$curline
 #
   read curline
-  echo "CompilerType: \$curline"
+  echo "NOTE: CompilerType: \$curline"
   CompilerType=\$curline
 #
   read curline
-  echo "EmailAddress: \$curline"
+  echo "NOTE: EmailAddress: \$curline"
   EmailAddress=\$curline
 
   exec 0<&3
@@ -279,10 +316,10 @@ fi
 #
 if [ debug_flag == 1 ]
 then
-  echo "NodeCount: \$NodeCount"
-  echo "RankCount: \$RankCount"
-  echo "CompilerType: \$CompilerType"
-  echo "EmailAddress: \$EmailAddress"
+  echo "DEBUG: NodeCount: \$NodeCount"
+  echo "DEBUG: RankCount: \$RankCount"
+  echo "DEBUG: CompilerType: \$CompilerType"
+  echo "DEBUG: EmailAddress: \$EmailAddress"
 fi
 
 #
@@ -290,14 +327,21 @@ fi
 # Run all experiments
 #
 
-echo "Using openss=" $theopenss
-echo "Using the raw data directory storage environment variable: OPENSS_RAWDATA_DIR=" $OPENSS_RAWDATA_DIR
-
+echo "NOTE: Using openss=" $theopenss
+echo "NOTE: Using the raw data directory storage environment variable: OPENSS_RAWDATA_DIR=" $OPENSS_RAWDATA_DIR
+echo "NOTE: The smg2000 testpath=" $testpath
+echo "NOTE: start pwd=`pwd`"
+echo "NOTE: end pwd"
 cd $testpath
+#
+# Run the executable by itself first
+#
+\$mpicommand -np \$RankCount \$executable -n 40 40 40
+
 #
 # Run pcsamp and analyze the results
 #
-openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" pcsamp
+openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 40 40 40" pcsamp
 ls *.openss | grep "smg2000-pcsamp\." > smg2000_${thiscompiler}_openmpi_create_pcsamp
 echo "-------------------------------------"
 echo "BEGIN Analyzing smg2000 pcsamp experiment"
@@ -316,7 +360,7 @@ echo "-------------------------------------"
 #
 # Run usertime and analyze the results
 #
-openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" usertime
+openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 40 40 40" usertime
 ls *.openss | grep "smg2000-usertime\." > smg2000_${thiscompiler}_openmpi_create_usertime
 
 echo "-------------------------------------"
@@ -336,7 +380,7 @@ echo ""
 
 
 
-openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" hwc
+openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 40 40 40" hwc
 ls *.openss | grep "smg2000-hwc\." > smg2000_${thiscompiler}_openmpi_create_hwc
 
 echo ""
@@ -354,7 +398,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" hwctime
+openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 40 40 40" hwctime
 ls *.openss | grep "smg2000-hwctime\." > smg2000_${thiscompiler}_openmpi_create_hwctime
 
 echo ""
@@ -374,7 +418,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" io
+openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 40 40 40" io
 ls *.openss | grep "smg2000-io\." > smg2000_${thiscompiler}_openmpi_create_io
 
 echo ""
@@ -394,7 +438,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 25 25 25" iot
+openss -offline -f "\$mpicommand -np \$RankCount \$executable -n 40 40 40" iot
 ls *.openss | grep "smg2000-iot\." > smg2000_${thiscompiler}_openmpi_create_iot
 
 echo ""
@@ -635,15 +679,15 @@ cat > moab_smg2000_${thiscompiler}_openmpi_script.tcsh << EOF
 #MSUB -o $testpath/smg2000_${thiscompiler}_openmpi_output.txt
 #MSUB -j oe
 #MSUB -l nodes=$NodeCount:ppn=8
-#MSUB -l walltime=200
+#MSUB -l walltime=900
 #MSUB -N  $testpath/smg2000_${thiscompiler}_openmpi_script.sh
 
 echo Shell is $SHELL
 echo Program is $0
 
-echo "BEFORE: Kick off readfile.sh"
+echo "BEFORE: Kick off $testpath/smg2000_${thiscompiler}_openmpi_script.sh"
 sh  $testpath/smg2000_${thiscompiler}_openmpi_script.sh
-echo "AFTER: Kick off readfile.sh"
+echo "AFTER: Kick off $testpath/smg2000_${thiscompiler}_openmpi_script.sh"
 
 EOF
 
@@ -668,14 +712,32 @@ cat > sweep3d_${thiscompiler}_openmpi_script.sh << EOF
 export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
 
 module purge
-module load openmpi-gcc/1.2.4
 module load modules openss-mrnet
+if [ $thiscompiler == "gnu" ] 
+then
+    module load openmpi-gcc/1.2.4
+elif  [ $thiscompiler == "pgi" ]
+then
+    module load pgi/7.2-5
+    module load openmpi-pgi/1.2.4
+elif  [ $thiscompiler == "intel" ]
+then
+    module load intel-c/10.0.023
+    module load openmpi-intel/1.2.4
+elif  [ $thiscompiler == "pathscale" ]
+then
+    module load pathscale/3.0
+    module load openmpi-pathscale/1.2.4
+fi
+echo "NOTE: sweep3d test, start MODULE LIST="
 module list
+echo "NOTE: sweep3d test, end MODULE LIST="
 
-#export PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/bin:$PATH
-#export PATH=/users/jegsgi/yr-mrnet/opt/OSS/bin:$PATH
-#export LD_LIBRARY_PATH=/opt/OpenMPI/openmpi-1.2.4-gcc/ib/lib:$LD_LIBRARY_PATH
-#export LD_LIBRARY_PATH=/users/jegsgi/yr-mrnet/opt/OSS/lib64:$LD_LIBRARY_PATH
+# setup separate unique raw data directories for each compiler/test combination
+rm -rf /scratch3/jegsgi/sweep3d_${thiscompiler}_RAW
+mkdir /scratch3/jegsgi/sweep3d_${thiscompiler}_RAW
+export OPENSS_RAWDATA_DIR=/scratch3/jegsgi/sweep3d_${thiscompiler}_RAW
+
 
 which openss
 #
@@ -688,11 +750,6 @@ echo "mpirun command path directory is:" \$mpicommand
 #
 # Read in test parameters
 #
-# script defaults
-NodeCount=2
-RankCount=16
-CompilerType="gnu"
-EmailAddress="jegkas@gmail.com"
 
 testCompiler="${thiscompiler}"
 
@@ -705,19 +762,19 @@ then
   exec 0<default_test_config
 
   read curline
-  echo "NodeCount: \$curline"
+  echo "NOTE: NodeCount: \$curline"
   NodeCount=\$curline
 #
   read curline
-  echo "RankCount: \$curline"
+  echo "NOTE: RankCount: \$curline"
   RankCount=\$curline
 #
   read curline
-  echo "CompilerType: \$curline"
+  echo "NOTE: CompilerType: \$curline"
   CompilerType=\$curline
 #
   read curline
-  echo "EmailAddress: \$curline"
+  echo "NOTE: EmailAddress: \$curline"
   EmailAddress=\$curline
 
   exec 0<&3
@@ -725,47 +782,29 @@ then
 # restore IFS which was used to determine what the field separators are
   IFS=\$BAKIFS
 #
-#  echo "Current directory is:" `\$pwd`
-#else
-#  n=0
-#  while read curline; do
-#    n=`expr \$n + 1`
-#    echo "\$curline"
-#    echo "\$n" 
-#
-#    if [ \$n == 1 ]
-#    then
-#       NodeCount=\$curline
-#    elif [ \$n == 2 ]
-#    then
-#       RankCount=\$curline
-#    elif [ \$n == 3 ]
-#    then
-#       CompilerType=\$curline
-#    elif [ \$n == 4 ]
-#    then
-#       EmailAddress=\$curline
-#    fi
-#  done < "default_test_config"
 fi
 
 #
 if [ debug_flag == 1 ]
 then
-  echo "NodeCount: \$NodeCount"
-  echo "RankCount: \$RankCount"
-  echo "CompilerType: \$CompilerType"
-  echo "EmailAddress: \$EmailAddress"
+  echo "DEBUG: NodeCount: \$NodeCount"
+  echo "DEBUG: RankCount: \$RankCount"
+  echo "DEBUG: CompilerType: \$CompilerType"
+  echo "DEBUG: EmailAddress: \$EmailAddress"
 fi
 
 #
 # Run all experiments
 #
 
-echo "Using openss=" $theopenss
-echo "Using the raw data directory storage environment variable: OPENSS_RAWDATA_DIR=" $OPENSS_RAWDATA_DIR
+echo "NOTE: Using openss=" $theopenss
+echo "NOTE: Using the raw data directory storage environment variable: OPENSS_RAWDATA_DIR=" $OPENSS_RAWDATA_DIR
+echo "NOTE: sweep3d testpath=" $testpath
+echo "NOTE: sweep3d \testpath=" \$testpath
+echo "NOTE: start pwd=`pwd`"
+echo "NOTE: end pwd"
 
-cd \$testpath
+cd $testpath
 
 #
 # Run pcsamp and analyze the results
@@ -899,7 +938,7 @@ echo "log -f sweep3d_${thiscompiler}_openmpi_mpi_results.log" >> new_input.scrip
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "\$RankCount  PMPI_Finalize" sweep3d_${thiscompiler}_openmpi_mpi_results.log | cat > sweep3d_${thiscompiler}_openmpi_mpi_results.status
+grep "$RankCount  PMPI_Finalize" sweep3d_${thiscompiler}_openmpi_mpi_results.log | cat > sweep3d_${thiscompiler}_openmpi_mpi_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi mpi experiment"
@@ -1108,15 +1147,15 @@ cat > moab_sweep3d_${thiscompiler}_openmpi_script.tcsh << EOF
 #MSUB -o $testpath/sweep3d_${thiscompiler}_openmpi_output.txt
 #MSUB -j oe
 #MSUB -l nodes=$NodeCount:ppn=8
-#MSUB -l walltime=200
+#MSUB -l walltime=900
 #MSUB -N  $testpath/sweep3d_${thiscompiler}_openmpi_script.sh
 
 echo Shell is $SHELL
 echo Program is $0
 
-echo "BEFORE: Kick off readfile.sh"
+echo "BEFORE: Kick off $testpath/sweep3d_${thiscompiler}_openmpi_script.sh"
 sh  $testpath/sweep3d_${thiscompiler}_openmpi_script.sh
-echo "AFTER: Kick off readfile.sh"
+echo "AFTER: Kick off $testpath/sweep3d_${thiscompiler}_openmpi_script.sh"
 
 EOF
 
