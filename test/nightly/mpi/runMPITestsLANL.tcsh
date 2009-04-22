@@ -1,4 +1,4 @@
-#! /bin/tcsh 
+#! /bin/tcsh  -vx
 
 #
 #  This script is focused on running on LANL systems
@@ -20,7 +20,7 @@ endif
 
 #
 #
-set debug_flag = 0
+set debug_flag = 1
 
 ##set -x
 
@@ -227,7 +227,11 @@ if ( "$testexe" == "smg2000" ) then
 echo "NOTE: Creating  smg2000_${thiscompiler}_openmpi_script.tcsh"
 
 cat > smg2000_${thiscompiler}_openmpi_script.tcsh << EOF
+
 #!/bin/tcsh
+
+set debug_flag = 1
+
 #source ${MODULESHOME}/init/csh
 source /usr/share/modules/init/tcsh
 setenv MODULEPATH /users/jegsgi/privatemodules:$MODULEPATH
@@ -261,7 +265,9 @@ setenv OPENSS_RAWDATA_DIR /scratch3/jegsgi/smg2000_${thiscompiler}_RAW
 which openss
 setenv PATH .:$PATH
 echo "NOTE: smg2000 test, after ., PATH=" $PATH
-set executable = `which smg2000`
+#set executable = `which smg2000`
+set currentDir = `pwd`
+set executable = \$currentDir/sweep3d.mpi
 #echo "NOTE: smg2000 test, current directory is:" `pwd`
 echo "NOTE: smg2000 test, executable path directory is:" \$executable
 set mpicommand = `which mpirun`
@@ -270,39 +276,42 @@ echo "smg2000 test, mpirun command path directory is:" \$mpicommand
 # Read in test parameters
 #
 
-echo "ls of default_test_config=`ls -lastr default_test_config`"
+#echo "ls of default_test_config=`ls -lastr default_test_config`"
 
-if ( -e default_test_config ) then
-  echo "Reading the existing default_test_config file"
-  set BAKIFS = \$IFS
-  set IFS = \$(echo -en "\n\b")
-  exec 3<&0
-  exec 0<default_test_config
-
-  read curline
-  echo "NOTE: NodeCount: \$curline"
-  set NodeCount = \$curline
-#
-  read curline
-  echo "NOTE: RankCount: \$curline"
-  set RankCount = \$curline
-#
-  read curline
-  echo "NOTE: CompilerType: \$curline"
-  set CompilerType = \$curline
-#
-  read curline
-  echo "NOTE: EmailAddress: \$curline"
-  set EmailAddress = \$curline
-
-  exec 0<&3
-
-# restore IFS which was used to determine what the field separators are
-#
-  set IFS = \$BAKIFS
-#
+if ( -e  \${currentDir}/default_test_config ) then
+  setenv IFS "\n"
+  set cnt = 0
+  foreach i (\`cat \${currentDir}/default_test_config\`)
+    echo \$i
+    echo "Im here 0"
+    @ cnt = \$cnt + 1
+    echo "Im here 1"
+    if ( \$cnt == 1 ) then
+      echo "Im here 2"
+      set NodeCount = \`echo \$i\`
+      echo "Im here 3"
+    else if ( \$cnt == 2 ) then
+      echo "Im here 4"
+      set RankCount = \`echo \$i\`
+      echo "Im here 5"
+    else if ( \$cnt == 3 ) then
+      echo "Im here 6"
+      set CompilerType = \`echo \$i\`
+      echo "Im here 6"
+    else if ( \$cnt == 4 ) then
+      echo "Im here 8"
+      set EmailAddress = \`echo \$i\`
+      echo "Im here 9"
+    endif
+  end
+else
+  set NodeCount = 4
+  set RankCount = 32
+  set EmailAddress = jegkas@gmail.com
+  set CompilerType = all
 endif
 
+echo "Im here 10"
 #
 if ( $debug_flag == 1 ) then
   echo "DEBUG: NodeCount: \$NodeCount"
@@ -640,10 +649,10 @@ echo "pwd=`pwd`"
 set RUN_DIR=$testpath
 echo "RUN_DIR=$RUN_DIR"
 cd $RUN_DIR
-set REQ_WALLTIME = 1:00
-set REQ_NNODES = $NodeCount
-echo "REQ_NNODES=$REQ_NNODES"
-set REQ_SCRIPT = "$RUN_DIR/smg2000_${thiscompiler}_openmpi_script.tcsh"
+#set REQ_WALLTIME = 1:00
+#set REQ_NNODES = $NodeCount
+#echo "REQ_NNODES=$REQ_NNODES"
+#set REQ_SCRIPT = "$RUN_DIR/smg2000_${thiscompiler}_openmpi_script.tcsh"
 
 echo "NOTE: BEFORE Creating  moab_smg2000_${thiscompiler}_openmpi_script.tcsh"
 
@@ -652,7 +661,7 @@ cat > moab_smg2000_${thiscompiler}_openmpi_script.tcsh << EOF
 #!/bin/tcsh
 #MSUB -o $testpath/smg2000_${thiscompiler}_openmpi_output.txt
 #MSUB -j oe
-#MSUB -l nodes=$NodeCount:ppn=8
+#MSUB -l nodes="$NodeCount":ppn=8
 #MSUB -l walltime=900
 #MSUB -N  $testpath/smg2000_${thiscompiler}_openmpi_script.tcsh
 
@@ -673,7 +682,7 @@ echo "NOTE: AFTER msub moab_smg2000_${thiscompiler}_openmpi_script.tcsh"
 
 else if ( "$testexe" == "sweep3d" ) then
 
-echo "NOTE: BEFORE Creating  sweep3d_${thiscompiler}_openmpi_script.tcsh"
+echo "NOTE: BEFORE SWEEP3D: Creating  sweep3d_${thiscompiler}_openmpi_script.tcsh"
 
 cat > sweep3d_${thiscompiler}_openmpi_script.tcsh << EOF
 #!/bin/tcsh
