@@ -712,12 +712,12 @@ setenv OPENSS_RAWDATA_DIR /scratch3/jegsgi/sweep3d_${thiscompiler}_RAW
 which openss
 #
 setenv PATH .:$PATH
-set executable = `which sweep3d.mpi`
 echo "Current directory is:" `pwd`
+set currentDir = `pwd`
+set executable = \$currentDir/sweep3d.mpi
 echo "sweep3d.mpi executable path directory is:" \$executable
 set mpicommand = `which mpirun`
 echo "mpirun command path directory is:" \$mpicommand
-set currentDir = `pwd`
 #
 # Read in test parameters
 #
@@ -739,54 +739,27 @@ if ( -e  \${currentDir}/default_test_config ) then
       echo "Im here 4"
       set RankCount = \`echo \$i\`
       echo "Im here 5"
-    else if ( \$cnt == 4 ) then
+    else if ( \$cnt == 3 ) then
       echo "Im here 6"
+      set CompilerType = \`echo \$i\`
+      echo "Im here 6"
+    else if ( \$cnt == 4 ) then
+      echo "Im here 8"
       set EmailAddress = \`echo \$i\`
-      echo "Im here 7"
+      echo "Im here 9"
     endif
   end
 else
   set NodeCount = 4
   set RankCount = 32
   set EmailAddress = jegkas@gmail.com
+  set CompilerType = all
 endif
 
-echo "Im here 8"
+echo "Im here 10"
 
-##if ( -e default_test_config ) then
-##  echo "Reading the existing default_test_config file"
-##  set BAKIFS = \$IFS
-##  set IFS = \$(echo -en "\n\b")
-#  echo "NOTE: IFS=\${IFS}"
-#  echo "NOTE: BAKIFS=\${BAKIFS}"
-#  exec 3<&0
-#  exec 0<default_test_config
-##
-#  read curline
-#  echo "NOTE: NodeCount: \$curline"
-#  set NodeCount = \$curline
-##
-#  read curline
-#  echo "NOTE: RankCount: \$curline"
-#  set RankCount = \$curline
-##
-#  read curline
-#  echo "NOTE: CompilerType: \$curline"
-#  set CompilerType = \$curline
-##
-#  read curline
-##  echo "NOTE: EmailAddress: \$curline"
-#  set EmailAddress = \$curline
-##
-#  exec 0<&3
-##
-## restore IFS which was used to determine what the field separators are
-##  set IFS = \$BAKIFS
-##
-##endif
 #
-#
-if ( $debug_flag == 1 ) then
+if ( \$debug_flag == 1 ) then
   echo "DEBUG: NodeCount: \$NodeCount"
   echo "DEBUG: RankCount: \$RankCount"
   echo "DEBUG: CompilerType: \$CompilerType"
@@ -801,22 +774,22 @@ endif
 # input file named "input"
 if ( \$RankCount == 8 ) then
   echo "Moving the input.8 specific input file to the default input file"
-  cp -f input.8 input
+  cp -f \${currentDir}/input.8 \${currentDir}/input
 else if  ( \$RankCount == 16 ) then
   echo "Moving the input.16 specific input file to the default input file"
-  cp -f input.16 input
+  cp -f \${currentDir}/input.16 \${currentDir}/input
 else if ( \$RankCount == 32 ) then
   echo "Moving the input.32 specific input file to the default input file"
-  cp -f input.32 input
+  cp -f \${currentDir}/input.32 \${currentDir}/input
 else if ( \$RankCount == 64 ) then
   echo "Moving the input.64 specific input file to the default input file"
-  cp -f input.64 input
+  cp -f \${currentDir}/input.64 \${currentDir}/input
 else if ( \$RankCount == 128 ) then
   echo "Moving the input.128 specific input file to the default input file"
-  cp -f input.128 input
+  cp -f \${currentDir}/input.128 \${currentDir}/input
 else if ( \$RankCount == 256 ) then
   echo "Moving the input.256 specific input file to the default input file"
-  cp -f input.256 input
+  cp -f \${currentDir}/input.256 \${currentDir}/input
 endif
 
 
