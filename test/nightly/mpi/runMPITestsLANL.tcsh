@@ -304,7 +304,7 @@ if ( -e default_test_config ) then
 endif
 
 #
-if ( debug_flag == 1 ) then
+if ( $debug_flag == 1 ) then
   echo "DEBUG: NodeCount: \$NodeCount"
   echo "DEBUG: RankCount: \$RankCount"
   echo "DEBUG: CompilerType: \$CompilerType"
@@ -722,27 +722,34 @@ set currentDir = `pwd`
 # Read in test parameters
 #
 #
-setenv IFS "\n"
-set cnt = 0
-foreach i (\`cat \${currentDir}/default_test_config\`)
-  echo \$i
-  echo "Im here 0"
-  @ cnt = \$cnt + 1
-  echo "Im here 1"
-  if ( \$cnt == 1 ) then
-    echo "Im here 2"
-    set NodeCount = `echo \$i`
-    echo "Im here 3"
-  else if ( \$cnt == 2 ) then
-    echo "Im here 4"
-    set RankCount = `echo \$i`
-    echo "Im here 5"
-  else if ( \$cnt == 4 ) then
-    echo "Im here 6"
-    set EmailAddress = `echo \$i`
-    echo "Im here 7"
-  endif
-end
+
+if ( -e  \${currentDir}/default_test_config ) then
+  setenv IFS "\n"
+  set cnt = 0
+  foreach i (\`cat \${currentDir}/default_test_config\`)
+    echo \$i
+    echo "Im here 0"
+    @ cnt = \$cnt + 1
+    echo "Im here 1"
+    if ( \$cnt == 1 ) then
+      echo "Im here 2"
+      set NodeCount = \`echo \$i\`
+      echo "Im here 3"
+    else if ( \$cnt == 2 ) then
+      echo "Im here 4"
+      set RankCount = \`echo \$i\`
+      echo "Im here 5"
+    else if ( \$cnt == 4 ) then
+      echo "Im here 6"
+      set EmailAddress = \`echo \$i\`
+      echo "Im here 7"
+    endif
+  end
+else
+  set NodeCount = 4
+  set RankCount = 32
+  set EmailAddress = jegkas@gmail.com
+endif
 
 echo "Im here 8"
 
@@ -779,7 +786,7 @@ echo "Im here 8"
 ##endif
 #
 #
-if ( debug_flag == 1 ) then
+if ( $debug_flag == 1 ) then
   echo "DEBUG: NodeCount: \$NodeCount"
   echo "DEBUG: RankCount: \$RankCount"
   echo "DEBUG: CompilerType: \$CompilerType"
@@ -823,8 +830,8 @@ cd $testpath
 #
 # Run pcsamp and analyze the results
 #
-#openss -offline -f "\$mpicommand -np \$RankCount \$executable" pcsamp
-openss -offline -f "\$mpicommand -np 32 \$executable" pcsamp
+openss -offline -f "\$mpicommand -np \$RankCount \$executable" pcsamp
+#openss -offline -f "\$mpicommand -np 32 \$executable" pcsamp
 ls *.openss | grep "sweep3d.mpi-pcsamp\." > sweep3d_${thiscompiler}_openmpi_create_pcsamp
 echo "-------------------------------------"
 echo "BEGIN Analyzing sweep3d.mpi pcsamp experiment"
