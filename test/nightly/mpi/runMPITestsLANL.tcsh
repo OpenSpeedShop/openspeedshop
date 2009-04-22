@@ -1,4 +1,4 @@
-#! /bin/tcsh -xv
+#! /bin/tcsh 
 
 #
 #  This script is focused on running on LANL systems
@@ -20,7 +20,7 @@ endif
 
 #
 #
-set debug_flag = 1
+set debug_flag = 0
 
 ##set -x
 
@@ -717,41 +717,66 @@ echo "Current directory is:" `pwd`
 echo "sweep3d.mpi executable path directory is:" \$executable
 set mpicommand = `which mpirun`
 echo "mpirun command path directory is:" \$mpicommand
+set currentDir = `pwd`
 #
 # Read in test parameters
 #
 #
-#if ( -e default_test_config ) then
-  echo "Reading the existing default_test_config file"
-#  set BAKIFS = \$IFS
-#  set IFS = \$(echo -en "\n\b")
-  echo "NOTE: IFS=\${IFS}"
-  echo "NOTE: BAKIFS=\${BAKIFS}"
-  exec 3<&0
-  exec 0<default_test_config
-#
-  read curline
-  echo "NOTE: NodeCount: \$curline"
-  set NodeCount = \$curline
-#
-  read curline
-  echo "NOTE: RankCount: \$curline"
-  set RankCount = \$curline
-#
-  read curline
-  echo "NOTE: CompilerType: \$curline"
-  set CompilerType = \$curline
-#
-  read curline
-  echo "NOTE: EmailAddress: \$curline"
-  set EmailAddress = \$curline
-#
-  exec 0<&3
-#
-# restore IFS which was used to determine what the field separators are
-#  set IFS = \$BAKIFS
-#
-#endif
+setenv IFS "\n"
+set cnt = 0
+foreach i (\`cat \${currentDir}/default_test_config\`)
+  echo \$i
+  echo "Im here 0"
+  @ cnt = \$cnt + 1
+  echo "Im here 1"
+  if ( \$cnt == 1 ) then
+    echo "Im here 2"
+    set NodeCount = `echo \$i`
+    echo "Im here 3"
+  else if ( \$cnt == 2 ) then
+    echo "Im here 4"
+    set RankCount = `echo \$i`
+    echo "Im here 5"
+  else if ( \$cnt == 4 ) then
+    echo "Im here 6"
+    set EmailAddress = `echo \$i`
+    echo "Im here 7"
+  endif
+end
+
+echo "Im here 8"
+
+##if ( -e default_test_config ) then
+##  echo "Reading the existing default_test_config file"
+##  set BAKIFS = \$IFS
+##  set IFS = \$(echo -en "\n\b")
+#  echo "NOTE: IFS=\${IFS}"
+#  echo "NOTE: BAKIFS=\${BAKIFS}"
+#  exec 3<&0
+#  exec 0<default_test_config
+##
+#  read curline
+#  echo "NOTE: NodeCount: \$curline"
+#  set NodeCount = \$curline
+##
+#  read curline
+#  echo "NOTE: RankCount: \$curline"
+#  set RankCount = \$curline
+##
+#  read curline
+#  echo "NOTE: CompilerType: \$curline"
+#  set CompilerType = \$curline
+##
+#  read curline
+##  echo "NOTE: EmailAddress: \$curline"
+#  set EmailAddress = \$curline
+##
+#  exec 0<&3
+##
+## restore IFS which was used to determine what the field separators are
+##  set IFS = \$BAKIFS
+##
+##endif
 #
 #
 if ( debug_flag == 1 ) then
