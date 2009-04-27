@@ -260,7 +260,8 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 	    stat(rawfile.c_str(), &file_info);
 	    bool is_dir = S_ISDIR(file_info.st_mode);
 
-	    if (rawfile.find(".openss-data") != string::npos ||
+	    if (rawfile.find("-") != 0 && 
+                rawfile.find(".openss-data") != string::npos ||
 		rawfile.find(".openss-info") != string::npos ||
 		rawfile.find(".openss-dsos") != string::npos ) {
 
