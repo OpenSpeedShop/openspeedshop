@@ -227,11 +227,8 @@ if ( "$testexe" == "smg2000" ) then
 echo "NOTE: Creating  smg2000_${thiscompiler}_openmpi_script.tcsh"
 
 cat > smg2000_${thiscompiler}_openmpi_script.tcsh << EOF
-
 #!/bin/tcsh
-
 set debug_flag = 1
-
 #source ${MODULESHOME}/init/csh
 source /usr/share/modules/init/tcsh
 setenv MODULEPATH /users/jegsgi/privatemodules:$MODULEPATH
@@ -239,6 +236,10 @@ setenv MODULEPATH /users/jegsgi/privatemodules:$MODULEPATH
 echo "NOTE: smg2000 test, thiscompiler=" $thiscompiler
 module purge
 module load modules openss-mrnet
+echo "NOTE: smg2000 test, start MODULE LIST after loading openss-mrnet="
+module list
+echo "NOTE: smg2000 test, after MODULE LIST after loading openss-mrnet="
+
 if ( $thiscompiler == "gnu" ) then
     module load openmpi-gcc/1.2.4
 else if  ( $thiscompiler == "pgi" ) then
@@ -267,7 +268,7 @@ setenv PATH .:$PATH
 echo "NOTE: smg2000 test, after ., PATH=" $PATH
 #set executable = `which smg2000`
 set currentDir = `pwd`
-set executable = \$currentDir/sweep3d.mpi
+set executable = \$currentDir/smg2000
 #echo "NOTE: smg2000 test, current directory is:" `pwd`
 echo "NOTE: smg2000 test, executable path directory is:" \$executable
 set mpicommand = `which mpirun`
@@ -313,7 +314,7 @@ endif
 
 echo "Im here 10"
 #
-if ( $debug_flag == 1 ) then
+if ( \$debug_flag == 1 ) then
   echo "DEBUG: NodeCount: \$NodeCount"
   echo "DEBUG: RankCount: \$RankCount"
   echo "DEBUG: CompilerType: \$CompilerType"
@@ -326,10 +327,18 @@ endif
 #
 
 echo "NOTE: Using openss=" $theopenss
-echo "NOTE: The smg2000 testpath=" $testpath
-#echo "NOTE: start pwd=`pwd`"
-#echo "NOTE: end pwd"
+echo "NOTE: smg2000 testpath=" $testpath
+echo "NOTE: smg2000 mpicommand=" \$mpicommand
+echo "NOTE: smg2000 RankCount=" \$RankCount
+echo "NOTE: smg2000 executable=" \$executable
+echo "NOTE: smg2000 start pwd=`pwd`"
+echo "NOTE: end pwd"
+
 cd $testpath
+
+echo "NOTE: after cd testpath, smg2000 start pwd=`pwd`"
+echo "NOTE: end pwd"
+
 #
 # Run the executable by itself first
 #
@@ -657,7 +666,6 @@ cd $RUN_DIR
 echo "NOTE: BEFORE Creating  moab_smg2000_${thiscompiler}_openmpi_script.tcsh"
 
 cat > moab_smg2000_${thiscompiler}_openmpi_script.tcsh << EOF
-
 #!/bin/tcsh
 #MSUB -o $testpath/smg2000_${thiscompiler}_openmpi_output.txt
 #MSUB -j oe
@@ -804,10 +812,20 @@ endif
 
 echo "NOTE: Using openss=" $theopenss
 echo "NOTE: sweep3d testpath=" $testpath
-echo "NOTE: start pwd=`pwd`"
+echo "NOTE: sweep3d mpicommand=" \$mpicommand
+echo "NOTE: sweep3d RankCount=" \$RankCount
+echo "NOTE: sweep3d executable=" \$executable
+echo "NOTE: sweep3d start pwd=`pwd`"
 echo "NOTE: end pwd"
 #
 cd $testpath
+
+echo "NOTE: after cd testpath, sweep3d start pwd=`pwd`"
+echo "NOTE: end pwd"
+#
+# Run the executable by itself first
+#
+\$mpicommand -np \$RankCount \$executable -n 40 40 40
 #
 #
 # Run pcsamp and analyze the results
