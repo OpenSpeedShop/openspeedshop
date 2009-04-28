@@ -277,6 +277,8 @@ echo "smg2000 test, mpirun command path directory is:" \$mpicommand
 # Read in test parameters
 #
 
+testCompiler="${thiscompiler}"
+
 #echo "ls of default_test_config=`ls -lastr default_test_config`"
 
 if ( -e  \${currentDir}/default_test_config ) then
@@ -519,7 +521,8 @@ set EMAIL="jegkas@gmail.com"
 set EMAILMESSAGE="/tmp/openss_test_message.txt"
 echo " OpenSpeedShop Performance Tool SMG2000 Test Results" >\$EMAILMESSAGE
 echo "" >>\$EMAILMESSAGE
-echo " Intel compiler, $NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
+#echo " Intel compiler, $NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
+echo " \${testCompiler} Compiler \$NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
 set thisuname="\`uname -srnmo\`"
 echo " System uname: " \$thisuname>> \$EMAILMESSAGE
 set thisdate="\`date\`"
@@ -739,6 +742,8 @@ echo "mpirun command path directory is:" \$mpicommand
 # Read in test parameters
 #
 #
+
+testCompiler="${thiscompiler}"
 
 if ( -e  \${currentDir}/default_test_config ) then
   setenv IFS "\n"
@@ -1001,7 +1006,8 @@ set EMAIL = \$EmailAddress
 set EMAILMESSAGE = "/tmp/openss_test_message.txt"
 echo " OpenSpeedShop Performance Tool SWEEP3D.MPI Test Results" >\$EMAILMESSAGE
 echo "" >>\$EMAILMESSAGE
-echo " Intel compiler, \$NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
+#echo " Intel compiler, \$NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
+echo " \${testCompiler} Compiler \$NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
 set thisuname = "\`uname -srnmo\`"
 echo " System uname: " \$thisuname>> \$EMAILMESSAGE
 set thisdate = "\`date\`"
