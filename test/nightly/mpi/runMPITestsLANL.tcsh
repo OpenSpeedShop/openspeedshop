@@ -436,7 +436,7 @@ echo "log -f smg2000_${thiscompiler}_openmpi_io_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "2016  __libc_open" smg2000_${thiscompiler}_openmpi_io_results.log | cat > smg2000_${thiscompiler}_openmpi_io_results.status
+grep "libc_open" smg2000_${thiscompiler}_openmpi_io_results.log | cat > smg2000_${thiscompiler}_openmpi_io_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 io experiment"
@@ -456,7 +456,7 @@ echo "log -f smg2000_${thiscompiler}_openmpi_iot_results.log" >> new_input.scrip
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "2016  __libc_open" smg2000_${thiscompiler}_openmpi_iot_results.log | cat > smg2000_${thiscompiler}_openmpi_iot_results.status
+grep "libc_open" smg2000_${thiscompiler}_openmpi_iot_results.log | cat > smg2000_${thiscompiler}_openmpi_iot_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 iot experiment"
@@ -476,7 +476,7 @@ echo "log -f smg2000_${thiscompiler}_openmpi_mpi_results.log" >> new_input.scrip
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "\$RankCount  PMPI_Finalize" smg2000_${thiscompiler}_openmpi_mpi_results.log | cat > smg2000_${thiscompiler}_openmpi_mpi_results.status
+grep "\$RankCount *MPI_Finalize" smg2000_${thiscompiler}_openmpi_mpi_results.log | cat > smg2000_${thiscompiler}_openmpi_mpi_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 mpi experiment"
@@ -503,7 +503,7 @@ echo "log -f smg2000_${thiscompiler}_openmpi_mpit_results.log" >> new_input.scri
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "\$RankCount  PMPI_Finalize" smg2000_${thiscompiler}_openmpi_mpit_results.log | cat > smg2000_${thiscompiler}_openmpi_mpit_results.status
+grep "\$RankCount *MPI_Finalize" smg2000_${thiscompiler}_openmpi_mpit_results.log | cat > smg2000_${thiscompiler}_openmpi_mpit_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 mpit experiment"
@@ -918,7 +918,7 @@ echo "log -f sweep3d_${thiscompiler}_openmpi_io_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "630  __libc_read" sweep3d_${thiscompiler}_openmpi_io_results.log | cat > sweep3d_${thiscompiler}_openmpi_io_results.status
+grep "libc_read" sweep3d_${thiscompiler}_openmpi_io_results.log | cat > sweep3d_${thiscompiler}_openmpi_io_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi io experiment"
@@ -938,7 +938,7 @@ echo "log -f sweep3d_${thiscompiler}_openmpi_iot_results.log" >> new_input.scrip
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "630  __libc_read" sweep3d_${thiscompiler}_openmpi_iot_results.log | cat > sweep3d_${thiscompiler}_openmpi_iot_results.status
+grep "libc_read" sweep3d_${thiscompiler}_openmpi_iot_results.log | cat > sweep3d_${thiscompiler}_openmpi_iot_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi iot experiment"
@@ -958,7 +958,7 @@ echo "log -f sweep3d_${thiscompiler}_openmpi_mpi_results.log" >> new_input.scrip
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "\$RankCount  PMPI_Finalize" sweep3d_${thiscompiler}_openmpi_mpi_results.log | cat > sweep3d_${thiscompiler}_openmpi_mpi_results.status
+grep "\$RankCount *MPI_Finalize" sweep3d_${thiscompiler}_openmpi_mpi_results.log | cat > sweep3d_${thiscompiler}_openmpi_mpi_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi mpi experiment"
@@ -985,7 +985,7 @@ echo "log -f sweep3d_${thiscompiler}_openmpi_mpit_results.log" >> new_input.scri
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "\$RankCount  PMPI_Finalize" sweep3d_${thiscompiler}_openmpi_mpit_results.log | cat > sweep3d_${thiscompiler}_openmpi_mpit_results.status
+grep "\$RankCount *MPI_Finalize" sweep3d_${thiscompiler}_openmpi_mpit_results.log | cat > sweep3d_${thiscompiler}_openmpi_mpit_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi mpit experiment"
