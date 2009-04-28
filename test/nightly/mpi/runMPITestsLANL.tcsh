@@ -516,7 +516,8 @@ echo ""
 # email subject
 set SUBJECT="OpenSpeedShop MPI smg2000 executable test results"
 # Email To ?
-set EMAIL="jegkas@gmail.com"
+set EMAIL = \$EmailAddress
+#
 # Email text/message
 set EMAILMESSAGE="/tmp/openss_test_message.txt"
 echo " OpenSpeedShop Performance Tool SMG2000 Test Results" >\$EMAILMESSAGE
