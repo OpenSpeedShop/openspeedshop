@@ -71,6 +71,8 @@ AC_PROG_INSTALL
 AC_PROG_LEX
 AC_PATH_PROG([RPCGEN], rpcgen)
 AC_PROG_YACC
+#  Is ln available
+AC_PROG_LN_S
 
 ################################################################################
 # Handle X86-64 Special Case

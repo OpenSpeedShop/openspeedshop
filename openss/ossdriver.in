@@ -1,0 +1,125 @@
+#!/bin/bash
+################################################################################
+# Display Usage When Necessary
+################################################################################
+debug_flag=0
+
+if [ $debug_flag == 1 ]
+then
+  echo
+  echo "ossdriver command-line argument #0 = $0"
+  echo "ossdriver command-line argument #1 = $1"
+  echo "ossdriver command-line argument #2 = $2"
+  echo "ossdriver command-line argument #3 = $3"
+  echo
+fi
+
+if [ -z "$1" ] 
+then
+   echo ""
+   echo "Usage: $0 \"executable\" [extra_args]"
+   echo "Usage: $0 help"
+   echo ""
+   echo "    where \"executable\" is defined as the command that you normally use to execute your program: but in quotes"
+   echo "    Usage: $0 \"mpirun -N 16 -n 256 ./smg2000 -n 50 50 50\" [extra_args]"
+   echo "        where the optional \"extra_args\" is defined as follows:"
+   echo "            TBD"
+   echo ""
+   exit
+elif [ "$1" == "help" ] 
+then
+   echo ""
+   echo "Usage: $0 \"mpirun -N 16 -n 256 ./smg2000 -n 50 50 50\" [extra_args]"
+   echo "    where the optional \"extra_args\" is defined as follows:"
+   echo "         TBD"
+   echo ""
+   exit
+
+fi
+
+################################################################################
+# Run Open|SpeedShop
+################################################################################
+calling_script_name=$0
+experiment_name=${calling_script_name##*/}
+if [ $debug_flag == 1 ]
+then
+  echo "experiment_name=$experiment_name"
+fi
+
+if [ $experiment_name == "osspcsamp" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "in PCSAMP EXPERIMENT SECTION"
+  fi
+  openss -offline -f "$1" pcsamp
+elif  [ $experiment_name == "ossusertime" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "in USERTIME EXPERIMENT SECTION"
+  fi
+  openss -offline -f "$1" usertime
+elif  [ $experiment_name == "osshwc" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "in HWC EXPERIMENT SECTION"
+  fi
+  openss -offline -f "$1" hwc
+elif  [ $experiment_name == "osshwctime" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "in HWCTIME EXPERIMENT SECTION"
+  fi
+  openss -offline -f "$1" hwctime
+elif  [ $experiment_name == "ossio" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "in IO EXPERIMENT SECTION"
+  fi
+  openss -offline -f "$1" io
+elif  [ $experiment_name == "ossiot" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "in IOT EXPERIMENT SECTION"
+  fi
+  openss -offline -f "$1" iot
+elif  [ $experiment_name == "ossmpi" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "in MPI EXPERIMENT SECTION"
+  fi
+  openss -offline -f "$1" mpi
+elif  [ $experiment_name == "ossmpit" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "in MPIT EXPERIMENT SECTION"
+  fi
+  openss -offline -f "$1" mpit
+elif  [ $experiment_name == "ossmpiotf" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "in MPIOTF EXPERIMENT SECTION"
+  fi
+  openss -offline -f "$1" mpiotf
+elif  [ $experiment_name == "ossfpe" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "in FPE EXPERIMENT SECTION"
+  fi
+  openss -offline -f "$1" fpe
+fi
+
+
+
+
+

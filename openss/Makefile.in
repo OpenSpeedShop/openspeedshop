@@ -399,7 +399,7 @@ ossutil_SOURCES = \
         ossutil.cxx
 
 CLEANFILES = $(BUILT_FILES)
-EXTRA_DIST = ossrun.in
+EXTRA_DIST = ossrun.in ossdriver.in 
 all: all-am
 
 .SUFFIXES:
@@ -681,6 +681,8 @@ install-data-am:
 install-dvi: install-dvi-am
 
 install-exec-am: install-binPROGRAMS install-dist_binSCRIPTS
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
 
 install-html: install-html-am
 
@@ -714,7 +716,7 @@ ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS
 
-.MAKE: install-am install-strip
+.MAKE: install-am install-exec-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
 	clean-generic clean-libtool ctags distclean distclean-compile \
@@ -722,14 +724,14 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_binSCRIPTS
 	dvi-am html html-am info info-am install install-am \
 	install-binPROGRAMS install-data install-data-am \
 	install-dist_binSCRIPTS install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-dist_binSCRIPTS
+	install-exec install-exec-am install-exec-hook install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags uninstall uninstall-am \
+	uninstall-binPROGRAMS uninstall-dist_binSCRIPTS
 
 
 # OFFLINE and libmonitor support.
@@ -747,6 +749,55 @@ ossrun: ossrun.in
 		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
 			$(srcdir)/ossrun.in > ossrun
 	@chmod 755 ossrun
+
+ossdriver: ossdriver.in
+	@rm -f ossdriver
+	cp $(srcdir)/ossdriver.in ossdriver
+	chmod 755 ossdriver
+
+install-exec-hook: ossdriver
+	@rm -f $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver 
+	cp ossdriver $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver 
+# osspcsamp
+	@rm -f $(prefix)/bin/osspcsamp
+	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/osspcsamp
+	chmod 755 $(prefix)/bin/osspcsamp
+# ossusertime
+	@rm -f $(prefix)/bin/ossusertime
+	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/ossusertime
+	chmod 755 $(prefix)/bin/ossusertime
+# osshwc
+	@rm -f $(prefix)/bin/osshwc
+	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/osshwc
+	chmod 755 $(prefix)/bin/osshwc
+# osshwctime
+	@rm -f $(prefix)/bin/osshwctime
+	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/osshwctime
+	chmod 755 $(prefix)/bin/osshwctime
+# ossio
+	@rm -f $(prefix)/bin/ossio
+	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/ossio
+	chmod 755 $(prefix)/bin/ossio
+# ossiot
+	@rm -f $(prefix)/bin/ossiot
+	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/ossiot
+	chmod 755 $(prefix)/bin/ossiot
+# ossmpi
+	@rm -f $(prefix)/bin/ossmpi
+	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/ossmpi
+	chmod 755 $(prefix)/bin/ossmpi
+# ossmpit
+	@rm -f $(prefix)/bin/ossmpit
+	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/ossmpit
+	chmod 755 $(prefix)/bin/ossmpit
+# ossmpiotf
+	@rm -f $(prefix)/bin/ossmpiotf
+	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/ossmpiotf
+	chmod 755 $(prefix)/bin/ossmpiotf
+# ossfpe
+	@rm -f $(prefix)/bin/ossfpe
+	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/ossfpe
+	chmod 755 $(prefix)/bin/ossfpe
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
