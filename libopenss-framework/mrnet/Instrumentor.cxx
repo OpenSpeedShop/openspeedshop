@@ -54,7 +54,7 @@ namespace {
      */
     void initializeMRNet()
     {
-	Path topology_filename = "~/.openss-mrnet-topology";
+	Path topology_filename = "~/.openspeedshop/.openss-mrnet-topology";
 	
 	// Go no further if MRNet is already initialized
 	if(isMRNetInitialized)
