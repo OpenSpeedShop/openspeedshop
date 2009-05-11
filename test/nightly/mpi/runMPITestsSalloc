@@ -44,8 +44,8 @@ if [ $sallocCommand ]; then
   export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
 
   module purge
-  module load openss_mrnet
-  echo "NOTE: load openss_mrnet module"
+  module load openss-mrnet
+  echo "NOTE: load openss-mrnet module"
 #  module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
   module load openmpi-gcc/1.2.8
   echo "NOTE: load openmpi-gcc/1.2.8 module"
@@ -211,7 +211,7 @@ export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
 module purge
 #module load mpi/mvapich-1.0.1_ofed_pgi-7.2-3
 module load openmpi-gcc/1.2.8
-module load modules openss_mrnet
+module load modules openss-mrnet
 module list
 which openss
 executable=\`which smg2000\`
@@ -392,7 +392,7 @@ echo "log -f smg2000_${thiscompiler}_openmpi_io_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "$RankCount  libc_open" smg2000_${thiscompiler}_openmpi_io_results.log | cat > smg2000_${thiscompiler}_openmpi_io_results.status
+grep "libc_open" smg2000_${thiscompiler}_openmpi_io_results.log | cat > smg2000_${thiscompiler}_openmpi_io_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 io experiment"
@@ -412,7 +412,7 @@ echo "log -f smg2000_${thiscompiler}_openmpi_iot_results.log" >> new_input.scrip
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "$RankCount  libc_open" smg2000_${thiscompiler}_openmpi_iot_results.log | cat > smg2000_${thiscompiler}_openmpi_iot_results.status
+grep "libc_open" smg2000_${thiscompiler}_openmpi_iot_results.log | cat > smg2000_${thiscompiler}_openmpi_iot_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 iot experiment"
@@ -653,7 +653,7 @@ module purge
 #module load mpi/mvapich-1.0.1_ofed_pgi-7.2-3
 #module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
 module load openmpi-gcc/1.2.8
-module load openss_mrnet
+module load openss-mrnet
 module list
 which openss
 #
