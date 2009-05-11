@@ -154,17 +154,12 @@ then
   make
 elif  [ "$testexe" == "sweep3d" ]
 then
-  if [ -z "$REMOTEHOST" ];
+  if [ -z "$MPIHOME" ];
   then
     make mpi
   else
-    if [[ "$REMOTEHOST" =~ lanl ]]
-    then
       make -f makefile.lanl clean
       make -f makefile.lanl mpi
-   else
-      make mpi
-   fi
   fi
 fi
 
@@ -799,7 +794,7 @@ echo "log -f sweep3d_${thiscompiler}_openmpi_pcsamp_results.log" >> new_input.sc
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "source_ *source.f,2)." sweep3d_${thiscompiler}_openmpi_pcsamp_results.log | cat > sweep3d_${thiscompiler}_openmpi_pcsamp_results.status
+grep "source_" sweep3d_${thiscompiler}_openmpi_pcsamp_results.log | cat > sweep3d_${thiscompiler}_openmpi_pcsamp_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi pcsamp experiment"
@@ -819,7 +814,7 @@ echo "log -f sweep3d_${thiscompiler}_openmpi_usertime_results.log" >> new_input.
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "source_ *source.f,2)." sweep3d_${thiscompiler}_openmpi_usertime_results.log | cat > sweep3d_${thiscompiler}_openmpi_usertime_results.status
+grep "source_" sweep3d_${thiscompiler}_openmpi_usertime_results.log | cat > sweep3d_${thiscompiler}_openmpi_usertime_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi usertime experiment"
@@ -838,7 +833,7 @@ echo "log -f sweep3d_${thiscompiler}_openmpi_hwc_results.log" >> new_input.scrip
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "source_ *source.f,2)." sweep3d_${thiscompiler}_openmpi_hwc_results.log | cat > sweep3d_${thiscompiler}_openmpi_hwc_results.status
+grep "source_" sweep3d_${thiscompiler}_openmpi_hwc_results.log | cat > sweep3d_${thiscompiler}_openmpi_hwc_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi hwc experiment"
@@ -858,7 +853,7 @@ echo "log -f sweep3d_${thiscompiler}_openmpi_hwctime_results.log" >> new_input.s
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "source_ *source.f,2)." sweep3d_${thiscompiler}_openmpi_hwctime_results.log | cat > sweep3d_${thiscompiler}_openmpi_hwctime_results.status
+grep "source_" sweep3d_${thiscompiler}_openmpi_hwctime_results.log | cat > sweep3d_${thiscompiler}_openmpi_hwctime_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi hwctime experiment"
