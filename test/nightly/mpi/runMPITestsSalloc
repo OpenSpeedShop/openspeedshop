@@ -89,7 +89,7 @@ do
 #  for thiscompiler in intel pgi gnu
 
 #  loop here through a compiler list
-   for thiscompiler in gnu
+   for thiscompiler in gnu pgi intel pathscale
    do
 
  module purge
@@ -502,7 +502,7 @@ echo ""
 
 # script to send test results email
 # email subject
-SUBJECT="OpenSpeedShop MPI smg2000 executable test results"
+SUBJECT="\$thisuname OpenSpeedShop MPI smg2000 executable test results"
 # Email To ?
 EMAIL="jegkas@gmail.com"
 # Email text/message
@@ -510,7 +510,7 @@ EMAILMESSAGE="\$currentDir/openss_test_message.txt"
 #EMAILMESSAGE="\${local_testpath}/openss_test_message.txt"
 echo " OpenSpeedShop Performance Tool SMG2000 Test Results" >\$EMAILMESSAGE
 echo "" >>\$EMAILMESSAGE
-echo " Intel compiler, $NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
+echo " ${thiscompiler} compiler, $NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
 thisuname="\`uname -srnmo\`"
 echo " System uname: " \$thisuname>> \$EMAILMESSAGE
 thisdate="\`date\`"
@@ -949,7 +949,7 @@ echo ""
 
 # script to send test results email
 # email subject
-SUBJECT="OpenSpeedShop MPI sweep3d.mpi executable test results"
+SUBJECT="\$thisuname OpenSpeedShop MPI sweep3d.mpi executable test results"
 # Email To ?
 EMAIL=\$EmailAddress
 # Email text/message
@@ -958,7 +958,7 @@ EMAILMESSAGE="\$currentDir/openss_test_message.txt"
 #EMAILMESSAGE="\${local_testpath}/openss_test_message.txt"
 echo " OpenSpeedShop Performance Tool SWEEP3D.MPI Test Results" >\$EMAILMESSAGE
 echo "" >>\$EMAILMESSAGE
-echo " Intel compiler, \$NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
+echo " ${thiscompiler} compiler, \$NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
 thisuname="\`uname -srnmo\`"
 echo " System uname: " \$thisuname>> \$EMAILMESSAGE
 thisdate="\`date\`"
