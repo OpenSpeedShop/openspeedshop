@@ -31,6 +31,7 @@ fi
 ##set -x
 basedir=`pwd`
 sallocCommand=`which srun`
+echo "\"salloc\" command: ", $sallocCommand
 
 # Try looking for SANDIA run environment
 found_salloc=0
@@ -46,9 +47,12 @@ if [ $sallocCommand ]; then
   module purge
   module load openss-mrnet
   echo "NOTE: load openss-mrnet module"
+  which openss
 #  module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
   module load openmpi-gcc/1.2.8
   echo "NOTE: load openmpi-gcc/1.2.8 module"
+  which mpicc
+  which mpif77
 else
   echo "Did not find SNLSYSTEM environment variable: "
   found_salloc=0
@@ -88,7 +92,26 @@ do
    for thiscompiler in gnu
    do
 
+ module purge
+ module load openss-mrnet
 
+ if [ $thiscompiler == "gnu" ] 
+ then
+    module load openmpi-gcc/1.2.8
+ elif  [ $thiscompiler == "pgi" ] 
+ then
+    module load pgi/7.2-5
+    module load openmpi-pgi/1.2.8
+ elif  [ $thiscompiler == "intel" ] 
+ then
+    module load intel-f/10.0.023
+    module load intel-c/10.0.023
+    module load openmpi-intel/1.2.8
+ elif  [ $thiscompiler == "pathscale" ] 
+ then
+    module load pathscale/3.1
+    module load openmpi-pathscale/1.2.8
+ fi
 
      if [ $debug_flag == 1 ]
      then
@@ -121,6 +144,9 @@ cd $testexe
 
 thismpicc=`which mpicc`
 echo "which mpicc=" $thismpicc
+thismpif77=`which mpif77`
+echo "which mpif77=" $thismpf77
+
 
 if [ "$testexe" == "smg2000" ]
 then
@@ -128,8 +154,18 @@ then
   make
 elif  [ "$testexe" == "sweep3d" ]
 then
-#  mv -f new_makefile makefile
-  make mpi
+  if [ -z "$REMOTEHOST" ];
+  then
+    make mpi
+  else
+    if [[ "$REMOTEHOST" =~ lanl ]]
+    then
+      make -f makefile.lanl clean
+      make -f makefile.lanl mpi
+   else
+      make mpi
+   fi
+  fi
 fi
 
 if [ "$testexe" == "smg2000" ]
@@ -205,13 +241,16 @@ then
 cat > smg2000_${thiscompiler}_openmpi_script.sh << EOF
 #!/bin/bash
 #
-#module use --append /projects/OpenSpeedShop/modules/tlcc
 . /usr/share/modules/init/sh
 export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
 module purge
-#module load mpi/mvapich-1.0.1_ofed_pgi-7.2-3
+#
 module load openmpi-gcc/1.2.8
-module load modules openss-mrnet
+echo "NOTE: load openmpi-gcc/1.2.8 module"
+#
+module load openss-mrnet
+echo "NOTE: smg2000, load openss-mrnet module"
+#
 module list
 which openss
 executable=\`which smg2000\`
@@ -631,29 +670,31 @@ EOF
 
 echo "pwd=$pwd"
 
-echo "SNLSYSTEM=$SNLSYSTEM"
-RUN_DIR=$testpath
+#RUN_DIR=$testpath
+RUN_DIR=$testpathbase/${testexe}_${thiscompiler}/test
 echo "RUN_DIR=$RUN_DIR"
 cd $RUN_DIR
 REQ_WALLTIME=1:00
 REQ_NNODES=2
 REQ_SCRIPT="$RUN_DIR/smg2000_${thiscompiler}_openmpi_script.sh"
-sbatch --account=FY093085 --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
+#sbatch --account=FY093085 --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
+sbatch  --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
 
 elif [ "$testexe" == "sweep3d" ]
 then
 
 cat > sweep3d_${thiscompiler}_openmpi_script.sh << EOF
 #!/bin/bash
-
-#module use --append /projects/OpenSpeedShop/modules/tlcc
 . /usr/share/modules/init/sh
 export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
 module purge
-#module load mpi/mvapich-1.0.1_ofed_pgi-7.2-3
-#module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
+#
 module load openmpi-gcc/1.2.8
+echo "NOTE: load openmpi-gcc/1.2.8 module"
+#
 module load openss-mrnet
+echo "NOTE: sweep3d, load openss-mrnet module"
+#
 module list
 which openss
 #
@@ -667,6 +708,8 @@ echo "Local testpath directory is:" \$local_testpath
 local_subhost=$SUB_HOST
 echo "Local sub_host is:" \$local_subhost
 echo "sweep3d.mpi executable path directory is:" \$executable
+mpicommand=`which mpirun`
+echo "sweep3d.mpi test, mpirun command path directory is:" \$mpicommand
 #
 # Read in test parameters
 #
@@ -746,7 +789,7 @@ fi
 #
 # Run pcsamp and analyze the results
 #
-openss -offline -f "/apps/x86_64/mpi/openmpi/pgi-7.2-3/openmpi-1.2.7_ofed/bin/mpiexec -np \$RankCount ./sweep3d.mpi" pcsamp
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" pcsamp
 ls *.openss | grep "sweep3d.mpi-pcsamp\." > sweep3d_${thiscompiler}_openmpi_create_pcsamp
 echo "-------------------------------------"
 echo "BEGIN Analyzing sweep3d.mpi pcsamp experiment"
@@ -765,7 +808,7 @@ echo "-------------------------------------"
 #
 # Run usertime and analyze the results
 #
-openss -offline -f "/apps/x86_64/mpi/openmpi/pgi-7.2-3/openmpi-1.2.7_ofed/bin/mpiexec -np \$RankCount ./sweep3d.mpi" usertime
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" usertime
 ls *.openss | grep "sweep3d.mpi-usertime\." > sweep3d_${thiscompiler}_openmpi_create_usertime
 
 echo "-------------------------------------"
@@ -785,7 +828,7 @@ echo ""
 
 
 
-openss -offline -f "/apps/x86_64/mpi/openmpi/pgi-7.2-3/openmpi-1.2.7_ofed/bin/mpiexec -np \$RankCount ./sweep3d.mpi" hwc
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" hwc
 ls *.openss | grep "sweep3d.mpi-hwc\." > sweep3d_${thiscompiler}_openmpi_create_hwc
 
 echo ""
@@ -803,7 +846,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/apps/x86_64/mpi/openmpi/pgi-7.2-3/openmpi-1.2.7_ofed/bin/mpiexec -np \$RankCount ./sweep3d.mpi" hwctime
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" hwctime
 ls *.openss | grep "sweep3d.mpi-hwctime\." > sweep3d_${thiscompiler}_openmpi_create_hwctime
 
 echo ""
@@ -823,7 +866,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/apps/x86_64/mpi/openmpi/pgi-7.2-3/openmpi-1.2.7_ofed/bin/mpiexec -np \$RankCount ./sweep3d.mpi" io
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" io
 ls *.openss | grep "sweep3d.mpi-io\." > sweep3d_${thiscompiler}_openmpi_create_io
 
 echo ""
@@ -843,7 +886,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/apps/x86_64/mpi/openmpi/pgi-7.2-3/openmpi-1.2.7_ofed/bin/mpiexec -np \$RankCount ./sweep3d.mpi" iot
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" iot
 ls *.openss | grep "sweep3d.mpi-iot\." > sweep3d_${thiscompiler}_openmpi_create_iot
 
 echo ""
@@ -863,7 +906,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/apps/x86_64/mpi/openmpi/pgi-7.2-3/openmpi-1.2.7_ofed/bin/mpiexec -np \$RankCount ./sweep3d.mpi" mpi
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" mpi
 ls *.openss | grep "sweep3d.mpi-mpi\-" > sweep3d_${thiscompiler}_openmpi_create_mpi
 
 echo ""
@@ -883,7 +926,7 @@ echo "-------------------------------------"
 echo ""
 
 
-openss -offline -f "/apps/x86_64/mpi/openmpi/pgi-7.2-3/openmpi-1.2.7_ofed/bin/mpiexec -np \$RankCount ./sweep3d.mpi" mpit
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" mpit
 
 #
 # Find corresponding experiment database files and create files that can be used to restore the databases
@@ -1075,14 +1118,15 @@ EOF
 
 echo "pwd=$pwd"
 
-echo "SNLSYSTEM=$SNLSYSTEM"
-RUN_DIR=$testpath
+#RUN_DIR=$testpath
+RUN_DIR=$testpathbase/${testexe}_${thiscompiler}
 echo "RUN_DIR=$RUN_DIR"
 cd $RUN_DIR
 REQ_WALLTIME=1:00
 REQ_NNODES=2
 REQ_SCRIPT="$RUN_DIR/sweep3d_${thiscompiler}_openmpi_script.sh"
-sbatch --account=FY093085 --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
+#sbatch --account=FY093085 --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
+sbatch --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
 fi
 
 
@@ -1093,6 +1137,24 @@ fi
 
 
 cd $testpathbase
+echo "testpathbase=$testpathbase"
+
+#
+# only keep the previous copy, if one already exists delete it
+#
+if [ -a prev_${testexe}_${thiscompiler} ]
+then
+   rm -rf prev_${testexe}_${thiscompiler}
+fi
+
+#
+# keep the previous run as a previous copy
+#
+if [ -a ${testexe}_${thiscompiler} ]
+then
+   mv -f ${testexe}_${thiscompiler} prev_${testexe}_${thiscompiler}
+fi
+
 mv $testexe ${testexe}_${thiscompiler}
 
 
