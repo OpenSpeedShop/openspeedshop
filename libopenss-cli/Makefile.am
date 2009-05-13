@@ -22,13 +22,14 @@ BUILT_SOURCES = \
 	SS_Parse_Yacc.cxx \
 	SS_Parse_Yacc.h \
 	SS_Parse_Yacc.hxx \
-	offline.py
+	offline.py \
+	mrnet.py
 
 AM_YFLAGS = -d
 YFLAGS = -d
 
 dist_pkglib_SCRIPTS = \
-	init.py offline.py
+	init.py offline.py mrnet.py
 
 lib_LTLIBRARIES = libopenss-cli.la
 
@@ -135,4 +136,10 @@ offline.py: offline.py.in
 		$(srcdir)/offline.py.in > offline.py
 	@chmod 755 offline.py
 
-EXTRA_DIST += offline.py.in
+mrnet.py: mrnet.py.in
+	@rm -f mrnet.py
+	@cat \
+		$(srcdir)/mrnet.py.in > mrnet.py
+	@chmod 755 mrnet.py
+
+EXTRA_DIST += offline.py.in mrnet.py

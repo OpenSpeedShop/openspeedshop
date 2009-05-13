@@ -385,11 +385,12 @@ BUILT_SOURCES = \
 	SS_Parse_Yacc.cxx \
 	SS_Parse_Yacc.h \
 	SS_Parse_Yacc.hxx \
-	offline.py
+	offline.py \
+	mrnet.py
 
 AM_YFLAGS = -d
 dist_pkglib_SCRIPTS = \
-	init.py offline.py
+	init.py offline.py mrnet.py
 
 lib_LTLIBRARIES = libopenss-cli.la
 libopenss_cli_la_CXXFLAGS = \
@@ -461,7 +462,7 @@ LFILES = SS_Parse_Lex.lxx
 YFILES = SS_Parse_Yacc.yxx
 EXTRA_DIST = help_cmd_msg.dxx help_general_msg.dxx \
 	help_scripting_msg.dxx help_grammar_msg.dxx help_topic_msg.dxx \
-	offline.py.in
+	offline.py.in mrnet.py
 CLEANFILES = $(BUILT_SOURCES)
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -1041,6 +1042,12 @@ offline.py: offline.py.in
 		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
 		$(srcdir)/offline.py.in > offline.py
 	@chmod 755 offline.py
+
+mrnet.py: mrnet.py.in
+	@rm -f mrnet.py
+	@cat \
+		$(srcdir)/mrnet.py.in > mrnet.py
+	@chmod 755 mrnet.py
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
