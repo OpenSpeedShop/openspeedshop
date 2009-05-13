@@ -1,0 +1,381 @@
+##===========================================================================##
+#  Copyright (C) 2008 Los Alamos National Security, LLC. All Rights Reserved. #
+#               Author: Samuel K. Gutierrez - samuel[at]lanl.gov              #
+# Copyright (c) 2008-2009 Krell Institute  All Rights Reserved.               #
+#               Author: Additional changes added by jeg                       #
+##===========================================================================##
+
+#=============================================================================#
+# This program is free software; you can redistribute it and/or modify it     #
+# under the terms of the GNU General Public License as published by the Free  #
+# Software Foundation; either version 2 of the License, or (at your option)   #
+# any later version.                                                          #
+#                                                                             #
+# This program is distributed in the hope that it will be useful, but WITHOUT #
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       #
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for   #
+# more details.                                                               #
+#                                                                             #
+# You should have received a copy of the GNU General Public License along     #
+# with this program; if not, write to the Free Software Foundation, Inc., 59  #
+# Temple Place, Suite 330, Boston, MA  02111-1307 USA                         #
+#=============================================================================#
+
+#LANL's Yellowrail MRNet site.py
+
+import commands
+from re import compile
+from sets import Set
+from sys import stdout
+from os import path
+import warnings 
+
+# Flag indicating if debugging output will be displayed.
+debug = False
+
+#Flag indicating if a topology file update is needed
+topFileUpdateNeeded = False
+
+# Regular expression string utilized to help parse qstat output.
+# jeg commented this out and replaced it with a scheme that takes the 
+# output of uname -n and strips all numeric characters off the right side.
+
+#frontEndQstatRegEx = 'yra[^/*]*'
+
+hostnodeName = os.uname()[1].split('.')[0]
+
+if debug:
+   print "hostnodeName=%s" % hostnodeName
+
+hostnodeNameStrip = hostnodeName.rstrip('0123456789')
+if debug:
+   print "stripped hostnodeNameStrip=%s" % hostnodeNameStrip
+
+frontEndQstatRegEx = hostnodeNameStrip + '[^/*]*'
+
+if debug:
+   print "stripped frontEndQstatRegEx=%s" % frontEndQstatRegEx
+
+# Location of user-specific OpenSpeedShop preferences: $HOME/.openspeedshop
+ossuserpref = os.environ['HOME'] + os.sep + '.openspeedshop'
+
+def getRawAllocatedNodesString():
+    if os.environ.has_key('PBS_JOBID'):
+        #Get basic qstat information and force output of allocated nodes to be
+        #on the same line as the job ID.
+        qstatnodeinfo = commands.getoutput('qstat -f $PBS_JOBID -n1')
+        if debug:
+            print ' '
+            #print "from getRawAllocatedNodesString, qstatnodeinfo=%s" % qstatnodeinfo
+        #Last item in list should always be a string containing a list of 
+        #allocated nodes in the form: 'yra051/7+yra051/6+yra051...
+        #yra051/0+yra087/7+yra087...yra087/0
+    else:
+        print 'fatal error...PBS_JOBID not defined.'
+        sys.exit()
+    nodelistTmp = qstatnodeinfo.split(' ')[-1]
+    if debug:
+       print "From getRawAllocatedNodesString, stripped hostnodeNameStrip=%s" % hostnodeNameStrip
+       print "From getRawAllocatedNodesString, nodelistTmp=%s" % nodelistTmp
+    return nodelistTmp
+#    return qstatnodeinfo.split(' ')[-1]
+
+def getAllocatedNodesString():
+    if debug:
+       print "frontEndQstatRegEx=%s from getAllocatedNodesString" % frontEndQstatRegEx
+    frontEndRegex = re.compile(frontEndQstatRegEx)
+    backEndQstatRegEx = ''
+    backEndNodeNameStrip = ''
+    BEnodelist = list('')
+    rawString = getRawAllocatedNodesString()
+    i = 0
+    j = 0
+    k = 0
+    rawStringLength = len(rawString)
+    if debug:
+       print "rawStringLength=%d" % rawStringLength
+    while (1):
+       if (i > rawStringLength-5):
+          break
+       while (rawString[i] != '+' and rawString[i] != '\n'):
+          if debug:
+            print "i=%d" % i
+            print "rawString[i]=%c" % rawString[i]
+          i+=1
+          j=i+1
+       if (i > rawStringLength-5):
+          break
+       while (rawString[i] != '/' and rawString[i] != '\n'):
+          if debug:
+             print "in second while, i=%d" % i
+             print "in second while, rawString[i]=%c" % rawString[i]
+          i+=1
+          k=i
+       backEndNodeName = rawString[j:k]
+       if debug:
+          print "backEndNodeName = %s" % backEndNodeName
+       
+       backEndNodeNameStrip = backEndNodeName.rstrip('0123456789')
+       if debug:
+          print "backEndNodeNameStrip = %s" % backEndNodeNameStrip
+       if (backEndNodeNameStrip != hostnodeNameStrip):
+           backEndQstatRegEx = backEndNodeNameStrip + '[^/*]*'
+           backEndRegex = re.compile(backEndQstatRegEx)
+           if debug:
+              print "backEndRegex=%s from getAllocatedNodesString" % backEndRegex
+           BEdupnodeslist = backEndRegex.findall(rawString)
+           if debug:
+              print "BEdupnodeslist=%s from getAllocatedNodesString" % BEdupnodeslist
+           BEnodelist = list(Set(BEdupnodeslist))
+           if debug:
+              print "BEnodelist=%s from getAllocatedNodesString" % BEnodelist
+
+           
+       
+
+    if debug:
+       print "frontEndRegex=%s in getAllocatedNodesString" % frontEndRegex
+       print "rawString=%s from getRawAllocatedNodesString() in getAllocatedNodesString" % rawString
+    FEdupnodeslist = frontEndRegex.findall(rawString)
+    if debug:
+       print "FEdupnodeslist=%s from getAllocatedNodesString" % FEdupnodeslist
+    
+    #Return string without duplicate node entries.
+    nodelist = list(Set(FEdupnodeslist))
+    #if (len(BEnodelist) > 0):
+    #   print "before combining lists: nodelist=%s and BEnodelist from getAllocatedNodesString" % nodelist
+    #   nodelist = (nodelist + BEnodelist)
+    #   print "after combining lists: nodelist=%s and BEnodelist from getAllocatedNodesString" % nodelist
+    if debug:
+       print "nodelist=%s from getAllocatedNodesString" % nodelist
+    
+    #Append .lanl.gov
+    """
+	for i in range(len(nodeslist)):
+        nodeslist[i] += '.lanl.gov'
+    """
+    # Not sure if sort is needed...
+    if (len(BEnodelist) > 0):
+       BEnodelist.sort()
+       nodelist = (nodelist + BEnodelist)
+    else:
+       nodelist.sort()
+
+    return string.join(nodelist)
+
+def prepENV(topologyStringHash):
+    global topFileUpdateNeeded
+    
+    if debug:
+        sys.stdout.write('checking for ' + ossuserpref + ' ...')
+    
+    # Check for presence of User-Specific OpenSpeedShop Preference Directory:
+    # $HOME/.openspeedshop.  We are assuming that this is the most
+    # convenient place for autogenerated MRNet topology files.
+    if os.path.isdir(ossuserpref):
+        if debug:
+            print 'present'
+            sys.stdout.write('topology update needed...')
+        
+        #Overwrite OPENSS_MRNET_TOPOLOGY_FILE with:
+        #$HOME/.openspeedshop/HOSTNAME.<topologyStringHash>.top
+        newtopenv = ossuserpref + os.sep + os.uname()[1].split('.')[0] + \
+        '.' + topologyStringHash + '.top'
+        
+        os.environ['OPENSS_MRNET_TOPOLOGY_FILE'] = newtopenv
+    else:
+        if debug:
+            print 'not present'
+            sys.stdout.write('topology update needed...')
+        
+        #Make Directory $HOME/.openspeedshop
+        os.mkdir(ossuserpref, 0755)
+        
+        os.environ['OPENSS_MRNET_TOPOLOGY_FILE'] = \
+        ossuserpref + os.sep + os.uname()[1].split('.')[0] + \
+        '.' + topologyStringHash + '.top'
+
+    if os.path.isfile(os.environ['OPENSS_MRNET_TOPOLOGY_FILE']):
+        if debug:
+            print 'no'
+    else:
+        if debug:
+            print 'yes'
+        topFileUpdateNeeded = True
+    if debug:
+        print ('OPENSS_MRNET_TOPOLOGY_FILE: ' + \
+        os.environ['OPENSS_MRNET_TOPOLOGY_FILE'])
+
+## haveTopgen()
+# Returns True if mrnet_topgen is present in $OPENSS_PREFIX/bin.
+# Returns False otherwise.
+def haveTopgen():
+    return os.path.isfile(os.environ['OPENSS_PREFIX'] + os.sep + 'bin' + \
+                        os.sep + 'mrnet_topgen')
+
+#FIXME
+## generateMRNetTopologyString(degree, numleaves)
+# Returns mrnet_topgen-based MRNet topology string.
+def generateMRNetTopologyString(degree, numleaves):
+    mrntstr = 'echo "' + getAllocatedNodesString() + '" | ' + \
+				'mrnet_topgen -b %dx%d' % (degree, numleaves)
+    
+    #Capture generated MRNet topology string
+    mrntopstr = commands.getoutput(mrntstr)
+    
+    if debug:
+        print mrntopstr
+
+    return mrntopstr
+    
+def createTopologyFile(topologyString):
+    #Make certain OPENSS_MRNET_TOPOLOGY_FILE is present
+
+    if debug:
+       print "In createTopologyFile, topologyString=%s" % topologyString
+
+    if os.environ.has_key('OPENSS_MRNET_TOPOLOGY_FILE'):
+        try:
+            topfile = open(os.environ['OPENSS_MRNET_TOPOLOGY_FILE'], 'w')
+            topfile.write(topologyString)
+            topfile.close()
+        except:
+            exc_info = sys.exc_info()
+            print exc_info[1]
+            print ('an error was encountered during MRNet topology file ' +
+            'generation...')
+            sys.exit()
+    else:
+        print ('OPENSS_MRNET_TOPOLOGY_FILE environment variable ' +
+        'not defined...')
+        sys.exit()
+    
+def getAllocatedNodeCount():
+    rlnodeinfo = commands.getoutput('qstat -f $PBS_JOBID | ' + 
+    'grep Resource_List.nodes')
+    return int(rlnodeinfo.split(' ')[-1].split(':')[0])
+     
+def getAllocatedNodePPNCount():
+    rlnodeinfo = commands.getoutput('qstat -f $PBS_JOBID | ' +
+    'grep Resource_List.nodes')
+    
+    return int(rlnodeinfo.split(' ')[-1].split('=')[-1])
+
+##generateSimpleTopologyString() 
+def generateSimpleTopologyString():
+    #Strip .lanl.gov
+    hostname = os.uname()[1]
+    hostname = hostname.split('.')[0]
+    
+    return hostname + ':0 => \n' + '  ' + hostname + ':1 ;'
+
+#TODO:FIXME 
+def generateSimpleBETopologyString():
+    nodelist = getAllocatedNodesString().split(' ')
+    
+    topstring = nodelist[0] + ':0 =>\n  ' + nodelist[0] + ':1'
+
+    for node in nodelist[1::1]:
+        topstring += '\n  ' + node + ':0'
+    
+    topstring += ' ;'
+    return topstring
+
+#TODO:FIXME 
+def generateSimpleSLURMBETopologyString():
+    if debug:
+       print "generateSimpleSLURMBETopologyString, hostnodeName=" + hostnodeName
+    slurmnodescmdstr = "srun " + "/bin/hostname" + " | sort | uniq"
+    if debug:
+       print "generateSimpleSLURMBETopologyString, slurmnodescmdstr=" + slurmnodescmdstr
+    nodelist = commands.getoutput(slurmnodescmdstr).split('\n')
+    if debug:
+       print "generateSimpleSLURMBETopologyString, begin nodelist=" 
+       print nodelist
+       print "generateSimpleSLURMBETopologyString, end nodelist" 
+    
+    if debug:
+       print "generateSimpleSLURMBETopologyString, first reference, begin topstring=" 
+    topstring = hostnodeName + ':0 =>\n  ' + hostnodeName + ':1'
+    if debug:
+       print topstring
+       print "generateSimpleSLURMBETopologyString, first reference, end topstring" 
+
+    for node in nodelist[0::1]:
+        if (node != hostnodeName):
+          if debug:
+             print "generateSimpleSLURMBETopologyString, in for loop, begin topstring=" 
+             print topstring
+             print "generateSimpleSLURMBETopologyString, in for loop, end topstring" 
+          topstring += '\n  ' + node + ':0'
+    
+    topstring += ' ;'
+
+    if debug:
+       print "generateSimpleSLURMBETopologyString, RETURN begin topstring=" 
+       print topstring
+       print "generateSimpleSLURMBETopologyString, RETURN end topstring" 
+
+    return topstring
+
+
+# Overkill
+def getStringHashValue(inputString):
+    return hex(hash(inputString))
+# main()
+def main():
+    #Assuming presence of PBS_JOBID is a good 
+    #indicator that we are on compute nodes
+    if os.environ.has_key('PBS_JOBID'):
+        if debug:
+            print 'on compute node...'
+        prepENV(getStringHashValue(generateSimpleBETopologyString()))
+
+        print ""
+        print "An MRNet Configuration has been created for you - please"
+        print "check if this is consistent with your partition."
+        print ""
+        print "Current MRNet configuration in " + ossuserpref
+        print ""
+        print generateSimpleBETopologyString()
+        if debug:
+           print "after print of generateSimpleBETopologyString()"
+
+        #TODO:FIXME Simple hack to get things going
+        if(topFileUpdateNeeded):
+            createTopologyFile(generateSimpleBETopologyString())
+
+    #Assuming presence of SLURM_JOBID is a good 
+    #indicator that we are on compute nodes
+    elif (os.environ.has_key("SLURM_JOBID")):
+        if debug:
+            print 'USING SLURM ... from node ' + hostnodeName
+
+        prepENV(getStringHashValue(generateSimpleSLURMBETopologyString()))
+        #TODO:FIXME Simple hack to get things going
+        if(topFileUpdateNeeded):
+            createTopologyFile(generateSimpleSLURMBETopologyString())
+
+    #If PBS_JOBID or SLURM_JOBID is not present, then we
+    #better be on a compile node...
+    else:
+        if debug:
+            print 'on compile node...' \
+                  + hostnodeName
+
+        # create list of nodes.
+        cmdstr = "uname -n > " + ossuserpref + os.sep + ".openss-mrnet-hosts"
+        os.system(cmdstr);
+ 
+        #Make sure we have mrnet_topgen before we continue. 
+        #It's not used here, but will be.??
+        prepENV(getStringHashValue(generateSimpleTopologyString()))
+        #print generateSimpleTopologyString()
+                #TODO: FIXME Simple hack to get things going
+        if(topFileUpdateNeeded):
+            createTopologyFile(generateSimpleTopologyString())
+
+if __name__ == '__main__' :
+    #Used to suppress python hex() Future Warning message.
+    warnings.filterwarnings('ignore')
+    main()
