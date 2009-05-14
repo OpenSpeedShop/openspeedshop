@@ -16,6 +16,10 @@ low_flag=0
 # If this is set we will use the default sampling rate or default threshold depending on the experiment
 use_default_flag=0
 
+# Initialize to indicate no "input argument rate value" parameter was seen
+# If this is set we will use the "input argument rate value" parameter instead of the experiment default value
+input_argument_rate_value=0
+
 
 pcsamp_default_rate=100
 usertime_default_rate=35
@@ -42,9 +46,10 @@ then
    echo "            \"high\"     - Increase the default sampling rate or threshold value to increase the number of samples taken."
    echo "            \"low\"      - Decrease the default sampling rate or threshold value to decrease the number of samples taken."
    echo "            \"default\"  - Use the default sampling rate or threshold value. This will override any environment variable settings."
+   echo "            \"rate value\"  - Use this sampling rate or threshold value instead of the default or any environment variable settings."
    echo ""
    exit
-elif [ "$1" == "help" ||  "$1" == "--help" ] 
+elif [ "$1" == "help" ] 
 then
    echo ""
    echo "Usage: $0 \"executable\" [extra_args]"
@@ -56,9 +61,9 @@ then
    echo "            \"high\"     - Increase the default sampling rate or threshold value to increase the number of samples taken."
    echo "            \"low\"      - Decrease the default sampling rate or threshold value to decrease the number of samples taken."
    echo "            \"default\"  - Use the default sampling rate or threshold value. This will override any environment variable settings."
+   echo "            \"rate value\"  - Use this sampling rate or threshold value instead of the default or any environment variable settings."
    echo ""
    exit
-
 fi
 
 if [ -z "$2" ] 
@@ -81,6 +86,8 @@ else
   elif  [ "$2" == "default" ]
   then
      use_default_flag=1
+  else
+     input_argument_rate_value=$2
   fi
 
 fi
@@ -162,13 +169,39 @@ then
        fi
      fi
      rate=$pcsamp_default_rate
-     echo "rate=$rate"
+     if [ $debug_flag == 1 ]
+     then 
+       echo "rate=$rate"
+     fi
      OPENSS_PCSAMP_RATE=$rate
      export OPENSS_PCSAMP_RATE
      if [ $debug_flag == 1 ]
      then 
        echo "in PCSAMP EXPERIMENT SECTION, RESET default, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
      fi
+  elif [ $input_argument_rate_value != 0 ]
+  then
+     if [ -z "$OPENSS_PCSAMP_RATE" ] 
+     then
+       echo "[openss]: pcsamp experiment using sampling rate: \"$input_argument_rate_value\" because \"rate value\" parameter was specified."
+     else
+       if [ $input_argument_rate_value != $OPENSS_PCSAMP_RATE ]
+       then
+         echo "[openss]: pcsamp experiment OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE was set and will be altered to \"$input_argument_rate_value\" because the \"rate value\" parameter was specified."
+       fi
+     fi
+     rate=$input_argument_rate_value
+     if [ $debug_flag == 1 ]
+     then 
+       echo "rate=$rate"
+     fi
+     OPENSS_PCSAMP_RATE=$rate
+     export OPENSS_PCSAMP_RATE
+     if [ $debug_flag == 1 ]
+     then 
+       echo "in PCSAMP EXPERIMENT SECTION, RESET input_argument_rate_value, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
+     fi
+     
   else
      if [ -z "$OPENSS_PCSAMP_RATE" ] 
      then
@@ -256,6 +289,28 @@ then
      if [ $debug_flag == 1 ]
      then 
        echo "in USERTIME EXPERIMENT SECTION, RESET default, OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE"
+     fi
+  elif [ $input_argument_rate_value != 0 ]
+  then
+     if [ -z "$OPENSS_USERTIME_RATE" ] 
+     then
+       echo "[openss]: usertime experiment using sampling rate: \"$input_argument_rate_value\" because \"rate value\" parameter was specified."
+     else
+       if [ $input_argument_rate_value != $OPENSS_USERTIME_RATE ]
+       then
+         echo "[openss]: usertime experiment OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE was set and will be altered to \"$input_argument_rate_value\" because the \"rate value\" parameter was specified."
+       fi
+     fi
+     rate=$input_argument_rate_value
+     if [ $debug_flag == 1 ]
+     then 
+       echo "rate=$rate"
+     fi
+     OPENSS_USERTIME_RATE=$rate
+     export OPENSS_USERTIME_RATE
+     if [ $debug_flag == 1 ]
+     then 
+       echo "in USERTIME EXPERIMENT SECTION, RESET input_argument_rate_value, OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE"
      fi
   else
      if [ -z "$OPENSS_USERTIME_RATE" ] 
