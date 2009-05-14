@@ -91,79 +91,175 @@ fi
 
 if [ $experiment_name == "osspcsamp" ]
 then
+
   if [ $debug_flag == 1 ]
-  then
-    echo "in PCSAMP EXPERIMENT SECTION, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
-  fi
-  if [ -z "$OPENSS_PCSAMP_RATE" ] 
-  then
-    if [ $debug_flag == 1 ]
+  then 
+    if [ -z "$OPENSS_PCSAMP_RATE" ] 
     then 
       echo "in PCSAMP EXPERIMENT SECTION, NOT SET, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
-    fi
-  else
-
-    if [ $debug_flag == 1 ]
-    then 
+    else
       echo "in PCSAMP EXPERIMENT SECTION, IS SET, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
     fi
+  fi
 
-    if [ $low_flag == 1 ]
-    then
-       echo "openss: pcsamp experiment OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE was set and will be altered because the \"low\" parameter was specified."
-       rate=$OPENSS_PCSAMP_RATE
-       let rate=rate/2
-       if [ $debug_flag == 1 ]
-       then 
-         echo "rate=$rate"
-       fi
-       OPENSS_PCSAMP_RATE=$rate
-       export OPENSS_PCSAMP_RATE
-       if [ $debug_flag == 1 ]
-       then 
-          echo "in PCSAMP EXPERIMENT SECTION, RESET low, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
-       fi
-    elif [ $high_flag == 1 ]
-    then
-       echo "openss: pcsamp experiment OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE was set and will be altered because the \"high\" parameter was specified."
-       rate=$OPENSS_PCSAMP_RATE
-       let rate=rate*4
-       if [ $debug_flag == 1 ]
-       then 
-         echo "rate=$rate"
-       fi
-       OPENSS_PCSAMP_RATE=$rate
-       export OPENSS_PCSAMP_RATE
-       if [ $debug_flag == 1 ]
-       then 
-         echo "in PCSAMP EXPERIMENT SECTION, RESET high, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
-       fi
-    elif [ $use_default_flag == 1 ]
-    then
+  if [ $low_flag == 1 ]
+  then
+     rate=$pcsamp_default_rate
+     let rate=rate/2
+     if [ -z "$OPENSS_PCSAMP_RATE" ] 
+     then
+       echo "[openss]: pcsamp experiment using sampling rate: \"$rate\" because the \"low\" parameter was specified."
+     else
+       echo "[openss]: pcsamp experiment OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE was set and will be altered to \"$rate\" because the \"low\" parameter was specified."
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "rate=$rate"
+     fi
+     OPENSS_PCSAMP_RATE=$rate
+     export OPENSS_PCSAMP_RATE
+     if [ $debug_flag == 1 ]
+     then 
+        echo "in PCSAMP EXPERIMENT SECTION, RESET low, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
+     fi
+  elif [ $high_flag == 1 ]
+  then
+     rate=$pcsamp_default_rate
+     let rate=rate*4
+     if [ -z "$OPENSS_PCSAMP_RATE" ] 
+     then
+       echo "[openss]: pcsamp experiment using sampling rate: \"$rate\" because the \"high\" parameter was specified."
+     else
+       echo "[openss]: pcsamp experiment OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE was set and will be altered to \"$rate\" because the \"high\" parameter was specified."
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "rate=$rate"
+     fi
+     OPENSS_PCSAMP_RATE=$rate
+     export OPENSS_PCSAMP_RATE
+     if [ $debug_flag == 1 ]
+     then 
+       echo "in PCSAMP EXPERIMENT SECTION, RESET high, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
+     fi
+  elif [ $use_default_flag == 1 ]
+  then
+     if [ -z "$OPENSS_PCSAMP_RATE" ] 
+     then
+       echo "[openss]: pcsamp experiment using sampling rate: \"$rate\" because the \"default\" parameter was specified."
+     else
        if [ $pcsamp_default_rate != $OPENSS_PCSAMP_RATE ]
        then
-         echo "openss: pcsamp experiment OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE was set and will be altered because the \"default\" parameter was specified."
+         echo "[openss]: pcsamp experiment OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE was set and will be altered to \"$pcsamp_default_rate\" because the \"default\" parameter was specified."
        fi
-       rate=$pcsamp_default_rate
-       echo "rate=$rate"
-       OPENSS_PCSAMP_RATE=$rate
-       export OPENSS_PCSAMP_RATE
-       if [ $debug_flag == 1 ]
-       then 
-         echo "in PCSAMP EXPERIMENT SECTION, RESET default, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
-       fi
-    fi 
-  fi
+     fi
+     rate=$pcsamp_default_rate
+     echo "rate=$rate"
+     OPENSS_PCSAMP_RATE=$rate
+     export OPENSS_PCSAMP_RATE
+     if [ $debug_flag == 1 ]
+     then 
+       echo "in PCSAMP EXPERIMENT SECTION, RESET default, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
+     fi
+  else
+     if [ -z "$OPENSS_PCSAMP_RATE" ] 
+     then
+       echo "[openss]: pcsamp experiment using the pcsamp experiment default sampling rate: \"$pcsamp_default_rate\"."
+     else
+       echo "[openss]: pcsamp experiment OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE was set and will be used as the sampling rate."
+     fi
+  fi 
 
   openss -offline -f "$1" pcsamp
 
 elif  [ $experiment_name == "ossusertime" ]
 then
+
   if [ $debug_flag == 1 ]
   then
-    echo "in USERTIME EXPERIMENT SECTION"
+    if [ -z "$OPENSS_USERTIME_RATE" ] 
+    then
+      echo "in USERTIME EXPERIMENT SECTION, NOT SET, OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE"
+    else
+      echo "in USERTIME EXPERIMENT SECTION, IS SET, OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE"
+    fi
   fi
+
+  if [ $low_flag == 1 ]
+  then
+     rate=$usertime_default_rate
+     let rate=rate/2
+     if [ -z "$OPENSS_USERTIME_RATE" ] 
+     then
+       echo "[openss]: usertime experiment using sampling rate: \"$rate\" because the \"low\" parameter was specified."
+     else
+       echo "[openss]: usertime experiment OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE was set and will be altered to \"$rate\" because the \"low\" parameter was specified."
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "rate=$rate"
+     fi
+     OPENSS_USERTIME_RATE=$rate
+     export OPENSS_USERTIME_RATE
+     if [ $debug_flag == 1 ]
+     then 
+        echo "in USERTIME EXPERIMENT SECTION, RESET low, OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE"
+     fi
+  elif [ $high_flag == 1 ]
+  then
+     rate=$usertime_default_rate
+#     rate=$OPENSS_USERTIME_RATE
+     let rate=rate*4
+     if [ -z "$OPENSS_USERTIME_RATE" ] 
+     then
+       echo "[openss]: usertime experiment using sampling rate: \"$rate\" because the \"high\" parameter was specified."
+     else
+       echo "[openss]: usertime experiment OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE was set and will be altered to \"$rate\" because the \"high\" parameter was specified."
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "rate=$rate"
+     fi
+     OPENSS_USERTIME_RATE=$rate
+     export OPENSS_USERTIME_RATE
+     if [ $debug_flag == 1 ]
+     then 
+       echo "in USERTIME EXPERIMENT SECTION, RESET high, OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE"
+     fi
+  elif [ $use_default_flag == 1 ]
+  then
+     if [ -z "$OPENSS_USERTIME_RATE" ] 
+     then
+
+       echo "[openss]: usertime experiment using sampling rate: \"$rate\" because the \"default\" parameter was specified."
+
+     else
+
+       if [ $usertime_default_rate != $OPENSS_USERTIME_RATE ]
+       then
+         echo "[openss]: usertime experiment OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE was set and will be altered to \"$usertime_default_rate\" because the \"default\" parameter was specified."
+       fi
+     fi
+
+     rate=$usertime_default_rate
+     echo "rate=$rate"
+     OPENSS_USERTIME_RATE=$rate
+     export OPENSS_USERTIME_RATE
+     if [ $debug_flag == 1 ]
+     then 
+       echo "in USERTIME EXPERIMENT SECTION, RESET default, OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE"
+     fi
+  else
+     if [ -z "$OPENSS_USERTIME_RATE" ] 
+     then
+       echo "[openss]: usertime experiment using the usertime experiment default sampling rate: \"$usertime_default_rate\"."
+     else
+       echo "[openss]: usertime experiment OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE was set and will be used as the sampling rate."
+     fi
+  fi 
+
   openss -offline -f "$1" usertime
+
 elif  [ $experiment_name == "osshwc" ]
 then
   if [ $debug_flag == 1 ]
