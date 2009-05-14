@@ -4,6 +4,22 @@
 ################################################################################
 debug_flag=0
 
+# Initialize to indicate no "high" parameter was seen
+# If this is set we will up the sampling rate or threshold depending on the experiment
+high_flag=0
+
+# Initialize to indicate no "low" parameter was seen
+# If this is set we will lower the sampling rate or threshold depending on the experiment
+low_flag=0
+
+# Initialize to indicate no "default" parameter was seen
+# If this is set we will use the default sampling rate or default threshold depending on the experiment
+use_default_flag=0
+
+
+pcsamp_default_rate=100
+usertime_default_rate=35
+
 if [ $debug_flag == 1 ]
 then
   echo
@@ -37,6 +53,30 @@ then
 
 fi
 
+if [ -z "$2" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "ossdriver command-line argument #2 was not specified"
+  fi
+else
+  if [ $debug_flag == 1 ]
+  then
+    echo "ossdriver command-line argument #2 = $2"
+  fi
+  if  [ "$2" == "high" ]
+  then
+     high_flag=1
+  elif  [ "$2" == "low" ]
+  then
+     low_flag=1
+  elif  [ "$2" == "default" ]
+  then
+     use_default_flag=1
+  fi
+
+fi
+
 ################################################################################
 # Run Open|SpeedShop
 ################################################################################
@@ -45,15 +85,78 @@ experiment_name=${calling_script_name##*/}
 if [ $debug_flag == 1 ]
 then
   echo "experiment_name=$experiment_name"
+  echo "high_flag=$high_flag"
+  echo "low_flag=$low_flag"
 fi
 
 if [ $experiment_name == "osspcsamp" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "in PCSAMP EXPERIMENT SECTION"
+    echo "in PCSAMP EXPERIMENT SECTION, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
   fi
+  if [ -z "$OPENSS_PCSAMP_RATE" ] 
+  then
+    if [ $debug_flag == 1 ]
+    then 
+      echo "in PCSAMP EXPERIMENT SECTION, NOT SET, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
+    fi
+  else
+
+    if [ $debug_flag == 1 ]
+    then 
+      echo "in PCSAMP EXPERIMENT SECTION, IS SET, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
+    fi
+
+    if [ $low_flag == 1 ]
+    then
+       echo "openss: pcsamp experiment OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE was set and will be altered because the \"low\" parameter was specified."
+       rate=$OPENSS_PCSAMP_RATE
+       let rate=rate/2
+       if [ $debug_flag == 1 ]
+       then 
+         echo "rate=$rate"
+       fi
+       OPENSS_PCSAMP_RATE=$rate
+       export OPENSS_PCSAMP_RATE
+       if [ $debug_flag == 1 ]
+       then 
+          echo "in PCSAMP EXPERIMENT SECTION, RESET low, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
+       fi
+    elif [ $high_flag == 1 ]
+    then
+       echo "openss: pcsamp experiment OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE was set and will be altered because the \"high\" parameter was specified."
+       rate=$OPENSS_PCSAMP_RATE
+       let rate=rate*4
+       if [ $debug_flag == 1 ]
+       then 
+         echo "rate=$rate"
+       fi
+       OPENSS_PCSAMP_RATE=$rate
+       export OPENSS_PCSAMP_RATE
+       if [ $debug_flag == 1 ]
+       then 
+         echo "in PCSAMP EXPERIMENT SECTION, RESET high, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
+       fi
+    elif [ $use_default_flag == 1 ]
+    then
+       if [ $pcsamp_default_rate != $OPENSS_PCSAMP_RATE ]
+       then
+         echo "openss: pcsamp experiment OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE was set and will be altered because the \"default\" parameter was specified."
+       fi
+       rate=$pcsamp_default_rate
+       echo "rate=$rate"
+       OPENSS_PCSAMP_RATE=$rate
+       export OPENSS_PCSAMP_RATE
+       if [ $debug_flag == 1 ]
+       then 
+         echo "in PCSAMP EXPERIMENT SECTION, RESET default, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
+       fi
+    fi 
+  fi
+
   openss -offline -f "$1" pcsamp
+
 elif  [ $experiment_name == "ossusertime" ]
 then
   if [ $debug_flag == 1 ]
