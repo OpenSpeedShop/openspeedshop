@@ -124,7 +124,27 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 	/* Otherwise store the PC value from this frame in the stack trace */
 	else {
 	    Assert(unw_get_reg(&cursor, UNW_REG_IP, &pc) == 0);
+#if defined(OPENSS_OFFLINE)
+	    /* Libmonitor provides a mechanism to detect when we are within
+	     * monitor_main or monitor_start_thread. We can use this to stop
+	     * unwinding at that point since we do not care about the details
+	     * of how main was called or the details of how a pthread was started.
+	     * For process callstacks we reduce each callstack by 4 frames
+	     * by not adding _start, __libc_start_main (once from libc and once from
+	     * monitor), and monitor_main to each callstack.
+	     * For threads we reduce each callstack by 3 frames by not adding
+	     * clone, start_thread, monitor_begin_thread to each callstack.
+	     */
+
+	    if (monitor_in_main_start_func_wide(pc) ||
+		monitor_in_start_func_wide(pc)) {
+		break;
+	    } else {
+		stacktrace[index++] = (uint64_t)pc;
+	    }
+#else
 	    stacktrace[index++] = (uint64_t)pc;	    
+#endif
 	}
 	
 	/* Unwind to the next frame, stopping after the last frame */
