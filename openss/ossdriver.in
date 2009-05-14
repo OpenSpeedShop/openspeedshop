@@ -37,17 +37,25 @@ then
    echo "Usage: $0 help"
    echo ""
    echo "    where \"executable\" is defined as the command that you normally use to execute your program: but in quotes"
-   echo "    Usage: $0 \"mpirun -N 16 -n 256 ./smg2000 -n 50 50 50\" [extra_args]"
+   echo "    For example: $0 \"mpirun -N 16 -n 256 ./smg2000 -n 50 50 50\" [extra_args]"
    echo "        where the optional \"extra_args\" is defined as follows:"
-   echo "            TBD"
+   echo "            \"high\"     - Increase the default sampling rate or threshold value to increase the number of samples taken."
+   echo "            \"low\"      - Decrease the default sampling rate or threshold value to decrease the number of samples taken."
+   echo "            \"default\"  - Use the default sampling rate or threshold value. This will override any environment variable settings."
    echo ""
    exit
-elif [ "$1" == "help" ] 
+elif [ "$1" == "help" ||  "$1" == "--help" ] 
 then
    echo ""
-   echo "Usage: $0 \"mpirun -N 16 -n 256 ./smg2000 -n 50 50 50\" [extra_args]"
+   echo "Usage: $0 \"executable\" [extra_args]"
+   echo "Usage: $0 help"
+   echo "    where \"executable\" is defined as the command that you normally use to execute your program: but in quotes"
+   echo ""
+   echo "For example: $0 \"mpirun -N 16 -n 256 ./smg2000 -n 50 50 50\" [extra_args]"
    echo "    where the optional \"extra_args\" is defined as follows:"
-   echo "         TBD"
+   echo "            \"high\"     - Increase the default sampling rate or threshold value to increase the number of samples taken."
+   echo "            \"low\"      - Decrease the default sampling rate or threshold value to decrease the number of samples taken."
+   echo "            \"default\"  - Use the default sampling rate or threshold value. This will override any environment variable settings."
    echo ""
    exit
 
