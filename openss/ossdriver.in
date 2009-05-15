@@ -18,11 +18,24 @@ use_default_flag=0
 
 # Initialize to indicate no "input argument rate value" parameter was seen
 # If this is set we will use the "input argument rate value" parameter instead of the experiment default value
-input_argument_rate_value=0
+input_argument_rate_threshold_value=0
 
+# Initialize to indicate no "input argument event value" parameter was seen
+# If this is set we will use the "input argument event value" parameter instead of the experiment default event value
+input_argument_event_value=0
 
+#
+# DEFAULT VALUES - MUST MATCH THE DEFAULTS INSIDE THE OpenSpeedShop/plugins/collectors/<experiment_type> source
+#
 pcsamp_default_rate=100
 usertime_default_rate=35
+hwc_default_event="PAPI_TOT_CYC"
+hwc_default_threshold=10000
+hwctime_default_event="PAPI_TOT_CYC"
+hwctime_default_threshold=10000
+#
+# END DEFAULT VALUES
+#
 
 if [ $debug_flag == 1 ]
 then
@@ -34,11 +47,14 @@ then
   echo
 fi
 
+calling_script_name=$0
+experiment_name=${calling_script_name##*/}
+
 if [ -z "$1" ] 
 then
    echo ""
    echo "Usage: $0 \"executable\" [extra_args]"
-   echo "Usage: $0 help"
+   echo "Usage: $0 help or --help"
    echo ""
    echo "    where \"executable\" is defined as the command that you normally use to execute your program: but in quotes"
    echo "    For example: $0 \"mpirun -N 16 -n 256 ./smg2000 -n 50 50 50\" [extra_args]"
@@ -46,10 +62,15 @@ then
    echo "            \"high\"     - Increase the default sampling rate or threshold value to increase the number of samples taken."
    echo "            \"low\"      - Decrease the default sampling rate or threshold value to decrease the number of samples taken."
    echo "            \"default\"  - Use the default sampling rate or threshold value. This will override any environment variable settings."
-   echo "            \"rate value\"  - Use this sampling rate or threshold value instead of the default or any environment variable settings."
+   if [[ "$experiment_name" == "osspcsamp" || "$experiment_name" == "ossusertime" ]]; then
+     echo "            \"rate value\"  - Use this sampling rate or threshold value instead of the default or any environment variable settings."
+   elif [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwctime" ]]; then
+     echo "            \"papi_event\"       - Specify the papi event."
+     echo "            \"threshold value\"  - Use this threshold value for the specified pape_event instead of the default or any environment variable settings."
+   fi
    echo ""
    exit
-elif [ "$1" == "help" ] 
+elif [[ "$1" == "help" ||  "$1" == "--help" ]] 
 then
    echo ""
    echo "Usage: $0 \"executable\" [extra_args]"
@@ -66,6 +87,7 @@ then
    exit
 fi
 
+
 if [ -z "$2" ] 
 then
   if [ $debug_flag == 1 ]
@@ -73,6 +95,9 @@ then
     echo "ossdriver command-line argument #2 was not specified"
   fi
 else
+#
+# There is an argument 2
+#
   if [ $debug_flag == 1 ]
   then
     echo "ossdriver command-line argument #2 = $2"
@@ -87,7 +112,69 @@ else
   then
      use_default_flag=1
   else
-     input_argument_rate_value=$2
+     match=0
+     if [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwctime" ]]; then
+       # check for PAPI_ in name 
+       match=`expr match "$2" 'PAPI_'`
+       if [ $match == 0 ]
+       then
+
+          if [ $debug_flag == 1 ]
+          then
+            echo "$2 does NOT contain PAPI_ substring"
+          fi
+
+          # Do we assume it is the threshold, yes for now
+          input_argument_rate_threshold_value=$2
+
+       else 
+          if [ $debug_flag == 1 ]
+          then
+            echo "$2 contains PAPI_ substring"
+          fi
+          input_argument_event_value=$2
+       fi
+     else
+        input_argument_rate_threshold_value=$2
+     fi
+  fi
+
+fi
+
+# Look for argument 3
+
+if [ -z "$3" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "ossdriver command-line argument #3 was not specified"
+  fi
+else
+#
+# There is an argument 3
+#
+  if [ $debug_flag == 1 ]
+  then
+    echo "ossdriver command-line argument #3 = $3"
+  fi
+  if  [ "$3" == "high" ]
+  then
+     high_flag=1
+  elif  [ "$3" == "low" ]
+  then
+     low_flag=1
+  elif  [ "$3" == "default" ]
+  then
+     use_default_flag=1
+  else
+     match=0
+     if [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwctime" ]]; then
+        # We have seen the PAPI_event, so the next argument must be the threshold value
+        if [ $input_argument_event_value != 0 ]
+        then
+          input_argument_rate_threshold_value=$3
+        fi
+     fi
   fi
 
 fi
@@ -95,8 +182,6 @@ fi
 ################################################################################
 # Run Open|SpeedShop
 ################################################################################
-calling_script_name=$0
-experiment_name=${calling_script_name##*/}
 if [ $debug_flag == 1 ]
 then
   echo "experiment_name=$experiment_name"
@@ -104,6 +189,9 @@ then
   echo "low_flag=$low_flag"
 fi
 
+# ------------------------------------------------------------------------------------
+# -- PCSAMP EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
 if [ $experiment_name == "osspcsamp" ]
 then
 
@@ -179,18 +267,18 @@ then
      then 
        echo "in PCSAMP EXPERIMENT SECTION, RESET default, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
      fi
-  elif [ $input_argument_rate_value != 0 ]
+  elif [ $input_argument_rate_threshold_value != 0 ]
   then
      if [ -z "$OPENSS_PCSAMP_RATE" ] 
      then
-       echo "[openss]: pcsamp experiment using sampling rate: \"$input_argument_rate_value\" because \"rate value\" parameter was specified."
+       echo "[openss]: pcsamp experiment using sampling rate: \"$input_argument_rate_threshold_value\" because \"rate value\" parameter was specified."
      else
-       if [ $input_argument_rate_value != $OPENSS_PCSAMP_RATE ]
+       if [ $input_argument_rate_threshold_value != $OPENSS_PCSAMP_RATE ]
        then
-         echo "[openss]: pcsamp experiment OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE was set and will be altered to \"$input_argument_rate_value\" because the \"rate value\" parameter was specified."
+         echo "[openss]: pcsamp experiment OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE was set and will be altered to \"$input_argument_rate_threshold_value\" because the \"rate value\" parameter was specified."
        fi
      fi
-     rate=$input_argument_rate_value
+     rate=$input_argument_rate_threshold_value
      if [ $debug_flag == 1 ]
      then 
        echo "rate=$rate"
@@ -199,7 +287,7 @@ then
      export OPENSS_PCSAMP_RATE
      if [ $debug_flag == 1 ]
      then 
-       echo "in PCSAMP EXPERIMENT SECTION, RESET input_argument_rate_value, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
+       echo "in PCSAMP EXPERIMENT SECTION, RESET input_argument_rate_threshold_value, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
      fi
      
   else
@@ -213,6 +301,9 @@ then
 
   openss -offline -f "$1" pcsamp
 
+# ------------------------------------------------------------------------------------
+# -- USERTIME EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "ossusertime" ]
 then
 
@@ -290,18 +381,18 @@ then
      then 
        echo "in USERTIME EXPERIMENT SECTION, RESET default, OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE"
      fi
-  elif [ $input_argument_rate_value != 0 ]
+  elif [ $input_argument_rate_threshold_value != 0 ]
   then
      if [ -z "$OPENSS_USERTIME_RATE" ] 
      then
-       echo "[openss]: usertime experiment using sampling rate: \"$input_argument_rate_value\" because \"rate value\" parameter was specified."
+       echo "[openss]: usertime experiment using sampling rate: \"$input_argument_rate_threshold_value\" because \"rate value\" parameter was specified."
      else
-       if [ $input_argument_rate_value != $OPENSS_USERTIME_RATE ]
+       if [ $input_argument_rate_threshold_value != $OPENSS_USERTIME_RATE ]
        then
-         echo "[openss]: usertime experiment OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE was set and will be altered to \"$input_argument_rate_value\" because the \"rate value\" parameter was specified."
+         echo "[openss]: usertime experiment OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE was set and will be altered to \"$input_argument_rate_threshold_value\" because the \"rate value\" parameter was specified."
        fi
      fi
-     rate=$input_argument_rate_value
+     rate=$input_argument_rate_threshold_value
      if [ $debug_flag == 1 ]
      then 
        echo "rate=$rate"
@@ -310,7 +401,7 @@ then
      export OPENSS_USERTIME_RATE
      if [ $debug_flag == 1 ]
      then 
-       echo "in USERTIME EXPERIMENT SECTION, RESET input_argument_rate_value, OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE"
+       echo "in USERTIME EXPERIMENT SECTION, RESET input_argument_rate_threshold_value, OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE"
      fi
   else
      if [ -z "$OPENSS_USERTIME_RATE" ] 
@@ -323,13 +414,134 @@ then
 
   openss -offline -f "$1" usertime
 
+# ------------------------------------------------------------------------------------
+# -- HWC EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "osshwc" ]
 then
+
   if [ $debug_flag == 1 ]
   then
-    echo "in HWC EXPERIMENT SECTION"
+
+    if [ -z "$OPENSS_HWC_EVENT" ] 
+    then
+      echo "in HWC EXPERIMENT SECTION, NOT SET, OPENSS_HWC_EVENT=$OPENSS_HWC_EVENT"
+    else
+      echo "in HWC EXPERIMENT SECTION, IS SET, OPENSS_HWC_EVENT=$OPENSS_HWC_EVENT"
+    fi
+
+    if [ -z "$OPENSS_HWC_THRESHOLD" ] 
+    then
+      echo "in HWC EXPERIMENT SECTION, NOT SET, OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD"
+    else
+      echo "in HWC EXPERIMENT SECTION, IS SET, OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD"
+    fi
+
   fi
+
+  if [ $low_flag == 1 ]
+  then
+     threshold=$hwc_default_threshold
+     let threshold=threshold/2
+     if [ -z "$OPENSS_HWC_THRESHOLD" ] 
+     then
+       echo "[openss]: hwc experiment using sampling threshold: \"$threshold\" because the \"low\" parameter was specified."
+     else
+       echo "[openss]: hwc experiment OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD was set and will be altered to \"$threshold\" because the \"low\" parameter was specified."
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "threshold=$threshold"
+     fi
+     OPENSS_HWC_THRESHOLD=$threshold
+     export OPENSS_HWC_THRESHOLD
+     if [ $debug_flag == 1 ]
+     then 
+        echo "in HWC EXPERIMENT SECTION, RESET low, OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD"
+     fi
+  elif [ $high_flag == 1 ]
+  then
+     threshold=$hwc_default_threshold
+#     threshold=$OPENSS_HWC_THRESHOLD
+     let threshold=threshold*4
+     if [ -z "$OPENSS_HWC_THRESHOLD" ] 
+     then
+       echo "[openss]: hwc experiment using sampling threshold: \"$threshold\" because the \"high\" parameter was specified."
+     else
+       echo "[openss]: hwc experiment OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD was set and will be altered to \"$threshold\" because the \"high\" parameter was specified."
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "threshold=$threshold"
+     fi
+     OPENSS_HWC_THRESHOLD=$threshold
+     export OPENSS_HWC_THRESHOLD
+     if [ $debug_flag == 1 ]
+     then 
+       echo "in HWC EXPERIMENT SECTION, RESET high, OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD"
+     fi
+  elif [ $use_default_flag == 1 ]
+  then
+     if [ -z "$OPENSS_HWC_THRESHOLD" ] 
+     then
+
+       echo "[openss]: hwc experiment using sampling threshold: \"$threshold\" because the \"default\" parameter was specified."
+
+     else
+
+       if [ $hwc_default_threshold != $OPENSS_HWC_THRESHOLD ]
+       then
+         echo "[openss]: hwc experiment OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD was set and will be altered to \"$hwc_default_threshold\" because the \"default\" parameter was specified."
+       fi
+     fi
+
+     threshold=$hwc_default_threshold
+     if [ $debug_flag == 1 ]
+     then 
+       echo "threshold=$threshold"
+     fi
+     OPENSS_HWC_THRESHOLD=$threshold
+     export OPENSS_HWC_THRESHOLD
+     if [ $debug_flag == 1 ]
+     then 
+       echo "in HWC EXPERIMENT SECTION, RESET default, OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD"
+     fi
+  elif [ $input_argument_rate_threshold_value != 0 ]
+  then
+     if [ -z "$OPENSS_HWC_THRESHOLD" ] 
+     then
+       echo "[openss]: hwc experiment using sampling threshold: \"$input_argument_rate_threshold_value\" because \"rate value\" parameter was specified."
+     else
+       if [ $input_argument_rate_threshold_value != $OPENSS_HWC_THRESHOLD ]
+       then
+         echo "[openss]: hwc experiment OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD was set and will be altered to \"$input_argument_rate_threshold_value\" because the \"rate value\" parameter was specified."
+       fi
+     fi
+     threshold=$input_argument_rate_threshold_value
+     if [ $debug_flag == 1 ]
+     then 
+       echo "threshold=$threshold"
+     fi
+     OPENSS_HWC_THRESHOLD=$threshold
+     export OPENSS_HWC_THRESHOLD
+     if [ $debug_flag == 1 ]
+     then 
+       echo "in HWC EXPERIMENT SECTION, RESET input_argument_rate_threshold_value, OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD"
+     fi
+  else
+     if [ -z "$OPENSS_HWC_THRESHOLD" ] 
+     then
+       echo "[openss]: hwc experiment using the hwc experiment default sampling threshold: \"$hwc_default_threshold\"."
+     else
+       echo "[openss]: hwc experiment OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD was set and will be used as the sampling threshold."
+     fi
+  fi 
+
   openss -offline -f "$1" hwc
+
+# ------------------------------------------------------------------------------------
+# -- HWCTIME EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "osshwctime" ]
 then
   if [ $debug_flag == 1 ]
@@ -337,6 +549,9 @@ then
     echo "in HWCTIME EXPERIMENT SECTION"
   fi
   openss -offline -f "$1" hwctime
+# ------------------------------------------------------------------------------------
+# -- IO EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "ossio" ]
 then
   if [ $debug_flag == 1 ]
@@ -344,6 +559,9 @@ then
     echo "in IO EXPERIMENT SECTION"
   fi
   openss -offline -f "$1" io
+# ------------------------------------------------------------------------------------
+# -- IOT EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "ossiot" ]
 then
   if [ $debug_flag == 1 ]
@@ -351,6 +569,9 @@ then
     echo "in IOT EXPERIMENT SECTION"
   fi
   openss -offline -f "$1" iot
+# ------------------------------------------------------------------------------------
+# -- MPI EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "ossmpi" ]
 then
   if [ $debug_flag == 1 ]
@@ -358,6 +579,9 @@ then
     echo "in MPI EXPERIMENT SECTION"
   fi
   openss -offline -f "$1" mpi
+# ------------------------------------------------------------------------------------
+# -- MPIT EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "ossmpit" ]
 then
   if [ $debug_flag == 1 ]
@@ -365,6 +589,9 @@ then
     echo "in MPIT EXPERIMENT SECTION"
   fi
   openss -offline -f "$1" mpit
+# ------------------------------------------------------------------------------------
+# -- MPIOTF EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "ossmpiotf" ]
 then
   if [ $debug_flag == 1 ]
@@ -372,6 +599,9 @@ then
     echo "in MPIOTF EXPERIMENT SECTION"
   fi
   openss -offline -f "$1" mpiotf
+# ------------------------------------------------------------------------------------
+# -- FPE EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "ossfpe" ]
 then
   if [ $debug_flag == 1 ]
@@ -380,6 +610,8 @@ then
   fi
   openss -offline -f "$1" fpe
 fi
+# ------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------
 
 
 
