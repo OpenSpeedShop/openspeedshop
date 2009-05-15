@@ -485,7 +485,7 @@ then
      if [ -z "$OPENSS_HWC_THRESHOLD" ] 
      then
 
-       echo "[openss]: hwc experiment using sampling threshold: \"$threshold\" because the \"default\" parameter was specified."
+       echo "[openss]: hwc experiment using sampling threshold: \"$hwc_default_threshold\" because the \"default\" parameter was specified."
 
      else
 
