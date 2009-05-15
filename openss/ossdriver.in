@@ -27,12 +27,43 @@ input_argument_event_value=0
 #
 # DEFAULT VALUES - MUST MATCH THE DEFAULTS INSIDE THE OpenSpeedShop/plugins/collectors/<experiment_type> source
 #
+# Corresponds to OPENSS_PCSAMP_RATE
 pcsamp_default_rate=100
+
+# Corresponds to OPENSS_USERTIME_RATE
 usertime_default_rate=35
+
+# Corresponds to OPENSS_HWC_EVENT
 hwc_default_event="PAPI_TOT_CYC"
+
+# Corresponds to OPENSS_HWC_THRESHOLD
 hwc_default_threshold=10000
+
+# Corresponds to OPENSS_HWCTIME_EVENT
 hwctime_default_event="PAPI_TOT_CYC"
+
+# Corresponds to OPENSS_HWCTIME_THRESHOLD
 hwctime_default_threshold=10000
+
+# Corresponds to OPENSS_IO_TRACED
+io_default_traceable_functions="close,creat,creat64,dup,dup2,lseek,lseek64,open,open64,pipe,pread,pread64,pwrite,pwrite64,read,readv,write,writev"
+
+# Corresponds to OPENSS_IOT_TRACED
+iot_default_traceable_functions="close,creat,creat64,dup,dup2,lseek,lseek64,open,open64,pipe,pread,pread64,pwrite,pwrite64,read,readv,write,writev"
+
+# Corresponds to OPENSS_MPI_TRACED
+mpi_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,MPI_Alltoall, MPI_Alltoallv,MPI_Barrier,MPI_Bcast,MPI_Bsend,MPI_Bsend_init, MPI_Cancel,MPI_Cart_create,MPI_Cart_sub,MPI_Comm_create, MPI_Comm_dup,MPI_Comm_free,MPI_Comm_split,MPI_Finalize, MPI_Gather,MPI_Gatherv,MPI_Get_count,MPI_Graph_create, MPI_Ibsend,MPI_Init,MPI_Intercomm_create,MPI_Intercomm_merge, MPI_Iprobe,MPI_Irecv,MPI_Irsend,MPI_Isend,MPI_Issend, MPI_Pack,MPI_Probe,MPI_Recv,MPI_Recv_init,MPI_Reduce, MPI_Reduce_scatter,MPI_Request_free,MPI_Rsend,MPI_Rsend_init, MPI_Scan,MPI_Scatter,MPI_Scatterv,MPI_Send,MPI_Sendrecv, MPI_Sendrecv_replace,MPI_Ssend,MPI_Ssend_init,MPI_Start, MPI_Startall,MPI_Test,MPI_Testall,MPI_Testany,MPI_Testsome, MPI_Unpack,MPI_Wait,MPI_Waitall,MPI_Waitany,MPI_Waitsome"
+
+# Corresponds to OPENSS_MPIT_TRACED
+mpit_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,MPI_Alltoall, MPI_Alltoallv,MPI_Barrier,MPI_Bcast,MPI_Bsend,MPI_Bsend_init, MPI_Cancel,MPI_Cart_create,MPI_Cart_sub,MPI_Comm_create, MPI_Comm_dup,MPI_Comm_free,MPI_Comm_split,MPI_Finalize, MPI_Gather,MPI_Gatherv,MPI_Get_count,MPI_Graph_create, MPI_Ibsend,MPI_Init,MPI_Intercomm_create,MPI_Intercomm_merge, MPI_Iprobe,MPI_Irecv,MPI_Irsend,MPI_Isend,MPI_Issend, MPI_Pack,MPI_Probe,MPI_Recv,MPI_Recv_init,MPI_Reduce, MPI_Reduce_scatter,MPI_Request_free,MPI_Rsend,MPI_Rsend_init, MPI_Scan,MPI_Scatter,MPI_Scatterv,MPI_Send,MPI_Sendrecv, MPI_Sendrecv_replace,MPI_Ssend,MPI_Ssend_init,MPI_Start, MPI_Startall,MPI_Test,MPI_Testall,MPI_Testany,MPI_Testsome, MPI_Unpack,MPI_Wait,MPI_Waitall,MPI_Waitany,MPI_Waitsome"
+
+# Corresponds to OPENSS_MPIOTF_TRACED
+mpioft_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,MPI_Alltoall, MPI_Alltoallv,MPI_Barrier,MPI_Bcast,MPI_Bsend,MPI_Bsend_init, MPI_Cancel,MPI_Cart_create,MPI_Cart_sub,MPI_Comm_create, MPI_Comm_dup,MPI_Comm_free,MPI_Comm_split,MPI_Finalize, MPI_Gather,MPI_Gatherv,MPI_Get_count,MPI_Graph_create, MPI_Ibsend,MPI_Init,MPI_Intercomm_create,MPI_Intercomm_merge, MPI_Iprobe,MPI_Irecv,MPI_Irsend,MPI_Isend,MPI_Issend, MPI_Pack,MPI_Probe,MPI_Recv,MPI_Recv_init,MPI_Reduce, MPI_Reduce_scatter,MPI_Request_free,MPI_Rsend,MPI_Rsend_init, MPI_Scan,MPI_Scatter,MPI_Scatterv,MPI_Send,MPI_Sendrecv, MPI_Sendrecv_replace,MPI_Ssend,MPI_Ssend_init,MPI_Start, MPI_Startall,MPI_Test,MPI_Testall,MPI_Testany,MPI_Testsome, MPI_Unpack,MPI_Wait,MPI_Waitall,MPI_Waitany,MPI_Waitsome"
+
+# Corresponds to OPENSS_FPE_EVENT
+fpe_default_events="inexact_result,division_by_zero,underflow,overflow,invalid_operation"
+
+
 #
 # END DEFAULT VALUES
 #
@@ -48,10 +79,22 @@ then
   echo
 fi
 
+might_have_error=0
+if  [ -z "$4" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+     echo "DEBUG: GOOD, no 4th argument, ossdriver command-line argument #4 = $4"
+  fi
+else
+  echo "[openss]: Too many arguments specified.  Possible issue: Was your executable enclosed in quotes?"
+  might_have_error=1
+fi
+
 calling_script_name=$0
 experiment_name=${calling_script_name##*/}
 
-if [ -z "$1" ] 
+if [[ -z "$1" || $might_have_error == 1 ]] 
 then
    echo ""
    echo "Usage: $0 \"executable\" [extra_args]"
@@ -65,9 +108,21 @@ then
    echo "            \"default\"  - Use the default sampling rate or threshold value. This will override any environment variable settings."
    if [[ "$experiment_name" == "osspcsamp" || "$experiment_name" == "ossusertime" ]]; then
      echo "            \"rate value\"  - Use this sampling rate or threshold value instead of the default or any environment variable settings."
+     echo "                                 For example: 80"
+     echo "                                              for a sampling rate of 80 samples per second."
    elif [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwctime" ]]; then
      echo "            \"papi_event\"       - Specify the papi event."
+     echo "                                      For example: PAPI_FP_OPS"
+     echo "                                                   for Floating point operations."
+     echo "                                      Or           PAPI_L1_DCM"
+     echo "                                                   for Level 1 data cache misses."
      echo "            \"threshold value\"  - Use this threshold value for the specified pape_event instead of the default or any environment variable settings."
+   elif [[ "$experiment_name" == "ossio" || "$experiment_name" == "ossiot" ]]; then
+     echo "            \"I/O functions to trace\"  - Specify the list of I/O functions to be traced when running the io or iot experiments."
+     echo "                                             For example: read,write,dup"
+   elif [[ "$experiment_name" == "ossmpi" || "$experiment_name" == "ossmpit" || "$experiment_name" == "ossmpiotf" ]]; then
+     echo "            \"MPI functions to trace\"  - Specify the list of MPI functions to be traced when running the mpi, mpit or mpiotf experiments."
+     echo "                                             For example: MPI_Send,MPI_Isend,MPI_Finalize"
    fi
    echo ""
    exit
@@ -709,6 +764,10 @@ then
   then
     echo "DEBUG: in IO EXPERIMENT SECTION"
   fi
+
+  OPENSS_IO_TRACED=$io_default_traceable_functions
+  export OPENSS_IO_TRACED
+
   openss -offline -f "$1" io
 # ------------------------------------------------------------------------------------
 # -- IOT EXPERIMENT SPECIFIC CODE -------------------------------------------------
@@ -719,6 +778,10 @@ then
   then
     echo "DEBUG: in IOT EXPERIMENT SECTION"
   fi
+
+  OPENSS_IOT_TRACED=$iot_default_traceable_functions
+  export OPENSS_IOT_TRACED
+
   openss -offline -f "$1" iot
 # ------------------------------------------------------------------------------------
 # -- MPI EXPERIMENT SPECIFIC CODE -------------------------------------------------
@@ -729,6 +792,10 @@ then
   then
     echo "DEBUG: in MPI EXPERIMENT SECTION"
   fi
+
+  OPENSS_MPI_TRACED=$mpi_default_traceable_functions
+  export OPENSS_MPI_TRACED
+
   openss -offline -f "$1" mpi
 # ------------------------------------------------------------------------------------
 # -- MPIT EXPERIMENT SPECIFIC CODE -------------------------------------------------
@@ -739,6 +806,11 @@ then
   then
     echo "DEBUG: in MPIT EXPERIMENT SECTION"
   fi
+
+  OPENSS_MPIT_TRACED=$mpit_default_traceable_functions
+  export OPENSS_MPIT_TRACED
+
+
   openss -offline -f "$1" mpit
 # ------------------------------------------------------------------------------------
 # -- MPIOTF EXPERIMENT SPECIFIC CODE -------------------------------------------------
@@ -749,6 +821,10 @@ then
   then
     echo "DEBUG: in MPIOTF EXPERIMENT SECTION"
   fi
+
+  OPENSS_MPIOTF_TRACED=$mpiotf_default_traceable_functions
+  export OPENSS_MPIOTF_TRACED
+
   openss -offline -f "$1" mpiotf
 # ------------------------------------------------------------------------------------
 # -- FPE EXPERIMENT SPECIFIC CODE -------------------------------------------------
