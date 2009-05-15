@@ -724,9 +724,23 @@ then
   else
      if [ -z "$OPENSS_HWC_THRESHOLD" ] 
      then
-       echo "[openss]: hwc experiment using the hwc experiment default sampling threshold: \"$hwc_default_threshold\"."
+       if [ -z "$OPENSS_HWC_EVENT" ] 
+       then
+         echo "[openss]: hwc experiment using default papi event: \"$hwc_default_event\"."
+         echo "[openss]: hwc experiment using the hwc experiment default sampling threshold: \"$hwc_default_threshold\"."
+       else
+         echo "[openss]: hwc experiment using papi event: \"$OPENSS_HWC_EVENT\" because the OPENSS_HWC_EVENT environment variable is set."
+         echo "[openss]: hwc experiment using the hwc experiment default sampling threshold: \"$hwc_default_threshold\"."
+       fi
      else
-       echo "[openss]: hwc experiment OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD is set and will be used as the sampling threshold."
+       if [ -z "$OPENSS_HWC_EVENT" ] 
+       then
+         echo "[openss]: hwc experiment using default papi event: \"$hwc_default_event\"."
+         echo "[openss]: hwc experiment OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD is set and will be used as the sampling threshold."
+       else
+         echo "[openss]: hwc experiment using papi event: \"$OPENSS_HWC_EVENT\" because the OPENSS_HWC_EVENT environment variable is set."
+         echo "[openss]: hwc experiment OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD is set and will be used as the sampling threshold."
+       fi
      fi
   fi 
 
@@ -750,10 +764,284 @@ then
 # ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "osshwctime" ]
 then
+
   if [ $debug_flag == 1 ]
   then
-    echo "DEBUG: in HWCTIME EXPERIMENT SECTION"
+
+    if [ -z "$OPENSS_HWCTIME_EVENT" ] 
+    then
+      echo "DEBUG: in HWCTIME EXPERIMENT SECTION, NOT SET, OPENSS_HWCTIME_EVENT=$OPENSS_HWCTIME_EVENT"
+    else
+      echo "DEBUG: in HWCTIME EXPERIMENT SECTION, IS SET, OPENSS_HWCTIME_EVENT=$OPENSS_HWCTIME_EVENT"
+    fi
+
+    if [ -z "$OPENSS_HWCTIME_THRESHOLD" ] 
+    then
+      echo "DEBUG: in HWCTIME EXPERIMENT SECTION, NOT SET, OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD"
+    else
+      echo "DEBUG: in HWCTIME EXPERIMENT SECTION, IS SET, OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD"
+    fi
+
   fi
+
+  if [ $low_flag == 1 ]
+  then
+     threshold=$hwctime_default_threshold
+     let threshold=threshold/2
+     if [ -z "$OPENSS_HWCTIME_THRESHOLD" ] 
+     then
+       if [ -z "$OPENSS_HWCTIME_EVENT" ] 
+       then
+         if [ $input_argument_event_value != 0 ]
+         then
+           echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+         else
+           echo "[openss]: hwctime experiment using default papi event: \"$hwctime_default_event\"."
+         fi
+         echo "[openss]: hwctime experiment using sampling threshold: \"$threshold\" because the \"low\" parameter is specified."
+       else
+         if [ $input_argument_event_value != 0 ]
+         then
+           echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+         else
+           echo "[openss]: hwctime experiment using papi event: \"$OPENSS_HWCTIME_EVENT\" because the OPENSS_HWCTIME_EVENT environment variable is set."
+         fi
+         echo "[openss]: hwctime experiment using sampling threshold: \"$threshold\" because the \"low\" parameter is specified."
+       fi
+     else
+       if [ -z "$OPENSS_HWCTIME_EVENT" ] 
+       then
+         if [ $input_argument_event_value != 0 ]
+         then
+           echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+         else
+           echo "[openss]: hwctime experiment using default papi event: \"$hwctime_default_event\"."
+         fi
+         echo "[openss]: hwctime experiment OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD is set and will be altered to \"$threshold\" because the \"low\" parameter is specified."
+       else
+         if [ $input_argument_event_value != 0 ]
+         then
+           echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+         else
+           echo "[openss]: hwctime experiment using papi event: \"$OPENSS_HWCTIME_EVENT\" because the OPENSS_HWCTIME_EVENT environment variable is set."
+         fi
+         echo "[openss]: hwctime experiment OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD is set and will be altered to \"$threshold\" because the \"low\" parameter is specified."
+       fi
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: threshold=$threshold"
+     fi
+     OPENSS_HWC_THRESHOLD=$threshold
+     export OPENSS_HWCTIME_THRESHOLD
+     if [ $debug_flag == 1 ]
+     then 
+        echo "DEBUG: in HWCTIME EXPERIMENT SECTION, RESET low, OPENSS_HWC_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD"
+     fi
+  elif [ $high_flag == 1 ]
+  then
+     threshold=$hwctime_default_threshold
+#     threshold=$OPENSS_HWCTIME_THRESHOLD
+     let threshold=threshold*4
+     if [ -z "$OPENSS_HWCTIME_THRESHOLD" ] 
+     then
+       if [ -z "$OPENSS_HWCTIME_EVENT" ] 
+       then
+         if [ $input_argument_event_value != 0 ]
+         then
+           echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+         else
+           echo "[openss]: hwctime experiment using default papi event: \"$hwctime_default_event\"."
+         fi
+         echo "[openss]: hwctime experiment using sampling threshold: \"$threshold\" because the \"high\" parameter is specified."
+       else
+         if [ $input_argument_event_value != 0 ]
+         then
+           echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+         else
+           echo "[openss]: hwctime experiment using papi event: \"$OPENSS_HWCTIME_EVENT\" because the OPENSS_HWCTIME_EVENT environment variable is set."
+         fi
+         echo "[openss]: hwctime experiment using sampling threshold: \"$threshold\" because the \"high\" parameter is specified."
+       fi
+     else
+       if [ -z "$OPENSS_HWCTIME_EVENT" ] 
+       then
+         if [ $input_argument_event_value != 0 ]
+         then
+           echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+         else
+           echo "[openss]: hwctime experiment using default papi event: \"$hwctime_default_event\"."
+         fi
+         echo "[openss]: hwctime experiment OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD is set and will be altered to \"$threshold\" because the \"high\" parameter is specified."
+       else
+         if [ $input_argument_event_value != 0 ]
+         then
+           echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+         else
+           echo "[openss]: hwctime experiment using papi event: \"$OPENSS_HWCTIME_EVENT\" because the OPENSS_HWCTIME_EVENT environment variable is set."
+         fi
+         echo "[openss]: hwctime experiment OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD is set and will be altered to \"$threshold\" because the \"high\" parameter is specified."
+       fi
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: threshold=$threshold"
+     fi
+     OPENSS_HWCTIME_THRESHOLD=$threshold
+     export OPENSS_HWCTIME_THRESHOLD
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in HWCTIME EXPERIMENT SECTION, RESET high, OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD"
+     fi
+  elif [ $use_default_flag == 1 ]
+  then
+     if [ -z "$OPENSS_HWCTIME_THRESHOLD" ] 
+     then
+       if [ -z "$OPENSS_HWCTIME_EVENT" ] 
+       then
+         if [ $input_argument_event_value != 0 ]
+         then
+           echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+         else
+           echo "[openss]: hwctime experiment using default papi event: \"$hwctime_default_event\"."
+         fi
+         echo "[openss]: hwctime experiment using sampling threshold: \"$hwctime_default_threshold\" because the \"default\" parameter is specified."
+       else
+         if [ $input_argument_event_value != 0 ]
+         then
+           echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+         else
+           echo "[openss]: hwctime experiment using papi event: \"$OPENSS_HWCTIME_EVENT\" because the OPENSS_HWCTIME_EVENT environment variable is set."
+         fi
+         echo "[openss]: hwctime experiment using sampling threshold: \"$hwctime_default_threshold\" because the \"default\" parameter is specified."
+       fi
+     else
+       if [ $hwctime_default_threshold != $OPENSS_HWCTIME_THRESHOLD ]
+       then
+         if [ -z "$OPENSS_HWCTIME_EVENT" ] 
+         then
+           if [ $input_argument_event_value != 0 ]
+           then
+             echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+           else
+             echo "[openss]: hwctime experiment using default papi event: \"$hwctime_default_event\"."
+           fi
+           echo "[openss]: hwctime experiment OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD is set and will be altered to \"$hwctime_default_threshold\" because the \"default\" parameter is specified."
+         else
+           if [ $input_argument_event_value != 0 ]
+           then
+             echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+           else
+             echo "[openss]: hwctime experiment using papi event: \"$OPENSS_HWCTIME_EVENT\" because the OPENSS_HWCTIME_EVENT environment variable is set."
+           fi
+           echo "[openss]: hwctime experiment OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD is set and will be altered to \"$hwctime_default_threshold\" because the \"default\" parameter is specified."
+         fi
+       fi
+     fi
+
+     threshold=$hwctime_default_threshold
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: threshold=$threshold"
+     fi
+     OPENSS_HWCTIME_THRESHOLD=$threshold
+     export OPENSS_HWCTIME_THRESHOLD
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in HWCTIME EXPERIMENT SECTION, RESET default, OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD"
+     fi
+  elif [ $input_argument_rate_threshold_value != 0 ]
+  then
+     if [ -z "$OPENSS_HWCTIME_THRESHOLD" ] 
+     then
+       if [ -z "$OPENSS_HWCTIME_EVENT" ] 
+       then
+         if [ $input_argument_event_value != 0 ]
+         then
+           echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+         else
+           echo "[openss]: hwctime experiment using default papi event: \"$hwctime_default_event\"."
+         fi
+         echo "[openss]: hwctime experiment using sampling threshold: \"$input_argument_rate_threshold_value\" because \"rate value\" parameter is specified."
+       else
+         if [ $input_argument_event_value != 0 ]
+         then
+           echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+         else
+           echo "[openss]: hwctime experiment using papi event: \"$OPENSS_HWCTIME_EVENT\" because the OPENSS_HWCTIME_EVENT environment variable is set."
+         fi
+         echo "[openss]: hwctime experiment using sampling threshold: \"$input_argument_rate_threshold_value\" because \"rate value\" parameter is specified."
+       fi
+     else
+       if [ $input_argument_rate_threshold_value != $OPENSS_HWCTIME_THRESHOLD ]
+       then
+         if [ -z "$OPENSS_HWCTIME_EVENT" ] 
+         then
+           if [ $input_argument_event_value != 0 ]
+           then
+             echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+           else
+             echo "[openss]: hwctime experiment using default papi event: \"$hwctime_default_event\"."
+           fi
+           echo "[openss]: hwctime experiment OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD is set and will be altered to \"$input_argument_rate_threshold_value\" because the \"rate value\" parameter is specified."
+         else
+           if [ $input_argument_event_value != 0 ]
+           then
+             echo "[openss]: hwctime experiment using input papi event: \"$input_argument_event_value\"."
+           else
+             echo "[openss]: hwctime experiment using papi event: \"$OPENSS_HWCTIME_EVENT\" because the OPENSS_HWCTIME_EVENT environment variable is set."
+           fi
+           echo "[openss]: hwctime experiment OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD is set and will be altered to \"$input_argument_rate_threshold_value\" because the \"rate value\" parameter is specified."
+         fi
+       fi
+     fi
+     threshold=$input_argument_rate_threshold_value
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: threshold=$threshold"
+     fi
+     OPENSS_HWCTIME_THRESHOLD=$threshold
+     export OPENSS_HWCTIME_THRESHOLD
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in HWCTIME EXPERIMENT SECTION, RESET input_argument_rate_threshold_value, OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD"
+     fi
+  else
+     if [ -z "$OPENSS_HWCTIME_THRESHOLD" ] 
+     then
+       if [ -z "$OPENSS_HWCTIME_EVENT" ] 
+       then
+         echo "[openss]: hwctime experiment using default papi event: \"$hwctime_default_event\"."
+         echo "[openss]: hwctime experiment using the hwctime experiment default sampling threshold: \"$hwctime_default_threshold\"."
+       else
+         echo "[openss]: hwctime experiment using papi event: \"$OPENSS_HWCTIME_EVENT\" because the OPENSS_HWCTIME_EVENT environment variable is set."
+         echo "[openss]: hwctime experiment using the hwctime experiment default sampling threshold: \"$hwctime_default_threshold\"."
+       fi
+     else
+       if [ -z "$OPENSS_HWCTIME_EVENT" ] 
+       then
+         echo "[openss]: hwctime experiment using default papi event: \"$hwctime_default_event\"."
+         echo "[openss]: hwctime experiment OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD is set and will be used as the sampling threshold."
+       else
+         echo "[openss]: hwctime experiment using papi event: \"$OPENSS_HWCTIME_EVENT\" because the OPENSS_HWCTIME_EVENT environment variable is set."
+         echo "[openss]: hwctime experiment OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD is set and will be used as the sampling threshold."
+       fi
+     fi
+  fi 
+
+# The messages above should reflect whether this is set or not.  Now export the input event, if it was specified
+  if [ $input_argument_event_value != 0 ]
+  then 
+    OPENSS_HWCTIME_EVENT=$input_argument_event_value
+    export OPENSS_HWCTIME_EVENT
+  fi
+
+  if [ $debug_flag == 1 ] 
+  then
+    echo "DEBUG: about to run \"openss -offline -f "$1" hwctime, OPENSS_HWCTIME_EVENT=$OPENSS_HWCTIME_EVENT"
+    echo "DEBUG: about to run \"openss -offline -f "$1" hwctime, OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD"
+  fi
+
   openss -offline -f "$1" hwctime
 # ------------------------------------------------------------------------------------
 # -- IO EXPERIMENT SPECIFIC CODE -------------------------------------------------
