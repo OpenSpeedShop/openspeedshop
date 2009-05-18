@@ -2,7 +2,7 @@
 ################################################################################
 # Display Usage When Necessary
 ################################################################################
-debug_flag=0
+debug_flag=1
 
 # Initialize to indicate no "high" parameter was seen
 # If this is set we will up the sampling rate or threshold depending on the experiment
@@ -728,24 +728,51 @@ then
        echo "DEBUG: in HWC EXPERIMENT SECTION, RESET input_argument_rate_threshold_value, OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD"
      fi
   else
+     # An input Threshold was not specified
      if [ -z "$OPENSS_HWC_THRESHOLD" ] 
      then
        if [ -z "$OPENSS_HWC_EVENT" ] 
        then
-         echo "[openss]: hwc experiment using default papi event: \"$hwc_default_event\"."
-         echo "[openss]: hwc experiment using the hwc experiment default sampling threshold: \"$hwc_default_threshold\"."
+         if [ $input_argument_event_or_trace_list_value != 0 ]
+         then 
+           echo "[openss]: hwc experiment using input papi event: \"$input_argument_event_or_trace_list_value\"."
+           echo "[openss]: hwc experiment using the hwc experiment default sampling threshold: \"$hwc_default_threshold\"."
+         else
+           echo "[openss]: hwc experiment using default papi event: \"$hwc_default_event\"."
+           echo "[openss]: hwc experiment using the hwc experiment default sampling threshold: \"$hwc_default_threshold\"."
+         fi
        else
-         echo "[openss]: hwc experiment using papi event: \"$OPENSS_HWC_EVENT\" because the OPENSS_HWC_EVENT environment variable is set."
-         echo "[openss]: hwc experiment using the hwc experiment default sampling threshold: \"$hwc_default_threshold\"."
+         # OPENSS_HWC_EVENT was set
+         if [ $input_argument_event_or_trace_list_value != 0 ]
+         then 
+           echo "[openss]: hwc experiment using input papi event: \"$input_argument_event_or_trace_list_value\"."
+           echo "[openss]: hwc experiment using the hwc experiment default sampling threshold: \"$hwc_default_threshold\"."
+         else
+           echo "[openss]: hwc experiment using papi event: \"$OPENSS_HWC_EVENT\" because the OPENSS_HWC_EVENT environment variable is set."
+           echo "[openss]: hwc experiment using the hwc experiment default sampling threshold: \"$hwc_default_threshold\"."
+         fi
        fi
      else
+       # The threshold environment variable was set
        if [ -z "$OPENSS_HWC_EVENT" ] 
        then
-         echo "[openss]: hwc experiment using default papi event: \"$hwc_default_event\"."
-         echo "[openss]: hwc experiment OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD is set and will be used as the sampling threshold."
+         if [ $input_argument_event_or_trace_list_value != 0 ]
+         then 
+           echo "[openss]: hwc experiment using input papi event: \"$input_argument_event_or_trace_list_value\"."
+           echo "[openss]: hwc experiment OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD is set and will be used as the sampling threshold."
+         else
+           echo "[openss]: hwc experiment using default papi event: \"$hwc_default_event\"."
+           echo "[openss]: hwc experiment OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD is set and will be used as the sampling threshold."
+         fi
        else
-         echo "[openss]: hwc experiment using papi event: \"$OPENSS_HWC_EVENT\" because the OPENSS_HWC_EVENT environment variable is set."
-         echo "[openss]: hwc experiment OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD is set and will be used as the sampling threshold."
+         if [ $input_argument_event_or_trace_list_value != 0 ]
+         then 
+           echo "[openss]: hwc experiment using input papi event: \"$input_argument_event_or_trace_list_value\"."
+           echo "[openss]: hwc experiment OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD is set and will be used as the sampling threshold."
+         else
+           echo "[openss]: hwc experiment using papi event: \"$OPENSS_HWC_EVENT\" because the OPENSS_HWC_EVENT environment variable is set."
+           echo "[openss]: hwc experiment OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD is set and will be used as the sampling threshold."
+         fi
        fi
      fi
   fi 
