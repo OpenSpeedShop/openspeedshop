@@ -135,7 +135,7 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
     }
 
     /* Access the environment-specified arguments */
-    const char* iot_traced = getenv("OPENSS_IO_TRACED");
+    const char* iot_traced = getenv("OPENSS_IOT_TRACED");
 
     /* Initialize the offline "info" blob's header */
     OpenSS_InitializeDataHeader(0, /* Experiment */

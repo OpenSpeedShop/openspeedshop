@@ -471,7 +471,7 @@ void iot_start_tracing(const char* arguments)
      * If all names in OPENSS_IOT_TRACED are misspelled or not part of
      * TraceableFunctions, nothing will be traced.
      */
-    const char* iot_traced = getenv("OPENSS_IO_TRACED");
+    const char* iot_traced = getenv("OPENSS_IOT_TRACED");
 
     if (iot_traced != NULL && strcmp(iot_traced,"") != 0) {
 	strcpy(tls->iot_traced,iot_traced);
