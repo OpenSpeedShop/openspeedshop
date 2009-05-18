@@ -64,7 +64,8 @@ extern void offline_defer_sampling(const int flag);
 
 /** Type defining the items stored in thread-local storage. */
 typedef struct {
-
+    int debug;
+    int in_mpi_pre_init;
     int sampling_active;
     int process_is_terminating;
     int thread_is_terminating;
@@ -89,7 +90,7 @@ static __thread TLS the_tls;
 #endif
 
 
-#define OPENSS_HANDLE_UNWIND_SEGV 1
+/* #define OPENSS_HANDLE_UNWIND_SEGV 1 */
 
 #if defined(OPENSS_HANDLE_UNWIND_SEGV)
 #include <setjmp.h>
@@ -133,11 +134,15 @@ void monitor_fini_process(int how, void *data)
     Assert(tls != NULL);
 
     /*collector stop_sampling does not use the arguments param */
-    //fprintf(stderr,"monitor_fini_process STOP SAMPLING %d\n",getpid());
+    if (tls->debug) {
+	fprintf(stderr,"monitor_fini_process FINISHED SAMPLING %d\n",getpid());
+    }
+
     static int f = 0;
     if (f > 0)
       raise(SIGSEGV);
     f++;
+
     tls->sampling_active = 0;
     tls->process_is_terminating = 1;
     offline_stop_sampling(NULL, 1);
@@ -147,7 +152,6 @@ void *monitor_init_process(int *argc, char **argv, void *data)
 {
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
-    //fprintf(stderr,"monitor_init_process MALLOC TLS %d\n",getpid());
     TLS* tls = malloc(sizeof(TLS));
     Assert(tls != NULL);
     OpenSS_SetTLS(TLSKey, tls);
@@ -156,6 +160,17 @@ void *monitor_init_process(int *argc, char **argv, void *data)
 #endif
     Assert(tls != NULL);
 
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+    } else {
+	tls->debug=0;
+    }
+
+    if (tls->debug) {
+	fprintf(stderr,"monitor_init_process BEGIN SAMPLING %d\n",getpid());
+    }
+
+    tls->in_mpi_pre_init = 0;
     tls->OpenSS_monitor_type = OpenSS_Monitor_Proc;
     tls->sampling_active = 1;
     offline_start_sampling(NULL);
@@ -190,6 +205,10 @@ void monitor_fini_thread(void *ptr)
 #endif
     Assert(tls != NULL);
 
+    if (tls->debug) {
+	fprintf(stderr,"monitor_init_thread FINISHED SAMPLING %d\n",getpid());
+    }
+
     tls->sampling_active = 0;
     tls->thread_is_terminating = 1;
     offline_stop_sampling(NULL,1);
@@ -199,7 +218,6 @@ void *monitor_init_thread(int tid, void *data)
 {
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
-    //fprintf(stderr,"monitor_init_thread MALLOC TLS %d\n",getpid());
     TLS* tls = malloc(sizeof(TLS));
     Assert(tls != NULL);
     OpenSS_SetTLS(TLSKey, tls);
@@ -208,6 +226,17 @@ void *monitor_init_thread(int tid, void *data)
 #endif
     Assert(tls != NULL);
 
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+    } else {
+	tls->debug=0;
+    }
+
+    if (tls->debug) {
+	fprintf(stderr,"monitor_init_thread BEGIN SAMPLING %d\n",getpid());
+    }
+
+    tls->in_mpi_pre_init = 0;
     tls->OpenSS_monitor_type = OpenSS_Monitor_Thread;
     tls->sampling_active = 1;
     offline_start_sampling(NULL);
@@ -235,7 +264,10 @@ void monitor_dlopen(const char *library, int flags, void *handle)
      * if OpenSS_GetDLInfo does not handle errors do so here.
      */
     int retval = OpenSS_GetDLInfo(getpid(), library);
-    if (!tls->sampling_active) {
+    if (!tls->sampling_active && !tls->in_mpi_pre_init) {
+        if (tls->debug) {
+	    fprintf(stderr,"monitor_dlopen RESUME SAMPLING %d\n",getpid());
+        }
 	tls->sampling_active = 1;
 	offline_start_sampling(NULL);
     }
@@ -252,7 +284,10 @@ monitor_pre_dlopen(const char *path, int flags)
 #endif
     Assert(tls != NULL);
 
-    if (tls->sampling_active) {
+    if (tls->sampling_active && !tls->in_mpi_pre_init) {
+        if (tls->debug) {
+	    fprintf(stderr,"monitor_pre_dlopen PAUSE SAMPLING %d\n",getpid());
+        }
 	tls->sampling_active = 0;
 	offline_stop_sampling(NULL,0);
     }
@@ -270,7 +305,10 @@ monitor_dlclose(void *handle)
     Assert(tls != NULL);
 
     if (!tls->thread_is_terminating || !tls->process_is_terminating) {
-	if (tls->sampling_active) {
+	if (tls->sampling_active && !tls->in_mpi_pre_init) {
+            if (tls->debug) {
+	        fprintf(stderr,"monitor_dlclose PAUSE SAMPLING %d\n",getpid());
+            }
 	    tls->sampling_active = 0;
 	    offline_stop_sampling(NULL,0);
 	}
@@ -289,7 +327,10 @@ monitor_post_dlclose(void *handle, int ret)
     Assert(tls != NULL);
 
     if (!tls->thread_is_terminating || !tls->process_is_terminating) {
-	if (!tls->sampling_active) {
+	if (!tls->sampling_active && !tls->in_mpi_pre_init) {
+            if (tls->debug) {
+	        fprintf(stderr,"monitor_dlclose RESUME SAMPLING %d\n",getpid());
+            }
 	    tls->sampling_active = 1;
 	    offline_start_sampling(NULL);
 	}
@@ -311,6 +352,9 @@ void * monitor_pre_fork(void)
 
     /* Stop sampling prior to real fork. */
     if (tls->sampling_active) {
+        if (tls->debug) {
+	     fprintf(stderr,"monitor_pre_fork FINISHED SAMPLING %d\n",getpid());
+        }
 	tls->sampling_active = 0;
 	offline_stop_sampling(NULL,1);
     }
@@ -329,6 +373,9 @@ void monitor_post_fork(pid_t child, void *data)
 
     /* Resume/start sampling forked process. */
     if (!tls->sampling_active) {
+        if (tls->debug) {
+	     fprintf(stderr,"monitor_post_fork STARTS SAMPLING %d\n",getpid());
+        }
 	tls->OpenSS_monitor_type = OpenSS_Monitor_Proc;
 	tls->sampling_active = 1;
 	offline_start_sampling(NULL);
@@ -349,7 +396,12 @@ void monitor_mpi_pre_init(void)
 #endif
     Assert(tls != NULL);
 
+    tls->in_mpi_pre_init = 1;
+
     if (tls->sampling_active) {
+        if (tls->debug) {
+	     fprintf(stderr,"monitor_mpi_pre_init PAUSE SAMPLING %d\n",getpid());
+        }
 	tls->sampling_active = 0;
 	offline_stop_sampling(NULL,0);
     }
@@ -367,27 +419,19 @@ monitor_init_mpi(int *argc, char ***argv)
     Assert(tls != NULL);
 
     if (!tls->sampling_active) {
+        if (tls->debug) {
+	     fprintf(stderr,"monitor_init_mpi RESUME SAMPLING %d\n",getpid());
+        }
 	tls->sampling_active = 1;
 	tls->OpenSS_monitor_type = OpenSS_Monitor_Proc;
 	offline_start_sampling(NULL);
     }
+
+    tls->in_mpi_pre_init = 0;
 }
 
 void monitor_fini_mpi(void)
 {
-}
-
-void OpenSS_AdjustStackTrace(int index, unsigned* stacktrace_size,
-			     uint64_t* stacktrace)
-{
-    /*
-     * Remove details on libmonitor from stracktraces. 
-     * Libmonitor adds two frames to all processes.
-     * and one frame for threads started via clone.
-     * If we find other cases we can add a new OpenSS_Monitor_Type
-     * to deal with them.  OpenSS_Monitor_Default means no change.
-     */
-
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
     TLS* tls = OpenSS_GetTLS(TLSKey);
@@ -395,22 +439,7 @@ void OpenSS_AdjustStackTrace(int index, unsigned* stacktrace_size,
     TLS* tls = &the_tls;
 #endif
     Assert(tls != NULL);
-
-    if (tls->OpenSS_monitor_type == OpenSS_Monitor_Proc) {
-	//fprintf(stderr,"OpenSS_AdjustStackTrace OpenSS_Monitor_Proc\n");
-	/* PROCESS CASE */
-        stacktrace[index-4] = stacktrace[index-3];
-        stacktrace[index-3] = stacktrace[index-1];
-        stacktrace[index-2] = stacktrace[index-1] = 0;
-        *stacktrace_size = index - 2;
-    } else if (tls->OpenSS_monitor_type == OpenSS_Monitor_Thread) {
-	//fprintf(stderr,"OpenSS_AdjustStackTrace OpenSS_Monitor_Thread\n");
-	/* THREAD CASE */
-        stacktrace[index-3] = stacktrace[index-2];
-        stacktrace[index-2] = stacktrace[index-1];
-        stacktrace[index-1] = 0;
-        *stacktrace_size = index - 1;
-    } else {
-	//fprintf(stderr,"OpenSS_AdjustStackTrace OpenSS_Monitor_Default\n");
+    if (tls->debug) {
+	fprintf(stderr,"monitor_fini_mpi CALLED %d\n",getpid());
     }
 }

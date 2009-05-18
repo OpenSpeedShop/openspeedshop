@@ -62,7 +62,7 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 	    perm[2] == 'x' &&
 	    (strncmp(path, mappedpath, strlen(path)) == 0) ) {
 #ifndef NDEBUG
-	    if ( (getenv("OPENSS_DEBUG_OFFLINE") != NULL)) {
+	    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
 		fprintf(stderr,"OpenSS_GetDLInfo: found path %s in /proc maps file\n",path);
 		fprintf(stderr,"OpenSS_GetDLInfo record: %s [%08lx, %08lx]\n",
 		    mappedpath, begin, end);
@@ -73,24 +73,26 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 	}
 
 	// DPM: added test for path 4-15-08
-	if (perm[2] == 'x' && path == NULL) {
+	else if (perm[2] == 'x' && path == NULL) {
 #ifndef NDEBUG
-	    if ( (getenv("OPENSS_DEBUG_OFFLINE") != NULL)) {
-		fprintf(stderr,"OpenSS_GetDLInfo record: %s [%08lx, %08lx]\n",
+	    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+		fprintf(stderr,"OpenSS_GetDLInfo mappedpath: %s [%08lx, %08lx]\n",
 		    mappedpath, begin, end);
 	    }
 #endif
-	    if (strncmp("", mappedpath, strlen(mappedpath)) == 0) {
+	    if (strncmp("", mappedpath, strlen(mappedpath)) == 0 ||
+		strncmp("[vdso]", mappedpath, strlen(mappedpath)) == 0 ||
+		strncmp("[vsyscall]", mappedpath, strlen(mappedpath)) == 0 ||
+		strncmp("[stack]", mappedpath, strlen(mappedpath)) == 0) {
 #ifndef NDEBUG
-	        if ( (getenv("OPENSS_DEBUG_OFFLINE") != NULL)) {
-		    fprintf(stderr,"OpenSS_GetDLInfo mappedpath EMPTY\n");
+	        if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+		    fprintf(stderr,"OpenSS_GetDLInfo IGNORING mappedpath %s\n",mappedpath);
 	        }
 #endif
-	        offline_record_dso("unknown", begin, end, 0);
 	    } else {
 #ifndef NDEBUG
-	        if ( (getenv("OPENSS_DEBUG_OFFLINE") != NULL)) {
-		    fprintf(stderr,"OpenSS_GetDLInfo mappedpath %s\n",
+	        if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+		    fprintf(stderr,"OpenSS_GetDLInfo RECORD %s\n",
 			mappedpath);
 	        }
 #endif
