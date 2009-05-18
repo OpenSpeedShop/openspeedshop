@@ -126,7 +126,11 @@ void OpenSS_SetSendToFile(const char* unique_id, const char* suffix)
 	sprintf(tls->path, "%s/%s-%d-%llu.%s", dir_path,
 		basename(executable_path), pid, (uint64_t)tid, suffix);
 
-    //fprintf(stderr,"OpenSS_SetSendToFile assumes dir_path %s\n", dir_path);
+
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	fprintf(stderr,"OpenSS_SetSendToFile assumes dir_path %s and executable %s\n",
+	dir_path, basename(executable_path));
+    }
 
     /* Insure the directory path to contain the file exists */
     struct stat st;
