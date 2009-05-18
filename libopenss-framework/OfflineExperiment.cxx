@@ -644,6 +644,16 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	    break;
 	}
 
+	// FIXME: At large scales (1024 pe) usertime data blobs can
+	// be written to the database of size 0 or 1. These are not
+	// valid and will cause an assert in the DataQueue.
+	// Problem found with smg2000 -n 40 40 40 using intel compilers
+	// on a 128 node parition. Why did such a small blob
+	// get written to the openss-data file?
+	if (blobsize <= 1 ) {
+	    break;
+	}
+
 	// This should be safe here.
 	char* theData = NULL;
 	theData = (char*) alloca(blobsize+4);
