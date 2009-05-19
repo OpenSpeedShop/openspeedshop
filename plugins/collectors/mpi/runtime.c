@@ -111,9 +111,8 @@ static void mpi_send_events(TLS *tls)
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"MPI Collector runtime sends data:\n");
-        fprintf(stderr,"HOST %s, pid %d, posix_tid %#lux\n",tls->header.host,
-		tls->header.pid, tls->header.posix_tid);
+        fprintf(stderr,"MPI mpi_send_events SENDS DATA for HOST %s, pid %d, posix_tid %#lux\n",
+		tls->header.host, tls->header.pid, tls->header.posix_tid);
         fprintf(stderr,"time(%lu,%#lu) addr range [%#lx, %#lx] "
 		" stacktraces_len(%d) events_len(%d)\n",
             tls->header.time_begin,tls->header.time_end,
@@ -356,6 +355,12 @@ void mpi_start_tracing(const char* arguments)
 #endif
     Assert(tls != NULL);
 
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	fprintf(stderr,"ENTERED mpi_start_tracing for %d\n",getpid());
+    }
+#endif
+
     /* Decode the passed function arguments. */
     memset(&args, 0, sizeof(args));
     OpenSS_DecodeParameters(arguments,
@@ -381,6 +386,14 @@ void mpi_start_tracing(const char* arguments)
     OpenSS_DataHeader local_header;
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
     memcpy(&tls->header, &local_header, sizeof(OpenSS_DataHeader));
+
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	fprintf(stderr,"INIT HOST %s, PID %d, POSIX_TID %lu\n",
+	tls->header.host, tls->header.pid, tls->header.posix_tid);
+    }
+#endif
+
 
     tls->header.time_begin = 0;
     tls->header.time_end = 0;

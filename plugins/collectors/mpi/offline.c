@@ -79,7 +79,7 @@ void offline_start_sampling(const char* in_arguments)
         tls = malloc(sizeof(TLS));
         Assert(tls != NULL);
         OpenSS_SetTLS(TLSKey, tls);
-	tls->is_tracing = 0;
+	tls->is_tracing = 1;
     }
     
 #else
@@ -166,6 +166,13 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
     }
     
     /* Send the offline "info" blob */
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+        fprintf(stderr,"MPI offline_stop_sampling SENDS INFO for HOST %s, PID %d, POSIX_TID %lu\n",
+        header.host, header.pid, header.posix_tid);
+    }
+#endif
+
     OpenSS_SetSendToFile("mpi", "openss-info");
     OpenSS_Send(&header, (xdrproc_t)xdr_openss_expinfo, &info);
 
@@ -221,6 +228,12 @@ void offline_record_dso(const char* dsoname,
     objects.is_open = is_dlopen;
 
     /* Send the offline "dso" blob */
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+        fprintf(stderr,"MPI offline_record_dso SENDS DSO %s for HOST %s, PID %d, POSIX_TID %lu\n",
+        dsoname, header.host, header.pid, header.posix_tid);
+    }
+#endif
     OpenSS_SetSendToFile("mpi", "openss-dsos");
     OpenSS_Send(&header, (xdrproc_t)xdr_openss_objects, &objects);
 }
