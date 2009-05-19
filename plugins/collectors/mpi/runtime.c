@@ -112,6 +112,8 @@ static void mpi_send_events(TLS *tls)
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"MPI Collector runtime sends data:\n");
+        fprintf(stderr,"HOST %s, pid %d, posix_tid %#lux\n",tls->header.host,
+		tls->header.pid, tls->header.posix_tid);
         fprintf(stderr,"time(%lu,%#lu) addr range [%#lx, %#lx] "
 		" stacktraces_len(%d) events_len(%d)\n",
             tls->header.time_begin,tls->header.time_end,
@@ -417,8 +419,25 @@ void mpi_stop_tracing(const char* arguments)
     Assert(tls != NULL);
 
     /* Send events if there are any remaining in the tracing buffer */
-    if(tls->data.events.events_len > 0)
+    if(tls->data.events.events_len > 0) {
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	    fprintf(stderr,"RANK (%d) SENDING DUE TO FINISHED, %d * %d = %d\n",
+		getpid(),
+		tls->data.stacktraces.stacktraces_len,
+		sizeof(uint64_t),
+		(tls->data.stacktraces.stacktraces_len * sizeof(uint64_t)) );
+	    fprintf(stderr,"EVENTBufferSize, %d * %d = %d\n",
+		tls->data.events.events_len,
+		sizeof(mpi_event),
+		tls->data.events.events_len * sizeof(mpi_event));
+	    fprintf(stderr,"RANK (%d) TOTAL SENT %d\n",  getpid(),
+		(tls->data.stacktraces.stacktraces_len * sizeof(uint64_t)) +
+		(tls->data.events.events_len * sizeof(mpi_event)));
+	}
+#endif
 	mpi_send_events(tls);
+    }
 }
 
 bool_t mpi_do_trace(const char* traced_func)
