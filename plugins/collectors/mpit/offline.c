@@ -87,8 +87,8 @@ void offline_start_sampling(const char* in_arguments)
 #endif
     Assert(tls != NULL);
 
-    if (tls->is_tracing) {
-	return;
+    if (tls->is_tracing == 1) {
+	//return;
     }
 
     tls->is_tracing = 1;
