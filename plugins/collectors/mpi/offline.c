@@ -79,7 +79,7 @@ void offline_start_sampling(const char* in_arguments)
         tls = malloc(sizeof(TLS));
         Assert(tls != NULL);
         OpenSS_SetTLS(TLSKey, tls);
-	tls->is_tracing = 1;
+	tls->is_tracing = 0;
     }
     
 #else
@@ -87,8 +87,8 @@ void offline_start_sampling(const char* in_arguments)
 #endif
     Assert(tls != NULL);
 
-    if (tls->is_tracing) {
-	return;
+    if (tls->is_tracing == 1) {
+	//return;
     }
 
     tls->is_tracing = 1;
