@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2008 William Hachfeld. All Rights Reserved.
+** Copyright (c) 2007,2008,2009 The Krell Institue. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -82,5 +83,22 @@ static void __attribute__ ((constructor)) initialize()
  */
 const char* OpenSS_GetExecutablePath()
 {
-    return executable_path;
+    if (strlen(executable_path) > 1) {
+	return executable_path;
+    } else {
+	/* One-time initialization may not succeed with mpi.
+	 * In that case we need to try at again.  This is
+	 * based on results from a SUSE cluster at NASA running
+	 * MPT where the executable path for all the ranks was
+	 * found to be empty.
+	 */
+	size_t length = 0;
+	memset(executable_path, 0, sizeof(executable_path));
+	readlink("/proc/self/exe", executable_path, sizeof(executable_path) - 1);
+	length = strlen(executable_path);
+	if((length > 0) && (executable_path[length - 1] == '*'))
+            executable_path[length - 1] = 0;
+	if(strlen(executable_path) == 0)
+            sprintf(executable_path, "UnknownExecutable");
+    }
 }
