@@ -39,6 +39,7 @@ typedef struct {
 
         uint64_t time_started;
 	int is_tracing;
+	int pid;
 
 } TLS;
 
@@ -87,11 +88,12 @@ void offline_start_sampling(const char* in_arguments)
 #endif
     Assert(tls != NULL);
 
-    if (tls->is_tracing == 1) {
-	//return;
+    if (tls->is_tracing == 1 && tls->pid == getpid()) {
+	return;
     }
 
     tls->is_tracing = 1;
+    tls->pid = getpid();
 
     mpit_start_tracing_args args;
     char arguments[3 * sizeof(mpit_start_tracing_args)];

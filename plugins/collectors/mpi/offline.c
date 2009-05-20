@@ -39,6 +39,7 @@ typedef struct {
 
         uint64_t time_started;
 	int is_tracing;
+	int pid;
 
 } TLS;
 
@@ -87,11 +88,17 @@ void offline_start_sampling(const char* in_arguments)
 #endif
     Assert(tls != NULL);
 
-    if (tls->is_tracing == 1) {
-	//return;
+    if (tls->is_tracing == 1 && tls->pid == getpid()) {
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	    fprintf(stderr,"offline_start_sampling ALREADY TRACING %d\n",tls->pid);
+	}
+#endif
+	return;
     }
 
     tls->is_tracing = 1;
+    tls->pid = getpid();
 
     mpi_start_tracing_args args;
     char arguments[3 * sizeof(mpi_start_tracing_args)];
@@ -135,6 +142,11 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
     openss_expinfo info;
 
     if (!tls->is_tracing) {
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	    fprintf(stderr,"offline_stop_sampling NOT TRACING %d\n",tls->pid);
+	}
+#endif
 	return;
     }
 
@@ -142,6 +154,11 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
     mpi_stop_tracing(NULL);
 
     if (!finished) {
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	    fprintf(stderr,"offline_stop_sampling NOT FINISHED %d\n",tls->pid);
+	}
+#endif
 	return;
     }
 
@@ -168,7 +185,7 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
     /* Send the offline "info" blob */
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"MPI offline_stop_sampling SENDS INFO for HOST %s, PID %d, POSIX_TID %lu\n",
+        fprintf(stderr,"offline_stop_sampling SENDS INFO for HOST %s, PID %d, POSIX_TID %lu\n",
         header.host, header.pid, header.posix_tid);
     }
 #endif
@@ -230,7 +247,7 @@ void offline_record_dso(const char* dsoname,
     /* Send the offline "dso" blob */
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"MPI offline_record_dso SENDS DSO %s for HOST %s, PID %d, POSIX_TID %lu\n",
+        fprintf(stderr,"offline_record_dso SENDS DSO %s for HOST %s, PID %d, POSIX_TID %lu\n",
         dsoname, header.host, header.pid, header.posix_tid);
     }
 #endif
