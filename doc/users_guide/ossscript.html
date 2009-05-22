@@ -1,0 +1,294 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.3  (Unix)">
+	<META NAME="CREATED" CONTENT="0;0">
+	<META NAME="CHANGED" CONTENT="0;0">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { size: 8.5in 11in; margin: 0.79in }
+		P { margin-bottom: 0.08in }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<PRE>
+
+Open|SpeedShop 1.9.2 introduces additional &quot;short cut&quot; scripts that hide some of the underlying options for running the offline version of Open|SpeedShop.  These scripts hide the -f, -offline, and experiment specification options.
+
+The new script names, which correspond to all the Open|SpeedShop experiments, are:
+
+osspcsamp
+ossusertime
+osshwc
+osshwctime
+ossio
+ossiot
+ossmpi
+ossmpit
+ossmpiotf
+ossfpe
+
+For example, the command:
+
+  osspcsamp &quot;executable&quot;
+
+is equivalent to the long hand version of executing program counter sampling experiment on &quot;executable&quot;: 
+
+  openss -offline -f &quot;executable&quot; pcsamp
+
+This &quot;short cut&quot; method is true for all the other Open|SpeedShop experiments as well.
+
+In addition to the above mentioned change, there are also additional options added to the &quot;short cut&quot; commands.  
+
+The additional options (default, high, low, and input value(s)) are explained below in an experiment specific manner.
+
+
+GENERAL usage rules for using the oss&lt;experiment_name&gt; scripts:
+
+The script always will override the default experiment parameters and any environment variable settings that are related to the experiment parameters.  The script will warn when it overrides an experiment variable.
+
+EXPERIMENT SPECIFIC rules for using the oss&lt;experiment_name&gt; scripts follow below.   Note that each numbered item under the experiment section indicates the usage syntax for the oss&lt;experiment_name&gt; script. 
+
+PCSAMP
+
+1) osspcsamp &quot;executable&quot;
+
+If OPENSS_PCSAMP_RATE is not set, osspcsamp runs using the default sampling rate which is currently 100 samples per second.
+If OPENSS_PCSAMP_RATE is set, osspcsamp runs using the sampling rate specified by the OPENSS_PCSAMP_RATE environment variable.
+
+2) osspcsamp &quot;executable&quot; default
+
+If OPENSS_PCSAMP_RATE is not set, osspcsamp runs using the default sampling rate which is currently 100 samples per second.
+If OPENSS_PCSAMP_RATE is set, osspcsamp runs using the default sampling rate which is currently 100 samples per second and warns that it is not honoring the sampling rate specified by the OPENSS_PCSAMP_RATE environment variable.
+
+3) osspcsamp &quot;executable&quot; high
+
+If OPENSS_PCSAMP_RATE is not set, osspcsamp overrides the default sampling rate by multiplying it by 4 (4 * 100), so 400 is used as the sampling rate
+If OPENSS_PCSAMP_RATE is set, osspcsamp overrides the environment variable sampling rate by using the default sampling rate multiplied by 4 (4 *100), so 400 is used as the sampling rate
+
+4) osspcsamp &quot;executable&quot; low
+
+If OPENSS_PCSAMP_RATE is not set, osspcsamp overrides the default sampling rate by dividing by 2, so 50 is used as the sampling rate
+If OPENSS_PCSAMP_RATE is set, osspcsamp overrides the environment variable sampling rate by using the default sampling rate dividing by 2, so 50 is used as the sampling rate
+
+5) osspcsamp &quot;executable&quot; &lt;input_rate_value&gt;
+
+If OPENSS_PCSAMP_RATE is not set, osspcsamp overrides the default sampling rate by using the &lt;input_rate_value&gt; value as the sampling rate.
+If OPENSS_PCSAMP_RATE is set, osspcsamp overrides the environment variable sampling rate by using &lt;input_rate_value&gt; value as the sampling rate.
+
+
+USERTIME
+
+1) ossusertime &quot;executable&quot;
+
+If OPENSS_USERTIME_RATE is not set, ossusertime runs using the default sampling rate which is currently 35 samples per second.
+If OPENSS_USERTIME_RATE is set, ossusertime runs using the sampling rate specified by the OPENSS_USERTIME_RATE environment variable.
+
+2) ossusertime &quot;executable&quot; default
+
+If OPENSS_USERTIME_RATE is not set, ossusertime runs using the default sampling rate which is currently 35 samples per second.
+If OPENSS_USERTIME_RATE is set, ossusertime runs using the default sampling rate which is currently 35 samples per second and warns that it is not honoring the sampling rate specified by the OPENSS_USERTIME_RATE environment variable.
+
+3) ossusertime &quot;executable&quot; high
+
+If OPENSS_USERTIME_RATE is not set, ossusertime overrides the default sampling rate by multiplying by 4, so 140 is used as the sampling rate
+If OPENSS_USERTIME_RATE is set, ossusertime overrides the environment variable sampling rate by using the default sampling rate multiplied by 4, so 140 is used as the sampling rate
+
+4) ossusertime &quot;executable&quot; low
+
+If OPENSS_USERTIME_RATE is not set, ossusertime overrides the default sampling rate by dividing by 2, so 17 is used as the sampling rate
+If OPENSS_USERTIME_RATE is set, ossusertime overrides the environment variable sampling rate by using the default sampling rate dividing by 2, so 17 is used as the sampling rate
+
+5) ossusertime &quot;executable&quot; &lt;input_rate_value&gt;
+
+If OPENSS_USERTIME_RATE is not set, ossusertime overrides the default sampling rate by using the &lt;input_rate_value&gt; value as the sampling rate.
+If OPENSS_USERTIME_RATE is set, ossusertime overrides the environment variable sampling rate by using &lt;input_rate_value&gt; value as the sampling rate.
+
+
+HWC
+
+1) osshwc &quot;executable&quot;
+
+If OPENSS_HWC_EVENT is not set, osshwc will run with default papi event  which is currently PAPI_TOT_CYC
+If OPENSS_HWC_EVENT is set, osshwc warns the user that it is overriding the environment variable OPENSS_HWC_EVENT setting.
+If OPENSS_HWC_THRESHOLD is not set, osshwc will run using the default papi event threshold which is currently 10000
+If OPENSS_HWC_THRESHOLD is set, osshwc warns the user that it is overriding the default and is using the environment variable OPENSS_HWC_THRESHOLD setting.
+
+2) osshwc &quot;executable&quot; default
+
+If OPENSS_HWC_EVENT is not set, osshwc will run with default papi event  which is currently PAPI_TOT_CYC
+If OPENSS_HWC_EVENT is set, osshwc will run with default papi event  which is currently PAPI_TOT_CYC and warns that it is not using the papi event specified by the OPENSS_HWC_EVENT environment variable.
+If OPENSS_HWC_THRESHOLD is not set, osshwc will run using the default papi event threshold which is currently 10000
+If OPENSS_HWC_THRESHOLD is set, osshwc will run using the default papi event threshold which is currently 10000
+
+3) osshwc &quot;executable&quot; &lt;input_papi_event_name&gt;
+
+If OPENSS_HWC_EVENT is not set, osshwc will override the default papi event value and use the &lt;input_papi_event_name&gt; event
+If OPENSS_HWC_EVENT is set, osshwc warns the user that it is overriding the environment variable OPENSS_HWC_EVENT setting.
+If OPENSS_HWC_THRESHOLD is not set, osshwc will run using the default papi event threshold which is currently 10000
+If OPENSS_HWC_THRESHOLD is set, osshwc warns the user that it is overriding the default and is using the environment variable OPENSS_HWC_THRESHOLD setting.
+
+4) osshwc &quot;executable&quot; &lt;input_papi_threshold&gt;
+
+If OPENSS_HWC_EVENT is not set, osshwc will run with default papi event which is currently PAPI_TOT_CYC
+If OPENSS_HWC_EVENT is set, osshwc will warn the user that it is overriding the default papi event and is using the papi event specified by OPENSS_HWC_EVENT
+If OPENSS_HWC_THRESHOLD is not set, osshwc warns the user that it is overriding the default papi threshold value and is using the &lt;input_papi_threshold&gt; value
+If OPENSS_HWC_THRESHOLD is set, osshwc warns the user that it is overriding the environment variable OPENSS_HWC_THRESHOLD setting and is using the  &lt;input_papi_threshold&gt; value.
+
+5) osshwc &quot;executable&quot; &lt;input_papi_event_name&gt; &lt;input_papi_threshold&gt;
+
+If OPENSS_HWC_EVENT is not set, osshwc will override the default papi event value and use the &lt;input_papi_event_name&gt; event
+If OPENSS_HWC_EVENT is set, osshwc warns the user that it is overriding the environment variable OPENSS_HWC_EVENT setting.
+If OPENSS_HWC_THRESHOLD is not set, osshwc will override the default papi threshold value and use the &lt;input_papi_threshold&gt; value
+If OPENSS_HWC_THRESHOLD is set, osshwc warns the user that it is overriding the environment variable OPENSS_HWC_THRESHOLD setting and uses the  &lt;input_papi_threshold&gt; value.
+
+
+HWCTIME
+
+1) osshwctime &quot;executable&quot;
+
+If OPENSS_HWCTIME_EVENT is not set, osshwctime will run with default papi event  which is currently PAPI_TOT_CYC
+If OPENSS_HWCTIME_EVENT is set, osshwctime will use the papi event specified by OPENSS_HWCTIME_EVENT
+If OPENSS_HWCTIME_THRESHOLD is not set, osshwctime will run using the default papi event threshold which is currently 10000
+If OPENSS_HWCTIME_THRESHOLD is set, osshwctime warns the user that it is overriding the default and is using the environment variable OPENSS_HWCTIME_THRESHOLD setting.
+
+2) osshwctime &quot;executable&quot; default
+
+If OPENSS_HWCTIME_EVENT is not set, osshwctime will run with default papi event  which is currently PAPI_TOT_CYC
+If OPENSS_HWCTIME_EVENT is set, osshwctime will use the default papi event and warns that it is not honoring the papi event specified by OPENSS_HWCTIME_EVENT environment variable.
+If OPENSS_HWCTIME_THRESHOLD is not set, osshwctime will run using the default papi event threshold which is currently 10000
+If OPENSS_HWCTIME_THRESHOLD is set, osshwctime will run using the default papi event threshold and warns the user that it not honoring the threshold specified by the environment variable OPENSS_HWCTIME_THRESHOLD setting.
+
+3) osshwctime &quot;executable&quot; &lt;input_papi_event_name&gt;
+
+If OPENSS_HWCTIME_EVENT is not set, osshwctime will override the default papi event value and use the &lt;input_papi_event_name&gt; event
+If OPENSS_HWCTIME_EVENT is set, osshwctime warns the user that it is overriding the environment variable OPENSS_HWCTIME_EVENT setting.
+If OPENSS_HWCTIME_THRESHOLD is not set, osshwctime will run using the default papi event threshold which is currently 10000
+If OPENSS_HWCTIME_THRESHOLD is set, osshwctime warns the user that it is overriding the default and is using the environment variable OPENSS_HWCTIME_THRESHOLD setting.
+
+4) osshwctime &quot;executable&quot; &lt;input_papi_threshold&gt;
+
+If OPENSS_HWCTIME_EVENT is not set, osshwctime will run with default papi event which is currently PAPI_TOT_CYC
+If OPENSS_HWCTIME_EVENT is set, osshwctime will warn the user that it is overriding the default papi event and is using the papi event specified by OPENSS_HWCTIME_EVENT
+If OPENSS_HWCTIME_THRESHOLD is not set, osshwctime warns the user that it is overriding the default papi threshold value and is using the &lt;input_papi_threshold&gt; value
+If OPENSS_HWCTIME_THRESHOLD is set, osshwctime warns the user that it is overriding the environment variable OPENSS_HWCTIME_THRESHOLD setting and is using the  &lt;input_papi_threshold&gt; value.
+
+5) osshwctime &quot;executable&quot; &lt;input_papi_event_name&gt; &lt;input_papi_threshold&gt;
+
+If OPENSS_HWCTIME_EVENT is not set, osshwctime will override the default papi event value and use the &lt;input_papi_event_name&gt; event
+If OPENSS_HWCTIME_EVENT is set, osshwctime warns the user that it is overriding the environment variable OPENSS_HWCTIME_EVENT setting.
+If OPENSS_HWCTIME_THRESHOLD is not set, osshwctime will override the default papi threshold value and use the &lt;input_papi_threshold&gt; value
+If OPENSS_HWCTIME_THRESHOLD is set, osshwctime warns the user that it is overriding the environment variable OPENSS_HWCTIME_THRESHOLD setting and uses the  &lt;input_papi_threshold&gt; value.
+
+
+IO
+
+1) ossio &quot;executable&quot;
+
+If OPENSS_IO_TRACED is not set, ossio runs using the default list of I/O functions to trace.
+If OPENSS_IO_TRACED is set, ossio runs using the list of I/O functions specified by the OPENSS_IO_TRACED environment variable.
+
+2) ossio &quot;executable&quot; default
+
+If OPENSS_IO_TRACED is not set, ossio runs using the default list of I/O functions to trace.
+If OPENSS_IO_TRACED is set, ossio runs using the default list of I/O functions to trace and warns that it is not honoring the function list specified by the OPENSS_IO_TRACED environment variable.
+
+3) ossio &quot;executable&quot; &lt;input_function_trace_list&gt;
+
+If OPENSS_IO_TRACED is not set, ossio overrides the default list of I/O functions to trace by using the function list specified by the &lt;input_function_trace_list&gt; argument.
+If OPENSS_IO_TRACED is set, ossio overrides the environment variable list of I/O functions to trace by using the function list specified by the &lt;input_function_trace_list&gt; argument.
+
+
+
+IOT
+
+1) ossiot &quot;executable&quot;
+
+If OPENSS_IOT_TRACED is not set, ossiot runs using the default list of I/O functions to trace.
+If OPENSS_IOT_TRACED is set, ossiot runs using the list of I/O functions specified by the OPENSS_IOT_TRACED environment variable.
+
+2) ossiot &quot;executable&quot; default
+
+If OPENSS_IOT_TRACED is not set, ossiot runs using the default list of I/O functions to trace.
+If OPENSS_IOT_TRACED is set, ossiot runs using the default list of I/O functions to trace and warns that it is not honoring the function list specified by the OPENSS_IOT_TRACED environment variable.
+
+3) ossiot &quot;executable&quot; &lt;input_function_trace_list&gt;
+
+If OPENSS_IOT_TRACED is not set, ossiot overrides the default list of I/O functions to trace by using the function list specified by the &lt;input_function_trace_list&gt; argument.
+If OPENSS_IOT_TRACED is set, ossiot overrides the environment variable list of I/O functions to trace by using the function list specified by the &lt;input_function_trace_list&gt; argument.
+
+MPI
+
+1) ossmpi &quot;executable&quot;
+
+If OPENSS_MPI_TRACED is not set, ossmpi runs using the default list of MPI functions to trace.
+If OPENSS_MPI_TRACED is set, ossmpi runs using the list of MPI functions specified by the OPENSS_MPI_TRACED environment variable.
+
+2) ossmpi &quot;executable&quot; default
+
+If OPENSS_MPI_TRACED is not set, ossmpi runs using the default list of MPI functions to trace.
+If OPENSS_MPI_TRACED is set, ossmpi runs using the default list of MPI functions to trace and warns that it is not honoring the function list specified by the OPENSS_MPI_TRACED environment variable.
+
+3) ossmpi &quot;executable&quot; &lt;input_function_trace_list&gt;
+
+If OPENSS_MPI_TRACED is not set, ossmpi overrides the default list of MPI functions to trace by using the function list specified by the &lt;input_function_trace_list&gt; argument.
+If OPENSS_MPI_TRACED is set, ossmpi overrides the environment variable list of MPI functions to trace by using the function list specified by the &lt;input_function_trace_list&gt; argument.
+
+MPIT
+
+1) ossmpit &quot;executable&quot;
+
+If OPENSS_MPIT_TRACED is not set, ossmpit runs using the default list of MPI functions to trace.
+If OPENSS_MPIT_TRACED is set, ossmpit runs using the list of MPI functions specified by the OPENSS_MPIT_TRACED environment variable.
+
+2) ossmpit &quot;executable&quot; default
+
+If OPENSS_MPIT_TRACED is not set, ossmpit runs using the default list of MPI functions to trace.
+If OPENSS_MPIT_TRACED is set, ossmpit runs using the default list of MPI functions to trace and warns that it is not honoring the function list specified by the OPENSS_MPIT_TRACED environment variable.
+
+3) ossmpit &quot;executable&quot; &lt;input_function_trace_list&gt;
+
+If OPENSS_MPIT_TRACED is not set, ossmpit overrides the default list of MPI functions to trace by using the function list specified by the &lt;input_function_trace_list&gt; argument.
+If OPENSS_MPIT_TRACED is set, ossmpit overrides the environment variable list of MPI functions to trace by using the function list specified by the &lt;input_function_trace_list&gt; argument.
+
+MPIOTF
+
+1) ossmpiotf &quot;executable&quot;
+
+If OPENSS_MPIOTF_TRACED is not set, ossmpiotf runs using the default list of MPI functions to trace.
+If OPENSS_MPIOTF_TRACED is set, ossmpiotf runs using the list of MPI functions specified by the OPENSS_MPIOTF_TRACED environment variable.
+
+2) ossmpiotf &quot;executable&quot; default
+
+If OPENSS_MPIOTF_TRACED is not set, ossmpiotf runs using the default list of MPI functions to trace.
+If OPENSS_MPIOTF_TRACED is set, ossmpiotf runs using the default list of MPI functions to trace and warns that it is not honoring the function list specified by the OPENSS_MPIOTF_TRACED environment variable.
+
+3) ossmpiotf &quot;executable&quot; &lt;input_function_trace_list&gt;
+
+If OPENSS_MPIOTF_TRACED is not set, ossmpiotf overrides the default list of MPI functions to trace by using the function list specified by the &lt;input_function_trace_list&gt; argument.
+If OPENSS_MPIOTF_TRACED is set, ossmpiotf overrides the environment variable list of MPI functions to trace by using the function list specified by the &lt;input_function_trace_list&gt; argument.
+
+FPE
+
+1) ossfpe &quot;executable&quot;
+
+If OPENSS_FPE_EVENT is not set, ossfpe runs using the default list of floating point events to monitor.
+If OPENSS_FPE_EVENT is set, ossfpe runs using the list of floating point events to monitor specified by the OPENSS_FPE_EVENT environment variable.
+
+2) ossfpe &quot;executable&quot; default
+
+If OPENSS_FPE_EVENT is not set, ossfpe runs using the default list of floating point events to monitor.
+If OPENSS_FPE_EVENT is set, ossfpe runs using the default list of floating point events to monitor and warns that it is not honoring the events specified by the OPENSS_FPE_EVENT environment variable.
+
+3) ossfpe &quot;executable&quot; &lt;input_function_trace_list&gt;
+
+If OPENSS_FPE_EVENT is not set, ossfpe overrides the default list of floating point events to monitor by using the function list specified by the &lt;input_function_trace_list&gt; argument.
+If OPENSS_FPE_EVENT is set, ossfpe overrides the environment variable list of floating point events monitor by using the function list specified by the &lt;input_function_trace_list&gt; argument.
+
+
+</PRE>
+</BODY>
+</HTML>
