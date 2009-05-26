@@ -1,0 +1,1241 @@
+#! /bin/bash
+#
+#  This script is focused on running on LLNL systems
+#
+if [ "$1" == "help" -o "$1" = "--help" ]
+then
+  echo ""
+  echo "Usage: This script automatically compiles smg2000 and sweep3d"
+  echo "       using the Intel, PGI, and GNU compilers and the default MVAPICH MPI implementation."
+  echo ""
+  echo "       It then runs OpenSpeedShop on each of the smg2000 and sweep3d versions using:"
+  echo "       the pcsamp, usertime, hwc, hwctime, io, iot, mpi, and mpit experiments."
+  echo ""
+  echo "       It verifies the results only by searching for a common expected value.  At this time"
+  echo "       no performance ratios are tested for."
+  echo ""
+  exit
+fi
+
+
+#
+#
+debug_flag=1
+
+# Add module loads or dotkit loads here
+#. /usr/local/tools/dotkit/init.sh
+
+##set -x
+basedir=`pwd`
+
+mpicommand=`which mpirun`
+if [ $debug_flag == 1 ]
+then
+  echo "mpicommand=" $mpicommand
+fi
+
+if [ $mpicommand == 0 ]
+then
+  echo "WARNING: Did not find a mpirun command: Are we running this script on the correct system?"
+  exit
+fi
+
+for testname in `ls *.tar.gz`
+do
+   NEWNAME=$(echo "$testname" | sed -e 's/.tar.gz//')
+   if [ $debug_flag == 1 ]
+   then
+     echo "1st loop, NEWNAME=" $NEWNAME
+   fi
+   cd $basedir
+   if [ $debug_flag == 1 ]
+   then
+     echo "1st loop, basedir=" $basedir
+   fi
+
+
+#  loop here through a compiler list
+#    for thiscompiler in intel pgi gnu
+   for thiscompiler in gnu
+   do
+
+if [ $debug_flag == 1 ]
+then
+  echo "testsuffix=" $testsuffix
+  echo "testCC=" $testCC
+  echo "thiscompiler=" $thiscompiler  
+fi
+
+hostabi=`uname -m`
+ulimit -c unlimited
+#
+# setup the path and information with regards to building the MPI applicaton you will be running
+#
+testexe=$NEWNAME
+
+currentdir=`pwd`
+testpathbase=$currentdir
+
+if [ $debug_flag == 1 ]
+then
+  echo "currentdir=" $currentdir
+fi
+
+gunzip $testexe.tar.gz
+tar -xvf $testexe.tar
+gzip $testexe.tar
+
+sysSED=`which sed`
+
+if [ $debug_flag == 1 ]
+then
+  echo "system sed command is" $sysSED
+fi
+
+cd $testexe
+
+#
+# Here we change the mpi compiler script name to match with the compiler
+#
+
+if [ "$testexe" == "smg2000" ]
+then
+  cd $currentdir/smg2000
+  if [ "$thiscompiler" == "pgi" ]
+  then
+     $sysSED 's/mpicc/mpipgcc/' Makefile.include > newMakefile.include
+  elif [ "$thiscompiler" == "intel" ]
+  then
+     $sysSED 's/mpicc/mpiicc-10.1.017/' Makefile.include > newMakefile.include
+  fi
+elif  [ "$testexe" == "sweep3d" ]
+then
+  cd $currentdir/sweep3d
+  if [ "$thiscompiler" == "pgi" ]
+  then
+     $sysSED 's/mpif77/mpipgf77/' makefile > new_makefile
+  elif [ "$thiscompiler" == "intel" ]
+  then
+     $sysSED 's/mpif77/mpiifort-10.1.017/' makefile > new_makefile
+  fi
+fi
+
+thismpicc=`which mpicc`
+
+#
+# Move the new makefile into the filename it is expected to be
+#
+echo "which mpicc=" $thismpicc
+
+if [ "$testexe" == "smg2000" ]
+then
+  mv -f newMakefile.include Makefile.include
+  make
+elif  [ "$testexe" == "sweep3d" ]
+then
+  mv -f new_makefile makefile
+  make mpi
+fi
+
+if [ "$testexe" == "smg2000" ]
+then
+   testpath=$testpathbase/smg2000/test
+   testexepath=$testpath
+   testexeargs='-n 35 35 35'
+   testprogram=$testexepath/$testexe
+elif [ "$testexe" == "sweep3d" ]
+then
+   testpath=$testpathbase/$testexe
+   testexepath=$testpath
+   testexeargs=''
+   testprogram=$testexepath/$testexe.mpi
+else
+   testpath=$testpathbase/$testexe
+   testexepath=$testpath
+   testexeargs=''
+   testprogram=$testexepath/$testexe
+fi
+
+#
+# setup the OpenSpeedShop experiment type 
+#
+experiment=usertime
+#experiment=pcsamp
+
+sleep 2
+
+#export OPENSS_DEBUG_OPENSS=1
+#export OPENSS_DEBUG_MPIJOB=1
+#export OPENSS_DEBUG_PROCESS=1
+#export DYNINST_DEBUG_STARTUP=1
+#export DYNINST_DEBUG_SYMTAB=1
+
+cd $testpath
+
+#
+# setup the path to OpenSpeedShop
+#
+theopenss=`which openss`
+
+echo "NOTE: Using openss=" $theopenss
+echo "NOTE: Using the raw data directory storage environment variable: OPENSS_RAWDATA_DIR=" $OPENSS_RAWDATA_DIR
+
+#
+# Create the default test configuration file if it does not exist
+# CHANGE THIS FILE CAT TO ADD YOUR EMAIL and NODE/RANK COUNTS
+# For sweep3d.mpi to execute properly please keep the rank count a power of two.
+# Also, the compiler setting "all" is ignored right now.
+# The default_test_config file is defined as:
+# Number of nodes
+# Number of ranked processes
+# Compiler setting: all, pgi, intel, gnu, pathscale  (currently ignored)
+# Email address where the test reports are sent
+#
+if [ -a default_test_config ]
+then
+  echo "NOTE: Using default_test_config file which already exists"
+else
+  echo "NOTE: Creating default_test_config file"
+  cat > default_test_config << EOF
+1
+2
+all
+jegkas@gmail.com
+EOF
+
+fi
+
+cat > common_commands << EOF
+wait
+expstatus
+expview
+EOF
+
+
+if [ "$testexe" == "smg2000" ] 
+then
+
+echo "NOTE: Using thiscompiler=" $thiscompiler
+
+cat > smg2000_${thiscompiler}_mvapich_script.sh << EOF
+#!/bin/bash
+#. /usr/local/tools/dotkit/init.sh
+#use openss_mrnet_x86_64
+which openss
+executable=`which smg2000`
+echo "NOTE: Current test directory is:" `\$pwd`
+echo "TE: smg2000 executable path directory is:" \$executable
+
+which openss
+export PATH=.:$PATH
+echo "NOTE: smg2000 test, after ., PATH=" $PATH
+#set executable = `which smg2000`
+currentDir=`pwd`
+executable=\$currentDir/smg2000
+#echo "NOTE: smg2000 test, current directory is:" `pwd`
+echo "NOTE: smg2000 test, executable path directory is:" \$executable
+mpicommand=`which mpirun`
+echo "smg2000 test, mpirun command path directory is:" \$mpicommand
+
+
+#
+# Read in test parameters
+#
+# script defaults
+NodeCount=1
+RankCount=2
+CompilerType="gnu"
+EmailAddress="jegkas@gmail.com"
+
+
+#if [ -a default_test_config ] 
+#then
+#  echo "NOTE: Reading the existing default_test_config file"
+#  BAKIFS=\$IFS
+#  IFS=\$(echo -en "\n\b")
+#  exec 3<&0
+#  exec 0<default_test_config
+#
+#  read curline
+#  echo "NOTE: NodeCount: \$curline"
+#  NodeCount=\$curline
+##
+#  read curline
+#  echo "NOTE: RankCount: \$curline"
+#  RankCount=\$curline
+##
+#  read curline
+#  echo "NOTE: CompilerType: \$curline"
+#  CompilerType=\$curline
+##
+#  read curline
+#  echo "NOTE: EmailAddress: \$curline"
+#  EmailAddress=\$curline
+#
+#  exec 0<&3
+#
+# restore IFS which was used to determine what the field separators are
+#
+#  IFS=\$BAKIFS
+#
+#fi
+
+#
+if [ $debug_flag == 1 ]
+then
+  echo "NodeCount: \$NodeCount"
+  echo "RankCount: \$RankCount"
+  echo "CompilerType: \$CompilerType"
+  echo "EmailAddress: \$EmailAddress"
+fi
+
+#
+# Run all experiments
+#
+
+#
+# Run pcsamp and analyze the results
+#
+openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 40 40 40" pcsamp
+ls *.openss | grep "smg2000-pcsamp\." > smg2000_${thiscompiler}_mvapich_create_pcsamp
+echo "-------------------------------------"
+echo "BEGIN Analyzing smg2000 pcsamp experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_mvapich_create_pcsamp > new_input.script
+echo "log -f smg2000_${thiscompiler}_mvapich_pcsamp_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_${thiscompiler}_mvapich_pcsamp_results.log | cat > smg2000_${thiscompiler}_mvapich_pcsamp_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing smg2000 pcsamp experiment"
+echo "-------------------------------------"
+
+#
+# Run usertime and analyze the results
+#
+openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 40 40 40" usertime
+ls *.openss | grep "smg2000-usertime\." > smg2000_${thiscompiler}_mvapich_create_usertime
+
+echo "-------------------------------------"
+echo "BEGIN Analyzing smg2000 usertime experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_mvapich_create_usertime > new_input.script
+echo "log -f smg2000_${thiscompiler}_mvapich_usertime_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_${thiscompiler}_mvapich_usertime_results.log | cat > smg2000_${thiscompiler}_mvapich_usertime_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing smg2000 usertime experiment"
+echo "-------------------------------------"
+echo ""
+
+
+
+openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 40 40 40" hwc
+ls *.openss | grep "smg2000-hwc\." > smg2000_${thiscompiler}_mvapich_create_hwc
+
+echo ""
+echo "BEGIN Analyzing smg2000 hwc experiment"
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_mvapich_create_hwc > new_input.script
+echo "log -f smg2000_${thiscompiler}_mvapich_hwc_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_${thiscompiler}_mvapich_hwc_results.log | cat > smg2000_${thiscompiler}_mvapich_hwc_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing smg2000 hwc experiment"
+echo "-------------------------------------"
+echo ""
+
+
+openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 40 40 40" hwctime
+ls *.openss | grep "smg2000-hwctime\." > smg2000_${thiscompiler}_mvapich_create_hwctime
+
+echo ""
+echo "-------------------------------------"
+echo "BEGIN Analyzing smg2000 hwctime experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_mvapich_create_hwctime > new_input.script
+echo "log -f smg2000_${thiscompiler}_mvapich_hwctime_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_${thiscompiler}_mvapich_hwctime_results.log | cat > smg2000_${thiscompiler}_mvapich_hwctime_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing smg2000 hwctime experiment"
+echo "-------------------------------------"
+echo ""
+
+
+openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 40 40 40" io
+ls *.openss | grep "smg2000-io\." > smg2000_${thiscompiler}_mvapich_create_io
+
+echo ""
+echo "-------------------------------------"
+echo "BEGIN Analyzing smg2000 io experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_mvapich_create_io > new_input.script
+echo "log -f smg2000_${thiscompiler}_mvapich_io_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "libc_open" smg2000_${thiscompiler}_mvapich_io_results.log | cat > smg2000_${thiscompiler}_mvapich_io_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing smg2000 io experiment"
+echo "-------------------------------------"
+echo ""
+
+
+openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 40 40 40" iot
+ls *.openss | grep "smg2000-iot\." > smg2000_${thiscompiler}_mvapich_create_iot
+
+echo ""
+echo "-------------------------------------"
+echo "BEGIN Analyzing smg2000 iot experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_mvapich_create_iot > new_input.script
+echo "log -f smg2000_${thiscompiler}_mvapich_iot_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "libc_open" smg2000_${thiscompiler}_mvapich_iot_results.log | cat > smg2000_${thiscompiler}_mvapich_iot_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing smg2000 iot experiment"
+echo "-------------------------------------"
+echo ""
+
+
+openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 5 5 5" mpi
+ls *.openss | grep "smg2000-mpi\-" > smg2000_${thiscompiler}_mvapich_create_mpi
+
+echo ""
+echo "-------------------------------------"
+echo "BEGIN Analyzing smg2000 mpi experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_mvapich_create_mpi > new_input.script
+echo "log -f smg2000_${thiscompiler}_mvapich_mpi_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "\$RankCount  PMPI_Finalize" smg2000_${thiscompiler}_mvapich_mpi_results.log | cat > smg2000_${thiscompiler}_mvapich_mpi_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing smg2000 mpi experiment"
+echo "-------------------------------------"
+echo ""
+
+
+openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 5 5 5" mpit
+
+#
+# Find corresponding experiment database files and create files that can be used to restore the databases
+#
+ls *.openss | grep "smg2000-mpit\-" > smg2000_${thiscompiler}_mvapich_create_mpit
+
+#
+# Use the corresponding experiment database file names to restore the database and print out the status and results for the experiments
+#
+echo ""
+echo "-------------------------------------"
+echo "BEGIN Analyzing smg2000 mpit experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_mvapich_create_mpit > new_input.script
+echo "log -f smg2000_${thiscompiler}_mvapich_mpit_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "\$RankCount  PMPI_Finalize" smg2000_${thiscompiler}_mvapich_mpit_results.log | cat > smg2000_${thiscompiler}_mvapich_mpit_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing smg2000 mpit experiment"
+echo "-------------------------------------"
+echo ""
+
+
+#
+# End of nested script
+#
+exit
+EOF
+
+echo "pwd=$pwd"
+
+RUN_DIR=$testpath
+echo "RUN_DIR=$RUN_DIR"
+cd $RUN_DIR
+REQ_WALLTIME=1:00
+REQ_NNODES=2
+REQ_SCRIPT="$RUN_DIR/smg2000_${thiscompiler}_mvapich_script.sh"
+#script smg2000_${thiscompiler}_mvapich_script_results.txt
+sh ${REQ_SCRIPT}
+
+cat > smg2000_${thiscompiler}_mvapich_email.sh << EOF
+#! /bin/bash
+
+#
+# Read in test parameters
+#
+
+testCompiler="${thiscompiler}"
+
+if [ -a default_test_config ] 
+then
+  echo "Reading the existing default_test_config file"
+  BAKIFS=\$IFS
+  IFS=\$(echo -en "\n\b")
+  exec 3<&0
+  exec 0<default_test_config
+
+  read curline
+  echo "NodeCount: \$curline"
+  NodeCount=\$curline
+#
+  read curline
+  echo "RankCount: \$curline"
+  RankCount=\$curline
+#
+  read curline
+  echo "CompilerType: \$curline"
+  CompilerType=\$curline
+#
+  read curline
+  echo "EmailAddress: \$curline"
+  EmailAddress=\$curline
+
+  exec 0<&3
+
+# restore IFS which was used to determine what the field separators are
+  IFS=\$BAKIFS
+#
+fi
+
+#
+if [ $debug_flag == 1 ]
+then
+  echo "NodeCount: \$NodeCount"
+  echo "RankCount: \$RankCount"
+  echo "CompilerType: \$CompilerType"
+  echo "EmailAddress: \$EmailAddress"
+fi
+
+
+# script to send test results email
+# email subject
+SUBJECT="OpenSpeedShop MPI smg2000 executable test results"
+# Email To ?
+EMAIL=\$EmailAddress
+#EMAIL="jegkas@gmail.com"
+# Email text/message
+EMAILMESSAGE="/tmp/openss_test_message.txt"
+echo " OpenSpeedShop Performance Tool SMG2000 Test Results" >\$EMAILMESSAGE
+echo "" >>\$EMAILMESSAGE
+echo " \${testCompiler} Compiler \$NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
+thisuname="\`uname -srnmo\`"
+echo " System uname: " \$thisuname>> \$EMAILMESSAGE
+thisdate="\`date\`"
+echo " Date/time of run: " \$thisdate>> \$EMAILMESSAGE
+thisdir="\`pwd\`"
+echo " Directory where tests were run: " \$thisdir>> \$EMAILMESSAGE
+echo "" >>\$EMAILMESSAGE
+#
+testval=`ls *.status | wc -l`
+echo " Expected tests: 8">> \$EMAILMESSAGE
+echo " Completed tests: " \$testval>> \$EMAILMESSAGE
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a smg2000_${thiscompiler}_mvapich_pcsamp_results.status ]
+then
+  if [ -s smg2000_${thiscompiler}_mvapich_pcsamp_results.status ]
+  then
+    echo " PCSAMP EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " PCSAMP EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " PCSAMP EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a smg2000_${thiscompiler}_mvapich_usertime_results.status ]
+then
+  if [ -s smg2000_${thiscompiler}_mvapich_usertime_results.status ]
+  then
+    echo " USERTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " USERTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " USERTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a smg2000_${thiscompiler}_mvapich_hwc_results.status ]
+then
+  if [ -s smg2000_${thiscompiler}_mvapich_usertime_results.status ]
+  then
+    echo " HWC EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " HWC EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " HWC EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a smg2000_${thiscompiler}_mvapich_hwctime_results.status ]
+then
+  if [ -s smg2000_${thiscompiler}_mvapich_hwctime_results.status ]
+  then
+    echo " HWCTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " HWCTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " HWCTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a smg2000_${thiscompiler}_mvapich_io_results.status ]
+then
+  if [ -s smg2000_${thiscompiler}_mvapich_io_results.status ]
+  then
+    echo " I/O EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " I/O EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " I/O EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a smg2000_${thiscompiler}_mvapich_iot_results.status ]
+then
+  if [ -s smg2000_${thiscompiler}_mvapich_iot_results.status ]
+  then
+    echo " I/O TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " I/O TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " I/O TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a smg2000_${thiscompiler}_mvapich_mpi_results.status ]
+then
+  if [ -s smg2000_${thiscompiler}_mvapich_mpi_results.status ]
+  then
+    echo " MPI EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " MPI EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " MPI EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a smg2000_${thiscompiler}_mvapich_mpit_results.status ]
+then
+  if [ -s smg2000_${thiscompiler}_mvapich_mpit_results.status ]
+  then
+    echo " MPI TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " MPI TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " MPI TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+#echo "This is an email message test">> \$EMAILMESSAGE
+#echo "This is email text" >>\$EMAILMESSAGE
+# send an email using /bin/mail
+/bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
+EOF
+
+# Send out the results for smg2000
+EMAIL_REQ_SCRIPT="$RUN_DIR/smg2000_${thiscompiler}_mvapich_email.sh"
+sh ${EMAIL_REQ_SCRIPT}
+
+
+elif [ "$testexe" == "sweep3d" ] 
+then
+
+cat > sweep3d_${thiscompiler}_mvapich_script.sh << EOF
+#!/bin/bash
+#. /usr/local/tools/dotkit/init.sh
+#use openss_mrnet_x86_64
+which openss
+executable=`which sweep3d.mpi`
+echo "Current directory is:" `\$pwd`
+echo "sweep3d.mpi executable path directory is:" \$executable
+
+which openss
+export PATH=.:$PATH
+echo "NOTE: smg2000 test, after ., PATH=" $PATH
+currentDir=`pwd`
+executable=\$currentDir/sweep3d.mpi
+#echo "NOTE: sweep3d.mpi test, current directory is:" `pwd`
+echo "NOTE: sweep3d.mpi test, executable path directory is:" \$executable
+mpicommand=`which mpirun`
+echo "sweep3d.mpi test, mpirun command path directory is:" \$mpicommand
+
+
+#
+# Read in test parameters
+#
+# script defaults
+NodeCount=1
+RankCount=2
+CompilerType="gnu"
+EmailAddress="jegkas@gmail.com"
+#
+# Read in test parameters
+#
+
+#if [ -a default_test_config ] 
+#then
+#  echo "Reading the existing default_test_config file"
+#  BAKIFS=\$IFS
+#  IFS=\$(echo -en "\n\b")
+#  exec 3<&0
+#  exec 0<default_test_config
+#
+#  read curline
+#  echo "NodeCount: \$curline"
+#  NodeCount=\$curline
+##
+#  read curline
+#  echo "RankCount: \$curline"
+#  RankCount=\$curline
+##
+#  read curline
+#  echo "CompilerType: \$curline"
+#  CompilerType=\$curline
+#
+#  read curline
+#  echo "EmailAddress: \$curline"
+#  EmailAddress=\$curline
+#
+#  exec 0<&3
+#
+## restore IFS which was used to determine what the field separators are
+#  IFS=\$BAKIFS
+#
+#fi
+#
+##
+if [ $debug_flag == 1 ]
+then
+  echo "NodeCount: \$NodeCount"
+  echo "RankCount: \$RankCount"
+  echo "CompilerType: \$CompilerType"
+  echo "EmailAddress: \$EmailAddress"
+fi
+
+#
+# Run all experiments
+#
+
+# Check the rank count and use an appropriate input file.  The supported sweep3d.mpi input files
+# are 8, 16, 32, 64, 128, or 256 ranks.   We move the input.8 or input.16 etc into the default
+# input file named "input"
+if [ \$RankCount == 8 ] 
+then
+  echo "Moving the input.8 specific input file to the default input file"
+  cp -f input.8 input
+elif  [ \$RankCount == 16 ]
+then
+  echo "Moving the input.16 specific input file to the default input file"
+  cp -f input.16 input
+elif [ \$RankCount == 32 ]
+then
+  echo "Moving the input.32 specific input file to the default input file"
+  cp -f input.32 input
+elif [ \$RankCount == 64 ]
+then
+  echo "Moving the input.64 specific input file to the default input file"
+  cp -f input.64 input
+elif [ \$RankCount == 128 ]
+then
+  echo "Moving the input.128 specific input file to the default input file"
+  cp -f input.128 input
+elif [ \$RankCount == 256 ]
+then
+  echo "Moving the input.256 specific input file to the default input file"
+  cp -f input.256 input
+fi
+
+# this didn't work
+#sysSED=`which sed`
+#myrankdiv=\$RankCount/2
+#$sysSED 's?4 4?2 $myrankdiv?' input > new_input
+
+#
+# Run pcsamp and analyze the results
+#
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" pcsamp
+ls *.openss | grep "sweep3d.mpi-pcsamp\." > sweep3d_${thiscompiler}_mvapich_create_pcsamp
+echo "-------------------------------------"
+echo "BEGIN Analyzing sweep3d.mpi pcsamp experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_mvapich_create_pcsamp > new_input.script
+echo "log -f sweep3d_${thiscompiler}_mvapich_pcsamp_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_${thiscompiler}_mvapich_pcsamp_results.log | cat > sweep3d_${thiscompiler}_mvapich_pcsamp_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing sweep3d.mpi pcsamp experiment"
+echo "-------------------------------------"
+
+#
+# Run usertime and analyze the results
+#
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" usertime
+ls *.openss | grep "sweep3d.mpi-usertime\." > sweep3d_${thiscompiler}_mvapich_create_usertime
+
+echo "-------------------------------------"
+echo "BEGIN Analyzing sweep3d.mpi usertime experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_mvapich_create_usertime > new_input.script
+echo "log -f sweep3d_${thiscompiler}_mvapich_usertime_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_${thiscompiler}_mvapich_usertime_results.log | cat > sweep3d_${thiscompiler}_mvapich_usertime_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing sweep3d.mpi usertime experiment"
+echo "-------------------------------------"
+echo ""
+
+
+
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" hwc
+ls *.openss | grep "sweep3d.mpi-hwc\." > sweep3d_${thiscompiler}_mvapich_create_hwc
+
+echo ""
+echo "BEGIN Analyzing sweep3d.mpi hwc experiment"
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_mvapich_create_hwc > new_input.script
+echo "log -f sweep3d_${thiscompiler}_mvapich_hwc_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_${thiscompiler}_mvapich_hwc_results.log | cat > sweep3d_${thiscompiler}_mvapich_hwc_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing sweep3d.mpi hwc experiment"
+echo "-------------------------------------"
+echo ""
+
+
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" hwctime
+ls *.openss | grep "sweep3d.mpi-hwctime\." > sweep3d_${thiscompiler}_mvapich_create_hwctime
+
+echo ""
+echo "-------------------------------------"
+echo "BEGIN Analyzing sweep3d.mpi hwctime experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_mvapich_create_hwctime > new_input.script
+echo "log -f sweep3d_${thiscompiler}_mvapich_hwctime_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_${thiscompiler}_mvapich_hwctime_results.log | cat > sweep3d_${thiscompiler}_mvapich_hwctime_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing sweep3d.mpi hwctime experiment"
+echo "-------------------------------------"
+echo ""
+
+
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" io
+ls *.openss | grep "sweep3d.mpi-io\." > sweep3d_${thiscompiler}_mvapich_create_io
+
+echo ""
+echo "-------------------------------------"
+echo "BEGIN Analyzing sweep3d.mpi io experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_mvapich_create_io > new_input.script
+echo "log -f sweep3d_${thiscompiler}_mvapich_io_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+readCount=\$RankCount*12
+echo \$readCount
+
+grep "lseek" sweep3d_${thiscompiler}_mvapich_io_results.log | cat > sweep3d_${thiscompiler}_mvapich_io_results.status
+#grep "12 *lseek" sweep3d_${thiscompiler}_mvapich_io_results.log | cat > sweep3d_${thiscompiler}_mvapich_io_results.status
+#grep "\$readCount  __libc_read" sweep3d_${thiscompiler}_mvapich_io_results.log | cat > sweep3d_${thiscompiler}_mvapich_io_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing sweep3d.mpi io experiment"
+echo "-------------------------------------"
+echo ""
+
+
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" iot
+ls *.openss | grep "sweep3d.mpi-iot\." > sweep3d_${thiscompiler}_mvapich_create_iot
+
+echo ""
+echo "-------------------------------------"
+echo "BEGIN Analyzing sweep3d.mpi iot experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_mvapich_create_iot > new_input.script
+echo "log -f sweep3d_${thiscompiler}_mvapich_iot_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+readCount=\$RankCount*12
+echo \$readCount
+
+grep "lseek" sweep3d_${thiscompiler}_mvapich_iot_results.log | cat > sweep3d_${thiscompiler}_mvapich_iot_results.status
+#grep "12 *lseek" sweep3d_${thiscompiler}_mvapich_iot_results.log | cat > sweep3d_${thiscompiler}_mvapich_iot_results.status
+#grep "\$readCount  __libc_read" sweep3d_${thiscompiler}_mvapich_iot_results.log | cat > sweep3d_${thiscompiler}_mvapich_iot_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing sweep3d.mpi iot experiment"
+echo "-------------------------------------"
+echo ""
+
+
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" mpi
+ls *.openss | grep "sweep3d.mpi-mpi\-" > sweep3d_${thiscompiler}_mvapich_create_mpi
+
+echo ""
+echo "-------------------------------------"
+echo "BEGIN Analyzing sweep3d.mpi mpi experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_mvapich_create_mpi > new_input.script
+echo "log -f sweep3d_${thiscompiler}_mvapich_mpi_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "\$RankCount  PMPI_Finalize" sweep3d_${thiscompiler}_mvapich_mpi_results.log | cat > sweep3d_${thiscompiler}_mvapich_mpi_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing sweep3d.mpi mpi experiment"
+echo "-------------------------------------"
+echo ""
+
+
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" mpit
+
+#
+# Find corresponding experiment database files and create files that can be used to restore the databases
+#
+ls *.openss | grep "sweep3d.mpi-mpit\-" > sweep3d_${thiscompiler}_mvapich_create_mpit
+
+#
+# Use the corresponding experiment database file names to restore the database and print out the status and results for the experiments
+#
+echo ""
+echo "-------------------------------------"
+echo "BEGIN Analyzing sweep3d.mpi mpit experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_mvapich_create_mpit > new_input.script
+echo "log -f sweep3d_${thiscompiler}_mvapich_mpit_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "\$RankCount  PMPI_Finalize" sweep3d_${thiscompiler}_mvapich_mpit_results.log | cat > sweep3d_${thiscompiler}_mvapich_mpit_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing sweep3d.mpi mpit experiment"
+echo "-------------------------------------"
+echo ""
+
+
+#
+# End of nested script
+#
+exit
+EOF
+
+echo "pwd=$pwd"
+
+RUN_DIR=$testpath
+echo "RUN_DIR=$RUN_DIR"
+cd $RUN_DIR
+REQ_WALLTIME=1:00
+REQ_NNODES=2
+REQ_SCRIPT="$RUN_DIR/sweep3d_${thiscompiler}_mvapich_script.sh"
+#script sweep3d_${thiscompiler}_mvapich_script_results.txt
+sh ${REQ_SCRIPT}
+#exit
+
+# sweep_${thiscompiler}_mvapich_email.sh
+
+cat > sweep_${thiscompiler}_mvapich_email.sh << EOF
+#! /bin/bash
+
+#
+# Read in test parameters
+#
+
+testCompiler="${thiscompiler}"
+
+if [ -a default_test_config ] 
+then
+  echo "Reading the existing default_test_config file"
+
+  BAKIFS=\$IFS
+  IFS=\$(echo -en "\n\b")
+  exec 3<&0
+  exec 0<default_test_config
+
+  read curline
+  echo "NodeCount: \$curline"
+  NodeCount=\$curline
+#
+  read curline
+  echo "RankCount: \$curline"
+  RankCount=\$curline
+#
+  read curline
+  echo "CompilerType: \$curline"
+  CompilerType=\$curline
+#
+  read curline
+  echo "EmailAddress: \$curline"
+  EmailAddress=\$curline
+
+  exec 0<&3
+
+# restore IFS which was used to determine what the field separators are
+
+  IFS=\$BAKIFS
+
+fi
+
+#
+if [ $debug_flag == 1 ]
+then
+  echo "NodeCount: \$NodeCount"
+  echo "RankCount: \$RankCount"
+  echo "CompilerType: \$CompilerType"
+  echo "EmailAddress: \$EmailAddress"
+fi
+
+# script to send test results email
+# email subject
+SUBJECT="OpenSpeedShop MPI sweep3d.mpi executable test results"
+# Email To ?
+EMAIL=\$EmailAddress
+# Email text/message
+EMAILMESSAGE="/tmp/openss_test_message.txt"
+echo " OpenSpeedShop Performance Tool SWEEP3D.MPI Test Results" >\$EMAILMESSAGE
+echo "" >>\$EMAILMESSAGE
+echo " \${testCompiler} Compiler \$NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
+thisuname="\`uname -srnmo\`"
+echo " System uname: " \$thisuname>> \$EMAILMESSAGE
+thisdate="\`date\`"
+echo " Date/time of run: " \$thisdate>> \$EMAILMESSAGE
+thisdir="\`pwd\`"
+echo " Directory where tests were run: " \$thisdir>> \$EMAILMESSAGE
+echo "" >>\$EMAILMESSAGE
+#
+testval=`ls *.status | wc -l`
+echo " Expected tests: 8">> \$EMAILMESSAGE
+echo " Completed tests: " \$testval>> \$EMAILMESSAGE
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a sweep3d_${thiscompiler}_mvapich_pcsamp_results.status ]
+then
+  if [ -s sweep3d_${thiscompiler}_mvapich_pcsamp_results.status ]
+  then
+    echo " PCSAMP EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " PCSAMP EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " PCSAMP EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a sweep3d_${thiscompiler}_mvapich_usertime_results.status ]
+then
+  if [ -s sweep3d_${thiscompiler}_mvapich_usertime_results.status ]
+  then
+    echo " USERTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " USERTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " USERTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a sweep3d_${thiscompiler}_mvapich_hwc_results.status ]
+then
+  if [ -s sweep3d_${thiscompiler}_mvapich_usertime_results.status ]
+  then
+    echo " HWC EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " HWC EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " HWC EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a sweep3d_${thiscompiler}_mvapich_hwctime_results.status ]
+then
+  if [ -s sweep3d_${thiscompiler}_mvapich_hwctime_results.status ]
+  then
+    echo " HWCTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " HWCTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " HWCTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a sweep3d_${thiscompiler}_mvapich_io_results.status ]
+then
+  if [ -s sweep3d_${thiscompiler}_mvapich_io_results.status ]
+  then
+    echo " I/O EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " I/O EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " I/O EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a sweep3d_${thiscompiler}_mvapich_iot_results.status ]
+then
+  if [ -s sweep3d_${thiscompiler}_mvapich_iot_results.status ]
+  then
+    echo " I/O TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " I/O TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " I/O TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a sweep3d_${thiscompiler}_mvapich_mpi_results.status ]
+then
+  if [ -s sweep3d_${thiscompiler}_mvapich_mpi_results.status ]
+  then
+    echo " MPI EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " MPI EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " MPI EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+
+#
+# if the status file exists and has data then the test succeeded
+# if the status file does not exist then the test did not complete and consider it failed
+#
+if [ -a sweep3d_${thiscompiler}_mvapich_mpit_results.status ]
+then
+  if [ -s sweep3d_${thiscompiler}_mvapich_mpit_results.status ]
+  then
+    echo " MPI TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
+  else
+    echo " MPI TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
+  fi
+else
+  echo " MPI TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
+fi
+#echo "This is an email message test">> \$EMAILMESSAGE
+#echo "This is email text" >>\$EMAILMESSAGE
+# send an email using /bin/mail
+/bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
+EOF
+
+# Send out the results for sweep3d.mpi
+# sweep_${thiscompiler}_mvapich_email.sh
+EMAIL_REQ_SCRIPT="$RUN_DIR/sweep_${thiscompiler}_mvapich_email.sh"
+sh ${EMAIL_REQ_SCRIPT}
+
+fi
+
+
+cd $testpathbase
+
+#
+# only keep the previous copy, if one already exists delete it
+#
+if [ -a prev_${testexe}_${thiscompiler} ]
+then
+   rm -rf prev_${testexe}_${thiscompiler}
+fi
+
+#
+# keep the previous run as a previous copy
+#
+if [ -a ${testexe}_${thiscompiler} ]
+then
+   mv -f ${testexe}_${thiscompiler} prev_${testexe}_${thiscompiler}
+fi
+
+mv $testexe ${testexe}_${thiscompiler}
+
+# end loop through the compiler list
+done
+
+# end loop through the test list
+done
+
+exit
+
+
