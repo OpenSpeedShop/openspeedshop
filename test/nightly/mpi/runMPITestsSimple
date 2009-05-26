@@ -1,6 +1,8 @@
 #! /bin/bash
 #
-#  This script is focused on running on LLNL systems
+#  This script is focused on running on small non-cluster systems
+#  Look for the string SETUP for 3 sections where you may want to change
+#  the location of openss and the mpi implementation you are using
 #
 if [ "$1" == "help" -o "$1" = "--help" ]
 then
@@ -22,6 +24,7 @@ fi
 #
 debug_flag=1
 
+# SETUP start
 # Add module loads or dotkit loads here
 #. /usr/local/tools/dotkit/init.sh
 # or
@@ -41,6 +44,7 @@ export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
 # changing the following definition
 
 mpi_script_name="openmpi"
+# SETUP end
 
 
 ##set -x
@@ -237,6 +241,7 @@ echo "NOTE: Using thiscompiler=" $thiscompiler
 
 cat > smg2000_${thiscompiler}_${mpi_script_name}_script.sh << EOF
 #!/bin/bash
+# SETUP start
 # Add module loads or dotkit loads here
 #. /usr/local/tools/dotkit/init.sh
 # or
@@ -251,6 +256,12 @@ export PATH=/home/jeg/oss/bin:$PATH
 export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
 export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
+
+# Add the mpi implementation to the script name, if so desired by 
+# changing the following definition
+
+mpi_script_name="openmpi"
+# SETUP end
 
 which openss
 executable=`which smg2000`
@@ -514,6 +525,11 @@ cat > smg2000_${thiscompiler}_${mpi_script_name}_email.sh << EOF
 #
 # Read in test parameters
 #
+# script defaults
+NodeCount=1
+RankCount=2
+CompilerType="gnu"
+EmailAddress="jegkas@gmail.com"
 
 testCompiler="${thiscompiler}"
 
@@ -723,7 +739,7 @@ then
 
 cat > sweep3d_${thiscompiler}_${mpi_script_name}_script.sh << EOF
 #!/bin/bash
-
+# SETUP start
 # Add module loads or dotkit loads here
 #. /usr/local/tools/dotkit/init.sh
 # or
@@ -738,6 +754,7 @@ export PATH=/home/jeg/oss/bin:$PATH
 export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
 export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
+# SETUP end
 
 which openss
 executable=`which sweep3d.mpi`
@@ -753,6 +770,11 @@ executable=\$currentDir/sweep3d.mpi
 echo "NOTE: sweep3d.mpi test, executable path directory is:" \$executable
 mpicommand=`which mpirun`
 echo "sweep3d.mpi test, mpirun command path directory is:" \$mpicommand
+
+# Add the mpi implementation to the script name, if so desired by 
+# changing the following definition
+
+mpi_script_name="openmpi"
 
 
 #
@@ -1048,6 +1070,11 @@ cat > sweep_${thiscompiler}_${mpi_script_name}_email.sh << EOF
 #
 # Read in test parameters
 #
+# script defaults
+NodeCount=1
+RankCount=2
+CompilerType="gnu"
+EmailAddress="jegkas@gmail.com"
 
 testCompiler="${thiscompiler}"
 
