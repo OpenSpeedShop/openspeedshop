@@ -55,8 +55,10 @@ typedef struct {
     /** Sample buffer. */
     struct {
 	uint64_t bt[BufferSize];    /**< Stack trace (PC) addresses. */
-				    /**< Each stack is terminated by */
-				    /**< a NULL address.             */
+	uint8_t  count[BufferSize]; /**< count value greater than 0 is top */
+				    /**< of stack. A count of 255 indicates */
+				    /**< another instance of this stack may */
+				    /**< exist in buffer bt. */
     } buffer;    
 
     int EventSet;
@@ -136,6 +138,7 @@ static void send_samples(TLS *tls)
 
     /* Re-initialize the actual data blob */
     tls->data.bt.bt_len = 0;
+    tls->data.count.count_len = 0;
 }
 
 static int total = 0;
@@ -166,108 +169,87 @@ hwctimePAPIHandler(int EventSet, void *address, long_long overflow_vector,
 #endif
     Assert(tls != NULL);
 
-    /* Obtain the program counter (PC) address from the thread context */
-    /* We will test passedpc against the first stack frame address */
-    /* to see if we have to skip any signal handler overhead. */
-    /* Suse and SLES may not have the signal handler overhead. */
-    uint64_t passedpc;
-    passedpc = OpenSS_GetPCFromContext(context);
+    int framecount = 0;
+    int stackindex = 0;
+    uint64_t framebuf[MAXFRAMES];
+    uint64_t beginaddr = tls->header.addr_begin;
+    uint64_t endaddr = tls->header.addr_end;
 
-    unw_word_t ip;	/* current stack trace pc address */
+    memset(framebuf,0, sizeof(framebuf));
 
-    /* Obtain the program counter current address from the thread context */
-    /* and unwind the stack from there. */
-    /* Libunwind provides it's own get context routines and the libunwind */
-    /* documentation suggests that we use that. */
-    
+    /* get stack address for current context and store them into framebuf. */
 
-    unw_cursor_t cursor;          /* libunwind stack cursor (pointer) */
-    unw_context_t uc;	          /* libunwind context */
+    OpenSS_GetStackTraceFromContext (context, TRUE, 0,
+                        MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
 
-#if UNW_TARGET_IA64
-    unw_getcontext (&uc);         /* get the libunwind context */
-#else
-    /* copy passed context to a libunwind context */
-    memcpy(&uc, context, sizeof(ucontext_t));
-#endif
+    bool_t stack_already_exists = FALSE;
 
-    if (unw_init_local (&cursor, &uc) < 0) {
-	/* handle error if we get a negative stack pointer */
-	/*panic ("unw_init_local failed!\n"); */
-    }
-   
-    /* 
-     * Loop through stack address and add to the sample buffer
-     * (i.e. the current fame pc value at the stack trace cursor).
-     * We incur 3 frames of overhead for the signal handler.
-     * So we skip the first three frames of each stack.
-     * 
-     * If buffer is full, send the samples we have, and start
-     * filling buffer again. Each stack trace is terminated by
-     * a NULL address.
-    */
-    int overhead_marker = 0;  /* marker to count signal handler overhead*/
-    int rval = 0;  /* return value from libunwind calls */
-
-    do
+    int i, j;
+    /* search individual stacks via count/indexing array */
+    for (i = 0; i < tls->data.count.count_len ; i++ )
     {
-	/* get current stack address pointed to by cursor */
-	unw_get_reg (&cursor, UNW_REG_IP, &ip);
-
-	/* PAPI introduces one more frame of overhead than found in usertime */
-	/* are we already past the 4 frames of signal handler overhead? */
-        if (overhead_marker == 0 && passedpc == ip) {
-            overhead_marker = 4; /* we started past the overhead */
-        }
-
-	/* add frame address if we are past any signal handler overhead */
-	if (overhead_marker > 3) {
-	    /* add frame address to buffer */
-            tls->buffer.bt[tls->data.bt.bt_len] = (uint64_t) ip;
-
-            /* Update the address interval in the data blob's header */
-            if(ip < tls->header.addr_begin) {
-	        tls->header.addr_begin = (uint64_t) ip;
-	    }
-            if(ip > tls->header.addr_end) {
-	        tls->header.addr_end = (uint64_t) ip;
-	    }
-	    tls->data.bt.bt_len++;
-
-            /* Is the sample buffer full? */
-            if(tls->data.bt.bt_len == BufferSize) {
-    	        /* Send these samples */
-	        send_samples(tls);
-            }
-	    stacktotal++;
-
-	} else {
-	    /* increment past signal handler overhead */
-	    overhead_marker++;
+	/* a count > 0 indexes the top of stack in the data buffer. */
+	/* a count == 255 indicates this stack is at the count limit. */
+	if (tls->buffer.count[i] == 0) {
+	    continue;
+	}
+	if (tls->buffer.count[i] == 255) {
+	    continue;
 	}
 
-	/* step (unwind) the cursor to the preceding frame */
-	rval = unw_step (&cursor);
-	if (rval < 0) {
-	    unw_get_reg (&cursor, UNW_REG_IP, &ip);
-	    printf ("FAILURE: unw_step() returned %d for ip=%lx\n",
-		  rval, (long) ip);
+	/* see if the stack addresses match */
+	for (j = 0; j < framecount ; j++ )
+	{
+	    if ( tls->buffer.bt[i+j] != framebuf[j] ) {
+		   break;
+	    }
+	}
+
+	if ( j == framecount) {
+	    stack_already_exists = TRUE;
+	    stackindex = i;
 	}
     }
-    while (rval > 0);
 
-    /* terminate this stack trace with a NULL and bump bt_len*/
-    tls->buffer.bt[tls->data.bt.bt_len] = 0L;
-    tls->data.bt.bt_len++;
+    /* if the stack already exisits in the buffer, update its count
+     * and return. If the stack is already at the count limit.
+    */
+    if (stack_already_exists && tls->buffer.count[stackindex] < 255 ) {
+	/* update count for this stack */
+	tls->buffer.count[stackindex] = tls->buffer.count[stackindex] + 1;
+	return;
+    }
 
-    /* Is the sample buffer full? */
-    if(tls->data.bt.bt_len == BufferSize) {
+    /* sample buffer has no room for these stack frames.*/
+    int buflen = tls->data.bt.bt_len + framecount;
+    if ( buflen > BufferSize) {
+	/* send the current sample buffer. (will init a new buffer) */
 	send_samples(tls);
     }
 
-    /* reset the signal handler overhead marker */
-    overhead_marker = 0;
-    total++;
+    /* add frames to sample buffer, compute addresss range */
+    for (i = 0; i < framecount ; i++)
+    {
+	/* always add address to buffer bt */
+	tls->buffer.bt[tls->data.bt.bt_len] = framebuf[i];
+
+	/* top of stack indicated by a positive count. */
+	/* all other elements are 0 */
+	if (i > 0 ) {
+	    tls->buffer.count[tls->data.count.count_len] = 0;
+	} else {
+	    tls->buffer.count[tls->data.count.count_len] = 1;
+	}
+
+	if (framebuf[i] < tls->header.addr_begin ) {
+	    tls->header.addr_begin = framebuf[i];
+	}
+	if (framebuf[i] > tls->header.addr_end ) {
+	    tls->header.addr_end = framebuf[i];
+	}
+	tls->data.bt.bt_len++;
+	tls->data.count.count_len++;
+    }
 }
 
 
@@ -310,17 +292,24 @@ void hwctime_start_sampling(const char* arguments)
      * to not be safe on IA64 systems. Hopefully the extra copy can be
      * removed eventually.
      */
-    
-    OpenSS_DataHeader local_data_header;
-    OpenSS_InitializeDataHeader(args.experiment, args.collector,
-				&local_data_header);
-    memcpy(&tls->header, &local_data_header, sizeof(OpenSS_DataHeader));
-    
+    OpenSS_DataHeader local_header;
+    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
+    memcpy(&tls->header, &local_header, sizeof(OpenSS_DataHeader));
+
+    tls->header.time_begin = 0;
+    tls->header.time_end = 0;
+    tls->header.addr_begin = ~0;
+    tls->header.addr_end = 0;
+
+    memset(tls->buffer.bt, 0, sizeof(tls->buffer.bt));
+    memset(tls->buffer.count, 0, sizeof(tls->buffer.count));
+
     /* Initialize the actual data blob */
     tls->data.interval = (uint64_t)(args.sampling_rate);
     tls->data.bt.bt_len = 0;
     tls->data.bt.bt_val = tls->buffer.bt;
-
+    tls->data.count.count_len = 0;
+    tls->data.count.count_val = tls->buffer.count;
 
     /* Begin sampling */
     tls->header.time_begin = OpenSS_GetTime();

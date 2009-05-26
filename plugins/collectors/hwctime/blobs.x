@@ -37,6 +37,13 @@ struct hwctime_parameters {
 struct hwctime_data {
     uint64_t interval;    /**< Sampling interval in nanoseconds. */
     uint64_t bt<>;        /**< Stack traces (addresses terminated with NULL). */
+    uint8_t count<>;      /**< Count for stack trace. Entries with a positive */
+                          /**< count value represent the top of stack for a */
+                          /**< specifc stack. If stack count exceeds 255 */
+                          /**< a new entry is made in the sample buffer. */
+                          /**< Positive entries the count buffer represent */
+                          /**< the index into the address buffer (bt) for a */
+                          /**< specifc stack */
 };
 
 

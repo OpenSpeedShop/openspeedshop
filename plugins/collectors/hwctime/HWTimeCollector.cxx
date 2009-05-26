@@ -332,10 +332,7 @@ void HWTimeCollector::getMetricValues(const std::string& metric,
     blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_hwctime_data), &data);
     
     // Check assertions
-    // Assert(data.bt.bt_len == data.count.count_len);
-
-    // Note: Enable the above assertion once hwctime has been modified to use
-    //       the compression technique from usertime.
+    Assert(data.bt.bt_len == data.count.count_len);
 
     // Calculate time (in nS) of data blob's extent
     double t_blob = static_cast<double>(extent.getTimeInterval().getWidth());
@@ -344,27 +341,13 @@ void HWTimeCollector::getMetricValues(const std::string& metric,
     for(unsigned ib = 0, ie = 0; ie < data.bt.bt_len; ib = ie) {
 	
 	// Find the end of the current stack trace
-	for(ib += (ib > 0), ie = ib + 1; ie < data.bt.bt_len; ++ie)
-	    if(data.bt.bt_val[ie] == 0)
-		break;
-	
-	// Note: Replace the code above to find the end of the current stack
-	//       trace with the following code once hwctime has been modified
-	//       to use the compression technique from usertime.
-
-	// for(ie = ib + 1; ie < data.bt.bt_len; ++ie)
-	//     if(data.count.count_val[ie] > 0)
-	//	   break;
+	for(ie = ib + 1; ie < data.bt.bt_len; ++ie)
+	     if(data.count.count_val[ie] > 0)
+		   break;
 
 	// Calculate the events attributable to this sample
-	uint64_t e_sample = static_cast<uint64_t>(data.interval);
-
-	// Note: Replace the definition of e_sample above with the following one
-	//       once hwctime has been modified to use the compression technique
-	//       from usertime.
-	
-	// uint64_t e_sample = static_cast<uint64_t>(data.count.count_val[ib]) *
-	//     static_cast<uint64_t>(data.interval);	
+	uint64_t e_sample = static_cast<uint64_t>(data.count.count_val[ib]) *
+	     static_cast<uint64_t>(data.interval);	
 	
 	// Get the stack trace for this sample
 	StackTrace trace(thread, extent.getTimeInterval().getBegin());
@@ -408,17 +391,9 @@ void HWTimeCollector::getMetricValues(const std::string& metric,
 		    // fraction of the count and events attributable to this
 		    // sample
 		    l->second.dm_count += static_cast<uint64_t>(
-			t_intersection / t_blob
-			);
-
-		    // Note: Replace the definition of dm_count above with the
-		    //       following one once hwctime has been modified to use
-		    //       the compression technique from usertime.
-		    
-		    // l->second.dm_count += static_cast<uint64_t>(
-		    //     static_cast<double>(data.count.count_val[ib]) * 
-		    //     (t_intersection / t_blob)
-		    //     );
+		         static_cast<double>(data.count.count_val[ib]) * 
+		         (t_intersection / t_blob)
+		         );
 		    
 		    l->second.dm_events += static_cast<uint64_t>(
 			static_cast<double>(e_sample) *
