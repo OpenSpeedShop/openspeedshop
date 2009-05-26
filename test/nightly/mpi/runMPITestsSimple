@@ -28,17 +28,17 @@ debug_flag=1
 # Add module loads or dotkit loads here
 #. /usr/local/tools/dotkit/init.sh
 # or
-# module load openss openmpi-1.2.8
+# module load openss openmpi-1.2.4
 # or setup environment manually
-export OPENSS_PREFIX=/home/jeg/oss
-export OPENSS_MPI_OPENMPI=/home/jeg/openmpi-1.2.8
+export OPENSS_PREFIX=/opt/OSS-mrnet
+export OPENSS_MPI_OPENMPI=/opt/openmpi-1.2.4
 export OPENSS_INSTRUMENTOR=mrnet
 export XPLAT_RSH=ssh
-export OPENSS_PLUGIN_PATH=/home/jeg/oss/lib/openspeedshop
-export PATH=/home/jeg/oss/bin:$PATH
-export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
-export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
+export OPENSS_PLUGIN_PATH=/opt/OSS-mrnet/lib64/openspeedshop
+export PATH=/opt/OSS-mrnet/bin:$PATH
+export LD_LIBRARY_PATH=/opt/OSS-mrnet/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/opt/openmpi-1.2.4/lib:$LD_LIBRARY_PATH
+export PATH=/opt/openmpi-1.2.4/bin:$PATH
 
 # Add the mpi implementation to the script name, if so desired by 
 # changing the following definition
@@ -245,17 +245,17 @@ cat > smg2000_${thiscompiler}_${mpi_script_name}_script.sh << EOF
 # Add module loads or dotkit loads here
 #. /usr/local/tools/dotkit/init.sh
 # or
-# module load openss openmpi-1.2.8
+# module load openss openmpi-1.2.4
 # or setup environment manually
-export OPENSS_PREFIX=/home/jeg/oss
-export OPENSS_MPI_OPENMPI=/home/jeg/openmpi-1.2.8
+export OPENSS_PREFIX=/opt/OSS-mrnet
+export OPENSS_MPI_OPENMPI=/opt/openmpi-1.2.4
 export OPENSS_INSTRUMENTOR=mrnet
 export XPLAT_RSH=ssh
-export OPENSS_PLUGIN_PATH=/home/jeg/oss/lib/openspeedshop
-export PATH=/home/jeg/oss/bin:$PATH
-export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
-export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
+export OPENSS_PLUGIN_PATH=/opt/OSS-mrnet/lib64/openspeedshop
+export PATH=/opt/OSS-mrnet/bin:$PATH
+export LD_LIBRARY_PATH=/opt/OSS-mrnet/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/opt/openmpi-1.2.4/lib:$LD_LIBRARY_PATH
+export PATH=/opt/openmpi-1.2.4/bin:$PATH
 
 # Add the mpi implementation to the script name, if so desired by 
 # changing the following definition
@@ -743,17 +743,17 @@ cat > sweep3d_${thiscompiler}_${mpi_script_name}_script.sh << EOF
 # Add module loads or dotkit loads here
 #. /usr/local/tools/dotkit/init.sh
 # or
-# module load openss openmpi-1.2.8
+# module load openss openmpi-1.2.4
 # or setup environment manually
-export OPENSS_PREFIX=/home/jeg/oss
-export OPENSS_MPI_OPENMPI=/home/jeg/openmpi-1.2.8
+export OPENSS_PREFIX=/opt/OSS-mrnet
+export OPENSS_MPI_OPENMPI=/opt/openmpi-1.2.4
 export OPENSS_INSTRUMENTOR=mrnet
 export XPLAT_RSH=ssh
-export OPENSS_PLUGIN_PATH=/home/jeg/oss/lib/openspeedshop
-export PATH=/home/jeg/oss/bin:$PATH
-export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
-export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
+export OPENSS_PLUGIN_PATH=/opt/OSS-mrnet/lib64/openspeedshop
+export PATH=/opt/OSS-mrnet/bin:$PATH
+export LD_LIBRARY_PATH=/opt/OSS-mrnet/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/opt/openmpi-1.2.4/lib:$LD_LIBRARY_PATH
+export PATH=/opt/openmpi-1.2.4/bin:$PATH
 # SETUP end
 
 which openss
@@ -834,9 +834,13 @@ fi
 #
 
 # Check the rank count and use an appropriate input file.  The supported sweep3d.mpi input files
-# are 8, 16, 32, 64, 128, or 256 ranks.   We move the input.8 or input.16 etc into the default
+# are 2, 8, 16, 32, 64, 128, or 256 ranks.   We move the input.8 or input.16 etc into the default
 # input file named "input"
-if [ \$RankCount == 8 ] 
+if [ \$RankCount == 2 ] 
+then
+  echo "Moving the input.2 specific input file to the default input file"
+  cp -f input.2 input
+elif [ \$RankCount == 8 ] 
 then
   echo "Moving the input.8 specific input file to the default input file"
   cp -f input.8 input
