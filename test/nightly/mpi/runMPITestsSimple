@@ -4,7 +4,7 @@
 #  Look for the string SETUP for 3 sections where you may want to change
 #  the location of openss and the mpi implementation you are using
 #
-if [ "$1" == "help" -o "$1" = "--help" ]
+if [[ "$1" == "help" || "$1" = "--help" ]]
 then
   echo ""
   echo "Usage: This script automatically compiles smg2000 and sweep3d"
@@ -517,7 +517,7 @@ REQ_WALLTIME=1:00
 REQ_NNODES=2
 REQ_SCRIPT="$RUN_DIR/smg2000_${thiscompiler}_${mpi_script_name}_script.sh"
 #script smg2000_${thiscompiler}_${mpi_script_name}_script_results.txt
-sh ${REQ_SCRIPT}
+bash ${REQ_SCRIPT}
 
 cat > smg2000_${thiscompiler}_${mpi_script_name}_email.sh << EOF
 #! /bin/bash
@@ -731,7 +731,7 @@ EOF
 
 # Send out the results for smg2000
 EMAIL_REQ_SCRIPT="$RUN_DIR/smg2000_${thiscompiler}_${mpi_script_name}_email.sh"
-sh ${EMAIL_REQ_SCRIPT}
+bash ${EMAIL_REQ_SCRIPT}
 
 
 elif [ "$testexe" == "sweep3d" ] 
@@ -1059,7 +1059,7 @@ REQ_WALLTIME=1:00
 REQ_NNODES=2
 REQ_SCRIPT="$RUN_DIR/sweep3d_${thiscompiler}_${mpi_script_name}_script.sh"
 #script sweep3d_${thiscompiler}_${mpi_script_name}_script_results.txt
-sh ${REQ_SCRIPT}
+bash ${REQ_SCRIPT}
 #exit
 
 # sweep_${thiscompiler}_${mpi_script_name}_email.sh
@@ -1277,7 +1277,7 @@ EOF
 # Send out the results for sweep3d.mpi
 # sweep_${thiscompiler}_${mpi_script_name}_email.sh
 EMAIL_REQ_SCRIPT="$RUN_DIR/sweep_${thiscompiler}_${mpi_script_name}_email.sh"
-sh ${EMAIL_REQ_SCRIPT}
+bash ${EMAIL_REQ_SCRIPT}
 
 fi
 
