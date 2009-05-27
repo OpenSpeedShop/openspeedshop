@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2006-2009 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -26,8 +27,9 @@
 #       the runtime for the other libraries that actually use it.
 #
 
-dist_bin_SCRIPTS = ossrun
-BUILT_FILES = ossrun
+dist_bin_SCRIPTS = ossrun ossdriver
+BUILT_FILES = ossrun ossdriver
+
 
 bin_PROGRAMS =
 
@@ -110,47 +112,45 @@ ossdriver: ossdriver.in
 	chmod 755 ossdriver
 
 install-exec-hook: ossdriver
-	@rm -f $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver 
-	cp ossdriver $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver 
 # osspcsamp
 	@rm -f $(prefix)/bin/osspcsamp
-	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/osspcsamp
+	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/osspcsamp
 	chmod 755 $(prefix)/bin/osspcsamp
 # ossusertime
 	@rm -f $(prefix)/bin/ossusertime
-	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/ossusertime
+	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/ossusertime
 	chmod 755 $(prefix)/bin/ossusertime
 # osshwc
 	@rm -f $(prefix)/bin/osshwc
-	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/osshwc
+	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/osshwc
 	chmod 755 $(prefix)/bin/osshwc
 # osshwctime
 	@rm -f $(prefix)/bin/osshwctime
-	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/osshwctime
+	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/osshwctime
 	chmod 755 $(prefix)/bin/osshwctime
 # ossio
 	@rm -f $(prefix)/bin/ossio
-	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/ossio
+	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/ossio
 	chmod 755 $(prefix)/bin/ossio
 # ossiot
 	@rm -f $(prefix)/bin/ossiot
-	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/ossiot
+	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/ossiot
 	chmod 755 $(prefix)/bin/ossiot
 # ossmpi
 	@rm -f $(prefix)/bin/ossmpi
-	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/ossmpi
+	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/ossmpi
 	chmod 755 $(prefix)/bin/ossmpi
 # ossmpit
 	@rm -f $(prefix)/bin/ossmpit
-	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/ossmpit
+	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/ossmpit
 	chmod 755 $(prefix)/bin/ossmpit
 # ossmpiotf
 	@rm -f $(prefix)/bin/ossmpiotf
-	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/ossmpiotf
+	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/ossmpiotf
 	chmod 755 $(prefix)/bin/ossmpiotf
 # ossfpe
 	@rm -f $(prefix)/bin/ossfpe
-	$(LN_S) $(prefix)/$(abi_libdir_name)/openspeedshop/ossdriver  $(prefix)/bin/ossfpe
+	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/ossfpe
 	chmod 755 $(prefix)/bin/ossfpe
 
 EXTRA_DIST = ossrun.in ossdriver.in 
