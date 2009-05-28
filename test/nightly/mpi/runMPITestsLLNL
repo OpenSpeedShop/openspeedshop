@@ -20,7 +20,7 @@ fi
 
 #
 #
-debug_flag=1
+debug_flag=0
 
 . /usr/local/tools/dotkit/init.sh
 
@@ -31,7 +31,7 @@ basedir=`pwd`
 found_llnl=0
 
 runcommand=`which srun`
-if [ debug_flag == 1 ]
+if [ $debug_flag == 1 ]
 then
   echo "runcommand=" $runcommand
   echo "system type=" $SYS_TYPE
@@ -64,12 +64,12 @@ fi
 for testname in `ls *.tar.gz`
 do
    NEWNAME=$(echo "$testname" | sed -e 's/.tar.gz//')
-   if [ debug_flag == 1 ]
+   if [ $debug_flag == 1 ]
    then
      echo "1st loop, NEWNAME=" $NEWNAME
    fi
    cd $basedir
-   if [ debug_flag == 1 ]
+   if [ $debug_flag == 1 ]
    then
      echo "1st loop, basedir=" $basedir
    fi
@@ -80,7 +80,7 @@ do
    for thiscompiler in intel pgi gnu
    do
 
-if [ debug_flag == 1 ]
+if [ $debug_flag == 1 ]
 then
   echo "testsuffix=" $testsuffix
   echo "testCC=" $testCC
@@ -97,7 +97,7 @@ testexe=$NEWNAME
 currentdir=`pwd`
 testpathbase=$currentdir
 
-if [ debug_flag == 1 ]
+if [ $debug_flag == 1 ]
 then
   echo "currentdir=" $currentdir
 fi
@@ -108,7 +108,7 @@ gzip $testexe.tar
 
 sysSED=`which sed`
 
-if [ debug_flag == 1 ]
+if [ $debug_flag == 1 ]
 then
   echo "system sed command is" $sysSED
 fi
@@ -286,7 +286,7 @@ then
 fi
 
 #
-if [ debug_flag == 1 ]
+if [ $debug_flag == 1 ]
 then
   echo "NodeCount: \$NodeCount"
   echo "RankCount: \$RankCount"
@@ -523,7 +523,7 @@ then
 fi
 
 #
-if [ debug_flag == 1 ]
+if [ $debug_flag == 1 ]
 then
   echo "NodeCount: \$NodeCount"
   echo "RankCount: \$RankCount"
@@ -739,7 +739,7 @@ then
 fi
 
 #
-if [ debug_flag == 1 ]
+if [ $debug_flag == 1 ]
 then
   echo "NodeCount: \$NodeCount"
   echo "RankCount: \$RankCount"
@@ -1025,7 +1025,7 @@ then
 fi
 
 #
-if [ debug_flag == 1 ]
+if [ $debug_flag == 1 ]
 then
   echo "NodeCount: \$NodeCount"
   echo "RankCount: \$RankCount"
