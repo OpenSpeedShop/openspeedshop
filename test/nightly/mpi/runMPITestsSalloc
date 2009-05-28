@@ -48,13 +48,8 @@ if [ $sallocCommand ]; then
   module load openss-mrnet
   echo "NOTE: load openss-mrnet module"
   which openss
-#  module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
-  module load openmpi-gcc/1.2.8
-  echo "NOTE: load openmpi-gcc/1.2.8 module"
-  which mpicc
-  which mpif77
 else
-  echo "Did not find SNLSYSTEM environment variable: "
+  echo "Did not find \"salloc\" command."
   found_salloc=0
 fi
 
@@ -89,26 +84,34 @@ do
 #  for thiscompiler in intel pgi gnu
 
 #  loop here through a compiler list
-   for thiscompiler in gnu pgi intel pathscale
+#  for thiscompiler in intel pathscale
+#   for thiscompiler in gnu pgi intel pathscale
+  for thiscompiler in gnu
    do
 
- module purge
- module load openss-mrnet
 
- if [ $thiscompiler == "gnu" ] 
+ if [ "$thiscompiler" == "gnu" ] 
  then
+    module purge
+    module load openss-mrnet
     module load openmpi-gcc/1.2.8
- elif  [ $thiscompiler == "pgi" ] 
+ elif  [ "$thiscompiler" == "pgi" ] 
  then
+    module purge
+    module load openss-mrnet
     module load pgi/7.2-5
     module load openmpi-pgi/1.2.8
- elif  [ $thiscompiler == "intel" ] 
+ elif  [ "$thiscompiler" == "intel" ] 
  then
+    module purge
+    module load openss-mrnet
     module load intel-f/10.0.023
     module load intel-c/10.0.023
     module load openmpi-intel/1.2.8
- elif  [ $thiscompiler == "pathscale" ] 
+ elif  [ "$thiscompiler" == "pathscale" ] 
  then
+    module purge
+    module load openss-mrnet
     module load pathscale/3.1
     module load openmpi-pathscale/1.2.8
  fi
@@ -140,7 +143,23 @@ gunzip $testexe.tar.gz
 tar -xvf $testexe.tar
 gzip $testexe.tar
 
-cd $testexe
+#
+# only keep the previous copy, if one already exists delete it
+#
+if [ -a prev_${testexe}_${thiscompiler} ]
+then
+   rm -rf prev_${testexe}_${thiscompiler}
+fi
+#
+# keep the previous run as a previous copy
+#
+if [ -a ${testexe}_${thiscompiler} ]
+then
+   mv -f ${testexe}_${thiscompiler} prev_${testexe}_${thiscompiler}
+fi
+mv $testexe ${testexe}_${thiscompiler}
+
+cd ${testexe}_${thiscompiler}
 
 thismpicc=`which mpicc`
 echo "which mpicc=" $thismpicc
@@ -165,18 +184,18 @@ fi
 
 if [ "$testexe" == "smg2000" ]
 then
-   testpath=$testpathbase/smg2000/test
+   testpath=$testpathbase/${testexe}_${thiscompiler}/test
    testexepath=$testpath
    testexeargs='-n 35 35 35'
    testprogram=$testexepath/$testexe
 elif [ "$testexe" == "sweep3d" ]
 then
-   testpath=$testpathbase/$testexe
+   testpath=$testpathbase/${testexe}_${thiscompiler}
    testexepath=$testpath
    testexeargs=''
    testprogram=$testexepath/$testexe.mpi
 else
-   testpath=$testpathbase/$testexe
+   testpath=$testpathbase/${testexe}_${thiscompiler}
    testexepath=$testpath
    testexeargs=''
    testprogram=$testexepath/$testexe
@@ -215,8 +234,8 @@ then
 else
   echo "NOTE: Creating default_test_config file"
 cat > default_test_config << EOF
-2
-16
+4
+64
 pgi
 jegkas@gmail.com
 EOF
@@ -238,20 +257,39 @@ cat > smg2000_${thiscompiler}_openmpi_script.sh << EOF
 #
 . /usr/share/modules/init/sh
 export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
-module purge
-#
-module load openmpi-gcc/1.2.8
-echo "NOTE: load openmpi-gcc/1.2.8 module"
-#
-module load openss-mrnet
-echo "NOTE: smg2000, load openss-mrnet module"
+
+if [ "$thiscompiler" == "gnu" ] 
+then
+    module purge
+    module load openss-mrnet
+    module load openmpi-gcc/1.2.8
+elif  [ "$thiscompiler" == "pgi" ] 
+then
+    module purge
+    module load openss-mrnet
+    module load pgi/7.2-5
+    module load openmpi-pgi/1.2.8
+elif  [ "$thiscompiler" == "intel" ] 
+then
+    module purge
+    module load openss-mrnet
+    module load intel-f/10.0.023
+    module load intel-c/10.0.023
+    module load openmpi-intel/1.2.8
+elif  [ "$thiscompiler" == "pathscale" ] 
+then
+    module purge
+    module load openss-mrnet
+    module load pathscale/3.1
+    module load openmpi-pathscale/1.2.8
+fi
 #
 module list
 which openss
 executable=\`which smg2000\`
 local_testpath=\$testpath
-currentDir=\$PWD
-echo "Current directory (PWD) is:" \$PWD
+currentDir=`pwd`
+echo "Current directory (PWD) is:"`pwd`
 echo "Current directory (currentDir) is:" \$currentDir
 echo "Local testpath directory is:" \$local_testpath
 local_subhost1=\$SUB_HOST
@@ -263,9 +301,10 @@ echo "Local sub_host is:" \$local_subhost
 echo "smg2000 executable path directory is:" \$executable
 
 # setup separate unique raw data directories for each compiler/test combination
-rm -rf /scratch3/jegsgi/smg2000_${thiscompiler}_RAW
-mkdir /scratch3/jegsgi/smg2000_${thiscompiler}_RAW
-export OPENSS_RAWDATA_DIR=/scratch3/jegsgi/smg2000_${thiscompiler}_RAW
+rm -rf \$currnetDir/smg2000_${thiscompiler}_RAW
+mkdir \$currentDir/smg2000_${thiscompiler}_RAW
+export OPENSS_RAWDATA_DIR=\$currentDir/smg2000_${thiscompiler}_RAW
+echo "NOTE: smg2000 test, after setting OPENSS_RAWDATA_DIR, OPENSS_RAWDATA_DIR=" $OPENSS_RAWDATA_DIR
 
 which openss
 export PATH=.:$PATH
@@ -282,8 +321,8 @@ echo "smg2000 test, mpirun command path directory is:" \$mpicommand
 # Read in test parameters
 #
 # script defaults
-NodeCount=2
-RankCount=16
+NodeCount=4
+RankCount=64
 CompilerType="gnu"
 EmailAddress="jegkas@gmail.com"
 
@@ -507,6 +546,7 @@ SUBJECT="\$thisuname OpenSpeedShop MPI smg2000 executable test results"
 EMAIL="jegkas@gmail.com"
 # Email text/message
 EMAILMESSAGE="\$currentDir/openss_test_message.txt"
+touch \$EMAILMESSAGE
 #EMAILMESSAGE="\${local_testpath}/openss_test_message.txt"
 echo " OpenSpeedShop Performance Tool SMG2000 Test Results" >\$EMAILMESSAGE
 echo "" >>\$EMAILMESSAGE
@@ -663,14 +703,17 @@ rsh \$HOSTNAME /bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
 exit
 EOF
 
-echo "pwd=$pwd"
+echo "pwd=`pwd`"
+echo "testpathbase=$testpathbase"
+echo "testpathbase/testexe=$testpathbase/${testexe}"
 
 #RUN_DIR=$testpath
+#RUN_DIR=$testpathbase/${testexe}/test
 RUN_DIR=$testpathbase/${testexe}_${thiscompiler}/test
 echo "RUN_DIR=$RUN_DIR"
 cd $RUN_DIR
-REQ_WALLTIME=1:00
-REQ_NNODES=2
+REQ_WALLTIME=2:00
+REQ_NNODES=4
 REQ_SCRIPT="$RUN_DIR/smg2000_${thiscompiler}_openmpi_script.sh"
 #sbatch --account=FY093085 --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
 sbatch  --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
@@ -682,21 +725,39 @@ cat > sweep3d_${thiscompiler}_openmpi_script.sh << EOF
 #!/bin/bash
 . /usr/share/modules/init/sh
 export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
-module purge
-#
-module load openmpi-gcc/1.2.8
-echo "NOTE: load openmpi-gcc/1.2.8 module"
-#
-module load openss-mrnet
-echo "NOTE: sweep3d, load openss-mrnet module"
+if [ "$thiscompiler" == "gnu" ] 
+then
+    module purge
+    module load openss-mrnet
+    module load openmpi-gcc/1.2.8
+elif  [ "$thiscompiler" == "pgi" ] 
+then
+    module purge
+    module load openss-mrnet
+    module load pgi/7.2-5
+    module load openmpi-pgi/1.2.8
+elif  [ "$thiscompiler" == "intel" ] 
+then
+    module purge
+    module load openss-mrnet
+    module load intel-f/10.0.023
+    module load intel-c/10.0.023
+    module load openmpi-intel/1.2.8
+elif  [ "$thiscompiler" == "pathscale" ] 
+then
+    module purge
+    module load openss-mrnet
+    module load pathscale/3.1
+    module load openmpi-pathscale/1.2.8
+fi
 #
 module list
 which openss
 #
 executable=\`which sweep3d.mpi\`
 echo "Current directory is:" \`\$pwd\`
-currentDir=\$PWD
-echo "Current directory (PWD) is:" \$PWD
+currentDir=`pwd`
+echo "Current directory (pwd) is:" `pwd`
 echo "Current directory (currentDir) is:" \$currentDir
 local_testpath=\$testpath
 echo "Local testpath directory is:" \$local_testpath
@@ -705,12 +766,18 @@ echo "Local sub_host is:" \$local_subhost
 echo "sweep3d.mpi executable path directory is:" \$executable
 mpicommand=`which mpirun`
 echo "sweep3d.mpi test, mpirun command path directory is:" \$mpicommand
+
+# setup separate unique raw data directories for each compiler/test combination
+rm -rf \$currnetDir/sweep3d_${thiscompiler}_RAW
+mkdir \$currentDir/sweep3d_${thiscompiler}_RAW
+export OPENSS_RAWDATA_DIR=\$currentDir/sweep3d_${thiscompiler}_RAW
+echo "NOTE: sweep3d test, after setting OPENSS_RAWDATA_DIR, OPENSS_RAWDATA_DIR=" $OPENSS_RAWDATA_DIR
 #
 # Read in test parameters
 #
 # script defaults
-NodeCount=2
-RankCount=16
+NodeCount=4
+RankCount=64
 CompilerType="gnu"
 EmailAddress="jegkas@gmail.com"
 
@@ -745,27 +812,6 @@ else
 # restore IFS which was used to determine what the field separators are
   IFS=\$BAKIFS
 
-#  n=0
-#  while read curline; do
-#    n=`expr \$n + 1`
-#    echo "\$curline"
-#    echo "\$n" 
-#
-#    if [ \$n == 1 ]
-#    then
-#       NodeCount=\$curline
-#    elif [ \$n == 2 ]
-#    then
-#       RankCount=\$curline
-#    elif [ \$n == 3 ]
-#    then
-#       CompilerType=\$curline
-#    elif [ \$n == 4 ]
-#    then
-#       EmailAddress=\$curline
-#    fi
-#  done < "default_test_config"
-
 fi
 
 #
@@ -780,6 +826,47 @@ fi
 #
 # Run all experiments
 #
+# Check the rank count and use an appropriate input file.  The supported sweep3d.mpi input files
+# are 8, 16, 32, 64, 128, or 256 ranks.   We move the input.8 or input.16 etc into the default
+# input file named "input"
+if [ \$RankCount == 8 ] 
+then
+  echo "Moving the input.8 specific input file to the default input file"
+  cp -f \${currentDir}/input.8 \${currentDir}/input
+elif  [ \$RankCount == 16 ] 
+then
+  echo "Moving the input.16 specific input file to the default input file"
+  cp -f \${currentDir}/input.16 \${currentDir}/input
+elif [ \$RankCount == 32 ] 
+then
+  echo "Moving the input.32 specific input file to the default input file"
+  cp -f \${currentDir}/input.32 \${currentDir}/input
+elif [ \$RankCount == 64 ] 
+then
+  echo "Moving the input.64 specific input file to the default input file"
+  cp -f \${currentDir}/input.64 \${currentDir}/input
+elif [ \$RankCount == 128 ] 
+then
+  echo "Moving the input.128 specific input file to the default input file"
+  cp -f \${currentDir}/input.128 \${currentDir}/input
+elif [ \$RankCount == 256 ] 
+then
+  echo "Moving the input.256 specific input file to the default input file"
+  cp -f \${currentDir}/input.256 \${currentDir}/input
+elif [ \$RankCount == 512 ] 
+then
+  echo "Moving the input.512 specific input file to the default input file"
+  cp -f \${currentDir}/input.512 \${currentDir}/input
+elif [ \$RankCount == 1024 ] 
+then
+  echo "Moving the input.1024 specific input file to the default input file"
+  cp -f \${currentDir}/input.1024 \${currentDir}/input
+elif [ \$RankCount == 2048 ] 
+then
+  echo "Moving the input.2048 specific input file to the default input file"
+  cp -f \${currentDir}/input.2048 \${currentDir}/input
+fi
+
 
 #
 # Run pcsamp and analyze the results
@@ -955,7 +1042,7 @@ EMAIL=\$EmailAddress
 # Email text/message
 #EMAILMESSAGE="/tmp/openss_test_message.txt"
 EMAILMESSAGE="\$currentDir/openss_test_message.txt"
-#EMAILMESSAGE="\${local_testpath}/openss_test_message.txt"
+touch \$EMAILMESSAGE
 echo " OpenSpeedShop Performance Tool SWEEP3D.MPI Test Results" >\$EMAILMESSAGE
 echo "" >>\$EMAILMESSAGE
 echo " ${thiscompiler} compiler, \$NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
@@ -1111,14 +1198,17 @@ rsh \$HOSTNAME /bin/mail -s \"\$SUBJECT\" \"\$EMAIL\" < \$EMAILMESSAGE
 exit
 EOF
 
-echo "pwd=$pwd"
+echo "pwd=`pwd`"
+echo "testpathbase=$testpathbase"
+echo "testpathbase/testexe=$testpathbase/${testexe}"
 
 #RUN_DIR=$testpath
+#RUN_DIR=$testpathbase/${testexe}
 RUN_DIR=$testpathbase/${testexe}_${thiscompiler}
 echo "RUN_DIR=$RUN_DIR"
 cd $RUN_DIR
-REQ_WALLTIME=1:00
-REQ_NNODES=2
+REQ_WALLTIME=2:00
+REQ_NNODES=4
 REQ_SCRIPT="$RUN_DIR/sweep3d_${thiscompiler}_openmpi_script.sh"
 #sbatch --account=FY093085 --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
 sbatch --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
@@ -1134,23 +1224,21 @@ fi
 cd $testpathbase
 echo "testpathbase=$testpathbase"
 
-#
-# only keep the previous copy, if one already exists delete it
-#
-if [ -a prev_${testexe}_${thiscompiler} ]
-then
-   rm -rf prev_${testexe}_${thiscompiler}
-fi
-
-#
-# keep the previous run as a previous copy
-#
-if [ -a ${testexe}_${thiscompiler} ]
-then
-   mv -f ${testexe}_${thiscompiler} prev_${testexe}_${thiscompiler}
-fi
-
-mv $testexe ${testexe}_${thiscompiler}
+##
+## only keep the previous copy, if one already exists delete it
+##
+#if [ -a prev_${testexe}_${thiscompiler} ]
+#then
+#   rm -rf prev_${testexe}_${thiscompiler}
+#fi
+##
+## keep the previous run as a previous copy
+##
+#if [ -a ${testexe}_${thiscompiler} ]
+#then
+##   mv -f ${testexe}_${thiscompiler} prev_${testexe}_${thiscompiler}
+#fi
+#mv $testexe ${testexe}_${thiscompiler}
 
 
 # end loop through the compiler list
