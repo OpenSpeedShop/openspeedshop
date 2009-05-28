@@ -206,6 +206,24 @@ def prepENV(topologyStringHash):
         print ('OPENSS_MRNET_TOPOLOGY_FILE: ' + \
         os.environ['OPENSS_MRNET_TOPOLOGY_FILE'])
 
+## haveOpenssPrefix()
+# Returns True if $OPENSS_PREFIX is a directory that exists.
+# Returns False otherwise.
+def haveOpenssPrefix():
+    if os.getenv('OPENSS_PREFIX'):
+       return os.path.exists(os.environ['OPENSS_PREFIX'])
+    else:
+       return False
+
+## getOpenssPrefix()
+# Returns the path pointed to by $OPENSS_PREFIX.
+# Returns NULL otherwise.
+def getOpenssPrefix():
+    if os.getenv('OPENSS_PREFIX'):
+       return os.path.realpath(os.environ['OPENSS_PREFIX'])
+    else:
+       return NULL
+
 ## haveTopgen()
 # Returns True if mrnet_topgen is present in $OPENSS_PREFIX/bin.
 # Returns False otherwise.
@@ -359,6 +377,15 @@ def main():
     #If PBS_JOBID or SLURM_JOBID is not present, then we
     #better be on a compile node...
     else:
+        if debug:
+          if(haveOpenssPrefix()):
+            print 'We have OPENSS_PREFIX set'
+          else:
+            print 'We do NOT have OPENSS_PREFIX set'
+
+          if(haveOpenssPrefix()):
+              print 'OPENSS_PREFIX=' + getOpenssPrefix()
+
         if debug:
             print 'on compile node...' \
                   + hostnodeName
