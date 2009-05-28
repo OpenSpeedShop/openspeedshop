@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2008 William Hachfeld. All Rights Reserved.
+** Copyright (c) 2009 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -77,12 +78,10 @@ static __thread TLS the_tls;
  *
  * @ingroup RuntimeAPI
  */
-void OpenSS_SetSendToFile(const char* unique_id, const char* suffix)
+void OpenSS_SetSendToFile(OpenSS_DataHeader* header,
+			  const char* unique_id, const char* suffix)
 {
     const char* executable_path = NULL;
-    pid_t pid;
-    pthread_t (*f_pthread_self)();
-    pthread_t tid;
     char* openss_rawdata_dir = NULL;
     char dir_path[PATH_MAX];
     int fd;
@@ -107,29 +106,23 @@ void OpenSS_SetSendToFile(const char* unique_id, const char* suffix)
     /* Get our executable path */
     executable_path = OpenSS_GetExecutablePath();
     
-    /* Get the identifier of the process containing this thread */
-    pid = getpid();
 
-    /* Get the identifier of this thread */
-    f_pthread_self = (pthread_t (*)())dlsym(RTLD_DEFAULT, "pthread_self");
-    tid = (f_pthread_self != NULL) ? (*f_pthread_self)() : 0;
 
     /* Create the directory path containing the file and the file itself */
     openss_rawdata_dir = getenv("OPENSS_RAWDATA_DIR");
     sprintf(dir_path, "%s/openss-rawdata-%d",
 	    (openss_rawdata_dir != NULL) ? openss_rawdata_dir : "/tmp",
-	    pid);
-    if(f_pthread_self == NULL)
+	     header->pid);
+    if(header->posix_tid == NULL)
 	sprintf(tls->path, "%s/%s-%d.%s", dir_path,
-		basename(executable_path), pid, suffix);
+		basename(executable_path), header->pid, suffix);
     else
 	sprintf(tls->path, "%s/%s-%d-%llu.%s", dir_path,
-		basename(executable_path), pid, (uint64_t)tid, suffix);
+		basename(executable_path), header->pid, (uint64_t)header->posix_tid, suffix);
 
 
     if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
-	fprintf(stderr,"OpenSS_SetSendToFile assumes dir_path %s and executable %s\n",
-	dir_path, basename(executable_path));
+	fprintf(stderr,"OpenSS_SetSendToFile ready for %s\n",tls->path);
     }
 
     /* Insure the directory path to contain the file exists */

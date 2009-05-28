@@ -133,7 +133,7 @@ static void fpe_send_events(TLS *tls)
 #endif
 
     /* Send these events */
-    OpenSS_SetSendToFile("fpe","openss-data");
+    OpenSS_SetSendToFile(&(tls->header), "fpe","openss-data");
     OpenSS_Send(&(tls->header), (xdrproc_t)xdr_fpe_data, &(tls->data));
     
     /* Re-initialize the data blob's header */
@@ -236,6 +236,8 @@ void fpe_record_event(const fpe_event* event, const ucontext_t* context)
 				    MaxFramesPerStackTrace,
 				    &stacktrace_size, stacktrace);
 
+fprintf(stderr,"fpe collector stacktrace_size = %d\n",stacktrace_size);
+
     /*
      * Search the tracing buffer for an existing stack trace matching the stack
      * trace from the current thread context. For now do a simple linear search.
@@ -281,6 +283,8 @@ void fpe_record_event(const fpe_event* event, const ucontext_t* context)
 	    /* Add the i'th frame to the tracing buffer */
 	    tls->buffer.stacktraces[entry + i] = stacktrace[i];
 	    
+fprintf(stderr,"fpe collector stacktrace[%d]=%#lux\n",i,stacktrace[i]);
+
 	    /* Update the address interval in the data blob's header */
 	    if(stacktrace[i] < tls->header.addr_begin)
 		tls->header.addr_begin = stacktrace[i];

@@ -115,7 +115,7 @@ static void send_samples(TLS *tls)
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"usertimeTimerHandler sends data:\n");
+        fprintf(stderr,"usertimeTimerHandler %s, %d sends data:\n",tls->header.host,tls->header.pid);
         fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] bt_len(%d) count_len(%d)\n",
             tls->header.time_end,tls->header.addr_begin,
 	    tls->header.addr_end,tls->data.bt.bt_len,
@@ -123,7 +123,7 @@ static void send_samples(TLS *tls)
     }
 #endif
 
-    OpenSS_SetSendToFile("usertime", "openss-data");
+    OpenSS_SetSendToFile(&(tls->header), "usertime", "openss-data");
     OpenSS_Send(&(tls->header),(xdrproc_t)xdr_usertime_data,&(tls->data));
 
     /* Re-initialize the data blob's header */

@@ -190,7 +190,7 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
     }
 #endif
 
-    OpenSS_SetSendToFile("mpi", "openss-info");
+    OpenSS_SetSendToFile(&header, "mpi", "openss-info");
     OpenSS_Send(&header, (xdrproc_t)xdr_openss_expinfo, &info);
 
     /* Write the thread's initial address space to the appropriate file */
@@ -251,6 +251,6 @@ void offline_record_dso(const char* dsoname,
         dsoname, header.host, header.pid, header.posix_tid);
     }
 #endif
-    OpenSS_SetSendToFile("mpi", "openss-dsos");
+    OpenSS_SetSendToFile(&header, "mpi", "openss-dsos");
     OpenSS_Send(&header, (xdrproc_t)xdr_openss_objects, &objects);
 }

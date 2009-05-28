@@ -127,7 +127,7 @@ static void send_samples(TLS *tls)
     }
 #endif
 
-    OpenSS_SetSendToFile("hwctime","openss-data");
+    OpenSS_SetSendToFile(&(tls->header), "hwctime","openss-data");
     OpenSS_Send(&(tls->header),(xdrproc_t)xdr_hwctime_data,&(tls->data));
 
     /* Re-initialize the data blob's header */

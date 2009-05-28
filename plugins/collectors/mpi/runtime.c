@@ -123,7 +123,7 @@ static void mpi_send_events(TLS *tls)
 #endif
 
     /* Send these events */
-    OpenSS_SetSendToFile("mpi", "openss-data");
+    OpenSS_SetSendToFile(&(tls->header), "mpi", "openss-data");
     OpenSS_Send(&(tls->header), (xdrproc_t)xdr_mpi_data, &(tls->data));
     
     /* Re-initialize the data blob's header */

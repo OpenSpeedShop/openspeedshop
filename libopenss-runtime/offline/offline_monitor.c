@@ -206,7 +206,7 @@ void monitor_fini_thread(void *ptr)
     Assert(tls != NULL);
 
     if (tls->debug) {
-	fprintf(stderr,"monitor_init_thread FINISHED SAMPLING %d\n",getpid());
+	fprintf(stderr,"monitor_fini_thread FINISHED SAMPLING %d\n",getpid());
     }
 
     tls->sampling_active = 0;
@@ -329,7 +329,7 @@ monitor_post_dlclose(void *handle, int ret)
     if (!tls->thread_is_terminating || !tls->process_is_terminating) {
 	if (!tls->sampling_active && !tls->in_mpi_pre_init) {
             if (tls->debug) {
-	        fprintf(stderr,"monitor_dlclose RESUME SAMPLING %d\n",getpid());
+	        fprintf(stderr,"monitor_post_dlclose RESUME SAMPLING %d\n",getpid());
             }
 	    tls->sampling_active = 1;
 	    offline_start_sampling(NULL);

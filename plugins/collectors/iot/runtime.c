@@ -147,7 +147,7 @@ static void iot_send_events(TLS *tls)
 #endif
 
     /* Send these events */
-    OpenSS_SetSendToFile("iot","openss-data");
+    OpenSS_SetSendToFile(&(tls->header), "iot","openss-data");
     OpenSS_Send(&(tls->header), (xdrproc_t)xdr_iot_data, &(tls->data));
     
     /* Re-initialize the data blob's header */

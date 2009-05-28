@@ -115,7 +115,7 @@ static void pcsampTimerHandler(const ucontext_t* context)
 	tls->data.pc.pc_len = tls->buffer.length;
 	tls->data.count.count_len = tls->buffer.length;
 
-	OpenSS_SetSendToFile("pcsamp", "openss-data");
+	OpenSS_SetSendToFile(&(tls->header), "pcsamp", "openss-data");
 	OpenSS_Send(&tls->header, (xdrproc_t)xdr_pcsamp_data, &tls->data);
 
 	/* Re-initialize the data blob's header */
@@ -224,7 +224,7 @@ void pcsamp_stop_sampling(const char* arguments)
 	tls->header.addr_end = tls->buffer.addr_end;
 	tls->data.pc.pc_len = tls->buffer.length;
 	tls->data.count.count_len = tls->buffer.length;
-	OpenSS_SetSendToFile("pcsamp", "openss-data");
+	OpenSS_SetSendToFile(&(tls->header), "pcsamp", "openss-data");
 	OpenSS_Send(&tls->header, (xdrproc_t)xdr_pcsamp_data, &tls->data);	
 	
     }

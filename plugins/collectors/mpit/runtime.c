@@ -118,7 +118,7 @@ static void mpit_send_events(TLS *tls)
 #endif
 
     /* Send these events */
-    OpenSS_SetSendToFile("mpit", "openss-data");
+    OpenSS_SetSendToFile(&(tls->header), "mpit", "openss-data");
     OpenSS_Send(&(tls->header), (xdrproc_t)xdr_mpit_data, &(tls->data));
     
     /* Re-initialize the data blob's header */

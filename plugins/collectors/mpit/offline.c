@@ -168,7 +168,7 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
     }
     
     /* Send the offline "info" blob */
-    OpenSS_SetSendToFile("mpit", "openss-info");
+    OpenSS_SetSendToFile(&header, "mpit", "openss-info");
     OpenSS_Send(&header, (xdrproc_t)xdr_openss_expinfo, &info);
 
     /* Write the thread's initial address space to the appropriate file */
@@ -223,6 +223,6 @@ void offline_record_dso(const char* dsoname,
     objects.is_open = is_dlopen;
 
     /* Send the offline "dso" blob */
-    OpenSS_SetSendToFile("mpit", "openss-dsos");
+    OpenSS_SetSendToFile(&header, "mpit", "openss-dsos");
     OpenSS_Send(&header, (xdrproc_t)xdr_openss_objects, &objects);
 }
