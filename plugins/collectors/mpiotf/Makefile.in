@@ -969,6 +969,7 @@ mpiotf_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@rt_offline_CFLAGS_generate = \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime \
+@HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-framework \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/fileio \
 @HAVE_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE  -DOPENSS_USE_FILEIO \
@@ -978,6 +979,7 @@ mpiotf_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@rt_offline_LDFLAGS_generate = \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
 @HAVE_LIBMONITOR_TRUE@        -L$(top_srcdir)/libopenss-runtime \
+@HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-framework \
 @HAVE_LIBMONITOR_TRUE@	-no-undefined -avoid-version
 
 @HAVE_LIBMONITOR_TRUE@rt_offline_sources = \

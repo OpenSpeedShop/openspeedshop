@@ -246,6 +246,7 @@ if HAVE_LIBMONITOR
 rt_offline_CFLAGS_generate = \
 	$(1) \
 	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-DOPENSS_OFFLINE  -DOPENSS_USE_FILEIO \
@@ -256,6 +257,7 @@ rt_offline_CFLAGS_generate = \
 rt_offline_LDFLAGS_generate = \
 	$(1) \
         -L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-framework \
 	-no-undefined -avoid-version
 
 rt_offline_sources = \
