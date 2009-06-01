@@ -244,6 +244,13 @@ void vt_open()
   /* trace file creation */
 
   thrdv = (VTThrd**)calloc(vt_env_max_num_thrds(), sizeof(VTThrd*));
+
+  if (debug_trace) {
+    fprintf(stderr, "vt_open entered, vt_env_max_num_thrds()=%d, sizeof(VTThrd*)=%d, thrdv[0]=%ld\n", 
+            vt_env_max_num_thrds(), sizeof(VTThrd*), thrdv[0]);
+    fflush(stderr);
+  }
+
   if ( thrdv == NULL )
     vt_error();
   
@@ -252,6 +259,10 @@ void vt_open()
   {
 #endif
     thrdv[VT_MY_THREAD] = VTThrd_create(VT_MY_THREAD);
+    if (debug_trace) {
+      fprintf(stderr, "vt_open entered, thrdv[VT_MY_THREAD=%d]=%ld\n", VT_MY_THREAD, thrdv[VT_MY_THREAD]);
+      fflush(stderr);
+    }
     VTThrd_open(thrdv[VT_MY_THREAD], VT_MY_THREAD);
 #if (defined (VT_OMPI) || defined (VT_OMP)) 
   }
@@ -298,6 +309,11 @@ void vt_open()
   vt_trc_regid[VT__USER] =
     vt_def_region("user", VT_NO_ID, VT_NO_LNO, VT_NO_LNO,
 		  VT_DEF_GROUP, VT_FUNCTION);
+
+  if (debug_trace) {
+    fprintf(stderr, "vt_open entered, vt_trc_regid[VT__USER=%d]=%d\n", VT__USER, vt_trc_regid[VT__USER]);
+    fflush(stderr);
+  }
 
   /* register function "tracing" */
   vt_trc_regid[VT__TRACING] =
@@ -859,6 +875,10 @@ static uint32_t vt_def_file_loc(uint32_t fid,
 static uint32_t vt_def_region_desc(const char* rdesc)
 {
   uint32_t rdid;
+  if (debug_trace) {
+    fprintf(stderr, "vt_def_region_desc entered, rdesc=%s\n", rdesc);
+    fflush(stderr);
+  }
 
   HashNode_rdesc* hn;
 
@@ -878,6 +898,11 @@ static uint32_t vt_def_region_desc(const char* rdesc)
   else
   {
     rdid = hn->rdid;
+  }
+
+  if (debug_trace) {
+    fprintf(stderr, "vt_def_region_desc exiting, rdid=%d\n", rdid);
+    fflush(stderr);
   }
 
   return rdid;
@@ -1017,12 +1042,20 @@ uint32_t vt_def_region(const char* rname,
   vt_check_thrd_id(VT_MY_THREAD);
 
   if (debug_trace) {
-    fprintf(stderr, "vt_def_region entered, fid=%d, begln=%d, endln=%d\n", fid, begln, endln);
+    fprintf(stderr, "vt_def_region entered, rname=%s, fid=%d, begln=%d, endln=%d, rtype=%d\n", rname, fid, begln, endln, rtype);
     fflush(stderr);
   }
 
   sid = vt_def_file_loc(fid, begln, endln);
   rid = curid++;
+
+  if (debug_trace) {
+    fprintf(stderr, "vt_def_region entered, sid=%d, rid=%d, VT_OMP_BARRIER=%d, VT_OMP_IBARRIER=%d\n", sid, rid, VT_OMP_BARRIER, VT_OMP_IBARRIER);
+    fprintf(stderr, "vt_def_region entered, VT_FUNCTION_COLL_OTHER=%d,VT_FUNCTION_COLL_BARRIER=%d, VT_FUNCTION_COLL_ONE2ALL=%d, VT_FUNCTION_COLL_ALL2ONE=%d, VT_FUNCTION_COLL_ALL2ALL=%d\n",
+            VT_FUNCTION_COLL_OTHER,VT_FUNCTION_COLL_BARRIER, VT_FUNCTION_COLL_ONE2ALL, VT_FUNCTION_COLL_ALL2ONE, VT_FUNCTION_COLL_ALL2ALL);
+    fflush(stderr);
+  }
+
 
   if((rtype == VT_OMP_BARRIER || rtype == VT_OMP_IBARRIER))
   {
@@ -1074,11 +1107,29 @@ uint32_t vt_def_region(const char* rname,
   }
   else
   {
+
+    if (debug_trace) {
+      fprintf(stderr, "vt_def_region, else clause\n");
+      fflush(stderr);
+    }
+
 #if (defined (RFG))
     {
       RFG_RegionInfo* rinf =
 	RFG_Regions_add(VTTHRD_RFGREGIONS(thrdv[0]), rname, rid);
-      if(rinf == NULL) vt_error();
+
+      if (debug_trace) {
+        fprintf(stderr, "vt_def_region else, rinf=%d, rname=%s, rid=%d, thrdv[0]=%d\n", rinf, rname, rid, thrdv[0]);
+        fflush(stderr);
+      }
+
+      if(rinf == NULL) {
+         if (debug_trace) {
+           fprintf(stderr, "vt_def_region else, CALLING VT_ERROR, rinf=%d, rname=%s, rid=%d, thrdv[0]=%d\n", rinf, rname, rid, thrdv[0]);
+           fflush(stderr);
+         }
+         vt_error();
+      }
 
       if(strcmp(rdesc, VT_DEF_GROUP) != 0)
       {
@@ -1093,7 +1144,17 @@ uint32_t vt_def_region(const char* rname,
     }
 #else
     rdid = vt_def_region_desc(rdesc);
+
+    if (debug_trace) {
+      fprintf(stderr, "vt_def_region else, rdid=%d\n", rdid);
+      fflush(stderr);
+    }
 #endif
+  }
+
+  if (debug_trace) {
+    fprintf(stderr, "vt_def_region calling VTGen_write_DEF_FUNCTION, rdid=%d, rdid=%d, rname=%s, sid=%d\n", rdid, rdid, rname, sid);
+    fflush(stderr);
   }
 
   VTGen_write_DEF_FUNCTION(VTTHRD_GEN(thrdv[VT_MY_THREAD]),
@@ -1103,8 +1164,9 @@ uint32_t vt_def_region(const char* rname,
 			   sid);
 
 
+
   if (debug_trace) {
-    fprintf(stderr, "vt_def_region exited, returned rid=%d\n", rid);
+    fprintf(stderr, "vt_def_region exiting, rid=%d\n", rid);
     fflush(stderr);
   }
 

@@ -66,8 +66,8 @@ int MPI_Init( int *argc, char ***argv )
   vt_mpi_trace_is_on = vt_mpitrace = vt_env_mpitrace();
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Init called, IS_TRACE_ON = %d, vt_enter_user_called=%d \n", 
-            IS_TRACE_ON, vt_enter_user_called);
+    fprintf(stderr, "WRAPPER, MPI_Init called, IS_TRACE_ON = %d, vt_enter_user_called=%d, vt_mpi_trace_is_on=%d\n", 
+            IS_TRACE_ON, vt_enter_user_called, vt_mpi_trace_is_on);
     fflush(stderr);
   }
 
@@ -75,17 +75,15 @@ int MPI_Init( int *argc, char ***argv )
     {
       TRACE_OFF();
 
-      /* first event?
-	 -> initialize VT and enter dummy function 'user' */
+      /* first event?  -> initialize VT and enter dummy function 'user' */
+
       if (!vt_open_called)
       {
 	vt_open();
 	time = vt_pform_wtime();
 	vt_enter_user(&time);
 	vt_enter_user_called = 1;
-      }
-      else
-      {
+      } else {
 	time = vt_pform_wtime();
       }
 

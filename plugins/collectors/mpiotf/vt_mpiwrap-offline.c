@@ -73,7 +73,7 @@ int MPI_Init( int *argc, char ***argv )
 #endif
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Init called, IS_TRACE_ON = %d, vt_enter_user_called=%d, vt_open_called=%d \n", 
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Init called, IS_TRACE_ON = %d, vt_enter_user_called=%d, vt_open_called=%d \n", 
             IS_TRACE_ON, vt_enter_user_called, vt_open_called);
     fflush(stderr);
   }
@@ -86,10 +86,28 @@ int MPI_Init( int *argc, char ***argv )
 	 -> initialize VT and enter dummy function 'user' */
 
       if (!vt_open_called) {
+
+        if (debug_trace) {
+          fprintf(stderr, "OFFLINE WRAPPER, MPI_Init called, before calling vt_open()\n");
+          fflush(stderr);
+        }
+
 	vt_open();
+
+        if (debug_trace) {
+          fprintf(stderr, "OFFLINE WRAPPER, MPI_Init called, after calling vt_open()\n");
+          fflush(stderr);
+        }
+
 	time = vt_pform_wtime();
 	vt_enter_user(&time);
 	vt_enter_user_called = 1;
+
+        if (debug_trace) {
+          fprintf(stderr, "OFFLINE WRAPPER, MPI_Init called, setting vt_enter_user_called to 1\n");
+          fflush(stderr);
+        }
+
       } else {
 	time = vt_pform_wtime();
       }
@@ -97,6 +115,11 @@ int MPI_Init( int *argc, char ***argv )
       vt_enter(&time, vt_mpi_regid[VT__MPI_INIT]);
 
       returnVal = PMPI_Init(argc, argv);
+
+      if (debug_trace) {
+         fprintf(stderr, "OFFLINE WRAPPER, MPI_Init called, returnVal from PMPI_Init=%d\n", returnVal);
+         fflush(stderr);
+      }
 
       /* initialize mpi event handling */
       vt_mpi_init();
@@ -110,6 +133,11 @@ int MPI_Init( int *argc, char ***argv )
       vt_def_mpi_comm(0, numprocs / 8 + (numprocs % 8 ? 1 : 0), grpv);
 
       free(grpv);
+
+      if (debug_trace) {
+         fprintf(stderr, "OFFLINE WRAPPER, MPI_Init called, calling vt_comm_init()\n");
+         fflush(stderr);
+      }
 
       /* initialize communicator management */
       vt_comm_init();
@@ -139,6 +167,11 @@ int MPI_Init( int *argc, char ***argv )
       /* initialize communicator management */
       vt_comm_init();
     }
+
+  if (debug_trace) {
+      fprintf(stderr, "OFFLINE WRAPPER, exiting MPI_Init, returnVal=%d\n", returnVal);
+      fflush(stderr);
+  }
 
   return returnVal;
 }
@@ -161,7 +194,7 @@ int MPI_Finalize()
 
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Finalize called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Finalize called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -177,7 +210,7 @@ int MPI_Finalize()
       vt_request_finalize();
 
       if (debug_trace) {
-        fprintf(stderr, "WRAPPER, MPI_Finalize called, calling vt_mpi_finalize()\n");
+        fprintf(stderr, "OFFLINE WRAPPER, MPI_Finalize called, calling vt_mpi_finalize()\n");
         fflush(stderr);
       }
 
@@ -187,7 +220,7 @@ int MPI_Finalize()
       returnVal = PMPI_Finalize();
 
       if (debug_trace) {
-        fprintf(stderr, "WRAPPER, MPI_Finalize called, after calling PMPI_Finalize()\n");
+        fprintf(stderr, "OFFLINE WRAPPER, MPI_Finalize called, after calling PMPI_Finalize()\n");
         fflush(stderr);
       }
 
@@ -209,7 +242,7 @@ int MPI_Finalize()
     }
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Finalize EXITING, returnVal=%d\n", returnVal);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Finalize EXITING, returnVal=%d\n", returnVal);
     fflush(stderr);
   }
   return returnVal;
@@ -232,7 +265,7 @@ int MPI_Comm_dup( MPI_Comm comm,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Comm_dup called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Comm_dup called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -267,7 +300,7 @@ int MPI_Comm_create( MPI_Comm comm,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Comm_create called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Comm_create called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -304,7 +337,7 @@ int MPI_Comm_split( MPI_Comm comm,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Comm_split called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Comm_split called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -352,7 +385,7 @@ int MPI_Cart_create( MPI_Comm comm_old,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Cart_create called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Cart_create called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -388,7 +421,7 @@ int MPI_Cart_sub ( MPI_Comm comm,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Cart_sub called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Cart_sub called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -429,7 +462,7 @@ int MPI_Graph_create( MPI_Comm comm_old,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Graph_create called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Graph_create called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -469,7 +502,7 @@ int MPI_Intercomm_create (MPI_Comm local_comm,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Intercomm_create called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Intercomm_create called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -507,7 +540,7 @@ int MPI_Intercomm_merge (MPI_Comm intercomm,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Intercomm_merge called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Intercomm_merge called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -544,7 +577,7 @@ int MPI_Comm_free( MPI_Comm* comm )
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Comm_free called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Comm_free called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -595,7 +628,7 @@ int MPI_Send( void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Send called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Send called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -640,7 +673,7 @@ int MPI_Bsend( void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Bsend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Bsend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -685,7 +718,7 @@ int MPI_Rsend( void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Rsend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Rsend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -730,7 +763,7 @@ int MPI_Ssend( void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Ssend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Ssend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -776,7 +809,7 @@ int MPI_Recv( void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Recv called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Recv called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -825,7 +858,7 @@ int MPI_Probe( int source,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Probe called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Probe called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -873,7 +906,7 @@ int MPI_Sendrecv(void* sendbuf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Sendrecv called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Sendrecv called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -936,7 +969,7 @@ int MPI_Sendrecv_replace(void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Sendrecv_replace called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Sendrecv_replace called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -998,7 +1031,7 @@ int MPI_Isend( void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Isend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Isend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1052,7 +1085,7 @@ int MPI_Irecv( void* buf,
 
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Isend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Isend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1097,7 +1130,7 @@ int MPI_Ibsend( void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Ibsend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Ibsend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1149,7 +1182,7 @@ int MPI_Issend( void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Issend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Issend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1201,7 +1234,7 @@ int MPI_Irsend( void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Irsend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Irsend called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1249,7 +1282,7 @@ int MPI_Wait( MPI_Request* request,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Wait called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Wait called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1293,7 +1326,7 @@ int MPI_Waitall( int count,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Waitall called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Waitall called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1343,7 +1376,7 @@ int MPI_Waitany( int count,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Waitany called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Waitany called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1388,7 +1421,7 @@ int MPI_Waitsome(int incount,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Waitsome called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Waitsome called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1439,7 +1472,7 @@ int MPI_Test( MPI_Request* request,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Test called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Test called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1484,7 +1517,7 @@ int MPI_Testany( int count,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Testany called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Testany called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1531,7 +1564,7 @@ int MPI_Testall( int count,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Testall called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Testall called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1584,7 +1617,7 @@ int MPI_Testsome(int incount,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Testsome called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Testsome called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1639,7 +1672,7 @@ int MPI_Send_init( void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Send_init called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Send_init called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1684,7 +1717,7 @@ int MPI_Recv_init( void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Recv_init called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Recv_init called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1730,7 +1763,7 @@ int MPI_Bsend_init( void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Bsend_init called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Bsend_init called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1775,7 +1808,7 @@ int MPI_Ssend_init( void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Ssend_init called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Ssend_init called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1820,7 +1853,7 @@ int MPI_Rsend_init( void* buf,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Rsend_init called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Rsend_init called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1859,7 +1892,7 @@ int MPI_Start( MPI_Request* request )
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Start called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Start called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1909,7 +1942,7 @@ int MPI_Startall( int count,
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Startall called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Startall called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -1961,7 +1994,7 @@ int MPI_Request_free( MPI_Request* request )
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Request_free called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Request_free called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2013,7 +2046,7 @@ int MPI_Cancel( MPI_Request* request )
   uint64_t time;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Cancel called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Cancel called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2069,7 +2102,7 @@ int MPI_Allreduce ( void* sendbuf,
   uint64_t time, etime;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Allreduce called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Allreduce called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2106,7 +2139,7 @@ int MPI_Barrier( MPI_Comm comm )
   uint64_t time, etime;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Barrier called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Barrier called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2145,7 +2178,7 @@ int MPI_Bcast( void* buf,
   uint64_t time, etime;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Bcast called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Bcast called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2194,7 +2227,7 @@ int MPI_Gather(void* sendbuf,
   uint64_t time, etime;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Gather called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Gather called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2249,7 +2282,7 @@ int MPI_Reduce( void* sendbuf,
   uint64_t time, etime;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Reduce called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Reduce called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2297,7 +2330,7 @@ int MPI_Gatherv( void* sendbuf,
   uint64_t time, etime;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Gatherv called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Gatherv called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2354,7 +2387,7 @@ int MPI_Allgather( void* sendbuf,
   uint64_t time, etime;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Allgather called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Allgather called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2405,7 +2438,7 @@ int MPI_Allgatherv( void* sendbuf,
   uint64_t time, etime;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Allgatherv called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Allgatherv called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2458,7 +2491,7 @@ int MPI_Alltoall( void* sendbuf,
   uint64_t time, etime;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Alltoall called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Alltoall called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2510,7 +2543,7 @@ int MPI_Alltoallv( void* sendbuf,
   uint64_t time, etime;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Alltoallv called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Alltoallv called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2567,7 +2600,7 @@ int MPI_Scan( void* sendbuf,
   uint64_t time, etime;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Scan called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Scan called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2614,7 +2647,7 @@ int MPI_Scatter( void* sendbuf,
   uint64_t time, etime;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Scatter called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Scatter called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2671,7 +2704,7 @@ int MPI_Scatterv( void* sendbuf,
   uint64_t time, etime;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Scatterv called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Scatterv called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
@@ -2724,7 +2757,7 @@ int MPI_Reduce_scatter( void* sendbuf,
   uint64_t time, etime;
 
   if (debug_trace) {
-    fprintf(stderr, "WRAPPER, MPI_Reduce_scatter called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
+    fprintf(stderr, "OFFLINE WRAPPER, MPI_Reduce_scatter called, IS_TRACE_ON = %d \n", IS_TRACE_ON);
     fflush(stderr);
   }
 
