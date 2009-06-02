@@ -27,7 +27,13 @@ struct openss_objects {
     string   objname<>;   /** < Name of the object. */
     uint64_t addr_begin;  /** < begin address of object */
     uint64_t addr_end;    /** < end address of object */
+    uint64_t time_begin;  /** < load time of object */
+    uint64_t time_end;    /** < close time of object */
     uint8_t  is_open;     /** < flag to indicate dlopen or dlclose */
+};
+
+struct offline_data {
+    openss_objects objs<>;
 };
 
 /** Structure of the blob containing our process info. */

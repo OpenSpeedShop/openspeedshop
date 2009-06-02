@@ -73,14 +73,20 @@ typedef struct {
 #endif
 } TLS;
 
+
+#if defined(OPENSS_OFFLINE)
+extern void offline_sent_data(int);
+#endif
+
+
 #ifdef USE_EXPLICIT_TLS
 
 /**
- *  * Thread-local storage key.
- *   *
- *    * Key used for looking up our thread-local storage. This key <em>must</em>
- *     * be globally unique across the entire Open|SpeedShop code base.
- *      */
+ * Thread-local storage key.
+ *
+ * Key used for looking up our thread-local storage. This key <em>must</em>
+ * be globally unique across the entire Open|SpeedShop code base.
+ */
 static const uint32_t TLSKey = 0x00001EFC;
 int fpe_init_tls_done = 0;
 
@@ -130,6 +136,10 @@ static void fpe_send_events(TLS *tls)
 	    tls->data.stacktraces.stacktraces_len,
             tls->data.events.events_len);
     }
+#endif
+
+#if defined(OPENSS_OFFLINE)
+    offline_sent_data(1);
 #endif
 
     /* Send these events */

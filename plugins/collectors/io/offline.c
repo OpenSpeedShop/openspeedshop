@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) The Krell Institute (2007). All Rights Reserved.
+** Copyright (c) The Krell Institute (2007,2008,2009). All Rights Reserved.
 ** Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
@@ -35,7 +35,19 @@
 /** Type defining the items stored in thread-local storage. */
 typedef struct {
 
-        uint64_t time_started;
+    uint64_t time_started;
+
+    OpenSS_DataHeader dso_header;   /**< Header for following dso blob. */
+    OpenSS_DataHeader info_header;  /**< Header for following info blob. */
+    offline_data data;              /**< Actual dso data blob. */
+
+    struct {
+	openss_objects objs[OpenSS_OBJBufferSize];
+    } buffer;
+
+    int  dsoname_len;
+    int  finished;
+    int  sent_data;
 
 } TLS;
 
@@ -58,6 +70,51 @@ static __thread TLS the_tls;
 #endif
 
 extern void defer_trace(int);
+
+void offline_finish();
+
+void offline_sent_data(int sent_data)
+{
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    tls->sent_data = sent_data;
+}
+
+void offline_send_dsos(TLS *tls)
+{
+    OpenSS_SetSendToFile(&(tls->dso_header), "io", "openss-dsos");
+    OpenSS_Send(&(tls->dso_header), (xdrproc_t)xdr_offline_data, &(tls->data));
+    
+    /* Send the offline "info" blob */
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+        fprintf(stderr,"offline_stop_sampling SENDS DSOS for HOST %s, PID %d, POSIX_TID %lu\n",
+        tls->dso_header.host, tls->dso_header.pid, tls->dso_header.posix_tid);
+    }
+#endif
+#if 0
+    fprintf(stderr,"SEND DSOS\n");
+    int i;
+    for (i = 0; i < tls->data.objs.objs_len; i++) {
+	fprintf(stderr,"TLS objname = %s\n",tls->buffer.objs[i].objname);
+	fprintf(stderr,"TLS addresses = %#lx,%#lx\n",tls->buffer.objs[i].addr_begin, tls->buffer.objs[i].addr_end);
+	fprintf(stderr,"TLS times = %lu,%lu\n",tls->buffer.objs[i].time_begin, tls->buffer.objs[i].time_end);
+	fprintf(stderr,"TLS is_open = %d\n",tls->buffer.objs[i].is_open);
+    }
+    fprintf(stderr,"TLS tls->data.objs.objs_len = %d\n",tls->data.objs.objs_len);
+    fprintf(stderr,"TLS tls->dsoname_len = %d\n",tls->dsoname_len);
+    fprintf(stderr,"TLS BYTES %d\n",sizeof(char) * tls->dsoname_len + sizeof(openss_objects) * tls->data.objs.objs_len);
+    fprintf(stderr,"(OpenSS_OBJBufferSize) = %d\n", OpenSS_OBJBufferSize);
+#endif
+    tls->data.objs.objs_len = 0;
+    tls->dsoname_len = 0;
+}
 
 /**
  * Start offline sampling.
@@ -97,6 +154,10 @@ void offline_start_sampling(const char* in_arguments)
         
     tls->time_started = OpenSS_GetTime();
 
+    tls->dsoname_len = 0;
+    tls->data.objs.objs_len = 0;
+    tls->data.objs.objs_val = tls->buffer.objs;
+
     /* Start sampling */
     io_start_tracing(arguments);
 }
@@ -122,17 +183,39 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
 #endif
     Assert(tls != NULL);
 
-    OpenSS_DataHeader header;
-    openss_expinfo info;
-
-    defer_trace(0);
-
     /* Stop sampling */
     io_stop_tracing(NULL);
 
-    if (!finished) {
+    defer_trace(0);
+
+    tls->finished = finished;
+
+    if (finished && tls->sent_data) {
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	    fprintf(stderr,"offline_stop_sampling FINISHED for %d\n",getpid());
+	}
+#endif
+	offline_finish();
+    }
+}
+
+void offline_finish()
+{
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    if (!tls->finished) {
 	return;
     }
+
+    OpenSS_DataHeader header;
+    openss_expinfo info;
 
     /* Access the environment-specified arguments */
     const char* io_traced = getenv("OPENSS_IO_TRACED");
@@ -154,11 +237,21 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
     }
     
     /* Send the offline "info" blob */
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+        fprintf(stderr,"offline_stop_sampling SENDS INFO for HOST %s, PID %d, POSIX_TID %lu\n",
+        header.host, header.pid, header.posix_tid);
+    }
+#endif
+
     OpenSS_SetSendToFile(&header, "io", "openss-info");
     OpenSS_Send(&header, (xdrproc_t)xdr_openss_expinfo, &info);
 
     /* Write the thread's initial address space to the appropriate file */
     OpenSS_GetDLInfo(getpid(), NULL);
+    if(tls->data.objs.objs_len > 0) {
+	offline_send_dsos(tls);
+    }
 }
 
 
@@ -191,30 +284,39 @@ void offline_record_dso(const char* dsoname,
 	defer_trace(0);
     }
 
-    OpenSS_DataHeader header;
-    openss_objects objects;
-    
+    //fprintf(stderr,"offline_record_dso called for %s, is_dlopen = %d\n",dsoname, is_dlopen);
+
     /* Initialize the offline "dso" blob's header */
+    OpenSS_DataHeader local_header;
     OpenSS_InitializeDataHeader(0, /* Experiment */
 				1, /* Collector */
-				&header);
+				&local_header);
+    memcpy(&tls->dso_header, &local_header, sizeof(OpenSS_DataHeader));
+
+    openss_objects objects;
 
     if (is_dlopen) {
-	header.time_begin = OpenSS_GetTime();
+	objects.time_begin = tls->dso_header.time_begin = OpenSS_GetTime();
     } else {
-	header.time_begin = tls->time_started;
+	objects.time_begin = tls->dso_header.time_begin = tls->time_started;
     }
-    header.time_end = is_dlopen ? -1ULL : OpenSS_GetTime();
+    objects.time_end = tls->dso_header.time_end = is_dlopen ? -1ULL : OpenSS_GetTime();
     
+
     /* Initialize the offline "dso" blob */
     objects.objname = strdup(dsoname);
     objects.addr_begin = begin;
     objects.addr_end = end;
     objects.is_open = is_dlopen;
 
-    /* Send the offline "dso" blob */
-    OpenSS_SetSendToFile(&header, "io", "openss-dsos");
-    OpenSS_Send(&header, (xdrproc_t)xdr_openss_objects, &objects);
+    memcpy(&(tls->buffer.objs[tls->data.objs.objs_len]),
+           &objects, sizeof(objects));
+    tls->data.objs.objs_len++;
+    tls->dsoname_len += strlen(dsoname);
+
+    if(tls->data.objs.objs_len + tls->dsoname_len == OpenSS_OBJBufferSize) {
+	offline_send_dsos(tls);
+    }
 
     if (is_dlopen) {
 	defer_trace(1);

@@ -40,8 +40,6 @@ typedef enum {
     OpenSS_Monitor_Default
 } OpenSS_Monitor_Type;
 
-void OpenSS_AdjustStackTrace(int index, unsigned*, uint64_t* stacktrace);
-
 #ifdef  __cplusplus
 }
 #endif

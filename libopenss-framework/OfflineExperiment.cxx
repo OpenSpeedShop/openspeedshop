@@ -361,6 +361,7 @@ int OfflineExperiment::convertToOpenSSDB()
     std::string rawname;
 
     // process offline info blobs first.
+    std::cerr << "Processing processes and threads ..." << std::endl;
     for (unsigned int i = 0;i < rawfiles.size();++i) {
 	bool_t found_infofile = false;
 	if (rawfiles[i].find(".openss-info") != string::npos) {
@@ -490,6 +491,7 @@ int OfflineExperiment::convertToOpenSSDB()
     // linked objects, addressspaces, files, functions, statements
     // where performance data was collected.
 
+    std::cerr << "Processing performance data ..." << std::endl;
     for (unsigned int i = 0;i < rawfiles.size();i++) {
 	bool_t found_datafile = false;
 	if (rawfiles[i].find(".openss-data") != string::npos) {
@@ -508,6 +510,7 @@ int OfflineExperiment::convertToOpenSSDB()
     }
  
     // Process the list of dsos and address ranges for this experiment.
+    std::cerr << "Processing functions and statements ..." << std::endl;
     for (unsigned int i = 0;i < rawfiles.size();i++) {
 	bool_t found_dsofile = false;
 	if (rawfiles[i].find(".openss-dsos") != string::npos) {
@@ -704,10 +707,6 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 	    break;
 	}
 
-	// dso or executable blob.
-	openss_objects objs;
-	memset(&objs, 0, sizeof(objs));
-
 	OpenSS_DataHeader objsheader;
 	memset(&objsheader, 0, sizeof(objsheader));
 	bool_t objsheadercall = xdr_OpenSS_DataHeader(&xdrs, &objsheader);
@@ -728,66 +727,49 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 	}
 #endif
 
-	bool_t objcall = xdr_openss_objects(&xdrs, &objs);
+	// dso or executable blob.
+	offline_data objs;
+	memset(&objs, 0, sizeof(objs));
+
+	bool_t objcall = xdr_offline_data(&xdrs, &objs);
 
 	if (objcall) {
 
-	    // do not include entries with no name or [vdso].
-	    std::string objname = objs.objname;
-            if (objname.empty()) {
-		continue;
-	    }
+	    for(int i = 0; i < objs.objs.objs_len; i++) {
 
-	    uint64_t endaddr = objs.addr_end;
-	    Address b_addr(objs.addr_begin);
+	        std::string objname = objs.objs.objs_val[i].objname;
+		if (objname.empty()) {
+		    continue;
+		}
 
-	    Address e_addr(endaddr);
-	    if (objs.addr_end <= objs.addr_begin) {
-		// have not seen this happen ever. still, lets be safe.
-		e_addr = Address(objs.addr_begin + 1);
-	    }
-	    AddressRange range(b_addr,e_addr);
+		AddressRange range(Address(objs.objs.objs_val[i].addr_begin),
+				   Address(objs.objs.objs_val[i].addr_end)) ;
+		TimeInterval time_interval(Time(objs.objs.objs_val[i].time_begin),
+					   Time(objs.objs.objs_val[i].time_end));
 
-            Time tbegin(objsheader.time_begin);
-            Time tend(objsheader.time_end);
-
-	    if (objsheader.time_end <= objsheader.time_begin) {
-		// This may happen on very rare occasions on multi-core cpus.
-		// If we get a corrupted time end, just default 
-		// to the default largest time defined by the framework
-		tend = Time::TheEnd();
-	    }
-
-            TimeInterval time_interval(tbegin,tend);
-
-	    // Skip any vdso or vsyscall entry from /proc/self/maps.
-            if ( objname.find("[vdso]") == string::npos &&
-                 objname.find("[vsyscall]") == string::npos &&
-		 objname.compare("unknown") != 0 ) {
-                names_to_range.push_back(std::make_pair(objname,range));
-                names_to_time.push_back(std::make_pair(objname,time_interval));
-            }
-
-//DEBUG
+// DEBUG
 #ifndef NDEBUG
-	    if(is_debug_offline_enabled) {
-		std::cout << "range for " << objs.objname << " is"
-		  << range <<  " is dlopen " << objs.is_open << std::endl;
-
-		std::cout << "objectsheader..." << std::endl
-		  << "experiment id:  " << objsheader.experiment << std::endl
-		  << "collector id:   " << objsheader.collector << std::endl
-		  << "host:           " << objsheader.host << std::endl
-		  << "pid:            " << objsheader.pid << std::endl
-		  << "posix_tid:      " << objsheader.posix_tid << std::endl
-		  << "time_begin:     " << objsheader.time_begin << std::endl
-		  << "time_end:       " << objsheader.time_end << std::endl
-		  << "addr_begin:     " << objsheader.addr_begin << std::endl
-		  << "addr_end:       " << objsheader.addr_end << std::endl;
-        	std::cout << std::endl;
-	    }
+		if(is_debug_offline_enabled) {
+		  std::cerr << "DSONAME " << objname << std::endl;
+		  std::cerr << "ADDR " << range << std::endl;
+		  std::cerr << "TIME " << time_interval << std::endl;
+		  std::cerr << "DLOPEN " << (int) objs.objs.objs_val[i].is_open  << std::endl;
+		  std::cerr << std::endl;
+		}
 #endif
-    	     xdr_free(reinterpret_cast<xdrproc_t>(xdr_openss_objects),
+
+		if (objname.find("[vdso]") == string::npos &&
+		    objname.find("[vsyscall]") == string::npos &&
+		    objname.find("[stack]") == string::npos &&
+		    objname.compare("unknown") != 0 ) {
+
+		    names_to_range.push_back(std::make_pair(objname,range));
+		    names_to_time.push_back(std::make_pair(objname,time_interval));
+		}
+
+	    }
+
+	    xdr_free(reinterpret_cast<xdrproc_t>(xdr_offline_data),
 		      reinterpret_cast<char*>(&objs));
 	}
     } // end while

@@ -83,9 +83,12 @@ static __thread TLS the_tls;
 
 #endif
 
+
 #if defined (OPENSS_OFFLINE)
 
-void hwctime_resume_papi()
+extern void offline_sent_data(int);
+
+void hwc_resume_papi()
 {
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
@@ -129,6 +132,10 @@ static void send_samples(TLS *tls)
 
     OpenSS_SetSendToFile(&(tls->header), "hwctime","openss-data");
     OpenSS_Send(&(tls->header),(xdrproc_t)xdr_hwctime_data,&(tls->data));
+
+#if defined(OPENSS_OFFLINE)
+    offline_sent_data(1);
+#endif
 
     /* Re-initialize the data blob's header */
     tls->header.time_begin = tls->header.time_end;

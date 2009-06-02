@@ -78,6 +78,11 @@ typedef struct {
 } TLS;
 
 
+#if defined(OPENSS_OFFLINE)
+extern void offline_sent_data(int);
+#endif
+
+
 #ifdef USE_EXPLICIT_TLS
 
 /**
@@ -120,6 +125,10 @@ static void mpi_send_events(TLS *tls)
 	    tls->data.stacktraces.stacktraces_len,
             tls->data.events.events_len);
     }
+#endif
+
+#if defined(OPENSS_OFFLINE)
+    offline_sent_data(1);
 #endif
 
     /* Send these events */

@@ -85,6 +85,12 @@ typedef struct {
 #endif
 } TLS;
 
+
+#if defined(OPENSS_OFFLINE)
+extern void offline_sent_data(int);
+#endif
+
+
 /* FIXME: is this thread safe? */
 char currentpathname[PATH_MAX];
 
@@ -144,6 +150,10 @@ static void iot_send_events(TLS *tls)
 	    tls->data.stacktraces.stacktraces_len,
             tls->data.events.events_len);
     }
+#endif
+
+#if defined(OPENSS_OFFLINE)
+    offline_sent_data(1);
 #endif
 
     /* Send these events */
@@ -453,6 +463,7 @@ void iot_start_tracing(const char* arguments)
     TLS* tls = &the_tls;
 #endif
     Assert(tls != NULL);
+
 
     /* Decode the passed function arguments. */
     memset(&args, 0, sizeof(args));

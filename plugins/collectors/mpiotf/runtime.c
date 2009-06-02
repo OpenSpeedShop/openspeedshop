@@ -83,11 +83,16 @@ typedef struct {
 	uint64_t stacktraces[StackTraceBufferSize];  /**< Stack traces. */
 	mpiotf_event events[EventBufferSize];          /**< MPI call events. */
     } buffer;    
-
-#if defined(OPENSS_OFFLINE)
+    
+#if defined (OPENSS_OFFLINE)
     char mpiotf_traced[PATH_MAX];
 #endif
 } TLS;
+
+
+#if defined(OPENSS_OFFLINE)
+extern void offline_sent_data(int);
+#endif
 
 
 #ifdef USE_EXPLICIT_TLS
@@ -136,8 +141,12 @@ static void mpiotf_send_events(TLS *tls)
     }
 #endif
 
+#if defined(OPENSS_OFFLINE)
+    offline_sent_data(1);
+#endif
+
     /* Send these events */
-    OpenSS_SetSendToFile(&(tls->header), "mpit", "openss-data");
+    OpenSS_SetSendToFile(&(tls->header), "mpiotf", "openss-data");
     OpenSS_Send(&(tls->header), (xdrproc_t)xdr_mpiotf_data, &(tls->data));
     
     /* Re-initialize the data blob's header */

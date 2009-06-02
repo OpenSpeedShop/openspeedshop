@@ -84,6 +84,9 @@ static __thread TLS the_tls;
 
 #endif
 
+#if defined(OPENSS_OFFLINE)
+extern void offline_sent_data(int);
+#endif
 
 #if defined (OPENSS_OFFLINE)
 static void usertimeTimerHandler(const ucontext_t* context);
@@ -125,6 +128,10 @@ static void send_samples(TLS *tls)
 
     OpenSS_SetSendToFile(&(tls->header), "usertime", "openss-data");
     OpenSS_Send(&(tls->header),(xdrproc_t)xdr_usertime_data,&(tls->data));
+
+#if defined(OPENSS_OFFLINE)
+        offline_sent_data(1);
+#endif
 
     /* Re-initialize the data blob's header */
     tls->header.time_begin = tls->header.time_end;

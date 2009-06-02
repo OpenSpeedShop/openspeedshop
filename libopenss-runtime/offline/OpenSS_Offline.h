@@ -35,6 +35,8 @@ extern "C"
 {
 #endif
 
+#define OpenSS_OBJBufferSize (15 * 1024)
+
 int OpenSS_GetDLInfo(pid_t pid, char *path);
 void OpenSS_InitializeParameters (openss_expinfo *info);
 

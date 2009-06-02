@@ -62,7 +62,10 @@ static __thread TLS the_tls;
 
 #endif
 
+
 #if defined (OPENSS_OFFLINE)
+
+extern void offline_sent_data(int);
 
 void hwc_resume_papi()
 {
@@ -138,6 +141,10 @@ static void hwcPAPIHandler(int EventSet, void* pc,
 
 	OpenSS_SetSendToFile(&(tls->header), "hwc", "openss-data");
 	OpenSS_Send(&tls->header, (xdrproc_t)xdr_hwc_data, &tls->data);
+
+#if defined(OPENSS_OFFLINE)
+        offline_sent_data(1);
+#endif
 
 	/* Re-initialize the data blob's header */
 	tls->header.time_begin = tls->header.time_end;
@@ -281,6 +288,10 @@ void hwc_stop_sampling(const char* arguments)
 
 	OpenSS_SetSendToFile(&(tls->header), "hwc", "openss-data");
 	OpenSS_Send(&(tls->header), (xdrproc_t)xdr_hwc_data, &(tls->data));
+
+#if defined(OPENSS_OFFLINE)
+        offline_sent_data(1);
+#endif
 	
     }
 
