@@ -526,13 +526,13 @@ rt_sources = \
 
 
 rt_openmpi_LIBADD_generate = \
-        @OTF_LDFLAGS@ \
-        @OTF_LIBS@ \
 	-lopenss-runtime \
 	@LIBUNWIND_LIBS@ \
 	-lpthread \
 	-L./ -lvt.mpi.openmpi  \
 	@PAPI_LDFLAGS@ @PAPI_LIBS@ \
+        @OTF_LDFLAGS@ \
+        @OTF_LIBS@ \
         @OTF_LIBZ_LDFLAGS@ \
 	@OTF_LIBZ_LIBS@ \
 	$(1) \
