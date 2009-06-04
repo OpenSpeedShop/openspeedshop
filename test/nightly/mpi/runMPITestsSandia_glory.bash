@@ -23,7 +23,7 @@ fi
 debug_flag=1
 
 SUBHOST=`uname -n`
-if [ debug_flag == 1 ]
+if [ $debug_flag == 1 ]
 then
   echo "SUB_HOST=" $SUB_HOST
 fi
@@ -57,21 +57,21 @@ fi
 
 for testname in `ls *.tar.gz`
 do
-   if [ debug_flag == 1 ]
+   if [ $debug_flag == 1 ]
    then
       echo "1st loop, testname=" $testname
    fi
 
    NEWNAME=$(echo "$testname" | sed -e 's/.tar.gz//')
 
-   if [ debug_flag == 1 ]
+   if [ $debug_flag == 1 ]
    then
      echo "1st loop, NEWNAME=" $NEWNAME
    fi
 
    cd $basedir
 
-   if [ debug_flag == 1 ]
+   if [ $debug_flag == 1 ]
    then
      echo "1st loop, basedir=" $basedir
    fi
@@ -84,31 +84,27 @@ do
    do
 
 
- if [ "$thiscompiler" == "gnu" ] 
- then
-    module purge
-    module load openss-mrnet
-    module load openmpi-gcc/1.2.8
- elif  [ "$thiscompiler" == "pgi" ] 
- then
-    module purge
-    module load openss-mrnet
-    module load pgi/7.2-5
-    module load openmpi-pgi/1.2.8
- elif  [ "$thiscompiler" == "intel" ] 
- then
-    module purge
-    module load openss-mrnet
-    module load intel-f/10.0.023
-    module load intel-c/10.0.023
-    module load openmpi-intel/1.2.8
- elif  [ "$thiscompiler" == "pathscale" ] 
- then
-    module purge
-    module load openss-mrnet
-    module load pathscale/3.1
-    module load openmpi-pathscale/1.2.8
- fi
+     if [ "$thiscompiler" == "gnu" ] 
+     then
+         module purge
+         module load openss-mrnet
+         module load mpi/openmpi-1.2.8_gcc-4.1.2
+     elif  [ "$thiscompiler" == "pgi" ] 
+     then
+         module purge
+         module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
+         module load openss-mrnet
+     elif  [ "$thiscompiler" == "intel" ] 
+     then
+         module purge
+         module load openss-mrnet
+         module load compilers/intel-11.0-f081-c081
+         module load mpi/openmpi-1.3.2_intel-11.0-f081-c081
+     elif  [ "$thiscompiler" == "pathscale" ] 
+     then
+         module purge
+         module load openss-mrnet
+     fi
 
      if [ $debug_flag == 1 ]
      then
