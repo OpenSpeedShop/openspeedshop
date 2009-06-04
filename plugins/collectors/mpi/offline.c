@@ -74,6 +74,8 @@ static __thread TLS the_tls;
 #endif
 
 
+void offline_finish();
+
 void offline_sent_data(int sent_data)
 {
     /* Access our thread-local storage */
@@ -185,6 +187,55 @@ void offline_start_sampling(const char* in_arguments)
     mpi_start_tracing(arguments);
 }
 
+/**
+ * Stop offline sampling.
+ *
+ * Stops program counter (PC) sampling for the thread executing this function. 
+ * Calls mpi_stop_sampling() and writes descriptive information for the
+ * thread to the appropriate file.
+ *
+ * @param in_arguments    Encoded function arguments. Always null.
+ */
+void offline_stop_sampling(const char* in_arguments, const int finished)
+{
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	fprintf(stderr,"offline_stop_sampling ENTERED for %d, is_tracing %d, finished %d\n",
+	tls->pid, tls->is_tracing, finished);
+    }
+#endif
+
+    if (!tls->is_tracing) {
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	    fprintf(stderr,"offline_stop_sampling NOT TRACING %d\n",tls->pid);
+	}
+#endif
+	return;
+    }
+
+    /* Stop sampling */
+    mpi_stop_tracing(NULL);
+
+    tls->finished = finished;
+
+    if (finished && tls->sent_data) {
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	    fprintf(stderr,"offline_stop_sampling FINISHED for %d\n",tls->pid);
+	}
+#endif
+	offline_finish();
+    }
+}
 
 void offline_finish()
 {
@@ -240,59 +291,6 @@ void offline_finish()
 	offline_send_dsos(tls);
     }
 }
-
-
-/**
- * Stop offline sampling.
- *
- * Stops program counter (PC) sampling for the thread executing this function. 
- * Calls mpi_stop_sampling() and writes descriptive information for the
- * thread to the appropriate file.
- *
- * @param in_arguments    Encoded function arguments. Always null.
- */
-void offline_stop_sampling(const char* in_arguments, const int finished)
-{
-    /* Access our thread-local storage */
-#ifdef USE_EXPLICIT_TLS
-    TLS* tls = OpenSS_GetTLS(TLSKey);
-#else
-    TLS* tls = &the_tls;
-#endif
-    Assert(tls != NULL);
-
-#ifndef NDEBUG
-    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-	fprintf(stderr,"offline_stop_sampling ENTERED for %d, is_tracing %d, finished %d\n",
-	tls->pid, tls->is_tracing, finished);
-    }
-#endif
-
-    if (!tls->is_tracing) {
-#ifndef NDEBUG
-	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-	    fprintf(stderr,"offline_stop_sampling NOT TRACING %d\n",tls->pid);
-	}
-#endif
-	return;
-    }
-
-    /* Stop sampling */
-    mpi_stop_tracing(NULL);
-
-    tls->finished = finished;
-
-    if (finished && tls->sent_data) {
-#ifndef NDEBUG
-	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-	    fprintf(stderr,"offline_stop_sampling FINISHED for %d\n",tls->pid);
-	}
-#endif
-	offline_finish();
-    }
-}
-
-
 
 /**
  * Record a DSO operation.
