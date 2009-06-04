@@ -88,7 +88,7 @@ static __thread TLS the_tls;
 
 extern void offline_sent_data(int);
 
-void hwc_resume_papi()
+void hwctime_resume_papi()
 {
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
