@@ -359,7 +359,7 @@ echo "log -f smg2000_${thiscompiler}_openmpi_pcsamp_results.log" >> new_input.sc
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_${thiscompiler}_openmpi_pcsamp_results.log | cat > smg2000_${thiscompiler}_openmpi_pcsamp_results.status
+grep "hypre_CyclicReduction" smg2000_${thiscompiler}_openmpi_pcsamp_results.log | cat > smg2000_${thiscompiler}_openmpi_pcsamp_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 pcsamp experiment"
@@ -379,7 +379,7 @@ echo "log -f smg2000_${thiscompiler}_openmpi_usertime_results.log" >> new_input.
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_${thiscompiler}_openmpi_usertime_results.log | cat > smg2000_${thiscompiler}_openmpi_usertime_results.status
+grep "hypre_CyclicReduction" smg2000_${thiscompiler}_openmpi_usertime_results.log | cat > smg2000_${thiscompiler}_openmpi_usertime_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 usertime experiment"
@@ -398,7 +398,7 @@ echo "log -f smg2000_${thiscompiler}_openmpi_hwc_results.log" >> new_input.scrip
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_${thiscompiler}_openmpi_hwc_results.log | cat > smg2000_${thiscompiler}_openmpi_hwc_results.status
+grep "hypre_CyclicReduction" smg2000_${thiscompiler}_openmpi_hwc_results.log | cat > smg2000_${thiscompiler}_openmpi_hwc_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 hwc experiment"
@@ -418,7 +418,7 @@ echo "log -f smg2000_${thiscompiler}_openmpi_hwctime_results.log" >> new_input.s
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "hypre_CyclicReduction (smg2000: cyclic_reduction.c,757)" smg2000_${thiscompiler}_openmpi_hwctime_results.log | cat > smg2000_${thiscompiler}_openmpi_hwctime_results.status
+grep "hypre_CyclicReduction" smg2000_${thiscompiler}_openmpi_hwctime_results.log | cat > smg2000_${thiscompiler}_openmpi_hwctime_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing smg2000 hwctime experiment"
@@ -846,7 +846,7 @@ echo "log -f sweep3d_${thiscompiler}_openmpi_pcsamp_results.log" >> new_input.sc
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 #
-grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_${thiscompiler}_openmpi_pcsamp_results.log | cat > sweep3d_${thiscompiler}_openmpi_pcsamp_results.status
+grep "source_" sweep3d_${thiscompiler}_openmpi_pcsamp_results.log | cat > sweep3d_${thiscompiler}_openmpi_pcsamp_results.status
 #
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi pcsamp experiment"
@@ -866,7 +866,7 @@ echo "log -f sweep3d_${thiscompiler}_openmpi_usertime_results.log" >> new_input.
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 #
-grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_${thiscompiler}_openmpi_usertime_results.log | cat > sweep3d_${thiscompiler}_openmpi_usertime_results.status
+grep "source_" sweep3d_${thiscompiler}_openmpi_usertime_results.log | cat > sweep3d_${thiscompiler}_openmpi_usertime_results.status
 #
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi usertime experiment"
@@ -883,7 +883,7 @@ echo "log -f sweep3d_${thiscompiler}_openmpi_hwc_results.log" >> new_input.scrip
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_${thiscompiler}_openmpi_hwc_results.log | cat > sweep3d_${thiscompiler}_openmpi_hwc_results.status
+grep "source_" sweep3d_${thiscompiler}_openmpi_hwc_results.log | cat > sweep3d_${thiscompiler}_openmpi_hwc_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi hwc experiment"
@@ -903,7 +903,7 @@ echo "log -f sweep3d_${thiscompiler}_openmpi_hwctime_results.log" >> new_input.s
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "source_ (sweep3d.mpi: source.f,2)." sweep3d_${thiscompiler}_openmpi_hwctime_results.log | cat > sweep3d_${thiscompiler}_openmpi_hwctime_results.status
+grep "source_" sweep3d_${thiscompiler}_openmpi_hwctime_results.log | cat > sweep3d_${thiscompiler}_openmpi_hwctime_results.status
 
 echo "-------------------------------------"
 echo "END Analyzing sweep3d.mpi hwctime experiment"
