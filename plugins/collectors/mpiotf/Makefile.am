@@ -225,6 +225,7 @@ endif
 
 if HAVE_OPENMPI
 libvt-openmpi-mpi-a:
+	cp -r @OTF_LIBSDIR@/libotf.a libotf.openmpi.a
 	cp -r @VT_LIBSDIR@/libvt.mpi.a libvt.mpi.openmpi.a
 	ar d libvt.mpi.openmpi.a libvt_mpi_a-vt_mpiwrap.o
 	ar d libvt.mpi.openmpi.a libvt_mpi_a-vt_sync.o
@@ -531,9 +532,7 @@ rt_openmpi_LIBADD_generate = \
 	-lpthread \
 	-L./ -lvt.mpi.openmpi  \
 	@PAPI_LDFLAGS@ @PAPI_LIBS@ \
-        @OTF_LDFLAGS@ \
-        @OTF_LIBS@ \
-        @OTF_LIBZ_LDFLAGS@ \
+	-L./ -lotf.openmpi  \
 	@OTF_LIBZ_LIBS@ \
 	$(1) \
 	-lrt 
