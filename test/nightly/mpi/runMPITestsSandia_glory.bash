@@ -82,64 +82,64 @@ do
 
 #  loop here through a compiler list
 #  for thiscompiler in intel pgi gnu
-   for thiscompiler in pathscale
+   for thiscompiler in gnu intel pgi pathscale
    do
 
 
      if [ "$thiscompiler" == "gnu" ] 
      then
-         if [ "thisMPI" == "openmpi" ]
+         if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-openmpi
            module load mpi/openmpi-1.2.8_gcc-4.1.2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-mvapich
            module load mpi/mvapich-1.0.1_ofed_gcc-4.1.2
          fi
      elif  [ "$thiscompiler" == "pgi" ] 
      then
-         if [ "thisMPI" == "openmpi" ]
+         if [ "$thisMPI" == "openmpi" ]
          then
            module purge
            module load compilers/pgi-7.2-3
            module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
-           module load openss-mrnet
+           module load openss-mrnet-openmpi
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-mvapich
            module load compilers/pgi-7.2-3
            module load mpi/mvapich-1.0.1_ofed_pgi-7.2-3
          fi
      elif  [ "$thiscompiler" == "intel" ] 
      then
-         if [ "thisMPI" == "openmpi" ]
+         if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-openmpi
            module load compilers/intel-11.0-f081-c081
            module load mpi/openmpi-1.3.2_intel-11.0-f081-c081
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-mvapich
            module load compilers/intel-11.0-f081-c081
            module load mpi/mvapich-1.1_intel-11.0-f081-c081
          fi
      elif  [ "$thiscompiler" == "pathscale" ] 
      then
-         if [ "thisMPI" == "openmpi" ]
+         if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-openmpi
            module load compilers/pathscale-3.2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-mvapich
            module load compilers/pathscale-3.2
            module load mpi/mvapich-1.0.1_ofed_pathscale-3.2
          fi
@@ -291,58 +291,58 @@ export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
 
      if [ "$thiscompiler" == "gnu" ] 
      then
-         if [ "thisMPI" == "openmpi" ]
+         if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-openmpi
            module load mpi/openmpi-1.2.8_gcc-4.1.2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-mvapich
            module load mpi/mvapich-1.0.1_ofed_gcc-4.1.2
          fi
      elif  [ "$thiscompiler" == "pgi" ] 
      then
-         if [ "thisMPI" == "openmpi" ]
+         if [ "$thisMPI" == "openmpi" ]
          then
            module purge
            module load compilers/pgi-7.2-3
            module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
-           module load openss-mrnet
+           module load openss-mrnet-openmpi
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-mvapich
            module load compilers/pgi-7.2-3
            module load mpi/mvapich-1.0.1_ofed_pgi-7.2-3
          fi
      elif  [ "$thiscompiler" == "intel" ] 
      then
-         if [ "thisMPI" == "openmpi" ]
+         if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-openmpi
            module load compilers/intel-11.0-f081-c081
            module load mpi/openmpi-1.3.2_intel-11.0-f081-c081
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-mvapich
            module load compilers/intel-11.0-f081-c081
            module load mpi/mvapich-1.1_intel-11.0-f081-c081
          fi
      elif  [ "$thiscompiler" == "pathscale" ] 
      then
-         if [ "thisMPI" == "openmpi" ]
+         if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-openmpi
            module load compilers/pathscale-3.2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-mvapich
            module load compilers/pathscale-3.2
            module load mpi/mvapich-1.0.1_ofed_pathscale-3.2
          fi
@@ -378,8 +378,8 @@ currentDir=`pwd`
 executable=\$currentDir/smg2000
 #echo "NOTE: smg2000 test, current directory is:" `pwd`
 echo "NOTE: smg2000 test, executable path directory is:" \$executable
-mpicommand=`which mpiexec`
-echo "smg2000 test, mpiexec command path directory is:" \$mpicommand
+mpicommand=`which mpirun`
+echo "smg2000 test, mpirun command path directory is:" \$mpicommand
 
 #
 # Read in test parameters
@@ -791,58 +791,58 @@ export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
 
      if [ "$thiscompiler" == "gnu" ] 
      then
-         if [ "thisMPI" == "openmpi" ]
+         if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-openmpi
            module load mpi/openmpi-1.2.8_gcc-4.1.2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-mvapich
            module load mpi/mvapich-1.0.1_ofed_gcc-4.1.2
          fi
      elif  [ "$thiscompiler" == "pgi" ] 
      then
-         if [ "thisMPI" == "openmpi" ]
+         if [ "$thisMPI" == "openmpi" ]
          then
            module purge
            module load compilers/pgi-7.2-3
            module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
-           module load openss-mrnet
+           module load openss-mrnet-openmpi
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-mvapich
            module load compilers/pgi-7.2-3
            module load mpi/mvapich-1.0.1_ofed_pgi-7.2-3
          fi
      elif  [ "$thiscompiler" == "intel" ] 
      then
-         if [ "thisMPI" == "openmpi" ]
+         if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-openmpi
            module load compilers/intel-11.0-f081-c081
            module load mpi/openmpi-1.3.2_intel-11.0-f081-c081
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-mvapich
            module load compilers/intel-11.0-f081-c081
            module load mpi/mvapich-1.1_intel-11.0-f081-c081
          fi
      elif  [ "$thiscompiler" == "pathscale" ] 
      then
-         if [ "thisMPI" == "openmpi" ]
+         if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-openmpi
            module load compilers/pathscale-3.2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet
+           module load openss-mrnet-mvapich
            module load compilers/pathscale-3.2
            module load mpi/mvapich-1.0.1_ofed_pathscale-3.2
          fi
@@ -862,14 +862,15 @@ echo "Local testpath directory is:" \$local_testpath
 local_subhost=$SUB_HOST
 echo "Local sub_host is:" \$local_subhost
 echo "sweep3d.mpi executable path directory is:" \$executable
-mpicommand=`which mpiexec`
-echo "sweep3d.mpi test, mpiexec command path directory is:" \$mpicommand
+mpicommand=`which mpirun`
+echo "sweep3d.mpi test, mpirun command path directory is:" \$mpicommand
 
 # setup separate unique raw data directories for each compiler/test combination
 rm -rf \$currnetDir/sweep3d_${thiscompiler}_RAW
 mkdir \$currentDir/sweep3d_${thiscompiler}_RAW
 export OPENSS_RAWDATA_DIR=\$currentDir/sweep3d_${thiscompiler}_RAW
 echo "NOTE: sweep3d test, after setting OPENSS_RAWDATA_DIR, OPENSS_RAWDATA_DIR=" $OPENSS_RAWDATA_DIR
+
 #
 # Read in test parameters
 #
