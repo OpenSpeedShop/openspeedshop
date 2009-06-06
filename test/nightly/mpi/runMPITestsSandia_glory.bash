@@ -40,10 +40,6 @@ if [ $SNLSYSTEM ]; then
   runcommand=`which srun`
   echo "NOTE: CLEAR ALL MODULE SETTINGS"
   module purge
-#  module load openss_run_openmpi
-#  echo "NOTE: load openss_run_openmpi module"
-#  module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
-#  echo "NOTE: load mpi/openmpi-1.2.7_ofed_pgi-7.2-3 module"
 else
   echo "Did not find SNLSYSTEM environment variable: "
   found_sandia=0
@@ -288,6 +284,14 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
 . /usr/share/modules/init/sh
 export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
 
+if  [ "$thisMPI" == "mvapich" ] 
+then
+   mpicommand=/usr/bin/srun
+   echo "smg2000 test, mpirun command directory/path is:" \$mpicommand
+else
+   mpicommand=`which mpirun`
+   echo "smg2000 test, mpicommand directory/path is:" \$mpicommand
+fi
 
      if [ "$thiscompiler" == "gnu" ] 
      then
@@ -378,8 +382,6 @@ currentDir=`pwd`
 executable=\$currentDir/smg2000
 #echo "NOTE: smg2000 test, current directory is:" `pwd`
 echo "NOTE: smg2000 test, executable path directory is:" \$executable
-mpicommand=`which mpirun`
-echo "smg2000 test, mpirun command path directory is:" \$mpicommand
 
 #
 # Read in test parameters
@@ -788,6 +790,15 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
 #!/bin/bash
 . /usr/share/modules/init/sh
 export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
+
+if  [ "$thisMPI" == "mvapich" ] 
+then
+   mpicommand=/usr/bin/srun
+   echo "smg2000 test, mpirun command directory/path is:" \$mpicommand
+else
+   mpicommand=`which mpirun`
+   echo "smg2000 test, mpicommand directory/path is:" \$mpicommand
+fi
 
      if [ "$thiscompiler" == "gnu" ] 
      then
