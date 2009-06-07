@@ -113,44 +113,44 @@ ossdriver: ossdriver.in
 
 install-exec-hook: ossdriver
 # osspcsamp
-	@rm -f $(prefix)/bin/osspcsamp
-	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/osspcsamp
-	chmod 755 $(prefix)/bin/osspcsamp
+	@rm -f $(DESTDIR)$(bindir)/osspcsamp
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osspcsamp
+	chmod 755 $(DESTDIR)$(bindir)/osspcsamp
 # ossusertime
-	@rm -f $(prefix)/bin/ossusertime
-	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/ossusertime
-	chmod 755 $(prefix)/bin/ossusertime
+	@rm -f $(DESTDIR)$(bindir)/ossusertime
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossusertime
+	chmod 755 $(DESTDIR)$(bindir)/ossusertime
 # osshwc
-	@rm -f $(prefix)/bin/osshwc
-	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/osshwc
-	chmod 755 $(prefix)/bin/osshwc
+	@rm -f $(DESTDIR)$(bindir)/osshwc
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osshwc
+	chmod 755 $(DESTDIR)$(bindir)/osshwc
 # osshwctime
-	@rm -f $(prefix)/bin/osshwctime
-	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/osshwctime
-	chmod 755 $(prefix)/bin/osshwctime
+	@rm -f $(DESTDIR)$(bindir)/osshwctime
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osshwctime
+	chmod 755 $(DESTDIR)$(bindir)/osshwctime
 # ossio
-	@rm -f $(prefix)/bin/ossio
-	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/ossio
-	chmod 755 $(prefix)/bin/ossio
+	@rm -f $(DESTDIR)$(bindir)/ossio
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossio
+	chmod 755 $(DESTDIR)$(bindir)/ossio
 # ossiot
-	@rm -f $(prefix)/bin/ossiot
-	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/ossiot
-	chmod 755 $(prefix)/bin/ossiot
+	@rm -f $(DESTDIR)$(bindir)/ossiot
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossiot
+	chmod 755 $(DESTDIR)$(bindir)/ossiot
 # ossmpi
-	@rm -f $(prefix)/bin/ossmpi
-	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/ossmpi
-	chmod 755 $(prefix)/bin/ossmpi
+	@rm -f $(DESTDIR)$(bindir)/ossmpi
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossmpi
+	chmod 755 $(DESTDIR)$(bindir)/ossmpi
 # ossmpit
-	@rm -f $(prefix)/bin/ossmpit
-	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/ossmpit
-	chmod 755 $(prefix)/bin/ossmpit
+	@rm -f $(DESTDIR)$(bindir)/ossmpit
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossmpit
+	chmod 755 $(DESTDIR)$(bindir)/ossmpit
 # ossmpiotf
-	@rm -f $(prefix)/bin/ossmpiotf
-	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/ossmpiotf
-	chmod 755 $(prefix)/bin/ossmpiotf
+	@rm -f $(DESTDIR)$(bindir)/ossmpiotf
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossmpiotf
+	chmod 755 $(DESTDIR)$(bindir)/ossmpiotf
 # ossfpe
-	@rm -f $(prefix)/bin/ossfpe
-	$(LN_S) $(prefix)/bin/ossdriver  $(prefix)/bin/ossfpe
-	chmod 755 $(prefix)/bin/ossfpe
+	@rm -f $(DESTDIR)$(bindir)/ossfpe
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossfpe
+	chmod 755 $(DESTDIR)$(bindir)/ossfpe
 
 EXTRA_DIST = ossrun.in ossdriver.in 
