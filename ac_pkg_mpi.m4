@@ -462,8 +462,8 @@ AC_DEFUN([AC_PKG_MPICH2], [
 #    MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
     MPICH2_CPPFLAGS="-I$mpich2_dir/include"
     MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir -L$mpich2_dir/$abi_libdir/libmpich.a"
-#    MPICH2_LIBS="-lmpich"
-    MPICH2_LIBS=""
+    MPICH2_LIBS="-lmpich"
+#    MPICH2_LIBS=""
     MPICH2_HEADER="$mpich2_dir/include/mpi.h"
     MPICH2_DIR="$mpich2_dir"
 
@@ -507,8 +507,8 @@ AC_DEFUN([AC_PKG_MPICH2], [
 #       MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
        MPICH2_CPPFLAGS="-I$mpich2_dir/include"
        MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir -L$mpich2_dir/$alt_abi_libdir/libmpich.a"
-#       MPICH2_LIBS="-lmpich"
-       MPICH2_LIBS=""
+       MPICH2_LIBS="-lmpich"
+#       MPICH2_LIBS=""
        MPICH2_HEADER="$mpich2_dir/include/mpi.h"
        MPICH2_DIR="$mpich2_dir"
 
