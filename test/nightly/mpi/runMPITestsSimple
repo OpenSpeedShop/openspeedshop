@@ -713,21 +713,22 @@ fi
 
 
 thisuname="\`uname -srnmo\`"
-echo " System uname: " \$thisuname>> \$EMAILMESSAGE
+thissysuname="\`uname -n\`"
 # script to send test results email
 # email subject
-SUBJECT="\$thisuname OpenSpeedShop MPI smg2000 executable test results"
+SUBJECT="\$thissysuname OpenSpeedShop MPI smg2000 executable test results"
 # Email To ?
 EMAIL="jegkas@gmail.com"
 # Email text/message
 currentDir=`pwd`
 echo "Current directory (PWD) is:"`pwd`
 echo "Current directory (currentDir) is:" \$currentDir
-EMAILMESSAGE="\$currentDir/\${thisuname}_openss_test_message.txt"
+EMAILMESSAGE="\$currentDir/\${thissysuname}_openss_test_message.txt"
 touch \$EMAILMESSAGE
 echo " OpenSpeedShop Performance Tool SMG2000 Test Results" >\$EMAILMESSAGE
 echo "" >>\$EMAILMESSAGE
 echo " ${thiscompiler} compiler, $NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
+echo " System uname: " \$thisuname>> \$EMAILMESSAGE
 thisdate="\`date\`"
 echo " Date/time of run: " \$thisdate>> \$EMAILMESSAGE
 thisdir="\`pwd\`"
@@ -1322,10 +1323,10 @@ then
 fi
 
 thisuname="\`uname -srnmo\`"
-echo " System uname: " \$thisuname>> \$EMAILMESSAGE
+thissysuname="\`uname -n\`"
 # script to send test results email
 # email subject
-SUBJECT="\$thisuname OpenSpeedShop MPI sweep3d.mpi executable test results"
+SUBJECT="\$thissysuname OpenSpeedShop MPI sweep3d.mpi executable test results"
 # Email To ?
 EMAIL=\$EmailAddress
 # Email text/message
@@ -1333,11 +1334,12 @@ EMAIL=\$EmailAddress
 currentDir=`pwd`
 echo "Current directory (PWD) is:"`pwd`
 echo "Current directory (currentDir) is:" \$currentDir
-EMAILMESSAGE="\$currentDir/${thisuname}_openss_test_message.txt"
+EMAILMESSAGE="\$currentDir/${thissysuname}_openss_test_message.txt"
 touch \$EMAILMESSAGE
 echo " OpenSpeedShop Performance Tool SWEEP3D.MPI Test Results" >\$EMAILMESSAGE
 echo "" >>\$EMAILMESSAGE
 echo " ${thiscompiler} compiler, \$NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
+echo " System uname: " \$thisuname>> \$EMAILMESSAGE
 thisdate="\`date\`"
 echo " Date/time of run: " \$thisdate>> \$EMAILMESSAGE
 thisdir="\`pwd\`"
