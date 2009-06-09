@@ -832,11 +832,9 @@ void OfflineExperiment::createOfflineSymbolTable()
 	return;
     }
 
-    // Create an Extent from this experiments performance data.
-    Extent e = theExperiment->getPerformanceDataExtent();
-
     // ExtentGroup for use with getUniquePCValues.
     ExtentGroup eg;
+    eg.push_back(theExperiment->getPerformanceDataExtent());
 
     CollectorGroup cgrp = theExperiment->getCollectors();
 
@@ -856,13 +854,6 @@ void OfflineExperiment::createOfflineSymbolTable()
 	    Collector c = *ci;
 	    Metadata m = c.getMetadata();
 	    collector_name = m.getUniqueId();
-
-	    // Create an extentgroup to encompass the entire time
-	    // and address ranges known to openspeedshop.
-	    TimeInterval TI(Time::TheBeginning(),Time::TheEnd());
-	    AddressRange AR(Address::TheLowest(),Address::TheHighest());
-
-	    eg.push_back(Extent(TI,AR));
 
 	    // add performance sample addresses to address buffer
 	    // for this thread group.
