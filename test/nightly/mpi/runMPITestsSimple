@@ -473,172 +473,45 @@ fi
 # Run all experiments
 #
 
+for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf fpe
+do
+
+echo "Running thisexperiment=\$thisexperiment"
 #
-# Run pcsamp and analyze the results
+# Run \${thisexperiment} and analyze the results
 #
-openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 25 25 25" pcsamp
-ls *.openss | grep "smg2000-pcsamp\." > smg2000_${thiscompiler}_${thisMPI}_create_pcsamp
+openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 25 25 25" \$thisexperiment
+ls *.openss | grep "smg2000-\${thisexperiment}\." > smg2000_${thiscompiler}_${thisMPI}_create_\${thisexperiment}
 echo "-------------------------------------"
-echo "BEGIN Analyzing smg2000 pcsamp experiment"
+echo "BEGIN Analyzing smg2000 \${thisexperiment} experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' smg2000_${thiscompiler}_${thisMPI}_create_pcsamp > new_input.script
-echo "log -f smg2000_${thiscompiler}_${thisMPI}_pcsamp_results.log" >> new_input.script
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_${thisMPI}_create_\${thisexperiment} > new_input.script
+echo "log -f smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "hypre_CyclicReduction" smg2000_${thiscompiler}_${thisMPI}_pcsamp_results.log | cat > smg2000_${thiscompiler}_${thisMPI}_pcsamp_results.status
+if [[ "\$thisexperiment" = "pcsamp" || "\$thisexperiment" = "usertime" || "\$thisexperiment" = "hwc" || "\$thisexperiment" = "hwctime" ]]
+then 
+   grep "hypre_CyclicReduction" smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.log | cat > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.status
+elif [[ "\$thisexperiment" = "io" || "\$thisexperiment" = "iot" ]]
+then
+   grep "libc_open" smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.log | cat > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.status
+elif [[ "\$thisexperiment" = "mpi" || "\$thisexperiment" = "mpit" ]]
+then
+   grep "\$RankCount  *MPI_Finalize" smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.log | cat > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.status
+elif [ "\$thisexperiment" = "mpiotf" ]
+then
+   ls a.otf > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.status
+elif [ "\$thisexperiment" = "fpe" ]
+then
+   grep "TBD" smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.log | cat > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.status
+fi
 
 echo "-------------------------------------"
-echo "END Analyzing smg2000 pcsamp experiment"
+echo "END Analyzing smg2000 \${thisexperiment} experiment"
 echo "-------------------------------------"
 
-#
-# Run usertime and analyze the results
-#
-openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 25 25 25" usertime
-ls *.openss | grep "smg2000-usertime\." > smg2000_${thiscompiler}_${thisMPI}_create_usertime
-
-echo "-------------------------------------"
-echo "BEGIN Analyzing smg2000 usertime experiment"
-echo "-------------------------------------"
-sed 's/^/exprestore -f /' smg2000_${thiscompiler}_${thisMPI}_create_usertime > new_input.script
-echo "log -f smg2000_${thiscompiler}_${thisMPI}_usertime_results.log" >> new_input.script
-cat common_commands >> new_input.script
-openss -batch < new_input.script
-
-grep "hypre_CyclicReduction" smg2000_${thiscompiler}_${thisMPI}_usertime_results.log | cat > smg2000_${thiscompiler}_${thisMPI}_usertime_results.status
-
-echo "-------------------------------------"
-echo "END Analyzing smg2000 usertime experiment"
-echo "-------------------------------------"
-echo ""
-
-
-
-openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 25 25 25" hwc
-ls *.openss | grep "smg2000-hwc\." > smg2000_${thiscompiler}_${thisMPI}_create_hwc
-
-echo ""
-echo "BEGIN Analyzing smg2000 hwc experiment"
-sed 's/^/exprestore -f /' smg2000_${thiscompiler}_${thisMPI}_create_hwc > new_input.script
-echo "log -f smg2000_${thiscompiler}_${thisMPI}_hwc_results.log" >> new_input.script
-cat common_commands >> new_input.script
-openss -batch < new_input.script
-
-grep "hypre_CyclicReduction" smg2000_${thiscompiler}_${thisMPI}_hwc_results.log | cat > smg2000_${thiscompiler}_${thisMPI}_hwc_results.status
-
-echo "-------------------------------------"
-echo "END Analyzing smg2000 hwc experiment"
-echo "-------------------------------------"
-echo ""
-
-
-openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 25 25 25" hwctime
-ls *.openss | grep "smg2000-hwctime\." > smg2000_${thiscompiler}_${thisMPI}_create_hwctime
-
-echo ""
-echo "-------------------------------------"
-echo "BEGIN Analyzing smg2000 hwctime experiment"
-echo "-------------------------------------"
-sed 's/^/exprestore -f /' smg2000_${thiscompiler}_${thisMPI}_create_hwctime > new_input.script
-echo "log -f smg2000_${thiscompiler}_${thisMPI}_hwctime_results.log" >> new_input.script
-cat common_commands >> new_input.script
-openss -batch < new_input.script
-
-grep "hypre_CyclicReduction" smg2000_${thiscompiler}_${thisMPI}_hwctime_results.log | cat > smg2000_${thiscompiler}_${thisMPI}_hwctime_results.status
-
-echo "-------------------------------------"
-echo "END Analyzing smg2000 hwctime experiment"
-echo "-------------------------------------"
-echo ""
-
-
-openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 25 25 25" io
-ls *.openss | grep "smg2000-io\." > smg2000_${thiscompiler}_${thisMPI}_create_io
-
-echo ""
-echo "-------------------------------------"
-echo "BEGIN Analyzing smg2000 io experiment"
-echo "-------------------------------------"
-sed 's/^/exprestore -f /' smg2000_${thiscompiler}_${thisMPI}_create_io > new_input.script
-echo "log -f smg2000_${thiscompiler}_${thisMPI}_io_results.log" >> new_input.script
-cat common_commands >> new_input.script
-openss -batch < new_input.script
-
-grep "libc_open" smg2000_${thiscompiler}_${thisMPI}_io_results.log | cat > smg2000_${thiscompiler}_${thisMPI}_io_results.status
-
-echo "-------------------------------------"
-echo "END Analyzing smg2000 io experiment"
-echo "-------------------------------------"
-echo ""
-
-
-openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 25 25 25" iot
-ls *.openss | grep "smg2000-iot\." > smg2000_${thiscompiler}_${thisMPI}_create_iot
-
-echo ""
-echo "-------------------------------------"
-echo "BEGIN Analyzing smg2000 iot experiment"
-echo "-------------------------------------"
-sed 's/^/exprestore -f /' smg2000_${thiscompiler}_${thisMPI}_create_iot > new_input.script
-echo "log -f smg2000_${thiscompiler}_${thisMPI}_iot_results.log" >> new_input.script
-cat common_commands >> new_input.script
-openss -batch < new_input.script
-
-grep "libc_open" smg2000_${thiscompiler}_${thisMPI}_iot_results.log | cat > smg2000_${thiscompiler}_${thisMPI}_iot_results.status
-
-echo "-------------------------------------"
-echo "END Analyzing smg2000 iot experiment"
-echo "-------------------------------------"
-echo ""
-
-
-openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 5 5 5" mpi
-ls *.openss | grep "smg2000-mpi\-" > smg2000_${thiscompiler}_${thisMPI}_create_mpi
-
-echo ""
-echo "-------------------------------------"
-echo "BEGIN Analyzing smg2000 mpi experiment"
-echo "-------------------------------------"
-sed 's/^/exprestore -f /' smg2000_${thiscompiler}_${thisMPI}_create_mpi > new_input.script
-echo "log -f smg2000_${thiscompiler}_${thisMPI}_mpi_results.log" >> new_input.script
-cat common_commands >> new_input.script
-openss -batch < new_input.script
-
-grep "\$RankCount  *MPI_Finalize" smg2000_${thiscompiler}_${thisMPI}_mpi_results.log | cat > smg2000_${thiscompiler}_${thisMPI}_mpi_results.status
-
-echo "-------------------------------------"
-echo "END Analyzing smg2000 mpi experiment"
-echo "-------------------------------------"
-echo ""
-
-
-openss -offline -f "\$mpicommand -np \$RankCount ./smg2000 -n 5 5 5" mpit
-
-#
-# Find corresponding experiment database files and create files that can be used to restore the databases
-#
-ls *.openss | grep "smg2000-mpit\-" > smg2000_${thiscompiler}_${thisMPI}_create_mpit
-
-#
-# Use the corresponding experiment database file names to restore the database and print out the status and results for the experiments
-#
-echo ""
-echo "-------------------------------------"
-echo "BEGIN Analyzing smg2000 mpit experiment"
-echo "-------------------------------------"
-sed 's/^/exprestore -f /' smg2000_${thiscompiler}_${thisMPI}_create_mpit > new_input.script
-echo "log -f smg2000_${thiscompiler}_${thisMPI}_mpit_results.log" >> new_input.script
-cat common_commands >> new_input.script
-openss -batch < new_input.script
-
-grep "\$RankCount  *MPI_Finalize" smg2000_${thiscompiler}_${thisMPI}_mpit_results.log | cat > smg2000_${thiscompiler}_${thisMPI}_mpit_results.status
-
-echo "-------------------------------------"
-echo "END Analyzing smg2000 mpit experiment"
-echo "-------------------------------------"
-echo ""
-
+done
 
 #
 # End of nested script
@@ -736,139 +609,37 @@ echo " Directory where tests were run: " \$thisdir>> \$EMAILMESSAGE
 echo "" >>\$EMAILMESSAGE
 #
 testval=`ls *.status | wc -l`
-echo " Expected tests: 8">> \$EMAILMESSAGE
-echo " Completed tests: " \$testval>> \$EMAILMESSAGE
-#
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a smg2000_${thiscompiler}_${thisMPI}_pcsamp_results.status ]
-then
-  if [ -s smg2000_${thiscompiler}_${thisMPI}_pcsamp_results.status ]
+expectedTests=0
+for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf fpe
+do
+  let "expectedTests+=1"
+#
+  if [ -a smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.status ]
   then
-    echo " PCSAMP EXPERIMENT PASSED">> \$EMAILMESSAGE
+    if [ -s smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.status ]
+    then
+      echo " \${thisexperiment} EXPERIMENT PASSED">> \$EMAILMESSAGE
+    else
+      echo " \${thisexperiment} EXPERIMENT FAILED">> \$EMAILMESSAGE
+    fi
   else
-    echo " PCSAMP EXPERIMENT FAILED">> \$EMAILMESSAGE
+    echo " \${thisexperiment} EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
-else
-  echo " PCSAMP EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
+
+done
+echo " Expected tests: \$expectedTests" >> \$EMAILMESSAGE
+echo " Completed tests: " \$testval >> \$EMAILMESSAGE
 
 #
-# if the status file exists and has data then the test succeeded
-# if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a smg2000_${thiscompiler}_${thisMPI}_usertime_results.status ]
-then
-  if [ -s smg2000_${thiscompiler}_${thisMPI}_usertime_results.status ]
-  then
-    echo " USERTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
-  else
-    echo " USERTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
-  fi
-else
-  echo " USERTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
-
-#
-# if the status file exists and has data then the test succeeded
-# if the status file does not exist then the test did not complete and consider it failed
-#
-if [ -a smg2000_${thiscompiler}_${thisMPI}_hwc_results.status ]
-then
-  if [ -s smg2000_${thiscompiler}_${thisMPI}_usertime_results.status ]
-  then
-    echo " HWC EXPERIMENT PASSED">> \$EMAILMESSAGE
-  else
-    echo " HWC EXPERIMENT FAILED">> \$EMAILMESSAGE
-  fi
-else
-  echo " HWC EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
-
-#
-# if the status file exists and has data then the test succeeded
-# if the status file does not exist then the test did not complete and consider it failed
-#
-if [ -a smg2000_${thiscompiler}_${thisMPI}_hwctime_results.status ]
-then
-  if [ -s smg2000_${thiscompiler}_${thisMPI}_hwctime_results.status ]
-  then
-    echo " HWCTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
-  else
-    echo " HWCTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
-  fi
-else
-  echo " HWCTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
-
-#
-# if the status file exists and has data then the test succeeded
-# if the status file does not exist then the test did not complete and consider it failed
-#
-if [ -a smg2000_${thiscompiler}_${thisMPI}_io_results.status ]
-then
-  if [ -s smg2000_${thiscompiler}_${thisMPI}_io_results.status ]
-  then
-    echo " I/O EXPERIMENT PASSED">> \$EMAILMESSAGE
-  else
-    echo " I/O EXPERIMENT FAILED">> \$EMAILMESSAGE
-  fi
-else
-  echo " I/O EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
-
-#
-# if the status file exists and has data then the test succeeded
-# if the status file does not exist then the test did not complete and consider it failed
-#
-if [ -a smg2000_${thiscompiler}_${thisMPI}_iot_results.status ]
-then
-  if [ -s smg2000_${thiscompiler}_${thisMPI}_iot_results.status ]
-  then
-    echo " I/O TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
-  else
-    echo " I/O TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
-  fi
-else
-  echo " I/O TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
-
-#
-# if the status file exists and has data then the test succeeded
-# if the status file does not exist then the test did not complete and consider it failed
-#
-if [ -a smg2000_${thiscompiler}_${thisMPI}_mpi_results.status ]
-then
-  if [ -s smg2000_${thiscompiler}_${thisMPI}_mpi_results.status ]
-  then
-    echo " MPI EXPERIMENT PASSED">> \$EMAILMESSAGE
-  else
-    echo " MPI EXPERIMENT FAILED">> \$EMAILMESSAGE
-  fi
-else
-  echo " MPI EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
-
-#
-# if the status file exists and has data then the test succeeded
-# if the status file does not exist then the test did not complete and consider it failed
-#
-if [ -a smg2000_${thiscompiler}_${thisMPI}_mpit_results.status ]
-then
-  if [ -s smg2000_${thiscompiler}_${thisMPI}_mpit_results.status ]
-  then
-    echo " MPI TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
-  else
-    echo " MPI TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
-  fi
-else
-  echo " MPI TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
 #echo "This is an email message test">> \$EMAILMESSAGE
 #echo "This is email text" >>\$EMAILMESSAGE
 # send an email using /bin/mail
 /bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
+exit
 EOF
 
 # Send out the results for smg2000
@@ -1078,173 +849,45 @@ then
   cp -f input.256 input
 fi
 
+for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf fpe
+do
 
+echo "Running thisexperiment=\$thisexperiment"
 #
-# Run pcsamp and analyze the results
+# Run \${thisexperiment} and analyze the results
 #
-openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" pcsamp
-ls *.openss | grep "sweep3d.mpi-pcsamp\." > sweep3d_${thiscompiler}_${thisMPI}_create_pcsamp
+openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" \${thisexperiment}
+ls *.openss | grep "sweep3d.mpi-\${thisexperiment}\." > sweep3d_${thiscompiler}_${thisMPI}_create_\${thisexperiment}
 echo "-------------------------------------"
-echo "BEGIN Analyzing sweep3d.mpi pcsamp experiment"
+echo "BEGIN Analyzing sweep3d \${thisexperiment} experiment"
 echo "-------------------------------------"
-sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_${thisMPI}_create_pcsamp > new_input.script
-echo "log -f sweep3d_${thiscompiler}_${thisMPI}_pcsamp_results.log" >> new_input.script
+sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_${thisMPI}_create_\${thisexperiment} > new_input.script
+echo "log -f sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.log" >> new_input.script
 cat common_commands >> new_input.script
 openss -batch < new_input.script
 
-grep "source_" sweep3d_${thiscompiler}_${thisMPI}_pcsamp_results.log | cat > sweep3d_${thiscompiler}_${thisMPI}_pcsamp_results.status
+if [[ "\$thisexperiment" = "pcsamp" || "\$thisexperiment" = "usertime" || "\$thisexperiment" = "hwc" || "\$thisexperiment" = "hwctime" ]]
+then 
+   grep "source_" sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.log | cat > sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status
+elif [[ "\$thisexperiment" = "io" || "\$thisexperiment" = "iot" ]]
+then
+   grep "libc_open" sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.log | cat > sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status
+elif [[ "\$thisexperiment" = "mpi" || "\$thisexperiment" = "mpit" ]]
+then
+   grep "\$RankCount  *MPI_Finalize" sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.log | cat > sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status
+elif [ "\$thisexperiment" = "mpiotf" ]
+then
+   ls a.otf > sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}.status
+elif [ "\$thisexperiment" = "fpe" ]
+then
+   grep "TBD" sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.log | cat > sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status
+fi
 
 echo "-------------------------------------"
-echo "END Analyzing sweep3d.mpi pcsamp experiment"
+echo "END Analyzing sweep3d \${thisexperiment} experiment"
 echo "-------------------------------------"
 
-#
-# Run usertime and analyze the results
-#
-openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" usertime
-ls *.openss | grep "sweep3d.mpi-usertime\." > sweep3d_${thiscompiler}_${thisMPI}_create_usertime
-
-echo "-------------------------------------"
-echo "BEGIN Analyzing sweep3d.mpi usertime experiment"
-echo "-------------------------------------"
-sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_${thisMPI}_create_usertime > new_input.script
-echo "log -f sweep3d_${thiscompiler}_${thisMPI}_usertime_results.log" >> new_input.script
-cat common_commands >> new_input.script
-openss -batch < new_input.script
-
-grep "source_" sweep3d_${thiscompiler}_${thisMPI}_usertime_results.log | cat > sweep3d_${thiscompiler}_${thisMPI}_usertime_results.status
-
-echo "-------------------------------------"
-echo "END Analyzing sweep3d.mpi usertime experiment"
-echo "-------------------------------------"
-echo ""
-
-
-
-openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" hwc
-ls *.openss | grep "sweep3d.mpi-hwc\." > sweep3d_${thiscompiler}_${thisMPI}_create_hwc
-
-echo ""
-echo "BEGIN Analyzing sweep3d.mpi hwc experiment"
-sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_${thisMPI}_create_hwc > new_input.script
-echo "log -f sweep3d_${thiscompiler}_${thisMPI}_hwc_results.log" >> new_input.script
-cat common_commands >> new_input.script
-openss -batch < new_input.script
-
-grep "source_" sweep3d_${thiscompiler}_${thisMPI}_hwc_results.log | cat > sweep3d_${thiscompiler}_${thisMPI}_hwc_results.status
-
-echo "-------------------------------------"
-echo "END Analyzing sweep3d.mpi hwc experiment"
-echo "-------------------------------------"
-echo ""
-
-
-openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" hwctime
-ls *.openss | grep "sweep3d.mpi-hwctime\." > sweep3d_${thiscompiler}_${thisMPI}_create_hwctime
-
-echo ""
-echo "-------------------------------------"
-echo "BEGIN Analyzing sweep3d.mpi hwctime experiment"
-echo "-------------------------------------"
-sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_${thisMPI}_create_hwctime > new_input.script
-echo "log -f sweep3d_${thiscompiler}_${thisMPI}_hwctime_results.log" >> new_input.script
-cat common_commands >> new_input.script
-openss -batch < new_input.script
-
-grep "source_" sweep3d_${thiscompiler}_${thisMPI}_hwctime_results.log | cat > sweep3d_${thiscompiler}_${thisMPI}_hwctime_results.status
-
-echo "-------------------------------------"
-echo "END Analyzing sweep3d.mpi hwctime experiment"
-echo "-------------------------------------"
-echo ""
-
-
-openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" io
-ls *.openss | grep "sweep3d.mpi-io\." > sweep3d_${thiscompiler}_${thisMPI}_create_io
-
-echo ""
-echo "-------------------------------------"
-echo "BEGIN Analyzing sweep3d.mpi io experiment"
-echo "-------------------------------------"
-sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_${thisMPI}_create_io > new_input.script
-echo "log -f sweep3d_${thiscompiler}_${thisMPI}_io_results.log" >> new_input.script
-cat common_commands >> new_input.script
-openss -batch < new_input.script
-
-grep "libc_read" sweep3d_${thiscompiler}_${thisMPI}_io_results.log | cat > sweep3d_${thiscompiler}_${thisMPI}_io_results.status
-
-echo "-------------------------------------"
-echo "END Analyzing sweep3d.mpi io experiment"
-echo "-------------------------------------"
-echo ""
-
-
-openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" iot
-ls *.openss | grep "sweep3d.mpi-iot\." > sweep3d_${thiscompiler}_${thisMPI}_create_iot
-
-echo ""
-echo "-------------------------------------"
-echo "BEGIN Analyzing sweep3d.mpi iot experiment"
-echo "-------------------------------------"
-sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_${thisMPI}_create_iot > new_input.script
-echo "log -f sweep3d_${thiscompiler}_${thisMPI}_iot_results.log" >> new_input.script
-cat common_commands >> new_input.script
-openss -batch < new_input.script
-
-grep "libc_read" sweep3d_${thiscompiler}_${thisMPI}_iot_results.log | cat > sweep3d_${thiscompiler}_${thisMPI}_iot_results.status
-
-echo "-------------------------------------"
-echo "END Analyzing sweep3d.mpi iot experiment"
-echo "-------------------------------------"
-echo ""
-
-
-openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" mpi
-ls *.openss | grep "sweep3d.mpi-mpi\-" > sweep3d_${thiscompiler}_${thisMPI}_create_mpi
-
-echo ""
-echo "-------------------------------------"
-echo "BEGIN Analyzing sweep3d.mpi mpi experiment"
-echo "-------------------------------------"
-sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_${thisMPI}_create_mpi > new_input.script
-echo "log -f sweep3d_${thiscompiler}_${thisMPI}_mpi_results.log" >> new_input.script
-cat common_commands >> new_input.script
-openss -batch < new_input.script
-
-grep "\$RankCount  *MPI_Finalize" sweep3d_${thiscompiler}_${thisMPI}_mpi_results.log | cat > sweep3d_${thiscompiler}_${thisMPI}_mpi_results.status
-
-echo "-------------------------------------"
-echo "END Analyzing sweep3d.mpi mpi experiment"
-echo "-------------------------------------"
-echo ""
-
-
-openss -offline -f "\$mpicommand -np \$RankCount ./sweep3d.mpi" mpit
-
-#
-# Find corresponding experiment database files and create files that can be used to restore the databases
-#
-ls *.openss | grep "sweep3d.mpi-mpit\-" > sweep3d_${thiscompiler}_${thisMPI}_create_mpit
-
-#
-# Use the corresponding experiment database file names to restore the database and print out the status and results for the experiments
-#
-echo ""
-echo "-------------------------------------"
-echo "BEGIN Analyzing sweep3d.mpi mpit experiment"
-echo "-------------------------------------"
-sed 's/^/exprestore -f /' sweep3d_${thiscompiler}_${thisMPI}_create_mpit > new_input.script
-echo "log -f sweep3d_${thiscompiler}_${thisMPI}_mpit_results.log" >> new_input.script
-cat common_commands >> new_input.script
-openss -batch < new_input.script
-
-grep "\$RankCount  *MPI_Finalize" sweep3d_${thiscompiler}_${thisMPI}_mpit_results.log | cat > sweep3d_${thiscompiler}_${thisMPI}_mpit_results.status
-
-echo "-------------------------------------"
-echo "END Analyzing sweep3d.mpi mpit experiment"
-echo "-------------------------------------"
-echo ""
-
+done
 
 #
 # End of nested script
@@ -1353,137 +996,44 @@ echo " Completed tests: " \$testval>> \$EMAILMESSAGE
 # if the status file exists and has data then the test succeeded
 # if the status file does not exist then the test did not complete and consider it failed
 #
-if [ -a sweep3d_${thiscompiler}_${thisMPI}_pcsamp_results.status ]
+
+expectedTests=0
+for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf fpe
+do
+
+  let "expectedTests+=1"
+
+if [ -a sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}.status ]
 then
-  if [ -s sweep3d_${thiscompiler}_${thisMPI}_pcsamp_results.status ]
+  if [ -s sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}.status ]
   then
-    echo " PCSAMP EXPERIMENT PASSED">> \$EMAILMESSAGE
+    echo " \${thisexperiment} EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
-    echo " PCSAMP EXPERIMENT FAILED">> \$EMAILMESSAGE
+    echo " \${thisexperiment} EXPERIMENT FAILED">> \$EMAILMESSAGE
   fi
 else
-  echo " PCSAMP EXPERIMENT FAILED">> \$EMAILMESSAGE
+  echo " \${thisexperiment} EXPERIMENT FAILED">> \$EMAILMESSAGE
 fi
 
-#
-# if the status file exists and has data then the test succeeded
-# if the status file does not exist then the test did not complete and consider it failed
-#
-if [ -a sweep3d_${thiscompiler}_${thisMPI}_usertime_results.status ]
-then
-  if [ -s sweep3d_${thiscompiler}_${thisMPI}_usertime_results.status ]
-  then
-    echo " USERTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
-  else
-    echo " USERTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
-  fi
-else
-  echo " USERTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
+done
 
-#
-# if the status file exists and has data then the test succeeded
-# if the status file does not exist then the test did not complete and consider it failed
-#
-if [ -a sweep3d_${thiscompiler}_${thisMPI}_hwc_results.status ]
-then
-  if [ -s sweep3d_${thiscompiler}_${thisMPI}_usertime_results.status ]
-  then
-    echo " HWC EXPERIMENT PASSED">> \$EMAILMESSAGE
-  else
-    echo " HWC EXPERIMENT FAILED">> \$EMAILMESSAGE
-  fi
-else
-  echo " HWC EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
+echo " Expected tests: \$expectedTests" >> \$EMAILMESSAGE
+echo " Completed tests: " \$testval >> \$EMAILMESSAGE
 
-#
-# if the status file exists and has data then the test succeeded
-# if the status file does not exist then the test did not complete and consider it failed
-#
-if [ -a sweep3d_${thiscompiler}_${thisMPI}_hwctime_results.status ]
-then
-  if [ -s sweep3d_${thiscompiler}_${thisMPI}_hwctime_results.status ]
-  then
-    echo " HWCTIME EXPERIMENT PASSED">> \$EMAILMESSAGE
-  else
-    echo " HWCTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
-  fi
-else
-  echo " HWCTIME EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
-
-#
-# if the status file exists and has data then the test succeeded
-# if the status file does not exist then the test did not complete and consider it failed
-#
-if [ -a sweep3d_${thiscompiler}_${thisMPI}_io_results.status ]
-then
-  if [ -s sweep3d_${thiscompiler}_${thisMPI}_io_results.status ]
-  then
-    echo " I/O EXPERIMENT PASSED">> \$EMAILMESSAGE
-  else
-    echo " I/O EXPERIMENT FAILED">> \$EMAILMESSAGE
-  fi
-else
-  echo " I/O EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
-
-#
-# if the status file exists and has data then the test succeeded
-# if the status file does not exist then the test did not complete and consider it failed
-#
-if [ -a sweep3d_${thiscompiler}_${thisMPI}_iot_results.status ]
-then
-  if [ -s sweep3d_${thiscompiler}_${thisMPI}_iot_results.status ]
-  then
-    echo " I/O TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
-  else
-    echo " I/O TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
-  fi
-else
-  echo " I/O TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
-
-#
-# if the status file exists and has data then the test succeeded
-# if the status file does not exist then the test did not complete and consider it failed
-#
-if [ -a sweep3d_${thiscompiler}_${thisMPI}_mpi_results.status ]
-then
-  if [ -s sweep3d_${thiscompiler}_${thisMPI}_mpi_results.status ]
-  then
-    echo " MPI EXPERIMENT PASSED">> \$EMAILMESSAGE
-  else
-    echo " MPI EXPERIMENT FAILED">> \$EMAILMESSAGE
-  fi
-else
-  echo " MPI EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
-
-#
-# if the status file exists and has data then the test succeeded
-# if the status file does not exist then the test did not complete and consider it failed
-#
-if [ -a sweep3d_${thiscompiler}_${thisMPI}_mpit_results.status ]
-then
-  if [ -s sweep3d_${thiscompiler}_${thisMPI}_mpit_results.status ]
-  then
-    echo " MPI TRACE EXPERIMENT PASSED">> \$EMAILMESSAGE
-  else
-    echo " MPI TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
-  fi
-else
-  echo " MPI TRACE EXPERIMENT FAILED">> \$EMAILMESSAGE
-fi
 #echo "This is an email message test">> \$EMAILMESSAGE
 #echo "This is email text" >>\$EMAILMESSAGE
 # send an email using /bin/mail
 /bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
+#
+# End of nested script
+#
+exit
 EOF
 
 # Send out the results for sweep3d.mpi
 # sweep_${thiscompiler}_${thisMPI}_email.sh
+echo "This is email text=\$EMAILMESSAGE"
+
 EMAIL_REQ_SCRIPT="$RUN_DIR/sweep_${thiscompiler}_${thisMPI}_email.sh"
 bash ${EMAIL_REQ_SCRIPT}
 
