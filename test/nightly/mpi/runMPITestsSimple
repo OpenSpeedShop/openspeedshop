@@ -53,7 +53,8 @@ do
      echo "1st loop, basedir=" $basedir
    fi
 
- for thisMPI in openmpi mpich2
+# for thisMPI in openmpi mpich2
+ for thisMPI in mpich2 openmpi
  do
 
 #  loop here through a compiler list
@@ -71,7 +72,8 @@ do
      # module load openss openmpi-1.2.4
      # or setup environment manually
 #     export PATH=/home/jeg/oss/bin:$PATH
-#     export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
+#     export LD_LIBRARY_PATH=/home/jeg/oss/lib
+     module purge
      module load openss-mrnet
 
      if [ "$thiscompiler" == "gnu" ] 
@@ -88,6 +90,8 @@ do
 #           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=mpich2
+           mpdcommand=`which mpd`
+           echo "startup mpd command path directory is:" \$mpdcommand
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mvapich
@@ -100,6 +104,8 @@ do
          elif  [ "$thisMPI" == "mpich2" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mpich2
+           mpdcommand=`which mpd`
+           echo "startup mpd command path directory is:" \$mpdcommand
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mvapich
@@ -112,6 +118,8 @@ do
          elif  [ "$thisMPI" == "mpich2" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mpich2
+           mpdcommand=`which mpd`
+           echo "startup mpd command path directory is:" \$mpdcommand
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mvapich
@@ -124,6 +132,8 @@ do
          elif  [ "$thisMPI" == "mpich2" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mpich2
+           mpdcommand=`which mpd`
+           echo "startup mpd command path directory is:" \$mpdcommand
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mvapich
@@ -302,6 +312,7 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
      # or setup environment manually
 #     export PATH=/home/jeg/oss/bin:$PATH
 #     export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
+     module purge
      module load openss-mrnet
 
      if [ "$thiscompiler" == "gnu" ] 
@@ -318,6 +329,9 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
 #           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=mpich2
+           mpdcommand=`which mpd`
+           echo "smg2000 mpd command path directory is:" \$mpdcommand
+           \$mpdcommand &
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mvapich
@@ -330,6 +344,9 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
          elif  [ "$thisMPI" == "mpich2" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mpich2
+           mpdcommand=`which mpd`
+           echo "smg2000 mpd command path directory is:" \$mpdcommand
+           \$mpdcommand &
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mvapich
@@ -342,6 +359,9 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
          elif  [ "$thisMPI" == "mpich2" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mpich2
+           mpdcommand=`which mpd`
+           echo "smg2000 mpd command path directory is:" \$mpdcommand
+           \$mpdcommand &
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mvapich
@@ -354,6 +374,9 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
          elif  [ "$thisMPI" == "mpich2" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mpich2
+           mpdcommand=`which mpd`
+           echo "smg2000 mpd command path directory is:" \$mpdcommand
+           \$mpdcommand &
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mvapich
@@ -689,20 +712,22 @@ then
 fi
 
 
+thisuname="\`uname -srnmo\`"
+echo " System uname: " \$thisuname>> \$EMAILMESSAGE
 # script to send test results email
 # email subject
 SUBJECT="\$thisuname OpenSpeedShop MPI smg2000 executable test results"
 # Email To ?
 EMAIL="jegkas@gmail.com"
 # Email text/message
-EMAILMESSAGE="\$currentDir/openss_test_message.txt"
+currentDir=`pwd`
+echo "Current directory (PWD) is:"`pwd`
+echo "Current directory (currentDir) is:" \$currentDir
+EMAILMESSAGE="\$currentDir/\${thisuname}_openss_test_message.txt"
 touch \$EMAILMESSAGE
-#EMAILMESSAGE="\${local_testpath}/openss_test_message.txt"
 echo " OpenSpeedShop Performance Tool SMG2000 Test Results" >\$EMAILMESSAGE
 echo "" >>\$EMAILMESSAGE
 echo " ${thiscompiler} compiler, $NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
-thisuname="\`uname -srnmo\`"
-echo " System uname: " \$thisuname>> \$EMAILMESSAGE
 thisdate="\`date\`"
 echo " Date/time of run: " \$thisdate>> \$EMAILMESSAGE
 thisdir="\`pwd\`"
@@ -865,6 +890,7 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
      # or
      # module load openss openmpi-1.2.4
      # or setup environment manually
+     module purge
      module load openss-mrnet
 #     export PATH=/home/jeg/oss/bin:$PATH
 #     export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
@@ -883,6 +909,9 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
 #           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=mpich2
+           mpdcommand=`which mpd`
+           echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
+           \$mpdcommand &
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mvapich
@@ -894,6 +923,9 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
+           mpdcommand=`which mpd`
+           echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
+           \$mpdcommand &
            export OPENSS_MPI_IMPLEMENTATION=mpich2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
@@ -907,6 +939,9 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
          elif  [ "$thisMPI" == "mpich2" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mpich2
+           mpdcommand=`which mpd`
+           \$mpdcommand &
+           echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mvapich
@@ -919,6 +954,9 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
          elif  [ "$thisMPI" == "mpich2" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mpich2
+           mpdcommand=`which mpd`
+           echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
+           \$mpdcommand &
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            export OPENSS_MPI_IMPLEMENTATION=mvapich
@@ -942,6 +980,7 @@ echo "NOTE: sweep3d.mpi test, executable path directory is:" \$executable
 
 mpicommand=`which mpirun`
 echo "sweep3d.mpi test, mpirun command path directory is:" \$mpicommand
+
 
 # setup separate unique raw data directories for each compiler/test combination
 rm -rf \$currnetDir/sweep3d_${thiscompiler}_RAW
@@ -1282,6 +1321,8 @@ then
   echo "EmailAddress: \$EmailAddress"
 fi
 
+thisuname="\`uname -srnmo\`"
+echo " System uname: " \$thisuname>> \$EMAILMESSAGE
 # script to send test results email
 # email subject
 SUBJECT="\$thisuname OpenSpeedShop MPI sweep3d.mpi executable test results"
@@ -1289,13 +1330,14 @@ SUBJECT="\$thisuname OpenSpeedShop MPI sweep3d.mpi executable test results"
 EMAIL=\$EmailAddress
 # Email text/message
 #EMAILMESSAGE="/tmp/openss_test_message.txt"
-EMAILMESSAGE="\$currentDir/openss_test_message.txt"
+currentDir=`pwd`
+echo "Current directory (PWD) is:"`pwd`
+echo "Current directory (currentDir) is:" \$currentDir
+EMAILMESSAGE="\$currentDir/${thisuname}_openss_test_message.txt"
 touch \$EMAILMESSAGE
 echo " OpenSpeedShop Performance Tool SWEEP3D.MPI Test Results" >\$EMAILMESSAGE
 echo "" >>\$EMAILMESSAGE
 echo " ${thiscompiler} compiler, \$NodeCount Nodes \$RankCount ranks">> \$EMAILMESSAGE
-thisuname="\`uname -srnmo\`"
-echo " System uname: " \$thisuname>> \$EMAILMESSAGE
 thisdate="\`date\`"
 echo " Date/time of run: " \$thisdate>> \$EMAILMESSAGE
 thisdir="\`pwd\`"
