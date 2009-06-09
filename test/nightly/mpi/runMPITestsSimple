@@ -1334,7 +1334,7 @@ EMAIL=\$EmailAddress
 currentDir=`pwd`
 echo "Current directory (PWD) is:"`pwd`
 echo "Current directory (currentDir) is:" \$currentDir
-EMAILMESSAGE="\$currentDir/${thissysuname}_openss_test_message.txt"
+EMAILMESSAGE="\$currentDir/\${thissysuname}_openss_test_message.txt"
 touch \$EMAILMESSAGE
 echo " OpenSpeedShop Performance Tool SWEEP3D.MPI Test Results" >\$EMAILMESSAGE
 echo "" >>\$EMAILMESSAGE
