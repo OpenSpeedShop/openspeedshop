@@ -24,32 +24,7 @@ fi
 #
 debug_flag=1
 
-# SETUP start
-# Add module loads or dotkit loads here
-#. /usr/local/tools/dotkit/init.sh
-# or
-# module load openss openmpi-1.2.4
-# or setup environment manually
-export PATH=/home/jeg/oss/bin:$PATH
-export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
-export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
-export OPENSS_INSTRUMENTOR=mrnet
 
-#export OPENSS_PREFIX=/opt/OSS-mrnet
-#export OPENSS_MPI_OPENMPI=/opt/openmpi-1.2.4
-#export OPENSS_INSTRUMENTOR=mrnet
-#export XPLAT_RSH=ssh
-#export OPENSS_PLUGIN_PATH=/opt/OSS-mrnet/lib64/openspeedshop
-#export PATH=/opt/OSS-mrnet/bin:$PATH
-#export LD_LIBRARY_PATH=/opt/OSS-mrnet/lib64:$LD_LIBRARY_PATH
-#export LD_LIBRARY_PATH=/opt/openmpi-1.2.4/lib:$LD_LIBRARY_PATH
-#export PATH=/opt/openmpi-1.2.4/bin:$PATH
-
-# Add the mpi implementation to the script name, if so desired by 
-# changing the following definition
-
-# SETUP end
 
 
 ##set -x
@@ -88,11 +63,77 @@ do
    for thiscompiler in gnu
    do
 
+     # SETUP start
+     # Add module loads or dotkit loads here
+     #. /usr/local/tools/dotkit/init.sh
+     # or
+     # module load openss openmpi-1.2.4
+     # or setup environment manually
+     export PATH=/home/jeg/oss/bin:$PATH
+     export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
+
+     if [ "$thiscompiler" == "gnu" ] 
+     then
+         if [ "$thisMPI" == "openmpi" ]
+         then
+           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
+           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
+           export OPENSS_MPI_IMPLEMENTATION=openmpi
+         elif  [ "$thisMPI" == "mpich2" ] 
+         then
+           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
+           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
+           export OPENSS_MPI_IMPLEMENTATION=mpich2
+         elif  [ "$thisMPI" == "mvapich" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mvapich
+         fi
+     elif  [ "$thiscompiler" == "pgi" ] 
+     then
+         if [ "$thisMPI" == "openmpi" ]
+         then
+           export OPENSS_MPI_IMPLEMENTATION=openmpi
+         elif  [ "$thisMPI" == "mpich2" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mpich2
+         elif  [ "$thisMPI" == "mvapich" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mvapich
+         fi
+     elif  [ "$thiscompiler" == "intel" ] 
+     then
+         if [ "$thisMPI" == "openmpi" ]
+         then
+           export OPENSS_MPI_IMPLEMENTATION=openmpi
+         elif  [ "$thisMPI" == "mpich2" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mpich2
+         elif  [ "$thisMPI" == "mvapich" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mvapich
+         fi
+     elif  [ "$thiscompiler" == "pathscale" ] 
+     then
+         if [ "$thisMPI" == "openmpi" ]
+         then
+           export OPENSS_MPI_IMPLEMENTATION=openmpi
+         elif  [ "$thisMPI" == "mpich2" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mpich2
+         elif  [ "$thisMPI" == "mvapich" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mvapich
+         fi
+     fi
+
+     # SETUP end
+
 if [ $debug_flag == 1 ]
 then
   echo "testsuffix=" $testsuffix
   echo "testCC=" $testCC
   echo "thiscompiler=" $thiscompiler  
+  echo "thisMPI=" $thisMPI  
 fi
 
 hostabi=`uname -m`
@@ -248,31 +289,71 @@ echo "NOTE: Using thiscompiler=" $thiscompiler
 
 cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
 #!/bin/bash
-# SETUP start
-# Add module loads or dotkit loads here
-#. /usr/local/tools/dotkit/init.sh
-# or
-# module load openss openmpi-1.2.4
-# or setup environment manually
-export PATH=/home/jeg/oss/bin:$PATH
-export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
-export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
-export OPENSS_INSTRUMENTOR=mrnet
-#export OPENSS_PREFIX=/opt/OSS-mrnet
-#export OPENSS_MPI_OPENMPI=/opt/openmpi-1.2.4
-#export OPENSS_INSTRUMENTOR=mrnet
-#export XPLAT_RSH=ssh
-#export OPENSS_PLUGIN_PATH=/opt/OSS-mrnet/lib64/openspeedshop
-#export PATH=/opt/OSS-mrnet/bin:$PATH
-#export LD_LIBRARY_PATH=/opt/OSS-mrnet/lib64:$LD_LIBRARY_PATH
-#export LD_LIBRARY_PATH=/opt/openmpi-1.2.4/lib:$LD_LIBRARY_PATH
-#export PATH=/opt/openmpi-1.2.4/bin:$PATH
 
-# Add the mpi implementation to the script name, if so desired by 
-# changing the following definition
+     # SETUP start
+     # Add module loads or dotkit loads here
+     #. /usr/local/tools/dotkit/init.sh
+     # or
+     # module load openss openmpi-1.2.4
+     # or setup environment manually
+     export PATH=/home/jeg/oss/bin:$PATH
+     export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
 
-# SETUP end
+     if [ "$thiscompiler" == "gnu" ] 
+     then
+         if [ "$thisMPI" == "openmpi" ]
+         then
+           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
+           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
+           export OPENSS_MPI_IMPLEMENTATION=openmpi
+         elif  [ "$thisMPI" == "mpich2" ] 
+         then
+           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
+           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
+           export OPENSS_MPI_IMPLEMENTATION=mpich2
+         elif  [ "$thisMPI" == "mvapich" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mvapich
+         fi
+     elif  [ "$thiscompiler" == "pgi" ] 
+     then
+         if [ "$thisMPI" == "openmpi" ]
+         then
+           export OPENSS_MPI_IMPLEMENTATION=openmpi
+         elif  [ "$thisMPI" == "mpich2" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mpich2
+         elif  [ "$thisMPI" == "mvapich" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mvapich
+         fi
+     elif  [ "$thiscompiler" == "intel" ] 
+     then
+         if [ "$thisMPI" == "openmpi" ]
+         then
+           export OPENSS_MPI_IMPLEMENTATION=openmpi
+         elif  [ "$thisMPI" == "mpich2" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mpich2
+         elif  [ "$thisMPI" == "mvapich" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mvapich
+         fi
+     elif  [ "$thiscompiler" == "pathscale" ] 
+     then
+         if [ "$thisMPI" == "openmpi" ]
+         then
+           export OPENSS_MPI_IMPLEMENTATION=openmpi
+         elif  [ "$thisMPI" == "mpich2" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mpich2
+         elif  [ "$thisMPI" == "mvapich" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mvapich
+         fi
+     fi
+
+     # SETUP end
 
 which openss
 executable=`which smg2000`
@@ -750,27 +831,71 @@ then
 
 cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
 #!/bin/bash
-# SETUP start
-# Add module loads or dotkit loads here
-#. /usr/local/tools/dotkit/init.sh
-# or
-# module load openss openmpi-1.2.4
-# or setup environment manually
-#export OPENSS_PREFIX=/opt/OSS-mrnet
-#export OPENSS_MPI_OPENMPI=/opt/openmpi-1.2.4
-#export OPENSS_INSTRUMENTOR=mrnet
-#export XPLAT_RSH=ssh
-#export OPENSS_PLUGIN_PATH=/opt/OSS-mrnet/lib64/openspeedshop
-#export PATH=/opt/OSS-mrnet/bin:$PATH
-#export LD_LIBRARY_PATH=/opt/OSS-mrnet/lib64:$LD_LIBRARY_PATH
-#export LD_LIBRARY_PATH=/opt/openmpi-1.2.4/lib:$LD_LIBRARY_PATH
-#export PATH=/opt/openmpi-1.2.4/bin:$PATH
-export PATH=/home/jeg/oss/bin:$PATH
-export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
-export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
-export OPENSS_INSTRUMENTOR=mrnet
-# SETUP end
+
+     # SETUP start
+     # Add module loads or dotkit loads here
+     #. /usr/local/tools/dotkit/init.sh
+     # or
+     # module load openss openmpi-1.2.4
+     # or setup environment manually
+     export PATH=/home/jeg/oss/bin:$PATH
+     export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
+
+     if [ "$thiscompiler" == "gnu" ] 
+     then
+         if [ "$thisMPI" == "openmpi" ]
+         then
+           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
+           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
+           export OPENSS_MPI_IMPLEMENTATION=openmpi
+         elif  [ "$thisMPI" == "mpich2" ] 
+         then
+           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
+           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
+           export OPENSS_MPI_IMPLEMENTATION=mpich2
+         elif  [ "$thisMPI" == "mvapich" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mvapich
+         fi
+     elif  [ "$thiscompiler" == "pgi" ] 
+     then
+         if [ "$thisMPI" == "openmpi" ]
+         then
+           export OPENSS_MPI_IMPLEMENTATION=openmpi
+         elif  [ "$thisMPI" == "mpich2" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mpich2
+         elif  [ "$thisMPI" == "mvapich" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mvapich
+         fi
+     elif  [ "$thiscompiler" == "intel" ] 
+     then
+         if [ "$thisMPI" == "openmpi" ]
+         then
+           export OPENSS_MPI_IMPLEMENTATION=openmpi
+         elif  [ "$thisMPI" == "mpich2" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mpich2
+         elif  [ "$thisMPI" == "mvapich" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mvapich
+         fi
+     elif  [ "$thiscompiler" == "pathscale" ] 
+     then
+         if [ "$thisMPI" == "openmpi" ]
+         then
+           export OPENSS_MPI_IMPLEMENTATION=openmpi
+         elif  [ "$thisMPI" == "mpich2" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mpich2
+         elif  [ "$thisMPI" == "mvapich" ] 
+         then
+           export OPENSS_MPI_IMPLEMENTATION=mvapich
+         fi
+     fi
+
+     # SETUP end
 
 which openss
 executable=`which sweep3d.mpi`
