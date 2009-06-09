@@ -865,20 +865,23 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
      # or
      # module load openss openmpi-1.2.4
      # or setup environment manually
-     export PATH=/home/jeg/oss/bin:$PATH
-     export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
+     module load openss-mrnet
+#     export PATH=/home/jeg/oss/bin:$PATH
+#     export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
 
      if [ "$thiscompiler" == "gnu" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
-           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
+           module load openmpi-1.3.2
+#           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
+#           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
-           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
+           module load mpich2-1.1
+#           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
+#           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=mpich2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
