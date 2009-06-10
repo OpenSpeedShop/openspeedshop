@@ -34,44 +34,20 @@ debug = False
 #Flag indicating if a topology file update is needed
 topFileUpdateNeeded = False
 
-# Regular expression string utilized to help parse qstat output.
-qstatRegEx = 'yra[^/*]*'
-
 # Location of user-specific OpenSpeedShop preferences: $HOME/.openspeedshop
 ossuserpref = os.environ['HOME'] + os.sep + '.openspeedshop'
 
-def getRawAllocatedNodesString():
+def getAllocatedNodesString():
     if os.environ.has_key('PBS_JOBID'):
-        #Get basic qstat information and force output of allocated nodes to be
-        #on the same line as the job ID.
-        qstatnodeinfo = commands.getoutput('qstat -f $PBS_JOBID -n1')
+        allocnodes = commands.getoutput('cat $PBS_NODEFILE')
         if debug:
             print ' '
-            #print qstatnodeinfo
-        #Last item in list should always be a string containing a list of 
-        #allocated nodes in the form: 'yra051/7+yra051/6+yra051...
-        #yra051/0+yra087/7+yra087...yra087/0
+            #print uniqallocnodes
     else:
         print 'fatal error...PBS_JOBID not defined.'
         sys.exit()
-    return qstatnodeinfo.split(' ')[-1]
-
-def getAllocatedNodesString():
-    regex = re.compile(qstatRegEx)
-    dupnodeslist = regex.findall(getRawAllocatedNodesString())
+    return allocnodes
     
-    #Return string without duplicate node entries.
-    nodelist = list(Set(dupnodeslist))
-    
-    #Append .lanl.gov
-    """
-	for i in range(len(nodeslist)):
-        nodeslist[i] += '.lanl.gov'
-    """
-    # Not sure if sort is needed...
-    nodelist.sort()
-    return string.join(nodelist)
-
 def prepENV(topologyStringHash):
     global topFileUpdateNeeded
     
@@ -160,13 +136,13 @@ def getAllocatedNodeCount():
     'grep Resource_List.nodes')
     return int(rlnodeinfo.split(' ')[-1].split(':')[0])
      
+
 def getAllocatedNodePPNCount():
     rlnodeinfo = commands.getoutput('qstat -f $PBS_JOBID | ' +
     'grep Resource_List.nodes')
     
     return int(rlnodeinfo.split(' ')[-1].split('=')[-1])
 
-##generateSimpleTopologyString() 
 def generateSimpleTopologyString():
     #Strip .lanl.gov
     hostname = os.uname()[1]
@@ -176,12 +152,13 @@ def generateSimpleTopologyString():
 
 #TODO:FIXME 
 def generateSimpleBETopologyString():
-    nodelist = getAllocatedNodesString().split(' ')
-    
+    nodelist = getAllocatedNodesString().split('\n')
     topstring = nodelist[0] + ':0 =>\n  ' + nodelist[0] + ':1'
 
+    count = 2
     for node in nodelist[1::1]:
-        topstring += '\n  ' + node + ':0'
+        topstring += '\n  %s:%d' % (node, count)
+        count += 1
     
     topstring += ' ;'
     return topstring
