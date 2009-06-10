@@ -246,7 +246,11 @@ void fpe_record_event(const fpe_event* event, const ucontext_t* context)
 				    MaxFramesPerStackTrace,
 				    &stacktrace_size, stacktrace);
 
-fprintf(stderr,"fpe collector stacktrace_size = %d\n",stacktrace_size);
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+       fprintf(stderr,"fpe collector stacktrace_size = %d\n",stacktrace_size);
+    }
+#endif
 
     /*
      * Search the tracing buffer for an existing stack trace matching the stack
@@ -293,7 +297,11 @@ fprintf(stderr,"fpe collector stacktrace_size = %d\n",stacktrace_size);
 	    /* Add the i'th frame to the tracing buffer */
 	    tls->buffer.stacktraces[entry + i] = stacktrace[i];
 	    
-fprintf(stderr,"fpe collector stacktrace[%d]=%#lux\n",i,stacktrace[i]);
+#ifndef NDEBUG
+            if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+                fprintf(stderr,"fpe collector stacktrace[%d]=%#lux\n",i,stacktrace[i]);
+            }
+#endif
 
 	    /* Update the address interval in the data blob's header */
 	    if(stacktrace[i] < tls->header.addr_begin)
