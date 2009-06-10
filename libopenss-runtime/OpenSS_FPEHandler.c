@@ -86,7 +86,7 @@ static __thread TLS the_tls;
  */
 static void signalHandler(int signal, siginfo_t* info, void* ptr)
 {
-fprintf(stderr,"ENTERED FPE signalHandler with signal %d\n",signal);
+//fprintf(stderr,"ENTERED FPE signalHandler with signal %d\n",signal);
 
     OpenSS_FPEType fpe_type = Unknown;
 
@@ -150,7 +150,7 @@ fprintf(stderr,"ENTERED FPE signalHandler with signal %d\n",signal);
 void OpenSS_FPEHandler(OpenSS_FPEType fpe_type,
 		       const OpenSS_FPEEventHandler handler)
 {
-fprintf(stderr,"ENTERED FPE OpenSS_FPEHandler with fpe_type %d\n",fpe_type);
+//fprintf(stderr,"ENTERED FPE OpenSS_FPEHandler with fpe_type %d\n",fpe_type);
     struct sigaction action;
 
     /* Create and/or access our thread-local storage */
