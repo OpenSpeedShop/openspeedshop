@@ -1,0 +1,209 @@
+.\" Process this file with
+.\" groff -man -Tascii openss.1
+.\"
+.TH OSSHWC 1 "JUNE 2009" Linux "User Manuals"
+.SH NAME
+osshwc \- Open|SpeedShop Call Path Analysis experiment script
+.SH SYNOPSIS
+.nf
+.IP "osshwc simple_executable [ high || low || default || PAPI_EVENT || PAPI_THRESHOLD ] "
+.IP "osshwc ""executable args""   [ high || low || default || PAPI_EVENT || PAPI_THRESHOLD  ] "
+.IP "osshwc ""multi_executable""  [ high || low || default || PAPI_EVENT || PAPI_THRESHOLD ] "
+.fi
+
+.SH TYPICAL USAGE FORMS
+.nf
+
+osshwc "multi_executable"
+
+For example, run with default papi event and threshold:
+
+osshwc "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
+
+osshwc "multi_executable" PAPI_EVENT PAPI_THRESHOLD
+
+For example, run with alternative papi event and threshold:
+
+osshwc "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog" PAPI_FP_OPS 12000
+
+.fi
+
+
+
+.SH DESCRIPTION
+.B osshwc
+
+osshwc is a convenience command script that invokes the 
+Open|SpeedShop application level performance tool to gather 
+hardware counter event sampling performance information 
+about the application being monitored and reports that 
+information back to the user in order to locate performance 
+bottlenecks in user applications that may be hardware resource
+related.  For example, relating cycles to memory references or 
+flops to level 1 cache misses can indicate poor locality and 
+memory management.
+
+osshwc does sampling based on a hardware counter event threshold
+and the type of event selected.  These are changable by using
+the OPENSS_HWC_EVENT and OPENSS_HWC_THRESHOLD environment variables.
+
+Information that is presented after the execution of the hwc
+experiment is inclusive and exclusive CPU time for all the functions
+in the program, which statement took the most time in the application,
+the call path information (what the function call chain is: foo called
+bar, bar called x and y, etc.), performance data information presented 
+sorted by linked object, functions, or statement.
+
+.SH OPTIONS
+
+.IP "simple_executable"
+This option specifies the simple executable to be run. By 
+simple executable we mean a one word command with no arguments.
+No quotes around the executable name are needed when the command
+is a single word command with no arguments.
+
+.IP " ""executable args"" "
+This option specifies an executable with arguments to be run. In
+this case the executable can be a one word command or a multiple word
+command, such as a mpi command specification. For example:
+
+        "simple_executable -n 40 40 40"
+
+or
+
+        "/opt/mpi/mpirun -np 64 ./executable_name" 
+
+Open|SpeedShop requires quotes around the executable and arguments when 
+the executable command is not simple.
+
+.IP " ""multi_executable [args]"" "
+This option specifies a multiple word executable with or without
+arguments to be run. In this case the executable is multiple word 
+command or a multiple word command, such as a mpi command 
+specification. For example: 
+
+        "/opt/mpi/mpirun -np 64 ./executable_name" 
+
+Open|SpeedShop requires quotes around the executable and arguments when 
+the executable command is not simple.
+
+.IP "high"
+Raise the default threshold value to increase the number of samples taken.
+If the OPENSS_HWC_THRESHOLD is set, then that value is multiplied by four and
+the resulting value is used as the threshold for the experiment being run.
+It the OPENSS_HWC_THRESHOLD environment variable is not set then the default
+threshold value (10000) is multiplied by four and used as the threshold for 
+the experiment being run.
+
+.IP "low"
+Lower the default threshold value to reduce the number of samples taken.
+If the OPENSS_HWC_THRESHOLD is set, then that value is divided by two and
+the resulting value is used as the threshold for the experiment being run.
+It the OPENSS_HWC_THRESHOLD environment variable is not set then the default
+threshold value (10000) is divided by two and used as the threshold for 
+the experiment being run.
+
+.IP "default"
+Force the experiment to use the default hardware counter event and the 
+default threshold value when running the experiment. This overrides any
+environment variables that might be set.
+
+.IP "PAPI_EVENT"
+Force the experiment to use the PAPI hardware counter event specified
+by this input PAPI event name when running the experiment. This overrides 
+the OPENSS_HWC_EVENT environment variable if it was set.
+
+.IP "PAPI_THRESHOLD"
+Force the experiment to use the PAPI hardware counter event threshold 
+specified by this input PAPI event threshold value  when running the 
+experiment. This overrides the OPENSS_HWC_THRESHOLD environment variable 
+if it was set.
+
+.IP "<no arguments>"
+If no optional arguments are specified then the default PAPI hardware
+counter event and the default PAPI hardware counter threshold are used in
+the experiment run.  However, if the OPENSS_HWC_EVENT environment variable
+and/or the OPENSS_HWC_THRESHOLD are set then their values will be used in
+the experiment run.
+
+.SH FILES
+.IP ~/.qt/openspeedshoprc
+.RS
+The Open|SpeedShop preference configuration file which is 
+accessed through the Open|SpeedShop GUI Preferences menu item.
+This file contains several options which allow the user to 
+configure Open|SpeedShop to better fit their needs.
+
+See the Open|SpeedShop Users Guide for full details on the
+preferences available.
+.RE
+
+.SH ENVIRONMENT
+.IP OPENSS_RAWDATA_DIR
+On a cluster where /tmp is not shared across nodes, this
+environment variable needs to be set to a path to a shared
+file system that is accessible from all the nodes of the
+cluster.  The offline mode of operation for Open|SpeedShop
+needs a shared file system location to write the files containing
+the performance information from each process on all the
+nodes of the cluster involved in the experiment.
+
+.IP OPENSS_HWC_EVENT
+This environment variable specifies the PAPI hardware counter event
+name.  Open|SpeedShop will support whatever PAPI hardward counter 
+non-derived events are available on the machine the experiment is
+being run on.  The default event is PAPI_TOT_CYC.
+
+.IP OPENSS_HWC_THRESHOLD
+This environment variable specifies the PAPI hardware counter event
+threshold count.  Open|SpeedShop will record the PAPI hardware counter
+event information when the number of events reaches this threshold value.
+The default threshold value is 10000.  This corresponds to the default
+PAPI hardware counter event, which is PAPI_TOT_CYC.
+
+.SH DIAGNOSTICS
+The following diagnostics may be TBD:
+
+.SH QUICK START EXAMPLE
+The following command runs the MPI executable "mpi_prog" and gathers 
+call path sampling information on the 64 ranked processes.  
+When completed, a view of the aggregated information is displayed 
+to the screen.  An Open|SpeedShop database file, named 
+"mpi_prog-openmpi-hwc.openss" will be created.  This database 
+contains all the information to view the experiment performance data
+postmortem.  The database file may be used to view the performance 
+data for this experiment with the default view or using the several 
+different viewing options which allow rank to rank comparisons or 
+the ability to view performance information for individual ranks 
+or groups of ranks.
+
+The hwc experiment is used to find call path performance bottlenecks.
+Periodic sampling of the call path at the time of the sample.  This experiment 
+allows the user to view inclusive and exclusive time spent in application
+routines. It also allows the user to see which routines called which routines.  
+Several call path views are available to view the call paths that were found
+in the application and the time spent on that particular call path.
+
+.nf
+
+osshwc "/opt/openmpi/bin/mpiexec -np 64 /home/user/mpi_prog"
+.fi
+
+.SH BUGS
+TBD
+
+.SH AUTHOR
+Open|SpeedShop Team <oss-questions@openspeedshop.org>
+.SH "SEE ALSO"
+.BR openss (1),
+.BR osspcsamp (1),
+.BR ossusertime (1)
+.BR osshwctime (1)
+.BR ossio (1)
+.BR ossiot (1)
+.BR ossmpi (1)
+.BR ossmpit (1)
+.BR ossmpiotf (1)
+.BR ossfpe (1)
+
+
