@@ -17,8 +17,9 @@ Offline Version Collection Control Environment Variables</h1>
 Offline Version Collection Control Environment Variables</a>
     <ul>
       <li><a href="#mozTocId315737">Table of Contents</a></li>
-      <li><a href="#mozTocId561475">Key Environment Variable for
-running on Clusters Independent of Experiment Type</a>
+      <li><a href="#mozTocId561475">Key Environment
+Variable for running on Clusters Independent of Experiment Type
+        </a>
         <ul>
           <li><a href="#mozTocId374420">OPENSS_RAWDATA_DIR</a>
             <ul>
@@ -29,22 +30,23 @@ Definition and Example:
           </li>
         </ul>
       </li>
-      <li><a href="#mozTocId672936">PCSAMP Experiment Related
-Information</a>
+      <li><a href="#mozTocId672936">PCSAMP Experiment
+Related Information
+        </a>
         <ul>
           <li><a href="#mozTocId271032">Environment Variable
 Definition and Example:</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId759962">USERTIME Experiment Related
-Information</a>
+      <li><a href="#mozTocId759962">USERTIME Experiment
+Related Information</a>
         <ul>
           <li><a href="#mozTocId347651">Environment Variable
 Definition and Example:</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId848421">HWC and HWCTIME Experiment Related
-Information</a>
+      <li><a href="#mozTocId848421">HWC and HWCTIME
+Experiment Related Information</a>
         <ul>
           <li><a href="#mozTocId17410">Background Information
 and How to find which events are available on your machine:</a></li>
@@ -52,8 +54,8 @@ and How to find which events are available on your machine:</a></li>
 Definition and Example:</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId258061">IO and IOT Experiment Related
-Information</a>
+      <li><a href="#mozTocId258061">IO and IOT Experiment
+Related Information</a>
         <ul>
           <li><a href="#mozTocId199271">Environment Variable
 Definition and Example:</a></li>
@@ -68,7 +70,8 @@ Definition and Example:</a></li>
           <li><a href="#mozTocId635433">Acceptable values:</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId643119">FPE Experiment Related Information</a>
+      <li><a href="#mozTocId643119">FPE Experiment
+Related Information</a>
         <ul>
           <li><a href="#mozTocId472454">Environment Variable
 Definition and Example:</a></li>
@@ -105,16 +108,28 @@ Related Information<br>
 </h2>
 <h3><a class="mozTocH3" name="mozTocId271032"></a>Environment Variable
 Definition and Example:</h3>
+This environment variable represents the sampling rate that will be
+used for the "pcsamp" performance experiment.&nbsp; The sampling rate
+value is in samples per second.&nbsp; The default sampling rate is 100
+samples per second.<br>
+<br>
 OPENSS_PCSAMP_RATE="new sampling rate &lt;int&gt;"<br>
 example:<br>
-export OPENSS_PCSAMP_RATE=1000<br>
+export OPENSS_PCSAMP_RATE=100<br>
 <h2><a class="mozTocH2" name="mozTocId759962"></a>USERTIME Experiment
 Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId347651"></a>Environment Variable
 Definition and Example:</h3>
+This environment variable represents the sampling rate that will be
+used for the "usertime" performance experiment.&nbsp; The sampling rate
+value
+is in samples per second.&nbsp; The default sampling rate is 35 samples
+per
+second.<br>
+<br>
 OPENSS_USERTIME_RATE="new sampling rate &lt;int&gt;"<br>
 example:<br>
-export OPENSS_USERTIME_RATE=350
+export OPENSS_USERTIME_RATE=35
 <h2><a class="mozTocH2" name="mozTocId848421"></a>HWC and HWCTIME
 Experiment Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId17410"></a>Background Information
@@ -264,6 +279,10 @@ export OPENSS_HWC_EVENT=PAPI_BR_INS<br>
 Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId199271"></a>Environment Variable
 Definition and Example:</h3>
+This environment variable represents the I/O functions that will be
+traced during an I/O (io) or I/O with extended information recorded
+(iot) experiments.<br>
+<br>
 OPENSS_IO_TRACED="comma separated list of IO functions &lt;string&gt;"<br>
 OPENSS_IOT_TRACED="comma separated list of IO functions &lt;string&gt;"<br>
 example:<br>
@@ -278,6 +297,10 @@ All (default), one, or any combination of the following io calls:<br>
 MPIOTF Experiment Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId174486"></a>Environment Variable
 Definition and Example:</h3>
+These environment variables represents the I/O functions that will be
+traced during an MPI (mpi), MPI with extended information recorded
+(mpit), or the MPI Open Trace Format (mpiotf) experiments.<br>
+<br>
 OPENSS_MPI_TRACED="comma separated list of mpi functions &lt;string&gt;"<br>
 OPENSS_MPIT_TRACED="comma separated list of mpi functions
 &lt;string&gt;"<br>
@@ -399,6 +422,9 @@ Also, acceptable is one or any combination of the following MPI calls:<br>
 Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId472454"></a>Environment Variable
 Definition and Example:</h3>
+This environment variable represents the floating point exceptions that
+will be monitored during a floating point trace (fpe) experiment.<br>
+<br>
 OPENSS_FPE_EVENT="comma separated list of FP Exceptions &lt;string&gt;"<br>
 export OPENSS_FPE_EVENT=division_by_zero,invalid_operation<br>
 <h3><a class="mozTocH3" name="mozTocId656064"></a>Acceptable values:</h3>
