@@ -1,0 +1,271 @@
+.\" Process this file with
+.\" groff -man -Tascii openss.1
+.\"
+.TH OPENSS 1 "JUNE 2009" Linux "User Manuals"
+.SH NAME
+openss \- Open|SpeedShop Application Performance Tool
+.SH SYNOPSIS
+.B openss [-offline] [-gui] [-cli] [-batch] 
+          [-f simple_executable ]
+          [-f "executable args"] 
+          [-f "multi_executable"] 
+          [-f openss_database]
+          experiment_type
+
+
+.SH DESCRIPTION
+.B openss
+
+openss is the command that invokes the Open|SpeedShop application level
+performance tool.  Open|SpeedShop gathers performance information about
+the application being monitored and reports that information back to the
+user in order to locate performance bottlenecks in user applications.
+
+Open|SpeedShop gathers information about the user application performance
+such as inclusive and exclusive CPU time, hardware counter events and 
+time, detailed information about I/O events/calls, detailed information 
+about MPI events/calls, and floating point exceptions that occurred 
+in the user application.  The term experiment is used to describe the
+application and the type of performance data being gathered.
+
+To access the specific information the user specifies the experiment
+type name that corresponds to the type of information to be gathered.  The 
+following list shows the experiment type name that corresponds to the type
+of data to be gathered:
+
+Experiment type    Description of Performance Data
+
+pcsamp             Periodic sampling of the program counter 
+                   which gives a low overhead overview of where 
+                   the time is being spent in the user application.
+
+usertime           Use to find call path performance bottlenecks.
+                   Periodic sampling of the call path at the time of 
+                   the sample.  This experiment allows the user to view 
+                   inclusive and exclusive time spent in application 
+                   routines. It also allows the user to see which 
+                   routines called which routines.  Several call path 
+                   views are available.
+
+hwc                Hardware counter event counts at the source line, 
+                   machine instruction, and function levels of various 
+                   hardware events, including: clock cycles, graduated 
+                   instructions, primary instruction cache misses, 
+                   secondary instruction cache misses, primary data 
+                   cache misses, secondary data cache misses, 
+                   translation lookaside buffer (TLB) misses, and 
+                   graduated floating-point instructions, amongst 
+                   others.
+
+hwctime            Similar to hwc experiment, except that callstack 
+                   sampling is also included/used.
+
+io                 Use to find I/O performance bottlenecks.
+                   Records time spent in the following I/O system 
+                   calls: read, readv, write, writev, open, close, 
+                   dup, pipe, creat.  The number of calls and the 
+                   time spent in the I/O routine is reported as wall 
+                   clock time.
+
+iot                Similar to io experiment, except that additional 
+                   information about the I/O call is gathered.  
+                   Information such as bytes read or written, the name
+                   of the file being read from or written to, and other
+                   I/O call specific information are available.
+
+mpi                The MPI experiment captures the time spent in and 
+                   the number of times each MPI function is called in
+                   the user's application program.  The user also has
+                   the option of displaying this data in the trace 
+                   format.  When using the trace format each event 
+                   is presented individually showing the start time
+                   and end time for the MPI function call.
+
+mpit               This experiment captures each MPI function call 
+                   event and records specific data corresponding to 
+                   that particular call.  The user is then able to 
+                   display each of the MPI call event and its data 
+                   through the Open|SpeedShop GUI or command line 
+                   interface (CLI).
+
+mpiotf             Traces and times calls to various MPI routines and 
+                   generates Open Trace Format (OTF) files using 
+                   VampirTrace as the underlying gathering tool.  The
+                   resulting output OTF files can be viewed with the 
+                   Vampir tool or converted to another format to be 
+                   viewed by other tools.   Open|SpeedShop does not 
+                   read OTF format files at this time.
+
+fpe                Use to find where floating point exceptions are
+                   slowing the user application.  A floating-point 
+                   exception trace collects each floating-point 
+                   exception with the exception type and the call 
+                   stack at the time of the exception.  These 
+                   measurements are exact, not statistical.
+
+There are multiple modes of operation that may be accessed via the 
+openss command.  The offline mode of operation is invoked by the 
+"-offline" parameter.  The offline mode of operation .....
+
+.BR tbd (1)
+TBD
+
+.SH OPTIONS
+.IP "<no arguments>"
+When openss is invoked with no arguments, that causes the 
+Graphical User Interface (GUI) to be raised and Open|SpeedShop
+then operates in wizard mode.  The Open|SpeedShop wizards guide
+the user through the creation and execution of a performance 
+monitoring experiment.
+
+.IP -offline
+Use the offline mode of operation for openss.  Link in the 
+performance data collection runtimes statically at application
+start-up time.
+
+.IP -gui
+Raise the Open|SpeedShop Graphical User Interface (GUI) when this
+option is specified.
+
+.IP -cli
+Operate Open|SpeedShop in interactive command line mode (CLI).
+openss accepts a number of CLI commands to create experiments,
+run experiments, and view the results of performance experiments.
+
+.IP "-f simple_executable"
+This option specifies the simple executable to be run. By 
+simple executable we mean a one word command with no arguments.
+No quotes around the executable name are needed when the command
+is a single word command with no arguments.
+
+.IP "-f ""executable args"" "
+This option specifies an executable with arguments to be run. In
+this case the executable can be a one word command or a multiword
+command, such as a mpi command specification. For example:
+
+        -f "simple_executable -n 40 40 40"
+
+or
+
+        -f "/opt/mpi/mpirun -np 64 ./executable_name" 
+
+Open|SpeedShop requires quotes around the executable and arguments when 
+the executable command is not simple.
+
+.IP "-f ""multi_executable [args]"" "
+This option specifies a multi word executable with or without
+arguments to be run. In this case the executable is multi word 
+command or a multiword command, such as a mpi command 
+specification. For example: 
+
+        -f "/opt/mpi/mpirun -np 64 ./executable_name" 
+
+Open|SpeedShop requires quotes around the executable and arguments when 
+the executable command is not simple.
+
+.IP "-f openss_database"
+This option specifies that an Open|SpeedShop database will
+be loaded into the Open|SpeedShop user interface.  Once loaded,
+the performance data will be available for viewing.
+
+.IP "experiment_type"
+This option specifies the type of performance information to be
+gathered while the Open|SpeedShop performance experiment is applied
+to the user application.  The supported experiment types are:
+
+pcsamp, usertime, hwc, hwctime, io, iot, mpi, mpit, mpiotf, fpe
+
+The details for these options are described above in the Description
+section of this man page.   See the Open|SpeedShop Users Guide for
+more detailed information.
+
+.SH FILES
+.IP ~/.qt/openspeedshoprc
+.RS
+The Open|SpeedShop preference configuration file which is 
+accessed through the Open|SpeedShop GUI Preferences menu item.
+This file contains several options which allow the user to 
+configure Open|SpeedShop to better fit their needs.
+
+See the Open|SpeedShop Users Guide for full details on the
+preferences available.
+.RE
+
+.IP ~/.openspeedshop
+.RS
+The online mode of Open|SpeedShop will create MRNet topology files
+in the ~/.openspeedshop directory.  The MRNet topology files allow
+the MRNet component to know the hostnames for all the nodes that will
+be a part of the Open|SpeedShop performance experiment and uses this
+information to communicate with Open|SpeedShop.  Commands and 
+performance data are passed between Open|SpeedShop and the nodes 
+where the user application is being run.
+
+See the Open|SpeedShop Users Guide for full details on the
+preferences available.
+.RE
+
+.SH ENVIRONMENT
+.IP OPENSS_RAWDATA_DIR
+On a cluster where /tmp is not shared across nodes, this
+environment variable needs to be set to a path to a shared
+file system that is accessible from all the nodes of the
+cluster.  The offline mode of operation for Open|SpeedShop
+needs a shared file system location to write the files containing
+the performance information from each process on all the
+nodes of the cluster involved in the experiment.
+.IP OPENSS_MPI_IMPLEMENTATION
+If the module, dotkit, or set-up script that is used to load the
+runtime environment of Open|SpeedShop doesn't disguish or specify
+the MPI implementation inside the module, dotkit, or script, then
+this variable may be needed.  This environment variable is only
+needed if the user is running one of the MPI experiments (mpi,
+mpit, or mpiotf).  Otherwise, this environment variable does 
+not need to be set.  Also, if Open|SpeedShop was only configured
+for one MPI implementation, then this environment variable does
+not need to be set.  It is used to inform Open|SpeedShop what
+MPI implementation the application is built with. 
+
+.SH DIAGNOSTICS
+The following diagnostics may be TBD:
+
+.SH QUICK START EXAMPLE
+The following command runs the MPI executable "mpi_prog" and gathers 
+program counter sampling information on the 64 ranked processes.  
+When completed, a view of the aggregated information is displayed 
+to the screen.  An Open|SpeedShop database file, named 
+"mpi_prog-openmpi-pcsamp.openss" will be created.  This database 
+contains all the information to view the experiment performance data
+postmortem.  The database file may be used to view the performance 
+data for this experiment with the default view or using the several 
+different viewing options which allow rank to rank comparisons or 
+the ability to view performance information for individual ranks 
+or groups of ranks.
+
+The "pcsamp" experiment type gives a good, low overhead, overview 
+of where application bottlenecks are.  The output from this experiment 
+can then be used to choose another of the Open|SpeedShop experiments 
+to further focus in on the application bottleneck(s).
+.nf
+
+"openss -offline -f ""/opt/openmpi/bin/mpiexec -np 64 /home/user/mpi_prog"" pcsamp"
+.fi
+
+.SH BUGS
+TBD
+
+.SH AUTHOR
+Open|SpeedShop Team <oss-questions@openspeedshop.org>
+.SH "SEE ALSO"
+.BR osspcsamp (1),
+.BR ossusertime (1),
+.BR osshwc (1)
+.BR osshwctime (1)
+.BR ossio (1)
+.BR ossiot (1)
+.BR ossmpi (1)
+.BR ossmpit (1)
+.BR ossmpiotf (1)
+.BR ossfpe (1)
+
+

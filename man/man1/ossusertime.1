@@ -1,0 +1,149 @@
+.\" Process this file with
+.\" groff -man -Tascii openss.1
+.\"
+.TH OSSUSERTIME 1 "JUNE 2009" Linux "User Manuals"
+.SH NAME
+ossusertime \- Open|SpeedShop Call Path Analysis experiment script
+.SH SYNOPSIS
+.nf
+.IP "ossusertime simple_executable" 
+.IP "ossusertime ""executable args""  "
+.IP "ossusertime ""multi_executable"" "
+.fi
+
+
+.SH DESCRIPTION
+.B ossusertime
+
+ossusertime is a convenience command script that invokes the 
+Open|SpeedShop application level performance tool to gather 
+call path sampling performance information about the application 
+being monitored and reports that information back to the
+user in order to locate call path related performance bottlenecks 
+in user applications.
+
+ossusertime does periodic sampling of the application's call 
+paths giving a fairly low overhead overview of where the time 
+is being spent in the user application. 
+
+Information that is presented after the execution of the usertime
+experiment is inclusive and exclusive CPU time for all the functions
+in the program, which statement took the most time in the application,
+the call path information (what the function call chain is: foo called
+bar, bar called x and y, etc.), performance data information presented 
+sorted by linked object, functions, or statement.
+
+.SH OPTIONS
+
+.IP "simple_executable"
+This option specifies the simple executable to be run. By 
+simple executable we mean a one word command with no arguments.
+No quotes around the executable name are needed when the command
+is a single word command with no arguments.
+
+.IP " ""executable args"" "
+This option specifies an executable with arguments to be run. In
+this case the executable can be a one word command or a multiword
+command, such as a mpi command specification. For example:
+
+        "simple_executable -n 40 40 40"
+
+or
+
+        "/opt/mpi/mpirun -np 64 ./executable_name" 
+
+Open|SpeedShop requires quotes around the executable and arguments when 
+the executable command is not simple.
+
+.IP " ""multi_executable [args]"" "
+This option specifies a multi word executable with or without
+arguments to be run. In this case the executable is multi word 
+command or a multiword command, such as a mpi command 
+specification. For example: 
+
+        "/opt/mpi/mpirun -np 64 ./executable_name" 
+
+Open|SpeedShop requires quotes around the executable and arguments when 
+the executable command is not simple.
+
+.SH FILES
+.IP ~/.qt/openspeedshoprc
+.RS
+The Open|SpeedShop preference configuration file which is 
+accessed through the Open|SpeedShop GUI Preferences menu item.
+This file contains several options which allow the user to 
+configure Open|SpeedShop to better fit their needs.
+
+See the Open|SpeedShop Users Guide for full details on the
+preferences available.
+.RE
+
+.SH ENVIRONMENT
+.IP OPENSS_RAWDATA_DIR
+On a cluster where /tmp is not shared across nodes, this
+environment variable needs to be set to a path to a shared
+file system that is accessible from all the nodes of the
+cluster.  The offline mode of operation for Open|SpeedShop
+needs a shared file system location to write the files containing
+the performance information from each process on all the
+nodes of the cluster involved in the experiment.
+.IP OPENSS_USERTIME_RATE
+This environment variable allows control over how often the
+application is interrupted to take a sample of the current call path.  
+When interrupted the current call path is recorded and saved.  
+This information is used to form a report indicating where
+the program is spending most of its time and what routines called other
+routines.  The default sampling rate is 35 times per second.  If 
+this rate is changed to be higher, more samples will be taken and, 
+of course, lower the sampling rate reduces the number of samples taken.  
+The effect of raising the sampling rate is more pertibation of the application
+and a larger Open|SpeedShop performance experiment database file, but also, 
+perhaps, a more accurate statistical sampling of where the program is 
+spending its time.
+
+.SH DIAGNOSTICS
+The following diagnostics may be TBD:
+
+.SH QUICK START EXAMPLE
+The following command runs the MPI executable "mpi_prog" and gathers 
+call path sampling information on the 64 ranked processes.  
+When completed, a view of the aggregated information is displayed 
+to the screen.  An Open|SpeedShop database file, named 
+"mpi_prog-openmpi-usertime.openss" will be created.  This database 
+contains all the information to view the experiment performance data
+postmortem.  The database file may be used to view the performance 
+data for this experiment with the default view or using the several 
+different viewing options which allow rank to rank comparisons or 
+the ability to view performance information for individual ranks 
+or groups of ranks.
+
+The usertime experiment is used to find call path performance bottlenecks.
+Periodic sampling of the call path at the time of the sample.  This experiment 
+allows the user to view inclusive and exclusive time spent in application
+routines. It also allows the user to see which routines called which routines.  
+Several call path views are available to view the call paths that were found
+in the application and the time spent on that particular call path.
+
+.nf
+
+ossusertime "/opt/openmpi/bin/mpiexec -np 64 /home/user/mpi_prog"
+.fi
+
+.SH BUGS
+TBD
+
+.SH AUTHOR
+Open|SpeedShop Team <oss-questions@openspeedshop.org>
+.SH "SEE ALSO"
+.BR openss (1),
+.BR osspcsamp (1),
+.BR osshwc (1)
+.BR osshwctime (1)
+.BR ossio (1)
+.BR ossiot (1)
+.BR ossmpi (1)
+.BR ossmpit (1)
+.BR ossmpiotf (1)
+.BR ossfpe (1)
+
+

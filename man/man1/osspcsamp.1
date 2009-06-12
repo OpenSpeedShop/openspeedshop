@@ -1,0 +1,142 @@
+.\" Process this file with
+.\" groff -man -Tascii openss.1
+.\"
+.TH OSSPCSAMP 1 "JUNE 2009" Linux "User Manuals"
+.SH NAME
+osspcsamp \- Open|SpeedShop Program counter experiment script
+.SH SYNOPSIS
+.nf
+.IP "osspcsamp simple_executable" 
+.IP "osspcsamp ""executable args""  "
+.IP "osspcsamp ""multi_executable"" "
+.fi
+
+
+.SH DESCRIPTION
+.B osspcsamp
+
+osspcsamp is a convenience command script that invokes the 
+Open|SpeedShop application level performance tool to gather 
+program counter sampling performance information about
+the application being monitored and reports that information back to the
+user in order to locate performance bottlenecks in user applications.
+
+osspcamp does periodic sampling of the program counter giving 
+a low overhead overview of where the time is being spent in 
+the user application.
+
+Information that is presented after the execution of the pcsamp
+experiment is exclusive CPU time for all the functions in the program, 
+which statement took the most time in the application, performance data 
+information presented sorted by linked object, functions, or statement.
+
+
+.SH OPTIONS
+
+.IP "simple_executable"
+This option specifies the simple executable to be run. By 
+simple executable we mean a one word command with no arguments.
+No quotes around the executable name are needed when the command
+is a single word command with no arguments.
+
+.IP " ""executable args"" "
+This option specifies an executable with arguments to be run. In
+this case the executable can be a one word command or a multiword
+command, such as a mpi command specification. For example:
+
+        "simple_executable -n 40 40 40"
+
+or
+
+        "/opt/mpi/mpirun -np 64 ./executable_name" 
+
+Open|SpeedShop requires quotes around the executable and arguments when 
+the executable command is not simple.
+
+.IP " ""multi_executable [args]"" "
+This option specifies a multi word executable with or without
+arguments to be run. In this case the executable is multi word 
+command or a multiword command, such as a mpi command 
+specification. For example: 
+
+        "/opt/mpi/mpirun -np 64 ./executable_name" 
+
+Open|SpeedShop requires quotes around the executable and arguments when 
+the executable command is not simple.
+
+.SH FILES
+.IP ~/.qt/openspeedshoprc
+.RS
+The Open|SpeedShop preference configuration file which is 
+accessed through the Open|SpeedShop GUI Preferences menu item.
+This file contains several options which allow the user to 
+configure Open|SpeedShop to better fit their needs.
+
+See the Open|SpeedShop Users Guide for full details on the
+preferences available.
+.RE
+
+.SH ENVIRONMENT
+.IP OPENSS_RAWDATA_DIR
+On a cluster where /tmp is not shared across nodes, this
+environment variable needs to be set to a path to a shared
+file system that is accessible from all the nodes of the
+cluster.  The offline mode of operation for Open|SpeedShop
+needs a shared file system location to write the files containing
+the performance information from each process on all the
+nodes of the cluster involved in the experiment.
+.IP OPENSS_PCSAMP_RATE
+This environment variable allows control over how often the
+application is interrupted to take a sample of the program
+counter.  When interrupted the program counter address is recorded
+and saved.  This information is used to form a report indicating where
+the program is spending most of its time.  The default sampling rate
+is 100 times per second.  If this number is changed to be higher, more
+samples will be taken and, of course, lower the sampling rate reduces
+the number of samples taken.  The effect of raising the sampling rate
+is more pertibation of the application, but also, perhaps, a more 
+accurate statistical sample of where the program is spending its time.
+
+.SH DIAGNOSTICS
+The following diagnostics may be TBD:
+
+.SH QUICK START EXAMPLE
+The following command runs the MPI executable "mpi_prog" and gathers 
+program counter sampling information on the 64 ranked processes.  
+When completed, a view of the aggregated information is displayed 
+to the screen.  An Open|SpeedShop database file, named 
+"mpi_prog-openmpi-pcsamp.openss" will be created.  This database 
+contains all the information to view the experiment performance data
+postmortem.  The database file may be used to view the performance 
+data for this experiment with the default view or using the several 
+different viewing options which allow rank to rank comparisons or 
+the ability to view performance information for individual ranks 
+or groups of ranks.
+
+The "pcsamp" experiment type gives a good, low overhead, overview 
+of where application bottlenecks are.  The output from this experiment 
+can then be used to choose another of the Open|SpeedShop experiments 
+to further focus in on the application bottleneck(s).
+.nf
+
+osspcsamp "/opt/openmpi/bin/mpiexec -np 64 /home/user/mpi_prog"
+.fi
+
+.SH BUGS
+TBD
+
+.SH AUTHOR
+Open|SpeedShop Team <oss-questions@openspeedshop.org>
+.SH "SEE ALSO"
+.BR openss (1),
+.BR ossusertime (1),
+.BR osshwc (1)
+.BR osshwctime (1)
+.BR ossio (1)
+.BR ossiot (1)
+.BR ossmpi (1)
+.BR ossmpit (1)
+.BR ossmpiotf (1)
+.BR ossfpe (1)
+
+
