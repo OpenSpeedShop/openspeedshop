@@ -1,0 +1,167 @@
+.\" Process this file with
+.\" groff -man -Tascii openss.1
+.\"
+.TH OSSIO 1 "JUNE 2009" Linux "User Manuals"
+.SH NAME
+ossio \- Open|SpeedShop Program counter experiment script
+.SH SYNOPSIS
+.nf
+.IP "ossio simple_executable [ IO_FUNCTION_LIST ]"
+.IP "ossio ""executable args"" [ IO_FUNCTION_LIST ] "
+.IP "ossio ""multi_executable"" [ IO_FUNCTION_LIST ] "
+.fi
+
+.SH TYPICAL USAGE FORM
+.nf
+
+ossio "multi_executable"
+
+For example:
+
+ossio "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog" 
+
+.fi
+.SH DESCRIPTION
+.B ossio
+
+ossio is a convenience command script that invokes the 
+Open|SpeedShop application level performance tool to gather 
+Input/Output function trace performance information about
+the application being monitored and reports that information 
+back to the user in order to locate Input/Output performance 
+bottlenecks in user applications.
+
+ossio captures several of the input and output system calls 
+and records the time spent and the number 
+of calls in each routine.  The call path/stack is also recorded.  
+This allows the user to interrogate the call paths/stacks to find 
+out where each call has been made in the application program
+
+Information that is presented after the execution of the "io"
+experiment is the exclusive CPU time spent inside all the system
+I/O functions, specified to be traced, in the users application program. 
+In addition, to the time spent in the I/O functions, the call paths to
+where the I/O function was called in the user application is also presented
+to the user.  Individual call paths and their respective times are
+also available.
+
+
+.SH OPTIONS
+
+.IP "simple_executable"
+This option specifies the simple executable to be run. By 
+simple executable we mean a one word command with no arguments.
+No quotes around the executable name are needed when the command
+is a single word command with no arguments.
+
+.IP " ""executable args"" "
+This option specifies an executable with arguments to be run. In
+this case the executable can be a one word command or a multiple word
+(multiple tokens) command, such as a mpi command specification. 
+For example:
+
+        "simple_executable -n 40 40 40"
+
+or
+
+        "/opt/mpi/mpirun -np 64 ./executable_name" 
+
+Open|SpeedShop requires quotes around the executable and arguments when 
+the executable command is not simple.
+
+.IP " ""multi_executable [args]"" "
+This option specifies a multiple word executable with or without
+arguments to be run. In this case the executable is multiple word 
+command or a multiple word command, such as a mpi command 
+specification. For example: 
+
+        "/opt/mpi/mpirun -np 64 ./executable_name" 
+
+Open|SpeedShop requires quotes around the executable and arguments when 
+the executable command is not simple.
+
+.IP "IO_FUNCTION_LIST"
+Specify a list of system I/O functions to be traced.  If the OPENSS_IO_TRACED
+is set, this value will override the function list defined by OPENSS_IO_TRACED.
+the resulting value is used as the sampling rate for the experiment being run.
+
+.IP "default"
+Force the experiment to use the default I/O function list value when running
+the experiment. This overrides the OPENSS_IO_TRACED environment variable
+if it was set.
+
+.IP "<no arguments>"
+If no optional arguments are specified then the default I/O function 
+list value is used in the experiment run.  However, if the OPENSS_IO_TRACED
+environment variable is set then that I/O function list value will be 
+used in the experiment run.
+
+
+.SH FILES
+.IP ~/.qt/openspeedshoprc
+.RS
+The Open|SpeedShop preference configuration file which is 
+accessed through the Open|SpeedShop GUI Preferences menu item.
+This file contains several options which allow the user to 
+configure Open|SpeedShop to better fit their needs.
+
+See the Open|SpeedShop Users Guide for full details on the
+preferences available.
+.RE
+
+.SH ENVIRONMENT
+.IP OPENSS_RAWDATA_DIR
+On a cluster where /tmp is not shared across nodes, this
+environment variable needs to be set to a path to a shared
+file system that is accessible from all the nodes of the
+cluster.  The offline mode of operation for Open|SpeedShop
+needs a shared file system location to write the files containing
+the performance information from each process on all the
+nodes of the cluster involved in the experiment.
+.IP OPENSS_IO_TRACED
+This environment variable specifies the I/O function list that
+the ossio will trace during the experiment run.
+
+.SH DIAGNOSTICS
+The following diagnostics may be TBD:
+
+.SH QUICK START EXAMPLE
+The following command runs the MPI executable "mpi_prog" and gathers 
+Input/Output function trace information on the 64 ranked processes.  
+When completed, a view of the aggregated information is displayed 
+to the screen.  An Open|SpeedShop database file, named 
+"mpi_prog-openmpi-io.openss" will be created.  This database 
+contains all the information to view the experiment performance data
+postmortem.  The database file may be used to view the performance 
+data for this experiment with the default view or using the several 
+different viewing options which allow rank to rank comparisons or 
+the ability to view performance information for individual ranks 
+or groups of ranks.
+
+The "io" experiment presents an overview of the time spent in the
+system I/O functions and where those functions were called in the
+user application.  Individual call path with their respective
+time and number of calls are also available.
+.nf
+
+ossio "/opt/openmpi/bin/mpiexec -np 64 /home/user/mpi_prog"
+.fi
+
+.SH BUGS
+TBD
+
+.SH AUTHOR
+Open|SpeedShop Team <oss-questions@openspeedshop.org>
+.SH "SEE ALSO"
+.BR openss (1),
+.BR osspcsamp (1)
+.BR ossusertime (1),
+.BR osshwc (1)
+.BR osshwctime (1)
+.BR ossiot (1)
+.BR ossmpi (1)
+.BR ossmpit (1)
+.BR ossmpiotf (1)
+.BR ossfpe (1)
+
+

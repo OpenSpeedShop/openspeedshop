@@ -14,11 +14,11 @@ osspcsamp \- Open|SpeedShop Program counter experiment script
 .SH TYPICAL USAGE FORM
 .nf
 
-osspcamp "multi_executable"
+osspcsamp "multi_executable"
 
 For example:
 
-osspcamp "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog" 
+osspcsamp "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog" 
 
 .fi
 .SH DESCRIPTION
@@ -30,7 +30,7 @@ program counter sampling performance information about
 the application being monitored and reports that information back to the
 user in order to locate performance bottlenecks in user applications.
 
-osspcamp does periodic sampling of the program counter giving 
+osspcsamp does periodic sampling of the program counter giving 
 a low overhead overview of where the time is being spent in 
 the user application.
 
