@@ -6,10 +6,22 @@
 ossusertime \- Open|SpeedShop Call Path Analysis experiment script
 .SH SYNOPSIS
 .nf
-.IP "ossusertime simple_executable" 
-.IP "ossusertime ""executable args""  "
-.IP "ossusertime ""multi_executable"" "
+.IP "ossusertime simple_executable [ high || low || default ]" 
+.IP "ossusertime ""executable args"" [ high || low || default ] "
+.IP "ossusertime ""multi_executable"" [ high || low || default ] "
 .fi
+
+.SH TYPICAL USAGE FORM
+.nf
+
+ossusertime "multi_executable"
+
+For example:
+
+ossusertime "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
+
+.fi
+
 
 
 .SH DESCRIPTION
@@ -65,6 +77,32 @@ specification. For example:
 
 Open|SpeedShop requires quotes around the executable and arguments when 
 the executable command is not simple.
+
+.IP "high"
+Raise the default sampling rate value to increase the number of samples taken.
+If the OPENSS_USERTIME_RATE is set, then that value is multiplied by four and
+the resulting value is used as the sampling rate for the experiment being run.
+It the OPENSS_USERTIME_RATE environment variable is not set then the default
+sampling rate value (35) is multiplied by four and used as the sampling rate for
+the experiment being run.
+
+.IP "low"
+Lower the default sampling rate value to reduce the number of samples taken.
+If the OPENSS_USERTIME_RATE is set, then that value is divided by two and
+the resulting value is used as the sampling rate for the experiment being run.
+It the OPENSS_USERTIME_RATE environment variable is not set then the default
+sampling rate value (35) is divided by two and used as the sampling rate for
+the experiment being run.
+
+.IP "default"
+Force the experiment to use the default sampling rate value when running 
+the experiment. This overrides the OPENSS_USERTIME_RATE environment variable
+if it was set.
+
+.IP "<no arguments>"
+If no optional arguments are specified then the default sampling rate
+is used in the experiment run.  However, if the OPENSS_USERTIME_RATE
+environment variable is set then its value will be used in the experiment run.
 
 .SH FILES
 .IP ~/.qt/openspeedshoprc
