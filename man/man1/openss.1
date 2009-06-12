@@ -12,6 +12,12 @@ openss \- Open|SpeedShop Application Performance Tool
           [-f openss_database]
           experiment_type
 
+.SH TYPICAL USAGE FORM
+.nf
+
+openss -offline -f "executable" pcsamp
+
+.fi
 
 .SH DESCRIPTION
 .B openss
@@ -103,12 +109,26 @@ fpe                Use to find where floating point exceptions are
                    stack at the time of the exception.  These 
                    measurements are exact, not statistical.
 
-There are multiple modes of operation that may be accessed via the 
-openss command.  The offline mode of operation is invoked by the 
-"-offline" parameter.  The offline mode of operation .....
+There are convenience command scripts that correspond to each of the
+experiment types above.  These script hide all arguments to openss 
+but the executable argument.  For illustration, take his usage of 
+the pcsamp convenience command script compared to its equivalent 
+openss command syntax: 
+.nf
 
-.BR tbd (1)
-TBD
+           osspcsamp "executable"
+
+.fi
+is equavalent to:
+.nf
+
+           openss -offline -f "executable" pcsamp
+
+.fi
+
+The convenience command scripts each have their own man page.  The
+command names are listed below in the SEE ALSO section.
+
 
 .SH OPTIONS
 .IP "<no arguments>"
@@ -228,9 +248,6 @@ not need to be set.  Also, if Open|SpeedShop was only configured
 for one MPI implementation, then this environment variable does
 not need to be set.  It is used to inform Open|SpeedShop what
 MPI implementation the application is built with. 
-
-.SH DIAGNOSTICS
-The following diagnostics may be TBD:
 
 .SH QUICK START EXAMPLE
 The following command runs the MPI executable "mpi_prog" and gathers 
