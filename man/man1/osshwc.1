@@ -48,11 +48,10 @@ and the type of event selected.  These are changable by using
 the OPENSS_HWC_EVENT and OPENSS_HWC_THRESHOLD environment variables.
 
 Information that is presented after the execution of the hwc
-experiment is inclusive and exclusive CPU time for all the functions
-in the program, which statement took the most time in the application,
-the call path information (what the function call chain is: foo called
-bar, bar called x and y, etc.), performance data information presented 
-sorted by linked object, functions, or statement.
+experiment is is a mapping back to the source of the application of the
+statisical representation of where the hardware counter events occured.
+The performance information is reported and optionally sorted by linked 
+object, functions, or statement.
 
 .SH OPTIONS
 
@@ -166,7 +165,7 @@ The following diagnostics may be TBD:
 
 .SH QUICK START EXAMPLE
 The following command runs the MPI executable "mpi_prog" and gathers 
-call path sampling information on the 64 ranked processes.  
+hardward counter event sampling information on the 64 ranked processes.  
 When completed, a view of the aggregated information is displayed 
 to the screen.  An Open|SpeedShop database file, named 
 "mpi_prog-openmpi-hwc.openss" will be created.  This database 
@@ -177,12 +176,14 @@ different viewing options which allow rank to rank comparisons or
 the ability to view performance information for individual ranks 
 or groups of ranks.
 
-The hwc experiment is used to find call path performance bottlenecks.
-Periodic sampling of the call path at the time of the sample.  This experiment 
-allows the user to view inclusive and exclusive time spent in application
-routines. It also allows the user to see which routines called which routines.  
-Several call path views are available to view the call paths that were found
-in the application and the time spent on that particular call path.
+The hwc experiment is used to find performance bottlenecks related to
+hardware resource constraints.  This experiment allows the user to view 
+hardware counter event counts at the source line, machine instruction, 
+and function levels of various hardware events, including: clock cycles, 
+graduated instructions, primary instruction cache misses,
+secondary instruction cache misses, primary data cache misses, 
+secondary data cache misses, translation lookaside buffer (TLB) misses, 
+and graduated floating-point instructions, amongst others.
 
 .nf
 

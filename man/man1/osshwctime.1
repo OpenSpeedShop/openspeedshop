@@ -179,8 +179,18 @@ different viewing options which allow rank to rank comparisons or
 the ability to view performance information for individual ranks 
 or groups of ranks.
 
-The hwctime experiment is used to find call path performance bottlenecks.
-Periodic sampling of the call path at the time of the sample.  This experiment 
+The hwctime experiment is used to find performance bottlenecks related to
+hardware resource constraints.  This experiment allows the user to view
+hardware counter event counts at the source line, machine instruction, 
+and function levels of various hardware events, including: clock cycles, 
+graduated instructions, primary instruction cache misses,
+secondary instruction cache misses, primary data cache misses, 
+secondary data cache misses, translation lookaside buffer (TLB) misses, 
+and graduated floating-point instructions, amongst others.
+
+The hwctime experiment also presents information to find call path 
+performance bottlenecks using periodic sampling of the call path at 
+the time of the hardware counter event threshold trigger.  This experiment 
 allows the user to view inclusive and exclusive time spent in application
 routines. It also allows the user to see which routines called which routines.  
 Several call path views are available to view the call paths that were found
