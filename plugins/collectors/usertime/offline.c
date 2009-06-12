@@ -68,8 +68,20 @@ static __thread TLS the_tls;
 
 #endif
 
+extern void usertime_start_timer();
+extern void usertime_stop_timer();
 
 void offline_finish();
+
+void offline_pause_sampling()
+{
+    usertime_stop_timer();
+}
+
+void offline_resume_sampling()
+{
+    usertime_start_timer();
+}
 
 void offline_sent_data(int sent_data)
 {
@@ -189,12 +201,13 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
     tls->finished = finished;
 
     if (finished && tls->sent_data) {
+	offline_finish();
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-	    fprintf(stderr,"offline_stop_sampling FINISHED for %d\n",getpid());
+	    fprintf(stderr,"offline_stop_sampling FINISHED for %d, %lu\n",
+		tls->dso_header.pid, tls->dso_header.posix_tid);
 	}
 #endif
-	offline_finish();
     }
 }
 
@@ -274,6 +287,9 @@ void offline_record_dso(const char* dsoname,
 #endif
     Assert(tls != NULL);
 
+    if (is_dlopen) {
+	usertime_stop_timer();
+    }
     //fprintf(stderr,"offline_record_dso called for %s, is_dlopen = %d\n",dsoname, is_dlopen);
 
     /* Initialize the offline "dso" blob's header */
@@ -306,5 +322,9 @@ void offline_record_dso(const char* dsoname,
 
     if(tls->data.objs.objs_len + tls->dsoname_len == OpenSS_OBJBufferSize) {
 	offline_send_dsos(tls);
+    }
+
+    if (is_dlopen) {
+	usertime_start_timer();
     }
 }

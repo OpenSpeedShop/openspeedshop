@@ -45,6 +45,7 @@ typedef struct {
     } buffer;
 
     int  dsoname_len;
+    int  started;
     int  finished;
     int  sent_data;
 
@@ -68,8 +69,20 @@ static __thread TLS the_tls;
 
 #endif
 
+extern void pcsamp_start_timer();
+extern void pcsamp_stop_timer();
 
 void offline_finish();
+
+void offline_pause_sampling()
+{
+    pcsamp_stop_timer();
+}
+
+void offline_resume_sampling()
+{
+    pcsamp_start_timer();
+}
 
 void offline_sent_data(int sent_data)
 {
@@ -92,7 +105,7 @@ void offline_send_dsos(TLS *tls)
     /* Send the offline "info" blob */
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"offline_stop_sampling SENDS DSOS for HOST %s, PID %d, POSIX_TID %lu\n",
+        fprintf(stderr,"offline_send_dsos SENDS DSOS for HOST %s, PID %d, POSIX_TID %lu\n",
         tls->dso_header.host, tls->dso_header.pid, tls->dso_header.posix_tid);
     }
 #endif
@@ -156,6 +169,9 @@ void offline_start_sampling(const char* in_arguments)
     tls->data.objs.objs_val = tls->buffer.objs;
 
     /* Start sampling */
+    offline_sent_data(0);
+    tls->finished = 0;
+    tls->started = 1;
     pcsamp_start_sampling(arguments);
 }
 
@@ -180,18 +196,22 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
 #endif
     Assert(tls != NULL);
 
+    if (!tls->started) {
+	return;
+    }
+
     /* Stop sampling */
     pcsamp_stop_sampling(NULL);
 
     tls->finished = finished;
 
     if (finished && tls->sent_data) {
+	offline_finish();
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	    fprintf(stderr,"offline_stop_sampling FINISHED for %d\n",getpid());
 	}
 #endif
-	offline_finish();
     }
 }
 
@@ -271,6 +291,10 @@ void offline_record_dso(const char* dsoname,
 #endif
     Assert(tls != NULL);
 
+    if (is_dlopen) {
+	pcsamp_stop_timer();
+    }
+
     //fprintf(stderr,"offline_record_dso called for %s, is_dlopen = %d\n",dsoname, is_dlopen);
 
     /* Initialize the offline "dso" blob's header */
@@ -303,5 +327,9 @@ void offline_record_dso(const char* dsoname,
 
     if(tls->data.objs.objs_len + tls->dsoname_len == OpenSS_OBJBufferSize) {
 	offline_send_dsos(tls);
+    }
+
+    if (is_dlopen) {
+	pcsamp_start_timer();
     }
 }

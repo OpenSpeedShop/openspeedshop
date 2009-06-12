@@ -73,6 +73,16 @@ extern void hwctime_resume_papi();
 extern void hwctime_suspend_papi();
 void offline_finish();
 
+void offline_pause_sampling()
+{
+    hwctime_suspend_papi();
+}
+
+void offline_resume_sampling()
+{
+    hwctime_resume_papi();
+}
+
 void offline_sent_data(int sent_data)
 {
     /* Access our thread-local storage */
@@ -178,6 +188,8 @@ void offline_start_sampling(const char* in_arguments)
     tls->data.objs.objs_val = tls->buffer.objs;
 
     /* Start sampling */
+    offline_sent_data(0);
+    tls->finished = 0;
     hwctime_start_sampling(arguments);
 }
 
@@ -208,12 +220,12 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
     tls->finished = finished;
 
     if (finished && tls->sent_data) {
+	offline_finish();
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	    fprintf(stderr,"offline_stop_sampling FINISHED for %d\n",getpid());
 	}
 #endif
-	offline_finish();
     }
 }
 

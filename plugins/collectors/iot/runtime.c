@@ -141,7 +141,7 @@ static void iot_send_events(TLS *tls)
     /* Set the end time of this data blob */
     tls->header.time_end = OpenSS_GetTime();
 
-#ifdef DEBUG
+#ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"IO Collector runtime sends data:\n");
         fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] "

@@ -73,7 +73,16 @@ static __thread TLS the_tls;
 
 #endif
 
+
 void offline_finish();
+
+void offline_pause_sampling()
+{
+}
+
+void offline_resume_sampling()
+{
+}
 
 void offline_sent_data(int sent_data)
 {
@@ -186,8 +195,6 @@ void offline_start_sampling(const char* in_arguments)
     mpit_start_tracing(arguments);
 }
 
-
-
 /**
  * Stop offline sampling.
  *
@@ -237,7 +244,6 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
 	offline_finish();
     }
 }
-
 
 void offline_finish()
 {

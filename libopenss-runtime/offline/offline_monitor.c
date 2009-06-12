@@ -54,6 +54,9 @@
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
+#include <dlfcn.h>
+#include <fcntl.h>
+#include <pthread.h>
 #include "monitor.h"
 #include "OpenSS_Monitor.h"
 
@@ -61,14 +64,18 @@ extern void offline_start_sampling(const char* arguments);
 extern void offline_stop_sampling(const char* arguments, const int finished);
 extern void offline_record_dso(const char* dsoname);
 extern void offline_defer_sampling(const int flag);
+extern void offline_pause_sampling();
+extern void offline_resume_sampling();
 
 /** Type defining the items stored in thread-local storage. */
 typedef struct {
     int debug;
     int in_mpi_pre_init;
-    int sampling_active;
+    OpenSS_Monitor_Status sampling_status;
     int process_is_terminating;
     int thread_is_terminating;
+    pthread_t tid;
+    pid_t pid;
     OpenSS_Monitor_Type OpenSS_monitor_type;
 } TLS;
 
@@ -135,7 +142,8 @@ void monitor_fini_process(int how, void *data)
 
     /*collector stop_sampling does not use the arguments param */
     if (tls->debug) {
-	fprintf(stderr,"monitor_fini_process FINISHED SAMPLING %d\n",getpid());
+	fprintf(stderr,"monitor_fini_process FINISHED SAMPLING %d,%lu\n",
+		tls->pid,tls->tid);
     }
 
     static int f = 0;
@@ -143,9 +151,14 @@ void monitor_fini_process(int how, void *data)
       raise(SIGSEGV);
     f++;
 
-    tls->sampling_active = 0;
-    tls->process_is_terminating = 1;
-    offline_stop_sampling(NULL, 1);
+    tls->sampling_status = OpenSS_Monitor_Finished;
+    if(how == MONITOR_EXIT_EXEC) {
+	tls->process_is_terminating = 1;
+	offline_stop_sampling(NULL, 1);
+    } else {
+	tls->process_is_terminating = 1;
+	offline_stop_sampling(NULL, 1);
+    }
 }
 
 void *monitor_init_process(int *argc, char **argv, void *data)
@@ -162,17 +175,26 @@ void *monitor_init_process(int *argc, char **argv, void *data)
 
     if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
 	tls->debug=1;
+
+	/* get the identifier of this thread */
+	pthread_t (*f_pthread_self)();
+	f_pthread_self = (pthread_t (*)())dlsym(RTLD_DEFAULT, "pthread_self");
+	tls->tid = (f_pthread_self != NULL) ? (*f_pthread_self)() : 0;
+
+	tls->pid = getpid();
+
     } else {
 	tls->debug=0;
     }
 
     if (tls->debug) {
-	fprintf(stderr,"monitor_init_process BEGIN SAMPLING %d\n",getpid());
+	fprintf(stderr,"monitor_init_process BEGIN SAMPLING %d,%lu\n",
+		tls->pid,tls->tid);
     }
 
     tls->in_mpi_pre_init = 0;
     tls->OpenSS_monitor_type = OpenSS_Monitor_Proc;
-    tls->sampling_active = 1;
+    tls->sampling_status = OpenSS_Monitor_Started;
     offline_start_sampling(NULL);
     return (data);
 }
@@ -206,10 +228,11 @@ void monitor_fini_thread(void *ptr)
     Assert(tls != NULL);
 
     if (tls->debug) {
-	fprintf(stderr,"monitor_fini_thread FINISHED SAMPLING %d\n",getpid());
+	fprintf(stderr,"monitor_fini_thread FINISHED SAMPLING %d,%lu\n",
+		tls->pid,tls->tid);
     }
 
-    tls->sampling_active = 0;
+    tls->sampling_status = OpenSS_Monitor_Finished;
     tls->thread_is_terminating = 1;
     offline_stop_sampling(NULL,1);
 }
@@ -228,17 +251,26 @@ void *monitor_init_thread(int tid, void *data)
 
     if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
 	tls->debug=1;
+
+	/* get the identifier of this thread */
+	pthread_t (*f_pthread_self)();
+	f_pthread_self = (pthread_t (*)())dlsym(RTLD_DEFAULT, "pthread_self");
+	tls->tid = (f_pthread_self != NULL) ? (*f_pthread_self)() : 0;
+
+	tls->pid = getpid();
+
     } else {
 	tls->debug=0;
     }
 
     if (tls->debug) {
-	fprintf(stderr,"monitor_init_thread BEGIN SAMPLING %d\n",getpid());
+	fprintf(stderr,"monitor_init_thread BEGIN SAMPLING %d,%lu\n",
+		tls->pid,tls->tid);
     }
 
     tls->in_mpi_pre_init = 0;
     tls->OpenSS_monitor_type = OpenSS_Monitor_Thread;
-    tls->sampling_active = 1;
+    tls->sampling_status = OpenSS_Monitor_Started;
     offline_start_sampling(NULL);
     return(data);
 }
@@ -264,12 +296,13 @@ void monitor_dlopen(const char *library, int flags, void *handle)
      * if OpenSS_GetDLInfo does not handle errors do so here.
      */
     int retval = OpenSS_GetDLInfo(getpid(), library);
-    if (!tls->sampling_active && !tls->in_mpi_pre_init) {
+    if (tls->sampling_status == OpenSS_Monitor_Paused && !tls->in_mpi_pre_init) {
         if (tls->debug) {
-	    fprintf(stderr,"monitor_dlopen RESUME SAMPLING %d\n",getpid());
+	    fprintf(stderr,"monitor_dlopen RESUME SAMPLING %d,%lu\n",
+		tls->pid,tls->tid);
         }
-	tls->sampling_active = 1;
-	offline_start_sampling(NULL);
+	tls->sampling_status = OpenSS_Monitor_Resumed;
+	offline_resume_sampling();
     }
 }
 
@@ -284,12 +317,14 @@ monitor_pre_dlopen(const char *path, int flags)
 #endif
     Assert(tls != NULL);
 
-    if (tls->sampling_active && !tls->in_mpi_pre_init) {
+    if ((tls->sampling_status == OpenSS_Monitor_Started ||
+	 tls->sampling_status == OpenSS_Monitor_Paused) && !tls->in_mpi_pre_init) {
         if (tls->debug) {
-	    fprintf(stderr,"monitor_pre_dlopen PAUSE SAMPLING %d\n",getpid());
+	    fprintf(stderr,"monitor_pre_dlopen PAUSE SAMPLING %d,%lu\n",
+		tls->pid,tls->tid);
         }
-	tls->sampling_active = 0;
-	offline_stop_sampling(NULL,0);
+	tls->sampling_status = OpenSS_Monitor_Paused;
+	offline_pause_sampling();
     }
 }
 
@@ -305,12 +340,14 @@ monitor_dlclose(void *handle)
     Assert(tls != NULL);
 
     if (!tls->thread_is_terminating || !tls->process_is_terminating) {
-	if (tls->sampling_active && !tls->in_mpi_pre_init) {
+	if ((tls->sampling_status == OpenSS_Monitor_Started ||
+	     tls->sampling_status == OpenSS_Monitor_Resumed) && !tls->in_mpi_pre_init) {
             if (tls->debug) {
-	        fprintf(stderr,"monitor_dlclose PAUSE SAMPLING %d\n",getpid());
+	        fprintf(stderr,"monitor_dlclose PAUSE SAMPLING %d,%lu\n",
+		    tls->pid,tls->tid);
             }
-	    tls->sampling_active = 0;
-	    offline_stop_sampling(NULL,0);
+	    tls->sampling_status = OpenSS_Monitor_Paused;
+	    offline_pause_sampling();
 	}
     }
 }
@@ -327,12 +364,13 @@ monitor_post_dlclose(void *handle, int ret)
     Assert(tls != NULL);
 
     if (!tls->thread_is_terminating || !tls->process_is_terminating) {
-	if (!tls->sampling_active && !tls->in_mpi_pre_init) {
+	if (tls->sampling_status == OpenSS_Monitor_Paused && !tls->in_mpi_pre_init) {
             if (tls->debug) {
-	        fprintf(stderr,"monitor_post_dlclose RESUME SAMPLING %d\n",getpid());
+	        fprintf(stderr,"monitor_post_dlclose RESUME SAMPLING %d,%lu\n",
+		    tls->pid,tls->tid);
             }
-	    tls->sampling_active = 1;
-	    offline_start_sampling(NULL);
+	    tls->sampling_status = OpenSS_Monitor_Resumed;
+	    offline_resume_sampling();
 	}
     }
 }
@@ -351,11 +389,13 @@ void * monitor_pre_fork(void)
     Assert(tls != NULL);
 
     /* Stop sampling prior to real fork. */
-    if (tls->sampling_active) {
+    if (tls->sampling_status == OpenSS_Monitor_Paused ||
+	tls->sampling_status == OpenSS_Monitor_Started) {
         if (tls->debug) {
-	     fprintf(stderr,"monitor_pre_fork FINISHED SAMPLING %d\n",getpid());
+	    fprintf(stderr,"monitor_pre_fork FINISHED SAMPLING %d,%lu\n",
+		    tls->pid,tls->tid);
         }
-	tls->sampling_active = 0;
+	tls->sampling_status = OpenSS_Monitor_Finished;
 	offline_stop_sampling(NULL,1);
     }
     return (NULL);
@@ -372,12 +412,14 @@ void monitor_post_fork(pid_t child, void *data)
     Assert(tls != NULL);
 
     /* Resume/start sampling forked process. */
-    if (!tls->sampling_active) {
+    if (tls->sampling_status == OpenSS_Monitor_Paused ||
+	tls->sampling_status == OpenSS_Monitor_Finished) {
         if (tls->debug) {
-	     fprintf(stderr,"monitor_post_fork STARTS SAMPLING %d\n",getpid());
+	    fprintf(stderr,"monitor_post_fork BEGIN SAMPLING %d,%lu\n",
+		    tls->pid,tls->tid);
         }
 	tls->OpenSS_monitor_type = OpenSS_Monitor_Proc;
-	tls->sampling_active = 1;
+	tls->sampling_status = 1;
 	offline_start_sampling(NULL);
     }
 }
@@ -398,12 +440,13 @@ void monitor_mpi_pre_init(void)
 
     tls->in_mpi_pre_init = 1;
 
-    if (tls->sampling_active) {
+    if (tls->sampling_status == OpenSS_Monitor_Started) {
         if (tls->debug) {
-	     fprintf(stderr,"monitor_mpi_pre_init PAUSE SAMPLING %d\n",getpid());
+	    fprintf(stderr,"monitor_mpi_pre_init PAUSE SAMPLING %d,%lu\n",
+		    tls->pid,tls->tid);
         }
-	tls->sampling_active = 0;
-	offline_stop_sampling(NULL,0);
+	tls->sampling_status = OpenSS_Monitor_Paused;
+	offline_pause_sampling();
     }
 }
 
@@ -418,13 +461,14 @@ monitor_init_mpi(int *argc, char ***argv)
 #endif
     Assert(tls != NULL);
 
-    if (!tls->sampling_active) {
+    if (tls->sampling_status == OpenSS_Monitor_Paused) {
         if (tls->debug) {
-	     fprintf(stderr,"monitor_init_mpi RESUME SAMPLING %d\n",getpid());
+	    fprintf(stderr,"monitor_init_mpi RESUME SAMPLING %d,%lu\n",
+		    tls->pid,tls->tid);
         }
-	tls->sampling_active = 1;
+	tls->sampling_status = OpenSS_Monitor_Resumed;
 	tls->OpenSS_monitor_type = OpenSS_Monitor_Proc;
-	offline_start_sampling(NULL);
+	offline_resume_sampling();
     }
 
     tls->in_mpi_pre_init = 0;
@@ -440,6 +484,7 @@ void monitor_fini_mpi(void)
 #endif
     Assert(tls != NULL);
     if (tls->debug) {
-	fprintf(stderr,"monitor_fini_mpi CALLED %d\n",getpid());
+	fprintf(stderr,"monitor_fini_mpi CALLED %d,%lu\n",
+		tls->pid,tls->tid);
     }
 }

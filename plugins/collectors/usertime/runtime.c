@@ -1,7 +1,7 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 ** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-** Copyright (c) 2007 Krell Institute.  All Rights Reserved.
+** Copyright (c) 2007,2008,2009 Krell Institute.  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -64,7 +64,7 @@ typedef struct {
 				    /**< another instance of this stack may */
 				    /**< exist in buffer bt. */
     } buffer;    
-    
+
 } TLS;
 
 #ifdef USE_EXPLICIT_TLS
@@ -84,11 +84,8 @@ static __thread TLS the_tls;
 
 #endif
 
-#if defined(OPENSS_OFFLINE)
-extern void offline_sent_data(int);
-#endif
-
 #if defined (OPENSS_OFFLINE)
+extern void offline_sent_data(int);
 static void usertimeTimerHandler(const ucontext_t* context);
 
 void usertime_start_timer()
@@ -130,7 +127,7 @@ static void send_samples(TLS *tls)
     OpenSS_Send(&(tls->header),(xdrproc_t)xdr_usertime_data,&(tls->data));
 
 #if defined(OPENSS_OFFLINE)
-        offline_sent_data(1);
+    offline_sent_data(1);
 #endif
 
     /* Re-initialize the data blob's header */
@@ -339,16 +336,17 @@ void usertime_start_sampling(const char* arguments)
  */
 void usertime_stop_sampling(const char* arguments)
 {
-    /* Stop sampling */
-    OpenSS_Timer(0, NULL);
-
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
     TLS* tls = OpenSS_GetTLS(TLSKey);
 #else
     TLS* tls = &the_tls;
 #endif
+
     Assert(tls != NULL);
+
+    /* Stop sampling */
+    OpenSS_Timer(0, NULL);
 
     tls->header.time_end = OpenSS_GetTime();
 

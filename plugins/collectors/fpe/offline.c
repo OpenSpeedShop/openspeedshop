@@ -72,6 +72,14 @@ static __thread TLS the_tls;
 
 void offline_finish();
 
+void offline_pause_sampling()
+{
+}
+
+void offline_resume_sampling()
+{
+}
+
 void offline_sent_data(int sent_data)
 {
     /* Access our thread-local storage */

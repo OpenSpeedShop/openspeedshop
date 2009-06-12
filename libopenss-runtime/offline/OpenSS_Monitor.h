@@ -40,6 +40,13 @@ typedef enum {
     OpenSS_Monitor_Default
 } OpenSS_Monitor_Type;
 
+typedef enum {
+    OpenSS_Monitor_Started,
+    OpenSS_Monitor_Finished,
+    OpenSS_Monitor_Paused,
+    OpenSS_Monitor_Resumed
+} OpenSS_Monitor_Status;
+
 #ifdef  __cplusplus
 }
 #endif

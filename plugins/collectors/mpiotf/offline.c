@@ -73,7 +73,16 @@ static __thread TLS the_tls;
 
 #endif
 
+
 void offline_finish();
+
+void offline_pause_sampling()
+{
+}
+
+void offline_resume_sampling()
+{
+}
 
 void offline_sent_data(int sent_data)
 {
@@ -186,7 +195,6 @@ void offline_start_sampling(const char* in_arguments)
     mpiotf_start_tracing(arguments);
 }
 
-
 /**
  * Stop offline sampling.
  *
@@ -263,7 +271,7 @@ void offline_finish()
     OpenSS_InitializeParameters(&info);
     info.collector = strdup("mpiotf");
     info.exename = strdup(OpenSS_GetExecutablePath());
-    info.rank = monitor_mpi_comm_rank();
+    info.rank = OpenSS_mpi_rank;
 
     /* Access the environment-specified arguments */
     const char* mpiotf_traced = getenv("OPENSS_MPIOTF_TRACED");

@@ -73,6 +73,16 @@ extern void defer_trace(int);
 
 void offline_finish();
 
+void offline_pause_sampling()
+{
+    defer_trace(0);
+}
+
+void offline_resume_sampling()
+{
+    defer_trace(1);
+}
+
 void offline_sent_data(int sent_data)
 {
     /* Access our thread-local storage */
@@ -183,10 +193,10 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
 #endif
     Assert(tls != NULL);
 
+    defer_trace(0);
+
     /* Stop sampling */
     io_stop_tracing(NULL);
-
-    defer_trace(0);
 
     tls->finished = finished;
 

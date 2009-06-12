@@ -1,7 +1,7 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 ** Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
-** Copyright (c) 2007 Krell Institute.  All Rights Reserved.
+** Copyright (c) 2007,2008,2009 Krell Institute.  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -213,16 +213,17 @@ void pcsamp_start_sampling(const char* arguments)
  */
 void pcsamp_stop_sampling(const char* arguments)
 {
-    /* Stop sampling */
-    OpenSS_Timer(0, NULL);
-
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
     TLS* tls = OpenSS_GetTLS(TLSKey);
 #else
     TLS* tls = &the_tls;
 #endif
+
     Assert(tls != NULL);
+
+    /* Stop sampling */
+    OpenSS_Timer(0, NULL);
 
     tls->header.time_end = OpenSS_GetTime();
 
