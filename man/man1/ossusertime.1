@@ -43,7 +43,7 @@ is a single word command with no arguments.
 
 .IP " ""executable args"" "
 This option specifies an executable with arguments to be run. In
-this case the executable can be a one word command or a multiword
+this case the executable can be a one word command or a multiple word
 command, such as a mpi command specification. For example:
 
         "simple_executable -n 40 40 40"
@@ -56,9 +56,9 @@ Open|SpeedShop requires quotes around the executable and arguments when
 the executable command is not simple.
 
 .IP " ""multi_executable [args]"" "
-This option specifies a multi word executable with or without
-arguments to be run. In this case the executable is multi word 
-command or a multiword command, such as a mpi command 
+This option specifies a multiple word executable with or without
+arguments to be run. In this case the executable is multiple word 
+command or a multiple word command, such as a mpi command 
 specification. For example: 
 
         "/opt/mpi/mpirun -np 64 ./executable_name" 
@@ -96,7 +96,7 @@ the program is spending most of its time and what routines called other
 routines.  The default sampling rate is 35 times per second.  If 
 this rate is changed to be higher, more samples will be taken and, 
 of course, lower the sampling rate reduces the number of samples taken.  
-The effect of raising the sampling rate is more pertibation of the application
+The effect of raising the sampling rate is more perturbation of the application
 and a larger Open|SpeedShop performance experiment database file, but also, 
 perhaps, a more accurate statistical sampling of where the program is 
 spending its time.

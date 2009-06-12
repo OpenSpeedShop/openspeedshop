@@ -57,7 +57,7 @@ hwc                Hardware counter event counts at the source line,
                    graduated floating-point instructions, amongst 
                    others.
 
-hwctime            Similar to hwc experiment, except that callstack 
+hwctime            Similar to hwc experiment, except that call path 
                    sampling is also included/used.
 
 io                 Use to find I/O performance bottlenecks.
@@ -141,7 +141,9 @@ is a single word command with no arguments.
 .IP "-f ""executable args"" "
 This option specifies an executable with arguments to be run. In
 this case the executable can be a one word command or a multiword
-command, such as a mpi command specification. For example:
+(multiple tokens) command, such as a mpi command specification. 
+For example:
+.nf
 
         -f "simple_executable -n 40 40 40"
 
@@ -149,6 +151,7 @@ or
 
         -f "/opt/mpi/mpirun -np 64 ./executable_name" 
 
+.fi
 Open|SpeedShop requires quotes around the executable and arguments when 
 the executable command is not simple.
 
@@ -195,7 +198,7 @@ preferences available.
 .RS
 The online mode of Open|SpeedShop will create MRNet topology files
 in the ~/.openspeedshop directory.  The MRNet topology files allow
-the MRNet component to know the hostnames for all the nodes that will
+the MRNet component to know the host names for all the nodes that will
 be a part of the Open|SpeedShop performance experiment and uses this
 information to communicate with Open|SpeedShop.  Commands and 
 performance data are passed between Open|SpeedShop and the nodes 
@@ -216,7 +219,7 @@ the performance information from each process on all the
 nodes of the cluster involved in the experiment.
 .IP OPENSS_MPI_IMPLEMENTATION
 If the module, dotkit, or set-up script that is used to load the
-runtime environment of Open|SpeedShop doesn't disguish or specify
+runtime environment of Open|SpeedShop doesn't distinguish or specify
 the MPI implementation inside the module, dotkit, or script, then
 this variable may be needed.  This environment variable is only
 needed if the user is running one of the MPI experiments (mpi,
