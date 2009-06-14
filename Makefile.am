@@ -32,6 +32,7 @@ BASE_SUBDIRS = \
 	plugins \
 	openss \
 	doc \
+	man \
 	sanity \
 	usability
 
