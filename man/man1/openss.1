@@ -239,7 +239,10 @@ the performance information from each process on all the
 nodes of the cluster involved in the experiment.  The online 
 version of Open|SpeedShop can also use this variable to take 
 advantage of faster file systems, but it is not required in the
-same sense as it is when running in offline mode.
+same sense as it is when running in offline mode.  If /tmp is not
+a shared file system and OPENSS_RAWDATA_DIR is not set, then the
+performance data from the nodes where /tmp is not shared will not
+be available in the Open|SpeedShop view of the experiment data.
 .IP OPENSS_MPI_IMPLEMENTATION
 If the module, dotkit, or set-up script that is used to load the
 runtime environment of Open|SpeedShop doesn't distinguish or specify
