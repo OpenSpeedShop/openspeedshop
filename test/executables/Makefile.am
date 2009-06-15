@@ -18,6 +18,7 @@
 #
 # directories that will be built
 SUBDIRS = \
+        mpi\
 	mutatee\
 	forever \
 	forever_cxx  \
@@ -35,6 +36,7 @@ SUBDIRS = \
 # these can be a subset of the directories in SUBDIRS.
 #
 DIST_SUBDIRS = \
+        mpi\
 	mutatee\
 	Eon \
 	forever \
