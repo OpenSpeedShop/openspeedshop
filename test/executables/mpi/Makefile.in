@@ -31,7 +31,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@HAVE_MPI_TRUE@am__append_1 = nbody smg2000
+@HAVE_MPI_TRUE@am__append_1 = nbody smg2000 helloworld
 subdir = executables/mpi
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -171,6 +171,7 @@ MVAPICH2_DIR = @MVAPICH2_DIR@
 MVAPICH2_HEADER = @MVAPICH2_HEADER@
 MVAPICH2_LDFLAGS = @MVAPICH2_LDFLAGS@
 MVAPICH2_LIBS = @MVAPICH2_LIBS@
+MVAPICH2_NULL = @MVAPICH2_NULL@
 MVAPICH_CC = @MVAPICH_CC@
 MVAPICH_CPPFLAGS = @MVAPICH_CPPFLAGS@
 MVAPICH_DIR = @MVAPICH_DIR@
@@ -321,7 +322,7 @@ SUBDIRS = $(am__append_1)
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 #
-DIST_SUBDIRS = nbody smg2000
+DIST_SUBDIRS = nbody smg2000 helloworld
 all: all-recursive
 
 .SUFFIXES:

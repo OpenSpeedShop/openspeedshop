@@ -236,6 +236,7 @@ AC_CONFIG_FILES(
         executables/deep_callpath/Makefile
         executables/threads/Makefile
         executables/mpi/Makefile
+	executables/mpi/helloworld/Makefile
         executables/mpi/smg2000/Makefile
         executables/mpi/smg2000/krylov/Makefile
         executables/mpi/smg2000/struct_ls/Makefile

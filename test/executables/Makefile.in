@@ -170,6 +170,7 @@ MVAPICH2_DIR = @MVAPICH2_DIR@
 MVAPICH2_HEADER = @MVAPICH2_HEADER@
 MVAPICH2_LDFLAGS = @MVAPICH2_LDFLAGS@
 MVAPICH2_LIBS = @MVAPICH2_LIBS@
+MVAPICH2_NULL = @MVAPICH2_NULL@
 MVAPICH_CC = @MVAPICH_CC@
 MVAPICH_CPPFLAGS = @MVAPICH_CPPFLAGS@
 MVAPICH_DIR = @MVAPICH_DIR@
@@ -315,6 +316,7 @@ topdir_execprefix = @topdir_execprefix@
 #
 # directories that will be built
 SUBDIRS = \
+        mpi\
 	mutatee\
 	forever \
 	forever_cxx  \
@@ -333,6 +335,7 @@ SUBDIRS = \
 # these can be a subset of the directories in SUBDIRS.
 #
 DIST_SUBDIRS = \
+        mpi\
 	mutatee\
 	Eon \
 	forever \

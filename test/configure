@@ -962,6 +962,7 @@ MVAPICH2_LDFLAGS
 MVAPICH2_LIBS
 MVAPICH2_HEADER
 MVAPICH2_DIR
+MVAPICH2_NULL
 HAVE_MPT_TRUE
 HAVE_MPT_FALSE
 MPT_CC
@@ -5676,7 +5677,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5679 "configure"' > conftest.$ac_ext
+  echo '#line 5680 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7682,11 +7683,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7685: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7686: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7689: \$? = $ac_status" >&5
+   echo "$as_me:7690: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7972,11 +7973,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7975: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7976: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7979: \$? = $ac_status" >&5
+   echo "$as_me:7980: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8076,11 +8077,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8079: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8080: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8083: \$? = $ac_status" >&5
+   echo "$as_me:8084: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10427,7 +10428,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10430 "configure"
+#line 10431 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10527,7 +10528,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10530 "configure"
+#line 10531 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12947,11 +12948,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12950: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12951: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:12954: \$? = $ac_status" >&5
+   echo "$as_me:12955: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13051,11 +13052,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13054: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13055: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13058: \$? = $ac_status" >&5
+   echo "$as_me:13059: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14615,11 +14616,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14618: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14619: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14622: \$? = $ac_status" >&5
+   echo "$as_me:14623: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -14719,11 +14720,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14722: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14723: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14726: \$? = $ac_status" >&5
+   echo "$as_me:14727: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16908,11 +16909,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16911: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16912: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16915: \$? = $ac_status" >&5
+   echo "$as_me:16916: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17198,11 +17199,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17201: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17202: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17205: \$? = $ac_status" >&5
+   echo "$as_me:17206: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17302,11 +17303,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17305: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17306: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17309: \$? = $ac_status" >&5
+   echo "$as_me:17310: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -21984,7 +21985,7 @@ echo $ECHO_N "checking for MPICH library and headers... $ECHO_C" >&6; }
 
     CC="$MPICH_CC"
     CPPFLAGS="$CPPFLAGS $MPICH_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
+    LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
 
     cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -22023,7 +22024,9 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  found_mpich=1
+  if ( (test -f $mpich_dir/$abi_libdir/shared/libmpich.so) ) ; then
+	    found_mpich=1
+        fi
 
 
 else
@@ -22054,11 +22057,14 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
     else
+        { echo "$as_me:$LINENO: result: Temporary output: found_mpich=$found_mpich" >&5
+echo "${ECHO_T}Temporary output: found_mpich=$found_mpich" >&6; }
         # Try again looking in the alternative lib dir with no driver
         { echo "$as_me:$LINENO: checking for MPICH alternative library and headers with no mpich_driver specified" >&5
 echo $ECHO_N "checking for MPICH alternative library and headers with no mpich_driver specified... $ECHO_C" >&6; }
         MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
-        LDFLAGS="$LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
+#        MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir -L$mpich_dir/$alt_abi_libdir/libmpich.a"
+        LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
 
         cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -22097,7 +22103,9 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  found_mpich=1
+  if ( (test -f $mpich_dir/$alt_abi_libdir/libmpich.so) ) ; then
+    	        found_mpich=1
+            fi
 
 
 else
@@ -22128,12 +22136,15 @@ _ACEOF
 
 
         else
+             { echo "$as_me:$LINENO: result: Temporary output: found_mpich=$found_mpich" >&5
+echo "${ECHO_T}Temporary output: found_mpich=$found_mpich" >&6; }
 
              # Try again looking in the normal lib dir with no driver
              { echo "$as_me:$LINENO: checking for MPICH normal lib library and headers with no mpich_driver specified" >&5
 echo $ECHO_N "checking for MPICH normal lib library and headers with no mpich_driver specified... $ECHO_C" >&6; }
-             MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
-             LDFLAGS="$LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
+             MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+#             MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir -L$mpich_dir/$abi_libdir/libmpich.a"
+             LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
 
              cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -22172,7 +22183,9 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  found_mpich=1
+  if ( (test -f $mpich_dir/$abi_libdir/libmpich.so) ) ; then
+	           found_mpich=1
+                 fi
 
 
 else
@@ -22263,9 +22276,10 @@ echo $ECHO_N "checking for MPICH2 library and headers... $ECHO_C" >&6; }
     MPICH2_CC="$mpich2_dir/bin/mpicc"
 #    MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
     MPICH2_CPPFLAGS="-I$mpich2_dir/include"
-    MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir -L$mpich2_dir/$abi_libdir/libmpich.a"
-#    MPICH2_LIBS="-lmpich"
-    MPICH2_LIBS=""
+    MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+#    MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir -L$mpich2_dir/$abi_libdir/libmpich.a"
+    MPICH2_LIBS="-lmpich"
+#    MPICH2_LIBS=""
     MPICH2_HEADER="$mpich2_dir/include/mpi.h"
     MPICH2_DIR="$mpich2_dir"
 
@@ -22322,9 +22336,14 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  if ( (test -f $mpich2_dir/$abi_libdir/libmpich.a) ||
-             (test -f $mpich2_dir/$abi_libdir/shared/libmpich.so) ) ; then
+  if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
 	    found_mpich2=1
+            MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+        fi
+
+        if (test -f $mpich2_dir/$abi_libdir/shared/libmpich.so); then
+	    found_mpich2=1
+            MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir/shared -L$mpich2_dir/$abi_libdir"
         fi
 
 
@@ -22349,9 +22368,10 @@ echo $ECHO_N "checking for MPICH2 library (alt locations) and headers... $ECHO_C
        MPICH2_CC="$mpich2_dir/bin/mpicc"
 #       MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
        MPICH2_CPPFLAGS="-I$mpich2_dir/include"
-       MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir -L$mpich2_dir/$alt_abi_libdir/libmpich.a"
-#       MPICH2_LIBS="-lmpich"
-       MPICH2_LIBS=""
+       MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir"
+#       MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir -L$mpich2_dir/$alt_abi_libdir/libmpich.a"
+       MPICH2_LIBS="-lmpich"
+#       MPICH2_LIBS=""
        MPICH2_HEADER="$mpich2_dir/include/mpi.h"
        MPICH2_DIR="$mpich2_dir"
 
@@ -22396,9 +22416,14 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  if ( (test -f $mpich2_dir/$alt_abi_libdir/libmpich.a) ||
-              (test -f $mpich2_dir/$alt_abi_libdir/shared/libmpich.so) ) ; then
-	     found_mpich2=1
+  if (test -f $mpich2_dir/$alt_abi_libdir/libmpich.so) ; then
+            MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir"
+	    found_mpich2=1
+         fi
+
+         if (test -f $mpich2_dir/$alt_abi_libdir/shared/libmpich.so) ; then
+            MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir/shared -L$mpich2_dir/$alt_abi_libdir"
+	    found_mpich2=1
          fi
 
 
@@ -22488,7 +22513,7 @@ echo $ECHO_N "checking for MVAPICH library and headers... $ECHO_C" >&6; }
     MVAPICH_CC="$mvapich_dir/bin/mpicc -shlib"
     MVAPICH_CPPFLAGS="-I$mvapich_dir/include"
     MVAPICH_LDFLAGS="-L$mvapich_dir/$abi_libdir"
-    MVAPICH_LIBS="-lmpich -libverbs"
+    MVAPICH_LIBS="-lmpich -libverbs -libumad -libcommon"
     MVAPICH_HEADER="$mvapich_dir/include/mpi.h"
     MVAPICH_DIR="$mvapich_dir"
 
@@ -22545,8 +22570,13 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  if ( (test -f $mvapich_dir/$abi_libdir/libmpich.a) ||
-             (test -f $mvapich_dir/$abi_libdir/shared/libmpich.so) ) ; then
+  if (test -f $mvapich_dir/$abi_libdir/libmpich.so); then
+            MVAPICH_LDFLAGS="-L$mvapich_dir/$abi_libdir"
+            found_mvapich=1
+        fi
+
+        if (test -f $mvapich_dir/$abi_libdir/shared/libmpich.so); then
+            MVAPICH_LDFLAGS="-L$mvapich_dir/$abi_libdir/shared -L$mvapich_dir/$abi_libdir"
             found_mvapich=1
         fi
 
@@ -22571,7 +22601,7 @@ echo $ECHO_N "checking for MVAPICH library (alt locations) and headers... $ECHO_
        MVAPICH_CC="$mvapich_dir/bin/mpicc -shlib"
        MVAPICH_CPPFLAGS="-I$mvapich_dir/include"
        MVAPICH_LDFLAGS="-L$mvapich_dir/$alt_abi_libdir"
-       MVAPICH_LIBS="-lmpich -libverbs"
+       MVAPICH_LIBS="-lmpich -libverbs -libumad -libcommon"
        MVAPICH_HEADER="$mvapich_dir/include/mpi.h"
        MVAPICH_DIR="$mvapich_dir"
 
@@ -22616,9 +22646,14 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  if ( (test -f $mvapich_dir/$alt_abi_libdir/libmpich.a) ||
-              (test -f $mvapich_dir/$alt_abi_libdir/shared/libmpich.so) ) ; then
-	     found_mvapich=1
+  if (test -f $mvapich_dir/$alt_abi_libdir/libmpich.so); then
+             MVAPICH_LDFLAGS="-L$mvapich_dir/$alt_abi_libdir"
+             found_mvapich=1
+         fi
+
+         if (test -f $mvapich_dir/$alt_abi_libdir/shared/libmpich.so); then
+             MVAPICH_LDFLAGS="-L$mvapich_dir/$alt_abi_libdir/shared -L$mvapich_dir/$alt_abi_libdir"
+             found_mvapich=1
          fi
 
 
@@ -22715,6 +22750,7 @@ echo $ECHO_N "checking for MVAPICH2 library and headers... $ECHO_C" >&6; }
     MVAPICH2_LIBS="-lmpich -libverbs -libcommon"
     MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
     MVAPICH2_DIR="$mvapich2_dir"
+    MVAPICH2_NULL=""
 
     # On the systems "mcr" and "thunder" at LLNL they have an MPICH variant
     # that has things moved around a bit. Handle this by allowing a "llnl"
@@ -22769,9 +22805,14 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  if ( (test -f $mvapich2_dir/$abi_libdir/libmpich.a) ||
-             (test -f $mvapich2_dir/$abi_libdir/shared/libmpich.so) ) ; then
+  if (test -f $mvapich2_dir/$abi_libdir/libmpich.so); then
+             found_mvapich2=1
+             MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir -L$mvapich2_ofed_dir/$abi_libdir"
+         fi
+
+         if (test -f $mvapich2_dir/$abi_libdir/shared/libmpich.so); then
 	    found_mvapich2=1
+            MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir/shared -L$mvapich2_ofed_dir/$abi_libdir"
         fi
 
 
@@ -22799,6 +22840,7 @@ echo $ECHO_N "checking for MVAPICH2 library (alt locations) and headers... $ECHO
        MVAPICH2_LIBS="-lmpich -libverbs -libcommon"
        MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
        MVAPICH2_DIR="$mvapich2_dir"
+       MVAPICH2_NULL=""
 
        CC="$MVAPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
@@ -22841,9 +22883,14 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  if ( (test -f $mvapich2_dir/$alt_abi_libdir/libmpich.a) ||
-               (test -f $mvapich2_dir/$alt_abi_libdir/shared/libmpich.so) ) ; then
+  if (test -f $mvapich2_dir/$alt_abi_libdir/libmpich.so); then
 	    found_mvapich2=1
+            MVAPICH2_LDFLAGS="-L$mvapich2_dir/$alt_abi_libdir -L$mvapich2_ofed_dir/$alt_abi_libdir"
+          fi
+
+          if (test -f $mvapich2_dir/$alt_abi_libdir/shared/libmpich.so); then
+	    found_mvapich2=1
+            MVAPICH2_LDFLAGS="-L$mvapich2_dir/$alt_abi_libdir/shared -L$mvapich2_ofed_dir/$alt_abi_libdir"
           fi
 
 
@@ -22896,7 +22943,9 @@ fi
 	MVAPICH2_LIBS=""
 	MVAPICH2_HEADER=""
 	MVAPICH2_DIR=""
+        MVAPICH2_NULL=""
     fi
+
 
 
 
@@ -23787,7 +23836,7 @@ fi
 	    PAPI_LIBS="-lpapi -lpfm"
             ;;
 	*)
-	    PAPI_LIBS="-lpapi -lperfctr"
+	    PAPI_LIBS="-lpapi -lperfctr -lpfm"
             ;;
     esac
 
@@ -23907,9 +23956,11 @@ if test "${with_python+set}" = set; then
   withval=$with_python;  if test "$withval" != "yes"
                   then
                     PYTHON="$withval/bin/python"
+                    python_dir="$withval"
                     { echo "$as_me:$LINENO: result: $withval" >&5
 echo "${ECHO_T}$withval" >&6; }
                   else
+                    python_dir="/usr"
                     { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
                   fi
@@ -23967,63 +24018,22 @@ echo "$as_me: error: Cannot find python$PYTHON_VERSION in your system path" >&2;
    { (exit 1); exit 1; }; }
         fi
 
-        #
-        # Check for a version of Python >= 2.1.0
-        #
-        { echo "$as_me:$LINENO: checking for a version of Python >= '2.1.0'" >&5
-echo $ECHO_N "checking for a version of Python >= '2.1.0'... $ECHO_C" >&6; }
-        ac_supports_python_ver=`$PYTHON -c "import sys, string; \
-                ver = string.split(sys.version)[0]; \
-                print ver >= '2.1.0'"`
-        if test "$ac_supports_python_ver" != "True"; then
-                if test -z "$PYTHON_NOVERSIONCHECK"; then
-                        { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-                        { { echo "$as_me:$LINENO: error:
-This version of the AC_PYTHON_DEVEL macro
-doesn't work properly with versions of Python before
-2.1.0. You may need to re-run configure, setting the
-variables PYTHON_CPPFLAGS, PYTHON_LDFLAGS, PYTHON_SITE_PKG,
-PYTHON_EXTRA_LIBS and PYTHON_EXTRA_LDFLAGS by hand.
-Moreover, to disable this check, set PYTHON_NOVERSIONCHECK
-to something else than an empty string.
-
-See \`config.log' for more details." >&5
-echo "$as_me: error:
-This version of the AC_PYTHON_DEVEL macro
-doesn't work properly with versions of Python before
-2.1.0. You may need to re-run configure, setting the
-variables PYTHON_CPPFLAGS, PYTHON_LDFLAGS, PYTHON_SITE_PKG,
-PYTHON_EXTRA_LIBS and PYTHON_EXTRA_LDFLAGS by hand.
-Moreover, to disable this check, set PYTHON_NOVERSIONCHECK
-to something else than an empty string.
-
-See \`config.log' for more details." >&2;}
-   { (exit 1); exit 1; }; }                else
-                        { echo "$as_me:$LINENO: result: skip at user request" >&5
-echo "${ECHO_T}skip at user request" >&6; }
-                fi
-        else
-                { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-        fi
-
-        #
-        # if the macro parameter ``version'' is set, honour it
-        #
-        if test -n ">= '2.3'"; then
-                { echo "$as_me:$LINENO: checking for a version of Python >= '2.3'" >&5
+    #
+    # if the macro parameter ``version'' is set, honour it
+    #
+    if test -n ">= '2.3'"; then
+            { echo "$as_me:$LINENO: checking for a version of Python >= '2.3'" >&5
 echo $ECHO_N "checking for a version of Python >= '2.3'... $ECHO_C" >&6; }
-                ac_supports_python_ver=`$PYTHON -c "import sys, string; \
-                        ver = string.split(sys.version)[0]; \
-                        print ver >= '2.3'"`
-                if test "$ac_supports_python_ver" = "True"; then
-                   { echo "$as_me:$LINENO: result: yes" >&5
+            ac_supports_python_ver=`$PYTHON -c "import sys, string; \
+                    ver = string.split(sys.version)[0]; \
+                    print ver >= '2.3'"`
+            if test "$ac_supports_python_ver" = "True"; then
+               { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
-                else
-                        { echo "$as_me:$LINENO: result: no" >&5
+            else
+                    { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
-                        { { echo "$as_me:$LINENO: error: this package requires Python >= '2.3'.
+                    { { echo "$as_me:$LINENO: error: this package requires Python >= '2.3'.
 If you have it installed, but it isn't the default Python
 interpreter in your system path, please pass the PYTHON_VERSION
 variable to configure. See \`\`configure --help'' for reference.
@@ -24033,115 +24043,152 @@ If you have it installed, but it isn't the default Python
 interpreter in your system path, please pass the PYTHON_VERSION
 variable to configure. See \`\`configure --help'' for reference.
 " >&2;}
-   { (exit 1); exit 1; }; }                fi
-        fi
+   { (exit 1); exit 1; }; }            fi
+    fi
 
-        #
-        # Check if you have distutils, else fail
-        #
-        { echo "$as_me:$LINENO: checking for the distutils Python package" >&5
+    #
+    # Check if you have distutils, else fail
+    #
+    { echo "$as_me:$LINENO: checking for the distutils Python package" >&5
 echo $ECHO_N "checking for the distutils Python package... $ECHO_C" >&6; }
-        ac_distutils_result=`$PYTHON -c "import distutils" 2>&1`
-        if test -z "$ac_distutils_result"; then
-                { echo "$as_me:$LINENO: result: yes" >&5
+    ac_distutils_result=`$PYTHON -c "import distutils" 2>&1`
+    if test -z "$ac_distutils_result"; then
+            { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
-        else
-                { echo "$as_me:$LINENO: result: no" >&5
+    else
+            { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
-                { { echo "$as_me:$LINENO: error: cannot import Python module \"distutils\".
+            { { echo "$as_me:$LINENO: error: cannot import Python module \"distutils\".
 Please check your Python installation. The error was:
 $ac_distutils_result" >&5
 echo "$as_me: error: cannot import Python module \"distutils\".
 Please check your Python installation. The error was:
 $ac_distutils_result" >&2;}
    { (exit 1); exit 1; }; }
-        fi
+    fi
 
-        #
-        # Check for Python include path
-        #
-        { echo "$as_me:$LINENO: checking for Python include path" >&5
+    #
+    # Check for Python include path
+    #
+    { echo "$as_me:$LINENO: checking for Python include path" >&5
 echo $ECHO_N "checking for Python include path... $ECHO_C" >&6; }
-        if test -z "$PYTHON_CPPFLAGS"; then
-                python_path=`$PYTHON -c "import distutils.sysconfig; \
-                        print distutils.sysconfig.get_python_inc();"`
-                if test -n "${python_path}"; then
-                        python_path="-I$python_path"
-                fi
-                PYTHON_CPPFLAGS=$python_path
-        fi
-        { echo "$as_me:$LINENO: result: $PYTHON_CPPFLAGS" >&5
+    if test -z "$PYTHON_CPPFLAGS"; then
+            python_path=`$PYTHON -c "import distutils.sysconfig; \
+                    print distutils.sysconfig.get_python_inc();"`
+            if test -n "${python_path}"; then
+                    python_path="-I$python_path"
+            fi
+            PYTHON_CPPFLAGS=$python_path
+    fi
+    { echo "$as_me:$LINENO: result: $PYTHON_CPPFLAGS" >&5
 echo "${ECHO_T}$PYTHON_CPPFLAGS" >&6; }
 
 
-        #
-        # Check for Python library path
-        #
-        { echo "$as_me:$LINENO: checking for Python library path" >&5
+    #
+    # Check for Python library path
+    #
+    { echo "$as_me:$LINENO: checking for Python library path" >&5
 echo $ECHO_N "checking for Python library path... $ECHO_C" >&6; }
-        if test -z "$PYTHON_LDFLAGS"; then
-                # (makes two attempts to ensure we've got a version number
-                # from the interpreter)
-                py_version=`$PYTHON -c "from distutils.sysconfig import *; \
-                        from string import join; \
-                        print join(get_config_vars('VERSION'))"`
-                if test "$py_version" == "None"; then
-                        if test -n "$PYTHON_VERSION"; then
-                                py_version=$PYTHON_VERSION
-                        else
-                                py_version=`$PYTHON -c "import sys; \
-                                        print sys.version[:3]"`
-                        fi
-                fi
+    if test -z "$PYTHON_LDFLAGS"; then
+            # (makes two attempts to ensure we've got a version number
+            # from the interpreter)
+            py_version=`$PYTHON -c "from distutils.sysconfig import *; \
+                    from string import join; \
+                    print join(get_config_vars('VERSION'))"`
+            if test "$py_version" == "None"; then
+                    if test -n "$PYTHON_VERSION"; then
+                            py_version=$PYTHON_VERSION
+                    else
+                            py_version=`$PYTHON -c "import sys; \
+                                    print sys.version[:3]"`
+                    fi
+            fi
 
-                PYTHON_LDFLAGS=`$PYTHON -c "from distutils.sysconfig import *; \
-                        from string import join; \
-                        print '-L' + get_python_lib(0,1), \
-                        '-lpython';"`$py_version
-        fi
-        { echo "$as_me:$LINENO: result: $PYTHON_LDFLAGS" >&5
+            PYTHON_LDFLAGS=`$PYTHON -c "from distutils.sysconfig import *; \
+                    from string import join; \
+                    print '-L' + get_python_lib(0,1), \
+                    '-lpython';"`$py_version
+    fi
+    { echo "$as_me:$LINENO: result: $PYTHON_LDFLAGS" >&5
 echo "${ECHO_T}$PYTHON_LDFLAGS" >&6; }
 
 
-        #
-        # Check for site packages
-        #
-        { echo "$as_me:$LINENO: checking for Python site-packages path" >&5
+    #
+    # Check for site packages
+    #
+    { echo "$as_me:$LINENO: checking for Python site-packages path" >&5
 echo $ECHO_N "checking for Python site-packages path... $ECHO_C" >&6; }
-        if test -z "$PYTHON_SITE_PKG"; then
-                PYTHON_SITE_PKG=`$PYTHON -c "import distutils.sysconfig; \
-                        print distutils.sysconfig.get_python_lib(0,0);"`
-        fi
-        { echo "$as_me:$LINENO: result: $PYTHON_SITE_PKG" >&5
+    if test -z "$PYTHON_SITE_PKG"; then
+            PYTHON_SITE_PKG=`$PYTHON -c "import distutils.sysconfig; \
+                    print distutils.sysconfig.get_python_lib(0,0);"`
+    fi
+    { echo "$as_me:$LINENO: result: $PYTHON_SITE_PKG" >&5
 echo "${ECHO_T}$PYTHON_SITE_PKG" >&6; }
 
 
-        #
-        # libraries which must be linked in when embedding
-        #
-        { echo "$as_me:$LINENO: checking python extra libraries" >&5
+    #
+    # libraries which must be linked in when embedding
+    #
+    { echo "$as_me:$LINENO: checking python extra libraries" >&5
 echo $ECHO_N "checking python extra libraries... $ECHO_C" >&6; }
-        if test -z "$PYTHON_EXTRA_LIBS"; then
-           PYTHON_EXTRA_LIBS=`$PYTHON -c "import distutils.sysconfig; \
-                conf = distutils.sysconfig.get_config_var; \
-                print conf('LOCALMODLIBS'), conf('LIBS')"`
-        fi
-        { echo "$as_me:$LINENO: result: $PYTHON_EXTRA_LIBS" >&5
+    if test -z "$PYTHON_EXTRA_LIBS"; then
+       PYTHON_EXTRA_LIBS=`$PYTHON -c "import distutils.sysconfig; \
+            conf = distutils.sysconfig.get_config_var; \
+            print conf('LOCALMODLIBS'), conf('LIBS')"`
+    fi
+    { echo "$as_me:$LINENO: result: $PYTHON_EXTRA_LIBS" >&5
 echo "${ECHO_T}$PYTHON_EXTRA_LIBS" >&6; }
 
 
-        #
-        # linking flags needed when embedding
-        #
-        { echo "$as_me:$LINENO: checking python extra linking flags" >&5
+    #
+    # linking flags needed when embedding
+    #
+    { echo "$as_me:$LINENO: checking python extra linking flags" >&5
 echo $ECHO_N "checking python extra linking flags... $ECHO_C" >&6; }
-        if test -z "$PYTHON_EXTRA_LDFLAGS"; then
-                PYTHON_EXTRA_LDFLAGS=`$PYTHON -c "import distutils.sysconfig; \
-                        conf = distutils.sysconfig.get_config_var; \
-                        print conf('LINKFORSHARED')"`
-        fi
-        { echo "$as_me:$LINENO: result: $PYTHON_EXTRA_LDFLAGS" >&5
+    if test -z "$PYTHON_EXTRA_LDFLAGS"; then
+            PYTHON_EXTRA_LDFLAGS=`$PYTHON -c "import distutils.sysconfig; \
+                    conf = distutils.sysconfig.get_config_var; \
+                    print conf('LINKFORSHARED')"`
+    fi
+    { echo "$as_me:$LINENO: result: $PYTHON_EXTRA_LDFLAGS" >&5
 echo "${ECHO_T}$PYTHON_EXTRA_LDFLAGS" >&6; }
+
+
+    python_saved_CPPFLAGS=$CPPFLAGS
+    python_saved_LDFLAGS=$LDFLAGS
+
+    CPPFLAGS="$CPPFLAGS $PYTHON_CPPFLAGS"
+    LDFLAGS="$LDFLAGS $PYTHON_LDFLAGS $PYTHON_LIBS"
+
+    #
+    # Check for a version of Python >= 2.1.0
+    #
+    { echo "$as_me:$LINENO: checking for a version of Python >= '2.1.0'" >&5
+echo $ECHO_N "checking for a version of Python >= '2.1.0'... $ECHO_C" >&6; }
+    ac_supports_python_ver=`$PYTHON -c "import sys, string; \
+            ver = string.split(sys.version)[0]; \
+            print ver >= '2.1.0'"`
+
+    if test "$ac_supports_python_ver" != "True"; then
+                    { { echo "$as_me:$LINENO: error:
+This version of the PYTHON_DEVEL macro
+doesn't work properly with versions of Python before
+2.1.0. You may need to install a newer version of Python.
+
+See \`config.log' for more details." >&5
+echo "$as_me: error:
+This version of the PYTHON_DEVEL macro
+doesn't work properly with versions of Python before
+2.1.0. You may need to install a newer version of Python.
+
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }    else
+            { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+    fi
+
+    CPPFLAGS=$python_saved_CPPFLAGS
+    LDFLAGS=$python_saved_LDFLAGS
 
 
 
@@ -25937,7 +25984,7 @@ esac
 # Generate Output Files
 ################################################################################
 
-ac_config_files="$ac_config_files Makefile executables/Makefile executables/forever/Makefile executables/forever_cxx/Makefile executables/fpetest/Makefile executables/fpetest_attach/Makefile executables/fpe_print/Makefile executables/fredO2/Makefile executables/fred/Makefile executables/mutatee/Makefile executables/mutatee/c_version/Makefile executables/mutatee/cplus_version/Makefile executables/mutatee/f77_version/Makefile executables/mutatee/io_c_version/Makefile executables/Eon/Makefile executables/dlopen/Makefile executables/deep_callpath/Makefile executables/threads/Makefile executables/mpi/Makefile executables/mpi/smg2000/Makefile executables/mpi/smg2000/krylov/Makefile executables/mpi/smg2000/struct_ls/Makefile executables/mpi/smg2000/struct_mv/Makefile executables/mpi/smg2000/utilities/Makefile executables/mpi/smg2000/test/Makefile executables/mpi/nbody/Makefile src/Makefile src/dpcl/Makefile src/dpcl/one_shot/Makefile src/dpcl/probe_module/Makefile src/dpcl/point_probe/Makefile src/dpcl/start_terminate/Makefile src/dpcl/module_addr/Makefile src/dpcl/stmt_info/Makefile src/dpcl/daemonRT_locking/Makefile src/dpcl/phase/Makefile src/dpcl/data_type/Makefile src/dyninst/Makefile src/dyninst/create/Makefile src/dyninst/createf77/Makefile src/dyninst/findPoint/Makefile src/dyninst/fpe/Makefile src/dyninst/exitpt/Makefile src/regression/Makefile src/regression/bb/Makefile src/regression/bb/close/Makefile src/regression/bb/close/close1/Makefile src/regression/bb/close/close2/Makefile src/regression/bb/close/close3/Makefile src/regression/bb/close/close4/Makefile src/regression/bb/close/close5/Makefile src/regression/bb/detach/Makefile src/regression/bb/detach/detach1/Makefile src/regression/bb/detach/detach2/Makefile src/regression/bb/detach/detach3/Makefile src/regression/bb/detach/detach4/Makefile src/regression/bb/detach/detach5/Makefile src/regression/bb/disable/Makefile src/regression/bb/disable/disable1/Makefile src/regression/bb/disable/disable2/Makefile src/regression/bb/disable/disable3/Makefile src/regression/bb/disable/disable4/Makefile src/regression/bb/disable/disable5/Makefile src/regression/bb/enable/Makefile src/regression/bb/enable/enable1/Makefile src/regression/bb/enable/enable2/Makefile src/regression/bb/enable/enable3/Makefile src/regression/bb/enable/enable4/Makefile src/regression/bb/enable/enable5/Makefile src/regression/bb/focus/Makefile src/regression/bb/focus/focus1/Makefile src/regression/bb/focus/focus2/Makefile src/regression/bb/focus/focus3/Makefile src/regression/bb/focus/focus4/Makefile src/regression/bb/focus/focus5/Makefile src/regression/bb/pause/Makefile src/regression/bb/pause/pause1/Makefile src/regression/bb/pause/pause2/Makefile src/regression/bb/pause/pause3/Makefile src/regression/bb/pause/pause4/Makefile src/regression/bb/pause/pause5/Makefile src/regression/bb/restore/Makefile src/regression/bb/restore/restore1/Makefile src/regression/bb/restore/restore2/Makefile src/regression/bb/restore/restore3/Makefile src/regression/bb/restore/restore4/Makefile src/regression/bb/restore/restore5/Makefile src/regression/fpe/Makefile src/regression/fpe/fpe1/Makefile src/regression/inf/Makefile src/regression/inf/hosts/Makefile src/regression/inf/hosts/hosts1/Makefile src/regression/inf/hosts/hosts2/Makefile src/regression/inf/hosts/hosts3/Makefile src/regression/inf/hosts/hosts4/Makefile src/regression/inf/listexp/Makefile src/regression/inf/listexp/listexp1/Makefile src/regression/inf/listexp/listexp2/Makefile src/regression/inf/listexp/listexp3/Makefile src/regression/inf/listexp/listexp4/Makefile src/regression/inf/views/Makefile src/regression/inf/views/views1/Makefile src/regression/inf/views/views2/Makefile src/regression/inf/views/views3/Makefile src/regression/inf/views/views4/Makefile src/regression/inf/types/Makefile src/regression/inf/types/types1/Makefile src/regression/inf/types/types2/Makefile src/regression/inf/types/types3/Makefile src/regression/inf/types/types4/Makefile src/regression/inf/metrics/Makefile src/regression/inf/metrics/metrics1/Makefile src/regression/inf/metrics/metrics2/Makefile src/regression/inf/metrics/metrics3/Makefile src/regression/inf/metrics/metrics4/Makefile src/regression/inf/params/Makefile src/regression/inf/params/params1/Makefile src/regression/inf/params/params2/Makefile src/regression/inf/params/params3/Makefile src/regression/inf/params/params4/Makefile src/regression/inf/pids/Makefile src/regression/inf/pids/pids1/Makefile src/regression/inf/pids/pids2/Makefile src/regression/inf/pids/pids3/Makefile src/regression/inf/pids/pids4/Makefile src/regression/inf/status/Makefile src/regression/inf/status/status1/Makefile src/regression/inf/status/status2/Makefile src/regression/inf/status/status3/Makefile src/regression/inf/status/status4/Makefile src/regression/io/Makefile src/regression/io/io1/Makefile src/regression/pcsamp/Makefile src/regression/pcsamp/pcsamp1/Makefile src/regression/pcsamp/pcsamp2/Makefile src/regression/pcsamp/pcsamp3/Makefile src/regression/pvs/Makefile src/regression/pvs/939887/Makefile src/regression/pvs/939885/Makefile src/regression/hwc/Makefile src/regression/hwc/hwc1/Makefile src/regression/hwc/hwc2/Makefile src/regression/hwc/hwc3/Makefile src/regression/hwctime/Makefile src/regression/hwctime/hwctime1/Makefile src/regression/hwctime/hwctime2/Makefile src/regression/hwctime/hwctime3/Makefile src/regression/usertime/Makefile src/regression/usertime/usertime1/Makefile src/regression/usertime/usertime2/Makefile src/regression/usertime/usertime3/Makefile src/regression/usertime/usertime4/Makefile src/regression/usertime/usertime5/Makefile src/regression/usertime/usertime6/Makefile src/regression/mpi/Makefile src/regression/mpi/mpi1/Makefile src/regression/mpi/smg2000/Makefile src/regression/mpi/smg2000/smg1/Makefile src/regression/views/Makefile src/regression/views/io/Makefile src/regression/views/io/calltrees/Makefile src/regression/views/io/calltrees/call1/Makefile src/regression/views/io/calltrees/call2/Makefile src/regression/views/io/calltrees/call3/Makefile src/regression/views/io/functions/Makefile src/regression/views/io/functions/functions1/Makefile src/regression/views/io/functions/functions2/Makefile src/regression/views/io/trace/Makefile src/regression/views/io/trace/trace1/Makefile src/regression/views/io/tracebacks/Makefile src/regression/views/io/tracebacks/tb1/Makefile src/regression/views/io/tracebacks/tb2/Makefile src/regression/views/io/tracebacks/tb3/Makefile src/regression/views/pcsamp/Makefile src/regression/views/pcsamp/functions/Makefile src/regression/views/pcsamp/functions/functions1/Makefile src/regression/views/pcsamp/linked_objects/Makefile src/regression/views/pcsamp/linked_objects/lo1/Makefile src/regression/views/pcsamp/statements/Makefile src/regression/views/pcsamp/statements/state1/Makefile test_scripts/Makefile"
+ac_config_files="$ac_config_files Makefile executables/Makefile executables/forever/Makefile executables/forever_cxx/Makefile executables/fpetest/Makefile executables/fpetest_attach/Makefile executables/fpe_print/Makefile executables/fredO2/Makefile executables/fred/Makefile executables/mutatee/Makefile executables/mutatee/c_version/Makefile executables/mutatee/cplus_version/Makefile executables/mutatee/f77_version/Makefile executables/mutatee/io_c_version/Makefile executables/Eon/Makefile executables/dlopen/Makefile executables/deep_callpath/Makefile executables/threads/Makefile executables/mpi/Makefile executables/mpi/helloworld/Makefile executables/mpi/smg2000/Makefile executables/mpi/smg2000/krylov/Makefile executables/mpi/smg2000/struct_ls/Makefile executables/mpi/smg2000/struct_mv/Makefile executables/mpi/smg2000/utilities/Makefile executables/mpi/smg2000/test/Makefile executables/mpi/nbody/Makefile src/Makefile src/dpcl/Makefile src/dpcl/one_shot/Makefile src/dpcl/probe_module/Makefile src/dpcl/point_probe/Makefile src/dpcl/start_terminate/Makefile src/dpcl/module_addr/Makefile src/dpcl/stmt_info/Makefile src/dpcl/daemonRT_locking/Makefile src/dpcl/phase/Makefile src/dpcl/data_type/Makefile src/dyninst/Makefile src/dyninst/create/Makefile src/dyninst/createf77/Makefile src/dyninst/findPoint/Makefile src/dyninst/fpe/Makefile src/dyninst/exitpt/Makefile src/regression/Makefile src/regression/bb/Makefile src/regression/bb/close/Makefile src/regression/bb/close/close1/Makefile src/regression/bb/close/close2/Makefile src/regression/bb/close/close3/Makefile src/regression/bb/close/close4/Makefile src/regression/bb/close/close5/Makefile src/regression/bb/detach/Makefile src/regression/bb/detach/detach1/Makefile src/regression/bb/detach/detach2/Makefile src/regression/bb/detach/detach3/Makefile src/regression/bb/detach/detach4/Makefile src/regression/bb/detach/detach5/Makefile src/regression/bb/disable/Makefile src/regression/bb/disable/disable1/Makefile src/regression/bb/disable/disable2/Makefile src/regression/bb/disable/disable3/Makefile src/regression/bb/disable/disable4/Makefile src/regression/bb/disable/disable5/Makefile src/regression/bb/enable/Makefile src/regression/bb/enable/enable1/Makefile src/regression/bb/enable/enable2/Makefile src/regression/bb/enable/enable3/Makefile src/regression/bb/enable/enable4/Makefile src/regression/bb/enable/enable5/Makefile src/regression/bb/focus/Makefile src/regression/bb/focus/focus1/Makefile src/regression/bb/focus/focus2/Makefile src/regression/bb/focus/focus3/Makefile src/regression/bb/focus/focus4/Makefile src/regression/bb/focus/focus5/Makefile src/regression/bb/pause/Makefile src/regression/bb/pause/pause1/Makefile src/regression/bb/pause/pause2/Makefile src/regression/bb/pause/pause3/Makefile src/regression/bb/pause/pause4/Makefile src/regression/bb/pause/pause5/Makefile src/regression/bb/restore/Makefile src/regression/bb/restore/restore1/Makefile src/regression/bb/restore/restore2/Makefile src/regression/bb/restore/restore3/Makefile src/regression/bb/restore/restore4/Makefile src/regression/bb/restore/restore5/Makefile src/regression/fpe/Makefile src/regression/fpe/fpe1/Makefile src/regression/inf/Makefile src/regression/inf/hosts/Makefile src/regression/inf/hosts/hosts1/Makefile src/regression/inf/hosts/hosts2/Makefile src/regression/inf/hosts/hosts3/Makefile src/regression/inf/hosts/hosts4/Makefile src/regression/inf/listexp/Makefile src/regression/inf/listexp/listexp1/Makefile src/regression/inf/listexp/listexp2/Makefile src/regression/inf/listexp/listexp3/Makefile src/regression/inf/listexp/listexp4/Makefile src/regression/inf/views/Makefile src/regression/inf/views/views1/Makefile src/regression/inf/views/views2/Makefile src/regression/inf/views/views3/Makefile src/regression/inf/views/views4/Makefile src/regression/inf/types/Makefile src/regression/inf/types/types1/Makefile src/regression/inf/types/types2/Makefile src/regression/inf/types/types3/Makefile src/regression/inf/types/types4/Makefile src/regression/inf/metrics/Makefile src/regression/inf/metrics/metrics1/Makefile src/regression/inf/metrics/metrics2/Makefile src/regression/inf/metrics/metrics3/Makefile src/regression/inf/metrics/metrics4/Makefile src/regression/inf/params/Makefile src/regression/inf/params/params1/Makefile src/regression/inf/params/params2/Makefile src/regression/inf/params/params3/Makefile src/regression/inf/params/params4/Makefile src/regression/inf/pids/Makefile src/regression/inf/pids/pids1/Makefile src/regression/inf/pids/pids2/Makefile src/regression/inf/pids/pids3/Makefile src/regression/inf/pids/pids4/Makefile src/regression/inf/status/Makefile src/regression/inf/status/status1/Makefile src/regression/inf/status/status2/Makefile src/regression/inf/status/status3/Makefile src/regression/inf/status/status4/Makefile src/regression/io/Makefile src/regression/io/io1/Makefile src/regression/pcsamp/Makefile src/regression/pcsamp/pcsamp1/Makefile src/regression/pcsamp/pcsamp2/Makefile src/regression/pcsamp/pcsamp3/Makefile src/regression/pvs/Makefile src/regression/pvs/939887/Makefile src/regression/pvs/939885/Makefile src/regression/hwc/Makefile src/regression/hwc/hwc1/Makefile src/regression/hwc/hwc2/Makefile src/regression/hwc/hwc3/Makefile src/regression/hwctime/Makefile src/regression/hwctime/hwctime1/Makefile src/regression/hwctime/hwctime2/Makefile src/regression/hwctime/hwctime3/Makefile src/regression/usertime/Makefile src/regression/usertime/usertime1/Makefile src/regression/usertime/usertime2/Makefile src/regression/usertime/usertime3/Makefile src/regression/usertime/usertime4/Makefile src/regression/usertime/usertime5/Makefile src/regression/usertime/usertime6/Makefile src/regression/mpi/Makefile src/regression/mpi/mpi1/Makefile src/regression/mpi/smg2000/Makefile src/regression/mpi/smg2000/smg1/Makefile src/regression/views/Makefile src/regression/views/io/Makefile src/regression/views/io/calltrees/Makefile src/regression/views/io/calltrees/call1/Makefile src/regression/views/io/calltrees/call2/Makefile src/regression/views/io/calltrees/call3/Makefile src/regression/views/io/functions/Makefile src/regression/views/io/functions/functions1/Makefile src/regression/views/io/functions/functions2/Makefile src/regression/views/io/trace/Makefile src/regression/views/io/trace/trace1/Makefile src/regression/views/io/tracebacks/Makefile src/regression/views/io/tracebacks/tb1/Makefile src/regression/views/io/tracebacks/tb2/Makefile src/regression/views/io/tracebacks/tb3/Makefile src/regression/views/pcsamp/Makefile src/regression/views/pcsamp/functions/Makefile src/regression/views/pcsamp/functions/functions1/Makefile src/regression/views/pcsamp/linked_objects/Makefile src/regression/views/pcsamp/linked_objects/lo1/Makefile src/regression/views/pcsamp/statements/Makefile src/regression/views/pcsamp/statements/state1/Makefile test_scripts/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -26986,6 +27033,7 @@ do
     "executables/deep_callpath/Makefile") CONFIG_FILES="$CONFIG_FILES executables/deep_callpath/Makefile" ;;
     "executables/threads/Makefile") CONFIG_FILES="$CONFIG_FILES executables/threads/Makefile" ;;
     "executables/mpi/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mpi/Makefile" ;;
+    "executables/mpi/helloworld/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mpi/helloworld/Makefile" ;;
     "executables/mpi/smg2000/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mpi/smg2000/Makefile" ;;
     "executables/mpi/smg2000/krylov/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mpi/smg2000/krylov/Makefile" ;;
     "executables/mpi/smg2000/struct_ls/Makefile") CONFIG_FILES="$CONFIG_FILES executables/mpi/smg2000/struct_ls/Makefile" ;;
@@ -27486,6 +27534,7 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+MVAPICH2_NULL!$MVAPICH2_NULL$ac_delim
 HAVE_MPT_TRUE!$HAVE_MPT_TRUE$ac_delim
 HAVE_MPT_FALSE!$HAVE_MPT_FALSE$ac_delim
 MPT_CC!$MPT_CC$ac_delim
@@ -27579,7 +27628,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 91; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 92; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

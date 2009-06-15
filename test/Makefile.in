@@ -16,7 +16,6 @@
 
 ###############################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2009 Krell Institute   All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -204,6 +203,7 @@ MVAPICH2_DIR = @MVAPICH2_DIR@
 MVAPICH2_HEADER = @MVAPICH2_HEADER@
 MVAPICH2_LDFLAGS = @MVAPICH2_LDFLAGS@
 MVAPICH2_LIBS = @MVAPICH2_LIBS@
+MVAPICH2_NULL = @MVAPICH2_NULL@
 MVAPICH_CC = @MVAPICH_CC@
 MVAPICH_CPPFLAGS = @MVAPICH_CPPFLAGS@
 MVAPICH_DIR = @MVAPICH_DIR@
@@ -332,7 +332,9 @@ topdir_execprefix = @topdir_execprefix@
 # directories that will be built
 SUBDIRS = executables src test_scripts
 DIST_SUBDIRS = executables src test_scripts
-EXTRA_DIST = regression_check bootstrap_tests
+EXTRA_DIST = \
+	regression_check
+
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
