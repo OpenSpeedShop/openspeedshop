@@ -5,17 +5,51 @@
 .SH NAME
 openss \- Open|SpeedShop Application Performance Tool
 .SH SYNOPSIS
-.B openss [-offline|-gui|-cli|-batch] 
+.nf
+.B openss [-offline -f executable experiment_type ]
+
+.B openss [ [-online [-gui|-cli] ] | -gui | -cli ] 
+         [-f executable ] [-f openss_database] experiment_type
+
+.B openss [-batch  [ -f executable experiment_type ] | < command_file]
+
+where:
+-f executable refers to these syntax options:
           [-f simple_executable ]
-          [-f "executable args"] 
-          [-f "multi_executable"] 
-          [-f openss_database]
-          experiment_type
+          [-f "executable args"]
+          [-f "multi_executable"]   
+
+and
+
+-f openss_database refers to Open|SpeedShop result files
+                   having the suffix ".openss"
+.fi
 
 .SH TYPICAL USAGE FORM
+
+For the Open|SpeedShop-1.9.2 release the suggested usage is 
+to run Open|SpeedShop using the offline mode to gather the performance
+information of your choice and then use the Open|SpeedShop
+graphical user interface (GUI) or the Open|SpeedShop command
+line interface (CLI) to view the performance analysis results.
 .nf
 
+Run the application using Open|SpeedShop's offline mode:
+
 openss -offline -f "executable" pcsamp
+
+and
+
+View the performance analysis results by viewing the 
+Open|SpeedShop database created during the command above.
+
+Using GUI:
+
+openss -f openss_database
+
+Using CLI:
+
+openss -cli -f openss_database
 
 .fi
 
@@ -119,7 +153,7 @@ openss command syntax:
            osspcsamp "executable"
 
 .fi
-is equavalent to:
+is equivalent to:
 .nf
 
            openss -offline -f "executable" pcsamp
@@ -160,8 +194,8 @@ is a single word command with no arguments.
 
 .IP "-f ""executable args"" "
 This option specifies an executable with arguments to be run. In
-this case the executable can be a one word command or a multiword
-(multiple tokens) command, such as a mpi command specification. 
+this case the executable can be a one word command or a multiple 
+word (multiple tokens) command, such as a mpi command specification. 
 For example:
 .nf
 
@@ -178,7 +212,7 @@ the executable command is not simple.
 .IP "-f ""multi_executable [args]"" "
 This option specifies a multi word executable with or without
 arguments to be run. In this case the executable is multi word 
-command or a multiword command, such as a mpi command 
+command or a multiple word command, such as a mpi command 
 specification. For example: 
 
         -f "/opt/mpi/mpirun -np 64 ./executable_name" 
@@ -274,7 +308,7 @@ can then be used to choose another of the Open|SpeedShop experiments
 to further focus in on the application bottleneck(s).
 .nf
 
-"openss -offline -f ""/opt/openmpi/bin/mpiexec -np 64 /home/user/mpi_prog"" pcsamp"
+openss -offline -f "/opt/openmpi/bin/mpiexec -np 64 /home/user/mpi_prog" pcsamp
 .fi
 
 .SH BUGS

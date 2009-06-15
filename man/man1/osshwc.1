@@ -44,12 +44,12 @@ flops to level 1 cache misses can indicate poor locality and
 memory management.
 
 osshwc does sampling based on a hardware counter event threshold
-and the type of event selected.  These are changable by using
+and the type of event selected.  These are changeable by using
 the OPENSS_HWC_EVENT and OPENSS_HWC_THRESHOLD environment variables.
 
 Information that is presented after the execution of the hwc
 experiment is is a mapping back to the source of the application of the
-statisical representation of where the hardware counter events occured.
+statistical representation of where the hardware counter events occurred.
 The performance information is reported and optionally sorted by linked 
 object, functions, or statement.
 
@@ -155,7 +155,7 @@ be available in the Open|SpeedShop view of the experiment data.
 
 .IP OPENSS_HWC_EVENT
 This environment variable specifies the PAPI hardware counter event
-name.  Open|SpeedShop will support whatever PAPI hardward counter 
+name.  Open|SpeedShop will support whatever PAPI hardware counter 
 non-derived events are available on the machine the experiment is
 being run on.  The default event is PAPI_TOT_CYC.
 
@@ -171,7 +171,7 @@ The following diagnostics may be TBD:
 
 .SH QUICK START EXAMPLE
 The following command runs the MPI executable "mpi_prog" and gathers 
-hardward counter event sampling information on the 64 ranked processes.  
+hardware counter event sampling information on the 64 ranked processes.  
 When completed, a view of the aggregated information is displayed 
 to the screen.  An Open|SpeedShop database file, named 
 "mpi_prog-openmpi-hwc.openss" will be created.  This database 
