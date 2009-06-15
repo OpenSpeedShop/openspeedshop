@@ -5,7 +5,7 @@
 .SH NAME
 openss \- Open|SpeedShop Application Performance Tool
 .SH SYNOPSIS
-.B openss [-offline] [-gui] [-cli] [-batch] 
+.B openss [-offline|-gui|-cli|-batch] 
           [-f simple_executable ]
           [-f "executable args"] 
           [-f "multi_executable"] 
@@ -236,7 +236,10 @@ file system that is accessible from all the nodes of the
 cluster.  The offline mode of operation for Open|SpeedShop
 needs a shared file system location to write the files containing
 the performance information from each process on all the
-nodes of the cluster involved in the experiment.
+nodes of the cluster involved in the experiment.  The online 
+version of Open|SpeedShop can also use this variable to take 
+advantage of faster file systems, but it is not required in the
+same sense as it is when running in offline mode.
 .IP OPENSS_MPI_IMPLEMENTATION
 If the module, dotkit, or set-up script that is used to load the
 runtime environment of Open|SpeedShop doesn't distinguish or specify
