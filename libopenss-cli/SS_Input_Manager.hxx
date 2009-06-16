@@ -133,6 +133,7 @@ enum OpenSpeedShop_Start_Modes {
    SM_Cli,          /**< -cli */
    SM_Gui,          /**< default and -gui */
    SM_Offline,      /**< -offline */
+   SM_Online,       /**< -online */
    SM_Unknown       /**< UNKNOWN/ERROR */
 };
 
