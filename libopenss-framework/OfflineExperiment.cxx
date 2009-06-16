@@ -872,14 +872,15 @@ void OfflineExperiment::createOfflineSymbolTable()
     std::set<std::string> dsos_used;
     AddressSpace address_space;
 
-    for (unsigned i = 0; i < data_addr_buffer.length; i++) {
- 	Address addr = Address(data_addr_buffer.pc[i]);
-
-	// create list of dso's for which there is an address in the performance
-	// data. Update database address_space with threads and linked objects.
-	// Mark the executable (is_executable = true, shared librarys = false).
-	for(std::vector<std::pair<std::string, AddressRange> >::iterator
+    for(std::vector<std::pair<std::string, AddressRange> >::iterator
               j = names_to_range.begin(); j != names_to_range.end(); ++j) {
+
+	for (unsigned i = 0; i < data_addr_buffer.length; i++) {
+ 	    Address addr = Address(data_addr_buffer.pc[i]);
+
+	    // create list of dso's for which there is an address in the performance
+	    // data. Update database address_space with threads and linked objects.
+	    // Mark the executable (is_executable = true, shared librarys = false).
 
 	    bool_t range_found = false;
 	    if (j->second.doesContain(addr) && !range_found) {
@@ -903,6 +904,7 @@ void OfflineExperiment::createOfflineSymbolTable()
 #endif
 		    address_space.setValue(j->second, j->first,
 					   /*is_executable*/ is_exe);
+		    break;
 	    }
 	} 
     }
