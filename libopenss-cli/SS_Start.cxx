@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006, 2007, 2008 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2009 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -77,12 +77,17 @@ extern void User_Info_Dump (CMDWID issuedbywindow);
 static void
 Process_Command_Line (int argc, char **argv)
 {
+  bool found_f_option = false;
   bool found_tli = false;
   bool found_gui = false;
   bool found_batch = false;
   bool found_offline = false;
+  bool found_online = false;
   int i;
 
+#if DEBUG_CLI
+  std::cerr << "Entger Process_Command_Line, argc=" << argc << std::endl;
+#endif
  /* Check the command line flags: */
   for ( i=1; i<argc; i++ ) {
 
@@ -90,6 +95,9 @@ Process_Command_Line (int argc, char **argv)
       continue;
     }
 
+#if DEBUG_CLI
+  std::cerr << "In Process_Command_Line, argv[i]=" << argv[i] << " i=" << i << std::endl;
+#endif
    // Look for an indication of which input control window to open.
    // (I really do intend to allow both gui and tli windows at the same time!)
 
@@ -111,7 +119,10 @@ Process_Command_Line (int argc, char **argv)
     } else if (!strcasecmp( argv[i], "-offline")) {
       found_offline = true;
       oss_start_mode = SM_Offline;
-      read_stdin_file = (stdin && !isatty(fileno(stdin)));
+//      read_stdin_file = (stdin && !isatty(fileno(stdin)));
+    } else if (!strcasecmp( argv[i], "-online")) {
+      found_online = true;
+      oss_start_mode = SM_Online;
     }
 
    /* Look for an executable description. */
@@ -124,6 +135,16 @@ Process_Command_Line (int argc, char **argv)
       executable_encountered = true;
       need_command_line = true;
      // if the next argv is not another "-" option, skip it.
+      if (!strcasecmp( argv[i], "-f") ){ 
+         found_f_option = true;
+#if DEBUG_CLI
+         std::cerr << "Parsing openss args, FOUND -f: option" << std::endl;
+#endif
+      } else {
+#if DEBUG_CLI
+         std::cerr << "Parsing openss args, DID not FIND -f: option" << std::endl;
+#endif
+      }
       if (((i+1)<argc) &&
           (argv[i+1] != NULL) &&
           (*(argv[i+1]) != '-' )) i++;
@@ -135,10 +156,40 @@ Process_Command_Line (int argc, char **argv)
     }
   }
 
-  if (!found_offline && !found_batch && !found_gui && !found_tli) {
+  if (!found_online && !found_offline && !found_batch && !found_gui && !found_tli) {
    // If not specified by the user, default to -gui only mode.
     need_gui = true;
     need_tli = false;
+#if DEBUG_CLI
+    std::cerr << "Parsing openss args, found_nothing - gui by default" << std::endl;
+#endif
+  } else if (found_online && !found_offline && !found_batch && !found_tli) {
+    need_gui = true;
+    need_tli = false;
+#if DEBUG_CLI
+    std::cerr << "Parsing openss args, found_online - gui not cli" << std::endl;
+#endif
+  } else if (found_online && found_tli && 
+             !found_offline && !found_batch && !found_gui) {
+    need_gui = false;
+    need_tli = true;
+#if DEBUG_CLI
+    std::cerr << "Parsing openss args, found_offline - not gui" << std::endl;
+#endif
+  } else if (found_offline && !found_f_option &&
+             !found_tli && !found_online && !found_batch) {
+    need_gui = true;
+    need_tli = false;
+#if DEBUG_CLI
+    std::cerr << "Parsing openss args, found_offline - gui not cli" << std::endl;
+#endif
+  } else if (found_offline && !found_f_option &&
+             !found_tli && !found_online && !found_batch) {
+    need_gui = true;
+    need_tli = false;
+#if DEBUG_CLI
+    std::cerr << "Parsing openss args, found_offline - gui not cli" << std::endl;
+#endif
   }
 }
 

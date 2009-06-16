@@ -1,8 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006 Krell Institute. All Rights Reserved.
-** Copyright (c) 2007 Krell Institute. All Rights Reserved.
-** Copyright (c) 2008 Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2009 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -28,6 +26,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
 {
  /* What is the maximum length of the expCreate command? */  
   bool processing_offline_option = false;
+  bool processing_online_option = false;
   bool initial_set_of_command_done_yet = false;
   bool processing_batch_option = false;
   areWeRestoring = false;
@@ -62,8 +61,10 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
       if (strlen(argv[i]) > 0) {
 
 #ifdef DEBUG_CLI_OPTIONS
-        printf(" StartModes, cycling through the argument list, processing_batch_option=%d, processing_offline_option=%d, argv[i=%d]=%s\n", 
-                processing_batch_option, processing_offline_option,i, argv[i]);
+        printf(" StartModes, cycling through the argument list, processing_online_option=%d, processing_offline_option=%d, argv[i=%d]=%s\n", 
+                processing_online_option, processing_offline_option,i, argv[i]);
+        printf(" StartModes, cycling through the argument list, processing_batch_option=%d\n", 
+                processing_batch_option);
 #endif
         if (strcasecmp( argv[i], "-batch") == 0) {
 #ifdef DEBUG_CLI_OPTIONS
@@ -77,12 +78,19 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
 #endif
             processing_offline_option = true;
         }
+        if (strcasecmp( argv[i], "-online") == 0) {
+#ifdef DEBUG_CLI_OPTIONS
+            printf(" StartModes, setting processing_online_option to TRUE, cycling through the argument list, argv[i=%d]=%s\n", i, argv[i]);
+#endif
+            processing_online_option = true;
+        }
 
        // Don't include any mode options.
         if (!strcasecmp( argv[i], "-cli")) continue;
         if (!strcasecmp( argv[i], "-gui")) continue;
         if (!strcasecmp( argv[i], "-batch")) continue;
         if (!strcasecmp( argv[i], "-offline")) continue;
+        if (!strcasecmp( argv[i], "-online")) continue;
       }
 
       if ((strlen(argv[i]) > 0) &&
@@ -97,7 +105,11 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
       if (!initial_set_of_command_done_yet) {
         initial_set_of_command_done_yet = true;
         if (processing_offline_option) {
-          bcopy("RunOfflineExp", cmdstr, 15);
+	  if ( areWeRestoring ) { 
+            bcopy("expRestore", cmdstr, 11);
+	  } else {
+            bcopy("RunOfflineExp", cmdstr, 15);
+          }
         } else {
 
 #ifdef DEBUG_CLI_OPTIONS
@@ -121,6 +133,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
 #endif
 
         if ( processing_offline_option && 
+	      !areWeRestoring &&
              (strlen(argv[i]) == 2) && 
               !strncasecmp( argv[i], "-f", 2) && 
               ((i+1) < argc) && 
@@ -129,7 +142,8 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
            // if this is offline then replace the -f with program=
            strcat(cmdstr,"(program=");
 
-        } else if (processing_offline_option && ((i+1) == argc) ) {
+        } else if (processing_offline_option && ((i+1) == argc)  &&
+	           !areWeRestoring ) {
 
           // This is the last argument in the list, assumed to be the collector type
           strcat(cmdstr,",collector=");
@@ -145,7 +159,8 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
         } 
 
         // Still do this for offline option also, no additional checks needed
-        if ((strlen(argv[i]) == 2) &&
+        if (!areWeRestoring &&
+          (strlen(argv[i]) == 2) &&
           !strncasecmp( argv[i], "-f", 2) &&
           ((i+1) < argc) &&
           strncasecmp( argv[i+1], "-", 1)) {
