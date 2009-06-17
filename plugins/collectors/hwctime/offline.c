@@ -46,6 +46,7 @@ typedef struct {
     } buffer;
 
     int  dsoname_len;
+    int  started;
     int  finished;
     int  sent_data;
 
@@ -190,6 +191,7 @@ void offline_start_sampling(const char* in_arguments)
     /* Start sampling */
     offline_sent_data(0);
     tls->finished = 0;
+    tls->started = 1;
     hwctime_start_sampling(arguments);
 }
 
@@ -214,6 +216,10 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
 #endif
     Assert(tls != NULL);
 
+    if (!tls->started) {
+	return;
+    }
+
     /* Stop sampling */
     hwctime_stop_sampling(NULL);
 
@@ -223,7 +229,8 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
 	offline_finish();
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-	    fprintf(stderr,"offline_stop_sampling FINISHED for %d\n",getpid());
+	    fprintf(stderr,"offline_stop_sampling FINISHED for %d, %lu\n",
+		tls->dso_header.pid, tls->dso_header.posix_tid);
 	}
 #endif
     }

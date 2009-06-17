@@ -296,9 +296,13 @@ void usertime_start_sampling(const char* arguments)
     OpenSS_DecodeParameters(arguments,
 			    (xdrproc_t)xdr_usertime_start_sampling_args,
 			    &args);
-
-    /* Initialize the data blob's header */
-    /* Passing &(tls->header) to OpenSS_InitializeDataHeader was not safe on ia64 systems.
+    
+    /* 
+     * Initialize the data blob's header
+     *
+     * Passing &tls->header to OpenSS_InitializeDataHeader() was found
+     * to not be safe on IA64 systems. Hopefully the extra copy can be
+     * removed eventually.
      */
     OpenSS_DataHeader local_header;
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
@@ -309,15 +313,16 @@ void usertime_start_sampling(const char* arguments)
     tls->header.addr_begin = ~0;
     tls->header.addr_end = 0;
 
-    memset(tls->buffer.bt, 0, sizeof(tls->buffer.bt));
-    memset(tls->buffer.count, 0, sizeof(tls->buffer.count));
-
     /* Initialize the actual data blob */
     tls->data.interval = (uint64_t)(1000000000) / (uint64_t)(args.sampling_rate);
     tls->data.bt.bt_len = 0;
     tls->data.bt.bt_val = tls->buffer.bt;
     tls->data.count.count_len = 0;
     tls->data.count.count_val = tls->buffer.count;
+
+    /* Initialize the sampling buffer */
+    memset(tls->buffer.bt, 0, sizeof(tls->buffer.bt));
+    memset(tls->buffer.count, 0, sizeof(tls->buffer.count));
 
     /* Begin sampling */
     tls->header.time_begin = OpenSS_GetTime();
@@ -354,6 +359,7 @@ void usertime_stop_sampling(const char* arguments)
     if(tls->data.bt.bt_len > 0) {
 	send_samples(tls);
     }
+    
     /* Destroy our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
     free(tls);

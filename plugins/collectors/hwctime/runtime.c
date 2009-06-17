@@ -308,15 +308,16 @@ void hwctime_start_sampling(const char* arguments)
     tls->header.addr_begin = ~0;
     tls->header.addr_end = 0;
 
-    memset(tls->buffer.bt, 0, sizeof(tls->buffer.bt));
-    memset(tls->buffer.count, 0, sizeof(tls->buffer.count));
-
     /* Initialize the actual data blob */
     tls->data.interval = (uint64_t)(args.sampling_rate);
     tls->data.bt.bt_len = 0;
     tls->data.bt.bt_val = tls->buffer.bt;
     tls->data.count.count_len = 0;
     tls->data.count.count_val = tls->buffer.count;
+
+    /* Initialize the sampling buffer */
+    memset(tls->buffer.bt, 0, sizeof(tls->buffer.bt));
+    memset(tls->buffer.count, 0, sizeof(tls->buffer.count));
 
     /* Begin sampling */
     tls->header.time_begin = OpenSS_GetTime();
@@ -364,6 +365,7 @@ void hwctime_stop_sampling(const char* arguments)
 #else
     TLS* tls = &the_tls;
 #endif
+
     Assert(tls != NULL);
 
     /* Stop sampling */

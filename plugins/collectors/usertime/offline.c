@@ -45,6 +45,7 @@ typedef struct {
     } buffer;
 
     int  dsoname_len;
+    int  started;
     int  finished;
     int  sent_data;
 
@@ -139,12 +140,9 @@ void offline_start_sampling(const char* in_arguments)
 {
     /* Create and access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
-    TLS* tls = OpenSS_GetTLS(TLSKey);
-    if (tls == NULL) {
-	tls = malloc(sizeof(TLS));
-	Assert(tls != NULL);
-	OpenSS_SetTLS(TLSKey, tls);
-    }
+    TLS* tls = malloc(sizeof(TLS));
+    Assert(tls != NULL);
+    OpenSS_SetTLS(TLSKey, tls);
 #else
     TLS* tls = &the_tls;
 #endif
@@ -171,6 +169,9 @@ void offline_start_sampling(const char* in_arguments)
     tls->data.objs.objs_val = tls->buffer.objs;
 
     /* Start sampling */
+    offline_sent_data(0);
+    tls->finished = 0;
+    tls->started = 1;
     usertime_start_sampling(arguments);
 }
 
@@ -194,6 +195,10 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
     TLS* tls = &the_tls;
 #endif
     Assert(tls != NULL);
+
+    if (!tls->started) {
+	return;
+    }
 
     /* Stop sampling */
     usertime_stop_sampling(NULL);
@@ -290,6 +295,7 @@ void offline_record_dso(const char* dsoname,
     if (is_dlopen) {
 	usertime_stop_timer();
     }
+
     //fprintf(stderr,"offline_record_dso called for %s, is_dlopen = %d\n",dsoname, is_dlopen);
 
     /* Initialize the offline "dso" blob's header */

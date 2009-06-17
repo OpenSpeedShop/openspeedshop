@@ -261,6 +261,7 @@ void hwc_stop_sampling(const char* arguments)
 #else
     TLS* tls = &the_tls;
 #endif
+
     Assert(tls != NULL);
 
     /* Stop sampling */
