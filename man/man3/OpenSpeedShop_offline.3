@@ -18,15 +18,46 @@ that occurred in the user application.  The term experiment is used to
 describe the application and the type of performance data being gathered.   
 
 One of the ways Open|SpeedShop uses to gather the performance data, offline,
-is the topic of this man page.  The mode of instrumentation in 
-Open|SpeedShop refers to the manner in which the user application is 
-instrumented to allow the application execution to produce performance 
-information, in addition to the applications normal output.  In the offline 
-mode, the Open|SpeedShop performance data collectors are linked into the 
-user application through the libMonitor component (by the use of LD_PRELOAD)
-in Open|SpeedShop.  When the offline mode of operation is used (-offline option 
-to openss), then the application needs to be started from the beginning and run
-to completion in order for the performance gathering to complete properly.
+is the topic of this man page.  The mode of instrumentation in Open|SpeedShop 
+refers to the manner in which the user application is instrumented to allow 
+the application execution to produce performance information, in addition to 
+the applications normal output.  In the offline mode of operation, the 
+Open|SpeedShop performance data collectors are linked into the user application 
+through the libMonitor component (by the use of LD_PRELOAD) in Open|SpeedShop.  
+When the offline mode of operation is used (-offline option to openss), the 
+application needs to be started from the beginning and run from beginning to end
+in order for the performance gathering to complete properly.
+
+One of the advantages of using the offline mode of operation is that there are no
+daemons needed on any of the nodes of the cluster that the user application job 
+is running.  The Open|SpeedShop collectors that are linked into the user application
+write any performance information gathered to a shared file system and that data
+is then processed at application termination.  The raw data files written to the
+shared file system are placed into a Open|SpeedShop database file along with the
+symbol information for the application.   This database file has all the information
+to view the performance experiment results later, without needed the application
+to be available.
+
+openss -offline -f "executable" <experiment_type>
+
+is the syntax for invocation of the offline version of Open|SpeedShop.
+
+There are also several convenience scripts which are intended to simplify
+the syntax for users of the offline version.  The syntax for these scripts
+is:
+
+oss<experiment_type> "executable"
+
+For example:
+
+osspcsamp "/opt/openmpi/bin/mpirun -np 32 ./sweep3d.mpi"
+
+is equivalent to:
+
+openss -offline -f "/opt/openmpi/bin/mpirun -np 32 ./sweep3d.mpi" pcsamp
+
+Please view the man pages for any of the convenience scripts that
+might be of interest to you.  They are listed below in the SEE ALSO section.
 
 
 .SH SEE ALSO
@@ -45,5 +76,6 @@ The OpenSpeedShop Web site: www.openspeedshop.org
 .BR ossmpiotf (1),
 .BR ossfpe (1)
 .BR OpenSpeedShop (3)
+.BR OpenSpeedShop_online (3)
 
 

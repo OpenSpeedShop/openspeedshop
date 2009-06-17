@@ -26,10 +26,51 @@ mode, the Open|SpeedShop performance data collectors are interjected into the
 user application through dynamic instrumentation, via the Dyninst component
 in Open|SpeedShop.  When the online mode of operation is used (-online option 
 to openss, currently the default), then the application can either be started 
-from the beginning or can be attached to while already running.  The advantage
-to the online mode of operation is the flexibility to attach to processes 
-that are already running, view the data on demand (while application is still
-running), and then detach from the application.
+from the beginning or can be attached to while already running.  
+
+The advantage to the online mode of operation is the flexibility to attach 
+to processes that are already running, view the data on demand (while 
+application is still running), and then detach from the application.  
+The disadvantage of this mode of operation is that the start up cost is 
+greater than the offline mode of operation because daemons must be started 
+on all the nodes where the user application is going to run and all 
+the symbols are processed before application start up, of if attaching, 
+at the point of Open|SpeedShops attachment to the application.  This 
+takes some time, but the benefit is the ability and flexibility
+of being able to gleen performance information from a long running job after
+it has been started.  One may attach, gather and view the performance data and
+then detach from the running application, without interrupting the applications
+execution.
+
+Here are a few examples of how to invoke Open|SpeedShop in online mode:
+.nf
+
+openss -f "executable" <experiment_type>
+
+.fi
+is the syntax for invocation of the online version of Open|SpeedShop when
+starting an application from the beginning.  This will bring up the Graphical
+user interface with the experiment ready to run.  A "real" experiment command
+might look like this:
+
+.nf
+openss -f "/opt/openmpi/bin/mpirun -np 64 /home/jeg/sweep3d.mpi" pcsamp
+.fi
+
+
+Open|SpeedShop can be used to attach to a running application:
+
+.nf
+openss -p <pidnumber of mpirun> pcsamp
+.fi
+
+is the syntax for invocation of the online version of Open|SpeedShop when
+attaching to a MPI application where the user wants to analyze all the ranked
+processes in the job.  If the user only wanted to view the performance information
+for one or more of the MPI ranked processes they could attach to those process Ids
+or the user could specify the rank numbers using the -r <rank number> option.
+Please see the Open|SpeedShop Users Guide for more details.
+
 
 
 .SH SEE ALSO
@@ -37,16 +78,6 @@ running), and then detach from the application.
 The OpenSpeedShop Web site: www.openspeedshop.org
 
 .BR openss (1),
-.BR osspcsamp (1),
-.BR ossusertime (1),
-.BR osshwc (1),
-.BR osshwctime (1),
-.BR ossio (1),
-.BR ossiot (1),
-.BR ossmpi (1),
-.BR ossmpit (1),
-.BR ossmpiotf (1),
-.BR ossfpe (1)
 .BR OpenSpeedShop (3)
 .BR OpenSpeedShop_offline (3)
 
