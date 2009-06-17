@@ -1,4 +1,7 @@
-.TH OpenSpeedShop 3 "June, 2009" "Open|SpeedShop Reference" "Open|SpeedShop"
+.\" Process this file with
+.\" groff -man -Tascii OpenSpeedShop.3
+.\"
+.TH OpenSpeedShop 3 "June, 2009" "Open|SpeedShop Reference" "Open|SpeedShop Reference"
 
 .SH NAME
 OpenSpeedShop \- Application Performance Tool
@@ -49,18 +52,28 @@ for application developers and computer scientists. The base functionality inclu
 .BR Features
 
 .nf
-* Four modes of operation: batch, command line interface, graphical 
-  user interface and Python scripting API.
+* Four user interface options: 
+    - Batch 
+    - Command Line Interface (CLI)
+    - Graphical User Interface (GUI)
+    - Python scripting API.
+* Two instrumentation modes of operation: 
+    - Offline (use of LD_PRELOAD - link in collector runtime)
+      See Also: OpenSpeedShop_offline (3)
+    - Online  (use of dynamic instrumentation)
+      See Also: OpenSpeedShop_online (3)
 * Supports multi-platform single system image(SSI) and traditional clusters.
 * Scales to large numbers of processes, threads, and ranks.
-* No need to recompile the user¿s application.
-* Ability to automatically create and attach to both sequential and 
-  parallel jobs from within Open|SpeedShop.
+* No need to recompile the users application.
+* Ability to automatically create and attach (online only) to 
+  both sequential and parallel jobs from within Open|SpeedShop.
 * View performance data using multiple customizable views.
-* View intermediate performance measurement data while the experiment is running.
+* View intermediate performance measurement data while 
+  the experiment is running (online only).
 * Save and restore performance experiment data and symbol information 
   for post experiment performance analysis
-* View performance data for all of application¿s lifetime or smaller time slices.
+* View performance data for all of applications lifetime 
+  or smaller time slices.
 * Compare performance results between processes, threads, or ranks 
   between a previous experiment and current experiment.
 * GUI Wizard facility and context sensitive help.
@@ -88,5 +101,7 @@ The OpenSpeedShop Web site: www.openspeedshop.org
 .BR ossmpit (1),
 .BR ossmpiotf (1),
 .BR ossfpe (1)
+.BR OpenSpeedShop_offline (3)
+.BR OpenSpeedShop_online (3)
 
 

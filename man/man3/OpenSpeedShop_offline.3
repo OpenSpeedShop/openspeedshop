@@ -1,0 +1,49 @@
+.\" Process this file with
+.\" groff -man -Tascii OpenSpeedShop_offline.3
+.\"
+.TH OpenSpeedShop_offline 3 "June, 2009" "Open|SpeedShop Reference" "Open|SpeedShop"
+
+.SH NAME
+OpenSpeedShop \- Application Performance Tool Offline Mode of Operation
+
+.SH SYNOPSIS
+
+.BR Overview
+
+The Open|SpeedShop performance tool gathers information about the user 
+application performance such as inclusive and exclusive CPU time, hardware 
+counter events and time, detailed information about I/O events/calls, 
+detailed information about MPI events/calls, and floating point exceptions 
+that occurred in the user application.  The term experiment is used to 
+describe the application and the type of performance data being gathered.   
+
+One of the ways Open|SpeedShop uses to gather the performance data, offline,
+is the topic of this man page.  The offline mode of instrumentation in 
+Open|SpeedShop refers to the manner in which the user application is 
+instrumented to allow the application execution to produce performance 
+information, in addition to the applications normal output.  In the offline 
+mode, the Open|SpeedShop performance data collectors are linked into the 
+user application through the libMonitor component (by the use of LD_PRELOAD)
+in Open|SpeedShop.  When the offline mode of operation is used (-offline option 
+to openss), then the application needs to be started from the beginning and run
+to completion in order for the performance gathering to complete properly.
+
+
+.SH SEE ALSO
+
+The OpenSpeedShop Web site: www.openspeedshop.org
+
+.BR openss (1),
+.BR osspcsamp (1),
+.BR ossusertime (1),
+.BR osshwc (1),
+.BR osshwctime (1),
+.BR ossio (1),
+.BR ossiot (1),
+.BR ossmpi (1),
+.BR ossmpit (1),
+.BR ossmpiotf (1),
+.BR ossfpe (1)
+.BR OpenSpeedShop (3)
+
+
