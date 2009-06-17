@@ -595,11 +595,12 @@ if( attachFLAG ) {
   }
 
 
-  if( expID > 0 )
-  {
+  if( expID > 0 ) {
+
 #ifdef DEBUG_CustomPanel
     printf("CustomExperimentPanel::init, Put out local wizard?\n");
 #endif
+
 // Now get the threads.
 //    QString command = QString("listPids -x %1").arg(expID);
     QString command = QString("list -v pids -x %1").arg(expID);
@@ -635,7 +636,8 @@ if( attachFLAG ) {
   if( abortPanelFLAG == FALSE ) {
 
 #ifdef DEBUG_CustomPanel
-      printf("CustomExperimentPanel::init, size=(%d)\n",  list_of_pids.size()  );
+      printf("CustomExperimentPanel::init, size=(%d), getInstrumentorIsOffline()=%d\n",  
+              list_of_pids.size(), getInstrumentorIsOffline()  );
 #endif
 
 #if 1

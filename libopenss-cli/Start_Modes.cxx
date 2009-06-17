@@ -29,6 +29,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
   bool processing_online_option = false;
   bool initial_set_of_command_done_yet = false;
   bool processing_batch_option = false;
+  bool guiArgSpecified = false;
   areWeRestoring = false;
 
 #ifdef DEBUG_CLI_OPTIONS
@@ -40,6 +41,9 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
 
   // Do some preliminary setup work
   for ( i=1; i<argc; i++ ) {
+    if (strcasecmp( argv[i], "-gui") == 0) {
+      guiArgSpecified = true;
+    }
 
     if (strstr( argv[i], ".openss")) {
       areWeRestoring = true;
@@ -108,7 +112,11 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
 	  if ( areWeRestoring ) { 
             bcopy("expRestore", cmdstr, 11);
 	  } else {
-            bcopy("RunOfflineExp", cmdstr, 15);
+            if (guiArgSpecified) {
+              bcopy("expCreate -i offline", cmdstr, 22);
+            } else {
+              bcopy("RunOfflineExp", cmdstr, 15);
+            }
           }
         } else {
 
@@ -134,6 +142,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
 
         if ( processing_offline_option && 
 	      !areWeRestoring &&
+	      !guiArgSpecified &&
              (strlen(argv[i]) == 2) && 
               !strncasecmp( argv[i], "-f", 2) && 
               ((i+1) < argc) && 
@@ -143,6 +152,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
            strcat(cmdstr,"(program=");
 
         } else if (processing_offline_option && ((i+1) == argc)  &&
+	           !guiArgSpecified &&
 	           !areWeRestoring ) {
 
           // This is the last argument in the list, assumed to be the collector type

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007, 2008 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006-2009 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -1517,10 +1517,11 @@ OpenSpeedshop::progressUpdate()
 
 
 int
-OpenSpeedshop::lookForExperiment()
+OpenSpeedshop::lookForExperiment(bool hadOfflineArg)
 {
 #ifdef DEBUG_GUI
   printf("OpenSpeedshop::lookForExperiment(),The user may have loaded an experiment... as there was something on the command line.\n");
+  printf("OpenSpeedshop::lookForExperiment(), hadOfflineArg=%d\n", hadOfflineArg);
 #endif
 
   QString command;
@@ -1563,7 +1564,6 @@ OpenSpeedshop::lookForExperiment()
   {
     int64_t expID = (int64_t)(*it);
 
-
     QString expStr = QString("%1").arg(expID);
 
 //    command = QString("listTypes -x %1").arg(expStr);
@@ -1587,15 +1587,19 @@ OpenSpeedshop::lookForExperiment()
   
     int knownCollectorType = FALSE;
     QString panel_type = "other";
-    if( list_of_collectors.size() > 0 )
-    {
+    if( list_of_collectors.size() > 0 ) {
+
       for( std::list<std::string>::const_iterator it = list_of_collectors.begin();         it != list_of_collectors.end(); it++ )
       {
+
 //      std::string collector_name = *it;
+
         QString collector_name = (QString)*it;
+
 #ifdef DEBUG_GUI
         printf("B: collector_name=(%s)\n", collector_name.ascii() );
 #endif
+
         if( collector_name == "pcsamp" )
         {
           knownCollectorType = TRUE;
@@ -1656,6 +1660,8 @@ OpenSpeedshop::lookForExperiment()
 #endif
     PanelContainer *bestFitPC = ((PanelContainer *)topPC)->findBestFitPanelContainer((PanelContainer *)topPC);
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expStr);
+    // Set the instrumentor mode flag to what we saw on the command line
+    ao->isInstrumentorOffline = hadOfflineArg;
     topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, ao);
     delete ao;
   }

@@ -44,6 +44,8 @@ QEventLoop *qeventloop;
 #include "ArgClass.hxx"
 
 
+//#define DEBUG_GUI 1
+
 extern "C" 
 {
   static bool isGUIBeenCreate = FALSE;
@@ -53,11 +55,16 @@ extern "C"
   void
   guithreadinit(void *ptr)
   {
-// printf("guithreadinit() entered\n");
+
+#if DEBUG_GUI
+    printf("guithreadinit() entered\n");
+#endif
+
     ArgStruct *arg_struct = NULL;
     int argc = 0;
     char **argv = NULL;
     bool climode = true;
+    bool offlineMode = false;
     if( ptr != NULL )
     {
       arg_struct = (ArgStruct *)ptr;
@@ -66,11 +73,18 @@ extern "C"
     }
     bool splashFLAG=TRUE;
   
-// printf("guithreadinit() \n");
+#if DEBUG_GUI
+    printf("guithreadinit() \n");
+#endif
+
     QString fontname = QString::null;
     for(int i=0;i<argc;i++)
     {
-// printf("  argv[%d]=(%s)\n", i, argv[i] );
+
+#if DEBUG_GUI
+      printf("  argv[%d]=(%s)\n", i, argv[i] );
+#endif
+
       QString arg = argv[i];
       if( arg == "-fn" || arg == "--fn" )
       {
@@ -81,7 +95,11 @@ extern "C"
 
     for(int i=0;i<argc;i++)
     {
-// printf("  argv[%d]=(%s)\n", i, argv[i] );
+
+#if DEBUG_GUI
+      printf("  argv[%d]=(%s)\n", i, argv[i] );
+#endif
+
       QString arg = argv[i];
       if( arg == "-gui" || arg == "--gui" )
       {
@@ -90,9 +108,28 @@ extern "C"
       }
     }
 
+    for(int i=0;i<argc;i++)
+    {
+
+#if DEBUG_GUI
+      printf("  search for -offline argv[%d]=(%s)\n", i, argv[i] );
+#endif
+
+      QString arg = argv[i];
+      if( arg == "-offline" || arg == "--offline" )
+      {
+        offlineMode = true;
+#if DEBUG_GUI
+        printf("  -offline FOUND\n", i, argv[i] );
+#endif
+        break;
+      }
+    }
 
 
-//  printf("climode=(%d)\n", climode );
+#if DEBUG_GUI
+    printf("climode=(%d)\n", climode );
+#endif
     if( climode == TRUE )
     {  // Before you intialize the gui, make sure you won't abort just trying
        // to get started.   Do the obvious here... Check to see if we have a
@@ -122,22 +159,31 @@ extern "C"
     QStringList pidStrList = NULL;
     QString rankStr = QString::null;
     QString expStr = QString::null;
-//  printf("argc=%d\n", argc);
+#if DEBUG_GUI
+    printf("argc=%d\n", argc);
+#endif
     for(int i=0;i<argc;i++)
     {
       QString arg = argv[i];
-//    printf("argv[%d]=(%s)\n", i, argv[i]);
-//    printf("argv[%d]=(%s)\n", i+1, argv[i+1]);
+
+#if DEBUG_GUI
+      printf("argv[%d]=(%s)\n", i, argv[i]);
+      printf("argv[%d]=(%s)\n", i+1, argv[i+1]);
+#endif
 
       if( arg == "-wid" )
       { // You have a window id from the cli
         for( ;i<argc-1;)
         {
-//        printf("inside for i< argc, argv[%d]=(%s)\n", i, argv[i]);
+#if DEBUG_GUI
+          printf("inside for i< argc, argv[%d]=(%s)\n", i, argv[i]);
+#endif
           widStr += QString(argv[i+1]);
           widStr += QString(" ");
-//        printf("inside for i< argc, widStr.ascii()=(%s)\n", widStr.ascii());
-//        printf("inside for i< argc, widStr.toInt()=(%d)\n", widStr.toInt());
+#if DEBUG_GUI
+          printf("inside for i< argc, widStr.ascii()=(%s)\n", widStr.ascii());
+          printf("inside for i< argc, widStr.toInt()=(%d)\n", widStr.toInt());
+#endif
           i = i + 1;
         }
       }
@@ -194,8 +240,10 @@ extern "C"
     w->argsStr = argsStr;
     w->parallelPrefixCommandStr = parallelPrefixCommandStr;
 
-//  printf("w->argsStr.ascii()=%s\n", w->argsStr.ascii());
-//  printf("w->parallelPrefixCommandStr.ascii()=%s\n", w->parallelPrefixCommandStr.ascii());
+#if DEBUG_GUI
+    printf("w->argsStr.ascii()=%s\n", w->argsStr.ascii());
+    printf("w->parallelPrefixCommandStr.ascii()=%s\n", w->parallelPrefixCommandStr.ascii());
+#endif
 
     w->show();
 
@@ -219,13 +267,16 @@ extern "C"
     // See if they've defined any experiments.
 //    if( argc > 4 )
     {
-      number_of_found_experiments = w->lookForExperiment();
+      number_of_found_experiments = w->lookForExperiment(offlineMode);
     }
     // If the use has not defined any experiments, then 
     // load the wizard to help them...
-//  printf("number_of_found_experiments=%d\n", number_of_found_experiments );
-    if( number_of_found_experiments == 0 )
-    {
+
+#if DEBUG_GUI
+    printf("number_of_found_experiments=%d\n", number_of_found_experiments );
+#endif
+
+    if( number_of_found_experiments == 0 ) {
       w->loadTheWizard();
     }
 
@@ -243,7 +294,9 @@ extern "C"
   int
   gui_init( void *arg_struct, pthread_t *phandle )
   {
-//  printf("gui_init entered\n");
+#if DEBUG_GUI
+    printf("gui_init entered\n");
+#endif
     if( isGUIBeenCreate == TRUE )
     {
       if( !qapplication )

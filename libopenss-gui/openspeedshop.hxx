@@ -168,7 +168,7 @@ class OpenSpeedshop : public QMainWindow
     void print();
 
     //! Routine that is called when work was done from the command line.
-    int lookForExperiment();
+    int lookForExperiment( bool hadOfflineArg);
 
     //! Routine that is called when no hints are given on the command line.
     void loadTheWizard();
