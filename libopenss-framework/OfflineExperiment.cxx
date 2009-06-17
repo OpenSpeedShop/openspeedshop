@@ -761,6 +761,7 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 		if (objname.find("[vdso]") == string::npos &&
 		    objname.find("[vsyscall]") == string::npos &&
 		    objname.find("[stack]") == string::npos &&
+		    objname.find("[heap]") == string::npos &&
 		    objname.compare("unknown") != 0 ) {
 
 		    names_to_range.push_back(std::make_pair(objname,range));
