@@ -1,10 +1,10 @@
 .\" Process this file with
-.\" groff -man -Tascii OpenSpeedShop_offline.3
+.\" groff -man -Tascii OpenSpeedShop_online.3
 .\"
-.TH OpenSpeedShop_offline 3 "June, 2009" "Open|SpeedShop Reference" "Open|SpeedShop"
+.TH OpenSpeedShop_online 3 "June, 2009" "Open|SpeedShop Reference" "Open|SpeedShop"
 
 .SH NAME
-OpenSpeedShop \- Application Performance Tool Offline Mode of Operation
+OpenSpeedShop \- Application Performance Tool Online Mode of Operation
 
 .SH SYNOPSIS
 
@@ -17,16 +17,19 @@ detailed information about MPI events/calls, and floating point exceptions
 that occurred in the user application.  The term experiment is used to 
 describe the application and the type of performance data being gathered.   
 
-One of the ways Open|SpeedShop uses to gather the performance data, offline,
+One of the ways Open|SpeedShop uses to gather the performance data, online,
 is the topic of this man page.  The mode of instrumentation in 
 Open|SpeedShop refers to the manner in which the user application is 
 instrumented to allow the application execution to produce performance 
-information, in addition to the applications normal output.  In the offline 
-mode, the Open|SpeedShop performance data collectors are linked into the 
-user application through the libMonitor component (by the use of LD_PRELOAD)
-in Open|SpeedShop.  When the offline mode of operation is used (-offline option 
-to openss), then the application needs to be started from the beginning and run
-to completion in order for the performance gathering to complete properly.
+information, in addition to the applications normal output.  In the online 
+mode, the Open|SpeedShop performance data collectors are interjected into the 
+user application through dynamic instrumentation, via the Dyninst component
+in Open|SpeedShop.  When the online mode of operation is used (-online option 
+to openss, currently the default), then the application can either be started 
+from the beginning or can be attached to while already running.  The advantage
+to the online mode of operation is the flexibility to attach to processes 
+that are already running, view the data on demand (while application is still
+running), and then detach from the application.
 
 
 .SH SEE ALSO
@@ -45,5 +48,6 @@ The OpenSpeedShop Web site: www.openspeedshop.org
 .BR ossmpiotf (1),
 .BR ossfpe (1)
 .BR OpenSpeedShop (3)
+.BR OpenSpeedShop_offline (3)
 
 
