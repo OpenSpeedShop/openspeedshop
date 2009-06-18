@@ -58,7 +58,7 @@ mpi_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,MPI_
 mpit_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,MPI_Alltoall, MPI_Alltoallv,MPI_Barrier,MPI_Bcast,MPI_Bsend,MPI_Bsend_init, MPI_Cancel,MPI_Cart_create,MPI_Cart_sub,MPI_Comm_create, MPI_Comm_dup,MPI_Comm_free,MPI_Comm_split,MPI_Finalize, MPI_Gather,MPI_Gatherv,MPI_Get_count,MPI_Graph_create, MPI_Ibsend,MPI_Init,MPI_Intercomm_create,MPI_Intercomm_merge, MPI_Iprobe,MPI_Irecv,MPI_Irsend,MPI_Isend,MPI_Issend, MPI_Pack,MPI_Probe,MPI_Recv,MPI_Recv_init,MPI_Reduce, MPI_Reduce_scatter,MPI_Request_free,MPI_Rsend,MPI_Rsend_init, MPI_Scan,MPI_Scatter,MPI_Scatterv,MPI_Send,MPI_Sendrecv, MPI_Sendrecv_replace,MPI_Ssend,MPI_Ssend_init,MPI_Start, MPI_Startall,MPI_Test,MPI_Testall,MPI_Testany,MPI_Testsome, MPI_Unpack,MPI_Wait,MPI_Waitall,MPI_Waitany,MPI_Waitsome"
 
 # Corresponds to OPENSS_MPIOTF_TRACED
-mpioft_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,MPI_Alltoall, MPI_Alltoallv,MPI_Barrier,MPI_Bcast,MPI_Bsend,MPI_Bsend_init, MPI_Cancel,MPI_Cart_create,MPI_Cart_sub,MPI_Comm_create, MPI_Comm_dup,MPI_Comm_free,MPI_Comm_split,MPI_Finalize, MPI_Gather,MPI_Gatherv,MPI_Get_count,MPI_Graph_create, MPI_Ibsend,MPI_Init,MPI_Intercomm_create,MPI_Intercomm_merge, MPI_Iprobe,MPI_Irecv,MPI_Irsend,MPI_Isend,MPI_Issend, MPI_Pack,MPI_Probe,MPI_Recv,MPI_Recv_init,MPI_Reduce, MPI_Reduce_scatter,MPI_Request_free,MPI_Rsend,MPI_Rsend_init, MPI_Scan,MPI_Scatter,MPI_Scatterv,MPI_Send,MPI_Sendrecv, MPI_Sendrecv_replace,MPI_Ssend,MPI_Ssend_init,MPI_Start, MPI_Startall,MPI_Test,MPI_Testall,MPI_Testany,MPI_Testsome, MPI_Unpack,MPI_Wait,MPI_Waitall,MPI_Waitany,MPI_Waitsome"
+mpiotf_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,MPI_Alltoall, MPI_Alltoallv,MPI_Barrier,MPI_Bcast,MPI_Bsend,MPI_Bsend_init, MPI_Cancel,MPI_Cart_create,MPI_Cart_sub,MPI_Comm_create, MPI_Comm_dup,MPI_Comm_free,MPI_Comm_split,MPI_Finalize, MPI_Gather,MPI_Gatherv,MPI_Get_count,MPI_Graph_create, MPI_Ibsend,MPI_Init,MPI_Intercomm_create,MPI_Intercomm_merge, MPI_Iprobe,MPI_Irecv,MPI_Irsend,MPI_Isend,MPI_Issend, MPI_Pack,MPI_Probe,MPI_Recv,MPI_Recv_init,MPI_Reduce, MPI_Reduce_scatter,MPI_Request_free,MPI_Rsend,MPI_Rsend_init, MPI_Scan,MPI_Scatter,MPI_Scatterv,MPI_Send,MPI_Sendrecv, MPI_Sendrecv_replace,MPI_Ssend,MPI_Ssend_init,MPI_Start, MPI_Startall,MPI_Test,MPI_Testall,MPI_Testany,MPI_Testsome, MPI_Unpack,MPI_Wait,MPI_Waitall,MPI_Waitany,MPI_Waitsome"
 
 # Corresponds to OPENSS_FPE_EVENT
 fpe_default_events="inexact_result,division_by_zero,underflow,overflow,invalid_operation"
@@ -1003,68 +1003,89 @@ then
 # ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "ossio" ]
 then
+
   if [ $debug_flag == 1 ]
   then
     echo "DEBUG: in IO EXPERIMENT SECTION, input_argument_event_or_trace_list_value=$input_argument_event_or_trace_list_value"
   fi
 
-  if [ -z "$OPENSS_IO_TRACED" ] 
-  then
-
-    if [ $input_argument_event_or_trace_list_value != 0 ]
-    then
-      echo "[openss]: io experiment using input io experiment trace function list specified on the \"ossio\" command: \"$input_argument_event_or_trace_list_value\"."
-    else
-      echo "[openss]: io experiment using the default I/O experiment trace function list: \"$io_default_traceable_functions\"."
-    fi
-
-  else
-
-    if [ $input_argument_event_or_trace_list_value != 0 ]
-    then
-      echo "[openss]: io experiment using input io experiment trace function list specified on the \"ossio\" command: \"$input_argument_event_or_trace_list_value\"."
-    else
-      echo "[openss]: io experiment OPENSS_IO_TRACED=$OPENSS_IO_TRACED is set and will be used as the I/O experiment trace function list."
-    fi
-
-  fi
-
   if [ $input_argument_event_or_trace_list_value != 0 ]
   then
+
     if [ -z  "$OPENSS_IO_TRACED" ]
     then
+      echo "[openss]: io experiment using input io experiment trace function list specified on the \"ossio\" command: \"$input_argument_event_or_trace_list_value\" overriding the default I/O function list."
+
       if [ $debug_flag == 1 ]
       then
-         echo "DEBUG: setting OPENSS_IO_TRACED to $input_argument_event_or_trace_list_value"
+         echo "DEBUG: setting OPENSS_IO_TRACED to $input_argument_event_or_trace_list_value and overriding the previous value of OPENSS_IO_TRACED"
       fi
+
     else
+
+      echo "[openss]: io experiment using input io experiment trace function list specified on the \"ossio\" command: \"$input_argument_event_or_trace_list_value\" overriding the I/O function list specified by the environment variable: OPENSS_IO_TRACED."
+
       if [ $debug_flag == 1 ]
       then
          echo "DEBUG: setting OPENSS_IO_TRACED to $input_argument_event_or_trace_list_value and overriding what was already set in OPENSS_IO_TRACED"
       fi
+
     fi
+
     OPENSS_IO_TRACED=$input_argument_event_or_trace_list_value
-  else
-    # input argument not specified
+
+  elif [ $use_default_flag == 1 ]
+  then
+
     if [ -z  "$OPENSS_IO_TRACED" ]
     then
+       echo "[openss]: io experiment using function list: \"$io_default_traceable_functions\" because the \"default\" parameter is specified."
+     else
+       if [ $io_default_traceable_functions != $OPENSS_IO_TRACED ]
+       then
+         echo "[openss]: io experiment OPENSS_IO_TRACED=$OPENSS_IO_TRACED is set and will be altered to \"$io_default_traceable_functions\" because the \"default\" parameter is specified."
+       fi
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: io, default, io_traced=$io_default_traceable_functions"
+     fi
+     OPENSS_IO_TRACED=$io_default_traceable_functions
+     export OPENSS_IO_TRACED
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in IO EXPERIMENT SECTION, RESET default, OPENSS_IO_TRACED=$OPENSS_IO_TRACED"
+     fi
+
+  else
+
+    # input argument or default argument not specified
+
+    if [ -z  "$OPENSS_IO_TRACED" ]
+    then
+
+      echo "[openss]: io experiment using the default I/O experiment trace function list: \"$io_default_traceable_functions\"."
       OPENSS_IO_TRACED=$io_default_traceable_functions
+
       if [ $debug_flag == 1 ]
       then
         echo "DEBUG: setting OPENSS_IO_TRACED to default $io_default_traceable_functions"
       fi
     else
+      echo "[openss]: io experiment OPENSS_IO_TRACED=$OPENSS_IO_TRACED is set and will override the default I/O function list."
       if [ $debug_flag == 1 ]
       then
         echo "DEBUG: exporting already set OPENSS_IO_TRACED to $OPENSS_IO_TRACED"
       fi
     fi
+
   fi
 
   if [ $debug_flag == 1 ]
   then
     echo "DEBUG: about to call openss -offline for io experiment, OPENSS_IO_TRACED=$OPENSS_IO_TRACED"
   fi
+
   export OPENSS_IO_TRACED
 
   openss -offline -f "$1" io
@@ -1074,68 +1095,89 @@ then
 # ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "ossiot" ]
 then
+
   if [ $debug_flag == 1 ]
   then
     echo "DEBUG: in IOT EXPERIMENT SECTION, input_argument_event_or_trace_list_value=$input_argument_event_or_trace_list_value"
   fi
 
-  if [ -z "$OPENSS_IOT_TRACED" ] 
-  then
-
-    if [ $input_argument_event_or_trace_list_value != 0 ]
-    then
-      echo "[openss]: iot experiment using input iot experiment trace function list specified on the \"ossiot\" command: \"$input_argument_event_or_trace_list_value\"."
-    else
-      echo "[openss]: iot experiment using the default I/O experiment trace function list: \"$iot_default_traceable_functions\"."
-    fi
-
-  else
-
-    if [ $input_argument_event_or_trace_list_value != 0 ]
-    then
-      echo "[openss]: iot experiment using input iot experiment trace function list specified on the \"ossiot\" command: \"$input_argument_event_or_trace_list_value\"."
-    else
-      echo "[openss]: iot experiment OPENSS_IOT_TRACED=$OPENSS_IOT_TRACED is set and will be used as the I/O experiment trace function list."
-    fi
-
-  fi
-
   if [ $input_argument_event_or_trace_list_value != 0 ]
   then
+
     if [ -z  "$OPENSS_IOT_TRACED" ]
     then
+      echo "[openss]: iot experiment using input iot experiment trace function list specified on the \"ossiot\" command: \"$input_argument_event_or_trace_list_value\" overriding the default I/O function list."
+
       if [ $debug_flag == 1 ]
       then
-         echo "DEBUG: setting OPENSS_IOT_TRACED to $input_argument_event_or_trace_list_value"
+         echo "DEBUG: setting OPENSS_IOT_TRACED to $input_argument_event_or_trace_list_value and overriding the previous value of OPENSS_IOT_TRACED"
       fi
+
     else
+
+      echo "[openss]: iot experiment using input iot experiment trace function list specified on the \"ossiot\" command: \"$input_argument_event_or_trace_list_value\" overriding the I/O function list specified by the environment variable: OPENSS_IOT_TRACED."
+
       if [ $debug_flag == 1 ]
       then
          echo "DEBUG: setting OPENSS_IOT_TRACED to $input_argument_event_or_trace_list_value and overriding what was already set in OPENSS_IOT_TRACED"
       fi
+
     fi
+
     OPENSS_IOT_TRACED=$input_argument_event_or_trace_list_value
-  else
-    # input argument not specified
+
+  elif [ $use_default_flag == 1 ]
+  then
+
     if [ -z  "$OPENSS_IOT_TRACED" ]
     then
+       echo "[openss]: iot experiment using function list: \"$iot_default_traceable_functions\" because the \"default\" parameter is specified."
+     else
+       if [ $iot_default_traceable_functions != $OPENSS_IOT_TRACED ]
+       then
+         echo "[openss]: iot experiment OPENSS_IOT_TRACED=$OPENSS_IOT_TRACED is set and will be altered to \"$iot_default_traceable_functions\" because the \"default\" parameter is specified."
+       fi
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: iot, default, iot_traced=$iot_default_traceable_functions"
+     fi
+     OPENSS_IOT_TRACED=$iot_default_traceable_functions
+     export OPENSS_IOT_TRACED
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in IOT EXPERIMENT SECTION, RESET default, OPENSS_IOT_TRACED=$OPENSS_IOT_TRACED"
+     fi
+
+  else
+
+    # input argument or default argument not specified
+
+    if [ -z  "$OPENSS_IOT_TRACED" ]
+    then
+
+      echo "[openss]: iot experiment using the default I/O experiment trace function list: \"$iot_default_traceable_functions\"."
       OPENSS_IOT_TRACED=$iot_default_traceable_functions
+
       if [ $debug_flag == 1 ]
       then
         echo "DEBUG: setting OPENSS_IOT_TRACED to default $iot_default_traceable_functions"
       fi
     else
+      echo "[openss]: iot experiment OPENSS_IOT_TRACED=$OPENSS_IOT_TRACED is set and will override the default I/O function list."
       if [ $debug_flag == 1 ]
       then
         echo "DEBUG: exporting already set OPENSS_IOT_TRACED to $OPENSS_IOT_TRACED"
       fi
     fi
+
   fi
 
   if [ $debug_flag == 1 ]
   then
     echo "DEBUG: about to call openss -offline for iot experiment, OPENSS_IOT_TRACED=$OPENSS_IOT_TRACED"
   fi
+
   export OPENSS_IOT_TRACED
 
   openss -offline -f "$1" iot
@@ -1150,52 +1192,81 @@ then
     echo "DEBUG: in MPI EXPERIMENT SECTION, input_argument_event_or_trace_list_value=$input_argument_event_or_trace_list_value"
   fi
 
-  if [ -z "$OPENSS_MPI_TRACED" ] 
-  then
-
-    if [ $input_argument_event_or_trace_list_value != 0 ]
-    then
-      echo "[openss]: mpi experiment using input mpi experiment trace function list specified on the \"ossmpi\" command: \"$input_argument_event_or_trace_list_value\"."
-    else
-      echo "[openss]: mpi experiment using the default MPI experiment trace function list: \"$mpi_default_traceable_functions\"."
-    fi
-
-  else
-
-    if [ $input_argument_event_or_trace_list_value != 0 ]
-    then
-      echo "[openss]: mpi experiment using input mpi experiment trace function list specified on the \"ossmpi\" command: \"$input_argument_event_or_trace_list_value\"."
-    else
-      echo "[openss]: mpi experiment OPENSS_MPI_TRACED=$OPENSS_MPI_TRACED is set and will be used as the MPI experiment trace function list."
-    fi
-
-  fi
+#  if [ -z "$OPENSS_MPI_TRACED" ] 
+#  then
+#
+#    if [ $input_argument_event_or_trace_list_value != 0 ]
+#    then
+#      echo "[openss]: mpi experiment using input mpi experiment trace function list specified on the \"ossmpi\" command: \"$input_argument_event_or_trace_list_value\"."
+#    else
+#      echo "[openss]: mpi experiment using the default MPI experiment trace function list: \"$mpi_default_traceable_functions\"."
+#    fi
+#
+#  else
+#
+#    if [ $input_argument_event_or_trace_list_value != 0 ]
+#    then
+#      echo "[openss]: mpi experiment using input mpi experiment trace function list specified on the \"ossmpi\" command: \"$input_argument_event_or_trace_list_value\"."
+#    else
+#      echo "[openss]: mpi experiment OPENSS_MPI_TRACED=$OPENSS_MPI_TRACED is set and will be used as the MPI experiment trace function list."
+#    fi
+#
+#  fi
 
   if [ $input_argument_event_or_trace_list_value != 0 ]
   then
+
     if [ -z  "$OPENSS_MPI_TRACED" ]
     then
+      echo "[openss]: mpi experiment using input mpi experiment trace function list specified on the \"ossmpi\" command: \"$input_argument_event_or_trace_list_value\"."
       if [ $debug_flag == 1 ]
       then
          echo "DEBUG: setting OPENSS_MPI_TRACED to $input_argument_event_or_trace_list_value"
       fi
     else
+      echo "[openss]: mpi experiment using input mpi experiment trace function list specified on the \"ossmpi\" command: \"$input_argument_event_or_trace_list_value\" overriding the OPENSS_MPI_TRACED environment variable setting."
       if [ $debug_flag == 1 ]
       then
          echo "DEBUG: setting OPENSS_MPI_TRACED to $input_argument_event_or_trace_list_value and overriding what was already set in OPENSS_MPI_TRACED"
       fi
     fi
+
     OPENSS_MPI_TRACED=$input_argument_event_or_trace_list_value
+
+  elif [ $use_default_flag == 1 ]
+  then
+
+    if [ -z  "$OPENSS_MPI_TRACED" ]
+     then
+       echo "[openss]: mpi experiment using function list: \"$mpi_default_traceable_functions\" because the \"default\" parameter is specified."
+     else
+       if [ $mpi_default_traceable_functions != $OPENSS_MPI_TRACED ]
+       then
+         echo "[openss]: mpi experiment OPENSS_MPI_TRACED=$OPENSS_MPI_TRACED is set and will be altered to \"$mpi_default_traceable_functions\" because the \"default\" parameter is specified."
+       fi
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: mpi, default, mpi_traced=$mpi_default_traceable_functions"
+     fi
+     OPENSS_MPI_TRACED=$mpi_default_traceable_functions
+     export OPENSS_MPI_TRACED
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in MPI EXPERIMENT SECTION, RESET default, OPENSS_MPI_TRACED=$OPENSS_MPI_TRACED"
+     fi
   else
     # input argument not specified
     if [ -z  "$OPENSS_MPI_TRACED" ]
     then
+      echo "[openss]: mpi experiment using the default MPI experiment trace function list: \"$mpi_default_traceable_functions\"."
       OPENSS_MPI_TRACED=$mpi_default_traceable_functions
       if [ $debug_flag == 1 ]
       then
         echo "DEBUG: setting OPENSS_MPI_TRACED to default $mpi_default_traceable_functions"
       fi
     else
+      echo "[openss]: mpi experiment using the OPENSS_MPI_TRACED=$OPENSS_MPI_TRACED environment variable MPI function list overriding the default MPI experiment trace function list."
       if [ $debug_flag == 1 ]
       then
         echo "DEBUG: exporting already set OPENSS_MPI_TRACED to $OPENSS_MPI_TRACED"
@@ -1222,52 +1293,58 @@ then
     echo "DEBUG: in MPIT EXPERIMENT SECTION, input_argument_event_or_trace_list_value=$input_argument_event_or_trace_list_value"
   fi
 
-  if [ -z "$OPENSS_MPIT_TRACED" ] 
-  then
-
-    if [ $input_argument_event_or_trace_list_value != 0 ]
-    then
-      echo "[openss]: mpit experiment using input mpit experiment trace function list specified on the \"ossmpit\" command: \"$input_argument_event_or_trace_list_value\"."
-    else
-      echo "[openss]: mpit experiment using the default MPIT experiment trace function list: \"$mpit_default_traceable_functions\"."
-    fi
-
-  else
-
-    if [ $input_argument_event_or_trace_list_value != 0 ]
-    then
-      echo "[openss]: mpit experiment using input mpit experiment trace function list specified on the \"ossmpit\" command: \"$input_argument_event_or_trace_list_value\"."
-    else
-      echo "[openss]: mpit experiment OPENSS_MPIT_TRACED=$OPENSS_MPIT_TRACED is set and will be used as the MPIT experiment trace function list."
-    fi
-
-  fi
 
   if [ $input_argument_event_or_trace_list_value != 0 ]
   then
     if [ -z  "$OPENSS_MPIT_TRACED" ]
     then
+      echo "[openss]: mpit experiment using input mpit experiment trace function list specified on the \"ossmpit\" command: \"$input_argument_event_or_trace_list_value\"."
       if [ $debug_flag == 1 ]
       then
          echo "DEBUG: setting OPENSS_MPIT_TRACED to $input_argument_event_or_trace_list_value"
       fi
     else
+      echo "[openss]: mpit experiment using input mpit experiment trace function list specified on the \"ossmpit\" command: \"$input_argument_event_or_trace_list_value\" overriding the MPIT function list specified by the OPENSS_MPIT_TRACED environment variable."
       if [ $debug_flag == 1 ]
       then
          echo "DEBUG: setting OPENSS_MPIT_TRACED to $input_argument_event_or_trace_list_value and overriding what was already set in OPENSS_MPIT_TRACED"
       fi
     fi
     OPENSS_MPIT_TRACED=$input_argument_event_or_trace_list_value
+
+  elif [ $use_default_flag == 1 ]
+  then
+    if [ -z  "$OPENSS_MPIT_TRACED" ]
+     then
+       echo "[openss]: mpit experiment using function list: \"$mpit_default_traceable_functions\" because the \"default\" parameter is specified."
+     else
+       if [ $mpit_default_traceable_functions != $OPENSS_MPIT_TRACED ]
+       then
+         echo "[openss]: mpit experiment OPENSS_MPIT_TRACED=$OPENSS_MPIT_TRACED is set and will be altered to \"$mpit_default_traceable_functions\" because the \"default\" parameter is specified."
+       fi
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: mpit, default, mpit_traced=$mpit_default_traceable_functions"
+     fi
+     OPENSS_MPIT_TRACED=$mpit_default_traceable_functions
+     export OPENSS_MPIT_TRACED
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in MPIT EXPERIMENT SECTION, RESET default, OPENSS_MPIT_TRACED=$OPENSS_MPIT_TRACED"
+     fi
   else
     # input argument not specified
     if [ -z  "$OPENSS_MPIT_TRACED" ]
     then
+      echo "[openss]: mpit experiment using the default MPIT experiment trace function list: \"$mpit_default_traceable_functions\"."
       OPENSS_MPIT_TRACED=$mpit_default_traceable_functions
       if [ $debug_flag == 1 ]
       then
         echo "DEBUG: setting OPENSS_MPIT_TRACED to default $mpit_default_traceable_functions"
       fi
     else
+      echo "[openss]: mpit experiment OPENSS_MPIT_TRACED=$OPENSS_MPIT_TRACED is set and will be used as the MPIT experiment trace function list."
       if [ $debug_flag == 1 ]
       then
         echo "DEBUG: exporting already set OPENSS_MPIT_TRACED to $OPENSS_MPIT_TRACED"
@@ -1294,52 +1371,58 @@ then
     echo "DEBUG: in MPIOTF EXPERIMENT SECTION, input_argument_event_or_trace_list_value=$input_argument_event_or_trace_list_value"
   fi
 
-  if [ -z "$OPENSS_MPIOTF_TRACED" ] 
-  then
-
-    if [ $input_argument_event_or_trace_list_value != 0 ]
-    then
-      echo "[openss]: mpiotf experiment using input mpiotf experiment trace function list specified on the \"ossmpiotf\" command: \"$input_argument_event_or_trace_list_value\"."
-    else
-      echo "[openss]: mpiotf experiment using the default MPIOTF experiment trace function list: \"$mpiotf_default_traceable_functions\"."
-    fi
-
-  else
-
-    if [ $input_argument_event_or_trace_list_value != 0 ]
-    then
-      echo "[openss]: mpiotf experiment using input mpiotf experiment trace function list specified on the \"ossmpiotf\" command: \"$input_argument_event_or_trace_list_value\"."
-    else
-      echo "[openss]: mpiotf experiment OPENSS_MPIOTF_TRACED=$OPENSS_MPIOTF_TRACED is set and will be used as the MPIOTF experiment trace function list."
-    fi
-
-  fi
 
   if [ $input_argument_event_or_trace_list_value != 0 ]
   then
     if [ -z  "$OPENSS_MPIOTF_TRACED" ]
     then
+      echo "[openss]: mpiotf experiment using input mpiotf experiment trace function list specified on the \"ossmpiotf\" command: \"$input_argument_event_or_trace_list_value\"."
       if [ $debug_flag == 1 ]
       then
          echo "DEBUG: setting OPENSS_MPIOTF_TRACED to $input_argument_event_or_trace_list_value"
       fi
     else
+      echo "[openss]: mpiotf experiment using input mpiotf experiment trace function list specified on the \"ossmpiotf\" command: \"$input_argument_event_or_trace_list_value\" overriding the MPIOTF function list specified by the OPENSS_MPIOTF_TRACED environment variable."
       if [ $debug_flag == 1 ]
       then
          echo "DEBUG: setting OPENSS_MPIOTF_TRACED to $input_argument_event_or_trace_list_value and overriding what was already set in OPENSS_MPIOTF_TRACED"
       fi
     fi
     OPENSS_MPIOTF_TRACED=$input_argument_event_or_trace_list_value
+
+  elif [ $use_default_flag == 1 ]
+  then
+    if [ -z  "$OPENSS_MPIOTF_TRACED" ]
+     then
+       echo "[openss]: mpiotf experiment using function list: \"$mpiotf_default_traceable_functions\" because the \"default\" parameter is specified."
+     else
+       if [ $mpiotf_default_traceable_functions != $OPENSS_MPIOTF_TRACED ]
+       then
+         echo "[openss]: mpiotf experiment OPENSS_MPIOTF_TRACED=$OPENSS_MPIOTF_TRACED is set and will be altered to \"$mpiotf_default_traceable_functions\" because the \"default\" parameter is specified."
+       fi
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: mpiotf, default, mpiotf_traced=$mpiotf_default_traceable_functions"
+     fi
+     OPENSS_MPIOTF_TRACED=$mpiotf_default_traceable_functions
+     export OPENSS_MPIOTF_TRACED
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in MPIOTF EXPERIMENT SECTION, RESET default, OPENSS_MPIOTF_TRACED=$OPENSS_MPIOTF_TRACED"
+     fi
   else
     # input argument not specified
     if [ -z  "$OPENSS_MPIOTF_TRACED" ]
     then
+      echo "[openss]: mpiotf experiment using the default MPIOTF experiment trace function list: \"$mpiotf_default_traceable_functions\"."
       OPENSS_MPIOTF_TRACED=$mpiotf_default_traceable_functions
       if [ $debug_flag == 1 ]
       then
         echo "DEBUG: setting OPENSS_MPIOTF_TRACED to default $mpiotf_default_traceable_functions"
       fi
     else
+      echo "[openss]: mpiotf experiment OPENSS_MPIOTF_TRACED=$OPENSS_MPIOTF_TRACED is set and will be used as the MPIOTF experiment trace function list."
       if [ $debug_flag == 1 ]
       then
         echo "DEBUG: exporting already set OPENSS_MPIOTF_TRACED to $OPENSS_MPIOTF_TRACED"
@@ -1366,52 +1449,56 @@ then
     echo "DEBUG: in FPE EXPERIMENT SECTION, input_argument_event_or_trace_list_value=$input_argument_event_or_trace_list_value"
   fi
 
-  if [ -z "$OPENSS_FPE_EVENT" ] 
-  then
-
-    if [ $input_argument_event_or_trace_list_value != 0 ]
-    then
-      echo "[openss]: fpe experiment using input fpe experiment event list specified on the \"ossfpe\" command: \"$input_argument_event_or_trace_list_value\"."
-    else
-      echo "[openss]: fpe experiment using the default FPE experiment event list: \"$fpe_default_events\"."
-    fi
-
-  else
-
-    if [ $input_argument_event_or_trace_list_value != 0 ]
-    then
-      echo "[openss]: fpe experiment using input fpe experiment event list specified on the \"ossfpe\" command: \"$input_argument_event_or_trace_list_value\"."
-    else
-      echo "[openss]: fpe experiment OPENSS_FPE_EVENT=$OPENSS_FPE_EVENT is set and will be used as the FPE experiment event list."
-    fi
-
-  fi
-
   if [ $input_argument_event_or_trace_list_value != 0 ]
   then
     if [ -z  "$OPENSS_FPE_EVENT" ]
     then
+      echo "[openss]: fpe experiment using input fpe experiment event list specified on the \"ossfpe\" command: \"$input_argument_event_or_trace_list_value\"."
       if [ $debug_flag == 1 ]
       then
          echo "DEBUG: setting OPENSS_FPE_EVENT to $input_argument_event_or_trace_list_value"
       fi
     else
+      echo "[openss]: fpe experiment using input fpe experiment event list specified on the \"ossfpe\" command: \"$input_argument_event_or_trace_list_value\" overriding the OPENSS_FPE_EVENT environment variable setting."
       if [ $debug_flag == 1 ]
       then
          echo "DEBUG: setting OPENSS_FPE_EVENT to $input_argument_event_or_trace_list_value and overriding what was already set in OPENSS_FPE_EVENT"
       fi
     fi
     OPENSS_FPE_EVENT=$input_argument_event_or_trace_list_value
+  elif [ $use_default_flag == 1 ]
+  then
+    if [ -z  "$OPENSS_FPE_EVENT" ]
+     then
+       echo "[openss]: fpe experiment using function list: \"$fpe_default_events\" because the \"default\" parameter is specified."
+     else
+       if [ $fpe_default_events != $OPENSS_FPE_EVENT ]
+       then
+         echo "[openss]: fpe experiment OPENSS_FPE_EVENT=$OPENSS_FPE_EVENT is set and will be altered to \"$fpe_default_events\" because the \"default\" parameter is specified."
+       fi
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: fpe, default, fpe_traced=$fpe_default_events"
+     fi
+     OPENSS_FPE_EVENT=$fpe_default_events
+     export OPENSS_FPE_EVENT
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in FPE EXPERIMENT SECTION, RESET default, OPENSS_FPE_EVENT=$OPENSS_FPE_EVENT"
+     fi
   else
     # input argument not specified
     if [ -z  "$OPENSS_FPE_EVENT" ]
     then
+      echo "[openss]: fpe experiment using the default FPE experiment event list: \"$fpe_default_events\"."
       OPENSS_FPE_EVENT=$fpe_default_events
       if [ $debug_flag == 1 ]
       then
         echo "DEBUG: setting OPENSS_FPE_EVENT to default $fpe_default_events"
       fi
     else
+      echo "[openss]: fpe experiment OPENSS_FPE_EVENT=$OPENSS_FPE_EVENT is set and will be used as the FPE experiment event list."
       if [ $debug_flag == 1 ]
       then
         echo "DEBUG: exporting already set OPENSS_FPE_EVENT to $OPENSS_FPE_EVENT"
