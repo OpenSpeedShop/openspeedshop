@@ -191,6 +191,7 @@ void offline_start_sampling(const char* in_arguments)
     /* Start sampling */
     offline_sent_data(0);
     tls->finished = 0;
+    tls->started = 1;
     hwc_start_sampling(arguments);
 }
 
