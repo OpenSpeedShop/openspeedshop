@@ -125,6 +125,7 @@ void offline_send_dsos(TLS *tls)
 #endif
     tls->data.objs.objs_len = 0;
     tls->dsoname_len = 0;
+    memset(tls->buffer.objs, 0, sizeof(tls->buffer.objs));
 }
 
 /**
@@ -167,6 +168,7 @@ void offline_start_sampling(const char* in_arguments)
     tls->dsoname_len = 0;
     tls->data.objs.objs_len = 0;
     tls->data.objs.objs_val = tls->buffer.objs;
+    memset(tls->buffer.objs, 0, sizeof(tls->buffer.objs));
 
     /* Start sampling */
     offline_sent_data(0);

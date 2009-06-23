@@ -36,6 +36,8 @@
 typedef struct {
 
     uint64_t time_started;
+    int is_tracing;
+    int pid;
 
     OpenSS_DataHeader dso_header;   /**< Header for following dso blob. */
     OpenSS_DataHeader info_header;  /**< Header for following info blob. */
@@ -75,11 +77,29 @@ void offline_finish();
 
 void offline_pause_sampling()
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    tls->is_tracing = 0;
     defer_trace(0);
 }
 
 void offline_resume_sampling()
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    tls->is_tracing = 1;
     defer_trace(1);
 }
 
@@ -104,7 +124,7 @@ void offline_send_dsos(TLS *tls)
     /* Send the offline "info" blob */
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"offline_stop_sampling SENDS DSOS for HOST %s, PID %d, POSIX_TID %lu\n",
+        fprintf(stderr,"offline_send_dsos SENDS DSOS for HOST %s, PID %d, POSIX_TID %lu\n",
         tls->dso_header.host, tls->dso_header.pid, tls->dso_header.posix_tid);
     }
 #endif
@@ -139,12 +159,9 @@ void offline_start_sampling(const char* in_arguments)
 {
     /* Create and access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
-    TLS* tls = OpenSS_GetTLS(TLSKey);
-    if (tls == NULL) {
-	tls = malloc(sizeof(TLS));
-	Assert(tls != NULL);
-	OpenSS_SetTLS(TLSKey, tls);
-    }
+    TLS* tls =  malloc(sizeof(TLS));
+    Assert(tls != NULL);
+    OpenSS_SetTLS(TLSKey, tls);
 #else
     TLS* tls = &the_tls;
 #endif
@@ -161,7 +178,6 @@ void offline_start_sampling(const char* in_arguments)
 			    (xdrproc_t)xdr_io_start_tracing_args,
 			    arguments);
     
-        
     tls->time_started = OpenSS_GetTime();
 
     tls->dsoname_len = 0;
@@ -171,8 +187,6 @@ void offline_start_sampling(const char* in_arguments)
     /* Start sampling */
     io_start_tracing(arguments);
 }
-
-
 
 /**
  * Stop offline sampling.
@@ -227,9 +241,6 @@ void offline_finish()
     OpenSS_DataHeader header;
     openss_expinfo info;
 
-    /* Access the environment-specified arguments */
-    const char* io_traced = getenv("OPENSS_IO_TRACED");
-
     /* Initialize the offline "info" blob's header */
     OpenSS_InitializeDataHeader(0, /* Experiment */
 				1, /* Collector */
@@ -240,6 +251,10 @@ void offline_finish()
     info.collector = strdup("io");
     info.exename = strdup(OpenSS_GetExecutablePath());
     info.rank = monitor_mpi_comm_rank();
+
+    /* Access the environment-specified arguments */
+    const char* io_traced = getenv("OPENSS_IO_TRACED");
+
     if (io_traced != NULL && strcmp(io_traced,"") != 0) {
 	info.traced = strdup(io_traced);
     } else {
@@ -263,8 +278,6 @@ void offline_finish()
 	offline_send_dsos(tls);
     }
 }
-
-
 
 /**
  * Record a DSO operation.

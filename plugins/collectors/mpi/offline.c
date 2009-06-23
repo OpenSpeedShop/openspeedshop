@@ -46,7 +46,7 @@ typedef struct {
     offline_data data;              /**< Actual dso data blob. */
 
     struct {
-        openss_objects objs[OpenSS_OBJBufferSize];
+	openss_objects objs[OpenSS_OBJBufferSize];
     } buffer;
 
     int  dsoname_len;
@@ -78,10 +78,28 @@ void offline_finish();
 
 void offline_pause_sampling()
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    tls->is_tracing = 0;
 }
 
 void offline_resume_sampling()
 {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    tls->is_tracing = 1;
 }
 
 void offline_sent_data(int sent_data)
@@ -105,7 +123,7 @@ void offline_send_dsos(TLS *tls)
     /* Send the offline "info" blob */
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"offline_stop_sampling SENDS DSOS for HOST %s, PID %d, POSIX_TID %lu\n",
+        fprintf(stderr,"offline_send_dsos SENDS DSOS for HOST %s, PID %d, POSIX_TID %lu\n",
         tls->dso_header.host, tls->dso_header.pid, tls->dso_header.posix_tid);
     }
 #endif
@@ -140,14 +158,9 @@ void offline_start_sampling(const char* in_arguments)
 {
     /* Create and access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
-    TLS* tls = OpenSS_GetTLS(TLSKey);
-    if (tls == NULL) {
-        tls = malloc(sizeof(TLS));
-        Assert(tls != NULL);
-        OpenSS_SetTLS(TLSKey, tls);
-	tls->is_tracing = 0;
-    }
-    
+    TLS* tls =  malloc(sizeof(TLS));
+    Assert(tls != NULL);
+    OpenSS_SetTLS(TLSKey, tls);
 #else
     TLS* tls = &the_tls;
 #endif

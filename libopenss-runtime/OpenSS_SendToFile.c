@@ -88,12 +88,9 @@ void OpenSS_SetSendToFile(OpenSS_DataHeader* header,
 
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
-    TLS* tls = OpenSS_GetTLS(TLSKey);
-    if(tls == NULL) {
-        tls = malloc(sizeof(TLS));
-        Assert(tls != NULL);
-        OpenSS_SetTLS(TLSKey, tls);
-    }
+    TLS* tls = malloc(sizeof(TLS));
+    Assert(tls != NULL);
+    OpenSS_SetTLS(TLSKey, tls);
 #else
     TLS* tls = &the_tls;
 #endif
