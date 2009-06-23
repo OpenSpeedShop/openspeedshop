@@ -41,6 +41,11 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 	    break;
 	}
 
+	char *permstring = strchr(buf, (int) ' ');
+	if (!(*(permstring+3) == 'x' && strchr(buf, (int) '/'))) {
+	    continue;
+	}
+
 	mappedpath[0] = '\0';
 
 	/* Read in the /proc/<pid>/maps file as it is formatted. */
@@ -59,12 +64,10 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 	/* the victim application has performed a dlopen. */
 	if (path != NULL &&
 	    mappedpath != NULL &&
-	    perm[2] == 'x' &&
 	    (strncmp(path, mappedpath, strlen(path)) == 0) ) {
 #ifndef NDEBUG
 	    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
-		fprintf(stderr,"OpenSS_GetDLInfo: found path %s in /proc maps file\n",path);
-		fprintf(stderr,"OpenSS_GetDLInfo record: %s [%08lx, %08lx]\n",
+		fprintf(stderr,"OpenSS_GetDLInfo DLOPEN RECORD: %s [%08lx, %08lx]\n",
 		    mappedpath, begin, end);
 	    }
 #endif
@@ -76,28 +79,10 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 	else if (perm[2] == 'x' && path == NULL) {
 #ifndef NDEBUG
 	    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
-		fprintf(stderr,"OpenSS_GetDLInfo mappedpath: %s [%08lx, %08lx]\n",
-		    mappedpath, begin, end);
+		fprintf(stderr,"OpenSS_GetDLInfo LD RECORD %s\n", mappedpath);
 	    }
 #endif
-	    if (strncmp("", mappedpath, strlen(mappedpath)) == 0 ||
-		strncmp("[vdso]", mappedpath, strlen(mappedpath)) == 0 ||
-		strncmp("[vsyscall]", mappedpath, strlen(mappedpath)) == 0 ||
-		strncmp("[stack]", mappedpath, strlen(mappedpath)) == 0) {
-#ifndef NDEBUG
-	        if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
-		    fprintf(stderr,"OpenSS_GetDLInfo IGNORING mappedpath %s\n",mappedpath);
-	        }
-#endif
-	    } else {
-#ifndef NDEBUG
-	        if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
-		    fprintf(stderr,"OpenSS_GetDLInfo RECORD %s\n",
-			mappedpath);
-	        }
-#endif
-	        offline_record_dso(mappedpath, begin, end, 0);
-	    }
+	    offline_record_dso(mappedpath, begin, end, 0);
 	}
     }
     fclose(mapfile);
