@@ -1,7 +1,7 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-** Copyright (c) 2007 Krell Institute.  All Rights Reserved.
+** Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
+** Copyright (c) 2007,2008,2009 Krell Institute.  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -85,7 +85,6 @@ static __thread TLS the_tls;
 
 
 #if defined (OPENSS_OFFLINE)
-
 extern void offline_sent_data(int);
 
 void hwctime_resume_papi()
@@ -97,7 +96,7 @@ void hwctime_resume_papi()
     TLS* tls = &the_tls;
 #endif
     if (hwctime_papi_init_done == 0 || tls == NULL)
-        return;
+	return;
     OpenSS_Start(tls->EventSet);
 }
 
@@ -110,7 +109,7 @@ void hwctime_suspend_papi()
     TLS* tls = &the_tls;
 #endif
     if (hwctime_papi_init_done == 0 || tls == NULL)
-        return;
+	return;
     OpenSS_Stop(tls->EventSet);
 }
 #endif
@@ -146,6 +145,9 @@ static void send_samples(TLS *tls)
     /* Re-initialize the actual data blob */
     tls->data.bt.bt_len = 0;
     tls->data.count.count_len = 0;
+
+    memset(tls->buffer.bt, 0, sizeof(tls->buffer.bt));
+    memset(tls->buffer.count, 0, sizeof(tls->buffer.count));
 }
 
 static int total = 0;
@@ -164,9 +166,8 @@ static int stacktotal = 0;
  * 
  * @param context    Thread context at papi overflow.
  */
-void
-hwctimePAPIHandler(int EventSet, void *address, long_long overflow_vector,
-		    void* context)
+static void
+hwctimePAPIHandler(int EventSet, void *address, long_long overflow_vector, void* context)
 {
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
@@ -370,6 +371,7 @@ void hwctime_stop_sampling(const char* arguments)
 
     /* Stop sampling */
     OpenSS_Stop(tls->EventSet);
+
     tls->header.time_end = OpenSS_GetTime();
 
     if (tls->EventSet == PAPI_NULL) {
@@ -378,6 +380,10 @@ void hwctime_stop_sampling(const char* arguments)
         return;
     }
 
+    /* Send any samples remaining in the sample buffer */
+    if(tls->data.bt.bt_len > 0) {
+	send_samples(tls);
+    }
 
 /* debug used to compute space needs for data blobs */
 #if 0
@@ -386,11 +392,6 @@ fprintf(stderr,"hwctime_stop_sampling: stacktotal = %d\n",stacktotal);
 fprintf(stderr,"hwctime_stop_sampling: values[0] = %d\n",values[0]);
 fprintf(stderr,"hwctime_stop_sampling: values[1] = %d\n",values[1]);
 #endif
-
-    /* Send any samples remaining in the sample buffer */
-    if(tls->data.bt.bt_len > 0) {
-	send_samples(tls);
-    }
 
     /* Destroy our thread-local storage */
 #ifdef USE_EXPLICIT_TLS

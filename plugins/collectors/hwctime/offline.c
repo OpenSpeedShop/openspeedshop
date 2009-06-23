@@ -125,6 +125,7 @@ void offline_send_dsos(TLS *tls)
 #endif
     tls->data.objs.objs_len = 0;
     tls->dsoname_len = 0;
+    memset(tls->buffer.objs, 0, sizeof(tls->buffer.objs));
 }
 
 /**
@@ -180,13 +181,13 @@ void offline_start_sampling(const char* in_arguments)
     OpenSS_EncodeParameters(&args,
 			    (xdrproc_t)xdr_hwctime_start_sampling_args,
 			    arguments);
-    
         
     tls->time_started = OpenSS_GetTime();
 
     tls->dsoname_len = 0;
     tls->data.objs.objs_len = 0;
     tls->data.objs.objs_val = tls->buffer.objs;
+    memset(tls->buffer.objs, 0, sizeof(tls->buffer.objs));
 
     /* Start sampling */
     offline_sent_data(0);
@@ -296,6 +297,7 @@ void offline_finish()
         header.host, header.pid, header.posix_tid);
     }
 #endif
+
     OpenSS_SetSendToFile(&header, "hwctime", "openss-info");
     OpenSS_Send(&header, (xdrproc_t)xdr_openss_expinfo, &info);
 
@@ -335,7 +337,7 @@ void offline_record_dso(const char* dsoname,
     if (is_dlopen) {
         hwctime_suspend_papi();
     }
- 
+
     //fprintf(stderr,"offline_record_dso called for %s, is_dlopen = %d\n",dsoname, is_dlopen);
 
     /* Initialize the offline "dso" blob's header */

@@ -1,7 +1,7 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-** Copyright (c) 2007 Krell Institute.  All Rights Reserved.
+** Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
+** Copyright (c) 2007,2008,2009 Krell Institute.  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -64,7 +64,6 @@ static __thread TLS the_tls;
 
 
 #if defined (OPENSS_OFFLINE)
-
 extern void offline_sent_data(int);
 
 void hwc_resume_papi()
@@ -76,7 +75,7 @@ void hwc_resume_papi()
     TLS* tls = &the_tls;
 #endif
     if (hwc_papi_init_done == 0 || tls == NULL)
-        return;
+	return;
     OpenSS_Start(tls->EventSet);
 }
 
@@ -89,11 +88,48 @@ void hwc_suspend_papi()
     TLS* tls = &the_tls;
 #endif
     if (hwc_papi_init_done == 0 || tls == NULL)
-        return;
+	return;
     OpenSS_Stop(tls->EventSet);
 }
 #endif
 
+/* utility to send samples when needed */
+static void send_samples(TLS *tls)
+{
+    /* Send these samples */
+    tls->header.time_end = OpenSS_GetTime();
+    tls->header.addr_begin = tls->buffer.addr_begin;
+    tls->header.addr_end = tls->buffer.addr_end;
+    tls->data.pc.pc_len = tls->buffer.length;
+    tls->data.count.count_len = tls->buffer.length;
+
+
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+        fprintf(stderr,"hwc send_samples: sends data:\n");
+        fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] bt_len(%d)\n",
+            tls->header.time_end,tls->header.addr_begin,
+	    tls->header.addr_end,tls->data.pc.pc_len);
+    }
+#endif
+
+    OpenSS_SetSendToFile(&(tls->header), "hwc","openss-data");
+    OpenSS_Send(&(tls->header),(xdrproc_t)xdr_hwc_data,&(tls->data));
+
+#if defined(OPENSS_OFFLINE)
+    offline_sent_data(1);
+#endif
+
+    /* Re-initialize the data blob's header */
+    tls->header.time_begin = tls->header.time_end;
+    tls->header.time_end = 0;
+    tls->header.addr_begin = ~0;
+    tls->header.addr_end = 0;
+
+    /* Re-initialize the actual data blob */
+    tls->data.pc.pc_len = 0;
+    tls->data.count.count_len = 0;
+}
 
 /**
  * PAPI event handler.
@@ -107,8 +143,8 @@ void hwc_suspend_papi()
  * 
  * @param context    Thread context at papi overflow.
  */
-static void hwcPAPIHandler(int EventSet, void* pc, 
-			   long_long overflow_vector, void* context)
+static void
+hwcPAPIHandler(int EventSet, void* pc, long_long overflow_vector, void* context)
 {
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
@@ -122,12 +158,7 @@ static void hwcPAPIHandler(int EventSet, void* pc,
     if(OpenSS_UpdatePCData((uint64_t)pc, &tls->buffer)) {
 
 	/* Send these samples */
-	tls->header.time_end = OpenSS_GetTime();
-	tls->header.addr_begin = tls->buffer.addr_begin;
-	tls->header.addr_end = tls->buffer.addr_end;
-	tls->data.pc.pc_len = tls->buffer.length;
-	tls->data.count.count_len = tls->buffer.length;
-
+	send_samples(tls);
 
 #ifndef NDEBUG
         if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
@@ -141,10 +172,6 @@ static void hwcPAPIHandler(int EventSet, void* pc,
 
 	OpenSS_SetSendToFile(&(tls->header), "hwc", "openss-data");
 	OpenSS_Send(&tls->header, (xdrproc_t)xdr_hwc_data, &tls->data);
-
-#if defined(OPENSS_OFFLINE)
-        offline_sent_data(1);
-#endif
 
 	/* Re-initialize the data blob's header */
 	tls->header.time_begin = tls->header.time_end;
@@ -198,12 +225,15 @@ void hwc_start_sampling(const char* arguments)
      * to not be safe on IA64 systems. Hopefully the extra copy can be
      * removed eventually.
      */
-    
-    OpenSS_DataHeader local_data_header;
-    OpenSS_InitializeDataHeader(args.experiment, args.collector,
-				&local_data_header);
-    memcpy(&tls->header, &local_data_header, sizeof(OpenSS_DataHeader));
-    
+    OpenSS_DataHeader local_header;
+    OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
+    memcpy(&tls->header, &local_header, sizeof(OpenSS_DataHeader));
+
+    tls->header.time_begin = 0;
+    tls->header.time_end = 0;
+    tls->header.addr_begin = ~0;
+    tls->header.addr_end = 0;
+
     /* Initialize the actual data blob */
     tls->data.interval = (uint64_t)(args.sampling_rate);
     tls->data.pc.pc_val = tls->buffer.pc;
@@ -264,18 +294,22 @@ void hwc_stop_sampling(const char* arguments)
 
     Assert(tls != NULL);
 
+    if (tls->EventSet == PAPI_NULL) {
+	/*fprintf(stderr,"hwc_stop_sampling RETURNS - NO EVENTSET!\n");*/
+	/* we are called before eny events are set in papi. just return */
+        return;
+    }
+
     /* Stop sampling */
     OpenSS_Stop(tls->EventSet);
+
     tls->header.time_end = OpenSS_GetTime();
 
     /* Are there any unsent samples? */
     if(tls->buffer.length > 0) {
 
 	/* Send these samples */
-	tls->header.addr_begin = tls->buffer.addr_begin;
-	tls->header.addr_end = tls->buffer.addr_end;
-	tls->data.pc.pc_len = tls->buffer.length;
-	tls->data.count.count_len = tls->buffer.length;
+	send_samples(tls);
 
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
@@ -289,11 +323,6 @@ void hwc_stop_sampling(const char* arguments)
 
 	OpenSS_SetSendToFile(&(tls->header), "hwc", "openss-data");
 	OpenSS_Send(&(tls->header), (xdrproc_t)xdr_hwc_data, &(tls->data));
-
-#if defined(OPENSS_OFFLINE)
-        offline_sent_data(1);
-#endif
-	
     }
 
     /* Destroy our thread-local storage */

@@ -211,7 +211,8 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
 	offline_finish();
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-	    fprintf(stderr,"offline_stop_sampling FINISHED for %d\n",getpid());
+	    fprintf(stderr,"offline_stop_sampling FINISHED for %d, %lu\n",
+		tls->dso_header.pid, tls->dso_header.posix_tid);
 	}
 #endif
     }
@@ -234,9 +235,6 @@ void offline_finish()
     OpenSS_DataHeader header;
     openss_expinfo info;
 
-    /* Access the environment-specified arguments */
-    const char* sampling_rate = getenv("OPENSS_PCSAMP_RATE");
-
     /* Initialize the offline "info" blob's header */
     OpenSS_InitializeDataHeader(0, /* Experiment */
 				1, /* Collector */
@@ -247,6 +245,9 @@ void offline_finish()
     info.collector = strdup("pcsamp");
     info.exename = strdup(OpenSS_GetExecutablePath());
     info.rank = monitor_mpi_comm_rank();
+
+    /* Access the environment-specified arguments */
+    const char* sampling_rate = getenv("OPENSS_PCSAMP_RATE");
     info.rate = (sampling_rate != NULL) ? atoi(sampling_rate) : 100;
     
     /* Send the offline "info" blob */

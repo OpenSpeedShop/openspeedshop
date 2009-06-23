@@ -42,11 +42,6 @@ typedef struct {
 } TLS;
 
 
-#if defined(OPENSS_OFFLINE)
-extern void offline_sent_data(int);
-#endif
-
-
 #ifdef USE_EXPLICIT_TLS
 
 /**
@@ -66,6 +61,7 @@ static __thread TLS the_tls;
 
 
 #if defined (OPENSS_OFFLINE)
+extern void offline_sent_data(int);
 static void pcsampTimerHandler(const ucontext_t* context);
 
 void pcsamp_start_timer()
@@ -120,6 +116,17 @@ static void pcsampTimerHandler(const ucontext_t* context)
 	tls->header.addr_end = tls->buffer.addr_end;
 	tls->data.pc.pc_len = tls->buffer.length;
 	tls->data.count.count_len = tls->buffer.length;
+
+
+#ifndef NDEBUG
+        if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+            fprintf(stderr,"pcsampTimerHandler sends data:\n");
+            fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] pc_len(%d) count_len(%d)\n",
+                tls->header.time_end,tls->header.addr_begin,
+		tls->header.addr_end,tls->data.pc.pc_len,
+                tls->data.count.count_len);
+        }
+#endif
 
 	OpenSS_SetSendToFile(&(tls->header), "pcsamp", "openss-data");
 	OpenSS_Send(&tls->header, (xdrproc_t)xdr_pcsamp_data, &tls->data);
@@ -235,15 +242,26 @@ void pcsamp_stop_sampling(const char* arguments)
 	tls->header.addr_end = tls->buffer.addr_end;
 	tls->data.pc.pc_len = tls->buffer.length;
 	tls->data.count.count_len = tls->buffer.length;
+
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	    fprintf(stderr, "pcsamp_stop_sampling:\n");
+	    fprintf(stderr, "time_end(%#lu) addr range[%#lx, %#lx] pc_len(%d) count_len(%d)\n",
+		tls->header.time_end,tls->header.addr_begin,
+		tls->header.addr_end,tls->data.pc.pc_len,
+		tls->data.count.count_len);
+	}
+#endif
+
 	OpenSS_SetSendToFile(&(tls->header), "pcsamp", "openss-data");
-	OpenSS_Send(&tls->header, (xdrproc_t)xdr_pcsamp_data, &tls->data);	
-	
+	OpenSS_Send(&(tls->header), (xdrproc_t)xdr_pcsamp_data, &(tls->data));
+
 #if defined(OPENSS_OFFLINE)
 	offline_sent_data(1);
 #endif
-
+	
     }
-    
+
     /* Destroy our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
     free(tls);
