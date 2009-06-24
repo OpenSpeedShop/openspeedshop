@@ -181,11 +181,12 @@ void *monitor_init_process(int *argc, char **argv, void *data)
 	f_pthread_self = (pthread_t (*)())dlsym(RTLD_DEFAULT, "pthread_self");
 	tls->tid = (f_pthread_self != NULL) ? (*f_pthread_self)() : 0;
 
-	tls->pid = getpid();
 
     } else {
 	tls->debug=0;
     }
+
+    tls->pid = getpid();
 
     if (tls->debug) {
 	fprintf(stderr,"monitor_init_process BEGIN SAMPLING %d,%lu\n",
@@ -257,11 +258,12 @@ void *monitor_init_thread(int tid, void *data)
 	f_pthread_self = (pthread_t (*)())dlsym(RTLD_DEFAULT, "pthread_self");
 	tls->tid = (f_pthread_self != NULL) ? (*f_pthread_self)() : 0;
 
-	tls->pid = getpid();
 
     } else {
 	tls->debug=0;
     }
+
+    tls->pid = getpid();
 
     if (tls->debug) {
 	fprintf(stderr,"monitor_init_thread BEGIN SAMPLING %d,%lu\n",
@@ -295,7 +297,12 @@ void monitor_dlopen(const char *library, int flags, void *handle)
     /* TODO:
      * if OpenSS_GetDLInfo does not handle errors do so here.
      */
-    int retval = OpenSS_GetDLInfo(getpid(), library);
+    if (tls->debug) {
+	fprintf(stderr,"monitor_dlopen called with %s for %d,%lu\n",
+	    library, tls->pid,tls->tid);
+    }
+
+    int retval = OpenSS_GetDLInfo(tls->pid, library);
     if (tls->sampling_status == OpenSS_Monitor_Paused && !tls->in_mpi_pre_init) {
         if (tls->debug) {
 	    fprintf(stderr,"monitor_dlopen RESUME SAMPLING %d,%lu\n",
@@ -317,8 +324,13 @@ monitor_pre_dlopen(const char *path, int flags)
 #endif
     Assert(tls != NULL);
 
+    if (tls->debug) {
+	fprintf(stderr,"monitor_pre_dlopen %s for %d,%lu\n",
+		path, tls->pid,tls->tid);
+    }
+
     if ((tls->sampling_status == OpenSS_Monitor_Started ||
-	 tls->sampling_status == OpenSS_Monitor_Paused) && !tls->in_mpi_pre_init) {
+	 tls->sampling_status == OpenSS_Monitor_Resumed) && !tls->in_mpi_pre_init) {
         if (tls->debug) {
 	    fprintf(stderr,"monitor_pre_dlopen PAUSE SAMPLING %d,%lu\n",
 		tls->pid,tls->tid);

@@ -31,6 +31,12 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 	return(1);
     }
 
+#ifndef NDEBUG
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	fprintf(stderr,"OpenSS_GetDLInfo called for %s\n",path ? path : "EMPTY PATH");
+    }
+#endif
+
     while(!feof(mapfile)) {
 	char buf[PATH_MAX+100], perm[5], dev[6], mappedpath[PATH_MAX];
 	unsigned long begin, end, inode, offset;
