@@ -457,6 +457,9 @@ if( attachFLAG ) {
       pco->continueButton->enabledFLAG = FALSE;
     }
 
+#ifdef DEBUG_CustomPanel
+     printf("CustomExperimentPanel::init, C: calling loadManageProcessesPanel\n" );
+#endif
     // Bring up the Manage Process panel when coming in cold
     // The user will have this to use to add processes and collectors
     loadManageProcessesPanel();
@@ -627,8 +630,7 @@ if( attachFLAG ) {
       printf("CustomExperimentPanel::init, ran %s\n", command.ascii() );
 #endif
 
-    if( clip )
-    {
+    if( clip ) {
       clip->Set_Results_Used();
     }
     
@@ -656,7 +658,20 @@ if( attachFLAG ) {
       } else {
 
         if( ao && ao->loadedFromSavedFile != TRUE ) {
+
+#ifdef DEBUG_CustomPanel
+     printf("CustomExperimentPanel::init, F: calling loadManageProcessesPanel\n" );
+#endif
+
           loadManageProcessesPanel();
+
+          // Focus on the StatsPanel when loading a saved database
+          QString name = QString("Stats Panel [%1]").arg(expID);
+          Panel *statsPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
+          // if we find a stats panel raise it, otherwise ignore
+          if (statsPanel) {
+            getPanelContainer()->raisePanel(statsPanel);
+          }
         }
 
       } // else
