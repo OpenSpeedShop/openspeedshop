@@ -1785,38 +1785,32 @@ openss command option</a>
             <ul>
               <li><a href="#mozTocId193047">Experiment Syntax</a></li>
               <li><a href="#mozTocId473579">Outputs from the
-experiment run</a>
-                <ul>
-                  <li><a href="#mozTocId316474">Invoking
+experiment run</a></li>
+              <li><a href="#mozTocId316474">Invoking
 opens -offline and the normal program output</a></li>
-                  <li><a href="#mozTocId590902">Remainder of the
-program output and the
+              <li><a href="#mozTocId590902">Remainder of the program
+output and the
 performance data report from opens</a></li>
-                  <li><a href="#mozTocId466979"></a><br>
-                  </li>
-                  <li><a href="#mozTocId259803">Loading the database
-file using the
+              <li><a href="#mozTocId96497">Database
+file is one of the outputs from running:&nbsp;&nbsp;&nbsp; openss
+-offline -f "orterun
+-np 128 sweep3d.mpi"
+pcsamp </a></li>
+              <li><a href="#mozTocId259803">Loading the database file
+using the
 interactive
 command line tool (CLI)</a></li>
-                  <li><a href="#mozTocId328377">Loading the database
-file using the
+              <li><a href="#mozTocId328377">Loading the database file
+using the
 graphical user
 interface tool (GUI)</a></li>
-                  <li><a href="#mozTocId224015"></a><br>
-                  </li>
-                  <li><a href="#mozTocId40840">Default view of the
+              <li><a href="#mozTocId40840">Default view of the
 performance data results
 for
 pcsamp (PC Sampling) experiments</a></li>
-                  <li><a href="#mozTocId537652"></a><br>
-                  </li>
-                  <li><a href="#mozTocId801953">View that associates
-the performance&nbsp; data results for pcsamp to the program
+              <li><a href="#mozTocId801953">View that associates the
+performance&nbsp; data results for pcsamp to the program
 source lines of sweep3d.mpi</a></li>
-                  <li><a href="#mozTocId436612"></a><br>
-                  </li>
-                </ul>
-              </li>
             </ul>
           </li>
           <li><a href="#mozTocId215871">Running a basic Offline
@@ -2295,7 +2289,11 @@ gathered by a performance experiment (by the collector). </p>
 </i></b><span style="">Gathering performance data using libMonitor to
 link Open|SpeedShop performance data gathering software components into
 the
-user application.</span></p>
+user application.&nbsp; For the Open|SpeedShop offline mode of
+operation the application must be run from start up to
+completion.&nbsp; The performance results may be viewed after the
+application terminates normally.<br>
+</span></p>
 <p style="margin: 5pt 0in 0.0001pt 1in; text-indent: -0.25in;"><!--[if !supportLists]--><span
  style="font-size: 10pt; font-family: Symbol;"><span style=""><span
  style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;"></span></span></span><!--[endif]--><b><i>Online:</i></b><span
@@ -2303,7 +2301,10 @@ user application.</span></p>
 Gathering performance data using MRNet and
 Dyninst to dynamically insert Open|SpeedShop performance data gathering
 software
-components into the user application.</span></p>
+components into the user application.&nbsp; Online mode also allows the
+user to attach and detach from a running application and view
+performance results while the application is running.<br>
+</span></p>
 <p style="margin: 5pt 0in 0.0001pt 1in; text-indent: -0.25in;"><!--[if !supportLists]--><span
  style="font-size: 10pt; font-family: Symbol;"><span style=""><span
  style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;"></span></span></span><!--[endif]--><b><i>Param</i>:</b>&nbsp;
@@ -2337,7 +2338,7 @@ instrumentation components. </p>
  style="font-size: 10pt; font-family: Symbol;"><span style=""><span
  style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;"></span></span></span><!--[endif]--><b><i>Plugin:</i></b>&nbsp;
 A
-portion of the
+portion (library) of the
 performance tool that can be loaded and included in the tool at tool
 start-up
 time.&nbsp; Development of the plugin uses a tool specific interface
@@ -2370,16 +2371,19 @@ the
 process of setting up Open|SpeedShop to analyze their
 program.&nbsp;&nbsp; The
 wizard will ultimately create a performance monitoring
-experiment.&nbsp;&nbsp;
+experiment after following the wizard through a series of questions
+that identify what performance information the user is most interested
+in.&nbsp;&nbsp;
 This is explained in the next section.&nbsp;&nbsp; Expert users can go
 directly
 to the Experiment menu and create their experiment
 directly.&nbsp;&nbsp; There
-is also an interactive command line tool option, a batch option, and a
+is also an interactive command line tool option (dbx/gdb like), a batch
+(run immediate) option, and a
 Python
-scripting API for users who prefer or need this
-functionality.&nbsp;&nbsp;
-These options are described in detail in future sections of this
+scripting API for users who prefer or need to gather performance
+information using a Python program interface.&nbsp;&nbsp; All of these
+options are described in detail in future sections of this
 document.</p>
 <h3 style="margin-left: 59.75pt;"><a class="mozTocH3"
  name="mozTocId800721"></a><a name="_Toc214080095"></a><a
@@ -2393,11 +2397,12 @@ particular performance area of interest.&nbsp;&nbsp; Experiments
 consist of the
 collector with is responsible for the gathering of the measurements
 associated
-with the performance area of interest.&nbsp; The collector also
+with the performance area of interest.&nbsp; The collector , which is a
+small dynamic or static object library, also
 contains
 routines/functions that can interpret the gathered measurement
 (performance
-data) into a human understandable form.&nbsp;&nbsp; The Experiment
+data) into a human understandable form.&nbsp;&nbsp; The experiment
 definition
 also includes the application being examined and how often the data
 will be
@@ -2405,20 +2410,26 @@ gathered (for example, the sampling rate).&nbsp; The application's
 symbol
 information is saved into the experiment output file so that
 performance
-reports can be generated from the performance data file alone.</p>
+reports can be generated from the performance data file
+alone.&nbsp;&nbsp; The application, itself, need not be present to view
+the performance data at a later time.<br>
+</p>
 <h3 style="margin-left: 59.75pt;"><a class="mozTocH3"
  name="mozTocId257995"></a><a name="_Toc214080096"></a><a
  name="mozTocId491105"></a><span style="">Selecting an
 Experiment</span></h3>
-<p style="margin-left: 59.75pt;">The Summary of Experiments table below
+<p style="margin-left: 59.75pt;">The "Summary of Experiments" table
+below
 shows the
 possible experiments you can perform using the <b>Open|SpeedShop</b>
 tools and
 the reasons why you might want to choose a specific experiment. The
-Clues
-column shows when you might use an experiment. The Data Collected
+"Clues"
+column shows when you might want to use an experiment of this
+type.&nbsp; The "Data Collected"
 column
-indicates performance data collected by the experiment. For detailed
+indicates the type of performance data collected by the
+experiment.&nbsp; For detailed
 information on the experiments, see the relevant section in the
 remainder of
 this chapter.&nbsp;&nbsp;&nbsp; Open|SpeedShop provides wizards in the
@@ -2648,12 +2659,13 @@ Experiment (usertime)"</a>.</p>
  name="_Toc214080097"><span style="color: navy;">Open|SpeedShop Tools
 Information</span></a></h1>
 </div>
-<p style="margin: 5pt 28.1pt;">The tools that comprise <b>Open|SpeedShop</b>
+<p style="margin: 5pt 28.1pt;">The tool user interface options that
+comprise <b>Open|SpeedShop</b>
 are the performance tool
 graphical user interface (GUI), the interactive command line (CLI), the
 batch
-command, and the Python Scripting API.&nbsp;&nbsp; These are the four <b>Open|SpeedShop</b>
-tools that have user interfaces.&nbsp; </p>
+command, and the Python Scripting API.&nbsp;&nbsp; These are the four
+main <b>Open|SpeedShop</b> tool user interface options.&nbsp; </p>
 <h2 style="margin: 0in 28.1pt 5pt;"><a class="mozTocH2"
  name="mozTocId418174"></a><a name="_Toc214080098">Open|SpeedShop
 Invocation Command: "openss"</a></h2>
@@ -2661,16 +2673,22 @@ Invocation Command: "openss"</a></h2>
   <p class="MsoNormal" style="margin-left: -7.9pt; text-align: justify;"><b><br>
   </b>The <b>Open|SpeedShop</b> program will be invoked by the user
 typing the
-"openss" command.&nbsp; When the user invokes <b>Open|SpeedShop</b>
-command there are options for the offline, link based and online,
+"openss" command.&nbsp;&nbsp; When the user invokes <b>Open|SpeedShop</b>
+command there are options for the offline, link based mode of operation
+and for the online,
 dynamic mode
 of operation. A preference setting in the Open|SpeedShop preference <span
- class="GramE">panel exist</span> and is used to place Open|SpeedShop
+ class="GramE">panel exists</span> and is used to place Open|SpeedShop
 into the
-online or offline mode of operation.<span style="">&nbsp;&nbsp; </span>See
+online or offline mode of operation when the openss command is invoked.<span
+ style="">&nbsp;&nbsp; </span>See
 the preferences section for details on how to change this
-preference.<span style="">&nbsp; </span>It is set to place
-Open|SpeedShop into the offline mode of operation by default.</p>
+preference.<span style="">&nbsp; </span>It is currently set to place
+Open|SpeedShop into the offline mode of operation by default when the
+openss command is invoked with no options.&nbsp; The following is a set
+of simple invocation options for Open|SpeedShop.&nbsp; Please see the
+man page for openss for more detailed option information.<br>
+  </p>
 </blockquote>
 <h3 style="margin-left: 28.1pt;"><a class="mozTocH3"
  name="mozTocId287194"></a><a name="_Toc214080099"></a><span
@@ -2691,7 +2709,13 @@ were entered under the "openss -cli" option.</p>
 <p class="MsoNormal" style="margin-left: 28.1pt;">This invocation of
 Open|SpeedShop
 causes the window terminal becomes the interactive CLI
-window.&nbsp;&nbsp; </p>
+window.&nbsp;&nbsp; The CLI user interface option allows users to enter
+interactive commands which drive Open|SpeedShop much like one code
+drive the GUI.&nbsp;&nbsp; The primary commands to create, run, and
+view performance results with the CLI are: expCreate, expGo, and
+expView.&nbsp;&nbsp; The "help" command can be used to view all the
+supported commands, with information on how to use them.<br>
+</p>
 <h3 style="margin-left: 28.1pt;"><a class="mozTocH3"
  name="mozTocId672507"></a><a name="_Toc214080101"></a><span
  class="GramE"><span style="">openss</span></span><span style="">
@@ -2699,9 +2723,12 @@ window.&nbsp;&nbsp; </p>
 <p class="MsoNormal" style="margin-left: 28.1pt;">This invocation of
 Open|SpeedShop
 causes Open|SpeedShop to execute a performance experiment specified by
-additional arguments, directly without user interaction.&nbsp;&nbsp;
+additional arguments, directly using the dynamic/online mode of
+instrumentation without user interaction.&nbsp;&nbsp;
 The -batch
-operation can be used in scripts and batch processing environments. </p>
+operation can be used in scripts and batch processing
+environments.&nbsp; <br>
+</p>
 <h3 style="margin-left: 28.1pt;"><a class="mozTocH3"
  name="mozTocId132828"></a><a name="_Toc214080102"></a><span
  class="GramE"><span style="">openss</span></span><span style="">
@@ -2717,7 +2744,9 @@ batch processing environments.</p>
 <p class="MsoNormal" style="margin-left: 28.1pt;"><o:p>&nbsp;</o:p></p>
 <h3 style="margin-left: 28.1pt;"><a class="mozTocH3"
  name="mozTocId795954"></a><a name="_Toc214080103">Python Scripting API</a></h3>
-<p class="MsoNormal" style="margin-left: 28.1pt;">Follow this<a
+<p class="MsoNormal" style="margin-left: 28.1pt;">The Python scripting
+API allows users to call Python functions which correspond one to one
+with each of the Open|SpeedShop interactive commands.&nbsp; Follow this<a
  href="../../../../OpenSpeedShop/doc/pyscripting_doc/index.html"> link </a>to
 the documentations associated with the Python scripting API definition.</p>
 <p class="MsoNormal" style="margin-left: 28.1pt;"><o:p>&nbsp;</o:p></p>
@@ -2771,12 +2800,6 @@ indicates the user
 interface to use (immediate command)</span><span
  style="font-family: Symbol;"><span style=""><span
  style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;"></span></span></span></li>
-    <ul>
-      <li><span style="font-family: Symbol;"><span style=""><span
- style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">&nbsp;</span></span></span><!--[endif]--><span
- style="" lang="EN-GB">There
-are a number of user interface options</span></li>
-    </ul>
     <li><!--[if !supportLists]--><span style="font-family: Wingdings;"><span
  style=""> &nbsp;<span
  style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">
@@ -2833,11 +2856,15 @@ syntax.&nbsp; An example follows:</p>
   </span></b></p>
   <p class="MsoNormal">is equivalent in functionality to the openss
 -offline -f "executable" pcsamp&nbsp; command above.&nbsp;&nbsp; A
-convenience command for each Open|SpeedShop experiment type: osspcamp,
+convenience command for each Open|SpeedShop experiment type: <span
+ style="font-weight: bold;">osspcamp,
 ossusertime, osshwc, osshwctime, ossio, ossiot, ossmpi, ossmpit,
-ossmpiotf, and ossfpe.<br>
+ossmpiotf, and ossfpe.&nbsp;&nbsp; </span>Please view the man page for
+each of the convenience commands, if interested in more information
+about their usage.<br style="font-weight: bold;">
   </p>
-  <h4><a class="mozTocH4" name="mozTocId473579"></a>Outputs from the
+  <h4><a style="font-weight: bold;" class="mozTocH4"
+ name="mozTocId473579"></a>Outputs from the
 experiment run</h4>
   <p class="MsoNormal" style="margin-left: 0.5in; text-indent: -0.25in;"><!--[if !supportLists]--><span
  style="font-family: Symbol;"><span style=""><img
@@ -2898,9 +2925,9 @@ stamps for when dso(s) were loaded and unloaded </span></li>
     </ul>
   </ul>
   <p class="MsoNormal" style=""><span style="" lang="EN-GB"><o:p>&nbsp;</o:p></span></p>
-  <h5 style="margin-left: 0.5in;"><a class="mozTocH5"
- name="mozTocId316474"></a><span style="" lang="EN-GB">Invoking
-opens -offline and the normal program output<o:p></o:p></span></h5>
+  <h4><a class="mozTocH5" name="mozTocId316474"></a><span style=""
+ lang="EN-GB">Invoking
+opens -offline and the normal program output<o:p></o:p></span></h4>
   <p class="MsoNormal" style=""><span style="" lang="EN-GB"><o:p>&nbsp;</o:p></span></p>
   <p class="MsoNormal" style="margin-left: 0.5in;"><span style=""
  lang="EN-GB">For this example, we run on a large cluster
@@ -2984,9 +3011,9 @@ alt="sweepGUI21.png" style='width:468pt;height:295.5pt;visibility:visible'>
  src="usersGuide-1.9c_files/image003.gif" alt=""
  v:shapes="Picture_x0020_1"><!--[endif]--></p>
   <p class="MsoNormal" style="margin-left: 0.5in;"><o:p>&nbsp;</o:p></p>
-  <h5 style="margin-left: 0.5in;"><a class="mozTocH5"
- name="mozTocId590902"></a>Remainder of the program output and the
-performance data report from opens</h5>
+  <h4><a class="mozTocH5" name="mozTocId590902"></a>Remainder of the
+program output and the
+performance data report from opens</h4>
   <p class="MsoNormal" style="margin-left: 0.5in;">This is the end of
 the normal
 program output followed by Open|SpeedShop reporting of symbols being
@@ -2995,8 +3022,7 @@ data report is output to the screen.<span style="">&nbsp; </span>In
 this experiment (pcsamp) a sorted list of functions taking the most
 time in
 sweep3d.mpi is the default output.</p>
-  <h5 style="margin-left: 0.5in;"><a class="mozTocH5"
- name="mozTocId466979"></a><!--[if gte vml 1]><v:shape id="_x0000_i1027"
+  <p><a class="mozTocH5" name="mozTocId782001"></a><!--[if gte vml 1]><v:shape id="_x0000_i1027"
 
 type="#_x0000_t75" alt="sweepGUI22.png" style='width:468pt;height:288.75pt;
 
@@ -3006,17 +3032,16 @@ visibility:visible'>
 
 </v:shape><![endif]--><!--[if !vml]--><img
  style="border: 0px solid ; width: 624px; height: 385px;"
- src="usersGuide-1.9c_files/image005.gif" alt="" v:shapes="_x0000_i1027"><!--[endif]--></h5>
+ src="usersGuide-1.9c_files/image005.gif" alt="" v:shapes="_x0000_i1027"><!--[endif]--></p>
   <p class="MsoNormal"><o:p>&nbsp;</o:p></p>
-  <p class="MsoNormal" style="margin-left: 0.5in; text-indent: -0.25in;"><!--[if !supportLists]--><span
- style="font-family: Symbol;"><span style=""><img
- src="usersGuide-1.9c_files/image001.gif" alt="*" height="13" width="13"><span
- style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  </span></span></span><!--[endif]--><span style="" lang="EN-GB">Database
+  <h4><a class="mozTocH4" name="mozTocId96497"></a><!--[if !supportLists]--><span
+ style="font-family: Symbol;"><span style=""><span
+ style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;"></span></span></span><span
+ style="" lang="EN-GB">Database
 file is one of the outputs from running:<b><span style="">&nbsp;&nbsp;&nbsp;
   </span>openss -offline -f "</b></span><b>orterun
 -np 128 sweep3d.mpi</b><b><span style="" lang="EN-GB">"
-pcsamp </span></b></p>
+pcsamp </span></b></h4>
   <ul style="margin-left: 40px;">
     <li><!--[if !supportLists]--><span style="font-family: Wingdings;"><span
  style=""><span
@@ -3062,10 +3087,10 @@ this example, we show both: </span></li>
 is the file name openss creates by default </span></li>
     </ul>
   </ul>
-  <h5 style="margin-left: 0.5in;"><a class="mozTocH5"
- name="mozTocId259803"></a>Loading the database file using the
+  <h4><a class="mozTocH5" name="mozTocId259803"></a>Loading the
+database file using the
 interactive
-command line tool (CLI)</h5>
+command line tool (CLI)</h4>
   <p class="MsoNormal" style="margin-left: 0.5in;">This output is from
 the CLI tool
 which was invoked by the "openss -cli -f X.0.openss" command.<span
@@ -3090,10 +3115,10 @@ visibility:visible'>
  src="usersGuide-1.9c_files/image007.gif" alt="" v:shapes="_x0000_i1028"><!--[endif]--></p>
   <p class="MsoNormal" style="margin-left: 0.5in;"><o:p>&nbsp;</o:p></p>
   <p class="MsoNormal" style="margin-left: 0.5in;"><o:p>&nbsp;</o:p></p>
-  <h5 style="margin-left: 0.5in;"><a class="mozTocH5"
- name="mozTocId328377"></a>Loading the database file using the
+  <h4><a class="mozTocH5" name="mozTocId328377"></a>Loading the
+database file using the
 graphical user
-interface tool (GUI)</h5>
+interface tool (GUI)</h4>
   <p class="MsoNormal" style="margin-left: 0.5in;">This is the first
 view that the
 user will see when opening the database file with the GUI using the "<b
@@ -3102,8 +3127,7 @@ user will see when opening the database file with the GUI using the "<b
 which shows the hosts, pids, ranks, etc. that were involved in the
 experiment
 that was run and created the database file (X.0.openss).</p>
-  <h5 style="margin-left: 0.5in;"><a class="mozTocH5"
- name="mozTocId224015"></a><!--[if gte vml 1]><v:shape id="_x0000_i1029"
+  <p><a class="mozTocH5" name="mozTocId988074"></a><!--[if gte vml 1]><v:shape id="_x0000_i1029"
 
 type="#_x0000_t75" alt="sweepGUI20.png" style='width:468pt;height:277.5pt;
 
@@ -3113,14 +3137,13 @@ visibility:visible'>
 
 </v:shape><![endif]--><!--[if !vml]--><img
  style="border: 0px solid ; width: 624px; height: 370px;"
- src="usersGuide-1.9c_files/image009.gif" alt="" v:shapes="_x0000_i1029"><!--[endif]--></h5>
+ src="usersGuide-1.9c_files/image009.gif" alt="" v:shapes="_x0000_i1029"><!--[endif]--></p>
   <p class="MsoNormal"><o:p>&nbsp;</o:p></p>
-  <h5 style="margin-left: 0.5in;"><a class="mozTocH5"
- name="mozTocId40840"></a>Default view of the performance data results
+  <h4><a class="mozTocH5" name="mozTocId40840"></a>Default view of the
+performance data results
 for
-pcsamp (PC Sampling) experiments</h5>
-  <h5 style="margin-left: 0.5in;"><a class="mozTocH5"
- name="mozTocId537652"></a><!--[if gte vml 1]><v:shape id="_x0000_i1030"
+pcsamp (PC Sampling) experiments</h4>
+  <p><a class="mozTocH5" name="mozTocId563256"></a><!--[if gte vml 1]><v:shape id="_x0000_i1030"
 
 type="#_x0000_t75" alt="sweepGUI17.png" style='width:468pt;height:255pt;
 
@@ -3130,11 +3153,11 @@ visibility:visible'>
 
 </v:shape><![endif]--><!--[if !vml]--><img
  style="border: 0px solid ; width: 624px; height: 340px;"
- src="usersGuide-1.9c_files/image011.gif" alt="" v:shapes="_x0000_i1030"><!--[endif]--></h5>
-  <h5 style="margin-left: 0.5in;"><a class="mozTocH5"
- name="mozTocId801953"></a>View that associates the <span class="GramE">performance<span
- style="">&nbsp; </span>data</span> results for pcsamp to the program
-source lines of sweep3d.mpi</h5>
+ src="usersGuide-1.9c_files/image011.gif" alt="" v:shapes="_x0000_i1030"><!--[endif]--></p>
+  <h4><a class="mozTocH5" name="mozTocId801953"></a>View that
+associates the <span class="GramE">performance<span style="">&nbsp; </span>data</span>
+results for pcsamp to the program
+source lines of sweep3d.mpi</h4>
   <p class="MsoNormal" style="margin-left: 0.5in;">Double clicking on
 the source line
 of interest in the StatsPanel will position the SourcePanel to that
@@ -3142,8 +3165,7 @@ line of
 source corresponding to the statistics shown in the StatsPanel.<span
  style="">&nbsp; </span>The panels can be split so the data and the
 source can be viewed simultaneously.</p>
-  <h5 style="margin-left: 0.5in;"><a class="mozTocH5"
- name="mozTocId436612"></a><!--[if gte vml 1]><v:shape id="_x0000_i1031"
+  <p><a class="mozTocH5" name="mozTocId351575"></a><!--[if gte vml 1]><v:shape id="_x0000_i1031"
 
 type="#_x0000_t75" alt="sweepGUI19.png" style='width:468pt;height:277.5pt;
 
@@ -3153,12 +3175,13 @@ visibility:visible'>
 
 </v:shape><![endif]--><!--[if !vml]--><img
  style="border: 0px solid ; width: 624px; height: 370px;"
- src="usersGuide-1.9c_files/image013.gif" alt="" v:shapes="_x0000_i1031"><!--[endif]--></h5>
+ src="usersGuide-1.9c_files/image013.gif" alt="" v:shapes="_x0000_i1031"><!--[endif]--></p>
   <p class="MsoNormal" style="margin-left: 0.5in;"><o:p>&nbsp;</o:p></p>
   <h3><a class="mozTocH3" name="mozTocId215871"></a><a
  name="_Toc214080107">Running a basic Offline experiment using the GUI
 wizards or creating an experiment via the Experiment menu</a></h3>
-  <p class="MsoNormal">Open|SpeedShop allows the user to run in two
+  <p class="MsoNormal"><span style="font-weight: bold;">Open|SpeedShop</span>
+allows the user to run in two
 instrumentation
 modes (offline and online).<span style="">&nbsp; </span>This section
 describes how to run in the offline mode via the GUI.<span style="">&nbsp;&nbsp;
@@ -3323,9 +3346,23 @@ menus and their corresponding menu items.&nbsp;&nbsp; In the following
 sections
 we will describe the&nbsp;File menu, Tools menu, and Help menu, as
 shown at the
-top of the <b>Open|SpeedShop</b> window below.<br style="">
-<!--[if !supportLineBreakNewLine]--><br style="">
-<!--[endif]--></p>
+top of the <b>Open|SpeedShop</b> window below.</p>
+  <p class="MsoNormal"><br>
+The window below is the first page of the Introduction Wizard.&nbsp;
+Invoking the Open|SpeedShop command "openss" with no arguments brings
+up the first page of the Open|SpeedShop Introduction
+Wizard.&nbsp;&nbsp; The Introduction Wizard, currently, asks three
+basic questions:<br>
+  </p>
+  <ol>
+    <li>Do you want to generate new performance data?</li>
+    <li>Do you want to load an experiment database file that was
+already created and saved?</li>
+    <li>Do you want to compare two database files that were already
+created and saved?<br>
+    </li>
+  </ol>
+  <p class="MsoNormal"><!--[if !supportLineBreakNewLine]--><!--[endif]--></p>
   <p class="MsoNormal"><o:p>&nbsp;</o:p></p>
   <p class="MsoNormal"><!--[if gte vml 1]><v:shape id="_x0000_i1034" type="#_x0000_t75"
 
@@ -3337,7 +3374,17 @@ style='width:471.75pt;height:299.25pt;visibility:visible'>
  style="border: 0px solid ; width: 629px; height: 399px;" alt=""
  src="usersGuide-1.9c_files/image019.gif" v:shapes="_x0000_i1034"><!--[endif]--></p>
   <p class="MsoNormal"><o:p>&nbsp;</o:p></p>
-  <p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+  <p class="MsoNormal"><o:p>&nbsp;The panel below is page two of the
+Introductory Wizard.&nbsp; If "Generate New Performance Data...." was
+chosen on page one of the Introductory Wizard, then page two asks
+questions about the type of new performance data the user would like to
+generate.&nbsp;&nbsp; After selecting one of the choices, the
+Introductory Wizard transfers control to one of the specific wizard
+panels for further refinement of the experiment to be run.&nbsp;&nbsp;
+See the <a href="#mozTocId120565">Introductory Wizard </a>section
+and/or the <a href="#mozTocId260843">Wizard Menu </a>section for more
+details.<br>
+  </o:p></p>
   <p class="MsoNormal"><br>
 <!--[if gte vml 1]><v:shape id="_x0000_i1035" type="#_x0000_t75" style='width:474.75pt;
 
@@ -4323,6 +4370,10 @@ only.<span style="">&nbsp; </span>Highlight a function in the
 StatsPanel and click on this icon.<span style="">&nbsp; </span>Duplicate
 paths will not be coalesced.<span style="">&nbsp; </span>All of the
 calling paths will be shown in their entirety.</li>
+    <li class="MsoNormal" style="">"HC" - Hot Call Path - Show the
+callpath in the application that took the most time.&nbsp; This is a
+short cut to find the "hot" call path.<br>
+    </li>
     <li class="MsoNormal" style="">"T" - Show the calling path, trace
 back style, for all paths in this application.<span style="">&nbsp;&nbsp;
       </span>Duplicate paths will be coalesced</li>
@@ -4345,6 +4396,13 @@ displays the callers and callees of the selected function.<span style="">&nbsp;
       </span>Highlight a function in the StatsPanel and click on this
 icon.<span style="">&nbsp; </span>Then repeat to "drill" down into the
 callers and/or callees.</li>
+    <li class="MsoNormal" style="">"TS" - Time Segment - Show a portion
+of the performance data results based on the time segment selected.<br>
+    </li>
+    <li class="MsoNormal" style="">"OV" - Optional View - Use this
+dialog to select which performance metrics to be shown in the new
+performance data report.<br>
+    </li>
     <li class="MsoNormal" style="">"LB" - Show the load balance view
 which displays the min, max, and average performance values for the
 application.<span style="">&nbsp;&nbsp; </span>Only available on
@@ -4361,18 +4419,11 @@ views of the performance analysis results.<span style="">&nbsp; </span>This
 allows the user to supplement the provided Open|SpeedShop views.</li>
   </ul>
   <p class="MsoNormal"><o:p>&nbsp;</o:p></p>
-  <p class="MsoNormal"><!--[if gte vml 1]><v:shape id="_x0000_i1058" type="#_x0000_t75"
-
-style='width:517.5pt;height:62.25pt'>
-
-<v:imagedata src="usersGuide-1.9c_files/image055.png" o:title="ToolBar"/>
-
-</v:shape><![endif]--><!--[if !vml]--><img
- style="border: 0px solid ; width: 690px; height: 83px;" alt=""
- src="usersGuide-1.9c_files/image056.gif" v:shapes="_x0000_i1058"><!--[endif]--></p>
 </blockquote>
 <blockquote style="margin-top: 5pt; margin-bottom: 5pt;">
-  <p class="MsoNormal" style="margin-bottom: 12pt;"><o:p>&nbsp;</o:p></p>
+  <p class="MsoNormal" style="margin-bottom: 12pt;"><o:p>&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;<img style="width: 811px; height: 86px;"
+ alt="StatsPanel Toolbar" src="usersGuide-1.9c_files/ToolBar.png"></o:p></p>
 </blockquote>
 <h3 style="margin: 0in 56.9pt 5pt;"><a class="mozTocH3"
  name="mozTocId670258"></a><a
@@ -5545,9 +5596,10 @@ calling paths in this application for the selected function only.<span
 click on this icon.<span style="">&nbsp; </span>Duplicate paths will
 not be coalesced.<span style="">&nbsp; </span>All of the calling
 paths will be shown in their entirety.</li>
-  <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
- style=""><span
- style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;"></span></span></span><!--[endif]-->"T"
+  <li>"HC" - Hot Call Path - Show the
+callpath in the application that took the most time.&nbsp; This is a
+short cut to find the "hot" call path.</li>
+  <li>"T"
 - Show the calling path, trace
 back style,
 for all paths in this application.<span style="">&nbsp;&nbsp; </span>Duplicate
@@ -5590,6 +5642,14 @@ a function in the StatsPanel and click on this
 icon.<span style="">&nbsp; </span>Then repeat to "drill" down into the
 callers
 and/or callees.</li>
+  <li class="MsoNormal" style=""><small><small>"TS" - Time Segment -
+Show a portion
+of the performance data results based on the time segment selected.<br>
+    </small></small></li>
+  <li class="MsoNormal" style=""><small><small>"OV" - Optional View -
+Use this
+dialog to select which performance metrics to be shown in the new
+performance data report.</small></small></li>
   <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
  style=""><span
  style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;"></span></span></span><!--[endif]-->"LB"
@@ -5627,9 +5687,12 @@ type="#_x0000_t75" style='width:517.5pt;height:62.25pt'>
 <v:imagedata src="usersGuide-1.9c_files/image055.png" o:title="ToolBar"/>
 
 </v:shape><![endif]--><!--[if !vml]--><img
- style="border: 0px solid ; width: 690px; height: 83px;" alt=""
- src="usersGuide-1.9c_files/image056.gif" v:shapes="_x0000_i1086"><!--[endif]--></p>
-<p class="MsoNormal" style="margin-left: 1in;"><o:p>&nbsp;</o:p></p>
+ title="This is the Stats Panel toolbar.  Clicking on one of the icons gives access to other Stats Panel functionality."
+ style="width: 830px; height: 94px;" alt="Stats Panel Toolbar"
+ src="usersGuide-1.9c_files/ToolBar.png"><!--[endif]--></p>
+<p class="MsoNormal" style="margin-left: 1in;"><o:p>&nbsp;&nbsp;&nbsp;&nbsp;
+<br>
+</o:p></p>
 <h3 style="margin-left: 1in;"><a class="mozTocH3" name="mozTocId427201"></a><a
  name="_Toc214080117"></a><a name="_Toc214032817"><span style="">General
 Information about using the Interactive CLI</span></a><span style="">
