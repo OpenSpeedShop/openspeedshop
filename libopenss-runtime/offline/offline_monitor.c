@@ -294,6 +294,13 @@ void monitor_dlopen(const char *library, int flags, void *handle)
 #endif
     Assert(tls != NULL);
 
+    if (library == NULL) {
+	if (tls->debug) {
+	    fprintf(stderr,"monitor_dlopen ignores null library name\n");
+	}
+	return;
+    }
+
     /* TODO:
      * if OpenSS_GetDLInfo does not handle errors do so here.
      */
@@ -323,6 +330,13 @@ monitor_pre_dlopen(const char *path, int flags)
     TLS* tls = &the_tls;
 #endif
     Assert(tls != NULL);
+
+    if (path == NULL) {
+	if (tls->debug) {
+	    fprintf(stderr,"monitor_pre_dlopen ignores null path\n");
+	}
+	return;
+    }
 
     if (tls->debug) {
 	fprintf(stderr,"monitor_pre_dlopen %s for %d,%lu\n",
