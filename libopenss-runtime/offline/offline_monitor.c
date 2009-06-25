@@ -509,8 +509,44 @@ void monitor_fini_mpi(void)
     TLS* tls = &the_tls;
 #endif
     Assert(tls != NULL);
+
     if (tls->debug) {
 	fprintf(stderr,"monitor_fini_mpi CALLED %d,%lu\n",
 		tls->pid,tls->tid);
+    }
+
+    if (tls->sampling_status == OpenSS_Monitor_Started ||
+	tls->sampling_status == OpenSS_Monitor_Resumed) {
+        if (tls->debug) {
+	    fprintf(stderr,"monitor_fini_mpi PAUSE SAMPLING %d,%lu\n",
+		    tls->pid,tls->tid);
+        }
+	tls->sampling_status = OpenSS_Monitor_Paused;
+	offline_pause_sampling();
+    }
+}
+
+void monitor_mpi_post_fini(void)
+{
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    if (tls->debug) {
+	fprintf(stderr,"monitor_mpi_post_fini CALLED %d,%lu\n",
+		tls->pid,tls->tid);
+    }
+
+    if (tls->sampling_status == OpenSS_Monitor_Paused) {
+        if (tls->debug) {
+	    fprintf(stderr,"monitor_mpi_post_fini RESUME SAMPLING %d,%lu\n",
+		    tls->pid,tls->tid);
+        }
+	tls->sampling_status = OpenSS_Monitor_Resumed;
+	offline_resume_sampling();
     }
 }
