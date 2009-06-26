@@ -309,7 +309,12 @@ void monitor_dlopen(const char *library, int flags, void *handle)
 	    library, tls->pid,tls->tid);
     }
 
-    int retval = OpenSS_GetDLInfo(tls->pid, library);
+    /* On some systems (NASA) it appears that dlopen can be called
+     * before monitor_init_process (or even monitor_early_init).
+     * So we need to use getpid() directly here.
+     */ 
+    int retval = OpenSS_GetDLInfo(getpid(), library);
+
     if (tls->sampling_status == OpenSS_Monitor_Paused && !tls->in_mpi_pre_init) {
         if (tls->debug) {
 	    fprintf(stderr,"monitor_dlopen RESUME SAMPLING %d,%lu\n",
