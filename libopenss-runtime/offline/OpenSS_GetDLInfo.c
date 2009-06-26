@@ -15,6 +15,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <dlfcn.h>
+#include <pthread.h>
 
 extern void offline_record_dso(const char* dsoname, uint64_t begin, uint64_t end, uint8_t is_dlopen);
 
@@ -33,7 +35,11 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 
 #ifndef NDEBUG
     if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
-	fprintf(stderr,"OpenSS_GetDLInfo called for %s\n",path ? path : "EMPTY PATH");
+	pthread_t (*f_pthread_self)();
+        f_pthread_self = (pthread_t (*)())dlsym(RTLD_DEFAULT, "pthread_self");
+	fprintf(stderr,"OpenSS_GetDLInfo called for %s in %d,%lu\n",
+		path ? path : "EMPTY PATH", getpid(),
+		(f_pthread_self != NULL) ? (*f_pthread_self)() : 0);
     }
 #endif
 

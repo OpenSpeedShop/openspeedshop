@@ -292,7 +292,9 @@ void monitor_dlopen(const char *library, int flags, void *handle)
 #else
     TLS* tls = &the_tls;
 #endif
-    Assert(tls != NULL);
+    if (tls == NULL || tls && tls->sampling_status == 0 ) {
+	return;
+    }
 
     if (library == NULL) {
 	if (tls->debug) {
@@ -334,7 +336,9 @@ monitor_pre_dlopen(const char *path, int flags)
 #else
     TLS* tls = &the_tls;
 #endif
-    Assert(tls != NULL);
+    if (tls == NULL || tls && tls->sampling_status == 0 ) {
+	return;
+    }
 
     if (path == NULL) {
 	if (tls->debug) {
@@ -368,7 +372,10 @@ monitor_dlclose(void *handle)
 #else
     TLS* tls = &the_tls;
 #endif
-    Assert(tls != NULL);
+
+    if (tls == NULL || tls && tls->sampling_status == 0 ) {
+	return;
+    }
 
     if (!tls->thread_is_terminating || !tls->process_is_terminating) {
 	if ((tls->sampling_status == OpenSS_Monitor_Started ||
@@ -392,7 +399,10 @@ monitor_post_dlclose(void *handle, int ret)
 #else
     TLS* tls = &the_tls;
 #endif
-    Assert(tls != NULL);
+
+    if (tls == NULL || tls && tls->sampling_status == 0 ) {
+	return;
+    }
 
     if (!tls->thread_is_terminating || !tls->process_is_terminating) {
 	if (tls->sampling_status == OpenSS_Monitor_Paused && !tls->in_mpi_pre_init) {

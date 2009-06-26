@@ -41,7 +41,7 @@ typedef enum {
 } OpenSS_Monitor_Type;
 
 typedef enum {
-    OpenSS_Monitor_Started,
+    OpenSS_Monitor_Started = 1,
     OpenSS_Monitor_Finished,
     OpenSS_Monitor_Paused,
     OpenSS_Monitor_Resumed
