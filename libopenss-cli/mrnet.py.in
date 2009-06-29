@@ -59,109 +59,18 @@ if debug:
 # Location of user-specific OpenSpeedShop preferences: $HOME/.openspeedshop
 ossuserpref = os.environ['HOME'] + os.sep + '.openspeedshop'
 
-def getRawAllocatedNodesString():
+def getAllocatedNodesString():
     if os.environ.has_key('PBS_JOBID'):
-        #Get basic qstat information and force output of allocated nodes to be
-        #on the same line as the job ID.
-        qstatnodeinfo = commands.getoutput('qstat -f $PBS_JOBID -n1')
+        allocnodes = commands.getoutput('cat $PBS_NODEFILE  | uniq')
         if debug:
             print ' '
-            #print "from getRawAllocatedNodesString, qstatnodeinfo=%s" % qstatnodeinfo
-        #Last item in list should always be a string containing a list of 
-        #allocated nodes in the form: 'yra051/7+yra051/6+yra051...
-        #yra051/0+yra087/7+yra087...yra087/0
+            #print "from getRawAllocatedNodesString, uniqallocnodes=%s" % uniqallocnodes
     else:
         print 'fatal error...PBS_JOBID not defined.'
         sys.exit()
-    nodelistTmp = qstatnodeinfo.split(' ')[-1]
     if debug:
-       print "From getRawAllocatedNodesString, stripped hostnodeNameStrip=%s" % hostnodeNameStrip
-       print "From getRawAllocatedNodesString, nodelistTmp=%s" % nodelistTmp
-    return nodelistTmp
-#    return qstatnodeinfo.split(' ')[-1]
-
-def getAllocatedNodesString():
-    if debug:
-       print "frontEndQstatRegEx=%s from getAllocatedNodesString" % frontEndQstatRegEx
-    frontEndRegex = re.compile(frontEndQstatRegEx)
-    backEndQstatRegEx = ''
-    backEndNodeNameStrip = ''
-    BEnodelist = list('')
-    rawString = getRawAllocatedNodesString()
-    i = 0
-    j = 0
-    k = 0
-    rawStringLength = len(rawString)
-    if debug:
-       print "rawStringLength=%d" % rawStringLength
-    while (1):
-       if (i > rawStringLength-5):
-          break
-       while (rawString[i] != '+' and rawString[i] != '\n'):
-          if debug:
-            print "i=%d" % i
-            print "rawString[i]=%c" % rawString[i]
-          i+=1
-          j=i+1
-       if (i > rawStringLength-5):
-          break
-       while (rawString[i] != '/' and rawString[i] != '\n'):
-          if debug:
-             print "in second while, i=%d" % i
-             print "in second while, rawString[i]=%c" % rawString[i]
-          i+=1
-          k=i
-       backEndNodeName = rawString[j:k]
-       if debug:
-          print "backEndNodeName = %s" % backEndNodeName
-       
-       backEndNodeNameStrip = backEndNodeName.rstrip('0123456789')
-       if debug:
-          print "backEndNodeNameStrip = %s" % backEndNodeNameStrip
-       if (backEndNodeNameStrip != hostnodeNameStrip):
-           backEndQstatRegEx = backEndNodeNameStrip + '[^/*]*'
-           backEndRegex = re.compile(backEndQstatRegEx)
-           if debug:
-              print "backEndRegex=%s from getAllocatedNodesString" % backEndRegex
-           BEdupnodeslist = backEndRegex.findall(rawString)
-           if debug:
-              print "BEdupnodeslist=%s from getAllocatedNodesString" % BEdupnodeslist
-           BEnodelist = list(Set(BEdupnodeslist))
-           if debug:
-              print "BEnodelist=%s from getAllocatedNodesString" % BEnodelist
-
-           
-       
-
-    if debug:
-       print "frontEndRegex=%s in getAllocatedNodesString" % frontEndRegex
-       print "rawString=%s from getRawAllocatedNodesString() in getAllocatedNodesString" % rawString
-    FEdupnodeslist = frontEndRegex.findall(rawString)
-    if debug:
-       print "FEdupnodeslist=%s from getAllocatedNodesString" % FEdupnodeslist
-    
-    #Return string without duplicate node entries.
-    nodelist = list(Set(FEdupnodeslist))
-    #if (len(BEnodelist) > 0):
-    #   print "before combining lists: nodelist=%s and BEnodelist from getAllocatedNodesString" % nodelist
-    #   nodelist = (nodelist + BEnodelist)
-    #   print "after combining lists: nodelist=%s and BEnodelist from getAllocatedNodesString" % nodelist
-    if debug:
-       print "nodelist=%s from getAllocatedNodesString" % nodelist
-    
-    #Append .lanl.gov
-    """
-	for i in range(len(nodeslist)):
-        nodeslist[i] += '.lanl.gov'
-    """
-    # Not sure if sort is needed...
-    if (len(BEnodelist) > 0):
-       BEnodelist.sort()
-       nodelist = (nodelist + BEnodelist)
-    else:
-       nodelist.sort()
-
-    return string.join(nodelist)
+       print "From getRawAllocatedNodesString, allocnodes=%s" % allocnodes
+    return allocnodes
 
 def prepENV(topologyStringHash):
     global topFileUpdateNeeded
@@ -289,12 +198,16 @@ def generateSimpleTopologyString():
 
 #TODO:FIXME 
 def generateSimpleBETopologyString():
-    nodelist = getAllocatedNodesString().split(' ')
+    nodelist = getAllocatedNodesString().split('\n')
     
     topstring = nodelist[0] + ':0 =>\n  ' + nodelist[0] + ':1'
 
+
+    #count = 2
     for node in nodelist[1::1]:
         topstring += '\n  ' + node + ':0'
+    #    topstring += '\n  %s:%d' % (node, count)
+    #    count += 1
     
     topstring += ' ;'
     return topstring
@@ -349,13 +262,14 @@ def main():
             print 'on compute node...'
         prepENV(getStringHashValue(generateSimpleBETopologyString()))
 
-        print ""
-        print "An MRNet Configuration has been created for you - please"
-        print "check if this is consistent with your partition."
-        print ""
-        print "Current MRNet configuration in " + ossuserpref
-        print ""
-        print generateSimpleBETopologyString()
+        if debug:
+            print ""
+            print "An MRNet Configuration has been created for you - please"
+            print "check if this is consistent with your partition."
+            print ""
+            print "Current MRNet configuration in " + ossuserpref
+            print ""
+            print generateSimpleBETopologyString()
         if debug:
            print "after print of generateSimpleBETopologyString()"
 
