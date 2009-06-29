@@ -39,7 +39,7 @@ ossuserpref = os.environ['HOME'] + os.sep + '.openspeedshop'
 
 def getAllocatedNodesString():
     if os.environ.has_key('PBS_JOBID'):
-        allocnodes = commands.getoutput('cat $PBS_NODEFILE')
+        allocnodes = commands.getoutput('cat $PBS_NODEFILE | uniq')
         if debug:
             print ' '
             #print uniqallocnodes
@@ -155,10 +155,11 @@ def generateSimpleBETopologyString():
     nodelist = getAllocatedNodesString().split('\n')
     topstring = nodelist[0] + ':0 =>\n  ' + nodelist[0] + ':1'
 
-    count = 2
+    #count = 2
     for node in nodelist[1::1]:
-        topstring += '\n  %s:%d' % (node, count)
-        count += 1
+        #topstring += '\n  %s:%d' % (node, count)
+        topstring += '\n  ' + node + ':0'
+        #count += 1
     
     topstring += ' ;'
     return topstring
