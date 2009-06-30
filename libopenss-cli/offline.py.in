@@ -130,7 +130,26 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    break
 		else:
 		    file_arg = s
-		
+
+# being code to replace aliases
+#
+#       Recognize an alias for the executable and replace the alias with the actual value
+#       We must recognize the shell the user is running and execute the alias command using
+#       that shell, for example:  /bin/csh -c "alias executable"
+#       to see if there is an alias for executable.   Then use the replace command in the
+#       file_arg and program strings to put in the real command.
+#
+        result = ""
+        mySHELL = 'echo $SHELL'
+        myshell_result = commands.getoutput(mySHELL)
+        myAliasCommand = "alias " + file_arg
+        myAliasString = myshell_result + ' -c "' + myAliasCommand + '"'
+        result = commands.getoutput(myAliasString)
+        if result != "":
+           program = program.replace(file_arg, result)
+           file_arg = s.replace(file_arg, result)
+
+# end code to replace aliases
 	
 	if os.path.isfile(file_arg):
 	    # test if the file is elf binary and has the symbol MPI_Init.
