@@ -303,7 +303,7 @@ void SS_Watcher () {
               if (wi->itemtype == Watch_Item::printTermination) {
                // Print a message to the window.
                 Send_Message_To_Window ( wi->item.p.window, 
-                                           std::string("Experiment ")
+                                           std::string("[openss]: Experiment ")
                                               +  int2str(wi->item.p.expid)
                                               +  " has terminated."
                                          );

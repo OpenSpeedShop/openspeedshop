@@ -1830,7 +1830,7 @@ bool SS_expClone (CommandObject *cmd) {
   (void)Experiment_Focus (WindowID, output_exp_id);
 
  // Annotate the command
-  cmd->Result_Annotation ("The newly cloned experiment identifier is:  -x ");
+  cmd->Result_Annotation ("[openss]: The newly cloned experiment identifier is:  -x ");
 
  // Return the EXPID for this command.
   cmd->Result_Int (output_exp_id);
@@ -1914,6 +1914,8 @@ bool SS_expCreate (CommandObject *cmd) {
  // looking through the ExperimentObject_list when a new entry
  // is added to it.
   Wait_For_Previous_Cmds ();
+//  cmd->Result_String ("Creating the new experiment. Reading symbols and inserting instrumentation.\n" );
+    cerr << "[openss]: Creating a new experiment: Inserting instrumentation and preparing the experiment to run." << std::endl;
 
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate()) {
     cli_timing_handle->processTimingEventEnd( SS_Timings::expCreate_wait_Start,
@@ -1929,6 +1931,7 @@ bool SS_expCreate (CommandObject *cmd) {
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate()) {
     cli_timing_handle->cli_perf_data[SS_Timings::expCreate_allocExp_Start] = Time::Now();
   }
+
 
  // There is no specified experiment.  Allocate a new Experiment.
   ExperimentObject *exp = new ExperimentObject ();
@@ -1957,6 +1960,11 @@ bool SS_expCreate (CommandObject *cmd) {
 #if DEBUG_CLI
       std::cout << "SS_expCreate, FOUND OFFLINE INSTRUMENTOR INDICATION (-i offline) " <<  std::endl;
 #endif
+
+   } else if (!strcasecmp(S.c_str(),"online")) {
+
+      exp->setIsInstrumentorOffline(false);
+      isOfflineCmd = false;
 
    } else {
 
@@ -2003,7 +2011,7 @@ bool SS_expCreate (CommandObject *cmd) {
   (void)Experiment_Focus (WindowID, exp_id);
 
  // Annotate the command
-  cmd->Result_Annotation ("The new focused experiment identifier is:  -x ");
+  cmd->Result_Annotation ("[openss]: The new focused experiment identifier is:  -x ");
 
  // Return the EXPID for this command.
   cmd->Result_Int (exp_id);
@@ -2265,7 +2273,7 @@ bool SS_expFocus  (CommandObject *cmd) {
 
  // Return the EXPID for this command.
   cmd->Result_Int (ExperimentID);
-  cmd->Result_Annotation ("The current focused experiment is:  -x ");
+  cmd->Result_Annotation ("[openss]: The current focused experiment is:  -x ");
   cmd->set_Status(CMD_COMPLETE);
   return true;
 } 
@@ -2567,13 +2575,13 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     if (appCommand.empty() ) {
 
       // Annotate the command
-      cmd->Result_Annotation ("Start asynchronous execution of experiment:  -x "
+      cmd->Result_Annotation ("[openss]: Start asynchronous execution of experiment:  -x "
                             + int2str(exp->ExperimentObject_ID()) + "\n" );
     } else {
 
       // Annotate the command
-      cmd->Result_Annotation ("Start asynchronous execution of experiment:  -x "
-                            + int2str(exp->ExperimentObject_ID()) + "\n" + "Running executable: " + appCommand
+      cmd->Result_Annotation ("[openss]: Start asynchronous execution of experiment:  -x "
+                            + int2str(exp->ExperimentObject_ID()) + "\n" + "[openss]: Running executable: " + appCommand
                             + " for experiment -x " + int2str(exp->ExperimentObject_ID()) +  "\n");
     }
 
@@ -2668,7 +2676,7 @@ static bool Continue_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     }
 
    // Annotate the command
-    cmd->Result_Annotation ("Continue asynchronous execution of experiment:  -x "
+    cmd->Result_Annotation ("[openss]: Continue asynchronous execution of experiment:  -x "
                              + int2str(exp->ExperimentObject_ID()) + "\n");
   }
   return true;
@@ -2821,7 +2829,7 @@ static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     (void) Wait_For_Exp_State (cmd, ExpStatus_Paused, exp);
 
    // Annotate the command
-    cmd->Result_Annotation ("Suspend execution of experiment:  -x "
+    cmd->Result_Annotation ("[openss]: Suspend execution of experiment:  -x "
                              + int2str(exp->ExperimentObject_ID()) + "\n");
   }
   return true;
@@ -2988,7 +2996,7 @@ bool SS_expRestore (CommandObject *cmd) {
 #endif
 
  // Annotate the command
-  cmd->Result_Annotation ("The restored experiment identifier is:  -x ");
+  cmd->Result_Annotation ("[openss]: The restored experiment identifier is:  -x ");
 
  // Return the EXPID for this command.
   cmd->Result_Int (ExperimentID);

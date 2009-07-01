@@ -25,11 +25,13 @@
 static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &areWeRestoring)
 {
  /* What is the maximum length of the expCreate command? */  
-  bool processing_offline_option = false;
+  bool processing_offline_option = true;
   bool processing_online_option = false;
+  bool onlineArgsFound = false;
   bool initial_set_of_command_done_yet = false;
   bool processing_batch_option = false;
   bool guiArgSpecified = false;
+  bool cliArgSpecified = false;
   areWeRestoring = false;
 
 #ifdef DEBUG_CLI_OPTIONS
@@ -41,8 +43,21 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
 
   // Do some preliminary setup work
   for ( i=1; i<argc; i++ ) {
+
     if (strcasecmp( argv[i], "-gui") == 0) {
       guiArgSpecified = true;
+    }
+
+    if (strcasecmp( argv[i], "-cli") == 0) {
+      cliArgSpecified = true;
+    }
+
+    if (strcasecmp( argv[i], "-p") == 0 ||
+        strcasecmp( argv[i], "-t") == 0 ||
+        strcasecmp( argv[i], "-h") == 0 ||
+        strcasecmp( argv[i], "-r") == 0 ||
+        strcasecmp( argv[i], "-c") == 0 ) {
+      onlineArgsFound = true;
     }
 
     if (strstr( argv[i], ".openss")) {
@@ -50,7 +65,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
       if (!strstr( argv[i], "-f ")) {
         areWeRestoring = true;
 #ifdef DEBUG_CLI_OPTIONS
-        printf(" StartModes in Input_Command_Args, WE ARE RESTORING, -f command argv[i=%d]=%s, areWeRestoring=%d\n",
+        printf(" StartModes in Input_Command_Args, WE ARE RESTORING, -f command argv[i=%d]=%s, areWeRestoring=%d\n", 
                i, argv[i], areWeRestoring);
 #endif
       }
@@ -59,6 +74,11 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
     if (strlen(argv[i]) > 0) {
       cmdlen += strlen(argv[i]) + 3;  // add 3 for space and possible quote characters
     }
+  }
+
+  if (onlineArgsFound) {
+    processing_offline_option = false;
+    processing_online_option = true;
   }
 
   if (cmdlen > 0) {
@@ -70,26 +90,41 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
 #ifdef DEBUG_CLI_OPTIONS
         printf(" StartModes, cycling through the argument list, processing_online_option=%d, processing_offline_option=%d, argv[i=%d]=%s\n", 
                 processing_online_option, processing_offline_option,i, argv[i]);
-        printf(" StartModes, cycling through the argument list, processing_batch_option=%d\n", 
-                processing_batch_option);
+        printf(" StartModes, cycling through the argument list, processing_batch_option=%d, onlineArgsFound=%d\n", 
+                processing_batch_option, onlineArgsFound);
 #endif
         if (strcasecmp( argv[i], "-batch") == 0) {
 #ifdef DEBUG_CLI_OPTIONS
             printf(" StartModes, setting processing_batch_option to TRUE, cycling through the argument list, argv[i=%d]=%s\n", i, argv[i]);
 #endif
             processing_batch_option = true;
+            processing_offline_option = false;
+            processing_online_option = false;
         } 
+
         if (strcasecmp( argv[i], "-offline") == 0) {
 #ifdef DEBUG_CLI_OPTIONS
             printf(" StartModes, setting processing_offline_option to TRUE, cycling through the argument list, argv[i=%d]=%s\n", i, argv[i]);
 #endif
             processing_offline_option = true;
+            processing_online_option = false;
+            processing_batch_option = false;
+            if (onlineArgsFound) {
+               // Warn the user about incorrect command syntax
+               cerr << "WARNING: Found dynamic/online arguments (-c,-h,-p,-r,or -t) present with -offline specified.  Switching to online mode." << std::endl;
+               processing_offline_option = false;
+               processing_online_option = true;
+               processing_batch_option = false;
+            }
+
         }
         if (strcasecmp( argv[i], "-online") == 0) {
 #ifdef DEBUG_CLI_OPTIONS
             printf(" StartModes, setting processing_online_option to TRUE, cycling through the argument list, argv[i=%d]=%s\n", i, argv[i]);
 #endif
             processing_online_option = true;
+            processing_offline_option = false;
+            processing_batch_option = false;
         }
 
        // Don't include any mode options.
@@ -115,7 +150,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
 	  if ( areWeRestoring ) { 
             bcopy("expRestore", cmdstr, 11);
 	  } else {
-            if (guiArgSpecified) {
+            if (guiArgSpecified || cliArgSpecified) {
               bcopy("expCreate -i offline", cmdstr, 22);
             } else {
               bcopy("RunOfflineExp", cmdstr, 15);
@@ -146,6 +181,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
         if ( processing_offline_option && 
 	      !areWeRestoring &&
 	      !guiArgSpecified &&
+	      !cliArgSpecified &&
              (strlen(argv[i]) == 2) && 
               !strncasecmp( argv[i], "-f", 2) && 
               ((i+1) < argc) && 
@@ -153,9 +189,13 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
 
            // if this is offline then replace the -f with program=
            strcat(cmdstr,"(program=");
+#ifdef DEBUG_CLI_OPTIONS
+           printf(" StartModes, offline option, replace -f option with program, cmdstr=%s\n", cmdstr);
+#endif
 
         } else if (processing_offline_option && ((i+1) == argc)  &&
 	           !guiArgSpecified &&
+	           !cliArgSpecified &&
 	           !areWeRestoring ) {
 
           // This is the last argument in the list, assumed to be the collector type
@@ -164,10 +204,16 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
           strcat(cmdstr,argv[i]);
           strcat(cmdstr,"\"");
           strcat(cmdstr,")");
+#ifdef DEBUG_CLI_OPTIONS
+          printf(" StartModes, offline option, last argument is the collector?, cmdstr=%s\n", cmdstr);
+#endif
 
         } else {
 
            strcat(cmdstr,argv[i]);
+#ifdef DEBUG_CLI_OPTIONS
+           printf(" StartModes, else clause, cmdstr=%s\n", cmdstr);
+#endif
 
         } 
 
@@ -183,7 +229,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
           strcat(cmdstr," \"");
           strcat(cmdstr,argv[i]);
 #ifdef DEBUG_CLI_OPTIONS
-            printf(" StartModes, -f command argv[i]=%s cmdstr=%s\n", argv[i], cmdstr);
+            printf(" StartModes, before quoting of the -f command argv[i]=%s cmdstr=%s\n", argv[i], cmdstr);
 #endif
           strcat(cmdstr,"\"");
 
@@ -198,7 +244,8 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
       } // end strlen(argv[i]) > 0
 
 #ifdef DEBUG_CLI_OPTIONS
-      printf(" StartModes, at the bottom of the for loop, processing_batch_option=%d, processing_offline_option=%d, i=%d, argc=%d, cmdstr=%s\n", processing_batch_option, processing_offline_option, i, argc, cmdstr);
+      printf(" StartModes, at the bottom of the for loop, processing_batch_option=%d, processing_offline_option=%d, argc=%d, cmdstr=%s\n", processing_batch_option, processing_offline_option, argc, cmdstr);
+      printf(" StartModes, at the bottom of the for loop, guiArgSpecified=%d, processing_online_option=%d, i=%d\n", guiArgSpecified, processing_online_option, i);
 #endif
 
     } // end for
@@ -209,6 +256,9 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
      /* Put the "expCreate" command to the input stack */
       (void)Append_Input_String (my_window, cmdstr,
                                  NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output); }
+#ifdef DEBUG_CLI_OPTIONS
+       printf(" StartModes, put expCreate in the input stack, cmdstr=%s\n", cmdstr);
+#endif
 
    // Release allocated space.
     free(cmdstr);
@@ -216,7 +266,12 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
 
 }
 
-bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, OpenSpeedShop_Start_Modes oss_start_mode)
+bool Start_COMMAND_LINE_Mode (CMDWID my_window, 
+                              int argc, 
+                              char ** argv, 
+                              bool need_cli, 
+                              bool need_gui, 
+                              OpenSpeedShop_Start_Modes oss_start_mode)
 {
   Assert (my_window);
 
@@ -224,14 +279,14 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, OpenSpee
   bool weAreRestoring = false;
 
 #ifdef DEBUG_CLI_OPTIONS
-      printf(" Start_COMMAND_LINE_Mode, before calling Input_Command_Args, weAreRestoring=%d\n", weAreRestoring);
+  printf(" Start_COMMAND_LINE_Mode, before calling Input_Command_Args, weAreRestoring=%d\n", weAreRestoring);
 #endif
 
  // Translate the command line arguments into an "expCreate command".
   Input_Command_Args ( my_window, argc, argv, weAreRestoring);
 
 #ifdef DEBUG_CLI_OPTIONS
-      printf(" Start_COMMAND_LINE_Mode, after calling Input_Command_Args, weAreRestoring=%d\n", weAreRestoring);
+  printf(" Start_COMMAND_LINE_Mode, after calling Input_Command_Args, weAreRestoring=%d\n", weAreRestoring);
 #endif
 
  // After executing an expCreate command, read any piped-in file.
@@ -247,9 +302,12 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, OpenSpee
  // If there is no input file and the user specified "-offline" mode,
  // execute with an "RunOfflineExp" command and display results with "expview stats".
  // Otherwise, assume the input file will control execution.
-  if (oss_start_mode == SM_Offline && !read_stdin_file) {
+  if (oss_start_mode == SM_Offline && !read_stdin_file && !need_gui && !need_cli) {
+#ifdef DEBUG_CLI_OPTIONS
+    printf(" Start_COMMAND_LINE_Mode, adding expView to the input stack, oss_start_mode (offline)=%d\n", oss_start_mode);
+#endif
     if ((NULL == Append_Input_String (my_window, "expView\n", NULL,
-                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output))) {
+                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
       cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
       return false;
     }
@@ -266,14 +324,44 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, OpenSpee
 #else
   if (oss_start_mode == SM_Batch && !read_stdin_file) {
 #endif
+#ifdef DEBUG_CLI_OPTIONS
+    printf(" Start_COMMAND_LINE_Mode, adding expGo, expView to the input stack, oss_start_mode (batch)=%d\n", oss_start_mode);
+#endif
     if ((NULL == Append_Input_String (my_window, "expGo\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
         (NULL == Append_Input_String (my_window, "expView\n", NULL,
-                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output))) {
+                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
       cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
       return false;
     }
   }
+
+ // If there is no input file and the user specified "-online" mode,
+ // execute with an "expGo" command and display results with "expview stats".
+ // Otherwise, assume the input file will control execution.
+ //
+#if 0
+ // If we are restoring then don't to an expGo as the experiment can't run but we could to
+ // an expview if desired. 
+  if (oss_start_mode == SM_Online && !read_stdin_file && !weAreRestoring) {
+#else
+  if (oss_start_mode == SM_Online && !read_stdin_file && !need_gui ) {
+#endif
+#ifdef DEBUG_CLI_OPTIONS
+    printf(" Start_COMMAND_LINE_Mode, adding expGo, expView to the input stack, oss_start_mode (online)=%d\n", oss_start_mode);
+#endif
+    if ((NULL == Append_Input_String (my_window, "expGo\n", NULL,
+                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
+        (NULL == Append_Input_String (my_window, "expView\n", NULL,
+                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
+//                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
+//        (NULL == Append_Input_String (my_window, "expSave\n", NULL,
+//                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
+      cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
+      return false;
+    }
+  }
+
 
   return true;
 }

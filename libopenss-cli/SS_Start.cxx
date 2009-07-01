@@ -78,15 +78,23 @@ static void
 Process_Command_Line (int argc, char **argv)
 {
   bool found_f_option = false;
+  bool found_t_option = false;
+  bool found_r_option = false;
+  bool found_h_option = false;
+  bool found_c_option = false;
+  bool found_p_option = false;
   bool found_tli = false;
   bool found_gui = false;
   bool found_batch = false;
-  bool found_offline = false;
   bool found_online = false;
   int i;
 
+  // Default to offline start mode and offline
+  oss_start_mode = SM_Offline;
+  bool found_offline = true;
+
 #if DEBUG_CLI
-  std::cerr << "Entger Process_Command_Line, argc=" << argc << std::endl;
+  std::cerr << "Enter Process_Command_Line, argc=" << argc << std::endl;
 #endif
  /* Check the command line flags: */
   for ( i=1; i<argc; i++ ) {
@@ -96,33 +104,66 @@ Process_Command_Line (int argc, char **argv)
     }
 
 #if DEBUG_CLI
-  std::cerr << "In Process_Command_Line, argv[i]=" << argv[i] << " i=" << i << std::endl;
+  std::cerr << "Process_Command_Line, argv[i]=" << argv[i] << " i=" << i << std::endl;
 #endif
    // Look for an indication of which input control window to open.
    // (I really do intend to allow both gui and tli windows at the same time!)
 
     if (!strcasecmp( argv[i], "-cli")) {
+
+#if DEBUG_CLI
+      std::cerr << "Process_Command_Line, Parsing openss args, FOUND -cli: option" << std::endl;
+#endif
+
       found_tli = true;
       need_tli = true;
       if (!found_gui) need_gui = false;
       continue;
     } else if (!strcasecmp( argv[i], "-gui")) {
+
+#if DEBUG_CLI
+      std::cerr << "Process_Command_Line, Parsing openss args, FOUND -gui: option" << std::endl;
+#endif
+
       found_gui = true;
       need_gui = true;
       if (!found_tli) need_tli = false;
       continue;
+
     } else if (!strcasecmp( argv[i], "-batch")) {
+
+#if DEBUG_CLI
+      std::cerr << "Process_Command_Line, Parsing openss args, FOUND -batch: option" << std::endl;
+#endif
+
       found_batch = true;
+      found_online = false;
+      found_offline = false;
       oss_start_mode = SM_Batch;
       read_stdin_file = (stdin && !isatty(fileno(stdin)));
       continue;
+
     } else if (!strcasecmp( argv[i], "-offline")) {
+
+#if DEBUG_CLI
+      std::cerr << "Process_Command_Line, Parsing openss args, FOUND -offline: option" << std::endl;
+#endif
       found_offline = true;
+      found_online = false;
+      found_batch = false;
       oss_start_mode = SM_Offline;
 //      read_stdin_file = (stdin && !isatty(fileno(stdin)));
+
     } else if (!strcasecmp( argv[i], "-online")) {
+
+#if DEBUG_CLI
+      std::cerr << "Process_Command_Line, Parsing openss args, FOUND -online: option" << std::endl;
+#endif
+      found_offline = false;
       found_online = true;
+      found_batch = false;
       oss_start_mode = SM_Online;
+
     }
 
    /* Look for an executable description. */
@@ -134,63 +175,166 @@ Process_Command_Line (int argc, char **argv)
         !strcasecmp( argv[i], "-r")) {
       executable_encountered = true;
       need_command_line = true;
+
      // if the next argv is not another "-" option, skip it.
       if (!strcasecmp( argv[i], "-f") ){ 
          found_f_option = true;
 #if DEBUG_CLI
-         std::cerr << "Parsing openss args, FOUND -f: option" << std::endl;
+         std::cerr << "Process_Command_Line, Parsing openss args, FOUND -f: option" << std::endl;
+#endif
+      } else if (!strcasecmp( argv[i], "-p") ){ 
+         found_p_option = true;
+#if DEBUG_CLI
+         std::cerr << "Process_Command_Line, Parsing openss args, FOUND -p: option" << std::endl;
+#endif
+      } else if (!strcasecmp( argv[i], "-t") ){ 
+         found_t_option = true;
+#if DEBUG_CLI
+         std::cerr << "Process_Command_Line, Parsing openss args, FOUND -t: option" << std::endl;
+#endif
+      } else if (!strcasecmp( argv[i], "-h") ){ 
+         found_h_option = true;
+#if DEBUG_CLI
+         std::cerr << "Process_Command_Line, Parsing openss args, FOUND -h: option" << std::endl;
+#endif
+      } else if (!strcasecmp( argv[i], "-r") ){ 
+         found_r_option = true;
+#if DEBUG_CLI
+         std::cerr << "Process_Command_Line, Parsing openss args, FOUND -r: option" << std::endl;
+#endif
+      } else if (!strcasecmp( argv[i], "-c") ){ 
+         found_c_option = true;
+#if DEBUG_CLI
+         std::cerr << "Process_Command_Line, Parsing openss args, FOUND -c: option" << std::endl;
 #endif
       } else {
+
 #if DEBUG_CLI
-         std::cerr << "Parsing openss args, DID not FIND -f: option" << std::endl;
+         std::cerr << "Process_Command_Line, Parsing openss args, DID not FIND -f, -p, -t, -h, -r or -c options" << std::endl;
 #endif
+
       }
+
       if (((i+1)<argc) &&
           (argv[i+1] != NULL) &&
           (*(argv[i+1]) != '-' )) i++;
       continue;
     } else if ( argv[i] != NULL && *(argv[i]) != '-' ) {
+
       collector_encountered = true;
       need_command_line = true;
+#if DEBUG_CLI
+      std::cerr << "Process_Command_Line, Parsing openss args, collector encountered, need command line" << std::endl;
+#endif
       continue;
+
     }
   }
 
-  if (!found_online && !found_offline && !found_batch && !found_gui && !found_tli) {
+  // If we find a dynamic option then we have to run as online, so force the mode to online
+  if (found_p_option || found_t_option || found_h_option || found_r_option || found_c_option) {
+
+    if (found_offline) {
+      // Warn user that we are overriding the setting of offline mode and reassigning to online mode
+        cerr << "WARNING: Found dynamic/online arguments (-c,-h,-p,-r,or -t) present with -offline specified.  Switching to online mode." << std::endl;
+    }
+
+    if (found_gui) {
+      need_gui = true;
+      need_tli = false;
+    } else if (found_tli) {
+      need_gui = false;
+      need_tli = true;
+    } else {
+      need_gui = false;
+      need_tli = false;
+    }
+
+    found_offline = false;
+    found_online = true;
+    found_batch = false;
+    oss_start_mode = SM_Online;
+
+  } else if (found_f_option && !found_tli && !found_online && !found_batch && !found_gui) {
+    // Assume default of offline when f option is found and no online explicit option
+    need_gui = false;
+    need_tli = false;
+    found_offline = true;
+    found_online = false;
+    found_batch = false;
+    oss_start_mode = SM_Offline;
+#if DEBUG_CLI
+    std::cerr << "Process_Command_Line, Parsing openss args, found_offline - not gui not cli" << std::endl;
+#endif
+  } else if (found_f_option && found_online && !found_tli && !found_online && !found_batch && !found_gui) {
+    // Run the online command as an immediate command if the f_option is present 
+    // and the -online option is present with no -gui present
+    need_gui = false;
+    need_tli = false;
+    found_online = true;
+    found_offline = false;
+    found_batch = false;
+    oss_start_mode = SM_Online;
+#if DEBUG_CLI
+    std::cerr << "Process_Command_Line, Parsing openss args, found_online - not gui not cli" << std::endl;
+#endif
+  } else if (!found_online && !found_offline && !found_batch && !found_gui && !found_tli) {
    // If not specified by the user, default to -gui only mode.
     need_gui = true;
     need_tli = false;
 #if DEBUG_CLI
-    std::cerr << "Parsing openss args, found_nothing - gui by default" << std::endl;
+    std::cerr << "Process_Command_Line, Parsing openss args, found_nothing - gui by default" << std::endl;
 #endif
-  } else if (found_online && !found_offline && !found_batch && !found_tli) {
+  } else if (found_online && !found_offline && !found_batch && !found_tli && found_gui ) {
     need_gui = true;
     need_tli = false;
 #if DEBUG_CLI
-    std::cerr << "Parsing openss args, found_online - gui not cli" << std::endl;
+    std::cerr << "Process_Command_Line, Parsing openss args, found_online - gui not cli" << std::endl;
 #endif
-  } else if (found_online && found_tli && 
-             !found_offline && !found_batch && !found_gui) {
+  } else if (found_online && found_tli && !found_offline && !found_batch && !found_gui) {
     need_gui = false;
     need_tli = true;
 #if DEBUG_CLI
-    std::cerr << "Parsing openss args, found_offline - not gui" << std::endl;
+    std::cerr << "Process_Command_Line, Parsing openss args, found_offline - not gui" << std::endl;
+#endif
+  } else if (found_offline && !found_f_option && !found_tli && !found_online && !found_batch) {
+    need_gui = true;
+    need_tli = false;
+#if DEBUG_CLI
+    std::cerr << "Process_Command_Line, Parsing openss args, found_offline - gui not cli" << std::endl;
 #endif
   } else if (found_offline && !found_f_option &&
              !found_tli && !found_online && !found_batch) {
     need_gui = true;
     need_tli = false;
 #if DEBUG_CLI
-    std::cerr << "Parsing openss args, found_offline - gui not cli" << std::endl;
+    std::cerr << "Process_Command_Line, Parsing openss args, found_offline - gui not cli" << std::endl;
 #endif
-  } else if (found_offline && !found_f_option &&
-             !found_tli && !found_online && !found_batch) {
-    need_gui = true;
-    need_tli = false;
+  } else {
 #if DEBUG_CLI
-    std::cerr << "Parsing openss args, found_offline - gui not cli" << std::endl;
+    std::cerr << "Process_Command_Line, Parsing openss args, FELL THROUGH" << std::endl;
 #endif
   }
+
+
+#if DEBUG_CLI
+    std::cerr << "EXIT Process_Command_Line, need_gui=" << need_gui << std::endl;
+    std::cerr << "EXIT Process_Command_Line, need_gui=" << need_tli << std::endl;
+    std::cerr << "EXIT Process_Command_Line, found_batch=" << found_batch << std::endl;
+    std::cerr << "EXIT Process_Command_Line, found_offline=" << found_offline << std::endl;
+    std::cerr << "EXIT Process_Command_Line, found_online=" << found_online << std::endl;
+    std::cerr << "EXIT Process_Command_Line, found_tli=" << found_tli << std::endl;
+    std::cerr << "EXIT Process_Command_Line, found_gui=" << found_gui << std::endl;
+    std::cerr << "EXIT Process_Command_Line, oss_start_mode=" << oss_start_mode << std::endl;
+    std::cerr << "EXIT Process_Command_Line, found_f_option=" << found_f_option << std::endl;
+    std::cerr << "EXIT Process_Command_Line, found_p_option=" << found_p_option << std::endl;
+    std::cerr << "EXIT Process_Command_Line, found_t_option=" << found_t_option << std::endl;
+    std::cerr << "EXIT Process_Command_Line, found_r_option=" << found_r_option << std::endl;
+    std::cerr << "EXIT Process_Command_Line, found_h_option=" << found_h_option << std::endl;
+    std::cerr << "EXIT Process_Command_Line, found_c_option=" << found_c_option << std::endl;
+#endif
+
+
 }
 
 extern "C" void initPY_Input ();
@@ -274,7 +418,12 @@ Initial_Python ()
     exit(EXIT_FAILURE);
 }
 
-bool Start_COMMAND_LINE_Mode (CMDWID my_window, int argc, char ** argv, OpenSpeedShop_Start_Modes oss_start_mode);
+bool Start_COMMAND_LINE_Mode (CMDWID my_window, 
+                              int argc, 
+                              char ** argv, 
+                              bool need_cli, 
+                              bool need_gui, 
+                              OpenSpeedShop_Start_Modes oss_start_mode);
 void SS_Direct_stdin_Input (void *attachtowindow);
 void SS_Watcher ();
 
@@ -591,9 +740,11 @@ extern "C"
       if (command_line_window != 0) {
        // Move the command line options to an input control window.
         if ( !Start_COMMAND_LINE_Mode( command_line_window, 
-        	    	    	    	     argc, 
-				       argv, 
-				       oss_start_mode) ) {
+                                       argc, 
+                                       argv, 
+                                       need_tli,
+                                       need_gui,
+                                       oss_start_mode) ) {
           return -1;
         }
       } else if (oss_start_mode == SM_Batch && (argc <= 2) && !read_stdin_file) {
@@ -601,8 +752,8 @@ extern "C"
         return -1;
       }
 
-      if (need_tli)
-      {
+      if (need_tli) {
+
        // Start up the Text Line Interface to read from the keyboard.
 #if DEBUG_CLI
         cerr << "Calling pthread_create for SS_Direct_stdin_Input" <<  std::endl;
@@ -614,7 +765,7 @@ extern "C"
 #if DEBUG_CLI
         cerr << "After Calling pthread_create for SS_Direct_stdin_Input" << phandle[1] << std::endl;
 #endif
-      }
+      } // end need_tli
 
     // Process the performance information on the cli's command line and python initialization
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
