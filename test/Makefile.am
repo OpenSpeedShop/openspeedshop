@@ -22,4 +22,6 @@ SUBDIRS = executables src test_scripts
 DIST_SUBDIRS = executables src test_scripts
 
 EXTRA_DIST = \
-	regression_check
+       regression_check acinclude.m4  ac_pkg_mpi.m4 config.guess  config.sub  configure.ac  depcomp install-sh ltmain.sh  \
+        Makefile.in  aclocal.m4  bootstrap_tests config.h.in configure libltdl.tar.gz  Makefile.am  missing regression_check-simple 
+
