@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007, 2008 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006-2009 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -413,7 +413,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     { // INSTRUMENTOR IS OFFLINE
     instrumentorIsOfflineCheckBox = new QCheckBox( vpage0big_box, "instrumentorIsOfflineCheckBox" );
     instrumentorIsOfflineCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, instrumentorIsOfflineCheckBox->sizePolicy().hasHeightForWidth() ) );
-    instrumentorIsOfflineCheckBox->setChecked( FALSE );
+    instrumentorIsOfflineCheckBox->setChecked( TRUE );
     instrumentorIsOfflineCheckBox->setText( tr( "Instrumentor Is Offline" ) );
     rightSideLayout->addWidget( instrumentorIsOfflineCheckBox );
     }
