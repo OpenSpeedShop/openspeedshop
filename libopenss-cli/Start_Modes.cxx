@@ -46,11 +46,14 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
     }
 
     if (strstr( argv[i], ".openss")) {
-      areWeRestoring = true;
+
+      if (!strstr( argv[i], "-f ")) {
+        areWeRestoring = true;
 #ifdef DEBUG_CLI_OPTIONS
-      printf(" StartModes in Input_Command_Args, WE ARE RESTORING, -f command argv[i=%d]=%s, areWeRestoring=%d\n", 
-              i, argv[i], areWeRestoring);
+        printf(" StartModes in Input_Command_Args, WE ARE RESTORING, -f command argv[i=%d]=%s, areWeRestoring=%d\n",
+               i, argv[i], areWeRestoring);
 #endif
+      }
     }
 
     if (strlen(argv[i]) > 0) {
