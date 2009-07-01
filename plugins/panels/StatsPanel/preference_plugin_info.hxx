@@ -193,7 +193,7 @@ extern "C"
     sortDecendingCheckBox->setChecked(TRUE);
     focusSourcePanelCheckBox->setChecked(FALSE);
     levelsToOpenLineEdit->setText( "-1" );
-    showTopNLineEdit->setText( "20" );
+    showTopNLineEdit->setText( "100" );
     showTopNChartLineEdit->setText( "5" );
     showColumnToSortLineEdit->setText( "0" );
     showTextInChartCheckBox->setChecked(TRUE);
