@@ -255,6 +255,17 @@ def getStringHashValue(inputString):
     return hex(hash(inputString))
 # main()
 def main():
+
+    #Make sure that .openspeedshop is created before used
+    if os.path.isdir(ossuserpref):
+        if debug:
+            print '.openspeedshop directory exists'
+    else:
+        #Make Directory $HOME/.openspeedshop
+        os.mkdir(ossuserpref, 0755)
+        if debug:
+            print '.openspeedshop directory created'
+
     #Assuming presence of PBS_JOBID is a good 
     #indicator that we are on compute nodes
     if os.environ.has_key('PBS_JOBID'):
