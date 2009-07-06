@@ -115,8 +115,8 @@ AC_CHECK_HEADER(pthread.h, [ AC_CHECK_LIB(pthread, pthread_create, [
 
 AC_ARG_WITH(tls,
 	    AC_HELP_STRING([--with-tls=TYPE],
-			   [tls (implicit, explicit) @<:@implicit@:>@]),
-	    TLS=$withval, TLS="implicit")
+			   [tls (implicit, explicit) @<:@explicit@:>@]),
+	    TLS=$withval, TLS="explicit")
 
 case "$TLS" in
     implicit)
