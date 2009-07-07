@@ -1770,6 +1770,8 @@ Invocation Command: "openss"</a>
 -batch:</a></li>
           <li><a href="#mozTocId132828">openss
 -offline:</a></li>
+          <li><a href="#mozTocId987500">openss
+-online:</a></li>
           <li><a href="#mozTocId795954">Python Scripting API</a></li>
         </ul>
       </li>
@@ -1788,28 +1790,29 @@ openss command option</a>
 experiment run</a></li>
               <li><a href="#mozTocId316474">Invoking
 opens -offline and the normal program output</a></li>
-              <li><a href="#mozTocId590902">Remainder of the program
-output and the
+              <li><a href="#mozTocId590902">Remainder of the
+program output and the
 performance data report from opens</a></li>
               <li><a href="#mozTocId96497">Database
 file is one of the outputs from running:&nbsp;&nbsp;&nbsp; openss
 -offline -f "orterun
 -np 128 sweep3d.mpi"
 pcsamp </a></li>
-              <li><a href="#mozTocId259803">Loading the database file
-using the
+              <li><a href="#mozTocId259803">Loading the
+database file using the
 interactive
 command line tool (CLI)</a></li>
-              <li><a href="#mozTocId328377">Loading the database file
-using the
+              <li><a href="#mozTocId328377">Loading the
+database file using the
 graphical user
 interface tool (GUI)</a></li>
               <li><a href="#mozTocId40840">Default view of the
 performance data results
 for
 pcsamp (PC Sampling) experiments</a></li>
-              <li><a href="#mozTocId801953">View that associates the
-performance&nbsp; data results for pcsamp to the program
+              <li><a href="#mozTocId801953">View that
+associates the performance&nbsp; data
+results for pcsamp to the program
 source lines of sweep3d.mpi</a></li>
             </ul>
           </li>
@@ -1958,7 +1961,7 @@ Usage on MPI Applications</a>
 Implementation
 Implications</a></li>
               <li><a href="#mozTocId523782">Attaching to Already
-Running MPI Applications</a>
+Running MPI Applications (online mode of operation only)</a>
                 <ul>
                   <li><a href="#mozTocId209645">Gui Wizard Information</a></li>
                   <li><a href="#mozTocId458846">Wizard
@@ -2022,7 +2025,7 @@ version Implementation
 Implications with the CLI</a></li>
               <li><a href="#mozTocId260843">Attaching to Already
 Running MPI
-Applications with the CLI</a>
+Applications with the CLI (online version only)</a>
                 <ul>
                   <li><a href="#mozTocId192100">Example 1: Attach to
 mpirun</a></li>
@@ -2687,7 +2690,9 @@ preference.<span style="">&nbsp; </span>It is currently set to place
 Open|SpeedShop into the offline mode of operation by default when the
 openss command is invoked with no options.&nbsp; The following is a set
 of simple invocation options for Open|SpeedShop.&nbsp; Please see the
-man page for openss for more detailed option information.<br>
+man page for openss for more detailed option information.&nbsp;&nbsp;
+The offline mode of instrumentation is the default mode as of version
+1.9.2.&nbsp; <br>
   </p>
 </blockquote>
 <h3 style="margin-left: 28.1pt;"><a class="mozTocH3"
@@ -2736,12 +2741,25 @@ environments.&nbsp; <br>
 <p class="MsoNormal" style="margin-left: 28.1pt;">This invocation of
 Open|SpeedShop
 causes Open|SpeedShop to execute a performance experiment specified by
-additional arguments, directly using offline instrumentation without
+additional arguments, directly using offline mode of instrumentation
+without
 user
 interaction.&nbsp;&nbsp; The -offline operation can be used in scripts
 and
 batch processing environments.</p>
-<p class="MsoNormal" style="margin-left: 28.1pt;"><o:p>&nbsp;</o:p></p>
+<h3 style="margin-left: 28.1pt;"><a class="mozTocH3"
+ name="mozTocId987500"></a><span class="GramE"><span style="">openss</span></span><span
+ style="">
+-online:</span></h3>
+<p class="MsoNormal" style="margin-left: 28.1pt;">This invocation of
+Open|SpeedShop
+causes Open|SpeedShop to execute a performance experiment specified by
+additional arguments, directly using dynamic/online mode of
+instrumentation without
+user
+interaction.&nbsp;&nbsp; The -online operation can be used in scripts
+and
+batch processing environments.</p>
 <h3 style="margin-left: 28.1pt;"><a class="mozTocH3"
  name="mozTocId795954"></a><a name="_Toc214080103">Python Scripting API</a></h3>
 <p class="MsoNormal" style="margin-left: 28.1pt;">The Python scripting
@@ -2774,6 +2792,11 @@ Offline instrumentation (default mode of operation)</a></h2>
   <h3><a class="mozTocH3" name="mozTocId641075"></a><a
  name="_Toc214080106">Running a basic experiment using the "-offline"
 openss command option</a></h3>
+  <p>As of release 1.9.2 of Open|SpeedShop the -offline is no longer
+necessary, as the offline mode of operation is default.&nbsp; If
+running in online mode is desired, then the -online argument to the
+openss command must be specified.<br>
+  </p>
   <h4><a class="mozTocH4" name="mozTocId193047"></a>Experiment Syntax</h4>
   <p class="MsoNormal">The basic syntax for an offline experiment is as
 follows:</p>
@@ -3078,12 +3101,14 @@ this example, we show both: </span></li>
     <ul>
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
  style=""></span></span><span style="" lang="EN-GB">openss
--f X.0.openss (GUI)</span></li>
+-f &lt;application_name&gt;.&lt;experiment_type_name&gt;.openss (GUI)</span></li>
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
  style=""></span></span><span style="" lang="EN-GB">openss
--cli -f X.0.openss (CLI) </span></li>
+-cli -f &lt;a</span><span style="" lang="EN-GB">pplication_name&gt;.experiment_type_name&gt;.o</span><span
+ style="" lang="EN-GB">penss (CLI) </span></li>
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
- style=""></span></span><span style="" lang="EN-GB">X.0.openss
+ style=""></span></span><span style="" lang="EN-GB">&lt;application_name&gt;.&lt;experiment_type_name&gt;</span><span
+ style="" lang="EN-GB">.openss
 is the file name openss creates by default </span></li>
     </ul>
   </ul>
@@ -4504,7 +4529,20 @@ counter and stores them.&nbsp;&nbsp; Later in analysis the <b>Open|SpeedShop</b>
 tool associates the program counter addresses with the user's
 application and
 reports which functions, and/or source lines were executed during the
-applications execution.&nbsp;&nbsp; The user can now click on Next to
+applications execution.&nbsp;&nbsp; Also, the user has the option of
+running in offline instrumentation mode or online/dynamic
+instrumentation mode by making a selection in the "Instrumentation
+Choice" box.&nbsp;&nbsp; The online mode of operation allows the user
+to pause and continue the application and to see data as the
+application is running.&nbsp;&nbsp;&nbsp; It has a higher startup
+overhead and needs daemons on each node to pass the data back to the
+user interface.&nbsp;&nbsp; The offline mode of operation has a faster
+start up but the application must run to completion to view any
+performance data and the application can't be paused while the
+experiment is running.<br>
+  </p>
+  <p class="MsoNormal"><br>
+The user can now click on Next to
 proceed
 with the wizard process or go back to the previous page.<span style="">&nbsp;
   </span>The Finish button is "grayed out" and is
@@ -4512,7 +4550,11 @@ included here for consistency in the button placement.&nbsp;&nbsp;
 Shown below,
 is the next window in the wizard process assuming the user clicked on
 the Next
-button.</p>
+button.<br>
+  </p>
+  <p class="MsoNormal"><br>
+  <br>
+  </p>
 </blockquote>
 <h4 style="margin: 0in 56.9pt 5pt;"><a class="mozTocH4"
  name="mozTocId214079"></a>PC Sampling Wizard - Change Sampling Rate
@@ -4940,7 +4982,7 @@ displayed, as in
 the image below.<br>
 <br>
 Note: using this <b>Open|SpeedShop</b> command:<span style="">&nbsp;
-</span><b style="">openss -f "orterun -np 2 nbody"
+</span><b style="">openss -gui -online -f "orterun -np 2 nbody"
 pcsamp</b> will get the same result as the following steps which are
 needed
 when one invokes <b>Open|SpeedShop</b> with the "openss" (no
@@ -5193,7 +5235,7 @@ to aid in the selection process:</p>
     </tr>
     <tr style="">
       <td style="padding: 1.5pt;">
-      <p class="MsoNormal" style="">SGI&Acirc;&reg; MPT, OPENMPI, LAMPI<br>
+      <p class="MsoNormal" style="">SGI&reg; MPT, OPENMPI, LAMPI<br>
 SLURM&nbsp; </p>
       </td>
       <td style="padding: 1.5pt;">
@@ -5227,7 +5269,8 @@ which is described in the sections below.</p>
 <h4 style="margin-left: 59.75pt;"><a class="mozTocH4"
  name="mozTocId523782"></a><a class="mozTocH4"
  name="Attaching_to_Already_Running_MPI"></a>Attaching to Already
-Running MPI Applications</h4>
+Running MPI Applications (online mode of operation only)<br>
+</h4>
 <h5 style="margin-left: 59.75pt;"><a class="mozTocH5"
  name="mozTocId209645"></a>Gui Wizard Information</h5>
 <p style="margin-left: 59.75pt;">Attaching to a running MPI application
@@ -5352,8 +5395,8 @@ of starting the MPI
 application via the openss command.&nbsp;&nbsp; An example of this
 command form
 is as follows:</p>
-<p style="margin-left: 1.25in;"><span class="GramE"><b style="">openss</b></span><b
- style=""> -f
+<p style="margin-left: 1.25in;"><span class="GramE"><b style="">openss
+-gui [-offline | -online]</b></span><b style=""> -f
 "mpirun -np 256 sweep3d.mpi" [pcsamp, usertime, hwc, hwctime, io,
 iot, fpe, mpi, mpit, mpiotf]<o:p></o:p></b></p>
 <p style="margin-left: 59.75pt;">The quotes around the MPI job creation
@@ -5372,7 +5415,9 @@ example of
 this command form is as follows:</p>
 <p class="MsoNormal" style="margin-left: 59.75pt;"><o:p>&nbsp;</o:p></p>
 <p class="MsoNormal" style="margin-left: 59.75pt;"><span class="GramE"><b
- style="">openss</b></span><b style=""> -f "mpirun -np 256 sweep3d.mpi"
+ style="">openss</b></span><b style=""> </b><span class="GramE"><b
+ style="">-gui [-offline | -online]</b></span> <b style="">-f "mpirun
+-np 256 sweep3d.mpi"
 [pcsamp, usertime, hwc,
 hwctime, io, iot, fpe, mpi, mpit, mpiotf]<o:p></o:p></b></p>
 <p class="MsoNormal" style="margin-left: 59.75pt;"><o:p>&nbsp;</o:p></p>
@@ -5912,7 +5957,8 @@ this example<br>
 # it is a PC Sampling experiment (pcsamp) and it will be run on the<br>
 # mutatee executable.&nbsp; <b><br>
   <br>
-  </b>openss&gt;&gt;<b>expcreate -f /home/openss/demo/Simple/mutatee
+  </b>openss&gt;&gt;<b>expcreate [-i offline | -i online] -f
+/home/openss/demo/Simple/mutatee
 pcsamp<br>
   <br>
   </b># Below a "1" is returned to indicate the experiment number<br>
@@ -6122,7 +6168,8 @@ which is described in the sections below.</p>
 </blockquote>
 <h4 style="margin: 0in 56.9pt 5pt;"><a class="mozTocH4"
  name="mozTocId260843"></a>Attaching to Already Running MPI
-Applications with the CLI</h4>
+Applications with the CLI (online version only)<br>
+</h4>
 <blockquote style="margin: 5pt 56.9pt;">
   <p class="MsoNormal">When running <b>Open|SpeedShop</b> on an MPI
 application and
@@ -6376,8 +6423,9 @@ the CLI</h4>
 <blockquote style="margin: 5pt 56.9pt;">
   <p class="MsoNormal">[machine prompt]:<b style="">openss
 -cli</b><br>
-openss&gt;&gt;<b>expcreate pcsamp -f "mpirun -np 256 sweep3d.mpi"<br>
-  <br>
+openss&gt;&gt;<b>expcreate [-i offline | -i online]&nbsp; -f "mpirun
+-np 256 sweep3d.mpi" </b><b>pcsamp</b><br>
+  <b> <br>
   </b>The expcreate command above will automatically attach to all 256
 processes/ranks of the MPI job and return the prompt when the
 experiment is
