@@ -82,7 +82,10 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
   }
 
   if (cmdlen > 0) {
-    char *cmdstr = (char *)malloc(30 + cmdlen + 1);
+    char *cmdstr = (char *)malloc(90 + cmdlen + 1);
+#ifdef DEBUG_CLI_OPTIONS
+    printf(" StartModes, ALLOCATING cmdstr, 91+cmdlen=%d\n", cmdlen);
+#endif
     int num_cmds = 0;
     for ( i=1; i<argc; i++ ) {
       if (strlen(argv[i]) > 0) {
