@@ -110,7 +110,12 @@ namespace {
 	Time last_flush = Time::Now();
 
 	// Get the MRNet file descriptor
-	int mrnet_fd = the_network->get_DataNotificationFd();
+#ifdef MRNET_21
+	int mrnet_fd = the_network->get_EventNotificationFd( MRN::DATA_EVENT );
+#else
+        int mrnet_fd = the_network->get_DataNotificationFd();
+#endif
+
 
 	// Run the message pump until instructed to exit
 	for(bool do_exit = false; !do_exit;) {
@@ -166,7 +171,11 @@ namespace {
 		}
 
 		// Reset the MRNet notification descriptor
-		the_network->clear_DataNotificationFd();
+#ifdef MRNET_21
+		the_network->clear_EventNotificationFd( MRN::DATA_EVENT );
+#else
+                the_network->clear_DataNotificationFd();
+#endif
 		
 	    }
 	    
@@ -320,7 +329,11 @@ void Frontend::startMessagePump(const Path& topology_file)
     delete [] argv;
     
     // Create the stream used by backends to pass data to the frontend.
+#ifdef MRNET_21
+    upstream = the_network->new_Stream(the_network->get_BroadcastCommunicator(),
+#else
     upstream = network->new_Stream(the_network->get_BroadcastCommunicator(),
+#endif
 	 			   MRN::TFILTER_NULL,
 				   MRN::SFILTER_DONTWAIT,
 				   MRN::TFILTER_NULL);

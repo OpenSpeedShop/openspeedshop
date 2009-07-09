@@ -138,7 +138,11 @@ namespace {
 	int bpatch_fd = bpatch->getNotificationFD();
 
 	// Get the MRNet file descriptor
-	int mrnet_fd = the_network->get_DataNotificationFd();
+#ifdef MRNET_21
+	int mrnet_fd = the_network->get_EventNotificationFd( MRN::DATA_EVENT );
+#else
+        int mrnet_fd = the_network->get_DataNotificationFd();
+#endif
 
 	// Run the message pump until instructed to exit
 	for(bool do_exit = false; !do_exit;) {
@@ -225,7 +229,11 @@ namespace {
 		}
 
 		// Reset the MRNet notification descriptor
-		the_network->clear_DataNotificationFd();
+#ifdef MRNET_21
+		the_network->clear_EventNotificationFd( MRN::DATA_EVENT );
+#else
+                the_network->clear_DataNotificationFd();
+#endif
 		
 	    }
 
