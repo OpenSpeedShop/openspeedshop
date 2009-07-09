@@ -1,5 +1,7 @@
 <!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
-<!
+<html>
+<head>
+<!--
       Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
       Permission is granted to copy, distribute and/or modify this document
       under the terms of the GNU Free Documentation License, Version 1.2
@@ -7,208 +9,224 @@
       with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
          Texts.  A copy of the license is included in the section entitled "GNU
       Free Documentation License".
->
-<html>
-<head>
+-->
   <title>OpenSpeedShop command summary</title>
 </head>
 <body bgcolor="#ffffff">
-<h1><a name="mozTocId167936" class="mozTocH1"></a><b><font
- face="Courier New"><font size="+3"><a name="OpenSS_Command_Summary"></a>OpenSS
-Command Summary</font></font></b>
-</h1>
+<div style="text-align: center;"><a name="mozTocId167936"
+ class="mozTocH1"></a><b><font face="Courier New"><font size="+3"><a
+ name="OpenSS_Command_Summary"></a>OpenSS
+Command Summary<br>
+<small><small>Version 1.9.2<br>
+July 9, 2009</small></small><br>
+</font></font></b></div>
+<h1></h1>
 <h2><a name="mozTocId54250" class="mozTocH2"></a><a
  name="Table_of_Contents"></a>Table of Contents</h2>
 <ul id="mozToc">
-<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId167936">OpenSS
-Command Summary
-    </a>
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
+  <li><a href="#mozTocId167936">OpenSS
+Command Summary </a>
     <ul>
       <li><a href="#mozTocId54250">Table of Contents</a></li>
-      <li><a href="#mozTocId860173">Experiment Building Block Commands
-        </a></li>
-      <li><a href="#mozTocId327520">Experiment Information Commands
-        </a></li>
-      <li><a href="#mozTocId327522">Custom View Commands
-        </a></li>
-      <li><a href="#mozTocId327521">Low Level Information Commands
-        </a></li>
-      <li><a href="#mozTocId801043">Session Commands
-        </a></li>
+      <li><a href="#mozTocId860173">Experiment Building Block Commands </a></li>
+      <li><a href="#mozTocId327520">Experiment Information Commands </a></li>
+      <li><a href="#mozTocId327522">Custom View Commands </a></li>
+      <li><a href="#mozTocId327521">Low Level Information Commands </a></li>
+      <li><a href="#mozTocId801043">Session Commands </a></li>
     </ul>
   </li>
 </ul>
 <br>
 <br>
 <h2><a name="mozTocId860173" class="mozTocH2"></a>
-<a name="Experiment_Building_Block_Commands"></a>
-<small>Experiment Building Block Commands</small><br>
-<font face="Arial"><font size="+0"> </font></font>
+<a name="Experiment_Building_Block_Commands"></a><small>Experiment
+Building Block Commands</small><br>
+<font face="Arial"><font size="-0"> </font></font>
 </h2>
-<font size="-1"><b>expAttach</b> [ <b>-v mpi</b> ] [ <b>-x</b> &lt;expId&gt; ] [
+<font size="-1"><b>expAttach</b> [ <b>-v mpi</b> ] [ <b>-x</b>
+&lt;expId&gt; ] [
 &lt;target_list&gt; ] [ &lt;expType_list&gt; ]</font>
 <br>
-<font size="-1"><b>expClose</b> [ <b>-v kill</b> ] [ <b>-v all</b> || 
+<font size="-1"><b>expClose</b> [ <b>-v kill</b> ] [ <b>-v all</b> ||
 <b>-x</b> &lt;expId&gt; ]</font>
 <br>
 <font size="-1">&lt;expId&gt; <b>=</b>
-<b>expCreate</b> [ <b>-v mpi</b> ] [ &lt;target_list&gt; ] [ &lt;expType_list&gt;
+<b>expCreate [-i offline] || [ [-i online]</b> [ <b>-v mpi</b> ]&nbsp;
+[ &lt;target_list&gt; ] [ &lt;expType_list&gt;
 ]</font>
 <br>
 <font size="-1"><b>expDetach </b>[ <b>-x</b> &lt;expId&gt; ] [
 &lt;target_list&gt; ] [ &lt;expType_list&gt; ]</font>
 <br>
-<font size="-1"><b>expDisable </b>[ <b>-v all</b> || <b>-x</b> &lt;expId&gt; ]</font>
+<font size="-1"><b>expDisable </b>[ <b>-v all</b> || <b>-x</b>
+&lt;expId&gt; ]</font>
 <br>
-<font size="-1"><b>expEnable </b>[ <b>-v all</b> || <b>-x</b> &lt;expId&gt; ]</font>
+<font size="-1"><b>expEnable </b>[ <b>-v all</b> || <b>-x</b>
+&lt;expId&gt; ]</font>
 <br>
 <font size="-1">&lt;expId&gt; =
 <b>expFocus </b>[ <b>-x</b> &lt;expId&gt; ]</font>
 <br>
-<font size="-1"><b>expGo </b>[ <b>-v all</b> || <b>-x</b> &lt;expId&gt; ]</font>
+<font size="-1"><b>expGo </b>[ <b>-v all</b> || <b>-x</b>
+&lt;expId&gt; ]</font>
 <br>
-<font size="-1"><b>expPause</b> [ <b>-v all</b> || <b>-x</b> &lt;expId&gt; ]</font>
+<font size="-1"><b>expPause</b> [ <b>-v all</b> || <b>-x</b>
+&lt;expId&gt; ]</font>
 <br>
 <font size="-1">&lt;expId&gt; <b>=</b>
 <b>expRestore </b> &lt;file_spec&gt;</font>
 <br>
-<font size="-1"><b>expSave</b> [ <b>-v copy</b> ] [ <b>-x</b> &lt;expId&gt; ]
+<font size="-1"><b>expSave</b> [ <b>-v copy</b> ] [ <b>-x</b>
+&lt;expId&gt; ]
 &lt;file_spec&gt;</font>
 <br>
 <font size="-1"><b>expSetParam </b> [ <b>-x</b> &lt;expId&gt; ]
-&lt;expParam&gt; <b>=</b> &lt;expParamValue&gt; [ <b>,</b> &lt;expParamValue&gt; ]+</font>
+&lt;expParam&gt; <b>=</b> &lt;expParamValue&gt; [ <b>,</b>
+&lt;expParamValue&gt; ]+</font>
 <br>
 <br>
 <br>
 <h2><a name="mozTocId327520" class="mozTocH2"></a><a
  name="Information_Commands"></a><small>Experiment Information Commands</small><br>
-<font face="Arial"><font size="+0"></font></font></h2>
-<font size="-1"><b>expStatus</b> [ <b>-v all</b> || <b>-x</b> &lt;expId&gt; ]</font>
+<font face="Arial"><font size="-0"></font></font></h2>
+<font size="-1"><b>expStatus</b> [ <b>-v all</b> || <b>-x</b>
+&lt;expId&gt; ]</font>
 <br>
-<font size="-1"><b>expCompare </b>[<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId_list&gt; ] [ &lt;viewType&gt; ]
-[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target&gt; ] [ <b>-I</b> &lt;time_interval_list&gt; ]</font>
+<font size="-1"><b>expCompare </b>[<b>-v</b> &lt;modifier_list&gt; ] [
+<b>-x</b> &lt;expId_list&gt; ] [ &lt;viewType&gt; ]
+[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target&gt; ] [ <b>-I</b>
+&lt;time_interval_list&gt; ]</font>
 <br>
-<font size="-1"><b>expView </b>[<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
-[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ] [ <b>-I</b> &lt;time_interval_list&gt; ]</font>
+<font size="-1"><b>expView </b>[<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b>
+&lt;expId&gt; ] [ &lt;viewType&gt; ]
+[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ] [ <b>-I</b>
+&lt;time_interval_list&gt; ]</font>
 <br>
 <br>
 <br>
 <h2><a name="mozTocId327522" class="mozTocH2"></a><a
  name="Information_Commands"></a><small>Custom View Commands</small><br>
-<font face="Arial"><font size="+0"></font></font></h2>
+<font face="Arial"><font size="-0"></font></font></h2>
 <font size="-1">&lt;cvId_list&gt;
-<b>= cViewCluster</b> [<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
-[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ] [ <b>-I</b> &lt;time_interval_list&gt; ]</font>
+<b>= cViewCluster</b> [<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b>
+&lt;expId&gt; ] [ &lt;viewType&gt; ]
+[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ] [ <b>-I</b>
+&lt;time_interval_list&gt; ]</font>
 <br>
 <font size="-1">&lt;cvId&gt;
-<b>= cViewCreate</b> [<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ]
-[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ] [ <b>-I</b> &lt;time_interval_list&gt; ]</font>
+<b>= cViewCreate</b> [<b>-v</b> &lt;modifier_list&gt; ] [ <b>-x</b>
+&lt;expId&gt; ] [ &lt;viewType&gt; ]
+[ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ] [ <b>-I</b>
+&lt;time_interval_list&gt; ]</font>
 <br>
-<font size="-1"><b>cViewDelete</b> [ <b>-v all</b> || <b>-c</b> &lt;cvId_list&gt; ]</font>
+<font size="-1"><b>cViewDelete</b> [ <b>-v all</b> || <b>-c</b>
+&lt;cvId_list&gt; ]</font>
 <br>
-<font size="-1"><b>cViewInfo</b> [ <b>-v all</b> || <b>-c</b> &lt;cvId_list&gt; ]</font>
+<font size="-1"><b>cViewInfo</b> [ <b>-v all</b> || <b>-c</b>
+&lt;cvId_list&gt; ]</font>
 <br>
-<font size="-1"><b>cView</b> <b>-c</b> &lt;cvId_list&gt; [<b>-v</b> &lt;modifier_list&gt; ]
-[ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ] [ <b>-m</b> &lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]
+<font size="-1"><b>cView</b> <b>-c</b> &lt;cvId_list&gt; [<b>-v</b>
+&lt;modifier_list&gt; ]
+[ <b>-x</b> &lt;expId&gt; ] [ &lt;viewType&gt; ] [ <b>-m</b>
+&lt;expMetric_list&gt; ] [ &lt;target_list&gt; ]
 [ <b>-I</b> &lt;time_interval_list&gt; ]</font>
 <br>
 <br>
 <br>
 <h2><a name="mozTocId327521" class="mozTocH2"></a><a
- name="Low Level Information_Commands"></a><small>Low Level <b>list</b> Command Variants</small><br>
-<font face="Arial"><font size="+0"></font></font></h2>
-
+ name="Low Level Information_Commands"></a><small>Low Level <b>list</b>
+Command Variants</small><br>
+<font face="Arial"><font size="-0"></font></font></h2>
 <font size="-1">&lt;ListOf_breakId&gt;
-<b>= list</b> <b>-v breaks</b>  [ <b>-x</b> &lt;expId&gt; ] </font>
+<b>= list</b> <b>-v breaks</b> [ <b>-x</b> &lt;expId&gt; ] </font>
 <br>
 <font size="-1">&lt;ListOf_breakId&gt;
-<b>= list</b> <b>-v breaks , all</b>  [ <b>-x</b> &lt;expId&gt; ] </font>
+<b>= list</b> <b>-v breaks , all</b> [ <b>-x</b> &lt;expId&gt; ] </font>
 <br>
 <br>
-
 <font size="-1">&lt;listOf_cvId&gt;
 <b>= list</b> <b>-v cviews</b> </font>
 <br>
 <br>
-
 <font size="-1">&lt;listOf_expId&gt;
 <b>= list</b> <b>-v expid</b> </font>
 <br>
 <br>
-
 <font size="-1">&lt;ListOf_hostname&gt;
 <b>= list</b> <b>-v hosts</b> [ <b>-x</b> &lt;expId&gt; ]</font>
 <br>
 <br>
-
 <font size="-1">&lt;ListOf_expMetric&gt;
-<b>= list</b> <b>-v metrics</b>  [ <b>-x</b> &lt;expId&gt; || &lt;expType_list&gt; ]</font>
+<b>= list</b> <b>-v metrics</b> [ <b>-x</b> &lt;expId&gt; ||
+&lt;expType_list&gt; ]</font>
 <br>
 <font size="-1">&lt;ListOf_expMetric&gt;
-<b>= list</b> <b>-v metrics , all</b>  [ <b>-x</b> &lt;expId&gt; || &lt;expType_list&gt; ]</font>
+<b>= list</b> <b>-v metrics , all</b> [ <b>-x</b> &lt;expId&gt; ||
+&lt;expType_list&gt; ]</font>
 <br>
 <br>
-
 <font size="-1">&lt;ListOf_filename&gt;
-<b>= list</b> <b>-v obj</b>  [ <b>-x</b> &lt;expId&gt; ] [ &lt;target&gt; ] </font>
+<b>= list</b> <b>-v obj</b> [ <b>-x</b> &lt;expId&gt; ] [
+&lt;target&gt; ] </font>
 <br>
-<br>
-
-<font size="-1">&lt;ListOf_expParam&gt;
-<b>= list</b> <b>-v params</b>  [ <b>-x</b> &lt;expId&gt; || &lt;expType_list&gt; ] </font>
 <br>
 <font size="-1">&lt;ListOf_expParam&gt;
-<b>= list</b> <b>-v params , all</b>  [ <b>-x</b> &lt;expId&gt; || &lt;expType_list&gt; ] </font>
+<b>= list</b> <b>-v params</b> [ <b>-x</b> &lt;expId&gt; ||
+&lt;expType_list&gt; ] </font>
+<br>
+<font size="-1">&lt;ListOf_expParam&gt;
+<b>= list</b> <b>-v params , all</b> [ <b>-x</b> &lt;expId&gt; ||
+&lt;expType_list&gt; ] </font>
 <br>
 <br>
-
 <font size="-1">&lt;ListOf_pidname&gt;
-<b>= list</b> <b>-v pids</b>  [ <b>-x</b> &lt;expId&gt; ] [ &lt;host_list_spec&gt; ] </font>
+<b>= list</b> <b>-v pids</b> [ <b>-x</b> &lt;expId&gt; ] [
+&lt;host_list_spec&gt; ] </font>
 <br>
 <br>
-
 <font size="-1">&lt;ListOf_rankname&gt;
-<b>= list</b> <b>-v ranks</b>  [ <b>-x</b> &lt;expId&gt; ] [ &lt;target&gt; ] </font>
+<b>= list</b> <b>-v ranks</b> [ <b>-x</b> &lt;expId&gt; ] [
+&lt;target&gt; ] </font>
 <br>
 <br>
-
 <font size="-1">&lt;listOf_filename&gt;
-<b>= list</b> <b>-v src</b>  [ <b>-x</b> &lt;expId&gt; ] [ &lt;target&gt; ] </font>
+<b>= list</b> <b>-v src</b> [ <b>-x</b> &lt;expId&gt; ] [
+&lt;target&gt; ] </font>
 <br>
-<br>
-
-<font size="-1">&lt;ListOf_statusType&gt;
-<b>= list</b> <b>-v status</b>  [ <b>-x</b> &lt;expId&gt; ] </font>
 <br>
 <font size="-1">&lt;ListOf_statusType&gt;
-<b>= list</b> <b>-v status , all</b>  [ <b>-x</b> &lt;expId&gt; ] </font>
+<b>= list</b> <b>-v status</b> [ <b>-x</b> &lt;expId&gt; ] </font>
+<br>
+<font size="-1">&lt;ListOf_statusType&gt;
+<b>= list</b> <b>-v status , all</b> [ <b>-x</b> &lt;expId&gt; ] </font>
 <br>
 <br>
-
 <font size="-1">&lt;ListOf_threadname&gt;
-<b>= list</b> <b>-v threads</b>  [ <b>-x</b> &lt;expId&gt; ] [ &lt;target&gt; ] </font>
+<b>= list</b> <b>-v threads</b> [ <b>-x</b> &lt;expId&gt; ] [
+&lt;target&gt; ] </font>
 <br>
-<br>
-
-<font size="-1">&lt;ListOf_expType&gt;
-<b>= list</b> <b>-v exptypes</b>  [ <b>-x</b> &lt;expId&gt; ] </font>
 <br>
 <font size="-1">&lt;ListOf_expType&gt;
-<b>= list</b> <b>-v exptypes , all</b>  [ <b>-x</b> &lt;expId&gt; ] </font>
+<b>= list</b> <b>-v exptypes</b> [ <b>-x</b> &lt;expId&gt; ] </font>
+<br>
+<font size="-1">&lt;ListOf_expType&gt;
+<b>= list</b> <b>-v exptypes , all</b> [ <b>-x</b> &lt;expId&gt; ] </font>
 <br>
 <br>
-
 <font size="-1">&lt;ListOf_viewType&gt;
-<b>= list</b> <b>-v views</b>  [<b>-x</b> &lt;expId&gt; || &lt;expType_list&gt; ]</font>
+<b>= list</b> <b>-v views</b> [<b>-x</b> &lt;expId&gt; ||
+&lt;expType_list&gt; ]</font>
 <br>
 <font size="-1">&lt;ListOf_viewType&gt;
-<b>= list</b> <b>-v views , all</b>  [ <b>-x</b> &lt;expId&gt; || &lt;expType_list&gt; ]</font>
+<b>= list</b> <b>-v views , all</b> [ <b>-x</b> &lt;expId&gt; ||
+&lt;expType_list&gt; ]</font>
 <br>
 <br>
 <br>
 <h2><a name="mozTocId801043" class="mozTocH2"></a><a
  name="Session_Commands"></a><small>Session Commands</small><br>
-<font face="Arial"><font size="+0"></font></font></h2>
+<font face="Arial"><font size="-0"></font></font></h2>
 <font size="-1"><b>clearBreak</b> &lt;breakId&gt;</font>
 <br>
 <font size="-1"><b>exit</b></font>

@@ -6,8 +6,14 @@
   <title>Command Line Documentation</title>
 </head>
 <body>
+<h2 style="text-align: center;">Command Line Command Usage</h2>
+<div style="text-align: center;">Version 1.9.2<br>
+July 9, 2009<br>
+</div>
+<br>
+<br>
 <ul id="mozToc">
-<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId322610">Command
+  <li><a href="#mozTocId322610">Command
 Line Documentation:</a>
     <ul>
       <li><a href="#mozTocId439980">help:</a></li>
@@ -88,14 +94,15 @@ To begin, should all else fail, the help command is very useful.&nbsp; <br>
  style=""><br></b># The next user command is "expGo" which runs the experiment<br>openss&gt;&gt;<b
  style=""><span style="font-weight: bold;">expGo</span><br>o</b>penss&gt;&gt;<br># The next three lines are output from the executable's execution<br>Usage: /home/openss/demo/Simple/mutatee &lt;size&gt;<br>No size argument given.&nbsp;&nbsp; Defaulting to 250.<br>/home/openss/demo/Simple/mutatee: successfully completed.<b
  style=""><br></b># The next user command tells Open|SpeedShop to print the results of the experiment<br># NOTE - the 5 at the end of the stats parameter indicates you want to view the top 5 functions.<br># If you had specified 33, as in stats33, you would see the top 33 functions in the performance report.<br>openss&gt;&gt;<b
- style=""><span style="font-weight: bold;">expView stats5<br><br></span></b># The next four lines are the output of the experiment due to the expView command<br>&nbsp; CPU Time<br>(Seconds)&nbsp; Function<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <br>2.090000&nbsp; f3<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <br>1.320000&nbsp; f2<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>0.650000&nbsp; f1<br># Open|SpeedShop prompt for additional command input<br>openss&gt;&gt;<span
+ style=""><span style="font-weight: bold;">expView pcsamp5<br><br></span></b># The next four lines are the output of the experiment due to the expView command<br>&nbsp; CPU Time<br>(Seconds)&nbsp; Function<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <br>2.090000&nbsp; f3<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <br>1.320000&nbsp; f2<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>0.650000&nbsp; f1<br># Open|SpeedShop prompt for additional command input<br>openss&gt;&gt;<span
  style="font-weight: bold;">exit</span></big></i></small><br></pre>
 <h5><a class="mozTocH5" name="mozTocId517087"></a><big><big><span
  style="font-weight: bold;"><small>expCreate</small>:</span></big></big></h5>
 <big><big><span style="font-weight: bold;"></span></big></big><span
- style="font-family: monospace;"><br>
-</span>&lt;expId&gt; = <span style="font-weight: bold;">expCreate </span>[
--v mpi] [ &lt;target_list&gt; ] [ &lt;expType_list&gt; ]<br>
+ style="font-family: monospace;">] <br>
+</span>&lt;expId&gt; = <span style="font-weight: bold;">expCreate
+[-i&nbsp; offline] | [ [-i online] [</span>
+-v mpi] ] [ &lt;target_list&gt; ] [ &lt;expType_list&gt; ]<br>
 <pre>                   <br>Start the process of defining an experiment.<br>                   <br>   o define a new experiment identifier,<br>                   <br>   o set the current focus to the new identifier and<br>                   <br>   o return the experiment identification identifier.<br>                   <br>   o The experiment will not execute until an '<span
  style="font-weight: bold;">expGo</span>' command<br>     is issued.       <br>                   <br>- If the -v mpi option is selected, all the threads that<br> are part of a running application will be included<br> in the experiment.<br>                   <br>- If the -v mpi option is not present, only those<br> threads that are running application will be included<br> in the experiment.<br>                   <br>- The &lt;target_list&gt; will associate the specified executable<br> with the experiment being defined.<br>                   <br>- The experiment type argument, &lt;expType_list&gt;, can be<br> used to specify the types of data that will be collected<br> during the experiment.<br>                   <br>- Missing arguments can be supplied later with the '<span
  style="font-weight: bold;">expAttach</span>'<br> command.          <br>                   <br>- An '<span

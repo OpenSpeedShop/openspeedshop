@@ -21,11 +21,12 @@
 Invocation</small></h1>
 <br>
 <b>openss</b> [ <b>-batch</b> || <b>-gui</b> || <b>-cli</b> ] [<span
- style="font-weight: bold;">-offline</span>]<br>
+ style="font-weight: bold;">-offline</span>] <span
+ style="font-weight: bold;">[-online]</span><br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;
-[ [ <b>-c</b> &lt;cluster_list&gt;] || [ <b>-h</b>
-&lt;host_list&gt;]&nbsp; ]<br>
+[<b>-h</b>
+&lt;host_list&gt;] <br>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;
 [ <b>-f</b> &lt;file_list&gt;]<br>
@@ -45,6 +46,10 @@ Invocation</small></h1>
 &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp;
 [ "<b>&lt;</b>" &lt;command_file&gt;]<br>
 <br>
+However, offline does not support the (-h, -p, -t, or -r) options
+because they are for attaching to a running process.&nbsp; The offline
+mode of operation is restricted to running an application from startup
+to termination only.<br>
 <br>
 &nbsp;"&lt;" = redirection operator -
 quoted for clarity,<br>
@@ -74,11 +79,7 @@ this:&nbsp;&nbsp; expAttach -f "mpirun -np 512 a.out".<br>
 &lt;filename&gt; ] ...<br>
 </dir>
 </dir>
-<dir>
-<dir>&lt;<b>cluster_name</b>&gt; = &lt;string&gt;<br>
-&lt;<b>cluster_list</b>&gt; = &lt;cluster_name&gt; [ <b>,</b>
-&lt;cluster_name&gt; ]<br>
-</dir>
-</dir>
+<br>
+<br>
 </body>
 </html>
