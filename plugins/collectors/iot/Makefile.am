@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-# Copyright (c) 2008 The Krell Institute. All Rights Reserved.
+# Copyright (c) 2006,2007,2008,2009 The Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -57,7 +57,6 @@ iot_la_SOURCES = \
 if !BUILD_OFFLINE
 if BUILD_MRNET
 iot_rt_la_CFLAGS = \
-	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
 	-I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@
 else
@@ -84,26 +83,20 @@ endif
 
 if HAVE_LIBMONITOR
 iot_rt_offline_la_CFLAGS = \
-	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
-        @BINUTILS_CPPFLAGS@ \
-	@LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
 
 iot_rt_offline_la_LDFLAGS = \
-        @BINUTILS_LDFLAGS@ \
-	@LIBMONITOR_LDFLAGS@ \
-	@LIBUNWIND_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
+	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 iot_rt_offline_la_LIBADD = \
-        @BINUTILS_LIBS@ \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	@LIBUNWIND_LIBS@ \
-	@LIBMONITOR_LIBS@ \
-	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 	-lpthread -lrt
 
 iot_rt_offline_la_SOURCES = \
@@ -113,26 +106,23 @@ iot_rt_offline_la_SOURCES = \
 	runtime.h runtime.c
 
 libiot_offline_la_CFLAGS = \
-	-static -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-static \
+	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
-        @BINUTILS_CPPFLAGS@ \
-	@LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
 
 libiot_offline_la_LDFLAGS = \
-	-static -L$(top_srcdir)/libopenss-runtime \
-        @BINUTILS_LDFLAGS@ \
-	@LIBMONITOR_LDFLAGS@ \
+	-static \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
 	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 libiot_offline_la_LIBADD = \
-        @BINUTILS_LIBS@ \
-	@LIBUNWIND_LIBS@ \
-	@LIBMONITOR_LIBS@ \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
+	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
+	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt
 
 libiot_offline_la_SOURCES = \

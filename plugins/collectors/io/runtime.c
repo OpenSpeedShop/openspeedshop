@@ -1,7 +1,7 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 ** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-** Copyright (c) 2008 The Krell Institute. All Rights Reserved.
+** Copyright (c) 2008,2009 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -78,8 +78,8 @@ typedef struct {
     
 #if defined (OPENSS_OFFLINE)
     char io_traced[PATH_MAX];
-    int do_trace;
 #endif
+    int do_trace;
 } TLS;
 
 
@@ -106,7 +106,6 @@ static __thread TLS the_tls;
 
 #endif
 
-#if defined (OPENSS_OFFLINE)
 void defer_trace(int defer_tracing) {
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
@@ -117,7 +116,6 @@ void defer_trace(int defer_tracing) {
     Assert(tls != NULL);
     tls->do_trace = defer_tracing;
 }
-#endif
 
 /**
  * Send events.
@@ -223,9 +221,7 @@ void io_record_event(const io_event* event, uint64_t function)
 #endif
     Assert(tls != NULL);
 
-#if defined (OPENSS_OFFLINE)
     tls->do_trace = 0;
-#endif
 
     uint64_t stacktrace[MaxFramesPerStackTrace];
     unsigned stacktrace_size = 0;
@@ -356,9 +352,7 @@ fprintf(stderr,"Event Buffer is full, call io_send_events\n");
 	io_send_events(tls);
     }
 
-#if defined (OPENSS_OFFLINE)
     tls->do_trace = 1;
-#endif
 }
 
 
@@ -394,9 +388,10 @@ void io_start_tracing(const char* arguments)
                             (xdrproc_t)xdr_io_start_tracing_args,
                             &args);
 
-#if defined(OPENSS_OFFLINE)
 
     tls->do_trace = 1;
+
+#if defined(OPENSS_OFFLINE)
 
     /* If OPENSS_IO_TRACED is set to a valid list of io functions, trace only
      * those functions.
@@ -459,6 +454,8 @@ void io_stop_tracing(const char* arguments)
 #endif
     Assert(tls != NULL);
 
+    defer_trace(0);
+
     /* Send events if there are any remaining in the tracing buffer */
     if(tls->data.events.events_len > 0)
 	io_send_events(tls);
@@ -466,7 +463,6 @@ void io_stop_tracing(const char* arguments)
 
 bool_t io_do_trace(const char* traced_func)
 {
-#if defined (OPENSS_OFFLINE)
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
     TLS* tls;
@@ -479,6 +475,8 @@ bool_t io_do_trace(const char* traced_func)
     TLS* tls = &the_tls;
 #endif
     Assert(tls != NULL);
+
+#if defined (OPENSS_OFFLINE)
 
     if (tls->do_trace == 0) {
 	if (tls->nesting_depth > 1)
@@ -515,6 +513,11 @@ bool_t io_do_trace(const char* traced_func)
      * can be passed a list of traced functions for use with executeInPlaceOf.
      */
 
+    if (tls->do_trace == 0) {
+	if (tls->nesting_depth > 1)
+	    --tls->nesting_depth;
+	return FALSE;
+    }
     return TRUE;
 #endif
 }

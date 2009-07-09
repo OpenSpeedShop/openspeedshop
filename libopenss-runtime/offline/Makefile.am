@@ -17,25 +17,22 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-noinst_LTLIBRARIES = libopenss-runtime-offline.la
+noinst_LTLIBRARIES = libopenss-runtime-monitor.la
 
 BUILT_SOURCES = \
 	offline.h offline.c
 
-libopenss_runtime_offline_la_CFLAGS = \
-	-DOPENSS_USE_FILEIO $(LIBMONITOR_CPPFLAGS) \
-	-I$(top_srcdir)/libopenss-runtime/fileio \
+libopenss_runtime_monitor_la_CFLAGS = \
+	$(LIBMONITOR_CPPFLAGS) \
 	-I$(top_srcdir)/libopenss-runtime
 
-#libopenss_runtime_offline_la_LIBADD = \
-#        ../fileio/libopenss-runtime-fileio.la
-
-libopenss_runtime_offline_la_SOURCES = \
+libopenss_runtime_monitor_la_SOURCES = \
 	offline.x $(BUILT_SOURCES) \
 	offline_monitor.c \
 	openss_send.c \
 	OpenSS_GetDLInfo.c \
 	OpenSS_InitializeParameters.c \
+	OpenSS_Monitor.h \
 	OpenSS_Offline.h
 
 SUFFIXES = .x

@@ -52,7 +52,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@HAVE_LIBMONITOR_TRUE@am__append_1 = offline fileio
+@HAVE_LIBMONITOR_TRUE@am__append_1 = offline
 @BUILD_OFFLINE_FALSE@am__append_2 = libopenss-runtime.la
 @HAVE_LIBMONITOR_TRUE@am__append_3 = libopenss-runtime-offline.la
 @HAVE_LIBUNWIND_TRUE@am__append_4 = \
@@ -91,10 +91,16 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
-LTLIBRARIES = $(noinst_LTLIBRARIES)
-@HAVE_LIBMONITOR_TRUE@libopenss_runtime_offline_la_DEPENDENCIES =  \
-@HAVE_LIBMONITOR_TRUE@	offline/libopenss-runtime-offline.la \
-@HAVE_LIBMONITOR_TRUE@	fileio/libopenss-runtime-fileio.la
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+am__installdirs = "$(DESTDIR)$(pkglibdir)"
+pkglibLTLIBRARIES_INSTALL = $(INSTALL)
+LTLIBRARIES = $(pkglib_LTLIBRARIES)
+@HAVE_LIBMONITOR_TRUE@libopenss_runtime_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la
 am__libopenss_runtime_offline_la_SOURCES_DIST = Assert.h \
 	OpenSS_DataHeader.x OpenSS_DataHeader.h OpenSS_DataHeader.c \
 	OpenSS_DecodeParameters.c OpenSS_EncodeParameters.c \
@@ -136,7 +142,8 @@ libopenss_runtime_offline_la_LINK = $(LIBTOOL) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(libopenss_runtime_offline_la_CFLAGS) $(CFLAGS) \
 	$(libopenss_runtime_offline_la_LDFLAGS) $(LDFLAGS) -o $@
-@HAVE_LIBMONITOR_TRUE@am_libopenss_runtime_offline_la_rpath =
+@HAVE_LIBMONITOR_TRUE@am_libopenss_runtime_offline_la_rpath = -rpath \
+@HAVE_LIBMONITOR_TRUE@	$(pkglibdir)
 @BUILD_OFFLINE_FALSE@libopenss_runtime_la_DEPENDENCIES = @INSTRUMENTOR@/libopenss-runtime-@INSTRUMENTOR@.la
 am__libopenss_runtime_la_SOURCES_DIST = Assert.h OpenSS_DataHeader.x \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c \
@@ -178,7 +185,8 @@ libopenss_runtime_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(libopenss_runtime_la_CFLAGS) $(CFLAGS) \
 	$(libopenss_runtime_la_LDFLAGS) $(LDFLAGS) -o $@
-@BUILD_OFFLINE_FALSE@am_libopenss_runtime_la_rpath =
+@BUILD_OFFLINE_FALSE@am_libopenss_runtime_la_rpath = -rpath \
+@BUILD_OFFLINE_FALSE@	$(pkglibdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -455,11 +463,11 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 topdir_execprefix = @topdir_execprefix@
 SUBDIRS = @INSTRUMENTOR@ $(am__append_1)
-DIST_SUBDIRS = dpcl dyninst offline mrnet fileio
+DIST_SUBDIRS = dpcl dyninst offline mrnet
 BUILT_SOURCES = \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c
 
-noinst_LTLIBRARIES = $(am__append_2) $(am__append_3)
+pkglib_LTLIBRARIES = $(am__append_2) $(am__append_3)
 @BUILD_OFFLINE_FALSE@libopenss_runtime_la_CFLAGS = \
 @BUILD_OFFLINE_FALSE@	@LIBUNWIND_CPPFLAGS@ \
 @BUILD_OFFLINE_FALSE@	@BINUTILS_CPPFLAGS@ \
@@ -468,7 +476,8 @@ noinst_LTLIBRARIES = $(am__append_2) $(am__append_3)
 @BUILD_OFFLINE_FALSE@libopenss_runtime_la_LDFLAGS = \
 @BUILD_OFFLINE_FALSE@	@LIBUNWIND_LDFLAGS@ \
 @BUILD_OFFLINE_FALSE@	@BINUTILS_LDFLAGS@ \
-@BUILD_OFFLINE_FALSE@	@PAPI_LDFLAGS@
+@BUILD_OFFLINE_FALSE@	@PAPI_LDFLAGS@ \
+@BUILD_OFFLINE_FALSE@	-static
 
 @BUILD_OFFLINE_FALSE@libopenss_runtime_la_LIBADD = \
 @BUILD_OFFLINE_FALSE@	@INSTRUMENTOR@/libopenss-runtime-@INSTRUMENTOR@.la \
@@ -478,25 +487,22 @@ noinst_LTLIBRARIES = $(am__append_2) $(am__append_3)
 @BUILD_OFFLINE_FALSE@	-lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@libopenss_runtime_offline_la_CFLAGS = \
-@HAVE_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+@HAVE_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_CPPFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@BINUTILS_CPPFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@	@PAPI_CPPFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_CPPFLAGS@
+@HAVE_LIBMONITOR_TRUE@	@PAPI_CPPFLAGS@
 
 @HAVE_LIBMONITOR_TRUE@libopenss_runtime_offline_la_LDFLAGS = \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@BINUTILS_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@PAPI_LDFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_LDFLAGS@
+@HAVE_LIBMONITOR_TRUE@	-static
 
 @HAVE_LIBMONITOR_TRUE@libopenss_runtime_offline_la_LIBADD = \
+@HAVE_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	@BINUTILS_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	@PAPI_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@	offline/libopenss-runtime-offline.la \
-@HAVE_LIBMONITOR_TRUE@	fileio/libopenss-runtime-fileio.la \
 @HAVE_LIBMONITOR_TRUE@	-lpthread -lrt
 
 COMMON_SOURCES = \
@@ -560,10 +566,28 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
+install-pkglibLTLIBRARIES: $(pkglib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	test -z "$(pkglibdir)" || $(MKDIR_P) "$(DESTDIR)$(pkglibdir)"
+	@list='$(pkglib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    f=$(am__strip_dir) \
+	    echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(pkglibLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) '$$p' '$(DESTDIR)$(pkglibdir)/$$f'"; \
+	    $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(pkglibLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) "$$p" "$(DESTDIR)$(pkglibdir)/$$f"; \
+	  else :; fi; \
+	done
 
-clean-noinstLTLIBRARIES:
-	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
-	@list='$(noinst_LTLIBRARIES)'; for p in $$list; do \
+uninstall-pkglibLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@list='$(pkglib_LTLIBRARIES)'; for p in $$list; do \
+	  p=$(am__strip_dir) \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(pkglibdir)/$$p'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(pkglibdir)/$$p"; \
+	done
+
+clean-pkglibLTLIBRARIES:
+	-test -z "$(pkglib_LTLIBRARIES)" || rm -f $(pkglib_LTLIBRARIES)
+	@list='$(pkglib_LTLIBRARIES)'; for p in $$list; do \
 	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
 	  test "$$dir" != "$$p" || dir=.; \
 	  echo "rm -f \"$${dir}/so_locations\""; \
@@ -1107,6 +1131,9 @@ check: $(BUILT_SOURCES)
 all-am: Makefile $(LTLIBRARIES)
 installdirs: installdirs-recursive
 installdirs-am:
+	for dir in "$(DESTDIR)$(pkglibdir)"; do \
+	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+	done
 install: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) install-recursive
 install-exec: install-exec-recursive
@@ -1136,7 +1163,7 @@ maintainer-clean-generic:
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-recursive
 
-clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
+clean-am: clean-generic clean-libtool clean-pkglibLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-recursive
@@ -1159,7 +1186,7 @@ install-data-am:
 
 install-dvi: install-dvi-recursive
 
-install-exec-am:
+install-exec-am: install-pkglibLTLIBRARIES
 
 install-html: install-html-recursive
 
@@ -1191,25 +1218,26 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am:
+uninstall-am: uninstall-pkglibLTLIBRARIES
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) install-am \
 	install-strip
 
 .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
 	all all-am check check-am clean clean-generic clean-libtool \
-	clean-noinstLTLIBRARIES ctags ctags-recursive distclean \
+	clean-pkglibLTLIBRARIES ctags ctags-recursive distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-recursive \
-	uninstall uninstall-am
+	install-pdf install-pdf-am install-pkglibLTLIBRARIES \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-recursive uninstall uninstall-am \
+	uninstall-pkglibLTLIBRARIES
 
 
 OpenSS_DataHeader.h OpenSS_DataHeader.c : OpenSS_DataHeader.x

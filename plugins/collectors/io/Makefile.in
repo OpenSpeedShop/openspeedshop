@@ -17,7 +17,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-# Copyright (c) 2008 The Krell Institute. All Rights Reserved.
+# Copyright (c) 2006,2007,2008,2009 The Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -75,7 +75,7 @@ am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(pkglibdir)"
 pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
-@HAVE_LIBMONITOR_TRUE@io_rt_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
+io_rt_offline_la_DEPENDENCIES =
 am__io_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
 	wrappers.c runtime.h runtime.c
 am__objects_1 = io_rt_offline_la-blobs.lo
@@ -107,7 +107,8 @@ io_la_OBJECTS = $(am_io_la_OBJECTS)
 io_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(io_la_CXXFLAGS) $(CXXFLAGS) \
 	$(io_la_LDFLAGS) $(LDFLAGS) -o $@
-@HAVE_LIBMONITOR_TRUE@libio_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
+@HAVE_LIBMONITOR_TRUE@libio_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
+@HAVE_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la
 am__libio_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
 	wrappers.c runtime.h runtime.c
 am__objects_5 = libio_offline_la-blobs.lo
@@ -416,7 +417,6 @@ io_la_SOURCES = \
 @BUILD_MRNET_FALSE@@BUILD_OFFLINE_FALSE@	@LIBUNWIND_CPPFLAGS@
 
 @BUILD_MRNET_TRUE@@BUILD_OFFLINE_FALSE@io_rt_la_CFLAGS = \
-@BUILD_MRNET_TRUE@@BUILD_OFFLINE_FALSE@	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
 @BUILD_MRNET_TRUE@@BUILD_OFFLINE_FALSE@	-D__USE_GNU -I$(top_srcdir)/libopenss-runtime \
 @BUILD_MRNET_TRUE@@BUILD_OFFLINE_FALSE@	@LIBUNWIND_CPPFLAGS@
 
@@ -436,26 +436,20 @@ io_la_SOURCES = \
 @BUILD_OFFLINE_FALSE@	runtime.h runtime.c
 
 @HAVE_LIBMONITOR_TRUE@io_rt_offline_la_CFLAGS = \
-@HAVE_LIBMONITOR_TRUE@	-D__USE_GNU -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+@HAVE_LIBMONITOR_TRUE@	-D__USE_GNU -DOPENSS_OFFLINE \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime \
-@HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/fileio \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_CPPFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_CPPFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_CPPFLAGS@
 
 @HAVE_LIBMONITOR_TRUE@io_rt_offline_la_LDFLAGS = \
 @HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LDFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_LDFLAGS@ \
+@HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime/offline \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	-no-undefined -module -avoid-version
 
 @HAVE_LIBMONITOR_TRUE@io_rt_offline_la_LIBADD = \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LIBS@ \
+@HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 @HAVE_LIBMONITOR_TRUE@	-lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@io_rt_offline_la_SOURCES = \
@@ -465,26 +459,23 @@ io_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	runtime.h runtime.c
 
 @HAVE_LIBMONITOR_TRUE@libio_offline_la_CFLAGS = \
-@HAVE_LIBMONITOR_TRUE@	-static -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+@HAVE_LIBMONITOR_TRUE@	-static \
+@HAVE_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime \
-@HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/fileio \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_CPPFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_CPPFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_CPPFLAGS@
 
 @HAVE_LIBMONITOR_TRUE@libio_offline_la_LDFLAGS = \
-@HAVE_LIBMONITOR_TRUE@	-static -L$(top_srcdir)/libopenss-runtime \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LDFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_LDFLAGS@ \
+@HAVE_LIBMONITOR_TRUE@	-static \
+@HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
+@HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime-offline \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	-no-undefined
 
 @HAVE_LIBMONITOR_TRUE@libio_offline_la_LIBADD = \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
+@HAVE_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
+@HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	-lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@libio_offline_la_SOURCES = \

@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006,2007 Krell Institute All Rights Reserved.
+# Copyright (c) 2006,2007,2008,2009 Krell Institute All Rights Reserved.
 # Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -53,7 +53,6 @@ pcsamp_la_SOURCES = \
 if !BUILD_OFFLINE
 if BUILD_MRNET
 pcsamp_rt_la_CFLAGS = \
-	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
 	-I$(top_srcdir)/libopenss-runtime
 else
 pcsamp_rt_la_CFLAGS = \
@@ -75,23 +74,18 @@ endif
 
 if HAVE_LIBMONITOR
 pcsamp_rt_offline_la_CFLAGS = \
-        @BINUTILS_CPPFLAGS@ \
-	@LIBMONITOR_CPPFLAGS@ \
-	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline
 
 pcsamp_rt_offline_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
-        @BINUTILS_LDFLAGS@ \
-	@LIBMONITOR_LDFLAGS@ \
+	-L$(top_srcdir)/libopenss-runtime/offline \
 	-no-undefined -module -avoid-version
 
 pcsamp_rt_offline_la_LIBADD = \
-        @BINUTILS_LIBS@ \
-	@LIBMONITOR_LIBS@ \
-	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	-lpthread -lrt
 
 pcsamp_rt_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
@@ -99,23 +93,20 @@ pcsamp_rt_offline_la_SOURCES = \
 	runtime.c
 
 libpcsamp_offline_la_CFLAGS = \
-	-static -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-static \
+	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/fileio \
-	-I$(top_srcdir)/libopenss-runtime/offline \
-        @BINUTILS_CPPFLAGS@ \
-        @LIBMONITOR_CPPFLAGS@
+	-I$(top_srcdir)/libopenss-runtime/offline
 
 libpcsamp_offline_la_LDFLAGS = \
-	-static -L$(top_srcdir)/libopenss-runtime \
-        @BINUTILS_LDFLAGS@ \
-	@LIBMONITOR_LDFLAGS@ \
+	-static \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
 	-no-undefined
 
 libpcsamp_offline_la_LIBADD = \
-        @BINUTILS_LIBS@ \
-	@LIBMONITOR_LIBS@ \
-	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	-lpthread -lrt
 
 libpcsamp_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \

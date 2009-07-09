@@ -17,6 +17,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2006,2007,2008,2009 The Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -1836,7 +1837,6 @@ mpi_la_SOURCES = \
 # as parameter types, and the compilers do not currently complain, so
 # the same wrapper sources can be used for all implementations.
 @BUILD_MRNET_TRUE@rt_CFLAGS_generate = \
-@BUILD_MRNET_TRUE@	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
 @BUILD_MRNET_TRUE@	-I$(top_srcdir)/libopenss-runtime \
 @BUILD_MRNET_TRUE@	$(1) \
 @BUILD_MRNET_TRUE@	@LIBUNWIND_CPPFLAGS@
@@ -1859,29 +1859,23 @@ rt_sources = \
 	wrappers.c
 
 @HAVE_LIBMONITOR_TRUE@rt_offline_CFLAGS_generate = \
-@HAVE_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+@HAVE_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime \
-@HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/fileio \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_CPPFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_CPPFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_CPPFLAGS@
 
 @HAVE_LIBMONITOR_TRUE@rt_offline_LDFLAGS_generate = \
 @HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
+@HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime/offline \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LDFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	-no-undefined -avoid-version
 
 @HAVE_LIBMONITOR_TRUE@rt_offline_LIBADD_generate = \
+@HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 @HAVE_LIBMONITOR_TRUE@	-lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@rt_offline_sources = \
@@ -1890,28 +1884,25 @@ rt_sources = \
 @HAVE_LIBMONITOR_TRUE@	runtime.h runtime.c
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_CFLAGS_generate = \
-@HAVE_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+@HAVE_LIBMONITOR_TRUE@	-static \
+@HAVE_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime \
-@HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/fileio \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_CPPFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_CPPFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_CPPFLAGS@
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_LDFLAGS_generate = \
-@HAVE_LIBMONITOR_TRUE@	-static -L$(top_srcdir)/libopenss-runtime \
+@HAVE_LIBMONITOR_TRUE@	-static \
+@HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
+@HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime/offline \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LDFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	-no-undefined
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@	@LIBMONITOR_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	-lpthread -lrt
 

@@ -15,8 +15,9 @@
 @SET_MAKE@
 
 ################################################################################
-# Copyright (c) 2007 Krell Institute  All Rights Reserved.
+# Copyright (c) 2007,2008,2009 Krell Institute  All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2006,2007,2008,2009 The Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -967,19 +968,18 @@ mpiotf_la_SOURCES = \
 # concerning the generated wrapper sources also apply to wrappers.c
 # here.
 @HAVE_LIBMONITOR_TRUE@rt_offline_CFLAGS_generate = \
+@HAVE_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime \
-@HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-framework \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
-@HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/fileio \
-@HAVE_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE  -DOPENSS_USE_FILEIO \
 @HAVE_LIBMONITOR_TRUE@	@VT_CPPFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@        @OTF_CPPFLAGS@
 
 @HAVE_LIBMONITOR_TRUE@rt_offline_LDFLAGS_generate = \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
 @HAVE_LIBMONITOR_TRUE@        -L$(top_srcdir)/libopenss-runtime \
-@HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-framework \
+@HAVE_LIBMONITOR_TRUE@        -L$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_LIBMONITOR_TRUE@        -L$(top_srcdir)/plugins/collectors/mpiotf \
 @HAVE_LIBMONITOR_TRUE@	-no-undefined -avoid-version
 
 @HAVE_LIBMONITOR_TRUE@rt_offline_sources = \
@@ -990,8 +990,7 @@ mpiotf_la_SOURCES = \
 
 @HAVE_LIBMONITOR_TRUE@rt_offline_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        $(1) \
-@HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
-@HAVE_LIBMONITOR_TRUE@        -L$(top_srcdir)/plugins/collectors/mpiotf \
+@HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@        @VT_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBS@ \
@@ -1005,8 +1004,8 @@ mpiotf_la_SOURCES = \
 #
 @HAVE_LIBMONITOR_TRUE@rt_offline_lam_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
-@HAVE_LIBMONITOR_TRUE@	-lopenss-framework \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	-L./ -lvt.mpi.lam  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBZ_LDFLAGS@ \
@@ -1015,8 +1014,8 @@ mpiotf_la_SOURCES = \
 
 @HAVE_LIBMONITOR_TRUE@rt_offline_lampi_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
-@HAVE_LIBMONITOR_TRUE@	-lopenss-framework \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	-L./ -lvt.mpi.lampi  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBZ_LDFLAGS@ \
@@ -1026,8 +1025,8 @@ mpiotf_la_SOURCES = \
 #
 @HAVE_LIBMONITOR_TRUE@rt_offline_mpich_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
-@HAVE_LIBMONITOR_TRUE@	-lopenss-framework \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	-L./ -lvt.mpi.mpich  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBZ_LDFLAGS@ \
@@ -1037,8 +1036,8 @@ mpiotf_la_SOURCES = \
 #
 @HAVE_LIBMONITOR_TRUE@rt_offline_mpich2_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
-@HAVE_LIBMONITOR_TRUE@	-lopenss-framework \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	-L./ -lvt.mpi.mpich2  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBZ_LDFLAGS@ \
@@ -1048,8 +1047,8 @@ mpiotf_la_SOURCES = \
 #
 @HAVE_LIBMONITOR_TRUE@rt_offline_mpt_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
-@HAVE_LIBMONITOR_TRUE@	-lopenss-framework \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	-L./ -lvt.mpi.mpt  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBZ_LDFLAGS@ \
@@ -1059,8 +1058,8 @@ mpiotf_la_SOURCES = \
 #
 @HAVE_LIBMONITOR_TRUE@rt_offline_mvapich_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
-@HAVE_LIBMONITOR_TRUE@	-lopenss-framework \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	-L./ -lvt.mpi.mvapich  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBZ_LDFLAGS@ \
@@ -1070,8 +1069,8 @@ mpiotf_la_SOURCES = \
 #
 @HAVE_LIBMONITOR_TRUE@rt_offline_mvapich2_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
-@HAVE_LIBMONITOR_TRUE@	-lopenss-framework \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	-L./ -lvt.mpi.mvapich2  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBZ_LDFLAGS@ \
@@ -1080,8 +1079,8 @@ mpiotf_la_SOURCES = \
 
 @HAVE_LIBMONITOR_TRUE@rt_offline_openmpi_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
-@HAVE_LIBMONITOR_TRUE@	-lopenss-framework \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	-L./ -lvt.mpi.openmpi  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBZ_LDFLAGS@ \
@@ -1091,23 +1090,19 @@ mpiotf_la_SOURCES = \
 
 #  --- from  mpit below
 @HAVE_LIBMONITOR_TRUE@lib_offline_CFLAGS_generate = \
-@HAVE_LIBMONITOR_TRUE@        -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+@HAVE_LIBMONITOR_TRUE@        -static \
+@HAVE_LIBMONITOR_TRUE@        -DOPENSS_OFFLINE \
 @HAVE_LIBMONITOR_TRUE@        -I$(top_srcdir)/libopenss-runtime \
-@HAVE_LIBMONITOR_TRUE@        -I$(top_srcdir)/libopenss-runtime/fileio \
 @HAVE_LIBMONITOR_TRUE@        -I$(top_srcdir)/libopenss-runtime/offline \
 @HAVE_LIBMONITOR_TRUE@        $(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_CPPFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBMONITOR_CPPFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBUNWIND_CPPFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@VT_CPPFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@        @OTF_CPPFLAGS@
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_LDFLAGS_generate = \
-@HAVE_LIBMONITOR_TRUE@        -static -L$(top_srcdir)/libopenss-runtime \
+@HAVE_LIBMONITOR_TRUE@        -static \
+@HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
+@HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime/offline \
 @HAVE_LIBMONITOR_TRUE@        $(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LDFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBMONITOR_LDFLAGS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBUNWIND_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@        @VT_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBZ_LDFLAGS@ \
@@ -1125,90 +1120,74 @@ mpiotf_la_SOURCES = \
 #        -lpthread -lrt
 @HAVE_LIBMONITOR_TRUE@lib_offline_lam_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@        $(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBMONITOR_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	./libvt.mpi.lam.a  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_lampi_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@        $(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBMONITOR_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	./libvt.mpi.lampi.a  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_mpich_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@        $(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBMONITOR_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	./libvt.mpi.mpich.a  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_mpich2_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@        $(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBMONITOR_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	./libvt.mpi.mpich2.a  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_mpt_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@        $(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBMONITOR_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	./libvt.mpi.mpt.a  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_mvapich_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@        $(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBMONITOR_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	./libvt.mpi.mvapich.a  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_mvapich2_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@        $(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBMONITOR_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	./libvt.mpi.mvapich2.a  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_openmpi_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@        $(1) \
-@HAVE_LIBMONITOR_TRUE@        @BINUTILS_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBMONITOR_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	./libvt.mpi.openmpi.a  \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
-@HAVE_LIBMONITOR_TRUE@        @LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_sources = \
@@ -1220,13 +1199,11 @@ rt_CFLAGS_generate = \
 	-I$(top_srcdir)/libopenss-runtime \
 	@VT_CPPFLAGS@ \
 	$(1) \
-        @OTF_CPPFLAGS@ \
-	@LIBUNWIND_CPPFLAGS@
+        @OTF_CPPFLAGS@
 
 rt_LDFLAGS_generate = \
 	-L$(top_srcdir)/libopenss-runtime \
 	$(1) \
-	@LIBUNWIND_LDFLAGS@ \
 	-L$(top_srcdir)/plugins/collectors/mpiotf \
         @OTF_LDFLAGS@ \
         @OTF_LIBZ_LDFLAGS@ \
@@ -1234,7 +1211,6 @@ rt_LDFLAGS_generate = \
 
 rt_LIBADD_generate = \
 	-lopenss-runtime \
-	@LIBUNWIND_LIBS@ \
 	-lpthread \
         @OTF_LIBS@ \
 	@OTF_LIBZ_LIBS@ \
@@ -1249,7 +1225,6 @@ rt_sources = \
 
 rt_openmpi_LIBADD_generate = \
 	-lopenss-runtime \
-	@LIBUNWIND_LIBS@ \
 	-lpthread \
 	-L./ -lvt.mpi.openmpi  \
 	@PAPI_LDFLAGS@ @PAPI_LIBS@ \
@@ -1261,12 +1236,9 @@ rt_openmpi_LIBADD_generate = \
 rt_lam_LIBADD_generate = \
 	-lopenss-runtime \
 	$(1) \
-	@LIBUNWIND_LIBS@ \
 	-lpthread \
 	@LAM_LDFLAGS@ @LAM_LIBS@ \
-	@PAPI_LDFLAGS@ @PAPI_LIBS@ \
 	-L./ -lvt.mpi.lam  \
-	@PAPI_LDFLAGS@ @PAPI_LIBS@ \
 	@LAM_LDFLAGS@ @LAM_LIBS@ \
         @OTF_LDFLAGS@ \
         @OTF_LIBS@ \
@@ -1277,10 +1249,8 @@ rt_lam_LIBADD_generate = \
 rt_lampi_LIBADD_generate = \
 	-lopenss-runtime \
 	$(1) \
-	@LIBUNWIND_LIBS@ \
 	-lpthread \
 	-L./ -lvt.mpi.lampi  \
-	@PAPI_LDFLAGS@ @PAPI_LIBS@ \
 	@LAMPI_LDFLAGS@ @LAMPI_LIBS@ \
         @OTF_LDFLAGS@ \
         @OTF_LIBS@ \
@@ -1291,7 +1261,6 @@ rt_lampi_LIBADD_generate = \
 rt_mpich_LIBADD_generate = \
 	-lopenss-runtime \
 	$(1) \
-	@LIBUNWIND_LIBS@ \
 	-lpthread \
 	-L./ -lvt.mpi.mpich  \
         @OTF_LDFLAGS@ \
@@ -1303,7 +1272,6 @@ rt_mpich_LIBADD_generate = \
 rt_mvapich_LIBADD_generate = \
 	-lopenss-runtime \
 	$(1) \
-	@LIBUNWIND_LIBS@ \
 	-lpthread \
 	-L./ -lvt.mpi.mvapich  \
         @OTF_LDFLAGS@ \
@@ -1315,7 +1283,6 @@ rt_mvapich_LIBADD_generate = \
 rt_mpich2_LIBADD_generate = \
 	-lopenss-runtime \
 	$(1) \
-	@LIBUNWIND_LIBS@ \
 	-lpthread \
 	-L./ -lvt.mpi.mpich2  \
         @OTF_LDFLAGS@ \
@@ -1327,7 +1294,6 @@ rt_mpich2_LIBADD_generate = \
 rt_mpt_LIBADD_generate = \
 	-lopenss-runtime \
 	$(1) \
-	@LIBUNWIND_LIBS@ \
 	-lpthread \
 	-L./ -lvt.mpi.mpt  \
         @OTF_LDFLAGS@ \

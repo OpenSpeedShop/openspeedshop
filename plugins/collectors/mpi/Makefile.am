@@ -1,6 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2006,2007,2008,2009 The Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -163,7 +164,6 @@ mpi_la_SOURCES = \
 
 if BUILD_MRNET
 rt_CFLAGS_generate = \
-	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
 	-I$(top_srcdir)/libopenss-runtime \
 	$(1) \
 	@LIBUNWIND_CPPFLAGS@
@@ -195,29 +195,23 @@ if HAVE_LIBMONITOR
 
 
 rt_offline_CFLAGS_generate = \
-	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	$(1) \
-        @BINUTILS_CPPFLAGS@ \
-	@LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
 
 rt_offline_LDFLAGS_generate = \
 	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
 	$(1) \
-        @BINUTILS_LDFLAGS@ \
-	@LIBMONITOR_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined -avoid-version
 
 rt_offline_LIBADD_generate = \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	$(1) \
-        @BINUTILS_LIBS@ \
-	@LIBMONITOR_LIBS@ \
 	@LIBUNWIND_LIBS@ \
-	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 	-lpthread -lrt
 
 rt_offline_sources = \
@@ -226,28 +220,25 @@ rt_offline_sources = \
 	runtime.h runtime.c
 
 lib_offline_CFLAGS_generate = \
-	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-static \
+	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	$(1) \
-        @BINUTILS_CPPFLAGS@ \
-	@LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
 
 lib_offline_LDFLAGS_generate = \
-	-static -L$(top_srcdir)/libopenss-runtime \
+	-static \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
 	$(1) \
-        @BINUTILS_LDFLAGS@ \
-	@LIBMONITOR_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined
 
 lib_offline_LIBADD_generate = \
 	-lopenss-runtime-offline \
+	-lopenss-runtime-monitor \
 	$(1) \
-        @BINUTILS_LIBS@ \
-	@LIBMONITOR_LIBS@ \
 	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt
 

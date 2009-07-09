@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-# Copyright (c) 2006, 2007 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006,2007,2008,2009 Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -58,7 +58,6 @@ usertime_la_SOURCES = \
 if !BUILD_OFFLINE
 if BUILD_MRNET
 usertime_rt_la_CFLAGS = \
-        -DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
         -I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@
 else
@@ -84,26 +83,20 @@ endif
 
 if HAVE_LIBMONITOR
 usertime_rt_offline_la_CFLAGS = \
-        @BINUTILS_CPPFLAGS@ \
-        @LIBMONITOR_CPPFLAGS@ \
-	@LIBUNWIND_CPPFLAGS@ \
-	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/fileio \
-	-I$(top_srcdir)/libopenss-runtime/offline
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	@LIBUNWIND_CPPFLAGS@
 
 usertime_rt_offline_la_LDFLAGS = \
-        @BINUTILS_LDFLAGS@ \
-        @LIBMONITOR_LDFLAGS@ \
-	@LIBUNWIND_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
+	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 usertime_rt_offline_la_LIBADD = \
-        @BINUTILS_LIBS@ \
-        @LIBMONITOR_LIBS@ \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	@LIBUNWIND_LIBS@ \
-	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 	-lpthread -lrt
 
 usertime_rt_offline_la_SOURCES = \
@@ -112,26 +105,22 @@ usertime_rt_offline_la_SOURCES = \
 	runtime.c
 
 libusertime_offline_la_CFLAGS = \
-	-static -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-static \
+	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
-        @BINUTILS_CPPFLAGS@ \
-        @LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
 
 libusertime_offline_la_LDFLAGS = \
-	-static -L$(top_srcdir)/libopenss-runtime \
-        @BINUTILS_LDFLAGS@ \
-        @LIBMONITOR_LDFLAGS@ \
+	-static \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
 	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined
 
 libusertime_offline_la_LIBADD = \
-        @BINUTILS_LIBS@ \
-        @LIBMONITOR_LIBS@ \
-	@LIBUNWIND_LIBS@ \
-	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	@LIBUNWIND_LIBS@
 
 libusertime_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \

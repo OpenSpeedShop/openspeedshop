@@ -19,10 +19,10 @@
 ################################################################################
 
 SUBDIRS = @INSTRUMENTOR@
-DIST_SUBDIRS = dpcl dyninst offline mrnet fileio
+DIST_SUBDIRS = dpcl dyninst offline mrnet
 
 if HAVE_LIBMONITOR
-SUBDIRS += offline fileio
+SUBDIRS += offline
 endif
 
 # Note: Some versions of GCC (e.g. 3.3.3) appear to contain an optimization bug
@@ -37,14 +37,14 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c
 
-noinst_LTLIBRARIES =
+pkglib_LTLIBRARIES =
 
 if !BUILD_OFFLINE
-noinst_LTLIBRARIES += libopenss-runtime.la
+pkglib_LTLIBRARIES += libopenss-runtime.la
 endif
 
 if HAVE_LIBMONITOR
-noinst_LTLIBRARIES += libopenss-runtime-offline.la
+pkglib_LTLIBRARIES += libopenss-runtime-offline.la
 endif
 
 if !BUILD_OFFLINE
@@ -56,7 +56,8 @@ libopenss_runtime_la_CFLAGS = \
 libopenss_runtime_la_LDFLAGS = \
 	@LIBUNWIND_LDFLAGS@ \
 	@BINUTILS_LDFLAGS@ \
-	@PAPI_LDFLAGS@
+	@PAPI_LDFLAGS@ \
+	-static
 
 libopenss_runtime_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-runtime-@INSTRUMENTOR@.la \
@@ -68,25 +69,22 @@ endif
 
 if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_CFLAGS = \
-	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-DOPENSS_OFFLINE \
 	@LIBUNWIND_CPPFLAGS@ \
 	@BINUTILS_CPPFLAGS@ \
-	@PAPI_CPPFLAGS@ \
-	@LIBMONITOR_CPPFLAGS@
+	@PAPI_CPPFLAGS@
 
 libopenss_runtime_offline_la_LDFLAGS = \
 	@LIBUNWIND_LDFLAGS@ \
 	@BINUTILS_LDFLAGS@ \
 	@PAPI_LDFLAGS@ \
-	@LIBMONITOR_LDFLAGS@
+	-static
 
 libopenss_runtime_offline_la_LIBADD = \
+	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
 	@LIBUNWIND_LIBS@ \
 	@BINUTILS_LIBS@ \
 	@PAPI_LIBS@ \
-	@LIBMONITOR_LIBS@ \
-	offline/libopenss-runtime-offline.la \
-	fileio/libopenss-runtime-fileio.la \
 	-lpthread -lrt
 endif
 

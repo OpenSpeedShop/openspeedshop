@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-# Copyright (c) 2006, 2007 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006,2007,2008,2009 Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -17,6 +17,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
+
 
 # Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
 
@@ -59,7 +60,6 @@ hwctime_la_SOURCES = \
 if !BUILD_OFFLINE
 if BUILD_MRNET
 hwctime_rt_la_CFLAGS = \
-	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
 	-I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
@@ -89,29 +89,23 @@ endif
 
 if HAVE_LIBMONITOR
 hwctime_rt_offline_la_CFLAGS = \
-        @BINUTILS_CPPFLAGS@ \
-        @LIBMONITOR_CPPFLAGS@ \
-	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	@LIBUNWIND_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
 
 hwctime_rt_offline_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
-        @BINUTILS_LDFLAGS@ \
-        @LIBMONITOR_LDFLAGS@ \
+	-L$(top_srcdir)/libopenss-runtime/offline \
 	@LIBUNWIND_LDFLAGS@ \
 	@PAPI_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 hwctime_rt_offline_la_LIBADD = \
-        @BINUTILS_LIBS@ \
-        @LIBMONITOR_LIBS@ \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	@LIBUNWIND_LIBS@ \
 	@PAPI_LIBS@ \
-	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 	-lpthread -lrt
 
 hwctime_rt_offline_la_SOURCES = \
@@ -120,29 +114,25 @@ hwctime_rt_offline_la_SOURCES = \
 	runtime.c
 
 libhwctime_offline_la_CFLAGS = \
-	-static -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-static \
+	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
-        @BINUTILS_CPPFLAGS@ \
-        @LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
 
 libhwctime_offline_la_LDFLAGS = \
-	-static -L$(top_srcdir)/libopenss-runtime \
-        @BINUTILS_LDFLAGS@ \
-        @LIBMONITOR_LDFLAGS@ \
+	-static \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
 	@LIBUNWIND_LDFLAGS@ \
 	@PAPI_LDFLAGS@ \
 	-no-undefined
 
 libhwctime_offline_la_LIBADD = \
-        @BINUTILS_LIBS@ \
-        @LIBMONITOR_LIBS@ \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	@LIBUNWIND_LIBS@ \
 	@PAPI_LIBS@ \
-	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 	-lpthread -lrt
 
 libhwctime_offline_la_SOURCES = \

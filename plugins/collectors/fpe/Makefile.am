@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-# Copyright (c) 2008 The Krell Institute. All Rights Reserved.
+# Copyright (c) 2007,2008,2009 The Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -58,7 +58,6 @@ fpe_la_SOURCES = \
 if !BUILD_OFFLINE
 if BUILD_MRNET
 fpe_rt_la_CFLAGS = \
-	-DOPENSS_USE_FILEIO -I$(top_srcdir)/libopenss-runtime/fileio  \
 	-I$(top_srcdir)/libopenss-runtime \
 	@BINUTILS_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
@@ -88,26 +87,23 @@ endif
 
 if HAVE_LIBMONITOR
 fpe_rt_offline_la_CFLAGS = \
-	-DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	@BINUTILS_CPPFLAGS@ \
-	@LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
 
 fpe_rt_offline_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
 	@BINUTILS_LDFLAGS@ \
-	@LIBMONITOR_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 fpe_rt_offline_la_LIBADD = \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	@BINUTILS_LIBS@ \
 	@LIBUNWIND_LIBS@ \
-	@LIBMONITOR_LIBS@ \
-	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 	-lpthread -lrt -lm
 
 fpe_rt_offline_la_SOURCES = \
@@ -116,26 +112,25 @@ fpe_rt_offline_la_SOURCES = \
 	runtime.c
 
 libfpe_offline_la_CFLAGS = \
-	-static -DOPENSS_OFFLINE -DOPENSS_USE_FILEIO \
+	-static \
+	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/fileio \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	@BINUTILS_CPPFLAGS@ \
-	@LIBMONITOR_CPPFLAGS@ \
 	@LIBUNWIND_CPPFLAGS@
 
 libfpe_offline_la_LDFLAGS = \
-	-static -L$(top_srcdir)/libopenss-runtime \
+	-static \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
 	@BINUTILS_LDFLAGS@ \
-	@LIBMONITOR_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined
 
 libfpe_offline_la_LIBADD = \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	@BINUTILS_LIBS@ \
 	@LIBUNWIND_LIBS@ \
-	@LIBMONITOR_LIBS@ \
-	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 	-lpthread -lrt -lm
 
 libfpe_offline_la_SOURCES = \
