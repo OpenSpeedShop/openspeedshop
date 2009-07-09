@@ -355,7 +355,8 @@ command there are four options for its mode of operation:</font></p>
 <ul>
   <li>
     <h3 class="western"><a name="1.openss -offline|outline"></a>openss
--offline</h3>
+-offline <br>
+    </h3>
   </li>
 </ul>
 <p class="western"
@@ -364,7 +365,9 @@ command there are four options for its mode of operation:</font></p>
  color="#000000">
 uses the offline mode of operation which links our performance data
 collection modules with your application and collects the performance
-data you specify. See the example below.&nbsp; One can also use the
+data you specify.&nbsp;&nbsp; This is now the default mode of operation
+so the "-offline" is optional.&nbsp; See the example below.&nbsp; One
+can also use the
 convenience commands: osspcsamp, ossusertime, osshwc, osshwctime,
 ossio, ossiot, ossmpi, ossmpit, ossmpiotf, ossfpe.&nbsp; These commands
 use a very simple syntax and are meant to be an easier way to invoke
@@ -391,7 +394,7 @@ Under this invocation </font><font color="#000000"><b>Open|SpeedShop</b></font><
  color="#000000">
 interactive commands can be entered into the GUI's command panel and
 have the same effect as if they were entered under the "openss
--cli" mode of operation. This option can gather data using
+-cli" mode of operation.&nbsp; This option can gather data using
 the offline or online instrumentation mechanism.</font></p>
 <ul>
   <li>
@@ -423,7 +426,31 @@ causes </font><font color="#000000"><b>Open|SpeedShop</b></font><font
  color="#000000">
 to execute a performance experiment specified by additional
 arguments, directly without user interaction.&nbsp;&nbsp; The -batch
-operation can be used in scripts and batch processing environments.</font></p>
+operation can be used in scripts and batch processing environments.<br>
+</font></p>
+<ul>
+  <li>
+    <h3 class="western">openss
+-online <br>
+    </h3>
+  </li>
+</ul>
+<p class="western"
+ style="margin-left: 0.5in; margin-top: 0in; margin-bottom: 0in;">
+<font color="#000000">This invocation of </font><font color="#000000"><b>Open|SpeedShop</b></font><font
+ color="#000000"> uses
+the online/dynamic mode of operation which uses dynamic instrumentation
+to insert the Open|SpeedShop&nbsp; performance data
+collection modules into the user application and collects the
+performance
+data you specify.&nbsp;&nbsp; This is not the default mode of operation
+so the
+"-online" is must be specified.&nbsp; <br>
+</font></p>
+<p class="western"
+ style="margin-left: 0.25in; margin-top: 0in; margin-bottom: 0in;">
+<br>
+</p>
 <h2 class="western"><a name="mozTocId805334"></a></h2>
 <h2 class="western"><a
  name="1.5.Open|SpeedShop Invocation Example Information|outline"></a>
@@ -511,7 +538,7 @@ run (User Time)<br>
  color="#000000">General
 syntax: <br>
 prompt :&gt; </font><font color="#000000"><b>openss
-–offline -f “&lt;pathToExecutable&gt;/executable_name”
+[–offline] -f “&lt;pathToExecutable&gt;/executable_name”
 &lt;experiment_type&gt;</b></font></p>
 <p style="margin-top: 0in; margin-bottom: 0in;">Real example:</p>
 <p style="margin-top: 0in; margin-bottom: 0in;">prompt :&gt; <b>openss
@@ -548,13 +575,14 @@ experiment you want to run (MPI)</p>
 <p style="margin-top: 0in; margin-bottom: 0in;"><br>
 General
 syntax:<br>
-prompt:&gt; <b>openss -f &lt;pathToExecutable&gt;/executable_name
+prompt:&gt; <b>openss -gui [-online | -offline] -f
+&lt;pathToExecutable&gt;/executable_name
 &lt;experiment_type&gt;</b></p>
 <p style="margin-top: 0in; margin-bottom: 0in;"><br>
 </p>
 <p style="margin-top: 0in; margin-bottom: 0in;">Real example:</p>
 <p class="western" style="margin-top: 0in; margin-bottom: 0.17in;">prompt:&gt;
-<b>openss –f “/usr/bin/srun –N 4 -n 4 ./smg2000 –n 100 100
+<b>openss -gui –f “/usr/bin/srun –N 4 -n 4 ./smg2000 –n 100 100
 100” mpi</b><br>
 <font color="#000000"><br>
 The above command will
@@ -570,7 +598,9 @@ arguments, such as in the MPI application shown above.<font
 If
 using the Open|SpeedShop wizard capability to guide you through the
 process of creating and starting a performance experiment, just call
-out the openss command with no arguments.<br>
+out the openss command with no arguments.&nbsp; Both the online
+(dynamic instrumentation) and offline (static linking) modes of
+operation are supported.<br>
 <br>
 prompt:&gt; </font><font color="#000000"><b>openss</b></font></p>
 <h3 class="western"><a name="mozTocId717950"></a><a
@@ -588,7 +618,7 @@ prompt:&gt; </font><font color="#000000"><b>openss
 -cli</b></font><font color="#000000"><br>
 </font><font color="#000000"><b>expcreate</b></font><font
  color="#000000">
--f &lt; pathToExecutable&gt;/executable_name
+[-i offline | -i online ] -f &lt; pathToExecutable&gt;/executable_name
 &lt;experiment_type&gt;<br>
 </font><font color="#000000"><b>expgo</b></font><font color="#000000"><br>
 </font><font color="#000000"><b>expview</b></font><font color="#000000">
