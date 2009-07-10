@@ -750,7 +750,7 @@ fi
 #echo "This is an email message test">> \$EMAILMESSAGE
 #echo "This is email text" >>\$EMAILMESSAGE
 # send an email using /bin/mail
-rsh \$HOSTNAME /bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
+rsh \$HOSTNAME /bin/mail -s "\$SUBJECT" "-M \$EMAIL" < \$EMAILMESSAGE
 
 #
 # End of nested script
@@ -1276,7 +1276,7 @@ fi
 #echo "This is email text" >>\$EMAILMESSAGE
 # send an email using /bin/mail
 #/bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
-rsh \$HOSTNAME /bin/mail -s \"\$SUBJECT\" \"\$EMAIL\" < \$EMAILMESSAGE
+rsh \$HOSTNAME /bin/mail -s \"\$SUBJECT\" \"-M \$EMAIL\" < \$EMAILMESSAGE
 
 #
 # End of nested script

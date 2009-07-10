@@ -648,7 +648,7 @@ endif
 #echo "This is an email message test">> \$EMAILMESSAGE
 #echo "This is email text" >>\$EMAILMESSAGE
 # send an email using /bin/mail
-/bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
+/bin/mail -s "\$SUBJECT" "-M \$EMAIL" < \$EMAILMESSAGE
 
 #
 # End of nested script
@@ -1133,7 +1133,7 @@ endif
 #echo "This is an email message test">> \$EMAILMESSAGE
 #echo "This is email text" >>\$EMAILMESSAGE
 # send an email using /bin/mail
-/bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
+/bin/mail -s "\$SUBJECT" "-M \$EMAIL" < \$EMAILMESSAGE
 
 #
 # End of nested script
