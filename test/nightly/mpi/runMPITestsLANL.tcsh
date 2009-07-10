@@ -673,7 +673,7 @@ cat > moab_smg2000_${thiscompiler}_openmpi_script.tcsh << EOF
 #MSUB -o $testpath/smg2000_${thiscompiler}_openmpi_output.txt
 #MSUB -j oe
 #MSUB -l nodes="$NodeCount":ppn=8
-#MSUB -l walltime=900
+#MSUB -l walltime=2000
 #MSUB -N  $testpath/smg2000_${thiscompiler}_openmpi_script.tcsh
 
 echo Shell is $SHELL
@@ -1160,7 +1160,7 @@ cat > moab_sweep3d_${thiscompiler}_openmpi_script.tcsh << EOF
 #MSUB -o $testpath/sweep3d_${thiscompiler}_openmpi_output.txt
 #MSUB -j oe
 #MSUB -l nodes="$NodeCount":ppn=8
-#MSUB -l walltime=900
+#MSUB -l walltime=2000
 #MSUB -N  $testpath/sweep3d_${thiscompiler}_openmpi_script.tcsh
 
 echo Shell is $SHELL
