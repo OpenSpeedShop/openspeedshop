@@ -22,36 +22,33 @@ fi
 #
 debug_flag=1
 
-SUBHOST=`uname -n`
-if [ $debug_flag == 1 ]
-then
-  echo "SUB_HOST=" $SUB_HOST
-fi
-
 ##set -x
 basedir=`pwd`
 
 # Try looking for SANDIA run environment
-found_sandia=0
+found_slurm=0
+sruncommand=`which srun`
 
-if [ $SNLSYSTEM ]; then
-  echo "Found SNLSYSTEM environment variable: ", $SNLSYSTEM
-  found_sandia=1
+if [ $sruncommand ]; then
+  echo "Found SLURM environment: ", $sruncommand
+  found_slurm=1
   runcommand=`which srun`
   echo "NOTE: CLEAR ALL MODULE SETTINGS"
+  . /usr/share/modules/init/sh
+  export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
   module purge
 #  module load openss_run_openmpi
 #  echo "NOTE: load openss_run_openmpi module"
 #  module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
 #  echo "NOTE: load mpi/openmpi-1.2.7_ofed_pgi-7.2-3 module"
 else
-  echo "Did not find SNLSYSTEM environment variable: "
-  found_sandia=0
+  echo "Did not find SLURM environment: "
+  found_slurm=0
 fi
 
-if [ $found_sandia == 0 ]
+if [ $found_slurm == 0 ]
 then
-  echo "Did not find SNLSYSTEM environment variable: Are we running this script on the correct system?"
+  echo "Did not find SLURM environment: Are we running this script on the correct system?"
   exit
 fi
 
@@ -82,9 +79,9 @@ do
 
 #  loop here through a compiler list
 #  for thiscompiler in intel pgi gnu
-   for thiscompiler in gnu intel pgi pathscale
+#   for thiscompiler in gnu intel pgi pathscale
+   for thiscompiler in gnu 
    do
-
 
      if [ "$thiscompiler" == "gnu" ] 
      then
@@ -92,27 +89,27 @@ do
          then
            module purge
            module load openss-mrnet-openmpi
-           module load mpi/openmpi-1.2.8_gcc-4.1.2
+           module load openmpi-gcc/1.2.8
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
            module load openss-mrnet-mvapich
-           module load mpi/mvapich-1.0.1_ofed_gcc-4.1.2
+           module load mvapich-gcc/1.2.8
          fi
      elif  [ "$thiscompiler" == "pgi" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load compilers/pgi-7.2-3
-           module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
+           module load pgi-7.2-5
+           module load openmpi-pgi/1.2.8
            module load openss-mrnet-openmpi
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
            module load openss-mrnet-mvapich
-           module load compilers/pgi-7.2-3
-           module load mpi/mvapich-1.0.1_ofed_pgi-7.2-3
+           module load pgi-7.2-5
+           module load mvapich-pgi/1.1
          fi
      elif  [ "$thiscompiler" == "intel" ] 
      then
@@ -120,14 +117,14 @@ do
          then
            module purge
            module load openss-mrnet-openmpi
-           module load compilers/intel-11.0-f081-c081
-           module load mpi/openmpi-1.3.2_intel-11.0-f081-c081
+           module load intel-f/10.0.023 intel-c/10.0.023
+           module load openmpi-intel/1.2.8
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
            module load openss-mrnet-mvapich
-           module load compilers/intel-11.0-f081-c081
-           module load mpi/mvapich-1.1_intel-11.0-f081-c081
+           module load intel-f/10.0.023 intel-c/10.0.023
+           module load mvapich-intel/1.1
          fi
      elif  [ "$thiscompiler" == "pathscale" ] 
      then
@@ -135,13 +132,14 @@ do
          then
            module purge
            module load openss-mrnet-openmpi
-           module load compilers/pathscale-3.2
+           module load pathscale-3.1
+           module load openmpi-pathscale/1.2.8
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
            module load openss-mrnet-mvapich
-           module load compilers/pathscale-3.2
-           module load mpi/mvapich-1.0.1_ofed_pathscale-3.2
+           module load pathscale-3.1
+           module load mvapich-pathscale/1.1
          fi
      fi
 
@@ -295,27 +293,27 @@ export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
          then
            module purge
            module load openss-mrnet-openmpi
-           module load mpi/openmpi-1.2.8_gcc-4.1.2
+           module load openmpi-gcc/1.2.8
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
            module load openss-mrnet-mvapich
-           module load mpi/mvapich-1.0.1_ofed_gcc-4.1.2
+           module load mvapich-gcc/1.2.8
          fi
      elif  [ "$thiscompiler" == "pgi" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load compilers/pgi-7.2-3
-           module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
+           module load pgi-7.2-5
+           module load openmpi-pgi/1.2.8
            module load openss-mrnet-openmpi
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
            module load openss-mrnet-mvapich
-           module load compilers/pgi-7.2-3
-           module load mpi/mvapich-1.0.1_ofed_pgi-7.2-3
+           module load pgi-7.2-5
+           module load mvapich-pgi/1.1
          fi
      elif  [ "$thiscompiler" == "intel" ] 
      then
@@ -323,14 +321,14 @@ export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
          then
            module purge
            module load openss-mrnet-openmpi
-           module load compilers/intel-11.0-f081-c081
-           module load mpi/openmpi-1.3.2_intel-11.0-f081-c081
+           module load intel-f/10.0.023 intel-c/10.0.023
+           module load openmpi-intel/1.2.8
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
            module load openss-mrnet-mvapich
-           module load compilers/intel-11.0-f081-c081
-           module load mpi/mvapich-1.1_intel-11.0-f081-c081
+           module load intel-f/10.0.023 intel-c/10.0.023
+           module load mvapich-intel/1.1
          fi
      elif  [ "$thiscompiler" == "pathscale" ] 
      then
@@ -338,15 +336,17 @@ export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
          then
            module purge
            module load openss-mrnet-openmpi
-           module load compilers/pathscale-3.2
+           module load pathscale-3.1
+           module load openmpi-pathscale/1.2.8
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
            module load openss-mrnet-mvapich
-           module load compilers/pathscale-3.2
-           module load mpi/mvapich-1.0.1_ofed_pathscale-3.2
+           module load pathscale-3.1
+           module load mvapich-pathscale/1.1
          fi
      fi
+
 #
 module list
 which openss
@@ -356,12 +356,6 @@ currentDir=`pwd`
 echo "Current directory (PWD) is:"`pwd`
 echo "Current directory (currentDir) is:" \$currentDir
 echo "Local testpath directory is:" \$local_testpath
-local_subhost1=\$SUB_HOST
-echo "Local sub_host1 is:" \$local_subhost1
-local_subhost2=\$HOSTNAME
-echo "Local sub_host2 is:" \$local_subhost1
-local_subhost="glory120"
-echo "Local sub_host is:" \$local_subhost
 echo "smg2000 executable path directory is:" \$executable
 
 # setup separate unique raw data directories for each compiler/test combination
@@ -756,10 +750,7 @@ fi
 #echo "This is an email message test">> \$EMAILMESSAGE
 #echo "This is email text" >>\$EMAILMESSAGE
 # send an email using /bin/mail
-#rsh \$SUB_HOST /bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
-#rsh glory120 /bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
 rsh \$HOSTNAME /bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
-#rsh \$local_subhost /bin/mail -s \"\$SUBJECT\" \"\$EMAIL\" < \$EMAILMESSAGE
 
 #
 # End of nested script
@@ -859,8 +850,6 @@ echo "Current directory (pwd) is:" `pwd`
 echo "Current directory (currentDir) is:" \$currentDir
 local_testpath=\$testpath
 echo "Local testpath directory is:" \$local_testpath
-local_subhost=$SUB_HOST
-echo "Local sub_host is:" \$local_subhost
 echo "sweep3d.mpi executable path directory is:" \$executable
 mpicommand=`which mpirun`
 echo "sweep3d.mpi test, mpirun command path directory is:" \$mpicommand
@@ -1287,9 +1276,7 @@ fi
 #echo "This is email text" >>\$EMAILMESSAGE
 # send an email using /bin/mail
 #/bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
-#rsh \$SUB_HOST /bin/mail -s\"\$SUBJECT\" \"\$EMAIL\" < \$EMAILMESSAGE
 rsh \$HOSTNAME /bin/mail -s \"\$SUBJECT\" \"\$EMAIL\" < \$EMAILMESSAGE
-#rsh \$local_subhost "/bin/mail -s\"\$SUBJECT\" \"\$EMAIL\" < \$EMAILMESSAGE"
 
 #
 # End of nested script
