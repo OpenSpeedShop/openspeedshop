@@ -215,9 +215,7 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 
 	    if (is_subdir) {
 		std::string subdir(dirp->d_name);
-		if (subdir.find("..") == string::npos &&
-		    subdir.find(".") == string::npos ) {
-
+		if (subdir.compare("..") != 0 && subdir.compare(".") != 0) {
 		    rawdirs.push_back(dir+"/"+subdir);
 		}
 	    }
@@ -653,8 +651,10 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	// Problem found with smg2000 -n 40 40 40 using intel compilers
 	// on a 128 node parition. Why did such a small blob
 	// get written to the openss-data file?
-	if (blobsize <= 1 ) {
-	    break;
+	if (blobsize < 1024 ) {
+	    std::cerr << "Data blob possibly corrupt from " << rawfilename
+		<< " blobsize is " << blobsize << std::endl;
+	    continue;
 	}
 
 	// This should be safe here.
@@ -669,9 +669,12 @@ OfflineExperiment::process_data(const std::string rawfilename)
 
 	memset(theData, 0, blobsize);
 	int bytesRead = fread(theData, 1, blobsize, f);
-	if (bytesRead == 0 || bytesRead < blobsize) {
-	    // FIXME: What does this mean?
-	    //std::cerr << "Could Not read any more data..." << std::endl;
+	if (bytesRead == 0 || bytesRead != blobsize) {
+	    // FIXME: On some nodes of hyperion there are
+	    // bad writes to the offline-data files.
+	    std::cerr << "Bad read of data for " << rawfilename
+		<< " expected: " << blobsize << " got:" << bytesRead << std::endl;
+	    continue;
 	}
 
 	// For offline collection we really maintain one dataqueue.

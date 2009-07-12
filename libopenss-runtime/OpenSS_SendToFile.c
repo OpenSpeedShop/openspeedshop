@@ -106,10 +106,17 @@ void OpenSS_SetSendToFile(OpenSS_DataHeader* header,
 
 
     /* Create the directory path containing the file and the file itself */
+    /* We need to add the hostname to the directory path and not just the pid.
+     * e.g. openss-rawdata-host-pid rather than openss-rawdata-pid.
+     * This is due to some mpi implementations allowing a pid to be the same
+     * for multiple ranks as long as those ranks exist on different hosts.
+     * Seen on hyperion with mvapich.
+     */
+
     openss_rawdata_dir = getenv("OPENSS_RAWDATA_DIR");
-    sprintf(dir_path, "%s/openss-rawdata-%d",
+    sprintf(dir_path, "%s/openss-rawdata-%s-%d",
 	    (openss_rawdata_dir != NULL) ? openss_rawdata_dir : "/tmp",
-	     header->pid);
+	     header->host,header->pid);
     if(header->posix_tid == NULL) {
 	sprintf(tls->path, "%s/%s-%d", dir_path, basename(executable_path), header->pid);
 	sprintf(tls->path, "%s.%s", tls->path, suffix);
