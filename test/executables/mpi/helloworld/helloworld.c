@@ -16,7 +16,8 @@ int main(int argc, char **argv)
 
   MPI_Barrier(MPI_COMM_WORLD);
 
-  printf("Hello world!  I'm node %d of %d on host %s\n", rank,size,hostname);
+  printf("Hello world!  I'm node %d of %d on host %s pid %d\n",
+	rank,size,hostname,getpid());
   MPI_Finalize();
   exit(0);
 }
