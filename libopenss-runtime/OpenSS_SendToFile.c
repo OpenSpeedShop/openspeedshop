@@ -190,6 +190,11 @@ int OpenSS_SendToFile(const unsigned size, const void* data)
     
     /* Write the data */
     Assert(write(fd, data, size) == size);
+
+    /* Flush the data to disk. We could also test for fsyncdata
+     * and use that as our fsync vi a #define.
+     */
+    Assert(fsync(fd) == 0);
     
     /* Close the file */
     Assert(close(fd) == 0);
