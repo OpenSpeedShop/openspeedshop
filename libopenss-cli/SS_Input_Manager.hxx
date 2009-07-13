@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006, 2007, 2008 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2009 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -128,14 +128,6 @@ extern SS_Message_Czar& theMessageCzar();
 
 using namespace OpenSpeedShop::cli;
 
-enum OpenSpeedShop_Start_Modes {
-   SM_Batch,        /**< -batch  */
-   SM_Cli,          /**< -cli */
-   SM_Gui,          /**< default and -gui */
-   SM_Offline,      /**< -offline */
-   SM_Online,       /**< -online */
-   SM_Unknown       /**< UNKNOWN/ERROR */
-};
 
 
 #endif // SS_INPUT_MANAGER_H

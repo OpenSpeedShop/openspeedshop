@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2007, 2008 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2009 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -1157,13 +1157,15 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 
         // Start to gather performance information on the sub-task portions of expCreate
         // Here the processing of creating the process in the Framework
-        if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate()) {
+        if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && 
+            cli_timing_handle->in_expCreate()) {
           cli_timing_handle->cli_perf_data[SS_Timings::expCreate_FW_createProcess_Start] = Time::Now();
         }
 
         // Start to gather performance information on the sub-task portions of expAttach
         // Here the processing of creating the process in the Framework
-        if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled()  && cli_timing_handle->in_expAttach()) {
+        if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled()  && 
+            cli_timing_handle->in_expAttach()) {
           cli_timing_handle->cli_perf_data[SS_Timings::expAttach_FW_createProcess_Start] = Time::Now();
         }
 
@@ -1182,11 +1184,14 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
                                                      OutputCallback(&ReDirect_User_Stdout,(void *)w), 
                                                      OutputCallback(&ReDirect_User_Stderr,(void *)w)   );
           tgrp->insert(tg.begin(), tg.end());
+
         } else {
+
 #ifdef DEBUG_CLI
             cerr << "In Resolve_F_Target, calling setOfflineAppCommand, offline case, f_val1->name=" << f_val1->name << "\n";
             cerr << "In Resolve_F_Target, calling setOfflineAppCommand, offline case, host_name=" << host_name << "\n";
 #endif
+
             exp->setOfflineAppCommand(f_val1->name.c_str());
           }
 #endif
@@ -1932,6 +1937,9 @@ bool SS_expCreate (CommandObject *cmd) {
     cli_timing_handle->cli_perf_data[SS_Timings::expCreate_allocExp_Start] = Time::Now();
   }
 
+#if DEBUG_CLI
+  std::cout << "SS_expCreate, actualCLIStartMode=" <<  actualCLIStartMode << std::endl;
+#endif
 
  // There is no specified experiment.  Allocate a new Experiment.
   ExperimentObject *exp = new ExperimentObject ();
@@ -1945,6 +1953,10 @@ bool SS_expCreate (CommandObject *cmd) {
  vector<string> *p_slist = cmd->P_Result()->getInstrumentor();
  vector<string>::iterator j;
 
+ extern bool isOfflineCmd;
+ isOfflineCmd = false;
+ bool overriding_command_line_option = false; 
+
  for (j=p_slist->begin();j != p_slist->end(); j++) {
    std::string S = *j;
 
@@ -1954,8 +1966,8 @@ bool SS_expCreate (CommandObject *cmd) {
    if (!strcasecmp(S.c_str(),"offline")) {
 
       exp->setIsInstrumentorOffline(true);
-      extern bool isOfflineCmd;
       isOfflineCmd = true;
+      overriding_command_line_option = true; 
 
 #if DEBUG_CLI
       std::cout << "SS_expCreate, FOUND OFFLINE INSTRUMENTOR INDICATION (-i offline) " <<  std::endl;
@@ -1965,16 +1977,48 @@ bool SS_expCreate (CommandObject *cmd) {
 
       exp->setIsInstrumentorOffline(false);
       isOfflineCmd = false;
-
-   } else {
-
-      exp->setIsInstrumentorOffline(false);
-      isOfflineCmd = false;
+      overriding_command_line_option = true; 
+#if DEBUG_CLI
+      std::cout << "SS_expCreate, FOUND ONLINE INSTRUMENTOR INDICATION (-i online) " <<  std::endl;
+#endif
 
    }
 
+
  }
 
+ // If we didn't see the -i offline or -i online option then take a look at the command line option
+
+ if (!overriding_command_line_option) {
+
+    if (actualCLIStartMode == SM_Offline) {
+      exp->setIsInstrumentorOffline(true);
+#if DEBUG_CLI
+      std::cout << "SS_expCreate, SM_Offline, setting setIsInstrumentorOffline(true)" << " actualCLIStartMode=" <<  actualCLIStartMode << std::endl;
+#endif
+      isOfflineCmd = true;
+    } else if (actualCLIStartMode == SM_Online) {
+      exp->setIsInstrumentorOffline(false);
+#if DEBUG_CLI
+      std::cout << "SS_expCreate, SM_Online, setting setIsInstrumentorOffline(false)" << " actualCLIStartMode=" <<  actualCLIStartMode << std::endl;
+#endif
+      isOfflineCmd = false;
+    } else {
+
+      // now default to the command line option if -online or -offline was specified
+#if DEBUG_CLI
+      std::cout << "SS_expCreate, default mode, using actualCLIStartMode=" <<  actualCLIStartMode << " to set global flag" << std::endl;
+#endif
+      // default to offline
+      // FIXME - we could try to look at the online/offline setting in the ~USER/.qt/openspeedshoprc file
+      exp->setIsInstrumentorOffline(true);
+#if DEBUG_CLI
+      std::cout << "SS_expCreate, else, setting setIsInstrumentorOffline(true)" << " actualCLIStartMode=" <<  actualCLIStartMode << std::endl;
+#endif
+      isOfflineCmd = true;
+   } 
+
+ } 
   // End the gathering of performance information on the sub-task portions of expCreate
   // Here the allocation of the Experiment experiment
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate() ) {
@@ -3749,7 +3793,8 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
   try {
       if (exp->FW() != NULL) {
 
-#if OFFLINE_IN_CLI
+//#if OFFLINE_IN_CLI
+#if 1
         bool offlineInstrumentor = exp->getIsInstrumentorOffline();
         if (offlineInstrumentor) {
           cmd->Result_String ("    Instrumentor: Offline");
@@ -3787,7 +3832,11 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
         Most_Common_Executable (cmd, exp, false, ExList);
         cmd->Result_String ("  Executables Involved:");
         if (ExList.empty()) {
-          cmd->Result_String ("    (none)");
+          if (offlineInstrumentor) {
+            cmd->Result_String ("    (Not available for offline experiment at this time.)");
+          } else {
+            cmd->Result_String ("    (none)");
+          }
         } else {
           for (std::list<std::string>::iterator xi = ExList.begin(); xi != ExList.end(); xi++) {
             cmd->Result_String ("    " + *xi);

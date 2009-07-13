@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2007, 2008 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2009 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -22,7 +22,14 @@
  * Definition of the information that the user has control over w.r.t. OpenSpeedShop's behavior.
  *
  */
-
+enum OpenSpeedShop_Start_Modes {
+   SM_Batch,        /**< -batch  */
+   SM_Cli,          /**< -cli */
+   SM_Gui,          /**< default and -gui */
+   SM_Offline,      /**< -offline */
+   SM_Online,       /**< -online */
+   SM_Unknown       /**< UNKNOWN/ERROR */
+};
 
 // User control over some of OpenSpeedShop's behavior.
 extern int64_t OPENSS_VIEW_FIELD_SIZE;
@@ -44,6 +51,8 @@ extern bool    OPENSS_LOG_BY_DEFAULT;
 extern bool    OPENSS_LIMIT_SIGNAL_CATCHING;
 extern bool    OPENSS_INSTRUMENTOR_IS_OFFLINE;
 extern bool    OPENSS_LESS_RESTRICTIVE_COMPARISONS;
+extern OpenSpeedShop_Start_Modes actualCLIStartMode;
+
 
 // Read in the environment variables that control OpenSpeedShop
 void SS_Configure ();
