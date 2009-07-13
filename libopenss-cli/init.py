@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2007 Krell Institute  All Rights Reserved.
+# Copyright (c) 2006-2009 Krell Institute  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -789,6 +789,10 @@ class CLI(code.InteractiveConsole):
     #
     ##################################################################
     def interact(self):
+	gc.disable();
+        if os.environ.has_key("OPENSS_DEBUG_CLI_PYTHON_GC"):
+            gc.set_debug(gc.DEBUG_LEAK)
+            gc.get_objects()
         myparse.terminate_SS = 0
         nesting_depth = 0
 
@@ -803,6 +807,9 @@ class CLI(code.InteractiveConsole):
             try :
 		# Turn off garbage collection
 		gc.disable();
+                if os.environ.has_key("OPENSS_DEBUG_CLI_PYTHON_GC"):
+                    gc.set_debug(gc.DEBUG_LEAK)
+                    gc.get_objects()
 	         
                 if myparse.terminate_SS:
                   self.write("\n")
@@ -859,7 +866,10 @@ class CLI(code.InteractiveConsole):
 		    	    PY_Input.CallParser(d_line)
 
 		# Turn on garbage collection
-		gc.enable();
+		# gc.enable();
+                if os.environ.has_key("OPENSS_DEBUG_CLI_PYTHON_GC"):
+                    gc.set_debug(gc.DEBUG_LEAK)
+                    gc.get_objects()
 	         
             # Handle CTRL-C
             except KeyboardInterrupt:                

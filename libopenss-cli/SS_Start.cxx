@@ -561,7 +561,9 @@ extern "C"
     }
 
    // Close Python
+#ifdef PYTHON_GC_ON
     Py_Finalize ();
+#endif
 
    // Close allocated input windows.
     if (gui_window != 0) {
