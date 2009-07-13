@@ -379,13 +379,15 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	# will ensure we do not overwrite and existing openss database
 	# by bumping a count and prepending it before the .openss extension.
 	if mpi_executable == "":
-	    ossdbfile = os.path.basename(program) + "-" + collector
+	    ossdbfile = os.path.basename(program)
 	else:
-	    ossdbfile = os.path.basename(mpi_executable) + "-" + collector
+	    ossdbfile = os.path.basename(mpi_executable)
 
-	# if there are any spaces in the new name, replace them with a _.
-	# the spaces are due to arguments to the program.
-	ossdbfile = ossdbfile.replace(' ','_')
+
+	# Remove spaces and any arguments to the program.
+	prgwargs = ossdbfile.split(" ")
+	ossdbfile = prgwargs[0] +  "-" + collector
+
 	tfile = ossdbfile + ".openss"
 	tfile = create_unique_dbname(tfile)
 	# Python 2.3 does not have lexists which would be prefered here.
