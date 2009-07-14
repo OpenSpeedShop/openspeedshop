@@ -538,7 +538,7 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 	    // We restrict this to functions who are found to
 	    // contain an address for the performance PC address buffer.
 	    AddressRange frange(real_begin,
-				Address(base + f_end - 1 ));
+				Address(base + f_end));
 
 	    for (unsigned int ii = 0; ii < addrvec.size(); ii++) {
 		// To improve performance of this search,
@@ -552,6 +552,15 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 		// functions to add to our symboltable.
 
 		Address cur_addr(addrvec[ii]);
+// DEBUG
+#if 0
+	        if(is_debug_symbols_enabled) {
+		    std::cerr << "getFunctionSyms: Processing cur_addr : "
+				<< cur_addr << std::endl;
+		}
+#endif
+
+		bool func_already_found = false;
 	        for(FunctionsVec::iterator f = functions_vec.begin();
 					   f != functions_vec.end(); ++f) {
 
@@ -575,8 +584,15 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 					std::find(addrvec.begin(),
 						  addrvec.end(),
 						  addrvec[ii]);
+			func_already_found = true;
+			ii--;
 			addrvec.erase(toremove);
+			break;
 		    }
+		}
+
+		if (func_already_found) {
+		    continue;
 		}
 
 		if (frange.doesContain(cur_addr)) {
@@ -599,7 +615,9 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 		    std::vector<uint64_t>::iterator toremove = 
 			std::find(addrvec.begin(), addrvec.end(), addrvec[ii]);
 		    addrvec.erase(toremove);
+		    ii--;
 		    break;
+		} else {
 		}
 	    } // end for addrvec
 	}
@@ -906,14 +924,33 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 
 	if (foundpc > 1) {
 	    addresses_found--;
-	    std::cerr << "getBFDFunctionStatements: FOUND MULTIPLE " << foundpc
+// DEBUG
+#ifndef NDEBUG
+	    if(is_debug_symbols_enabled) {
+	        std::cerr << "getBFDFunctionStatements: FOUND MULTIPLE " << foundpc
 		<< " functions with pc " << cur_pc
 	        << " at " << ii << " of " << addrvec.size()
 	        << std::endl;
+	    }
+#endif
 	}
 
+// DEBUG
+#ifndef NDEBUG
+	if(is_debug_symbols_enabled) {
+	    if (foundpc == 0) {
+		if(is_debug_symbols_enabled) {
+		    std::cerr << "getBFDFunctionStatements: FAILED FUNCTION for pc "
+		    << cur_pc
+		    << " at " << ii << " of " << addrbuf->length
+		    << std::endl;
+		}
+	    }
+	}
+#endif
+
 	rval = addresses_found;
-        bfd_map_over_sections (theBFD, find_address_in_section, NULL);
+	bfd_map_over_sections (theBFD, find_address_in_section, NULL);
     }
 
     // Find any statements for the begin and end of functions that
