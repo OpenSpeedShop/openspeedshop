@@ -71,6 +71,7 @@ foreach testname ( `ls *.tar.gz` )
 #  loop here through a compiler list
 #for thiscompiler in gnu intel pgi pathscale
 #do
+#foreach thiscompiler ( intel )
 foreach thiscompiler ( gnu intel pgi pathscale )
  if ( $debug_flag == 1 ) then
    echo "thiscompiler=" $thiscompiler  
@@ -87,7 +88,10 @@ foreach thiscompiler ( gnu intel pgi pathscale )
     module load pgi/7.2-5
     module load openmpi-pgi/1.2.4
  else if  ( $thiscompiler == "intel" )then
-    module load intel-c/10.0.023
+#    module load intel-c/10.0.023
+#    module load intel-f/10.0.023
+    module load intel-c/9.1.043
+    module load intel-f/9.1.037
     module load openmpi-intel/1.2.4
  else if  ( $thiscompiler == "pathscale" )then
     module load pathscale/3.0
@@ -246,7 +250,9 @@ else if  ( $thiscompiler == "pgi" ) then
     module load pgi/7.2-5
     module load openmpi-pgi/1.2.4
 else if  ( $thiscompiler == "intel" ) then
-    module load intel-c/10.0.023
+#    module load intel-c/10.0.023
+    module load intel-c/9.1.043
+    module load intel-f/9.1.037
     module load openmpi-intel/1.2.4
 else if  ( $thiscompiler == "pathscale" ) then
     module load pathscale/3.0
@@ -648,7 +654,7 @@ endif
 #echo "This is an email message test">> \$EMAILMESSAGE
 #echo "This is email text" >>\$EMAILMESSAGE
 # send an email using /bin/mail
-/bin/mail -s "\$SUBJECT" "-M \$EMAIL" < \$EMAILMESSAGE
+/bin/mail -s "\$SUBJECT" "-c \$EMAIL" "\$EMAIL" < \$EMAILMESSAGE
 
 #
 # End of nested script
@@ -673,7 +679,7 @@ cat > moab_smg2000_${thiscompiler}_openmpi_script.tcsh << EOF
 #MSUB -o $testpath/smg2000_${thiscompiler}_openmpi_output.txt
 #MSUB -j oe
 #MSUB -l nodes="$NodeCount":ppn=8
-#MSUB -l walltime=2000
+#MSUB -l walltime=2400
 #MSUB -N  $testpath/smg2000_${thiscompiler}_openmpi_script.tcsh
 
 echo Shell is $SHELL
@@ -713,7 +719,10 @@ else if  ( $thiscompiler == "pgi" ) then
     module load pgi/7.2-5
     module load openmpi-pgi/1.2.4
 else if  ( $thiscompiler == "intel" ) then
-    module load intel-c/10.0.023
+#    module load intel-c/10.0.023
+#    module load intel-f/10.0.023
+    module load intel-c/9.1.043
+    module load intel-f/9.1.037
     module load openmpi-intel/1.2.4
 else if  ( $thiscompiler == "pathscale" ) then
     module load pathscale/3.0
@@ -1133,7 +1142,7 @@ endif
 #echo "This is an email message test">> \$EMAILMESSAGE
 #echo "This is email text" >>\$EMAILMESSAGE
 # send an email using /bin/mail
-/bin/mail -s "\$SUBJECT" "-M \$EMAIL" < \$EMAILMESSAGE
+/bin/mail -s "\$SUBJECT" "-c \$EMAIL" "\$EMAIL" < \$EMAILMESSAGE
 
 #
 # End of nested script
@@ -1160,7 +1169,7 @@ cat > moab_sweep3d_${thiscompiler}_openmpi_script.tcsh << EOF
 #MSUB -o $testpath/sweep3d_${thiscompiler}_openmpi_output.txt
 #MSUB -j oe
 #MSUB -l nodes="$NodeCount":ppn=8
-#MSUB -l walltime=2000
+#MSUB -l walltime=2400
 #MSUB -N  $testpath/sweep3d_${thiscompiler}_openmpi_script.tcsh
 
 echo Shell is $SHELL
