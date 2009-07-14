@@ -3793,8 +3793,7 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
   try {
       if (exp->FW() != NULL) {
 
-//#if OFFLINE_IN_CLI
-#if 1
+#if OFFLINE_IN_CLI
         bool offlineInstrumentor = exp->getIsInstrumentorOffline();
         if (offlineInstrumentor) {
           cmd->Result_String ("    Instrumentor: Offline");
