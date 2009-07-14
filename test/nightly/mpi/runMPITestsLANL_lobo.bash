@@ -74,7 +74,8 @@ do
    fi
 
 
-  for thisMPI in openmpi mvapich
+  #for thisMPI in openmpi mvapich
+  for thisMPI in openmpi
   do
 
 #  loop here through a compiler list
@@ -94,7 +95,7 @@ do
          then
            module purge
            module load openss-mrnet-mvapich
-           module load mvapich-gcc/1.2.8
+           module load mvapich-gcc/1.1
          fi
      elif  [ "$thiscompiler" == "pgi" ] 
      then
@@ -298,7 +299,7 @@ export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
          then
            module purge
            module load openss-mrnet-mvapich
-           module load mvapich-gcc/1.2.8
+           module load mvapich-gcc/1.1
          fi
      elif  [ "$thiscompiler" == "pgi" ] 
      then
@@ -431,6 +432,9 @@ fi
 # Run all experiments
 #
 
+echo "smg2000 test, before openss -offline: mpirun command path directory is:" \$mpicommand
+echo "smg2000 test, before openss -offline: RankCount is:" \$RankCount
+echo "smg2000 test, before openss -offline: openss is:" `which openss`
 #
 # Run pcsamp and analyze the results
 #
@@ -750,7 +754,7 @@ fi
 #echo "This is an email message test">> \$EMAILMESSAGE
 #echo "This is email text" >>\$EMAILMESSAGE
 # send an email using /bin/mail
-rsh \$HOSTNAME /bin/mail -s "\$SUBJECT" "-M \$EMAIL" < \$EMAILMESSAGE
+rsh \$HOSTNAME /bin/mail -s \"\$SUBJECT\" \"-c \$EMAIL\"  \"\$EMAIL\" < \$EMAILMESSAGE
 
 #
 # End of nested script
@@ -786,27 +790,27 @@ export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
          then
            module purge
            module load openss-mrnet-openmpi
-           module load mpi/openmpi-1.2.8_gcc-4.1.2
+           module load openmpi-gcc/1.2.8
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
            module load openss-mrnet-mvapich
-           module load mpi/mvapich-1.0.1_ofed_gcc-4.1.2
+           module load mvapich-gcc/1.1
          fi
      elif  [ "$thiscompiler" == "pgi" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load compilers/pgi-7.2-3
-           module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
+           module load pgi-7.2-5
+           module load openmpi-pgi/1.2.8
            module load openss-mrnet-openmpi
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
            module load openss-mrnet-mvapich
-           module load compilers/pgi-7.2-3
-           module load mpi/mvapich-1.0.1_ofed_pgi-7.2-3
+           module load pgi-7.2-5
+           module load mvapich-pgi/1.1
          fi
      elif  [ "$thiscompiler" == "intel" ] 
      then
@@ -814,14 +818,14 @@ export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
          then
            module purge
            module load openss-mrnet-openmpi
-           module load compilers/intel-11.0-f081-c081
-           module load mpi/openmpi-1.3.2_intel-11.0-f081-c081
+           module load intel-f/10.0.023 intel-c/10.0.023
+           module load openmpi-intel/1.2.8
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
            module load openss-mrnet-mvapich
-           module load compilers/intel-11.0-f081-c081
-           module load mpi/mvapich-1.1_intel-11.0-f081-c081
+           module load intel-f/10.0.023 intel-c/10.0.023
+           module load mvapich-intel/1.1
          fi
      elif  [ "$thiscompiler" == "pathscale" ] 
      then
@@ -829,15 +833,17 @@ export MODULEPATH=/users/jegsgi/privatemodules:$MODULEPATH
          then
            module purge
            module load openss-mrnet-openmpi
-           module load compilers/pathscale-3.2
+           module load pathscale-3.1
+           module load openmpi-pathscale/1.2.8
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
            module load openss-mrnet-mvapich
-           module load compilers/pathscale-3.2
-           module load mpi/mvapich-1.0.1_ofed_pathscale-3.2
+           module load pathscale-3.1
+           module load mvapich-pathscale/1.1
          fi
      fi
+
 
 #
 module list
@@ -955,6 +961,9 @@ then
   cp -f \${currentDir}/input.2048 \${currentDir}/input
 fi
 
+echo "sweep3d.mpi test, before openss -offline: mpirun command path directory is:" \$mpicommand
+echo "sweep3d.mpi test, before openss -offline: RankCount is:" \$RankCount
+echo "sweep3d.mpi test, before openss -offline: openss is:" `which openss`
 
 #
 # Run pcsamp and analyze the results
@@ -1276,7 +1285,7 @@ fi
 #echo "This is email text" >>\$EMAILMESSAGE
 # send an email using /bin/mail
 #/bin/mail -s "\$SUBJECT" "\$EMAIL" < \$EMAILMESSAGE
-rsh \$HOSTNAME /bin/mail -s \"\$SUBJECT\" \"-M \$EMAIL\" < \$EMAILMESSAGE
+rsh \$HOSTNAME /bin/mail -s \"\$SUBJECT\" \"-c \$EMAIL\"  \"\$EMAIL\" < \$EMAILMESSAGE
 
 #
 # End of nested script
