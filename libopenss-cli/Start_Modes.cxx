@@ -325,8 +325,20 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
  // an expview if desired. 
   if (oss_start_mode == SM_Batch && !read_stdin_file && !weAreRestoring) {
 #else
-  if (oss_start_mode == SM_Batch && !read_stdin_file) {
+  if (oss_start_mode == SM_Batch && !read_stdin_file && weAreRestoring) {
 #endif
+#ifdef DEBUG_CLI_OPTIONS
+    printf(" Start_COMMAND_LINE_Mode, adding expGo, expView to the input stack, oss_start_mode (batch)=%d\n", oss_start_mode);
+#endif
+    if ((NULL == Append_Input_String (my_window, "expStatus\n", NULL,
+                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
+        (NULL == Append_Input_String (my_window, "expView\n", NULL,
+                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
+      cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
+      return false;
+    }
+
+  } else if (oss_start_mode == SM_Batch && !read_stdin_file) {
 #ifdef DEBUG_CLI_OPTIONS
     printf(" Start_COMMAND_LINE_Mode, adding expGo, expView to the input stack, oss_start_mode (batch)=%d\n", oss_start_mode);
 #endif
