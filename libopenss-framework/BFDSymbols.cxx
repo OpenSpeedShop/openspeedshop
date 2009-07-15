@@ -841,8 +841,9 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 	return rval;
     }
 
-    bfd_vma loadaddr = 0;
-    bfd_vma endaddr = 0;
+    std::set<Address> function_begin_addresses;
+    int addresses_found = 0;
+
     std::set<AddressRange>::iterator si;
     for(si = lorange.begin() ; si != lorange.end(); ++si) {
 // VERBOSE
@@ -852,112 +853,100 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 	        << filename << " with address range " << (*si) << std::endl;
 	}
 #endif
-	loadaddr=(*si).getBegin().getValue();
-	endaddr=(*si).getEnd().getValue();
-    }
 
+	std::vector<uint64_t> addrvec;
 
-    std::vector<uint64_t> addrvec;
-
-    AddressRange objrange(Address((uint64_t)loadaddr),
-			  Address((uint64_t)endaddr));
-
-    for (unsigned ii = 0; ii < addrbuf->length; ii++) {
-	if (objrange.doesContain(static_cast<Address>(addrbuf->pc[ii]))) {
-	    addrvec.push_back(addrbuf->pc[ii]);
-	}
-    }
-
-    // DSO OFFSET. Pass address object was loaded at in victim process.
-    // The file /proc/self/maps has this info.
-    // Use section .text.  section->size - section->vma == offset.
-    // nm -h gives this for .text:
-    // Idx Name  Size      VMA               LMA               File off  Algn
-    //   9 .text 0012fe68  00000000000720d0  00000000000720d0  000720d0  2**4
-    //                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-
-    // Find only those functions whose address range contains a value
-    // in the passed address buffer addrbuf.
-
-    int found_functions = getFunctionSyms(addrbuf,*funcvec,loadaddr,endaddr);
-
-    // foreach address in addrvec, find the function, file, line number.
-    // See find_address_in_section for details.
-    int addresses_found = 0;
-    int addresses_notfound = 0;
-
-    // store functions begin and end address for functions with found
-    // in the sampled address space.
-    std::set<Address> function_range_addresses;
-    for (unsigned ii = 0; ii < addrvec.size(); ++ii) {
-        int foundpc = 0;
-        pc = addrvec[ii];
-        Address cur_pc(addrvec[ii]);
-        found = false;
-
-	for(FunctionsVec::iterator f = funcvec->begin();
-				   f != funcvec->end(); ++f) {
-
-	    AddressRange range(f->getFuncBegin(),f->getFuncEnd());
-
-	    if (range.doesContain(cur_pc)) {
-// DEBUG
-#ifndef NDEBUG
-		if(is_debug_symbols_enabled) {
-		  std::cerr << "getBFDFunctionStatements: FOUND FUNCTION for pc "
-		    << cur_pc
-		    << " at " << ii << " of " << addrbuf->length
-		    << " for " << f->getFuncName()
-		    << std::endl;
-		}
-#endif
-		foundpc++;
-		addresses_found++;
-		// Record the function begin addresses, This allows the cli and gui
-		// to focus on or display the first statement of a function.
-		// The function begin addresses will be processed later
-		// for statement info and added to our statements.
-		function_range_addresses.insert(f->getFuncBegin());
-	    } else {
+	for (unsigned ii = 0; ii < addrbuf->length; ii++) {
+	    if ((*si).doesContain(static_cast<Address>(addrbuf->pc[ii]))) {
+		addrvec.push_back(addrbuf->pc[ii]);
 	    }
 	}
 
-	if (foundpc > 1) {
-	    addresses_found--;
+	// DSO OFFSET. Pass address object was loaded at in victim process.
+	// The file /proc/self/maps has this info.
+	// Use section .text.  section->size - section->vma == offset.
+	// nm -h gives this for .text:
+	// Idx Name  Size      VMA               LMA               File off  Algn
+	//   9 .text 0012fe68  00000000000720d0  00000000000720d0  000720d0  2**4
+	//                   CONTENTS, ALLOC, LOAD, READONLY, CODE
+
+	// Find only those functions whose address range contains a value
+	// in the passed address buffer addrbuf.
+
+	int found_functions = getFunctionSyms(addrbuf,*funcvec,
+					      (*si).getBegin().getValue(),
+					      (*si).getEnd().getValue());
+
+	// foreach address in addrvec, find the function, file, line number.
+	// See find_address_in_section for details.
+	// store functions begin and end address for functions with found
+	// in the sampled address space.
+	for (unsigned ii = 0; ii < addrvec.size(); ++ii) {
+            int foundpc = 0;
+            pc = addrvec[ii];
+            Address cur_pc(addrvec[ii]);
+            found = false;
+
+	    for(FunctionsVec::iterator f = funcvec->begin();
+				       f != funcvec->end(); ++f) {
+
+		AddressRange range(f->getFuncBegin(),f->getFuncEnd());
+
+		if (range.doesContain(cur_pc)) {
+// DEBUG
+#ifndef NDEBUG
+		    if (is_debug_symbols_enabled) {
+		      std::cerr << "getBFDFunctionStatements: FOUND FUNCTION for pc " << cur_pc
+		        << " at " << ii << " of " << addrbuf->length
+		        << " for " << f->getFuncName() << std::endl;
+		    }
+#endif
+		    foundpc++;
+		    addresses_found++;
+
+		    // Record the function begin addresses, This allows the cli and gui
+		    // to focus on or display the first statement of a function.
+		    // The function begin addresses will be processed later
+		    // for statement info and added to our statements.
+		    function_begin_addresses.insert(f->getFuncBegin());
+		}
+	    }
+
+	    if (foundpc > 1) {
+		addresses_found--;
+// DEBUG
+#ifndef NDEBUG
+		if (is_debug_symbols_enabled) {
+	            std::cerr << "getBFDFunctionStatements: FOUND MULTIPLE " << foundpc
+		    << " functions with pc " << cur_pc
+	            << " at " << ii << " of " << addrvec.size()
+	            << std::endl;
+		}
+#endif
+	    }
+
 // DEBUG
 #ifndef NDEBUG
 	    if(is_debug_symbols_enabled) {
-	        std::cerr << "getBFDFunctionStatements: FOUND MULTIPLE " << foundpc
-		<< " functions with pc " << cur_pc
-	        << " at " << ii << " of " << addrvec.size()
-	        << std::endl;
-	    }
-#endif
-	}
-
-// DEBUG
-#ifndef NDEBUG
-	if(is_debug_symbols_enabled) {
-	    if (foundpc == 0) {
-		if(is_debug_symbols_enabled) {
-		    std::cerr << "getBFDFunctionStatements: FAILED FUNCTION for pc "
-		    << cur_pc
-		    << " at " << ii << " of " << addrbuf->length
-		    << std::endl;
+		if (foundpc == 0) {
+		    if(is_debug_symbols_enabled) {
+		        std::cerr << "getBFDFunctionStatements: FAILED FUNCTION for pc " << cur_pc
+		    	<< " at " << ii << " of " << addrbuf->length << std::endl;
+		    }
 		}
 	    }
-	}
 #endif
 
-	rval = addresses_found;
-	bfd_map_over_sections (theBFD, find_address_in_section, NULL);
+	    rval = addresses_found;
+	    bfd_map_over_sections (theBFD, find_address_in_section, NULL);
+	}
     }
 
     // Find any statements for the begin and end of functions that
     // contained a valid sample address.
-    for(std::set<Address>::const_iterator fi=function_range_addresses.begin();
-				    fi != function_range_addresses.end();
-				    ++fi) {
+    for(std::set<Address>::const_iterator fi = function_begin_addresses.begin();
+					  fi != function_begin_addresses.end();
+					  ++fi) {
 	found = false;
 	pc = (*fi).getValue();
         bfd_map_over_sections (theBFD, find_address_in_section, NULL);

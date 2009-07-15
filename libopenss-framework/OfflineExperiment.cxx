@@ -902,8 +902,10 @@ void OfflineExperiment::createOfflineSymbolTable()
 		    if(is_debug_offline_enabled) {
 		      std::cerr << "OfflineExperiment::createOfflineSymbolTable:"
 			<< " Added " << j->first
-			<< " to linkedobjects table, is executable "
-			<< is_exe << std::endl;
+			<< " to address_space, is exe "
+			<< is_exe
+			<< " range: " << j->second
+			<< std::endl;
 		    }
 #endif
 		    address_space.setValue(j->second, j->first,
