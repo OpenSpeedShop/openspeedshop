@@ -162,7 +162,7 @@ void PreferencesDialog::resetPreferenceDefaults()
    helpLevelDefaultLineEdit->setText(QString("%1").arg(helpLevelDefault));
    viewFullPath = FALSE;
    viewFullPathCheckBox->setChecked(viewFullPath);
-   saveExperimentDatabase = FALSE;
+   saveExperimentDatabase = TRUE;
    saveExperimentDatabaseCheckBox->setChecked(saveExperimentDatabase);
    askAboutChangingArgs = TRUE;
    askAboutChangingArgsCheckBox->setChecked(askAboutChangingArgs);

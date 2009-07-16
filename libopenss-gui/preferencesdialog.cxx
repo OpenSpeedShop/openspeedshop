@@ -69,7 +69,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    maxAsyncCommands = 20; 
    helpLevelDefault = 2; 
    viewFullPath = FALSE;  
-   saveExperimentDatabase = FALSE; 
+   saveExperimentDatabase = TRUE; 
    viewMangledName = FALSE; 
    allowPythonCommands = TRUE; 
    askAboutChangingArgs = TRUE; 
