@@ -1997,7 +1997,7 @@ bool SS_expCreate (CommandObject *cmd) {
       std::cout << "SS_expCreate, SM_Offline, setting setIsInstrumentorOffline(true)" << " actualCLIStartMode=" <<  actualCLIStartMode << std::endl;
 #endif
       isOfflineCmd = true;
-    } else if (actualCLIStartMode == SM_Online) {
+    } else if (actualCLIStartMode == SM_Online || actualCLIStartMode == SM_Batch) {
       exp->setIsInstrumentorOffline(false);
 #if DEBUG_CLI
       std::cout << "SS_expCreate, SM_Online, setting setIsInstrumentorOffline(false)" << " actualCLIStartMode=" <<  actualCLIStartMode << std::endl;
@@ -2954,6 +2954,9 @@ bool SS_expRestore (CommandObject *cmd) {
   }
 
   std::string data_base_name = file_name_value->name;
+#ifdef DEBUG_CLI
+  cerr << "SS_expRestore data_base_name=" << data_base_name << "\n";
+#endif
 
  // Wait for all executing commands to terminate.
  // We do this so that another command thread won't get burned
@@ -4049,9 +4052,18 @@ bool SS_expStatus(CommandObject *cmd) {
  *
  */
 bool SS_expView (CommandObject *cmd) {
+  Framework::Experiment *experiment = NULL;
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   bool view_result = true;
+
+#ifdef DEBUG_CLI
+  cerr << "Enter SS_expView before printing clip=" << clip << "\n";
+  if (clip != NULL) {
+    clip->Print(cerr);
+  }
+  cerr << "\nEnter SS_expView after printing clip=" << clip << "\n";
+#endif
 
 #if DEBUG_CLI
   printf("In SS_expView, Entered, before calling Wait_For_Previous_Cmds()\n");
@@ -4074,23 +4086,28 @@ bool SS_expView (CommandObject *cmd) {
   ExperimentObject *exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
 
 #if DEBUG_CLI
-  printf("In SS_expView, ExperimentID=%d\n", ExperimentID);
+  experiment = exp->FW();
+  std::string Data_File_Name = experiment->getName();
+  printf("In SS_expView, ExperimentID=%d, DATA_FILE_NAME=%s\n", ExperimentID, Data_File_Name.c_str());
 #endif
 
  // For batch processing, wait for completion before generating a report.
  // Unless, of course, the user explicitly tells us not to wait.
   if ((exp != NULL) && !Window_Is_Async(WindowID) && (Embedded_WindowID == 0) &&
       !Look_For_KeyWord(cmd, "NoWait")) {
+#if DEBUG_CLI
+     printf("In SS_expView, (batch processing) calling Wait_For_Exp_State, ExperimentID=%d\n", ExperimentID);
+#endif
     (void) Wait_For_Exp_State (cmd, ExpStatus_Paused, exp);
    // Be sure that write buffers are actually written to the database.
    // This assures us of getting all the data when we generate the view.
     try {
 #if DEBUG_CLI
-     printf("In SS_expView, before calling exp->FW()->flushPerformanceData()\n");
+     printf("In SS_expView, (batch processing) before calling exp->FW()->flushPerformanceData()\n");
 #endif
       exp->FW()->flushPerformanceData();
 #if DEBUG_CLI
-     printf("In SS_expView, after calling exp->FW()->flushPerformanceData()\n");
+     printf("In SS_expView, (batch processing) after calling exp->FW()->flushPerformanceData()\n");
 #endif
     }
     catch (const Exception& error) {
