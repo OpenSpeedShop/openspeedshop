@@ -566,7 +566,7 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 
         	    AddressRange range(f->getFuncBegin(), f->getFuncEnd());
 
-        	    if (range.doesContain(cur_addr)) {
+        	    if (f->getFuncName() == symname || range.doesContain(cur_addr)) {
 // DEBUG
 #ifndef NDEBUG
 		        if(is_debug_symbols_enabled) {
