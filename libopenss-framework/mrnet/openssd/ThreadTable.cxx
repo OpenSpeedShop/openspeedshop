@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2008-2009 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -28,6 +29,8 @@
 #include "ThreadNameGroup.hxx"
 #include "ThreadTable.hxx"
 #include "Utility.hxx"
+#include <iostream>
+
 
 using namespace OpenSpeedShop::Framework;
 
@@ -198,6 +201,25 @@ void ThreadTable::removeThread(const ThreadName& thread, BPatch_thread* ptr)
     dm_ptr_to_state.erase(l);
 }
 
+std::vector<std::pair<pid_t,std::string> > ThreadTable::getActivePidsAndHosts() const
+{
+    Guard guard_myself(this);
+    std::vector<std::pair<pid_t,std::string> > returnSet;
+
+    returnSet.clear();
+
+    // Find the entry (if any) for this thread
+    std::map<ThreadName, BPatch_thread*>::const_iterator i = dm_name_to_ptr.begin();
+    for(; i!=dm_name_to_ptr.end(); ++i) {
+#if 0
+       std::cout << "ThreadTable::getActivePidsAndHosts(), i->first.getProcessId()=" << i->first.getProcessId() << std::endl;
+       std::cout << "ThreadTable::getActivePidsAndHosts(), i->first.getHost()=" << i->first.getHost() << std::endl;
+#endif
+       returnSet.push_back(std::make_pair<pid_t,std::string>(i->first.getProcessId(),i->first.getHost() ) );
+    }
+    // Return the Dyninst thread object pointer to the caller
+    return (returnSet);
+}
 
 
 /**
@@ -217,7 +239,10 @@ std::set<pid_t> ThreadTable::getActivePids() const
     // Find the entry (if any) for this thread
     std::map<ThreadName, BPatch_thread*>::const_iterator i = dm_name_to_ptr.begin();
     for(; i!=dm_name_to_ptr.end(); ++i) {
-/*       std::cout << "ThreadTable::getActivePids(), i->first.getProcessId()=" << i->first.getProcessId() << std::endl; */
+#if 0
+       std::cout << "ThreadTable::getActivePids(), i->first.getProcessId()=" << i->first.getProcessId() << std::endl; 
+       std::cout << "ThreadTable::getActivePids(), i->first.getHost()=" << i->first.getHost() << std::endl; 
+#endif
        returnSet.insert(i->first.getProcessId());
     }
     // Return the Dyninst thread object pointer to the caller

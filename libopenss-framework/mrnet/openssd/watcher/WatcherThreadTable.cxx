@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2008 Krell Institute. All Rights Reserved.
+// Copyright (c) 2008-2009 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -93,8 +93,8 @@ WatcherThreadTable::VProcessThreadId WatcherThreadTable::getAllThreads() const
 
     for(std::map<ProcessThreadId, FileInfoEntry>::const_iterator
 		i = dm_thread_to_entries.begin();
-	  i != dm_thread_to_entries.end();
-        ++i)
+		i != dm_thread_to_entries.end();
+		++i)
         threads.push_back(i->first);
     
 #ifndef NDEBUG
@@ -121,8 +121,7 @@ void WatcherThreadTable::addThread(const ProcessThreadId& thread,
     }
 #endif
 
-    std::map<ProcessThreadId, FileInfoEntry>::const_iterator i =
-	dm_thread_to_entries.find(thread);
+    std::map<ProcessThreadId, FileInfoEntry>::const_iterator i = dm_thread_to_entries.find(thread);
     Assert(i == dm_thread_to_entries.end());
     dm_thread_to_entries.insert(std::make_pair(thread, entry));
 }
@@ -153,8 +152,7 @@ WatcherThreadTable::FileInfoEntry WatcherThreadTable::getEntry(const ProcessThre
     Guard guard_myself(this);
     FileInfoEntry entry;
 
-    std::map<ProcessThreadId, FileInfoEntry>::const_iterator i =
-	dm_thread_to_entries.find(thread);
+    std::map<ProcessThreadId, FileInfoEntry>::const_iterator i = dm_thread_to_entries.find(thread);
     Assert(i != dm_thread_to_entries.end());
     entry = i->second;
 
@@ -184,8 +182,7 @@ void WatcherThreadTable::setEntry(const ProcessThreadId& thread,
     }
 #endif
 
-    std::map<ProcessThreadId, FileInfoEntry>::iterator i =
-	dm_thread_to_entries.find(thread);
+    std::map<ProcessThreadId, FileInfoEntry>::iterator i = dm_thread_to_entries.find(thread);
     Assert(i != dm_thread_to_entries.end());
     i->second = entry;
 }

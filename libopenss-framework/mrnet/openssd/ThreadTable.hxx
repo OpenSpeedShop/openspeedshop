@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2008-2009 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -73,6 +74,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void removeThread(const ThreadName&, BPatch_thread*);
 
         std::set<pid_t> getActivePids() const;
+        std::vector<std::pair<pid_t,std::string> > getActivePidsAndHosts() const;
 	
 	BPatch_thread* getPtr(const ThreadName&) const;
 	ThreadNameGroup getNames(/* const */ BPatch_thread*) const;

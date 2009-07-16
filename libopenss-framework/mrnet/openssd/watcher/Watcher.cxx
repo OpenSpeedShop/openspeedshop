@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008 Krell Institute. All Rights Reserved.
+// Copyright (c) 2008-2009 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -250,7 +250,7 @@ void Watcher::Watcher ()		// : Lockable()
 }
 
 
-void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
+void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_to_monitor)
 {
   struct stat statbuf;
   char directoryName[1024];
@@ -274,7 +274,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor)
   DIR * perfdata_dirhandle = opendir (data_dirname);
 
   // Create the name of the raw data directory with pid included
-  sprintf (openssDataDirName, "openss-rawdata-%d", pid_to_monitor);
+  sprintf (openssDataDirName, "openss-rawdata-%s-%d", host_to_monitor.c_str(), pid_to_monitor);
 
 #ifndef NDEBUG
   if (isDebugEnabled ()) {
@@ -634,8 +634,10 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
   uint64_t prevSize = 0;
   uint64_t prevPos = 0;
   WatcherThreadTable::FileInfoEntry currentFileEntryInfo;
-  std::set<pid_t> PidSet; 
+  std::set<pid_t > PidSet; 
+  std::vector<std::pair<pid_t,std::string> > PidsAndHostsVector; 
   pid_t pid_to_monitor=0; 
+  std::string host_to_monitor = ""; 
 
 #ifndef NDEBUG
   if (isDebugEnabled ())
@@ -679,9 +681,23 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 	}
 #endif
 
+#if 1
+    PidsAndHostsVector.clear();
+    PidsAndHostsVector = OpenSpeedShop::Framework::ThreadTable::TheTable.getActivePidsAndHosts();
+
+    if (PidsAndHostsVector.size() > 0) {
+      for (std::vector<std::pair<pid_t,std::string> >::iterator ph = PidsAndHostsVector.begin(); 
+                                                                ph != PidsAndHostsVector.end(); ph++) {
+         std::cout << " OpenSpeedShop::Watcher::fileIOmonitorThread(), ph->first=" << ph->first << " ph->second=" << ph->second << std::endl;
+         scanForRawPerformanceData(ph->first, ph->second);
+
+      }
+
+    }
+
+#else
     PidSet.clear();
     PidSet = OpenSpeedShop::Framework::ThreadTable::TheTable.getActivePids();
-
     if (PidSet.size() > 0) {
      for (std::set< pid_t >::iterator i = PidSet.begin(); i != PidSet.end(); i++) {
 
@@ -711,11 +727,22 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
       // ******* Identify the directory that we need to search for files
       // Once found, while through the directory looking for openss-data
       // type files.
+#ifndef NDEBUG
+  if (isDebugEnabled ()) {
+      std::stringstream output;
+      output << "[TID " << pthread_self () 
+	     << "] OpenSpeedShop::Watcher::fileIOmonitorThread()" 
+             << " calling scanForRawPerformanceData, pid_to_monitor=" 
+             << pid_to_monitor << " host_to_monitor=" << host_to_monitor << std::endl;
+      std::cerr << output.str ();
+    }
+#endif
 
-      scanForRawPerformanceData(pid_to_monitor);
+      scanForRawPerformanceData(pid_to_monitor, host_to_monitor);
 
      } // PidSet loop
     } // PidSet > 0 if
+#endif
 
     // Release the scan lock so the code in watchProcess() can have it, if needed
     //
@@ -812,12 +839,13 @@ OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads)
            std::stringstream output;
            output << "[TID " << pthread_self ()
 	          << "] OpenSpeedShop::Watcher::watchProcess()" 
-                  << " i->getProcessId()= " << i->getProcessId() << std::endl;
+                  << " i->getProcessId()= " << i->getProcessId() 
+                  << " i->getHost()= " << i->getHost() << std::endl;
            std::cerr << output.str ();
          }
 #endif
        // Call to flush data for this pid before the completion of the termination processing for this process.
-       scanForRawPerformanceData(i->getProcessId());
+       scanForRawPerformanceData(i->getProcessId(), i->getHost());
 
 
        std::pair<bool, pthread_t> tid = i->getPosixThreadId();
