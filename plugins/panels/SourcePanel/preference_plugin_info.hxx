@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006-2009 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +17,7 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+//#define DEBUG_SRC_PREF 1
 
 #ifndef PREFERENCE_PLUGIN_INFO_H
 #define PREFERENCE_PLUGIN_INFO_H
@@ -56,13 +58,17 @@ extern "C"
 
   bool getShowStatistics()
   {
-// printf("getShowStatistics(%s)=%d\n", pname, showStatisticsCheckBox->isChecked() );
+#ifdef DEBUG_SRC_PREF
+    printf("getShowStatistics(%s)=%d\n", pname, showStatisticsCheckBox->isChecked() );
+#endif
     return( showStatisticsCheckBox->isChecked() );
   }
 
   bool getShowLineNumbers()
   {
-// printf("getShowLineNumbers(%s)=%d\n", pname, showLineNumbersCheckBox->isChecked() );
+#ifdef DEBUG_SRC_PREF
+    printf("getShowLineNumbers(%s)=%d\n", pname, showLineNumbersCheckBox->isChecked() );
+#endif
     return( showLineNumbersCheckBox->isChecked() );
   }
 
@@ -79,7 +85,9 @@ extern "C"
 // #include <assert.h>
   void initPreferenceSettings()
   {
-// printf("SourcePanel: initPreferenceSettings(%s)\n", pname);
+#ifdef DEBUG_SRC_PREF
+    printf("SourcePanel: initPreferenceSettings(%s)\n", pname);
+#endif
 // assert(i);
     showStatisticsCheckBox->setChecked(FALSE);
     showLineNumbersCheckBox->setChecked(TRUE);
@@ -120,7 +128,9 @@ extern "C"
 
   QWidget *initialize_preferences_entry_point(QSettings *settings, QWidgetStack *stack, char *name)
   {
-// printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
+#ifdef DEBUG_SRC_PREF
+    printf("initialize_preferences_entry_point(0x%x 0x%x %s) entered\n", settings, stack, name);
+#endif
 
     sourcePanelStackPage = new QWidget( stack, name );
     pname = strdup(name);
@@ -188,17 +198,19 @@ extern "C"
 
     if( settings != NULL )
     {
-// printf("Now set the initial settings from the preferences file.\n");
+#ifdef DEBUG_SRC_PREF
+      printf("Now set the initial settings from the preferences file.\n");
+#endif
       char settings_buffer[1024];
-      sprintf(settings_buffer, "/%s/%s/%s",
-        "openspeedshop", name, showStatisticsCheckBox->name() );
-      showStatisticsCheckBox->setChecked(
-        settings->readBoolEntry(settings_buffer) );
+      sprintf(settings_buffer, "/%s/%s/%s", "openspeedshop", name, showStatisticsCheckBox->name() );
+      showStatisticsCheckBox->setChecked( settings->readBoolEntry(settings_buffer, FALSE) );
 
-      sprintf(settings_buffer, "/%s/%s/%s",
-        "openspeedshop", name, showLineNumbersCheckBox->name() );
-      showLineNumbersCheckBox->setChecked(
-        settings->readBoolEntry(settings_buffer) );
+      sprintf(settings_buffer, "/%s/%s/%s", "openspeedshop", name, showLineNumbersCheckBox->name() );
+      showLineNumbersCheckBox->setChecked( settings->readBoolEntry(settings_buffer, TRUE) );
+
+#ifdef DEBUG_SRC_PREF
+      printf("SRC pref, settings->readBoolEntry(settings_buffer)=%d\n", settings->readBoolEntry(settings_buffer));
+#endif
 
       for(int i=0;i<numEntries;i++)
       {
@@ -246,21 +258,30 @@ extern "C"
   }
   void save_preferences_entry_point(QSettings *settings, char *name)
   {
-// printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
+#ifdef DEBUG_SRC_PREF
+    printf("SRC pref, save_preferences_entry_point(0x%x %s) entered\n", settings, name);
+#endif
 
     char settings_buffer[1024];
 
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showStatisticsCheckBox->name() );
-// printf("write (%s)\n", settings_buffer );
+
+#ifdef DEBUG_SRC_PREF
+      printf("SRC pref, for showStatisticsCheckBox, write (%s)\n", settings_buffer );
+#endif
+
     if( ! settings->writeEntry(settings_buffer, showStatisticsCheckBox->isChecked() ) )
     {
       printf("error writting %s\n", settings_buffer);
     }
 
-    sprintf(settings_buffer, "/%s/%s/%s",
-      "openspeedshop", name, showLineNumbersCheckBox->name() );
-// printf("write (%s)\n", settings_buffer );
+    sprintf(settings_buffer, "/%s/%s/%s", "openspeedshop", name, showLineNumbersCheckBox->name() );
+
+#ifdef DEBUG_SRC_PREF
+      printf("SRC pref, for showLineNumbers, write (%s)\n", settings_buffer );
+#endif
+
     if( !settings->writeEntry(settings_buffer, showLineNumbersCheckBox->isChecked()) )
     {
       printf("error writting %s\n", settings_buffer);
