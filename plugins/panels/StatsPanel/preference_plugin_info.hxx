@@ -410,7 +410,7 @@ extern "C"
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showTopNLineEdit->name() );
       showTopNLineEdit->setText(
-        settings->readEntry(settings_buffer, "20") );
+        settings->readEntry(settings_buffer, "100") );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showTopNChartLineEdit->name() );
