@@ -688,7 +688,32 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
     if (PidsAndHostsVector.size() > 0) {
       for (std::vector<std::pair<pid_t,std::string> >::iterator ph = PidsAndHostsVector.begin(); 
                                                                 ph != PidsAndHostsVector.end(); ph++) {
-         std::cout << " OpenSpeedShop::Watcher::fileIOmonitorThread(), ph->first=" << ph->first << " ph->second=" << ph->second << std::endl;
+#ifndef NDEBUG
+         if (isDebugEnabled ()) {
+	    std::stringstream output;
+            output << " OpenSpeedShop::Watcher::fileIOmonitorThread(), ph->first=" 
+                      << ph->first << " ph->second=" << ph->second << std::endl;
+	    std::cerr << output.str ();
+         }
+#endif
+
+         // Search given directory for files with the openss-data suffix
+         // When we find a openss data file, keep track of several items per file.
+         // We will be reading from this file when the size of the blob and the blob bytes
+         // are written.  What we read will be sent to the client tool via the Senders:performanceData
+         // callback routine.
+
+         // What we will be keeping track of for each file is:
+         // a) file pointer
+         // b) filename corresponding to file pointer
+         // c) position within the file, as to where to start looking for data
+         // d) offset of next blob
+
+
+         // ******* Identify the directory that we need to search for files
+         // Once found, while through the directory looking for openss-data
+         // type files.
+
          scanForRawPerformanceData(ph->first, ph->second);
 
       }
@@ -806,14 +831,6 @@ void
 OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads) 
 {
 
- std::cout << "[TID " << pthread_self() << "] OpenSpeedShop::Watcher::watchProcess() Entered " << std::endl;
-
-      std::stringstream output;
-      output << "[TID " << pthread_self ()
-	     << "] OpenSpeedShop::Watcher::watchProcess()" 
-             << " Entered " << std::endl;
-      std::cerr << output.str ();
-
 #ifndef NDEBUG
   if (isDebugEnabled ()) {
       std::stringstream output;
@@ -829,10 +846,6 @@ OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads)
     OpenSpeedShop::Watcher::acquireScanLock();
 
     for(ThreadNameGroup::const_iterator i = threads.begin(); i != threads.end(); ++i) {
-
-//       std::cout << "[TID " << pthread_self() << "] OpenSpeedShop::Watcher::watchProcess(), i->getProcessId()=  " << i->getProcessId() << std::endl;
-
-
 
 #ifndef NDEBUG
        if (isDebugEnabled ()) {
@@ -862,7 +875,7 @@ OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads)
 #endif
 
          } else {
-//           std::cout << "[TID " << pthread_self() << "] OpenSpeedShop::Watcher::watchProcess(), tid.first=  " << tid.first << std::endl;
+
 #ifndef NDEBUG
            if (isDebugEnabled ()) {
               std::stringstream output;
