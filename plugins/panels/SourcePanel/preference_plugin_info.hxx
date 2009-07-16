@@ -82,7 +82,7 @@ extern "C"
 // printf("SourcePanel: initPreferenceSettings(%s)\n", pname);
 // assert(i);
     showStatisticsCheckBox->setChecked(FALSE);
-    showLineNumbersCheckBox->setChecked(FALSE);
+    showLineNumbersCheckBox->setChecked(TRUE);
 
     for(int i=0;i<numEntries;i++)
     {
