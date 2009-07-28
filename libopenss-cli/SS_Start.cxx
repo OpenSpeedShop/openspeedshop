@@ -257,6 +257,9 @@ Process_Command_Line (int argc, char **argv)
     }
 
     if (found_gui) {
+#if DEBUG_CLI
+      std::cerr << "Process_Command_Line, Parsing openss args, found_gui case1, setting need_gui=TRUE" << std::endl;
+#endif
       need_gui = true;
       need_tli = false;
     } else if (found_tli) {
@@ -320,6 +323,9 @@ Process_Command_Line (int argc, char **argv)
              !found_gui && 
              !found_tli) {
    // If not specified by the user, default to -gui only mode.
+#if DEBUG_CLI
+      std::cerr << "Process_Command_Line, Parsing openss args, not found all case, setting need_gui=TRUE" << std::endl;
+#endif
     need_gui = true;
     need_tli = false;
 
@@ -360,7 +366,8 @@ Process_Command_Line (int argc, char **argv)
     need_tli = false;
 
 #if DEBUG_CLI
-    std::cerr << "Process_Command_Line, Parsing openss args, found_offline - gui not cli" << std::endl;
+    std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case1 - gui not cli" << std::endl;
+    std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case1 - setting need_gui=TRUE" << std::endl;
 #endif
 
   } else if (found_offline && 
@@ -372,7 +379,8 @@ Process_Command_Line (int argc, char **argv)
     need_tli = false;
 
 #if DEBUG_CLI
-    std::cerr << "Process_Command_Line, Parsing openss args, found_offline - gui not cli" << std::endl;
+    std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case2 - gui not cli" << std::endl;
+    std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case2 - setting need_gui=TRUE" << std::endl;
 #endif
 
   } else if ( (found_offline || found_online) &&
@@ -384,8 +392,23 @@ Process_Command_Line (int argc, char **argv)
     need_tli = false;
 
 #if DEBUG_CLI
-    std::cerr << "Process_Command_Line, Parsing openss args, found_offline - gui database restore" << std::endl;
+    std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case3 - gui database restore" << std::endl;
+    std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case3 - setting need_gui=TRUE" << std::endl;
 #endif
+  } else if ( (found_offline || found_online) &&
+               found_f_option &&
+               found_database && 
+               found_tli && 
+               !found_gui && 
+               !found_batch) {
+    need_gui = false;
+    need_tli = true;
+#if DEBUG_CLI
+    std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case4 - cli database restore" << std::endl;
+    std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case4 - setting need_gui=FALSE" << std::endl;
+#endif
+
+
   } else {
 
 #if DEBUG_CLI
@@ -802,8 +825,7 @@ extern "C"
                                                    SS_Timings::cliCmdLinePythonMin,
                                                    SS_Timings::cliCmdLinePythonTotal,
                                                    SS_Timings::cliCmdLinePythonEnd);
-    }
-
+    } 
 
     // Gather performance information on the cli's window initialization
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
