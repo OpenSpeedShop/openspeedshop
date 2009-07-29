@@ -173,6 +173,7 @@ Process_Command_Line (int argc, char **argv)
 
     }
 
+
    /* Look for an executable description. */
     if (!strcasecmp( argv[i], "-c") ||
         !strcasecmp( argv[i], "-h") ||
@@ -189,6 +190,11 @@ Process_Command_Line (int argc, char **argv)
      // if the next argv is not another "-" option, skip it.
       if (!strcasecmp( argv[i], "-f") ){ 
          found_f_option = true;
+
+#if DEBUG_CLI
+         std::cerr << "Process_Command_Line, FOUND -f option" << std::endl;
+#endif
+
       } else if (!strcasecmp( argv[i], "-p") ){ 
          found_p_option = true;
       } else if (!strcasecmp( argv[i], "-t") ){ 
@@ -220,11 +226,13 @@ Process_Command_Line (int argc, char **argv)
       if (found_f_option && 
           ((i+1)<argc) && 
           (argv[i+1] != NULL) && 
-          strstr( argv[i+1], ".openss")) {
+          strstr( argv[i+1], ".openss") &&
+          !strstr( argv[i+1], "-f")) {
 #if DEBUG_CLI
         std::cerr << "Process_Command_Line, Parsing openss args, FOUND .openss: clause" << std::endl;
 #endif
-        found_database = true;
+
+
       }
 
       if (((i+1)<argc) &&
@@ -242,6 +250,24 @@ Process_Command_Line (int argc, char **argv)
 
     }
   }
+
+#if DEBUG_CLI
+    std::cerr << "Process_Command_Line, starting checks, need_tli=" << need_tli << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, need_gui=" << need_gui << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, need_tli=" << need_tli << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, found_batch=" << found_batch << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, found_offline=" << found_offline << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, found_online=" << found_online << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, found_tli=" << found_tli << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, found_gui=" << found_gui << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, oss_start_mode=" << oss_start_mode << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, found_f_option=" << found_f_option << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, found_p_option=" << found_p_option << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, found_t_option=" << found_t_option << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, found_r_option=" << found_r_option << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, found_h_option=" << found_h_option << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, found_c_option=" << found_c_option << std::endl;
+#endif
 
   // If we find a dynamic option then we have to run as online, so force the mode to online
   if (found_p_option || 
@@ -382,19 +408,6 @@ Process_Command_Line (int argc, char **argv)
     std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case2 - gui not cli" << std::endl;
     std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case2 - setting need_gui=TRUE" << std::endl;
 #endif
-
-  } else if ( (found_offline || found_online) &&
-               found_f_option &&
-               found_database && 
-               !found_tli && 
-               !found_batch) {
-    need_gui = true;
-    need_tli = false;
-
-#if DEBUG_CLI
-    std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case3 - gui database restore" << std::endl;
-    std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case3 - setting need_gui=TRUE" << std::endl;
-#endif
   } else if ( (found_offline || found_online) &&
                found_f_option &&
                found_database && 
@@ -408,6 +421,19 @@ Process_Command_Line (int argc, char **argv)
     std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case4 - setting need_gui=FALSE" << std::endl;
 #endif
 
+  } else if ( (found_offline || found_online) &&
+               found_f_option &&
+               found_database && 
+               !found_tli && 
+               !found_batch) {
+    need_gui = true;
+    need_tli = false;
+
+#if DEBUG_CLI
+    std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case3 - gui database restore" << std::endl;
+    std::cerr << "Process_Command_Line, Parsing openss args, found_offline, case3 - setting need_gui=TRUE" << std::endl;
+#endif
+
 
   } else {
 
@@ -419,7 +445,7 @@ Process_Command_Line (int argc, char **argv)
 
 #if DEBUG_CLI
     std::cerr << "EXIT Process_Command_Line, need_gui=" << need_gui << std::endl;
-    std::cerr << "EXIT Process_Command_Line, need_gui=" << need_tli << std::endl;
+    std::cerr << "EXIT Process_Command_Line, need_tli=" << need_tli << std::endl;
     std::cerr << "EXIT Process_Command_Line, found_batch=" << found_batch << std::endl;
     std::cerr << "EXIT Process_Command_Line, found_offline=" << found_offline << std::endl;
     std::cerr << "EXIT Process_Command_Line, found_online=" << found_online << std::endl;
@@ -832,6 +858,10 @@ extern "C"
          cli_timing_handle->cli_perf_data[SS_Timings::cliWindowInitStart] = Time::Now();
     }
 
+#if DEBUG_CLI
+      cerr << "Checking need_command_line=" << need_command_line <<  " read_stdin_file=" << read_stdin_file << std::endl;
+#endif
+
      // Create the input windows that we will need.
       if (need_command_line || read_stdin_file) {
         command_line_window = Default_Window ("COMMAND_LINE",
@@ -856,7 +886,7 @@ extern "C"
      // Complete set up for each input window.
       if (command_line_window != 0) {
 #if DEBUG_CLI
-        cerr << "Calling Start_Command_Line_Mode " <<  std::endl;
+        cerr << "Calling Start_Command_Line_Mode need_gui=" <<  need_gui << " need_tli=" << need_tli << std::endl;
 #endif
        // Move the command line options to an input control window.
         if ( !Start_COMMAND_LINE_Mode( command_line_window, 

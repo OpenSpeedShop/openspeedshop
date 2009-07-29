@@ -306,7 +306,8 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
   bool weAreRestoring = false;
 
 #ifdef DEBUG_CLI_OPTIONS
-  printf(" Start_COMMAND_LINE_Mode, before calling Input_Command_Args, weAreRestoring=%d\n", weAreRestoring);
+  printf("ENTER Start_COMMAND_LINE_Mode, before calling Input_Command_Args, weAreRestoring=%d, need_gui=%d, need_cli=%d\n", 
+         weAreRestoring, need_gui, need_cli);
 #endif
 
  // Translate the command line arguments into an "expCreate command".
@@ -386,6 +387,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
 #else
   if (oss_start_mode == SM_Online && !read_stdin_file && !need_gui ) {
 #endif
+
 #ifdef DEBUG_CLI_OPTIONS
     printf(" Start_COMMAND_LINE_Mode, adding expGo, expView to the input stack, oss_start_mode (online)=%d\n", oss_start_mode);
 #endif
@@ -400,6 +402,12 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
       return false;
     }
   }
+
+#ifdef DEBUG_CLI_OPTIONS
+    printf(" Start_COMMAND_LINE_Mode, FALL THROUGH oss_start_mode=%d, need_gui=%d, need_cli=%d, areWeRestoring=%d\n", 
+            oss_start_mode, need_gui, need_cli, weAreRestoring);
+#endif
+
 
 
   return true;
