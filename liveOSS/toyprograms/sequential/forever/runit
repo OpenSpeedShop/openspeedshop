@@ -1,0 +1,12 @@
+
+# Start the program running
+
+./forever & 
+<enter large number>
+
+# Attach to the forever program with openss
+
+openss -cli -online
+> expcreate -p <forever pid> pcsamp
+
+
