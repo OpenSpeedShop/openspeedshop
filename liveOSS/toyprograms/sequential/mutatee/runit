@@ -1,0 +1,7 @@
+openss -f mutatee pcsamp
+#openss -f mutatee.pcsamp.openss
+
+openss -f mutatee usertime
+#openss -f mutatee.usertime.openss
+
+
