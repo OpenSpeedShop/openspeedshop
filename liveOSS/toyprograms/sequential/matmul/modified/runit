@@ -1,0 +1,4 @@
+
+#./matmul < matmul_input.txt
+
+openss -f "./matmul < ./matmul_input.txt" usertime
