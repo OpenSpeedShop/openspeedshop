@@ -1,0 +1,7 @@
+openss -f ./threads pcsamp
+#openss -f threads.pcsamp.openss
+
+#openss -f threads usertime
+#openss -f threads.usertime.openss
+
+
