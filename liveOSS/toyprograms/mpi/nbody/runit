@@ -1,0 +1,4 @@
+
+openss -f "mpirun -np 2 nbody" pcsamp
+
+#openss -f nbody.pcsamp.openss
