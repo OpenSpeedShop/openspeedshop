@@ -1,0 +1,16 @@
+# offline case
+module load openmpi-1.2.6
+module load openss-mrnet
+openss -offline -f "/opt/openmpi-1.2.6/bin/orterun -np 2 smg2000 -n 65 65 65" pcsamp 
+openss -offline -f "/opt/openmpi-1.2.6/bin/orterun -np 2 smg2000 -n 65 65 65" usertime 
+openss -offline -f "/opt/openmpi-1.2.6/bin/orterun -np 2 smg2000 -n 65 65 65" hwc 
+openss -offline -f "/opt/openmpi-1.2.6/bin/orterun -np 2 smg2000 -n 65 65 65" hwctime 
+openss -offline -f "/opt/openmpi-1.2.6/bin/orterun -np 2 smg2000 -n 65 65 65" io
+openss -offline -f "/opt/openmpi-1.2.6/bin/orterun -np 2 smg2000 -n 65 65 65" iot
+openss -offline -f "/opt/openmpi-1.2.6/bin/orterun -np 2 smg2000 -n 65 65 65" mpi
+openss -offline -f "/opt/openmpi-1.2.6/bin/orterun -np 2 smg2000 -n 65 65 65" mpit
+openss -offline -f "/opt/openmpi-1.2.6/bin/orterun -np 2 smg2000 -n 65 65 65" mpiotf
+openss -offline -f "/opt/openmpi-1.2.6/bin/orterun -np 2 smg2000 -n 65 65 65" fpe
+
+--------- end RUNITO note -----------
+
