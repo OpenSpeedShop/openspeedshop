@@ -1,0 +1,26 @@
+#BHEADER***********************************************************************
+# (c) 2000   The Regents of the University of California
+#
+# See the file COPYRIGHT_and_DISCLAIMER for a complete copyright
+# notice, contact person, and disclaimer.
+#
+#EHEADER***********************************************************************
+
+# set the compiler here
+#CC = mpicc
+CC = gcc
+
+# set compile flags here
+# OpenMP only:
+#   add '-DHYPRE_USING_OPENMP -DHYPRE_SEQUENTIAL' to 'INCLUDE_CFLAGS'
+# MPI with OpenMP:
+#   add '-DHYPRE_USING_OPENMP -DTIMER_USE_MPI'  to 'INCLUDE_CFLAGS'
+# MPI only:
+#   add '-DTIMER_USE_MPI'  to 'INCLUDE_CFLAGS'
+
+#INCLUDE_CFLAGS = -O -DTIMER_USE_MPI -O1 -g
+INCLUDE_CFLAGS = -O1 -g -DHYPRE_SEQUENTIAL
+
+
+# set link flags here
+INCLUDE_LFLAGS = -lm
