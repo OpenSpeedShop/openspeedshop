@@ -102,10 +102,6 @@ class OfflineExperiment
 
     SymbolTableMap symtabmap;
 
-    // map dso objects by name to their corresponding address ranges
-    std::vector<std::pair<std::string, AddressRange> > names_to_range;
-    std::vector<std::pair<std::string, TimeInterval> > names_to_time;
-
     std::vector<std::string> rawfiles;
     std::string rawdatadir;
     std::string DBname;

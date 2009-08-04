@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2009 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -273,6 +274,120 @@ AddressSpace::updateThreads(const ThreadGroup& threads,
 	END_TRANSACTION(database);    
 	
     }
+
+    // Return the needed symbol tables to the caller
+    return needed_symbol_tables;
+}
+
+
+
+/**
+ * Update thread.
+ *
+ * This is used by the OfflineExperiment class.
+ * Updates the specified thread with this address space. Examines the thread's
+ * database to determine if it already contains the symbol table information for
+ * each of the linked objects in this address space. Returns a structure that
+ * specifies which symbol tables were not found and thus need to be constructed.
+ *
+ * @param thread     Thread to be updated.
+ * @return           Map from address ranges to linked objects for those linked
+ *                   objects that need their symbol table constructed.
+ */
+std::map<AddressRange, std::set<LinkedObject> >
+AddressSpace::updateThread(const Thread& thread) const
+{
+    std::map<AddressRange, std::set<LinkedObject> > needed_symbol_tables;
+
+    // Begin a transaction on this thread's database
+    SmartPtr<Database> database = EntrySpy(thread).getDatabase();
+    BEGIN_WRITE_TRANSACTION(database);
+
+    //
+    // Use Time::TheBeginning() as the "time_begin" value of the to-be-
+    // created address space entries.
+    //
+	Time time_begin = Time::TheBeginning();
+	
+    // Iterate over each linked object entry in this address space
+    for(std::map<AddressRange, Entry>::const_iterator
+		e = dm_address_range_to_entry.begin();
+	    e != dm_address_range_to_entry.end();
+	    ++e) {
+	    
+	// Is there an existing linked object in the database?
+	int linked_object = -1;
+	database->prepareStatement(
+		"SELECT LinkedObjects.id "
+		"FROM LinkedObjects "
+		"  JOIN Files "
+		"ON LinkedObjects.file = Files.id "
+		"WHERE Files.path = ?;"
+		);
+	database->bindArgument(1, e->second.dm_path);
+	while(database->executeStatement())
+		linked_object = database->getResultAsInteger(1);
+
+	// Create this linked object if it wasn't present in the database
+	if(linked_object == -1) {
+
+	    // Create the file entry
+	    database->prepareStatement(
+		    "INSERT INTO Files (path) VALUES (?);"
+		    );
+	    database->bindArgument(1, e->second.dm_path);
+	    while(database->executeStatement());
+
+	    int file = database->getLastInsertedUID();
+		
+	    // Create the linked object entry
+	    database->prepareStatement(
+		    "INSERT INTO LinkedObjects "
+		    "  (addr_begin, addr_end, file, is_executable) "
+		    "VALUES (0, ?, ?, ?);"
+		    );
+	    database->bindArgument(1, Address(e->first.getEnd() - 
+						  e->first.getBegin()));
+	    database->bindArgument(2, file);    
+	    database->bindArgument(3, e->second.dm_is_executable);
+	    while(database->executeStatement());
+
+	    linked_object = database->getLastInsertedUID();
+		
+	}
+	    
+	// Create an address space entry for this linked object
+	database->prepareStatement(
+		"INSERT INTO AddressSpaces "
+		"  (thread, time_begin, time_end, "
+		"   addr_begin, addr_end, linked_object) "
+		"VALUES (?, ?, ?, ?, ?, ?);"
+		);
+	database->bindArgument(1, EntrySpy(thread).getEntry());
+	database->bindArgument(2, time_begin);
+	database->bindArgument(3, Time::TheEnd());
+	database->bindArgument(4, e->first.getBegin());
+	database->bindArgument(5, e->first.getEnd());
+	database->bindArgument(6, linked_object);
+	while(database->executeStatement());
+
+	// Does a symbol table need to be built for this linked object?
+
+	// Create entry for this symbol table (or find existing one)
+	std::map<AddressRange, std::set<LinkedObject> >::iterator
+		    i = needed_symbol_tables.insert(
+			std::make_pair(
+			    e->first,
+			    std::set<LinkedObject>())
+			).first;
+
+	// Add this linked object to the entry
+	i->second.insert(LinkedObject(database, linked_object));
+
+    }
+
+    // End the transaction on this thread's database
+    END_TRANSACTION(database);    
 
     // Return the needed symbol tables to the caller
     return needed_symbol_tables;

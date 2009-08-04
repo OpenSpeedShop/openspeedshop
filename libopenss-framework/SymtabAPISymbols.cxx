@@ -108,25 +108,23 @@ SymtabAPISymbols::getSymbols(const LinkedObject& linkedobject,
 		    << Symtab::printError(Symtab::getLastSymtabError()).c_str()
 		    << std::endl;
 	    } else {
-		for(unsigned i = 0; i< mods.size();i++){
-		    module_range = AddressRange(mods[i]->addr(), mods[i]->addr() + symtab->imageLength());
-		    module_name = mods[i]->fullName();
 // DEBUG
 #ifndef NDEBUG
-		    if(is_debug_symtabapi_symbols_enabled) {
+		if(0) {
+		    for(unsigned i = 0; i< mods.size();i++){
+		        module_range =
+			   AddressRange(mods[i]->addr(), mods[i]->addr() + symtab->imageLength());
+		        module_name = mods[i]->fullName();
 		        std::cerr << "getAllModules MNAME " << mods[i]->fullName()
-			<< " Range " << module_range << std::endl;
+			    << " Range " << module_range << std::endl;
 		    }
-#endif
 		}
+#endif
 	    }
 
 // DEBUG
 #ifndef NDEBUG
 	    if(is_debug_symtabapi_symbols_enabled) {
-
-		std::cerr << "symtabAPISymbols: MODULE " << module_name
-		<< " has RANGE: " << module_range << std::endl;
 
 	        std::cerr << "symtabAPISymbols: image_offset " << image_offset
 		<< " image_length " << image_length
@@ -157,7 +155,7 @@ SymtabAPISymbols::getSymbols(const LinkedObject& linkedobject,
 		    }
 		}
 	    }
-
+	    break;
 	}
     }
 }

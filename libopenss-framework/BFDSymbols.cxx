@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) 2007 The Krell Institue. All Rights Reserved.
+** Copyright (c) 2007,2008,2009 The Krell Institue. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -57,8 +57,8 @@ static bool debug_symbols = false;
 
 using namespace OpenSpeedShop::Framework;
 
-StatementsVec* statementvec;
-FunctionsVec *funcvec;
+static StatementsVec statementvec;
+static FunctionsVec functionvec;
 
 #ifndef NDEBUG
 /** Flag indicating if debuging for offline symbols is enabled. */
@@ -236,7 +236,6 @@ long BFDSymbols::remove_useless_symbols(asymbol **symbols, long count)
 // the passed address range of [obj_load_addr, obj_end_addr).
 int
 BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
-			     FunctionsVec& functions_vec,
 			     bfd_vma obj_load_addr,
 			     bfd_vma obj_end_addr)
 {
@@ -456,11 +455,9 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 		     
 		if (nextsection_vma <= nextbegin_addr &&
 		    nextbegin_addr > nextsize + nextsection_vma) {
-#if 1
 		    std::cerr << "getFunctionSyms: WARNING: next sym name "
 			<< bfd_asymbol_name(nextsym)
 			<< " is OUTOFRANGE." << std::endl;
-#endif
 		}
 	      } else {
 // DEBUG
@@ -497,8 +494,8 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 	    // function so we can just subtract 1 from the address of the next
 	    // function and use that as the end address of the current function.
 	    // VERIFY: On ia64, an instruction bundle is length 0x10.
-	    // The last function's end address should be the end
-	    // address of the section.
+	    // The last function's end address should be the end address of the section.
+	    // The most accurate way to do this is to disassemble the function for x86, x86_64.
 	    int ins_size = 1;
 
 	    uint64_t f_end = end_addr;
@@ -534,12 +531,13 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 		continue;
 	    }
 
-	    // The following loop adds any function found to to the functions_vec.
+	    // The following loop adds any function found to to the functionvec.
 	    // We restrict this to functions who are found to
 	    // contain an address for the performance PC address buffer.
 	    AddressRange frange(real_begin,
 				Address(base + f_end));
 
+#if !defined(USE_ALL_BFD_SYMBOLS)
 	    for (unsigned int ii = 0; ii < addrvec.size(); ii++) {
 		// To improve performance of this search,
 		// see if one of the found functions already
@@ -552,21 +550,25 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 		// functions to add to our symboltable.
 
 		Address cur_addr(addrvec[ii]);
-// DEBUG
-#if 0
-	        if(is_debug_symbols_enabled) {
-		    std::cerr << "getFunctionSyms: Processing cur_addr : "
-				<< cur_addr << std::endl;
-		}
-#endif
 
 		bool func_already_found = false;
-	        for(FunctionsVec::iterator f = functions_vec.begin();
-					   f != functions_vec.end(); ++f) {
+	        for(FunctionsVec::iterator f = functionvec.begin();
+					   f != functionvec.end(); ++f) {
 
         	    AddressRange range(f->getFuncBegin(), f->getFuncEnd());
 
-        	    if (f->getFuncName() == symname || range.doesContain(cur_addr)) {
+#if 0
+        	    if (f->getFuncName() == symname) {
+			std::cerr << "getFunctionSyms: Address"
+			<< cur_addr << " at addrvec[" << ii << "] "
+			<< " function already in vec " << f->getFuncName()
+			<< " in range " << range
+			<< " this frange " << frange
+			<< std::endl;
+		    }
+#endif
+
+        	    if (range.doesContain(cur_addr)) {
 // DEBUG
 #ifndef NDEBUG
 		        if(is_debug_symbols_enabled) {
@@ -574,7 +576,7 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 			    << cur_addr
 			    << " at addrvec[" << ii << "] "
 			    << "already found in function "
-			    << f->getFuncName() << std::endl;
+			    << f->getFuncName() << " " << range << std::endl;
 			}
 #endif
 
@@ -599,14 +601,14 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 // DEBUG
 #ifndef NDEBUG
 		    if(is_debug_symbols_enabled) {
-		        std::cerr << "getFunctionSyms: functions_vec PUSH BACK "
+		        std::cerr << "getFunctionSyms: functionvec PUSH BACK "
 			    << symname << " at " << frange
 			    << " for pc " << cur_addr
 			    << " ii " << ii << " of " << addrvec.size()
 			    << std::endl;
 		    }
 #endif
-		    functions_vec.push_back( BFDFunction(symname,
+		    functionvec.push_back( BFDFunction(symname,
 							  frange.getBegin().getValue(),
 							  frange.getEnd().getValue())
 						);
@@ -620,6 +622,11 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 		} else {
 		}
 	    } // end for addrvec
+#else
+	    functionvec.push_back( BFDFunction(symname,
+					       frange.getBegin().getValue(),
+					       frange.getEnd().getValue()) );
+#endif
 	}
 
 	// If all addresses have been resolved, terminate search.
@@ -752,12 +759,12 @@ find_address_in_section (bfd *theBFD, asection *section,
 #endif
 
     // Create a BFDStatement object for this pc and add it into
-    // StatementsWithData for later update to database.
+    // statementvec for later update to database.
     // DPM: do not add statement info if there is no source file
     // found. Typically tfile is empty and line is 0 in this case.
     if (!tfile.empty()) {
 	BFDStatement datastatement(pc, tfile, line);
-	statementvec->push_back(datastatement);
+	statementvec.push_back(datastatement);
     }
 
     fflush(stdout);
@@ -811,7 +818,8 @@ Path BFDSymbols::getObjectFile(Path filename)
 
 int
 BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
-				     LinkedObject* linkedobject)
+				     const LinkedObject& linkedobject,
+				     SymbolTableMap& stmap)
 {
     int rval = -1;
     init_done = 0;
@@ -821,11 +829,8 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
     }
 #endif
 
-    funcvec = &bfd_functions;
-    statementvec = &bfd_statements;
-
-    std::string filename = linkedobject->getPath();
-    std::set<AddressRange> lorange = linkedobject->getAddressRange();
+    std::string filename = linkedobject.getPath();
+    std::set<AddressRange> lorange = linkedobject.getAddressRange();
 
     Path objfilename = getObjectFile((Path)filename);
 
@@ -873,7 +878,7 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 	// Find only those functions whose address range contains a value
 	// in the passed address buffer addrbuf.
 
-	int found_functions = getFunctionSyms(addrbuf,*funcvec,
+	int found_functions = getFunctionSyms(addrbuf,
 					      (*si).getBegin().getValue(),
 					      (*si).getEnd().getValue());
 
@@ -887,8 +892,8 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
             Address cur_pc(addrvec[ii]);
             found = false;
 
-	    for(FunctionsVec::iterator f = funcvec->begin();
-				       f != funcvec->end(); ++f) {
+	    for(FunctionsVec::iterator f = functionvec.begin();
+				       f !=  functionvec.end(); ++f) {
 
 		AddressRange range(f->getFuncBegin(),f->getFuncEnd());
 
@@ -973,4 +978,145 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 #endif
 
     return rval;
+}
+
+void
+BFDSymbols::getSymbols(PCBuffer *addrbuf,
+		       const LinkedObject& lo, SymbolTableMap& stmap)
+{
+    // LinkedObject::getAddressRange actually returns the
+    // set of AddressSpaces found in the database where the
+    // LinkedObject actually was loaded into memory.
+    // The SymbolTableMap will only know about one of these
+    // addressspaces, the one used to create it.
+    std::set<AddressRange> lorange = lo.getAddressRange();
+    AddressRange stmap_lorange;
+    std::set<AddressRange>::iterator si;
+    for(si = lorange.begin() ; si != lorange.end(); ++si) {
+	// find which addrssspace is used for the symboltablemap
+	if (stmap.find(*si) != stmap.end()) {
+	    stmap_lorange = *si;
+// DEBUG
+#ifndef NDEBUG
+	    if(is_debug_symbols_enabled) {
+	        std::cerr << "BFDSymbols::getSymbols: " << " stmap RANGE " << *si << std::endl;
+	    }
+#endif
+	}
+    }
+
+    for(si = lorange.begin() ; si != lorange.end(); ++si) {
+	AddressRange lrange = (*si);
+
+// DEBUG
+#ifndef NDEBUG
+	if(is_debug_symbols_enabled) {
+	     std::cerr  << "BFDSymbols::getSymbols: RESOLVING LO " << lo.getPath()
+		 << ":" << lrange << std::endl;
+	}
+#endif
+	// addressrange lrange may not be the one in stmap.
+	if (stmap.find(lrange) != stmap.end()) {
+	    int addresses_found =
+		getBFDFunctionStatements(addrbuf, lo, stmap);
+	    
+	    // Add Functions
+	    // RESTRICT functions to only those with sampled addresses.
+	    // We need to remember that some sampled addresses may come
+	    // from an addressspace OTHER than the one used for the
+	    // SymbolTableMap.  Need to compute an offset for those. somehow.
+
+	    for(FunctionsVec::iterator f = functionvec.begin();
+				       f != functionvec.end(); ++f) {
+
+		AddressRange frange(f->getFuncBegin(),f->getFuncEnd());
+
+		// See if the function range is inclosed by any addressspace
+		// in the SymbolTableMap. If it is found in the addressrange
+		// used to create the symboltable entry we can use it straight away.
+		// Otherwise we need to find the addressspace the function was
+		// sampled in and compute an offset to the stmap addressrange.
+		if (stmap.find(frange) != stmap.end()) {
+		    SymbolTable& symbol_table =
+					stmap.find(frange)->second.first;
+//DEBUG
+#ifndef NDEBUG
+		    if(is_debug_symbols_enabled) {
+			std::cerr << "BFDSymbols::getSymbols: "
+			    << "ADDING FUNCTION for " << f->getFuncName()
+			    << " with range " << frange << std::endl;
+		    }
+#endif
+
+		    symbol_table.addFunction(f->getFuncBegin(),
+					     f->getFuncEnd(), f->getFuncName());
+
+		} else {
+		    std::set<AddressRange>::iterator li;
+		    for(li = lorange.begin() ; li != lorange.end(); ++li) {
+			if ((*li).doesContain(frange)) {
+
+			    Address offset(stmap_lorange.getBegin() - (*li).getBegin());
+//DEBUG
+#ifndef NDEBUG
+			    if(is_debug_symbols_enabled) {
+			        std::cerr << "BFDSymbols::getSymbols: " << f->getFuncName()
+				<< " with range " << frange
+				<< " found in alternate " << (*li)
+				<< " offset is " << offset
+				<< std::endl;
+			    }
+#endif
+			    // the real symboltable for this function.
+		    	    SymbolTable& symbol_table =
+					stmap.find(stmap_lorange)->second.first;
+
+			    // compute new start and end to fit stmap_lorange.
+			    Address start(f->getFuncBegin().getValue() +
+					  offset.getValue());
+			    Address end(f->getFuncEnd().getValue() +
+					  offset.getValue());
+
+			    // Now we can add this function
+			    symbol_table.addFunction(start, end, f->getFuncName());
+			}
+		    }
+		}
+	    }
+
+	    // Add Statements
+	    // RESTRICT statements to only those with sampled addresses.
+	    // NOTE: We may need to look at offsets like we do for functions.
+
+	    for(StatementsVec::iterator objsyms = statementvec.begin() ;
+					objsyms !=  statementvec.end() ;  ++objsyms) {
+
+		AddressRange frange(objsyms->pc,objsyms->pc+1);
+		if (stmap.find(frange) != stmap.end()) {
+		    SymbolTable& symbol_table =
+					stmap.find(frange)->second.first;
+		    Address s_begin = objsyms->pc;
+		    Address s_end = objsyms->pc + 1; // HACK
+		    std::string path = objsyms->file_name;
+		    unsigned int line = objsyms->lineno;
+		    unsigned int col = 0;
+//DEBUG
+#ifndef NDEBUG
+		    if(is_debug_symbols_enabled) {
+			std::cerr << "BFDSymbols::getSymbols:"
+			    << " ADDING STATEMENT for " << Address(objsyms->pc)
+			    << " with path " << path << " line " << line << std::endl;
+		    }
+#endif
+
+		    if (path.size() != 0) {
+			symbol_table.addStatement(s_begin,s_end,path,line,col);
+		    }
+		} else {
+		}
+	    }
+	}
+    } // end for lorange
+    functionvec.clear();
+    statementvec.clear();
 }

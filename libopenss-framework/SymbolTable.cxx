@@ -174,6 +174,17 @@ void SymbolTable::processAndStore(const LinkedObject& linked_object)
 	Address addr_begin(i->first.getBegin() - dm_range.getBegin());
 	Address addr_end(i->first.getEnd() - dm_range.getBegin());
 	
+#if 0
+	std::cerr << "ProcessSTORE: F " << i->second
+	<< " LOBJ " << linked_object.getPath()
+	<< "\n dm_range begin: " << dm_range
+	<< "\n dm_func begin: " << i->first.getBegin()
+	<< " dm_func end: " << i->first.getEnd()
+	<< "\n addr_begin: " << addr_begin
+	<< " addr_end: " << addr_end
+	<< std::endl;
+#endif
+
 	// Construct a valid bitmap for this (entire) function range
 	AddressBitmap valid_bitmap(AddressRange(addr_begin, addr_end));
 	for(Address addr = addr_begin; addr < addr_end; ++addr)

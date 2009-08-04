@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2009 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -41,6 +42,7 @@ namespace OpenSpeedShop { namespace Framework {
 
     class LinkedObject;
     class ThreadGroup;
+    class Thread;
     class Time;
     
     /**
@@ -73,6 +75,8 @@ namespace OpenSpeedShop { namespace Framework {
 
 	std::map<AddressRange, std::set<LinkedObject> >
 	updateThreads(const ThreadGroup&, const Time&, const bool) const;
+
+	std::map<AddressRange, std::set<LinkedObject> > updateThread(const Thread&) const;
 	
     private:
 
