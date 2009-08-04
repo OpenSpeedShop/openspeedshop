@@ -96,6 +96,7 @@ echo "export PATH=\\\$OPENSS_PREFIX/bin:/opt/openmpi/bin:\\\$PATH" >> \
 /root/.bashrc.oss
 echo "export LD_LIBRARY_PATH=\\\$OPENSS_PREFIX/lib:/opt/openmpi/lib:\\\$LD_LIBRARY_PATH" >> /root/.bashrc.oss
 echo "export XPLAT_RSHCOMMAND=ssh" >> /root/.bashrc.oss
+echo "export XPLAT_RSH=ssh" >> /root/.bashrc.oss
 echo "export MRNET_RSH=ssh" >> /root/.bashrc.oss
 chmod 644 /root/.bashrc.oss
 cp /root/.bashrc.oss /home/openssuser/.bashrc
