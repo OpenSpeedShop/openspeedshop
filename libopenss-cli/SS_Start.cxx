@@ -231,6 +231,7 @@ Process_Command_Line (int argc, char **argv)
 #if DEBUG_CLI
         std::cerr << "Process_Command_Line, Parsing openss args, FOUND .openss: clause" << std::endl;
 #endif
+       found_database = true;
 
 
       }
