@@ -49,7 +49,22 @@ cd ../../
 echo "creating tarball for toyprograms-0.0.1....."
 tar -cvf toyprograms-0.0.1.tar toyprograms-0.0.1/*
 gzip toyprograms-0.0.1.tar
+mv toyprograms-0.0.1.tar.gz SOURCES/.
 echo "creating tarball for webtutorial-0.0.1....."
 tar -cvf webtutorial-0.0.1.tar webtutorial-0.0.1/*
 gzip webtutorial-0.0.1.tar
+mv webtutorial-0.0.1.tar.gz SOURCES/.
+
+echo "Building RPM for webtutorial-0.0.1....."
+./Build-RPM webtutorial-0.0.1
+
+echo "Building RPM for toyprograms-0.0.1....."
+./Build-RPM toyprograms-0.0.1
+
+echo "Building RPM for openmpi-1.2.8....."
+./Build-RPM openmpi-1.2.8
+
+
+
+
 
