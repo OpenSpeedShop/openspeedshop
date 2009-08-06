@@ -1,0 +1,222 @@
+#!/bin/bash
+################################################################################
+# Display Usage When Necessary
+################################################################################
+
+echo
+echo "Build-RPM command-line argument #1 = $1"
+echo "Build-RPM command-line argument #2 = $2"
+echo "Build-RPM command-line argument #3 = $3"
+echo
+
+#if [ -n "$1" ]              # Tested variable is quoted.
+#then
+# echo "Parameter #1 is $1"  # Need quotes to escape #
+#fi 
+
+if [ -z "$1" ] 
+then
+   echo ""
+   echo "Usage: $0 [package-name]"
+   echo "Usage: $0 [support option]"
+   echo "Usage: $0 help"
+   echo ""
+   echo "    where [package-name] is the name of the package for which a"
+   echo "    binary RPM shall be created. A RPM specification file named"
+   echo "    ./SPECS/[package-name].spec must exist for this to work."
+   echo "    do not enter the .spec portion of the name"
+   echo ""
+   exit
+elif [ "$1" == "help" ] 
+then
+   echo ""
+   echo "Usage: $0 [package-name]"
+   echo ""
+   echo "    where [package-name] is the name of the package for which a"
+   echo "    binary RPM shall be created. A RPM specification file named"
+   echo "    ./SPECS/[package-name].spec must exist for this to work."
+   echo "    do not enter the .spec portion of the name"
+   echo ""
+   echo "Support Optional arguments include:"
+   echo "    newrpmloc - will save and replace your .rpmmacro file with one generated"
+   echo "                for this location"
+   echo "    clean     - will delete your BUILD and INSTALL directories after build"
+   echo ""
+   echo "Build Optional arguments include:"
+   echo "    srcrpm    - will build a source RPM in addition to an RPM"
+   echo ""
+   echo ""
+   echo ""
+   exit
+
+fi
+
+################################################################################
+# Set Parameters
+################################################################################
+
+base_directory=$PWD
+newrpmloc=0
+clean=0
+srcrpm=0
+skip=0
+
+if [ "$1" == "newrpmloc" ]; 
+then
+   newrpmloc=1
+   skip=1
+elif [ "$2" == "newrpmloc" ];
+then
+   newrpmloc=1
+elif [ "$3" == "newrpmloc" ];
+then
+   newrpmloc=1
+elif [ "$4" == "newrpmloc" ];
+then
+   newrpmloc=1
+fi
+
+
+if [ "$1" == "clean" ]; 
+then
+   clean=1
+   skip=1
+elif [ "$2" == "clean" ]; 
+then
+   clean=1
+elif [ "$3" == "clean" ]; 
+then
+   clean=1
+elif [ "$4" == "clean" ]; 
+then
+   clean=1
+fi
+
+if [ "$2" == "srcrpm" ]; 
+then
+   srcrpm=1
+elif [ "$3" == "srcrpm" ]; 
+then
+   srcrpm=1
+elif [ "$4" == "srcrpm" ]; 
+then
+   srcrpm=1
+fi
+
+################################################################################
+# Create Missing Directories
+################################################################################
+#set machine=` uname -n | grep -o '[^0-9]\{0,\}'`
+machine=` uname -n `
+echo 'RPM working directory: '$machine
+if [ ! -e $base_directory/BUILD ]; 
+then
+   mkdir $base_directory/BUILD
+fi
+#if(! -e $base_directory/BUILD/`uname -n | grep -o '[^0-9]\{0,\}'`) mkdir $base_directory/BUILD/`uname -n | grep -o '[^0-9]\{0,\}'`
+if [ ! -e $base_directory/BUILD/$machine ];
+then
+   mkdir $base_directory/BUILD/$machine
+fi
+
+if [ ! -e $base_directory/INSTALL ];
+then
+   mkdir $base_directory/INSTALL
+fi
+#if(! -e $base_directory/INSTALL/`uname -n grep -o '[^0-9]\{0,\}'`) mkdir $base_directory/INSTALL/`uname -n | grep -o '[^0-9]\{0,\}'`
+if [ ! -e $base_directory/INSTALL/$machine ];
+then
+    mkdir $base_directory/INSTALL/$machine
+fi
+if [ ! -e $base_directory/RPMS ];
+then
+    mkdir $base_directory/RPMS
+fi
+#if(! -e $base_directory/RPMS/`uname -n grep -o '[^0-9]\{0,\}'`) mkdir $base_directory/RPMS/`uname -n | grep -o '[^0-9]\{0,\}'`
+if [ ! -e $base_directory/RPMS/$machine ];
+then
+    mkdir $base_directory/RPMS/$machine
+fi
+if [ ! -e $base_directory/SRPMS ]; 
+then
+   mkdir $base_directory/SRPMS
+fi
+
+################################################################################
+# Backup and Replace User's RPM Macro File
+################################################################################
+
+
+if [ $newrpmloc == "1" ]; 
+then
+   mv ~/.rpmmacros ~/.rpmmacros.$$
+fi
+
+if [ -e ~/.rpmmacros ]; 
+then
+   :
+else
+ cat << EOF > ~/.rpmmacros
+ %_topdir     $base_directory
+ %_tmppath    %{_topdir}/INSTALL/%(uname -n)
+ %_builddir   %{_topdir}/BUILD/%(uname -n)
+ %_rpmdir     %{_topdir}/RPMS/%(uname -n)
+ %_rpmfilename  %%{NAME}.OSS.%%{ARCH}.rpm
+EOF
+fi
+
+
+################################################################################
+# Build the Binary RPM
+################################################################################
+
+if [ $skip == "0" ]; 
+then
+
+ if [ -z "$OPENSS_PREFIX" ];
+ then
+   echo "Environment variable OPENSS_PREFIX is NOT set"
+   echo "Environment variable OPENSS_PREFIX is NOT set to" $OPENSS_PREFIX
+ else
+   echo "Environment variable OPENSS_PREFIX is set"
+   echo "Environment variable OPENSS_PREFIX is set to" $OPENSS_PREFIX
+ fi
+
+# echo "$OPENSS_PREFIX=" $OPENSS_PREFIX
+# echo "$?OPENSS_PREFIX=" $?OPENSS_PREFIX
+
+  if [ -z "$OPENSS_PREFIX" ];
+  then
+   if [ $srcrpm == "1" ];
+   then
+       rpmbuild --define "depend_prefix /usr" --define "openss_instrumentor $OPENSS_INSTRUMENTOR" -ba $PWD/SPECS/$1.spec
+   else
+       rpmbuild --define "depend_prefix /usr" --define "openss_instrumentor $OPENSS_INSTRUMENTOR" -bb $PWD/SPECS/$1.spec
+   fi
+  else
+   if [ $srcrpm == "1" ];
+   then
+       rpmbuild --define "depend_prefix $OPENSS_PREFIX" --define "openss_instrumentor $OPENSS_INSTRUMENTOR" -ba $PWD/SPECS/$1.spec
+   else
+       rpmbuild --define "depend_prefix $OPENSS_PREFIX" --define "openss_instrumentor $OPENSS_INSTRUMENTOR" -bb $PWD/SPECS/$1.spec
+   fi
+  fi
+fi
+################################################################################
+# Remove Unnecessary Build Directories
+################################################################################
+if [ $clean == "1" ];
+then
+       rm -rf $base_directory/BUILD/$machine
+       rm -rf $base_directory/INSTALL/$machine
+fi
+
+
+################################################################################
+# Restore the User's RPM Macro File
+################################################################################
+
+#if(-e ~/.rpmmacros.$$) then
+#    echo "Should we replace with your original .rpmmacros file"
+#    mv ~/.rpmmacros.$$ ~/.rpmmacros
+#endif
