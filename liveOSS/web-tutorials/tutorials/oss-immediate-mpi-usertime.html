@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>Using Open|SpeedShop&#8482;</title>
+  <style type="text/css">
+table.exp {
+	border-width: 0px 0px 0px 0px;
+	border-spacing: 0px;
+	border-style: outset outset outset outset;
+	border-color: gray gray gray gray;
+	border-collapse: collapse;
+	background-color: white;
+	width:80%;
+	height:80%;
+}
+table.exp th {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+table.exp td {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+  </style>
+</head>
+<body>
+<center> <img src="../img/OpenSpeedShop_Logo.jpg"> <br>
+Using Open|SpeedShop&#8482;<br>
+</center>
+<h2 id="climpi">Using Open|SpeedShop's Immediate Command Syntax<br>
+</h2>
+<p>Within a terminal window, enter <b><font face="courier">openss -f
+"executable_or_mpi_application" &lt;experiment_type&gt;&nbsp;</font></b>
+and hit &lt;Enter&gt;. <br>
+</p>
+<p>This will start Open|SpeedShop's immediate command interface.
+<br>
+</p>
+<p>In this particular example, we are going to gather user time
+information from an MPI job (<b>Note:</b> We are going to simulate an
+MPI run by oversubscribing our processor). <br>
+</p>
+<p>For demonstration purposes, we are going to gather information from
+one of Open|SpeedShop's supported implementations of the message
+passing interface - OpenMPI. <br>
+We have provided test binaries that can be utilized for our purposes.
+</p>
+<p>Within the terminal window, enter <b><font face="courier">openss -f
+"mpirun -np 2 /home/openssuser/mpi/smg2000/test/smg2000 -n 50 50 50"
+usertime</font></b><br>
+<b>Note: </b> In this particular case, the double quotes are
+required). <br>
+</p>
+<p>We should then be greeted with the program output and the usertime
+experiment results for the smg2000 application.<br>
+<br>
+</p>
+<img src="../img/sh08.png"> <br>
+<img src="../img/sh09.png">
+<p>Once the experiment has terminated, we can view the collected data
+in other forms than that of the default output by going through the GUI
+<br>
+by using the command: openss -f smg2000.usertime.openss<b><font
+ face="courier"></font></b>.&nbsp;&nbsp;
+smg2000.usertime.openss is the name of the database file created by
+Open|SpeedShop<br>
+after running the usertime experiment on smg2000.&nbsp;&nbsp;
+Open|SpeedShop used the name of the application and the name of the
+experiment type to form the<br>
+performance results database file name.<br>
+</p>
+<p>The opening of the performance database creates the default view
+corresponding to the experiment type.&nbsp; For usertime, the default
+view is shown below.<br>
+</p>
+Please also explore the various options offered via a panel's pull down
+menu. Further options can be accessed by clicking on a colored
+downward-facing arrow or<br>
+using the StatsPanel icons.&nbsp; Red icons represent view options,
+such as updating the data or clearing the view options. The "green"
+icons correspond to different <br>
+possible views of the usertime data.&nbsp;&nbsp; The "dark blue" icons
+correspond to analysis options while the "light blue" icon corresponds
+to information about the experiment.<br>
+There is context sensitive text that is shown when you hover over the
+icons.<br>
+<br>
+<br>
+&nbsp;<img src="../img/sh010.png"> <br>
+<br>
+<a href="../index.html">Back To Getting Started With Open|SpeedShop</a>
+</body>
+</html>
