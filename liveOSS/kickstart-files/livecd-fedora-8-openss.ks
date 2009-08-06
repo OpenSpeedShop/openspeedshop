@@ -67,13 +67,13 @@ echo "------------------------------"  >> /root/.bashrc.oss
 echo " "  >> /root/.bashrc.oss
 echo "To run a sequential experiment:"  >> /root/.bashrc.oss
 echo "    >> cd sequential/smg2000/test"  >> /root/.bashrc.oss
-echo "    >> openss -offline -f smg2000 pcsamp"  >> /root/.bashrc.oss
-echo "    >> openss X.0.openss &"  >> /root/.bashrc.oss
+echo "    >> openss -f smg2000 pcsamp"  >> /root/.bashrc.oss
+echo "    >> openss smg2000.pcsamp.openss &"  >> /root/.bashrc.oss
 echo " "  >> /root/.bashrc.oss
 echo "To run an MPI experiment:"  >> /root/.bashrc.oss
 echo "    >> cd mpi/smg2000/test"  >> /root/.bashrc.oss
-echo "    >> openss -offline -f \"mpirun -np 2 smg2000\" pcsamp"  >> /root/.bashrc.oss
-echo "    >> openss X.0.openss &"  >> /root/.bashrc.oss
+echo "    >> openss -f \"mpirun -np 2 smg2000 -n 50 50 50\" pcsamp"  >> /root/.bashrc.oss
+echo "    >> openss smg2000.pcsamp.openss &"  >> /root/.bashrc.oss
 echo " "  >> /root/.bashrc.oss
 echo "For more information, please see the included HTML documentation."  >> /root/.bashrc.oss
 echo "EOF"  >> /root/.bashrc.oss
@@ -125,14 +125,93 @@ cp /root/.session-manual /home/openssuser/.gnome2/session-manual
 chown openssuser:openssuser /home/openssuser/.gnome2/session-manual
 rm -f /root/.session-manual
 
+# setup preferences file for new user
+
+echo "[ManageProcessesPanel]" > /home/openssuser/.qt/openspeedshoprc
+echo "updateDisplayLineEdit=15" >> /home/openssuser/.qt/openspeedshoprc
+echo "updateOnCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "" >> /home/openssuser/.qt/openspeedshoprc
+echo "[Source Panel]" >> /home/openssuser/.qt/openspeedshoprc
+echo "leftSideLineEdit0=/home/openssuser/OpenSpeedShop/liveOSS/toyprograms" >> /home/jeg/.qt/openspeedshoprc
+echo "leftSideLineEdit1=" >> /home/openssuser/.qt/openspeedshoprc
+echo "leftSideLineEdit2=" >> /home/openssuser/.qt/openspeedshoprc
+echo "leftSideLineEdit3=" >> /home/openssuser/.qt/openspeedshoprc
+echo "leftSideLineEdit4=" >> /home/openssuser/.qt/openspeedshoprc
+echo "leftSideLineEdit5=" >> /home/openssuser/.qt/openspeedshoprc
+echo "leftSideLineEdit6=" >> /home/openssuser/.qt/openspeedshoprc
+echo "leftSideLineEdit7=" >> /home/openssuser/.qt/openspeedshoprc
+echo "leftSideLineEdit8=" >> /home/openssuser/.qt/openspeedshoprc
+echo "leftSideLineEdit9=" >> /home/openssuser/.qt/openspeedshoprc
+echo "rightSideLineEdit0=/home/openssuser" >> /home/openssuser/.qt/openspeedshoprc
+echo "rightSideLineEdit1=" >> /home/openssuser/.qt/openspeedshoprc
+echo "rightSideLineEdit2=" >> /home/openssuser/.qt/openspeedshoprc
+echo "rightSideLineEdit3=" >> /home/openssuser/.qt/openspeedshoprc
+echo "rightSideLineEdit4=" >> /home/openssuser/.qt/openspeedshoprc
+echo "rightSideLineEdit5=" >> /home/openssuser/.qt/openspeedshoprc
+echo "rightSideLineEdit6=" >> /home/openssuser/.qt/openspeedshoprc
+echo "rightSideLineEdit7=" >> /home/openssuser/.qt/openspeedshoprc
+echo "rightSideLineEdit8=" >> /home/openssuser/.qt/openspeedshoprc
+echo "rightSideLineEdit9=" >> /home/openssuser/.qt/openspeedshoprc
+echo "showLineNumbersCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "showStatisticsCheckBox=false" >> /home/openssuser/.qt/openspeedshoprc
+echo "" >> /home/openssuser/.qt/openspeedshoprc
+echo "[Stats Panel]" >> /home/openssuser/.qt/openspeedshoprc
+echo "advancedToolbarCheckBox=false" >> /home/openssuser/.qt/openspeedshoprc
+echo "chartTypeComboBox=2" >> /home/openssuser/.qt/openspeedshoprc
+echo "focusSourcePanelCheckBox=false" >> /home/openssuser/.qt/openspeedshoprc
+echo "levelsToOpenLineEdit=-1" >> /home/openssuser/.qt/openspeedshoprc
+echo "showMetadataCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "showSkylineCheckBox=false" >> /home/openssuser/.qt/openspeedshoprc
+echo "showSkylineLineEdit=25" >> /home/openssuser/.qt/openspeedshoprc
+echo "showTextByLocationCheckBox=false" >> /home/openssuser/.qt/openspeedshoprc
+echo "showTextByPercentCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "showTextByValueCheckBox=false" >> /home/openssuser/.qt/openspeedshoprc
+echo "showTextInChartCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "showToolbarCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "showTopNChartLineEdit=5" >> /home/openssuser/.qt/openspeedshoprc
+echo "showTopNLineEdit=100" >> /home/openssuser/.qt/openspeedshoprc
+echo "sortDecendingCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "" >> /home/openssuser/.qt/openspeedshoprc
+echo "[general]" >> /home/openssuser/.qt/openspeedshoprc
+echo "allowPythonCommands=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "askAboutChangingArgs=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "askAboutSavingTheDatabase=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "globalFontFamily=Bitstream Charter" >> /home/openssuser/.qt/openspeedshoprc
+echo "globalFontItalic=false" >> /home/openssuser/.qt/openspeedshoprc
+echo "globalFontPointSize=10" >> /home/openssuser/.qt/openspeedshoprc
+echo "globalFontWeight=75" >> /home/openssuser/.qt/openspeedshoprc
+echo "globalRemoteShell=/usr/bin/rsh" >> /home/openssuser/.qt/openspeedshoprc
+echo "helpLevelDefault=2" >> /home/openssuser/.qt/openspeedshoprc
+echo "historyDefault=24" >> /home/openssuser/.qt/openspeedshoprc
+echo "historyLimit=100" >> /home/openssuser/.qt/openspeedshoprc
+echo "instrumentorIsOffline=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "lessRestrictiveComparisons=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "maxAsyncCommands=20" >> /home/openssuser/.qt/openspeedshoprc
+echo "onRerunSaveCopyOfExperimentDatabase=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "saveExperimentDatabase=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "showGraphics=false" >> /home/openssuser/.qt/openspeedshoprc
+echo "showSplashScreen=true" >> /home/openssuser/.qt/openspeedshoprc
+echo "viewFieldSize=20" >> /home/openssuser/.qt/openspeedshoprc
+echo "viewFullPath=false" >> /home/openssuser/.qt/openspeedshoprc
+echo "viewMangledName=false" >> /home/openssuser/.qt/openspeedshoprc
+echo "viewPrecision=6" >> /home/openssuser/.qt/openspeedshoprc
+
+
+echo "localhost.localdomain ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEApWX5IL5f9c0tmBbmuj3/+Wx/2s8Nv0eo04gom+46DWNL9OQqiLtzHbqzn6M9WA0500kUsS5ZYxPXAcAo6LtWBpJ8eqVIbgYbwVRf5K2Iprm1irK6gYzBh8+iTPdqyLj4bjVzecxuNDNyD0YJTwB+q84J/linTHKmqdPC4Pzl+bTa+Je9oan9uORe1k5BKKkm8sem6/V39EwlRePiJMuVtZPCwBtLspMgCA+9R2KuvyisnS5vDjwnwcZQaHzCTsi57isk/P//4x1RWX+6KEngjjpp5igjnN1DBaabfIhLTc09z9tDVPcBir7mg0fJ09kckA4BExip1fzVLqmM1NoPgw==" > /home/openssuser/.ssh/known_hosts
+
+
 #move apps to /home/openssuser
 #mkdir -p /home/openssuser/{mpi,openmp,sequential}
 mkdir -p /home/openssuser/{mpi,sequential}
 mv /opt/tempapps/mpi/smg2000 /home/openssuser/mpi/
+mv /opt/tempapps/mpi/nbody /home/openssuser/mpi/
 mv /opt/tempapps/sequential/smg2000 /home/openssuser/sequential/
 #mv /opt/tempapps/openmp/smg2000 /home/openssuser/openmp/
 
 mv /opt/tempapps/sequential/forever* /home/openssuser/sequential/
+mv /opt/tempapps/sequential/threads* /home/openssuser/sequential/
+mv /opt/tempapps/sequential/mutatee* /home/openssuser/sequential/
+mv /opt/tempapps/sequential/matmul* /home/openssuser/sequential/
 
 chown openssuser:openssuser -R /home/openssuser/mpi
 chown openssuser:openssuser -R /home/openssuser/sequential
