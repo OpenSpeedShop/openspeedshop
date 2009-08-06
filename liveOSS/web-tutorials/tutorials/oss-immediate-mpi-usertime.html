@@ -37,12 +37,21 @@ Using Open|SpeedShop&#8482;<br>
 </center>
 <h2 id="climpi">Using Open|SpeedShop's Immediate Command Syntax<br>
 </h2>
-<p>Within a terminal window, enter <b><font face="courier">openss -f
-"executable_or_mpi_application" &lt;experiment_type&gt;&nbsp;</font></b>
-and hit &lt;Enter&gt;. <br>
-</p>
-<p>This will start Open|SpeedShop's immediate command interface.
+<p>Within a terminal window, enter:&nbsp; <b><font face="courier">openss
+-f "mpirun -np 2 /home/openssuser/mpi/smg2000/test/smg2000 -n 50 50 50"
+usertime<br>
 <br>
+</font></b><b><font face="courier">This corresponds to: openss -f
+"executable_or_mpi_application" &lt;experiment_type&gt;</font></b><br>
+</p>
+<p>This will start Open|SpeedShop's immediate command interface and
+execute the executable or application with Open|SpeedShop's performance
+analysis gathering enabled.<br>
+The results will be:&nbsp;&nbsp; 1) Application execution output<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2) Performance analysis data report generation<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3) An Open|SpeedShop database file<br>
 </p>
 <p>In this particular example, we are going to gather user time
 information from an MPI job (<b>Note:</b> We are going to simulate an
