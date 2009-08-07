@@ -519,6 +519,53 @@ static inline void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& 
   }
 }
 
+static void Pack_Vector_Elements (
+              std::vector<std::pair<CommandResult *,
+                                    SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+#if DEBUG_CLI
+  printf("in Pack_Vector_Elements\n");
+#endif
+  std::vector<std::pair<CommandResult *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+   // Find the next NULL element in the vector.
+    if ((*vpi).first == NULL) {
+      std::vector<std::pair<CommandResult *,
+                            SmartPtr<std::vector<CommandResult *> > > >::iterator nvpi = vpi+1;
+
+      for ( ; nvpi != c_items.end(); nvpi++) {
+        if ((*nvpi).first != NULL) {
+         // Fill the NULL element with the first non-NULL one.
+          *vpi = *nvpi;
+          (*nvpi).first = NULL;
+          break;
+        }
+      }
+
+      if (nvpi == c_items.end()) {
+       // Found no non-NULL elements in rest of vector.
+        break;
+      }
+
+    }
+  }
+
+  if (vpi != c_items.end()) {
+   // There are NULL elements at the end of the vector.
+   // Get rid of them!
+    c_items.erase (vpi, c_items.end());
+  }
+
+#if DEBUG_CLI
+// Integrity check:
+// Be sure there are no NULL elements left  in the vector.
+  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+    Assert ((*vpi).first != NULL);
+  }
+#endif
+
+}
+
 static void Combine_Duplicate_CallStacks (
               std::vector<ViewInstruction *>& IV,
               std::vector<ViewInstruction *>& FieldRequirements,
@@ -537,6 +584,9 @@ static void Combine_Duplicate_CallStacks (
     if (nvpi == c_items.end()) break;
     std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
+    if (cp.first == NULL) {
+      continue;
+    }
     std::vector<CommandResult *> *cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
     int64_t cs_size = cs->size();
    // Compare the current entry to all following ones.
@@ -544,6 +594,10 @@ static void Combine_Duplicate_CallStacks (
     for ( ; nvpi != c_items.end(); ) {
       std::pair<CommandResult *,
                 SmartPtr<std::vector<CommandResult *> > > ncp = *nvpi;
+      if (ncp.first == NULL) {
+        nvpi++;
+        continue;
+      }
       std::vector<CommandResult *> *ncs = ((CommandResult_CallStackEntry *)ncp.first)->Value();
       if (cs_size > ncs->size()) {
         break;
@@ -560,13 +614,17 @@ static void Combine_Duplicate_CallStacks (
           Match_Field_Requirements(FieldRequirements, (*cp.second), (*ncp.second))) {
        // Call stacks are identical - combine values.
         Accumulate_PreDefined_Temps (IV, (*cp.second), (*ncp.second));
-        nvpi = c_items.erase(nvpi);
         delete ncp.first;
         if ((*ncp.second).begin() != (*ncp.second).end()) {
           for (int64_t i = 0; i < (*ncp.second).size(); i++) {
             delete (*ncp.second)[i];
           }
         }
+       // Becasue a "c_items.erase(nvpi);" operation takes a lot of time
+       // when vectores get long, just fill with a null pointer and
+       // compress the vector after duplicates have been removed.
+        (*nvpi).first = NULL;
+        nvpi++;
         continue;
       }
      // Match failed.
@@ -577,6 +635,8 @@ static void Combine_Duplicate_CallStacks (
     }
 
   }
+
+  Pack_Vector_Elements (c_items);
 }
 
 static void Combine_Short_Stacks (
@@ -597,6 +657,9 @@ static void Combine_Short_Stacks (
     if (nvpi == c_items.end()) break;
     std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
+    if (cp.first == NULL) {
+      continue;
+    }
     std::vector<CommandResult *> *cs = ((CommandResult_CallStackEntry *)cp.first)->Value();
     int64_t cs_size = cs->size();
    // Compare the current entry to all following ones.
@@ -604,6 +667,10 @@ static void Combine_Short_Stacks (
     for ( ; nvpi != c_items.end(); ) {
       std::pair<CommandResult *,
                 SmartPtr<std::vector<CommandResult *> > > ncp = *nvpi;
+      if (ncp.first == NULL) {
+        nvpi++;
+        continue;
+      }
       std::vector<CommandResult *> *ncs = ((CommandResult_CallStackEntry *)ncp.first)->Value();
       if (cs_size > ncs->size()) {
         break;
@@ -620,13 +687,17 @@ static void Combine_Short_Stacks (
           Match_Field_Requirements(FieldRequirements, (*cp.second), (*ncp.second))) {
        // Call stacks are identical - combine values.
         Accumulate_PreDefined_Temps (IV, (*cp.second), (*ncp.second));
-        nvpi = c_items.erase(nvpi);
         delete ncp.first;
         if ((*ncp.second).begin() != (*ncp.second).end()) {
           for (int64_t i = 0; i < (*ncp.second).size(); i++) {
             delete (*ncp.second)[i];
           }
         }
+       // Becasue a "c_items.erase(nvpi);" operation takes a lot of time
+       // when vectores get long, just fill with a null pointer and
+       // compress the vector after duplicates have been removed.
+        (*nvpi).first = NULL;
+        nvpi++;
         continue;
       }
      // Match failed.  Keep looking.
@@ -634,6 +705,8 @@ static void Combine_Short_Stacks (
     }
 
   }
+
+  Pack_Vector_Elements (c_items);
 }
 
 static SmartPtr<std::vector<CommandResult *> >
