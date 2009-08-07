@@ -127,6 +127,7 @@ rm -f /root/.session-manual
 
 # setup preferences file for new user
 
+mkdir .qt
 echo "[ManageProcessesPanel]" > /home/openssuser/.qt/openspeedshoprc
 echo "updateDisplayLineEdit=15" >> /home/openssuser/.qt/openspeedshoprc
 echo "updateOnCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
@@ -197,6 +198,7 @@ echo "viewMangledName=false" >> /home/openssuser/.qt/openspeedshoprc
 echo "viewPrecision=6" >> /home/openssuser/.qt/openspeedshoprc
 
 
+mkdir .ssh
 echo "localhost.localdomain ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEApWX5IL5f9c0tmBbmuj3/+Wx/2s8Nv0eo04gom+46DWNL9OQqiLtzHbqzn6M9WA0500kUsS5ZYxPXAcAo6LtWBpJ8eqVIbgYbwVRf5K2Iprm1irK6gYzBh8+iTPdqyLj4bjVzecxuNDNyD0YJTwB+q84J/linTHKmqdPC4Pzl+bTa+Je9oan9uORe1k5BKKkm8sem6/V39EwlRePiJMuVtZPCwBtLspMgCA+9R2KuvyisnS5vDjwnwcZQaHzCTsi57isk/P//4x1RWX+6KEngjjpp5igjnN1DBaabfIhLTc09z9tDVPcBir7mg0fJ09kckA4BExip1fzVLqmM1NoPgw==" > /home/openssuser/.ssh/known_hosts
 
 
