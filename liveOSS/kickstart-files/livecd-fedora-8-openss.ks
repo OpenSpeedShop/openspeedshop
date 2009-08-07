@@ -83,17 +83,13 @@ echo "        . /etc/bashrc" >> /root/.bashrc.oss
 echo "fi" >> /root/.bashrc.oss
 echo "export QTDIR=/usr/lib/qt-3.3" >> /root/.bashrc.oss
 echo "export OPENSS_PREFIX=/opt/OSS" >> /root/.bashrc.oss
-echo "export OPENSS_PLUGIN_PATH=\\\$OPENSS_PREFIX/lib/openspeedshop" \
->> /root/.bashrc.oss
+echo "export OPENSS_PLUGIN_PATH=\\\$OPENSS_PREFIX/lib/openspeedshop" >> /root/.bashrc.oss
 echo "export OPENSS_INSTRUMENTOR=mrnet" >> /root/.bashrc.oss
-echo "export OPENSS_MRNET_TOPOLOGY_FILE=/home/openssuser/.openss.top" \
->> /root/.bashrc.oss
+echo "export OPENSS_MRNET_TOPOLOGY_FILE=/home/openssuser/.openss.top" >> /root/.bashrc.oss
 echo "export OPENSS_RAWDATA_DIR=/tmp" >> /root/.bashrc.oss
 echo "export OPENSS_MPI_OPENMPI=/opt/openmpi" >> /root/.bashrc.oss
-echo "export DYNINSTAPI_RT_LIB=\\\$OPENSS_PREFIX/lib/libdyninstAPI_RT.so.1" \
->> /root/.bashrc.oss
-echo "export PATH=\\\$OPENSS_PREFIX/bin:/opt/openmpi/bin:\\\$PATH" >> \
-/root/.bashrc.oss
+echo "export DYNINSTAPI_RT_LIB=\\\$OPENSS_PREFIX/lib/libdyninstAPI_RT.so.1" >> /root/.bashrc.oss
+echo "export PATH=\\\$OPENSS_PREFIX/bin:/opt/openmpi/bin:\\\$PATH" >> /root/.bashrc.oss
 echo "export LD_LIBRARY_PATH=\\\$OPENSS_PREFIX/lib:/opt/openmpi/lib:\\\$LD_LIBRARY_PATH" >> /root/.bashrc.oss
 echo "export XPLAT_RSHCOMMAND=ssh" >> /root/.bashrc.oss
 echo "export XPLAT_RSH=ssh" >> /root/.bashrc.oss
@@ -104,8 +100,7 @@ chown openssuser:openssuser /home/openssuser/.bashrc
 rm -f /root/.bashrc.oss
 
 # add a MRNet topology file
-echo "localhost.localdomain:0 => localhost.localdomain:1 ;" \
-> /root/.openss.top
+echo "localhost.localdomain:0 => localhost.localdomain:1 ;" > /root/.openss.top
 cp /root/.openss.top /home/openssuser/
 chown openssuser:openssuser /home/openssuser/.openss.top
 rm -f /root/.openss.top
@@ -127,79 +122,84 @@ rm -f /root/.session-manual
 
 # setup preferences file for new user
 
-mkdir .qt
-echo "[ManageProcessesPanel]" > /home/openssuser/.qt/openspeedshoprc
-echo "updateDisplayLineEdit=15" >> /home/openssuser/.qt/openspeedshoprc
-echo "updateOnCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "" >> /home/openssuser/.qt/openspeedshoprc
-echo "[Source Panel]" >> /home/openssuser/.qt/openspeedshoprc
-echo "leftSideLineEdit0=/home/openssuser/OpenSpeedShop/liveOSS/toyprograms" >> /home/jeg/.qt/openspeedshoprc
-echo "leftSideLineEdit1=" >> /home/openssuser/.qt/openspeedshoprc
-echo "leftSideLineEdit2=" >> /home/openssuser/.qt/openspeedshoprc
-echo "leftSideLineEdit3=" >> /home/openssuser/.qt/openspeedshoprc
-echo "leftSideLineEdit4=" >> /home/openssuser/.qt/openspeedshoprc
-echo "leftSideLineEdit5=" >> /home/openssuser/.qt/openspeedshoprc
-echo "leftSideLineEdit6=" >> /home/openssuser/.qt/openspeedshoprc
-echo "leftSideLineEdit7=" >> /home/openssuser/.qt/openspeedshoprc
-echo "leftSideLineEdit8=" >> /home/openssuser/.qt/openspeedshoprc
-echo "leftSideLineEdit9=" >> /home/openssuser/.qt/openspeedshoprc
-echo "rightSideLineEdit0=/home/openssuser" >> /home/openssuser/.qt/openspeedshoprc
-echo "rightSideLineEdit1=" >> /home/openssuser/.qt/openspeedshoprc
-echo "rightSideLineEdit2=" >> /home/openssuser/.qt/openspeedshoprc
-echo "rightSideLineEdit3=" >> /home/openssuser/.qt/openspeedshoprc
-echo "rightSideLineEdit4=" >> /home/openssuser/.qt/openspeedshoprc
-echo "rightSideLineEdit5=" >> /home/openssuser/.qt/openspeedshoprc
-echo "rightSideLineEdit6=" >> /home/openssuser/.qt/openspeedshoprc
-echo "rightSideLineEdit7=" >> /home/openssuser/.qt/openspeedshoprc
-echo "rightSideLineEdit8=" >> /home/openssuser/.qt/openspeedshoprc
-echo "rightSideLineEdit9=" >> /home/openssuser/.qt/openspeedshoprc
-echo "showLineNumbersCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "showStatisticsCheckBox=false" >> /home/openssuser/.qt/openspeedshoprc
-echo "" >> /home/openssuser/.qt/openspeedshoprc
-echo "[Stats Panel]" >> /home/openssuser/.qt/openspeedshoprc
-echo "advancedToolbarCheckBox=false" >> /home/openssuser/.qt/openspeedshoprc
-echo "chartTypeComboBox=2" >> /home/openssuser/.qt/openspeedshoprc
-echo "focusSourcePanelCheckBox=false" >> /home/openssuser/.qt/openspeedshoprc
-echo "levelsToOpenLineEdit=-1" >> /home/openssuser/.qt/openspeedshoprc
-echo "showMetadataCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "showSkylineCheckBox=false" >> /home/openssuser/.qt/openspeedshoprc
-echo "showSkylineLineEdit=25" >> /home/openssuser/.qt/openspeedshoprc
-echo "showTextByLocationCheckBox=false" >> /home/openssuser/.qt/openspeedshoprc
-echo "showTextByPercentCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "showTextByValueCheckBox=false" >> /home/openssuser/.qt/openspeedshoprc
-echo "showTextInChartCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "showToolbarCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "showTopNChartLineEdit=5" >> /home/openssuser/.qt/openspeedshoprc
-echo "showTopNLineEdit=100" >> /home/openssuser/.qt/openspeedshoprc
-echo "sortDecendingCheckBox=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "" >> /home/openssuser/.qt/openspeedshoprc
-echo "[general]" >> /home/openssuser/.qt/openspeedshoprc
-echo "allowPythonCommands=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "askAboutChangingArgs=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "askAboutSavingTheDatabase=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "globalFontFamily=Bitstream Charter" >> /home/openssuser/.qt/openspeedshoprc
-echo "globalFontItalic=false" >> /home/openssuser/.qt/openspeedshoprc
-echo "globalFontPointSize=10" >> /home/openssuser/.qt/openspeedshoprc
-echo "globalFontWeight=75" >> /home/openssuser/.qt/openspeedshoprc
-echo "globalRemoteShell=/usr/bin/rsh" >> /home/openssuser/.qt/openspeedshoprc
-echo "helpLevelDefault=2" >> /home/openssuser/.qt/openspeedshoprc
-echo "historyDefault=24" >> /home/openssuser/.qt/openspeedshoprc
-echo "historyLimit=100" >> /home/openssuser/.qt/openspeedshoprc
-echo "instrumentorIsOffline=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "lessRestrictiveComparisons=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "maxAsyncCommands=20" >> /home/openssuser/.qt/openspeedshoprc
-echo "onRerunSaveCopyOfExperimentDatabase=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "saveExperimentDatabase=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "showGraphics=false" >> /home/openssuser/.qt/openspeedshoprc
-echo "showSplashScreen=true" >> /home/openssuser/.qt/openspeedshoprc
-echo "viewFieldSize=20" >> /home/openssuser/.qt/openspeedshoprc
-echo "viewFullPath=false" >> /home/openssuser/.qt/openspeedshoprc
-echo "viewMangledName=false" >> /home/openssuser/.qt/openspeedshoprc
-echo "viewPrecision=6" >> /home/openssuser/.qt/openspeedshoprc
+mkdir /home/openssuser/.qt
+echo "[ManageProcessesPanel]" > /root/.openspeedshoprc
+echo "updateDisplayLineEdit=15" >> /root/.openspeedshoprc
+echo "updateOnCheckBox=true" >> /root/.openspeedshoprc
+echo "" >> /root/.openspeedshoprc
+echo "[Source Panel]" >> /root/.openspeedshoprc
+echo "leftSideLineEdit0=/root/.SpeedShop/liveOSS/toyprograms" >> /root/.edshoprc
+echo "leftSideLineEdit1=" >> /root/.openspeedshoprc
+echo "leftSideLineEdit2=" >> /root/.openspeedshoprc
+echo "leftSideLineEdit3=" >> /root/.openspeedshoprc
+echo "leftSideLineEdit4=" >> /root/.openspeedshoprc
+echo "leftSideLineEdit5=" >> /root/.openspeedshoprc
+echo "leftSideLineEdit6=" >> /root/.openspeedshoprc
+echo "leftSideLineEdit7=" >> /root/.openspeedshoprc
+echo "leftSideLineEdit8=" >> /root/.openspeedshoprc
+echo "leftSideLineEdit9=" >> /root/.openspeedshoprc
+echo "rightSideLineEdit0=/root/./root/.openspeedshoprc
+echo "rightSideLineEdit1=" >> /root/.openspeedshoprc
+echo "rightSideLineEdit2=" >> /root/.openspeedshoprc
+echo "rightSideLineEdit3=" >> /root/.openspeedshoprc
+echo "rightSideLineEdit4=" >> /root/.openspeedshoprc
+echo "rightSideLineEdit5=" >> /root/.openspeedshoprc
+echo "rightSideLineEdit6=" >> /root/.openspeedshoprc
+echo "rightSideLineEdit7=" >> /root/.openspeedshoprc
+echo "rightSideLineEdit8=" >> /root/.openspeedshoprc
+echo "rightSideLineEdit9=" >> /root/.openspeedshoprc
+echo "showLineNumbersCheckBox=true" >> /root/.openspeedshoprc
+echo "showStatisticsCheckBox=false" >> /root/.openspeedshoprc
+echo "" >> /root/.openspeedshoprc
+echo "[Stats Panel]" >> /root/.openspeedshoprc
+echo "advancedToolbarCheckBox=false" >> /root/.openspeedshoprc
+echo "chartTypeComboBox=2" >> /root/.openspeedshoprc
+echo "focusSourcePanelCheckBox=false" >> /root/.openspeedshoprc
+echo "levelsToOpenLineEdit=-1" >> /root/.openspeedshoprc
+echo "showMetadataCheckBox=true" >> /root/.openspeedshoprc
+echo "showSkylineCheckBox=false" >> /root/.openspeedshoprc
+echo "showSkylineLineEdit=25" >> /root/.openspeedshoprc
+echo "showTextByLocationCheckBox=false" >> /root/.openspeedshoprc
+echo "showTextByPercentCheckBox=true" >> /root/.openspeedshoprc
+echo "showTextByValueCheckBox=false" >> /root/.openspeedshoprc
+echo "showTextInChartCheckBox=true" >> /root/.openspeedshoprc
+echo "showToolbarCheckBox=true" >> /root/.openspeedshoprc
+echo "showTopNChartLineEdit=5" >> /root/.openspeedshoprc
+echo "showTopNLineEdit=100" >> /root/.openspeedshoprc
+echo "sortDecendingCheckBox=true" >> /root/.openspeedshoprc
+echo "" >> /root/.openspeedshoprc
+echo "[general]" >> /root/.openspeedshoprc
+echo "allowPythonCommands=true" >> /root/.openspeedshoprc
+echo "askAboutChangingArgs=true" >> /root/.openspeedshoprc
+echo "askAboutSavingTheDatabase=true" >> /root/.openspeedshoprc
+echo "globalFontFamily=Bitstream Charter" >> /root/.openspeedshoprc
+echo "globalFontItalic=false" >> /root/.openspeedshoprc
+echo "globalFontPointSize=10" >> /root/.openspeedshoprc
+echo "globalFontWeight=75" >> /root/.openspeedshoprc
+echo "globalRemoteShell=/usr/bin/rsh" >> /root/.openspeedshoprc
+echo "helpLevelDefault=2" >> /root/.openspeedshoprc
+echo "historyDefault=24" >> /root/.openspeedshoprc
+echo "historyLimit=100" >> /root/.openspeedshoprc
+echo "instrumentorIsOffline=true" >> /root/.openspeedshoprc
+echo "lessRestrictiveComparisons=true" >> /root/.openspeedshoprc
+echo "maxAsyncCommands=20" >> /root/.openspeedshoprc
+echo "onRerunSaveCopyOfExperimentDatabase=true" >> /root/.openspeedshoprc
+echo "saveExperimentDatabase=true" >> /root/.openspeedshoprc
+echo "showGraphics=false" >> /root/.openspeedshoprc
+echo "showSplashScreen=true" >> /root/.openspeedshoprc
+echo "viewFieldSize=20" >> /root/.openspeedshoprc
+echo "viewFullPath=false" >> /root/.openspeedshoprc
+echo "viewMangledName=false" >> /root/.openspeedshoprc
+echo "viewPrecision=6" >> /root/.openspeedshoprc
+mkdir /home/openssuser/.qt
+chmod 644 /root/.openspeedshoprc
+mv /root/.openspeedshoprc /home/openssuser/.qt/openspeedshoprc
 
 
-mkdir .ssh
-echo "localhost.localdomain ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEApWX5IL5f9c0tmBbmuj3/+Wx/2s8Nv0eo04gom+46DWNL9OQqiLtzHbqzn6M9WA0500kUsS5ZYxPXAcAo6LtWBpJ8eqVIbgYbwVRf5K2Iprm1irK6gYzBh8+iTPdqyLj4bjVzecxuNDNyD0YJTwB+q84J/linTHKmqdPC4Pzl+bTa+Je9oan9uORe1k5BKKkm8sem6/V39EwlRePiJMuVtZPCwBtLspMgCA+9R2KuvyisnS5vDjwnwcZQaHzCTsi57isk/P//4x1RWX+6KEngjjpp5igjnN1DBaabfIhLTc09z9tDVPcBir7mg0fJ09kckA4BExip1fzVLqmM1NoPgw==" > /home/openssuser/.ssh/known_hosts
+echo "localhost.localdomain ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEApWX5IL5f9c0tmBbmuj3/+Wx/2s8Nv0eo04gom+46DWNL9OQqiLtzHbqzn6M9WA0500kUsS5ZYxPXAcAo6LtWBpJ8eqVIbgYbwVRf5K2Iprm1irK6gYzBh8+iTPdqyLj4bjVzecxuNDNyD0YJTwB+q84J/linTHKmqdPC4Pzl+bTa+Je9oan9uORe1k5BKKkm8sem6/V39EwlRePiJMuVtZPCwBtLspMgCA+9R2KuvyisnS5vDjwnwcZQaHzCTsi57isk/P//4x1RWX+6KEngjjpp5igjnN1DBaabfIhLTc09z9tDVPcBir7mg0fJ09kckA4BExip1fzVLqmM1NoPgw==" > /root/.known_hosts
+mkdir /home/openssuser/.ssh
+chmod 644 /root/.known_hosts
+mv /root/.known_hosts /home/openssuser/.ssh/known_hosts
 
 
 #move apps to /home/openssuser
