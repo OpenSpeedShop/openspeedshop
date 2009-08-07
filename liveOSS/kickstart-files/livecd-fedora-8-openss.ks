@@ -138,7 +138,7 @@ echo "leftSideLineEdit6=" >> /root/.openspeedshoprc
 echo "leftSideLineEdit7=" >> /root/.openspeedshoprc
 echo "leftSideLineEdit8=" >> /root/.openspeedshoprc
 echo "leftSideLineEdit9=" >> /root/.openspeedshoprc
-echo "rightSideLineEdit0=/root/./root/.openspeedshoprc
+echo "rightSideLineEdit0=/home/openssuser" >> /root/.openspeedshoprc
 echo "rightSideLineEdit1=" >> /root/.openspeedshoprc
 echo "rightSideLineEdit2=" >> /root/.openspeedshoprc
 echo "rightSideLineEdit3=" >> /root/.openspeedshoprc
@@ -193,13 +193,15 @@ echo "viewMangledName=false" >> /root/.openspeedshoprc
 echo "viewPrecision=6" >> /root/.openspeedshoprc
 mkdir /home/openssuser/.qt
 chmod 644 /root/.openspeedshoprc
-mv /root/.openspeedshoprc /home/openssuser/.qt/openspeedshoprc
+cp /root/.openspeedshoprc /home/openssuser/.qt/openspeedshoprc
+rm /root/.openspeedshoprc
 
 
 echo "localhost.localdomain ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEApWX5IL5f9c0tmBbmuj3/+Wx/2s8Nv0eo04gom+46DWNL9OQqiLtzHbqzn6M9WA0500kUsS5ZYxPXAcAo6LtWBpJ8eqVIbgYbwVRf5K2Iprm1irK6gYzBh8+iTPdqyLj4bjVzecxuNDNyD0YJTwB+q84J/linTHKmqdPC4Pzl+bTa+Je9oan9uORe1k5BKKkm8sem6/V39EwlRePiJMuVtZPCwBtLspMgCA+9R2KuvyisnS5vDjwnwcZQaHzCTsi57isk/P//4x1RWX+6KEngjjpp5igjnN1DBaabfIhLTc09z9tDVPcBir7mg0fJ09kckA4BExip1fzVLqmM1NoPgw==" > /root/.known_hosts
 mkdir /home/openssuser/.ssh
 chmod 644 /root/.known_hosts
-mv /root/.known_hosts /home/openssuser/.ssh/known_hosts
+cp /root/.known_hosts /home/openssuser/.ssh/known_hosts
+rm /root/.known_hosts
 
 
 #move apps to /home/openssuser
