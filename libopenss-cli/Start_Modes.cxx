@@ -277,15 +277,19 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
 
     } // end for
 
+#ifdef DEBUG_CLI_OPTIONS
+    printf(" StartModes, checking about putting expCreate in the input stack, num_cmds=%d\n", num_cmds);
+#endif
     if (num_cmds > 0) {
       strcat(cmdstr,"\n\0");
 
      /* Put the "expCreate" command to the input stack */
       (void)Append_Input_String (my_window, cmdstr,
-                                 NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output); }
+                                 NULL, &Default_TLI_Line_Output, &Default_TLI_Command_Output);
 #ifdef DEBUG_CLI_OPTIONS
        printf(" StartModes, put expCreate in the input stack, cmdstr=%s\n", cmdstr);
 #endif
+    }
 
    // Release allocated space.
     free(cmdstr);
@@ -302,15 +306,48 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
 {
   Assert (my_window);
 
-  bool read_stdin_file = (stdin && !isatty(fileno(stdin)));
+  bool read_stdin_file = false;
+  struct stat info;
+  int  status = -1;
+
+  // Protect against an null stdin
+  if (stdin) status = fstat(fileno(stdin), &info);
+
+  // If status is not good fstat failed or stdin was null, in either case this path should be ok
+  if (status != 0) {
+      perror("fstat() error");
+      // Define the read_stdin_file flag with the information available, w/o fstat info
+      read_stdin_file = (stdin && !isatty(fileno(stdin)));
+  } else {
+  // If status is good fstat succeeded and stdin was not null, 
+  // then this path should be ok for looking at fstat output
+#ifdef DEBUG_CLI_OPTIONS
+      puts("fstat() returned:");
+      printf("  inode:   %d\n",   (int) info.st_ino);
+      printf(" dev id:   %d\n",   (int) info.st_dev);
+      printf("   mode:   %08x\n",       info.st_mode);
+      printf("  links:   %d\n",         info.st_nlink);
+      printf("    uid:   %d\n",   (int) info.st_uid);
+      printf("    gid:   %d\n",   (int) info.st_gid);
+      if (S_ISREG (info.st_mode)) {
+         printf ("stdin is a normal file\n"); 
+      } else {
+         printf ("stdin is NOT a normal file\n"); 
+      } 
+#endif 
+      // Define the read_stdin_file flag with the information available, with fstat info since it is available
+//      read_stdin_file = (stdin && !isatty(fileno(stdin)) && (info.st_gid != 0) && (info.st_uid != 0));
+      read_stdin_file = (stdin && !isatty(fileno(stdin)) && S_ISREG (info.st_mode));
+  }
+
   bool weAreRestoring = false;
 
 #ifdef DEBUG_CLI_OPTIONS
-  printf("ENTER Start_COMMAND_LINE_Mode, before calling Input_Command_Args, weAreRestoring=%d, need_gui=%d, need_cli=%d\n", 
-         weAreRestoring, need_gui, need_cli);
-#endif
+  printf("ENTER Start_COMMAND_LINE_Mode, before calling Input_Command_Args, read_stdin_file=%d, stdin=%ld, weAreRestoring=%d, need_gui=%d, need_cli=%d\n",
+         read_stdin_file, stdin, weAreRestoring, need_gui, need_cli);
+#endif 
 
- // Translate the command line arguments into an "expCreate command".
+  // Translate the command line arguments into an "expCreate command".
   Input_Command_Args ( my_window, argc, argv, weAreRestoring);
 
 #ifdef DEBUG_CLI_OPTIONS
@@ -330,10 +367,13 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
  // If there is no input file and the user specified "-offline" mode,
  // execute with an "RunOfflineExp" command and display results with "expview stats".
  // Otherwise, assume the input file will control execution.
-  if (oss_start_mode == SM_Offline && !read_stdin_file && !need_gui && !need_cli) {
+
+  if (oss_start_mode == SM_Offline && !need_gui && !need_cli) {
+
 #ifdef DEBUG_CLI_OPTIONS
     printf(" Start_COMMAND_LINE_Mode, adding expView to the input stack, oss_start_mode (offline)=%d\n", oss_start_mode);
 #endif
+
     if ((NULL == Append_Input_String (my_window, "expView\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
       cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
@@ -345,13 +385,8 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
  // execute with an "expGo" command and display results with "expview stats".
  // Otherwise, assume the input file will control execution.
  //
-#if 0
- // If we are restoring then don't to an expGo as the experiment can't run but we could to
- // an expview if desired. 
-  if (oss_start_mode == SM_Batch && !read_stdin_file && !weAreRestoring) {
-#else
   if (oss_start_mode == SM_Batch && !read_stdin_file && weAreRestoring) {
-#endif
+
 #ifdef DEBUG_CLI_OPTIONS
     printf(" Start_COMMAND_LINE_Mode, adding expGo, expView to the input stack, oss_start_mode (batch)=%d\n", oss_start_mode);
 #endif
@@ -364,9 +399,11 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
     }
 
   } else if (oss_start_mode == SM_Batch && !read_stdin_file) {
+
 #ifdef DEBUG_CLI_OPTIONS
     printf(" Start_COMMAND_LINE_Mode, adding expGo, expView to the input stack, oss_start_mode (batch)=%d\n", oss_start_mode);
 #endif
+
     if ((NULL == Append_Input_String (my_window, "expGo\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
         (NULL == Append_Input_String (my_window, "expView\n", NULL,
@@ -376,28 +413,20 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
     }
   }
 
- // If there is no input file and the user specified "-online" mode,
+ // The user specified "-online" mode with no gui.  THis is the immediate command.
  // execute with an "expGo" command and display results with "expview stats".
  // Otherwise, assume the input file will control execution.
  //
-#if 0
- // If we are restoring then don't to an expGo as the experiment can't run but we could to
- // an expview if desired. 
-  if (oss_start_mode == SM_Online && !read_stdin_file && !weAreRestoring) {
-#else
-  if (oss_start_mode == SM_Online && !read_stdin_file && !need_gui ) {
-#endif
+  if (oss_start_mode == SM_Online && !need_gui ) {
 
 #ifdef DEBUG_CLI_OPTIONS
     printf(" Start_COMMAND_LINE_Mode, adding expGo, expView to the input stack, oss_start_mode (online)=%d\n", oss_start_mode);
 #endif
+
     if ((NULL == Append_Input_String (my_window, "expGo\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
         (NULL == Append_Input_String (my_window, "expView\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
-//                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
-//        (NULL == Append_Input_String (my_window, "expSave\n", NULL,
-//                                      &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
       cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
       return false;
     }
