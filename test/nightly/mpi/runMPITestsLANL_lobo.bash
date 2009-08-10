@@ -1,7 +1,8 @@
 #! /bin/bash
 
 #
-#  This script is focused on running on Sandia systems
+#  This script is focused on running on the lobo LANL system at the moment.  It should be able to be tweaked
+#  to run on TLCC machines using SLURM.  It is very similar to the glory/Sandia script.
 #
 if [ "$1" == "help" -o "$1" = "--help" ]
 then
@@ -25,7 +26,7 @@ debug_flag=1
 ##set -x
 basedir=`pwd`
 
-# Try looking for SANDIA run environment
+# Try looking for SLURM run environment
 found_slurm=0
 sruncommand=`which srun`
 
@@ -446,7 +447,21 @@ echo "-------------------------------------"
 sed 's/^/exprestore -f /' smg2000_${thiscompiler}_${thisMPI}_create_pcsamp > new_input.script
 echo "log -f smg2000_${thiscompiler}_${thisMPI}_pcsamp_results.log" >> new_input.script
 cat common_commands >> new_input.script
+
+if [ $debug_flag == 1 ]
+then
+  echo "CATTING new_input.script"
+  cat new_input.script
+  echo "BEFORE CALLING openss -batch < new_input.script"
+fi
+
+which openss
 openss -batch < new_input.script
+
+if [ $debug_flag == 1 ]
+then
+  echo "AFTER CALLING openss -batch < new_input.script"
+fi
 
 grep "hypre_CyclicReduction" smg2000_${thiscompiler}_${thisMPI}_pcsamp_results.log | cat > smg2000_${thiscompiler}_${thisMPI}_pcsamp_results.status
 
