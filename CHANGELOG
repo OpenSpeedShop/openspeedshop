@@ -17,7 +17,20 @@ Changes in 1.9.2 since the 1.9.1 release:
 
 8) Enhance the StatsPanel for comparisons to show the general toolbar and also to allow users to focus the StatsPanel on one of the experiments being compared.  A dialog box will allow the selection of one of the experiments when the user selects a performance data view they would like to see.
 
-9) TBD
+9) Bug fix for an address range problem where for some programs the performance data was lost for the main application.  
+
+10) Performance improvements to generating call tree views.
+
+11) Numerous improvements to the collector runtimes for speed and efficiency.
+
+12) Changes to the openss command syntax accepted:
+    a) -offline is now optional on the openss command for running in offline mode.  Offline is default.
+    b) openss -cli  now brings up the CLI in offline mode
+    c) openss -cli -online bring up the CLI in online/dynamic mode
+    d) openss -f "executable" experiment_type nows loads the executable, creates, and runs the experiment in offline mode.
+    e) openss -gui -f "executable" experiment_type nows loads the executable, creates the experiment in offline mode ready to run in the GUI.
+    e) openss -gui -online -f "executable" experiment_type nows loads the executable, creates the experiment in online mode ready to run in the GUI.
+    e) openss -f <openss_database_file_name>.openss still brings up the GUI with the performance data displayed in the GUI.
 
 
 
