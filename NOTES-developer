@@ -1,6 +1,6 @@
 
-Here are commands to help in examining the 
-openspeedshop database file with sqlite:
+NOTE 1: Here are commands to help in examining the 
+        openspeedshop database file with sqlite:
 
 sqlite3  name of openss data file
 sqlite3 prompt:  .schema   (shows layout of database)
@@ -29,4 +29,14 @@ sqlite> select pid from threads;
 # Five blobs were sent
 select count(*) from data;
 5
+
+NOTE 2: How to create an Open|SpeedShop patch
+
+at the top-level directory do this command:
+cvs diff -uN > myOSS.patch
+
+
+How to use the patch
+at the top-level directory do this command:
+patch -p0 < myOSS.patch
 
