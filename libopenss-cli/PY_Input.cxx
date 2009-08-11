@@ -489,6 +489,41 @@ SS_ParseError (PyObject *self, PyObject *args) {
 }
 
 /**
+ * Method: SS_Set_Terminating()
+ * 
+ * Set the Shut_Down global variable after Python
+ * detects a "Quit" statement.
+ *     
+ * @param   self
+ * @param   args
+ *
+ * @return  PyObject *
+ *
+ */
+static PyObject *
+SS_Set_Terminating (PyObject *self, PyObject *args) {
+  Shut_Down = true;
+  return Py_BuildValue("");
+}
+
+/**
+ * Method: SS_Terminating()
+ * 
+ * Convert the boolean variable Shut_Down to an integer 1 or 0
+ * and build a Python object for the result.
+ *     
+ * @param   self
+ * @param   args
+ *
+ * @return  PyObject *
+ *
+ */
+static PyObject *
+SS_Terminating (PyObject *self, PyObject *args) {
+  return Py_BuildValue("l", (Shut_Down ? 1 : 0) );
+}
+
+/**
  * Method: SS_Do_Scripting()
  * 
  * Convert the boolean variable OPENSS_ALLOW_PYTHON_COMMANDS to
@@ -684,6 +719,12 @@ PYopenss_Methods[] = {
 
     {"ParseError",  SS_ParseError, METH_VARARGS,
      "Python or Yacc parser error marking."},
+
+    {"Set_Terminate_PY",  SS_Set_Terminating, METH_VARARGS,
+     "Set the Shut_Down global variable to TRUE."},
+
+    {"Terminate_PY",  SS_Terminating, METH_VARARGS,
+     "Return the value of the Shut_Down global variable."},
 
     {"Do_Scripting",  SS_Do_Scripting, METH_VARARGS,
      "Return the value of the OPENSS_ALLOW_PYTHON_COMMANDS varible."},

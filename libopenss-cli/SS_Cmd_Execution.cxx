@@ -5848,13 +5848,14 @@ bool SS_Exit (CommandObject *cmd) {
   Wait_For_Previous_Cmds ();
 
  // Since Python is in control, we need to tell it to quit.
-	if (Embedded_WindowID == 0) 
-	    PyRun_SimpleString( "myparse.Do_quit ()\n");
-
- // Force another "Exit" command through the input controler.
- // This is done, after setting the Python signal with the
- // previous "myparse.Do_quit" call, to trigger the actual
- // return fromPython. (Note: any command will do the job.)
+ // When python attempts to execute a command, it first
+ // checks the global "Shut_Down" flag and will exit if
+ // the flag is set.
+ //
+ // Setting the flag will also cause the input controler to
+ // issues a second "Exit" command, which gives phtyon the
+ // oppertunity to check the flag, terminate and return.
+ // (Note: It doesn't need to be an "Exit", any command will do the job.)
   Shut_Down = true;
 
  // There is no result returned from this command.

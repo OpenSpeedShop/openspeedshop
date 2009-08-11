@@ -26,6 +26,7 @@ import sys
 import types
 import shutil
 import gc
+import gobject
 
 import PY_Input
 
@@ -304,7 +305,8 @@ def return_list(args):
 ################################################################################
 def Do_quit(args):
 
-    myparse.terminate_SS = 1
+    PY_Input.Set_Terminate_PY()
+    
 
 ##################################################################
 #
@@ -634,7 +636,6 @@ def Delay_ILO_Processing(pad):
 class CLI(code.InteractiveConsole):
     """Simple test of a Python interpreter augmented with custom commands."""
 
-    global terminate_SS
     global cmd_is_assignment
 
     ################################################################################
@@ -648,17 +649,6 @@ class CLI(code.InteractiveConsole):
     	code.InteractiveConsole.showtraceback()
 	arg = PY_Input.ParseError()
 	#print "Jack"
-
-    ################################################################################
-    #
-    # Do_quit
-    #
-    # Quit python 
-    #
-    ################################################################################
-    def Do_quit(args):
-
-    	myparse.terminate_SS = 1
 
     ##################################################################
     #
@@ -793,7 +783,6 @@ class CLI(code.InteractiveConsole):
         if os.environ.has_key("OPENSS_DEBUG_CLI_PYTHON_GC"):
             gc.set_debug(gc.DEBUG_LEAK)
             gc.get_objects()
-        myparse.terminate_SS = 0
         nesting_depth = 0
 
         # Set the primary and secondary prompts
@@ -811,10 +800,11 @@ class CLI(code.InteractiveConsole):
                     gc.set_debug(gc.DEBUG_LEAK)
                     gc.get_objects()
 	         
-                if myparse.terminate_SS:
+    	    	if PY_Input.Terminate_PY() == 1:
                   self.write("\n")
                   self.resetbuffer()
                   return
+	         
                 # Display the appropriate prompt
                 if not sys.stdin.isatty():
                     prompt = ""
@@ -907,6 +897,8 @@ class CLI(code.InteractiveConsole):
     #
     ##################################################################
     def do_scripting_input(self):
+	# gc.setdebug(gc.DEBUG_LEAK)
+	# gc.get_objects()
 
         self.interact()
         pass
