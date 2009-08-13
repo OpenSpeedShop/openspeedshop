@@ -26,7 +26,7 @@ import sys
 import types
 import shutil
 import gc
-import gobject
+#import gobject
 
 import PY_Input
 
