@@ -126,6 +126,7 @@ install -D -m ugo+rw test/*.c $RPM_BUILD_ROOT%{prefix}/mpi/smg2000/test/
 install -D -m ugo+rwx test/smg2000 $RPM_BUILD_ROOT%{prefix}/mpi/smg2000/test/
 
 cd ../..
+mkdir -p $RPM_BUILD_ROOT%{prefix}/mpi/nbody
 cd mpi/nbody
 
 install -D -m ugo+rw *.c $RPM_BUILD_ROOT%{prefix}/mpi/nbody/
