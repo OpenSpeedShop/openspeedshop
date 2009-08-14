@@ -126,8 +126,13 @@ install -D -m ugo+rw test/*.c $RPM_BUILD_ROOT%{prefix}/mpi/smg2000/test/
 install -D -m ugo+rwx test/smg2000 $RPM_BUILD_ROOT%{prefix}/mpi/smg2000/test/
 
 cd ../..
+cd mpi/nbody
 
-cd mpi/smg2000
+install -D -m ugo+rw *.c $RPM_BUILD_ROOT%{prefix}/mpi/nbody/
+install -D -m ugo+rwx nbody $RPM_BUILD_ROOT%{prefix}/mpi/nbody/
+
+
+cd ../..
 
 %clean
 if test x"$RPM_BUILD_ROOT" != x"/"; then
