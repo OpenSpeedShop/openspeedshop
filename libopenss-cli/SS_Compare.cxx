@@ -275,15 +275,36 @@ static bool Generate_CustomView (CommandObject *cmd,
                                  std::vector<selectionTarget>& Quick_Compare_Set) {
   int64_t numQuickSets = Quick_Compare_Set.size();
   int64_t i;
-  bool Compute_Delta = (Look_For_KeyWord (cmd, "diff") || Look_For_KeyWord (cmd, "sortdiff"))
-                            ? TRUE
-                            : (Look_For_KeyWord (cmd, "nodiff")
-                                   ? FALSE
-                                   : FALSE);
+  bool Compute_Delta = FALSE;
 
 #if DEBUG_COMPARE
   printf("SSCOMPARE: ------------- Enter Generate_CustomView, numQuickSets=%d\n", numQuickSets);
 #endif
+
+ // Look in the metric list for a request to calculate differences.
+  vector<ParseRange> *m_list = cmd->P_Result()->getexpMetricList();
+  vector<ParseRange>::iterator j;
+
+  for (j=m_list->begin();j != m_list->end(); j++) {
+    parse_range_t *m_range = (*j).getRange();
+    std::string S = m_range->start_range.name;
+    bool pack_vector = FALSE;
+    if (!strcasecmp(S.c_str(), "diff") ) {
+      Compute_Delta = TRUE;
+      pack_vector = TRUE;
+    } else if (!strcasecmp(S.c_str(), "absdiff") ) {
+      Compute_Delta = TRUE;
+      pack_vector = TRUE;
+    }
+    if (pack_vector) {
+     // Strip the request from the metric list.
+     // The difference is calculated in this routine.
+      m_list->erase(j);
+      if (j == m_list->end()) {
+        break;
+      }
+    }
+  }
 
   if (numQuickSets == 0) {
     Mark_Cmd_With_Soft_Error(cmd, "There are no valid comparisons requested.");

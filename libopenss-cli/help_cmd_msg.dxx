@@ -1414,6 +1414,10 @@ char *cmd_expCompare_detailed[] = {
     " ",
     "It is an error to specify more than one sub-list of",
     "items within the <target_list>.",
+    " ",
+    "The addition of 'AbsDiff' to the metric list will result",
+    "in the display of the Absolute Difference of the first",
+    "metric produced by the requested views of 2 data sets.",
     " "
 };
 
