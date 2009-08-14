@@ -128,7 +128,7 @@ echo "updateDisplayLineEdit=15" >> /root/.openspeedshoprc
 echo "updateOnCheckBox=true" >> /root/.openspeedshoprc
 echo "" >> /root/.openspeedshoprc
 echo "[Source Panel]" >> /root/.openspeedshoprc
-echo "leftSideLineEdit0=/root/.SpeedShop/liveOSS/toyprograms" >> /root/.edshoprc
+echo "leftSideLineEdit0=/root/.SpeedShop/liveOSS/toyprograms" >> /root/.openspeedshoprc
 echo "leftSideLineEdit1=" >> /root/.openspeedshoprc
 echo "leftSideLineEdit2=" >> /root/.openspeedshoprc
 echo "leftSideLineEdit3=" >> /root/.openspeedshoprc
@@ -191,31 +191,35 @@ echo "viewFieldSize=20" >> /root/.openspeedshoprc
 echo "viewFullPath=false" >> /root/.openspeedshoprc
 echo "viewMangledName=false" >> /root/.openspeedshoprc
 echo "viewPrecision=6" >> /root/.openspeedshoprc
-mkdir /home/openssuser/.qt
+mkdir /root/.qt
 chmod 644 /root/.openspeedshoprc
-cp /root/.openspeedshoprc /home/openssuser/.qt/openspeedshoprc
+cp /root/.openspeedshoprc /root/.qt/openspeedshoprc
+cp -r /root/.qt /home/openssuser/.
+chown openssuser:openssuser -R /home/openssuser/.qt
 rm /root/.openspeedshoprc
 
 
 echo "localhost.localdomain ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEApWX5IL5f9c0tmBbmuj3/+Wx/2s8Nv0eo04gom+46DWNL9OQqiLtzHbqzn6M9WA0500kUsS5ZYxPXAcAo6LtWBpJ8eqVIbgYbwVRf5K2Iprm1irK6gYzBh8+iTPdqyLj4bjVzecxuNDNyD0YJTwB+q84J/linTHKmqdPC4Pzl+bTa+Je9oan9uORe1k5BKKkm8sem6/V39EwlRePiJMuVtZPCwBtLspMgCA+9R2KuvyisnS5vDjwnwcZQaHzCTsi57isk/P//4x1RWX+6KEngjjpp5igjnN1DBaabfIhLTc09z9tDVPcBir7mg0fJ09kckA4BExip1fzVLqmM1NoPgw==" > /root/.known_hosts
-mkdir /home/openssuser/.ssh
+mkdir /root/.ssh
 chmod 644 /root/.known_hosts
-cp /root/.known_hosts /home/openssuser/.ssh/known_hosts
+cp /root/.known_hosts /root/.ssh/known_hosts
+cp -r /root/.ssh /home/openssuser/.
+chown openssuser:openssuser -R /home/openssuser/.ssh
 rm /root/.known_hosts
 
 
 #move apps to /home/openssuser
 #mkdir -p /home/openssuser/{mpi,openmp,sequential}
 mkdir -p /home/openssuser/{mpi,sequential}
-mv /opt/tempapps/mpi/smg2000 /home/openssuser/mpi/
-mv /opt/tempapps/mpi/nbody /home/openssuser/mpi/
-mv /opt/tempapps/sequential/smg2000 /home/openssuser/sequential/
+mv /opt/tempapps/mpi/smg2000 /home/openssuser/mpi/.
+mv /opt/tempapps/mpi/nbody /home/openssuser/mpi/.
+mv /opt/tempapps/sequential/smg2000 /home/openssuser/sequential/.
 #mv /opt/tempapps/openmp/smg2000 /home/openssuser/openmp/
 
-mv /opt/tempapps/sequential/forever* /home/openssuser/sequential/
-mv /opt/tempapps/sequential/threads* /home/openssuser/sequential/
-mv /opt/tempapps/sequential/mutatee* /home/openssuser/sequential/
-mv /opt/tempapps/sequential/matmul* /home/openssuser/sequential/
+mv /opt/tempapps/sequential/forever /home/openssuser/sequential/.
+mv /opt/tempapps/sequential/threads /home/openssuser/sequential/.
+mv /opt/tempapps/sequential/mutatee /home/openssuser/sequential/.
+mv /opt/tempapps/sequential/matmul /home/openssuser/sequential/.
 
 chown openssuser:openssuser -R /home/openssuser/mpi
 chown openssuser:openssuser -R /home/openssuser/sequential
