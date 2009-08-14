@@ -45,11 +45,13 @@ void hwc_init_papi()
 
     if (rval < 0) {
 	/* test rval to see if something is wrong */
+#if 0
 	fprintf(stderr,"PAPI rval < 0 !\n");
 	char error_str[PAPI_MAX_STR_LEN];
 	PAPI_perror(rval,error_str,PAPI_MAX_STR_LEN);
 	fprintf(stderr,"PAPI_error %d: %s\n",rval,error_str);
 	fprintf(stderr,"SYSTEM error: %s\n", strerror(errno));
+#endif
 	return;
     }
   hw_info = PAPI_get_hardware_info() ;
