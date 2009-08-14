@@ -67,13 +67,13 @@ echo "------------------------------"  >> /root/.bashrc.oss
 echo " "  >> /root/.bashrc.oss
 echo "To run a sequential experiment:"  >> /root/.bashrc.oss
 echo "    >> cd sequential/smg2000/test"  >> /root/.bashrc.oss
-echo "    >> openss -f smg2000 pcsamp"  >> /root/.bashrc.oss
-echo "    >> openss smg2000.pcsamp.openss &"  >> /root/.bashrc.oss
+echo "    >> openss -f \"smg2000 -n 50 50 50\" pcsamp"  >> /root/.bashrc.oss
+echo "    >> openss smg2000-pcsamp.openss &"  >> /root/.bashrc.oss
 echo " "  >> /root/.bashrc.oss
 echo "To run an MPI experiment:"  >> /root/.bashrc.oss
 echo "    >> cd mpi/smg2000/test"  >> /root/.bashrc.oss
 echo "    >> openss -f \"mpirun -np 2 smg2000 -n 50 50 50\" pcsamp"  >> /root/.bashrc.oss
-echo "    >> openss smg2000.pcsamp.openss &"  >> /root/.bashrc.oss
+echo "    >> openss smg2000-pcsamp.openss &"  >> /root/.bashrc.oss
 echo " "  >> /root/.bashrc.oss
 echo "For more information, please see the included HTML documentation."  >> /root/.bashrc.oss
 echo "EOF"  >> /root/.bashrc.oss
@@ -128,7 +128,7 @@ echo "updateDisplayLineEdit=15" >> /root/.openspeedshoprc
 echo "updateOnCheckBox=true" >> /root/.openspeedshoprc
 echo "" >> /root/.openspeedshoprc
 echo "[Source Panel]" >> /root/.openspeedshoprc
-echo "leftSideLineEdit0=/root/.SpeedShop/liveOSS/toyprograms" >> /root/.openspeedshoprc
+echo "leftSideLineEdit0=/home/jeg/OpenSpeedShop/liveOSS/toyprograms-0.0.1" >> /root/.openspeedshoprc
 echo "leftSideLineEdit1=" >> /root/.openspeedshoprc
 echo "leftSideLineEdit2=" >> /root/.openspeedshoprc
 echo "leftSideLineEdit3=" >> /root/.openspeedshoprc
