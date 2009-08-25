@@ -96,6 +96,22 @@ cli:
 cli-install:
 	for i in $(CLI_SUBDIRS); do (cd $$i; $(MAKE) install); done
 
+TARGET_STATIC_SUBDIRS = \
+	libopenss-runtime \
+	plugins/collectors 
+
+target-static:
+	for i in $(TARGET_STATIC_SUBDIRS); do (cd $$i; $(MAKE)); done
+
+target-static-install:
+	for i in $(TARGET_STATIC_SUBDIRS); do (cd $$i; $(MAKE) install); done
+
+target-static-uninstall:
+	for i in $(TARGET_STATIC_SUBDIRS); do (cd $$i; $(MAKE) uninstall); done
+
+target_static-clean:
+	for i in $(TARGET_STATIC_SUBDIRS); do (cd $$i; $(MAKE) clean); done
+
 # The following "offline" target is simply a short-hand for the offline only users
 # and developers to build just those components necessary for working
 # with the offline collectors.

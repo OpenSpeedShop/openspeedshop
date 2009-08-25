@@ -173,6 +173,46 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 ])
 
 ################################################################################
+# Check for Binutils for Target Architecture (http://www.gnu.org/software/binutils)
+################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_BINUTILS], [
+
+    AC_ARG_WITH(target-binutils,
+                AC_HELP_STRING([--with-target-binutils=DIR],
+                               [binutils target architecture installation @<:@/opt@:>@]),
+                target_binutils_dir=$withval, target_binutils_dir="/opt")
+
+    if test "$target_binutils_dir" == "/opt" ; then
+      TARGET_BINUTILS_DIR=""
+      TARGET_BINUTILS_CPPFLAGS=""
+      TARGET_BINUTILS_LDFLAGS=""
+      TARGET_BINUTILS_LIBS=""
+    else
+      case "$target_os" in
+	cray-xt5)
+            TARGET_BINUTILS_DIR="$target_binutils_dir"
+	    TARGET_BINUTILS_CPPFLAGS="-I$target_binutils_dir/include"
+	    TARGET_BINUTILS_LDFLAGS="-L$target_binutils_dir/$abi_libdir"
+	    TARGET_BINUTILS_LIBS="-lopcodes-lbfd -liberty"
+            ;;
+	*)
+            TARGET_BINUTILS_DIR="$target_binutils_dir"
+	    TARGET_BINUTILS_CPPFLAGS="-I$target_binutils_dir/include"
+	    TARGET_BINUTILS_LDFLAGS="-L$target_binutils_dir/$abi_libdir"
+	    TARGET_BINUTILS_LIBS="-lopcodes -lbfd -liberty"
+            ;;
+      esac
+    fi
+
+    AC_SUBST(TARGET_BINUTILS_CPPFLAGS)
+    AC_SUBST(TARGET_BINUTILS_LDFLAGS)
+    AC_SUBST(TARGET_BINUTILS_LIBS)
+    AC_SUBST(TARGET_BINUTILS_DIR)
+
+])
+
+################################################################################
 # Check for DPCL (http://oss.software.ibm.com/developerworks/opensource/dpcl)
 ################################################################################
 
@@ -239,11 +279,37 @@ AC_DEFUN([AC_PKG_DYNINST], [
                                [Dyninst installation @<:@/usr@:>@]),
                 dyninst_dir=$withval, dyninst_dir="/usr")
 
+    AC_ARG_WITH(dyninst-version,
+                AC_HELP_STRING([--with-dyninst-version=VERS],
+                               [dyninst-version installation @<:@6.0@:>@]),
+                dyninst_vers=$withval, dyninst_vers="6.0")
+
     DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
-    DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -DIBM_BPATCH_COMPAT"
     DYNINST_LDFLAGS="-L$dyninst_dir/$abi_libdir"
-    DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI"
-    DYNINST_DIR="$dyninst_dir"
+    DYNINST_DIR="$dyninst_dir" 
+    DYNINST_VERS="$dyninst_vers"
+
+#   The default is to use 6.0 dyninst cppflags and libs.  
+#   Change that (the default case entry) when you change the default vers to something other than 6.0
+    case "$dyninst_vers" in
+	"5.1")
+            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -DIBM_BPATCH_COMPAT"
+            DYNINST_LIBS="-ldyninstAPI -lcommon"
+            ;;
+	"5.2")
+            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
+            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI" 
+            ;;
+	"6.0")
+            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
+            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI" 
+            ;;
+	*)
+            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
+            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI" 
+            ;;
+    esac
+
 
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP
@@ -275,6 +341,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
     AC_SUBST(DYNINST_LDFLAGS)
     AC_SUBST(DYNINST_LIBS)
     AC_SUBST(DYNINST_DIR)
+    AC_SUBST(DYNINST_VERS)
 
     AC_DEFINE(HAVE_DYNINST, 1, [Define to 1 if you have Dyninst.])
 
@@ -328,6 +395,33 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
     AC_SUBST(LIBUNWIND_CPPFLAGS)
     AC_SUBST(LIBUNWIND_LDFLAGS)
     AC_SUBST(LIBUNWIND_LIBS)
+
+])
+
+#############################################################################################
+# Check for Libunwind for Target Architecture (http://www.hpl.hp.com/research/linux/libunwind)
+#############################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_LIBUNWIND], [
+
+    AC_ARG_WITH(target-libunwind,
+                AC_HELP_STRING([--with-target-libunwind=DIR],
+                               [libunwind target architecture installation @<:@/opt@:>@]),
+                target_libunwind_dir=$withval, target_libunwind_dir="/opt")
+
+    if test "$target_libunwind_dir" == "/opt" ; then
+      TARGET_LIBUNWIND_CPPFLAGS=""
+      TARGET_LIBUNWIND_LDFLAGS=""
+      TARGET_LIBUNWIND_LIBS=""
+    else
+      TARGET_LIBUNWIND_CPPFLAGS="-I$target_libunwind_dir/include -DUNW_LOCAL_ONLY"
+      TARGET_LIBUNWIND_LDFLAGS="-L$target_libunwind_dir/$abi_libdir"
+      TARGET_LIBUNWIND_LIBS="-lunwind"
+    fi
+
+    AC_SUBST(TARGET_LIBUNWIND_CPPFLAGS)
+    AC_SUBST(TARGET_LIBUNWIND_LDFLAGS)
+    AC_SUBST(TARGET_LIBUNWIND_LIBS)
 
 ])
 
@@ -709,6 +803,42 @@ AC_DEFUN([AC_PKG_PAPI], [
     AC_SUBST(PAPI_CPPFLAGS)
     AC_SUBST(PAPI_LDFLAGS)
     AC_SUBST(PAPI_LIBS)
+
+])
+
+################################################################################
+# Check for PAPI for Target Architecture (http://icl.cs.utk.edu/papi)
+################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_PAPI], [
+
+    AC_ARG_WITH(target-papi,
+                AC_HELP_STRING([--with-target-papi=DIR],
+                               [PAPI target architecture installation @<:@/opt@:>@]),
+                target_papi_dir=$withval, target_papi_dir="/opt")
+
+    if test "$target_papi_dir" == "/opt" ; then
+      TARGET_PAPI_CPPFLAGS=""
+      TARGET_PAPI_LDFLAGS=""
+      TARGET_PAPI_LIBS=""
+    else
+      TARGET_PAPI_CPPFLAGS="-I$target_papi_dir/include"
+      TARGET_PAPI_LDFLAGS="-L$target_papi_dir/$abi_libdir"
+
+      case "$target_os" in
+	cray-xt5)
+	    TARGET_PAPI_LIBS="-lpapi -lpfm"
+            ;;
+	*)
+	    TARGET_PAPI_LIBS="-lpapi -lperfctr -lpfm"
+            ;;
+      esac
+    fi
+
+
+    AC_SUBST(TARGET_PAPI_CPPFLAGS)
+    AC_SUBST(TARGET_PAPI_LDFLAGS)
+    AC_SUBST(TARGET_PAPI_LIBS)
 
 ])
 
@@ -1430,6 +1560,37 @@ AC_DEFUN([AC_PKG_LIBMONITOR], [
     AC_SUBST(LIBMONITOR_LDFLAGS)
     AC_SUBST(LIBMONITOR_LIBS)
     AC_SUBST(LIBMONITOR_DIR)
+
+])
+
+################################################################################
+# Check for Monitor for Target Architecture (http://www.cs.utk.edu/~mucci)
+################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_LIBMONITOR], [
+
+    AC_ARG_WITH(target-libmonitor,
+                AC_HELP_STRING([--with-target-libmonitor=DIR],
+                               [libmonitor target architecture installation @<:@/opt@:>@]),
+                target_libmonitor_dir=$withval, target_libmonitor_dir="/opt")
+
+    if test "$target_libmonitor_dir" == "/opt" ; then
+      TARGET_LIBUNWIND_CPPFLAGS=""
+      TARGET_LIBUNWIND_LDFLAGS=""
+      TARGET_LIBUNWIND_LIBS=""
+      TARGET_LIBUNWIND_DIR=""
+    else
+      TARGET_LIBUNWIND_CPPFLAGS="-I$target_libmonitor_dir/include"
+      TARGET_LIBUNWIND_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
+      TARGET_LIBUNWIND_LIBS="-lmonitor"
+      TARGET_LIBUNWIND_DIR="$target_libmonitor_dir"
+    fi
+
+
+    AC_SUBST(TARGET_LIBUNWIND_CPPFLAGS)
+    AC_SUBST(TARGET_LIBUNWIND_LDFLAGS)
+    AC_SUBST(TARGET_LIBUNWIND_LIBS)
+    AC_SUBST(TARGET_LIBUNWIND_DIR)
 
 ])
 

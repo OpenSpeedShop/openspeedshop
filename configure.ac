@@ -133,6 +133,105 @@ case "$TLS" in
 	;;
 esac
 
+################################################################################
+# Target O/S Specification
+################################################################################
+
+target_os=$host
+AC_MSG_CHECKING(for Target O/S)
+AC_ARG_WITH(target-os,
+    AC_HELP_STRING([--with-target-os=TARGET_OS],
+                   [target os specification @<:@$host@:>@]),
+                    target_os=$withval, target_os="$host")
+
+TARGET_OS=$target_os
+
+AC_SUBST(TARGET_OS)
+
+################################################################################
+# Target PTHREADS Availability Specification
+################################################################################
+#
+# Option: --enable-target-pthreads=yes
+# Requires libpthread.
+#
+AC_MSG_CHECKING(for target pthread support specification)
+AC_ARG_ENABLE([target-pthreads],
+    [AS_HELP_STRING([--enable-target-pthreads],
+        [Enable support on target architecture for pthreads [default=yes]])],
+    [], [enable_target_pthreads=yes])
+
+AM_CONDITIONAL([HAVE_TARGET_TEST_POSIX_THREADS],
+    [test x$enable_target_pthreads = xyes])
+
+if test "x$enable_target_pthreads" = xyes ; then
+    AC_DEFINE([HAVE_TARGET_POSIX_THREADS], [1],
+        [Enable support on the target architecture for pthreads.])
+fi
+
+AC_SUBST(HAVE_TARGET_POSIX_THREADS)
+
+################################################################################
+# Target DLOPEN Availability Specification
+################################################################################
+#
+# Option: --enable-target_dlopen=yes
+#
+AC_MSG_CHECKING(for target dlopen support specification)
+AC_ARG_ENABLE([target_dlopen],
+    [AS_HELP_STRING([--enable-target_dlopen],
+        [include support on the target architecture for dlopen [default=yes]])],
+    [], [enable_target_dlopen=yes])
+
+if test "x$enable_target_dlopen" = xyes ; then
+    AC_DEFINE([HAVE_TARGET_DLOPEN], [1],
+        [Enable support on the target architecture for dlopen.])
+fi
+
+AC_SUBST(HAVE_TARGET_DLOPEN)
+
+################################################################################
+# Target SIGNALS Availability Specification
+################################################################################
+#
+# Option: --enable-target-signals=yes
+#
+AC_MSG_CHECKING(for target signal support specification)
+AC_ARG_ENABLE([target-signals],
+    [AS_HELP_STRING([--enable-target-signals],
+        [Enable support on target architecture for signals [default=yes]])],
+    [],
+    [enable_target-signals=yes])
+
+if test "x$enable_target-signals" = xyes ; then
+    AC_DEFINE([HAVE_TARGET_SIGNALS], [1],
+        [Enable support on target architecture for signals.])
+fi
+
+
+AC_SUBST(HAVE_TARGET_SIGNALS)
+
+
+################################################################################
+# Target FORK Availability Specification
+################################################################################
+#
+# Option: --enable-target-fork=yes
+# Requires fork and exec families.
+#
+AC_MSG_CHECKING(for target fork support specification)
+AC_ARG_ENABLE([target-fork],
+    [AS_HELP_STRING([--enable-target-fork],
+        [Enable support on target architecture for fork and exec families [default=yes]])],
+    [],
+    [enable_target_fork=yes])
+
+if test "x$enable_target_fork" = xyes ; then
+    AC_DEFINE([HAVE_TARGET_FORK], [1],
+        [Enable support on target architecture for fork and exec families.])
+fi
+
+AC_SUBST(HAVE_TARGET_FORK)
 
 ################################################################################
 # Check for Additional Packages
@@ -140,13 +239,17 @@ esac
 
 AC_PKG_ARRAYSVCS()
 AC_PKG_BINUTILS()
+AC_PKG_TARGET_BINUTILS()
 AC_PKG_LIBDWARF()
 AC_PKG_LIBMONITOR()
+AC_PKG_TARGET_LIBMONITOR()
 AC_PKG_LIBUNWIND()
+AC_PKG_TARGET_LIBUNWIND()
 AC_PKG_MPI()
 AC_PKG_OPENMP()
 AC_PKG_OTF()
 AC_PKG_PAPI()
+AC_PKG_TARGET_PAPI()
 AC_PYTHON_DEVEL([>= '2.3'])
 AC_PKG_QTLIB()
 AC_PKG_SQLITE()

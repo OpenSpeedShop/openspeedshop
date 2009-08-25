@@ -131,6 +131,18 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
 
+/* Enable support on the target architecture for dlopen. */
+#undef HAVE_TARGET_DLOPEN
+
+/* Enable support on target architecture for fork and exec families. */
+#undef HAVE_TARGET_FORK
+
+/* Enable support on the target architecture for pthreads. */
+#undef HAVE_TARGET_POSIX_THREADS
+
+/* Enable support on target architecture for signals. */
+#undef HAVE_TARGET_SIGNALS
+
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
