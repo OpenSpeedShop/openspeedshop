@@ -28,6 +28,9 @@
 
 #include <algorithm>
 #include <BPatch_function.h>
+#if (DYNINST_MAJOR > 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2)
+#include <BPatch_statement.h>
+#endif
 #include <deque>
 
 using namespace OpenSpeedShop::Framework;
@@ -220,15 +223,25 @@ void SymbolTable::addModule(/* const */ BPatch_image& image,
     }
 
     // Get the list of statements in this module
+#if (DYNINST_MAJOR > 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2)
+    std::vector<BPatch_statement> statements;
+    module.getStatements(statements);
+#else
     std::vector<struct BPatch_module::Statement> statements =
 	module.getStatements();
+#endif
     
     // Iterate over each statement in this module
     for(int i = 0; i < statements.size(); ++i) {
 
 	// Construct a StatementEntry for this statement
+#if (DYNINST_MAJOR > 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2)
+	StatementEntry entry(FileName(statements[i].fileName()),
+                             statements[i].lineNumber(), statements[i].lineOffset());
+#else
 	StatementEntry entry(FileName(statements[i].path),
 			     statements[i].line, statements[i].column);
+#endif
 
 	// Add this statement to the table (or find the existing entry)
 	StatementTable::iterator j =
@@ -237,8 +250,13 @@ void SymbolTable::addModule(/* const */ BPatch_image& image,
 		).first;
 
 	// Get the begin/end addresses of the statement
+#if (DYNINST_MAJOR > 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2)
+	Address begin((uint64_t)statements[i].startAddr());
+	Address end((uint64_t)statements[i].endAddr());
+#else
 	Address begin(statements[i].begin);
 	Address end(statements[i].end);
+#endif
 
 	// Sanity checks
 	if(end <= begin) {
@@ -247,9 +265,15 @@ void SymbolTable::addModule(/* const */ BPatch_image& image,
 	    if(Backend::isSymbolsDebugEnabled()) {
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
+#if (DYNINST_MAJOR > 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2)
+		       << "addModule(): Statement " << statements[i].fileName() 
+		       << ", line " << statements[i].lineNumber()
+		       << ", column " << statements[i].lineOffset()
+#else
 		       << "addModule(): Statement " << statements[i].path 
 		       << ", line " << statements[i].line
 		       << ", column " << statements[i].column
+#endif
 		       << ": begin (" << Address(begin) 
 		       << ") >= end (" << Address(end) << ")."
 		       << std::endl;
@@ -266,9 +290,15 @@ void SymbolTable::addModule(/* const */ BPatch_image& image,
 	    if(Backend::isSymbolsDebugEnabled()) {
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
+#if (DYNINST_MAJOR > 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2)
+		       << "addModule(): Statement " << statements[i].fileName() 
+		       << ", line " << statements[i].lineNumber()
+		       << ", column " << statements[i].lineOffset()
+#else
 		       << "addModule(): Statement " << statements[i].path 
 		       << ", line " << statements[i].line
 		       << ", column " << statements[i].column
+#endif
 		       << ": begin=" << Address(begin) 
 		       << ", end=" << Address(end)
 		       << ": is outside the module." << std::endl;
