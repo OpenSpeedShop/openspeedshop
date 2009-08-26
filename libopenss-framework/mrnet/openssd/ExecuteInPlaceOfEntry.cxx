@@ -29,7 +29,6 @@
 #include "ThreadName.hxx"
 #include "Utility.hxx"
 
-#include <BPatch.h>
 #include <BPatch_function.h>
 #include <iostream>
 #include <sstream>
@@ -188,7 +187,7 @@ void ExecuteInPlaceOfEntry::install()
 	if(Backend::isDebugEnabled()) {
           std::stringstream output;
           output << "[TID " << pthread_self() << "] ExecuteInPlaceOfEntry::"
-#if (DYNINST_MAJOR > 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2) 
+#if (DYNINST_MAJOR == 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2) 
       	         << "install():  where=" << where->getName(mbuf,1024) << std::endl;
 #else
       	         << "install():  where=" << where->getName() << std::endl;
@@ -198,7 +197,7 @@ void ExecuteInPlaceOfEntry::install()
 #endif
 
         BPatch_Vector<BPatch_point*>* points = where->findPoint(BPatch_locEntry);
-#if (DYNINST_MAJOR > 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2) 
+#if (DYNINST_MAJOR == 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2) 
         if (points == NULL && !strcasecmp(where->getName(mbuf,1024),"PMPI_Init")) {
 #else
         if (points == NULL && !strcasecmp(where->getName(),"PMPI_Init")) {
