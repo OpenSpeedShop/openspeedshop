@@ -21,4 +21,4 @@
 
 PROJECT_NAME     = "Open|SpeedShop Framework Library"
 OUTPUT_DIRECTORY = ../doc/design_doc/Framework
-INPUT            = . dpcl dyninst
+INPUT            = . dpcl dyninst mrnet mrnet/openssd mrnet/common mrnet/openssd/watcher

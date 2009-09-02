@@ -23,4 +23,4 @@
 
 PROJECT_NAME     = "Open|SpeedShop Runtime Library"
 OUTPUT_DIRECTORY = ../doc/design_doc/Runtime
-INPUT            = . dpcl dyninst
+INPUT            = . dpcl dyninst mrnet offline fileio
