@@ -118,19 +118,17 @@ namespace {
 	T base_addr = 0;
 	MPIR_proctable.readValue(&base_addr);
 
+	BPatch_type * mytype = BPatch::bpatch->createScalar("mpirPE",sizeof(MPIR_PROCDESC));
+
 	// Iterate over each entry in the table
 	for(int64_t i = 0; i < MPIR_proctable_size; ++i) {
 
-	    // Construct a variable for this entry
-	    BPatch_variableExpr variable(
-		&process,
-		(void*)(base_addr + (i * sizeof(MPIR_PROCDESC))),
-		sizeof(MPIR_PROCDESC)
-		);
+	    BPatch_variableExpr* variable =
+			process.createVariable(base_addr + (i * sizeof(MPIR_PROCDESC)),mytype);
 
 	    // Read the entry
 	    MPIR_PROCDESC raw_value;
-	    variable.readValue(&raw_value);
+	    variable->readValue(&raw_value);
 
 	    // Read the host name for this entry
 	    std::string host_name;
