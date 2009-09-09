@@ -138,7 +138,19 @@ void monitor_fini_process(int how, void *data)
 #else
     TLS* tls = &the_tls;
 #endif
+
+#if 0
     Assert(tls != NULL);
+#else
+    /* The assert above can cause libmonitor to hang with mpt.
+     * We may have forked a process which then did not call
+     * monitor_init_process and allocate TLS.
+     */
+    if (tls == NULL) {
+       fprintf(stderr,"Warning. monitor_fini_process called with no TLS.\n");
+       return;
+    }
+#endif 
 
     /*collector stop_sampling does not use the arguments param */
     if (tls->debug) {
