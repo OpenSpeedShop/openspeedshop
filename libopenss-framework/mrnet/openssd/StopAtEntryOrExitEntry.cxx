@@ -133,15 +133,17 @@ void StopAtEntryOrExitEntry::install()
         
         // Request the instrumentation be inserted
 
+	BPatch_addressSpace* procAddrSpace = (BPatch_addressSpace *) process;
+
         // Note: The following extra conditional term checking dm_where is a
         //       hack. It causes stops for MPIR_Breakpoint to be process-wide,
         //       which is necessary on LLNL's SLURM based MPICH implementation.
         //       In that implementation, the call to MPIR_Breakpoint does not
         //       occur in the main thread.
 	if(process->isMultithreadCapable() && (dm_where != "MPIR_Breakpoint"))
-	    dm_handle = process->insertSnippet(expression, *points);
+	    dm_handle = procAddrSpace->insertSnippet(expression, *points);
 	else
-	    dm_handle = process->insertSnippet(body, *points);
+	    dm_handle = procAddrSpace->insertSnippet(body, *points);
         Assert(dm_handle != NULL);
 	
 #ifndef NDEBUG

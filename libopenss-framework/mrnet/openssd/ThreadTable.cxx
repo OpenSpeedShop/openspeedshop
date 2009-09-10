@@ -318,10 +318,22 @@ ThreadNameGroup ThreadTable::getNames(/* const */ BPatch_process* process) const
     // Get the list of threads in this process
     BPatch_Vector<BPatch_thread*> threads;
     process->getThreads(threads);
-    Assert(!threads.empty());
+
+    ThreadNameGroup names;
+
+    // We seem to be racing with dyninst when openmpi forks the
+    // mpirun into a new process and then forks that process into
+    // the actuall rank process. The forked mpirun appears to be gone.
+    // Seems safe to just return an empty ThreadNameGroup.
+    // Fixes the odd aborts seen with openmpi 1.3.3 and nbody.
+    // Also needed to not detach from the forked child in Dyninst::postFork.
+    //  
+    // Disabled this assert: Assert(!threads.empty());
+    if (threads.empty()) {
+	return names;
+    }
 
     // Iterate over each thread in this process
-    ThreadNameGroup names;
     for(int i = 0; i < threads.size(); ++i) {
 	Assert(threads[i] != NULL);
 	

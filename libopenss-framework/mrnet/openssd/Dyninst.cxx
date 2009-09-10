@@ -408,7 +408,7 @@ void OpenSpeedShop::Framework::Dyninst::exit(BPatch_thread* thread,
     Senders::threadsStateChanged(threads, Terminated);
 }
 
-
+#define WDH_TEMPORARY_HACK 1
 
 /**
  * Fork callback.
@@ -435,6 +435,17 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
     if(child != NULL) {
 	BPatch_process* child_process = child->getProcess();
 	child_process->detach(true);
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+        BPatch_process* parent_process = parent->getProcess();
+        std::stringstream output;
+	output << "[TID " << pthread_self() << "] Dyninst::"
+	       << "postFork(): PID " << parent_process->getPid()
+	       << " forked PID " << child_process->getPid() 
+	       << " DETACHING." << std::endl;
+        std::cerr << output.str();
+    }
+#endif
 	return;
     }
 #endif  // WDH_TEMPORARY_HACK
@@ -485,6 +496,10 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
 
     // Were any threads actually forked?
     if(!threads_forked.empty()) {
+// FIXME: It would be nice to have a flag to decide if we really
+// want to attach to these forked threads and get symbols and instrument.
+// Mainly set this flag for cases like openmpi where the mpi startup
+// work is may not of interest to the user.
 	
         // Send the frontend the list of threads that were forked
         Senders::attachedToThreads(threads_forked);
@@ -495,9 +510,16 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
         // Send the frontend a message indicating these threads are running
         Senders::threadsStateChanged(threads_forked, Running);
 
+// FIXME: any attempt to copy instrumentation during openmpi startup
+// is causing the rank processes to crash. Possibly the forked mpirun
+// processes that start the actual rank process (e.g. nbody) are already
+// gone by this time.  Mybe we need to call getNames outside of the
+// copyInstrumentation call and then call it if we get any valid names.
+#if 0
 	// Copy instrumentation to the new process
 	Dyninst::copyInstrumentation(ThreadTable::TheTable.getNames(parent),
 				     threads_forked);
+#endif
 
     }
 }
@@ -920,6 +942,16 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
     // Initially assume the global variable will not be found
     value = std::make_pair(false, int64_t());
 
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] ENTERED Dyninst::"
+	       << "getGlobal(PID " << process.getPid() 
+	       << ", \"" << global << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
     // Find the global variable
     BPatch_variableExpr* variable = 
 	Dyninst::findGlobalVariable(process, global);
@@ -1174,6 +1206,16 @@ void OpenSpeedShop::Framework::Dyninst::getGlobal(
     // Initially assume the global variable will not be found
     value = std::make_pair(false, std::string());
 
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] ENTERED Dyninst::"
+	       << "getGlobal(PID " << process.getPid() 
+	       << ", \"" << global << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
     // Get the image pointer for this process
     BPatch_image* image = process.getImage();
     Assert(image != NULL);
@@ -1238,6 +1280,16 @@ void OpenSpeedShop::Framework::Dyninst::getMPICHProcTable(
 {
     // Initially assume the table will not be found
     value = std::make_pair(false, Job());
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] ENTERED Dyninst::"
+	       << "getMPICHProcTable(PID " << process.getPid() 
+	       << ", \"" << std::endl;
+	std::cerr << output.str();
+    }
+#endif
 
     // Find the value of "MPIR_proctable_size"
     std::pair<bool, int64_t> MPIR_proctable_size;
