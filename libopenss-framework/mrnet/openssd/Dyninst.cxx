@@ -1543,7 +1543,12 @@ void OpenSpeedShop::Framework::Dyninst::sendThreadStateUpdates()
 	    // Is the thread's state in the thread table out of date?
 	    OpenSS_Protocol_ThreadState table_state =
 		ThreadTable::TheTable.getThreadState(thread);
-	    if((table_state != Nonexistent) && (table_state != dyninst_state)) {
+
+	    // FIXME DPM: Some threads may already be Terminated in the
+	    // ThreadTable.  Do not allow them to be set to Running.
+	    // Is this due to a race condition on the dyninst_state?
+	    if( !((table_state == Terminated) && (dyninst_state == Running)) &&
+		(table_state != Nonexistent) && (table_state != dyninst_state)) {
 
 		// Get all the names of this thread
 		ThreadNameGroup names = ThreadTable::TheTable.getNames(thread);
