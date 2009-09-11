@@ -44,7 +44,7 @@ namespace OpenSpeedShop { namespace Watcher {
     void watchProcess(OpenSpeedShop::Framework::ThreadNameGroup threads) ;
     void stopWatching();
     void* fileIOmonitorThread(void*);
-    void scanForRawPerformanceData(pid_t, std::string);
+    void scanForRawPerformanceData(pid_t, std::string, pthread_t);
     void acquireScanLock();
     void releaseScanLock();
 

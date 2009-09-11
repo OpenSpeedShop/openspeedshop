@@ -250,7 +250,8 @@ void Watcher::Watcher ()		// : Lockable()
 }
 
 
-void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_to_monitor)
+void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_to_monitor,
+					pthread_t tid_to_monitor)
 {
   struct stat statbuf;
   char directoryName[1024];
@@ -374,6 +375,11 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
                                 // skip this directory
                                 break;
                               }
+
+			      if (tid != tid_to_monitor) {
+				  continue;
+			      }
+
 			      // ************** Make legality checks on pid and tid
 			      // More here?
 
@@ -714,7 +720,8 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
          // Once found, while through the directory looking for openss-data
          // type files.
 
-         scanForRawPerformanceData(ph->first, ph->second);
+         scanForRawPerformanceData(ph->first, ph->second, 0);
+	 break;
 
       }
 
@@ -763,7 +770,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
     }
 #endif
 
-      scanForRawPerformanceData(pid_to_monitor, host_to_monitor);
+      scanForRawPerformanceData(pid_to_monitor, host_to_monitor, 0);
 
      } // PidSet loop
     } // PidSet > 0 if
@@ -857,8 +864,8 @@ OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads)
            std::cerr << output.str ();
          }
 #endif
-       // Call to flush data for this pid before the completion of the termination processing for this process.
-       scanForRawPerformanceData(i->getProcessId(), i->getHost());
+       // Call to flush data for this pid and or tid  before the completion
+       // of the termination processing for this process.
 
 
        std::pair<bool, pthread_t> tid = i->getPosixThreadId();
@@ -873,6 +880,7 @@ OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads)
               std::cerr << output.str ();
          }
 #endif
+           scanForRawPerformanceData(i->getProcessId(), i->getHost(), tid.second);
 
          } else {
 
@@ -885,6 +893,7 @@ OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads)
               std::cerr << output.str ();
           }
 #endif
+           scanForRawPerformanceData(i->getProcessId(), i->getHost(), 0);
 
          } // end else clause where tid.first was not true, so therefore there is no thread_id
 
