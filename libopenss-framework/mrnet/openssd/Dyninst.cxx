@@ -118,17 +118,30 @@ namespace {
 	T base_addr = 0;
 	MPIR_proctable.readValue(&base_addr);
 
-	BPatch_type * mytype = BPatch::bpatch->createScalar("mpirPE",sizeof(MPIR_PROCDESC));
 
 	// Iterate over each entry in the table
 	for(int64_t i = 0; i < MPIR_proctable_size; ++i) {
 
+	    MPIR_PROCDESC raw_value;
+
+           // Construct a variable for this entry
+           // Allow openssd to use either dyninst 5.2 or 6.0.
+#if (DYNINST_MAJOR == 5) && (DYNINST_MINOR == 2)
+           BPatch_variableExpr variable(
+               &process,
+               (void*)(base_addr + (i * sizeof(MPIR_PROCDESC))),
+               sizeof(MPIR_PROCDESC)
+               );
+	    // Read the entry
+	    variable.readValue(&raw_value);
+#else
+	    BPatch_type * mytype = BPatch::bpatch->createScalar("mpirPE",sizeof(MPIR_PROCDESC));
 	    BPatch_variableExpr* variable =
 			process.createVariable(base_addr + (i * sizeof(MPIR_PROCDESC)),mytype);
-
 	    // Read the entry
-	    MPIR_PROCDESC raw_value;
 	    variable->readValue(&raw_value);
+#endif
+
 
 	    // Read the host name for this entry
 	    std::string host_name;
