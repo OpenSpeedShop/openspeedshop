@@ -35,7 +35,13 @@ extern "C"
 {
 #endif
 
-#define OpenSS_OBJBufferSize (1024)
+/* Size of buffer (dso blob) to hold the dsos loaded into victim addressspace.
+ * Computed in collector offline code as:
+ * number of dso objects * sizeof dso object + the string lengths of the dso paths.
+ * The collectors will send the current dsos buffer (blob) when ever
+ * OpenSS_OBJBufferSize is exceeded and start a new buffer.
+ */
+#define OpenSS_OBJBufferSize (8*1024)
 
 int OpenSS_GetDLInfo(pid_t pid, char *path);
 void OpenSS_InitializeParameters (openss_expinfo *info);

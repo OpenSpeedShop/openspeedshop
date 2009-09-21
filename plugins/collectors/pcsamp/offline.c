@@ -264,6 +264,12 @@ void offline_finish()
     /* Write the thread's initial address space to the appropriate file */
     OpenSS_GetDLInfo(getpid(), NULL);
     if(tls->data.objs.objs_len > 0) {
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+           fprintf(stderr,"offline_stop_sampling SENDS OBJS for HOST %s, PID %d, POSIX_TID %lu\n",
+        	   header.host, header.pid, header.posix_tid);
+	}
+#endif
 	offline_send_dsos(tls);
     }
 }
@@ -323,14 +329,25 @@ void offline_record_dso(const char* dsoname,
     objects.addr_end = end;
     objects.is_open = is_dlopen;
 
+    int dsoname_len = strlen(dsoname);
+    int newsize = (tls->data.objs.objs_len * sizeof(objects)) +
+		  (tls->dsoname_len + dsoname_len);
+
+
+    if(newsize > OpenSS_OBJBufferSize) {
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+            fprintf(stderr,"offline_record_dso SENDS OBJS for HOST %s, PID %d, POSIX_TID %lu\n",
+        	   tls->dso_header.host, tls->dso_header.pid, tls->dso_header.posix_tid);
+	}
+#endif
+	offline_send_dsos(tls);
+    }
+
     memcpy(&(tls->buffer.objs[tls->data.objs.objs_len]),
            &objects, sizeof(objects));
     tls->data.objs.objs_len++;
-    tls->dsoname_len += strlen(dsoname);
-
-    if(tls->data.objs.objs_len + tls->dsoname_len == OpenSS_OBJBufferSize) {
-	offline_send_dsos(tls);
-    }
+    tls->dsoname_len += dsoname_len;
 
     if (is_dlopen) {
 	pcsamp_start_timer();
