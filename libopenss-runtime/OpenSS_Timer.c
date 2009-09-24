@@ -92,7 +92,25 @@ static void signalHandler(int signal, siginfo_t* info, void* ptr)
 #else
     TLS* tls = &the_tls;
 #endif
-    Assert(tls != NULL);
+
+/* FIXME:NOTE
+ * With explicit TLS and dyninst instrumentation this signalhandler
+ * is being called in new pthreads as they are created BUT before
+ * the start_samping call in the collector runtime has been called.
+ * It is the start_sampling functions with allocate the timer tls.
+ * Therefore the assert was causing premature aborts for online.
+ * Once the start_sampling function is called then we will get the
+ * tls for this thread and can continue to set up this threads timer.
+ * This does not miss any samples AFAICT since dyninst has not yet
+ * called our start_sampling functions via executeNow in the collector
+ * runtimes.  Tested with test/executables/threads.
+ */
+    if (tls == NULL) {
+	/* we have not yet officially started the timer from
+	 * the collector runtime. Just return.
+	 */
+	return;
+    }
 
     /* Call this thread's timer event handler */
     if(tls->timer_handler != NULL)
