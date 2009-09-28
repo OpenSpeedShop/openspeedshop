@@ -103,8 +103,6 @@ void OpenSS_SetSendToFile(OpenSS_DataHeader* header,
     /* Get our executable path */
     executable_path = OpenSS_GetExecutablePath();
     
-
-
     /* Create the directory path containing the file and the file itself */
     /* We need to add the hostname to the directory path and not just the pid.
      * e.g. openss-rawdata-host-pid rather than openss-rawdata-pid.
@@ -112,6 +110,10 @@ void OpenSS_SetSendToFile(OpenSS_DataHeader* header,
      * for multiple ranks as long as those ranks exist on different hosts.
      * Seen on hyperion with mvapich.
      */
+
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	fprintf(stderr,"OpenSS_SetSendToFile creating directory for raw data files, using header->host=%s, and header->pid\n", header->host, header->pid);
+    }
 
     openss_rawdata_dir = getenv("OPENSS_RAWDATA_DIR");
     sprintf(dir_path, "%s/openss-rawdata-%s-%d",
