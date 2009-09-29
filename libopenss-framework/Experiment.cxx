@@ -633,8 +633,8 @@ bool is_debug_mpijob_enabled = (getenv("OPENSS_DEBUG_MPIJOB") != NULL);
      * to override the automatic MPI implementation detection process.
      */
 
-    char* env_variable_name = "OPENSS_MPI_IMPLEMENTATION";
-    char* value = getenv(env_variable_name);
+    const char* env_variable_name = "OPENSS_MPI_IMPLEMENTATION";
+    const char* value = getenv(env_variable_name);
 
 #ifndef NDEBUG
     if(is_debug_mpijob_enabled) {
@@ -941,8 +941,9 @@ ThreadGroup Experiment::createProcess(
 	    
 	    // Wait until the thread reaches the stop point
 	    suspend();
-	    while(!thread.isState(Thread::Suspended))
+	    while(!thread.isState(Thread::Suspended)) {
 		suspend();
+	    }
 	    
 	    // Notify Instrumentor that it is safe to restore the addressSpaceChangeCallback
 	    // and threadListChangeCallback.
