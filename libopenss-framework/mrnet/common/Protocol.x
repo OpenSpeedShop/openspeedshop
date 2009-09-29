@@ -352,6 +352,7 @@ typedef uint64_t OpenSS_Protocol_Time;
 %#define OPENSS_PROTOCOL_TAG_THREADS_STATE_CHANGED              ((int)1124)
 %#define OPENSS_PROTOCOL_TAG_UNINSTRUMENT                       ((int)1125)
 %#define OPENSS_PROTOCOL_TAG_UNLOADED_LINKED_OBJECT             ((int)1126)
+%#define OPENSS_PROTOCOL_TAG_MPI_STARTUP                        ((int)1127)
 %
 %#define OPENSS_PROTOCOL_TAG_PERFORMANCE_DATA                   ((int)10000)
 
@@ -937,4 +938,15 @@ struct OpenSS_Protocol_UnloadedLinkedObject
     
     /** Name of the linked object's file. */
     OpenSS_Protocol_FileName linked_object;
+};
+
+struct OpenSS_Protocol_MPIStartup
+{
+    /** Threads which are in MPI startup. */
+    OpenSS_Protocol_ThreadNameGroup threads;
+
+    /**
+     * Boolean "true" if threads are in MPI startup.
+     */
+    bool in_mpi_startup;
 };

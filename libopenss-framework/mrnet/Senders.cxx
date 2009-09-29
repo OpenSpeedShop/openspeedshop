@@ -873,3 +873,37 @@ void Senders::uninstrument(const ThreadGroup& threads,
 	reinterpret_cast<char*>(&message)
 	);
 }
+
+void Senders::MPIStartup(const ThreadGroup& threads, const bool& mpi_startup_val)
+{
+    // Assemble the request into a message
+    OpenSS_Protocol_MPIStartup message;
+    ::convert(threads, message.threads);
+    message.in_mpi_startup = mpi_startup_val;
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Senders::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
+    // Encode the message into a blob
+    Blob blob(
+        reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_MPIStartup),
+	&message
+	);
+    
+    // Send the encoded message to the appropriate backends
+    Frontend::sendToBackends(OPENSS_PROTOCOL_TAG_MPI_STARTUP,
+			     blob, message.threads);
+
+    // Destroy the message
+    xdr_free(
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_MPIStartup),
+	reinterpret_cast<char*>(&message)
+	);
+}
+

@@ -71,6 +71,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void stopAtEntryOrExit(const ThreadGroup&,
 			       const std::string&, const bool&);
 	void uninstrument(const ThreadGroup&, const Collector&);
+	void MPIStartup(const ThreadGroup&, const bool&);
     }
     
 } }

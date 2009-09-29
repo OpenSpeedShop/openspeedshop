@@ -58,6 +58,7 @@ using namespace OpenSpeedShop::Watcher;
 namespace {
 
 
+    bool is_in_mpi_startup = false;
 
     /**
      * Symbol table map.
@@ -109,7 +110,7 @@ namespace {
 
 	// Initially assume the table will not be read properly
 	value = std::make_pair(false, Job());
-	
+
 	// Get the image pointer for this process
 	BPatch_image* image = process.getImage();
 	Assert(image != NULL);
@@ -146,7 +147,7 @@ namespace {
 	    // Read the host name for this entry
 	    std::string host_name;
 	    image->readString(raw_value.host_name, host_name);
-	    
+
 	    // Add this entry to the job value
 	    value.second.push_back(std::make_pair(host_name, raw_value.pid));
 
@@ -182,6 +183,13 @@ void OpenSpeedShop::Framework::Dyninst::dynLibrary(BPatch_thread* thread,
 						   BPatch_module* module,
 						   bool is_load)
 {
+    // ignore dlopen and dlclose that occur while we are in mpi startup phase.
+    // Since we are not actively collecting data at this point we do not want
+    // these entries (and the time it takes to process then in dyninst).
+    if (is_in_mpi_startup) {
+	return;
+    }
+
     // Check preconditions
     Assert(thread != NULL);
     Assert(module != NULL);
@@ -514,25 +522,35 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
 // Mainly set this flag for cases like openmpi where the mpi startup
 // work is may not of interest to the user.
 	
-        // Send the frontend the list of threads that were forked
-        Senders::attachedToThreads(threads_forked);
+	// During mpi startup we are not yet collecting data.
+	// This prevents orte forked mpirun processes from polluting the database.
+	// It also speeds up mpi startup with openmpi and any mpi launcher
+	// that uses fork.
+	if (!is_in_mpi_startup) {
+            // Send the frontend the list of threads that were forked
+            Senders::attachedToThreads(threads_forked);
 
-	// Send the frontend all the symbol information for these threads
-	Dyninst::sendSymbolsForThread(threads_forked);
+	    // Send the frontend all the symbol information for these threads
+	    Dyninst::sendSymbolsForThread(threads_forked);
+	}
 	
         // Send the frontend a message indicating these threads are running
         Senders::threadsStateChanged(threads_forked, Running);
 
-// FIXME: any attempt to copy instrumentation during openmpi startup
-// is causing the rank processes to crash. Possibly the forked mpirun
-// processes that start the actual rank process (e.g. nbody) are already
-// gone by this time.  Mybe we need to call getNames outside of the
-// copyInstrumentation call and then call it if we get any valid names.
-#if 0
-	// Copy instrumentation to the new process
-	Dyninst::copyInstrumentation(ThreadTable::TheTable.getNames(parent),
+	// FIXME: any attempt to copy instrumentation during openmpi startup
+	// is causing the rank processes to crash. Possibly the forked mpirun
+	// processes that start the actual rank process (e.g. nbody) are already
+	// gone by this time.  Mybe we need to call getNames outside of the
+	// copyInstrumentation call and then call it if we get any valid names.
+	
+	// During mpi startup we are not yet collecting data. So no instrumentation.
+	// It also speeds up mpi startup with openmpi and any mpi launcher
+	// that uses fork.
+	if (!is_in_mpi_startup) {
+	    // Copy instrumentation to the new process
+	    Dyninst::copyInstrumentation(ThreadTable::TheTable.getNames(parent),
 				     threads_forked);
-#endif
+	}
 
     }
 }
@@ -1586,4 +1604,20 @@ void OpenSpeedShop::Framework::Dyninst::sendThreadStateUpdates()
 	    Senders::threadsStateChanged(i->second, i->first);
     
 	}
+}
+
+// Notification that we are mpi startup phase. This tells other Dyninst callbacks
+// that we are not interested in symbols or instrumenting until the mpi
+// startup flag is set back to false.
+void OpenSpeedShop::Framework::Dyninst::setMPIStartup(bool mpi_startup_val)
+{
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+        std::stringstream output;
+	output << "[TID " << pthread_self() << "] Dyninst::"
+	       << "setMPIStartup()  mpi_startup_val = " << mpi_startup_val << std::endl;
+        std::cerr << output.str();
+    }
+#endif
+   is_in_mpi_startup = mpi_startup_val;
 }

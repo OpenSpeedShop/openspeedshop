@@ -1391,3 +1391,15 @@ std::string OpenSpeedShop::Framework::toString(
 	   << ")" << std::endl;
     return output.str();
 }
+
+std::string OpenSpeedShop::Framework::toString(
+    const OpenSS_Protocol_MPIStartup& message
+    )
+{
+    std::stringstream output;
+    output << "MPIStartup(" << std::endl
+	   << toString(message.threads) << "," << std::endl
+	   << "    " << message.in_mpi_startup << "," << std::endl
+	   << ")" << std::endl;
+    return output.str();
+}

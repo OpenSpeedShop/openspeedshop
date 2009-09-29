@@ -648,8 +648,18 @@ void Instrumentor::setGlobal(const Thread& thread,
  *
  * Ignored by MRNet instrumentor.
  */
-void Instrumentor::setMPIStartup(const Thread&, const bool)
+void Instrumentor::setMPIStartup(const Thread& thread, const bool mpi_startup)
 {
+    // Construct a thread group containing this thread
+    ThreadGroup threads;
+    threads.insert(thread);
+ 
+    // Check preconditions
+    Assert(isMRNetInitialized);
+    ThreadTable::TheTable.validateThreads(threads);
+
+    // Request the stop be added to these threads
+    Senders::MPIStartup(threads, mpi_startup);
 }
 
 

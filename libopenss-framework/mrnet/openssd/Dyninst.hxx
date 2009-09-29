@@ -84,6 +84,7 @@ namespace OpenSpeedShop { namespace Framework {
 
 	void sendSymbolsForThread(const ThreadNameGroup&);
 	void sendThreadStateUpdates();
+	void setMPIStartup(bool);
     }
     
 } }

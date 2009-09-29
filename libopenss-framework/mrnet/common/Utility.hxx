@@ -101,6 +101,7 @@ namespace OpenSpeedShop { namespace Framework {
     std::string toString(const OpenSS_Protocol_ThreadsStateChanged&);
     std::string toString(const OpenSS_Protocol_Uninstrument&);
     std::string toString(const OpenSS_Protocol_UnloadedLinkedObject&);
+    std::string toString(const OpenSS_Protocol_MPIStartup&);
     
 } }
 

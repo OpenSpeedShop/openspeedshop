@@ -49,7 +49,7 @@ using namespace OpenSpeedShop::Framework;
 
 namespace {
 
-
+    bool is_in_mpi_startup = false;
 
     /**
      * Filter threads by local host.
@@ -109,7 +109,8 @@ void Callbacks::attachToThreads(const Blob& blob)
     if(Backend::isDebugEnabled()) {
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] Callbacks::"
-	       << toString(message);
+	       << toString(message)
+		<< " is_in_mpi_startup = " << is_in_mpi_startup;
 	std::cerr << output.str();
     }
 #endif
@@ -225,8 +226,9 @@ void Callbacks::attachToThreads(const Blob& blob)
 		i = threads_attached.begin(); i != threads_attached.end(); ++i)
 	    
 	    // Send the frontend all the symbol information for this thread
-	    Dyninst::sendSymbolsForThread(*i);
-
+	    if (!is_in_mpi_startup) {
+	        Dyninst::sendSymbolsForThread(*i);
+	    }
 	// Send the frontend a message indicating these threads are suspended
 	Senders::threadsStateChanged(threads_attached, Suspended);
     }
@@ -495,10 +497,16 @@ void Callbacks::createProcess(const Blob& blob)
 	
 	// Iterate over each thread that was created
 	for(ThreadNameGroup::const_iterator 
-		i = threads_created.begin(); i != threads_created.end(); ++i)
+		i = threads_created.begin(); i != threads_created.end(); ++i) {
 	    
 	    // Send the frontend all the symbol information for this thread
-	    Dyninst::sendSymbolsForThread(*i);
+	    // If we are in the mpi startup phase we are not even close to collecting
+	    // any data. So we will not need symbols for these threads.
+
+	    if (!is_in_mpi_startup) {
+	        Dyninst::sendSymbolsForThread(*i);
+	    }
+	}
 	
 	// Send the frontend a message indicating these threads are suspended
 	Senders::threadsStateChanged(threads_created, Suspended);
@@ -1154,5 +1162,49 @@ void Callbacks::uninstrument(const Blob& blob)
 	InstrumentationTable::TheTable.
 	    removeInstrumentation(*i, Collector(message.collector));
 	
+    }
+}
+
+void Callbacks::MPIStartup(const Blob& blob)
+{
+    // Decode the message
+    OpenSS_Protocol_MPIStartup message;
+    memset(&message, 0, sizeof(message));
+    blob.getXDRDecoding(
+	reinterpret_cast<xdrproc_t>(xdr_OpenSS_Protocol_MPIStartup),
+	&message
+	);
+
+#ifndef NDEBUG
+    if(Backend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       << toString(message);
+	std::cerr << output.str();
+    }
+#endif
+
+    // Iterate over each thread to be notified that we are in mpi startup phase.
+    ThreadNameGroup threads = filterByLocalHost(message.threads);
+    for(ThreadNameGroup::const_iterator
+	    i = threads.begin(); i != threads.end(); ++i) {
+
+	// Has this thread not been attached?
+	if(ThreadTable::TheTable.getPtr(*i) == NULL) {
+#ifndef NDEBUG
+	    if(Backend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "MPIStartup(): Thread " << toString(*i)
+		       << " is not attached." << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+	    continue;
+	}
+	
+	// Pass the mpi startup flag on to Dyninst class.
+	is_in_mpi_startup = message.in_mpi_startup;
+	Dyninst::setMPIStartup(message.in_mpi_startup);
     }
 }

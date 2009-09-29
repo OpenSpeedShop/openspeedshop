@@ -60,6 +60,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void stdIn(const Blob&);
 	void stopAtEntryOrExit(const Blob&);
 	void uninstrument(const Blob&);
+	void MPIStartup(const Blob&);
     }
     
 } }

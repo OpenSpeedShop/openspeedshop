@@ -133,6 +133,8 @@ int main(int argc, char* argv[])
 			      Callbacks::stopAtEntryOrExit);
     Backend::registerCallback(OPENSS_PROTOCOL_TAG_UNINSTRUMENT,
 			      Callbacks::uninstrument);
+    Backend::registerCallback(OPENSS_PROTOCOL_TAG_MPI_STARTUP,
+			      Callbacks::MPIStartup);
     
     // Start the backend's message pump
     Backend::startMessagePump(argc, argv);
@@ -185,6 +187,8 @@ int main(int argc, char* argv[])
 				Callbacks::stopAtEntryOrExit);
     Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_UNINSTRUMENT,
 				Callbacks::uninstrument);
+    Backend::unregisterCallback(OPENSS_PROTOCOL_TAG_MPI_STARTUP,
+			        Callbacks::MPIStartup);
     
     // Display a shutdown message
     std::cout << std::endl;
