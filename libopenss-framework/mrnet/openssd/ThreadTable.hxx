@@ -74,7 +74,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void removeThread(const ThreadName&, BPatch_thread*);
 
         std::set<pid_t> getActivePids() const;
-        std::vector<std::pair<pid_t,std::string> > getActivePidsAndHosts() const;
+        std::vector<std::pair<pid_t, std::pair< std::pair< bool, pthread_t>, std::string> > > getActivePidsAndHosts() const;
 	
 	BPatch_thread* getPtr(const ThreadName&) const;
 	ThreadNameGroup getNames(/* const */ BPatch_thread*) const;

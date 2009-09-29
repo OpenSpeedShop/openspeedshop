@@ -641,7 +641,7 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
   uint64_t prevPos = 0;
   WatcherThreadTable::FileInfoEntry currentFileEntryInfo;
   std::set<pid_t > PidSet; 
-  std::vector<std::pair<pid_t,std::string> > PidsAndHostsVector; 
+  std::vector<std::pair<pid_t, std::pair< std::pair< bool, pthread_t>, std::string> > > PidsAndHostsVector; 
   pid_t pid_to_monitor=0; 
   std::string host_to_monitor = ""; 
 
@@ -692,13 +692,13 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
     PidsAndHostsVector = OpenSpeedShop::Framework::ThreadTable::TheTable.getActivePidsAndHosts();
 
     if (PidsAndHostsVector.size() > 0) {
-      for (std::vector<std::pair<pid_t,std::string> >::iterator ph = PidsAndHostsVector.begin(); 
+      for (std::vector<std::pair<pid_t, std::pair< std::pair< bool, pthread_t>, std::string> > >::iterator ph = PidsAndHostsVector.begin(); 
                                                                 ph != PidsAndHostsVector.end(); ph++) {
 #ifndef NDEBUG
          if (isDebugEnabled ()) {
 	    std::stringstream output;
             output << " OpenSpeedShop::Watcher::fileIOmonitorThread(), ph->first=" 
-                      << ph->first << " ph->second=" << ph->second << std::endl;
+                      << ph->first << " ph->second.first.second=" << ph->second.first.second << std::endl;
 	    std::cerr << output.str ();
          }
 #endif
@@ -720,8 +720,8 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
          // Once found, while through the directory looking for openss-data
          // type files.
 
-         scanForRawPerformanceData(ph->first, ph->second, 0);
-	 break;
+         scanForRawPerformanceData(ph->first, ph->second.second, ph->second.first.second);
+//	 break;
 
       }
 

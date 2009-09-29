@@ -201,21 +201,36 @@ void ThreadTable::removeThread(const ThreadName& thread, BPatch_thread* ptr)
     dm_ptr_to_state.erase(l);
 }
 
-std::vector<std::pair<pid_t,std::string> > ThreadTable::getActivePidsAndHosts() const
+std::vector<std::pair<pid_t, std::pair<std::pair<bool, pthread_t>, std::string> > > ThreadTable::getActivePidsAndHosts() const
 {
     Guard guard_myself(this);
-    std::vector<std::pair<pid_t,std::string> > returnSet;
+    std::vector< std::pair< pid_t, std::pair< std::pair< bool, pthread_t >, std::string > > > returnSet;
 
     returnSet.clear();
 
     // Find the entry (if any) for this thread
     std::map<ThreadName, BPatch_thread*>::const_iterator i = dm_name_to_ptr.begin();
     for(; i!=dm_name_to_ptr.end(); ++i) {
+
+       // Kind of Kludge - the database names are created from gethostname (non-canonical) but getHost returns canonical.
+       // So, here we look for the first '.' and take the characters prior to it as the non-canonical name
+       std::string tmp_str =  i->first.getHost();
+       int dot_loc = i->first.getHost().find('.');
+       std::string new_tmp_str = tmp_str.substr (0,dot_loc);
+
 #if 0
        std::cout << "ThreadTable::getActivePidsAndHosts(), i->first.getProcessId()=" << i->first.getProcessId() << std::endl;
        std::cout << "ThreadTable::getActivePidsAndHosts(), i->first.getHost()=" << i->first.getHost() << std::endl;
+       std::cout << "ThreadTable::getActivePidsAndHosts(), new_tmp_str=" << new_tmp_str << std::endl;
 #endif
-       returnSet.push_back(std::make_pair<pid_t,std::string>(i->first.getProcessId(),i->first.getHost() ) );
+
+       returnSet.push_back(std::make_pair( 
+                              i->first.getProcessId(), 
+                              std::make_pair(
+                                     i->first.getPosixThreadId(), 
+                                     new_tmp_str.c_str())
+                              ));
+
     }
     // Return the Dyninst thread object pointer to the caller
     return (returnSet);
