@@ -687,7 +687,6 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
 	}
 #endif
 
-#if 1
     PidsAndHostsVector.clear();
     PidsAndHostsVector = OpenSpeedShop::Framework::ThreadTable::TheTable.getActivePidsAndHosts();
 
@@ -719,62 +718,28 @@ OpenSpeedShop::Watcher::fileIOmonitorThread (void *)
          // ******* Identify the directory that we need to search for files
          // Once found, while through the directory looking for openss-data
          // type files.
+         //
 
+         // Kind of Kludge - the database names are created from gethostname (non-canonical) but getHost returns canonical.
+         // So, here we look for the first '.' and take the characters prior to it as the non-canonical name
+         // Use this until we process host names uniformly across the OpenSpeedShop tool set.
+         //
+         std::string tmp_str =  ph->second.second;
+         int dot_loc = ph->second.second.find('.');
+         std::string new_tmp_str = tmp_str.substr (0,dot_loc);
+       
+         // First scan the main directory for sub-directories using the canonical name
+         //
          scanForRawPerformanceData(ph->first, ph->second.second, ph->second.first.second);
-//	 break;
+
+         // Now scan the main directory for sub-directories using the truncated canonical name
+         //
+         scanForRawPerformanceData(ph->first, new_tmp_str.c_str(), ph->second.first.second);
 
       }
 
     }
 
-#else
-    PidSet.clear();
-    PidSet = OpenSpeedShop::Framework::ThreadTable::TheTable.getActivePids();
-    if (PidSet.size() > 0) {
-     for (std::set< pid_t >::iterator i = PidSet.begin(); i != PidSet.end(); i++) {
-
-#ifndef NDEBUG
-        if (isDebugEnabled ()) {
- 	    std::stringstream output;
-	    output << "[TID " << pthread_self () << "] OpenSpeedShop::Watcher::fileIOmonitorThread()" <<
-	    " ----- PidSet, pid=" << *i << std::endl;
-	    std::cerr << output.str ();
-        }
-#endif
-            pid_to_monitor = *i;
-
-      // Search given directory for files with the openss-data suffix
-      // When we find a openss data file, keep track of several items per file.
-      // We will be reading from this file when the size of the blob and the blob bytes
-      // are written.  What we read will be sent to the client tool via the Senders:performanceData
-      // callback routine.
-
-      // What we will be keeping track of for each file is:
-      // a) file pointer
-      // b) filename corresponding to file pointer
-      // c) position within the file, as to where to start looking for data
-      // d) offset of next blob
-
-
-      // ******* Identify the directory that we need to search for files
-      // Once found, while through the directory looking for openss-data
-      // type files.
-#ifndef NDEBUG
-  if (isDebugEnabled ()) {
-      std::stringstream output;
-      output << "[TID " << pthread_self () 
-	     << "] OpenSpeedShop::Watcher::fileIOmonitorThread()" 
-             << " calling scanForRawPerformanceData, pid_to_monitor=" 
-             << pid_to_monitor << " host_to_monitor=" << host_to_monitor << std::endl;
-      std::cerr << output.str ();
-    }
-#endif
-
-      scanForRawPerformanceData(pid_to_monitor, host_to_monitor, 0);
-
-     } // PidSet loop
-    } // PidSet > 0 if
-#endif
 
     // Release the scan lock so the code in watchProcess() can have it, if needed
     //
@@ -843,7 +808,7 @@ OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads)
       std::stringstream output;
       output << "[TID " << pthread_self ()
 	     << "] OpenSpeedShop::Watcher::watchProcess()" 
-             << " Entered " << std::endl;
+             << " Entered FINAL CHECK - FLUSH DATA IF ANY " << std::endl;
       std::cerr << output.str ();
     }
 #endif
@@ -869,6 +834,11 @@ OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads)
 
 
        std::pair<bool, pthread_t> tid = i->getPosixThreadId();
+
+       std::string tmp_str2 =  i->getHost();
+       int dot_loc2 = i->getHost().find('.');
+       std::string new_tmp_str2 = tmp_str2.substr (0,dot_loc2);
+
        if(tid.first) {
 //           std::cout << "[TID " << pthread_self() << "] OpenSpeedShop::Watcher::watchProcess(), tid.second=  " << tid.second << std::endl;
 #ifndef NDEBUG
@@ -880,7 +850,13 @@ OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads)
               std::cerr << output.str ();
          }
 #endif
+           // First scan the main directory for sub-directories using the canonical name
+           //
            scanForRawPerformanceData(i->getProcessId(), i->getHost(), tid.second);
+
+           // Now scan the main directory for sub-directories using the truncated canonical name
+           //
+           scanForRawPerformanceData(i->getProcessId(), new_tmp_str2.c_str(), tid.second);
 
          } else {
 
@@ -893,7 +869,13 @@ OpenSpeedShop::Watcher::watchProcess(ThreadNameGroup threads)
               std::cerr << output.str ();
           }
 #endif
+           // First scan the main directory for sub-directories using the canonical name
+           //
            scanForRawPerformanceData(i->getProcessId(), i->getHost(), 0);
+
+           // Now scan the main directory for sub-directories using the truncated canonical name
+           //
+           scanForRawPerformanceData(i->getProcessId(), new_tmp_str2.c_str(), 0);
 
          } // end else clause where tid.first was not true, so therefore there is no thread_id
 

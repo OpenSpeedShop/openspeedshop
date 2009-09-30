@@ -212,23 +212,27 @@ std::vector<std::pair<pid_t, std::pair<std::pair<bool, pthread_t>, std::string> 
     std::map<ThreadName, BPatch_thread*>::const_iterator i = dm_name_to_ptr.begin();
     for(; i!=dm_name_to_ptr.end(); ++i) {
 
+#if 0
+       .... jeg --- moved this to the Watcher code.  Now return the canonical name from this routine, as it did before.
+
        // Kind of Kludge - the database names are created from gethostname (non-canonical) but getHost returns canonical.
        // So, here we look for the first '.' and take the characters prior to it as the non-canonical name
        std::string tmp_str =  i->first.getHost();
        int dot_loc = i->first.getHost().find('.');
        std::string new_tmp_str = tmp_str.substr (0,dot_loc);
+#endif
 
 #if 0
        std::cout << "ThreadTable::getActivePidsAndHosts(), i->first.getProcessId()=" << i->first.getProcessId() << std::endl;
        std::cout << "ThreadTable::getActivePidsAndHosts(), i->first.getHost()=" << i->first.getHost() << std::endl;
-       std::cout << "ThreadTable::getActivePidsAndHosts(), new_tmp_str=" << new_tmp_str << std::endl;
+//       std::cout << "ThreadTable::getActivePidsAndHosts(), new_tmp_str=" << new_tmp_str << std::endl;
 #endif
 
        returnSet.push_back(std::make_pair( 
                               i->first.getProcessId(), 
                               std::make_pair(
                                      i->first.getPosixThreadId(), 
-                                     new_tmp_str.c_str())
+                                     i->first.getHost())
                               ));
 
     }
