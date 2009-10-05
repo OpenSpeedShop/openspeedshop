@@ -903,6 +903,8 @@ BINUTILS_CPPFLAGS
 BINUTILS_LDFLAGS
 BINUTILS_LIBS
 BINUTILS_DIR
+HAVE_TARGET_BINUTILS_TRUE
+HAVE_TARGET_BINUTILS_FALSE
 TARGET_BINUTILS_CPPFLAGS
 TARGET_BINUTILS_LDFLAGS
 TARGET_BINUTILS_LIBS
@@ -918,15 +920,22 @@ LIBMONITOR_CPPFLAGS
 LIBMONITOR_LDFLAGS
 LIBMONITOR_LIBS
 LIBMONITOR_DIR
-TARGET_LIBUNWIND_CPPFLAGS
-TARGET_LIBUNWIND_LDFLAGS
-TARGET_LIBUNWIND_LIBS
-TARGET_LIBUNWIND_DIR
+HAVE_TARGET_LIBMONITOR_TRUE
+HAVE_TARGET_LIBMONITOR_FALSE
+TARGET_LIBMONITOR_CPPFLAGS
+TARGET_LIBMONITOR_LDFLAGS
+TARGET_LIBMONITOR_LIBS
+TARGET_LIBMONITOR_DIR
 HAVE_LIBUNWIND_TRUE
 HAVE_LIBUNWIND_FALSE
 LIBUNWIND_CPPFLAGS
 LIBUNWIND_LDFLAGS
 LIBUNWIND_LIBS
+HAVE_TARGET_LIBUNWIND_TRUE
+HAVE_TARGET_LIBUNWIND_FALSE
+TARGET_LIBUNWIND_CPPFLAGS
+TARGET_LIBUNWIND_LDFLAGS
+TARGET_LIBUNWIND_LIBS
 HAVE_LAM_TRUE
 HAVE_LAM_FALSE
 LAM_CC
@@ -1014,6 +1023,8 @@ HAVE_PAPI_FALSE
 PAPI_CPPFLAGS
 PAPI_LDFLAGS
 PAPI_LIBS
+HAVE_TARGET_PAPI_TRUE
+HAVE_TARGET_PAPI_FALSE
 TARGET_PAPI_CPPFLAGS
 TARGET_PAPI_LDFLAGS
 TARGET_PAPI_LIBS
@@ -1028,6 +1039,8 @@ LQTDIR
 ac_cv_qtlib
 ac_thread
 ac_qmake
+HAVE_QTLIB_TRUE
+HAVE_QTLIB_FALSE
 QTLIB_HOME
 QTLIB_CPPFLAGS
 QTLIB_LDFLAGS
@@ -5683,7 +5696,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5686 "configure"' > conftest.$ac_ext
+  echo '#line 5699 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7689,11 +7702,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7692: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7705: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7696: \$? = $ac_status" >&5
+   echo "$as_me:7709: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7979,11 +7992,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7982: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7995: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7986: \$? = $ac_status" >&5
+   echo "$as_me:7999: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8083,11 +8096,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8086: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8099: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8090: \$? = $ac_status" >&5
+   echo "$as_me:8103: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10434,7 +10447,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10437 "configure"
+#line 10450 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10534,7 +10547,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10537 "configure"
+#line 10550 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12954,11 +12967,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12957: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12970: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:12961: \$? = $ac_status" >&5
+   echo "$as_me:12974: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13058,11 +13071,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13061: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13074: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13065: \$? = $ac_status" >&5
+   echo "$as_me:13078: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14622,11 +14635,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14625: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14638: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14629: \$? = $ac_status" >&5
+   echo "$as_me:14642: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -14726,11 +14739,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14729: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14742: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14733: \$? = $ac_status" >&5
+   echo "$as_me:14746: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16915,11 +16928,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16918: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16931: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16922: \$? = $ac_status" >&5
+   echo "$as_me:16935: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17205,11 +17218,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17208: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17221: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17212: \$? = $ac_status" >&5
+   echo "$as_me:17225: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17309,11 +17322,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17312: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17325: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17316: \$? = $ac_status" >&5
+   echo "$as_me:17329: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -21146,16 +21159,37 @@ fi
 if test "${with_target_binutils+set}" = set; then
   withval=$with_target_binutils; target_binutils_dir=$withval
 else
-  target_binutils_dir="/opt"
+  target_binutils_dir="/zzz"
 fi
 
 
-    if test "$target_binutils_dir" == "/opt" ; then
+    if test "$target_binutils_dir" == "/zzz" ; then
+       if false; then
+  HAVE_TARGET_BINUTILS_TRUE=
+  HAVE_TARGET_BINUTILS_FALSE='#'
+else
+  HAVE_TARGET_BINUTILS_TRUE='#'
+  HAVE_TARGET_BINUTILS_FALSE=
+fi
+
       TARGET_BINUTILS_DIR=""
       TARGET_BINUTILS_CPPFLAGS=""
       TARGET_BINUTILS_LDFLAGS=""
       TARGET_BINUTILS_LIBS=""
     else
+       if true; then
+  HAVE_TARGET_BINUTILS_TRUE=
+  HAVE_TARGET_BINUTILS_FALSE='#'
+else
+  HAVE_TARGET_BINUTILS_TRUE='#'
+  HAVE_TARGET_BINUTILS_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_TARGET_BINUTILS 1
+_ACEOF
+
       case "$target_os" in
 	cray-xt5)
             TARGET_BINUTILS_DIR="$target_binutils_dir"
@@ -21171,6 +21205,7 @@ fi
             ;;
       esac
     fi
+
 
 
 
@@ -21501,20 +21536,41 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
 if test "${with_target_libmonitor+set}" = set; then
   withval=$with_target_libmonitor; target_libmonitor_dir=$withval
 else
-  target_libmonitor_dir="/opt"
+  target_libmonitor_dir="/zzz"
 fi
 
 
-    if test "$target_libmonitor_dir" == "/opt" ; then
-      TARGET_LIBUNWIND_CPPFLAGS=""
-      TARGET_LIBUNWIND_LDFLAGS=""
-      TARGET_LIBUNWIND_LIBS=""
-      TARGET_LIBUNWIND_DIR=""
+    if test "$target_libmonitor_dir" == "/zzz" ; then
+       if false; then
+  HAVE_TARGET_LIBMONITOR_TRUE=
+  HAVE_TARGET_LIBMONITOR_FALSE='#'
+else
+  HAVE_TARGET_LIBMONITOR_TRUE='#'
+  HAVE_TARGET_LIBMONITOR_FALSE=
+fi
+
+      TARGET_LIBMONITOR_CPPFLAGS=""
+      TARGET_LIBMONITOR_LDFLAGS=""
+      TARGET_LIBMONITOR_LIBS=""
+      TARGET_LIBMONITOR_DIR=""
     else
-      TARGET_LIBUNWIND_CPPFLAGS="-I$target_libmonitor_dir/include"
-      TARGET_LIBUNWIND_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
-      TARGET_LIBUNWIND_LIBS="-lmonitor"
-      TARGET_LIBUNWIND_DIR="$target_libmonitor_dir"
+       if true; then
+  HAVE_TARGET_LIBMONITOR_TRUE=
+  HAVE_TARGET_LIBMONITOR_FALSE='#'
+else
+  HAVE_TARGET_LIBMONITOR_TRUE='#'
+  HAVE_TARGET_LIBMONITOR_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_TARGET_LIBMONITOR 1
+_ACEOF
+
+      TARGET_LIBMONITOR_CPPFLAGS="-I$target_libmonitor_dir/include"
+      TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
+      TARGET_LIBMONITOR_LIBS="-lmonitor"
+      TARGET_LIBMONITOR_DIR="$target_libmonitor_dir"
     fi
 
 
@@ -21644,19 +21700,41 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
 if test "${with_target_libunwind+set}" = set; then
   withval=$with_target_libunwind; target_libunwind_dir=$withval
 else
-  target_libunwind_dir="/opt"
+  target_libunwind_dir="/zzz"
 fi
 
 
-    if test "$target_libunwind_dir" == "/opt" ; then
+    if test "$target_libunwind_dir" == "/zzz" ; then
+       if false; then
+  HAVE_TARGET_LIBUNWIND_TRUE=
+  HAVE_TARGET_LIBUNWIND_FALSE='#'
+else
+  HAVE_TARGET_LIBUNWIND_TRUE='#'
+  HAVE_TARGET_LIBUNWIND_FALSE=
+fi
+
       TARGET_LIBUNWIND_CPPFLAGS=""
       TARGET_LIBUNWIND_LDFLAGS=""
       TARGET_LIBUNWIND_LIBS=""
     else
+       if true; then
+  HAVE_TARGET_LIBUNWIND_TRUE=
+  HAVE_TARGET_LIBUNWIND_FALSE='#'
+else
+  HAVE_TARGET_LIBUNWIND_TRUE='#'
+  HAVE_TARGET_LIBUNWIND_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_TARGET_LIBUNWIND 1
+_ACEOF
+
       TARGET_LIBUNWIND_CPPFLAGS="-I$target_libunwind_dir/include -DUNW_LOCAL_ONLY"
       TARGET_LIBUNWIND_LDFLAGS="-L$target_libunwind_dir/$abi_libdir"
       TARGET_LIBUNWIND_LIBS="-lunwind"
     fi
+
 
 
 
@@ -24194,15 +24272,38 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
 if test "${with_target_papi+set}" = set; then
   withval=$with_target_papi; target_papi_dir=$withval
 else
-  target_papi_dir="/opt"
+  target_papi_dir="/zzz"
 fi
 
 
-    if test "$target_papi_dir" == "/opt" ; then
+    if test "$target_papi_dir" == "/zzz" ; then
+       if false; then
+  HAVE_TARGET_PAPI_TRUE=
+  HAVE_TARGET_PAPI_FALSE='#'
+else
+  HAVE_TARGET_PAPI_TRUE='#'
+  HAVE_TARGET_PAPI_FALSE=
+fi
+
       TARGET_PAPI_CPPFLAGS=""
       TARGET_PAPI_LDFLAGS=""
       TARGET_PAPI_LIBS=""
     else
+
+       if true; then
+  HAVE_TARGET_PAPI_TRUE=
+  HAVE_TARGET_PAPI_FALSE='#'
+else
+  HAVE_TARGET_PAPI_TRUE='#'
+  HAVE_TARGET_PAPI_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_TARGET_PAPI 1
+_ACEOF
+
+
       TARGET_PAPI_CPPFLAGS="-I$target_papi_dir/include"
       TARGET_PAPI_LDFLAGS="-L$target_papi_dir/$abi_libdir"
 
@@ -24215,7 +24316,6 @@ fi
             ;;
       esac
     fi
-
 
 
 
@@ -24476,6 +24576,9 @@ echo "${ECHO_T}yes" >&6; }
 
 
 
+
+
+found_all_qt=1
 
 if test "x$QTDIR" = "x"; then
    LQTDIR=/usr
@@ -24943,13 +25046,12 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
     else
+        found_all_qt=0
         { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
-	{ { echo "$as_me:$LINENO: error: Can not locate Qt library and/or the headers.
-See \`config.log' for more details." >&5
-echo "$as_me: error: Can not locate Qt library and/or the headers.
-See \`config.log' for more details." >&2;}
-   { (exit 1); exit 1; }; }
+#	AC_MSG_FAILURE(Can not locate Qt library and/or the headers.)
+        { echo "$as_me:$LINENO: result: Can not locate Qt library and/or the headers." >&5
+echo "${ECHO_T}Can not locate Qt library and/or the headers." >&6; }
     fi
 
     cat >conftest.$ac_ext <<_ACEOF
@@ -25005,9 +25107,11 @@ sed 's/^/| /' conftest.$ac_ext >&5
 		QT_CFLAGS=""
 		QT_LIBS=""
 		QT_LDFLAGS=""
-		{ { echo "$as_me:$LINENO: error: ** QT version 3.3 or greater is required for the Open|SpeedShop QT gui." >&5
-echo "$as_me: error: ** QT version 3.3 or greater is required for the Open|SpeedShop QT gui." >&2;}
-   { (exit 1); exit 1; }; }
+		#AC_MSG_ERROR([** QT version 3.3 or greater is required for the Open|SpeedShop QT gui.])
+#	        AC_MSG_FAILURE(QT version 3.3 or greater was not found.)
+                { echo "$as_me:$LINENO: result: QT version 3.3 or greater was not found." >&5
+echo "${ECHO_T}QT version 3.3 or greater was not found." >&6; }
+                found_all_qt=0
 
 fi
 
@@ -25064,9 +25168,11 @@ fi
 
 
 if test "x$ac_qmake" = "xno"; then
-   { { echo "$as_me:$LINENO: error: qmake $ac_qtdir_errmsg" >&5
-echo "$as_me: error: qmake $ac_qtdir_errmsg" >&2;}
-   { (exit 1); exit 1; }; }
+   #AC_MSG_ERROR([qmake $ac_qtdir_errmsg])
+#   AC_MSG_FAILURE(QT qmake was not found.)
+   { echo "$as_me:$LINENO: result: QT qmake was not found." >&5
+echo "${ECHO_T}QT qmake was not found." >&6; }
+   found_all_qt=0
 else
    QTLIB_HOME=$tmp_lqtdir
 fi
@@ -25117,14 +25223,41 @@ fi
     LDFLAGS=$qtlib_saved_LDFLAGS
 
 
+    if test $found_all_qt -eq 0; then
+	QTLIB_CFLAGS=""
+	QTLIB_LIBS=""
+	QTLIB_LDFLAGS=""
+	QTLIB_CPPFLAGS=""
+	QTLIB_HOME=""
+         if false; then
+  HAVE_QTLIB_TRUE=
+  HAVE_QTLIB_FALSE='#'
+else
+  HAVE_QTLIB_TRUE='#'
+  HAVE_QTLIB_FALSE=
+fi
+
+    fi
 
 
+
+
+
+    if test $found_all_qt -eq 1; then
+       if true; then
+  HAVE_QTLIB_TRUE=
+  HAVE_QTLIB_FALSE='#'
+else
+  HAVE_QTLIB_TRUE='#'
+  HAVE_QTLIB_FALSE=
+fi
 
 
 cat >>confdefs.h <<\_ACEOF
 #define HAVE_QTLIB 1
 _ACEOF
 
+    fi
 
 
 
@@ -25429,7 +25562,6 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
 
 
 
@@ -26523,6 +26655,20 @@ echo "$as_me: error: conditional \"HAVE_BINUTILS\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
+if test -z "${HAVE_TARGET_BINUTILS_TRUE}" && test -z "${HAVE_TARGET_BINUTILS_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_BINUTILS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_BINUTILS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_BINUTILS_TRUE}" && test -z "${HAVE_TARGET_BINUTILS_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_BINUTILS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_BINUTILS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
 if test -z "${HAVE_LIBDWARF_TRUE}" && test -z "${HAVE_LIBDWARF_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_LIBDWARF\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
@@ -26558,6 +26704,20 @@ echo "$as_me: error: conditional \"HAVE_LIBMONITOR\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
+if test -z "${HAVE_TARGET_LIBMONITOR_TRUE}" && test -z "${HAVE_TARGET_LIBMONITOR_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_LIBMONITOR\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_LIBMONITOR\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_LIBMONITOR_TRUE}" && test -z "${HAVE_TARGET_LIBMONITOR_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_LIBMONITOR\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_LIBMONITOR\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
 if test -z "${HAVE_LIBUNWIND_TRUE}" && test -z "${HAVE_LIBUNWIND_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_LIBUNWIND\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
@@ -26569,6 +26729,20 @@ if test -z "${HAVE_LIBUNWIND_TRUE}" && test -z "${HAVE_LIBUNWIND_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_LIBUNWIND\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"HAVE_LIBUNWIND\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_LIBUNWIND_TRUE}" && test -z "${HAVE_TARGET_LIBUNWIND_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_LIBUNWIND\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_LIBUNWIND\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_LIBUNWIND_TRUE}" && test -z "${HAVE_TARGET_LIBUNWIND_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_LIBUNWIND\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_LIBUNWIND\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -26765,6 +26939,34 @@ if test -z "${HAVE_PAPI_TRUE}" && test -z "${HAVE_PAPI_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_PAPI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"HAVE_PAPI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_PAPI_TRUE}" && test -z "${HAVE_TARGET_PAPI_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_PAPI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_PAPI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_PAPI_TRUE}" && test -z "${HAVE_TARGET_PAPI_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_PAPI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_PAPI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_QTLIB_TRUE}" && test -z "${HAVE_QTLIB_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_QTLIB\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_QTLIB\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_QTLIB_TRUE}" && test -z "${HAVE_QTLIB_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_QTLIB\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_QTLIB\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -27721,6 +27923,8 @@ BINUTILS_CPPFLAGS!$BINUTILS_CPPFLAGS$ac_delim
 BINUTILS_LDFLAGS!$BINUTILS_LDFLAGS$ac_delim
 BINUTILS_LIBS!$BINUTILS_LIBS$ac_delim
 BINUTILS_DIR!$BINUTILS_DIR$ac_delim
+HAVE_TARGET_BINUTILS_TRUE!$HAVE_TARGET_BINUTILS_TRUE$ac_delim
+HAVE_TARGET_BINUTILS_FALSE!$HAVE_TARGET_BINUTILS_FALSE$ac_delim
 TARGET_BINUTILS_CPPFLAGS!$TARGET_BINUTILS_CPPFLAGS$ac_delim
 TARGET_BINUTILS_LDFLAGS!$TARGET_BINUTILS_LDFLAGS$ac_delim
 TARGET_BINUTILS_LIBS!$TARGET_BINUTILS_LIBS$ac_delim
@@ -27736,15 +27940,22 @@ LIBMONITOR_CPPFLAGS!$LIBMONITOR_CPPFLAGS$ac_delim
 LIBMONITOR_LDFLAGS!$LIBMONITOR_LDFLAGS$ac_delim
 LIBMONITOR_LIBS!$LIBMONITOR_LIBS$ac_delim
 LIBMONITOR_DIR!$LIBMONITOR_DIR$ac_delim
-TARGET_LIBUNWIND_CPPFLAGS!$TARGET_LIBUNWIND_CPPFLAGS$ac_delim
-TARGET_LIBUNWIND_LDFLAGS!$TARGET_LIBUNWIND_LDFLAGS$ac_delim
-TARGET_LIBUNWIND_LIBS!$TARGET_LIBUNWIND_LIBS$ac_delim
-TARGET_LIBUNWIND_DIR!$TARGET_LIBUNWIND_DIR$ac_delim
+HAVE_TARGET_LIBMONITOR_TRUE!$HAVE_TARGET_LIBMONITOR_TRUE$ac_delim
+HAVE_TARGET_LIBMONITOR_FALSE!$HAVE_TARGET_LIBMONITOR_FALSE$ac_delim
+TARGET_LIBMONITOR_CPPFLAGS!$TARGET_LIBMONITOR_CPPFLAGS$ac_delim
+TARGET_LIBMONITOR_LDFLAGS!$TARGET_LIBMONITOR_LDFLAGS$ac_delim
+TARGET_LIBMONITOR_LIBS!$TARGET_LIBMONITOR_LIBS$ac_delim
+TARGET_LIBMONITOR_DIR!$TARGET_LIBMONITOR_DIR$ac_delim
 HAVE_LIBUNWIND_TRUE!$HAVE_LIBUNWIND_TRUE$ac_delim
 HAVE_LIBUNWIND_FALSE!$HAVE_LIBUNWIND_FALSE$ac_delim
 LIBUNWIND_CPPFLAGS!$LIBUNWIND_CPPFLAGS$ac_delim
 LIBUNWIND_LDFLAGS!$LIBUNWIND_LDFLAGS$ac_delim
 LIBUNWIND_LIBS!$LIBUNWIND_LIBS$ac_delim
+HAVE_TARGET_LIBUNWIND_TRUE!$HAVE_TARGET_LIBUNWIND_TRUE$ac_delim
+HAVE_TARGET_LIBUNWIND_FALSE!$HAVE_TARGET_LIBUNWIND_FALSE$ac_delim
+TARGET_LIBUNWIND_CPPFLAGS!$TARGET_LIBUNWIND_CPPFLAGS$ac_delim
+TARGET_LIBUNWIND_LDFLAGS!$TARGET_LIBUNWIND_LDFLAGS$ac_delim
+TARGET_LIBUNWIND_LIBS!$TARGET_LIBUNWIND_LIBS$ac_delim
 HAVE_LAM_TRUE!$HAVE_LAM_TRUE$ac_delim
 HAVE_LAM_FALSE!$HAVE_LAM_FALSE$ac_delim
 LAM_CC!$LAM_CC$ac_delim
@@ -27771,15 +27982,6 @@ MPICH_HEADER!$MPICH_HEADER$ac_delim
 MPICH_DIR!$MPICH_DIR$ac_delim
 HAVE_MPICH2_TRUE!$HAVE_MPICH2_TRUE$ac_delim
 HAVE_MPICH2_FALSE!$HAVE_MPICH2_FALSE$ac_delim
-MPICH2_CC!$MPICH2_CC$ac_delim
-MPICH2_CPPFLAGS!$MPICH2_CPPFLAGS$ac_delim
-MPICH2_LDFLAGS!$MPICH2_LDFLAGS$ac_delim
-MPICH2_LIBS!$MPICH2_LIBS$ac_delim
-MPICH2_HEADER!$MPICH2_HEADER$ac_delim
-MPICH2_DIR!$MPICH2_DIR$ac_delim
-HAVE_MVAPICH_TRUE!$HAVE_MVAPICH_TRUE$ac_delim
-HAVE_MVAPICH_FALSE!$HAVE_MVAPICH_FALSE$ac_delim
-MVAPICH_CC!$MVAPICH_CC$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -27821,6 +28023,15 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+MPICH2_CC!$MPICH2_CC$ac_delim
+MPICH2_CPPFLAGS!$MPICH2_CPPFLAGS$ac_delim
+MPICH2_LDFLAGS!$MPICH2_LDFLAGS$ac_delim
+MPICH2_LIBS!$MPICH2_LIBS$ac_delim
+MPICH2_HEADER!$MPICH2_HEADER$ac_delim
+MPICH2_DIR!$MPICH2_DIR$ac_delim
+HAVE_MVAPICH_TRUE!$HAVE_MVAPICH_TRUE$ac_delim
+HAVE_MVAPICH_FALSE!$HAVE_MVAPICH_FALSE$ac_delim
+MVAPICH_CC!$MVAPICH_CC$ac_delim
 MVAPICH_CPPFLAGS!$MVAPICH_CPPFLAGS$ac_delim
 MVAPICH_LDFLAGS!$MVAPICH_LDFLAGS$ac_delim
 MVAPICH_LIBS!$MVAPICH_LIBS$ac_delim
@@ -27873,6 +28084,8 @@ HAVE_PAPI_FALSE!$HAVE_PAPI_FALSE$ac_delim
 PAPI_CPPFLAGS!$PAPI_CPPFLAGS$ac_delim
 PAPI_LDFLAGS!$PAPI_LDFLAGS$ac_delim
 PAPI_LIBS!$PAPI_LIBS$ac_delim
+HAVE_TARGET_PAPI_TRUE!$HAVE_TARGET_PAPI_TRUE$ac_delim
+HAVE_TARGET_PAPI_FALSE!$HAVE_TARGET_PAPI_FALSE$ac_delim
 TARGET_PAPI_CPPFLAGS!$TARGET_PAPI_CPPFLAGS$ac_delim
 TARGET_PAPI_LDFLAGS!$TARGET_PAPI_LDFLAGS$ac_delim
 TARGET_PAPI_LIBS!$TARGET_PAPI_LIBS$ac_delim
@@ -27887,6 +28100,8 @@ LQTDIR!$LQTDIR$ac_delim
 ac_cv_qtlib!$ac_cv_qtlib$ac_delim
 ac_thread!$ac_thread$ac_delim
 ac_qmake!$ac_qmake$ac_delim
+HAVE_QTLIB_TRUE!$HAVE_QTLIB_TRUE$ac_delim
+HAVE_QTLIB_FALSE!$HAVE_QTLIB_FALSE$ac_delim
 QTLIB_HOME!$QTLIB_HOME$ac_delim
 QTLIB_CPPFLAGS!$QTLIB_CPPFLAGS$ac_delim
 QTLIB_LDFLAGS!$QTLIB_LDFLAGS$ac_delim
@@ -27905,19 +28120,6 @@ HAVE_XERCES_TRUE!$HAVE_XERCES_TRUE$ac_delim
 HAVE_XERCES_FALSE!$HAVE_XERCES_FALSE$ac_delim
 XERCES_DIR!$XERCES_DIR$ac_delim
 XERCES_LIBSDIR!$XERCES_LIBSDIR$ac_delim
-XERCES_CPPFLAGS!$XERCES_CPPFLAGS$ac_delim
-XERCES_LDFLAGS!$XERCES_LDFLAGS$ac_delim
-XERCES_LIBS!$XERCES_LIBS$ac_delim
-DYNINST_CPPFLAGS!$DYNINST_CPPFLAGS$ac_delim
-DYNINST_LDFLAGS!$DYNINST_LDFLAGS$ac_delim
-DYNINST_LIBS!$DYNINST_LIBS$ac_delim
-DYNINST_DIR!$DYNINST_DIR$ac_delim
-DYNINST_VERS!$DYNINST_VERS$ac_delim
-DPCL_CPPFLAGS!$DPCL_CPPFLAGS$ac_delim
-DPCL_LDFLAGS!$DPCL_LDFLAGS$ac_delim
-DPCL_LIBS!$DPCL_LIBS$ac_delim
-BUILD_DPCL_TRUE!$BUILD_DPCL_TRUE$ac_delim
-BUILD_DPCL_FALSE!$BUILD_DPCL_FALSE$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -27959,6 +28161,19 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+XERCES_CPPFLAGS!$XERCES_CPPFLAGS$ac_delim
+XERCES_LDFLAGS!$XERCES_LDFLAGS$ac_delim
+XERCES_LIBS!$XERCES_LIBS$ac_delim
+DYNINST_CPPFLAGS!$DYNINST_CPPFLAGS$ac_delim
+DYNINST_LDFLAGS!$DYNINST_LDFLAGS$ac_delim
+DYNINST_LIBS!$DYNINST_LIBS$ac_delim
+DYNINST_DIR!$DYNINST_DIR$ac_delim
+DYNINST_VERS!$DYNINST_VERS$ac_delim
+DPCL_CPPFLAGS!$DPCL_CPPFLAGS$ac_delim
+DPCL_LDFLAGS!$DPCL_LDFLAGS$ac_delim
+DPCL_LIBS!$DPCL_LIBS$ac_delim
+BUILD_DPCL_TRUE!$BUILD_DPCL_TRUE$ac_delim
+BUILD_DPCL_FALSE!$BUILD_DPCL_FALSE$ac_delim
 BUILD_OFFLINE_TRUE!$BUILD_OFFLINE_TRUE$ac_delim
 BUILD_OFFLINE_FALSE!$BUILD_OFFLINE_FALSE$ac_delim
 BUILD_MRNET_TRUE!$BUILD_MRNET_TRUE$ac_delim
@@ -27973,7 +28188,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 12; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 25; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

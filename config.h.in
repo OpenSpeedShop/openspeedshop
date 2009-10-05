@@ -131,11 +131,23 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
 
+/* Define to 1 if you have a target version of BINUTILS. */
+#undef HAVE_TARGET_BINUTILS
+
 /* Enable support on the target architecture for dlopen. */
 #undef HAVE_TARGET_DLOPEN
 
 /* Enable support on target architecture for fork and exec families. */
 #undef HAVE_TARGET_FORK
+
+/* Define to 1 if you have a target version of LIBMONITOR. */
+#undef HAVE_TARGET_LIBMONITOR
+
+/* Define to 1 if you have a target version of LIBUNWIND. */
+#undef HAVE_TARGET_LIBUNWIND
+
+/* Define to 1 if you have a target version of PAPI. */
+#undef HAVE_TARGET_PAPI
 
 /* Enable support on the target architecture for pthreads. */
 #undef HAVE_TARGET_POSIX_THREADS

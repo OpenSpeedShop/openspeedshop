@@ -13,24 +13,6 @@
 # PARTICULAR PURPOSE.
 
 @SET_MAKE@
-
-################################################################################
-# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
-# version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-# details.
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-# Place, Suite 330, Boston, MA  02111-1307  USA
-################################################################################
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
@@ -266,8 +248,11 @@ TARGET_BINUTILS_CPPFLAGS = @TARGET_BINUTILS_CPPFLAGS@
 TARGET_BINUTILS_DIR = @TARGET_BINUTILS_DIR@
 TARGET_BINUTILS_LDFLAGS = @TARGET_BINUTILS_LDFLAGS@
 TARGET_BINUTILS_LIBS = @TARGET_BINUTILS_LIBS@
+TARGET_LIBMONITOR_CPPFLAGS = @TARGET_LIBMONITOR_CPPFLAGS@
+TARGET_LIBMONITOR_DIR = @TARGET_LIBMONITOR_DIR@
+TARGET_LIBMONITOR_LDFLAGS = @TARGET_LIBMONITOR_LDFLAGS@
+TARGET_LIBMONITOR_LIBS = @TARGET_LIBMONITOR_LIBS@
 TARGET_LIBUNWIND_CPPFLAGS = @TARGET_LIBUNWIND_CPPFLAGS@
-TARGET_LIBUNWIND_DIR = @TARGET_LIBUNWIND_DIR@
 TARGET_LIBUNWIND_LDFLAGS = @TARGET_LIBUNWIND_LDFLAGS@
 TARGET_LIBUNWIND_LIBS = @TARGET_LIBUNWIND_LIBS@
 TARGET_OS = @TARGET_OS@
@@ -345,25 +330,56 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 topdir_execprefix = @topdir_execprefix@
-BASE_SUBDIRS = \
-	libopenss-message \
-	libopenss-runtime \
-	libopenss-framework \
-	libopenss-queries \
-	libopenss-cli \
-	libopenss-guibase \
-	libopenss-guiobjects \
-	libopenss-guichart \
-	libopenss-guidialogs \
-	libopenss-guiexprinfo \
-	libopenss-guiplugin \
-	libopenss-gui \
-	plugins \
-	openss \
-	doc \
-	man \
-	sanity \
-	usability
+@HAVE_QTLIB_FALSE@BASE_SUBDIRS = \
+@HAVE_QTLIB_FALSE@	libopenss-message \
+@HAVE_QTLIB_FALSE@	libopenss-runtime \
+@HAVE_QTLIB_FALSE@	libopenss-framework \
+@HAVE_QTLIB_FALSE@	libopenss-queries \
+@HAVE_QTLIB_FALSE@	libopenss-cli \
+@HAVE_QTLIB_FALSE@	plugins \
+@HAVE_QTLIB_FALSE@	openss \
+@HAVE_QTLIB_FALSE@	doc \
+@HAVE_QTLIB_FALSE@	man \
+@HAVE_QTLIB_FALSE@	sanity \
+@HAVE_QTLIB_FALSE@	usability
+
+
+################################################################################
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+@HAVE_QTLIB_TRUE@BASE_SUBDIRS = \
+@HAVE_QTLIB_TRUE@	libopenss-message \
+@HAVE_QTLIB_TRUE@	libopenss-runtime \
+@HAVE_QTLIB_TRUE@	libopenss-framework \
+@HAVE_QTLIB_TRUE@	libopenss-queries \
+@HAVE_QTLIB_TRUE@	libopenss-cli \
+@HAVE_QTLIB_TRUE@	libopenss-guibase \
+@HAVE_QTLIB_TRUE@	libopenss-guiobjects \
+@HAVE_QTLIB_TRUE@	libopenss-guichart \
+@HAVE_QTLIB_TRUE@	libopenss-guidialogs \
+@HAVE_QTLIB_TRUE@	libopenss-guiexprinfo \
+@HAVE_QTLIB_TRUE@	libopenss-guiplugin \
+@HAVE_QTLIB_TRUE@	libopenss-gui \
+@HAVE_QTLIB_TRUE@	plugins \
+@HAVE_QTLIB_TRUE@	openss \
+@HAVE_QTLIB_TRUE@	doc \
+@HAVE_QTLIB_TRUE@	man \
+@HAVE_QTLIB_TRUE@	sanity \
+@HAVE_QTLIB_TRUE@	usability
 
 SUBDIRS = \
 	$(BASE_SUBDIRS)

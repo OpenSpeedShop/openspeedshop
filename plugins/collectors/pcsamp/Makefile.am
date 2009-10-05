@@ -23,7 +23,9 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += pcsamp.la
+endif
 
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += pcsamp-rt.la
@@ -34,6 +36,13 @@ OFFLINE_SOURCES = \
 	offline.c
 
 pkglib_LTLIBRARIES += pcsamp-rt-offline.la libpcsamp-offline.la
+endif
+
+if HAVE_TARGET_LIBMONITOR
+OFFLINE_SOURCES = \
+	offline.c
+
+pkglib_LTLIBRARIES += libpcsamp-offline.la
 endif
 
 pcsamp_la_CXXFLAGS = \
@@ -113,6 +122,32 @@ libpcsamp_offline_la_SOURCES = \
 	$(OFFLINE_SOURCES) \
 	runtime.c
 endif
+
+if HAVE_TARGET_LIBMONITOR
+
+libpcsamp_offline_la_CFLAGS = \
+	-static \
+	-DOPENSS_OFFLINE \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline
+
+libpcsamp_offline_la_LDFLAGS = \
+	-static \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
+	-no-undefined
+
+libpcsamp_offline_la_LIBADD = \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	-lpthread -lrt
+
+libpcsamp_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	runtime.c
+endif
+
+
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)

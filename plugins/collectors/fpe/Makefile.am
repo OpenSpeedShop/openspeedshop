@@ -27,7 +27,9 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += fpe.la
+endif
 
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += fpe-rt.la
@@ -38,6 +40,13 @@ OFFLINE_SOURCES = \
 	offline.c
 
 pkglib_LTLIBRARIES += fpe-rt-offline.la libfpe-offline.la
+endif
+
+if HAVE_TARGET_LIBMONITOR
+OFFLINE_SOURCES = \
+	offline.c
+
+pkglib_LTLIBRARIES += libfpe-offline.la
 endif
 
 fpe_la_CXXFLAGS = \
@@ -131,6 +140,35 @@ libfpe_offline_la_LIBADD = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	@BINUTILS_LIBS@ \
 	@LIBUNWIND_LIBS@ \
+	-lpthread -lrt -lm
+
+libfpe_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	runtime.c
+endif
+
+if HAVE_TARGET_LIBMONITOR
+libfpe_offline_la_CFLAGS = \
+	-static \
+	-DOPENSS_OFFLINE \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	@TARGET_BINUTILS_CPPFLAGS@ \
+	@TARGET_LIBUNWIND_CPPFLAGS@
+
+libfpe_offline_la_LDFLAGS = \
+	-static \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
+	@TARGET_BINUTILS_LDFLAGS@ \
+	@TARGET_LIBUNWIND_LDFLAGS@ \
+	-no-undefined
+
+libfpe_offline_la_LIBADD = \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	@TARGET_BINUTILS_LIBS@ \
+	@TARGET_LIBUNWIND_LIBS@ \
 	-lpthread -lrt -lm
 
 libfpe_offline_la_SOURCES = \

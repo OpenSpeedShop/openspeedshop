@@ -22,9 +22,18 @@ noinst_LTLIBRARIES = libopenss-runtime-monitor.la
 BUILT_SOURCES = \
 	offline.h offline.c
 
+
+if HAVE_LIBMONITOR
 libopenss_runtime_monitor_la_CFLAGS = \
 	$(LIBMONITOR_CPPFLAGS) \
 	-I$(top_srcdir)/libopenss-runtime
+endif
+
+if HAVE_TARGET_LIBMONITOR
+libopenss_runtime_monitor_la_CFLAGS = \
+	$(TARGET_LIBMONITOR_CPPFLAGS) \
+	-I$(top_srcdir)/libopenss-runtime
+endif
 
 libopenss_runtime_monitor_la_SOURCES = \
 	offline.x $(BUILT_SOURCES) \
@@ -34,6 +43,7 @@ libopenss_runtime_monitor_la_SOURCES = \
 	OpenSS_InitializeParameters.c \
 	OpenSS_Monitor.h \
 	OpenSS_Offline.h
+
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)

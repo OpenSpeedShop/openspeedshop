@@ -54,8 +54,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@BUILD_OFFLINE_FALSE@am__append_1 = usertime-rt.la
-@HAVE_LIBMONITOR_TRUE@am__append_2 = usertime-rt-offline.la libusertime-offline.la
+@HAVE_TARGET_LIBMONITOR_FALSE@am__append_1 = usertime.la
+@BUILD_OFFLINE_FALSE@am__append_2 = usertime-rt.la
+@HAVE_LIBMONITOR_TRUE@am__append_3 = usertime-rt-offline.la libusertime-offline.la
+@HAVE_TARGET_LIBMONITOR_TRUE@am__append_4 = libusertime-offline.la
 subdir = plugins/collectors/usertime
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -79,8 +81,12 @@ libusertime_offline_la_DEPENDENCIES =
 am__libusertime_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c runtime.c
 am__objects_1 = libusertime_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_2 = libusertime_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_2 =  \
 @HAVE_LIBMONITOR_TRUE@	libusertime_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libusertime_offline_la_OBJECTS = $(am__objects_1) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_2) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libusertime_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am_libusertime_offline_la_OBJECTS =  \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_1) $(am__objects_2) \
 @HAVE_LIBMONITOR_TRUE@	libusertime_offline_la-runtime.lo
@@ -91,10 +97,13 @@ libusertime_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(libusertime_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@am_libusertime_offline_la_rpath = -rpath \
 @HAVE_LIBMONITOR_TRUE@	$(pkglibdir)
+@HAVE_TARGET_LIBMONITOR_TRUE@am_libusertime_offline_la_rpath = -rpath \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 usertime_rt_offline_la_DEPENDENCIES =
 am__usertime_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c runtime.c
 am__objects_3 = usertime_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_4 = usertime_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_4 =  \
 @HAVE_LIBMONITOR_TRUE@	usertime_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_usertime_rt_offline_la_OBJECTS =  \
@@ -125,6 +134,8 @@ usertime_la_OBJECTS = $(am_usertime_la_OBJECTS)
 usertime_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(usertime_la_CXXFLAGS) \
 	$(CXXFLAGS) $(usertime_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_TARGET_LIBMONITOR_FALSE@am_usertime_la_rpath = -rpath \
+@HAVE_TARGET_LIBMONITOR_FALSE@	$(pkglibdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -333,8 +344,11 @@ TARGET_BINUTILS_CPPFLAGS = @TARGET_BINUTILS_CPPFLAGS@
 TARGET_BINUTILS_DIR = @TARGET_BINUTILS_DIR@
 TARGET_BINUTILS_LDFLAGS = @TARGET_BINUTILS_LDFLAGS@
 TARGET_BINUTILS_LIBS = @TARGET_BINUTILS_LIBS@
+TARGET_LIBMONITOR_CPPFLAGS = @TARGET_LIBMONITOR_CPPFLAGS@
+TARGET_LIBMONITOR_DIR = @TARGET_LIBMONITOR_DIR@
+TARGET_LIBMONITOR_LDFLAGS = @TARGET_LIBMONITOR_LDFLAGS@
+TARGET_LIBMONITOR_LIBS = @TARGET_LIBMONITOR_LIBS@
 TARGET_LIBUNWIND_CPPFLAGS = @TARGET_LIBUNWIND_CPPFLAGS@
-TARGET_LIBUNWIND_DIR = @TARGET_LIBUNWIND_DIR@
 TARGET_LIBUNWIND_LDFLAGS = @TARGET_LIBUNWIND_LDFLAGS@
 TARGET_LIBUNWIND_LIBS = @TARGET_LIBUNWIND_LIBS@
 TARGET_OS = @TARGET_OS@
@@ -415,9 +429,13 @@ topdir_execprefix = @topdir_execprefix@
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
-pkglib_LTLIBRARIES = usertime.la $(am__append_1) $(am__append_2)
+pkglib_LTLIBRARIES = $(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4)
 @HAVE_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	offline.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	offline.c
 
 usertime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -485,6 +503,13 @@ usertime_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_CPPFLAGS@
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libusertime_offline_la_CFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_CPPFLAGS@
+
 @HAVE_LIBMONITOR_TRUE@libusertime_offline_la_LDFLAGS = \
 @HAVE_LIBMONITOR_TRUE@	-static \
 @HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
@@ -492,14 +517,30 @@ usertime_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	-no-undefined
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libusertime_offline_la_LDFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-no-undefined
+
 @HAVE_LIBMONITOR_TRUE@libusertime_offline_la_LIBADD = \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LIBS@
+
+@HAVE_TARGET_LIBMONITOR_TRUE@libusertime_offline_la_LIBADD = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-lopenss-runtime-offline -lopenss-runtime-monitor \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_LIBS@
 
 @HAVE_LIBMONITOR_TRUE@libusertime_offline_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	blobs.x $(BUILT_SOURCES) \
 @HAVE_LIBMONITOR_TRUE@	$(OFFLINE_SOURCES) \
 @HAVE_LIBMONITOR_TRUE@	runtime.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@libusertime_offline_la_SOURCES = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	blobs.x $(BUILT_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(OFFLINE_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	runtime.c
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
@@ -571,7 +612,7 @@ usertime-rt-offline.la: $(usertime_rt_offline_la_OBJECTS) $(usertime_rt_offline_
 usertime-rt.la: $(usertime_rt_la_OBJECTS) $(usertime_rt_la_DEPENDENCIES) 
 	$(usertime_rt_la_LINK) $(am_usertime_rt_la_rpath) $(usertime_rt_la_OBJECTS) $(usertime_rt_la_LIBADD) $(LIBS)
 usertime.la: $(usertime_la_OBJECTS) $(usertime_la_DEPENDENCIES) 
-	$(usertime_la_LINK) -rpath $(pkglibdir) $(usertime_la_OBJECTS) $(usertime_la_LIBADD) $(LIBS)
+	$(usertime_la_LINK) $(am_usertime_la_rpath) $(usertime_la_OBJECTS) $(usertime_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

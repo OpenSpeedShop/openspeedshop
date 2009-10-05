@@ -54,8 +54,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@BUILD_OFFLINE_FALSE@am__append_1 = hwctime-rt.la
-@HAVE_LIBMONITOR_TRUE@am__append_2 = hwctime-rt-offline.la libhwctime-offline.la
+@HAVE_TARGET_LIBMONITOR_FALSE@am__append_1 = hwctime.la
+@BUILD_OFFLINE_FALSE@am__append_2 = hwctime-rt.la
+@HAVE_LIBMONITOR_TRUE@am__append_3 = hwctime-rt-offline.la libhwctime-offline.la
+@HAVE_TARGET_LIBMONITOR_TRUE@am__append_4 = libhwctime-offline.la
 subdir = plugins/collectors/hwctime
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -79,6 +81,7 @@ hwctime_rt_offline_la_DEPENDENCIES =
 am__hwctime_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c runtime.c
 am__objects_1 = hwctime_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_2 = hwctime_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_2 =  \
 @HAVE_LIBMONITOR_TRUE@	hwctime_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_hwctime_rt_offline_la_OBJECTS =  \
@@ -108,12 +111,18 @@ hwctime_la_OBJECTS = $(am_hwctime_la_OBJECTS)
 hwctime_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(hwctime_la_CXXFLAGS) \
 	$(CXXFLAGS) $(hwctime_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_TARGET_LIBMONITOR_FALSE@am_hwctime_la_rpath = -rpath \
+@HAVE_TARGET_LIBMONITOR_FALSE@	$(pkglibdir)
 libhwctime_offline_la_DEPENDENCIES =
 am__libhwctime_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c runtime.c
 am__objects_5 = libhwctime_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_6 = libhwctime_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_6 =  \
 @HAVE_LIBMONITOR_TRUE@	libhwctime_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libhwctime_offline_la_OBJECTS = $(am__objects_5) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_6) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libhwctime_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am_libhwctime_offline_la_OBJECTS =  \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_5) $(am__objects_6) \
 @HAVE_LIBMONITOR_TRUE@	libhwctime_offline_la-runtime.lo
@@ -124,6 +133,8 @@ libhwctime_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(libhwctime_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@am_libhwctime_offline_la_rpath = -rpath \
 @HAVE_LIBMONITOR_TRUE@	$(pkglibdir)
+@HAVE_TARGET_LIBMONITOR_TRUE@am_libhwctime_offline_la_rpath = -rpath \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -331,8 +342,11 @@ TARGET_BINUTILS_CPPFLAGS = @TARGET_BINUTILS_CPPFLAGS@
 TARGET_BINUTILS_DIR = @TARGET_BINUTILS_DIR@
 TARGET_BINUTILS_LDFLAGS = @TARGET_BINUTILS_LDFLAGS@
 TARGET_BINUTILS_LIBS = @TARGET_BINUTILS_LIBS@
+TARGET_LIBMONITOR_CPPFLAGS = @TARGET_LIBMONITOR_CPPFLAGS@
+TARGET_LIBMONITOR_DIR = @TARGET_LIBMONITOR_DIR@
+TARGET_LIBMONITOR_LDFLAGS = @TARGET_LIBMONITOR_LDFLAGS@
+TARGET_LIBMONITOR_LIBS = @TARGET_LIBMONITOR_LIBS@
 TARGET_LIBUNWIND_CPPFLAGS = @TARGET_LIBUNWIND_CPPFLAGS@
-TARGET_LIBUNWIND_DIR = @TARGET_LIBUNWIND_DIR@
 TARGET_LIBUNWIND_LDFLAGS = @TARGET_LIBUNWIND_LDFLAGS@
 TARGET_LIBUNWIND_LIBS = @TARGET_LIBUNWIND_LIBS@
 TARGET_OS = @TARGET_OS@
@@ -413,13 +427,21 @@ topdir_execprefix = @topdir_execprefix@
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
-pkglib_LTLIBRARIES = hwctime.la $(am__append_1) $(am__append_2)
+pkglib_LTLIBRARIES = $(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4)
 @HAVE_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	offline.c
 
-hwctime_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework \
-	@PAPI_CPPFLAGS@
+@HAVE_TARGET_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	offline.c
+
+@HAVE_TARGET_LIBMONITOR_FALSE@hwctime_la_CXXFLAGS = \
+@HAVE_TARGET_LIBMONITOR_FALSE@	-I$(top_srcdir)/libopenss-framework \
+@HAVE_TARGET_LIBMONITOR_FALSE@	@PAPI_CPPFLAGS@
+
+@HAVE_TARGET_LIBMONITOR_TRUE@hwctime_la_CXXFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-framework \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_PAPI_CPPFLAGS@
 
 hwctime_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
@@ -492,6 +514,14 @@ hwctime_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_CPPFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@PAPI_CPPFLAGS@
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libhwctime_offline_la_CFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_CPPFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_PAPI_CPPFLAGS@
+
 @HAVE_LIBMONITOR_TRUE@libhwctime_offline_la_LDFLAGS = \
 @HAVE_LIBMONITOR_TRUE@	-static \
 @HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
@@ -500,16 +530,35 @@ hwctime_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	@PAPI_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	-no-undefined
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libhwctime_offline_la_LDFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_PAPI_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-no-undefined
+
 @HAVE_LIBMONITOR_TRUE@libhwctime_offline_la_LIBADD = \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	@PAPI_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	-lpthread -lrt
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libhwctime_offline_la_LIBADD = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-lopenss-runtime-offline -lopenss-runtime-monitor \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_PAPI_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-lpthread -lrt
+
 @HAVE_LIBMONITOR_TRUE@libhwctime_offline_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	blobs.x $(BUILT_SOURCES) \
 @HAVE_LIBMONITOR_TRUE@	$(OFFLINE_SOURCES) \
 @HAVE_LIBMONITOR_TRUE@	runtime.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@libhwctime_offline_la_SOURCES = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	blobs.x $(BUILT_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(OFFLINE_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	runtime.c
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
@@ -579,7 +628,7 @@ hwctime-rt-offline.la: $(hwctime_rt_offline_la_OBJECTS) $(hwctime_rt_offline_la_
 hwctime-rt.la: $(hwctime_rt_la_OBJECTS) $(hwctime_rt_la_DEPENDENCIES) 
 	$(hwctime_rt_la_LINK) $(am_hwctime_rt_la_rpath) $(hwctime_rt_la_OBJECTS) $(hwctime_rt_la_LIBADD) $(LIBS)
 hwctime.la: $(hwctime_la_OBJECTS) $(hwctime_la_DEPENDENCIES) 
-	$(hwctime_la_LINK) -rpath $(pkglibdir) $(hwctime_la_OBJECTS) $(hwctime_la_LIBADD) $(LIBS)
+	$(hwctime_la_LINK) $(am_hwctime_la_rpath) $(hwctime_la_OBJECTS) $(hwctime_la_LIBADD) $(LIBS)
 libhwctime-offline.la: $(libhwctime_offline_la_OBJECTS) $(libhwctime_offline_la_DEPENDENCIES) 
 	$(libhwctime_offline_la_LINK) $(am_libhwctime_offline_la_rpath) $(libhwctime_offline_la_OBJECTS) $(libhwctime_offline_la_LIBADD) $(LIBS)
 

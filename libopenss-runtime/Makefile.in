@@ -53,33 +53,58 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @HAVE_LIBMONITOR_TRUE@am__append_1 = offline
-@BUILD_OFFLINE_FALSE@am__append_2 = libopenss-runtime.la
-@HAVE_LIBMONITOR_TRUE@am__append_3 = libopenss-runtime-offline.la
-@HAVE_LIBUNWIND_TRUE@am__append_4 = \
+@HAVE_TARGET_LIBMONITOR_TRUE@am__append_2 = offline
+@BUILD_OFFLINE_FALSE@am__append_3 = libopenss-runtime.la
+@HAVE_LIBMONITOR_TRUE@am__append_4 = libopenss-runtime-offline.la
+@HAVE_TARGET_LIBMONITOR_TRUE@am__append_5 = libopenss-runtime-offline.la
+@HAVE_LIBUNWIND_TRUE@am__append_6 = \
 @HAVE_LIBUNWIND_TRUE@	OpenSS_GetStackTraceFromContext.c
 
-@HAVE_LIBMONITOR_TRUE@@HAVE_LIBUNWIND_TRUE@am__append_5 = \
+@HAVE_LIBMONITOR_TRUE@@HAVE_LIBUNWIND_TRUE@am__append_7 = \
 @HAVE_LIBMONITOR_TRUE@@HAVE_LIBUNWIND_TRUE@	OpenSS_GetStackTraceFromContext.c
 
-@HAVE_PAPI_TRUE@am__append_6 = \
+@HAVE_TARGET_LIBUNWIND_TRUE@am__append_8 = \
+@HAVE_TARGET_LIBUNWIND_TRUE@	OpenSS_GetStackTraceFromContext.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@@HAVE_TARGET_LIBUNWIND_TRUE@am__append_9 = \
+@HAVE_TARGET_LIBMONITOR_TRUE@@HAVE_TARGET_LIBUNWIND_TRUE@	OpenSS_GetStackTraceFromContext.c
+
+@HAVE_PAPI_TRUE@am__append_10 = \
 @HAVE_PAPI_TRUE@	OpenSS_Overflow.c \
 @HAVE_PAPI_TRUE@	PapiAPI.h PapiAPI.c
 
-@HAVE_LIBMONITOR_TRUE@@HAVE_PAPI_TRUE@am__append_7 = \
+@HAVE_LIBMONITOR_TRUE@@HAVE_PAPI_TRUE@am__append_11 = \
 @HAVE_LIBMONITOR_TRUE@@HAVE_PAPI_TRUE@	OpenSS_Overflow.c \
 @HAVE_LIBMONITOR_TRUE@@HAVE_PAPI_TRUE@	PapiAPI.h PapiAPI.c
 
-@HAVE_BINUTILS_TRUE@am__append_8 = \
+@HAVE_PAPI_FALSE@@HAVE_TARGET_PAPI_TRUE@am__append_12 = \
+@HAVE_PAPI_FALSE@@HAVE_TARGET_PAPI_TRUE@	OpenSS_Overflow.c \
+@HAVE_PAPI_FALSE@@HAVE_TARGET_PAPI_TRUE@	PapiAPI.h PapiAPI.c
+
+@HAVE_PAPI_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@@HAVE_TARGET_PAPI_TRUE@am__append_13 = \
+@HAVE_PAPI_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@@HAVE_TARGET_PAPI_TRUE@	OpenSS_Overflow.c \
+@HAVE_PAPI_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@@HAVE_TARGET_PAPI_TRUE@	PapiAPI.h PapiAPI.c
+
+@HAVE_BINUTILS_TRUE@am__append_14 = \
 @HAVE_BINUTILS_TRUE@	OpenSS_GetInstrLength.c
 
-@HAVE_BINUTILS_TRUE@@HAVE_LIBMONITOR_TRUE@am__append_9 = \
+@HAVE_BINUTILS_TRUE@@HAVE_LIBMONITOR_TRUE@am__append_15 = \
 @HAVE_BINUTILS_TRUE@@HAVE_LIBMONITOR_TRUE@	OpenSS_GetInstrLength.c
 
-@USE_EXPLICIT_TLS_TRUE@am__append_10 = \
+@HAVE_TARGET_BINUTILS_TRUE@am__append_16 = \
+@HAVE_TARGET_BINUTILS_TRUE@	OpenSS_GetInstrLength.c
+
+@HAVE_TARGET_BINUTILS_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am__append_17 = \
+@HAVE_TARGET_BINUTILS_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	OpenSS_GetInstrLength.c
+
+@USE_EXPLICIT_TLS_TRUE@am__append_18 = \
 @USE_EXPLICIT_TLS_TRUE@	OpenSS_TLS.c
 
-@HAVE_LIBMONITOR_TRUE@@USE_EXPLICIT_TLS_TRUE@am__append_11 = \
+@HAVE_LIBMONITOR_TRUE@@USE_EXPLICIT_TLS_TRUE@am__append_19 = \
 @HAVE_LIBMONITOR_TRUE@@USE_EXPLICIT_TLS_TRUE@	OpenSS_TLS.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@@USE_EXPLICIT_TLS_TRUE@am__append_20 = \
+@HAVE_TARGET_LIBMONITOR_TRUE@@USE_EXPLICIT_TLS_TRUE@	OpenSS_TLS.c
 
 subdir = libopenss-runtime
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
@@ -100,6 +125,7 @@ am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(pkglibdir)"
 pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@libopenss_runtime_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la
 @HAVE_LIBMONITOR_TRUE@libopenss_runtime_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la
 am__libopenss_runtime_offline_la_SOURCES_DIST = Assert.h \
 	OpenSS_DataHeader.x OpenSS_DataHeader.h OpenSS_DataHeader.c \
@@ -128,14 +154,30 @@ am__objects_2 = $(am__objects_1) \
 	libopenss_runtime_offline_la-OpenSS_SetPCInContext.lo \
 	libopenss_runtime_offline_la-OpenSS_Path_From_Pid.lo
 @HAVE_LIBMONITOR_TRUE@@HAVE_LIBUNWIND_TRUE@am__objects_3 = libopenss_runtime_offline_la-OpenSS_GetStackTraceFromContext.lo
-@HAVE_LIBMONITOR_TRUE@@HAVE_PAPI_TRUE@am__objects_4 = libopenss_runtime_offline_la-OpenSS_Overflow.lo \
+@HAVE_TARGET_LIBMONITOR_TRUE@@HAVE_TARGET_LIBUNWIND_TRUE@am__objects_4 = libopenss_runtime_offline_la-OpenSS_GetStackTraceFromContext.lo
+@HAVE_LIBMONITOR_TRUE@@HAVE_PAPI_TRUE@am__objects_5 = libopenss_runtime_offline_la-OpenSS_Overflow.lo \
 @HAVE_LIBMONITOR_TRUE@@HAVE_PAPI_TRUE@	libopenss_runtime_offline_la-PapiAPI.lo
-@HAVE_BINUTILS_TRUE@@HAVE_LIBMONITOR_TRUE@am__objects_5 = libopenss_runtime_offline_la-OpenSS_GetInstrLength.lo
-@HAVE_LIBMONITOR_TRUE@@USE_EXPLICIT_TLS_TRUE@am__objects_6 = libopenss_runtime_offline_la-OpenSS_TLS.lo
+@HAVE_PAPI_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@@HAVE_TARGET_PAPI_TRUE@am__objects_6 = libopenss_runtime_offline_la-OpenSS_Overflow.lo \
+@HAVE_PAPI_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@@HAVE_TARGET_PAPI_TRUE@	libopenss_runtime_offline_la-PapiAPI.lo
+@HAVE_BINUTILS_TRUE@@HAVE_LIBMONITOR_TRUE@am__objects_7 = libopenss_runtime_offline_la-OpenSS_GetInstrLength.lo
+@HAVE_TARGET_BINUTILS_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_8 = libopenss_runtime_offline_la-OpenSS_GetInstrLength.lo
+@HAVE_LIBMONITOR_TRUE@@USE_EXPLICIT_TLS_TRUE@am__objects_9 = libopenss_runtime_offline_la-OpenSS_TLS.lo
+@HAVE_TARGET_LIBMONITOR_TRUE@@USE_EXPLICIT_TLS_TRUE@am__objects_10 = libopenss_runtime_offline_la-OpenSS_TLS.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libopenss_runtime_offline_la_OBJECTS = $(am__objects_2) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_3) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_4) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_5) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_6) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_7) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_8) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_9) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_10)
 @HAVE_LIBMONITOR_TRUE@am_libopenss_runtime_offline_la_OBJECTS =  \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_2) $(am__objects_3) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_4) $(am__objects_5) \
-@HAVE_LIBMONITOR_TRUE@	$(am__objects_6)
+@HAVE_LIBMONITOR_TRUE@	$(am__objects_6) $(am__objects_7) \
+@HAVE_LIBMONITOR_TRUE@	$(am__objects_8) $(am__objects_9) \
+@HAVE_LIBMONITOR_TRUE@	$(am__objects_10)
 libopenss_runtime_offline_la_OBJECTS =  \
 	$(am_libopenss_runtime_offline_la_OBJECTS)
 libopenss_runtime_offline_la_LINK = $(LIBTOOL) --tag=CC \
@@ -144,6 +186,8 @@ libopenss_runtime_offline_la_LINK = $(LIBTOOL) --tag=CC \
 	$(libopenss_runtime_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@am_libopenss_runtime_offline_la_rpath = -rpath \
 @HAVE_LIBMONITOR_TRUE@	$(pkglibdir)
+@HAVE_TARGET_LIBMONITOR_TRUE@am_libopenss_runtime_offline_la_rpath =  \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-rpath $(pkglibdir)
 @BUILD_OFFLINE_FALSE@libopenss_runtime_la_DEPENDENCIES = @INSTRUMENTOR@/libopenss-runtime-@INSTRUMENTOR@.la
 am__libopenss_runtime_la_SOURCES_DIST = Assert.h OpenSS_DataHeader.x \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c \
@@ -155,8 +199,8 @@ am__libopenss_runtime_la_SOURCES_DIST = Assert.h OpenSS_DataHeader.x \
 	OpenSS_SetPCInContext.c OpenSS_Path_From_Pid.c RuntimeAPI.h \
 	OpenSS_GetStackTraceFromContext.c OpenSS_Overflow.c PapiAPI.h \
 	PapiAPI.c OpenSS_GetInstrLength.c OpenSS_TLS.c
-am__objects_7 = libopenss_runtime_la-OpenSS_DataHeader.lo
-am__objects_8 = $(am__objects_7) \
+am__objects_11 = libopenss_runtime_la-OpenSS_DataHeader.lo
+am__objects_12 = $(am__objects_11) \
 	libopenss_runtime_la-OpenSS_DecodeParameters.lo \
 	libopenss_runtime_la-OpenSS_EncodeParameters.lo \
 	libopenss_runtime_la-OpenSS_GetAddressOfFunction.lo \
@@ -171,15 +215,20 @@ am__objects_8 = $(am__objects_7) \
 	libopenss_runtime_la-OpenSS_FPEHandler.lo \
 	libopenss_runtime_la-OpenSS_SetPCInContext.lo \
 	libopenss_runtime_la-OpenSS_Path_From_Pid.lo
-@HAVE_LIBUNWIND_TRUE@am__objects_9 = libopenss_runtime_la-OpenSS_GetStackTraceFromContext.lo
-@HAVE_PAPI_TRUE@am__objects_10 =  \
+@HAVE_LIBUNWIND_TRUE@am__objects_13 = libopenss_runtime_la-OpenSS_GetStackTraceFromContext.lo
+@HAVE_TARGET_LIBUNWIND_TRUE@am__objects_14 = libopenss_runtime_la-OpenSS_GetStackTraceFromContext.lo
+@HAVE_PAPI_TRUE@am__objects_15 =  \
 @HAVE_PAPI_TRUE@	libopenss_runtime_la-OpenSS_Overflow.lo \
 @HAVE_PAPI_TRUE@	libopenss_runtime_la-PapiAPI.lo
-@HAVE_BINUTILS_TRUE@am__objects_11 = libopenss_runtime_la-OpenSS_GetInstrLength.lo
-@USE_EXPLICIT_TLS_TRUE@am__objects_12 =  \
+@HAVE_PAPI_FALSE@@HAVE_TARGET_PAPI_TRUE@am__objects_16 = libopenss_runtime_la-OpenSS_Overflow.lo \
+@HAVE_PAPI_FALSE@@HAVE_TARGET_PAPI_TRUE@	libopenss_runtime_la-PapiAPI.lo
+@HAVE_BINUTILS_TRUE@am__objects_17 = libopenss_runtime_la-OpenSS_GetInstrLength.lo
+@HAVE_TARGET_BINUTILS_TRUE@am__objects_18 = libopenss_runtime_la-OpenSS_GetInstrLength.lo
+@USE_EXPLICIT_TLS_TRUE@am__objects_19 =  \
 @USE_EXPLICIT_TLS_TRUE@	libopenss_runtime_la-OpenSS_TLS.lo
-am_libopenss_runtime_la_OBJECTS = $(am__objects_8) $(am__objects_9) \
-	$(am__objects_10) $(am__objects_11) $(am__objects_12)
+am_libopenss_runtime_la_OBJECTS = $(am__objects_12) $(am__objects_13) \
+	$(am__objects_14) $(am__objects_15) $(am__objects_16) \
+	$(am__objects_17) $(am__objects_18) $(am__objects_19)
 libopenss_runtime_la_OBJECTS = $(am_libopenss_runtime_la_OBJECTS)
 libopenss_runtime_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
@@ -400,8 +449,11 @@ TARGET_BINUTILS_CPPFLAGS = @TARGET_BINUTILS_CPPFLAGS@
 TARGET_BINUTILS_DIR = @TARGET_BINUTILS_DIR@
 TARGET_BINUTILS_LDFLAGS = @TARGET_BINUTILS_LDFLAGS@
 TARGET_BINUTILS_LIBS = @TARGET_BINUTILS_LIBS@
+TARGET_LIBMONITOR_CPPFLAGS = @TARGET_LIBMONITOR_CPPFLAGS@
+TARGET_LIBMONITOR_DIR = @TARGET_LIBMONITOR_DIR@
+TARGET_LIBMONITOR_LDFLAGS = @TARGET_LIBMONITOR_LDFLAGS@
+TARGET_LIBMONITOR_LIBS = @TARGET_LIBMONITOR_LIBS@
 TARGET_LIBUNWIND_CPPFLAGS = @TARGET_LIBUNWIND_CPPFLAGS@
-TARGET_LIBUNWIND_DIR = @TARGET_LIBUNWIND_DIR@
 TARGET_LIBUNWIND_LDFLAGS = @TARGET_LIBUNWIND_LDFLAGS@
 TARGET_LIBUNWIND_LIBS = @TARGET_LIBUNWIND_LIBS@
 TARGET_OS = @TARGET_OS@
@@ -479,12 +531,12 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 topdir_execprefix = @topdir_execprefix@
-SUBDIRS = @INSTRUMENTOR@ $(am__append_1)
+SUBDIRS = @INSTRUMENTOR@ $(am__append_1) $(am__append_2)
 DIST_SUBDIRS = dpcl dyninst offline mrnet
 BUILT_SOURCES = \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c
 
-pkglib_LTLIBRARIES = $(am__append_2) $(am__append_3)
+pkglib_LTLIBRARIES = $(am__append_3) $(am__append_4) $(am__append_5)
 @BUILD_OFFLINE_FALSE@libopenss_runtime_la_CFLAGS = \
 @BUILD_OFFLINE_FALSE@	@LIBUNWIND_CPPFLAGS@ \
 @BUILD_OFFLINE_FALSE@	@BINUTILS_CPPFLAGS@ \
@@ -509,11 +561,23 @@ pkglib_LTLIBRARIES = $(am__append_2) $(am__append_3)
 @HAVE_LIBMONITOR_TRUE@	@BINUTILS_CPPFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@PAPI_CPPFLAGS@
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libopenss_runtime_offline_la_CFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_CPPFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_BINUTILS_CPPFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_PAPI_CPPFLAGS@
+
 @HAVE_LIBMONITOR_TRUE@libopenss_runtime_offline_la_LDFLAGS = \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@BINUTILS_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@PAPI_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	-static
+
+@HAVE_TARGET_LIBMONITOR_TRUE@libopenss_runtime_offline_la_LDFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_BINUTILS_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_PAPI_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static
 
 @HAVE_LIBMONITOR_TRUE@libopenss_runtime_offline_la_LIBADD = \
 @HAVE_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
@@ -521,6 +585,13 @@ pkglib_LTLIBRARIES = $(am__append_2) $(am__append_3)
 @HAVE_LIBMONITOR_TRUE@	@BINUTILS_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	@PAPI_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	-lpthread -lrt
+
+@HAVE_TARGET_LIBMONITOR_TRUE@libopenss_runtime_offline_la_LIBADD = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_BINUTILS_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_PAPI_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-lpthread -lrt
 
 COMMON_SOURCES = \
 	Assert.h \
@@ -541,12 +612,21 @@ COMMON_SOURCES = \
 	OpenSS_Path_From_Pid.c \
 	RuntimeAPI.h
 
-libopenss_runtime_la_SOURCES = $(COMMON_SOURCES) $(am__append_4) \
-	$(am__append_6) $(am__append_8) $(am__append_10)
+libopenss_runtime_la_SOURCES = $(COMMON_SOURCES) $(am__append_6) \
+	$(am__append_8) $(am__append_10) $(am__append_12) \
+	$(am__append_14) $(am__append_16) $(am__append_18)
 @HAVE_LIBMONITOR_TRUE@libopenss_runtime_offline_la_SOURCES =  \
-@HAVE_LIBMONITOR_TRUE@	$(COMMON_SOURCES) $(am__append_5) \
-@HAVE_LIBMONITOR_TRUE@	$(am__append_7) $(am__append_9) \
-@HAVE_LIBMONITOR_TRUE@	$(am__append_11)
+@HAVE_LIBMONITOR_TRUE@	$(COMMON_SOURCES) $(am__append_7) \
+@HAVE_LIBMONITOR_TRUE@	$(am__append_9) $(am__append_11) \
+@HAVE_LIBMONITOR_TRUE@	$(am__append_13) $(am__append_15) \
+@HAVE_LIBMONITOR_TRUE@	$(am__append_17) $(am__append_19) \
+@HAVE_LIBMONITOR_TRUE@	$(am__append_20)
+@HAVE_TARGET_LIBMONITOR_TRUE@libopenss_runtime_offline_la_SOURCES =  \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(COMMON_SOURCES) $(am__append_7) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__append_9) $(am__append_11) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__append_13) $(am__append_15) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__append_17) $(am__append_19) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__append_20)
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
 all: $(BUILT_SOURCES)

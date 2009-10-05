@@ -25,6 +25,10 @@ if HAVE_LIBMONITOR
 SUBDIRS += offline
 endif
 
+if HAVE_TARGET_LIBMONITOR
+SUBDIRS += offline
+endif
+
 # Note: Some versions of GCC (e.g. 3.3.3) appear to contain an optimization bug
 #       that causes accesses of thread-local storage (TLS) to fail with SIGSEGV.
 #       The exact nature of the bug has yet to be identified, but it results in
@@ -44,6 +48,10 @@ pkglib_LTLIBRARIES += libopenss-runtime.la
 endif
 
 if HAVE_LIBMONITOR
+pkglib_LTLIBRARIES += libopenss-runtime-offline.la
+endif
+
+if HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += libopenss-runtime-offline.la
 endif
 
@@ -88,6 +96,27 @@ libopenss_runtime_offline_la_LIBADD = \
 	-lpthread -lrt
 endif
 
+if HAVE_TARGET_LIBMONITOR
+libopenss_runtime_offline_la_CFLAGS = \
+	-DOPENSS_OFFLINE \
+	@TARGET_LIBUNWIND_CPPFLAGS@ \
+	@TARGET_BINUTILS_CPPFLAGS@ \
+	@TARGET_PAPI_CPPFLAGS@
+
+libopenss_runtime_offline_la_LDFLAGS = \
+	@TARGET_LIBUNWIND_LDFLAGS@ \
+	@TARGET_BINUTILS_LDFLAGS@ \
+	@TARGET_PAPI_LDFLAGS@ \
+	-static
+
+libopenss_runtime_offline_la_LIBADD = \
+	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
+	@TARGET_LIBUNWIND_LIBS@ \
+	@TARGET_BINUTILS_LIBS@ \
+	@TARGET_PAPI_LIBS@ \
+	-lpthread -lrt
+endif
+
 COMMON_SOURCES = \
 	Assert.h \
 	OpenSS_DataHeader.x $(BUILT_SOURCES) \
@@ -113,6 +142,10 @@ if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES = $(COMMON_SOURCES)
 endif
 
+if HAVE_TARGET_LIBMONITOR
+libopenss_runtime_offline_la_SOURCES = $(COMMON_SOURCES)
+endif
+
 if HAVE_LIBUNWIND
 libopenss_runtime_la_SOURCES += \
 	OpenSS_GetStackTraceFromContext.c
@@ -122,15 +155,40 @@ libopenss_runtime_offline_la_SOURCES += \
 endif	
 endif	
 
+if HAVE_TARGET_LIBUNWIND
+libopenss_runtime_la_SOURCES += \
+	OpenSS_GetStackTraceFromContext.c
+if HAVE_TARGET_LIBMONITOR
+libopenss_runtime_offline_la_SOURCES += \
+	OpenSS_GetStackTraceFromContext.c
+endif	
+endif	
+
 if HAVE_PAPI
+
 libopenss_runtime_la_SOURCES += \
 	OpenSS_Overflow.c \
 	PapiAPI.h PapiAPI.c
+
 if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_Overflow.c \
 	PapiAPI.h PapiAPI.c
 endif
+
+else
+
+if HAVE_TARGET_PAPI
+libopenss_runtime_la_SOURCES += \
+	OpenSS_Overflow.c \
+	PapiAPI.h PapiAPI.c
+if HAVE_TARGET_LIBMONITOR
+libopenss_runtime_offline_la_SOURCES += \
+	OpenSS_Overflow.c \
+	PapiAPI.h PapiAPI.c
+endif
+endif
+
 endif
 
 if HAVE_BINUTILS
@@ -142,11 +200,25 @@ libopenss_runtime_offline_la_SOURCES += \
 endif
 endif
 
+if HAVE_TARGET_BINUTILS
+libopenss_runtime_la_SOURCES += \
+	OpenSS_GetInstrLength.c
+if HAVE_TARGET_LIBMONITOR
+libopenss_runtime_offline_la_SOURCES += \
+	OpenSS_GetInstrLength.c
+endif
+endif
+
 if USE_EXPLICIT_TLS
 libopenss_runtime_la_SOURCES += \
 	OpenSS_TLS.c
 
 if HAVE_LIBMONITOR
+libopenss_runtime_offline_la_SOURCES += \
+	OpenSS_TLS.c
+endif
+
+if HAVE_TARGET_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_TLS.c
 endif

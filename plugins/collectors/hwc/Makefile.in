@@ -54,8 +54,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@BUILD_OFFLINE_FALSE@am__append_1 = hwc-rt.la
-@HAVE_LIBMONITOR_TRUE@am__append_2 = hwc-rt-offline.la libhwc-offline.la
+@HAVE_TARGET_LIBMONITOR_FALSE@am__append_1 = hwc.la
+@BUILD_OFFLINE_FALSE@am__append_2 = hwc-rt.la
+@HAVE_LIBMONITOR_TRUE@am__append_3 = hwc-rt-offline.la libhwc-offline.la
+@HAVE_TARGET_LIBMONITOR_TRUE@am__append_4 = libhwc-offline.la
 subdir = plugins/collectors/hwc
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -79,6 +81,7 @@ hwc_rt_offline_la_DEPENDENCIES =
 am__hwc_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
 	runtime.c
 am__objects_1 = hwc_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_2 = hwc_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_2 = hwc_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_hwc_rt_offline_la_OBJECTS = $(am__objects_1) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_2) \
@@ -106,11 +109,16 @@ hwc_la_OBJECTS = $(am_hwc_la_OBJECTS)
 hwc_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(hwc_la_CXXFLAGS) $(CXXFLAGS) \
 	$(hwc_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_TARGET_LIBMONITOR_FALSE@am_hwc_la_rpath = -rpath $(pkglibdir)
 libhwc_offline_la_DEPENDENCIES =
 am__libhwc_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
 	runtime.c
 am__objects_5 = libhwc_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_6 = libhwc_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_6 = libhwc_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libhwc_offline_la_OBJECTS = $(am__objects_5) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_6) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libhwc_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am_libhwc_offline_la_OBJECTS = $(am__objects_5) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_6) \
 @HAVE_LIBMONITOR_TRUE@	libhwc_offline_la-runtime.lo
@@ -120,6 +128,8 @@ libhwc_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(libhwc_offline_la_CFLAGS) $(CFLAGS) \
 	$(libhwc_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@am_libhwc_offline_la_rpath = -rpath $(pkglibdir)
+@HAVE_TARGET_LIBMONITOR_TRUE@am_libhwc_offline_la_rpath = -rpath \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -327,8 +337,11 @@ TARGET_BINUTILS_CPPFLAGS = @TARGET_BINUTILS_CPPFLAGS@
 TARGET_BINUTILS_DIR = @TARGET_BINUTILS_DIR@
 TARGET_BINUTILS_LDFLAGS = @TARGET_BINUTILS_LDFLAGS@
 TARGET_BINUTILS_LIBS = @TARGET_BINUTILS_LIBS@
+TARGET_LIBMONITOR_CPPFLAGS = @TARGET_LIBMONITOR_CPPFLAGS@
+TARGET_LIBMONITOR_DIR = @TARGET_LIBMONITOR_DIR@
+TARGET_LIBMONITOR_LDFLAGS = @TARGET_LIBMONITOR_LDFLAGS@
+TARGET_LIBMONITOR_LIBS = @TARGET_LIBMONITOR_LIBS@
 TARGET_LIBUNWIND_CPPFLAGS = @TARGET_LIBUNWIND_CPPFLAGS@
-TARGET_LIBUNWIND_DIR = @TARGET_LIBUNWIND_DIR@
 TARGET_LIBUNWIND_LDFLAGS = @TARGET_LIBUNWIND_LDFLAGS@
 TARGET_LIBUNWIND_LIBS = @TARGET_LIBUNWIND_LIBS@
 TARGET_OS = @TARGET_OS@
@@ -409,24 +422,43 @@ topdir_execprefix = @topdir_execprefix@
 BUILT_SOURCES = \
 	blobs.h blobs.c	
 
-pkglib_LTLIBRARIES = hwc.la $(am__append_1) $(am__append_2)
+pkglib_LTLIBRARIES = $(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4)
 @HAVE_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	offline.c
 
-hwc_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-message \
-	-I$(top_srcdir)/libopenss-framework \
-	@PAPI_CPPFLAGS@
+@HAVE_TARGET_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	offline.c
 
-hwc_la_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-message \
-	-L$(top_srcdir)/libopenss-framework \
-	@PAPI_LDFLAGS@ \
-	-no-undefined -module -avoid-version
+@HAVE_TARGET_LIBMONITOR_FALSE@hwc_la_CXXFLAGS = \
+@HAVE_TARGET_LIBMONITOR_FALSE@	-I$(top_srcdir)/libopenss-message \
+@HAVE_TARGET_LIBMONITOR_FALSE@	-I$(top_srcdir)/libopenss-framework \
+@HAVE_TARGET_LIBMONITOR_FALSE@	@PAPI_CPPFLAGS@
 
-hwc_la_LIBADD = \
-	-lopenss-message -lopenss-framework \
-	@PAPI_LIBS@
+@HAVE_TARGET_LIBMONITOR_TRUE@hwc_la_CXXFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-message \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-framework \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_PAPI_CPPFLAGS@
+
+@HAVE_TARGET_LIBMONITOR_FALSE@hwc_la_LDFLAGS = \
+@HAVE_TARGET_LIBMONITOR_FALSE@	-L$(top_srcdir)/libopenss-message \
+@HAVE_TARGET_LIBMONITOR_FALSE@	-L$(top_srcdir)/libopenss-framework \
+@HAVE_TARGET_LIBMONITOR_FALSE@	@PAPI_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_FALSE@	-no-undefined -module -avoid-version
+
+@HAVE_TARGET_LIBMONITOR_TRUE@hwc_la_LDFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-message \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-framework \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_PAPI_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-no-undefined -module -avoid-version
+
+@HAVE_TARGET_LIBMONITOR_FALSE@hwc_la_LIBADD = \
+@HAVE_TARGET_LIBMONITOR_FALSE@	-lopenss-message -lopenss-framework \
+@HAVE_TARGET_LIBMONITOR_FALSE@	@PAPI_LIBS@
+
+@HAVE_TARGET_LIBMONITOR_TRUE@hwc_la_LIBADD = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-lopenss-message -lopenss-framework \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_PAPI_LIBS@
 
 hwc_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
@@ -483,6 +515,13 @@ hwc_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
 @HAVE_LIBMONITOR_TRUE@	@PAPI_CPPFLAGS@
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libhwc_offline_la_CFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_PAPI_CPPFLAGS@
+
 @HAVE_LIBMONITOR_TRUE@libhwc_offline_la_LDFLAGS = \
 @HAVE_LIBMONITOR_TRUE@	-static \
 @HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
@@ -490,15 +529,32 @@ hwc_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	@PAPI_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	-no-undefined
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libhwc_offline_la_LDFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_PAPI_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-no-undefined
+
 @HAVE_LIBMONITOR_TRUE@libhwc_offline_la_LIBADD = \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	@PAPI_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	-lpthread -lrt
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libhwc_offline_la_LIBADD = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-lopenss-runtime-offline -lopenss-runtime-monitor \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_PAPI_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-lpthread -lrt
+
 @HAVE_LIBMONITOR_TRUE@libhwc_offline_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	blobs.x $(BUILT_SOURCES) \
 @HAVE_LIBMONITOR_TRUE@	$(OFFLINE_SOURCES) \
 @HAVE_LIBMONITOR_TRUE@	runtime.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@libhwc_offline_la_SOURCES = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	blobs.x $(BUILT_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(OFFLINE_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	runtime.c
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
@@ -568,7 +624,7 @@ hwc-rt-offline.la: $(hwc_rt_offline_la_OBJECTS) $(hwc_rt_offline_la_DEPENDENCIES
 hwc-rt.la: $(hwc_rt_la_OBJECTS) $(hwc_rt_la_DEPENDENCIES) 
 	$(hwc_rt_la_LINK) $(am_hwc_rt_la_rpath) $(hwc_rt_la_OBJECTS) $(hwc_rt_la_LIBADD) $(LIBS)
 hwc.la: $(hwc_la_OBJECTS) $(hwc_la_DEPENDENCIES) 
-	$(hwc_la_LINK) -rpath $(pkglibdir) $(hwc_la_OBJECTS) $(hwc_la_LIBADD) $(LIBS)
+	$(hwc_la_LINK) $(am_hwc_la_rpath) $(hwc_la_OBJECTS) $(hwc_la_LIBADD) $(LIBS)
 libhwc-offline.la: $(libhwc_offline_la_OBJECTS) $(libhwc_offline_la_DEPENDENCIES) 
 	$(libhwc_offline_la_LINK) $(am_libhwc_offline_la_rpath) $(libhwc_offline_la_OBJECTS) $(libhwc_offline_la_LIBADD) $(LIBS)
 

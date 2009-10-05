@@ -54,8 +54,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@BUILD_OFFLINE_FALSE@am__append_1 = iot-rt.la
-@HAVE_LIBMONITOR_TRUE@am__append_2 = iot-rt-offline.la libiot-offline.la
+@HAVE_TARGET_LIBMONITOR_FALSE@am__append_1 = iot.la
+@BUILD_OFFLINE_FALSE@am__append_2 = iot-rt.la
+@HAVE_LIBMONITOR_TRUE@am__append_3 = iot-rt-offline.la libiot-offline.la
+@HAVE_TARGET_LIBMONITOR_TRUE@am__append_4 = libiot-offline.la
 subdir = plugins/collectors/iot
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -79,6 +81,7 @@ iot_rt_offline_la_DEPENDENCIES =
 am__iot_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
 	wrappers.c runtime.h runtime.c
 am__objects_1 = iot_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_2 = iot_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_2 = iot_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_iot_rt_offline_la_OBJECTS = $(am__objects_1) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_2) \
@@ -109,12 +112,20 @@ iot_la_OBJECTS = $(am_iot_la_OBJECTS)
 iot_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(iot_la_CXXFLAGS) $(CXXFLAGS) \
 	$(iot_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_TARGET_LIBMONITOR_FALSE@am_iot_la_rpath = -rpath $(pkglibdir)
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@libiot_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la
 @HAVE_LIBMONITOR_TRUE@libiot_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 @HAVE_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la
 am__libiot_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
 	wrappers.c runtime.h runtime.c
 am__objects_5 = libiot_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_6 = libiot_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_6 = libiot_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libiot_offline_la_OBJECTS = $(am__objects_5) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_6) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libiot_offline_la-wrappers.lo \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libiot_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am_libiot_offline_la_OBJECTS = $(am__objects_5) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_6) \
 @HAVE_LIBMONITOR_TRUE@	libiot_offline_la-wrappers.lo \
@@ -125,6 +136,8 @@ libiot_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(libiot_offline_la_CFLAGS) $(CFLAGS) \
 	$(libiot_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@am_libiot_offline_la_rpath = -rpath $(pkglibdir)
+@HAVE_TARGET_LIBMONITOR_TRUE@am_libiot_offline_la_rpath = -rpath \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -332,8 +345,11 @@ TARGET_BINUTILS_CPPFLAGS = @TARGET_BINUTILS_CPPFLAGS@
 TARGET_BINUTILS_DIR = @TARGET_BINUTILS_DIR@
 TARGET_BINUTILS_LDFLAGS = @TARGET_BINUTILS_LDFLAGS@
 TARGET_BINUTILS_LIBS = @TARGET_BINUTILS_LIBS@
+TARGET_LIBMONITOR_CPPFLAGS = @TARGET_LIBMONITOR_CPPFLAGS@
+TARGET_LIBMONITOR_DIR = @TARGET_LIBMONITOR_DIR@
+TARGET_LIBMONITOR_LDFLAGS = @TARGET_LIBMONITOR_LDFLAGS@
+TARGET_LIBMONITOR_LIBS = @TARGET_LIBMONITOR_LIBS@
 TARGET_LIBUNWIND_CPPFLAGS = @TARGET_LIBUNWIND_CPPFLAGS@
-TARGET_LIBUNWIND_DIR = @TARGET_LIBUNWIND_DIR@
 TARGET_LIBUNWIND_LDFLAGS = @TARGET_LIBUNWIND_LDFLAGS@
 TARGET_LIBUNWIND_LIBS = @TARGET_LIBUNWIND_LIBS@
 TARGET_OS = @TARGET_OS@
@@ -414,9 +430,13 @@ topdir_execprefix = @topdir_execprefix@
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
-pkglib_LTLIBRARIES = iot.la $(am__append_1) $(am__append_2)
+pkglib_LTLIBRARIES = $(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4)
 @HAVE_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	offline.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	offline.c
 
 iot_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -485,6 +505,13 @@ iot_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_CPPFLAGS@
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libiot_offline_la_CFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_CPPFLAGS@
+
 @HAVE_LIBMONITOR_TRUE@libiot_offline_la_LDFLAGS = \
 @HAVE_LIBMONITOR_TRUE@	-static \
 @HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
@@ -492,17 +519,36 @@ iot_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	-no-undefined -module -avoid-version
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libiot_offline_la_LDFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-no-undefined -module -avoid-version
+
 @HAVE_LIBMONITOR_TRUE@libiot_offline_la_LIBADD = \
 @HAVE_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 @HAVE_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	-lpthread -lrt
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libiot_offline_la_LIBADD = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-lpthread -lrt
+
 @HAVE_LIBMONITOR_TRUE@libiot_offline_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	blobs.x $(BUILT_SOURCES) \
 @HAVE_LIBMONITOR_TRUE@	$(OFFLINE_SOURCES) \
 @HAVE_LIBMONITOR_TRUE@	wrappers.c \
 @HAVE_LIBMONITOR_TRUE@	runtime.h runtime.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@libiot_offline_la_SOURCES = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	blobs.x $(BUILT_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(OFFLINE_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	wrappers.c \
+@HAVE_TARGET_LIBMONITOR_TRUE@	runtime.h runtime.c
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
@@ -572,7 +618,7 @@ iot-rt-offline.la: $(iot_rt_offline_la_OBJECTS) $(iot_rt_offline_la_DEPENDENCIES
 iot-rt.la: $(iot_rt_la_OBJECTS) $(iot_rt_la_DEPENDENCIES) 
 	$(iot_rt_la_LINK) $(am_iot_rt_la_rpath) $(iot_rt_la_OBJECTS) $(iot_rt_la_LIBADD) $(LIBS)
 iot.la: $(iot_la_OBJECTS) $(iot_la_DEPENDENCIES) 
-	$(iot_la_LINK) -rpath $(pkglibdir) $(iot_la_OBJECTS) $(iot_la_LIBADD) $(LIBS)
+	$(iot_la_LINK) $(am_iot_la_rpath) $(iot_la_OBJECTS) $(iot_la_LIBADD) $(LIBS)
 libiot-offline.la: $(libiot_offline_la_OBJECTS) $(libiot_offline_la_DEPENDENCIES) 
 	$(libiot_offline_la_LINK) $(am_libiot_offline_la_rpath) $(libiot_offline_la_OBJECTS) $(libiot_offline_la_LIBADD) $(LIBS)
 

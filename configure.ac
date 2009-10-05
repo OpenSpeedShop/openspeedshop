@@ -251,11 +251,11 @@ AC_PKG_OTF()
 AC_PKG_PAPI()
 AC_PKG_TARGET_PAPI()
 AC_PYTHON_DEVEL([>= '2.3'])
+
 AC_PKG_QTLIB()
 AC_PKG_SQLITE()
 AC_PKG_VT()
 AC_PKG_XERCES()
-
 ################################################################################
 # Check for Instrumentor
 ################################################################################

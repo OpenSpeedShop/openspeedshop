@@ -28,7 +28,9 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += hwc.la
+endif
 
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += hwc-rt.la
@@ -41,6 +43,14 @@ OFFLINE_SOURCES = \
 pkglib_LTLIBRARIES += hwc-rt-offline.la libhwc-offline.la
 endif
 
+if HAVE_TARGET_LIBMONITOR
+OFFLINE_SOURCES = \
+	offline.c
+
+pkglib_LTLIBRARIES += libhwc-offline.la
+endif
+
+if !HAVE_TARGET_LIBMONITOR
 hwc_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-framework \
@@ -55,7 +65,22 @@ hwc_la_LDFLAGS = \
 hwc_la_LIBADD = \
 	-lopenss-message -lopenss-framework \
 	@PAPI_LIBS@
+else
+hwc_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-framework \
+	@TARGET_PAPI_CPPFLAGS@
 
+hwc_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-message \
+	-L$(top_srcdir)/libopenss-framework \
+	@TARGET_PAPI_LDFLAGS@ \
+	-no-undefined -module -avoid-version
+
+hwc_la_LIBADD = \
+	-lopenss-message -lopenss-framework \
+	@TARGET_PAPI_LIBS@
+endif
 hwc_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	HWCCollector.hxx HWCCollector.cxx
@@ -126,6 +151,32 @@ libhwc_offline_la_LDFLAGS = \
 libhwc_offline_la_LIBADD = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	@PAPI_LIBS@ \
+	-lpthread -lrt
+
+libhwc_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	runtime.c
+endif
+
+if HAVE_TARGET_LIBMONITOR
+libhwc_offline_la_CFLAGS = \
+	-static \
+	-DOPENSS_OFFLINE \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	@TARGET_PAPI_CPPFLAGS@
+
+libhwc_offline_la_LDFLAGS = \
+	-static \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
+	@TARGET_PAPI_LDFLAGS@ \
+	-no-undefined
+
+libhwc_offline_la_LIBADD = \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	@TARGET_PAPI_LIBS@ \
 	-lpthread -lrt
 
 libhwc_offline_la_SOURCES = \

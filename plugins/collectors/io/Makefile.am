@@ -27,7 +27,9 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += io.la
+endif
 
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += io-rt.la
@@ -38,6 +40,13 @@ OFFLINE_SOURCES = \
 	offline.c
 
 pkglib_LTLIBRARIES += io-rt-offline.la libio-offline.la
+endif
+
+if HAVE_TARGET_LIBMONITOR
+OFFLINE_SOURCES = \
+	offline.c
+
+pkglib_LTLIBRARIES += libio-offline.la
 endif
 
 io_la_CXXFLAGS = \
@@ -132,6 +141,33 @@ libio_offline_la_SOURCES = \
 	runtime.h runtime.c
 endif
 
+if HAVE_TARGET_LIBMONITOR
+libio_offline_la_CFLAGS = \
+	-static \
+	-DOPENSS_OFFLINE \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	@TARGET_LIBUNWIND_CPPFLAGS@
+
+libio_offline_la_LDFLAGS = \
+	-static \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime-offline \
+	@TARGET_LIBUNWIND_LDFLAGS@ \
+	-no-undefined
+
+libio_offline_la_LIBADD = \
+	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
+	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
+	@TARGET_LIBUNWIND_LIBS@ \
+	-lpthread -lrt
+
+libio_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	wrappers.c \
+	runtime.h runtime.c
+endif
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
 

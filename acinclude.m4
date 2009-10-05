@@ -181,14 +181,17 @@ AC_DEFUN([AC_PKG_TARGET_BINUTILS], [
     AC_ARG_WITH(target-binutils,
                 AC_HELP_STRING([--with-target-binutils=DIR],
                                [binutils target architecture installation @<:@/opt@:>@]),
-                target_binutils_dir=$withval, target_binutils_dir="/opt")
+                target_binutils_dir=$withval, target_binutils_dir="/zzz")
 
-    if test "$target_binutils_dir" == "/opt" ; then
+    if test "$target_binutils_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_BINUTILS, false)
       TARGET_BINUTILS_DIR=""
       TARGET_BINUTILS_CPPFLAGS=""
       TARGET_BINUTILS_LDFLAGS=""
       TARGET_BINUTILS_LIBS=""
     else
+      AM_CONDITIONAL(HAVE_TARGET_BINUTILS, true)
+      AC_DEFINE(HAVE_TARGET_BINUTILS, 1, [Define to 1 if you have a target version of BINUTILS.])
       case "$target_os" in
 	cray-xt5)
             TARGET_BINUTILS_DIR="$target_binutils_dir"
@@ -204,6 +207,7 @@ AC_DEFUN([AC_PKG_TARGET_BINUTILS], [
             ;;
       esac
     fi
+
 
     AC_SUBST(TARGET_BINUTILS_CPPFLAGS)
     AC_SUBST(TARGET_BINUTILS_LDFLAGS)
@@ -407,17 +411,21 @@ AC_DEFUN([AC_PKG_TARGET_LIBUNWIND], [
     AC_ARG_WITH(target-libunwind,
                 AC_HELP_STRING([--with-target-libunwind=DIR],
                                [libunwind target architecture installation @<:@/opt@:>@]),
-                target_libunwind_dir=$withval, target_libunwind_dir="/opt")
+                target_libunwind_dir=$withval, target_libunwind_dir="/zzz")
 
-    if test "$target_libunwind_dir" == "/opt" ; then
+    if test "$target_libunwind_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_LIBUNWIND, false)
       TARGET_LIBUNWIND_CPPFLAGS=""
       TARGET_LIBUNWIND_LDFLAGS=""
       TARGET_LIBUNWIND_LIBS=""
     else
+      AM_CONDITIONAL(HAVE_TARGET_LIBUNWIND, true)
+      AC_DEFINE(HAVE_TARGET_LIBUNWIND, 1, [Define to 1 if you have a target version of LIBUNWIND.])
       TARGET_LIBUNWIND_CPPFLAGS="-I$target_libunwind_dir/include -DUNW_LOCAL_ONLY"
       TARGET_LIBUNWIND_LDFLAGS="-L$target_libunwind_dir/$abi_libdir"
       TARGET_LIBUNWIND_LIBS="-lunwind"
     fi
+
 
     AC_SUBST(TARGET_LIBUNWIND_CPPFLAGS)
     AC_SUBST(TARGET_LIBUNWIND_LDFLAGS)
@@ -815,13 +823,18 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
     AC_ARG_WITH(target-papi,
                 AC_HELP_STRING([--with-target-papi=DIR],
                                [PAPI target architecture installation @<:@/opt@:>@]),
-                target_papi_dir=$withval, target_papi_dir="/opt")
+                target_papi_dir=$withval, target_papi_dir="/zzz")
 
-    if test "$target_papi_dir" == "/opt" ; then
+    if test "$target_papi_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_PAPI, false)
       TARGET_PAPI_CPPFLAGS=""
       TARGET_PAPI_LDFLAGS=""
       TARGET_PAPI_LIBS=""
     else
+
+      AM_CONDITIONAL(HAVE_TARGET_PAPI, true)
+      AC_DEFINE(HAVE_TARGET_PAPI, 1, [Define to 1 if you have a target version of PAPI.])
+
       TARGET_PAPI_CPPFLAGS="-I$target_papi_dir/include"
       TARGET_PAPI_LDFLAGS="-L$target_papi_dir/$abi_libdir"
 
@@ -834,7 +847,6 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
             ;;
       esac
     fi
-
 
     AC_SUBST(TARGET_PAPI_CPPFLAGS)
     AC_SUBST(TARGET_PAPI_LDFLAGS)
@@ -1107,8 +1119,11 @@ doesn't work properly with versions of Python before
 # checking, so credit to those who originally created parts of the code below.
 ################################################################################
 
+
 AC_DEFUN([AC_PKG_QTLIB], [ 
 dnl if QTDIR is not default to /usr 
+
+found_all_qt=1
 
 if test "x$QTDIR" = "x"; then
    LQTDIR=/usr
@@ -1444,8 +1459,10 @@ dnl Use QT CPPFLAGS and LDFLAGS variables for the qt version test
     if test $found_qt_inc -eq 1; then
       AC_MSG_RESULT(yes)
     else
+        found_all_qt=0
         AC_MSG_RESULT(no)
-	AC_MSG_FAILURE(Can not locate Qt library and/or the headers.) 
+#	AC_MSG_FAILURE(Can not locate Qt library and/or the headers.) 
+        AC_MSG_RESULT([Can not locate Qt library and/or the headers.])
     fi
 
     AC_TRY_LINK( [
@@ -1463,7 +1480,10 @@ dnl Use QT CPPFLAGS and LDFLAGS variables for the qt version test
 		QT_CFLAGS=""
 		QT_LIBS=""
 		QT_LDFLAGS=""
-		AC_MSG_ERROR([** QT version 3.3 or greater is required for the Open|SpeedShop QT gui.])
+		#AC_MSG_ERROR([** QT version 3.3 or greater is required for the Open|SpeedShop QT gui.])
+#	        AC_MSG_FAILURE(QT version 3.3 or greater was not found.) 
+                AC_MSG_RESULT([QT version 3.3 or greater was not found.])
+                found_all_qt=0
 	])
 
 ] )
@@ -1474,7 +1494,10 @@ ac_qtdir_errmsg="Not found in current PATH. Maybe QT development environment isn
 dnl Check for Qt qmake utility.
 AC_PATH_PROG(ac_qmake, qmake, [no], $tmp_lqtdir/bin:${PATH})
 if test "x$ac_qmake" = "xno"; then
-   AC_MSG_ERROR([qmake $ac_qtdir_errmsg])
+   #AC_MSG_ERROR([qmake $ac_qtdir_errmsg])
+#   AC_MSG_FAILURE(QT qmake was not found.) 
+   AC_MSG_RESULT([QT qmake was not found.])
+   found_all_qt=0
 else
    QTLIB_HOME=$tmp_lqtdir
 fi
@@ -1502,11 +1525,24 @@ dnl Restore saved flags after the QT version check program compilation
     LDFLAGS=$qtlib_saved_LDFLAGS
 
 dnl Make the QTLIB flags/libs available
+    
+    if test $found_all_qt -eq 0; then
+	QTLIB_CFLAGS=""
+	QTLIB_LIBS=""
+	QTLIB_LDFLAGS=""
+	QTLIB_CPPFLAGS=""
+	QTLIB_HOME=""
+        AM_CONDITIONAL(HAVE_QTLIB, false)
+    fi
+
     AC_SUBST(QTLIB_HOME)
     AC_SUBST(QTLIB_CPPFLAGS)
     AC_SUBST(QTLIB_LDFLAGS)
     AC_SUBST(QTLIB_LIBS)
-    AC_DEFINE(HAVE_QTLIB, 1, [Define to 1 if you have Qt library 3.3 >])
+    if test $found_all_qt -eq 1; then
+      AM_CONDITIONAL(HAVE_QTLIB, true)
+      AC_DEFINE(HAVE_QTLIB, 1, [Define to 1 if you have Qt library 3.3 >])
+    fi
 
 ])
 
@@ -1572,25 +1608,28 @@ AC_DEFUN([AC_PKG_TARGET_LIBMONITOR], [
     AC_ARG_WITH(target-libmonitor,
                 AC_HELP_STRING([--with-target-libmonitor=DIR],
                                [libmonitor target architecture installation @<:@/opt@:>@]),
-                target_libmonitor_dir=$withval, target_libmonitor_dir="/opt")
+                target_libmonitor_dir=$withval, target_libmonitor_dir="/zzz")
 
-    if test "$target_libmonitor_dir" == "/opt" ; then
-      TARGET_LIBUNWIND_CPPFLAGS=""
-      TARGET_LIBUNWIND_LDFLAGS=""
-      TARGET_LIBUNWIND_LIBS=""
-      TARGET_LIBUNWIND_DIR=""
+    if test "$target_libmonitor_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_LIBMONITOR, false)
+      TARGET_LIBMONITOR_CPPFLAGS=""
+      TARGET_LIBMONITOR_LDFLAGS=""
+      TARGET_LIBMONITOR_LIBS=""
+      TARGET_LIBMONITOR_DIR=""
     else
-      TARGET_LIBUNWIND_CPPFLAGS="-I$target_libmonitor_dir/include"
-      TARGET_LIBUNWIND_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
-      TARGET_LIBUNWIND_LIBS="-lmonitor"
-      TARGET_LIBUNWIND_DIR="$target_libmonitor_dir"
+      AM_CONDITIONAL(HAVE_TARGET_LIBMONITOR, true)
+      AC_DEFINE(HAVE_TARGET_LIBMONITOR, 1, [Define to 1 if you have a target version of LIBMONITOR.])
+      TARGET_LIBMONITOR_CPPFLAGS="-I$target_libmonitor_dir/include"
+      TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
+      TARGET_LIBMONITOR_LIBS="-lmonitor"
+      TARGET_LIBMONITOR_DIR="$target_libmonitor_dir"
     fi
 
 
-    AC_SUBST(TARGET_LIBUNWIND_CPPFLAGS)
-    AC_SUBST(TARGET_LIBUNWIND_LDFLAGS)
-    AC_SUBST(TARGET_LIBUNWIND_LIBS)
-    AC_SUBST(TARGET_LIBUNWIND_DIR)
+    AC_SUBST(TARGET_LIBMONITOR_CPPFLAGS)
+    AC_SUBST(TARGET_LIBMONITOR_LDFLAGS)
+    AC_SUBST(TARGET_LIBMONITOR_LIBS)
+    AC_SUBST(TARGET_LIBMONITOR_DIR)
 
 ])
 

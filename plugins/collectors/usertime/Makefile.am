@@ -27,7 +27,9 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += usertime.la
+endif
 
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += usertime-rt.la
@@ -38,6 +40,13 @@ OFFLINE_SOURCES = \
 	offline.c
 
 pkglib_LTLIBRARIES += usertime-rt-offline.la libusertime-offline.la
+endif
+
+if HAVE_TARGET_LIBMONITOR
+OFFLINE_SOURCES = \
+	offline.c
+
+pkglib_LTLIBRARIES += libusertime-offline.la
 endif
 
 usertime_la_CXXFLAGS = \
@@ -121,6 +130,31 @@ libusertime_offline_la_LDFLAGS = \
 libusertime_offline_la_LIBADD = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	@LIBUNWIND_LIBS@
+
+libusertime_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	runtime.c
+endif
+
+if HAVE_TARGET_LIBMONITOR
+libusertime_offline_la_CFLAGS = \
+	-static \
+	-DOPENSS_OFFLINE \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	@TARGET_LIBUNWIND_CPPFLAGS@
+
+libusertime_offline_la_LDFLAGS = \
+	-static \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
+	@TARGET_LIBUNWIND_LDFLAGS@ \
+	-no-undefined
+
+libusertime_offline_la_LIBADD = \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	@TARGET_LIBUNWIND_LIBS@
 
 libusertime_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \

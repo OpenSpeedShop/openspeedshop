@@ -36,11 +36,12 @@ pkglib_LTLIBRARIES =
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
 	offline.c
-
 endif
 
 
+if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += mpi.la
+endif
 
 if HAVE_LAM
 if !BUILD_OFFLINE
@@ -94,6 +95,9 @@ endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-openmpi-rt-offline.la libmpi-openmpi-offline.la
 endif
+if HAVE_TARGET_LIBMONITOR
+pkglib_LTLIBRARIES += libmpi-openmpi-offline.la
+endif
 endif
 
 if HAVE_MVAPICH
@@ -103,6 +107,9 @@ endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-mvapich-rt-offline.la libmpi-mvapich-offline.la
 endif
+if HAVE_TARGET_LIBMONITOR
+pkglib_LTLIBRARIES += libmpi-mvapich-offline.la
+endif
 endif
 
 if HAVE_MVAPICH2
@@ -111,6 +118,9 @@ pkglib_LTLIBRARIES += mpi-rt-mvapich2.la
 endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-mvapich2-rt-offline.la libmpi-mvapich2-offline.la
+endif
+if HAVE_TARGET_LIBMONITOR
+pkglib_LTLIBRARIES += libmpi-mvapich2-offline.la
 endif
 endif
 
@@ -168,12 +178,18 @@ rt_CFLAGS_generate = \
 	$(1) \
 	@LIBUNWIND_CPPFLAGS@
 else
+
+if !HAVE_TARGET_LIBMONITOR
 rt_CFLAGS_generate = \
 	-I$(top_srcdir)/libopenss-runtime \
 	$(1) \
 	@LIBUNWIND_CPPFLAGS@
 endif
 
+endif
+
+
+if !HAVE_TARGET_LIBMONITOR
 rt_LDFLAGS_generate = \
 	-L$(top_srcdir)/libopenss-runtime \
 	$(1) \
@@ -190,10 +206,9 @@ rt_sources = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.h runtime.c \
 	wrappers.c
+endif
 
 if HAVE_LIBMONITOR
-
-
 rt_offline_CFLAGS_generate = \
 	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
@@ -247,6 +262,36 @@ lib_offline_sources = \
 	wrappers.c \
 	runtime.h runtime.c
 
+endif
+
+if HAVE_TARGET_LIBMONITOR
+lib_offline_CFLAGS_generate = \
+	-static \
+	-DOPENSS_OFFLINE \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	$(1) \
+	@TARGET_LIBUNWIND_CPPFLAGS@
+
+lib_offline_LDFLAGS_generate = \
+	-static \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
+	$(1) \
+	@TARGET_LIBUNWIND_LDFLAGS@ \
+	-no-undefined
+
+lib_offline_LIBADD_generate = \
+	-lopenss-runtime-offline \
+	-lopenss-runtime-monitor \
+	$(1) \
+	@TARGET_LIBUNWIND_LIBS@ \
+	-lpthread -lrt
+
+lib_offline_sources = \
+	blobs.x $(BUILT_SOURCES) $(OFFLINE_SOURCES) \
+	wrappers.c \
+	runtime.h runtime.c
 endif
 
 wrapper_sources = \
@@ -430,6 +475,16 @@ libmpi_mvapich_offline_la_DEPENDENCIES =
 libmpi_mvapich_offline_la_SOURCES = $(lib_offline_sources)
 nodist_libmpi_mvapich_offline_la_SOURCES = $(wrapper_sources)
 endif
+
+if HAVE_TARGET_LIBMONITOR
+libmpi_mvapich_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
+libmpi_mvapich_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
+libmpi_mvapich_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MVAPICH_LIBS@)
+libmpi_mvapich_offline_la_DEPENDENCIES =
+libmpi_mvapich_offline_la_SOURCES = $(lib_offline_sources)
+nodist_libmpi_mvapich_offline_la_SOURCES = $(wrapper_sources)
+endif
+
 endif
 
 if HAVE_MVAPICH2
@@ -448,6 +503,14 @@ mpi_mvapich2_rt_offline_la_DEPENDENCIES =
 mpi_mvapich2_rt_offline_la_SOURCES = $(rt_offline_sources)
 nodist_mpi_mvapich2_rt_offline_la_SOURCES = $(wrapper_sources)
 
+libmpi_mvapich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
+libmpi_mvapich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
+libmpi_mvapich2_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MVAPICH2_LIBS@)
+libmpi_mvapich2_offline_la_DEPENDENCIES =
+libmpi_mvapich2_offline_la_SOURCES = $(lib_offline_sources)
+nodist_libmpi_mvapich2_offline_la_SOURCES = $(wrapper_sources)
+endif
+if HAVE_TARGET_LIBMONITOR
 libmpi_mvapich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
 libmpi_mvapich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
 libmpi_mvapich2_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MVAPICH2_LIBS@)
@@ -474,6 +537,14 @@ mpi_openmpi_rt_offline_la_DEPENDENCIES =
 mpi_openmpi_rt_offline_la_SOURCES = $(rt_offline_sources)
 nodist_mpi_openmpi_rt_offline_la_SOURCES = $(wrapper_sources)
 
+libmpi_openmpi_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
+libmpi_openmpi_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
+libmpi_openmpi_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@OPENMPI_LIBS@)
+libmpi_openmpi_offline_la_DEPENDENCIES =
+libmpi_openmpi_offline_la_SOURCES = $(lib_offline_sources)
+nodist_libmpi_openmpi_offline_la_SOURCES = $(wrapper_sources)
+endif
+if HAVE_TARGET_LIBMONITOR
 libmpi_openmpi_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
 libmpi_openmpi_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
 libmpi_openmpi_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@OPENMPI_LIBS@)

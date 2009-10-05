@@ -54,30 +54,41 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@BUILD_OFFLINE_FALSE@@HAVE_LAM_TRUE@am__append_1 = mpiotf-rt-lam.la
-@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@am__append_2 = mpiotf-lam-rt-offline.la libmpiotf-lam-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_LAMPI_TRUE@am__append_3 = mpiotf-rt-lampi.la
-@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@am__append_4 = mpiotf-lampi-rt-offline.la libmpiotf-lampi-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_MPICH_TRUE@am__append_5 = mpiotf-rt-mpich.la
-@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@am__append_6 = mpiotf-mpich-rt-offline.la libmpiotf-mpich-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_MPICH2_TRUE@am__append_7 = mpiotf-rt-mpich2.la
-@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@am__append_8 = mpiotf-mpich2-rt-offline.la libmpiotf-mpich2-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_MPT_TRUE@am__append_9 = mpiotf-rt-mpt.la
-@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@am__append_10 = mpiotf-mpt-rt-offline.la libmpiotf-mpt-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_MVAPICH_TRUE@am__append_11 = mpiotf-rt-mvapich.la
-@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@am__append_12 = mpiotf-mvapich-rt-offline.la libmpiotf-mvapich-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_MVAPICH2_TRUE@am__append_13 = mpiotf-rt-mvapich2.la
-@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@am__append_14 = mpiotf-mvapich2-rt-offline.la libmpiotf-mvapich2-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_OPENMPI_TRUE@am__append_15 = mpiotf-rt-openmpi.la
-@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@am__append_16 = mpiotf-openmpi-rt-offline.la libmpiotf-openmpi-offline.la
-@HAVE_LAM_TRUE@am__append_17 = libvt.mpi.lam.a
-@HAVE_LAMPI_TRUE@am__append_18 = libvt.mpi.lampi.a
-@HAVE_MPICH_TRUE@am__append_19 = libvt.mpi.mpich.a
-@HAVE_MPICH2_TRUE@am__append_20 = libvt.mpi.mpich2.a
-@HAVE_MPT_TRUE@am__append_21 = libvt.mpi.mpt.a
-@HAVE_MVAPICH_TRUE@am__append_22 = libvt.mpi.mvapich.a
-@HAVE_MVAPICH2_TRUE@am__append_23 = libvt.mpi.mvapich2.a
-@HAVE_OPENMPI_TRUE@am__append_24 = libvt.mpi.openmpi.a
+
+#noinst_LIBRARIES = libvt.mpi.a
+@HAVE_TARGET_LIBMONITOR_FALSE@am__append_1 = mpiotf.la
+@BUILD_OFFLINE_FALSE@@HAVE_LAM_TRUE@am__append_2 = mpiotf-rt-lam.la
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@am__append_3 = mpiotf-lam-rt-offline.la libmpiotf-lam-offline.la
+@HAVE_LAM_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am__append_4 = libmpiotf-lam-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_LAMPI_TRUE@am__append_5 = mpiotf-rt-lampi.la
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@am__append_6 = mpiotf-lampi-rt-offline.la libmpiotf-lampi-offline.la
+@HAVE_LAMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am__append_7 = libmpiotf-lampi-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_MPICH_TRUE@am__append_8 = mpiotf-rt-mpich.la
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@am__append_9 = mpiotf-mpich-rt-offline.la libmpiotf-mpich-offline.la
+@HAVE_MPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am__append_10 = libmpiotf-mpich-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_MPICH2_TRUE@am__append_11 = mpiotf-rt-mpich2.la
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@am__append_12 = mpiotf-mpich2-rt-offline.la libmpiotf-mpich2-offline.la
+@HAVE_MPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am__append_13 = libmpiotf-mpich2-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_MPT_TRUE@am__append_14 = mpiotf-rt-mpt.la
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@am__append_15 = mpiotf-mpt-rt-offline.la libmpiotf-mpt-offline.la
+@HAVE_MPT_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am__append_16 = libmpiotf-mpt-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_MVAPICH_TRUE@am__append_17 = mpiotf-rt-mvapich.la
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@am__append_18 = mpiotf-mvapich-rt-offline.la libmpiotf-mvapich-offline.la
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am__append_19 = libmpiotf-mvapich-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_MVAPICH2_TRUE@am__append_20 = mpiotf-rt-mvapich2.la
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@am__append_21 = mpiotf-mvapich2-rt-offline.la libmpiotf-mvapich2-offline.la
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am__append_22 = libmpiotf-mvapich2-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_OPENMPI_TRUE@am__append_23 = mpiotf-rt-openmpi.la
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@am__append_24 = mpiotf-openmpi-rt-offline.la libmpiotf-openmpi-offline.la
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am__append_25 = libmpiotf-openmpi-offline.la
+@HAVE_LAM_TRUE@am__append_26 = libvt.mpi.lam.a
+@HAVE_LAMPI_TRUE@am__append_27 = libvt.mpi.lampi.a
+@HAVE_MPICH_TRUE@am__append_28 = libvt.mpi.mpich.a
+@HAVE_MPICH2_TRUE@am__append_29 = libvt.mpi.mpich2.a
+@HAVE_MPT_TRUE@am__append_30 = libvt.mpi.mpt.a
+@HAVE_MVAPICH_TRUE@am__append_31 = libvt.mpi.mvapich.a
+@HAVE_MVAPICH2_TRUE@am__append_32 = libvt.mpi.mvapich2.a
+@HAVE_OPENMPI_TRUE@am__append_33 = libvt.mpi.openmpi.a
 subdir = plugins/collectors/mpiotf
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -100,13 +111,20 @@ LTLIBRARIES = $(pkglib_LTLIBRARIES)
 am__libmpiotf_lam_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c vt_mpiwrap-offline.c runtime.h runtime.c
 am__objects_1 = libmpiotf_lam_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_2 = libmpiotf_lam_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_2 =  \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_lam_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_3 = $(am__objects_1) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_2) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_lam_offline_la-vt_mpiwrap-offline.lo \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_lam_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_3 = $(am__objects_1) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_2) \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_lam_offline_la-vt_mpiwrap-offline.lo \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_lam_offline_la-runtime.lo
-@HAVE_LAM_TRUE@am_libmpiotf_lam_offline_la_OBJECTS = $(am__objects_3)
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_lam_offline_la_OBJECTS = $(am__objects_3)
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@am_libmpiotf_lam_offline_la_OBJECTS =  \
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@	$(am__objects_3)
 nodist_libmpiotf_lam_offline_la_OBJECTS =
 libmpiotf_lam_offline_la_OBJECTS =  \
 	$(am_libmpiotf_lam_offline_la_OBJECTS) \
@@ -117,17 +135,26 @@ libmpiotf_lam_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(libmpiotf_lam_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@am_libmpiotf_lam_offline_la_rpath =  \
 @HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@	-rpath $(pkglibdir)
+@HAVE_LAM_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_lam_offline_la_rpath =  \
+@HAVE_LAM_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	-rpath \
+@HAVE_LAM_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 am__libmpiotf_lampi_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c vt_mpiwrap-offline.c runtime.h runtime.c
 am__objects_4 = libmpiotf_lampi_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_5 = libmpiotf_lampi_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_5 =  \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_lampi_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_6 = $(am__objects_4) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_5) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_lampi_offline_la-vt_mpiwrap-offline.lo \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_lampi_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_6 = $(am__objects_4) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_5) \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_lampi_offline_la-vt_mpiwrap-offline.lo \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_lampi_offline_la-runtime.lo
-@HAVE_LAMPI_TRUE@am_libmpiotf_lampi_offline_la_OBJECTS =  \
-@HAVE_LAMPI_TRUE@	$(am__objects_6)
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_lampi_offline_la_OBJECTS = $(am__objects_6)
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@am_libmpiotf_lampi_offline_la_OBJECTS =  \
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@	$(am__objects_6)
 nodist_libmpiotf_lampi_offline_la_OBJECTS =
 libmpiotf_lampi_offline_la_OBJECTS =  \
 	$(am_libmpiotf_lampi_offline_la_OBJECTS) \
@@ -138,17 +165,26 @@ libmpiotf_lampi_offline_la_LINK = $(LIBTOOL) --tag=CC \
 	$(libmpiotf_lampi_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@am_libmpiotf_lampi_offline_la_rpath =  \
 @HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@	-rpath $(pkglibdir)
+@HAVE_LAMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_lampi_offline_la_rpath =  \
+@HAVE_LAMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	-rpath \
+@HAVE_LAMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 am__libmpiotf_mpich_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c vt_mpiwrap-offline.c runtime.h runtime.c
 am__objects_7 = libmpiotf_mpich_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_8 = libmpiotf_mpich_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_8 =  \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_mpich_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_9 = $(am__objects_7) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_8) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_mpich_offline_la-vt_mpiwrap-offline.lo \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_mpich_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_9 = $(am__objects_7) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_8) \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_mpich_offline_la-vt_mpiwrap-offline.lo \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_mpich_offline_la-runtime.lo
-@HAVE_MPICH_TRUE@am_libmpiotf_mpich_offline_la_OBJECTS =  \
-@HAVE_MPICH_TRUE@	$(am__objects_9)
+@HAVE_LIBMONITOR_FALSE@@HAVE_MPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_mpich_offline_la_OBJECTS = $(am__objects_9)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@am_libmpiotf_mpich_offline_la_OBJECTS =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@	$(am__objects_9)
 nodist_libmpiotf_mpich_offline_la_OBJECTS =
 libmpiotf_mpich_offline_la_OBJECTS =  \
 	$(am_libmpiotf_mpich_offline_la_OBJECTS) \
@@ -159,17 +195,26 @@ libmpiotf_mpich_offline_la_LINK = $(LIBTOOL) --tag=CC \
 	$(libmpiotf_mpich_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@am_libmpiotf_mpich_offline_la_rpath =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@	-rpath $(pkglibdir)
+@HAVE_MPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_mpich_offline_la_rpath =  \
+@HAVE_MPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	-rpath \
+@HAVE_MPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 am__libmpiotf_mpich2_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c vt_mpiwrap-offline.c runtime.h runtime.c
 am__objects_10 = libmpiotf_mpich2_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_11 = libmpiotf_mpich2_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_11 =  \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_mpich2_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_12 = $(am__objects_10) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_11) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_mpich2_offline_la-vt_mpiwrap-offline.lo \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_mpich2_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_12 = $(am__objects_10) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_11) \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_mpich2_offline_la-vt_mpiwrap-offline.lo \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_mpich2_offline_la-runtime.lo
-@HAVE_MPICH2_TRUE@am_libmpiotf_mpich2_offline_la_OBJECTS =  \
-@HAVE_MPICH2_TRUE@	$(am__objects_12)
+@HAVE_LIBMONITOR_FALSE@@HAVE_MPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_mpich2_offline_la_OBJECTS = $(am__objects_12)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@am_libmpiotf_mpich2_offline_la_OBJECTS =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@	$(am__objects_12)
 nodist_libmpiotf_mpich2_offline_la_OBJECTS =
 libmpiotf_mpich2_offline_la_OBJECTS =  \
 	$(am_libmpiotf_mpich2_offline_la_OBJECTS) \
@@ -180,17 +225,26 @@ libmpiotf_mpich2_offline_la_LINK = $(LIBTOOL) --tag=CC \
 	$(libmpiotf_mpich2_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@am_libmpiotf_mpich2_offline_la_rpath =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@	-rpath $(pkglibdir)
+@HAVE_MPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_mpich2_offline_la_rpath =  \
+@HAVE_MPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	-rpath \
+@HAVE_MPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 am__libmpiotf_mpt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c vt_mpiwrap-offline.c runtime.h runtime.c
 am__objects_13 = libmpiotf_mpt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_14 = libmpiotf_mpt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_14 =  \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_mpt_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_15 = $(am__objects_13) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_14) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_mpt_offline_la-vt_mpiwrap-offline.lo \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_mpt_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_15 = $(am__objects_13) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_14) \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_mpt_offline_la-vt_mpiwrap-offline.lo \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_mpt_offline_la-runtime.lo
-@HAVE_MPT_TRUE@am_libmpiotf_mpt_offline_la_OBJECTS =  \
-@HAVE_MPT_TRUE@	$(am__objects_15)
+@HAVE_LIBMONITOR_FALSE@@HAVE_MPT_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_mpt_offline_la_OBJECTS = $(am__objects_15)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@am_libmpiotf_mpt_offline_la_OBJECTS =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@	$(am__objects_15)
 nodist_libmpiotf_mpt_offline_la_OBJECTS =
 libmpiotf_mpt_offline_la_OBJECTS =  \
 	$(am_libmpiotf_mpt_offline_la_OBJECTS) \
@@ -201,17 +255,26 @@ libmpiotf_mpt_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(libmpiotf_mpt_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@am_libmpiotf_mpt_offline_la_rpath =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@	-rpath $(pkglibdir)
+@HAVE_MPT_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_mpt_offline_la_rpath =  \
+@HAVE_MPT_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	-rpath \
+@HAVE_MPT_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 am__libmpiotf_mvapich_offline_la_SOURCES_DIST = blobs.x blobs.h \
 	blobs.c offline.c vt_mpiwrap-offline.c runtime.h runtime.c
 am__objects_16 = libmpiotf_mvapich_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_17 = libmpiotf_mvapich_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_17 =  \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_mvapich_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_18 = $(am__objects_16) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_17) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_mvapich_offline_la-vt_mpiwrap-offline.lo \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_mvapich_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_18 = $(am__objects_16) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_17) \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_mvapich_offline_la-vt_mpiwrap-offline.lo \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_mvapich_offline_la-runtime.lo
-@HAVE_MVAPICH_TRUE@am_libmpiotf_mvapich_offline_la_OBJECTS =  \
-@HAVE_MVAPICH_TRUE@	$(am__objects_18)
+@HAVE_LIBMONITOR_FALSE@@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_mvapich_offline_la_OBJECTS = $(am__objects_18)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@am_libmpiotf_mvapich_offline_la_OBJECTS =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@	$(am__objects_18)
 nodist_libmpiotf_mvapich_offline_la_OBJECTS =
 libmpiotf_mvapich_offline_la_OBJECTS =  \
 	$(am_libmpiotf_mvapich_offline_la_OBJECTS) \
@@ -222,16 +285,25 @@ libmpiotf_mvapich_offline_la_LINK = $(LIBTOOL) --tag=CC \
 	$(libmpiotf_mvapich_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@am_libmpiotf_mvapich_offline_la_rpath =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@	-rpath $(pkglibdir)
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_mvapich_offline_la_rpath =  \
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	-rpath \
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 am__libmpiotf_mvapich2_offline_la_SOURCES_DIST = blobs.x blobs.h \
 	blobs.c offline.c vt_mpiwrap-offline.c runtime.h runtime.c
 am__objects_19 = libmpiotf_mvapich2_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_20 = libmpiotf_mvapich2_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_20 = libmpiotf_mvapich2_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_21 = $(am__objects_19) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_20) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_mvapich2_offline_la-vt_mpiwrap-offline.lo \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_mvapich2_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_21 = $(am__objects_19) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_20) \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_mvapich2_offline_la-vt_mpiwrap-offline.lo \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_mvapich2_offline_la-runtime.lo
-@HAVE_MVAPICH2_TRUE@am_libmpiotf_mvapich2_offline_la_OBJECTS =  \
-@HAVE_MVAPICH2_TRUE@	$(am__objects_21)
+@HAVE_LIBMONITOR_FALSE@@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_mvapich2_offline_la_OBJECTS = $(am__objects_21)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@am_libmpiotf_mvapich2_offline_la_OBJECTS =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@	$(am__objects_21)
 nodist_libmpiotf_mvapich2_offline_la_OBJECTS =
 libmpiotf_mvapich2_offline_la_OBJECTS =  \
 	$(am_libmpiotf_mvapich2_offline_la_OBJECTS) \
@@ -242,17 +314,26 @@ libmpiotf_mvapich2_offline_la_LINK = $(LIBTOOL) --tag=CC \
 	$(libmpiotf_mvapich2_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@am_libmpiotf_mvapich2_offline_la_rpath =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@	-rpath $(pkglibdir)
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_mvapich2_offline_la_rpath =  \
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	-rpath \
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 am__libmpiotf_openmpi_offline_la_SOURCES_DIST = blobs.x blobs.h \
 	blobs.c offline.c vt_mpiwrap-offline.c runtime.h runtime.c
 am__objects_22 = libmpiotf_openmpi_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_23 = libmpiotf_openmpi_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_23 =  \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_openmpi_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_24 = $(am__objects_22) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_23) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_openmpi_offline_la-vt_mpiwrap-offline.lo \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpiotf_openmpi_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_24 = $(am__objects_22) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_23) \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_openmpi_offline_la-vt_mpiwrap-offline.lo \
 @HAVE_LIBMONITOR_TRUE@	libmpiotf_openmpi_offline_la-runtime.lo
-@HAVE_OPENMPI_TRUE@am_libmpiotf_openmpi_offline_la_OBJECTS =  \
-@HAVE_OPENMPI_TRUE@	$(am__objects_24)
+@HAVE_LIBMONITOR_FALSE@@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_openmpi_offline_la_OBJECTS = $(am__objects_24)
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@am_libmpiotf_openmpi_offline_la_OBJECTS =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@	$(am__objects_24)
 nodist_libmpiotf_openmpi_offline_la_OBJECTS =
 libmpiotf_openmpi_offline_la_OBJECTS =  \
 	$(am_libmpiotf_openmpi_offline_la_OBJECTS) \
@@ -263,10 +344,14 @@ libmpiotf_openmpi_offline_la_LINK = $(LIBTOOL) --tag=CC \
 	$(libmpiotf_openmpi_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@am_libmpiotf_openmpi_offline_la_rpath =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@	-rpath $(pkglibdir)
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpiotf_openmpi_offline_la_rpath =  \
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	-rpath \
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 am__mpiotf_lam_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c runtime.h runtime.c vt_mpiwrap-offline.c vt_sync.c \
 	vt_otf_trc.c vt_mpireq.c vt_mpireg.c vt_mpicom.c
 am__objects_25 = mpiotf_lam_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_26 = mpiotf_lam_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_26 =  \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_lam_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_27 = $(am__objects_25) \
@@ -278,8 +363,8 @@ am__objects_25 = mpiotf_lam_rt_offline_la-blobs.lo
 @HAVE_LIBMONITOR_TRUE@	mpiotf_lam_rt_offline_la-vt_mpireq.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_lam_rt_offline_la-vt_mpireg.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_lam_rt_offline_la-vt_mpicom.lo
-@HAVE_LAM_TRUE@am_mpiotf_lam_rt_offline_la_OBJECTS =  \
-@HAVE_LAM_TRUE@	$(am__objects_27)
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@am_mpiotf_lam_rt_offline_la_OBJECTS =  \
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@	$(am__objects_27)
 mpiotf_lam_rt_offline_la_OBJECTS =  \
 	$(am_mpiotf_lam_rt_offline_la_OBJECTS)
 mpiotf_lam_rt_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -292,6 +377,7 @@ am__mpiotf_lampi_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c runtime.h runtime.c vt_mpiwrap-offline.c vt_sync.c \
 	vt_otf_trc.c vt_mpireq.c vt_mpireg.c vt_mpicom.c
 am__objects_28 = mpiotf_lampi_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_29 = mpiotf_lampi_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_29 =  \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_lampi_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_30 = $(am__objects_28) \
@@ -303,8 +389,8 @@ am__objects_28 = mpiotf_lampi_rt_offline_la-blobs.lo
 @HAVE_LIBMONITOR_TRUE@	mpiotf_lampi_rt_offline_la-vt_mpireq.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_lampi_rt_offline_la-vt_mpireg.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_lampi_rt_offline_la-vt_mpicom.lo
-@HAVE_LAMPI_TRUE@am_mpiotf_lampi_rt_offline_la_OBJECTS =  \
-@HAVE_LAMPI_TRUE@	$(am__objects_30)
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@am_mpiotf_lampi_rt_offline_la_OBJECTS =  \
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@	$(am__objects_30)
 mpiotf_lampi_rt_offline_la_OBJECTS =  \
 	$(am_mpiotf_lampi_rt_offline_la_OBJECTS)
 mpiotf_lampi_rt_offline_la_LINK = $(LIBTOOL) --tag=CC \
@@ -317,6 +403,7 @@ am__mpiotf_mpich_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c runtime.h runtime.c vt_mpiwrap-offline.c vt_sync.c \
 	vt_otf_trc.c vt_mpireq.c vt_mpireg.c vt_mpicom.c
 am__objects_31 = mpiotf_mpich_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_32 = mpiotf_mpich_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_32 =  \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mpich_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_33 = $(am__objects_31) \
@@ -328,8 +415,8 @@ am__objects_31 = mpiotf_mpich_rt_offline_la-blobs.lo
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mpich_rt_offline_la-vt_mpireq.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mpich_rt_offline_la-vt_mpireg.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mpich_rt_offline_la-vt_mpicom.lo
-@HAVE_MPICH_TRUE@am_mpiotf_mpich_rt_offline_la_OBJECTS =  \
-@HAVE_MPICH_TRUE@	$(am__objects_33)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@am_mpiotf_mpich_rt_offline_la_OBJECTS =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@	$(am__objects_33)
 mpiotf_mpich_rt_offline_la_OBJECTS =  \
 	$(am_mpiotf_mpich_rt_offline_la_OBJECTS)
 mpiotf_mpich_rt_offline_la_LINK = $(LIBTOOL) --tag=CC \
@@ -342,6 +429,7 @@ am__mpiotf_mpich2_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c runtime.h runtime.c vt_mpiwrap-offline.c vt_sync.c \
 	vt_otf_trc.c vt_mpireq.c vt_mpireg.c vt_mpicom.c
 am__objects_34 = mpiotf_mpich2_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_35 = mpiotf_mpich2_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_35 =  \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mpich2_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_36 = $(am__objects_34) \
@@ -353,8 +441,8 @@ am__objects_34 = mpiotf_mpich2_rt_offline_la-blobs.lo
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mpich2_rt_offline_la-vt_mpireq.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mpich2_rt_offline_la-vt_mpireg.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mpich2_rt_offline_la-vt_mpicom.lo
-@HAVE_MPICH2_TRUE@am_mpiotf_mpich2_rt_offline_la_OBJECTS =  \
-@HAVE_MPICH2_TRUE@	$(am__objects_36)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@am_mpiotf_mpich2_rt_offline_la_OBJECTS =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@	$(am__objects_36)
 mpiotf_mpich2_rt_offline_la_OBJECTS =  \
 	$(am_mpiotf_mpich2_rt_offline_la_OBJECTS)
 mpiotf_mpich2_rt_offline_la_LINK = $(LIBTOOL) --tag=CC \
@@ -367,6 +455,7 @@ am__mpiotf_mpt_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c runtime.h runtime.c vt_mpiwrap-offline.c vt_sync.c \
 	vt_otf_trc.c vt_mpireq.c vt_mpireg.c vt_mpicom.c
 am__objects_37 = mpiotf_mpt_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_38 = mpiotf_mpt_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_38 =  \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mpt_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_39 = $(am__objects_37) \
@@ -378,8 +467,8 @@ am__objects_37 = mpiotf_mpt_rt_offline_la-blobs.lo
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mpt_rt_offline_la-vt_mpireq.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mpt_rt_offline_la-vt_mpireg.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mpt_rt_offline_la-vt_mpicom.lo
-@HAVE_MPT_TRUE@am_mpiotf_mpt_rt_offline_la_OBJECTS =  \
-@HAVE_MPT_TRUE@	$(am__objects_39)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@am_mpiotf_mpt_rt_offline_la_OBJECTS =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@	$(am__objects_39)
 mpiotf_mpt_rt_offline_la_OBJECTS =  \
 	$(am_mpiotf_mpt_rt_offline_la_OBJECTS)
 mpiotf_mpt_rt_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -392,6 +481,7 @@ am__mpiotf_mvapich_rt_offline_la_SOURCES_DIST = blobs.x blobs.h \
 	blobs.c offline.c runtime.h runtime.c vt_mpiwrap-offline.c \
 	vt_sync.c vt_otf_trc.c vt_mpireq.c vt_mpireg.c vt_mpicom.c
 am__objects_40 = mpiotf_mvapich_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_41 = mpiotf_mvapich_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_41 =  \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mvapich_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_42 = $(am__objects_40) \
@@ -403,8 +493,8 @@ am__objects_40 = mpiotf_mvapich_rt_offline_la-blobs.lo
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mvapich_rt_offline_la-vt_mpireq.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mvapich_rt_offline_la-vt_mpireg.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mvapich_rt_offline_la-vt_mpicom.lo
-@HAVE_MVAPICH_TRUE@am_mpiotf_mvapich_rt_offline_la_OBJECTS =  \
-@HAVE_MVAPICH_TRUE@	$(am__objects_42)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@am_mpiotf_mvapich_rt_offline_la_OBJECTS =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@	$(am__objects_42)
 mpiotf_mvapich_rt_offline_la_OBJECTS =  \
 	$(am_mpiotf_mvapich_rt_offline_la_OBJECTS)
 mpiotf_mvapich_rt_offline_la_LINK = $(LIBTOOL) --tag=CC \
@@ -417,6 +507,7 @@ am__mpiotf_mvapich2_rt_offline_la_SOURCES_DIST = blobs.x blobs.h \
 	blobs.c offline.c runtime.h runtime.c vt_mpiwrap-offline.c \
 	vt_sync.c vt_otf_trc.c vt_mpireq.c vt_mpireg.c vt_mpicom.c
 am__objects_43 = mpiotf_mvapich2_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_44 = mpiotf_mvapich2_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_44 = mpiotf_mvapich2_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_45 = $(am__objects_43) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_44) \
@@ -427,8 +518,8 @@ am__objects_43 = mpiotf_mvapich2_rt_offline_la-blobs.lo
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mvapich2_rt_offline_la-vt_mpireq.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mvapich2_rt_offline_la-vt_mpireg.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_mvapich2_rt_offline_la-vt_mpicom.lo
-@HAVE_MVAPICH2_TRUE@am_mpiotf_mvapich2_rt_offline_la_OBJECTS =  \
-@HAVE_MVAPICH2_TRUE@	$(am__objects_45)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@am_mpiotf_mvapich2_rt_offline_la_OBJECTS =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@	$(am__objects_45)
 mpiotf_mvapich2_rt_offline_la_OBJECTS =  \
 	$(am_mpiotf_mvapich2_rt_offline_la_OBJECTS)
 mpiotf_mvapich2_rt_offline_la_LINK = $(LIBTOOL) --tag=CC \
@@ -441,6 +532,7 @@ am__mpiotf_openmpi_rt_offline_la_SOURCES_DIST = blobs.x blobs.h \
 	blobs.c offline.c runtime.h runtime.c vt_mpiwrap-offline.c \
 	vt_sync.c vt_otf_trc.c vt_mpireq.c vt_mpireg.c vt_mpicom.c
 am__objects_46 = mpiotf_openmpi_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_47 = mpiotf_openmpi_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_47 =  \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_openmpi_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_48 = $(am__objects_46) \
@@ -452,8 +544,8 @@ am__objects_46 = mpiotf_openmpi_rt_offline_la-blobs.lo
 @HAVE_LIBMONITOR_TRUE@	mpiotf_openmpi_rt_offline_la-vt_mpireq.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_openmpi_rt_offline_la-vt_mpireg.lo \
 @HAVE_LIBMONITOR_TRUE@	mpiotf_openmpi_rt_offline_la-vt_mpicom.lo
-@HAVE_OPENMPI_TRUE@am_mpiotf_openmpi_rt_offline_la_OBJECTS =  \
-@HAVE_OPENMPI_TRUE@	$(am__objects_48)
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@am_mpiotf_openmpi_rt_offline_la_OBJECTS =  \
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@	$(am__objects_48)
 mpiotf_openmpi_rt_offline_la_OBJECTS =  \
 	$(am_mpiotf_openmpi_rt_offline_la_OBJECTS)
 mpiotf_openmpi_rt_offline_la_LINK = $(LIBTOOL) --tag=CC \
@@ -614,6 +706,7 @@ mpiotf_la_OBJECTS = $(am_mpiotf_la_OBJECTS)
 mpiotf_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(mpiotf_la_CXXFLAGS) \
 	$(CXXFLAGS) $(mpiotf_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_TARGET_LIBMONITOR_FALSE@am_mpiotf_la_rpath = -rpath $(pkglibdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -870,8 +963,11 @@ TARGET_BINUTILS_CPPFLAGS = @TARGET_BINUTILS_CPPFLAGS@
 TARGET_BINUTILS_DIR = @TARGET_BINUTILS_DIR@
 TARGET_BINUTILS_LDFLAGS = @TARGET_BINUTILS_LDFLAGS@
 TARGET_BINUTILS_LIBS = @TARGET_BINUTILS_LIBS@
+TARGET_LIBMONITOR_CPPFLAGS = @TARGET_LIBMONITOR_CPPFLAGS@
+TARGET_LIBMONITOR_DIR = @TARGET_LIBMONITOR_DIR@
+TARGET_LIBMONITOR_LDFLAGS = @TARGET_LIBMONITOR_LDFLAGS@
+TARGET_LIBMONITOR_LIBS = @TARGET_LIBMONITOR_LIBS@
 TARGET_LIBUNWIND_CPPFLAGS = @TARGET_LIBUNWIND_CPPFLAGS@
-TARGET_LIBUNWIND_DIR = @TARGET_LIBUNWIND_DIR@
 TARGET_LIBUNWIND_LDFLAGS = @TARGET_LIBUNWIND_LDFLAGS@
 TARGET_LIBUNWIND_LIBS = @TARGET_LIBUNWIND_LIBS@
 TARGET_OS = @TARGET_OS@
@@ -952,16 +1048,20 @@ topdir_execprefix = @topdir_execprefix@
 BUILT_SOURCES = \
 	blobs.h blobs.c	
 
-
-#noinst_LIBRARIES = libvt.mpi.a
-pkglib_LTLIBRARIES = mpiotf.la $(am__append_1) $(am__append_2) \
-	$(am__append_3) $(am__append_4) $(am__append_5) \
-	$(am__append_6) $(am__append_7) $(am__append_8) \
-	$(am__append_9) $(am__append_10) $(am__append_11) \
-	$(am__append_12) $(am__append_13) $(am__append_14) \
-	$(am__append_15) $(am__append_16)
+pkglib_LTLIBRARIES = $(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4) $(am__append_5) $(am__append_6) \
+	$(am__append_7) $(am__append_8) $(am__append_9) \
+	$(am__append_10) $(am__append_11) $(am__append_12) \
+	$(am__append_13) $(am__append_14) $(am__append_15) \
+	$(am__append_16) $(am__append_17) $(am__append_18) \
+	$(am__append_19) $(am__append_20) $(am__append_21) \
+	$(am__append_22) $(am__append_23) $(am__append_24) \
+	$(am__append_25)
 @HAVE_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@        offline.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
+@HAVE_TARGET_LIBMONITOR_TRUE@        offline.c
 
 mpiotf_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -1115,6 +1215,15 @@ mpiotf_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	@VT_CPPFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@        @OTF_CPPFLAGS@
 
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_CFLAGS_generate = \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -static \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -DOPENSS_OFFLINE \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -I$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -I$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@        $(1) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@VT_CPPFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@        @OTF_CPPFLAGS@
+
 @HAVE_LIBMONITOR_TRUE@lib_offline_LDFLAGS_generate = \
 @HAVE_LIBMONITOR_TRUE@        -static \
 @HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
@@ -1124,6 +1233,16 @@ mpiotf_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBZ_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@        -no-undefined
+
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_LDFLAGS_generate = \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@        $(1) \
+@HAVE_TARGET_LIBMONITOR_TRUE@        @VT_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@        @OTF_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@        @OTF_LIBZ_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -no-undefined
 
 
 #lib_offline_LIBADD_generate = \
@@ -1144,6 +1263,25 @@ mpiotf_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
 
+
+#lib_offline_LIBADD_generate = \
+#        -lopenss-runtime-offline \
+#        $(1) \
+#        @BINUTILS_LIBS@ \
+#        @LIBMONITOR_LIBS@ \
+#        @OTF_LIBSDIR@/libotf.a \
+#	@OTF_LIBZ_LIBS@ \
+#        @LIBUNWIND_LIBS@ \
+#        -lpthread -lrt
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_lam_LIBADD_generate = \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
+@HAVE_TARGET_LIBMONITOR_TRUE@        $(1) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	./libvt.mpi.lam.a  \
+@HAVE_TARGET_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lpthread -lrt
+
 @HAVE_LIBMONITOR_TRUE@lib_offline_lampi_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
@@ -1152,6 +1290,15 @@ mpiotf_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
+
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_lampi_LIBADD_generate = \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
+@HAVE_TARGET_LIBMONITOR_TRUE@        $(1) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	./libvt.mpi.lampi.a  \
+@HAVE_TARGET_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_mpich_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
@@ -1162,6 +1309,15 @@ mpiotf_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
 
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_mpich_LIBADD_generate = \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
+@HAVE_TARGET_LIBMONITOR_TRUE@        $(1) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	./libvt.mpi.mpich.a  \
+@HAVE_TARGET_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lpthread -lrt
+
 @HAVE_LIBMONITOR_TRUE@lib_offline_mpich2_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
@@ -1170,6 +1326,15 @@ mpiotf_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
+
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_mpich2_LIBADD_generate = \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
+@HAVE_TARGET_LIBMONITOR_TRUE@        $(1) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	./libvt.mpi.mpich2.a  \
+@HAVE_TARGET_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_mpt_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
@@ -1180,6 +1345,15 @@ mpiotf_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
 
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_mpt_LIBADD_generate = \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
+@HAVE_TARGET_LIBMONITOR_TRUE@        $(1) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	./libvt.mpi.mpt.a  \
+@HAVE_TARGET_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lpthread -lrt
+
 @HAVE_LIBMONITOR_TRUE@lib_offline_mvapich_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
@@ -1188,6 +1362,15 @@ mpiotf_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
+
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_mvapich_LIBADD_generate = \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
+@HAVE_TARGET_LIBMONITOR_TRUE@        $(1) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	./libvt.mpi.mvapich.a  \
+@HAVE_TARGET_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lpthread -lrt
 
 @HAVE_LIBMONITOR_TRUE@lib_offline_mvapich2_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
@@ -1198,6 +1381,15 @@ mpiotf_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
 
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_mvapich2_LIBADD_generate = \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
+@HAVE_TARGET_LIBMONITOR_TRUE@        $(1) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	./libvt.mpi.mvapich2.a  \
+@HAVE_TARGET_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lpthread -lrt
+
 @HAVE_LIBMONITOR_TRUE@lib_offline_openmpi_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
 @HAVE_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
@@ -1207,10 +1399,24 @@ mpiotf_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@        -lpthread -lrt
 
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_openmpi_LIBADD_generate = \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lopenss-runtime-monitor \
+@HAVE_TARGET_LIBMONITOR_TRUE@        $(1) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	./libvt.mpi.openmpi.a  \
+@HAVE_TARGET_LIBMONITOR_TRUE@        @OTF_LIBSDIR@/libotf.a \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@OTF_LIBZ_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@        -lpthread -lrt
+
 @HAVE_LIBMONITOR_TRUE@lib_offline_sources = \
 @HAVE_LIBMONITOR_TRUE@        blobs.x $(BUILT_SOURCES) $(OFFLINE_SOURCES) \
 @HAVE_LIBMONITOR_TRUE@        vt_mpiwrap-offline.c \
 @HAVE_LIBMONITOR_TRUE@        runtime.h runtime.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_sources = \
+@HAVE_TARGET_LIBMONITOR_TRUE@        blobs.x $(BUILT_SOURCES) $(OFFLINE_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_TRUE@        vt_mpiwrap-offline.c \
+@HAVE_TARGET_LIBMONITOR_TRUE@        runtime.h runtime.c
 
 rt_CFLAGS_generate = \
 	-I$(top_srcdir)/libopenss-runtime \
@@ -1324,136 +1530,181 @@ rt_mpt_LIBADD_generate = \
 @HAVE_LAM_TRUE@mpiotf_rt_lam_la_LIBADD = $(call rt_lam_LIBADD_generate,@LAM_LIBS@)
 @HAVE_LAM_TRUE@mpiotf_rt_lam_la_DEPENDENCIES = libvt-lam-mpi-a
 @HAVE_LAM_TRUE@mpiotf_rt_lam_la_SOURCES = $(rt_sources)
-@HAVE_LAM_TRUE@mpiotf_lam_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@LAM_CPPFLAGS@)
-@HAVE_LAM_TRUE@mpiotf_lam_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@LAM_LDFLAGS@)
-@HAVE_LAM_TRUE@mpiotf_lam_rt_offline_la_LIBADD = $(call rt_offline_lam_LIBADD_generate,@LAM_LIBS@)
-@HAVE_LAM_TRUE@mpiotf_lam_rt_offline_la_DEPENDENCIES = libvt-lam-mpi-a
-@HAVE_LAM_TRUE@mpiotf_lam_rt_offline_la_SOURCES = $(rt_offline_sources)
-@HAVE_LAM_TRUE@libmpiotf_lam_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@LAM_CPPFLAGS@)
-@HAVE_LAM_TRUE@libmpiotf_lam_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@LAM_LDFLAGS@)
-@HAVE_LAM_TRUE@libmpiotf_lam_offline_la_LIBADD = $(call lib_offline_lam_LIBADD_generate,@LAM_LIBS@)
-@HAVE_LAM_TRUE@libmpiotf_lam_offline_la_DEPENDENCIES = libvt-lam-mpi-a
-@HAVE_LAM_TRUE@libmpiotf_lam_offline_la_SOURCES = $(lib_offline_sources)
-@HAVE_LAM_TRUE@nodist_libmpiotf_lam_offline_la_SOURCES = 
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@mpiotf_lam_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@LAM_CPPFLAGS@)
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@mpiotf_lam_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@LAM_LDFLAGS@)
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@mpiotf_lam_rt_offline_la_LIBADD = $(call rt_offline_lam_LIBADD_generate,@LAM_LIBS@)
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@mpiotf_lam_rt_offline_la_DEPENDENCIES = libvt-lam-mpi-a
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@mpiotf_lam_rt_offline_la_SOURCES = $(rt_offline_sources)
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@libmpiotf_lam_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@LAM_CPPFLAGS@)
+@HAVE_LAM_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_lam_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@LAM_CPPFLAGS@)
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@libmpiotf_lam_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@LAM_LDFLAGS@)
+@HAVE_LAM_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_lam_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@LAM_LDFLAGS@)
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@libmpiotf_lam_offline_la_LIBADD = $(call lib_offline_lam_LIBADD_generate,@LAM_LIBS@)
+@HAVE_LAM_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_lam_offline_la_LIBADD = $(call lib_offline_lam_LIBADD_generate,@LAM_LIBS@)
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@libmpiotf_lam_offline_la_DEPENDENCIES = libvt-lam-mpi-a
+@HAVE_LAM_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_lam_offline_la_DEPENDENCIES = libvt-lam-mpi-a
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@libmpiotf_lam_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_LAM_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_lam_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@nodist_libmpiotf_lam_offline_la_SOURCES = 
+@HAVE_LAM_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@nodist_libmpiotf_lam_offline_la_SOURCES = 
 @HAVE_LAMPI_TRUE@mpiotf_rt_lampi_la_CFLAGS = $(call rt_CFLAGS_generate,@LAMPI_CPPFLAGS@)
 @HAVE_LAMPI_TRUE@mpiotf_rt_lampi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@LAMPI_LDFLAGS@)
 @HAVE_LAMPI_TRUE@mpiotf_rt_lampi_la_LIBADD = $(call rt_lampi_LIBADD_generate,@LAMPI_LIBS@)
 @HAVE_LAMPI_TRUE@mpiotf_rt_lampi_la_DEPENDENCIES = libvt-lampi-mpi-a
 @HAVE_LAMPI_TRUE@mpiotf_rt_lampi_la_SOURCES = $(rt_sources)
-@HAVE_LAMPI_TRUE@mpiotf_lampi_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@LAMPI_CPPFLAGS@)
-@HAVE_LAMPI_TRUE@mpiotf_lampi_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@LAMPI_LDFLAGS@)
-@HAVE_LAMPI_TRUE@mpiotf_lampi_rt_offline_la_LIBADD = $(call rt_offline_lampi_LIBADD_generate,@LAMPI_LIBS@)
-@HAVE_LAMPI_TRUE@mpiotf_lampi_rt_offline_la_DEPENDENCIES = libvt-lampi-mpi-a
-@HAVE_LAMPI_TRUE@mpiotf_lampi_rt_offline_la_SOURCES = $(rt_offline_sources)
-@HAVE_LAMPI_TRUE@libmpiotf_lampi_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@LAMPI_CPPFLAGS@)
-@HAVE_LAMPI_TRUE@libmpiotf_lampi_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@LAMPI_LDFLAGS@)
-@HAVE_LAMPI_TRUE@libmpiotf_lampi_offline_la_LIBADD = $(call lib_offline_lampi_LIBADD_generate,@LAMPI_LIBS@)
-@HAVE_LAMPI_TRUE@libmpiotf_lampi_offline_la_DEPENDENCIES = libvt-lampi-mpi-a
-@HAVE_LAMPI_TRUE@libmpiotf_lampi_offline_la_SOURCES = $(lib_offline_sources)
-@HAVE_LAMPI_TRUE@nodist_libmpiotf_lampi_offline_la_SOURCES = 
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@mpiotf_lampi_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@LAMPI_CPPFLAGS@)
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@mpiotf_lampi_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@LAMPI_LDFLAGS@)
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@mpiotf_lampi_rt_offline_la_LIBADD = $(call rt_offline_lampi_LIBADD_generate,@LAMPI_LIBS@)
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@mpiotf_lampi_rt_offline_la_DEPENDENCIES = libvt-lampi-mpi-a
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@mpiotf_lampi_rt_offline_la_SOURCES = $(rt_offline_sources)
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@libmpiotf_lampi_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@LAMPI_CPPFLAGS@)
+@HAVE_LAMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_lampi_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@LAMPI_CPPFLAGS@)
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@libmpiotf_lampi_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@LAMPI_LDFLAGS@)
+@HAVE_LAMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_lampi_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@LAMPI_LDFLAGS@)
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@libmpiotf_lampi_offline_la_LIBADD = $(call lib_offline_lampi_LIBADD_generate,@LAMPI_LIBS@)
+@HAVE_LAMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_lampi_offline_la_LIBADD = $(call lib_offline_lampi_LIBADD_generate,@LAMPI_LIBS@)
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@libmpiotf_lampi_offline_la_DEPENDENCIES = libvt-lampi-mpi-a
+@HAVE_LAMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_lampi_offline_la_DEPENDENCIES = libvt-lampi-mpi-a
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@libmpiotf_lampi_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_LAMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_lampi_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@nodist_libmpiotf_lampi_offline_la_SOURCES = 
+@HAVE_LAMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@nodist_libmpiotf_lampi_offline_la_SOURCES = 
 @HAVE_MPICH_TRUE@mpiotf_rt_mpich_la_CFLAGS = $(call rt_CFLAGS_generate,@MPICH_CPPFLAGS@)
 @HAVE_MPICH_TRUE@mpiotf_rt_mpich_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPICH_LDFLAGS@)
 @HAVE_MPICH_TRUE@mpiotf_rt_mpich_la_LIBADD = $(call rt_mpich_LIBADD_generate,@MPICH_LIBS@)
 @HAVE_MPICH_TRUE@mpiotf_rt_mpich_la_DEPENDENCIES = libvt-mpich-mpi-a
 @HAVE_MPICH_TRUE@mpiotf_rt_mpich_la_SOURCES = $(rt_sources)
-@HAVE_MPICH_TRUE@mpiotf_mpich_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPICH_CPPFLAGS@)
-@HAVE_MPICH_TRUE@mpiotf_mpich_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPICH_LDFLAGS@)
-@HAVE_MPICH_TRUE@mpiotf_mpich_rt_offline_la_LIBADD = $(call rt_offline_mpich_LIBADD_generate,@MPICH_LIBS@)
-@HAVE_MPICH_TRUE@mpiotf_mpich_rt_offline_la_DEPENDENCIES = libvt-mpich-mpi-a
-@HAVE_MPICH_TRUE@mpiotf_mpich_rt_offline_la_SOURCES = $(rt_offline_sources)
-@HAVE_MPICH_TRUE@libmpiotf_mpich_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPICH_CPPFLAGS@)
-@HAVE_MPICH_TRUE@libmpiotf_mpich_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPICH_LDFLAGS@)
-@HAVE_MPICH_TRUE@libmpiotf_mpich_offline_la_LIBADD = $(call lib_offline_mpich_LIBADD_generate,@MPICH_LIBS@)
-@HAVE_MPICH_TRUE@libmpiotf_mpich_offline_la_DEPENDENCIES = libvt-mpich-mpi-a
-@HAVE_MPICH_TRUE@libmpiotf_mpich_offline_la_SOURCES = $(lib_offline_sources)
-@HAVE_MPICH_TRUE@nodist_libmpiotf_mpich_offline_la_SOURCES = 
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@mpiotf_mpich_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPICH_CPPFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@mpiotf_mpich_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPICH_LDFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@mpiotf_mpich_rt_offline_la_LIBADD = $(call rt_offline_mpich_LIBADD_generate,@MPICH_LIBS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@mpiotf_mpich_rt_offline_la_DEPENDENCIES = libvt-mpich-mpi-a
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@mpiotf_mpich_rt_offline_la_SOURCES = $(rt_offline_sources)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@libmpiotf_mpich_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPICH_CPPFLAGS@)
+@HAVE_MPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpich_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPICH_CPPFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@libmpiotf_mpich_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPICH_LDFLAGS@)
+@HAVE_MPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpich_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPICH_LDFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@libmpiotf_mpich_offline_la_LIBADD = $(call lib_offline_mpich_LIBADD_generate,@MPICH_LIBS@)
+@HAVE_MPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpich_offline_la_LIBADD = $(call lib_offline_mpich_LIBADD_generate,@MPICH_LIBS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@libmpiotf_mpich_offline_la_DEPENDENCIES = libvt-mpich-mpi-a
+@HAVE_MPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpich_offline_la_DEPENDENCIES = libvt-mpich-mpi-a
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@libmpiotf_mpich_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_MPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpich_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@nodist_libmpiotf_mpich_offline_la_SOURCES = 
+@HAVE_MPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@nodist_libmpiotf_mpich_offline_la_SOURCES = 
 @HAVE_MPICH2_TRUE@mpiotf_rt_mpich2_la_CFLAGS = $(call rt_CFLAGS_generate,@MPICH2_CPPFLAGS@)
 @HAVE_MPICH2_TRUE@mpiotf_rt_mpich2_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPICH2_LDFLAGS@)
 @HAVE_MPICH2_TRUE@mpiotf_rt_mpich2_la_LIBADD = $(call rt_mpich2_LIBADD_generate,@MPICH2_LIBS@)
 @HAVE_MPICH2_TRUE@mpiotf_rt_mpich2_la_DEPENDENCIES = libvt-mpich2-mpi-a
 @HAVE_MPICH2_TRUE@mpiotf_rt_mpich2_la_SOURCES = $(rt_sources)
-@HAVE_MPICH2_TRUE@mpiotf_mpich2_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPICH2_CPPFLAGS@)
-@HAVE_MPICH2_TRUE@mpiotf_mpich2_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPICH2_LDFLAGS@)
-@HAVE_MPICH2_TRUE@mpiotf_mpich2_rt_offline_la_LIBADD = $(call rt_offline_mpich2_LIBADD_generate,@MPICH2_LIBS@)
-@HAVE_MPICH2_TRUE@mpiotf_mpich2_rt_offline_la_DEPENDENCIES = libvt-mpich2-mpi-a
-@HAVE_MPICH2_TRUE@mpiotf_mpich2_rt_offline_la_SOURCES = $(rt_offline_sources)
-@HAVE_MPICH2_TRUE@libmpiotf_mpich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPICH2_CPPFLAGS@)
-@HAVE_MPICH2_TRUE@libmpiotf_mpich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPICH2_LDFLAGS@)
-@HAVE_MPICH2_TRUE@libmpiotf_mpich2_offline_la_LIBADD = $(call lib_offline_mpich2_LIBADD_generate,@MPICH2_LIBS@)
-@HAVE_MPICH2_TRUE@libmpiotf_mpich2_offline_la_DEPENDENCIES = libvt-mpich2-mpi-a
-@HAVE_MPICH2_TRUE@libmpiotf_mpich2_offline_la_SOURCES = $(lib_offline_sources)
-@HAVE_MPICH2_TRUE@nodist_libmpiotf_mpich2_offline_la_SOURCES = 
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@mpiotf_mpich2_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPICH2_CPPFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@mpiotf_mpich2_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPICH2_LDFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@mpiotf_mpich2_rt_offline_la_LIBADD = $(call rt_offline_mpich2_LIBADD_generate,@MPICH2_LIBS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@mpiotf_mpich2_rt_offline_la_DEPENDENCIES = libvt-mpich2-mpi-a
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@mpiotf_mpich2_rt_offline_la_SOURCES = $(rt_offline_sources)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@libmpiotf_mpich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPICH2_CPPFLAGS@)
+@HAVE_MPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPICH2_CPPFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@libmpiotf_mpich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPICH2_LDFLAGS@)
+@HAVE_MPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPICH2_LDFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@libmpiotf_mpich2_offline_la_LIBADD = $(call lib_offline_mpich2_LIBADD_generate,@MPICH2_LIBS@)
+@HAVE_MPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpich2_offline_la_LIBADD = $(call lib_offline_mpich2_LIBADD_generate,@MPICH2_LIBS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@libmpiotf_mpich2_offline_la_DEPENDENCIES = libvt-mpich2-mpi-a
+@HAVE_MPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpich2_offline_la_DEPENDENCIES = libvt-mpich2-mpi-a
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@libmpiotf_mpich2_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_MPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpich2_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@nodist_libmpiotf_mpich2_offline_la_SOURCES = 
+@HAVE_MPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@nodist_libmpiotf_mpich2_offline_la_SOURCES = 
 @HAVE_MPT_TRUE@mpiotf_rt_mpt_la_CFLAGS = $(call rt_CFLAGS_generate,@MPT_CPPFLAGS@)
 @HAVE_MPT_TRUE@mpiotf_rt_mpt_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPT_LDFLAGS@)
 @HAVE_MPT_TRUE@mpiotf_rt_mpt_la_LIBADD = $(call rt_mpt_LIBADD_generate,@MPT_LIBS@)
 @HAVE_MPT_TRUE@mpiotf_rt_mpt_la_DEPENDENCIES = libvt-mpt-mpi-a
 @HAVE_MPT_TRUE@mpiotf_rt_mpt_la_SOURCES = $(rt_sources)
-@HAVE_MPT_TRUE@mpiotf_mpt_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
-@HAVE_MPT_TRUE@mpiotf_mpt_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
-@HAVE_MPT_TRUE@mpiotf_mpt_rt_offline_la_LIBADD = $(call rt_offline_mpt_LIBADD_generate,@MPT_LIBS@)
-@HAVE_MPT_TRUE@mpiotf_mpt_rt_offline_la_DEPENDENCIES = libvt-mpt-mpi-a
-@HAVE_MPT_TRUE@mpiotf_mpt_rt_offline_la_SOURCES = $(rt_offline_sources)
-@HAVE_MPT_TRUE@libmpiotf_mpt_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
-@HAVE_MPT_TRUE@libmpiotf_mpt_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
-@HAVE_MPT_TRUE@libmpiotf_mpt_offline_la_LIBADD = $(call lib_offline_mpt_LIBADD_generate,@MPT_LIBS@)
-@HAVE_MPT_TRUE@libmpiotf_mpt_offline_la_DEPENDENCIES = libvt-mpt-mpi-a
-@HAVE_MPT_TRUE@libmpiotf_mpt_offline_la_SOURCES = $(lib_offline_sources)
-@HAVE_MPT_TRUE@nodist_libmpiotf_mpt_offline_la_SOURCES = 
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@mpiotf_mpt_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@mpiotf_mpt_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@mpiotf_mpt_rt_offline_la_LIBADD = $(call rt_offline_mpt_LIBADD_generate,@MPT_LIBS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@mpiotf_mpt_rt_offline_la_DEPENDENCIES = libvt-mpt-mpi-a
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@mpiotf_mpt_rt_offline_la_SOURCES = $(rt_offline_sources)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@libmpiotf_mpt_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
+@HAVE_MPT_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpt_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@libmpiotf_mpt_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
+@HAVE_MPT_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpt_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@libmpiotf_mpt_offline_la_LIBADD = $(call lib_offline_mpt_LIBADD_generate,@MPT_LIBS@)
+@HAVE_MPT_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpt_offline_la_LIBADD = $(call lib_offline_mpt_LIBADD_generate,@MPT_LIBS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@libmpiotf_mpt_offline_la_DEPENDENCIES = libvt-mpt-mpi-a
+@HAVE_MPT_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpt_offline_la_DEPENDENCIES = libvt-mpt-mpi-a
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@libmpiotf_mpt_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_MPT_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mpt_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@nodist_libmpiotf_mpt_offline_la_SOURCES = 
+@HAVE_MPT_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@nodist_libmpiotf_mpt_offline_la_SOURCES = 
 @HAVE_MVAPICH_TRUE@mpiotf_rt_mvapich_la_CFLAGS = $(call rt_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
 @HAVE_MVAPICH_TRUE@mpiotf_rt_mvapich_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
 @HAVE_MVAPICH_TRUE@mpiotf_rt_mvapich_la_LIBADD = $(call rt_mvapich_LIBADD_generate,@MVAPICH_LIBS@)
 @HAVE_MVAPICH_TRUE@mpiotf_rt_mvapich_la_DEPENDENCIES = libvt-mvapich-mpi-a
 @HAVE_MVAPICH_TRUE@mpiotf_rt_mvapich_la_SOURCES = $(rt_sources)
-@HAVE_MVAPICH_TRUE@mpiotf_mvapich_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
-@HAVE_MVAPICH_TRUE@mpiotf_mvapich_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
-@HAVE_MVAPICH_TRUE@mpiotf_mvapich_rt_offline_la_LIBADD = $(call rt_offline_mvapich_LIBADD_generate,@MVAPICH_LIBS@)
-@HAVE_MVAPICH_TRUE@mpiotf_mvapich_rt_offline_la_DEPENDENCIES = libvt-mvapich-mpi-a
-@HAVE_MVAPICH_TRUE@mpiotf_mvapich_rt_offline_la_SOURCES = $(rt_offline_sources)
-@HAVE_MVAPICH_TRUE@libmpiotf_mvapich_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
-@HAVE_MVAPICH_TRUE@libmpiotf_mvapich_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
-@HAVE_MVAPICH_TRUE@libmpiotf_mvapich_offline_la_LIBADD = $(call lib_offline_mvapich_LIBADD_generate,@MVAPICH_LIBS@)
-@HAVE_MVAPICH_TRUE@libmpiotf_mvapich_offline_la_DEPENDENCIES = libvt-mvapich-mpi-a
-@HAVE_MVAPICH_TRUE@libmpiotf_mvapich_offline_la_SOURCES = $(lib_offline_sources)
-@HAVE_MVAPICH_TRUE@nodist_libmpiotf_mvapich_offline_la_SOURCES = 
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@mpiotf_mvapich_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@mpiotf_mvapich_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@mpiotf_mvapich_rt_offline_la_LIBADD = $(call rt_offline_mvapich_LIBADD_generate,@MVAPICH_LIBS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@mpiotf_mvapich_rt_offline_la_DEPENDENCIES = libvt-mvapich-mpi-a
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@mpiotf_mvapich_rt_offline_la_SOURCES = $(rt_offline_sources)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@libmpiotf_mvapich_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mvapich_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@libmpiotf_mvapich_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mvapich_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@libmpiotf_mvapich_offline_la_LIBADD = $(call lib_offline_mvapich_LIBADD_generate,@MVAPICH_LIBS@)
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mvapich_offline_la_LIBADD = $(call lib_offline_mvapich_LIBADD_generate,@MVAPICH_LIBS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@libmpiotf_mvapich_offline_la_DEPENDENCIES = libvt-mvapich-mpi-a
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mvapich_offline_la_DEPENDENCIES = libvt-mvapich-mpi-a
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@libmpiotf_mvapich_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mvapich_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@nodist_libmpiotf_mvapich_offline_la_SOURCES = 
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@nodist_libmpiotf_mvapich_offline_la_SOURCES = 
 @HAVE_MVAPICH2_TRUE@mpiotf_rt_mvapich2_la_CFLAGS = $(call rt_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
 @HAVE_MVAPICH2_TRUE@mpiotf_rt_mvapich2_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
 @HAVE_MVAPICH2_TRUE@mpiotf_rt_mvapich2_la_LIBADD = $(call rt_mvapich2_LIBADD_generate,@MVAPICH2_LIBS@)
 @HAVE_MVAPICH2_TRUE@mpiotf_rt_mvapich2_la_DEPENDENCIES = libvt-mvapich2-mpi-a
 @HAVE_MVAPICH2_TRUE@mpiotf_rt_mvapich2_la_SOURCES = $(rt_sources)
-@HAVE_MVAPICH2_TRUE@mpiotf_mvapich2_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
-@HAVE_MVAPICH2_TRUE@mpiotf_mvapich2_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
-@HAVE_MVAPICH2_TRUE@mpiotf_mvapich2_rt_offline_la_LIBADD = $(call rt_offline_mvapich2_LIBADD_generate,@MVAPICH2_LIBS@)
-@HAVE_MVAPICH2_TRUE@mpiotf_mvapich2_rt_offline_la_DEPENDENCIES = libvt-mvapich2-mpi-a
-@HAVE_MVAPICH2_TRUE@mpiotf_mvapich2_rt_offline_la_SOURCES = $(rt_offline_sources)
-@HAVE_MVAPICH2_TRUE@libmpiotf_mvapich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
-@HAVE_MVAPICH2_TRUE@libmpiotf_mvapich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
-@HAVE_MVAPICH2_TRUE@libmpiotf_mvapich2_offline_la_LIBADD = $(call lib_offline_mvapich2_LIBADD_generate,@MVAPICH2_LIBS@)
-@HAVE_MVAPICH2_TRUE@libmpiotf_mvapich2_offline_la_DEPENDENCIES = libvt-mvapich2-mpi-a
-@HAVE_MVAPICH2_TRUE@libmpiotf_mvapich2_offline_la_SOURCES = $(lib_offline_sources)
-@HAVE_MVAPICH2_TRUE@nodist_libmpiotf_mvapich2_offline_la_SOURCES = 
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@mpiotf_mvapich2_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@mpiotf_mvapich2_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@mpiotf_mvapich2_rt_offline_la_LIBADD = $(call rt_offline_mvapich2_LIBADD_generate,@MVAPICH2_LIBS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@mpiotf_mvapich2_rt_offline_la_DEPENDENCIES = libvt-mvapich2-mpi-a
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@mpiotf_mvapich2_rt_offline_la_SOURCES = $(rt_offline_sources)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpiotf_mvapich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mvapich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpiotf_mvapich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mvapich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpiotf_mvapich2_offline_la_LIBADD = $(call lib_offline_mvapich2_LIBADD_generate,@MVAPICH2_LIBS@)
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mvapich2_offline_la_LIBADD = $(call lib_offline_mvapich2_LIBADD_generate,@MVAPICH2_LIBS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpiotf_mvapich2_offline_la_DEPENDENCIES = libvt-mvapich2-mpi-a
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mvapich2_offline_la_DEPENDENCIES = libvt-mvapich2-mpi-a
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpiotf_mvapich2_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_mvapich2_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@nodist_libmpiotf_mvapich2_offline_la_SOURCES = 
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@nodist_libmpiotf_mvapich2_offline_la_SOURCES = 
 @HAVE_OPENMPI_TRUE@mpiotf_rt_openmpi_la_CFLAGS = $(call rt_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
 @HAVE_OPENMPI_TRUE@mpiotf_rt_openmpi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
 @HAVE_OPENMPI_TRUE@mpiotf_rt_openmpi_la_LIBADD = $(call rt_openmpi_LIBADD_generate,@OPENMPI_LIBS@)
 @HAVE_OPENMPI_TRUE@mpiotf_rt_openmpi_la_DEPENDENCIES = libvt-openmpi-mpi-a
 @HAVE_OPENMPI_TRUE@mpiotf_rt_openmpi_la_SOURCES = $(rt_sources)
-@HAVE_OPENMPI_TRUE@mpiotf_openmpi_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
-@HAVE_OPENMPI_TRUE@mpiotf_openmpi_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
-@HAVE_OPENMPI_TRUE@mpiotf_openmpi_rt_offline_la_LIBADD = $(call rt_offline_openmpi_LIBADD_generate,@OPENMPI_LIBS@)
-@HAVE_OPENMPI_TRUE@mpiotf_openmpi_rt_offline_la_DEPENDENCIES = libvt-openmpi-mpi-a
-@HAVE_OPENMPI_TRUE@mpiotf_openmpi_rt_offline_la_SOURCES = $(rt_offline_sources)
-@HAVE_OPENMPI_TRUE@libmpiotf_openmpi_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
-@HAVE_OPENMPI_TRUE@libmpiotf_openmpi_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
-@HAVE_OPENMPI_TRUE@libmpiotf_openmpi_offline_la_LIBADD = $(call lib_offline_openmpi_LIBADD_generate,@OPENMPI_LIBS@)
-@HAVE_OPENMPI_TRUE@libmpiotf_openmpi_offline_la_DEPENDENCIES = libvt-openmpi-mpi-a
-@HAVE_OPENMPI_TRUE@libmpiotf_openmpi_offline_la_SOURCES = $(lib_offline_sources)
-@HAVE_OPENMPI_TRUE@nodist_libmpiotf_openmpi_offline_la_SOURCES = 
-
-#endif for !BUILD_OFFLINE
-#endif
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@mpiotf_openmpi_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@mpiotf_openmpi_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@mpiotf_openmpi_rt_offline_la_LIBADD = $(call rt_offline_openmpi_LIBADD_generate,@OPENMPI_LIBS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@mpiotf_openmpi_rt_offline_la_DEPENDENCIES = libvt-openmpi-mpi-a
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@mpiotf_openmpi_rt_offline_la_SOURCES = $(rt_offline_sources)
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@libmpiotf_openmpi_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_openmpi_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@libmpiotf_openmpi_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_openmpi_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@libmpiotf_openmpi_offline_la_LIBADD = $(call lib_offline_openmpi_LIBADD_generate,@OPENMPI_LIBS@)
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_openmpi_offline_la_LIBADD = $(call lib_offline_openmpi_LIBADD_generate,@OPENMPI_LIBS@)
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@libmpiotf_openmpi_offline_la_DEPENDENCIES = libvt-openmpi-mpi-a
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_openmpi_offline_la_DEPENDENCIES = libvt-openmpi-mpi-a
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@libmpiotf_openmpi_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpiotf_openmpi_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@nodist_libmpiotf_openmpi_offline_la_SOURCES = 
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@nodist_libmpiotf_openmpi_offline_la_SOURCES = 
 SUFFIXES = .x 
-CLEANFILES = $(BUILT_SOURCES) $(am__append_17) $(am__append_18) \
-	$(am__append_19) $(am__append_20) $(am__append_21) \
-	$(am__append_22) $(am__append_23) $(am__append_24)
+CLEANFILES = $(BUILT_SOURCES) $(am__append_26) $(am__append_27) \
+	$(am__append_28) $(am__append_29) $(am__append_30) \
+	$(am__append_31) $(am__append_32) $(am__append_33)
 EXTRA_DIST = vt_openss.h
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -1565,7 +1816,7 @@ mpiotf-rt-mvapich2.la: $(mpiotf_rt_mvapich2_la_OBJECTS) $(mpiotf_rt_mvapich2_la_
 mpiotf-rt-openmpi.la: $(mpiotf_rt_openmpi_la_OBJECTS) $(mpiotf_rt_openmpi_la_DEPENDENCIES) 
 	$(mpiotf_rt_openmpi_la_LINK) $(am_mpiotf_rt_openmpi_la_rpath) $(mpiotf_rt_openmpi_la_OBJECTS) $(mpiotf_rt_openmpi_la_LIBADD) $(LIBS)
 mpiotf.la: $(mpiotf_la_OBJECTS) $(mpiotf_la_DEPENDENCIES) 
-	$(mpiotf_la_LINK) -rpath $(pkglibdir) $(mpiotf_la_OBJECTS) $(mpiotf_la_LIBADD) $(LIBS)
+	$(mpiotf_la_LINK) $(am_mpiotf_la_rpath) $(mpiotf_la_OBJECTS) $(mpiotf_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

@@ -54,8 +54,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@BUILD_OFFLINE_FALSE@am__append_1 = fpe-rt.la
-@HAVE_LIBMONITOR_TRUE@am__append_2 = fpe-rt-offline.la libfpe-offline.la
+@HAVE_TARGET_LIBMONITOR_FALSE@am__append_1 = fpe.la
+@BUILD_OFFLINE_FALSE@am__append_2 = fpe-rt.la
+@HAVE_LIBMONITOR_TRUE@am__append_3 = fpe-rt-offline.la libfpe-offline.la
+@HAVE_TARGET_LIBMONITOR_TRUE@am__append_4 = libfpe-offline.la
 subdir = plugins/collectors/fpe
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -79,6 +81,7 @@ fpe_rt_offline_la_DEPENDENCIES =
 am__fpe_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
 	runtime.c
 am__objects_1 = fpe_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_2 = fpe_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_2 = fpe_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_fpe_rt_offline_la_OBJECTS = $(am__objects_1) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_2) \
@@ -106,11 +109,16 @@ fpe_la_OBJECTS = $(am_fpe_la_OBJECTS)
 fpe_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(fpe_la_CXXFLAGS) $(CXXFLAGS) \
 	$(fpe_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_TARGET_LIBMONITOR_FALSE@am_fpe_la_rpath = -rpath $(pkglibdir)
 libfpe_offline_la_DEPENDENCIES =
 am__libfpe_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
 	runtime.c
 am__objects_5 = libfpe_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_6 = libfpe_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_6 = libfpe_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libfpe_offline_la_OBJECTS = $(am__objects_5) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_6) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libfpe_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am_libfpe_offline_la_OBJECTS = $(am__objects_5) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_6) \
 @HAVE_LIBMONITOR_TRUE@	libfpe_offline_la-runtime.lo
@@ -120,6 +128,8 @@ libfpe_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(libfpe_offline_la_CFLAGS) $(CFLAGS) \
 	$(libfpe_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@am_libfpe_offline_la_rpath = -rpath $(pkglibdir)
+@HAVE_TARGET_LIBMONITOR_TRUE@am_libfpe_offline_la_rpath = -rpath \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -327,8 +337,11 @@ TARGET_BINUTILS_CPPFLAGS = @TARGET_BINUTILS_CPPFLAGS@
 TARGET_BINUTILS_DIR = @TARGET_BINUTILS_DIR@
 TARGET_BINUTILS_LDFLAGS = @TARGET_BINUTILS_LDFLAGS@
 TARGET_BINUTILS_LIBS = @TARGET_BINUTILS_LIBS@
+TARGET_LIBMONITOR_CPPFLAGS = @TARGET_LIBMONITOR_CPPFLAGS@
+TARGET_LIBMONITOR_DIR = @TARGET_LIBMONITOR_DIR@
+TARGET_LIBMONITOR_LDFLAGS = @TARGET_LIBMONITOR_LDFLAGS@
+TARGET_LIBMONITOR_LIBS = @TARGET_LIBMONITOR_LIBS@
 TARGET_LIBUNWIND_CPPFLAGS = @TARGET_LIBUNWIND_CPPFLAGS@
-TARGET_LIBUNWIND_DIR = @TARGET_LIBUNWIND_DIR@
 TARGET_LIBUNWIND_LDFLAGS = @TARGET_LIBUNWIND_LDFLAGS@
 TARGET_LIBUNWIND_LIBS = @TARGET_LIBUNWIND_LIBS@
 TARGET_OS = @TARGET_OS@
@@ -409,9 +422,13 @@ topdir_execprefix = @topdir_execprefix@
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
-pkglib_LTLIBRARIES = fpe.la $(am__append_1) $(am__append_2)
+pkglib_LTLIBRARIES = $(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4)
 @HAVE_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	offline.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	offline.c
 
 fpe_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -487,6 +504,14 @@ fpe_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	@BINUTILS_CPPFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_CPPFLAGS@
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libfpe_offline_la_CFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_BINUTILS_CPPFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_CPPFLAGS@
+
 @HAVE_LIBMONITOR_TRUE@libfpe_offline_la_LDFLAGS = \
 @HAVE_LIBMONITOR_TRUE@	-static \
 @HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
@@ -495,16 +520,35 @@ fpe_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	-no-undefined
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libfpe_offline_la_LDFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_BINUTILS_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-no-undefined
+
 @HAVE_LIBMONITOR_TRUE@libfpe_offline_la_LIBADD = \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline -lopenss-runtime-monitor \
 @HAVE_LIBMONITOR_TRUE@	@BINUTILS_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	-lpthread -lrt -lm
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libfpe_offline_la_LIBADD = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-lopenss-runtime-offline -lopenss-runtime-monitor \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_BINUTILS_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-lpthread -lrt -lm
+
 @HAVE_LIBMONITOR_TRUE@libfpe_offline_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	blobs.x $(BUILT_SOURCES) \
 @HAVE_LIBMONITOR_TRUE@	$(OFFLINE_SOURCES) \
 @HAVE_LIBMONITOR_TRUE@	runtime.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@libfpe_offline_la_SOURCES = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	blobs.x $(BUILT_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(OFFLINE_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	runtime.c
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
@@ -574,7 +618,7 @@ fpe-rt-offline.la: $(fpe_rt_offline_la_OBJECTS) $(fpe_rt_offline_la_DEPENDENCIES
 fpe-rt.la: $(fpe_rt_la_OBJECTS) $(fpe_rt_la_DEPENDENCIES) 
 	$(fpe_rt_la_LINK) $(am_fpe_rt_la_rpath) $(fpe_rt_la_OBJECTS) $(fpe_rt_la_LIBADD) $(LIBS)
 fpe.la: $(fpe_la_OBJECTS) $(fpe_la_DEPENDENCIES) 
-	$(fpe_la_LINK) -rpath $(pkglibdir) $(fpe_la_OBJECTS) $(fpe_la_LIBADD) $(LIBS)
+	$(fpe_la_LINK) $(am_fpe_la_rpath) $(fpe_la_OBJECTS) $(fpe_la_LIBADD) $(LIBS)
 libfpe-offline.la: $(libfpe_offline_la_OBJECTS) $(libfpe_offline_la_DEPENDENCIES) 
 	$(libfpe_offline_la_LINK) $(am_libfpe_offline_la_rpath) $(libfpe_offline_la_OBJECTS) $(libfpe_offline_la_LIBADD) $(LIBS)
 

@@ -15,7 +15,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-
+if HAVE_QTLIB
 BASE_SUBDIRS = \
 	libopenss-message \
 	libopenss-runtime \
@@ -35,6 +35,20 @@ BASE_SUBDIRS = \
 	man \
 	sanity \
 	usability
+else
+BASE_SUBDIRS = \
+	libopenss-message \
+	libopenss-runtime \
+	libopenss-framework \
+	libopenss-queries \
+	libopenss-cli \
+	plugins \
+	openss \
+	doc \
+	man \
+	sanity \
+	usability
+endif
 
 SUBDIRS = \
 	$(BASE_SUBDIRS)

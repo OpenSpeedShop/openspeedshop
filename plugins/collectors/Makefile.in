@@ -50,11 +50,17 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @HAVE_LIBUNWIND_TRUE@am__append_1 = usertime io iot
-@HAVE_PAPI_TRUE@am__append_2 = hwc
-@HAVE_LIBUNWIND_TRUE@@HAVE_PAPI_TRUE@am__append_3 = hwctime
-@HAVE_LIBUNWIND_TRUE@@HAVE_MPI_TRUE@am__append_4 = mpi mpit
-@HAVE_LIBUNWIND_TRUE@@HAVE_MPI_TRUE@@HAVE_OTF_TRUE@@HAVE_VT_TRUE@am__append_5 = mpiotf
-@HAVE_BINUTILS_TRUE@@HAVE_LIBUNWIND_TRUE@am__append_6 = fpe
+@HAVE_TARGET_LIBUNWIND_TRUE@am__append_2 = usertime io iot
+@HAVE_PAPI_TRUE@am__append_3 = hwc
+@HAVE_LIBUNWIND_TRUE@@HAVE_PAPI_TRUE@am__append_4 = hwctime
+@HAVE_TARGET_PAPI_TRUE@am__append_5 = hwc
+@HAVE_TARGET_LIBUNWIND_TRUE@@HAVE_TARGET_PAPI_TRUE@am__append_6 = hwctime
+@HAVE_LIBUNWIND_TRUE@@HAVE_MPI_TRUE@am__append_7 = mpi mpit
+@HAVE_LIBUNWIND_TRUE@@HAVE_MPI_TRUE@@HAVE_OTF_TRUE@@HAVE_VT_TRUE@am__append_8 = mpiotf
+@HAVE_MPI_TRUE@@HAVE_TARGET_LIBUNWIND_TRUE@am__append_9 = mpi mpit
+@HAVE_MPI_TRUE@@HAVE_OTF_TRUE@@HAVE_TARGET_LIBUNWIND_TRUE@@HAVE_VT_TRUE@am__append_10 = mpiotf
+@HAVE_BINUTILS_TRUE@@HAVE_LIBUNWIND_TRUE@am__append_11 = fpe
+@HAVE_TARGET_BINUTILS_TRUE@@HAVE_TARGET_LIBUNWIND_TRUE@am__append_12 = fpe
 subdir = plugins/collectors
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -257,8 +263,11 @@ TARGET_BINUTILS_CPPFLAGS = @TARGET_BINUTILS_CPPFLAGS@
 TARGET_BINUTILS_DIR = @TARGET_BINUTILS_DIR@
 TARGET_BINUTILS_LDFLAGS = @TARGET_BINUTILS_LDFLAGS@
 TARGET_BINUTILS_LIBS = @TARGET_BINUTILS_LIBS@
+TARGET_LIBMONITOR_CPPFLAGS = @TARGET_LIBMONITOR_CPPFLAGS@
+TARGET_LIBMONITOR_DIR = @TARGET_LIBMONITOR_DIR@
+TARGET_LIBMONITOR_LDFLAGS = @TARGET_LIBMONITOR_LDFLAGS@
+TARGET_LIBMONITOR_LIBS = @TARGET_LIBMONITOR_LIBS@
 TARGET_LIBUNWIND_CPPFLAGS = @TARGET_LIBUNWIND_CPPFLAGS@
-TARGET_LIBUNWIND_DIR = @TARGET_LIBUNWIND_DIR@
 TARGET_LIBUNWIND_LDFLAGS = @TARGET_LIBUNWIND_LDFLAGS@
 TARGET_LIBUNWIND_LIBS = @TARGET_LIBUNWIND_LIBS@
 TARGET_OS = @TARGET_OS@
@@ -337,7 +346,9 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 topdir_execprefix = @topdir_execprefix@
 SUBDIRS = pcsamp $(am__append_1) $(am__append_2) $(am__append_3) \
-	$(am__append_4) $(am__append_5) $(am__append_6)
+	$(am__append_4) $(am__append_5) $(am__append_6) \
+	$(am__append_7) $(am__append_8) $(am__append_9) \
+	$(am__append_10) $(am__append_11) $(am__append_12)
 
 #SUBDIRS = pcsamp usertime hwc hwctime io iot mpi mpit fpe
 DIST_SUBDIRS = \

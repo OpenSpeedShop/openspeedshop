@@ -54,8 +54,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@BUILD_OFFLINE_FALSE@am__append_1 = io-rt.la
-@HAVE_LIBMONITOR_TRUE@am__append_2 = io-rt-offline.la libio-offline.la
+@HAVE_TARGET_LIBMONITOR_FALSE@am__append_1 = io.la
+@BUILD_OFFLINE_FALSE@am__append_2 = io-rt.la
+@HAVE_LIBMONITOR_TRUE@am__append_3 = io-rt-offline.la libio-offline.la
+@HAVE_TARGET_LIBMONITOR_TRUE@am__append_4 = libio-offline.la
 subdir = plugins/collectors/io
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -79,6 +81,7 @@ io_rt_offline_la_DEPENDENCIES =
 am__io_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
 	wrappers.c runtime.h runtime.c
 am__objects_1 = io_rt_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_2 = io_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_2 = io_rt_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am_io_rt_offline_la_OBJECTS = $(am__objects_1) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_2) \
@@ -107,12 +110,20 @@ io_la_OBJECTS = $(am_io_la_OBJECTS)
 io_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(io_la_CXXFLAGS) $(CXXFLAGS) \
 	$(io_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_TARGET_LIBMONITOR_FALSE@am_io_la_rpath = -rpath $(pkglibdir)
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@libio_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la
 @HAVE_LIBMONITOR_TRUE@libio_offline_la_DEPENDENCIES = $(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 @HAVE_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la
 am__libio_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c offline.c \
 	wrappers.c runtime.h runtime.c
 am__objects_5 = libio_offline_la-blobs.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_6 = libio_offline_la-offline.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_6 = libio_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libio_offline_la_OBJECTS = $(am__objects_5) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_6) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libio_offline_la-wrappers.lo \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libio_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am_libio_offline_la_OBJECTS = $(am__objects_5) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_6) \
 @HAVE_LIBMONITOR_TRUE@	libio_offline_la-wrappers.lo \
@@ -122,6 +133,8 @@ libio_offline_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libio_offline_la_CFLAGS) \
 	$(CFLAGS) $(libio_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@am_libio_offline_la_rpath = -rpath $(pkglibdir)
+@HAVE_TARGET_LIBMONITOR_TRUE@am_libio_offline_la_rpath = -rpath \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -329,8 +342,11 @@ TARGET_BINUTILS_CPPFLAGS = @TARGET_BINUTILS_CPPFLAGS@
 TARGET_BINUTILS_DIR = @TARGET_BINUTILS_DIR@
 TARGET_BINUTILS_LDFLAGS = @TARGET_BINUTILS_LDFLAGS@
 TARGET_BINUTILS_LIBS = @TARGET_BINUTILS_LIBS@
+TARGET_LIBMONITOR_CPPFLAGS = @TARGET_LIBMONITOR_CPPFLAGS@
+TARGET_LIBMONITOR_DIR = @TARGET_LIBMONITOR_DIR@
+TARGET_LIBMONITOR_LDFLAGS = @TARGET_LIBMONITOR_LDFLAGS@
+TARGET_LIBMONITOR_LIBS = @TARGET_LIBMONITOR_LIBS@
 TARGET_LIBUNWIND_CPPFLAGS = @TARGET_LIBUNWIND_CPPFLAGS@
-TARGET_LIBUNWIND_DIR = @TARGET_LIBUNWIND_DIR@
 TARGET_LIBUNWIND_LDFLAGS = @TARGET_LIBUNWIND_LDFLAGS@
 TARGET_LIBUNWIND_LIBS = @TARGET_LIBUNWIND_LIBS@
 TARGET_OS = @TARGET_OS@
@@ -411,9 +427,13 @@ topdir_execprefix = @topdir_execprefix@
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
-pkglib_LTLIBRARIES = io.la $(am__append_1) $(am__append_2)
+pkglib_LTLIBRARIES = $(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4)
 @HAVE_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	offline.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	offline.c
 
 io_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
@@ -482,6 +502,13 @@ io_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_CPPFLAGS@
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libio_offline_la_CFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_CPPFLAGS@
+
 @HAVE_LIBMONITOR_TRUE@libio_offline_la_LDFLAGS = \
 @HAVE_LIBMONITOR_TRUE@	-static \
 @HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
@@ -489,17 +516,36 @@ io_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	-no-undefined
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libio_offline_la_LDFLAGS = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime-offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-no-undefined
+
 @HAVE_LIBMONITOR_TRUE@libio_offline_la_LIBADD = \
 @HAVE_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 @HAVE_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	-lpthread -lrt
 
+@HAVE_TARGET_LIBMONITOR_TRUE@libio_offline_la_LIBADD = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-lpthread -lrt
+
 @HAVE_LIBMONITOR_TRUE@libio_offline_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	blobs.x $(BUILT_SOURCES) \
 @HAVE_LIBMONITOR_TRUE@	$(OFFLINE_SOURCES) \
 @HAVE_LIBMONITOR_TRUE@	wrappers.c \
 @HAVE_LIBMONITOR_TRUE@	runtime.h runtime.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@libio_offline_la_SOURCES = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	blobs.x $(BUILT_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(OFFLINE_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	wrappers.c \
+@HAVE_TARGET_LIBMONITOR_TRUE@	runtime.h runtime.c
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
@@ -569,7 +615,7 @@ io-rt-offline.la: $(io_rt_offline_la_OBJECTS) $(io_rt_offline_la_DEPENDENCIES)
 io-rt.la: $(io_rt_la_OBJECTS) $(io_rt_la_DEPENDENCIES) 
 	$(io_rt_la_LINK) $(am_io_rt_la_rpath) $(io_rt_la_OBJECTS) $(io_rt_la_LIBADD) $(LIBS)
 io.la: $(io_la_OBJECTS) $(io_la_DEPENDENCIES) 
-	$(io_la_LINK) -rpath $(pkglibdir) $(io_la_OBJECTS) $(io_la_LIBADD) $(LIBS)
+	$(io_la_LINK) $(am_io_la_rpath) $(io_la_OBJECTS) $(io_la_LIBADD) $(LIBS)
 libio-offline.la: $(libio_offline_la_OBJECTS) $(libio_offline_la_DEPENDENCIES) 
 	$(libio_offline_la_LINK) $(am_libio_offline_la_rpath) $(libio_offline_la_OBJECTS) $(libio_offline_la_LIBADD) $(LIBS)
 

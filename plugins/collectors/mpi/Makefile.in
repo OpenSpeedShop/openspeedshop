@@ -56,22 +56,26 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 noinst_PROGRAMS = mkwrapper$(EXEEXT)
-@BUILD_OFFLINE_FALSE@@HAVE_LAM_TRUE@am__append_1 = mpi-rt-lam.la
-@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@am__append_2 = mpi-lam-rt-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_LAMPI_TRUE@am__append_3 = mpi-rt-lampi.la
-@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@am__append_4 = mpi-lampi-rt-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_MPICH_TRUE@am__append_5 = mpi-rt-mpich.la
-@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@am__append_6 = mpi-mpich-rt-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_MPICH2_TRUE@am__append_7 = mpi-rt-mpich2.la
-@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@am__append_8 = mpi-mpich2-rt-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_MPT_TRUE@am__append_9 = mpi-rt-mpt.la
-@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@am__append_10 = mpi-mpt-rt-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_OPENMPI_TRUE@am__append_11 = mpi-rt-openmpi.la
-@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@am__append_12 = mpi-openmpi-rt-offline.la libmpi-openmpi-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_MVAPICH_TRUE@am__append_13 = mpi-rt-mvapich.la
-@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@am__append_14 = mpi-mvapich-rt-offline.la libmpi-mvapich-offline.la
-@BUILD_OFFLINE_FALSE@@HAVE_MVAPICH2_TRUE@am__append_15 = mpi-rt-mvapich2.la
-@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@am__append_16 = mpi-mvapich2-rt-offline.la libmpi-mvapich2-offline.la
+@HAVE_TARGET_LIBMONITOR_FALSE@am__append_1 = mpi.la
+@BUILD_OFFLINE_FALSE@@HAVE_LAM_TRUE@am__append_2 = mpi-rt-lam.la
+@HAVE_LAM_TRUE@@HAVE_LIBMONITOR_TRUE@am__append_3 = mpi-lam-rt-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_LAMPI_TRUE@am__append_4 = mpi-rt-lampi.la
+@HAVE_LAMPI_TRUE@@HAVE_LIBMONITOR_TRUE@am__append_5 = mpi-lampi-rt-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_MPICH_TRUE@am__append_6 = mpi-rt-mpich.la
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH_TRUE@am__append_7 = mpi-mpich-rt-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_MPICH2_TRUE@am__append_8 = mpi-rt-mpich2.la
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPICH2_TRUE@am__append_9 = mpi-mpich2-rt-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_MPT_TRUE@am__append_10 = mpi-rt-mpt.la
+@HAVE_LIBMONITOR_TRUE@@HAVE_MPT_TRUE@am__append_11 = mpi-mpt-rt-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_OPENMPI_TRUE@am__append_12 = mpi-rt-openmpi.la
+@HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@am__append_13 = mpi-openmpi-rt-offline.la libmpi-openmpi-offline.la
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am__append_14 = libmpi-openmpi-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_MVAPICH_TRUE@am__append_15 = mpi-rt-mvapich.la
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@am__append_16 = mpi-mvapich-rt-offline.la libmpi-mvapich-offline.la
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am__append_17 = libmpi-mvapich-offline.la
+@BUILD_OFFLINE_FALSE@@HAVE_MVAPICH2_TRUE@am__append_18 = mpi-rt-mvapich2.la
+@HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@am__append_19 = mpi-mvapich2-rt-offline.la libmpi-mvapich2-offline.la
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am__append_20 = libmpi-mvapich2-offline.la
 subdir = plugins/collectors/mpi
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -96,10 +100,15 @@ am__libmpi_mvapich_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 am__objects_1 = libmpi_mvapich_offline_la-blobs.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_2 =  \
 @HAVE_LIBMONITOR_TRUE@	libmpi_mvapich_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_3 = $(am__objects_1) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_2) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpi_mvapich_offline_la-wrappers.lo \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpi_mvapich_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_3 = $(am__objects_1) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_2) \
 @HAVE_LIBMONITOR_TRUE@	libmpi_mvapich_offline_la-wrappers.lo \
 @HAVE_LIBMONITOR_TRUE@	libmpi_mvapich_offline_la-runtime.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpi_mvapich_offline_la_OBJECTS = $(am__objects_3)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@am_libmpi_mvapich_offline_la_OBJECTS =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@	$(am__objects_3)
 am__objects_4 = libmpi_mvapich_offline_la-MPI_Allgather.lo \
@@ -160,6 +169,7 @@ am__objects_4 = libmpi_mvapich_offline_la-MPI_Allgather.lo \
 	libmpi_mvapich_offline_la-MPI_Waitall.lo \
 	libmpi_mvapich_offline_la-MPI_Waitany.lo \
 	libmpi_mvapich_offline_la-MPI_Waitsome.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@nodist_libmpi_mvapich_offline_la_OBJECTS = $(am__objects_4)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@nodist_libmpi_mvapich_offline_la_OBJECTS =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@	$(am__objects_4)
 libmpi_mvapich_offline_la_OBJECTS =  \
@@ -171,15 +181,23 @@ libmpi_mvapich_offline_la_LINK = $(LIBTOOL) --tag=CC \
 	$(libmpi_mvapich_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@am_libmpi_mvapich_offline_la_rpath =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@	-rpath $(pkglibdir)
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpi_mvapich_offline_la_rpath =  \
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	-rpath \
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 am__libmpi_mvapich2_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c wrappers.c runtime.h runtime.c
 am__objects_5 = libmpi_mvapich2_offline_la-blobs.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_6 =  \
 @HAVE_LIBMONITOR_TRUE@	libmpi_mvapich2_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_7 = $(am__objects_5) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_6) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpi_mvapich2_offline_la-wrappers.lo \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpi_mvapich2_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_7 = $(am__objects_5) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_6) \
 @HAVE_LIBMONITOR_TRUE@	libmpi_mvapich2_offline_la-wrappers.lo \
 @HAVE_LIBMONITOR_TRUE@	libmpi_mvapich2_offline_la-runtime.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpi_mvapich2_offline_la_OBJECTS = $(am__objects_7)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@am_libmpi_mvapich2_offline_la_OBJECTS =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@	$(am__objects_7)
 am__objects_8 = libmpi_mvapich2_offline_la-MPI_Allgather.lo \
@@ -240,6 +258,7 @@ am__objects_8 = libmpi_mvapich2_offline_la-MPI_Allgather.lo \
 	libmpi_mvapich2_offline_la-MPI_Waitall.lo \
 	libmpi_mvapich2_offline_la-MPI_Waitany.lo \
 	libmpi_mvapich2_offline_la-MPI_Waitsome.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@nodist_libmpi_mvapich2_offline_la_OBJECTS = $(am__objects_8)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@nodist_libmpi_mvapich2_offline_la_OBJECTS =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@	$(am__objects_8)
 libmpi_mvapich2_offline_la_OBJECTS =  \
@@ -251,15 +270,23 @@ libmpi_mvapich2_offline_la_LINK = $(LIBTOOL) --tag=CC \
 	$(libmpi_mvapich2_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@am_libmpi_mvapich2_offline_la_rpath =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@	-rpath $(pkglibdir)
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpi_mvapich2_offline_la_rpath =  \
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	-rpath \
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 am__libmpi_openmpi_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c wrappers.c runtime.h runtime.c
 am__objects_9 = libmpi_openmpi_offline_la-blobs.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_10 =  \
 @HAVE_LIBMONITOR_TRUE@	libmpi_openmpi_offline_la-offline.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@am__objects_11 = $(am__objects_9) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(am__objects_10) \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpi_openmpi_offline_la-wrappers.lo \
+@HAVE_LIBMONITOR_FALSE@@HAVE_TARGET_LIBMONITOR_TRUE@	libmpi_openmpi_offline_la-runtime.lo
 @HAVE_LIBMONITOR_TRUE@am__objects_11 = $(am__objects_9) \
 @HAVE_LIBMONITOR_TRUE@	$(am__objects_10) \
 @HAVE_LIBMONITOR_TRUE@	libmpi_openmpi_offline_la-wrappers.lo \
 @HAVE_LIBMONITOR_TRUE@	libmpi_openmpi_offline_la-runtime.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpi_openmpi_offline_la_OBJECTS = $(am__objects_11)
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@am_libmpi_openmpi_offline_la_OBJECTS =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@	$(am__objects_11)
 am__objects_12 = libmpi_openmpi_offline_la-MPI_Allgather.lo \
@@ -320,6 +347,7 @@ am__objects_12 = libmpi_openmpi_offline_la-MPI_Allgather.lo \
 	libmpi_openmpi_offline_la-MPI_Waitall.lo \
 	libmpi_openmpi_offline_la-MPI_Waitany.lo \
 	libmpi_openmpi_offline_la-MPI_Waitsome.lo
+@HAVE_LIBMONITOR_FALSE@@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@nodist_libmpi_openmpi_offline_la_OBJECTS = $(am__objects_12)
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@nodist_libmpi_openmpi_offline_la_OBJECTS =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@	$(am__objects_12)
 libmpi_openmpi_offline_la_OBJECTS =  \
@@ -331,6 +359,9 @@ libmpi_openmpi_offline_la_LINK = $(LIBTOOL) --tag=CC \
 	$(libmpi_openmpi_offline_la_LDFLAGS) $(LDFLAGS) -o $@
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@am_libmpi_openmpi_offline_la_rpath =  \
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@	-rpath $(pkglibdir)
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@am_libmpi_openmpi_offline_la_rpath =  \
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	-rpath \
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@	$(pkglibdir)
 am__mpi_lam_rt_offline_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	offline.c wrappers.c runtime.h runtime.c
 am__objects_13 = mpi_lam_rt_offline_la-blobs.lo
@@ -972,8 +1003,9 @@ mpi_openmpi_rt_offline_la_LINK = $(LIBTOOL) --tag=CC \
 am__mpi_rt_lam_la_SOURCES_DIST = blobs.x blobs.h blobs.c runtime.h \
 	runtime.c wrappers.c
 am__objects_45 = mpi_rt_lam_la-blobs.lo
-am__objects_46 = $(am__objects_45) mpi_rt_lam_la-runtime.lo \
-	mpi_rt_lam_la-wrappers.lo
+@HAVE_TARGET_LIBMONITOR_FALSE@am__objects_46 = $(am__objects_45) \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_lam_la-runtime.lo \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_lam_la-wrappers.lo
 @HAVE_LAM_TRUE@am_mpi_rt_lam_la_OBJECTS = $(am__objects_46)
 am__objects_47 = mpi_rt_lam_la-MPI_Allgather.lo \
 	mpi_rt_lam_la-MPI_Allgatherv.lo mpi_rt_lam_la-MPI_Allreduce.lo \
@@ -1019,8 +1051,9 @@ mpi_rt_lam_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 am__mpi_rt_lampi_la_SOURCES_DIST = blobs.x blobs.h blobs.c runtime.h \
 	runtime.c wrappers.c
 am__objects_48 = mpi_rt_lampi_la-blobs.lo
-am__objects_49 = $(am__objects_48) mpi_rt_lampi_la-runtime.lo \
-	mpi_rt_lampi_la-wrappers.lo
+@HAVE_TARGET_LIBMONITOR_FALSE@am__objects_49 = $(am__objects_48) \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_lampi_la-runtime.lo \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_lampi_la-wrappers.lo
 @HAVE_LAMPI_TRUE@am_mpi_rt_lampi_la_OBJECTS = $(am__objects_49)
 am__objects_50 = mpi_rt_lampi_la-MPI_Allgather.lo \
 	mpi_rt_lampi_la-MPI_Allgatherv.lo \
@@ -1074,8 +1107,9 @@ mpi_rt_lampi_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 am__mpi_rt_mpich_la_SOURCES_DIST = blobs.x blobs.h blobs.c runtime.h \
 	runtime.c wrappers.c
 am__objects_51 = mpi_rt_mpich_la-blobs.lo
-am__objects_52 = $(am__objects_51) mpi_rt_mpich_la-runtime.lo \
-	mpi_rt_mpich_la-wrappers.lo
+@HAVE_TARGET_LIBMONITOR_FALSE@am__objects_52 = $(am__objects_51) \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_mpich_la-runtime.lo \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_mpich_la-wrappers.lo
 @HAVE_MPICH_TRUE@am_mpi_rt_mpich_la_OBJECTS = $(am__objects_52)
 am__objects_53 = mpi_rt_mpich_la-MPI_Allgather.lo \
 	mpi_rt_mpich_la-MPI_Allgatherv.lo \
@@ -1129,8 +1163,9 @@ mpi_rt_mpich_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 am__mpi_rt_mpich2_la_SOURCES_DIST = blobs.x blobs.h blobs.c runtime.h \
 	runtime.c wrappers.c
 am__objects_54 = mpi_rt_mpich2_la-blobs.lo
-am__objects_55 = $(am__objects_54) mpi_rt_mpich2_la-runtime.lo \
-	mpi_rt_mpich2_la-wrappers.lo
+@HAVE_TARGET_LIBMONITOR_FALSE@am__objects_55 = $(am__objects_54) \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_mpich2_la-runtime.lo \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_mpich2_la-wrappers.lo
 @HAVE_MPICH2_TRUE@am_mpi_rt_mpich2_la_OBJECTS = $(am__objects_55)
 am__objects_56 = mpi_rt_mpich2_la-MPI_Allgather.lo \
 	mpi_rt_mpich2_la-MPI_Allgatherv.lo \
@@ -1190,8 +1225,9 @@ mpi_rt_mpich2_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 am__mpi_rt_mpt_la_SOURCES_DIST = blobs.x blobs.h blobs.c runtime.h \
 	runtime.c wrappers.c
 am__objects_57 = mpi_rt_mpt_la-blobs.lo
-am__objects_58 = $(am__objects_57) mpi_rt_mpt_la-runtime.lo \
-	mpi_rt_mpt_la-wrappers.lo
+@HAVE_TARGET_LIBMONITOR_FALSE@am__objects_58 = $(am__objects_57) \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_mpt_la-runtime.lo \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_mpt_la-wrappers.lo
 @HAVE_MPT_TRUE@am_mpi_rt_mpt_la_OBJECTS = $(am__objects_58)
 am__objects_59 = mpi_rt_mpt_la-MPI_Allgather.lo \
 	mpi_rt_mpt_la-MPI_Allgatherv.lo mpi_rt_mpt_la-MPI_Allreduce.lo \
@@ -1237,8 +1273,9 @@ mpi_rt_mpt_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 am__mpi_rt_mvapich_la_SOURCES_DIST = blobs.x blobs.h blobs.c runtime.h \
 	runtime.c wrappers.c
 am__objects_60 = mpi_rt_mvapich_la-blobs.lo
-am__objects_61 = $(am__objects_60) mpi_rt_mvapich_la-runtime.lo \
-	mpi_rt_mvapich_la-wrappers.lo
+@HAVE_TARGET_LIBMONITOR_FALSE@am__objects_61 = $(am__objects_60) \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_mvapich_la-runtime.lo \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_mvapich_la-wrappers.lo
 @HAVE_MVAPICH_TRUE@am_mpi_rt_mvapich_la_OBJECTS = $(am__objects_61)
 am__objects_62 = mpi_rt_mvapich_la-MPI_Allgather.lo \
 	mpi_rt_mvapich_la-MPI_Allgatherv.lo \
@@ -1303,8 +1340,9 @@ mpi_rt_mvapich_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 am__mpi_rt_mvapich2_la_SOURCES_DIST = blobs.x blobs.h blobs.c \
 	runtime.h runtime.c wrappers.c
 am__objects_63 = mpi_rt_mvapich2_la-blobs.lo
-am__objects_64 = $(am__objects_63) mpi_rt_mvapich2_la-runtime.lo \
-	mpi_rt_mvapich2_la-wrappers.lo
+@HAVE_TARGET_LIBMONITOR_FALSE@am__objects_64 = $(am__objects_63) \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_mvapich2_la-runtime.lo \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_mvapich2_la-wrappers.lo
 @HAVE_MVAPICH2_TRUE@am_mpi_rt_mvapich2_la_OBJECTS = $(am__objects_64)
 am__objects_65 = mpi_rt_mvapich2_la-MPI_Allgather.lo \
 	mpi_rt_mvapich2_la-MPI_Allgatherv.lo \
@@ -1376,8 +1414,9 @@ mpi_rt_mvapich2_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 am__mpi_rt_openmpi_la_SOURCES_DIST = blobs.x blobs.h blobs.c runtime.h \
 	runtime.c wrappers.c
 am__objects_66 = mpi_rt_openmpi_la-blobs.lo
-am__objects_67 = $(am__objects_66) mpi_rt_openmpi_la-runtime.lo \
-	mpi_rt_openmpi_la-wrappers.lo
+@HAVE_TARGET_LIBMONITOR_FALSE@am__objects_67 = $(am__objects_66) \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_openmpi_la-runtime.lo \
+@HAVE_TARGET_LIBMONITOR_FALSE@	mpi_rt_openmpi_la-wrappers.lo
 @HAVE_OPENMPI_TRUE@am_mpi_rt_openmpi_la_OBJECTS = $(am__objects_67)
 am__objects_68 = mpi_rt_openmpi_la-MPI_Allgather.lo \
 	mpi_rt_openmpi_la-MPI_Allgatherv.lo \
@@ -1446,6 +1485,7 @@ mpi_la_OBJECTS = $(am_mpi_la_OBJECTS)
 mpi_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(mpi_la_CXXFLAGS) $(CXXFLAGS) \
 	$(mpi_la_LDFLAGS) $(LDFLAGS) -o $@
+@HAVE_TARGET_LIBMONITOR_FALSE@am_mpi_la_rpath = -rpath $(pkglibdir)
 PROGRAMS = $(noinst_PROGRAMS)
 am_mkwrapper_OBJECTS = mkwrapper.$(OBJEXT)
 mkwrapper_OBJECTS = $(am_mkwrapper_OBJECTS)
@@ -1706,8 +1746,11 @@ TARGET_BINUTILS_CPPFLAGS = @TARGET_BINUTILS_CPPFLAGS@
 TARGET_BINUTILS_DIR = @TARGET_BINUTILS_DIR@
 TARGET_BINUTILS_LDFLAGS = @TARGET_BINUTILS_LDFLAGS@
 TARGET_BINUTILS_LIBS = @TARGET_BINUTILS_LIBS@
+TARGET_LIBMONITOR_CPPFLAGS = @TARGET_LIBMONITOR_CPPFLAGS@
+TARGET_LIBMONITOR_DIR = @TARGET_LIBMONITOR_DIR@
+TARGET_LIBMONITOR_LDFLAGS = @TARGET_LIBMONITOR_LDFLAGS@
+TARGET_LIBMONITOR_LIBS = @TARGET_LIBMONITOR_LIBS@
 TARGET_LIBUNWIND_CPPFLAGS = @TARGET_LIBUNWIND_CPPFLAGS@
-TARGET_LIBUNWIND_DIR = @TARGET_LIBUNWIND_DIR@
 TARGET_LIBUNWIND_LDFLAGS = @TARGET_LIBUNWIND_LDFLAGS@
 TARGET_LIBUNWIND_LIBS = @TARGET_LIBUNWIND_LIBS@
 TARGET_OS = @TARGET_OS@
@@ -1791,12 +1834,13 @@ BUILT_SOURCES = \
 mkwrapper_SOURCES = \
 	mkwrapper.cxx
 
-pkglib_LTLIBRARIES = mpi.la $(am__append_1) $(am__append_2) \
-	$(am__append_3) $(am__append_4) $(am__append_5) \
-	$(am__append_6) $(am__append_7) $(am__append_8) \
-	$(am__append_9) $(am__append_10) $(am__append_11) \
-	$(am__append_12) $(am__append_13) $(am__append_14) \
-	$(am__append_15) $(am__append_16)
+pkglib_LTLIBRARIES = $(am__append_1) $(am__append_2) $(am__append_3) \
+	$(am__append_4) $(am__append_5) $(am__append_6) \
+	$(am__append_7) $(am__append_8) $(am__append_9) \
+	$(am__append_10) $(am__append_11) $(am__append_12) \
+	$(am__append_13) $(am__append_14) $(am__append_15) \
+	$(am__append_16) $(am__append_17) $(am__append_18) \
+	$(am__append_19) $(am__append_20)
 @HAVE_LIBMONITOR_TRUE@OFFLINE_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@	offline.c
 
@@ -1815,10 +1859,10 @@ mpi_la_SOURCES = \
 	MPICollector.hxx MPICollector.cxx \
 	MPIDetail.hxx
 
-@BUILD_MRNET_FALSE@rt_CFLAGS_generate = \
-@BUILD_MRNET_FALSE@	-I$(top_srcdir)/libopenss-runtime \
-@BUILD_MRNET_FALSE@	$(1) \
-@BUILD_MRNET_FALSE@	@LIBUNWIND_CPPFLAGS@
+@BUILD_MRNET_FALSE@@HAVE_TARGET_LIBMONITOR_FALSE@rt_CFLAGS_generate = \
+@BUILD_MRNET_FALSE@@HAVE_TARGET_LIBMONITOR_FALSE@	-I$(top_srcdir)/libopenss-runtime \
+@BUILD_MRNET_FALSE@@HAVE_TARGET_LIBMONITOR_FALSE@	$(1) \
+@BUILD_MRNET_FALSE@@HAVE_TARGET_LIBMONITOR_FALSE@	@LIBUNWIND_CPPFLAGS@
 
 
 # Common definitions for all MPI implementations
@@ -1858,22 +1902,22 @@ mpi_la_SOURCES = \
 @BUILD_MRNET_TRUE@	$(1) \
 @BUILD_MRNET_TRUE@	@LIBUNWIND_CPPFLAGS@
 
-rt_LDFLAGS_generate = \
-	-L$(top_srcdir)/libopenss-runtime \
-	$(1) \
-	@LIBUNWIND_LDFLAGS@ \
-	-no-undefined -avoid-version
+@HAVE_TARGET_LIBMONITOR_FALSE@rt_LDFLAGS_generate = \
+@HAVE_TARGET_LIBMONITOR_FALSE@	-L$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_FALSE@	$(1) \
+@HAVE_TARGET_LIBMONITOR_FALSE@	@LIBUNWIND_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_FALSE@	-no-undefined -avoid-version
 
-rt_LIBADD_generate = \
-	-lopenss-runtime \
-	$(1) \
-	@LIBUNWIND_LIBS@ \
-	-lpthread -lrt
+@HAVE_TARGET_LIBMONITOR_FALSE@rt_LIBADD_generate = \
+@HAVE_TARGET_LIBMONITOR_FALSE@	-lopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_FALSE@	$(1) \
+@HAVE_TARGET_LIBMONITOR_FALSE@	@LIBUNWIND_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_FALSE@	-lpthread -lrt
 
-rt_sources = \
-	blobs.x $(BUILT_SOURCES) \
-	runtime.h runtime.c \
-	wrappers.c
+@HAVE_TARGET_LIBMONITOR_FALSE@rt_sources = \
+@HAVE_TARGET_LIBMONITOR_FALSE@	blobs.x $(BUILT_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_FALSE@	runtime.h runtime.c \
+@HAVE_TARGET_LIBMONITOR_FALSE@	wrappers.c
 
 @HAVE_LIBMONITOR_TRUE@rt_offline_CFLAGS_generate = \
 @HAVE_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE \
@@ -1908,6 +1952,14 @@ rt_sources = \
 @HAVE_LIBMONITOR_TRUE@	$(1) \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_CPPFLAGS@
 
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_CFLAGS_generate = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-DOPENSS_OFFLINE \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-I$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(1) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_CPPFLAGS@
+
 @HAVE_LIBMONITOR_TRUE@lib_offline_LDFLAGS_generate = \
 @HAVE_LIBMONITOR_TRUE@	-static \
 @HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
@@ -1916,6 +1968,14 @@ rt_sources = \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	-no-undefined
 
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_LDFLAGS_generate = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-static \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime/offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(1) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_LDFLAGS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-no-undefined
+
 @HAVE_LIBMONITOR_TRUE@lib_offline_LIBADD_generate = \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-offline \
 @HAVE_LIBMONITOR_TRUE@	-lopenss-runtime-monitor \
@@ -1923,10 +1983,22 @@ rt_sources = \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LIBS@ \
 @HAVE_LIBMONITOR_TRUE@	-lpthread -lrt
 
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_LIBADD_generate = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-lopenss-runtime-offline \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-lopenss-runtime-monitor \
+@HAVE_TARGET_LIBMONITOR_TRUE@	$(1) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	@TARGET_LIBUNWIND_LIBS@ \
+@HAVE_TARGET_LIBMONITOR_TRUE@	-lpthread -lrt
+
 @HAVE_LIBMONITOR_TRUE@lib_offline_sources = \
 @HAVE_LIBMONITOR_TRUE@	blobs.x $(BUILT_SOURCES) $(OFFLINE_SOURCES) \
 @HAVE_LIBMONITOR_TRUE@	wrappers.c \
 @HAVE_LIBMONITOR_TRUE@	runtime.h runtime.c
+
+@HAVE_TARGET_LIBMONITOR_TRUE@lib_offline_sources = \
+@HAVE_TARGET_LIBMONITOR_TRUE@	blobs.x $(BUILT_SOURCES) $(OFFLINE_SOURCES) \
+@HAVE_TARGET_LIBMONITOR_TRUE@	wrappers.c \
+@HAVE_TARGET_LIBMONITOR_TRUE@	runtime.h runtime.c
 
 wrapper_sources = \
 	MPI_Allgather.c \
@@ -2062,11 +2134,17 @@ wrapper_sources = \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@mpi_mvapich_rt_offline_la_SOURCES = $(rt_offline_sources)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@nodist_mpi_mvapich_rt_offline_la_SOURCES = $(wrapper_sources)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@libmpi_mvapich_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_mvapich_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH_CPPFLAGS@)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@libmpi_mvapich_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_mvapich_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH_LDFLAGS@)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@libmpi_mvapich_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MVAPICH_LIBS@)
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_mvapich_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MVAPICH_LIBS@)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@libmpi_mvapich_offline_la_DEPENDENCIES = 
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_mvapich_offline_la_DEPENDENCIES = 
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@libmpi_mvapich_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_mvapich_offline_la_SOURCES = $(lib_offline_sources)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH_TRUE@nodist_libmpi_mvapich_offline_la_SOURCES = $(wrapper_sources)
+@HAVE_MVAPICH_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@nodist_libmpi_mvapich_offline_la_SOURCES = $(wrapper_sources)
 @HAVE_MVAPICH2_TRUE@mpi_rt_mvapich2_la_CFLAGS = $(call rt_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
 @HAVE_MVAPICH2_TRUE@mpi_rt_mvapich2_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
 @HAVE_MVAPICH2_TRUE@mpi_rt_mvapich2_la_LIBADD = $(call rt_LIBADD_generate,@MVAPICH2_LIBS@)
@@ -2080,11 +2158,17 @@ wrapper_sources = \
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@mpi_mvapich2_rt_offline_la_SOURCES = $(rt_offline_sources)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@nodist_mpi_mvapich2_rt_offline_la_SOURCES = $(wrapper_sources)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpi_mvapich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_mvapich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MVAPICH2_CPPFLAGS@)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpi_mvapich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_mvapich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MVAPICH2_LDFLAGS@)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpi_mvapich2_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MVAPICH2_LIBS@)
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_mvapich2_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MVAPICH2_LIBS@)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpi_mvapich2_offline_la_DEPENDENCIES = 
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_mvapich2_offline_la_DEPENDENCIES = 
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@libmpi_mvapich2_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_mvapich2_offline_la_SOURCES = $(lib_offline_sources)
 @HAVE_LIBMONITOR_TRUE@@HAVE_MVAPICH2_TRUE@nodist_libmpi_mvapich2_offline_la_SOURCES = $(wrapper_sources)
+@HAVE_MVAPICH2_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@nodist_libmpi_mvapich2_offline_la_SOURCES = $(wrapper_sources)
 @HAVE_OPENMPI_TRUE@mpi_rt_openmpi_la_CFLAGS = $(call rt_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
 @HAVE_OPENMPI_TRUE@mpi_rt_openmpi_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
 @HAVE_OPENMPI_TRUE@mpi_rt_openmpi_la_LIBADD = $(call rt_LIBADD_generate,@OPENMPI_LIBS@)
@@ -2098,11 +2182,17 @@ wrapper_sources = \
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@mpi_openmpi_rt_offline_la_SOURCES = $(rt_offline_sources)
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@nodist_mpi_openmpi_rt_offline_la_SOURCES = $(wrapper_sources)
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@libmpi_openmpi_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_openmpi_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@OPENMPI_CPPFLAGS@)
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@libmpi_openmpi_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_openmpi_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@OPENMPI_LDFLAGS@)
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@libmpi_openmpi_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@OPENMPI_LIBS@)
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_openmpi_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@OPENMPI_LIBS@)
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@libmpi_openmpi_offline_la_DEPENDENCIES = 
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_openmpi_offline_la_DEPENDENCIES = 
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@libmpi_openmpi_offline_la_SOURCES = $(lib_offline_sources)
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@libmpi_openmpi_offline_la_SOURCES = $(lib_offline_sources)
 @HAVE_LIBMONITOR_TRUE@@HAVE_OPENMPI_TRUE@nodist_libmpi_openmpi_offline_la_SOURCES = $(wrapper_sources)
+@HAVE_OPENMPI_TRUE@@HAVE_TARGET_LIBMONITOR_TRUE@nodist_libmpi_openmpi_offline_la_SOURCES = $(wrapper_sources)
 
 #endif
 EXTRA_DIST = mkwrapper.template
@@ -2210,7 +2300,7 @@ mpi-rt-mvapich2.la: $(mpi_rt_mvapich2_la_OBJECTS) $(mpi_rt_mvapich2_la_DEPENDENC
 mpi-rt-openmpi.la: $(mpi_rt_openmpi_la_OBJECTS) $(mpi_rt_openmpi_la_DEPENDENCIES) 
 	$(mpi_rt_openmpi_la_LINK) $(am_mpi_rt_openmpi_la_rpath) $(mpi_rt_openmpi_la_OBJECTS) $(mpi_rt_openmpi_la_LIBADD) $(LIBS)
 mpi.la: $(mpi_la_OBJECTS) $(mpi_la_DEPENDENCIES) 
-	$(mpi_la_LINK) -rpath $(pkglibdir) $(mpi_la_OBJECTS) $(mpi_la_LIBADD) $(LIBS)
+	$(mpi_la_LINK) $(am_mpi_la_rpath) $(mpi_la_OBJECTS) $(mpi_la_LIBADD) $(LIBS)
 
 clean-noinstPROGRAMS:
 	@list='$(noinst_PROGRAMS)'; for p in $$list; do \
