@@ -23,8 +23,10 @@ if HAVE_LIBUNWIND
 SUBDIRS += usertime io iot
 endif
 
+if HAVE_TARGET_LIBMONITOR
 if HAVE_TARGET_LIBUNWIND
 SUBDIRS += usertime io iot
+endif
 endif
 
 if HAVE_PAPI
@@ -34,10 +36,12 @@ SUBDIRS += hwctime
 endif
 endif
 
+if HAVE_TARGET_LIBMONITOR
 if HAVE_TARGET_PAPI
 SUBDIRS += hwc
 if HAVE_TARGET_LIBUNWIND
 SUBDIRS += hwctime
+endif
 endif
 endif
 
@@ -52,12 +56,14 @@ endif
 endif
 endif
 
-if HAVE_MPI
+if HAVE_TARGET_LIBMONITOR
+if HAVE_TARGET_MPI
 if HAVE_TARGET_LIBUNWIND
 SUBDIRS += mpi mpit
-if HAVE_OTF
-if HAVE_VT
+if HAVE_TARGET_OTF
+if HAVE_TARGET_VT
 SUBDIRS += mpiotf
+endif
 endif
 endif
 endif
@@ -69,9 +75,11 @@ SUBDIRS += fpe
 endif
 endif
 
+if HAVE_TARGET_LIBMONITOR
 if HAVE_TARGET_BINUTILS
 if HAVE_TARGET_LIBUNWIND
 SUBDIRS += fpe
+endif
 endif
 endif
 

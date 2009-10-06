@@ -23,6 +23,9 @@
 /* Names of all MPI Implementations */
 #undef ALL_MPI_IMPL_NAMES
 
+/* Names of all TARGET_MPI Implementations */
+#undef ALL_TARGET_MPI_IMPL_NAMES
+
 /* Define to 1 if you only want the dpcl instrumentor. */
 #undef BUILD_DPCL
 
@@ -34,6 +37,9 @@
 
 /* Name of default MPI Implementation */
 #undef DEFAULT_MPI_IMPL_NAME
+
+/* Name of default TARGET_MPI Implementation */
+#undef DEFAULT_TARGET_MPI_IMPL_NAME
 
 /* Define to 1 if you have array services. */
 #undef HAVE_ARRAYSVCS
@@ -146,6 +152,15 @@
 /* Define to 1 if you have a target version of LIBUNWIND. */
 #undef HAVE_TARGET_LIBUNWIND
 
+/* Define to 1 if you have MPI. */
+#undef HAVE_TARGET_MPI
+
+/* Define to 1 if you have MPICH. */
+#undef HAVE_TARGET_MPICH2
+
+/* Define to 1 if you have OTF. */
+#undef HAVE_TARGET_OTF
+
 /* Define to 1 if you have a target version of PAPI. */
 #undef HAVE_TARGET_PAPI
 
@@ -154,6 +169,9 @@
 
 /* Enable support on target architecture for signals. */
 #undef HAVE_TARGET_SIGNALS
+
+/* Define to 1 if you have TARGET_VT. */
+#undef HAVE_TARGET_VT
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H

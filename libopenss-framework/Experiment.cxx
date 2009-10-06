@@ -679,7 +679,14 @@ bool is_debug_mpijob_enabled = (getenv("OPENSS_DEBUG_MPIJOB") != NULL);
     } 
 
     if (value) {
+#if JEG_TARGET_CHANGE
+	std::string impl_names = ALL_TARGET_MPI_IMPL_NAMES;
+        if (impl_names.empty()) {
+	   impl_names = ALL_MPI_IMPL_NAMES;
+        }
+#else
 	std::string impl_names = ALL_MPI_IMPL_NAMES;
+#endif
 	std::string search_target = std::string(" ") + value + " ";
 	if (impl_names.find(search_target) == std::string::npos) {
 	    throw Exception(Exception::MPIImplChoiceInvalid,
@@ -703,7 +710,14 @@ bool is_debug_mpijob_enabled = (getenv("OPENSS_DEBUG_MPIJOB") != NULL);
      * found.  This temporary code reproduces that behavior, with the
      * help of the new AC_PKG_MPI code.
      */
+#if JEG_TARGET_CHANGE
+    std::string return_name = DEFAULT_TARGET_MPI_IMPL_NAME;
+    if (return_name.empty()) {
+      return_name = DEFAULT_MPI_IMPL_NAME;
+    return return_name;
+#else
     return DEFAULT_MPI_IMPL_NAME;
+#endif
 
 #else /* ifndef HAVE_MPI */
     Assert(false);

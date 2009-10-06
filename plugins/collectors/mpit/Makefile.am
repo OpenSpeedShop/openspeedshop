@@ -31,7 +31,11 @@ pkglib_LTLIBRARIES =
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
 	offline.c
+endif
 
+if HAVE_TARGET_LIBMONITOR
+OFFLINE_SOURCES = \
+	offline.c
 endif
 
 
@@ -82,6 +86,12 @@ endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-mpich2-rt-offline.la libmpit-mpich2-offline.la
 endif
+if HAVE_TARGET_LIBMONITOR
+pkglib_LTLIBRARIES += libmpit-mpich2-offline.la
+endif
+endif
+
+if HAVE_TARGET_MPICH2
 if HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += libmpit-mpich2-offline.la
 endif
@@ -400,10 +410,13 @@ libmpit_mpich2_offline_la_DEPENDENCIES =
 libmpit_mpich2_offline_la_SOURCES = $(lib_offline_sources)
 nodist_libmpit_mpich2_offline_la_SOURCES =
 endif
+endif
+
+if HAVE_TARGET_MPICH2
 if HAVE_TARGET_LIBMONITOR
-libmpit_mpich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPICH2_CPPFLAGS@)
-libmpit_mpich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPICH2_LDFLAGS@)
-libmpit_mpich2_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MPICH2_LIBS@)
+libmpit_mpich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@TARGET_MPICH2_CPPFLAGS@)
+libmpit_mpich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@TARGET_MPICH2_LDFLAGS@)
+libmpit_mpich2_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@TARGET_MPICH2_LIBS@)
 libmpit_mpich2_offline_la_DEPENDENCIES =
 libmpit_mpich2_offline_la_SOURCES = $(lib_offline_sources)
 nodist_libmpit_mpich2_offline_la_SOURCES =

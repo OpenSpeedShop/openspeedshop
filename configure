@@ -903,12 +903,6 @@ BINUTILS_CPPFLAGS
 BINUTILS_LDFLAGS
 BINUTILS_LIBS
 BINUTILS_DIR
-HAVE_TARGET_BINUTILS_TRUE
-HAVE_TARGET_BINUTILS_FALSE
-TARGET_BINUTILS_CPPFLAGS
-TARGET_BINUTILS_LDFLAGS
-TARGET_BINUTILS_LIBS
-TARGET_BINUTILS_DIR
 HAVE_LIBDWARF_TRUE
 HAVE_LIBDWARF_FALSE
 LIBDWARF_CPPFLAGS
@@ -920,22 +914,11 @@ LIBMONITOR_CPPFLAGS
 LIBMONITOR_LDFLAGS
 LIBMONITOR_LIBS
 LIBMONITOR_DIR
-HAVE_TARGET_LIBMONITOR_TRUE
-HAVE_TARGET_LIBMONITOR_FALSE
-TARGET_LIBMONITOR_CPPFLAGS
-TARGET_LIBMONITOR_LDFLAGS
-TARGET_LIBMONITOR_LIBS
-TARGET_LIBMONITOR_DIR
 HAVE_LIBUNWIND_TRUE
 HAVE_LIBUNWIND_FALSE
 LIBUNWIND_CPPFLAGS
 LIBUNWIND_LDFLAGS
 LIBUNWIND_LIBS
-HAVE_TARGET_LIBUNWIND_TRUE
-HAVE_TARGET_LIBUNWIND_FALSE
-TARGET_LIBUNWIND_CPPFLAGS
-TARGET_LIBUNWIND_LDFLAGS
-TARGET_LIBUNWIND_LIBS
 HAVE_LAM_TRUE
 HAVE_LAM_FALSE
 LAM_CC
@@ -1001,9 +984,20 @@ OPENMPI_LDFLAGS
 OPENMPI_LIBS
 OPENMPI_HEADER
 OPENMPI_DIR
+HAVE_TARGET_MPICH2_TRUE
+HAVE_TARGET_MPICH2_FALSE
+TARGET_MPICH2_CC
+TARGET_MPICH2_CPPFLAGS
+TARGET_MPICH2_LDFLAGS
+TARGET_MPICH2_LIBS
+TARGET_MPICH2_HEADER
+TARGET_MPICH2_DIR
 HAVE_MPI_TRUE
 HAVE_MPI_FALSE
 DEFAULT_MPI_IMPL
+HAVE_TARGET_MPI_TRUE
+HAVE_TARGET_MPI_FALSE
+DEFAULT_TARGET_MPI_IMPL
 HAVE_OPENMP_TRUE
 HAVE_OPENMP_FALSE
 OPENMP_CPPFLAGS
@@ -1023,11 +1017,6 @@ HAVE_PAPI_FALSE
 PAPI_CPPFLAGS
 PAPI_LDFLAGS
 PAPI_LIBS
-HAVE_TARGET_PAPI_TRUE
-HAVE_TARGET_PAPI_FALSE
-TARGET_PAPI_CPPFLAGS
-TARGET_PAPI_LDFLAGS
-TARGET_PAPI_LIBS
 PYTHON_VERSION
 PYTHON
 PYTHON_CPPFLAGS
@@ -1048,6 +1037,44 @@ QTLIB_LIBS
 SQLITE_CPPFLAGS
 SQLITE_LDFLAGS
 SQLITE_LIBS
+HAVE_TARGET_BINUTILS_TRUE
+HAVE_TARGET_BINUTILS_FALSE
+TARGET_BINUTILS_CPPFLAGS
+TARGET_BINUTILS_LDFLAGS
+TARGET_BINUTILS_LIBS
+TARGET_BINUTILS_DIR
+HAVE_TARGET_LIBMONITOR_TRUE
+HAVE_TARGET_LIBMONITOR_FALSE
+TARGET_LIBMONITOR_CPPFLAGS
+TARGET_LIBMONITOR_LDFLAGS
+TARGET_LIBMONITOR_LIBS
+TARGET_LIBMONITOR_DIR
+HAVE_TARGET_LIBUNWIND_TRUE
+HAVE_TARGET_LIBUNWIND_FALSE
+TARGET_LIBUNWIND_CPPFLAGS
+TARGET_LIBUNWIND_LDFLAGS
+TARGET_LIBUNWIND_LIBS
+HAVE_TARGET_OTF_TRUE
+HAVE_TARGET_OTF_FALSE
+TARGET_OTF_DIR
+TARGET_OTF_LIBSDIR
+TARGET_OTF_CPPFLAGS
+TARGET_OTF_LDFLAGS
+TARGET_OTF_LIBS
+TARGET_OTF_LIBZ_LDFLAGS
+TARGET_OTF_LIBZ_LIBS
+HAVE_TARGET_PAPI_TRUE
+HAVE_TARGET_PAPI_FALSE
+TARGET_PAPI_CPPFLAGS
+TARGET_PAPI_LDFLAGS
+TARGET_PAPI_LIBS
+HAVE_TARGET_VT_TRUE
+HAVE_TARGET_VT_FALSE
+TARGET_VT_DIR
+TARGET_VT_CPPFLAGS
+TARGET_VT_LDFLAGS
+TARGET_VT_LIBS
+TARGET_VT_LIBSDIR
 HAVE_VT_TRUE
 HAVE_VT_FALSE
 VT_DIR
@@ -1715,15 +1742,9 @@ Optional Packages:
   --with-binutils=DIR     binutils installation [/usr]
   --with-binutils-version=VERS
                           binutils-version installation []
-  --with-target-binutils=DIR
-                          binutils target architecture installation [/opt]
   --with-libdwarf=DIR     libdwarf installation [/usr]
   --with-libmonitor=DIR   libmonitor installation [/usr]
-  --with-target-libmonitor=DIR
-                          libmonitor target architecture installation [/opt]
   --with-libunwind=DIR    libunwind installation [/usr]
-  --with-target-libunwind=DIR
-                          libunwind target architecture installation [/opt]
   --with-lam=DIR          LAM installation [/usr/local]
   --with-lampi=DIR        LAMPI installation [/usr/local]
   --with-mpich=DIR        MPICH installation [/opt/mpich]
@@ -1736,13 +1757,26 @@ Optional Packages:
                           MVAPICH2 open fabrics installation dir [/usr]
   --with-mpt=DIR          MPT installation [/usr]
   --with-openmpi=DIR      OpenMPI installation [/usr/local]
+  --with-target-mpich2=DIR
+                          MPICH2 target installation [/zzz]
   --with-otf=DIR          OTF Open Trace Format library installation [/usr]
   --with-libz=DIR         libz installation [/usr]
   --with-papi=DIR         PAPI installation [/usr]
-  --with-target-papi=DIR  PAPI target architecture installation [/opt]
   --with-python=PYTHON    path name of Python libraries
   --with-qtlib=DIR        QTLIB installation [/usr]
   --with-sqlite=DIR       SQLite installation [/usr]
+  --with-target-binutils=DIR
+                          binutils target architecture installation [/opt]
+  --with-target-libmonitor=DIR
+                          libmonitor target architecture installation [/opt]
+  --with-target-libunwind=DIR
+                          libunwind target architecture installation [/opt]
+  --with-target-otf=DIR   Targetted OTF Open Trace Format library installation
+                          [/zzz]
+  --with-target-libz=DIR  Targetted libz installation [/zzz]
+  --with-target-papi=DIR  PAPI target architecture installation [/opt]
+  --with-target-vt=DIR    Targetted VampirTrace (vt) library installation
+                          [/zzz]
   --with-vt=DIR           VampirTrace (vt) library installation [/usr]
   --with-xerces=DIR       XERCES installation [/usr]
   --with-instrumentor=TYPE
@@ -5696,7 +5730,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5699 "configure"' > conftest.$ac_ext
+  echo '#line 5733 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7702,11 +7736,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7705: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7739: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7709: \$? = $ac_status" >&5
+   echo "$as_me:7743: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7992,11 +8026,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7995: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8029: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7999: \$? = $ac_status" >&5
+   echo "$as_me:8033: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8096,11 +8130,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8099: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8133: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8103: \$? = $ac_status" >&5
+   echo "$as_me:8137: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10447,7 +10481,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10450 "configure"
+#line 10484 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10547,7 +10581,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10550 "configure"
+#line 10584 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12967,11 +13001,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12970: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13004: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:12974: \$? = $ac_status" >&5
+   echo "$as_me:13008: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13071,11 +13105,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13074: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13108: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13078: \$? = $ac_status" >&5
+   echo "$as_me:13112: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14635,11 +14669,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14638: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14672: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14642: \$? = $ac_status" >&5
+   echo "$as_me:14676: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -14739,11 +14773,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14742: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14776: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14746: \$? = $ac_status" >&5
+   echo "$as_me:14780: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16928,11 +16962,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16931: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16965: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16935: \$? = $ac_status" >&5
+   echo "$as_me:16969: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17218,11 +17252,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17221: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17255: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17225: \$? = $ac_status" >&5
+   echo "$as_me:17259: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17322,11 +17356,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17325: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17359: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17329: \$? = $ac_status" >&5
+   echo "$as_me:17363: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -21155,67 +21189,6 @@ fi
 
 
 
-# Check whether --with-target-binutils was given.
-if test "${with_target_binutils+set}" = set; then
-  withval=$with_target_binutils; target_binutils_dir=$withval
-else
-  target_binutils_dir="/zzz"
-fi
-
-
-    if test "$target_binutils_dir" == "/zzz" ; then
-       if false; then
-  HAVE_TARGET_BINUTILS_TRUE=
-  HAVE_TARGET_BINUTILS_FALSE='#'
-else
-  HAVE_TARGET_BINUTILS_TRUE='#'
-  HAVE_TARGET_BINUTILS_FALSE=
-fi
-
-      TARGET_BINUTILS_DIR=""
-      TARGET_BINUTILS_CPPFLAGS=""
-      TARGET_BINUTILS_LDFLAGS=""
-      TARGET_BINUTILS_LIBS=""
-    else
-       if true; then
-  HAVE_TARGET_BINUTILS_TRUE=
-  HAVE_TARGET_BINUTILS_FALSE='#'
-else
-  HAVE_TARGET_BINUTILS_TRUE='#'
-  HAVE_TARGET_BINUTILS_FALSE=
-fi
-
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_TARGET_BINUTILS 1
-_ACEOF
-
-      case "$target_os" in
-	cray-xt5)
-            TARGET_BINUTILS_DIR="$target_binutils_dir"
-	    TARGET_BINUTILS_CPPFLAGS="-I$target_binutils_dir/include"
-	    TARGET_BINUTILS_LDFLAGS="-L$target_binutils_dir/$abi_libdir"
-	    TARGET_BINUTILS_LIBS="-lopcodes-lbfd -liberty"
-            ;;
-	*)
-            TARGET_BINUTILS_DIR="$target_binutils_dir"
-	    TARGET_BINUTILS_CPPFLAGS="-I$target_binutils_dir/include"
-	    TARGET_BINUTILS_LDFLAGS="-L$target_binutils_dir/$abi_libdir"
-	    TARGET_BINUTILS_LIBS="-lopcodes -lbfd -liberty"
-            ;;
-      esac
-    fi
-
-
-
-
-
-
-
-
-
-
-
 # Check whether --with-libdwarf was given.
 if test "${with_libdwarf+set}" = set; then
   withval=$with_libdwarf; libdwarf_dir=$withval
@@ -21532,57 +21505,6 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
 
 
 
-# Check whether --with-target-libmonitor was given.
-if test "${with_target_libmonitor+set}" = set; then
-  withval=$with_target_libmonitor; target_libmonitor_dir=$withval
-else
-  target_libmonitor_dir="/zzz"
-fi
-
-
-    if test "$target_libmonitor_dir" == "/zzz" ; then
-       if false; then
-  HAVE_TARGET_LIBMONITOR_TRUE=
-  HAVE_TARGET_LIBMONITOR_FALSE='#'
-else
-  HAVE_TARGET_LIBMONITOR_TRUE='#'
-  HAVE_TARGET_LIBMONITOR_FALSE=
-fi
-
-      TARGET_LIBMONITOR_CPPFLAGS=""
-      TARGET_LIBMONITOR_LDFLAGS=""
-      TARGET_LIBMONITOR_LIBS=""
-      TARGET_LIBMONITOR_DIR=""
-    else
-       if true; then
-  HAVE_TARGET_LIBMONITOR_TRUE=
-  HAVE_TARGET_LIBMONITOR_FALSE='#'
-else
-  HAVE_TARGET_LIBMONITOR_TRUE='#'
-  HAVE_TARGET_LIBMONITOR_FALSE=
-fi
-
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_TARGET_LIBMONITOR 1
-_ACEOF
-
-      TARGET_LIBMONITOR_CPPFLAGS="-I$target_libmonitor_dir/include"
-      TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
-      TARGET_LIBMONITOR_LIBS="-lmonitor"
-      TARGET_LIBMONITOR_DIR="$target_libmonitor_dir"
-    fi
-
-
-
-
-
-
-
-
-
-
-
 # Check whether --with-libunwind was given.
 if test "${with_libunwind+set}" = set; then
   withval=$with_libunwind; libunwind_dir=$withval
@@ -21687,54 +21609,6 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
 
     CPPFLAGS=$libunwind_saved_CPPFLAGS
     LDFLAGS=$libunwind_saved_LDFLAGS
-
-
-
-
-
-
-
-
-
-# Check whether --with-target-libunwind was given.
-if test "${with_target_libunwind+set}" = set; then
-  withval=$with_target_libunwind; target_libunwind_dir=$withval
-else
-  target_libunwind_dir="/zzz"
-fi
-
-
-    if test "$target_libunwind_dir" == "/zzz" ; then
-       if false; then
-  HAVE_TARGET_LIBUNWIND_TRUE=
-  HAVE_TARGET_LIBUNWIND_FALSE='#'
-else
-  HAVE_TARGET_LIBUNWIND_TRUE='#'
-  HAVE_TARGET_LIBUNWIND_FALSE=
-fi
-
-      TARGET_LIBUNWIND_CPPFLAGS=""
-      TARGET_LIBUNWIND_LDFLAGS=""
-      TARGET_LIBUNWIND_LIBS=""
-    else
-       if true; then
-  HAVE_TARGET_LIBUNWIND_TRUE=
-  HAVE_TARGET_LIBUNWIND_FALSE='#'
-else
-  HAVE_TARGET_LIBUNWIND_TRUE='#'
-  HAVE_TARGET_LIBUNWIND_FALSE=
-fi
-
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_TARGET_LIBUNWIND 1
-_ACEOF
-
-      TARGET_LIBUNWIND_CPPFLAGS="-I$target_libunwind_dir/include -DUNW_LOCAL_ONLY"
-      TARGET_LIBUNWIND_LDFLAGS="-L$target_libunwind_dir/$abi_libdir"
-      TARGET_LIBUNWIND_LIBS="-lunwind"
-    fi
-
 
 
 
@@ -23802,8 +23676,87 @@ fi
 
 
 
+
+
+
+# Check whether --with-target-mpich2 was given.
+if test "${with_target_mpich2+set}" = set; then
+  withval=$with_target_mpich2; target_mpich2_dir=$withval
+else
+  target_mpich2_dir="/zzz"
+fi
+
+
+    { echo "$as_me:$LINENO: checking for TARGET MPICH2 library and headers" >&5
+echo $ECHO_N "checking for TARGET MPICH2 library and headers... $ECHO_C" >&6; }
+
+    found_mpich2=0
+
+    TARGET_MPICH2_CC=""
+    TARGET_MPICH2_LIBS="-lmpich"
+    TARGET_MPICH2_CPPFLAGS="-I$target_mpich2_dir/include"
+    TARGET_MPICH2_HEADER="$target_mpich2_dir/include/mpi.h"
+    TARGET_MPICH2_DIR="$target_mpich2_dir"
+
+    if (test -f $target_mpich2_dir/include/mpi.h) ; then
+      if (test -f $target_mpich2_dir/$abi_libdir/libmpich.a) ; then
+        found_mpich2=1
+        TARGET_MPICH2_LDFLAGS="-L$target_mpich2_dir/$abi_libdir"
+      elif (test -f $target_mpich2_dir/$alt_abi_libdir/libmpich.a); then
+        found_mpich2=1
+        TARGET_MPICH2_LDFLAGS="-L$target_mpich2_dir/$alt_abi_libdir"
+      fi
+    fi
+
+    if test $found_mpich2 -eq 1; then
+	{ echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+	 if true; then
+  HAVE_TARGET_MPICH2_TRUE=
+  HAVE_TARGET_MPICH2_FALSE='#'
+else
+  HAVE_TARGET_MPICH2_TRUE='#'
+  HAVE_TARGET_MPICH2_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_TARGET_MPICH2 1
+_ACEOF
+
+    else
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+	 if false; then
+  HAVE_TARGET_MPICH2_TRUE=
+  HAVE_TARGET_MPICH2_FALSE='#'
+else
+  HAVE_TARGET_MPICH2_TRUE='#'
+  HAVE_TARGET_MPICH2_FALSE=
+fi
+
+	TARGET_MPICH2_CC=""
+	TARGET_MPICH2_CPPFLAGS=""
+	TARGET_MPICH2_LDFLAGS=""
+	TARGET_MPICH2_LIBS=""
+	TARGET_MPICH2_HEADER=""
+	TARGET_MPICH2_DIR=""
+    fi
+
+
+
+
+
+
+
+
+
+
     default_mpi=""
     all_mpi_names=""
+
+    default_target_mpi=""
+    all_target_mpi_names=""
 
     # Test for MPI implementations in reverse order of priority for
     # the default choice (ordering compatible with historical
@@ -23843,6 +23796,13 @@ fi
 	all_mpi_names=" mvapich2 $all_mpi_names"
     fi
 
+    if test x"$TARGET_MPICH2_LDFLAGS" != x""; then
+#	default_mpi=MPICH2;    default_mpi_name=mpich2
+	default_target_mpi=MPICH2;    default_target_mpi_name=mpich2
+#	all_mpi_names=" mpich2 $all_mpi_names"
+	all_target_mpi_names=" mpich2 $all_target_mpi_names"
+    fi
+
     if test x"$default_mpi" != x""; then
 	 if true; then
   HAVE_MPI_TRUE=
@@ -23876,6 +23836,43 @@ _ACEOF
 else
   HAVE_MPI_TRUE='#'
   HAVE_MPI_FALSE=
+fi
+
+    fi
+
+    if test x"$default_target_mpi" != x""; then
+	 if true; then
+  HAVE_TARGET_MPI_TRUE=
+  HAVE_TARGET_MPI_FALSE='#'
+else
+  HAVE_TARGET_MPI_TRUE='#'
+  HAVE_TARGET_MPI_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_TARGET_MPI 1
+_ACEOF
+
+	DEFAULT_TARGET_MPI_IMPL=$default_target_mpi
+
+
+cat >>confdefs.h <<_ACEOF
+#define ALL_TARGET_MPI_IMPL_NAMES "$all_target_mpi_names"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define DEFAULT_TARGET_MPI_IMPL_NAME "$default_target_mpi_name"
+_ACEOF
+
+    else
+	 if false; then
+  HAVE_TARGET_MPI_TRUE=
+  HAVE_TARGET_MPI_FALSE='#'
+else
+  HAVE_TARGET_MPI_TRUE='#'
+  HAVE_TARGET_MPI_FALSE=
 fi
 
     fi
@@ -24259,63 +24256,6 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
     CPPFLAGS=$papi_saved_CPPFLAGS
     LDFLAGS=$papi_saved_LDFLAGS
     LIBS=$papi_saved_LIBS
-
-
-
-
-
-
-
-
-
-# Check whether --with-target-papi was given.
-if test "${with_target_papi+set}" = set; then
-  withval=$with_target_papi; target_papi_dir=$withval
-else
-  target_papi_dir="/zzz"
-fi
-
-
-    if test "$target_papi_dir" == "/zzz" ; then
-       if false; then
-  HAVE_TARGET_PAPI_TRUE=
-  HAVE_TARGET_PAPI_FALSE='#'
-else
-  HAVE_TARGET_PAPI_TRUE='#'
-  HAVE_TARGET_PAPI_FALSE=
-fi
-
-      TARGET_PAPI_CPPFLAGS=""
-      TARGET_PAPI_LDFLAGS=""
-      TARGET_PAPI_LIBS=""
-    else
-
-       if true; then
-  HAVE_TARGET_PAPI_TRUE=
-  HAVE_TARGET_PAPI_FALSE='#'
-else
-  HAVE_TARGET_PAPI_TRUE='#'
-  HAVE_TARGET_PAPI_FALSE=
-fi
-
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_TARGET_PAPI 1
-_ACEOF
-
-
-      TARGET_PAPI_CPPFLAGS="-I$target_papi_dir/include"
-      TARGET_PAPI_LDFLAGS="-L$target_papi_dir/$abi_libdir"
-
-      case "$target_os" in
-	cray-xt5)
-	    TARGET_PAPI_LIBS="-lpapi -lpfm"
-            ;;
-	*)
-	    TARGET_PAPI_LIBS="-lpapi -lperfctr -lpfm"
-            ;;
-      esac
-    fi
 
 
 
@@ -25351,6 +25291,474 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
 cat >>confdefs.h <<\_ACEOF
 #define HAVE_SQLITE 1
 _ACEOF
+
+
+
+
+
+
+# Check whether --with-target-binutils was given.
+if test "${with_target_binutils+set}" = set; then
+  withval=$with_target_binutils; target_binutils_dir=$withval
+else
+  target_binutils_dir="/zzz"
+fi
+
+
+    { echo "$as_me:$LINENO: checking for Targetted binutils support" >&5
+echo $ECHO_N "checking for Targetted binutils support... $ECHO_C" >&6; }
+
+    if test "$target_binutils_dir" == "/zzz" ; then
+       if false; then
+  HAVE_TARGET_BINUTILS_TRUE=
+  HAVE_TARGET_BINUTILS_FALSE='#'
+else
+  HAVE_TARGET_BINUTILS_TRUE='#'
+  HAVE_TARGET_BINUTILS_FALSE=
+fi
+
+      TARGET_BINUTILS_DIR=""
+      TARGET_BINUTILS_CPPFLAGS=""
+      TARGET_BINUTILS_LDFLAGS=""
+      TARGET_BINUTILS_LIBS=""
+    else
+       if true; then
+  HAVE_TARGET_BINUTILS_TRUE=
+  HAVE_TARGET_BINUTILS_FALSE='#'
+else
+  HAVE_TARGET_BINUTILS_TRUE='#'
+  HAVE_TARGET_BINUTILS_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_TARGET_BINUTILS 1
+_ACEOF
+
+      case "$target_os" in
+	cray-xt5)
+            TARGET_BINUTILS_DIR="$target_binutils_dir"
+	    TARGET_BINUTILS_CPPFLAGS="-I$target_binutils_dir/include"
+	    TARGET_BINUTILS_LDFLAGS="-L$target_binutils_dir/$abi_libdir"
+	    TARGET_BINUTILS_LIBS="-lopcodes-lbfd -liberty"
+            ;;
+	*)
+            TARGET_BINUTILS_DIR="$target_binutils_dir"
+	    TARGET_BINUTILS_CPPFLAGS="-I$target_binutils_dir/include"
+	    TARGET_BINUTILS_LDFLAGS="-L$target_binutils_dir/$abi_libdir"
+	    TARGET_BINUTILS_LIBS="-lopcodes -lbfd -liberty"
+            ;;
+      esac
+    fi
+
+
+
+
+
+
+
+
+
+
+
+# Check whether --with-target-libmonitor was given.
+if test "${with_target_libmonitor+set}" = set; then
+  withval=$with_target_libmonitor; target_libmonitor_dir=$withval
+else
+  target_libmonitor_dir="/zzz"
+fi
+
+
+    { echo "$as_me:$LINENO: checking for Targetted libmonitor support" >&5
+echo $ECHO_N "checking for Targetted libmonitor support... $ECHO_C" >&6; }
+
+    if test "$target_libmonitor_dir" == "/zzz" ; then
+       if false; then
+  HAVE_TARGET_LIBMONITOR_TRUE=
+  HAVE_TARGET_LIBMONITOR_FALSE='#'
+else
+  HAVE_TARGET_LIBMONITOR_TRUE='#'
+  HAVE_TARGET_LIBMONITOR_FALSE=
+fi
+
+      TARGET_LIBMONITOR_CPPFLAGS=""
+      TARGET_LIBMONITOR_LDFLAGS=""
+      TARGET_LIBMONITOR_LIBS=""
+      TARGET_LIBMONITOR_DIR=""
+    else
+       if true; then
+  HAVE_TARGET_LIBMONITOR_TRUE=
+  HAVE_TARGET_LIBMONITOR_FALSE='#'
+else
+  HAVE_TARGET_LIBMONITOR_TRUE='#'
+  HAVE_TARGET_LIBMONITOR_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_TARGET_LIBMONITOR 1
+_ACEOF
+
+      TARGET_LIBMONITOR_CPPFLAGS="-I$target_libmonitor_dir/include"
+      TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
+      TARGET_LIBMONITOR_LIBS="-lmonitor"
+      TARGET_LIBMONITOR_DIR="$target_libmonitor_dir"
+    fi
+
+
+
+
+
+
+
+
+
+
+
+# Check whether --with-target-libunwind was given.
+if test "${with_target_libunwind+set}" = set; then
+  withval=$with_target_libunwind; target_libunwind_dir=$withval
+else
+  target_libunwind_dir="/zzz"
+fi
+
+
+    { echo "$as_me:$LINENO: checking for Targetted libunwind support" >&5
+echo $ECHO_N "checking for Targetted libunwind support... $ECHO_C" >&6; }
+
+    if test "$target_libunwind_dir" == "/zzz" ; then
+       if false; then
+  HAVE_TARGET_LIBUNWIND_TRUE=
+  HAVE_TARGET_LIBUNWIND_FALSE='#'
+else
+  HAVE_TARGET_LIBUNWIND_TRUE='#'
+  HAVE_TARGET_LIBUNWIND_FALSE=
+fi
+
+      TARGET_LIBUNWIND_CPPFLAGS=""
+      TARGET_LIBUNWIND_LDFLAGS=""
+      TARGET_LIBUNWIND_LIBS=""
+    else
+       if true; then
+  HAVE_TARGET_LIBUNWIND_TRUE=
+  HAVE_TARGET_LIBUNWIND_FALSE='#'
+else
+  HAVE_TARGET_LIBUNWIND_TRUE='#'
+  HAVE_TARGET_LIBUNWIND_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_TARGET_LIBUNWIND 1
+_ACEOF
+
+      TARGET_LIBUNWIND_CPPFLAGS="-I$target_libunwind_dir/include -DUNW_LOCAL_ONLY"
+      TARGET_LIBUNWIND_LDFLAGS="-L$target_libunwind_dir/$abi_libdir"
+      TARGET_LIBUNWIND_LIBS="-lunwind"
+    fi
+
+
+
+
+
+
+
+
+
+
+# Check whether --with-target-otf was given.
+if test "${with_target_otf+set}" = set; then
+  withval=$with_target_otf; target_otf_dir=$withval
+else
+  target_otf_dir="/zzz"
+fi
+
+
+
+# Check whether --with-target-libz was given.
+if test "${with_target_libz+set}" = set; then
+  withval=$with_target_libz; target_libz_dir=$withval
+else
+  target_libz_dir="/zzz"
+fi
+
+
+    TARGET_OTF_DIR="$target_otf_dir"
+    TARGET_OTF_LIBSDIR="$target_otf_dir/$abi_libdir"
+    TARGET_OTF_CPPFLAGS="-I$target_otf_dir/include"
+    TARGET_OTF_LDFLAGS="-L$target_otf_dir/$abi_libdir"
+    TARGET_OTF_LIBS="-lotf"
+
+    TARGET_OTF_LIBZ_LDFLAGS="-L/usr/$abi_libdir"
+    TARGET_OTF_LIBZ_LIBS="-lz"
+
+    ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
+
+    { echo "$as_me:$LINENO: checking for Targetted OTF support" >&5
+echo $ECHO_N "checking for Targetted OTF support... $ECHO_C" >&6; }
+
+    found_target_otf=0
+    if test -f  $target_otf_dir/$abi_libdir/libotf.a; then
+       { echo "$as_me:$LINENO: checking found Targetted OTF library" >&5
+echo $ECHO_N "checking found Targetted OTF library... $ECHO_C" >&6; }
+       found_target_otf=1
+    else
+	if test -f $target_otf_dir/$alt_abi_libdir/libotf.a; then
+          { echo "$as_me:$LINENO: checking found Targetted OTF library" >&5
+echo $ECHO_N "checking found Targetted OTF library... $ECHO_C" >&6; }
+          TARGET_OTF_LIBSDIR="$target_otf_dir/$alt_abi_libdir"
+          TARGET_OTF_LDFLAGS="-L$target_otf_dir/$alt_abi_libdir"
+          found_target_otf=1
+       else
+       { echo "$as_me:$LINENO: checking FAILED to find Targetted OTF library" >&5
+echo $ECHO_N "checking FAILED to find Targetted OTF library... $ECHO_C" >&6; }
+          found_target_otf=0
+       fi
+    fi
+
+    if test $found_target_otf == 1 && test -f $target_otf_dir/include/otf.h; then
+       { echo "$as_me:$LINENO: checking found Targetted OTF headers" >&5
+echo $ECHO_N "checking found Targetted OTF headers... $ECHO_C" >&6; }
+       found_target_otf=1
+    else
+       { echo "$as_me:$LINENO: checking FAILED to find Targetted OTF headers" >&5
+echo $ECHO_N "checking FAILED to find Targetted OTF headers... $ECHO_C" >&6; }
+       found_target_otf=0
+    fi
+
+    if test $found_target_otf == 1 && test -f $target_libz_dir/$abi_libdir/libz.so; then
+       { echo "$as_me:$LINENO: checking found Targetted LIBZ library used by OTF" >&5
+echo $ECHO_N "checking found Targetted LIBZ library used by OTF... $ECHO_C" >&6; }
+       found_target_otf=1
+    else
+       { echo "$as_me:$LINENO: checking FAILED to find Targetted LIBZ library used by OTF" >&5
+echo $ECHO_N "checking FAILED to find Targetted LIBZ library used by OTF... $ECHO_C" >&6; }
+       found_target_otf=0
+    fi
+
+    if test $found_target_otf == 1; then
+      { echo "$as_me:$LINENO: checking found all Targetted OTF headers, libraries and supporting libz library" >&5
+echo $ECHO_N "checking found all Targetted OTF headers, libraries and supporting libz library... $ECHO_C" >&6; }
+      { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+       if true; then
+  HAVE_TARGET_OTF_TRUE=
+  HAVE_TARGET_OTF_FALSE='#'
+else
+  HAVE_TARGET_OTF_TRUE='#'
+  HAVE_TARGET_OTF_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_TARGET_OTF 1
+_ACEOF
+
+    else
+      { echo "$as_me:$LINENO: checking FAILED to find all Targetted OTF headers, libraries and supporting libz library" >&5
+echo $ECHO_N "checking FAILED to find all Targetted OTF headers, libraries and supporting libz library... $ECHO_C" >&6; }
+      { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+       if false; then
+  HAVE_TARGET_OTF_TRUE=
+  HAVE_TARGET_OTF_FALSE='#'
+else
+  HAVE_TARGET_OTF_TRUE='#'
+  HAVE_TARGET_OTF_FALSE=
+fi
+
+      TARGET_OTF_DIR=""
+      TARGET_OTF_LIBSDIR=""
+      TARGET_OTF_CPPFLAGS=""
+      TARGET_OTF_LDFLAGS=""
+      TARGET_OTF_LIBS=""
+      TARGET_OTF_LIBZ_LDFLAGS=""
+      TARGET_OTF_LIBZ_LIBS=""
+    fi
+
+    ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Check whether --with-target-papi was given.
+if test "${with_target_papi+set}" = set; then
+  withval=$with_target_papi; target_papi_dir=$withval
+else
+  target_papi_dir="/zzz"
+fi
+
+
+    { echo "$as_me:$LINENO: checking for Targetted PAPI support" >&5
+echo $ECHO_N "checking for Targetted PAPI support... $ECHO_C" >&6; }
+
+    if test "$target_papi_dir" == "/zzz" ; then
+       if false; then
+  HAVE_TARGET_PAPI_TRUE=
+  HAVE_TARGET_PAPI_FALSE='#'
+else
+  HAVE_TARGET_PAPI_TRUE='#'
+  HAVE_TARGET_PAPI_FALSE=
+fi
+
+      TARGET_PAPI_CPPFLAGS=""
+      TARGET_PAPI_LDFLAGS=""
+      TARGET_PAPI_LIBS=""
+    else
+
+       if true; then
+  HAVE_TARGET_PAPI_TRUE=
+  HAVE_TARGET_PAPI_FALSE='#'
+else
+  HAVE_TARGET_PAPI_TRUE='#'
+  HAVE_TARGET_PAPI_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_TARGET_PAPI 1
+_ACEOF
+
+
+      TARGET_PAPI_CPPFLAGS="-I$target_papi_dir/include"
+      TARGET_PAPI_LDFLAGS="-L$target_papi_dir/$abi_libdir"
+
+      case "$target_os" in
+	cray-xt5)
+	    TARGET_PAPI_LIBS="-lpapi -lpfm"
+            ;;
+	*)
+	    TARGET_PAPI_LIBS="-lpapi -lperfctr -lpfm"
+            ;;
+      esac
+    fi
+
+
+
+
+
+
+
+
+
+# Check whether --with-target-vt was given.
+if test "${with_target_vt+set}" = set; then
+  withval=$with_target_vt; target_vt_dir=$withval
+else
+  target_vt_dir="/zzz"
+fi
+
+
+    TARGET_VT_DIR="$target_vt_dir"
+    TARGET_VT_CPPFLAGS="-I$target_vt_dir/include"
+    TARGET_VT_LIBS="-lvt.mpi"
+
+    ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
+
+    { echo "$as_me:$LINENO: checking for Targetted VampirTrace support" >&5
+echo $ECHO_N "checking for Targetted VampirTrace support... $ECHO_C" >&6; }
+
+    found_target_vt=0
+    if test -f  $target_vt_dir/$abi_libdir/libvt.mpi.a; then
+       { echo "$as_me:$LINENO: checking found VampirTrace library" >&5
+echo $ECHO_N "checking found VampirTrace library... $ECHO_C" >&6; }
+       TARGET_VT_LDFLAGS="-L$target_vt_dir/$abi_libdir"
+       TARGET_VT_LIBSDIR="$target_vt_dir/$abi_libdir"
+       found_target_vt=1
+    else
+      if test -f  $target_vt_dir/$alt_abi_libdir/libvt.mpi.a; then
+         { echo "$as_me:$LINENO: checking found VampirTrace library" >&5
+echo $ECHO_N "checking found VampirTrace library... $ECHO_C" >&6; }
+         TARGET_VT_LDFLAGS="-L$target_vt_dir/$alt_abi_libdir"
+         TARGET_VT_LIBSDIR="$target_vt_dir/$alt_abi_libdir"
+         found_target_vt=1
+      else
+         found_target_vt=0
+      fi
+    fi
+
+    if test $found_target_vt == 1 && test -f  $target_vt_dir/include/vt_user.h; then
+       { echo "$as_me:$LINENO: checking found Targetted VampirTrace headers" >&5
+echo $ECHO_N "checking found Targetted VampirTrace headers... $ECHO_C" >&6; }
+       found_target_vt=1
+    else
+       found_target_vt=0
+    fi
+
+    if test $found_target_vt == 1; then
+      { echo "$as_me:$LINENO: checking found all Targetted VampirTrace headers, libraries." >&5
+echo $ECHO_N "checking found all Targetted VampirTrace headers, libraries.... $ECHO_C" >&6; }
+      { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+       if true; then
+  HAVE_TARGET_VT_TRUE=
+  HAVE_TARGET_VT_FALSE='#'
+else
+  HAVE_TARGET_VT_TRUE='#'
+  HAVE_TARGET_VT_FALSE=
+fi
+
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_TARGET_VT 1
+_ACEOF
+
+    else
+      { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+       if false; then
+  HAVE_TARGET_VT_TRUE=
+  HAVE_TARGET_VT_FALSE='#'
+else
+  HAVE_TARGET_VT_TRUE='#'
+  HAVE_TARGET_VT_FALSE=
+fi
+
+      TARGET_VT_CPPFLAGS=""
+      TARGET_VT_DIR=""
+      TARGET_VT_LDFLAGS=""
+      TARGET_VT_LIBS=""
+      TARGET_VT_LIBSDIR=""
+    fi
+
+
+    ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+
+
+
+
 
 
 
@@ -26655,20 +27063,6 @@ echo "$as_me: error: conditional \"HAVE_BINUTILS\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${HAVE_TARGET_BINUTILS_TRUE}" && test -z "${HAVE_TARGET_BINUTILS_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_BINUTILS\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_TARGET_BINUTILS\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${HAVE_TARGET_BINUTILS_TRUE}" && test -z "${HAVE_TARGET_BINUTILS_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_BINUTILS\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_TARGET_BINUTILS\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
 if test -z "${HAVE_LIBDWARF_TRUE}" && test -z "${HAVE_LIBDWARF_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_LIBDWARF\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
@@ -26704,20 +27098,6 @@ echo "$as_me: error: conditional \"HAVE_LIBMONITOR\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${HAVE_TARGET_LIBMONITOR_TRUE}" && test -z "${HAVE_TARGET_LIBMONITOR_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_LIBMONITOR\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_TARGET_LIBMONITOR\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${HAVE_TARGET_LIBMONITOR_TRUE}" && test -z "${HAVE_TARGET_LIBMONITOR_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_LIBMONITOR\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_TARGET_LIBMONITOR\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
 if test -z "${HAVE_LIBUNWIND_TRUE}" && test -z "${HAVE_LIBUNWIND_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_LIBUNWIND\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
@@ -26729,20 +27109,6 @@ if test -z "${HAVE_LIBUNWIND_TRUE}" && test -z "${HAVE_LIBUNWIND_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_LIBUNWIND\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"HAVE_LIBUNWIND\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${HAVE_TARGET_LIBUNWIND_TRUE}" && test -z "${HAVE_TARGET_LIBUNWIND_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_LIBUNWIND\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_TARGET_LIBUNWIND\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${HAVE_TARGET_LIBUNWIND_TRUE}" && test -z "${HAVE_TARGET_LIBUNWIND_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_LIBUNWIND\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_TARGET_LIBUNWIND\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -26886,6 +27252,20 @@ echo "$as_me: error: conditional \"HAVE_OPENMPI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
+if test -z "${HAVE_TARGET_MPICH2_TRUE}" && test -z "${HAVE_TARGET_MPICH2_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_MPICH2\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_MPICH2\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_MPICH2_TRUE}" && test -z "${HAVE_TARGET_MPICH2_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_MPICH2\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_MPICH2\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
 if test -z "${HAVE_MPI_TRUE}" && test -z "${HAVE_MPI_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_MPI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
@@ -26897,6 +27277,20 @@ if test -z "${HAVE_MPI_TRUE}" && test -z "${HAVE_MPI_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_MPI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"HAVE_MPI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_MPI_TRUE}" && test -z "${HAVE_TARGET_MPI_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_MPI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_MPI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_MPI_TRUE}" && test -z "${HAVE_TARGET_MPI_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_MPI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_MPI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -26942,6 +27336,76 @@ echo "$as_me: error: conditional \"HAVE_PAPI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
+if test -z "${HAVE_QTLIB_TRUE}" && test -z "${HAVE_QTLIB_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_QTLIB\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_QTLIB\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_QTLIB_TRUE}" && test -z "${HAVE_QTLIB_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_QTLIB\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_QTLIB\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_BINUTILS_TRUE}" && test -z "${HAVE_TARGET_BINUTILS_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_BINUTILS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_BINUTILS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_BINUTILS_TRUE}" && test -z "${HAVE_TARGET_BINUTILS_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_BINUTILS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_BINUTILS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_LIBMONITOR_TRUE}" && test -z "${HAVE_TARGET_LIBMONITOR_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_LIBMONITOR\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_LIBMONITOR\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_LIBMONITOR_TRUE}" && test -z "${HAVE_TARGET_LIBMONITOR_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_LIBMONITOR\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_LIBMONITOR\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_LIBUNWIND_TRUE}" && test -z "${HAVE_TARGET_LIBUNWIND_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_LIBUNWIND\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_LIBUNWIND\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_LIBUNWIND_TRUE}" && test -z "${HAVE_TARGET_LIBUNWIND_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_LIBUNWIND\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_LIBUNWIND\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_OTF_TRUE}" && test -z "${HAVE_TARGET_OTF_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_OTF\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_OTF\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${HAVE_TARGET_OTF_TRUE}" && test -z "${HAVE_TARGET_OTF_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_OTF\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"HAVE_TARGET_OTF\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
 if test -z "${HAVE_TARGET_PAPI_TRUE}" && test -z "${HAVE_TARGET_PAPI_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_PAPI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
@@ -26956,17 +27420,17 @@ echo "$as_me: error: conditional \"HAVE_TARGET_PAPI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${HAVE_QTLIB_TRUE}" && test -z "${HAVE_QTLIB_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_QTLIB\" was never defined.
+if test -z "${HAVE_TARGET_VT_TRUE}" && test -z "${HAVE_TARGET_VT_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_VT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_QTLIB\" was never defined.
+echo "$as_me: error: conditional \"HAVE_TARGET_VT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${HAVE_QTLIB_TRUE}" && test -z "${HAVE_QTLIB_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"HAVE_QTLIB\" was never defined.
+if test -z "${HAVE_TARGET_VT_TRUE}" && test -z "${HAVE_TARGET_VT_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"HAVE_TARGET_VT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"HAVE_QTLIB\" was never defined.
+echo "$as_me: error: conditional \"HAVE_TARGET_VT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -27923,12 +28387,6 @@ BINUTILS_CPPFLAGS!$BINUTILS_CPPFLAGS$ac_delim
 BINUTILS_LDFLAGS!$BINUTILS_LDFLAGS$ac_delim
 BINUTILS_LIBS!$BINUTILS_LIBS$ac_delim
 BINUTILS_DIR!$BINUTILS_DIR$ac_delim
-HAVE_TARGET_BINUTILS_TRUE!$HAVE_TARGET_BINUTILS_TRUE$ac_delim
-HAVE_TARGET_BINUTILS_FALSE!$HAVE_TARGET_BINUTILS_FALSE$ac_delim
-TARGET_BINUTILS_CPPFLAGS!$TARGET_BINUTILS_CPPFLAGS$ac_delim
-TARGET_BINUTILS_LDFLAGS!$TARGET_BINUTILS_LDFLAGS$ac_delim
-TARGET_BINUTILS_LIBS!$TARGET_BINUTILS_LIBS$ac_delim
-TARGET_BINUTILS_DIR!$TARGET_BINUTILS_DIR$ac_delim
 HAVE_LIBDWARF_TRUE!$HAVE_LIBDWARF_TRUE$ac_delim
 HAVE_LIBDWARF_FALSE!$HAVE_LIBDWARF_FALSE$ac_delim
 LIBDWARF_CPPFLAGS!$LIBDWARF_CPPFLAGS$ac_delim
@@ -27940,22 +28398,11 @@ LIBMONITOR_CPPFLAGS!$LIBMONITOR_CPPFLAGS$ac_delim
 LIBMONITOR_LDFLAGS!$LIBMONITOR_LDFLAGS$ac_delim
 LIBMONITOR_LIBS!$LIBMONITOR_LIBS$ac_delim
 LIBMONITOR_DIR!$LIBMONITOR_DIR$ac_delim
-HAVE_TARGET_LIBMONITOR_TRUE!$HAVE_TARGET_LIBMONITOR_TRUE$ac_delim
-HAVE_TARGET_LIBMONITOR_FALSE!$HAVE_TARGET_LIBMONITOR_FALSE$ac_delim
-TARGET_LIBMONITOR_CPPFLAGS!$TARGET_LIBMONITOR_CPPFLAGS$ac_delim
-TARGET_LIBMONITOR_LDFLAGS!$TARGET_LIBMONITOR_LDFLAGS$ac_delim
-TARGET_LIBMONITOR_LIBS!$TARGET_LIBMONITOR_LIBS$ac_delim
-TARGET_LIBMONITOR_DIR!$TARGET_LIBMONITOR_DIR$ac_delim
 HAVE_LIBUNWIND_TRUE!$HAVE_LIBUNWIND_TRUE$ac_delim
 HAVE_LIBUNWIND_FALSE!$HAVE_LIBUNWIND_FALSE$ac_delim
 LIBUNWIND_CPPFLAGS!$LIBUNWIND_CPPFLAGS$ac_delim
 LIBUNWIND_LDFLAGS!$LIBUNWIND_LDFLAGS$ac_delim
 LIBUNWIND_LIBS!$LIBUNWIND_LIBS$ac_delim
-HAVE_TARGET_LIBUNWIND_TRUE!$HAVE_TARGET_LIBUNWIND_TRUE$ac_delim
-HAVE_TARGET_LIBUNWIND_FALSE!$HAVE_TARGET_LIBUNWIND_FALSE$ac_delim
-TARGET_LIBUNWIND_CPPFLAGS!$TARGET_LIBUNWIND_CPPFLAGS$ac_delim
-TARGET_LIBUNWIND_LDFLAGS!$TARGET_LIBUNWIND_LDFLAGS$ac_delim
-TARGET_LIBUNWIND_LIBS!$TARGET_LIBUNWIND_LIBS$ac_delim
 HAVE_LAM_TRUE!$HAVE_LAM_TRUE$ac_delim
 HAVE_LAM_FALSE!$HAVE_LAM_FALSE$ac_delim
 LAM_CC!$LAM_CC$ac_delim
@@ -27982,6 +28429,23 @@ MPICH_HEADER!$MPICH_HEADER$ac_delim
 MPICH_DIR!$MPICH_DIR$ac_delim
 HAVE_MPICH2_TRUE!$HAVE_MPICH2_TRUE$ac_delim
 HAVE_MPICH2_FALSE!$HAVE_MPICH2_FALSE$ac_delim
+MPICH2_CC!$MPICH2_CC$ac_delim
+MPICH2_CPPFLAGS!$MPICH2_CPPFLAGS$ac_delim
+MPICH2_LDFLAGS!$MPICH2_LDFLAGS$ac_delim
+MPICH2_LIBS!$MPICH2_LIBS$ac_delim
+MPICH2_HEADER!$MPICH2_HEADER$ac_delim
+MPICH2_DIR!$MPICH2_DIR$ac_delim
+HAVE_MVAPICH_TRUE!$HAVE_MVAPICH_TRUE$ac_delim
+HAVE_MVAPICH_FALSE!$HAVE_MVAPICH_FALSE$ac_delim
+MVAPICH_CC!$MVAPICH_CC$ac_delim
+MVAPICH_CPPFLAGS!$MVAPICH_CPPFLAGS$ac_delim
+MVAPICH_LDFLAGS!$MVAPICH_LDFLAGS$ac_delim
+MVAPICH_LIBS!$MVAPICH_LIBS$ac_delim
+MVAPICH_HEADER!$MVAPICH_HEADER$ac_delim
+MVAPICH_DIR!$MVAPICH_DIR$ac_delim
+HAVE_MVAPICH2_TRUE!$HAVE_MVAPICH2_TRUE$ac_delim
+HAVE_MVAPICH2_FALSE!$HAVE_MVAPICH2_FALSE$ac_delim
+MVAPICH2_CC!$MVAPICH2_CC$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -28023,23 +28487,6 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
-MPICH2_CC!$MPICH2_CC$ac_delim
-MPICH2_CPPFLAGS!$MPICH2_CPPFLAGS$ac_delim
-MPICH2_LDFLAGS!$MPICH2_LDFLAGS$ac_delim
-MPICH2_LIBS!$MPICH2_LIBS$ac_delim
-MPICH2_HEADER!$MPICH2_HEADER$ac_delim
-MPICH2_DIR!$MPICH2_DIR$ac_delim
-HAVE_MVAPICH_TRUE!$HAVE_MVAPICH_TRUE$ac_delim
-HAVE_MVAPICH_FALSE!$HAVE_MVAPICH_FALSE$ac_delim
-MVAPICH_CC!$MVAPICH_CC$ac_delim
-MVAPICH_CPPFLAGS!$MVAPICH_CPPFLAGS$ac_delim
-MVAPICH_LDFLAGS!$MVAPICH_LDFLAGS$ac_delim
-MVAPICH_LIBS!$MVAPICH_LIBS$ac_delim
-MVAPICH_HEADER!$MVAPICH_HEADER$ac_delim
-MVAPICH_DIR!$MVAPICH_DIR$ac_delim
-HAVE_MVAPICH2_TRUE!$HAVE_MVAPICH2_TRUE$ac_delim
-HAVE_MVAPICH2_FALSE!$HAVE_MVAPICH2_FALSE$ac_delim
-MVAPICH2_CC!$MVAPICH2_CC$ac_delim
 MVAPICH2_CPPFLAGS!$MVAPICH2_CPPFLAGS$ac_delim
 MVAPICH2_LDFLAGS!$MVAPICH2_LDFLAGS$ac_delim
 MVAPICH2_LIBS!$MVAPICH2_LIBS$ac_delim
@@ -28062,9 +28509,20 @@ OPENMPI_LDFLAGS!$OPENMPI_LDFLAGS$ac_delim
 OPENMPI_LIBS!$OPENMPI_LIBS$ac_delim
 OPENMPI_HEADER!$OPENMPI_HEADER$ac_delim
 OPENMPI_DIR!$OPENMPI_DIR$ac_delim
+HAVE_TARGET_MPICH2_TRUE!$HAVE_TARGET_MPICH2_TRUE$ac_delim
+HAVE_TARGET_MPICH2_FALSE!$HAVE_TARGET_MPICH2_FALSE$ac_delim
+TARGET_MPICH2_CC!$TARGET_MPICH2_CC$ac_delim
+TARGET_MPICH2_CPPFLAGS!$TARGET_MPICH2_CPPFLAGS$ac_delim
+TARGET_MPICH2_LDFLAGS!$TARGET_MPICH2_LDFLAGS$ac_delim
+TARGET_MPICH2_LIBS!$TARGET_MPICH2_LIBS$ac_delim
+TARGET_MPICH2_HEADER!$TARGET_MPICH2_HEADER$ac_delim
+TARGET_MPICH2_DIR!$TARGET_MPICH2_DIR$ac_delim
 HAVE_MPI_TRUE!$HAVE_MPI_TRUE$ac_delim
 HAVE_MPI_FALSE!$HAVE_MPI_FALSE$ac_delim
 DEFAULT_MPI_IMPL!$DEFAULT_MPI_IMPL$ac_delim
+HAVE_TARGET_MPI_TRUE!$HAVE_TARGET_MPI_TRUE$ac_delim
+HAVE_TARGET_MPI_FALSE!$HAVE_TARGET_MPI_FALSE$ac_delim
+DEFAULT_TARGET_MPI_IMPL!$DEFAULT_TARGET_MPI_IMPL$ac_delim
 HAVE_OPENMP_TRUE!$HAVE_OPENMP_TRUE$ac_delim
 HAVE_OPENMP_FALSE!$HAVE_OPENMP_FALSE$ac_delim
 OPENMP_CPPFLAGS!$OPENMP_CPPFLAGS$ac_delim
@@ -28084,11 +28542,6 @@ HAVE_PAPI_FALSE!$HAVE_PAPI_FALSE$ac_delim
 PAPI_CPPFLAGS!$PAPI_CPPFLAGS$ac_delim
 PAPI_LDFLAGS!$PAPI_LDFLAGS$ac_delim
 PAPI_LIBS!$PAPI_LIBS$ac_delim
-HAVE_TARGET_PAPI_TRUE!$HAVE_TARGET_PAPI_TRUE$ac_delim
-HAVE_TARGET_PAPI_FALSE!$HAVE_TARGET_PAPI_FALSE$ac_delim
-TARGET_PAPI_CPPFLAGS!$TARGET_PAPI_CPPFLAGS$ac_delim
-TARGET_PAPI_LDFLAGS!$TARGET_PAPI_LDFLAGS$ac_delim
-TARGET_PAPI_LIBS!$TARGET_PAPI_LIBS$ac_delim
 PYTHON_VERSION!$PYTHON_VERSION$ac_delim
 PYTHON!$PYTHON$ac_delim
 PYTHON_CPPFLAGS!$PYTHON_CPPFLAGS$ac_delim
@@ -28109,17 +28562,28 @@ QTLIB_LIBS!$QTLIB_LIBS$ac_delim
 SQLITE_CPPFLAGS!$SQLITE_CPPFLAGS$ac_delim
 SQLITE_LDFLAGS!$SQLITE_LDFLAGS$ac_delim
 SQLITE_LIBS!$SQLITE_LIBS$ac_delim
-HAVE_VT_TRUE!$HAVE_VT_TRUE$ac_delim
-HAVE_VT_FALSE!$HAVE_VT_FALSE$ac_delim
-VT_DIR!$VT_DIR$ac_delim
-VT_CPPFLAGS!$VT_CPPFLAGS$ac_delim
-VT_LDFLAGS!$VT_LDFLAGS$ac_delim
-VT_LIBS!$VT_LIBS$ac_delim
-VT_LIBSDIR!$VT_LIBSDIR$ac_delim
-HAVE_XERCES_TRUE!$HAVE_XERCES_TRUE$ac_delim
-HAVE_XERCES_FALSE!$HAVE_XERCES_FALSE$ac_delim
-XERCES_DIR!$XERCES_DIR$ac_delim
-XERCES_LIBSDIR!$XERCES_LIBSDIR$ac_delim
+HAVE_TARGET_BINUTILS_TRUE!$HAVE_TARGET_BINUTILS_TRUE$ac_delim
+HAVE_TARGET_BINUTILS_FALSE!$HAVE_TARGET_BINUTILS_FALSE$ac_delim
+TARGET_BINUTILS_CPPFLAGS!$TARGET_BINUTILS_CPPFLAGS$ac_delim
+TARGET_BINUTILS_LDFLAGS!$TARGET_BINUTILS_LDFLAGS$ac_delim
+TARGET_BINUTILS_LIBS!$TARGET_BINUTILS_LIBS$ac_delim
+TARGET_BINUTILS_DIR!$TARGET_BINUTILS_DIR$ac_delim
+HAVE_TARGET_LIBMONITOR_TRUE!$HAVE_TARGET_LIBMONITOR_TRUE$ac_delim
+HAVE_TARGET_LIBMONITOR_FALSE!$HAVE_TARGET_LIBMONITOR_FALSE$ac_delim
+TARGET_LIBMONITOR_CPPFLAGS!$TARGET_LIBMONITOR_CPPFLAGS$ac_delim
+TARGET_LIBMONITOR_LDFLAGS!$TARGET_LIBMONITOR_LDFLAGS$ac_delim
+TARGET_LIBMONITOR_LIBS!$TARGET_LIBMONITOR_LIBS$ac_delim
+TARGET_LIBMONITOR_DIR!$TARGET_LIBMONITOR_DIR$ac_delim
+HAVE_TARGET_LIBUNWIND_TRUE!$HAVE_TARGET_LIBUNWIND_TRUE$ac_delim
+HAVE_TARGET_LIBUNWIND_FALSE!$HAVE_TARGET_LIBUNWIND_FALSE$ac_delim
+TARGET_LIBUNWIND_CPPFLAGS!$TARGET_LIBUNWIND_CPPFLAGS$ac_delim
+TARGET_LIBUNWIND_LDFLAGS!$TARGET_LIBUNWIND_LDFLAGS$ac_delim
+TARGET_LIBUNWIND_LIBS!$TARGET_LIBUNWIND_LIBS$ac_delim
+HAVE_TARGET_OTF_TRUE!$HAVE_TARGET_OTF_TRUE$ac_delim
+HAVE_TARGET_OTF_FALSE!$HAVE_TARGET_OTF_FALSE$ac_delim
+TARGET_OTF_DIR!$TARGET_OTF_DIR$ac_delim
+TARGET_OTF_LIBSDIR!$TARGET_OTF_LIBSDIR$ac_delim
+TARGET_OTF_CPPFLAGS!$TARGET_OTF_CPPFLAGS$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -28161,6 +28625,33 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+TARGET_OTF_LDFLAGS!$TARGET_OTF_LDFLAGS$ac_delim
+TARGET_OTF_LIBS!$TARGET_OTF_LIBS$ac_delim
+TARGET_OTF_LIBZ_LDFLAGS!$TARGET_OTF_LIBZ_LDFLAGS$ac_delim
+TARGET_OTF_LIBZ_LIBS!$TARGET_OTF_LIBZ_LIBS$ac_delim
+HAVE_TARGET_PAPI_TRUE!$HAVE_TARGET_PAPI_TRUE$ac_delim
+HAVE_TARGET_PAPI_FALSE!$HAVE_TARGET_PAPI_FALSE$ac_delim
+TARGET_PAPI_CPPFLAGS!$TARGET_PAPI_CPPFLAGS$ac_delim
+TARGET_PAPI_LDFLAGS!$TARGET_PAPI_LDFLAGS$ac_delim
+TARGET_PAPI_LIBS!$TARGET_PAPI_LIBS$ac_delim
+HAVE_TARGET_VT_TRUE!$HAVE_TARGET_VT_TRUE$ac_delim
+HAVE_TARGET_VT_FALSE!$HAVE_TARGET_VT_FALSE$ac_delim
+TARGET_VT_DIR!$TARGET_VT_DIR$ac_delim
+TARGET_VT_CPPFLAGS!$TARGET_VT_CPPFLAGS$ac_delim
+TARGET_VT_LDFLAGS!$TARGET_VT_LDFLAGS$ac_delim
+TARGET_VT_LIBS!$TARGET_VT_LIBS$ac_delim
+TARGET_VT_LIBSDIR!$TARGET_VT_LIBSDIR$ac_delim
+HAVE_VT_TRUE!$HAVE_VT_TRUE$ac_delim
+HAVE_VT_FALSE!$HAVE_VT_FALSE$ac_delim
+VT_DIR!$VT_DIR$ac_delim
+VT_CPPFLAGS!$VT_CPPFLAGS$ac_delim
+VT_LDFLAGS!$VT_LDFLAGS$ac_delim
+VT_LIBS!$VT_LIBS$ac_delim
+VT_LIBSDIR!$VT_LIBSDIR$ac_delim
+HAVE_XERCES_TRUE!$HAVE_XERCES_TRUE$ac_delim
+HAVE_XERCES_FALSE!$HAVE_XERCES_FALSE$ac_delim
+XERCES_DIR!$XERCES_DIR$ac_delim
+XERCES_LIBSDIR!$XERCES_LIBSDIR$ac_delim
 XERCES_CPPFLAGS!$XERCES_CPPFLAGS$ac_delim
 XERCES_LDFLAGS!$XERCES_LDFLAGS$ac_delim
 XERCES_LIBS!$XERCES_LIBS$ac_delim
@@ -28188,7 +28679,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 25; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 52; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

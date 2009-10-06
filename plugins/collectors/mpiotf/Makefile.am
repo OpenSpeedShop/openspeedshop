@@ -110,6 +110,13 @@ endif
 
 endif
 
+if HAVE_TARGET_MPICH2
+if HAVE_TARGET_LIBMONITOR
+pkglib_LTLIBRARIES += libmpiotf-mpich2-offline.la
+endif
+
+endif
+
 if HAVE_MPT
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpiotf-rt-mpt.la
@@ -205,6 +212,18 @@ endif
 if HAVE_MPICH2
 libvt-mpich2-mpi-a:
 	cp -r @VT_LIBSDIR@/libvt.mpi.a libvt.mpi.mpich2.a
+	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_mpiwrap.o
+	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_sync.o
+	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_otf_trc.o
+	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_mpireq.o
+	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_mpireg.o
+	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_mpicom.o
+	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_fmpiwrap.o
+endif
+
+if HAVE_TARGET_MPICH2
+libvt-mpich2-mpi-a:
+	cp -r @TARGET_VT_LIBSDIR@/libvt.mpi.a libvt.mpi.mpich2.a
 	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_mpiwrap.o
 	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_sync.o
 	ar d libvt.mpi.mpich2.a libvt_mpi_a-vt_otf_trc.o
@@ -517,17 +536,17 @@ lib_offline_CFLAGS_generate = \
         -I$(top_srcdir)/libopenss-runtime \
         -I$(top_srcdir)/libopenss-runtime/offline \
         $(1) \
-	@VT_CPPFLAGS@ \
-        @OTF_CPPFLAGS@
+	@TARGET_VT_CPPFLAGS@ \
+        @TARGET_OTF_CPPFLAGS@
 
 lib_offline_LDFLAGS_generate = \
         -static \
 	-L$(top_srcdir)/libopenss-runtime \
 	-L$(top_srcdir)/libopenss-runtime/offline \
         $(1) \
-        @VT_LDFLAGS@ \
-        @OTF_LDFLAGS@ \
-        @OTF_LIBZ_LDFLAGS@ \
+        @TARGET_VT_LDFLAGS@ \
+        @TARGET_OTF_LDFLAGS@ \
+        @TARGET_OTF_LIBZ_LDFLAGS@ \
         -no-undefined
 
 #lib_offline_LIBADD_generate = \
@@ -545,8 +564,8 @@ lib_offline_lam_LIBADD_generate = \
         -lopenss-runtime-monitor \
         $(1) \
 	./libvt.mpi.lam.a  \
-        @OTF_LIBSDIR@/libotf.a \
-	@OTF_LIBZ_LIBS@ \
+        @TARGET_OTF_LIBSDIR@/libotf.a \
+	@TARGET_OTF_LIBZ_LIBS@ \
         -lpthread -lrt
 
 lib_offline_lampi_LIBADD_generate = \
@@ -554,8 +573,8 @@ lib_offline_lampi_LIBADD_generate = \
         -lopenss-runtime-monitor \
         $(1) \
 	./libvt.mpi.lampi.a  \
-        @OTF_LIBSDIR@/libotf.a \
-	@OTF_LIBZ_LIBS@ \
+        @TARGET_OTF_LIBSDIR@/libotf.a \
+	@TARGET_OTF_LIBZ_LIBS@ \
         -lpthread -lrt
 
 lib_offline_mpich_LIBADD_generate = \
@@ -563,8 +582,8 @@ lib_offline_mpich_LIBADD_generate = \
         -lopenss-runtime-monitor \
         $(1) \
 	./libvt.mpi.mpich.a  \
-        @OTF_LIBSDIR@/libotf.a \
-	@OTF_LIBZ_LIBS@ \
+        @TARGET_OTF_LIBSDIR@/libotf.a \
+	@TARGET_OTF_LIBZ_LIBS@ \
         -lpthread -lrt
 
 lib_offline_mpich2_LIBADD_generate = \
@@ -572,8 +591,8 @@ lib_offline_mpich2_LIBADD_generate = \
         -lopenss-runtime-monitor \
         $(1) \
 	./libvt.mpi.mpich2.a  \
-        @OTF_LIBSDIR@/libotf.a \
-	@OTF_LIBZ_LIBS@ \
+        @TARGET_OTF_LIBSDIR@/libotf.a \
+	@TARGET_OTF_LIBZ_LIBS@ \
         -lpthread -lrt
 
 lib_offline_mpt_LIBADD_generate = \
@@ -581,8 +600,8 @@ lib_offline_mpt_LIBADD_generate = \
         -lopenss-runtime-monitor \
         $(1) \
 	./libvt.mpi.mpt.a  \
-        @OTF_LIBSDIR@/libotf.a \
-	@OTF_LIBZ_LIBS@ \
+        @TARGET_OTF_LIBSDIR@/libotf.a \
+	@TARGET_OTF_LIBZ_LIBS@ \
         -lpthread -lrt
 
 lib_offline_mvapich_LIBADD_generate = \
@@ -590,8 +609,8 @@ lib_offline_mvapich_LIBADD_generate = \
         -lopenss-runtime-monitor \
         $(1) \
 	./libvt.mpi.mvapich.a  \
-        @OTF_LIBSDIR@/libotf.a \
-	@OTF_LIBZ_LIBS@ \
+        @TARGET_OTF_LIBSDIR@/libotf.a \
+	@TARGET_OTF_LIBZ_LIBS@ \
         -lpthread -lrt
 
 lib_offline_mvapich2_LIBADD_generate = \
@@ -599,8 +618,8 @@ lib_offline_mvapich2_LIBADD_generate = \
         -lopenss-runtime-monitor \
         $(1) \
 	./libvt.mpi.mvapich2.a  \
-        @OTF_LIBSDIR@/libotf.a \
-	@OTF_LIBZ_LIBS@ \
+        @TARGET_OTF_LIBSDIR@/libotf.a \
+	@TARGET_OTF_LIBZ_LIBS@ \
         -lpthread -lrt
 
 lib_offline_openmpi_LIBADD_generate = \
@@ -608,8 +627,8 @@ lib_offline_openmpi_LIBADD_generate = \
         -lopenss-runtime-monitor \
         $(1) \
 	./libvt.mpi.openmpi.a  \
-        @OTF_LIBSDIR@/libotf.a \
-	@OTF_LIBZ_LIBS@ \
+        @TARGET_OTF_LIBSDIR@/libotf.a \
+	@TARGET_OTF_LIBZ_LIBS@ \
         -lpthread -lrt
 
 lib_offline_sources = \
@@ -856,15 +875,17 @@ libmpiotf_mpich2_offline_la_SOURCES = $(lib_offline_sources)
 nodist_libmpiotf_mpich2_offline_la_SOURCES =
 endif
 
+endif
+
+if HAVE_TARGET_MPICH2
 if HAVE_TARGET_LIBMONITOR
-libmpiotf_mpich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPICH2_CPPFLAGS@)
-libmpiotf_mpich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPICH2_LDFLAGS@)
-libmpiotf_mpich2_offline_la_LIBADD = $(call lib_offline_mpich2_LIBADD_generate,@MPICH2_LIBS@)
+libmpiotf_mpich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@TARGET_MPICH2_CPPFLAGS@)
+libmpiotf_mpich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@TARGET_MPICH2_LDFLAGS@)
+libmpiotf_mpich2_offline_la_LIBADD = $(call lib_offline_mpich2_LIBADD_generate,@TARGET_MPICH2_LIBS@)
 libmpiotf_mpich2_offline_la_DEPENDENCIES = libvt-mpich2-mpi-a
 libmpiotf_mpich2_offline_la_SOURCES = $(lib_offline_sources)
 nodist_libmpiotf_mpich2_offline_la_SOURCES =
 endif
-
 endif
 
 
@@ -1008,6 +1029,9 @@ if HAVE_MPICH
 CLEANFILES += libvt.mpi.mpich.a
 endif
 if HAVE_MPICH2
+CLEANFILES += libvt.mpi.mpich2.a
+endif
+if HAVE_TARGET_MPICH2
 CLEANFILES += libvt.mpi.mpich2.a
 endif
 if HAVE_MPT

@@ -573,6 +573,61 @@ AC_DEFUN([AC_PKG_MPICH2], [
 ])
 
 ################################################################################
+# Check for TARGET MPICH2 (http://www-unix.mcs.anl.gov/mpi/mpich2)
+################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_MPICH2], [
+
+    AC_ARG_WITH(target-mpich2,
+		AC_HELP_STRING([--with-target-mpich2=DIR],
+			       [MPICH2 target installation @<:@/zzz@:>@]),
+		target_mpich2_dir=$withval, target_mpich2_dir="/zzz")
+
+    AC_MSG_CHECKING([for TARGET MPICH2 library and headers])
+
+    found_mpich2=0
+
+    TARGET_MPICH2_CC=""
+    TARGET_MPICH2_LIBS="-lmpich"
+    TARGET_MPICH2_CPPFLAGS="-I$target_mpich2_dir/include"
+    TARGET_MPICH2_HEADER="$target_mpich2_dir/include/mpi.h"
+    TARGET_MPICH2_DIR="$target_mpich2_dir"
+
+    if (test -f $target_mpich2_dir/include/mpi.h) ; then
+      if (test -f $target_mpich2_dir/$abi_libdir/libmpich.a) ; then
+        found_mpich2=1
+        TARGET_MPICH2_LDFLAGS="-L$target_mpich2_dir/$abi_libdir"
+      elif (test -f $target_mpich2_dir/$alt_abi_libdir/libmpich.a); then
+        found_mpich2=1
+        TARGET_MPICH2_LDFLAGS="-L$target_mpich2_dir/$alt_abi_libdir"
+      fi 
+    fi 
+
+    if test $found_mpich2 -eq 1; then
+	AC_MSG_RESULT(yes)
+	AM_CONDITIONAL(HAVE_TARGET_MPICH2, true)
+	AC_DEFINE(HAVE_TARGET_MPICH2, 1, [Define to 1 if you have MPICH.])	
+    else
+	AC_MSG_RESULT(no)
+	AM_CONDITIONAL(HAVE_TARGET_MPICH2, false)
+	TARGET_MPICH2_CC=""
+	TARGET_MPICH2_CPPFLAGS=""
+	TARGET_MPICH2_LDFLAGS=""
+	TARGET_MPICH2_LIBS=""
+	TARGET_MPICH2_HEADER=""
+	TARGET_MPICH2_DIR=""
+    fi
+
+    AC_SUBST(TARGET_MPICH2_CC)
+    AC_SUBST(TARGET_MPICH2_CPPFLAGS)
+    AC_SUBST(TARGET_MPICH2_LDFLAGS)
+    AC_SUBST(TARGET_MPICH2_LIBS)
+    AC_SUBST(TARGET_MPICH2_HEADER)
+    AC_SUBST(TARGET_MPICH2_DIR)
+
+])
+
+################################################################################
 # Check for MPT (http://www.sgi.com/products/software/mpt)
 ################################################################################
 
@@ -832,8 +887,13 @@ AC_DEFUN([AC_PKG_MPI], [
     AC_PKG_MPT()
     AC_PKG_OPENMPI()
 
+    AC_PKG_TARGET_MPICH2()
+
     default_mpi=""
     all_mpi_names=""
+
+    default_target_mpi=""
+    all_target_mpi_names=""
 
     # Test for MPI implementations in reverse order of priority for
     # the default choice (ordering compatible with historical
@@ -873,6 +933,13 @@ AC_DEFUN([AC_PKG_MPI], [
 	all_mpi_names=" mvapich2 $all_mpi_names"
     fi
 
+    if test x"$TARGET_MPICH2_LDFLAGS" != x""; then
+#	default_mpi=MPICH2;    default_mpi_name=mpich2
+	default_target_mpi=MPICH2;    default_target_mpi_name=mpich2
+#	all_mpi_names=" mpich2 $all_mpi_names"
+	all_target_mpi_names=" mpich2 $all_target_mpi_names"
+    fi
+
     if test x"$default_mpi" != x""; then
 	AM_CONDITIONAL(HAVE_MPI, true)
 	AC_DEFINE(HAVE_MPI, 1, [Define to 1 if you have MPI.])	
@@ -883,6 +950,18 @@ AC_DEFUN([AC_PKG_MPI], [
 			   [Name of default MPI Implementation])
     else
 	AM_CONDITIONAL(HAVE_MPI, false)
+    fi
+
+    if test x"$default_target_mpi" != x""; then
+	AM_CONDITIONAL(HAVE_TARGET_MPI, true)
+	AC_DEFINE(HAVE_TARGET_MPI, 1, [Define to 1 if you have MPI.])	
+	AC_SUBST(DEFAULT_TARGET_MPI_IMPL, $default_target_mpi)
+	AC_DEFINE_UNQUOTED(ALL_TARGET_MPI_IMPL_NAMES, "$all_target_mpi_names",
+			   [Names of all TARGET_MPI Implementations])
+	AC_DEFINE_UNQUOTED(DEFAULT_TARGET_MPI_IMPL_NAME, "$default_target_mpi_name",
+			   [Name of default TARGET_MPI Implementation])
+    else
+	AM_CONDITIONAL(HAVE_TARGET_MPI, false)
     fi
 
 ])
