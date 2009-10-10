@@ -1,0 +1,267 @@
+#! /bin/bash
+# Some of this code is inspired by the libmonitor package (monitor-link).
+#set -x
+
+mach_type=`uname -m`
+
+#echo "osslink:debug, mach_type = $mach_type"
+
+if test "$mach_type" == "x86_64" ; then
+    machlibdir=lib64
+else
+    machlibdir=lib
+fi
+
+#echo "osslink:debug, machlibdir = $machlibdir"
+
+monitor_prefix=/users/jeg/oss-rosa/cray-xt5
+monitor_exec_prefix="${monitor_prefix}"
+monitor_libdir="${monitor_prefix}/${machlibdir}"
+libmonitor="${monitor_libdir}/libmonitor_wrap.a"
+libunwind_prefix=/users/jeg/oss-rosa/cray-xt5
+libunwind_libdir="${libunwind_prefix}/${machlibdir}"
+libunwind="${libunwind_libdir}/libunwind.a"
+
+oss_prefix=/users/jeg/oss-rosa/cray-xt5
+oss_libdir="${oss_prefix}/${machlibdir}"
+oss_bindir="${oss_prefix}/bin"
+oss_plugins="${oss_libdir}/openspeedshop"
+
+#orig: monitor_wrap_mpi_names="main exit _exit dlopen dlclose fork vfork system execl execlp execle execv execvp execve MPI_Init MPI_Init_thread MPI_Finalize MPI_Comm_rank mpi_init mpi_init_thread mpi_finalize mpi_comm_rank mpi_init_ mpi_init_thread_ mpi_finalize_ mpi_comm_rank_ mpi_init__ mpi_init_thread__ mpi_finalize__ mpi_comm_rank__ pthread_create pthread_exit signal sigaction sigprocmask pthread_sigmask"
+monitor_wrap_mpi_names="main exit _exit fork vfork system execl execlp execle execv execvp execve MPI_Init MPI_Init_thread MPI_Finalize MPI_Comm_rank mpi_init mpi_init_thread mpi_finalize mpi_comm_rank mpi_init_ mpi_init_thread_ mpi_finalize_ mpi_comm_rank_ mpi_init__ mpi_init_thread__ mpi_finalize__ mpi_comm_rank__ pthread_create pthread_exit signal sigaction sigprocmask pthread_sigmask"
+
+monitor_wrap_names="main exit _exit fork vfork system execl execlp execle execv execvp execve pthread_create pthread_exit signal sigaction sigprocmask pthread_sigmask"
+
+#mpi_undefines="-u MPI_Finalize -u MPI_Comm_rank -u MPI_Comm_size -u MPI_Init -u MPI_Init_thread"
+mpi_undefines=
+fork_undefines=
+#fork_undefines="-u fork"
+#pthread_undefines="-u pthread_create"
+pthread_undefines=
+
+static_collector=
+static_mpi_collector=
+
+static_offline=${oss_plugins}/libopenss-runtime-offline.a
+static_offline_nopthreads=${oss_plugins}/libopenss-runtime-offline-nopthreads.a
+##monitor_callbacks=${oss_plugins}/offline_monitor.o
+# JEG FIX ME
+#monitor_callbacks=/users/jeg/rosa/OpenSpeedShop/libopenss-runtime/offline/.libs/libopenss_runtime_monitor_nopthreads_la-offline_monitor.o
+#monitor_callbacks_nopthreads=${oss_plugins}/offline_monitor_nopthreads.o
+monitor_callbacks=
+
+mpi_plugin=
+output_dir=
+insert_files=
+
+default_mpi_impl=MPICH2
+
+if [ -n "$OPENSS_MPI_IMPLEMENTATION" ]
+then
+    mpitouse=$OPENSS_MPI_IMPLEMENTATION
+else
+    mpitouse=`echo ${default_mpi_impl} |tr '[A-Z]' '[a-z]'`
+    export OPENSS_MPI_IMPLEMENTATION=$mpitouse
+fi
+
+# Space-separated list of object files to add.
+insert_files=
+
+# Space-separated list of extra symbol names to wrap.
+wrap_names=
+
+# Space-separated list of symbol names to force undefined.
+undef_names=
+
+# Space-separated list of extra library names, eg: "-ldl -lm".
+library_names=
+
+die()
+{
+    echo "$0: error: $*" 1>&2
+    exit 1
+}
+
+usage()
+{
+    cat <<EOF
+Usage: $0 -c collector [options] compiler file ...
+
+  -h, --help
+
+  -c, --collector  <collector name>
+Where collector is the name of the OpenSpeedShop
+collector to link into the application. See the
+openss manpage for a description of the available
+experiments provided by OpenSpeedShop. This is a
+mandatory option.
+
+  -v, --verbose
+
+
+EOF
+    exit 0
+}
+
+verbose=no
+
+while test "x$1" != x
+do
+#    echo "osslink:debug, top of argument while loop, arg 1 = $1"
+#    echo "osslink:debug, top of argument while loop, arg 2 = $2"
+#    echo "osslink:debug, top of argument while loop, arg 3 = $3"
+    case "$1" in
+
+        -h | --help )
+            usage
+            ;;
+
+        -c | --collector)
+            test "x$2" != x || die "missing argument: $*"
+            case "$2" in
+                pcsamp )        collector="$2" ;;
+                hwc )           collector="$2" ;;
+                usertime )      collector="$2" ;;
+                hwctime )       collector="$2" ;;
+                io )            collector="$2" ;;
+                iot )           collector="$2" ;;
+                mpi )           collector="$2" ;;
+                mpit )          collector="$2" ;;
+                mpiotf )        collector="$2" ;;
+                fpe )           collector="$2" ;;
+            esac
+            shift ; shift
+            ;;
+
+        -v | --verbose )
+            verbose=yes
+            shift
+            ;;
+
+        -w | --wrap )
+            test "x$2" != x || die "missing argument: $*"
+            wrap_names="${wrap_names} $2"
+            shift ; shift
+            ;;
+
+        -- )
+            shift
+            break
+            ;;
+
+        -* )
+            die "unknown option: $1"
+            ;;
+
+        * )
+            break
+            ;;
+    esac
+done
+
+#
+# Must have a compiler command and at least one argument.
+#
+#echo "osslink:debug, after argument while loop, collector = $collector"
+#echo "osslink:debug, after argument while loop, collector = $wrap_names"
+#echo "osslink:debug, after argument while loop, arg 1 = $1"
+#echo "osslink:debug, after argument while loop, arg 2 = $2"
+
+test "x$2" != x || usage
+command="$1"
+shift
+
+#echo "osslink:debug, after argument while loop, command = $command"
+
+#
+# Duplicate the -l<lib> arguments.
+#
+appl_libs=
+for lib in "$@"
+do
+    case "$lib" in
+        -l?* ) appl_libs="$appl_libs $lib" ;;
+    esac
+done
+
+static_args=" -static "
+wrap_args= 
+for name in $monitor_wrap_names $wrap_names
+do
+    wrap_args="${wrap_args} -Wl,--wrap,${name}"
+done
+
+undef_args=
+for name in $undef_names
+do
+    undef_args="${undef_args} -Wl,-u,__wrap_${name}"
+done
+
+
+for name in $mpi_undefines
+do
+    undef_args="${undef_args} -Wl,-u,__wrap_${name}"
+    echo
+done
+
+for name in $fork_undefines
+do
+    undef_args="${undef_args} -Wl,-u,__wrap_${name}"
+done
+
+for name in $pthread_undefines
+do
+    undef_args="${undef_args} -Wl,-u,__wrap_${name}"
+done
+
+#
+case "$collector" in
+    mpi|mpit|mpiotf )
+    static_collector=${oss_plugins}/lib${collector}-${mpitouse}-offline.a
+    ;;
+
+    mpi-*|mpit-*|mpiotf-*)
+    static_collector=${collector}
+    static_collector=${oss_plugins}/lib${collector}-${mpitouse}-offline.a
+    ;;
+
+
+    # The non mpi tracing experiments need to trace MPI_Init to
+    # gather the mpi rank information needed for the mpi_rank field
+    # in the THREADS table of the openss database.
+    pcsamp | hwc | usertime | io | iot | fpe )
+    static_collector=${oss_plugins}/lib${collector}-offline.a
+    ;;
+esac
+
+#echo "osslink:debug, near end, static_offline = $static_offline"
+#echo "osslink:debug, near end, static_collector = $static_collector"
+#echo "osslink:debug, near end, monitor_callbacks = $monitor_callbacks"
+#echo "osslink:debug, near end, libmonitor = ${libmonitor}"
+#echo "osslink:debug, near end, library_names = ${library_names}"
+#echo "osslink:debug, near end, insert_files = ${insert_files}"
+
+insert_files="$monitor_callbacks $static_collector $static_offline"
+mon_args="${insert_files} ${libmonitor} ${appl_libs} ${library_names}"
+oss_monitor_lib=/users/jeg/rosa/OpenSpeedShop/libopenss-runtime/offline/.libs/libopenss_runtime_monitor_la-offline_monitor.o
+
+#force_link_args="-Wl, -u pcsamp_start_sampling -u OpenSS_Overflow -t -M"
+#force_link_args="-u pcsamp_start_sampling -u OpenSS_Overflow -t"
+force_link_args="-u pcsamp_start_sampling -u OpenSS_Overflow"
+#rt_args="/usr/lib64/librt.a /usr/lib64/libpthread.a /opt/gcc/4.3.3/snos/lib64/libgcc_s.so.1 /opt/xt-tools/papi/3.6.2/v23/linux/lib/libpapi.a"
+
+#rt_args="/usr/lib64/librt.a /usr/lib64/libc.a /opt/gcc/4.3.3/snos/lib64/libgcc_s.so.1 /opt/xt-tools/papi/3.6.2/v23/linux/lib/libpapi.a"
+rt_args="/usr/lib64/librt.a /opt/xt-tools/papi/3.6.2/v23/linux/lib/libpapi.a /usr/lib64/libc.a /usr/lib64/libpthread.a"
+
+if test "$verbose" = yes ; then
+    echo "$0, new command line: " $command $static_args $wrap_args $undef_args "$@" $force_link_args $oss_monitor_lib $mon_args $rt_args 
+
+fi
+
+#echo "osslink:debug, about to exec, command = $command"
+#echo "osslink:debug, about to exec, wrap_args = $wrap_args"
+#echo "osslink:debug, about to exec, undef_args = $undef_args"
+#echo "osslink:debug, about to exec, mon_args = $mon_args"
+
+exec $command $static_args $wrap_args $undef_args "$@" $force_link_args $oss_monitor_lib $mon_args  $rt_args
+
