@@ -247,14 +247,14 @@ oss_monitor_lib=/users/jeg/rosa/OpenSpeedShop/libopenss-runtime/offline/.libs/li
 
 #force_link_args="-Wl, -u pcsamp_start_sampling -u OpenSS_Overflow -t -M"
 #force_link_args="-u pcsamp_start_sampling -u OpenSS_Overflow -t"
-force_link_args="-u pcsamp_start_sampling -u OpenSS_Overflow"
+force_link_args=" -u pcsamp_start_sampling -u OpenSS_Overflow"
 #rt_args="/usr/lib64/librt.a /usr/lib64/libpthread.a /opt/gcc/4.3.3/snos/lib64/libgcc_s.so.1 /opt/xt-tools/papi/3.6.2/v23/linux/lib/libpapi.a"
 
 #rt_args="/usr/lib64/librt.a /usr/lib64/libc.a /opt/gcc/4.3.3/snos/lib64/libgcc_s.so.1 /opt/xt-tools/papi/3.6.2/v23/linux/lib/libpapi.a"
 rt_args="/usr/lib64/librt.a /opt/xt-tools/papi/3.6.2/v23/linux/lib/libpapi.a /usr/lib64/libc.a /usr/lib64/libpthread.a"
 
 if test "$verbose" = yes ; then
-    echo "$0, new command line: " $command $static_args $wrap_args $undef_args "$@" $force_link_args $oss_monitor_lib $mon_args $rt_args 
+    echo "$0, new command line: " $command -g -O0 $static_args $wrap_args $undef_args "$@" $force_link_args $oss_monitor_lib $mon_args $rt_args 
 
 fi
 
@@ -263,5 +263,5 @@ fi
 #echo "osslink:debug, about to exec, undef_args = $undef_args"
 #echo "osslink:debug, about to exec, mon_args = $mon_args"
 
-exec $command $static_args $wrap_args $undef_args "$@" $force_link_args $oss_monitor_lib $mon_args  $rt_args
+exec $command -g -O0 $static_args $wrap_args $undef_args "$@" $force_link_args $oss_monitor_lib $mon_args  $rt_args
 
