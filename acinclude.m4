@@ -1146,7 +1146,7 @@ dnl Support the user enabled --with-python option.
 
     # jeg added this - if using an alternative python installation, we need to point at the libraries
     python_saved_LDFLAGS=$LDFLAGS
-    LDFLAGS="$LDFLAGS -L$python_dir/$abi_libdir:-L$python_dir/$alt_abi_libdir"
+    LDFLAGS="$LDFLAGS -L$python_dir/$abi_libdir -L$python_dir/$alt_abi_libdir"
 
     #
     # if the macro parameter ``version'' is set, honour it
