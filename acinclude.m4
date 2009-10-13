@@ -939,7 +939,11 @@ AC_DEFUN([AC_PKG_PAPI], [
 	    PAPI_LIBS="-lpapi -lpfm"
             ;;
 	*)
-	    PAPI_LIBS="-lpapi -lperfctr -lpfm"
+            if test -f $papi_dir/$abi_libdir/libperfctr.so -o -f /usr/$abi_libdir/libperfctr.so; then
+              PAPI_LIBS="-lpapi -lperfctr -lpfm"
+            else
+              PAPI_LIBS="-lpapi -lpfm"
+            fi 
             ;;
     esac
 
