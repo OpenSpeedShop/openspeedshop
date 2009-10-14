@@ -1,3 +1,13 @@
+Changes in 1.9.3 since the 1.9.2 release:
+
+1) Configuration changes to support creating target static collectors and a static runtime library for inclusion into static application binaries to gather performance data.
+
+2) Improvements to the online version, where support for non-threaded MPI implementations is working now at higher processor counts.
+
+3) Several bug fixes.   A key bug that was fixed was an problem in performance gathering that occurred when hundreds of dsos were loaded and unloaded.
+
+4) Configuration improvements in a number areas including improved recognition of PAPI, MRNET, and DYNINST installations.
+
 
 Changes in 1.9.2 since the 1.9.1 release:
 
