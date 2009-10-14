@@ -239,11 +239,37 @@ AC_DEFUN([AC_PKG_DYNINST], [
                                [Dyninst installation @<:@/usr@:>@]),
                 dyninst_dir=$withval, dyninst_dir="/usr")
 
+    AC_ARG_WITH(dyninst-version,
+                AC_HELP_STRING([--with-dyninst-version=VERS],
+                               [dyninst-version installation @<:@6.0@:>@]),
+                dyninst_vers=$withval, dyninst_vers="6.0")
+
     DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
-    DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -DIBM_BPATCH_COMPAT"
     DYNINST_LDFLAGS="-L$dyninst_dir/$abi_libdir"
-    DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI"
-    DYNINST_DIR="$dyninst_dir"
+    DYNINST_DIR="$dyninst_dir" 
+    DYNINST_VERS="$dyninst_vers"
+
+#   The default is to use 6.0 dyninst cppflags and libs.  
+#   Change that (the default case entry) when you change the default vers to something other than 6.0
+    case "$dyninst_vers" in
+	"5.1")
+            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -DIBM_BPATCH_COMPAT"
+            DYNINST_LIBS="-ldyninstAPI -lcommon"
+            ;;
+	"5.2")
+            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
+            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI" 
+            ;;
+	"6.0")
+            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
+            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI" 
+            ;;
+	*)
+            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
+            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI" 
+            ;;
+    esac
+
 
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP
@@ -275,6 +301,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
     AC_SUBST(DYNINST_LDFLAGS)
     AC_SUBST(DYNINST_LIBS)
     AC_SUBST(DYNINST_DIR)
+    AC_SUBST(DYNINST_VERS)
 
     AC_DEFINE(HAVE_DYNINST, 1, [Define to 1 if you have Dyninst.])
 
@@ -349,7 +376,26 @@ AC_DEFUN([AC_PKG_MRNET], [
                                [MRNet installation @<:@/usr@:>@]),
                 mrnet_dir=$withval, mrnet_dir="/usr")
 
-    MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
+    AC_ARG_WITH(mrnet-version,
+                AC_HELP_STRING([--with-mrnet-version=VERS],
+                               [mrnet-version installation @<:@2.0.1@:>@]),
+                mrnet_vers=$withval, mrnet_vers="2.0.1")
+
+#   The default is to use mrnet-2.0.1 cppflags and libs.  
+#   Change that (the default case entry) when you change the default vers to something other than 2.0.1
+
+    case "$mrnet_vers" in
+	"2.0.1")
+            MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
+            ;;
+	"2.1")
+            MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_21"
+            ;;
+	*)
+            MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
+            ;;
+    esac
+
     MRNET_LDFLAGS="-L$mrnet_dir/$abi_libdir"
     MRNET_LIBS="-Wl,--whole-archive -lmrnet -lxplat -Wl,--no-whole-archive"
     MRNET_LIBS="$MRNET_LIBS -lpthread -ldl"
@@ -668,7 +714,11 @@ AC_DEFUN([AC_PKG_PAPI], [
 	    PAPI_LIBS="-lpapi -lpfm"
             ;;
 	*)
-	    PAPI_LIBS="-lpapi -lperfctr -lpfm"
+            if test -f $papi_dir/$abi_libdir/libperfctr.so -o -f /usr/$abi_libdir/libperfctr.so; then
+              PAPI_LIBS="-lpapi -lperfctr -lpfm"
+            else
+              PAPI_LIBS="-lpapi -lpfm"
+            fi 
             ;;
     esac
 
@@ -827,6 +877,10 @@ dnl Support the user enabled --with-python option.
            AC_MSG_ERROR([Cannot find python$PYTHON_VERSION in your system path])
         fi
 
+    # jeg added this - if using an alternative python installation, we need to point at the libraries
+    python_saved_LDFLAGS=$LDFLAGS
+    LDFLAGS="$LDFLAGS -L$python_dir/$abi_libdir -L$python_dir/$alt_abi_libdir"
+
     #
     # if the macro parameter ``version'' is set, honour it
     #
@@ -973,8 +1027,11 @@ doesn't work properly with versions of Python before
 # checking, so credit to those who originally created parts of the code below.
 ################################################################################
 
+
 AC_DEFUN([AC_PKG_QTLIB], [ 
 dnl if QTDIR is not default to /usr 
+
+found_all_qt=1
 
 if test "x$QTDIR" = "x"; then
    LQTDIR=/usr
@@ -1310,8 +1367,10 @@ dnl Use QT CPPFLAGS and LDFLAGS variables for the qt version test
     if test $found_qt_inc -eq 1; then
       AC_MSG_RESULT(yes)
     else
+        found_all_qt=0
         AC_MSG_RESULT(no)
-	AC_MSG_FAILURE(Can not locate Qt library and/or the headers.) 
+#	AC_MSG_FAILURE(Can not locate Qt library and/or the headers.) 
+        AC_MSG_RESULT([Can not locate Qt library and/or the headers.])
     fi
 
     AC_TRY_LINK( [
@@ -1329,7 +1388,10 @@ dnl Use QT CPPFLAGS and LDFLAGS variables for the qt version test
 		QT_CFLAGS=""
 		QT_LIBS=""
 		QT_LDFLAGS=""
-		AC_MSG_ERROR([** QT version 3.3 or greater is required for the Open|SpeedShop QT gui.])
+		#AC_MSG_ERROR([** QT version 3.3 or greater is required for the Open|SpeedShop QT gui.])
+#	        AC_MSG_FAILURE(QT version 3.3 or greater was not found.) 
+                AC_MSG_RESULT([QT version 3.3 or greater was not found.])
+                found_all_qt=0
 	])
 
 ] )
@@ -1340,7 +1402,10 @@ ac_qtdir_errmsg="Not found in current PATH. Maybe QT development environment isn
 dnl Check for Qt qmake utility.
 AC_PATH_PROG(ac_qmake, qmake, [no], $tmp_lqtdir/bin:${PATH})
 if test "x$ac_qmake" = "xno"; then
-   AC_MSG_ERROR([qmake $ac_qtdir_errmsg])
+   #AC_MSG_ERROR([qmake $ac_qtdir_errmsg])
+#   AC_MSG_FAILURE(QT qmake was not found.) 
+   AC_MSG_RESULT([QT qmake was not found.])
+   found_all_qt=0
 else
    QTLIB_HOME=$tmp_lqtdir
 fi
@@ -1368,11 +1433,24 @@ dnl Restore saved flags after the QT version check program compilation
     LDFLAGS=$qtlib_saved_LDFLAGS
 
 dnl Make the QTLIB flags/libs available
+    
+    if test $found_all_qt -eq 0; then
+	QTLIB_CFLAGS=""
+	QTLIB_LIBS=""
+	QTLIB_LDFLAGS=""
+	QTLIB_CPPFLAGS=""
+	QTLIB_HOME=""
+        AM_CONDITIONAL(HAVE_QTLIB, false)
+    fi
+
     AC_SUBST(QTLIB_HOME)
     AC_SUBST(QTLIB_CPPFLAGS)
     AC_SUBST(QTLIB_LDFLAGS)
     AC_SUBST(QTLIB_LIBS)
-    AC_DEFINE(HAVE_QTLIB, 1, [Define to 1 if you have Qt library 3.3 >])
+    if test $found_all_qt -eq 1; then
+      AM_CONDITIONAL(HAVE_QTLIB, true)
+      AC_DEFINE(HAVE_QTLIB, 1, [Define to 1 if you have Qt library 3.3 >])
+    fi
 
 ])
 
