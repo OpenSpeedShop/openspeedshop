@@ -1,8 +1,12 @@
-****
-****
+
+Please see the BuildInstallGuide.txt for the latest build
+and install information.  That document is based on the information
+below and has enhanced information.
+
+Both documents have valid Open|SpeedShop-1.9.3 release information.
+
 
 THE INTENT:
-
 
 This directory setup and install script is intended to
 make the build and installation of the components that 
@@ -26,14 +30,14 @@ with Open|SpeedShop.
 
 INSTALLATION INFO:
 
-Please gunzip and untar the openspeedshop-release-1.9.tar.gz
-file and change directory into the openspeedshop-release-1.9
+Please gunzip and untar the openspeedshop-release-1.9.3.tar.gz
+file and change directory into the openspeedshop-release-1.9.3
 directory.   
 
 example:
-gunzip openspeedshop-release-1.9.tar.gz
-tar -xvf openspeedshop-release-1.9.tar
-cd openspeedshop-release-1.9
+gunzip openspeedshop-release-1.9.3.tar.gz
+tar -xvf openspeedshop-release-1.9.3.tar
+cd openspeedshop-release-1.9.3
 
 Inside that directory is the key script, install.sh,
 that can be used in building the Open|SpeedShop performance tool.
@@ -74,30 +78,36 @@ implementations must be specified.
    OPENSS_MPI_MPICH2  set to MPI MPICH2 installation directory
    OPENSS_MPI_MPICH_DRIVER mpich/mpich2 driver name [ch-p4]
    OPENSS_MPI_MPT  set to SGI MPI MPT installation directory
+   OPENSS_MPI_MVAPICH  set to MPI MVAPICH installation directory
+   OPENSS_MPI_MVAPICH2  set to MPI MVAPICH2 installation directory
+
+If the above variables are not set most Open|SpeedShop experiments 
+will work, but the mpi, mpit, mpiotf experiments will not be built.
+These variables are not necessary to run pcsamp, usertime, hwc, io,
+or fpe experiments. 
 
 The install script and the Open|SpeedShop configuration code will
 read these environment variables and if set will configure Open|SpeedShop
 to recognize these MPI implementations.  That will allow users the
-ability to create MPI experiments and gather performance data for
-MPI applications built with the specific MPI implementation 
-(for example: openmpi).  
+ability to create MPI experiments (mpi, mpit, mpiotf) and gather 
+performance data for MPI applications built with the specific 
+MPI implementation (for example: openmpi).  
 
 example:
-export OPENSS_PREFIX=/usr/projects/openmpi-1.2.4
+export OPENSS_MPI_OPENMPI=/usr/projects/openmpi-1.2.4
 
 The spec files associated with this build process include:
-libdwarf-20070703_a.spec  
-libunwind-0.99_a.spec     
-sqlite-3.6.1_a.spec
-papi-3.6.1_a.spec
-dyninst-5.2r_a.spec    
---
-dpcl-20060421_a.spec  
-or
-mrnet-1.2_a.spec
---
-vampirtrace-5.3.2_a.spec
-openspeedshop-1.9_a.spec
+qtver=3.3.8b
+libelfver=0.8.5_a
+libdwarfver=20081231_a
+libunwindver=20090508_a
+papiver=3.6.2_a
+sqlitever=3.6.14_a
+monitorver=20090602_a
+vampirtracever=5.3.2_a
+dyninstver=6.0_a
+mrnetver=2.0.1_a
+openspeedshopver=1.9.3_a
 
 There is an order that is required in building the
 components because some of the components depend on
@@ -146,37 +156,101 @@ This is what will be displayed when you type install.sh:
 
 ---------------------------------------
 
-./install.sh
+localhost.localdomain-508>./install.sh 
+    machine:  localhost.localdomain
 
     ---------------------------------------------------------------------------
     This script builds RPMs and supports installation as non-root through cpio
-
+    
     The default install prefix is /opt/OSS. If another is preferred, please set
-    the OPENSS_PREFIX environment variable to reflect the new target directory
-
+    the OPENSS_PREFIX environment variable to reflect the new target directory   
+     
     If you plan on installing RPMs as root, it will let you know at what point
     ---------------------------------------------------------------------------
 
 
-    You are building for default dpcl Open|SpeedShop instrumentor: dpcl.
+    You are building for default MRNet Open|SpeedShop instrumentor: mrnet.
     If you wish to change the Open|SpeedShop instrumentor, use
-    the OPENSS_INSTRUMENTOR to specify: dpcl, mrnet, or offline.
+    the OPENSS_INSTRUMENTOR to specify: mrnet, or offline.
+
+   
+   
+    Checking for prerequisite components needed to build Open|SpeedShop and/or 
+    the Open|SpeedShop required component packages. If all the prerequisite
+    packages are present the script will continue, if not all the prerequisites
+    are found, the script exits because the build will fail without the 
+    prerequisite components installed.
+    We are checking for these components:
+        a) GNU patch
+        b) libelf and/or libelf-devel
+        c) libxml2 and/or libxml2-devel
+           NOTE: libxml2 and/or libxml2-devel are not needed
+                 if using OPENSS_INSTRUMENTOR=offline, however,
+                 the online (mrnet) version does need libxml2 and libxml2-devel
+        d) binutils and/or binutils-devel
+        e) qt and/or qt-devel
+        f) python and/or python-devel
+        g) bison or flex
+        h) libtool
+        i) The environment variable QTDIR is set
+        j) rpm
+        k) libltdl and libltdl-devel
+   
+   
+    NOTE: autoconf was detected in /usr/bin
+    NOTE: automake was detected in /usr/bin
+    NOTE: GNU patch was detected in /usr/bin
+    NOTE: libelf and libelf-devel detected in /usr/<lib>...
+    NOTE: libxml2 and libxml2-devel detected in /usr/<lib>...
+    NOTE: binutils and binutils-devel detected in /usr/bin and /usr/<lib>...
+    NOTE: qt and qt-devel detected in /usr/<lib>/qt...
+    NOTE: python and python-devel detected in /usr/bin and /usr/<lib>...
+    NOTE: flex and/or bison was detected in /usr/bin
+    NOTE: libtool was detected in /usr/bin
+    NOTE: QTDIR is set.
+    NOTE: rpm was detected in /usr/bin or /bin
+    NOTE: libltdl and libltdl-devel were detected in /usr/lib64
+   
+   
+    
+    OPENSS Environment Variables:
+        -General
+         OPENSS_PREFIX           set to alternate install prefix.  default is /opt/OSS
+         OPENSS_INSTRUMENTOR     set to the underlying instrumentation type openss will use.  default is mrnet (includes offline)
+        
+        -Open|SpeedShop MPI and Vampirtrace
+         OPENSS_MPI_LAM          set to MPI LAM installation dir. default is null.
+         OPENSS_MPI_LAMPI        set to MPI LAMPI installation dir. default is null.
+         OPENSS_MPI_OPENMPI      set to MPI OPENMPI installation dir. default is null.
+         OPENSS_MPI_MPICH        set to MPI MPICH installation dir. default is null.
+         OPENSS_MPI_MPICH2       set to MPI MPICH2 installation dir. default is null.
+         OPENSS_MPI_MPICH_DRIVER mpich/mpich2 driver name [ch-p4]. default is null.
+         OPENSS_MPI_MPT          set to SGI MPI MPT installation dir. default is null.
+         OPENSS_MPI_MVAPICH      set to MPI MVAPICH installation dir. default is null.
+         OPENSS_MPI_MVAPICH2     set to MPI MVAPICH2 installation dir. default is null.
+         OPENSS_OFED             set to OPEN FABRICS installation dir. default is /usr.
+         OPENSS_BINUTILS         set to alternative directory location for binutils components. default is /usr
+         OPENSS_PYTHON           set to alternative directory location for python components. default is /usr
+         OPENSS_EXPLICIT_TLS     When set to some value this will enable Open|SpeedShop to use explicitly created tls storage. 
+                                 default is explicit.
+    
+    
+    Current Values for OPENSS Environment Variables:
+        -General
+
+         Using OPENSS_PREFIX=/home/jeg/OSS-mrnet
+         Using OPENSS_INSTRUMENTOR=mrnet
+    
+        -Open|SpeedShop MPI and Vampirtrace
+
 
     Choices:
 
-    9  - Automatic - Run all steps with no questions asked. Assume that the
-                     answer to any question which will be asked is yes. Please
-                     make certain that all required environment variables are
-                     set properly. It may be best for fresh installations
-                     to run though the choices one at a time, in ascending
-                     order, as this may help discover any missing system
-                     dependencies.  Everything will be installed in
-                     /opt/OSS (if OPENSS_PREFIX is not set) via cpio process
-
-    0  - Set ~/.rpmmacros %_topdir to /home/jeg/OpenSpeedShop_ROOT -
+    0  - Set ~/.rpmmacros %_topdir to:
+         /home/jeg/OpenSpeedShop_ROOT  
          original will be copied to .rpmmacros.##
     0a - View environment variables that may be set
-
+    
     1  - Check if libelf is installed, build if necessary
     1a - Install libelf if built (non-root/cpio)
          - Otherwise install RPM manually at this point
@@ -190,20 +264,31 @@ This is what will be displayed when you type install.sh:
     4  - Build base Support libraries: vampirtrace, dyninst
     4a - Install base Support library (non-root/cpio): vampirtrace, dyninst
          - Otherwise install RPMs manually at this point
-    5  - Build base Support libraries: dpcl,mrnet
-    5a - Install base Support library: dpcl,mrnet
+    5  - Build base Support libraries: mrnet
+    5a - Install base Support library: mrnet
          - Otherwise install RPMs manually at this point
-    6  - Build Open|SpeedShop
-    6a - Install Open|SpeedShop
+    6  - Check if base GUI support library is installed, build if necessary: qt3/qt3.3
+    6a - Install base GUI support library if built (non-root/cpio): qt3/qt-3.3
          - Otherwise install RPMs manually at this point
-    7  - Prepare startup files - modules, dotkit, or environment variables that need
-to
-         be set
-         - dpcl daemon initiation - site.py
-
+    7  - Build Open|SpeedShop
+    7a - Install Open|SpeedShop
+         - Otherwise install RPMs manually at this point
     8  - Install status
 
-Enter Option:
+    9  - Automatic - Run all steps with no questions asked. Assume that the
+                     answer to any question which will be asked is yes. Please
+                     make certain that all required environment variables are
+                     set properly. It may be best for fresh installations
+                     to run though the choices one at a time, in ascending
+                     order, as this may help discover any missing system
+                     dependencies.  Everything will be installed in
+                     /opt/OSS (if OPENSS_PREFIX is not set) via cpio process
+
+    Please feel free to contact us via this email alias: oss-questions@openspeedshop.org
+
+-last option: 
+? 
+Enter Option: 
 
 ---------------------------------------
 
@@ -223,23 +308,37 @@ these steps.
       PATH=$OPENSS_PREFIX/bin:$PATH 
       ***** THESE ARE NECESSARY TO RUN openss 
 
+  b) The most simple way to invoke the tool is to run it as an 
+     immediate command, for example: 
 
-  b) To invoke the running of the tool in GUI mode, type: “openss” 
+        openss -f "executable_name" pcsamp
+        or the equivalent convenience command:
+        osspcsamp "executable_name"
+
+     openss will run the executable and gather program counter sampling information
+     for the executable named executable_name in offline mode and present the results
+     to the screen and create an openss database file for post-mortem viewing.
+     This mode of operation actually does three simple commands under the hood:
+        expcreate, expgo, and expview
+     which are needed to create the experiment, run the experiment and view 
+     the performance statistics gathered by running the experiment.
+
+  c) To invoke the running of the tool in GUI mode, type: “openss” 
      and follow the GUI wizard steps to create your performance statistics
      gathering experiment.  The GUI wizard guides you through all the steps
      to create, run and view the performance statistics.
 
   OR
 
-  c) To invoke the tool in command line mode, type: "openss -cli"
+  d) To invoke the tool in command line mode, type: "openss -cli"
      The tool then accepts commands (similar to gdb or dbx) interactively.
      Three simple commands are all that is needed to create, run, and
      view data.
 
      1) Create an experiment:
 
-        expcreate -p <running pid> pcsamp 
         expcreate -f <executable> pcsamp 
+        expcreate -p <running pid> pcsamp  (only works with dynamic/online mode of operation)
 
      2) Run the experiment:
 
