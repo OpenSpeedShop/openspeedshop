@@ -1021,6 +1021,7 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
 
     if test "$target_papi_dir" == "/zzz" ; then
       AM_CONDITIONAL(HAVE_TARGET_PAPI, false)
+      TARGET_PAPI_DIR=""
       TARGET_PAPI_CPPFLAGS=""
       TARGET_PAPI_LDFLAGS=""
       TARGET_PAPI_LIBS=""
@@ -1029,6 +1030,7 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
       AM_CONDITIONAL(HAVE_TARGET_PAPI, true)
       AC_DEFINE(HAVE_TARGET_PAPI, 1, [Define to 1 if you have a target version of PAPI.])
 
+      TARGET_PAPI_DIR="$target_papi_dir"
       TARGET_PAPI_CPPFLAGS="-I$target_papi_dir/include"
       TARGET_PAPI_LDFLAGS="-L$target_papi_dir/$abi_libdir"
 
@@ -1046,6 +1048,7 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
       esac
     fi
 
+    AC_SUBST(TARGET_PAPI_DIR)
     AC_SUBST(TARGET_PAPI_CPPFLAGS)
     AC_SUBST(TARGET_PAPI_LDFLAGS)
     AC_SUBST(TARGET_PAPI_LIBS)
