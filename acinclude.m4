@@ -455,7 +455,26 @@ AC_DEFUN([AC_PKG_MRNET], [
                                [MRNet installation @<:@/usr@:>@]),
                 mrnet_dir=$withval, mrnet_dir="/usr")
 
-    MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
+    AC_ARG_WITH(mrnet-version,
+                AC_HELP_STRING([--with-mrnet-version=VERS],
+                               [mrnet-version installation @<:@2.0.1@:>@]),
+                mrnet_vers=$withval, mrnet_vers="2.0.1")
+
+#   The default is to use mrnet-2.0.1 cppflags and libs.  
+#   Change that (the default case entry) when you change the default vers to something other than 2.0.1
+
+    case "$mrnet_vers" in
+	"2.0.1")
+            MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
+            ;;
+	"2.1")
+            MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_21"
+            ;;
+	*)
+            MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
+            ;;
+    esac
+
     MRNET_LDFLAGS="-L$mrnet_dir/$abi_libdir"
     MRNET_LIBS="-Wl,--whole-archive -lmrnet -lxplat -Wl,--no-whole-archive"
     MRNET_LIBS="$MRNET_LIBS -lpthread -ldl"
