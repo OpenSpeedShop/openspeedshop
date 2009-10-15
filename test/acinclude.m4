@@ -173,6 +173,52 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 ])
 
 ################################################################################
+# Check for Binutils for Target Architecture (http://www.gnu.org/software/binutils)
+################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_BINUTILS], [
+
+    AC_ARG_WITH(target-binutils,
+                AC_HELP_STRING([--with-target-binutils=DIR],
+                               [binutils target architecture installation @<:@/opt@:>@]),
+                target_binutils_dir=$withval, target_binutils_dir="/zzz")
+
+    AC_MSG_CHECKING([for Targetted binutils support])
+
+    if test "$target_binutils_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_BINUTILS, false)
+      TARGET_BINUTILS_DIR=""
+      TARGET_BINUTILS_CPPFLAGS=""
+      TARGET_BINUTILS_LDFLAGS=""
+      TARGET_BINUTILS_LIBS=""
+    else
+      AM_CONDITIONAL(HAVE_TARGET_BINUTILS, true)
+      AC_DEFINE(HAVE_TARGET_BINUTILS, 1, [Define to 1 if you have a target version of BINUTILS.])
+      case "$target_os" in
+	cray-xt5)
+            TARGET_BINUTILS_DIR="$target_binutils_dir"
+	    TARGET_BINUTILS_CPPFLAGS="-I$target_binutils_dir/include"
+	    TARGET_BINUTILS_LDFLAGS="-L$target_binutils_dir/$abi_libdir"
+	    TARGET_BINUTILS_LIBS="-lopcodes-lbfd -liberty"
+            ;;
+	*)
+            TARGET_BINUTILS_DIR="$target_binutils_dir"
+	    TARGET_BINUTILS_CPPFLAGS="-I$target_binutils_dir/include"
+	    TARGET_BINUTILS_LDFLAGS="-L$target_binutils_dir/$abi_libdir"
+	    TARGET_BINUTILS_LIBS="-lopcodes -lbfd -liberty"
+            ;;
+      esac
+    fi
+
+
+    AC_SUBST(TARGET_BINUTILS_CPPFLAGS)
+    AC_SUBST(TARGET_BINUTILS_LDFLAGS)
+    AC_SUBST(TARGET_BINUTILS_LIBS)
+    AC_SUBST(TARGET_BINUTILS_DIR)
+
+])
+
+################################################################################
 # Check for DPCL (http://oss.software.ibm.com/developerworks/opensource/dpcl)
 ################################################################################
 
@@ -358,6 +404,39 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
 
 ])
 
+#############################################################################################
+# Check for Libunwind for Target Architecture (http://www.hpl.hp.com/research/linux/libunwind)
+#############################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_LIBUNWIND], [
+
+    AC_ARG_WITH(target-libunwind,
+                AC_HELP_STRING([--with-target-libunwind=DIR],
+                               [libunwind target architecture installation @<:@/opt@:>@]),
+                target_libunwind_dir=$withval, target_libunwind_dir="/zzz")
+
+    AC_MSG_CHECKING([for Targetted libunwind support])
+
+    if test "$target_libunwind_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_LIBUNWIND, false)
+      TARGET_LIBUNWIND_CPPFLAGS=""
+      TARGET_LIBUNWIND_LDFLAGS=""
+      TARGET_LIBUNWIND_LIBS=""
+    else
+      AM_CONDITIONAL(HAVE_TARGET_LIBUNWIND, true)
+      AC_DEFINE(HAVE_TARGET_LIBUNWIND, 1, [Define to 1 if you have a target version of LIBUNWIND.])
+      TARGET_LIBUNWIND_CPPFLAGS="-I$target_libunwind_dir/include -DUNW_LOCAL_ONLY"
+      TARGET_LIBUNWIND_LDFLAGS="-L$target_libunwind_dir/$abi_libdir"
+      TARGET_LIBUNWIND_LIBS="-lunwind"
+    fi
+
+
+    AC_SUBST(TARGET_LIBUNWIND_CPPFLAGS)
+    AC_SUBST(TARGET_LIBUNWIND_LDFLAGS)
+    AC_SUBST(TARGET_LIBUNWIND_LIBS)
+
+])
+
 ################################################################################
 # Check for MPI (http://www.mpi-forum.org)
 ################################################################################
@@ -521,6 +600,171 @@ AC_DEFUN([AC_PKG_OPENMP], [
     AC_SUBST(OPENMP_CPPFLAGS)
     AC_SUBST(OPENMP_LDFLAGS)
     AC_SUBST(OPENMP_LIBS)
+
+])
+
+################################################################################
+# Check for OTF (http://www.paratools.com/otf)
+################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_OTF], [
+
+    AC_ARG_WITH(target-otf,
+                AC_HELP_STRING([--with-target-otf=DIR],
+                               [Targetted OTF Open Trace Format library installation @<:@/zzz@:>@]),
+                target_otf_dir=$withval, target_otf_dir="/zzz")
+
+    AC_ARG_WITH(target-libz,
+                AC_HELP_STRING([--with-target-libz=DIR],
+                               [Targetted libz installation @<:@/zzz@:>@]),
+                target_libz_dir=$withval, target_libz_dir="/zzz")
+
+    TARGET_OTF_DIR="$target_otf_dir"
+    TARGET_OTF_LIBSDIR="$target_otf_dir/$abi_libdir"
+    TARGET_OTF_CPPFLAGS="-I$target_otf_dir/include"
+    TARGET_OTF_LDFLAGS="-L$target_otf_dir/$abi_libdir"
+    TARGET_OTF_LIBS="-lotf"
+
+    TARGET_OTF_LIBZ_LDFLAGS="-L/usr/$abi_libdir"
+    TARGET_OTF_LIBZ_LIBS="-lz"
+
+    AC_LANG_PUSH(C++)
+    AC_REQUIRE_CPP
+
+    AC_MSG_CHECKING([for Targetted OTF support])
+
+    found_target_otf=0
+    if test -f  $target_otf_dir/$abi_libdir/libotf.a; then
+       AC_MSG_CHECKING([found Targetted OTF library])
+       found_target_otf=1
+    else 
+	if test -f $target_otf_dir/$alt_abi_libdir/libotf.a; then
+          AC_MSG_CHECKING([found Targetted OTF library])
+          TARGET_OTF_LIBSDIR="$target_otf_dir/$alt_abi_libdir"
+          TARGET_OTF_LDFLAGS="-L$target_otf_dir/$alt_abi_libdir"
+          found_target_otf=1
+       else
+       AC_MSG_CHECKING([FAILED to find Targetted OTF library])
+          found_target_otf=0
+       fi
+    fi
+
+    if test $found_target_otf == 1 && test -f $target_otf_dir/include/otf.h; then
+       AC_MSG_CHECKING([found Targetted OTF headers])
+       found_target_otf=1
+    else
+       AC_MSG_CHECKING([FAILED to find Targetted OTF headers])
+       found_target_otf=0
+    fi
+
+    if test $found_target_otf == 1 && test -f $target_libz_dir/$abi_libdir/libz.so; then
+       AC_MSG_CHECKING([found Targetted LIBZ library used by OTF])
+       found_target_otf=1
+    else
+       AC_MSG_CHECKING([FAILED to find Targetted LIBZ library used by OTF])
+       found_target_otf=0
+    fi
+
+    if test $found_target_otf == 1; then
+      AC_MSG_CHECKING([found all Targetted OTF headers, libraries and supporting libz library])
+      AC_MSG_RESULT(yes)
+      AM_CONDITIONAL(HAVE_TARGET_OTF, true)
+      AC_DEFINE(HAVE_TARGET_OTF, 1, [Define to 1 if you have OTF.])
+    else
+      AC_MSG_CHECKING([FAILED to find all Targetted OTF headers, libraries and supporting libz library])
+      AC_MSG_RESULT(no)
+      AM_CONDITIONAL(HAVE_TARGET_OTF, false)
+      TARGET_OTF_DIR=""
+      TARGET_OTF_LIBSDIR=""
+      TARGET_OTF_CPPFLAGS=""
+      TARGET_OTF_LDFLAGS=""
+      TARGET_OTF_LIBS=""
+      TARGET_OTF_LIBZ_LDFLAGS=""
+      TARGET_OTF_LIBZ_LIBS=""
+    fi
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(TARGET_OTF_DIR)
+    AC_SUBST(TARGET_OTF_LIBSDIR)
+    AC_SUBST(TARGET_OTF_CPPFLAGS)
+    AC_SUBST(TARGET_OTF_LDFLAGS)
+    AC_SUBST(TARGET_OTF_LIBS)
+    AC_SUBST(TARGET_OTF_LIBZ_LDFLAGS)
+    AC_SUBST(TARGET_OTF_LIBZ_LIBS)
+
+])
+
+
+################################################################################
+# Check for VampirTrace  (http://tu-dresden.de/die_tu_dresden/zentrale_einrichtungen
+#/zih/forschung/software_werkzeuge_zur_unterstuetzung_von_programmierung_und_optimierung
+#/vampirtrace?set_language=en&cl=en)
+################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_VT], [
+
+    AC_ARG_WITH(target-vt,
+                AC_HELP_STRING([--with-target-vt=DIR],
+                               [Targetted VampirTrace (vt) library installation @<:@/zzz@:>@]),
+                target_vt_dir=$withval, target_vt_dir="/zzz")
+
+    TARGET_VT_DIR="$target_vt_dir"
+    TARGET_VT_CPPFLAGS="-I$target_vt_dir/include"
+    TARGET_VT_LIBS="-lvt.mpi"
+
+    AC_LANG_PUSH(C++)
+    AC_REQUIRE_CPP
+
+    AC_MSG_CHECKING([for Targetted VampirTrace support])
+
+    found_target_vt=0
+    if test -f  $target_vt_dir/$abi_libdir/libvt.mpi.a; then
+       AC_MSG_CHECKING([found VampirTrace library])
+       TARGET_VT_LDFLAGS="-L$target_vt_dir/$abi_libdir"
+       TARGET_VT_LIBSDIR="$target_vt_dir/$abi_libdir"
+       found_target_vt=1
+    else
+      if test -f  $target_vt_dir/$alt_abi_libdir/libvt.mpi.a; then
+         AC_MSG_CHECKING([found VampirTrace library])
+         TARGET_VT_LDFLAGS="-L$target_vt_dir/$alt_abi_libdir"
+         TARGET_VT_LIBSDIR="$target_vt_dir/$alt_abi_libdir"
+         found_target_vt=1
+      else
+         found_target_vt=0
+      fi
+    fi
+
+    if test $found_target_vt == 1 && test -f  $target_vt_dir/include/vt_user.h; then
+       AC_MSG_CHECKING([found Targetted VampirTrace headers])
+       found_target_vt=1
+    else
+       found_target_vt=0
+    fi
+
+    if test $found_target_vt == 1; then
+      AC_MSG_CHECKING([found all Targetted VampirTrace headers, libraries.])
+      AC_MSG_RESULT(yes)
+      AM_CONDITIONAL(HAVE_TARGET_VT, true)
+      AC_DEFINE(HAVE_TARGET_VT, 1, [Define to 1 if you have TARGET_VT.])
+    else
+      AC_MSG_RESULT(no)
+      AM_CONDITIONAL(HAVE_TARGET_VT, false)
+      TARGET_VT_CPPFLAGS=""
+      TARGET_VT_DIR=""
+      TARGET_VT_LDFLAGS=""
+      TARGET_VT_LIBS=""
+      TARGET_VT_LIBSDIR=""
+    fi
+
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(TARGET_VT_DIR)
+    AC_SUBST(TARGET_VT_CPPFLAGS)
+    AC_SUBST(TARGET_VT_LDFLAGS)
+    AC_SUBST(TARGET_VT_LIBS)
+    AC_SUBST(TARGET_VT_LIBSDIR)
 
 ])
 
@@ -759,6 +1003,55 @@ AC_DEFUN([AC_PKG_PAPI], [
     AC_SUBST(PAPI_CPPFLAGS)
     AC_SUBST(PAPI_LDFLAGS)
     AC_SUBST(PAPI_LIBS)
+
+])
+
+################################################################################
+# Check for PAPI for Target Architecture (http://icl.cs.utk.edu/papi)
+################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_PAPI], [
+
+    AC_ARG_WITH(target-papi,
+                AC_HELP_STRING([--with-target-papi=DIR],
+                               [PAPI target architecture installation @<:@/opt@:>@]),
+                target_papi_dir=$withval, target_papi_dir="/zzz")
+
+    AC_MSG_CHECKING([for Targetted PAPI support])
+
+    if test "$target_papi_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_PAPI, false)
+      TARGET_PAPI_DIR=""
+      TARGET_PAPI_CPPFLAGS=""
+      TARGET_PAPI_LDFLAGS=""
+      TARGET_PAPI_LIBS=""
+    else
+
+      AM_CONDITIONAL(HAVE_TARGET_PAPI, true)
+      AC_DEFINE(HAVE_TARGET_PAPI, 1, [Define to 1 if you have a target version of PAPI.])
+
+      TARGET_PAPI_DIR="$target_papi_dir"
+      TARGET_PAPI_CPPFLAGS="-I$target_papi_dir/include"
+      TARGET_PAPI_LDFLAGS="-L$target_papi_dir/$abi_libdir"
+
+      case "$target_os" in
+	cray-xt5)
+	    TARGET_PAPI_LIBS="-lpapi -lpfm"
+            ;;
+	*)
+            if test -f $target_papi_dir/$abi_libdir/libperfctr.so; then
+              TARGET_PAPI_LIBS="-lpapi -lperfctr -lpfm"
+            else
+              TARGET_PAPI_LIBS="-lpapi -lpfm"
+            fi 
+            ;;
+      esac
+    fi
+
+    AC_SUBST(TARGET_PAPI_DIR)
+    AC_SUBST(TARGET_PAPI_CPPFLAGS)
+    AC_SUBST(TARGET_PAPI_LDFLAGS)
+    AC_SUBST(TARGET_PAPI_LIBS)
 
 ])
 
@@ -1508,6 +1801,42 @@ AC_DEFUN([AC_PKG_LIBMONITOR], [
 ])
 
 ################################################################################
+# Check for Monitor for Target Architecture (http://www.cs.utk.edu/~mucci)
+################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_LIBMONITOR], [
+
+    AC_ARG_WITH(target-libmonitor,
+                AC_HELP_STRING([--with-target-libmonitor=DIR],
+                               [libmonitor target architecture installation @<:@/opt@:>@]),
+                target_libmonitor_dir=$withval, target_libmonitor_dir="/zzz")
+
+    AC_MSG_CHECKING([for Targetted libmonitor support])
+
+    if test "$target_libmonitor_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_LIBMONITOR, false)
+      TARGET_LIBMONITOR_CPPFLAGS=""
+      TARGET_LIBMONITOR_LDFLAGS=""
+      TARGET_LIBMONITOR_LIBS=""
+      TARGET_LIBMONITOR_DIR=""
+    else
+      AM_CONDITIONAL(HAVE_TARGET_LIBMONITOR, true)
+      AC_DEFINE(HAVE_TARGET_LIBMONITOR, 1, [Define to 1 if you have a target version of LIBMONITOR.])
+      TARGET_LIBMONITOR_CPPFLAGS="-I$target_libmonitor_dir/include"
+      TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
+      TARGET_LIBMONITOR_LIBS="-lmonitor"
+      TARGET_LIBMONITOR_DIR="$target_libmonitor_dir"
+    fi
+
+
+    AC_SUBST(TARGET_LIBMONITOR_CPPFLAGS)
+    AC_SUBST(TARGET_LIBMONITOR_LDFLAGS)
+    AC_SUBST(TARGET_LIBMONITOR_LIBS)
+    AC_SUBST(TARGET_LIBMONITOR_DIR)
+
+])
+
+################################################################################
 # Check for libdwarf (http://www.reality.sgiweb.org/davea/dwarf.html)
 ################################################################################
 
@@ -1666,4 +1995,5 @@ AC_DEFUN([AC_PKG_XERCES], [
     AC_SUBST(XERCES_LIBS)
 
 ])
+
 
