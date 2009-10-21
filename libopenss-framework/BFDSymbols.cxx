@@ -31,7 +31,11 @@
 #include "Path.hxx"
 #include <bfd.h>
 #include "bfd.h"
-#include "libiberty.h"
+/*#include "libiberty.h" */
+#include <string.h>
+#define HAVE_DECL_BASENAME 1
+#include <libiberty.h>
+
 #include <stdint.h>
 #include <dis-asm.h>
 #include <algorithm>
