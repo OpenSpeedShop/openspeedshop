@@ -58,7 +58,7 @@ AttachArgDialog::AttachArgDialog( QWidget* parent, const char* name, bool modal)
 #ifdef DEBUG_AAD
        printf("AttachArgDialog::AttachArgDialog, button->text=%s\n",((QPushButton*)obj)->text().ascii());
 #endif
-        char* result = strstr( "OK", ((QPushButton*)obj)->text().ascii() );
+        char* result = (char *)strstr( "OK", ((QPushButton*)obj)->text().ascii() );
         if( result != NULL ) {
           connect(((QPushButton*)obj), SIGNAL( clicked() ), this, SLOT( accepted() ) );
         }

@@ -167,7 +167,7 @@ AttachProgramDialog::AttachProgramDialog( QWidget* parent, const char* name, boo
         // for each found object...
         ++it;
 //      printf("button->text=%s\n",((QPushButton*)obj)->text().ascii());
-        char* result = strstr( "OK", ((QPushButton*)obj)->text().ascii() );
+        char* result = (char *)strstr( "OK", ((QPushButton*)obj)->text().ascii() );
         if( result != NULL ) {
           connect(((QPushButton*)obj), SIGNAL( clicked() ), this, SLOT( accepted() ) );
         }
