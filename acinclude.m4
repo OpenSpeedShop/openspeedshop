@@ -93,7 +93,7 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 
 
     vers_info_needed=1
-    if test -f  $binutils_dir/$abi_libdir/libbfd.so; then
+    if test -f  $binutils_dir/$abi_libdir/libbfd.so && test -x $binutils_dir/$abi_libdir/libbfd.so; then
 		vers_info_needed=0
     fi
 
