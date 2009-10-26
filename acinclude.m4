@@ -460,18 +460,34 @@ AC_DEFUN([AC_PKG_MRNET], [
                                [mrnet-version installation @<:@2.0.1@:>@]),
                 mrnet_vers=$withval, mrnet_vers="2.0.1")
 
+#   Temporary fix for problems with the MRNet public header files.  They depend on os_linux or other flags being set
+
+    os_release=`uname -r`
+    case "$os_release" in
+      2.4*)
+        MRNET_CPPFLAGS="-Dos_linux=24"
+        ;;
+      2.6*)
+        MRNET_CPPFLAGS="-Dos_linux=26"
+        ;;
+      *)
+        MRNET_CPPFLAGS="-Dos_linux"
+        ;;
+    esac
+
+
 #   The default is to use mrnet-2.0.1 cppflags and libs.  
 #   Change that (the default case entry) when you change the default vers to something other than 2.0.1
 
     case "$mrnet_vers" in
 	"2.0.1")
-            MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
             ;;
 	"2.1")
-            MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_21"
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_21"
             ;;
 	*)
-            MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
             ;;
     esac
 
