@@ -208,6 +208,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		# is this the mpidriver and what implementation is it.
 		if ismpi:
 		  has_mpi_init = os.system('nm ' + file_arg + ' | grep -q -i MPI_Init')
+		  if os.WEXITSTATUS(has_mpi_init) and not len(mpi_exe_implmentation) == 0:
+		    mpi_executable = file_arg
+		    break
 		  if not os.WEXITSTATUS(has_mpi_init):
 		    mpi_executable = file_arg
 		    break
