@@ -18,18 +18,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  plugin_entry->grouping = "";
+  plugin_entry->grouping = (char *) "";
   plugin_entry->show_immediate = 0;
-  plugin_entry->plugin_description = "Shows processes/threads/collectors known to experiment.";
-  plugin_entry->plugin_short_description = "Shows processes/threads/collectors known to experiment.  Use\na left mouse click on the menu icon or use right mouse button\ndown on tab for menu options.";
-  plugin_entry->plugin_name =  "ManageProcessesPanel.so";
-  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
-  plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "";
-  plugin_entry->sub_menu_heading =  "";
-  plugin_entry->menu_label =  "ManageProcessesPanel";
-  plugin_entry->menu_accel =  " ";
-  plugin_entry->panel_type =  "ManageProcessesPanel";
-  plugin_entry->preference_category =  "ManageProcessesPanel";
-  plugin_entry->initialize_preferences_entry_point =  "initialize_preferences_entry_point";
-  plugin_entry->save_preferences_entry_point =  "save_preferences_entry_point";
+  plugin_entry->plugin_description = (char *) "Shows processes/threads/collectors known to experiment.";
+  plugin_entry->plugin_short_description = (char *) "Shows processes/threads/collectors known to experiment.  Use\na left mouse click on the menu icon or use right mouse button\ndown on tab for menu options.";
+  plugin_entry->plugin_name = (char *) "ManageProcessesPanel.so";
+  plugin_entry->plugin_location = (char *) "$OPENSS_PLUGIN_PATH";
+  plugin_entry->plugin_entry_point = (char *) "panel_init";
+  plugin_entry->menu_heading = (char *) "";
+  plugin_entry->sub_menu_heading = (char *) "";
+  plugin_entry->menu_label = (char *) "ManageProcessesPanel";
+  plugin_entry->menu_accel = (char *) " ";
+  plugin_entry->panel_type = (char *) "ManageProcessesPanel";
+  plugin_entry->preference_category = (char *) "ManageProcessesPanel";
+  plugin_entry->initialize_preferences_entry_point = (char *) "initialize_preferences_entry_point";
+  plugin_entry->save_preferences_entry_point = (char *) "save_preferences_entry_point";

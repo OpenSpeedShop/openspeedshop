@@ -796,7 +796,7 @@ extern "C"
 
      // Process the execution time arguments for openss.
       int i;
-      ArgStruct *argStruct = new ArgStruct(argc, argv);
+      ArgStruct *argStruct = new ArgStruct(argc, (const char **) argv);
       pid_t my_pid = getpid();
       char HostName[MAXHOSTNAMELEN+1];
 
@@ -1038,9 +1038,9 @@ extern "C"
   loadTheGUI(ArgStruct *argStruct)
   {
     char gui_plugin_file[2048];
-    char *gui_dl_name = getenv("OPENSS_GUI_RELOCATABLE_NAME");
-    char *gui_entry_point = getenv("OPENSS_GUI_ENTRY_POINT");
-    char *gui_exit_point = getenv("OPENSS_GUI_EXIT_POINT");
+    const char *gui_dl_name = getenv("OPENSS_GUI_RELOCATABLE_NAME");
+    const char *gui_entry_point = getenv("OPENSS_GUI_ENTRY_POINT");
+    const char *gui_exit_point = getenv("OPENSS_GUI_EXIT_POINT");
     // char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
 
     // Insure the libltdl user-defined library search path has been set

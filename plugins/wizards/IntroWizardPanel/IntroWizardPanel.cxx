@@ -1078,7 +1078,7 @@ void IntroWizardPanel::vORepage0NextButtonSelected()
 #if DEBUG_INTRO
       printf(" IntroWizardPanel::vORepage0NextButtonSelected(), IN vpage0SavedExpCompareDataRB code\n");
 #endif
-      p = getPanelContainer()->raiseNamedPanel("Compare Wizard");
+      p = getPanelContainer()->raiseNamedPanel((char *) "Compare Wizard");
       if( !p ) {
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
         getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Compare Wizard", getPanelContainer(), ao);
@@ -1145,7 +1145,7 @@ void IntroWizardPanel::vORepage0NextButtonSelected()
 #endif
 
     if( epage0SavedExpCompareDataRB->isOn() ) {
-      p = getPanelContainer()->raiseNamedPanel("Compare Wizard");
+      p = getPanelContainer()->raiseNamedPanel((char *) "Compare Wizard");
       if( !p ) {
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
         getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Compare Wizard", getPanelContainer(), ao);
@@ -1194,7 +1194,7 @@ void IntroWizardPanel::vORepage1NextButtonSelected()
 
     if( vpage1pcSampleRB->isOn() ) {
 
-      p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
+      p = getPanelContainer()->raiseNamedPanel((char *) "pc Sample Wizard");
 
 #if DEBUG_INTRO
       printf("In IntroWizardPanel::vORepage1NextButtonSelected(), pcsamp, after getPanelContainer()->raiseNamedPanel, p=%d\n", p );
@@ -1216,7 +1216,7 @@ void IntroWizardPanel::vORepage1NextButtonSelected()
 #endif
 
     if( vpage1UserTimeRB->isOn() ) {
-      p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
+      p = getPanelContainer()->raiseNamedPanel((char *) "User Time Wizard");
 #if DEBUG_INTRO
       printf("In IntroWizardPanel::vORepage1NextButtonSelected(), usertime, after getPanelContainer()->raiseNamedPanel, p=%d\n", p );
 #endif
@@ -1236,7 +1236,7 @@ void IntroWizardPanel::vORepage1NextButtonSelected()
 #endif
 
     if( vpage1HardwareCounterRB->isOn() ) {
-      p = getPanelContainer()->raiseNamedPanel("HW Counter Wizard");
+      p = getPanelContainer()->raiseNamedPanel((char *) "HW Counter Wizard");
       if( !p ) {
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
         getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer(), ao);
@@ -1253,7 +1253,7 @@ void IntroWizardPanel::vORepage1NextButtonSelected()
 #endif
 
     if( vpage1FloatingPointRB->isOn() ) {
-      p = getPanelContainer()->raiseNamedPanel("FPE Tracing Wizard");
+      p = getPanelContainer()->raiseNamedPanel((char *) "FPE Tracing Wizard");
       if( !p ) {
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
         getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer(), ao);
@@ -1270,7 +1270,7 @@ void IntroWizardPanel::vORepage1NextButtonSelected()
 #endif
 
     if( vpage1InputOutputRB->isOn() ) {
-      p = getPanelContainer()->raiseNamedPanel("IO Wizard");
+      p = getPanelContainer()->raiseNamedPanel((char *) "IO Wizard");
       if( !p ) {
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
         getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer(), ao);
@@ -1287,7 +1287,7 @@ void IntroWizardPanel::vORepage1NextButtonSelected()
 #endif
 
     if( vpage1MPIRB->isOn() ) {
-      p = getPanelContainer()->raiseNamedPanel("MPI Wizard");
+      p = getPanelContainer()->raiseNamedPanel((char *) "MPI Wizard");
       if( !p ) {
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
         getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer(), ao);
@@ -1309,7 +1309,7 @@ void IntroWizardPanel::vORepage1NextButtonSelected()
 #endif
 
     if( epage1pcSampleRB->isOn() ) {
-      p = getPanelContainer()->raiseNamedPanel("pc Sample Wizard");
+      p = getPanelContainer()->raiseNamedPanel((char *) "pc Sample Wizard");
 #if DEBUG_INTRO
       printf("In IntroWizardPanel::vORepage1NextButtonSelected(), e-pcsamp, after getPanelContainer()->raiseNamedPanel, p=%d\n", p );
 #endif
@@ -1330,7 +1330,7 @@ void IntroWizardPanel::vORepage1NextButtonSelected()
 #endif
 
     if( epage1UserTimeRB->isOn() ) {
-      p = getPanelContainer()->raiseNamedPanel("User Time Wizard");
+      p = getPanelContainer()->raiseNamedPanel((char *) "User Time Wizard");
 #if DEBUG_INTRO
       printf("In IntroWizardPanel::vORepage1NextButtonSelected(), e-usertime, after getPanelContainer()->raiseNamedPanel, p=%d\n", p );
 #endif
@@ -1351,7 +1351,7 @@ void IntroWizardPanel::vORepage1NextButtonSelected()
 #endif
 
     if( epage1HardwareCounterRB->isOn() ) {
-      p = getPanelContainer()->raiseNamedPanel("HW Counter Wizard");
+      p = getPanelContainer()->raiseNamedPanel((char *) "HW Counter Wizard");
       if( !p ) {
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
         getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Wizard", getPanelContainer(), ao);
@@ -1368,7 +1368,7 @@ void IntroWizardPanel::vORepage1NextButtonSelected()
 #endif
 
     if( epage1FloatingPointRB->isOn() ) {
-      p = getPanelContainer()->raiseNamedPanel("FPE Tracing Wizard");
+      p = getPanelContainer()->raiseNamedPanel((char *) "FPE Tracing Wizard");
       if( !p ) {
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
         getPanelContainer()->getMasterPC()->dl_create_and_add_panel("FPE Tracing Wizard", getPanelContainer(), ao);
@@ -1385,7 +1385,7 @@ void IntroWizardPanel::vORepage1NextButtonSelected()
 #endif
 
     if( epage1InputOutputRB->isOn() ) {
-      p = getPanelContainer()->raiseNamedPanel("IO Wizard");
+      p = getPanelContainer()->raiseNamedPanel((char *) "IO Wizard");
       if( !p ) {
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
         getPanelContainer()->getMasterPC()->dl_create_and_add_panel("IO Wizard", getPanelContainer(), ao);
@@ -1402,7 +1402,7 @@ void IntroWizardPanel::vORepage1NextButtonSelected()
 #endif
 
     if( epage1MPIRB->isOn() ) {
-      p = getPanelContainer()->raiseNamedPanel("MPI Wizard");
+      p = getPanelContainer()->raiseNamedPanel((char *) "MPI Wizard");
       if( !p ) {
         ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
         getPanelContainer()->getMasterPC()->dl_create_and_add_panel("MPI Wizard", getPanelContainer(), ao);

@@ -41,11 +41,11 @@ void Commander_Initialization ();
 void Commander_Termination ();
 
 // Command Windows provide a way to get textual commands into the OpendSpeedShop tool.
-CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
-CMDWID TLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
-CMDWID GUI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
-CMDWID RLI_Window     (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
-CMDWID Embedded_Window(char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
+CMDWID Default_Window (const char *my_name, const char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
+CMDWID TLI_Window     (const char *my_name, const char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
+CMDWID GUI_Window     (const char *my_name, const char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
+CMDWID RLI_Window     (const char *my_name, const char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
+CMDWID Embedded_Window(const char *my_name, const char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async);
 void   Window_Termination (CMDWID my_window);
 
 // ss_ostreams provide a way to get textual output to the proper window.
@@ -64,8 +64,8 @@ extern CMDWID command_line_window;
 extern CMDWID tli_window;
 extern CMDWID gui_window;
 extern CMDWID Embedded_WindowID;
-extern char *Current_OpenSpeedShop_Prompt;
-extern char *Alternate_Current_OpenSpeedShop_Prompt;
+extern const char *Current_OpenSpeedShop_Prompt;
+extern const char *Alternate_Current_OpenSpeedShop_Prompt;
 
 // History Buffers
 extern int64_t History_Count;
@@ -88,7 +88,7 @@ extern InputLineObject *Current_ILO;
 extern CommandObject   *Current_CO;
 
 // Attach a new input source line that will be read AFTER all the previous ones
-InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr,
+InputLineObject *Append_Input_String (CMDWID issuedbywindow, const char *b_ptr,
                                       void *LocalCmdId = NULL,
                                       void (*CallBackLine) (InputLineObject *b) = NULL,
                                       void (*CallBackCmd) (CommandObject *b) = NULL);

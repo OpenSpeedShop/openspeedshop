@@ -1911,7 +1911,7 @@ CustomExperimentPanel::loadMain()
         Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
         if( !sourcePanel )
         {
-          char *panel_type = "Source Panel";
+          char *panel_type = (char *) "Source Panel";
 #ifdef DEBUG_CustomPanel
           printf("CustomExperimentPanel:loadMain, A: create a source panel.\n");
 #endif
@@ -2785,7 +2785,7 @@ void
 CustomExperimentPanel::resetRedirect()
 {
 // Just make sure any pending output goes "somewhere".
-  Panel *cmdPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), "&Command Panel");
+  Panel *cmdPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *) "&Command Panel");
   if( cmdPanel )
   {
     MessageObject *msg = new MessageObject("Redirect_Window_Output()");

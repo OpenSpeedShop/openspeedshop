@@ -37,7 +37,7 @@ class QPrinter;
 class QString;
 class QLabel;
 
-static char *chart_colors[] = {
+static const char *chart_colors[] = {
   "red",
   "magenta",
   "blue",
@@ -81,7 +81,7 @@ public:
     virtual QPopupMenu *createPopupMenu(const QPoint & pos);
     QPopupMenu *optionsMenu; // Why public? See canvasview.cpp
 
-    void setValues(ChartPercentValueList values, ChartTextValueList strings,  char **color_names=chart_colors, int max_color_cnt=MAX_COLOR_CNT);
+    void setValues(ChartPercentValueList values, ChartTextValueList strings, const  char **color_names=chart_colors, int max_color_cnt=MAX_COLOR_CNT);
 
     QCanvas *getCanvas() { return m_canvas; }
 

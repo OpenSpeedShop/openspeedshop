@@ -37,7 +37,7 @@ class DragNDropPanel : public QStoredDrag
 {
 public:
     //! DragNDropPanel(PanelContainer *pc, Frame *sourceFrame)
-    DragNDropPanel( const char *mimeType, PanelContainer *sourcePC, Frame *sourceFrame, char *name="DragNDropPanel" );
+    DragNDropPanel( const char *mimeType, PanelContainer *sourcePC, Frame *sourceFrame, char *name= (char *) "DragNDropPanel" );
 
     //! ~Panel() - The default destructor.
     ~DragNDropPanel( );

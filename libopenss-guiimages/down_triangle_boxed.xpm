@@ -1,5 +1,5 @@
 /* XPM */
-static char *down_triangle_boxed[]={
+static const char *down_triangle_boxed[]={
 "16 13 2 1",
 ". c None",
 "# c #000000",

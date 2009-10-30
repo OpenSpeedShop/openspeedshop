@@ -18,14 +18,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  plugin_entry->grouping = "TOPLEVEL";
+  plugin_entry->grouping = (char *) "TOPLEVEL";
   plugin_entry->show_immediate = 0;
-  plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Internal Panel used to toggle on/off debug statements.";
-  plugin_entry->plugin_name =  "DebugPanel.so";
-  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
-  plugin_entry->plugin_entry_point = "panel_init";
-//  plugin_entry->menu_heading =  "&Debug";
-  plugin_entry->menu_label =  "Debug Panel";  // Uncomment this to have it show up in the menu structure.
-  plugin_entry->menu_accel =  "Alt+D";
-  plugin_entry->panel_type =  "Debug Panel";
+  plugin_entry->plugin_description = (char *) "PLUGIN_DESCRIPTION";
+  plugin_entry->plugin_short_description = (char *) "Internal Panel used to toggle on/off debug statements.";
+  plugin_entry->plugin_name = (char *) "DebugPanel.so";
+  plugin_entry->plugin_location = (char *) "$OPENSS_PLUGIN_PATH";
+  plugin_entry->plugin_entry_point = (char *) "panel_init";
+//  plugin_entry->menu_heading = (char *) "&Debug";
+  plugin_entry->menu_label = (char *) "Debug Panel";  // Uncomment this to have it show up in the menu structure.
+  plugin_entry->menu_accel = (char *) "Alt+D";
+  plugin_entry->panel_type = (char *) "Debug Panel";

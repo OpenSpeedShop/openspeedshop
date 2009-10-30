@@ -143,7 +143,7 @@ typedef enum {
 
 /** Simple static info about a command */
 typedef struct {
-    char *name;     	/** formal name of the command */
+    const char *name;     	/** formal name of the command */
     bool ret_list;  	/** does this return a list or single instance */
     oss_cmd_enum ndx;	/** for sanity checking */
 } command_type_t;
@@ -204,7 +204,7 @@ class ParseResult {
 	{
 	    return dm_command_type;
 	}
-	char * getCommandname();
+	const char * getCommandname();
 	bool isRetList();
  
     	/** Handle experiment id */
@@ -230,7 +230,7 @@ class ParseResult {
 	    return &dm_exp_type_list;
 	}
 
-    	void pushExpType(char * name) {
+    	void pushExpType(const char * name) {
     	    dm_exp_type_list.push_back(name);
 	}
 
@@ -240,7 +240,7 @@ class ParseResult {
 	    return &dm_view_type_list;
 	}
 
-    	void pushViewType(char * name) {
+    	void pushViewType(const char * name) {
     	    dm_view_type_list.push_back(name);
 	}
 
@@ -263,7 +263,7 @@ class ParseResult {
 	    return &dm_modifier_list;
 	}
 
-    	void pushModifiers(char * name) {
+    	void pushModifiers(const char * name) {
     	    dm_modifier_list.push_back(name);
 	}
 
@@ -273,7 +273,7 @@ class ParseResult {
 	{
 	    return &dm_instrumentor_list;
 	}
-    	void pushInstrumentors(char * name) {
+    	void pushInstrumentors(const char * name) {
     	    dm_instrumentor_list.push_back(name);
 	}
 
@@ -283,17 +283,17 @@ class ParseResult {
 	    return &dm_help_list;
 	}
 
-    	void pushHelp(char * name);
+    	void pushHelp(const char * name);
     	void pushHelp();
 
     	/** Syntax error handling. */
-    	void setError(char * name1, char * name2);
-    	void setError(char * name);
+    	void setError(const char * name1, const char * name2);
+    	void setError(const char * name);
 	bool syntaxError( ) { return dm_error_set;}
     	vector<ParseRange> * getErrorList() {return &dm_error_list;}
 
     	/** Handle list of view intervals. */
-	void setIntervalAttribute(char *attribute);
+	void setIntervalAttribute(const char *attribute);
 	bool isIntervalAttribute(){return dm_interval_attribute_set;}
 	const string * getIntervalAttribute();
     	void pushInterval(int64_t begin, int64_t end);
@@ -303,8 +303,8 @@ class ParseResult {
     	vector<ParseInterval> * getParseIntervalList() {return &dm_interval_list;}
 
     	/** Handle list of expMetrics. */
-    	void pushExpMetric(char * name1, char * name2);
-    	void pushExpMetric(char * name);
+    	void pushExpMetric(const char * name1, const char * name2);
+    	void pushExpMetric(const char * name);
     	vector<ParseRange> * getexpMetricList() {return &dm_exp_metric_list;}
 
     	/** Handle list of break ids. */
@@ -320,7 +320,7 @@ class ParseResult {
     	/** Handle list of file names. */
     	vector<ParseRange> * getAddressList(){return &dm_address_list;}
 
-    	void pushAddressPoint(char * name) {
+    	void pushAddressPoint(const char * name) {
 	    ParseRange range(name);
     	    dm_address_list.push_back(range);
 	}
@@ -328,15 +328,15 @@ class ParseResult {
 	    ParseRange range(num);
     	    dm_address_list.push_back(range);
 	}
-    	void pushAddressRange(char * name, int num) {
+    	void pushAddressRange(const char * name, int num) {
 	    ParseRange range(name,num);
     	    dm_address_list.push_back(range);
 	}
-    	void pushAddressRange(char * name1, char * name2) {
+    	void pushAddressRange(const char * name1, const char * name2) {
 	    ParseRange range(name1,name2);
     	    dm_address_list.push_back(range);
 	}
-    	void pushAddressRange(int num, char * name) {
+    	void pushAddressRange(int num, const char * name) {
 	    ParseRange range(num,name);
     	    dm_address_list.push_back(range);
 	}
@@ -364,7 +364,7 @@ class ParseResult {
 	    return &dm_lineno_list;
 	}
 
-    	void pushLineNoPoint(char * name) {
+    	void pushLineNoPoint(const char * name) {
 	    ParseRange range(name);
     	    dm_lineno_list.push_back(range);
 	}
@@ -372,15 +372,15 @@ class ParseResult {
 	    ParseRange range(num);
     	    dm_lineno_list.push_back(range);
 	}
-    	void pushLineNoRange(char * name, int num) {
+    	void pushLineNoRange(const char * name, int num) {
 	    ParseRange range(name,num);
     	    dm_lineno_list.push_back(range);
 	}
-    	void pushLineNoRange(char * name1, char * name2) {
+    	void pushLineNoRange(const char * name1, const char * name2) {
 	    ParseRange range(name1,name2);
     	    dm_lineno_list.push_back(range);
 	}
-    	void pushLineNoRange(int num, char * name) {
+    	void pushLineNoRange(int num, const char * name) {
 	    ParseRange range(num,name);
     	    dm_lineno_list.push_back(range);
 	}
@@ -392,8 +392,8 @@ class ParseResult {
     	/** Handle Params. */
 	bool isParam();
     	ParseParam *getParam();
-    	void setParam(char *etype, char *ptype);
-   	void pushParamVal(char   *sval);
+    	void setParam(const char *etype, const char *ptype);
+   	void pushParamVal(const char   *sval);
     	void pushParamVal(int64_t ival);
     	void pushParamVal(double  dval);
 
@@ -403,10 +403,10 @@ class ParseResult {
 	    return &dm_help_modifier_list;
 	}
 
-    	void pushHelpModifier(char * name);
+    	void pushHelpModifier(const char * name);
 
     	/** Set/Get copy redirect target string. */
-	bool setRedirectTarget(char *name) {
+	bool setRedirectTarget(const char *name) {
 	    dm_redirect = name;
 	}
 	string * getRedirectTarget() {
@@ -414,7 +414,7 @@ class ParseResult {
 	}
 
     	/** Set/Get append redirect target string. */
-	bool setAppendTarget(char *name) {
+	bool setAppendTarget(const char *name) {
 	    dm_append = name;
 	}
 	string * getAppendTarget() {

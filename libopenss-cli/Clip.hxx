@@ -181,7 +181,7 @@ class InputLineObject
     std::string Time = ctime(&cmd_time);
     Time.resize(24);  // Remove any trailing "\n" characters.
     mystream << " (W" << who << "@" << Time << ") ";
-    char *what_c;
+    const char *what_c;
     switch (what)
     { 
       case ILO_UNKNOWN:      what_c = "UNKNOWN"; break;

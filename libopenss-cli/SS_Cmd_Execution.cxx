@@ -6008,7 +6008,7 @@ bool SS_OpenGui (CommandObject *cmd) {
  // Load the GUI
  // How do we check to see if is already loaded?
   int argc = 0;
-  char **argv = NULL;
+  const char **argv = NULL;
   ArgStruct *argStruct = new ArgStruct(argc, argv);
   if (gui_window == 0) {
    // The GUI was not opened before so we need to define an input control window for it.

@@ -200,38 +200,38 @@
 
 /* -------------------------------------------------------- */
 
-static    char *asynchronous_p2p =
+static    char *asynchronous_p2p = (char *)
 "MPI_Cancel:MPI_Ibsend:MPI_Iprobe:MPI_Irecv:MPI_Irsend:\
 MPI_Isend:MPI_Issend:MPI_Request_free:MPI_Test:MPI_Testall:\
 MPI_Testany:MPI_Testsome:MPI_Wait:MPI_Waitall:MPI_Waitany:MPI_Waitsome";
 
-static    char *collective_com =
+static    char *collective_com = (char *)
 "MPI_Allgather:MPI_Allgatherv:MPI_Allreduce:MPI_Alltoall:\
 MPI_Alltoallv:MPI_Barrier:MPI_Bcast:MPI_Gather:MPI_Gatherv:\
 MPI_Reduce:MPI_Reduce_scatter:MPI_Scan:MPI_Scatter:MPI_Scatterv";
 
-static    char *datatypes =
+static    char *datatypes = (char *)
 "MPI_Pack:MPI_Unpack";
 
-static    char *environment =
+static    char *environment = (char *)
 "MPI_Finalize:MPI_Init";
 
-static    char *graphs_contexts_comms =
+static    char *graphs_contexts_comms = (char *)
 "MPI_Comm_create:MPI_Comm_dup:MPI_Comm_free:MPI_Comm_split:\
 MPI_Intercomm_create:MPI_Intercomm_merge";
 
-static    char *persistent_com =
+static    char *persistent_com = (char *)
 "MPI_Bsend_init:MPI_Recv_init:MPI_Rsend_init:MPI_Send_init:\
 MPI_Ssend_init:MPI_Start:MPI_Startall";
 
-static    char *process_topologies =
+static    char *process_topologies = (char *)
 "MPI_Cart_create:MPI_Cart_sub:MPI_Graph_create";
 
-static    char *synchronous_p2p =
+static    char *synchronous_p2p = (char *)
 "MPI_Bsend:MPI_Get_count:MPI_Probe:MPI_Recv:\
 MPI_Rsend:MPI_Send:MPI_Sendrecv:MPI_Sendrecv_replace:MPI_Ssend";
 
-static    char *all =
+static    char *all = (char *)
 "MPI_Allgather:MPI_Allgatherv:MPI_Allreduce:MPI_Alltoall:\
 MPI_Alltoallv:MPI_Barrier:MPI_Bcast:MPI_Bsend:MPI_Bsend_init:\
 MPI_Cancel:MPI_Cart_create:MPI_Cart_sub:MPI_Comm_create:\

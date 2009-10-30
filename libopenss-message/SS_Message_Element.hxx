@@ -30,18 +30,18 @@ namespace OpenSpeedShop {
 /** Initial package for feeding SS_Message_Element */
 typedef struct {
     int    errnum;  	/** Does this have a numeric id? */
-    char  *keyword; 	/** Name to look up */
-    char **related;	/** Related keywords */
+    const char  *keyword; 	/** Name to look up */
+    const char **related;	/** Related keywords */
     int    related_cnt;	/** Number of strings in related */
-    char  *topic;     	/** General topic */
-    char  *brief;     	/** Brief description (one line) */
-    char **normal;	/** Not so brief description */
+    const char  *topic;     	/** General topic */
+    const char  *brief;     	/** Brief description (one line) */
+    const char **normal;	/** Not so brief description */
     int    normal_cnt;	/** Number of strings in normal */
-    char **detailed;	/** Most verbose description */
+    const char **detailed;	/** Most verbose description */
     int    detail_cnt;	/** Number of strings in detailed */
-    char **example;	/** Example of use */
+    const char **example;	/** Example of use */
     int    example_cnt;	/** Number of strings in example */
-    char **syntax;	/** syntax description */
+    const char **syntax;	/** syntax description */
     int    syntax_cnt; /** Number of strings in syntax description */
 } message_element_t;
 

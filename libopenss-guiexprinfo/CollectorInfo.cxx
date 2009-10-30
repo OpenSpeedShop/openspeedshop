@@ -102,25 +102,25 @@ CollectorInfo::fudgeValues()
 
   int i = 0;
   MetricInfo *nfi;
-  nfi = new MetricInfo(i, (float)44.2, (float)0.190, "foo()", "foo.c", 29, 29, 32);
+  nfi = new MetricInfo(i, (float)44.2, (float)0.190, (char *) "foo()",(char *) "foo.c", 29, 29, 32);
   metricInfoList.push_back(nfi);
   i++;
 
-  nfi = new MetricInfo(i, (float)34.9, (float)0.150, "init()", "fred_calls_ted.c", 33, 33, 38 );
+  nfi = new MetricInfo(i, (float)34.9, (float)0.150, (char *) "init()", (char *) "fred_calls_ted.c", 33, 33, 38 );
   metricInfoList.push_back(nfi);
   i++;
 
-  nfi = new MetricInfo(i, (float)11.6, (float)0.050, "fred()", "fred.c", 38, 38, 41);
+  nfi = new MetricInfo(i, (float)11.6, (float)0.050, (char *) "fred()", (char *) "fred.c", 38, 38, 41);
   metricInfoList.push_back(nfi);
   i++;
 
-  nfi = new MetricInfo(i, (float)9.3, (float)0.040, "ted()", "ted.c", 28, 28, 31);
+  nfi = new MetricInfo(i, (float)9.3, (float)0.040, (char *) "ted()", (char *) "ted.c", 28, 28, 31);
   metricInfoList.push_back(nfi);
   i++;
 
   for( /* i */; i < 1024; i++ )
   {
-    nfi = new MetricInfo(i, (float).000, (float)0.000, "__libcall()", "_libcall.cpp", 0, 0, 0 );
+    nfi = new MetricInfo(i, (float).000, (float)0.000, (char *) "__libcall()", (char *) "_libcall.cpp", 0, 0, 0 );
     metricInfoList.push_back(nfi);
   }
 }

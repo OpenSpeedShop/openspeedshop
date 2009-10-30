@@ -18,15 +18,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  plugin_entry->grouping = "TOPLEVEL";
+  plugin_entry->grouping = (char *) "TOPLEVEL";
   plugin_entry->show_immediate = 0;
-  plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Manages the Hardware Counter experiment.  Use a\nleft mouse click on the menu icon or use right mouse\nbutton down on tab for menu options.";
-  plugin_entry->plugin_name =  "HW_CounterPanel.so";
-  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
-  plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "&File";
-  plugin_entry->sub_menu_heading =  "E&xperiments";
-  plugin_entry->menu_label =  "HW Counter";
-  plugin_entry->menu_accel =  "Alt+H";
-  plugin_entry->panel_type =  "HW Counter";
+  plugin_entry->plugin_description = (char *) "PLUGIN_DESCRIPTION";
+  plugin_entry->plugin_short_description = (char *) "Manages the Hardware Counter experiment.  Use a\nleft mouse click on the menu icon or use right mouse\nbutton down on tab for menu options.";
+  plugin_entry->plugin_name = (char *) "HW_CounterPanel.so";
+  plugin_entry->plugin_location = (char *) "$OPENSS_PLUGIN_PATH";
+  plugin_entry->plugin_entry_point = (char *) "panel_init";
+  plugin_entry->menu_heading = (char *) "&File";
+  plugin_entry->sub_menu_heading = (char *) "E&xperiments";
+  plugin_entry->menu_label = (char *) "HW Counter";
+  plugin_entry->menu_accel = (char *) "Alt+H";
+  plugin_entry->panel_type = (char *) "HW Counter";

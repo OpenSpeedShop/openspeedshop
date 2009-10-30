@@ -18,15 +18,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  plugin_entry->grouping = "TOPLEVEL";
+  plugin_entry->grouping = (char *) "TOPLEVEL";
   plugin_entry->show_immediate = 0;
-  plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Manages the Input/Output Tracing experiment.  Use\na left mouse click on the menu icon or use right mouse\nbutton down on tab for menu options.";
-  plugin_entry->plugin_name =  "IOTPanel.so";
-  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
-  plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "&File";
-  plugin_entry->sub_menu_heading =  "E&xperiments";
-  plugin_entry->menu_label =  "IOT";
-  plugin_entry->menu_accel =  "Alt+M";
-  plugin_entry->panel_type =  "IOT";
+  plugin_entry->plugin_description = (char *) "PLUGIN_DESCRIPTION";
+  plugin_entry->plugin_short_description = (char *) "Manages the Input/Output Tracing experiment.  Use\na left mouse click on the menu icon or use right mouse\nbutton down on tab for menu options.";
+  plugin_entry->plugin_name = (char *) "IOTPanel.so";
+  plugin_entry->plugin_location = (char *) "$OPENSS_PLUGIN_PATH";
+  plugin_entry->plugin_entry_point = (char *) "panel_init";
+  plugin_entry->menu_heading = (char *) "&File";
+  plugin_entry->sub_menu_heading = (char *) "E&xperiments";
+  plugin_entry->menu_label = (char *) "IOT";
+  plugin_entry->menu_accel = (char *) "Alt+M";
+  plugin_entry->panel_type = (char *) "IOT";

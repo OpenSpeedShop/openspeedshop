@@ -779,7 +779,7 @@ AppEventFilter::eventFilter( QObject *obj, QEvent *e )
         {
           PanelContainer *bestFitPC = masterPC->findBestFitPanelContainer(masterPC);
           DebugPanel *debugPanel = new DebugPanel(bestFitPC, "Debug Panel", NULL);
-          bestFitPC->addPanel((Panel *)debugPanel, bestFitPC, "Debug Panel");
+          bestFitPC->addPanel((Panel *)debugPanel, bestFitPC, (char *) "Debug Panel");
 
           return(TRUE);
         }
@@ -829,7 +829,7 @@ void OpenSpeedshop::init()
   // Insure the libltdl user-defined library search path has been set
   assert(lt_dlgetsearchpath() != NULL);
   // Load base and plugin libraries
-  char *pc_dl_name="libopenss-guibase";
+  char *pc_dl_name=(char *)"libopenss-guibase";
   lt_dlhandle dl_pc_object = lt_dlopenext((const char *)pc_dl_name);
   if( dl_pc_object == NULL )
   {
@@ -848,7 +848,7 @@ void OpenSpeedshop::init()
   topPC = masterPC;
 
   char ph_file[2048];
-  char *ph_dl_name = "libopenss-guiplugin";
+  char *ph_dl_name = (char *)"libopenss-guiplugin";
   lt_dlhandle dl_ph_object = lt_dlopenext((const char *)ph_dl_name);
   if( dl_ph_object == NULL )
   {

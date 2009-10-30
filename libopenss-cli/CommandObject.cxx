@@ -74,7 +74,7 @@ void CommandObject::Print (ostream &mystream) {
   mystream << "X " << when << "." << Seq_Num;
 
  // Status information
-  char *S;
+  const char *S;
   switch (Cmd_Status) {
   case CMD_UNKNOWN:   S = "UNKNOWN"; break;
   case CMD_PARSED:    S = "PARSED"; break;

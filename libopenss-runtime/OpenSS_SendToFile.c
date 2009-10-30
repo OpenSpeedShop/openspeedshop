@@ -119,7 +119,7 @@ void OpenSS_SetSendToFile(OpenSS_DataHeader* header,
     sprintf(dir_path, "%s/openss-rawdata-%s-%d",
 	    (openss_rawdata_dir != NULL) ? openss_rawdata_dir : "/tmp",
 	     header->host,header->pid);
-    if(header->posix_tid == NULL) {
+    if(header->posix_tid == 0) {
 	sprintf(tls->path, "%s/%s-%d", dir_path, basename(executable_path), header->pid);
 	sprintf(tls->path, "%s.%s", tls->path, suffix);
     } else {

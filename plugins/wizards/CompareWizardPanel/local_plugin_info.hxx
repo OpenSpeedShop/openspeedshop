@@ -17,15 +17,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  plugin_entry->grouping = "TOPLEVEL";
+  plugin_entry->grouping = (char *) "TOPLEVEL";
   plugin_entry->show_immediate = 0;
-  plugin_entry->plugin_description = "PLUGIN_DESCRIPTCompareN";
-plugin_entry->plugin_short_description = "Manages setup for the Compare Experiment.";
-  plugin_entry->plugin_name =  "CompareWizardPanel.so";
-  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
-  plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "&File";
-  plugin_entry->sub_menu_heading =  "&Wizards";
-  plugin_entry->menu_label =  "Compare Wizard";
-  plugin_entry->menu_accel =  "Alt+M";
-  plugin_entry->panel_type =  "Compare Wizard";
+  plugin_entry->plugin_description = (char *) "PLUGIN_DESCRIPTCompareN";
+plugin_entry->plugin_short_description = (char *) "Manages setup for the Compare Experiment.";
+  plugin_entry->plugin_name = (char *) "CompareWizardPanel.so";
+  plugin_entry->plugin_location = (char *) "$OPENSS_PLUGIN_PATH";
+  plugin_entry->plugin_entry_point = (char *) "panel_init";
+  plugin_entry->menu_heading = (char *) "&File";
+  plugin_entry->sub_menu_heading = (char *) "&Wizards";
+  plugin_entry->menu_label = (char *) "Compare Wizard";
+  plugin_entry->menu_accel = (char *) "Alt+M";
+  plugin_entry->panel_type = (char *) "Compare Wizard";

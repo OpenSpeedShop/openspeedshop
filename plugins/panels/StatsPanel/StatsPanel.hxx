@@ -550,7 +550,7 @@ class StatsPanel  : public Panel
     double total_percent;
     int numberItemsToDisplayInStats;
     int numberItemsToDisplayInChart;
-    char **color_names;
+    const char **color_names;
     ChartTextValueList ctvl;
     ChartPercentValueList cpvl;
 

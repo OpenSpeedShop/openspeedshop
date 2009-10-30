@@ -18,15 +18,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  plugin_entry->grouping = "TOPLEVEL";
+  plugin_entry->grouping = (char *) "TOPLEVEL";
   plugin_entry->show_immediate = 0;
-  plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Manages the User Time experiment.  Use a left mouse\nclick on the menu icon or use right mouse button\ndown on tab for menu options.";
-  plugin_entry->plugin_name =  "UserTimePanel.so";
-  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
-  plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "&File";
-  plugin_entry->sub_menu_heading =  "E&xperiments";
-  plugin_entry->menu_label =  "User Time";
-  plugin_entry->menu_accel =  "Alt+U";
-  plugin_entry->panel_type =  "User Time";
+  plugin_entry->plugin_description = (char *) "PLUGIN_DESCRIPTION";
+  plugin_entry->plugin_short_description = (char *) "Manages the User Time experiment.  Use a left mouse\nclick on the menu icon or use right mouse button\ndown on tab for menu options.";
+  plugin_entry->plugin_name = (char *) "UserTimePanel.so";
+  plugin_entry->plugin_location = (char *) "$OPENSS_PLUGIN_PATH";
+  plugin_entry->plugin_entry_point = (char *) "panel_init";
+  plugin_entry->menu_heading = (char *) "&File";
+  plugin_entry->sub_menu_heading = (char *) "E&xperiments";
+  plugin_entry->menu_label = (char *) "User Time";
+  plugin_entry->menu_accel = (char *) "Alt+U";
+  plugin_entry->panel_type = (char *) "User Time";

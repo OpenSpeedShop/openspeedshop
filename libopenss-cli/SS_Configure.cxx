@@ -157,7 +157,7 @@ void SS_Configure () {
             "a file name when the length of the string exceeds the "
             "size specified by viewFieldSize preference.  The "
             "default is false, requiring that the string be truncated "
-            "on the left (indicated with '???' characters) to fit "
+            "on the left (indicated with '\?\?\?' characters) to fit "
             "within the allowed space.  If this preference is selected "
             "and the string is larger than the FieldSize, the FieldSize "
             "is ignored which will cause misalignment of other fields "

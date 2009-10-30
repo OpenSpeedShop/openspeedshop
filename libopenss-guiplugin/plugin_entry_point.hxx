@@ -389,7 +389,7 @@ dprintf("assign the accelerator to %s\n", pluginInfo->menu_accel );
     }
     if( !name )
     {
-      name = "Warning: Unamed Panel: No menu_label or panel_type.";
+      name = (char *) "Warning: Unamed Panel: No menu_label or panel_type.";
     }
 
     dprintf("All panels start here!   name=(%s)\n", name);

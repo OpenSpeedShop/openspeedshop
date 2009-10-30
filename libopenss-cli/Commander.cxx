@@ -22,8 +22,8 @@ extern "C" void loadTheGUI(ArgStruct *);
 #include <fstream>
 #include <iostream>
 
-char *Current_OpenSpeedShop_Prompt = "openss>>";
-char *Alternate_Current_OpenSpeedShop_Prompt = "....ss>>";
+const char *Current_OpenSpeedShop_Prompt = "openss>>";
+const char *Alternate_Current_OpenSpeedShop_Prompt = "....ss>>";
 
 pthread_mutex_t Async_Input_Lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t  Async_Input_Available = PTHREAD_COND_INITIALIZER;
@@ -1340,7 +1340,7 @@ EXPID Experiment_Focus (CMDWID WindowID)
 
       if (f > 1) {
         char a[100];
-        char *m = "The Focus has been initialized to Experiment ";
+        const char *m = "The Focus has been initialized to Experiment ";
         bcopy (m, a, strlen(m));
         sprintf (&a[strlen(m)], "%lld\n", pthread_self(), f);
         Send_Message_To_Window ( WindowID, a);
@@ -1492,7 +1492,7 @@ void Commander_Initialization () {
   History.empty();
 }
 
-CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
+CMDWID Default_Window (const char *my_name, const char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
   // Assert(command_line_window == 0);
  // Create a new Window
@@ -1504,7 +1504,7 @@ CMDWID Default_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_pa
   return command_line_window;
 }
 
-CMDWID TLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
+CMDWID TLI_Window (const char *my_name, const char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
   Assert(tli_window == 0);
  // Define the output control stream for the command terminal.
@@ -1560,7 +1560,7 @@ CMDWID TLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel,
   return tli_window;
 }
 
-CMDWID GUI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
+CMDWID GUI_Window (const char *my_name, const char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
  // Create a new Window
   Assert(gui_window == 0);
@@ -1573,7 +1573,7 @@ CMDWID GUI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel,
   return gui_window;
 }
 
-CMDWID RLI_Window (char *my_name, char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
+CMDWID RLI_Window (const char *my_name, const char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
  // Create a new Window
   CommandWindowID *cwid = new RLI_CommandWindowID(std::string(my_name ? my_name : ""),
@@ -2143,7 +2143,7 @@ static InputLineObject *Append_Input_String (CMDWID issuedbywindow, InputLineObj
   return NULL;
 }
 
-InputLineObject *Append_Input_String (CMDWID issuedbywindow, char *b_ptr,
+InputLineObject *Append_Input_String (CMDWID issuedbywindow, const char *b_ptr,
                                       void *LocalCmdId,
                                       void (*CallBackLine) (InputLineObject *b),
                                       void (*CallBackCmd) (CommandObject *b)) {
@@ -2585,7 +2585,7 @@ InputLineObject *SpeedShop_ReadLine (int is_more)
       cw->Wait_Until_Cmds_Complete ();
     }
 
-    char *save_prompt = Current_OpenSpeedShop_Prompt;
+    const char *save_prompt = Current_OpenSpeedShop_Prompt;
     InputLineObject *clip;
 
     CMDWID readfromwindow = select_input_window(is_more);

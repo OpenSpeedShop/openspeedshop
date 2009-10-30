@@ -456,7 +456,7 @@ class CommandResult_String :
   CommandResult_String (std::string S) : CommandResult(CMD_RESULT_STRING) {
     string_value = S;
   }
-  CommandResult_String (char *S) : CommandResult(CMD_RESULT_STRING) {
+  CommandResult_String (const char *S) : CommandResult(CMD_RESULT_STRING) {
     string_value = std::string(S);
   }
   CommandResult_String (CommandResult_String *C) :
@@ -537,7 +537,7 @@ class CommandResult_RawString :
   CommandResult_RawString (std::string S) : CommandResult(CMD_RESULT_RAWSTRING) {
     string_value = S;
   }
-  CommandResult_RawString (char *S) : CommandResult(CMD_RESULT_RAWSTRING) {
+  CommandResult_RawString (const char *S) : CommandResult(CMD_RESULT_RAWSTRING) {
     string_value = std::string(S);
   }
   CommandResult_RawString (CommandResult_RawString *C) :
@@ -1638,7 +1638,7 @@ inline CommandResult *CRPTR (int V) { return new CommandResult_Int (V); }
 inline CommandResult *CRPTR (int64_t V) { return new CommandResult_Int (V); }
 inline CommandResult *CRPTR (float V) { return new CommandResult_Float (V); }
 inline CommandResult *CRPTR (double V) { return new CommandResult_Float (V); }
-inline CommandResult *CRPTR (char *V) { return new CommandResult_String (std::string(V)); }
+inline CommandResult *CRPTR (const char *V) { return new CommandResult_String (std::string(V)); }
 inline CommandResult *CRPTR (std::string& V) { return new CommandResult_String (V); }
 inline CommandResult *CRPTR (Function& V) { return new CommandResult_Function (V); }
 inline CommandResult *CRPTR (Statement& V) { return new CommandResult_Statement (V); }

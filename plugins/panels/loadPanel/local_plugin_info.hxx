@@ -17,18 +17,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  plugin_entry->grouping = "";
+  plugin_entry->grouping = (char *) "";
   plugin_entry->show_immediate = 0;
-  plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Load or Start executables or applications including starting\nMPI applications. This is a generic panel and is not\nlinked to a specific experiment in and of itself.";
-  plugin_entry->plugin_name =  "loadPanel.so";
-  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
-  plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "";  // Leaving this blank hides the menu entry.
-  plugin_entry->sub_menu_heading =  "";
-  plugin_entry->menu_label =  "loadPanel";
-  plugin_entry->menu_accel =  "";
-  plugin_entry->panel_type =  "loadPanel";
-  plugin_entry->preference_category =  "General";
-  plugin_entry->initialize_preferences_entry_point =  "initialize_preferences_entry_point";
-  plugin_entry->save_preferences_entry_point =  "save_preferences_entry_point";
+  plugin_entry->plugin_description = (char *) "PLUGIN_DESCRIPTION";
+  plugin_entry->plugin_short_description = (char *) "Load or Start executables or applications including starting\nMPI applications. This is a generic panel and is not\nlinked to a specific experiment in and of itself.";
+  plugin_entry->plugin_name = (char *) "loadPanel.so";
+  plugin_entry->plugin_location = (char *) "$OPENSS_PLUGIN_PATH";
+  plugin_entry->plugin_entry_point = (char *) "panel_init";
+  plugin_entry->menu_heading = (char *) "";  // Leaving this blank hides the menu entry.
+  plugin_entry->sub_menu_heading = (char *) "";
+  plugin_entry->menu_label = (char *) "loadPanel";
+  plugin_entry->menu_accel = (char *) "";
+  plugin_entry->panel_type = (char *) "loadPanel";
+  plugin_entry->preference_category = (char *) "General";
+  plugin_entry->initialize_preferences_entry_point = (char *) "initialize_preferences_entry_point";
+  plugin_entry->save_preferences_entry_point = (char *) "save_preferences_entry_point";

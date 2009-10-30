@@ -60,10 +60,10 @@ class ParseRange {
 
 //	/** Constructor. */
 	ParseRange(int64_t num);
-	ParseRange(char *);
-	ParseRange(char * name, int64_t num);
-	ParseRange(char * name1, char * name2);
-	ParseRange(int64_t num, char * name);
+	ParseRange(const char *);
+	ParseRange(const char * name, int64_t num);
+	ParseRange(const char * name1, const char * name2);
+	ParseRange(int64_t num, const char * name);
 	ParseRange(int64_t num1, int64_t num2);
 
 //	/** Destructor. */

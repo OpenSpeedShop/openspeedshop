@@ -1783,7 +1783,7 @@ printf("B: push_back a new vector list.. (%s-%s)\n", host_name.ascii(), pid_name
   QString name = QString("Stats Panel [%1]").arg(expID);
   Panel *sp = p->getPanelContainer()->findNamedPanel(p->getPanelContainer()->getMasterPC(), (char *)name.ascii() );
   if( !sp ) {
-    char *panel_type = "Stats Panel";
+    char *panel_type = (char *) "Stats Panel";
     PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
     sp = p->getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);

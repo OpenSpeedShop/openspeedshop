@@ -677,7 +677,7 @@ PanelContainer::dragRaisedPanel()
 
   Frame::dragging = TRUE;
 
-  DragNDropPanel::sourceDragNDropObject = new DragNDropPanel("OpenSpeedShop-Drag-N-Drop-Event", this, leftFrame);
+  DragNDropPanel::sourceDragNDropObject = new DragNDropPanel((char *) "OpenSpeedShop-Drag-N-Drop-Event", this, leftFrame);
   QDragObject *d = (QDragObject *)DragNDropPanel::sourceDragNDropObject;
 
   QPixmap drag_pm(drag_xpm);
@@ -1136,7 +1136,7 @@ PanelContainer::savePanelContainerTree(char *fn)
 {
   if( fn == NULL )
   {
-    fn = ".openss.geometry";
+    fn = (char *) ".openss.geometry";
   }
   FILE *fd = fopen(fn, "w");
   if( fd == NULL ) 

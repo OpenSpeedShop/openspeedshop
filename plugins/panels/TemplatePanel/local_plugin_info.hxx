@@ -18,18 +18,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  plugin_entry->grouping = "PLUGIN_GROUPING";
+  plugin_entry->grouping = (char *) "PLUGIN_GROUPING";
   plugin_entry->show_immediate = SHOW_IMMEDIATE;
-  plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "PLUGIN_SHORT_DESCRIPTION";
-  plugin_entry->plugin_name =  "TemplatePanel.so";
-  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
-  plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "MENU_HEADING";
-  plugin_entry->sub_menu_heading =  "SUB_MENU_HEADING";
-  plugin_entry->menu_label =  "MENU_LABEL";
-  plugin_entry->menu_accel =  "MENU_ACCEL";
-  plugin_entry->panel_type =  "MENU_LABEL";
-  plugin_entry->preference_category =  "MENU_LABEL";
-  plugin_entry->initialize_preferences_entry_point =  "initialize_preferences_entry_point";
-  plugin_entry->save_preferences_entry_point =  "save_preferences_entry_point";
+  plugin_entry->plugin_description = (char *) "PLUGIN_DESCRIPTION";
+  plugin_entry->plugin_short_description = (char *) "PLUGIN_SHORT_DESCRIPTION";
+  plugin_entry->plugin_name = (char *) "TemplatePanel.so";
+  plugin_entry->plugin_location = (char *) "$OPENSS_PLUGIN_PATH";
+  plugin_entry->plugin_entry_point = (char *) "panel_init";
+  plugin_entry->menu_heading = (char *) "MENU_HEADING";
+  plugin_entry->sub_menu_heading = (char *) "SUB_MENU_HEADING";
+  plugin_entry->menu_label = (char *) "MENU_LABEL";
+  plugin_entry->menu_accel = (char *) "MENU_ACCEL";
+  plugin_entry->panel_type = (char *) "MENU_LABEL";
+  plugin_entry->preference_category = (char *) "MENU_LABEL";
+  plugin_entry->initialize_preferences_entry_point = (char *) "initialize_preferences_entry_point";
+  plugin_entry->save_preferences_entry_point = (char *) "save_preferences_entry_point";

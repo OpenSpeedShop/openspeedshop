@@ -575,7 +575,7 @@ int ChartForm::mouseClicked(int item)
 }
 
 
-void ChartForm::setValues(ChartPercentValueList values, ChartTextValueList strings, char **color_names, int max_color_cnt)
+void ChartForm::setValues(ChartPercentValueList values, ChartTextValueList strings, const char **color_names, int max_color_cnt)
 {
 int i = 0;
 for ( i = 0; i < MAX_ELEMENTS; ++i )

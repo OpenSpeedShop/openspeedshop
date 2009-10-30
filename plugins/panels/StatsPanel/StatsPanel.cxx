@@ -91,7 +91,7 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 
 #if 1
 // These are the pie chart colors..
-static char *hotToCold_color_names[] = {
+static const char *hotToCold_color_names[] = {
   "red",
   "darkorange",
   "orange",
@@ -107,7 +107,7 @@ static char *hotToCold_color_names[] = {
   "skyblue",
   "lightblue",
 };
-static char *coldToHot_color_names[] = {
+static const char *coldToHot_color_names[] = {
   "lightblue",
   "skyblue",
   "steelblue",
@@ -124,7 +124,7 @@ static char *coldToHot_color_names[] = {
   "red",
 };
 #else
-static char *hotToCold_color_names[] = { 
+static const char *hotToCold_color_names[] = { 
   "red", 
   "magenta",
   "cyan",
@@ -140,7 +140,7 @@ static char *hotToCold_color_names[] = {
   "lightblue",
   "lightgreen",
 };
-static char *coldToHot_color_names[] = { 
+static const char *coldToHot_color_names[] = { 
   "lightgreen",
   "lightblue",
   "lightGray"
@@ -158,7 +158,7 @@ static char *coldToHot_color_names[] = {
 };
 #endif
 #define MAX_COLOR_CNT 14
-static char *blue_color_names[] = { 
+static const char *blue_color_names[] = { 
   "blue", 
   "blue", 
   "blue", 
@@ -3496,7 +3496,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
       Panel *sourcePanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
       if( !sourcePanel ) {
 
-        char *panel_type = "Source Panel";
+        char *panel_type = (char *) "Source Panel";
         PanelContainer *startPC = NULL;
 
         if( getPanelContainer()->parentPanelContainer != NULL ) {
@@ -5011,7 +5011,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
     Panel *sp = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
 
     if( !sp ) {
-      char *panel_type = "Stats Panel";
+      char *panel_type = (char *) "Stats Panel";
       ArgumentObject *ao = new ArgumentObject("ArgumentObject", exp_id);
       sp = getPanelContainer()->dl_create_and_add_panel(panel_type, getPanelContainer(), ao);
       // remember the collector we are dealing with for the new instantiation.
@@ -8242,7 +8242,7 @@ void
 StatsPanel::resetRedirect()
 {
 // Just make sure any pending output goes "somewhere".
-  Panel *cmdPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), "&Command Panel");
+  Panel *cmdPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *) "&Command Panel");
   if( cmdPanel )
   {
     MessageObject *msg = new MessageObject("Redirect_Window_Output()");

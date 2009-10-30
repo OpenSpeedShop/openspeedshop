@@ -241,7 +241,7 @@ pushParseTarget()
  *
  */
 static void 
-s_dumpInterval(ParseResult* p_result, vector<ParseInterval> *p_list, char *label)
+s_dumpInterval(ParseResult* p_result, vector<ParseInterval> *p_list, const char *label)
 {
     vector<ParseInterval>::iterator iter;
 
@@ -282,7 +282,7 @@ s_dumpInterval(ParseResult* p_result, vector<ParseInterval> *p_list, char *label
  *
  */
 static void 
-s_dumpParam(ParseParam *p_parm, char *label)
+s_dumpParam(ParseParam *p_parm, const char *label)
 {
     cout << "\t\t" << label << ": " << endl;
 
@@ -406,7 +406,7 @@ dumpError(CommandObject *cmd)
  *
  */
 static void 
-s_dumpRange(vector<ParseRange> *p_list, char *label, bool is_hex)
+s_dumpRange(vector<ParseRange> *p_list, const char *label, bool is_hex)
 {
     vector<ParseRange>::iterator iter;
 #if DEBUG_CLI
@@ -469,7 +469,7 @@ s_dumpRange(vector<ParseRange> *p_list, char *label, bool is_hex)
  *
  */
 static bool
-s_nocase_compare(char c1, char c2)
+s_nocase_compare(const char c1, const char c2)
 {
     return toupper(c1) == toupper(c2);
 }
@@ -807,7 +807,7 @@ dumpInfo()
  * @todo    Error handling.
  *
  */
-char * 
+const char * 
 ParseResult::
 getCommandname()
 {
@@ -886,7 +886,7 @@ getParam()
  */
 void
 ParseResult::
-setParam(char *etype, char * ptype)
+setParam(const char *etype, const char * ptype)
 {
     dm_param.setExpType(etype);
     dm_param.setParamType(ptype);
@@ -906,7 +906,7 @@ setParam(char *etype, char * ptype)
  */
 void
 ParseResult::
-pushParamVal(char * sval)
+pushParamVal(const char * sval)
 {
     dm_param.pushVal(sval);
     return ;
@@ -1069,7 +1069,7 @@ pushHelp()
  */
 void
 ParseResult::
-pushHelp(char *name)
+pushHelp(const char *name)
 {
     int len = strlen(name);
     char *tname = (char *)malloc(len +1);
@@ -1112,7 +1112,7 @@ pushHelp(char *name)
  */
 void
 ParseResult::
-pushHelpModifier(char *name)
+pushHelpModifier(const char *name)
 {
     
     dm_help_set = true;
@@ -1130,7 +1130,7 @@ pushHelpModifier(char *name)
  */
 void
 ParseResult::
-setError(char * name1, char * name2)
+setError(const char * name1, const char * name2)
 {
     ParseRange range(name1,name2);
 
@@ -1153,7 +1153,7 @@ setError(char * name1, char * name2)
  */
 void
 ParseResult::
-setError(char * name)
+setError(const char * name)
 {
     ParseRange range(name);
 
@@ -1271,7 +1271,7 @@ pushInterval(double begin, double end)
  */
 void
 ParseResult::
-setIntervalAttribute(char *attribute)
+setIntervalAttribute(const char *attribute)
 {
     dm_interval_attribute = attribute;
     dm_interval_attribute_set = true;
@@ -1312,7 +1312,7 @@ getIntervalAttribute()
  */
 void
 ParseResult::
-pushExpMetric(char * name1, char * name2)
+pushExpMetric(const char * name1, const char * name2)
 {
     ParseRange range(name1,name2);
 
@@ -1335,7 +1335,7 @@ pushExpMetric(char * name1, char * name2)
  */
 void
 ParseResult::
-pushExpMetric(char * name)
+pushExpMetric(const char * name)
 {
     ParseRange range(name);
 

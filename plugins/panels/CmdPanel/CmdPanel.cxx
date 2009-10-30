@@ -26,8 +26,8 @@
 
 #include "CPTextEdit.hxx"
 
-extern char *Current_OpenSpeedShop_Prompt;
-extern char *Alternate_Current_OpenSpeedShop_Prompt;
+extern const char *Current_OpenSpeedShop_Prompt;
+extern const char *Alternate_Current_OpenSpeedShop_Prompt;
 
 #include "SS_Input_Manager.hxx"
 

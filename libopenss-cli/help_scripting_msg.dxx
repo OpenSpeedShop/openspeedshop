@@ -26,7 +26,7 @@
 /*********************************************/
 // COMMAND ARGUMENTS
 /*********************************************/
-char *script_expAttach_args[] = {
+const char *script_expAttach_args[] = {
     "expAttach(*arglist)"
     "    arglist - up to 4 optional class objects:"
     "",
@@ -43,7 +43,7 @@ char *script_expAttach_args[] = {
 };
 
 
-char *script_expClose_args[] = {
+const char *script_expClose_args[] = {
     "expClose(*arglist)",
     "    arglist - up to 2 optional class objects:",
     "",
@@ -51,7 +51,7 @@ char *script_expClose_args[] = {
     "        * ExpId object or ModifierList object with \"all\""
 };
 
-char *script_expCont_args[] = {
+const char *script_expCont_args[] = {
     "expCont(*arglist)",
     " ",
     "    Parameters:",
@@ -61,7 +61,7 @@ char *script_expCont_args[] = {
     "            * ExpId"
 };
 
-char *script_expCreate_args[] = {
+const char *script_expCreate_args[] = {
     "ExpId = expCreate(arglist)",
     "    arglist - up to 3 optional class objects:",
     " ",
@@ -78,7 +78,7 @@ char *script_expCreate_args[] = {
 
 
 
-char *script_expDetach_args[] = {
+const char *script_expDetach_args[] = {
     "expDetach(*arglist)",
     " ",
     "    Parameters:",
@@ -94,7 +94,7 @@ char *script_expDetach_args[] = {
     "            * ExpTypeList"
 };
 
-char *script_expDisable_args[] = {
+const char *script_expDisable_args[] = {
     "expDisable(*arglist)",
     " ",
     "    Parameters:",
@@ -104,7 +104,7 @@ char *script_expDisable_args[] = {
     "            * ExpId"
 };
 
-char *script_expEnable_args[] = {
+const char *script_expEnable_args[] = {
     "expEnable(*arglist)",
     " ",
     "    Parameters:",
@@ -114,7 +114,7 @@ char *script_expEnable_args[] = {
     "            * ExpId"
 };
 
-char *script_expFocus_args[] = {
+const char *script_expFocus_args[] = {
     "<expId> = expFocus(*arglist)",
     " ",
     "    Parameters:",
@@ -123,7 +123,7 @@ char *script_expFocus_args[] = {
     "            * ExpId"
 };
 
-char *script_expGo_args[] = {
+const char *script_expGo_args[] = {
     "expGo(*arglist)",
     " ",
     "    Parameters:",
@@ -133,7 +133,7 @@ char *script_expGo_args[] = {
     "            * ExpId"
 };
 
-char *script_expPause_args[] = {
+const char *script_expPause_args[] = {
     "expPause(*arglist)",
     " ",
     "    Parameters:",
@@ -143,7 +143,7 @@ char *script_expPause_args[] = {
     "            * ExpId"
 };
 
-char *script_expRestore_args[] = {
+const char *script_expRestore_args[] = {
     "<expId> = expRestore(*arglist)",
     " ",
     "    Parameters:",
@@ -152,7 +152,7 @@ char *script_expRestore_args[] = {
     "            * FileList"
 };
 
-char *script_expSave_args[] = {
+const char *script_expSave_args[] = {
     "expSave(*arglist)",
     " ",
     "    Parameters:",
@@ -163,7 +163,7 @@ char *script_expSave_args[] = {
     "            * FileList (required)"
 };
 
-char *script_expSetArgs_args[] = {
+const char *script_expSetArgs_args[] = {
     "expSetArgs(*arglist)",
     " ",
     "    Parameters:",
@@ -173,7 +173,7 @@ char *script_expSetArgs_args[] = {
     "            * Arguments (required)",
 };
 
-char *script_expSetParam_args[] = {
+const char *script_expSetParam_args[] = {
     "expSetParam(*arglist)",
     " ",
     "    Parameters:",
@@ -183,7 +183,7 @@ char *script_expSetParam_args[] = {
     "            * ParamList (required)",
 };
 
-char *script_expView_args[] = {
+const char *script_expView_args[] = {
     "expView(*arglist)",
     " ",
     "    Parameters:",
@@ -201,7 +201,7 @@ char *script_expView_args[] = {
     "                  o RankList"
 };
 
-char *script_list_args[] = {
+const char *script_list_args[] = {
     "<ListObject> = expView(*arglist)",
     "",
     "	The type of list returned and the specific",
@@ -210,19 +210,19 @@ char *script_list_args[] = {
     "	use help(openss.list)."
 };
 
-char *script_clearBreak_args[] = {
+const char *script_clearBreak_args[] = {
     "clearBreak <breakId>",
     "NOT SUPPORTED YET"
 };
 
-char *script_exit_args[] = {
+const char *script_exit_args[] = {
     "exit",
     "",
     "    Parameters: None"
 
 };
 
-char *script_setBreak_args[] = {
+const char *script_setBreak_args[] = {
     " <breakId> = setBreak [ ExpId ] [ <target> ] <address_description>",
     "NOT SUPPORTED YET"
 };

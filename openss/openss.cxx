@@ -207,7 +207,7 @@ s_recall_openss(int argc, char* argv[], string& new_cmdline)
 	    	args[i] = argv[i];
 	    }
 	    // Add our sentinel flag
-	    args[i++] = RE_EXEC_FLAG;
+	    args[i++] = (char *) RE_EXEC_FLAG;
 	    args[i] = NULL;
 	    
 	    // Execute the commandline again

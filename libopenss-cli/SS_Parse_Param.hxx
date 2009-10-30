@@ -48,7 +48,7 @@ class ParamVal {
     public:
 
 //	/** Constructor. */
-	ParamVal(char * name);
+	ParamVal(const char * name);
 	ParamVal(int64_t ival);
 	ParamVal(double dval);
 
@@ -84,16 +84,16 @@ class ParseParam {
 
 //	/** Constructors. */
 	ParseParam();
-	ParseParam(char *s1,char *s2);
+	ParseParam(const char *s1,const char *s2);
 
 //	/** Destructor. */
 //	~ParseRange();
 
-    	void setExpType(char * name) {
-	    dm_exptype = name;
+    	void setExpType(const char * name) {
+	    dm_exptype = (char *) name;
 	}
-    	void setParamType(char * name) {
-	    dm_param_type = name;
+    	void setParamType(const char * name) {
+	    dm_param_type = (char *) name;
 	}
     	char *getExpType() {return dm_exptype;}
     	char *getParamType() {return dm_param_type;}
@@ -104,7 +104,7 @@ class ParseParam {
 	    return &dm_param_val_list;
 	}
 
-    	void pushVal(char * sval) {
+    	void pushVal(const char * sval) {
 	    ParamVal value(sval);
     	    dm_param_val_list.push_back(value);
 	}

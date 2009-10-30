@@ -27,51 +27,51 @@
 // GRAMMAR Related topics
 /*********************************************/
 
-char *gram_expId_related[] = {
+const char *gram_expId_related[] = {
     "listExp",
     "expCreate",
     "expFocus",
     "expRestore"
 };
 
-char *gram_expMetric_related[] = {
+const char *gram_expMetric_related[] = {
 //    ""
 };
 
-char *gram_metric_name_related[] = {
+const char *gram_metric_name_related[] = {
 //    ""
 };
 
-char *gram_expParamValue_related[] = {
+const char *gram_expParamValue_related[] = {
 //    ""
 };
 
-char *gram_expParam_related[] = {
+const char *gram_expParam_related[] = {
 //    ""
 };
 
-char *gram_param_name_related[] = {
+const char *gram_param_name_related[] = {
 //    ""
 };
 
-char *gram_expType_related[] = {
+const char *gram_expType_related[] = {
     "expList"
 };
 
-char *gram_statusType_related[] = {
+const char *gram_statusType_related[] = {
     "expStatus"
 };
 
-char *gram_list_related[] = {
+const char *gram_list_related[] = {
     "<target>",
     "<range>"
 };
 
-char *gram_range_related[] = {
+const char *gram_range_related[] = {
     "<list>"
 };
 
-char *gram_target_related[] = {
+const char *gram_target_related[] = {
     "<list>",
     "<range>",
     "<file_name>",
@@ -82,149 +82,149 @@ char *gram_target_related[] = {
     ""
 };
 
-char *gram_hwc_related[] = {
+const char *gram_hwc_related[] = {
     "<hwc_events>"
 };
 
 /*********************************************/
 // GRAMMAR ARGUMENTS
 /*********************************************/
-char *gram_address_description_arg = {
+const char *gram_address_description_arg = {
     "<address_description> ::= <int> || <string>"
 };
-char *gram_breakId_arg = {
+const char *gram_breakId_arg = {
     "<breakId> ::= <int>"
 };
-char *gram_expId_arg = {
+const char *gram_expId_arg = {
     "<expId> ::= <int>"
 };
-char *gram_expId_spec_arg = {
+const char *gram_expId_spec_arg = {
     "<expId_spec> ::= -x <expId>"
 };
-char *gram_expMetric_list_spec_arg = {
+const char *gram_expMetric_list_spec_arg = {
     "<expMetric_list_spec> ::= -m <expMetric> [ , <expMetric> ]*"
 };
-char *gram_expMetric_arg = {
+const char *gram_expMetric_arg = {
     "<expMetric> ::= [<expType>::]<metric_name>"
 };
-char *gram_metric_name_arg = {
+const char *gram_metric_name_arg = {
     "<metric_name> ::= <string>"
 };
-char *gram_expParamValue_arg = {
+const char *gram_expParamValue_arg = {
     "<expParamValue> ::= [ <int> || <float> || <string> || \"<string>\"]"
 };
-char *gram_expParam_arg = {
+const char *gram_expParam_arg = {
     "<expParam> ::= [<expType>::]<param_name>"
 };
-char *gram_param_name_arg = {
+const char *gram_param_name_arg = {
     "<param_name> ::=  <string> "
 };
-char *gram_expType_list_arg = {
+const char *gram_expType_list_arg = {
     "<expType_list> ::= <expType> [ , <expType> ]*"
 };
-char *gram_expType_arg = {
+const char *gram_expType_arg = {
     "<expType> ::= [ <predefined_exp> || <user_defined_exp> ]"
 };
-char *gram_listType_arg = {
+const char *gram_listType_arg = {
     "<listType> ::= <string>"
 };
-char *gram_user_defined_exp_arg = {
+const char *gram_user_defined_exp_arg = {
     "<user_defined_exp> ::= <file_name>"
 };
-char *gram_predefined_exp_arg = {
+const char *gram_predefined_exp_arg = {
     "<predefined_exp> ::= { pcsamp || usertime || mpi || fpe || hwc || io || iot || mpit || mpiotf || <string> }"
 };
 
 //  RANK
-char *gram_rank_list_spec_arg = {
+const char *gram_rank_list_spec_arg = {
     "<rank_list_spec> ::= -r <rank_list>"
 };
-char *gram_rank_list_arg = {
+const char *gram_rank_list_arg = {
     "<rank_list> ::= <rank_range> [ , <rank_range> ]*"
 };
-char *gram_rank_range_arg = {
+const char *gram_rank_range_arg = {
     "<rank_range> ::= <rank_name> [ : <rank_name> ]"
 };
-char *gram_rankname_arg = {
+const char *gram_rankname_arg = {
     "<rank_name> ::= <int>"
 };
 
 //  THREAD
-char *gram_threadname_arg = {
+const char *gram_threadname_arg = {
     "<thread_name> ::= <int>"
 };
-char *gram_thread_range_arg = {
+const char *gram_thread_range_arg = {
     "<thread_range> ::= <thread_name> [ : <thread_name> ]"
 };
-char *gram_thread_list_arg = {
+const char *gram_thread_list_arg = {
     "<thread_list> ::= <thread_range> [ , <thread_range> ]*"
 };
-char *gram_thread_list_spec_arg = {
+const char *gram_thread_list_spec_arg = {
     "<thread_list_spec> ::= -t <thread_list>"
 };
 
 //  PID
-char *gram_pidname_arg = {
+const char *gram_pidname_arg = {
     "<pid_name> ::= <int>"
 };
-char *gram_pid_range_arg = {
+const char *gram_pid_range_arg = {
     "<pid_range> ::= <pid_name> [ : <pid_name> ]"
 };
-char *gram_pid_list_arg = {
+const char *gram_pid_list_arg = {
     "<pid_list> ::= <pid_range> [ , <pid_range> ]*"
 };
-char *gram_pid_list_spec_arg = {
+const char *gram_pid_list_spec_arg = {
     "<pid_list_spec> ::= -p <pid_list>"
 };
 
 //  FILE
-char *gram_filename_arg = {
+const char *gram_filename_arg = {
     "<file_name> ::= <string> || \"<string>\""
 };
-char *gram_file_list_arg = {
+const char *gram_file_list_arg = {
     "<file_list> ::= <file_name> [ , <file_name> ]*"
 };
-char *gram_file_list_spec_arg = {
+const char *gram_file_list_spec_arg = {
     "<file_list_spec> ::= -f <file_list>"
 };
 
 //  HOST
-char *gram_IP_Address_arg = {
+const char *gram_IP_Address_arg = {
     "<IP_Address> ::= <int>.<int>.<int>.<int>"
 };
-char *gram_hostname_arg = {
+const char *gram_hostname_arg = {
     "<host_name> ::= <string> || <IP_Address>"
 };
-char *gram_host_list_arg = {
+const char *gram_host_list_arg = {
     "<host_list> ::= <host_name> [ , <host_name> ]*"
 };
-char *gram_host_list_spec_arg = {
+const char *gram_host_list_spec_arg = {
     "<host_list_spec> ::= -h <host_list>"
 };
 
 //  CLUSTER
-char *gram_clustername_arg = {
+const char *gram_clustername_arg = {
     "<cluster_name> ::= <string> || \"<string>\""
 };
-char *gram_cluster_list_arg = {
+const char *gram_cluster_list_arg = {
     "<cluster_list> ::= <cluster_name> [ , <cluster_name> ]*"
 };
-char *gram_cluster_list_spec_arg = {
+const char *gram_cluster_list_spec_arg = {
     "<cluster_list_spec> ::= -c <cluster_list>"
 };
 
 //  LIST (generic)
-char *gram_list_arg = {
+const char *gram_list_arg = {
     "<list> ::= <list element> [ , <list element> ]*"
 };
 
 //  RANGE (generic)
-char *gram_range_arg = {
+const char *gram_range_arg = {
     "<range> ::= <range element> [ : <range element> ]"
 };
 
 //  TARGET
-char *gram_target_arg = {
+const char *gram_target_arg = {
     "<target> ::= \n\t"
     "[ -c <cluster_name> [ , <cluster_name> ]*> ]\n\t"
     "[ -h <host_name>   [ , <host_name> ]* ]\n\t"
@@ -233,66 +233,66 @@ char *gram_target_arg = {
     "[ -t <thread_name> [ , <thread_name> ]* ]\n\t"
     "[ -r <rank_name>   [ , <rank_name>]* ]"
 };
-char *gram_target_list_arg = {
+const char *gram_target_list_arg = {
     "<target_list> ::= <target> [ ; <target> ]*"
 };
 
-char *gram_file_spec_arg = {
+const char *gram_file_spec_arg = {
     "<file_spec> ::= -f <file_name>"
 };
-char *gram_host_spec_arg = {
+const char *gram_host_spec_arg = {
     "<host_spec> ::= -h <host_name>"
 };
-char *gram_host_file_arg = {
+const char *gram_host_file_arg = {
     "<host_file> ::= [ <host_spec> ] -f <file_name>"
 };
 
 //  LINENUMBER
-char *gram_lineno_range_arg = {
+const char *gram_lineno_range_arg = {
     "<lineno_range> ::= <lineno> [ : <lineno> ]"
 };
-char *gram_linenumber_range_spec_arg = {
+const char *gram_linenumber_range_spec_arg = {
     "<linenumber_range_spec> ::= -l <lineno_range>"
 };
-char *gram_linenumber_list_spec_arg = {
+const char *gram_linenumber_list_spec_arg = {
     "<linenumber_list_spec> ::= -l <lineno_range> [, <lineno_range> ]*"
 };
 
-char *gram_statusType_arg = {
+const char *gram_statusType_arg = {
     "<statusType> ::= { NonExistent || Paused || Running || Terminated || Error }"
 };
-char *gram_viewType_arg = {
+const char *gram_viewType_arg = {
     "<viewType> ::= <string>"
 };
 
-char *gram_pcsamp_arg = {
+const char *gram_pcsamp_arg = {
     ""
 };
-char *gram_usertime_arg = {
+const char *gram_usertime_arg = {
     ""
 };
-char *gram_mpi_arg = {
+const char *gram_mpi_arg = {
     ""
 };
-char *gram_fpe_arg = {
+const char *gram_fpe_arg = {
     ""
 };
-char *gram_hwc_arg = {
+const char *gram_hwc_arg = {
     ""
 };
-char *gram_io_arg = {
-    ""
-};
-
-char *gram_iot_arg = {
+const char *gram_io_arg = {
     ""
 };
 
-char *gram_mpit_arg = {
+const char *gram_iot_arg = {
     ""
 };
 
-char *gram_mpiotf_arg = {
+const char *gram_mpit_arg = {
+    ""
+};
+
+const char *gram_mpiotf_arg = {
     ""
 };
 
@@ -303,185 +303,185 @@ char *gram_mpiotf_arg = {
 /*********************************************/
 // BRIEF GRAMMAR MESSAGES
 /*********************************************/
-char *gram_address_description_brief = {
+const char *gram_address_description_brief = {
     "An absolute or relative address."
 };
-char *gram_breakId_brief = {
+const char *gram_breakId_brief = {
     "A breakpoint identifier."
 };
-char *gram_expId_brief = {
+const char *gram_expId_brief = {
     "an experiment identifier."
 };
-char *gram_expId_spec_brief = {
+const char *gram_expId_spec_brief = {
     "an experiment identifier."
 };
-char *gram_expMetric_brief = {
+const char *gram_expMetric_brief = {
     "A result that an experiment can return. \nIt could be a full report, a value or a set of values."
 };
-char *gram_expMetric_list_spec_brief = {
+const char *gram_expMetric_list_spec_brief = {
     "A result that an experiment can return. \nIt could be a full report, a value or a set of values."
 };
-char *gram_metric_name_brief = {
+const char *gram_metric_name_brief = {
     "Symbolic name representing desired metric."
 };
-char *gram_param_name_brief = {
+const char *gram_param_name_brief = {
     "Symbolic name representing parameter desired."
 };
-char *gram_expParam_brief = {
+const char *gram_expParam_brief = {
     "The experiment parameters correspond to items in the experiment \nclass that can be changed by the user or a tool component."
 };
-char *gram_expParamValue_brief = {
+const char *gram_expParamValue_brief = {
     "Value to assinge to parameter."
 };
-char *gram_predefined_exp_brief = {
+const char *gram_predefined_exp_brief = {
     "Built in experiments type."
 };
-char *gram_user_defined_exp_brief = {
+const char *gram_user_defined_exp_brief = {
     "User defined experiment type."
 };
-char *gram_listType_brief = {
+const char *gram_listType_brief = {
     "The modifier for the list command that determins the \n"
     "type of listing."
 };
-char *gram_expType_brief = {
+const char *gram_expType_brief = {
     "The experiment type designator. "
 };
-char *gram_expType_list_brief = {
+const char *gram_expType_list_brief = {
     "List of experiment types."
 };
-char *gram_rankname_brief = {
+const char *gram_rankname_brief = {
     "A symbolic or numeric representation of a rank id."
 };
-char *gram_rank_range_brief = {
+const char *gram_rank_range_brief = {
     "A single rankname or colon seperated pair of ranknames\n"
     "representing a numeric range."
 };
-char *gram_rank_list_brief = {
+const char *gram_rank_list_brief = {
     "A single rankname or a comma delineated list of ranknames."
 };
-char *gram_rank_list_spec_brief = {
+const char *gram_rank_list_spec_brief = {
     "-r followed by a rank_list."
 };
-char *gram_threadname_brief = {
+const char *gram_threadname_brief = {
     "A symbolic or numeric representation of a thread id."
 };
-char *gram_thread_range_brief = {
+const char *gram_thread_range_brief = {
     "A single threadname or colon seperated pair of threadnames\n"
     "representing a numeric range."
 };
-char *gram_thread_list_brief = {
+const char *gram_thread_list_brief = {
     "A single threadname or a comma delineated list of threadnames."
 };
-char *gram_thread_list_spec_brief = {
+const char *gram_thread_list_spec_brief = {
     "-t followed by a thread_list."
 };
-char *gram_pidname_brief = {
+const char *gram_pidname_brief = {
     "A symbolic or numeric representation of a process id."
 };
-char *gram_pid_range_brief = {
+const char *gram_pid_range_brief = {
     "A single pidname or colon seperated pair of pidnames\n"
     "representing a numeric range."
 };
-char *gram_pid_list_brief = {
+const char *gram_pid_list_brief = {
     "A single pidname or a comma delineated list of pidnames."
 };
-char *gram_pid_list_spec_brief = {
+const char *gram_pid_list_spec_brief = {
     "-p followed by a pid_list."
 };
-char *gram_filename_brief = {
+const char *gram_filename_brief = {
     "A String representation of a file name."
 };
-char *gram_file_list_brief = {
+const char *gram_file_list_brief = {
     "A single file name or a comma delineated list of file names."
 };
-char *gram_file_list_spec_brief = {
+const char *gram_file_list_spec_brief = {
     "-f followed by a file_list."
 };
-char *gram_IP_Address_brief = {
+const char *gram_IP_Address_brief = {
     "A set of 4 dot delineated octal digits representing an IP address."
 };
-char *gram_hostname_brief = {
+const char *gram_hostname_brief = {
     "A String or IP_Address representation of a host."
 };
-char *gram_host_list_brief = {
+const char *gram_host_list_brief = {
     "A single hostname or a comma delineated list of hostnames."
 };
-char *gram_host_list_spec_brief = {
+const char *gram_host_list_spec_brief = {
     "-h followed by a host_list."
 };
-char *gram_clustername_brief = {
+const char *gram_clustername_brief = {
     "A String representation of a cluster name."
 };
-char *gram_cluster_list_brief = {
+const char *gram_cluster_list_brief = {
     "A single cluster name or a comma delineated list of cluster names."
 };
-char *gram_cluster_list_spec_brief = {
+const char *gram_cluster_list_spec_brief = {
     "-c followed by a cluster_list."
 };
-char *gram_list_brief = {
+const char *gram_list_brief = {
     "Comma delimited list of elements."
 };
-char *gram_range_brief = {
+const char *gram_range_brief = {
     "Semicolon delimited range of values."
 };
-char *gram_target_brief = {
+const char *gram_target_brief = {
     "Represents the host file and machine along with \n"
     "a specific process, thread, or rank identifier."
 };
-char *gram_target_list_brief = {
+const char *gram_target_list_brief = {
     "A single target or a semicolon delineated list of targets."
 };
-char *gram_file_spec_brief = {
+const char *gram_file_spec_brief = {
     "-f followed by a single filename."
 };
-char *gram_host_spec_brief = {
+const char *gram_host_spec_brief = {
     "-f followed by a single hostname."
 };
-char *gram_host_file_brief = {
+const char *gram_host_file_brief = {
     "."
 };
-char *gram_lineno_range_brief = {
+const char *gram_lineno_range_brief = {
     "A single line number or a comma delineated pair of \n"
     "line numbers representing contiguous range."
 };
-char *gram_linenumber_range_spec_brief = {
+const char *gram_linenumber_range_spec_brief = {
     "-l followed by a linenumber_range."
 };
-char *gram_linenumber_list_spec_brief = {
+const char *gram_linenumber_list_spec_brief = {
     "-l followed by a linenumber_list."
 };
-char *gram_statusType_brief = {
+const char *gram_statusType_brief = {
     "Current status of a given experiment as a predefined string."
 };
-char *gram_viewType_brief = {
+const char *gram_viewType_brief = {
     "The format of the output display for this experiment."
 };
 
-char *gram_pcsamp_brief = {
+const char *gram_pcsamp_brief = {
     "PC (Program Counter) sampling."
 };
-char *gram_usertime_brief = {
+const char *gram_usertime_brief = {
     "Usertime call stack profiling."
 };
-char *gram_mpi_brief = {
+const char *gram_mpi_brief = {
     "MPI call tracing."
 };
-char *gram_fpe_brief = {
+const char *gram_fpe_brief = {
     "Floating point profiling ."
 };
-char *gram_hwc_brief = {
+const char *gram_hwc_brief = {
     "Hardware counter experiment."
 };
-char *gram_io_brief = {
+const char *gram_io_brief = {
     "I/O (Input/Output) trace experiment."
 };
-char *gram_iot_brief = {
+const char *gram_iot_brief = {
     "I/O (Input/Output) extra info trace experiment."
 };
-char *gram_mpit_brief = {
+const char *gram_mpit_brief = {
     "MPI call tracing with extra info."
 };
-char *gram_mpiotf_brief = {
+const char *gram_mpiotf_brief = {
     "MPI call tracing through vampirtrace producing OTF (Open Trace Format) files."
 };
 
@@ -493,7 +493,7 @@ char *gram_mpiotf_brief = {
 /*********************************************/
 // DETAILED GRAMMAR MESSAGES
 /*********************************************/
-char *address_description[] = {
+const char *address_description[] = {
     gram_address_description_arg,
     " ",
     gram_address_description_brief,
@@ -503,7 +503,7 @@ char *address_description[] = {
     "available to resolve to a number",
     " "
 };
-char *gram_breakId_detailed[] = {
+const char *gram_breakId_detailed[] = {
     gram_breakId_arg,
     " ",
     gram_breakId_brief,
@@ -511,7 +511,7 @@ char *gram_breakId_detailed[] = {
     "The break identifier is SpeedShop generated",
     " "
 };
-char *gram_expId_detailed[] = {
+const char *gram_expId_detailed[] = {
     gram_expId_arg,
     " ",
     gram_expId_brief,
@@ -519,7 +519,7 @@ char *gram_expId_detailed[] = {
     "The experiment identifier is SpeedShop generated",
     " "
 };
-char *gram_expId_spec_detailed[] = {
+const char *gram_expId_spec_detailed[] = {
     gram_expId_spec_arg,
     " ",
     gram_expId_brief,
@@ -527,21 +527,21 @@ char *gram_expId_spec_detailed[] = {
     "The experiment identifier is SpeedShop generated",
     " "
 };
-char *gram_metric_name_detailed[] = {
+const char *gram_metric_name_detailed[] = {
     gram_metric_name_arg,
     " ",
     gram_metric_name_brief,
     " ",
     " "
 };
-char *gram_expMetric_detailed[] = {
+const char *gram_expMetric_detailed[] = {
     gram_expMetric_arg,
     " ",
     gram_expMetric_brief,
     " ",
     " "
 };
-char *gram_expMetric_list_spec_detailed[] = {
+const char *gram_expMetric_list_spec_detailed[] = {
     gram_expMetric_list_spec_arg,
     " ",
     gram_expMetric_list_spec_brief,
@@ -551,7 +551,7 @@ char *gram_expMetric_list_spec_detailed[] = {
     "You can then get more detailed information on each of the",
     "metric types listed through the \"help\" facility."
 };
-char *gram_param_name_detailed[] = {
+const char *gram_param_name_detailed[] = {
     gram_param_name_arg,
     " ",
     gram_param_name_brief,
@@ -561,7 +561,7 @@ char *gram_param_name_detailed[] = {
     "You can then get more detailed information on each of the",
     "parameter types listed through the \"help\" facility."
 };
-char *gram_expParam_detailed[] = {
+const char *gram_expParam_detailed[] = {
     gram_expParam_arg,
     " ",
     gram_expParam_brief,
@@ -573,28 +573,28 @@ char *gram_expParam_detailed[] = {
     "  of the collector name, for that experiment ",
     " "
 };
-char *gram_expParamValue_detailed[] = {
+const char *gram_expParamValue_detailed[] = {
     gram_expParamValue_arg,
     " ",
     gram_expParamValue_brief,
     " ",
     " "
 };
-char *gram_predefined_exp_detailed[] = {
+const char *gram_predefined_exp_detailed[] = {
     gram_predefined_exp_arg,
     " ",
     gram_predefined_exp_brief,
     " ",
     " "
 };
-char *gram_user_defined_exp_detailed[] = {
+const char *gram_user_defined_exp_detailed[] = {
     gram_user_defined_exp_arg,
     " ",
     gram_user_defined_exp_brief,
     " ",
     " "
 };
-char *gram_expType_detailed[] = {
+const char *gram_expType_detailed[] = {
     gram_expType_arg,
     " ",
     gram_expType_brief,
@@ -609,7 +609,7 @@ char *gram_expType_detailed[] = {
     " ",
     " "
 };
-char *gram_listType_detailed[] = {
+const char *gram_listType_detailed[] = {
     gram_listType_arg,
     " ",
     gram_listType_brief,
@@ -631,21 +631,21 @@ char *gram_listType_detailed[] = {
     "views    -> List the reports that can be produced by an experiment.",
     " "
 };
-char *gram_expType_list_detailed[] = {
+const char *gram_expType_list_detailed[] = {
     gram_expType_list_arg,
     " ",
     gram_expType_list_brief,
     " ",
     " "
 };
-char *gram_rankname_detailed[] = {
+const char *gram_rankname_detailed[] = {
     gram_rankname_arg,
     " ",
     gram_rankname_brief,
     " ",
     " "
 };
-char *gram_rank_range_detailed[] = {
+const char *gram_rank_range_detailed[] = {
     gram_rank_range_arg,
     gram_rankname_arg,
     " ",
@@ -653,7 +653,7 @@ char *gram_rank_range_detailed[] = {
     " ",
     " "
 };
-char *gram_rank_list_detailed[] = {
+const char *gram_rank_list_detailed[] = {
     gram_rank_list_arg,
     gram_rank_range_arg,
     gram_rankname_arg,
@@ -662,7 +662,7 @@ char *gram_rank_list_detailed[] = {
     " ",
     " "
 };
-char *gram_rank_list_spec_detailed[] = {
+const char *gram_rank_list_spec_detailed[] = {
     gram_rank_list_spec_arg,
     gram_rank_list_arg,
     gram_rank_range_arg,
@@ -672,14 +672,14 @@ char *gram_rank_list_spec_detailed[] = {
     " ",
     " "
 };
-char *gram_threadname_detailed[] = {
+const char *gram_threadname_detailed[] = {
     gram_threadname_arg,
     " ",
     gram_threadname_brief,
     " ",
     " "
 };
-char *gram_thread_range_detailed[] = {
+const char *gram_thread_range_detailed[] = {
     gram_thread_range_arg,
     gram_threadname_arg,
     " ",
@@ -687,7 +687,7 @@ char *gram_thread_range_detailed[] = {
     " ",
     " "
 };
-char *gram_thread_list_detailed[] = {
+const char *gram_thread_list_detailed[] = {
     gram_thread_list_arg,
     gram_thread_range_arg,
     gram_threadname_arg,
@@ -696,7 +696,7 @@ char *gram_thread_list_detailed[] = {
     " ",
     " "
 };
-char *gram_thread_list_spec_detailed[] = {
+const char *gram_thread_list_spec_detailed[] = {
     gram_thread_list_spec_arg,
     gram_thread_list_arg,
     gram_thread_range_arg,
@@ -706,14 +706,14 @@ char *gram_thread_list_spec_detailed[] = {
     " ",
     " "
 };
-char *gram_pidname_detailed[] = {
+const char *gram_pidname_detailed[] = {
     gram_pidname_arg,
     " ",
     gram_pidname_brief,
     " ",
     " "
 };
-char *gram_pid_range_detailed[] = {
+const char *gram_pid_range_detailed[] = {
     gram_pid_range_arg,
     gram_pidname_arg,
     " ",
@@ -721,7 +721,7 @@ char *gram_pid_range_detailed[] = {
     " ",
     " "
 };
-char *gram_pid_list_detailed[] = {
+const char *gram_pid_list_detailed[] = {
     gram_pid_list_arg,
     gram_pid_range_arg,
     gram_pidname_arg,
@@ -730,7 +730,7 @@ char *gram_pid_list_detailed[] = {
     " ",
     " "
 };
-char *gram_pid_list_spec_detailed[] = {
+const char *gram_pid_list_spec_detailed[] = {
     gram_pid_list_spec_arg,
     gram_pid_list_arg,
     gram_pid_range_arg,
@@ -740,14 +740,14 @@ char *gram_pid_list_spec_detailed[] = {
     " ",
     " "
 };
-char *gram_filename_detailed[] = {
+const char *gram_filename_detailed[] = {
     gram_filename_arg,
     " ",
     gram_filename_brief,
     " ",
     " "
 };
-char *gram_file_list_detailed[] = {
+const char *gram_file_list_detailed[] = {
     gram_file_list_arg,
     gram_filename_arg,
     " ",
@@ -755,7 +755,7 @@ char *gram_file_list_detailed[] = {
     " ",
     " "
 };
-char *gram_file_spec_detailed[] = {
+const char *gram_file_spec_detailed[] = {
     gram_file_spec_arg,
     gram_filename_arg,
     " ",
@@ -763,7 +763,7 @@ char *gram_file_spec_detailed[] = {
     " ",
     " "
 };
-char *gram_file_list_spec_detailed[] = {
+const char *gram_file_list_spec_detailed[] = {
     gram_file_list_spec_arg,
     gram_file_list_arg,
     gram_filename_arg,
@@ -772,14 +772,14 @@ char *gram_file_list_spec_detailed[] = {
     " ",
     " "
 };
-char *gram_IP_Address_detailed[] = {
+const char *gram_IP_Address_detailed[] = {
     gram_IP_Address_arg,
     " ",
     gram_IP_Address_brief,
     " ",
     " "
 };
-char *gram_hostname_detailed[] = {
+const char *gram_hostname_detailed[] = {
     gram_hostname_arg,
     gram_IP_Address_arg,
     " ",
@@ -787,7 +787,7 @@ char *gram_hostname_detailed[] = {
     " ",
     " "
 };
-char *gram_host_list_detailed[] = {
+const char *gram_host_list_detailed[] = {
     gram_host_list_arg,
     gram_hostname_arg,
     gram_IP_Address_arg,
@@ -796,7 +796,7 @@ char *gram_host_list_detailed[] = {
     " ",
     " "
 };
-char *gram_host_list_spec_detailed[] = {
+const char *gram_host_list_spec_detailed[] = {
     gram_host_list_spec_arg,
     gram_host_list_arg,
     gram_hostname_arg,
@@ -806,14 +806,14 @@ char *gram_host_list_spec_detailed[] = {
     " ",
     " "
 };
-char *gram_clustername_detailed[] = {
+const char *gram_clustername_detailed[] = {
     gram_clustername_arg,
     " ",
     gram_clustername_brief,
     " ",
     " "
 };
-char *gram_cluster_list_detailed[] = {
+const char *gram_cluster_list_detailed[] = {
     gram_cluster_list_arg,
     gram_clustername_arg,
     " ",
@@ -821,7 +821,7 @@ char *gram_cluster_list_detailed[] = {
     " ",
     " "
 };
-char *gram_cluster_list_spec_detailed[] = {
+const char *gram_cluster_list_spec_detailed[] = {
     gram_cluster_list_spec_arg,
     gram_cluster_list_arg,
     gram_clustername_arg,
@@ -830,7 +830,7 @@ char *gram_cluster_list_spec_detailed[] = {
     " "
 };
 
-char *gram_list_detailed[] = {
+const char *gram_list_detailed[] = {
     gram_list_arg,
     " ",
     gram_list_brief,
@@ -844,7 +844,7 @@ char *gram_list_detailed[] = {
     " "
 };
 
-char *gram_range_detailed[] = {
+const char *gram_range_detailed[] = {
     gram_range_arg,
     " ",
     gram_range_brief,
@@ -860,7 +860,7 @@ char *gram_range_detailed[] = {
     " "
 };
 
-char *gram_target_detailed[] = {
+const char *gram_target_detailed[] = {
     gram_target_arg,
     " ",
     gram_target_brief,
@@ -882,14 +882,14 @@ char *gram_target_detailed[] = {
     "\t-h host1,host5",
     " "
 };
-char *gram_target_list_detailed[] = {
+const char *gram_target_list_detailed[] = {
     gram_target_list_arg,
     gram_target_arg,
     " ",
     gram_target_list_brief,
     " "
 };
-char *gram_host_spec_detailed[] = {
+const char *gram_host_spec_detailed[] = {
     gram_host_spec_arg,
     gram_hostname_arg,
     gram_IP_Address_arg,
@@ -898,7 +898,7 @@ char *gram_host_spec_detailed[] = {
     " ",
     " "
 };
-char *gram_host_file_detailed[] = {
+const char *gram_host_file_detailed[] = {
     gram_host_file_arg,
     gram_host_spec_arg,
     gram_file_spec_arg,
@@ -907,21 +907,21 @@ char *gram_host_file_detailed[] = {
     " ",
     " "
 };
-char *gram_lineno_range_detailed[] = {
+const char *gram_lineno_range_detailed[] = {
     gram_lineno_range_arg,
     " ",
     gram_lineno_range_brief,
     " ",
     " "
 };
-char *gram_linenumber_range_spec_detailed[] = {
+const char *gram_linenumber_range_spec_detailed[] = {
     gram_linenumber_range_spec_arg,
     " ",
     gram_linenumber_range_spec_brief,
     " ",
     " "
 };
-char *gram_linenumber_list_spec_detailed[] = {
+const char *gram_linenumber_list_spec_detailed[] = {
     gram_linenumber_list_spec_arg,
     gram_linenumber_range_spec_arg,
     gram_lineno_range_arg,
@@ -930,7 +930,7 @@ char *gram_linenumber_list_spec_detailed[] = {
     " ",
     " "
 };
-char *gram_statusType_detailed[] = {
+const char *gram_statusType_detailed[] = {
     gram_statusType_arg,
     " ",
     gram_statusType_brief,
@@ -974,7 +974,7 @@ char *gram_statusType_detailed[] = {
     "\t\tan unexpected problem.",
     " "
 };
-char *gram_viewType_detailed[] = {
+const char *gram_viewType_detailed[] = {
     gram_viewType_arg,
     " ",
     gram_viewType_brief,
@@ -984,7 +984,7 @@ char *gram_viewType_detailed[] = {
     "You can then get more detailed information on each of the",
     "view types listed through the \"help\" facility."
 };
-char *gram_pcsamp_detailed[] = {
+const char *gram_pcsamp_detailed[] = {
     gram_pcsamp_arg,
     " ",
     gram_pcsamp_brief,
@@ -1012,7 +1012,7 @@ char *gram_pcsamp_detailed[] = {
     "inversely proportional to the running time.",
     " "
 };
-char *gram_usertime_detailed[] = {
+const char *gram_usertime_detailed[] = {
     gram_usertime_arg,
     " ",
     gram_usertime_brief,
@@ -1053,7 +1053,7 @@ char *gram_usertime_detailed[] = {
     "in nature and shows some variance from run to run.",
     " "
 };
-char *gram_mpi_detailed[] = {
+const char *gram_mpi_detailed[] = {
     gram_mpi_arg,
     " ",
     gram_mpi_brief,
@@ -1061,7 +1061,7 @@ char *gram_mpi_detailed[] = {
     "The mpi trace experiment traces calls to various MPI routines.",
     " "
 };
-char *gram_fpe_detailed[] = {
+const char *gram_fpe_detailed[] = {
     gram_fpe_arg,
     " ",
     gram_fpe_brief,
@@ -1075,7 +1075,7 @@ char *gram_fpe_detailed[] = {
     "statistical.",
     " "
 };
-char *gram_hwc_detailed[] = {
+const char *gram_hwc_detailed[] = {
     gram_hwc_arg,
     " ",
     gram_hwc_brief,
@@ -1091,7 +1091,7 @@ char *gram_hwc_detailed[] = {
     "for both overflow values should be statistically valid.",
     " "
 };
-char *gram_io_detailed[] = {
+const char *gram_io_detailed[] = {
     gram_io_arg,
     " ",
     gram_io_brief,
@@ -1131,7 +1131,7 @@ char *gram_io_detailed[] = {
     "",
     " "
 };
-char *gram_iot_detailed[] = {
+const char *gram_iot_detailed[] = {
     gram_iot_arg,
     " ",
     gram_iot_brief,
@@ -1139,7 +1139,7 @@ char *gram_iot_detailed[] = {
     "The io trace experiment traces calls to various I/O routines and records extra information.",
     " "
 };
-char *gram_mpit_detailed[] = {
+const char *gram_mpit_detailed[] = {
     gram_mpit_arg,
     " ",
     gram_mpit_brief,
@@ -1147,7 +1147,7 @@ char *gram_mpit_detailed[] = {
     "The mpi trace experiment traces calls to various MPI routines and records extra information.",
     " "
 };
-char *gram_mpiotf_detailed[] = {
+const char *gram_mpiotf_detailed[] = {
     gram_mpiotf_arg,
     " ",
     gram_mpiotf_brief,
@@ -1160,7 +1160,7 @@ char *gram_mpiotf_detailed[] = {
 // GRAMMAR Examples
 /*********************************************/
 // 
-char *gram_list_example[] = {
+const char *gram_list_example[] = {
     "-f file1,file2,file3",
     " ",
     "    A list of file name strings.",
@@ -1180,7 +1180,7 @@ char *gram_list_example[] = {
     " "
 };
 
-char *gram_hwc_example[] = {
+const char *gram_hwc_example[] = {
     " You will need to set which hardware counter event to",
     " monitor. To see which events are available for your system:",
     " ",

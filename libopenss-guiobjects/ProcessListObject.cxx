@@ -414,7 +414,7 @@ ProcessListObject::createProcList(const char *command, char *host)
     login = getenv("LOGNAME");
   }
 
-  char *ps_command = "/bin/ps";
+  char *ps_command = (char *) "/bin/ps";
   char local_command[255];
   int in_fd = 0;
 

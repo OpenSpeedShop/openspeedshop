@@ -609,7 +609,7 @@ void CompareWizardPanel::vDescriptionPageIntroButtonSelected()
 
   getPanelContainer()->hidePanel((Panel *)this);
 
-  Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
+  Panel *p = getPanelContainer()->raiseNamedPanel((char *) "Intro Wizard");
   if( !p )
   {
     nprintf(DEBUG_PANELS) ("vDescriptionPageIntroButtonSelected() create a new one!\n");

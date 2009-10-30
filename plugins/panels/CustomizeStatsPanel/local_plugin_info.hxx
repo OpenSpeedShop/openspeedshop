@@ -18,18 +18,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  plugin_entry->grouping = "";
+  plugin_entry->grouping = (char *) "";
   plugin_entry->show_immediate = 0;
-  plugin_entry->plugin_description = "This panel allows the user to interface to the \"Customize\" feature of Open|SpeedShop.\nThis panel allows the user to select 2 experiments to compare results (from one run to another).  It also allows the user to compare groups of process/threads from within one executable.";
-  plugin_entry->plugin_short_description = "Allows the user to fully customize what's displayed in the StatsPanel.  Use\na left mouse click on the menu icon or use right mouse button\ndown on tab for menu options.";
-  plugin_entry->plugin_name =  "CustomizeStatsPanel.so";
-  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
-  plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "";
-  plugin_entry->sub_menu_heading =  "";
-  plugin_entry->menu_label =  "CustomizeStatsPanel";
-  plugin_entry->menu_accel =  " ";
-  plugin_entry->panel_type =  "CustomizeStatsPanel";
-  plugin_entry->preference_category =  "CustomizeStatsPanel";
-  plugin_entry->initialize_preferences_entry_point =  "initialize_preferences_entry_point";
-  plugin_entry->save_preferences_entry_point =  "save_preferences_entry_point";
+  plugin_entry->plugin_description = (char *) "This panel allows the user to interface to the \"Customize\" feature of Open|SpeedShop.\nThis panel allows the user to select 2 experiments to compare results (from one run to another).  It also allows the user to compare groups of process/threads from within one executable.";
+  plugin_entry->plugin_short_description = (char *) "Allows the user to fully customize what's displayed in the StatsPanel.  Use\na left mouse click on the menu icon or use right mouse button\ndown on tab for menu options.";
+  plugin_entry->plugin_name = (char *) "CustomizeStatsPanel.so";
+  plugin_entry->plugin_location = (char *) "$OPENSS_PLUGIN_PATH";
+  plugin_entry->plugin_entry_point = (char *) "panel_init";
+  plugin_entry->menu_heading = (char *) "";
+  plugin_entry->sub_menu_heading = (char *) "";
+  plugin_entry->menu_label = (char *) "CustomizeStatsPanel";
+  plugin_entry->menu_accel = (char *) " ";
+  plugin_entry->panel_type = (char *) "CustomizeStatsPanel";
+  plugin_entry->preference_category = (char *) "CustomizeStatsPanel";
+  plugin_entry->initialize_preferences_entry_point = (char *) "initialize_preferences_entry_point";
+  plugin_entry->save_preferences_entry_point = (char *) "save_preferences_entry_point";

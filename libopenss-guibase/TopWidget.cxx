@@ -66,7 +66,7 @@ TopWidget::closeEvent( QCloseEvent *e )
 // printf("TopWidget::closeEvent() you actually removed %s:%s\n", panelContainer->getInternalName(), panelContainer->getExternalName() );
 
 
-    Panel *p = panelContainer->findNamedPanel(panelContainer, "&Command Panel");
+    Panel *p = panelContainer->findNamedPanel(panelContainer,(char *) "&Command Panel");
     if( p )
     {
 // printf("TopWidget::closeEvent() found a CommandPanel to reparent.\n");

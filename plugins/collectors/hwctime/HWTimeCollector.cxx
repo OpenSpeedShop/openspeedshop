@@ -126,7 +126,7 @@ Blob HWTimeCollector::getDefaultParameterValues() const
     parameters.sampling_rate = THRESHOLD*2;
 #endif
 
-    parameters.hwctime_event = get_papi_eventcode("PAPI_TOT_CYC");
+    parameters.hwctime_event = get_papi_eventcode((char *) "PAPI_TOT_CYC");
 
     // Return the encoded blob to the caller
     return Blob(reinterpret_cast<xdrproc_t>(xdr_hwctime_parameters),

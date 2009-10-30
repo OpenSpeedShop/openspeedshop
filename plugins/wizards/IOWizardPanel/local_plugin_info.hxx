@@ -16,15 +16,15 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
-  plugin_entry->grouping = "TOPLEVEL";
+  plugin_entry->grouping = (char *) "TOPLEVEL";
   plugin_entry->show_immediate = 0;
-  plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-plugin_entry->plugin_short_description = "Manages setup for the IO Experiment.";
-  plugin_entry->plugin_name =  "IOWizardPanel.so";
-  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
-  plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "&File";
-  plugin_entry->sub_menu_heading =  "&Wizards";
-  plugin_entry->menu_label =  "IO Wizard";
-  plugin_entry->menu_accel =  "Alt+D";
-  plugin_entry->panel_type =  "IO Wizard";
+  plugin_entry->plugin_description = (char *) "PLUGIN_DESCRIPTION";
+plugin_entry->plugin_short_description = (char *) "Manages setup for the IO Experiment.";
+  plugin_entry->plugin_name = (char *) "IOWizardPanel.so";
+  plugin_entry->plugin_location = (char *) "$OPENSS_PLUGIN_PATH";
+  plugin_entry->plugin_entry_point = (char *) "panel_init";
+  plugin_entry->menu_heading = (char *) "&File";
+  plugin_entry->sub_menu_heading = (char *) "&Wizards";
+  plugin_entry->menu_label = (char *) "IO Wizard";
+  plugin_entry->menu_accel = (char *) "Alt+D";
+  plugin_entry->panel_type = (char *) "IO Wizard";

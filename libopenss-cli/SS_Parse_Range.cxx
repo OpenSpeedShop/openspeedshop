@@ -64,7 +64,7 @@ ParseRange(int64_t num)
  */
 
 ParseRange::
-ParseRange(char * name)
+ParseRange(const char * name)
 {
     dm_range.start_range.tag = VAL_STRING;
     dm_range.start_range.name = name;
@@ -82,7 +82,7 @@ ParseRange(char * name)
  *
  */
 ParseRange::
-ParseRange(char * name, int64_t num)
+ParseRange(const char * name, int64_t num)
 {
     dm_range.start_range.tag = VAL_STRING;
     dm_range.start_range.name = name;
@@ -103,7 +103,7 @@ ParseRange(char * name, int64_t num)
  *
  */
 ParseRange::
-ParseRange(char * name1, char * name2)
+ParseRange(const char * name1, const char * name2)
 {
     dm_range.start_range.tag = VAL_STRING;
     dm_range.start_range.name = name1;
@@ -124,7 +124,7 @@ ParseRange(char * name1, char * name2)
  *
  */
 ParseRange::
-ParseRange(int64_t num, char * name)
+ParseRange(int64_t num, const char * name)
 {
     dm_range.start_range.tag = VAL_NUMBER;
     dm_range.start_range.num = num;

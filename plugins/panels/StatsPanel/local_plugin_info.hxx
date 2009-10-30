@@ -18,17 +18,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  plugin_entry->grouping = "";
+  plugin_entry->grouping = (char *) "";
   plugin_entry->show_immediate = 0;
-  plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Displays experiment statistics:   Use a left mouse click on\nthe menu icon or use right mouse button down on tab for\nmenu options.";
-  plugin_entry->plugin_name =  "StatsPanel.so";
-  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
-  plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  ""; // Leaving this blank hides the menu entry.
-  plugin_entry->menu_label =  "Stats Panel";
-  plugin_entry->menu_accel =  "Alt+R";
-  plugin_entry->panel_type =  "Stats Panel";
-  plugin_entry->preference_category =  "Stats Panel";
-  plugin_entry->initialize_preferences_entry_point =  "initialize_preferences_entry_point";
-  plugin_entry->save_preferences_entry_point =  "save_preferences_entry_point";
+  plugin_entry->plugin_description = (char *) "PLUGIN_DESCRIPTION";
+  plugin_entry->plugin_short_description = (char *) "Displays experiment statistics:   Use a left mouse click on\nthe menu icon or use right mouse button down on tab for\nmenu options.";
+  plugin_entry->plugin_name = (char *) "StatsPanel.so";
+  plugin_entry->plugin_location = (char *) "$OPENSS_PLUGIN_PATH";
+  plugin_entry->plugin_entry_point = (char *) "panel_init";
+  plugin_entry->menu_heading = (char *) ""; // Leaving this blank hides the menu entry.
+  plugin_entry->menu_label = (char *) "Stats Panel";
+  plugin_entry->menu_accel = (char *) "Alt+R";
+  plugin_entry->panel_type = (char *) "Stats Panel";
+  plugin_entry->preference_category = (char *) "Stats Panel";
+  plugin_entry->initialize_preferences_entry_point = (char *) "initialize_preferences_entry_point";
+  plugin_entry->save_preferences_entry_point = (char *) "save_preferences_entry_point";

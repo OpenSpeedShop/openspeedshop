@@ -1039,7 +1039,7 @@ void HW_CounterWizardPanel::eDescriptionPageIntroButtonSelected()
 
   nprintf(DEBUG_PANELS) ("eDescriptionPageIntroButtonSelected() \n");
 
-  Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
+  Panel *p = getPanelContainer()->raiseNamedPanel((char *) "Intro Wizard");
   if( !p )
   {
     getPanelContainer()->getMasterPC()->dl_create_and_add_panel("Intro Wizard", getPanelContainer(), NULL );
@@ -1188,7 +1188,7 @@ void HW_CounterWizardPanel::vDescriptionPageIntroButtonSelected()
 
   getPanelContainer()->hidePanel((Panel *)this);
 
-  Panel *p = getPanelContainer()->raiseNamedPanel("Intro Wizard");
+  Panel *p = getPanelContainer()->raiseNamedPanel((char *) "Intro Wizard");
   if( !p )
   {
     nprintf(DEBUG_PANELS) ("vDescriptionPageIntroButtonSelected() create a new one!\n");

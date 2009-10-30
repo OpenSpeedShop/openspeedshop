@@ -26,82 +26,82 @@
 /*********************************************/
 // COMMAND Related topics
 /*********************************************/
-char *cmd_expAttach_related[] = {
+const char *cmd_expAttach_related[] = {
     "<expId>",
     "<expType>",
     "<target>",
     "<lists>"
 };
 
-char *cmd_expClose_related[] = {
+const char *cmd_expClose_related[] = {
     "<expId>"
 };
 
-char *cmd_expCont_related[] = {
+const char *cmd_expCont_related[] = {
     "<expId>"
 };
 
-char *cmd_expCreate_related[] = {
+const char *cmd_expCreate_related[] = {
     "<expId>",
     "<expType>",
     "<target>",
     "<lists>"
 };
 
-char *cmd_expDetach_related[] = {
+const char *cmd_expDetach_related[] = {
     "<expId>",
     "<expType>",
     "<target>",
     "<lists>"
 };
 
-char *cmd_expDisable_related[] = {
+const char *cmd_expDisable_related[] = {
     "<expId>"
 };
 
-char *cmd_expEnable_related[] = {
+const char *cmd_expEnable_related[] = {
     "<expId>"
 };
 
-char *cmd_expFocus_related[] = {
+const char *cmd_expFocus_related[] = {
     "<expId>"
 };
 
-char *cmd_expGo_related[] = {
+const char *cmd_expGo_related[] = {
     "<expId>"
 };
 
-char *cmd_expPause_related[] = {
+const char *cmd_expPause_related[] = {
     "<expId>"
 };
 
-char *cmd_expRestore_related[] = {
+const char *cmd_expRestore_related[] = {
     "<expId>",
     "<file_name>"
 };
 
-char *cmd_expSave_related[] = {
+const char *cmd_expSave_related[] = {
     "<expId>",
     "<file_name>"
 };
 
-char *cmd_expSetArgs_related[] = {
+const char *cmd_expSetArgs_related[] = {
     "<expId>",
     "<Args>"
 };
 
-char *cmd_expSetParam_related[] = {
+const char *cmd_expSetParam_related[] = {
     "<expId>",
     "<file_name>",
     "<Param>",
     "listParams"
 };
 
-char *cmd_expStatus_related[] = {
+const char *cmd_expStatus_related[] = {
     "<expId>"
 };
 
-char *cmd_expView_related[] = {
+const char *cmd_expView_related[] = {
     "<expId>",
     "<viewType>",
     "<expMetric>",
@@ -111,7 +111,7 @@ char *cmd_expView_related[] = {
     "<lists>"
 };
 
-char *cmd_cViewCreate_related[] = {
+const char *cmd_cViewCreate_related[] = {
     "<cvId>",
     "<expId>",
     "<viewType>",
@@ -126,7 +126,7 @@ char *cmd_cViewCreate_related[] = {
     "cView"
 };
 
-char *cmd_cViewDelete_related[] = {
+const char *cmd_cViewDelete_related[] = {
     "<cvId>",
     "<cvId_list>",
     "expView",
@@ -135,7 +135,7 @@ char *cmd_cViewDelete_related[] = {
     "cView"
 };
 
-char *cmd_cViewInfo_related[] = {
+const char *cmd_cViewInfo_related[] = {
     "<cvId>",
     "<cvId_list>",
     "expView",
@@ -144,7 +144,7 @@ char *cmd_cViewInfo_related[] = {
     "cView"
 };
 
-char *cmd_cView_related[] = {
+const char *cmd_cView_related[] = {
     "<cvId>",
     "<cvId_list>",
     "expView",
@@ -153,7 +153,7 @@ char *cmd_cView_related[] = {
     "cViewInfo"
 };
 
-char *cmd_expCompare_related[] = {
+const char *cmd_expCompare_related[] = {
     "<modifier_list>",
     "<expId_spec>",
     "<viewType>",
@@ -166,7 +166,7 @@ char *cmd_expCompare_related[] = {
     "cView"
 };
 
-char *cmd_list_related[] = {
+const char *cmd_list_related[] = {
     "<listBreaks>",
     "<listExp>",
     "<listExpTypes>",
@@ -182,107 +182,107 @@ char *cmd_list_related[] = {
     "<listViews>"
 };
 
-char *cmd_listBreaks_related[] = {
+const char *cmd_listBreaks_related[] = {
     "<expId>"
 };
 
-char *cmd_listExp_related[] = {
+const char *cmd_listExp_related[] = {
     "<expId>"
 };
 
-char *cmd_listHosts_related[] = {
+const char *cmd_listHosts_related[] = {
     "<expId>"
 };
 
-char *cmd_listMetrics_related[] = {
+const char *cmd_listMetrics_related[] = {
     "<expId>",
     "<expType>",
     "<lists>"
 };
 
-char *cmd_listObj_related[] = {
+const char *cmd_listObj_related[] = {
     "<expId>",
     "<target>"
 };
 
-char *cmd_listParams_related[] = {
+const char *cmd_listParams_related[] = {
     "<expId>",
     "<expType>",
     "<lists>"
 };
 
-char *cmd_listPids_related[] = {
+const char *cmd_listPids_related[] = {
     "<expId>",
     "<host_name>",
     "<lists>"
 };
 
-char *cmd_listRanks_related[] = {
+const char *cmd_listRanks_related[] = {
     "<expId>",
     "<target>"
 };
 
-char *cmd_listSrc_related[] = {
+const char *cmd_listSrc_related[] = {
     "<expId>",
     "<target>"
 };
 
-char *cmd_listStatus_related[] = {
+const char *cmd_listStatus_related[] = {
     "<expId>"
 };
 
-char *cmd_listThreads_related[] = {
+const char *cmd_listThreads_related[] = {
     "<expId>",
     "<target>"
 };
 
-char *cmd_listTypes_related[] = {
+const char *cmd_listTypes_related[] = {
     "<expId>"
 };
 
-char *cmd_listViews_related[] = {
+const char *cmd_listViews_related[] = {
     "<expId>",
     "<expType>"
 };
 
-char *cmd_clearBreak_related[] = {
+const char *cmd_clearBreak_related[] = {
     "<breakId>"
 };
 
-char *cmd_exit_related[] = {
+const char *cmd_exit_related[] = {
 //    ""
 };
 
-char *cmd_help_related[] = {
+const char *cmd_help_related[] = {
 //    ""
 };
 
-char *cmd_history_related[] = {
+const char *cmd_history_related[] = {
 //    ""
 };
 
-char *cmd_log_related[] = {
+const char *cmd_log_related[] = {
     "<file_name>"
 };
 
-char *cmd_openGui_related[] = {
+const char *cmd_openGui_related[] = {
 //    ""
 };
 
-char *cmd_playBack_related[] = {
+const char *cmd_playBack_related[] = {
     "<file_name>"
 };
 
-char *cmd_record_related[] = {
+const char *cmd_record_related[] = {
     "<file_name>"
 };
 
-char *cmd_setBreak_related[] = {
+const char *cmd_setBreak_related[] = {
     "<expId>",
     "<target>"
 };
 
-char *cmd_Wait_related[] = {
+const char *cmd_Wait_related[] = {
     "expGo",
     "expCont",
     "<expId>"
@@ -292,96 +292,96 @@ char *cmd_Wait_related[] = {
 /*********************************************/
 // COMMAND ARGUMENTS
 /*********************************************/
-char *cmd_expAttach_args[] = {
+const char *cmd_expAttach_args[] = {
     "expAttach [ -v mpi] [ -x <expId> ] [ <target_list> ] [ <expType_list> ]"
 };
 
-char *cmd_expClose_args[] = {
+const char *cmd_expClose_args[] = {
     "expClose [ -v kill,all ]",
     "expClose [ -v kill ] [ -x <expId> ]"
 };
 
-char *cmd_expCont_args[] = {
+const char *cmd_expCont_args[] = {
     "expCont [ -v all || -x <expId> ]"
 };
 
-char *cmd_expCreate_args[] = {
+const char *cmd_expCreate_args[] = {
     "<expId> = expCreate [-i offline] [-v mpi] [ <target_list> ] [ <expType_list> ]"
 };
 
-char *cmd_expData_args[] = {
+const char *cmd_expData_args[] = {
     "expData [-v <modifier_list>] [-x <expId>] [<viewType>] [-m <expMetric_list>] [<target_spec>]"
 };
 
-char *cmd_expDetach_args[] = {
+const char *cmd_expDetach_args[] = {
     "expDetach [ -x <expId> ] [ <target_list> ] [ <expType_list> ]"
 };
 
-char *cmd_expDisable_args[] = {
+const char *cmd_expDisable_args[] = {
     "expDisable [ -v all || -x <expId> ]"
 };
 
-char *cmd_expEnable_args[] = {
+const char *cmd_expEnable_args[] = {
     "expEnable [ -v all || -x <expId> ]"
 };
 
-char *cmd_expFocus_args[] = {
+const char *cmd_expFocus_args[] = {
     "<expId> = expFocus [ -x <expId> ]"
 };
 
-char *cmd_expGo_args[] = {
+const char *cmd_expGo_args[] = {
     "expGo [ -v all || -x <expId> ]"
 };
 
-char *cmd_expPause_args[] = {
+const char *cmd_expPause_args[] = {
     "expPause [ -v all || -x <expId> ]"
 };
 
-char *cmd_expRestore_args[] = {
+const char *cmd_expRestore_args[] = {
     "<exp_Id> = expRestore -f <file_name>"
 };
 
-char *cmd_expSave_args[] = {
+const char *cmd_expSave_args[] = {
     "expSave [-v copy] [-x <expId>] -f <file_name>"
 };
 
-char *cmd_expSetArgs_args[] = {
+const char *cmd_expSetArgs_args[] = {
     "expSetArgs [-x <expId>] arguments "
 };
 
-char *cmd_expSetParam_args[] = {
+const char *cmd_expSetParam_args[] = {
     "expSetParam [-x <expId>] <expParam>=<expParamValue> [,<expParamValue>] ... "
 };
 
-char *cmd_expStatus_args[] = {
+const char *cmd_expStatus_args[] = {
     "expStatus [-v all || -x <expId>]"
 };
 
-char *cmd_expView_args[] = {
+const char *cmd_expView_args[] = {
     "expView [-v <modifier_list>] [-x <expId>] [<viewType>] [-m <expMetric_list>] [<target_spec>]"
 };
 
-char *cmd_cViewCreate_args[] = {
+const char *cmd_cViewCreate_args[] = {
     "cViewCreate [-v <modifier_list>] [-x <expId>] [<viewType>] [-m <expMetric_list>] [<target_spec>]"
 };
 
-char *cmd_cViewDelete_args[] = {
+const char *cmd_cViewDelete_args[] = {
     "cViewDelete -v all ",
     "cViewDelete -c <cvid_list> ",
     "cViewDelete "
 };
 
-char *cmd_cViewInfo_args[] = {
+const char *cmd_cViewInfo_args[] = {
     "cViewInfo -v all ",
     "cViewInfo -c <cvid_list> ",
     "cViewInfo "
 };
 
-char *cmd_cView_args[] = {
+const char *cmd_cView_args[] = {
     "cView -c <cvid_list> "
 };
 
-char *cmd_expCompare_args[] = {
+const char *cmd_expCompare_args[] = {
     "expCompare  [-v <modifier_list> ]\n"
     "            [ <expId_spec> ]\n"
     "            [ <viewType> ]\n"
@@ -389,115 +389,115 @@ char *cmd_expCompare_args[] = {
     "            [ <target_list> ]"
 };
 
-char *cmd_list_args[] = {
+const char *cmd_list_args[] = {
     "<ListOf_info> = list -v <listType> [-v all || -x <expId>]"
 };
 
-char *cmd_listBreaks_args[] = {
+const char *cmd_listBreaks_args[] = {
     "<ListOf_breakId> = list -v breaks ",
     "<ListOf_breakId> = list -v breaks,all",
     "<ListOf_breakId> = list -v breaks -x <expId>"
 };
 
-char *cmd_listExp_args[] = {
+const char *cmd_listExp_args[] = {
     "<ListOf_expId> = list -v expId"
 };
 
-char *cmd_listHosts_args[] = {
+const char *cmd_listHosts_args[] = {
     "<ListOf_hostname> = list -v hosts",
     "<ListOf_hostname> = list -v hosts -x <expId>"
 };
 
-char *cmd_listMetrics_args[] = {
+const char *cmd_listMetrics_args[] = {
     "<ListOf_expMetric> = list -v metrics",
     "<ListOf_expMetric> = list -v metrics,all ",
     "<ListOf_expMetric> = list -v metrics -x <expId>",
     "<ListOf_expMetric> = list -v metrics <expType>"
 };
 
-char *cmd_listObj_args[] = {
+const char *cmd_listObj_args[] = {
     "<ListOf_filename> = list -v obj [-x <expId>] [<target>]"
 };
 
-char *cmd_listParams_args[] = {
+const char *cmd_listParams_args[] = {
     "<ListOf_expParam> = list -v params",
     "<ListOf_expParam> = list -v params,all",
     "<ListOf_expParam> = list -v params -x <expId>",
     "<ListOf_expParam> = list -v params <expType>"
 };
 
-char *cmd_listPids_args[] = {
+const char *cmd_listPids_args[] = {
     "<ListOf_pidname> = list -v pids [-x <expId>] [-h <host_name> [ , <host_name> ]*]"
 };
 
-char *cmd_listRanks_args[] = {
+const char *cmd_listRanks_args[] = {
     "<ListOf_Ranks> = list -v ranks [-x <expId> ] [ <target>]"
 };
 
-char *cmd_listSrc_args[] = {
+const char *cmd_listSrc_args[] = {
     "<ListOf_filename> = list -v src [-x <expId>] [<target>]"
 };
 
-char *cmd_listStatus_args[] = {
+const char *cmd_listStatus_args[] = {
     "<ListOf_statusType> = list -v status",
     "<ListOf_statusType> = list -v status,all",
     "<ListOf_statusType> = list -v status -x <expId>"
 };
 
-char *cmd_listThreads_args[] = {
+const char *cmd_listThreads_args[] = {
     "<ListOf_Threads> = list -v threads [-x <expId>] [<target>]"
 };
 
-char *cmd_listTypes_args[] = {
+const char *cmd_listTypes_args[] = {
     "<ListOf_expType> = list -v expTypes",
     "<ListOf_expType> = list -v expTypes,all",
     "<ListOf_expType> = list -v expTypes -x <expId>"
 };
 
-char *cmd_listViews_args[] = {
+const char *cmd_listViews_args[] = {
     "<ListOf_viewType> = list -v views",
     "<ListOf_viewType> = list -v views,all",
     "<ListOf_viewType> = list -v views -x <expId>",
     "<ListOf_viewType> = list -v views <expType>"
 };
 
-char *cmd_clearBreak_args[] = {
+const char *cmd_clearBreak_args[] = {
     "clearBreak <breakId>"
 };
 
-char *cmd_exit_args[] = {
+const char *cmd_exit_args[] = {
     "exit"
 };
 
-char *cmd_help_args[] = {
+const char *cmd_help_args[] = {
     "<string> = help [-v <help_modifier_list>] [<string>]"
 };
 
-char *cmd_history_args[] = {
+const char *cmd_history_args[] = {
     "history [<integer>]"
 };
 
-char *cmd_log_args[] = {
+const char *cmd_log_args[] = {
     "log [-f <file_name>]"
 };
 
-char *cmd_openGui_args[] = {
+const char *cmd_openGui_args[] = {
     "openGui"
 };
 
-char *cmd_playBack_args[] = {
+const char *cmd_playBack_args[] = {
     "playBack-f <file_name>"
 };
 
-char *cmd_record_args[] = {
+const char *cmd_record_args[] = {
     "record [-f <file_name>]"
 };
 
-char *cmd_setBreak_args[] = {
+const char *cmd_setBreak_args[] = {
     "<breakId> setBreak [-x <expId>] [<target>] <address_description>"
 };
 
-char *cmd_Wait_args[] = {
+const char *cmd_Wait_args[] = {
     "Wait [ -v terminate [ , all ] ] [ -x <expId> ]"
 };
 
@@ -505,223 +505,223 @@ char *cmd_Wait_args[] = {
 /*********************************************/
 // BRIEF COMMAND MESSAGES
 /*********************************************/
-char *cmd_expAttach_brief = {
+const char *cmd_expAttach_brief = {
     "Attach applications or collectors to an experiment."
 };
 
 
-char *cmd_expClose_brief = {
+const char *cmd_expClose_brief = {
     "Close/Terminate the experiment."
 };
 
-char *cmd_expCont_brief = {
+const char *cmd_expCont_brief = {
     "Continue the execution of an experiment."
 };
 
-char *cmd_expCreate_brief = {
+const char *cmd_expCreate_brief = {
     "Start the process of defining an experiment."
 };
 
-char *cmd_expData_brief = {
+const char *cmd_expData_brief = {
     "Return data from experiment."
 };
 
-char *cmd_expDetach_brief = {
+const char *cmd_expDetach_brief = {
     "Detach applications from collectors."
 };
 
-char *cmd_expDisable_brief = {
+const char *cmd_expDisable_brief = {
     "Turn off data collection."
 };
 
-char *cmd_expEnable_brief = {
+const char *cmd_expEnable_brief = {
     "Restart data collection."
 };
 
-char *cmd_expFocus_brief = {
+const char *cmd_expFocus_brief = {
     "Focus the current input window on a specified experiment."
 };
 
-char *cmd_expGo_brief = {
+const char *cmd_expGo_brief = {
     "Start the execution of the experiment or restart the execution of the experiment."
 };
 
-char *cmd_expPause_brief = {
+const char *cmd_expPause_brief = {
     "Temporarily interrupt the specified experiment."
 };
 
-char *cmd_expRestore_brief = {
+const char *cmd_expRestore_brief = {
     "Restore experiment's definition and previously saved\n"
     "data from a data base that was saved with an expSave command."
 };
 
-char *cmd_expSave_brief = {
+const char *cmd_expSave_brief = {
     "Save the experiment data for further analysis."
 };
 
-char *cmd_expSetArgs_brief = {
+const char *cmd_expSetArgs_brief = {
     "Change the value an experiment's executable argument(s)."
 };
 
-char *cmd_expSetParam_brief = {
+const char *cmd_expSetParam_brief = {
     "Change the value an experiment's argument."
 };
 
-char *cmd_expStatus_brief = {
+const char *cmd_expStatus_brief = {
     "Report the current state of user define experiments."
 };
 
-char *cmd_expView_brief = {
+const char *cmd_expView_brief = {
     "View the experiment's output in text form."
 };
 
-char *cmd_cViewCreate_brief = {
+const char *cmd_cViewCreate_brief = {
     "Create a custom view id."
 };
 
-char *cmd_cViewDelete_brief = {
+const char *cmd_cViewDelete_brief = {
     "Delete a custom view id from the openss database."
 };
 
-char *cmd_cViewInfo_brief = {
+const char *cmd_cViewInfo_brief = {
     "Dump the description of one or more custom view ids."
 };
 
-char *cmd_cView_brief = {
+const char *cmd_cView_brief = {
     "Detailed compare view where the user has defined the\n"
     "contents of each custom view."
 };
 
-char *cmd_expCompare_brief = {
+const char *cmd_expCompare_brief = {
     "Simple compare view. \n"
     "The tool determines the columninformation."
 };
 
-char *cmd_list_brief = {
+const char *cmd_list_brief = {
     "List information based on <listType>."
 };
 
 
-char *cmd_listBreaks_brief = {
+const char *cmd_listBreaks_brief = {
     "List the breakpoints that have been defined."
 };
 
 
-char *cmd_listExp_brief = {
+const char *cmd_listExp_brief = {
     "List the experiments that have been defined."
 };
 
 
-char *cmd_listHosts_brief = {
+const char *cmd_listHosts_brief = {
     "Lists the hosts that define the specified cluster."
 };
 
 
-char *cmd_listObj_brief = {
+const char *cmd_listObj_brief = {
     "List the object files that are known."
 };
 
 
-char *cmd_listPids_brief = {
+const char *cmd_listPids_brief = {
     "List the process Id's that are known."
 };
 
 
-char *cmd_listMetrics_brief = {
+const char *cmd_listMetrics_brief = {
     "List the measurements that an experiment is capable of making."
 };
 
 
-char *cmd_listParams_brief = {
+const char *cmd_listParams_brief = {
     "Report the current values assigned to all the parameters\n"
     "that are part of a specific experiment."
 };
 
 
-char *cmd_listRanks_brief = {
+const char *cmd_listRanks_brief = {
     "List the mpi ranks that are known. "
 };
 
 
-char *cmd_listSrc_brief = {
+const char *cmd_listSrc_brief = {
     "List the source filenames of the modules that \n"
     "are part of the specified experiment. "
 };
 
 
-char *cmd_listStatus_brief = {
+const char *cmd_listStatus_brief = {
     "List the current status of an experiment."
 };
 
 
-char *cmd_listThreads_brief = {
+const char *cmd_listThreads_brief = {
     "List the threads that are known."
 };
 
 
-char *cmd_listTypes_brief = {
+const char *cmd_listTypes_brief = {
     "List available performance measurement utilities."
 };
 
 
-char *cmd_listViews_brief = {
+const char *cmd_listViews_brief = {
     "List the reports that can be produced by an experiment."
 };
 
 
-char *cmd_clearBreak_brief = {
+const char *cmd_clearBreak_brief = {
     "Remove a breakpoint."
 };
 
 
-char *cmd_exit_brief = {
+const char *cmd_exit_brief = {
     "Terminate the session."
 };
 
 
-char *cmd_help_brief = {
+const char *cmd_help_brief = {
     "Request information about a topic."
 };
 
 
-char *cmd_history_brief = {
+const char *cmd_history_brief = {
     "Print a list of previously executed commands."
 };
 
 
-char *cmd_log_brief = {
+const char *cmd_log_brief = {
     "Echo executed commands and their results to a file."
 };
 
 
-char *cmd_openGui_brief = {
+const char *cmd_openGui_brief = {
     "Open the Graphical User Interface."
 };
 
 
-char *cmd_playBack_brief = {
+const char *cmd_playBack_brief = {
     "Read and execute commands stored in a file."
 };
 
 
-char *cmd_record_brief = {
+const char *cmd_record_brief = {
     "Begin echoing executed commands to a file."
 };
 
 
-char *cmd_setBreak_brief = {
+const char *cmd_setBreak_brief = {
     "Enter a breakpoint, which will halt the application when reached."
 };
 
 
-char *cmd_Wait_brief = {
+const char *cmd_Wait_brief = {
     "Don't execute any more commands until an experiment terminates."
 };
 
 /*********************************************/
 // DETAILED COMMAND MESSAGES
 /*********************************************/
-char *cmd_expAttach_detailed[] = {
+const char *cmd_expAttach_detailed[] = {
     cmd_expAttach_args[0],
     " ",
     cmd_expAttach_brief,
@@ -771,7 +771,7 @@ char *cmd_expAttach_detailed[] = {
 };
 
 
-char *cmd_expClose_detailed[] = {
+const char *cmd_expClose_detailed[] = {
     cmd_expClose_args[0],
     " ",
     cmd_expClose_brief,
@@ -806,7 +806,7 @@ char *cmd_expClose_detailed[] = {
 };
 
 
-char *cmd_expCreate_detailed[] = {
+const char *cmd_expCreate_detailed[] = {
     cmd_expCreate_args[0],
     " ",
     cmd_expCreate_brief,
@@ -851,7 +851,7 @@ char *cmd_expCreate_detailed[] = {
 };
 
 
-char *cmd_expData_detailed[] = {
+const char *cmd_expData_detailed[] = {
     cmd_expData_args[0],
     " ",
     cmd_expData_brief,
@@ -861,7 +861,7 @@ char *cmd_expData_detailed[] = {
 };
 
 
-char *cmd_expDetach_detailed[] = {
+const char *cmd_expDetach_detailed[] = {
     cmd_expDetach_args[0],
     " ",
     cmd_expDetach_brief,
@@ -898,7 +898,7 @@ char *cmd_expDetach_detailed[] = {
 };
 
 
-char *cmd_expDisable_detailed[] = {
+const char *cmd_expDisable_detailed[] = {
     cmd_expDisable_args[0],
     " ",
     cmd_expDisable_brief,
@@ -935,7 +935,7 @@ char *cmd_expDisable_detailed[] = {
 };
 
 
-char *cmd_expEnable_detailed[] = {
+const char *cmd_expEnable_detailed[] = {
     cmd_expEnable_args[0],
     " ",
     cmd_expEnable_brief,
@@ -961,7 +961,7 @@ char *cmd_expEnable_detailed[] = {
 };
 
 
-char *cmd_expFocus_detailed[] = {
+const char *cmd_expFocus_detailed[] = {
     cmd_expFocus_args[0],
     " ",
     cmd_expFocus_brief,
@@ -984,7 +984,7 @@ char *cmd_expFocus_detailed[] = {
 };
 
 
-char *cmd_expGo_detailed[] = {
+const char *cmd_expGo_detailed[] = {
     cmd_expGo_args[0],
     " ",
     cmd_expGo_brief,
@@ -1035,7 +1035,7 @@ char *cmd_expGo_detailed[] = {
 };
 
 
-char *cmd_expPause_detailed[] = {
+const char *cmd_expPause_detailed[] = {
     cmd_expPause_args[0],
     " ",
     cmd_expPause_brief,
@@ -1052,7 +1052,7 @@ char *cmd_expPause_detailed[] = {
 };
 
 
-char *cmd_expCont_detailed[] = {
+const char *cmd_expCont_detailed[] = {
     cmd_expCont_args[0],
     " ",
     cmd_expCont_brief,
@@ -1102,7 +1102,7 @@ char *cmd_expCont_detailed[] = {
     " "
 };
 
-char *cmd_expRestore_detailed[] = {
+const char *cmd_expRestore_detailed[] = {
     cmd_expRestore_args[0],
     " ",
     cmd_expRestore_brief,
@@ -1134,7 +1134,7 @@ char *cmd_expRestore_detailed[] = {
 };
 
 
-char *cmd_expSave_detailed[] = {
+const char *cmd_expSave_detailed[] = {
     cmd_expSave_args[0],
     " ",
     cmd_expSave_brief,
@@ -1195,7 +1195,7 @@ char *cmd_expSave_detailed[] = {
 };
 
 
-char *cmd_expSetArgs_detailed[] = {
+const char *cmd_expSetArgs_detailed[] = {
     cmd_expSetArgs_args[0],
     " ",
     cmd_expSetArgs_brief,
@@ -1210,7 +1210,7 @@ char *cmd_expSetArgs_detailed[] = {
     " "
 };
 
-char *cmd_expSetParam_detailed[] = {
+const char *cmd_expSetParam_detailed[] = {
     cmd_expSetParam_args[0],
     " ",
     cmd_expSetParam_brief,
@@ -1225,7 +1225,7 @@ char *cmd_expSetParam_detailed[] = {
     " "
 };
 
-char *cmd_expStatus_detailed[] = {
+const char *cmd_expStatus_detailed[] = {
     cmd_expStatus_args[0],
     " ",
     cmd_expStatus_brief,
@@ -1242,7 +1242,7 @@ char *cmd_expStatus_detailed[] = {
 };
 
 
-char *cmd_expView_detailed[] = {
+const char *cmd_expView_detailed[] = {
     cmd_expView_args[0],
     " ",
     cmd_expView_brief,
@@ -1291,7 +1291,7 @@ char *cmd_expView_detailed[] = {
     " "
 };
 
-char *cmd_cViewCreate_detailed[] = {
+const char *cmd_cViewCreate_detailed[] = {
     cmd_cViewCreate_args[0],
     " ",
     cmd_cViewCreate_brief,
@@ -1315,7 +1315,7 @@ char *cmd_cViewCreate_detailed[] = {
     " "
 };
 
-char *cmd_cViewDelete_detailed[] = {
+const char *cmd_cViewDelete_detailed[] = {
     cmd_cViewDelete_args[0],
     " ",
     cmd_cViewDelete_brief,
@@ -1331,7 +1331,7 @@ char *cmd_cViewDelete_detailed[] = {
     " "
 };
 
-char *cmd_cViewInfo_detailed[] = {
+const char *cmd_cViewInfo_detailed[] = {
     cmd_cViewInfo_args[0],
     " ",
     cmd_cViewInfo_brief,
@@ -1351,7 +1351,7 @@ char *cmd_cViewInfo_detailed[] = {
     " "
 };
 
-char *cmd_cView_detailed[] = {
+const char *cmd_cView_detailed[] = {
     cmd_cView_args[0],
     " ",
     cmd_cView_brief,
@@ -1378,7 +1378,7 @@ char *cmd_cView_detailed[] = {
     " "
 };
 
-char *cmd_expCompare_detailed[] = {
+const char *cmd_expCompare_detailed[] = {
     cmd_expCompare_args[0],
     " ",
     cmd_expCompare_brief,
@@ -1421,7 +1421,7 @@ char *cmd_expCompare_detailed[] = {
     " "
 };
 
-char *cmd_list_detailed[] = {
+const char *cmd_list_detailed[] = {
     cmd_list_args[0],
     " ",
     cmd_list_brief,
@@ -1463,7 +1463,7 @@ char *cmd_list_detailed[] = {
     " "
 };
 
-char *cmd_listBreaks_detailed[] = {
+const char *cmd_listBreaks_detailed[] = {
     cmd_listBreaks_args[0],
     " ",
     cmd_listBreaks_brief,
@@ -1472,7 +1472,7 @@ char *cmd_listBreaks_detailed[] = {
 };
 
 
-char *cmd_listExp_detailed[] = {
+const char *cmd_listExp_detailed[] = {
     cmd_listExp_args[0],
     " ",
     cmd_listExp_brief,
@@ -1480,7 +1480,7 @@ char *cmd_listExp_detailed[] = {
 };
 
 
-char *cmd_listHosts_detailed[] = {
+const char *cmd_listHosts_detailed[] = {
     cmd_listHosts_args[0],
     " ",
     cmd_listHosts_brief,
@@ -1494,7 +1494,7 @@ char *cmd_listHosts_detailed[] = {
 };
 
 
-char *cmd_listObj_detailed[] = {
+const char *cmd_listObj_detailed[] = {
     cmd_listObj_args[0],
     " ",
     cmd_listObj_brief,
@@ -1513,7 +1513,7 @@ char *cmd_listObj_detailed[] = {
 };
 
 
-char *cmd_listPids_detailed[] = {
+const char *cmd_listPids_detailed[] = {
     cmd_listPids_args[0],
     " ",
     cmd_listPids_brief,
@@ -1540,7 +1540,7 @@ char *cmd_listPids_detailed[] = {
 };
 
 
-char *cmd_listMetrics_detailed[] = {
+const char *cmd_listMetrics_detailed[] = {
     cmd_listMetrics_args[0],
     " ",
     cmd_listMetrics_brief,
@@ -1563,7 +1563,7 @@ char *cmd_listMetrics_detailed[] = {
 };
 
 
-char *cmd_listParams_detailed[] = {
+const char *cmd_listParams_detailed[] = {
     cmd_listParams_args[0],
     " ",
     cmd_listParams_brief,
@@ -1586,7 +1586,7 @@ char *cmd_listParams_detailed[] = {
 };
 
 
-char *cmd_listRanks_detailed[] = {
+const char *cmd_listRanks_detailed[] = {
     cmd_listRanks_args[0],
     " ",
     cmd_listRanks_brief,
@@ -1619,7 +1619,7 @@ char *cmd_listRanks_detailed[] = {
 };
 
 
-char *cmd_listSrc_detailed[] = {
+const char *cmd_listSrc_detailed[] = {
     cmd_listSrc_args[0],
     " ",
     cmd_listSrc_brief,
@@ -1642,7 +1642,7 @@ char *cmd_listSrc_detailed[] = {
 };
 
 
-char *cmd_listStatus_detailed[] = {
+const char *cmd_listStatus_detailed[] = {
     cmd_listStatus_args[0],
     " ",
     cmd_listStatus_brief,
@@ -1659,7 +1659,7 @@ char *cmd_listStatus_detailed[] = {
 };
 
 
-char *cmd_listThreads_detailed[] = {
+const char *cmd_listThreads_detailed[] = {
     cmd_listThreads_args[0],
     " ",
     cmd_listThreads_brief,
@@ -1690,7 +1690,7 @@ char *cmd_listThreads_detailed[] = {
 };
 
 
-char *cmd_listTypes_detailed[] = {
+const char *cmd_listTypes_detailed[] = {
     cmd_listTypes_args[0],
     " ",
     cmd_listTypes_brief,
@@ -1708,7 +1708,7 @@ char *cmd_listTypes_detailed[] = {
 };
 
 
-char *cmd_listViews_detailed[] = {
+const char *cmd_listViews_detailed[] = {
     cmd_listViews_args[0],
     " ",
     cmd_listViews_brief,
@@ -1731,7 +1731,7 @@ char *cmd_listViews_detailed[] = {
 };
 
 
-char *cmd_clearBreak_detailed[] = {
+const char *cmd_clearBreak_detailed[] = {
     cmd_clearBreak_args[0],
     " ",
     cmd_clearBreak_brief,
@@ -1743,7 +1743,7 @@ char *cmd_clearBreak_detailed[] = {
 };
 
 
-char *cmd_exit_detailed[] = {
+const char *cmd_exit_detailed[] = {
     cmd_exit_args[0],
     " ",
     cmd_exit_brief,
@@ -1769,7 +1769,7 @@ char *cmd_exit_detailed[] = {
 };
 
 
-char *cmd_help_detailed[] = {
+const char *cmd_help_detailed[] = {
     cmd_help_args[0],
     " ",
     cmd_help_brief,
@@ -1779,7 +1779,7 @@ char *cmd_help_detailed[] = {
 };
 
 
-char *cmd_history_detailed[] = {
+const char *cmd_history_detailed[] = {
     cmd_history_args[0],
     " ",
     cmd_history_brief,
@@ -1790,7 +1790,7 @@ char *cmd_history_detailed[] = {
 };
 
 
-char *cmd_log_detailed[] = {
+const char *cmd_log_detailed[] = {
     cmd_log_args[0],
     " ",
     cmd_log_brief,
@@ -1804,7 +1804,7 @@ char *cmd_log_detailed[] = {
 };
 
 
-char *cmd_openGui_detailed[] = {
+const char *cmd_openGui_detailed[] = {
     cmd_openGui_args[0],
     " ",
     cmd_openGui_brief,
@@ -1812,7 +1812,7 @@ char *cmd_openGui_detailed[] = {
 };
 
 
-char *cmd_playBack_detailed[] = {
+const char *cmd_playBack_detailed[] = {
     cmd_playBack_args[0],
     " ",
     cmd_playBack_brief,
@@ -1820,7 +1820,7 @@ char *cmd_playBack_detailed[] = {
 };
 
 
-char *cmd_record_detailed[] = {
+const char *cmd_record_detailed[] = {
     cmd_record_args[0],
     " ",
     cmd_record_brief,
@@ -1842,7 +1842,7 @@ char *cmd_record_detailed[] = {
 };
 
 
-char *cmd_setBreak_detailed[] = {
+const char *cmd_setBreak_detailed[] = {
     cmd_setBreak_args[0],
     " ",
     cmd_setBreak_brief,
@@ -1860,7 +1860,7 @@ char *cmd_setBreak_detailed[] = {
 };
 
 
-char *cmd_Wait_detailed[] = {
+const char *cmd_Wait_detailed[] = {
     cmd_Wait_args[0],
     " ",
     cmd_Wait_brief,
@@ -1896,7 +1896,7 @@ char *cmd_Wait_detailed[] = {
 // COMMAND Examples
 /*********************************************/
 // 
-char *cmd_expAttach_example[] = {
+const char *cmd_expAttach_example[] = {
     "expAttach -x 2 -f my_prog pcsamp",
     "    Includes the executable program \'my_prog\' into experiment",
     "    #2 and adds the performance measurement utility \'pcsamp\'",
@@ -1920,7 +1920,7 @@ char *cmd_expAttach_example[] = {
     " "
 };
 
-char *cmd_expClose_example[] = {
+const char *cmd_expClose_example[] = {
     "expClose -x 3",
     " ",
     "    Closes experiment #3.",
@@ -1940,7 +1940,7 @@ char *cmd_expClose_example[] = {
     " "
 };
 
-char *cmd_expCreate_example[] = {
+const char *cmd_expCreate_example[] = {
     "expCreate -f my_prog usertime",
     " ",
     "    Creates an experiment targeting the application",
@@ -1959,7 +1959,7 @@ char *cmd_expCreate_example[] = {
     " "
 };
 
-char *cmd_expDetach_example[] = {
+const char *cmd_expDetach_example[] = {
     "expDetach -f my_prog pcsamp",
     " ",
     "    Detach the pcsampling plugin from the targeted",
@@ -1977,7 +1977,7 @@ char *cmd_expDetach_example[] = {
     " "
 };
 
-char *cmd_expDisable_example[] = {
+const char *cmd_expDisable_example[] = {
     "expDisable",
     " ",
     "    Turn off collection of performance data in the focused",
@@ -1995,7 +1995,7 @@ char *cmd_expDisable_example[] = {
     " "
 };
 
-char *cmd_expEnable_example[] = {
+const char *cmd_expEnable_example[] = {
     "expEnable",
     " ",
     "    Turn on collection of performance data in the focused",
@@ -2022,7 +2022,7 @@ char *cmd_expEnable_example[] = {
     " "
 };
 
-char *cmd_expFocus_example[] = {
+const char *cmd_expFocus_example[] = {
     "expFocus",
     " ",
     "    Return the id of the currently focused experiment",
@@ -2035,7 +2035,7 @@ char *cmd_expFocus_example[] = {
     " "
 };
 
-char *cmd_expGo_example[] = {
+const char *cmd_expGo_example[] = {
     "expGo",
     " ",
     "    Run the currently focused experiment.",
@@ -2052,7 +2052,7 @@ char *cmd_expGo_example[] = {
 };
 
 
-char *cmd_expPause_example[] = {
+const char *cmd_expPause_example[] = {
     "expPause",
     " ",
     "    Suspend/stop execution of the currently focused",
@@ -2066,7 +2066,7 @@ char *cmd_expPause_example[] = {
     " "
 };
 
-char *cmd_expCont_example[] = {
+const char *cmd_expCont_example[] = {
     "expCont",
     " ",
     "    Continue the execution of the currently focused experiment.",
@@ -2083,7 +2083,7 @@ char *cmd_expCont_example[] = {
 };
 
 
-char *cmd_expRestore_example[] = {
+const char *cmd_expRestore_example[] = {
     "expRestore -f my_experiment.data",
     " ",
     "    Reads the data stored in \'my_experiment.data\' and",
@@ -2097,7 +2097,7 @@ char *cmd_expRestore_example[] = {
     " "
 };
 
-char *cmd_expSave_example[] = {
+const char *cmd_expSave_example[] = {
     "expSave -f my_experiment.data",
     " ",
     "    Saves data and state of the focused experiment to the",
@@ -2110,7 +2110,7 @@ char *cmd_expSave_example[] = {
     " "
 };
 
-char *cmd_expSetArgs_example[] = {
+const char *cmd_expSetArgs_example[] = {
     "expSetArgs n 50 50 50",
     " ",
     "    Will set the arguments for the application being run as part of ",
@@ -2123,7 +2123,7 @@ char *cmd_expSetArgs_example[] = {
     " "
 };
 
-char *cmd_expSetParam_example[] = {
+const char *cmd_expSetParam_example[] = {
     "expSetParam pcsamp::sampling_rate=10",
     " ",
     "    Will set the sampling rate in the pcsamp collector for",
@@ -2142,7 +2142,7 @@ char *cmd_expSetParam_example[] = {
     " "
 };
 
-char *cmd_expStatus_example[] = {
+const char *cmd_expStatus_example[] = {
     "expStatus",
     " ",
     "    Displays the status of the currently focused experiment.",
@@ -2157,7 +2157,7 @@ char *cmd_expStatus_example[] = {
     " "
 };
 
-char *cmd_Wait_example[] = {
+const char *cmd_Wait_example[] = {
     "  expGo",
     "  Wait",
     "  expView",

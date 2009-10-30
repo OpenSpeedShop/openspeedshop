@@ -29,7 +29,7 @@
 class ArgStruct
 {
   public:
-    ArgStruct(int ac, char **av)
+    ArgStruct(int ac, const char **av)
     {
       argc = ac;
       if (argc==0)
@@ -46,7 +46,7 @@ class ArgStruct
 	}
     }
 
-    void addArg(char *a)
+    void addArg(const char *a)
     {
       char **old_argv = argv;
 

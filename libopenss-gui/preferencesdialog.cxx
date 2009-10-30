@@ -150,7 +150,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
 //    preferenceDialogWidgetStack->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)3, (QSizePolicy::SizeType)3, 0, 0, preferenceDialogWidgetStack->sizePolicy().hasHeightForWidth() ) );
 
 
-    createGeneralStackPage(preferenceDialogWidgetStack, "General" );
+    createGeneralStackPage(preferenceDialogWidgetStack, (char *) "General" );
 
     preferenceDialogRightFrameLayout->addWidget( preferenceDialogWidgetStack );
     preferenceDialogListLayout->addWidget( mainSplitter );

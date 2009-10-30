@@ -313,7 +313,7 @@ SetOpenssLibPath(string& exe_path)
 
     	// Add our compile-time plugin directory
 	if (PLUGIN_DIR) {
-    	    s_add_plugin_path(PLUGIN_DIR,
+    	    s_add_plugin_path((char *)PLUGIN_DIR,
 	    	    	      &v_string,
 			      false /* don't append /openss */) ;
 	}

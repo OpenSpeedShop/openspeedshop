@@ -64,10 +64,10 @@ ParseParam() :
  *
  */
 ParseParam::
-ParseParam(char * exp_type, char * parm_type) :
+ParseParam(const char * exp_type, const char * parm_type) :
     dm_has_exptype(false),
-    dm_exptype(exp_type),
-    dm_param_type(parm_type)
+    dm_exptype((char *) exp_type),
+    dm_param_type((char *) parm_type)
 {
     /* I decided this is less complicated than 
        making more constructors */
@@ -89,8 +89,8 @@ ParseParam(char * exp_type, char * parm_type) :
  *
  */
 ParamVal::
-ParamVal(char * sval) :
-    dm_sval(sval),
+ParamVal(const char * sval) :
+    dm_sval((char *) sval),
     dm_val_type(PARAM_VAL_STRING)
 {
 }

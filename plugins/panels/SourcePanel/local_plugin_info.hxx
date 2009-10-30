@@ -18,17 +18,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  plugin_entry->grouping = "";
+  plugin_entry->grouping = (char *) "";
   plugin_entry->show_immediate = 0;
-  plugin_entry->plugin_description = "PLUGIN_DESCRIPTION";
-  plugin_entry->plugin_short_description = "Displays source files. Use a left mouse click\non the menu icon or use right mouse button\ndown on tab for menu options.";
-  plugin_entry->plugin_name =  "SourcePanel.so";
-//unused  plugin_entry->plugin_location = "$OPENSS_PLUGIN_PATH";
-  plugin_entry->plugin_entry_point = "panel_init";
-  plugin_entry->menu_heading =  "&Tools";
-  plugin_entry->menu_label =  "Source Panel";
-  plugin_entry->menu_accel =  "Alt+J";
-  plugin_entry->panel_type =  "Source Panel";
-  plugin_entry->preference_category =  "Source Panel";
-  plugin_entry->initialize_preferences_entry_point =  "initialize_preferences_entry_point";
-  plugin_entry->save_preferences_entry_point =  "save_preferences_entry_point";
+  plugin_entry->plugin_description = (char *) "PLUGIN_DESCRIPTION";
+  plugin_entry->plugin_short_description = (char *) "Displays source files. Use a left mouse click\non the menu icon or use right mouse button\ndown on tab for menu options.";
+  plugin_entry->plugin_name = (char *) "SourcePanel.so";
+//unused  plugin_entry->plugin_location = (char *) "$OPENSS_PLUGIN_PATH";
+  plugin_entry->plugin_entry_point = (char *) "panel_init";
+  plugin_entry->menu_heading = (char *) "&Tools";
+  plugin_entry->menu_label = (char *) "Source Panel";
+  plugin_entry->menu_accel = (char *) "Alt+J";
+  plugin_entry->panel_type = (char *) "Source Panel";
+  plugin_entry->preference_category = (char *) "Source Panel";
+  plugin_entry->initialize_preferences_entry_point = (char *) "initialize_preferences_entry_point";
+  plugin_entry->save_preferences_entry_point = (char *) "save_preferences_entry_point";

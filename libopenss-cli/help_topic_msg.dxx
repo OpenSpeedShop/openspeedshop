@@ -25,41 +25,41 @@
 /*********************************************/
 // BRIEF TOPICS
 /*********************************************/
-char *topic_commands_brief = {
+const char *topic_commands_brief = {
     "Lists all available commands"
 };
-char *topic_grammar_brief = {
+const char *topic_grammar_brief = {
     "Lists command grammar elements"
 };
-char *topic_experiments_brief = {
+const char *topic_experiments_brief = {
     "Lists available experiments"
 };
-char *topic_man_brief = {
+const char *topic_man_brief = {
     "How to access the Open|SpeedShop man page"
 };
-char *topic_nomenclature_brief = {
+const char *topic_nomenclature_brief = {
     "Lists general Open|SpeedShop nomenclature"
 };
-char *topic_preferences_brief = {
+const char *topic_preferences_brief = {
     "Lists general Open|SpeedShop preference variables"
 };
 
 /*********************************************/
 // DETAILED TOPICS
 /*********************************************/
-char *topic_commands_detailed[] = {
+const char *topic_commands_detailed[] = {
     topic_commands_brief,
     " "
 };
-char *topic_grammar_detailed[] = {
+const char *topic_grammar_detailed[] = {
     topic_grammar_brief,
     " "
 };
-char *topic_experiments_detailed[] = {
+const char *topic_experiments_detailed[] = {
     topic_experiments_brief,
     " "
 };
-char *topic_man_detailed[] = {
+const char *topic_man_detailed[] = {
     topic_man_brief,
     " ",
     "Use the shell escape sequence:",
@@ -71,11 +71,11 @@ char *topic_man_detailed[] = {
     "is completed.",
     " "
 };
-char *topic_nomenclature_detailed[] = {
+const char *topic_nomenclature_detailed[] = {
     topic_nomenclature_brief,
     " "
 };
-char *topic_preferences_detailed[] = {
+const char *topic_preferences_detailed[] = {
     topic_preferences_brief,
     " ",
     "Set preference variables through the GUI panel:",

@@ -828,7 +828,7 @@ CustomizeClass::focusOnCSetSelected()
        printf("CustomizeClass::focusOnCSetSelected, Didn't find a stats panel.... Create one.\n");
 #endif
 
-      char *panel_type = "Stats Panel";
+      char *panel_type = (char *) "Stats Panel";
       PanelContainer *bestFitPC = p->getPanelContainer()->getMasterPC()->findBestFitPanelContainer(p->getPanelContainer());
       ArgumentObject *ao = new ArgumentObject("ArgumentObject", expID);
       sp = p->getPanelContainer()->dl_create_and_add_panel(panel_type, bestFitPC, ao);
