@@ -41,6 +41,7 @@ CustomExperimentPanel_la_CXXFLAGS = \
 CustomExperimentPanel_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-guibase \
+	-L$(top_srcdir)/libopenss-gui \
 	-L$(top_srcdir)/libopenss-guiobjects \
 	-L$(top_srcdir)/libopenss-cli \
 	@QTLIB_LDFLAGS@ \
@@ -49,6 +50,7 @@ CustomExperimentPanel_la_LDFLAGS = \
 CustomExperimentPanel_la_LIBADD = \
 	-lopenss-framework \
 	-lopenss-guibase \
+	-lopenss-gui \
 	-lopenss-guiobjects \
 	-lopenss-cli \
 	@QTLIB_LIBS@
