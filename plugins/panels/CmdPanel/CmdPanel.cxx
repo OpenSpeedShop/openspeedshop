@@ -147,17 +147,6 @@ CmdPanel::~CmdPanel()
   nprintf(DEBUG_CONST_DESTRUCT) ( "  CmdPanel::~CmdPanel() destructor called.\n");
 }
 
-void Default_TLI_Command_Output(CommandObject *C)
-{
-  printf("CmdPanel::callback(well sort of) entered\n");
-}
-
-void Default_TLI_Line_Output( InputLineObject *clip)
-{
-  printf("Default_TLI_Line_Output() entered\n");
-}
-
-
 typedef QValueList<QString> CommandList;
 void
 CmdPanel::returnPressed()
