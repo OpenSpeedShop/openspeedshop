@@ -174,20 +174,28 @@ static void Determine_Objects (
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
   OpenSpeedShop::cli::ParseTarget pt;
+  std::set<Function> mpi_objects;
+  std::set<Function> pmpi_objects;
   if (p_tlist->begin() == p_tlist->end()) {
    // There is no <target> list for filtering.
    // Get all the mpi functions for all the threads.
-    objects = exp->FW()->getFunctionsByNamePattern ("PMPI*");
+    pmpi_objects = exp->FW()->getFunctionsByNamePattern ("PMPI*");
+    mpi_objects = exp->FW()->getFunctionsByNamePattern ("MPI*");
+    objects.insert(pmpi_objects.begin(), pmpi_objects.end());
+    objects.insert(mpi_objects.begin(), mpi_objects.end());
   } else {
    // There is a list.  Is there a "-f" specifier?
     vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
     pt = *p_tlist->begin(); // There can only be one!
     f_list = pt.getFileList();
 
-    if ((f_list == NULL) || (f_list->empty())) { 
+    if ((f_list == NULL) || (f_list->empty())) {
      // There is no <file> list for filtering.
      // Get all the mpi functions for all, previously selected, threads.
-      objects = exp->FW()->getFunctionsByNamePattern ("PMPI*");
+      pmpi_objects = exp->FW()->getFunctionsByNamePattern ("PMPI*");
+      mpi_objects = exp->FW()->getFunctionsByNamePattern ("MPI*");
+      objects.insert(pmpi_objects.begin(), pmpi_objects.end());
+      objects.insert(mpi_objects.begin(), mpi_objects.end());
     } else {
      // use the general utility to select the specified threads.
       Get_Filtered_Objects (cmd, exp, tgrp, objects);
