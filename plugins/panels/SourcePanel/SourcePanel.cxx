@@ -797,7 +797,8 @@ SourcePanel::goToFunction()
         const std::string func_string = std::string(text.ascii());
 //        std::pair<bool, Function>  function = thread.getFunctionByName(func_string, time);
         std::pair<bool, Function>  function = thread.getFunctionByName(func_string);
-        std::set<Statement> statement_definition = function.second.getDefinitions();
+        std::set<Statement> statement_definition;
+	if (function.first) statement_definition  = function.second.getDefinitions();
         if( statement_definition.size() > 0 )
         {
           std::set<Statement>::const_iterator i = statement_definition.begin();
