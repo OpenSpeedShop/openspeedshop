@@ -405,12 +405,14 @@ SourcePanel_la_CXXFLAGS = \
 SourcePanel_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-guibase \
+	-L$(top_srcdir)/libopenss-cli \
 	@QTLIB_LDFLAGS@ \
 	-export-dynamic -export-all-symbols -module -avoid-version
 
 SourcePanel_la_LIBADD = \
 	-lopenss-framework \
 	-lopenss-guibase \
+	-lopenss-cli \
 	@QTLIB_LIBS@
 
 SourcePanel_la_SOURCES = \
