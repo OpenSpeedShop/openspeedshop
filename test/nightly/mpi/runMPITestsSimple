@@ -54,7 +54,8 @@ do
    fi
 
 # for thisMPI in openmpi mpich2
- for thisMPI in mpich2 openmpi
+# for thisMPI in mpich2 openmpi mvapich
+ for thisMPI in openmpi
  do
 
 #  loop here through a compiler list
@@ -80,13 +81,13 @@ do
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.2
+           module load openmpi-1.3.3
 #           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.1
+           module load mpich2-1.2
 #           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=mpich2
@@ -94,48 +95,58 @@ do
            echo "startup mpd command path directory is:" \$mpdcommand
          elif  [ "$thisMPI" == "mvapich" ] 
          then
+           module load mvapich-1.1
            export OPENSS_MPI_IMPLEMENTATION=mvapich
          fi
      elif  [ "$thiscompiler" == "pgi" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
+           module load openmpi-1.3.3
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
+           module load mpich2-1.2
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "startup mpd command path directory is:" \$mpdcommand
          elif  [ "$thisMPI" == "mvapich" ] 
          then
+           module load mvapich-1.1
            export OPENSS_MPI_IMPLEMENTATION=mvapich
          fi
      elif  [ "$thiscompiler" == "intel" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
+           module load openmpi-1.3.3
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
+           module load mpich2-1.2
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "startup mpd command path directory is:" \$mpdcommand
          elif  [ "$thisMPI" == "mvapich" ] 
          then
+           module load mvapich-1.1
            export OPENSS_MPI_IMPLEMENTATION=mvapich
          fi
      elif  [ "$thiscompiler" == "pathscale" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
+           module load openmpi-1.3.3
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
+           module load mpich2-1.2
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "startup mpd command path directory is:" \$mpdcommand
          elif  [ "$thisMPI" == "mvapich" ] 
          then
+           module load mvapich-1.1
            export OPENSS_MPI_IMPLEMENTATION=mvapich
          fi
      fi
@@ -319,13 +330,13 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.2
+           module load openmpi-1.3.3
 #           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.1
+           module load mpich2-1.2
 #           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=mpich2
@@ -334,51 +345,61 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
            \$mpdcommand &
          elif  [ "$thisMPI" == "mvapich" ] 
          then
+           module load mvapich-1.1
            export OPENSS_MPI_IMPLEMENTATION=mvapich
          fi
      elif  [ "$thiscompiler" == "pgi" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
+           module load openmpi-1.3.3
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
+           module load mpich2-1.2
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "smg2000 mpd command path directory is:" \$mpdcommand
            \$mpdcommand &
          elif  [ "$thisMPI" == "mvapich" ] 
          then
+           module load mvapich-1.1
            export OPENSS_MPI_IMPLEMENTATION=mvapich
          fi
      elif  [ "$thiscompiler" == "intel" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
+           module load openmpi-1.3.3
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
+           module load mpich2-1.2
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "smg2000 mpd command path directory is:" \$mpdcommand
            \$mpdcommand &
          elif  [ "$thisMPI" == "mvapich" ] 
          then
+           module load mvapich-1.1
            export OPENSS_MPI_IMPLEMENTATION=mvapich
          fi
      elif  [ "$thiscompiler" == "pathscale" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
+           module load openmpi-1.3.3
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
+           module load mpich2-1.2
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "smg2000 mpd command path directory is:" \$mpdcommand
            \$mpdcommand &
          elif  [ "$thisMPI" == "mvapich" ] 
          then
+           module load mvapich-1.1
            export OPENSS_MPI_IMPLEMENTATION=mvapich
          fi
      fi
@@ -671,13 +692,13 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.2
+           module load openmpi-1.3.3
 #           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.1
+           module load mpich2-1.2
 #           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=mpich2
@@ -686,51 +707,61 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
            \$mpdcommand &
          elif  [ "$thisMPI" == "mvapich" ] 
          then
+           module load mvapich-1.1
            export OPENSS_MPI_IMPLEMENTATION=mvapich
          fi
      elif  [ "$thiscompiler" == "pgi" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
+           module load openmpi-1.3.3
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
+           module load mpich2-1.2
            mpdcommand=`which mpd`
            echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
            \$mpdcommand &
            export OPENSS_MPI_IMPLEMENTATION=mpich2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
+           module load mvapich-1.1
            export OPENSS_MPI_IMPLEMENTATION=mvapich
          fi
      elif  [ "$thiscompiler" == "intel" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
+           module load openmpi-1.3.3
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
+           module load mpich2-1.2
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            \$mpdcommand &
            echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
          elif  [ "$thisMPI" == "mvapich" ] 
          then
+           module load mvapich-1.1
            export OPENSS_MPI_IMPLEMENTATION=mvapich
          fi
      elif  [ "$thiscompiler" == "pathscale" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
+           module load openmpi-1.3.3
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
+           module load mpich2-1.2
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
            \$mpdcommand &
          elif  [ "$thisMPI" == "mvapich" ] 
          then
+           module load mvapich-1.1
            export OPENSS_MPI_IMPLEMENTATION=mvapich
          fi
      fi
