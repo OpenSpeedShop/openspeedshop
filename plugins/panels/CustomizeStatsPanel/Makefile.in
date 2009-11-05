@@ -416,6 +416,7 @@ CustomizeStatsPanel_la_CXXFLAGS = \
 CustomizeStatsPanel_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-guibase \
+	-L$(top_srcdir)/libopenss-gui \
 	-L$(top_srcdir)/libopenss-guiobjects \
 	@QTLIB_LDFLAGS@ \
 	-export-dynamic -export-all-symbols -module -avoid-version
@@ -423,6 +424,7 @@ CustomizeStatsPanel_la_LDFLAGS = \
 CustomizeStatsPanel_la_LIBADD = \
 	-lopenss-framework \
 	-lopenss-guibase \
+	-lopenss-gui \
 	-lopenss-guiobjects \
 	@QTLIB_LIBS@
 
