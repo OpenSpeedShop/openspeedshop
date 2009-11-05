@@ -113,7 +113,6 @@ static void send_samples(TLS *tls)
     }
 #endif
 
-    OpenSS_SetSendToFile(&(tls->header), "hwc","openss-data");
     OpenSS_Send(&(tls->header),(xdrproc_t)xdr_hwc_data,&(tls->data));
 
 #if defined(OPENSS_OFFLINE)
@@ -157,9 +156,6 @@ hwcPAPIHandler(int EventSet, void* pc, long_long overflow_vector, void* context)
     /* Update the sampling buffer and check if it has been filled */
     if(OpenSS_UpdatePCData((uint64_t)pc, &tls->buffer)) {
 
-	/* Send these samples */
-	send_samples(tls);
-
 #ifndef NDEBUG
         if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
             fprintf(stderr,"hwcPAPIHandler sends data:\n");
@@ -170,8 +166,8 @@ hwcPAPIHandler(int EventSet, void* pc, long_long overflow_vector, void* context)
         }
 #endif
 
-	OpenSS_SetSendToFile(&(tls->header), "hwc", "openss-data");
-	OpenSS_Send(&tls->header, (xdrproc_t)xdr_hwc_data, &tls->data);
+	/* Send these samples */
+	send_samples(tls);
 
 	/* Re-initialize the data blob's header */
 	tls->header.time_begin = tls->header.time_end;
@@ -228,6 +224,7 @@ void hwc_start_sampling(const char* arguments)
     OpenSS_DataHeader local_header;
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
     memcpy(&tls->header, &local_header, sizeof(OpenSS_DataHeader));
+    OpenSS_SetSendToFile(&(tls->header), "hwc","openss-data");
 
     tls->header.time_begin = 0;
     tls->header.time_end = 0;
@@ -308,9 +305,6 @@ void hwc_stop_sampling(const char* arguments)
     /* Are there any unsent samples? */
     if(tls->buffer.length > 0) {
 
-	/* Send these samples */
-	send_samples(tls);
-
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	    fprintf(stderr, "hwc_stop_sampling:\n");
@@ -321,8 +315,9 @@ void hwc_stop_sampling(const char* arguments)
 	}
 #endif
 
-	OpenSS_SetSendToFile(&(tls->header), "hwc", "openss-data");
-	OpenSS_Send(&(tls->header), (xdrproc_t)xdr_hwc_data, &(tls->data));
+	/* Send these samples */
+	send_samples(tls);
+
     }
 
     /* Destroy our thread-local storage */

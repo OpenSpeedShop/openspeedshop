@@ -146,7 +146,6 @@ static void mpiotf_send_events(TLS *tls)
 #endif
 
     /* Send these events */
-    OpenSS_SetSendToFile(&(tls->header), "mpiotf", "openss-data");
     OpenSS_Send(&(tls->header), (xdrproc_t)xdr_mpiotf_data, &(tls->data));
     
     /* Re-initialize the data blob's header */
@@ -584,6 +583,7 @@ void mpiotf_start_tracing(const char* arguments)
     OpenSS_DataHeader local_header;
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
     memcpy(&tls->header, &local_header, sizeof(OpenSS_DataHeader));
+    OpenSS_SetSendToFile(&(tls->header), "mpiotf", "openss-data");
 
     tls->header.time_begin = 0;
     tls->header.time_end = 0;

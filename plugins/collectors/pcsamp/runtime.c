@@ -128,7 +128,6 @@ static void pcsampTimerHandler(const ucontext_t* context)
         }
 #endif
 
-	OpenSS_SetSendToFile(&(tls->header), "pcsamp", "openss-data");
 	OpenSS_Send(&tls->header, (xdrproc_t)xdr_pcsamp_data, &tls->data);
 
 #if defined(OPENSS_OFFLINE)
@@ -190,6 +189,7 @@ void pcsamp_start_sampling(const char* arguments)
     OpenSS_InitializeDataHeader(args.experiment, args.collector,
 				&local_data_header);
     memcpy(&tls->header, &local_data_header, sizeof(OpenSS_DataHeader));
+    OpenSS_SetSendToFile(&(tls->header), "pcsamp", "openss-data");
     
     /* Initialize the actual data blob */
     tls->data.interval = 
@@ -253,7 +253,6 @@ void pcsamp_stop_sampling(const char* arguments)
 	}
 #endif
 
-	OpenSS_SetSendToFile(&(tls->header), "pcsamp", "openss-data");
 	OpenSS_Send(&(tls->header), (xdrproc_t)xdr_pcsamp_data, &(tls->data));
 
 #if defined(OPENSS_OFFLINE)

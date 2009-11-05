@@ -123,7 +123,6 @@ static void send_samples(TLS *tls)
     }
 #endif
 
-    OpenSS_SetSendToFile(&(tls->header), "usertime", "openss-data");
     OpenSS_Send(&(tls->header),(xdrproc_t)xdr_usertime_data,&(tls->data));
 
 #if defined(OPENSS_OFFLINE)
@@ -307,6 +306,7 @@ void usertime_start_sampling(const char* arguments)
     OpenSS_DataHeader local_header;
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
     memcpy(&tls->header, &local_header, sizeof(OpenSS_DataHeader));
+    OpenSS_SetSendToFile(&(tls->header), "usertime", "openss-data");
 
     tls->header.time_begin = 0;
     tls->header.time_end = 0;
