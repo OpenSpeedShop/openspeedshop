@@ -18,7 +18,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-AC_INIT(OpenSpeedShop, 1.9.3)
+AC_INIT(OpenSpeedShop, 1.9.3.1)
 AC_COPYRIGHT([[Copyright (c) 2006-2009 Krell Institute. All Rights Reserved.]])
 AM_INIT_AUTOMAKE
 

@@ -1,3 +1,8 @@
+
+Changes in 1.9.3.1 since the 1.9.3 release:
+
+1) Many fixes to support OpenSpeedShop usage on FC11.
+
 Changes in 1.9.3 since the 1.9.2 release:
 
 1) Configuration changes to support creating target static collectors and a static runtime library for inclusion into static application binaries to gather performance data.
