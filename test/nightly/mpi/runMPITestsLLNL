@@ -106,6 +106,45 @@ gunzip $testexe.tar.gz
 tar -xvf $testexe.tar
 gzip $testexe.tar
 
+
+#
+# only keep the previous copy, if one already exists delete it
+#
+if [ -a prev_${testexe}_${thiscompiler} ]
+then
+   rm -rf prev_${testexe}_${thiscompiler}
+fi
+
+#
+# keep the previous run as a previous copy
+#
+if [ -a ${testexe}_${thiscompiler} ]
+then
+   mv -f ${testexe}_${thiscompiler} prev_${testexe}_${thiscompiler}
+fi
+
+mv $testexe ${testexe}_${thiscompiler}
+
+##
+## only keep the previous copy, if one already exists delete it
+##
+#if [ -a prev_${testexe}_${thiscompiler}_${thisMPI} ]
+#then
+#   rm -rf prev_${testexe}_${thiscompiler}_${thisMPI}
+#fi
+#
+##
+## keep the previous run as a previous copy
+##
+#if [ -a ${testexe}_${thiscompiler}_${thisMPI} ]
+#then
+#   mv -f ${testexe}_${thiscompiler}_${thisMPI} prev_${testexe}_${thiscompiler}_${thisMPI}
+#fi
+#mv $testexe ${testexe}_${thiscompiler}_${thisMPI}
+#
+#cd ${testexe}_${thiscompiler}_${thisMPI}
+
+
 sysSED=`which sed`
 
 if [ $debug_flag == 1 ]
@@ -113,31 +152,36 @@ then
   echo "system sed command is" $sysSED
 fi
 
-cd $testexe
+#cd $testexe
+#cd ${testexe}_${thiscompiler}_${thisMPI}
+cd ${testexe}_${thiscompiler}
+
 
 #
 # Here we change the mpi compiler script name to match with the compiler
 #
-
+echo "testexe=$testexe"
 if [ "$testexe" == "smg2000" ]
 then
-  cd $currentdir/smg2000
+#  cd $currentdir/smg2000
   if [ "$thiscompiler" == "pgi" ]
   then
      $sysSED 's/mpicc/mpipgcc/' Makefile.include > newMakefile.include
   elif [ "$thiscompiler" == "intel" ]
   then
-     $sysSED 's/mpicc/mpiicc-10.1.017/' Makefile.include > newMakefile.include
+#     $sysSED 's/mpicc/mpiicc-10.1.017/' Makefile.include > newMakefile.include
+     $sysSED 's/mpicc/mpiicc/' Makefile.include > newMakefile.include
   fi
 elif  [ "$testexe" == "sweep3d" ]
 then
-  cd $currentdir/sweep3d
+#  cd $currentdir/sweep3d
   if [ "$thiscompiler" == "pgi" ]
   then
      $sysSED 's/mpif77/mpipgf77/' makefile > new_makefile
   elif [ "$thiscompiler" == "intel" ]
   then
-     $sysSED 's/mpif77/mpiifort-10.1.017/' makefile > new_makefile
+#     $sysSED 's/mpif77/mpiifort-10.1.017/' makefile > new_makefile
+     $sysSED 's/mpif77/mpiifort/' makefile > new_makefile
   fi
 fi
 
@@ -163,18 +207,18 @@ fi
 
 if [ "$testexe" == "smg2000" ]
 then
-   testpath=$testpathbase/smg2000/test
+   testpath=$testpathbase/smg2000_$thiscompiler/test
    testexepath=$testpath
    testexeargs='-n 35 35 35'
    testprogram=$testexepath/$testexe
 elif [ "$testexe" == "sweep3d" ]
 then
-   testpath=$testpathbase/$testexe
+   testpath=$testpathbase/$testexe_$thiscompiler
    testexepath=$testpath
    testexeargs=''
    testprogram=$testexepath/$testexe.mpi
 else
-   testpath=$testpathbase/$testexe
+   testpath=$testpathbase/$testexe_$thiscompiler
    testexepath=$testpath
    testexeargs=''
    testprogram=$testexepath/$testexe
@@ -1196,24 +1240,6 @@ fi
 
 
 cd $testpathbase
-
-#
-# only keep the previous copy, if one already exists delete it
-#
-if [ -a prev_${testexe}_${thiscompiler} ]
-then
-   rm -rf prev_${testexe}_${thiscompiler}
-fi
-
-#
-# keep the previous run as a previous copy
-#
-if [ -a ${testexe}_${thiscompiler} ]
-then
-   mv -f ${testexe}_${thiscompiler} prev_${testexe}_${thiscompiler}
-fi
-
-mv $testexe ${testexe}_${thiscompiler}
 
 # end loop through the compiler list
 done
