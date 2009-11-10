@@ -117,6 +117,12 @@ then
      echo "                                      Or           PAPI_L1_DCM"
      echo "                                                   for Level 1 data cache misses."
      echo "            \"threshold value\"  - Use this threshold value for the specified pape_event instead of the default or any environment variable settings."
+     whichpapi_avail=`which papi_avail`
+     if test -f $whichpapi_avail
+      then
+        echo " Available Hardware counter events are:"
+        $whichpapi_avail | grep "Yes   No"
+     fi
    elif [[ "$experiment_name" == "ossio" || "$experiment_name" == "ossiot" ]]; then
      echo "            \"I/O functions to trace\"  - Specify the list of I/O functions to be traced when running the io or iot experiments."
      echo "                                             For example: read,write,dup"
