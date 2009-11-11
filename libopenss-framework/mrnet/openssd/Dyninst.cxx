@@ -819,7 +819,7 @@ BPatch_variableExpr* OpenSpeedShop::Framework::Dyninst::findGlobalVariable(
     Assert(image != NULL);
 
     // Attempt to find the requested global variable
-    BPatch_variableExpr* variable = image->findVariable(name.c_str());
+    BPatch_variableExpr* variable = image->findVariable(name.c_str(),false);
 
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {
