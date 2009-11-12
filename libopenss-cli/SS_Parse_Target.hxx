@@ -199,7 +199,7 @@ class ParseTarget {
 	    ParseRange range(name);
     	    dm_thread_list.push_back(range);
 	}
-    	void pushThreadPoint(int num) {
+    	void pushThreadPoint(int64_t num) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(num);
     	    dm_thread_list.push_back(range);
