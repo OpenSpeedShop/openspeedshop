@@ -5339,15 +5339,28 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
       QString expIdStr = infoAboutStringCompareExpIDs.mid(start_expID_index, expIDindex-start_expID_index);
 
 #ifdef DEBUG_StatsPanel
-      printf("SP::updateStatsPanelData TOP OF WHILD cview case, start_expID_index=%d, (expIDindex-start_expID_index)=%d, expIDindex=%d, expIdStr=%s\n",
+      printf("SP::updateStatsPanelData TOP OF WHILE cview case, start_expID_index=%d, (expIDindex-start_expID_index)=%d, expIDindex=%d, expIdStr=%s\n",
              start_expID_index, (expIDindex-start_expID_index), expIDindex, expIdStr.ascii());
 #endif
 
      int compareExpID = expIdStr.toInt();
      if (compareExpID > 0)  {
 
-          compareID_count = compareID_count + 1;
-          compareExpIDs.push_back (compareExpID);
+
+          // See if the experiment ID is already in the list.  This happens with pthreaded/openMP applications
+          //
+          bool skip_this_one = false;
+          for( std::vector<int>::const_iterator it = compareExpIDs.begin(); it != compareExpIDs.end(); it++ ) {
+              int tmp_exp_id = *it;
+              if (tmp_exp_id == compareExpID) {
+                 skip_this_one = true;
+              }
+          }
+       
+          if (!skip_this_one) {
+            compareID_count = compareID_count + 1;
+            compareExpIDs.push_back (compareExpID);
+          }
           toolbar_status_label->setText("Showing Comparison Report...");
           currentUserSelectedReportStr = "Comparison";
 
@@ -11350,6 +11363,14 @@ StatsPanel::getValidExperimentIdForView()
 #ifdef DEBUG_StatsPanel_cview
   printf("WE have a chooseExperimentDialog, chooseExperimentDialog=%d, compareExpIDs[0]=%d\n", 
          chooseExperimentDialog, compareExpIDs[0]);
+  if (compareExpIDs[1] > 0) {
+    printf("WE have a chooseExperimentDialog, chooseExperimentDialog=%d, compareExpIDs[1]=%d\n", 
+           chooseExperimentDialog, compareExpIDs[1]);
+  }
+  if (compareExpIDs[2] > 0) {
+    printf("WE have a chooseExperimentDialog, chooseExperimentDialog=%d, compareExpIDs[2]=%d\n", 
+           chooseExperimentDialog, compareExpIDs[2]);
+  }
 #endif
 
   if( chooseExperimentDialog == NULL ) {
@@ -11373,6 +11394,10 @@ StatsPanel::getValidExperimentIdForView()
      return_exp_id = chooseExperimentDialog->focusExpID;
      // We could make this optional, so that we could keep using the result focusExpID without asking again
      chooseExperimentDialog = NULL;
+  } else {
+#ifdef DEBUG_StatsPanel
+     printf("StatsPanel::getValidExperimentIdForView, QDialog::Rejected\n");
+#endif
   }
 
 
