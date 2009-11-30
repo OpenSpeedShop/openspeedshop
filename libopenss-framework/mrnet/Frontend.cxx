@@ -112,6 +112,8 @@ namespace {
 	// Get the MRNet file descriptor
 #ifdef MRNET_21
 	int mrnet_fd = the_network->get_EventNotificationFd( MRN::DATA_EVENT );
+#elif defined(MRNET_22)
+	int mrnet_fd = the_network->get_EventNotificationFd( MRN::DATA_EVENT );
 #else
         int mrnet_fd = the_network->get_DataNotificationFd();
 #endif
@@ -172,6 +174,8 @@ namespace {
 
 		// Reset the MRNet notification descriptor
 #ifdef MRNET_21
+		the_network->clear_EventNotificationFd( MRN::DATA_EVENT );
+#elif defined(MRNET_22)
 		the_network->clear_EventNotificationFd( MRN::DATA_EVENT );
 #else
                 the_network->clear_DataNotificationFd();
@@ -320,8 +324,14 @@ void Frontend::startMessagePump(const Path& topology_file)
     // Initialize MRNet (participating as the frontend)
     if(is_tracing_debug_enabled)
 	MRN::set_OutputLevel(5);
+#ifdef MRNET_22
+    the_network = MRN::Network::CreateNetworkFE(topology_file.getNormalized().c_str(),
+				   executable.c_str(), argv);
+#else
     the_network = new MRN::Network(topology_file.getNormalized().c_str(),
 				   executable.c_str(), argv);
+#endif
+
     if(the_network->has_Error())
 	throw std::runtime_error("Unable to initialize MRNet.");
 
@@ -330,6 +340,8 @@ void Frontend::startMessagePump(const Path& topology_file)
     
     // Create the stream used by backends to pass data to the frontend.
 #ifdef MRNET_21
+    upstream = the_network->new_Stream(the_network->get_BroadcastCommunicator(),
+#elif defined(MRNET_22)
     upstream = the_network->new_Stream(the_network->get_BroadcastCommunicator(),
 #else
     upstream = network->new_Stream(the_network->get_BroadcastCommunicator(),

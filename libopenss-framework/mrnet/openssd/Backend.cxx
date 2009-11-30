@@ -140,6 +140,8 @@ namespace {
 	// Get the MRNet file descriptor
 #ifdef MRNET_21
 	int mrnet_fd = the_network->get_EventNotificationFd( MRN::DATA_EVENT );
+#elif defined(MRNET_22)
+	int mrnet_fd = the_network->get_EventNotificationFd( MRN::DATA_EVENT );
 #else
         int mrnet_fd = the_network->get_DataNotificationFd();
 #endif
@@ -230,6 +232,8 @@ namespace {
 
 		// Reset the MRNet notification descriptor
 #ifdef MRNET_21
+		the_network->clear_EventNotificationFd( MRN::DATA_EVENT );
+#elif defined(MRNET_22)
 		the_network->clear_EventNotificationFd( MRN::DATA_EVENT );
 #else
                 the_network->clear_DataNotificationFd();
@@ -358,7 +362,11 @@ void Backend::startMessagePump(int argc, char* argv[])
 #endif
 
     // Initialize MRNet (participating as a backend)
+#ifdef MRNET_22
+    the_network = MRN::Network::CreateNetworkBE(argc, argv);
+#else
     the_network = new MRN::Network(argc, argv);
+#endif
     if(the_network->has_Error())
 	throw std::runtime_error("Unable to initialize MRNet.");
     the_network->set_TerminateBackEndsOnShutdown(false);
