@@ -42,7 +42,7 @@ AC_DEFUN([AC_PKG_LAM], [
 	MPI_Initialized((int*)0);
 	]]),
 
-	if nm $lam_dir/$abi_libdir/libmpi.so \
+	if objdump -T $lam_dir/$abi_libdir/libmpi.so \
 		| cut -d' ' -f3 | grep "^lam_init" >/dev/null; then
 	    found_lam=1
 	fi
@@ -89,7 +89,7 @@ AC_DEFUN([AC_PKG_LAM], [
              MPI_Initialized((int*)0);
              ]]),
 
-             if nm $lam_dir/$alt_abi_libdir/libmpi.so \
+             if objdump -T $lam_dir/$alt_abi_libdir/libmpi.so \
                 | cut -d' ' -f3 | grep "^lam_init" >/dev/null; then
                  found_lam=1
              fi
@@ -170,7 +170,7 @@ AC_DEFUN([AC_PKG_LAMPI], [
 	MPI_Initialized((int*)0);
 	]]),
 
-	if nm $lampi_dir/$abi_libdir/libmpi.so \
+	if objdump -T $lampi_dir/$abi_libdir/libmpi.so \
 		| cut -d' ' -f3 | grep "^lampi_init" >/dev/null; then
 	    found_lampi=1
 	fi
@@ -217,7 +217,7 @@ AC_DEFUN([AC_PKG_LAMPI], [
              MPI_Initialized((int*)0);
              ]]),
 
-             if nm $lampi_dir/$alt_abi_libdir/libmpi.so \
+             if objdump -T $lampi_dir/$alt_abi_libdir/libmpi.so \
                 | cut -d' ' -f3 | grep "^lampi_init" >/dev/null; then
                  found_lampi=1
              fi
@@ -663,7 +663,7 @@ AC_DEFUN([AC_PKG_MPT], [
 	MPI_Initialized((int*)0);
 	]]),
 
-	if nm $mpt_dir/$abi_libdir/libmpi.so \
+	if objdump -T $mpt_dir/$abi_libdir/libmpi.so \
 		| grep MPI_debug_rank >/dev/null; then
 	    found_mpt=1
 	fi
@@ -735,10 +735,10 @@ AC_DEFUN([AC_PKG_OPENMPI], [
 	MPI_Initialized((int*)0);
 	]]),
 
-	if (nm $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+	if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
 	    found_openmpi=1
 	fi
 
@@ -759,10 +759,10 @@ AC_DEFUN([AC_PKG_OPENMPI], [
    	MPI_Initialized((int*)0);
    	]]),
    
-   	if (nm $openmpi_dir/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm $openmpi_dir/$abi_libdir/openmpi/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+   	if (objdump -T $openmpi_dir/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$abi_libdir/openmpi/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
 	   found_openmpi=1
    	fi
    
@@ -785,10 +785,10 @@ AC_DEFUN([AC_PKG_OPENMPI], [
    	MPI_Initialized((int*)0);
    	]]),
    
-   	if (nm $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+   	if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
 	   found_openmpi=1
    	fi
    
@@ -808,10 +808,10 @@ AC_DEFUN([AC_PKG_OPENMPI], [
    	MPI_Initialized((int*)0);
    	]]),
    
-   	if (nm $openmpi_dir/$alt_abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$alt_abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$alt_abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm $openmpi_dir/$alt_abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+   	if (objdump -T $openmpi_dir/$alt_abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$alt_abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$alt_abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$alt_abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
 	   found_openmpi=1
    	fi
    
@@ -833,10 +833,10 @@ AC_DEFUN([AC_PKG_OPENMPI], [
    	MPI_Initialized((int*)0);
    	]]),
    
-   	if (nm $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+   	if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
 	   found_openmpi=1
    	fi
    
