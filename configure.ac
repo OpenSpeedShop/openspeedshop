@@ -79,6 +79,14 @@ AC_PROG_LN_S
 ################################################################################
 
 case "$host" in
+    powerpc64-*-linux*) 
+        if test x"$libdir" == x'${exec_prefix}/lib'; then
+            libdir='${exec_prefix}/lib64'
+        fi
+        abi_libdir="lib64"
+        alt_abi_libdir="lib"
+        LDFLAGS="-L/usr/lib64 $LDFLAGS"
+        ;;
     x86_64-*-linux*)
         if test x"$libdir" == x'${exec_prefix}/lib'; then
             libdir='${exec_prefix}/lib64'
