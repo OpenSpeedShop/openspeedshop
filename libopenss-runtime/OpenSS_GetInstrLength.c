@@ -29,7 +29,7 @@
    to decode the instruction at the exception address to
    determine it's length.
 */
-#if defined(__linux) && (defined(__i386) || defined(__x86_64))
+#if defined(__linux) && (defined(__i386) || defined(__x86_64) || defined(__powerpc__) || defined(__powerpc64__))
 
 #include <bfd.h>
 #include <stdint.h>
@@ -127,6 +127,10 @@ int OpenSS_GetInstrLength(uint64_t pcvalue)
 //fprintf(stderr,"libopenss-runtime:OpenSS_GetInstrLength returns length %d\n",
 //	insbytes);
     return insbytes;
+
+#elif defined(__linux) && defined(__powerpc__)
+
+#elif defined(__linux) && defined(__powerpc64__)
 
 #elif defined(__linux) && defined(__ia64)
 

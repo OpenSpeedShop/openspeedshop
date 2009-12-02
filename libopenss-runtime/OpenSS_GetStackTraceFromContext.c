@@ -83,6 +83,10 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
     else
 	Assert(getcontext(&context) == 0);
 
+#elif defined(__linux) && defined( __powerpc64__ )
+
+#elif defined(__linux) && defined( __powerpc__ )
+
 #elif defined(__linux) && defined(__ia64)
 
     /* Get the current thread context */

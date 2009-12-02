@@ -48,7 +48,17 @@ uint64_t OpenSS_GetAddressOfFunction(const void* pointer)
     /* Check assertions */   
     Assert(pointer != NULL);
 
-#if defined(__linux) && (defined(__i386) || defined(__x86_64))
+#if defined(__linux) && (defined __powerpc64__ )
+
+    /* Return the function pointer directly on Linux/IA32 and Linux/X86-64 */
+    return (uint64_t)((uintptr_t)pointer);
+
+#elif defined(__linux) && (defined __powerpc__ )
+
+    /* Return the function pointer directly on Linux/IA32 and Linux/X86-64 */
+    return (uint64_t)((uintptr_t)pointer);
+
+#elif defined(__linux) && (defined(__i386) || defined(__x86_64) )
 
     /* Return the function pointer directly on Linux/IA32 and Linux/X86-64 */
     return (uint64_t)((uintptr_t)pointer);

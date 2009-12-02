@@ -48,8 +48,16 @@ uint64_t OpenSS_GetPCFromContext(const ucontext_t* context)
     
     /* Return PC value from Linux/IA32 thread context */
     return (uint64_t)(context->uc_mcontext.gregs[REG_EIP]);
-    
-#elif defined(__linux) && defined(__x86_64)
+
+#elif defined(__linux) &&  defined(__powerpc__) 
+
+  return *(uint64_t *) (((struct pt_regs *) ((&(context->uc_mcontext))->regs))->nip);
+
+#elif defined(__linux) &&  defined(__powerpc64__)
+
+  return *(uint64_t *) (((struct pt_regs *) ((&(context->uc_mcontext))->regs))->nip);
+
+#elif defined(__linux) && defined(__x86_64) 
 
     /* Return PC value from Linux/X86-64 thread context */
 #if __WORDSIZE == 64
