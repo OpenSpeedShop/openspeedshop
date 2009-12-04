@@ -130,7 +130,20 @@ int OpenSS_GetInstrLength(uint64_t pcvalue)
 
 #elif defined(__linux) && defined(__powerpc__)
 
+    /*
+       FROM: http://www.ibm.com/developerworks/library/l-ppc/
+       All PowerPCs (including 64-bit implementations) use fixed-length 32-bit instructions
+    */
+    return 0x4;
+
+
 #elif defined(__linux) && defined(__powerpc64__)
+    /*
+       FROM: http://www.ibm.com/developerworks/library/l-ppc/
+       All PowerPCs (including 64-bit implementations) use fixed-length 32-bit instructions
+    */
+    return 0x4;
+
 
 #elif defined(__linux) && defined(__ia64)
 
