@@ -45,8 +45,14 @@ void OpenSS_SetPCInContext(uint64_t value, ucontext_t* context)
     Assert(context != NULL);
 
 #if defined(__linux) && defined(__powerpc__)
+    
+    /* Return PC value from Linux/PPC32 thread context */
+    context->uc_mcontext.gregs[REG_EIP] = value;
 
 #elif defined(__linux) && defined(__powerpc64__)
+    
+    /* Return PC value from Linux/PPC64 thread context */
+    context->uc_mcontext.gregs[REG_EIP] = value;
 
 #elif defined(__linux) && defined(__i386)
     
