@@ -85,13 +85,32 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 
 #elif defined(__linux) && defined( __powerpc64__ )
 
-    /* Get the current thread context */
-    Assert(getcontext(&context) == 0);
+    /*
+     * Use the signal context if one was provided, otherwise get the current
+     * thread context directly.
+     */
+    if(signal_context != NULL) {
+        //memcpy(&context, signal_context, sizeof(unw_context_t));
+        memmove(&context, signal_context, sizeof(unw_context_t));
+        skip_signal_frames = FALSE;
+    }
+    else
+        Assert(getcontext(&context) == 0);
+
 
 #elif defined(__linux) && defined( __powerpc__ )
 
-    /* Get the current thread context */
-    Assert(getcontext(&context) == 0);
+    /*
+     * Use the signal context if one was provided, otherwise get the current
+     * thread context directly.
+     */
+    if(signal_context != NULL) {
+        //memcpy(&context, signal_context, sizeof(unw_context_t));
+        memmove(&context, signal_context, sizeof(unw_context_t));
+        skip_signal_frames = FALSE;
+    }
+    else
+        Assert(getcontext(&context) == 0);
 
 #elif defined(__linux) && defined(__ia64)
 
