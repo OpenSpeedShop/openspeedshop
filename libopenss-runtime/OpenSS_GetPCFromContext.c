@@ -51,11 +51,11 @@ uint64_t OpenSS_GetPCFromContext(const ucontext_t* context)
 
 #elif defined(__linux) &&  defined(__powerpc__) 
 
-  return *(uint64_t *) (((struct pt_regs *) ((&(context->uc_mcontext))->regs))->nip);
+  return (uint64_t *) (((struct pt_regs *) ((&(context->uc_mcontext))->regs))->nip);
 
 #elif defined(__linux) &&  defined(__powerpc64__)
 
-  return *(uint64_t *) (((struct pt_regs *) ((&(context->uc_mcontext))->regs))->nip);
+  return (uint64_t *) (((struct pt_regs *) ((&(context->uc_mcontext))->regs))->nip);
 
 #elif defined(__linux) && defined(__x86_64) 
 
