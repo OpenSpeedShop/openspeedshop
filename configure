@@ -23362,10 +23362,10 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+  if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$abi_libdir/libmpi.a | grep "^ompi_mpi" >/dev/null) ; then
 	    found_openmpi=1
 	fi
 
@@ -23426,10 +23426,10 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  if (objdump -T $openmpi_dir/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T $openmpi_dir/$abi_libdir/openmpi/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+  if (objdump -T $openmpi_dir/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a  grep "ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$abi_libdir/openmpi/libmpi.a | grep "ompi_mpi" >/dev/null) ; then
 	   found_openmpi=1
    	fi
 
@@ -23492,10 +23492,10 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+  if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$abi_libdir/libmpi.a | grep "ompi_mpi" >/dev/null) ; then
 	   found_openmpi=1
    	fi
 
@@ -23555,10 +23555,10 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  if (objdump -T $openmpi_dir/$alt_abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T /usr/$alt_abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T /usr/$alt_abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T $openmpi_dir/$alt_abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+  if (objdump -T $openmpi_dir/$alt_abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$alt_abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$alt_abi_libdir/openmpi/libmpi_f90.a | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$alt_abi_libdir/libmpi.a |  grep "ompi_mpi" >/dev/null) ; then
 	   found_openmpi=1
    	fi
 
@@ -23577,7 +23577,7 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
 #
 # Try again with different mpicc - for older versions of openmpi try om-mpicxx
 #
-   if test $found_openmpi -eq 0; then
+   if test $found_openmpi -eq 0 && test -a $openmpi_dir/bin/om-mpicx; then
      OPENMPI_LDFLAGS="-L$openmpi_dir/$abi_libdir/openmpi"
      LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS $OPENMPI_LIBS"
      OPENMPI_CC="$openmpi_dir/bin/om-mpicxx"
@@ -23620,10 +23620,10 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext &&
        $as_test_x conftest$ac_exeext; then
-  if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (objdump -T $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+  if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$abi_libdir/libmpi.a | grep "ompi_mpi" >/dev/null) ; then
 	   found_openmpi=1
    	fi
 
