@@ -642,9 +642,18 @@ AC_DEFUN([AC_PKG_MPT], [
 
     found_mpt=0
 
+    if objdump -T $mpt_dir/$abi_libdir/libmpi.so | grep MPI_debug_rank >/dev/null; then
+       found_mpt=1
+       MPT_LDFLAGS="-L$mpt_dir/$abi_libdir"
+    elif objdump -T $mpt_dir/lib/libmpi.so | grep MPI_debug_rank >/dev/null; then
+       found_mpt=1
+       MPT_LDFLAGS="-L$mpt_dir/lib"
+    fi
+
+
     MPT_CC="$CC"
     MPT_CPPFLAGS="-I$mpt_dir/include"
-    MPT_LDFLAGS="-L$mpt_dir/$abi_libdir"
+#    MPT_LDFLAGS="-L$mpt_dir/$abi_libdir"
     MPT_LIBS="-lmpi"
     MPT_HEADER="$mpt_dir/include/mpi.h"
     MPT_DIR="$mpt_dir"
@@ -662,12 +671,6 @@ AC_DEFUN([AC_PKG_MPT], [
 	]], [[
 	MPI_Initialized((int*)0);
 	]]),
-
-	if objdump -T $mpt_dir/$abi_libdir/libmpi.so \
-		| grep MPI_debug_rank >/dev/null; then
-	    found_mpt=1
-	fi
-
 	, )
 
     CC=$mpt_saved_CC
