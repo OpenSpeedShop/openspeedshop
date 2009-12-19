@@ -184,7 +184,15 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
 #else
     TLS* tls = &the_tls;
 #endif
-    Assert(tls != NULL);
+
+    if (!tls) {
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	    fprintf(stderr,"warn: offline_stop_sampling has no TLS for %d\n",getpid());
+	}
+#endif
+	return;
+    }
 
     /* Stop sampling */
     fpe_stop_tracing(NULL);

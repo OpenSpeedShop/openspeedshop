@@ -435,7 +435,17 @@ void * monitor_pre_fork(void)
 {
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
+    /* The sgi MPT mpi startup apparently can fork
+     * a process such that monitor does not go
+     * through its normal path and our tls is not
+     * allocated as we expect.
+     */
     TLS* tls = OpenSS_GetTLS(TLSKey);
+    if (tls == NULL) {
+	tls = malloc(sizeof(TLS));
+    }
+    Assert(tls != NULL);
+    OpenSS_SetTLS(TLSKey, tls);
 #else
     TLS* tls = &the_tls;
 #endif
