@@ -20432,13 +20432,21 @@ fi
 ################################################################################
 
 case "$host" in
-    powerpc64-*-linux*)
-        if test x"$libdir" == x'${exec_prefix}/lib'; then
-            libdir='${exec_prefix}/lib64'
+    powerpc-*-linux*)
+        abi_libdir="lib"
+        alt_abi_libdir="lib64"
+        if test x"$libdir" == x'${exec_prefix}/lib64'; then
+            libdir='${exec_prefix}/lib'
         fi
-        abi_libdir="lib64"
-        alt_abi_libdir="lib"
-        LDFLAGS="-L/usr/lib64 $LDFLAGS"
+        LDFLAGS="-L/usr/lib -DLIB_DIR=lib $LDFLAGS"
+        ;;
+    powerpc64-*-linux*)
+        abi_libdir="lib"
+        alt_abi_libdir="lib64"
+        if test x"$libdir" == x'${exec_prefix}/lib64'; then
+            libdir='${exec_prefix}/lib'
+        fi
+        LDFLAGS="-L/usr/lib -DLIB_DIR=lib $LDFLAGS"
         ;;
     x86_64-*-linux*)
         if test x"$libdir" == x'${exec_prefix}/lib'; then
