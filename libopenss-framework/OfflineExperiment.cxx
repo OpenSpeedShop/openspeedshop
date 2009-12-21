@@ -692,9 +692,7 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	    continue;
 	}
 
-	// This should be safe here.
-	char* theData = NULL;
-	theData = (char*) alloca(blobsize+4);
+	char* theData = (char*) malloc(blobsize+4);
 
 	if (theData == 0) {
 	    std::cerr << "Could Not allocate memory for data!" << std::endl;
@@ -709,6 +707,7 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	    // bad writes to the offline-data files.
 	    std::cerr << "Bad read of data for " << rawfilename
 		<< " expected: " << blobsize << " got:" << bytesRead << std::endl;
+	    if (theData) free(theData);
 	    continue;
 	}
 
@@ -717,6 +716,7 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	// This is the first index into the DataQueue.
 	Blob datablob(blobsize, theData);
 	DataQueues::enqueuePerformanceData(datablob);
+	if (theData) free(theData);
 
     } // while
 
