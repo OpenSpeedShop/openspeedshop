@@ -50,8 +50,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@HAVE_OTF_TRUE@@HAVE_VT_TRUE@am__append_1 = MPIOTFPanel
-@HAVE_PAPI_TRUE@am__append_2 = HW_CounterPanel HWCTimePanel
+@HAVE_OTF_TRUE@@HAVE_QTLIB_TRUE@@HAVE_VT_TRUE@am__append_1 = MPIOTFPanel
+@HAVE_PAPI_TRUE@@HAVE_QTLIB_TRUE@am__append_2 = HW_CounterPanel \
+@HAVE_PAPI_TRUE@@HAVE_QTLIB_TRUE@	HWCTimePanel
 subdir = plugins/panels
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -75,11 +76,6 @@ RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = CustomExperimentPanel SourcePanel CmdPanel StatsPanel \
-	ManageProcessesPanel CustomizeStatsPanel pcSamplePanel \
-	UserTimePanel IOPanel IOTPanel FPE_TracingPanel MPIPanel \
-	MPITPanel MPIOTFPanel CompareExperimentsPanel loadPanel \
-	DebugPanel HW_CounterPanel HWCTimePanel
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -361,11 +357,16 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 topdir_execprefix = @topdir_execprefix@
-SUBDIRS = CustomExperimentPanel SourcePanel CmdPanel StatsPanel \
-	ManageProcessesPanel CustomizeStatsPanel pcSamplePanel \
-	UserTimePanel IOPanel IOTPanel FPE_TracingPanel MPIPanel \
-	MPITPanel MPIOTFPanel CompareExperimentsPanel loadPanel \
-	DebugPanel $(am__append_1) $(am__append_2)
+@HAVE_QTLIB_FALSE@SUBDIRS = 
+@HAVE_QTLIB_TRUE@SUBDIRS = CustomExperimentPanel SourcePanel CmdPanel \
+@HAVE_QTLIB_TRUE@	StatsPanel ManageProcessesPanel \
+@HAVE_QTLIB_TRUE@	CustomizeStatsPanel pcSamplePanel \
+@HAVE_QTLIB_TRUE@	UserTimePanel IOPanel IOTPanel \
+@HAVE_QTLIB_TRUE@	FPE_TracingPanel MPIPanel MPITPanel \
+@HAVE_QTLIB_TRUE@	MPIOTFPanel CompareExperimentsPanel loadPanel \
+@HAVE_QTLIB_TRUE@	DebugPanel $(am__append_1) $(am__append_2)
+@HAVE_QTLIB_FALSE@DIST_SUBDIRS = 
+@HAVE_QTLIB_TRUE@DIST_SUBDIRS = $(SUBDIRS)
 all: all-recursive
 
 .SUFFIXES:

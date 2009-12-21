@@ -16,6 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+if HAVE_QTLIB
 SUBDIRS = \
 	IntroWizardPanel \
 	pcSampleWizardPanel \
@@ -28,3 +29,12 @@ SUBDIRS = \
 if HAVE_PAPI
 SUBDIRS += HW_CounterWizardPanel
 endif
+ 
+DIST_SUBDIRS = $(SUBDIRS)
+else
+
+SUBDIRS =
+DIST_SUBDIRS =
+
+endif
+

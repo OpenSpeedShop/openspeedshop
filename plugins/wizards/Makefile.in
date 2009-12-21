@@ -49,7 +49,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@HAVE_PAPI_TRUE@am__append_1 = HW_CounterWizardPanel
+@HAVE_PAPI_TRUE@@HAVE_QTLIB_TRUE@am__append_1 = HW_CounterWizardPanel
 subdir = plugins/wizards
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -73,9 +73,6 @@ RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = IntroWizardPanel pcSampleWizardPanel \
-	UserTimeWizardPanel FPE_TracingWizardPanel IOWizardPanel \
-	MPIWizardPanel CompareWizardPanel HW_CounterWizardPanel
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -357,9 +354,13 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 topdir_execprefix = @topdir_execprefix@
-SUBDIRS = IntroWizardPanel pcSampleWizardPanel UserTimeWizardPanel \
-	FPE_TracingWizardPanel IOWizardPanel MPIWizardPanel \
-	CompareWizardPanel $(am__append_1)
+@HAVE_QTLIB_FALSE@SUBDIRS = 
+@HAVE_QTLIB_TRUE@SUBDIRS = IntroWizardPanel pcSampleWizardPanel \
+@HAVE_QTLIB_TRUE@	UserTimeWizardPanel FPE_TracingWizardPanel \
+@HAVE_QTLIB_TRUE@	IOWizardPanel MPIWizardPanel \
+@HAVE_QTLIB_TRUE@	CompareWizardPanel $(am__append_1)
+@HAVE_QTLIB_FALSE@DIST_SUBDIRS = 
+@HAVE_QTLIB_TRUE@DIST_SUBDIRS = $(SUBDIRS)
 all: all-recursive
 
 .SUFFIXES:
