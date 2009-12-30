@@ -110,8 +110,8 @@ void CommandObject::Print (ostream &mystream) {
  * Scan a character string and determine how best to break it into
  * segments that will fit in an output field of length OPENSS_VIEW_FIELD_SIZE.
  *
- * Breaks are prefered at spaces or commas and the resulting substring
- * will contain no leading blanks.
+ * Breaks are prefered at spaces and the resulting substring
+ * will ignore leading blanks when calculating the length.
  *
  * @param  std::string, the one to scan.
  * @param  int64_t, where to start scanning from.
@@ -136,8 +136,7 @@ static inline int64_t Break_At (std::string S, int64_t start) {
 
    // Look for a reasonable place to break the string.
     for ( ; nextBreak <= last_index; nextBreak++) {
-      if ((S[nextBreak] == *",") ||
-          (S[nextBreak] == *" ")) {
+      if (S[nextBreak] == *" ") {
         break;
       }
     }
@@ -239,8 +238,17 @@ static void Print_Header (ostream &to, std::string list_seperator, CommandResult
       int64_t next_len = next_str.size();
       int64_t nextH = 0;
       int64_t start_scan = 0;
+
       while (start_scan < next_len) {
+
+       // Skip over any leading blanks, since Break_At does the same.
+        while ((start_scan < next_len) &&
+               (next_str[start_scan] == *" ")) {
+          start_scan++;
+        }
+
         int64_t next_scan = Break_At (next_str, start_scan) + 1;
+        Assert ((next_scan - start_scan) <= OPENSS_VIEW_FIELD_SIZE);
         HL[nextH++].Add_Header(new CommandResult_String(next_str.substr(start_scan,(next_scan - start_scan))));
         start_scan = next_scan;
       }
