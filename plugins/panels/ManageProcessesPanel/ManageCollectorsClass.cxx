@@ -1668,9 +1668,14 @@ msg->descriptionClassList.clear();
  printf("Loop through all the children of (%s).\n", lvi->text(0).ascii() );
 #endif // 0 
       MPListViewItem *mpChild = (MPListViewItem *)lvi->firstChild();
+      if (!mpChild) {
+         QMessageBox::information( this, tr("Warning:"), tr("There are no process(es) are in the User Defined Process Set, so displaying results for the entire experiment.\nPlease add processes to the process set."), QMessageBox::Ok );
+      } else {
+
 #if DEBUG_MPPanel
- printf("mpChild= (%s).\n", mpChild->text(0).ascii() );
+      printf("mpChild= (%s).\n", mpChild->text(0).ascii() );
 #endif // 0 
+
       MPListViewItem *child = (MPListViewItem *)mpChild->firstChild();
       if( !child )
       {
@@ -1734,6 +1739,7 @@ msg->descriptionClassList.push_back(*nested_child->descriptionClassObject);
           mpChild = (MPListViewItem *)mpChild->nextSibling(); 
         }
       }
+     } // end there was an mpChild
     } else
     {
       QString host_name = lvi->descriptionClassObject->host_name;
