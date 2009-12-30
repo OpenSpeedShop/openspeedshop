@@ -123,7 +123,7 @@ struct selectionTarget {
     hostId = "";
     pidId = 0;
     threadId = 0;
-    rankId = 0;
+    rankId = -1;
   }
 
   selectionTarget (const selectionTarget& S) {
@@ -180,51 +180,40 @@ struct selectionTarget {
 void Select_ThreadGroup (selectionTarget& S, ThreadGroup& base_grp, ThreadGroup& rgrp) {
 
 #if DEBUG_COMPARE
-  printf("SSCOMPARE: Select_ThreadGroup Generate_CustomView, base_grp.size()==%d, rgrp.size()=%d\n", base_grp.size(), rgrp.size());
-  printf("SSCOMPARE: Select_ThreadGroup Generate_CustomView, S.threadId=%d, S.rankId=%d, S.hostId.c_str()=%s, S.pidId=%d\n", 
+  printf("SSCOMPARE: Select_ThreadGroup Select_ThreadGroup, base_grp.size()==%d, rgrp.size()=%d\n", base_grp.size(), rgrp.size());
+  printf("SSCOMPARE: Select_ThreadGroup Select_ThreadGroup, S.threadId=%lld, S.rankId=%lld, S.hostId.c_str()=%s, S.pidId=%d\n", 
          S.threadId, S.rankId, S.hostId.c_str(), S.pidId);
 #endif
 
    // Go through every thread and decide if it is included.
+   // Note: Selection criteria is based on a single field.
     ThreadGroup::iterator ti;
     for (ti = base_grp.begin(); ti != base_grp.end(); ti++) {
       Thread t = *ti;
       bool include_thread = true;
 
-      if (include_thread && (S.rankId >= 0)) {
-
+      if (S.rankId >= 0) {
+       // Does it match a rank ID?
         std::pair<bool, int> prank = t.getMPIRank();
 
 #if DEBUG_COMPARE
-        printf("SSCOMPARE: Select_ThreadGroup Generate_CustomView, prank.first==%d\n", prank.first);
-        if (prank.first) printf("SSCOMPARE: Select_ThreadGroup Generate_CustomView, prank.second==%d\n", prank.second);
+        printf("SSCOMPARE: Select_ThreadGroup inside check for rankId, prank.first==%d\n", prank.first);
 #endif
         include_thread = (prank.first && (prank.second == S.rankId));
 
-      }
-
-#if DEBUG_COMPARE
-     printf("SSCOMPARE: Select_ThreadGroup before check for threadId, include_thread=%d, S.threadId=%d\n", include_thread, S.threadId);
-#endif
-
-      if (include_thread && (S.threadId != 0)) {
+      } else if (S.threadId != 0) {
        // Does it match a pthread ID?
         std::pair<bool, int> pthread = t.getOpenMPThreadId();
         bool threadHasThreadId = false;
         int64_t pthreadid = 0;
 
 #if DEBUG_COMPARE
-     printf("SSCOMPARE: Select_ThreadGroup inside check for threadId, include_thread=%d, pthread.first=%d\n", include_thread, pthread.first);
+        printf("SSCOMPARE: Select_ThreadGroup inside check for threadId, pthread.first=%d\n", pthread.first);
 #endif
 
         if (pthread.first) {
           threadHasThreadId = true;
           pthreadid = pthread.second;
-
-#if DEBUG_COMPARE
-     printf("SSCOMPARE: Select_ThreadGroup inside check for threadId, include_thread=%d, pthread.second=%d\n", include_thread, pthread.second);
-#endif
-
         } else {
           std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
           if (posixthread.first) {
@@ -233,37 +222,41 @@ void Select_ThreadGroup (selectionTarget& S, ThreadGroup& base_grp, ThreadGroup&
           }
         }
         include_thread = (threadHasThreadId && (pthreadid == S.threadId));
-      }
+
+      } else if (S.pidId != 0) {
+       // Does it match the pid?
 
 #if DEBUG_COMPARE
-     printf("SSCOMPARE: Select_ThreadGroup before check for pidId, include_thread=%d, S.pidId=%d\n", include_thread, S.pidId);
+        printf("SSCOMPARE: Select_ThreadGroup inside check for pidId, S.pidId=%lld\n", S.pidId);
 #endif
 
-      if (include_thread && (S.pidId != 0)) {
-       // Does it match the pid?
         pid_t pid = t.getProcessId();
         include_thread = (pid == S.pidId);
-      }
+
+      } else if (S.hostId != "") {
+       // Does it match the host?
 
 #if DEBUG_COMPARE
-     printf("SSCOMPARE: Select_ThreadGroup before check for hostId, include_thread=%d, S.hostId.c_str()=%s\n", include_thread, S.hostId.c_str());
+        printf("SSCOMPARE: Select_ThreadGroup inside check for hostId, S.hostId.c_str()=%s\n", S.hostId.c_str());
 #endif
 
-      if (include_thread && (S.hostId != "")) {
-       // Does it match the host?
         std::string hid = t.getHost();
         include_thread = (hid == S.hostId);
+
+      } else {
+       // There is no criteria for a selection. We shouldn't even be here!
+        return;
       }
 
 #if DEBUG_COMPARE
-     printf("SSCOMPARE: Select_ThreadGroup before check for rgrp.insert include_thread=%d\n", include_thread );
+      printf("SSCOMPARE: Select_ThreadGroup before check for rgrp.insert include_thread=%d\n", include_thread );
 #endif
 
      // Add matching threads to rgrp.
       if (include_thread) {
         rgrp.insert(t);
 #if DEBUG_COMPARE
-        printf("SSCOMPARE: Select_ThreadGroup rgrp.insert (t.getProcessId())=%d)\n", t.getProcessId());
+        printf("SSCOMPARE: Select_ThreadGroup rgrp.insert (t.getProcessId())=%lld\n", t.getProcessId());
 #endif
       }
 
@@ -977,8 +970,6 @@ bool SS_expCompare (CommandObject *cmd) {
        // One view for this experiment.
        // Add the view to the compare set for this experiment.
         Quick_Compare_Set[k].viewName = views[0];
-        Quick_Compare_Set[k].headerPrefix += views[0] + " ";
-
 
        // Continue the "k" loop to find one view for each experiment.
         continue;
