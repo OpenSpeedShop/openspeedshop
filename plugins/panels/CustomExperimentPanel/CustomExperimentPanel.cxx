@@ -554,7 +554,7 @@ if( attachFLAG ) {
 #ifdef DEBUG_CustomPanel
         printf("CustomExperimentPanel::init, Now focus the statsPanel\n");
 #endif
-        FocusObject *msg = new FocusObject(expID, NULL, NULL, TRUE);
+        FocusObject *msg = new FocusObject(expID, NULL, NULL, NULL, NULL, TRUE, FALSE);
         p->listener(msg);
 #endif // DOUBLEREFRESH
 

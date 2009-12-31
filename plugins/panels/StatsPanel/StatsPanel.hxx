@@ -391,8 +391,7 @@ class StatsPanel  : public Panel
 
     QPopupMenu *experimentsMenu;
 
-    QString currentThreadStr;
-    CURRENTTHREADSTR_ENUM currentThreadStrENUM;
+    CURRENTTHREADSTR_ENUM currentThreadsStrENUM;
     QString currentThreadsStr;
     QString currentCollectorStr;
     QString lastCollectorStr;

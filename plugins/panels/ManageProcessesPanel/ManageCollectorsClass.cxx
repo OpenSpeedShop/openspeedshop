@@ -1556,24 +1556,70 @@ ManageCollectorsClass::removeUserPSet()
 }
 
 void
+ManageCollectorsClass::focusOnRankSelected(QListViewItem *item)
+{
+#if DEBUG_MPPanel
+ printf("focusOnRankSelected(QListView *) listView=0x%x attachCollectorsListView=0x%x psetListView=0x%x\n", item->listView(), attachCollectorsListView, psetListView );
+#endif // 0 
+ 
+  if( item->listView() == attachCollectorsListView ) {
+
+#if DEBUG_MPPanel
+    printf("focusOnRankSelected(QListView *) attachCollectorsListView section\n");
+#endif // 0 
+
+    focusOnPSetList(attachCollectorsListView, TRUE /* focusOnRankOnly */);
+    psetListView->clearSelection();
+
+  } else {
+
+#if DEBUG_MPPanel
+    printf("focusOnRankSelected(QListView *) ELSE for attachCollectorsListView section\n");
+#endif // 0 
+
+    focusOnPSetList(psetListView, TRUE /* focusOnRankOnly */);
+    attachCollectorsListView->clearSelection();
+
+  }
+}
+
+void
 ManageCollectorsClass::focusOnProcessSelected(QListViewItem *item)
 {
 #if DEBUG_MPPanel
  printf("focusOnProcessSelected(QListView *) listView=0x%x attachCollectorsListView=0x%x psetListView=0x%x\n", item->listView(), attachCollectorsListView, psetListView );
 #endif // 0 
  
-  if( item->listView() == attachCollectorsListView )
-  {
-//    focusOnProcessSelected();
-    focusOnPSetList(attachCollectorsListView);
+  if( item->listView() == attachCollectorsListView ) {
+
+#if DEBUG_MPPanel
+    printf("focusOnProcessSelected(QListView *) attachCollectorsListView section\n");
+#endif // 0 
+
+    focusOnPSetList(attachCollectorsListView, FALSE /* focusOnRankOnly */);
     psetListView->clearSelection();
-  } else
-  {
-//    focusOnPSetSelected();
-    focusOnPSetList(psetListView);
+
+  } else {
+
+#if DEBUG_MPPanel
+    printf("focusOnProcessSelected(QListView *) ELSE for attachCollectorsListView section\n");
+#endif // 0 
+
+    focusOnPSetList(psetListView, FALSE /* focusOnRankOnly */);
     attachCollectorsListView->clearSelection();
+
   }
 }
+
+void
+ManageCollectorsClass::focusOnRankSelected()
+{
+#if DEBUG_MPPanel
+ printf("ManageCollectorsClass::focusOnRankSelected() entered.\n");
+#endif // 0 
+  focusOnPSetList(attachCollectorsListView, TRUE /* focusOnRankOnly */);
+}
+
 
 void
 ManageCollectorsClass::focusOnProcessSelected()
@@ -1581,7 +1627,7 @@ ManageCollectorsClass::focusOnProcessSelected()
 #if DEBUG_MPPanel
  printf("ManageCollectorsClass::focusOnProcessSelected() entered.\n");
 #endif // 0 
-  focusOnPSetList(attachCollectorsListView);
+  focusOnPSetList(attachCollectorsListView, FALSE /* focusOnRankOnly */);
 }
 
 void
@@ -1612,11 +1658,20 @@ ManageCollectorsClass::focusOnPSetSelected()
 #if DEBUG_MPPanel
  printf("ManageCollectorsClass::focusOnPSetSelected() entered\n");
 #endif // 0 
-  focusOnPSetList(psetListView);
+  focusOnPSetList(psetListView, FALSE /* focusOnRankOnly */);
 }
 
 void
-ManageCollectorsClass::focusOnPSetList(QListView *lv)
+ManageCollectorsClass::focusOnRankSetSelected()
+{
+#if DEBUG_MPPanel
+ printf("ManageCollectorsClass::focusOnRankSetSelected() entered\n");
+#endif // 0 
+  focusOnPSetList(psetListView, TRUE /* focusOnRankOnly */);
+}
+
+void
+ManageCollectorsClass::focusOnPSetList(QListView *lv, bool focusOnRankOnly)
 {
 #if DEBUG_MPPanel
  printf("ManageCollectorsClass::focusOnPSetList(QListView *) entered.\n");
@@ -1641,32 +1696,40 @@ ManageCollectorsClass::focusOnPSetList(QListView *lv)
 #if DEBUG_MPPanel
       printf("About to create the FocusObject()\n");
 #endif // 0 
-      msg = new FocusObject(expID,  NULL, NULL, TRUE);
+      msg = new FocusObject(expID,  NULL, NULL, NULL, NULL, TRUE, focusOnRankOnly);
     }
-msg->descriptionClassList.clear();
+
+    msg->descriptionClassList.clear();
+
 #if DEBUG_MPPanel
- printf("Created the FocusObject()\n");
+    printf("Created the FocusObject()\n");
 #endif // 0 
-    if( !lvi || !lvi->descriptionClassObject )
-    {
+
+    if( !lvi || !lvi->descriptionClassObject ) {
       QMessageBox::information( this, tr("Focus Error:"), tr("Unable to focus on selection: No description for process(es)."), QMessageBox::Ok );
       return;
     }
 
 #if DEBUG_MPPanel
-   printf("lvi->descriptionClassObject->all=%d\n", lvi->descriptionClassObject->all);
+    printf("lvi->descriptionClassObject->all=%d\n", lvi->descriptionClassObject->all);
 #endif // 0 
-    if( lvi->descriptionClassObject->all )
-    {
+
+    if( lvi->descriptionClassObject->all ) {
+
 #if DEBUG_MPPanel
- printf("Do ALL threads, everywhere.\n");
+        printf("Do ALL threads, everywhere.\n");
 #endif // 0 
-        msg->host_pid_vector.clear();
+
+//        msg->host_pid_vector.clear();
+//
     } else if( lvi->descriptionClassObject->root ) {
+
       // Loop through all the children...
+      //
 #if DEBUG_MPPanel
- printf("Loop through all the children of (%s).\n", lvi->text(0).ascii() );
+      printf("Loop through all the children of (%s).\n", lvi->text(0).ascii() );
 #endif // 0 
+
       MPListViewItem *mpChild = (MPListViewItem *)lvi->firstChild();
       if (!mpChild) {
          QMessageBox::information( this, tr("Warning:"), tr("There are no process(es) are in the User Defined Process Set, so displaying results for the entire experiment.\nPlease add processes to the process set."), QMessageBox::Ok );
@@ -1695,28 +1758,26 @@ msg->descriptionClassList.clear();
             mpChild = (MPListViewItem *)mpChild->nextSibling();
             continue;
           }
-#ifdef OLDWAY
-          std::pair<std::string, std::string> p(host_name,pid_name);
-          msg->host_pid_vector.push_back( p );
-#endif // OLDWAY
 
           msg->descriptionClassList.push_back(*mpChild->descriptionClassObject);
 #if DEBUG_MPPanel
-printf("A: push_back a new vector list.\n");
-mpChild->descriptionClassObject->Print();
+          printf("A: push_back a new vector list.\n");
+          mpChild->descriptionClassObject->Print();
 #endif // 0 
           mpChild = (MPListViewItem *)mpChild->nextSibling();
         }
-      } else
-      {
+      } else {
+
         while( mpChild )
         {
           MPListViewItem *nested_child = (MPListViewItem *)mpChild->firstChild();
           while( nested_child )
           {
+
 #if DEBUG_MPPanel
- printf("A: nested_child...(%s)\n", nested_child->text(0).ascii() );
+             printf("A: nested_child...(%s)\n", nested_child->text(0).ascii() );
 #endif // 0 
+
             QString host_name = nested_child->descriptionClassObject->host_name;
             if( host_name.isEmpty() )
             {
@@ -1728,11 +1789,7 @@ mpChild->descriptionClassObject->Print();
               nested_child = (MPListViewItem *)nested_child->nextSibling();
               continue;
             }
-#ifdef OLDWAY
-            std::pair<std::string, std::string> p(host_name,pid_name);
-            msg->host_pid_vector.push_back( p );
-#endif // OLDWAY
-msg->descriptionClassList.push_back(*nested_child->descriptionClassObject);
+            msg->descriptionClassList.push_back(*nested_child->descriptionClassObject);
             nested_child = (MPListViewItem *)nested_child->nextSibling();
           }
 
@@ -1740,43 +1797,38 @@ msg->descriptionClassList.push_back(*nested_child->descriptionClassObject);
         }
       }
      } // end there was an mpChild
-    } else
-    {
+    } else {
+
       QString host_name = lvi->descriptionClassObject->host_name;
+
 #if DEBUG_MPPanel
       printf("host_name = (%s)\n", host_name.ascii() );
 #endif // 0
-      if( host_name.isEmpty() )
-      {
+
+      if( host_name.isEmpty() ) {
         host_name = "localhost";
       }
+
       QString pid_name = lvi->descriptionClassObject->pid_name;
-      if( pid_name.isEmpty() )
-      {
+      if( pid_name.isEmpty() ) {
         continue;
       }
-#ifdef OLDWAY
-      std::pair<std::string, std::string> p(host_name,pid_name);
-      msg->host_pid_vector.push_back( p );
-#endif // OLDWAY
-msg->descriptionClassList.push_back(*lvi->descriptionClassObject);
+
+      msg->descriptionClassList.push_back(*lvi->descriptionClassObject);
+
 #if DEBUG_MPPanel
-printf("B: push_back a new vector list.. (%s-%s)\n", host_name.ascii(), pid_name.ascii() );
+      printf("B: push_back a new vector list.. (%s-%s)\n", host_name.ascii(), pid_name.ascii() );
 #endif // 0
+
     } 
     
     ++it;
   }
 
-
-
-
 // If nothing was selected, just return.
-  if( !msg )
-  {
+  if( !msg ) {
     QMessageBox::information( this, tr("Error process selection:"), tr("Unable to focus: No processes selected."), QMessageBox::Ok );
-    if( msg )
-    {
+    if( msg ) {
       delete msg;
     }
     return;
@@ -1786,6 +1838,7 @@ printf("B: push_back a new vector list.. (%s-%s)\n", host_name.ascii(), pid_name
 #if DEBUG_MPPanel
   printf("A: focus the StatsPanel...\n");
 #endif // 0
+
   QString name = QString("Stats Panel [%1]").arg(expID);
   Panel *sp = p->getPanelContainer()->findNamedPanel(p->getPanelContainer()->getMasterPC(), (char *)name.ascii() );
   if( !sp ) {
@@ -1797,7 +1850,7 @@ printf("B: push_back a new vector list.. (%s-%s)\n", host_name.ascii(), pid_name
     if( sp != NULL )
     {
 #if DEBUG_MPPanel
-    printf("Created a stats panel... First update it's data...\n");
+      printf("Created a stats panel... First update it's data...\n");
 #endif // 0
       UpdateObject *msg = new UpdateObject((void *)Find_Experiment_Object((EXPID)expID), expID, "none", 1);
       sp->listener( (void *)msg );
@@ -1805,10 +1858,12 @@ printf("B: push_back a new vector list.. (%s-%s)\n", host_name.ascii(), pid_name
   } else {
     // don't raise the associated panels
     msg->raiseFLAG = false;
+
 #if DEBUG_MPPanel
     printf("There was a statspanel... send the update message.\n");
     msg->print();
 #endif // 0
+
     sp->listener( (void *)msg );
   }
 }
@@ -2596,22 +2651,38 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 
   qaction = new QAction( this,  "focusOnProcess");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Focus on Process(es)...") );
-  if( leftSide == TRUE ) 
-  {
+  qaction->setText( tr("Focus on Thread(s) and/or Process(es)...") );
+  if( leftSide == TRUE ) {
 #if DEBUG_MPPanel
    printf("ManageCollectorsClass::menu() LEFT SIDE MENU\n");
-   printf("ManageCollectorsClass::menu()  Focus on selected process(es)\n");
+   printf("ManageCollectorsClass::menu()  Focus on selected thread(s) and/or process(es)\n");
 #endif
     connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnProcessSelected() ) );
-    qaction->setStatusTip( tr("Focus on selected process(es).") );
-  } else
-  {
+    qaction->setStatusTip( tr("Focus on selected thread(s) and/or process(es).") );
+  } else {
 #if DEBUG_MPPanel
    printf("ManageCollectorsClass::menu() RIGHT SIDE MENU\n");
 #endif
     connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnPSetSelected() ) );
-    qaction->setStatusTip( tr("Focus on selected process(es).") );
+    qaction->setStatusTip( tr("Focus on selected thread(s) and/or process(es).") );
+  }
+
+  qaction = new QAction( this,  "focusOnRank");
+  qaction->addTo( contextMenu );
+  qaction->setText( tr("Focus on Rank(s)...") );
+  if( leftSide == TRUE ) {
+#if DEBUG_MPPanel
+   printf("ManageCollectorsClass::menu() LEFT SIDE MENU\n");
+   printf("ManageCollectorsClass::menu()  Focus on selected ranks(s)\n");
+#endif
+    connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnRankSelected() ) );
+    qaction->setStatusTip( tr("Focus on selected rank(s).") );
+  } else {
+#if DEBUG_MPPanel
+   printf("ManageCollectorsClass::menu() RIGHT SIDE MENU\n");
+#endif
+    connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnRankSetSelected() ) );
+    qaction->setStatusTip( tr("Focus on selected rank(s).") );
   }
 
   if( udpsetSelected == TRUE )

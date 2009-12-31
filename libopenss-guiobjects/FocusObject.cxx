@@ -28,14 +28,19 @@
 
 /*! Constructor for the FocusObject.
  */
-FocusObject::FocusObject(int id, QString hn, QString pn, bool rf) : MessageObject("FocusObject")
+FocusObject::FocusObject(int id, QString hn, QString pn, QString tn, QString rn, bool rf, bool rankf) : MessageObject("FocusObject")
 {
   nprintf( DEBUG_CONST_DESTRUCT ) ("FocusObject::FocusObject(entered.\n");
   expID = id;
   host_name = hn;
   pidString = pn;
+  threadNameString = tn;
+  rankNameString = rn;
   raiseFLAG = rf;
+  focusOnRankOnlyFLAG = rankf;
+#if 0
   host_pid_vector.clear();
+#endif
   descriptionClassList.clear();
 }
 
@@ -52,7 +57,11 @@ FocusObject::print()
   printf("	expID=(%d)\n", expID );
   printf("	host_name=(%s)\n", host_name.ascii());
   printf("	pidString=(%s)\n", pidString.ascii());
+  printf("	threadNameString=(%s)\n", threadNameString.ascii());
+  printf("	rankNameString=(%s)\n", rankNameString.ascii());
   printf("	raiseFLAG=(%d)\n", raiseFLAG);
+  printf("	focusOnRankOnlyFLAG=(%d)\n", focusOnRankOnlyFLAG);
+#if 0
   std::vector<HostPidPair>::const_iterator sit = host_pid_vector.begin();
   for(std::vector<HostPidPair>::const_iterator
                       sit = host_pid_vector.begin();
@@ -68,6 +77,7 @@ FocusObject::print()
       printf("\t(%s)\n", str.ascii() );
     }
   }
+#endif
 
 
   for( QValueList<DescriptionClassObject>::iterator it = descriptionClassList.begin(); it != descriptionClassList.end(); it++)

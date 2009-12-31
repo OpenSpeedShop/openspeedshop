@@ -373,7 +373,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   currentUserSelectedReportStr = QString::null;
   traceAddition = QString::null;
   metricHeaderTypeArray = NULL;
-  currentThreadStr = QString::null;
+  currentThreadsStr = QString::null;
   currentCollectorStr = QString::null;
   lastCollectorStr = QString::null;
   infoSummaryStr = QString::null;
@@ -950,19 +950,25 @@ StatsPanel::listener(void *msg)
    // ---------------------------- 
    // ---------------------------- FOCUS-OBJECT
    // ----------------------------
+   //
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel got a new FocusObject\n");
 #endif // DEBUG_StatsPanel
+
     FocusObject *msg = (FocusObject *)msgObject;
+
 #ifdef DEBUG_StatsPanel
 // msg->print();
 #endif // DEBUG_StatsPanel
+
     expID = msg->expID;
 
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::listener, FocusObject, B: expID = %d\n", expID);
+    printf("StatsPanel::listener, FocusObject, B: msg->threadNameString.isEmpty() = %d\n", msg->threadNameString.isEmpty());
 #endif // DEBUG_StatsPanel
 
+#if 0
     if( msg->host_pid_vector.size() == 0 && !msg->pidString.isEmpty() )
     { // Soon to be obsoleted
       currentThreadsStr = msg->pidString;
@@ -983,6 +989,7 @@ StatsPanel::listener(void *msg)
         }
       }
     } else {
+#else
       currentThreadGroupStrList.clear();
       currentThreadsStr = QString::null;
       if( msg->descriptionClassList.count() > 0 ) {
@@ -994,19 +1001,26 @@ StatsPanel::listener(void *msg)
         for( QValueList<DescriptionClassObject>::iterator it = msg->descriptionClassList.begin(); it != msg->descriptionClassList.end(); it++)
           {
             DescriptionClassObject dco = (DescriptionClassObject)*it;
-            if( !dco.rid_name.isEmpty() ) {
+           if( !dco.tid_name.isEmpty() && !msg->focusOnRankOnlyFLAG) {
+             if ( !dco.rid_name.isEmpty() ) {
+               currentThreadsStr += QString(" -h %1 -t %2 -r %3").arg(dco.host_name).arg(dco.tid_name).arg(dco.rid_name);
+             } else {
+               currentThreadsStr += QString(" -h %1 -t %2").arg(dco.host_name).arg(dco.tid_name);
+             }
+           } else if( !dco.rid_name.isEmpty() && msg->focusOnRankOnlyFLAG ) {
              currentThreadsStr += QString(" -h %1 -r %2").arg(dco.host_name).arg(dco.rid_name);
-           } else if( !dco.tid_name.isEmpty() ) {
-             currentThreadsStr += QString(" -h %1 -t %2").arg(dco.host_name).arg(dco.tid_name);
            } else // pid...
            {
              currentThreadsStr += QString(" -h %1 -p %2").arg(dco.host_name).arg(dco.pid_name);
            }
 #ifdef DEBUG_StatsPanel
-           printf("StatsPanel::listener, FocusObject, Building currentThreadStr.ascii()=%s\n", currentThreadsStr.ascii() );
+           printf("StatsPanel::listener, FocusObject, Building currentThreadsStr.ascii()=%s\n", currentThreadsStr.ascii() );
 #endif // DEBUG_StatsPanel
      
          }
+     }
+#endif
+#if 0
      } else {
 
 #ifdef DEBUG_StatsPanel
@@ -1030,6 +1044,7 @@ StatsPanel::listener(void *msg)
       }
      }
     }
+#endif
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::listener, FocusObject, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
@@ -1551,8 +1566,11 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         threadMenu->setItemChecked(mid, TRUE);
       }
 
-      if( currentThreadStr.isEmpty() || currentThreadStr == pidStr ) {
-        currentThreadStr = pidStr;
+      if( currentThreadsStr.isEmpty() || currentThreadsStr == pidStr ) {
+        currentThreadsStr = pidStr;
+#ifdef DEBUG_StatsPanel
+        printf("Inside threadMenu generation, setting currentThreadsStr = %s\n", currentThreadsStr.ascii() );
+#endif
       }
 
       for( ThreadGroupStringList::Iterator it = currentThreadGroupStrList.begin(); 
@@ -3641,7 +3659,7 @@ void StatsPanel::getPidList(int exp_id)
  printf("StatsPanel::getPidList exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
 #endif
 
- currentThreadStrENUM = UNKNOWN;
+ currentThreadsStrENUM = UNKNOWN;
 
  if( exp_id > 0 || focusedExpID > 0 ) {
   if( focusedExpID == -1 ) {
@@ -3650,7 +3668,7 @@ void StatsPanel::getPidList(int exp_id)
     command = QString("list -v ranks -x %1").arg(focusedExpID);
   }
 
-  currentThreadStrENUM = RANK;
+  currentThreadsStrENUM = RANK;
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getPidList-attempt to run (%s)\n", command.ascii() );
@@ -3669,7 +3687,7 @@ void StatsPanel::getPidList(int exp_id)
 #endif
 
   if( list_of_pids.size() == 0 ) {
-    currentThreadStrENUM = THREAD;
+    currentThreadsStrENUM = THREAD;
     if( focusedExpID == -1 ) {
       command = QString("list -v threads -x %1").arg(exp_id);
     } else {
@@ -3694,7 +3712,7 @@ void StatsPanel::getPidList(int exp_id)
   } 
 
   if( list_of_pids.size() == 0 ) {
-    currentThreadStrENUM = PID;
+    currentThreadsStrENUM = PID;
     if( focusedExpID == -1 ) {
       command = QString("list -v pids -x %1").arg(exp_id);
     } else {
@@ -3753,7 +3771,7 @@ void StatsPanel::getHostList(int exp_id)
  printf("StatsPanel::getHostList exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
 #endif
 
-//  currentThreadStrENUM = UNKNOWN;
+//  currentThreadsStrENUM = UNKNOWN;
 
  if( exp_id > 0 || focusedExpID > 0 ) {
   if( focusedExpID == -1 ) {
@@ -3762,7 +3780,7 @@ void StatsPanel::getHostList(int exp_id)
     command = QString("list -v hosts -x %1").arg(focusedExpID);
   }
 
-//  currentThreadStrENUM = RANK;
+//  currentThreadsStrENUM = RANK;
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getHostList-attempt to run (%s)\n", command.ascii() );
@@ -3813,14 +3831,14 @@ void StatsPanel::getExecutableList(int exp_id)
   printf("StatsPanel::getExecutableList exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
 #endif
 
-//  currentThreadStrENUM = UNKNOWN;
+//  currentThreadsStrENUM = UNKNOWN;
  if( exp_id > 0 || focusedExpID > 0 ) {
   if( focusedExpID == -1 ) {
     command = QString("list -v executable -x %1").arg(exp_id);
   } else {
     command = QString("list -v executable -x %1").arg(focusedExpID);
   }
-//  currentThreadStrENUM = RANK;
+//  currentThreadsStrENUM = RANK;
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getExecutableList-attempt to run (%s)\n", command.ascii() );
 #endif
@@ -3866,7 +3884,7 @@ void StatsPanel::getApplicationCommand(int exp_id)
 #endif
 
  if( exp_id > 0 || focusedExpID > 0 ) {
-//  currentThreadStrENUM = UNKNOWN;
+//  currentThreadsStrENUM = UNKNOWN;
   if( focusedExpID == -1 ) {
     command = QString("list -v appcommand -x %1").arg(exp_id);
   } else {
@@ -3918,7 +3936,7 @@ void StatsPanel::getExperimentType(int exp_id)
 #endif
 
  if( exp_id > 0 || focusedExpID > 0 ) {
-//  currentThreadStrENUM = UNKNOWN;
+//  currentThreadsStrENUM = UNKNOWN;
   if( focusedExpID == -1 ) {
     command = QString("list -v types -x %1").arg(exp_id);
   } else {
@@ -3970,7 +3988,7 @@ void StatsPanel::getDatabaseName(int exp_id)
   printf("StatsPanel::getDatabaseName exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
 #endif
 
-//  currentThreadStrENUM = UNKNOWN;
+//  currentThreadsStrENUM = UNKNOWN;
   if( focusedExpID == -1 ) {
     command = QString("list -v database -x %1").arg(exp_id);
   } else {
@@ -4826,9 +4844,10 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 {
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::updateStatsPanelData, ENTERING -------------------------\n");
- printf("StatsPanel::updateStatsPanelData() entered., currentCollectorStr=%s, command=%s\n", 
-        currentCollectorStr.ascii(), command.ascii() );
+  printf("ENTER StatsPanel::updateStatsPanelData, ENTERING -------------------------\n");
+  printf("ENTER StatsPanel::updateStatsPanelData() entered., currentCollectorStr=%s, command=%s\n", 
+         currentCollectorStr.ascii(), command.ascii() );
+  printf("ENTER StatsPanel::updateStatsPanelData, currentThreadsStr=%s\n", currentThreadsStr.ascii() );
 #endif
 
   levelsToOpen = getPreferenceLevelsToOpen().toInt();
@@ -4896,6 +4915,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   printf("updateStatsPanelData, lastCommand.startsWith(\"cview -c\")=%d\n", lastCommand.startsWith("cview -c") );
   printf("updateStatsPanelData, currentCollectorStr=%s\n", currentCollectorStr.ascii() );
   printf("updateStatsPanelData, currentUserSelectedReportStr=%s\n", currentUserSelectedReportStr.ascii() );
+  printf("updateStatsPanelData, currentThreadsStr=%s\n", currentThreadsStr.ascii() );
 #endif
 
   // jeg 9/22/08 and refined 10/13/08
@@ -4911,6 +4931,9 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 #endif
 
   if( command.isEmpty() ) {
+#ifdef DEBUG_StatsPanel
+    printf("updateStatsPanelData, calling generate_command with currentThreadsStr=%s\n", currentThreadsStr.ascii() );
+#endif
     command = generateCommand();
   } else {
     aboutString = "Compare/Customize report for:\n  ";
@@ -5570,10 +5593,10 @@ void
 StatsPanel::threadSelected(int val)
 { 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::threadSelected(%d)\n", val);
+  printf("ENTER ---------------------- StatsPanel::threadSelected(%d)\n", val);
 #endif
 
-  currentThreadStr = threadMenu->text(val).ascii();
+  currentThreadsStr = threadMenu->text(val).ascii();
 
   currentThreadsStr = QString::null;
 
@@ -5588,7 +5611,7 @@ StatsPanel::threadSelected(int val)
   {
     QString ts = (QString)*it;
 
-    if( ts == currentThreadStr )
+    if( ts == currentThreadsStr )
     {   // Then it's already in the list... now remove it.
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::threadSelected, add the selected thread (%s).\n", ts.ascii() );
@@ -5602,9 +5625,9 @@ StatsPanel::threadSelected(int val)
   // We didn't find it to remove it, so this is a different thread... add it.
   if( FOUND_FLAG == FALSE ) {
 #ifdef DEBUG_StatsPanel
-    printf("StatsPanel::threadSelected, We must need to add it (%s) then!\n", currentThreadStr.ascii() );
+    printf("StatsPanel::threadSelected, We must need to add it (%s) then!\n", currentThreadsStr.ascii() );
 #endif
-    currentThreadGroupStrList.push_back(currentThreadStr);
+    currentThreadGroupStrList.push_back(currentThreadsStr);
   }
 
 #ifdef DEBUG_StatsPanel
@@ -5622,19 +5645,19 @@ StatsPanel::threadSelected(int val)
     }
 
 
-if( currentThreadStrENUM == RANK ) {
+if( currentThreadsStrENUM == RANK ) {
     if( currentThreadsStr.isEmpty() ) {
       currentThreadsStr = "-r "+ts;
     } else {
       currentThreadsStr += ","+ts;
     }
-} else if( currentThreadStrENUM == THREAD ) {
+} else if( currentThreadsStrENUM == THREAD ) {
     if( currentThreadsStr.isEmpty() ) {
       currentThreadsStr = "-t "+ts;
     } else {
       currentThreadsStr += ","+ts;
     }
-} else if( currentThreadStrENUM == PID ) {
+} else if( currentThreadsStrENUM == PID ) {
     if( currentThreadsStr.isEmpty() ) {
       currentThreadsStr = "-p "+ts;
     } else {
@@ -7250,13 +7273,13 @@ StatsPanel::updateThreadsList()
 // Now get the threads.
   QString command = QString::null;
 
-  currentThreadStrENUM = UNKNOWN;
+  currentThreadsStrENUM = UNKNOWN;
   if( focusedExpID == -1 ) {
     command = QString("list -v ranks -x %1").arg(expID);
   } else {
     command = QString("list -v ranks -x %1").arg(focusedExpID);
   }
-  currentThreadStrENUM = RANK;
+  currentThreadsStrENUM = RANK;
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::updateThreadsList-attempt to run (%s)\n", command.ascii() );
 #endif
@@ -7273,7 +7296,7 @@ StatsPanel::updateThreadsList()
 #endif
   if( list_of_pids.size() == 0 )
   {
-    currentThreadStrENUM = THREAD;
+    currentThreadsStrENUM = THREAD;
     if( focusedExpID == -1 ) {
       command = QString("list -v threads -x %1").arg(expID);
     } else {
@@ -7295,7 +7318,7 @@ StatsPanel::updateThreadsList()
   } 
 
   if( list_of_pids.size() == 0 ) {
-    currentThreadStrENUM = PID;
+    currentThreadsStrENUM = PID;
     if( focusedExpID == -1 ) {
       command = QString("list -v pids -x %1").arg(expID);
     } else {
@@ -7345,7 +7368,9 @@ StatsPanel::setCurrentCollector()
     {
       Experiment *fw_experiment = eo->FW();
       CollectorGroup cgrp = fw_experiment->getCollectors();
-// printf("Is says you have %d collectors.\n", cgrp.size() );
+#ifdef DEBUG_StatsPanel
+       printf("StatsPanel::setCurrentCollector, Is says you have %d collectors.\n", cgrp.size() );
+#endif
       if( cgrp.size() == 0 )
       {
         fprintf(stderr, "There are no known collectors for this experiment.\n");
@@ -7390,7 +7415,9 @@ StatsPanel::setCurrentCollector()
 void
 StatsPanel::setCurrentThread()
 {
-// printf("setCurrentThread() entered\n");
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::setCurrentThread() entered\n");
+#endif
   try
   {
     ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
@@ -7413,10 +7440,14 @@ StatsPanel::setCurrentThread()
         std::string host = t.getHost();
         pid_t pid = t.getProcessId();
         QString pidstr = QString("%1").arg(pid);
-        if( currentThreadStr.isEmpty() )
+        if( currentThreadsStr.isEmpty() )
         {
-// printf("Seting a currentThreadStr!\n");
-          currentThreadStr = pidstr;
+          currentThreadsStr = pidstr;
+
+#ifdef DEBUG_StatsPanel
+          printf("Seting a currentThreadsStr!, currentThreadsStr=%s\n", pidstr.ascii());
+#endif
+
           // set a default thread as well...
           t1 = *ti;
           if( currentThread )
@@ -7426,9 +7457,9 @@ StatsPanel::setCurrentThread()
           currentThread = new Thread(*ti);
 // printf("A: Set a currentThread\n");
         }
-        if( pidstr == currentThreadStr )
+        if( pidstr == currentThreadsStr )
         {
-// printf("Using %s\n", currentThreadStr.ascii() );
+// printf("Using %s\n", currentThreadsStr.ascii() );
           t1 = *ti;
           if( currentThread )
           {
@@ -7483,7 +7514,7 @@ StatsPanel::setCurrentMetricStr()
         int index = s.find("::");
 // printf("index=%d\n", index );
         currentMetricStr = s.mid(index+2);
-// printf("A: currentCollectorStr=(%s) currentMetricStr=(%s) currentThreadStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii(), currentThreadStr.ascii() );
+// printf("A: currentCollectorStr=(%s) currentMetricStr=(%s) currentThreadsStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii(), currentThreadsStr.ascii() );
       }
   }
 // printf("metric=currentMetricStr=(%s)\n", currentMetricStr.ascii() );
@@ -8609,6 +8640,10 @@ StatsPanel::generateCommand()
      printf("StatsPanel::generateCommand, currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii());
   }
   printf("StatsPanel::generateCommand, expID=(%d), focusedExpID=%d\n",  expID, focusedExpID);
+
+  if (!currentThreadsStr.isEmpty()) {
+    printf("StatsPanel::generateCommand, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+  }
 #endif
 
   int exp_id = -1;
@@ -10591,7 +10626,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
     } // end else clause for expID > 0 check
   }
 
-  if( !currentThreadStr.isEmpty() ) {
+  if( !currentThreadsStr.isEmpty() ) {
     command += QString(" %1").arg(currentThreadsStr);
   }
 
@@ -12387,7 +12422,7 @@ StatsPanel::functionsSelected()
 #ifdef DEBUG_StatsPanel
  printf("functionsSelected()\n");
  printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
- printf("  traceAddition=(%s)\n", traceAddition.ascii() );
+ printf("  traceAddition=(%s), currentThreadsStr=(%s)\n", traceAddition.ascii(), currentThreadsStr.ascii() );
 #endif
 
   // Clear all trace display - this should be a purely function view
@@ -12397,11 +12432,14 @@ StatsPanel::functionsSelected()
   clearModifiers();
 
   currentUserSelectedReportStr = "Functions";
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
 
   toolbar_status_label->setText("Generating Functions Report...");
 
 #ifdef DEBUG_StatsPanel
  printf("StatsPanel::functionsSelected(), calling updateStatsPanelData\n" );
+ printf("StatsPanel::functionsSelected(), calling updateStatsPanelData, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
 #endif
 
   updateStatsPanelData(DONT_FORCE_UPDATE);
@@ -12419,6 +12457,8 @@ StatsPanel::linkedObjectsSelected()
 
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
 
   // Clear all the -m modifiers (metrics)
   clearModifiers();
@@ -12450,6 +12490,8 @@ StatsPanel::statementsSelected()
 
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
 
   // Clear all the -m modifiers (metrics)
   clearModifiers();
@@ -12476,6 +12518,8 @@ StatsPanel::statementsByFunctionSelected()
 
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
 
   toolbar_status_label->setText("Generating Statements by Function Report...");
 
@@ -12501,6 +12545,8 @@ StatsPanel::calltreesSelected()
 
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
 
   // Clear all the -m modifiers (metrics)
   clearModifiers();
@@ -12524,6 +12570,8 @@ StatsPanel::calltreesByFunctionSelected()
 
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
 
   toolbar_status_label->setText("Generating CallTrees by Function Report...");
 
@@ -12544,6 +12592,8 @@ StatsPanel::calltreesFullStackSelected()
 
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
 
   toolbar_status_label->setText("Generating CallTrees,FullStack Report...");
 
@@ -12564,6 +12614,8 @@ StatsPanel::calltreesFullStackByFunctionSelected()
 
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
 
   toolbar_status_label->setText("Generating CallTrees,FullStack by Function Report...");
 
@@ -12584,6 +12636,8 @@ StatsPanel::tracebacksSelected()
 
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
 
   // Clear all the -m modifiers (metrics)
   clearModifiers();
@@ -12607,6 +12661,8 @@ StatsPanel::tracebacksByFunctionSelected()
 
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
 
   toolbar_status_label->setText("Generating TraceBacks by Function Report...");
 
@@ -12626,6 +12682,8 @@ StatsPanel::tracebacksFullStackSelected()
 
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
 
   toolbar_status_label->setText("Generating TraceBacks,FullStack Report...");
 
@@ -12645,6 +12703,8 @@ StatsPanel::tracebacksFullStackByFunctionSelected()
 
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
 
   toolbar_status_label->setText("Generating TraceBacks,FullStack by Function Report...");
 
@@ -12664,6 +12724,8 @@ StatsPanel::butterflySelected()
 
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
 
   toolbar_status_label->setText("Generating Butterfly Report:");
 
@@ -12683,6 +12745,8 @@ StatsPanel::hotCallpathSelected()
 
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
 
   toolbar_status_label->setText("Generating Hot Callpath Report:");
 

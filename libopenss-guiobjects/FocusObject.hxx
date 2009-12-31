@@ -24,8 +24,6 @@
 #include <map>
 #include <vector>
 
-typedef std::pair<std::string, std::string> HostPidPair;
-
 #include "DescriptionClassObject.hxx"
 
 //! The message object for focusing an experiment
@@ -33,7 +31,7 @@ class FocusObject : public MessageObject
 {
 public:
     //! Constructor for creating source message.
-    FocusObject(int  expID, QString host_name, QString pidString, bool rf=FALSE);
+    FocusObject(int  expID, QString host_name, QString pidString, QString threadNameString, QString rankNameString, bool rf=FALSE, bool rankf=FALSE);
 
     //! Destructor
     ~FocusObject();
@@ -51,11 +49,18 @@ public:
     //! The pid name
     QString pidString;
 
-    std::vector< HostPidPair > host_pid_vector;
+    //! The thread name 
+    QString threadNameString;
+
+    //! The rank name 
+    QString rankNameString;
 
     QValueList<DescriptionClassObject> descriptionClassList;
 
     //! The raise FLAG...
     bool raiseFLAG;
+
+    //! The focus on rank only FLAG...
+    bool focusOnRankOnlyFLAG;
 };
 #endif // FOCUSOBJECT_H
