@@ -532,7 +532,7 @@ io_la_SOURCES = \
 @HAVE_LIBMONITOR_TRUE@libio_offline_la_LDFLAGS = \
 @HAVE_LIBMONITOR_TRUE@	-static \
 @HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime \
-@HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime-offline \
+@HAVE_LIBMONITOR_TRUE@	-L$(top_srcdir)/libopenss-runtime/offline \
 @HAVE_LIBMONITOR_TRUE@	@LIBUNWIND_LDFLAGS@ \
 @HAVE_LIBMONITOR_TRUE@	-no-undefined
 

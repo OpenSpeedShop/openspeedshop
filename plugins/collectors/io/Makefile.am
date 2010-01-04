@@ -124,7 +124,7 @@ libio_offline_la_CFLAGS = \
 libio_offline_la_LDFLAGS = \
 	-static \
 	-L$(top_srcdir)/libopenss-runtime \
-	-L$(top_srcdir)/libopenss-runtime-offline \
+	-L$(top_srcdir)/libopenss-runtime/offline \
 	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined
 
