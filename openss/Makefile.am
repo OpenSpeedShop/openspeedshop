@@ -102,6 +102,14 @@ ossrun: ossrun.in
 	@sed \
 		-e 's,@@ossinstalldir@@,$(prefix),' \
 		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
+		-e 's,@@lamdir@@,$(LAM_DIR),' \
+		-e 's,@@lampidir@@,$(LAMPI_DIR),' \
+		-e 's,@@mpichdir@@,$(MPICH_DIR),' \
+		-e 's,@@mpich2dir@@,$(MPICH2_DIR),' \
+		-e 's,@@mvapichdir@@,$(MVAPICH_DIR),' \
+		-e 's,@@mvapich2dir@@,$(MVAPICH2_DIR),' \
+		-e 's,@@mptdir@@,$(MPT_DIR),' \
+		-e 's,@@openmpidir@@,$(OPENMPI_DIR),' \
 		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
 			$(srcdir)/ossrun.in > ossrun
 	@chmod 755 ossrun

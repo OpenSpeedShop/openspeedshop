@@ -18,6 +18,17 @@ oss_libdir="${oss_prefix}/${machlibdir}"
 oss_bindir="${oss_prefix}/bin"
 oss_plugins="${oss_libdir}/openspeedshop"
 
+lam_prefix=@@lamdir@@
+lampi_prefix=@@lampidir@@
+mpich_prefix=@@mpichdir@@
+mpich2_prefix=@@mpich2dir@@
+mvapich_prefix=@@mvapichdir@@
+mvapich2_prefix=@@mvapich2dir@@
+mpt_prefix=@@mptdir@@
+openmpi_prefix=@@openmpidir@@
+
+f_mpich2_libs="${mpich2_prefix}/${machlibdir}/libfmpich.so"
+
 mpi_plugin=
 output_dir=
 
@@ -127,6 +138,13 @@ else
    test -d ${OPENSS_RAWDATA_DIR} || mkdir -p ${OPENSS_RAWDATA_DIR}
 fi
 
+extra_mpi_libs=""
+
+case "$mpitouse" in
+    mpich2)
+    extra_mpi_libs=${f_mpich2_libs}
+esac
+
 # 
 collector=$2
 case "$collector" in
@@ -134,12 +152,12 @@ case "$collector" in
     # we do not add the preload_file...
     mpi|mpit|mpiotf )
     mpicollector=${collector}-${mpitouse}
-    export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${libmonitor}
+    export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${extra_mpi_libs}:${libmonitor}
     ;;
 
     mpi-*|mpit-*|mpiotf-*)
     mpicollector=${collector}
-    export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${libmonitor}
+    export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${extra_mpi_libs}:${libmonitor}
     ;;
 
 
