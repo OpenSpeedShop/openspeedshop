@@ -226,6 +226,10 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		  # Lets hope the mpich2 driver always has Argonne in its copyright.
 		  ismpich = os.system('grep -q -i \"MPIRUN for MPICH\" ' + file_arg)
 		  ismpich2 = os.system('grep -q -i Argonne ' + file_arg)
+
+		  if os.WEXITSTATUS(ismpich2):
+			ismpich2 = os.system('grep -q -i Intel ' + file_arg)
+
 		  isMPT = os.system('grep -q -i sgimpirun ' + file_arg)
                   if not os.WEXITSTATUS(ismpich):
                     ismpi = bool(1)
