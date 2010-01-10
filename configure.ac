@@ -18,7 +18,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-AC_INIT(OpenSpeedShop, 1.9.3.1)
+AC_INIT(OpenSpeedShop, 1.9.3.2)
 AC_COPYRIGHT([[Copyright (c) 2006-2009 Krell Institute. All Rights Reserved.]])
 AM_INIT_AUTOMAKE
 
@@ -217,9 +217,9 @@ AC_ARG_ENABLE([target-signals],
     [AS_HELP_STRING([--enable-target-signals],
         [Enable support on target architecture for signals [default=yes]])],
     [],
-    [enable_target-signals=yes])
+    [enable_target_signals=yes])
 
-if test "x$enable_target-signals" = xyes ; then
+if test "x$enable_target_signals" = xyes ; then
     AC_DEFINE([HAVE_TARGET_SIGNALS], [1],
         [Enable support on target architecture for signals.])
 fi

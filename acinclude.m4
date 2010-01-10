@@ -1209,11 +1209,10 @@ dnl Support the user enabled --with-python option.
                AC_MSG_RESULT([yes])
             else
                     AC_MSG_RESULT([no])
-                    AC_MSG_ERROR([this package requires Python $1.
-If you have it installed, but it isn't the default Python
-interpreter in your system path, please pass the PYTHON_VERSION
-variable to configure. See ``configure --help'' for reference.
-])dnl
+                    AC_MSG_ERROR([this package requires Python $1. 
+If you have it installed, but it isn't the default Python 
+interpreter in your system path, please pass the PYTHON_VERSION 
+variable to configure. See ``configure --help'' for reference. ])
             fi
     fi
 
@@ -1327,7 +1326,7 @@ $ac_distutils_result])
 This version of the PYTHON_DEVEL macro
 doesn't work properly with versions of Python before
 2.1.0. You may need to install a newer version of Python.
-])dnl
+])
     else
             AC_MSG_RESULT([yes])
     fi
