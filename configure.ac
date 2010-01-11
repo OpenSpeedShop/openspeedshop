@@ -224,9 +224,7 @@ if test "x$enable_target_signals" = xyes ; then
         [Enable support on target architecture for signals.])
 fi
 
-
 AC_SUBST(HAVE_TARGET_SIGNALS)
-
 
 ################################################################################
 # Target FORK Availability Specification
