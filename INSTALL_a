@@ -308,6 +308,9 @@ these steps.
       PATH=$OPENSS_PREFIX/bin:$PATH 
       ***** THESE ARE NECESSARY TO RUN openss 
 
+      Note: DYNINSTAPI_RT_LIB and OPENSS_PLUGIN_PATH are only required when
+            running the online version of openss
+
   b) The most simple way to invoke the tool is to run it as an 
      immediate command, for example: 
 
