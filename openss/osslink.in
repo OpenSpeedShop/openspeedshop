@@ -1,0 +1,333 @@
+#! /bin/bash
+# Some of this code is inspired by the libmonitor package (monitor-link).
+#set -x
+
+mach_type=`uname -m`
+
+if test "$mach_type" == "x86_64" ; then
+    machlibdir=lib64
+else
+    machlibdir=lib
+fi
+
+oss_prefix=@@ossinstalldir@@
+oss_libdir="${oss_prefix}/${machlibdir}"
+oss_bindir="${oss_prefix}/bin"
+oss_plugins="${oss_libdir}/openspeedshop"
+
+libmonitor_prefix=@@libmonitordir@@
+libmonitor_libdir="${libmonitor_prefix}/${machlibdir}"
+libmonitor="${libmonitor_libdir}/libmonitor_wrap.a"
+libunwind_prefix=@@libunwinddir@@
+libunwind_libdir="${libunwind_prefix}/${machlibdir}"
+libunwind="${libunwind_libdir}/libunwind.a"
+libpapi_prefix=@@papidir@@
+libpapi_libdir="${libunwind_prefix}/${machlibdir}"
+libpapi="${libunwind_libdir}/libpapi.a"
+
+# monitor always has these
+monitor_wrap_base_names="main exit _exit system"
+# monitor has --enable-fork
+monitor_wrap_fork_names="fork vfork execl execlp execle execv execvp execve"
+# monitor has --enable-dlfcn
+monitor_wrap_dlopen_names="dlopen dlclose"
+# monitor has --enable-pthread
+monitor_wrap_pthread_names="pthread_create pthread_exit pthread_sigmask"
+# monitor has --enable-signals
+monitor_wrap_signal_names="signal sigaction sigprocmask"
+# monitor has mpi. These are the base names for the non mpi collectors
+monitor_wrap_mpibase_names="MPI_Init MPI_Init_thread MPI_Finalize MPI_Comm_rank mpi_init mpi_init_thread mpi_finalize mpi_comm_rank mpi_init_ mpi_init_thread_ mpi_finalize_ mpi_comm_rank_ mpi_init__ mpi_init_thread__ mpi_finalize__ mpi_comm_rank__"
+
+# The following groupings are available
+monitor_wrap_mpi_asyncP2P="MPI_Cancel mpi_cancel mpi_cancel_ mpi_cancel__ MPI_Ibsend mpi_ibsend mpi_ibsend_ mpi_ibsend__ MPI_Iprobe mpi_iprobe mpi_iprobe_ mpi_iprobe__ MPI_Irecv MPI_Irsend MPI_Isend MPI_Request_free MPI_Test MPI_Testall MPI_Testany MPI_Testsome MPI_Wait MPI_Waitall MPI_Waitany MPI_Waitsome"
+monitor_wrap_mpi_collectives="MPI_Allgather MPI_Allgatherv MPI_Allreduce MPI_Alltoall MPI_Alltoallv MPI_Barrier MPI_Bcast MPI_Gather MPI_Gatherv MPI_Reduce MPI_Reduce_scatter MPI_Scan MPI_Scatter MPI_Scatterv"
+monitor_wrap_mpi_datatypes="MPI_Pack MPI_Unpack"
+monitor_wrap_mpi_environment="MPI_Finalize MPI_Init"
+monitor_wrap_mpi_graphcontexts="MPI_Comm_create MPI_Comm_dup MPI_Comm_free MPI_Comm_split MPI_Intercomm_create MPI_Intercomm_merge"
+monitor_wrap_mpi_persistent="MPI_Bsend_init MPI_Recv_init MPI_Rsend_init MPI_Send_init MPI_Ssend_init MPI_Start MPI_Startall"
+monitor_wrap_mpi_processtopologies="MPI_Cart_create MPI_Cart_sub MPI_Graph_create"
+monitor_wrap_mpi_syncP2P="MPI_Bsend MPI_Get_count MPI_Probe MPI_Recv MPI_Rsend MPI_Send MPI_Sendrecv MPI_Sendrecv_replace MPI_Ssend"
+
+# The default for mpi collectors.
+monitor_wrap_mpi_all="${monitor_wrap_mpi_asyncP2P} ${monitor_wrap_mpi_collectives} ${monitor_wrap_mpi_datatypes} ${monitor_wrap_mpi_environment} ${monitor_wrap_mpi_graphcontexts} ${monitor_wrap_mpi_persistent} ${monitor_wrap_mpi_processtopologies} ${monitor_wrap_mpi_syncP2P}"
+
+mpi_undefines=
+fork_undefines=
+pthread_undefines=
+
+static_collector=
+static_mpi_collector=
+
+static_offline=${oss_plugins}/libopenss-runtime-offline.a
+monitor_callbacks=/home/dpm/oss-1931/OpenSpeedShop/libopenss-runtime/offline/.libs/libopenss_runtime_monitor_la-offline_monitor.o
+
+mpi_plugin=
+output_dir=
+insert_files=
+
+default_mpi_impl=MPICH2
+
+if [ -n "$OPENSS_MPI_IMPLEMENTATION" ]
+then
+    mpitouse=$OPENSS_MPI_IMPLEMENTATION
+else
+    mpitouse=`echo ${default_mpi_impl} |tr '[A-Z]' '[a-z]'`
+    export OPENSS_MPI_IMPLEMENTATION=$mpitouse
+fi
+
+# Space-separated list of object files to add.
+insert_files=
+
+# Space-separated list of extra symbol names to wrap.
+wrap_names=
+
+# Space-separated list of symbol names to force undefined.
+undef_names=
+
+# Space-separated list of extra library names, eg: "-ldl -lm".
+library_names=
+
+die()
+{
+    echo "$0: error: $*" 1>&2
+    exit 1
+}
+
+usage()
+{
+    cat <<EOF
+Usage: $0 -c collector [options] compiler file ...
+
+  -h, --help
+
+  -c, --collector  <collector name>
+Where collector is the name of the OpenSpeedShop
+collector to link into the application. See the
+openss manpage for a description of the available
+experiments provided by OpenSpeedShop. This is a
+mandatory option.
+
+  -v, --verbose
+
+
+EOF
+    exit 0
+}
+
+verbose=no
+
+while test "x$1" != x
+do
+    case "$1" in
+
+        -h | --help )
+            usage
+            ;;
+
+        -c | --collector)
+            test "x$2" != x || die "missing argument: $*"
+            case "$2" in
+                pcsamp )        collector="$2" ;;
+                hwc )           collector="$2" ;;
+                usertime )      collector="$2" ;;
+                hwctime )       collector="$2" ;;
+                io )            collector="$2" ;;
+                iot )           collector="$2" ;;
+                mpi )           collector="$2" ;;
+                mpit )          collector="$2" ;;
+                mpiotf )        collector="$2" ;;
+                fpe )           collector="$2" ;;
+            esac
+            shift ; shift
+            ;;
+
+        -v | --verbose )
+            verbose=yes
+            shift
+            ;;
+
+        -w | --wrap )
+            test "x$2" != x || die "missing argument: $*"
+            wrap_names="${wrap_names} $2"
+            shift ; shift
+            ;;
+
+        -- )
+            shift
+            break
+            ;;
+
+        -* )
+            die "unknown option: $1"
+            ;;
+
+        * )
+            break
+            ;;
+    esac
+done
+
+#
+# Must have a compiler command and at least one argument.
+#
+test "x$2" != x || usage
+command="$1"
+shift
+
+#
+# Duplicate the -l<lib> arguments.
+#
+appl_libs=
+for lib in "$@"
+do
+    case "$lib" in
+        -l?* ) appl_libs="$appl_libs $lib" ;;
+    esac
+done
+
+monitor_has_fork=`nm ${libmonitor} | grep -i monitor_real_fork`
+monitor_has_signals=`nm ${libmonitor} | grep -i monitor_signal_init`
+monitor_has_pthreads=`nm ${libmonitor} | grep -i monitor_init_thread`
+monitor_has_dlopen=`nm ${libmonitor} | grep -i monitor_dlopen`
+monitor_has_mpi=`nm ${libmonitor} | grep -i monitor_init_mpi`
+
+collector_libs=""
+
+static_args=" -static "
+wrap_args=
+for name in $monitor_wrap_base_names $wrap_names
+do
+    wrap_args="${wrap_args} -Wl,--wrap,${name}"
+done
+
+if [ -n "$monitor_has_fork" ]
+then
+    for name in $monitor_wrap_fork_names
+    do
+	wrap_args="${wrap_args} -Wl,--wrap,${name}"
+    done
+fi
+
+if [ -n "$monitor_has_signals" ]
+then
+    for name in $monitor_wrap_signal_names
+    do
+	wrap_args="${wrap_args} -Wl,--wrap,${name}"
+    done
+fi
+
+if [ -n "$monitor_has_pthreads" ]
+then
+    for name in $monitor_wrap_pthread_names
+    do
+	wrap_args="${wrap_args} -Wl,--wrap,${name}"
+    done
+    collector_libs="${collector_libs} -lpthread"
+fi
+
+if [ -n "$monitor_has_dlopen" ]
+then
+    for name in $monitor_wrap_dlopen_names
+    do
+	wrap_args="${wrap_args} -Wl,--wrap,${name}"
+    done
+    collector_libs="${collector_libs} -ldl"
+fi
+
+if [ -n "$monitor_has_mpi" ]
+then
+    for name in $monitor_wrap_mpibase_names
+    do
+	wrap_args="${wrap_args} -Wl,--wrap,${name}"
+    done
+fi
+
+undef_args=
+for name in $undef_names
+do
+    undef_args="${undef_args} -Wl,-u,__wrap_${name}"
+done
+
+
+for name in $mpi_undefines
+do
+    undef_args="${undef_args} -Wl,-u,__wrap_${name}"
+    echo
+done
+
+for name in $fork_undefines
+do
+    undef_args="${undef_args} -Wl,-u,__wrap_${name}"
+done
+
+for name in $pthread_undefines
+do
+    undef_args="${undef_args} -Wl,-u,__wrap_${name}"
+done
+#
+case "$collector" in
+    mpi|mpit|mpiotf )
+    static_collector=${oss_plugins}/lib${collector}-${mpitouse}-offline.a
+    collector_libs="${collector_libs} -lrt -L ${libunwind_libdir} -lunwind"
+
+    if [ -n "$monitor_has_mpi" ]
+    then
+	for name in $monitor_wrap_mpi_all
+	do
+	    wrap_args="${wrap_args} -Wl,--wrap,${name}"
+	done
+    fi
+    ;;
+
+    mpi-*|mpit-*|mpiotf-*)
+    static_collector=${oss_plugins}/lib${collector}-${mpitouse}-offline.a
+    collector_libs="${collector_libs} -lrt -L ${libunwind_libdir} -lunwind"
+
+    if [ -n "$monitor_has_mpi" ]
+    then
+	for name in $monitor_wrap_mpi_all
+	do
+	    wrap_args="${wrap_args} -Wl,--wrap,${name}"
+	done
+    fi
+    ;;
+
+
+    # The non mpi tracing experiments need to trace MPI_Init to
+    # gather the mpi rank information needed for the mpi_rank field
+    # in the THREADS table of the openss database.
+    pcsamp)
+    static_collector=${oss_plugins}/lib${collector}-offline.a
+    collector_libs="${collector_libs} -lrt"
+    ;;
+    usertime)
+    static_collector=${oss_plugins}/lib${collector}-offline.a
+    collector_libs="${collector_libs} -lrt -L ${libunwind_libdir} -lunwind"
+    ;;
+    hwc)
+    static_collector=${oss_plugins}/lib${collector}-offline.a
+    collector_libs="${collector_libs} -lrt -L ${libpapi_libdir} -lpapi"
+    ;;
+    hwctime)
+    static_collector=${oss_plugins}/lib${collector}-offline.a
+    collector_libs="${collector_libs} -lrt -L ${libpapi_libdir} -lpapi -L ${libunwind_libdir} -lunwind"
+    ;;
+    io | iot)
+    static_collector=${oss_plugins}/lib${collector}-offline.a
+    collector_libs="${collector_libs} -lrt -L ${libunwind_libdir} -lunwind"
+    ;;
+    fpe )
+    static_collector=${oss_plugins}/lib${collector}-offline.a
+    collector_libs="${collector_libs} -lrt -L ${libunwind_libdir} -lunwind -lbfd"
+    ;;
+esac
+
+insert_files="$monitor_callbacks $static_collector $static_offline"
+mon_args="${insert_files} ${libmonitor} ${appl_libs} ${library_names}"
+
+if test "$verbose" = yes ; then
+    echo "$0, new command line: " $command $static_args $wrap_args $undef_args "$@" $mon_args $collector_libs
+
+fi
+
+exec $command $static_args $wrap_args $undef_args "$@" $mon_args  $collector_libs
