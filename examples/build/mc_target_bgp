@@ -1,0 +1,41 @@
+#!/bin/sh
+################################################################################
+# Copyright (c) 2009 Krell Institute. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+if [ "$OPENSS_PREFIX" = "" ]
+then
+  echo "OPENSS_PREFIX not set."
+  echo "For oss developers that's usually .../GUI/plugin/lib/openspeedshop"
+  echo "- or -"
+  echo "export OPENSS_PREFIX=$OPENSS_PLUGIN_PATH/../.."
+  if [ "$OPENSS_PLUGIN_PATH" != "" ]
+  then
+    export OPENSS_PREFIX=$OPENSS_PLUGIN_PATH/../..;
+    echo "WARNING: Defaulting to developers location..."
+  fi 
+#  exit
+fi
+if test -d plugins/panels
+then
+# from CSCS ela machine:
+./configure --prefix=/home/jgalaro/oss/bgp --with-instrumentor=offline --with-tls=implicit --with-target-binutils=/usr --with-target-libunwind=/home/jgalaro/oss/bgp --with-target-papi=/software/linux-sles10-ppc64/apps/papi-c-3.9.0 --with-target-libmonitor=/home/jgalaro/oss/bgp ; make clean: make offlinestatic; make offlinestatic-install
+# local on laptop for testing
+#./configure --prefix=/opt/OSSCRAY/cray-xt5 --with-instrumentor=offline --with-tls=implicit --with-target-binutils=/usr --with-target-libunwind=/opt/OSSCRAY/cray-xt5 --with-target-papi=/opt/OSS-mrnet --with-target-libmonitor=/opt/OSSCRAY/cray-xt5 ; make clean; make offlinestatic; make offlinestatic-install
+else
+  echo NOTE: This must be run from the 'current' directory...
+fi
