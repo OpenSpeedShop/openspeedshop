@@ -15,8 +15,11 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
+ACLOCAL_AMFLAGS = -I libltdl/m4
+
 if HAVE_QTLIB
 BASE_SUBDIRS = \
+        libltdl \
 	libopenss-message \
 	libopenss-runtime \
 	libopenss-framework \
@@ -37,6 +40,7 @@ BASE_SUBDIRS = \
 	usability
 else
 BASE_SUBDIRS = \
+        libltdl \
 	libopenss-message \
 	libopenss-runtime \
 	libopenss-framework \

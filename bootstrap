@@ -19,10 +19,8 @@
 ################################################################################
 
 echo "running bootstrap on top level source directory"
-chmod 644 libltdl.tar.gz
-chmod 755 configure
 aclocal
-libtoolize --force --ltdl-tar --copy
+libtoolize --force --ltdl --copy
 autoheader -f
 automake --foreign --add-missing --copy 
 autoconf

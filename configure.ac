@@ -20,6 +20,7 @@
 
 AC_INIT(OpenSpeedShop, 1.9.3.2)
 AC_COPYRIGHT([[Copyright (c) 2006-2009 Krell Institute. All Rights Reserved.]])
+AC_CONFIG_AUX_DIR([libltdl/config])
 AM_INIT_AUTOMAKE
 
 ################################################################################
@@ -59,12 +60,27 @@ AC_PROG_FC
 AC_PROG_F77
 
 AC_DISABLE_STATIC
-AC_LIBLTDL_INSTALLABLE
-AC_SUBST(LTDLINCL)
-AC_SUBST(LIBLTDL)
-AC_LIBTOOL_DLOPEN
+
+# Name the subdirectory that contains libltdl sources
+LT_CONFIG_LTDL_DIR([libltdl])
+     
+AC_CONFIG_MACRO_DIR([libltdl/m4])
+
+# Configure libtool with dlopen support if possible
+LT_INIT([dlopen])
+     
+# Enable building of the installable libltdl library
+LTDL_INIT([installable])
+
+#AC_LIBLTDL_INSTALLABLE
+#AC_SUBST(LTDLINCL)
+#AC_SUBST(LIBLTDL)
+#LT_CONFIG_LTDL_DIR([libltdl])
+#AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
-AC_CONFIG_SUBDIRS(libltdl)
+#AC_CONFIG_SUBDIRS(libltdl)
+
+
 
 AC_PATH_PROG([DOXYGEN], doxygen)
 AC_PROG_INSTALL
@@ -237,8 +253,7 @@ AC_MSG_CHECKING(for target fork support specification)
 AC_ARG_ENABLE([target-fork],
     [AS_HELP_STRING([--enable-target-fork],
         [Enable support on target architecture for fork and exec families [default=yes]])],
-    [],
-    [enable_target_fork=yes])
+    [], [enable_target_fork=yes])
 
 if test "x$enable_target_fork" = xyes ; then
     AC_DEFINE([HAVE_TARGET_FORK], [1],
@@ -261,7 +276,6 @@ AC_PKG_OPENMP()
 AC_PKG_OTF()
 AC_PKG_PAPI()
 AC_PYTHON_DEVEL([>= '2.3'])
-
 AC_PKG_QTLIB()
 AC_PKG_SQLITE()
 AC_PKG_TARGET_BINUTILS()
