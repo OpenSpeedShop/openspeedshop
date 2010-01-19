@@ -149,7 +149,7 @@ struct selectionTarget {
     if (hostId != "") to << " -h " << hostId;
     if (pidId) to << " -p " << pidId;
     if (threadId) to << " -t " << threadId;
-    if (rankId) to << " -r " << rankId;
+    if (rankId >= 0) to << " -r " << rankId;
     to << " (numColumns = " << numColumns << ")";
     to << " prefix = " << headerPrefix;
     to << std::endl;
@@ -177,7 +177,7 @@ struct selectionTarget {
  * @return  void, but one of the input arguments is altered.
  *
  */
-void Select_ThreadGroup (selectionTarget& S, ThreadGroup& base_grp, ThreadGroup& rgrp) {
+static void Select_ThreadGroup (selectionTarget& S, ThreadGroup& base_grp, ThreadGroup& rgrp) {
 
 #if DEBUG_COMPARE
   printf("SSCOMPARE: Select_ThreadGroup Select_ThreadGroup, base_grp.size()==%d, rgrp.size()=%d\n", base_grp.size(), rgrp.size());
@@ -437,9 +437,14 @@ static bool Generate_CustomView (CommandObject *cmd,
   }
 
   if (numQuickSets == 1 ) {
-   // There is only one valid result. Treat this case as a normal view.
-    cmd->Result_Predefined (Quick_Compare_Set[0].partial_view);
-    return true;
+   // There is only one valid result.
+   // We could just set the result and return as follows:
+   //
+   // cmd->Result_Predefined (Quick_Compare_Set[0].partial_view);
+   // return true;
+   //
+   // However, we want to prepend any header information
+   // to the output so fall through.
   }
 
   if (Compute_Delta) {
@@ -1020,6 +1025,13 @@ bool SS_expCompare (CommandObject *cmd) {
         S.headerPrefix += views[j] + " ";
         Quick_Compare_Set.push_back (S);
       }
+    } else if (views.size() == 1) {
+
+     // Append the single view to the existing sets.
+      for (int64_t j = 0; j < Quick_Compare_Set.size(); j++) {
+        Quick_Compare_Set[j].viewName = views[0];
+        Quick_Compare_Set[j].headerPrefix += views[0] + " ";
+      }
     } else if (views.size() > 1) {
       Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
       return false;
@@ -1080,6 +1092,12 @@ bool SS_expCompare (CommandObject *cmd) {
           S.hostId = Experiment::getCanonicalName(hosts[j]);
           Quick_Compare_Set.push_back (S);
         }
+      } else if (hosts.size() == 1) {
+
+       // Append the single host to the existing sets.
+        for (int64_t j = 0; j < Quick_Compare_Set.size(); j++) {
+          Quick_Compare_Set[j].headerPrefix += "-h " + hosts[0] + " ";
+        }
       } else if (Quick_Compare_Set.size() > 1) {
         Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
         return false;
@@ -1127,6 +1145,13 @@ bool SS_expCompare (CommandObject *cmd) {
           S.pidId = pids[j];
           Quick_Compare_Set.push_back (S);
         }
+      } else if (pids.size() == 1) {
+
+       // Append the single pid to the existing sets.
+        char s[40]; sprintf ( s, "-p %lld ", pids[0]);
+        for (int64_t j = 0; j < Quick_Compare_Set.size(); j++) {
+          Quick_Compare_Set[j].headerPrefix += s;
+        }
       } else if (Quick_Compare_Set.size() > 1) {
          Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
          return false;
@@ -1140,7 +1165,6 @@ bool SS_expCompare (CommandObject *cmd) {
        // Append each pid to the corresponding set.
         for (int64_t j = 0; j < pids.size(); j++) {
           int64_t P = pids[j]; char s[40]; sprintf ( s, "-p %lld ", P);
-          selectionTarget S;
           Quick_Compare_Set[j].headerPrefix += s;
           Quick_Compare_Set[j].pidId = pids[j];
         }
@@ -1171,6 +1195,13 @@ bool SS_expCompare (CommandObject *cmd) {
           S.headerPrefix = s;
           S.threadId = threadids[j];
           Quick_Compare_Set.push_back (S);
+        }
+      } else if (threadids.size() == 1) {
+
+       // Append the single thread to the existing sets.
+        char s[40]; sprintf ( s, "-t %lld ", threadids[0]);
+        for (int64_t j = 0; j < Quick_Compare_Set.size(); j++) {
+          Quick_Compare_Set[j].headerPrefix += s;
         }
       } else if (Quick_Compare_Set.size() > 1) {
         Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
@@ -1208,13 +1239,20 @@ bool SS_expCompare (CommandObject *cmd) {
       }
 
       if (Quick_Compare_Set.size() == 0) {
-       // Define new compare sets for each host.
+       // Define new compare sets for each host
         for (int64_t j = 0; j < rankids.size(); j++) {
           char s[40]; sprintf ( s, "-r %lld ", rankids[j]);
           selectionTarget S;
           S.headerPrefix = s;
           S.rankId = rankids[j];
           Quick_Compare_Set.push_back (S);
+        }
+      } else if (rankids.size() == 1) {
+
+       // Append the single rank to the existing sets.
+        char s[40]; sprintf ( s, "-r %lld ", rankids[0]);
+        for (int64_t j = 0; j < Quick_Compare_Set.size(); j++) {
+          Quick_Compare_Set[j].headerPrefix += s;
         }
       } else if (Quick_Compare_Set.size() > 1) {
           Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
@@ -1229,7 +1267,6 @@ bool SS_expCompare (CommandObject *cmd) {
        // Append each rank to the corresponding set.
         for (int64_t j = 0; j < rankids.size(); j++) {
           char s[40]; sprintf ( s, "-r %lld ", rankids[j]);
-          selectionTarget S;
           Quick_Compare_Set[j].headerPrefix += s;
           Quick_Compare_Set[j].rankId = rankids[j];
         }
@@ -1268,6 +1305,31 @@ bool SS_expCompare (CommandObject *cmd) {
         S.timeSegment.push_back(*iv);
         Quick_Compare_Set.push_back (S);
       }
+    } else if (interval_list->size() == 1) {
+
+       // Append the single time interval to the existing sets.
+        ParseInterval P = (*interval_list)[0];
+        std::ostringstream H;
+        H << "-I ";
+        if (p_result->isIntervalAttribute()) {
+          H << (*p_result->getIntervalAttribute()) << " ";
+        }
+        if (P.isStartInt()) {
+          H << P.getStartInt();
+        } else {
+          H << P.getStartdouble();
+        }
+        if (P.isEndInt()) {
+          H << ":" << P.getEndInt();
+        } else {
+          H << ":" << P.getEndDouble();
+        }
+        H << " ";
+
+        for (int64_t j = 0; j < Quick_Compare_Set.size(); j++) {
+        Quick_Compare_Set[j].headerPrefix += H.ostringstream::str();
+        Quick_Compare_Set[j].timeSegment.push_back(P);
+        }
     } else if (Quick_Compare_Set.size() > 1) {
       Mark_Cmd_With_Soft_Error(cmd, "Multiple compare lists are not supported.");
       return false;
@@ -1370,7 +1432,6 @@ bool SS_cvClear (CommandObject *cmd) {
 static std::string CustomViewInfo (CustomView *cvp) {
   OpenSpeedShop::cli::ParseResult *p_result = cvp->cvPr();
   std::ostringstream S(ios::out);
-
  // List viewTypes.
   vector<string> *vtlist = p_result->getViewList();
   if (!vtlist->empty()) {
@@ -1411,30 +1472,17 @@ static std::string CustomViewInfo (CustomView *cvp) {
   
  // For each set of filter specifications ...
   int64_t header_length = S.ostringstream::str().size();
-  bool first_TargetSpec_found = false;
   vector<ParseTarget> *p_tlist = p_result->getTargetList();
   vector<ParseTarget>::iterator pi;
+
+ // Add the "-h" list
+  std::set<string> hset;
   for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
     ParseTarget pt = *pi;
     vector<ParseRange> *h_list = pt.getHostList();
-    vector<ParseRange> *f_list = pt.getFileList();
-    vector<ParseRange> *p_list = pt.getPidList();
-    vector<ParseRange> *t_list = pt.getThreadList();
-    vector<ParseRange> *r_list = pt.getRankList();
 
-    if (first_TargetSpec_found) {
-      S << " ;";
-      S << "\n";
-      S << std::string(header_length, *" ");
-    }
-    first_TargetSpec_found = true;
-
-   // Add the "-h" list.
     if (!h_list->empty()) {
-      S << " -h ";
-      bool first_item_found = false;
       vector<ParseRange>::iterator p_hlist;
-      std::set<std::string> hset;
       for (p_hlist=h_list->begin();p_hlist != h_list->end(); p_hlist++) {
         parse_range_t p_range = *p_hlist->getRange();
         // std::string N = Experiment::getCanonicalName(p_range.start_range.name);
@@ -1445,21 +1493,28 @@ static std::string CustomViewInfo (CustomView *cvp) {
         }
         hset.insert (N);
       }
-      for (std::set<std::string>::iterator hseti = hset.begin(); hseti != hset.end(); hseti++) {
-        if (first_item_found) {
-          S << ", ";
-        }
-        first_item_found = true;
-        S << *hseti;
-      }
     }
+  }
+  bool first_h_item_found = false;
+  for (std::set<std::string>::iterator hseti = hset.begin(); hseti != hset.end(); hseti++) {
+    if (first_h_item_found) {
+      S << ", ";
+    } else {
+      S << " -h ";
+    }
+    first_h_item_found = true;
+    S << *hseti;
+  }
 
-   // Add the "-f" list.
+ // Add the "-f" list.
+  std::set<std::string> fset;
+  for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
+    ParseTarget pt = *pi;
+    vector<ParseRange> *h_list = pt.getHostList();
+    vector<ParseRange> *f_list = pt.getFileList();
+
     if (!f_list->empty()) {
-      S << " -f ";
-      bool first_item_found = false;
       vector<ParseRange>::iterator p_flist;
-      std::set<std::string> fset;
       for (p_flist=h_list->begin();p_flist != h_list->end(); p_flist++) {
         parse_range_t p_range = *p_flist->getRange();
         // std::string N = Experiment::getCanonicalName(p_range.start_range.name);
@@ -1470,86 +1525,120 @@ static std::string CustomViewInfo (CustomView *cvp) {
         }
         fset.insert (N);
       }
-      for (std::set<std::string>::iterator fseti = fset.begin(); fseti != fset.end(); fseti++) {
-        if (first_item_found) {
-          S << ", ";
-        }
-        first_item_found = true;
-        S << *fseti;
-      }
-/*
-      for (p_flist=f_list->begin();p_flist != f_list->end(); p_flist++) {
-        if (first_item_found) {
-          S << ", ";
-        }
-        first_item_found = true;
-        parse_range_t p_range = *p_flist->getRange();
-        S << Experiment::getCanonicalName(p_range.start_range.name);
-        if (p_range.is_range &&
-            (p_range.start_range.name != p_range.end_range.name)) {
-          S << ":" << Experiment::getCanonicalName(p_range.end_range.name);
-        }
-      }
-*/
     }
+  }
+  bool first_f_item_found = false;
+  for (std::set<std::string>::iterator fseti = fset.begin(); fseti != fset.end(); fseti++) {
+    if (first_f_item_found) {
+      S << ", ";
+    } else {
+      S << " -f ";
+    }
+    first_f_item_found = true;
+    S << *fseti;
+  }
 
-   // Add the "-p" list.
+ // Add the "-p" list.
+  std::map<pid_t, parse_range_t> pset;
+  for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
+    ParseTarget pt = *pi;
+    vector<ParseRange> *p_list = pt.getPidList();
+
     if (!p_list->empty()) {
-      S << " -p ";
-      bool first_item_found = false;
       vector<ParseRange>::iterator p_plist;
       for (p_plist=p_list->begin();p_plist != p_list->end(); p_plist++) {
-        if (first_item_found) {
-          S << ", ";
-        }
-        first_item_found = true;
         parse_range_t p_range = *p_plist->getRange();
-        S << p_range.start_range.num;
-        if (p_range.is_range &&
-            (p_range.start_range.num != p_range.end_range.num)) {
-          S << ":" << p_range.end_range.num;
+        pid_t start_range = p_range.start_range.num;
+        std::map<pid_t, parse_range_t>::iterator pseti = pset.find(start_range);
+        if (pseti == pset.end()) {
+//        if ((*(pset.find(start_range))).first == 0) {
+          pset[start_range] = p_range;
         }
       }
     }
+  }
+  bool first_p_item_found = false;
+  for (std::map<pid_t, parse_range_t>::iterator pseti = pset.begin(); pseti != pset.end(); pseti++) {
+    if (first_p_item_found) {
+      S << ", ";
+    } else {
+      S << " -p ";
+    }
+    first_p_item_found = true;
+    parse_range_t p_range = (*pseti).second;
+    S << p_range.start_range.num;
+    if (p_range.is_range &&
+        (p_range.start_range.num != p_range.end_range.num)) {
+      S << ":" << p_range.end_range.num;
+    }
+  }
 
-   // Add the "-t" list.
+ // Add the "-t" list.
+  std::map<int64_t, parse_range_t> tset;
+  for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
+    ParseTarget pt = *pi;
+    vector<ParseRange> *t_list = pt.getThreadList();
+
     if (!t_list->empty()) {
-      S << " -t ";
-      bool first_item_found = false;
       vector<ParseRange>::iterator p_tlist;
       for (p_tlist=t_list->begin();p_tlist != t_list->end(); p_tlist++) {
-        if (first_item_found) {
-          S << ", ";
-        }
-        first_item_found = true;
         parse_range_t p_range = *p_tlist->getRange();
-        S << p_range.start_range.num;
-        if (p_range.is_range &&
-            (p_range.start_range.num != p_range.end_range.num)) {
-          S << ":" << p_range.end_range.num;
+        int64_t start_range = p_range.start_range.num;
+        std::map<int64_t, parse_range_t>::iterator tseti = tset.find(start_range);
+        if (tseti == tset.end()) {
+          tset[start_range] = p_range;
         }
       }
     }
+  }
+  bool first_t_item_found = false;
+  for (std::map<int64_t, parse_range_t>::iterator tseti = tset.begin(); tseti != tset.end(); tseti++) {
+    if (first_t_item_found) {
+      S << ", ";
+    } else {
+      S << " -t ";
+    }
+    first_t_item_found = true;
+    parse_range_t p_range = (*tseti).second;
+    S << p_range.start_range.num;
+    if (p_range.is_range &&
+        (p_range.start_range.num != p_range.end_range.num)) {
+      S << ":" << p_range.end_range.num;
+    }
+  }
 
-   // Add the "-r" list.
-    if (!r_list->empty()) {
-      S << " -r ";
-      bool first_item_found = false;
+ // Add the "-r" list.
+  std::map<int64_t, parse_range_t> rset;
+  for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
+    ParseTarget pt = *pi;
+    vector<ParseRange> *t_list = pt.getRankList();
+
+    if (!t_list->empty()) {
       vector<ParseRange>::iterator p_rlist;
-      for (p_rlist=r_list->begin();p_rlist != r_list->end(); p_rlist++) {
-        if (first_item_found) {
-          S << ", ";
-        }
-        first_item_found = true;
+      for (p_rlist=t_list->begin();p_rlist != t_list->end(); p_rlist++) {
         parse_range_t p_range = *p_rlist->getRange();
-        S << p_range.start_range.num;
-        if (p_range.is_range &&
-            (p_range.start_range.num != p_range.end_range.num)) {
-          S << ":" << p_range.end_range.num;
+        int64_t start_range = p_range.start_range.num;
+        std::map<int64_t, parse_range_t>::iterator rseti = rset.find(start_range);
+        if (rseti == rset.end()) {
+          rset[start_range] = p_range;
         }
       }
     }
-
+  }
+  bool first_r_item_found = false;
+  for (std::map<int64_t, parse_range_t>::iterator rseti = rset.begin(); rseti != rset.end(); rseti++) {
+    if (first_r_item_found) {
+      S << ", ";
+    } else {
+      S << " -r ";
+    }
+    first_r_item_found = true;
+    parse_range_t p_range = (*rseti).second;
+    S << p_range.start_range.num;
+    if (p_range.is_range &&
+        (p_range.start_range.num != p_range.end_range.num)) {
+      S << ":" << p_range.end_range.num;
+    }
   }
 
  // Output the '-m' list'
@@ -1789,8 +1878,8 @@ bool SS_cView (CommandObject *cmd) {
         selectionTarget S;
         S.pResult = new_result;
         S.base_tgrp = cvp->cvTgrp();
-        // S.headerPrefix = std::string("-c ") + N.ostringstream::str() + " ";
-        S.headerPrefix = CustomViewInfo(cvp) + " ";
+        S.headerPrefix = std::string("-c ") + N.ostringstream::str() + " ";
+        // S.headerPrefix = CustomViewInfo  (cvp) + " ";
         S.Exp = exp;
         S.viewName = viewname;
         Quick_Compare_Set.push_back (S);
@@ -2056,24 +2145,12 @@ bool SS_cvClusters (CommandObject *cmd) {
   int64_t ix = 0;
   for(std::set<ThreadGroup>::const_iterator
          i = clusters.begin(); i != clusters.end(); ++i, ix++) {
-    ThreadGroup tgrp = *i;
-
-   // Each thread in the cluster is a distinct ParseTarget specification.
-    for(ThreadGroup::const_iterator
-             j = tgrp.begin(); j != tgrp.end(); ++j) {
-    }
-
    // Build the informational set needed to compress the thread descriptions.
+    ThreadGroup tgrp = *i;
     Build_ThreadInfo (tgrp, TIG[ix]);
   }
 
- // Step 2: determine the minimum set of identifying information needed.
- // Determine the best way to compress the description.
-  if (!threadgroupSubset) {
-    Remove_Unnecessary_ThreadInfo (TIG);
-  }
-
- // Step 3: build cViewCreate descriptions for each cluster.
+ // Step 2: build cViewCreate descriptions for each cluster.
   ix = 0;
   for(std::set<ThreadGroup>::const_iterator
          i = clusters.begin(); i != clusters.end(); i++, ix++) {
@@ -2119,43 +2196,36 @@ bool SS_cvClusters (CommandObject *cmd) {
     Compress_ThreadInfo (TIG[ix], Out);
 
    // Create the target specification for the items in the cluster.
+
     for (std::vector<ThreadRangeInfo>::iterator tri = Out.begin(); tri != Out.end(); tri++) {
      // Pick up the prevously defined ParseTarget information and copy it.
       ParseTarget *new_pt = new_result->currentTarget();
 
      // Get host, pid, thread and rank info from the compressed spec.
       std::string hid = tri->hostName;
-      if (tri->host_required) {
-        new_pt->pushHostPoint ((char *)(tri->hostName.c_str()));
-      }
+      new_pt->pushHostPoint ((char *)(tri->hostName.c_str()));
 
-      if (tri->pid_required) {
-        for (pid_t pi = 0; pi < tri->processId.size(); pi++) {
-          if (tri->processId[pi].first == tri->processId[pi].second) {
-            new_pt->pushPidPoint (tri->processId[pi].first);
-          } else {
-            new_pt->pushPidRange (tri->processId[pi].first, tri->processId[pi].second);
-          }
+      for (pid_t pi = 0; pi < tri->processId.size(); pi++) {
+        if (tri->processId[pi].first == tri->processId[pi].second) {
+          new_pt->pushPidPoint (tri->processId[pi].first);
+        } else {
+          new_pt->pushPidRange (tri->processId[pi].first, tri->processId[pi].second);
         }
       }
 
-      if (tri->thread_required) {;
-        for (int64_t ti = 0; ti < tri->threadId.size(); ti++) {
-          if (tri->threadId[ti].first == tri->threadId[ti].second) {
-            new_pt->pushThreadPoint (tri->threadId[ti].first);
-          } else {
-            new_pt->pushThreadRange (tri->threadId[ti].first, tri->threadId[ti].second);
-          }
+      for (int64_t ti = 0; ti < tri->threadId.size(); ti++) {
+        if (tri->threadId[ti].first == tri->threadId[ti].second) {
+          new_pt->pushThreadPoint (tri->threadId[ti].first);
+        } else {
+          new_pt->pushThreadRange (tri->threadId[ti].first, tri->threadId[ti].second);
         }
       }
 
-      if (tri->rank_required) {
-        for (int64_t ri = 0; ri < tri->rankId.size(); ri++) {
-          if (tri->rankId[ri].first == tri->rankId[ri].second) {
-            new_pt->pushRankPoint (tri->rankId[ri].first);
-          } else {
-            new_pt->pushRankRange (tri->rankId[ri].first, tri->rankId[ri].second);
-          }
+      for (int64_t ri = 0; ri < tri->rankId.size(); ri++) {
+        if (tri->rankId[ri].first == tri->rankId[ri].second) {
+          new_pt->pushRankPoint (tri->rankId[ri].first);
+        } else {
+          new_pt->pushRankRange (tri->rankId[ri].first, tri->rankId[ri].second);
         }
       }
 

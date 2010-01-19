@@ -87,159 +87,7 @@ void Build_ThreadInfo (ThreadGroup& tgrp, std::vector<ThreadInfo>& Out) {
     }
     std::pair<bool, int> prank = j->getMPIRank();
     int64_t rank = prank.first ? prank.second : -1;
-    Out.push_back(ThreadInfo(HasThreadId, prank.first, hid, pid, pthreadid, rank));
-  }
-}
-
-/**
- * Utility: Remove_Unnecessary_ThreadInfo
- *
- * Look through the set of ThreadInfo entries that is passed
- * in and try to determine a field that will uniquely identify
- * the associated thread.
- *
- * All the entries are scanned and each field is placed into a
- * set of the same field types.  If a new field has already been
- * placed into the set, that field contains duplicates and can
- * not be used to uniquely identify the Thread.
- *
- * If a unique field is found, all the other fields, for every
- * ThreadInfo object is set to a null value.  If multiple unique
- * fields are discovered, one is chosen in the following order:
- *  rankId
- *  processId
- *  threadId
- *  hostName
- *
- * @param  std::vector<std::vector<ThreadInfo> >&
- *
- * @return void - the input may be changed.
- *
- * Note: This algorithm can only detect conflicts in the information
- *  that it is passed.  To be useful with commands that may follow,
- *  all the Framework::Threads that are part of an experiment must be
- *  included in the argument.  This is why a list of lists is required
- *  as an argument - any unneeded Threads can be added to a vector that
- *  will later be ignored by the calling function.
- *
- */
-void Remove_Unnecessary_ThreadInfo (std::vector<std::vector<ThreadInfo> >& Info) {
- // Are any of the fields non-repeating?
-  std::set<string> hostset;
-  bool hosts_are_unique = true;
-  std::set<pid_t> pidset;
-  bool pids_are_unique = true;
-  std::set<int64_t> threadset;
-  bool threads_are_unique = true;
-  std::set<int64_t> rankset;
-  bool ranks_are_unique = true;
-
-  int64_t len = Info.size();
-  for (int64_t ix = 0; ix < len; ix++) {
-    std::vector<ThreadInfo>::iterator i;
-    for (i = Info[ix].begin(); i != Info[ix].end(); i++) {
-      if (hosts_are_unique) {
-        std::string s = i->hostName;
-        if (hostset.find(s) != hostset.end()) {
-          hosts_are_unique = false;
-        } else {
-          hostset.insert(s);
-        }
-      }
-      if (pids_are_unique) {
-        pid_t s = i->processId;
-        if (s == 0) {
-          pids_are_unique = false;
-          pidset.clear();
-        } else {
-          if (pidset.find(s) != pidset.end()) {
-            pids_are_unique = false;
-          } else {
-            pidset.insert(s);
-          }
-        }
-      }
-      if (threads_are_unique) {
-        int64_t s = i->threadId;
-        if (i->thread_required) {
-          if (threadset.find(s) != threadset.end()) {
-            threads_are_unique = false;
-          } else {
-            threadset.insert(s);
-          }
-        } else {
-          threads_are_unique = false;
-          threadset.clear();
-        }
-      }
-      if (ranks_are_unique) {
-        int64_t s = i->rankId;
-        if (i->rank_required) {
-          if (rankset.find(s) != rankset.end()) {
-            ranks_are_unique = false;
-          } else {
-            rankset.insert(s);
-          }
-        } else {
-          ranks_are_unique = false;
-          rankset.clear();
-        }
-      }
-    }
-  }
-
-  if (ranks_are_unique && !rankset.empty()) {
-   // Ranks are a unique identifier.
-   // We only need to preserve ranks. Get rid of the rest.
-    for (int64_t ix = 0; ix < len; ix++) {
-      std::vector<ThreadInfo>::iterator i;
-      for (i = Info[ix].begin(); i != Info[ix].end(); i++) {
-        i->host_required = false;
-        i->pid_required = false;
-        i->thread_required = false;
-        i->processId = 0;
-        i->threadId = 0;
-      }
-    }
-  } else if (threads_are_unique && !threadset.empty()) {
-   // Mpi/Posix thread Id's are a unique identifier.
-   // We only need to preserve threads. Get rid of the rest.
-    for (int64_t ix = 0; ix < len; ix++) {
-      std::vector<ThreadInfo>::iterator i;
-      for (i = Info[ix].begin(); i != Info[ix].end(); i++) {
-        i->host_required = false;
-        i->pid_required = false;
-        i->rank_required = false;
-        i->processId = 0;
-        i->rankId = 0;
-      }
-    }
-  } else if (pids_are_unique && !pidset.empty()) {
-   // Pids are a unique identifier.
-   // We only need to preserve pids. Get rid of the rest.
-    for (int64_t ix = 0; ix < len; ix++) {
-      std::vector<ThreadInfo>::iterator i;
-      for (i = Info[ix].begin(); i != Info[ix].end(); i++) {
-        i->host_required = false;
-        i->thread_required = false;
-        i->rank_required = false;
-        i->threadId = 0;
-        i->rankId = 0;
-      }
-    }
-  } else {
-   // Preserve host and pid, which is enough to uniquely identify the item.
-   // We could keep thread and rank Id's, but it is not necessary and will
-   // prevent us from finding ranges for the pids.
-    for (int64_t ix = 0; ix < len; ix++) {
-      std::vector<ThreadInfo>::iterator i;
-      for (i = Info[ix].begin(); i != Info[ix].end(); i++) {
-        i->thread_required = false;
-        i->rank_required = false;
-        i->threadId = 0;
-        i->rankId = 0;
-      }
-    }
+    Out.push_back(ThreadInfo(hid, pid, pthreadid, rank));
   }
 }
 
@@ -270,20 +118,36 @@ void Compress_ThreadInfo (std::vector<ThreadInfo>& In,
    // Determine the ranges that are covered.
     std::vector<ThreadInfo>::iterator i = In.begin();
 
+   // Identify a field with multiple data samples.
+   // This is the field we will use to compress ranges.
+    int64_t host_count = 0;
+    int64_t pid_count = 0;
+    int64_t thread_count = 0;
+    int64_t rank_count = 0;
+    for (i = In.begin(); i != In.end(); i++) {
+      host_count += ((i->hostName != "") ? 1 : 0);
+      pid_count += ((i->processId) ? 1 : 0);
+      thread_count += ((i->threadId) ? 1 : 0);
+      rank_count += ((i->rankId >= 0) ? 1 : 0);
+    }
+
+   // We are only attempting to merge one field.
+    bool merging_ranks = (rank_count > 1);
+    bool merging_threads = (!(merging_ranks) && (thread_count > 1));
+    bool merging_pids = (!(merging_threads) && !(merging_ranks) && (pid_count > 1));
+    bool have_hosts = (host_count > 1);
+
+ 
+   // Determine the ranges that are covered for the selected field.
    // Initialize base information with first information definition.
+    i = In.begin();
     std::string current_host = i->hostName;
     pid_t end_pid = i->processId;
     int64_t end_thread = i->threadId;
     int64_t end_rank = i->rankId;
 
-    bool merging_ranks = (i->rank_required);
-    bool merging_threads = (!(merging_ranks) && (i->thread_required));
-    bool merging_pids = (!(merging_threads) && (i->pid_required));
-    bool have_hosts = i->host_required;
-
    // Create the first result entry.
-    Out.push_back(ThreadRangeInfo(have_hosts, merging_pids, merging_threads, merging_ranks,
-                                  current_host, end_pid,   end_thread,   end_rank));
+    Out.push_back(ThreadRangeInfo(current_host, end_pid,   end_thread,   end_rank));
     ThreadRangeInfo *currentTRI = &Out[0];
 
    // Go through the rest of the information definitions.
@@ -304,14 +168,8 @@ void Compress_ThreadInfo (std::vector<ThreadInfo>& In,
 	end_thread = next_thread;
 	end_rank = next_rank;
 
-        merging_ranks = (i->rank_required);
-        merging_threads = (!(merging_ranks) && (i->thread_required));
-        merging_pids = (!(merging_threads));
-        have_hosts = i->host_required;
-
        // Add new item to <target_list>.
-        Out.push_back(ThreadRangeInfo(have_hosts, merging_pids, merging_threads, merging_ranks,
-                                      current_host, end_pid,   end_thread,   end_rank));
+        Out.push_back(ThreadRangeInfo(current_host, end_pid, end_thread, end_rank));
         currentTRI = &Out[Out.size()-1];
 	continue;
       }
