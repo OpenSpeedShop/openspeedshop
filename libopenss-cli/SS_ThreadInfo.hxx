@@ -60,28 +60,17 @@
 class ThreadRangeInfo
 {
  public:
-  bool host_required;
-  bool pid_required;
-  bool thread_required;
-  bool rank_required;
-
   std::string hostName;
   std::vector<std::pair<pid_t,pid_t> > processId;
   std::vector<std::pair<int64_t,int64_t> > threadId;
   std::vector<std::pair<int64_t,int64_t> > rankId;
 
  public:
-  ThreadRangeInfo (bool HasHost, bool HasPid, bool HasThread, bool HasRank,
-                   std::string hid, pid_t pid, int64_t tid, int64_t rid) {
-    host_required = HasHost;
-    pid_required = HasPid;
-    thread_required = HasThread;
-    rank_required = HasRank;
-
-    if (HasHost) hostName = hid;
-    if (HasPid) processId.push_back (std::make_pair(pid,pid));
-    if (HasThread) threadId.push_back (std::make_pair(tid,tid));
-    if (HasRank) rankId.push_back (std::make_pair(rid,rid));
+  ThreadRangeInfo (std::string hid, pid_t pid, int64_t tid, int64_t rid) {
+    hostName = hid;
+    processId.push_back (std::make_pair(pid,pid));
+    threadId.push_back (std::make_pair(tid,tid));
+    rankId.push_back (std::make_pair(rid,rid));
   }
 
 };
@@ -89,24 +78,13 @@ class ThreadRangeInfo
 class ThreadInfo
 {
  private:
-  bool host_required;
-  bool pid_required;
-  bool thread_required;
-  bool rank_required;
-
   std::string hostName;
   pid_t processId;
   int64_t threadId;
   int64_t rankId;
 
  public:
-  ThreadInfo (bool thread_present, bool rank_present,
-              std::string hid, pid_t pid, int64_t tid, int64_t rid) {
-    host_required = true;
-    pid_required = true;
-    thread_required = thread_present;
-    rank_required = rank_present;
-
+  ThreadInfo (std::string hid, pid_t pid, int64_t tid, int64_t rid) {
     hostName = hid;
     processId = pid;
     threadId = tid;
@@ -114,7 +92,6 @@ class ThreadInfo
   }
 
 
- friend void Remove_Unnecessary_ThreadInfo (std::vector<std::vector<ThreadInfo> >& Info);
  friend void Compress_ThreadInfo (std::vector<ThreadInfo>& In, std::vector<ThreadRangeInfo>& Out);
  friend bool operator<(const ThreadInfo& T1, const ThreadInfo& T2);
 };
