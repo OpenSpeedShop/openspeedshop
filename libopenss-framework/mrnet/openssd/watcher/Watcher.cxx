@@ -369,14 +369,21 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 #ifndef NDEBUG
 			      if (isDebugEnabled ()) {
 				  std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() pid=" << pid << " tid=" << tid << std::endl;
+				  std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() pid_to_monitor=" << pid_to_monitor << " tid_to_monitor=" << tid_to_monitor << std::endl;
                               }
 #endif
                               if (pid != pid_to_monitor) {
                                 // skip this directory
+			        if (isDebugEnabled ()) {
+				  std:: cout << "BREAK BECAUSE PID and PID_TO_MONITOR DO NOT MATCH" << std::endl;
+                                }
                                 break;
                               }
 
 			      if (tid != tid_to_monitor) {
+				  if (isDebugEnabled ()) {
+				     std:: cout << "CONTINUE BECAUSE TID and TID_TO_MONITOR DO NOT MATCH" << std::endl;
+                                  }
 				  continue;
 			      }
 

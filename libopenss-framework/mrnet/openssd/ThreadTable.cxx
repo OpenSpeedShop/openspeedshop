@@ -132,6 +132,17 @@ void ThreadTable::addThread(const ThreadName& thread, BPatch_thread* ptr,
 {
     Guard guard_myself(this);
 
+#if 0
+    std::pair<bool, pthread_t> tid = thread.getPosixThreadId();
+    if (tid.first) {
+      std:: cout << "OpenSpeedShop::ThreadTable::addThread() tid.second=" << tid.second << std::endl;
+    } else {
+      std:: cout << "OpenSpeedShop::ThreadTable::addThread() NO TID"  << std::endl;
+    }
+    std:: cout << "OpenSpeedShop::ThreadTable::addThread() thread.getProcessId()=" << thread.getProcessId() << std::endl;
+
+#endif
+
     // Find the entries (if any) for this thread
     std::map<ThreadName, BPatch_thread*>::const_iterator i =
 	dm_name_to_ptr.find(thread);
@@ -225,6 +236,7 @@ std::vector<std::pair<pid_t, std::pair<std::pair<bool, pthread_t>, std::string> 
 #if 0
        std::cout << "ThreadTable::getActivePidsAndHosts(), i->first.getProcessId()=" << i->first.getProcessId() << std::endl;
        std::cout << "ThreadTable::getActivePidsAndHosts(), i->first.getHost()=" << i->first.getHost() << std::endl;
+//       std::cout << "ThreadTable::getActivePidsAndHosts(), i->first.getPosixThreadId()=" << i->first.getPosixThreadId() << std::endl;
 //       std::cout << "ThreadTable::getActivePidsAndHosts(), new_tmp_str=" << new_tmp_str << std::endl;
 #endif
 
