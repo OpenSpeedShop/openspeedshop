@@ -416,7 +416,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 
 			      int status = stat (dataFilename, &statbuf);
 			      if (status == (-1)) {
-				  std::cerr << "OpenSpeedShop::Watcher::scanForRawPerformanceData() failed to stat file"
+				  std::cerr << "OpenSpeedShop::Watcher::scanForRawPerformanceData() failed to stat file: "
 				    	    << dataFilename << std::endl;
 				  break;
                               }
@@ -427,7 +427,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 
 			      FILE * f = fopen (dataFilename, "r");
 			      if (f == NULL) {
-				  std::cerr << "OpenSpeedShop::Watcher::scanForRawPerformanceData() failed to open file"
+				  std::cerr << "OpenSpeedShop::Watcher::scanForRawPerformanceData() failed to open file: "
 				            << dataFilename << std::endl;
 				  break;
 				}
