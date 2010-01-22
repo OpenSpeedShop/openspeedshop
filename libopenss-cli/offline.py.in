@@ -220,6 +220,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		  if mpi_exe_implmentation == "mpt":
 		    mpi_executable = file_arg
 		    break
+		  if mpi_exe_implmentation == "openmpi":
+		    mpi_executable = file_arg
+		    break
 	    else:
 		isscript = os.system('file -L ' + file_arg + ' | grep -q script')
 		if not os.WEXITSTATUS(isscript):
@@ -231,6 +234,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 			ismpich2 = os.system('grep -q -i Intel ' + file_arg)
 
 		  isMPT = os.system('grep -q -i sgimpirun ' + file_arg)
+		  isopenmpi = os.system('grep -q -i orterun ' + file_arg)
                   if not os.WEXITSTATUS(ismpich):
                     ismpi = bool(1)
                     mpi_driver = os.path.realpath(file_arg)
@@ -252,6 +256,13 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    program = program.replace(s, file_arg)
 		    preload_files = ""
 		    mpi_exe_implmentation = "mpt"
+		  if not os.WEXITSTATUS(isopenmpi):
+		    ismpi = bool(1)
+		    mpi_driver = os.path.realpath(file_arg)
+		    orig_mpi_driver = s
+		    program = program.replace(s, file_arg)
+		    preload_files = ""
+		    mpi_exe_implmentation = "openmpi"
 
 
     # Set the mpiplugin to use for mpi jobs.  The OPENSS_MPI_IMPLEMENTATION
@@ -259,6 +270,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # for systems that have more than on mpi implementation configured for
     # use with O|SS.
     use_mpi_impl = ""
+
     if ismpi:
       if mpi_executable == "":
 	raise RuntimeError("[openss error]: Failed to locate the mpi program.")
