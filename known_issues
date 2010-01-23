@@ -1,11 +1,11 @@
 Legend * means fixed,
        - means still open.
 
-- 9-15-2000
+- 9-15-2008
   Need to fix the openss -offline command error checking to look for missing arguments
   and give better error messages (jeg)
 
-- 7-29-2008
+* 7-29-2008
   Need to update offline collectors to allow changing the collector parameters.
   e.g. sampling_rate, papi threshhold, papi events, etc etc etc...
 
@@ -90,7 +90,7 @@ Legend * means fixed,
 --------------------------------------------------------
 
 
-- 6-10-2008
+* 6-10-2008
   Need to automate creation of mrnet topology file for clusters.
   This should be similar to how site.py is modified for starting remote
   dpcld daemons for the dpcl instrumentor. One proposed method would
@@ -119,9 +119,13 @@ Legend * means fixed,
   TODO: update ossrun and watcher to do same. i.e. default to /tmp/$USER/offline-oss
   for ossrun and /tmp/$USER for the mrnet watcher.
   (7-29-2008 -dpm)
+  ***
+  The online code is the only peice remaing that needs to follow.
+  i.e. /tmp/$USER/online-oss and use $OPENSS_RAWDATA_DIR/online-oss
+  internally with in the watcher code.  (1-22-2010 -dpm)
 --------------------------------------------------------
 
-- 6-10-2008
+* 6-10-2008
   The offline collector runtimes need a method to record the rank id
   of mpi processes.  This is availble to the mpi and mpit collectors
   but is not available in general to the other collectors.  This will
@@ -132,6 +136,9 @@ Legend * means fixed,
   other than the mpi, mpit, and mpiotf collectors.  The mpi, and mpit collectors
   will need to record and send the rank info to the openss-info rawdata file too.
   (7-29-2008 -dpm)
+  ***
+  This work is complete. Using libmonitor's code for accessing rank
+  information in all the collectors.
 --------------------------------------------------------
 
 * 6-10-2008
@@ -160,7 +167,7 @@ Legend * means fixed,
   -v Statements and should not present that option as an icon.
 --------------------------------------------------------
 
-- Clicking on a entry in a stacktrace in the StatsPanel does
+* Clicking on a entry in a stacktrace in the StatsPanel does
   not focus the SourcePanel on the correct line for the event
   but rather on the first line of the enclosing function.
 
@@ -179,7 +186,7 @@ Legend * means fixed,
    version.
 --------------------------------------------------------
 
-- MPI startup broken
+* MPI startup broken
         - Jim's system: can't execute
         - LLNL: - can't resume MPI job after attach
                   (test debug-0078)
@@ -197,9 +204,8 @@ Legend * means fixed,
   -> contact Dong Ahn for help with TV on thunder
 --------------------------------------------------------
 
-- File not found box shows not the filename it tries to open
+* File not found box shows not the filename it tries to open
   (shown filename exists, but still can't open file)
---------------------------------------------------------
 
 * (dpm) The shown filename is not the file that was actually requested
    but rather the last known opened file. The error was for the
@@ -209,9 +215,8 @@ Legend * means fixed,
    This should now be fixed.
 --------------------------------------------------------
 
-- When selecting system source files, we open any file, but
+* When selecting system source files, we open any file, but
   give no error
---------------------------------------------------------
 
 * (dpm) This appears related to the other SourcePanel focus
    issues where a source file does not exist (e.g. libc source files).
