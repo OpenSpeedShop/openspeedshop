@@ -27,8 +27,8 @@
 #       the runtime for the other libraries that actually use it.
 #
 
-dist_bin_SCRIPTS = ossrun ossdriver
-BUILT_FILES = ossrun ossdriver
+dist_bin_SCRIPTS = ossrun ossdriver osslink
+BUILT_FILES = ossrun ossdriver osslink
 
 
 bin_PROGRAMS =
@@ -114,6 +114,16 @@ ossrun: ossrun.in
 			$(srcdir)/ossrun.in > ossrun
 	@chmod 755 ossrun
 
+osslink: osslink.in
+	@rm -f osslink
+	@sed \
+		-e 's,@@ossinstalldir@@,$(prefix),' \
+		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
+		-e 's,@@libunwinddir@@,$(LIBUNWIND_DIR),' \
+		-e 's,@@papidir@@,$(PAPI_DIR),' \
+			$(srcdir)/osslink.in > osslink
+	@chmod 755 osslink
+
 ossdriver: ossdriver.in
 	@rm -f ossdriver
 	cp $(srcdir)/ossdriver.in ossdriver
@@ -161,4 +171,4 @@ install-exec-hook: ossdriver
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossfpe
 	chmod 755 $(DESTDIR)$(bindir)/ossfpe
 
-EXTRA_DIST = ossrun.in ossdriver.in 
+EXTRA_DIST = ossrun.in ossdriver.in osslink.in

@@ -22,8 +22,8 @@ libunwind_prefix=@@libunwinddir@@
 libunwind_libdir="${libunwind_prefix}/${machlibdir}"
 libunwind="${libunwind_libdir}/libunwind.a"
 libpapi_prefix=@@papidir@@
-libpapi_libdir="${libunwind_prefix}/${machlibdir}"
-libpapi="${libunwind_libdir}/libpapi.a"
+libpapi_libdir="${libpapi_prefix}/${machlibdir}"
+libpapi="${libpapi_libdir}/libpapi.a"
 
 # monitor always has these
 monitor_wrap_base_names="main exit _exit system"

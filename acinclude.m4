@@ -371,6 +371,7 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
     LIBUNWIND_CPPFLAGS="-I$libunwind_dir/include -DUNW_LOCAL_ONLY"
     LIBUNWIND_LDFLAGS="-L$libunwind_dir/$abi_libdir"
     LIBUNWIND_LIBS="-lunwind"
+    LIBUNWIND_DIR="$libunwind_dir"
 
     libunwind_saved_CPPFLAGS=$CPPFLAGS
     libunwind_saved_LDFLAGS=$LDFLAGS
@@ -405,6 +406,7 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
     AC_SUBST(LIBUNWIND_CPPFLAGS)
     AC_SUBST(LIBUNWIND_LDFLAGS)
     AC_SUBST(LIBUNWIND_LIBS)
+    AC_SUBST(LIBUNWIND_DIR)
 
 ])
 
@@ -432,12 +434,14 @@ AC_DEFUN([AC_PKG_TARGET_LIBUNWIND], [
       TARGET_LIBUNWIND_CPPFLAGS="-I$target_libunwind_dir/include -DUNW_LOCAL_ONLY"
       TARGET_LIBUNWIND_LDFLAGS="-L$target_libunwind_dir/$abi_libdir"
       TARGET_LIBUNWIND_LIBS="-lunwind"
+      TARGET_LIBUNWIND_DIR="$target_libunwind_dir"
     fi
 
 
     AC_SUBST(TARGET_LIBUNWIND_CPPFLAGS)
     AC_SUBST(TARGET_LIBUNWIND_LDFLAGS)
     AC_SUBST(TARGET_LIBUNWIND_LIBS)
+    AC_SUBST(TARGET_LIBUNWIND_DIR)
 
 ])
 
@@ -975,6 +979,7 @@ AC_DEFUN([AC_PKG_PAPI], [
 
     PAPI_CPPFLAGS="-I$papi_dir/include"
     PAPI_LDFLAGS="-L$papi_dir/$abi_libdir"
+    PAPI_DIR="$papi_dir"
 
     case "$host" in
 	ia64-*-linux*)
@@ -994,7 +999,6 @@ AC_DEFUN([AC_PKG_PAPI], [
     papi_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $PAPI_CPPFLAGS"
-#    LDFLAGS="$LDFLAGS $PAPI_LDFLAGS $PAPI_LIBS"
     LDFLAGS="$PAPI_LDFLAGS $PAPI_LIBS"
     LIBS=""
 
@@ -1026,6 +1030,7 @@ AC_DEFUN([AC_PKG_PAPI], [
     AC_SUBST(PAPI_CPPFLAGS)
     AC_SUBST(PAPI_LDFLAGS)
     AC_SUBST(PAPI_LIBS)
+    AC_SUBST(PAPI_DIR)
 
 ])
 
