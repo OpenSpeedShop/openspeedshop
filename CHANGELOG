@@ -1,15 +1,19 @@
 
-Changes in 1.9.3.3 since the 1.9.3.2 release:
-
-1) Add osslink command to support building static applications
-with static collectors.
-2) more updates to better support mvapich, mpt, and openmpi.
 
 Changes in 1.9.3.2 since the 1.9.3.1 release:
 
 1) Removed all autogen created files. Now use libtool 2.2x,
 automake 1.11, and autoconf 2.65 for deveopment builds from cvs source.
-2) updates to better support mvapich, mpt, and openmpi.
+
+2) Updates to better support mvapich, mpt, and openmpi.
+   Support for wrapping Fortran MPI calls was needed.
+
+3) Add osslink command to support building static applications
+with static collectors.
+
+4) More addtional updates to better support mvapich, mpt, openmpi, and Intel mpi (mpich2)
+   For Intel mpi, when building set the OPENSS_MPI_MPICH2 environment variable to the path
+   to the Intel mpi installation directory.
 
 Changes in 1.9.3.1 since the 1.9.3 release:
 
