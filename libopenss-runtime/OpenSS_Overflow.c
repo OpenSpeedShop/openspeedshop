@@ -30,7 +30,7 @@ static void OpenSS_PAPIerror (int rval, const char *where)
 	char error_str[PAPI_MAX_STR_LEN];
 	PAPI_perror(rval,error_str,PAPI_MAX_STR_LEN);
 	unsigned long mytid = PAPI_thread_id();
-	fprintf(stderr,"PAPI_error %d in %lu: %s\n",where,rval,mytid,error_str);
+	fprintf(stderr,"OpenSS_PAPIerror:%s, %d in %lu: %s\n",where,rval,mytid,error_str);
 }
 
 typedef int oss_boolean;
