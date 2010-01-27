@@ -59,7 +59,7 @@ static_collector=
 static_mpi_collector=
 
 static_offline=${oss_plugins}/libopenss-runtime-offline.a
-monitor_callbacks=/home/dpm/oss-1931/OpenSpeedShop/libopenss-runtime/offline/.libs/libopenss_runtime_monitor_la-offline_monitor.o
+monitor_callbacks=${oss_plugins}/offline_monitor.o
 
 mpi_plugin=
 output_dir=
