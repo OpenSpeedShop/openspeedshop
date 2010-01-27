@@ -52,3 +52,8 @@ offline.h offline.c : offline.x
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
+
+install-exec-hook:
+	cp .libs/libopenss_runtime_monitor_la-offline_monitor.o ${pkglibdir}/offline_monitor.o
+uninstall-hook:
+	rm -f ${pkglibdir}/offline_monitor.o
