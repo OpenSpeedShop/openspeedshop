@@ -99,6 +99,13 @@ endif
 
 endif
 
+if HAVE_TARGET_MPICH2
+if HAVE_TARGET_LIBMONITOR
+pkglib_LTLIBRARIES += libmpi-mpich2-offline.la
+endif
+endif
+
+
 if HAVE_MPT
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-mpt.la
