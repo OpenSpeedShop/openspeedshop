@@ -188,10 +188,14 @@ void *monitor_init_process(int *argc, char **argv, void *data)
     if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
 	tls->debug=1;
 
+#if 0
 	/* get the identifier of this thread */
 	pthread_t (*f_pthread_self)();
 	f_pthread_self = (pthread_t (*)())dlsym(RTLD_DEFAULT, "pthread_self");
 	tls->tid = (f_pthread_self != NULL) ? (*f_pthread_self)() : 0;
+#else
+	tls->tid = 0;
+#endif
 
 
     } else {
@@ -265,10 +269,14 @@ void *monitor_init_thread(int tid, void *data)
     if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
 	tls->debug=1;
 
+#if 0
 	/* get the identifier of this thread */
 	pthread_t (*f_pthread_self)();
 	f_pthread_self = (pthread_t (*)())dlsym(RTLD_DEFAULT, "pthread_self");
 	tls->tid = (f_pthread_self != NULL) ? (*f_pthread_self)() : 0;
+#else
+	tls->tid = 0;
+#endif
 
 
     } else {

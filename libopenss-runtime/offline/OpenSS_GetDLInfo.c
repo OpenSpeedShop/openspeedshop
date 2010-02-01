@@ -33,14 +33,17 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 	return(1);
     }
 
+#if 0
 #ifndef NDEBUG
     if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+
 	pthread_t (*f_pthread_self)();
         f_pthread_self = (pthread_t (*)())dlsym(RTLD_DEFAULT, "pthread_self");
 	fprintf(stderr,"OpenSS_GetDLInfo called for %s in %d,%lu\n",
 		path ? path : "EMPTY PATH", getpid(),
 		(f_pthread_self != NULL) ? (*f_pthread_self)() : 0);
     }
+#endif
 #endif
 
     while(!feof(mapfile)) {
