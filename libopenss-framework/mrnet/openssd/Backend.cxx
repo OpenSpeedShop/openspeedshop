@@ -138,7 +138,7 @@ namespace {
 	int bpatch_fd = bpatch->getNotificationFD();
 
 	// Get the MRNet file descriptor
-#ifdef MRNET_21
+#if defined(MRNET_21)
 	int mrnet_fd = the_network->get_EventNotificationFd( MRN::DATA_EVENT );
 #elif defined(MRNET_22)
 	int mrnet_fd = the_network->get_EventNotificationFd( MRN::DATA_EVENT );
@@ -231,7 +231,7 @@ namespace {
 		}
 
 		// Reset the MRNet notification descriptor
-#ifdef MRNET_21
+#if defined(MRNET_21)
 		the_network->clear_EventNotificationFd( MRN::DATA_EVENT );
 #elif defined(MRNET_22)
 		the_network->clear_EventNotificationFd( MRN::DATA_EVENT );
@@ -362,7 +362,7 @@ void Backend::startMessagePump(int argc, char* argv[])
 #endif
 
     // Initialize MRNet (participating as a backend)
-#ifdef MRNET_22
+#if defined(MRNET_22)
     the_network = MRN::Network::CreateNetworkBE(argc, argv);
 #else
     the_network = new MRN::Network(argc, argv);
