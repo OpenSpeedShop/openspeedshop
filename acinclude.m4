@@ -287,8 +287,8 @@ AC_DEFUN([AC_PKG_DYNINST], [
 
     AC_ARG_WITH(dyninst-version,
                 AC_HELP_STRING([--with-dyninst-version=VERS],
-                               [dyninst-version installation @<:@6.0@:>@]),
-                dyninst_vers=$withval, dyninst_vers="6.0")
+                               [dyninst-version installation @<:@6.1@:>@]),
+                dyninst_vers=$withval, dyninst_vers="6.1")
 
     DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
     DYNINST_LDFLAGS="-L$dyninst_dir/$abi_libdir"
@@ -465,8 +465,8 @@ AC_DEFUN([AC_PKG_MRNET], [
 
     AC_ARG_WITH(mrnet-version,
                 AC_HELP_STRING([--with-mrnet-version=VERS],
-                               [mrnet-version installation @<:@2.0.1@:>@]),
-                mrnet_vers=$withval, mrnet_vers="2.0.1")
+                               [mrnet-version installation @<:@2.2@:>@]),
+                mrnet_vers=$withval, mrnet_vers="2.2")
 
 #   Temporary fix for problems with the MRNet public header files.  They depend on os_linux or other flags being set
 
@@ -484,21 +484,21 @@ AC_DEFUN([AC_PKG_MRNET], [
     esac
 
 
-#   The default is to use mrnet-2.0.1 cppflags and libs.  
-#   Change that (the default case entry) when you change the default vers to something other than 2.0.1
+#   The default is to use mrnet-2.2 cppflags and libs.  
+#   Change that (the default case entry) when you change the default vers to something other than 2.2
 
     case "$mrnet_vers" in
 	"2.0.1")
             MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
             ;;
 	"2.1")
-            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_21"
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_21=1"
             ;;
 	"2.2")
-            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_22"
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_22=1"
             ;;
 	*)
-            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_22=1"
             ;;
     esac
 
