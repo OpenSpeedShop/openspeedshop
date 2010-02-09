@@ -1089,6 +1089,7 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
 
 AC_DEFUN([AC_PKG_SQLITE], [
 
+    found_sqlite=0
     AC_ARG_WITH(sqlite,
                 AC_HELP_STRING([--with-sqlite=DIR],
                                [SQLite installation @<:@/usr@:>@]),
@@ -1110,19 +1111,30 @@ AC_DEFUN([AC_PKG_SQLITE], [
         #include <sqlite3.h>
         ]], [[
 	sqlite3_libversion();
-        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
-        AC_MSG_FAILURE(cannot locate SQLite library and/or headers.) ]
+        ]]),[ found_sqlite=1 ], [ found_sqlite=0 ]
     )
 
     CPPFLAGS=$sqlite_saved_CPPFLAGS
     LDFLAGS=$sqlite_saved_LDFLAGS
 
+    if test $found_sqlite -eq 1; then
+      AC_MSG_RESULT([yes])
+      AC_DEFINE(HAVE_SQLITE, 1, [Define to 1 if you have SQLite.])
+      AM_CONDITIONAL(HAVE_SQLITE, true)
+    else
+      AC_MSG_RESULT([cannot locate SQLite library and/or headers.]) 
+      # If want this to cause configure failure and stopage, add in AC_MSG_FAILURE
+      #AC_MSG_FAILURE(cannot locate SQLite library and/or headers.) 
+      AC_MSG_RESULT([no]) 
+      AM_CONDITIONAL(HAVE_SQLITE, false)
+      SQLITE_CPPFLAGS=""
+      SQLITE_LDFLAGS=""
+      SQLITE_LIBS=""
+    fi
+
     AC_SUBST(SQLITE_CPPFLAGS)
     AC_SUBST(SQLITE_LDFLAGS)
     AC_SUBST(SQLITE_LIBS)
-
-    AC_DEFINE(HAVE_SQLITE, 1, [Define to 1 if you have SQLite.])
-
 ])
 
 
