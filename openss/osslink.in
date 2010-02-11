@@ -147,6 +147,12 @@ do
             shift
             ;;
 
+        -u | --undefined )
+            test "x$2" != x || die "missing argument: $*"
+            undef_names="${undef_names} $2"
+            shift ; shift
+            ;;
+
         -w | --wrap )
             test "x$2" != x || die "missing argument: $*"
             wrap_names="${wrap_names} $2"
