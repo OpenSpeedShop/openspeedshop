@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2007 Krell Institute  All Rights Reserved.
+** Copyright (c) 2007-2010 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -249,20 +249,22 @@ SS_CallParser (PyObject *self, PyObject *args) {
     rewind(yyin);
 
 #if DEBUG_CLI
-    printf("SS_CallParser, input_line=%s\n", input_line);
+    printf("SS_CallParser, before calling yyparse with yyin==input_line=%s\n", input_line);
 #endif
 
     ret = yyparse();
  
 #if DEBUG_CLI
-    printf("SS_CallParser, ret from yyparse()=%d\n", ret);
+    printf("SS_CallParser, after calling yyparse with yyin==input_line=%s, ret=%d\n", input_line, ret);
 #endif
 
     fclose(yyin); 
     
     // testing code
 #if DEBUG_CLI
+     printf("SS_CallParser, START DUMPING PARSE_RESULT\n");
      parse_result->dumpInfo();
+     printf("SS_CallParser, END.. DUMPING PARSE_RESULT, python_needs_result=%d\n", python_needs_result);
 #endif
 
     // Build a CommandObject so that the semantic routines 

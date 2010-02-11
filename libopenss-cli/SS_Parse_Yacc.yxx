@@ -924,6 +924,9 @@ instrumentor_name:    NAME {p_parse_result->pushInstrumentors($1);}
 void 
 yyerror(const char *s)
 {
+#if DEBUG_CLI
+    fprintf(stderr, "yyerror ---- s=%s, yytext=%s\n", s, (char *)yytext);
+#endif
     p_parse_result->setError((char *)yytext);
 }
 

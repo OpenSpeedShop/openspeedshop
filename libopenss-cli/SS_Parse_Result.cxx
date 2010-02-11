@@ -1,6 +1,6 @@
 /* //////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006,2007,2008 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006-2010 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -1134,7 +1134,9 @@ setError(const char * name1, const char * name2)
 {
     ParseRange range(name1,name2);
 
-//cout << "in setError(" << name1 << "," << name2 << ")" << endl;
+#if DEBUG_CLI
+    cout << "ParseResult::in setError(" << name1 << "," << name2 << ")" << endl;
+#endif
 
     dm_error_set = true;
     dm_error_list.push_back(range);
@@ -1157,7 +1159,9 @@ setError(const char * name)
 {
     ParseRange range(name);
 
-//cout << "in setError(" << name << ")" << endl;
+#if DEBUG_CLI
+    cout << "in ParseResult::setError(" << name << ")" << endl;
+#endif
 
     dm_error_set = true;
     dm_error_list.push_back(range);
