@@ -38,15 +38,19 @@ static int debug_trace = 0;
  * MPI_Irecv
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Irecv(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Irecv(
 #else
 int mpit_PMPI_Irecv(
 #endif
 		    void* buf, int count, MPI_Datatype datatype, int source, 
 		    int tag, MPI_Comm comm, MPI_Request* request)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Irecv");
@@ -64,12 +68,15 @@ int mpit_PMPI_Irecv(
 
     event.stop_time = OpenSS_GetTime();
     event.source = source;
+
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(datatype, &datatype_size);
+
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Irecv));
 
     }
@@ -80,8 +87,10 @@ int mpit_PMPI_Irecv(
 /*
  * MPI_Recv
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Recv(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Recv(
 #else
 int mpit_PMPI_Recv(
 #endif
@@ -93,7 +102,9 @@ int mpit_PMPI_Recv(
     MPI_Comm comm, 
     MPI_Status *status)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Recv");
@@ -116,8 +127,8 @@ int mpit_PMPI_Recv(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Recv));
@@ -131,8 +142,10 @@ int mpit_PMPI_Recv(
 /*
  * MPI_Recv_init
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Recv_init(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Recv_init(
 #else
 int mpit_PMPI_Recv_init(
 #endif
@@ -144,7 +157,9 @@ int mpit_PMPI_Recv_init(
     MPI_Comm comm, 
     MPI_Request *request)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Recv_init");
@@ -167,8 +182,8 @@ int mpit_PMPI_Recv_init(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Recv_init));
@@ -181,8 +196,10 @@ int mpit_PMPI_Recv_init(
 /*
  * MPI_Iprobe
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Iprobe(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Iprobe(
 #else
 int mpit_PMPI_Iprobe(
 #endif
@@ -192,7 +209,9 @@ int mpit_PMPI_Iprobe(
     int *flag, 
     MPI_Status *status)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Iprobe");
@@ -213,7 +232,7 @@ int mpit_PMPI_Iprobe(
     event.source = source;
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.tag = tag;
-    event.communicator = comm;
+    event.communicator = (int64_t) comm;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Iprobe));
@@ -226,8 +245,10 @@ int mpit_PMPI_Iprobe(
 /*
  * MPI_probe
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Probe(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Probe(
 #else
 int mpit_PMPI_Probe(
 #endif
@@ -236,7 +257,9 @@ int mpit_PMPI_Probe(
     MPI_Comm comm, 
     MPI_Status *status)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Probe");
@@ -257,7 +280,7 @@ int mpit_PMPI_Probe(
     event.source = source;
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.tag = tag;
-    event.communicator = comm;
+    event.communicator = (int64_t) comm;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Probe));
@@ -273,8 +296,10 @@ int mpit_PMPI_Probe(
  * MPI_Isend
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Isend(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Isend(
 #else
 int mpit_PMPI_Isend(
 #endif
@@ -286,7 +311,9 @@ int mpit_PMPI_Isend(
     MPI_Comm comm, 
     MPI_Request* request)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Isend");
@@ -309,8 +336,8 @@ int mpit_PMPI_Isend(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Isend));
@@ -323,8 +350,10 @@ int mpit_PMPI_Isend(
 /*
  * MPI_Bsend
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Bsend(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Bsend(
 #else
 int mpit_PMPI_Bsend(
 #endif
@@ -335,7 +364,9 @@ int mpit_PMPI_Bsend(
     int tag, 
     MPI_Comm comm)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Bsend");
@@ -358,8 +389,8 @@ int mpit_PMPI_Bsend(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Bsend));
@@ -373,8 +404,10 @@ int mpit_PMPI_Bsend(
 /*
  * MPI_Bsend_init
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Bsend_init(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Bsend_init(
 #else
 int mpit_PMPI_Bsend_init(
 #endif
@@ -386,7 +419,9 @@ int mpit_PMPI_Bsend_init(
     MPI_Comm comm,
     MPI_Request* request)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("Bsend_init");
@@ -409,8 +444,8 @@ int mpit_PMPI_Bsend_init(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Bsend_init));
@@ -423,8 +458,10 @@ int mpit_PMPI_Bsend_init(
 /*
  * MPI_Ibsend
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Ibsend(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Ibsend(
 #else
 int mpit_PMPI_Ibsend(
 #endif
@@ -436,7 +473,9 @@ int mpit_PMPI_Ibsend(
     MPI_Comm comm, 
     MPI_Request *request)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Ibsend");
@@ -459,8 +498,8 @@ int mpit_PMPI_Ibsend(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Ibsend));
@@ -473,8 +512,10 @@ int mpit_PMPI_Ibsend(
 /*
  * MPI_Irsend
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Irsend(    
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Irsend(    
 #else
 int mpit_PMPI_Irsend(    
 #endif
@@ -486,7 +527,9 @@ int mpit_PMPI_Irsend(
     MPI_Comm comm, 
     MPI_Request *request)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Irsend");
@@ -509,8 +552,8 @@ int mpit_PMPI_Irsend(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Irsend));
@@ -523,8 +566,10 @@ int mpit_PMPI_Irsend(
 /*
  * MPI_Issend
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Issend(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Issend(
 #else
 int mpit_PMPI_Issend(
 #endif
@@ -536,7 +581,9 @@ int mpit_PMPI_Issend(
     MPI_Comm comm, 
     MPI_Request *request)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Issend");
@@ -559,8 +606,8 @@ int mpit_PMPI_Issend(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Issend));
@@ -573,8 +620,10 @@ int mpit_PMPI_Issend(
 /*
  * MPI_Rsend
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Rsend(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Rsend(
 #else
 int mpit_PMPI_Rsend(
 #endif
@@ -585,7 +634,9 @@ int mpit_PMPI_Rsend(
     int tag, 
     MPI_Comm comm)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Rsend");
@@ -608,8 +659,8 @@ int mpit_PMPI_Rsend(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Rsend));
@@ -623,8 +674,10 @@ int mpit_PMPI_Rsend(
 /*
  * MPI_Rsend_init
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Rsend_init(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Rsend_init(
 #else
 int mpit_PMPI_Rsend_init(
 #endif
@@ -637,7 +690,9 @@ int mpit_PMPI_Rsend_init(
     MPI_Request* request 
 )
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Rsend_init");
@@ -660,8 +715,8 @@ int mpit_PMPI_Rsend_init(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Rsend_init));
@@ -674,8 +729,10 @@ int mpit_PMPI_Rsend_init(
 /*
  * MPI_Send
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Send(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Send(
 #else
 int mpit_PMPI_Send(
 #endif
@@ -686,7 +743,9 @@ int mpit_PMPI_Send(
     int tag, 
     MPI_Comm comm)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Send");
@@ -709,8 +768,8 @@ int mpit_PMPI_Send(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Send));
@@ -724,8 +783,10 @@ int mpit_PMPI_Send(
 /*
  * MPI_Send_init
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Send_init(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Send_init(
 #else
 int mpit_PMPI_Send_init(
 #endif
@@ -738,7 +799,9 @@ int mpit_PMPI_Send_init(
     MPI_Request* request
 )
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Send_init");
@@ -761,8 +824,8 @@ int mpit_PMPI_Send_init(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Send_init));
@@ -775,8 +838,10 @@ int mpit_PMPI_Send_init(
 /*
  * MPI_Ssend
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Ssend(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Ssend(
 #else
 int mpit_PMPI_Ssend(
 #endif
@@ -787,7 +852,9 @@ int mpit_PMPI_Ssend(
     int tag, 
     MPI_Comm comm)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Ssend");
@@ -810,8 +877,8 @@ int mpit_PMPI_Ssend(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Ssend));
@@ -825,8 +892,10 @@ int mpit_PMPI_Ssend(
 /*
  * MPI_Ssend_init
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Ssend_init(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Ssend_init(
 #else
 int mpit_PMPI_Ssend_init(
 #endif
@@ -839,7 +908,9 @@ int mpit_PMPI_Ssend_init(
     MPI_Request* request
 )
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Ssend_init");
@@ -862,8 +933,8 @@ int mpit_PMPI_Ssend_init(
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
     event.tag = tag;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Ssend_init));
@@ -876,8 +947,10 @@ int mpit_PMPI_Ssend_init(
 /*
  * MPI_Waitall
  */
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Waitall(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Waitall(
 #else
 int mpit_PMPI_Waitall(
 #endif
@@ -885,7 +958,9 @@ int mpit_PMPI_Waitall(
     MPI_Request *array_of_requests, 
     MPI_Status *status)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
     
     bool_t dotrace = mpit_do_trace("MPI_Waitall");
@@ -917,13 +992,16 @@ int mpit_PMPI_Waitall(
  * MPI_Finalize
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Finalize()
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Finalize()
 #else
 int mpit_PMPI_Finalize()
 #endif
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -961,8 +1039,10 @@ int mpit_PMPI_Finalize()
     
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Waitsome(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Waitsome(
 #else
 int mpit_PMPI_Waitsome(
 #endif
@@ -1010,8 +1090,10 @@ int mpit_PMPI_Waitsome(
     
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Testsome(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Testsome(
 #else
 int mpit_PMPI_Testsome(
 #endif
@@ -1056,8 +1138,10 @@ int mpit_PMPI_Testsome(
  * MPI_Waitany
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Waitany(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Waitany(
 #else
 int mpit_PMPI_Waitany(
 #endif
@@ -1102,8 +1186,10 @@ int mpit_PMPI_Waitany(
     I'm going to use outsize.
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Unpack(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Unpack(
 #else
 int mpit_PMPI_Unpack(
 #endif
@@ -1117,6 +1203,7 @@ int mpit_PMPI_Unpack(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -1139,7 +1226,7 @@ int mpit_PMPI_Unpack(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(datatype, &datatype_size);
     event.size = outcount * datatype_size;
-    event.datatype = datatype;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Unpack));
@@ -1153,8 +1240,10 @@ int mpit_PMPI_Unpack(
  * MPI_Wait
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Wait(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Wait(
 #else
 int mpit_PMPI_Wait(
 #endif
@@ -1194,8 +1283,10 @@ int mpit_PMPI_Wait(
  * MPI_Testany
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Testany(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Testany(
 #else
 int mpit_PMPI_Testany(
 #endif
@@ -1238,8 +1329,10 @@ int mpit_PMPI_Testany(
  * MPI_Testall
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Testall(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Testall(
 #else
 int mpit_PMPI_Testall(
 #endif
@@ -1281,8 +1374,10 @@ int mpit_PMPI_Testall(
  * MPI_Test
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Test(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Test(
 #else
 int mpit_PMPI_Test(
 #endif
@@ -1323,8 +1418,10 @@ int mpit_PMPI_Test(
  * MPI_Scan
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Scan(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Scan(
 #else
 int mpit_PMPI_Scan(
 #endif
@@ -1337,6 +1434,7 @@ int mpit_PMPI_Scan(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -1358,8 +1456,8 @@ int mpit_PMPI_Scan(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Scan));
@@ -1373,8 +1471,10 @@ int mpit_PMPI_Scan(
  * MPI_Request_free
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Request_free(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Request_free(
 #else
 int mpit_PMPI_Request_free(
 #endif
@@ -1382,6 +1482,7 @@ int mpit_PMPI_Request_free(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -1417,8 +1518,10 @@ int mpit_PMPI_Request_free(
     
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Reduce_scatter(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Reduce_scatter(
 #else
 int mpit_PMPI_Reduce_scatter(
 #endif
@@ -1431,6 +1534,7 @@ int mpit_PMPI_Reduce_scatter(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -1452,8 +1556,8 @@ int mpit_PMPI_Reduce_scatter(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(datatype, &datatype_size);
     event.size = *recvcounts * datatype_size;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Reduce_scatter));
@@ -1467,8 +1571,10 @@ int mpit_PMPI_Reduce_scatter(
  * MPI_Reduce
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Reduce(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Reduce(
 #else
 int mpit_PMPI_Reduce(
 #endif
@@ -1482,6 +1588,7 @@ int mpit_PMPI_Reduce(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -1503,8 +1610,8 @@ int mpit_PMPI_Reduce(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Reduce));
@@ -1518,8 +1625,10 @@ int mpit_PMPI_Reduce(
  * MPI_Pack
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Pack(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Pack(
 #else
 int mpit_PMPI_Pack(
 #endif
@@ -1533,6 +1642,7 @@ int mpit_PMPI_Pack(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -1555,8 +1665,8 @@ int mpit_PMPI_Pack(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(datatype, &datatype_size);
     event.size = incount * datatype_size;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Pack));
@@ -1570,8 +1680,10 @@ int mpit_PMPI_Pack(
  * MPI_Init
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Init(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Init(
 #else
 int mpit_PMPI_Init(
 #endif
@@ -1617,8 +1729,10 @@ int mpit_PMPI_Init(
  * MPI_Get_count
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Get_count(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Get_count(
 #else
 int mpit_PMPI_Get_count(
 #endif
@@ -1626,6 +1740,7 @@ int mpit_PMPI_Get_count(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -1647,7 +1762,7 @@ int mpit_PMPI_Get_count(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(datatype, &datatype_size);
     event.size = *count * datatype_size;
-    event.datatype = datatype;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Get_count));
@@ -1661,8 +1776,10 @@ int mpit_PMPI_Get_count(
  * MPI_Gatherv
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Gatherv(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Gatherv(
 #else
 int mpit_PMPI_Gatherv(
 #endif
@@ -1678,6 +1795,7 @@ int mpit_PMPI_Gatherv(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -1700,8 +1818,8 @@ int mpit_PMPI_Gatherv(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(recvtype, &datatype_size);
     event.size = *recvcounts * datatype_size;
-    event.communicator = comm;
-    event.datatype = recvtype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) recvtype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Gatherv));
@@ -1715,8 +1833,10 @@ int mpit_PMPI_Gatherv(
  * MPI_Gather
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Gather(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Gather(
 #else
 int mpit_PMPI_Gather(
 #endif
@@ -1731,6 +1851,7 @@ int mpit_PMPI_Gather(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -1754,8 +1875,8 @@ int mpit_PMPI_Gather(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(recvtype, &datatype_size);
     event.size = recvcount * datatype_size;
-    event.communicator = comm;
-    event.datatype = recvtype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) recvtype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Gather));
@@ -1769,8 +1890,10 @@ int mpit_PMPI_Gather(
  * MPI_Cancel
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Cancel(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Cancel(
 #else
 int mpit_PMPI_Cancel(
 #endif
@@ -1778,6 +1901,7 @@ int mpit_PMPI_Cancel(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -1810,8 +1934,10 @@ int mpit_PMPI_Cancel(
  * MPI_Bcast
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Bcast(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Bcast(
 #else
 int mpit_PMPI_Bcast(
 #endif
@@ -1823,6 +1949,7 @@ int mpit_PMPI_Bcast(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -1844,8 +1971,8 @@ int mpit_PMPI_Bcast(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Bcast));
@@ -1859,8 +1986,10 @@ int mpit_PMPI_Bcast(
  * MPI_Barrier
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Barrier(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Barrier(
 #else
 int mpit_PMPI_Barrier(
 #endif
@@ -1868,6 +1997,7 @@ int mpit_PMPI_Barrier(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -1887,7 +2017,7 @@ int mpit_PMPI_Barrier(
     event.stop_time = OpenSS_GetTime();
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
-    event.communicator = comm;
+    event.communicator = (int64_t) comm;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Barrier));
@@ -1901,8 +2031,10 @@ int mpit_PMPI_Barrier(
  * MPI_Alltoallv
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Alltoallv(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Alltoallv(
 #else
 int mpit_PMPI_Alltoallv(
 #endif
@@ -1918,6 +2050,7 @@ int mpit_PMPI_Alltoallv(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -1941,8 +2074,8 @@ int mpit_PMPI_Alltoallv(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(recvtype, &datatype_size);
     event.size = *recvcounts * datatype_size;
-    event.communicator = comm;
-    event.datatype = recvtype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) recvtype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Alltoallv));
@@ -1956,8 +2089,10 @@ int mpit_PMPI_Alltoallv(
  * MPI_Alltoall
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Alltoall(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Alltoall(
 #else
 int mpit_PMPI_Alltoall(
 #endif
@@ -1971,6 +2106,7 @@ int mpit_PMPI_Alltoall(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -1993,8 +2129,8 @@ int mpit_PMPI_Alltoall(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(recvtype, &datatype_size);
     event.size = recvcount * datatype_size;
-    event.communicator = comm;
-    event.datatype = recvtype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) recvtype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Alltoall));
@@ -2008,8 +2144,10 @@ int mpit_PMPI_Alltoall(
  * MPI_Allreduce
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Allreduce(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Allreduce(
 #else
 int mpit_PMPI_Allreduce(
 #endif
@@ -2022,6 +2160,7 @@ int mpit_PMPI_Allreduce(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -2043,8 +2182,8 @@ int mpit_PMPI_Allreduce(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(datatype, &datatype_size);
     event.size = count * datatype_size;
-    event.communicator = comm;
-    event.datatype = datatype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) datatype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Allreduce));
@@ -2058,8 +2197,10 @@ int mpit_PMPI_Allreduce(
  * MPI_Allgatherv
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Allgatherv(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Allgatherv(
 #else
 int mpit_PMPI_Allgatherv(
 #endif
@@ -2074,6 +2215,7 @@ int mpit_PMPI_Allgatherv(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -2097,8 +2239,8 @@ int mpit_PMPI_Allgatherv(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(recvtype, &datatype_size);
     event.size = *recvcounts * datatype_size;
-    event.communicator = comm;
-    event.datatype = recvtype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) recvtype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Allgatherv));
@@ -2112,8 +2254,10 @@ int mpit_PMPI_Allgatherv(
  * MPI_Allgather
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Allgather(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Allgather(
 #else
 int mpit_PMPI_Allgather(
 #endif
@@ -2127,6 +2271,7 @@ int mpit_PMPI_Allgather(
     )
 {
     int retval;
+
     int datatype_size;
     mpit_event event;
     
@@ -2149,8 +2294,8 @@ int mpit_PMPI_Allgather(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     PMPI_Type_size(recvtype, &datatype_size);
     event.size = recvcount * datatype_size;
-    event.communicator = comm;
-    event.datatype = recvtype;
+    event.communicator = (int64_t) comm;
+    event.datatype = (int64_t) recvtype;
     event.retval = retval;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Allgather));
@@ -2164,8 +2309,10 @@ int mpit_PMPI_Allgather(
  * MPI_Scatter
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 MPI_Scatter(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+__wrap_MPI_Scatter(
 #else
 mpit_PMPI_Scatter(
 #endif
@@ -2180,7 +2327,9 @@ mpit_PMPI_Scatter(
     	int 	    	root, 
     	MPI_Comm    	comm)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event send_event;
     mpit_event recv_event;
     
@@ -2196,7 +2345,7 @@ mpit_PMPI_Scatter(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(send_event.source));
     PMPI_Type_size(sendtype, &datatype_size);
     send_event.size = sendcount * datatype_size;
-    send_event.datatype = sendtype;
+    send_event.datatype = (int64_t) sendtype;
     
     send_event.start_time = OpenSS_GetTime();
 
@@ -2210,7 +2359,7 @@ mpit_PMPI_Scatter(
 
     send_event.stop_time = OpenSS_GetTime();
     
-    send_event.communicator = comm;
+    send_event.communicator = (int64_t) comm;
     send_event.retval = retval;
     recv_event.start_time = send_event.start_time;
     recv_event.stop_time = send_event.stop_time;
@@ -2219,9 +2368,9 @@ mpit_PMPI_Scatter(
     /* Set up the recv record */
     PMPI_Type_size(recvtype, &datatype_size);
     recv_event.size = recvcount * datatype_size;
-    recv_event.datatype = recvtype;
+    recv_event.datatype = (int64_t) recvtype;
 
-    recv_event.communicator = comm;
+    recv_event.communicator = (int64_t) comm;
     recv_event.retval = retval;
 
     mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(PMPI_Scatter));
@@ -2234,8 +2383,10 @@ mpit_PMPI_Scatter(
  * MPI_Scatterv
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 MPI_Scatterv(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+__wrap_MPI_Scatterv(
 #else
 mpit_PMPI_Scatterv(
 #endif
@@ -2251,7 +2402,9 @@ mpit_PMPI_Scatterv(
     	int 	    	root, 
     	MPI_Comm    	comm)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event send_event;
     mpit_event recv_event;
     
@@ -2268,7 +2421,7 @@ mpit_PMPI_Scatterv(
     PMPI_Type_size(sendtype, &datatype_size);
     /* This is surly wrong */
     send_event.size = sendcounts[0] * datatype_size;
-    send_event.datatype = sendtype;
+    send_event.datatype = (int64_t) sendtype;
     
     send_event.start_time = OpenSS_GetTime();
 
@@ -2282,7 +2435,7 @@ mpit_PMPI_Scatterv(
 
     send_event.stop_time = OpenSS_GetTime();
     
-    send_event.communicator = comm;
+    send_event.communicator = (int64_t) comm;
     send_event.retval = retval;
     recv_event.start_time = send_event.start_time;
     recv_event.stop_time = send_event.stop_time;
@@ -2291,9 +2444,9 @@ mpit_PMPI_Scatterv(
     /* Set up the recv record */
     PMPI_Type_size(recvtype, &datatype_size);
     recv_event.size = recvcount * datatype_size;
-    recv_event.datatype = recvtype;
+    recv_event.datatype = (int64_t) recvtype;
 
-    recv_event.communicator = comm;
+    recv_event.communicator = (int64_t) comm;
     recv_event.retval = retval;
 
     mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(PMPI_Scatterv));
@@ -2308,8 +2461,10 @@ mpit_PMPI_Scatterv(
  */
 
 int 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 MPI_Sendrecv(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+__wrap_MPI_Sendrecv(
 #else
 mpit_PMPI_Sendrecv(
 #endif
@@ -2328,7 +2483,9 @@ mpit_PMPI_Sendrecv(
     	MPI_Comm comm, 
     	MPI_Status* status)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event send_event;
     mpit_event recv_event;
     
@@ -2345,7 +2502,7 @@ mpit_PMPI_Sendrecv(
     PMPI_Type_size(sendtype, &datatype_size);
     send_event.size = sendcount * datatype_size;
     send_event.tag = sendtag;
-    send_event.datatype = sendtype;
+    send_event.datatype = (int64_t) sendtype;
     
     send_event.start_time = OpenSS_GetTime();
 
@@ -2359,7 +2516,7 @@ mpit_PMPI_Sendrecv(
 
     send_event.stop_time = OpenSS_GetTime();
     
-    send_event.communicator = comm;
+    send_event.communicator = (int64_t) comm;
     send_event.retval = retval;
     recv_event.start_time = send_event.start_time;
     recv_event.stop_time = send_event.stop_time;
@@ -2371,9 +2528,9 @@ mpit_PMPI_Sendrecv(
     PMPI_Type_size(recvtype, &datatype_size);
     recv_event.size = recvcount * datatype_size;
     recv_event.tag = recvtag;
-    recv_event.datatype = recvtype;
+    recv_event.datatype = (int64_t) recvtype;
 
-    recv_event.communicator = comm;
+    recv_event.communicator = (int64_t) comm;
     recv_event.retval = retval;
 
     mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(PMPI_Sendrecv));
@@ -2387,8 +2544,10 @@ mpit_PMPI_Sendrecv(
  * MPI_Sendrecv
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Sendrecv_replace(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Sendrecv_replace(
 #else
 int mpit_PMPI_Sendrecv_replace(
 #endif
@@ -2404,7 +2563,9 @@ int mpit_PMPI_Sendrecv_replace(
     	MPI_Comm    	comm, 
     	MPI_Status* 	status)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event send_event;
     mpit_event recv_event;
     
@@ -2421,7 +2582,7 @@ int mpit_PMPI_Sendrecv_replace(
     PMPI_Type_size(datatype, &datatype_size);
     send_event.size = count * datatype_size;
     send_event.tag = sendtag;
-    send_event.datatype = datatype;
+    send_event.datatype = (int64_t) datatype;
     
     send_event.start_time = OpenSS_GetTime();
 
@@ -2435,7 +2596,7 @@ int mpit_PMPI_Sendrecv_replace(
 
     send_event.stop_time = OpenSS_GetTime();
     
-    send_event.communicator = comm;
+    send_event.communicator = (int64_t) comm;
     send_event.retval = retval;
     recv_event.start_time = send_event.start_time;
     recv_event.stop_time = send_event.stop_time;
@@ -2447,9 +2608,9 @@ int mpit_PMPI_Sendrecv_replace(
     PMPI_Type_size(datatype, &datatype_size);
     recv_event.size = count * datatype_size;
     recv_event.tag = recvtag;
-    recv_event.datatype = datatype;
+    recv_event.datatype = (int64_t) datatype;
 
-    recv_event.communicator = comm;
+    recv_event.communicator = (int64_t) comm;
     recv_event.retval = retval;
     mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(PMPI_Sendrecv_replace));
 
@@ -2468,8 +2629,10 @@ int mpit_PMPI_Sendrecv_replace(
  *-----------------------------------------------------------------------------
  */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Cart_create(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Cart_create(
 #else
 int mpit_PMPI_Cart_create(
 #endif
@@ -2481,7 +2644,9 @@ int mpit_PMPI_Cart_create(
                      MPI_Comm* comm_cart)
 {
 
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
 
     if (debug_trace) {
@@ -2512,8 +2677,10 @@ int mpit_PMPI_Cart_create(
     return retval;
 }
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Cart_sub (
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Cart_sub (
 #else
 int mpit_PMPI_Cart_sub (
 #endif
@@ -2522,7 +2689,9 @@ int mpit_PMPI_Cart_sub (
                    MPI_Comm *newcomm)
 {
 
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
 
     if (debug_trace) {
@@ -2555,8 +2724,10 @@ int mpit_PMPI_Cart_sub (
 
 
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Graph_create(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Graph_create(
 #else
 int mpit_PMPI_Graph_create(
 #endif
@@ -2567,7 +2738,9 @@ int mpit_PMPI_Graph_create(
                       int reorder,
                       MPI_Comm* comm_graph)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
 
     bool_t dotrace = mpit_do_trace("MPI_Graph_create");
@@ -2598,8 +2771,10 @@ int mpit_PMPI_Graph_create(
     return retval;
 }
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Intercomm_create (
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Intercomm_create (
 #else
 int mpit_PMPI_Intercomm_create (
 #endif
@@ -2611,7 +2786,9 @@ int mpit_PMPI_Intercomm_create (
                           MPI_Comm *newintercomm)
 
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
 
     if (debug_trace) {
@@ -2644,8 +2821,10 @@ int mpit_PMPI_Intercomm_create (
     return retval;
 }
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Intercomm_merge (
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Intercomm_merge (
 #else
 int mpit_PMPI_Intercomm_merge (
 #endif
@@ -2653,7 +2832,9 @@ int mpit_PMPI_Intercomm_merge (
                          int high,
                          MPI_Comm *newcomm)
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
 
     if (debug_trace) {
@@ -2687,14 +2868,18 @@ int mpit_PMPI_Intercomm_merge (
 
 /* ------- Destructors ------- */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Comm_free(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Comm_free(
 #else
 int mpit_PMPI_Comm_free(
 #endif
 			MPI_Comm* comm )
 {
-    int retval, datatype_size;
+    int retval;
+
+    int datatype_size;
     mpit_event event;
 
     if (debug_trace) {
@@ -2735,8 +2920,10 @@ int mpit_PMPI_Comm_free(
 
 /* ------- Constructors ------- */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Comm_dup(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Comm_dup(
 #else
 int mpit_PMPI_Comm_dup(
 #endif
@@ -2774,8 +2961,10 @@ int mpit_PMPI_Comm_dup(
     return retval;
 }
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Comm_create(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Comm_create(
 #else
 int mpit_PMPI_Comm_create(
 #endif
@@ -2814,8 +3003,10 @@ int mpit_PMPI_Comm_create(
     return retval;
 }
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Comm_split(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Comm_split(
 #else
 int mpit_PMPI_Comm_split(
 #endif
@@ -2858,8 +3049,10 @@ int mpit_PMPI_Comm_split(
 
 /* -- MPI_Start -- */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Start
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Start
 #else
 int mpit_PMPI_Start
 #endif
@@ -2898,8 +3091,10 @@ int mpit_PMPI_Start
 
 /* -- MPI_Startall -- */
 
-#if defined (OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int MPI_Startall
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_Startall
 #else
 int mpit_PMPI_Startall
 #endif

@@ -30,7 +30,7 @@ struct mpit_parameters {
 
     /** Flags indicating if each MPI function is to be traced. */
     uint8_t traced[1024];
-    
+
 };
 
 
@@ -41,7 +41,7 @@ struct mpit_event {
     uint64_t start_time;  /**< Start time of the call. */
     uint64_t stop_time;   /**< End time of the call. */
     uint16_t stacktrace;  /**< Index of the stack trace. */
-    
+
     int source;        /**< Source rank (in MPI_COMM_WORLD). */
     int destination;   /**< Destination rank (in MPI_COMM_WORLD). */
     uint64_t size;     /**< Number of bytes sent. */
@@ -49,7 +49,7 @@ struct mpit_event {
     int communicator;  /**< Communicator used. */
     int datatype;      /**< Data type of the message. */
     int retval;        /**< Enumerated return value. */
-    
+  
 };
 
 /** Structure of the blob containing our performance data. */

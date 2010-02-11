@@ -29,16 +29,11 @@
 
 #include "MPITraceableFunctions.h"
 
-
 /** Number of overhead frames in each stack frame to be skipped. */
-#if defined(OPENSS_OFFLINE)
-const unsigned OverheadFrameCount = 2;
-#else
 #if defined(__linux) && defined(__ia64)
 const unsigned OverheadFrameCount = 3;
 #else
 const unsigned OverheadFrameCount = 2;
-#endif
 #endif
 
 /*
@@ -93,7 +88,6 @@ extern void offline_sent_data(int);
  */
 static const uint32_t TLSKey = 0x00001EF9;
 int mpi_init_tls_done = 0;
-
 #else
 
 /** Thread-local storage. */
@@ -378,7 +372,6 @@ void mpi_start_tracing(const char* arguments)
 #if defined(OPENSS_OFFLINE)
     const char* mpi_traced = getenv("OPENSS_MPI_TRACED");
     if (mpi_traced != NULL && strcmp(mpi_traced,"") != 0) {
-	//fprintf(stderr,"SETTING MPI_TRACED to %s\n",mpi_traced);
         strcpy(tls->mpi_traced,mpi_traced);
     } else {
         strcpy(tls->mpi_traced,all);

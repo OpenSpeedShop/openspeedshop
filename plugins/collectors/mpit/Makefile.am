@@ -226,7 +226,7 @@ rt_offline_sources = \
 
 lib_offline_CFLAGS_generate = \
 	-static \
-	-DOPENSS_OFFLINE \
+	-DOPENSS_OFFLINE -DOPENSS_STATIC \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	$(1) \
@@ -257,7 +257,7 @@ endif
 if HAVE_TARGET_LIBMONITOR
 lib_offline_CFLAGS_generate = \
 	-static \
-	-DOPENSS_OFFLINE \
+	-DOPENSS_OFFLINE -DOPENSS_STATIC \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	$(1) \

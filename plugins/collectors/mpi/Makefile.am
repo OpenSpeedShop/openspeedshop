@@ -26,10 +26,10 @@ LDFLAGS =
 BUILT_SOURCES = \
 	blobs.h blobs.c
 
-noinst_PROGRAMS = mkwrapper
+#noinst_PROGRAMS = mkwrapper
 
-mkwrapper_SOURCES = \
-	mkwrapper.cxx
+#mkwrapper_SOURCES = \
+#	mkwrapper.cxx
 
 pkglib_LTLIBRARIES =
 
@@ -266,7 +266,7 @@ rt_offline_sources = \
 
 lib_offline_CFLAGS_generate = \
 	-static \
-	-DOPENSS_OFFLINE \
+	-DOPENSS_OFFLINE -DOPENSS_STATIC \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	$(1) \
@@ -297,7 +297,7 @@ endif
 if HAVE_TARGET_LIBMONITOR
 lib_offline_CFLAGS_generate = \
 	-static \
-	-DOPENSS_OFFLINE \
+	-DOPENSS_OFFLINE -DOPENSS_STATIC \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	$(1) \
@@ -325,64 +325,6 @@ lib_offline_sources = \
 endif
 
 wrapper_sources = \
-	MPI_Allgather.c \
-	MPI_Allgatherv.c \
-	MPI_Allreduce.c \
-	MPI_Alltoall.c \
-	MPI_Alltoallv.c \
-	MPI_Barrier.c \
-	MPI_Bcast.c \
-	MPI_Bsend.c \
-	MPI_Bsend_init.c \
-	MPI_Cancel.c \
-	MPI_Cart_create.c \
-	MPI_Cart_sub.c \
-	MPI_Comm_create.c \
-	MPI_Comm_dup.c \
-	MPI_Comm_free.c \
-	MPI_Comm_split.c \
-	MPI_Finalize.c \
-	MPI_Gather.c \
-	MPI_Gatherv.c \
-	MPI_Get_count.c \
-	MPI_Graph_create.c \
-	MPI_Ibsend.c \
-	MPI_Intercomm_create.c \
-	MPI_Intercomm_merge.c \
-	MPI_Iprobe.c \
-	MPI_Irecv.c \
-	MPI_Irsend.c \
-	MPI_Isend.c \
-	MPI_Issend.c \
-	MPI_Pack.c \
-	MPI_Probe.c \
-	MPI_Recv.c \
-	MPI_Recv_init.c \
-	MPI_Reduce.c \
-	MPI_Reduce_scatter.c \
-	MPI_Request_free.c \
-	MPI_Rsend.c \
-	MPI_Rsend_init.c \
-	MPI_Scan.c \
-	MPI_Scatter.c \
-	MPI_Scatterv.c \
-	MPI_Send.c \
-	MPI_Send_init.c \
-	MPI_Sendrecv.c \
-	MPI_Sendrecv_replace.c \
-	MPI_Ssend.c \
-	MPI_Ssend_init.c \
-	MPI_Start.c \
-	MPI_Startall.c \
-	MPI_Test.c \
-	MPI_Testall.c \
-	MPI_Testany.c \
-	MPI_Testsome.c \
-	MPI_Unpack.c \
-	MPI_Wait.c \
-	MPI_Waitall.c \
-	MPI_Waitany.c \
-	MPI_Waitsome.c \
 	$(NULL)
 
 
@@ -663,7 +605,7 @@ endif
 #endif
 
 
-EXTRA_DIST = mkwrapper.template
+#EXTRA_DIST = mkwrapper.template
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES) $(wrapper_sources)
 
@@ -684,11 +626,11 @@ ANY_MPI_IMPL = @DEFAULT_MPI_IMPL@
 ANY_MPI_HEADER = $($(ANY_MPI_IMPL)_HEADER)
 endif
 
-$(wrapper_sources) : mkwrapper mkwrapper.template
-	./mkwrapper \
-		` echo $@ | sed -e 's/\.c//' ` \
-		$(ANY_MPI_HEADER) \
-		mkwrapper.template \
-		> $@
+#$(wrapper_sources) : mkwrapper mkwrapper.template
+#	./mkwrapper \
+#		` echo $@ | sed -e 's/\.c//' ` \
+#		$(ANY_MPI_HEADER) \
+#		mkwrapper.template \
+#		> $@
 
 
