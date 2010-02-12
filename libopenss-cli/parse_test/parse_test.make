@@ -5,7 +5,9 @@ INCLUDE_DIR = \
     -I ../../libopenss-framework \
     -I ../../libopenss-queries \
     -I ../../libopenss-guiobjects \
-    -I/usr/include/python2.3
+    -I/usr/include/python2.4 \
+    -I/usr/include/python2.5 \
+    -I/usr/include/python2.6 
 
 CXXFLAGS = -g
 CFLAGS = -g

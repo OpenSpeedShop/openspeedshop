@@ -43,13 +43,13 @@ int ret;
 
     printf("\n****************************\n%s\n",input_line);
 
-    yyin = fopen("/usr/tmp/jack.tmp","w+");
+    yyin = fopen("/tmp/parse.tmp","w+");
     fprintf(yyin,"%s\n", input_line);
     rewind(yyin);
 
     ret = yyparse();
 
-    	p_parse_result->dumpInfo();
+    p_parse_result->dumpInfo();
 
     fclose(yyin); 
     //delete p_parse_result;
