@@ -205,23 +205,27 @@ then
   make mpi
 fi
 
+echo "TESTEXE=$testexe"
 if [ "$testexe" == "smg2000" ]
 then
    testpath=$testpathbase/smg2000_$thiscompiler/test
    testexepath=$testpath
    testexeargs='-n 35 35 35'
    testprogram=$testexepath/$testexe
+   echo "smg2000, TESTPATH=$testpath"
 elif [ "$testexe" == "sweep3d" ]
 then
-   testpath=$testpathbase/$testexe_$thiscompiler
+   testpath=$testpathbase/${testexe}_$thiscompiler
    testexepath=$testpath
    testexeargs=''
    testprogram=$testexepath/$testexe.mpi
+   echo "sweep3d, TESTPATH=$testpath"
 else
-   testpath=$testpathbase/$testexe_$thiscompiler
+   testpath=$testpathbase/${testexe}_$thiscompiler
    testexepath=$testpath
    testexeargs=''
-   testprogram=$testexepath/$testexe
+   testprogram=${testexepath}/${testexe}
+   echo "other, TESTPATH=$testpath"
 fi
 
 #
@@ -508,6 +512,30 @@ echo "END Analyzing smg2000 mpit experiment"
 echo "-------------------------------------"
 echo ""
 
+
+openss -offline -f "/usr/bin/srun -N \$NodeCount -n \$RankCount -p pdebug ./smg2000 -n 5 5 5" mpiotf
+
+#
+# Find corresponding experiment database files and create files that can be used to restore the databases
+#
+ls *.openss | grep "smg2000-mpiotf\-" > smg2000_${thiscompiler}_mvapich_create_mpiotf
+
+#
+# Use the corresponding experiment database file names to restore the database and print out the status and results for the experiments
+#
+echo ""
+echo "-------------------------------------"
+echo "BEGIN Analyzing smg2000 mpiotf experiment"
+echo "-------------------------------------"
+sed 's/^/exprestore -f /' smg2000_${thiscompiler}_mvapich_create_mpiotf > new_input.script
+echo "log -f smg2000_${thiscompiler}_mvapich_mpiotf_results.log" >> new_input.script
+cat common_commands >> new_input.script
+openss -batch < new_input.script
+
+grep "\$RankCount  PMPI_Finalize" smg2000_${thiscompiler}_mvapich_mpiotf_results.log | cat > smg2000_${thiscompiler}_mvapich_mpiotf_results.status
+
+echo "-------------------------------------"
+echo "END Analyzing smg2000 mpiotf experiment"
 
 #
 # End of nested script
