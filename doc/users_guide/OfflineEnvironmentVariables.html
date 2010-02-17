@@ -11,8 +11,8 @@
 <h1 style="text-align: center;"><a class="mozTocH1"
  name="mozTocId276774"></a>Open|SpeedShop
 Offline Version Collection Control Environment Variables</h1>
-<div style="text-align: center;"><big><big>Version 1.9.3<br>
-October 31, 2009</big></big><br>
+<div style="text-align: center;"><big><big>Version 1.9.3.3<br>
+February 19, 2010</big></big><br>
 </div>
 <br>
 <h2><a class="mozTocH2" name="mozTocId315737"></a>Table of Contents</h2>
@@ -23,18 +23,28 @@ Offline Version Collection Control Environment Variables</a>
     <ul>
       <li><a href="#mozTocId315737">Table of Contents</a></li>
       <li><a href="#mozTocId561475">Key Environment
-Variable for running on Clusters Independent of Experiment Type </a>
+Variable for running on Clusters Independent of Experiment Type
+        </a>
         <ul>
           <li><a href="#mozTocId374420">OPENSS_RAWDATA_DIR</a>
             <ul>
+              <li><a href="#mozTocId93353">Environment Variable
+Definition and Example:
+                </a></li>
+            </ul>
+          </li>
+          <li><a href="#mozTocId389618">OPENSS_DB_DIR</a>
+            <ul>
               <li><a href="#mozTocId858255">Environment Variable
-Definition and Example: </a></li>
+Definition and Example:
+                </a></li>
             </ul>
           </li>
         </ul>
       </li>
       <li><a href="#mozTocId672936">PCSAMP Experiment
-Related Information </a>
+Related Information
+        </a>
         <ul>
           <li><a href="#mozTocId271032">Environment Variable
 Definition and Example:</a></li>
@@ -94,16 +104,31 @@ experiment on a file system where all the files for the entire job can
 be located together.&nbsp;&nbsp; In order to have a way for the user to
 indicate this, the OPENSS_RAWDATA_DIR environment variable was
 created.&nbsp; The definition and example usage follow.<br>
-<span style="font-weight: bold;"><br>
-</span>
-<h4><a class="mozTocH3" name="mozTocId858255"></a><span
- style="font-weight: bold;"></span>Environment Variable
+<h4><a class="mozTocH4" name="mozTocId93353"></a>Environment Variable
 Definition and Example:
 </h4>
 OPENSS_RAWDATA_DIR="path to shared file system with user or some unique
 naming"<br>
 example:<br>
 export OPENSS_RAWDATA_DIR=/opt/sharedfile/userid<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId389618"></a>OPENSS_DB_DIR</h3>
+This envirionmnent variable specifies the path to where the
+offline version of openss will build the OpenSpeedShop database file.
+If you are on a lustre file system that does not have file locking
+turnedon.&nbsp; The sqlite component will not be able to create the
+database file.&nbsp; You can use this environment variable to specify a
+non-lustre file system path to be used for the database file creation.
+<div style="margin-left: 160px;"></div>
+<br>
+<h4><a class="mozTocH3" name="mozTocId858255"></a><span
+ style="font-weight: bold;"></span>Environment Variable
+Definition and Example:
+</h4>
+OPENSS_DB_DIR="path to&nbsp; file system with user or some unique
+naming"<br>
+example:<br>
+export OPENSS_DB_DIR=/opt/filesys/userid<br>
 <br>
 <h2><a class="mozTocH2" name="mozTocId672936"></a>PCSAMP Experiment
 Related Information<br>
