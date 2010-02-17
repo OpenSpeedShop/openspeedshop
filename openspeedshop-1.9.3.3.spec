@@ -1,6 +1,6 @@
 Summary: A cross platform open source performance tool.
 Name: openspeedshop
-Version: 1.9.3.1
+Version: 1.9.3.3
 Release: 1
 License: GPL
 Source:%{name}-%{version}.tar.gz
@@ -135,6 +135,8 @@ rm -rf %{_prefix}/share/doc/packages/OpenSpeedShop
 %{_prefix}/%{_lib}/*
 
 %changelog
+* Tue Feb 16 2010 Jim Galarowicz <jeg@krellinst.org>
+- Changes for 1.9.3.3 release
 * Sun Nov 8 2009 Jim Galarowicz <jeg@krellinst.org>
 - Changes for 1.9.3.1 release
 * Wed Oct 14 2009 Jim Galarowicz <jeg@krellinst.org>
