@@ -1,26 +1,14 @@
-****
-****
-USE THIS WHEN YOU HAVE ROOT ACCESS AND CAN INSTALL RPMS.  
-or would like to install as non-root using cpio
-****
-****
 
                 Installing Open|SpeedShop from Source
-
-This document describes the Installation process of Open|SpeedShop
-from source. We recommend this kind of installation if the
-RPMs provided on www.openspeedshop.org don't work for your
-platforms, if you don't have the required permissions to install
-RPMs into /usr, or if you would like to make changes to the 
-Open|SpeedShop toolset itself.
 
 
 Please see the INSTALL-note_a and README files in the 
 OpenSpeedShop_ROOT development tree or the openspeedshop-release-r.n 
 release tree for how to build and install into a non-root location.
 
-INSTALL_a in this directory is equivalent to INSTALL-note_a for your
-convenience.
+There is also a build and install document on www.openspeedshop.org/wp/documentation/.
+
+INSTALL_a in this directory is equivalent to INSTALL-note_a for your convenience.
 
 
 
