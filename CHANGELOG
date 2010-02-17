@@ -1,4 +1,19 @@
 
+Changes in 1.9.3.3 since the 1.9.3.2 release:
+
+1) Fix call stack unwinding bugs by patching the libunwind component
+
+2) Incremental fixes toward support for PPC platforms
+
+3) Incremental fixes toward support for the Cray-XT5 and BG/P platforms.
+
+4) Fixes for better mpich2 and mvapich2 support for OpenSpeedShop experiments 
+   on Fortran applications.
+
+5) Make configuration changes so that MRNet 2.2 and Dyninst 6.1 are the default
+   versions for OpenSpeedShop.
+
+
 
 Changes in 1.9.3.2 since the 1.9.3.1 release:
 

@@ -3,7 +3,7 @@ Please see the BuildInstallGuide.txt for the latest build
 and install information.  That document is based on the information
 below and has enhanced information.
 
-Both documents have valid Open|SpeedShop-1.9.3.1 release information.
+Both documents have valid Open|SpeedShop-1.9.3.3 release information.
 
 
 THE INTENT:
@@ -30,14 +30,14 @@ with Open|SpeedShop.
 
 INSTALLATION INFO:
 
-Please gunzip and untar the openspeedshop-release-1.9.3.1.tar.gz
-file and change directory into the openspeedshop-release-1.9.3.1
+Please gunzip and untar the openspeedshop-release-1.9.3.3.tar.gz
+file and change directory into the openspeedshop-release-1.9.3.3
 directory.   
 
 example:
-gunzip openspeedshop-release-1.9.3.1.tar.gz
-tar -xvf openspeedshop-release-1.9.3.1.tar
-cd openspeedshop-release-1.9.3.1
+gunzip openspeedshop-release-1.9.3.3.tar.gz
+tar -xvf openspeedshop-release-1.9.3.3.tar
+cd openspeedshop-release-1.9.3.3
 
 Inside that directory is the key script, install.sh,
 that can be used in building the Open|SpeedShop performance tool.
@@ -99,15 +99,15 @@ export OPENSS_MPI_OPENMPI=/usr/projects/openmpi-1.2.4
 The spec files associated with this build process include:
 qtver=3.3.8b
 libelfver=0.8.5_a
-libdwarfver=20081231_a
-libunwindver=20090508_a
-papiver=3.6.2_a
-sqlitever=3.6.14_a
+libdwarfver=20091230_a
+libunwindver=20100123_a
+papiver=3.7.0_a
+sqlitever=3.6.22_a
 monitorver=20090602_a
 vampirtracever=5.3.2_a
-dyninstver=6.0_a
-mrnetver=2.0.1_a
-openspeedshopver=1.9.3.1_a
+dyninstver=6.1_a
+mrnetver=2.2_a
+openspeedshopver=1.9.3.3_a
 
 There is an order that is required in building the
 components because some of the components depend on
@@ -308,7 +308,7 @@ these steps.
       PATH=$OPENSS_PREFIX/bin:$PATH 
       ***** THESE ARE NECESSARY TO RUN openss 
 
-      Note: DYNINSTAPI_RT_LIB and OPENSS_PLUGIN_PATH are only required when
+      Note: DYNINSTAPI_RT_LIB is only required when
             running the online version of openss
 
   b) The most simple way to invoke the tool is to run it as an 
