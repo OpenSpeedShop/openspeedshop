@@ -1,6 +1,7 @@
 # Doxyfile 1.3.5
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2006-2010 Krell Institute  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -21,7 +22,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = Open|SpeedShop
-PROJECT_NUMBER         = Version 1.0
+PROJECT_NUMBER         = Version 1.9.3.3
 OUTPUT_DIRECTORY       = ../doc/design_doc
 OUTPUT_LANGUAGE        = English
 USE_WINDOWS_ENCODING   = NO

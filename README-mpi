@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2006, 2007, 2008 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -78,6 +78,7 @@ built using said mpi version, use these configure options (taken from the output
   --with-mpich-driver=NAME
                           MPICH driver name [ch-p4]
   --with-mpich2=DIR       MPICH2 installation [/opt/mpich2]
+  --with-mvapich=DIR      MVAPICH installation [/opt/mvapich]
   --with-mvapich2=DIR     MVAPICH2 installation [/opt/mvapich2]
   --with-mpt=DIR          MPT installation [/usr]
   --with-openmpi=DIR      OpenMPI installation [/usr/local]
@@ -89,10 +90,14 @@ with a particular version of MPI used to require setting an environment
 variable to specify which MPI implementation the monitored application
 was built with.
 
-With the 1.5 version, Open|SpeedShop no longer needs to the user to tell
-it which implementation the application is built with.  Open|SpeedShop
-now detects this automatically.   You can still use the environment varable
+ONLINE VERSION:
+
+With the 1.5 version,  the Open|SpeedShop online versions no longer 
+needs to the user to tell it which implementation the application 
+is built with.  Open|SpeedShop now detects this automatically.   
+You can still use the environment varable, OPENSS_MPI_IMPLEMENTATION,
 to override the automatic detected setting, if necessary for some reason.
+
 Here are the details about how to use the environment variable: 
 
 OPENSS_MPI_IMPLEMENTATION
@@ -101,7 +106,7 @@ This variable specifies the MPI implementation being used by the MPI
 application whose performance is being analyzed. It can be set to one 
 of the currently supported MPI implementations:
 
-  lam, lampi, mpich, mpich2, mpt, mvapich2, or openmpi
+  lam, lampi, mpich, mpich2, mpt, mvapich, mvapich2, or openmpi
 
 Open|SpeedShop is able to auto-detect the MPI implementation of
 the application and this variable is only be used to override the auto-
@@ -116,3 +121,11 @@ only one MPI implementation or the implementation your application is built
 with is the default MPI implementation in Open|SpeedShop (see config.log for
 DEFAULT_MPI_IMPL_NAME).
 
+OFFLINE VERSION:
+
+The Open|SpeedShop offline version, in general, does need the user to tell it 
+which implementation the application is built with.  The Open|SpeedShop offline
+version can't always detect this automatically.   Therefore, it is advised to set
+OPENSS_MPI_IMPLEMENTATION to the mpi implementation to the one that matches the
+application that is being analyzed.  This can be done in a module file and then
+the appropriate module file can be loaded for the MPI implementation of interest.
