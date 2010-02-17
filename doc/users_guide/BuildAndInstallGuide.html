@@ -38,9 +38,9 @@ w\:* {behavior:url(#default#VML);}
  alt="Open|SpeedShop logo" src="OpenSpeedShop_Logo.jpg"
  style="width: 303px; height: 38px;"><br>
 Build and Installation Guide<br>
-</span></b><big><span style="font-weight: bold;">Version 1.9.3 Release</span><br
+</span></b><big><span style="font-weight: bold;">Version 1.9.3.3 Release</span><br
  style="font-weight: bold;">
-<span style="font-weight: bold;">October 31, 2009</span></big><br>
+<span style="font-weight: bold;">February 19, 2010</span></big><br>
 </p>
 <div class="Section2"><b style=""><br style="" clear="all">
 </b>
@@ -56,17 +56,21 @@ Build and Installation Guide<br>
 <ol id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
   <li><a href="#mozTocId208182">Build and Installation
-Guide Introduction </a>
+Guide Introduction
+    </a>
     <ol>
       <li><a href="#mozTocId821143">Introduction
-and Tutorial </a></li>
+and Tutorial
+        </a></li>
       <li><a href="#mozTocId200693">Downloading the
 Open|SpeedShop Component
-Source Using CVS trees </a></li>
+Source Using CVS trees
+        </a></li>
     </ol>
   </li>
   <li><a href="#mozTocId334016">Open|SpeedShop
-Build and Installation </a>
+Build and Installation
+    </a>
     <ol>
       <li><a href="#mozTocId733358">Building
 Open|SpeedShop
@@ -74,12 +78,16 @@ and
 Open|SpeedShop
 Development RPM Usage Information</a>
         <ol>
-          <li><a href="#mozTocId585528">Prerequistite Needs </a></li>
+          <li><a href="#mozTocId585528">Prerequistite Needs
+            </a></li>
           <li><a href="#mozTocId893375">Installation
-Information </a></li>
-          <li><a href="#mozTocId560453">To Run Open|SpeedShop </a></li>
+Information
+            </a></li>
+          <li><a href="#mozTocId560453">To Run Open|SpeedShop
+            </a></li>
           <li><a href="#mozTocId132468">Key
-Environment Variables Needed for Building Open|SpeedShop </a>
+Environment Variables Needed for Building Open|SpeedShop
+            </a>
             <ol>
               <li><a href="#mozTocId520988">OPENSS_PREFIX</a></li>
               <li><a href="#mozTocId613200">OPENSS_INSTRUMENTOR</a></li>
@@ -88,16 +96,24 @@ Environment Variables Needed for Building Open|SpeedShop </a>
           <li><a href="#mozTocId911379">Key
 Environment Variables Needed for Running Open|SpeedShop</a>
             <ol>
-              <li><a href="#mozTocId579302">OPENSS_PLUGIN_PATH </a></li>
+              <li><a href="#mozTocId579302">OPENSS_PLUGIN_PATH
+                </a></li>
               <li><a href="#mozTocId173759">LD_LIBRARY_PATH</a></li>
               <li><a href="#mozTocId537563">OPENSS_MPI_IMPLEMENTATION</a></li>
               <li><a href="#mozTocId861365">DYNINSTAPI_RT_LIB</a></li>
               <li><a href="#mozTocId597960">PATH</a></li>
               <li><a href="#mozTocId836381">OPENSS_RAWDATA_DIR</a></li>
+              <li><a href="#mozTocId588440">OPENSS_DB_DIR</a></li>
             </ol>
           </li>
           <li><a href="#mozTocId435044">Open|SpeedShop Tested
-Platforms:</a></li>
+Platforms:</a>
+            <ol>
+              <li><a href="#mozTocId871553">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Note for Ubuntu and Debian these packages are needed to be applied to
+the base systems:</a></li>
+            </ol>
+          </li>
         </ol>
       </li>
     </ol>
@@ -123,7 +139,7 @@ and Tutorial<br>
 <span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;"></span>
 <div class="Section3">
 <div style="text-align: left; margin-left: 40px;">Open|SpeedShop
-release 1.9.2 comes with an install script that will build all the
+release 1.9.3.3 comes with an install script that will build all the
 supporting components and Open|SpeedShop itself in one step, or the
 builder can invoke the script multiple times to build each component
 separately.&nbsp;&nbsp; The <a
@@ -143,7 +159,8 @@ which can be found at our web site: <a href="www.openspeedshop.org">www.openspee
 <br>
 The next section explains how to build from our development source
 tree.&nbsp;&nbsp; If you are not interested in doing that but are
-interested in building the current 1.9.2 release of Open|SpeedShop skip
+interested in building the current 1.9.3.3 release of Open|SpeedShop
+skip
 to the <a href="#OpenSpeedShop_Build_And_Installation">Build and
 Installation section.</a><br>
 <h2><a class="mozTocH3" name="mozTocId200693"></a><font
@@ -246,9 +263,9 @@ instructions below using OpenSpeedShop_ROOT as the top level
 installation directory.&nbsp;&nbsp;&nbsp; To use the existing
 install.sh installation script, OpenSpeedShop must be moved to the
 openspeedshop-1.9,2 directory name, tarred into
-openspeedshop-1.9.2.tar,
-gzipped into openspeedshop-1.9.2.tar.gz, and moved into
-OpenSpeedShop_ROOT/SOURCES/openspeedshop-1.9.2.tar.gz. &nbsp; This is
+openspeedshop-1.9.3.3.tar,
+gzipped into openspeedshop-1.9.3.3.tar.gz, and moved into
+OpenSpeedShop_ROOT/SOURCES/openspeedshop-1.9.3.3.tar.gz. &nbsp; This is
 what is done when a release tarball is prepared.
 </div>
 </div>
@@ -301,20 +318,21 @@ what we have tested with.&nbsp; Newer versions will probably work also.<br>
       <tr>
         <td>autoconf </td>
         <td>2.59 </td>
-        <td>2.63 </td>
+        <td>2.65 </td>
         <td>none</td>
       </tr>
       <tr>
         <td>automake </td>
         <td>1.7.9 </td>
-        <td>1.10.1 </td>
+        <td>1.11.1 </td>
         <td>none</td>
       </tr>
       <tr>
         <td>binutils </td>
         <td>2.15 </td>
-        <td>2.18 </td>
-        <td>n(4)</td>
+        <td>2.19 </td>
+        <td><br>
+        </td>
       </tr>
       <tr>
         <td>doxygen </td>
@@ -331,19 +349,19 @@ what we have tested with.&nbsp; Newer versions will probably work also.<br>
       <tr>
         <td>gcc/g++ </td>
         <td>3.4.6 </td>
-        <td>4.3.3 </td>
+        <td>4.4.4 </td>
         <td>none</td>
       </tr>
       <tr>
         <td>libdwarf </td>
         <td>2004/02/03 </td>
-        <td>2008/12/31 </td>
+        <td>2009/12/30 </td>
         <td>none</td>
       </tr>
       <tr>
         <td>monitor </td>
         <td>2007/02/15 </td>
-        <td>2009/06/02 </td>
+        <td>2009/10/10 </td>
         <td><br>
         </td>
       </tr>
@@ -428,20 +446,20 @@ what we have tested with.&nbsp; Newer versions will probably work also.<br>
       <tr>
         <td>libtool </td>
         <td>1.5.14 </td>
-        <td>1.5.24 </td>
+        <td>2.2.6b </td>
         <td>none</td>
       </tr>
       <tr>
         <td>libunwind </td>
         <td>0.98.5 </td>
-        <td> 20090508<br>
+        <td> 20100123<br>
         </td>
         <td>none</td>
       </tr>
       <tr>
         <td>papi </td>
         <td>3.0.8.1 </td>
-        <td>3.6.2 </td>
+        <td>3.7.0 </td>
         <td>none</td>
       </tr>
       <tr>
@@ -459,7 +477,7 @@ what we have tested with.&nbsp; Newer versions will probably work also.<br>
       <tr>
         <td>sqlite </td>
         <td>3.0.8 </td>
-        <td>3.6.14 </td>
+        <td>3.6.22 </td>
         <td>none</td>
       </tr>
       <tr>
@@ -488,8 +506,6 @@ not strictly needed to build Open|SpeedShop.</li>
     <li>On SLES 9/10/11 Linux distributions the necessary qt
 development components require qt3-devel-doc and qt3-devel-tools in
 addition to qt3-devel.</li>
-    <li>binutils 2.19.50 was tried and had some issues working with the
-Dyninst Open|SpeedShop component</li>
   </ol>
   <br>
 See the INSTALL-note_a file for directions on how to use the
@@ -529,14 +545,15 @@ and the versions that have been used successfully with Open|SpeedShop.<br>
 Information<br>
 </h3>
 <br>
-Please gunzip and untar the openspeedshop-release-1.9.2.tar.gz file and
-change directory into the openspeedshop-release-1.9.2
+Please gunzip and untar the openspeedshop-release-1.9.3.3.tar.gz file
+and
+change directory into the openspeedshop-release-1.9.3.3
 directory.&nbsp;&nbsp; <br>
 <br>
 For example:<br>
-gunzip openspeedshop-release-1.9.2.tar.gz<br>
-tar -xvf openspeedshop-release-1.9.2.tar<br>
-cd openspeedshop-release-1.9.2<br>
+gunzip openspeedshop-release-1.9.3.3.tar.gz<br>
+tar -xvf openspeedshop-release-1.9.3.3.tar<br>
+cd openspeedshop-release-1.9.3.3<br>
 <br>
 Inside the top level release directory is the key script, install.sh,
 that can be used in building the Open|SpeedShop performance tool.<br>
@@ -608,15 +625,15 @@ and configure for each MPI implementation specfied in this manner.<br>
 The spec files associated with this build process include:<br>
 qtver=3.3.8b<br>
 libelfver=0.8.5_a<br>
-libdwarfver=20081231_a<br>
-libunwindver=020090508_a<br>
-papiver=3.6.2_a<br>
-sqlitever=3.6.14_a<br>
-monitorver=20090602_a<br>
+libdwarfver=20091230_a<br>
+libunwindver=020100123_a<br>
+papiver=3.7.0_a<br>
+sqlitever=3.6.22_a<br>
+monitorver=20091010_a<br>
 vampirtracever=5.3.2_a<br>
-dyninstver=5.2r_a<br>
-mrnetver=2.0.1_a<br>
-openspeedshopver=1.9.2_a<br>
+dyninstver=6.1r_a<br>
+mrnetver=2.2_a<br>
+openspeedshopver=1.9.3.3_a<br>
 <br>
 There is an order that is required in building the components because
 some of the components depend oneach other.&nbsp; The install script
@@ -650,7 +667,7 @@ only) communication
 mechanism, a MRNet daemon must run on your machine and, if you have a
 cluster, a MRNet daemon must run on each node of your cluster.&nbsp; We
 have a default file named "mrnet.py" that we will install during the
-installation of openspeedshop-1.9.2.&nbsp; The mrnet.py file will
+installation of openspeedshop-1.9.3.3.&nbsp; The mrnet.py file will
 create a MRNet topology file (needed by MRNet to communicate with the
 daemons)
 without intervention on your single system image machine, like a pc or
@@ -669,11 +686,11 @@ assistance.<br>
 This is what will be displayed when you type install.sh:<br>
 <br>
 ---------------------------------------<br>
+<span style="font-weight: bold;"><br>
+./install.sh<br>
 <br>
-<span style="font-weight: bold;">./install.sh</span><br>
-<br>
-localhost.localdomain-47&gt;./install.sh<br>
 &nbsp;&nbsp;&nbsp; machine:&nbsp; localhost.localdomain<br>
+<br>
 <br>
 &nbsp;&nbsp;&nbsp;
 ---------------------------------------------------------------------------<br>
@@ -691,14 +708,13 @@ you know at what point<br>
 ---------------------------------------------------------------------------<br>
 <br>
 <br>
-&nbsp;&nbsp;&nbsp; You are building for Open|SpeedShop instrumentor:
-mrnet<br>
-&nbsp;&nbsp;&nbsp; You have manually specified a Open|SpeedShop
-instrumentor using<br>
-&nbsp;&nbsp;&nbsp; the environment variable OPENSS_INSTRUMENTOR to
-override the<br>
-&nbsp;&nbsp;&nbsp; default Open|SpeedShop instrumentor: mrnet.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; You are building for default Open|SpeedShop
+instrumentor: offline.<br>
+&nbsp;&nbsp;&nbsp; If you wish to change the Open|SpeedShop
+instrumentor, use<br>
+&nbsp;&nbsp;&nbsp; the OPENSS_INSTRUMENTOR to specify: mrnet, or
+offline.<br>
+<br>
 &nbsp;&nbsp; <br>
 &nbsp;&nbsp; <br>
 &nbsp;&nbsp;&nbsp; Checking for prerequisite components needed to build
@@ -762,8 +778,11 @@ OPENSS_PREFIX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 set to alternate install prefix.&nbsp; default is /opt/OSS<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 OPENSS_INSTRUMENTOR&nbsp;&nbsp;&nbsp;&nbsp; set to the underlying
-instrumentation type openss will use.&nbsp; default is mrnet (includes
-offline)<br>
+instrumentation type openss will use.&nbsp; default is offline (does
+not include online/mrnet)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+OPENSS_TARGET_ARCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set to the target
+architecture to build the Open|SpeedShop runtime environment for.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -Open|SpeedShop MPI and
 Vampirtrace<br>
@@ -805,36 +824,41 @@ OPENSS_PYTHON&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 set to alternative directory location for python components. default is
 /usr<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-OPENSS_IMPLICIT_TLS&nbsp;&nbsp;&nbsp;&nbsp; When set to some value this
-will enable Open|SpeedShop to use implicitly created tls storage.
-default is explicit.<br>
+OPENSS_LIBXML2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+set to alternative directory location for libxml2 components. default
+is /usr<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+OPENSS_IMPLICIT_TLS&nbsp;&nbsp;&nbsp;&nbsp; When set, this enables
+Open|SpeedShop to use implicitly created tls storage. default is
+explicit.<br>
 &nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp; <br>
+&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; Checking to see if OPENSS_PREFIX is set.&nbsp; This
+is the installation path for all <br>
+&nbsp;&nbsp;&nbsp; the OpenSpeedShop supporting components and also the
+OpenSpeedShop components.<br>
+&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
+OPENSS_PREFIX=/opt/OSS-mrnet<br>
 &nbsp;&nbsp;&nbsp; <br>
 &nbsp;&nbsp;&nbsp; Current Values for OPENSS Environment Variables:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -General<br>
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
-OPENSS_PREFIX=/home/jeg/OSS-mrnet<br>
+OPENSS_PREFIX=/opt/OSS-mrnet<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
-OPENSS_INSTRUMENTOR=mrnet<br>
+OPENSS_INSTRUMENTOR=offline<br>
 &nbsp;&nbsp;&nbsp; <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -Open|SpeedShop MPI and
 Vampirtrace<br>
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
-OPENSS_MPI_LAMPI=/opt/lampi-1.5.16<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
-OPENSS_MPI_OPENMPI=/opt/openmpi-1.2.6<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
-OPENSS_MPI_MPICH2=/opt/mpich2-1.0.8<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
-OPENSS_MPI_MVAPICH2=/opt/mvapich2-1.2p1<br>
 <br>
 &nbsp;&nbsp;&nbsp; Choices:<br>
 <br>
 &nbsp;&nbsp;&nbsp; 0&nbsp; - Set ~/.rpmmacros %_topdir to:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-/home/jeg/OpenSpeedShop_ROOT&nbsp; <br>
+/home/jeg/release-1.9.3.3/OpenSpeedShop_ROOT&nbsp; <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; original will be
 copied to .rpmmacros.##<br>
 &nbsp;&nbsp;&nbsp; 0a - View environment variables that may be set<br>
@@ -897,10 +921,8 @@ dependencies.&nbsp; Everything will be installed in<br>
 &nbsp;&nbsp;&nbsp; Please feel free to contact us via this email alias:
 oss-questions@openspeedshop.org<br>
 <br>
--last option: <br>
-9<br>
 Enter Option: <br>
-<br>
+</span><br>
 <h3><a class="mozTocH3" name="mozTocId560453"></a>To Run Open|SpeedShop<br>
 </h3>
 <br>
@@ -981,7 +1003,7 @@ supported MPI implementations:<br>
 </ul>
 </div>
 <div style="margin-left: 240px;">openmpi, lampi, mpich2, mpich, mpt,
-mvapich, lam<small><br>
+mvapich, mvapich2, lam<small><br>
 <br>
 </small>Open|SpeedShop can auto-detect most of the MPI
 implementations that an MPI application is using.&nbsp; So, this
@@ -1035,6 +1057,20 @@ used. &nbsp;&nbsp; Set this to:&nbsp; OPENSS_RAWDATA_DIR
 &lt;path_to_subdir_for_rawdata_file_writing&gt; </small></big>(e.g.
 setenv OPENSS_RAWDATA_DIR /p/lscratchc/jeg).</li>
 </ul>
+<h4 style="margin-left: 120px;"><a class="mozTocH4"
+ name="mozTocId588440"></a>OPENSS_DB_DIR</h4>
+<div style="margin-left: 200px;">
+<ul>
+  <li>This envirionmnent variable specifies the path to where the
+offline version of openss will build the OpenSpeedShop database file.
+If you are on a lustre file system that does not have file locking
+turnedon.&nbsp; The sqlite component will not be able to create the
+database file.&nbsp; You can use this environment variable to specify a
+non-lustre file system path to be used for the database file creation.</li>
+</ul>
+</div>
+<br>
+<br>
 <br>
 <br>
 <h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId435044"></a><a
@@ -1047,22 +1083,40 @@ system differences that can cause problems.&nbsp;&nbsp; The following
 combinations have been tried and/or successfully tested:<br>
 <ul>
   <li>SLES 10 IA64</li>
-  <li>Fedora 3-10 on x86 and x86_64<br>
+  <li>Fedora 3-11 on x86 and x86_64<br>
   </li>
   <li>RedHat Enterprise Linux (RHEL4 &amp; RHEL5) on x86, x86_64<br>
   </li>
   <li>SuSE Professional on x86_64 and x86<br>
   </li>
-  <li>SuSE 10.* and SuSE 11 on x86 and x86_64</li>
-  <li>Ubuntu 8.04, 8.10, 9.04 on x86<br>
+  <li>SuSE 10.*, SuSE 11, and SuSE 11.1 on x86 and x86_64</li>
+  <li>Ubuntu 8.04, 8.10, 9.04, 9.10 on x86 and x86_64<br>
   </li>
-  <li>Debian 4.0r5 on x86<br>
-  </li>
+  <li>Debian 4.0r5 and 5.0 on x86</li>
 </ul>
-</div>
 <br>
 </div>
+<h4 style="margin-left: 40px;"><a class="mozTocH4" name="mozTocId871553"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Note for Ubuntu and Debian these packages are needed to be applied to
+the base systems:</h4>
 <br>
+<div style="margin-left: 80px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo
+apt-get install automake autoconf binutils libtool<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install flex bison<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install rpm<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install libxml2 libxml2-dev<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install qt3-apps-dev<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install python-dev<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install binutils-dev<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install libelf1 elfutils
+libelf-dev<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install g++<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install make patch<br>
+<br>
+<br>
+</div>
+</div>
 <div style="text-align: left;" class="Section6">
 <blockquote><br>
 </blockquote>
