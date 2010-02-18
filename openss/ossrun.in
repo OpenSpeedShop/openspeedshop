@@ -145,9 +145,10 @@ case "$mpitouse" in
     mpich2)
       extra_mpi_libs=${f_mpich2_libs}
       break;
+    ;;
+
     mvapich2)
       extra_mpi_libs=${f_mvapich2_libs}
-      break; 
 esac
 
 # 
