@@ -4,9 +4,18 @@
 mach_type=`uname -m`
 if test "$mach_type" == "x86_64" ; then
     machlibdir=lib64
+    altmachlibdir=lib
+elif [ "$mach_type" == "ppc" ]; then
+    machlibdir=lib
+    altmachlibdir=lib64
+elif [ "$mach_type" == "ppc64" ]; then
+    machlibdir=lib
+    altmachlibdir=lib64
 else
     machlibdir=lib
+    altmachlibdir=lib64
 fi
+
 
 monitor_prefix=@@libmonitordir@@
 monitor_exec_prefix="${monitor_prefix}"
@@ -27,8 +36,17 @@ mvapich2_prefix=@@mvapich2dir@@
 mpt_prefix=@@mptdir@@
 openmpi_prefix=@@openmpidir@@
 
-f_mpich2_libs="${mpich2_prefix}/${machlibdir}/libfmpich.so"
-f_mvapich2_libs="${mvapich2_prefix}/${machlibdir}/libfmpich.so"
+if test -f ${mpich2_prefix}/${machlibdir}/libfmpich.so; then
+  f_mpich2_libs="${mpich2_prefix}/${machlibdir}/libfmpich.so"
+elif test -f ${mpich2_prefix}/${altmachlibdir}/libfmpich.so; then
+  f_mpich2_libs="${mpich2_prefix}/${altmachlibdir}/libfmpich.so"
+fi
+
+if test -f ${mvapich2_prefix}/${machlibdir}/libfmpich.so; then
+  f_mvapich2_libs="${mvapich2_prefix}/${machlibdir}/libfmpich.so"
+elif test -f ${mvapich2_prefix}/${altmachlibdir}/libfmpich.so; then
+  f_mvapich2_libs="${mvapich2_prefix}/${altmachlibdir}/libfmpich.so"
+fi
 
 mpi_plugin=
 output_dir=
@@ -141,10 +159,10 @@ fi
 
 extra_mpi_libs=""
 
+
 case "$mpitouse" in
     mpich2)
       extra_mpi_libs=${f_mpich2_libs}
-      break;
     ;;
 
     mvapich2)
