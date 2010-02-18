@@ -28,6 +28,7 @@ mpt_prefix=@@mptdir@@
 openmpi_prefix=@@openmpidir@@
 
 f_mpich2_libs="${mpich2_prefix}/${machlibdir}/libfmpich.so"
+f_mvapich2_libs="${mvapich2_prefix}/${machlibdir}/libfmpich.so"
 
 mpi_plugin=
 output_dir=
@@ -142,7 +143,11 @@ extra_mpi_libs=""
 
 case "$mpitouse" in
     mpich2)
-    extra_mpi_libs=${f_mpich2_libs}
+      extra_mpi_libs=${f_mpich2_libs}
+      break;
+    mvapich2)
+      extra_mpi_libs=${f_mvapich2_libs}
+      break; 
 esac
 
 # 
