@@ -469,20 +469,17 @@ static bool define_mpi_columns (
       IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
     }
 
-   // Always display elapsed time.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
-    HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
+   // display min time
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, min_temp));
+    HV.push_back(std::string("Minimum ") + Default_Header + "(ms)");
 
-  // and include % of exclusive time
-    if (Filter_Uses_F(cmd)) {
-     // Use the metric needed for calculating total time.
-      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
-    } else {
-     // Sum the extime_temp values.
-      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
-    }
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
-    HV.push_back("% of Total");
+   // display max time
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, max_temp));
+    HV.push_back(std::string("Maximum ") + Default_Header + "(ms)");
+
+   // average time is calculated from two temps: sum and total counts.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, incnt_temp));
+    HV.push_back("Average Time(ms)");
 
   // display a count of the calls to each function
     if (vfc != VFC_Trace) {
@@ -570,7 +567,7 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
                   " process unit that the program was partitioned into: Pid's,"
                   " Posix threads, Mpi threads or Ranks."
                   " If no '-m' option is specified, the default is equivalent to"
-                  " '-m exclusive times, percent, count'."
+                  " '-m min, max, average, count'."
                   " The available '-m' options are:"
                   " \n\t'-m exclusive_times' reports the wall clock time used in the function."
                   " \n\t'-m min' reports the minimum time spent in the function."
