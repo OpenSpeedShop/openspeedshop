@@ -22,5 +22,21 @@ SUBDIRS = sources
 
 DIST_SUBDIRS = sources test openss
 
+doc:
+if HAVE_EPYDOC
+# Generate expdoc documentation
+# epydoc -o doc -t __init__.py -n openss __init__.py openss_*.py 
+	rm -rf doc
+	epydoc -o doc  -n openss sources/openss*.py sources/__init__.py
+# Preprocess out epytext and copy to package directory
+	sed -f epytext.sed < sources/__init__.py > openss/__init__.py
+	sed -f epytext.sed < sources/openss_classes.py > openss/openss_classes.py
+	sed -f epytext.sed < sources/openss_commands.py > openss/openss_commands.py
+	sed -f epytext.sed < sources/openss_parse.py > openss/openss_parse.py
+endif
+
+clean:
+	rm -rf doc
+
 EXTRA_DIST = \
 	doit.csh command_status.doc README test.py epytext.sed

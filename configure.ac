@@ -268,6 +268,7 @@ AC_SUBST(HAVE_TARGET_FORK)
 
 AC_PKG_ARRAYSVCS()
 AC_PKG_BINUTILS()
+AC_PKG_EPYDOC()
 AC_PKG_LIBDWARF()
 AC_PKG_LIBMONITOR()
 AC_PKG_LIBUNWIND()
@@ -422,6 +423,10 @@ AC_CONFIG_FILES(
 	plugins/wizards/IOWizardPanel/Makefile
 	plugins/wizards/MPIWizardPanel/Makefile
 	plugins/wizards/CompareWizardPanel/Makefile
+	pyscripting/Makefile
+	pyscripting/openss/Makefile
+	pyscripting/sources/Makefile
+	pyscripting/test/Makefile
 	openss/Makefile
 	libopenss-guibase/Makefile
 	libopenss-guiplugin/Makefile

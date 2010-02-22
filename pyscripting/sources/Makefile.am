@@ -53,4 +53,7 @@ openss_parse.py: openss_parse.py.in
 		$(srcdir)/openss_parse.py.in > openss_parse.py
 	@chmod 755 openss_parse.py
 
+clean:
+	rm -rf *.py *.pyc
+
 EXTRA_DIST = __init__.py.in openss_classes.py.in openss_commands.py.in openss_parse.py.in

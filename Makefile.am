@@ -33,6 +33,7 @@ BASE_SUBDIRS = \
 	libopenss-guiplugin \
 	libopenss-gui \
 	plugins \
+	pyscripting \
 	openss \
 	doc \
 	man \
@@ -47,6 +48,7 @@ BASE_SUBDIRS = \
 	libopenss-queries \
 	libopenss-cli \
 	plugins \
+	pyscripting \
 	openss \
 	doc \
 	man \
@@ -106,7 +108,8 @@ CLI_SUBDIRS = \
 	libopenss-cli \
 	openss \
 	plugins/collectors \
-	plugins/views
+	plugins/views \
+	pyscripting 
 
 cli:
 	for i in $(CLI_SUBDIRS); do (cd $$i; $(MAKE)); done
@@ -142,7 +145,8 @@ OFFLINE_SUBDIRS = \
 	libopenss-cli \
 	openss \
 	plugins/collectors \
-	plugins/views
+	plugins/views \
+	pyscripting 
 
 offline:
 	for i in $(OFFLINE_SUBDIRS); do (cd $$i; $(MAKE)); done
