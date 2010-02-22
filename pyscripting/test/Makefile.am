@@ -26,3 +26,9 @@ EXTRA_DIST = clearBreak.py  expAttach.py   expDetach.py   expGo.py \
 	exit.py        expCreate.py   expFocus.py    expSave.py    \
 	listExp.py      listParams.py   listStatus.py \
 	runall-py  runone-py setBreak.csh README
+
+check: 
+	ln -s $(OPENSS_PREFIX)/$(abi_libdir_name)/libopenss-cli.so.0.0.0 ../openss/PYopenss.so; 
+	ln -s ../openss openss 
+clean:
+	rm -rf openss/PYopenss.so openss
