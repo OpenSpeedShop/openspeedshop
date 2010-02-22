@@ -781,6 +781,20 @@ PyMODINIT_FUNC
 initPYopenss (void) {
 
     PyObject *m, *d;
+
+#if DEBUG_CLI
+    fprintf(stderr, "actualCLIStartMode=%d, SM_Unknown=%d, SM_Batch=%d, SM_Offline=%d\n", 
+            actualCLIStartMode, SM_Unknown, SM_Batch, SM_Unknown);
+#endif
+
+    //
+    // per dew 2/22/10 since offline was added we now need to reset SM_Batch as the type 
+    // of mode of execution during intitialization
+    //
+    if (actualCLIStartMode == SM_Unknown) {
+      actualCLIStartMode = SM_Batch;
+//      actualCLIStartMode = SM_Offline;
+   } 
   
     // Register python exported methods
     m =  Py_InitModule("PYopenss", PYopenss_Methods);
