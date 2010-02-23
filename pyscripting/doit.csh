@@ -26,7 +26,8 @@ cd ..
 
 # Generate expdoc documentation
 #epydoc -o doc -t __init__.py -n openss __init__.py openss_*.py 
-epydoc -o doc -t openss/__init__.py -n openss openss/openss*.py openss/__init__.py
+#epydoc -o doc -t openss/__init__.py -n openss openss/openss*.py openss/__init__.py
+epydoc -o doc -n openss openss/openss*.py openss/__init__.py
 
 # Preprocess out epytext and copy to package directory
 sed -f epytext.sed < sources/__init__.py > openss/__init__.py

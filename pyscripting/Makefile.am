@@ -27,6 +27,7 @@ if HAVE_EPYDOC
 # Generate expdoc documentation
 # epydoc -o doc -t __init__.py -n openss __init__.py openss_*.py 
 	rm -rf doc
+	ln -sf $(OPENSS_PREFIX)/$(abi_libdir_name)/libopenss-cli.so.0.0.0 PYopenss.so; 
 	epydoc -o doc  -n openss sources/openss*.py sources/__init__.py
 # Preprocess out epytext and copy to package directory
 	sed -f epytext.sed < sources/__init__.py > openss/__init__.py
@@ -36,7 +37,7 @@ if HAVE_EPYDOC
 endif
 
 clean:
-	rm -rf doc
+	rm -rf doc PYopenss.so
 
 EXTRA_DIST = \
 	doit.csh command_status.doc README test.py epytext.sed
