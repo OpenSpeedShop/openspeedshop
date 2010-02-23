@@ -2044,13 +2044,11 @@ AC_DEFUN([AC_PKG_EPYDOC], [
 
 	AC_MSG_CHECKING([for epydoc binary])
 	if epydoc --version >/dev/null 2>/dev/null ; then
-		AC_MSG_RESULT([yes])
       		AC_MSG_CHECKING([found epydoc binary])
 		      AC_MSG_RESULT(yes)
 		      AM_CONDITIONAL(HAVE_EPYDOC, true)
 		      AC_DEFINE(HAVE_EPYDOC, 1, [Define to 1 if you have EPYDOC.])
 	else
-		AC_MSG_ERROR([epydoc (http://epydoc.sourceforge.net/) is needed to build Python documentation])
                 AM_CONDITIONAL(HAVE_EPYDOC, false)
 	fi
 ])
