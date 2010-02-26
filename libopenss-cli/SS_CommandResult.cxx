@@ -117,6 +117,12 @@ CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
          Avalue, Bvalue, average);
 #endif
 
+  switch (A->Type()) {
+   case CMD_RESULT_DURATION:
+    return new CommandResult_Duration (average);
+   case CMD_RESULT_INTERVAL:
+    return new CommandResult_Interval (average);
+  }
   return new CommandResult_Float (average);
 }
 
@@ -211,6 +217,12 @@ CommandResult *Calculate_StdDev  (CommandResult *A, CommandResult *B, CommandRes
   }
 
   double result = sqrt (((Cvalue * Bvalue) - (Avalue * Avalue)) / (Cvalue * (Cvalue -1.0)));
+  switch (A->Type()) {
+   case CMD_RESULT_DURATION:
+    return new CommandResult_Duration (result);
+   case CMD_RESULT_INTERVAL:
+    return new CommandResult_Interval (result);
+  }
   return isnan(result) ? NULL : new CommandResult_Float (result);
 }
 

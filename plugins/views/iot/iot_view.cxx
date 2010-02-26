@@ -109,16 +109,19 @@
                 value_array[stop_temp] = new CommandResult_Time (x);                      \
               }                                                                           \
               if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp]             \
-                                                 = CRPTR (sort_extime ? extime : intime); \
+                            = new CommandResult_Interval (sort_extime ? extime : intime); \
               if (num_temps > intime_temp) value_array[intime_temp]                       \
                             = new CommandResult_Interval (intime);                        \
               if (num_temps > incnt_temp) value_array[incnt_temp] = CRPTR (incnt);        \
               if (num_temps > extime_temp) value_array[extime_temp]                       \
                             = new CommandResult_Interval (extime);                        \
               if (num_temps > excnt_temp) value_array[excnt_temp] = CRPTR (excnt);        \
-              if (num_temps > min_temp) value_array[min_temp] = CRPTR (vmin);             \
-              if (num_temps > max_temp) value_array[max_temp] = CRPTR (vmax);             \
-              if (num_temps > ssq_temp) value_array[ssq_temp] = CRPTR (sum_squares);
+              if (num_temps > min_temp) value_array[min_temp]                             \
+                            = new CommandResult_Interval (vmin);                          \
+              if (num_temps > max_temp) value_array[max_temp]                             \
+                            = new CommandResult_Interval (vmax);                          \
+              if (num_temps > ssq_temp) value_array[ssq_temp]                             \
+                            = new CommandResult_Interval (sum_squares);
 
 #define set_ExtraMetric_values(value_array, ExtraValues, index)                                      \
               if (num_temps > tmean_temp) {                                                          \
@@ -439,7 +442,7 @@ static bool define_iot_columns (
         } else if (!strcasecmp(M_Name.c_str(), "average")) {
          // average time is calculated from two temps: sum and total counts.
           IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, incnt_temp));
-          HV.push_back("Average Time");
+          HV.push_back("Average Time(ms)");
         } else if (!strcasecmp(M_Name.c_str(), "percent") ||
                    !strcasecmp(M_Name.c_str(), "%") ||
                    !strcasecmp(M_Name.c_str(), "%time") ||
