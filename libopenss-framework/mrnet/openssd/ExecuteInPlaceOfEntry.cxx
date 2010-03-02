@@ -191,7 +191,7 @@ void ExecuteInPlaceOfEntry::install()
 #endif
 
         BPatch_Vector<BPatch_point*>* points = where->findPoint(BPatch_locEntry);
-        if (points == NULL && !strcasecmp(where->getName(mbuf,1024),"PMPI_Init")) {
+        if (points == NULL && (!strcasecmp(where->getName(mbuf,1024),"PMPI_Init") || !strcasecmp(where->getName(mbuf,1024),"MPI_Init") )) {
             dm_is_installed = false;
             return;
         } else {
