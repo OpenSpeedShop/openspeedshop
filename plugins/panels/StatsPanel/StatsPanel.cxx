@@ -382,6 +382,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   traceAddition = QString::null;
   metricHeaderTypeArray = NULL;
   currentThreadsStr = QString::null;
+  currentMenuThreadsStr = QString::null;
   currentCollectorStr = QString::null;
   lastCollectorStr = QString::null;
   infoSummaryStr = QString::null;
@@ -1668,10 +1669,10 @@ StatsPanel::menu( QPopupMenu* contextMenu)
         threadMenu->setItemChecked(mid, TRUE);
       }
 
-      if( currentThreadsStr.isEmpty() || currentThreadsStr == pidStr ) {
-        currentThreadsStr = pidStr;
+      if( currentMenuThreadsStr.isEmpty() || currentMenuThreadsStr == pidStr ) {
+        currentMenuThreadsStr = pidStr;
 #ifdef DEBUG_StatsPanel
-        printf("Inside threadMenu generation, setting currentThreadsStr = %s\n", currentThreadsStr.ascii() );
+        printf("Inside threadMenu generation, setting currentMenuThreadsStr = %s\n", currentMenuThreadsStr.ascii() );
 #endif
       }
 
@@ -5751,7 +5752,7 @@ StatsPanel::threadSelected(int val)
   printf("ENTER ---------------------- StatsPanel::threadSelected(%d)\n", val);
 #endif
 
-  currentThreadsStr = threadMenu->text(val).ascii();
+  currentMenuThreadsStr = threadMenu->text(val).ascii();
 
   currentThreadsStr = QString::null;
 
@@ -5766,7 +5767,7 @@ StatsPanel::threadSelected(int val)
   {
     QString ts = (QString)*it;
 
-    if( ts == currentThreadsStr )
+    if( ts == currentMenuThreadsStr )
     {   // Then it's already in the list... now remove it.
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::threadSelected, add the selected thread (%s).\n", ts.ascii() );
@@ -5780,9 +5781,9 @@ StatsPanel::threadSelected(int val)
   // We didn't find it to remove it, so this is a different thread... add it.
   if( FOUND_FLAG == FALSE ) {
 #ifdef DEBUG_StatsPanel
-    printf("StatsPanel::threadSelected, We must need to add it (%s) then!\n", currentThreadsStr.ascii() );
+    printf("StatsPanel::threadSelected, We must need to add it (%s) then!\n", currentMenuThreadsStr.ascii() );
 #endif
-    currentThreadGroupStrList.push_back(currentThreadsStr);
+    currentThreadGroupStrList.push_back(currentMenuThreadsStr);
   }
 
 #ifdef DEBUG_StatsPanel
@@ -7595,12 +7596,12 @@ StatsPanel::setCurrentThread()
         std::string host = t.getHost();
         pid_t pid = t.getProcessId();
         QString pidstr = QString("%1").arg(pid);
-        if( currentThreadsStr.isEmpty() )
+        if( currentMenuThreadsStr.isEmpty() )
         {
-          currentThreadsStr = pidstr;
+          currentMenuThreadsStr = pidstr;
 
 #ifdef DEBUG_StatsPanel
-          printf("Seting a currentThreadsStr!, currentThreadsStr=%s\n", pidstr.ascii());
+          printf("Seting a currentMenuThreadsStr!, currentMenuThreadsStr=%s\n", pidstr.ascii());
 #endif
 
           // set a default thread as well...
@@ -7612,9 +7613,9 @@ StatsPanel::setCurrentThread()
           currentThread = new Thread(*ti);
 // printf("A: Set a currentThread\n");
         }
-        if( pidstr == currentThreadsStr )
+        if( pidstr == currentMenuThreadsStr )
         {
-// printf("Using %s\n", currentThreadsStr.ascii() );
+// printf("Using %s\n", currentMenuThreadsStr.ascii() );
           t1 = *ti;
           if( currentThread )
           {
@@ -7669,7 +7670,7 @@ StatsPanel::setCurrentMetricStr()
         int index = s.find("::");
 // printf("index=%d\n", index );
         currentMetricStr = s.mid(index+2);
-// printf("A: currentCollectorStr=(%s) currentMetricStr=(%s) currentThreadsStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii(), currentThreadsStr.ascii() );
+// printf("A: currentCollectorStr=(%s) currentMetricStr=(%s) currentMenuThreadsStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii(), currentMenuThreadsStr.ascii() );
       }
   }
 // printf("metric=currentMetricStr=(%s)\n", currentMetricStr.ascii() );
@@ -9354,16 +9355,25 @@ StatsPanel::generateCommand()
   aboutString = command + "\n";
  } 
 
+#ifdef DEBUG_StatsPanel
+    printf("generateCommand, check before add any focus, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+    printf("generateCommand, check before add any focus, currentThreadsStr.isEmpty()=(%d)\n", currentThreadsStr.isEmpty() );
+#endif
+
   // Add any focus.
  if( !currentThreadsStr.isEmpty() ) {
 
 #ifdef DEBUG_StatsPanel
-    printf("generateCommand, add any focus, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+    printf("generateCommand, before add any focus, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
 #endif
 
     command += QString(" %1").arg(currentThreadsStr);
     aboutString += QString("for threads %1\n").arg(currentThreadsStr);
     infoAboutString += QString("Hosts/Threads %1\n").arg(currentThreadsStr);
+
+#ifdef DEBUG_StatsPanel
+    printf("generateCommand, after add any focus, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+#endif
 
   }
 

@@ -420,6 +420,7 @@ class StatsPanel  : public Panel
 
     CURRENTTHREADSTR_ENUM currentThreadsStrENUM;
     QString currentThreadsStr;
+    QString currentMenuThreadsStr;
     QString currentCollectorStr;
     QString lastCollectorStr;
     QString infoSummaryStr;
