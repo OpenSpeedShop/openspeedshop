@@ -8855,6 +8855,7 @@ StatsPanel::generateCommand()
 #endif
   if (firstGenerateCommandCall) {
      originatingUserSelectedReportStr = "DefaultView";
+     currentUserSelectedReportStr = "Functions";
 #ifdef DEBUG_StatsPanel_toolbar
      printf("GENERATE_COMMAND, setting to FALSE, firstGenerateCommandCall=(%d)\n", firstGenerateCommandCall);
 #endif
