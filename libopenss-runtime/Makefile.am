@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+# Copyright (c) 2006-2010 Krell Institute All Rights Reserved.
 # Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -233,5 +233,7 @@ OpenSS_DataHeader.h OpenSS_DataHeader.c : OpenSS_DataHeader.x
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
 
+all-local:
+	$(DOXYGEN)
 doc:
 	$(DOXYGEN)

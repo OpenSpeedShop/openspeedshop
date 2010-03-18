@@ -1,5 +1,6 @@
 ###############################################################################
 # Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -17,9 +18,9 @@
 ################################################################################
 
 # directories that will be affected
-SUBDIRS = users_guide cli_doc plugin_guide
+SUBDIRS = users_guide cli_doc plugin_guide design_doc
 
-DIST_SUBDIRS = users_guide cli_doc plugin_guide
+DIST_SUBDIRS = users_guide cli_doc plugin_guide design_doc
 
 EXTRA_DIST = help.adp
 

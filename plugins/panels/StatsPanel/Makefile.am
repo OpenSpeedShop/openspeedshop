@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2006-2010 Krell Institute All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -44,6 +44,7 @@ StatsPanel_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-guibase \
 	-L$(top_srcdir)/libopenss-guichart \
 	-L$(top_srcdir)/libopenss-guidialogs \
+	-L$(top_srcdir)/plugins/panels/CustomExperimentPanel \
 	-export-dynamic -export-all-symbols -module -avoid-version
 
 StatsPanel_la_LIBADD = \
@@ -51,6 +52,7 @@ StatsPanel_la_LIBADD = \
 	$(top_srcdir)/libopenss-gui/libopenss-gui.la \
 	$(top_srcdir)/libopenss-guibase/libopenss-guibase.la \
 	$(top_srcdir)/libopenss-guichart/libopenss-guichart.la \
+	$(top_srcdir)/plugins/panels/CustomExperimentPanel/libopenss-CustomExperimentPanel.la \
 	$(top_srcdir)/libopenss-guidialogs/libopenss-guidialogs.la
 
 StatsPanel_la_SOURCES = \

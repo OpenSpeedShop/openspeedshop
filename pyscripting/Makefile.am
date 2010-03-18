@@ -22,18 +22,61 @@ SUBDIRS = sources
 
 DIST_SUBDIRS = sources test openss
 
+docdir  = ${prefix}/share/doc/packages/OpenSpeedShop/pyscriptingAPI
+
 doc:
 if HAVE_EPYDOC
 # Generate expdoc documentation
 # epydoc -o doc -t __init__.py -n openss __init__.py openss_*.py 
 	rm -rf doc
 	ln -sf $(OPENSS_PREFIX)/$(abi_libdir_name)/libopenss-cli.so.0.0.0 PYopenss.so; 
-	epydoc -o doc  -n openss sources/openss*.py sources/__init__.py
 # Preprocess out epytext and copy to package directory
 	sed -f epytext.sed < sources/__init__.py > openss/__init__.py
 	sed -f epytext.sed < sources/openss_classes.py > openss/openss_classes.py
 	sed -f epytext.sed < sources/openss_commands.py > openss/openss_commands.py
 	sed -f epytext.sed < sources/openss_parse.py > openss/openss_parse.py
+endif
+
+
+if HAVE_EPYDOC
+package = @PACKAGE@
+packver = @PACKAGE@-@VERSION@
+
+
+install-reference: doc/index.html
+	@$(NORMAL_INSTALL)
+	${mkinstalldirs} ${DESTDIR}${docdir}
+	if test -f doc/index.html ; then \
+	        for file in doc/*.html ; do \
+	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
+	        done ; \
+	        for file in doc/*.png ; do \
+	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
+	        done ; \
+	fi
+
+uninstall-reference: doc/index.html
+	@$(NORMAL_UNINSTALL)
+	@dir='${<D}'; \
+	echo "dir =@dir"
+	for file in $$dir/* ; do \
+	        basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+	        rm -f ${DESTDIR}${docdir}/$$basefile; \
+	done
+	-rm -rf ${DESTDIR}${docdir}/
+
+
+install-data-am: install-reference
+
+uninstall: uninstall-reference
+
+endif
+
+all-local:
+if HAVE_EPYDOC
+	epydoc -o doc  -n openss sources/openss*.py sources/__init__.py
 endif
 
 clean:

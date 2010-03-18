@@ -1,5 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007-2010 Krell Institute  All Rights Reserved.
+#
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -88,6 +90,9 @@ endif
 
 DIST_SUBDIRS = \
 	pcsamp usertime io iot hwc hwctime mpi mpit mpiotf fpe
+
+all-local:
+	$(DOXYGEN)
 
 doc:
 	$(DOXYGEN)

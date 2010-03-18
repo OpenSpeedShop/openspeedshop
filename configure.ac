@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2009 Krell Institute All Rights Reserved.
+# Copyright (c) 2006-2010 Krell Institute All Rights Reserved.
 # Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -91,7 +91,7 @@ AC_PROG_YACC
 AC_PROG_LN_S
 
 ################################################################################
-# Handle X86-64 Special Case
+# Handle PowerPC and X86-64 Special Cases
 ################################################################################
 
 case "$host" in
@@ -353,6 +353,14 @@ AC_CONFIG_FILES(
 	doc/users_guide/usersGuide-1.9c_files/Makefile
 	doc/cli_doc/Makefile
 	doc/plugin_guide/Makefile
+	doc/design_doc/Makefile
+	doc/design_doc/Collectors/Makefile
+	doc/design_doc/CLI/Makefile
+	doc/design_doc/Framework/Makefile
+	doc/design_doc/GUI/Makefile
+	doc/design_doc/Message/Makefile
+	doc/design_doc/Queries/Makefile
+	doc/design_doc/Runtime/Makefile
 	libopenss-message/Makefile
 	libopenss-runtime/Makefile
 	libopenss-runtime/dpcl/Makefile

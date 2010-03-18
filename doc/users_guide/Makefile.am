@@ -1,5 +1,6 @@
 ###############################################################################
 # Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -37,6 +38,7 @@ packver = @PACKAGE@-@VERSION@
 docdir  = ${prefix}/share/doc/packages/OpenSpeedShop/users_guide
 docdir2  = ${prefix}/share/doc/packages/OpenSpeedShop/users_guide/TroubleShootingGuide
 docdir3  = ${prefix}/share/doc/packages/OpenSpeedShop
+docdir4  = ${prefix}/share/doc/packages/OpenSpeedShop/users_guide/usersGuide-1.9c_files
 
 install-reference: index.html
 	@$(NORMAL_INSTALL)
@@ -64,6 +66,33 @@ install-reference: index.html
 		done ; \
 		${INSTALL_DATA} TroubleShootingGuide/doxygen.css ${DESTDIR}${docdir2} ;\
 	fi
+	if test -f usersGuide-1.9c_files/index.html ; then \
+		for file in usersGuide-1.9c_files/*.htm ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
+		done ; \
+		for file in usersGuide-1.9c_files/*.html ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
+		done ; \
+		for file in usersGuide-1.9c_files/*.gif ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
+		done ; \
+		for file in usersGuide-1.9c_files/*.png ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
+		done ; \
+		for file in usersGuide-1.9c_files/*.thmx ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
+		done ; \
+		for file in usersGuide-1.9c_files/*.xml ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
+		done ; \
+		${INSTALL_DATA} usersGuide-1.9c_files/doxygen.css ${DESTDIR}${docdir4} ;\
+	fi
 
 uninstall-reference: index.html
 	@$(NORMAL_UNINSTALL)
@@ -73,6 +102,7 @@ uninstall-reference: index.html
 		basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 		rm -f ${DESTDIR}${docdir}/$$basefile; \
 		rm -f ${DESTDIR}${docdir2}/$$basefile; \
+		rm -f ${DESTDIR}${docdir4}/$$basefile; \
 	done
 	-rm -rf ${DESTDIR}${docdir}/
 	-rm -rf ${DESTDIR}${docdir2}/

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2010 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -134,6 +134,9 @@ headerLabel->hide();
   availableProcessesListView->setResizeMode(QListView::LastColumn);
   QToolTip::add(availableProcessesListView->viewport(), tr("Listed here are all the available processes that can be added to current Column in\nthe current Compare Set of the Compare Panel.\n\nDrag and drop, process sets or individual processes from here to the Compare Panel.") );
 
+#ifdef DEBUG_COMPARE
+  printf("CompareProcessesDialog::CompareProcessesDialog() constructor added availableProcessesListView.\n");
+#endif
 
   CompareProcessesDialogLayout->addWidget( availableProcessesListView );
 
@@ -350,7 +353,8 @@ CompareProcessesDialog::addProcesses()
       }
 
       // Make sure it the right target
-      if( selectedItem && selectedItem->parent() && selectedItem->parent()->text(0) == UDPS ) {
+      if( selectedItem && selectedItem->parent() && 
+          selectedItem->parent()->text(0) == UDPS ) {
 
 #ifdef DEBUG_COMPARE
         printf("CompareProcessesDialog::addProcesses(), Well I think we have a real selected item to add to ..\n");
@@ -373,11 +377,15 @@ CompareProcessesDialog::addProcesses()
         selectedItem = (MPListViewItem *)lv->firstChild();
       }
 
-
-      for ( DescriptionClassObjectList::Iterator it = validatedHostPidList->begin(); it != validatedHostPidList->end(); ++it )
+      for ( DescriptionClassObjectList::Iterator it = validatedHostPidList->begin();
+                                          it != validatedHostPidList->end(); ++it )
       {
         DescriptionClassObject *dco = (DescriptionClassObject *)*it;
-        MPListViewItem *item = new MPListViewItem( selectedItem, dco->host_name, dco->pid_name, dco->rid_name, dco->tid_name );
+        MPListViewItem *item = new MPListViewItem( selectedItem, 
+                                                   dco->host_name, 
+                                                   dco->pid_name, 
+                                                   dco->rid_name, 
+                                                   dco->tid_name );
 
 #ifdef DEBUG_COMPARE
         printf("CompareProcessesDialog::addProcesses(), A: host_name=(%s) pid_name=(%s) rid_name=(%s) tid_name=(%s)\n", 
@@ -945,6 +953,11 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
             std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
 #ifdef DEBUG_COMPARE
  printf("CompareProcessesDialog::validateHostPid(), pidstr=(%s)\n", pidstr.ascii() );
+            QString tmp_tidstr = QString::null;
+            if (pthread.first) {
+              tmp_tidstr = QString("%1").arg(pthread.second);
+              printf("CompareProcessesDialog::validateHostPid(), tmp_tidstr=(%s)\n", tmp_tidstr.ascii() );
+            }
 #endif
             if( lower_range > 0 && upper_range > 0 )
             {

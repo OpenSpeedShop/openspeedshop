@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-# Copyright (c) 2007 Krell Institute  All Rights Reserved.
+# Copyright (c) 2007-2010 Krell Institute  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -81,6 +81,9 @@ CLEANFILES = \
 	moc_CLIInterface.cxx \
 	moc_openspeedshop.cxx \
 	moc_preferencesdialog.cxx
+
+all-local:
+	$(DOXYGEN)
 
 doc:
 	$(DOXYGEN)

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2010 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -48,6 +48,9 @@ class GenericProgressDialog;
 class SourceObject;
 class QToolBar;
 class QPushButton;
+class QRadioButton;
+class QToolBox;
+
 
 #include "SPChartForm.hxx"
 #include "HighlightObject.hxx"
@@ -59,6 +62,10 @@ class QPushButton;
 #include <qsplitter.h>
 #include <qpopupmenu.h>
 #include <qinputdialog.h>
+#include <qbuttongroup.h>
+#include <qtoolbutton.h>
+#include <qradiobutton.h>
+
 
 #include "CollectorInfo.hxx"   // For dummied up data...
 
@@ -67,6 +74,7 @@ class QPushButton;
 
 #include "ArgumentObject.hxx"
 #include "SS_Input_Manager.hxx"
+
 
 #include <qvaluelist.h>
 typedef QValueList<QString> FieldList;
@@ -77,6 +85,9 @@ typedef QValueList<QString> ExperimentGroupList;
 typedef std::pair<Function, double> Function_double_pair;
 typedef std::pair<Function, unsigned int> Function_uint_pair;
 typedef std::pair<Function, uint64_t> Function_uint64_pair;
+
+
+typedef QValueList <QListView *> CompareList;
 
 #include <qsettings.h>
 #include <qtimer.h>
@@ -239,6 +250,20 @@ class StatsPanel  : public Panel
     //! Used to clear the text and set everything back to normal
     QColor defaultColor;
 
+    QString currentDisplayUsingTypeStr;
+    enum enumDisplayType { displayUsingFunctionType, 
+                           displayUsingStatementType,  
+                           displayUsingLinkedObjectType };
+    enumDisplayType  currentDisplayUsingType;
+    QString getCollectorName();
+
+
+    QRadioButton *vDisplayTypeFunctionRB;
+    QRadioButton *vDisplayTypeStatementRB;
+    QRadioButton *vDisplayTypeLinkedObjectRB;
+    QButtonGroup *vDisplayTypeBG;
+
+
     QToolBar * fileTools;
     QToolBar * metaToolBar;
     QToolButton *metadataToolButton;
@@ -359,6 +384,8 @@ class StatsPanel  : public Panel
     QString currentMetricStr;
     void setCurrentMetricStr();
     QString currentUserSelectedReportStr;
+    QString lastUserSelectedReportStr;
+    QString originatingUserSelectedReportStr;
     QString traceAddition;
 
     //! Current selected chart item.
@@ -408,10 +435,18 @@ class StatsPanel  : public Panel
 
     int headerInfoProcessedExpID;
 
+    CompareList compareList;
+    QToolBox *csetTB;
+
+
 #ifdef OLDWAY // move back to public slots:
     void headerSelected( int );
 #endif // OLDWAY
   public slots:
+    void displayUsingFunction();
+    void displayUsingStatement();
+    void displayUsingLinkedObject();
+
     void itemSelected( QListViewItem * );
     void returnPressed( QListViewItem * );
     void itemSelected( int );
@@ -446,6 +481,7 @@ class StatsPanel  : public Panel
     void clearModifiers();
 
 // TOOLBAR SLOTS
+    void defaultViewSelected();
     void functionsSelected();
     void linkedObjectsSelected();
     void statementsSelected();

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2009 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2010 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -50,6 +50,7 @@
 #include <map>
 
 #include <qpixmap.h>
+#include "defaultView.xpm"
 #include "functions.xpm"
 #include "linkedObjects.xpm"
 #include "statements.xpm"
@@ -88,6 +89,8 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 #define PATHNAME_READY 1
 
 #include "GenericProgressDialog.hxx"
+
+static bool firstGenerateCommandCall = true;
 
 #if 1
 // These are the pie chart colors..
@@ -193,9 +196,9 @@ class AboutOutputClass : public ss_ostream
        line_buffer += s.c_str();
        if( QString(s.c_str()).contains("\n") )
        {
-         QString *data = new QString(line_buffer);
-         sp->outputAboutData(data);
-         line_buffer = QString::null;
+	 QString *data = new QString(line_buffer);
+	 sp->outputAboutData(data);
+	 line_buffer = QString::null;
        }
     }
     virtual void flush_ostream ()
@@ -288,6 +291,9 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   aboutOutputString = QString::null;
   aboutString = QString::null;
 
+  currentDisplayUsingType = displayUsingFunctionType; // default compare type is by function
+  currentDisplayUsingTypeStr = "functions"; // default current compare by string
+
 
   // for the metadata information header
   // uses some of what is in the aboutString string but format is different
@@ -371,6 +377,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   threadMenu = NULL;
   currentMetricStr = QString::null;
   currentUserSelectedReportStr = QString::null;
+  lastUserSelectedReportStr = QString::null;
+  originatingUserSelectedReportStr = QString::null;
   traceAddition = QString::null;
   metricHeaderTypeArray = NULL;
   currentThreadsStr = QString::null;
@@ -611,6 +619,13 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   printf("StatsPanel::StatsPanel, addWidget(fileTools=0x%lx)\n", fileTools);
 #endif
 
+
+  // default setting to match default views
+  //   toolbar_status_label->setText("");
+  //     fileTools->setStretchableWidget(toolbar_status_label);
+  //
+  //     #endif 
+
   generateBaseToolBar(QString::null);
 
   frameLayout->addWidget(fileTools);
@@ -786,11 +801,12 @@ void StatsPanel::infoEditHeaderMoreButtonSelected()
 {
 
 #if DEBUG_INTRO
-  printf("Enter StatsPanel::infoEditHeaderMoreButtonSelected()\n");
+  printf("Enter StatsPanel::infoEditHeaderMoreButtonSelected(), metaDataTextEditFLAG=%d\n",metaDataTextEditFLAG);
 #endif
 
 //#ifdef TEXT
   if (metaDataTextEditFLAG) {
+
     metaDataTextEdit->hide();
     metaDataTextEditFLAG = FALSE;
 #if MORE_BUTTON
@@ -807,7 +823,14 @@ void StatsPanel::infoEditHeaderMoreButtonSelected()
     metadataToolButton->setIconText(QString("Show More Experiment Metadata"));
     QToolTip::add( metadataToolButton, tr( "Push for additional experiment metadata.  This is information relating to\nthe generation of the experiment performance data being shown in the display below." ) );
 #endif
+
   } else {
+
+#if DEBUG_INTRO
+    printf("SHOW StatsPanel::infoEditHeaderMoreButtonSelected(), this=0x%lx, metadataToolButton=0x%lx\n", 
+           this, metadataToolButton);
+#endif
+
     metaDataTextEdit->setCursorPosition(0, 0);
     metaDataTextEdit->show();
     metaDataTextEditFLAG = TRUE;
@@ -821,6 +844,7 @@ void StatsPanel::infoEditHeaderMoreButtonSelected()
 #endif
   } 
 //#endif
+//
   metadataAllSpaceFrame->resize( metadataAllSpaceFrame->sizeHint() );
   infoEditHeaderLabel->resize( infoEditHeaderLabel->sizeHint() );
 #if MORE_BUTTON
@@ -829,6 +853,10 @@ void StatsPanel::infoEditHeaderMoreButtonSelected()
 //  infoEditHeaderLabel->resize( infoEditHeaderLabel->sizeHint() );
 #else
   metaToolBar->update();
+#endif
+
+#if DEBUG_INTRO
+    printf("Exit StatsPanel::infoEditHeaderMoreButtonSelected()\n");
 #endif
 
 }
@@ -876,6 +904,74 @@ StatsPanel::languageChange()
   metaToolBar->update();
 #endif
 }
+
+
+void
+StatsPanel::displayUsingFunction()
+{
+#ifdef DEBUG_StatsPanel_toolbar 
+  printf("StatsPanel::displayUsingFunction() entered, currentUserSelectedReportStr=%s, originatingUserSRS=%s\n",
+         currentUserSelectedReportStr.ascii(), originatingUserSelectedReportStr.ascii());
+#endif
+  currentDisplayUsingTypeStr = "functions";
+  currentDisplayUsingType = displayUsingFunctionType;
+  if (originatingUserSelectedReportStr.startsWith("minMaxAverage") ) {
+     minMaxAverageSelected();
+  } else if (originatingUserSelectedReportStr.startsWith("clusterAnalysis") &&
+             currentUserSelectedReportStr.startsWith("Comparison" ) ) {
+     clusterAnalysisSelected();
+  } else if (originatingUserSelectedReportStr.startsWith("DefaultView") &&
+            (currentUserSelectedReportStr.startsWith("Functions") ) || 
+            (currentUserSelectedReportStr.startsWith("Statements") ) || 
+            (currentUserSelectedReportStr.startsWith("LinkedObjects") ) ) {
+     defaultViewSelected();
+  }
+}
+
+void
+StatsPanel::displayUsingStatement()
+{
+#ifdef DEBUG_StatsPanel_toolbar 
+  printf("StatsPanel::displayUsingStatement() entered, currentUserSelectedReportStr=%s, originatingUserSRS=%s\n",
+         currentUserSelectedReportStr.ascii(), originatingUserSelectedReportStr.ascii());
+#endif
+  currentDisplayUsingTypeStr = "statements";
+  currentDisplayUsingType = displayUsingStatementType;
+  if (originatingUserSelectedReportStr.startsWith("minMaxAverage") ) {
+     minMaxAverageSelected();
+  } else if (originatingUserSelectedReportStr.startsWith("clusterAnalysis") &&
+             currentUserSelectedReportStr.startsWith("Comparison" ) ) {
+     clusterAnalysisSelected();
+  } else if (originatingUserSelectedReportStr.startsWith("DefaultView") &&
+            (currentUserSelectedReportStr.startsWith("Functions") ) || 
+            (currentUserSelectedReportStr.startsWith("Statements") ) || 
+            (currentUserSelectedReportStr.startsWith("LinkedObjects") ) ) {
+     defaultViewSelected();
+  }
+}
+
+void
+StatsPanel::displayUsingLinkedObject()
+{
+#ifdef DEBUG_StatsPanel_toolbar 
+  printf("StatsPanel::displayUsingLinkedObject() entered, currentUserSelectedReportStr=%s, originatingUserSRS=%s\n",
+         currentUserSelectedReportStr.ascii(), originatingUserSelectedReportStr.ascii());
+#endif
+  currentDisplayUsingTypeStr = "linkedobjects";
+  currentDisplayUsingType = displayUsingLinkedObjectType;
+  if (originatingUserSelectedReportStr.startsWith("minMaxAverage") ) {
+     minMaxAverageSelected();
+  } else if (originatingUserSelectedReportStr.startsWith("clusterAnalysis") &&
+             currentUserSelectedReportStr.startsWith("Comparison" ) ) {
+     clusterAnalysisSelected();
+  } else if (originatingUserSelectedReportStr.startsWith("DefaultView") &&
+            (currentUserSelectedReportStr.startsWith("Functions") ) || 
+            (currentUserSelectedReportStr.startsWith("Statements") ) || 
+            (currentUserSelectedReportStr.startsWith("LinkedObjects") ) ) {
+     defaultViewSelected();
+  }
+}
+
 
 
 /*! When a message has been sent (from anyone) and the message broker is
@@ -1311,7 +1407,8 @@ if( start_index != -1 ) {
     manageProcessesSelected();
 
 #ifdef DEBUG_StatsPanel
-    printf("StatsPanel::listener, UPDATE-EXPERIMENT-DATA-OBJECT SAVED DATA LOAD, msg->raiseFLAG=%d, calling updateStatsPanelData \n", msg->raiseFLAG );
+    printf("StatsPanel::listener, UPDATE-EXPERIMENT-DATA-OBJECT, msg->raiseFLAG=%d, calling updateStatsPanelData \n", msg->raiseFLAG );
+    printf("StatsPanel::listener, UPDATE-EXPERIMENT-DATA-OBJECT msgType=(%s)\n", msgObject->msgType.ascii() );
 #endif // DEBUG_StatsPanel
 
     updateStatsPanelData(DONT_FORCE_UPDATE);
@@ -1340,15 +1437,20 @@ if( start_index != -1 ) {
     if( getPreferenceShowToolbarCheckBox() == TRUE ) {
       toolBarFLAG = TRUE;
       fileTools->show();
+
 #ifdef DEBUG_StatsPanel_toolbar
     printf("StatsPanel::listener, SHOW,fileTools=0x%lx)\n", fileTools);
 #endif
+
     } else {
+
       fileTools->hide();
       toolBarFLAG = FALSE;
+
 #ifdef DEBUG_StatsPanel_toolbar
     printf("StatsPanel::listener, (1309) HIDE,fileTools=0x%lx)\n", fileTools);
 #endif
+
     }
 
 #ifdef DEBUG_StatsPanel
@@ -1916,15 +2018,23 @@ StatsPanel::clusterAnalysisSelected()
 
   QString command = QString::null;
   QString mim = getMostImportantClusterMetric(currentCollectorStr);
+  QString displayType;
+
+  displayType = "functions";
+  if (currentDisplayUsingType == displayUsingStatementType) {
+      displayType = "statements";
+  } else if (currentDisplayUsingType == displayUsingLinkedObjectType) {
+      displayType = "linkedobjects";
+  }
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::clusterAnalysisSelected() most important cluster metric: mim=%s\n", mim.ascii() );
 #endif
 
   if( focusedExpID == -1 ) {
-    command = QString("cviewCluster -x %1 %2 %3").arg(expID).arg(timeIntervalString).arg(mim);
+    command = QString("cviewCluster -x %1 %2 %3 -v %4").arg(expID).arg(timeIntervalString).arg(mim).arg(displayType);
   } else {
-    command = QString("cviewCluster -x %1 %2 %3").arg(focusedExpID).arg(timeIntervalString).arg(mim);
+    command = QString("cviewCluster -x %1 %2 %3 -v %4").arg(focusedExpID).arg(timeIntervalString).arg(mim).arg(displayType);
   }
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -1982,14 +2092,37 @@ StatsPanel::clusterAnalysisSelected()
 //  command = QString("cview -c %1 %2").arg(pidlist).arg(timeIntervalString);
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::clusterAnalysisSelected() after loop, pidlist=%s\n", pidlist.ascii() );
+  printf("StatsPanel::clusterAnalysisSelected() after loop, timeIntervalString=%s\n", timeIntervalString.ascii() );
 #endif
-  command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg(timeIntervalString);
+
+  if (currentDisplayUsingType == displayUsingFunctionType) {
+     if (timeIntervalString != NULL) {
+       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v functions").arg(timeIntervalString);
+     } else {
+       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v functions");
+     }
+  } else if (currentDisplayUsingType == displayUsingStatementType) {
+     if (timeIntervalString != NULL) {
+       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v statements").arg(timeIntervalString);
+     } else {
+       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v statements");
+     }
+  } else if (currentDisplayUsingType == displayUsingLinkedObjectType) {
+     if (timeIntervalString != NULL) {
+       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v linkedobjects").arg(timeIntervalString);
+     } else {
+       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v linkedobjects");
+     }
+  }
+//  command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg(timeIntervalString).arg("-v %4").arg(displayType);
 // printf("run %s\n", command.ascii() );
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::clusterAnalysisSelected() about to call updateStatsPanelData, command=%s\n", 
          command.ascii() );
 #endif
+  currentUserSelectedReportStr = "clusterAnalysis";
+  originatingUserSelectedReportStr = "clusterAnalysis";
   toolbar_status_label->setText("Generating Comparative Analysis Report:");
   updateStatsPanelData(DONT_FORCE_UPDATE, command);
   toolbar_status_label->setText("Showing Comparative Analysis Report:");
@@ -2000,18 +2133,30 @@ StatsPanel::clusterAnalysisSelected()
 void
 StatsPanel::minMaxAverageSelected()
 {
+  QString displayType;
   QString command = QString::null;
+
+  displayType = "functions";
+  if (currentDisplayUsingType == displayUsingStatementType) {
+      displayType = "statements";
+  } else if (currentDisplayUsingType == displayUsingLinkedObjectType) {
+      displayType = "linkedobjects";
+  }
+
   if( focusedExpID == -1 ) {
-    command = QString("expview -x %1 %2 -m %3::ThreadMin, %4::ThreadMax, %5::ThreadAverage").arg(expID).arg(timeIntervalString).arg(currentCollectorStr).arg(currentCollectorStr).arg(currentCollectorStr);
+
+    command = QString("expview -x %1 %2 -m %3::ThreadMin, %4::ThreadMax, %5::ThreadAverage -v %6").arg(expID).arg(timeIntervalString).arg(currentCollectorStr).arg(currentCollectorStr).arg(currentCollectorStr).arg(displayType);
+
   } else {
-    command = QString("expview -x %1 %2 -m %3::ThreadMin, %4::ThreadMax, %5::ThreadAverage").arg(focusedExpID).arg(timeIntervalString).arg(currentCollectorStr).arg(currentCollectorStr).arg(currentCollectorStr);
+
+    command = QString("expview -x %1 %2 -m %3::ThreadMin, %4::ThreadMax, %5::ThreadAverage -v %6").arg(focusedExpID).arg(timeIntervalString).arg(currentCollectorStr).arg(currentCollectorStr).arg(currentCollectorStr).arg(displayType);
   }
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::minMaxAverageSelected() about to call updateStatsPanelData, command=%s\n", 
-         command.ascii() );
+  printf("StatsPanel::minMaxAverageSelected() about to call updateStatsPanelData, command=%s\n", command.ascii() );
 #endif
 
+  originatingUserSelectedReportStr = "minMaxAverage";
   toolbar_status_label->setText("Generating Load Balance (min,max,ave) Report:");
   updateStatsPanelData(DONT_FORCE_UPDATE, command);
   toolbar_status_label->setText("Showing Load Balance (min,max,ave) Report:");
@@ -2457,6 +2602,16 @@ StatsPanel::updatePanel()
 //  updateStatsPanelData(DONT_FORCE_UPDATE, lastCommand);
   updateStatsPanelData(DONT_FORCE_UPDATE, NULL);
 }
+
+
+
+
+QString
+StatsPanel::getCollectorName()
+{
+
+}
+
 
 void
 StatsPanel::originalQuery()
@@ -8685,6 +8840,25 @@ StatsPanel::generateCommand()
      focusedExpID = exp_id;
 
   } 
+#ifdef DEBUG_StatsPanel_toolbar
+     printf("GENERATE_COMMAND, after cview checks, currentCollectorStr=(%s)\n", currentCollectorStr.ascii());
+     printf("GENERATE_COMMAND, after cview checks, currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii());
+#endif
+
+  // If this is the first call to generateCommand then we want 
+  // to change the user command variable to DefaultView 
+  // so we get the optional Functions, Statements, Linked Object
+  // options on the tool bar.
+#ifdef DEBUG_StatsPanel_toolbar
+     printf("GENERATE_COMMAND, firstGenerateCommandCall=(%d)\n", firstGenerateCommandCall);
+#endif
+  if (firstGenerateCommandCall) {
+     originatingUserSelectedReportStr = "DefaultView";
+#ifdef DEBUG_StatsPanel_toolbar
+     printf("GENERATE_COMMAND, setting to FALSE, firstGenerateCommandCall=(%d)\n", firstGenerateCommandCall);
+#endif
+     firstGenerateCommandCall = false;
+  }
 
   if( currentCollectorStr == "io" || 
       currentCollectorStr == "iot" ) {
@@ -8711,6 +8885,12 @@ StatsPanel::generateCommand()
   updateThreadsList();
 
   lastAbout = aboutString;
+
+#ifdef DEBUG_StatsPanel_toolbar
+     printf("GENERATE_COMMAND, after updateCollectorxxx calls, currentCollectorStr=(%s)\n", currentCollectorStr.ascii());
+     printf("GENERATE_COMMAND, after updateCollectorxxx calls, currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii());
+     printf("GENERATE_COMMAND, Find_Experiment_Object() for %d\n", exp_id);
+#endif
 
   nprintf( DEBUG_PANELS) ("Find_Experiment_Object() for %d\n", exp_id);
 
@@ -12177,6 +12357,7 @@ StatsPanel::generateToolBar( QString command )
 {
 
 #ifdef DEBUG_StatsPanel_toolbar
+ printf("ENTER StatsPanel::generateToolBar, this=0x%lx, currentUserSelectedReportStr.ascii()=%s\n", this, currentUserSelectedReportStr.ascii() );
  printf("ENTER StatsPanel::generateToolBar, this=0x%lx, currentCollectorStr.ascii()=%s\n", this, currentCollectorStr.ascii() );
  printf("ENTER StatsPanel::generateToolBar, lastCollectorStr.ascii()=%s\n", lastCollectorStr.ascii() );
  printf("ENTER StatsPanel::generateToolBar, recycleFLAG=%d\n", recycleFLAG );
@@ -12238,7 +12419,9 @@ if (currentCollectorStr == NULL && lastCollectorStr == NULL ) {
 
 if (currentCollectorStr != lastCollectorStr || 
     (currentCollectorStr == NULL && lastCollectorStr == NULL) || 
-    recycleFLAG == FALSE) {
+    (lastUserSelectedReportStr != currentUserSelectedReportStr) ||
+    (originatingUserSelectedReportStr != NULL) ||
+    recycleFLAG == FALSE ) {
 
   // Clear the initial setting and regenerate the toolbar
 #ifdef DEBUG_StatsPanel_toolbar
@@ -12276,8 +12459,8 @@ if (currentCollectorStr != lastCollectorStr ||
 
 
   // ----------------- Start of the View Generation Icons
-  QPixmap *functions_icon = new QPixmap( functions_xpm );
-  new QToolButton(*functions_icon, "SHOW FUNCTIONS: Generate a performance statistics report\nshowing the performance data delineated by functions.", QString::null, this, SLOT( functionsSelected()), fileTools, "show functions");
+  QPixmap *functions_icon = new QPixmap( defaultView_xpm );
+  new QToolButton(*functions_icon, "SHOW DEFAULT VIEW: Generate a performance statistics report\nshowing the performance data delineated by functions (default) and optionally statements or linked objects.", QString::null, this, SLOT( defaultViewSelected()), fileTools, "show default view");
 
 #ifdef DEBUG_StatsPanel_toolbar
  printf("StatsPanel::generateToolBar, currentCollectorStr.ascii()=%s\n", currentCollectorStr.ascii() );
@@ -12288,6 +12471,7 @@ if (currentCollectorStr != lastCollectorStr ||
        currentCollectorStr != "iot" && 
        currentCollectorStr != "mpit" ) {
 
+#if 0
     QPixmap *linkedObjects_icon = new QPixmap( linkedObjects_xpm );
     new QToolButton(*linkedObjects_icon, "SHOW LINKED OBJECTS: Generate a performance statistics report\nshowing the performance data delineated by the linked objects\nthat are involved in the execution of the executable(s).", QString::null, this, SLOT( linkedObjectsSelected()), fileTools, "show linked objects");
 
@@ -12296,6 +12480,8 @@ if (currentCollectorStr != lastCollectorStr ||
 
 #ifdef DEBUG_StatsPanel_toolbar
     printf("StatsPanel::generateToolBar, statements_icon=0x%lx\n", statements_icon );
+#endif
+
 #endif
 
     QPixmap *statementsByFunction_icon = new QPixmap( statementsByFunction_xpm );
@@ -12385,6 +12571,76 @@ if (currentCollectorStr != lastCollectorStr ||
 #ifdef DEBUG_StatsPanel_toolbar
  printf("StatsPanel::generateToolBar, fileTools=0x%lx, toolBarFLAG=%d\n", fileTools, toolBarFLAG );
  printf("StatsPanel::generateToolBar, HIDE if toolBarFLAG is FALSE, SHOW if toolBarFLAG is TRUE, toolbar_status_label=0x%lx\n", toolbar_status_label );
+ printf("ENTER StatsPanel::generateToolBar,before minMaxAverage check this=0x%lx, currentUserSelectedReportStr.ascii()=%s\n", this, currentUserSelectedReportStr.ascii() );
+ printf("ENTER StatsPanel::generateToolBar,before minMaxAverage check this=0x%lx, originatingUserSelectedReportStr.ascii()=%s\n", this, originatingUserSelectedReportStr.ascii() );
+#endif
+
+#if 1
+  if (originatingUserSelectedReportStr.startsWith("minMaxAverage") ||
+      originatingUserSelectedReportStr.startsWith("DefaultView") ||
+     (originatingUserSelectedReportStr.startsWith("clusterAnalysis") &&
+      currentUserSelectedReportStr.startsWith("Comparison")) ) {
+
+    // Create a compare type button group
+    QButtonGroup *vDisplayTypeBG = new QButtonGroup( 1, QGroupBox::Vertical, "View/Display Choice", fileTools);
+    vDisplayTypeBG->setExclusive( TRUE );
+
+#ifdef DEBUG_StatsPanel_toolbar
+    printf("StatsPanel::StatsPanel, in compare type button group, creation, fileTools=0x%lx)\n", fileTools);
+#endif
+
+    // insert 1 or 3 radiobuttons
+    vDisplayTypeFunctionRB = new QRadioButton( "Functions", vDisplayTypeBG );
+    connect( vDisplayTypeFunctionRB, SIGNAL( clicked() ), this, SLOT( displayUsingFunction() ) );
+
+    bool full_display_by_menu = TRUE;
+    if (currentCollectorStr.contains("mpi") || currentCollectorStr.contains("io")) {
+      full_display_by_menu = FALSE;
+    }
+
+#ifdef DEBUG_StatsPanel_toolbar
+    printf("StatsPanel::StatsPanel, in compare type button group, creation, full_display_by_menu=%d)\n", full_display_by_menu);
+#endif
+    if (full_display_by_menu) {
+      vDisplayTypeStatementRB = new QRadioButton( "Statements", vDisplayTypeBG );
+      connect( vDisplayTypeStatementRB, SIGNAL( clicked() ), this, SLOT( displayUsingStatement() ) );
+      vDisplayTypeLinkedObjectRB = new QRadioButton( "Linked Objects", vDisplayTypeBG );
+      connect( vDisplayTypeLinkedObjectRB, SIGNAL( clicked() ), this, SLOT( displayUsingLinkedObject() ) );
+
+#ifdef DEBUG_StatsPanel_toolbar
+      printf("StatsPanel::StatsPanel, in compare type button group, creation, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
+#endif
+      if (currentDisplayUsingType == displayUsingFunctionType) {
+         vDisplayTypeFunctionRB->setChecked(TRUE);
+         vDisplayTypeStatementRB->setChecked(FALSE);
+         vDisplayTypeLinkedObjectRB->setChecked(FALSE);
+#ifdef DEBUG_StatsPanel_toolbar
+         printf("StatsPanel::StatsPanel, in compare type button group, displayUsingFunctionType, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
+#endif
+      } else if (currentDisplayUsingType == displayUsingStatementType) {
+         vDisplayTypeFunctionRB->setChecked(FALSE);
+         vDisplayTypeStatementRB->setChecked(TRUE);
+         vDisplayTypeLinkedObjectRB->setChecked(FALSE);
+#ifdef DEBUG_StatsPanel_toolbar
+         printf("StatsPanel::StatsPanel, in compare type button group, displayUsingStatementType, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
+#endif
+      } else {
+         vDisplayTypeFunctionRB->setChecked(FALSE);
+         vDisplayTypeStatementRB->setChecked(FALSE);
+         vDisplayTypeLinkedObjectRB->setChecked(TRUE);
+#ifdef DEBUG_StatsPanel_toolbar
+         printf("StatsPanel::StatsPanel, in compare type button group, displayUsingLOType, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
+#endif
+      }
+    } else {
+         vDisplayTypeFunctionRB->setChecked(TRUE);
+#ifdef DEBUG_StatsPanel_toolbar
+         printf("StatsPanel::StatsPanel, in compare type button group, default, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
+#endif
+    }
+
+    vDisplayTypeBG->show();
+  }
 #endif
 
   if( toolBarFLAG == TRUE ) {
@@ -12407,6 +12663,7 @@ if (currentCollectorStr != lastCollectorStr ||
 } 
 
  lastCollectorStr = currentCollectorStr;
+ lastUserSelectedReportStr = currentUserSelectedReportStr;
 
 #ifdef DEBUG_StatsPanel_toolbar
  printf("EXIT StatsPanel::generateToolBar, lastCollectorStr.ascii()=%s\n", lastCollectorStr.ascii() );
@@ -12417,12 +12674,16 @@ if (currentCollectorStr != lastCollectorStr ||
 }
 
 void
-StatsPanel::functionsSelected()
+StatsPanel::defaultViewSelected()
 {
-#ifdef DEBUG_StatsPanel
- printf("functionsSelected()\n");
- printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
- printf("  traceAddition=(%s), currentThreadsStr=(%s)\n", traceAddition.ascii(), currentThreadsStr.ascii() );
+  QString displayType;
+
+  originatingUserSelectedReportStr = "DefaultView";
+
+#ifdef DEBUG_StatsPanel_toolbar
+  printf("ENTER defaultViewSelected(), currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+  printf("ENTER defaultViewSelected(), originatingUserSelectedReportStr(%s)\n", originatingUserSelectedReportStr.ascii() );
+  printf("ENTER defaultViewSelected(), traceAddition=(%s), currentThreadsStr=(%s)\n", traceAddition.ascii(), currentThreadsStr.ascii() );
 #endif
 
   // Clear all trace display - this should be a purely function view
@@ -12431,6 +12692,56 @@ StatsPanel::functionsSelected()
   // Clear all the -m modifiers (metrics)
   clearModifiers();
 
+  if (currentDisplayUsingType == displayUsingFunctionType) {
+      displayType = "functions";
+      currentUserSelectedReportStr = "Functions";
+      toolbar_status_label->setText("Generating Functions Report...");
+  } else if (currentDisplayUsingType == displayUsingStatementType) {
+      displayType = "statements";
+      currentUserSelectedReportStr = "Statements";
+      toolbar_status_label->setText("Generating Statements Report...");
+  } else if (currentDisplayUsingType == displayUsingLinkedObjectType) {
+      displayType = "linkedobjects";
+      currentUserSelectedReportStr = "LinkedObjects";
+      toolbar_status_label->setText("Generating Linked Objects Report...");
+  }
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
+
+#ifdef DEBUG_StatsPanel_toolbar
+  printf("StatsPanel::defaultViewSelected(), calling updateStatsPanelData\n" );
+  printf("StatsPanel::defaultViewSelected(), calling updateStatsPanelData, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+#endif
+
+  updateStatsPanelData(DO_FORCE_UPDATE);
+
+  if (currentDisplayUsingType == displayUsingFunctionType) {
+      toolbar_status_label->setText("Showing Functions Report:");
+  } else if (currentDisplayUsingType == displayUsingStatementType) {
+      toolbar_status_label->setText("Showing Statements Report...");
+  } else if (currentDisplayUsingType == displayUsingLinkedObjectType) {
+      toolbar_status_label->setText("Showing Linked Objects Report...");
+  }
+}
+
+
+void
+StatsPanel::functionsSelected()
+{
+
+#ifdef DEBUG_StatsPanel
+  printf("functionsSelected()\n");
+  printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+  printf("  traceAddition=(%s), currentThreadsStr=(%s)\n", traceAddition.ascii(), currentThreadsStr.ascii() );
+#endif
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+
+  // Clear all the -m modifiers (metrics)
+  clearModifiers();
+
+  originatingUserSelectedReportStr = "Functions";
   currentUserSelectedReportStr = "Functions";
   // Clear all thread specific options
   currentThreadsStr = QString::null;
@@ -12438,8 +12749,8 @@ StatsPanel::functionsSelected()
   toolbar_status_label->setText("Generating Functions Report...");
 
 #ifdef DEBUG_StatsPanel
- printf("StatsPanel::functionsSelected(), calling updateStatsPanelData\n" );
- printf("StatsPanel::functionsSelected(), calling updateStatsPanelData, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+  printf("StatsPanel::functionsSelected(), calling updateStatsPanelData\n" );
+  printf("StatsPanel::functionsSelected(), calling updateStatsPanelData, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
 #endif
 
   updateStatsPanelData(DONT_FORCE_UPDATE);
@@ -12452,7 +12763,7 @@ StatsPanel::linkedObjectsSelected()
 {
 #ifdef DEBUG_StatsPanel
   printf("linkedObjectsSelected()\n");
-  printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+  printf("linkedObjectsSelected, currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
 
   // Clear all trace display - this should be a purely function view
@@ -12463,6 +12774,7 @@ StatsPanel::linkedObjectsSelected()
   // Clear all the -m modifiers (metrics)
   clearModifiers();
 
+  originatingUserSelectedReportStr = "LinkedObjects";
   currentUserSelectedReportStr = "LinkedObjects";
 
   toolbar_status_label->setText("Generating Linked Objects Report...");
@@ -12486,6 +12798,7 @@ StatsPanel::statementsSelected()
   printf("StatsPanel::currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
 
+  originatingUserSelectedReportStr = "Statements";
   currentUserSelectedReportStr = "Statements";
 
   // Clear all trace display - this should be a purely function view
@@ -12514,6 +12827,7 @@ StatsPanel::statementsByFunctionSelected()
   printf("Enter StatsPanel::statementsByFunctionSelected(), currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
 
+  originatingUserSelectedReportStr = "Statements by Function";
   currentUserSelectedReportStr = "Statements by Function";
 
   // Clear all trace display - this should be a purely function view
@@ -12541,6 +12855,7 @@ StatsPanel::calltreesSelected()
   printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
 
+  originatingUserSelectedReportStr = "CallTrees";
   currentUserSelectedReportStr = "CallTrees";
 
   // Clear all trace display - this should be a purely function view
@@ -12566,6 +12881,7 @@ StatsPanel::calltreesByFunctionSelected()
   printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
 
+  originatingUserSelectedReportStr = "CallTrees by Function";
   currentUserSelectedReportStr = "CallTrees by Function";
 
   // Clear all trace display - this should be a purely function view
@@ -12588,6 +12904,7 @@ StatsPanel::calltreesFullStackSelected()
   printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
 
+  originatingUserSelectedReportStr = "CallTrees,FullStack";
   currentUserSelectedReportStr = "CallTrees,FullStack";
 
   // Clear all trace display - this should be a purely function view
@@ -12610,6 +12927,7 @@ StatsPanel::calltreesFullStackByFunctionSelected()
   printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
 
+  originatingUserSelectedReportStr = "CallTrees,FullStack by Function";
   currentUserSelectedReportStr = "CallTrees,FullStack by Function";
 
   // Clear all trace display - this should be a purely function view
@@ -12632,6 +12950,7 @@ StatsPanel::tracebacksSelected()
   printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
 
+  originatingUserSelectedReportStr = "TraceBacks";
   currentUserSelectedReportStr = "TraceBacks";
 
   // Clear all trace display - this should be a purely function view
@@ -12657,6 +12976,7 @@ StatsPanel::tracebacksByFunctionSelected()
   printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
 
+  originatingUserSelectedReportStr = "TraceBacks by Function";
   currentUserSelectedReportStr = "TraceBacks by Function";
 
   // Clear all trace display - this should be a purely function view
@@ -12678,6 +12998,7 @@ StatsPanel::tracebacksFullStackSelected()
   printf("tracebacksFullStackSelected()\n");
   printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
+  originatingUserSelectedReportStr = "TraceBacks,FullStack";
   currentUserSelectedReportStr = "TraceBacks,FullStack";
 
   // Clear all trace display - this should be a purely function view
@@ -12699,6 +13020,7 @@ StatsPanel::tracebacksFullStackByFunctionSelected()
   printf("tracebacksFullStackByFunctionSelected()\n");
   printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
+  originatingUserSelectedReportStr = "TraceBacks,FullStack by Function";
   currentUserSelectedReportStr = "TraceBacks,FullStack by Function";
 
   // Clear all trace display - this should be a purely function view
@@ -12720,6 +13042,7 @@ StatsPanel::butterflySelected()
  printf("butterflySelected()\n");
  printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
+  originatingUserSelectedReportStr = "Butterfly";
   currentUserSelectedReportStr = "Butterfly";
 
   // Clear all trace display - this should be a purely function view
@@ -12741,6 +13064,7 @@ StatsPanel::hotCallpathSelected()
  printf("hotCallpathSelected()\n");
  printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
+  originatingUserSelectedReportStr = "HotCallPath";
   currentUserSelectedReportStr = "HotCallPath";
 
   // Clear all trace display - this should be a purely function view
