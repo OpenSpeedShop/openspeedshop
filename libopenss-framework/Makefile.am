@@ -17,7 +17,10 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+if BUILD_INSTRUMENTOR
 SUBDIRS = @INSTRUMENTOR@
+endif
+
 DIST_SUBDIRS = dpcl dyninst mrnet offline
 
 lib_LTLIBRARIES = libopenss-framework.la
@@ -38,6 +41,7 @@ libopenss_framework_la_LDFLAGS = \
 	@SQLITE_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
 
+if BUILD_INSTRUMENTOR
 libopenss_framework_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
 	$(LIBLTDL) \
@@ -46,18 +50,24 @@ libopenss_framework_la_LIBADD = \
 	@BINUTILS_LIBS@ \
 	@SQLITE_LIBS@ \
 	-lpthread -lrt
+else
+libopenss_framework_la_LIBADD = \
+	$(LIBLTDL) \
+	@ARRAYSVCS_LIBS@ \
+	@PAPI_LIBS@ \
+	@BINUTILS_LIBS@ \
+	@SQLITE_LIBS@ \
+	-lpthread -lrt
+endif
 
-libopenss_framework_la_SOURCES = \
+COMMON_SOURCES = \
 	$(top_srcdir)/libopenss-runtime/OpenSS_DataHeader.c \
-	$(top_srcdir)/libopenss-runtime/offline/offline.c \
 	Address.hxx \
 	AddressBitmap.hxx AddressBitmap.cxx \
 	AddressRange.hxx \
 	AddressSpace.hxx AddressSpace.cxx \
 	Assert.hxx \
 	Blob.hxx Blob.cxx \
-	BFDSymbols.hxx BFDSymbols.cxx \
-	CallSite.hxx CallSite.cxx \
 	Collector.hxx Collector.cxx \
 	CollectorAPI.hxx \
 	CollectorGroup.hxx CollectorGroup.cxx \
@@ -77,17 +87,12 @@ libopenss_framework_la_SOURCES = \
 	Function.hxx Function.cxx \
 	FunctionCache.hxx FunctionCache.cxx \
 	Guard.hxx \
-	Instrumentor.hxx \
 	Interval.hxx \
-	Job.hxx \
 	LinkedObject.hxx LinkedObject.cxx \
 	Lockable.hxx \
 	Metadata.hxx \
 	NonCopyable.hxx \
-	OutputCallback.hxx \
-	OfflineExperiment.hxx OfflineExperiment.cxx \
 	Path.hxx Path.cxx \
-	PCBuffer.hxx PCBuffer.cxx \
 	SmartPtr.hxx \
 	StackTrace.hxx \
 	Statement.hxx Statement.cxx \
@@ -100,6 +105,24 @@ libopenss_framework_la_SOURCES = \
 	TimeInterval.hxx \
 	ToolAPI.hxx \
 	TotallyOrdered.hxx
+
+INSTRUMENTOR_SOURCES = \
+	$(top_srcdir)/libopenss-runtime/offline/offline.c \
+	BFDSymbols.hxx BFDSymbols.cxx \
+	CallSite.hxx CallSite.cxx \
+	Instrumentor.hxx \
+	Job.hxx \
+	OutputCallback.hxx \
+	OfflineExperiment.hxx OfflineExperiment.cxx \
+	PCBuffer.hxx PCBuffer.cxx
+
+if BUILD_INSTRUMENTOR
+libopenss_framework_la_SOURCES = \
+	$(COMMON_SOURCES) $(INSTRUMENTOR_SOURCES)
+else
+libopenss_framework_la_SOURCES = \
+	$(COMMON_SOURCES)
+endif
 
 if HAVE_PAPI
 libopenss_framework_la_SOURCES += \

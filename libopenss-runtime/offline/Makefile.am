@@ -54,7 +54,7 @@ offline.h offline.c : offline.x
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
 
 install-exec-hook:
-	test -d "${pkglibdir}" || mkdir "${pkglibdir}"
+	test -d "${pkglibdir}" || mkdir -p "${pkglibdir}"
 	cp .libs/libopenss_runtime_monitor_la-offline_monitor.o ${pkglibdir}/offline_monitor.o
 uninstall-hook:
 	rm -f ${pkglibdir}/offline_monitor.o

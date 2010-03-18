@@ -28,6 +28,7 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+if BUILD_INSTRUMENTOR
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
 	offline.c
@@ -37,11 +38,16 @@ if HAVE_TARGET_LIBMONITOR
 OFFLINE_SOURCES = \
 	offline.c
 endif
+endif
 
 
+if !BUILD_RUNTIME
 if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += mpit.la
 endif
+endif
+
+if BUILD_INSTRUMENTOR
 
 if HAVE_LAM
 if !BUILD_OFFLINE
@@ -145,6 +151,9 @@ pkglib_LTLIBRARIES += libmpit-openmpi-offline.la
 endif
 endif
 
+endif
+
+if !BUILD_RUNTIME
 mpit_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -159,6 +168,7 @@ mpit_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	MPITCollector.hxx MPITCollector.cxx \
 	MPITDetail.hxx
+endif
 
 # Common definitions for all MPI implementations
 #

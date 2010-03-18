@@ -27,10 +27,13 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+if !BUILD_RUNTIME
 if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += io.la
 endif
+endif
 
+if BUILD_INSTRUMENTOR
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += io-rt.la
 endif
@@ -48,7 +51,9 @@ OFFLINE_SOURCES = \
 
 pkglib_LTLIBRARIES += libio-offline.la
 endif
+endif
 
+if !BUILD_RUNTIME
 io_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -62,6 +67,9 @@ io_la_LIBADD = \
 io_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	IOCollector.hxx IODetail.hxx IOCollector.cxx
+endif
+
+if BUILD_INSTRUMENTOR
 
 if !BUILD_OFFLINE
 if BUILD_MRNET
@@ -168,6 +176,9 @@ libio_offline_la_SOURCES = \
 	wrappers.c \
 	runtime.h runtime.c
 endif
+
+endif
+
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
 

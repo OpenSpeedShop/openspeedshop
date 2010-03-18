@@ -27,14 +27,19 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+if !BUILD_RUNTIME
 if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += usertime.la
 endif
+endif
 
+if BUILD_INSTRUMENTOR
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += usertime-rt.la
 endif
+endif
 
+if BUILD_INSTRUMENTOR
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
 	offline.c
@@ -48,7 +53,9 @@ OFFLINE_SOURCES = \
 
 pkglib_LTLIBRARIES += libusertime-offline.la
 endif
+endif
 
+if !BUILD_RUNTIME
 usertime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -63,6 +70,7 @@ usertime_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	UserTimeCollector.hxx UserTimeCollector.cxx \
 	UserTimeDetail.hxx
+endif
 
 if !BUILD_OFFLINE
 if BUILD_MRNET

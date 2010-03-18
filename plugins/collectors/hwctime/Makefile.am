@@ -28,14 +28,19 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+if !BUILD_RUNTIME
 if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += hwctime.la
 endif
+endif
 
+if BUILD_INSTRUMENTOR
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += hwctime-rt.la
 endif
+endif
 
+if BUILD_INSTRUMENTOR
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
 	offline.c
@@ -49,7 +54,9 @@ OFFLINE_SOURCES = \
 
 pkglib_LTLIBRARIES += libhwctime-offline.la
 endif
+endif
 
+if !BUILD_RUNTIME
 if !HAVE_TARGET_LIBMONITOR
 hwctime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
@@ -71,6 +78,9 @@ hwctime_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	HWTimeCollector.hxx HWTimeCollector.cxx \
 	HWTimeDetail.hxx
+endif
+
+if BUILD_INSTRUMENTOR
 
 if !BUILD_OFFLINE
 if BUILD_MRNET
@@ -183,6 +193,7 @@ libhwctime_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	$(OFFLINE_SOURCES) \
 	runtime.c
+endif
 endif
 
 SUFFIXES = .x

@@ -27,8 +27,10 @@
 #       the runtime for the other libraries that actually use it.
 #
 
+if BUILD_INSTRUMENTOR
 dist_bin_SCRIPTS = ossrun ossdriver osslink
 BUILT_FILES = ossrun ossdriver osslink
+endif
 
 
 bin_PROGRAMS =
@@ -58,6 +60,7 @@ openss_LDADD = \
 openss_SOURCES = \
 	openss.cxx
 
+if BUILD_INSTRUMENTOR
 bin_PROGRAMS += ossutil
 
 ossutil_CXXFLAGS = \
@@ -86,6 +89,7 @@ ossutil_LDADD = \
 
 ossutil_SOURCES = \
         ossutil.cxx
+endif
 
 
 CLEANFILES = $(BUILT_FILES)
@@ -97,6 +101,7 @@ CLEANFILES = $(BUILT_FILES)
 # TODO: need to configure location of libmonitor.so
 # via "-e 's,@@libmonitordir@@,$(monitorlibdir),' \"
 
+if BUILD_INSTRUMENTOR
 ossrun: ossrun.in
 	@rm -f ossrun
 	@sed \
@@ -170,5 +175,6 @@ install-exec-hook: ossdriver
 	@rm -f $(DESTDIR)$(bindir)/ossfpe
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossfpe
 	chmod 755 $(DESTDIR)$(bindir)/ossfpe
+endif
 
 EXTRA_DIST = ossrun.in ossdriver.in osslink.in

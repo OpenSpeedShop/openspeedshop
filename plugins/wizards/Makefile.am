@@ -19,15 +19,21 @@
 if HAVE_QTLIB
 SUBDIRS = \
 	IntroWizardPanel \
+	CompareWizardPanel
+
+if BUILD_INSTRUMENTOR
+SUBDIRS += \
 	pcSampleWizardPanel \
 	UserTimeWizardPanel \
 	FPE_TracingWizardPanel \
 	IOWizardPanel \
-	MPIWizardPanel \
-	CompareWizardPanel
+	MPIWizardPanel
+endif
 
 if HAVE_PAPI
+if BUILD_INSTRUMENTOR
 SUBDIRS += HW_CounterWizardPanel
+endif
 endif
  
 DIST_SUBDIRS = $(SUBDIRS)

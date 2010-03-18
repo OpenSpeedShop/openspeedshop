@@ -17,17 +17,22 @@
 ################################################################################
 
 # directories that will be built
+
+SUBDIRS =
+
 if BUILD_OFFLINE
-SUBDIRS = check_setup
+SUBDIRS += check_setup
 else
 
-SUBDIRS = check_dyninst 
+if BUILD_INSTRUMENTOR
+SUBDIRS += check_dyninst check_openss
+endif
 
 if BUILD_DPCL
 SUBDIRS += check_dpcl
 endif
 
-SUBDIRS += check_openss check_setup
+SUBDIRS += check_setup
 endif
 
 DIST_SUBDIRS = check_dpcl check_dyninst check_openss check_setup

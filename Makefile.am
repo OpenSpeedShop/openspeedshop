@@ -17,43 +17,73 @@
 ################################################################################
 ACLOCAL_AMFLAGS = -I libltdl/m4
 
-if HAVE_QTLIB
-BASE_SUBDIRS = \
-        libltdl \
-	libopenss-message \
-	libopenss-runtime \
-	libopenss-framework \
-	libopenss-queries \
-	libopenss-cli \
+BASE_SUBDIRS =
+
+LTDL_SUBDIRS = libltdl
+
+MESSAGE_SUBDIRS = libopenss-message
+
+RT_SUBDIRS = libopenss-runtime
+
+FW_SUBDIRS = libopenss-framework libopenss-queries
+
+CLI_SUBDIRS = libopenss-cli
+
+GUI_SUBDIRS = \
 	libopenss-guibase \
 	libopenss-guiobjects \
 	libopenss-guichart \
 	libopenss-guidialogs \
 	libopenss-guiexprinfo \
 	libopenss-guiplugin \
-	libopenss-gui \
-	plugins \
+	libopenss-gui
+
+PLUGINS_SUBDIRS = plugins
+
+COLLECTOR_SUBDIRS = plugins/collectors
+
+MISC_SUBDIRS = \
 	pyscripting \
 	openss \
 	doc \
 	man \
 	sanity \
 	usability
+
+if HAVE_QTLIB
+
+if BUILD_RUNTIME
+BASE_SUBDIRS += \
+	$(RT_SUBDIRS) \
+	$(COLLECTOR_SUBDIRS)
 else
-BASE_SUBDIRS = \
-        libltdl \
-	libopenss-message \
-	libopenss-runtime \
-	libopenss-framework \
-	libopenss-queries \
-	libopenss-cli \
-	plugins \
-	pyscripting \
-	openss \
-	doc \
-	man \
-	sanity \
-	usability
+BASE_SUBDIRS += \
+	$(LTDL_SUBDIRS) \
+	$(MESSAGE_SUBDIRS) \
+	$(RT_SUBDIRS) \
+	$(FW_SUBDIRS) \
+	$(CLI_SUBDIRS) \
+	$(GUI_SUBDIRS) \
+	$(PLUGINS_SUBDIRS) \
+	$(MISC_SUBDIRS)
+endif
+
+else
+if BUILD_RUNTIME
+BASE_SUBDIRS += \
+	$(RT_SUBDIRS) \
+	$(COLLECTOR_SUBDIRS)
+else
+BASE_SUBDIRS += \
+	$(LTDL_SUBDIRS) \
+	$(MESSAGE_SUBDIRS) \
+	$(RT_SUBDIRS) \
+	$(FW_SUBDIRS) \
+	$(CLI_SUBDIRS) \
+	$(PLUGINS_SUBDIRS) \
+	$(MISC_SUBDIRS)
+endif
+
 endif
 
 SUBDIRS = \
@@ -79,7 +109,14 @@ doc: $(DOC_SUBDIRS)
 	for i in $(DOC_SUBDIRS); do (cd $$i; $(MAKE) doc); done
 
 DIST_SUBDIRS = \
-	$(BASE_SUBDIRS) 
+	$(LTDL_SUBDIRS) \
+	$(MESSAGE_SUBDIRS) \
+	$(RT_SUBDIRS) \
+	$(FW_SUBDIRS) \
+	$(CLI_SUBDIRS) \
+	$(GUI_SUBDIRS) \
+	$(PLUGINS_SUBDIRS) \
+	$(MISC_SUBDIRS)
 
 # Need the images files and the tests files in tarball.
 EXTRA_DIST = libopenss-guiimages/* mc bootstrap do_build bootstrap_rpm INSTALL_a README-mpi
@@ -89,9 +126,8 @@ EXTRA_DIST = libopenss-guiimages/* mc bootstrap do_build bootstrap_rpm INSTALL_a
 # with the framework library.
 
 FRAMEWORK_SUBDIRS = \
-	libopenss-runtime \
-	libopenss-framework \
-	libopenss-queries 
+	$(RT_SUBDIRS) \
+	$(FW_SUBDIRS)
 
 framework:
 	for i in $(FRAMEWORK_SUBDIRS); do (cd $$i; $(MAKE)); done
@@ -100,22 +136,21 @@ framework:
 # CLI developers to build (and install in the later case) just those components
 # necessary for working with the CLI.
 
-CLI_SUBDIRS = \
-	libopenss-message \
-	libopenss-runtime \
-	libopenss-framework \
-	libopenss-queries \
-	libopenss-cli \
+CLIONLY_SUBDIRS = \
+	$(MESSAGE_SUBDIRS) \
+	$(RT_SUBDIRS) \
+	$(FW_SUBDIRS)
+	$(CLI_SUBDIRS)
 	openss \
 	plugins/collectors \
 	plugins/views \
 	pyscripting 
 
 cli:
-	for i in $(CLI_SUBDIRS); do (cd $$i; $(MAKE)); done
+	for i in $(CLIONLY_SUBDIRS); do (cd $$i; $(MAKE)); done
 
 cli-install:
-	for i in $(CLI_SUBDIRS); do (cd $$i; $(MAKE) install); done
+	for i in $(CLIONLY_SUBDIRS); do (cd $$i; $(MAKE) install); done
 
 TARGET_STATIC_SUBDIRS = \
 	libopenss-runtime \

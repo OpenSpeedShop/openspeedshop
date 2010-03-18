@@ -27,10 +27,13 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+if !BUILD_RUNTIME
 if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += iot.la
 endif
+endif
 
+if BUILD_INSTRUMENTOR
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += iot-rt.la
 endif
@@ -48,7 +51,9 @@ OFFLINE_SOURCES = \
 
 pkglib_LTLIBRARIES += libiot-offline.la
 endif
+endif
 
+if !BUILD_RUNTIME
 iot_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -62,6 +67,9 @@ iot_la_LIBADD = \
 iot_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	IOTCollector.hxx IOTDetail.hxx IOTCollector.cxx
+endif
+
+if BUILD_INSTRUMENTOR
 
 if !BUILD_OFFLINE
 if BUILD_MRNET
@@ -167,6 +175,8 @@ libiot_offline_la_SOURCES = \
 	$(OFFLINE_SOURCES) \
 	wrappers.c \
 	runtime.h runtime.c
+endif
+
 endif
 
 SUFFIXES = .x

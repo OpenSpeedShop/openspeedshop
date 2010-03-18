@@ -23,6 +23,10 @@ SUBDIRS = \
 
 if HAVE_LIBUNWIND
 SUBDIRS += usertime io iot
+else
+if !BUILD_INSTRUMENTOR
+SUBDIRS += usertime io iot
+endif
 endif
 
 if HAVE_TARGET_LIBMONITOR
@@ -35,6 +39,10 @@ if HAVE_PAPI
 SUBDIRS += hwc
 if HAVE_LIBUNWIND
 SUBDIRS += hwctime
+else
+if !BUILD_INSTRUMENTOR
+SUBDIRS += hwctime
+endif
 endif
 endif
 
@@ -50,6 +58,10 @@ endif
 if HAVE_MPI
 if HAVE_LIBUNWIND
 SUBDIRS += mpi mpit
+else
+if !BUILD_INSTRUMENTOR
+SUBDIRS += mpi mpit
+endif
 if HAVE_OTF
 if HAVE_VT
 SUBDIRS += mpiotf
@@ -74,6 +86,10 @@ endif
 if HAVE_BINUTILS
 if HAVE_LIBUNWIND
 SUBDIRS += fpe
+else
+if !BUILD_INSTRUMENTOR
+SUBDIRS += fpe
+endif
 endif
 endif
 

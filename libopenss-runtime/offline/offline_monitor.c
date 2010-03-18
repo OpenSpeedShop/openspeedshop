@@ -231,6 +231,7 @@ void monitor_fini_library(void)
     f++;
 }
 
+#ifdef HAVE_TARGET_POSIX_THREADS
 /*
  * callbacks for handling of THREADS
  */
@@ -301,6 +302,9 @@ void monitor_init_thread_support(void)
 {
 }
 
+#endif
+
+#ifdef HAVE_TARGET_DLOPEN
 /*
  * callbacks for handling of DLOPEN/DLCLOSE.
  */
@@ -436,6 +440,9 @@ monitor_post_dlclose(void *handle, int ret)
     }
 }
 
+#endif
+
+#ifdef HAVE_TARGET_FORK
 /* 
  * callbacks for handling of FORK.
  */
@@ -494,6 +501,7 @@ void monitor_post_fork(pid_t child, void *data)
 	offline_start_sampling(NULL);
     }
 }
+#endif
 
 /*
  * callbacks for handling of MPI programs.

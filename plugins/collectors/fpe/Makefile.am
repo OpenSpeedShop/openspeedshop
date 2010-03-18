@@ -28,9 +28,12 @@ BUILT_SOURCES = \
 pkglib_LTLIBRARIES =
 
 if !HAVE_TARGET_LIBMONITOR
+if !BUILD_RUNTIME
 pkglib_LTLIBRARIES += fpe.la
 endif
+endif
 
+if BUILD_INSTRUMENTOR
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += fpe-rt.la
 endif
@@ -48,7 +51,9 @@ OFFLINE_SOURCES = \
 
 pkglib_LTLIBRARIES += libfpe-offline.la
 endif
+endif
 
+if !BUILD_RUNTIME
 fpe_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -63,6 +68,9 @@ fpe_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	FPECollector.hxx FPECollector.cxx \
 	FPEDetail.hxx
+endif
+
+if BUILD_INSTRUMENTOR
 
 if !BUILD_OFFLINE
 if BUILD_MRNET
@@ -175,6 +183,8 @@ libfpe_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	$(OFFLINE_SOURCES) \
 	runtime.c
+endif
+
 endif
 
 SUFFIXES = .x

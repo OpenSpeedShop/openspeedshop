@@ -19,12 +19,17 @@
 
 if HAVE_QTLIB
 SUBDIRS = \
-	CustomExperimentPanel \
 	SourcePanel \
 	CmdPanel \
+	CustomExperimentPanel \
+	CompareExperimentsPanel \
 	StatsPanel \
 	ManageProcessesPanel \
 	CustomizeStatsPanel \
+	loadPanel \
+	DebugPanel
+
+SUBDIRS += \
 	pcSamplePanel \
 	UserTimePanel \
 	IOPanel \
@@ -32,10 +37,7 @@ SUBDIRS = \
 	FPE_TracingPanel \
 	MPIPanel \
 	MPITPanel \
-	MPIOTFPanel \
-	CompareExperimentsPanel \
-	loadPanel \
-	DebugPanel
+	MPIOTFPanel
 
 if HAVE_OTF
 if HAVE_VT

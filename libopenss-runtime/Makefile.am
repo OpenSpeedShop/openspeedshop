@@ -18,8 +18,8 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+if BUILD_INSTRUMENTOR
 SUBDIRS = @INSTRUMENTOR@
-DIST_SUBDIRS = dpcl dyninst offline mrnet
 
 if HAVE_LIBMONITOR
 SUBDIRS += offline
@@ -28,6 +28,15 @@ endif
 if HAVE_TARGET_LIBMONITOR
 SUBDIRS += offline
 endif
+
+else
+
+SUBDIRS =
+
+endif
+
+DIST_SUBDIRS = dpcl dyninst offline mrnet
+
 
 # Note: Some versions of GCC (e.g. 3.3.3) appear to contain an optimization bug
 #       that causes accesses of thread-local storage (TLS) to fail with SIGSEGV.
@@ -43,6 +52,8 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+
+if BUILD_INSTRUMENTOR
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += libopenss-runtime.la
 endif
@@ -116,10 +127,13 @@ libopenss_runtime_offline_la_LIBADD = \
 	@TARGET_PAPI_LIBS@ \
 	-lpthread -lrt
 endif
+endif
 
 COMMON_SOURCES = \
 	Assert.h \
-	OpenSS_DataHeader.x $(BUILT_SOURCES) \
+	OpenSS_DataHeader.x $(BUILT_SOURCES)
+
+INSTRUMENTOR_SOURCES = \
 	OpenSS_DecodeParameters.c \
 	OpenSS_EncodeParameters.c \
 	OpenSS_GetAddressOfFunction.c \
@@ -136,15 +150,21 @@ COMMON_SOURCES = \
 	OpenSS_Path_From_Pid.c \
 	RuntimeAPI.h
 
+if BUILD_INSTRUMENTOR
+libopenss_runtime_la_SOURCES = $(COMMON_SOURCES) $(INSTRUMENTOR_SOURCES)
+else
 libopenss_runtime_la_SOURCES = $(COMMON_SOURCES)
+endif
+
+if BUILD_INSTRUMENTOR
 
 if HAVE_LIBMONITOR
-libopenss_runtime_offline_la_SOURCES = $(COMMON_SOURCES)
-endif
+libopenss_runtime_offline_la_SOURCES = $(COMMON_SOURCES) $(INSTRUMENTOR_SOURCES)
+endif #HAVE_LIBMONITOR
 
 if HAVE_TARGET_LIBMONITOR
-libopenss_runtime_offline_la_SOURCES = $(COMMON_SOURCES)
-endif
+libopenss_runtime_offline_la_SOURCES = $(COMMON_SOURCES) $(INSTRUMENTOR_SOURCES)
+endif #HAVE_TARGET_LIBMONITOR
 
 if HAVE_LIBUNWIND
 libopenss_runtime_la_SOURCES += \
@@ -152,8 +172,8 @@ libopenss_runtime_la_SOURCES += \
 if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_GetStackTraceFromContext.c
-endif	
-endif	
+endif	#HAVE_LIBMONITOR
+endif	#HAVE_LIBUNWIND
 
 if HAVE_TARGET_LIBUNWIND
 libopenss_runtime_la_SOURCES += \
@@ -161,11 +181,10 @@ libopenss_runtime_la_SOURCES += \
 if HAVE_TARGET_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_GetStackTraceFromContext.c
-endif	
-endif	
+endif	#HAVE_TARGET_LIBMONITOR
+endif	#HAVE_TARGET_LIBUNWIND
 
 if HAVE_PAPI
-
 libopenss_runtime_la_SOURCES += \
 	OpenSS_Overflow.c \
 	PapiAPI.h PapiAPI.c
@@ -174,9 +193,8 @@ if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_Overflow.c \
 	PapiAPI.h PapiAPI.c
-endif
-
-else
+endif   #HAVE_LIBMONITOR
+endif   #HAVE_PAPI
 
 if HAVE_TARGET_PAPI
 libopenss_runtime_la_SOURCES += \
@@ -186,10 +204,8 @@ if HAVE_TARGET_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_Overflow.c \
 	PapiAPI.h PapiAPI.c
-endif
-endif
-
-endif
+endif   #HAVE_TARGET_LIBMONITOR
+endif   #HAVE_TARGET_PAPI
 
 if HAVE_BINUTILS
 libopenss_runtime_la_SOURCES += \
@@ -197,8 +213,8 @@ libopenss_runtime_la_SOURCES += \
 if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_GetInstrLength.c
-endif
-endif
+endif  #HAVE_LIBMONITOR
+endif  #HAVE_BINUTILS
 
 if HAVE_TARGET_BINUTILS
 libopenss_runtime_la_SOURCES += \
@@ -206,8 +222,8 @@ libopenss_runtime_la_SOURCES += \
 if HAVE_TARGET_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_GetInstrLength.c
-endif
-endif
+endif #HAVE_TARGET_LIBMONITOR
+endif #HAVE_TARGET_BINUTILS
 
 if USE_EXPLICIT_TLS
 libopenss_runtime_la_SOURCES += \
@@ -216,12 +232,14 @@ libopenss_runtime_la_SOURCES += \
 if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_TLS.c
-endif
+endif #HAVE_LIBMONITOR
 
 if HAVE_TARGET_LIBMONITOR
 libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_TLS.c
-endif
+endif #HAVE_TARGET_LIBMONITOR
+
+endif #USE_EXPLICIT_TLS
 
 endif
 

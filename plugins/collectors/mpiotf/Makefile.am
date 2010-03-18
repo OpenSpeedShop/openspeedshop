@@ -41,8 +41,10 @@ endif
 
 #noinst_LIBRARIES = libvt.mpi.a
 
+if !BUILD_RUNTIME
 if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += mpiotf.la
+endif
 endif
 
 if HAVE_LAM
@@ -170,6 +172,7 @@ pkglib_LTLIBRARIES += libmpiotf-openmpi-offline.la
 endif
 endif
 
+if !BUILD_RUNTIME
 mpiotf_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -184,6 +187,7 @@ mpiotf_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	MPIOTFCollector.hxx MPIOTFCollector.cxx \
 	MPIOTFDetail.hxx
+endif
 
 if HAVE_LAM
 libvt-lam-mpi-a:

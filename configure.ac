@@ -293,18 +293,17 @@ AC_PKG_XERCES()
 
 AC_ARG_WITH(instrumentor,
 	    AC_HELP_STRING([--with-instrumentor=TYPE],
-			   [instrumentor (dpcl, dyninst, mrnet, offline) @<:@offline@:>@]),
+			   [instrumentor (dyninst, mrnet, offline, none) @<:@offline@:>@]),
 	    INSTRUMENTOR=$withval, INSTRUMENTOR="offline")
 
 case "$INSTRUMENTOR" in
-    dpcl)
-	AC_PKG_DYNINST()
-	AC_PKG_DPCL()
-	AM_CONDITIONAL(BUILD_DPCL, true)
-	AC_DEFINE(BUILD_DPCL, 1, [Define to 1 if you only want the dpcl instrumentor.])
+    none)
+	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
 	AM_CONDITIONAL(HAVE_MRNET, false)
+	AM_CONDITIONAL(BUILD_INSTRUMENTOR, false)
+	AC_DEFINE(BUILD_INSTRUMENTOR, 0, [Define to 1 if you do not want an instrumentor built.])
 	;; 
 
     dyninst)
@@ -313,6 +312,8 @@ case "$INSTRUMENTOR" in
 	AM_CONDITIONAL(BUILD_MRNET, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
 	AM_CONDITIONAL(HAVE_MRNET, false)
+	AM_CONDITIONAL(BUILD_INSTRUMENTOR, true)
+	AC_DEFINE(BUILD_INSTRUMENTOR, 1, [Define to 1 if you do not want an instrumentor built.])
 	;;
 
     mrnet)
@@ -322,6 +323,8 @@ case "$INSTRUMENTOR" in
 	AC_DEFINE(BUILD_MRNET, 1, [Define to 1 if you only want the mrnet instrumentor.])
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
+	AM_CONDITIONAL(BUILD_INSTRUMENTOR, true)
+	AC_DEFINE(BUILD_INSTRUMENTOR, 1, [Define to 1 if you do not want an instrumentor built.])
 	;;
 
     offline)
@@ -330,6 +333,8 @@ case "$INSTRUMENTOR" in
 	AM_CONDITIONAL(HAVE_MRNET, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, true)
 	AC_DEFINE(BUILD_OFFLINE, 1, [Define to 1 if you only want the offline instrumentor.])
+	AM_CONDITIONAL(BUILD_INSTRUMENTOR, true)
+	AC_DEFINE(BUILD_INSTRUMENTOR, 1, [Define to 1 if you do not want an instrumentor built.])
 	;;
 
     *)
@@ -338,6 +343,54 @@ case "$INSTRUMENTOR" in
 esac
 
 AC_SUBST(INSTRUMENTOR)
+AC_SUBST(BUILD_INSTRUMENTOR)
+
+################################################################################
+# build runtime collector software only
+################################################################################
+#
+# Option: 
+#
+AC_MSG_CHECKING(for building runtime collectors only)
+AC_ARG_ENABLE([runtime-only],
+    [AS_HELP_STRING([--enable-runtime-only],
+        [Enable support building just the runtime collectors with no client [default=no]])],
+    [], [enable_runtime_only=no])
+
+if test "x$enable_runtime_only" = xyes ; then
+    AM_CONDITIONAL(BUILD_RUNTIME, true)
+    AC_DEFINE(BUILD_RUNTIME, 1, [Define to 1 if you do want only collector runtime support built.])
+else
+    AM_CONDITIONAL(BUILD_RUNTIME, false)
+    AC_DEFINE(BUILD_RUNTIME, 0, [Define to 1 if you do not want only collector runtime support built.])
+fi
+AC_SUBST(BUILD_RUNTIME)
+
+################################################################################
+# build gui/cli with no collectors but supports running experiments with
+# targeted collectors (e.g. dynamic collectors on BGP BE nodes).
+################################################################################
+#
+# Option: 
+#
+AC_MSG_CHECKING(for gui,cli build only)
+AC_ARG_ENABLE([gui-only],
+    [AS_HELP_STRING([--enable-gui-only],
+        [Enable support building just the gui with no instrumentor [default=no]])],
+    [], [enable_gui_only=no])
+
+#AM_CONDITIONAL([BUILD_INSTRUMENTOR],
+#    [test x$enable_gui_only = xyes])
+
+if test "x$enable_gui_only" = xyes ; then
+    AM_CONDITIONAL(BUILD_GUI_ONLY, true)
+    AC_DEFINE(BUILD_GUI_ONLY, 1, [Define to 1 if you do want only gui/cli support built.])
+else
+    AM_CONDITIONAL(BUILD_GUI_ONLY, false)
+    AC_DEFINE(BUILD_GUI_ONLY, 0, [Define to 1 if you do want only gui/cli support built.])
+fi
+
+AC_SUBST(BUILD_GUI_ONLY)
 
 ################################################################################
 # Generate Output Files
