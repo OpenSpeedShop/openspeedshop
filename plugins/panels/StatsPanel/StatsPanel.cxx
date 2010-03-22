@@ -21,6 +21,7 @@
 // To enable debuging uncomment define DEBUG_StatsPanel statement
 //
 //#define DEBUG_StatsPanel 1
+//#define DEBUG_StatsPanel_chart 1
 //#define DEBUG_INTRO 1
 //#define DEBUG_StatsPanel_source 1
 //#define DEBUG_StatsPanel_toolbar 1
@@ -561,6 +562,9 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel:: splitterB being use as chart form holder\n");
 #endif
+#ifdef DEBUG_StatsPanel_chart
+  printf("StatsPanel:: splitterB being use as chart form holder\n");
+#endif
 
 
 #ifdef OLDWAY
@@ -670,10 +674,24 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 //  frameLayout->addLayout( metadataAllSpaceLayout );
   frameLayout->addWidget( splitterA );
 
+#ifdef DEBUG_StatsPanel_chart
+    printf("StatsPanel::StatsPanel, before checks getMainWindow->preferenceDialog->showGraphicsCheckBox, chartFLAG=%d\n", chartFLAG);
+#endif
+
   if( pc->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() ) {
+
     chartFLAG = TRUE;
+
+#ifdef DEBUG_StatsPanel_chart
+    printf("StatsPanel::StatsPanel, insides checks getMainWindow->preferenceDialog->showGraphicsCheckBox, setting TRUE, chartFLAG=%d\n", chartFLAG);
+
+#endif
+
     cf->show();
   } else {
+#ifdef DEBUG_StatsPanel_chart
+    printf("StatsPanel::StatsPanel, insides checks getMainWindow->preferenceDialog->showGraphicsCheckBox, setting FALSE, chartFLAG=%d\n", chartFLAG);
+#endif
     chartFLAG = FALSE;
     cf->hide();
   }
@@ -1855,6 +1873,11 @@ StatsPanel::menu( QPopupMenu* contextMenu)
 
 
   contextMenu->insertSeparator();
+
+#ifdef DEBUG_StatsPanel_chart
+  printf("menu re-orientate, chartFLAG=%d\n", chartFLAG);
+  printf("menu re-orientate, statsFLAG=%d\n", statsFLAG);
+#endif
  
   if( chartFLAG == TRUE && statsFLAG == TRUE )
   {
@@ -1865,6 +1888,11 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     qaction->setStatusTip( tr("Display chart/statistics horizontal/vertical.") );
   }
 
+#ifdef DEBUG_StatsPanel_chart
+  printf("menu hideChart, chartFLAG=%d\n", chartFLAG);
+  printf("menu hideChart, statsFLAG=%d\n", statsFLAG);
+#endif
+
   if( chartFLAG == TRUE )
   {
     qaction = new QAction( this,  "hideChart");
@@ -1872,23 +1900,21 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     qaction->setText( "Hide Chart..." );
     connect( qaction, SIGNAL( activated() ), this, SLOT( showChart() ) );
     qaction->setStatusTip( tr("If graphics are shown, hide the graphic chart.") );
-  } else
-  {
+  } else {
     qaction = new QAction( this,  "showChart");
     qaction->addTo( contextMenu );
     qaction->setText( "Show Chart..." );
     connect( qaction, SIGNAL( activated() ), this, SLOT( showChart() ) );
     qaction->setStatusTip( tr("If graphics are available, show the graphic chart.") );
   }
-  if( statsFLAG == TRUE )
-  {
+
+  if( statsFLAG == TRUE ) {
     qaction = new QAction( this,  "hideStatistics");
     qaction->addTo( contextMenu );
     qaction->setText( "Hide Statistics..." );
     connect( qaction, SIGNAL( activated() ), this, SLOT( showStats() ) );
     qaction->setStatusTip( tr("Hide the statistics display.") );
-  } else
-  {
+  } else {
     qaction = new QAction( this,  "showStatistics");
     qaction->addTo( contextMenu );
     qaction->setText( "Show Statistics..." );
@@ -1896,15 +1922,13 @@ StatsPanel::menu( QPopupMenu* contextMenu)
     qaction->setStatusTip( tr("Show the statistics display.") );
   }
 
-  if( infoHeaderFLAG == TRUE )
-  {
+  if( infoHeaderFLAG == TRUE ) {
     qaction = new QAction( this,  "hideInfoHeader");
     qaction->addTo( contextMenu );
     qaction->setText( "Hide Experiment Metadata..." );
     connect( qaction, SIGNAL( activated() ), this, SLOT( showInfoHeader() ) );
     qaction->setStatusTip( tr("Hide the experiment header information display.") );
-  } else
-  {
+  } else {
     qaction = new QAction( this,  "showInfoHeader");
     qaction->addTo( contextMenu );
     qaction->setText( "Show Experiment Metadata Info..." );
@@ -2312,53 +2336,73 @@ void
 StatsPanel::showChart()
 {
 
-#ifdef DEBUG_StatsPanel
-  printf("StatsPanel::showChart() entered, CHART, statsFLAG=%d\n", statsFLAG);
-  printf("StatsPanel::showChart() entered, CHART, chartFLAG=%d\n", chartFLAG);
+#ifdef DEBUG_StatsPanel_chart
+  printf("ENTER StatsPanel::showChart() entered, CHART, statsFLAG=%d\n", statsFLAG);
+  printf("ENTER StatsPanel::showChart() entered, CHART, chartFLAG=%d\n", chartFLAG);
 #endif
 
   if( chartFLAG == TRUE ) {
+
+#ifdef DEBUG_StatsPanel_chart
+    printf("StatsPanel::showChart() entered, CHART, setting to FALSE, chartFLAG=%d\n", chartFLAG);
+#endif
     chartFLAG = FALSE;
     cf->hide();
+
   } else {
+
+#ifdef DEBUG_StatsPanel_chart
+    printf("StatsPanel::showChart() entered, CHART, setting to TRUE, chartFLAG=%d\n", chartFLAG);
+#endif
     chartFLAG = TRUE;
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_chart
     printf("StatsPanel::showChart(), CHART, lastCommand=(%s)\n", lastCommand.ascii() );
 #endif
 
     cf->show();
+
     if( !lastCommand.startsWith("cview") ) {
       lastCommand = QString::null;  // This will force a redraw of the data.
       // I'm not sure why, but the text won't draw unless the 
       // piechart is visible.
+#ifdef DEBUG_StatsPanel_chart
+     printf("StatsPanel::showChart(), CHART, calling updatePanel, lastCommand=(%s)\n", lastCommand.ascii() );
+#endif
       updatePanel();
+
     } else {
+
+#ifdef DEBUG_StatsPanel_chart
+     printf("StatsPanel::showChart(), CHART, else, calling updatePanel, lastCommand=(%s)\n", lastCommand.ascii() );
+#endif
       cf->setValues(cpvl, ctvl, color_names, MAX_COLOR_CNT);
       updatePanel();
+
     }
+
     cf->show();
   }
 
   // Make sure there's not a blank panel.   If the user selected to 
   // hide the only display, show the other by default.
-  if( chartFLAG == FALSE && statsFLAG == FALSE )
-  {
+  if( chartFLAG == FALSE && statsFLAG == FALSE ) {
     statsFLAG = TRUE;
     splv->show();
   }
 
-#ifdef DEBUG_StatsPanel
-  printf("StatsPanel::showChart() exitted, statsFLAG=%d\n", statsFLAG);
-  printf("StatsPanel::showChart() exitted, chartFLAG=%d\n", chartFLAG);
+#ifdef DEBUG_StatsPanel_chart
+  printf("EXIT StatsPanel::showChart() EXITING, statsFLAG=%d\n", statsFLAG);
+  printf("EXIT StatsPanel::showChart() EXITING, chartFLAG=%d\n", chartFLAG);
 #endif
+
 }
 
 
 void
 StatsPanel::showStats()
 {
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_chart
   printf("StatsPanel::showStats() entered, statsFLAG=%d\n", statsFLAG);
   printf("StatsPanel::showStats() entered, chartFLAG=%d\n", chartFLAG);
 #endif
@@ -2380,7 +2424,7 @@ StatsPanel::showStats()
     chartFLAG = TRUE;
     cf->show();
   }
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_chart
   printf("StatsPanel::showStats() exitted, statsFLAG=%d\n", statsFLAG);
   printf("StatsPanel::showStats() exitted, chartFLAG=%d\n", chartFLAG);
 #endif
@@ -2597,6 +2641,10 @@ void
 StatsPanel::updatePanel()
 {
 #ifdef DEBUG_StatsPanel
+  printf("updatePanel() about to call updateStatsPanelData, lastCommand=%s\n", lastCommand.ascii());
+#endif
+
+#ifdef DEBUG_StatsPanel_chart
   printf("updatePanel() about to call updateStatsPanelData, lastCommand=%s\n", lastCommand.ascii());
 #endif
 
@@ -5015,6 +5063,35 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 
   // Reinitialize these flags because of the "hiding of the no data message"
   // The no data message caused the splv (stats panel data) and cf (chart form) to be hidden
+#ifdef DEBUG_StatsPanel_chart
+  printf("ENTER StatsPanel::updateStatsPanelData, chartFLAG=%d\n", chartFLAG);
+  printf("updateStatsPanelData, currentUserSelectedReportStr=%s\n", currentUserSelectedReportStr.ascii() );
+#endif
+
+  // Turn off the chart for these views
+  // and Turn back on if the chartFLAG is FALSE but the preference is for the chart to be on
+  if ((currentUserSelectedReportStr.startsWith("Butterfly") || 
+       currentUserSelectedReportStr.startsWith("CallTrees") || 
+       currentUserSelectedReportStr.startsWith("TraceBacks") ||
+       currentUserSelectedReportStr.startsWith("clusterAnalysis") ||
+       currentUserSelectedReportStr.startsWith("HotCallPath") ||
+       currentUserSelectedReportStr.startsWith("Comparison")) &&
+      chartFLAG == TRUE) {
+    showChart();
+  } else if ((currentUserSelectedReportStr.startsWith("Butterfly") || 
+       currentUserSelectedReportStr.startsWith("CallTrees") || 
+       currentUserSelectedReportStr.startsWith("TraceBacks") ||
+       currentUserSelectedReportStr.startsWith("clusterAnalysis") ||
+       currentUserSelectedReportStr.startsWith("HotCallPath") ||
+       currentUserSelectedReportStr.startsWith("Comparison")) &&
+      chartFLAG == FALSE) {
+    // skip calling showChart, no need to call it.
+  } else if (chartFLAG == FALSE &&  thisPC->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() ) {
+    // for other views flip the chartFLAG back on
+    showChart();
+  }
+
+
   splv->show();
   if (chartFLAG) {
     cf->show();
@@ -5028,7 +5105,8 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   ctvl.clear();
   color_names = NULL;
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_chart
+  printf("updateStatsPanelData, currentUserSelectedReportStr=%s\n", currentUserSelectedReportStr.ascii() );
   printf("updateStatsPanelData, CHART, calling cf->init()\n" );
 #endif
 
@@ -5048,13 +5126,13 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
     numberItemsToDisplayInChart = getPreferenceTopNChartLineEdit().toInt(&ok);
   }
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_chart
   printf("updateStatsPanelData, CHART, numberItemsToDisplayInChart = %d\n", numberItemsToDisplayInChart );
 #endif
 
   textENUM = getPreferenceShowTextInChart();
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_chart
   printf("updateStatsPanelData,textENUM=%d\n", textENUM );
 #endif
 
@@ -5669,6 +5747,9 @@ printf("StatsPanel::updateStatsPanelData, CHART: cpvl.count()=%d numberItemsToDi
     ctvl.clear();
     cpvl.push_back(100);
     ctvl.push_back("N/A");
+#ifdef DEBUG_StatsPanel_chart
+    printf("StatsPanel::updateStatsPanelData, total_percent=0.0, chartFLAG=%d\n", chartFLAG);
+#endif
     // jeg added 10-08-07
     if( thisPC->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() && chartFLAG) {
        showChart();
