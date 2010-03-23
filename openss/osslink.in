@@ -59,9 +59,6 @@ pthread_undefines=
 static_collector=
 static_mpi_collector=
 
-static_offline=${oss_plugins}/libopenss-runtime-offline.a
-monitor_callbacks=${oss_plugins}/offline_monitor.o
-
 mpi_plugin=
 output_dir=
 insert_files=
@@ -142,6 +139,19 @@ do
             shift ; shift
             ;;
 
+        -p | --pluginpath)
+            test "x$2" != x || die "missing argument: $*"
+            case "$2" in
+                /* )  dir="$2" ;;
+                * )   dir="`pwd`/$2" ;;
+            esac
+            test -d "$dir" || die "unable to find: $dir"
+            export OPENSS_PLUGIN_PATH="${dir}"
+	    oss_plugins="${dir}"
+            shift ; shift
+            ;;
+
+
         -v | --verbose )
             verbose=yes
             shift
@@ -173,6 +183,9 @@ do
             ;;
     esac
 done
+
+static_offline=${oss_plugins}/libopenss-runtime-offline.a
+monitor_callbacks=${oss_plugins}/offline_monitor.o
 
 #
 # Must have a compiler command and at least one argument.
