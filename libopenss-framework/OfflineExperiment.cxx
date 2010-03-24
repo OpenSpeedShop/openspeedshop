@@ -541,6 +541,8 @@ int OfflineExperiment::convertToOpenSSDB()
             }
         }
     }
+
+    theExperiment->flushPerformanceData();
  
     // Process the list of dsos and address ranges for this experiment.
     std::cerr << "Processing functions and statements ..." << std::endl;
@@ -720,8 +722,6 @@ OfflineExperiment::process_data(const std::string rawfilename)
 
     } // while
 
-    theExperiment->flushPerformanceData();
-
     fclose(f);
     // experimental code to remove raw openss-data file
     // once it is copied to the openss database.
@@ -895,21 +895,20 @@ void OfflineExperiment::createOfflineSymbolTable()
 #endif
 
     CollectorGroup cgrp = theExperiment->getCollectors();
+    CollectorGroup::iterator ci = cgrp.begin();
+    Collector c = *ci;
+    Metadata m = c.getMetadata();
+
     std::map<AddressRange, std::set<LinkedObject> > tneeded;
 
     for(ThreadGroup::const_iterator i = threads.begin();
                                     i != threads.end(); ++i) {
 	AddressSpace taddress_space;
         Instrumentor::retain(*i);
-	CollectorGroup::iterator ci;
-	for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-	    Collector c = *ci;
-	    Metadata m = c.getMetadata();
 
-	    // add performance sample addresses to address buffer
-	    // for this thread group.
-	    c.getUniquePCValues(*i,eg,&data_addr_buffer);
-	}
+	// add performance sample addresses to address buffer
+	// for this thread group.
+	c.getUniquePCValues(*i,eg,&data_addr_buffer);
 
 // DEBUG
 #ifndef NDEBUG
