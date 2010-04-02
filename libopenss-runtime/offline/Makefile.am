@@ -55,6 +55,7 @@ offline.h offline.c : offline.x
 
 install-exec-hook:
 	test -d "${pkglibdir}" || mkdir -p "${pkglibdir}"
-	cp .libs/libopenss_runtime_monitor_la-offline_monitor.o ${pkglibdir}/offline_monitor.o
+	ar x .libs/libopenss-runtime-monitor.a libopenss_runtime_monitor_la-offline_monitor.o
+	cp libopenss_runtime_monitor_la-offline_monitor.o ${pkglibdir}/offline_monitor.o
 uninstall-hook:
 	rm -f ${pkglibdir}/offline_monitor.o
