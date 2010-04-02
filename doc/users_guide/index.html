@@ -1741,7 +1741,7 @@ Users Guide<br>
 </span></b><b><span style="font-size: 13.5pt; color: rgb(0, 0, 102);">Version
 1.9.3.3 Release</span></b><span
  style="font-size: 13.5pt; color: rgb(0, 0, 102);"><br>
-&nbsp; <span style="font-weight: bold;">February 19, 2010</span><b></b></span></p>
+&nbsp; <span style="font-weight: bold;">Updated: March 31, 2010</span></span></p>
 <ul id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
   <li><a href="#mozTocId845867">Introduction to Open|SpeedShop</a>
@@ -1761,7 +1761,11 @@ Experiment</a></li>
   <li><a href="#mozTocId887005">Open|SpeedShop Tools
 Information</a>
     <ul>
-      <li><a href="#mozTocId418174">Open|SpeedShop
+      <li><a href="#mozTocId779469">Open|SpeedShop Quick
+Start Information</a></li>
+      <li><a href="#mozTocId90173"></a></li>
+      <li><a href="#mozTocId418174"></a></li>
+      <li><a href="#mozTocId286397">Open|SpeedShop
 Invocation Command: "openss"</a>
         <ul>
           <li><a href="#mozTocId287194">openss -gui</a></li>
@@ -1775,8 +1779,6 @@ Invocation Command: "openss"</a>
           <li><a href="#mozTocId795954">Python Scripting API</a></li>
         </ul>
       </li>
-      <li><a href="#mozTocId779469">Open|SpeedShop Quick
-Start Information</a></li>
       <li><a href="#mozTocId522310">Running
 Open|SpeedShop using
 Offline instrumentation (default mode of operation)</a>
@@ -1789,7 +1791,8 @@ openss command option</a>
               <li><a href="#mozTocId473579">Outputs from the
 experiment run</a></li>
               <li><a href="#mozTocId316474">Invoking
-opens -offline and the normal program output</a></li>
+opens -offline&nbsp; or it's convenience command equivalent and the
+normal program output</a></li>
               <li><a href="#mozTocId590902">Remainder of the
 program output and the
 performance data report from opens</a></li>
@@ -1797,7 +1800,8 @@ performance data report from opens</a></li>
 file is one of the outputs from running:&nbsp;&nbsp;&nbsp; openss
 -offline -f "orterun
 -np 128 sweep3d.mpi"
-pcsamp </a></li>
+pcsamp or the equivalent convenience command osspcsamp "orterun -np 128
+sweep3d.mpi"</a></li>
               <li><a href="#mozTocId259803">Loading the
 database file using the
 interactive
@@ -1961,7 +1965,8 @@ Usage on MPI Applications</a>
 Implementation
 Implications</a></li>
               <li><a href="#mozTocId523782">Attaching to Already
-Running MPI Applications (online mode of operation only)</a>
+Running MPI Applications (online mode of operation only)
+                </a>
                 <ul>
                   <li><a href="#mozTocId209645">Gui Wizard Information</a></li>
                   <li><a href="#mozTocId458846">Wizard
@@ -2025,7 +2030,8 @@ version Implementation
 Implications with the CLI</a></li>
               <li><a href="#mozTocId260843">Attaching to Already
 Running MPI
-Applications with the CLI (online version only)</a>
+Applications with the CLI (online version only)
+                </a>
                 <ul>
                   <li><a href="#mozTocId192100">Example 1: Attach to
 mpirun</a></li>
@@ -2668,9 +2674,32 @@ are the performance tool
 graphical user interface (GUI), the interactive command line (CLI), the
 batch
 command, and the Python Scripting API.&nbsp;&nbsp; These are the four
-main <b>Open|SpeedShop</b> tool user interface options.&nbsp; </p>
+main <b>Open|SpeedShop</b> tool user interface options.&nbsp;&nbsp;
+They are described in the sections below.&nbsp;&nbsp; A quick start
+guide is provided to show the Open|SpeedShop basic, default operations
+in a concise document.<br>
+</p>
+<h2 style="margin-left: 28.1pt;"><a class="mozTocH2"
+ name="mozTocId779469"></a><a name="_Toc214080104">Open|SpeedShop Quick
+Start Information</a></h2>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class="MsoNormal" style="margin-left: 0.5in;">Open|SpeedShop can be
+invoked in a
+number of ways.&nbsp; The <a href="QuickStartGuide.html"><span
+ class="SpellE">Open|SpeedShop</span>
+Quick Start Guide</a> gives a few short examples that will hopefully
+help the
+first time users to get started and serve as an introduction to the
+following
+sections about Open|SpeedShop tool usage.<span style="">&nbsp;
+</span></p>
 <h2 style="margin: 0in 28.1pt 5pt;"><a class="mozTocH2"
- name="mozTocId418174"></a><a name="_Toc214080098">Open|SpeedShop
+ name="mozTocId90173"></a><br>
+</h2>
+<h2 style="margin: 0in 28.1pt 5pt;"><a class="mozTocH2"
+ name="mozTocId418174"></a><a name="_Toc214080098"></a></h2>
+<h2 style="margin: 0in 28.1pt 5pt;"><a class="mozTocH2"
+ name="mozTocId286397"></a><a name="_Toc214080098">Open|SpeedShop
 Invocation Command: "openss"</a></h2>
 <blockquote style="margin-top: 5pt; margin-bottom: 5pt;">
   <p class="MsoNormal" style="margin-left: -7.9pt; text-align: justify;"><b><br>
@@ -2738,7 +2767,7 @@ environments.&nbsp; <br>
  name="mozTocId132828"></a><a name="_Toc214080102"></a><span
  class="GramE"><span style="">openss</span></span><span style="">
 -offline:</span></h3>
-<p class="MsoNormal" style="margin-left: 28.1pt;">This invocation of
+<p style="margin-left: 40px;" class="MsoNormal">This invocation of
 Open|SpeedShop
 causes Open|SpeedShop to execute a performance experiment specified by
 additional arguments, directly using offline mode of instrumentation
@@ -2746,7 +2775,31 @@ without
 user
 interaction.&nbsp;&nbsp; The -offline operation can be used in scripts
 and
-batch processing environments.</p>
+batch processing environments.<br>
+</p>
+<p style="margin-left: 40px;" class="MsoNormal"><br>
+Convenience commands have been introduced in
+versions after and including version 1.9.2 of Open|SpeedShop to hide
+some of the offline command
+syntax.&nbsp; An example of the syntax is:<b><span style="" lang="EN-GB">&nbsp;
+osspcsamp
+"executable" </span></b>which is equivalent in functionality to: <span
+ style="font-weight: bold;">openss
+-offline -f "executable" pcsamp.</span>&nbsp;&nbsp; A
+convenience command for each Open|SpeedShop experiment type is
+provided: <span style="font-weight: bold;">osspcamp,
+ossusertime, osshwc, osshwctime, ossio, ossiot, ossmpi, ossmpit,
+ossmpiotf, and ossfpe.&nbsp;&nbsp; </span>Please view the man page for
+each of the convenience commands, for more information
+about their usage. &nbsp;&nbsp; There is also an <a
+ href="ossscript.html">html convenience script summary</a> describing
+the input arguments and environment variables that effect the output
+performance data when running the convenience scripts. </p>
+<p class="MsoNormal" style="margin-left: 0.5in; text-indent: -0.25in;"><o:p></o:p><span
+ style="font-family: Symbol;"><span style=""></span></span><!--[endif]--><b><span
+ style="" lang="EN-GB"></span></b><br>
+<br>
+</p>
 <h3 style="margin-left: 28.1pt;"><a class="mozTocH3"
  name="mozTocId987500"></a><span class="GramE"><span style="">openss</span></span><span
  style="">
@@ -2769,20 +2822,7 @@ with each of the Open|SpeedShop interactive commands.&nbsp; Follow this<a
 the documentations associated with the Python scripting API definition.</p>
 <p class="MsoNormal" style="margin-left: 28.1pt;"><o:p>&nbsp;</o:p></p>
 <p class="MsoNormal" style="margin-left: 28.1pt;"><o:p>&nbsp;</o:p></p>
-<h2 style="margin-left: 28.1pt;"><a class="mozTocH2"
- name="mozTocId779469"></a><a name="_Toc214080104">Open|SpeedShop Quick
-Start Information</a></h2>
-<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
-<p class="MsoNormal" style="margin-left: 0.5in;">Open|SpeedShop can be
-invoked in a
-number of ways.&nbsp; The <a href="QuickStartGuide.html"><span
- class="SpellE">Open|SpeedShop</span>
-Quick Start Guide</a> gives a few short examples that will hopefully
-help the
-first time users to get started and serve as an introduction to the
-following
-sections about Open|SpeedShop tool usage.<span style="">&nbsp;
-</span></p>
+<br>
 <p class="MsoNormal"><o:p>&nbsp;</o:p></p>
 <h2 style="margin-left: 28.1pt;"><a class="mozTocH2"
  name="mozTocId522310"></a><a name="_Toc214080105">Running
@@ -2863,9 +2903,8 @@ are several existing performance metric choices</span></li>
     </ul>
   </ul>
   <br>
-  <p class="MsoNormal">Convenience commands have been introduced in
-version 1.9.2 of Open|SpeedShop to hide some of the offline command
-syntax.&nbsp; An example follows:</p>
+  <p class="MsoNormal">The convenience command equivalent of the above
+syntax is:</p>
   <p class="MsoNormal"><o:p>&nbsp;</o:p></p>
   <p class="MsoNormal" style="margin-left: 0.5in; text-indent: -0.25in;"><!--[if !supportLists]--><span
  style="font-family: Symbol;"><span style=""><img
@@ -2878,15 +2917,19 @@ syntax.&nbsp; An example follows:</p>
  style="" lang="EN-GB"><br>
   <br>
   </span></b></p>
-  <p class="MsoNormal">is equivalent in functionality to the openss
--offline -f "executable" pcsamp&nbsp; command above.&nbsp;&nbsp; A
+  <p class="MsoNormal">The convenience version is equivalent in
+functionality to the <span style="font-weight: bold;">openss
+-offline -f "executable" pcsamp&nbsp;</span> command above.&nbsp;&nbsp;
+A
 convenience command for each Open|SpeedShop experiment type: <span
  style="font-weight: bold;">osspcamp,
 ossusertime, osshwc, osshwctime, ossio, ossiot, ossmpi, ossmpit,
 ossmpiotf, and ossfpe.&nbsp;&nbsp; </span>Please view the man page for
 each of the convenience commands, if interested in more information
-about their usage.<br style="font-weight: bold;">
-  </p>
+about their usage.&nbsp;&nbsp; There is also an <a
+ href="ossscript.html">html convenience script summary</a>
+describing the input arguments and environment variables that effect
+the output performance data when running the convenience scripts. </p>
   <h4><a style="font-weight: bold;" class="mozTocH4"
  name="mozTocId473579"></a>Outputs from the
 experiment run</h4>
@@ -2896,7 +2939,8 @@ experiment run</h4>
  style="font-family: &quot;Times New Roman&quot;; font-style: normal; font-variant: normal; font-weight: normal; font-size: 7pt; line-height: normal; font-size-adjust: none; font-stretch: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   </span></span></span><!--[endif]--><span style="" lang="EN-GB">Outputs
 from running:<b><span style="">&nbsp; </span>openss -offline -f
-"executable" pcsamp </b></span></p>
+"executable" pcsamp or it's equivalent: osspcsamp "executable":<br>
+  </b></span></p>
   <p class="MsoNormal"><o:p>&nbsp;</o:p></p>
   <ul style="margin-left: 40px;">
     <li><!--[if !supportLists]--><span style="font-family: Wingdings;"><span
@@ -2951,7 +2995,8 @@ stamps for when dso(s) were loaded and unloaded </span></li>
   <p class="MsoNormal" style=""><span style="" lang="EN-GB"><o:p>&nbsp;</o:p></span></p>
   <h4><a class="mozTocH5" name="mozTocId316474"></a><span style=""
  lang="EN-GB">Invoking
-opens -offline and the normal program output<o:p></o:p></span></h4>
+opens -offline&nbsp; or it's convenience command equivalent and the
+normal program output<o:p></o:p></span></h4>
   <p class="MsoNormal" style=""><span style="" lang="EN-GB"><o:p>&nbsp;</o:p></span></p>
   <p class="MsoNormal" style="margin-left: 0.5in;"><span style=""
  lang="EN-GB">For this example, we run on a large cluster
@@ -2960,7 +3005,10 @@ performance data.<o:p></o:p></span></p>
   <p class="MsoNormal" style="margin-left: 0.5in;"><span style=""
  lang="EN-GB">The command invoked is: </span><b style="">openss
 -offline -f "orterun -np 128
-sweep3d.mpi" pcsamp</b></p>
+sweep3d.mpi" pcsamp.&nbsp;&nbsp;</b> The Open|SpeedShop convenience
+command equivalent would be: <span style="" lang="EN-GB"><b>osspcsamp "</b></span><b
+ style="">orterun -np 128
+sweep3d.mpi"</b></p>
   <p class="MsoNormal" style="margin-left: 0.5in;"><o:p>&nbsp;</o:p></p>
   <p class="MsoNormal" style="margin-left: 0.5in;">The initial
 output is the echoing of the command Open|SpeedShop is running followed
@@ -3065,7 +3113,12 @@ visibility:visible'>
 file is one of the outputs from running:<b><span style="">&nbsp;&nbsp;&nbsp;
   </span>openss -offline -f "</b></span><b>orterun
 -np 128 sweep3d.mpi</b><b><span style="" lang="EN-GB">"
-pcsamp </span></b></h4>
+pcsamp </span></b><span style="" lang="EN-GB"></span><span
+ style="font-weight: normal;">or</span><span
+ style="font-weight: normal;" lang="EN-GB"> the equivalent convenience
+command </span><span style="" lang="EN-GB"><b>osspcsamp "</b></span><b
+ style="">orterun -np 128
+sweep3d.mpi"</b></h4>
   <ul style="margin-left: 40px;">
     <li><!--[if !supportLists]--><span style="font-family: Wingdings;"><span
  style=""><span
@@ -3119,8 +3172,9 @@ interactive
 command line tool (CLI)</h4>
   <p class="MsoNormal" style="margin-left: 0.5in;">This output is from
 the CLI tool
-which was invoked by the "openss -cli -f X.0.openss" command.<span
- style="">&nbsp; </span>This opens the X.0.openss database file
+which was invoked by the "openss -cli -f sweep3d.mpi-pcsamp.openss"
+command.<span style="">&nbsp; </span>This opens the
+sweep3d.mpi-pcsamp.openss database file
 created by the experiment that was run for this example.<span style="">&nbsp;&nbsp;
   </span>The "expstatus" command provides the
 information about the experiment.<span style="">&nbsp; </span>The
@@ -3148,11 +3202,12 @@ interface tool (GUI)</h4>
   <p class="MsoNormal" style="margin-left: 0.5in;">This is the first
 view that the
 user will see when opening the database file with the GUI using the "<b
- style="">openss -f X.0.openss</b>" command.<span style="">&nbsp;&nbsp;
-  </span>This first view is of the ManageProcessPanel
+ style="">openss -f sweep3d.mpi-pcsamp.openss</b>" command.<span
+ style="">&nbsp;&nbsp; </span>This first view is of the
+ManageProcessPanel
 which shows the hosts, pids, ranks, etc. that were involved in the
 experiment
-that was run and created the database file (X.0.openss).</p>
+that was run and created the database file (sweep3d.mpi-pcsamp.openss).</p>
   <p><a class="mozTocH5" name="mozTocId988074"></a><!--[if gte vml 1]><v:shape id="_x0000_i1029"
 
 type="#_x0000_t75" alt="sweepGUI20.png" style='width:468pt;height:277.5pt;

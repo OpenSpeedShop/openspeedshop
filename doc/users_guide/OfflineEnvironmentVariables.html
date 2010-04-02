@@ -12,7 +12,7 @@
  name="mozTocId276774"></a>Open|SpeedShop
 Offline Version Collection Control Environment Variables</h1>
 <div style="text-align: center;"><big><big>Version 1.9.3.3<br>
-February 19, 2010</big></big><br>
+Updated: March 31, 2010</big></big><br>
 </div>
 <br>
 <h2><a class="mozTocH2" name="mozTocId315737"></a>Table of Contents</h2>
@@ -102,33 +102,44 @@ file system is unique on each node.&nbsp;&nbsp; The offline version of
 Open|SpeedShop needs to save the "raw" data files from the performance
 experiment on a file system where all the files for the entire job can
 be located together.&nbsp;&nbsp; In order to have a way for the user to
-indicate this, the OPENSS_RAWDATA_DIR environment variable was
+indicate this, the <span style="font-weight: bold;">OPENSS_RAWDATA_DIR</span>
+environment variable was
 created.&nbsp; The definition and example usage follow.<br>
 <h4><a class="mozTocH4" name="mozTocId93353"></a>Environment Variable
 Definition and Example:
 </h4>
-OPENSS_RAWDATA_DIR="path to shared file system with user or some unique
+<span style="font-weight: bold;">OPENSS_RAWDATA_DIR</span>="path to
+shared file system with user or some unique
 naming"<br>
 example:<br>
-export OPENSS_RAWDATA_DIR=/opt/sharedfile/userid<br>
+export <span style="font-weight: bold;">OPENSS_RAWDATA_DIR</span>=/luster4/sharedfile/userid<br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId389618"></a>OPENSS_DB_DIR</h3>
 This envirionmnent variable specifies the path to where the
 offline version of openss will build the OpenSpeedShop database file.
 If you are on a lustre file system that does not have file locking
-turnedon.&nbsp; The sqlite component will not be able to create the
+turned on.&nbsp; The sqlite component will not be able to create the
 database file.&nbsp; You can use this environment variable to specify a
-non-lustre file system path to be used for the database file creation.
+non-lustre file system path to be used for the database file
+creation.&nbsp;&nbsp;&nbsp; If you receive an error message similar to
+this: "Assertion "retval == SQLITE_OK" failed in file Database.cxx at
+line 120"&nbsp; then you are probably trying to create a database file
+on a lustre file system that doesn't have locking turned on. &nbsp;
+&nbsp; You can ask the system administrators to turn on locking, or a
+more likely fix would be to set the OPENSS_DB_DIR environment variable
+to a none lustre file system. &nbsp; Then that path will be where the
+Open|SpeedShop sqlite database file will be created.
 <div style="margin-left: 160px;"></div>
 <br>
 <h4><a class="mozTocH3" name="mozTocId858255"></a><span
  style="font-weight: bold;"></span>Environment Variable
 Definition and Example:
 </h4>
-OPENSS_DB_DIR="path to&nbsp; file system with user or some unique
+<span style="font-weight: bold;">OPENSS_DB_DIR</span>="path to&nbsp;
+file system with user or some unique
 naming"<br>
 example:<br>
-export OPENSS_DB_DIR=/opt/filesys/userid<br>
+export <span style="font-weight: bold;">OPENSS_DB_DIR</span>=/opt/filesys/userid<br>
 <br>
 <h2><a class="mozTocH2" name="mozTocId672936"></a>PCSAMP Experiment
 Related Information<br>
@@ -140,9 +151,10 @@ used for the "pcsamp" performance experiment.&nbsp; The sampling rate
 value is in samples per second.&nbsp; The default sampling rate is 100
 samples per second.<br>
 <br>
-OPENSS_PCSAMP_RATE="new sampling rate &lt;int&gt;"<br>
+<span style="font-weight: bold;">OPENSS_PCSAMP_RATE</span>="new
+sampling rate &lt;int&gt;"<br>
 example:<br>
-export OPENSS_PCSAMP_RATE=100<br>
+export <span style="font-weight: bold;">OPENSS_PCSAMP_RATE</span>=100<br>
 <h2><a class="mozTocH2" name="mozTocId759962"></a>USERTIME Experiment
 Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId347651"></a>Environment Variable
@@ -154,9 +166,10 @@ is in samples per second.&nbsp; The default sampling rate is 35 samples
 per
 second.<br>
 <br>
-OPENSS_USERTIME_RATE="new sampling rate &lt;int&gt;"<br>
+<span style="font-weight: bold;">OPENSS_USERTIME_RATE</span>="new
+sampling rate &lt;int&gt;"<br>
 example:<br>
-export OPENSS_USERTIME_RATE=35
+export <span style="font-weight: bold;">OPENSS_USERTIME_RATE</span>=35
 <h2><a class="mozTocH2" name="mozTocId848421"></a>HWC and HWCTIME
 Experiment Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId17410"></a>Background Information
@@ -173,21 +186,26 @@ the Papi_overflow call Open|SpeedShop uses does not work with them.
 <br>
 To change the default hwc event, example:
 <br>
-export OPENSS_HWC_EVENT="PAPI_L1_DCM" for the hwc collector.
+export <span style="font-weight: bold;">OPENSS_HWC_EVENT</span>="<span
+ style="font-weight: bold;">PAPI_L1_DCM</span>" for the hwc collector.
 <br>
-export OPENSS_HWCTIME_EVENT="PAPI_L1_DCM" for the hwctime collector.
+export <span style="font-weight: bold;">OPENSS_HWCTIME_EVENT</span>="<span
+ style="font-weight: bold;">PAPI_L1_DCM</span>" for the hwctime
+collector.
 <br>
 <div id=":5h" class="ArwC7c ckChnd"><br>
 Note that the default overflow threshold is set as a reasobable
-value for PAPI_TOT_CYC or PAPI_TOT_INS.&nbsp; For other counters
+value for <span style="font-weight: bold;">PAPI_TOT_CYC</span> or <span
+ style="font-weight: bold;">PAPI_TOT_INS.</span>&nbsp; For other
+counters
 you may need to lower the default threashold value.
 <br>
 <br>
 examples:
 <br>
-export OPENSS_HWC_THRESHOLD=10000
+export <span style="font-weight: bold;">OPENSS_HWC_THRESHOLD</span>=10000
 <br>
-export OPENSS_HWCTIME_THRESHOLD=10000
+export <span style="font-weight: bold;">OPENSS_HWCTIME_THRESHOLD</span>=10000
 <br>
 <br>
 The above says record a pc (hwc) or callstack (hwctime) when
@@ -208,9 +226,13 @@ model name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : Dual-Core AMD Opteron(tm)
 Processor 8216
 <br>
 <br>
-&lt;promt&gt; papi_avail | grep "Yes&nbsp;&nbsp; No"
+&lt;promt&gt; <span style="font-weight: bold;">papi_avail | grep
+"Yes&nbsp;&nbsp; No"
 <br>
-PAPI_L1_DCM&nbsp; 0x80000000&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Level
+</span>or<span style="font-weight: bold;"><br>
+</span>&lt;promt&gt;<span style="font-weight: bold;"> osshwc<br>
+</span>PAPI_L1_DCM&nbsp; 0x80000000&nbsp; Yes&nbsp;&nbsp;
+No&nbsp;&nbsp; Level
 1 data cache misses
 <br>
 PAPI_L1_ICM&nbsp; 0x80000001&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp; Level
@@ -295,13 +317,18 @@ PAPI_FP_OPS&nbsp; 0x80000066&nbsp; Yes&nbsp;&nbsp; No&nbsp;&nbsp;
 Floating point operations<br>
 <h3><a class="mozTocH3" name="mozTocId569785"></a>Environment Variable
 Definition and Example:</h3>
-OPENSS_HWC_THRESHOLD="new threshold &lt;int&gt;"<br>
-OPENSS_HWCTIME_THRESHOLD="new threshold &lt;int&gt;"<br>
-OPENSS_HWC_EVENT="new papi event &lt;string&gt;"<br>
-OPENSS_HWCTIME_EVENT="new papi event &lt;string&gt;"<br>
+<span style="font-weight: bold;">OPENSS_HWC_THRESHOLD</span>="new
+threshold &lt;int&gt;"<br>
+<span style="font-weight: bold;">OPENSS_HWCTIME_THRESHOLD</span>="new
+threshold &lt;int&gt;"<br>
+<span style="font-weight: bold;">OPENSS_HWC_EVENT</span>="new papi
+event &lt;string&gt;"<br>
+<span style="font-weight: bold;">OPENSS_HWCTIME_EVENT</span>="new papi
+event &lt;string&gt;"<br>
 example:<br>
-export OPENSS_HWC_THRESHOLD=19999999<br>
-export OPENSS_HWC_EVENT=PAPI_BR_INS<br>
+export <span style="font-weight: bold;">OPENSS_HWC_THRESHOLD</span>=19999999<br>
+export <span style="font-weight: bold;">OPENSS_HWC_EVENT</span>=<span
+ style="font-weight: bold;">PAPI_BR_INS</span><br>
 <h2><a class="mozTocH2" name="mozTocId258061"></a>IO and IOT Experiment
 Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId199271"></a>Environment Variable
@@ -310,16 +337,22 @@ This environment variable represents the I/O functions that will be
 traced during an I/O (io) or I/O with extended information recorded
 (iot) experiments.<br>
 <br>
-OPENSS_IO_TRACED="comma separated list of IO functions &lt;string&gt;"<br>
-OPENSS_IOT_TRACED="comma separated list of IO functions &lt;string&gt;"<br>
+<span style="font-weight: bold;">OPENSS_IO_TRACED</span>="comma
+separated list of IO functions &lt;string&gt;"<br>
+<span style="font-weight: bold;">OPENSS_IOT_TRACED</span>="comma
+separated list of IO functions &lt;string&gt;"<br>
 example:<br>
-export OPENSS_IOT_TRACED=read,write<br>
+export <span style="font-weight: bold;">OPENSS_IOT_TRACED</span>=read,write<br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId442933"></a>Acceptable values:</h3>
-All (default), one, or any combination of the following io calls:<br>
-"dup", "dup2", "creat", "open", "close", "read","write",<br>
-"pipe", "lseek", "pread", "pwrite", "readv", "writev", "open64",<br>
-"lseek64", "creat64", "pread64", "pwrite64"<br>
+<span style="font-weight: bold;">All</span> (default), one, or any
+combination of the following io calls:<br>
+<span style="font-weight: bold;">"dup", "dup2", "creat", "open",
+"close", "read","write",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">"pipe", "lseek", "pread", "pwrite",
+"readv", "writev", "open64",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">"lseek64", "creat64", "pread64",
+"pwrite64"</span><br>
 <h2><a class="mozTocH2" name="mozTocId949343"></a>MPI and MPIT and
 MPIOTF Experiment Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId174486"></a>Environment Variable
@@ -328,13 +361,18 @@ These environment variables represents the I/O functions that will be
 traced during an MPI (mpi), MPI with extended information recorded
 (mpit), or the MPI Open Trace Format (mpiotf) experiments.<br>
 <br>
-OPENSS_MPI_TRACED="comma separated list of mpi functions &lt;string&gt;"<br>
-OPENSS_MPIT_TRACED="comma separated list of mpi functions
+<span style="font-weight: bold;">OPENSS_MPI_TRACED</span>="comma
+separated list of mpi functions &lt;string&gt;"<br>
+<span style="font-weight: bold;">OPENSS_MPIT_TRACED</span>="comma
+separated list of mpi functions
 &lt;string&gt;"<br>
-OPENSS_MPIOTF_TRACED="comma separated list of mpi functions
+<span style="font-weight: bold;">OPENSS_MPIOTF_TRACED</span>="comma
+separated list of mpi functions
 &lt;string&gt;"<br>
 example:<br>
-export OPENSS_MPIT_TRACED=MPI_Isendv,MPI_Irecv<br>
+export <span style="font-weight: bold;">OPENSS_MPIT_TRACED</span>=<span
+ style="font-weight: bold;">MPI_Isendv</span>,<span
+ style="font-weight: bold;">MPI_Irecv</span><br>
 <h3><a class="mozTocH3" name="mozTocId635433"></a>Acceptable values:</h3>
 <br>
 <table style="width: 493px; height: 256px;" border="1" cellpadding="2"
@@ -348,103 +386,161 @@ export OPENSS_MPIT_TRACED=MPI_Isendv,MPI_Irecv<br>
     </tr>
     <tr>
       <td>All the MPI Functions </td>
-      <td>all</td>
+      <td style="font-weight: bold;">all</td>
     </tr>
     <tr>
       <td>Collective Communicators </td>
-      <td>collective_com</td>
+      <td style="font-weight: bold;">collective_com</td>
     </tr>
     <tr>
       <td>Persistent_Communicators </td>
-      <td>persistent_com</td>
+      <td style="font-weight: bold;">persistent_com</td>
     </tr>
     <tr>
       <td>Synchronous Point to Point </td>
-      <td>synchronous_p2p</td>
+      <td style="font-weight: bold;">synchronous_p2p</td>
     </tr>
     <tr>
       <td>Asynchronous Point to Point </td>
-      <td>asynchronous_p2p</td>
+      <td style="font-weight: bold;">asynchronous_p2p</td>
     </tr>
     <tr>
       <td>Process Topologies </td>
-      <td>process_topologies</td>
+      <td style="font-weight: bold;">process_topologies</td>
     </tr>
     <tr>
       <td>Groups Contexts Communicators </td>
-      <td>graphs_contexts_comms</td>
+      <td style="font-weight: bold;">graphs_contexts_comms</td>
     </tr>
     <tr>
       <td>Environment </td>
-      <td>environment</td>
+      <td style="font-weight: bold;">environment</td>
     </tr>
     <tr>
       <td>Datatypes </td>
-      <td>datatypes</td>
+      <td style="font-weight: bold;">datatypes</td>
     </tr>
   </tbody>
 </table>
 <br>
 Also, acceptable is one or any combination of the following MPI calls:<br>
 <br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Allgather",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Allgatherv",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Allreduce",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Alltoall",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Alltoallv",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Barrier",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Bcast",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Bsend",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Bsend_init",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Cancel",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Cart_create",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Cart_sub",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Comm_create",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Comm_dup",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Comm_free",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Comm_split",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Finalize",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Gather",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Gatherv",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Get_count",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Graph_create",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Ibsend",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Init",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Intercomm_create",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Intercomm_merge",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Iprobe",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Irecv",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Irsend",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Isend",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Issend",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Pack",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Probe",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Recv",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Recv_init",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Reduce",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Reduce_scatter",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Request_free",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Rsend",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Rsend_init",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Scan",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Scatter",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Scatterv",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Send",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Sendrecv",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Sendrecv_replace",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Ssend",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Ssend_init",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Start",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Startall",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Test",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Testall",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Testany",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Testsome",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Unpack",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Wait",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Waitall",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Waitany",<br>
-&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Waitsome"<br>
+&nbsp; &nbsp; &nbsp; &nbsp;<span style="font-weight: bold;">"MPI_Allgather",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Allgatherv",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Allreduce",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Alltoall",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Alltoallv",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Barrier",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Bcast",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Bsend",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Bsend_init",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Cancel",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Cart_create",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Cart_sub",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Comm_create",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Comm_dup",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Comm_free",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Comm_split",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Finalize",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Gather",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Gatherv",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Get_count",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Graph_create",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Ibsend",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Init",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Intercomm_create",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Intercomm_merge",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Iprobe",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Irecv",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Irsend",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Isend",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Issend",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Pack",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Probe",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Recv",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Recv_init",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Reduce",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Reduce_scatter",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Request_free",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Rsend",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Rsend_init",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Scan",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Scatter",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Scatterv",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Send",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Sendrecv",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Sendrecv_replace",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Ssend",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Ssend_init",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Start",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Startall",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Test",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Testall",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Testany",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Testsome",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Unpack",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp; &nbsp;"MPI_Wait",</span><br
+ style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Waitall",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Waitany",</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp; &nbsp; &nbsp;
+&nbsp;"MPI_Waitsome"</span><br>
 <h2><a class="mozTocH2" name="mozTocId643119"></a>FPE Experiment
 Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId472454"></a>Environment Variable
@@ -452,8 +548,9 @@ Definition and Example:</h3>
 This environment variable represents the floating point exceptions that
 will be monitored during a floating point trace (fpe) experiment.<br>
 <br>
-OPENSS_FPE_EVENT="comma separated list of FP Exceptions &lt;string&gt;"<br>
-export OPENSS_FPE_EVENT=division_by_zero,invalid_operation<br>
+<span style="font-weight: bold;">OPENSS_FPE_EVENT</span>="comma
+separated list of FP Exceptions &lt;string&gt;"<br>
+export <span style="font-weight: bold;">OPENSS_FPE_EVENT</span>=division_by_zero,invalid_operation<br>
 <h3><a class="mozTocH3" name="mozTocId656064"></a>Acceptable values:</h3>
 All, one, or any combination of the following exceptions.<br>
 &nbsp; <br>
@@ -470,33 +567,33 @@ All, one, or any combination of the following exceptions.<br>
       </td>
       <td style="vertical-align: top;">All of the types<br>
       </td>
-      <td style="vertical-align: top;">all<br>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">all</span><br>
       </td>
     </tr>
     <tr>
       <td>FE_INEXACT</td>
       <td> inexact result</td>
-      <td>inexact_result</td>
+      <td style="font-weight: bold;">inexact_result</td>
     </tr>
     <tr>
       <td>FE_DIVBYZERO</td>
       <td> division by zero</td>
-      <td>division_by_zero</td>
+      <td style="font-weight: bold;">division_by_zero</td>
     </tr>
     <tr>
       <td>FE_UNDERFLOW </td>
       <td> result not representable due to underflow</td>
-      <td>underflow</td>
+      <td style="font-weight: bold;">underflow</td>
     </tr>
     <tr>
       <td>FE_OVERFLOW</td>
       <td> result not representable due to overflow</td>
-      <td>overflow</td>
+      <td style="font-weight: bold;">overflow</td>
     </tr>
     <tr>
       <td>FE_INVALID </td>
       <td> invalid operation</td>
-      <td>invalid_operation</td>
+      <td style="font-weight: bold;">invalid_operation</td>
     </tr>
   </tbody>
 </table>

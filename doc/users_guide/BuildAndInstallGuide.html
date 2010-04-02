@@ -56,21 +56,17 @@ Build and Installation Guide<br>
 <ol id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
   <li><a href="#mozTocId208182">Build and Installation
-Guide Introduction
-    </a>
+Guide Introduction </a>
     <ol>
       <li><a href="#mozTocId821143">Introduction
-and Tutorial
-        </a></li>
+and Tutorial </a></li>
       <li><a href="#mozTocId200693">Downloading the
 Open|SpeedShop Component
-Source Using CVS trees
-        </a></li>
+Source Using CVS trees </a></li>
     </ol>
   </li>
   <li><a href="#mozTocId334016">Open|SpeedShop
-Build and Installation
-    </a>
+Build and Installation </a>
     <ol>
       <li><a href="#mozTocId733358">Building
 Open|SpeedShop
@@ -78,16 +74,12 @@ and
 Open|SpeedShop
 Development RPM Usage Information</a>
         <ol>
-          <li><a href="#mozTocId585528">Prerequistite Needs
-            </a></li>
+          <li><a href="#mozTocId585528">Prerequistite Needs </a></li>
           <li><a href="#mozTocId893375">Installation
-Information
-            </a></li>
-          <li><a href="#mozTocId560453">To Run Open|SpeedShop
-            </a></li>
+Information </a></li>
+          <li><a href="#mozTocId560453">To Run Open|SpeedShop </a></li>
           <li><a href="#mozTocId132468">Key
-Environment Variables Needed for Building Open|SpeedShop
-            </a>
+Environment Variables Needed for Building Open|SpeedShop </a>
             <ol>
               <li><a href="#mozTocId520988">OPENSS_PREFIX</a></li>
               <li><a href="#mozTocId613200">OPENSS_INSTRUMENTOR</a></li>
@@ -96,8 +88,7 @@ Environment Variables Needed for Building Open|SpeedShop
           <li><a href="#mozTocId911379">Key
 Environment Variables Needed for Running Open|SpeedShop</a>
             <ol>
-              <li><a href="#mozTocId579302">OPENSS_PLUGIN_PATH
-                </a></li>
+              <li><a href="#mozTocId579302">OPENSS_PLUGIN_PATH </a></li>
               <li><a href="#mozTocId173759">LD_LIBRARY_PATH</a></li>
               <li><a href="#mozTocId537563">OPENSS_MPI_IMPLEMENTATION</a></li>
               <li><a href="#mozTocId861365">DYNINSTAPI_RT_LIB</a></li>
@@ -954,11 +945,14 @@ directory.</li>
 <ul style="margin-left: 200px;">
   <li>This environment variable
 specifies the instrumentation mechanism to be used for the online
-(dynamic instrumentation) mode of operation.&nbsp; MRNet is the
-default. &nbsp;&nbsp; If only using the offline instrumentation mode of
-operation OPENSS_INSTRUMENTOR can be set to "offline" (e.g. setenv
-OPENSS_INSTRUMENTOR offline).&nbsp; In this case MRNet and Dyninst will
-not be built and online instrumentation will not be available.</li>
+(dynamic instrumentation) mode of operation.&nbsp; offline is the
+default. &nbsp;&nbsp; If using the online instrumentation mode of
+operation OPENSS_INSTRUMENTOR can be set to "mrnet" (e.g. setenv
+OPENSS_INSTRUMENTOR mrnet).&nbsp; In this case MRNet and Dyninst will
+be built and online instrumentation will available.&nbsp; By default,
+the MRNet and Dyninst components are not built and online
+instrumentation is not available.<br>
+  </li>
 </ul>
 <br>
 <h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId911379"></a><b><b
@@ -973,10 +967,12 @@ Environment Variables Needed for Running Open|SpeedShop</b></b></h3>
   <li>This environment variable
 specifies where the <b>Open|SpeedShop</b> main program will look for
 experiment plugins.&nbsp; This is in addition to the normal search
-path, which is "&lt;installdir&gt;/lib/openspeedshop"&nbsp; Prior to <b>Open|SpeedShop</b>
+path, which is "&lt;installdir&gt;/lib{64}/openspeedshop"&nbsp; Prior
+to <b>Open|SpeedShop</b>
 initialization set this
 variable to the path to your non-default plugins,&nbsp; (e.g.
-"setenv OPENSS_PLUGIN_PATH /g2/install/lib/openspeedshop)</li>
+"setenv <span style="font-weight: bold;">OPENSS_PLUGIN_PATH</span>
+/g2/install/lib/openspeedshop)</li>
 </ul>
 </div>
 <h4 style="margin-left: 120px;"><a class="mozTocH4"
@@ -986,8 +982,12 @@ variable to the path to your non-default plugins,&nbsp; (e.g.
   <li>This environment variable points to the directories where
 Open|SpeedShop component libraries and Open|SpeedShop libraries are
 installed.&nbsp; Set this environment variable to
-$OPENSS_PREFIX/lib{64} (e.g. "setenv LD_LIBRARY_PATH
-$OPENSS_PREFIX/lib{64}:$LD_LIBRARY_PATH)<br>
+$<span style="font-weight: bold;">OPENSS_PREFIX</span>/<span
+ style="font-weight: bold;">lib{64}</span> (e.g. "setenv <span
+ style="font-weight: bold;">LD_LIBRARY_PATH</span>
+    <span style="font-weight: bold;">$OPENSS_PREFIX</span>/<span
+ style="font-weight: bold;">lib{64}</span>:$<span
+ style="font-weight: bold;">LD_LIBRARY_PATH</span>)<br>
   </li>
 </ul>
 </div>
@@ -1002,9 +1002,18 @@ supported MPI implementations:<br>
   </li>
 </ul>
 </div>
-<div style="margin-left: 240px;">openmpi, lampi, mpich2, mpich, mpt,
-mvapich, mvapich2, lam<small><br>
-<br>
+<div style="margin-left: 240px;">
+<ul>
+  <li><span style="font-weight: bold;">lam</span></li>
+  <li><span style="font-weight: bold;">lampi</span></li>
+  <li><span style="font-weight: bold;">mpich</span></li>
+  <li><span style="font-weight: bold;">mpich2</span></li>
+  <li><span style="font-weight: bold;">mpt</span></li>
+  <li><span style="font-weight: bold;">mvapich</span></li>
+  <li><span style="font-weight: bold;">mvapich2</span></li>
+  <li><span style="font-weight: bold;">openmpi</span></li>
+</ul>
+<small><br>
 </small>Open|SpeedShop can auto-detect most of the MPI
 implementations that an MPI application is using.&nbsp; So, this
 variable will only be used
@@ -1024,9 +1033,11 @@ to override the auto-detection code, if need be.<span
             <li><big><small>This envirionmnent variable s</small></big><big><small>pecifies
 the path to the Dyninst (dynamic instrumentation package) libraries and
 is only needed for running in the online instrurmentation mode of
-operation.&nbsp;&nbsp;&nbsp; Set this to:&nbsp; $OPENSS_PREFIX/lib{64}/
-              </small></big>libdyninstAPI_RT.so.1 (e.g. setenv
-DYNINSTAPI_RT_LIB $OPENSS_PREFIX/lib64/libdyninstAPI_RT.so.1). </li>
+operation.&nbsp;&nbsp;&nbsp; Set this to:&nbsp; <span
+ style="font-weight: bold;">$OPENSS_PREFIX/lib{64}/ </span></small></big><span
+ style="font-weight: bold;">libdyninstAPI_RT.so.1 </span>(e.g. <span
+ style="font-weight: bold;">setenv
+DYNINSTAPI_RT_LIB $OPENSS_PREFIX/lib64/libdyninstAPI_RT.so.1</span>). </li>
           </ul>
         </ul>
       </ul>
@@ -1038,8 +1049,10 @@ DYNINSTAPI_RT_LIB $OPENSS_PREFIX/lib64/libdyninstAPI_RT.so.1). </li>
 <ul style="margin-left: 200px;">
   <li><big><small>This envirionmnent variable s</small></big><big><small>pecifies
 the path to the Open|SpeedShop component executables and to the
-Open|SpeedShop executables.&nbsp; Set this to:&nbsp; $OPENSS_PREFIX/bin</small></big>
-(e.g. setenv PATH $OPENSS_PREFIX/bin:$PATH).</li>
+Open|SpeedShop executables.&nbsp; Set this to:&nbsp; $<span
+ style="font-weight: bold;">OPENSS_PREFIX</span>/bin</small></big>
+(e.g. <span style="font-weight: bold;">setenv PATH
+$OPENSS_PREFIX/bin:$PATH</span>).</li>
 </ul>
 <br>
 <h4 style="margin-left: 120px;"><a class="mozTocH4"
@@ -1050,12 +1063,15 @@ the path to where the offline version of openss will store the rawdata
 files representing the performance data that was gathered from the
 users application. &nbsp; This is needed on clusters where the default
 rawdata file directory, /tmp, is not shared across the nodes. &nbsp; If
-this is the case on the cluster you are running "openss -offline" or
-using the GUI or CLI to run offline experiment, then OPENSS_RAWDATA_DIR
+this is the case on the cluster you are running "<span
+ style="font-weight: bold;">openss -offline</span>" or
+using the GUI or CLI to run <span style="font-weight: bold;">offline </span>experiment,
+then <span style="font-weight: bold;">OPENSS_RAWDATA_DIR</span>
 must be set to a shared file system directory.&nbsp; Otherwise, /tmp is
-used. &nbsp;&nbsp; Set this to:&nbsp; OPENSS_RAWDATA_DIR
+used. &nbsp;&nbsp; Set this to:&nbsp; <span style="font-weight: bold;">OPENSS_RAWDATA_DIR</span>
 &lt;path_to_subdir_for_rawdata_file_writing&gt; </small></big>(e.g.
-setenv OPENSS_RAWDATA_DIR /p/lscratchc/jeg).</li>
+    <span style="font-weight: bold;">setenv OPENSS_RAWDATA_DIR
+/p/lscratchc/jeg</span>).</li>
 </ul>
 <h4 style="margin-left: 120px;"><a class="mozTocH4"
  name="mozTocId588440"></a>OPENSS_DB_DIR</h4>
@@ -1069,9 +1085,6 @@ database file.&nbsp; You can use this environment variable to specify a
 non-lustre file system path to be used for the database file creation.</li>
 </ul>
 </div>
-<br>
-<br>
-<br>
 <br>
 <h3 style="margin-left: 40px;"><a class="mozTocH3" name="mozTocId435044"></a><a
  name="OpenSpeedShop_Tested_Platforms:"></a>Open|SpeedShop Tested
