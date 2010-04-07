@@ -2383,13 +2383,19 @@ StatsPanel::showChart()
     cf->show();
 
     if( !lastCommand.startsWith("cview") ) {
+
+#ifdef DEBUG_StatsPanel_chart
+      printf("StatsPanel::showChart(), CHART, CLEARING lastCommand=(%s)\n", lastCommand.ascii() );
+#endif
+
       lastCommand = QString::null;  // This will force a redraw of the data.
       // I'm not sure why, but the text won't draw unless the 
       // piechart is visible.
 #ifdef DEBUG_StatsPanel_chart
      printf("StatsPanel::showChart(), CHART, calling updatePanel, lastCommand=(%s)\n", lastCommand.ascii() );
 #endif
-      updatePanel();
+      // jeg commented out 4/7/2010 ( the text seems to draw well without this update)
+      // updatePanel();
 
     } else {
 
@@ -5085,7 +5091,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   // The no data message caused the splv (stats panel data) and cf (chart form) to be hidden
 #ifdef DEBUG_StatsPanel_chart
   printf("ENTER StatsPanel::updateStatsPanelData, chartFLAG=%d\n", chartFLAG);
-  printf("updateStatsPanelData, currentUserSelectedReportStr=%s\n", currentUserSelectedReportStr.ascii() );
+  printf("ENTER StatsPanel::updateStatsPanelData, currentUserSelectedReportStr=%s\n", currentUserSelectedReportStr.ascii() );
 #endif
 
   // Turn off the chart for these views
@@ -5098,6 +5104,9 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
        currentUserSelectedReportStr.startsWith("HotCallPath") ||
        currentUserSelectedReportStr.startsWith("Comparison")) &&
       chartFLAG == TRUE) {
+#ifdef DEBUG_StatsPanel_chart
+    printf("IN StatsPanel::updateStatsPanelData, calling showChart from turn on checks, chartFLAG=%d\n", chartFLAG);
+#endif
     showChart();
   } else if ((currentUserSelectedReportStr.startsWith("Butterfly") || 
        currentUserSelectedReportStr.startsWith("CallTrees") || 
@@ -5107,9 +5116,15 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
        currentUserSelectedReportStr.startsWith("HotCallPath") ||
        currentUserSelectedReportStr.startsWith("Comparison")) &&
       chartFLAG == FALSE) {
+#ifdef DEBUG_StatsPanel_chart
+    printf("IN StatsPanel::updateStatsPanelData, do NOT call showChart from leave off checks, chartFLAG=%d\n", chartFLAG);
+#endif
     // skip calling showChart, no need to call it.
   } else if (chartFLAG == FALSE &&  thisPC->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() ) {
     // for other views flip the chartFLAG back on
+#ifdef DEBUG_StatsPanel_chart
+    printf("IN StatsPanel::updateStatsPanelData, calling showChart from else clause, chartFLAG=%d\n", chartFLAG);
+#endif
     showChart();
   }
 
@@ -5188,7 +5203,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 
   if( command.isEmpty() ) {
 #ifdef DEBUG_StatsPanel
-    printf("updateStatsPanelData, calling generate_command with currentThreadsStr=%s\n", currentThreadsStr.ascii() );
+    printf("In StatsPanel::updateStatsPanelData, calling generate_command with currentThreadsStr=%s\n", currentThreadsStr.ascii() );
 #endif
     command = generateCommand();
   } else {
