@@ -932,18 +932,26 @@ StatsPanel::displayUsingFunction()
   printf("StatsPanel::displayUsingFunction() entered, currentUserSelectedReportStr=%s, originatingUserSRS=%s\n",
          currentUserSelectedReportStr.ascii(), originatingUserSelectedReportStr.ascii());
 #endif
+
   currentDisplayUsingTypeStr = "functions";
   currentDisplayUsingType = displayUsingFunctionType;
+
   if (originatingUserSelectedReportStr.startsWith("minMaxAverage") ) {
+
      minMaxAverageSelected();
+
   } else if (originatingUserSelectedReportStr.startsWith("clusterAnalysis") &&
              currentUserSelectedReportStr.startsWith("Comparison" ) ) {
+
      clusterAnalysisSelected();
+
   } else if (originatingUserSelectedReportStr.startsWith("DefaultView") &&
             (currentUserSelectedReportStr.startsWith("Functions") ) || 
             (currentUserSelectedReportStr.startsWith("Statements") ) || 
             (currentUserSelectedReportStr.startsWith("LinkedObjects") ) ) {
+
      defaultViewSelected();
+
   }
 }
 
@@ -2045,6 +2053,11 @@ StatsPanel::clusterAnalysisSelected()
   QString mim = getMostImportantClusterMetric(currentCollectorStr);
   QString displayType;
 
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::clusterAnalysisSelected() ENTERED, currentDisplayUsingType=%d\n", currentDisplayUsingType );
+  printf("StatsPanel::clusterAnalysisSelected() ENTERED, currentCollectorStr=%s\n", currentCollectorStr.ascii() );
+#endif
+
   displayType = "functions";
   if (currentDisplayUsingType == displayUsingStatementType) {
       displayType = "statements";
@@ -2161,6 +2174,10 @@ StatsPanel::minMaxAverageSelected()
   QString displayType;
   QString command = QString::null;
 
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::minMaxAverageSelected() ENTERED, currentDisplayUsingType=%d\n", currentDisplayUsingType );
+#endif
+
   displayType = "functions";
   if (currentDisplayUsingType == displayUsingStatementType) {
       displayType = "statements";
@@ -2180,6 +2197,9 @@ StatsPanel::minMaxAverageSelected()
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::minMaxAverageSelected() about to call updateStatsPanelData, command=%s\n", command.ascii() );
 #endif
+
+  // jeg added 4/6/2010
+  currentUserSelectedReportStr = "minMaxAverage";
 
   originatingUserSelectedReportStr = "minMaxAverage";
   toolbar_status_label->setText("Generating Load Balance (min,max,ave) Report:");
@@ -5073,6 +5093,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   if ((currentUserSelectedReportStr.startsWith("Butterfly") || 
        currentUserSelectedReportStr.startsWith("CallTrees") || 
        currentUserSelectedReportStr.startsWith("TraceBacks") ||
+       currentUserSelectedReportStr.startsWith("minMaxAverage") ||
        currentUserSelectedReportStr.startsWith("clusterAnalysis") ||
        currentUserSelectedReportStr.startsWith("HotCallPath") ||
        currentUserSelectedReportStr.startsWith("Comparison")) &&
@@ -5081,6 +5102,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   } else if ((currentUserSelectedReportStr.startsWith("Butterfly") || 
        currentUserSelectedReportStr.startsWith("CallTrees") || 
        currentUserSelectedReportStr.startsWith("TraceBacks") ||
+       currentUserSelectedReportStr.startsWith("minMaxAverage") ||
        currentUserSelectedReportStr.startsWith("clusterAnalysis") ||
        currentUserSelectedReportStr.startsWith("HotCallPath") ||
        currentUserSelectedReportStr.startsWith("Comparison")) &&
@@ -12693,9 +12715,12 @@ if (currentCollectorStr != lastCollectorStr ||
 #ifdef DEBUG_StatsPanel_toolbar
     printf("StatsPanel::StatsPanel, in compare type button group, creation, full_display_by_menu=%d)\n", full_display_by_menu);
 #endif
+
     if (full_display_by_menu) {
+
       vDisplayTypeStatementRB = new QRadioButton( "Statements", vDisplayTypeBG );
       connect( vDisplayTypeStatementRB, SIGNAL( clicked() ), this, SLOT( displayUsingStatement() ) );
+
       vDisplayTypeLinkedObjectRB = new QRadioButton( "Linked Objects", vDisplayTypeBG );
       connect( vDisplayTypeLinkedObjectRB, SIGNAL( clicked() ), this, SLOT( displayUsingLinkedObject() ) );
 
