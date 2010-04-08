@@ -189,7 +189,6 @@ void io_start_event(io_event* event)
 
     /* Initialize the event record. */
     memset(event, 0, sizeof(io_event));
-
 }
 
 
@@ -388,8 +387,6 @@ void io_start_tracing(const char* arguments)
                             &args);
 
 
-    tls->do_trace = 1;
-
 #if defined(OPENSS_OFFLINE)
 
     /* If OPENSS_IO_TRACED is set to a valid list of io functions, trace only
@@ -432,6 +429,7 @@ void io_start_tracing(const char* arguments)
 
     /* Set the begin time of this data blob */
     tls->header.time_begin = OpenSS_GetTime();
+    tls->do_trace = 1;
 }
 
 

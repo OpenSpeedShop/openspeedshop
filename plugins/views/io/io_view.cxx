@@ -198,6 +198,8 @@ static void Determine_Objects (
 		    }
 #endif
 		    io_objects.insert(*j);
+		} else {
+		    io_objects.insert(*j);
 		}
 	    }
 	}

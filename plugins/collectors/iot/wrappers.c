@@ -97,8 +97,10 @@ SYS_lseek64;
 extern char currentpathname[PATH_MAX];
 
 
-#if defined(OPENSS_OFFLINE)
+#if defined(OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 ssize_t read(int fd, void *buf, size_t count) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+ssize_t __wrap_read(int fd, void *buf, size_t count) 
 #else
 ssize_t iotread(int fd, void *buf, size_t count) 
 #endif
@@ -119,14 +121,12 @@ ssize_t iotread(int fd, void *buf, size_t count)
 	event.start_time = OpenSS_GetTime();
     }
 
-    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "read");
-
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(fd, buf, count);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_read(fd, buf, count);
 #else
-    retval = read(fd, buf, count);
+    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "read");
+    retval = (*realfunc)(fd, buf, count);
 #endif
 
 
@@ -164,12 +164,11 @@ ssize_t iotread(int fd, void *buf, size_t count)
 
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_read);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
     /* Return the real IO function's return value to the caller */
@@ -177,8 +176,10 @@ ssize_t iotread(int fd, void *buf, size_t count)
 }
 
 #ifndef DEBUG
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 ssize_t write(int fd, __const void *buf, size_t count) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+ssize_t __wrap_write(int fd, __const void *buf, size_t count) 
 #else
 ssize_t iotwrite(int fd, void *buf, size_t count) 
 #endif
@@ -199,13 +200,12 @@ ssize_t iotwrite(int fd, void *buf, size_t count)
 	event.start_time = OpenSS_GetTime();
     }
 
-    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "write");
-
-#if defined(OPENSS_OFFLINE)
     /* Call the real IO function */
-    retval = (*realfunc)(fd, buf, count);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_write(fd, buf, count);
 #else
-    retval = write(fd, buf, count);
+    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "write");
+    retval = (*realfunc)(fd, buf, count);
 #endif
 
 
@@ -236,12 +236,11 @@ ssize_t iotwrite(int fd, void *buf, size_t count)
 
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_write);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
 
@@ -250,8 +249,10 @@ ssize_t iotwrite(int fd, void *buf, size_t count)
 }
 #endif
 
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 off_t lseek(int fd, off_t offset, int whence) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+off_t __wrap_lseek(int fd, off_t offset, int whence) 
 #else
 off_t iotlseek(int fd, off_t offset, int whence) 
 #endif
@@ -272,13 +273,12 @@ off_t iotlseek(int fd, off_t offset, int whence)
 	event.start_time = OpenSS_GetTime();
     }
 
-    off_t (*realfunc)() = dlsym (RTLD_NEXT, "lseek");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(fd, offset, whence);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_lseek(fd, offset, whence);
 #else
-    retval = lseek(fd, offset, whence);
+    off_t (*realfunc)() = dlsym (RTLD_NEXT, "lseek");
+    retval = (*realfunc)(fd, offset, whence);
 #endif
 
 
@@ -309,20 +309,21 @@ off_t iotlseek(int fd, off_t offset, int whence)
 
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_lseek);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
     /* Return the real IO function's return value to the caller */
     return retval;
 }
 
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 __off64_t lseek64(int fd, __off64_t offset, int whence) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+__off64_t __wrap_lseek64(int fd, __off64_t offset, int whence) 
 #else
 off_t iotlseek64(int fd, off_t offset, int whence) 
 #endif
@@ -343,13 +344,12 @@ off_t iotlseek64(int fd, off_t offset, int whence)
 	event.start_time = OpenSS_GetTime();
     }
 
-    off_t (*realfunc)() = dlsym (RTLD_NEXT, "lseek64");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(fd, offset, whence);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_lseek64(fd, offset, whence);
 #else
-    retval = lseek64(fd, offset, whence);
+    off_t (*realfunc)() = dlsym (RTLD_NEXT, "lseek64");
+    retval = (*realfunc)(fd, offset, whence);
 #endif
 
 
@@ -380,20 +380,21 @@ off_t iotlseek64(int fd, off_t offset, int whence)
 
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_lseek64);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
     /* Return the real IO function's return value to the caller */
     return retval;
 }
 
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int open(const char *pathname, int flags, mode_t mode) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_open(const char *pathname, int flags, mode_t mode) 
 #else
 int iotopen(const char *pathname, int flags, mode_t mode) 
 #endif
@@ -409,13 +410,12 @@ int iotopen(const char *pathname, int flags, mode_t mode)
 	event.start_time = OpenSS_GetTime();
     }
 
-    int (*realfunc)() = dlsym (RTLD_NEXT, "open");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(pathname, flags, mode);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_open(pathname, flags, mode);
 #else
-    retval = open(pathname, flags, mode);
+    int (*realfunc)() = dlsym (RTLD_NEXT, "open");
+    retval = (*realfunc)(pathname, flags, mode);
 #endif
 
 
@@ -433,12 +433,11 @@ int iotopen(const char *pathname, int flags, mode_t mode)
     strncpy(currentpathname,pathname,strlen(pathname));
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_open);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
 
@@ -446,8 +445,10 @@ int iotopen(const char *pathname, int flags, mode_t mode)
     return retval;
 }
 
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int open64(const char *pathname, int flags, mode_t mode) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_open64(const char *pathname, int flags, mode_t mode) 
 #else
 int iotopen64(const char *pathname, int flags, mode_t mode) 
 #endif
@@ -463,13 +464,12 @@ int iotopen64(const char *pathname, int flags, mode_t mode)
 	event.start_time = OpenSS_GetTime();
     }
 
-    int (*realfunc)() = dlsym (RTLD_NEXT, "open64");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(pathname, flags, mode);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_open64(pathname, flags, mode);
 #else
-    retval = open64(pathname, flags, mode);
+    int (*realfunc)() = dlsym (RTLD_NEXT, "open64");
+    retval = (*realfunc)(pathname, flags, mode);
 #endif
 
 
@@ -487,20 +487,21 @@ int iotopen64(const char *pathname, int flags, mode_t mode)
 
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_open64);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
     /* Return the real IO function's return value to the caller */
     return retval;
 }
 
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int close(int fd) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_close(int fd) 
 #else
 int iotclose(int fd) 
 #endif
@@ -536,14 +537,12 @@ int iotclose(int fd)
 	strncpy(currentpathname,namebuf,strlen(namebuf));
     }
 
-    int (*realfunc)() = dlsym (RTLD_NEXT, "close");
-
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(fd);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_close(fd);
 #else
-    retval = close(fd);
+    int (*realfunc)() = dlsym (RTLD_NEXT, "close");
+    retval = (*realfunc)(fd);
 #endif
 
 
@@ -558,20 +557,21 @@ int iotclose(int fd)
 
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_close);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
     /* Return the real IO function's return value to the caller */
     return retval;
 }
 
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int dup(int oldfd) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_dup(int oldfd) 
 #else
 int iotdup(int oldfd) 
 #endif
@@ -592,13 +592,12 @@ int iotdup(int oldfd)
 	event.start_time = OpenSS_GetTime();
     }
 
-    int (*realfunc)() = dlsym (RTLD_NEXT, "dup");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(oldfd);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_dup(oldfd);
 #else
-    retval = dup(oldfd);
+    int (*realfunc)() = dlsym (RTLD_NEXT, "dup");
+    retval = (*realfunc)(oldfd);
 #endif
 
 
@@ -627,21 +626,21 @@ int iotdup(int oldfd)
 
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_dup);
 #else
-    /* defined(__i386) */
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
     /* Return the real IO function's return value to the caller */
     return retval;
 }
 
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int dup2(int oldfd, int newfd) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_dup2(int oldfd, int newfd) 
 #else
 int iotdup2(int oldfd, int newfd) 
 #endif
@@ -662,13 +661,12 @@ int iotdup2(int oldfd, int newfd)
 	event.start_time = OpenSS_GetTime();
     }
 
-    int (*realfunc)() = dlsym (RTLD_NEXT, "dup2");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(oldfd,newfd);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_dup2(oldfd,newfd);
 #else
-    retval = dup2(oldfd,newfd);
+    int (*realfunc)() = dlsym (RTLD_NEXT, "dup2");
+    retval = (*realfunc)(oldfd,newfd);
 #endif
 
 
@@ -698,20 +696,21 @@ int iotdup2(int oldfd, int newfd)
 
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_dup2);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
     /* Return the real IO function's return value to the caller */
     return retval;
 }
 
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int creat(char *pathname, mode_t mode) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_creat(char *pathname, mode_t mode) 
 #else
 int iotcreat(char *pathname, mode_t mode) 
 #endif
@@ -727,13 +726,12 @@ int iotcreat(char *pathname, mode_t mode)
 	event.start_time = OpenSS_GetTime();
     }
 
-    int (*realfunc)() = dlsym (RTLD_NEXT, "creat");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(pathname,mode);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_creat(pathname,mode);
 #else
-    retval = creat(pathname,mode);
+    int (*realfunc)() = dlsym (RTLD_NEXT, "creat");
+    retval = (*realfunc)(pathname,mode);
 #endif
 
 
@@ -750,21 +748,21 @@ int iotcreat(char *pathname, mode_t mode)
     strncpy(currentpathname,pathname,strlen(pathname));
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_creat);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
-    }
-    
+    }    
 
     /* Return the real IO function's return value to the caller */
     return retval;
 }
 
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int creat64(char *pathname, mode_t mode) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_creat64(char *pathname, mode_t mode) 
 #else
 int iotcreat64(char *pathname, mode_t mode) 
 #endif
@@ -780,13 +778,12 @@ int iotcreat64(char *pathname, mode_t mode)
 	event.start_time = OpenSS_GetTime();
     }
 
-    int (*realfunc)() = dlsym (RTLD_NEXT, "creat64");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(pathname,mode);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_creat64(pathname,mode);
 #else
-    retval = creat64(pathname,mode);
+    int (*realfunc)() = dlsym (RTLD_NEXT, "creat64");
+    retval = (*realfunc)(pathname,mode);
 #endif
 
 
@@ -802,12 +799,11 @@ int iotcreat64(char *pathname, mode_t mode)
     strncpy(currentpathname,pathname,strlen(pathname));
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_creat64);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
 
@@ -815,8 +811,10 @@ int iotcreat64(char *pathname, mode_t mode)
     return retval;
 }
 
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 int pipe(int filedes[2]) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_pipe(int filedes[2]) 
 #else
 int iotpipe(int filedes[2]) 
 #endif
@@ -832,13 +830,12 @@ int iotpipe(int filedes[2])
 	event.start_time = OpenSS_GetTime();
     }
 
-    int (*realfunc)() = dlsym (RTLD_NEXT, "pipe");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(filedes);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_pipe(filedes);
 #else
-    retval = pipe(filedes);
+    int (*realfunc)() = dlsym (RTLD_NEXT, "pipe");
+    retval = (*realfunc)(filedes);
 #endif
 
 
@@ -852,20 +849,21 @@ int iotpipe(int filedes[2])
     event.retval = retval;
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_pipe);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
     /* Return the real IO function's return value to the caller */
     return retval;
 }
 
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 ssize_t pread(int fd, void *buf, size_t count, off_t offset) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+ssize_t __wrap_pread(int fd, void *buf, size_t count, off_t offset) 
 #else
 ssize_t iotpread(int fd, void *buf, size_t count, off_t offset)
 #endif
@@ -881,13 +879,12 @@ ssize_t iotpread(int fd, void *buf, size_t count, off_t offset)
 	event.start_time = OpenSS_GetTime();
     }
 
-    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "pread");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(fd, buf, count, offset);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_pread(fd, buf, count, offset);
 #else
-    retval = pread(fd, buf, count, offset);
+    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "pread");
+    retval = (*realfunc)(fd, buf, count, offset);
 #endif
 
 
@@ -912,20 +909,21 @@ ssize_t iotpread(int fd, void *buf, size_t count, off_t offset)
     event.retval = retval;
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_pread);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
     /* Return the real IO function's return value to the caller */
     return retval;
 }
 
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 ssize_t pread64(int fd, void *buf, size_t count, __off64_t offset) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+ssize_t __wrap_pread64(int fd, void *buf, size_t count, __off64_t offset) 
 #else
 ssize_t iotpread64(int fd, void *buf, size_t count, off_t offset) 
 #endif
@@ -946,13 +944,12 @@ ssize_t iotpread64(int fd, void *buf, size_t count, off_t offset)
 	event.start_time = OpenSS_GetTime();
     }
 
-    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "pread64");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(fd, buf, count, offset);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_pread64(fd, buf, count, offset);
 #else
-    retval = pread64(fd, buf, count, offset);
+    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "pread64");
+    retval = (*realfunc)(fd, buf, count, offset);
 #endif
 
 
@@ -991,12 +988,11 @@ ssize_t iotpread64(int fd, void *buf, size_t count, off_t offset)
     strncpy(currentpathname,namebuf,strlen(namebuf));
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_pread64);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
     /* Return the real IO function's return value to the caller */
@@ -1004,8 +1000,10 @@ ssize_t iotpread64(int fd, void *buf, size_t count, off_t offset)
 }
 
 #ifndef DEBUG
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 ssize_t pwrite(int fd, __const void *buf, size_t count, __off_t offset) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+ssize_t __wrap_pwrite(int fd, __const void *buf, size_t count, __off_t offset) 
 #else
 ssize_t iotpwrite(int fd, void *buf, size_t count, off_t offset) 
 #endif
@@ -1026,13 +1024,12 @@ ssize_t iotpwrite(int fd, void *buf, size_t count, off_t offset)
 	event.start_time = OpenSS_GetTime();
     }
 
-    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "pwrite");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(fd, buf, count, offset);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_pwrite(fd, buf, count, offset);
 #else
-    retval = pwrite(fd, buf, count, offset);
+    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "pwrite");
+    retval = (*realfunc)(fd, buf, count, offset);
 #endif
 
 
@@ -1070,12 +1067,11 @@ ssize_t iotpwrite(int fd, void *buf, size_t count, off_t offset)
     strncpy(currentpathname,namebuf,strlen(namebuf));
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_pwrite);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
     /* Return the real IO function's return value to the caller */
@@ -1084,8 +1080,10 @@ ssize_t iotpwrite(int fd, void *buf, size_t count, off_t offset)
 #endif
 
 #ifndef DEBUG
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 ssize_t pwrite64(int fd, __const void *buf, size_t count, __off64_t offset) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+ssize_t __wrap_pwrite64(int fd, __const void *buf, size_t count, __off64_t offset) 
 #else
 ssize_t iotpwrite64(int fd, void *buf, size_t count, off_t offset) 
 #endif
@@ -1106,13 +1104,12 @@ ssize_t iotpwrite64(int fd, void *buf, size_t count, off_t offset)
 	event.start_time = OpenSS_GetTime();
     }
 
-    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "pwrite64");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(fd, buf, count, offset);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_pwrite64(fd, buf, count, offset);
 #else
-    retval = pwrite64(fd, buf, count, offset);
+    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "pwrite64");
+    retval = (*realfunc)(fd, buf, count, offset);
 #endif
 
 
@@ -1151,12 +1148,11 @@ ssize_t iotpwrite64(int fd, void *buf, size_t count, off_t offset)
     strncpy(currentpathname,namebuf,strlen(namebuf));
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_pwrite64);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
     /* Return the real IO function's return value to the caller */
@@ -1165,8 +1161,10 @@ ssize_t iotpwrite64(int fd, void *buf, size_t count, off_t offset)
 #endif
 
 #if !defined(OPENSS_OFFLINE)
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 ssize_t readv(int fd, const struct iovec *vector, size_t count) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+ssize_t __wrap_readv(int fd, const struct iovec *vector, size_t count) 
 #else
 ssize_t iotreadv(int fd, const struct iovec *vector, size_t count) 
 #endif
@@ -1187,13 +1185,12 @@ ssize_t iotreadv(int fd, const struct iovec *vector, size_t count)
 	event.start_time = OpenSS_GetTime();
     }
 
-    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "readv");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(fd, vector, count);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_readv(fd, vector, count);
 #else
-    retval = readv(fd, vector, count);
+    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "readv");
+    retval = (*realfunc)(fd, vector, count);
 #endif
 
 
@@ -1222,12 +1219,11 @@ ssize_t iotreadv(int fd, const struct iovec *vector, size_t count)
     strncpy(currentpathname,namebuf,strlen(namebuf));
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_readv);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
     /* Return the real IO function's return value to the caller */
@@ -1236,8 +1232,10 @@ ssize_t iotreadv(int fd, const struct iovec *vector, size_t count)
 
 
 #ifndef DEBUG
-#if defined(OPENSS_OFFLINE)
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 ssize_t writev(int fd, const struct iovec *vector, size_t count) 
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+ssize_t __wrap_writev(int fd, const struct iovec *vector, size_t count) 
 #else
 ssize_t iotwritev(int fd, const struct iovec *vector, size_t count) 
 #endif
@@ -1258,13 +1256,12 @@ ssize_t iotwritev(int fd, const struct iovec *vector, size_t count)
 	event.start_time = OpenSS_GetTime();
     }
 
-    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "writev");
-
     /* Call the real IO function */
-#if defined(OPENSS_OFFLINE)
-    retval = (*realfunc)(fd, vector, count);
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+    retval = __real_writev(fd, vector, count);
 #else
-    retval = writev(fd, vector, count);
+    ssize_t (*realfunc)() = dlsym (RTLD_NEXT, "writev");
+    retval = (*realfunc)(fd, vector, count);
 #endif
 
 
@@ -1295,12 +1292,11 @@ ssize_t iotwritev(int fd, const struct iovec *vector, size_t count)
 
 
     /* Record event and it's stacktrace*/
-#if defined(__linux) && defined(__x86_64)
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#if defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+        iot_record_event(&event, (uint64_t) __real_writev);
 #else
-    iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+        iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #endif
-
     }
     
     /* Return the real IO function's return value to the caller */

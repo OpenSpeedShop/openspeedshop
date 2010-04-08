@@ -464,7 +464,6 @@ void iot_start_tracing(const char* arguments)
                             (xdrproc_t)xdr_iot_start_tracing_args,
                             &args);
 
-    tls->do_trace = 1;
 
 #if defined(OPENSS_OFFLINE)
 
@@ -511,6 +510,7 @@ void iot_start_tracing(const char* arguments)
 
     /* Set the begin time of this data blob */
     tls->header.time_begin = OpenSS_GetTime();
+    tls->do_trace = 1;
 }
 
 

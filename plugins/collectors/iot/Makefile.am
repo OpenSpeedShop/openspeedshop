@@ -124,7 +124,7 @@ iot_rt_offline_la_SOURCES = \
 
 libiot_offline_la_CFLAGS = \
 	-static \
-	-DOPENSS_OFFLINE \
+	-DOPENSS_OFFLINE -DOPENSS_STATIC \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	@LIBUNWIND_CPPFLAGS@
@@ -152,7 +152,7 @@ endif
 if HAVE_TARGET_LIBMONITOR
 libiot_offline_la_CFLAGS = \
 	-static \
-	-DOPENSS_OFFLINE \
+	-DOPENSS_OFFLINE -DOPENSS_STATIC \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	@TARGET_LIBUNWIND_CPPFLAGS@
