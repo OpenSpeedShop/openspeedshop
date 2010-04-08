@@ -156,7 +156,9 @@ ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
   
   compareSet->tabWidget->addTab( frame, name );
   int count = compareSet->tabWidget->count();
-// printf("count=%d\n", count);
+#ifdef DEBUG_COMPARE
+  printf("count=%d\n", count);
+#endif
   QWidget *cp = compareSet->tabWidget->page(count-1);
   cp->show();
   compareSet->tabWidget->showPage(cp);
@@ -224,11 +226,15 @@ ColumnSet::gatherExperimentInfo()
   int eid = 1;
   int saved_eid = 0;
   std::list<int64_t>::iterator it;
-// printf("int_list.size() =%d\n", int_list.size() );
+#ifdef DEBUG_COMPARE
+  printf("int_list.size() =%d\n", int_list.size() );
+#endif
   for(it = int_list.begin(); it != int_list.end(); it++ )
   {
     eid = (int64_t)(*it);
-// printf("eid=(%d)\n", eid );
+#ifdef DEBUG_COMPARE
+     printf("eid=(%d)\n", eid );
+#endif
 
     if( saved_eid == 0 )
     {
@@ -241,7 +247,9 @@ ColumnSet::gatherExperimentInfo()
     if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
            &list_of_collectors, clip, TRUE ) )
     {
-// printf("Unable to run %s command.\n", command.ascii() );
+#ifdef DEBUG_COMPARE
+      printf("Unable to run %s command.\n", command.ascii() );
+#endif
       
       QMessageBox::information(compareSet->compareClass, QString("Initialization warning:"), QString("Unable to run \"%1\" command.").arg(command.ascii()), QMessageBox::Ok );
 
@@ -257,7 +265,9 @@ ColumnSet::gatherExperimentInfo()
       {
 //      std::string collector_name = *it;
         QString collector_name = (QString)*it;
-// printf("  collector_name=(%s)\n", collector_name.ascii() );
+#ifdef DEBUG_COMPARE
+        printf("  collector_name=(%s)\n", collector_name.ascii() );
+#endif
 
         if( expTypes.isEmpty() )
         {
@@ -272,11 +282,15 @@ ColumnSet::gatherExperimentInfo()
     {
       const char *str = expTypes.ascii();
       experiment_list.push_back( std::make_pair(eid, str ) );
-// printf("What's going on ... push (%s) back to the experiment_list\n", str );
+#ifdef DEBUG_COMPARE
+       printf("What's going on ... push (%s) back to the experiment_list\n", str );
+#endif
       if( expStr.isEmpty() )
       {
         expStr = expTypes;
-// printf("initialize expStr with default value (%s)\n", expStr.ascii() );
+#ifdef DEBUG_COMPARE
+        printf("initialize expStr with default value (%s)\n", expStr.ascii() );
+#endif
       }
     }
   }
@@ -290,16 +304,22 @@ ColumnSet::gatherExperimentInfo()
     {
       expStr = experimentComboBox->currentText();
       saved_eid = getExpidFromExperimentComboBoxStr(expStr);
-// printf("There was a combo box.  It was (%s)\n", expStr.ascii() );
+#ifdef DEBUG_COMPARE
+      printf("There was a combo box.  It was (%s)\n", expStr.ascii() );
+#endif
     } else
     {
       // THIS IS A BUG.   This code block should be look "back"
       // for the previous columns experiment string and attempting
       // to focus this information with that information.
-// printf("There was a combo box.  IT WAS EMPTY!!\n");
+#ifdef DEBUG_COMPARE
+      printf("There was a combo box.  IT WAS EMPTY!!\n");
+#endif
     }
     
-// printf("expStr = (%s) saved_eid=%d\n", expStr.ascii(), saved_eid );
+#ifdef DEBUG_COMPARE
+    printf("expStr = (%s) saved_eid=%d\n", expStr.ascii(), saved_eid );
+#endif
   
     int cb_count = 0;
     for(cb_count = experimentComboBox->count(); cb_count > 0; cb_count--)
@@ -312,10 +332,16 @@ ColumnSet::gatherExperimentInfo()
   
     QString str1 = QString("%1").arg(it->first);
     QString str2 = QString("%1").arg(it->second.c_str());
-// printf("str1=(%s) str2=(%s)\n", str1.ascii(), str2.ascii() );
+
+#ifdef DEBUG_COMPARE
+    printf("str1=(%s) str2=(%s)\n", str1.ascii(), str2.ascii() );
+#endif
+
     if( experimentComboBox )
     {
-// printf("WE HAVE AN experimentComboBox!\n");
+#ifdef DEBUG_COMPARE
+      printf("WE HAVE AN experimentComboBox!\n");
+#endif
       QString label(str2);
       experimentComboBox->insertItem( label );
 #ifdef DEBUG_COMPARE
@@ -409,7 +435,9 @@ ColumnSet::gatherCollectorInfo(int id)
     {
       collectorStr = collectorComboBox->currentText();
     }
-// printf("A: collectorStr = (%s)\n", collectorStr.ascii() );
+#ifdef DEBUG_COMPARE
+   printf("A: collectorStr = (%s)\n", collectorStr.ascii() );
+#endif
   
     int cb_count = 0;
     for(cb_count = collectorComboBox->count(); cb_count > 0; cb_count--)
@@ -417,7 +445,9 @@ ColumnSet::gatherCollectorInfo(int id)
       collectorComboBox->removeItem(cb_count-1);
     }
   }
-// printf("Now look up up the collectors of the above (focused) experiment.   Now try to build the collector list from it...\n");
+#ifdef DEBUG_COMPARE
+  printf("Now look up up the collectors of the above (focused) experiment.   Now try to build the collector list from it...\n");
+#endif
 
   CollectorEntry *saved_ce = NULL;
   ce = NULL;
@@ -429,12 +459,16 @@ ColumnSet::gatherCollectorInfo(int id)
     ce = (CollectorEntry *)*it;
     if( saved_ce == NULL )
     {
-// printf("saved_ce is null, initialize it to (%s)\n", ce->name.ascii() );
+#ifdef DEBUG_COMPARE
+      printf("saved_ce is null, initialize it to (%s)\n", ce->name.ascii() );
+#endif
       saved_ce = ce;
     }
     if( collectorStr.isEmpty() )
     {
-// printf("collectorStr was empty, initialize it to (%s)\n", ce->name.ascii() );
+#ifdef DEBUG_COMPARE
+       printf("collectorStr was empty, initialize it to (%s)\n", ce->name.ascii() );
+#endif
        collectorStr = ce->name;
        saved_ce = ce;
      }
@@ -442,12 +476,16 @@ ColumnSet::gatherCollectorInfo(int id)
     {
       QString label(ce->name);
       collectorComboBox->insertItem( label );
-// printf("Put this to menu: ce->name=%s ce->short_name\n", ce->name.ascii(), ce->short_name.ascii() );
+#ifdef DEBUG_COMPARE
+      printf("Put this to menu: ce->name=%s ce->short_name\n", ce->name.ascii(), ce->short_name.ascii() );
+#endif
       if( label == collectorStr )
       {
         collectorStrFoundFLAG = TRUE;
         saved_ce = ce;
-// printf("found a collectorStr to try to restore, set saved_ce = (%s)\n", ce->name.ascii() );
+#ifdef DEBUG_COMPARE
+        printf("found a collectorStr to try to restore, set saved_ce = (%s)\n", ce->name.ascii() );
+#endif
       }
     }
   }
@@ -456,7 +494,9 @@ ColumnSet::gatherCollectorInfo(int id)
   {
     if( !collectorStr.isEmpty() )
     {
-// printf("Attempt to restore the collectorComboBox to (%s)\n", collectorStr.ascii() );
+#ifdef DEBUG_COMPARE
+      printf("Attempt to restore the collectorComboBox to (%s)\n", collectorStr.ascii() );
+#endif
       collectorComboBox->setCurrentText( collectorStr );
     }
   } else
@@ -465,7 +505,9 @@ ColumnSet::gatherCollectorInfo(int id)
   }
 
   ce = saved_ce;
-// printf("  Right before call to gatherMetric ce=(%s)\n", ce->name.ascii() );
+#ifdef DEBUG_COMPARE
+  printf("  Right before call to gatherMetric ce=(%s)\n", ce->name.ascii() );
+#endif
   gatherMetricInfo(ce);
 
   return(ce);
@@ -480,7 +522,10 @@ ColumnSet::gatherMetricInfo(CollectorEntry *ce)
     return;
   }
 
-// printf("ColumnSet::gatherMetricInfo(%s) entered\n", ce->name.ascii() );
+#ifdef DEBUG_COMPARE
+  printf("ColumnSet::gatherMetricInfo(%s) entered\n", ce->name.ascii() );
+#endif
+
   // Update the metrics (and any other modifiers) of the above collector
   // First save the existing state (if any).
   QString metricStr = QString::null;
@@ -491,7 +536,10 @@ ColumnSet::gatherMetricInfo(CollectorEntry *ce)
     {
       metricStr = metricComboBox->currentText();
     }
-// printf("metricStr = (%s)\n", metricStr.ascii() );
+
+#ifdef DEBUG_COMPARE
+    printf("metricStr = (%s)\n", metricStr.ascii() );
+#endif
   
     int cb_count = 0;
     for(cb_count = metricComboBox->count(); cb_count > 0; cb_count--)
@@ -499,7 +547,9 @@ ColumnSet::gatherMetricInfo(CollectorEntry *ce)
       metricComboBox->removeItem(cb_count-1);
     }
   }
-// printf("Now look up up the metrics of the ce->name (%s) collector\n", ce->name.ascii() );
+#ifdef DEBUG_COMPARE
+  printf("Now look up up the metrics of the ce->name (%s) collector\n", ce->name.ascii() );
+#endif
 
   CollectorMetricEntryList::Iterator plit;
   for( plit = ce->metricList.begin();
@@ -509,25 +559,39 @@ ColumnSet::gatherMetricInfo(CollectorEntry *ce)
     if( metricComboBox )
     {
       metricComboBox->insertItem( cpe->name );
-// printf("Add (%s) to metricComboBox\n", cpe->name.ascii() );
+#ifdef DEBUG_COMPARE
+      printf("Add (%s) to metricComboBox\n", cpe->name.ascii() );
+#endif
       if( metricStr == cpe->name )
       {
         metricStrFoundFLAG = TRUE;
         metricStr = cpe->name;
-// printf("Found! (%s)\n", cpe->name.ascii() );
+#ifdef DEBUG_COMPARE
+        printf("Found! (%s)\n", cpe->name.ascii() );
+#endif
       }
       if( metricStr.isEmpty() )
       {
-// printf("Set a default for metricStr!!!\n");
+#ifdef DEBUG_COMPARE
+        printf("Set a default for metricStr!!!\n");
+#endif
         metricStr = cpe->name;
       }
     }
-// printf("Put this to a menu: cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
+#ifdef DEBUG_COMPARE
+  printf("Put this to a menu: cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
+#endif
   }
   if( metricComboBox )
   {
     if( ce->name == "pcsamp" || ce->name == "hwc" )
     { // Nothing extra here... only the collector defined metric.
+      metricComboBox->insertItem("percent");
+      if( metricStr == "percent" )
+      {
+        metricStrFoundFLAG = TRUE;
+        metricStr = "percent";
+      }
     }
 
     if( ce->name == "usertime" || ce->name == "hwctime" ||
@@ -635,7 +699,11 @@ ColumnSet::gatherMetricInfo(CollectorEntry *ce)
       }
     }
   }
-// printf("down here!  metricStr=(%s)\n", metricStr.ascii() );
+
+#ifdef DEBUG_COMPARE
+  printf("down here!  metricStr=(%s)\n", metricStr.ascii() );
+#endif
+
   if( metricStrFoundFLAG == FALSE )
   {
     plit = ce->metricList.begin();
@@ -644,7 +712,9 @@ ColumnSet::gatherMetricInfo(CollectorEntry *ce)
   } 
   if( !metricStr.isEmpty() )
   {
-// printf("Attempt to reset the metricComboBox to the saved text\n");
+#ifdef DEBUG_COMPARE
+    printf("Attempt to reset the metricComboBox to the saved text\n");
+#endif
     metricComboBox->setCurrentText( metricStr );
   }
 }
@@ -717,12 +787,16 @@ ColumnSet::changeCollector( const QString &path )
     ce = (CollectorEntry *)*it;
     if( ce->name == path )
     {
-// printf("We found the selected collector... now get the metrics for (%s)\n", ce->name.ascii() );
+#ifdef DEBUG_COMPARE
+      printf("We found the selected collector... now get the metrics for (%s)\n", ce->name.ascii() );
+#endif
       break;
     }
   }
 
-// printf("ce (%s) right before call to getherMetricInfo\n", ce->name.ascii() );
+#ifdef DEBUG_COMPARE
+  printf("ce (%s) right before call to getherMetricInfo\n", ce->name.ascii() );
+#endif
   gatherMetricInfo(ce);
 }
 
