@@ -52,6 +52,8 @@ monitor_wrap_mpi_syncP2P="MPI_Bsend MPI_Get_count MPI_Probe MPI_Recv MPI_Rsend M
 # The default for mpi collectors.
 monitor_wrap_mpi_all="${monitor_wrap_mpi_asyncP2P} ${monitor_wrap_mpi_collectives} ${monitor_wrap_mpi_datatypes} ${monitor_wrap_mpi_environment} ${monitor_wrap_mpi_graphcontexts} ${monitor_wrap_mpi_persistent} ${monitor_wrap_mpi_processtopologies} ${monitor_wrap_mpi_syncP2P}"
 
+monitor_wrap_io_names="close creat creat64 dup dup2 lseek lseek64 open open64 pipe pread pread64 pwrite pwrite64 read readv write writev"
+
 mpi_undefines=
 fork_undefines=
 pthread_undefines=
@@ -335,6 +337,10 @@ case "$collector" in
     io | iot)
     static_collector=${oss_plugins}/lib${collector}-offline.a
     collector_libs="${collector_libs} -lrt -L ${libunwind_libdir} -lunwind"
+    for name in $monitor_wrap_io_names
+    do
+	wrap_args="${wrap_args} -Wl,--wrap,${name}"
+    done
     ;;
     fpe )
     static_collector=${oss_plugins}/lib${collector}-offline.a
