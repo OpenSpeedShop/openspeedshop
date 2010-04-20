@@ -18,23 +18,57 @@
 
 # directories that will be built
 
-SUBDIRS = sources 
+SUBDIRS = openss sources 
 
 DIST_SUBDIRS = sources test openss
 
 docdir  = ${prefix}/share/doc/packages/OpenSpeedShop/pyscriptingAPI
+docdir_private  = ${prefix}/share/doc/packages/OpenSpeedShop/pyscriptingAPI/private
+docdir_public  = ${prefix}/share/doc/packages/OpenSpeedShop/pyscriptingAPI/public
 
 doc:
 if HAVE_EPYDOC
 # Generate expdoc documentation
 # epydoc -o doc -t __init__.py -n openss __init__.py openss_*.py 
 	rm -rf doc
-	ln -sf $(OPENSS_PREFIX)/$(abi_libdir_name)/libopenss-cli.so.0.0.0 PYopenss.so; 
+	ln -sf $(top_srcdir)/libopenss-cli/.libs/libopenss-cli.so.0.0.0 PYopenss.so; 
 # Preprocess out epytext and copy to package directory
 	sed -f epytext.sed < sources/__init__.py > openss/__init__.py
 	sed -f epytext.sed < sources/openss_classes.py > openss/openss_classes.py
 	sed -f epytext.sed < sources/openss_commands.py > openss/openss_commands.py
 	sed -f epytext.sed < sources/openss_parse.py > openss/openss_parse.py
+	epydoc -o doc  -n openss sources/openss*.py sources/__init__.py
+
+	@$(NORMAL_INSTALL)
+	${mkinstalldirs} ${DESTDIR}${docdir}
+	${mkinstalldirs} ${DESTDIR}${docdir_private}
+	${mkinstalldirs} ${DESTDIR}${docdir_public}
+	if test -f doc/index.html ; then \
+	        for file in doc/*.css ; do \
+	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
+	        done ; \
+	        for file in doc/*.html ; do \
+	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
+	        done ; \
+	        for file in doc/private/*.html ; do \
+	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_private}/$$basefile; \
+	        done ; \
+	        for file in doc/public/*.html ; do \
+	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_public}/$$basefile; \
+	        done ; \
+	        for file in doc/public/*.css ; do \
+	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_public}/$$basefile; \
+	        done ; \
+	        for file in doc/private/*.css ; do \
+	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_private}/$$basefile; \
+	        done ; \
+	fi
 endif
 
 
@@ -43,21 +77,40 @@ package = @PACKAGE@
 packver = @PACKAGE@-@VERSION@
 
 
-install-reference: doc/index.html
-	@$(NORMAL_INSTALL)
-	${mkinstalldirs} ${DESTDIR}${docdir}
-	if test -f doc/index.html ; then \
-	        for file in doc/*.html ; do \
-	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
-	        done ; \
-	        for file in doc/*.png ; do \
-	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
-	        done ; \
-	fi
+#install-data-local: doc doc/index.html
+#	@$(NORMAL_INSTALL)
+#	${mkinstalldirs} ${DESTDIR}${docdir}
+#	${mkinstalldirs} ${DESTDIR}${docdir_private}
+#	${mkinstalldirs} ${DESTDIR}${docdir_public}
+#	if test -f doc/index.html ; then \
+#	        for file in doc/*.css ; do \
+#	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+#	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
+#	        done ; \
+#	        for file in doc/*.html ; do \
+#	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+#	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
+#	        done ; \
+#	        for file in doc/private/*.html ; do \
+#	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+#	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_private}/$$basefile; \
+#	        done ; \
+#	        for file in doc/public/*.html ; do \
+#	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+#	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_public}/$$basefile; \
+#	        done ; \
+#	        for file in doc/public/*.css ; do \
+#	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+#	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_public}/$$basefile; \
+#	        done ; \
+#	        for file in doc/private/*.css ; do \
+#	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+#	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_private}/$$basefile; \
+#	        done ; \
+#	fi
+#
 
-uninstall-reference: doc/index.html
+uninstall-local: 
 	@$(NORMAL_UNINSTALL)
 	@dir='${<D}'; \
 	echo "dir =@dir"
@@ -68,15 +121,8 @@ uninstall-reference: doc/index.html
 	-rm -rf ${DESTDIR}${docdir}/
 
 
-install-data-am: install-reference
+uninstall: uninstall-local
 
-uninstall: uninstall-reference
-
-endif
-
-all-local:
-if HAVE_EPYDOC
-	epydoc -o doc  -n openss sources/openss*.py sources/__init__.py
 endif
 
 clean:

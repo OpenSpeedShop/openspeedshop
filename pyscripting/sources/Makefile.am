@@ -26,8 +26,8 @@ BUILT_SOURCES = \
 dist_pkglib_SCRIPTS = \
 	__init__.py  openss_classes.py  openss_commands.py  openss_parse.py
 
-doc:
-	$(DOXYGEN)
+doc:	__init__.py openss_classes.py openss_commands.py openss_parse.py
+	ln -sf $(top_srcdir)/libopenss-cli/.libs/libopenss-cli.so.0.0.0 PYopenss.so;
 
 __init__.py: __init__.py.in
 	@rm -f __init__.py
@@ -54,6 +54,6 @@ openss_parse.py: openss_parse.py.in
 	@chmod 755 openss_parse.py
 
 clean:
-	rm -rf *.py *.pyc
+	rm -rf *.py *.pyc PYopenss.so
 
 EXTRA_DIST = __init__.py.in openss_classes.py.in openss_commands.py.in openss_parse.py.in

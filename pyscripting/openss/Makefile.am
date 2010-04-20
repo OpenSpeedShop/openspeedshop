@@ -19,3 +19,13 @@
 
 EXTRA_DIST = README  script_data.cxx  script_test.cxx  script_test.make
 
+all-local:
+if HAVE_EPYDOC
+	ln -sf $(top_srcdir)/libopenss-cli/.libs/libopenss-cli.so.0.0.0 PYopenss.so;
+endif
+
+clean:
+	rm PYopenss.so
+
+
+
