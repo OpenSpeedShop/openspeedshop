@@ -107,8 +107,5 @@ endif
 DIST_SUBDIRS = \
 	pcsamp usertime io iot hwc hwctime mpi mpit mpiotf fpe
 
-all-local:
-	$(DOXYGEN)
-
 doc:
 	$(DOXYGEN)

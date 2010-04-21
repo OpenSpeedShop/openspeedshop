@@ -131,8 +131,5 @@ endif
 
 EXTRA_DIST = OpenSSPath.cxx
 
-all-local:
-	$(DOXYGEN)
-
 doc:
 	$(DOXYGEN)

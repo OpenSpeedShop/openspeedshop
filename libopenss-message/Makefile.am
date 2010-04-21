@@ -39,9 +39,6 @@ libopenss_message_la_SOURCES = \
 	SS_Message_Element.hxx \
 	SS_Message_Czar.cxx SS_Message_Czar.hxx 
 
-all-local:
-	-doxygen Doxyfile
-
 doc:
 	-doxygen Doxyfile
 

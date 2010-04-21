@@ -251,7 +251,5 @@ OpenSS_DataHeader.h OpenSS_DataHeader.c : OpenSS_DataHeader.x
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
 
-all-local:
-	$(DOXYGEN)
 doc:
 	$(DOXYGEN)

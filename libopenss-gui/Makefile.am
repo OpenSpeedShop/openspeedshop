@@ -82,8 +82,5 @@ CLEANFILES = \
 	moc_openspeedshop.cxx \
 	moc_preferencesdialog.cxx
 
-all-local:
-	$(DOXYGEN)
-
 doc:
 	$(DOXYGEN)

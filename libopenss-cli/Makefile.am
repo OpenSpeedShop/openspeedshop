@@ -124,9 +124,6 @@ EXTRA_DIST = help_cmd_msg.dxx  help_general_msg.dxx  \
 
 CLEANFILES = $(BUILT_SOURCES)
 
-all-local:
-	$(DOXYGEN)
-
 doc:
 	$(DOXYGEN)
 

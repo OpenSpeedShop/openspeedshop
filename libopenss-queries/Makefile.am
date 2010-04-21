@@ -48,8 +48,5 @@ libopenss_queries_la_SOURCES = \
 	Queries.hxx Queries.cxx \
 	Reduction.txx
 
-all-local:
-	$(DOXYGEN)
-
 doc:
 	$(DOXYGEN)
