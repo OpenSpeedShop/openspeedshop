@@ -39,6 +39,11 @@ if HAVE_EPYDOC
 	sed -f epytext.sed < sources/openss_parse.py > openss/openss_parse.py
 	epydoc -o doc  -n openss sources/openss*.py sources/__init__.py
 
+package = @PACKAGE@
+packver = @PACKAGE@-@VERSION@
+
+	epydoc -o doc  -n openss sources/openss*.py sources/__init__.py
+
 	@$(NORMAL_INSTALL)
 	${mkinstalldirs} ${DESTDIR}${docdir}
 	${mkinstalldirs} ${DESTDIR}${docdir_private}
@@ -52,63 +57,37 @@ if HAVE_EPYDOC
 	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
 	        done ; \
-	        for file in doc/private/*.html ; do \
+	        if ! test -f doc/private/index.html ; then \
+	          for file in doc/*.png ; do \
+	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
+	          done ; \
+	          for file in doc/*.js ; do \
+	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
+	          done ; \
+                fi ; \
+	        if test -f doc/private/index.html ; then \
+	          for file in doc/private/*.html ; do \
 	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_private}/$$basefile; \
-	        done ; \
-	        for file in doc/public/*.html ; do \
-	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_public}/$$basefile; \
-	        done ; \
-	        for file in doc/public/*.css ; do \
-	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_public}/$$basefile; \
-	        done ; \
-	        for file in doc/private/*.css ; do \
+	          done ; \
+	          for file in doc/private/*.css ; do \
 	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_private}/$$basefile; \
-	        done ; \
+	          done ; \
+                fi ; \
+	        if test -f doc/public/index.html ; then \
+	          for file in doc/public/*.html ; do \
+	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_public}/$$basefile; \
+	          done ; \
+	          for file in doc/public/*.css ; do \
+	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_public}/$$basefile; \
+	          done ; \
+	        fi ; \
 	fi
-endif
-
-
-if HAVE_EPYDOC
-package = @PACKAGE@
-packver = @PACKAGE@-@VERSION@
-
-
-#install-data-local: doc doc/index.html
-#	@$(NORMAL_INSTALL)
-#	${mkinstalldirs} ${DESTDIR}${docdir}
-#	${mkinstalldirs} ${DESTDIR}${docdir_private}
-#	${mkinstalldirs} ${DESTDIR}${docdir_public}
-#	if test -f doc/index.html ; then \
-#	        for file in doc/*.css ; do \
-#	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-#	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
-#	        done ; \
-#	        for file in doc/*.html ; do \
-#	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-#	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir}/$$basefile; \
-#	        done ; \
-#	        for file in doc/private/*.html ; do \
-#	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-#	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_private}/$$basefile; \
-#	        done ; \
-#	        for file in doc/public/*.html ; do \
-#	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-#	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_public}/$$basefile; \
-#	        done ; \
-#	        for file in doc/public/*.css ; do \
-#	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-#	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_public}/$$basefile; \
-#	        done ; \
-#	        for file in doc/private/*.css ; do \
-#	                basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-#	                ${INSTALL_DATA} $$file ${DESTDIR}${docdir_private}/$$basefile; \
-#	        done ; \
-#	fi
-#
 
 uninstall-local: 
 	@$(NORMAL_UNINSTALL)
