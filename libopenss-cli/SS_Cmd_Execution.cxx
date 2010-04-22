@@ -21,7 +21,9 @@
    output in the CLI routines that
    are present in this file.
 #define DEBUG_CLI 1
+#define DEBUG_STATUS 1
 */
+
 
 #include "SS_Input_Manager.hxx"
 #include "SS_Timings.hxx"
@@ -3755,6 +3757,233 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
   return Param_Value;
 }
 
+/**
+ * SemanticRoutine: SS_ListRanks ()
+ * 
+ * List all the MPI ranks associated with an experiment.
+ *     
+ * @param   cmd - the CommandObject baing processed.
+ *
+ * @return  "true" on successful complation.
+ *
+ * @error   "false" returned if no experiment can be determined
+ *          or if an "-f" filter is attached to the command.
+ *
+ */
+static bool getListOfRanks (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+   // List all the PIDs on the system.
+   // We have decided not to support this option.
+    Mark_Cmd_With_Soft_Error(cmd, "'list -v ranks, all' is not supported.");
+    return false;
+  } else {
+   // Get the Rankss for a specified Experiment or the focused Experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+    if (Filter_Uses_F(cmd)) {
+      Mark_Cmd_With_Soft_Error(cmd, "'list -v ranks' does not support the '-f' option.");
+      return false;
+    }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
+   // Get the list of threads used in the specified experiment.
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+   // Place every rank into a set so that it will only be listed once.
+    std::set<int64_t> rset;
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+     // Check for asynchronous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        rset.clear();
+        break;
+      }
+
+      Thread t = *ti;
+      std::pair<bool, int> prank = t.getMPIRank();
+      if (prank.first) {
+        rset.insert ( prank.second );
+      }
+    }
+    for (std::set<int64_t>::iterator rseti = rset.begin(); rseti != rset.end(); rseti++) {
+      printf(" list ranks, *rseti=%d\n", *rseti);
+      cmd->Result_Int ( *rseti );
+    }
+
+    exp->Q_UnLock ();
+  }
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+//
+// getRankRange tries to take the list of ranks and create a string
+// that has a range of ranks or groups of ranges.
+//
+static std::string getRankRange(std::list<int64_t> &list_of_ranks)
+{
+
+
+  std::string infoString = "";
+  int64_t previous_rank = -1;
+  int64_t max_range_rank = -1;
+  int64_t min_range_rank = -1;
+  char tRankStr[12] ;
+  char tMaxRankStr[12];
+  char tMinRankStr[12];
+  std::string rankStr = "";
+  std::string maxRankStr = "";
+  std::string minRankStr = "";
+
+
+#if DEBUG_CLI
+  printf("getRankRange() , list_of_ranks.size()=%d\n", list_of_ranks.size());
+#endif
+
+  if( list_of_ranks.size() > 0 )
+  {
+    bool first_time = true;
+    int rank_count = 0;
+    for( std::list<int64_t>::const_iterator it = list_of_ranks.begin(); it != list_of_ranks.end(); it++ )
+    {
+      rank_count = rank_count + 1;
+      int64_t rank = (int64_t)*it;
+      sprintf(tRankStr, "%d", rank);
+      rankStr =+ tRankStr;
+     
+#ifdef DEBUG_CLI
+      printf("getRankRange(), rank=%ld, rank_count=%d, list_of_ranks.size()=%d\n", rank, rank_count, list_of_ranks.size() );
+#endif
+
+      // Handle first time or only one rank cases
+      if( list_of_ranks.size() == 1 ) {
+          infoString += rankStr;
+          break;
+      } else if (first_time) {
+          max_range_rank = rank;
+          min_range_rank = rank;
+          previous_rank = rank;
+          first_time = false;
+#ifdef DEBUG_CLI
+          printf("getRankRange(), FIRST TIME, min_range_rank=%ld, max_range_rank=%ld\n", 
+                 min_range_rank, max_range_rank );
+#endif
+          continue;
+      }
+
+      if (rank > previous_rank ) {
+
+#ifdef DEBUG_CLI
+         printf("getRankRange(), rank>prev, previous_rank=%ld, rank=%ld\n", previous_rank, rank );
+#endif
+
+        if (rank == previous_rank + 1  && (rank_count != list_of_ranks.size()) ) {
+
+#ifdef DEBUG_CLI
+          printf("getRankRange(), rank==prev+1, before(max_range_rank=%ld), rank=%ld\n", max_range_rank, rank );
+#endif
+          max_range_rank = rank;
+
+        } else {
+
+#ifdef DEBUG_CLI
+          printf("getRankRange(), NOT rank==prev+1, max_range_rank=%ld, min_range_rank=%ld\n", max_range_rank, min_range_rank );
+#endif
+          if (max_range_rank != min_range_rank && (rank_count != list_of_ranks.size()) ) {
+
+            sprintf(tMaxRankStr, "%d", max_range_rank);
+            maxRankStr = tMaxRankStr;
+            infoString += maxRankStr;
+#ifdef DEBUG_CLI
+            printf("getRankRange(), NOT rank==prev+1, max_range_rank=%ld != min_range_rank=%ld\n", max_range_rank, min_range_rank );
+            printf("getRankRange(), NOT rank==prev+1, rank_count=%ld != list_of_ranks.size()=%ld\n", rank_count, list_of_ranks.size() );
+#endif
+
+          } else {
+
+            // if in a range creation and you get to the end of the for
+            // need to update the last item and output the range
+            if  (rank_count == list_of_ranks.size()) {
+#ifdef DEBUG_CLI
+               printf("getRankRange(), NOT rank==prev+1, rank_count=%d == list_of_ranks.size(), setting max_range_rank=%ld = rank=%ld\n", rank_count, max_range_rank, rank );
+#endif
+               max_range_rank = rank;
+            }
+
+            // You've arrived here because you encountered a value that is
+            // not consequitive or we have gotten to the end of the ranks 
+            // and need to output the range creation prior to leaving the loop.
+
+            sprintf(tMaxRankStr, "%d", max_range_rank);
+            maxRankStr = tMaxRankStr;
+            sprintf(tMinRankStr, "%d", min_range_rank);
+            minRankStr = tMinRankStr;
+            if (min_range_rank != max_range_rank) {
+              if (min_range_rank+1 == max_range_rank || previous_rank + 1 == max_range_rank) {
+                infoString += minRankStr + "-" + maxRankStr;
+#ifdef DEBUG_CLI
+               printf("getRankRange(), max_range_rank=%ld, min_range_rank=%ld\n", max_range_rank, min_range_rank );
+#endif
+              } else {
+                // if end of the list put out both values, if not just the min
+                if (rank_count == list_of_ranks.size()) {
+                  infoString += minRankStr;
+                  infoString += maxRankStr;
+                } else {
+                  infoString += " ";
+                  infoString += minRankStr;
+                  infoString += " ";
+                }
+              }
+            } else {
+              infoString += " ";
+              infoString += minRankStr;
+              infoString += " ";
+            }
+#ifdef DEBUG_CLI
+            printf("getRankRange(), arrived here because you encountered a value that is not consequitive\n" );
+            printf("getRankRange(), arrived .... infoString=%s\n", infoString.c_str() );
+            printf("getRankRange(), arrived .... rank=%ld, min_range_rank=%ld, max_range_rank=%ld\n", infoString.c_str(), min_range_rank, max_range_rank );
+#endif
+            min_range_rank = rank;
+            max_range_rank = rank;
+          } 
+
+        } // end else -> not (rank == previous_rank + 1)
+
+
+
+      } else {
+#ifdef DEBUG_CLI
+       printf("ERROR - ranks not ascending\n");
+       break;
+#endif
+      } 
+
+
+#ifdef DEBUG_CLI
+     printf("getRankRange(), SET prev at end of for, previous_rank=%ld, rank=%ld\n", previous_rank, rank );
+#endif
+     previous_rank = rank;
+    } // end for
+
+  }
+  return(infoString);
+}
 
 /**
  * Utility: ReportStatus ()
@@ -3772,19 +4001,19 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
  *          while looking at the database.
  *
  */
-static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
+static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp, bool FullDisplay) {
+
+ std::list<int64_t> list_of_ranks;
+ std::list<std::string> list_of_hosts;
+ int FullRankLimitValue = 128;
+ char tNumHostsStr[10];
 
 #if DEBUG_CLI
-  printf("In ReportStatus\n");
+  printf("In ReportStatus, FullDisplay=%d\n", FullDisplay);
 #endif
+
  // Prevent this experiment from changing until we are done.
-#if DEBUG_CLI
-  printf("In ReportStatus, before calling exp->Q_Lock (cmd, false);\n");
-#endif
   exp->Q_Lock (cmd, false);
-#if DEBUG_CLI
-  printf("In ReportStatus, after calling exp->Q_Lock (cmd, false);\n");
-#endif
   exp->Determine_Status ();
 
   char id[20]; sprintf(&id[0],"%lld",(int64_t)exp->ExperimentObject_ID());
@@ -3848,88 +4077,162 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
         ThreadGroup tgrp = exp->FW()->getThreads();
         ThreadGroup::iterator ti;
         bool atleastone = false;
+#if DEBUG_CLI
+        printf("ReportStatus, tgrp.size()=%d\n", tgrp.size());
+#endif
+
+      if (!FullDisplay) {
+
+        // Place every rank into a set so that it will only be listed once.
+         std::set<int64_t> rset;
+         std::set<std::string> hset;
+
+         for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+             Thread t = *ti;
+
+            // Check for asynchronous abort command
+             if (cmd->Status() == CMD_ABORTED) {
+               rset.clear();
+               hset.clear();
+               break;
+             }
+
+             std::pair<bool, int> prank = t.getMPIRank();
+             if (prank.first) {
+               rset.insert ( prank.second );
+             }
+
+             std::string myHost = t.getHost();
+             hset.insert ( myHost );
+
+           }
+
+            for (std::set<std::string>::iterator hseti = hset.begin(); hseti != hset.end(); hseti++) {
+              list_of_hosts.push_back(*hseti );
+            }
+
+           for (std::set<int64_t>::iterator rseti = rset.begin(); rseti != rset.end(); rseti++) {
+//             printf(" list ranks, *rseti=%d\n", *rseti);
+             list_of_ranks.push_back(*rseti );
+           }
+
+#if DEBUG_CLI
+           printf(" list ranks, list_of_ranks.size()=%d\n", list_of_ranks.size());
+           printf(" list hosts, list_of_hosts.size()=%d\n", list_of_hosts.size());
+#endif
+        }
+          
+         sprintf(tNumHostsStr, "%d", list_of_hosts.size());
+         std::string numHostsStr = tNumHostsStr;
+         std::string listRankStr = getRankRange(list_of_ranks);
+
         for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
           Thread t = *ti;
           if (!atleastone) {
             atleastone = true;
-            cmd->Result_String ("  Currently Specified Components:");
-          }
-
-          std::string host = t.getHost();
-          pid_t pid = t.getProcessId();
-          int64_t p = pid;
-          char spid[20]; sprintf(&spid[0],"%lld",p);
-          std::string S = "    -h " + host + " -p " + std::string(&spid[0]);
-
-          std::pair<bool, int> pthread = t.getOpenMPThreadId();
-          bool threadHasThreadId = false;
-          int64_t pthreadid = 0;
-          if (pthread.first) {
-            threadHasThreadId = true;
-            pthreadid = pthread.second;
-          } else {
-            std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
-            if (posixthread.first) {
-              threadHasThreadId = true;
-              pthreadid = posixthread.second;
-            }
-          }
-          if (threadHasThreadId) {
-            char tid[20]; sprintf(&tid[0],"%lld",pthreadid);
-            S = S + " -t " + std::string(&tid[0]);
-          }
-
-          std::pair<bool, int> rank = t.getMPIRank();
-          if (rank.first) {
-            int64_t r = rank.second;
-            char rid[20]; sprintf(&rid[0],"%lld",r);
-            S = S + " -r " + std::string(&rid[0]);
-          }
-
-          CollectorGroup cgrp = t.getCollectors();
-          CollectorGroup::iterator ci;
-          int collector_count = 0;
-          for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
-            Collector c = *ci;
-            Metadata m = c.getMetadata();
-            if (collector_count) {
-              S = S + ",";
+            int tgrp_size = tgrp.size();
+            if (!FullDisplay && tgrp_size > FullRankLimitValue ) {
+              
+              char sTgrpSize[20]; sprintf(&sTgrpSize[0],"%lld",tgrp_size);
+              std::string SCSC = "  Currently Specified Components: (Summary Information, use expStatus -v full to see all of the individual " + std::string(&sTgrpSize[0]) + " Components)";
+              cmd->Result_String (SCSC);
             } else {
-              S = S + " ";
-              collector_count = 1;
-            }
-            S = S + m.getUniqueId();
+              cmd->Result_String ("  Currently Specified Components:");
+            } 
+
           }
 
-	  std::pair<bool, LinkedObject> tExe = t.getExecutable();
-	  if (tExe.first) {
-		std::string epath = tExe.second.getPath().getBaseName();
-		S = S + " (" + epath + ")";
-	  }
-          cmd->Result_String ( S );
+          std::string S = "";
+          if ( FullDisplay || (!FullDisplay && tgrp.size() <= FullRankLimitValue) ) {
+
+            std::string host = t.getHost();
+            pid_t pid = t.getProcessId();
+            int64_t p = pid;
+            char spid[20]; sprintf(&spid[0],"%lld",p);
+            S = "    -h " + host + " -p " + std::string(&spid[0]);
+  
+            std::pair<bool, int> pthread = t.getOpenMPThreadId();
+            bool threadHasThreadId = false;
+            int64_t pthreadid = 0;
+            if (pthread.first) {
+              threadHasThreadId = true;
+              pthreadid = pthread.second;
+            } else {
+              std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
+              if (posixthread.first) {
+                threadHasThreadId = true;
+                pthreadid = posixthread.second;
+              }
+            }
+            if (threadHasThreadId) {
+              char tid[20]; sprintf(&tid[0],"%lld",pthreadid);
+              S = S + " -t " + std::string(&tid[0]);
+            }
+
+            std::pair<bool, int> rank = t.getMPIRank();
+            if (rank.first) {
+              int64_t r = rank.second;
+              char rid[20]; sprintf(&rid[0],"%lld",r);
+              S = S + " -r " + std::string(&rid[0]);
+            }
+  
+            CollectorGroup cgrp = t.getCollectors();
+            CollectorGroup::iterator ci;
+            int collector_count = 0;
+            for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+              Collector c = *ci;
+              Metadata m = c.getMetadata();
+              if (collector_count) {
+                S = S + ",";
+              } else {
+                S = S + " ";
+                collector_count = 1;
+              }
+              S = S + m.getUniqueId();
+            }
+
+     	    std::pair<bool, LinkedObject> tExe = t.getExecutable();
+	    if (tExe.first) {
+	    	    std::string epath = tExe.second.getPath().getBaseName();
+		    S = S + " (" + epath + ")";
+	    }
+            cmd->Result_String ( S );
+
+          } else {
+            cmd->Result_String ("  Ranks: " + listRankStr);
+            cmd->Result_String ("  Hosts: " + numHostsStr);
+            std::string host = t.getHost();
+            cmd->Result_String ("  First Host: " + host);
+            pid_t pid = t.getProcessId();
+            int64_t p = pid;
+            char spid[20]; sprintf(&spid[0],"%lld",p);
+            cmd->Result_String ("  First Process Id: " + std::string(&spid[0]));
+            break;
+          }
         }
 
         CollectorGroup cgrp = exp->FW()->getCollectors();
         CollectorGroup::iterator ci;
         atleastone = false;
-        std::string S ;
+        std::string SColl ;
         for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
           Collector c = *ci;
           ThreadGroup tgrp = c.getThreads();
           if (tgrp.empty()) {
             Metadata m = c.getMetadata();
             if (atleastone) {
-              S = S + ",";
+              SColl = SColl + ",";
             } else {
               cmd->Result_String ("  Previously Used Data Collectors:");
-              S = S + "    ";
+              SColl = SColl + "    ";
               atleastone = true;
             }
-            S = S + m.getUniqueId();
+            SColl = SColl + m.getUniqueId();
           }
         }
         if (atleastone) {
-          cmd->Result_String ( S );
+          cmd->Result_String ( SColl );
         }
 
         if (cgrp.begin() != cgrp.end()) {
@@ -3942,8 +4245,8 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
             std::set<Metadata>::const_iterator mi;
             for (mi = md.begin(); mi != md.end(); mi++) {
               Metadata m = *mi;
-              S = "    " + cm.getUniqueId() + "::" +  m.getUniqueId();
-              cmd->Result_String (S);
+              SColl = "    " + cm.getUniqueId() + "::" +  m.getUniqueId();
+              cmd->Result_String (SColl);
             }
           }
 
@@ -3956,10 +4259,10 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
             for (mi = md.begin(); mi != md.end(); mi++) {
               CommandResult_Columns *C = new CommandResult_Columns (2);
               Metadata m = *mi;
-              S = "    " + cm.getUniqueId() + "::" + m.getUniqueId() + " =";
-              C->CommandResult_Columns::Add_Column (new CommandResult_RawString (S));
+              SColl = "    " + cm.getUniqueId() + "::" + m.getUniqueId() + " =";
+              C->CommandResult_Columns::Add_Column (new CommandResult_RawString (SColl));
 #if DEBUG_CLI
-              printf("In ReportStatus, Parameter Values=%s\n", S.c_str());
+              printf("In ReportStatus, Parameter Values=%s\n", SColl.c_str());
 #endif
               C->CommandResult_Columns::Add_Column (Get_Collector_Metadata (c, m));
               cmd->Result_Predefined (C);
@@ -4001,19 +4304,13 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp) {
 bool SS_expStatus(CommandObject *cmd) {
 
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
-
-#if DEBUG_CLI
-  printf("In SS_expStatus, Entered\n");
-#endif
+  bool Full_KeyWord = Look_For_KeyWord (cmd, "full");
 
   if (All_KeyWord) {
     std::list<ExperimentObject *>::reverse_iterator expi;
     for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++) {
       ExperimentObject *exp = *expi;
-#if DEBUG_CLI
-      printf("In SS_expStatus, All case, calling ReportStatus\n");
-#endif
-      if (!ReportStatus (cmd, exp)) {
+      if (!ReportStatus (cmd, exp, Full_KeyWord)) {
         return false;
       }
     }
@@ -4022,10 +4319,7 @@ bool SS_expStatus(CommandObject *cmd) {
     if (exp == NULL) {
       return false;
     }
-#if DEBUG_CLI
-    printf("In SS_expStatus, not ALL case, calling ReportStatus\n");
-#endif
-    if (!ReportStatus (cmd, exp)) {
+    if (!ReportStatus (cmd, exp, Full_KeyWord)) {
       return false;
     }
   }
@@ -4033,6 +4327,7 @@ bool SS_expStatus(CommandObject *cmd) {
 #if DEBUG_CLI
   printf("In SS_expStatus, calling cmd->set_Status(CMD_COMPLETE); before exiting\n");
 #endif
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
@@ -5144,6 +5439,7 @@ static bool SS_ListRanks (CommandObject *cmd) {
       }
     }
     for (std::set<int64_t>::iterator rseti = rset.begin(); rseti != rset.end(); rseti++) {
+      printf(" list ranks, *rseti=%d\n", *rseti);
       cmd->Result_Int ( *rseti );
     }
 
