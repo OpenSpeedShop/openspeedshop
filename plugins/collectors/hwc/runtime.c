@@ -259,6 +259,22 @@ void hwc_start_sampling(const char* arguments)
     } else {
         hwc_papi_event=get_papi_eventcode("PAPI_TOT_CYC");
     }
+
+    const char* sampling_rate = getenv("OPENSS_HWC_THRESHOLD");
+    if (sampling_rate != NULL) {
+        hwc_papithreshold=atoi(sampling_rate);
+    } else {
+#if defined(linux)
+        if (hw_info) {
+            hwc_papithreshold = (unsigned) hw_info->mhz*10000*2;
+        } else {
+            hwc_papithreshold = THRESHOLD*2;
+        }
+#else
+        hwc_papithreshold = THRESHOLD*2;
+#endif
+    }
+
 #else
     hwc_papi_event = args.hwc_event;
 #endif

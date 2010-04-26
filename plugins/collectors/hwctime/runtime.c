@@ -331,12 +331,27 @@ void hwctime_start_sampling(const char* arguments)
 
     int hwctime_papi_event = PAPI_NULL;
 #if defined (OPENSS_OFFLINE)
-    const char* hwctime_event_param = getenv("OPENSS_HWC_EVENT");
+    const char* hwctime_event_param = getenv("OPENSS_HWCTIME_EVENT");
     if (hwctime_event_param != NULL) {
         hwctime_papi_event=get_papi_eventcode((char *)hwctime_event_param);
     } else {
         hwctime_papi_event=get_papi_eventcode("PAPI_TOT_CYC");
     }
+    const char* sampling_rate = getenv("OPENSS_HWCTIME_THRESHOLD");
+    if (sampling_rate != NULL) {
+        hwctime_papithreshold=atoi(sampling_rate);
+    } else {
+#if defined(linux)
+        if (hw_info) {
+            hwctime_papithreshold = (unsigned) hw_info->mhz*10000*2;
+        } else {
+            hwctime_papithreshold = THRESHOLD*2;
+        }
+#else
+        hwctime_papithreshold = THRESHOLD*2;
+#endif
+    }
+
 #else
     hwctime_papi_event = args.hwctime_event;
 #endif

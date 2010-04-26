@@ -27,7 +27,7 @@
 
 /** Structure of the blob containing our parameters. */
 struct hwctime_parameters {
-    unsigned sampling_rate;  /**< Sampling threshhold in hwc events. */
+    uint64_t sampling_rate;  /**< Sampling threshhold in hwc events. */
     unsigned hwctime_event;  /**< hwctime event (PAPI event code) to sample*/
 };
 
@@ -51,7 +51,7 @@ struct hwctime_data {
 /** Structure of the blob containing hwctime_start_sampling()'s arguments. */
 struct hwctime_start_sampling_args {
 
-    unsigned sampling_rate; /**< Sampling threshhold in hwc events. */
+    uint64_t sampling_rate; /**< Sampling threshhold in hwc events. */
     unsigned hwctime_event; /**< hwctime event (PAPI event code) to sample*/
     
     int experiment;  /**< Identifier of experiment to contain the data. */
