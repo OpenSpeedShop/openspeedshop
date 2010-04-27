@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -362,6 +363,26 @@ static bool define_hwctime_columns (
             std::string H = Event_Name_Header (CV[0], "exclusive_overflows");
             HV.push_back(std::string("Max ") + H + " Counts Across Threads");
           }
+        } else if (!strcasecmp(M_Name.c_str(), "loadbalance") ) {
+          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
+          } else {
+         // Find the By-Thread Min.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, texeventmin_temp));
+            std::string H1 = Event_Name_Header (CV[0], "exclusive_overflows");
+            HV.push_back(std::string("Min ") + H1 + " Counts Across Threads");
+         // Do a By-Thread average of the overflows..
+            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, texeventmean_temp));
+            std::string H2 = Event_Name_Header (CV[0], "exclusive_overflows");
+            HV.push_back(std::string("Average ") + H2 + " Counts Across Threads");
+         // Find the By-Thread Max.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, texeventmax_temp));
+            std::string H3 = Event_Name_Header (CV[0], "exclusive_overflows");
+            HV.push_back(std::string("Max ") + H3 + " Counts Across Threads");
+          }
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
         }
@@ -482,6 +503,7 @@ static std::string VIEW_hwctime_long  =
                   " \n\t'-m ThreadAverage' reports the average counts for a process."
                   " \n\t'-m ThreadMin' reports the minimum counts for a process."
                   " \n\t'-m ThreadMax' reports the maximum counts for a process."
+                  " \n\t'-m loadbalance' reports the minimum, average, maximum counts for a process."
                   "\n";
 static std::string VIEW_hwctime_example = "\texpView hwctime\n"
                                            "\texpView -v LinkedObjects hwctime\n"

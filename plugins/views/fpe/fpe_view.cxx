@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -537,6 +538,22 @@ static bool define_fpe_columns (
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
           HV.push_back("Max Exclusive Fpe Event Counts Across Threads");
           user_defined = true;
+        } else if ( !strcasecmp(M_Name.c_str(), "loadbalance")) {
+         // Find the By-Thread Min.
+          IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
+          HV.push_back("Min Exclusive Fpe Event Counts Across Threads");
+          user_defined = true;
+         // Do a By-Thread average of the overflows..
+          IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
+          HV.push_back("Average Exclusive Fpe Event Counts Across Threads");
+          user_defined = true;
+         // Find the By-Thread Max.
+          IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
+          HV.push_back("Max Exclusive Fpe Event Counts Across Threads");
+          user_defined = true;
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
         }
@@ -666,6 +683,7 @@ static std::string VIEW_fpe_long  =
                   " \n\t'-m ThreadAverage' reports the average counts for a process."
                   " \n\t'-m ThreadMin' reports the minimum counts for a process."
                   " \n\t'-m ThreadMax' reports the maximum counts for a process. "
+                  " \n\t'-m loadbalance' reports the minimum, average, maximum counts for a process. "
                   " \n\t'-m type' reports the type of the floating point exception:"
                   "\n\nIt is also possible to select a subset of event types to display."
                   " This is done with the '-m' option and a single key word:"

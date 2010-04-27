@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -107,6 +108,18 @@ static bool define_pcsamp_columns (
         IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_max));
         HV.push_back( std::string("Max ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
                       + " Across Threads");
+      } else if (!strcasecmp(M_Name.c_str(), "loadbalance")) {
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_min));
+        HV.push_back( std::string("Min ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
+                      + " Across Threads");
+
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_mean));
+        HV.push_back( std::string("Average ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
+                      + " Across Threads");
+
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_max));
+        HV.push_back( std::string("Max ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
+                      + " Across Threads");
       } else {
        // Unrecognized '-m' option.
         Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
@@ -153,6 +166,7 @@ static std::string VIEW_pcsamp_long  =
                   " \n\t'-m ThreadAverage' reports the average cpu time for a process."
                   " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
                   " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
+                  " \n\t'-m loadbalance' reports the minimum, average, maximum cpu time for a process."
                   "\n";
 static std::string VIEW_pcsamp_example = "\texpView pcsamp\n"
                                          "\texpView -v statements pcsamp10\n";
@@ -288,6 +302,16 @@ static bool define_hwc_columns (
         HV.push_back("Minimum Counts Across Threads");
       } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
        // Find the By-Thread Max.
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_max));
+        HV.push_back("Maximum Counts Across Threads");
+      } else if (!strcasecmp(M_Name.c_str(), "loadbalance")) {
+
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_min));
+        HV.push_back("Minimum Counts Across Threads");
+
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_mean));
+        HV.push_back("Average Counts Across Threads");
+
         IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_max));
         HV.push_back("Maximum Counts Across Threads");
       } else {

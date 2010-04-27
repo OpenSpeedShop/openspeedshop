@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -552,6 +553,26 @@ static bool define_io_columns (
             std::string H = Find_Metadata ( CV[1], MV[1] ).getDescription();
             HV.push_back(std::string("Max ") + H + " Across Threads");
           }
+        } else if (!strcasecmp(M_Name.c_str(), "loadbalance")) {
+          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
+          } else {
+         // Find the By-Thread Min.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
+            std::string H1 = Find_Metadata ( CV[1], MV[1] ).getDescription();
+            HV.push_back(std::string("Min ") + H1 + " Across Threads");
+         // Do a By-Thread average.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
+            std::string H2 = Find_Metadata ( CV[1], MV[1] ).getDescription();
+            HV.push_back(std::string("Average ") + H2 + " Across Threads");
+         // Find the By-Thread Max.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
+            std::string H3 = Find_Metadata ( CV[1], MV[1] ).getDescription();
+            HV.push_back(std::string("Max ") + H3 + " Across Threads");
+          }
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
         }
@@ -692,6 +713,7 @@ static std::string VIEW_io_long  =
                   " \n\t'-m ThreadAverage' reports the average cpu time for a process."
                   " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
                   " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
+                  " \n\t'-m loadbalance' reports the minimum, average, maximum cpu time for a process."
                   "\n"; 
 static std::string VIEW_io_example = "\texpView io\n"
                                       "\texpView -v CallTrees,FullStack io10 -m min,max,count\n";
