@@ -9124,8 +9124,8 @@ StatsPanel::generateCommand()
 #ifdef DEBUG_StatsPanel
         printf("generateCommand, pcsamp, StatementsByFunction, A: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
-                                 QString("Which function?:"), 
+        selectedFunctionStr = QInputDialog::getText("Enter Filename or Function Name Dialog:", 
+                                 QString("Which filename or function?:"), 
                                  QLineEdit::Normal, QString::null, &ok, this);
         if ( !ok || selectedFunctionStr.isEmpty() ) {
           // user entered nothing or pressed Cancel
@@ -9179,8 +9179,8 @@ StatsPanel::generateCommand()
   printf("generateCommand, Butterfly, A: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
 
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
-                                    QString("Which function?:"), 
+        selectedFunctionStr = QInputDialog::getText("Enter Filename or Function Name Dialog:", 
+                                    QString("Which filename or function?:"), 
                                     QLineEdit::Normal, QString::null, &ok, this);
         if ( !ok || selectedFunctionStr.isEmpty() ) {
           // user entered nothing or pressed Cancel
@@ -9206,8 +9206,8 @@ StatsPanel::generateCommand()
 #ifdef DEBUG_StatsPanel
         printf("generateCommand, StatementsByFunction, A: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
-                                 QString("Which function?:"), 
+        selectedFunctionStr = QInputDialog::getText("Enter Filename or Function Name Dialog:", 
+                                 QString("Which filename or function?:"), 
                                  QLineEdit::Normal, QString::null, &ok, this);
         if ( !ok || selectedFunctionStr.isEmpty() ) {
           // user entered nothing or pressed Cancel
@@ -9234,8 +9234,8 @@ StatsPanel::generateCommand()
 #ifdef DEBUG_StatsPanel
         printf("generateCommand, CallTreesByFunction, A: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
-                                  QString("Which function?:"), 
+        selectedFunctionStr = QInputDialog::getText("Enter Filename or Function Name Dialog:", 
+                                  QString("Which filename or function?:"), 
                                   QLineEdit::Normal, QString::null, &ok, this);
         if ( !ok || selectedFunctionStr.isEmpty() ) {
           // user entered nothing or pressed Cancel
@@ -9257,8 +9257,8 @@ StatsPanel::generateCommand()
         printf("generateCommand, CallTreesFSByFunction,A: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
 
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
-                                  QString("Which function?:"), 
+        selectedFunctionStr = QInputDialog::getText("Enter Filename or Function Name Dialog:", 
+                                  QString("Which filename or function?:"), 
                                   QLineEdit::Normal, QString::null, &ok, this);
         if ( !ok || selectedFunctionStr.isEmpty() ) {
           // user entered nothing or pressed Cancel
@@ -9279,8 +9279,8 @@ StatsPanel::generateCommand()
         printf("A: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
 
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
-                                  QString("Which function?:"), 
+        selectedFunctionStr = QInputDialog::getText("Enter Filename or Function Name Dialog:", 
+                                  QString("Which filename or function?:"), 
                                   QLineEdit::Normal, QString::null, &ok, this);
         if ( !ok || selectedFunctionStr.isEmpty() ) {
           // user entered nothing or pressed Cancel
@@ -9302,8 +9302,8 @@ StatsPanel::generateCommand()
 #ifdef DEBUG_StatsPanel
         printf("generateCommand, TracebacksFSByFunction, A: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
-                                  QString("Which function?:"), 
+        selectedFunctionStr = QInputDialog::getText("Enter Filename or Function Name Dialog:", 
+                                  QString("Which filename or function?:"), 
                                   QLineEdit::Normal, QString::null, &ok, this);
         if ( !ok || selectedFunctionStr.isEmpty() ) {
           // user entered nothing or pressed Cancel
@@ -9367,8 +9367,8 @@ StatsPanel::generateCommand()
       selectedFunctionStr = findSelectedFunction();
       if( selectedFunctionStr.isEmpty() ) {
         bool ok = FALSE;
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
-                                  QString("Which function?:"), 
+        selectedFunctionStr = QInputDialog::getText("Enter Filename or Function Name Dialog:", 
+                                  QString("Which filename or function?:"), 
                                   QLineEdit::Normal, QString::null, &ok, this);
         if ( !ok || selectedFunctionStr.isEmpty() ) {
           // user entered nothing or pressed Cancel
@@ -9406,8 +9406,8 @@ StatsPanel::generateCommand()
 #ifdef DEBUG_StatsPanel
         printf("generateCommand, Butterfly B: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
-        selectedFunctionStr = QInputDialog::getText("Enter Function Name Dialog:", 
-                                  QString("Which function?:"), 
+        selectedFunctionStr = QInputDialog::getText("Enter Filename or Function Name Dialog:", 
+                                  QString("Which filename or function?:"), 
                                   QLineEdit::Normal, QString::null, &ok, this);
         if ( !ok || selectedFunctionStr.isEmpty() ) {
           // user entered nothing or pressed Cancel
