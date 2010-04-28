@@ -3819,7 +3819,7 @@ static bool getListOfRanks (CommandObject *cmd) {
       }
     }
     for (std::set<int64_t>::iterator rseti = rset.begin(); rseti != rset.end(); rseti++) {
-      printf(" list ranks, *rseti=%d\n", *rseti);
+//      printf(" list ranks, *rseti=%d\n", *rseti);
       cmd->Result_Int ( *rseti );
     }
 
