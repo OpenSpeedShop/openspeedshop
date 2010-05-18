@@ -710,6 +710,24 @@ static void Get_Source_Objects(const Thread& thread,
     objects = thread.getStatements();
 }
 
+static void Get_TGRP_Source_Objects(const ThreadGroup& tgrp,
+			       std::set<LinkedObject>& objects)
+{
+    objects = tgrp.getLinkedObjects();
+}
+
+static void Get_TGRP_Source_Objects(const ThreadGroup& tgrp,
+			       std::set<Function>& objects)
+{
+    objects = tgrp.getFunctions();
+}
+
+static void Get_TGRP_Source_Objects(const ThreadGroup& tgrp,
+			       std::set<Statement>& objects)
+{
+    objects = tgrp.getStatements();
+}
+
 
 
 static inline bool Object_Is_LinkedObject (std::set<LinkedObject>& objects) { return true; }
@@ -772,18 +790,13 @@ void Filtered_Objects (CommandObject *cmd,
   if ((f_list == NULL) || (f_list->empty())) {
    // There is no Function filtering requested.
    // Get all the objects in the already selected thread groups.
-    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
-
-     // Check for asynchronous abort command
-      if (cmd->Status() == CMD_ABORTED) {
-        return;
-      }
-
-      Thread thread = *ti;
-      std::set<TE> new_objects;
-      Get_Source_Objects(thread, new_objects);
-      objects.insert(new_objects.begin(), new_objects.end());
-    }
+   // Updated to use the threadgroup directly for the getFunctions,
+   // getStatements, or getLinkedObjects used here.
+   // For large parallel jobs this improves the performance of
+   // the underlying database queries.
+    std::set<TE> new_objects;
+    Get_TGRP_Source_Objects(tgrp, new_objects);
+    objects.insert(new_objects.begin(), new_objects.end());
     return;
   } else if (!Object_Is_LinkedObject(objects)) {
    // There is some sort of "-f name" filter specified.
