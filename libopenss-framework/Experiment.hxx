@@ -181,6 +181,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void updateToVersion2() const;
 	void updateToVersion3() const;
 	void updateToVersion4() const;
+	void updateToVersion5() const;
 
 #ifndef NDEBUG
 	static bool is_debug_mpijob_enabled;

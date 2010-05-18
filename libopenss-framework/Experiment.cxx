@@ -75,7 +75,7 @@ namespace {
 	"CREATE TABLE \"Open|SpeedShop\" ("
 	"    version INTEGER"
 	");",
-	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (4);",
+	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (5);",
 	
 	// Thread Table
 	"CREATE TABLE Threads ("
@@ -88,6 +88,7 @@ namespace {
 	"    mpi_rank INTEGER DEFAULT NULL,"
 	"    mpi_impl TEXT DEFAULT NULL"
 	");",
+	"CREATE INDEX IndexThreadByHostPidTid ON Threads(host,pid,posix_tid);",
 	
 	// Address Space Table
 	"CREATE TABLE AddressSpaces ("
@@ -193,6 +194,7 @@ namespace {
 	"    addr_end INTEGER,"
 	"    data BLOB"
 	");",
+	"CREATE INDEX IndexDataByCollectorThread ON Data (collector,thread);",
 
 	// End Of Table Entry
 	NULL
@@ -474,6 +476,8 @@ Experiment::Experiment(const std::string& name) :
 	updateToVersion3();
     if(getVersion() == 3)
 	updateToVersion4();
+    if(getVersion() == 4)
+	updateToVersion5();
 
     // Iterate over each thread in this experiment
     ThreadGroup threads = getThreads();
@@ -2093,6 +2097,42 @@ void Experiment::updateToVersion4() const
     
     // End this multi-statement transaction
     END_TRANSACTION(dm_database);    
+}
+
+
+
+
+/**
+ * Update our schema to version 5.
+ *
+ * Updates the schema of this experiment's database to version 5
+ * add new indexs for Data table. Improves performance of building
+ * the DataCache where a full table scan was being performed on
+ * the data table when selecting rowid's for the cache.
+ * Performance issue was identified by a 6000 pe pepc-pcsamp databsae.
+ */
+void Experiment::updateToVersion5() const
+{
+    // Update procedure
+    const char* UpdateProcedure[] = {
+
+	"CREATE INDEX IndexDataByCollectorThread ON Data (collector,thread);",
+	"CREATE INDEX IndexThreadByHostPidTid ON Threads(host,pid,posix_tid);",
+
+	// Update the database's schema version number
+	"UPDATE \"Open|SpeedShop\" SET version = 5;",
+
+	// End Of Table Entry
+	NULL
+    };
+
+    // Apply the update procedure
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    for(int i = 0; UpdateProcedure[i] != NULL; ++i) {
+	dm_database->prepareStatement(UpdateProcedure[i]);
+	while(dm_database->executeStatement());
+    }
+    END_TRANSACTION(dm_database);
 }
 
 
