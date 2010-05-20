@@ -484,8 +484,18 @@ std::set<Framework::ThreadGroup> Queries::ClusterAnalysis::Apply(
 	Assert((first != clusters.end()) && (second != clusters.end()));
 
 	// Has the termination criterion been met?
-	if(criterion(distances, clusters, distance, *first, *second))
-	    break;
+	if(criterion(distances, clusters, distance, *first, *second)) {
+	    // Have we reduced the number of clusters to a reasonbly small number yet?
+	    // This needs to be something the user can change.  In some cases
+	    // we hit the criterion very early and are left with many clusters.
+	    // I suspect that the last cluster found in the early termination case
+	    // may be an outlier but our current view code will print all the clusters.
+	    // For a large scale job, that could mean printing 1000's of cluster data.
+	    // The line below just says continue cluster reduction down to at most 4.
+	    if (clusters.size() < 5) {
+	        break;
+	    }
+	}
 	
 	// Replace the two original clusters with their union
 	Framework::ThreadGroup temp;
