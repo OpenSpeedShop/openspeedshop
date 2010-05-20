@@ -291,6 +291,11 @@ void CollectorPluginTable::foreachCallback(const std::string& filename)
     if (filename.find("_view") != string::npos ||
 	filename.find("Panel") != string::npos ||
 	filename.find("-rt") != string::npos ||
+	filename.find("-offline") != string::npos ||
+	filename.find("__init__") != string::npos ||
+	filename.find("offline_monitor") != string::npos ||
+	filename.find("openss") != string::npos ||
+	filename.find("mrnet") != string::npos ||
 	filename.find("libmonitor") != string::npos) {
         return;
     }
