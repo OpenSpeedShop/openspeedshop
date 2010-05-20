@@ -169,7 +169,8 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 		monitor_in_start_func_wide(pc)) {
 		break;
 	    } else {
-		stacktrace[index++] = (uint64_t)pc;
+		// adjust address for finding correct line
+		stacktrace[index++] = (uint64_t) ((char *) pc - 1);
 	    }
 #else
 	    stacktrace[index++] = (uint64_t)pc;	    
