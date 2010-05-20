@@ -58,7 +58,17 @@ namespace OpenSpeedShop { namespace Framework {
 
     public:
 
-	bool operator<(const Entry&) const;
+//	bool operator<(const Entry&) const;
+bool operator<(const Entry& other) const
+{
+    // Check preconditions
+    //    Assert(dm_table == other.dm_table);
+
+    // Compare the two entries
+    if(dm_database == other.dm_database)
+         return dm_entry < other.dm_entry;
+    return dm_database < other.dm_database;
+}
 
 	bool inSameDatabase(const Entry&) const;
 	

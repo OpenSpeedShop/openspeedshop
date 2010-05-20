@@ -45,16 +45,18 @@ using namespace OpenSpeedShop::Framework;
  * @return         Boolean "true" if we are less than the other entry, "false"
  *                 otherwise.
  */	
+#if 0
 bool Entry::operator<(const Entry& other) const
 {
     // Check preconditions
-    Assert(dm_table == other.dm_table);
+//    Assert(dm_table == other.dm_table);
     
     // Compare the two entries
     if(dm_database == other.dm_database)
 	return dm_entry < other.dm_entry;
     return dm_database < other.dm_database;
 }
+#endif
 
 
 
