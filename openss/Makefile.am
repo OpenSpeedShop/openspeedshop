@@ -175,6 +175,10 @@ install-exec-hook: ossdriver
 	@rm -f $(DESTDIR)$(bindir)/ossfpe
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossfpe
 	chmod 755 $(DESTDIR)$(bindir)/ossfpe
+# osscompare
+	@rm -f $(DESTDIR)$(bindir)/osscompare
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osscompare
+	chmod 755 $(DESTDIR)$(bindir)/osscompare
 endif
 
 EXTRA_DIST = ossrun.in ossdriver.in osslink.in

@@ -24,6 +24,14 @@ input_argument_rate_threshold_value=0
 # If this is set we will use the "input argument event value" parameter instead of the experiment default event value
 input_argument_event_or_trace_list_value=0
 
+# Initialize to indicate no "input compare database list value" parameter was seen
+# If this is set we will use the "input argument event value" parameter as the list of database files to compare
+input_compare_database_list=0
+
+# Initialize to indicate no "input argument compare metric" parameter was seen
+# If this is set we will use the "input argument compare metric" parameter instead of the experiment default compare metric value
+input_argument_compare_metric=0
+
 #
 # DEFAULT VALUES - MUST MATCH THE DEFAULTS INSIDE THE OpenSpeedShop/plugins/collectors/<experiment_type> source
 #
@@ -63,10 +71,60 @@ mpiotf_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,M
 # Corresponds to OPENSS_FPE_EVENT
 fpe_default_events="inexact_result,division_by_zero,underflow,overflow,invalid_operation"
 
+# Corresponds to OPENSS_COMPARE_METRIC
+# Options vary by experiment: percent is another alternative to time
+compare_default_metric="time"
 
 #
 # END DEFAULT VALUES
 #
+
+use_compare_metric=$compare_default_metric
+
+# A function to split the comma separated list values into
+# an array, so that they may be processed individually by the
+# osscompare command.
+# Portions of the csv_split code is credited to:
+# Copyright 2004, Chris F.A. Johnson
+# and may be copied under the terms of the 
+# GNU General Public License
+#
+csv_split() { ## USAGE: csv_split CSV_RECORD
+
+ local record=${1%"${CR}"}
+ local right
+ local vnum=0
+ unset values
+ while [ -n "$record" ] 
+ do
+
+ case $record in
+ \"*) right=${record#*\",}
+    value=${record%%\",*}
+    values[$vnum]=${value#\"}
+    ;;
+ *) values[$vnum]=${record%%,*}
+    right=${record#*,}
+    ;;
+ esac
+
+# echo "record=$record"
+# echo "value=${value#\"}"
+
+ case $record in
+    *,*) record=${right} ;;
+    *) record=${record#\"}
+       values[$vnum]=${record%\"}
+       break;;
+ esac
+
+#echo "values=${values[$vnum]}"
+
+ vnum=$(( $vnum + 1 ))
+ echo $vnum > /tmp/vnum_val
+
+ done
+}
 
 if [ $debug_flag == 1 ]
 then
@@ -97,26 +155,48 @@ experiment_name=${calling_script_name##*/}
 if [[ -z "$1" || $might_have_error == 1 ]] 
 then
    echo ""
-   echo "Usage: $0 \"executable\" [extra_args]"
-   echo "Usage: $0 help or --help"
-   echo ""
-   echo "    where \"executable\" is defined as the command that you normally use to execute your program: but in quotes"
-   echo "    For example: $0 \"mpirun -N 16 -n 256 ./smg2000 -n 50 50 50\" [extra_args]"
-   echo "        where the optional \"extra_args\" is defined as follows:"
-   echo "            \"high\"     - Increase the default sampling rate or threshold value to increase the number of samples taken."
-   echo "            \"low\"      - Decrease the default sampling rate or threshold value to decrease the number of samples taken."
-   echo "            \"default\"  - Use the default sampling rate or threshold value. This will override any environment variable settings."
+   if [[ "$experiment_name" == "osscompare" ]]; then
+     echo "Usage: $0 \"database_file_list\" [extra_args]"
+     echo "    where \"database_file_list\" is defined as a comma separated list of "
+     echo "                                 Open|SpeedShop database files from a previous"
+     echo "                                 run of Open|SpeedShop on an application the " 
+     echo "                                 \"database file\" list must be comma separated."
+     echo "    where the optional \"extra_args\" is defined as follows:"
+     echo "            \"time\"     - Compare based on the exclusive time metric."
+     echo "            \"percent\"  - Compare based on the percent metric."
+     echo ""
+     echo "Example: osscompare nbody-usertime.openss,nbody-usertime-1.openss percent"
+     echo "         This example compares the two specified databases using the metric:"
+     echo "         percent of exclusive time"
+     echo ""
+   else
+     echo "Usage: $0 \"executable\" [extra_args]"
+     echo "Usage: $0 help or --help"
+     echo ""
+     echo "    where \"executable\" is defined as the command that you normally "
+     echo "        use to execute your program: but in quotes"
+     echo "    For example: $0 \"mpirun -N 16 -n 256 ./smg2000 -n 50 50 50\" [extra_args]"
+     echo "        where the optional \"extra_args\" is defined as follows:"
+     echo "            \"high\"     - Increase the default sampling rate or threshold "
+     echo "                           value to increase the number of samples taken."
+     echo "            \"low\"      - Decrease the default sampling rate or threshold "
+     echo "                           value to decrease the number of samples taken."
+     echo "            \"default\"  - Use the default sampling rate or threshold value. "
+     echo "                           This will override any environment variable settings."
+   fi
    if [[ "$experiment_name" == "osspcsamp" || "$experiment_name" == "ossusertime" ]]; then
-     echo "            \"rate value\"  - Use this sampling rate or threshold value instead of the default or any environment variable settings."
+     echo "            \"rate value\"  - Use this sampling rate or threshold value "
+     echo "                              instead of the default or any environment variable settings."
      echo "                                 For example: 80"
-     echo "                                              for a sampling rate of 80 samples per second."
+     echo "                                     for a sampling rate of 80 samples per second."
    elif [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwctime" ]]; then
-     echo "            \"papi_event\"       - Specify the papi event."
-     echo "                                      For example: PAPI_FP_OPS"
-     echo "                                                   for Floating point operations."
-     echo "                                      Or           PAPI_L1_DCM"
-     echo "                                                   for Level 1 data cache misses."
-     echo "            \"threshold value\"  - Use this threshold value for the specified pape_event instead of the default or any environment variable settings."
+     echo "            \"papi_event\"  - Specify the papi event."
+     echo "                                 For example: PAPI_FP_OPS"
+     echo "                                     for Floating point operations."
+     echo "                                 Or:          PAPI_L1_DCM"
+     echo "                                     for Level 1 data cache misses."
+     echo "            \"threshold value\" - Use this threshold value for the specified papi_event "
+     echo "                                  instead of the default or any environment variable settings."
      whichpapi_avail=`which papi_avail`
      if test -f $whichpapi_avail
       then
@@ -135,20 +215,50 @@ then
 elif [[ "$1" == "help" ||  "$1" == "--help" ]] 
 then
    echo ""
-   echo "Usage: $0 \"executable\" [extra_args]"
-   echo "Usage: $0 help"
-   echo "    where \"executable\" is defined as the command that you normally use to execute your program: but in quotes"
-   echo ""
-   echo "For example: $0 \"mpirun -N 16 -n 256 ./smg2000 -n 50 50 50\" [extra_args]"
-   echo "    where the optional \"extra_args\" is defined as follows:"
-   echo "            \"high\"     - Increase the default sampling rate or threshold value to increase the number of samples taken."
-   echo "            \"low\"      - Decrease the default sampling rate or threshold value to decrease the number of samples taken."
-   echo "            \"default\"  - Use the default sampling rate or threshold value. This will override any environment variable settings."
-   echo "            \"rate value\"  - Use this sampling rate or threshold value instead of the default or any environment variable settings."
-   echo ""
+   if [[ "$experiment_name" == "osscompare" ]]; then
+     echo "Usage: $0 \"database_file_list\" [extra_args]"
+     echo "    where \"database_file_list\" is defined as a comma separated list of "
+     echo "                                 Open|SpeedShop database files from a previous"
+     echo "                                 run of Open|SpeedShop on an application the " 
+     echo "                                 \"database file\" list must be comma separated."
+     echo "    where the optional \"extra_args\" is defined as follows:"
+     echo "            \"time\"     - Compare based on the exclusive time metric."
+     echo "            \"percent\"  - Compare based on the percent metric."
+     echo ""
+     echo "Example: osscompare nbody-usertime.openss,nbody-usertime-1.openss percent"
+     echo "         This example compares the two specified databases using the metric:"
+     echo "         percent of exclusive time"
+     echo ""
+   else
+     echo "Usage: $0 \"executable\" [extra_args]"
+     echo "Usage: $0 help"
+     echo "    where \"executable\" is defined as the command that you normally use to "
+     echo "    execute your program: but in quotes"
+     echo ""
+     echo "For example: $0 \"mpirun -N 16 -n 256 ./smg2000 -n 50 50 50\" [extra_args]"
+     echo "    where the optional \"extra_args\" is defined as follows:"
+     echo "            \"high\"     - Increase the default sampling rate or "
+     echo "                           threshold value to increase the number of samples taken."
+     echo "            \"low\"      - Decrease the default sampling rate or threshold value to "
+     echo "                           decrease the number of samples taken."
+     echo "            \"default\"  - Use the default sampling rate or threshold value. This "
+     echo "                           will override any environment variable settings."
+     echo "            \"rate value\"  - Use this sampling rate or threshold value instead of "
+     echo "                              the default or any environment variable settings."
+     echo ""
+   fi
    exit
 fi
 
+if [[ "$experiment_name" == "osscompare" ]]; then
+  input_compare_database_list=$1
+  if [ $debug_flag == 1 ]
+  then
+     echo "DEBUG: in COMPARE EXPERIMENT INPUT SECTION, SETTING input_compare_database_list=$input_compare_database_list"
+     echo "DEBUG: in COMPARE EXPERIMENT INPUT SECTION, SETTING compare_default_metric=$compare_default_metric"
+     echo ""
+  fi
+fi
 
 if [ -z "$2" ] 
 then
@@ -197,7 +307,13 @@ else
           input_argument_event_or_trace_list_value=$2
        fi
      else
-        if [[ "$experiment_name" == "ossio" || "$experiment_name" == "ossiot" ]]; then
+        if [[ "$experiment_name" == "osscompare" ]]; then
+           input_argument_compare_metric=$2
+           if [ $debug_flag == 1 ]
+           then
+             echo "DEBUG: SETTING input_argument_compare_metric to $2"
+           fi
+        elif [[ "$experiment_name" == "ossio" || "$experiment_name" == "ossiot" ]]; then
            input_argument_event_or_trace_list_value=$2
         elif [[ "$experiment_name" == "ossmpi" || "$experiment_name" == "ossmpit" || "$experiment_name" == "ossmpiotf" ]]; then
            input_argument_event_or_trace_list_value=$2
@@ -1521,17 +1637,213 @@ then
   openss -offline -f "$1" fpe
 
 # ------------------------------------------------------------------------------------
-# -- FPE EXPERIMENT SPECIFIC CODE -------------------------------------------------
 # ------------------------------------------------------------------------------------
-elif  [ $experiment_name == "ossfpe" ]
+# ------------------------------------------------------------------------------------
+# -- COMPARE EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
+elif  [ $experiment_name == "osscompare" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "DEBUG: in FPE EXPERIMENT SECTION"
+    echo "DEBUG: in COMPARE EXPERIMENT SECTION, input_compare_database_list=$input_compare_database_list"
+    echo "DEBUG: in COMPARE EXPERIMENT SECTION, compare_default_metric=$compare_default_metric"
+    echo "DEBUG: in COMPARE EXPERIMENT SECTION, input_argument_compare_metric=$input_argument_compare_metric"
   fi
 
-  openss -offline -f "$1" fpe
+  if [ $input_argument_compare_metric != 0 ]
+  then
+     use_compare_metric=$input_argument_compare_metric
+     echo "[openss]: Executing compare experiment using osscompare command input metric value=$input_argument_compare_metric."
+     if [ -z "$OPENSS_COMPARE_METRIC" ]
+     then
+        if [ $debug_flag == 1 ]
+        then
+          echo "DEBUG: in COMPARE EXPERIMENT SECTION, NO OPENSS_COMPARE_METRIC setting, use input_argument_compare_metric=$input_argument_compare_metric"
+        fi
+     else
+        echo "[openss]: Executing compare experiment using OPENSS_COMPARE_METRIC value=$OPENSS_COMPARE_METRIC for osscompare command metric value, overriding osscommand input metric value=$input_argument_compare_metric."
+        use_compare_metric=$OPENSS_COMPARE_METRIC
+     fi
+  else
+      use_compare_metric=$compare_default_metric
+  fi
+
+  if [ $input_compare_database_list != 0 ]
+  then
+    if [ -z  "$OPENSS_COMPARE_DATABASES" ]
+    then
+      echo "[openss]: Executing compare experiment using osscompare command input database list specified on the \"osscompare\" command: \"$input_compare_database_list\"."
+      if [ $debug_flag == 1 ]
+      then
+         echo "DEBUG: setting OPENSS_COMPARE_DATABASES to $input_compare_database_list for use with the split_csv routine"
+      fi
+    else
+      echo "[openss]: Executing compare experiment overriding the osscompare command input database list specified on the \"osscompare\" command: \"$input_compare_database_list\" and using the list specified by the OPENSS_COMPARE_DATABASES environment variable."
+      if [ $debug_flag == 1 ]
+      then
+         echo "DEBUG: setting OPENSS_COMPARE_DATABASES to $input_compare_database_list and overriding what was already set in OPENSS_COMPARE_DATABASES"
+      fi
+    fi
+    OPENSS_COMPARE_DATABASES=$input_compare_database_list
+  else
+    # input argument not specified
+    if [ -z  "$OPENSS_COMPARE_DATABASES" ]
+    then
+      echo "[openss]: ERROR: no database list input and no OPENSS_COMPARE_DATABASES environment variable setting was found."
+    else
+      echo "[openss]: Executing compare experiment OPENSS_COMPARE_DATABASES=$OPENSS_COMPARE_DATABASES is set and will be used as the Compare experiment database list."
+      if [ $debug_flag == 1 ]
+      then
+        echo "DEBUG: exporting already set OPENSS_COMPARE_DATABASES to $OPENSS_COMPARE_DATABASES"
+      fi
+    fi
+  fi
+
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: about to call openss -offline for compare experiment, OPENSS_COMPARE_DATABASES=$OPENSS_COMPARE_DATABASES"
+  fi
+#  export OPENSS_COMPARE_DATABASES
+
+  # funnel commands to compare databases into a file and then direct that file into openss
+  # openss -offline -f "$1" fpe
+
+echo $OPENSS_COMPARE_DATABASES > /tmp/file2.csv
+N=3
+CR=$'\n'
+#CR=$'\r'
+while IFS= read -r line
+do
+
+# echo "line=$line"
+  csv_split "$line"
+# printf "%s\n" "${values[1]}" ## print field N (numbered from 0)
+
+done < /tmp/file2.csv
+
+while read -r line
+do
+
+# echo "vnum_val line=$line"
+ number_of_databases=$line
+ let number_of_databases=$number_of_databases+1
+# echo "number_of_databases=$number_of_databases"
+  
+done < /tmp/vnum_val
+
+
+if [ "$number_of_databases" -ge "1" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+     printf "value[0]=%s\n" "${values[0]}" ## print field N (numbered from 0)
+  fi
+  echo "exprestore -f ${values[0]}" > commands.txt
+  echo "cviewCreate -x 1 -m $use_compare_metric" >> commands.txt
 fi
+ 
+if [ "$number_of_databases" -ge "2" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    printf "value[1]=%s\n" "${values[1]}" ## print field N (numbered from 0)
+  fi
+  echo "exprestore -f ${values[1]}" >> commands.txt
+  echo "cviewCreate -x 3 -m $use_compare_metric" >> commands.txt
+fi
+
+if [ "$number_of_databases" -eq "2" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    printf "create cview -c 2 -c 4" 
+  fi
+  echo "cview -c 2 -c 4" >> commands.txt
+fi
+
+if [ "$number_of_databases" -ge "3" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    printf "value[2]=%s\n" "${values[2]}" ## print field N (numbered from 0)
+  fi
+  echo "exprestore -f ${values[2]}" >> commands.txt
+  echo "cviewCreate -x 5 -m $use_compare_metric" >> commands.txt
+fi
+
+if [ "$number_of_databases" -eq "3" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    printf "create cview -c 2 -c 4 -c 6" 
+  fi
+  echo "cview -c 2 -c 4 -c 6" >> commands.txt
+fi
+
+if [ "$number_of_databases" -ge "4" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+    printf "value[3]=%s\n" "${values[3]}" ## print field N (numbered from 0)
+  fi
+  echo "exprestore -f ${values[3]}" >> commands.txt
+  echo "cviewCreate -x 7 -m $use_compare_metric" >> commands.txt
+fi
+
+if [ "$number_of_databases" -eq "4" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    printf "create cview -c 2 -c 4 -c 6 -c 8" 
+  fi
+  echo "cview -c 2 -c 4 -c 6 -c 8" >> commands.txt
+#  echo "quit" >> commands.txt
+fi
+
+
+if [ "$number_of_databases" -ge "5" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+    printf "value[4]=%s\n" "${values[4]}" ## print field N (numbered from 0)
+  fi
+  echo "exprestore -f ${values[4]}" >> commands.txt
+  echo "cviewCreate -x 9 -m $use_compare_metric" >> commands.txt
+fi
+
+if [ "$number_of_databases" -eq "5" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    printf "create cview -c 2 -c 4 -c 6 -c 8 -c 10" 
+  fi
+  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10" >> commands.txt
+#  echo "quit" >> commands.txt
+fi
+
+if [ "$number_of_databases" -ge "2" ]
+then
+  echo "[openss]: Legend: -c 2 represents ${values[0]}"
+  echo "[openss]: Legend: -c 4 represents ${values[1]}"
+fi
+if [ "$number_of_databases" -ge "3" ]
+then
+  echo "[openss]: Legend: -c 6 represents ${values[2]}"
+fi
+if [ "$number_of_databases" -ge "4" ]
+then
+  echo "[openss]: Legend: -c 8 represents ${values[3]}"
+fi
+if [ "$number_of_databases" -ge "5" ]
+then
+  echo "[openss]: Legend: -c 10 represents ${values[4]}"
+fi
+
+openss -batch < commands.txt
+
+
+fi
+# ------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------
 
