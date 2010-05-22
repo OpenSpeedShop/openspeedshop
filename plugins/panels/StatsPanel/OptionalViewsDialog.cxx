@@ -23,7 +23,6 @@
 
 #include "openspeedshop.hxx"
 #include "PluginInfo.hxx"
-#include <ltdl.h>
 #include <assert.h>
 
 #include "PreferencesChangedObject.hxx"
