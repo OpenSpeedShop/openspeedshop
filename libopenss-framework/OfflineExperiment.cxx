@@ -42,6 +42,7 @@
 
 #include <algorithm>
 
+#include <sys/stat.h>
 #include <iostream>
 #include <string>
 #include <fcntl.h>
