@@ -119,9 +119,8 @@ csv_split() { ## USAGE: csv_split CSV_RECORD
  esac
 
 #echo "values=${values[$vnum]}"
-
  vnum=$(( $vnum + 1 ))
- echo $vnum > /tmp/vnum_val
+ echo $vnum > /tmp/$USER/osscompare_vnum_val
 
  done
 }
@@ -251,7 +250,18 @@ then
 fi
 
 if [[ "$experiment_name" == "osscompare" ]]; then
-  input_compare_database_list=$1
+  if [ $debug_flag == 1 ]
+  then
+    echo "Input compare database list: $1" 
+    echo "Input compare database list after whitespace removal: $1" | tr -d ' '
+  fi
+  echo "$1" | tr -d ' ' > /tmp/$USER/osscompare_nospaces.txt 
+  while read -r line
+  do
+    input_compare_database_list=$line
+  done < /tmp/$USER/osscompare_nospaces.txt
+
+#  input_compare_database_list=$1
   if [ $debug_flag == 1 ]
   then
      echo "DEBUG: in COMPARE EXPERIMENT INPUT SECTION, SETTING input_compare_database_list=$input_compare_database_list"
@@ -1672,7 +1682,8 @@ then
   then
     if [ -z  "$OPENSS_COMPARE_DATABASES" ]
     then
-      echo "[openss]: Executing compare experiment using osscompare command input database list specified on the \"osscompare\" command: \"$input_compare_database_list\"."
+      echo "[openss]: Executing compare experiment using osscompare command input database list specified on the \"osscompare\" command:"
+      echo "[openss]: \"$input_compare_database_list\"."
       if [ $debug_flag == 1 ]
       then
          echo "DEBUG: setting OPENSS_COMPARE_DATABASES to $input_compare_database_list for use with the split_csv routine"
@@ -1708,18 +1719,20 @@ then
   # funnel commands to compare databases into a file and then direct that file into openss
   # openss -offline -f "$1" fpe
 
-echo $OPENSS_COMPARE_DATABASES > /tmp/file2.csv
+echo $OPENSS_COMPARE_DATABASES > /tmp/$USER/osscompare_file2.csv
 N=3
 CR=$'\n'
 #CR=$'\r'
 while IFS= read -r line
 do
 
-# echo "line=$line"
+#  echo "line=$line"
+
   csv_split "$line"
+
 # printf "%s\n" "${values[1]}" ## print field N (numbered from 0)
 
-done < /tmp/file2.csv
+done < /tmp/$USER/osscompare_file2.csv
 
 while read -r line
 do
@@ -1729,7 +1742,7 @@ do
  let number_of_databases=$number_of_databases+1
 # echo "number_of_databases=$number_of_databases"
   
-done < /tmp/vnum_val
+done < /tmp/$USER/osscompare_vnum_val
 
 
 if [ "$number_of_databases" -ge "1" ] 
@@ -1738,8 +1751,8 @@ then
   then
      printf "value[0]=%s\n" "${values[0]}" ## print field N (numbered from 0)
   fi
-  echo "exprestore -f ${values[0]}" > commands.txt
-  echo "cviewCreate -x 1 -m $use_compare_metric" >> commands.txt
+  echo "exprestore -f ${values[0]}" > /tmp/$USER/osscompare_commands.txt
+  echo "cviewCreate -x 1 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
 fi
  
 if [ "$number_of_databases" -ge "2" ]
@@ -1748,8 +1761,8 @@ then
   then
     printf "value[1]=%s\n" "${values[1]}" ## print field N (numbered from 0)
   fi
-  echo "exprestore -f ${values[1]}" >> commands.txt
-  echo "cviewCreate -x 3 -m $use_compare_metric" >> commands.txt
+  echo "exprestore -f ${values[1]}" >> /tmp/$USER/osscompare_commands.txt
+  echo "cviewCreate -x 3 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
 fi
 
 if [ "$number_of_databases" -eq "2" ]
@@ -1758,7 +1771,7 @@ then
   then
     printf "create cview -c 2 -c 4" 
   fi
-  echo "cview -c 2 -c 4" >> commands.txt
+  echo "cview -c 2 -c 4" >> /tmp/$USER/osscompare_commands.txt
 fi
 
 if [ "$number_of_databases" -ge "3" ]
@@ -1767,8 +1780,8 @@ then
   then
     printf "value[2]=%s\n" "${values[2]}" ## print field N (numbered from 0)
   fi
-  echo "exprestore -f ${values[2]}" >> commands.txt
-  echo "cviewCreate -x 5 -m $use_compare_metric" >> commands.txt
+  echo "exprestore -f ${values[2]}" >> /tmp/$USER/osscompare_commands.txt
+  echo "cviewCreate -x 5 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
 fi
 
 if [ "$number_of_databases" -eq "3" ]
@@ -1777,7 +1790,7 @@ then
   then
     printf "create cview -c 2 -c 4 -c 6" 
   fi
-  echo "cview -c 2 -c 4 -c 6" >> commands.txt
+  echo "cview -c 2 -c 4 -c 6" >> /tmp/$USER/osscompare_commands.txt
 fi
 
 if [ "$number_of_databases" -ge "4" ] 
@@ -1786,8 +1799,8 @@ then
   then
     printf "value[3]=%s\n" "${values[3]}" ## print field N (numbered from 0)
   fi
-  echo "exprestore -f ${values[3]}" >> commands.txt
-  echo "cviewCreate -x 7 -m $use_compare_metric" >> commands.txt
+  echo "exprestore -f ${values[3]}" >> /tmp/$USER/osscompare_commands.txt
+  echo "cviewCreate -x 7 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
 fi
 
 if [ "$number_of_databases" -eq "4" ]
@@ -1796,8 +1809,8 @@ then
   then
     printf "create cview -c 2 -c 4 -c 6 -c 8" 
   fi
-  echo "cview -c 2 -c 4 -c 6 -c 8" >> commands.txt
-#  echo "quit" >> commands.txt
+  echo "cview -c 2 -c 4 -c 6 -c 8" >> /tmp/$USER/osscompare_commands.txt
+#  echo "quit" >> /tmp/$USER/osscompare_commands.txt
 fi
 
 
@@ -1807,8 +1820,8 @@ then
   then
     printf "value[4]=%s\n" "${values[4]}" ## print field N (numbered from 0)
   fi
-  echo "exprestore -f ${values[4]}" >> commands.txt
-  echo "cviewCreate -x 9 -m $use_compare_metric" >> commands.txt
+  echo "exprestore -f ${values[4]}" >> /tmp/$USER/osscompare_commands.txt
+  echo "cviewCreate -x 9 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
 fi
 
 if [ "$number_of_databases" -eq "5" ]
@@ -1817,8 +1830,8 @@ then
   then
     printf "create cview -c 2 -c 4 -c 6 -c 8 -c 10" 
   fi
-  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10" >> commands.txt
-#  echo "quit" >> commands.txt
+  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10" >> /tmp/$USER/osscompare_commands.txt
+#  echo "quit" >> /tmp/$USER/osscompare_commands.txt
 fi
 
 if [ "$number_of_databases" -ge "2" ]
@@ -1839,7 +1852,7 @@ then
   echo "[openss]: Legend: -c 10 represents ${values[4]}"
 fi
 
-openss -batch < commands.txt
+openss -batch < /tmp/$USER/osscompare_commands.txt
 
 
 fi
