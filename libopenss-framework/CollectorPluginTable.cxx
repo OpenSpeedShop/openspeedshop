@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006-2010 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -291,11 +292,6 @@ void CollectorPluginTable::foreachCallback(const std::string& filename)
     if (filename.find("_view") != string::npos ||
 	filename.find("Panel") != string::npos ||
 	filename.find("-rt") != string::npos ||
-	filename.find("-offline") != string::npos ||
-	filename.find("__init__") != string::npos ||
-	filename.find("offline_monitor") != string::npos ||
-	filename.find("openss") != string::npos ||
-	filename.find("mrnet") != string::npos ||
 	filename.find("libmonitor") != string::npos) {
         return;
     }
