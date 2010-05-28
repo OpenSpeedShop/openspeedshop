@@ -607,11 +607,17 @@ class CommandResult_Function :
 
   virtual CommandResult *Copy () { return new CommandResult_Function (this); }
   virtual bool LT (CommandResult *A) {
-    Assert (typeid(*this) == typeid(CommandResult_Function));
+    if (A->Type() != CMD_RESULT_FUNCTION) {
+      Assert (A->Type() == CMD_RESULT_CALLTRACE);
+      return A->GT(this);
+    }
     return OpenSpeedShop::Queries::CompareFunctions()(*this,
                                                       *((CommandResult_Function *)A)); }
   virtual bool GT (CommandResult *A) {
-    Assert (typeid(*this) == typeid(CommandResult_Function));
+    if (A->Type() != CMD_RESULT_FUNCTION) {
+      Assert (A->Type() == CMD_RESULT_CALLTRACE);
+      return A->LT(this);
+    }
     if (OpenSpeedShop::Queries::CompareFunctions()(*((CommandResult_Function *)A),
                                                    *this)) {
       return true;
@@ -719,11 +725,17 @@ class CommandResult_Statement :
 
   virtual CommandResult *Copy () { return new CommandResult_Statement (this); }
   virtual bool LT (CommandResult *A) {
-    Assert (typeid(*this) == typeid(CommandResult_Statement));
+    if (A->Type() != CMD_RESULT_STATEMENT) {
+      Assert (A->Type() == CMD_RESULT_CALLTRACE);
+      return A->GT(this);
+    }
     return OpenSpeedShop::Queries::CompareStatements()(*this,
                                                        *((CommandResult_Statement *)A)); }
   virtual bool GT (CommandResult *A) {
-    Assert (typeid(*this) == typeid(CommandResult_Statement));
+    if (A->Type() != CMD_RESULT_STATEMENT) {
+      Assert (A->Type() == CMD_RESULT_CALLTRACE);
+      return A->LT(this);
+    }
     return OpenSpeedShop::Queries::CompareStatements()(*((CommandResult_Statement *)A),
                                                        *this); }
 
@@ -794,11 +806,17 @@ class CommandResult_LinkedObject :
 
   virtual CommandResult *Copy () { return new CommandResult_LinkedObject (this); }
   virtual bool LT (CommandResult *A) {
-    Assert (typeid(*this) == typeid(CommandResult_LinkedObject));
+    if (A->Type() != CMD_RESULT_LINKEDOBJECT) {
+      Assert (A->Type() == CMD_RESULT_CALLTRACE);
+      return A->GT(this);
+    }
     return OpenSpeedShop::Queries::CompareLinkedObjects()(*this,
                                                           *((CommandResult_LinkedObject *)A)); }
   virtual bool GT (CommandResult *A) {
-    Assert (typeid(*this) == typeid(CommandResult_LinkedObject));
+    if (A->Type() != CMD_RESULT_LINKEDOBJECT) {
+      Assert (A->Type() == CMD_RESULT_CALLTRACE);
+      return A->LT(this);
+    }
     return OpenSpeedShop::Queries::CompareLinkedObjects()(*((CommandResult_LinkedObject *)A),
                                                           *this); }
 
@@ -892,15 +910,13 @@ class CommandResult_CallStackEntry : public CommandResult {
 
   virtual CommandResult *Copy () { return new CommandResult_CallStackEntry (this); }
   virtual bool LT (CommandResult *A) {
-    if (typeid(*A) == typeid(CommandResult_Uint)) {
-      std::vector<CommandResult *> *ls;
-      ls = CallStack->CSV;
-      if(ls->size() == 1) {
-        return (*ls)[0]->LT(A);
-      }
-    }
-    Assert (typeid(*A) == typeid(CommandResult_CallStackEntry));
     std::vector<CommandResult *> *ls = CallStack->CSV;
+    int64_t sz = ls->size();
+    Assert (sz > 0);
+    if (A->Type() != CMD_RESULT_CALLTRACE) {
+      CommandResult *CE = (*ls)[sz - 1];
+      return CE->LT(A);
+    }
     std::vector<CommandResult *> *rs = ((CommandResult_CallStackEntry *)A)->CallStack->CSV;
     int64_t ll = ls->size();
     int64_t rl = rs->size();
@@ -912,15 +928,13 @@ class CommandResult_CallStackEntry : public CommandResult {
     }
     return (ll < rl); }
   virtual bool GT (CommandResult *A) {
-    if (typeid(*A) == typeid(CommandResult_Uint)) {
-      std::vector<CommandResult *> *ls;
-      ls = CallStack->CSV;
-      if(ls->size() == 1) {
-        return (*ls)[0]->GT(A);
-      }
-    }
-    Assert (typeid(*A) == typeid(CommandResult_CallStackEntry));
     std::vector<CommandResult *> *ls = CallStack->CSV;
+    int64_t sz = ls->size();
+    Assert (sz > 0);
+    if (A->Type() != CMD_RESULT_CALLTRACE) {
+      CommandResult *CE = (*ls)[sz - 1];
+      return CE->GT(A);
+    }
     std::vector<CommandResult *> *rs = ((CommandResult_CallStackEntry *)A)->CallStack->CSV;
     int64_t ll = ls->size();
     int64_t rl = rs->size();
