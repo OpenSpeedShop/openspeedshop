@@ -84,12 +84,12 @@ use_compare_metric=$compare_default_metric
 # A function to split the comma separated list values into
 # an array, so that they may be processed individually by the
 # osscompare command.
-# Portions of the csv_split code is credited to:
+# Portions of the db_file_input_split code is credited to:
 # Copyright 2004, Chris F.A. Johnson
 # and may be copied under the terms of the 
 # GNU General Public License
 #
-csv_split() { ## USAGE: csv_split CSV_RECORD
+db_file_input_split() { ## USAGE: db_file_input_split CSV_RECORD
 
  local record=${1%"${CR}"}
  local right
@@ -1658,6 +1658,23 @@ then
     echo "DEBUG: in COMPARE EXPERIMENT SECTION, input_compare_database_list=$input_compare_database_list"
     echo "DEBUG: in COMPARE EXPERIMENT SECTION, compare_default_metric=$compare_default_metric"
     echo "DEBUG: in COMPARE EXPERIMENT SECTION, input_argument_compare_metric=$input_argument_compare_metric"
+    echo "DEBUG: in COMPARE EXPERIMENT SECTION, OPENSS_CREATE_CSV=$OPENSS_CREATE_CSV"
+  fi
+
+  create_csv_files=0
+  if [ -z "$OPENSS_CREATE_CSV" ]
+  then
+     if [ $debug_flag == 1 ]
+     then
+       echo "DEBUG: in COMPARE EXPERIMENT SECTION, setting create_csv_files=0"
+     fi
+     create_csv_files=0
+  else
+     if [ $debug_flag == 1 ]
+     then
+       echo "DEBUG: in COMPARE EXPERIMENT SECTION, setting create_csv_files=1"
+     fi
+     create_csv_files=1
   fi
 
   if [ $input_argument_compare_metric != 0 ]
@@ -1728,7 +1745,7 @@ do
 
 #  echo "line=$line"
 
-  csv_split "$line"
+  db_file_input_split "$line"
 
 # printf "%s\n" "${values[1]}" ## print field N (numbered from 0)
 
@@ -1771,7 +1788,19 @@ then
   then
     printf "create cview -c 2 -c 4" 
   fi
+
+#  echo "${values[0]}" | tr -d '\.openss'
+#  echo ${values[0]%.*}
+#
+#  echo "${values[1]}" | tr -d '\.openss'
+#  echo ${values[1]%.*}
+
+  if [ $create_csv_files -eq 1 ]
+  then
+    echo "cview -c 2 -c 4 > /tmp/$USER/${values[0]%.*}_${values[1]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+  fi
   echo "cview -c 2 -c 4" >> /tmp/$USER/osscompare_commands.txt
+
 fi
 
 if [ "$number_of_databases" -ge "3" ]
@@ -1789,6 +1818,10 @@ then
   if [ $debug_flag == 1 ]
   then
     printf "create cview -c 2 -c 4 -c 6" 
+  fi
+  if [ $create_csv_files -eq 1 ]
+  then
+    echo "cview -c 2 -c 4 -c 6  > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
   fi
   echo "cview -c 2 -c 4 -c 6" >> /tmp/$USER/osscompare_commands.txt
 fi
@@ -1808,6 +1841,10 @@ then
   if [ $debug_flag == 1 ]
   then
     printf "create cview -c 2 -c 4 -c 6 -c 8" 
+  fi
+  if [ $create_csv_files -eq 1 ]
+  then
+    echo "cview -c 2 -c 4 -c 6 -c 8 > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
   fi
   echo "cview -c 2 -c 4 -c 6 -c 8" >> /tmp/$USER/osscompare_commands.txt
 #  echo "quit" >> /tmp/$USER/osscompare_commands.txt
@@ -1830,6 +1867,10 @@ then
   then
     printf "create cview -c 2 -c 4 -c 6 -c 8 -c 10" 
   fi
+  if [ $create_csv_files -eq 1 ]
+  then
+    echo "cview -c 2 -c 4 -c 6 -c 8 > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+  fi
   echo "cview -c 2 -c 4 -c 6 -c 8 -c 10" >> /tmp/$USER/osscompare_commands.txt
 #  echo "quit" >> /tmp/$USER/osscompare_commands.txt
 fi
@@ -1847,6 +1888,7 @@ if [ "$number_of_databases" -ge "4" ]
 then
   echo "[openss]: Legend: -c 8 represents ${values[3]}"
 fi
+
 if [ "$number_of_databases" -ge "5" ]
 then
   echo "[openss]: Legend: -c 10 represents ${values[4]}"
@@ -1854,13 +1896,191 @@ fi
 
 openss -batch < /tmp/$USER/osscompare_commands.txt
 
+if [ "$number_of_databases" -ge "2" ]
+then
+#
+# First we handle the csv file then the normal output file
+# Here we do a series of sed actions to convert the OpenSpeedShop normal output into a comma
+# separated list which is able to be imported as a sheet from file to Excel like tools.  Please
+# use the comma is a separator option when importing.
+# 
+  if [ $create_csv_files -eq 1 ]
+  then
+    sed 's/,/:/g' \
+    /tmp/$USER/${values[0]%.*}_${values[1]%.*}.compare.txt \
+    | sed -r 's/\s{3,100}/  /g' \
+    | sed -r 's/^\s{4,4}/,/g' \
+    | sed -r 's/^\s{2,2}//g' \
+    | sed -r 's/\s{2,2}/,/g' \
+    | sed '/^$/d' \
+    | sed 's/-c [0-9*]://g' \
+    > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}.compare_csv.txt
+#
+# Now add the header information to the temporary csv file.
+#
+    echo "${values[0]},${values[1]},Functions" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}.header.txt 
+    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}.compare_csv.txt > ${values[0]%.*}_${values[1]%.*}.compare_csv.txt
+  fi
+#
+# Now add the header information to the screen output results.
+#
+  echo "" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}.legends.txt
+  echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}.legends.txt
+  echo "[openss]: Legend: -c 2 represents ${values[0]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}.legends.txt
+  echo "[openss]: Legend: -c 4 represents ${values[1]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}.legends.txt
+  echo "" >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}.legends.txt
+  if [ $create_csv_files -eq 1 ]
+  then
+    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}.legends.txt /tmp/$USER/${values[0]%.*}_${values[1]%.*}.compare.txt > ${values[0]%.*}_${values[1]%.*}.compare.txt
+  fi
+fi
+
+if [ "$number_of_databases" -ge "3" ]
+then
+#
+# First we handle the csv file then the normal output file
+# Here we do a series of sed actions to convert the OpenSpeedShop normal output into a comma
+# separated list which is able to be imported as a sheet from file to Excel like tools.  Please
+# use the comma is a separator option when importing.
+#
+  if [ $create_csv_files -eq 1 ]
+  then
+    sed 's/,/:/g' \
+    /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare.txt  \
+    | sed -r 's/\s{3,100}/  /g' \
+    | sed -r 's/^\s{4,4}/,/g' \
+    | sed -r 's/^\s{2,2}//g' \
+    | sed -r 's/\s{2,2}/,/g' \
+    | sed '/^$/d' \
+    | sed 's/-c [0-9*]://g' \
+    > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare_csv.txt
+
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+    echo "${values[0]},${values[1]},${values[2]},Functions" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.header.txt 
+    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare_csv.txt > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare_csv.txt
+  fi
+#
+# Now add the header information to the screen output results.
+#
+  echo "" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.legends.txt
+  echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.legends.txt
+  echo "[openss]: Legend: -c 2 represents ${values[0]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.legends.txt
+  echo "[openss]: Legend: -c 4 represents ${values[1]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.legends.txt
+  echo "[openss]: Legend: -c 6 represents ${values[2]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.legends.txt
+  echo "" >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.legends.txt
+  if [ $create_csv_files -eq 1 ]
+  then
+    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.legends.txt /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare.txt > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare.txt
+
+  fi
+fi
+
+if [ "$number_of_databases" -ge "4" ]
+then
+#
+# First we handle the csv file then the normal output file
+# Here we do a series of sed actions to convert the OpenSpeedShop normal output into a comma
+# separated list which is able to be imported as a sheet from file to Excel like tools.  Please
+# use the comma is a separator option when importing.
+#
+  if [ $create_csv_files -eq 1 ]
+  then
+    sed 's/,/:/g' \
+    /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare.txt \
+    | sed -r 's/\s{3,100}/  /g' \
+    | sed -r 's/^\s{4,4}/,/g' \
+    | sed -r 's/^\s{2,2}//g' \
+    | sed -r 's/\s{2,2}/,/g' \
+    | sed '/^$/d' \
+    | sed 's/-c [0-9*]://g' \
+    > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare_csv.txt
+
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+    echo "${values[0]},${values[1]},${values[2]},${values[3]},Functions" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.header.txt 
+    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare_csv.txt > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare_csv.txt
+  fi
+
+#
+# Now add the header information to the screen output results.
+#
+  echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.legends.txt
+  echo "[openss]: Legend: -c 2 represents ${values[0]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.legends.txt
+  echo "[openss]: Legend: -c 4 represents ${values[1]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.legends.txt
+  echo "[openss]: Legend: -c 6 represents ${values[2]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.legends.txt
+  echo "[openss]: Legend: -c 8 represents ${values[3]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.legends.txt
+  echo "" >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.legends.txt
+  if [ $create_csv_files -eq 1 ]
+  then
+    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.legends.txt /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare.txt > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare.txt
+  fi
+fi
+
+if [ "$number_of_databases" -ge "5" ]
+then
+#
+# First we handle the csv file then the normal output file
+# Here we do a series of sed actions to convert the OpenSpeedShop normal output into a comma
+# separated list which is able to be imported as a sheet from file to Excel like tools.  Please
+# use the comma is a separator option when importing.
+#
+  if [ $create_csv_files -eq 1 ]
+  then
+    sed 's/,/:/g' \
+    /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare.txt \
+    | sed -r 's/\s{3,100}/  /g' \
+    | sed -r 's/^\s{4,4}/,/g' \
+    | sed -r 's/^\s{2,2}//g' \
+    | sed -r 's/\s{2,2}/,/g' \
+    | sed '/^$/d' \
+    | sed 's/-c [0-9*]://g' \
+    > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare_csv.txt
+
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+    echo "${values[0]},${values[1]},${values[2]},${values[3]},${values[4]},Functions" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.header.txt 
+    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare_csv.txt > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare_csv.txt
+  fi
+
+#
+# Now add the header information to the screen output results.
+#
+  echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.legends.txt
+  echo "[openss]: Legend: -c 2 represents ${values[0]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.legends.txt
+  echo "[openss]: Legend: -c 4 represents ${values[1]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}._${values[4]%.*}legends.txt
+  echo "[openss]: Legend: -c 6 represents ${values[2]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}._${values[4]%.*}legends.txt
+  echo "[openss]: Legend: -c 8 represents ${values[3]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}._${values[4]%.*}legends.txt
+  echo "[openss]: Legend: -c 10 represents ${values[4]}" \
+       >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}._${values[4]%.*}legends.txt
+  echo "" >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}._${values[4]%.*}legends.txt
+  if [ $create_csv_files -eq 1 ]
+  then
+    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}._${values[4]%.*}legends.txt /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare.txt > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare.txt
+  fi
+fi
 
 fi
 # ------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------
-
-
-
-
-
