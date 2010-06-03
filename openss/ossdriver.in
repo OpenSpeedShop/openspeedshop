@@ -250,6 +250,21 @@ then
 fi
 
 if [[ "$experiment_name" == "osscompare" ]]; then
+
+  if [ -d /tmp/$USER ]
+  then
+     if [ $debug_flag == 1 ]
+     then
+       echo "DEBUG: /tmp/$USER exists." 
+     fi
+  else
+     mkdir /tmp/$USER
+     if [ $debug_flag == 1 ]
+     then
+       echo "DEBUG: CREATED /tmp/$USER." 
+     fi
+  fi
+
   if [ $debug_flag == 1 ]
   then
     echo "Input compare database list: $1" 
