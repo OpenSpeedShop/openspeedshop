@@ -281,7 +281,9 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
   if (isDebugEnabled ()) {
       std::stringstream output;
       output << "[TID " << pthread_self () << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()" <<
-		" perfdata_dirhandle=" << perfdata_dirhandle << " openssDataDirName=" << openssDataDirName << std::endl;
+		" perfdata_dirhandle=" << perfdata_dirhandle << 
+		" data_dirname=" << data_dirname << 
+                " openssDataDirName=" << openssDataDirName << std::endl;
       std::cerr << output.str ();
   }
 #endif
@@ -415,6 +417,10 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 				}
 
 			      int status = stat (dataFilename, &statbuf);
+			      if (isDebugEnabled ()) {
+			        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() dataFilename stat value=status=" 
+                                               << status << ", dataFilename=" << dataFilename << std::endl;
+				}
 			      if (status == (-1)) {
 				  std::cerr << "OpenSpeedShop::Watcher::scanForRawPerformanceData() failed to stat file: "
 				    	    << dataFilename << std::endl;
@@ -428,9 +434,14 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 			      FILE * f = fopen (dataFilename, "r");
 			      if (f == NULL) {
 				  std::cerr << "OpenSpeedShop::Watcher::scanForRawPerformanceData() failed to open file: "
-				            << dataFilename << std::endl;
+				            << "(" << dataFilename << ")" << std::endl;
 				  break;
-				}
+				} else {
+			          if (isDebugEnabled ()) {
+			            std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() successfully opened dataFilename=" 
+                                               << dataFilename << std::endl;
+			    	    }
+                                }
 
 			      // ************ We have the file pointer to the openss-data file
 			      // Save the pointer to the file information record
