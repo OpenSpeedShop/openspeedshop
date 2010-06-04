@@ -300,19 +300,22 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 
 		  sprintf (directoryName, "%s/%s", data_dirname, perfdata_direntry->d_name);
 
-		  DIR * dirhandle = opendir (directoryName);
+		  DIR * rawdata_dirhandle = opendir (directoryName);
 
 #ifndef NDEBUG
 		  if (isDebugEnabled ()) {
 		      std::stringstream output;
 		      output << "[TID " << pthread_self () << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()" <<
-			" Examining directories, looking at directoryName=" << directoryName << std::endl;
+			" Examining directories, looking at directoryName=" << directoryName << 
+			"  openssDataDirName=" << openssDataDirName <<
+			"  perfdata_direntry->d_name=" << perfdata_direntry->d_name <<
+			"  rawdata_dirhandle=" << rawdata_dirhandle << std::endl;
 		      std::cerr << output.str ();
-		    }
+                  }
 #endif
-		  if (dirhandle) {
+		  if (rawdata_dirhandle) {
 
-		      while ((direntry = readdir (dirhandle)) != NULL) {
+		      while ((direntry = readdir (rawdata_dirhandle)) != NULL) {
 
 #ifndef NDEBUG
 			  if (isDebugEnabled ()) {
@@ -616,8 +619,8 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 #endif
 		          } // end else
 			}
-		      closedir (dirhandle);
-		    }		// end if dirhandle
+		      closedir (rawdata_dirhandle);
+		    }		// end if rawdata_dirhandle
 
 		} else {
                   // There was no match on the directory name created with the input pid (pid_to_monitor)
