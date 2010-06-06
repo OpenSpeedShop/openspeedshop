@@ -264,6 +264,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
   unsigned int blobsize = 0;
   uint64_t prevSize = 0;
   uint64_t prevPos = 0;
+
   WatcherThreadTable::FileInfoEntry currentFileEntryInfo;
 
   if (getenv("OPENSS_RAWDATA_DIR") != NULL) {
@@ -346,7 +347,7 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 				}
 #endif
 
-			      char dataFilename[PATH_MAX];
+  		              char dataFilename[PATH_MAX];
 			      char openssDataFilename[PATH_MAX];
 			      sprintf (dataFilename, "%s/%s", directoryName, direntry->d_name);
 			      sprintf (openssDataFilename, "%s", direntry->d_name);
@@ -436,12 +437,12 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 
 			      FILE * f = fopen (dataFilename, "r");
 			      if (f == NULL) {
-				  std::cerr << "OpenSpeedShop::Watcher::scanForRawPerformanceData() failed to open file: "
+				  std::cerr << "OpenSpeedShop::Watcher::scanForRawPerformanceData() failed to FOPEN file: "
 				            << "(" << dataFilename << ")" << std::endl;
 				  break;
 				} else {
 			          if (isDebugEnabled ()) {
-			            std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() successfully opened dataFilename=" 
+			            std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() successfully FOPEN dataFilename=" 
                                                << dataFilename << std::endl;
 			    	    }
                                 }
@@ -474,11 +475,12 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 					    << " file is same size as the last time file was saved="
 					    << currentFileSize << std::endl;
 					  std::cerr << output.str ();
-				          std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK; prevSize=" 
+				          std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK and FCLOSING file; prevSize=" 
                                                      << prevSize << " currentFileSize=" << currentFileSize
 				                     << std::endl;
 					} // end debug
 #endif
+                                      fclose(f);
 				      break;
 				    }
 
@@ -515,10 +517,11 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 				      continue_checking_for_data = false;
 #ifndef NDEBUG
 				      if (isDebugEnabled ()) {
-				        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK; !xdr_u_int (&xdrs, &blobsize)" 
+				        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK and FCLOSING FILE; !xdr_u_int (&xdrs, &blobsize)" 
                                                    << std::endl;
 				      } //end debug
 #endif
+                                      fclose(f);
 				      break;
 				    } else {
 #ifndef NDEBUG
@@ -546,11 +549,12 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 				      continue_checking_for_data = false;
 #ifndef NDEBUG
 				      if (isDebugEnabled ()) {
-				        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK; bytesRead=" 
+				        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK and FCLOSING file; bytesRead=" 
                                                    << bytesRead << " blobsize=" << blobsize
 				                   << std::endl;
 				      } //end debug
 #endif
+                                      fclose(f);
 				      break;
 				    }
 
@@ -601,6 +605,18 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 #endif
 
 				}	// end while data in this file
+
+                             // close file for now, we will reopen it later
+#ifndef NDEBUG
+			  if (isDebugEnabled ()) {
+				      std::stringstream output;
+				      output << "[TID " << pthread_self ()
+					     << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()"
+					     << " FCLOSING FILE dataFilename" << dataFilename << std::endl;
+				      std::cerr << output.str ();
+				    } // end debug
+#endif
+                             fclose(f);
 
 #ifndef NDEBUG
 		             if (isDebugEnabled ()) {
