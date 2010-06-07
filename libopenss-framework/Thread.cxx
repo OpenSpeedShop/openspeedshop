@@ -49,7 +49,11 @@ using namespace OpenSpeedShop::Framework;
  */
 Thread::State Thread::getState() const
 {
+#if (BUILD_INSTRUMENTOR == 1)
     return Instrumentor::getState(*this);
+#else
+    return Thread::Terminated;
+#endif
 }
 
 

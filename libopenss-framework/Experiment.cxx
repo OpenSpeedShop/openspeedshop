@@ -479,6 +479,7 @@ Experiment::Experiment(const std::string& name) :
     if(getVersion() == 4)
 	updateToVersion5();
 
+#if (BUILD_INSTRUMENTOR == 1)
     // Iterate over each thread in this experiment
     ThreadGroup threads = getThreads();
     for(ThreadGroup::const_iterator
@@ -488,6 +489,7 @@ Experiment::Experiment(const std::string& name) :
 	Instrumentor::retain(*i);
 	
     }
+#endif
 
     // Add this experiment's database to the data queues
     DataQueues::addDatabase(dm_database);
@@ -1844,6 +1846,7 @@ ThreadGroup Experiment::attachJob(const Job& job) const
     // End this multi-statement transaction
     END_TRANSACTION(dm_database); 
 
+#if (BUILD_INSTRUMENTOR == 1)
     // Initiate the attaches if necessary
     if(!connecting.empty()) {
 
@@ -1860,6 +1863,7 @@ ThreadGroup Experiment::attachJob(const Job& job) const
 	Instrumentor::changeState(connecting, Thread::Connecting);
 
     }
+#endif
 
     // Iterate until we are done connecting to processes
     while(!connecting.empty()) {
