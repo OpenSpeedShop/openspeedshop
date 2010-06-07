@@ -68,6 +68,10 @@ SUBDIRS += mpiotf
 endif
 endif
 endif
+else
+if !BUILD_INSTRUMENTOR
+SUBDIRS += mpi mpit
+endif
 endif
 
 if HAVE_TARGET_LIBMONITOR
