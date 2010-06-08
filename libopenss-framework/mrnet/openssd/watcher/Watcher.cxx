@@ -475,8 +475,9 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 					    << " file is same size as the last time file was saved="
 					    << currentFileSize << std::endl;
 					  std::cerr << output.str ();
-				          std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK and FCLOSING file; prevSize=" 
+				          std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK; prevSize=" 
                                                      << prevSize << " currentFileSize=" << currentFileSize
+					             << "  FCLOSING FILE dataFilename" << dataFilename 
 				                     << std::endl;
 					} // end debug
 #endif
@@ -517,7 +518,8 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 				      continue_checking_for_data = false;
 #ifndef NDEBUG
 				      if (isDebugEnabled ()) {
-				        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK and FCLOSING FILE; !xdr_u_int (&xdrs, &blobsize)" 
+				        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK; !xdr_u_int (&xdrs, &blobsize)" 
+					           << "  FCLOSING FILE dataFilename" << dataFilename 
                                                    << std::endl;
 				      } //end debug
 #endif
@@ -549,8 +551,9 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 				      continue_checking_for_data = false;
 #ifndef NDEBUG
 				      if (isDebugEnabled ()) {
-				        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK and FCLOSING file; bytesRead=" 
+				        std:: cout << "OpenSpeedShop::Watcher::scanForRawPerformanceData() BREAK ; bytesRead=" 
                                                    << bytesRead << " blobsize=" << blobsize
+					           << "  FCLOSING FILE dataFilename" << dataFilename 
 				                   << std::endl;
 				      } //end debug
 #endif
@@ -612,11 +615,11 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 				      std::stringstream output;
 				      output << "[TID " << pthread_self ()
 					     << "] OpenSpeedShop::Watcher::scanForRawPerformanceData()"
-					     << " FCLOSING FILE dataFilename" << dataFilename << std::endl;
+					     << " WOULD HAVE BEEN (COMMENTED OUT) FCLOSING FILE dataFilename" << dataFilename << std::endl;
 				      std::cerr << output.str ();
 				    } // end debug
 #endif
-                             fclose(f);
+                             // fclose(f);
 
 #ifndef NDEBUG
 		             if (isDebugEnabled ()) {
@@ -636,7 +639,10 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 		          } // end else
 			}
 		      closedir (rawdata_dirhandle);
-		    }		// end if rawdata_dirhandle
+	            // end if rawdata_dirhandle
+		    } else {
+                       perror("rawdata_dirhandle is NULL, failed to open /tmp/rawdata_dir or OPENSS_RAWDATA_DIR/rawdata_dir");
+                    }
 
 		} else {
                   // There was no match on the directory name created with the input pid (pid_to_monitor)
@@ -644,7 +650,11 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
                 }		
 	    }			// while perfdata_dirhandle
           closedir (perfdata_dirhandle);
-   } // end if perfdata_dirhandle
+   // end if perfdata_dirhandle
+   } else {
+    // perfdata_dirhandle is NULL
+    perror("perfdata_dirhandle is NULL, failed to open /tmp or OPENSS_RAWDATA_DIR");
+   }
    return;
 } // end scan for directory and file
 
