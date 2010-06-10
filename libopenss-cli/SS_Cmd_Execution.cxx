@@ -3713,7 +3713,7 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
     c.getParameterValue(id, Value);
     Param_Value = CRPTR (Value);
   } else if( m.isType(typeid(uint64_t)) ) {
-    int64_t Value;
+    uint64_t Value;
     c.getParameterValue(id, Value);
     Param_Value = CRPTR (Value);
   } else if( m.isType(typeid(float)) ) {
