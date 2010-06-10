@@ -74,7 +74,7 @@ HWTimeCollector::HWTimeCollector() :
     // Declare our parameters
     declareParameter(Metadata("sampling_rate", "Sampling Rate",
                               "Sampling rate in samples/seconds.",
-                              typeid(unsigned)));
+                              typeid(uint64_t)));
     declareParameter(Metadata("event", "Hardware Time Counter Event",
 			      "HWCTime event.",
 			      typeid(std::string)));
@@ -118,9 +118,9 @@ Blob HWTimeCollector::getDefaultParameterValues() const
 
 #if defined(linux)
     if (hw_info) {
-	parameters.sampling_rate = (unsigned) hw_info->mhz*10000*2;
+	parameters.sampling_rate = (uint64_t) hw_info->mhz*10000*2;
     } else {
-	parameters.sampling_rate = (unsigned) THRESHOLD*2;
+	parameters.sampling_rate = (uint64_t) THRESHOLD*2;
     }
 #else
     parameters.sampling_rate = THRESHOLD*2;
@@ -157,7 +157,7 @@ void HWTimeCollector::getParameterValue(const std::string& parameter,
 
     // Handle the "sampling_rate" parameter
     if(parameter == "sampling_rate") {
-        unsigned* value = reinterpret_cast<unsigned*>(ptr);
+        uint64_t* value = reinterpret_cast<uint64_t*>(ptr);
         *value = parameters.sampling_rate;
     }
 
@@ -193,7 +193,7 @@ void HWTimeCollector::setParameterValue(const std::string& parameter,
     
     // Handle the "sampling_rate" parameter
     if(parameter == "sampling_rate") {
-        const unsigned* value = reinterpret_cast<const unsigned*>(ptr);
+        const uint64_t* value = reinterpret_cast<const uint64_t*>(ptr);
         parameters.sampling_rate = *value;
 	std::ostringstream rate;
 	rate << parameters.sampling_rate;
