@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2009 Krell Institute. All Rights Reserved.
+# Copyright (c) 2009-2010 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,7 @@
 
 EXTRA_DIST	=  \
 	openss.1\
+	osscompare.1\
 	osshwc.1\
 	osshwctime.1\
 	ossio.1\
