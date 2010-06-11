@@ -1,4 +1,14 @@
 
+Changes in 1.9.3.4 since the 1.9.3.3 release:
+
+1) TBD
+
+2) Incremental fixes toward support for PPC platforms
+
+3) Incremental fixes toward support for the Cray-XT5 and BG/P platforms.
+
+
+
 Changes in 1.9.3.3 since the 1.9.3.2 release:
 
 1) Fix call stack unwinding bugs by patching the libunwind component

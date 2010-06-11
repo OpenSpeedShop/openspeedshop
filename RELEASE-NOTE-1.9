@@ -1,10 +1,11 @@
 Please also view the CHANGELOG for a per-release list of enhancements and bug fixes.
 
-Release 1,9.3.3, 1.9.3.2, and 1.9.3.1 are bug fix updates to Release 1.9.3 of OpenSpeedShop.  
+Release 1,9.3.4 to 1.9.3.1 are bug fix updates to Release 1.9.3 of OpenSpeedShop.  
 So, all the information about Releases 1.9, 1.9.1, 1.9.2 and 1.9.3 applies to the 
 1.9.3.3 release also.
 
-1.9.3.3 mainly fixes issues found with with unwinding call stacks which was broken in 1.9.3.2
+1.9.3.4 mainly fixes issues found with building and running on the Cray-XT platform
+1.9.3.3 mainly fixes issues found with unwinding call stacks which was broken in 1.9.3.2
 1.9.3.2 mainly fixes issues found with Intel MPI, SGI MPT, and running the openss offline version.
 1.9.3.1 mainly fixes issues found with FC11 and OpenSpeedShop.
 
@@ -36,14 +37,19 @@ directory in <install_dir_path>/share/doc/packages/OpenSpeedShop/users_guide.
 
 Here is an example listed by steps:
 
-1) RUN openss -offline to gather the data:
+1) RUN osspcsamp to gather the data:
    This command attached the Open|SpeedShop performance data collectors specified by the experiment type
    (pcsamp) in this example, to the nbody mpi application and runs the application.  The output from the
    application comes to the screen as well as the Open|SpeedShop information messages and performance data
    default report.   A database file containing the performance data and all the necessary information to 
    view the performance information postmortem is created.
 
-prompt:>openss -offline -f "/opt/openmpi-1.2.4/bin/orterun -np 2 nbody" pcsamp
+   Use osspcsamp for program counter sampling, ossusertime for call path profiling, osshwc or osshwctime for 
+   access to the PAPI overflow counters, ossio or ossiot for I/O tracing, ossmpi, ossmpit, or ossmpiotf for 
+   mpi tracing, and ossfpe for Floating point exception tracing.  There are man pages for each convenience 
+   command.
+
+prompt:>osspcsamp "/opt/openmpi-1.2.4/bin/orterun -np 2 nbody" 
 [openss]: Using OPENSS_PREFIX installed in /opt/OSS-mrnet
 [openss]: Setting up offline raw data directory in /tmp/jeg/offline-oss
 [openss]: Running offline pcsamp experiment using the command:
@@ -81,21 +87,21 @@ The restored experiment identifier is:  -x 1
             0.030000              0.080906  _IO_vfscanf_internal (libc-2.6.so)
 
 2) The above command also created an Open|SpeedShop database file for postmortem viewing with optional ways to view
-   the performance data.   A "ls" command shows that the database file name is X.0.openss.
+   the performance data.   A "ls" command shows that the database file name is nbody-pcsamp.openss.
 
 ls -lastr *.openss  
-  52 -rw-r--r-- 1 jeg jeg   46080 2008-11-14 08:43 X.0.openss
+  52 -rw-r--r-- 1 jeg jeg   46080 2008-11-14 08:43 nbody-pcsamp.openss
 
-3) You may view the database in the Open|SpeedShop graphical user interface (GUI) with the command:  openss -f X.0.openss
+3) You may view the database in the Open|SpeedShop graphical user interface (GUI) with the command:  openss -f nbody-pcsamp.openss
    Then select the StatsPanel tab to see the default results.  There is a toolbar which contains numerous icons which'
    represent alternative views of the performance data.
 
 4) You may view the database in the Open|SpeedShop interactive command line user interface (CLI) with 
-   the command:  openss -cli -f X.0.openss
+   the command:  openss -cli -f nbody-pcsamp.openss
    
    a) The default view:
 
-prompt>openss -cli -f X.0.openss 
+prompt>openss -cli -f nbody-pcsamp.openss 
 The restored experiment identifier is:  -x 1                   
 openss>>expview
 

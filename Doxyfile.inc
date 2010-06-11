@@ -22,7 +22,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = Open|SpeedShop
-PROJECT_NUMBER         = Version 1.9.3.3
+PROJECT_NUMBER         = Version 1.9.3.4
 OUTPUT_DIRECTORY       = ../doc/design_doc
 OUTPUT_LANGUAGE        = English
 USE_WINDOWS_ENCODING   = NO

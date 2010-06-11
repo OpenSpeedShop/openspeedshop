@@ -3,7 +3,7 @@ Please see the BuildInstallGuide.txt for the latest build
 and install information.  That document is based on the information
 below and has enhanced information.
 
-Both documents have valid Open|SpeedShop-1.9.3.3 release information.
+Both documents have valid Open|SpeedShop-1.9.3.4 release information.
 
 
 THE INTENT:
@@ -30,14 +30,14 @@ with Open|SpeedShop.
 
 INSTALLATION INFO:
 
-Please gunzip and untar the openspeedshop-release-1.9.3.3.tar.gz
-file and change directory into the openspeedshop-release-1.9.3.3
+Please gunzip and untar the openspeedshop-release-1.9.3.4.tar.gz
+file and change directory into the openspeedshop-release-1.9.3.4
 directory.   
 
 example:
-gunzip openspeedshop-release-1.9.3.3.tar.gz
-tar -xvf openspeedshop-release-1.9.3.3.tar
-cd openspeedshop-release-1.9.3.3
+gunzip openspeedshop-release-1.9.3.4.tar.gz
+tar -xvf openspeedshop-release-1.9.3.4.tar
+cd openspeedshop-release-1.9.3.4
 
 Inside that directory is the key script, install.sh,
 that can be used in building the Open|SpeedShop performance tool.
@@ -107,7 +107,7 @@ monitorver=20090602_a
 vampirtracever=5.3.2_a
 dyninstver=6.1_a
 mrnetver=2.2_a
-openspeedshopver=1.9.3.3_a
+openspeedshopver=1.9.3.4_a
 
 There is an order that is required in building the
 components because some of the components depend on
