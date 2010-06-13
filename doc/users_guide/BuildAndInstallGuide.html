@@ -662,18 +662,19 @@ next step. You may also type install.sh and choose option 8 to see
 which component is not installed.&nbsp; You may only have to rebuild
 from that component onward.<br>
 <br>
-Because Open|SpeedShop currently uses MRNet as it's (online version
-only) communication
-mechanism, a MRNet daemon must run on your machine and, if you have a
-cluster, a MRNet daemon must run on each node of your cluster.&nbsp; We
-have a default file named "mrnet.py" that we will install during the
-installation of openspeedshop-1.9.3.4.&nbsp; The mrnet.py file will
+Because Open|SpeedShop currently uses MRNet as its (online version
+only) communication mechanism, a MRNet daemon must run on your machine
+and, if you have a cluster, a MRNet daemon must run on each node of
+your
+cluster.&nbsp; We have a default file named "mrnet.py" that we will
+install
+during the installation of OpenSpeedShop.&nbsp; The mrnet.py file will
 create a MRNet topology file (needed by MRNet to communicate with the
-daemons)
-without intervention on your single system image machine, like a pc or
-laptop (or a SGI single system image (SSI) machine). If you going to
-run Open|SpeedShop on a cluster, some tweaking of the mrnet.py file may
-be necessary.&nbsp;&nbsp; It is reliable on systems using the SLURM and
+daemons) without intervention on your single system image machine, like
+a pc or laptop (or a SGI single system image (SSI) machine). If you are
+going to run Open|SpeedShop on a cluster, some tweaking of the mrnet.py
+file may be necessary.&nbsp;&nbsp; It is reliable on systems using the
+SLURM and
 PBS job schedulers.<br>
 <br>
 Note: the offline version of openss does not need to create daemons and
@@ -1041,7 +1042,7 @@ to override the auto-detection code, if need be.<span
           <ul>
             <li><big><small>This envirionmnent variable s</small></big><big><small>pecifies
 the path to the Dyninst (dynamic instrumentation package) libraries and
-is only needed for running in the online instrurmentation mode of
+is only needed for running in the online instrumentation mode of
 operation.&nbsp;&nbsp;&nbsp; Set this to:&nbsp; <span
  style="font-weight: bold;">$OPENSS_PREFIX/lib{64}/ </span></small></big><span
  style="font-weight: bold;">libdyninstAPI_RT.so.1 </span>(e.g. <span
@@ -1070,7 +1071,7 @@ $OPENSS_PREFIX/bin:$PATH</span>).</li>
   <li><big><small>This envirionmnent variable s</small></big><big><small>pecifies
 the path to where the offline version of openss will store the rawdata
 files representing the performance data that was gathered from the
-users application. &nbsp; This is needed on clusters where the default
+user application. &nbsp; This is needed on clusters where the default
 rawdata file directory, /tmp, is not shared across the nodes. &nbsp; If
 this is the case on the cluster you are running "<span
  style="font-weight: bold;">openss -offline</span>" or
