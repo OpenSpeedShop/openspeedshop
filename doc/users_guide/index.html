@@ -1739,9 +1739,9 @@ font-family:"Times New Roman","serif";}
  style="font-size: 22pt; font-family: &quot;SGIAlt&quot;,&quot;serif&quot;; color: rgb(0, 0, 102);"><br>
 Users Guide<br>
 </span></b><b><span style="font-size: 13.5pt; color: rgb(0, 0, 102);">Version
-1.9.3.3 Release</span></b><span
+1.9.3.4 Release</span></b><span
  style="font-size: 13.5pt; color: rgb(0, 0, 102);"><br>
-&nbsp; <span style="font-weight: bold;">Updated: March 31, 2010</span></span></p>
+&nbsp; <span style="font-weight: bold;">Updated: June 20, 2010</span></span></p>
 <ul id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
   <li><a href="#mozTocId845867">Introduction to Open|SpeedShop</a>
@@ -1763,8 +1763,6 @@ Information</a>
     <ul>
       <li><a href="#mozTocId779469">Open|SpeedShop Quick
 Start Information</a></li>
-      <li><a href="#mozTocId90173"></a></li>
-      <li><a href="#mozTocId418174"></a></li>
       <li><a href="#mozTocId286397">Open|SpeedShop
 Invocation Command: "openss"</a>
         <ul>
@@ -1800,7 +1798,8 @@ performance data report from opens</a></li>
 file is one of the outputs from running:&nbsp;&nbsp;&nbsp; openss
 -offline -f "orterun
 -np 128 sweep3d.mpi"
-pcsamp or the equivalent convenience command osspcsamp "orterun -np 128
+pcsamp or the equivalent convenience
+command osspcsamp "orterun -np 128
 sweep3d.mpi"</a></li>
               <li><a href="#mozTocId259803">Loading the
 database file using the
@@ -2929,7 +2928,186 @@ each of the convenience commands, if interested in more information
 about their usage.&nbsp;&nbsp; There is also an <a
  href="ossscript.html">html convenience script summary</a>
 describing the input arguments and environment variables that effect
-the output performance data when running the convenience scripts. </p>
+the output performance data when running the convenience
+scripts.&nbsp;&nbsp; The table below gives a quick overview of the
+convenience commands.<br>
+  </p>
+  <p class="MsoNormal"><br>
+  </p>
+  <table class="MsoNormalTable"
+ style="width: 603pt; margin-left: 67.15pt;" border="1" cellpadding="0"
+ cellspacing="3" width="804">
+    <thead> <tr style="">
+      <td style="padding: 1.5pt; width: 65.35pt;" valign="bottom"
+ width="87">
+      <p class="MsoNormal" style=""><b>Experiment<o:p></o:p></b></p>
+      </td>
+      <td style="padding: 1.5pt; width: 118.55pt;" valign="bottom"
+ width="158">
+      <p class="MsoNormal" style=""><b>Convenience script name<o:p></o:p></b></p>
+      </td>
+      <td style="padding: 1.5pt; width: 410.3pt;" valign="bottom"
+ width="547">
+      <p class="MsoNormal" style=""><b>Example usage<o:p></o:p></b></p>
+      </td>
+    </tr>
+    </thead> <tbody>
+      <tr>
+        <td style="vertical-align: top;">compare <br>
+        </td>
+        <td style="vertical-align: top;">osscompare<br>
+        </td>
+        <td style="vertical-align: top;">Example usage: osscompare
+"smg2000-pcsamp-64.openss, smg2000-pcsamp-128.openss" <br>
+        </td>
+      </tr>
+      <tr style="">
+        <td style="padding: 1.5pt; width: 65.35pt;" valign="top"
+ width="87">
+        <p class="MsoNormal" style=""><tt><span style="font-size: 10pt;">fpe</span></tt></p>
+        </td>
+        <td style="padding: 1.5pt; width: 118.55pt;" valign="top"
+ width="158">
+        <p class="MsoNormal" style="">ossfpe<br>
+        </p>
+        </td>
+        <td style="padding: 1.5pt; width: 410.3pt;" valign="top"
+ width="547"> Example usage: ossfpe "mpirun -np 256 smg2000 -n 50 50
+50" <br>
+        <p class="MsoNormal" style=""> </p>
+        </td>
+      </tr>
+      <tr style="">
+        <td style="padding: 1.5pt; width: 65.35pt;" valign="top"
+ width="87">
+        <p class="MsoNormal" style=""><tt><span style="font-size: 10pt;">hwc</span></tt></p>
+        </td>
+        <td style="padding: 1.5pt; width: 118.55pt;" valign="top"
+ width="158">
+        <p class="MsoNormal" style="">osshwc</p>
+        </td>
+        <td style="padding: 1.5pt; width: 410.3pt;" valign="top"
+ width="547"> Example usage: osshwc "mpirun -np 256 smg2000 -n 50 50
+50"&nbsp; PAPI_L1_DCM </td>
+      </tr>
+      <tr style="">
+        <td style="padding: 1.5pt; width: 65.35pt;" valign="top"
+ width="87">
+        <p class="MsoNormal" style=""><tt><span style="font-size: 10pt;">hwctime</span></tt></p>
+        </td>
+        <td style="padding: 1.5pt; width: 118.55pt;" valign="top"
+ width="158">
+        <p class="MsoNormal" style="">osshwctime</p>
+        </td>
+        <td style="padding: 1.5pt; width: 410.3pt;" valign="top"
+ width="547"> Example usage: osshwc "mpirun -np 256 smg2000 -n 50 50
+50"&nbsp; PAPI_L1_DCM<br>
+        </td>
+      </tr>
+      <tr style="">
+        <td style="padding: 1.5pt; width: 65.35pt;" valign="top"
+ width="87">
+        <p class="MsoNormal" style=""><tt><span style="font-size: 10pt;">io</span></tt></p>
+        </td>
+        <td style="padding: 1.5pt; width: 118.55pt;" valign="top"
+ width="158">
+        <p class="MsoNormal" style="">ossio<br>
+        </p>
+        </td>
+        <td style="padding: 1.5pt; width: 410.3pt;" valign="top"
+ width="547"> Example usage: ossio "mpirun -np 256 smg2000 -n 50 50 50"
+        <br>
+        </td>
+      </tr>
+      <tr style="">
+        <td style="padding: 1.5pt; width: 65.35pt;" valign="top"
+ width="87">
+        <p class="MsoNormal" style=""><tt><span style="font-size: 10pt;">iot</span></tt></p>
+        </td>
+        <td style="padding: 1.5pt; width: 118.55pt;" valign="top"
+ width="158">
+        <p class="MsoNormal" style="">ossiot<br>
+        </p>
+        </td>
+        <td style="padding: 1.5pt; width: 410.3pt;" valign="top"
+ width="547"> Example usage: ossiot "mpirun -np 256 smg2000 -n 50 50
+50" <br>
+        </td>
+      </tr>
+      <tr style="">
+        <td style="padding: 1.5pt; width: 65.35pt;" valign="top"
+ width="87">
+        <p class="MsoNormal" style=""><tt><span style="font-size: 10pt;">mpi</span></tt></p>
+        </td>
+        <td style="padding: 1.5pt; width: 118.55pt;" valign="top"
+ width="158">
+        <p class="MsoNormal" style=""><tt><span style="font-size: 10pt;">ossmpi</span></tt></p>
+        </td>
+        <td style="padding: 1.5pt; width: 410.3pt;" valign="top"
+ width="547"> Example usage: ossmpi "mpirun -np 256 smg2000 -n 5 5 5" <br>
+        </td>
+      </tr>
+      <tr style="">
+        <td style="padding: 1.5pt; width: 65.35pt;" valign="top"
+ width="87">
+        <p class="MsoNormal" style=""><tt><span style="font-size: 10pt;">mpit</span></tt></p>
+        </td>
+        <td style="padding: 1.5pt; width: 118.55pt;" valign="top"
+ width="158">ossmpit<br>
+        </td>
+        <td style="padding: 1.5pt; width: 410.3pt;" valign="top"
+ width="547"> Example usage: ossmpit "mpirun -np 256 smg2000 -n 5 5 5" <br>
+        </td>
+      </tr>
+      <tr style="">
+        <td style="padding: 1.5pt; width: 65.35pt;" valign="top"
+ width="87">
+        <p class="MsoNormal" style=""><tt><span style="font-size: 10pt;">mpiotf</span></tt></p>
+        </td>
+        <td style="padding: 1.5pt; width: 118.55pt;" valign="top"
+ width="158">
+        <p class="MsoNormal" style=""><tt><span style="font-size: 10pt;">ossmpiotf<br>
+        </span></tt></p>
+        </td>
+        <td style="padding: 1.5pt; width: 410.3pt;" valign="top"
+ width="547"> Example usage: ossmpiotf "mpirun -np 256 smg2000 -n 5 5
+5" <br>
+        </td>
+      </tr>
+      <tr style="">
+        <td style="padding: 1.5pt; width: 65.35pt;" valign="top"
+ width="87">
+        <p class="MsoNormal" style=""><tt><span style="font-size: 10pt;">pcsamp</span></tt></p>
+        </td>
+        <td style="padding: 1.5pt; width: 118.55pt;" valign="top"
+ width="158">
+        <p class="MsoNormal" style="">osspcsamp</p>
+        </td>
+        <td style="padding: 1.5pt; width: 410.3pt;" valign="top"
+ width="547">
+        <p class="MsoNormal" style="">Example usage: osspcsamp "mpirun
+-np 256 smg2000 -n 50 50 50" <br>
+        </p>
+        </td>
+      </tr>
+      <tr style="">
+        <td style="padding: 1.5pt; width: 65.35pt;" valign="top"
+ width="87">
+        <p class="MsoNormal" style=""><tt><span style="font-size: 10pt;">usertime</span></tt></p>
+        </td>
+        <td style="padding: 1.5pt; width: 118.55pt;" valign="top"
+ width="158">
+        <p class="MsoNormal" style="">ossusertime </p>
+        </td>
+        <td style="padding: 1.5pt; width: 410.3pt;" valign="top"
+ width="547"> Example usage: ossusertime "mpirun -np 256 smg2000 -n 50
+50 50" <br>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="MsoNormal"><br>
+  </p>
   <h4><a style="font-weight: bold;" class="mozTocH4"
  name="mozTocId473579"></a>Outputs from the
 experiment run</h4>
