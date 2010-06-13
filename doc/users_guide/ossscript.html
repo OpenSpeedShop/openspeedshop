@@ -19,8 +19,8 @@
  name="mozTocId949034"></a>Convenience Scripts for Open|SpeedShop
 Offline Mode of Operation</h2>
 <div style="text-align: center;"><big style="font-weight: bold;">Version
-1.9.3.3<br>
-Updated: March 31, 2010</big><br>
+1.9.3.4<br>
+Updated: June 20, 2010</big><br>
 </div>
 <br>
 <ul class="readonly" id="mozToc">
@@ -32,8 +32,8 @@ Offline Mode of Operation</a>
         </a></li>
       <li><a href="#mozTocId189828">General Usage Rules
         </a></li>
-      <li><a href="#mozTocId206825">General and Experiment Specific
-Environment Variables</a></li>
+      <li><a href="#mozTocId206825">General and
+Experiment Specific Environment Variables</a></li>
       <li><a href="#mozTocId828074">Experiment Specific
 Syntax and Rules
         </a>
@@ -106,6 +106,13 @@ Syntax and Rules
               <li><a href="#mozTocId584268">Example usage:</a></li>
             </ul>
           </li>
+          <li><a href="#mozTocId923586">COMPARE (osscompare)
+            </a>
+            <ul>
+              <li><a href="#mozTocId159062">Default Arguments:</a></li>
+              <li><a href="#mozTocId584268">Example usage:</a></li>
+            </ul>
+          </li>
         </ul>
       </li>
     </ul>
@@ -133,7 +140,9 @@ experiments, are:
   <li style="font-weight: bold;">ossmpi </li>
   <li style="font-weight: bold;">ossmpit </li>
   <li style="font-weight: bold;">ossmpiotf </li>
-  <li><span style="font-weight: bold;">ossfpe</span> </li>
+  <li><span style="font-weight: bold;">ossfpe</span></li>
+  <li><span style="font-weight: bold;">osscompare<br>
+    </span></li>
 </ul>
 <br>
 For example, the command: <br>
@@ -1478,6 +1487,52 @@ floating point exception events consisting of:<br>
 </span><br>
 if the user only wanted to trace the division by zero floating point
 exception.<br>
+<br>
+<br>
+<h3><a class="mozTocH3" name="mozTocId923586"></a>COMPARE (osscompare)<br>
+</h3>
+The command options for the <span style="font-weight: bold;">osscompare</span>
+command are as follows.
+<pre><span style="font-family: serif;">1) <span
+ style="font-weight: bold;">osscompare</span> "database_file, database_file [, database_file] ..."</span><br
+ style="font-family: serif;"><br style="font-family: serif;"><span
+ style="font-family: serif;"><span style="font-weight: bold;">osscompare</span> runs using the default comparison metric, exclusive CPU time, comparing the performance data from each of the experiments represented by the datbase files specified.  </span><span
+ style="font-family: serif;"></span><br style="font-family: serif;"><br
+ style="font-family: serif;"><span style="font-family: serif;">2) </span><span
+ style="font-family: serif;"><span style="font-weight: bold;">osscompare</span> "database_file, database_file [, database_file] ..."</span><span
+ style="font-family: serif;"> <span style="font-weight: bold;">[time | percent]</span></span><br
+ style="font-family: serif;"><span style="font-family: serif;"></span><br
+ style="font-family: serif;"><span style="font-family: serif;"><span
+ style="font-weight: bold;">osscompare</span> runs using the either, the time (exclusive CPU time) or percentage of CPU time, comparison metric: exclusive CPU time, comparing the performance data from each of the experiments represented by the datbase files specified.  </span>
+<br style="font-family: serif;"><span style="font-family: serif;">3) <span
+ style="font-weight: bold;">osscompare " as above in 1) or 2) "</span><span
+ style="font-weight: bold;"></span></span><br
+ style="font-family: serif;"><br style="font-family: serif;"><span
+ style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_CREATE_CSV</span> is not set, <span
+ style="font-weight: bold;">osscompare</span> generates the comparison output to stdout.<br></span><span
+ style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_CREATE_CSV</span> is set, <span
+ style="font-weight: bold;">osscompare</span> generates the comparison output to stdout and creates two additional files in the directory the command was run in.  These two files contain:<br></span></pre>
+<ul>
+  <li>File 1: contains the same stdout comparison output that contains
+a side-by-side comparison</li>
+  <li>File 2: contains a comma separated list that corresponds to
+the&nbsp; side-by-side comparison output, but can be input into a
+spreadsheet program.<br>
+  </li>
+</ul>
+<h4><a class="mozTocH4" name="mozTocId159062"></a>Default Arguments:</h4>
+<span style="font-family: serif;">The
+default parameters for the FPE experiment is currently the comparison
+metric which is: exclusive CPU time:<br>
+</span>
+<br>
+<h4><a class="mozTocH4" name="mozTocId584268"></a><span
+ style="font-family: serif;">Example usage:</span></h4>
+<span style="font-family: serif;"><span style="font-weight: bold;">osscompare
+</span>"smg2000-pcsamp-run1.openss, smg2000-pcsamp-run2.openss"<br>
+</span><br>
+<br>
+<br>
 <br>
 <br>
 <br>
