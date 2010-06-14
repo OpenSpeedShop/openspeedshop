@@ -200,7 +200,25 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	// Check preconditions
 	Assert(i != dm_impl->getParameters().end());
+#if 0
 	Assert(i->isType(typeid(T)));
+#else
+        if(!i->isType(typeid(T))) {
+            int status;
+            fprintf(stderr, "Assertion \"%s\" failed in file %s at line %d. ",
+                    "!i->isType(typeid(T))", __FILE__, __LINE__);
+            fprintf(stderr,
+                    "Metric \"%s::%s\" is of type \"%s\" rather than \"%s\".\n",
+                    getMetadata().getUniqueId().c_str(), unique_id.c_str(),
+                    abi::__cxa_demangle(i->getType().c_str(), NULL, NULL,
+                                        &status),
+                    abi::__cxa_demangle(typeid(T).name(), NULL, NULL,
+                                        &status));
+            fflush(stderr);
+            abort();
+        }
+#endif
+
 	
 	// Get our parameter data
 	Blob blob = getParameterData();
