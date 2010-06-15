@@ -42,9 +42,11 @@ PLUGINS_SUBDIRS = plugins
 
 COLLECTOR_SUBDIRS = plugins/collectors
 
+CLIENT_SUBDIRS = \
+	openss
+
 MISC_SUBDIRS = \
 	pyscripting \
-	openss \
 	doc \
 	man \
 	sanity \
@@ -55,7 +57,8 @@ if HAVE_QTLIB
 if BUILD_RUNTIME
 BASE_SUBDIRS += \
 	$(RT_SUBDIRS) \
-	$(COLLECTOR_SUBDIRS)
+	$(COLLECTOR_SUBDIRS) \
+	$(CLIENT_SUBDIRS)
 else
 BASE_SUBDIRS += \
 	$(LTDL_SUBDIRS) \
@@ -65,6 +68,7 @@ BASE_SUBDIRS += \
 	$(CLI_SUBDIRS) \
 	$(GUI_SUBDIRS) \
 	$(PLUGINS_SUBDIRS) \
+	$(CLIENT_SUBDIRS) \
 	$(MISC_SUBDIRS)
 endif
 
@@ -72,7 +76,8 @@ else
 if BUILD_RUNTIME
 BASE_SUBDIRS += \
 	$(RT_SUBDIRS) \
-	$(COLLECTOR_SUBDIRS)
+	$(COLLECTOR_SUBDIRS) \
+	$(CLIENT_SUBDIRS)
 else
 BASE_SUBDIRS += \
 	$(LTDL_SUBDIRS) \
@@ -81,6 +86,7 @@ BASE_SUBDIRS += \
 	$(FW_SUBDIRS) \
 	$(CLI_SUBDIRS) \
 	$(PLUGINS_SUBDIRS) \
+	$(CLIENT_SUBDIRS) \
 	$(MISC_SUBDIRS)
 endif
 
@@ -116,6 +122,7 @@ DIST_SUBDIRS = \
 	$(CLI_SUBDIRS) \
 	$(GUI_SUBDIRS) \
 	$(PLUGINS_SUBDIRS) \
+	$(CLIENT_SUBDIRS) \
 	$(MISC_SUBDIRS)
 
 # Need the images files and the tests files in tarball.
