@@ -999,8 +999,8 @@ AC_DEFUN([AC_PKG_PAPI], [
     papi_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $PAPI_CPPFLAGS"
-    LDFLAGS="$PAPI_LDFLAGS $PAPI_LIBS"
-    LIBS=""
+    LDFLAGS="$PAPI_LDFLAGS"
+    LIBS="$PAPI_LIBS"
 
     AC_MSG_CHECKING([for PAPI library and headers])
 
