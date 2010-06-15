@@ -115,10 +115,16 @@ class ExperimentObject
        // the "XXXX" field and try again with the new name.
        // If we try 1000 times and can't generate a unique name,
        // fall into logic to use 'tempnam' to generate a name.
-        char base[100];
+        char base[256];
         int64_t cnt = 0;
         for (cnt = 0; cnt < 1000; cnt++) {
-          snprintf(base, 100, "./X%lld.%lld.openss",Exp_ID,cnt);
+          char *database_directory = getenv("OPENSS_DB_DIR");
+          if (database_directory) {
+             snprintf(base, 256, "%s/X%lld.%lld.openss",database_directory, Exp_ID,cnt);
+           } else {
+             snprintf(base, 256, "./X%lld.%lld.openss",Exp_ID,cnt);
+           } 
+      
           int fd;
           if ((fd = open(base, O_RDONLY)) != -1) {
            // File name is already used!
@@ -252,10 +258,31 @@ class ExperimentObject
      // of the form "X<exp_id>.XXXXXX.openss".
      char base[L_tmpnam];
      snprintf(base, L_tmpnam, "X%lld.",LocalExpId);
-     char *tName = tempnam ( (LocalDataFileHasAGeneratedName ? NULL : "./"), base );
-     Assert(tName != NULL);
-     LocalDataFileName = std::string(tName) + ".openss";
-     free (tName);
+     char *database_directory = getenv("OPENSS_DB_DIR");
+     char *tName = NULL;
+     char tmp_tName[256];
+     if (database_directory) {
+        int64_t cnt = 0;
+        for (cnt = 0; cnt < 1000; cnt++) {
+         snprintf(tmp_tName, 256, "%s/X%lld.%lld.openss",database_directory, LocalExpId, cnt);
+         Assert(tmp_tName != NULL);
+
+         int fd;
+         if ((fd = open(tmp_tName, O_RDONLY)) != -1) {
+          // File name is already used!
+           Assert(close(fd) == 0);
+           continue;
+         }
+         LocalDataFileName = std::string(tmp_tName);
+         break;
+        }
+     } else {
+       tName = tempnam ( (LocalDataFileHasAGeneratedName ? NULL : "./"), base );
+       Assert(tName != NULL);
+       LocalDataFileName = std::string(tName) + ".openss";
+       free (tName);
+     }
+
      return LocalDataFileName;
   }
 
