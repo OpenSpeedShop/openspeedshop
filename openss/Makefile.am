@@ -27,17 +27,25 @@
 #       the runtime for the other libraries that actually use it.
 #
 
+dist_bin_SCRIPTS =
+BUILT_FILES =
+
 if BUILD_INSTRUMENTOR
-dist_bin_SCRIPTS = ossrun ossdriver osslink
-BUILT_FILES = ossrun ossdriver osslink
+dist_bin_SCRIPTS += osslink
+BUILT_FILES += osslink
+if !BUILD_RUNTIME
+dist_bin_SCRIPTS += ossrun ossdriver
+BUILT_FILES += ossrun ossdriver
+endif
 endif
 
+LDFLAGS = 
 
 bin_PROGRAMS =
 
+if !BUILD_RUNTIME
 bin_PROGRAMS += openss 
 
-LDFLAGS = 
 
 openss_CXXFLAGS = \
         @BINUTILS_CPPFLAGS@ \
@@ -59,8 +67,10 @@ openss_LDADD = \
 
 openss_SOURCES = \
 	openss.cxx
+endif
 
 if BUILD_INSTRUMENTOR
+if !BUILD_RUNTIME
 bin_PROGRAMS += ossutil
 
 ossutil_CXXFLAGS = \
@@ -90,6 +100,7 @@ ossutil_LDADD = \
 ossutil_SOURCES = \
         ossutil.cxx
 endif
+endif
 
 
 CLEANFILES = $(BUILT_FILES)
@@ -102,6 +113,19 @@ CLEANFILES = $(BUILT_FILES)
 # via "-e 's,@@libmonitordir@@,$(monitorlibdir),' \"
 
 if BUILD_INSTRUMENTOR
+osslink: osslink.in
+	@rm -f osslink
+	@sed \
+		-e 's,@@ossinstalldir@@,$(prefix),' \
+		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
+		-e 's,@@libunwinddir@@,$(LIBUNWIND_DIR),' \
+		-e 's,@@papidir@@,$(PAPI_DIR),' \
+			$(srcdir)/osslink.in > osslink
+	@chmod 755 osslink
+endif
+
+if BUILD_INSTRUMENTOR
+if !BUILD_RUNTIME
 ossrun: ossrun.in
 	@rm -f ossrun
 	@sed \
@@ -118,16 +142,6 @@ ossrun: ossrun.in
 		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
 			$(srcdir)/ossrun.in > ossrun
 	@chmod 755 ossrun
-
-osslink: osslink.in
-	@rm -f osslink
-	@sed \
-		-e 's,@@ossinstalldir@@,$(prefix),' \
-		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
-		-e 's,@@libunwinddir@@,$(LIBUNWIND_DIR),' \
-		-e 's,@@papidir@@,$(PAPI_DIR),' \
-			$(srcdir)/osslink.in > osslink
-	@chmod 755 osslink
 
 ossdriver: ossdriver.in
 	@rm -f ossdriver
@@ -179,6 +193,7 @@ install-exec-hook: ossdriver
 	@rm -f $(DESTDIR)$(bindir)/osscompare
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osscompare
 	chmod 755 $(DESTDIR)$(bindir)/osscompare
+endif
 endif
 
 EXTRA_DIST = ossrun.in ossdriver.in osslink.in
