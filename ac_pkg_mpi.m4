@@ -447,10 +447,10 @@ AC_DEFUN([AC_PKG_MPICH2], [
 			       [MPICH2 installation @<:@/opt/mpich2@:>@]),
 		mpich2_dir=$withval, mpich2_dir="/opt/mpich2")
 
-#    AC_ARG_WITH(mpich2-driver,
-#		AC_HELP_STRING([--with-mpich2-driver=NAME],
-#			       [MPICH2 driver name @<:@ch-p4@:>@]),
-#		mpich2_driver=$withval, mpich2_driver="")
+    AC_ARG_WITH(mpich2-driver,
+		AC_HELP_STRING([--with-mpich2-driver=NAME],
+			       [MPICH2 driver name @<:@ch-p4@:>@]),
+		mpich2_driver=$withval, mpich2_driver="")
 
     AC_MSG_CHECKING([for MPICH2 library and headers])
 
@@ -477,6 +477,12 @@ AC_DEFUN([AC_PKG_MPICH2], [
         MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
     fi
 
+    if test x"$mpich2_driver" == x"cray"; then
+	found_mpich2=1
+	MPICH2_CC="cc"
+        MPICH2_LDFLAGS="-L$mpich2_dir/lib"
+    fi
+
     mpich2_saved_CC=$CC
     mpich2_saved_CPPFLAGS=$CPPFLAGS
     mpich2_saved_LDFLAGS=$LDFLAGS
@@ -484,6 +490,8 @@ AC_DEFUN([AC_PKG_MPICH2], [
     CC="$MPICH2_CC"
     CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
     LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+
+    if test $found_mpich2 -eq 0; then
 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
 	#include <mpi.h>
@@ -502,6 +510,9 @@ AC_DEFUN([AC_PKG_MPICH2], [
         fi 
 
 	, )
+
+    fi
+
 
     if test $found_mpich2 -eq 0; then
 
