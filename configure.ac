@@ -174,10 +174,26 @@ AC_MSG_CHECKING(for Target O/S)
 AC_ARG_WITH(target-os,
     AC_HELP_STRING([--with-target-os=TARGET_OS],
                    [target os specification @<:@$host@:>@]),
-                    target_os=$withval, target_os="$host")
+                    TARGET_OS=$withval, TARGET_OS="$host")
 
-TARGET_OS=$target_os
 
+AM_CONDITIONAL(BUILD_TARGETED, true)
+case "$TARGET_OS" in
+    cray-xt5)
+	AM_CONDITIONAL(BUILD_TARGETED, true)
+	;; 
+    cray-xt4)
+	AM_CONDITIONAL(BUILD_TARGETED, true)
+	;; 
+    bgl)
+	AM_CONDITIONAL(BUILD_TARGETED, true)
+	;; 
+    bgp)
+	AM_CONDITIONAL(BUILD_TARGETED, true)
+	;; 
+esac
+
+AC_SUBST(BUILD_TARGETED)
 AC_SUBST(TARGET_OS)
 
 ################################################################################

@@ -112,14 +112,24 @@ CLEANFILES = $(BUILT_FILES)
 # TODO: need to configure location of libmonitor.so
 # via "-e 's,@@libmonitordir@@,$(monitorlibdir),' \"
 
+if BUILD_TARGETED
+monitor_dir=$(TARGET_LIBMONITOR_DIR)
+unwind_dir=$(TARGET_LIBUNWIND_DIR)
+papi_dir=$(TARGET_PAPI_DIR)
+else
+monitor_dir=$(LIBMONITOR_DIR)
+unwind_dir=$(LIBUNWIND_DIR)
+papi_dir=$(PAPI_DIR)
+endif
+
 if BUILD_INSTRUMENTOR
 osslink: osslink.in
 	@rm -f osslink
 	@sed \
 		-e 's,@@ossinstalldir@@,$(prefix),' \
-		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
-		-e 's,@@libunwinddir@@,$(LIBUNWIND_DIR),' \
-		-e 's,@@papidir@@,$(PAPI_DIR),' \
+		-e 's,@@libmonitordir@@,$(monitor_dir),' \
+		-e 's,@@libunwinddir@@,$(unwind_dir),' \
+		-e 's,@@papidir@@,$(papi_dir),' \
 			$(srcdir)/osslink.in > osslink
 	@chmod 755 osslink
 endif
