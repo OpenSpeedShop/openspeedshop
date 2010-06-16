@@ -396,6 +396,7 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
             LIBUNWIND_CPPFLAGS=""
             LIBUNWIND_LDFLAGS=""
             LIBUNWIND_LIBS=""
+            LIBUNWIND_DIR=""
 
         ]
     )
@@ -428,6 +429,7 @@ AC_DEFUN([AC_PKG_TARGET_LIBUNWIND], [
       TARGET_LIBUNWIND_CPPFLAGS=""
       TARGET_LIBUNWIND_LDFLAGS=""
       TARGET_LIBUNWIND_LIBS=""
+      TARGET_LIBUNWIND_DIR=""
     else
       AM_CONDITIONAL(HAVE_TARGET_LIBUNWIND, true)
       AC_DEFINE(HAVE_TARGET_LIBUNWIND, 1, [Define to 1 if you have a target version of LIBUNWIND.])
@@ -1019,6 +1021,7 @@ AC_DEFUN([AC_PKG_PAPI], [
             PAPI_CPPFLAGS=""
             PAPI_LDFLAGS=""
             PAPI_LIBS=""
+            PAPI_DIR=""
 
         ]
     )
@@ -1825,6 +1828,7 @@ AC_DEFUN([AC_PKG_LIBMONITOR], [
             LIBMONITOR_CPPFLAGS=""
             LIBMONITOR_LDFLAGS=""
             LIBMONITOR_LIBS=""
+            LIBMONITOR_DIR=""
 
         ]
     )
