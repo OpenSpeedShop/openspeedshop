@@ -70,6 +70,9 @@ void hwc_init_papi()
 	fprintf(stderr, "At line %d in file %s\n", __LINE__, __FILE__) ;
     }
 
+#if defined(BUILD_TARGETED)
+#if defined(HAVE_TARGET_POSIX_THREADS)
+#if defined(HAVE_TARGET_DLOPEN)
     pthread_t (*f_pthread_self)();
     pthread_t local_tid = 0;
 
@@ -80,6 +83,28 @@ void hwc_init_papi()
         if (PAPI_thread_init(f_pthread_self) != PAPI_OK)
             fprintf(stderr, "PAPI_thread_init failed\n") ;
     }
+#else
+    pthread_t local_tid = 0;
+    local_tid = pthread_self();
+    if (local_tid != 0) {
+	if (PAPI_thread_init(pthread_self) != PAPI_OK)
+	    fprintf(stderr, "PAPI_thread_init failed\n") ;
+    }
+    
+#endif
+#endif
+#else
+    pthread_t (*f_pthread_self)();
+    pthread_t local_tid = 0;
+
+    /* Init papi for threads and get the identifier of this thread */
+    f_pthread_self = (pthread_t (*)())dlsym(RTLD_DEFAULT, "pthread_self");
+    local_tid = (f_pthread_self != NULL) ? (*f_pthread_self)() : 0;
+    if (local_tid != 0) {
+        if (PAPI_thread_init(f_pthread_self) != PAPI_OK)
+            fprintf(stderr, "PAPI_thread_init failed\n") ;
+    }
+#endif
 
     /* init papi for multiplexing events */
     if (PAPI_multiplex_init() != PAPI_OK) {
