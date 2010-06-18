@@ -1,7 +1,8 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="Content-Type">
   <title>OfflineEnvironmentVariables</title>
 </head>
 <body>
@@ -111,10 +112,11 @@ example:<br>
 export <span style="font-weight: bold;">OPENSS_RAWDATA_DIR</span>=/luster4/sharedfile/userid<br>
 <br>
 <h3><a class="mozTocH3" name="mozTocId389618"></a>OPENSS_DB_DIR
-(offline experiment only)<br>
+<br>
 </h3>
 This envirionmnent variable specifies the path to where the
-offline version of openss will build the OpenSpeedShop database file.
+offline and online version of openss will build the OpenSpeedShop
+database file.&nbsp;
 If you are on a lustre file system that does not have file locking
 turned on.&nbsp; The sqlite component will not be able to create the
 database file.&nbsp; You can use this environment variable to specify a
@@ -125,8 +127,13 @@ line 120"&nbsp; then you are probably trying to create a database file
 on a lustre file system that doesn't have locking turned on. &nbsp;
 &nbsp; You can ask the system administrators to turn on locking, or a
 more likely fix would be to set the OPENSS_DB_DIR environment variable
-to a none lustre file system. &nbsp; Then that path will be where the
-Open|SpeedShop sqlite database file will be created.
+to a non-lustre file system. &nbsp; Then that path will be where the
+Open|SpeedShop sqlite database file will be created.<br>
+<br>
+We have also seen cases with the Open|SpeedShop online version when
+running on nfs mounted file systems without file locking enabled, can
+cause sqlite to be unable to properly handle locking.&nbsp; This
+typically caused the Open|SpeedShop client to deadlock.<br>
 <div style="margin-left: 160px;"></div>
 <br>
 <h4><a class="mozTocH3" name="mozTocId858255"></a><span
