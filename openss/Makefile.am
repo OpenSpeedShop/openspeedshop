@@ -129,6 +129,7 @@ osslink: osslink.in
 		-e 's,@@ossinstalldir@@,$(prefix),' \
 		-e 's,@@libmonitordir@@,$(monitor_dir),' \
 		-e 's,@@libunwinddir@@,$(unwind_dir),' \
+		-e 's,@@osstargetos@@,$(TARGET_OS),' \
 		-e 's,@@papidir@@,$(papi_dir),' \
 			$(srcdir)/osslink.in > osslink
 	@chmod 755 osslink

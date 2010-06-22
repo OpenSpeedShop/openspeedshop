@@ -10,6 +10,8 @@ else
     machlibdir=lib
 fi
 
+oss_target=@@osstargetos@@
+
 # TODO: handle the target prefix
 oss_prefix=@@ossinstalldir@@
 oss_libdir="${oss_prefix}/${machlibdir}"
