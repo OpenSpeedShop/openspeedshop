@@ -49,6 +49,7 @@ cp /media/Fedora\ 13\ i386\ DVD/Packages/*.rpm /var/www/html/yum/base/.
 
 3. Build Open MPI using provided spec file.  
 Note: I find it convenient use OpenSpeedShop's ROOT build structure.
+(setup script now does this for you: setup_and_build_rpms.sh)
 
 Copy created RPM to /var/www/html/yum/base/
 
@@ -62,7 +63,9 @@ Copy created RPM to /var/www/html/yum/base/
 
 6. Create Local yum Repository
 
-createrepo -dg /var/www/html/yum/base/Fedora-8-comps.xml /var/www/html/yum/base/
+#createrepo -dg /var/www/html/yum/base/Fedora-8-comps.xml /var/www/html/yum/base/
+
+createrepo -dg /var/www/html/yum/base/fce31f091be8211a394d8942fcf4f6cbeffa3d40d87b61af55a97b1a88b46987-Fedora-13-comps.xml /var/www/html/yum/base/
 
 
 //============================================================================//

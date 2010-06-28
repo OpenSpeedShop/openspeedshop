@@ -7,7 +7,7 @@ echo "..........................................."
 echo "..........................................."
 echo "Copying specs to SPECS....."
 echo "..........................................."
-cp -r specs SPECS
+cp -r specs/* SPECS/.
 echo "..........................................."
 echo "Moving toyprograms to toyprograms-0.0.1....."
 echo "..........................................."
@@ -102,7 +102,7 @@ echo "..........................................."
 echo "..........................................."
 echo "Listing the location RPM for webtutorial-0.0.1....."
 echo "..........................................."
-ls -lastr RPMS/localhost.localdomain/webtutorial.OSS.i386.rpm
+ls -lastr RPMS/localhost.localdomain/webtutorial.OSS.i686.rpm
 
 echo "..........................................."
 echo "Building RPM for toyprograms-0.0.1....."
@@ -111,7 +111,7 @@ echo "..........................................."
 echo "..........................................."
 echo "Listing the location RPM for toyprograms-0.0.1....."
 echo "..........................................."
-ls -lastr RPMS/localhost.localdomain/toyprograms.OSS.i386.rpm
+ls -lastr RPMS/localhost.localdomain/toyprograms.OSS.i686.rpm
 
 echo "..........................................."
 echo "Checking for SOURCES/openmpi-1.4.2.tar.gz....."
@@ -142,7 +142,7 @@ fi
 echo "..........................................."
 echo "Listing the location RPM for openmpi-1.n.m....."
 echo "..........................................."
-ls -lastr RPMS/localhost.localdomain/openmpi.OSS.i386.rpm
+ls -lastr RPMS/localhost.localdomain/openmpi.OSS.i686.rpm
 
 echo "............................................."
 echo "PLEASE MANUALLY COPY THE RPMS OVER TO /var/www/html/yum/base as super user."

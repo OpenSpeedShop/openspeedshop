@@ -1,7 +1,7 @@
 #!/bin/sh
 
 livecd_label=OpenSpeedShop-Live
-livecd_kickstart_file=livecd-fedora-8-openss.ks
+livecd_kickstart_file=livecd-fedora-13-openss.ks
 
 #You must run livecd-creator as root...
 if [ `whoami` != "root" ]; then
