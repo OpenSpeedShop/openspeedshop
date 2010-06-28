@@ -114,27 +114,27 @@ echo "..........................................."
 ls -lastr RPMS/localhost.localdomain/toyprograms.OSS.i386.rpm
 
 echo "..........................................."
-echo "Checking for SOURCES/openmpi-1.2.8.tar.gz....."
+echo "Checking for SOURCES/openmpi-1.4.2.tar.gz....."
 echo "..........................................."
 
-if [ -f SOURCES/openmpi-1.2.8.tar.gz ]; then
+if [ -f SOURCES/openmpi-1.4.2.tar.gz ]; then
      echo "..........................................."
-     echo "Building RPM for openmpi-1.2.8....."
+     echo "Building RPM for openmpi-1.4.2....."
      echo "..........................................."
-     ./Build-RPM openmpi-1.2.8
+     ./Build-RPM openmpi-1.4.2
 else
-     echo "No SOURCES/openmpi-1.2.8.tar.gz file was found."
-     echo "Please place the file into SOURCES/openmpi-1.2.8.tar.gz and answer with a 'y' or 'Y' to continue."
+     echo "No SOURCES/openmpi-1.4.2.tar.gz file was found."
+     echo "Please place the file into SOURCES/openmpi-1.4.2.tar.gz and answer with a 'y' or 'Y' to continue."
      read answer
 
      if [ "$answer" = Y -o "$answer" = y ]; then
         echo "..........................................."
-        echo "Building RPM for openmpi-1.2.8....."
+        echo "Building RPM for openmpi-1.4.2....."
         echo "..........................................."
-        ./Build-RPM openmpi-1.2.8
+        ./Build-RPM openmpi-1.4.2
      else
         echo "..........................................."
-        echo "Skipping the build of the RPM for openmpi-1.2.8....."
+        echo "Skipping the build of the RPM for openmpi-1.4.2....."
         echo "..........................................."
      fi
 fi

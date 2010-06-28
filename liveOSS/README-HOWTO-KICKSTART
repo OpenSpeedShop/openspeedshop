@@ -39,10 +39,13 @@ yum -y install libtool-ltdl-devel livecd-tools createrepo
 
 mkdir -p /var/www/html/yum/{base,updates}
 
-cp /media/Fedora\ 8\ i386\ DVD/repodata/Fedora-8-comps.xml \
-/var/www/html/yum/base/
+#cp /media/Fedora\ 8\ i386\ DVD/repodata/Fedora-8-comps.xml /var/www/html/yum/base/
 
-cp -r /media/Fedora\ 8\ i386\ DVD/Packages/*.rpm /var/www/html/yum/base/
+cp /media/Fedora\ 13\ i386\ DVD/repodata/fce31f091be8211a394d8942fcf4f6cbeffa3d40d87b61af55a97b1a88b46987-Fedora-13-comps.xml /var/www/html/yum/base/.
+
+#cp -r /media/Fedora\ 8\ i386\ DVD/Packages/*.rpm /var/www/html/yum/base/
+cp /media/Fedora\ 13\ i386\ DVD/Packages/*.rpm /var/www/html/yum/base/.
+
 
 3. Build Open MPI using provided spec file.  
 Note: I find it convenient use OpenSpeedShop's ROOT build structure.
