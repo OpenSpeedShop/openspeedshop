@@ -25,6 +25,14 @@
 #include "Assert.h"
 #include "RuntimeAPI.h"
 
+#include <sys/socket.h>
+#include <sys/param.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
 #include <pthread.h>
 #include <string.h>
 #include <unistd.h>
@@ -56,6 +64,30 @@ void OpenSS_InitializeDataHeader(int experiment, int collector,
 
     /* Fill in the name of the host containing this thread */
     Assert(gethostname(header->host, HOST_NAME_MAX) == 0);
+
+
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_flags = AI_CANONNAME;
+    hints.ai_family = AF_INET;
+    hints.ai_protocol = PF_INET;
+
+    struct addrinfo* results = NULL;
+    getaddrinfo(header->host, NULL, &hints, &results);
+
+    if((results != NULL) &&
+       ( ntohl(((struct sockaddr_in*) (results->ai_addr))->sin_addr.s_addr)
+	 == INADDR_LOOPBACK)) {
+	freeaddrinfo(results);
+	results = NULL;
+	getaddrinfo(header->host, NULL, &hints, &results);
+    }
+
+    if(results != NULL) {
+	if(results->ai_canonname != NULL)
+	    strcpy(header->host,results->ai_canonname);
+	freeaddrinfo(results);
+    }
 
     /* Fill in the identifier of the process containing this thread */
     header->pid = getpid();
