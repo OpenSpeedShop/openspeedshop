@@ -29,7 +29,16 @@ libpapi_libdir="${libpapi_prefix}/${machlibdir}"
 libpapi="${libpapi_libdir}/libpapi.a"
 
 # monitor always has these
-monitor_wrap_base_names="main exit _exit system"
+
+# for the cray-xt5 we don't want system defined by default, not sure why
+# but undefining it using the -u arguments does not work.
+if [ ${oss_target} = cray-xt5 ]
+then
+  monitor_wrap_base_names="main exit _exit"
+else
+  monitor_wrap_base_names="main exit _exit system"
+fi
+
 # monitor has --enable-fork
 monitor_wrap_fork_names="fork vfork execl execlp execle execv execvp execve"
 # monitor has --enable-dlfcn
@@ -289,6 +298,12 @@ do
     undef_args="${undef_args} -Wl,-u,__wrap_${name}"
 done
 
+# Need to undefine system for cray-xt5
+if [ ${oss_target} = cray-xt5 ]
+then
+   undef_args="${undef_args} -Wl,-u,__wrap_pthread_create"
+fi
+
 # Need to undefine fork for cray-xt4
 if [ ${oss_target} = cray-xt4 ]
 then
@@ -350,8 +365,15 @@ case "$collector" in
     do
 	wrap_args="${wrap_args} -Wl,--wrap,${name}"
     done
+
     # Need to undefine open for io and iot for cray-xt4
     if [ ${oss_target} = cray-xt4 ]
+    then
+       undef_args="${undef_args} -Wl,-u,__wrap_open"
+    fi
+
+    # Need to undefine open for io and iot for cray-xt5
+    if [ ${oss_target} = cray-xt5 ]
     then
        undef_args="${undef_args} -Wl,-u,__wrap_open"
     fi
