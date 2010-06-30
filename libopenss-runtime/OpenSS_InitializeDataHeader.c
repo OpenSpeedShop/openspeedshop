@@ -25,6 +25,7 @@
 #include "Assert.h"
 #include "RuntimeAPI.h"
 
+#if !defined(OPENSS_OFFLINE)
 #include <sys/socket.h>
 #include <sys/param.h>
 #include <netinet/in.h>
@@ -33,6 +34,8 @@
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
+#endif
+
 #include <pthread.h>
 #include <string.h>
 #include <unistd.h>
@@ -66,6 +69,7 @@ void OpenSS_InitializeDataHeader(int experiment, int collector,
     Assert(gethostname(header->host, HOST_NAME_MAX) == 0);
 
 
+#if !defined(OPENSS_OFFLINE)
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
     hints.ai_flags = AI_CANONNAME;
@@ -88,6 +92,7 @@ void OpenSS_InitializeDataHeader(int experiment, int collector,
 	    strcpy(header->host,results->ai_canonname);
 	freeaddrinfo(results);
     }
+#endif
 
     /* Fill in the identifier of the process containing this thread */
     header->pid = getpid();
