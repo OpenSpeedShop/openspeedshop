@@ -345,6 +345,11 @@ void OpenSpeedShop::Framework::Dyninst::error(BPatchErrorLevel severity,
  */
 void OpenSpeedShop::Framework::Dyninst::exec(BPatch_thread* thread)
 {
+
+    if (is_in_mpi_startup) {
+	return;
+    }
+
     // Check preconditions
     Assert(thread != NULL);
 
@@ -570,6 +575,10 @@ void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
 void OpenSpeedShop::Framework::Dyninst::threadCreate(BPatch_process* process,
 						     BPatch_thread* thread)
 {
+    if (is_in_mpi_startup) {
+        return;
+    }
+
     // Check preconditions
     Assert(process != NULL);
     Assert(thread != NULL);
