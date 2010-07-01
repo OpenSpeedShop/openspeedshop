@@ -126,6 +126,7 @@ if BUILD_INSTRUMENTOR
 osslink: osslink.in
 	@rm -f osslink
 	@sed \
+		-e 's,@@default_mpi_impl@@,$(DEFAULT_MPI_IMPL),' \
 		-e 's,@@ossinstalldir@@,$(prefix),' \
 		-e 's,@@libmonitordir@@,$(monitor_dir),' \
 		-e 's,@@libunwinddir@@,$(unwind_dir),' \

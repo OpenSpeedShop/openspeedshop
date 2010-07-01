@@ -76,7 +76,7 @@ mpi_plugin=
 output_dir=
 insert_files=
 
-default_mpi_impl=MPICH2
+default_mpi_impl=@@default_mpi_impl@@
 
 if [ -n "$OPENSS_MPI_IMPLEMENTATION" ]
 then
