@@ -78,7 +78,8 @@ do
 
 #  loop here through a compiler list
 #  for thiscompiler in intel pgi gnu
-   for thiscompiler in gnu intel pgi pathscale
+#   for thiscompiler in gnu intel pgi pathscale
+   for thiscompiler in intel pgi
    do
 
 
@@ -87,12 +88,12 @@ do
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet-openmpi
+           module load openss-work-openmpi
            module load mpi/openmpi-1.2.8_gcc-4.1.2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet-mvapich
+           module load openss-work-mvapich
            module load mpi/mvapich-1.0.1_ofed_gcc-4.1.2
          fi
      elif  [ "$thiscompiler" == "pgi" ] 
@@ -100,42 +101,42 @@ do
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load compilers/pgi-7.2-3
-           module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
-           module load openss-mrnet-openmpi
+           module load compilers/pgi-9.0-4
+           module load mpi/openmpi-1.4.1_pgi-9.0-4
+           module load openss-work-openmpi
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet-mvapich
-           module load compilers/pgi-7.2-3
-           module load mpi/mvapich-1.0.1_ofed_pgi-7.2-3
+           module load openss-work-mvapich
+           module load compilers/pgi-9.0-4
+           module load mpi/mvapich-1.1_pgi-9.0-4
          fi
      elif  [ "$thiscompiler" == "intel" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet-openmpi
-           module load compilers/intel-11.0-f081-c081
-           module load mpi/openmpi-1.3.2_intel-11.0-f081-c081
+           module load openss-work-openmpi-intel
+           module load compilers/intel-11.1-f064-c064
+           module load mpi/openmpi-1.4.1_intel-11.1-f064-c064
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet-mvapich
-           module load compilers/intel-11.0-f081-c081
-           module load mpi/mvapich-1.1_intel-11.0-f081-c081
+           module load openss-work-mvapich
+           module load compilers/intel-11.1-f064-c064
+           module load mpi/mvapich-1.1_intel-11.1-f064-c064
          fi
      elif  [ "$thiscompiler" == "pathscale" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet-openmpi
+           module load openss-work-openmpi
            module load compilers/pathscale-3.2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet-mvapich
+           module load openss-work-mvapich
            module load compilers/pathscale-3.2
            module load mpi/mvapich-1.0.1_ofed_pathscale-3.2
          fi
@@ -298,12 +299,12 @@ fi
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet-openmpi
+           module load openss-work-openmpi
            module load mpi/openmpi-1.2.8_gcc-4.1.2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet-mvapich
+           module load openss-work-mvapich
            module load mpi/mvapich-1.0.1_ofed_gcc-4.1.2
          fi
      elif  [ "$thiscompiler" == "pgi" ] 
@@ -311,42 +312,42 @@ fi
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load compilers/pgi-7.2-3
-           module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
-           module load openss-mrnet-openmpi
+           module load compilers/pgi-9.0-4
+           module load mpi/openmpi-1.4.1_pgi-9.0-4     
+           module load openss-work-openmpi
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet-mvapich
-           module load compilers/pgi-7.2-3
-           module load mpi/mvapich-1.0.1_ofed_pgi-7.2-3
+           module load openss-work-mvapich
+           module load compilers/pgi-9.0-4
+           module load mpi/mvapich-1.1_pgi-9.0-4
          fi
      elif  [ "$thiscompiler" == "intel" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet-openmpi
-           module load compilers/intel-11.0-f081-c081
-           module load mpi/openmpi-1.3.2_intel-11.0-f081-c081
+           module load openss-work-openmpi-intel
+           module load compilers/intel-11.1-f064-c064
+           module load mpi/openmpi-1.4.1_intel-11.1-f064-c064
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet-mvapich
-           module load compilers/intel-11.0-f081-c081
-           module load mpi/mvapich-1.1_intel-11.0-f081-c081
+           module load openss-work-mvapich
+           module load compilers/intel-11.1-f064-c064
+           module load mpi/mvapich-1.1_intel-11.1-f064-c064
          fi
      elif  [ "$thiscompiler" == "pathscale" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet-openmpi
+           module load openss-work-openmpi
            module load compilers/pathscale-3.2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet-mvapich
+           module load openss-work-mvapich
            module load compilers/pathscale-3.2
            module load mpi/mvapich-1.0.1_ofed_pathscale-3.2
          fi
@@ -781,7 +782,7 @@ cd $RUN_DIR
 REQ_WALLTIME=1:00
 REQ_NNODES=2
 REQ_SCRIPT="$RUN_DIR/smg2000_${thiscompiler}_${thisMPI}_script.sh"
-sbatch --account=FY093085 --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
+sbatch --account=FY103784 --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
 
 elif [ "$testexe" == "sweep3d" ]
 then
@@ -805,12 +806,12 @@ fi
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet-openmpi
+           module load openss-work-openmpi
            module load mpi/openmpi-1.2.8_gcc-4.1.2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet-mvapich
+           module load openss-work-mvapich
            module load mpi/mvapich-1.0.1_ofed_gcc-4.1.2
          fi
      elif  [ "$thiscompiler" == "pgi" ] 
@@ -818,42 +819,42 @@ fi
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load compilers/pgi-7.2-3
-           module load mpi/openmpi-1.2.7_ofed_pgi-7.2-3
-           module load openss-mrnet-openmpi
+           module load compilers/pgi-9.0-4
+           module load mpi/openmpi-1.4.1_pgi-9.0-4     
+           module load openss-work-openmpi
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet-mvapich
-           module load compilers/pgi-7.2-3
-           module load mpi/mvapich-1.0.1_ofed_pgi-7.2-3
+           module load openss-work-mvapich
+           module load compilers/pgi-9.0-4
+           module load mpi/mvapich-1.1_pgi-9.0-4
          fi
      elif  [ "$thiscompiler" == "intel" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet-openmpi
-           module load compilers/intel-11.0-f081-c081
-           module load mpi/openmpi-1.3.2_intel-11.0-f081-c081
+           module load openss-work-openmpi-intel
+           module load compilers/intel-11.1-f064-c064
+           module load mpi/openmpi-1.4.1_intel-11.1-f064-c064
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet-mvapich
-           module load compilers/intel-11.0-f081-c081
-           module load mpi/mvapich-1.1_intel-11.0-f081-c081
+           module load openss-work-mvapich
+           module load compilers/intel-11.1-f064-c064
+           module load mpi/mvapich-1.1_intel-11.1-f064-c064
          fi
      elif  [ "$thiscompiler" == "pathscale" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
            module purge
-           module load openss-mrnet-openmpi
+           module load openss-work-openmpi-pathscale
            module load compilers/pathscale-3.2
          elif  [ "$thisMPI" == "mvapich" ] 
          then
            module purge
-           module load openss-mrnet-mvapich
+           module load openss-work-mvapich-pathscale
            module load compilers/pathscale-3.2
            module load mpi/mvapich-1.0.1_ofed_pathscale-3.2
          fi
@@ -1320,7 +1321,7 @@ cd $RUN_DIR
 REQ_WALLTIME=1:00
 REQ_NNODES=2
 REQ_SCRIPT="$RUN_DIR/sweep3d_${thiscompiler}_${thisMPI}_script.sh"
-sbatch --account=FY093085 --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
+sbatch --account=FY103784 --time=${REQ_WALLTIME}:00 -N ${REQ_NNODES} ${REQ_SCRIPT}
 fi
 
 
