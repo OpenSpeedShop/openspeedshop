@@ -229,6 +229,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		  # Lets hope the mpich2 driver always has Argonne in its copyright.
 		  ismpich = os.system('grep -q -i \"MPIRUN for MPICH\" ' + file_arg)
 		  ismpich2 = os.system('grep -q -i Argonne ' + file_arg)
+                  ismvapich = os.system('grep -q -i \"Wrapper for job submission on Hert related machines\" ' + file_arg)
 
 		  if os.WEXITSTATUS(ismpich2):
 			ismpich2 = os.system('grep -q -i Intel ' + file_arg)
@@ -263,6 +264,13 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    program = program.replace(s, file_arg)
 		    preload_files = ""
 		    mpi_exe_implmentation = "openmpi"
+                 if not os.WEXITSTATUS(ismvapich):
+                    ismpi = bool(1)
+                    mpi_driver = os.path.realpath(file_arg)
+                    orig_mpi_driver = s
+                    program = program.replace(s, file_arg)
+                    preload_files = ""
+                    mpi_exe_implmentation = "mvapich"
 
 
     # Set the mpiplugin to use for mpi jobs.  The OPENSS_MPI_IMPLEMENTATION
