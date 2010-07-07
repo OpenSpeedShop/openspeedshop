@@ -24,11 +24,13 @@
 #LANL's Yellowrail MRNet site.py
 
 import commands
+import warnings 
 from re import compile
+warnings.simplefilter('ignore', DeprecationWarning)
 from sets import Set
+warnings.resetwarnings()
 from sys import stdout
 from os import path
-import warnings 
 
 # Flag indicating if debugging output will be displayed.
 debug = False
