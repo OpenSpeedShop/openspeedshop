@@ -51,14 +51,14 @@ monitor_wrap_signal_names="signal sigaction sigprocmask"
 monitor_wrap_mpibase_names="MPI_Init MPI_Init_thread MPI_Finalize MPI_Comm_rank mpi_init mpi_init_thread mpi_finalize mpi_comm_rank mpi_init_ mpi_init_thread_ mpi_finalize_ mpi_comm_rank_ mpi_init__ mpi_init_thread__ mpi_finalize__ mpi_comm_rank__"
 
 # The following groupings are available
-monitor_wrap_mpi_asyncP2P="MPI_Cancel mpi_cancel mpi_cancel_ mpi_cancel__ MPI_Ibsend mpi_ibsend mpi_ibsend_ mpi_ibsend__ MPI_Iprobe mpi_iprobe mpi_iprobe_ mpi_iprobe__ MPI_Irecv MPI_Irsend MPI_Isend MPI_Request_free MPI_Test MPI_Testall MPI_Testany MPI_Testsome MPI_Wait MPI_Waitall MPI_Waitany MPI_Waitsome"
-monitor_wrap_mpi_collectives="MPI_Allgather MPI_Allgatherv MPI_Allreduce MPI_Alltoall MPI_Alltoallv MPI_Barrier MPI_Bcast MPI_Gather MPI_Gatherv MPI_Reduce MPI_Reduce_scatter MPI_Scan MPI_Scatter MPI_Scatterv"
-monitor_wrap_mpi_datatypes="MPI_Pack MPI_Unpack"
-monitor_wrap_mpi_environment="MPI_Finalize MPI_Init"
-monitor_wrap_mpi_graphcontexts="MPI_Comm_create MPI_Comm_dup MPI_Comm_free MPI_Comm_split MPI_Intercomm_create MPI_Intercomm_merge"
-monitor_wrap_mpi_persistent="MPI_Bsend_init MPI_Recv_init MPI_Rsend_init MPI_Send_init MPI_Ssend_init MPI_Start MPI_Startall"
+monitor_wrap_mpi_asyncP2P="MPI_Cancel mpi_cancel mpi_cancel_ mpi_cancel__ MPI_Ibsend mpi_ibsend mpi_ibsend_ mpi_ibsend__ MPI_Iprobe mpi_iprobe mpi_iprobe_ mpi_iprobe__ MPI_Irecv mpi_irecv mpi_irecv_ mpi_irecv__ MPI_Irsend mpi_irsend mpi_irsend_ mpi_irsend__ MPI_Isend mpi_isend mpi_isend_ mpi_isend__ MPI_Request_free mpi_request_free mpi_request_free_ mpi_request_free__ MPI_Test mpi_test mpi_test_ mpi_test__ MPI_Testall mpi_testall mpi_testall_ mpi_testall__ MPI_Testany mpi_testany mpi_testany_ mpi_testany__ MPI_Testsome mpi_testsome mpi_testsome_ mpi_testsome__ MPI_Wait mpi_wait mpi_wait_ mpi_wait__ MPI_Waitall mpi_waitall mpi_waitall_ mpi_waitall__ MPI_Waitany mpi_waitany mpi_waitany_ mpi_waitany__ MPI_Waitsome mpi_waitsome mpi_waitsome_ mpi_waitsome__"
+monitor_wrap_mpi_collectives="MPI_Allgather mpi_allgather mpi_allgather_ mpi_allgather__ MPI_Allgatherv mpi_allgatherv mpi_allgatherv_ mpi_allgatherv_ MPI_Allreduce  mpi_allreduce mpi_allreduce_ mpi_allreduce__ MPI_Alltoall mpi_alltoall mpi_alltoall_ mpi_alltoall__ MPI_Alltoallv mpi_alltoallv mpi_alltoallv_ mpi_alltoallv__ MPI_Barrier mpi_barrier mpi_barrier_ mpi_barrier__ MPI_Bcast mpi_bcast mpi_bcast_ mpi_bcast__ MPI_Gather mpi_gather mpi_gather_ mpi_gather__ MPI_Gatherv mpi_gatherv mpi_gatherv_ mpi_gatherv__ MPI_Reduce mpi_reduce mpi_reduce_ mpi_reduce__ MPI_Reduce_scatter mpi_reduce_scatter mpi_reduce_scatter_ mpi_reduce_scatter__ MPI_Scan mpi_scan mpi_scan_ mpi_scan__ MPI_Scatter mpi_scatter mpi_scatter_ mpi_scatter__ MPI_Scatterv mpi_scatterv mpi_scatterv_ mpi_scatterv__"
+monitor_wrap_mpi_datatypes="MPI_Pack mpi_pack mpi_pack_ mpi_pack__ MPI_Unpack mpi_unpack mpi_unpack_ mpi_unpack__"
+monitor_wrap_mpi_environment="MPI_Finalize mpi_finalize mpi_finalize_ mpi_finalize__ MPI_Init mpi_init mpi_init_ mpi_init__"
+monitor_wrap_mpi_graphcontexts="MPI_Comm_create mpi_comm_create mpi_comm_create_ mpi_comm_create__ MPI_Comm_dup mpi_comm_dup mpi_comm_dup_ mpi_comm_dup__ MPI_Comm_free mpi_comm_free mpi_comm_free_ mpi_comm_free__ MPI_Comm_split mpi_comm_split mpi_comm_split_ mpi_comm_split__ MPI_Intercomm_create mpi_intercomm_create mpi_intercomm_create_ mpi_intercomm_create__ MPI_Intercomm_merge mpi_intercomm_merge mpi_intercomm_merge_ mpi_intercomm_merge__"
+monitor_wrap_mpi_persistent="MPI_Bsend_init mpi_bsend_init mpi_bsend_init_ mpi_bsend_init__ MPI_Recv_init mpi_recv_init mpi_recv_init_ mpi_recv_init__ MPI_Rsend_init mpi_rsend_init mpi_rsend_init_ mpi_rsend_init__ MPI_Send_init mpi_send_init mpi_send_init_ mpi_send_init__ MPI_Ssend_init mpi_ssend_init mpi_ssend_init_ mpi_ssend_init__ MPI_Start mpi_start mpi_start_ mpi_start__ MPI_Startall mpi_startall mpi_startall_ mpi_startall__"
 monitor_wrap_mpi_processtopologies="MPI_Cart_create MPI_Cart_sub MPI_Graph_create"
-monitor_wrap_mpi_syncP2P="MPI_Bsend MPI_Get_count MPI_Probe MPI_Recv MPI_Rsend MPI_Send MPI_Sendrecv MPI_Sendrecv_replace MPI_Ssend"
+monitor_wrap_mpi_syncP2P="MPI_Bsend mpi_bsend mpi_bsend_ mpi_bsend__ MPI_Get_count mpi_get_count mpi_get_count_ mpi_get_count__ MPI_Probe mpi_probe mpi_probe_ mpi_probe__  MPI_Recv mpi_recv mpi_recv_ mpi_recv__ MPI_Rsend mpi_rsend mpi_rsend_ mpi_rsend__ MPI_Send mpi_send mpi_send_ mpi_send__ MPI_Sendrecv mpi_sendrecv mpi_sendrecv_ mpi_sendrecv__ MPI_Sendrecv_replace mpi_sendrecv_replace mpi_sendrecv_replace_ mpi_sendrecv_replace__ MPI_Ssend mpi_ssend mpi_ssend_ mpi_ssend__"
 
 # The default for mpi collectors.
 monitor_wrap_mpi_all="${monitor_wrap_mpi_asyncP2P} ${monitor_wrap_mpi_collectives} ${monitor_wrap_mpi_datatypes} ${monitor_wrap_mpi_environment} ${monitor_wrap_mpi_graphcontexts} ${monitor_wrap_mpi_persistent} ${monitor_wrap_mpi_processtopologies} ${monitor_wrap_mpi_syncP2P}"
@@ -149,6 +149,22 @@ do
                 mpiotf )        collector="$2" ;;
                 fpe )           collector="$2" ;;
             esac
+            shift ; shift
+            ;;
+
+        -i | --mpitype)
+            test "x$2" != x || die "missing argument: $*"
+            case "$2" in
+                mpich )        mpitouse="$2" ;;
+                mpich2 )        mpitouse="$2" ;;
+                mvapich )        mpitouse="$2" ;;
+                mvapich2 )        mpitouse="$2" ;;
+                openmpi )        mpitouse="$2" ;;
+                mpt )        mpitouse="$2" ;;
+                lam )        mpitouse="$2" ;;
+                lampi )        mpitouse="$2" ;;
+            esac
+	    export OPENSS_MPI_IMPLEMENTATION=$mpitouse
             shift ; shift
             ;;
 
