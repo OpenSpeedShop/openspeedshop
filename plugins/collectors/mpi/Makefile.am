@@ -240,7 +240,7 @@ rt_LIBADD_generate = \
 	-lopenss-runtime \
 	$(1) \
 	@LIBUNWIND_LIBS@ \
-	-lpthread -lrt
+	-lrt -lpthread
 
 rt_sources = \
 	blobs.x $(BUILT_SOURCES) \
@@ -267,11 +267,12 @@ rt_offline_LIBADD_generate = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	$(1) \
 	@LIBUNWIND_LIBS@ \
-	-lpthread -lrt
+	-lrt -lpthread
 
 rt_offline_sources = \
 	blobs.x $(BUILT_SOURCES) $(OFFLINE_SOURCES) \
 	wrappers.c \
+	wrappers-fortran.c \
 	runtime.h runtime.c
 
 lib_offline_CFLAGS_generate = \
@@ -295,11 +296,12 @@ lib_offline_LIBADD_generate = \
 	-lopenss-runtime-monitor \
 	$(1) \
 	@LIBUNWIND_LIBS@ \
-	-lpthread -lrt
+	-lrt -lpthread
 
 lib_offline_sources = \
 	blobs.x $(BUILT_SOURCES) $(OFFLINE_SOURCES) \
 	wrappers.c \
+	wrappers-fortran.c \
 	runtime.h runtime.c
 
 endif
@@ -326,11 +328,12 @@ lib_offline_LIBADD_generate = \
 	-lopenss-runtime-monitor \
 	$(1) \
 	@TARGET_LIBUNWIND_LIBS@ \
-	-lpthread -lrt
+	-lrt -lpthread
 
 lib_offline_sources = \
 	blobs.x $(BUILT_SOURCES) $(OFFLINE_SOURCES) \
 	wrappers.c \
+	wrappers-fortran.c \
 	runtime.h runtime.c
 endif
 
