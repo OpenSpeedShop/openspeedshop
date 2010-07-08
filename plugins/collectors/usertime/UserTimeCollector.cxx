@@ -306,8 +306,20 @@ void UserTimeCollector::getMetricValues(const std::string& metric,
 	
 	// Get the stack trace for this sample
 	StackTrace trace(thread, extent.getTimeInterval().getBegin());
-	for(unsigned j = ib; j < ie; ++j)
-	    trace.push_back(Address(data.bt.bt_val[j]));
+	for(unsigned j = ib; j < ie; ++j) {
+	   // libunwind can fail to unwind and deliver a bad address.
+	   // If that address is equal to or exceeds the highest address
+	   // possible then the Address constructor asserts.
+	   if (data.bt.bt_val[j] >= Address::TheHighest()) {
+//DEBUG
+#if 0
+		std::cerr << "TOSSING address " <<  data.bt.bt_val[j]
+		<< std::endl; 
+#endif
+	   } else {
+		trace.push_back(Address(data.bt.bt_val[j]));
+	   }
+	}
 	
 	// Iterate over each of the frames in the current stack trace
 	for(StackTrace::const_iterator
@@ -322,7 +334,7 @@ void UserTimeCollector::getMetricValues(const std::string& metric,
 		subextents.getIntersectionWith(
 		    Extent(extent.getTimeInterval(), AddressRange(*j))
 		    );
-	    
+
 	    // Iterate over each subextent in the intersection
 	    for(std::set<ExtentGroup::size_type>::const_iterator
 		    k = intersection.begin(); k != intersection.end(); ++k) {
