@@ -1,4 +1,7 @@
 
 #./matmul < matmul_input.txt
 
-openss -f "./matmul < ./matmul_input.txt" usertime
+#openss -f "./matmul < ./matmul_input.txt" usertime
+#or
+#
+ossusertime "./matmul < ./matmul_input.txt"
