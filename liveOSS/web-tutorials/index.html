@@ -1,6 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
   <title>Getting Started With Open|SpeedShop&#8482;</title>
   <style type="text/css">
 table.exp {
@@ -33,7 +35,7 @@ table.exp td {
 </head>
 <body>
 <center> <img src="img/OpenSpeedShop_Logo.jpg"> <br>
-Getting Started With Open|SpeedShop&#8482; 1.9.2<br>
+Getting Started With Open|SpeedShop&#8482; 1.9.3.4<br>
 LA-UR-07-7012 <br>
 </center>
 <h2> Welcome To OpenSpeedShop Live </h2>
@@ -191,8 +193,14 @@ Details</a> <br>
 line interface. </li>
   <li><b>openss -offline:</b> Start an offline (link in collectors)
 performance experiment. (e.g. openss -offline -f "mpirun -np 1024
-./smg2000" pcsamp).&nbsp; This is default, "-offline" is optional.<br>
-  </li>
+./smg2000 -n 40 40 40" pcsamp).&nbsp; This is default, "-offline" is
+optional.</li>
+  <ul>
+    <li>Now have osspcsamp, ossusertime, osshwc, osshwctime, etc.
+convenience routines.</li>
+    <li>Example syntax: osspcsamp "mpirun -np 1024
+./smg2000 -n 40 40 40"</li>
+  </ul>
   <li><b>openss -online:</b> Start an online (dynamic) performance
 experiment. (e.g. openss -online -f "mpirun -np 1024 ./smg2000" pcsamp)</li>
   <li><b>openss -batch:</b> Start a performance experiment. specified
