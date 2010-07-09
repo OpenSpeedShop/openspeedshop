@@ -46,6 +46,7 @@ cp /media/Fedora\ 13\ i386\ DVD/repodata/fce31f091be8211a394d8942fcf4f6cbeffa3d4
 #cp -r /media/Fedora\ 8\ i386\ DVD/Packages/*.rpm /var/www/html/yum/base/
 cp /media/Fedora\ 13\ i386\ DVD/Packages/*.rpm /var/www/html/yum/base/.
 
+see NOTE.fc13 for additional copies that had to be done.
 
 3. Build Open MPI using provided spec file.  
 Note: I find it convenient use OpenSpeedShop's ROOT build structure.
