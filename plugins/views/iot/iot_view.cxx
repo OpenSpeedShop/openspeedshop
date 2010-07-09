@@ -409,7 +409,7 @@ static bool define_iot_columns (
             !strcasecmp(M_Name.c_str(), "exclusive_detail") ||
             !strcasecmp(M_Name.c_str(), "exclusive_details")) {
          // display sum of times
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
           HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
         } else if (!strcasecmp(M_Name.c_str(), "inclusive_time") ||
                    !strcasecmp(M_Name.c_str(), "inclusive_times") ||
@@ -659,7 +659,7 @@ static bool define_iot_columns (
         Look_For_KeyWord(cmd, "CallTrees")) {
       generate_nested_accounting = true;
     }
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
 #ifdef DEBUG_IOT
     printf("iot_view, after for extime_temp=%d, last_column=%d\n", extime_temp, last_column);
 #endif
@@ -673,7 +673,7 @@ static bool define_iot_columns (
      // Sum the extime_temp values.
       IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
     }
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back("% of Total Time");
 
   // display a count of the calls to each function
