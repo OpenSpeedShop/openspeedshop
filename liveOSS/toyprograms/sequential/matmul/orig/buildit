@@ -1,5 +1,6 @@
 gfortran -c -g -O2 matmul.f90
 gfortran -o matmul -lblas matmul.o -llapack
+
 #gfortran -o matmul -L/usr/lib64/libblas.so.3.1.1 matmul.o -llapack
 #./matmul < matmul_input.txt
 #

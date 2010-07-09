@@ -1,11 +1,16 @@
 #gfortran -c -g matmul.f90
 #gfortran -o matmul -L/usr/lib64/libblas.so.3.1.1 matmul.o -llapack
-./matmul < matmul_input.txt
+#
+#./matmul < matmul_input.txt
+
 #
 #gfortran -c -g matmulMOD.f90
 #gfortran -o matmulMOD -L/usr/lib64/libblas.so.3.1.1 matmulMOD.o -llapack
-./matmulMOD < matmul_input.txt
+#
+#./matmulMOD < matmul_input.txt
+
 #
 #
 module load openss-mrnet
-openss -offline -f "./matmul < ./matmul_input.txt" usertime
+#openss -offline -f "./matmul < ./matmul_input.txt" usertime
+ossusertime "./matmul < ./matmul_input.txt"
