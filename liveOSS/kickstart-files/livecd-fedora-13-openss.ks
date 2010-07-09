@@ -67,13 +67,13 @@ echo "------------------------------"  >> /root/.bashrc.oss
 echo " "  >> /root/.bashrc.oss
 echo "To run a sequential experiment:"  >> /root/.bashrc.oss
 echo "    >> cd sequential/smg2000/test"  >> /root/.bashrc.oss
-echo "    >> openss -f \"smg2000 -n 50 50 50\" pcsamp"  >> /root/.bashrc.oss
-echo "    >> openss smg2000-pcsamp.openss &"  >> /root/.bashrc.oss
+echo "    >> osspcsamp \"smg2000 -n 50 50 50\" "  >> /root/.bashrc.oss
+echo "    >> openss -f smg2000-pcsamp.openss &"  >> /root/.bashrc.oss
 echo " "  >> /root/.bashrc.oss
 echo "To run an MPI experiment:"  >> /root/.bashrc.oss
 echo "    >> cd mpi/smg2000/test"  >> /root/.bashrc.oss
-echo "    >> openss -f \"mpirun -np 2 smg2000 -n 50 50 50\" pcsamp"  >> /root/.bashrc.oss
-echo "    >> openss smg2000-pcsamp.openss &"  >> /root/.bashrc.oss
+echo "    >> osspcsamp \"mpirun -np 2 smg2000 -n 50 50 50\" "  >> /root/.bashrc.oss
+echo "    >> openss -f smg2000-pcsamp.openss &"  >> /root/.bashrc.oss
 echo " "  >> /root/.bashrc.oss
 echo "For more information, please see the included HTML documentation."  >> /root/.bashrc.oss
 echo "EOF"  >> /root/.bashrc.oss
