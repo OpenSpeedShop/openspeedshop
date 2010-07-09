@@ -50,6 +50,12 @@ kernel
 -xsane-gimp
 -sane-backends
 
+# dictionaries are big
+-aspell-*
+-hunspell-*
+-man-pages*
+-words
+
 # livecd bits to set up the livecd and be able to install
 anaconda
 isomd5sum
@@ -70,6 +76,34 @@ isomd5sum
 -zenity
 -orca
 -pirut
+
+# save some space
+-gnome-user-docs
+-evolution-help
+-gnome-games-help
+-nss_db
+-isdn4k-utils
+-dasher
+-evince-dvi
+-evince-djvu
+-desktop-backgrounds-basic
+-constantine-backgrounds-extras
+
+
+# these pull in excessive dependencies
+-ekiga
+-tomboy
+-scim
+-scim-chewing
+-scim-chewing-0.3.3-2.fc12.i686
+-scim-pinyin-0.5.91-27.fc12.i686
+
+
+
+#Fix for SELINUX Disabled
+/usr/sbin/lokkit
+
+
 
 %end
 
@@ -179,6 +213,7 @@ cp $INSTALL_ROOT/usr/share/doc/HTML/readme-live-image/en_US/readme-live-image-en
 
 # only works on x86, x86_64
 if [ "$(uname -i)" = "i386" -o "$(uname -i)" = "x86_64" ]; then
+  mkdir -p  $LIVE_ROOT/LiveOS
   cp /usr/bin/livecd-iso-to-disk $LIVE_ROOT/LiveOS
 fi
 
