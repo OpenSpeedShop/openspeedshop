@@ -1,1 +1,2 @@
 gcc -o forever -O1 -g forever.c
+
