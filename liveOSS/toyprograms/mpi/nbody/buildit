@@ -1,2 +1,3 @@
 mpicc -o nbody -O0 -g nbody-mpi.c
 
+

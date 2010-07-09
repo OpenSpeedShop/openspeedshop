@@ -1,4 +1,7 @@
 
-openss -f "mpirun -np 2 nbody" pcsamp
+#openss -f "mpirun -np 2 nbody" pcsamp
+#or
+osspcsamp "mpirun -np 2 nbody" 
 
+# to view
 #openss -f nbody.pcsamp.openss
