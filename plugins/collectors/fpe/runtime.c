@@ -241,7 +241,7 @@ void fpe_record_event(const fpe_event* event, const ucontext_t* context)
     unsigned entry, start, i;
 
     /* Obtain the stack trace from the current thread context */
-    OpenSS_GetStackTraceFromContext(context, TRUE, 0,
+    OpenSS_GetStackTraceFromContext(TRUE, 0,
 				    MaxFramesPerStackTrace,
 				    &stacktrace_size, stacktrace);
 

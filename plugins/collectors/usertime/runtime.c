@@ -115,7 +115,7 @@ static void send_samples(TLS *tls)
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"usertimeTimerHandler %s, %d sends data:\n",tls->header.host,tls->header.pid);
+        fprintf(stderr,"send_samples %s, %d sends data:\n",tls->header.host,tls->header.pid);
         fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] bt_len(%d) count_len(%d)\n",
             tls->header.time_end,tls->header.addr_begin,
 	    tls->header.addr_end,tls->data.bt.bt_len,
@@ -157,13 +157,6 @@ static void send_samples(TLS *tls)
  * @param context    Thread context at timer interrupt.
  */
 /*
- * void OpenSS_GetStackTraceFromContext (
- * 			const ucontext_t* context,
- *                        int overhead,
- *                        int maxframes,
- *                        int* framecount,
- *                        uint64_t* framebuf)
- *
  * Call OpenSS_GetStackTraceFromContext for the given context.
  * OpenSS_GetStackTraceFromContext will return a buffer of maxframes
  * stack addresses.  Each stack trace buffer is tested to see if it fits
@@ -192,8 +185,8 @@ static void usertimeTimerHandler(const ucontext_t* context)
 
     /* get stack address for current context and store them into framebuf. */
 
-    OpenSS_GetStackTraceFromContext (context, TRUE, 0,
-                        MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
+    OpenSS_GetStackTraceFromContext (TRUE, 0, MAXFRAMES /* maxframes*/,
+				     &framecount, framebuf) ;
 
     bool_t stack_already_exists = FALSE;
 

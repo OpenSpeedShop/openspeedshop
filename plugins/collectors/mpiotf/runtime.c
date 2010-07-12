@@ -237,7 +237,7 @@ if (debug_trace) {
     }
     
     /* Obtain the stack trace from the current thread context */
-    OpenSS_GetStackTraceFromContext(NULL, FALSE, OverheadFrameCount,
+    OpenSS_GetStackTraceFromContext(FALSE, OverheadFrameCount,
 				    MaxFramesPerStackTrace,
 				    &stacktrace_size, stacktrace);
 

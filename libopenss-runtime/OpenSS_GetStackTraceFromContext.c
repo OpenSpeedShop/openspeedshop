@@ -56,8 +56,7 @@
  *                              trace obtained from the current context.
  * @retval stacktrace           Stack trace obtained from the current context.
  */
-void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
-				     bool_t skip_signal_frames,
+void OpenSS_GetStackTraceFromContext(bool_t skip_signal_frames,
 				     unsigned skip_frames,
 				     unsigned max_frames,
 				     unsigned* stacktrace_size,
@@ -72,45 +71,30 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 #if defined(__linux) && (defined(__i386) || defined(__x86_64))
 
     /*
-     * Use the signal context if one was provided, otherwise get the current
+     * If the signal_context is non-NULL then set a flag to  tell
+     * libunwind to unwind through the signalhandler else use the
      * thread context directly.
      */
-    if(signal_context != NULL) {
-	//memcpy(&context, signal_context, sizeof(unw_context_t));
-	memmove(&context, signal_context, sizeof(unw_context_t));
-	skip_signal_frames = FALSE;
-    }
-    else
-	Assert(getcontext(&context) == 0);
+    Assert(unw_getcontext(&context) == 0);
 
 #elif defined(__linux) && defined( __powerpc64__ )
 
     /*
-     * Use the signal context if one was provided, otherwise get the current
+     * If the signal_context is non-NULL then set a flag to  tell
+     * libunwind to unwind through the signalhandler else use the
      * thread context directly.
      */
-    if(signal_context != NULL) {
-        //memcpy(&context, signal_context, sizeof(unw_context_t));
-        memmove(&context, signal_context, sizeof(unw_context_t));
-        skip_signal_frames = FALSE;
-    }
-    else
-        Assert(getcontext(&context) == 0);
+    Assert(unw_getcontext(&context) == 0);
 
 
 #elif defined(__linux) && defined( __powerpc__ )
 
     /*
-     * Use the signal context if one was provided, otherwise get the current
+     * If the signal_context is non-NULL then set a flag to  tell
+     * libunwind to unwind through the signalhandler else use the
      * thread context directly.
      */
-    if(signal_context != NULL) {
-        //memcpy(&context, signal_context, sizeof(unw_context_t));
-        memmove(&context, signal_context, sizeof(unw_context_t));
-        skip_signal_frames = FALSE;
-    }
-    else
-        Assert(getcontext(&context) == 0);
+    Assert(unw_getcontext(&context) == 0);
 
 #elif defined(__linux) && defined(__ia64)
 
@@ -123,23 +107,23 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 
     /* Initialize the unwind cursor from the context */
     Assert(unw_init_local(&cursor, &context) == 0);
-	
+
+    /* ALWAYS unwind past signal frames using the the context from
+     * uwn_getcontext rather than using the signal_context. 
+     */
+    if(skip_signal_frames) {
+      while (!unw_is_signal_frame (&cursor)) {
+	if (unw_step (&cursor) < 0) {
+	   fprintf(stderr,"No Signal Frames in this context.\n");
+	}
+      }
+    }
+
     /* Iterate over each frame in the stack trace from this context */
     while(TRUE) {
 
-	/* Are we still unwinding past skipped signal frames? */
-	if(skip_signal_frames) {
-	    
-	    /* Stop skipping signal frames after we've encountered one */
-	    retval = unw_is_signal_frame(&cursor);
-	    Assert(retval >= 0);
-	    if(retval > 0)		
-		skip_signal_frames = FALSE;
-	    
-	}
-	
 	/* Are we still unwinding past skipped additional frames? */
-	else if(skip_frames > 0) {
+	if(skip_frames > 0) {
 	    
 	    /* Decrement the number of fixed additional frames to be skipped */
 	    --skip_frames;
