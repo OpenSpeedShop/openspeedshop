@@ -159,7 +159,7 @@ void Construct_View_Output (CommandObject *cmd,
         } else if (vinst->OpCode() == VIEWINST_Display_Tmp) {
           CommandResult *V = (*it->second)[CM_Index];
           if ((V != NULL) &&
-              !V->isNullValue ()) {
+              !V->ValueIsNull ()) {
             Next_Metric_Value = input_temp_used[CM_Index] ? V->Copy() : V;
             input_temp_used[CM_Index] = true;
           }
@@ -167,13 +167,13 @@ void Construct_View_Output (CommandObject *cmd,
           if (Gen_Total_Percent) {
             if ((i > percentofcolumn) &&
                 (percent_of != NULL) &&
-                (!percent_of->isNullValue ())) {
+                (!percent_of->ValueIsNull ())) {
               Next_Metric_Value = Calculate_Percent (percent_of, Total_Value[vinst->TMP2()]);
             }
           }
         } else if (vinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
           CommandResult *V = (*it->second)[CM_Index];
-          if (!V->isNullValue ()) {
+          if (!V->ValueIsNull ()) {
             Next_Metric_Value = Calculate_Percent (V, Total_Value[vinst->TMP2()]);
           }
         } else if (vinst->OpCode() == VIEWINST_Display_Average_Tmp) {
@@ -181,10 +181,10 @@ void Construct_View_Output (CommandObject *cmd,
           printf("Construct_View_Output, (vinst->OpCode()==VIEWINST_Display_Average_Tmp), CM_Index=%d \n", CM_Index);
 #endif
           CommandResult *V = (*it->second)[CM_Index];
-          if ( !V->isNullValue() ) {
+          if ( !V->ValueIsNull() ) {
             Next_Metric_Value = Calculate_Average (V, (*it->second)[vinst->TMP2()]);
 #ifdef DEBUG_CLI
-            printf("Construct_View_Output, (vinst->OpCode()==VIEWINST_Display_Average_Tmp), (!V->isNullValue())=TRUE, we setup Next_Metric_Value\n" );
+            printf("Construct_View_Output, (vinst->OpCode()==VIEWINST_Display_Average_Tmp), (!V->ValueIsNull())=TRUE, we setup Next_Metric_Value\n" );
 #endif
           }
         } else if (vinst->OpCode() ==VIEWINST_Display_StdDeviation_Tmp) {
@@ -195,7 +195,6 @@ void Construct_View_Output (CommandObject *cmd,
         }
         if (Next_Metric_Value == NULL) {
           Next_Metric_Value = CRPTR ("");
-          Next_Metric_Value->setNullValue();
         }
         C->CommandResult_Columns::Add_Column (Next_Metric_Value);
         if (Gen_Total_Percent &&
@@ -251,7 +250,7 @@ void Construct_View_Output (CommandObject *cmd,
           printf("Construct_View_Output, (sinst->OpCode()==VIEWINST_Display_Average_Tmp), sinst->TMP1()=%d \n", sinst->TMP1());
 #endif
           CommandResult *V = summary_temp[sinst->TMP1()];
-          if (!V->isNullValue ()) {
+          if (!V->ValueIsNull ()) {
             summary = Calculate_Average (V, summary_temp[sinst->TMP2()]);
 #ifdef DEBUG_CLI
            printf("Construct_View_Output, (sinst->OpCode()==VIEWINST_Display_Average_Tmp),  setup summary, sinst->TMP2()=%d \n", sinst->TMP2());
@@ -269,7 +268,7 @@ void Construct_View_Output (CommandObject *cmd,
           if (Gen_Total_Percent &&
               (i > percentofcolumn) &&
               (percent_of != NULL) &&
-              (!percent_of->isNullValue ())) {
+              (!percent_of->ValueIsNull ())) {
             summary = Calculate_Percent (percent_of, Total_Value[sinst->TMP2()]);
           }
         }

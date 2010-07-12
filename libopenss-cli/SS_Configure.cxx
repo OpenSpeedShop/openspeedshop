@@ -31,6 +31,10 @@ bool    OPENSS_VIEW_FULLPATH = false;
 bool    OPENSS_VIEW_ENTIRE_STRING = false;
 bool    OPENSS_VIEW_DEFINING_LOCATION = true;
 bool    OPENSS_VIEW_MANGLED_NAME = false;
+bool    OPENSS_VIEW_SUPPRESS_UNUSED_ELEMENTS = true;
+bool    OPENSS_VIEW_THREAD_ID_WITH_MAX_OR_MIN = true;
+bool    OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO = true;
+bool    OPENSS_REDIRECT_USE_BLANK_IN_PLACE_OF_ZERO = false;
 bool    OPENSS_SAVE_EXPERIMENT_DATABASE = true;
 bool    OPENSS_ASK_ABOUT_CHANGING_ARGS = true;
 bool    OPENSS_ASK_ABOUT_SAVING_THE_DATABASE = true;
@@ -180,6 +184,42 @@ void SS_Configure () {
             "used in the source code, to be displayed.");
   Bvalue = settings->readBoolEntry(std::string("viewMangledName"), OPENSS_VIEW_MANGLED_NAME, &ok);
   if (ok) OPENSS_VIEW_MANGLED_NAME = Bvalue;
+
+  Add_Help (czar, "viewSuppressUnusedElements", "a boolean, preference",
+            "Declare whether or not a line of ouput is suppressed if "
+            "there were no measurements recorded for the associated "
+            "statement, function or linked object. "
+            "The default is true, causing elements that are unsed "
+            "to be deleted from the output.");
+  Bvalue = settings->readBoolEntry(std::string("viewSuppressUnusedElements"), OPENSS_VIEW_SUPPRESS_UNUSED_ELEMENTS, &ok);
+  if (ok) OPENSS_VIEW_SUPPRESS_UNUSED_ELEMENTS = Bvalue;
+
+  Add_Help (czar, "viewThreadIdWithMaxMin", "a boolean, preference",
+            "Declare whether or not the thread ID, of the tread that "
+            "contains the Max or Min value, is displayed "
+            "when a user requests '-m ThreadMax' or -m ThreadMin` "
+            "on an 'expView' command. "
+            "The default is true, causing the thread Id of the Max and Min "
+            "to be displayed next to the Max and Min values.");
+  Bvalue = settings->readBoolEntry(std::string("viewThreadIdWithMaxMin"), OPENSS_VIEW_THREAD_ID_WITH_MAX_OR_MIN, &ok);
+  if (ok) OPENSS_VIEW_THREAD_ID_WITH_MAX_OR_MIN = Bvalue;
+
+  Add_Help (czar, "viewBlankInPlaceOfZero", "a boolean, preference",
+            "Declare whether or not Blanks are displayed for Zero valued fields "
+            "in the columns of output from an 'expView' command. "
+            "See 'redirectBlankInPlaceOfZero' when output is redirected to a file. "
+            "The default is true, causing blanks to replace Zero values.");
+  Bvalue = settings->readBoolEntry(std::string("viewBlankInPlaceOfZero"), OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO, &ok);
+  if (ok) OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO = Bvalue;
+
+  Add_Help (czar, "redirectBlankInPlaceOfZero", "a boolean, preference",
+            "Declare whether or not Blanks are displayed for Zero valued fields "
+            "in the columns of output for an 'expView' command when "
+            "output is redirected to a file. "
+            "See 'viewBlankInPlaceOfZero' when output is not redirected. "
+            "The default is false, causing zeros values to be displayed in the output.");
+  Bvalue = settings->readBoolEntry(std::string("redirectBlankInPlaceOfZero"), OPENSS_REDIRECT_USE_BLANK_IN_PLACE_OF_ZERO, &ok);
+  if (ok) OPENSS_REDIRECT_USE_BLANK_IN_PLACE_OF_ZERO = Bvalue;
 
   Add_Help (czar, "saveExperimentDatabase", "a boolean, preference",
             "Declare that the database created when an 'expCreate' "

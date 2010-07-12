@@ -150,6 +150,14 @@ bool First_Column (CommandObject *cmd,
 
     typename std::map <TE, CommandResult *>::const_iterator ii;
     for(ii = initial_items->begin(); ii != initial_items->end(); ii++ ) {
+      if (OPENSS_VIEW_SUPPRESS_UNUSED_ELEMENTS) {
+        if ((ii->second)->ValueIsNull()) {
+#if DEBUG_CLI
+          cerr << "Suppress Element: " << (ii->second)->Form() << std::endl;
+#endif
+          continue;
+        }
+      }
       items.push_back (std::make_pair(ii->first, ii->second));
     }
 

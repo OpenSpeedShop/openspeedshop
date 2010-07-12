@@ -49,27 +49,15 @@ enum cmd_result_type_enum {
 };
 
 class CommandResult {
-  bool NullValue;
   cmd_result_type_enum Result_Type;
 
  private:
   CommandResult () {
-    NullValue = false;
     Result_Type = CMD_RESULT_NULL; }
 
  public:
   CommandResult (cmd_result_type_enum T) {
-    NullValue = false;
     Result_Type = T; }
-  bool setNullValue () {
-    NullValue = true;
-  }
-  bool clearNullValue () {
-    NullValue = false;
-  }
-  bool isNullValue () {
-    return NullValue;
-  }
   cmd_result_type_enum Type () {
     return Result_Type;
   }
@@ -83,6 +71,7 @@ class CommandResult {
   virtual void AbsDiff_value (CommandResult *A) { cerr << "Difference operation not implimented\n"; }
   virtual void Accumulate_Min (CommandResult *A) { cerr << "Min operation not implimented\n"; }
   virtual void Accumulate_Max (CommandResult *A) { cerr << "Max operation not implimented\n"; }
+  virtual bool ValueIsNull () { return false; }
 
   void Value (char *&C) {
     C = NULL;
@@ -95,6 +84,7 @@ class CommandResult {
     return Py_BuildValue("");
   }
   virtual void Print (ostream& to, int64_t fieldsize=20, bool leftjustified=false) {
+    if (fieldsize == 0) fieldsize = strlen("(none)");
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << "(none)";
   }
@@ -192,15 +182,9 @@ class CommandResult_Address :
     return uint_value > ((CommandResult_Address *)A)->uint_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Address));
-    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
-      clearNullValue();
-    }
     uint_value += ((CommandResult_Address *)A)->uint_value; }
   virtual void AbsDiff_value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Address));
-    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
-      clearNullValue();
-    }
     if (uint_value >= ((CommandResult_Address *)A)->uint_value) {
       uint_value -= ((CommandResult_Address *)A)->uint_value;
     } else {
@@ -213,6 +197,7 @@ class CommandResult_Address :
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Address));
     uint_value = max (uint_value, ((CommandResult_Address *)A)->uint_value); }
+  virtual bool ValueIsNull () { return uint_value == (uint64_t)0; }
 
   void Value (uint64_t& U) {
     U = uint_value;
@@ -227,8 +212,10 @@ class CommandResult_Address :
     return Py_BuildValue("l", uint_value);
   }
   virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+    std::string S = Form();
+    if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
-       << std::setw(fieldsize) << Form();
+       << std::setw(fieldsize) << S;
   }
 };
 
@@ -255,15 +242,9 @@ class CommandResult_Uint :
   virtual bool GT (CommandResult *A); //  defined in SS_CommandResult.cxx
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
-    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
-      clearNullValue();
-    }
     uint_value += ((CommandResult_Uint *)A)->uint_value; }
   virtual void AbsDiff_value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
-    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
-      clearNullValue();
-    }
     if (uint_value >= ((CommandResult_Uint *)A)->uint_value) {
       uint_value -= ((CommandResult_Uint *)A)->uint_value;
     } else {
@@ -276,6 +257,7 @@ class CommandResult_Uint :
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
     uint_value = max (uint_value, ((CommandResult_Uint *)A)->uint_value); }
+  virtual bool ValueIsNull () { return uint_value == (uint64_t)0; }
 
   void Value (uint64_t& U) {
     U = uint_value;
@@ -290,8 +272,10 @@ class CommandResult_Uint :
     return Py_BuildValue("l", uint_value);
   }
   virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+    std::string S = Form();
+    if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
-       << std::setw(fieldsize) << uint_value;
+       << std::setw(fieldsize) << S;
   }
 };
 
@@ -327,15 +311,9 @@ class CommandResult_Int :
     return int_value > ((CommandResult_Int *)A)->int_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
-    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
-      clearNullValue();
-    }
     int_value += ((CommandResult_Int *)A)->int_value; }
   virtual void AbsDiff_value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
-    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
-      clearNullValue();
-    }
     if (int_value >= ((CommandResult_Int *)A)->int_value) {
       int_value -= ((CommandResult_Int *)A)->int_value;
     } else {
@@ -348,6 +326,7 @@ class CommandResult_Int :
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
     int_value = max (int_value, ((CommandResult_Int *)A)->int_value); }
+  virtual bool ValueIsNull () { return int_value == (int64_t)0; }
 
   void Value (int64_t& I) {
     I = int_value;
@@ -362,8 +341,10 @@ class CommandResult_Int :
     return Py_BuildValue("l", int_value);
   }
   virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+    std::string S = Form();
+    if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
-       << std::setw(fieldsize) << int_value;
+       << std::setw(fieldsize) << S;
   }
 };
 
@@ -404,15 +385,9 @@ class CommandResult_Float :
     return float_value > ((CommandResult_Float *)A)->float_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
-    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
-      clearNullValue();
-    }
     float_value += ((CommandResult_Float *)A)->float_value; }
   virtual void AbsDiff_value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
-    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
-      clearNullValue();
-    }
     if (float_value >= ((CommandResult_Float *)A)->float_value) {
       float_value -= ((CommandResult_Float *)A)->float_value;
     } else {
@@ -425,6 +400,7 @@ class CommandResult_Float :
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
     float_value = max (float_value, ((CommandResult_Float *)A)->float_value); }
+  virtual bool ValueIsNull () { return float_value == (double)0.0; }
 
   void Value (double& F) {
     F = float_value;
@@ -443,8 +419,10 @@ class CommandResult_Float :
     return Py_BuildValue("d", float_value);
   }
   virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+    std::string S = Form();
+    if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
-       << std::setw(fieldsize) << Form ();
+       << std::setw(fieldsize) << S;
   }
 };
 
@@ -475,10 +453,8 @@ class CommandResult_String :
     return string_value > ((CommandResult_String *)A)->string_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_String));
-    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
-      clearNullValue();
-    }
     string_value += ((CommandResult_String *)A)->string_value; }
+  virtual bool ValueIsNull () { return string_value.length() == 0; }
 
   void Accumulate_String (CommandResult_String *B) {
     string_value += B->string_value;
@@ -494,6 +470,7 @@ class CommandResult_String :
     return Py_BuildValue("s",string_value.c_str());
   }
   virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+    if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
      // Don't truncate the string if it is bigger than the field size.
@@ -556,11 +533,8 @@ class CommandResult_RawString :
     return string_value > ((CommandResult_RawString *)A)->string_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_RawString));
-    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
-      clearNullValue();
-    }
     string_value += ((CommandResult_RawString *)A)->string_value; }
-
+  virtual bool ValueIsNull () { return string_value.length() == 0; }
 
   void Accumulate_RawString (CommandResult_RawString *B) {
     string_value += B->string_value;
@@ -685,6 +659,7 @@ class CommandResult_Function :
 
   virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
+    if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
      // Don't truncate the string if it is bigger than the field size.
@@ -758,6 +733,7 @@ class CommandResult_Statement :
   }
   virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
+    if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
      // Don't truncate the string if it is bigger than the field size.
@@ -841,6 +817,7 @@ class CommandResult_LinkedObject :
   }
   virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
+    if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
      // Don't truncate the string if it is bigger than the field size.
@@ -994,6 +971,7 @@ class CommandResult_CallStackEntry : public CommandResult {
   }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
+    if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
      // Don't truncate the string if it is bigger than the field size.
@@ -1068,6 +1046,7 @@ class CommandResult_Time : public CommandResult {
   }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
+    if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
      // Don't truncate the string if it is bigger than the field size.
@@ -1119,15 +1098,9 @@ class CommandResult_Duration : public CommandResult {
     return duration_value > ((CommandResult_Duration *)A)->duration_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
-    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
-      clearNullValue();
-    }
     duration_value += ((CommandResult_Duration *)A)->duration_value; }
   virtual void AbsDiff_value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
-    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
-      clearNullValue();
-    }
     if (duration_value >= ((CommandResult_Duration *)A)->duration_value) {
       duration_value -= ((CommandResult_Duration *)A)->duration_value;
     } else {
@@ -1140,6 +1113,7 @@ class CommandResult_Duration : public CommandResult {
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
     duration_value = max (duration_value, ((CommandResult_Duration *)A)->duration_value); }
+  virtual bool ValueIsNull () { return duration_value == (int64_t)0; }
 
   int64_t& Value () {
     return duration_value;
@@ -1210,6 +1184,7 @@ class CommandResult_Duration : public CommandResult {
   }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
+    if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
      // Don't truncate the string if it is bigger than the field size.
@@ -1269,17 +1244,11 @@ class CommandResult_Interval : public CommandResult {
 
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
-      clearNullValue();
-    }
     interval_value += ((CommandResult_Interval *)A)->interval_value; 
   }
 
   virtual void AbsDiff_value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    if (isNullValue() && !((CommandResult *)A)->isNullValue()) {
-      clearNullValue();
-    }
     if (interval_value >= ((CommandResult_Interval *)A)->interval_value) {
       interval_value -= ((CommandResult_Interval *)A)->interval_value;
     } else {
@@ -1296,6 +1265,7 @@ class CommandResult_Interval : public CommandResult {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
     interval_value = max (interval_value, ((CommandResult_Interval *)A)->interval_value); 
   }
+  virtual bool ValueIsNull () { return interval_value == (double)0.0; }
 
   double& Value () {
     return interval_value;
@@ -1323,6 +1293,7 @@ class CommandResult_Interval : public CommandResult {
   }
   virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
+    if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
      // Don't truncate the string if it is bigger than the field size.
@@ -1354,6 +1325,7 @@ class CommandResult_Title :
     string_value = S;
   }
   virtual ~CommandResult_Title () { }
+  virtual bool ValueIsNull () { return string_value.length() == 0; }
 
   void Value (std::string& S) {
     S = string_value;
@@ -1383,6 +1355,7 @@ class CommandResult_Headers :
   virtual ~CommandResult_Headers () {
     Reclaim_CR_Space (Headers);
   }
+  virtual bool ValueIsNull () { return number_of_columns == 0; }
 
   void Add_Header (CommandResult *R) {
     number_of_columns++;
@@ -1451,6 +1424,7 @@ class CommandResult_Enders :
   virtual ~CommandResult_Enders () {
     Reclaim_CR_Space (Enders);
   }
+  virtual bool ValueIsNull () { return number_of_columns == 0; }
 
   void Add_Ender (CommandResult *R) {
     number_of_columns++;
@@ -1551,6 +1525,7 @@ class CommandResult_Columns :
   virtual ~CommandResult_Columns () {
     Reclaim_CR_Space (Columns);
   }
+  virtual bool ValueIsNull () { return number_of_columns == 0; }
 
   void Add_Column (CommandResult *R) {
     number_of_columns++;
@@ -1632,7 +1607,7 @@ class CommandResult_Columns :
     int64_t num_results = 0;
     for (coi = Columns.begin(); coi != Columns.end(); coi++) {
       if (num_results++ != 0) to << "  ";
-      if ((*coi)->isNullValue()) {
+      if ((*coi)->ValueIsNull()) {
        // Avoid print lots of meaningless "0" values - blank fill the field.
         to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
            << std::setw(fieldsize) << " ";

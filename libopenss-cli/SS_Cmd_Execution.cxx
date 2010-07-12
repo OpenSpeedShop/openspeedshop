@@ -4048,12 +4048,34 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp, bool FullDis
           std::ostringstream et(ios::out);
           Time ST = databaseExtent.getTimeInterval().getBegin();
           Time ET = databaseExtent.getTimeInterval().getEnd();
-          lt << ((ET -ST) / 1000000.0);
+
+          int64_t elapsed_time = ((ET - ST));
+          int64_t scaled_time = (elapsed_time / 1000000000);
+          CommandResult *elapsed_cr = new CommandResult_Duration (elapsed_time);
+         // Format elapsed time.
+          lt << elapsed_cr->Form();
+         // Determine resulting units.
+          std::string UNITS;
+          if (scaled_time >= (60 * 60 * 24)) {
+            UNITS = "dd:hh:mm:ss";
+          } else if (scaled_time >= (60 * 60)) {
+            UNITS = "hh:mm:ss";
+          } else if (scaled_time >= (60)) {
+            UNITS = "mm:ss";
+          } else if (scaled_time >= 1) {
+            UNITS = "seconds";
+          } else if (elapsed_time >= 1000000) {
+            UNITS = "ms";
+          } else {
+            UNITS = "ns";
+          }
+          delete elapsed_cr;
+
           st << databaseExtent.getTimeInterval().getBegin();
           et << databaseExtent.getTimeInterval().getEnd();
           cmd->Result_String ("    Performance data spans "
                               + lt.ostringstream::str()
-                              + "ms  from "
+                              + " " + UNITS + "  from "
                               + st.ostringstream::str()
                               + " to "
                               + et.ostringstream::str());

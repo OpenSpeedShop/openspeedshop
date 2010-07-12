@@ -165,6 +165,92 @@ static void Calculate_Totals (
   }
 }
 
+static void Pack_Vector_Elements (
+              std::vector<std::pair<CommandResult *,
+                                    SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+#if DEBUG_CLI
+  printf("in Pack_Vector_Elements\n");
+#endif
+  std::vector<std::pair<CommandResult *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+   // Find the next NULL element in the vector.
+    if ((*vpi).first == NULL) {
+      std::vector<std::pair<CommandResult *,
+                            SmartPtr<std::vector<CommandResult *> > > >::iterator nvpi = vpi+1;
+
+      for ( ; nvpi != c_items.end(); nvpi++) {
+        if ((*nvpi).first != NULL) {
+         // Fill the NULL element with the first non-NULL one.
+          *vpi = *nvpi;
+          (*nvpi).first = NULL;
+          break;
+        }
+      }
+
+      if (nvpi == c_items.end()) {
+       // Found no non-NULL elements in rest of vector.
+        break;
+      }
+
+    }
+  }
+
+  if (vpi != c_items.end()) {
+   // There are NULL elements at the end of the vector.
+   // Get rid of them!
+    c_items.erase (vpi, c_items.end());
+  }
+
+#if DEBUG_CLI
+// Integrity check:
+// Be sure there are no NULL elements left  in the vector.
+  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+    Assert ((*vpi).first != NULL);
+  }
+#endif
+
+}
+
+static void Suppress_Unused_Elements (
+       std::vector<std::pair<CommandResult *,
+                             SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+  bool NullItemsRemoved = false;
+  std::vector<std::pair<CommandResult *,
+                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
+
+  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
+   // Foreach entry, eliminate the entries that have a NULL sort value.
+    std::pair<CommandResult *,
+              SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
+    CommandResult *Sort_Value = (*cp.second)[VMulti_sort_temp];
+    if (Sort_Value->ValueIsNull()) {
+     // Because a "c_items.erase(vpi);" operation takes a lot of time
+     // when vectors get long, just fill with a null pointer and compress
+     // the vector after all unnecessary entries have been identified.
+#if DEBUG_CLI
+      cerr << "Suppress Element: ";
+      int64_t i;
+      for (i = 0; i < (*cp.second).size(); i++ ) {
+        CommandResult *p = (*cp.second)[i];
+        if (p != NULL) {
+          cerr << p->Form();
+        } else {
+          cerr << "(NULL)";
+        }
+        cerr << ", ";
+      }
+      cerr << (*cp.first).Form() << std::endl;
+#endif
+      (*vpi).first = NULL;
+      NullItemsRemoved = true;
+    }
+  }
+  if (NullItemsRemoved) {
+    Pack_Vector_Elements (c_items);
+  }
+}
+
 static void Setup_Sort( 
        int64_t temp_index,
        std::vector<std::pair<CommandResult *,
@@ -209,6 +295,10 @@ static void Setup_Sort(
     CommandResult *New = V1->Copy();
     Assert (New != NULL);
     (*cp.second)[VMulti_sort_temp] = New;
+  }
+
+  if (OPENSS_VIEW_SUPPRESS_UNUSED_ELEMENTS) {
+    Suppress_Unused_Elements (c_items);
   }
 }
 
@@ -289,7 +379,7 @@ static void Setup_Sort(
 #endif
 
 /*
-      if (!V1->isNullValue ()) {
+      if (!V1->ValueIsNull ()) {
 */{
         New = Calculate_Average (V1, (*cp.second)[vinst->TMP2()]);
       }
@@ -308,6 +398,10 @@ static void Setup_Sort(
 
     Assert (New != NULL);
     (*cp.second)[VMulti_sort_temp] = New;
+  }
+
+  if (OPENSS_VIEW_SUPPRESS_UNUSED_ELEMENTS) {
+    Suppress_Unused_Elements (c_items);
   }
 }
 
@@ -519,53 +613,6 @@ static inline void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& 
   }
 }
 
-static void Pack_Vector_Elements (
-              std::vector<std::pair<CommandResult *,
-                                    SmartPtr<std::vector<CommandResult *> > > >& c_items) {
-#if DEBUG_CLI
-  printf("in Pack_Vector_Elements\n");
-#endif
-  std::vector<std::pair<CommandResult *,
-                        SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
-  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
-   // Find the next NULL element in the vector.
-    if ((*vpi).first == NULL) {
-      std::vector<std::pair<CommandResult *,
-                            SmartPtr<std::vector<CommandResult *> > > >::iterator nvpi = vpi+1;
-
-      for ( ; nvpi != c_items.end(); nvpi++) {
-        if ((*nvpi).first != NULL) {
-         // Fill the NULL element with the first non-NULL one.
-          *vpi = *nvpi;
-          (*nvpi).first = NULL;
-          break;
-        }
-      }
-
-      if (nvpi == c_items.end()) {
-       // Found no non-NULL elements in rest of vector.
-        break;
-      }
-
-    }
-  }
-
-  if (vpi != c_items.end()) {
-   // There are NULL elements at the end of the vector.
-   // Get rid of them!
-    c_items.erase (vpi, c_items.end());
-  }
-
-#if DEBUG_CLI
-// Integrity check:
-// Be sure there are no NULL elements left  in the vector.
-  for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
-    Assert ((*vpi).first != NULL);
-  }
-#endif
-
-}
-
 static void Combine_Duplicate_CallStacks (
               std::vector<ViewInstruction *>& IV,
               std::vector<ViewInstruction *>& FieldRequirements,
@@ -620,9 +667,9 @@ static void Combine_Duplicate_CallStacks (
             delete (*ncp.second)[i];
           }
         }
-       // Becasue a "c_items.erase(nvpi);" operation takes a lot of time
-       // when vectores get long, just fill with a null pointer and
-       // compress the vector after duplicates have been removed.
+       // Because a "c_items.erase(nvpi);" operation takes a lot of time
+       // when vectors get long, just fill with a null pointer and compress
+       // the vector after all unnecessary entries have been identified.
         (*nvpi).first = NULL;
         nvpi++;
         continue;
@@ -693,9 +740,9 @@ static void Combine_Short_Stacks (
             delete (*ncp.second)[i];
           }
         }
-       // Becasue a "c_items.erase(nvpi);" operation takes a lot of time
-       // when vectores get long, just fill with a null pointer and
-       // compress the vector after duplicates have been removed.
+       // Because a "c_items.erase(nvpi);" operation takes a lot of time
+       // when vectors get long, just fill with a null pointer and compress
+       // the vector after all unnecessary entries have been identified.
         (*nvpi).first = NULL;
         nvpi++;
         continue;
@@ -736,11 +783,8 @@ static SmartPtr<std::vector<CommandResult *> >
 // printf("Propagate value up the calling tree location %lld: ",j);
 // next->Print(cerr,20,true);printf("\n");
         } else {
-         // Set flag in CommandResult to indicate null value.
-         // The display logic may decide to replace the value with
-         // blanks, if it is easier to read.
+         // Create an empty initial value.
           next = (*crv)[j]->Init();
-          next->setNullValue();
         }
         vcs->push_back ( next );
       }
@@ -1207,27 +1251,6 @@ bool Generic_Multi_View (
       H->CommandResult_Headers::Add_Header ( CRPTR ( EO_Title ) );
       view_output.push_back(H);
    } // if there are items to output
-
-   // Convert "0" values to blanks.
-/* TEST
-    std::vector<std::pair<CommandResult *,
-                          SmartPtr<std::vector<CommandResult *> > > >::iterator xvpi;
-    for (xvpi = c_items.begin(); xvpi != c_items.end(); xvpi++) {
-     // Foreach CallStack entry, look for duplicates and missing intermediates.
-      std::pair<CommandResult *,
-                SmartPtr<std::vector<CommandResult *> > > cp = *xvpi;
-      double V;
-      ((CommandResult_Float *)(*cp.second)[VMulti_time_temp])->Value(V);
-      if (V == 0.0) {
-       // Set flag in CommandResult to indicate null value.
-       // The display logic may decide to replace the value with
-       // blanks, if it is easier to read.
-        for (int64_t i = 0; i < (*cp.second).size(); i++) {
-          (*cp.second)[i]->setNullValue();
-        }
-      }
-    }
-*/
 
    // Now format the view.
     if (Look_For_KeyWord(cmd, "ButterFly")) {
