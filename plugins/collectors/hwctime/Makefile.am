@@ -69,9 +69,11 @@ endif
 
 hwctime_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
+	@PAPI_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 hwctime_la_LIBADD = \
+	@PAPI_LIBS@ \
 	-lopenss-framework
 
 hwctime_la_SOURCES = \

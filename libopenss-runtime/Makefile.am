@@ -73,16 +73,10 @@ libopenss_runtime_la_CFLAGS = \
 	@PAPI_CPPFLAGS@
 
 libopenss_runtime_la_LDFLAGS = \
-	@LIBUNWIND_LDFLAGS@ \
-	@BINUTILS_LDFLAGS@ \
-	@PAPI_LDFLAGS@ \
 	-static
 
 libopenss_runtime_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-runtime-@INSTRUMENTOR@.la \
-	@LIBUNWIND_LIBS@ \
-	@BINUTILS_LIBS@ \
-	@PAPI_LIBS@ \
 	-lpthread -lrt
 endif
 
@@ -94,16 +88,10 @@ libopenss_runtime_offline_la_CFLAGS = \
 	@PAPI_CPPFLAGS@
 
 libopenss_runtime_offline_la_LDFLAGS = \
-	@LIBUNWIND_LDFLAGS@ \
-	@BINUTILS_LDFLAGS@ \
-	@PAPI_LDFLAGS@ \
-	-static
+	-static 
 
 libopenss_runtime_offline_la_LIBADD = \
 	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
-	@LIBUNWIND_LIBS@ \
-	@BINUTILS_LIBS@ \
-	@PAPI_LIBS@ \
 	-lpthread -lrt
 endif
 

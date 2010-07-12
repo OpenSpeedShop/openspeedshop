@@ -26,6 +26,7 @@
 #include "HWCCollector.hxx"
 #include "blobs.h"
 #include "PapiAPI.h"
+#include "PapiAPI.cxx"
 
 #include <stdlib.h>
 #include <stdio.h>

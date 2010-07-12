@@ -30,13 +30,11 @@ libopenss_framework_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	$(LTDLINCL) \
 	@ARRAYSVCS_CPPFLAGS@ \
-	@PAPI_CPPFLAGS@ \
 	@BINUTILS_CPPFLAGS@ \
 	@SQLITE_CPPFLAGS@
 
 libopenss_framework_la_LDFLAGS = \
 	@ARRAYSVCS_LDFLAGS@ \
-	@PAPI_LDFLAGS@ \
 	@BINUTILS_LDFLAGS@ \
 	@SQLITE_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
@@ -46,7 +44,6 @@ libopenss_framework_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
-	@PAPI_LIBS@ \
 	@BINUTILS_LIBS@ \
 	@SQLITE_LIBS@ \
 	-lpthread -lrt
@@ -54,7 +51,6 @@ else
 libopenss_framework_la_LIBADD = \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
-	@PAPI_LIBS@ \
 	@BINUTILS_LIBS@ \
 	@SQLITE_LIBS@ \
 	-lpthread -lrt
@@ -124,12 +120,7 @@ libopenss_framework_la_SOURCES = \
 	$(COMMON_SOURCES)
 endif
 
-if HAVE_PAPI
-libopenss_framework_la_SOURCES += \
-	PapiAPI.h PapiAPI.cxx
-endif
-
-EXTRA_DIST = OpenSSPath.cxx
+EXTRA_DIST = OpenSSPath.cxx PapiAPI.h PapiAPI.cxx
 
 doc:
 	$(DOXYGEN)
