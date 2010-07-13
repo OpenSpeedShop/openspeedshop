@@ -256,7 +256,7 @@ fprintf(stderr,"ENTERED io_record_event, sizeof event=%d, sizeof stacktrace=%d, 
 
     ++tls->nesting_depth;
     /* Obtain the stack trace from the current thread context */
-    OpenSS_GetStackTraceFromContext(FALSE, OverheadFrameCount,
+    OpenSS_GetStackTraceFromContext(NULL, FALSE, OverheadFrameCount,
 				    MaxFramesPerStackTrace,
 				    &stacktrace_size, stacktrace);
     --tls->nesting_depth;

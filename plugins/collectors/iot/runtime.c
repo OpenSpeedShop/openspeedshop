@@ -333,7 +333,7 @@ fprintf(stderr,"PathBufferSize is full, call iot_send_events\n");
 
     ++tls->nesting_depth;
     /* Obtain the stack trace from the current thread context */
-    OpenSS_GetStackTraceFromContext(FALSE, OverheadFrameCount,
+    OpenSS_GetStackTraceFromContext(NULL, FALSE, OverheadFrameCount,
 				    MaxFramesPerStackTrace,
 				    &stacktrace_size, stacktrace);
     --tls->nesting_depth;

@@ -129,7 +129,8 @@ bool_t OpenSS_UpdatePCData(uint64_t, OpenSS_PCData*);
 bool_t OpenSS_Path_From_Pid(char *);
 
 #ifdef HAVE_LIBUNWIND
-void OpenSS_GetStackTraceFromContext(bool_t, unsigned, unsigned,
+void OpenSS_GetStackTraceFromContext(const ucontext_t*,
+				     bool_t, unsigned, unsigned,
 				     unsigned*, uint64_t*);
 #endif
 

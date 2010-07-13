@@ -186,8 +186,8 @@ hwctimePAPIHandler(int EventSet, void *address, long_long overflow_vector, void*
 
     /* get stack address for current context and store them into framebuf. */
 
-    OpenSS_GetStackTraceFromContext (TRUE, 0, MAXFRAMES /* maxframes*/,
-				     &framecount, framebuf) ;
+    OpenSS_GetStackTraceFromContext (context, TRUE, 0,
+                        MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
 
     bool_t stack_already_exists = FALSE;
 

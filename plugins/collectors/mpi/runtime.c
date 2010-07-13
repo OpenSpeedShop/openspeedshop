@@ -210,7 +210,7 @@ void mpi_record_event(const mpi_event* event, uint64_t function)
     }
     
     /* Obtain the stack trace from the current thread context */
-    OpenSS_GetStackTraceFromContext(FALSE, OverheadFrameCount,
+    OpenSS_GetStackTraceFromContext(NULL, FALSE, OverheadFrameCount,
 				    MaxFramesPerStackTrace,
 				    &stacktrace_size, stacktrace);
 
