@@ -451,14 +451,14 @@ static bool define_mpi_columns (
             IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
             HV.push_back(std::string("Min ") + Default_Header + " Across Threads");
-         // Do a By-Thread average.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
-            HV.push_back(std::string("Average ") + Default_Header + " Across Threads");
          // Find the By-Thread Max.
             IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
             HV.push_back(std::string("Max ") + Default_Header + " Across Threads");
+         // Do a By-Thread average.
+            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
+            HV.push_back(std::string("Average ") + Default_Header + " Across Threads");
           }
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
@@ -478,14 +478,8 @@ static bool define_mpi_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
     HV.push_back("% of Total");
-  } else {
-   // If nothing is requested ...
-    if (vfc == VFC_Trace) {
-      // Insert start times into report.
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
-      HV.push_back("Start Time(d:h:m:s)");
-      IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
-    }
+  } else if (vfc == VFC_Function) {
+   // Default function view - basic useful information.
 
    // display min time
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, min_temp));
@@ -498,6 +492,33 @@ static bool define_mpi_columns (
    // average time is calculated from two temps: sum and total counts.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, incnt_temp));
     HV.push_back("Average Time(ms)");
+
+  // display a count of the calls to each function
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
+    HV.push_back("Number of Calls");
+  } else {
+   // If nothing is requested ...
+    if (vfc == VFC_Trace) {
+      // Insert start times into report.
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
+      HV.push_back("Start Time(d:h:m:s)");
+      IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
+    }
+
+   // Always display elapsed time.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
+    HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
+
+   // and include % of exclusive time
+    if (Filter_Uses_F(cmd)) {
+     // Use the metric needed for calculating total time.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+    } else {
+     // Sum the extime_temp values.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+    }
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
+    HV.push_back("% of Total");
 
   // display a count of the calls to each function
     if (vfc != VFC_Trace) {
@@ -585,7 +606,8 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
                   " process unit that the program was partitioned into: Pid's,"
                   " Posix threads, Mpi threads or Ranks."
                   " If no '-m' option is specified, the default is equivalent to"
-                  " '-m min, max, average, count'."
+                  " '-m min, max, average, count', for '-v function' (or missing '-v');"
+                  " '-m exclusive times, percent, count', for any other '-v' <option>."
                   " The available '-m' options are:"
                   " \n\t'-m exclusive_times' reports the wall clock time used in the function."
                   " \n\t'-m min' reports the minimum time spent in the function."
@@ -595,10 +617,10 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
                   " \n\t'-m percent' reports the percent of mpi time the function represents."
                   " \n\t'-m stddev' reports the standard deviation of the average mpi time"
                   " that the function represents."
-                  " \n\t'-m ThreadAverage' reports the average cpu time for a process."
                   " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
                   " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
-                  " \n\t'-m loadbalance' reports the minimum, average, maximum cpu time for a process."
+                  " \n\t'-m ThreadAverage' reports the average cpu time for a process."
+                  " \n\t'-m loadbalance' is the same as '-m ThreadMin, ThreadMax, ThreadAverage'."
                   "\n";
 static std::string VIEW_mpi_example = "\texpView mpi\n"
                                       "\texpView -v CallTrees,FullStack mpi10 -m min,max,count\n";

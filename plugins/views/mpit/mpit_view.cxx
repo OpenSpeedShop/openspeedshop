@@ -542,9 +542,6 @@ static bool define_mpit_columns (
           if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
           } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
-            HV.push_back(std::string("Average ") + Default_Header + " Across Threads");
          // Find the By-Thread Min.
             IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
@@ -553,6 +550,10 @@ static bool define_mpit_columns (
             IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
             HV.push_back(std::string("Max ") + Default_Header + " Across Threads");
+         // Find the By-Thread Average
+            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
+            HV.push_back(std::string("Average ") + Default_Header + " Across Threads");
           }
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
@@ -576,14 +577,8 @@ static bool define_mpit_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
     HV.push_back("% of Total");
-  } else {
-   // If nothing is requested ...
-    if (vfc == VFC_Trace) {
-      // Insert start times into report.
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
-      HV.push_back("Start Time(d:h:m:s)");
-      IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
-    }
+  } else if (vfc == VFC_Function) {
+   // Default function view - basic useful information.
 
    // display min time
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, min_temp));
@@ -596,6 +591,33 @@ static bool define_mpit_columns (
    // average time is calculated from two temps: sum and total counts.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, incnt_temp));
     HV.push_back("Average Time(ms)");
+
+  // display a count of the calls to each function
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
+    HV.push_back("Number of Calls");
+  } else {
+   // If nothing is requested ...
+    if (vfc == VFC_Trace) {
+      // Insert start times into report.
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
+      HV.push_back("Start Time(d:h:m:s)");
+      IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
+    }
+
+   // Always display elapsed time.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
+    HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
+
+   // and include % of exclusive time
+    if (Filter_Uses_F(cmd)) {
+     // Use the metric needed for calculating total time.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+    } else {
+     // Sum the extime_temp values.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+    }
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
+    HV.push_back("% of Total");
 
   // display a count of the calls to each function
     if (vfc != VFC_Trace) {
@@ -679,7 +701,8 @@ static std::string VIEW_mpit_long  =
                   " process unit that the program was partitioned into: Pid's,"
                   " Posix threads, Mpi threads or Ranks."
                   " If no '-m' option is specified, the default is equivalent to"
-                  " '-m min, max, average, counts'."
+                  " '-m min, max, average, count', for '-v function' (or missing '-v');"
+                  " '-m exclusive times, percent, count', for any other '-v' <option>."
                   " Clearly, not every value will be meaningful with every '-v' option."
                   " The available '-m' options are:"
                   " \n\t'-m exclusive_times' reports the wall clock time used in the event."
@@ -690,10 +713,10 @@ static std::string VIEW_mpit_long  =
                   " \n\t'-m percent' reports the percent of mpi time the event represents."
                   " \n\t'-m stddev' reports the standard deviation of the average mpi time"
                   " that the event represents."
-                  " \n\t'-m ThreadAverage' reports the average cpu time for a process."
                   " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
                   " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
-                  " \n\t'-m loadbalance' reports the minimum, average, maximum cpu time for a process."
+                  " \n\t'-m ThreadAverage' reports the average cpu time for a process."
+                  " \n\t'-m loadbalance' is the same as '-m ThreadMin, ThreadMax, ThreadAverage'."
                   " \n\t'-m start_time' reports the starting time of the event."
                   " \n\t'-m stop_time' reports the ending time of the event."
                   " \n\t'-m source' reports the source rank of the event."
