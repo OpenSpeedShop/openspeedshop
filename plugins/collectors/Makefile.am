@@ -62,15 +62,16 @@ else
 if !BUILD_INSTRUMENTOR
 SUBDIRS += mpi mpit
 endif
+endif
+endif
+
+if HAVE_MPI
+if HAVE_LIBUNWIND
 if HAVE_OTF
 if HAVE_VT
 SUBDIRS += mpiotf
 endif
 endif
-endif
-else
-if !BUILD_INSTRUMENTOR
-SUBDIRS += mpi mpit
 endif
 endif
 
