@@ -9,6 +9,9 @@ Source: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Prefix: /opt/tempapps
 
+BuildRequires: coreutils
+Requires: coreutils
+
 %description
 Sample Applications For Use In OpenSpeedShop-Live
 
@@ -28,6 +31,11 @@ fi
 %build
 
 %install
+#mkdir -p $RPM_BUILD_ROOT%{prefix}/databases
+#cd databases
+#install -D -m ugo+rw *.openss $RPM_BUILD_ROOT%{prefix}/databases
+#cd ..
+
 mkdir -p $RPM_BUILD_ROOT%{prefix}/{mpi,sequential}/smg2000/{krylov,struct_ls,struct_mv,test,utilities}
 
 cd sequential/smg2000
@@ -146,6 +154,8 @@ fi
 %{prefix}/*
 
 %changelog
+* Fri Jul 9 2010 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
+- Add database directory for important database files
 * Tue Aug 4 2009 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
 - Add more test programs
 * Fri Aug 29 2008 Samuel K. Gutierrez <samuel@lanl.gov> - 0.0.1

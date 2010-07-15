@@ -9,6 +9,8 @@ Source: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Prefix: /opt/doc
 
+BuildRequires: coreutils
+
 %description
 Sample Applications For Use In OpenSpeedShop-Live
 
