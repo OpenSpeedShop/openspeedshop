@@ -407,6 +407,7 @@ class CommandResult_Float :
   }
 
   virtual std::string Form () {
+    if (isnan(float_value)) return std::string ("nan");
     char F[20];
     F[0] = *("%"); // left justify in field
     sprintf(&F[1], "%lld.%lldf\0", OPENSS_VIEW_FIELD_SIZE, OPENSS_VIEW_PRECISION);
@@ -1076,8 +1077,13 @@ class CommandResult_Duration : public CommandResult {
 
  public:
   CommandResult_Duration () : CommandResult(CMD_RESULT_DURATION) {
+    duration_value = 0;
   }
   CommandResult_Duration (int64_t d)
+      : CommandResult(CMD_RESULT_DURATION) {
+    duration_value = d;
+  }
+  CommandResult_Duration (double d)
       : CommandResult(CMD_RESULT_DURATION) {
     duration_value = d;
   }
@@ -1215,8 +1221,13 @@ class CommandResult_Interval : public CommandResult {
  public:
 
   CommandResult_Interval () : CommandResult(CMD_RESULT_INTERVAL) {
+    interval_value = 0.0;
   }
 
+  CommandResult_Interval (int64_t d)
+      : CommandResult(CMD_RESULT_INTERVAL) {
+    interval_value = d;
+  }
   CommandResult_Interval (double d)
       : CommandResult(CMD_RESULT_INTERVAL) {
     interval_value = d;
@@ -1276,8 +1287,10 @@ class CommandResult_Interval : public CommandResult {
   };
 
   virtual std::string Form () {
+    if (isnan(interval_value)) return std::string ("nan");
     std::ostringstream form(ios::ate);
     double float_value = interval_value * 1000; // Convert to milli-seconds
+    if (isnan(float_value)) return std::string ("nan");
 
     char F[20];
     F[0] = *("%"); // left justify in field
