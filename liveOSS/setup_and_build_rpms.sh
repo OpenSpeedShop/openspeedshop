@@ -4,18 +4,23 @@ echo "Running setup_and_build_rpms.sh...."
 echo "..........................................."
 ################################################################################
 
+rm -rf SPECS SOURCES RPMS toyprograms-0.0.1 webtutorial-0.0.1
+
 echo "..........................................."
 echo "Copying specs to SPECS....."
 echo "..........................................."
+mkdir SPECS
 cp -r specs/* SPECS/.
 echo "..........................................."
 echo "Moving toyprograms to toyprograms-0.0.1....."
 echo "..........................................."
 mv toyprograms toyprograms-0.0.1
+chmod -R 755 toyprograms-0.0.1
 echo "..........................................."
 echo "Moving web-tutorials to webtutorial-0.0.1....."
 echo "..........................................."
 mv web-tutorials webtutorial-0.0.1
+chmod -R 755 webtutorial-0.0.1
 echo "..........................................."
 echo "mkdir SOURCES....."
 echo "..........................................."
@@ -73,17 +78,36 @@ echo "..........................................."
 
 cd ../../..
 
+#cd ../../databases
+#touch empty.openss
+#
+#echo "..........................................."
+#echo "Do you want to add more database files to the toyprograms-0.0.1/databases directory ... "
+#echo "..........................................."
+#echo "Please place the file(s) into the toyprograms-0.0.1/databases  and answer with a 'y' or 'Y' to continue."
+#read answer
+#
+#if [ "$answer" = Y -o "$answer" = y ]; then
+#   echo "..........................................."
+#   echo "Continuing the build ....."
+#   echo "..........................................."
+#fi
+#
+#cd ../..
+#
 pwd
 
 echo "..........................................."
 echo "Creating tarball for toyprograms-0.0.1....."
 echo "..........................................."
+chmod -R 755 toyprograms-0.0.1
 tar -cvf toyprograms-0.0.1.tar toyprograms-0.0.1/*
 gzip toyprograms-0.0.1.tar
 mv toyprograms-0.0.1.tar.gz SOURCES/.
 echo "..........................................."
 echo "Creating tarball for webtutorial-0.0.1....."
 echo "..........................................."
+chmod -R 755 webtutorial-0.0.1
 tar -cvf webtutorial-0.0.1.tar webtutorial-0.0.1/*
 gzip webtutorial-0.0.1.tar
 mv webtutorial-0.0.1.tar.gz SOURCES/.
@@ -92,8 +116,6 @@ echo ".........................................................."
 echo "Using install.sh to reset .rpmmacros to this location....."
 echo ".........................................................."
 ./install.sh
-0
-
 
 echo "..........................................."
 echo "Building RPM for webtutorial-0.0.1....."

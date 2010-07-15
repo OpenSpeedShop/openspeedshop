@@ -1,11 +1,13 @@
 //============================================================================//
 // Copyright (C) 2008 Los Alamos National Security, LLC. All Rights Reserved. //
 //                Author: Samuel K. Gutierrez - samuel[at]lanl.gov            //
+// Copyright (C) Krell Institute 2008-2010
 //                                                                            //
 //                              How To Build An                               //
 //                      Open|SpeedShop Live Distribution                      //
 //                               Creation Notes                               //
 //                                Nov 03, 2008                                //
+//                                Jul 12, 2010                                //
 //============================================================================//
 
 
@@ -20,7 +22,7 @@ versions of Open|SpeedShop and Open MPI.
 //****************************************************************************//
 //                                Base System                                 //
 //****************************************************************************//
--Fedora Core 8 i386
+-Fedora Core 13 i386
 -Firewall Enabled
 -SELinux Disabled
 -Base Installation (No System Updates)
@@ -30,6 +32,7 @@ versions of Open|SpeedShop and Open MPI.
 //                    Preparing The Base System Environment                   //
 //****************************************************************************//
 1. Install Needed Development Packages
+
 Note: Try to start with a base Fedora Core installation that includes most 
 development packages.
 
@@ -54,15 +57,18 @@ Note: I find it convenient use OpenSpeedShop's ROOT build structure.
 
 Copy created RPM to /var/www/html/yum/base/
 
-4. Build OpenSpeedShop prerequisite packages.
+4) Build toyprograms, webtutorials, and optionally the openmpi package using
+   the setup_and_build_rpms.sh script
+
+5. Build OpenSpeedShop prerequisite packages.
 
 Copy created RPMs to /var/www/html/yum/base/
 
-5. Build OpenSpeedShop
+6. Build OpenSpeedShop
 
 Copy created RPM to /var/www/html/yum/base/
 
-6. Create Local yum Repository
+7. Create Local yum Repository
 
 #createrepo -dg /var/www/html/yum/base/Fedora-8-comps.xml /var/www/html/yum/base/
 
