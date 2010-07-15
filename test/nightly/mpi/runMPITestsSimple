@@ -75,13 +75,13 @@ do
 #     export PATH=/home/jeg/oss/bin:$PATH
 #     export LD_LIBRARY_PATH=/home/jeg/oss/lib
      module purge
-     module load openss-mrnet
+     module load openss-openmpi-1.4.1
 
      if [ "$thiscompiler" == "gnu" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.3
+           module load openmpi-1.4.1
 #           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=openmpi
@@ -102,7 +102,7 @@ do
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.3
+           module load openmpi-1.4.1
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
@@ -119,7 +119,7 @@ do
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.3
+           module load openmpi-1.4.1
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
@@ -136,7 +136,7 @@ do
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.3
+           module load openmpi-1.4.1
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
@@ -324,13 +324,13 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
 #     export PATH=/home/jeg/oss/bin:$PATH
 #     export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
      module purge
-     module load openss-mrnet
+     module load openss-openmpi-1.4.1
 
      if [ "$thiscompiler" == "gnu" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.3
+           module load openmpi-1.4.1
 #           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=openmpi
@@ -352,7 +352,7 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.3
+           module load openmpi-1.4.1
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
@@ -370,7 +370,7 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.3
+           module load openmpi-1.4.1
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
@@ -388,7 +388,7 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.3
+           module load openmpi-1.4.1
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
@@ -684,7 +684,7 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
      # module load openss openmpi-1.2.4
      # or setup environment manually
      module purge
-     module load openss-mrnet
+     module load openss-openmpi-1.4.1
 #     export PATH=/home/jeg/oss/bin:$PATH
 #     export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
 
@@ -692,7 +692,7 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.3
+           module load openmpi-1.4.1
 #           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=openmpi
@@ -714,7 +714,7 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.3
+           module load openmpi-1.4.1
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
@@ -732,7 +732,7 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.3
+           module load openmpi-1.4.1
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
@@ -750,7 +750,7 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.3.3
+           module load openmpi-1.4.1
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
