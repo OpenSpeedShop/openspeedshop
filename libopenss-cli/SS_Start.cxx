@@ -767,7 +767,7 @@ extern "C"
   {
     try {
 
-      cli_timing_handle = new SS_Timings::SS_Timings();
+      cli_timing_handle = new SS_Timings();
       cli_timing_handle->in_expCreate(false);
       cli_timing_handle->in_expAttach(false);
 
