@@ -25,12 +25,15 @@ fi
 #
 debug_flag=1
 
-
-
-
 ##set -x
 basedir=`pwd`
 
+# SPECIFIY MODULE INFO HERE
+module_openmpi="openmpi-1.4.2"
+module_openss_openmpi="openss-openmpi-1.4.2"
+
+module_mpich2="mpich2-1.2.1p1"
+module_mpich2_openmpi="openss-mpich2-1.2.1p1"
 
 for testname in `ls *.tar.gz`
 do
@@ -53,9 +56,9 @@ do
      echo "1st loop, basedir=" $basedir
    fi
 
-# for thisMPI in openmpi mpich2
 # for thisMPI in mpich2 openmpi mvapich
- for thisMPI in openmpi
+# for thisMPI in openmpi
+ for thisMPI in mpich2 openmpi
  do
 
 #  loop here through a compiler list
@@ -65,7 +68,14 @@ do
 
      # SETUP start
      # Add module loads or dotkit loads here
-     . /usr/share/Modules/init/sh
+     if [ -f /usr/share/Modules/init/sh ]; then
+       . /usr/share/Modules/init/sh
+     elif [ -f /usr/share/modules/init/sh ]; then
+       . /usr/share/modules/init/sh
+     else
+       echo "What is the path to the module init?" 
+     fi
+
      export MODULEPATH=/home/jeg/privatemodules:$MODULEPATH
      # or
      #. /usr/local/tools/dotkit/init.sh
@@ -75,19 +85,20 @@ do
 #     export PATH=/home/jeg/oss/bin:$PATH
 #     export LD_LIBRARY_PATH=/home/jeg/oss/lib
      module purge
-     module load openss-openmpi-1.4.1
 
      if [ "$thiscompiler" == "gnu" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.4.1
+           module load "$module_openss_openmpi"
+           module load "$module_openmpi"
 #           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2
+           module load mpich2-1.2.1p1
+           module load openss-mpich2-1.2.1p1
 #           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=mpich2
@@ -102,11 +113,13 @@ do
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.4.1
+           module load "$module_openss_openmpi"
+           module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2
+           module load mpich2-1.2.1p1
+           module load openss-mpich2-1.2.1p1
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "startup mpd command path directory is:" \$mpdcommand
@@ -119,11 +132,13 @@ do
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.4.1
+           module load "$module_openss_openmpi"
+           module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2
+           module load mpich2-1.2.1p1
+           module load openss-mpich2-1.2.1p1
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "startup mpd command path directory is:" \$mpdcommand
@@ -136,11 +151,13 @@ do
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.4.1
+           module load "$module_openss_openmpi"
+           module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2
+           module load mpich2-1.2.1p1
+           module load openss-mpich2-1.2.1p1
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "startup mpd command path directory is:" \$mpdcommand
@@ -312,9 +329,23 @@ echo "NOTE: Using thiscompiler=" $thiscompiler
 cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
 #!/bin/bash
 
+# SPECIFIY MODULE INFO HERE
+module_openmpi="openmpi-1.4.2"
+module_openss_openmpi="openss-openmpi-1.4.2"
+
+module_mpich2="mpich2-1.2.1p1"
+module_openss_mpich2="openss-mpich2-1.2.1p1"
+# END SPECIFY MODULE INFO HERE
+
      # SETUP start
      # Add module loads or dotkit loads here
-     . /usr/share/Modules/init/sh
+     if [ -f /usr/share/Modules/init/sh ]; then
+       . /usr/share/Modules/init/sh
+     elif [ -f /usr/share/modules/init/sh ]; then
+       . /usr/share/modules/init/sh
+     else
+       echo "What is the path to the module init?" 
+     fi
      export MODULEPATH=/home/jeg/privatemodules:$MODULEPATH
      # or
      #. /usr/local/tools/dotkit/init.sh
@@ -324,19 +355,22 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
 #     export PATH=/home/jeg/oss/bin:$PATH
 #     export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
      module purge
-     module load openss-openmpi-1.4.1
+     module load "$module_openss_openmpi"
+     module load "$module_openmpi"
 
      if [ "$thiscompiler" == "gnu" ] 
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.4.1
+           module load "$module_openss_openmpi"
+           module load "$module_openmpi"
 #           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2
+           module load mpich2-1.2.1p1
+           module load openss-mpich2-1.2.1p1
 #           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=mpich2
@@ -352,11 +386,13 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.4.1
+           module load "$module_openss_openmpi"
+           module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2
+           module load mpich2-1.2.1p1
+           module load openss-mpich2-1.2.1p1
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "smg2000 mpd command path directory is:" \$mpdcommand
@@ -370,11 +406,13 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.4.1
+           module load "$module_openss_openmpi"
+           module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2
+           module load mpich2-1.2.1p1
+           module load openss-mpich2-1.2.1p1
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "smg2000 mpd command path directory is:" \$mpdcommand
@@ -388,11 +426,13 @@ cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.4.1
+           module load "$module_openss_openmpi"
+           module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2
+           module load mpich2-1.2.1p1
+           module load openss-mpich2-1.2.1p1
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "smg2000 mpd command path directory is:" \$mpdcommand
@@ -442,10 +482,12 @@ echo "smg2000 test, mpirun command path directory is:" \$mpicommand
 # Read in test parameters
 #
 # script defaults
+# SPECIFY NODE AND RANK INFO HERE
 NodeCount=1
 RankCount=2
 CompilerType="gnu"
 EmailAddress="jegkas@gmail.com"
+# END SPECIFY NODE AND RANK INFO HERE
 
 
 #if [ -a default_test_config ] 
@@ -494,7 +536,8 @@ fi
 # Run all experiments
 #
 
-for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf fpe
+#for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf fpe
+for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit
 do
 
 echo "Running thisexperiment=\$thisexperiment"
@@ -554,14 +597,26 @@ bash ${REQ_SCRIPT}
 cat > smg2000_${thiscompiler}_${thisMPI}_email.sh << EOF
 #! /bin/bash
 
+# SPECIFIY MODULE INFO HERE
+module_openmpi="openmpi-1.4.2"
+module_openss_openmpi="openss-openmpi-1.4.2"
+
+module_mpich2="mpich2-1.2.1p1"
+module_openss_mpich2="openss-mpich2-1.2.1p1"
+# END SPECIFY MODULE INFO HERE
+
+# END SPECIFY MODULE INFO HERE
 #
 # Read in test parameters
 #
 # script defaults
+
+# SPECIFY NODE AND RANK INFO HERE
 NodeCount=1
 RankCount=2
 CompilerType="gnu"
 EmailAddress="jegkas@gmail.com"
+# END SPECIFY NODE AND RANK INFO HERE
 
 testCompiler="${thiscompiler}"
 
@@ -634,7 +689,8 @@ testval=`ls *.status | wc -l`
 # if the status file does not exist then the test did not complete and consider it failed
 #
 expectedTests=0
-for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf fpe
+#for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf fpe
+for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf 
 do
   let "expectedTests+=1"
 #
@@ -674,9 +730,24 @@ then
 cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
 #!/bin/bash
 
+# SPECIFIY MODULE INFO HERE
+module_openmpi="openmpi-1.4.2"
+module_openss_openmpi="openss-openmpi-1.4.2"
+
+module_mpich2="mpich2-1.2.1p1"
+module_openss_mpich2="openss-mpich2-1.2.1p1"
+# END SPECIFY MODULE INFO HERE
+
      # SETUP start
      # Add module loads or dotkit loads here
-     . /usr/share/Modules/init/sh
+     #. /usr/share/Modules/init/sh
+     if [ -f /usr/share/Modules/init/sh ]; then
+       . /usr/share/Modules/init/sh
+     elif [ -f /usr/share/modules/init/sh ]; then
+       . /usr/share/modules/init/sh
+     else
+       echo "What is the path to the module init?" 
+     fi
      export MODULEPATH=/home/jeg/privatemodules:$MODULEPATH
      # or
      #. /usr/local/tools/dotkit/init.sh
@@ -684,7 +755,8 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
      # module load openss openmpi-1.2.4
      # or setup environment manually
      module purge
-     module load openss-openmpi-1.4.1
+     module load "$module_openss_openmpi"
+     module load "$module_openmpi"
 #     export PATH=/home/jeg/oss/bin:$PATH
 #     export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
 
@@ -692,13 +764,15 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.4.1
+           module load "$module_openss_openmpi"
+           module load "$module_openmpi"
 #           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2
+           module load mpich2-1.2.1p1
+           module load openss-mpich2-1.2.1p1
 #           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=mpich2
@@ -714,11 +788,13 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.4.1
+           module load "$module_openss_openmpi"
+           module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2
+           module load mpich2-1.2.1p1
+           module load openss-mpich2-1.2.1p1
            mpdcommand=`which mpd`
            echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
            \$mpdcommand &
@@ -732,11 +808,13 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.4.1
+           module load "$module_openss_openmpi"
+           module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2
+           module load mpich2-1.2.1p1
+           module load openss-mpich2-1.2.1p1
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            \$mpdcommand &
@@ -750,11 +828,13 @@ cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
      then
          if [ "$thisMPI" == "openmpi" ]
          then
-           module load openmpi-1.4.1
+           module load "$module_openss_openmpi"
+           module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2
+           module load mpich2-1.2.1p1
+           module load openss-mpich2-1.2.1p1
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
@@ -795,10 +875,12 @@ echo "NOTE: sweep3d test, after setting OPENSS_RAWDATA_DIR, OPENSS_RAWDATA_DIR="
 # Read in test parameters
 #
 # script defaults
+# SPECIFY NODE AND RANK INFO HERE
 NodeCount=1
 RankCount=2
 CompilerType="gnu"
 EmailAddress="jegkas@gmail.com"
+# END SPECIFY NODE AND RANK INFO HERE
 #
 # Read in test parameters
 #
@@ -880,7 +962,8 @@ then
   cp -f input.256 input
 fi
 
-for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf fpe
+#for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf fpe
+for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf 
 do
 
 echo "Running thisexperiment=\$thisexperiment"
@@ -947,10 +1030,12 @@ cat > sweep_${thiscompiler}_${thisMPI}_email.sh << EOF
 # Read in test parameters
 #
 # script defaults
+# SPECIFY NODE AND RANK INFO HERE
 NodeCount=1
 RankCount=2
 CompilerType="gnu"
 EmailAddress="jegkas@gmail.com"
+# END SPECIFY NODE AND RANK INFO HERE
 
 testCompiler="${thiscompiler}"
 
@@ -1029,7 +1114,8 @@ echo " Completed tests: " \$testval>> \$EMAILMESSAGE
 #
 
 expectedTests=0
-for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf fpe
+#for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf fpe
+for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf 
 do
 
   let "expectedTests+=1"
