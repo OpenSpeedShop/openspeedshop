@@ -346,10 +346,6 @@ void OpenSpeedShop::Framework::Dyninst::error(BPatchErrorLevel severity,
 void OpenSpeedShop::Framework::Dyninst::exec(BPatch_thread* thread)
 {
 
-    if (is_in_mpi_startup) {
-	return;
-    }
-
     // Check preconditions
     Assert(thread != NULL);
 
@@ -374,11 +370,13 @@ void OpenSpeedShop::Framework::Dyninst::exec(BPatch_thread* thread)
     // Get the names for this process
     ThreadNameGroup threads = ThreadTable::TheTable.getNames(process);
 
-    // Send the frontend all the symbol information for these threads
-    Dyninst::sendSymbolsForThread(threads);
+    if (!is_in_mpi_startup) {
+      // Send the frontend all the symbol information for these threads
+      Dyninst::sendSymbolsForThread(threads);
 
-    // Copy instrumentation to the thread
-    Dyninst::copyInstrumentation(threads, threads);
+      // Copy instrumentation to the thread
+      Dyninst::copyInstrumentation(threads, threads);
+    }
 }
 
 
