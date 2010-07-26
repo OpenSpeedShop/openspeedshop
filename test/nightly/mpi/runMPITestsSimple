@@ -33,7 +33,7 @@ module_openmpi="openmpi-1.4.2"
 module_openss_openmpi="openss-openmpi-1.4.2"
 
 module_mpich2="mpich2-1.2.1p1"
-module_mpich2_openmpi="openss-mpich2-1.2.1p1"
+module_openss_mpich2="openss-mpich2-1.2.1p1"
 
 for testname in `ls *.tar.gz`
 do
@@ -97,8 +97,8 @@ do
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2.1p1
-           module load openss-mpich2-1.2.1p1
+           module load "$module_mpich2"
+           module load "$module_openss_mpich2"
 #           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=mpich2
@@ -118,8 +118,8 @@ do
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2.1p1
-           module load openss-mpich2-1.2.1p1
+           module load "$module_mpich2"
+           module load "$module_openss_mpich2"
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "startup mpd command path directory is:" \$mpdcommand
@@ -137,8 +137,8 @@ do
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2.1p1
-           module load openss-mpich2-1.2.1p1
+           module load "$module_mpich2"
+           module load "$module_openss_mpich2"
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "startup mpd command path directory is:" \$mpdcommand
@@ -156,8 +156,8 @@ do
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2.1p1
-           module load openss-mpich2-1.2.1p1
+           module load "$module_mpich2"
+           module load "$module_openss_mpich2"
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "startup mpd command path directory is:" \$mpdcommand
@@ -369,8 +369,8 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2.1p1
-           module load openss-mpich2-1.2.1p1
+           module load "$module_mpich2"
+           module load "$module_openss_mpich2"
 #           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=mpich2
@@ -391,8 +391,8 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2.1p1
-           module load openss-mpich2-1.2.1p1
+           module load "$module_mpich2"
+           module load "$module_openss_mpich2"
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "smg2000 mpd command path directory is:" \$mpdcommand
@@ -411,8 +411,8 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2.1p1
-           module load openss-mpich2-1.2.1p1
+           module load "$module_mpich2"
+           module load "$module_openss_mpich2"
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "smg2000 mpd command path directory is:" \$mpdcommand
@@ -431,8 +431,8 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2.1p1
-           module load openss-mpich2-1.2.1p1
+           module load "$module_mpich2"
+           module load "$module_openss_mpich2"
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "smg2000 mpd command path directory is:" \$mpdcommand
@@ -771,8 +771,8 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2.1p1
-           module load openss-mpich2-1.2.1p1
+           module load "$module_mpich2"
+           module load "$module_openss_mpich2"
 #           export LD_LIBRARY_PATH=/home/jeg/mpich2-1.1/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=mpich2
@@ -793,8 +793,8 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2.1p1
-           module load openss-mpich2-1.2.1p1
+           module load "$module_mpich2"
+           module load "$module_openss_mpich2"
            mpdcommand=`which mpd`
            echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
            \$mpdcommand &
@@ -813,8 +813,8 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2.1p1
-           module load openss-mpich2-1.2.1p1
+           module load "$module_mpich2"
+           module load "$module_openss_mpich2"
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            \$mpdcommand &
@@ -833,8 +833,8 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
          elif  [ "$thisMPI" == "mpich2" ] 
          then
-           module load mpich2-1.2.1p1
-           module load openss-mpich2-1.2.1p1
+           module load "$module_mpich2"
+           module load "$module_openss_mpich2"
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
            echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
