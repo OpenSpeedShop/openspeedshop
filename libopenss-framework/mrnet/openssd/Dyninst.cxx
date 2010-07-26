@@ -345,6 +345,9 @@ void OpenSpeedShop::Framework::Dyninst::error(BPatchErrorLevel severity,
  */
 void OpenSpeedShop::Framework::Dyninst::exec(BPatch_thread* thread)
 {
+    if (is_in_mpi_startup) {
+	return;
+    }
 
     // Check preconditions
     Assert(thread != NULL);
@@ -370,13 +373,11 @@ void OpenSpeedShop::Framework::Dyninst::exec(BPatch_thread* thread)
     // Get the names for this process
     ThreadNameGroup threads = ThreadTable::TheTable.getNames(process);
 
-    if (!is_in_mpi_startup) {
       // Send the frontend all the symbol information for these threads
       Dyninst::sendSymbolsForThread(threads);
 
       // Copy instrumentation to the thread
       Dyninst::copyInstrumentation(threads, threads);
-    }
 }
 
 
@@ -447,6 +448,9 @@ void OpenSpeedShop::Framework::Dyninst::exit(BPatch_thread* thread,
 void OpenSpeedShop::Framework::Dyninst::postFork(BPatch_thread* parent,
 						 BPatch_thread* child)
 {
+    if (is_in_mpi_startup) {
+	return;
+    }
     // Check preconditions
     Assert(parent != NULL);
     Assert(child != NULL);
@@ -1627,4 +1631,33 @@ void OpenSpeedShop::Framework::Dyninst::setMPIStartup(bool mpi_startup_val)
     }
 #endif
    is_in_mpi_startup = mpi_startup_val;
+
+    // Get Dyninst's list of active processes
+    BPatch* bpatch = BPatch::getBPatch();
+    Assert(bpatch != NULL);
+    if (mpi_startup_val) {
+        bpatch->registerDynLibraryCallback(NULL);
+        bpatch->registerPostForkCallback(NULL);
+        bpatch->registerThreadEventCallback(BPatch_threadCreateEvent,NULL);
+        bpatch->registerThreadEventCallback(BPatch_threadDestroyEvent,NULL);
+        bpatch->registerExecCallback(NULL);
+    } else {
+        bpatch->registerDynLibraryCallback(
+            OpenSpeedShop::Framework::Dyninst::dynLibrary
+            );
+        bpatch->registerPostForkCallback(
+            OpenSpeedShop::Framework::Dyninst::postFork
+            );
+        bpatch->registerThreadEventCallback(
+            BPatch_threadCreateEvent,
+            OpenSpeedShop::Framework::Dyninst::threadCreate
+            );
+        bpatch->registerThreadEventCallback(
+            BPatch_threadDestroyEvent,
+            OpenSpeedShop::Framework::Dyninst::threadDestroy
+            );
+        bpatch->registerExecCallback(
+            OpenSpeedShop::Framework::Dyninst::exec
+            );
+    }
 }
