@@ -556,19 +556,19 @@ openss -batch < new_input.script
 
 if [[ "\$thisexperiment" = "pcsamp" || "\$thisexperiment" = "usertime" || "\$thisexperiment" = "hwc" || "\$thisexperiment" = "hwctime" ]]
 then 
-   grep "hypre_CyclicReduction" smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.log | cat > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.status
+   grep "hypre_CyclicReduction" smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.log | cat > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status
 elif [[ "\$thisexperiment" = "io" || "\$thisexperiment" = "iot" ]]
 then
-   grep "libc_open" smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.log | cat > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.status
+   grep "libc_open" smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.log | cat > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status
 elif [[ "\$thisexperiment" = "mpi" || "\$thisexperiment" = "mpit" ]]
 then
-   grep "\$RankCount  *MPI_Finalize" smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.log | cat > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.status
+   grep "\$RankCount  *MPI_Finalize" smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.log | cat > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status
 elif [ "\$thisexperiment" = "mpiotf" ]
 then
-   ls a.otf > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.status
+   ls a.otf > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status
 elif [ "\$thisexperiment" = "fpe" ]
 then
-   grep "TBD" smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.log | cat > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.status
+   grep "TBD" smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.log | cat > smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status
 fi
 
 echo "-------------------------------------"
@@ -694,9 +694,9 @@ for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf
 do
   let "expectedTests+=1"
 #
-  if [ -a smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.status ]
+  if [ -a smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status ]
   then
-    if [ -s smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}.status ]
+    if [ -s smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status ]
     then
       echo " \${thisexperiment} EXPERIMENT PASSED">> \$EMAILMESSAGE
     else
@@ -991,7 +991,7 @@ then
    grep "\$RankCount  *MPI_Finalize" sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.log | cat > sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status
 elif [ "\$thisexperiment" = "mpiotf" ]
 then
-   ls a.otf > sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}.status
+   ls a.otf > sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status
 elif [ "\$thisexperiment" = "fpe" ]
 then
    grep "TBD" sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.log | cat > sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status
@@ -1120,9 +1120,9 @@ do
 
   let "expectedTests+=1"
 
-if [ -a sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}.status ]
+if [ -a sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status ]
 then
-  if [ -s sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}.status ]
+  if [ -s sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status ]
   then
     echo " \${thisexperiment} EXPERIMENT PASSED">> \$EMAILMESSAGE
   else
