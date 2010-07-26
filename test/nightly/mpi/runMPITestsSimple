@@ -5,7 +5,7 @@
 #  Look for the string SETUP for 3 sections where you may want to change
 #  the location of openss and the mpi implementation you are using
 #
-if [[ "$1" == "help" || "$1" = "--help" ]]
+if [[ "$1" = "help" || "$1" = "--help" ]]
 then
   echo ""
   echo "Usage: This script automatically compiles smg2000 and sweep3d"
@@ -25,33 +25,39 @@ fi
 #
 debug_flag=1
 
-##set -x
+set -x
 basedir=`pwd`
 
-# SPECIFIY MODULE INFO HERE
+# SPECIFY MODULE INFO HERE
 module_openmpi="openmpi-1.4.2"
 module_openss_openmpi="openss-openmpi-1.4.2"
 
 module_mpich2="mpich2-1.2.1p1"
 module_openss_mpich2="openss-mpich2-1.2.1p1"
 
+module_mvapich="mvapich-1.1"
+module_openss_mvapich="openss-mvapich-1.1"
+
+module_mvapich2="mvapich2-1.1"
+module_openss_mvapich2="openss-mvapich2-1.1"
+
 for testname in `ls *.tar.gz`
 do
-   if [ $debug_flag == 1 ]
+   if [ $debug_flag -eq 1 ]
    then
       echo "1st loop, testname=" $testname
    fi
 
    NEWNAME=$(echo "$testname" | sed -e 's/.tar.gz//')
 
-   if [ $debug_flag == 1 ]
+   if [ $debug_flag -eq 1 ]
    then
      echo "1st loop, NEWNAME=" $NEWNAME
    fi
 
    cd $basedir
 
-   if [ $debug_flag == 1 ]
+   if [ $debug_flag -eq 1 ]
    then
      echo "1st loop, basedir=" $basedir
    fi
@@ -72,6 +78,10 @@ do
        . /usr/share/Modules/init/sh
      elif [ -f /usr/share/modules/init/sh ]; then
        . /usr/share/modules/init/sh
+     elif [ -f /usr/local/Modules/3.2.6/init/bash ]; then
+       . /usr/local/Modules/3.2.6/init/bash
+     elif [ -f /usr/local/Modules/3.2.6/init/bash ]; then
+       . /usr/local/Modules/3.2.6/init/bash
      else
        echo "What is the path to the module init?" 
      fi
@@ -86,16 +96,16 @@ do
 #     export LD_LIBRARY_PATH=/home/jeg/oss/lib
      module purge
 
-     if [ "$thiscompiler" == "gnu" ] 
+     if [ "$thiscompiler" = "gnu" ] 
      then
-         if [ "$thisMPI" == "openmpi" ]
+         if [ "$thisMPI" = "openmpi" ]
          then
            module load "$module_openss_openmpi"
            module load "$module_openmpi"
 #           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=openmpi
-         elif  [ "$thisMPI" == "mpich2" ] 
+         elif  [ "$thisMPI" = "mpich2" ] 
          then
            module load "$module_mpich2"
            module load "$module_openss_mpich2"
@@ -103,74 +113,102 @@ do
 #           export PATH=/home/jeg/mpich2-1.1/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
-           echo "startup mpd command path directory is:" \$mpdcommand
-         elif  [ "$thisMPI" == "mvapich" ] 
+           echo "startup mpd command path directory is:" $mpdcommand
+         elif  [ "$thisMPI" = "mvapich" ] 
          then
-           module load mvapich-1.1
+           module load "$module_mvapich"
+           module load "$module_openss_mvapich"
            export OPENSS_MPI_IMPLEMENTATION=mvapich
+         elif  [ "$thisMPI" = "mvapich2" ] 
+         then
+           module load "$module_mvapich2"
+           module load "$module_openss_mvapich2"
+           export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-     elif  [ "$thiscompiler" == "pgi" ] 
+         fi
+     elif  [ "$thiscompiler" = "pgi" ] 
      then
-         if [ "$thisMPI" == "openmpi" ]
+         if [ "$thisMPI" = "openmpi" ]
          then
            module load "$module_openss_openmpi"
            module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
-         elif  [ "$thisMPI" == "mpich2" ] 
+         elif  [ "$thisMPI" = "mpich2" ] 
          then
            module load "$module_mpich2"
            module load "$module_openss_mpich2"
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
-           echo "startup mpd command path directory is:" \$mpdcommand
-         elif  [ "$thisMPI" == "mvapich" ] 
+           echo "startup mpd command path directory is:" $mpdcommand
+         elif  [ "$thisMPI" = "mvapich" ] 
          then
-           module load mvapich-1.1
+           module load "$module_mvapich"
+           module load "$module_openss_mvapich"
            export OPENSS_MPI_IMPLEMENTATION=mvapich
+         elif  [ "$thisMPI" = "mvapich2" ] 
+         then
+           module load "$module_mvapich2"
+           module load "$module_openss_mvapich2"
+           export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-     elif  [ "$thiscompiler" == "intel" ] 
+         fi
+     elif  [ "$thiscompiler" = "intel" ] 
      then
-         if [ "$thisMPI" == "openmpi" ]
+         if [ "$thisMPI" = "openmpi" ]
          then
            module load "$module_openss_openmpi"
            module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
-         elif  [ "$thisMPI" == "mpich2" ] 
+         elif  [ "$thisMPI" = "mpich2" ] 
          then
            module load "$module_mpich2"
            module load "$module_openss_mpich2"
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
-           echo "startup mpd command path directory is:" \$mpdcommand
-         elif  [ "$thisMPI" == "mvapich" ] 
+           echo "startup mpd command path directory is:" $mpdcommand
+         elif  [ "$thisMPI" = "mvapich" ] 
          then
-           module load mvapich-1.1
+           module load "$module_mvapich"
+           module load "$module_openss_mvapich"
            export OPENSS_MPI_IMPLEMENTATION=mvapich
+         elif  [ "$thisMPI" = "mvapich2" ] 
+         then
+           module load "$module_mvapich2"
+           module load "$module_openss_mvapich2"
+           export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-     elif  [ "$thiscompiler" == "pathscale" ] 
+         fi
+     elif  [ "$thiscompiler" = "pathscale" ] 
      then
-         if [ "$thisMPI" == "openmpi" ]
+         if [ "$thisMPI" = "openmpi" ]
          then
            module load "$module_openss_openmpi"
            module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
-         elif  [ "$thisMPI" == "mpich2" ] 
+         elif  [ "$thisMPI" = "mpich2" ] 
          then
            module load "$module_mpich2"
            module load "$module_openss_mpich2"
            export OPENSS_MPI_IMPLEMENTATION=mpich2
            mpdcommand=`which mpd`
-           echo "startup mpd command path directory is:" \$mpdcommand
-         elif  [ "$thisMPI" == "mvapich" ] 
+           echo "startup mpd command path directory is:" $mpdcommand
+         elif  [ "$thisMPI" = "mvapich" ] 
          then
-           module load mvapich-1.1
+           module load "$module_mvapich"
+           module load "$module_openss_mvapich"
            export OPENSS_MPI_IMPLEMENTATION=mvapich
+         elif  [ "$thisMPI" = "mvapich2" ] 
+         then
+           module load "$module_mvapich2"
+           module load "$module_openss_mvapich2"
+           export OPENSS_MPI_IMPLEMENTATION=mvapich2
+         fi
          fi
      fi
 
      # SETUP end
 
-if [ $debug_flag == 1 ]
+if [ $debug_flag -eq 1 ]
 then
   echo "testsuffix=" $testsuffix
   echo "testCC=" $testCC
@@ -179,12 +217,12 @@ then
 fi
 
 mpicommand=`which mpirun`
-if [ $debug_flag == 1 ]
+if [ $debug_flag -eq 1 ]
 then
   echo "mpicommand=" $mpicommand
 fi
 
-if [ $mpicommand == 0 ]
+if [ $mpicommand -eq 0 ]
 then
   echo "WARNING: Did not find a mpirun command: Are we running this script on the correct system?"
   exit
@@ -200,7 +238,7 @@ testexe=$NEWNAME
 currentdir=`pwd`
 testpathbase=$currentdir
 
-if [ $debug_flag == 1 ]
+if [ $debug_flag -eq 1 ]
 then
   echo "currentdir=" $currentdir
 fi
@@ -212,14 +250,14 @@ gzip $testexe.tar
 #
 # only keep the previous copy, if one already exists delete it
 #
-if [ -a prev_${testexe}_${thiscompiler}_${thisMPI} ]
+if [ -e prev_${testexe}_${thiscompiler}_${thisMPI} ]
 then
    rm -rf prev_${testexe}_${thiscompiler}_${thisMPI}
 fi
 #
 # keep the previous run as a previous copy
 #
-if [ -a ${testexe}_${thiscompiler}_${thisMPI} ]
+if [ -e ${testexe}_${thiscompiler}_${thisMPI} ]
 then
    mv -f ${testexe}_${thiscompiler}_${thisMPI} prev_${testexe}_${thiscompiler}_${thisMPI}
 fi
@@ -230,11 +268,11 @@ cd ${testexe}_${thiscompiler}_${thisMPI}
 thismpicc=`which mpicc`
 echo "which mpicc=" $thismpicc
 
-if [ "$testexe" == "smg2000" ]
+if [ "$testexe" = "smg2000" ]
 then
 #  mv -f newMakefile.include Makefile.include
   make
-elif  [ "$testexe" == "sweep3d" ]
+elif  [ "$testexe" = "sweep3d" ]
 then
   if [ -z "$MPIHOME" ];
   then
@@ -245,13 +283,13 @@ then
   fi
 fi
 
-if [ "$testexe" == "smg2000" ]
+if [ "$testexe" = "smg2000" ]
 then
    testpath=$testpathbase/${testexe}_${thiscompiler}_${thisMPI}/test
    testexepath=$testpath
    testexeargs='-n 35 35 35'
    testprogram=$testexepath/$testexe
-elif [ "$testexe" == "sweep3d" ]
+elif [ "$testexe" = "sweep3d" ]
 then
    testpath=$testpathbase/${testexe}_${thiscompiler}_${thisMPI}
    testexepath=$testpath
@@ -299,7 +337,7 @@ echo "Using the raw data directory storage environment variable: OPENSS_RAWDATA_
 # Compiler setting: all, pgi, intel, gnu, pathscale  (currently ignored)
 # Email address where the test reports are sent
 #
-if [ -a default_test_config ]
+if [ -e default_test_config ]
 then
   echo "NOTE: Using default_test_config file which already exists"
 else
@@ -321,7 +359,7 @@ expview
 EOF
 
 
-if [ "$testexe" == "smg2000" ]
+if [ "$testexe" = "smg2000" ]
 then
 
 echo "NOTE: Using thiscompiler=" $thiscompiler
@@ -329,12 +367,18 @@ echo "NOTE: Using thiscompiler=" $thiscompiler
 cat > smg2000_${thiscompiler}_${thisMPI}_script.sh << EOF
 #!/bin/bash
 
-# SPECIFIY MODULE INFO HERE
+# SPECIFY MODULE INFO HERE
 module_openmpi="openmpi-1.4.2"
 module_openss_openmpi="openss-openmpi-1.4.2"
 
 module_mpich2="mpich2-1.2.1p1"
 module_openss_mpich2="openss-mpich2-1.2.1p1"
+
+module_mvapich="mvapich-1.1"
+module_openss_mvapich="openss-mvapich-1.1"
+
+module_mvapich2="mvapich2-1.1"
+module_openss_mvapich2="openss-mvapich2-1.1"
 # END SPECIFY MODULE INFO HERE
 
      # SETUP start
@@ -343,6 +387,8 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
        . /usr/share/Modules/init/sh
      elif [ -f /usr/share/modules/init/sh ]; then
        . /usr/share/modules/init/sh
+     elif [ -f /usr/local/Modules/3.2.6/init/bash ]; then
+       . /usr/local/Modules/3.2.6/init/bash
      else
        echo "What is the path to the module init?" 
      fi
@@ -358,16 +404,16 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
      module load "$module_openss_openmpi"
      module load "$module_openmpi"
 
-     if [ "$thiscompiler" == "gnu" ] 
+     if [ "$thiscompiler" = "gnu" ] 
      then
-         if [ "$thisMPI" == "openmpi" ]
+         if [ "$thisMPI" = "openmpi" ]
          then
            module load "$module_openss_openmpi"
            module load "$module_openmpi"
 #           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=openmpi
-         elif  [ "$thisMPI" == "mpich2" ] 
+         elif  [ "$thisMPI" = "mpich2" ] 
          then
            module load "$module_mpich2"
            module load "$module_openss_mpich2"
@@ -377,19 +423,25 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            mpdcommand=`which mpd`
            echo "smg2000 mpd command path directory is:" \$mpdcommand
            \$mpdcommand &
-         elif  [ "$thisMPI" == "mvapich" ] 
+         elif  [ "$thisMPI" = "mvapich" ] 
          then
-           module load mvapich-1.1
+           module load "$module_mvapich"
+           module load "$module_openss_mvapich"
            export OPENSS_MPI_IMPLEMENTATION=mvapich
+         elif  [ "$thisMPI" = "mvapich2" ] 
+         then
+           module load "$module_mvapich2"
+           module load "$module_openss_mvapich2"
+           export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-     elif  [ "$thiscompiler" == "pgi" ] 
+     elif  [ "$thiscompiler" = "pgi" ] 
      then
-         if [ "$thisMPI" == "openmpi" ]
+         if [ "$thisMPI" = "openmpi" ]
          then
            module load "$module_openss_openmpi"
            module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
-         elif  [ "$thisMPI" == "mpich2" ] 
+         elif  [ "$thisMPI" = "mpich2" ] 
          then
            module load "$module_mpich2"
            module load "$module_openss_mpich2"
@@ -397,19 +449,26 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            mpdcommand=`which mpd`
            echo "smg2000 mpd command path directory is:" \$mpdcommand
            \$mpdcommand &
-         elif  [ "$thisMPI" == "mvapich" ] 
+         elif  [ "$thisMPI" = "mvapich" ] 
          then
-           module load mvapich-1.1
+           module load "$module_mvapich"
+           module load "$module_openss_mvapich"
            export OPENSS_MPI_IMPLEMENTATION=mvapich
+         elif  [ "$thisMPI" = "mvapich2" ] 
+         then
+           module load "$module_mvapich2"
+           module load "$module_openss_mvapich2"
+           export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-     elif  [ "$thiscompiler" == "intel" ] 
+         fi
+     elif  [ "$thiscompiler" = "intel" ] 
      then
-         if [ "$thisMPI" == "openmpi" ]
+         if [ "$thisMPI" = "openmpi" ]
          then
            module load "$module_openss_openmpi"
            module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
-         elif  [ "$thisMPI" == "mpich2" ] 
+         elif  [ "$thisMPI" = "mpich2" ] 
          then
            module load "$module_mpich2"
            module load "$module_openss_mpich2"
@@ -417,19 +476,26 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            mpdcommand=`which mpd`
            echo "smg2000 mpd command path directory is:" \$mpdcommand
            \$mpdcommand &
-         elif  [ "$thisMPI" == "mvapich" ] 
+         elif  [ "$thisMPI" = "mvapich" ] 
          then
-           module load mvapich-1.1
+           module load "$module_mvapich"
+           module load "$module_openss_mvapich"
            export OPENSS_MPI_IMPLEMENTATION=mvapich
+         elif  [ "$thisMPI" = "mvapich2" ] 
+         then
+           module load "$module_mvapich2"
+           module load "$module_openss_mvapich2"
+           export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-     elif  [ "$thiscompiler" == "pathscale" ] 
+         fi
+     elif  [ "$thiscompiler" = "pathscale" ] 
      then
-         if [ "$thisMPI" == "openmpi" ]
+         if [ "$thisMPI" = "openmpi" ]
          then
            module load "$module_openss_openmpi"
            module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
-         elif  [ "$thisMPI" == "mpich2" ] 
+         elif  [ "$thisMPI" = "mpich2" ] 
          then
            module load "$module_mpich2"
            module load "$module_openss_mpich2"
@@ -437,10 +503,17 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            mpdcommand=`which mpd`
            echo "smg2000 mpd command path directory is:" \$mpdcommand
            \$mpdcommand &
-         elif  [ "$thisMPI" == "mvapich" ] 
+         elif  [ "$thisMPI" = "mvapich" ] 
          then
-           module load mvapich-1.1
+           module load "$module_mvapich"
+           module load "$module_openss_mvapich"
            export OPENSS_MPI_IMPLEMENTATION=mvapich
+         elif  [ "$thisMPI" = "mvapich2" ] 
+         then
+           module load "$module_mvapich2"
+           module load "$module_openss_mvapich2"
+           export OPENSS_MPI_IMPLEMENTATION=mvapich2
+         fi
          fi
      fi
 
@@ -490,7 +563,7 @@ EmailAddress="jegkas@gmail.com"
 # END SPECIFY NODE AND RANK INFO HERE
 
 
-#if [ -a default_test_config ] 
+#if [ -e default_test_config ] 
 #then
 #  echo "NOTE: Reading the existing default_test_config file"
 #  BAKIFS=\$IFS
@@ -523,7 +596,7 @@ EmailAddress="jegkas@gmail.com"
 #fi
 
 #
-if [ $debug_flag == 1 ]
+if [ $debug_flag -eq 1 ]
 then
   echo "NodeCount: \$NodeCount"
   echo "RankCount: \$RankCount"
@@ -597,12 +670,18 @@ bash ${REQ_SCRIPT}
 cat > smg2000_${thiscompiler}_${thisMPI}_email.sh << EOF
 #! /bin/bash
 
-# SPECIFIY MODULE INFO HERE
+# SPECIFY MODULE INFO HERE
 module_openmpi="openmpi-1.4.2"
 module_openss_openmpi="openss-openmpi-1.4.2"
 
 module_mpich2="mpich2-1.2.1p1"
 module_openss_mpich2="openss-mpich2-1.2.1p1"
+
+module_mvapich="mvapich-1.1"
+module_openss_mvapich="openss-mvapich-1.1"
+
+module_mvapich2="mvapich2-1.1"
+module_openss_mvapich2="openss-mvapich2-1.1"
 # END SPECIFY MODULE INFO HERE
 
 # END SPECIFY MODULE INFO HERE
@@ -620,7 +699,7 @@ EmailAddress="jegkas@gmail.com"
 
 testCompiler="${thiscompiler}"
 
-#if [ -a default_test_config ] 
+#if [ -e default_test_config ] 
 #then
 #  echo "Reading the existing default_test_config file"
 #  BAKIFS=\$IFS
@@ -652,7 +731,7 @@ testCompiler="${thiscompiler}"
 #fi
 
 #
-if [ $debug_flag == 1 ]
+if [ $debug_flag -eq 1 ]
 then
   echo "NodeCount: \$NodeCount"
   echo "RankCount: \$RankCount"
@@ -694,7 +773,7 @@ for thisexperiment in pcsamp usertime hwc hwctime io iot mpi mpit mpiotf
 do
   let "expectedTests+=1"
 #
-  if [ -a smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status ]
+  if [ -e smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status ]
   then
     if [ -s smg2000_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status ]
     then
@@ -724,18 +803,24 @@ EMAIL_REQ_SCRIPT="$RUN_DIR/smg2000_${thiscompiler}_${thisMPI}_email.sh"
 bash ${EMAIL_REQ_SCRIPT}
 
 
-elif [ "$testexe" == "sweep3d" ] 
+elif [ "$testexe" = "sweep3d" ] 
 then
 
 cat > sweep3d_${thiscompiler}_${thisMPI}_script.sh << EOF
 #!/bin/bash
 
-# SPECIFIY MODULE INFO HERE
+# SPECIFY MODULE INFO HERE
 module_openmpi="openmpi-1.4.2"
 module_openss_openmpi="openss-openmpi-1.4.2"
 
 module_mpich2="mpich2-1.2.1p1"
 module_openss_mpich2="openss-mpich2-1.2.1p1"
+
+module_mvapich="mvapich-1.1"
+module_openss_mvapich="openss-mvapich-1.1"
+
+module_mvapich2="mvapich2-1.1"
+module_openss_mvapich2="openss-mvapich2-1.1"
 # END SPECIFY MODULE INFO HERE
 
      # SETUP start
@@ -745,6 +830,8 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
        . /usr/share/Modules/init/sh
      elif [ -f /usr/share/modules/init/sh ]; then
        . /usr/share/modules/init/sh
+     elif [ -f /usr/local/Modules/3.2.6/init/bash ]; then
+       . /usr/local/Modules/3.2.6/init/bash
      else
        echo "What is the path to the module init?" 
      fi
@@ -760,16 +847,16 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
 #     export PATH=/home/jeg/oss/bin:$PATH
 #     export LD_LIBRARY_PATH=/home/jeg/oss/lib:$LD_LIBRARY_PATH
 
-     if [ "$thiscompiler" == "gnu" ] 
+     if [ "$thiscompiler" = "gnu" ] 
      then
-         if [ "$thisMPI" == "openmpi" ]
+         if [ "$thisMPI" = "openmpi" ]
          then
            module load "$module_openss_openmpi"
            module load "$module_openmpi"
 #           export LD_LIBRARY_PATH=/home/jeg/openmpi-1.2.8/lib:$LD_LIBRARY_PATH
 #           export PATH=/home/jeg/openmpi-1.2.8/bin:$PATH
            export OPENSS_MPI_IMPLEMENTATION=openmpi
-         elif  [ "$thisMPI" == "mpich2" ] 
+         elif  [ "$thisMPI" = "mpich2" ] 
          then
            module load "$module_mpich2"
            module load "$module_openss_mpich2"
@@ -779,19 +866,26 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            mpdcommand=`which mpd`
            echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
            \$mpdcommand &
-         elif  [ "$thisMPI" == "mvapich" ] 
+         elif  [ "$thisMPI" = "mvapich" ] 
          then
-           module load mvapich-1.1
+           module load "$module_mvapich"
+           module load "$module_openss_mvapich"
            export OPENSS_MPI_IMPLEMENTATION=mvapich
+         elif  [ "$thisMPI" = "mvapich2" ] 
+         then
+           module load "$module_mvapich2"
+           module load "$module_openss_mvapich2"
+           export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-     elif  [ "$thiscompiler" == "pgi" ] 
+         fi
+     elif  [ "$thiscompiler" = "pgi" ] 
      then
-         if [ "$thisMPI" == "openmpi" ]
+         if [ "$thisMPI" = "openmpi" ]
          then
            module load "$module_openss_openmpi"
            module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
-         elif  [ "$thisMPI" == "mpich2" ] 
+         elif  [ "$thisMPI" = "mpich2" ] 
          then
            module load "$module_mpich2"
            module load "$module_openss_mpich2"
@@ -799,19 +893,26 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
            \$mpdcommand &
            export OPENSS_MPI_IMPLEMENTATION=mpich2
-         elif  [ "$thisMPI" == "mvapich" ] 
+         elif  [ "$thisMPI" = "mvapich" ] 
          then
-           module load mvapich-1.1
+           module load "$module_mvapich"
+           module load "$module_openss_mvapich"
            export OPENSS_MPI_IMPLEMENTATION=mvapich
+         elif  [ "$thisMPI" = "mvapich2" ] 
+         then
+           module load "$module_mvapich2"
+           module load "$module_openss_mvapich2"
+           export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-     elif  [ "$thiscompiler" == "intel" ] 
+         fi
+     elif  [ "$thiscompiler" = "intel" ] 
      then
-         if [ "$thisMPI" == "openmpi" ]
+         if [ "$thisMPI" = "openmpi" ]
          then
            module load "$module_openss_openmpi"
            module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
-         elif  [ "$thisMPI" == "mpich2" ] 
+         elif  [ "$thisMPI" = "mpich2" ] 
          then
            module load "$module_mpich2"
            module load "$module_openss_mpich2"
@@ -819,19 +920,26 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            mpdcommand=`which mpd`
            \$mpdcommand &
            echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
-         elif  [ "$thisMPI" == "mvapich" ] 
+         elif  [ "$thisMPI" = "mvapich" ] 
          then
-           module load mvapich-1.1
+           module load "$module_mvapich"
+           module load "$module_openss_mvapich"
            export OPENSS_MPI_IMPLEMENTATION=mvapich
+         elif  [ "$thisMPI" = "mvapich2" ] 
+         then
+           module load "$module_mvapich2"
+           module load "$module_openss_mvapich2"
+           export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-     elif  [ "$thiscompiler" == "pathscale" ] 
+         fi
+     elif  [ "$thiscompiler" = "pathscale" ] 
      then
-         if [ "$thisMPI" == "openmpi" ]
+         if [ "$thisMPI" = "openmpi" ]
          then
            module load "$module_openss_openmpi"
            module load "$module_openmpi"
            export OPENSS_MPI_IMPLEMENTATION=openmpi
-         elif  [ "$thisMPI" == "mpich2" ] 
+         elif  [ "$thisMPI" = "mpich2" ] 
          then
            module load "$module_mpich2"
            module load "$module_openss_mpich2"
@@ -839,10 +947,17 @@ module_openss_mpich2="openss-mpich2-1.2.1p1"
            mpdcommand=`which mpd`
            echo "sweep3d.mpi test, mpd command path directory is:" \$mpdcommand
            \$mpdcommand &
-         elif  [ "$thisMPI" == "mvapich" ] 
+         elif  [ "$thisMPI" = "mvapich" ] 
          then
-           module load mvapich-1.1
+           module load "$module_mvapich"
+           module load "$module_openss_mvapich"
            export OPENSS_MPI_IMPLEMENTATION=mvapich
+         elif  [ "$thisMPI" = "mvapich2" ] 
+         then
+           module load "$module_mvapich2"
+           module load "$module_openss_mvapich2"
+           export OPENSS_MPI_IMPLEMENTATION=mvapich2
+         fi
          fi
      fi
 
@@ -885,7 +1000,7 @@ EmailAddress="jegkas@gmail.com"
 # Read in test parameters
 #
 
-#if [ -a default_test_config ] 
+#if [ -e default_test_config ] 
 #then
 #  echo "Reading the existing default_test_config file"
 #  BAKIFS=\$IFS
@@ -917,7 +1032,7 @@ EmailAddress="jegkas@gmail.com"
 #fi
 #
 ##
-if [ $debug_flag == 1 ]
+if [ $debug_flag -eq 1 ]
 then
   echo "NodeCount: \$NodeCount"
   echo "RankCount: \$RankCount"
@@ -932,31 +1047,31 @@ fi
 # Check the rank count and use an appropriate input file.  The supported sweep3d.mpi input files
 # are 2, 8, 16, 32, 64, 128, or 256 ranks.   We move the input.8 or input.16 etc into the default
 # input file named "input"
-if [ \$RankCount == 2 ] 
+if [ \$RankCount -eq 2 ] 
 then
   echo "Moving the input.2 specific input file to the default input file"
   cp -f input.2 input
-elif [ \$RankCount == 8 ] 
+elif [ \$RankCount -eq 8 ] 
 then
   echo "Moving the input.8 specific input file to the default input file"
   cp -f input.8 input
-elif  [ \$RankCount == 16 ]
+elif  [ \$RankCount -eq 16 ]
 then
   echo "Moving the input.16 specific input file to the default input file"
   cp -f input.16 input
-elif [ \$RankCount == 32 ]
+elif [ \$RankCount -eq 32 ]
 then
   echo "Moving the input.32 specific input file to the default input file"
   cp -f input.32 input
-elif [ \$RankCount == 64 ]
+elif [ \$RankCount -eq 64 ]
 then
   echo "Moving the input.64 specific input file to the default input file"
   cp -f input.64 input
-elif [ \$RankCount == 128 ]
+elif [ \$RankCount -eq 128 ]
 then
   echo "Moving the input.128 specific input file to the default input file"
   cp -f input.128 input
-elif [ \$RankCount == 256 ]
+elif [ \$RankCount -eq 256 ]
 then
   echo "Moving the input.256 specific input file to the default input file"
   cp -f input.256 input
@@ -1039,7 +1154,7 @@ EmailAddress="jegkas@gmail.com"
 
 testCompiler="${thiscompiler}"
 
-#if [ -a default_test_config ] 
+#if [ -e default_test_config ] 
 #then
 #  echo "Reading the existing default_test_config file"
 #
@@ -1073,7 +1188,7 @@ testCompiler="${thiscompiler}"
 #fi
 
 #
-if [ $debug_flag == 1 ]
+if [ $debug_flag -eq 1 ]
 then
   echo "NodeCount: \$NodeCount"
   echo "RankCount: \$RankCount"
@@ -1120,7 +1235,7 @@ do
 
   let "expectedTests+=1"
 
-if [ -a sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status ]
+if [ -e sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status ]
 then
   if [ -s sweep3d_${thiscompiler}_${thisMPI}_\${thisexperiment}_results.status ]
   then
@@ -1163,14 +1278,14 @@ echo "testpathbase=$testpathbase"
 ##
 ## only keep the previous copy, if one already exists delete it
 ##
-#if [ -a prev_${testexe}_${thiscompiler} ]
+#if [ -e prev_${testexe}_${thiscompiler} ]
 #then
 #   rm -rf prev_${testexe}_${thiscompiler}
 #fi
 ##
 ## keep the previous run as a previous copy
 ##
-#if [ -a ${testexe}_${thiscompiler} ]
+#if [ -e ${testexe}_${thiscompiler} ]
 #then
 ##   mv -f ${testexe}_${thiscompiler} prev_${testexe}_${thiscompiler}
 #fi
