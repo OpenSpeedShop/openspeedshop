@@ -125,7 +125,6 @@ do
            module load "$module_openss_mvapich2"
            export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-         fi
      elif  [ "$thiscompiler" = "pgi" ] 
      then
          if [ "$thisMPI" = "openmpi" ]
@@ -150,7 +149,6 @@ do
            module load "$module_mvapich2"
            module load "$module_openss_mvapich2"
            export OPENSS_MPI_IMPLEMENTATION=mvapich2
-         fi
          fi
      elif  [ "$thiscompiler" = "intel" ] 
      then
@@ -177,7 +175,6 @@ do
            module load "$module_openss_mvapich2"
            export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-         fi
      elif  [ "$thiscompiler" = "pathscale" ] 
      then
          if [ "$thisMPI" = "openmpi" ]
@@ -202,7 +199,6 @@ do
            module load "$module_mvapich2"
            module load "$module_openss_mvapich2"
            export OPENSS_MPI_IMPLEMENTATION=mvapich2
-         fi
          fi
      fi
 
@@ -460,7 +456,6 @@ module_openss_mvapich2="openss-mvapich2-1.1"
            module load "$module_openss_mvapich2"
            export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-         fi
      elif  [ "$thiscompiler" = "intel" ] 
      then
          if [ "$thisMPI" = "openmpi" ]
@@ -487,7 +482,6 @@ module_openss_mvapich2="openss-mvapich2-1.1"
            module load "$module_openss_mvapich2"
            export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-         fi
      elif  [ "$thiscompiler" = "pathscale" ] 
      then
          if [ "$thisMPI" = "openmpi" ]
@@ -513,7 +507,6 @@ module_openss_mvapich2="openss-mvapich2-1.1"
            module load "$module_mvapich2"
            module load "$module_openss_mvapich2"
            export OPENSS_MPI_IMPLEMENTATION=mvapich2
-         fi
          fi
      fi
 
@@ -877,7 +870,6 @@ module_openss_mvapich2="openss-mvapich2-1.1"
            module load "$module_openss_mvapich2"
            export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-         fi
      elif  [ "$thiscompiler" = "pgi" ] 
      then
          if [ "$thisMPI" = "openmpi" ]
@@ -903,7 +895,6 @@ module_openss_mvapich2="openss-mvapich2-1.1"
            module load "$module_mvapich2"
            module load "$module_openss_mvapich2"
            export OPENSS_MPI_IMPLEMENTATION=mvapich2
-         fi
          fi
      elif  [ "$thiscompiler" = "intel" ] 
      then
@@ -931,7 +922,6 @@ module_openss_mvapich2="openss-mvapich2-1.1"
            module load "$module_openss_mvapich2"
            export OPENSS_MPI_IMPLEMENTATION=mvapich2
          fi
-         fi
      elif  [ "$thiscompiler" = "pathscale" ] 
      then
          if [ "$thisMPI" = "openmpi" ]
@@ -957,7 +947,6 @@ module_openss_mvapich2="openss-mvapich2-1.1"
            module load "$module_mvapich2"
            module load "$module_openss_mvapich2"
            export OPENSS_MPI_IMPLEMENTATION=mvapich2
-         fi
          fi
      fi
 
