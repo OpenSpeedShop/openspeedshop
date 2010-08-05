@@ -66,11 +66,17 @@ if HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += libopenss-runtime-offline.la
 endif
 
+if HAVE_PAPI
+pkglib_LTLIBRARIES += libopenss-runtime-papi.la
+endif
+if HAVE_TARGET_PAPI
+pkglib_LTLIBRARIES += libopenss-runtime-papi.la
+endif
+
 if !BUILD_OFFLINE
 libopenss_runtime_la_CFLAGS = \
 	@LIBUNWIND_CPPFLAGS@ \
-	@BINUTILS_CPPFLAGS@ \
-	@PAPI_CPPFLAGS@
+	@BINUTILS_CPPFLAGS@
 
 libopenss_runtime_la_LDFLAGS = \
 	-static
@@ -84,8 +90,7 @@ if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE \
 	@LIBUNWIND_CPPFLAGS@ \
-	@BINUTILS_CPPFLAGS@ \
-	@PAPI_CPPFLAGS@
+	@BINUTILS_CPPFLAGS@ 
 
 libopenss_runtime_offline_la_LDFLAGS = \
 	-static 
@@ -99,22 +104,44 @@ if HAVE_TARGET_LIBMONITOR
 libopenss_runtime_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE \
 	@TARGET_LIBUNWIND_CPPFLAGS@ \
-	@TARGET_BINUTILS_CPPFLAGS@ \
-	@TARGET_PAPI_CPPFLAGS@
+	@TARGET_BINUTILS_CPPFLAGS@
 
 libopenss_runtime_offline_la_LDFLAGS = \
 	@TARGET_LIBUNWIND_LDFLAGS@ \
 	@TARGET_BINUTILS_LDFLAGS@ \
-	@TARGET_PAPI_LDFLAGS@ \
 	-static
 
 libopenss_runtime_offline_la_LIBADD = \
 	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
 	@TARGET_LIBUNWIND_LIBS@ \
 	@TARGET_BINUTILS_LIBS@ \
-	@TARGET_PAPI_LIBS@ \
 	-lpthread -lrt
 endif
+
+if HAVE_PAPI
+libopenss_runtime_papi_la_CFLAGS = \
+	@PAPI_CPPFLAGS@
+
+libopenss_runtime_papi_la_LDFLAGS = \
+	-static \
+	@PAPI_LDFLAGS@
+
+libopenss_runtime_papi_la_LIBADD = \
+	@PAPI_LIBS@
+endif
+
+if HAVE_TARGET_PAPI
+libopenss_runtime_papi_la_CFLAGS = \
+	@TARGET_PAPI_CPPFLAGS@
+
+libopenss_runtime_papi_la_LDFLAGS = \
+	-static \
+	@TARGET_PAPI_LDFLAGS@
+
+libopenss_runtime_papi_la_LIBADD = \
+	@TARGET_PAPI_LIBS@
+endif
+
 endif
 
 COMMON_SOURCES = \
@@ -137,6 +164,17 @@ INSTRUMENTOR_SOURCES = \
 	OpenSS_SetPCInContext.c \
 	OpenSS_Path_From_Pid.c \
 	RuntimeAPI.h
+
+if HAVE_PAPI
+libopenss_runtime_papi_la_SOURCES = \
+	OpenSS_Overflow.c \
+	PapiAPI.h PapiAPI.c
+endif
+if HAVE_TARGET_PAPI
+libopenss_runtime_papi_la_SOURCES = \
+	OpenSS_Overflow.c \
+	PapiAPI.h PapiAPI.c
+endif
 
 if BUILD_INSTRUMENTOR
 libopenss_runtime_la_SOURCES = $(COMMON_SOURCES) $(INSTRUMENTOR_SOURCES)
@@ -171,29 +209,6 @@ libopenss_runtime_offline_la_SOURCES += \
 	OpenSS_GetStackTraceFromContext.c
 endif	#HAVE_TARGET_LIBMONITOR
 endif	#HAVE_TARGET_LIBUNWIND
-
-if HAVE_PAPI
-libopenss_runtime_la_SOURCES += \
-	OpenSS_Overflow.c \
-	PapiAPI.h PapiAPI.c
-
-if HAVE_LIBMONITOR
-libopenss_runtime_offline_la_SOURCES += \
-	OpenSS_Overflow.c \
-	PapiAPI.h PapiAPI.c
-endif   #HAVE_LIBMONITOR
-endif   #HAVE_PAPI
-
-if HAVE_TARGET_PAPI
-libopenss_runtime_la_SOURCES += \
-	OpenSS_Overflow.c \
-	PapiAPI.h PapiAPI.c
-if HAVE_TARGET_LIBMONITOR
-libopenss_runtime_offline_la_SOURCES += \
-	OpenSS_Overflow.c \
-	PapiAPI.h PapiAPI.c
-endif   #HAVE_TARGET_LIBMONITOR
-endif   #HAVE_TARGET_PAPI
 
 if HAVE_BINUTILS
 libopenss_runtime_la_SOURCES += \

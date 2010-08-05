@@ -134,14 +134,6 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t*,
 				     unsigned*, uint64_t*);
 #endif
 
-#ifdef HAVE_PAPI
-void OpenSS_Create_Eventset(int*);
-void OpenSS_AddEvent(int, int);
-void OpenSS_Overflow(int, int, int, void*);
-void OpenSS_Start(int);
-void OpenSS_Stop(int);
-#endif
-
 #ifdef HAVE_BINUTILS
 int OpenSS_GetInstrLength(uint64_t);
 #endif

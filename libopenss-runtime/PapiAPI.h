@@ -56,6 +56,12 @@ extern void print_hw_info();
 extern void get_papi_exe_info();
 extern void print_papi_events();
 
+void OpenSS_Create_Eventset(int*);
+void OpenSS_AddEvent(int, int);
+void OpenSS_Overflow(int, int, int, void*);
+void OpenSS_Start(int);
+void OpenSS_Stop(int);
+
 #ifdef __cplusplus
 }
 #endif
