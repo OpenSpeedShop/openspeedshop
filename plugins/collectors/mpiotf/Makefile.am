@@ -444,16 +444,6 @@ lib_offline_LDFLAGS_generate = \
         @OTF_LIBZ_LDFLAGS@ \
         -no-undefined
 
-#lib_offline_LIBADD_generate = \
-#        -lopenss-runtime-offline \
-#        $(1) \
-#        @BINUTILS_LIBS@ \
-#        @LIBMONITOR_LIBS@ \
-#        @OTF_LIBSDIR@/libotf.a \
-#	@OTF_LIBZ_LIBS@ \
-#        @LIBUNWIND_LIBS@ \
-#        -lpthread -lrt
-
 lib_offline_lam_LIBADD_generate = \
         -lopenss-runtime-offline \
         -lopenss-runtime-monitor \
@@ -552,16 +542,6 @@ lib_offline_LDFLAGS_generate = \
         @TARGET_OTF_LDFLAGS@ \
         @TARGET_OTF_LIBZ_LDFLAGS@ \
         -no-undefined
-
-#lib_offline_LIBADD_generate = \
-#        -lopenss-runtime-offline \
-#        $(1) \
-#        @BINUTILS_LIBS@ \
-#        @LIBMONITOR_LIBS@ \
-#        @OTF_LIBSDIR@/libotf.a \
-#	@OTF_LIBZ_LIBS@ \
-#        @LIBUNWIND_LIBS@ \
-#        -lpthread -lrt
 
 lib_offline_lam_LIBADD_generate = \
         -lopenss-runtime-offline \
