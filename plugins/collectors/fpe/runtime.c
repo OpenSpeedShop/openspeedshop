@@ -1,7 +1,7 @@
 /*******************************************************************************
 ** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
 ** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-** Copyright (c) 2008 The Krell Institute. All Rights Reserved.
+** Copyright (c) 2008,2010 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -29,6 +29,7 @@
 #endif
 
 #include "RuntimeAPI.h"
+#include "BinutilsAPI.h"
 #include "blobs.h"
 #include <fenv.h>
 

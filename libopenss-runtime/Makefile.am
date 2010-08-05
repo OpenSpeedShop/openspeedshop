@@ -73,10 +73,16 @@ if HAVE_TARGET_PAPI
 pkglib_LTLIBRARIES += libopenss-runtime-papi.la
 endif
 
+if HAVE_BINUTILS
+pkglib_LTLIBRARIES += libopenss-runtime-binutils.la
+endif
+if HAVE_TARGET_BINUTILS
+pkglib_LTLIBRARIES += libopenss-runtime-binutils.la
+endif
+
 if !BUILD_OFFLINE
 libopenss_runtime_la_CFLAGS = \
-	@LIBUNWIND_CPPFLAGS@ \
-	@BINUTILS_CPPFLAGS@
+	@LIBUNWIND_CPPFLAGS@
 
 libopenss_runtime_la_LDFLAGS = \
 	-static
@@ -89,8 +95,7 @@ endif
 if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE \
-	@LIBUNWIND_CPPFLAGS@ \
-	@BINUTILS_CPPFLAGS@ 
+	@LIBUNWIND_CPPFLAGS@
 
 libopenss_runtime_offline_la_LDFLAGS = \
 	-static 
@@ -103,18 +108,15 @@ endif
 if HAVE_TARGET_LIBMONITOR
 libopenss_runtime_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE \
-	@TARGET_LIBUNWIND_CPPFLAGS@ \
-	@TARGET_BINUTILS_CPPFLAGS@
+	@TARGET_LIBUNWIND_CPPFLAGS@
 
 libopenss_runtime_offline_la_LDFLAGS = \
 	@TARGET_LIBUNWIND_LDFLAGS@ \
-	@TARGET_BINUTILS_LDFLAGS@ \
 	-static
 
 libopenss_runtime_offline_la_LIBADD = \
 	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
 	@TARGET_LIBUNWIND_LIBS@ \
-	@TARGET_BINUTILS_LIBS@ \
 	-lpthread -lrt
 endif
 
@@ -140,6 +142,30 @@ libopenss_runtime_papi_la_LDFLAGS = \
 
 libopenss_runtime_papi_la_LIBADD = \
 	@TARGET_PAPI_LIBS@
+endif
+
+if HAVE_BINUTILS
+libopenss_runtime_binutils_la_CFLAGS = \
+	@BINUTILS_CPPFLAGS@
+
+libopenss_runtime_binutils_la_LDFLAGS = \
+	-static \
+	@BINUTILS_LDFLAGS@
+
+libopenss_runtime_binutils_la_LIBADD = \
+	@BINUTILS_LIBS@
+endif
+
+if HAVE_TARGET_BINUTILS
+libopenss_runtime_binutils_la_CFLAGS = \
+	@TARGET_BINUTILS_CPPFLAGS@
+
+libopenss_runtime_binutils_la_LDFLAGS = \
+	-static \
+	@TARGET_BINUTILS_LDFLAGS@
+
+libopenss_runtime_binutils_la_LIBADD = \
+	@TARGET_BINUTILS_LIBS@
 endif
 
 endif
@@ -211,21 +237,15 @@ endif	#HAVE_TARGET_LIBMONITOR
 endif	#HAVE_TARGET_LIBUNWIND
 
 if HAVE_BINUTILS
-libopenss_runtime_la_SOURCES += \
+libopenss_runtime_binutils_la_SOURCES = \
+	BinutilsAPI.h \
 	OpenSS_GetInstrLength.c
-if HAVE_LIBMONITOR
-libopenss_runtime_offline_la_SOURCES += \
-	OpenSS_GetInstrLength.c
-endif  #HAVE_LIBMONITOR
 endif  #HAVE_BINUTILS
 
 if HAVE_TARGET_BINUTILS
-libopenss_runtime_la_SOURCES += \
+libopenss_runtime_binutils_la_SOURCES = \
+	BinutilsAPI.h \
 	OpenSS_GetInstrLength.c
-if HAVE_TARGET_LIBMONITOR
-libopenss_runtime_offline_la_SOURCES += \
-	OpenSS_GetInstrLength.c
-endif #HAVE_TARGET_LIBMONITOR
 endif #HAVE_TARGET_BINUTILS
 
 if USE_EXPLICIT_TLS

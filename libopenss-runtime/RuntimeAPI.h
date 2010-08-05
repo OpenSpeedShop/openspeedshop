@@ -1,6 +1,7 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 ** Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
+** Copyright (c) 2010 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -132,10 +133,6 @@ bool_t OpenSS_Path_From_Pid(char *);
 void OpenSS_GetStackTraceFromContext(const ucontext_t*,
 				     bool_t, unsigned, unsigned,
 				     unsigned*, uint64_t*);
-#endif
-
-#ifdef HAVE_BINUTILS
-int OpenSS_GetInstrLength(uint64_t);
 #endif
 
 #ifdef USE_EXPLICIT_TLS
