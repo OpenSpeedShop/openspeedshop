@@ -36,9 +36,14 @@
 #define min_temp VMulti_free_temp+6
 #define max_temp VMulti_free_temp+7
 #define ssq_temp VMulti_free_temp+8
-#define tmean_temp  VMulti_free_temp+9
-#define tmin_temp  VMulti_free_temp+10
-#define tmax_temp  VMulti_free_temp+11
+
+#define First_ByThread_Temp VMulti_free_temp+9
+#define ByThread_Rank 1          // "1" => headers will say "Rank", otherwise "ThreadID"
+#define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
+                                 // "2" => times reported in seconds,
+                                 // otherwise don't add anything.
+#include "SS_View_bythread_locations.hxx"
+#include "SS_View_bythread_setmetrics.hxx"
 
 // mpi view
 
@@ -86,12 +91,12 @@
 #define set_MPI_values(value_array, sort_extime)                                          \
               if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;     \
               if (num_temps > start_temp) {                                               \
-                int64_t x= (start.getValue()/*-base_time*/);                                             \
-                value_array[start_temp] = new CommandResult_Time (x);                 \
+                int64_t x= (start.getValue()/*-base_time*/);                              \
+                value_array[start_temp] = new CommandResult_Time (x);                     \
               }                                                                           \
               if (num_temps > stop_temp) {                                                \
-                int64_t x= (end.getValue()/*-base_time*/);                                               \
-                value_array[stop_temp] = new CommandResult_Time (x);                  \
+                int64_t x= (end.getValue()/*-base_time*/);                                \
+                value_array[stop_temp] = new CommandResult_Time (x);                      \
               }                                                                           \
               if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp]             \
                             = new CommandResult_Interval (sort_extime ? extime : intime); \
@@ -108,34 +113,6 @@
               if (num_temps > ssq_temp) value_array[ssq_temp]                             \
                             = new CommandResult_Interval (sum_squares);
 
-#define set_ExtraMetric_values(value_array, ExtraValues, index)                                      \
-              if (num_temps > tmean_temp) {                                                          \
-                if (ExtraValues[ViewReduction_mean]->find(index)                                     \
-                                                      != ExtraValues[ViewReduction_mean]->end()) {   \
-                  value_array[tmean_temp]                                                            \
-                       = ExtraValues[ViewReduction_mean]->find(index)->second->Copy();               \
-                } else {                                                                             \
-                  value_array[tmean_temp] = CRPTR ((double)0.0);                                     \
-                }                                                                                    \
-              }                                                                                      \
-              if (num_temps > tmin_temp) {                                                           \
-                if (ExtraValues[ViewReduction_min]->find(index)                                      \
-                                                      != ExtraValues[ViewReduction_min]->end()) {    \
-                  value_array[tmin_temp]                                                             \
-                       = ExtraValues[ViewReduction_min]->find(index)->second->Copy();                \
-                } else {                                                                             \
-                  value_array[tmin_temp] = CRPTR ((double)0.0);                                      \
-                }                                                                                    \
-              }                                                                                      \
-              if (num_temps > tmax_temp) {                                                           \
-                if (ExtraValues[ViewReduction_max]->find(index)                                      \
-                                                      != ExtraValues[ViewReduction_max]->end()) {    \
-                  value_array[tmax_temp]                                                             \
-                       = ExtraValues[ViewReduction_max]->find(index)->second->Copy();                \
-                } else {                                                                             \
-                  value_array[tmax_temp] = CRPTR ((double)0.0);                                      \
-                }                                                                                    \
-              }
 
 static void Determine_Objects (
                CommandObject *cmd,
@@ -252,6 +229,7 @@ static bool define_mpi_columns (
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
   bool generate_nested_accounting = false;
   std::string Default_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
+  std::string ByThread_Header = Default_Header;
 
   if (Generate_Summary) {
     if (Generate_ButterFly) {
@@ -415,53 +393,12 @@ static bool define_mpi_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m stop_time' only supported for '-v Trace' option.");
           }
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
-                   !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
-         // Do a By-Thread average.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
-            HV.push_back(std::string("Average ") + Default_Header + " Across Threads");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMin")) {
-         // Find the By-Thread Min.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
-            HV.push_back(std::string("Min ") + Default_Header + " Across Threads");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
-         // Find the By-Thread Max.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
-            HV.push_back(std::string("Max ") + Default_Header + " Across Threads");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "loadbalance")) {
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-         // Find the By-Thread Min.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
-            HV.push_back(std::string("Min ") + Default_Header + " Across Threads");
-         // Find the By-Thread Max.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
-            HV.push_back(std::string("Max ") + Default_Header + " Across Threads");
-         // Do a By-Thread average.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
-            HV.push_back(std::string("Average ") + Default_Header + " Across Threads");
-          }
-        } else {
-          Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
+        }
+// Recognize and generate pseudo instructions to calculate and display By Thread metrics for
+// ThreadMax, ThreadMaxIndex, ThreadMin, ThreadMinIndex, ThreadAverage and loadbalance.
+#include "SS_View_bythread_recognize.hxx"
+          else {
+          Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option for 'mpi' view, '-m " + M_Name + "'");
         }
       }
       if (last_column == 1) {
@@ -479,15 +416,15 @@ static bool define_mpi_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
     HV.push_back("% of Total");
   } else if (vfc == VFC_Function) {
-   // Default function view - basic useful information.
-
-   // display min time
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, min_temp));
-    HV.push_back(std::string("Minimum ") + Default_Header + "(ms)");
+   // Default function view - basic useful info
 
    // display max time
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, max_temp));
     HV.push_back(std::string("Maximum ") + Default_Header + "(ms)");
+
+   // display min time
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, min_temp));
+    HV.push_back(std::string("Minimum ") + Default_Header + "(ms)");
 
    // average time is calculated from two temps: sum and total counts.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, incnt_temp));
@@ -612,15 +549,13 @@ static std::string VIEW_mpi_long  = "\nA positive integer can be added to the en
                   " \n\t'-m exclusive_times' reports the wall clock time used in the function."
                   " \n\t'-m min' reports the minimum time spent in the function."
                   " \n\t'-m max' reports the maximum time spent in the function."
-                  " \n\t'-m average' reports the average time spent in the function."
+                  " \n\t'-m average' reports the average time spent in each call to the function."
                   " \n\t'-m count' reports the number of times the function was called."
-                  " \n\t'-m percent' reports the percent of mpi time the function represents."
+                  " \n\t'-m percent' reports the percent of total mpi time the function represents."
                   " \n\t'-m stddev' reports the standard deviation of the average mpi time"
                   " that the function represents."
-                  " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
-                  " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
-                  " \n\t'-m ThreadAverage' reports the average cpu time for a process."
-                  " \n\t'-m loadbalance' is the same as '-m ThreadMin, ThreadMax, ThreadAverage'."
+// Get the description of the BY-Thread metrics.
+#include "SS_View_bythread_help.hxx"
                   "\n";
 static std::string VIEW_mpi_example = "\texpView mpi\n"
                                       "\texpView -v CallTrees,FullStack mpi10 -m min,max,count\n";
@@ -690,7 +625,7 @@ class mpi_view : public ViewType {
       Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
       return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report for 'mpi' view.)");
     return false;
   }
 };

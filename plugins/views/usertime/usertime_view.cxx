@@ -31,9 +31,13 @@
 #define excnt_temp  VMulti_free_temp+1
 #define intime_temp VMulti_free_temp+2
 #define incnt_temp  VMulti_free_temp+3
-#define tmean_temp  VMulti_free_temp+4
-#define tmin_temp  VMulti_free_temp+5
-#define tmax_temp  VMulti_free_temp+6
+
+#define First_ByThread_Temp VMulti_free_temp+4
+#define ByThread_use_intervals 2 // "1" => times reported in milliseconds,
+                                 // "2" => times reported in seconds,
+                                 //  otherwise don't add anything.
+#include "SS_View_bythread_locations.hxx"
+#include "SS_View_bythread_setmetrics.hxx"
 
 
 // usertime view
@@ -61,34 +65,6 @@
               if (num_temps > intime_temp) value_array[intime_temp] = CRPTR (in_time);      \
               if (num_temps > incnt_temp) value_array[incnt_temp] = CRPTR (in_cnt);
 
-#define set_ExtraMetric_values(value_array, ExtraValues, index)                                      \
-              if (num_temps > tmean_temp) {                                                          \
-                if (ExtraValues[ViewReduction_mean]->find(index)                                     \
-                                                      != ExtraValues[ViewReduction_mean]->end()) {   \
-                  value_array[tmean_temp]                                                            \
-                       = ExtraValues[ViewReduction_mean]->find(index)->second->Copy();               \
-                } else {                                                                             \
-                  value_array[tmean_temp] = CRPTR ((double)0.0);                                     \
-                }                                                                                    \
-              }                                                                                      \
-              if (num_temps > tmin_temp) {                                                           \
-                if (ExtraValues[ViewReduction_min]->find(index)                                      \
-                                                      != ExtraValues[ViewReduction_min]->end()) {    \
-                  value_array[tmin_temp]                                                             \
-                       = ExtraValues[ViewReduction_min]->find(index)->second->Copy();                \
-                } else {                                                                             \
-                  value_array[tmin_temp] = CRPTR ((double)0.0);                                      \
-                }                                                                                    \
-              }                                                                                      \
-              if (num_temps > tmax_temp) {                                                           \
-                if (ExtraValues[ViewReduction_max]->find(index)                                      \
-                                                      != ExtraValues[ViewReduction_max]->end()) {    \
-                  value_array[tmax_temp]                                                             \
-                       = ExtraValues[ViewReduction_max]->find(index)->second->Copy();                \
-                } else {                                                                             \
-                  value_array[tmax_temp] = CRPTR ((double)0.0);                                      \
-                }                                                                                    \
-              }
 
 #define def_Detail_values def_UserTime_values
 #define set_Detail_values set_UserTime_values
@@ -142,6 +118,7 @@ static std::string allowed_usertime_V_options[] = {
 
 static bool define_usertime_columns (
             CommandObject *cmd,
+            ExperimentObject *exp,
             std::vector<Collector>& CV,
             std::vector<std::string>& MV,
             std::vector<ViewInstruction *>& IV,
@@ -151,6 +128,7 @@ static bool define_usertime_columns (
   int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
   int64_t first_time_temp = 0;
   bool generate_nested_accounting = false;
+  bool ByThread_Rank = exp->Has_Ranks();
 
  // Define combination instructions for predefined temporaries.
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
@@ -165,6 +143,7 @@ static bool define_usertime_columns (
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  std::string ByThread_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
 
   if (Generate_Summary) {
     if (Generate_ButterFly) {
@@ -317,58 +296,11 @@ static bool define_usertime_columns (
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
           HV.push_back("% of Total Inclusive Counts");
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
-                   !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
-         // Do a By-Thread average.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
-            std::string H = Find_Metadata ( CV[1], MV[1] ).getDescription();
-            HV.push_back(std::string("Average ") + H + " Across Threads");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMin")) { 
-         // Find the By-Thread Min.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
-            std::string H = Find_Metadata ( CV[1], MV[1] ).getDescription();
-            HV.push_back(std::string("Min ") + H + " Across Threads");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
-         // Find the By-Thread Max.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
-            std::string H = Find_Metadata ( CV[1], MV[1] ).getDescription();
-            HV.push_back(std::string("Max ") + H + " Across Threads");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "loadbalance")) {
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-         // Find the By-Thread Min.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
-            std::string H1 = Find_Metadata ( CV[1], MV[1] ).getDescription();
-            HV.push_back(std::string("Min ") + H1 + " Across Threads");
-         // Do a By-Thread average.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
-            std::string H2 = Find_Metadata ( CV[1], MV[1] ).getDescription();
-            HV.push_back(std::string("Average ") + H2 + " Across Threads");
-         // Find the By-Thread Max.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
-            std::string H3 = Find_Metadata ( CV[1], MV[1] ).getDescription();
-            HV.push_back(std::string("Max ") + H3 + " Across Threads");
-          }
-        } else {
+        }
+// Recognize and generate pseudo instructions to calculate and display By Thread metrics for
+// ThreadMax, ThreadMaxIndex, ThreadMin, ThreadMinIndex, ThreadAverage and loadbalance.
+#include "SS_View_bythread_recognize.hxx"
+        else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
         }
       }
@@ -434,7 +366,7 @@ static bool usertime_definition (
     CV.push_back (Get_Collector (exp->FW(), "usertime"));  // Define the collector
     MV.push_back ("exclusive_time"); // define the metric needed for calculating total time.
 
-    return define_usertime_columns (cmd, CV, MV, IV, HV, vfc);
+    return define_usertime_columns (cmd, exp, CV, MV, IV, HV, vfc);
 }
 
 static std::string VIEW_usertime_brief = "UserTime Report";
@@ -487,10 +419,8 @@ static std::string VIEW_usertime_long  =
                   " by the unit and all the units it calls."
                   " \n\t'-m percent' reports the percent of total cpu the code unit represents."
                   " \n\t'-m count' reports the number calls into the code unit."
-                  " \n\t'-m ThreadAverage' reports the average cpu time for a process."
-                  " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
-                  " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
-                  " \n\t'-m loadbalance' reports the minimum, average, maximum cpu time for a process."
+// Get the description of the BY-Thread metrics.
+#include "SS_View_bythread_help.hxx"
                   "\n";
 static std::string VIEW_usertime_example = "\texpView usertime\n"
                                            "\texpView -v LinkedObjects usertime\n"
@@ -563,7 +493,7 @@ class usertime_view : public ViewType {
       Mark_Cmd_With_Soft_Error(cmd, "(We could not determine which format to use for the report.)");
       return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report for 'usertime' view.)");
     return false;
   }
 };

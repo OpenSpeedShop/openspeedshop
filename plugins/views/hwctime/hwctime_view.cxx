@@ -31,9 +31,13 @@
 #define excnt_temp VMulti_free_temp+1
 #define inevents_temp VMulti_free_temp+2
 #define incnt_temp VMulti_free_temp+3
-#define texeventmean_temp VMulti_free_temp+4
-#define texeventmin_temp VMulti_free_temp+5
-#define texeventmax_temp VMulti_free_temp+6
+
+#define First_ByThread_Temp VMulti_free_temp+4
+#define ByThread_use_intervals 0 // "1" => times reported in milliseconds,
+                                 // "2" => times reported in seconds,
+                                 //  otherwise don't add anything.
+#include "SS_View_bythread_locations.hxx"
+#include "SS_View_bythread_setmetrics.hxx"
 
 
 // hwctime view
@@ -60,35 +64,6 @@
               if (num_temps > excnt_temp) value_array[excnt_temp] = CRPTR (ex_cnt);               \
               if (num_temps > inevents_temp) value_array[inevents_temp] = CRPTR (in_events);      \
               if (num_temps > incnt_temp) value_array[incnt_temp] = CRPTR (in_cnt);
-
-#define set_ExtraMetric_values(value_array, ExtraValues, index)                                      \
-              if (num_temps > texeventmean_temp) {                                                   \
-                if (ExtraValues[ViewReduction_mean]->find(index)                                     \
-                                                      != ExtraValues[ViewReduction_mean]->end()) {   \
-                  value_array[texeventmean_temp]                                                     \
-                       = ExtraValues[ViewReduction_mean]->find(index)->second->Copy();               \
-                } else {                                                                             \
-                  value_array[texeventmean_temp] = CRPTR ((uint64_t)0);                              \
-                }                                                                                    \
-              }                                                                                      \
-              if (num_temps > texeventmin_temp) {                                                    \
-                if (ExtraValues[ViewReduction_min]->find(index)                                      \
-                                                      != ExtraValues[ViewReduction_min]->end()) {    \
-                  value_array[texeventmin_temp]                                                      \
-                       = ExtraValues[ViewReduction_min]->find(index)->second->Copy();                \
-                } else {                                                                             \
-                  value_array[texeventmin_temp] = CRPTR ((uint64_t)0);                               \
-                }                                                                                    \
-              }                                                                                      \
-              if (num_temps > texeventmax_temp) {                                                    \
-                if (ExtraValues[ViewReduction_max]->find(index)                                      \
-                                                      != ExtraValues[ViewReduction_max]->end()) {    \
-                  value_array[texeventmax_temp]                                                      \
-                       = ExtraValues[ViewReduction_max]->find(index)->second->Copy();                \
-                } else {                                                                             \
-                  value_array[texeventmax_temp] = CRPTR ((uint64_t)0);                               \
-                }                                                                                    \
-              }
 
 #define def_Detail_values def_HwcTime_values
 #define set_Detail_values set_HwcTime_values
@@ -161,6 +136,7 @@ static std::string Event_Name_Header (Collector& collector, std::string metric) 
 
 static bool define_hwctime_columns (
             CommandObject *cmd,
+            ExperimentObject *exp,
             std::vector<Collector>& CV,
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV,
@@ -182,6 +158,8 @@ static bool define_hwctime_columns (
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
   bool generate_nested_accounting = false;
+  bool ByThread_Rank = exp->Has_Ranks();
+  std::string ByThread_Header = "exclusive_overflows Counts";
 
   if (Generate_Summary) {
     if (Generate_ButterFly) {
@@ -332,58 +310,11 @@ static bool define_hwctime_columns (
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
           std::string H = Event_Name_Header (CV[0], "inclusive_overflows");
           HV.push_back(std::string("% of Total ") + H + " Counts");
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
-                   !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
-         // Do a By-Thread average of the overflows..
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, texeventmean_temp));
-            std::string H = Event_Name_Header (CV[0], "exclusive_overflows");
-            HV.push_back(std::string("Average ") + H + " Counts Across Threads");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMin")) {
-         // Find the By-Thread Min.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, texeventmin_temp));
-            std::string H = Event_Name_Header (CV[0], "exclusive_overflows");
-            HV.push_back(std::string("Min ") + H + " Counts Across Threads");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
-         // Find the By-Thread Max.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, texeventmax_temp));
-            std::string H = Event_Name_Header (CV[0], "exclusive_overflows");
-            HV.push_back(std::string("Max ") + H + " Counts Across Threads");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "loadbalance") ) {
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-         // Find the By-Thread Min.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, texeventmin_temp));
-            std::string H1 = Event_Name_Header (CV[0], "exclusive_overflows");
-            HV.push_back(std::string("Min ") + H1 + " Counts Across Threads");
-         // Do a By-Thread average of the overflows..
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, texeventmean_temp));
-            std::string H2 = Event_Name_Header (CV[0], "exclusive_overflows");
-            HV.push_back(std::string("Average ") + H2 + " Counts Across Threads");
-         // Find the By-Thread Max.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, texeventmax_temp));
-            std::string H3 = Event_Name_Header (CV[0], "exclusive_overflows");
-            HV.push_back(std::string("Max ") + H3 + " Counts Across Threads");
-          }
-        } else {
+        }
+// Recognize and generate pseudo instructions to calculate and display By Thread metrics for
+// ThreadMax, ThreadMaxIndex, ThreadMin, ThreadMinIndex, ThreadAverage and loadbalance.
+#include "SS_View_bythread_recognize.hxx"
+        else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
         }
       }
@@ -442,7 +373,7 @@ static bool hwctime_definition (
     MV.push_back ("inclusive_detail"); // define the metric needed for getting main time values
     CV.push_back (Get_Collector (exp->FW(), "hwctime"));  // Define the collector
     MV.push_back ("exclusive_overflows"); // define the metric needed for calculating total time.
-    return define_hwctime_columns (cmd, CV, IV, HV, vfc);
+    return define_hwctime_columns (cmd, exp, CV, IV, HV, vfc);
 }
 
 static std::string VIEW_hwctime_brief = "Hardware Counter Report";
@@ -499,11 +430,13 @@ static std::string VIEW_hwctime_long  =
                   " occurred in the code unit and all the units it calls."
                   " \n\t'-m inclusive_overflows' reports the number of times the hardware's counters"
                   " overflowed and samples were recorded for the code unit and all the units it calls."
-                  " \n\t'-m percent' reports the percent of total counts the code unit represents."
-                  " \n\t'-m ThreadAverage' reports the average counts for a process."
                   " \n\t'-m ThreadMin' reports the minimum counts for a process."
+                  " \n\t'-m ThreadMinIndex' reports the Rank for the thread of the 'ThreadMin'."
                   " \n\t'-m ThreadMax' reports the maximum counts for a process."
-                  " \n\t'-m loadbalance' reports the minimum, average, maximum counts for a process."
+                  " \n\t'-m ThreadMaxIndex' reports the Rank for the thread of the 'ThreadMax'."
+                  " \n\t'-m ThreadAverage' reports the average counts for a process."
+                  " \n\t'-m loadbalance' is the same as '-m ThreadMax, ThreadMaxIndex, ThreadMin,"
+                  " ThreadMinIndex, ThreadAverage'."
                   "\n";
 static std::string VIEW_hwctime_example = "\texpView hwctime\n"
                                            "\texpView -v LinkedObjects hwctime\n"
@@ -569,7 +502,7 @@ class hwctime_view : public ViewType {
       Mark_Cmd_With_Soft_Error(cmd, "(We could not determine which format to use for the report.)");
       return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report for 'hwctime' view.)");
     return false;
   }
 };

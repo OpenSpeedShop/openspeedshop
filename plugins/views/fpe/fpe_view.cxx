@@ -33,10 +33,12 @@ class CommandResult_Fpetype :
     fpetype_value = Unknown;
   }
   CommandResult_Fpetype (FPEType Fp) : CommandResult(CMD_RESULT_EXTENSION) {
+    SetValueIsID();
     fpetype_value = Fp;
   }
   CommandResult_Fpetype (CommandResult_Fpetype *C) :
        CommandResult(CMD_RESULT_UINT) {
+    SetValueIsID();
     fpetype_value = C->fpetype_value;
   }
   virtual ~CommandResult_Fpetype () { }
@@ -112,14 +114,16 @@ class CommandResult_Fpetype :
 #define fpeType_temp VMulti_free_temp+3
 #define tmean_temp   VMulti_free_temp+4
 #define tmin_temp    VMulti_free_temp+5
-#define tmax_temp    VMulti_free_temp+6
-#define extra_division_by_zero_temp VMulti_free_temp+7
-#define extra_inexact_result_temp VMulti_free_temp+8
-#define extra_invalid_temp VMulti_free_temp+9
-#define extra_overflow_temp VMulti_free_temp+10
-#define extra_underflow_temp VMulti_free_temp+11
-#define extra_unknown_temp VMulti_free_temp+12
-#define extra_unnormal_temp VMulti_free_temp+13
+#define timin_temp   VMulti_free_temp+6
+#define tmax_temp    VMulti_free_temp+7
+#define timax_temp   VMulti_free_temp+8
+#define extra_division_by_zero_temp VMulti_free_temp+9
+#define extra_inexact_result_temp VMulti_free_temp+10
+#define extra_invalid_temp VMulti_free_temp+11
+#define extra_overflow_temp VMulti_free_temp+12
+#define extra_underflow_temp VMulti_free_temp+13
+#define extra_unknown_temp VMulti_free_temp+14
+#define extra_unnormal_temp VMulti_free_temp+15
 
 #define division_by_zero_index ViewReduction_Count
 #define inexact_index ViewReduction_Count+1
@@ -194,6 +198,15 @@ class CommandResult_Fpetype :
                   value_array[tmin_temp] = CRPTR ((int64_t)0);                                       \
                 }                                                                                    \
               }                                                                                      \
+             if (num_temps > timin_temp) {                                                           \
+                if (ExtraValues[ViewReduction_imin]->find(index)                                     \
+                                                      != ExtraValues[ViewReduction_imin]->end()) {   \
+                  value_array[timin_temp]                                                            \
+                                   = ExtraValues[ViewReduction_imin]->find(index)->second->Copy();   \
+                } else {                                                                             \
+                  value_array[timin_temp] = CRPTR ((int64_t)0);                                      \
+                }                                                                                    \
+              }                                                                                      \
               if (num_temps > tmax_temp) {                                                           \
                 if (ExtraValues[ViewReduction_max]->find(index)                                      \
                                                       != ExtraValues[ViewReduction_max]->end()) {    \
@@ -203,6 +216,15 @@ class CommandResult_Fpetype :
                   value_array[tmax_temp] = CRPTR ((int64_t)0);                                       \
                 }                                                                                    \
               }                                                                                      \
+             if (num_temps > timax_temp) {                                                           \
+                if (ExtraValues[ViewReduction_imax]->find(index)                                     \
+                                                      != ExtraValues[ViewReduction_imax]->end()) {   \
+                  value_array[timax_temp]                                                            \
+                                   = ExtraValues[ViewReduction_imax]->find(index)->second->Copy();   \
+                } else {                                                                             \
+                  value_array[timax_temp] = CRPTR ((int64_t)0);                                      \
+                }                                                                                    \
+              }											     \
               if (num_temps > extra_division_by_zero_temp) {                                         \
                 if (ExtraValues[division_by_zero_index]->find(index)                                 \
                                                       != ExtraValues[division_by_zero_index]->end()) { \
@@ -299,6 +321,7 @@ static std::string allowed_fpe_V_options[] = {
 
 static bool define_fpe_columns (
             CommandObject *cmd,
+            ExperimentObject *exp,
             std::vector<Collector>& CV,
             std::vector<std::string>& MV,
             std::vector<ViewInstruction *>& IV,
@@ -307,6 +330,7 @@ static bool define_fpe_columns (
   int64_t last_column = 0;  // Number of columns of information displayed.
   int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
   bool user_defined = false;
+  bool ByThread_Rank = exp->Has_Ranks();
 
  // Define combination instructions for predefined temporaries.
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
@@ -532,27 +556,49 @@ static bool define_fpe_columns (
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
           HV.push_back("Min Exclusive Fpe Event Counts Across Threads");
           user_defined = true;
+        } else if (!strcasecmp(M_Name.c_str(), "ThreadMinIndex")) {
+         // Find the Rank of the By-Thread Min.
+          IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_imin));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, timin_temp));
+          HV.push_back(std::string((ByThread_Rank == 1)?"Rank":"ThreadID") + " of Min");
+          user_defined = true;
         } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
          // Find the By-Thread Max.
           IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
           HV.push_back("Max Exclusive Fpe Event Counts Across Threads");
           user_defined = true;
+        } else if (!strcasecmp(M_Name.c_str(), "ThreadMaxIndex")) {
+         // Find the Rank of the By-Thread Max.
+          IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_imax));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, timax_temp));
+          HV.push_back(std::string((ByThread_Rank == 1)?"Rank":"ThreadID") + " of Max");
+          user_defined = true;
         } else if ( !strcasecmp(M_Name.c_str(), "loadbalance")) {
-         // Find the By-Thread Min.
-          IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
-          HV.push_back("Min Exclusive Fpe Event Counts Across Threads");
-          user_defined = true;
-         // Do a By-Thread average of the overflows..
-          IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
-          HV.push_back("Average Exclusive Fpe Event Counts Across Threads");
-          user_defined = true;
          // Find the By-Thread Max.
           IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
           HV.push_back("Max Exclusive Fpe Event Counts Across Threads");
+
+         // Report ThreadId of Max.
+          IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_imax));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, timax_temp));
+          HV.push_back(std::string((ByThread_Rank == 1)?"Rank":"ThreadID") + " of Max");
+
+         // Find the By-Thread Min.
+          IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
+          HV.push_back("Min Exclusive Fpe Event Counts Across Threads");
+
+         // Report ThreadId of Min.
+          IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_imin));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, timin_temp));
+          HV.push_back(std::string((ByThread_Rank == 1)?"Rank":"ThreadID") + " of Min");
+
+         // Do a By-Thread average of the overflows..
+          IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
+          HV.push_back("Average Exclusive Fpe Event Counts Across Threads");
           user_defined = true;
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
@@ -629,7 +675,7 @@ static bool fpe_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t 
     }
 
     Validate_V_Options (cmd, allowed_fpe_V_options);
-    return define_fpe_columns (cmd, CV, MV, IV, HV, vfc);
+    return define_fpe_columns (cmd, exp, CV, MV, IV, HV, vfc);
 }
 
 
@@ -680,10 +726,14 @@ static std::string VIEW_fpe_long  =
                   " \n\t'-m time' reports the first time at which the event occurred."
                   " \n\t'-m counts' reports the number of times the event occurred in the code unit."
                   " \n\t'-m percent' reports the percent of total counts the code unit."
-                  " \n\t'-m ThreadAverage' reports the average counts for a process."
+                  " \n\t'-m ThreadMax' reports the maximum counts for a process."
+                  " \n\t'-m ThreadMaxIndex' reports the procecss Id for the thread of the 'ThreadMax'."
                   " \n\t'-m ThreadMin' reports the minimum counts for a process."
-                  " \n\t'-m ThreadMax' reports the maximum counts for a process. "
-                  " \n\t'-m loadbalance' reports the minimum, average, maximum counts for a process. "
+                  " \n\t'-m ThreadMinIndex' reports the procecss Id for the thread of the 'ThreadMin'."
+                  " \n\t'-m ThreadAverage' reports the average counts for a process."
+                  " \n\t'-m loadbalance' is the same as '-m ThreadMax, ThreadMaxIndex, ThreadMin,"
+                  " ThreadMinIndex, ThreadAverage'."
+
                   " \n\t'-m type' reports the type of the floating point exception:"
                   "\n\nIt is also possible to select a subset of event types to display."
                   " This is done with the '-m' option and a single key word:"
@@ -775,7 +825,7 @@ class fpe_view : public ViewType {
       Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name supplied.)");
       return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(There is no requested information to report.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(There is no requested information to report for 'fpe' view.)");
     return false;
   }
 };

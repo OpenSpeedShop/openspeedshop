@@ -41,9 +41,14 @@
 #define min_temp VMulti_free_temp+6
 #define max_temp VMulti_free_temp+7
 #define ssq_temp VMulti_free_temp+8
-#define tmean_temp  VMulti_free_temp+9
-#define tmin_temp  VMulti_free_temp+10
-#define tmax_temp  VMulti_free_temp+11
+
+#define First_ByThread_Temp VMulti_free_temp+9
+#define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
+                                 // "2" => times reported in seconds,
+                                 // otherwise don't add anything.
+#include "SS_View_bythread_locations.hxx"
+#include "SS_View_bythread_setmetrics.hxx"
+
 
 // io view
 
@@ -112,35 +117,6 @@
                             = new CommandResult_Interval (vmax);                          \
               if (num_temps > ssq_temp) value_array[ssq_temp]                             \
                             = new CommandResult_Interval (sum_squares);
-
-#define set_ExtraMetric_values(value_array, ExtraValues, index)                                      \
-              if (num_temps > tmean_temp) {                                                          \
-                if (ExtraValues[ViewReduction_mean]->find(index)                                     \
-                                                      != ExtraValues[ViewReduction_mean]->end()) {   \
-                  value_array[tmean_temp]                                                            \
-                       = ExtraValues[ViewReduction_mean]->find(index)->second->Copy();               \
-                } else {                                                                             \
-                  value_array[tmean_temp] = CRPTR ((double)0.0);                                     \
-                }                                                                                    \
-              }                                                                                      \
-              if (num_temps > tmin_temp) {                                                           \
-                if (ExtraValues[ViewReduction_min]->find(index)                                      \
-                                                      != ExtraValues[ViewReduction_min]->end()) {    \
-                  value_array[tmin_temp]                                                             \
-                       = ExtraValues[ViewReduction_min]->find(index)->second->Copy();                \
-                } else {                                                                             \
-                  value_array[tmin_temp] = CRPTR ((double)0.0);                                      \
-                }                                                                                    \
-              }                                                                                      \
-              if (num_temps > tmax_temp) {                                                           \
-                if (ExtraValues[ViewReduction_max]->find(index)                                      \
-                                                      != ExtraValues[ViewReduction_max]->end()) {    \
-                  value_array[tmax_temp]                                                             \
-                       = ExtraValues[ViewReduction_max]->find(index)->second->Copy();                \
-                } else {                                                                             \
-                  value_array[tmax_temp] = CRPTR ((double)0.0);                                      \
-                }                                                                                    \
-              }
 
 // The code here restricts any view for Functions (e.g. -v Functions)
 // to the functions listed in IOTTraceablefunctions.h.  In this case,
@@ -321,6 +297,7 @@ static std::string allowed_io_V_options[] = {
 
 static bool define_io_columns (
             CommandObject *cmd,
+            ExperimentObject *exp,
             std::vector<Collector>& CV,
             std::vector<std::string>& MV,
             std::vector<ViewInstruction *>& IV,
@@ -348,7 +325,9 @@ static bool define_io_columns (
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
   bool generate_nested_accounting = false;
+  bool ByThread_Rank = exp->Has_Ranks();
   std::string Default_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
+  std::string ByThread_Header = Find_Metadata ( CV[1], MV[1] ).getDescription();
 
   if (Generate_Summary) {
     if (Generate_ButterFly) {
@@ -522,58 +501,11 @@ static bool define_io_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m stop_time' only supported for '-v Trace' option.");
           }
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
-                   !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
-         // Do a By-Thread average.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
-            std::string H = Find_Metadata ( CV[1], MV[1] ).getDescription();
-            HV.push_back(std::string("Average ") + H + " Across Threads");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMin")) {
-         // Find the By-Thread Min.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
-            std::string H = Find_Metadata ( CV[1], MV[1] ).getDescription();
-            HV.push_back(std::string("Min ") + H + " Across Threads");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
-         // Find the By-Thread Max.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
-            std::string H = Find_Metadata ( CV[1], MV[1] ).getDescription();
-            HV.push_back(std::string("Max ") + H + " Across Threads");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "loadbalance")) {
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-         // Find the By-Thread Min.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
-            std::string H1 = Find_Metadata ( CV[1], MV[1] ).getDescription();
-            HV.push_back(std::string("Min ") + H1 + " Across Threads");
-         // Do a By-Thread average.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
-            std::string H2 = Find_Metadata ( CV[1], MV[1] ).getDescription();
-            HV.push_back(std::string("Average ") + H2 + " Across Threads");
-         // Find the By-Thread Max.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
-            std::string H3 = Find_Metadata ( CV[1], MV[1] ).getDescription();
-            HV.push_back(std::string("Max ") + H3 + " Across Threads");
-          }
-        } else {
+        }
+// Recognize and generate pseudo instructions to calculate and display By Thread metrics for
+// ThreadMax, ThreadMaxIndex, ThreadMin, ThreadMinIndex, ThreadAverage and loadbalance.
+#include "SS_View_bythread_recognize.hxx"
+        else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
         }
       }
@@ -647,7 +579,7 @@ static bool io_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t t
     }
 
     Validate_V_Options (cmd, allowed_io_V_options);
-    return define_io_columns (cmd, CV, MV, IV, HV, vfc);
+    return define_io_columns (cmd, exp, CV, MV, IV, HV, vfc);
 }
 
 
@@ -710,10 +642,8 @@ static std::string VIEW_io_long  =
                   " \n\t'-m percent' reports the percent of io time the function represents."
                   " \n\t'-m stddev' reports the standard deviation of the average io time"
                   " that the function represents."
-                  " \n\t'-m ThreadAverage' reports the average cpu time for a process."
-                  " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
-                  " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
-                  " \n\t'-m loadbalance' reports the minimum, average, maximum cpu time for a process."
+// Get the description of the BY-Thread metrics.
+#include "SS_View_bythread_help.hxx"
                   "\n"; 
 static std::string VIEW_io_example = "\texpView io\n"
                                       "\texpView -v CallTrees,FullStack io10 -m min,max,count\n";
@@ -785,7 +715,7 @@ class io_view : public ViewType {
       Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
       return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report for 'io' view.)");
     return false;
   }
 };

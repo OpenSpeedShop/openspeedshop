@@ -186,12 +186,29 @@ bool GetAllReducedMetrics(
           Assert ((reductionType == ViewReduction_sum) ||
                   (reductionType == ViewReduction_mean) ||
                   (reductionType == ViewReduction_min) ||
-                  (reductionType == ViewReduction_max));
+                  (reductionType == ViewReduction_imin) ||
+                  (reductionType == ViewReduction_max) ||
+                  (reductionType == ViewReduction_imax));
          // Get a by-thread reduced metric.
 #if DEBUG_CLI
-          printf("In GetAllReducedMetrics  - SS_View_util.cxx, Get a by-thread reduced metric\n");
+          printf("In GetAllReducedMetrics  - SS_View_util.cxx, Get a by-thread reduced metric %lld\n",reductionType);
 #endif
-          GetReducedType (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, reductionType, Values[reductionType]);
+          if ((reductionType == ViewReduction_min) ||
+              (reductionType == ViewReduction_imin) ||
+              (reductionType == ViewReduction_max) ||
+              (reductionType == ViewReduction_imax) ||
+              (reductionType == ViewReduction_mean)) {
+            if (Values[ViewReduction_min]->empty()) {  // if already determined, skip
+              GetReducedMaxMinIdxAvg (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects,
+                                      Values[ViewReduction_min],
+                                      Values[ViewReduction_imin],
+                                      Values[ViewReduction_max],
+                                      Values[ViewReduction_imax],
+                                      Values[ViewReduction_mean]);
+            }
+          } else {
+            GetReducedType (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, reductionType, Values[reductionType]);
+          }
         } else {
          // Get a simple metric for the entire tgrp.
 #if DEBUG_CLI

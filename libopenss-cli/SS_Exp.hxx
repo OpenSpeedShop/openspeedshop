@@ -345,6 +345,17 @@ class ExperimentObject
     }
   }
 
+  bool Has_Ranks() {
+    ThreadGroup tgrp = FW()->getThreads();
+    ThreadGroup::iterator ti = tgrp.begin();
+    if (ti != tgrp.end()) {
+      Thread t = *ti;
+      std::pair<bool, int> prank = t.getMPIRank();
+      return prank.first;
+    }
+    return false;
+  }
+
   void Q_Lock (CommandObject *cmd, bool start_next_cmd = false) {
 
 #ifdef DEBUG_SYNC_SIGNAL

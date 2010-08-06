@@ -86,8 +86,25 @@ bool GetExtraMetrics(CommandObject *cmd,
           int64_t reductionIndex = vinst->TMP2();
           Assert((reductionIndex == ViewReduction_mean) ||
                  (reductionIndex == ViewReduction_min) ||
-                 (reductionIndex == ViewReduction_max));
-          GetReducedType (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, reductionIndex, Values[i]);
+                 (reductionIndex == ViewReduction_imin) ||
+                 (reductionIndex == ViewReduction_max) ||
+                 (reductionIndex == ViewReduction_imax));
+          if ((reductionIndex == ViewReduction_min) ||
+              (reductionIndex == ViewReduction_imin) ||
+              (reductionIndex == ViewReduction_max) ||
+              (reductionIndex == ViewReduction_imax) ||
+              (reductionIndex == ViewReduction_mean)) {
+            if (Values[ViewReduction_min]->empty()) { // Skip if already determined
+              GetReducedMaxMinIdxAvg (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects,
+                                      Values[ViewReduction_min],
+                                      Values[ViewReduction_imin],
+                                      Values[ViewReduction_max],
+                                      Values[ViewReduction_imax],
+                                      Values[ViewReduction_mean]);
+            }
+          } else {
+            GetReducedType (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, reductionIndex, Values[i]);
+          }
         }
         thereAreExtraMetrics = true;
       }
@@ -142,8 +159,11 @@ bool First_Column (CommandObject *cmd,
       int64_t reductionIndex = vp->TMP2();
       Assert((reductionIndex == ViewReduction_mean) ||
              (reductionIndex == ViewReduction_min) ||
-             (reductionIndex == ViewReduction_max));
+             (reductionIndex == ViewReduction_imin) ||
+             (reductionIndex == ViewReduction_max) ||
+             (reductionIndex == ViewReduction_imax));
       GetReducedType (cmd, exp, tgrp, CV[Column0metric], MV[Column0metric], objects, reductionIndex, initial_items);
+
     } else {
       GetMetricByObjectSet (cmd, exp, tgrp, CV[Column0metric], MV[Column0metric], objects, initial_items);
     }
@@ -151,7 +171,7 @@ bool First_Column (CommandObject *cmd,
     typename std::map <TE, CommandResult *>::const_iterator ii;
     for(ii = initial_items->begin(); ii != initial_items->end(); ii++ ) {
       if (OPENSS_VIEW_SUPPRESS_UNUSED_ELEMENTS) {
-        if ((ii->second)->ValueIsNull()) {
+        if ((ii->second)->ValueIsNull() && !((ii->second)->IsValueID())) {
 #if DEBUG_CLI
           cerr << "Suppress Element: " << (ii->second)->Form() << std::endl;
 #endif

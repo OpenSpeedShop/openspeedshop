@@ -36,17 +36,21 @@
 #define min_temp VMulti_free_temp+6
 #define max_temp VMulti_free_temp+7
 #define ssq_temp VMulti_free_temp+8
-#define tmean_temp  VMulti_free_temp+9
-#define tmin_temp  VMulti_free_temp+10
-#define tmax_temp  VMulti_free_temp+11
+#define source_temp VMulti_free_temp+9
+#define destination_temp VMulti_free_temp+10
+#define size_temp VMulti_free_temp+11
+#define tag_temp VMulti_free_temp+12
+#define communicator_temp VMulti_free_temp+13
+#define datatype_temp VMulti_free_temp+14
+#define retval_temp VMulti_free_temp+15
 
-#define source_temp VMulti_free_temp+12
-#define destination_temp VMulti_free_temp+13
-#define size_temp VMulti_free_temp+14
-#define tag_temp VMulti_free_temp+15
-#define communicator_temp VMulti_free_temp+16
-#define datatype_temp VMulti_free_temp+17
-#define retval_temp VMulti_free_temp+18
+#define First_ByThread_Temp VMulti_free_temp+16
+#define ByThread_Rank 1          // headers will say "Rank", otherwise "ThreadID"
+#define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
+                                 // "2" => times reported in seconds,
+                                 //  otherwise don't add anything.
+#include "SS_View_bythread_locations.hxx"
+#include "SS_View_bythread_setmetrics.hxx"
 
 // mpit view
 
@@ -108,12 +112,12 @@
 #define set_MPIT_values(value_array, sort_extime) \
               if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;     \
               if (num_temps > start_temp) {                                               \
-                int64_t x= (start.getValue()/*-base_time*/);                                             \
-                value_array[start_temp] = new CommandResult_Time (x);                 \
+                int64_t x= (start.getValue()/*-base_time*/);                              \
+                value_array[start_temp] = new CommandResult_Time (x);                     \
               }                                                                           \
               if (num_temps > stop_temp) {                                                \
-                int64_t x= (end.getValue()/*-base_time*/);                                               \
-                value_array[stop_temp] = new CommandResult_Time (x);                  \
+                int64_t x= (end.getValue()/*-base_time*/);                                \
+                value_array[stop_temp] = new CommandResult_Time (x);                      \
               }                                                                           \
               if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp]             \
                             = new CommandResult_Interval (sort_extime ? extime : intime); \
@@ -129,42 +133,38 @@
                             = new CommandResult_Interval (vmax);                          \
               if (num_temps > ssq_temp) value_array[ssq_temp]                             \
                             = new CommandResult_Interval (sum_squares);                   \
-              if (num_temps > source_temp) value_array[source_temp] = CRPTR (detail_source); \
-              if (num_temps > destination_temp) value_array[destination_temp] = CRPTR (detail_destination); \
-              if (num_temps > size_temp) value_array[size_temp] = CRPTR (detail_size); \
-              if (num_temps > tag_temp) value_array[tag_temp] = CRPTR (detail_tag); \
-              if (num_temps > communicator_temp) value_array[communicator_temp] = CRPTR (detail_communicator); \
-              if (num_temps > datatype_temp) value_array[datatype_temp] = CRPTR (detail_datatype); \
-              if (num_temps > retval_temp) value_array[retval_temp] = CRPTR (detail_retval);
-
-#define set_ExtraMetric_values(value_array, ExtraValues, index)                                      \
-              if (num_temps > tmean_temp) {                                                          \
-                if (ExtraValues[ViewReduction_mean]->find(index)                                     \
-                                                      != ExtraValues[ViewReduction_mean]->end()) {   \
-                  value_array[tmean_temp]                                                            \
-                       = ExtraValues[ViewReduction_mean]->find(index)->second->Copy();               \
-                } else {                                                                             \
-                  value_array[tmean_temp] = CRPTR ((double)0.0);                                     \
-                }                                                                                    \
-              }                                                                                      \
-              if (num_temps > tmin_temp) {                                                           \
-                if (ExtraValues[ViewReduction_min]->find(index)                                      \
-                                                      != ExtraValues[ViewReduction_min]->end()) {    \
-                  value_array[tmin_temp]                                                             \
-                       = ExtraValues[ViewReduction_min]->find(index)->second->Copy();                \
-                } else {                                                                             \
-                  value_array[tmin_temp] = CRPTR ((double)0.0);                                      \
-                }                                                                                    \
-              }                                                                                      \
-              if (num_temps > tmax_temp) {                                                           \
-                if (ExtraValues[ViewReduction_max]->find(index)                                      \
-                                                      != ExtraValues[ViewReduction_max]->end()) {    \
-                  value_array[tmax_temp]                                                             \
-                       = ExtraValues[ViewReduction_max]->find(index)->second->Copy();                \
-                } else {                                                                             \
-                  value_array[tmax_temp] = CRPTR ((double)0.0);                                      \
-                }                                                                                    \
+              if (num_temps > source_temp) {                                          	  \
+                CommandResult * p = CRPTR (detail_source);				  \
+                p->SetValueIsID();							  \
+                value_array[source_temp] = p;						  \
+              } 									  \
+              if (num_temps > destination_temp) {					  \
+                CommandResult * p = CRPTR (detail_destination);				  \
+                p->SetValueIsID();							  \
+                value_array[destination_temp] = p;					  \
+              } 									  \
+              if (num_temps > size_temp) value_array[size_temp] = CRPTR (detail_size);	  \
+              if (num_temps > tag_temp) {						  \
+                CommandResult * p = CRPTR (detail_tag);					  \
+                p->SetValueIsID();							  \
+                value_array[tag_temp] = p;						  \
+              } 									  \
+              if (num_temps > communicator_temp) {					  \
+                CommandResult * p = CRPTR (detail_communicator);			  \
+                p->SetValueIsID();							  \
+                value_array[communicator_temp] = p;					  \
+              } 									  \
+              if (num_temps > datatype_temp) {						  \
+                CommandResult * p = CRPTR (detail_datatype);				  \
+                p->SetValueIsID();							  \
+                value_array[datatype_temp] = p;						  \
+              } 									  \
+              if (num_temps > retval_temp) {						  \
+                CommandResult * p = CRPTR (detail_retval);				  \
+                p->SetValueIsID();							  \
+                value_array[retval_temp] = p;						  \
               }
+
 
 static void Determine_Objects (
                CommandObject *cmd,
@@ -283,6 +283,7 @@ static bool define_mpit_columns (
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
   bool generate_nested_accounting = false;
   std::string Default_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
+  std::string ByThread_Header = Default_Header;
 
   if (Generate_Summary) {
     if (Generate_ButterFly) {
@@ -455,34 +456,6 @@ static bool define_mpit_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m stop_time' only supported for '-v Trace' option.");
           }
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
-                   !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
-         // Do a By-Thread average.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
-            HV.push_back(std::string("Average ") + Default_Header + " Across Threads");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMin")) {
-         // Find the By-Thread Min.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
-            HV.push_back(std::string("Min ") + Default_Header + " Across Threads");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
-         // Find the By-Thread Max.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
-            HV.push_back(std::string("Max ") + Default_Header + " Across Threads");
-          }
         } else if (!strcasecmp(M_Name.c_str(), "source")) {
           if (vfc == VFC_Trace) {
            // display source rank
@@ -537,26 +510,12 @@ static bool define_mpit_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m retval' only supported for '-v Trace' option.");
           }
-        } else if (!strcasecmp(M_Name.c_str(), "loadbalance")) {
-         // Do a By-Thread average.
-          if ((vfc == VFC_CallStack) && (!Generate_ButterFly)) {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported combination, '-m " + M_Name + "' with call traces.");
-          } else {
-         // Find the By-Thread Min.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_min));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
-            HV.push_back(std::string("Min ") + Default_Header + " Across Threads");
-         // Find the By-Thread Max.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_max));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
-            HV.push_back(std::string("Max ") + Default_Header + " Across Threads");
-         // Find the By-Thread Average
-            IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1, ViewReduction_mean));
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
-            HV.push_back(std::string("Average ") + Default_Header + " Across Threads");
-          }
-        } else {
-          Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
+        }
+// Recognize and generate pseudo instructions to calculate and display By Thread metrics for
+// ThreadMax, ThreadMaxIndex, ThreadMin, ThreadMinIndex, ThreadAverage, and loadbalance.
+#include "SS_View_bythread_recognize.hxx"
+        else {
+          Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option for 'mpit' view, '-m " + M_Name + "'");
         }
       }
       if (last_column == 1) {
@@ -713,10 +672,6 @@ static std::string VIEW_mpit_long  =
                   " \n\t'-m percent' reports the percent of mpi time the event represents."
                   " \n\t'-m stddev' reports the standard deviation of the average mpi time"
                   " that the event represents."
-                  " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
-                  " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
-                  " \n\t'-m ThreadAverage' reports the average cpu time for a process."
-                  " \n\t'-m loadbalance' is the same as '-m ThreadMin, ThreadMax, ThreadAverage'."
                   " \n\t'-m start_time' reports the starting time of the event."
                   " \n\t'-m stop_time' reports the ending time of the event."
                   " \n\t'-m source' reports the source rank of the event."
@@ -726,6 +681,8 @@ static std::string VIEW_mpit_long  =
                   " \n\t'-m comm' reports the communicator used for the event."
                   " \n\t'-m datatype' reports the data type of the message."
                   " \n\t'-m retval' reports the return value of the event."
+// Get the description of the BY-Thread metrics.
+#include "SS_View_bythread_help.hxx"
                   "\n";
 static std::string VIEW_mpit_example = "\texpView mpit\n"
                                        "\texpView -v Trace mpit10\n" 
@@ -796,7 +753,7 @@ class mpit_view : public ViewType {
       Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
       return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report for 'mpit' view.)");
     return false;
   }
 };

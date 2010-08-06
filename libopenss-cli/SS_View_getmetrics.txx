@@ -24,7 +24,6 @@
 /* #define DEBUG_CLI 1 */
 
 
-/* TEST */
 template <typename TO, typename TS>
 void GetMetricInThreadGroupByThread (
     const Collector& collector,
@@ -135,8 +134,6 @@ void GetMetricInThreadGroup(
     individual = SmartPtr<std::map<TO, std::map<Thread, TS > > >();
 }
 
-/* TEST */
-
 template <typename TI, typename TOBJECT>
 void GetReducedSet (
           TI *dummyType,
@@ -160,9 +157,11 @@ void GetReducedSet (
    case ViewReduction_max:
     ReduceMetricByThread (individual, Queries::Reduction::Maximum, result);
     break;
-   default:
+   case ViewReduction_mean:
     ReduceMetricByThread (individual, Queries::Reduction::ArithmeticMean, result);
     break;
+   default:
+    return;
   }
 
  // Convert to typeless CommandResult objects.
@@ -239,6 +238,210 @@ bool GetReducedType (
 
 #if DEBUG_CLI
   printf("Exit true GetReducedType, in SS_View_getmetics.txx\n"); 
+#endif
+  return true;
+}
+
+
+// MinMaxIndex support
+
+int64_t inline  getMinMaxThreadId (Framework::Thread t)
+{
+  std::pair<bool, int> prank = t.getMPIRank();
+  if (prank.first) {
+    return prank.second;
+  }
+
+  std::pair<bool, int> pthread = t.getOpenMPThreadId();
+  bool threadHasThreadId = false;
+  if (pthread.first) {
+    threadHasThreadId = true;
+    return pthread.second;
+  }
+
+  std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
+  if (posixthread.first) {
+    return posixthread.second;
+  }
+
+  return -1;
+}
+
+template <typename TOBJECT, typename TM>
+void GetMaxMinIdxAvg (
+    const Framework::SmartPtr<
+        std::map<TOBJECT, std::map<Framework::Thread, TM > > >& individual,
+    SmartPtr<std::map<TOBJECT, CommandResult *> > min_items,
+    SmartPtr<std::map<TOBJECT, CommandResult *> > imin_items,
+    SmartPtr<std::map<TOBJECT, CommandResult *> > max_items,
+    SmartPtr<std::map<TOBJECT, CommandResult *> > imax_items,
+    SmartPtr<std::map<TOBJECT, CommandResult *> > average_items)
+{
+    // Check preconditions
+    Assert(!individual.isNull());
+
+#if DEBUG_CLI
+  printf("Enter GetMaxMinIdxAvg, in SS_View_getmetics.txx\n"); 
+#endif
+
+    // Iterate over each source object in the individual results
+    for(typename std::map<TOBJECT, std::map<Framework::Thread, TM > >::const_iterator
+            j = individual->begin(); j != individual->end(); ++j) {
+
+	// Determine min, max and locations
+        TOBJECT object = j->first;
+        std::map<Framework::Thread, TM > im = j->second;
+        typename std::map<Framework::Thread, TM >::const_iterator i = im.begin();
+        if (i != im.end()) {
+
+        int64_t imin = getMinMaxThreadId(i->first);
+        TM vmin = i->second;
+        int64_t imax = getMinMaxThreadId(i->first);
+        TM vmax = i->second;
+        TM sum = i->second;
+        int64_t threadcnt = 1;
+
+        for(++i ; i != im.end(); ++i) {
+
+            if (vmax < i->second) {
+                imax = getMinMaxThreadId(i->first);
+                vmax = i->second;
+            } else if (i->second < vmin) {
+                imin = getMinMaxThreadId(i->first);
+                vmin = i->second;
+            }
+            sum += i->second;
+            threadcnt++;
+        }
+
+#if DEBUG_CLI
+  printf("Insert the results of  GetMaxMinIdxAvg, in SS_View_getmetics.txx\n"); 
+#endif
+
+       // Convert to typeless CommandResult objects.
+        min_items->insert( std::make_pair(object, CRPTR (vmin)) );
+        CommandResult *cr_imin = CRPTR (imin);
+        cr_imin->SetValueIsID();
+        imin_items->insert(std::make_pair(object, cr_imin) );
+        max_items->insert(std::make_pair(object, CRPTR (vmax)) );
+        CommandResult *cr_imax = CRPTR (imax);
+        cr_imax->SetValueIsID();
+        imax_items->insert(std::make_pair(object, cr_imax) );
+        average_items->insert(std::make_pair(object, CRPTR (sum / threadcnt) ));
+        }
+    }
+
+}
+
+template <typename TI, typename TOBJECT>
+void GetReducedMaxMinIdxAvgSet (
+          TI *dummyType,
+          Collector& collector,
+          std::string& metric,
+          std::vector<std::pair<Time,Time> >& intervals,
+          ThreadGroup& tgrp,
+          std::set<TOBJECT>& objects,
+          SmartPtr<std::map<TOBJECT, CommandResult *> > min_items,
+          SmartPtr<std::map<TOBJECT, CommandResult *> > imin_items,
+          SmartPtr<std::map<TOBJECT, CommandResult *> > max_items,
+          SmartPtr<std::map<TOBJECT, CommandResult *> > imax_items,
+          SmartPtr<std::map<TOBJECT, CommandResult *> > average_items)
+{
+#if DEBUG_CLI
+  printf("Enter GetReducedMaxMinIdxAvgSet, in SS_View_getmetics.txx\n"); 
+#endif
+
+  SmartPtr<std::map<TOBJECT, std::map<Thread, TI> > > individual;
+  GetMetricInThreadGroupByThread (collector, metric, intervals, tgrp, objects, individual);
+
+#if DEBUG_CLI
+  printf("Call GetMaxMinIdxAvg from GetReducedMaxMinIdxAvgSet, in SS_View_getmetics.txx\n"); 
+#endif
+
+ // Reduce the per-thread values.
+  GetMaxMinIdxAvg (individual, min_items, imin_items, max_items, imax_items, average_items);
+
+#if DEBUG_CLI
+  printf("Process results in GetReducedMaxMinIdxAvgSet, in SS_View_getmetics.txx\n"); 
+#endif
+}
+
+
+
+template <typename TOBJECT>
+bool GetReducedMaxMinIdxAvg (
+          CommandObject *cmd,
+          ExperimentObject *exp,
+          ThreadGroup& tgrp,
+          Collector &collector,
+          std::string &metric,
+          std::set<TOBJECT>& objects,
+          SmartPtr<std::map<TOBJECT, CommandResult *> > min_items,
+          SmartPtr<std::map<TOBJECT, CommandResult *> > imin_items,
+          SmartPtr<std::map<TOBJECT, CommandResult *> > max_items,
+          SmartPtr<std::map<TOBJECT, CommandResult *> > imax_items,
+          SmartPtr<std::map<TOBJECT, CommandResult *> > average_items)
+{
+#if DEBUG_CLI
+  printf("Enter GetReducedMaxMinIdxAvg, in SS_View_getmetics.txx\n"); 
+#endif
+  Framework::Experiment *experiment = exp->FW();
+
+ // Get the list of desired objects.
+  if (objects.empty()) {
+    Mark_Cmd_With_Soft_Error(cmd, "(There are no objects specified for metric reduction.)");
+    return false;
+  }
+
+  std::vector<std::pair<Time,Time> > intervals;
+  Parse_Interval_Specification (cmd, exp, intervals);
+
+  Metadata m = Find_Metadata ( collector, metric );
+  std::string id = m.getUniqueId();
+
+  if( m.isType(typeid(unsigned int)) ) {
+    uint *V;
+    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, objects,
+                               min_items, imin_items, max_items, imax_items, average_items);
+  } else if( m.isType(typeid(uint64_t)) ) {
+    uint64_t *V;
+    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, objects,
+                               min_items, imin_items, max_items, imax_items, average_items);
+  } else if( m.isType(typeid(int)) ) {
+    int *V;
+    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, objects,
+                               min_items, imin_items, max_items, imax_items, average_items);
+  } else if( m.isType(typeid(int64_t)) ) {
+    int64_t *V;
+    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, objects,
+                               min_items, imin_items, max_items, imax_items, average_items);
+  } else if( m.isType(typeid(float)) ) {
+    float *V;
+    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, objects,
+                               min_items, imin_items, max_items, imax_items, average_items);
+  } else if( m.isType(typeid(double)) ) {
+    double *V;
+    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, objects,
+                               min_items, imin_items, max_items, imax_items, average_items);
+  } else {
+    std::string S("(Cluster Analysis can not be performed on metric '");
+    S = S +  metric + "' of type '" + m.getType() + "'.)";
+    Mark_Cmd_With_Soft_Error(cmd, S);
+#if DEBUG_CLI
+    printf("Exit false1 GetMaxMinIdxAvg, in SS_View_getmetics.txx\n"); 
+#endif
+    return false;
+  }
+  if (min_items->size() == 0) {
+    Mark_Cmd_With_Soft_Error(cmd, "(There are no data samples available for metric reduction.)");
+#if DEBUG_CLI
+    printf("Exit false2 GetMaxMinIdxAvg, in SS_View_getmetics.txx\n"); 
+#endif
+    return false;
+  }
+
+#if DEBUG_CLI
+  printf("Exit true GetMaxMinIdxAvg, in SS_View_getmetics.txx\n"); 
 #endif
   return true;
 }

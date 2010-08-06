@@ -50,6 +50,7 @@ enum cmd_result_type_enum {
 
 class CommandResult {
   cmd_result_type_enum Result_Type;
+  bool ValueIsID;  // ID's can not be combined of blanked.
 
  private:
   CommandResult () {
@@ -57,10 +58,14 @@ class CommandResult {
 
  public:
   CommandResult (cmd_result_type_enum T) {
-    Result_Type = T; }
+    Result_Type = T;
+    ValueIsID = false; }
   cmd_result_type_enum Type () {
     return Result_Type;
   }
+  bool IsValueID () { return ValueIsID; }
+  void SetValueIsID () { ValueIsID = true; }
+  void ClearValueIsID () { ValueIsID = false; }
   virtual ~CommandResult () { }
 
   virtual CommandResult *Init () { cerr << "Init operation not implimented\n"; return NULL; }
@@ -169,6 +174,7 @@ class CommandResult_Address :
   CommandResult_Address (CommandResult_Address *C) :
        CommandResult(CMD_RESULT_ADDRESS) {
     uint_value = C->uint_value;
+    if (C->IsValueID()) SetValueIsID();
   }
   virtual ~CommandResult_Address () { }
 
@@ -182,7 +188,7 @@ class CommandResult_Address :
     return uint_value > ((CommandResult_Address *)A)->uint_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Address));
-    uint_value += ((CommandResult_Address *)A)->uint_value; }
+    if (!IsValueID()) uint_value += ((CommandResult_Address *)A)->uint_value; }
   virtual void AbsDiff_value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Address));
     if (uint_value >= ((CommandResult_Address *)A)->uint_value) {
@@ -197,7 +203,7 @@ class CommandResult_Address :
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Address));
     uint_value = max (uint_value, ((CommandResult_Address *)A)->uint_value); }
-  virtual bool ValueIsNull () { return uint_value == (uint64_t)0; }
+  virtual bool ValueIsNull () { return (uint_value == (uint64_t)0 && !IsValueID()); }
 
   void Value (uint64_t& U) {
     U = uint_value;
@@ -233,6 +239,7 @@ class CommandResult_Uint :
   CommandResult_Uint (CommandResult_Uint *C) :
        CommandResult(CMD_RESULT_UINT) {
     uint_value = C->uint_value;
+    if (C->IsValueID()) SetValueIsID();
   }
   virtual ~CommandResult_Uint () { }
 
@@ -242,7 +249,7 @@ class CommandResult_Uint :
   virtual bool GT (CommandResult *A); //  defined in SS_CommandResult.cxx
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
-    uint_value += ((CommandResult_Uint *)A)->uint_value; }
+    if (!IsValueID()) uint_value += ((CommandResult_Uint *)A)->uint_value; }
   virtual void AbsDiff_value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
     if (uint_value >= ((CommandResult_Uint *)A)->uint_value) {
@@ -257,7 +264,7 @@ class CommandResult_Uint :
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
     uint_value = max (uint_value, ((CommandResult_Uint *)A)->uint_value); }
-  virtual bool ValueIsNull () { return uint_value == (uint64_t)0; }
+  virtual bool ValueIsNull () { return (uint_value == (uint64_t)0 && !IsValueID()); }
 
   void Value (uint64_t& U) {
     U = uint_value;
@@ -298,6 +305,7 @@ class CommandResult_Int :
   CommandResult_Int (CommandResult_Int *C) :
        CommandResult(CMD_RESULT_INT) {
     int_value = C->int_value;
+    if (C->IsValueID()) SetValueIsID();
   }
   virtual ~CommandResult_Int () { }
 
@@ -311,7 +319,7 @@ class CommandResult_Int :
     return int_value > ((CommandResult_Int *)A)->int_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
-    int_value += ((CommandResult_Int *)A)->int_value; }
+    if (!IsValueID()) int_value += ((CommandResult_Int *)A)->int_value; }
   virtual void AbsDiff_value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
     if (int_value >= ((CommandResult_Int *)A)->int_value) {
@@ -326,7 +334,7 @@ class CommandResult_Int :
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
     int_value = max (int_value, ((CommandResult_Int *)A)->int_value); }
-  virtual bool ValueIsNull () { return int_value == (int64_t)0; }
+  virtual bool ValueIsNull () { return (int_value == (int64_t)0 && !IsValueID()); }
 
   void Value (int64_t& I) {
     I = int_value;
@@ -372,6 +380,7 @@ class CommandResult_Float :
   CommandResult_Float (CommandResult_Float *C) :
        CommandResult(CMD_RESULT_FLOAT) {
     float_value = C->float_value;
+    if (C->IsValueID()) SetValueIsID();
   }
   virtual ~CommandResult_Float () { }
 
@@ -385,7 +394,7 @@ class CommandResult_Float :
     return float_value > ((CommandResult_Float *)A)->float_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
-    float_value += ((CommandResult_Float *)A)->float_value; }
+    if (!IsValueID()) float_value += ((CommandResult_Float *)A)->float_value; }
   virtual void AbsDiff_value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
     if (float_value >= ((CommandResult_Float *)A)->float_value) {
@@ -400,7 +409,7 @@ class CommandResult_Float :
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
     float_value = max (float_value, ((CommandResult_Float *)A)->float_value); }
-  virtual bool ValueIsNull () { return float_value == (double)0.0; }
+  virtual bool ValueIsNull () { return (float_value == (double)0.0 && !IsValueID()); }
 
   void Value (double& F) {
     F = float_value;
@@ -441,6 +450,7 @@ class CommandResult_String :
   CommandResult_String (CommandResult_String *C) :
        CommandResult(CMD_RESULT_STRING) {
     string_value = C->string_value;
+    if (C->IsValueID()) SetValueIsID();
   }
   virtual ~CommandResult_String () { }
 
@@ -454,7 +464,7 @@ class CommandResult_String :
     return string_value > ((CommandResult_String *)A)->string_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_String));
-    string_value += ((CommandResult_String *)A)->string_value; }
+    if (!IsValueID()) string_value += ((CommandResult_String *)A)->string_value; }
   virtual bool ValueIsNull () { return string_value.length() == 0; }
 
   void Accumulate_String (CommandResult_String *B) {
@@ -521,6 +531,7 @@ class CommandResult_RawString :
   CommandResult_RawString (CommandResult_RawString *C) :
        CommandResult(CMD_RESULT_RAWSTRING) {
     string_value = C->string_value;
+    if (C->IsValueID()) SetValueIsID();
   }
   virtual ~CommandResult_RawString () { }
 
@@ -534,7 +545,7 @@ class CommandResult_RawString :
     return string_value > ((CommandResult_RawString *)A)->string_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_RawString));
-    string_value += ((CommandResult_RawString *)A)->string_value; }
+    if (!IsValueID()) string_value += ((CommandResult_RawString *)A)->string_value; }
   virtual bool ValueIsNull () { return string_value.length() == 0; }
 
   void Accumulate_RawString (CommandResult_RawString *B) {
@@ -577,6 +588,7 @@ class CommandResult_Function :
        Framework::Function(*C),
        CommandResult(CMD_RESULT_FUNCTION) {
     ST = C->ST;
+    if (C->IsValueID()) SetValueIsID();
   }
   virtual ~CommandResult_Function () { }
 
@@ -696,6 +708,7 @@ class CommandResult_Statement :
   CommandResult_Statement (CommandResult_Statement *C) :
        Framework::Statement(*C),
        CommandResult(CMD_RESULT_STATEMENT) {
+    if (C->IsValueID()) SetValueIsID();
   }
   virtual ~CommandResult_Statement () { }
 
@@ -778,6 +791,7 @@ class CommandResult_LinkedObject :
        Framework::LinkedObject(*C),
        CommandResult(CMD_RESULT_LINKEDOBJECT) {
     Offset = C->Offset;
+    if (C->IsValueID()) SetValueIsID();
   }
   virtual ~CommandResult_LinkedObject () { }
 
@@ -881,6 +895,7 @@ class CommandResult_CallStackEntry : public CommandResult {
     int64_t len = CSE->CallStack->CSV->size();
     Bottom_up = CSE->Bottom_up;
     CallStack = CSE->CallStack;
+    if (CSE->IsValueID()) SetValueIsID();
   }
   virtual ~CommandResult_CallStackEntry () {
    // Only delete std::vector<CommandResult *> when last SmartPtr is released.
@@ -1010,6 +1025,7 @@ class CommandResult_Time : public CommandResult {
   CommandResult_Time (CommandResult_Time *T)
       : CommandResult(CMD_RESULT_TIME) {
     time_value = T->time_value;
+    if (T->IsValueID()) SetValueIsID();
   }
   virtual ~CommandResult_Time () {
   }
@@ -1090,6 +1106,7 @@ class CommandResult_Duration : public CommandResult {
   CommandResult_Duration (CommandResult_Duration *D)
       : CommandResult(CMD_RESULT_DURATION) {
     duration_value = D->duration_value;
+    if (D->IsValueID()) SetValueIsID();
   }
   virtual ~CommandResult_Duration () {
   }
@@ -1104,7 +1121,7 @@ class CommandResult_Duration : public CommandResult {
     return duration_value > ((CommandResult_Duration *)A)->duration_value; }
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
-    duration_value += ((CommandResult_Duration *)A)->duration_value; }
+    if (!IsValueID()) duration_value += ((CommandResult_Duration *)A)->duration_value; }
   virtual void AbsDiff_value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
     if (duration_value >= ((CommandResult_Duration *)A)->duration_value) {
@@ -1233,9 +1250,18 @@ class CommandResult_Interval : public CommandResult {
     interval_value = d;
   }
 
+  CommandResult_Interval (CommandResult_Float *D)
+      : CommandResult(CMD_RESULT_INTERVAL) {
+    double F;
+    D->Value(F);
+    interval_value = F;
+    if (D->IsValueID()) SetValueIsID();
+  }
+
   CommandResult_Interval (CommandResult_Interval *D)
       : CommandResult(CMD_RESULT_INTERVAL) {
     interval_value = D->interval_value;
+    if (D->IsValueID()) SetValueIsID();
   }
 
   virtual ~CommandResult_Interval () { }
@@ -1255,7 +1281,7 @@ class CommandResult_Interval : public CommandResult {
 
   virtual void Accumulate_Value (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    interval_value += ((CommandResult_Interval *)A)->interval_value; 
+    if (!IsValueID()) interval_value += ((CommandResult_Interval *)A)->interval_value; 
   }
 
   virtual void AbsDiff_value (CommandResult *A) {
@@ -1276,7 +1302,7 @@ class CommandResult_Interval : public CommandResult {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
     interval_value = max (interval_value, ((CommandResult_Interval *)A)->interval_value); 
   }
-  virtual bool ValueIsNull () { return interval_value == (double)0.0; }
+  virtual bool ValueIsNull () { return (interval_value == (double)0.0 && !IsValueID()); }
 
   double& Value () {
     return interval_value;
@@ -1620,8 +1646,8 @@ class CommandResult_Columns :
     int64_t num_results = 0;
     for (coi = Columns.begin(); coi != Columns.end(); coi++) {
       if (num_results++ != 0) to << "  ";
-      if ((*coi)->ValueIsNull()) {
-       // Avoid print lots of meaningless "0" values - blank fill the field.
+      if ((*coi)->ValueIsNull() && !((*coi)->IsValueID())) {
+       // Avoid printing lots of meaningless "0" values - blank fill the field.
         to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
            << std::setw(fieldsize) << " ";
       } else {

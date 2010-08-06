@@ -67,8 +67,10 @@ enum ViewOpCode {
 #define ViewReduction_sum   0
 #define ViewReduction_mean  1
 #define ViewReduction_min   2
-#define ViewReduction_max   3
-#define ViewReduction_Count 4
+#define ViewReduction_imin  3
+#define ViewReduction_max   4
+#define ViewReduction_imax  5
+#define ViewReduction_Count 6
 
 class ViewInstruction
 {
