@@ -213,7 +213,7 @@ do
     esac
 done
 
-static_offline=${oss_plugins}/libopenss-runtime-offline.a
+static_offline=${oss_libdir}/libopenss-runtime-offline.a
 monitor_callbacks=${oss_plugins}/offline_monitor.o
 
 #
@@ -330,7 +330,7 @@ fi
 case "$collector" in
     mpi|mpit|mpiotf )
     static_collector=${oss_plugins}/lib${collector}-${mpitouse}-offline.a
-    collector_libs="${collector_libs} -lrt -L ${libunwind_libdir} -lunwind"
+    collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-unwind -L ${libunwind_libdir} -lunwind"
 
     if [ -n "$monitor_has_mpi" ]
     then
@@ -343,7 +343,7 @@ case "$collector" in
 
     mpi-*|mpit-*|mpiotf-*)
     static_collector=${oss_plugins}/lib${collector}-${mpitouse}-offline.a
-    collector_libs="${collector_libs} -lrt -L ${libunwind_libdir} -lunwind"
+    collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-unwind -L ${libunwind_libdir} -lunwind"
 
     if [ -n "$monitor_has_mpi" ]
     then
@@ -364,19 +364,19 @@ case "$collector" in
     ;;
     usertime)
     static_collector=${oss_plugins}/lib${collector}-offline.a
-    collector_libs="${collector_libs} -lrt -L ${libunwind_libdir} -lunwind"
+    collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-unwind -L ${libunwind_libdir} -lunwind"
     ;;
     hwc)
     static_collector=${oss_plugins}/lib${collector}-offline.a
-    collector_libs="${collector_libs} -lrt -L ${libpapi_libdir} -lpapi"
+    collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-papi -L ${libpapi_libdir} -lpapi"
     ;;
     hwctime)
     static_collector=${oss_plugins}/lib${collector}-offline.a
-    collector_libs="${collector_libs} -lrt -L ${libpapi_libdir} -lpapi -L ${libunwind_libdir} -lunwind"
+    collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-papi -lopenss-runtime-unwind -L ${libpapi_libdir} -lpapi -L ${libunwind_libdir} -lunwind"
     ;;
     io | iot)
     static_collector=${oss_plugins}/lib${collector}-offline.a
-    collector_libs="${collector_libs} -lrt -L ${libunwind_libdir} -lunwind"
+    collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-unwind -L ${libunwind_libdir} -lunwind"
     for name in $monitor_wrap_io_names
     do
 	wrap_args="${wrap_args} -Wl,--wrap,${name}"
@@ -396,7 +396,7 @@ case "$collector" in
     ;;
     fpe )
     static_collector=${oss_plugins}/lib${collector}-offline.a
-    collector_libs="${collector_libs} -lrt -L ${libunwind_libdir} -lunwind -lbfd"
+    collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-unwind -lopenss-runtime-binutils -L ${libunwind_libdir} -lunwind -lbfd -liberty -lopcodes -lz -lm"
     ;;
 esac
 

@@ -25,6 +25,7 @@
  */
 /* #define DEBUG 1 */
 #include "RuntimeAPI.h"
+#include "UnwindAPI.h"
 #include "runtime.h"
 
 #include "IOTraceableFunctions.h"

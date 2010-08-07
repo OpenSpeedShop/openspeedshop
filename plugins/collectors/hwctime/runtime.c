@@ -31,6 +31,7 @@
 #include "RuntimeAPI.h"
 #include "blobs.h"
 #include "PapiAPI.h"
+#include "UnwindAPI.h"
 
 #include <libunwind.h>
 

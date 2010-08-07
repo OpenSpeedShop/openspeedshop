@@ -29,6 +29,7 @@
 #endif
 
 #include "RuntimeAPI.h"
+#include "UnwindAPI.h"
 #include "blobs.h"
 
 #if UNW_TARGET_X86 || UNW_TARGET_X86_64

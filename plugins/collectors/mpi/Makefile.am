@@ -238,6 +238,7 @@ rt_LDFLAGS_generate = \
 
 rt_LIBADD_generate = \
 	-lopenss-runtime \
+	-lopenss-runtime-unwind \
 	$(1) \
 	@LIBUNWIND_LIBS@ \
 	-lrt -lpthread
@@ -265,6 +266,7 @@ rt_offline_LDFLAGS_generate = \
 
 rt_offline_LIBADD_generate = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	-lopenss-runtime-unwind \
 	$(1) \
 	@LIBUNWIND_LIBS@ \
 	-lrt -lpthread
@@ -294,6 +296,7 @@ lib_offline_LDFLAGS_generate = \
 lib_offline_LIBADD_generate = \
 	-lopenss-runtime-offline \
 	-lopenss-runtime-monitor \
+	-lopenss-runtime-unwind \
 	$(1) \
 	@LIBUNWIND_LIBS@ \
 	-lrt -lpthread
@@ -326,6 +329,7 @@ lib_offline_LDFLAGS_generate = \
 lib_offline_LIBADD_generate = \
 	-lopenss-runtime-offline \
 	-lopenss-runtime-monitor \
+	-lopenss-runtime-unwind \
 	$(1) \
 	@TARGET_LIBUNWIND_LIBS@ \
 	-lrt -lpthread

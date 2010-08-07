@@ -90,6 +90,7 @@ usertime_rt_la_LDFLAGS = \
 
 usertime_rt_la_LIBADD = \
 	-lopenss-runtime \
+	-lopenss-runtime-unwind \
 	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt
 
@@ -113,6 +114,7 @@ usertime_rt_offline_la_LDFLAGS = \
 
 usertime_rt_offline_la_LIBADD = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	-lopenss-runtime-unwind \
 	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt
 
@@ -137,6 +139,7 @@ libusertime_offline_la_LDFLAGS = \
 
 libusertime_offline_la_LIBADD = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	-lopenss-runtime-unwind \
 	@LIBUNWIND_LIBS@
 
 libusertime_offline_la_SOURCES = \
@@ -162,6 +165,7 @@ libusertime_offline_la_LDFLAGS = \
 
 libusertime_offline_la_LIBADD = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	-lopenss-runtime-unwind \
 	@TARGET_LIBUNWIND_LIBS@
 
 libusertime_offline_la_SOURCES = \

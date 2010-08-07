@@ -30,6 +30,7 @@
 
 #include "RuntimeAPI.h"
 #include "BinutilsAPI.h"
+#include "UnwindAPI.h"
 #include "blobs.h"
 #include <fenv.h>
 

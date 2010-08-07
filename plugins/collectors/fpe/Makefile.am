@@ -94,6 +94,7 @@ fpe_rt_la_LDFLAGS = \
 fpe_rt_la_LIBADD = \
 	-lopenss-runtime \
 	-lopenss-runtime-binutils \
+	-lopenss-runtime-unwind \
 	@BINUTILS_LIBS@ \
 	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt -lm
@@ -121,6 +122,7 @@ fpe_rt_offline_la_LDFLAGS = \
 fpe_rt_offline_la_LIBADD = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	-lopenss-runtime-binutils \
+	-lopenss-runtime-unwind \
 	@BINUTILS_LIBS@ \
 	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt -lm
@@ -149,6 +151,7 @@ libfpe_offline_la_LDFLAGS = \
 libfpe_offline_la_LIBADD = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	-lopenss-runtime-binutils \
+	-lopenss-runtime-unwind \
 	@BINUTILS_LIBS@ \
 	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt -lm
@@ -179,6 +182,7 @@ libfpe_offline_la_LDFLAGS = \
 libfpe_offline_la_LIBADD = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	-lopenss-runtime-binutils \
+	-lopenss-runtime-unwind \
 	@TARGET_BINUTILS_LIBS@ \
 	@TARGET_LIBUNWIND_LIBS@ \
 	-lpthread -lrt -lm

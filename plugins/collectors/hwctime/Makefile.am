@@ -106,6 +106,7 @@ hwctime_rt_la_LDFLAGS = \
 hwctime_rt_la_LIBADD = \
 	-lopenss-runtime \
 	-lopenss-runtime-papi \
+	-lopenss-runtime-unwind \
 	@LIBUNWIND_LIBS@ \
 	@PAPI_LIBS@ \
 	-lpthread -lrt
@@ -133,6 +134,7 @@ hwctime_rt_offline_la_LDFLAGS = \
 hwctime_rt_offline_la_LIBADD = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	-lopenss-runtime-papi \
+	-lopenss-runtime-unwind \
 	@LIBUNWIND_LIBS@ \
 	@PAPI_LIBS@ \
 	-lpthread -lrt
@@ -161,6 +163,7 @@ libhwctime_offline_la_LDFLAGS = \
 libhwctime_offline_la_LIBADD = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	-lopenss-runtime-papi \
+	-lopenss-runtime-unwind \
 	@LIBUNWIND_LIBS@ \
 	@PAPI_LIBS@ \
 	-lpthread -lrt
@@ -191,6 +194,7 @@ libhwctime_offline_la_LDFLAGS = \
 libhwctime_offline_la_LIBADD = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
 	-lopenss-runtime-papi \
+	-lopenss-runtime-unwind \
 	@TARGET_LIBUNWIND_LIBS@ \
 	@TARGET_PAPI_LIBS@ \
 	-lpthread -lrt

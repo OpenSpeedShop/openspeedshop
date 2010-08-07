@@ -89,6 +89,7 @@ iot_rt_la_LDFLAGS = \
 
 iot_rt_la_LIBADD = \
 	-lopenss-runtime \
+	-lopenss-runtime-unwind \
 	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt
 
@@ -113,6 +114,7 @@ iot_rt_offline_la_LDFLAGS = \
 
 iot_rt_offline_la_LIBADD = \
 	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	-lopenss-runtime-unwind \
 	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt
 
@@ -139,6 +141,7 @@ libiot_offline_la_LDFLAGS = \
 libiot_offline_la_LIBADD = \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
+	-lopenss-runtime-unwind \
 	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt
 
@@ -167,6 +170,7 @@ libiot_offline_la_LDFLAGS = \
 libiot_offline_la_LIBADD = \
 	$(top_srcdir)/libopenss-runtime/libopenss-runtime-offline.la \
 	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
+	-lopenss-runtime-unwind \
 	@TARGET_LIBUNWIND_LIBS@ \
 	-lpthread -lrt
 

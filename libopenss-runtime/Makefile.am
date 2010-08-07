@@ -37,6 +37,8 @@ endif
 
 DIST_SUBDIRS = dpcl dyninst offline mrnet
 
+library_includedir = $(includedir)/openspeedshop
+library_include_HEADERS = RuntimeAPI.h
 
 # Note: Some versions of GCC (e.g. 3.3.3) appear to contain an optimization bug
 #       that causes accesses of thread-local storage (TLS) to fail with SIGSEGV.
@@ -50,39 +52,52 @@ CFLAGS = -g -O0
 BUILT_SOURCES = \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c
 
-pkglib_LTLIBRARIES =
+lib_LTLIBRARIES =
 
 
 if BUILD_INSTRUMENTOR
 if !BUILD_OFFLINE
-pkglib_LTLIBRARIES += libopenss-runtime.la
+lib_LTLIBRARIES += libopenss-runtime.la
 endif
 
 if HAVE_LIBMONITOR
-pkglib_LTLIBRARIES += libopenss-runtime-offline.la
+lib_LTLIBRARIES += libopenss-runtime-offline.la
 endif
 
 if HAVE_TARGET_LIBMONITOR
-pkglib_LTLIBRARIES += libopenss-runtime-offline.la
+lib_LTLIBRARIES += libopenss-runtime-offline.la
 endif
 
 if HAVE_PAPI
-pkglib_LTLIBRARIES += libopenss-runtime-papi.la
+lib_LTLIBRARIES += libopenss-runtime-papi.la
+library_include_HEADERS += PapiAPI.h
 endif
 if HAVE_TARGET_PAPI
-pkglib_LTLIBRARIES += libopenss-runtime-papi.la
+lib_LTLIBRARIES += libopenss-runtime-papi.la
+library_include_HEADERS += PapiAPI.h
 endif
 
 if HAVE_BINUTILS
-pkglib_LTLIBRARIES += libopenss-runtime-binutils.la
+lib_LTLIBRARIES += libopenss-runtime-binutils.la
+library_include_HEADERS += BinutilsAPI.h
 endif
 if HAVE_TARGET_BINUTILS
-pkglib_LTLIBRARIES += libopenss-runtime-binutils.la
+lib_LTLIBRARIES += libopenss-runtime-binutils.la
+library_include_HEADERS += BinutilsAPI.h
+endif
+
+if HAVE_LIBUNWIND
+lib_LTLIBRARIES += libopenss-runtime-unwind.la
+library_include_HEADERS += UnwindAPI.h
+endif
+if HAVE_TARGET_LIBUNWIND
+lib_LTLIBRARIES += libopenss-runtime-unwind.la
+library_include_HEADERS += UnwindAPI.h
 endif
 
 if !BUILD_OFFLINE
-libopenss_runtime_la_CFLAGS = \
-	@LIBUNWIND_CPPFLAGS@
+libopenss_runtime_la_CFLAGS =
+
 
 libopenss_runtime_la_LDFLAGS = \
 	-static
@@ -94,8 +109,7 @@ endif
 
 if HAVE_LIBMONITOR
 libopenss_runtime_offline_la_CFLAGS = \
-	-DOPENSS_OFFLINE \
-	@LIBUNWIND_CPPFLAGS@
+	-DOPENSS_OFFLINE
 
 libopenss_runtime_offline_la_LDFLAGS = \
 	-static 
@@ -168,6 +182,30 @@ libopenss_runtime_binutils_la_LIBADD = \
 	@TARGET_BINUTILS_LIBS@
 endif
 
+if HAVE_LIBUNWIND
+libopenss_runtime_unwind_la_CFLAGS = \
+	@LIBUNWIND_CPPFLAGS@
+
+libopenss_runtime_unwind_la_LDFLAGS = \
+	-static \
+	@LIBUNWIND_LDFLAGS@
+
+libopenss_runtime_unwind_la_LIBADD = \
+	@LIBUNWIND_LIBS@
+endif
+
+if HAVE_TARGET_LIBUNWIND
+libopenss_runtime_unwind_la_CFLAGS = \
+	@TARGET_LIBUNWIND_CPPFLAGS@
+
+libopenss_runtime_unwind_la_LDFLAGS = \
+	-static \
+	@TARGET_LIBUNWIND_LDFLAGS@
+
+libopenss_runtime_unwind_la_LIBADD = \
+	@TARGET_LIBUNWIND_LIBS@
+endif
+
 endif
 
 COMMON_SOURCES = \
@@ -219,21 +257,13 @@ libopenss_runtime_offline_la_SOURCES = $(COMMON_SOURCES) $(INSTRUMENTOR_SOURCES)
 endif #HAVE_TARGET_LIBMONITOR
 
 if HAVE_LIBUNWIND
-libopenss_runtime_la_SOURCES += \
+libopenss_runtime_unwind_la_SOURCES = \
 	OpenSS_GetStackTraceFromContext.c
-if HAVE_LIBMONITOR
-libopenss_runtime_offline_la_SOURCES += \
-	OpenSS_GetStackTraceFromContext.c
-endif	#HAVE_LIBMONITOR
 endif	#HAVE_LIBUNWIND
 
 if HAVE_TARGET_LIBUNWIND
-libopenss_runtime_la_SOURCES += \
+libopenss_runtime_unwind_la_SOURCES = \
 	OpenSS_GetStackTraceFromContext.c
-if HAVE_TARGET_LIBMONITOR
-libopenss_runtime_offline_la_SOURCES += \
-	OpenSS_GetStackTraceFromContext.c
-endif	#HAVE_TARGET_LIBMONITOR
 endif	#HAVE_TARGET_LIBUNWIND
 
 if HAVE_BINUTILS

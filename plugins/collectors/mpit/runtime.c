@@ -25,6 +25,7 @@
  */
 
 #include "RuntimeAPI.h"
+#include "UnwindAPI.h"
 #include "runtime.h"
 
 #include "MPITTraceableFunctions.h"
