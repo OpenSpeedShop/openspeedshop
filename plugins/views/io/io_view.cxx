@@ -325,7 +325,7 @@ static bool define_io_columns (
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
   bool generate_nested_accounting = false;
-  bool ByThread_Rank = exp->Has_Ranks();
+  int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp);
   std::string Default_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
   std::string ByThread_Header = Find_Metadata ( CV[1], MV[1] ).getDescription();
 

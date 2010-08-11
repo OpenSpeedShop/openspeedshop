@@ -158,7 +158,7 @@ static bool define_hwctime_columns (
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
   bool generate_nested_accounting = false;
-  bool ByThread_Rank = exp->Has_Ranks();
+  int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp);
   std::string ByThread_Header = "exclusive_overflows Counts";
 
   if (Generate_Summary) {

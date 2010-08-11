@@ -245,25 +245,41 @@ bool GetReducedType (
 
 // MinMaxIndex support
 
-int64_t inline  getMinMaxThreadId (Framework::Thread t)
+int64_t inline  getMinMaxThreadId (Framework::Thread t,
+                                   int64_t thread_identifier)
 {
-  std::pair<bool, int> prank = t.getMPIRank();
-  if (prank.first) {
-    return prank.second;
+  switch (thread_identifier)
+  {
+    case View_ByThread_Rank:
+    {
+      std::pair<bool, int> prank = t.getMPIRank();
+      if (prank.first) {
+        return prank.second;
+      }
+      break;
+    }
+    case View_ByThread_OpenMPThread:
+    {
+      std::pair<bool, int> pthread = t.getOpenMPThreadId();
+      if (pthread.first) {
+        return pthread.second;
+      }
+      break;
+    }
+    case View_ByThread_PosixThread:
+    {
+      std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
+      if (posixthread.first) {
+        return posixthread.second;
+      }
+      break;
+    }
+    case View_ByThread_Process:
+    {
+      pid_t pid = t.getProcessId();
+      return (int64_t)pid;
+    }
   }
-
-  std::pair<bool, int> pthread = t.getOpenMPThreadId();
-  bool threadHasThreadId = false;
-  if (pthread.first) {
-    threadHasThreadId = true;
-    return pthread.second;
-  }
-
-  std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
-  if (posixthread.first) {
-    return posixthread.second;
-  }
-
   return -1;
 }
 
@@ -271,6 +287,7 @@ template <typename TOBJECT, typename TM>
 void GetMaxMinIdxAvg (
     const Framework::SmartPtr<
         std::map<TOBJECT, std::map<Framework::Thread, TM > > >& individual,
+    int64_t thread_identifier,
     SmartPtr<std::map<TOBJECT, CommandResult *> > min_items,
     SmartPtr<std::map<TOBJECT, CommandResult *> > imin_items,
     SmartPtr<std::map<TOBJECT, CommandResult *> > max_items,
@@ -294,9 +311,9 @@ void GetMaxMinIdxAvg (
         typename std::map<Framework::Thread, TM >::const_iterator i = im.begin();
         if (i != im.end()) {
 
-        int64_t imin = getMinMaxThreadId(i->first);
+        int64_t imin = getMinMaxThreadId(i->first, thread_identifier);
         TM vmin = i->second;
-        int64_t imax = getMinMaxThreadId(i->first);
+        int64_t imax = getMinMaxThreadId(i->first, thread_identifier);
         TM vmax = i->second;
         TM sum = i->second;
         int64_t threadcnt = 1;
@@ -304,10 +321,10 @@ void GetMaxMinIdxAvg (
         for(++i ; i != im.end(); ++i) {
 
             if (vmax < i->second) {
-                imax = getMinMaxThreadId(i->first);
+                imax = getMinMaxThreadId(i->first, thread_identifier);
                 vmax = i->second;
             } else if (i->second < vmin) {
-                imin = getMinMaxThreadId(i->first);
+                imin = getMinMaxThreadId(i->first, thread_identifier);
                 vmin = i->second;
             }
             sum += i->second;
@@ -340,6 +357,7 @@ void GetReducedMaxMinIdxAvgSet (
           std::string& metric,
           std::vector<std::pair<Time,Time> >& intervals,
           ThreadGroup& tgrp,
+          int64_t thread_identifier,
           std::set<TOBJECT>& objects,
           SmartPtr<std::map<TOBJECT, CommandResult *> > min_items,
           SmartPtr<std::map<TOBJECT, CommandResult *> > imin_items,
@@ -359,7 +377,8 @@ void GetReducedMaxMinIdxAvgSet (
 #endif
 
  // Reduce the per-thread values.
-  GetMaxMinIdxAvg (individual, min_items, imin_items, max_items, imax_items, average_items);
+  GetMaxMinIdxAvg (individual, thread_identifier,
+                   min_items, imin_items, max_items, imax_items, average_items);
 
 #if DEBUG_CLI
   printf("Process results in GetReducedMaxMinIdxAvgSet, in SS_View_getmetics.txx\n"); 
@@ -375,6 +394,7 @@ bool GetReducedMaxMinIdxAvg (
           ThreadGroup& tgrp,
           Collector &collector,
           std::string &metric,
+          int64_t thread_identifier,
           std::set<TOBJECT>& objects,
           SmartPtr<std::map<TOBJECT, CommandResult *> > min_items,
           SmartPtr<std::map<TOBJECT, CommandResult *> > imin_items,
@@ -401,27 +421,27 @@ bool GetReducedMaxMinIdxAvg (
 
   if( m.isType(typeid(unsigned int)) ) {
     uint *V;
-    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, objects,
+    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, thread_identifier, objects,
                                min_items, imin_items, max_items, imax_items, average_items);
   } else if( m.isType(typeid(uint64_t)) ) {
     uint64_t *V;
-    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, objects,
+    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, thread_identifier, objects,
                                min_items, imin_items, max_items, imax_items, average_items);
   } else if( m.isType(typeid(int)) ) {
     int *V;
-    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, objects,
+    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, thread_identifier, objects,
                                min_items, imin_items, max_items, imax_items, average_items);
   } else if( m.isType(typeid(int64_t)) ) {
     int64_t *V;
-    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, objects,
+    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, thread_identifier, objects,
                                min_items, imin_items, max_items, imax_items, average_items);
   } else if( m.isType(typeid(float)) ) {
     float *V;
-    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, objects,
+    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, thread_identifier, objects,
                                min_items, imin_items, max_items, imax_items, average_items);
   } else if( m.isType(typeid(double)) ) {
     double *V;
-    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, objects,
+    GetReducedMaxMinIdxAvgSet (V, collector, metric, intervals, tgrp, thread_identifier, objects,
                                min_items, imin_items, max_items, imax_items, average_items);
   } else {
     std::string S("(Cluster Analysis can not be performed on metric '");

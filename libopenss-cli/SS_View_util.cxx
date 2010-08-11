@@ -199,7 +199,8 @@ bool GetAllReducedMetrics(
               (reductionType == ViewReduction_imax) ||
               (reductionType == ViewReduction_mean)) {
             if (Values[ViewReduction_min]->empty()) {  // if already determined, skip
-              GetReducedMaxMinIdxAvg (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects,
+              GetReducedMaxMinIdxAvg (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], vinst->TMP3(),
+                                      objects,
                                       Values[ViewReduction_min],
                                       Values[ViewReduction_imin],
                                       Values[ViewReduction_max],
@@ -1231,6 +1232,62 @@ bool Determine_TraceBack_Ordering (CommandObject *cmd) {
     return true;
   }
   return false;
+}
+
+
+/**
+ * Utility: Determine_ByThread_Id(ExperimentObject *exp)
+ * 
+ * Look at the threads in an experiment and determine the
+ * identifier that varies between threads and, as such,
+ * is the simplest way to identify a thread.
+ * 
+ * @param   exp indicates the ExperimentObject.
+ *
+ * @return  the int_64_t that is one of the View_ByThread_* values.
+ *
+ */
+std::string View_ByThread_Id_name[5] = {
+       "??",
+       "Rank",
+       "ThreadId",
+       "ThreadId",
+       "ProccessId" }; 
+int64_t Determine_ByThread_Id (ExperimentObject *exp) {
+  ThreadGroup tgrp = exp->FW()->getThreads();
+  ThreadGroup::iterator ti = tgrp.begin();
+  if (ti != tgrp.end()) {
+    Thread t1 = *ti;
+    if ((++ti) != tgrp.end()) {
+     // Nothing will vary unless htere are at least 2 threads.
+      Thread t2 = *ti;
+      std::pair<bool, int> prank1 = t1.getMPIRank();
+      std::pair<bool, int> prank2 = t2.getMPIRank();
+      if ( prank1.first && prank2.first &&
+           (prank1.second != prank2.second) ) {
+       // Use Ranks to distinguish threads.
+        return View_ByThread_Rank;
+      }
+      std::pair<bool, pthread_t> posixthread1 = t1.getPosixThreadId();
+      std::pair<bool, pthread_t> posixthread2 = t2.getPosixThreadId();
+      if ( posixthread1.first && posixthread2.first &&
+           (posixthread1.second != posixthread2.second) ) {
+        return View_ByThread_PosixThread;
+      }
+      std::pair<bool, int> pthread1 = t1.getOpenMPThreadId();
+      std::pair<bool, int> pthread2 = t2.getOpenMPThreadId();
+      if ( pthread1.first && pthread2.first &&
+           (pthread1.second != pthread2.second) ) {
+        return View_ByThread_OpenMPThread;
+      }
+      pid_t pid1 = t1.getProcessId();
+      pid_t pid2 = t2.getProcessId();
+      if (pid1 != pid2) {
+        return View_ByThread_Process;
+      }
+    }
+  }
+  return View_ByThread_NotSpecified;
 }
 
 /**

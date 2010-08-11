@@ -95,7 +95,8 @@ bool GetExtraMetrics(CommandObject *cmd,
               (reductionIndex == ViewReduction_imax) ||
               (reductionIndex == ViewReduction_mean)) {
             if (Values[ViewReduction_min]->empty()) { // Skip if already determined
-              GetReducedMaxMinIdxAvg (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects,
+              GetReducedMaxMinIdxAvg (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], vinst->TMP3(),
+                                      objects,
                                       Values[ViewReduction_min],
                                       Values[ViewReduction_imin],
                                       Values[ViewReduction_max],

@@ -34,6 +34,7 @@ enum ViewOpCode {
      VIEWINST_Define_ByThread_Metric,   // TmpResult is the ExtraMetric index that contains the values.
                                         // TMP_index1 is CV & MV index of the value to display.
                                         // TMP_index2 is the indicator of the reduction that is applied.
+                                        // TMP_index3 is the indicator of the associated thread identifier.
      VIEWINST_Require_Field_Equal,      // TMP_index1 is row_tmp# of fields in the records that must match.
      VIEWINST_Display_Metric,           // TmpResult is column# to display in.
                                         // TMP_index1 is CV & MV index of the value to display.
@@ -63,7 +64,7 @@ enum ViewOpCode {
      VIEWINST_StackExpand,              // TMP_index1 is predefined temp# that is expanded by copy.
 };
 
-// Reduction function Indicators.
+// Indicators of the ByThread reduction functions.
 #define ViewReduction_sum   0
 #define ViewReduction_mean  1
 #define ViewReduction_min   2
@@ -71,6 +72,14 @@ enum ViewOpCode {
 #define ViewReduction_max   4
 #define ViewReduction_imax  5
 #define ViewReduction_Count 6
+
+// Indicators of the ByThread Ids.
+#define View_ByThread_NotSpecified 0
+#define View_ByThread_Rank         1
+#define View_ByThread_OpenMPThread 2
+#define View_ByThread_PosixThread  3
+#define View_ByThread_Process      4
+extern std::string View_ByThread_Id_name[5];
 
 class ViewInstruction
 {
@@ -375,6 +384,7 @@ void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fex
 bool Validate_V_Options(CommandObject *cmd, std::string allowed[]);
 View_Form_Category Determine_Form_Category (CommandObject *cmd);
 bool Determine_TraceBack_Ordering (CommandObject *cmd);
+int64_t Determine_ByThread_Id (ExperimentObject *exp);
 std::vector<CommandResult *> *
        Construct_CallBack (bool TraceBack_Order, bool add_stmts, Framework::StackTrace& st);
 std::vector<CommandResult *> *

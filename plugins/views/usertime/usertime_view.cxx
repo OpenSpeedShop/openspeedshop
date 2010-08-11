@@ -128,7 +128,6 @@ static bool define_usertime_columns (
   int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
   int64_t first_time_temp = 0;
   bool generate_nested_accounting = false;
-  bool ByThread_Rank = exp->Has_Ranks();
 
  // Define combination instructions for predefined temporaries.
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
@@ -143,6 +142,7 @@ static bool define_usertime_columns (
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp);
   std::string ByThread_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
 
   if (Generate_Summary) {

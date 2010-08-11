@@ -38,7 +38,6 @@
 #define ssq_temp VMulti_free_temp+8
 
 #define First_ByThread_Temp VMulti_free_temp+9
-#define ByThread_Rank 1          // "1" => headers will say "Rank", otherwise "ThreadID"
 #define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
                                  // "2" => times reported in seconds,
                                  // otherwise don't add anything.
@@ -201,6 +200,7 @@ static std::string allowed_mpi_V_options[] = {
 
 static bool define_mpi_columns (
             CommandObject *cmd,
+            ExperimentObject *exp,
             std::vector<Collector>& CV,
             std::vector<std::string>& MV,
             std::vector<ViewInstruction *>& IV,
@@ -228,6 +228,7 @@ static bool define_mpi_columns (
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
   bool generate_nested_accounting = false;
+  int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp);
   std::string Default_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
   std::string ByThread_Header = Default_Header;
 
@@ -491,7 +492,7 @@ static bool mpi_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t 
     }
 
     Validate_V_Options (cmd, allowed_mpi_V_options);
-    return define_mpi_columns (cmd, CV, MV, IV, HV, vfc);
+    return define_mpi_columns (cmd, exp, CV, MV, IV, HV, vfc);
 }
 
 
