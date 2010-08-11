@@ -89,6 +89,7 @@ bool GetExtraMetrics(CommandObject *cmd,
                  (reductionIndex == ViewReduction_imin) ||
                  (reductionIndex == ViewReduction_max) ||
                  (reductionIndex == ViewReduction_imax));
+/* TEST - pcsamp and hwc views are not yet ready to use the new interface
           if ((reductionIndex == ViewReduction_min) ||
               (reductionIndex == ViewReduction_imin) ||
               (reductionIndex == ViewReduction_max) ||
@@ -104,6 +105,7 @@ bool GetExtraMetrics(CommandObject *cmd,
                                       Values[ViewReduction_mean]);
             }
           } else {
+TEST */ {
             GetReducedType (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, reductionIndex, Values[i]);
           }
         }
