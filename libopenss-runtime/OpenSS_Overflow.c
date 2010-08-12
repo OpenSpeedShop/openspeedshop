@@ -133,7 +133,7 @@ void OpenSS_Start(int EventSet)
 }
 
 /* if PAPI_ENOTRUN then just return. may want to return rval here...*/
-void OpenSS_Stop(int EventSet)
+void OpenSS_Stop(int EventSet, long_long* evalues)
 {
     if (EventSet == PAPI_NULL) {
 #if 0
@@ -142,7 +142,7 @@ void OpenSS_Stop(int EventSet)
         return;
     }
 
-    int rval = PAPI_stop(EventSet,values);
+    int rval = PAPI_stop(EventSet,evalues);
 
     if (rval == PAPI_ENOTRUN) {
 	OpenSS_PAPIerror(rval,"OpenSS_Stop");
@@ -151,5 +151,43 @@ void OpenSS_Stop(int EventSet)
 
     if (rval != PAPI_OK) {
 	OpenSS_PAPIerror(rval,"OpenSS_Stop");
+    }
+}
+
+/* if PAPI_ENOTRUN then just return. may want to return rval here...*/
+void OpenSS_HWCAccum(int EventSet, long_long* evalues)
+{
+    if (EventSet == PAPI_NULL) {
+        return;
+    }
+
+    int rval = PAPI_accum(EventSet,evalues);
+
+    if (rval == PAPI_ENOTRUN) {
+	OpenSS_PAPIerror(rval,"OpenSS_HWCAccum");
+	return;
+    }
+
+    if (rval != PAPI_OK) {
+	OpenSS_PAPIerror(rval,"OpenSS_HWCAccum");
+    }
+}
+
+/* if PAPI_ENOTRUN then just return. may want to return rval here...*/
+void OpenSS_HWCRead(int EventSet, long_long* evalues)
+{
+    if (EventSet == PAPI_NULL) {
+        return;
+    }
+
+    int rval = PAPI_read(EventSet,evalues);
+
+    if (rval == PAPI_ENOTRUN) {
+	OpenSS_PAPIerror(rval,"OpenSS_HWCRead");
+	return;
+    }
+
+    if (rval != PAPI_OK) {
+	OpenSS_PAPIerror(rval,"OpenSS_HWCRead");
     }
 }

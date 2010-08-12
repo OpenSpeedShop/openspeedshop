@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+** Copyright (c) 2010 The Krell INstitute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -43,7 +44,7 @@ extern "C" {
 #endif
 
 const PAPI_hw_info_t *hw_info ;       /* PAPI hardware information */
-static int papithreshold = 1000000;
+static int papithreshold = THRESHOLD;
 
 static long_long values[2] = { 0, 0 };
 extern long_long **allocate_test_space(int , int);
@@ -60,7 +61,9 @@ void OpenSS_Create_Eventset(int*);
 void OpenSS_AddEvent(int, int);
 void OpenSS_Overflow(int, int, int, void*);
 void OpenSS_Start(int);
-void OpenSS_Stop(int);
+void OpenSS_Stop(int, long long *);
+void OpenSS_HWCAccum(int,long long *);
+void OpenSS_HWCRead(int, long long *);
 
 #ifdef __cplusplus
 }

@@ -65,9 +65,11 @@
 
 /** Number of entries in the sample buffer. */
 #define OpenSS_PCBufferSize (1024 * OpenSS_BlobSizeFactor)
+#define OpenSS_HWCPCBufferSize (200 * OpenSS_BlobSizeFactor)
 
 /** Number of entries in the hash table. */
 #define OpenSS_PCHashTableSize (OpenSS_PCBufferSize + (OpenSS_PCBufferSize / 4))
+#define OpenSS_HWCPCHashTableSize (OpenSS_HWCPCBufferSize + (OpenSS_HWCPCBufferSize / 4))
 
 /** Type representing PC sampling data (PCs and their respective counts). */
 typedef struct {
@@ -84,6 +86,24 @@ typedef struct {
     unsigned hash_table[OpenSS_PCHashTableSize];
     
 } OpenSS_PCData;
+
+/** Type representing PC sampling data (PCs and their respective hwc counts). */
+typedef uint64_t OpenSS_evcounts[6];
+typedef struct {
+
+    uint64_t addr_begin;  /**< Beginning of gathered data's address range. */
+    uint64_t addr_end;    /**< End of gathered data's address range. */
+    
+    uint16_t length;  /**< Actual used length of the PC and count arrays. */
+    
+    uint64_t pc[OpenSS_HWCPCBufferSize];    /**< Program counter (PC) addresses. */
+    uint8_t count[OpenSS_HWCPCBufferSize];  /**< Sample count at each address. */
+    OpenSS_evcounts hwccounts[OpenSS_HWCPCBufferSize];
+    
+    /** Hash table mapping PC addresses to their array index. */
+    unsigned hash_table[OpenSS_HWCPCHashTableSize];
+    
+} OpenSS_HWCPCData;
 
 
 
@@ -127,6 +147,7 @@ uint64_t OpenSS_GetTime();
 void OpenSS_Send(const OpenSS_DataHeader*, const xdrproc_t, const void*);
 void OpenSS_Timer(uint64_t, const OpenSS_TimerEventHandler);
 bool_t OpenSS_UpdatePCData(uint64_t, OpenSS_PCData*);
+bool_t OpenSS_UpdateHWCPCData(uint64_t, OpenSS_HWCPCData*, long long* );
 bool_t OpenSS_Path_From_Pid(char *);
 
 #ifdef USE_EXPLICIT_TLS

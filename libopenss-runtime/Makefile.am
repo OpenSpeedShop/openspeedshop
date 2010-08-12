@@ -220,6 +220,7 @@ INSTRUMENTOR_SOURCES = \
 	OpenSS_GetPCFromContext.c \
 	OpenSS_InitializeDataHeader.c \
 	OpenSS_UpdatePCData.c \
+	OpenSS_UpdateHWCPCData.c \
 	OpenSS_GetTime.c \
 	OpenSS_Send.c \
 	OpenSS_SendToFile.c \

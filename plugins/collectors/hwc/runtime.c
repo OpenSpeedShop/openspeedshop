@@ -89,7 +89,7 @@ void hwc_suspend_papi()
 #endif
     if (hwc_papi_init_done == 0 || tls == NULL)
 	return;
-    OpenSS_Stop(tls->EventSet);
+    OpenSS_Stop(tls->EventSet, NULL);
 }
 #endif
 
@@ -314,7 +314,7 @@ void hwc_stop_sampling(const char* arguments)
     }
 
     /* Stop sampling */
-    OpenSS_Stop(tls->EventSet);
+    OpenSS_Stop(tls->EventSet, NULL);
 
     tls->header.time_end = OpenSS_GetTime();
 
