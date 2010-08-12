@@ -35,13 +35,14 @@
 
 /* default papi threshold */
 #define THRESHOLD   1000000
+#define OpenSS_NUMCOUNTERS 6
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 const PAPI_hw_info_t *hw_info ;       /* PAPI hardware information */
-static int papithreshold = 1000000;
+static int papithreshold = THRESHOLD;
 
 static long_long values[2] = { 0, 0 };
 extern long_long **allocate_test_space(int , int);
