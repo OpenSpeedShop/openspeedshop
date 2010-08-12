@@ -36,7 +36,7 @@ endif
 endif
 
 if HAVE_PAPI
-SUBDIRS += hwc
+SUBDIRS += hwc hwcsamp
 if HAVE_LIBUNWIND
 SUBDIRS += hwctime
 else

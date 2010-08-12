@@ -472,6 +472,7 @@ AC_CONFIG_FILES(
 	plugins/collectors/pcsamp/Makefile
 	plugins/collectors/usertime/Makefile
 	plugins/collectors/hwc/Makefile
+	plugins/collectors/hwcsamp/Makefile
 	plugins/collectors/hwctime/Makefile
 	plugins/collectors/io/Makefile
 	plugins/collectors/iot/Makefile
@@ -501,6 +502,7 @@ AC_CONFIG_FILES(
 	plugins/panels/loadPanel/Makefile
 	plugins/views/Makefile
 	plugins/views/basic/Makefile
+	plugins/views/hwcsamp/Makefile
 	plugins/views/hwctime/Makefile
 	plugins/views/io/Makefile
 	plugins/views/iot/Makefile
