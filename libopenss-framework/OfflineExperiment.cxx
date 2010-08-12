@@ -149,6 +149,7 @@ static bool setparam(Collector C, std::string pname,
 
       C.setParameterValue(pname,Value);
     } else {
+
       OfflineParamVal pvalue = (*value_list)[0];
 
       if( m.isType(typeid(int)) ) {
@@ -499,19 +500,23 @@ int OfflineExperiment::convertToOpenSSDB()
 		    free(tfptr);
 		}
 	    } else if (mm.getUniqueId() == "event") {
-		char *evptr, *saveptr, *ev_token;
-		evptr = strdup(expEvent.c_str());
-		for (int i = 1; ; i++, evptr = NULL) {
-		    ev_token = strtok_r(evptr, ":,", &saveptr);
-		    if (ev_token == NULL) {
+		if (expCollector == "hwcsamp") {
+			o_param.pushVal((char*)expEvent.c_str());
+		} else {
+		  char *evptr, *saveptr, *ev_token;
+		  evptr = strdup(expEvent.c_str());
+		  for (int i = 1; ; i++, evptr = NULL) {
+		      ev_token = strtok_r(evptr, ":,", &saveptr);
+		      if (ev_token == NULL) {
 			break;
-		    } else {
+		      } else {
 			o_param.pushVal(ev_token);
-		    }
-		}
+		      }
+		  }
 
-		if (evptr) {
+		  if (evptr) {
 		    free(evptr);
+		  }
 		}
 	    }
 
@@ -630,7 +635,9 @@ OfflineExperiment::process_expinfo(const std::string rawfilename)
 	std::cout << "\ninfo..." << std::endl
 		  << "collector name: " << info.collector << std::endl
 		  << "executable :    " << info.exename << std::endl
-		  << "mpi rank:       " << info.rank << std::endl;
+		  << "mpi rank:       " << info.rank << std::endl
+		  << "info.event:     " << expEvent << std::endl
+		  << "info.traced:     " << expTraced << std::endl;
 
 	std::cout << "\ninfoheader..." << std::endl
 		  << "host name:      " << infoheader.host << std::endl
