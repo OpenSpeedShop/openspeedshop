@@ -80,11 +80,16 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 
 #elif defined(__linux) && defined( __powerpc64__ )
 
-    Assert(unw_getcontext(&context) == 0);
+    Assert(getcontext(&context) == 0);
+    skip_frames = 5;
+    skip_signal_frames = FALSE;
 
 #elif defined(__linux) && defined( __powerpc__ )
 
-    Assert(unw_getcontext(&context) == 0);
+    Assert(getcontext(&context) == 0);
+    skip_frames = 5;
+    skip_signal_frames = FALSE;
+
 
 #elif defined(__linux) && defined(__ia64)
 
