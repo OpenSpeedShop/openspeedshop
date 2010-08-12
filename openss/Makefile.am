@@ -75,7 +75,6 @@ bin_PROGRAMS += ossutil
 
 ossutil_CXXFLAGS = \
         @BINUTILS_CPPFLAGS@ \
-        @PAPI_CPPFLAGS@ \
         -I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-queries \
         -I$(top_srcdir)/libopenss-runtime \
@@ -85,7 +84,6 @@ ossutil_CXXFLAGS = \
         $(LTDLINCL)
 
 ossutil_LDFLAGS = \
-        @PAPI_LDFLAGS@ @PAPI_LIBS@ \
         @BINUTILS_LDFLAGS@ \
         -L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-queries \
