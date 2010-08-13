@@ -76,6 +76,7 @@ bool defaultValue_instrumentorIsOffline = TRUE;
 
 using namespace OpenSpeedShop::Framework;
 #include "PapiAPI.h"
+#include "PapiAPI.cxx"
 
 typedef std::pair<std::string, string> papi_preset_event;
 
