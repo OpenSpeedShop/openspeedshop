@@ -23,19 +23,31 @@ endif
 
 DIST_SUBDIRS = dpcl dyninst mrnet offline
 
-lib_LTLIBRARIES = libopenss-framework.la
+lib_LTLIBRARIES = libopenss-framework.la libopenss-framework-binutils.la
+
+libopenss_framework_binutils_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	$(LTDLINCL) \
+	@BINUTILS_CPPFLAGS@
+
+libopenss_framework_binutils_la_LDFLAGS = \
+	@BINUTILS_LDFLAGS@ \
+	-export-dynamic -version-info 1:0:0
+libopenss_framework_binutils_la_LIBADD = \
+	$(LIBLTDL) \
+	@BINUTILS_LIBS@ \
+	-lpthread -lrt
 
 libopenss_framework_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	$(LTDLINCL) \
 	@ARRAYSVCS_CPPFLAGS@ \
-	@BINUTILS_CPPFLAGS@ \
 	@SQLITE_CPPFLAGS@
 
 libopenss_framework_la_LDFLAGS = \
 	@ARRAYSVCS_LDFLAGS@ \
-	@BINUTILS_LDFLAGS@ \
 	@SQLITE_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
 
@@ -44,14 +56,12 @@ libopenss_framework_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
-	@BINUTILS_LIBS@ \
 	@SQLITE_LIBS@ \
 	-lpthread -lrt
 else
 libopenss_framework_la_LIBADD = \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
-	@BINUTILS_LIBS@ \
 	@SQLITE_LIBS@ \
 	-lpthread -lrt
 endif
@@ -104,20 +114,26 @@ COMMON_SOURCES = \
 
 INSTRUMENTOR_SOURCES = \
 	$(top_srcdir)/libopenss-runtime/offline/offline.c \
-	BFDSymbols.hxx BFDSymbols.cxx \
 	CallSite.hxx CallSite.cxx \
 	Instrumentor.hxx \
 	Job.hxx \
 	OutputCallback.hxx \
-	OfflineExperiment.hxx OfflineExperiment.cxx \
+	OfflineExperiment.hxx OfflineExperiment.cxx
+
+OPENSSBINUTILS_SOURCES = \
+	BFDSymbols.hxx BFDSymbols.cxx \
 	PCBuffer.hxx PCBuffer.cxx
 
 if BUILD_INSTRUMENTOR
 libopenss_framework_la_SOURCES = \
 	$(COMMON_SOURCES) $(INSTRUMENTOR_SOURCES)
+libopenss_framework_binutils_la_SOURCES = \
+	$(OPENSSBINUTILS_SOURCES)
 else
 libopenss_framework_la_SOURCES = \
 	$(COMMON_SOURCES)
+libopenss_framework_binutils_la_SOURCES = \
+	$(OPENSSBINUTILS_SOURCES)
 endif
 
 EXTRA_DIST = OpenSSPath.cxx PapiAPI.h PapiAPI.cxx

@@ -48,7 +48,6 @@ bin_PROGRAMS += openss
 
 
 openss_CXXFLAGS = \
-        @BINUTILS_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-framework \
 	-DLIBRARY_DIR=\"$(libdir)\" \
 	-DPLUGIN_DIR=\"$(pkglibdir)\" \
@@ -56,11 +55,9 @@ openss_CXXFLAGS = \
 	$(LTDLINCL)
 
 openss_LDFLAGS = \
-        @BINUTILS_LDFLAGS@ \
 	@OPENMP_LDFLAGS@
 
 openss_LDADD = \
-        @BINUTILS_LIBS@ \
 	$(LIBLTDL) \
 	@OPENMP_LIBS@ \
 	-lpthread
@@ -93,6 +90,7 @@ ossutil_LDADD = \
         @BINUTILS_LIBS@ \
         $(LIBLTDL) \
 	-lopenss-framework \
+	-lopenss-framework-binutils \
         -lpthread
 
 ossutil_SOURCES = \
