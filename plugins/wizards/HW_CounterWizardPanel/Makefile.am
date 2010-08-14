@@ -37,12 +37,14 @@ HW_CounterWizardPanel_la_CXXFLAGS = \
 HW_CounterWizardPanel_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-guibase \
 	-L$(top_srcdir)/libopenss-guiobjects \
+	@PAPI_LDFLAGS@ \
 	@QTLIB_LDFLAGS@ \
 	-export-dynamic -export-all-symbols -module -avoid-version
 
 HW_CounterWizardPanel_la_LIBADD = \
 	-lopenss-guibase \
 	-lopenss-guiobjects \
+	@PAPI_LIBS@ \
 	@QTLIB_LIBS@
 
 HW_CounterWizardPanel_la_SOURCES = \
