@@ -59,14 +59,23 @@ bool GetExtraMetrics(CommandObject *cmd,
 #endif
 
    // Define all the SmartPtrs
+   // First for the columns of output
     for ( i=0; i < Values.size(); i++) {
       Values[i] = Framework::SmartPtr<std::map<TE, CommandResult *> >(
+                                  new std::map<TE, CommandResult * >()
+                                  );
+    }
+    // Second for the the temporary ByThread values
+    std::vector<SmartPtr<std::map<TE, CommandResult *> > > ByThread_Values(ViewReduction_Count+1);
+    for ( i=0; i < ViewReduction_Count; i++) {
+      ByThread_Values[i] = Framework::SmartPtr<std::map<TE, CommandResult *> >(
                                   new std::map<TE, CommandResult * >()
                                   );
     }
 
    // Get all the metric values.
     std::set<TE> objects;   // Build set of objects only once.
+    bool ByThread_info_determined = false;
     for ( i=1; i < num_columns; i++) {
       ViewInstruction *vinst = ViewInst[i];
       if ((vinst->OpCode() == VIEWINST_Display_Metric) ||
@@ -84,32 +93,32 @@ bool GetExtraMetrics(CommandObject *cmd,
           GetMetricByObjectSet (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, Values[i]);
         } else {
           int64_t reductionIndex = vinst->TMP2();
-          Assert((reductionIndex == ViewReduction_mean) ||
-                 (reductionIndex == ViewReduction_min) ||
-                 (reductionIndex == ViewReduction_imin) ||
-                 (reductionIndex == ViewReduction_max) ||
-                 (reductionIndex == ViewReduction_imax));
-/* TEST - pcsamp and hwc views are not yet ready to use the new interface
           if ((reductionIndex == ViewReduction_min) ||
               (reductionIndex == ViewReduction_imin) ||
               (reductionIndex == ViewReduction_max) ||
               (reductionIndex == ViewReduction_imax) ||
               (reductionIndex == ViewReduction_mean)) {
-            if (Values[ViewReduction_min]->empty()) { // Skip if already determined
+            if (!ByThread_info_determined) {
               GetReducedMaxMinIdxAvg (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], vinst->TMP3(),
                                       objects,
-                                      Values[ViewReduction_min],
-                                      Values[ViewReduction_imin],
-                                      Values[ViewReduction_max],
-                                      Values[ViewReduction_imax],
-                                      Values[ViewReduction_mean]);
+                                      ByThread_Values[ViewReduction_min],
+                                      ByThread_Values[ViewReduction_imin],
+                                      ByThread_Values[ViewReduction_max],
+                                      ByThread_Values[ViewReduction_imax],
+                                      ByThread_Values[ViewReduction_mean]);
+              ByThread_info_determined = true;
             }
+            Values[i] = ByThread_Values[reductionIndex];
+           // Clear to avoid trouble, if used multiple times.
+            ByThread_Values[reductionIndex] = Framework::SmartPtr<std::map<TE, CommandResult *> >(
+                                  new std::map<TE, CommandResult * >()
+                                  );
           } else {
-TEST */ {
+            Assert(false);
             GetReducedType (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, reductionIndex, Values[i]);
           }
+          thereAreExtraMetrics = true;
         }
-        thereAreExtraMetrics = true;
       }
     }
 
@@ -117,6 +126,7 @@ TEST */ {
     printf("Exit GetExtraMetrics \n");
 #endif
 
+    return thereAreExtraMetrics;
 }
 
 template <typename TE>
@@ -128,6 +138,7 @@ bool First_Column (CommandObject *cmd,
                    std::vector<ViewInstruction *>& IV,
                    std::set<TE>& objects,
                    std::vector<std::pair<TE, CommandResult *> >& items) {
+    bool sort_descending = true;
     int64_t i;
 
 #if DEBUG_CLI
@@ -160,13 +171,39 @@ bool First_Column (CommandObject *cmd,
     }
     if (vp->OpCode() == VIEWINST_Display_ByThread_Metric) {
       int64_t reductionIndex = vp->TMP2();
+
       Assert((reductionIndex == ViewReduction_mean) ||
              (reductionIndex == ViewReduction_min) ||
              (reductionIndex == ViewReduction_imin) ||
              (reductionIndex == ViewReduction_max) ||
              (reductionIndex == ViewReduction_imax));
-      GetReducedType (cmd, exp, tgrp, CV[Column0metric], MV[Column0metric], objects, reductionIndex, initial_items);
 
+      std::vector<SmartPtr<std::map<TE, CommandResult *> > > ByThread_Values(ViewReduction_Count);
+      for ( i=0; i < ViewReduction_Count; i++) {
+        ByThread_Values[i] = Framework::SmartPtr<std::map<TE, CommandResult *> >(
+                                    new std::map<TE, CommandResult * >()
+                                    );
+      }
+
+      if ((reductionIndex == ViewReduction_min) ||
+          (reductionIndex == ViewReduction_imin) ||
+          (reductionIndex == ViewReduction_max) ||
+          (reductionIndex == ViewReduction_imax) ||
+          (reductionIndex == ViewReduction_mean)) {
+        if ((reductionIndex == ViewReduction_imin) ||
+            (reductionIndex == ViewReduction_imax)) sort_descending = false;
+          GetReducedMaxMinIdxAvg (cmd, exp, tgrp, CV[Column0metric], MV[Column0metric], vp->TMP3(),
+                                  objects,
+                                  ByThread_Values[ViewReduction_min],
+                                  ByThread_Values[ViewReduction_imin],
+                                  ByThread_Values[ViewReduction_max],
+                                  ByThread_Values[ViewReduction_imax],
+                                  ByThread_Values[ViewReduction_mean]);
+        initial_items = ByThread_Values[reductionIndex];
+      } else {
+        Assert(false);
+        GetReducedType (cmd, exp, tgrp, CV[Column0metric], MV[Column0metric], objects, reductionIndex, initial_items);
+      }
     } else {
       GetMetricByObjectSet (cmd, exp, tgrp, CV[Column0metric], MV[Column0metric], objects, initial_items);
     }
@@ -185,7 +222,11 @@ bool First_Column (CommandObject *cmd,
     }
 
    // Now we can sort the data.
-    std::sort(items.begin(), items.end(), sort_descending_CommandResult<std::pair<TE, CommandResult *> >());
+    if (sort_descending) {
+      std::sort(items.begin(), items.end(), sort_descending_CommandResult<std::pair<TE, CommandResult *> >());
+    } else {
+      std::sort(items.begin(), items.end(), sort_ascending_CommandResult<std::pair<TE, CommandResult *> >());
+    }
 
 #if DEBUG_CLI
     printf("Exit FirstColumn \n");
