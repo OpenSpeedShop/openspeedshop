@@ -21,6 +21,7 @@
 #ifndef HW_COUNTERWIZARDPANEL_H
 #define HW_COUNTERWIZARDPANEL_H
 #include "Panel.hxx"           // Do not remove
+#include <stdint.h>
 
 class PanelContainer;   // Do not remove
 
@@ -284,7 +285,7 @@ private:
     QString PAPIDescription;
 
     QString overflowRate;
-    unsigned int original_overflow_rate;
+    uint64_t original_overflow_rate;
     QString original_papi_str;
     Panel *hwCounterPanel;
 

@@ -1504,7 +1504,7 @@ HW_CounterWizardPanel::languageChange()
 // printf("HW_CounterWizardPanel::languageChange() entered\n");
 
 
-  unsigned int overflow_rate = original_overflow_rate;
+  uint64_t overflow_rate = original_overflow_rate;
   std::string PAPIDescriptionStr;;
 // printf("HW_CounterWizardPanel::languageChange(A) entered\n");
 
