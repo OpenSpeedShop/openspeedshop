@@ -40,3 +40,15 @@ How to use the patch
 at the top-level directory do this command:
 patch -p0 < myOSS.patch
 
+
+
+
+TEST FOR FILE LOCKING TO SEE IF SQLITE CAN CREATE A DATABASE FILE
+
+cd <directory in file system being checked>
+sqlite3 junkfile 
+create table JUNK (version integer);
+insert into JUNK (version) values(1); 
+cntl-D
+
+
