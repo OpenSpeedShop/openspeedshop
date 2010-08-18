@@ -75,10 +75,12 @@ install-reference: index.html
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 			${INSTALL_DATA} $$file ${DESTDIR}${docdir2}/$$basefile; \
 		done ; \
-		for file in CLI/html/*.gif ; do \
+	        if test -f CLI/html/*.gif ; then \
+	  	   for file in CLI/html/*.gif ; do \
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 			${INSTALL_DATA} $$file ${DESTDIR}${docdir2}/$$basefile; \
-		done ; \
+		   done ; \
+               fi \
 	fi
 	if test -f Framework/html/index.html ; then \
 		for file in Framework/html/*.html ; do \
@@ -93,10 +95,12 @@ install-reference: index.html
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 			${INSTALL_DATA} $$file ${DESTDIR}${docdir3}/$$basefile; \
 		done ; \
-		for file in Framework/html/*.gif ; do \
+	        if test -f Framework/html/*.gif ; then \
+		   for file in Framework/html/*.gif ; do \
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 			${INSTALL_DATA} $$file ${DESTDIR}${docdir3}/$$basefile; \
-		done ; \
+		   done ; \
+               fi \
 	fi
 	if test -f Runtime/html/index.html ; then \
 		for file in Runtime/html/*.html ; do \
@@ -111,10 +115,12 @@ install-reference: index.html
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
 		done ; \
-		for file in Runtime/html/*.gif ; do \
+	        if test -f Runtime/html/*.gif ; then \
+		   for file in Runtime/html/*.gif ; do \
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
-		done ; \
+		   done ; \
+               fi \
 	fi
 	if test -f Collectors/html/index.html ; then \
 		for file in Collectors/html/*.html ; do \
@@ -129,10 +135,12 @@ install-reference: index.html
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 			${INSTALL_DATA} $$file ${DESTDIR}${docdir5}/$$basefile; \
 		done ; \
-		for file in Collectors/html/*.gif ; do \
+	        if test -f Collectors/html/*.gif ; then \
+		   for file in Collectors/html/*.gif ; do \
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 			${INSTALL_DATA} $$file ${DESTDIR}${docdir5}/$$basefile; \
-		done ; \
+		   done ; \
+               fi \
 	fi
 	if test -f GUI/html/index.html ; then \
 		for file in GUI/html/*.html ; do \
@@ -147,10 +155,12 @@ install-reference: index.html
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 			${INSTALL_DATA} $$file ${DESTDIR}${docdir6}/$$basefile; \
 		done ; \
-		for file in GUI/html/*.gif ; do \
+	        if test -f GUI/html/*.gif ; then \
+		   for file in GUI/html/*.gif ; do \
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 			${INSTALL_DATA} $$file ${DESTDIR}${docdir6}/$$basefile; \
-		done ; \
+		   done ; \
+               fi \
 	fi
 	if test -f Message/html/index.html ; then \
 		for file in Message/html/*.html ; do \
@@ -165,10 +175,12 @@ install-reference: index.html
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 			${INSTALL_DATA} $$file ${DESTDIR}${docdir7}/$$basefile; \
 		done ; \
-		for file in Message/html/*.gif ; do \
+	        if test -f Message/html/*.gif ; then \
+		   for file in Message/html/*.gif ; do \
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 			${INSTALL_DATA} $$file ${DESTDIR}${docdir7}/$$basefile; \
-		done ; \
+		   done ; \
+               fi \
 	fi
 	if test -f Queries/html/index.html ; then \
 		for file in Queries/html/*.html ; do \
@@ -183,10 +195,12 @@ install-reference: index.html
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 			${INSTALL_DATA} $$file ${DESTDIR}${docdir8}/$$basefile; \
 		done ; \
-		for file in Queries/html/*.gif ; do \
+	        if test -f Queries/html/*.gif ; then \
+		   for file in Queries/html/*.gif ; do \
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 			${INSTALL_DATA} $$file ${DESTDIR}${docdir8}/$$basefile; \
-		done ; \
+		   done ; \
+               fi \
 	fi
 
 uninstall-reference: index.html
