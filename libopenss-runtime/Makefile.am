@@ -77,10 +77,13 @@ lib_LTLIBRARIES += libopenss-runtime-papi.la
 library_include_HEADERS += PapiAPI.h
 endif
 
-if HAVE_BINUTILS
+if HAVE_BINUTILS 
+if !HAVE_TARGET_BINUTILS
 lib_LTLIBRARIES += libopenss-runtime-binutils.la
 library_include_HEADERS += BinutilsAPI.h
 endif
+endif
+
 if HAVE_TARGET_BINUTILS
 lib_LTLIBRARIES += libopenss-runtime-binutils.la
 library_include_HEADERS += BinutilsAPI.h
