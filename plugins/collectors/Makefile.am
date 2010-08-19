@@ -48,7 +48,7 @@ endif
 
 if HAVE_TARGET_LIBMONITOR
 if HAVE_TARGET_PAPI
-SUBDIRS += hwc
+SUBDIRS += hwc hwcsamp
 if HAVE_TARGET_LIBUNWIND
 SUBDIRS += hwctime
 endif
