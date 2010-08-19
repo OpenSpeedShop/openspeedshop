@@ -45,7 +45,7 @@ if HAVE_TARGET_LIBMONITOR
 OFFLINE_SOURCES = \
 	offline.c
 
-pkglib_LTLIBRARIES += libhwccsamp-offline.la
+pkglib_LTLIBRARIES += libhwcsamp-offline.la
 endif
 endif
 
@@ -155,7 +155,7 @@ libhwcsamp_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
-	@TARGHET_PAPI_CPPFLAGS@
+	@TARGET_PAPI_CPPFLAGS@
 
 libhwcsamp_offline_la_LDFLAGS = \
 	-static \
