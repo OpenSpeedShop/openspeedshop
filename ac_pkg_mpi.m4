@@ -744,6 +744,12 @@ AC_DEFUN([AC_PKG_TARGET_MPICH2], [
       elif (test -f $target_mpich2_dir/$alt_abi_libdir/libmpich.a); then
         found_mpich2=1
         TARGET_MPICH2_LDFLAGS="-L$target_mpich2_dir/$alt_abi_libdir"
+      elif (test -f $target_mpich2_dir/$alt_abi_libdir/libmpich.cnk.a); then
+        found_mpich2=1
+        TARGET_MPICH2_LDFLAGS="-L$target_mpich2_dir/$alt_abi_libdir"
+      elif (test -f $target_mpich2_dir/$abi_libdir/libmpich.cnk.a); then
+        found_mpich2=1
+        TARGET_MPICH2_LDFLAGS="-L$target_mpich2_dir/$alt_abi_libdir"
       fi 
     fi 
 
@@ -1033,7 +1039,6 @@ AC_DEFUN([AC_PKG_MPI], [
     AC_PKG_MVAPICH2()
     AC_PKG_MPT()
     AC_PKG_OPENMPI()
-
     AC_PKG_TARGET_MPICH2()
 
     default_mpi=""
