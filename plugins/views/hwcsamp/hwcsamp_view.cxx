@@ -47,12 +47,12 @@ static bool define_hwcsamp_columns (
             std::vector<std::string>& MV,
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV) {
-std::cerr << "ENTER define_hwcsamp_columns for hwcsamp" << std::endl;
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   vector<ParseRange> *p_slist = p_result->getexpMetricList();
   int64_t last_column = 0;
 
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp);
 
   if (Generate_Summary) {
    // Total time is always displayed - also add display of the summary time.
@@ -98,30 +98,65 @@ std::cerr << "ENTER define_hwcsamp_columns for hwcsamp" << std::endl;
       } else if (!strcasecmp(M_Name.c_str(), "ThreadMean") ||
                  !strcasecmp(M_Name.c_str(), "ThreadAverage")) {
        // Do a By-Thread average.
-        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_mean));
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0,
+                                          ViewReduction_mean,
+                                          View_ByThread_Identifier));
         HV.push_back( std::string("Average ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
                       + " Across Threads");
       } else if (!strcasecmp(M_Name.c_str(), "ThreadMin")) {
        // Find the By-Thread Min.
-        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_min));
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0,
+                                          ViewReduction_min,
+                                          View_ByThread_Identifier));
         HV.push_back( std::string("Min ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
                       + " Across Threads");
+      } else if (!strcasecmp(M_Name.c_str(), "ThreadMinIndex")) {
+       // Find the Thread of the By-Thread Min.
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0,
+                                          ViewReduction_imin,
+                                          View_ByThread_Identifier));
+        HV.push_back(std::string(View_ByThread_Id_name[View_ByThread_Identifier]) + " of Min");
       } else if (!strcasecmp(M_Name.c_str(), "ThreadMax")) {
        // Find the By-Thread Max.
-        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_max));
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0,
+                                          ViewReduction_max,
+                                          View_ByThread_Identifier));
         HV.push_back( std::string("Max ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
                       + " Across Threads");
+      } else if (!strcasecmp(M_Name.c_str(), "ThreadMaxIndex")) {
+       // Find the Thread of the ByThreadMax.
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0,
+                                          ViewReduction_imax,
+                                          View_ByThread_Identifier));
+        HV.push_back(std::string(View_ByThread_Id_name[View_ByThread_Identifier]) + " of Max");
       } else if (!strcasecmp(M_Name.c_str(), "loadbalance")) {
-        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_min));
+       // ByThreadMax
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0,
+                                          ViewReduction_max,
+                                          View_ByThread_Identifier));
+        HV.push_back( std::string("Max ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
+                      + " Across Threads");
+       // ByThreadMaxIndex
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0,
+                                          ViewReduction_imax,
+                                          View_ByThread_Identifier));
+        HV.push_back(std::string(View_ByThread_Id_name[View_ByThread_Identifier]) + " of Max");
+       // ByThreadMin
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0,
+                                          ViewReduction_min,
+                                          View_ByThread_Identifier));
         HV.push_back( std::string("Min ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
                       + " Across Threads");
-
-        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_mean));
+       // ByThreadMinIndex
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0,
+                                          ViewReduction_imin,
+                                          View_ByThread_Identifier));
+        HV.push_back(std::string(View_ByThread_Id_name[View_ByThread_Identifier]) + " of Min");
+       // ByThreadAverage
+        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0,
+                                          ViewReduction_mean,
+                                          View_ByThread_Identifier));
         HV.push_back( std::string("Average ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
-                      + " Across Threads");
-
-        IV.push_back(new ViewInstruction (VIEWINST_Display_ByThread_Metric, last_column++, 0, ViewReduction_max));
-        HV.push_back( std::string("Max ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
                       + " Across Threads");
       } else {
        // Unrecognized '-m' option.
@@ -167,10 +202,8 @@ static std::string VIEW_hwcsamp_long  =
                   " Posix threads, Mpi threads or Ranks."
                   " \n\t'-m time' reports the total cpu time for all the processes."
                   " \n\t'-m percent' reports the percent of total cpu time for all the processes."
-                  " \n\t'-m ThreadAverage' reports the average cpu time for a process."
-                  " \n\t'-m ThreadMin' reports the minimum cpu time for a process."
-                  " \n\t'-m ThreadMax' reports the maximum cpu time for a process."
-                  " \n\t'-m loadbalance' reports the minimum, average, maximum cpu time for a process."
+// Get the description of the BY-Thread metrics.
+#include "SS_View_bythread_help.hxx"
                   "\n";
 static std::string VIEW_hwcsamp_example = "\texpView hwcsamp\n"
                                          "\texpView -v statements hwcsamp10\n";
@@ -197,7 +230,6 @@ class hwcsamp_view : public ViewType {
   }
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                              ThreadGroup& tgrp, std::list<CommandResult *>& view_output) {
-std::cerr << "ENTER GenerateView for hwcsamp" << std::endl;
     std::vector<Collector> CV;
     std::vector<std::string> MV;
     std::vector<ViewInstruction *>IV;

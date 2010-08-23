@@ -199,7 +199,7 @@ static std::string VIEW_pcsamp_long  =
                   " \n\t'-m time' reports the total cpu time for all the processes."
                   " \n\t'-m percent' reports the percent of total cpu time for all the processes."
 // Get the description of the BY-Thread metrics.
-// #include "SS_View_bythread_help.hxx"
+#include "SS_View_bythread_help.hxx"
                   "\n";
 static std::string VIEW_pcsamp_example = "\texpView pcsamp\n"
                                          "\texpView -v statements pcsamp10\n";
