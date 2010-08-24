@@ -57,13 +57,13 @@ libopenss_framework_la_LIBADD = \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
 	@SQLITE_LIBS@ \
-	-lpthread -lrt
+	-lpthread -lrt -liberty
 else
 libopenss_framework_la_LIBADD = \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
 	@SQLITE_LIBS@ \
-	-lpthread -lrt
+	-lpthread -lrt -liberty
 endif
 
 COMMON_SOURCES = \
