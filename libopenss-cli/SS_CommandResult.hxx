@@ -1409,6 +1409,7 @@ class CommandResult_Headers :
 
   virtual std::string Form () {
     std::string S;
+    S = "";
     std::list<CommandResult *>::iterator cri = Headers.begin();
     int64_t num_results = 0;
     for (cri = Headers.begin(); cri != Headers.end(); cri++) {
@@ -1510,6 +1511,7 @@ class CommandResult_Enders :
 
   virtual std::string Form () {
     std::string S;
+    S = "";
     std::list<CommandResult *>::iterator cri = Enders.begin();
     int64_t num_results = 0;
     for (cri = Enders.begin(); cri != Enders.end(); cri++) {
@@ -1611,6 +1613,7 @@ class CommandResult_Columns :
 
   virtual std::string Form () {
     std::string S;
+    S = "";
     std::list<CommandResult *>::iterator cri = Columns.begin();
     int64_t num_results = 0;
     for (cri = Columns.begin(); cri != Columns.end(); cri++) {
