@@ -142,6 +142,8 @@ namespace {
 	int mrnet_fd = the_network->get_EventNotificationFd( MRN::DATA_EVENT );
 #elif defined(MRNET_22)
 	int mrnet_fd = the_network->get_EventNotificationFd( MRN::DATA_EVENT );
+#elif defined(MRNET_30)
+	int mrnet_fd = the_network->get_EventNotificationFd( MRN::Event::DATA_EVENT );
 #else
         int mrnet_fd = the_network->get_DataNotificationFd();
 #endif
@@ -235,6 +237,8 @@ namespace {
 		the_network->clear_EventNotificationFd( MRN::DATA_EVENT );
 #elif defined(MRNET_22)
 		the_network->clear_EventNotificationFd( MRN::DATA_EVENT );
+#elif defined(MRNET_30)
+		the_network->clear_EventNotificationFd( MRN::Event::DATA_EVENT );
 #else
                 the_network->clear_DataNotificationFd();
 #endif
@@ -362,7 +366,9 @@ void Backend::startMessagePump(int argc, char* argv[])
 #endif
 
     // Initialize MRNet (participating as a backend)
-#if defined(MRNET_22)
+#if defined(MRNET_30)
+    the_network = MRN::Network::CreateNetworkBE(argc, argv);
+#elif defined(MRNET_22)
     the_network = MRN::Network::CreateNetworkBE(argc, argv);
 #else
     the_network = new MRN::Network(argc, argv);

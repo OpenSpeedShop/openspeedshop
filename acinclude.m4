@@ -499,8 +499,11 @@ AC_DEFUN([AC_PKG_MRNET], [
 	"2.2")
             MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_22=1"
             ;;
+	"3.0")
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_30=1"
+            ;;
 	*)
-            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_22=1"
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_30=1"
             ;;
     esac
 
