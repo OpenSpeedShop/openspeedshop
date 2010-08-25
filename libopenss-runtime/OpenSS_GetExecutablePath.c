@@ -62,7 +62,16 @@ static void __attribute__ ((constructor)) initialize()
      * Linux kernels that returned incorrect length values from readlink(). 
      */
     memset(executable_path, 0, sizeof(executable_path));
+#if TARGET_OS == bgp
+    char jobs_exe[256];
+
+    strcat(jobs_exe, "/jobs/");
+    strcat(jobs_exe, getenv("BG_JOBID"));
+    strcat(jobs_exe, "/exe");
+    readlink(jobs_exe, executable_path, sizeof(executable_path) - 1);
+#else
     readlink("/proc/self/exe", executable_path, sizeof(executable_path) - 1);
+#endif
     length = strlen(executable_path);
     if((length > 0) && (executable_path[length - 1] == '*'))
         executable_path[length - 1] = 0;
@@ -94,7 +103,17 @@ const char* OpenSS_GetExecutablePath()
 	 */
 	size_t length = 0;
 	memset(executable_path, 0, sizeof(executable_path));
+
+#if TARGET_OS == bgp
+	char jobs_exe[256];
+
+	strcat(jobs_exe, "/jobs/");
+	strcat(jobs_exe, getenv("BG_JOBID"));
+	strcat(jobs_exe, "/exe");
+	readlink(jobs_exe, executable_path, sizeof(executable_path) - 1);
+#else
 	readlink("/proc/self/exe", executable_path, sizeof(executable_path) - 1);
+#endif
 	length = strlen(executable_path);
 	if((length > 0) && (executable_path[length - 1] == '*'))
             executable_path[length - 1] = 0;
