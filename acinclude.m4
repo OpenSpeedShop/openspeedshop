@@ -107,27 +107,39 @@ AC_DEFUN([AC_PKG_BINUTILS], [
         binutils_vers="`ls $binutils_dir/$abi_libdir/libbfd*.so | cut -d/ -f 4 | cut -c7-99 | sed 's/.so//'`"
     fi
 
+# Chose the pic version over the normal version - binutils-2.20 divides the main library into pic and non-pic
+    if test -f $binutils_dir/$abi_libdir/libiberty_pic.a; then
+       BINUTILS_IBERTY_LIB="-liberty_pic"
+       binutils_iberty_lib="-liberty_pic"
+    elif test -f $binutils_dir/$abi_libdir/libiberty.a; then
+       BINUTILS_IBERTY_LIB="-liberty"
+       binutils_iberty_lib="-liberty"
+    else
+       BINUTILS_IBERTY_LIB=
+       binutils_iberty_lib=
+    fi
+
     case "$host" in
 	ia64-*-linux*)
 	    binutils_required="true"
             BINUTILS_DIR="$binutils_dir"
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
-	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
+	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers $binutils_iberty_lib"
             ;;
 	x86_64-*-linux*)
 	    binutils_required="true"
             BINUTILS_DIR="$binutils_dir"
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
-	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
+	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers $binutils_iberty_lib"
             ;;
 	*)
 	    binutils_required="true"
             BINUTILS_DIR="$binutils_dir"
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
-	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
+	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers $binutils_iberty_lib"
             ;;
     esac
 
@@ -157,6 +169,7 @@ AC_DEFUN([AC_PKG_BINUTILS], [
             BINUTILS_LDFLAGS=""
             BINUTILS_LIBS=""
             BINUTILS_DIR=""
+            BINUTILS_IBERTY_LIB=""
 
         ]
     )
@@ -169,6 +182,7 @@ AC_DEFUN([AC_PKG_BINUTILS], [
     AC_SUBST(BINUTILS_LDFLAGS)
     AC_SUBST(BINUTILS_LIBS)
     AC_SUBST(BINUTILS_DIR)
+    AC_SUBST(BINUTILS_IBERTY_LIB)
 
 ])
 

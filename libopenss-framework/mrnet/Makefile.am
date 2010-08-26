@@ -34,7 +34,7 @@ libopenss_framework_mrnet_la_LDFLAGS = \
 libopenss_framework_mrnet_la_LIBADD = \
 	@MRNET_LIBS@ \
 	$(top_srcdir)/libopenss-framework/mrnet/common/libopenss-framework-mrnet-common.la \
-	-lpthread -liberty
+	-lpthread @BINUTILS_IBERTY_LIB@
 
 libopenss_framework_mrnet_la_SOURCES = \
 	Callbacks.hxx Callbacks.cxx \

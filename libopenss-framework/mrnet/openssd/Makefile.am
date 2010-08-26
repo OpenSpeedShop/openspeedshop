@@ -42,7 +42,7 @@ openssd_LDADD = \
 	@DYNINST_LIBS@ \
 	@LIBDWARF_LIBS@ \
 	@MRNET_LIBS@ \
-	-lpthread -lrt -liberty
+	-lpthread -lrt @BINUTILS_IBERTY_LIB@
 
 openssd_SOURCES = \
 	$(top_srcdir)/libopenss-framework/AddressBitmap.cxx \
