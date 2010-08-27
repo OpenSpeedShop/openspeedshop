@@ -63,12 +63,9 @@ static void __attribute__ ((constructor)) initialize()
      */
     memset(executable_path, 0, sizeof(executable_path));
 #if TARGET_OS == bgp
-    char jobs_exe[256];
-
-    strcat(jobs_exe, "/jobs/");
-    strcat(jobs_exe, getenv("BG_JOBID"));
-    strcat(jobs_exe, "/exe");
-    readlink(jobs_exe, executable_path, sizeof(executable_path) - 1);
+    char jobs_exe_name[256];
+    sprintf(jobs_exe_name, "/proc/%ld/exe", (long)getpid());
+    readlink(jobs_exe_name, executable_path, sizeof(executable_path) - 1);
 #else
     readlink("/proc/self/exe", executable_path, sizeof(executable_path) - 1);
 #endif
@@ -105,12 +102,10 @@ const char* OpenSS_GetExecutablePath()
 	memset(executable_path, 0, sizeof(executable_path));
 
 #if TARGET_OS == bgp
-	char jobs_exe[256];
+	char jobs_exe_name[256];
 
-	strcat(jobs_exe, "/jobs/");
-	strcat(jobs_exe, getenv("BG_JOBID"));
-	strcat(jobs_exe, "/exe");
-	readlink(jobs_exe, executable_path, sizeof(executable_path) - 1);
+	sprintf(jobs_exe_name, "/proc/%ld/exe", (long)getpid());
+	readlink(jobs_exe_name, executable_path, sizeof(executable_path) - 1);
 #else
 	readlink("/proc/self/exe", executable_path, sizeof(executable_path) - 1);
 #endif
