@@ -25,6 +25,7 @@
 
 #include "RuntimeAPI.h"
 
+#include <dirent.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -34,6 +35,38 @@
 /** Path of the executable. */
 static char executable_path[PATH_MAX] = "";
 
+#if TARGET_OS == bgp
+void getJobsExeName(char *name) {
+
+  char jobdir[]="/jobs";
+  DIR *pdir = NULL;
+  pdir = opendir(jobdir);
+  if (pdir == NULL) {
+    fprintf(stderr,"ERROR %s could not be opened\n",jobdir);
+    return;
+  }
+
+  struct dirent *pent = NULL;
+  int i;
+  for (i=0; i < 3; i++) {
+    pent = readdir(pdir);
+    if (pent == NULL) {
+      fprintf(stderr,"ERROR: directory %s could not be read\n",jobdir);
+      return;
+    }
+  }
+
+  /* the 3rd entry is the jobid. (not . or ..) */
+  closedir(pdir);
+
+  strcpy(name, jobdir);
+  strcat(name, "/");
+  strcat(name, pent->d_name);
+  strcat(name, "/exe");
+  return;
+}
+
+#endif
 
 
 /**
@@ -64,7 +97,8 @@ static void __attribute__ ((constructor)) initialize()
     memset(executable_path, 0, sizeof(executable_path));
 #if TARGET_OS == bgp
     char jobs_exe_name[256];
-    sprintf(jobs_exe_name, "/jobs/%ld/exe", (long)getpid());
+
+    getJobsExeName(jobs_exe_name);
     readlink(jobs_exe_name, executable_path, sizeof(executable_path) - 1);
 #else
     readlink("/proc/self/exe", executable_path, sizeof(executable_path) - 1);
@@ -102,9 +136,8 @@ const char* OpenSS_GetExecutablePath()
 	memset(executable_path, 0, sizeof(executable_path));
 
 #if TARGET_OS == bgp
-	char jobs_exe_name[256];
-
-	sprintf(jobs_exe_name, "/jobs/%ld/exe", (long)getpid());
+        char jobs_exe_name[256];
+        getJobsExeName(jobs_exe_name);
 	readlink(jobs_exe_name, executable_path, sizeof(executable_path) - 1);
 #else
 	readlink("/proc/self/exe", executable_path, sizeof(executable_path) - 1);
