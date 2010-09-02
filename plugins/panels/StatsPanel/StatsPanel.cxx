@@ -2187,11 +2187,19 @@ StatsPanel::minMaxAverageSelected()
 
   if( focusedExpID == -1 ) {
 
+#if 0
     command = QString("expview -x %1 %2 -m %3::ThreadMin, %4::ThreadMax, %5::ThreadAverage -v %6").arg(expID).arg(timeIntervalString).arg(currentCollectorStr).arg(currentCollectorStr).arg(currentCollectorStr).arg(displayType);
+#else
+    command = QString("expview -x %1 %2 -m loadbalance -v %3").arg(expID).arg(timeIntervalString).arg(displayType);
+#endif
 
   } else {
 
+#if 0
     command = QString("expview -x %1 %2 -m %3::ThreadMin, %4::ThreadMax, %5::ThreadAverage -v %6").arg(focusedExpID).arg(timeIntervalString).arg(currentCollectorStr).arg(currentCollectorStr).arg(currentCollectorStr).arg(displayType);
+#else
+    command = QString("expview -x %1 %2 -m loadbalance -v %3").arg(focusedExpID).arg(timeIntervalString).arg(displayType);
+#endif
   }
 
 #ifdef DEBUG_StatsPanel
@@ -7822,14 +7830,22 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
     printf("outputCLIData, (sml != NULL)... = (%d)\n", (sml != NULL) );
 #endif
 
+#if 0
     int columnWidth = 200;
+#else
+    int columnWidth = 120;
+#endif
     for( FieldList::Iterator it = columnFieldList.begin();
        it != columnFieldList.end();
        ++it)
     {
       QString s = ((QString)*it).stripWhiteSpace();
       columnHeaderList.push_back(s);
+#if 0
       columnWidth = 200;
+#else
+      columnWidth = 120;
+#endif
 
 #ifdef DEBUG_StatsPanel
       printf("outputCLIData, columnHeaderList.push_back(s), outputCLIData, s=(%s), column i=%d\n",
@@ -7904,7 +7920,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
   } else {
 
 #ifdef DEBUG_StatsPanel
-    printf("outputCLIData, gootHeader=%d, staticDataFLAG... = (%d)\n", gotHeader, staticDataFLAG );
+    printf("outputCLIData, gotHeader=%d, staticDataFLAG... = (%d)\n", gotHeader, staticDataFLAG );
 #endif
 
     strings = new QString[columnFieldList.count()];
