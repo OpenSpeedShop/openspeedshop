@@ -142,6 +142,7 @@ do
                 hwc )           collector="$2" ;;
                 usertime )      collector="$2" ;;
                 hwctime )       collector="$2" ;;
+                hwcsamp )       collector="$2" ;;
                 io )            collector="$2" ;;
                 iot )           collector="$2" ;;
                 mpi )           collector="$2" ;;
@@ -388,6 +389,10 @@ case "$collector" in
     hwctime)
     static_collector=${oss_plugins}/lib${collector}-offline.a
     collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-papi -lopenss-runtime-unwind -L ${libpapi_libdir} -lpapi -L ${libunwind_libdir} -lunwind"
+    ;;
+    hwcsamp)
+    static_collector=${oss_plugins}/lib${collector}-offline.a
+    collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-papi -L ${libpapi_libdir} -lpapi"
     ;;
     io | iot)
     static_collector=${oss_plugins}/lib${collector}-offline.a
