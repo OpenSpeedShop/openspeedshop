@@ -7833,7 +7833,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
 #if 0
     int columnWidth = 200;
 #else
-    int columnWidth = 120;
+    int columnWidth = 160;
 #endif
     for( FieldList::Iterator it = columnFieldList.begin();
        it != columnFieldList.end();
@@ -7844,7 +7844,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
 #if 0
       columnWidth = 200;
 #else
-      columnWidth = 120;
+      columnWidth = 160;
 #endif
 
 #ifdef DEBUG_StatsPanel
@@ -8947,7 +8947,7 @@ StatsPanel::generateCommand()
   printf("GENERATE_COMMAND, prior to method checks, compareExpIDs.size()=%d\n", compareExpIDs.size());
 #endif
 
-  if (lastCommand.startsWith("cview -c")) {
+  if (lastCommand.startsWith("cview -c") && compareExpIDs.size() > 0) {
 
      // don't burden the user with a choice dialog, there is only one experiment being offered
 
