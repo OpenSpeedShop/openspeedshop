@@ -1,5 +1,5 @@
 .\" Process this file with
-.\" groff -man -Tascii openss.1
+.\" groff -man -Tascii ossmpiotf.1
 .\"
 .TH OSSMPIOTF 1 "JUNE 2009" Linux "User Manuals"
 .SH NAME
@@ -144,21 +144,7 @@ The following diagnostics may be TBD:
 .SH QUICK START EXAMPLE
 The following command runs the MPI executable "mpi_prog" and gathers 
 MPI function trace information on the 64 ranked processes.  
-When completed, a view of the aggregated information is displayed 
-to the screen.  An Open|SpeedShop database file, named 
-"mpi_prog-openmpi-iot.openss" will be created.  This database 
-contains all the information to view the experiment performance data
-postmortem.  The database file may be used to view the performance 
-data for this experiment with the default view or using the several 
-different viewing options which allow rank to rank comparisons or 
-the ability to view performance information for individual ranks 
-or groups of ranks.
 
-The "mpiotf" experiment presents an overview of the time spent in the
-system MPI functions and where those functions were called in the
-user application.  In addition, individual call path with their respective
-time and number of calls are available.  Optional, MPI function
-call specific information is also available.
 .nf
 
 ossmpiotf "/opt/openmpi/bin/mpiexec -np 64 /home/user/mpi_prog"
@@ -171,6 +157,7 @@ TBD
 Open|SpeedShop Team <oss-questions@openspeedshop.org>
 .SH "SEE ALSO"
 .BR openss (1),
+.BR osscompare (1)
 .BR osspcsamp (1)
 .BR ossusertime (1),
 .BR osshwc (1)
