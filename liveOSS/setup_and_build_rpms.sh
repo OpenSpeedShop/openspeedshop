@@ -124,7 +124,12 @@ echo "..........................................."
 echo "..........................................."
 echo "Listing the location RPM for webtutorial-0.0.1....."
 echo "..........................................."
-ls -lastr RPMS/localhost.localdomain/webtutorial.OSS.i686.rpm
+if [ "$(uname -i)" = "i386" ]; then
+  ls -lastr RPMS/localhost.localdomain/webtutorial.OSS.i686.rpm
+elif [ "$(uname -i)" = "x86_64" ]; then
+  ls -lastr RPMS/localhost.localdomain/webtutorial.OSS.x86_64.rpm
+fi
+
 
 echo "..........................................."
 echo "Building RPM for toyprograms-0.0.1....."
@@ -133,7 +138,11 @@ echo "..........................................."
 echo "..........................................."
 echo "Listing the location RPM for toyprograms-0.0.1....."
 echo "..........................................."
-ls -lastr RPMS/localhost.localdomain/toyprograms.OSS.i686.rpm
+if [ "$(uname -i)" = "i386" ]; then
+  ls -lastr RPMS/localhost.localdomain/toyprograms.OSS.i686.rpm
+elif [ "$(uname -i)" = "x86_64" ]; then
+  ls -lastr RPMS/localhost.localdomain/toyprograms.OSS.x86_64.rpm
+fi
 
 echo "..........................................."
 echo "Checking for SOURCES/openmpi-1.4.2.tar.gz....."
@@ -164,7 +173,14 @@ fi
 echo "..........................................."
 echo "Listing the location RPM for openmpi-1.n.m....."
 echo "..........................................."
-ls -lastr RPMS/localhost.localdomain/openmpi.OSS.i686.rpm
+
+# only works on x86, x86_64
+if [ "$(uname -i)" = "i386" ]; then
+ ls -lastr RPMS/localhost.localdomain/openmpi.OSS.i686.rpm
+elif [ "$(uname -i)" = "x86_64" ]; then
+  ls -lastr RPMS/localhost.localdomain/openmpi.OSS.x86_64.rpm
+fi
+
 
 echo "............................................."
 echo "PLEASE MANUALLY COPY THE RPMS OVER TO /var/www/html/yum/base as super user."
