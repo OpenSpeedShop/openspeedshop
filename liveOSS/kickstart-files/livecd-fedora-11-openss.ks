@@ -83,14 +83,14 @@ echo "        . /etc/bashrc" >> /root/.bashrc.oss
 echo "fi" >> /root/.bashrc.oss
 echo "export QTDIR=/usr/lib/qt-3.3" >> /root/.bashrc.oss
 echo "export OPENSS_PREFIX=/opt/OSS" >> /root/.bashrc.oss
-echo "export OPENSS_PLUGIN_PATH=\\\$OPENSS_PREFIX/lib/openspeedshop" >> /root/.bashrc.oss
+echo "export OPENSS_PLUGIN_PATH=\\\$OPENSS_PREFIX/lib64/openspeedshop" >> /root/.bashrc.oss
 echo "export OPENSS_INSTRUMENTOR=mrnet" >> /root/.bashrc.oss
 echo "export OPENSS_MRNET_TOPOLOGY_FILE=/home/openssuser/.openss.top" >> /root/.bashrc.oss
 echo "export OPENSS_RAWDATA_DIR=/tmp" >> /root/.bashrc.oss
 echo "export OPENSS_MPI_OPENMPI=/opt/openmpi" >> /root/.bashrc.oss
-echo "export DYNINSTAPI_RT_LIB=\\\$OPENSS_PREFIX/lib/libdyninstAPI_RT.so.1" >> /root/.bashrc.oss
+echo "export DYNINSTAPI_RT_LIB=\\\$OPENSS_PREFIX/lib64/libdyninstAPI_RT.so.1" >> /root/.bashrc.oss
 echo "export PATH=\\\$OPENSS_PREFIX/bin:/opt/openmpi/bin:\\\$PATH" >> /root/.bashrc.oss
-echo "export LD_LIBRARY_PATH=\\\$OPENSS_PREFIX/lib:/opt/openmpi/lib:\\\$LD_LIBRARY_PATH" >> /root/.bashrc.oss
+echo "export LD_LIBRARY_PATH=\\\$OPENSS_PREFIX/lib64:/opt/openmpi/lib:\\\$LD_LIBRARY_PATH" >> /root/.bashrc.oss
 echo "export XPLAT_RSHCOMMAND=ssh" >> /root/.bashrc.oss
 echo "export XPLAT_RSH=ssh" >> /root/.bashrc.oss
 echo "export MRNET_RSH=ssh" >> /root/.bashrc.oss
