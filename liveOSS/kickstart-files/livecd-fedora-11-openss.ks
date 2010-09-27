@@ -84,6 +84,7 @@ echo "fi" >> /root/.bashrc.oss
 echo "export QTDIR=/usr/lib/qt-3.3" >> /root/.bashrc.oss
 echo "export OPENSS_PREFIX=/opt/OSS" >> /root/.bashrc.oss
 echo "export OPENSS_PLUGIN_PATH=\\\$OPENSS_PREFIX/lib64/openspeedshop" >> /root/.bashrc.oss
+echo "export OPENSS_DOC_DIR=\\\$OPENSS_PREFIX/share/doc/packages/OpenSpeedShop" >> /root/.bashrc.oss
 echo "export OPENSS_INSTRUMENTOR=mrnet" >> /root/.bashrc.oss
 echo "export OPENSS_MRNET_TOPOLOGY_FILE=/home/openssuser/.openss.top" >> /root/.bashrc.oss
 echo "export OPENSS_RAWDATA_DIR=/tmp" >> /root/.bashrc.oss
@@ -94,6 +95,7 @@ echo "export LD_LIBRARY_PATH=\\\$OPENSS_PREFIX/lib64:/opt/openmpi/lib:\\\$LD_LIB
 echo "export XPLAT_RSHCOMMAND=ssh" >> /root/.bashrc.oss
 echo "export XPLAT_RSH=ssh" >> /root/.bashrc.oss
 echo "export MRNET_RSH=ssh" >> /root/.bashrc.oss
+echo "alias lsr=\"ls -lastr\"" >> /root/.bashrc.oss
 chmod 644 /root/.bashrc.oss
 cp /root/.bashrc.oss /home/openssuser/.bashrc
 chown openssuser:openssuser /home/openssuser/.bashrc
@@ -219,6 +221,7 @@ mv /opt/tempapps/sequential/smg2000 /home/openssuser/sequential/.
 mv /opt/tempapps/sequential/forever /home/openssuser/sequential/.
 mv /opt/tempapps/sequential/threads /home/openssuser/sequential/.
 mv /opt/tempapps/sequential/mutatee /home/openssuser/sequential/.
+mv /opt/tempapps/sequential/openmp_stress /home/openssuser/sequential/.
 mv /opt/tempapps/sequential/matmul /home/openssuser/sequential/.
 
 chown openssuser:openssuser -R /home/openssuser/mpi
