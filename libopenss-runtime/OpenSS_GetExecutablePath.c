@@ -35,7 +35,7 @@
 /** Path of the executable. */
 static char executable_path[PATH_MAX] = "";
 
-#if TARGET_OS == bgp
+#if defined(TARGET_OS_BGP)
 void getJobsExeName(char *name) {
 
   char jobdir[]="/jobs";
@@ -95,7 +95,7 @@ static void __attribute__ ((constructor)) initialize()
      * Linux kernels that returned incorrect length values from readlink(). 
      */
     memset(executable_path, 0, sizeof(executable_path));
-#if TARGET_OS == bgp
+#if defined(TARGET_OS_BGP)
     char jobs_exe_name[256];
 
     getJobsExeName(jobs_exe_name);
@@ -135,7 +135,7 @@ const char* OpenSS_GetExecutablePath()
 	size_t length = 0;
 	memset(executable_path, 0, sizeof(executable_path));
 
-#if TARGET_OS == bgp
+#if defined(TARGET_OS_BGP)
         char jobs_exe_name[256];
         getJobsExeName(jobs_exe_name);
 	readlink(jobs_exe_name, executable_path, sizeof(executable_path) - 1);

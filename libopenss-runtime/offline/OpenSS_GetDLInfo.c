@@ -19,7 +19,7 @@
 #include <pthread.h>
 
 extern void offline_record_dso(const char* dsoname, uint64_t begin, uint64_t end, uint8_t is_dlopen);
-#if TARGET_OS == bgp
+#if defined(TARGET_OS_BGP)
 #include <link.h>
 
 extern etext;
@@ -29,7 +29,7 @@ extern edata;
 
 int OpenSS_GetDLInfo(pid_t pid, char *path)
 {
-#if TARGET_OS == bgp
+#if defined(TARGET_OS_BGP)
     offline_record_dso(OpenSS_GetExecutablePath(),(uint64_t)0x01000000,(uint64_t)&etext,0);
 #else
     char mapfile_name[PATH_MAX];
