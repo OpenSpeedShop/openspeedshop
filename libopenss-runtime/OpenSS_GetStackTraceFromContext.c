@@ -76,7 +76,12 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
  */
 #if defined(__linux) && (defined(__i386) || defined(__x86_64))
 
-    Assert(unw_getcontext(&context) == 0);
+    if(signal_context != NULL) {
+        memmove(&context, signal_context, sizeof(unw_context_t));
+        skip_signal_frames = FALSE;
+    } else {
+	Assert(unw_getcontext(&context) == 0);
+    }
 
 #elif defined(__linux) && defined( __powerpc64__ )
 
