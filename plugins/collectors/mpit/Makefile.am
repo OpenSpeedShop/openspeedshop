@@ -57,6 +57,9 @@ if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-lam-rt-offline.la libmpit-lam-offline.la
 endif
 if HAVE_TARGET_LIBMONITOR
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += mpit-lam-rt-offline.la
+endif
 pkglib_LTLIBRARIES += libmpit-lam-offline.la
 endif
 endif
@@ -69,6 +72,9 @@ if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-lampi-rt-offline.la libmpit-lampi-offline.la
 endif
 if HAVE_TARGET_LIBMONITOR
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += mpit-lampi-rt-offline.la
+endif
 pkglib_LTLIBRARIES += libmpit-lampi-offline.la
 endif
 endif
@@ -81,6 +87,9 @@ if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-mpich-rt-offline.la libmpit-mpich-offline.la
 endif
 if HAVE_TARGET_LIBMONITOR
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += mpit-mpich-rt-offline.la
+endif
 pkglib_LTLIBRARIES += libmpit-mpich-offline.la
 endif
 endif
@@ -92,13 +101,13 @@ endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-mpich2-rt-offline.la libmpit-mpich2-offline.la
 endif
-if HAVE_TARGET_LIBMONITOR
-pkglib_LTLIBRARIES += libmpit-mpich2-offline.la
-endif
 endif
 
 if HAVE_TARGET_MPICH2
 if HAVE_TARGET_LIBMONITOR
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += mpit-mpich2-rt-offline.la
+endif
 pkglib_LTLIBRARIES += libmpit-mpich2-offline.la
 endif
 endif
@@ -111,6 +120,9 @@ if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-mpt-rt-offline.la libmpit-mpt-offline.la
 endif
 if HAVE_TARGET_LIBMONITOR
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += mpit-mpt-rt-offline.la
+endif
 pkglib_LTLIBRARIES += libmpit-mpt-offline.la
 endif
 endif
@@ -123,6 +135,9 @@ if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-mvapich-rt-offline.la libmpit-mvapich-offline.la
 endif
 if HAVE_TARGET_LIBMONITOR
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += mpit-mvapich-rt-offline.la
+endif
 pkglib_LTLIBRARIES += libmpit-mvapich-offline.la
 endif
 endif
@@ -135,6 +150,9 @@ if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-mvapich2-rt-offline.la libmpit-mvapich2-offline.la
 endif
 if HAVE_TARGET_LIBMONITOR
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += mpit-mvapich2-rt-offline.la
+endif
 pkglib_LTLIBRARIES += libmpit-mvapich2-offline.la
 endif
 endif
@@ -147,6 +165,9 @@ if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpit-openmpi-rt-offline.la libmpit-openmpi-offline.la
 endif
 if HAVE_TARGET_LIBMONITOR
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += mpit-openmpi-rt-offline.la
+endif
 pkglib_LTLIBRARIES += libmpit-openmpi-offline.la
 endif
 endif
@@ -270,6 +291,36 @@ lib_offline_sources = \
 endif
 
 if HAVE_TARGET_LIBMONITOR
+
+if HAVE_TARGET_SHARED
+rt_offline_CFLAGS_generate = \
+	-DOPENSS_OFFLINE \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	$(1) \
+	@TARGET_LIBUNWIND_CPPFLAGS@
+
+rt_offline_LDFLAGS_generate = \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
+	$(1) \
+	@TARGET_LIBUNWIND_LDFLAGS@ \
+	-no-undefined -avoid-version
+
+rt_offline_LIBADD_generate = \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	-lopenss-runtime-unwind \
+	$(1) \
+	@TARGET_LIBUNWIND_LIBS@ \
+	-lrt -lpthread
+
+rt_offline_sources = \
+	blobs.x $(BUILT_SOURCES) $(OFFLINE_SOURCES) \
+	wrappers.c \
+	wrappers-fortran.c \
+	runtime.h runtime.c
+endif
+
 lib_offline_CFLAGS_generate = \
 	-static \
 	-DOPENSS_OFFLINE -DOPENSS_STATIC \
@@ -431,12 +482,23 @@ endif
 
 if HAVE_TARGET_MPICH2
 if HAVE_TARGET_LIBMONITOR
+
+if HAVE_TARGET_SHARED
+mpit_mpich2_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@TARGET_MPICH2_CPPFLAGS@)
+mpit_mpich2_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@TARGET_MPICH2_LDFLAGS@)
+mpit_mpich2_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@TARGET_MPICH2_LIBS@)
+mpit_mpich2_rt_offline_la_DEPENDENCIES =
+mpit_mpich2_rt_offline_la_SOURCES = $(rt_offline_sources)
+nodist_mpit_mpich2_rt_offline_la_SOURCES = 
+endif
+
 libmpit_mpich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@TARGET_MPICH2_CPPFLAGS@)
 libmpit_mpich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@TARGET_MPICH2_LDFLAGS@)
 libmpit_mpich2_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@TARGET_MPICH2_LIBS@)
 libmpit_mpich2_offline_la_DEPENDENCIES =
 libmpit_mpich2_offline_la_SOURCES = $(lib_offline_sources)
 nodist_libmpit_mpich2_offline_la_SOURCES =
+
 endif
 endif
 

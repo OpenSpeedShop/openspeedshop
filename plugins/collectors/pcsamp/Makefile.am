@@ -48,6 +48,9 @@ OFFLINE_SOURCES = \
 	offline.c
 
 pkglib_LTLIBRARIES += libpcsamp-offline.la
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += pcsamp-rt-offline.la
+endif
 endif
 endif
 
@@ -133,6 +136,28 @@ libpcsamp_offline_la_SOURCES = \
 endif
 
 if HAVE_TARGET_LIBMONITOR
+
+if HAVE_TARGET_SHARED
+pcsamp_rt_offline_la_CFLAGS = \
+        -DOPENSS_OFFLINE \
+        -I$(top_srcdir)/libopenss-runtime \
+        -I$(top_srcdir)/libopenss-runtime/offline
+
+pcsamp_rt_offline_la_LDFLAGS = \
+        -L$(top_srcdir)/libopenss-runtime \
+        -L$(top_srcdir)/libopenss-runtime/offline \
+        -no-undefined -module -avoid-version
+
+pcsamp_rt_offline_la_LIBADD = \
+        -lopenss-runtime-offline -lopenss-runtime-monitor \
+        -lpthread -lrt
+
+pcsamp_rt_offline_la_SOURCES = \
+        blobs.x $(BUILT_SOURCES) \
+        $(OFFLINE_SOURCES) \
+        runtime.c
+
+endif
 
 libpcsamp_offline_la_CFLAGS = \
 	-static \

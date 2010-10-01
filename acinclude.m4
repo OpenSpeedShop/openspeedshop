@@ -205,7 +205,9 @@ AC_DEFUN([AC_PKG_TARGET_BINUTILS], [
       TARGET_BINUTILS_CPPFLAGS=""
       TARGET_BINUTILS_LDFLAGS=""
       TARGET_BINUTILS_LIBS=""
+      AC_MSG_RESULT(no)
     else
+      AC_MSG_RESULT(yes)
       AM_CONDITIONAL(HAVE_TARGET_BINUTILS, true)
       AC_DEFINE(HAVE_TARGET_BINUTILS, 1, [Define to 1 if you have a target version of BINUTILS.])
       case "$target_os" in
@@ -444,7 +446,9 @@ AC_DEFUN([AC_PKG_TARGET_LIBUNWIND], [
       TARGET_LIBUNWIND_LDFLAGS=""
       TARGET_LIBUNWIND_LIBS=""
       TARGET_LIBUNWIND_DIR=""
+      AC_MSG_RESULT(no)
     else
+      AC_MSG_RESULT(yes)
       AM_CONDITIONAL(HAVE_TARGET_LIBUNWIND, true)
       AC_DEFINE(HAVE_TARGET_LIBUNWIND, 1, [Define to 1 if you have a target version of LIBUNWIND.])
       TARGET_LIBUNWIND_CPPFLAGS="-I$target_libunwind_dir/include -DUNW_LOCAL_ONLY"
@@ -1065,7 +1069,8 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
                                [PAPI target architecture installation @<:@/opt@:>@]),
                 target_papi_dir=$withval, target_papi_dir="/zzz")
 
-    AC_MSG_CHECKING([for Targetted PAPI support])
+
+    foundPS=0
 
     if test "$target_papi_dir" == "/zzz" ; then
       AM_CONDITIONAL(HAVE_TARGET_PAPI, false)
@@ -1073,14 +1078,25 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
       TARGET_PAPI_CPPFLAGS=""
       TARGET_PAPI_LDFLAGS=""
       TARGET_PAPI_LIBS=""
+      foundPS=0
+      AC_MSG_CHECKING([for Targetted PAPI support])
+      AC_MSG_RESULT(no)
     else
 
       AM_CONDITIONAL(HAVE_TARGET_PAPI, true)
       AC_DEFINE(HAVE_TARGET_PAPI, 1, [Define to 1 if you have a target version of PAPI.])
+      AC_MSG_CHECKING([for Targetted PAPI support])
+      AC_MSG_RESULT(yes)
 
       TARGET_PAPI_DIR="$target_papi_dir"
       TARGET_PAPI_CPPFLAGS="-I$target_papi_dir/include"
       TARGET_PAPI_LDFLAGS="-L$target_papi_dir/$abi_libdir"
+
+      if test -f $target_papi_dir/$abi_libdir/libpapi.so; then
+        foundPS=1
+      else
+        foundPS=0
+      fi
 
       case "$target_os" in
 	cray-xt5)
@@ -1094,6 +1110,17 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
             fi 
             ;;
       esac
+
+    fi
+
+    AC_MSG_CHECKING([for Shared Targetted PAPI support])
+    if test $foundPS == 1; then
+        AM_CONDITIONAL(HAVE_TARGET_PAPI_SHARED, true)
+        AC_DEFINE(HAVE_TARGET_PAPI_SHARED, 1, [Define to 1 if you have a target version of PAPI that has shared libs.])
+        AC_MSG_RESULT(yes)
+    else
+        AM_CONDITIONAL(HAVE_TARGET_PAPI_SHARED, false)
+        AC_MSG_RESULT(no)
     fi
 
     AC_SUBST(TARGET_PAPI_DIR)
@@ -1879,6 +1906,7 @@ AC_DEFUN([AC_PKG_TARGET_LIBMONITOR], [
       TARGET_LIBMONITOR_LDFLAGS=""
       TARGET_LIBMONITOR_LIBS=""
       TARGET_LIBMONITOR_DIR=""
+      AC_MSG_RESULT(no)
     else
       AM_CONDITIONAL(HAVE_TARGET_LIBMONITOR, true)
       AC_DEFINE(HAVE_TARGET_LIBMONITOR, 1, [Define to 1 if you have a target version of LIBMONITOR.])
@@ -1886,6 +1914,7 @@ AC_DEFUN([AC_PKG_TARGET_LIBMONITOR], [
       TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
       TARGET_LIBMONITOR_LIBS="-lmonitor"
       TARGET_LIBMONITOR_DIR="$target_libmonitor_dir"
+      AC_MSG_RESULT(yes)
     fi
 
 

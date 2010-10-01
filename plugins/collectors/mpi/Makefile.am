@@ -61,6 +61,9 @@ if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-lam-rt-offline.la libmpi-lam-offline.la
 endif
 if HAVE_TARGET_LIBMONITOR
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += mpi-lam-rt-offline.la
+endif
 pkglib_LTLIBRARIES += libmpi-lam-offline.la
 endif
 endif
@@ -73,6 +76,9 @@ if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-lampi-rt-offline.la libmpi-lampi-offline.la
 endif
 if HAVE_TARGET_LIBMONITOR
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += mpi-lampi-rt-offline.la
+endif
 pkglib_LTLIBRARIES += libmpi-lampi-offline.la
 endif
 endif
@@ -84,13 +90,18 @@ endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-mpich-rt-offline.la libmpi-mpich-offline.la
 endif
-if HAVE_TARGET_LIBMONITOR
-pkglib_LTLIBRARIES += libmpi-mpich-offline.la
 endif
-endif
+
+#if HAVE_TARGET_MPICH
+#if HAVE_TARGET_LIBMONITOR
+#if HAVE_TARGET_SHARED
+#pkglib_LTLIBRARIES += mpi-mpich-rt-offline.la
+#endif
+#pkglib_LTLIBRARIES += libmpi-mpich-offline.la
+#endif
+#endif
 
 if HAVE_MPICH2
-
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += mpi-rt-mpich2.la
 endif
@@ -98,15 +109,13 @@ endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-mpich2-rt-offline.la libmpi-mpich2-offline.la
 endif
-
-if HAVE_TARGET_LIBMONITOR
-pkglib_LTLIBRARIES += libmpi-mpich2-offline.la
-endif
-
 endif
 
 if HAVE_TARGET_MPICH2
 if HAVE_TARGET_LIBMONITOR
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += mpi-mpich2-rt-offline.la
+endif
 pkglib_LTLIBRARIES += libmpi-mpich2-offline.la
 endif
 endif
@@ -119,10 +128,16 @@ endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-mpt-rt-offline.la libmpi-mpt-offline.la
 endif
-if HAVE_TARGET_LIBMONITOR
-pkglib_LTLIBRARIES += libmpi-mpt-offline.la
 endif
-endif
+
+#if HAVE_TARGET_MPT
+#if HAVE_TARGET_LIBMONITOR
+#if HAVE_TARGET_SHARED
+#pkglib_LTLIBRARIES += mpi-mpt-rt-offline.la
+#endif
+#pkglib_LTLIBRARIES += libmpi-mpt-offline.la
+#endif
+#endif
 
 if HAVE_OPENMPI
 if !BUILD_OFFLINE
@@ -131,10 +146,16 @@ endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-openmpi-rt-offline.la libmpi-openmpi-offline.la
 endif
-if HAVE_TARGET_LIBMONITOR
-pkglib_LTLIBRARIES += libmpi-openmpi-offline.la
 endif
-endif
+
+#if HAVE_TARGET_OPENMPI
+#if HAVE_TARGET_LIBMONITOR
+#if HAVE_TARGET_SHARED
+#pkglib_LTLIBRARIES += mpi-openmpi-rt-offline.la
+#endif
+#pkglib_LTLIBRARIES += libmpi-openmpi-offline.la
+#endif
+#endif
 
 if HAVE_MVAPICH
 if !BUILD_OFFLINE
@@ -143,10 +164,16 @@ endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-mvapich-rt-offline.la libmpi-mvapich-offline.la
 endif
-if HAVE_TARGET_LIBMONITOR
-pkglib_LTLIBRARIES += libmpi-mvapich-offline.la
 endif
-endif
+
+#if HAVE_TARGET_MVAPICH
+#if HAVE_TARGET_LIBMONITOR
+#if HAVE_TARGET_SHARED
+#pkglib_LTLIBRARIES += mpi-mvapich-rt-offline.la
+#endif
+#pkglib_LTLIBRARIES += libmpi-mvapich-offline.la
+#endif
+#endif
 
 if HAVE_MVAPICH2
 if !BUILD_OFFLINE
@@ -155,10 +182,16 @@ endif
 if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpi-mvapich2-rt-offline.la libmpi-mvapich2-offline.la
 endif
-if HAVE_TARGET_LIBMONITOR
-pkglib_LTLIBRARIES += libmpi-mvapich2-offline.la
 endif
-endif
+
+#if HAVE_TARGET_MVAPICH2
+#if HAVE_TARGET_LIBMONITOR
+#if HAVE_TARGET_SHARED
+#pkglib_LTLIBRARIES += mpi-mvapich2-rt-offline.la
+#endif
+#pkglib_LTLIBRARIES += libmpi-mvapich2-offline.la
+#endif
+#endif
 
 endif
 
@@ -310,6 +343,36 @@ lib_offline_sources = \
 endif
 
 if HAVE_TARGET_LIBMONITOR
+
+if HAVE_TARGET_SHARED
+rt_offline_CFLAGS_generate = \
+	-DOPENSS_OFFLINE \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	$(1) \
+	@TARGET_LIBUNWIND_CPPFLAGS@
+
+rt_offline_LDFLAGS_generate = \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
+	$(1) \
+	@TARGET_LIBUNWIND_LDFLAGS@ \
+	-no-undefined -avoid-version
+
+rt_offline_LIBADD_generate = \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	-lopenss-runtime-unwind \
+	$(1) \
+	@TARGET_LIBUNWIND_LIBS@ \
+	-lrt -lpthread
+
+rt_offline_sources = \
+	blobs.x $(BUILT_SOURCES) $(OFFLINE_SOURCES) \
+	wrappers.c \
+	wrappers-fortran.c \
+	runtime.h runtime.c
+endif
+
 lib_offline_CFLAGS_generate = \
 	-static \
 	-DOPENSS_OFFLINE -DOPENSS_STATIC \
@@ -467,6 +530,16 @@ libmpi_mpich2_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@TARGET_MPI
 libmpi_mpich2_offline_la_DEPENDENCIES =
 libmpi_mpich2_offline_la_SOURCES = $(lib_offline_sources)
 nodist_libmpi_mpich2_offline_la_SOURCES = $(wrapper_sources)
+
+if HAVE_TARGET_SHARED
+mpi_mpich2_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@TARGET_MPICH2_CPPFLAGS@)
+mpi_mpich2_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@TARGET_MPICH2_LDFLAGS@)
+mpi_mpich2_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@TARGET_MPICH2_LIBS@)
+mpi_mpich2_rt_offline_la_DEPENDENCIES =
+mpi_mpich2_rt_offline_la_SOURCES = $(rt_offline_sources)
+nodist_mpi_mpich2_rt_offline_la_SOURCES = $(wrapper_sources)
+endif
+
 endif
 endif
 

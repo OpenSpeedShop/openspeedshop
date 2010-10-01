@@ -49,6 +49,10 @@ if HAVE_TARGET_LIBMONITOR
 OFFLINE_SOURCES = \
 	offline.c
 
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += fpe-rt-offline.la
+endif
+
 pkglib_LTLIBRARIES += libfpe-offline.la
 endif
 endif
@@ -163,6 +167,37 @@ libfpe_offline_la_SOURCES = \
 endif
 
 if HAVE_TARGET_LIBMONITOR
+
+if HAVE_TARGET_SHARED
+fpe_rt_offline_la_CFLAGS = \
+	-DOPENSS_OFFLINE \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	@TARGET_BINUTILS_CPPFLAGS@ \
+	@TARGET_LIBUNWIND_CPPFLAGS@
+
+fpe_rt_offline_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
+	@TARGET_BINUTILS_LDFLAGS@ \
+	@TARGET_LIBUNWIND_LDFLAGS@ \
+	-no-undefined -module -avoid-version
+
+fpe_rt_offline_la_LIBADD = \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	-lopenss-runtime-binutils \
+	-lopenss-runtime-unwind \
+	@TARGET_BINUTILS_LIBS@ \
+	@TARGET_LIBUNWIND_LIBS@ \
+	-lpthread -lrt -lm
+
+fpe_rt_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	runtime.c
+
+endif
+
 libfpe_offline_la_CFLAGS = \
 	-static \
 	-DOPENSS_OFFLINE \

@@ -52,6 +52,9 @@ OFFLINE_SOURCES = \
 	offline.c
 
 pkglib_LTLIBRARIES += libusertime-offline.la
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += usertime-rt-offline.la
+endif
 endif
 endif
 
@@ -149,6 +152,34 @@ libusertime_offline_la_SOURCES = \
 endif
 
 if HAVE_TARGET_LIBMONITOR
+
+if HAVE_TARGET_SHARED
+
+usertime_rt_offline_la_CFLAGS = \
+	-DOPENSS_OFFLINE \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	@LIBUNWIND_CPPFLAGS@
+
+usertime_rt_offline_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
+	@LIBUNWIND_LDFLAGS@ \
+	-no-undefined -module -avoid-version
+
+usertime_rt_offline_la_LIBADD = \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	-lopenss-runtime-unwind \
+	@LIBUNWIND_LIBS@ \
+	-lpthread -lrt
+
+usertime_rt_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	runtime.c
+
+endif
+
 libusertime_offline_la_CFLAGS = \
 	-static \
 	-DOPENSS_OFFLINE \

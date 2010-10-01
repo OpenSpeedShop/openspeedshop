@@ -235,8 +235,11 @@ AM_CONDITIONAL([HAVE_TARGET_TEST_POSIX_THREADS],
     [test x$enable_target_pthreads = xyes])
 
 if test "x$enable_target_pthreads" = xyes ; then
+    AC_MSG_RESULT(yes)
     AC_DEFINE([HAVE_TARGET_POSIX_THREADS], [1],
         [Enable support on the target architecture for pthreads.])
+else
+    AC_MSG_RESULT(no)
 fi
 
 AC_SUBST(HAVE_TARGET_POSIX_THREADS)
@@ -256,9 +259,13 @@ AC_ARG_ENABLE([target_dlopen],
 if test "x$enable_target_dlopen" = xyes ; then
     AC_DEFINE([HAVE_TARGET_DLOPEN], [1],
         [Enable support on the target architecture for dlopen.])
+    AC_MSG_RESULT(yes)
+else
+    AC_MSG_RESULT(no)
 fi
 
 AC_SUBST(HAVE_TARGET_DLOPEN)
+
 
 ################################################################################
 # Target SIGNALS Availability Specification
@@ -274,8 +281,11 @@ AC_ARG_ENABLE([target-signals],
     [enable_target_signals=yes])
 
 if test "x$enable_target_signals" = xyes ; then
+    AC_MSG_RESULT(yes)
     AC_DEFINE([HAVE_TARGET_SIGNALS], [1],
         [Enable support on target architecture for signals.])
+else
+    AC_MSG_RESULT(no)
 fi
 
 AC_SUBST(HAVE_TARGET_SIGNALS)
@@ -296,9 +306,37 @@ AC_ARG_ENABLE([target-fork],
 if test "x$enable_target_fork" = xyes ; then
     AC_DEFINE([HAVE_TARGET_FORK], [1],
         [Enable support on target architecture for fork and exec families.])
+    AC_MSG_RESULT(yes)
+else
+    AC_MSG_RESULT(no)
 fi
 
 AC_SUBST(HAVE_TARGET_FORK)
+
+################################################################################
+# Target SHARED LIBRAY BUILD Specification
+################################################################################
+#
+# Option: --enable-target-shared=yes
+#
+AC_MSG_CHECKING(for target shared libraries build specification)
+AC_ARG_ENABLE([target-shared],
+    [AS_HELP_STRING([--enable-target-shared],
+        [Enable support on target architecture for building shared libraries [default=no]])],
+    [enable_target_shared=yes],
+    [enable_target_shared=no])
+
+if test "x$enable_target_shared" = xyes ; then
+    AC_MSG_RESULT(yes)
+    AM_CONDITIONAL(HAVE_TARGET_SHARED, true)
+    AC_DEFINE([HAVE_TARGET_SHARED], [1],
+        [Enable support on target architecture for shared libraries.])
+else
+    AC_MSG_RESULT(no)
+    AM_CONDITIONAL(HAVE_TARGET_SHARED, false)
+fi
+
+AC_SUBST(HAVE_TARGET_SHARED)
 
 ################################################################################
 # Check for Additional Packages

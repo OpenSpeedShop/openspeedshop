@@ -106,14 +106,13 @@ if HAVE_LIBMONITOR
 pkglib_LTLIBRARIES += mpiotf-mpich2-rt-offline.la libmpiotf-mpich2-offline.la
 endif
 
-if HAVE_TARGET_LIBMONITOR
-pkglib_LTLIBRARIES += libmpiotf-mpich2-offline.la
-endif
-
 endif
 
 if HAVE_TARGET_MPICH2
 if HAVE_TARGET_LIBMONITOR
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += mpiotf-mpich2-rt-offline.la
+endif
 pkglib_LTLIBRARIES += libmpiotf-mpich2-offline.la
 endif
 
@@ -524,6 +523,21 @@ lib_offline_sources = \
 endif
 
 if HAVE_TARGET_LIBMONITOR
+
+if HAVE_TARGET_MPICH2
+if HAVE_TARGET_SHARED
+rt_offline_mpich2_LIBADD_generate = \
+	$(1) \
+	-lopenss-runtime-offline \
+	-lopenss-runtime-monitor \
+	-L./ -lvt.mpi.mpich2  \
+        @TARGET_OTF_LIBSDIR@/libotf.a \
+        @TARGET_OTF_LIBZ_LDFLAGS@ \
+	@TARGET_OTF_LIBZ_LIBS@ \
+	-lrt 
+endif
+endif
+
 lib_offline_CFLAGS_generate = \
         -static \
         -DOPENSS_OFFLINE \
@@ -863,6 +877,15 @@ endif
 
 if HAVE_TARGET_MPICH2
 if HAVE_TARGET_LIBMONITOR
+
+if HAVE_TARGET_SHARED
+mpiotf_mpich2_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@TARGET_MPICH2_CPPFLAGS@)
+mpiotf_mpich2_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@TARGET_MPICH2_LDFLAGS@)
+mpiotf_mpich2_rt_offline_la_LIBADD = $(call rt_offline_mpich2_LIBADD_generate,@TARGET_MPICH2_LIBS@)
+mpiotf_mpich2_rt_offline_la_DEPENDENCIES = libvt-mpich2-mpi-a
+mpiotf_mpich2_rt_offline_la_SOURCES = $(rt_offline_sources)
+endif
+
 libmpiotf_mpich2_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@TARGET_MPICH2_CPPFLAGS@)
 libmpiotf_mpich2_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@TARGET_MPICH2_LDFLAGS@)
 libmpiotf_mpich2_offline_la_LIBADD = $(call lib_offline_mpich2_LIBADD_generate,@TARGET_MPICH2_LIBS@)

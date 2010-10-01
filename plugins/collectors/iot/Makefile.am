@@ -49,6 +49,10 @@ if HAVE_TARGET_LIBMONITOR
 OFFLINE_SOURCES = \
 	offline.c
 
+if HAVE_TARGET_SHARED
+pkglib_LTLIBRARIES += iot-rt-offline.la
+endif
+
 pkglib_LTLIBRARIES += libiot-offline.la
 endif
 endif
@@ -153,6 +157,34 @@ libiot_offline_la_SOURCES = \
 endif
 
 if HAVE_TARGET_LIBMONITOR
+
+if HAVE_TARGET_SHARED
+iot_rt_offline_la_CFLAGS = \
+	-DOPENSS_OFFLINE \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	@TARGET_LIBUNWIND_CPPFLAGS@
+
+iot_rt_offline_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-runtime \
+	-L$(top_srcdir)/libopenss-runtime/offline \
+	@TARGET_LIBUNWIND_LDFLAGS@ \
+	-no-undefined -module -avoid-version
+
+iot_rt_offline_la_LIBADD = \
+	-lopenss-runtime-offline -lopenss-runtime-monitor \
+	-lopenss-runtime-unwind \
+	@TARGET_LIBUNWIND_LIBS@ \
+	-lpthread -lrt
+
+iot_rt_offline_la_SOURCES = \
+	blobs.x $(BUILT_SOURCES) \
+	$(OFFLINE_SOURCES) \
+	wrappers.c \
+	runtime.h runtime.c
+
+endif
+
 libiot_offline_la_CFLAGS = \
 	-static \
 	-DOPENSS_OFFLINE -DOPENSS_STATIC \
