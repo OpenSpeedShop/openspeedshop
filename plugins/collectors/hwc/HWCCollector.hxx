@@ -37,7 +37,7 @@
 namespace OpenSpeedShop { namespace Framework {
 
     /**
-     * PC sampling collector.
+     * Hardware counter collector.
      *
      * Periodically interrupts the running thread, obtains the current
      * program counter (PC) value, stores it, and allows the thread to
