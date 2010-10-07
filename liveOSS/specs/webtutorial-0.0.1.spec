@@ -1,7 +1,7 @@
 Summary: Web Tutorial For Use In OpenSpeedShop-Live
 Name: webtutorial
 Version: 0.0.1
-Release: 1
+Release: 2
 License: GPL
 Group: Documentation
 URL: http://www.openspeedshop.org/
@@ -31,6 +31,7 @@ install -D -m ugo+rw index.html $RPM_BUILD_ROOT%{prefix}
 install -D -m ugo+rw details/*.html $RPM_BUILD_ROOT%{prefix}/details
 install -D -m ugo+rw img/*.* $RPM_BUILD_ROOT%{prefix}/img
 install -D -m ugo+rw tutorials/*.html $RPM_BUILD_ROOT%{prefix}/tutorials
+install -D -m ugo+rw tutorials/*.pdf $RPM_BUILD_ROOT%{prefix}/tutorials
 
 %clean
 if test x"$RPM_BUILD_ROOT" != x"/"; then
@@ -43,6 +44,8 @@ fi
 %{prefix}/*
 
 %changelog
+* Thu Oct 7 2010 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
+- Add SC2010 tutorial slides webtutorial-0.0.1 - 2
 * Tue Aug 4 2009 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
 - Minor tweaks and move to name webtutorial-0.0.1
 * Fri Aug 29 2008 Samuel K. Gutierrez <samuel@lanl.gov> - 1.2.6

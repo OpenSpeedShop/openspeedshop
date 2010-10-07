@@ -1,7 +1,7 @@
 Summary: Sample Applications For Use In OpenSpeedShop-Live
 Name: toyprograms
 Version: 0.0.1
-Release: 1
+Release: 2
 License: GPL
 Group: Development/Libraries
 URL: http://www.openspeedshop.org/
@@ -140,6 +140,27 @@ cd mpi/nbody
 install -D -m ugo+rw *.c $RPM_BUILD_ROOT%{prefix}/mpi/nbody/
 install -D -m ugo+rwx nbody $RPM_BUILD_ROOT%{prefix}/mpi/nbody/
 
+cd ../..
+mkdir -p $RPM_BUILD_ROOT%{prefix}/mpi/LU
+cd mpi/LU
+
+install -D -m ugo+rw *.f $RPM_BUILD_ROOT%{prefix}/mpi/LU/
+install -D -m ugo+rw *.openss $RPM_BUILD_ROOT%{prefix}/mpi/LU/
+install -D -m ugo+rwx Makefile $RPM_BUILD_ROOT%{prefix}/mpi/LU/
+install -D -m ugo+rwx *.sample $RPM_BUILD_ROOT%{prefix}/mpi/LU/
+
+
+cd ../..
+mkdir -p $RPM_BUILD_ROOT%{prefix}/multi/openmp_stress
+cd multi/openmp_stress
+
+install -D -m ugo+rw *.f $RPM_BUILD_ROOT%{prefix}/multi/openmp_stress
+install -D -m ugo+rwx stress_omp  $RPM_BUILD_ROOT%{prefix}/multi/openmp_stress
+install -D -m ugo+rw stress.input $RPM_BUILD_ROOT%{prefix}/multi/openmp_stress
+install -D -m ugo+rw README.omp_stress $RPM_BUILD_ROOT%{prefix}/multi/openmp_stress
+install -D -m ugo+rwx buildit $RPM_BUILD_ROOT%{prefix}/multi/openmp_stress
+
+
 
 cd ../..
 
@@ -154,6 +175,8 @@ fi
 %{prefix}/*
 
 %changelog
+* Thu Oct 7 2010 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
+- Add multi directory for openmp and mpi/LU  - 2
 * Fri Jul 9 2010 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
 - Add database directory for important database files
 * Tue Aug 4 2009 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
