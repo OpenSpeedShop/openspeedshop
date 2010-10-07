@@ -215,7 +215,7 @@ mv /opt/tempapps/sequential/smg2000 /home/openssuser/sequential/.
 mv /opt/tempapps/sequential/forever /home/openssuser/sequential/.
 mv /opt/tempapps/sequential/threads /home/openssuser/sequential/.
 mv /opt/tempapps/sequential/mutatee /home/openssuser/sequential/.
-mv /opt/tempapps/sequential/openmp_stress /home/openssuser/multi/.
+mv /opt/tempapps/multi/openmp_stress /home/openssuser/multi/.
 mv /opt/tempapps/sequential/matmul /home/openssuser/sequential/.
 
 chown openssuser:openssuser -R /home/openssuser/mpi
