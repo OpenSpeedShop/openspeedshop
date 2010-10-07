@@ -76,7 +76,7 @@ echo "Building mpi version of nbody....."
 echo "..........................................."
 ./buildit
 
-cd ../multi/openmp_stress
+cd ../../multi/openmp_stress
 chmod 755 buildit
 echo "..........................................."
 echo "Building openmp_stress....."
