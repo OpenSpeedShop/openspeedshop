@@ -35,12 +35,6 @@ echo "..........................................."
 echo "Building forever....."
 echo "..........................................."
 ./buildit
-cd ../openmp_stress
-chmod 755 buildit
-echo "..........................................."
-echo "Building mutatee....."
-echo "..........................................."
-./buildit
 cd ../mutatee
 chmod 755 buildit
 echo "..........................................."
@@ -79,6 +73,13 @@ cd ../nbody
 chmod 755 buildit
 echo "..........................................."
 echo "Building mpi version of nbody....."
+echo "..........................................."
+./buildit
+
+cd ../multi/openmp_stress
+chmod 755 buildit
+echo "..........................................."
+echo "Building openmp_stress....."
 echo "..........................................."
 ./buildit
 
