@@ -1,0 +1,3 @@
+gfortran -D__GFORTRAN -g -O -fopenmp -ostress_omp stress_omp.f -lm -lgomp
+
+
