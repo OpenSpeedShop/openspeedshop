@@ -386,7 +386,15 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
                                 break;
                               }
 
-			      if (tid != tid_to_monitor) {
+                              // Add this special case for the case where the application is not-pthreaded but when the data file is created
+                              // the master thread id is used to create the name.  Here we detect this case as dyninst will report 0 tid value
+                              // (tid_to_monitor here), the tid value here is the tid value derived from the openss-data file name.
+                              // We check to see if this is the case and then set tid to zero so we process this file with the tid value from 
+                              // the named file even if the tid to monitor is 0.   Basically, we ignore the fact the tids don't match, but only
+                              // when tid_to_monitor is a zero, which means the application was not threaded, so this should be relatively safe.
+                              if (tid != 0 && tid_to_monitor == 0) {
+                                 tid = 0;
+                              } else if (tid != tid_to_monitor) {
 				  if (isDebugEnabled ()) {
 				     std:: cout << "CONTINUE BECAUSE TID and TID_TO_MONITOR DO NOT MATCH" << std::endl;
                                   }
@@ -396,7 +404,8 @@ void Watcher::scanForRawPerformanceData(pid_t pid_to_monitor, std::string host_t
 			      // ************** Make legality checks on pid and tid
 			      // More here?
 
-			      if (pid > 0 && tid > 0) {
+                              // See comments above about master thread etc...
+			      if (pid > 0 && (tid > 0 || tid == 0 && tid_to_monitor == 0)) {
 				  if (WatcherThreadTable::TheTable.getThreadAlreadyPresent (pid, tid)) {
 
 				      currentFileEntryInfo = WatcherThreadTable::TheTable.getEntry (pid, tid);
