@@ -223,6 +223,12 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		  if mpi_exe_implmentation == "openmpi":
 		    mpi_executable = file_arg
 		    break
+		  if mpi_exe_implmentation == "mvapich":
+		    mpi_executable = file_arg
+		    break
+		  if mpi_exe_implmentation == "mvapich2":
+		    mpi_executable = file_arg
+		    break
 	    else:
 		isscript = os.system('file -L ' + file_arg + ' | grep -q script')
 		if not os.WEXITSTATUS(isscript):
@@ -292,8 +298,6 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     use_mpi_impl = ""
 
     if ismpi:
-      if mpi_executable == "":
-	raise RuntimeError("[openss error]: Failed to locate the mpi program.")
 
       if 'OPENSS_MPI_IMPLEMENTATION' in os.environ:
 	use_mpi_impl = os.environ["OPENSS_MPI_IMPLEMENTATION"]
@@ -302,6 +306,15 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    use_mpi_impl = default_mpi_impl.lower()
 	else:
 	    use_mpi_impl = mpi_exe_implmentation
+
+      if mpi_executable == "":
+	if use_mpi_impl == "":
+            raise RuntimeError("[openss error]: Failed to locate the mpi program.")
+        else:
+            if not os.WEXITSTATUS(ismpidriver):
+               mpi_executable == file_arg
+            else:
+               raise RuntimeError("[openss error]: Failed to locate the mpi program.")
 
       mpiplugin = plugins + "/mpi-" + use_mpi_impl + "-rt-offline.so"
 
