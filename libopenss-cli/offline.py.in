@@ -312,7 +312,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
             raise RuntimeError("[openss error]: Failed to locate the mpi program.")
         else:
             if not os.WEXITSTATUS(ismpidriver):
-               mpi_executable == file_arg
+               mpi_executable = file_arg
             else:
                raise RuntimeError("[openss error]: Failed to locate the mpi program.")
 
