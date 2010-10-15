@@ -332,7 +332,7 @@ else
      use_default_flag=1
   else
      match=0
-     if [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwctime" ]]; then
+     if [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwcsamp" || "$experiment_name" == "osshwctime" ]]; then
        # check for PAPI_ in name 
        match=`expr match "$2" 'PAPI_'`
        if [ $match == 0 ]
@@ -399,7 +399,7 @@ else
      use_default_flag=1
   else
      match=0
-     if [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwctime" ]]; then
+     if [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwcsamp" || "$experiment_name" == "osshwctime" ]]; then
         # We have seen the PAPI_event, so the next argument must be the threshold value
         if [ $input_argument_event_or_trace_list_value != 0 ]
         then
@@ -410,8 +410,14 @@ else
           then
             if [ use_default_flag == 0 ]
             then 
-              echo "[openss]: FATAL: Expected PAPI_<event_name> in this argument position.  $0 inferred that argument 2 was the papi threshold.  With that, argument 3 needs to be the papi event name.  For example: PAPI_TOT_CYC, etc."
-              exit
+              if [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwctime" ]]; then
+                 echo "[openss]: FATAL: Expected PAPI_<event_name> in this argument position.  $0 inferred that argument 2 was the papi threshold.  With that, argument 3 needs to be the papi event name.  For example: PAPI_TOT_CYC, etc."
+                 exit
+              elif [[ "$experiment_name" == "osshwcsamp" ]]; then
+                 echo "[openss]: FATAL: Expected PAPI_<event_name_list> in this argument position.  $0 inferred that argument 2 was the experiment sampling rate.  With that, argument 3 needs to be the papi event name or event name list .  For example: PAPI_TOT_CYC,PAPI_L1_DCM,PAPI_L1_DCA etc."
+                 exit
+              fi
+
             else
               echo "[openss]: WARNING: $0 expects no arguments after the \"default\" argument.   Argument 3 =\"$3\" is ignored."
             fi
