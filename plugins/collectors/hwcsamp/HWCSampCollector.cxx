@@ -113,7 +113,7 @@ Blob HWCSampCollector::getDefaultParameterValues() const
     hwc_init_papi();
 
     // Set the default parameters
-    parameters.sampling_rate = 1000000;
+    parameters.sampling_rate = 100;
 #if 0
     for (int i = 0; i < 6; i++ ) {
 	if (HWCSampEvents[i])
