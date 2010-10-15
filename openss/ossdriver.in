@@ -47,6 +47,12 @@ hwc_default_event="PAPI_TOT_CYC"
 # Corresponds to OPENSS_HWC_THRESHOLD
 hwc_default_threshold=10000
 
+# Corresponds to OPENSS_HWCSAMP_EVENTS
+hwcsamp_default_events="PAPI_TOT_CYC"
+
+# Corresponds to OPENSS_HWCSAMP_RATE
+hwcsamp_default_rate=100
+
 # Corresponds to OPENSS_HWCTIME_EVENT
 hwctime_default_event="PAPI_TOT_CYC"
 
@@ -184,7 +190,7 @@ then
      echo "                           This will override any environment variable settings."
    fi
    if [[ "$experiment_name" == "osspcsamp" || "$experiment_name" == "ossusertime" ]]; then
-     echo "            \"rate value\"  - Use this sampling rate or threshold value "
+     echo "            \"rate value\"  - Use this sampling rate"
      echo "                              instead of the default or any environment variable settings."
      echo "                                 For example: 80"
      echo "                                     for a sampling rate of 80 samples per second."
@@ -201,6 +207,22 @@ then
       then
         echo " Available Hardware counter events are:"
         $whichpapi_avail | grep "Yes   No"
+     fi
+   elif [ "$experiment_name" == "osshwcsamp" ]; then
+     echo "            \"papi_event(s)\"  - Specify the papi event or set of events up to six (6) events depending on number available on your platform."
+     echo "                                 For example: PAPI_FP_OPS"
+     echo "                                     for Floating point operations."
+     echo "                                 And/Or:          PAPI_L1_DCM"
+     echo "                                     for Level 1 data cache misses."
+     echo "            \"sampling rate value\"  - Use this sampling rate"
+     echo "                              instead of the default or any environment variable settings."
+     echo "                                 For example: 80"
+     echo "                                     for a sampling rate of 80 samples per second."
+     whichpapi_avail=`which papi_avail`
+     if test -f $whichpapi_avail
+      then
+        echo " Available Hardware counter events are:"
+        $whichpapi_avail
      fi
    elif [[ "$experiment_name" == "ossio" || "$experiment_name" == "ossiot" ]]; then
      echo "            \"I/O functions to trace\"  - Specify the list of I/O functions to be traced when running the io or iot experiments."
@@ -894,6 +916,257 @@ then
 
   openss -offline -f "$1" hwc
 
+
+# ------------------------------------------------------------------------------------
+# -- HWCSAMP EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
+elif  [ $experiment_name == "osshwcsamp" ]
+then
+
+  if [ $debug_flag == 1 ]
+  then
+    if [ -z "$OPENSS_HWCSAMP_EVENTS" ] 
+    then
+      echo "DEBUG: in HWCSAMP EXPERIMENT SECTION, NOT SET, OPENSS_HWCSAMP_EVENTS=$OPENSS_HWCSAMP_EVENTS"
+    else
+      echo "DEBUG: in HWCSAMP EXPERIMENT SECTION, IS SET, OPENSS_HWCSAMP_EVENTS=$OPENSS_HWCSAMP_EVENTS"
+    fi
+
+    if [ -z "$OPENSS_HWCSAMP_RATE" ] 
+    then
+      echo "DEBUG: in HWCSAMP EXPERIMENT SECTION, NOT SET, OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE"
+    else
+      echo "DEBUG: in HWCSAMP EXPERIMENT SECTION, IS SET, OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE"
+    fi
+  fi
+
+  if [ $low_flag == 1 ]
+  then
+     sampling_rate=$hwcsamp_default_rate
+     let sampling_rate=sampling_rate/2
+     if [ -z "$OPENSS_HWCSAMP_RATE" ] 
+     then
+       if [ -z "$OPENSS_HWCSAMP_EVENTS" ] 
+       then
+         echo "[openss]: hwcsamp experiment using default papi event: \"$hwcsamp_default_events\"."
+         echo "[openss]: hwcsamp experiment using sampling_rate: \"$sampling_rate\" because the \"low\" parameter is specified."
+       else
+         echo "[openss]: hwcsamp experiment using papi event: \"$OPENSS_HWCSAMP_EVENTS\" because the OPENSS_HWCSAMP_EVENTS environment variable is set."
+         echo "[openss]: hwcsamp experiment using sampling_rate: \"$sampling_rate\" because the \"low\" parameter is specified."
+       fi
+     else
+       if [ -z "$OPENSS_HWCSAMP_EVENTS" ] 
+       then
+         echo "[openss]: hwcsamp experiment using default papi event: \"$hwcsamp_default_events\"."
+         echo "[openss]: hwcsamp experiment OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE is set and will be altered to \"$sampling_rate\" because the \"low\" parameter is specified."
+       else
+         echo "[openss]: hwcsamp experiment using papi event: \"$OPENSS_HWCSAMP_EVENTS\" because the OPENSS_HWCSAMP_EVENTS environment variable is set."
+         echo "[openss]: hwcsamp experiment OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE is set and will be altered to \"$sampling_rate\" because the \"low\" parameter is specified."
+       fi
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: sampling_rate=$sampling_rate"
+     fi
+     OPENSS_HWCSAMP_RATE=$sampling_rate
+     export OPENSS_HWCSAMP_RATE
+     if [ $debug_flag == 1 ]
+     then 
+        echo "DEBUG: in HWCSAMP EXPERIMENT SECTION, RESET low, OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE"
+     fi
+  elif [ $high_flag == 1 ]
+  then
+     sampling_rate=$hwcsamp_default_rate
+#     sampling_rate=$OPENSS_HWCSAMP_RATE
+     let sampling_rate=sampling_rate*4
+     if [ -z "$OPENSS_HWCSAMP_RATE" ] 
+     then
+       if [ -z "$OPENSS_HWCSAMP_EVENTS" ] 
+       then
+         echo "[openss]: hwcsamp experiment using default papi event: \"$hwcsamp_default_events\"."
+         echo "[openss]: hwcsamp experiment using sampling_rate: \"$sampling_rate\" because the \"high\" parameter is specified."
+       else
+         echo "[openss]: hwcsamp experiment using papi event: \"$OPENSS_HWCSAMP_EVENTS\" because the OPENSS_HWCSAMP_EVENTS environment variable is set."
+         echo "[openss]: hwcsamp experiment using sampling_rate: \"$sampling_rate\" because the \"high\" parameter is specified."
+       fi
+     else
+       if [ -z "$OPENSS_HWCSAMP_EVENTS" ] 
+       then
+         echo "[openss]: hwcsamp experiment using default papi event: \"$hwcsamp_default_events\"."
+         echo "[openss]: hwcsamp experiment OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE is set and will be altered to \"$sampling_rate\" because the \"high\" parameter is specified."
+       else
+         echo "[openss]: hwcsamp experiment using papi event: \"$OPENSS_HWCSAMP_EVENTS\" because the OPENSS_HWCSAMP_EVENTS environment variable is set."
+         echo "[openss]: hwcsamp experiment OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE is set and will be altered to \"$sampling_rate\" because the \"high\" parameter is specified."
+       fi
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: sampling_rate=$sampling_rate"
+     fi
+     OPENSS_HWCSAMP_RATE=$sampling_rate
+     export OPENSS_HWCSAMP_RATE
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in HWCSAMP EXPERIMENT SECTION, RESET high, OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE"
+     fi
+  elif [ $use_default_flag == 1 ]
+  then
+     if [ -z "$OPENSS_HWCSAMP_RATE" ] 
+     then
+       if [ -z "$OPENSS_HWCSAMP_EVENTS" ] 
+       then
+         echo "[openss]: hwcsamp experiment using default papi event: \"$hwcsamp_default_events\" because the \"default\" parameter is specified."
+         echo "[openss]: hwcsamp experiment using default sampling_rate: \"$hwcsamp_default_rate\" because the \"default\" parameter is specified."
+       else
+         echo "[openss]: hwcsamp experiment using default papi events overriding the OPENSS_HWCSAMP_EVENTS environment variable=\"$OPENSS_HWCSAMP_EVENTS\" setting because the \"default\" parameter is specified."
+         echo "[openss]: hwcsamp experiment using default sampling_rate: \"$hwcsamp_default_rate\" because the \"default\" parameter is specified."
+       fi
+     else
+       if [ $hwcsamp_default_rate != $OPENSS_HWCSAMP_RATE ]
+       then
+         if [ -z "$OPENSS_HWCSAMP_EVENTS" ] 
+         then
+           echo "[openss]: hwcsamp experiment using default papi event: \"$hwcsamp_default_events\" because the \"default\" parameter is specified."
+           echo "[openss]: hwcsamp experiment using default sampling_rate: \"$hwcsamp_default_rate\" overriding the OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE environment variable because the \"default\" parameter is specified."
+         else
+           echo "[openss]: hwcsamp experiment using default papi events overriding the OPENSS_HWCSAMP_EVENTS environment variable=\"$OPENSS_HWCSAMP_EVENTS\" setting because the \"default\" parameter is specified."
+           echo "[openss]: hwcsamp experiment using default sampling_rate: \"$hwcsamp_default_rate\" overriding the OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE environment variable because the \"default\" parameter is specified."
+         fi
+       fi
+     fi
+
+     sampling_rate=$hwcsamp_default_rate
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: sampling_rate=$sampling_rate"
+     fi
+     OPENSS_HWCSAMP_RATE=$sampling_rate
+     export OPENSS_HWCSAMP_RATE
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in HWCSAMP EXPERIMENT SECTION, RESET default, OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE"
+     fi
+  elif [ $input_argument_rate_threshold_value != 0 ]
+  then
+     if [ -z "$OPENSS_HWCSAMP_RATE" ] 
+     then
+       if [ -z "$OPENSS_HWCSAMP_EVENTS" ] 
+       then
+         if [ $input_argument_event_or_trace_list_value != 0 ]
+         then
+           echo "[openss]: hwcsamp experiment using input papi event: \"$input_argument_event_or_trace_list_value\"."
+         else
+           echo "[openss]: hwcsamp experiment using default papi event: \"$hwcsamp_default_events\"."
+         fi
+         echo "[openss]: hwcsamp experiment using sampling_rate: \"$input_argument_rate_threshold_value\" because \"rate value\" parameter is specified."
+       else
+         if [ $input_argument_event_or_trace_list_value != 0 ]
+         then
+           echo "[openss]: hwcsamp experiment using input papi event: \"$input_argument_event_or_trace_list_value\"."
+         else
+           echo "[openss]: hwcsamp experiment using papi event: \"$OPENSS_HWCSAMP_EVENTS\" because the OPENSS_HWCSAMP_EVENTS environment variable is set."
+         fi
+         echo "[openss]: hwcsamp experiment using sampling_rate: \"$input_argument_rate_threshold_value\" because \"rate value\" parameter is specified."
+       fi
+     else
+       if [ $input_argument_rate_threshold_value != $OPENSS_HWCSAMP_RATE ]
+       then
+         if [ -z "$OPENSS_HWCSAMP_EVENTS" ] 
+         then
+           if [ $input_argument_event_or_trace_list_value != 0 ]
+           then
+             echo "[openss]: hwcsamp experiment using input papi event: \"$input_argument_event_or_trace_list_value\"."
+           else
+             echo "[openss]: hwcsamp experiment using default papi event: \"$hwcsamp_default_events\"."
+           fi
+           echo "[openss]: hwcsamp experiment OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE is set and will be altered to \"$input_argument_rate_threshold_value\" because the \"rate value\" parameter is specified."
+         else
+           if [ $input_argument_event_or_trace_list_value != 0 ]
+           then
+             echo "[openss]: hwcsamp experiment using input papi event: \"$input_argument_event_or_trace_list_value\"."
+           else
+             echo "[openss]: hwcsamp experiment using papi event: \"$OPENSS_HWCSAMP_EVENTS\" because the OPENSS_HWCSAMP_EVENTS environment variable is set."
+           fi
+           echo "[openss]: hwcsamp experiment OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE is set and will be altered to \"$input_argument_rate_threshold_value\" because the \"rate value\" parameter is specified."
+         fi
+       fi
+     fi
+     sampling_rate=$input_argument_rate_threshold_value
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: sampling_rate=$sampling_rate"
+     fi
+     OPENSS_HWCSAMP_RATE=$sampling_rate
+     export OPENSS_HWCSAMP_RATE
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in HWCSAMP EXPERIMENT SECTION, RESET input_argument_rate_threshold_value, OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE"
+     fi
+  else
+     # An input Threshold was not specified
+     if [ -z "$OPENSS_HWCSAMP_RATE" ] 
+     then
+       if [ -z "$OPENSS_HWCSAMP_EVENTS" ] 
+       then
+         if [ $input_argument_event_or_trace_list_value != 0 ]
+         then 
+           echo "[openss]: hwcsamp experiment using input papi event: \"$input_argument_event_or_trace_list_value\"."
+           echo "[openss]: hwcsamp experiment using the hwc experiment default sampling_rate: \"$hwcsamp_default_rate\"."
+         else
+           echo "[openss]: hwcsamp experiment using default papi event: \"$hwcsamp_default_events\"."
+           echo "[openss]: hwcsamp experiment using the hwcsamp experiment default sampling_rate: \"$hwcsamp_default_rate\"."
+         fi
+       else
+         # OPENSS_HWCSAMP_EVENTS was set
+         if [ $input_argument_event_or_trace_list_value != 0 ]
+         then 
+           echo "[openss]: hwcsamp experiment using input papi event: \"$input_argument_event_or_trace_list_value\"."
+           echo "[openss]: hwcsamp experiment using the hwcsamp experiment default sampling_rate: \"$hwcsamp_default_rate\"."
+         else
+           echo "[openss]: hwcsamp experiment using papi event: \"$OPENSS_HWCSAMP_EVENTS\" because the OPENSS_HWCSAMP_EVENTS environment variable is set."
+           echo "[openss]: hwcsamp experiment using the hwcsamp experiment default sampling_rate: \"$hwcsamp_default_rate\"."
+         fi
+       fi
+     else
+       # The sampling_rate environment variable was set
+       if [ -z "$OPENSS_HWCSAMP_EVENTS" ] 
+       then
+         if [ $input_argument_event_or_trace_list_value != 0 ]
+         then 
+           echo "[openss]: hwcsamp experiment using input papi event: \"$input_argument_event_or_trace_list_value\"."
+           echo "[openss]: hwcsamp experiment OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE is set and will be used as the sampling_rate."
+         else
+           echo "[openss]: hwcsamp experiment using default papi event: \"$hwcsamp_default_events\"."
+           echo "[openss]: hwcsamp experiment OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE is set and will be used as the sampling_rate."
+         fi
+       else
+         if [ $input_argument_event_or_trace_list_value != 0 ]
+         then 
+           echo "[openss]: hwcsamp experiment using input papi event: \"$input_argument_event_or_trace_list_value\"."
+           echo "[openss]: hwcsamp experiment OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE is set and will be used as the sampling_rate."
+         else
+           echo "[openss]: hwcsamp experiment using papi event: \"$OPENSS_HWCSAMP_EVENTS\" because the OPENSS_HWCSAMP_EVENTS environment variable is set."
+           echo "[openss]: hwcsamp experiment OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE is set and will be used as the sampling_rate."
+         fi
+       fi
+     fi
+  fi 
+
+# The messages above should reflect whether this is set or not.  Now export the input event, if it was specified
+  if [ $input_argument_event_or_trace_list_value != 0 ]
+  then 
+    OPENSS_HWCSAMP_EVENTS=$input_argument_event_or_trace_list_value
+    export OPENSS_HWCSAMP_EVENTS
+  fi
+
+  if [ $debug_flag == 1 ] 
+  then
+    echo "DEBUG: about to run \"openss -offline -f "$1" hwcsamp, OPENSS_HWCSAMP_EVENTS=$OPENSS_HWCSAMP_EVENTS"
+    echo "DEBUG: about to run \"openss -offline -f "$1" hwcsamp, OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE"
+  fi
+
+  openss -offline -f "$1" hwcsamp
+
 # ------------------------------------------------------------------------------------
 # -- HWCTIME EXPERIMENT SPECIFIC CODE -------------------------------------------------
 # ------------------------------------------------------------------------------------
@@ -947,11 +1220,11 @@ then
      then 
        echo "DEBUG: threshold=$threshold"
      fi
-     OPENSS_HWC_THRESHOLD=$threshold
+     OPENSS_HWCTIME_THRESHOLD=$threshold
      export OPENSS_HWCTIME_THRESHOLD
      if [ $debug_flag == 1 ]
      then 
-        echo "DEBUG: in HWCTIME EXPERIMENT SECTION, RESET low, OPENSS_HWC_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD"
+        echo "DEBUG: in HWCTIME EXPERIMENT SECTION, RESET low, OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD"
      fi
   elif [ $high_flag == 1 ]
   then
@@ -1085,7 +1358,7 @@ then
      # An input Threshold was not specified
      if [ -z "$OPENSS_HWCTIME_THRESHOLD" ] 
      then
-       if [ -z "$OPENSS_HWCTIMETIME_EVENT" ] 
+       if [ -z "$OPENSS_HWCTIME_EVENT" ] 
        then
          if [ $input_argument_event_or_trace_list_value != 0 ]
          then 

@@ -169,6 +169,10 @@ install-exec-hook: ossdriver
 	@rm -f $(DESTDIR)$(bindir)/osshwc
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osshwc
 	chmod 755 $(DESTDIR)$(bindir)/osshwc
+# osshwcsamp
+	@rm -f $(DESTDIR)$(bindir)/osshwcsamp
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osshwcsamp
+	chmod 755 $(DESTDIR)$(bindir)/osshwcsamp
 # osshwctime
 	@rm -f $(DESTDIR)$(bindir)/osshwctime
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osshwctime
