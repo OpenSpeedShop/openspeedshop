@@ -348,7 +348,7 @@ void HWCSampCollector::getMetricValues(const std::string& metric,
 	double t_sample = static_cast<double>(data.count.count_val[i]) *
 	    static_cast<double>(data.interval) / 1000000000.0;
 
-#ifdef DEBUG_CLI
+#ifndef NDEBUG
 	if (!is_detail) {
 	    for (int ii = 0; ii < 6; ii++) {
 		if (data.events.events_val[i].hwccounts[ii] > 0) {
