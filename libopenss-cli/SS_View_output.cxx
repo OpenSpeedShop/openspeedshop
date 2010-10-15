@@ -214,8 +214,10 @@ void Construct_View_Output (CommandObject *cmd,
          // Copy the first row to initialize the summary values.
           std::vector<CommandResult *> first_row = *(items.begin()->second);
           for ( i=0; i < num_input_temps; i++) {
-            // summary_temp[i] = first_row[i]->Copy();
-            summary_temp[i] = (*it->second)[i]->Copy();
+            CommandResult *V = (*it->second)[i];
+            if (V != NULL) {
+              summary_temp[i] = V->Copy();
+            }
           }
         } else {
           Accumulate_PreDefined_Temps (AccumulateInst, summary_temp, (*it->second));

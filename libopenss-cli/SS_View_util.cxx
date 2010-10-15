@@ -237,7 +237,7 @@ bool GetReducedMetrics(CommandObject *cmd,
                        std::set<Function>& objects,
                         std::vector<SmartPtr<std::map<Function, CommandResult *> > >& Values) {
 #if DEBUG_CLI
-  printf("Enter GetReducedMetrics1  - SS_View_util.cxx\n");
+  printf("Enter GetReducedMetrics1 %s - SS_View_util.cxx\n",MV[0].c_str());
 #endif
   return GetAllReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Values);
 }

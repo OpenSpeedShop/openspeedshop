@@ -90,20 +90,23 @@ void Queries::GetMetricValues(
 {
     // Check preconditions
     for(Framework::ThreadGroup::const_iterator
-	    i = threads.begin(); i != threads.end(); ++i)
+	    i = threads.begin(); i != threads.end(); ++i) {
 	Assert(collector.inSameDatabase(*i));
+    }
     for(typename std::set<TS >::const_iterator
-	    i = objects.begin(); i != objects.end(); ++i)
+	    i = objects.begin(); i != objects.end(); ++i) {
 	Assert(collector.inSameDatabase(*i));
+    }
 
     // Allocate (if necessary) a new results map
-    if(results.isNull())
+    if(results.isNull()) {
 	results = 
 	    Framework::SmartPtr<
                 std::map<TS, std::map<Framework::Thread, TM > > 
 	    >(
 		new std::map<TS, std::map<Framework::Thread, TM > >()
 	     );
+    }
     Assert(!results.isNull());
     
     // Construct extent restricting evaluation to the requested time interval

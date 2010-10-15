@@ -50,7 +50,7 @@ using namespace OpenSpeedShop::Framework;
 namespace {
 
     /** Type returned for the sample detail metrics. */
-    typedef std::map<double, HWCSampDetail> SampleDetail;
+    typedef std::map<StackTrace, std::vector<HWCSampDetail> > SampleDetail;
 
 }
 
@@ -333,7 +333,7 @@ void HWCSampCollector::getMetricValues(const std::string& metric,
 
     // Calculate time (in nS) of data blob's extent
     double t_blob = static_cast<double>(extent.getTimeInterval().getWidth());
-   
+
     // Iterate over each of the samples
     for(unsigned i = 0; i < data.pc.pc_len; ++i) {
 	
@@ -347,6 +347,11 @@ void HWCSampCollector::getMetricValues(const std::string& metric,
 	// Calculate the time (in seconds) attributable to this sample
 	double t_sample = static_cast<double>(data.count.count_val[i]) *
 	    static_cast<double>(data.interval) / 1000000000.0;
+
+	// Get the address for this sample.
+	Address addr =  Address(data.pc.pc_val[i]);
+	StackTrace trace(thread, extent.getTimeInterval().getBegin());
+	trace.push_back(addr);
 
 #ifndef NDEBUG
 	if (!is_detail) {
@@ -374,8 +379,42 @@ std::cerr << "HWCSAMP::getMetricValues pc "
 	    // Add (to the subextent's metric value) the appropriate fraction
 	    // of the total time attributable to this sample
 	    //(*values)[*j] += t_sample * (t_intersection / t_blob);
-	     (*reinterpret_cast<std::vector<double>*>(ptr))[*j] +=
-		t_sample * (t_intersection / t_blob);
+
+	    // Handle "[exclusive]_detail" metric
+	    if(is_detail) {
+
+	      // Find this address in the subextent's metric value
+              SampleDetail::iterator l =
+                        (*reinterpret_cast<std::vector<SampleDetail>*>(ptr))[*j]
+                        .insert(
+                            std::make_pair(trace, std::vector<HWCSampDetail>())
+                            ).first;
+
+	      // Add (to the subextent's metric value) the appropriate
+	      // fraction of the count and total time attributable to
+	      // this sample
+              HWCSampDetail details;
+	      for (int ii = 0; ii < OpenSS_NUMCOUNTERS; ii++) {
+	        details.dm_event_values[ii] += static_cast<uint64_t>(
+			static_cast<uint64_t>(data.events.events_val[i].hwccounts[ii]) * 
+			(t_intersection / t_blob)
+			);
+              }
+	      details.dm_count += 1;
+	      details.dm_time += t_sample;// * (t_intersection / t_blob);
+              l->second.push_back(details);
+	    }
+
+	    // Handle "[exclusive]_time" metric		
+	    else {
+
+	      // Add (to the subextent's metric value) the appropriate
+	      // fraction of the total time attributable to this sample
+	      (*reinterpret_cast<std::vector<double>*>(ptr))[*j] +=
+			t_sample * (t_intersection / t_blob);
+		    
+	    }
+		
 	}
 	
     }
