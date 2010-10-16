@@ -5568,7 +5568,7 @@ static bool SS_ListStatements (CommandObject *cmd) {
     }
 
     Function fobj = *fi;
-    std::set<Statement> sobj = fobj.getDefinitions();
+    std::set<Statement> sobj = fobj.getStatements();
     if( sobj.size() > 0 ) {
       for (std::set<Statement>:: iterator si = sobj.begin(); si != sobj.end(); si++) {
         Statement st = *si;
