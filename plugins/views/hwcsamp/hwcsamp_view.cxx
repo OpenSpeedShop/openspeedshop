@@ -127,6 +127,30 @@ static bool define_hwcsamp_columns (
   int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp);
   std::string ByThread_Header = Find_Metadata ( CV[0], "time" ).getShortName();
 
+ // Determine the available events for the detail metric.
+  int64_t num_events = 0;
+  std::string papi_names[OpenSS_NUMCOUNTERS];
+  Collector c = CV[0];
+  std::string id = "event";
+  {
+    std::string Value;
+    CV[0].getParameterValue("event", Value);
+
+   // Parse the event string.
+    int len = Value.length();
+    int end = Value.find(",")+1;
+    int start = end;
+    while (end < len) {
+      while ((end < len) && (Value[end] != *(","))) end++;
+      if (end < len) {
+        std::string N = Value.substr(start,end-start);
+        papi_names[num_events++] = N;
+        start = end + 1;
+        end = start;
+      }
+    }
+  }
+  
  // Define combination instructions for predefined temporaries.
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_time_temp));
@@ -166,9 +190,6 @@ static bool define_hwcsamp_columns (
           !strcasecmp(M_Name.c_str(), "times")) {
         IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
         HV.push_back(Find_Metadata ( CV[0], "time" ).getDescription());
-      } else if (!strcasecmp(M_Name.c_str(), "exclusive_detail") ) {
-        IV.push_back(new ViewInstruction (VIEWINST_Display_Metric, last_column++, 0));
-        HV.push_back( Find_Metadata ( CV[0], "exclusive_detail" ).getDescription() );
       } else if (!strcasecmp(M_Name.c_str(), "percent") ||
                  !strcmp(M_Name.c_str(), "%")           ||
                  !strcasecmp(M_Name.c_str(), "%time")   ||
@@ -184,14 +205,14 @@ static bool define_hwcsamp_columns (
       else {
        // Look for Event options.
         bool event_found = false;
-        for (int i=0; ; i++) {
-          const char *c = HWCSampEvents[i];
+        for (int i=0; i < num_events; i++) {
+          const char *c = papi_names[i].c_str();
           if (c == NULL) break;
           if (!strcasecmp(M_Name.c_str(), c) ||
               !strcasecmp(M_Name.c_str(), "AllEvents")) {
             event_found = true;
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+i));
-            HV.push_back( HWCSampEvents[i] );
+            HV.push_back( papi_names[i] );
           }
         }
 
@@ -272,6 +293,9 @@ static std::string VIEW_hwcsamp_long  =
                   " Posix threads, Mpi threads or Ranks."
                   " \n\t'-m time' reports the total cpu time for all the processes."
                   " \n\t'-m percent' reports the percent of total cpu time for all the processes."
+                  " \n\t'-m <event_name>' reports counts associated with the named event for all"
+                  " the processes. (Use 'expStatus' to see active event counters.>"
+                  " \n\t'-m allEvents' reports all the counter values for all the processes."
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
                   "\n";
