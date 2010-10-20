@@ -3,7 +3,7 @@
 <head>
 <!--
       Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-      Copyright (c) 2008 Krell Institute. All Rights Reserved.
+      Copyright (c) 2008-2010 Krell Institute. All Rights Reserved.
       Permission is granted to copy, distribute and/or modify this document
       under the terms of the GNU Free Documentation License, Version 1.2
       or any later version published by the Free Software Foundation;
@@ -38,9 +38,9 @@ w\:* {behavior:url(#default#VML);}
  alt="Open|SpeedShop logo" src="OpenSpeedShop_Logo.jpg"
  style="width: 303px; height: 38px;"><br>
 Build and Installation Guide<br>
-</span></b><big><span style="font-weight: bold;">Version 1.9.3.4 Release</span><br
+</span></b><big><span style="font-weight: bold;">Version 2.0.0 Release</span><br
  style="font-weight: bold;">
-<span style="font-weight: bold;">June 29, 2010</span></big><br>
+<span style="font-weight: bold;">October 31, 2010</span></big><br>
 </p>
 <div class="Section2"><b style=""><br style="" clear="all">
 </b>
@@ -56,21 +56,17 @@ Build and Installation Guide<br>
 <ol id="mozToc">
 <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
   <li><a href="#mozTocId208182">Build and Installation
-Guide Introduction
-    </a>
+Guide Introduction </a>
     <ol>
       <li><a href="#mozTocId821143">Introduction
-and Tutorial
-        </a></li>
+and Tutorial </a></li>
       <li><a href="#mozTocId200693">Downloading the
 Open|SpeedShop Component
-Source Using CVS trees
-        </a></li>
+Source Using CVS trees </a></li>
     </ol>
   </li>
   <li><a href="#mozTocId334016">Open|SpeedShop
-Build and Installation
-    </a>
+Build and Installation </a>
     <ol>
       <li><a href="#mozTocId733358">Building
 Open|SpeedShop
@@ -78,16 +74,12 @@ and
 Open|SpeedShop
 Development RPM Usage Information</a>
         <ol>
-          <li><a href="#mozTocId585528">Prerequistite Needs
-            </a></li>
+          <li><a href="#mozTocId585528">Prerequistite Needs </a></li>
           <li><a href="#mozTocId893375">Installation
-Information
-            </a></li>
-          <li><a href="#mozTocId560453">To Run Open|SpeedShop
-            </a></li>
+Information </a></li>
+          <li><a href="#mozTocId560453">To Run Open|SpeedShop </a></li>
           <li><a href="#mozTocId132468">Key
-Environment Variables Needed for Building Open|SpeedShop
-            </a>
+Environment Variables Needed for Building Open|SpeedShop </a>
             <ol>
               <li><a href="#mozTocId520988">OPENSS_PREFIX</a></li>
               <li><a href="#mozTocId613200">OPENSS_INSTRUMENTOR</a></li>
@@ -96,8 +88,7 @@ Environment Variables Needed for Building Open|SpeedShop
           <li><a href="#mozTocId911379">Key
 Environment Variables Needed for Running Open|SpeedShop</a>
             <ol>
-              <li><a href="#mozTocId579302">OPENSS_PLUGIN_PATH
-                </a></li>
+              <li><a href="#mozTocId579302">OPENSS_PLUGIN_PATH </a></li>
               <li><a href="#mozTocId173759">LD_LIBRARY_PATH</a></li>
               <li><a href="#mozTocId537563">OPENSS_MPI_IMPLEMENTATION</a></li>
               <li><a href="#mozTocId861365">DYNINSTAPI_RT_LIB</a></li>
@@ -139,7 +130,7 @@ and Tutorial<br>
 <span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;"></span>
 <div class="Section3">
 <div style="text-align: left; margin-left: 40px;">Open|SpeedShop
-release 1.9.3.4 comes with an install script that will build all the
+release 2.0.0 comes with an install script that will build all the
 supporting components and Open|SpeedShop itself in one step, or the
 builder can invoke the script multiple times to build each component
 separately.&nbsp;&nbsp; The <a
@@ -159,7 +150,7 @@ which can be found at our web site: <a href="www.openspeedshop.org">www.openspee
 <br>
 The next section explains how to build from our development source
 tree.&nbsp;&nbsp; If you are not interested in doing that but are
-interested in building the current 1.9.3.4 release of Open|SpeedShop
+interested in building the current 2.0.0 release of Open|SpeedShop
 skip
 to the <a href="#OpenSpeedShop_Build_And_Installation">Build and
 Installation section.</a><br>
@@ -190,12 +181,13 @@ Set the CVSROOT environment variable.
   <tbody>
     <tr>
       <td bgcolor="#dfdfdf"><span style="font-family: monospace;"><br>
-      </span><tt>$ export
-CVSROOT=':pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss'</tt>
-      <br>
+      </span><tt>$ <span style="font-weight: bold;">export
+CVSROOT=':pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss'</span></tt><span
+ style="font-weight: bold;"> </span><br>
       <tt><i>(for sh, bash, ksh, or similar shells)</i></tt> <br>
-      <tt>$ setenv CVSROOT&nbsp;
-:pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss</tt> <br>
+      <tt>$ <span style="font-weight: bold;">setenv CVSROOT&nbsp;
+:pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss</span></tt><span
+ style="font-weight: bold;"> </span><br>
       <tt><i>(for csh or tcsh shells)</i></tt> <br>
 &nbsp;</td>
     </tr>
@@ -209,7 +201,8 @@ time you access CVS).
   <tbody>
     <tr>
       <td bgcolor="#dfdfdf"><br>
-      <tt>$ cvs login</tt> <br>
+      <tt>$ <span style="font-weight: bold;">cvs login</span></tt><span
+ style="font-weight: bold;"> </span><br>
       <i>(there is no password:"</i>just hit enter<i>")</i> <br>
 &nbsp;</td>
     </tr>
@@ -222,8 +215,10 @@ Now grab the OpenSpeedShop and OpenSpeedShop_ROOT source trees:&nbsp;
   <tbody>
     <tr>
       <td bgcolor="#dfdfdf"><br>
-      <tt>$ cvs checkout OpenSpeedShop</tt> <br>
-      <tt>$ cvs checkout OpenSpeedShop_ROOT</tt> <br>
+      <tt>$ <span style="font-weight: bold;">cvs checkout OpenSpeedShop</span></tt><span
+ style="font-weight: bold;"> </span><br>
+      <tt>$ <span style="font-weight: bold;">cvs checkout
+OpenSpeedShop_ROOT</span></tt><span style="font-weight: bold;"> </span><br>
 &nbsp;</td>
     </tr>
   </tbody>
@@ -236,7 +231,8 @@ Now grab the OpenSpeedShop and OpenSpeedShop_ROOT source trees:&nbsp;
   <tbody>
     <tr>
       <td bgcolor="#dfdfdf"><br>
-      <tt>$ cvs update -d</tt> <br>
+      <tt>$ <span style="font-weight: bold;">cvs update -d</span></tt><span
+ style="font-weight: bold;"> </span><br>
 &nbsp;</td>
     </tr>
   </tbody>
@@ -263,9 +259,9 @@ instructions below using OpenSpeedShop_ROOT as the top level
 installation directory.&nbsp;&nbsp;&nbsp; To use the existing
 install.sh installation script, OpenSpeedShop must be moved to the
 openspeedshop-1.9,3.4 directory name, tarred into
-openspeedshop-1.9.3.4.tar,
-gzipped into openspeedshop-1.9.3.4.tar.gz, and moved into
-OpenSpeedShop_ROOT/SOURCES/openspeedshop-1.9.3.4.tar.gz. &nbsp; This is
+openspeedshop-2.0.0.tar,
+gzipped into openspeedshop-2.0.0.tar.gz, and moved into
+OpenSpeedShop_ROOT/SOURCES/openspeedshop-2.0.0.tar.gz. &nbsp; This is
 what is done when a release tarball is prepared.
 </div>
 </div>
@@ -545,15 +541,15 @@ and the versions that have been used successfully with Open|SpeedShop.<br>
 Information<br>
 </h3>
 <br>
-Please gunzip and untar the openspeedshop-release-1.9.3.4.tar.gz file
+Please gunzip and untar the openspeedshop-release-2.0.0.tar.gz file
 and
-change directory into the openspeedshop-release-1.9.3.4
+change directory into the openspeedshop-release-2.0.0
 directory.&nbsp;&nbsp; <br>
 <br>
 For example:<br>
-gunzip openspeedshop-release-1.9.3.4.tar.gz<br>
-tar -xvf openspeedshop-release-1.9.3.4.tar<br>
-cd openspeedshop-release-1.9.3.4<br>
+gunzip openspeedshop-release-2.0.0.tar.gz<br>
+tar -xvf openspeedshop-release-2.0.0.tar<br>
+cd openspeedshop-release-2.0.0<br>
 <br>
 Inside the top level release directory is the key script, install.sh,
 that can be used in building the Open|SpeedShop performance tool.<br>
@@ -631,9 +627,9 @@ papiver=3.7.0_a<br>
 sqlitever=3.6.22_a<br>
 monitorver=20091010_a<br>
 vampirtracever=5.3.2_a<br>
-dyninstver=6.1r_a<br>
-mrnetver=2.2_a<br>
-openspeedshopver=1.9.3.4_a<br>
+dyninstver=6.1_a<br>
+mrnetver=3.0_a<br>
+openspeedshopver=2.0.0_a<br>
 <br>
 There is an order that is required in building the components because
 some of the components depend oneach other.&nbsp; The install script
@@ -859,7 +855,7 @@ Vampirtrace<br>
 <br>
 &nbsp;&nbsp;&nbsp; 0&nbsp; - Set ~/.rpmmacros %_topdir to:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-/home/jeg/release-1.9.3.4/OpenSpeedShop_ROOT&nbsp; <br>
+/home/jeg/release-2.0.0/OpenSpeedShop_ROOT&nbsp; <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; original will be
 copied to .rpmmacros.##<br>
 &nbsp;&nbsp;&nbsp; 0a - View environment variables that may be set<br>

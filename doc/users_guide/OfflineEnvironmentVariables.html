@@ -1,6 +1,15 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
+<!--
+      Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
+      Permission is granted to copy, distribute and/or modify this document
+      under the terms of the GNU Free Documentation License, Version 1.2
+      or any later version published by the Free Software Foundation;
+      with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+         Texts.  A copy of the license is included in the section entitled "GNU
+      Free Documentation License".
+-->
   <meta content="text/html; charset=ISO-8859-1"
  http-equiv="Content-Type">
   <title>OfflineEnvironmentVariables</title>
@@ -12,8 +21,8 @@
 <h1 style="text-align: center;"><a class="mozTocH1"
  name="mozTocId276774"></a>Open|SpeedShop
 Offline Version Collection Control Environment Variables</h1>
-<div style="text-align: center;"><big><big>Version 1.9.3.4<br>
-Updated: June 30, 2010</big></big><br>
+<div style="text-align: center;"><big><big>Version 2.0.0<br>
+October 31, 2010</big></big><br>
 </div>
 <br>
 <h2><a class="mozTocH2" name="mozTocId315737"></a>Table of Contents</h2>
@@ -175,19 +184,29 @@ second.<br>
 sampling rate &lt;int&gt;"<br>
 example:<br>
 export <span style="font-weight: bold;">OPENSS_USERTIME_RATE</span>=35
-<h2><a class="mozTocH2" name="mozTocId848421"></a>HWC and HWCTIME
+<h2><a class="mozTocH2" name="mozTocId848421"></a>HWC, HWCSAMP and
+HWCTIME
 Experiment Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId17410"></a>Background Information
 and How to find which events are available on your machine:</h3>
 To find which counters the hwc/hwctime collectors support, you
-can use papi_avail | grep "Yes&nbsp;&nbsp; No".&nbsp;&nbsp; The Yes
+can use papi_avail | grep "Yes&nbsp;&nbsp; No" or type
+osshwc/osshwctime. &nbsp; The Yes
 means that the
 counter is available and the No means that it is not derived.
 <br>
-Open|SpeedShop does not support derived events with the hwc experiments
+The Open|SpeedShop hwc and hwctime experiments do not support derived
+events with the hwc experiments
 since
-the Papi_overflow call Open|SpeedShop uses does not work with them.
+the Papi_overflow call that Open|SpeedShop uses does not work with
+them.
 <br>
+<br>
+For hwcsamp, to find which counters the hwcsamp collector supports, you
+can use papi_avail or type osshwcsamp.&nbsp;&nbsp; Most all hardware
+counter events are available when using the osshwcsamp
+experiment.&nbsp; You can sample six (6) events at one time, if the
+platform supports that number.<br>
 <br>
 To change the default hwc event, example:
 <br>
@@ -198,13 +217,20 @@ export <span style="font-weight: bold;">OPENSS_HWCTIME_EVENT</span>="<span
  style="font-weight: bold;">PAPI_L1_DCM</span>" for the hwctime
 collector.
 <br>
+export <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENT</span>S="<span
+ style="font-weight: bold;">PAPI_L1_DCM, ....</span>" for the hwcsamp
+collector.
+<br>
 <div id=":5h" class="ArwC7c ckChnd"><br>
-Note that the default overflow threshold is set as a reasobable
+Note that the default overflow threshold for hwc/hwctime is set as a
+reasonable
 value for <span style="font-weight: bold;">PAPI_TOT_CYC</span> or <span
  style="font-weight: bold;">PAPI_TOT_INS.</span>&nbsp; For other
 counters
 you may need to lower the default threashold value.
 <br>
+Note that the default sampling rate for hwcsamp is set to 100 samples
+per second (the same rate as pcsamp).<br>
 <br>
 examples:
 <br>
@@ -212,6 +238,7 @@ export <span style="font-weight: bold;">OPENSS_HWC_THRESHOLD</span>=10000
 <br>
 export <span style="font-weight: bold;">OPENSS_HWCTIME_THRESHOLD</span>=10000
 <br>
+export <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>=100<br>
 <br>
 The above says record a pc (hwc) or callstack (hwctime) when
 the selected hardware counter overflow count reaches 10000.
@@ -326,14 +353,21 @@ Definition and Example:</h3>
 threshold &lt;int&gt;"<br>
 <span style="font-weight: bold;">OPENSS_HWCTIME_THRESHOLD</span>="new
 threshold &lt;int&gt;"<br>
+<span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>="new
+sampling rate &lt;int&gt;"<br>
 <span style="font-weight: bold;">OPENSS_HWC_EVENT</span>="new papi
 event &lt;string&gt;"<br>
 <span style="font-weight: bold;">OPENSS_HWCTIME_EVENT</span>="new papi
 event &lt;string&gt;"<br>
-example:<br>
+<span style="font-weight: bold;">OPENSS_HWCSAMP_EVENT</span>S="new papi
+event list &lt;string&gt;"<br>
+hwc example:<br>
 export <span style="font-weight: bold;">OPENSS_HWC_THRESHOLD</span>=19999999<br>
 export <span style="font-weight: bold;">OPENSS_HWC_EVENT</span>=<span
- style="font-weight: bold;">PAPI_BR_INS</span><br>
+ style="font-weight: bold;">PAPI_BR_INS<br>
+</span><span style="font-weight: bold;"></span><br>
+<span style="font-weight: bold;"><br>
+</span>
 <h2><a class="mozTocH2" name="mozTocId258061"></a>IO and IOT Experiment
 Related Information</h2>
 <h3><a class="mozTocH3" name="mozTocId199271"></a>Environment Variable

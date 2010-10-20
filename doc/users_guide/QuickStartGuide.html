@@ -1,6 +1,15 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
+<!--
+      Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
+      Permission is granted to copy, distribute and/or modify this document
+      under the terms of the GNU Free Documentation License, Version 1.2
+      or any later version published by the Free Software Foundation;
+      with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+         Texts.  A copy of the license is included in the section entitled "GNU
+      Free Documentation License".
+-->
   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
   <title>Open|SpeedShop-1.9 Quick Start Guide</title>
   <meta name="GENERATOR" content="OpenOffice.org 2.3  (Unix)">
@@ -44,16 +53,15 @@
 <br>
 </p>
 <p class="western" align="center"><font color="#000066"><img
- src="OpenSpeedShop_Logo.jpg" name="OpenSpeedShop_Logo" border="0"
- height="35" width="281" align="bottom"></font><font color="#000066"><font
+ src="OpenSpeedShop_Logo.jpg" name="OpenSpeedShop_Logo" align="bottom"
+ border="0" height="35" width="281"></font><font color="#000066"><font
  face="SGIAlt, Times New Roman, serif"><font style="font-size: 22pt;"
  size="6"><b><br>
 Quick
 Start Guide<br>
 </b></font></font></font><font color="#000066"><font
- style="font-size: 13pt;" size="4"><b>Version
-1.9.3.4 Release<br>
-June 30, 2010<br>
+ style="font-size: 13pt;" size="4"><b>Version 2.0.0 Release<br>
+October 31, 2010<br>
 </b></font></font></p>
 <p class="western" style="margin-top: 0in; margin-bottom: 0in;"
  align="center">
@@ -166,16 +174,25 @@ Table: Summary of Experiments</h3>
     <tr valign="top">
       <td width="77">
       <p class="western" style="margin-top: 0in;"><font
- face="Courier New, monospace"><font size="2"><b>fpe</b></font></font></p>
+ face="Courier New, monospace"><font size="2"><b>pcsamp</b></font></font></p>
       </td>
       <td width="142">
-      <p class="western" style="margin-top: 0in;">High system time.
-Presence of floating point operations.</p>
+      <p class="western" style="margin-top: 0in;">High user CPU time.</p>
       </td>
       <td width="298">
-      <p class="western" style="margin-top: 0in;">All floating-point
-exceptions, with the exception type and the call stack at the time of
-the exception. </p>
+      <p class="western" style="margin-top: 0in;">Actual CPU time at
+the source line, machine instruction, and function levels by sampling
+the program counter at 100 samples per second intervals. </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><font
+ face="Courier New, monospace"><font size="2"><b>usertime</b></font></font></td>
+      <td style="vertical-align: top;">Slow program, nothing
+else known. Not CPU-bound.</td>
+      <td style="vertical-align: top;">Inclusive and
+exclusive CPU time for each function by sampling the callstack at
+35 samples per second intervals. <br>
       </td>
     </tr>
     <tr valign="top">
@@ -193,6 +210,16 @@ events, including: clock cycles, graduated instructions, primary
 instruction cache misses, secondary instruction cache misses, primary
 data cache misses, secondary data cache misses, translation lookaside
 buffer (TLB) misses, etc..&nbsp; PC sampling is used.&nbsp;&nbsp; </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">hwcsamp</span><br>
+      </td>
+      <td style="vertical-align: top;">High user CPU time<br>
+      </td>
+      <td style="vertical-align: top;">Similar to hwc experiment,
+except that periodic sampling is used instead of the overflow mechansim
+to monitor the hardware counter events. <br>
       </td>
     </tr>
     <tr valign="top">
@@ -220,21 +247,13 @@ experiment, except that callstack sampling is used.&nbsp;&nbsp;.</p>
       <td width="298">
       <p class="western" style="margin-top: 0in;">Times the following
 I/O system calls: <font face="Courier New, monospace"><font size="2">read</font></font>,
-
       <font face="Courier New, monospace"><font size="2">readv</font></font>,
-
       <font face="Courier New, monospace"><font size="2">write</font></font>,
-
       <font face="Courier New, monospace"><font size="2">writev</font></font>,
-
       <font face="Courier New, monospace"><font size="2">open</font></font>,
-
       <font face="Courier New, monospace"><font size="2">close</font></font>,
-
       <font face="Courier New, monospace"><font size="2">dup</font></font>,
-
       <font face="Courier New, monospace"><font size="2">pipe</font></font>,
-
       <font face="Courier New, monospace"><font size="2">creat</font></font>.&nbsp;&nbsp;
 The
 time reported is wall clock time.</p>
@@ -315,34 +334,14 @@ calls to various MPI routines and generates Open Trace Format (OTF)
 files using VampirTrace as the underlying gathering tool.</p>
       </td>
     </tr>
-    <tr valign="top">
-      <td width="77">
-      <p class="western" style="margin-top: 0in;"><font
- face="Courier New, monospace"><font size="2"><b>pcsamp</b></font></font></p>
-      </td>
-      <td width="142">
-      <p class="western" style="margin-top: 0in;">High user CPU time.</p>
-      </td>
-      <td width="298">
-      <p class="western" style="margin-top: 0in;">Actual CPU time at
-the source line, machine instruction, and function levels by sampling
-the program counter at 10 or 1-millisecond intervals.</p>
-      </td>
-    </tr>
-    <tr valign="top">
-      <td width="77">
-      <p class="western" style="margin-top: 0in;"><font
- face="Courier New, monospace"><font size="2"><b>usertime</b></font></font></p>
-      </td>
-      <td width="142">
-      <p class="western" style="margin-top: 0in;">Slow program, nothing
-else known. Not CPU-bound. </p>
-      </td>
-      <td width="298">
-      <p class="western" style="margin-top: 0in;">Inclusive and
-exclusive CPU time for each function by sampling the callstack at
-30-millisecond intervals.&nbsp;</p>
-      </td>
+    <tr>
+      <td style="vertical-align: top;"><font
+ face="Courier New, monospace"><font size="2"><b>fpe</b></font></font></td>
+      <td style="vertical-align: top;">High system time.
+Presence of floating point operations.</td>
+      <td style="vertical-align: top;">All floating-point
+exceptions, with the exception type and the call stack at the time of
+the exception.</td>
     </tr>
   </tbody>
 </table>
