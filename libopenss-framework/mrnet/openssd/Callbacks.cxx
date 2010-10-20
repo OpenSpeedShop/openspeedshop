@@ -416,7 +416,9 @@ void Callbacks::createProcess(const Blob& blob)
     BPatch* bpatch = BPatch::getBPatch();
     Assert(bpatch != NULL);
     // Ask dyninst to set the process threaded if we load the libpthread library in
+#if 0
     bpatch->forceMultithreadCapable();
+#endif
     BPatch_process* process =
 	bpatch->processCreate(argv[0], argv, envp,
 			      pipes->getStdInForCreatedProcess(),
