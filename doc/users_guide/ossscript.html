@@ -19,8 +19,8 @@
  name="mozTocId949034"></a>Convenience Scripts for Open|SpeedShop
 Offline Mode of Operation</h2>
 <div style="text-align: center;"><big style="font-weight: bold;">Version
-1.9.3.4<br>
-Updated: June 30, 2010</big><br>
+2.0.0<br>
+October 31, 2010</big><br>
 </div>
 <br>
 <ul class="readonly" id="mozToc">
@@ -28,20 +28,25 @@ Updated: June 30, 2010</big><br>
   <li><a href="#mozTocId949034">Convenience Scripts for Open|SpeedShop
 Offline Mode of Operation</a>
     <ul>
-      <li><a href="#mozTocId329422">Introduction </a></li>
-      <li><a href="#mozTocId189828">General Usage Rules </a></li>
+      <li><a href="#mozTocId329422">Introduction
+        </a></li>
+      <li><a href="#mozTocId189828">General Usage Rules
+        </a></li>
       <li><a href="#mozTocId206825">General and
 Experiment Specific Environment Variables</a></li>
       <li><a href="#mozTocId828074">Experiment Specific
-Syntax and Rules </a>
+Syntax and Rules
+        </a>
         <ul>
-          <li><a href="#mozTocId181957">PCSAMP (osspcsamp) </a>
+          <li><a href="#mozTocId181957">PCSAMP (osspcsamp)
+            </a>
             <ul>
               <li><a href="#mozTocId576866">Default Arguments:</a></li>
               <li><a href="#mozTocId562902">Example usage:</a></li>
             </ul>
           </li>
-          <li><a href="#mozTocId266083">USERTIME (ossusertime) </a>
+          <li><a href="#mozTocId266083">USERTIME (ossusertime)
+            </a>
             <ul>
               <li><a href="#mozTocId922590">Default Arguments:</a></li>
               <li><a href="#mozTocId67282">Example usage:</a></li>
@@ -53,49 +58,62 @@ Syntax and Rules </a>
               <li><a href="#mozTocId18566">Example usage:</a></li>
             </ul>
           </li>
+          <li><a href="#mozTocId498003">HWCSAMP (osshwcsamp)</a>
+            <ul>
+              <li><a href="#mozTocId12075">Default Arguments:</a></li>
+              <li><a href="#mozTocId174863">Example usage:</a></li>
+            </ul>
+          </li>
           <li><a href="#mozTocId890824">HWCTIME (osshwctime)</a>
             <ul>
               <li><a href="#mozTocId12075">Default Arguments:</a></li>
               <li><a href="#mozTocId174863">Example usage:</a></li>
             </ul>
           </li>
-          <li><a href="#mozTocId298390">IO (ossio) </a>
+          <li><a href="#mozTocId298390">IO (ossio)
+            </a>
             <ul>
               <li><a href="#mozTocId335647">Default Arguments:</a></li>
               <li><a href="#mozTocId639524">Example usage:</a></li>
             </ul>
           </li>
-          <li><a href="#mozTocId64450">IOT (ossiot) </a>
+          <li><a href="#mozTocId64450">IOT (ossiot)
+            </a>
             <ul>
               <li><a href="#mozTocId323138">Default Arguments:</a></li>
               <li><a href="#mozTocId727637">Example usage:</a></li>
             </ul>
           </li>
-          <li><a href="#mozTocId898864">MPI (ossmpi) </a>
+          <li><a href="#mozTocId898864">MPI (ossmpi)
+            </a>
             <ul>
               <li><a href="#mozTocId302157">Default Arguments:</a></li>
               <li><a href="#mozTocId740700">Example usage:</a></li>
             </ul>
           </li>
-          <li><a href="#mozTocId874232">MPIT (ossmpit) </a>
+          <li><a href="#mozTocId874232">MPIT (ossmpit)
+            </a>
             <ul>
               <li><a href="#mozTocId709137">Default Arguments:</a></li>
               <li><a href="#mozTocId409434">Example usage:</a></li>
             </ul>
           </li>
-          <li><a href="#mozTocId172663">MPIOTF (ossmpiotf) </a>
+          <li><a href="#mozTocId172663">MPIOTF (ossmpiotf)
+            </a>
             <ul>
               <li><a href="#mozTocId677100">Default Arguments:</a></li>
               <li><a href="#mozTocId384594">Example usage:</a></li>
             </ul>
           </li>
-          <li><a href="#mozTocId342825">FPE (ossfpe) </a>
+          <li><a href="#mozTocId342825">FPE (ossfpe)
+            </a>
             <ul>
               <li><a href="#mozTocId159062">Default Arguments:</a></li>
               <li><a href="#mozTocId584268">Example usage:</a></li>
             </ul>
           </li>
-          <li><a href="#mozTocId923586">COMPARE (osscompare) </a>
+          <li><a href="#mozTocId923586">COMPARE (osscompare)
+            </a>
             <ul>
               <li><a href="#mozTocId159062">Default Arguments:</a></li>
               <li><a href="#mozTocId584268">Example usage:</a></li>
@@ -552,6 +570,186 @@ currently 10000.</span><br>
 if the user wanted to track the Level 1 data cache misses in their
 application at double the default hardware counter threshold value.<br>
 </span><br>
+<h3><a class="mozTocH3" name="mozTocId498003"></a>HWCSAMP (osshwcsamp)</h3>
+The command options for the <span style="font-weight: bold;">osshwcsamp</span>
+command are as follows.&nbsp; <br>
+<br>
+<span style="font-family: serif;">0) <span style="font-weight: bold;">osshwcsamp
+</span></span><span style="font-family: serif;"><br>
+<br>
+This command lists the available PAPI events that are available to be
+used as arguments for <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+in the command variations below.<br>
+<br>
+</span><span style="font-family: serif;">1) <span
+ style="font-weight: bold;">osshwcsamp</span> "executable"</span><br
+ style="font-family: serif;">
+<br style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+is not set,
+<span style="font-weight: bold;">osshwcsamp</span> will run with
+default papi event list which is currently
+<span style="font-weight: bold;">PAPI_TOT_CYC</span></span><br
+ style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+is set,
+<span style="font-weight: bold;">osshwcsamp</span> will use the papi
+event specified by <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span></span><br
+ style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+is not
+set, <span style="font-weight: bold;">osshwcsamp</span> will run using
+the default papi event list sampling rate which
+is currently 100 samples per second</span><br
+ style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+is set,
+<span style="font-weight: bold;">osshwcsamp</span> warns the user that
+it is overriding the default and is
+using the environment variable OPENSS_HWCSAMP_RATE setting.</span><br
+ style="font-family: serif;">
+<br style="font-family: serif;">
+<span style="font-family: serif;">2) <span style="font-weight: bold;">osshwcsamp</span>
+"executable" <span style="font-weight: bold;">default</span></span><br
+ style="font-family: serif;">
+<br style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+is not set,
+<span style="font-weight: bold;">osshwcsamp</span> will run with
+default papi event list which is currently
+<span style="font-weight: bold;">PAPI_TOT_CYC</span></span><br
+ style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+is set,
+<span style="font-weight: bold;">osshwcsamp</span> will use the default
+papi event list and warns that it is not
+honoring the papi event specified by <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+environment
+variable.</span><br style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+is not
+set, <span style="font-weight: bold;">osshwcsamp</span> will run using
+the default papi event list sampling rate which
+is currently 100 samples per second</span><br
+ style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+is set,
+<span style="font-weight: bold;">osshwcsamp</span> will run using the
+default papi event list sampling rate and warns
+the user that it not honoring the sampling rate specified by the
+environment variable <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+setting.</span><br style="font-family: serif;">
+<br style="font-family: serif;">
+<span style="font-family: serif;">3) <span style="font-weight: bold;">osshwcsamp</span>
+"executable"
+<span style="font-weight: bold;">&lt;input_papi_event_list&gt;</span></span><br
+ style="font-family: serif;">
+<br style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+is not set,
+<span style="font-weight: bold;">osshwcsamp</span> will override the
+default papi event list value and use the
+<span style="font-weight: bold;">&lt;input_papi_event_list&gt;</span>
+event</span><br style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+is set,
+<span style="font-weight: bold;">osshwcsamp</span> warns the user that
+it is overriding the environment
+variable <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+setting.</span><br style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+is not
+set, <span style="font-weight: bold;">osshwcsamp</span> will run using
+the default papi event list sampling rate which
+is currently 100 samples per second</span><br
+ style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+is set,
+<span style="font-weight: bold;">osshwcsamp</span> warns the user that
+it is overriding the default and is
+using the environment variable <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+setting.</span><br style="font-family: serif;">
+<br style="font-family: serif;">
+<span style="font-family: serif;">4) <span style="font-weight: bold;">osshwcsamp</span>
+"executable"
+<span style="font-weight: bold;">&lt;input_papi_rate&gt;</span></span><br
+ style="font-family: serif;">
+<br style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+is not set,
+<span style="font-weight: bold;">osshwcsamp</span> will run with
+default papi event list which is currently
+<span style="font-weight: bold;">PAPI_TOT_CYC</span></span><br
+ style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+is set,
+<span style="font-weight: bold;">osshwcsamp</span> will warn the user
+that it is overriding the default papi event list and is using the papi
+event specified by <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span></span><br
+ style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+is not
+set, <span style="font-weight: bold;">osshwcsamp</span> warns the user
+that it is overriding the default papi sampling rate value and is using
+the &lt;input_papi_rate&gt; value</span><br style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+is set,
+<span style="font-weight: bold;">osshwcsamp</span> warns the user that
+it is overriding the environment
+variable <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+setting and is using the
+<span style="font-weight: bold;">&lt;input_papi_rate&gt;</span>
+value.</span><br style="font-family: serif;">
+<br style="font-family: serif;">
+<span style="font-family: serif;">5) <span style="font-weight: bold;">osshwcsamp</span>
+"executable"
+<span style="font-weight: bold;">&lt;input_papi_event_list&gt;</span> <span
+ style="font-weight: bold;">&lt;input_papi_rate&gt;</span></span><br
+ style="font-family: serif;">
+<br style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+is not set,
+<span style="font-weight: bold;">osshwcsamp</span> will override the
+default papi event list value and use the
+<span style="font-weight: bold;">&lt;input_papi_event_list&gt;</span>
+event</span><br style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+is set,
+<span style="font-weight: bold;">osshwcsamp</span> warns the user that
+it is overriding the environment
+variable <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+setting.</span><br style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+is not
+set, <span style="font-weight: bold;">osshwcsamp</span> will override
+the default papi sampling rate value and use
+the <span style="font-weight: bold;">&lt;input_papi_rate&gt;</span>
+value</span><br style="font-family: serif;">
+<span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+is set,
+<span style="font-weight: bold;">osshwcsamp</span> warns the user that
+it is overriding the environment
+variable <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+setting and uses the
+<span style="font-weight: bold;">&lt;input_papi_rate&gt;</span>
+value.</span><br>
+<br>
+<h4><a class="mozTocH4" name="mozTocId12075"></a>Default Arguments:</h4>
+<span style="font-family: serif;">The default papi event list for the
+HWCSAMP experiment is currently </span><span
+ style="font-family: serif;"><span style="font-weight: bold;">PAPI_TOT_CYC</span></span><span
+ style="font-family: serif;"> for the hardware counter samp event and </span><span
+ style="font-family: serif;">the default papi event list sampling rate
+is
+currently 100 samples per second.</span><br>
+<h4><a class="mozTocH4" name="mozTocId174863"></a><span
+ style="font-family: serif;">Example usage:</span></h4>
+<span style="font-family: serif;"><span style="font-weight: bold;">osshwcsamp
+</span>"mpirun -np 64 nbody_exe"&nbsp; PAPI_RES_STL<br>
+<br>
+if the user wanted to monitor the Cycles stalled on any resource with
+the default hardware counter samp ling rate value (100 samples per
+second).</span><br>
 <br>
 <h3><a class="mozTocH4" name="mozTocId890824"></a>HWCTIME (osshwctime)</h3>
 The command options for the <span style="font-weight: bold;">osshwctime</span>
