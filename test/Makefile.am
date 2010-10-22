@@ -15,6 +15,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
+ACLOCAL_AMFLAGS = -I libltdl/m4
 
 # directories that will be built
 SUBDIRS = executables src test_scripts

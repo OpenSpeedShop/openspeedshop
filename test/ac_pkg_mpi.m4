@@ -42,7 +42,7 @@ AC_DEFUN([AC_PKG_LAM], [
 	MPI_Initialized((int*)0);
 	]]),
 
-	if nm $lam_dir/$abi_libdir/libmpi.so \
+	if objdump -T $lam_dir/$abi_libdir/libmpi.so \
 		| cut -d' ' -f3 | grep "^lam_init" >/dev/null; then
 	    found_lam=1
 	fi
@@ -89,7 +89,7 @@ AC_DEFUN([AC_PKG_LAM], [
              MPI_Initialized((int*)0);
              ]]),
 
-             if nm $lam_dir/$alt_abi_libdir/libmpi.so \
+             if objdump -T $lam_dir/$alt_abi_libdir/libmpi.so \
                 | cut -d' ' -f3 | grep "^lam_init" >/dev/null; then
                  found_lam=1
              fi
@@ -170,7 +170,7 @@ AC_DEFUN([AC_PKG_LAMPI], [
 	MPI_Initialized((int*)0);
 	]]),
 
-	if nm $lampi_dir/$abi_libdir/libmpi.so \
+	if objdump -T $lampi_dir/$abi_libdir/libmpi.so \
 		| cut -d' ' -f3 | grep "^lampi_init" >/dev/null; then
 	    found_lampi=1
 	fi
@@ -217,7 +217,7 @@ AC_DEFUN([AC_PKG_LAMPI], [
              MPI_Initialized((int*)0);
              ]]),
 
-             if nm $lampi_dir/$alt_abi_libdir/libmpi.so \
+             if objdump -T $lampi_dir/$alt_abi_libdir/libmpi.so \
                 | cut -d' ' -f3 | grep "^lampi_init" >/dev/null; then
                  found_lampi=1
              fi
@@ -447,10 +447,10 @@ AC_DEFUN([AC_PKG_MPICH2], [
 			       [MPICH2 installation @<:@/opt/mpich2@:>@]),
 		mpich2_dir=$withval, mpich2_dir="/opt/mpich2")
 
-#    AC_ARG_WITH(mpich2-driver,
-#		AC_HELP_STRING([--with-mpich2-driver=NAME],
-#			       [MPICH2 driver name @<:@ch-p4@:>@]),
-#		mpich2_driver=$withval, mpich2_driver="")
+    AC_ARG_WITH(mpich2-driver,
+		AC_HELP_STRING([--with-mpich2-driver=NAME],
+			       [MPICH2 driver name @<:@ch-p4@:>@]),
+		mpich2_driver=$withval, mpich2_driver="")
 
     AC_MSG_CHECKING([for MPICH2 library and headers])
 
@@ -477,6 +477,20 @@ AC_DEFUN([AC_PKG_MPICH2], [
         MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
     fi
 
+    if test x"$mpich2_driver" == x"bluegene"; then
+	found_mpich2=1
+	MPICH2_CC="cc"
+        MPICH2_LIBS="-lmpich.cnk"
+        MPICH2_LDFLAGS="-L$mpich2_dir/lib"
+    fi
+
+
+    if test x"$mpich2_driver" == x"cray"; then
+	found_mpich2=1
+	MPICH2_CC="cc"
+        MPICH2_LDFLAGS="-L$mpich2_dir/lib"
+    fi
+
     mpich2_saved_CC=$CC
     mpich2_saved_CPPFLAGS=$CPPFLAGS
     mpich2_saved_LDFLAGS=$LDFLAGS
@@ -484,6 +498,8 @@ AC_DEFUN([AC_PKG_MPICH2], [
     CC="$MPICH2_CC"
     CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
     LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+
+    if test $found_mpich2 -eq 0; then
 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
 	#include <mpi.h>
@@ -502,6 +518,9 @@ AC_DEFUN([AC_PKG_MPICH2], [
         fi 
 
 	, )
+
+    fi
+
 
     if test $found_mpich2 -eq 0; then
 
@@ -544,6 +563,139 @@ AC_DEFUN([AC_PKG_MPICH2], [
 
     fi
 
+#
+# Check now for Intel MPI version of installation for their MPICH2 based MPI Implementation
+#
+    if test $found_mpich2 -eq 0 && test $abi_libdir == "lib64" ; then
+
+       AC_MSG_CHECKING([for Intel MPICH2 64 bit library and headers using mpigcc])
+
+       MPICH2_CC="$mpich2_dir/bin64/mpgicc"
+       MPICH2_CPPFLAGS="-I$mpich2_dir/include"
+       MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+       MPICH2_LIBS="-lmpich"
+       MPICH2_HEADER="$mpich2_dir/include/mpi.h"
+       MPICH2_DIR="$mpich2_dir"
+
+       CC="$MPICH2_CC"
+       CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+
+       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]]),
+
+         if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
+            MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+	    found_mpich2=1
+         fi
+
+	, )
+
+    fi
+
+
+#
+# Check now for Intel MPI version of installation for their MPICH2 based MPI Implementation
+#
+    if test $found_mpich2 -eq 0 && test $abi_libdir == "lib" ; then
+
+       AC_MSG_CHECKING([for Intel 32 bit MPICH2 library and headers using mpigcc])
+
+       MPICH2_CC="$mpich2_dir/bin/mpigcc"
+       MPICH2_CPPFLAGS="-I$mpich2_dir/include"
+       MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+       MPICH2_LIBS="-lmpich"
+       MPICH2_HEADER="$mpich2_dir/include/mpi.h"
+       MPICH2_DIR="$mpich2_dir"
+
+       CC="$MPICH2_CC"
+       CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+
+       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]]),
+
+         if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
+            MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+	    found_mpich2=1
+         fi
+
+	, )
+
+    fi
+#
+# Check now for Intel MPI version of installation for their MPICH2 based MPI Implementation
+#
+    if test $found_mpich2 -eq 0 && test $abi_libdir == "lib64" ; then
+
+       AC_MSG_CHECKING([for Intel MPICH2 64 bit library and headers using mpicc])
+
+       MPICH2_CC="$mpich2_dir/bin64/mpicc"
+       MPICH2_CPPFLAGS="-I$mpich2_dir/include64"
+       MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+       MPICH2_LIBS="-lmpich"
+       MPICH2_HEADER="$mpich2_dir/include/mpi.h"
+       MPICH2_DIR="$mpich2_dir"
+
+       CC="$MPICH2_CC"
+       CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+
+       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]]),
+
+         if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
+            MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+	    found_mpich2=1
+         fi
+
+	, )
+
+    fi
+
+
+#
+# Check now for Intel MPI version of installation for their MPICH2 based MPI Implementation
+#
+    if test $found_mpich2 -eq 0 && test $abi_libdir == "lib" ; then
+
+       AC_MSG_CHECKING([for Intel 32 bit MPICH2 library and headers using mpicc])
+
+       MPICH2_CC="$mpich2_dir/bin/mpicc"
+       MPICH2_CPPFLAGS="-I$mpich2_dir/include"
+       MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+       MPICH2_LIBS="-lmpich"
+       MPICH2_HEADER="$mpich2_dir/include/mpi.h"
+       MPICH2_DIR="$mpich2_dir"
+
+       CC="$MPICH2_CC"
+       CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+
+       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]]),
+
+         if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
+            MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+	    found_mpich2=1
+         fi
+
+	, )
+
+    fi
+
     CC=$mpich2_saved_CC
     CPPFLAGS=$mpich2_saved_CPPFLAGS
     LDFLAGS=$mpich2_saved_LDFLAGS
@@ -573,6 +725,67 @@ AC_DEFUN([AC_PKG_MPICH2], [
 ])
 
 ################################################################################
+# Check for TARGET MPICH2 (http://www-unix.mcs.anl.gov/mpi/mpich2)
+################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_MPICH2], [
+
+    AC_ARG_WITH(target-mpich2,
+		AC_HELP_STRING([--with-target-mpich2=DIR],
+			       [MPICH2 target installation @<:@/zzz@:>@]),
+		target_mpich2_dir=$withval, target_mpich2_dir="/zzz")
+
+    AC_MSG_CHECKING([for TARGET MPICH2 library and headers])
+
+    found_mpich2=0
+
+    TARGET_MPICH2_CC=""
+    TARGET_MPICH2_LIBS="-lmpich"
+    TARGET_MPICH2_CPPFLAGS="-I$target_mpich2_dir/include"
+    TARGET_MPICH2_HEADER="$target_mpich2_dir/include/mpi.h"
+    TARGET_MPICH2_DIR="$target_mpich2_dir"
+
+    if (test -f $target_mpich2_dir/include/mpi.h) ; then
+      if (test -f $target_mpich2_dir/$abi_libdir/libmpich.a) ; then
+        found_mpich2=1
+        TARGET_MPICH2_LDFLAGS="-L$target_mpich2_dir/$abi_libdir"
+      elif (test -f $target_mpich2_dir/$alt_abi_libdir/libmpich.a); then
+        found_mpich2=1
+        TARGET_MPICH2_LDFLAGS="-L$target_mpich2_dir/$alt_abi_libdir"
+      elif (test -f $target_mpich2_dir/$alt_abi_libdir/libmpich.cnk.a); then
+        found_mpich2=1
+        TARGET_MPICH2_LDFLAGS="-L$target_mpich2_dir/$alt_abi_libdir"
+      elif (test -f $target_mpich2_dir/$abi_libdir/libmpich.cnk.a); then
+        found_mpich2=1
+        TARGET_MPICH2_LDFLAGS="-L$target_mpich2_dir/$alt_abi_libdir"
+      fi 
+    fi 
+
+    if test $found_mpich2 -eq 1; then
+	AC_MSG_RESULT(yes)
+	AM_CONDITIONAL(HAVE_TARGET_MPICH2, true)
+	AC_DEFINE(HAVE_TARGET_MPICH2, 1, [Define to 1 if you have MPICH.])	
+    else
+	AC_MSG_RESULT(no)
+	AM_CONDITIONAL(HAVE_TARGET_MPICH2, false)
+	TARGET_MPICH2_CC=""
+	TARGET_MPICH2_CPPFLAGS=""
+	TARGET_MPICH2_LDFLAGS=""
+	TARGET_MPICH2_LIBS=""
+	TARGET_MPICH2_HEADER=""
+	TARGET_MPICH2_DIR=""
+    fi
+
+    AC_SUBST(TARGET_MPICH2_CC)
+    AC_SUBST(TARGET_MPICH2_CPPFLAGS)
+    AC_SUBST(TARGET_MPICH2_LDFLAGS)
+    AC_SUBST(TARGET_MPICH2_LIBS)
+    AC_SUBST(TARGET_MPICH2_HEADER)
+    AC_SUBST(TARGET_MPICH2_DIR)
+
+])
+
+################################################################################
 # Check for MPT (http://www.sgi.com/products/software/mpt)
 ################################################################################
 
@@ -587,9 +800,18 @@ AC_DEFUN([AC_PKG_MPT], [
 
     found_mpt=0
 
+    if objdump -T $mpt_dir/$abi_libdir/libmpi.so | grep MPI_debug_rank >/dev/null; then
+       found_mpt=1
+       MPT_LDFLAGS="-L$mpt_dir/$abi_libdir"
+    elif objdump -T $mpt_dir/lib/libmpi.so | grep MPI_debug_rank >/dev/null; then
+       found_mpt=1
+       MPT_LDFLAGS="-L$mpt_dir/lib"
+    fi
+
+
     MPT_CC="$CC"
     MPT_CPPFLAGS="-I$mpt_dir/include"
-    MPT_LDFLAGS="-L$mpt_dir/$abi_libdir"
+#    MPT_LDFLAGS="-L$mpt_dir/$abi_libdir"
     MPT_LIBS="-lmpi"
     MPT_HEADER="$mpt_dir/include/mpi.h"
     MPT_DIR="$mpt_dir"
@@ -607,12 +829,6 @@ AC_DEFUN([AC_PKG_MPT], [
 	]], [[
 	MPI_Initialized((int*)0);
 	]]),
-
-	if nm $mpt_dir/$abi_libdir/libmpi.so \
-		| grep MPI_debug_rank >/dev/null; then
-	    found_mpt=1
-	fi
-
 	, )
 
     CC=$mpt_saved_CC
@@ -680,10 +896,10 @@ AC_DEFUN([AC_PKG_OPENMPI], [
 	MPI_Initialized((int*)0);
 	]]),
 
-	if (nm $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+	if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$abi_libdir/libmpi.a | grep "^ompi_mpi" >/dev/null) ; then
 	    found_openmpi=1
 	fi
 
@@ -704,10 +920,10 @@ AC_DEFUN([AC_PKG_OPENMPI], [
    	MPI_Initialized((int*)0);
    	]]),
    
-   	if (nm $openmpi_dir/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm $openmpi_dir/$abi_libdir/openmpi/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+   	if (objdump -T $openmpi_dir/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a  grep "ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$abi_libdir/openmpi/libmpi.a | grep "ompi_mpi" >/dev/null) ; then
 	   found_openmpi=1
    	fi
    
@@ -730,10 +946,10 @@ AC_DEFUN([AC_PKG_OPENMPI], [
    	MPI_Initialized((int*)0);
    	]]),
    
-   	if (nm $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+   	if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$abi_libdir/libmpi.a | grep "ompi_mpi" >/dev/null) ; then
 	   found_openmpi=1
    	fi
    
@@ -753,10 +969,10 @@ AC_DEFUN([AC_PKG_OPENMPI], [
    	MPI_Initialized((int*)0);
    	]]),
    
-   	if (nm $openmpi_dir/$alt_abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$alt_abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$alt_abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm $openmpi_dir/$alt_abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+   	if (objdump -T $openmpi_dir/$alt_abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$alt_abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$alt_abi_libdir/openmpi/libmpi_f90.a | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$alt_abi_libdir/libmpi.a |  grep "ompi_mpi" >/dev/null) ; then
 	   found_openmpi=1
    	fi
    
@@ -766,7 +982,7 @@ AC_DEFUN([AC_PKG_OPENMPI], [
 #
 # Try again with different mpicc - for older versions of openmpi try om-mpicxx
 #
-   if test $found_openmpi -eq 0; then
+   if test $found_openmpi -eq 0 && test -a $openmpi_dir/bin/om-mpicx; then
      OPENMPI_LDFLAGS="-L$openmpi_dir/$abi_libdir/openmpi"
      LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS $OPENMPI_LIBS"
      OPENMPI_CC="$openmpi_dir/bin/om-mpicxx"
@@ -778,10 +994,10 @@ AC_DEFUN([AC_PKG_OPENMPI], [
    	MPI_Initialized((int*)0);
    	]]),
    
-   	if (nm $openmpi_dir/$abi_libdir/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi.so | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm /usr/$abi_libdir/openmpi/libmpi_f90.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ||
-           (nm $openmpi_dir/$abi_libdir/libmpi.a | cut -d' ' -f3 | grep "^ompi_mpi" >/dev/null) ; then
+   	if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | grep "ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$abi_libdir/libmpi.a | grep "ompi_mpi" >/dev/null) ; then
 	   found_openmpi=1
    	fi
    
@@ -831,9 +1047,13 @@ AC_DEFUN([AC_PKG_MPI], [
     AC_PKG_MVAPICH2()
     AC_PKG_MPT()
     AC_PKG_OPENMPI()
+    AC_PKG_TARGET_MPICH2()
 
     default_mpi=""
     all_mpi_names=""
+
+    default_target_mpi=""
+    all_target_mpi_names=""
 
     # Test for MPI implementations in reverse order of priority for
     # the default choice (ordering compatible with historical
@@ -873,6 +1093,13 @@ AC_DEFUN([AC_PKG_MPI], [
 	all_mpi_names=" mvapich2 $all_mpi_names"
     fi
 
+    if test x"$TARGET_MPICH2_LDFLAGS" != x""; then
+#	default_mpi=MPICH2;    default_mpi_name=mpich2
+	default_target_mpi=MPICH2;    default_target_mpi_name=mpich2
+#	all_mpi_names=" mpich2 $all_mpi_names"
+	all_target_mpi_names=" mpich2 $all_target_mpi_names"
+    fi
+
     if test x"$default_mpi" != x""; then
 	AM_CONDITIONAL(HAVE_MPI, true)
 	AC_DEFINE(HAVE_MPI, 1, [Define to 1 if you have MPI.])	
@@ -883,6 +1110,18 @@ AC_DEFUN([AC_PKG_MPI], [
 			   [Name of default MPI Implementation])
     else
 	AM_CONDITIONAL(HAVE_MPI, false)
+    fi
+
+    if test x"$default_target_mpi" != x""; then
+	AM_CONDITIONAL(HAVE_TARGET_MPI, true)
+	AC_DEFINE(HAVE_TARGET_MPI, 1, [Define to 1 if you have MPI.])	
+	AC_SUBST(DEFAULT_TARGET_MPI_IMPL, $default_target_mpi)
+	AC_DEFINE_UNQUOTED(ALL_TARGET_MPI_IMPL_NAMES, "$all_target_mpi_names",
+			   [Names of all TARGET_MPI Implementations])
+	AC_DEFINE_UNQUOTED(DEFAULT_TARGET_MPI_IMPL_NAME, "$default_target_mpi_name",
+			   [Name of default TARGET_MPI Implementation])
+    else
+	AM_CONDITIONAL(HAVE_TARGET_MPI, false)
     fi
 
 ])

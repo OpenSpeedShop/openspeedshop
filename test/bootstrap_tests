@@ -17,13 +17,11 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+
 echo "running bootstrap on top level test directory"
 
-chmod 644 libltdl.tar.gz
-chmod 755 configure
-
 aclocal
-libtoolize --force --ltdl-tar --copy
+libtoolize --force --ltdl --copy
 autoheader -f
 automake --foreign --add-missing --copy
 autoconf
