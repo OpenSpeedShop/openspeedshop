@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-# Copyright (c) 2006-2009 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -93,7 +93,7 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 
 
     vers_info_needed=1
-    if test -f  $binutils_dir/$abi_libdir/libbfd.so; then
+    if test -f  $binutils_dir/$abi_libdir/libbfd.so && test -x $binutils_dir/$abi_libdir/libbfd.so; then
 		vers_info_needed=0
     fi
 
@@ -107,27 +107,39 @@ AC_DEFUN([AC_PKG_BINUTILS], [
         binutils_vers="`ls $binutils_dir/$abi_libdir/libbfd*.so | cut -d/ -f 4 | cut -c7-99 | sed 's/.so//'`"
     fi
 
+# Chose the pic version over the normal version - binutils-2.20 divides the main library into pic and non-pic
+    if test -f $binutils_dir/$abi_libdir/libiberty_pic.a; then
+       BINUTILS_IBERTY_LIB="-liberty_pic"
+       binutils_iberty_lib="-liberty_pic"
+    elif test -f $binutils_dir/$abi_libdir/libiberty.a; then
+       BINUTILS_IBERTY_LIB="-liberty"
+       binutils_iberty_lib="-liberty"
+    else
+       BINUTILS_IBERTY_LIB=
+       binutils_iberty_lib=
+    fi
+
     case "$host" in
 	ia64-*-linux*)
 	    binutils_required="true"
             BINUTILS_DIR="$binutils_dir"
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
-	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
+	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers $binutils_iberty_lib"
             ;;
 	x86_64-*-linux*)
 	    binutils_required="true"
             BINUTILS_DIR="$binutils_dir"
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
-	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
+	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers $binutils_iberty_lib"
             ;;
 	*)
 	    binutils_required="true"
             BINUTILS_DIR="$binutils_dir"
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
-	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers -liberty"
+	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers $binutils_iberty_lib"
             ;;
     esac
 
@@ -157,6 +169,7 @@ AC_DEFUN([AC_PKG_BINUTILS], [
             BINUTILS_LDFLAGS=""
             BINUTILS_LIBS=""
             BINUTILS_DIR=""
+            BINUTILS_IBERTY_LIB=""
 
         ]
     )
@@ -169,6 +182,7 @@ AC_DEFUN([AC_PKG_BINUTILS], [
     AC_SUBST(BINUTILS_LDFLAGS)
     AC_SUBST(BINUTILS_LIBS)
     AC_SUBST(BINUTILS_DIR)
+    AC_SUBST(BINUTILS_IBERTY_LIB)
 
 ])
 
@@ -191,7 +205,9 @@ AC_DEFUN([AC_PKG_TARGET_BINUTILS], [
       TARGET_BINUTILS_CPPFLAGS=""
       TARGET_BINUTILS_LDFLAGS=""
       TARGET_BINUTILS_LIBS=""
+      AC_MSG_RESULT(no)
     else
+      AC_MSG_RESULT(yes)
       AM_CONDITIONAL(HAVE_TARGET_BINUTILS, true)
       AC_DEFINE(HAVE_TARGET_BINUTILS, 1, [Define to 1 if you have a target version of BINUTILS.])
       case "$target_os" in
@@ -287,8 +303,8 @@ AC_DEFUN([AC_PKG_DYNINST], [
 
     AC_ARG_WITH(dyninst-version,
                 AC_HELP_STRING([--with-dyninst-version=VERS],
-                               [dyninst-version installation @<:@6.0@:>@]),
-                dyninst_vers=$withval, dyninst_vers="6.0")
+                               [dyninst-version installation @<:@6.1@:>@]),
+                dyninst_vers=$withval, dyninst_vers="6.1")
 
     DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
     DYNINST_LDFLAGS="-L$dyninst_dir/$abi_libdir"
@@ -307,6 +323,10 @@ AC_DEFUN([AC_PKG_DYNINST], [
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI" 
             ;;
 	"6.0")
+            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
+            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI" 
+            ;;
+	"6.1")
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI" 
             ;;
@@ -367,6 +387,7 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
     LIBUNWIND_CPPFLAGS="-I$libunwind_dir/include -DUNW_LOCAL_ONLY"
     LIBUNWIND_LDFLAGS="-L$libunwind_dir/$abi_libdir"
     LIBUNWIND_LIBS="-lunwind"
+    LIBUNWIND_DIR="$libunwind_dir"
 
     libunwind_saved_CPPFLAGS=$CPPFLAGS
     libunwind_saved_LDFLAGS=$LDFLAGS
@@ -391,6 +412,7 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
             LIBUNWIND_CPPFLAGS=""
             LIBUNWIND_LDFLAGS=""
             LIBUNWIND_LIBS=""
+            LIBUNWIND_DIR=""
 
         ]
     )
@@ -401,6 +423,7 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
     AC_SUBST(LIBUNWIND_CPPFLAGS)
     AC_SUBST(LIBUNWIND_LDFLAGS)
     AC_SUBST(LIBUNWIND_LIBS)
+    AC_SUBST(LIBUNWIND_DIR)
 
 ])
 
@@ -422,18 +445,23 @@ AC_DEFUN([AC_PKG_TARGET_LIBUNWIND], [
       TARGET_LIBUNWIND_CPPFLAGS=""
       TARGET_LIBUNWIND_LDFLAGS=""
       TARGET_LIBUNWIND_LIBS=""
+      TARGET_LIBUNWIND_DIR=""
+      AC_MSG_RESULT(no)
     else
+      AC_MSG_RESULT(yes)
       AM_CONDITIONAL(HAVE_TARGET_LIBUNWIND, true)
       AC_DEFINE(HAVE_TARGET_LIBUNWIND, 1, [Define to 1 if you have a target version of LIBUNWIND.])
       TARGET_LIBUNWIND_CPPFLAGS="-I$target_libunwind_dir/include -DUNW_LOCAL_ONLY"
       TARGET_LIBUNWIND_LDFLAGS="-L$target_libunwind_dir/$abi_libdir"
       TARGET_LIBUNWIND_LIBS="-lunwind"
+      TARGET_LIBUNWIND_DIR="$target_libunwind_dir"
     fi
 
 
     AC_SUBST(TARGET_LIBUNWIND_CPPFLAGS)
     AC_SUBST(TARGET_LIBUNWIND_LDFLAGS)
     AC_SUBST(TARGET_LIBUNWIND_LIBS)
+    AC_SUBST(TARGET_LIBUNWIND_DIR)
 
 ])
 
@@ -457,21 +485,43 @@ AC_DEFUN([AC_PKG_MRNET], [
 
     AC_ARG_WITH(mrnet-version,
                 AC_HELP_STRING([--with-mrnet-version=VERS],
-                               [mrnet-version installation @<:@2.0.1@:>@]),
-                mrnet_vers=$withval, mrnet_vers="2.0.1")
+                               [mrnet-version installation @<:@2.2@:>@]),
+                mrnet_vers=$withval, mrnet_vers="2.2")
 
-#   The default is to use mrnet-2.0.1 cppflags and libs.  
-#   Change that (the default case entry) when you change the default vers to something other than 2.0.1
+#   Temporary fix for problems with the MRNet public header files.  They depend on os_linux or other flags being set
+
+    os_release=`uname -r`
+    case "$os_release" in
+      2.4*)
+        MRNET_CPPFLAGS="-Dos_linux=24"
+        ;;
+      2.6*)
+        MRNET_CPPFLAGS="-Dos_linux=26"
+        ;;
+      *)
+        MRNET_CPPFLAGS="-Dos_linux"
+        ;;
+    esac
+
+
+#   The default is to use mrnet-2.2 cppflags and libs.  
+#   Change that (the default case entry) when you change the default vers to something other than 2.2
 
     case "$mrnet_vers" in
 	"2.0.1")
-            MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
             ;;
 	"2.1")
-            MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_21"
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_21=1"
+            ;;
+	"2.2")
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_22=1"
+            ;;
+	"3.0")
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_30=1"
             ;;
 	*)
-            MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_30=1"
             ;;
     esac
 
@@ -952,6 +1002,7 @@ AC_DEFUN([AC_PKG_PAPI], [
 
     PAPI_CPPFLAGS="-I$papi_dir/include"
     PAPI_LDFLAGS="-L$papi_dir/$abi_libdir"
+    PAPI_DIR="$papi_dir"
 
     case "$host" in
 	ia64-*-linux*)
@@ -971,9 +1022,8 @@ AC_DEFUN([AC_PKG_PAPI], [
     papi_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $PAPI_CPPFLAGS"
-#    LDFLAGS="$LDFLAGS $PAPI_LDFLAGS $PAPI_LIBS"
-    LDFLAGS="$PAPI_LDFLAGS $PAPI_LIBS"
-    LIBS=""
+    LDFLAGS="$PAPI_LDFLAGS"
+    LIBS="$PAPI_LIBS"
 
     AC_MSG_CHECKING([for PAPI library and headers])
 
@@ -992,6 +1042,7 @@ AC_DEFUN([AC_PKG_PAPI], [
             PAPI_CPPFLAGS=""
             PAPI_LDFLAGS=""
             PAPI_LIBS=""
+            PAPI_DIR=""
 
         ]
     )
@@ -1003,6 +1054,7 @@ AC_DEFUN([AC_PKG_PAPI], [
     AC_SUBST(PAPI_CPPFLAGS)
     AC_SUBST(PAPI_LDFLAGS)
     AC_SUBST(PAPI_LIBS)
+    AC_SUBST(PAPI_DIR)
 
 ])
 
@@ -1017,7 +1069,8 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
                                [PAPI target architecture installation @<:@/opt@:>@]),
                 target_papi_dir=$withval, target_papi_dir="/zzz")
 
-    AC_MSG_CHECKING([for Targetted PAPI support])
+
+    foundPS=0
 
     if test "$target_papi_dir" == "/zzz" ; then
       AM_CONDITIONAL(HAVE_TARGET_PAPI, false)
@@ -1025,14 +1078,25 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
       TARGET_PAPI_CPPFLAGS=""
       TARGET_PAPI_LDFLAGS=""
       TARGET_PAPI_LIBS=""
+      foundPS=0
+      AC_MSG_CHECKING([for Targetted PAPI support])
+      AC_MSG_RESULT(no)
     else
 
       AM_CONDITIONAL(HAVE_TARGET_PAPI, true)
       AC_DEFINE(HAVE_TARGET_PAPI, 1, [Define to 1 if you have a target version of PAPI.])
+      AC_MSG_CHECKING([for Targetted PAPI support])
+      AC_MSG_RESULT(yes)
 
       TARGET_PAPI_DIR="$target_papi_dir"
       TARGET_PAPI_CPPFLAGS="-I$target_papi_dir/include"
       TARGET_PAPI_LDFLAGS="-L$target_papi_dir/$abi_libdir"
+
+      if test -f $target_papi_dir/$abi_libdir/libpapi.so; then
+        foundPS=1
+      else
+        foundPS=0
+      fi
 
       case "$target_os" in
 	cray-xt5)
@@ -1046,6 +1110,17 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
             fi 
             ;;
       esac
+
+    fi
+
+    AC_MSG_CHECKING([for Shared Targetted PAPI support])
+    if test $foundPS == 1; then
+        AM_CONDITIONAL(HAVE_TARGET_PAPI_SHARED, true)
+        AC_DEFINE(HAVE_TARGET_PAPI_SHARED, 1, [Define to 1 if you have a target version of PAPI that has shared libs.])
+        AC_MSG_RESULT(yes)
+    else
+        AM_CONDITIONAL(HAVE_TARGET_PAPI_SHARED, false)
+        AC_MSG_RESULT(no)
     fi
 
     AC_SUBST(TARGET_PAPI_DIR)
@@ -1061,6 +1136,7 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
 
 AC_DEFUN([AC_PKG_SQLITE], [
 
+    found_sqlite=0
     AC_ARG_WITH(sqlite,
                 AC_HELP_STRING([--with-sqlite=DIR],
                                [SQLite installation @<:@/usr@:>@]),
@@ -1082,19 +1158,30 @@ AC_DEFUN([AC_PKG_SQLITE], [
         #include <sqlite3.h>
         ]], [[
 	sqlite3_libversion();
-        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
-        AC_MSG_FAILURE(cannot locate SQLite library and/or headers.) ]
+        ]]),[ found_sqlite=1 ], [ found_sqlite=0 ]
     )
 
     CPPFLAGS=$sqlite_saved_CPPFLAGS
     LDFLAGS=$sqlite_saved_LDFLAGS
 
+    if test $found_sqlite -eq 1; then
+      AC_MSG_RESULT([yes])
+      AC_DEFINE(HAVE_SQLITE, 1, [Define to 1 if you have SQLite.])
+      AM_CONDITIONAL(HAVE_SQLITE, true)
+    else
+      AC_MSG_RESULT([cannot locate SQLite library and/or headers.]) 
+      # If want this to cause configure failure and stopage, add in AC_MSG_FAILURE
+      #AC_MSG_FAILURE(cannot locate SQLite library and/or headers.) 
+      AC_MSG_RESULT([no]) 
+      AM_CONDITIONAL(HAVE_SQLITE, false)
+      SQLITE_CPPFLAGS=""
+      SQLITE_LDFLAGS=""
+      SQLITE_LIBS=""
+    fi
+
     AC_SUBST(SQLITE_CPPFLAGS)
     AC_SUBST(SQLITE_LDFLAGS)
     AC_SUBST(SQLITE_LIBS)
-
-    AC_DEFINE(HAVE_SQLITE, 1, [Define to 1 if you have SQLite.])
-
 ])
 
 
@@ -1186,11 +1273,10 @@ dnl Support the user enabled --with-python option.
                AC_MSG_RESULT([yes])
             else
                     AC_MSG_RESULT([no])
-                    AC_MSG_ERROR([this package requires Python $1.
-If you have it installed, but it isn't the default Python
-interpreter in your system path, please pass the PYTHON_VERSION
-variable to configure. See ``configure --help'' for reference.
-])dnl
+                    AC_MSG_ERROR([this package requires Python $1. 
+If you have it installed, but it isn't the default Python 
+interpreter in your system path, please pass the PYTHON_VERSION 
+variable to configure. See ``configure --help'' for reference. ])
             fi
     fi
 
@@ -1304,7 +1390,7 @@ $ac_distutils_result])
 This version of the PYTHON_DEVEL macro
 doesn't work properly with versions of Python before
 2.1.0. You may need to install a newer version of Python.
-])dnl
+])
     else
             AC_MSG_RESULT([yes])
     fi
@@ -1786,6 +1872,7 @@ AC_DEFUN([AC_PKG_LIBMONITOR], [
             LIBMONITOR_CPPFLAGS=""
             LIBMONITOR_LDFLAGS=""
             LIBMONITOR_LIBS=""
+            LIBMONITOR_DIR=""
 
         ]
     )
@@ -1819,6 +1906,7 @@ AC_DEFUN([AC_PKG_TARGET_LIBMONITOR], [
       TARGET_LIBMONITOR_LDFLAGS=""
       TARGET_LIBMONITOR_LIBS=""
       TARGET_LIBMONITOR_DIR=""
+      AC_MSG_RESULT(no)
     else
       AM_CONDITIONAL(HAVE_TARGET_LIBMONITOR, true)
       AC_DEFINE(HAVE_TARGET_LIBMONITOR, 1, [Define to 1 if you have a target version of LIBMONITOR.])
@@ -1826,6 +1914,7 @@ AC_DEFUN([AC_PKG_TARGET_LIBMONITOR], [
       TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
       TARGET_LIBMONITOR_LIBS="-lmonitor"
       TARGET_LIBMONITOR_DIR="$target_libmonitor_dir"
+      AC_MSG_RESULT(yes)
     fi
 
 
@@ -1994,6 +2083,24 @@ AC_DEFUN([AC_PKG_XERCES], [
     AC_SUBST(XERCES_LDFLAGS)
     AC_SUBST(XERCES_LIBS)
 
+])
+
+
+################################################################################
+# Check for EPYDOC (http://epydoc.sourceforge.net/)   
+################################################################################
+
+AC_DEFUN([AC_PKG_EPYDOC], [
+
+	AC_MSG_CHECKING([for epydoc binary])
+	if epydoc --version >/dev/null 2>/dev/null ; then
+      		AC_MSG_CHECKING([found epydoc binary])
+		      AC_MSG_RESULT(yes)
+		      AM_CONDITIONAL(HAVE_EPYDOC, true)
+		      AC_DEFINE(HAVE_EPYDOC, 1, [Define to 1 if you have EPYDOC.])
+	else
+                AM_CONDITIONAL(HAVE_EPYDOC, false)
+	fi
 ])
 
 
