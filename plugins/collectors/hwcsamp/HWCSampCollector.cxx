@@ -353,7 +353,7 @@ void HWCSampCollector::getMetricValues(const std::string& metric,
 	StackTrace trace(thread, extent.getTimeInterval().getBegin());
 	trace.push_back(addr);
 
-#ifndef NDEBUG
+#if 0
 	if (!is_detail) {
 	    for (int ii = 0; ii < 6; ii++) {
 		if (data.events.events_val[i].hwccounts[ii] > 0) {
@@ -418,7 +418,7 @@ std::cerr << "HWCSAMP::getMetricValues pc "
 	}
 	
     }
-    
+
     // Free the decoded data blob
     xdr_free(reinterpret_cast<xdrproc_t>(xdr_hwcsamp_data),
 	     reinterpret_cast<char*>(&data));
