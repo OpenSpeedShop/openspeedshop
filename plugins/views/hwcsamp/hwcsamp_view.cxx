@@ -43,16 +43,16 @@
             uint64_t excnt = 0;                        \
             double extime = 0.0;                       \
             uint64_t exevent[OpenSS_NUMCOUNTERS];      \
-            { for(int i=0; i<OpenSS_NUMCOUNTERS;i++) { \
-                exevent[i] = 0; } }
+            { for(int hwcsamp_idx=0; hwcsamp_idx<OpenSS_NUMCOUNTERS;hwcsamp_idx++) { \
+                exevent[hwcsamp_idx] = 0; } }
 
 #define get_Hwcsamp_invalues(primary, num_calls)
 
 #define get_Hwcsamp_exvalues(secondary, num_calls)       \
               excnt++;                                   \
               extime += secondary.dm_time / num_calls;   \
-              { for(int i=0; i<OpenSS_NUMCOUNTERS;i++) { \
-                  exevent[i] += secondary.dm_event_values[i]; } }
+              { for(int hwcsamp_idx=0; hwcsamp_idx<OpenSS_NUMCOUNTERS;hwcsamp_idx++) { \
+                  exevent[hwcsamp_idx] += secondary.dm_event_values[hwcsamp_idx]; } }
 
 #define get_inclusive_values(stdv, num_calls)           \
 {           int64_t len = stdv.size();                  \
@@ -78,9 +78,9 @@
               if (num_temps > excnt_temp) value_array[excnt_temp] = CRPTR (excnt);           \
               if (num_temps > extime_temp) value_array[extime_temp] = CRPTR (extime);        \
               if (num_temps > event_temps) {                                                 \
-                for(int i=0; i<OpenSS_NUMCOUNTERS;i++) {                                     \
-                   if (num_temps <= (event_temps+i)) break;                                                \
-                   value_array[event_temps+i] = CRPTR(exevent[i]); } }
+                for(int hwcsamp_idx=0; hwcsamp_idx<OpenSS_NUMCOUNTERS;hwcsamp_idx++) {                                     \
+                   if (num_temps <= (event_temps+hwcsamp_idx)) break;                                                \
+                   value_array[event_temps+hwcsamp_idx] = CRPTR(exevent[hwcsamp_idx]); } }
 
 
 #define def_Detail_values def_HWCSAMP_values
@@ -140,6 +140,13 @@ static bool define_hwcsamp_columns (
     int len = Value.length();
     int end = Value.find(",")+1;
     int start = end;
+
+    string::size_type delimPos = 0, tokenPos = 0, pos = 0;
+    delimPos = Value.find_first_of(",", pos);
+    tokenPos = Value.find_first_not_of(",", pos);
+
+    papi_names[num_events++] = Value.substr(pos,delimPos-pos);
+
     while (end < len) {
       while ((end < len) && (Value[end] != *(","))) end++;
       if (end < len) {
@@ -156,7 +163,8 @@ static bool define_hwcsamp_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_time_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, extime_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, excnt_temp));
-  for (int i=0; i < OpenSS_NUMCOUNTERS; i++) {
+  //for (int i=0; i < OpenSS_NUMCOUNTERS; i++) {
+  for (int i=0; i < num_events ; i++) {
     IV.push_back(new ViewInstruction (VIEWINST_Add, event_temps+i));
   }
 
