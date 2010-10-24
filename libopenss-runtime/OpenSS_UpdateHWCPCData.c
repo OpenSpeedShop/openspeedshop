@@ -72,10 +72,12 @@ bool_t OpenSS_UpdateHWCPCData(uint64_t pc, OpenSS_HWCPCData* buffer, long long *
 	buffer->count[buffer->hash_table[bucket] - 1]++;
 	for (i = 0; i < 6; i++) {
             buffer->hwccounts[buffer->hash_table[bucket] - 1][i] += evcounts[i];
+#if 0
 	    if (evcounts[i] > 0) {
 fprintf(stderr,"UPDATING hwccounts %d with %ld for pc %#lx entry %d\n",i,evcounts[i],pc, buffer->hash_table[bucket] - 1);
 fprintf(stderr,"NEWVALUES for pc %#lx entry %d is %ld\n",pc,buffer->hash_table[bucket] - 1, buffer->hwccounts[buffer->hash_table[bucket] - 1][i]);
 	    }
+#endif
 	}
 	return FALSE;
     }
@@ -86,7 +88,7 @@ fprintf(stderr,"NEWVALUES for pc %#lx entry %d is %ld\n",pc,buffer->hash_table[b
     buffer->count[entry] = 1;
 
     for (i = 0; i < 6; i++) {
-fprintf(stderr,"NEW hwccounts %d with %ld for pc %#lx entry %d\n",i,evcounts[i],pc, entry);
+//fprintf(stderr,"NEW hwccounts %d with %ld for pc %#lx entry %d\n",i,evcounts[i],pc, entry);
         buffer->hwccounts[entry][i] = evcounts[i];
     }
 
