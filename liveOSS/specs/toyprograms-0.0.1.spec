@@ -9,7 +9,9 @@ Source: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Prefix: /opt/tempapps
 
-Requires(pre): coreutils 
+Requires(pre):  coreutils
+Requires(preun):  coreutils
+Requires(post): coreutils
 Requires(postun): coreutils
 
 

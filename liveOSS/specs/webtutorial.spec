@@ -9,8 +9,10 @@ Source: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Prefix: /opt/doc
 
-Requires(pre): coreutils
-Requires(postun): /coreutils
+Requires(pre):  coreutils
+Requires(preun):  coreutils
+Requires(post): coreutils
+Requires(postun): coreutils
 
 
 %description
