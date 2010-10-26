@@ -114,6 +114,19 @@ mv toyprograms-0.0.1.tar.gz SOURCES/.
 echo "..........................................."
 echo "Creating tarball for webtutorial-0.0.1....."
 echo "..........................................."
+#
+echo "..........................................."
+echo "Do you want to add more files to the webtutorial-0.0.1 sub-directories? ... "
+echo "..........................................."
+echo "Please place the file(s) into the webtutorial-0.0.1/...  and answer with a 'y' or 'Y' to continue."
+read answer
+
+if [ "$answer" = Y -o "$answer" = y ]; then
+   echo "..........................................."
+   echo "Continuing the build ....."
+   echo "..........................................."
+fi
+#
 chmod -R 755 webtutorial-0.0.1
 tar -cvf webtutorial-0.0.1.tar webtutorial-0.0.1/*
 gzip webtutorial-0.0.1.tar
