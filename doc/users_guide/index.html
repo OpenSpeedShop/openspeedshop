@@ -1774,8 +1774,10 @@ Information</a>
     <ul>
       <li><a href="#mozTocId779469">Open|SpeedShop Quick
 Start Information</a></li>
-      <li><a href="#mozTocId90173"></a></li>
-      <li><a href="#mozTocId418174"></a></li>
+      <li><a href="#mozTocId90173"></a><br>
+      </li>
+      <li><a href="#mozTocId418174"></a><br>
+      </li>
       <li><a href="#mozTocId286397">Open|SpeedShop
 Invocation Command: "openss"</a>
         <ul>
@@ -1875,7 +1877,8 @@ Experiment</a></li>
 Experiment</a></li>
                     </ul>
                   </li>
-                  <li><a href="#mozTocId526383"></a></li>
+                  <li><a href="#mozTocId526383"></a><br>
+                  </li>
                   <li><a href="#mozTocId232228">HW Counter Experiments</a>
                     <ul>
                       <li><a href="#mozTocId28748">hwc: &nbsp;Hardware
@@ -1889,7 +1892,8 @@ Counter Experiment</a></li>
                   <li><a href="#mozTocId903835">Input/Output Experiments</a></li>
                   <li><a href="#mozTocId852593">MPI Experiments</a></li>
                   <li><a href="#mozTocId419273">FPE Tracing Experiment</a></li>
-                  <li><a href="#mozTocId824997"></a></li>
+                  <li><a href="#mozTocId824997"></a><br>
+                  </li>
                 </ul>
               </li>
               <li><a href="#mozTocId926483">Wizard Menu</a>
@@ -1982,8 +1986,7 @@ Usage on MPI Applications</a>
 Implementation
 Implications</a></li>
               <li><a href="#mozTocId523782">Attaching to Already
-Running MPI Applications (online mode of operation only)
-                </a>
+Running MPI Applications (online mode of operation only) </a>
                 <ul>
                   <li><a href="#mozTocId209645">Gui Wizard Information</a></li>
                   <li><a href="#mozTocId458846">Wizard
@@ -2053,8 +2056,7 @@ version Implementation
 Implications with the CLI</a></li>
               <li><a href="#mozTocId260843">Attaching to Already
 Running MPI
-Applications with the CLI (online version only)
-                </a>
+Applications with the CLI (online version only) </a>
                 <ul>
                   <li><a href="#mozTocId192100">Example 1: Attach to
 mpirun</a></li>
@@ -3350,19 +3352,20 @@ in the use or module file for Open|SpeedShop. <span
 environment variable to be aware of.&nbsp; This envirionmnent variable
 specifies the path to where the
 offline version of openss will build the OpenSpeedShop database file.
-If you are on a lustre file system that does not have file locking
+If you are on a file system that does not have file locking
 enabled.&nbsp; The sqlite component will not be able to create the
 database file.&nbsp; You can use this environment variable to specify a
-non-lustre file system path to be used for the database file
+path to a file system to be used for the database file
 creation.&nbsp;&nbsp;&nbsp; If you receive an error message similar to
 this: "Assertion "retval == SQLITE_OK" failed in file Database.cxx at
 line 120"&nbsp; then you are probably trying to create a database file
-on a lustre file system that doesn't have locking turned on. &nbsp;
+on a file system that doesn't have locking turned on. &nbsp;
 &nbsp; You can ask the system administrators to turn on locking, or a
 more likely fix would be to set the<span style="font-weight: bold;">
 OPENSS_DB_DIR</span> environment variable
-to a non-lustre file system. &nbsp; Then that path will be where the
-Open|SpeedShop sqlite database file will be created.\<br>
+to a file system with locking enabled. &nbsp; Then that path will be
+where the
+Open|SpeedShop sqlite database file will be created.<br>
 </p>
 <div style="margin-left: 80px;"><img
  style="border: 0px solid ; width: 624px; height: 394px;"

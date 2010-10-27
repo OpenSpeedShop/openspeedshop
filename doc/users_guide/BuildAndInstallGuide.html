@@ -1085,10 +1085,11 @@ used. &nbsp;&nbsp; Set this to:&nbsp; <span style="font-weight: bold;">OPENSS_RA
 <ul>
   <li>This envirionmnent variable specifies the path to where the
 offline version of openss will build the OpenSpeedShop database file.
-If you are on a lustre file system that does not have file locking
-turnedon.&nbsp; The sqlite component will not be able to create the
+If you are on a file system that does not have file locking
+turned on, the sqlite component will not be able to create the
 database file.&nbsp; You can use this environment variable to specify a
-non-lustre file system path to be used for the database file creation.</li>
+path to a file system that does have locking turned to be used for the
+database file creation.</li>
 </ul>
 </div>
 <br>
