@@ -117,6 +117,18 @@ bool Database::isAccessible(const std::string& name)
 	Assert(sqlite3_close(handle) == SQLITE_OK); 
 	return false;
     }
+
+    if (retval != SQLITE_OK) {
+       bool is_db_env_var_set = (getenv("OPENSS_DB_DIR") != NULL);
+       if (is_db_env_var_set) {
+          char *db_dir = getenv("OPENSS_DB_DIR");
+          std::cerr << "An error related to the Open|SpeedShop database file occurred. A likely cause is that file locking is not enabled on: " << db_dir << std::endl;
+       } else {
+          char *db_dir = get_current_dir_name();
+          std::cerr << "An error related to the Open|SpeedShop database file occurred. A likely cause is that file locking is not enabled on: " << db_dir << std::endl;
+       }
+    }
+
     Assert(retval == SQLITE_OK);
     
     // Close the database
@@ -1275,7 +1287,20 @@ void Database::rollbackTransaction()
 
 	// Reset this statement
 	int retval = sqlite3_reset(handle.dm_transaction.back());
-	Assert((retval == SQLITE_OK) || (retval == SQLITE_READONLY));
+        //  check 1st OPENSS_DB_DIR - if set point error to this
+        //  else assume $CWD as problem dir
+        //
+	if ((retval != SQLITE_OK) || (retval != SQLITE_READONLY)) {
+          bool is_db_env_var_set = (getenv("OPENSS_DB_DIR") != NULL);
+          if (is_db_env_var_set) {
+             char *db_dir = getenv("OPENSS_DB_DIR");
+             std::cerr << "An error related to the Open|SpeedShop database file occurred. A possible cause is that the global lock limit has been exceeded. The database file can be found here:" << db_dir << std::endl;
+          } else {
+             char *db_dir = get_current_dir_name();
+             std::cerr << "An error related to the Open|SpeedShop database file occurred. A possible cause is that the global lock limit has been exceeded. The database file can be found here:" << db_dir << std::endl;
+          }
+	  Assert((retval == SQLITE_OK) || (retval == SQLITE_READONLY));
+        }
 	
 	// Pop this statement off the transaction stack
 #ifndef NDEBUG
