@@ -81,29 +81,24 @@ echo "EOF"  >> /root/.bashrc.oss
 echo "if \[ -f /etc/bashrc \]; then" >> /root/.bashrc.oss
 echo "        . /etc/bashrc" >> /root/.bashrc.oss
 echo "fi" >> /root/.bashrc.oss
-echo "export QTDIR=/usr/lib/qt-3.3" >> /root/.bashrc.oss
+echo "export QTDIR=/usr/lib64/qt-3.3" >> /root/.bashrc.oss
 echo "export OPENSS_PREFIX=/opt/OSS" >> /root/.bashrc.oss
-echo "export OPENSS_PLUGIN_PATH=\\\$OPENSS_PREFIX/lib/openspeedshop" >> /root/.bashrc.oss
+echo "export OPENSS_PLUGIN_PATH=\\\$OPENSS_PREFIX/lib64/openspeedshop" >> /root/.bashrc.oss
+echo "export OPENSS_DOC_DIR=\\\$OPENSS_PREFIX/share/doc/packages/OpenSpeedShop" >> /root/.bashrc.oss
 echo "export OPENSS_INSTRUMENTOR=mrnet" >> /root/.bashrc.oss
-echo "export OPENSS_MRNET_TOPOLOGY_FILE=/home/openssuser/.openss.top" >> /root/.bashrc.oss
 echo "export OPENSS_RAWDATA_DIR=/tmp" >> /root/.bashrc.oss
 echo "export OPENSS_MPI_OPENMPI=/opt/openmpi" >> /root/.bashrc.oss
-echo "export DYNINSTAPI_RT_LIB=\\\$OPENSS_PREFIX/lib/libdyninstAPI_RT.so.1" >> /root/.bashrc.oss
+echo "export DYNINSTAPI_RT_LIB=\\\$OPENSS_PREFIX/lib64/libdyninstAPI_RT.so.1" >> /root/.bashrc.oss
 echo "export PATH=\\\$OPENSS_PREFIX/bin:/opt/openmpi/bin:\\\$PATH" >> /root/.bashrc.oss
-echo "export LD_LIBRARY_PATH=\\\$OPENSS_PREFIX/lib:/opt/openmpi/lib:\\\$LD_LIBRARY_PATH" >> /root/.bashrc.oss
+echo "export LD_LIBRARY_PATH=\\\$OPENSS_PREFIX/lib64:/opt/openmpi/lib:\\\$LD_LIBRARY_PATH" >> /root/.bashrc.oss
 echo "export XPLAT_RSHCOMMAND=ssh" >> /root/.bashrc.oss
 echo "export XPLAT_RSH=ssh" >> /root/.bashrc.oss
 echo "export MRNET_RSH=ssh" >> /root/.bashrc.oss
+echo "alias lsr=\"ls -lastr\"" >> /root/.bashrc.oss
 chmod 644 /root/.bashrc.oss
 cp /root/.bashrc.oss /home/openssuser/.bashrc
 chown openssuser:openssuser /home/openssuser/.bashrc
 rm -f /root/.bashrc.oss
-
-# add a MRNet topology file
-echo "localhost.localdomain:0 => localhost.localdomain:1 ;" > /root/.openss.top
-cp /root/.openss.top /home/openssuser/
-chown openssuser:openssuser /home/openssuser/.openss.top
-rm -f /root/.openss.top
 
 # start some apps...
 echo "[Default]" > /root/.session-manual
@@ -111,7 +106,7 @@ echo "num_clients=2" >> /root/.session-manual
 echo "0,RestartClientHint=3" >> /root/.session-manual
 echo "0,Priority=50" >> /root/.session-manual
 echo "0,RestartCommand=firefox /opt/doc/index.html" >> /root/.session-manual
-echo "1,Program=firefox /opt/doc/index.html" >> /root/.session-manual
+echo "0,Program=firefox /opt/doc/index.html" >> /root/.session-manual
 echo "1,RestartClientHint=3" >> /root/.session-manual
 echo "1,Priority=50" >> /root/.session-manual
 echo "1,RestartCommand=gnome-terminal" >> /root/.session-manual
@@ -129,7 +124,7 @@ echo "updateOnCheckBox=true" >> /root/.openspeedshoprc
 echo "" >> /root/.openspeedshoprc
 echo "[Source Panel]" >> /root/.openspeedshoprc
 echo "leftSideLineEdit0=/home/jeg/OpenSpeedShop/liveOSS/toyprograms-0.0.1" >> /root/.openspeedshoprc
-echo "leftSideLineEdit1=" >> /root/.openspeedshoprc
+echo "leftSideLineEdit1=/usr/global/tools/openspeedshop/dev/NPB3.3.1/NPB3.3-MPI/" >> /root/.openspeedshoprc
 echo "leftSideLineEdit2=" >> /root/.openspeedshoprc
 echo "leftSideLineEdit3=" >> /root/.openspeedshoprc
 echo "leftSideLineEdit4=" >> /root/.openspeedshoprc
@@ -139,7 +134,7 @@ echo "leftSideLineEdit7=" >> /root/.openspeedshoprc
 echo "leftSideLineEdit8=" >> /root/.openspeedshoprc
 echo "leftSideLineEdit9=" >> /root/.openspeedshoprc
 echo "rightSideLineEdit0=/home/openssuser" >> /root/.openspeedshoprc
-echo "rightSideLineEdit1=" >> /root/.openspeedshoprc
+echo "rightSideLineEdit1=/home/openssuser/mpi/" >> /root/.openspeedshoprc
 echo "rightSideLineEdit2=" >> /root/.openspeedshoprc
 echo "rightSideLineEdit3=" >> /root/.openspeedshoprc
 echo "rightSideLineEdit4=" >> /root/.openspeedshoprc
@@ -187,10 +182,10 @@ echo "onRerunSaveCopyOfExperimentDatabase=true" >> /root/.openspeedshoprc
 echo "saveExperimentDatabase=true" >> /root/.openspeedshoprc
 echo "showGraphics=false" >> /root/.openspeedshoprc
 echo "showSplashScreen=true" >> /root/.openspeedshoprc
-echo "viewFieldSize=20" >> /root/.openspeedshoprc
+echo "viewFieldSize=16" >> /root/.openspeedshoprc
 echo "viewFullPath=false" >> /root/.openspeedshoprc
 echo "viewMangledName=false" >> /root/.openspeedshoprc
-echo "viewPrecision=6" >> /root/.openspeedshoprc
+echo "viewPrecision=4" >> /root/.openspeedshoprc
 mkdir /root/.qt
 chmod 644 /root/.openspeedshoprc
 cp /root/.openspeedshoprc /root/.qt/openspeedshoprc
@@ -210,19 +205,22 @@ rm /root/.known_hosts
 
 #move apps to /home/openssuser
 #mkdir -p /home/openssuser/{mpi,openmp,sequential}
-mkdir -p /home/openssuser/{mpi,sequential}
+mkdir -p /home/openssuser/{mpi,multi,sequential}
 mv /opt/tempapps/mpi/smg2000 /home/openssuser/mpi/.
 mv /opt/tempapps/mpi/nbody /home/openssuser/mpi/.
+mv /opt/tempapps/mpi/LU /home/openssuser/mpi/.
 mv /opt/tempapps/sequential/smg2000 /home/openssuser/sequential/.
 #mv /opt/tempapps/openmp/smg2000 /home/openssuser/openmp/
 
 mv /opt/tempapps/sequential/forever /home/openssuser/sequential/.
 mv /opt/tempapps/sequential/threads /home/openssuser/sequential/.
 mv /opt/tempapps/sequential/mutatee /home/openssuser/sequential/.
+mv /opt/tempapps/multi/openmp_stress /home/openssuser/multi/.
 mv /opt/tempapps/sequential/matmul /home/openssuser/sequential/.
 
 chown openssuser:openssuser -R /home/openssuser/mpi
 chown openssuser:openssuser -R /home/openssuser/sequential
+chown openssuser:openssuser -R /home/openssuser/multi
 rm -rf /opt/tempapps
 
 rm -rf /tmp/*
