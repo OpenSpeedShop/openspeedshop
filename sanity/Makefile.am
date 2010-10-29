@@ -25,7 +25,7 @@ SUBDIRS += check_setup
 else
 
 if BUILD_INSTRUMENTOR
-SUBDIRS += check_dyninst check_openss
+SUBDIRS += check_openss
 endif
 
 if BUILD_DPCL
@@ -35,7 +35,7 @@ endif
 SUBDIRS += check_setup
 endif
 
-DIST_SUBDIRS = check_dpcl check_dyninst check_openss check_setup
+DIST_SUBDIRS = check_dpcl check_openss check_setup
 
 EXTRA_DIST = \
 	README runit
