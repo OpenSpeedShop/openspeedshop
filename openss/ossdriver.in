@@ -222,7 +222,7 @@ then
      if test -f $whichpapi_avail
       then
         echo " Available Hardware counter events are:"
-        $whichpapi_avail
+        $whichpapi_avail | grep "Yes"
      fi
    elif [[ "$experiment_name" == "ossio" || "$experiment_name" == "ossiot" ]]; then
      echo "            \"I/O functions to trace\"  - Specify the list of I/O functions to be traced when running the io or iot experiments."
