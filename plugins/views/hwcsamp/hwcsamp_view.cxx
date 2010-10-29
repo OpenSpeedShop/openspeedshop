@@ -173,13 +173,13 @@ static bool define_hwcsamp_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
   }
 
+  std::string M_Name;
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
     vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
       parse_range_t *m_range = (*mi).getRange();
       std::string C_Name;
-      std::string M_Name;
       if (m_range->is_range) {
         C_Name = m_range->start_range.name;
         if (strcasecmp(C_Name.c_str(), "hwcsamp")) {
@@ -232,6 +232,7 @@ static bool define_hwcsamp_columns (
     }
 
   } else {
+
    // If nothing is requested ...
    // Report the exclusive time and the percent.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));  // first column is metric
@@ -246,6 +247,26 @@ static bool define_hwcsamp_columns (
     }
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back( std::string("% of ") + Find_Metadata ( CV[0], "time" ).getShortName() );
+
+#if 1
+    // This code copied from above adds the individual event results into the default view
+    //
+    // Look for Event options.
+    bool event_found = false;
+    for (int i=0; i < num_events; i++) {
+      const char *c = papi_names[i].c_str();
+      if (c == NULL) break;
+        event_found = true;
+        IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+i));
+        HV.push_back( papi_names[i] );
+    }
+
+    if (!event_found) {
+     // Unrecognized '-m' option.
+      Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
+    }
+#endif
+
   }
   return (last_column > 0);
 }
