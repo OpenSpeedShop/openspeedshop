@@ -2811,6 +2811,8 @@ CustomExperimentPanel::getMostImportantMetric(QString collector_name)
     metric = "-m usertime::exclusive_time";
   } else if( collector_name == "hwc" ) {
     metric = "-m hwc::overflows";
+  } else if( collector_name == "hwcsamp" ) {
+    metric = "-m hwcsamp::exclusive_detail";
   } else if( collector_name == "hwctime" ) {
     metric = "-m hwc::exclusive_overflows";
   } else if( collector_name == "mpi" ) {

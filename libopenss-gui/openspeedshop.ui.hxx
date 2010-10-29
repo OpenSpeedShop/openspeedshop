@@ -273,6 +273,10 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
           panel_type = "HW Counter";
           knownCollectorType = TRUE;
           break;
+        } else if( collector_name == "hwcsamp" ) {
+          panel_type = "HWCSamp Panel";
+          knownCollectorType = TRUE;
+          break;
         } else if( collector_name == "hwctime" ) {
           panel_type = "HWCTime Panel";
           knownCollectorType = TRUE;
@@ -1618,6 +1622,11 @@ OpenSpeedshop::lookForExperiment(bool hadOfflineArg)
         } else if( collector_name == "hwc" )
         {
           panel_type = "HW Counter";
+          knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "hwcsamp" )
+        {
+          panel_type = "HWCSamp Panel";
           knownCollectorType = TRUE;
           break;
         } else if( collector_name == "hwctime" )

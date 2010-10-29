@@ -158,6 +158,7 @@ class StatsPanel  : public Panel
     void generateUSERTIMEmodifiers();
     void generateHWCmodifiers();
     void generateHWCTIMEmodifiers();
+    void generateHWCSAMPmodifiers();
     void generateIOmodifiers();
     void generateIOTmodifiers();
     void generateMPImodifiers();
@@ -302,6 +303,8 @@ class StatsPanel  : public Panel
     std::list<std::string> current_list_of_iot_modifiers;
     std::list<std::string> list_of_hwc_modifiers;
     std::list<std::string> current_list_of_hwc_modifiers;
+    std::list<std::string> list_of_hwcsamp_modifiers;
+    std::list<std::string> current_list_of_hwcsamp_modifiers;
     std::list<std::string> list_of_hwctime_modifiers;
     std::list<std::string> current_list_of_hwctime_modifiers;
     std::list<std::string> list_of_pcsamp_modifiers;
@@ -400,6 +403,7 @@ class StatsPanel  : public Panel
     QPopupMenu *ioModifierMenu;
     QPopupMenu *iotModifierMenu;
     QPopupMenu *hwcModifierMenu;
+    QPopupMenu *hwcsampModifierMenu;
     QPopupMenu *hwctimeModifierMenu;
     QPopupMenu *pcsampModifierMenu;
     QPopupMenu *usertimeModifierMenu;
@@ -410,6 +414,7 @@ class StatsPanel  : public Panel
     QPopupMenu *mpi_menu;
     QPopupMenu *io_menu;
     QPopupMenu *hwc_menu;
+    QPopupMenu *hwcsamp_menu;
     QPopupMenu *hwctime_menu;
     QPopupMenu *usertime_menu;
     QPopupMenu *pcsamp_menu;
@@ -507,6 +512,7 @@ class StatsPanel  : public Panel
     void ioModifierSelected(int);
     void iotModifierSelected(int);
     void hwcModifierSelected(int);
+    void hwcsampModifierSelected(int);
     void hwctimeModifierSelected(int);
     void genericModifierSelected(int);
     void pcsampModifierSelected(int);
@@ -518,6 +524,7 @@ class StatsPanel  : public Panel
     void collectorIOReportSelected(int);
     void collectorIOTReportSelected(int);
     void collectorHWCReportSelected(int);
+    void collectorHWCSampReportSelected(int);
     void collectorHWCTimeReportSelected(int);
     void collectorUserTimeReportSelected(int);
     void collectorPCSampReportSelected(int);
@@ -548,6 +555,8 @@ class StatsPanel  : public Panel
     void addIOReports(QPopupMenu *menu);
     void generateHWCMenu(QString collectorName);
     void addHWCReports(QPopupMenu *menu);
+    void generateHWCSampMenu(QString collectorName);
+    void addHWCSampReports(QPopupMenu *menu);
     void generateHWCTimeMenu(QString collectorName);
     void addHWCTimeReports(QPopupMenu *menu);
     void generateUserTimeMenu();
@@ -564,6 +573,7 @@ class StatsPanel  : public Panel
     void MPIReportSelected(int);
     void IOReportSelected(int);
     void HWCReportSelected(int);
+    void HWCSampReportSelected(int);
     void HWCTimeReportSelected(int);
     void resetRedirect();
 

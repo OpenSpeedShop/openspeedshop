@@ -91,6 +91,15 @@ OptionalViewsDialog::OptionalViewsDialog( QWidget* parent,
      usertime_ThreadAverage = FALSE;
      usertime_ThreadMin = FALSE;
      usertime_ThreadMax = FALSE;
+   } else if ( globalCollectorString.contains("hwcsamp") ) {
+     hwcsamp_exclusive_counts = FALSE;
+     hwcsamp_exclusive_overflows = FALSE;
+     hwcsamp_inclusive_overflows = FALSE;
+     hwcsamp_inclusive_counts = FALSE;
+     hwcsamp_percent = FALSE;
+     hwcsamp_ThreadAverage = FALSE;
+     hwcsamp_ThreadMin = FALSE;
+     hwcsamp_ThreadMax = FALSE;
    } else if ( globalCollectorString.contains("hwctime") ) {
      hwctime_exclusive_counts = FALSE;
      hwctime_exclusive_overflows = FALSE;
@@ -517,6 +526,122 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     usertime_ThreadMax_CheckBox->setChecked( TRUE );
     usertime_ThreadMax_CheckBox->setText( tr( "USERTIME ThreadMax" ) );
     rightSideLayout->addWidget( usertime_ThreadMax_CheckBox );
+    }
+
+  } else if ( globalCollectorString.contains("hwcsamp") ) {
+
+    VTraceGroupBox->hide();
+
+    if (isInCurrentModifierList("hwcsamp::exclusive_counts")) {
+       hwcsamp_exclusive_counts = TRUE;
+    } else {
+       hwcsamp_exclusive_counts = FALSE;
+    }
+
+    { // hwcsamp_exclusive_counts
+    hwcsamp_exclusive_counts_CheckBox = new QCheckBox( GeneralGroupBox, "hwcsamp_exclusive_counts_CheckBox" );
+    hwcsamp_exclusive_counts_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, hwcsamp_exclusive_counts_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    hwcsamp_exclusive_counts_CheckBox->setChecked( TRUE );
+    hwcsamp_exclusive_counts_CheckBox->setText( tr( "HWCSAMP exclusive counts" ) );
+    rightSideLayout->addWidget( hwcsamp_exclusive_counts_CheckBox );
+    }
+
+    if (isInCurrentModifierList("hwcsamp::exclusive_overflows")) {
+       hwcsamp_exclusive_overflows = TRUE;
+    } else {
+       hwcsamp_exclusive_overflows = FALSE;
+    }
+
+    { // hwcsamp_exclusive_overflows
+    hwcsamp_exclusive_overflows_CheckBox = new QCheckBox( GeneralGroupBox, "hwcsamp_exclusive_overflows_CheckBox" );
+    hwcsamp_exclusive_overflows_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, hwcsamp_exclusive_overflows_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    hwcsamp_exclusive_overflows_CheckBox->setChecked( TRUE );
+    hwcsamp_exclusive_overflows_CheckBox->setText( tr( "HWCSAMP exclusive_overflows" ) );
+    rightSideLayout->addWidget( hwcsamp_exclusive_overflows_CheckBox );
+    }
+
+    if (isInCurrentModifierList("hwcsamp::inclusive_overflows")) {
+       hwcsamp_inclusive_overflows = TRUE;
+    } else {
+       hwcsamp_inclusive_overflows = FALSE;
+    }
+
+    { // hwcsamp_inclusive_overflows
+    hwcsamp_inclusive_overflows_CheckBox = new QCheckBox( GeneralGroupBox, "hwcsamp_inclusive_overflows_CheckBox" );
+    hwcsamp_inclusive_overflows_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, hwcsamp_inclusive_overflows_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    hwcsamp_inclusive_overflows_CheckBox->setChecked( TRUE );
+    hwcsamp_inclusive_overflows_CheckBox->setText( tr( "HWCSAMP inclusive_overflows" ) );
+    rightSideLayout->addWidget( hwcsamp_inclusive_overflows_CheckBox );
+    }
+
+    if (isInCurrentModifierList("hwcsamp::inclusive_counts")) {
+       hwcsamp_inclusive_counts = TRUE;
+    } else {
+       hwcsamp_inclusive_counts = FALSE;
+    }
+
+    { // hwcsamp_inclusive_counts
+    hwcsamp_inclusive_counts_CheckBox = new QCheckBox( GeneralGroupBox, "hwcsamp_inclusive_counts_CheckBox" );
+    hwcsamp_inclusive_counts_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, hwcsamp_inclusive_counts_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    hwcsamp_inclusive_counts_CheckBox->setChecked( TRUE );
+    hwcsamp_inclusive_counts_CheckBox->setText( tr( "HWCSAMP inclusive counts" ) );
+    rightSideLayout->addWidget( hwcsamp_inclusive_counts_CheckBox );
+    }
+
+    if (isInCurrentModifierList("hwcsamp::percent")) {
+       hwcsamp_percent = TRUE;
+    } else {
+       hwcsamp_percent = FALSE;
+    }
+
+    { // hwcsamp_percent
+    hwcsamp_percent_CheckBox = new QCheckBox( GeneralGroupBox, "hwcsamp_percent_CheckBox" );
+    hwcsamp_percent_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, hwcsamp_percent_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    hwcsamp_percent_CheckBox->setChecked( TRUE );
+    hwcsamp_percent_CheckBox->setText( tr( "HWCSAMP percent" ) );
+    rightSideLayout->addWidget( hwcsamp_percent_CheckBox );
+    }
+
+    if (isInCurrentModifierList("hwcsamp::ThreadAverage")) {
+       hwcsamp_ThreadAverage = TRUE;
+    } else {
+       hwcsamp_ThreadAverage = FALSE;
+    }
+
+    { // hwcsamp_ThreadAverage
+    hwcsamp_ThreadAverage_CheckBox = new QCheckBox( GeneralGroupBox, "hwcsamp_ThreadAverage_CheckBox" );
+    hwcsamp_ThreadAverage_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, hwcsamp_ThreadAverage_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    hwcsamp_ThreadAverage_CheckBox->setChecked( TRUE );
+    hwcsamp_ThreadAverage_CheckBox->setText( tr( "HWCSAMP ThreadAverage" ) );
+    rightSideLayout->addWidget( hwcsamp_ThreadAverage_CheckBox );
+    }
+
+    if (isInCurrentModifierList("hwcsamp::ThreadMin")) {
+       hwcsamp_ThreadMin = TRUE;
+    } else {
+       hwcsamp_ThreadMin = FALSE;
+    }
+
+    { // hwcsamp_ThreadMin
+    hwcsamp_ThreadMin_CheckBox = new QCheckBox( GeneralGroupBox, "hwcsamp_ThreadMin_CheckBox" );
+    hwcsamp_ThreadMin_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, hwcsamp_ThreadMin_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    hwcsamp_ThreadMin_CheckBox->setChecked( TRUE );
+    hwcsamp_ThreadMin_CheckBox->setText( tr( "HWCSAMP ThreadMin" ) );
+    rightSideLayout->addWidget( hwcsamp_ThreadMin_CheckBox );
+    }
+
+    if (isInCurrentModifierList("hwcsamp::ThreadMax")) {
+       hwcsamp_ThreadMax = TRUE;
+    } else {
+       hwcsamp_ThreadMax = FALSE;
+    }
+
+    { // hwcsamp_ThreadMax
+    hwcsamp_ThreadMax_CheckBox = new QCheckBox( GeneralGroupBox, "hwcsamp_ThreadMax_CheckBox" );
+    hwcsamp_ThreadMax_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, hwcsamp_ThreadMax_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    hwcsamp_ThreadMax_CheckBox->setChecked( TRUE );
+    hwcsamp_ThreadMax_CheckBox->setText( tr( "HWCSAMP ThreadMax" ) );
+    rightSideLayout->addWidget( hwcsamp_ThreadMax_CheckBox );
     }
 
   } else if ( globalCollectorString.contains("hwctime") ) {
@@ -1678,6 +1803,44 @@ void OptionalViewsDialog::languageChange()
     QToolTip::add(usertime_ThreadMax_CheckBox,
                 tr("Display Usertime (Call Stack) Sampling experiment maximum value of exclusive time across ranks, processes, threads.") );
 
+   } else if ( globalCollectorString.contains("hwcsamp") ) {
+     hwcsamp_percent = hwcsamp_percent_CheckBox->isChecked();
+     hwcsamp_ThreadAverage = hwcsamp_ThreadAverage_CheckBox->isChecked();
+     hwcsamp_ThreadMin = hwcsamp_ThreadMin_CheckBox->isChecked();
+     hwcsamp_ThreadMax = hwcsamp_ThreadMax_CheckBox->isChecked();
+
+    hwcsamp_exclusive_counts_CheckBox->setChecked(hwcsamp_exclusive_counts);
+    QToolTip::add(hwcsamp_exclusive_counts_CheckBox,
+                tr("Display Hardware Counter Sampling experiment exclusive counts.") );
+
+    hwcsamp_exclusive_overflows_CheckBox->setChecked(hwcsamp_exclusive_overflows);
+    QToolTip::add(hwcsamp_exclusive_overflows_CheckBox,
+                tr("Display Hardware Counter Sampling experiment exclusive overflows.") );
+
+    hwcsamp_inclusive_overflows_CheckBox->setChecked(hwcsamp_inclusive_overflows);
+    QToolTip::add(hwcsamp_inclusive_overflows_CheckBox,
+                tr("Display Hardware Counter Sampling experiment inclusive overflows.") );
+
+    hwcsamp_inclusive_counts_CheckBox->setChecked(hwcsamp_inclusive_counts);
+    QToolTip::add(hwcsamp_inclusive_counts_CheckBox,
+                tr("Display Hardware Counter Sampling experiment inclusive counts.") );
+
+    hwcsamp_percent_CheckBox->setChecked(hwcsamp_percent);
+    QToolTip::add(hwcsamp_percent_CheckBox,
+                tr("Display Hardware Counter Sampling experiment percent.") );
+
+    hwcsamp_ThreadAverage_CheckBox->setChecked(hwcsamp_ThreadAverage);
+    QToolTip::add(hwcsamp_ThreadAverage_CheckBox,
+                tr("Display Hardware Counter Sampling experiment ThreadAverage.") );
+
+    hwcsamp_ThreadMin_CheckBox->setChecked(hwcsamp_ThreadMin);
+    QToolTip::add(hwcsamp_ThreadMin_CheckBox,
+                tr("Display Hardware Counter Sampling experiment ThreadMin.") );
+
+    hwcsamp_ThreadMax_CheckBox->setChecked(hwcsamp_ThreadMax);
+    QToolTip::add(hwcsamp_ThreadMax_CheckBox,
+                tr("Display Hardware Counter Sampling experiment ThreadMax.") );
+
    } else if ( globalCollectorString.contains("hwctime") ) {
      hwctime_percent = hwctime_percent_CheckBox->isChecked();
      hwctime_ThreadAverage = hwctime_ThreadAverage_CheckBox->isChecked();
@@ -2018,6 +2181,8 @@ void OptionalViewsDialog::languageChange()
        GeneralGroupBox->setTitle( tr( "PCSAMP Experiment Custom Report Selection Dialog" ) );
     } else if ( globalCollectorString.contains("usertime") ) {
        GeneralGroupBox->setTitle( tr( "USERTIME Experiment Custom Report Selection Dialog" ) );
+    } else if ( globalCollectorString.contains("hwcsamp") ) {
+       GeneralGroupBox->setTitle( tr( "HWCSAMP Experiment Custom Report Selection Dialog" ) );
     } else if ( globalCollectorString.contains("hwctime") ) {
        GeneralGroupBox->setTitle( tr( "HWCTIME Experiment Custom Report Selection Dialog" ) );
     } else if ( globalCollectorString.contains("hwc") ) {
@@ -2089,6 +2254,23 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      usertime_ThreadMin_CheckBox->setChecked(usertime_ThreadMin);
      usertime_ThreadMax = FALSE;
      usertime_ThreadMax_CheckBox->setChecked(usertime_ThreadMax);
+   } else if ( globalCollectorString.contains("hwcsamp") ) {
+     hwcsamp_exclusive_counts = FALSE;
+     hwcsamp_exclusive_counts_CheckBox->setChecked(hwcsamp_exclusive_counts);
+     hwcsamp_exclusive_overflows = TRUE;
+     hwcsamp_exclusive_overflows_CheckBox->setChecked(hwcsamp_exclusive_overflows);
+     hwcsamp_inclusive_overflows = FALSE;
+     hwcsamp_inclusive_overflows_CheckBox->setChecked(hwcsamp_inclusive_overflows);
+     hwcsamp_inclusive_counts = FALSE;
+     hwcsamp_inclusive_counts_CheckBox->setChecked(hwcsamp_inclusive_counts);
+     hwcsamp_percent = TRUE;
+     hwcsamp_percent_CheckBox->setChecked(hwcsamp_percent);
+     hwcsamp_ThreadAverage = FALSE;
+     hwcsamp_ThreadAverage_CheckBox->setChecked(hwcsamp_ThreadAverage);
+     hwcsamp_ThreadMin = FALSE;
+     hwcsamp_ThreadMin_CheckBox->setChecked(hwcsamp_ThreadMin);
+     hwcsamp_ThreadMax = FALSE;
+     hwcsamp_ThreadMax_CheckBox->setChecked(hwcsamp_ThreadMax);
    } else if ( globalCollectorString.contains("hwctime") ) {
      hwctime_exclusive_counts = FALSE;
      hwctime_exclusive_counts_CheckBox->setChecked(hwctime_exclusive_counts);
@@ -2324,6 +2506,15 @@ void OptionalViewsDialog::applyPreferences()
      usertime_ThreadAverage = usertime_ThreadAverage_CheckBox->isChecked();
      usertime_ThreadMin = usertime_ThreadMin_CheckBox->isChecked();
      usertime_ThreadMax = usertime_ThreadMax_CheckBox->isChecked();
+   } else if ( globalCollectorString.contains("hwcsamp") ) {
+     hwcsamp_exclusive_counts = hwcsamp_exclusive_counts_CheckBox->isChecked();
+     hwcsamp_exclusive_overflows = hwcsamp_exclusive_overflows_CheckBox->isChecked();
+     hwcsamp_inclusive_overflows = hwcsamp_inclusive_overflows_CheckBox->isChecked();
+     hwcsamp_inclusive_counts = hwcsamp_inclusive_counts_CheckBox->isChecked();
+     hwcsamp_percent = hwcsamp_percent_CheckBox->isChecked();
+     hwcsamp_ThreadAverage = hwcsamp_ThreadAverage_CheckBox->isChecked();
+     hwcsamp_ThreadMin = hwcsamp_ThreadMin_CheckBox->isChecked();
+     hwcsamp_ThreadMax = hwcsamp_ThreadMax_CheckBox->isChecked();
    } else if ( globalCollectorString.contains("hwctime") ) {
      hwctime_exclusive_counts = hwctime_exclusive_counts_CheckBox->isChecked();
      hwctime_exclusive_overflows = hwctime_exclusive_overflows_CheckBox->isChecked();

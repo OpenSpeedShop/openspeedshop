@@ -49,6 +49,7 @@ endif
 if HAVE_PAPI
 SUBDIRS += HW_CounterPanel
 SUBDIRS += HWCTimePanel
+SUBDIRS += HWCSampPanel
 endif
 
 DIST_SUBDIRS = $(SUBDIRS)

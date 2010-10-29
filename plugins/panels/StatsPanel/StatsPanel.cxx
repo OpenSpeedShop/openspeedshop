@@ -225,6 +225,8 @@ void StatsPanel::clearModifiers()
 
   list_of_hwc_modifiers.clear();
   current_list_of_hwc_modifiers.clear();  // This is this list of user selected modifiers.
+  list_of_hwcsamp_modifiers.clear();
+  current_list_of_hwcsamp_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_hwctime_modifiers.clear();
   current_list_of_hwctime_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_pcsamp_modifiers.clear();
@@ -328,6 +330,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   ioModifierMenu = NULL;
   iotModifierMenu = NULL;
   hwcModifierMenu = NULL;
+  hwcsampModifierMenu = NULL;
   hwctimeModifierMenu = NULL;
   pcsampModifierMenu = NULL;
   usertimeModifierMenu = NULL;
@@ -336,6 +339,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   mpi_menu = NULL;
   io_menu = NULL;
   hwc_menu = NULL;
+  hwcsamp_menu = NULL;
   hwctime_menu = NULL;
   pcsamp_menu = NULL;
   usertime_menu = NULL;
@@ -360,6 +364,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 
   list_of_hwc_modifiers.clear();
   current_list_of_hwc_modifiers.clear();  // This is this list of user selected modifiers.
+  list_of_hwcsamp_modifiers.clear();
+  current_list_of_hwcsamp_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_hwctime_modifiers.clear();
   current_list_of_hwctime_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_pcsamp_modifiers.clear();
@@ -1636,6 +1642,11 @@ StatsPanel::menu( QPopupMenu* contextMenu)
       printf("Generate an io* menu\n");
 #endif
       generateIOMenu(QString(collector_name.c_str()));
+    } else if( QString(collector_name.c_str()).startsWith("hwcsamp") ) {
+#ifdef DEBUG_StatsPanel
+      printf("Generate an hwcsamp menu\n");
+#endif
+      generateHWCSampMenu(QString(collector_name.c_str()));
     } else if( QString(collector_name.c_str()).startsWith("hwctime") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate an hwctime menu\n");
@@ -2875,6 +2886,24 @@ StatsPanel::optionalViewsCreationSelected()
       hwc_desired_list.insert(std::pair<std::string,int>("hwc::ThreadMax",optionalViewsDialog->hwc_ThreadMax));
 
       updateCurrentModifierList(list_of_hwc_modifiers, &current_list_of_hwc_modifiers, hwc_desired_list);
+
+     }else if( currentCollectorStr == "hwcsamp" ) {
+
+      // Generate the list of hwcsamp modifiers
+      generateHWCSAMPmodifiers();
+
+      std::map<std::string, bool> hwcsamp_desired_list;
+      hwcsamp_desired_list.clear();
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::exclusive_counts",optionalViewsDialog->hwcsamp_exclusive_counts));
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::exclusive_overflows",optionalViewsDialog->hwcsamp_exclusive_overflows));
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::inclusive_overflows",optionalViewsDialog->hwcsamp_inclusive_overflows));
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::inclusive_counts",optionalViewsDialog->hwcsamp_inclusive_counts));
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::percent",optionalViewsDialog->hwcsamp_percent));
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::ThreadAverage",optionalViewsDialog->hwcsamp_ThreadAverage));
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::ThreadMin",optionalViewsDialog->hwcsamp_ThreadMin));
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::ThreadMax",optionalViewsDialog->hwcsamp_ThreadMax));
+
+      updateCurrentModifierList(list_of_hwcsamp_modifiers, &current_list_of_hwcsamp_modifiers, hwcsamp_desired_list);
 
      }else if( currentCollectorStr == "hwctime" ) {
 
@@ -6173,6 +6202,14 @@ StatsPanel::collectorHWCReportSelected(int val)
   HWCReportSelected(val);
 }
 
+
+void
+StatsPanel::collectorHWCSampReportSelected(int val)
+{ 
+  currentCollectorStr = "hwcsamp";
+  HWCSampReportSelected(val);
+}
+
 void
 StatsPanel::collectorHWCTimeReportSelected(int val)
 { 
@@ -6232,6 +6269,70 @@ StatsPanel::HWCReportSelected(int val)
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::collectorHWCReportSelected, currentUserSelectedReportStr = (%s)\n", currentUserSelectedReportStr.ascii() );
     printf("StatsPanel::collectorHWCReportSelected, calling updateToolBarStatus() \n");
+#endif
+    updateToolBarStatus( currentUserSelectedReportStr );
+  } 
+
+#ifdef DEBUG_StatsPanel
+    printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+    printf("Collector changed call updateStatsPanelData() \n");
+#endif
+    updateStatsPanelData(DONT_FORCE_UPDATE);
+  }
+}
+
+
+void
+StatsPanel::HWCSampReportSelected(int val)
+{ 
+#ifdef DEBUG_StatsPanel
+  printf("HWCSampReportSelected: collectorMetricSelected val=%d\n", val);
+  printf("HWCSampReportSelected: hwcsamp_menu=(%s)\n", hwcsamp_menu->text(val).ascii() );
+  printf("HWCSampReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#endif
+
+  currentUserSelectedReportStr = QString::null;
+  collectorStrFromMenu = QString::null;
+  currentMetricStr = QString::null;
+
+//  QString s = popupMenu->text(val).ascii();
+//  QString s = contextMenu->text(val).ascii();
+  QString s = QString::null;
+  s = hwcsamp_menu->text(val).ascii();
+  if( s.isEmpty() )
+  {
+    s = contextMenu->text(val).ascii();
+  }
+
+// printf("D: s=%s\n", s.ascii() );
+  int index = s.find(":");
+  if( index != -1 )
+  {
+    index = s.find(":");
+    if( index > 0 )
+    { // The user selected one of the metrics
+      collectorStrFromMenu = s.mid(13, index-13 );
+      currentUserSelectedReportStr = s.mid(index+2);
+// printf("DD1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+      // This one resets to all...
+    } else 
+    { // The user wants to do all the metrics on the selected threads...
+      currentMetricStr = QString::null;
+      index = s.find(":");
+      currentUserSelectedReportStr = s.mid(13, index-13);
+      if( !currentUserSelectedReportStr.contains("CallTrees by Selected Function") )
+      {
+        selectedFunctionStr = QString::null;
+// printf("B: NULLING OUT selectedFunctionStr\n");
+      }
+    }
+
+  // The status for the tool bar needs to reflect what is 
+  // going on when the same features are selected via the menu
+  if( getPreferenceShowToolbarCheckBox() == TRUE ) {
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::collectorHWCSampReportSelected, currentUserSelectedReportStr = (%s)\n", currentUserSelectedReportStr.ascii() );
+    printf("StatsPanel::collectorHWCSampReportSelected, calling updateToolBarStatus() \n");
 #endif
     updateToolBarStatus( currentUserSelectedReportStr );
   } 
@@ -6932,6 +7033,67 @@ StatsPanel::hwcModifierSelected(int val)
       current_list_of_hwc_modifiers.push_back(s);
     }
     hwcModifierMenu->setItemChecked(val, TRUE);
+  }
+}
+
+
+void
+StatsPanel::hwcsampModifierSelected(int val)
+{ 
+#ifdef DEBUG_StatsPanel
+  printf("hwcsampModifierSelected val=%d\n", val);
+  printf("hwcsampModifierSelected: (%s)\n", hwcsampModifierMenu->text(val).ascii() );
+#endif
+
+  if( hwcsampModifierMenu->text(val).isEmpty() )
+  {
+    hwcsampModifierMenu->insertSeparator();
+    if( hwcsamp_menu )
+    {
+      delete hwcsamp_menu;
+    }
+    hwcsamp_menu = new QPopupMenu(this);
+    hwcsampModifierMenu->insertItem(QString("Select hwcsamp Reports:"), hwcsamp_menu);
+    addHWCSampReports(hwcsamp_menu);
+    connect(hwcsamp_menu, SIGNAL( activated(int) ),
+      this, SLOT(collectorHWCSampReportSelected(int)) );
+    return;
+  }
+
+
+  std::string s = hwcsampModifierMenu->text(val).ascii();
+// printf("B1: modifierStr=(%s)\n", s.c_str() );
+
+  bool FOUND = FALSE;
+  for( std::list<std::string>::const_iterator it = current_list_of_hwcsamp_modifiers.begin();
+       it != current_list_of_hwcsamp_modifiers.end();  )
+  {
+    std::string modifier = (std::string)*it;
+
+    if( modifier ==  s )
+    {   // It's in the list, so take it out...
+// printf("The modifier was in the list ... take it out!\n");
+      FOUND = TRUE;
+    }
+
+    it++;
+
+    if( FOUND == TRUE )
+    {
+      current_list_of_hwcsamp_modifiers.remove(modifier);
+      hwcsampModifierMenu->setItemChecked(val, FALSE);
+      break;
+    }
+  }
+
+  if( FOUND == FALSE )
+  {
+// printf("The modifier was not in the list ... add it!\n");
+    if( s != PTI )
+    {
+      current_list_of_hwcsamp_modifiers.push_back(s);
+    }
+    hwcsampModifierMenu->setItemChecked(val, TRUE);
   }
 }
 
@@ -9792,6 +9954,21 @@ StatsPanel::generateHWCmodifiers()
 }
 
 void
+StatsPanel::generateHWCSAMPmodifiers()
+{
+  list_of_hwcsamp_modifiers.clear();
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::exclusive_counts");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::exclusive_overflows");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::inclusive_overflows");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::inclusive_counts");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::percent");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::ThreadAverage");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::ThreadMin");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::ThreadMax");
+}
+
+
+void
 StatsPanel::generateHWCTIMEmodifiers()
 {
   list_of_hwctime_modifiers.clear();
@@ -10084,6 +10261,54 @@ StatsPanel::generateHWCMenu(QString collectorName)
     this, SLOT(hwcModifierSelected(int)) );
   generateModifierMenu(hwcModifierMenu, list_of_hwc_modifiers, current_list_of_hwc_modifiers);
   hwc_menu->insertItem(QString("Select hwc details:"), hwcModifierMenu);
+}
+
+
+void
+StatsPanel::generateHWCSampMenu(QString collectorName)
+{
+// printf("Collector hwcsamp_menu is being created collectorName=(%s)\n", collectorName.ascii() );
+
+  QString s = QString::null;
+
+  QAction *qaction = NULL;
+
+
+  hwcsamp_menu = new QPopupMenu(this);
+
+  if( focusedExpID != -1 ) {
+    contextMenu->insertItem(QString("Display Options: (Exp: %1) hwcsamp").arg(focusedExpID), hwcsamp_menu);
+  } else {
+    contextMenu->insertItem(QString("Display Options: hwcsamp"), hwcsamp_menu);
+  }
+
+  addHWCSampReports(hwcsamp_menu);
+  connect(hwcsamp_menu, SIGNAL( activated(int) ),
+         this, SLOT(collectorHWCSampReportSelected(int)) );
+#if 1
+  generateHWCTIMEmodifiers();
+#else
+  list_of_hwcsamp_modifiers.clear();
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::exclusive_counts");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::exclusive_overflows");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::inclusive_overflows");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::inclusive_counts");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::percent");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::ThreadAverage");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::ThreadMin");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::ThreadMax");
+#endif
+
+  if( hwcsampModifierMenu )
+  {
+    delete hwcsampModifierMenu;
+  }
+  hwcsampModifierMenu = new QPopupMenu(this);
+  hwcsampModifierMenu->insertTearOffHandle();
+  connect(hwcsampModifierMenu, SIGNAL( activated(int) ),
+    this, SLOT(hwcsampModifierSelected(int)) );
+  generateModifierMenu(hwcsampModifierMenu, list_of_hwcsamp_modifiers, current_list_of_hwcsamp_modifiers);
+  hwcsamp_menu->insertItem(QString("Select hwcsamp details:"), hwcsampModifierMenu);
 }
 
 
@@ -12634,7 +12859,7 @@ if (currentCollectorStr != lastCollectorStr ||
 
   }
 
-  if(  currentCollectorStr != "pcsamp" && currentCollectorStr != "hwc" )
+  if(  currentCollectorStr != "pcsamp" && currentCollectorStr != "hwc" && currentCollectorStr != "hwcsamp" )
   {
 
   if ( getPreferenceAdvancedToolbarCheckBox() == TRUE ) {

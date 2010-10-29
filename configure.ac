@@ -532,6 +532,7 @@ AC_CONFIG_FILES(
 	plugins/panels/ManageProcessesPanel/Makefile
 	plugins/panels/CustomizeStatsPanel/Makefile
 	plugins/panels/HW_CounterPanel/Makefile
+	plugins/panels/HWCSampPanel/Makefile
 	plugins/panels/HWCTimePanel/Makefile
 	plugins/panels/IOPanel/Makefile
 	plugins/panels/IOTPanel/Makefile
