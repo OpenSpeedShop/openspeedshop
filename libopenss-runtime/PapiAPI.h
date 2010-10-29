@@ -64,6 +64,7 @@ void OpenSS_Start(int);
 void OpenSS_Stop(int, long long *);
 void OpenSS_HWCAccum(int,long long *);
 void OpenSS_HWCRead(int, long long *);
+void OpenSS_PAPIerror (int , const char *);
 
 #ifdef __cplusplus
 }

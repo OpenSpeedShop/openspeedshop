@@ -300,6 +300,30 @@ void hwcsamp_start_sampling(const char* arguments)
 
     OpenSS_Create_Eventset(&tls->EventSet);
 
+    int rval = PAPI_OK;
+
+    fprintf(stderr, "PAPI Version: %d.%d.%d.%d\n", PAPI_VERSION_MAJOR( PAPI_VERSION ),
+                        PAPI_VERSION_MINOR( PAPI_VERSION ),
+                        PAPI_VERSION_REVISION( PAPI_VERSION ),
+                        PAPI_VERSION_INCREMENT( PAPI_VERSION ) );
+
+#if (PAPI_VERSION_MAJOR(PAPI_VERSION)>=4)
+    rval = PAPI_assign_eventset_component( tls->EventSet, 0 );
+    if (rval != PAPI_OK) {
+        OpenSS_PAPIerror(rval,"OpenSS_Create_Eventset assign_eventset_component");
+        return;
+    }
+#endif
+
+    rval = PAPI_set_multiplex( tls->EventSet );
+    if ( rval == PAPI_ENOSUPP) {
+        fprintf(stderr,"OpenSS_Create_Eventset: Multiplex not supported\n");
+    } else if (rval != PAPI_OK)  {
+        OpenSS_PAPIerror(rval,"OpenSS_Create_Eventset set_multiplex");
+        return;
+    }
+
+
 #if defined (OPENSS_OFFLINE)
     const char* hwc_event_param = getenv("OPENSS_HWCSAMP_EVENTS");
     fprintf(stderr,"Setting new events: %s\n", hwc_event_param);

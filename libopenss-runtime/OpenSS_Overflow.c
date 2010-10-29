@@ -25,7 +25,7 @@
 #include "RuntimeAPI.h"
 #include "PapiAPI.h"
 
-static void OpenSS_PAPIerror (int rval, const char *where)
+void OpenSS_PAPIerror (int rval, const char *where)
 {
 	char error_str[PAPI_MAX_STR_LEN];
 	PAPI_perror(rval,error_str,PAPI_MAX_STR_LEN);
@@ -76,17 +76,6 @@ void OpenSS_Create_Eventset(int *EventSet)
 {
     int rval = PAPI_OK;
     if (*EventSet != PAPI_NULL) {
-#if 0
-	/* Remove all events in the eventset */
-	rval = PAPI_cleanup_eventset(*EventSet);
-	if (rval != PAPI_OK) {
-	    OpenSS_PAPIerror(rval,"OpenSS_Create_Eventset");
-	}
-	rval = PAPI_destroy_eventset(EventSet);
-	if (rval != PAPI_OK) {
-	    OpenSS_PAPIerror(rval,"OpenSS_Create_Eventset");
-	}
-#endif
 	*EventSet = PAPI_NULL;
     }
 
@@ -95,6 +84,7 @@ void OpenSS_Create_Eventset(int *EventSet)
 	OpenSS_PAPIerror(rval,"OpenSS_Create_Eventset");
         return;
     }
+
 }
 
 void OpenSS_AddEvent(int EventSet, int event)
