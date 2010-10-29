@@ -337,6 +337,11 @@ else
        match=`expr match "$2" 'PAPI_'`
        if [ $match == 0 ]
        then
+         match=`expr index "$2" '_'`
+       fi
+
+       if [ $match == 0 ]
+       then
 
           if [ $debug_flag == 1 ]
           then
@@ -406,6 +411,10 @@ else
           input_argument_rate_threshold_value=$3
         else
           match=`expr match "$3" 'PAPI_'`
+          if [ $match == 0 ]
+          then
+            match=`expr index "$3" '_'`
+          fi
           if [ $match == 0 ]
           then
             if [ use_default_flag == 0 ]
