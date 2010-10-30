@@ -165,10 +165,7 @@ class CommandResult_Address :
   uint64_t uint_value;
 
  public:
-  CommandResult_Address () : CommandResult(CMD_RESULT_ADDRESS) {
-    uint_value = 0;
-  }
-  CommandResult_Address (uint64_t U) : CommandResult(CMD_RESULT_ADDRESS) {
+  CommandResult_Address (uint64_t U = 0) : CommandResult(CMD_RESULT_ADDRESS) {
     uint_value = U;
   }
   CommandResult_Address (CommandResult_Address *C) :
@@ -230,10 +227,7 @@ class CommandResult_Uint :
   uint64_t uint_value;
 
  public:
-  CommandResult_Uint () : CommandResult(CMD_RESULT_UINT) {
-    uint_value = 0;
-  }
-  CommandResult_Uint (uint64_t U) : CommandResult(CMD_RESULT_UINT) {
+  CommandResult_Uint (uint64_t U = 0) : CommandResult(CMD_RESULT_UINT) {
     uint_value = U;
   }
   CommandResult_Uint (CommandResult_Uint *C) :
@@ -291,15 +285,12 @@ class CommandResult_Int :
   int64_t int_value;
 
  public:
-  CommandResult_Int () : CommandResult(CMD_RESULT_INT) {
-    int_value = 0;
-  }
   CommandResult_Int (CommandResult_Uint *U) : CommandResult(CMD_RESULT_INT) {
     uint64_t Uvalue;
     U->Value(Uvalue);
     int_value = Uvalue;
   }
-  CommandResult_Int (int64_t I) : CommandResult(CMD_RESULT_INT) {
+  CommandResult_Int (int64_t I = 0) : CommandResult(CMD_RESULT_INT) {
     int_value = I;
   }
   CommandResult_Int (CommandResult_Int *C) :
@@ -361,8 +352,8 @@ class CommandResult_Float :
   double float_value;
 
  public:
-  CommandResult_Float () : CommandResult(CMD_RESULT_FLOAT) {
-    float_value = 0.0;
+  CommandResult_Float (double f = 0.0) : CommandResult(CMD_RESULT_FLOAT) {
+    float_value = f;
   }
   CommandResult_Float (CommandResult_Uint *U) : CommandResult(CMD_RESULT_FLOAT) {
     uint64_t Uvalue;
@@ -373,9 +364,6 @@ class CommandResult_Float :
     int64_t Ivalue;
     I->Value(Ivalue);
     float_value = Ivalue;
-  }
-  CommandResult_Float (double f) : CommandResult(CMD_RESULT_FLOAT) {
-    float_value = f;
   }
   CommandResult_Float (CommandResult_Float *C) :
        CommandResult(CMD_RESULT_FLOAT) {
@@ -441,11 +429,11 @@ class CommandResult_String :
   std::string string_value;
 
  public:
+  CommandResult_String (const char *S = "") : CommandResult(CMD_RESULT_STRING) {
+    string_value = std::string(S);
+  }
   CommandResult_String (std::string S) : CommandResult(CMD_RESULT_STRING) {
     string_value = S;
-  }
-  CommandResult_String (const char *S) : CommandResult(CMD_RESULT_STRING) {
-    string_value = std::string(S);
   }
   CommandResult_String (CommandResult_String *C) :
        CommandResult(CMD_RESULT_STRING) {
@@ -522,11 +510,11 @@ class CommandResult_RawString :
   std::string string_value;
 
  public:
+  CommandResult_RawString (const char *S = "") : CommandResult(CMD_RESULT_RAWSTRING) {
+    string_value = std::string(S);
+  }
   CommandResult_RawString (std::string S) : CommandResult(CMD_RESULT_RAWSTRING) {
     string_value = S;
-  }
-  CommandResult_RawString (const char *S) : CommandResult(CMD_RESULT_RAWSTRING) {
-    string_value = std::string(S);
   }
   CommandResult_RawString (CommandResult_RawString *C) :
        CommandResult(CMD_RESULT_RAWSTRING) {
@@ -1017,6 +1005,7 @@ class CommandResult_Time : public CommandResult {
 
  public:
   CommandResult_Time () : CommandResult(CMD_RESULT_TIME) {
+    time_value = (Time)0;
   }
   CommandResult_Time (Time t)
       : CommandResult(CMD_RESULT_TIME) {
@@ -1092,10 +1081,10 @@ class CommandResult_Duration : public CommandResult {
   int64_t duration_value;
 
  public:
-  CommandResult_Duration () : CommandResult(CMD_RESULT_DURATION) {
-    duration_value = 0;
-  }
-  CommandResult_Duration (int64_t d)
+//  CommandResult_Duration () : CommandResult(CMD_RESULT_DURATION) {
+//    duration_value = 0;
+//  }
+  CommandResult_Duration (int64_t d = 0)
       : CommandResult(CMD_RESULT_DURATION) {
     duration_value = d;
   }
@@ -1237,11 +1226,11 @@ class CommandResult_Interval : public CommandResult {
 
  public:
 
-  CommandResult_Interval () : CommandResult(CMD_RESULT_INTERVAL) {
-    interval_value = 0.0;
-  }
+//  CommandResult_Interval () : CommandResult(CMD_RESULT_INTERVAL) {
+//    interval_value = 0.0;
+//  }
 
-  CommandResult_Interval (int64_t d)
+  CommandResult_Interval (int64_t d = 0.0)
       : CommandResult(CMD_RESULT_INTERVAL) {
     interval_value = d;
   }
@@ -1360,7 +1349,7 @@ class CommandResult_Title :
   std::string string_value;
 
  public:
-  CommandResult_Title (std::string S) : CommandResult(CMD_RESULT_TITLE) {
+  CommandResult_Title (std::string S = "") : CommandResult(CMD_RESULT_TITLE) {
     string_value = S;
   }
   virtual ~CommandResult_Title () { }
@@ -1561,7 +1550,7 @@ class CommandResult_Columns :
 
  public:
   CommandResult_Columns (int64_t C = 0) : CommandResult(CMD_RESULT_COLUMN_VALUES) {
-    number_of_columns = 0;
+    number_of_columns = C;
   }
   virtual ~CommandResult_Columns () {
     Reclaim_CR_Space (Columns);
@@ -1649,7 +1638,9 @@ class CommandResult_Columns :
     int64_t num_results = 0;
     for (coi = Columns.begin(); coi != Columns.end(); coi++) {
       if (num_results++ != 0) to << "  ";
-      if ((*coi)->ValueIsNull() && !((*coi)->IsValueID())) {
+      if ((*coi)->ValueIsNull() &&
+          !((*coi)->IsValueID()) &&
+          OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO) {
        // Avoid printing lots of meaningless "0" values - blank fill the field.
         to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
            << std::setw(fieldsize) << " ";
@@ -1675,6 +1666,10 @@ inline CommandResult *CRPTR (Function& V) { return new CommandResult_Function (V
 inline CommandResult *CRPTR (Statement& V) { return new CommandResult_Statement (V); }
 inline CommandResult *CRPTR (LinkedObject& V) { return new CommandResult_LinkedObject (V); }
 inline CommandResult* CRPTR (Time& V) { return new CommandResult_Time (V); }
+
+// Create an initial CommandResult* with the same type
+// as the argument but with a NULL initial value.
+CommandResult *CR_Init_of_CR_type( CommandResult *A );
 
 // Computation utilities.
 CommandResult *Calculate_Average (CommandResult *A, CommandResult *B);

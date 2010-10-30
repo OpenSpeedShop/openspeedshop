@@ -717,6 +717,56 @@ static bool Generate_CustomView (CommandObject *cmd,
     }
   }
 
+ // Find a non-null value for each column so that we can know the
+ // cmd_result_type_enum associated with the column.
+ //
+ // First: Determine the total number of columns of data.
+  int64_t total_columns = Compute_Delta ? 1 : 0;
+  for (i = 0; i < numQuickSets; i++) {
+    int64_t numColumns = Quick_Compare_Set[i].numColumns;
+    total_columns += numColumns;
+  }
+ // Second: Look for a valid data entry in each column and
+ //         remember it so we can use it to create a NULL entry.
+  std::vector<CommandResult *> Base_Column_Type(total_columns);
+  int64_t next_column = 0;
+  for (i = 0; i < numQuickSets; i++) {
+    std::list<CommandResult *>::iterator Seti = Quick_Compare_Set[i].partial_view.begin();
+    int64_t numColumns = Quick_Compare_Set[i].numColumns;
+    for (int64_t rc = 0; rc < Quick_Compare_Set[i].partial_view.size(); rc++) {
+     // Find the first set of column data in the Quick_Compare_Set.
+      while ((*Seti)->Type() != CMD_RESULT_COLUMN_VALUES) { Seti++; }
+     // Record the first row of data in the Base_Column_Type array.
+      std::list<CommandResult *> DL;
+      ((CommandResult_Columns *)(*Seti))->Value(DL);
+      std::list<CommandResult *>::iterator Di = DL.begin();
+      CommandResult *D = (*Di);
+      if (Compute_Delta && (i == 0)) {
+        Base_Column_Type[next_column++] = D;
+      }
+      for (int64_t j = 0; j < numColumns; j ++, Di++) {
+        Base_Column_Type[next_column++] = D;
+      }
+      Assert (next_column <= total_columns);
+      break;
+    }
+  }
+ // Third: Check that a base type entry is available to generate NULLs for every column.
+  next_column = 0;
+  if (Compute_Delta) {
+    Assert (Base_Column_Type[next_column++] != NULL);
+  }
+  for (int64_t i = 0; i < Quick_Compare_Set[0].numColumns; i ++) {
+    Assert (Base_Column_Type[next_column++] != NULL);
+  }
+  for (int64_t i = 1, j = 0; i < Quick_Compare_Set[i].numColumns; i++, j++) {
+    if (Base_Column_Type[next_column] == NULL) {
+     // Steal NULL type entry from base metrics and hope it will be okay.
+      Base_Column_Type[next_column] = Base_Column_Type[(Compute_Delta?1:0) + j];
+    }
+    next_column++;
+  }
+
  // Merge the values from the various compare sets.
   int64_t Set0_Columns = Quick_Compare_Set[0].numColumns;
   std::list<CommandResult *> Set0 = Quick_Compare_Set[0].partial_view;
@@ -730,6 +780,7 @@ static bool Generate_CustomView (CommandObject *cmd,
   for (int64_t rc = 0; rc < master_vector.size(); rc++) {
     CommandResult_Columns *NC = new CommandResult_Columns ();
     CommandResult *delta = NULL;
+    int64_t next_column = 0;
 
    // Get data for set[0].
     if (rc < Set0_rows) {
@@ -743,18 +794,22 @@ static bool Generate_CustomView (CommandObject *cmd,
       if (Compute_Delta) {
         delta = (*Di)->Copy();
         NC->CommandResult_Columns::Add_Column ( delta );
+        next_column++;
       }
       for (int64_t j = 0; j < Set0_Columns; j ++, Di++) {
         NC->CommandResult_Columns::Add_Column ( (*Di)->Copy() );
+        next_column++;
       }
       Set0i++;
     } else {
      // Fill the columns with place holders.
       if (Compute_Delta) {
-        NC->CommandResult_Columns::Add_Column ( CRPTR("") );
+        Assert(next_column < total_columns);
+        NC->CommandResult_Columns::Add_Column ( CR_Init_of_CR_type( Base_Column_Type[next_column++] ) );
       }
       for (int64_t j = 0; j < Set0_Columns; j++) {
-        NC->CommandResult_Columns::Add_Column ( CRPTR("") );
+        Assert(next_column <= total_columns);
+        NC->CommandResult_Columns::Add_Column ( CR_Init_of_CR_type( Base_Column_Type[next_column++] ) );
       }
     }
 
@@ -776,12 +831,15 @@ static bool Generate_CustomView (CommandObject *cmd,
           NC->CommandResult_Columns::Column_AbsDiff( (*Di), 0 );
         }
         for (int64_t j = 0; j < numColumns; j ++, Di++) {
+          Assert(next_column <= total_columns);
           NC->CommandResult_Columns::Add_Column ( (*Di)->Copy() );
+          next_column++;
         }
       } else {
        // Fill the columns with place holders.
+        int64_t next_column = 0;
         for (int64_t j = 0; j < numColumns; j++) {
-          NC->CommandResult_Columns::Add_Column ( CRPTR("") );
+          NC->CommandResult_Columns::Add_Column ( CR_Init_of_CR_type( Base_Column_Type[next_column++] ) );
         }
       }
     }
@@ -800,6 +858,7 @@ static bool Generate_CustomView (CommandObject *cmd,
     CommandResult_Enders *NC = new CommandResult_Enders ();
     CommandResult *last_column = NULL;
     CommandResult *delta = NULL;
+    int64_t next_column = 0;
 
    // Get data for each ender of each Quick_Compare_Set.
     for (i = 0; i < numQuickSets; i++) {
@@ -821,17 +880,19 @@ static bool Generate_CustomView (CommandObject *cmd,
           } else {
             NC->CommandResult_Enders::Enders_AbsDiff( (*Di), 0 );
           }
+          next_column++;
         }
         for (int64_t j = 0; j < numColumns; j ++, Di++) {
           NC->CommandResult_Enders::Add_Ender ( (*Di)->Copy() );
+          next_column++;
         }
       } else {
        // Fill the columns with place holders.
         if (Compute_Delta && (i == 0)) {
-          NC->CommandResult_Enders::Add_Ender ( CRPTR("") );
+          NC->CommandResult_Enders::Add_Ender ( CR_Init_of_CR_type( Base_Column_Type[next_column++] ) );
         }
         for (int64_t j = 0; j < numColumns; j++) {
-          NC->CommandResult_Enders::Add_Ender ( CRPTR("") );
+          NC->CommandResult_Enders::Add_Ender ( CR_Init_of_CR_type( Base_Column_Type[next_column++] ) );
         }
       }
     }

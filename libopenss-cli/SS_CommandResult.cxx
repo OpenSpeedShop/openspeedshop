@@ -40,6 +40,33 @@
     Assert (typeid(*this) == typeid(CommandResult_Uint));
     return uint_value > ((CommandResult_Uint *)A)->uint_value; }
 
+// Create an initial CommandResult* with the same data type
+// as the argument but with a NULL initial value.
+// Some items are for accounting and do not represent data.
+CommandResult *CR_Init_of_CR_type( CommandResult *A )
+{ switch (A->Type()) {
+    case CMD_RESULT_ADDRESS: return new CommandResult_Address();
+    case CMD_RESULT_UINT: return new CommandResult_Uint();
+    case CMD_RESULT_INT: return new CommandResult_Int();
+    case CMD_RESULT_FLOAT: return new CommandResult_Float();
+    case CMD_RESULT_STRING: return new CommandResult_String();
+    case CMD_RESULT_RAWSTRING: return new CommandResult_RawString();
+//    case CMD_RESULT_FUNCTION: return new CommandResult_Function();
+//    case CMD_RESULT_STATEMENT: return new CommandResult_Statement();
+//    case CMD_RESULT_LINKEDOBJECT: return new CommandResult_LinkedObject();
+//    case CMD_RESULT_CALLTRACE: return new CommandResult_CallStackEntry();
+    case CMD_RESULT_TIME: return new CommandResult_Time();
+    case CMD_RESULT_DURATION: return new CommandResult_Duration();
+    case CMD_RESULT_INTERVAL: return new CommandResult_Interval();
+//    case CMD_RESULT_TITLE: return new CommandResult_Tile();
+//    case CMD_RESULT_COLUMN_HEADER: return new CommandResult_Header();
+//    case CMD_RESULT_COLUMN_VALUES: return new CommandResult_Values();
+//    case CMD_RESULT_COLUMN_ENDER: return new CommandResult_Ender();
+//    case CMD_RESULT_EXTENSION: return new CommandResult_Extension();
+    default: return NULL;  // Should we Assert?
+  }
+}
+
 // Some utilities to perform various computations.
 
 CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
