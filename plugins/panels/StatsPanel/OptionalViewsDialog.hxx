@@ -215,6 +215,7 @@ public:
     bool allowPythonCommands; 
     bool instrumentorIsOffline; 
     bool lessRestrictiveComparisons; 
+    bool blanksInsteadOfZerosInComparison; 
 
     QSettings *settings;
     void readPreferencesOnEntry();
@@ -374,6 +375,7 @@ protected:
     QCheckBox *allowPythonCommandsCheckBox;
     QCheckBox *instrumentorIsOfflineCheckBox;
     QCheckBox *lessRestrictiveComparisonsCheckBox;
+    QCheckBox *blanksInsteadOfZerosInComparisonCheckBox;
     QCheckBox *logByDefaultCheckBox;
     QCheckBox *limitSignalCatchingCheckBox;
 

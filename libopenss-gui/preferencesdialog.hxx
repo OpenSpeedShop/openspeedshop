@@ -103,6 +103,7 @@ QString globalRemoteShell;
     bool allowPythonCommands; 
     bool instrumentorIsOffline; 
     bool lessRestrictiveComparisons; 
+    bool viewBlankInPlaceOfZero; 
 
     QSettings *settings;
     void readPreferencesOnEntry();
@@ -155,6 +156,7 @@ protected:
     QCheckBox *allowPythonCommandsCheckBox;
     QCheckBox *instrumentorIsOfflineCheckBox;
     QCheckBox *lessRestrictiveComparisonsCheckBox;
+    QCheckBox *viewBlankInPlaceOfZeroCheckBox;
     QCheckBox *logByDefaultCheckBox;
     QCheckBox *limitSignalCatchingCheckBox;
 

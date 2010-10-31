@@ -118,6 +118,9 @@ void PreferencesDialog::readPreferencesOnEntry()
   lessRestrictiveComparisonsCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/lessRestrictiveComparisons") );
 
+  viewBlankInPlaceOfZeroCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/viewBlankInPlaceOfZero") );
+
   setShowSplashScreenCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/showSplashScreen") );
 
@@ -178,6 +181,8 @@ void PreferencesDialog::resetPreferenceDefaults()
    instrumentorIsOfflineCheckBox->setChecked(instrumentorIsOffline);
    lessRestrictiveComparisons = TRUE;
    lessRestrictiveComparisonsCheckBox->setChecked(lessRestrictiveComparisons);
+   viewBlankInPlaceOfZero = TRUE;
+   viewBlankInPlaceOfZeroCheckBox->setChecked(viewBlankInPlaceOfZero);
 
 
   // Begin reset all preferences to defaults
@@ -298,6 +303,7 @@ void PreferencesDialog::applyPreferences()
   extern bool    OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE;
   extern bool    OPENSS_ALLOW_PYTHON_COMMANDS;
   extern bool    OPENSS_INSTRUMENTOR_IS_OFFLINE;
+  extern bool    OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO;
   extern bool    OPENSS_LESS_RESTRICTIVE_COMPARISONS;
   extern bool    OPENSS_LOG_BY_DEFAULT;
   extern bool    OPENSS_LIMIT_SIGNAL_CATCHING;
@@ -320,6 +326,8 @@ void PreferencesDialog::applyPreferences()
     instrumentorIsOfflineCheckBox->isChecked();
   OPENSS_LESS_RESTRICTIVE_COMPARISONS = 
     lessRestrictiveComparisonsCheckBox->isChecked();
+  OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO = 
+    viewBlankInPlaceOfZeroCheckBox->isChecked();
   OPENSS_VIEW_FULLPATH =
     viewFullPathCheckBox->isChecked();
   OPENSS_HELP_LEVEL_DEFAULT = helpLevelDefaultLineEdit->text().toInt();
@@ -474,6 +482,11 @@ void PreferencesDialog::savePreferences()
   if( !settings->writeEntry( "/openspeedshop/general/lessRestrictiveComparisons", lessRestrictiveComparisonsCheckBox->isChecked() ) )
   {
     printf("Unable to write lessRestrictiveComparisons.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/viewBlankInPlaceOfZero", viewBlankInPlaceOfZeroCheckBox->isChecked() ) )
+  {
+    printf("Unable to write viewBlankInPlaceOfZero.\n");
   }
 
   // Begin save all preferences

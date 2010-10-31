@@ -426,6 +426,15 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     rightSideLayout->addWidget( lessRestrictiveComparisonsCheckBox );
     }
 
+    { // COMPARISON OUTPUT NULL ENTRIES OPTIONAL BLANKS VS ZERO ENTRY OPTION
+    viewBlankInPlaceOfZeroCheckBox = new QCheckBox( vpage0big_box, "viewBlankInPlaceOfZeroCheckBox" );
+    viewBlankInPlaceOfZeroCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, viewBlankInPlaceOfZeroCheckBox->sizePolicy().hasHeightForWidth() ) );
+    viewBlankInPlaceOfZeroCheckBox->setChecked( TRUE );
+    viewBlankInPlaceOfZeroCheckBox->setText( tr( "Use Blanks In Comparison Output" ) );
+    rightSideLayout->addWidget( viewBlankInPlaceOfZeroCheckBox );
+    }
+
+
     generalStackPageLayout->addWidget( vpage0sv );
     stack->addWidget( generalStackPage, 0 );
 }
@@ -518,6 +527,10 @@ void PreferencesDialog::languageChange()
   lessRestrictiveComparisonsCheckBox->setChecked(lessRestrictiveComparisons);
   QToolTip::add(lessRestrictiveComparisonsCheckBox,
                 tr("Declare whether or not comparisons should consider the directory path and linked object\nwhen comparing performance data for a particular function.  If this preference is set,\nthe directory path of the source file and the linked object will not be considered.  Use this if you are comparing\nthe same program but have different source versions of the program in separate directories") );
+
+  viewBlankInPlaceOfZeroCheckBox->setChecked(viewBlankInPlaceOfZero);
+  QToolTip::add(viewBlankInPlaceOfZeroCheckBox,
+                tr("Declare whether or not comparisons should print blank spaces in the output\nwhen comparing and outputing performance data comparison results.  If this preference is set,\nthen blanks are printed in the output.  If this is set to false then zeros are output.\nThe zeros are necessary when creating a comma separated list file from the comparison output") );
 
     setCaption( tr( "Preferences Dialog" ) );
     categoryListView->header()->setLabel( 0, tr( "Categories" ) );
