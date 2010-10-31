@@ -2217,12 +2217,12 @@ then
     | sed -r 's/\s{2,2}/,/g' \
     | sed '/^$/d' \
     | sed 's/-c [0-9*]://g' \
-    > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}.compare_csv.txt
+    > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}.compare_csv.csv
 #
 # Now add the header information to the temporary csv file.
 #
     echo "${values[0]},${values[1]},Functions" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}.header.txt 
-    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}.compare_csv.txt > ${values[0]%.*}_${values[1]%.*}.compare_csv.txt
+    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}.compare_csv.csv > ${values[0]%.*}_${values[1]%.*}.compare_csv.csv
   fi
 #
 # Now add the header information to the screen output results.
@@ -2259,13 +2259,13 @@ then
     | sed -r 's/\s{2,2}/,/g' \
     | sed '/^$/d' \
     | sed 's/-c [0-9*]://g' \
-    > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare_csv.txt
+    > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare_csv.csv
 
 #
 # Now add the header information to the temporary csv file to create the final csv file.
 #
     echo "${values[0]},${values[1]},${values[2]},Functions" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.header.txt 
-    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare_csv.txt > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare_csv.txt
+    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare_csv.csv > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare_csv.csv
   fi
 #
 # Now add the header information to the screen output results.
@@ -2305,13 +2305,13 @@ then
     | sed -r 's/\s{2,2}/,/g' \
     | sed '/^$/d' \
     | sed 's/-c [0-9*]://g' \
-    > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare_csv.txt
+    > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare_csv.csv
 
 #
 # Now add the header information to the temporary csv file to create the final csv file.
 #
     echo "${values[0]},${values[1]},${values[2]},${values[3]},Functions" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.header.txt 
-    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare_csv.txt > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare_csv.txt
+    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare_csv.csv > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare_csv.csv
   fi
 
 #
@@ -2352,13 +2352,13 @@ then
     | sed -r 's/\s{2,2}/,/g' \
     | sed '/^$/d' \
     | sed 's/-c [0-9*]://g' \
-    > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare_csv.txt
+    > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare_csv.csv
 
 #
 # Now add the header information to the temporary csv file to create the final csv file.
 #
     echo "${values[0]},${values[1]},${values[2]},${values[3]},${values[4]},Functions" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.header.txt 
-    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare_csv.txt > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare_csv.txt
+    cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare_csv.csv > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare_csv.csv
   fi
 
 #
