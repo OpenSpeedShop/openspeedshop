@@ -337,7 +337,22 @@ else
        match=`expr match "$2" 'PAPI_'`
        if [ $match == 0 ]
        then
-         match=`expr index "$2" '_'`
+         case "$2" in
+           *[!0-9]*|"") 
+               if [ $debug_flag == 1 ]
+               then
+                  echo "DEBUG: NOT numbers only dollar 2 = $2  "
+               fi
+               match=1;
+               ;;
+           *) 
+               if [ $debug_flag == 1 ]
+               then
+                  echo "DEBUG: numbers only dollar 2 = $2  "
+               fi
+               match=0;
+               ;;
+         esac
        fi
 
        if [ $match == 0 ]
@@ -413,7 +428,22 @@ else
           match=`expr match "$3" 'PAPI_'`
           if [ $match == 0 ]
           then
-            match=`expr index "$3" '_'`
+             case "$3" in
+               *[!0-9]*|"") 
+                  if [ $debug_flag == 1 ]
+                  then
+                     echo "DEBUG: NOT numbers only dollar 3 = $3  "
+                  fi
+                  match=1;
+                  ;;
+               *) 
+                  if [ $debug_flag == 1 ]
+                  then
+                     echo "DEBUG: umbers only dollar 3 = $3  "
+                  fi
+                  match=0;
+                  ;;
+             esac
           fi
           if [ $match == 0 ]
           then
