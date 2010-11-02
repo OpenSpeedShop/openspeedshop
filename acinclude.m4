@@ -1005,6 +1005,14 @@ AC_DEFUN([AC_PKG_PAPI], [
     PAPI_DIR="$papi_dir"
 
     case "$host" in
+        powerpc64-*-linux*) 
+	    PAPI_LIBS="-lpapi"
+            ;;
+
+        powerpc-*-linux*) 
+	    PAPI_LIBS="-lpapi"
+            ;;
+
 	ia64-*-linux*)
 	    PAPI_LIBS="-lpapi -lpfm"
             ;;
