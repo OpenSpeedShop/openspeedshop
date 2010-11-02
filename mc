@@ -1,7 +1,7 @@
 #!/bin/sh
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2009 Krell Institute All Rights Reserved.
+# Copyright (c) 2006-2010 Krell Institute All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -29,11 +29,12 @@ then
     export OPENSS_PREFIX=$OPENSS_PLUGIN_PATH/../..;
     echo "WARNING: Defaulting to developers location..."
   fi 
-#  exit
+  exit
 fi
 if test -d plugins/panels
 then
-  configure --prefix=$OPENSS_PREFIX;make uninstall;make install;make dist;
+./configure --prefix=$OPENSS_PREFIX --libdir=$OPENSS_PREFIX/lib64 --with-instrumentor=mrnet --with-tls=implicit --with-libdwarf=$OPENSS_PREFIX --with-binutils=/usr --with-libunwind=$OPENSS_PREFIX --with-papi=$OPENSS_PREFIX --with-sqlite=$OPENSS_PREFIX --with-qtlib=/usr/lib64/qt-3.3 --with-dyninst=$OPENSS_PREFIX --with-dyninst-version=6.1 --with-lampi= --with-openmpi=$OPENSS_MPI_OPENMPI --with-mpt= --with-mpich= --with-mpich2=$OPENSS_MPI_MPICH2 --with-mpich2-driver= --with-mvapich=$OPENSS_MPI_MVAPICH --with-mvapich2=$OPENSS_MPI_MVAPICH2 --with-mvapich2-ofed= --with-lam= --with-mpich-driver= --with-otf=$OPENSS_PREFIX --with-vt=$OPENSS_PREFIX --with-libmonitor=$OPENSS_PREFIX --with-mrnet=$OPENSS_PREFIX --with-mrnet-version=3.0.1 --with-python=/usr; make clean; make; make install
+
 else
   echo NOTE: This must be run from the 'current' directory...
 fi
