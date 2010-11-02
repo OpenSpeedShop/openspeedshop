@@ -99,14 +99,14 @@ export OPENSS_MPI_OPENMPI=/usr/projects/openmpi-1.2.4
 The spec files associated with this build process include:
 qtver=3.3.8b
 libelfver=0.8.5_a
-libdwarfver=20091230_a
-libunwindver=20100123_a
-papiver=3.7.0_a
+libdwarfver=20100629_a
+libunwindver=20100712_a
+papiver=4.1.1a
 sqlitever=3.6.22_a
-monitorver=20090602_a
+monitorver=20091010_a
 vampirtracever=5.3.2_a
 dyninstver=6.1_a
-mrnetver=2.2_a
+mrnetver=3.0.1_a
 openspeedshopver=2.0.0_a
 
 There is an order that is required in building the
@@ -251,9 +251,9 @@ localhost.localdomain-508>./install.sh
          original will be copied to .rpmmacros.##
     0a - View environment variables that may be set
     
-    1  - Check if libelf is installed, build if necessary
-    1a - Install libelf if built (non-root/cpio)
-         - Otherwise install RPM manually at this point
+    1  - Build binutils (optional), Check/Build libelf libraries
+    1a - Install binutils (optional), libelf, if built (non-root/cpio)
+         - Otherwise install RPMs manually at this point
     2  - Build base Support libraries: libdwarf
     2a - Install libdwarf if built (non-root/cpio)
          - Otherwise install RPM manually at this point
