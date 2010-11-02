@@ -182,6 +182,7 @@ echo "onRerunSaveCopyOfExperimentDatabase=true" >> /root/.openspeedshoprc
 echo "saveExperimentDatabase=true" >> /root/.openspeedshoprc
 echo "showGraphics=false" >> /root/.openspeedshoprc
 echo "showSplashScreen=true" >> /root/.openspeedshoprc
+echo "viewBlankInPlaceOfZero=false"  >> /root/.openspeedshoprc
 echo "viewFieldSize=16" >> /root/.openspeedshoprc
 echo "viewFullPath=false" >> /root/.openspeedshoprc
 echo "viewMangledName=false" >> /root/.openspeedshoprc

@@ -1,8 +1,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
   <title>Getting Started With Open|SpeedShop&#8482;</title>
   <style type="text/css">
 table.exp {
@@ -35,7 +35,7 @@ table.exp td {
 </head>
 <body>
 <center> <img src="img/OpenSpeedShop_Logo.jpg"> <br>
-Getting Started With Open|SpeedShop&#8482; 1.9.3.4<br>
+Getting Started With Open|SpeedShop&#8482; 2.0.0<br>
 LA-UR-07-7012 <br>
 </center>
 <h2> Welcome To OpenSpeedShop Live </h2>
@@ -67,8 +67,9 @@ Open|SpeedShop's GUI: Attaching to a running process - pcsamp.</a></li>
 Open|SpeedShop is an open source, multi-platform Linux performance tool
 which is targeted to support performance analysis of applications
 running on both single node and large scale systems with Intel&reg;'s
-Itanium2&reg;'s, Intel Pentium&reg;'s, Pentium&reg;'s II Xeon<small><sup>TM</sup></small>
-and AMD Opteron<small><sup>TM</sup></small> processors. <br>
+Itanium2&reg;'s, Intel Pentium&reg;'s, Pentium&reg;'s II Xeon<small><sup>TM</sup></small>,
+AMD Opteron<small><sup>TM</sup></small>, and IBM PPC, processors, as
+well as Blue Gene and Cray XT/XE systems.<br>
 <br>
 Open|SpeedShop is funded by the U.S. Department of Energy's (DOE)
 National Nuclear Security Administration (NNSA). It was originally
@@ -78,8 +79,9 @@ Laboratory.&nbsp; Open|SpeedShop utilizes both dynamic instrumentation
 technology developed at the University of Wisconson and University of
 Maryland and link-time instrumentation technology.<br>
 <br>
-Open|SpeedShop development is now done by the Krell Institute and DOE's
-Tri-labs. The infrastructure and base components of Open|SpeedShop are
+Open|SpeedShop development is now done by the Krell Institute, DOE's
+Tri-labs, and support from the Office of Science.&nbsp; The
+infrastructure and base components of Open|SpeedShop are
 released as open source code primarily under the LGPL license.<br>
 <br>
 The Open|SpeedShop web site is located at: <a
@@ -166,7 +168,11 @@ stack and the time of exception. </li>
   <li><b>hwc:</b> Counts at the source line, machine instruction, and
 function levels of various hardware events. </li>
   <li><b>hwctime:</b> Similar to <b>hwc</b>, except that callstack
-sampling is used. </li>
+sampling is used.</li>
+  <li><span style="font-weight: bold;">hwcsamp:</span> Similar to
+pcsamp, except that up to 6 hardware counter registers are read in
+addition.<br>
+  </li>
   <li><b>io:</b> Times I/O system calls. The time reported is wall
 clock time. </li>
   <li><b>iot:</b> Traces and times I/O system calls. The time reported
