@@ -1,3 +1,14 @@
+Changes in 2.0.0 since 1.9.3.4
+
+1) More general support for support of PPC platforms
+
+2) More general support for support of Cray-XT/XE and Blue Gene platforms.
+
+3) Updated man pages and convenience scripts
+
+4) More general support for the online/dynamic version of OpenSpeedShop
+
+5) TBD
 
 Changes in 1.9.3.4 since the 1.9.3.3 release:
 
