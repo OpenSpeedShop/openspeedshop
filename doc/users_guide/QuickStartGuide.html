@@ -53,8 +53,8 @@
 <br>
 </p>
 <p class="western" align="center"><font color="#000066"><img
- src="OpenSpeedShop_Logo.jpg" name="OpenSpeedShop_Logo" align="bottom"
- border="0" height="35" width="281"></font><font color="#000066"><font
+ src="OpenSpeedShop_Logo.jpg" name="OpenSpeedShop_Logo" border="0"
+ height="35" width="281" align="bottom"></font><font color="#000066"><font
  face="SGIAlt, Times New Roman, serif"><font style="font-size: 22pt;"
  size="6"><b><br>
 Quick
@@ -73,7 +73,8 @@ October 31, 2010<br>
 <div id="Table of Contents1" dir="ltr">
 <p><a href="#1.Open%7CSpeedShop%20Quick%20Start%20Information%7Coutline">Open|SpeedShop
 Quick
-Start Information</a></p>
+Start
+Information</a></p>
 <p style="margin-left: 0.17in; margin-top: 0in; margin-bottom: 0.07in;">
 <a href="#1.2.Selecting%20an%20Experiment%20Type%7Coutline">Selecting
 an Experiment Type</a></p>
@@ -97,7 +98,8 @@ Command&nbsp;”openss"</a></p>
 <a
  href="#1.5.Open%7CSpeedShop%20Invocation%20Example%20Information%7Coutline">Open|SpeedShop
 Invocation
-Example Information</a></p>
+Example
+Information</a></p>
 <p style="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in;">
 <a href="#1.5.1.Key%20command%20options%7Coutline">Key command options</a></p>
 <p style="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in;">
@@ -109,7 +111,8 @@ Example Information</a></p>
 <p style="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in;">
 <a href="#1.5.4.Example%203:%C2%A0+Using+Interactive+CLI%7Coutline">Example
 3:&nbsp;
-Using Interactive CLI</a></p>
+Using
+Interactive CLI</a></p>
 <p style="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in;">
 <a href="#1.5.5.Example%204:%C2%A0+Using+Batch%7Coutline">Example
 4:&nbsp; Using Batch</a></p>
@@ -117,14 +120,16 @@ Using Interactive CLI</a></p>
 <a
  href="#1.7.Viewing%20Open%7CSpeedShop%20Performance%20Data%20post-mortem%7Coutline">Viewing
 Open|SpeedShop
-Performance Data post-mortem</a></p>
+Performance
+Data post-mortem</a></p>
 <p style="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in;">
 <a href="#1.7.1.Example%201:%C2%A0+Using+the+GUI%7Coutline">Example
 1:&nbsp; Using the GUI</a></p>
 <p style="margin-left: 0.33in; margin-top: 0in; margin-bottom: 0.07in;">
 <a href="#1.7.2.Example%202:%C2%A0+Using+the+Interactive+CLI%7Coutline">Example
 2:&nbsp;
-Using the Interactive CLI</a></p>
+Using
+the Interactive CLI</a></p>
 </div>
 <p class="western" style="margin-top: 0in; margin-bottom: 0in;"><br>
 </p>
@@ -213,8 +218,9 @@ buffer (TLB) misses, etc..&nbsp; PC sampling is used.&nbsp;&nbsp; </p>
       </td>
     </tr>
     <tr>
-      <td style="vertical-align: top;"><span style="font-weight: bold;">hwcsamp</span><br>
-      </td>
+      <td style="vertical-align: top;">
+      <p><small><span style="font-weight: bold;">hwcsamp</span></small></p>
+      <small> </small></td>
       <td style="vertical-align: top;">High user CPU time<br>
       </td>
       <td style="vertical-align: top;">Similar to hwc experiment,
@@ -247,16 +253,25 @@ experiment, except that callstack sampling is used.&nbsp;&nbsp;.</p>
       <td width="298">
       <p class="western" style="margin-top: 0in;">Times the following
 I/O system calls: <font face="Courier New, monospace"><font size="2">read</font></font>,
+
       <font face="Courier New, monospace"><font size="2">readv</font></font>,
+
       <font face="Courier New, monospace"><font size="2">write</font></font>,
+
       <font face="Courier New, monospace"><font size="2">writev</font></font>,
+
       <font face="Courier New, monospace"><font size="2">open</font></font>,
+
       <font face="Courier New, monospace"><font size="2">close</font></font>,
+
       <font face="Courier New, monospace"><font size="2">dup</font></font>,
+
       <font face="Courier New, monospace"><font size="2">pipe</font></font>,
+
       <font face="Courier New, monospace"><font size="2">creat</font></font>.&nbsp;&nbsp;
 The
-time reported is wall clock time.</p>
+time
+reported is wall clock time.</p>
       </td>
     </tr>
     <tr valign="top">
@@ -582,7 +597,8 @@ prompt :&gt; <b>ossusertime “/opt/openmpi-1.4.1/bin/orterun –np 64
 <p style="margin-top: 0in; margin-bottom: 0in;"><big><span
  style="font-weight: bold;">NOTE:&nbsp; See <a href="ossscript.html">the
 convenience
-function documentation </a></span><a style="font-weight: bold;"
+function
+documentation </a></span><a style="font-weight: bold;"
  href="ossscript.html">here</a><span style="font-weight: bold;">.</span></big><b><br>
 <big>NOTE : See<a href="OfflineEnvironmentVariables.html"> the offline
 environment variable information</a>.&nbsp; These environment variable
@@ -615,7 +631,8 @@ the "Run" button on the GUI and wait for the results to be
 displayed.&nbsp; The path to the executable can be a relative path.</font></p>
 <p class="western" style="margin-top: 0in; margin-bottom: 0.17in;">Quotes
 are
-used around the –f option if the executable has parameters or
+used
+around the –f option if the executable has parameters or
 arguments, such as in the MPI application shown above.<font
  color="#000000"><br>
 <br>
