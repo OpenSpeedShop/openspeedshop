@@ -27,8 +27,7 @@ fi
 
 %setup -q -n %{name}-%{version}
 
-./configure --prefix=%{prefix} \
---libdir=%{prefix}/%{_lib}
+./configure --prefix==%{prefix} --libdir=%{prefix}/%{_lib}  --disable-pretty-print-stacktrace --enable-static --without-memory-manager --without-libnuma --disable-dlopen
 
 %build
 make
