@@ -296,16 +296,21 @@ void hwcsamp_start_sampling(const char* arguments)
 
     memset(evalues,0,sizeof(evalues));
 
-    fprintf(stderr,"System has %d hardware counters.\n", PAPI_num_counters());
 
     OpenSS_Create_Eventset(&tls->EventSet);
 
     int rval = PAPI_OK;
 
-    fprintf(stderr, "PAPI Version: %d.%d.%d.%d\n", PAPI_VERSION_MAJOR( PAPI_VERSION ),
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+       fprintf(stderr, "PAPI Version: %d.%d.%d.%d\n", PAPI_VERSION_MAJOR( PAPI_VERSION ),
                         PAPI_VERSION_MINOR( PAPI_VERSION ),
                         PAPI_VERSION_REVISION( PAPI_VERSION ),
                         PAPI_VERSION_INCREMENT( PAPI_VERSION ) );
+       fprintf(stderr,"System has %d hardware counters.\n", PAPI_num_counters());
+    }
+#endif
+
 
 #if (PAPI_VERSION_MAJOR(PAPI_VERSION)>=4)
     rval = PAPI_assign_eventset_component( tls->EventSet, 0 );
@@ -315,6 +320,7 @@ void hwcsamp_start_sampling(const char* arguments)
     }
 #endif
 
+#if !defined(TARGET_OS_BGP) 
     rval = PAPI_set_multiplex( tls->EventSet );
     if ( rval == PAPI_ENOSUPP) {
         fprintf(stderr,"OpenSS_Create_Eventset: Multiplex not supported\n");
@@ -322,11 +328,11 @@ void hwcsamp_start_sampling(const char* arguments)
         OpenSS_PAPIerror(rval,"OpenSS_Create_Eventset set_multiplex");
         return;
     }
+#endif
 
 
 #if defined (OPENSS_OFFLINE)
     const char* hwc_event_param = getenv("OPENSS_HWCSAMP_EVENTS");
-    fprintf(stderr,"Setting new events: %s\n", hwc_event_param);
     if (hwc_event_param != NULL) {
 	char *tfptr, *saveptr, *tf_token;
 	tfptr = strdup(hwc_event_param);
