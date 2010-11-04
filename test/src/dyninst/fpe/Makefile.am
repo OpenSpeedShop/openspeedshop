@@ -33,7 +33,7 @@ mutator_LDFLAGS = \
 	$(DYNINST_LIBS) \
 	$(LIBDWARF_LDFLAGS) \
 	$(LIBDWARF_LIBS) \
-	-liberty -ldl
+	-lelf -liberty -ldl
 
 mutator_LIBS = \
 	$(DYNINST_LDFLAGS) \

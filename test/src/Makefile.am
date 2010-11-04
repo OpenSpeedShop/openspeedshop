@@ -20,11 +20,11 @@
 SUBDIRS = regression
 
 if BUILD_DPCL
-SUBDIRS SUBDIRS += dyninst dpcl
+SUBDIRS += dyninst dpcl
 endif
 
 if BUILD_MRNET
-SUBDIRS SUBDIRS += dyninst
+SUBDIRS += dyninst
 endif
 
-DIST_SUBDIRS =  dyninst dpcl regression
+DIST_SUBDIRS = dyninst dpcl regression
