@@ -101,19 +101,43 @@ chown openssuser:openssuser /home/openssuser/.bashrc
 rm -f /root/.bashrc.oss
 
 # start some apps...
-echo "[Default]" > /root/.session-manual
-echo "num_clients=2" >> /root/.session-manual
-echo "0,RestartClientHint=3" >> /root/.session-manual
-echo "0,Priority=50" >> /root/.session-manual
-echo "0,RestartCommand=firefox /opt/doc/index.html" >> /root/.session-manual
-echo "0,Program=firefox /opt/doc/index.html" >> /root/.session-manual
-echo "1,RestartClientHint=3" >> /root/.session-manual
-echo "1,Priority=50" >> /root/.session-manual
-echo "1,RestartCommand=gnome-terminal" >> /root/.session-manual
-echo "1,Program=gnome-terminal" >> /root/.session-manual
-cp /root/.session-manual /home/openssuser/.gnome2/session-manual
-chown openssuser:openssuser /home/openssuser/.gnome2/session-manual
-rm -f /root/.session-manual
+
+mkdir -p /home/openssuser/.config/autostart
+chmod 775 /home/openssuser/.config/autostart
+
+echo "[Desktop Entry]" > /root/.firefox.desktop
+echo "Type=Application" >> /root/.firefox.desktop
+echo "Exec=/usr/bin/firefox /opt/doc/index.html &" >> /root/.firefox.desktop
+echo "Hidden=false" >> /root/.firefox.desktop
+echo "X-GNOME-Autostart-enabled=true" >> /root/.firefox.desktop
+echo "Name[en_US]=/usr/bin/firefox" >> /root/.firefox.desktop
+echo "Name=/usr/bin/firefox" >> /root/.firefox.desktop
+echo "Comment[en_US]=" >> /root/.firefox.desktop
+echo "Comment=" >> /root/.firefox.desktop
+chmod 664 /root/.firefox.desktop
+
+echo "[Desktop Entry]" > /root/.gnome-terminal.desktop
+echo "Type=Application" >> /root/.gnome-terminal.desktop
+echo "Exec=gnome-terminal &" >> /root/.gnome-terminal.desktop
+echo "Hidden=false" >> /root/.gnome-terminal.desktop
+echo "X-GNOME-Autostart-enabled=true" >> /root/.gnome-terminal.desktop
+echo "Name[en_US]=terminal window for demo" >> /root/.gnome-terminal.desktop
+echo "Name=terminal window for demo" >> /root/.gnome-terminal.desktop
+echo "Comment[en_US]=" >> /root/.gnome-terminal.desktop
+echo "Comment=" >> /root/.gnome-terminal.desktop
+chmod 664 /root/.gnome-terminal.desktop
+
+# Start up webbrowser and terminal window
+
+ 
+cp /root/.firefox.desktop /home/openssuser/.config/autostart/firefox.desktop
+cp /root/.gnome-terminal.desktop /home/openssuser/.config/autostart/gnome-terminal.desktop
+chown openssuser:openssuser -R /home/openssuser/.config/autostart
+chmod 664 /home/openssuser/.config/autostart/firefox.desktop
+chmod 664 /home/openssuser/.config/autostart/gnome-terminal.desktop
+rm -f /root/.firefox.desktop
+rm -f /root/.gnome-terminal.desktop
+
 
 # setup preferences file for new user
 
