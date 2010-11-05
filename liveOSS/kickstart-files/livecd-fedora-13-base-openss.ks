@@ -5,7 +5,7 @@ auth --useshadow --enablemd5
 selinux --disabled
 firewall --enabled
 xconfig --startxonboot
-part / --size 8192
+part / --size 9216
 services --enabled=NetworkManager --disabled=network,sshd
 
 repo --name=a-base --baseurl=file:///var/www/html/yum/base
