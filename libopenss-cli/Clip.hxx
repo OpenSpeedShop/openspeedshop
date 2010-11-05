@@ -171,7 +171,7 @@ class InputLineObject
     Cmd_Obj.push_back(C);
   }
 
-  void Print (ostream &mystream) {
+  void Print (std::ostream &mystream) {
     CMDWID who = Who();
     Input_Line_Status what = What();
     CMDID seq_num = Where();
@@ -215,10 +215,10 @@ class InputLineObject
       }
     }
 
-    mystream << flush;  // So that we can look at the file while still running
+    mystream << std::flush;  // So that we can look at the file while still running
   }
 
-  void Print_Results (ostream &to, std::string list_seperator, std::string termination_char) {
+  void Print_Results (std::ostream &to, std::string list_seperator, std::string termination_char) {
    // Print only the result information attached to each CommandObject
     std::list<CommandObject *> cmd_object = Cmd_Obj;
     std::list<CommandObject *>::iterator coi;

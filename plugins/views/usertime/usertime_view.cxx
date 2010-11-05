@@ -139,7 +139,7 @@ static bool define_usertime_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseRange> *p_slist = p_result->getexpMetricList();
+  std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
   int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp);
@@ -158,7 +158,7 @@ static bool define_usertime_columns (
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
     int64_t i = 0;
-    vector<ParseRange>::iterator mi;
+    std::vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
       parse_range_t *m_range = (*mi).getRange();
       std::string C_Name;

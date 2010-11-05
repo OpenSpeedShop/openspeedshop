@@ -35,9 +35,12 @@ struct sort_descending_CommandResult : public std::binary_function<T,T,bool> {
 
 static void Dump_items (std::vector<std::pair<CommandResult *,
                              SmartPtr<std::vector<CommandResult *> > > >& c_items) {
-    std::vector<std::pair<CommandResult *,
+
+  std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
-cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
+
+  std::cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
+
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, copy the desired sort value into the VMulti_sort_temp field.
     std::pair<CommandResult *,
@@ -45,11 +48,11 @@ cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
     int64_t i;
     for (i = 0; i < (*cp.second).size(); i++ ) {
       CommandResult *p = (*cp.second)[i];
-      cerr << "  ";
+      std::cerr << "  ";
       if (p != NULL) {
-        p->Print(cerr); cerr << "\n";
+        p->Print(std::cerr); std::cerr << "\n";
       } else {
-        cerr << "NULL\n";
+        std::cerr << "NULL\n";
       }
     }
 
@@ -98,7 +101,7 @@ static void Calculate_Totals (
       TotalValue = Get_Total_Metric ( cmd, tgrp, CV[metricIndex], MV[metricIndex] );
 #if DEBUG_CLI
       printf("in Calculate_Totals, VIEWINST_Define_Total_Metric, after TotalValue = Get_Total_Metric call, begin print TotalValue=\n" );
-      TotalValue->Print(cerr);
+      TotalValue->Print(std::cerr);
       printf("\nin Calculate_Totals, VIEWINST_Define_Total_Metric, end print TotalValue=\n" );
 #endif
       Gen_Total_Percent = true;
@@ -131,7 +134,7 @@ static void Calculate_Totals (
           TotalValue = (*(*ci).second)[tmpIndex]->Copy();
 #if DEBUG_CLI
           printf("START printing TotalValue in Copy section using  (*ci).second[tmpIndex=%d]->Print()\n", tmpIndex);
-          (*(*ci).second)[tmpIndex]->Print(cerr);
+          (*(*ci).second)[tmpIndex]->Print(std::cerr);
           printf("\nEND printing TotalValue in Copy section using  (*ci).second[tmpIndex=%d]->Print()\n", tmpIndex);
 #endif
         }
@@ -145,7 +148,7 @@ static void Calculate_Totals (
             TotalValue->Accumulate_Value ((*(*ci).second)[tmpIndex]);
 #if DEBUG_CLI
             printf("START printing TotalValue in Accumulate_Value section using  (*ci).second[tmpIndex=%d]->Print()\n", tmpIndex);
-            (*(*ci).second)[tmpIndex]->Print(cerr);
+            (*(*ci).second)[tmpIndex]->Print(std::cerr);
             printf("\nEND printing TotalValue in Accumulate_Value section using  (*ci).second[tmpIndex=%d]->Print()\n", tmpIndex);
 #endif
           }
@@ -158,7 +161,7 @@ static void Calculate_Totals (
       Total_Values[vp->TR()] = TotalValue;
 #if DEBUG_CLI
       printf("START printing TotalValue in Gen_Total_Percent section using  TotalValue->Print()\n");
-      TotalValue->Print(cerr);
+      TotalValue->Print(std::cerr);
       printf("\nEnd printing TotalValue in Gen_Total_Percent section using  TotalValue->Print()\n");
 #endif
     }
@@ -229,18 +232,18 @@ static void Suppress_Unused_Elements (
      // when vectors get long, just fill with a null pointer and compress
      // the vector after all unnecessary entries have been identified.
 #if DEBUG_CLI
-      cerr << "Suppress Element: ";
+      std::cerr << "Suppress Element: ";
       int64_t i;
       for (i = 0; i < (*cp.second).size(); i++ ) {
         CommandResult *p = (*cp.second)[i];
         if (p != NULL) {
-          cerr << p->Form();
+          std::cerr << p->Form();
         } else {
-          cerr << "(NULL)";
+          std::cerr << "(NULL)";
         }
-        cerr << ", ";
+        std::cerr << ", ";
       }
-      cerr << (*cp.first).Form() << std::endl;
+      std::cerr << (*cp.first).Form() << std::endl;
 #endif
       (*vpi).first = NULL;
       NullItemsRemoved = true;
@@ -269,11 +272,11 @@ static void Setup_Sort(
 #if DEBUG_CLI
     if (Old != NULL) {
       printf("Setup_Sort, temp_index, START printing CommandResult (Old)\n");
-      cerr << "  ";
+      std::cerr << "  ";
       if (Old != NULL) {
-        Old->Print(cerr); cerr << "\n";
+        Old->Print(std::cerr); std::cerr << "\n";
       } else {
-        cerr << "NULL\n";
+        std::cerr << "NULL\n";
       }
       printf("Setup_Sort, temp_index, END printing CommandResult Old\n");
     }
@@ -283,11 +286,11 @@ static void Setup_Sort(
 #if DEBUG_CLI
     if (V1 != NULL) {
       printf("Setup_Sort, temp_index, START printing CommandResult (V1)\n");
-      cerr << "  ";
+      std::cerr << "  ";
       if (V1 != NULL) {
-        V1->Print(cerr); cerr << "\n";
+        V1->Print(std::cerr); std::cerr << "\n";
       } else {
-        cerr << "NULL\n";
+        std::cerr << "NULL\n";
       }
       printf("Setup_Sort, temp_index, END printing CommandResult V1\n");
     }
@@ -327,11 +330,11 @@ static void Setup_Sort(
 #if DEBUG_CLI
     if (Old != NULL) {
       printf("Setup_Sort, START printing CommandResult (Old)\n");
-      cerr << "  ";
+      std::cerr << "  ";
       if (Old != NULL) {
-        Old->Print(cerr); cerr << "\n";
+        Old->Print(std::cerr); std::cerr << "\n";
       } else {
-        cerr << "NULL\n";
+        std::cerr << "NULL\n";
       }
       printf("Setup_Sort, END printing CommandResult Old\n");
     }
@@ -344,11 +347,11 @@ static void Setup_Sort(
 #if DEBUG_CLI
     if (V1 != NULL) {
       printf("Setup_Sort, START printing CommandResult (V1)\n");
-      cerr << "  ";
+      std::cerr << "  ";
       if (V1 != NULL) {
-        V1->Print(cerr); cerr << "\n";
+        V1->Print(std::cerr); std::cerr << "\n";
       } else {
-        cerr << "NULL\n";
+        std::cerr << "NULL\n";
       }
       printf("Setup_Sort, END printing CommandResult V1\n");
     }
@@ -405,7 +408,7 @@ static void Setup_Sort(
   }
 }
 
-static void Dump_Intermediate_CallStack (ostream &tostream,
+static void Dump_Intermediate_CallStack (std::ostream &tostream,
        std::vector<std::pair<CommandResult *,
                              SmartPtr<std::vector<CommandResult *> > > >& c_items) {
   std::vector<std::pair<CommandResult *,
@@ -475,7 +478,7 @@ static int64_t Match_Call_Stack (std::vector<CommandResult *> *cs,
 #if DEBUG_CLI
   printf("in Match_Call_Stack, csz=%d, ncsz=%d\n", csz, ncsz);
 #endif
-  int64_t minsz = min(csz, ncsz);
+  int64_t minsz = std::min(csz, ncsz);
   for (int64_t i = 0; i < minsz; i++) {
     CommandResult *cse = (*cs)[i];
     CommandResult *ncse = (*ncs)[i];
@@ -530,7 +533,7 @@ static int64_t Match_Short_Stack (SmartPtr<std::vector<CommandResult *> >& cs,
   printf("in Match_Short_Stack, csz=%d, ncsz=%d\n", csz, ncsz);
 #endif
   if ((csz <= 0) || (ncsz <= 0)) return -1;
-  int64_t minsz = min(csz, ncsz);
+  int64_t minsz = std::min(csz, ncsz);
   int64_t i = 0;
   // for (int64_t i = 0; i < minsz; i++) {
     CommandResult *cse = (*cs)[csz-1];
@@ -592,7 +595,7 @@ static bool Match_Field_Requirements (std::vector<ViewInstruction *>& IV,
 static inline void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& IV,
                                                 std::vector<CommandResult *>& A,
                                                 std::vector<CommandResult *>& B) {
-  int64_t len = min(IV.size(),A.size());
+  int64_t len = std::min(IV.size(),A.size());
 #if DEBUG_CLI
   printf("in Accumulate_PreDefined_Temps, len=%d\n", len);
 #endif
@@ -781,7 +784,7 @@ static SmartPtr<std::vector<CommandResult *> >
          // Propagate value up the calling tree.
           next = (*crv)[j]->Copy();
 // printf("Propagate value up the calling tree location %lld: ",j);
-// next->Print(cerr,20,true);printf("\n");
+// next->Print(std::cerr,20,true);printf("\n");
         } else {
          // Create an empty initial value.
           next = (*crv)[j]->Init();
@@ -887,7 +890,7 @@ static void Expand_CallStack (
 #if DEBUG_CLI
      printf("in EXPAND_CALLSTACK TraceBack_Order=%d\n",TraceBack_Order);
  // Rewrite base report by expanding the call stack.
-//  cerr << "\nEXPAND_CALLSTACK Dump items.  Number of items is " << c_items.size() << "\n";
+//  std::cerr << "\nEXPAND_CALLSTACK Dump items.  Number of items is " << c_items.size() << "\n";
      printf("in EXPAND_CALLSTACK c_items.size()=%d\n",c_items.size());
 //  Dump_items(std::vector<std::pair<CommandResult *, SmartPtr<std::vector<CommandResult *> > > >);
 #endif
@@ -914,11 +917,11 @@ static void Expand_CallStack (
     int64_t i;
    for (i = 0; i < (*xcp.second).size(); i++ ) {
       CommandResult *xp = (*xcp.second)[i];
-      cerr << " EXPAND_CALLSTACK, CommandResult, second ";
+      std::cerr << " EXPAND_CALLSTACK, CommandResult, second ";
       if (xp != NULL) {
-        xp->Print(cerr); cerr << "\n";
+        xp->Print(std::cerr); std::cerr << "\n";
       } else {
-        cerr << "NULL\n";
+        std::cerr << "NULL\n";
       }
     }
 #endif
@@ -951,9 +954,9 @@ bool Generic_Multi_View (
            std::list<CommandResult *>& view_output) {
   bool success = false;
 #if DEBUG_CLI
-  Print_View_Params (cerr, CV,MV,IV);
-  cerr << "\nEnter Generic_Multi_View, in SS_View_multi.cxx, c_items.size()= " << c_items.size() << "\n";
-  cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
+  Print_View_Params (std::cerr, CV,MV,IV);
+  std::cerr << "\nEnter Generic_Multi_View, in SS_View_multi.cxx, c_items.size()= " << c_items.size() << "\n";
+  std::cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator jegvpi;
 
@@ -965,11 +968,11 @@ bool Generic_Multi_View (
     for (jegi = 0; jegi < (*jegcp.second).size(); jegi++ ) {
       CommandResult *jegp = (*jegcp.second)[jegi];
       printf("Generic_Multi_View, START printing CommandResult (jegp), indexed by jegi=%d, jegp=%x\n", jegi, jegp);
-      cerr << "  ";
+      std::cerr << "  ";
       if (jegp != NULL) {
-        jegp->Print(cerr); cerr << "\n";
+        jegp->Print(std::cerr); std::cerr << "\n";
       } else {
-        cerr << "NULL\n";
+        std::cerr << "NULL\n";
       }
       printf("Generic_Multi_View, END printing CommandResult jegp\n");
     }
@@ -1009,7 +1012,7 @@ bool Generic_Multi_View (
     }
 
    // Set up quick access to instructions for data combining.
-    int64_t num_temps_used = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
+    int64_t num_temps_used = std::max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
     std::vector<ViewInstruction *> AccumulateInst(num_temps_used);
     std::vector<ViewInstruction *> FieldRequirements;
     ViewInstruction *sortInst = NULL;
@@ -1038,9 +1041,9 @@ bool Generic_Multi_View (
     for (i = 0; i < IV.size(); i++) {
       ViewInstruction *vp = IV[i];
       if (vp->OpCode() == VIEWINST_Display_Percent_Tmp) {
-        max_percent_index = max(max_percent_index,vp->TMP2());
+        max_percent_index = std::max(max_percent_index,vp->TMP2());
       } else if (vp->OpCode() == VIEWINST_Display_Percent_Column) {
-        max_percent_index = max(max_percent_index,vp->TMP2());
+        max_percent_index = std::max(max_percent_index,vp->TMP2());
       }
     }
     if (max_percent_index >= 0) {
@@ -1075,7 +1078,7 @@ bool Generic_Multi_View (
 
 
 #if DEBUG_CLI
-  cerr << "\nDump items.  in VFC_Trace section, Number of items is " << c_items.size() << "\n";
+  std::cerr << "\nDump items.  in VFC_Trace section, Number of items is " << c_items.size() << "\n";
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
@@ -1085,11 +1088,11 @@ bool Generic_Multi_View (
     int64_t i;
     for (i = 0; i < (*cp.second).size(); i++ ) {
       CommandResult *p = (*cp.second)[i];
-      cerr << "  ";
+      std::cerr << "  ";
       if (p != NULL) {
-        p->Print(cerr); cerr << "\n";
+        p->Print(std::cerr); std::cerr << "\n";
       } else {
-        cerr << "NULL\n";
+        std::cerr << "NULL\n";
       }
     }
 
@@ -1257,13 +1260,13 @@ bool Generic_Multi_View (
      // Foreach function name, build a ButterFly view.
      // Note: we have already verified that there is a '-f' list.
       OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-      vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
+      std::vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
       Assert (p_tlist->begin() != p_tlist->end());
       OpenSpeedShop::cli::ParseTarget pt = *p_tlist->begin(); // There can only be one!
-      vector<OpenSpeedShop::cli::ParseRange> *f_list = pt.getFileList();
+      std::vector<OpenSpeedShop::cli::ParseRange> *f_list = pt.getFileList();
       Assert ((f_list != NULL) && !(f_list->empty()));
       bool MoreThanOne = false;
-      vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
+      std::vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
       for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
         OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
         OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
@@ -1325,7 +1328,7 @@ bool Generic_Multi_View (
   }
 
 #if DEBUG_CLI
-  cerr << "\nExit Generic_Multi_View, success= " << success << "\n";
+  std::cerr << "\nExit Generic_Multi_View, success= " << success << "\n";
 #endif
 
   return success;

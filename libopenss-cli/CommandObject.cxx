@@ -67,7 +67,7 @@ void CommandObject::set_Status (Command_Status S) {
  * @return  void
  *
  */
-void CommandObject::Print (ostream &mystream) {
+void CommandObject::Print (std::ostream &mystream) {
  // Header information
   InputLineObject *clip = Associated_Clip;
   CMDID when = clip->Seq ();
@@ -204,7 +204,7 @@ static inline int64_t Count_Partitions(std::string S) {
  * @return void.
  *
  */
-static void Print_Header (ostream &to, std::string list_seperator, CommandResult *H) {
+static void Print_Header (std::ostream &to, std::string list_seperator, CommandResult *H) {
   std::list<CommandResult *> Headers;
   ((CommandResult_Headers *)H)->Value(Headers);
   int64_t len = Headers.size() - 1; // ignore right most header - it can be as long as it wants.
@@ -219,7 +219,7 @@ static void Print_Header (ostream &to, std::string list_seperator, CommandResult
       ((CommandResult_RawString *)next)->Value(next_str);
     }
     if (!next_str.empty()) {
-      max_Breaks = max(max_Breaks,Count_Partitions(next_str));
+      max_Breaks = std::max(max_Breaks,Count_Partitions(next_str));
     }
   }
   if (max_Breaks == 1) {
@@ -248,7 +248,7 @@ static void Print_Header (ostream &to, std::string list_seperator, CommandResult
         }
 
         int64_t next_scan = Break_At (next_str, start_scan) + 1;
-        Assert ((next_scan - start_scan) <= OPENSS_VIEW_FIELD_SIZE);
+        //Assert ((next_scan - start_scan) <= OPENSS_VIEW_FIELD_SIZE);
         HL[nextH++].Add_Header(new CommandResult_String(next_str.substr(start_scan,(next_scan - start_scan))));
         start_scan = next_scan;
       }
@@ -289,7 +289,7 @@ static void Print_Header (ostream &to, std::string list_seperator, CommandResult
  *         if it can also be used as an input file.
  *
  */
-bool CommandObject::Print_Results (ostream &to, std::string list_seperator, std::string termination_char) {
+bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator, std::string termination_char) {
 
  // Pick up information lists from CommandObject.
   std::list<CommandResult *> cmd_result = Result_List();

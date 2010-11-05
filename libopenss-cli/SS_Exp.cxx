@@ -19,7 +19,6 @@
 
 #include "SS_Input_Manager.hxx"
 
-using namespace std;
 
 using namespace OpenSpeedShop::cli;
 
@@ -81,7 +80,7 @@ std::string ExperimentObject::ExpStatus_Name () {
   return std::string("Unknown");
 }
 
-void ExperimentObject::Print_Waiting (ostream &mystream) {
+void ExperimentObject::Print_Waiting (std::ostream &mystream) {
   Assert(pthread_mutex_lock(&Experiment_Lock) == 0);
   if (waiting_cmds.begin() != waiting_cmds.end()) {
     mystream << "  Waiting Commands" << std::endl;
@@ -94,7 +93,7 @@ void ExperimentObject::Print_Waiting (ostream &mystream) {
   Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);
 }
 
-void ExperimentObject::Print(ostream &mystream) {
+void ExperimentObject::Print(std::ostream &mystream) {
   mystream << "Experiment " << ExperimentObject_ID() << " " << ExpStatus_Name() << " data->";
   if (TS_Lock()) {
     mystream << ((FW_Experiment != NULL) ? FW_Experiment->getName() : "(null)") << std::endl;

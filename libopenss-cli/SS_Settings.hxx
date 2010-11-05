@@ -32,7 +32,6 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
-using namespace std;
 
 
 
@@ -48,7 +47,7 @@ class SS_Settings
     ~SS_Settings();
 
     // The std stream for the preference file.
-    ifstream *settings_file;
+    std::ifstream *settings_file;
 
     // read a string entry from the preference file and return it's value
     std::string readEntry(std::string key, const std::string &def, bool *ok);

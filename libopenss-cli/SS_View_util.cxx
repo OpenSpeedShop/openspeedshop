@@ -91,12 +91,12 @@ void GetMetricBySet (CommandObject *cmd,
       std::pair<TE, double> p = *item;
       items->insert( std::make_pair(p.first, CRPTR (p.second)) );
     }
-  } else if( m.isType(typeid(string)) ) {
-    SmartPtr<std::map<TE, string> > data;
+  } else if( m.isType(typeid(std::string)) ) {
+    SmartPtr<std::map<TE, std::string> > data;
     GetMetricInThreadGroup (collector, metric, intervals, tgrp, objects, data);
-    for(typename std::map<TE, string>::const_iterator
+    for(typename std::map<TE, std::string>::const_iterator
         item = data->begin(); item != data->end(); ++item) {
-      std::pair<TE, string> p = *item;
+      std::pair<TE, std::string> p = *item;
       items->insert( std::make_pair(p.first, CRPTR (p.second)) );
     }
   }
@@ -309,7 +309,7 @@ CommandResult *Init_Collector_Metric (CommandObject *cmd,
 #if DEBUG_CLI
     printf("In Init_Collector_Metric  - SS_View_util.cxx, FLOAT64\n");
 #endif
-  } else if( m.isType(typeid(string)) ) {
+  } else if( m.isType(typeid(std::string)) ) {
     Param_Value = new CommandResult_String ("");
 #if DEBUG_CLI
     printf("In Init_Collector_Metric  - SS_View_util.cxx, STRING\n");
@@ -443,7 +443,7 @@ void Define_New_View (ViewType *vnew) {
   ViewType *existing = Find_View (vnew->Unique_Name());
   if (existing != NULL) {
     if (vnew->Unique_Name() == existing->Unique_Name()) return;
-    cerr << "WARNING: Definition of View named "
+    std::cerr << "WARNING: Definition of View named "
          << vnew->Unique_Name().c_str()
          << " may hide the existing definition of "
          << existing->Unique_Name().c_str() << std::endl;
@@ -795,9 +795,9 @@ void Filtered_Objects (CommandObject *cmd,
   printf("Filtered_Objects  - SS_View_util.cxx\n");
 #endif
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
+  std::vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
   OpenSpeedShop::cli::ParseTarget pt;
-  vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
+  std::vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
 
   if (p_tlist->begin() != p_tlist->end()) {
     // There is a list.  Is there a "-f" specifier?
@@ -822,7 +822,7 @@ void Filtered_Objects (CommandObject *cmd,
    // Determine the names of desired objects and get Function objects for them.
    // Then get the objects that we want for these functions.
     std::set<Function> new_functions;
-    vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
+    std::vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
     for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
 
      // Check for asynchronous abort command
@@ -936,7 +936,7 @@ void Filtered_Objects (CommandObject *cmd,
  // There is some sort of "-f name" filter specified.
  // We get here because we want LinkedObjects.
     std::set<LinkedObject> new_objects;
-    vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
+    std::vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
     for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
 
      // Check for asynchronous abort command
@@ -1138,8 +1138,8 @@ bool Validate_V_Options (CommandObject *cmd,
   Assert (cmd->P_Result() != NULL);
 
  // Look at general modifier types for a specific KeyWord option.
-  vector<string> *p_slist = cmd->P_Result()->getModifierList();
-  vector<string>::iterator j;
+  std::vector<std::string> *p_slist = cmd->P_Result()->getModifierList();
+  std::vector<std::string>::iterator j;
 
   for (j=p_slist->begin();j != p_slist->end(); j++) {
     std::string S = *j;
@@ -1341,9 +1341,9 @@ CommandResult *Build_CallBack_Entry (Framework::StackTrace& st, int64_t i, bool 
     if (fp.first) {
 
 #if DEBUG_CLI
-       cerr << "Build_CallBack_Entry  - SS_View_util.cxx, fp.first "
+       std::cerr << "Build_CallBack_Entry  - SS_View_util.cxx, fp.first "
             << fp.first <<  std::endl ;
-       cerr << "Build_CallBack_Entry  - SS_View_util.cxx, fp.second.getName() "
+       std::cerr << "Build_CallBack_Entry  - SS_View_util.cxx, fp.second.getName() "
             <<  fp.second.getName() << std::endl ;
 #endif
 
@@ -1552,18 +1552,18 @@ int64_t Find_Max_Temp (std::vector<ViewInstruction *>& IV) {
   for (int64_t i = 0; i < IV.size(); i++) {
     ViewInstruction *vp = IV[i];
     if (vp->OpCode() == VIEWINST_Display_Tmp) {
-      Max_Temp = max (Max_Temp, vp->TMP1());
+      Max_Temp = std::max (Max_Temp, vp->TMP1());
     } else if (vp->OpCode() == VIEWINST_Display_Percent_Tmp) {
-      Max_Temp = max (Max_Temp, vp->TMP1());
+      Max_Temp = std::max (Max_Temp, vp->TMP1());
     } else if (vp->OpCode() == VIEWINST_Display_Average_Tmp) {
-      Max_Temp = max (Max_Temp, vp->TMP1());
-      Max_Temp = max (Max_Temp, vp->TMP2());
+      Max_Temp = std::max (Max_Temp, vp->TMP1());
+      Max_Temp = std::max (Max_Temp, vp->TMP2());
     } else if (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp) {
-      Max_Temp = max (Max_Temp, vp->TMP1());
-      Max_Temp = max (Max_Temp, vp->TMP2());
-      Max_Temp = max (Max_Temp, vp->TMP3());
+      Max_Temp = std::max (Max_Temp, vp->TMP1());
+      Max_Temp = std::max (Max_Temp, vp->TMP2());
+      Max_Temp = std::max (Max_Temp, vp->TMP3());
     } else if (vp->OpCode() == VIEWINST_Define_Total_Tmp) {
-      Max_Temp = max (Max_Temp, vp->TMP1());
+      Max_Temp = std::max (Max_Temp, vp->TMP1());
     }
   }
   return Max_Temp;
@@ -1574,13 +1574,13 @@ int64_t Find_Max_ExtraMetrics (std::vector<ViewInstruction *> & IV) {
   for (int64_t i = 0; i < IV.size(); i++) {
     ViewInstruction *vp = IV[i];
     if (vp->OpCode() == VIEWINST_Define_ByThread_Metric) {
-      Max_Temp = max (Max_Temp, vp->TR());
+      Max_Temp = std::max (Max_Temp, vp->TR());
     }
   }
   return Max_Temp;
 }
 
-void Print_View_Params (ostream &to,
+void Print_View_Params (std::ostream &to,
                         std::vector<Collector>& CV,
                         std::vector<std::string>& MV,
                         std::vector<ViewInstruction *>& IV) {

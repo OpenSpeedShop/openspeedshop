@@ -256,7 +256,7 @@ dynamic_items->setOpen(TRUE);
       
       std::vector<std::string>::iterator e 
                       = unique(v.begin(), v.end());
-      for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
+      for( std::vector<std::string>::iterator hi = v.begin(); hi != e; hi++ ) 
       {
         pset_name = QString(*hi);
         MPListViewItem *item = new MPListViewItem( host_items, pset_name );

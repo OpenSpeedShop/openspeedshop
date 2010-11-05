@@ -189,8 +189,8 @@ public:
  // The following are defined in CommandObject.cxx
 
  // The simple Print is for dumping information to a trace file.
-  void Print (ostream& mystream);
+  void Print (std::ostream& mystream);
  // The Print_Results routine is for sending results to the user.
  // The result returned is "true" if there was information printed.
-  bool Print_Results (ostream& to, std::string list_seperator, std::string termination_char);
+  bool Print_Results (std::ostream& to, std::string list_seperator, std::string termination_char);
 };

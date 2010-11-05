@@ -68,14 +68,14 @@ class CommandResult {
   void ClearValueIsID () { ValueIsID = false; }
   virtual ~CommandResult () { }
 
-  virtual CommandResult *Init () { cerr << "Init operation not implimented\n"; return NULL; }
-  virtual CommandResult *Copy () { cerr << "Copy operation not implimented\n"; return NULL; }
-  virtual bool LT (CommandResult *A) { cerr << "< operation not implimented\n"; return false; }
-  virtual bool GT (CommandResult *A) { cerr << "> operation not implimented\n"; return false; }
-  virtual void Accumulate_Value (CommandResult *A) { cerr << "Sum operation not implimented\n"; }
-  virtual void AbsDiff_value (CommandResult *A) { cerr << "Difference operation not implimented\n"; }
-  virtual void Accumulate_Min (CommandResult *A) { cerr << "Min operation not implimented\n"; }
-  virtual void Accumulate_Max (CommandResult *A) { cerr << "Max operation not implimented\n"; }
+  virtual CommandResult *Init () { std::cerr << "Init operation not implimented\n"; return NULL; }
+  virtual CommandResult *Copy () { std::cerr << "Copy operation not implimented\n"; return NULL; }
+  virtual bool LT (CommandResult *A) { std::cerr << "< operation not implimented\n"; return false; }
+  virtual bool GT (CommandResult *A) { std::cerr << "> operation not implimented\n"; return false; }
+  virtual void Accumulate_Value (CommandResult *A) { std::cerr << "Sum operation not implimented\n"; }
+  virtual void AbsDiff_value (CommandResult *A) { std::cerr << "Difference operation not implimented\n"; }
+  virtual void Accumulate_Min (CommandResult *A) { std::cerr << "Min operation not implimented\n"; }
+  virtual void Accumulate_Max (CommandResult *A) { std::cerr << "Max operation not implimented\n"; }
   virtual bool ValueIsNull () { return false; }
 
   void Value (char *&C) {
@@ -88,7 +88,7 @@ class CommandResult {
   virtual PyObject * pyValue () {
     return Py_BuildValue("");
   }
-  virtual void Print (ostream& to, int64_t fieldsize=20, bool leftjustified=false) {
+  virtual void Print (std::ostream& to, int64_t fieldsize=20, bool leftjustified=false) {
     if (fieldsize == 0) fieldsize = strlen("(none)");
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << "(none)";
@@ -196,10 +196,10 @@ class CommandResult_Address :
   }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Address));
-    uint_value = min (uint_value, ((CommandResult_Address *)A)->uint_value); }
+    uint_value = std::min (uint_value, ((CommandResult_Address *)A)->uint_value); }
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Address));
-    uint_value = max (uint_value, ((CommandResult_Address *)A)->uint_value); }
+    uint_value = std::max (uint_value, ((CommandResult_Address *)A)->uint_value); }
   virtual bool ValueIsNull () { return (uint_value == (uint64_t)0 && !IsValueID()); }
 
   void Value (uint64_t& U) {
@@ -214,7 +214,7 @@ class CommandResult_Address :
   virtual PyObject * pyValue () {
     return Py_BuildValue("l", uint_value);
   }
-  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
     std::string S = Form();
     if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
@@ -254,10 +254,10 @@ class CommandResult_Uint :
   }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
-    uint_value = min (uint_value, ((CommandResult_Uint *)A)->uint_value); }
+    uint_value = std::min (uint_value, ((CommandResult_Uint *)A)->uint_value); }
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Uint));
-    uint_value = max (uint_value, ((CommandResult_Uint *)A)->uint_value); }
+    uint_value = std::max (uint_value, ((CommandResult_Uint *)A)->uint_value); }
   virtual bool ValueIsNull () { return (uint_value == (uint64_t)0 && !IsValueID()); }
 
   void Value (uint64_t& U) {
@@ -272,7 +272,7 @@ class CommandResult_Uint :
   virtual PyObject * pyValue () {
     return Py_BuildValue("l", uint_value);
   }
-  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
     std::string S = Form();
     if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
@@ -321,10 +321,10 @@ class CommandResult_Int :
   }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
-    int_value = min (int_value, ((CommandResult_Int *)A)->int_value); }
+    int_value = std::min (int_value, ((CommandResult_Int *)A)->int_value); }
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Int));
-    int_value = max (int_value, ((CommandResult_Int *)A)->int_value); }
+    int_value = std::max (int_value, ((CommandResult_Int *)A)->int_value); }
   virtual bool ValueIsNull () { return (int_value == (int64_t)0 && !IsValueID()); }
 
   void Value (int64_t& I) {
@@ -339,7 +339,7 @@ class CommandResult_Int :
   virtual PyObject * pyValue () {
     return Py_BuildValue("l", int_value);
   }
-  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
     std::string S = Form();
     if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
@@ -393,10 +393,10 @@ class CommandResult_Float :
   }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
-    float_value = min (float_value, ((CommandResult_Float *)A)->float_value); }
+    float_value = std::min (float_value, ((CommandResult_Float *)A)->float_value); }
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Float));
-    float_value = max (float_value, ((CommandResult_Float *)A)->float_value); }
+    float_value = std::max (float_value, ((CommandResult_Float *)A)->float_value); }
   virtual bool ValueIsNull () { return (float_value == (double)0.0 && !IsValueID()); }
 
   void Value (double& F) {
@@ -416,7 +416,7 @@ class CommandResult_Float :
   virtual PyObject * pyValue () {
     return Py_BuildValue("d", float_value);
   }
-  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
     std::string S = Form();
     if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
@@ -468,7 +468,7 @@ class CommandResult_String :
   virtual PyObject * pyValue () {
     return Py_BuildValue("s",string_value.c_str());
   }
-  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
@@ -549,7 +549,7 @@ class CommandResult_RawString :
   virtual PyObject * pyValue () {
     return Py_BuildValue("s",string_value.c_str());
   }
-  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
     // Ignore fieldsize and leftjustified specifications and just dump the
     // the raw string to the output stream.
     to << string_value;
@@ -658,7 +658,7 @@ class CommandResult_Function :
     return Py_BuildValue("s",F.c_str());
   }
 
-  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
@@ -733,7 +733,7 @@ class CommandResult_Statement :
     std::string S = Form ();
     return Py_BuildValue("s",S.c_str());
   }
-  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
@@ -818,7 +818,7 @@ class CommandResult_LinkedObject :
     std::string F = Form ();
     return Py_BuildValue("s",F.c_str());
   }
-  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
@@ -901,7 +901,7 @@ class CommandResult_CallStackEntry : public CommandResult {
     std::vector<CommandResult *> *rs = ((CommandResult_CallStackEntry *)A)->CallStack->CSV;
     int64_t ll = ls->size();
     int64_t rl = rs->size();
-    int64_t lm = min(ll,rl);
+    int64_t lm = std::min(ll,rl);
     for (int64_t i = 0; i < lm; i++) {
       if ((*ls)[i]->LT((*rs)[i])) {
         return true;
@@ -919,7 +919,7 @@ class CommandResult_CallStackEntry : public CommandResult {
     std::vector<CommandResult *> *rs = ((CommandResult_CallStackEntry *)A)->CallStack->CSV;
     int64_t ll = ls->size();
     int64_t rl = rs->size();
-    int64_t lm = min(ll,rl);
+    int64_t lm = std::min(ll,rl);
     for (int64_t i = 0; i < lm; i++) {
       if ((*ls)[i]->GT((*rs)[i])) {
         return true;
@@ -973,7 +973,7 @@ class CommandResult_CallStackEntry : public CommandResult {
     std::string F = Form ();
     return Py_BuildValue("s",F.c_str());
   }
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream &to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
@@ -1029,10 +1029,10 @@ class CommandResult_Time : public CommandResult {
     return time_value > ((CommandResult_Time *)A)->time_value; }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Time));
-    time_value = min (time_value, ((CommandResult_Time *)A)->time_value); }
+    time_value = std::min (time_value, ((CommandResult_Time *)A)->time_value); }
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Time));
-    time_value = max (time_value, ((CommandResult_Time *)A)->time_value); }
+    time_value = std::max (time_value, ((CommandResult_Time *)A)->time_value); }
 
   Time& Value () {
     return time_value;
@@ -1042,15 +1042,16 @@ class CommandResult_Time : public CommandResult {
   };
 
   virtual std::string Form () {
-    std::ostringstream form(ios::out);
+    std::ostringstream form(std::ios::out);
     form << time_value;
-    return form.ostringstream::str();
+    //return form.ostringstream::str();
+    return form.str();
   }
   virtual PyObject * pyValue () {
     std::string F = Form ();
     return Py_BuildValue("s",F.c_str());
   }
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream &to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
@@ -1121,10 +1122,10 @@ class CommandResult_Duration : public CommandResult {
   }
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
-    duration_value = min (duration_value, ((CommandResult_Duration *)A)->duration_value); }
+    duration_value = std::min (duration_value, ((CommandResult_Duration *)A)->duration_value); }
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Duration));
-    duration_value = max (duration_value, ((CommandResult_Duration *)A)->duration_value); }
+    duration_value = std::max (duration_value, ((CommandResult_Duration *)A)->duration_value); }
   virtual bool ValueIsNull () { return duration_value == (int64_t)0; }
 
   int64_t& Value () {
@@ -1135,7 +1136,7 @@ class CommandResult_Duration : public CommandResult {
   };
 
   virtual std::string Form () {
-    std::ostringstream form(ios::ate);
+    std::ostringstream form(std::ios::ate);
     int64_t time_scale = 1000000000;
     int64_t remaining = duration_value;
     int64_t next_threshold = (time_scale * 60 * 60 * 24);
@@ -1180,21 +1181,21 @@ class CommandResult_Duration : public CommandResult {
       form << remaining;
     } else {
      // output normal precision
-      std::ostringstream s(ios::ate);
+      std::ostringstream s(std::ios::ate);
       s << remaining;
-      if (s.ostringstream::str().size() < OPENSS_VIEW_PRECISION) {
-        form << s.ostringstream::str();
+      if (s.str().size() < OPENSS_VIEW_PRECISION) {
+        form << s.str();
       } else {
-        form << s.ostringstream::str().substr(0,OPENSS_VIEW_PRECISION);
+        form << s.str().substr(0,OPENSS_VIEW_PRECISION);
       }
     }
-    return form.ostringstream::str();
+    return form.str();
   }
   virtual PyObject * pyValue () {
     std::string F = Form ();
     return Py_BuildValue("s",F.c_str());
   }
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream &to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
@@ -1284,12 +1285,12 @@ class CommandResult_Interval : public CommandResult {
 
   virtual void Accumulate_Min (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    interval_value = min (interval_value, ((CommandResult_Interval *)A)->interval_value); 
+    interval_value = std::min (interval_value, ((CommandResult_Interval *)A)->interval_value); 
   }
 
   virtual void Accumulate_Max (CommandResult *A) {
     Assert (typeid(*this) == typeid(CommandResult_Interval));
-    interval_value = max (interval_value, ((CommandResult_Interval *)A)->interval_value); 
+    interval_value = std::max (interval_value, ((CommandResult_Interval *)A)->interval_value); 
   }
   virtual bool ValueIsNull () { return (interval_value == (double)0.0 && !IsValueID()); }
 
@@ -1303,7 +1304,7 @@ class CommandResult_Interval : public CommandResult {
 
   virtual std::string Form () {
     if (isnan(interval_value)) return std::string ("nan");
-    std::ostringstream form(ios::ate);
+    std::ostringstream form(std::ios::ate);
     double float_value = interval_value * 1000; // Convert to milli-seconds
     if (isnan(float_value)) return std::string ("nan");
 
@@ -1319,7 +1320,7 @@ class CommandResult_Interval : public CommandResult {
     std::string F = Form ();
     return Py_BuildValue("s",F.c_str());
   }
-  virtual void Print (ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream &to, int64_t fieldsize, bool leftjustified) {
     std::string string_value = Form ();
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
@@ -1365,7 +1366,7 @@ class CommandResult_Title :
   virtual PyObject * pyValue () {
     return Py_BuildValue("s",string_value.c_str());
   }
-  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
     to << string_value;
   }
 };
@@ -1429,7 +1430,7 @@ class CommandResult_Headers :
     }
     return p_object;
   }
-  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
     for (coi = Headers.begin(); coi != Headers.end(); coi++) {
@@ -1531,7 +1532,7 @@ class CommandResult_Enders :
     }
     return p_object;
   }
-  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
     for (coi = Enders.begin(); coi != Enders.end(); coi++) {
@@ -1633,7 +1634,7 @@ class CommandResult_Columns :
     }
     return p_object;
   }
-  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
     for (coi = Columns.begin(); coi != Columns.end(); coi++) {

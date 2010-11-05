@@ -26,7 +26,6 @@
 #include <iostream>
 #include <stdint.h>
 
-using namespace std;
 
 #include "SS_Parse_Interval.hxx"
 

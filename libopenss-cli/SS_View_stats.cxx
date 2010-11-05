@@ -213,7 +213,7 @@ bool First_Column (CommandObject *cmd,
       if (OPENSS_VIEW_SUPPRESS_UNUSED_ELEMENTS) {
         if ((ii->second)->ValueIsNull() && !((ii->second)->IsValueID())) {
 #if DEBUG_CLI
-          cerr << "Suppress Element: " << (ii->second)->Form() << std::endl;
+          std::cerr << "Suppress Element: " << (ii->second)->Form() << std::endl;
 #endif
           continue;
         }
@@ -452,7 +452,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
 
 #if DEBUG_CLI
   printf("Enter Generic_View, print view params with topn=%d \n",topn);
-  Print_View_Params (cerr, CV,MV,IV);
+  Print_View_Params (std::cerr, CV,MV,IV);
 #endif
  // Warn about misspelled of meaningless options.
   Validate_V_Options (cmd, allowed_stats_V_options);
@@ -690,12 +690,12 @@ bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
                           std::vector<Collector>& CV, std::vector<std::string>& MV,
                           std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseRange> *p_slist = p_result->getexpMetricList();
+  std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
   int64_t i = 0;
 #if DEBUG_CLI
   printf("Enter Select_User_Metrics \n");
 #endif
-  vector<ParseRange>::iterator mi;
+  std::vector<ParseRange>::iterator mi;
   for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
     parse_range_t *m_range = (*mi).getRange();
     std::string C_Name;
@@ -870,7 +870,7 @@ class stats_view : public ViewType {
 #endif
 
     OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-    vector<ParseRange> *p_slist = p_result->getexpMetricList();
+    std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
     if (p_slist->empty()) {
      // If we are attempting a default 'stats' view, show every available data metric.
       if (!Select_All_Metrics (cmd, exp, CV, MV, IV, HV)) {

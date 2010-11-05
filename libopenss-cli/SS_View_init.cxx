@@ -23,7 +23,6 @@
 #include <ltdl.h>
 #include <stdlib.h>
 
-using namespace std;
 using namespace OpenSpeedShop::cli;
 
     /** Mutual exclusion lock for libltdl. */
@@ -179,7 +178,7 @@ namespace {
 void ViewPluginTable::foreachCallback(const std::string& filename)
 {   
     // Only examine the view plugins.
-    if (filename.find("_view") == string::npos) {
+    if (filename.find("_view") == std::string::npos) {
 	return;
     }
 
@@ -224,7 +223,7 @@ void ViewPluginTable::foreachCallback(const std::string& filename)
 ViewPluginTable::ViewPluginTable()
 {
 
-    string new_cmdline;
+    std::string new_cmdline;
 
     // Set up LD_LIBRARY_PATH and plugin dl_open paths
     // if not done already.

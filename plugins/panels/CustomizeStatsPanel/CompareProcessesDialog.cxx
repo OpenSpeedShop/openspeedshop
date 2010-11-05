@@ -927,7 +927,7 @@ CompareProcessesDialog::validateHostPid(QString target_host_pidstr)
       std::vector<std::string>::iterator e 
                         = unique(v.begin(), v.end());
 
-      for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
+      for( std::vector<std::string>::iterator hi = v.begin(); hi != e; hi++ ) 
       {
         QString pset_name = QString(*hi);
         QString host_name = QString(*hi);

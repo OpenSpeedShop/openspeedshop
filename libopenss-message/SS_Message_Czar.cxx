@@ -26,14 +26,12 @@
 #include <string>
 #include <iostream>
 
-using namespace std;
-
 ////////////////////////////////////////////////
 // Case insensitive compare function:
 int 
-stringCmpi(const string& s1, const string& s2) {
-    // Select the first element of each string:
-    string::const_iterator 
+stringCmpi(const std::string& s1, const std::string& s2) {
+    // Select the first element of each std::string:
+    std::string::const_iterator 
     p1 = s1.begin(), p2 = s2.begin();
 
     // Don't run past the end:
@@ -109,16 +107,16 @@ Add_Error(const SS_Message_Element& element)
  * We go through the full message database gathering
  * multiple hits.
  *     
- * @return  void, but vector of SS_Message_Element * passed in.
+ * @return  void, but std::vector of SS_Message_Element * passed in.
  *
  * @todo    Error handling.
  *
  */
 void
 SS_Message_Czar::
-Find_By_Keyword(const string keyword,vector <SS_Message_Element *> *p_element) 
+Find_By_Keyword(const std::string keyword,std::vector <SS_Message_Element *> *p_element) 
 {
-    vector <SS_Message_Element>:: iterator k;
+    std::vector <SS_Message_Element>:: iterator k;
     bool found = false;
 
     // Case sensitive search
@@ -153,17 +151,17 @@ Find_By_Keyword(const string keyword,vector <SS_Message_Element *> *p_element)
  * with it.
  * 
  *     
- * @return  void, but vector of SS_Message_Element * passed in.
+ * @return  void, but std::vector of SS_Message_Element * passed in.
  *
  * @todo    Error handling.
  *
  */
 void
 SS_Message_Czar::
-Find_By_Err_No(const int id_num, vector <SS_Message_Element *> *p_element) 
+Find_By_Err_No(const int id_num, std::vector <SS_Message_Element *> *p_element) 
 {
 
-    vector <SS_Message_Element>:: iterator k;
+    std::vector <SS_Message_Element>:: iterator k;
     for (k=dm_help_list.begin();
     	 k!= dm_help_list.end();
 	 ++k) {
@@ -188,11 +186,11 @@ Find_By_Err_No(const int id_num, vector <SS_Message_Element *> *p_element)
  */
 void
 SS_Message_Czar::
-Find_By_Topic(const string related, vector <SS_Message_Element *> *p_element) 
+Find_By_Topic(const std::string related, std::vector <SS_Message_Element *> *p_element) 
 {
 
 #if 1
-    vector <SS_Message_Element>:: iterator k;
+    std::vector <SS_Message_Element>:: iterator k;
     for (k=dm_help_list.begin();
     	 k!= dm_help_list.end();
 	 ++k) {

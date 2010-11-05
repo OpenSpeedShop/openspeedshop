@@ -30,7 +30,6 @@
 #include <ltdl.h>
 #include <stdlib.h>
 
-using namespace std;
 using namespace OpenSpeedShop::Framework;
 
 /** Singleton collector plugin table. */
@@ -289,10 +288,10 @@ void CollectorPluginTable::foreachCallback(const std::string& filename)
 //    std::cout << "coming in CollectorPluginTable, filename=" << filename << std::endl;
 
     // Only examine the framework related plugins.
-    if (filename.find("_view") != string::npos ||
-	filename.find("Panel") != string::npos ||
-	filename.find("-rt") != string::npos ||
-	filename.find("libmonitor") != string::npos) {
+    if (filename.find("_view") != std::string::npos ||
+	filename.find("Panel") != std::string::npos ||
+	filename.find("-rt") != std::string::npos ||
+	filename.find("libmonitor") != std::string::npos) {
         return;
     }
 

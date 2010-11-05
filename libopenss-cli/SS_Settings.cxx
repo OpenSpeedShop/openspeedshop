@@ -34,7 +34,6 @@
 
 #include <stdlib.h>
 
-using namespace std;
 
 
 // The default constructor.   Call's initialize();
@@ -64,28 +63,28 @@ SS_Settings::initialize(char *filename)
     struct passwd *pw_buf = getpwuid(getuid() );
     if( pw_buf == NULL )
     {
-      cerr << "Unable to determine user home directory." << endl;
+      std::cerr << "Unable to determine user home directory." << std::endl;
       return;
     }
 
     std::string udstr = pw_buf->pw_dir;
     udstr += "/.qt/openspeedshoprc";
 
-    settings_file = new ifstream(udstr.c_str());
+    settings_file = new std::ifstream(udstr.c_str());
   }
   else
-    settings_file = new ifstream(filename);
+    settings_file = new std::ifstream(filename);
 
   if( settings_file == NULL ||
-      (settings_file->rdstate() & ifstream::failbit ) != 0 )
+      (settings_file->rdstate() & std::ifstream::failbit ) != 0 )
   {
-//    cerr << "Error opening 'test.txt'\n";
+//    std::cerr << "Error opening 'test.txt'\n";
   } else
   {
-    string line;
+    std::string line;
     while( !settings_file->eof() )
     {
-// cout << line << endl;
+// std::cout << line << std::endl;
       getline (*settings_file,line);
 
       int64_t index = line.find("[general]", 0);
@@ -228,20 +227,20 @@ std::string
 SS_Settings::find(std::string key, bool *ok)
 {
   if( settings_file == NULL ||
-      (settings_file->rdstate() & ifstream::failbit ) != 0 )
+      (settings_file->rdstate() & std::ifstream::failbit ) != 0 )
   {
-//    cerr << "Error opening 'test.txt'\n";
+//    std::cerr << "Error opening 'test.txt'\n";
     *ok = 0;
     return std::string();
   }
 
-  string line;
-  settings_file->seekg (startOfSection, ios::beg);
+  std::string line;
+  settings_file->seekg (startOfSection, std::ios::beg);
   
   while( !settings_file->eof() )
   {
     getline (*settings_file,line);
-// cout << "(" << line << ")" << endl;
+// std::cout << "(" << line << ")" << std::endl;
     if( line.size() == 0 || line.find("[",0) == 0 )
     { // We're at a new section.   Break...
       *ok = 0;

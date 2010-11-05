@@ -78,7 +78,7 @@ using namespace OpenSpeedShop::Framework;
 #include "PapiAPI.h"
 #include "PapiAPI.cxx"
 
-typedef std::pair<std::string, string> papi_preset_event;
+typedef std::pair<std::string, std::string> papi_preset_event;
 
 HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : Panel(pc, n)
 {

@@ -30,7 +30,6 @@
 
 #include "Python.h"
 
-using namespace std;
 using namespace OpenSpeedShop::cli;
 
 // Private Data
@@ -185,10 +184,10 @@ static void Wait_For_Thread_Connected (CommandObject *cmd, Thread t) {
       break;
     }
     if ((to_window > 0) && (message_interval <= current_interval)) {
-      std::ostringstream S(ios::out);
+      std::ostringstream S(std::ios::out);
       S << "Trying to connect to thread "
         << t.getProcessId();
-      Send_Message_To_Window ( to_window, S.ostringstream::str());
+      Send_Message_To_Window ( to_window, S.str());
       message_count++;
       current_interval = 0;
     }
@@ -201,16 +200,16 @@ static void Wait_For_Thread_Connected (CommandObject *cmd, Thread t) {
 // on the Tokenizer routine found at this URL:
 // http://www.oopweb.com/CPP/Documents/CPPHOWTO/Volume/C++Programming-HOWTO-7.html
 
-void createTokens(const string& str,
-                  vector<string>& tokens,
-                  const string& delimiters = " ")
+void createTokens(const std::string& str,
+                  std::vector<std::string>& tokens,
+                  const std::string& delimiters = " ")
 {
     // Skip delimiters at beginning.
-    string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
     // Find first "non-delimiter".
-    string::size_type pos     = str.find_first_of(delimiters, lastPos);
+    std::string::size_type pos     = str.find_first_of(delimiters, lastPos);
 
-    while (string::npos != pos || string::npos != lastPos)
+    while (std::string::npos != pos || std::string::npos != lastPos)
     {
         // Found a token, add it to the vector.
         tokens.push_back(str.substr(lastPos, pos - lastPos));
@@ -337,22 +336,22 @@ static ExperimentObject *Find_Specified_Experiment (CommandObject *cmd, bool put
  */
 parse_val_t *Get_Simple_File_Name (CommandObject *cmd) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseTarget> *p_tlist = (p_result != NULL) ? p_result->getTargetList() : NULL;
+  std::vector<ParseTarget> *p_tlist = (p_result != NULL) ? p_result->getTargetList() : NULL;
   if (p_tlist == NULL) {
     return NULL;
   }
   if (p_tlist->begin() == p_tlist->end()) {
     return NULL;
   }
-  vector<ParseTarget>::iterator pi = p_tlist->begin();
-  vector<ParseRange> *f_list = (*pi).getFileList();
+  std::vector<ParseTarget>::iterator pi = p_tlist->begin();
+  std::vector<ParseRange> *f_list = (*pi).getFileList();
   if (f_list == NULL) {
     return NULL;
   }
   if (f_list->begin() == f_list->end()) {
     return NULL;
   }
-  vector<ParseRange>::iterator fi = f_list->begin();
+  std::vector<ParseRange>::iterator fi = f_list->begin();
   parse_range_t *f_range = (*fi).getRange();
   if (f_range == NULL) {
     return NULL;
@@ -376,8 +375,8 @@ bool Look_For_KeyWord (CommandObject *cmd, std::string Key) {
   Assert (cmd->P_Result() != NULL);
 
  // Look at general modifier types for a specific KeyWord option.
-  vector<string> *p_slist = cmd->P_Result()->getModifierList();
-  vector<string>::iterator j;
+  std::vector<std::string> *p_slist = cmd->P_Result()->getModifierList();
+  std::vector<std::string>::iterator j;
 
   for (j=p_slist->begin();j != p_slist->end(); j++) {
     std::string S = *j;
@@ -548,13 +547,13 @@ bool Filter_Uses_F (CommandObject *cmd) {
   printf("Enter Filter_Uses_F\n");
 #endif
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseTarget> *p_tlist = p_result->getTargetList();
+  std::vector<ParseTarget> *p_tlist = p_result->getTargetList();
 
  // For each set of filter specifications ...
-  vector<ParseTarget>::iterator pi;
+  std::vector<ParseTarget>::iterator pi;
   for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
     ParseTarget pt = *pi;
-    vector<ParseRange> *f_list = pt.getFileList();
+    std::vector<ParseRange> *f_list = pt.getFileList();
     if ((f_list != NULL) && !f_list->empty()) {
 #if DEBUG_CLI
       printf("Exit Filter_Uses_F return true\n");
@@ -591,7 +590,7 @@ bool Filter_Uses_F (CommandObject *cmd) {
  *
  */
 void Filter_ThreadGroup (OpenSpeedShop::cli::ParseResult *p_result, ThreadGroup& tgrp) {
-  vector<ParseTarget> *p_tlist = p_result->getTargetList();
+  std::vector<ParseTarget> *p_tlist = p_result->getTargetList();
   if (p_tlist->begin() == p_tlist->end()) {
    // There are no filters.
 #if DEBUG_CLI
@@ -630,16 +629,16 @@ void Filter_ThreadGroup (OpenSpeedShop::cli::ParseResult *p_result, ThreadGroup&
       int64_t rank = prank.first ? prank.second : -1;
 
      // For each set of filter specifications ...
-      vector<ParseTarget>::iterator pi;
+      std::vector<ParseTarget>::iterator pi;
       for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
         bool include_thread = true;
 
         ParseTarget pt = *pi;
-        vector<ParseRange> *h_list = pt.getHostList();
-        vector<ParseRange> *f_list = pt.getFileList();
-        vector<ParseRange> *p_list = pt.getPidList();
-        vector<ParseRange> *t_list = pt.getThreadList();
-        vector<ParseRange> *r_list = pt.getRankList();
+        std::vector<ParseRange> *h_list = pt.getHostList();
+        std::vector<ParseRange> *f_list = pt.getFileList();
+        std::vector<ParseRange> *p_list = pt.getPidList();
+        std::vector<ParseRange> *t_list = pt.getThreadList();
+        std::vector<ParseRange> *r_list = pt.getRankList();
 
         bool has_h = !((h_list == NULL) || h_list->empty());
         bool has_f = !((f_list == NULL) || f_list->empty());
@@ -651,7 +650,7 @@ void Filter_ThreadGroup (OpenSpeedShop::cli::ParseResult *p_result, ThreadGroup&
          // Does it match a rank ID?
           bool within_list = false;
 
-          vector<ParseRange>::iterator pr_iter;
+          std::vector<ParseRange>::iterator pr_iter;
           for (pr_iter=r_list->begin();pr_iter != r_list->end(); pr_iter++) {
             if (within_range(rank, *pr_iter->getRange())) {
               within_list = true;
@@ -665,7 +664,7 @@ void Filter_ThreadGroup (OpenSpeedShop::cli::ParseResult *p_result, ThreadGroup&
          // Does it match a pthread ID?
           bool within_list = false;
 
-          vector<ParseRange>::iterator pr_iter;
+          std::vector<ParseRange>::iterator pr_iter;
           for (pr_iter=t_list->begin();pr_iter != t_list->end(); pr_iter++) {
             if (within_range(pthreadid, *pr_iter->getRange())) {
               within_list = true;
@@ -679,7 +678,7 @@ void Filter_ThreadGroup (OpenSpeedShop::cli::ParseResult *p_result, ThreadGroup&
          // Does it match a pid?
           bool within_list = false;
 
-          vector<ParseRange>::iterator pr_iter;
+          std::vector<ParseRange>::iterator pr_iter;
           for (pr_iter=p_list->begin();pr_iter != p_list->end(); pr_iter++) {
             if (within_range(pid, *pr_iter->getRange())) {
               within_list = true;
@@ -692,7 +691,7 @@ void Filter_ThreadGroup (OpenSpeedShop::cli::ParseResult *p_result, ThreadGroup&
         if (include_thread && has_h) {
          // Does it match a host?
           bool within_list = false;
-          vector<ParseRange>::iterator pr_iter;
+          std::vector<ParseRange>::iterator pr_iter;
           for (pr_iter=h_list->begin();pr_iter != h_list->end(); pr_iter++) {
             if (within_range(hid, *pr_iter->getRange())) {
               within_list = true;
@@ -761,10 +760,10 @@ bool Parse_Interval_Specification (
     std::cout << "Enter Parse_Interval_Specification" << std::endl;
 #endif
   OpenSpeedShop::cli::ParseResult *parse_result = cmd->P_Result();
-  vector<ParseInterval> *I_list = parse_result->getParseIntervalList();
+  std::vector<ParseInterval> *I_list = parse_result->getParseIntervalList();
 
   if (I_list->empty()) {
-    intervals.push_back(make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
+    intervals.push_back(std::make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
 #if DEBUG_CLI
     std::cout << "Exit TRUE Parse_Interval_Specification I_list is empty" << std::endl;
 #endif
@@ -773,7 +772,7 @@ bool Parse_Interval_Specification (
 
   enum { percent, s, ms, us, ns } units = ms;
   if (parse_result->isIntervalAttribute()) {
-    const string *unit_string = parse_result->getIntervalAttribute();
+    const std::string *unit_string = parse_result->getIntervalAttribute();
     if (!strcasecmp(unit_string->c_str(), "%")) {
       units = percent;
     } else if (!strcasecmp(unit_string->c_str(), "s")) {
@@ -787,8 +786,8 @@ bool Parse_Interval_Specification (
     } else {
       std::ostringstream S("The attribute for the specified range '");
       S << unit_string << "'  is not valid.";
-      Mark_Cmd_With_Soft_Error(cmd, S.ostringstream::str());
-      intervals.push_back(make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
+      Mark_Cmd_With_Soft_Error(cmd, S.str());
+      intervals.push_back(std::make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
 #if DEBUG_CLI
     std::cout << "Exit TRUE Parse_Interval_Specification invalid attribute" << std::endl;
 #endif
@@ -800,7 +799,7 @@ bool Parse_Interval_Specification (
   Time first_time = databaseExtent.getTimeInterval().getBegin();
   Time last_time = databaseExtent.getTimeInterval().getEnd();
 
-  for (vector<ParseInterval>::iterator
+  for (std::vector<ParseInterval>::iterator
           pi = I_list->begin(); pi != I_list->end(); pi++) {
     ParseInterval P = *pi;
     Time Istart = first_time;
@@ -868,9 +867,9 @@ bool Parse_Interval_Specification (
     if (Istart >= Iend) {
       std::ostringstream S;
       S << "The start time, " << Istart << ", is greater than the end time, " << Iend << ".";
-      Mark_Cmd_With_Soft_Error(cmd, S.ostringstream::str());
+      Mark_Cmd_With_Soft_Error(cmd, S.str());
       intervals.clear();
-      intervals.push_back(make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
+      intervals.push_back(std::make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
 #if DEBUG_CLI
     std::cout << "Exit TRUE Parse_Interval_Specification start time is greater than end time" << std::endl;
 #endif
@@ -878,8 +877,8 @@ bool Parse_Interval_Specification (
     }
 
 #if DEBUG_CLI
-    cerr << "In	Parse_Interval_Specification, Istart= " << Istart << "\n";
-    cerr << "In	Parse_Interval_Specification, Iend= " << Iend << "last_time=" << last_time << "\n";
+    std::cerr << "In	Parse_Interval_Specification, Istart= " << Istart << std::endl;
+    std::cerr << "In	Parse_Interval_Specification, Iend= " << Iend << "last_time=" << last_time << std::endl;
     std::cout << "EXIT Parse_Interval_Specification, Istart= " << Istart << std::endl;
     std::cout << "EXIT Parse_Interval_Specification, Iend= " << Iend << "last_time=" << last_time << std::endl;
 #endif
@@ -973,10 +972,10 @@ static void Detach_Command (CommandObject *cmd, ExperimentObject *exp, Thread t,
 static void Resolve_R_Target (CommandObject *cmd, ExperimentObject *exp, ThreadGroup *tgrp,
                               ParseTarget pt, std::string host_name, pid_t mypid) {
 
-  vector<ParseRange> *r_list = pt.getRankList();
+  std::vector<ParseRange> *r_list = pt.getRankList();
 
  // Okay. Process the rank specification.
-  vector<ParseRange>::iterator r_iter;
+  std::vector<ParseRange>::iterator r_iter;
 
   for (r_iter=r_list->begin();r_iter != r_list->end(); r_iter++) {
     parse_range_t *r_range = r_iter->getRange();
@@ -1016,10 +1015,10 @@ static void Resolve_R_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 static void Resolve_T_Target (CommandObject *cmd, ExperimentObject *exp, ThreadGroup *tgrp,
                               ParseTarget pt, std::string host_name, pid_t mypid) {
 
-  vector<ParseRange> *t_list = pt.getThreadList();
+  std::vector<ParseRange> *t_list = pt.getThreadList();
 
  // Okay. Process the thread specification.
-  vector<ParseRange>::iterator t_iter;
+  std::vector<ParseRange>::iterator t_iter;
 
   for (t_iter=t_list->begin();t_iter != t_list->end(); t_iter++) {
     parse_range_t *t_range = t_iter->getRange();
@@ -1074,16 +1073,16 @@ static void Resolve_T_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 static void Resolve_P_Target (CommandObject *cmd, ExperimentObject *exp, ThreadGroup *tgrp,
                               ParseTarget pt, std::string host_name) {
 
-  vector<ParseRange> *p_list = pt.getPidList();
-  vector<ParseRange> *t_list = pt.getThreadList();
-  vector<ParseRange> *r_list = pt.getRankList();
+  std::vector<ParseRange> *p_list = pt.getPidList();
+  std::vector<ParseRange> *t_list = pt.getThreadList();
+  std::vector<ParseRange> *r_list = pt.getRankList();
 
   bool has_t = !((t_list == NULL) || t_list->empty());
   bool has_r = !((r_list == NULL) || r_list->empty());
 
  // Okay. Process the pid specification.
   bool Mpi_KeyWord = Look_For_KeyWord (cmd, "mpi");
-  vector<ParseRange>::iterator p_iter;
+  std::vector<ParseRange>::iterator p_iter;
 
   for (p_iter=p_list->begin();p_iter != p_list->end(); p_iter++) {
     parse_range_t *p_range = p_iter->getRange();
@@ -1143,10 +1142,10 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
   InputLineObject *clip = cmd->Clip ();
   CMDWID w = (clip) ? clip->Who() : 0;
 
-  vector<ParseRange> *f_list = pt.getFileList();
+  std::vector<ParseRange> *f_list = pt.getFileList();
 
  // Okay. Process the file specification.
-  vector<ParseRange>::iterator f_iter;
+  std::vector<ParseRange>::iterator f_iter;
 
   for (f_iter=f_list->begin();f_iter != f_list->end(); f_iter++) {
     parse_range_t *f_range = f_iter->getRange();
@@ -1178,7 +1177,7 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
         bool offlineInstrumentor = exp->getIsInstrumentorOffline();
 
 #ifdef DEBUG_CLI
-        cerr << "In Resolve_F_Target, local value of offlineInstrumentor=" << offlineInstrumentor << "\n";
+        std::cerr << "In Resolve_F_Target, local value of offlineInstrumentor=" << offlineInstrumentor << "\n";
 #endif
 
 	if (!offlineInstrumentor) {
@@ -1190,8 +1189,8 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
         } else {
 
 #ifdef DEBUG_CLI
-            cerr << "In Resolve_F_Target, calling setOfflineAppCommand, offline case, f_val1->name=" << f_val1->name << "\n";
-            cerr << "In Resolve_F_Target, calling setOfflineAppCommand, offline case, host_name=" << host_name << "\n";
+            std::cerr << "In Resolve_F_Target, calling setOfflineAppCommand, offline case, f_val1->name=" << f_val1->name << "\n";
+            std::cerr << "In Resolve_F_Target, calling setOfflineAppCommand, offline case, host_name=" << host_name << "\n";
 #endif
 
             exp->setOfflineAppCommand(f_val1->name.c_str());
@@ -1242,11 +1241,11 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
 // Look through the parse results objects and figure out the host specification.
 static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadGroup *tgrp, ParseTarget pt) {
 
-  vector<ParseRange> *h_list = pt.getHostList();
-  vector<ParseRange> *f_list = pt.getFileList();
-  vector<ParseRange> *p_list = pt.getPidList();
-  vector<ParseRange> *t_list = pt.getThreadList();
-  vector<ParseRange> *r_list = pt.getRankList();
+  std::vector<ParseRange> *h_list = pt.getHostList();
+  std::vector<ParseRange> *f_list = pt.getFileList();
+  std::vector<ParseRange> *p_list = pt.getPidList();
+  std::vector<ParseRange> *t_list = pt.getThreadList();
+  std::vector<ParseRange> *r_list = pt.getRankList();
 
   bool has_h = !((h_list == NULL) || h_list->empty());
   bool has_f = !((f_list == NULL) || f_list->empty());
@@ -1277,7 +1276,7 @@ static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
   }
 
  // Okay. Process the host specification.
-  vector<ParseRange>::iterator h_iter;
+  std::vector<ParseRange>::iterator h_iter;
 
   for (h_iter=h_list->begin();h_iter != h_list->end(); h_iter++) {
     parse_range_t *h_range = h_iter->getRange();
@@ -1315,9 +1314,9 @@ static void Resolve_H_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
  */
 static void Resolve_Target_List (CommandObject *cmd, ExperimentObject *exp, ThreadGroup &tgrp) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseTarget> *p_tlist = p_result->getTargetList();
+  std::vector<ParseTarget> *p_tlist = p_result->getTargetList();
   if (p_tlist->begin() != p_tlist->end()) {
-    vector<ParseTarget>::iterator ti;
+    std::vector<ParseTarget>::iterator ti;
     for (ti = p_tlist->begin(); ti != p_tlist->end(); ti++) {
       try {
         Resolve_H_Target (cmd, exp, &tgrp, *ti);
@@ -1349,17 +1348,17 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
                                            Thread t, Collector c) ) {
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<string> *p_slist = p_result->getExpList();
+  std::vector<std::string> *p_slist = p_result->getExpList();
 
 #ifdef DEBUG_CLI
-  cerr << "Enter Process_expTypes" << "\n";
+  std::cerr << "Enter Process_expTypes" << "\n";
 #endif
 
   // offline collection variable is based on the global setting which can be overridden locally (per experiment)
   bool offlineInstrumentor = exp->getIsInstrumentorOffline();
 
 #ifdef DEBUG_CLI
-  cerr << "Enter Process_expTypes, offlineInstrumentor=" << offlineInstrumentor << "\n";
+  std::cerr << "Enter Process_expTypes, offlineInstrumentor=" << offlineInstrumentor << "\n";
 #endif
 
  // Determine the specified (or implied) set of Collectors.
@@ -1379,17 +1378,17 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
   if (p_slist->begin() != p_slist->end()) {
 
 #ifdef DEBUG_CLI
-  cerr << "In Process_expTypes, in p_slist->begin() != p_slist->end() section" << "\n";
+  std::cerr << "In Process_expTypes, in p_slist->begin() != p_slist->end() section" << "\n";
 #endif
 
    // The command contains a list of collectors to use.
    // Be sure they are all linked to the experiment.
-    vector<string>::iterator si;
+    std::vector<std::string>::iterator si;
     for (si = p_slist->begin(); si != p_slist->end(); si++) {
       try {
 
 #ifdef DEBUG_CLI
-  cerr << "In Process_expTypes, in p_slist->begin() != p_slist->end() section, before Get_Collector, (*si)=" 
+  std::cerr << "In Process_expTypes, in p_slist->begin() != p_slist->end() section, before Get_Collector, (*si)=" 
        << (*si) << " offlineInstrumentor=" << offlineInstrumentor << "\n";
 #endif
 
@@ -1401,20 +1400,20 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
 
          std::string tmpStr = (*si);
          found=(*si).find("mpi-");
-         if (found!=string::npos) {
+         if (found!=std::string::npos) {
            tmpStr = "mpi";
          }
          found=(*si).find("mpit-");
-         if (found!=string::npos) {
+         if (found!=std::string::npos) {
            tmpStr = "mpi";
          }
          found=(*si).find("mpiotf-");
-         if (found!=string::npos) {
+         if (found!=std::string::npos) {
            tmpStr = "mpiotf";
          } 
 
 #ifdef DEBUG_CLI
-         cerr << "In Process_expTypes, in p_slist->begin() != p_slist->end() section, before Get_Collector, tmpStr="  << tmpStr <<  "\n";
+         std::cerr << "In Process_expTypes, in p_slist->begin() != p_slist->end() section, before Get_Collector, tmpStr="  << tmpStr <<  "\n";
 #endif
          Collector C = Get_Collector (exp->FW(), tmpStr);
          cgrp.insert (C);
@@ -1428,7 +1427,7 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
       catch(const Exception& error) {
 
 #ifdef DEBUG_CLI
-        cerr << "In Process_expTypes, catch exception, Get_Collector" << "\n";
+        std::cerr << "In Process_expTypes, catch exception, Get_Collector" << "\n";
 #endif
 
         Mark_Cmd_With_Std_Error (cmd, error);
@@ -1439,7 +1438,7 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
   } else {
 
 #ifdef DEBUG_CLI
-        cerr << "In Process_expTypes, else of p_slist->begin() != p_slist->end() section" << "\n";
+        std::cerr << "In Process_expTypes, else of p_slist->begin() != p_slist->end() section" << "\n";
 #endif
 
    // Use all the collectors that are already part of the experiment.
@@ -1449,7 +1448,7 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
     catch(const Exception& error) {
 
 #ifdef DEBUG_CLI
-      cerr << "In Process_expTypes, catch error, else of p_slist->begin() != p_slist->end() section" << "\n";
+      std::cerr << "In Process_expTypes, catch error, else of p_slist->begin() != p_slist->end() section" << "\n";
 #endif
 
       Mark_Cmd_With_Std_Error (cmd, error);
@@ -1494,13 +1493,13 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
 
 
 #ifdef DEBUG_CLI
-  cerr << "In Process_expTypes, calling Resolve_Target_List" << "\n";
+  std::cerr << "In Process_expTypes, calling Resolve_Target_List" << "\n";
 #endif
 
   Resolve_Target_List (cmd, exp, tgrp);
 
 #ifdef DEBUG_CLI
-  cerr << "In Process_expTypes, early exit check, offlineInstrumentor=" << offlineInstrumentor << "\n";
+  std::cerr << "In Process_expTypes, early exit check, offlineInstrumentor=" << offlineInstrumentor << "\n";
 #endif
   
   if (offlineInstrumentor) {
@@ -1508,7 +1507,7 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
    // exp->FW()->setApplicationCommand(appCommand.c_str());
 
 #ifdef DEBUG_CLI
-     cerr << "EARLY EXIT Process_expTypes" << "\n";
+     std::cerr << "EARLY EXIT Process_expTypes" << "\n";
 #endif
 
      return true;
@@ -1675,7 +1674,7 @@ bool SS_expAttach (CommandObject *cmd) {
 static bool Destroy_Experiment (CommandObject *cmd, ExperimentObject *exp, bool Kill_KeyWord) {
 
 #ifdef DEBUG_CLI
-  cerr << "Enter Destroy_Experiment, calling Cancle_Exp_Wait" << "\n";
+  std::cerr << "Enter Destroy_Experiment, calling Cancle_Exp_Wait" << "\n";
 #endif
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
@@ -1922,7 +1921,7 @@ bool SS_expCreate (CommandObject *cmd) {
  // is added to it.
   Wait_For_Previous_Cmds ();
 //  cmd->Result_String ("Creating the new experiment. Reading symbols and inserting instrumentation.\n" );
-    cerr << "[openss]: Creating a new experiment: Inserting instrumentation and preparing the experiment to run." << std::endl;
+    std::cerr << "[openss]: Creating a new experiment: Inserting instrumentation and preparing the experiment to run." << std::endl;
 
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate()) {
     cli_timing_handle->processTimingEventEnd( SS_Timings::expCreate_wait_Start,
@@ -1952,8 +1951,8 @@ bool SS_expCreate (CommandObject *cmd) {
   EXPID exp_id = exp->ExperimentObject_ID();
 
  // Look for the -i option, this is the instrumentor type.
- vector<string> *p_slist = cmd->P_Result()->getInstrumentor();
- vector<string>::iterator j;
+ std::vector<std::string> *p_slist = cmd->P_Result()->getInstrumentor();
+ std::vector<std::string>::iterator j;
 
  extern bool isOfflineCmd;
  isOfflineCmd = false;
@@ -2129,7 +2128,7 @@ bool SS_expDetach (CommandObject *cmd) {
  */
 static bool Disable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 #ifdef DEBUG_CLI
-  cerr << "Enter Disable_Experiment, calling Cancle_Exp_Wait" << "\n";
+  std::cerr << "Enter Disable_Experiment, calling Cancle_Exp_Wait" << "\n";
 #endif
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
@@ -2201,7 +2200,7 @@ bool SS_expDisable (CommandObject *cmd) {
 static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 
 #ifdef DEBUG_CLI
-  cerr << "Enter Enable_Experiment, calling Cancle_Exp_Wait" << "\n";
+  std::cerr << "Enter Enable_Experiment, calling Cancle_Exp_Wait" << "\n";
 #endif
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
@@ -2348,10 +2347,10 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   exp->Q_UnLock ();
 
 #ifdef DEBUG_CLI
-  cerr << "Enter Execute_Experiment, exp->ExpStatus_Name() " << exp->ExpStatus_Name() << "\n";
+  std::cerr << "Enter Execute_Experiment, exp->ExpStatus_Name() " << exp->ExpStatus_Name() << "\n";
   exp->Q_Lock (cmd, false);
   if (exp->FW() != NULL) {
-    cerr << "Enter Execute_Experiment,  exp->FW()->getRerunCount() " << exp->FW()->getRerunCount() << "\n";
+    std::cerr << "Enter Execute_Experiment,  exp->FW()->getRerunCount() " << exp->FW()->getRerunCount() << "\n";
   }
   exp->Q_UnLock ();
 #endif
@@ -2361,14 +2360,14 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   if (offlineInstrumentor) {
 
 #ifdef DEBUG_CLI
-      cerr << "In Execute_Experiment, offlineInstrumentor=" << offlineInstrumentor << "\n";
+      std::cerr << "In Execute_Experiment, offlineInstrumentor=" << offlineInstrumentor << "\n";
 #endif
 
     exp->Q_Lock (cmd, false);
     std::string appCommand = exp->getOfflineAppCommand();
 
 #ifdef DEBUG_CLI
-    cerr << "In Execute_Experiment, offline, appCommand=" << appCommand << "\n";
+    std::cerr << "In Execute_Experiment, offline, appCommand=" << appCommand << "\n";
 #endif
 
 #if 0
@@ -2396,7 +2395,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     if (atleastone) {
 
 #ifdef DEBUG_CLI
-       cerr << "In Execute_Experiment, offline, starting with S (collector)=" << S << "\n";
+       std::cerr << "In Execute_Experiment, offline, starting with S (collector)=" << S << "\n";
 #endif
 
        size_t found;
@@ -2404,13 +2403,13 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
        while (found!=string::npos) {
          S.erase(found, 1);
 #ifdef DEBUG_CLI
-         cerr << "In Execute_Experiment, offline, checking for blanks, S (collector)=" << S << "\n";
+         std::cerr << "In Execute_Experiment, offline, checking for blanks, S (collector)=" << S << "\n";
 #endif
          found=S.find_first_of(" ",found);
        }
 
 #ifdef DEBUG_CLI
-       cerr << "In Execute_Experiment, offline, S (collector)=" << S << "\n";
+       std::cerr << "In Execute_Experiment, offline, S (collector)=" << S << "\n";
 #endif
     } // end atleastone
 #endif
@@ -2429,7 +2428,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
           S = S + ",";
         }
 #ifdef DEBUG_CLI
-        cerr << "In Execute_Experiment, offline, exp->offlineCollectorList, (collector)=" << (*offc) << "\n";
+        std::cerr << "In Execute_Experiment, offline, exp->offlineCollectorList, (collector)=" << (*offc) << "\n";
 #endif
         S = (*offc);
 
@@ -2441,7 +2440,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     std::string runOfflineCmd = "RunOfflineExp(program=\"" + appCommand + "\", collector=\"" + S + "\")";
 
 #ifdef DEBUG_CLI
-    cerr << "In Execute_Experiment, offline, runOfflineCmd=" << runOfflineCmd << "\n";
+    std::cerr << "In Execute_Experiment, offline, runOfflineCmd=" << runOfflineCmd << "\n";
 #endif
 
     PyRun_SimpleString(runOfflineCmd.c_str());
@@ -2469,7 +2468,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   exp->Q_UnLock ();
 
 #ifdef DEBUG_CLI
-  cerr << "In Execute_Experiment, exp->Status()=" << exp->Status() << "\n";
+  std::cerr << "In Execute_Experiment, exp->Status()=" << exp->Status() << "\n";
 #endif
 
   if (exp->Status() == ExpStatus_InError) {
@@ -2541,7 +2540,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       exp->Q_UnLock ();
 
 #ifdef DEBUG_CLI
-      cerr << "Execute_Experiment, after prepareToRerun, exp->ExpStatus_Name() " << exp->ExpStatus_Name() << "\n";
+      std::cerr << "Execute_Experiment, after prepareToRerun, exp->ExpStatus_Name() " << exp->ExpStatus_Name() << "\n";
 #endif
 
   } 
@@ -2589,7 +2588,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
             (t.getState() == Thread::Nonexistent)) {
          // These states cause errors, but we can ignore them.
 #ifdef DEBUG_CLI
-          cerr << "In Execute_Experiment, after prepareToRerun, terminated or nonexistent clause, t.getState()= " << t.getState() << "\n";
+          std::cerr << "In Execute_Experiment, after prepareToRerun, terminated or nonexistent clause, t.getState()= " << t.getState() << "\n";
 #endif
           continue;
         }
@@ -2603,7 +2602,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     (void) Wait_For_Exp_State (cmd, ExpStatus_Running, exp);
 
 #ifdef DEBUG_CLI
-     cerr << "In Execute_Experiment, Embedded_WindowID= " << Embedded_WindowID << "\n";
+     std::cerr << "In Execute_Experiment, Embedded_WindowID= " << Embedded_WindowID << "\n";
 #endif
    // Notify the user when the experiment has terminated.
     if (Embedded_WindowID == 0) {
@@ -2613,7 +2612,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     std::string appCommand = exp->FW()->getApplicationCommand();
 
 #ifdef DEBUG_CLI
-     cerr << "In Execute_Experiment, appCommand= " << appCommand << "\n";
+     std::cerr << "In Execute_Experiment, appCommand= " << appCommand << "\n";
 #endif
 
     // Protect against empty application command and then use default execution message
@@ -2825,7 +2824,7 @@ bool SS_expGo (CommandObject *cmd) {
  */
 static bool Pause_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 #ifdef DEBUG_CLI
-  cerr << "Enter Pause_Experiment, calling Cancle_Exp_Wait" << "\n";
+  std::cerr << "Enter Pause_Experiment, calling Cancle_Exp_Wait" << "\n";
 #endif
  // Clean up the notice board.
   Cancle_Async_Notice (exp);
@@ -2934,18 +2933,18 @@ bool SS_expRestore (CommandObject *cmd) {
 
   ExperimentObject *exp = NULL;
 #ifdef DEBUG_CLI
-  cerr << "Enter SS_expRestore " << "\n";
+  std::cerr << "Enter SS_expRestore " << "\n";
 #endif
 
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
 #ifdef DEBUG_CLI
-  cerr << "Enter SS_expRestore before printing clip=" << clip << "\n";
+  std::cerr << "Enter SS_expRestore before printing clip=" << clip << "\n";
   if (clip != NULL) {
-    clip->Print(cerr);
+    clip->Print(std::cerr);
   }
-  cerr << "\nEnter SS_expRestore after printing clip=" << clip << "\n";
+  std::cerr << "\nEnter SS_expRestore after printing clip=" << clip << "\n";
 #endif
 
  // Extract the savefile name.
@@ -2957,7 +2956,7 @@ bool SS_expRestore (CommandObject *cmd) {
 
   std::string data_base_name = file_name_value->name;
 #ifdef DEBUG_CLI
-  cerr << "SS_expRestore data_base_name=" << data_base_name << "\n";
+  std::cerr << "SS_expRestore data_base_name=" << data_base_name << "\n";
 #endif
 
  // Wait for all executing commands to terminate.
@@ -2978,16 +2977,16 @@ bool SS_expRestore (CommandObject *cmd) {
 #else
 
 #ifdef DEBUG_CLI
-     cerr << "In SS_expRestore, after calling new ExperimentObject " << "\n";
+     std::cerr << "In SS_expRestore, after calling new ExperimentObject " << "\n";
 #endif
 
   exp = Find_Specified_Experiment (cmd, false /* do not put out the no focus warning */);
 
 #ifdef DEBUG_CLI
-  cerr << "In SS_expRestore, exp= " << exp << "\n";
+  std::cerr << "In SS_expRestore, exp= " << exp << "\n";
   if (exp) {
     bool DEBUG_offlineInstrumentor = exp->getIsInstrumentorOffline();
-    cerr << "In SS_expRestore, offlineInstrumentor= " << DEBUG_offlineInstrumentor << "\n";
+    std::cerr << "In SS_expRestore, offlineInstrumentor= " << DEBUG_offlineInstrumentor << "\n";
   }
 #endif
 
@@ -2998,27 +2997,27 @@ bool SS_expRestore (CommandObject *cmd) {
      bool offlineInstrumentor = exp->getIsInstrumentorOffline();
 
 #ifdef DEBUG_CLI
-     cerr << "In SS_expRestore, offlineInstrumentor= " << offlineInstrumentor << "\n";
+     std::cerr << "In SS_expRestore, offlineInstrumentor= " << offlineInstrumentor << "\n";
 #endif
 
      if (offlineInstrumentor) {
        preferredEXP = exp->ExperimentObject_ID();
 #ifdef DEBUG_CLI
-       cerr << "In SS_expRestore, preferredEXP= " << preferredEXP << "\n";
+       std::cerr << "In SS_expRestore, preferredEXP= " << preferredEXP << "\n";
 #endif
      }
   }
 
 #ifdef DEBUG_CLI
-  cerr << "In SS_expRestore, calling new ExperimentObject with data_base_name=" << data_base_name << " preferredEXP=" << preferredEXP << "\n";
+  std::cerr << "In SS_expRestore, calling new ExperimentObject with data_base_name=" << data_base_name << " preferredEXP=" << preferredEXP << "\n";
 #endif
 
   exp = new ExperimentObject (data_base_name, preferredEXP);
 
 #ifdef DEBUG_CLI
-  cerr << "In SS_expRestore, after calling new ExperimentObject with data_base_name=" << data_base_name << " preferredEXP=" << preferredEXP << " exp=" << exp << "\n";
+  std::cerr << "In SS_expRestore, after calling new ExperimentObject with data_base_name=" << data_base_name << " preferredEXP=" << preferredEXP << " exp=" << exp << "\n";
   if (exp) {
-    cerr << "In SS_expRestore, after calling new ExperimentObject with data_base_name=" << data_base_name << " preferredEXP=" << preferredEXP << " exp->ExperimentObject_ID()=" << exp->ExperimentObject_ID() << "\n";
+    std::cerr << "In SS_expRestore, after calling new ExperimentObject with data_base_name=" << data_base_name << " preferredEXP=" << preferredEXP << " exp->ExperimentObject_ID()=" << exp->ExperimentObject_ID() << "\n";
   }
 #endif
 
@@ -3034,14 +3033,14 @@ bool SS_expRestore (CommandObject *cmd) {
   EXPID ExperimentID = exp->ExperimentObject_ID();
 
 #ifdef DEBUG_CLI
-  cerr << "In SS_expRestore, after calling exp->ExperimentObject_ID(), ExperimentID=" << ExperimentID << " preferredEXP=" << preferredEXP << " exp=" << exp << "\n";
+  std::cerr << "In SS_expRestore, after calling exp->ExperimentObject_ID(), ExperimentID=" << ExperimentID << " preferredEXP=" << preferredEXP << " exp=" << exp << "\n";
 #endif
 
  // Set the focus to point to the new EXPID.
   (void)Experiment_Focus (WindowID, ExperimentID);
 
 #ifdef DEBUG_CLI
-  cerr << "In SS_expRestore, after calling Experiment_Focus() with ExperimentID=" << ExperimentID << " preferredEXP=" << preferredEXP << " exp=" << exp << "\n";
+  std::cerr << "In SS_expRestore, after calling Experiment_Focus() with ExperimentID=" << ExperimentID << " preferredEXP=" << preferredEXP << " exp=" << exp << "\n";
 #endif
 
  // Annotate the command
@@ -3126,7 +3125,7 @@ bool SS_expSave (CommandObject *cmd) {
  * @todo    Error handling.
  *
  */
-static bool setparam (Collector C, std::string pname, vector<ParamVal> *value_list) {
+static bool setparam (Collector C, std::string pname, std::vector<ParamVal> *value_list) {
 
  // Stop the collector so we can change the parameter value.
   ThreadGroup active;
@@ -3160,7 +3159,7 @@ static bool setparam (Collector C, std::string pname, vector<ParamVal> *value_li
       for (std::map<std::string, bool>::iterator im = Value.begin(); im != Value.end(); im++) {
 
         bool name_in_list = false;
-        for (vector<ParamVal>::iterator iv = value_list->begin(); iv != value_list->end(); iv++) {
+        for (std::vector<ParamVal>::iterator iv = value_list->begin(); iv != value_list->end(); iv++) {
 
           Assert (iv->getValType() == PARAM_VAL_STRING);
 
@@ -3192,7 +3191,7 @@ static bool setparam (Collector C, std::string pname, vector<ParamVal> *value_li
 
       // swap loops to search for names not appearing in the getParamValue list
 
-      for (vector<ParamVal>::iterator iv = value_list->begin(); iv != value_list->end(); iv++) {
+      for (std::vector<ParamVal>::iterator iv = value_list->begin(); iv != value_list->end(); iv++) {
 
         bool no_match_at_all = TRUE;
         for (std::map<std::string, bool>::iterator im = Value.begin(); im != Value.end(); im++) {
@@ -3272,7 +3271,7 @@ static bool setparam (Collector C, std::string pname, vector<ParamVal> *value_li
           dval = (double)(pvalue.getIVal());
         }
         C.setParameterValue(pname,(double)dval);
-      } else if( m.isType(typeid(string)) ) {
+      } else if( m.isType(typeid(std::string)) ) {
         std::string sval;
         if (pvalue.getValType() == PARAM_VAL_STRING) {
           sval = std::string(pvalue.getSVal());
@@ -3328,8 +3327,8 @@ bool SS_expSetArgs (CommandObject *cmd) {
   std::string S;
   std::string newAppExecutableCommand;
   std::string maxSizeCommand;
-  string::size_type matchPos = string::npos;
-  string::size_type maxPos = string::npos;
+  std::string::size_type matchPos = std::string::npos;
+  std::string::size_type maxPos = std::string::npos;
   int maxExeSize;
   int newExecutablePathSize;
   int lastTokenStrSize;
@@ -3355,8 +3354,8 @@ bool SS_expSetArgs (CommandObject *cmd) {
   }
 #endif
 
-    vector<string> *p_slist = p_result->getStringList();
-    vector<string>::iterator j;
+    std::vector<std::string> *p_slist = p_result->getStringList();
+    std::vector<std::string>::iterator j;
 
     for (j=p_slist->begin();j != p_slist->end(); j++) {
 
@@ -3364,14 +3363,14 @@ bool SS_expSetArgs (CommandObject *cmd) {
 
 #ifdef DEBUG_CLI
        printf("In SS_expSetArgs(), S.c_str()=%s\n", S.c_str());
-       cout << *j << " " ;
+       std::cout << *j << " " ;
 #endif
 
     } // end for j
 
 #ifdef DEBUG_CLI
     if (p_slist->begin() != p_slist->end())
-        cout << endl ;
+        std::cout << std::endl ;
 #endif
 
   exp->Q_Lock (cmd, true);
@@ -3420,7 +3419,7 @@ bool SS_expSetArgs (CommandObject *cmd) {
       printf("In SS_expSetArgs(), INITIAL MATCHPOS CHECK, matchPos=%d\n", matchPos);
 #endif
 
-      if (matchPos == string::npos) {
+      if (matchPos == std::string::npos) {
         // no match for full path, look at finding non-path executable
 
         newExecutablePathSize = newAppExecutableCommand.length();
@@ -3429,9 +3428,9 @@ bool SS_expSetArgs (CommandObject *cmd) {
         printf("In SS_expSetArgs(), INSIDE TOKENIZE NEEDED, newExecutablePathSize=%d\n", newExecutablePathSize);
 #endif
 
-        vector<string> tokens;
+        std::vector<std::string> tokens;
         createTokens(newAppExecutableCommand, tokens, "/");
-        vector<string>::iterator k;
+        std::vector<std::string>::iterator k;
 
         for (k=tokens.begin();k != tokens.end(); k++) {
           lastToken = *k;
@@ -3456,7 +3455,7 @@ bool SS_expSetArgs (CommandObject *cmd) {
         printf("after the while loop, lastToken.c_str()=%s, newAppExecutableCommand.c_str()=%s, matchPos=%d\n", lastToken.c_str(), appCommand.c_str(), matchPos);
 #endif
 
-        if (matchPos != string::npos) {
+        if (matchPos != std::string::npos) {
 
           lastTokenStrSize = lastToken.length();
           newExecutablePathSize = newAppExecutableCommand.length();
@@ -3481,7 +3480,7 @@ bool SS_expSetArgs (CommandObject *cmd) {
 
           // save the position farthest toward the arguments so we can clip off the 
           // old arguments and replace with the new
-          if (maxPos == string::npos) {
+          if (maxPos == std::string::npos) {
             maxPos = matchPos;
             maxExeSize = newAppExecutableCommand.length();
             maxSizeCommand = newAppExecutableCommand;
@@ -3506,7 +3505,7 @@ bool SS_expSetArgs (CommandObject *cmd) {
 #endif
 
         // full path version found
-        if (maxPos == string::npos) {
+        if (maxPos == std::string::npos) {
           maxPos = matchPos;
           maxExeSize = newAppExecutableCommand.length();
           maxSizeCommand = newAppExecutableCommand;
@@ -3618,7 +3617,7 @@ bool SS_expSetParam (CommandObject *cmd) {
     ParseParam *p_param = p_result->getParam();
     char *type_name = p_param->getExpType();
     char *param_name = p_param->getParamType();
-    vector<ParamVal> *value_list = p_param->getValList();
+    std::vector<ParamVal> *value_list = p_param->getValList();
 
 #ifdef DEBUG_CLI
     printf("In SS_expSetParam(), type_name=%s, param_name=%s\n", type_name, param_name);
@@ -3724,7 +3723,7 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
     double Value;
     c.getParameterValue(id, Value);
     Param_Value = CRPTR (Value);
-  } else if( m.isType(typeid(string)) ) {
+  } else if( m.isType(typeid(std::string)) ) {
     std::string Value;
     c.getParameterValue(id, Value);
     Param_Value = CRPTR (Value);
@@ -4043,9 +4042,9 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp, bool FullDis
                              databaseExtent.getTimeInterval().getEnd())) {
           cmd->Result_String ("    There is no performance data recorded in the database.");
         } else {
-          std::ostringstream lt(ios::out);
-          std::ostringstream st(ios::out);
-          std::ostringstream et(ios::out);
+          std::ostringstream lt(std::ios::out);
+          std::ostringstream st(std::ios::out);
+          std::ostringstream et(std::ios::out);
           Time ST = databaseExtent.getTimeInterval().getBegin();
           Time ET = databaseExtent.getTimeInterval().getEnd();
 
@@ -4074,11 +4073,11 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp, bool FullDis
           st << databaseExtent.getTimeInterval().getBegin();
           et << databaseExtent.getTimeInterval().getEnd();
           cmd->Result_String ("    Performance data spans "
-                              + lt.ostringstream::str()
+                              + lt.str()
                               + " " + UNITS + "  from "
-                              + st.ostringstream::str()
+                              + st.str()
                               + " to "
-                              + et.ostringstream::str());
+                              + et.str());
         }
 
         std::list<std::string> ExList;
@@ -4375,11 +4374,11 @@ bool SS_expView (CommandObject *cmd) {
   bool view_result = true;
 
 #ifdef DEBUG_CLI
-  cerr << "Enter SS_expView before printing clip=" << clip << "\n";
+  std::cerr << "Enter SS_expView before printing clip=" << clip << "\n";
   if (clip != NULL) {
-    clip->Print(cerr);
+    clip->Print(std::cerr);
   }
-  cerr << "\nEnter SS_expView after printing clip=" << clip << "\n";
+  std::cerr << "\nEnter SS_expView after printing clip=" << clip << "\n";
 #endif
 
 #if DEBUG_CLI
@@ -4445,8 +4444,8 @@ bool SS_expView (CommandObject *cmd) {
 
  // Pick up the <viewType> from the comand.
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<string> *p_slist = p_result->getViewList();
-  vector<string>::iterator si;
+  std::vector<std::string> *p_slist = p_result->getViewList();
+  std::vector<std::string>::iterator si;
   if (p_slist->begin() == p_slist->end()) {
 #if DEBUG_CLI
     printf("In SS_expView, The user has not selected a view\n");
@@ -4565,7 +4564,7 @@ bool SS_expView (CommandObject *cmd) {
  */
 bool SS_View (CommandObject *cmd) {
   OpenSpeedShop::cli::ParseResult *primary_result = cmd->P_Result();
-  vector<ParseRange> *cv_list = primary_result->getViewSet ();
+  std::vector<ParseRange> *cv_list = primary_result->getViewSet ();
   if ((cv_list == NULL) || (cv_list->empty())) {
     return SS_expView (cmd);
   } else {
@@ -4929,7 +4928,7 @@ static bool SS_ListMetrics (CommandObject *cmd) {
   Assert(cmd->P_Result() != NULL);
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<string> *p_slist = p_result->getExpList();
+  std::vector<std::string> *p_slist = p_result->getExpList();
 
   OpenSpeedShop::Framework::Experiment *fw_exp = NULL;
   CollectorGroup cgrp;
@@ -4973,7 +4972,7 @@ static bool SS_ListMetrics (CommandObject *cmd) {
       OpenSpeedShop::Framework::Experiment::create (tmpdb);
       fw_exp = new OpenSpeedShop::Framework::Experiment (tmpdb);
 
-      vector<string>::iterator si;
+      std::vector<std::string>::iterator si;
       for (si = p_slist->begin(); si != p_slist->end(); si++) {
        //  Get a collector object from the framework.
         Collector C = Get_Collector (fw_exp, *si);
@@ -5068,7 +5067,7 @@ static bool SS_ListMPICategories (CommandObject *cmd) {
   Assert(cmd->P_Result() != NULL);
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<string> *p_slist = p_result->getExpList();
+  std::vector<std::string> *p_slist = p_result->getExpList();
 
   OpenSpeedShop::Framework::Experiment *fw_exp = NULL;
   CollectorGroup cgrp;
@@ -5092,7 +5091,7 @@ static bool SS_ListMPICategories (CommandObject *cmd) {
       OpenSpeedShop::Framework::Experiment::create (tmpdb);
       fw_exp = new OpenSpeedShop::Framework::Experiment (tmpdb);
 
-      vector<string>::iterator si;
+      std::vector<std::string>::iterator si;
       for (si = p_slist->begin(); si != p_slist->end(); si++) {
        //  Get a collector object from the framework.
         Collector C = Get_Collector (fw_exp, *si);
@@ -5225,7 +5224,7 @@ static bool SS_ListParams (CommandObject *cmd, bool showValues) {
   Assert(cmd->P_Result() != NULL);
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<string> *p_slist = p_result->getExpList();
+  std::vector<std::string> *p_slist = p_result->getExpList();
 
   OpenSpeedShop::Framework::Experiment *fw_exp = NULL;
   CollectorGroup cgrp;
@@ -5267,7 +5266,7 @@ static bool SS_ListParams (CommandObject *cmd, bool showValues) {
       OpenSpeedShop::Framework::Experiment::create (tmpdb);
       fw_exp = new OpenSpeedShop::Framework::Experiment (tmpdb);
 
-      vector<string>::iterator si;
+      std::vector<std::string>::iterator si;
       for (si = p_slist->begin(); si != p_slist->end(); si++) {
        //  Get a collector object from the framework.
         Collector C = Get_Collector (fw_exp, *si);
@@ -5574,7 +5573,7 @@ static bool SS_ListStatements (CommandObject *cmd) {
         Statement st = *si;
 	std::string SL = st.getPath().getBaseName();
 	SL += ":";
-	stringstream ssl;
+	std::stringstream ssl;
 	ssl << st.getLine();
 	SL += ssl.str();
 	//mset.insert ( SL );
@@ -5583,7 +5582,7 @@ static bool SS_ListStatements (CommandObject *cmd) {
 		ti != st_threads.end(); ti++) {
 		Thread t = *ti;
 		AddressRange ar = st.getExtentIn(t).getBounds().getAddressRange();  
-		stringstream ssa;
+		std::stringstream ssa;
 		ssa << ar.getBegin();
 		SL += ":";
 		SL += ssa.str();
@@ -5934,7 +5933,7 @@ static bool SS_ListViews (CommandObject *cmd) {
   Assert(cmd->P_Result() != NULL);
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<string> *p_slist = p_result->getExpList();
+  std::vector<std::string> *p_slist = p_result->getExpList();
   CollectorGroup cgrp;
 
   if (All_KeyWord) {
@@ -5960,7 +5959,7 @@ static bool SS_ListViews (CommandObject *cmd) {
     exp->Q_UnLock ();
   } else if (p_slist->begin() != p_slist->end()) {
    // What views depend on a specific collector?
-    vector<string>::iterator si;
+    std::vector<std::string>::iterator si;
     for (si = p_slist->begin(); si != p_slist->end(); si++) {
       SS_Get_Views (cmd, *si );
     }
@@ -6004,8 +6003,8 @@ bool SS_ListGeneric (CommandObject *cmd) {
  // Look for a recognized option.
   bool first_listtype_found = false;
   bool result_of_first_list = false;
-  vector<string> *p_slist = cmd->P_Result()->getModifierList();
-  vector<string>::iterator j;
+  std::vector<std::string> *p_slist = cmd->P_Result()->getModifierList();
+  std::vector<std::string>::iterator j;
 
   for (j=p_slist->begin();j != p_slist->end(); j++) {
     bool valid_list_type_found = true;
@@ -6132,8 +6131,8 @@ bool SS_ClearBreaks (CommandObject *cmd) {
  *
  */
 bool SS_Echo (CommandObject *cmd) {
-  vector<string> *S = cmd->P_Result()->getStringList();
-  vector<string>::iterator si;
+  std::vector<std::string> *S = cmd->P_Result()->getStringList();
+  std::vector<std::string>::iterator si;
   for (si = S->begin(); si != S->end(); si++) {
     cmd->Result_String(*si);
   }
@@ -6224,7 +6223,7 @@ bool SS_History (CommandObject *cmd) {
   std::list<std::string>::iterator hi = History.begin();  // Start at  beginning
 
  // The user may ask us to limit the output
-  vector<ParseRange> *c_limit = cmd->P_Result()->getHistoryList();
+  std::vector<ParseRange> *c_limit = cmd->P_Result()->getHistoryList();
   if ((c_limit != NULL) &&
       (c_limit->begin() != c_limit->end())) {
     parse_range_t *c_range = c_limit->begin()->getRange();

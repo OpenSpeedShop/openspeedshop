@@ -22,6 +22,9 @@
  *
  */
 
+#include <vector>
+#include <string>
+
 #ifndef __OpenSpeedShop_Message_Element_HXX__
 #define __OpenSpeedShop_Message_Element_HXX__
 
@@ -64,21 +67,21 @@ class SS_Message_Element {
 
     	/** Set name/keyword that message is associated with */
 	void set_keyword(const char * const);
-	void set_keyword(const string);
-	void set_keyword(const string,const string);
-	void set_keyword(const string,const string,const int);
-	string * get_keyword();
+	void set_keyword(const std::string);
+	void set_keyword(const std::string,const std::string);
+	void set_keyword(const std::string,const std::string,const int);
+	std::string * get_keyword();
 
     	/** Set general topic that message is associated with */
 	void set_topic(const char * const );
-	void set_topic(const string);
-	string * get_topic();
+	void set_topic(const std::string);
+	std::string * get_topic();
 	bool is_topic();
 
     	/** Add related keyword */
 	void add_related(const char * const );
-	void add_related(const string);
-	vector<string> * get_related_list();
+	void add_related(const std::string);
+	std::vector<std::string> * get_related_list();
 
     	/** Set any id number for this message */
 	void set_id(const int);
@@ -86,28 +89,28 @@ class SS_Message_Element {
 
     	/** Set the brief string for this message */
 	void set_brief(const char * const );
-	void set_brief(const string);
-	string * get_brief();
+	void set_brief(const std::string);
+	std::string * get_brief();
 
     	/** Add line of normal message */
 	void add_normal(const char * const );
-	void add_normal(const string);
-	vector<string> * get_normal_list();
+	void add_normal(const std::string);
+	std::vector<std::string> * get_normal_list();
 
     	/** Add line of verbose message */
 	void add_verbose(const char * const );
-	void add_verbose(const string);
-	vector<string> * get_verbose_list();
+	void add_verbose(const std::string);
+	std::vector<std::string> * get_verbose_list();
 
     	/** Add line of example */
 	void add_example(const char * const );
-	void add_example(const string);
-	vector<string> * get_example_list();
+	void add_example(const std::string);
+	std::vector<std::string> * get_example_list();
 	
     	/** Add line of syntax */
 	void add_syntax(const char * const );
-	void add_syntax(const string);
-	vector<string> * get_syntax_list();
+	void add_syntax(const std::string);
+	std::vector<std::string> * get_syntax_list();
 	
 	/** Use message_element_t to initialize element */
 	void set_element(const message_element_t * const p_element,bool is_topic);
@@ -115,34 +118,34 @@ class SS_Message_Element {
     private:
 
 	/** Keyword string. */
-    	string dm_keyword;
+    	std::string dm_keyword;
 
 	/** Topic string. */
-    	string dm_topic;
+    	std::string dm_topic;
 
 	/** Is this itself a topic. */
     	bool dm_is_topic;
 	
 	/** Related keyword strings. */
-    	vector <string> dm_related_keyword_list;
+    	std::vector <std::string> dm_related_keyword_list;
 	
 	/** Possible id number. */
     	int dm_id_num;
 	
 	/** One line brief message. */
-    	string dm_brief_message;
+    	std::string dm_brief_message;
 	
 	/** Normal multiline message. */
-    	vector <string> dm_normal_message_list;
+    	std::vector <std::string> dm_normal_message_list;
 	
 	/** Verbose multiline message. */
-    	vector <string> dm_verbose_message_list;
+    	std::vector <std::string> dm_verbose_message_list;
 	
 	/** Multiline example. */
-    	vector <string> dm_example_list;
+    	std::vector <std::string> dm_example_list;
 	
 	/** Multiline syntax description. */
-    	vector <string> dm_syntax_list;
+    	std::vector <std::string> dm_syntax_list;
 	
 };
 }  	// namespace OpenSpeedShop

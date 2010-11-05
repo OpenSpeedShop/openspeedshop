@@ -112,7 +112,7 @@ bool Detail_Trace_Report(
               std::list<CommandResult *>& view_output) {
 
   std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
-  int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
+  int64_t num_temps = std::max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
   Collector collector = CV[0];
   std::string metric = MV[0];
   bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
@@ -173,8 +173,8 @@ bool Detail_Trace_Report(
 
 #if DEBUG_CLI
   for (std::vector<std::pair<Time,Time> >::iterator iv = intervals.begin(); iv != intervals.end(); iv++) {
-         cout << " In Detail_Trace_Report, SS_View_detail.txx, before GetMetricInThreadGroup, iv->first=" 
-              << iv->first << " iv->second=" << iv->second << endl;
+         std::cout << " In Detail_Trace_Report, SS_View_detail.txx, before GetMetricInThreadGroup, iv->first=" 
+              << iv->first << " iv->second=" << iv->second << std::endl;
   }
 #endif
 
@@ -388,7 +388,7 @@ bool Detail_Trace_Report(
 
 #if DEBUG_DUMP_CITEMS
 // -- BEGIN DEBUG CITEMS
-        cerr << "\nDump items.  Detail_Trace_Report, SS_View_detail.txx, after pushing back vcs, Number of items is " << c_items.size() << "\n";
+        std::cerr << "\nDump items.  Detail_Trace_Report, SS_View_detail.txx, after pushing back vcs, Number of items is " << c_items.size() << "\n";
         std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
         for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
@@ -398,11 +398,11 @@ bool Detail_Trace_Report(
           int64_t i;
           for (i = 0; i < (*cp.second).size(); i++ ) {
             CommandResult *p = (*cp.second)[i];
-            cerr << " Entry i= " << i << "  ";
+            std::cerr << " Entry i= " << i << "  ";
             if (p != NULL) {
-              p->Print(cerr); cerr << "\n";
+              p->Print(std::cerr); std::cerr << "\n";
             } else {
-              cerr << "NULL\n";
+              std::cerr << "NULL\n";
             }
           }
 
@@ -445,7 +445,7 @@ bool Detail_Trace_Report(
 
 #if DEBUG_DUMP_CITEMS
 // -- BEGIN DEBUG CITEMS
-        cerr << "\nDump items.  Detail_Trace_Report, SS_View_detail.txx, before calling Generic_Multi_View, Number of items is " << c_items.size() << "\n";
+        std::cerr << "\nDump items.  Detail_Trace_Report, SS_View_detail.txx, before calling Generic_Multi_View, Number of items is " << c_items.size() << "\n";
         std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
         for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
@@ -455,11 +455,11 @@ bool Detail_Trace_Report(
           int64_t i;
           for (i = 0; i < (*cp.second).size(); i++ ) {
             CommandResult *p = (*cp.second)[i];
-            cerr << " Entry i= " << i << "  ";
+            std::cerr << " Entry i= " << i << "  ";
             if (p != NULL) {
-              p->Print(cerr); cerr << "\n";
+              p->Print(std::cerr); std::cerr << "\n";
             } else {
-              cerr << "NULL\n";
+              std::cerr << "NULL\n";
             }
           }
 
@@ -510,7 +510,7 @@ bool Detail_Base_Report(
       cli_timing_handle->cli_perf_data[SS_Timings::detailBaseReportStart] = Time::Now();
   }
 
-  int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
+  int64_t num_temps = std::max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
 
 #if DEBUG_CLI
   printf("Enter Detail_Base_Report, SS_View_detail.txx, num_temps=%d, primary_is_inclusive=%d\n",
@@ -560,8 +560,8 @@ bool Detail_Base_Report(
       std::pair<bool, int> prank = ti->getMPIRank();
       int64_t rank = prank.first ? prank.second : -1;
       std::pair<bool, pthread_t> xtid = ti->getPosixThreadId();
-      cout << "In Detail_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.first=" << xtid.first << endl;
-      cout << "In Detail_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.second=" << xtid.second << " rank=" << rank << endl;
+      std::cout << "In Detail_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.first=" << xtid.first << std::endl;
+      std::cout << "In Detail_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.second=" << xtid.second << " rank=" << rank << std::endl;
    }
 #endif
 
@@ -654,8 +654,8 @@ bool Detail_Base_Report(
     std::pair<bool, int> dbprank = dbti->getMPIRank();
     int64_t dbrank = dbprank.first ? dbprank.second : -1;
     std::pair<bool, pthread_t> dbxtid = dbti->getPosixThreadId();
-    cout << "In Detail_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.first=" << dbxtid.first << endl;
-    cout << "In Detail_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.second=" << dbxtid.second << " dbrank=" << dbrank << endl;
+    std::cout << "In Detail_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.first=" << dbxtid.first << std::endl;
+    std::cout << "In Detail_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.second=" << dbxtid.second << " dbrank=" << dbrank << std::endl;
   }
 #endif
 
@@ -702,7 +702,7 @@ bool Detail_CallStack_Report (
       cli_timing_handle->cli_perf_data[SS_Timings::detailCallStackReportStart] = Time::Now();
   }
 
-  int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
+  int64_t num_temps = std::max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
 
 #if DEBUG_CLI
   printf("Enter Detail_CallStack_Report, SS_View_detail.txx, num_temps=%d, primary_is_inclusive=%d\n",
@@ -788,7 +788,7 @@ bool Detail_CallStack_Report (
       Function F = (*fi).first;
 
 #if DEBUG_CLI
-      cerr << "In Detail_CallStack_Report, SS_View_detail.txx, calling Get_Subextents_To_Object_Map for Function " 
+      std::cerr << "In Detail_CallStack_Report, SS_View_detail.txx, calling Get_Subextents_To_Object_Map for Function " 
            <<   F.getName() << "\n" ;
 #endif
 
@@ -836,7 +836,7 @@ bool Detail_CallStack_Report (
 
 #if DEBUG_DUMP_CITEMS
 // -- BEGIN DEBUG CITEMS
-        cerr << "\nDump items.  Detail_CallStack_Report, SS_View_detail.txx, after new CommandResult_CallStackEntry, Number of items is " << c_items.size() << "\n";
+        std::cerr << "\nDump items.  Detail_CallStack_Report, SS_View_detail.txx, after new CommandResult_CallStackEntry, Number of items is " << c_items.size() << "\n";
         std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
         for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
@@ -846,11 +846,11 @@ bool Detail_CallStack_Report (
           int64_t i;
           for (i = 0; i < (*cp.second).size(); i++ ) {
             CommandResult *p = (*cp.second)[i];
-            cerr << "  ";
+            std::cerr << "  ";
             if (p != NULL) {
-              p->Print(cerr); cerr << "\n";
+              p->Print(std::cerr); std::cerr << "\n";
             } else {
-              cerr << "NULL\n";
+              std::cerr << "NULL\n";
             }
           }
 
@@ -858,7 +858,7 @@ bool Detail_CallStack_Report (
         fflush(stderr);
 // -- END DEBUG CITEMS
 
-//        *vcs->Print(cerr);
+//        *vcs->Print(std::cerr);
 #endif
         c_items.push_back(std::make_pair(CSE, vcs));
       }
@@ -928,7 +928,7 @@ bool Detail_ButterFly_Report (
       cli_timing_handle->cli_perf_data[SS_Timings::detailButterFlyReportStart] = Time::Now();
   }
 
-  int64_t num_temps = max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
+  int64_t num_temps = std::max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
   Collector collector = CV[0];
   std::string metric = MV[0];
   bool TraceBack_Order = Determine_TraceBack_Ordering (cmd);
@@ -1066,7 +1066,7 @@ Dump_CallStack (std::vector<CommandResult *> *call_stack,
 #if DEBUG_DUMP_CITEMS
 
 // -- BEGIN DEBUG CITEMS
-        cerr << "\nDump items.  Detail_Trace_Report, SS_View_detail.txx, after pushing back vcs, Number of items is " << c_items.size() << "\n";
+        std::cerr << "\nDump items.  Detail_Trace_Report, SS_View_detail.txx, after pushing back vcs, Number of items is " << c_items.size() << "\n";
         std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
         for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
@@ -1076,11 +1076,11 @@ Dump_CallStack (std::vector<CommandResult *> *call_stack,
           int64_t i;
           for (i = 0; i < (*cp.second).size(); i++ ) {
             CommandResult *p = (*cp.second)[i];
-            cerr << " Entry i= " << i << "  ";
+            std::cerr << " Entry i= " << i << "  ";
             if (p != NULL) {
-              p->Print(cerr); cerr << "\n";
+              p->Print(std::cerr); std::cerr << "\n";
             } else {
-              cerr << "NULL\n";
+              std::cerr << "NULL\n";
             }
           }
 

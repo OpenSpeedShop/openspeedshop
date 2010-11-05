@@ -200,7 +200,7 @@ static bool setparam(Collector C, std::string pname,
           dval = (double)(pvalue.getIVal());
         }
         C.setParameterValue(pname,(double)dval);
-      } else if( m.isType(typeid(string)) ) {
+      } else if( m.isType(typeid(std::string)) ) {
         std::string sval;
         if (pvalue.getValType() == PARAM_VAL_STRING) {
           sval = std::string(pvalue.getSVal());
@@ -275,7 +275,7 @@ OfflineExperiment::getRawDataFiles (std::string dir)
     std::set<std::string> dsosList;
     std::set<std::string> executables_used;
 
-    string::size_type basedirpos =
+    std::string::size_type basedirpos =
 		rawdirs[0].find("/openss-rawdata-", 0);
     std::string basedir = rawdirs[0].substr(0,basedirpos);
 
@@ -296,9 +296,9 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 	    bool is_dir = S_ISDIR(file_info.st_mode);
 
 	    if (rawfile.find("-") != 0 && 
-                rawfile.find(".openss-data") != string::npos ||
-		rawfile.find(".openss-info") != string::npos ||
-		rawfile.find(".openss-dsos") != string::npos ) {
+                rawfile.find(".openss-data") != std::string::npos ||
+		rawfile.find(".openss-info") != std::string::npos ||
+		rawfile.find(".openss-dsos") != std::string::npos ) {
 
 		rawfiles.push_back(std::string(rawfile));
 
@@ -314,17 +314,17 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 	for (unsigned int i = 0;i < rawfiles.size();++i) {
 
 	    // create the master list of info files.
-	    if (rawfiles[i].find(".openss-info") != string::npos) {
+	    if (rawfiles[i].find(".openss-info") != std::string::npos) {
 		rawname = rawdatadir + "/" + rawfiles[i];
 		infoList.insert(rawname);
 	    }
 
 	    // create the master list of data files.
 	    // update list of unique executables found.
-	    if (rawfiles[i].find(".openss-data") != string::npos) {
+	    if (rawfiles[i].find(".openss-data") != std::string::npos) {
 		rawname = rawdatadir + "/" + rawfiles[i];
 
-		string::size_type pos = rawfiles[i].find_first_of("-", 0);
+		std::string::size_type pos = rawfiles[i].find_first_of("-", 0);
 		std::string temp = rawfiles[i].substr(0,pos);
 
 		executables_used.insert(temp);
@@ -332,7 +332,7 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 	    }
 
 	    // create the master list of dsos files.
-	    if (rawfiles[i].find(".openss-dsos") != string::npos) {
+	    if (rawfiles[i].find(".openss-dsos") != std::string::npos) {
 		rawname = rawdatadir + "/" + rawfiles[i];
 		dsosList.insert(rawname);
 	    }
@@ -346,35 +346,35 @@ OfflineExperiment::getRawDataFiles (std::string dir)
     for( ssi = executables_used.begin(); ssi != executables_used.end(); ++ssi) {
 	std::cerr << "Processing raw data for " << (*ssi) << std::endl;
         for( ssii = dataList.begin(); ssii != dataList.end(); ++ssii) {
-	    if( (*ssii).find((*ssi)) != string::npos) {
+	    if( (*ssii).find((*ssi)) != std::string::npos) {
 		rawfiles.push_back((*ssii));
 	    }
 	}
 
 
         for( ssii = infoList.begin(); ssii != infoList.end(); ++ssii) {
-	    if( (*ssii).find((*ssi)) != string::npos) {
+	    if( (*ssii).find((*ssi)) != std::string::npos) {
 		// restrict list to only those for which a matching
 		// openss-data file exists.
-		string::size_type pos = (*ssii).find(".openss-info", 0);
+		std::string::size_type pos = (*ssii).find(".openss-info", 0);
 		std::string ts = (*ssii).substr(0,pos) + ".openss-data";
 		for(temp = dataList.begin(); temp != dataList.end();
 							++temp) {
-		    if ((*temp).find(ts) != string::npos) {
+		    if ((*temp).find(ts) != std::string::npos) {
 			rawfiles.push_back((*ssii));
 		    }
 		}
 	    }
 	}
         for( ssii = dsosList.begin(); ssii != dsosList.end(); ++ssii) {
-	    if( (*ssii).find((*ssi)) != string::npos) {
+	    if( (*ssii).find((*ssi)) != std::string::npos) {
 		// restrict list to only those for which a matching
 		// openss-data file exists.
-		string::size_type pos = (*ssii).find(".openss-dsos", 0);
+		std::string::size_type pos = (*ssii).find(".openss-dsos", 0);
 		std::string ts = (*ssii).substr(0,pos) + ".openss-data";
 		for(temp = dataList.begin(); temp != dataList.end();
 							++temp) {
-		    if ((*temp).find(ts) != string::npos) {
+		    if ((*temp).find(ts) != std::string::npos) {
 			rawfiles.push_back((*ssii));
 		    }
 		}
@@ -399,7 +399,7 @@ int OfflineExperiment::convertToOpenSSDB()
     std::cerr << "Processing processes and threads ..." << std::endl;
     for (unsigned int i = 0;i < rawfiles.size();++i) {
 	bool_t found_infofile = false;
-	if (rawfiles[i].find(".openss-info") != string::npos) {
+	if (rawfiles[i].find(".openss-info") != std::string::npos) {
 	    //std::cerr << "processing " << rawfiles[i] << std::endl;
 	    rawname = rawfiles[i];
 	    found_infofile = true;
@@ -502,6 +502,8 @@ int OfflineExperiment::convertToOpenSSDB()
 	    } else if (mm.getUniqueId() == "event") {
 		if (expCollector == "hwcsamp") {
 			o_param.pushVal((char*)expEvent.c_str());
+		} else if (expCollector == "hwc") {
+			o_param.pushVal((char*)expEvent.c_str());
 		} else {
 		  char *evptr, *saveptr, *ev_token;
 		  evptr = strdup(expEvent.c_str());
@@ -533,7 +535,7 @@ int OfflineExperiment::convertToOpenSSDB()
     std::cerr << "Processing performance data ..." << std::endl;
     for (unsigned int i = 0;i < rawfiles.size();i++) {
 	bool_t found_datafile = false;
-	if (rawfiles[i].find(".openss-data") != string::npos) {
+	if (rawfiles[i].find(".openss-data") != std::string::npos) {
 	    //std::cout << "processing " << rawfiles[i] << std::endl;
 	    rawname = rawfiles[i];
 	    found_datafile = true;
@@ -554,7 +556,7 @@ int OfflineExperiment::convertToOpenSSDB()
     std::cerr << "Processing functions and statements ..." << std::endl;
     for (unsigned int i = 0;i < rawfiles.size();i++) {
 	bool_t found_dsofile = false;
-	if (rawfiles[i].find(".openss-dsos") != string::npos) {
+	if (rawfiles[i].find(".openss-dsos") != std::string::npos) {
 	    //std::cout << "processing " << rawfiles[i] << std::endl;
 	    rawname = rawfiles[i];
 	    found_dsofile = true;
@@ -803,10 +805,10 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 		}
 #endif
 
-		if (objname.find("[vdso]") == string::npos &&
-		    objname.find("[vsyscall]") == string::npos &&
-		    objname.find("[stack]") == string::npos &&
-		    objname.find("[heap]") == string::npos &&
+		if (objname.find("[vdso]") == std::string::npos &&
+		    objname.find("[vsyscall]") == std::string::npos &&
+		    objname.find("[stack]") == std::string::npos &&
+		    objname.find("[heap]") == std::string::npos &&
 		    objname.compare("unknown") != 0 ) {
 
 		    DsoEntry e(objname,objsheader.host, objsheader.pid,
@@ -852,7 +854,7 @@ void OfflineExperiment::createOfflineSymbolTable()
     ThreadGroup original = theExperiment->getThreads();
 
     // Find any new threads.
-    insert_iterator< ThreadGroup > ii( threads, threads.begin() );
+    std::insert_iterator< ThreadGroup > ii( threads, threads.begin() );
     std::set_difference(original.begin(), original.end(),
 			threads_processed.begin(), threads_processed.end(),
 			ii);
@@ -874,7 +876,7 @@ void OfflineExperiment::createOfflineSymbolTable()
 
     // add any new threads to threads_processed group.
     // the new threads will be processed below.
-    insert_iterator< ThreadGroup > iu( threads_processed,
+    std::insert_iterator< ThreadGroup > iu( threads_processed,
 					threads_processed.begin() );
     std::set_union(original.begin(), original.end(),
 			threads.begin(), threads.end(),

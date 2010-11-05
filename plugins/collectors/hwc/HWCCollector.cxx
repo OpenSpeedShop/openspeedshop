@@ -35,7 +35,6 @@
 #include <string>
 #include <iostream>
 
-using namespace std;
 
 #include "SS_Message_Element.hxx"
 #include "SS_Message_Czar.hxx"
@@ -372,8 +371,8 @@ void HWCCollector::getMetricValues(const std::string& metric,
 }
 
 
-typedef std::pair<std::string, string> papi_preset_event;
-//typedef std::vector<papi_event> papi_available_presets;
+typedef std::pair<std::string, std::string> papi_preset_event;
+typedef std::vector<papi_event> papi_available_presets;
 
 /**
  * Method: hwc_register_events_for_help()
@@ -440,7 +439,7 @@ hwc_register_events_for_help()
     	    it != papi_available_presets.end(); 
 	    ++it)
     {
-    	string t_string(it->first);
+    	std::string t_string(it->first);
 	t_string+="  ";
 	t_string+=it->second;
     	element.add_normal(t_string);

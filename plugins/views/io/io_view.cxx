@@ -67,10 +67,10 @@
               double v = primary.dm_time / num_calls;            \
               intime += v;                                       \
               incnt++;                                           \
-              start = min(start,primary.dm_interval.getBegin()); \
-              end = max(end,primary.dm_interval.getEnd());       \
-              vmin = min(vmin,v);                                \
-              vmax = max(vmax,v);                                \
+              start = std::min(start,primary.dm_interval.getBegin()); \
+              end = std::max(end,primary.dm_interval.getEnd());       \
+              vmin = std::min(vmin,v);                                \
+              vmax = std::max(vmax,v);                                \
               sum_squares += v * v;
 
 #define get_IO_exvalues(secondary,num_calls)           \
@@ -130,7 +130,7 @@ static void Determine_Objects (
                std::set<Function>& objects) {
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
+  std::vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
   OpenSpeedShop::cli::ParseTarget pt;
   if (p_tlist->begin() == p_tlist->end()) {
 
@@ -147,8 +147,8 @@ static void Determine_Objects (
 		std::string lopath = lo.getPath();
 		std::set<AddressRange> lor = lo.getAddressRange();
 		std::set<Thread> lot = lo.getThreads();
-		if (lopath.find("libpthread") != string::npos ||
-		    lopath.find("libc") != string::npos ) { 
+		if (lopath.find("libpthread") != std::string::npos ||
+		    lopath.find("libc") != std::string::npos ) { 
 
 #ifdef DEBUG_IO
 		    std::cerr << "Determine_Object IOT INSERT " << f
@@ -185,7 +185,7 @@ static void Determine_Objects (
     objects = io_objects;
 
   } else {
-    vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
+    std::vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
     pt = *p_tlist->begin(); // There can only be one!
     f_list = pt.getFileList();
 
@@ -209,8 +209,8 @@ static void Determine_Objects (
 		std::set<AddressRange> lor = lo.getAddressRange();
 		std::set<Thread> lot = lo.getThreads();
 
-		if (lopath.find("libpthread") != string::npos ||
-		    lopath.find("libc") != string::npos ) { 
+		if (lopath.find("libpthread") != std::string::npos ||
+		    lopath.find("libc") != std::string::npos ) { 
 #ifdef DEBUG_IO
 		    std::cerr << "Determine_Object IOT INSERT " << f
 			<< " FROM LO " << lo.getPath() << std::endl;
@@ -321,7 +321,7 @@ static bool define_io_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseRange> *p_slist = p_result->getexpMetricList();
+  std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
   bool generate_nested_accounting = false;
@@ -343,7 +343,7 @@ static bool define_io_columns (
    // Add modifiers to output list.
     int64_t i = 0;
     bool time_metric_selected = false;
-    vector<ParseRange>::iterator mi;
+    std::vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
       bool column_is_DateTime = false;
       parse_range_t *m_range = (*mi).getRange();

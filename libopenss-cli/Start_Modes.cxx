@@ -127,7 +127,7 @@ static void Input_Command_Args (CMDWID my_window, int argc, char ** argv, bool &
             processing_batch_option = false;
             if (onlineArgsFound) {
                // Warn the user about incorrect command syntax
-               cerr << "WARNING: Found dynamic/online arguments (-c,-h,-p,-r,or -t) present with -offline specified.  Switching to online mode." << std::endl;
+               std::cerr << "WARNING: Found dynamic/online arguments (-c,-h,-p,-r,or -t) present with -offline specified.  Switching to online mode." << std::endl;
                processing_offline_option = false;
                processing_online_option = true;
                processing_batch_option = false;
@@ -359,7 +359,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
    // Read a piped-in file.
     if ( !Append_Input_File (my_window, std::string("stdin"),
                            &Default_TLI_Line_Output, &Default_TLI_Command_Output) ) {
-      cerr << "ERROR: Unable to read piped in stdin file" << std::endl;
+      std::cerr << "ERROR: Unable to read piped in stdin file" << std::endl;
       return false;
     }
   }
@@ -376,7 +376,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
 
     if ((NULL == Append_Input_String (my_window, "expView\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
-      cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
+      std::cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
       return false;
     }
   }
@@ -394,7 +394,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
         (NULL == Append_Input_String (my_window, "expView\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
-      cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
+      std::cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
       return false;
     }
 
@@ -408,7 +408,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
         (NULL == Append_Input_String (my_window, "expView\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
-      cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
+      std::cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
       return false;
     }
   }
@@ -427,7 +427,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
         (NULL == Append_Input_String (my_window, "expView\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
-      cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
+      std::cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
       return false;
     }
   }

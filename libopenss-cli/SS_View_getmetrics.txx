@@ -66,14 +66,14 @@ void ReduceMetricByThread ( SmartPtr<std::map<TO, std::map<Thread, TS > > >& ind
     }
 
 #if DEBUG_CLI
-//    cout << "In ReduceMetricByThread  individual->size()=" << individual->size() << endl;
+//    std::cout << "In ReduceMetricByThread  individual->size()=" << individual->size() << std::endl;
 #endif
 
    // Reduce the per-thread values.
     SmartPtr<std::map<TO, TS > > reduced = Queries::Reduction::Apply(individual, reduction);
 
 #if DEBUG_CLI
-//    cout << "In ReduceMetricByThread  reduced->size()=" << reduced->size() << endl;
+//    std::cout << "In ReduceMetricByThread  reduced->size()=" << reduced->size() << std::endl;
 #endif
 
     // Merge the temporary reduction into the actual results
@@ -168,7 +168,7 @@ void GetReducedSet (
   for(typename std::map<TOBJECT, TI>::const_iterator
       item = result->begin(); item != result->end(); ++item) {
     std::pair<TOBJECT, TI> p = *item;
-//    cout << "GetReducedSet, p.second=" << p.second << endl;
+//    std::cout << "GetReducedSet, p.second=" << p.second << std::endl;
     items->insert( std::make_pair(p.first, CRPTR (p.second)) );
   }
 }

@@ -26,8 +26,6 @@
 #include <string>
 #include <iostream>
 
-using namespace std;
-
 #include "SS_Message_Element.hxx"
 
 using namespace OpenSpeedShop;
@@ -95,7 +93,7 @@ set_keyword(const char * const keyword_str)
  */
 void
 SS_Message_Element::
-set_keyword(const string keyword_str) 
+set_keyword(const std::string keyword_str) 
 {
     dm_keyword = keyword_str;
 }
@@ -114,7 +112,7 @@ set_keyword(const string keyword_str)
  */
 void
 SS_Message_Element::
-set_keyword(const string keyword_str,const string topic_str) 
+set_keyword(const std::string keyword_str,const std::string topic_str) 
 {
     dm_keyword = keyword_str;
     dm_topic = topic_str;
@@ -135,7 +133,7 @@ set_keyword(const string keyword_str,const string topic_str)
  */
 void
 SS_Message_Element::
-set_keyword(const string keyword_str, const string topic_str, const int id) 
+set_keyword(const std::string keyword_str, const std::string topic_str, const int id) 
 {
     dm_keyword = keyword_str;
     dm_topic = topic_str;
@@ -154,7 +152,7 @@ set_keyword(const string keyword_str, const string topic_str, const int id)
  * @todo    Example.
  *
  */
-string * 
+std::string * 
 SS_Message_Element::
 get_keyword() 
 {
@@ -194,7 +192,7 @@ set_topic(const char * const topic_str)
  */
 void
 SS_Message_Element::
-set_topic(const string topic_str) 
+set_topic(const std::string topic_str) 
 {
    dm_topic = topic_str;
 }
@@ -211,7 +209,7 @@ set_topic(const string topic_str)
  * @todo    Example.
  *
  */
-string * 
+std::string * 
 SS_Message_Element::
 get_topic() 
 {
@@ -258,7 +256,7 @@ add_related(const char * const related_str)
  */
 void
 SS_Message_Element::
-add_related(const string related_str) 
+add_related(const std::string related_str) 
 {
    dm_related_keyword_list.push_back(related_str);
 }
@@ -275,7 +273,7 @@ add_related(const string related_str)
  * @todo    Example.
  *
  */
-vector<string> * 
+std::vector<std::string> * 
 SS_Message_Element::
 get_related_list() 
 {
@@ -332,7 +330,7 @@ get_id()
  * @todo    Example.
  *
  */
-string * 
+std::string * 
 SS_Message_Element::
 get_brief() 
 {
@@ -372,7 +370,7 @@ set_brief(const char * const brief_str)
  */
 void
 SS_Message_Element::
-set_brief(const string brief_str) 
+set_brief(const std::string brief_str) 
 {
    dm_brief_message = brief_str;
 }
@@ -410,7 +408,7 @@ add_normal(const char * const normal_str)
  */
 void
 SS_Message_Element::
-add_normal(const string normal_str) 
+add_normal(const std::string normal_str) 
 {
    dm_normal_message_list.push_back(normal_str);
 }
@@ -427,7 +425,7 @@ add_normal(const string normal_str)
  * @todo    Example.
  *
  */
-vector<string> * 
+std::vector<std::string> * 
 SS_Message_Element::
 get_normal_list() 
 {
@@ -467,7 +465,7 @@ add_verbose(const char * const verbose_str)
  */
 void
 SS_Message_Element::
-add_verbose(const string verbose_str) 
+add_verbose(const std::string verbose_str) 
 {
    dm_verbose_message_list.push_back(verbose_str);
 }
@@ -484,7 +482,7 @@ add_verbose(const string verbose_str)
  * @todo    Example.
  *
  */
-vector<string> * 
+std::vector<std::string> * 
 SS_Message_Element::
 get_verbose_list() 
 {
@@ -524,7 +522,7 @@ add_example(const char * const example_str)
  */
 void
 SS_Message_Element::
-add_example(const string example_str) 
+add_example(const std::string example_str) 
 {
     dm_example_list.push_back(example_str);
 }
@@ -541,7 +539,7 @@ add_example(const string example_str)
  * @todo    Example.
  *
  */
-vector<string> * 
+std::vector<std::string> * 
 SS_Message_Element::
 get_example_list() 
 {
@@ -581,7 +579,7 @@ add_syntax(const char * const syntax_str)
  */
 void
 SS_Message_Element::
-add_syntax(const string syntax_str) 
+add_syntax(const std::string syntax_str) 
 {
     dm_syntax_list.push_back(syntax_str);
 }
@@ -598,7 +596,7 @@ add_syntax(const string syntax_str)
  * @todo    Example.
  *
  */
-vector<string> * 
+std::vector<std::string> * 
 SS_Message_Element::
 get_syntax_list() 
 {

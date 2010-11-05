@@ -30,17 +30,17 @@ static void Cmd_Execute (CommandObject *cmd) {
   printf("[TID=%ld], Cmd_Execute, entered\n", pthread_self() );
 #endif
 
-  string *redirect_name = cmd->P_Result()->getRedirectTarget();
-  ofstream *redirect_streamP = NULL;
-  ios_base::openmode open_mode = ios::out;
+  std::string *redirect_name = cmd->P_Result()->getRedirectTarget();
+  std::ofstream *redirect_streamP = NULL;
+  std::ios_base::openmode open_mode = std::ios::out;
   if (redirect_name->length() == 0) {
     redirect_name = cmd->P_Result()->getAppendTarget();
-    open_mode = ios::app;
+    open_mode = std::ios::app;
   }
   if ((redirect_name->length() > 0) &&
       (Predefined_ostream (*redirect_name) == NULL)) {
    // If they give us a real file name, direct command output there.
-    redirect_streamP = new ofstream (redirect_name->c_str(), open_mode);
+    redirect_streamP = new std::ofstream (redirect_name->c_str(), open_mode);
     if (redirect_streamP == NULL) {
       std::string s("Could not open file " + *redirect_name + ".");
       Mark_Cmd_With_Soft_Error(cmd,s);

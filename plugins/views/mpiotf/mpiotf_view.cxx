@@ -72,10 +72,10 @@
               double v = primary.dm_time / num_calls;            \
               intime += v;                                       \
               incnt++;                                           \
-              start = min(start,primary.dm_interval.getBegin()); \
-              end = max(end,primary.dm_interval.getEnd());       \
-              vmin = min(vmin,v);                                \
-              vmax = max(vmax,v);                                \
+              start = std::min(start,primary.dm_interval.getBegin()); \
+              end = std::max(end,primary.dm_interval.getEnd());       \
+              vmin = std::min(vmin,v);                                \
+              vmax = std::max(vmax,v);                                \
               sum_squares += v * v;                              \
               detail_source = primary.dm_source;                 \
               detail_destination = primary.dm_destination;       \
@@ -173,7 +173,7 @@ static void Determine_Objects (
                std::set<Function>& objects) {
  // Get the list of desired functions.
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
+  std::vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
   OpenSpeedShop::cli::ParseTarget pt;
   std::set<Function> mpi_objects;
   std::set<Function> pmpi_objects;
@@ -186,7 +186,7 @@ static void Determine_Objects (
     objects.insert(mpi_objects.begin(), mpi_objects.end());
   } else {
    // There is a list.  Is there a "-f" specifier?
-    vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
+    std::vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
     pt = *p_tlist->begin(); // There can only be one!
     f_list = pt.getFileList();
 

@@ -150,7 +150,7 @@ typedef struct {
 
 /** Decribe Parm information */
 typedef struct {
-    vector<ParseParam> parm_list;   /** List of parameters and values */
+    std::vector<ParseParam> parm_list;   /** List of parameters and values */
 } parm_type_t;
 
 ////////////////////////////////////////////////////
@@ -190,7 +190,7 @@ class ParseResult {
 	}
 
     	/** Return pointer to ParseTarget object list */
-	vector<ParseTarget> * getTargetList()
+	std::vector<ParseTarget> * getTargetList()
 	{
 	    return &dm_target_list;
 	}
@@ -213,7 +213,7 @@ class ParseResult {
 	int expIdCount();
 	bool isExpId();
 
-    	vector<ParseRange> * getExpIdList(){return &dm_experiment_id_list;}
+    	std::vector<ParseRange> * getExpIdList(){return &dm_experiment_id_list;}
 
     	void pushExpIdPoint(int num) {
 	    ParseRange range(num);
@@ -225,7 +225,7 @@ class ParseResult {
 	}
 	
     	/** Handle list of experiment types. */
-    	vector<string> * getExpList()
+    	std::vector<std::string> * getExpList()
 	{
 	    return &dm_exp_type_list;
 	}
@@ -235,7 +235,7 @@ class ParseResult {
 	}
 
     	/** Handle list of view types. */
-    	vector<string> * getViewList()
+    	std::vector<std::string> * getViewList()
 	{
 	    return &dm_view_type_list;
 	}
@@ -245,7 +245,7 @@ class ParseResult {
 	}
 
     	/** Handle list of view set id range values. */
-    	vector<ParseRange> * getViewSet()
+    	std::vector<ParseRange> * getViewSet()
 	{
 	    return &dm_view_set_list;
 	}
@@ -258,7 +258,7 @@ class ParseResult {
     	    dm_view_set_list.push_back(view_set); }
 
     	/** Handle list of general modifiers. */
-    	vector<string> * getModifierList()
+    	std::vector<std::string> * getModifierList()
 	{
 	    return &dm_modifier_list;
 	}
@@ -269,7 +269,7 @@ class ParseResult {
 
 
     	/** Handle list of general instrumentors. */
-    	vector<string> * getInstrumentor()
+    	std::vector<std::string> * getInstrumentor()
 	{
 	    return &dm_instrumentor_list;
 	}
@@ -278,7 +278,7 @@ class ParseResult {
 	}
 
     	/** Handle list of help requests. */
-    	vector<string> * getHelpList()
+    	std::vector<std::string> * getHelpList()
 	{
 	    return &dm_help_list;
 	}
@@ -290,35 +290,35 @@ class ParseResult {
     	void setError(const char * name1, const char * name2);
     	void setError(const char * name);
 	bool syntaxError( ) { return dm_error_set;}
-    	vector<ParseRange> * getErrorList() {return &dm_error_list;}
+    	std::vector<ParseRange> * getErrorList() {return &dm_error_list;}
 
     	/** Handle list of view intervals. */
 	void setIntervalAttribute(const char *attribute);
 	bool isIntervalAttribute(){return dm_interval_attribute_set;}
-	const string * getIntervalAttribute();
+	const std::string * getIntervalAttribute();
     	void pushInterval(int64_t begin, int64_t end);
     	void pushInterval(int64_t begin, double end);
     	void pushInterval(double begin, int64_t end);
     	void pushInterval(double begin, double end);
-    	vector<ParseInterval> * getParseIntervalList() {return &dm_interval_list;}
+    	std::vector<ParseInterval> * getParseIntervalList() {return &dm_interval_list;}
 
     	/** Handle list of expMetrics. */
     	void pushExpMetric(const char * name1, const char * name2);
     	void pushExpMetric(const char * name);
-    	vector<ParseRange> * getexpMetricList() {return &dm_exp_metric_list;}
+    	std::vector<ParseRange> * getexpMetricList() {return &dm_exp_metric_list;}
 
     	/** Handle list of break ids. */
-    	vector<int> * getBreakList(){return &dm_break_id_list;}
+    	std::vector<int> * getBreakList(){return &dm_break_id_list;}
 
     	void pushBreakId(int break_id) {dm_break_id_list.push_back(break_id);}
 	
 	/** Handle list of generic strings */
-    	vector<string> * getStringList(){return &dm_generic_string_list;}
-    	void pushString(string name) {dm_generic_string_list.push_back(name);}
+    	std::vector<std::string> * getStringList(){return &dm_generic_string_list;}
+    	void pushString(std::string name) {dm_generic_string_list.push_back(name);}
 	
 
     	/** Handle list of file names. */
-    	vector<ParseRange> * getAddressList(){return &dm_address_list;}
+    	std::vector<ParseRange> * getAddressList(){return &dm_address_list;}
 
     	void pushAddressPoint(const char * name) {
 	    ParseRange range(name);
@@ -348,7 +348,7 @@ class ParseResult {
     	/** Handle list of history numbers. */
 	// semantically there is only one number,
 	// but it is easy to use the ParseRange container.
-    	vector<ParseRange> * getHistoryList()
+    	std::vector<ParseRange> * getHistoryList()
 	{
 	    return &dm_history_list;
 	}
@@ -359,7 +359,7 @@ class ParseResult {
 	}
 
     	/** Handle list of line numbers. */
-    	vector<ParseRange> * getLineNoList()
+    	std::vector<ParseRange> * getLineNoList()
 	{
 	    return &dm_lineno_list;
 	}
@@ -398,7 +398,7 @@ class ParseResult {
     	void pushParamVal(double  dval);
 
     	/** Handle list of help modifiers. */
-    	vector<string> * getHelpModifierList()
+    	std::vector<std::string> * getHelpModifierList()
 	{
 	    return &dm_help_modifier_list;
 	}
@@ -409,7 +409,7 @@ class ParseResult {
 	bool setRedirectTarget(const char *name) {
 	    dm_redirect = name;
 	}
-	string * getRedirectTarget() {
+	std::string * getRedirectTarget() {
 	    return &dm_redirect;
 	}
 
@@ -417,7 +417,7 @@ class ParseResult {
 	bool setAppendTarget(const char *name) {
 	    dm_append = name;
 	}
-	string * getAppendTarget() {
+	std::string * getAppendTarget() {
 	    return &dm_append;
 	}
 
@@ -435,7 +435,7 @@ class ParseResult {
     	oss_cmd_enum dm_command_type;
 
     	/** Container of break Ids as integers */
-    	vector<ParseRange> dm_experiment_id_list;
+    	std::vector<ParseRange> dm_experiment_id_list;
 
     	/** Was help called? */
     	bool dm_help_set;
@@ -450,47 +450,47 @@ class ParseResult {
 	ParseParam dm_param;
 
     	/** Container of break Ids as integers */
-    	vector<int> dm_break_id_list;
+    	std::vector<int> dm_break_id_list;
     	/** Container of experiment types as strings */
-    	vector<string> dm_exp_type_list;
+    	std::vector<std::string> dm_exp_type_list;
     	/** Container of view types as strings */
-    	vector<string> dm_view_type_list;
+    	std::vector<std::string> dm_view_type_list;
     	/** Container of view set Ids as integers */
-    	vector<ParseRange> dm_view_set_list;
+    	std::vector<ParseRange> dm_view_set_list;
     	/** Container of general modifiers as strings */
-    	vector<string> dm_modifier_list;
+    	std::vector<std::string> dm_modifier_list;
     	/** Container of instrumentors as strings */
-    	vector<string> dm_instrumentor_list;
+    	std::vector<std::string> dm_instrumentor_list;
     	/** Container of help requests as strings */
-    	vector<string> dm_help_list;
+    	std::vector<std::string> dm_help_list;
     	/** Container of help modifiers */
-    	vector<string> dm_help_modifier_list;
+    	std::vector<std::string> dm_help_modifier_list;
     	/** Container of addresses */
-    	vector<ParseRange> dm_address_list;
+    	std::vector<ParseRange> dm_address_list;
     	/** Container of history ranges */
-    	vector<ParseRange> dm_history_list;
+    	std::vector<ParseRange> dm_history_list;
     	/** Container of line numbers */
-    	vector<ParseRange> dm_lineno_list;
+    	std::vector<ParseRange> dm_lineno_list;
     	/** Container of strings */
-    	vector<string> dm_generic_string_list;
+    	std::vector<std::string> dm_generic_string_list;
     	/** Container of syntax error symbols */
-    	vector<ParseRange> dm_error_list;
+    	std::vector<ParseRange> dm_error_list;
     	/** Container of view interval tuples */
-    	vector<ParseInterval> dm_interval_list;
+    	std::vector<ParseInterval> dm_interval_list;
     	/** Container of expMetric tuples */
-    	vector<ParseRange> dm_exp_metric_list;
+    	std::vector<ParseRange> dm_exp_metric_list;
 
     	/** Container of host/file/rpt as class HostFileRPT */
-    	vector<ParseTarget> dm_target_list;
+    	std::vector<ParseTarget> dm_target_list;
 	ParseTarget *dm_p_cur_target;
 	
     	/** Redirect target strings */
-	string dm_redirect;
-	string dm_append;
+	std::string dm_redirect;
+	std::string dm_append;
 
     	/** Is there an interval attribute? */
 	bool dm_interval_attribute_set;
-    	string dm_interval_attribute;
+    	std::string dm_interval_attribute;
 
 //    protected:
 //    	/** Things I don't want to happen so don't define!*/

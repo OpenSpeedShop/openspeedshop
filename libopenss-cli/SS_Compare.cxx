@@ -104,7 +104,7 @@ struct selectionTarget {
   OpenSpeedShop::cli::ParseResult *pResult;
   ExperimentObject *Exp;
   ThreadGroup *base_tgrp;
-  std:: string viewName;
+  std::string viewName;
   std::string hostId;
   pid_t pidId;
   pthread_t threadId;
@@ -140,7 +140,7 @@ struct selectionTarget {
     timeSegment = S.timeSegment;
   }
 
-  void Print (ostream& to) {
+  void Print (std::ostream& to) {
     if (pResult != NULL) {
       pResult->ParseResult::dumpInfo();
     }
@@ -275,8 +275,8 @@ static bool Generate_CustomView (CommandObject *cmd,
 #endif
 
  // Look in the metric list for a request to calculate differences.
-  vector<ParseRange> *m_list = cmd->P_Result()->getexpMetricList();
-  vector<ParseRange>::iterator j;
+  std::vector<ParseRange> *m_list = cmd->P_Result()->getexpMetricList();
+  std::vector<ParseRange>::iterator j;
 
   for (j=m_list->begin();j != m_list->end(); j++) {
     parse_range_t *m_range = (*j).getRange();
@@ -308,8 +308,8 @@ static bool Generate_CustomView (CommandObject *cmd,
 #if DEBUG_COMPARE_SETS
   printf("SSCOMPARE: In Generate_CustomView, START 1st print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
   for (i = 0; i < numQuickSets; i++) {
-    cerr << i;
-    Quick_Compare_Set[i].Print(cerr);
+    std::cerr << i;
+    Quick_Compare_Set[i].Print(std::cerr);
   }
   printf("SSCOMPARE: In Generate_CustomView, END 1st print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
 #endif
@@ -334,7 +334,7 @@ static bool Generate_CustomView (CommandObject *cmd,
     if (vt == NULL) {
       std::ostringstream M;
       M << "The requested view, '" << viewname << "' is not available.";
-      Mark_Cmd_With_Soft_Error(cmd, M.ostringstream::str());
+      Mark_Cmd_With_Soft_Error(cmd, M.str());
       return false;
     }
 
@@ -397,7 +397,7 @@ static bool Generate_CustomView (CommandObject *cmd,
 
      // Are we processing a restricted time range?
       if (!Quick_Compare_Set[i].timeSegment.empty()) {
-        vector<ParseInterval> *interval_list = cmd->P_Result()->getParseIntervalList();
+        std::vector<ParseInterval> *interval_list = cmd->P_Result()->getParseIntervalList();
         interval_list->clear();
         interval_list->push_back(Quick_Compare_Set[i].timeSegment[0]);
       }
@@ -468,8 +468,8 @@ static bool Generate_CustomView (CommandObject *cmd,
 #if DEBUG_COMPARE_SETS
   printf("SSCOMPARE: IN Generate_CustomView, START 2nd print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
   for (i = 0; i < numQuickSets; i++) {
-    cerr << i;
-    Quick_Compare_Set[i].Print(cerr);
+    std::cerr << i;
+    Quick_Compare_Set[i].Print(std::cerr);
   }
   printf("SSCOMPARE: IN Generate_CustomView, END 2nd print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
 #endif
@@ -478,19 +478,19 @@ static bool Generate_CustomView (CommandObject *cmd,
 
 #if DEBUG_COMPARE_SETS
   printf("SSCOMPARE: IN Generate_CustomView, START ------- print of generated views, numQuickSets=%d\n", numQuickSets);
-  cerr << "Display generated views\n";
+  std::cerr << "Display generated views\n";
   for (i = 0; i < numQuickSets; i++) {
-    cerr << "Set " << i << "\n";
+    std::cerr << "Set " << i << "\n";
     if (Quick_Compare_Set[i].partial_view.empty()) {
-      cerr << "   (empty)\n";
+      std::cerr << "   (empty)\n";
     } else {
       std::list<CommandResult *>::iterator coi;
       for (coi = Quick_Compare_Set[i].partial_view.begin();
            coi != Quick_Compare_Set[i].partial_view.end();
            coi++) {
         CommandResult *c = *coi;
-        c->Print(cerr);
-        cerr << "\n";
+        c->Print(std::cerr);
+        std::cerr << "\n";
       }
     }
   }
@@ -562,8 +562,8 @@ static bool Generate_CustomView (CommandObject *cmd,
 #if DEBUG_COMPARE_SETS
   printf("SSCOMPARE: IN Generate_CustomView, START 3rd print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
   for (i = 0; i < numQuickSets; i++) {
-    cerr << i;
-    Quick_Compare_Set[i].Print(cerr);
+    std::cerr << i;
+    Quick_Compare_Set[i].Print(std::cerr);
   }
   printf("SSCOMPARE: IN Generate_CustomView, END 3rd print of Quick_Compare_Sets, numQuickSets=%d\n", numQuickSets);
 #endif
@@ -676,7 +676,7 @@ static bool Generate_CustomView (CommandObject *cmd,
           M << "The name portion of '" << last_column->Form()
             << "' appears more than once in the view."
             << " Only the first occurence is included in the generated comparison.";
-          Mark_Cmd_With_Soft_Error(cmd, M.ostringstream::str());
+          Mark_Cmd_With_Soft_Error(cmd, M.str());
         } else {
           Quick_Compare_Set[i].merge_map[master_index] = c;
         }
@@ -926,7 +926,7 @@ bool SS_expCompare (CommandObject *cmd) {
 
  // Pick up the <expID> from the command.
  // Note: we must always generate at least one compare set for this list.
-  vector<ParseRange> *p_elist = cmd->P_Result()->getExpIdList();
+  std::vector<ParseRange> *p_elist = cmd->P_Result()->getExpIdList();
   if (p_elist->begin() == p_elist->end()) {
    // The user has not selected a view look for the focused experiment.
     EXPID ExperimentID = Experiment_Focus ( WindowID );
@@ -946,7 +946,7 @@ bool SS_expCompare (CommandObject *cmd) {
     }
   } else {
    // Generate compare sets for every experiment.
-    vector<ParseRange>::iterator ei;
+    std::vector<ParseRange>::iterator ei;
     for (ei = p_elist->begin(); ei != p_elist->end(); ei++) {
      // Determine the experiment needed for the next set.
       parse_range_t *e_range = (*ei).getRange();
@@ -965,7 +965,7 @@ bool SS_expCompare (CommandObject *cmd) {
          // This is an error and should be reported.
           std::ostringstream M;
           M << "Experiment ID '-x " << ExperimentID << "' is not valid.";
-          Mark_Cmd_With_Soft_Error(cmd, M.ostringstream::str());
+          Mark_Cmd_With_Soft_Error(cmd, M.str());
           return false;
         }
 
@@ -974,7 +974,7 @@ bool SS_expCompare (CommandObject *cmd) {
         M << "-x " << ExperimentID << " ";
         selectionTarget S;
         S.Exp = exp;
-        S.headerPrefix = M.ostringstream::str();
+        S.headerPrefix = M.str();
         Quick_Compare_Set.push_back (S);
       }
 
@@ -985,7 +985,7 @@ bool SS_expCompare (CommandObject *cmd) {
 
  // Pick up the <viewType> from the command or the experiment
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<string> *p_slist = p_result->getViewList();
+  std::vector<std::string> *p_slist = p_result->getViewList();
   if (p_slist->begin() == p_slist->end()) {
    // The user has not selected a view.
    // Look for a view that would be meaningful.
@@ -1019,7 +1019,7 @@ bool SS_expCompare (CommandObject *cmd) {
        // Nothing defined - we can't generate a report.
         std::ostringstream M;
         M << "No usable view available for '-x " << exp->ExperimentObject_ID() << "'.";
-        Mark_Cmd_With_Soft_Error(cmd, M.ostringstream::str());
+        Mark_Cmd_With_Soft_Error(cmd, M.str());
         return false;
       }
 
@@ -1027,7 +1027,7 @@ bool SS_expCompare (CommandObject *cmd) {
        // Too much stuff - we don't know what to compare.
         std::ostringstream M;
         M << "Multiple views possible for '-x " << exp->ExperimentObject_ID() << "'.";
-        Mark_Cmd_With_Soft_Error(cmd, M.ostringstream::str());
+        Mark_Cmd_With_Soft_Error(cmd, M.str());
         return false;
       }
 
@@ -1065,14 +1065,14 @@ bool SS_expCompare (CommandObject *cmd) {
    // Generate all the views in the list.
 
     std::vector<std::string> views;
-    vector<string>::iterator vi;
+    std::vector<std::string>::iterator vi;
     for (vi=p_slist->begin();vi != p_slist->end(); vi++) {
       std::string viewname = *vi;
       ViewType *vt = Find_View (viewname);
       if (vt == NULL) {
         std::ostringstream M;
         M << "The requested view, '" << viewname << "' is not available.";
-        Mark_Cmd_With_Soft_Error(cmd, M.ostringstream::str());
+        Mark_Cmd_With_Soft_Error(cmd, M.str());
         return false;
       }
       views.push_back (viewname);
@@ -1114,7 +1114,7 @@ bool SS_expCompare (CommandObject *cmd) {
   
 
  // The <target_spec> will define the comparisons.
-  vector<ParseTarget> *p_tlist = p_result->getTargetList();
+  std::vector<ParseTarget> *p_tlist = p_result->getTargetList();
   if (p_tlist->size() > 1) {
    // There are no filters.
     Mark_Cmd_With_Soft_Error(cmd, "There is more than one target specification.");
@@ -1124,15 +1124,15 @@ bool SS_expCompare (CommandObject *cmd) {
  // Pick up the field definitions from the first ParseTarget.
   if (!p_tlist->empty()) {
     ParseTarget *pt = &((*p_tlist)[0]);
-    vector<ParseRange> *h_list = pt->getHostList();
-    vector<ParseRange> *p_list = pt->getPidList();
-    vector<ParseRange> *t_list = pt->getThreadList();
-    vector<ParseRange> *r_list = pt->getRankList();
+    std::vector<ParseRange> *h_list = pt->getHostList();
+    std::vector<ParseRange> *p_list = pt->getPidList();
+    std::vector<ParseRange> *t_list = pt->getThreadList();
+    std::vector<ParseRange> *r_list = pt->getRankList();
 
     if ((h_list != NULL) && !h_list->empty()) {
      // Start by building a vector of all the host names.
       std::vector<std::string> hosts;
-      vector<ParseRange>::iterator hi;
+      std::vector<ParseRange>::iterator hi;
       for (hi=h_list->begin();hi != h_list->end(); hi++) {
         parse_range_t *pr = hi->getRange();
         parse_val_t pval1 = pr->start_range;
@@ -1182,7 +1182,7 @@ bool SS_expCompare (CommandObject *cmd) {
     if ((p_list != NULL) && !p_list->empty()) {
      // Start by building a vector of all the pids.
       std::vector<pid_t> pids;;
-      vector<ParseRange>::iterator pi;
+      std::vector<ParseRange>::iterator pi;
       for (pi = p_list->begin();pi != p_list->end(); pi++) {
         parse_range_t *p_range = pi->getRange();
         parse_val_t pval1 = p_range->start_range;
@@ -1235,7 +1235,7 @@ bool SS_expCompare (CommandObject *cmd) {
     if ((t_list != NULL) && !t_list->empty()) {
      // Start by building a vector of all the threads names.
       std::vector<int64_t> threadids;;
-      vector<ParseRange>::iterator pi;
+      std::vector<ParseRange>::iterator pi;
       for (pi = t_list->begin();pi != t_list->end(); pi++) {
         parse_range_t *p_range = pi->getRange();
         parse_val_t *pval1 = &p_range->start_range;
@@ -1287,7 +1287,7 @@ bool SS_expCompare (CommandObject *cmd) {
     if ((r_list != NULL) && !r_list->empty()) {
      // Start by building a vector of all the ranks.
       std::vector<int64_t> rankids;;
-      vector<ParseRange>::iterator pi;
+      std::vector<ParseRange>::iterator pi;
       for (pi = r_list->begin();pi != r_list->end(); pi++) {
         parse_range_t *p_range = pi->getRange();
         parse_val_t *pval1 = &p_range->start_range;
@@ -1336,13 +1336,13 @@ bool SS_expCompare (CommandObject *cmd) {
   }
 
  // Pick up the time interval definitions from the ParseResult.
-  vector<ParseInterval> *interval_list = p_result->getParseIntervalList();
+  std::vector<ParseInterval> *interval_list = p_result->getParseIntervalList();
   if (interval_list->size() > 1) {
    // More than 1 implies that we want to compare across time segments.
 
     if (Quick_Compare_Set.size() == 0) {
      // Define new compare sets for each time interval.
-      for (vector<ParseInterval>::iterator
+      for (std::vector<ParseInterval>::iterator
               iv = interval_list->begin(); iv != interval_list->end(); iv++) {
         std::ostringstream H;
         ParseInterval P = *iv;
@@ -1362,7 +1362,7 @@ bool SS_expCompare (CommandObject *cmd) {
         }
 
         selectionTarget S;
-        S.headerPrefix = H.ostringstream::str() + " ";
+        S.headerPrefix = H.str() + " ";
         S.timeSegment.push_back(*iv);
         Quick_Compare_Set.push_back (S);
       }
@@ -1388,7 +1388,7 @@ bool SS_expCompare (CommandObject *cmd) {
         H << " ";
 
         for (int64_t j = 0; j < Quick_Compare_Set.size(); j++) {
-        Quick_Compare_Set[j].headerPrefix += H.ostringstream::str();
+        Quick_Compare_Set[j].headerPrefix += H.str();
         Quick_Compare_Set[j].timeSegment.push_back(P);
         }
     } else if (Quick_Compare_Set.size() > 1) {
@@ -1421,7 +1421,7 @@ bool SS_expCompare (CommandObject *cmd) {
         }
         H << " ";
 
-        Quick_Compare_Set[j].headerPrefix += H.ostringstream::str();
+        Quick_Compare_Set[j].headerPrefix += H.str();
         Quick_Compare_Set[j].timeSegment.push_back(P);
       }
 
@@ -1465,8 +1465,8 @@ bool SS_cvClear (CommandObject *cmd) {
     SS_cvClear_All ();
   } else {
     OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-    vector<ParseRange> *cv_list = p_result->getViewSet ();
-    vector<ParseRange>::iterator cvli;
+    std::vector<ParseRange> *cv_list = p_result->getViewSet ();
+    std::vector<ParseRange>::iterator cvli;
 
     for (cvli=cv_list->begin();cvli != cv_list->end(); cvli++) {
       parse_range_t *c_range = cvli->getRange();
@@ -1492,12 +1492,12 @@ bool SS_cvClear (CommandObject *cmd) {
 
 static std::string CustomViewInfo (CustomView *cvp) {
   OpenSpeedShop::cli::ParseResult *p_result = cvp->cvPr();
-  std::ostringstream S(ios::out);
+  std::ostringstream S(std::ios::out);
  // List viewTypes.
-  vector<string> *vtlist = p_result->getViewList();
+  std::vector<std::string> *vtlist = p_result->getViewList();
   if (!vtlist->empty()) {
     bool first_item_found = false;
-    vector<string>::iterator p_vtlist;
+    std::vector<std::string>::iterator p_vtlist;
     S << " ";
     for (p_vtlist=vtlist->begin(); p_vtlist != vtlist->end(); p_vtlist++) {
       if (first_item_found) {
@@ -1509,10 +1509,10 @@ static std::string CustomViewInfo (CustomView *cvp) {
   }
 
  // Look at general modifier types for a specific KeyWord option.
-  vector<string> *v_list = p_result->getModifierList();
+  std::vector<std::string> *v_list = p_result->getModifierList();
   if (!v_list->empty()) {
     bool first_item_found = false;
-    vector<string>::iterator p_vlist;
+    std::vector<std::string>::iterator p_vlist;
     S << " -v ";
     for (p_vlist=v_list->begin();p_vlist != v_list->end(); p_vlist++) {
       if (first_item_found) {
@@ -1532,18 +1532,18 @@ static std::string CustomViewInfo (CustomView *cvp) {
 
   
  // For each set of filter specifications ...
-  int64_t header_length = S.ostringstream::str().size();
-  vector<ParseTarget> *p_tlist = p_result->getTargetList();
-  vector<ParseTarget>::iterator pi;
+  int64_t header_length = S.str().size();
+  std::vector<ParseTarget> *p_tlist = p_result->getTargetList();
+  std::vector<ParseTarget>::iterator pi;
 
  // Add the "-h" list
-  std::set<string> hset;
+  std::set<std::string> hset;
   for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
     ParseTarget pt = *pi;
-    vector<ParseRange> *h_list = pt.getHostList();
+    std::vector<ParseRange> *h_list = pt.getHostList();
 
     if (!h_list->empty()) {
-      vector<ParseRange>::iterator p_hlist;
+      std::vector<ParseRange>::iterator p_hlist;
       for (p_hlist=h_list->begin();p_hlist != h_list->end(); p_hlist++) {
         parse_range_t p_range = *p_hlist->getRange();
         // std::string N = Experiment::getCanonicalName(p_range.start_range.name);
@@ -1571,11 +1571,11 @@ static std::string CustomViewInfo (CustomView *cvp) {
   std::set<std::string> fset;
   for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
     ParseTarget pt = *pi;
-    vector<ParseRange> *h_list = pt.getHostList();
-    vector<ParseRange> *f_list = pt.getFileList();
+    std::vector<ParseRange> *h_list = pt.getHostList();
+    std::vector<ParseRange> *f_list = pt.getFileList();
 
     if (!f_list->empty()) {
-      vector<ParseRange>::iterator p_flist;
+      std::vector<ParseRange>::iterator p_flist;
       for (p_flist=h_list->begin();p_flist != h_list->end(); p_flist++) {
         parse_range_t p_range = *p_flist->getRange();
         // std::string N = Experiment::getCanonicalName(p_range.start_range.name);
@@ -1603,10 +1603,10 @@ static std::string CustomViewInfo (CustomView *cvp) {
   std::map<pid_t, parse_range_t> pset;
   for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
     ParseTarget pt = *pi;
-    vector<ParseRange> *p_list = pt.getPidList();
+    std::vector<ParseRange> *p_list = pt.getPidList();
 
     if (!p_list->empty()) {
-      vector<ParseRange>::iterator p_plist;
+      std::vector<ParseRange>::iterator p_plist;
       for (p_plist=p_list->begin();p_plist != p_list->end(); p_plist++) {
         parse_range_t p_range = *p_plist->getRange();
         pid_t start_range = p_range.start_range.num;
@@ -1638,10 +1638,10 @@ static std::string CustomViewInfo (CustomView *cvp) {
   std::map<int64_t, parse_range_t> tset;
   for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
     ParseTarget pt = *pi;
-    vector<ParseRange> *t_list = pt.getThreadList();
+    std::vector<ParseRange> *t_list = pt.getThreadList();
 
     if (!t_list->empty()) {
-      vector<ParseRange>::iterator p_tlist;
+      std::vector<ParseRange>::iterator p_tlist;
       for (p_tlist=t_list->begin();p_tlist != t_list->end(); p_tlist++) {
         parse_range_t p_range = *p_tlist->getRange();
         int64_t start_range = p_range.start_range.num;
@@ -1672,10 +1672,10 @@ static std::string CustomViewInfo (CustomView *cvp) {
   std::map<int64_t, parse_range_t> rset;
   for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
     ParseTarget pt = *pi;
-    vector<ParseRange> *t_list = pt.getRankList();
+    std::vector<ParseRange> *t_list = pt.getRankList();
 
     if (!t_list->empty()) {
-      vector<ParseRange>::iterator p_rlist;
+      std::vector<ParseRange>::iterator p_rlist;
       for (p_rlist=t_list->begin();p_rlist != t_list->end(); p_rlist++) {
         parse_range_t p_range = *p_rlist->getRange();
         int64_t start_range = p_range.start_range.num;
@@ -1703,12 +1703,12 @@ static std::string CustomViewInfo (CustomView *cvp) {
   }
 
  // Output the '-m' list'
-  vector<ParseRange> *p_mlist = p_result->getexpMetricList();
+  std::vector<ParseRange> *p_mlist = p_result->getexpMetricList();
   if (!p_mlist->empty()) {
    // Add modifiers to output list.
     S << " -m ";
     bool first_item_found = false;
-    vector<ParseRange>::iterator mi;
+    std::vector<ParseRange>::iterator mi;
     for (mi = p_mlist->begin(); mi != p_mlist->end(); mi++) {
       if (first_item_found) {
         S << ", ";
@@ -1725,7 +1725,7 @@ static std::string CustomViewInfo (CustomView *cvp) {
   }
 
  // Return the accumulated result
-  return S.ostringstream::str();
+  return S.str();
 }
 
 static void Report_CustomViewInfo (CommandObject *cmd,
@@ -1733,9 +1733,9 @@ static void Report_CustomViewInfo (CommandObject *cmd,
   OpenSpeedShop::cli::ParseResult *p_result = cvp->cvPr();
 
  // Accumulate output in a string.
-  std::ostringstream S(ios::out);
+  std::ostringstream S(std::ios::out);
   S << "-c " << cvp->cvId() << ":";
-  cmd->Result_String (S.ostringstream::str() + CustomViewInfo (cvp));
+  cmd->Result_String (S.str() + CustomViewInfo (cvp));
 }
 
 bool SS_cvInfo (CommandObject *cmd) {
@@ -1749,7 +1749,7 @@ bool SS_cvInfo (CommandObject *cmd) {
     }
   } else {
     OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-    vector<ParseRange> *cv_list = p_result->getViewSet ();
+    std::vector<ParseRange> *cv_list = p_result->getViewSet ();
     if (cv_list->empty()) {
       if (!CustomView_List.empty()) {
        // Print the most recent one.
@@ -1757,7 +1757,7 @@ bool SS_cvInfo (CommandObject *cmd) {
       }
     } else {
      // Print the ones in the user's list.
-      vector<ParseRange>::iterator cvli;
+      std::vector<ParseRange>::iterator cvli;
 
       for (cvli=cv_list->begin();cvli != cv_list->end(); cvli++) {
         parse_range_t *c_range = cvli->getRange();
@@ -1804,8 +1804,8 @@ bool SS_cView (CommandObject *cmd) {
   std::vector<selectionTarget> Quick_Compare_Set;
 
   OpenSpeedShop::cli::ParseResult *primary_result = cmd->P_Result();
-  vector<ParseRange> *cv_list = primary_result->getViewSet ();
-  for (vector<ParseRange>::iterator
+  std::vector<ParseRange> *cv_list = primary_result->getViewSet ();
+  for (std::vector<ParseRange>::iterator
              cvli=cv_list->begin();cvli != cv_list->end(); cvli++) {
     parse_range_t *c_range = cvli->getRange();
     parse_val_t *c_val1 = &c_range->start_range;
@@ -1816,31 +1816,31 @@ bool SS_cView (CommandObject *cmd) {
     for (int64_t i = Rvalue1; i <= Rvalue2; i++) {
       CustomView *cvp = Find_CustomView (i);
       if (cvp == NULL) {
-        std::ostringstream S(ios::out);
+        std::ostringstream S(std::ios::out);
         S << "The requested Custom View ID, '-c " << i << "', is invalid on the 'cView' command.";
-        Mark_Cmd_With_Soft_Error(cmd, S.ostringstream::str());
+        Mark_Cmd_With_Soft_Error(cmd, S.str());
         continue;
       }
 
      // Make a copy of the current parse object to pick up any defined fields.
       OpenSpeedShop::cli::ParseResult *new_result = new ParseResult((*primary_result));
-      vector<string> *new_view_list = new_result->getViewList();
-      vector<string> *new_mod_list = new_result->getModifierList();
-      vector<ParseRange> *new_met_list = new_result->getexpMetricList();
-      vector<ParseTarget> *new_target_list = new_result->getTargetList();
-      vector<ParseRange> *new_cv_list = new_result->getViewSet ();
+      std::vector<std::string> *new_view_list = new_result->getViewList();
+      std::vector<std::string> *new_mod_list = new_result->getModifierList();
+      std::vector<ParseRange> *new_met_list = new_result->getexpMetricList();
+      std::vector<ParseTarget> *new_target_list = new_result->getTargetList();
+      std::vector<ParseRange> *new_cv_list = new_result->getViewSet ();
       new_cv_list->clear();
-      vector<ParseInterval> *new_interval_list = new_result->getParseIntervalList();
+      std::vector<ParseInterval> *new_interval_list = new_result->getParseIntervalList();
 
      // Get access to the parse object defined with the custom view.
       OpenSpeedShop::cli::ParseResult *old_result = cvp->cvPr();
-      vector<string> *old_view_list = old_result->getViewList();
-      vector<string> *old_mod_list = old_result->getModifierList();
-      vector<ParseRange> *old_met_list = old_result->getexpMetricList();
-      vector<ParseTarget> *old_target_list = old_result->getTargetList();
-      vector<ParseInterval> *old_interval_list = old_result->getParseIntervalList();
+      std::vector<std::string> *old_view_list = old_result->getViewList();
+      std::vector<std::string> *old_mod_list = old_result->getModifierList();
+      std::vector<ParseRange> *old_met_list = old_result->getexpMetricList();
+      std::vector<ParseTarget> *old_target_list = old_result->getTargetList();
+      std::vector<ParseInterval> *old_interval_list = old_result->getParseIntervalList();
 
-      std::ostringstream N(ios::out);
+      std::ostringstream N(std::ios::out);
       N << i;
 
      // Try to use the ID in the new parse object.
@@ -1855,7 +1855,7 @@ bool SS_cView (CommandObject *cmd) {
          // No experiment was specified, so we can't find a useful view to generate.
           Mark_Cmd_With_Soft_Error(cmd,
                                    "No valid experiment was specified for -c "
-                                      + N.ostringstream::str() + ".");
+                                      + N.str() + ".");
           continue;
         }
       }
@@ -1898,7 +1898,7 @@ bool SS_cView (CommandObject *cmd) {
          // No collector was used.
           Mark_Cmd_With_Soft_Error(cmd,
                                    "No performance measurements were made for the experiment of -c "
-                                      + N.ostringstream::str() + ".");
+                                      + N.str() + ".");
           continue;
         } else {
           bool view_found = false;
@@ -1919,14 +1919,14 @@ bool SS_cView (CommandObject *cmd) {
       }
 
      // Generate all the views in the list.
-      vector<string>::iterator si;
+      std::vector<std::string>::iterator si;
       for (si = new_view_list->begin(); si != new_view_list->end(); si++) {
        // Determine the availability of the view.
         std::string viewname = *si;
         ViewType *vt = Find_View (viewname);
         if (vt == NULL) {
           Mark_Cmd_With_Soft_Error(cmd, "The requested view '" + viewname + "' on -c "
-                                          + N.ostringstream::str() + " is unavailable.");
+                                          + N.str() + " is unavailable.");
           return false;
         }
 
@@ -1939,7 +1939,7 @@ bool SS_cView (CommandObject *cmd) {
         selectionTarget S;
         S.pResult = new_result;
         S.base_tgrp = cvp->cvTgrp();
-        S.headerPrefix = std::string("-c ") + N.ostringstream::str() + " ";
+        S.headerPrefix = std::string("-c ") + N.str() + " ";
         // S.headerPrefix = CustomViewInfo  (cvp) + " ";
         S.Exp = exp;
         S.viewName = viewname;
@@ -2058,9 +2058,9 @@ bool SS_cvClusters (CommandObject *cmd) {
 
  // Pick up components of the parse object.
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<string> *p_slist = p_result->getViewList();
-  vector<ParseRange> *met_list = p_result->getexpMetricList();
-  vector<ParseTarget> *p_tlist = p_result->getTargetList();
+  std::vector<std::string> *p_slist = p_result->getViewList();
+  std::vector<ParseRange> *met_list = p_result->getexpMetricList();
+  std::vector<ParseTarget> *p_tlist = p_result->getTargetList();
 
  // Get a list of the unique threads used in the specified experiment.
   Framework::Experiment *experiment = exp->FW();
@@ -2120,7 +2120,7 @@ bool SS_cvClusters (CommandObject *cmd) {
     M_Name = vt->Metrics()[0];
   } else if (!met_list->empty()) {
    // Use the first item on the '-m' list as a metric.
-    vector<ParseRange>::iterator mi = met_list->begin();
+    std::vector<ParseRange>::iterator mi = met_list->begin();
     parse_range_t *m_range = (*mi).getRange();
     if (m_range->is_range) {
       C_Name = m_range->start_range.name;
@@ -2182,15 +2182,15 @@ bool SS_cvClusters (CommandObject *cmd) {
 
  // Build parse objects for each cluster and perform cViewCreate.
   bool first_cluster = true;
-  std::set<string> file_list;
+  std::set<std::string> file_list;
 
  // Find all the functions that the user listed.
-  for (vector<ParseTarget>::iterator
+  for (std::vector<ParseTarget>::iterator
         pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
     ParseTarget pt = *pi;
-    vector<ParseRange> *f_list = pt.getFileList();
+    std::vector<ParseRange> *f_list = pt.getFileList();
     if ((f_list != NULL) && !f_list->empty()) {
-      for (vector<ParseRange>::iterator
+      for (std::vector<ParseRange>::iterator
              f_iter = f_list->begin(); f_iter != f_list->end(); f_iter++) {
         parse_range_t *f_range = f_iter->getRange();
         parse_val_t f_val1 = f_range->start_range;
@@ -2230,7 +2230,7 @@ bool SS_cvClusters (CommandObject *cmd) {
     (*new_result->getexpMetricList()) = (*met_list);
 
    // Copy time interval list from original ParseResult to new ParseResult.
-    vector<ParseInterval> *interval_list = p_result->getParseIntervalList();
+    std::vector<ParseInterval> *interval_list = p_result->getParseIntervalList();
     if (!interval_list->empty()) {
       (*new_result->getParseIntervalList()) = (*interval_list);
       if (p_result->isIntervalAttribute()) {
@@ -2245,7 +2245,7 @@ bool SS_cvClusters (CommandObject *cmd) {
       ParseTarget *new_pt = new_result->currentTarget();
 
      // Copy the sum of all functions from the original set of target specs.
-      for (std::set<string>::iterator
+      for (std::set<std::string>::iterator
               fi = file_list.begin(); fi != file_list.end(); fi++) {
         new_pt->pushFilePoint ((char *)((*fi).c_str()));
       }

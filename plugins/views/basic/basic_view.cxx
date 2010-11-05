@@ -20,8 +20,7 @@
 
 #include "SS_Input_Manager.hxx"
 
-using namespace std;
-using namespace OpenSpeedShop::cli;
+//using namespace OpenSpeedShop::cli;
 
 
 // pcsamp view
@@ -49,7 +48,7 @@ static bool define_pcsamp_columns (
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseRange> *p_slist = p_result->getexpMetricList();
+  std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
   int64_t last_column = 0;
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
   int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp);
@@ -61,7 +60,7 @@ static bool define_pcsamp_columns (
 
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
-    vector<ParseRange>::iterator mi;
+    std::vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
       parse_range_t *m_range = (*mi).getRange();
       std::string C_Name;
@@ -271,7 +270,7 @@ static bool define_hwc_columns (
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseRange> *p_slist = p_result->getexpMetricList();
+  std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
   int64_t last_column = 0;
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
   int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp);
@@ -283,7 +282,7 @@ static bool define_hwc_columns (
 
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
-    vector<ParseRange>::iterator mi;
+    std::vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
       parse_range_t *m_range = (*mi).getRange();
       std::string C_Name;

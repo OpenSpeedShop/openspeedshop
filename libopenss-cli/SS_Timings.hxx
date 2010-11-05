@@ -31,7 +31,6 @@
 #include <iostream>
 #include <fstream>
 #include <map>
-using namespace std;
 
 #include "SS_Input_Manager.hxx"
 #include "Queries.hxx"

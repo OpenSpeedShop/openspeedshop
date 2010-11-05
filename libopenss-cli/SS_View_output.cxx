@@ -24,7 +24,7 @@
 static void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& IV,
                                          std::vector<CommandResult *>& A,
                                          std::vector<CommandResult *>& B) {
-  int64_t len = min(IV.size(),A.size());
+  int64_t len = std::min(IV.size(),A.size());
   for (int64_t i = 0; i < len; i++) {
     ViewInstruction *vp = IV[i];
     if (vp != NULL) {
@@ -52,7 +52,7 @@ void Construct_View_Output (CommandObject *cmd,
                                                   SmartPtr<std::vector<CommandResult *> > > >& items,
                             std::list<CommandResult *>& view_output ) {
 #ifdef DEBUG_CLI
-  Print_View_Params (cerr, CV,MV,IV);
+  Print_View_Params (std::cerr, CV,MV,IV);
 #endif
 
  // If there is data then go through and create headers, etc.

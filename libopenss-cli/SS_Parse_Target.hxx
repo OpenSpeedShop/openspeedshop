@@ -32,7 +32,7 @@ class ParseTarget {
 	bool used() { return dm_used;}
 
     	/** Handle list of host names. */
-    	vector<ParseRange> * getHostList()
+    	std::vector<ParseRange> * getHostList()
 	{
 	    return &dm_host_list;
 	}
@@ -45,7 +45,7 @@ class ParseTarget {
     	void pushHostRange(int num1, int num2);
 
     	/** Handle list of file names. */
-    	vector<ParseRange> * getFileList()
+    	std::vector<ParseRange> * getFileList()
 	{
 	    return &dm_file_list;
 	}
@@ -82,7 +82,7 @@ class ParseTarget {
 	}
 
     	/** Handle list of cluster names. */
-    	vector<ParseRange> * getClusterList()
+    	std::vector<ParseRange> * getClusterList()
 	{
 	    return &dm_cluster_list;
 	}
@@ -118,7 +118,7 @@ class ParseTarget {
 	}
 
     	/** Handle list of rank range values. */
-    	vector<ParseRange> * getRankList()
+    	std::vector<ParseRange> * getRankList()
 	{
 	    return &dm_rank_list;
 	}
@@ -154,7 +154,7 @@ class ParseTarget {
 	}
 
     	/** Handle list of pid range values. */
-    	vector<ParseRange> * getPidList()
+    	std::vector<ParseRange> * getPidList()
 	{
 	    return &dm_pid_list;
 	}
@@ -190,7 +190,7 @@ class ParseTarget {
 	}
 
     	/** Handle list of thread range values. */
-    	vector<ParseRange> * getThreadList()
+    	std::vector<ParseRange> * getThreadList()
 	{
 	    return &dm_thread_list;
 	}
@@ -229,19 +229,19 @@ class ParseTarget {
     	bool dm_used;
 
     	/** Container of process Ids as integers */
-    	vector<ParseRange> dm_pid_list;
+    	std::vector<ParseRange> dm_pid_list;
     	/** Container of rank Ids as integers */
-    	vector<ParseRange> dm_rank_list;
+    	std::vector<ParseRange> dm_rank_list;
     	/** Container of thread Ids as integers */
-    	vector<ParseRange> dm_thread_list;
+    	std::vector<ParseRange> dm_thread_list;
 
     	/** Container of files as strings */
-    	vector<ParseRange> dm_file_list;
+    	std::vector<ParseRange> dm_file_list;
     	/** Container of clusters as strings */
-    	vector<ParseRange> dm_cluster_list;
+    	std::vector<ParseRange> dm_cluster_list;
 
     	/** Container of host info as class ParseRange */
-    	vector<ParseRange> dm_host_list;	
+    	std::vector<ParseRange> dm_host_list;	
 
 //    protected:
 //    	/** Things I don't want to happen so don't define!*/

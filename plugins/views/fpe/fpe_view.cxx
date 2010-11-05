@@ -56,10 +56,10 @@ class CommandResult_Fpetype :
   virtual void Accumulate_Max (CommandResult *A) { }
 
   void Min_Fpetype (CommandResult_Fpetype *B) {
-    fpetype_value = min (fpetype_value, B->fpetype_value);
+    fpetype_value = std::min (fpetype_value, B->fpetype_value);
   }
   void Max_Fpetype (CommandResult_Fpetype *B) {
-    fpetype_value = max (fpetype_value, B->fpetype_value);
+    fpetype_value = std::max (fpetype_value, B->fpetype_value);
   }
   void Accumulate_Fpetype (CommandResult_Fpetype *B) {
   }
@@ -98,7 +98,7 @@ class CommandResult_Fpetype :
   virtual PyObject * pyValue () {
     return Py_BuildValue("s",Form().c_str());
   }
-  virtual void Print (ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << Form();
   }
@@ -142,7 +142,7 @@ class CommandResult_Fpetype :
             FPEType fpeType = Unknown;
 
 #define get_FPE_invalues(primary, num_calls)           \
-              start = min(start,primary.dm_time);      \
+              start = std::min(start,primary.dm_time);      \
               fpeType = primary.dm_type;               \
               incnt++;
 
@@ -348,7 +348,7 @@ static bool define_fpe_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, incnt_temp));
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseRange> *p_slist = p_result->getexpMetricList();
+  std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
   bool generate_nested_accounting = false;
@@ -367,7 +367,7 @@ static bool define_fpe_columns (
    // Add modifiers to output list.
     int64_t i = 0;
     bool time_metric_selected = false;
-    vector<ParseRange>::iterator mi;
+    std::vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
       bool column_is_DateTime = false;
       parse_range_t *m_range = (*mi).getRange();

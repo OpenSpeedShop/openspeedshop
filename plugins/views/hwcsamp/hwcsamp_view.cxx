@@ -118,7 +118,7 @@ static bool define_hwcsamp_columns (
             std::vector<std::string>& HV,
             View_Form_Category vfc) {
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  vector<ParseRange> *p_slist = p_result->getexpMetricList();
+  std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
   int64_t last_column = 0;
   int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
 
@@ -141,7 +141,7 @@ static bool define_hwcsamp_columns (
     int end = Value.find(",")+1;
     int start = end;
 
-    string::size_type delimPos = 0, tokenPos = 0, pos = 0;
+    std::string::size_type delimPos = 0, tokenPos = 0, pos = 0;
     delimPos = Value.find_first_of(",", pos);
     tokenPos = Value.find_first_not_of(",", pos);
 
@@ -176,7 +176,7 @@ static bool define_hwcsamp_columns (
   std::string M_Name;
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
-    vector<ParseRange>::iterator mi;
+    std::vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
       parse_range_t *m_range = (*mi).getRange();
       std::string C_Name;

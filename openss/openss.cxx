@@ -161,7 +161,7 @@ namespace {
 #define MAXARGS 100
 
 static int 
-s_recall_openss(int argc, char* argv[], string& new_cmdline)
+s_recall_openss(int argc, char* argv[], std::string& new_cmdline)
 {
 
     // Set up LD_LIBRARY_PATH and plugin dl_open paths.
@@ -239,7 +239,7 @@ s_recall_openss(int argc, char* argv[], string& new_cmdline)
 int main(int argc, char* argv[])
 {
 
-    string new_cmdline;
+    std::string new_cmdline;
 
     // Set up LD_LIBRARY_PATH and plugin dl_open paths.
     argc = s_recall_openss(argc, argv, new_cmdline);

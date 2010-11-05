@@ -2775,7 +2775,7 @@ StatsPanel::updateCurrentModifierList( std::list<std::string> genericModifierLis
 
     } // end for
 
-    map<std::string, bool>::iterator iter = newDesiredModifierList.find(gModifier);
+    std::map<std::string, bool>::iterator iter = newDesiredModifierList.find(gModifier);
     if( iter != newDesiredModifierList.end() ) {
       isDesired = iter->second;
     }
@@ -3169,7 +3169,7 @@ StatsPanel::timeSliceSelected()
     clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
     if( clip == NULL )
     {
-      cerr << "No skyline available for this experiment.\n";
+      std::cerr << "No skyline available for this experiment.\n";
       QApplication::restoreOverrideCursor( );
       return;
     }
@@ -3190,7 +3190,7 @@ StatsPanel::timeSliceSelected()
     std::list<CommandResult *> cmd_result = co->Result_List();
     for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++)
     {
-// cerr << "TYPE: = " << (*cri)->Type() << "\n";
+// std::cerr << "TYPE: = " << (*cri)->Type() << "\n";
 //      if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES)
       if ((*cri)->Type() == CMD_RESULT_COLUMN_ENDER)
       {
@@ -3212,31 +3212,31 @@ StatsPanel::timeSliceSelected()
           switch( cr->Type() )
           {
             case CMD_RESULT_NULL:
-// cerr << "Got CMD_RESULT_NULL\n";
+// std::cerr << "Got CMD_RESULT_NULL\n";
               value = 0;
               skylineValues.push_back(value);
               skylineText.push_back(vs.stripWhiteSpace());
               break;
             case CMD_RESULT_UINT:
-// cerr << "Got CMD_RESULT_UINT\n";
+// std::cerr << "Got CMD_RESULT_UINT\n";
               value = vs.toUInt();;
               skylineValues.push_back(value);
               skylineText.push_back(vs.stripWhiteSpace());
               break;
             case CMD_RESULT_INT:
-// cerr << "Got CMD_RESULT_INT\n";
+// std::cerr << "Got CMD_RESULT_INT\n";
               value = vs.toInt();;
               skylineValues.push_back(value);
               skylineText.push_back(vs.stripWhiteSpace());
               break;
             case CMD_RESULT_FLOAT:
-// cerr << "Got CMD_RESULT_FLOAT\n";
+// std::cerr << "Got CMD_RESULT_FLOAT\n";
               value = (int)(vs.toFloat());
               skylineValues.push_back(value);
               skylineText.push_back(vs.stripWhiteSpace());
               break;
             case CMD_RESULT_STRING:
-// cerr << "Got CMD_RESULT_STRING\n";
+// std::cerr << "Got CMD_RESULT_STRING\n";
 //              value = vs.toInt();;
               value = 1; // FIX
               skylineValues.push_back(value);
@@ -11397,7 +11397,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
 #endif
 
   if( statspanel_clip == NULL ) {
-    cerr << "No clip to process.\n";
+    std::cerr << "No clip to process.\n";
   }
 
   QString valueStr = QString::null;
@@ -11417,7 +11417,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
 
   CommandObject *co = (CommandObject *)(*coi);
   if( co == NULL ) {
-    cerr << "No command object in clip to process.\n";
+    std::cerr << "No command object in clip to process.\n";
   }
 
   std::list<CommandResult *>::iterator cri;
@@ -11429,7 +11429,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
 #endif
 
     int skipFLAG = FALSE;
-    if( dumpClipFLAG) cerr<< "DCLIP: " <<  "TYPE: " << (*cri)->Type() << "\n";
+    if( dumpClipFLAG) std::cerr<< "DCLIP: " <<  "TYPE: " << (*cri)->Type() << "\n";
     if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES) {
 
 #ifdef DEBUG_StatsPanel
@@ -11447,88 +11447,88 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
       {
       
         if( dumpClipFLAG) {
-          cerr << "DCLIP: " << (*column_it)->Form().c_str() << "\n";
+          std::cerr << "DCLIP: " << (*column_it)->Form().c_str() << "\n";
         }
 #ifdef DEBUG_StatsPanel
-        cerr << "  " << (*column_it)->Form().c_str() << "\n";
+        std::cerr << "  " << (*column_it)->Form().c_str() << "\n";
 #endif
         QString vs = (*column_it)->Form().c_str();
         columnFieldList.push_back(vs);
 
         CommandResult *cr = (CommandResult *)(*column_it);
-        if( dumpClipFLAG) cerr << "DCLIP: " <<  "cr->Type=" << cr->Type() << "\n";
+        if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "cr->Type=" << cr->Type() << "\n";
         if( i == 0 && highlightList ) {
           valueStr = QString::null;
         }
         switch( cr->Type() )
         {
           case CMD_RESULT_NULL:
-            if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_NULL\n";
+            if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_NULL\n";
             if( i == 0 && highlightList ) {
               valueStr = (*column_it)->Form().c_str();
             }
             break;
           case CMD_RESULT_UINT:
-            if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_UINT\n";
+            if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_UINT\n";
             if( i == 0 && highlightList ) {
               valueStr = (*column_it)->Form().c_str();
             }
             break;
           case CMD_RESULT_INT:
-            if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_INT\n";
+            if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_INT\n";
             if( i == 0 && highlightList ) {
               valueStr = (*column_it)->Form().c_str();
             }
             break;
           case CMD_RESULT_FLOAT:
             {
-            if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_FLOAT\n";
+            if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_FLOAT\n";
             if( i == 0 && highlightList ) {
               valueStr = (*column_it)->Form().c_str();
             }
             }
             break;
           case CMD_RESULT_STRING:
-            if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_STRING\n";
+            if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_STRING\n";
             if( i == 0 && highlightList ) {
               valueStr = (*column_it)->Form().c_str();
             }
             break;
           case CMD_RESULT_RAWSTRING:
-            if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_RAWSTRING\n";
+            if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_RAWSTRING\n";
             if( i == 0 && highlightList ) {
               valueStr = (*column_it)->Form().c_str();
             }
             break;
           case CMD_RESULT_FUNCTION:
           {
-              if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_FUNCTION\n";
+              if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_FUNCTION\n";
               CommandResult_Function *crf = (CommandResult_Function *)cr;
               std::string S = crf->getName();
-              if( dumpClipFLAG) cerr << "DCLIP: " <<  "    S=" << S << "\n";
+              if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "    S=" << S << "\n";
 //            LinkedObject L = crf->getLinkedObject();
-//            if( dumpClipFLAG) cerr << "    L.getPath()=" << L.getPath() << "\n";
+//            if( dumpClipFLAG) std::cerr << "    L.getPath()=" << L.getPath() << "\n";
 
               std::set<Statement> T = crf->getDefinitions();
               if( T.size() > 0 ) {
                 std::set<Statement>::const_iterator ti = T.begin();
                 Statement s = *ti;
-                if( dumpClipFLAG) cerr << "DCLIP: " <<  "    s.getPath()=" << s.getPath() << "\n";
-                if( dumpClipFLAG) cerr << "DCLIP: " <<  "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
+                if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "    s.getPath()=" << s.getPath() << "\n";
+                if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
 
                 xxxfuncName = S.c_str();
                 xxxfileName = QString( s.getPath().c_str() );
 //                xxxfileName = QString( s.getPath().getBaseName().c_str() );
                 xxxlineNumber = s.getLine();
                 if( dumpClipFLAG ) {
-                  cerr << "DCLIP: " <<  "xxxfuncName=" << xxxfuncName << "\n";
-                  cerr << "DCLIP: " <<  "xxxfileName=" << xxxfileName << "\n";
-                  cerr << "DCLIP: " <<  "xxxlineNumber=" << xxxlineNumber << "\n";
+                  std::cerr << "DCLIP: " <<  "xxxfuncName=" << xxxfuncName << "\n";
+                  std::cerr << "DCLIP: " <<  "xxxfileName=" << xxxfileName << "\n";
+                  std::cerr << "DCLIP: " <<  "xxxlineNumber=" << xxxlineNumber << "\n";
                 }
 #ifdef DEBUG_StatsPanel
-                cerr << "DLCIP: CMD_RESULT_FUNCTION: xxxfuncName=" << xxxfuncName << "\n";
-                cerr << "DLCIP: CMD_RESULT_FUNCTION: xxxfileName=" << xxxfileName << "\n";
-                cerr << "DLCIP: CMD_RESULT_FUNCTION: xxxlineNumber=" << xxxlineNumber << "\n";
+                std::cerr << "DLCIP: CMD_RESULT_FUNCTION: xxxfuncName=" << xxxfuncName << "\n";
+                std::cerr << "DLCIP: CMD_RESULT_FUNCTION: xxxfileName=" << xxxfileName << "\n";
+                std::cerr << "DLCIP: CMD_RESULT_FUNCTION: xxxlineNumber=" << xxxlineNumber << "\n";
 #endif
               }
 
@@ -11539,14 +11539,14 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
 #ifdef DEBUG_StatsPanel
             printf("StatsPanel::process_clip, ENTER CASEBLOCK FOR CMD_RESULT_STATEMENT\n");
 #endif
-            if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_STATEMENT\n";
+            if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_STATEMENT\n";
             {
 
 
               CommandResult_Statement *T = (CommandResult_Statement *)cr;
               Statement s = (Statement)*T;
-              if( dumpClipFLAG) cerr << "DCLIP: " <<  "    s.getPath()=" << s.getPath() << "\n";
-              if( dumpClipFLAG) cerr << "DCLIP: " <<  "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
+              if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "    s.getPath()=" << s.getPath() << "\n";
+              if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
 
               xxxfuncName = QString::null;
               xxxfileName = QString( s.getPath().c_str() );
@@ -11554,9 +11554,9 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
               xxxlineNumber = s.getLine();
               if( dumpClipFLAG )
               {
-                cerr << "DCLIP: CMD_RESULT_STATEMENT:" <<  "xxxfuncName=" << xxxfuncName << "\n";
-                cerr << "DCLIP: CMD_RESULT_STATEMENT:" <<  "xxxfileName=" << xxxfileName << "\n";
-                cerr << "DCLIP: CMD_RESULT_STATEMENT:" <<  "xxxlineNumber=" << xxxlineNumber << "\n";
+                std::cerr << "DCLIP: CMD_RESULT_STATEMENT:" <<  "xxxfuncName=" << xxxfuncName << "\n";
+                std::cerr << "DCLIP: CMD_RESULT_STATEMENT:" <<  "xxxfileName=" << xxxfileName << "\n";
+                std::cerr << "DCLIP: CMD_RESULT_STATEMENT:" <<  "xxxlineNumber=" << xxxlineNumber << "\n";
               }
               if( highlightList ) {
 
@@ -11581,7 +11581,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
             break;
 
           case CMD_RESULT_LINKEDOBJECT:
-            if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_LINKEDOBJECT\n";
+            if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_LINKEDOBJECT\n";
             break;
 
           case CMD_RESULT_CALLTRACE:
@@ -11589,14 +11589,14 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
 #ifdef DEBUG_StatsPanel
             printf("StatsPanel::process_clip, ENTER CASEBLOCK FOR CMD_RESULT_CALLTRACE\n");
 #endif
-            if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_CALLTRACE\n";
+            if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_CALLTRACE\n";
             CommandResult_CallStackEntry *CSE = (CommandResult_CallStackEntry *)cr;
 
 
             std::vector<CommandResult *> *CSV = CSE->Value();
             int64_t sz = CSV->size();
             std::vector<CommandResult *> *C1 = CSV;
-	    if( dumpClipFLAG) cerr << "DCLIP: " <<  "  CMD_RESULT_CALLTRACE: Form ="
+	    if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "  CMD_RESULT_CALLTRACE: Form ="
 				   << CSE->Form().c_str() << "sz= " <<
 				   sz << "\n";
 
@@ -11607,20 +11607,20 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
 #endif
             if( CE->Type() == CMD_RESULT_FUNCTION )
             {
-              if( dumpClipFLAG) cerr << "DCLIP: " <<  "  CMD_RESULT_CALLTRACE: sz=" << sz
+              if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "  CMD_RESULT_CALLTRACE: sz=" << sz
 				     << " and function ="
 				     << CE->Form().c_str() << "\n";
 
               std::string S = ((CommandResult_Function *)CE)->getName();
               xxxfuncName = S.c_str();
-              if( dumpClipFLAG) cerr << "DCLIP: " <<  "((CommandResult_Function *)CE)->getName() == S=" << S << "\n";
+              if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "((CommandResult_Function *)CE)->getName() == S=" << S << "\n";
 
 //            LinkedObject L = ((CommandResult_Function *)CE)->getLinkedObject(); 
-//            if( dumpClipFLAG) cerr << "    L.getPath()=" << L.getPath() << "\n";
+//            if( dumpClipFLAG) std::cerr << "    L.getPath()=" << L.getPath() << "\n";
 
 #ifdef DEBUG_StatsPanel
               LinkedObject L = ((CommandResult_Function *)CE)->getLinkedObject(); 
-              if( dumpClipFLAG) cerr << "DCLIP: " <<  "    L.getPath()=" << L.getPath() << "\n";
+              if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "    L.getPath()=" << L.getPath() << "\n";
 #endif
 
 #if 0
@@ -11629,13 +11629,13 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
               {
                 std::set<Statement>::const_iterator ti = T.begin();
                 Statement s = *ti;
-                if( dumpClipFLAG) cerr << "    s.getPath()=" << s.getPath() << "\n";
-                if( dumpClipFLAG) cerr << "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
+                if( dumpClipFLAG) std::cerr << "    s.getPath()=" << s.getPath() << "\n";
+                if( dumpClipFLAG) std::cerr << "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
 
                 xxxfileName = QString( s.getPath().c_str() );
 //                xxxfileName = QString( s.getPath().getBaseName().c_str() );
                 xxxlineNumber = s.getLine();
-	        if( dumpClipFLAG) cerr <<
+	        if( dumpClipFLAG) std::cerr <<
 			"  CMD_RESULT_CALLTRACE lineNumber via getDefinitions "
 			<< xxxlineNumber << "\n";
               }
@@ -11747,7 +11747,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
 
             } else {
 
-              if( dumpClipFLAG ) cerr << "DCLIP: " <<  "How do I handle this type? CE->Type() " << CE->Type() << "\n";
+              if( dumpClipFLAG ) std::cerr << "DCLIP: " <<  "How do I handle this type? CE->Type() " << CE->Type() << "\n";
 
 #ifdef DEBUG_StatsPanel
 	       printf("StatsPanel::process_clip, CALLTRACE: How do I handle this type? %d\n", CE->Type());
@@ -11760,29 +11760,29 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
 #endif
           break;
         case CMD_RESULT_TIME:
-          if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_TIME\n";
+          if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_TIME\n";
             if( i == 0 && highlightList )
             {
               valueStr = (*column_it)->Form().c_str();
             }
           break;
         case CMD_RESULT_TITLE:
-          if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_TITLE\n";
+          if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_TITLE\n";
           break;
         case CMD_RESULT_COLUMN_HEADER:
-          if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_COLUMN_HEADER\n";
+          if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_COLUMN_HEADER\n";
           break;
         case CMD_RESULT_COLUMN_VALUES:
-          if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_COLUMN_VALUES\n";
+          if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_COLUMN_VALUES\n";
           break;
         case CMD_RESULT_COLUMN_ENDER:
-          if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_COLUMN_ENDER\n";
+          if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_COLUMN_ENDER\n";
           break;
         case CMD_RESULT_EXTENSION:
-          if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_EXTENSION\n";
+          if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_EXTENSION\n";
           break;
         default:
-          if( dumpClipFLAG) cerr << "DCLIP: " <<  "Got CMD_RESULT_EXTENSION\n";
+          if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_EXTENSION\n";
           break;
         }
 
@@ -11815,7 +11815,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
       {
 
 #ifdef DEBUG_StatsPanel
-        cerr << "CMD_RESULT_COLUMN_HEADER:  " << (*column_it)->Form().c_str() << "\n";
+        std::cerr << "CMD_RESULT_COLUMN_HEADER:  " << (*column_it)->Form().c_str() << "\n";
 #endif
 
         QString vs = (*column_it)->Form().c_str();
@@ -11835,7 +11835,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
     printf("StatsPanel::process_clip, Here you have found the next row - here is the formatted row:\n");
 #endif
 
-    if( dumpClipFLAG) cerr << "DCLIP: " <<  (*cri)->Form().c_str() << "\n";
+    if( dumpClipFLAG) std::cerr << "DCLIP: " <<  (*cri)->Form().c_str() << "\n";
 
     // DUMP THIS TO OUR "OLD" FORMAT ROUTINE.
 //    if( highlightList == NULL )

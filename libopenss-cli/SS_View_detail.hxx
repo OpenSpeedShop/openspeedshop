@@ -185,8 +185,8 @@ void Get_Subextents_To_Object (
     std::pair<bool, int> prank = ti->getMPIRank();
     int64_t rank = prank.first ? prank.second : -1;
     std::pair<bool, pthread_t> xtid = ti->getPosixThreadId();
-    cout << "In Get_Subextents_To_Object,  xtid.first=" << xtid.first << endl;
-    cout << "In Get_Subextents_To_Object,  xtid.second=" << xtid.second << " rank=" << rank << endl;
+    std::cout << "In Get_Subextents_To_Object,  xtid.first=" << xtid.first << std::endl;
+    std::cout << "In Get_Subextents_To_Object,  xtid.second=" << xtid.second << " rank=" << rank << std::endl;
 #endif
 
     for (ExtentGroup::iterator ei = newExtents.begin(); ei != newExtents.end(); ei++) {
@@ -321,34 +321,34 @@ inline int64_t stack_contains_N_calls (
 }
 
 inline void Dump_StackTrace (const Framework::StackTrace& st) {
-  cerr << "StackTrace:\n";
+  std::cerr << "StackTrace:\n";
   int64_t len = st.size();
   for (int64_t i = 0;  i < len; i++) {
     std::pair<bool, Function> fp = st.getFunctionAt(i);
     if (fp.first) {
-      cerr << "  " << fp.second.getName() << "\n";;
+      std::cerr << "  " << fp.second.getName() << "\n";;
     }
   }
 }
 
 inline void Dump_CallStack (std::vector<CommandResult *> *call_stack,
                             std::vector<CommandResult *> *vcs) {
-  cerr << "CallStack: ";
+  std::cerr << "CallStack: ";
   for (int64_t i = 0; i < vcs->size(); i++) {
     CommandResult *p = (*vcs)[i];
     if (p != NULL) {
-      p->Print(cerr);
+      p->Print(std::cerr);
     }
   }
-  cerr << "\n";
+  std::cerr << "\n";
 
   int64_t len = call_stack->size();
   for (int64_t j = 0; j < len; j++) {
     CommandResult *p = (*call_stack)[j];
     if (p != NULL) {
-      cerr << "  " << j << "  ";
+      std::cerr << "  " << j << "  ";
       std::string S = p->Form();
-      cerr << S << "\n";
+      std::cerr << S << "\n";
     }
   }
 }

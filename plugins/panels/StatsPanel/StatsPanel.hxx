@@ -127,7 +127,7 @@ class ColumnValueClass
 
     void print()
     {
-      cout << start_index << " " << end_index << "\n";
+      std::cout << start_index << " " << end_index << "\n";
       cic->print();
     }
 };

@@ -30,7 +30,6 @@
 
 #include "PapiAPI.cxx"
 
-using namespace std;
 using namespace OpenSpeedShop::Framework;
 
 

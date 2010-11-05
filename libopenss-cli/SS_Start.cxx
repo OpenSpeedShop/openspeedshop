@@ -280,7 +280,7 @@ Process_Command_Line (int argc, char **argv)
     if (found_offline) {
       // Warn user that we are overriding the setting of 
       // offline mode and reassigning to online mode
-        cerr << "WARNING: Found dynamic/online arguments (-c,-h,-p,-r,or -t) present with -offline specified.  Switching to online mode." << std::endl;
+        std::cerr << "WARNING: Found dynamic/online arguments (-c,-h,-p,-r,or -t) present with -offline specified.  Switching to online mode." << std::endl;
     }
 
     if (found_gui) {
@@ -728,13 +728,13 @@ extern "C"
 
      // If not a user initiated signal, try a normal shutdown.
       if (Trying_to_terminate) {
-        cerr << "Error during termination - " << sig << " " <<  error_num <<  std::endl;
+        std::cerr << "Error during termination - " << sig << " " <<  error_num <<  std::endl;
         abort();
       }
 
       Trying_to_terminate = true;
      // the folowing lines are for debugging
-    	cerr << "catch_signal " << sig << std::endl;
+    	std::cerr << "catch_signal " << sig << std::endl;
     	// Internal_Info_Dump(1);
     	// User_Info_Dump(1);
 
@@ -743,7 +743,7 @@ extern "C"
         Openss_Basic_Termination();
       }
       catch(const Exception& error) {
-        cerr << "catch secondary exception: " << error.getDescription() << std::endl;
+        std::cerr << "catch secondary exception: " << error.getDescription() << std::endl;
       }
     }
     exit (1);
@@ -801,7 +801,7 @@ extern "C"
       char HostName[MAXHOSTNAMELEN+1];
 
       if (gethostname ( &HostName[0], MAXHOSTNAMELEN)) {
-        cerr << "ERROR: can not retrieve host name\n";
+        std::cerr << "ERROR: can not retrieve host name\n";
         abort ();
       }
       
@@ -811,8 +811,8 @@ extern "C"
       for (i=1;i<CMD_MAX;++i) {
 
       	if (i != OpenSpeedShop::cli::cmd_desc[i].ndx) {
-        	    cerr << "ERROR: cmd_desc array out of synch with oss_cmd_enum \n";
-        	    cerr << "       See oss_cmd_enum definition in SS_Parse_Result.hxx \n";
+        	    std::cerr << "ERROR: cmd_desc array out of synch with oss_cmd_enum \n";
+        	    std::cerr << "       See oss_cmd_enum definition in SS_Parse_Result.hxx \n";
         	    abort ();
 	}
       }
@@ -860,7 +860,7 @@ extern "C"
     }
 
 #if DEBUG_CLI
-      cerr << "Checking need_command_line=" << need_command_line <<  " read_stdin_file=" << read_stdin_file << std::endl;
+      std::cerr << "Checking need_command_line=" << need_command_line <<  " read_stdin_file=" << read_stdin_file << std::endl;
 #endif
 
      // Create the input windows that we will need.
@@ -881,13 +881,13 @@ extern "C"
       }
 
 #if DEBUG_CLI
-      cerr << "Checking command_line_window=" << command_line_window <<  std::endl;
+      std::cerr << "Checking command_line_window=" << command_line_window <<  std::endl;
 #endif
 
      // Complete set up for each input window.
       if (command_line_window != 0) {
 #if DEBUG_CLI
-        cerr << "Calling Start_Command_Line_Mode need_gui=" <<  need_gui << " need_tli=" << need_tli << std::endl;
+        std::cerr << "Calling Start_Command_Line_Mode need_gui=" <<  need_gui << " need_tli=" << need_tli << std::endl;
 #endif
        // Move the command line options to an input control window.
         if ( !Start_COMMAND_LINE_Mode( command_line_window, 
@@ -901,19 +901,19 @@ extern "C"
 
       } else if (oss_start_mode == SM_Batch && (argc <= 2) && !read_stdin_file) {
 
-        cerr << "Missing command line arguments\n";
+        std::cerr << "Missing command line arguments\n";
         return -1;
 
       }
 
 #if DEBUG_CLI
-        cerr << "Checking need_tli=" <<  need_tli << std::endl;
+        std::cerr << "Checking need_tli=" <<  need_tli << std::endl;
 #endif
 
       if (need_tli) {
 
 #if DEBUG_CLI
-        cerr << "Calling pthread_create for SS_Direct_stdin_Input" <<  std::endl;
+        std::cerr << "Calling pthread_create for SS_Direct_stdin_Input" <<  std::endl;
 #endif
 
        // Start up the Text Line Interface to read from the keyboard.
@@ -923,7 +923,7 @@ extern "C"
 				(void   *)tli_window);
 
 #if DEBUG_CLI
-        cerr << "After Calling pthread_create for SS_Direct_stdin_Input" << phandle[1] << std::endl;
+        std::cerr << "After Calling pthread_create for SS_Direct_stdin_Input" << phandle[1] << std::endl;
 #endif
 
       } // end need_tli
@@ -941,7 +941,7 @@ extern "C"
     }
 
 #if DEBUG_CLI
-      cerr << "Calling Start_Command_Line, need_gui? " << need_gui <<  " \n" << std::endl;
+      std::cerr << "Calling Start_Command_Line, need_gui? " << need_gui <<  " \n" << std::endl;
 #endif
 
       // Gather performance information on the cli's gui loading
@@ -995,7 +995,7 @@ extern "C"
       }
 
       catch(const Exception& error) {
-        cerr << "catch error during termination: " << error.getDescription() << std::endl;
+        std::cerr << "catch error during termination: " << error.getDescription() << std::endl;
       }
 
      // Release allocated space.
@@ -1006,7 +1006,7 @@ extern "C"
     }
 
     catch (std::bad_alloc) {
-      cerr << "ERROR: A Memory Allocation Error Has Occurred" << std::endl;
+      std::cerr << "ERROR: A Memory Allocation Error Has Occurred" << std::endl;
       abort();
     }
 
@@ -1053,7 +1053,7 @@ extern "C"
   
     lt_dlhandle dl_gui_object = lt_dlopenext((const char *)gui_dl_name);
     if( dl_gui_object == NULL ) {
-      cerr << "ERROR: can not load GUI - " << lt_dlerror() << std::endl;
+      std::cerr << "ERROR: can not load GUI - " << lt_dlerror() << std::endl;
       exit(EXIT_FAILURE);
     }
 
@@ -1061,14 +1061,14 @@ extern "C"
     dl_gui_init_routine = (lt_ptr (*)(void *, pthread_t *))lt_dlsym(dl_gui_object, gui_entry_point);
     if( dl_gui_init_routine == NULL )
     {
-      cerr << "ERROR: can not initialize GUI - " << lt_dlerror() << std::endl;
+      std::cerr << "ERROR: can not initialize GUI - " << lt_dlerror() << std::endl;
       exit(EXIT_FAILURE);
     }
 
     dl_gui_kill_routine = (lt_ptr (*)())lt_dlsym(dl_gui_object, gui_exit_point);
     if( dl_gui_kill_routine == NULL )
     {
-      cerr << "ERROR: can find GUI exit routine - " << lt_dlerror() << std::endl;
+      std::cerr << "ERROR: can find GUI exit routine - " << lt_dlerror() << std::endl;
       exit(EXIT_FAILURE);
     }
   

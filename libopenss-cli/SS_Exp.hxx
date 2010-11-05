@@ -67,14 +67,14 @@ class ExperimentObject
     Assert(pthread_mutex_lock(&Experiment_List_Lock) == 0);
 
 #ifdef DEBUG_CLI
-    cerr << "Enter ExperimentObject, preferred_ID=" << preferred_ID << "Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
+    std::cerr << "Enter ExperimentObject, preferred_ID=" << preferred_ID << "Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
 #endif
 
     // preferred_ID indicates that this is an offline experiment that wants to write over the previous ExperimentObject
     if (preferred_ID != 0) {
 
 #ifdef DEBUG_CLI
-      cerr << "ExperimentObject, preferred_ID=" << preferred_ID << "Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
+      std::cerr << "ExperimentObject, preferred_ID=" << preferred_ID << "Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
 #endif
 
       Assert (Experiment_Sequence_Number <= preferred_ID);
@@ -87,7 +87,7 @@ class ExperimentObject
       Exp_ID = ++Experiment_Sequence_Number;
 
 #ifdef DEBUG_CLI
-      cerr << "ExperimentObject, preferred_ID=" << preferred_ID << " after updating Experiment_Sequence_Number=" << Experiment_Sequence_Number << " Exp_ID=" << Exp_ID << "\n";
+      std::cerr << "ExperimentObject, preferred_ID=" << preferred_ID << " after updating Experiment_Sequence_Number=" << Experiment_Sequence_Number << " Exp_ID=" << Exp_ID << "\n";
 #endif
     } 
 //    Exp_ID = ++Experiment_Sequence_Number;
@@ -166,13 +166,13 @@ class ExperimentObject
     try {
 
 #ifdef DEBUG_CLI
-      cerr << "try create/open experiment preferred_ID=" << preferred_ID << " Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
+      std::cerr << "try create/open experiment preferred_ID=" << preferred_ID << " Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
 #endif
       FW_Experiment = new OpenSpeedShop::Framework::Experiment (Data_File_Name);
       if (preferred_ID == 0) {
 
 #ifdef DEBUG_CLI
-        cerr << "Creating new experiment ID, pushing this to ExperimentObject_list, Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
+        std::cerr << "Creating new experiment ID, pushing this to ExperimentObject_list, Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
 #endif
 
         ExperimentObject_list.push_front(this);
@@ -180,8 +180,8 @@ class ExperimentObject
       } else {
 
 #ifdef DEBUG_CLI
-        cerr << "NOT CREATING A NEW FRAMEWORK EXPERIMENT because preferred_ID=" << preferred_ID << "\n";
-        cerr << "POP original experiment object and push this to ExperimentObject_list because preferred_ID=" << preferred_ID << "\n";
+        std::cerr << "NOT CREATING A NEW FRAMEWORK EXPERIMENT because preferred_ID=" << preferred_ID << "\n";
+        std::cerr << "POP original experiment object and push this to ExperimentObject_list because preferred_ID=" << preferred_ID << "\n";
 #endif
         ExperimentObject_list.pop_back();
         ExperimentObject_list.push_front(this);
@@ -199,7 +199,7 @@ class ExperimentObject
     Assert(pthread_mutex_unlock(&Experiment_List_Lock) == 0);
 
 #ifdef DEBUG_CLI
-    cerr << "Exit ExperimentObject, Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
+    std::cerr << "Exit ExperimentObject, Experiment_Sequence_Number=" << Experiment_Sequence_Number << "\n";
 #endif
 
   }
@@ -492,8 +492,8 @@ class ExperimentObject
   int Determine_Status();
   std::string ExpStatus_Name ();
 
-  void Print_Waiting (ostream &mystream);
-  void Print(ostream &mystream);
+  void Print_Waiting (std::ostream &mystream);
+  void Print(std::ostream &mystream);
 };
 
 // Make sure all experiments are closed and associated files freed.

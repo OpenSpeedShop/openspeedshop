@@ -58,7 +58,6 @@
 #include "debug.hxx"  // This includes the definition of dprintf
 
 #include <string>
-using namespace std;
 
 #include "plugin_handler.hxx"
 #include "PluginInfo.hxx"
@@ -93,7 +92,7 @@ register_plugin(const char *plugin_file)
 
   std::string panelfile = plugin_file;
   // Only examine the PANEL plugins.
-  if (panelfile.find("Panel") == string::npos) {
+  if (panelfile.find("Panel") == std::string::npos) {
      return 0;
   }
 
@@ -199,7 +198,7 @@ foreachCallback(const char *filename, lt_ptr data)
 {
   // only open Panel plugins here.
   std::string fname = filename;
-  if ( (fname.find("Panel") == string::npos)) {
+  if ( (fname.find("Panel") == std::string::npos)) {
       return 0;
   }
 

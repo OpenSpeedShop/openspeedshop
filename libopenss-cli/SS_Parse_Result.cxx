@@ -31,7 +31,6 @@
 #include "SS_Input_Manager.hxx"
 /* #define DEBUG_CLI 1 */
 
-using namespace std;
 
 #include "SS_Message_Element.hxx"
 #include "SS_Message_Czar.hxx"
@@ -241,32 +240,32 @@ pushParseTarget()
  *
  */
 static void 
-s_dumpInterval(ParseResult* p_result, vector<ParseInterval> *p_list, const char *label)
+s_dumpInterval(ParseResult* p_result, std::vector<ParseInterval> *p_list, const char *label)
 {
-    vector<ParseInterval>::iterator iter;
+    std::vector<ParseInterval>::iterator iter;
 
 #if DEBUG_CLI
     printf("ParseResult::s_dumpInterval, label=%s\n", label);
 #endif
     if (p_list->begin() != p_list->end())
-    	cout << "\t" << label << ": " << endl;
+    	std::cout << "\t" << label << ": " << std::endl;
 
     if (p_result->isIntervalAttribute()) {
-    	cout << "\t\t" << "Attribute: " << *p_result->getIntervalAttribute() << endl;
+    	std::cout << "\t\t" << "Attribute: " << *p_result->getIntervalAttribute() << std::endl;
     }
 
     for (iter=p_list->begin();iter != p_list->end(); iter++) {
-    	    cout << "\t\t\t";
+    	    std::cout << "\t\t\t";
     
     	if (iter->isStartInt()) 
-	    cout << iter->getStartInt() << " : ";
+	    std::cout << iter->getStartInt() << " : ";
 	else
-	    cout << iter->getStartdouble() << " : ";
+	    std::cout << iter->getStartdouble() << " : ";
 
     	if (iter->isEndInt()) 
-	    cout << iter->getEndInt() << endl;
+	    std::cout << iter->getEndInt() << std::endl;
 	else
-	    cout << iter->getEndDouble() << endl;
+	    std::cout << iter->getEndDouble() << std::endl;
     }
 }
 
@@ -284,36 +283,36 @@ s_dumpInterval(ParseResult* p_result, vector<ParseInterval> *p_list, const char 
 static void 
 s_dumpParam(ParseParam *p_parm, const char *label)
 {
-    cout << "\t\t" << label << ": " << endl;
+    std::cout << "\t\t" << label << ": " << std::endl;
 
 #if DEBUG_CLI
     printf("ParseResult::s_dumpParam, label=%s\n", label);
 #endif
-    cout << "\t\t";
+    std::cout << "\t\t";
     if (p_parm->getExpType()) {
-    	cout << p_parm->getExpType() << "::";
+    	std::cout << p_parm->getExpType() << "::";
     }
 	
-    cout << p_parm->getParamType() << " = " << endl;
+    std::cout << p_parm->getParamType() << " = " << std::endl;
 	
-    vector<ParamVal>::iterator iter;
+    std::vector<ParamVal>::iterator iter;
 
-    vector<ParamVal> * p_list = p_parm->getValList();
+    std::vector<ParamVal> * p_list = p_parm->getValList();
     for (iter=p_list->begin();iter != p_list->end(); iter++) {
-    	cout << "\t\t\t";
+    	std::cout << "\t\t\t";
     
     	switch(iter->getValType()) {
 	    case PARAM_VAL_STRING:
-	    	cout << iter->getSVal() << endl;
+	    	std::cout << iter->getSVal() << std::endl;
 	    	break;
 	    case PARAM_VAL_INT:
-	    	cout << iter->getIVal() << endl;
+	    	std::cout << iter->getIVal() << std::endl;
 	    	break;
 	    case PARAM_VAL_DOUBLE:
-	    	cout << iter->getDVal() << endl;
+	    	std::cout << iter->getDVal() << std::endl;
 	    	break;
 	    default :
-	    	cout << "UNKNOWN VALUE TYPE: " << iter->getValType() << endl;
+	    	std::cout << "UNKNOWN VALUE TYPE: " << iter->getValType() << std::endl;
 	    	break; }
     }
 
@@ -346,19 +345,19 @@ dumpError(CommandObject *cmd)
     SS_Message_Czar& czar = theMessageCzar();
     
     // Local string for storing up complex message.
-    string err_string;
+    std::string err_string;
 
     // Get list of error strings
-    vector<ParseRange> *p_list = this->getErrorList();
+    std::vector<ParseRange> *p_list = this->getErrorList();
 
-    vector<ParseRange>::iterator iter;
+    std::vector<ParseRange>::iterator iter;
     
     for (iter=p_list->begin();iter != p_list->end(); iter++) {
     	parse_range_t *p_range = iter->getRange();
 
     	parse_val_t *p_val1 = &p_range->start_range;
     	if (p_val1->tag == VAL_STRING) {
-	    string s("Invalid argument: ");
+	    std::string s("Invalid argument: ");
 	    
 	    s.append(p_val1->name);
 
@@ -368,10 +367,10 @@ dumpError(CommandObject *cmd)
     }
 
     // Print out help for command in question
-    vector <SS_Message_Element *> element;
+    std::vector <SS_Message_Element *> element;
     czar.Find_By_Keyword(this->getCommandname(), &element);
     
-    vector <SS_Message_Element*>:: iterator k;
+    std::vector <SS_Message_Element*>:: iterator k;
     for (k = element.begin();
     	 k != element.end();
     	 ++k) {
@@ -379,8 +378,8 @@ dumpError(CommandObject *cmd)
     	SS_Message_Element *p_el = *k;
 
     	// Syntax list
-    	vector<string> * const p_string = p_el->get_syntax_list();
-    	for (vector <string> :: iterator i=p_string->begin();
+    	std::vector<std::string> * const p_string = p_el->get_syntax_list();
+    	for (std::vector <std::string> :: iterator i=p_string->begin();
     	     i!= p_string->end();
     	     ++i) {
     	    err_string.append(*i);
@@ -406,24 +405,24 @@ dumpError(CommandObject *cmd)
  *
  */
 static void 
-s_dumpRange(vector<ParseRange> *p_list, const char *label, bool is_hex)
+s_dumpRange(std::vector<ParseRange> *p_list, const char *label, bool is_hex)
 {
-    vector<ParseRange>::iterator iter;
+    std::vector<ParseRange>::iterator iter;
 #if DEBUG_CLI
     printf("ParseResult::s_dumpRange, label=%s\n", label);
 #endif
     
     if (is_hex){
-    	cout.setf(ios_base::hex,ios_base::basefield);
-    	cout.setf(ios_base::showbase);
+    	std::cout.setf(std::ios_base::hex,std::ios_base::basefield);
+    	std::cout.setf(std::ios_base::showbase);
     }
     else {
-    	cout.setf(ios_base::dec,ios_base::basefield);
-    	cout.unsetf(ios_base::showbase);
+    	std::cout.setf(std::ios_base::dec,std::ios_base::basefield);
+    	std::cout.unsetf(std::ios_base::showbase);
     }
     
     if (p_list->begin() != p_list->end())
-    	    cout << "\t\t" << label << ": " ;
+    	    std::cout << "\t\t" << label << ": " ;
 
     for (iter=p_list->begin();iter != p_list->end(); iter++) {
     	parse_range_t *p_range = iter->getRange();
@@ -431,30 +430,30 @@ s_dumpRange(vector<ParseRange> *p_list, const char *label, bool is_hex)
     	    parse_val_t *p_val1 = &p_range->start_range;
     	    parse_val_t *p_val2 = &p_range->end_range;
     	    if (p_val1->tag == VAL_STRING) {
-    	    	cout << p_val1->name << ":";
+    	    	std::cout << p_val1->name << ":";
     	    }
     	    else {
-    	    	cout << p_val1->num << ":";
+    	    	std::cout << p_val1->num << ":";
     	    }
     	    if (p_val2->tag == VAL_STRING) {
-    	    	cout << p_val2->name << " ";
+    	    	std::cout << p_val2->name << " ";
     	    }
     	    else {
-    	    	cout << p_val2->num << " ";
+    	    	std::cout << p_val2->num << " ";
     	    }
     	}
     	else {
     	    parse_val_t *p_val1 = &p_range->start_range;
     	    if (p_val1->tag == VAL_STRING) {
-    	    	cout << p_val1->name << " ";
+    	    	std::cout << p_val1->name << " ";
     	    }
     	    else {
-    	    	cout << p_val1->num << " ";
+    	    	std::cout << p_val1->num << " ";
     	    }
     	}
     }
     if (p_list->begin() != p_list->end())
-    	    cout << endl ;
+    	    std::cout << std::endl ;
 
 }
 
@@ -477,7 +476,7 @@ s_nocase_compare(const char c1, const char c2)
 /**
  * Method: s_dump_help_topic()
  * 
- * Dump help topics based on topic string
+ * Dump help topics based on topic std::std::string
  *     
  * @return  void.
  *
@@ -487,27 +486,27 @@ s_nocase_compare(const char c1, const char c2)
 static void
 s_dump_help_topic(CommandObject *cmd, 
     	    	SS_Message_Czar& czar, 
-		string *p_topic_str) 
+		std::string *p_topic_str) 
 {
-    vector <SS_Message_Element *> sub_element;
+    std::vector <SS_Message_Element *> sub_element;
     czar.Find_By_Topic(*p_topic_str, &sub_element);
     
     if (sub_element.begin() == sub_element.end()) {
     	;
     }
     else {
-    	vector <SS_Message_Element*>:: iterator l;
+    	std::vector <SS_Message_Element*>:: iterator l;
     	for (l = sub_element.begin();
     	    l != sub_element.end();
     	    ++l) {
     	    	    SS_Message_Element *p_el = *l;
-    	    	    string * const p_keyword = p_el->get_keyword();
-		    string newstr(*p_keyword);
+    	    	    std::string * const p_keyword = p_el->get_keyword();
+		    std::string newstr(*p_keyword);
 		    if ((newstr.length()) < 15)
 		    	newstr.resize(15,' ');
-    	    	    string * const p_brief = p_el->get_brief();
+    	    	    std::string * const p_brief = p_el->get_brief();
 		    newstr.append(" -> " + *p_brief); 
-		    //string newstr(*p_keyword + " -> " + *p_brief);
+		    //std::string newstr(*p_keyword + " -> " + *p_brief);
     	    	    cmd->Result_String (newstr);
     	}
     }
@@ -545,7 +544,7 @@ dumpHelp(CommandObject *cmd)
     	return;
 
     // List of help strings to look up.
-    vector<string> *p_slist = this->getHelpList();
+    std::vector<std::string> *p_slist = this->getHelpList();
 
     // Get reference of the message czar.
     SS_Message_Czar& czar = theMessageCzar();
@@ -560,20 +559,22 @@ dumpHelp(CommandObject *cmd)
 	cmd->Result_String("Here are the available help topics:");
 	cmd->Result_String(" ");
 	
-    	string topic_str("topic");
+    	std::string topic_str("topic");
     	s_dump_help_topic(cmd, czar, &topic_str);
 
     	return;
     }
 
-    for (vector<string>::iterator j=p_slist->begin();
+    for (std::vector<std::string>::iterator j=p_slist->begin();
     	 j != p_slist->end() && !found_match; 
 	 j++) {
-	string name(*j);
-    	vector <SS_Message_Element *> element;
+	std::string name(*j);
+    	std::vector <SS_Message_Element *> element;
 	    
     	czar.Find_By_Keyword(name.c_str(), &element);
     
+std::cerr << "LOOKING FOR HELP AGAINST " << name << std::endl;
+
     	if (element.begin() == element.end()) {
 	    cmd->Result_String( "No help for " + name);
 	    continue;
@@ -582,7 +583,7 @@ dumpHelp(CommandObject *cmd)
 	    found_match = true;
 	}
 
-    	vector <SS_Message_Element*>:: iterator k;
+    	std::vector <SS_Message_Element*>:: iterator k;
     	for (k = element.begin();
     	    k != element.end();
 	    ++k) {
@@ -591,30 +592,30 @@ dumpHelp(CommandObject *cmd)
 	    cmd->Result_String ("    *********");
 
     	    // Normal list
-	    vector<string> * const p_string = p_el->get_normal_list();
-    	    for (vector <string> :: iterator i=p_string->begin();
+	    std::vector<std::string> * const p_string = p_el->get_normal_list();
+    	    for (std::vector <std::string> :: iterator i=p_string->begin();
     	     	 i!= p_string->end();
 	     	 ++i) {
 		cmd->Result_String (*i);
 	    }
 
     	    // Example list
-	    vector<string> * const p_string_2 = p_el->get_example_list();
+	    std::vector<std::string> * const p_string_2 = p_el->get_example_list();
     	    if (p_string_2->begin() != p_string_2->end()) {
     	    	cmd->Result_String( "Examples:\n\n");
     	    }
-    	    for (vector <string> :: iterator i=p_string_2->begin();
+    	    for (std::vector <std::string> :: iterator i=p_string_2->begin();
     	     	 i!= p_string_2->end();
 	     	 ++i) {
 		cmd->Result_String (*i);
 	    }
 
     	    // Related list
-	    vector<string> * const p_string_3 = p_el->get_related_list();
+	    std::vector<std::string> * const p_string_3 = p_el->get_related_list();
     	    if (p_string_3->begin() != p_string_3->end()) {
     	    	cmd->Result_String( "See also:\n\n");
     	    }
-    	    for (vector <string> :: iterator i=p_string_3->begin();
+    	    for (std::vector <std::string> :: iterator i=p_string_3->begin();
     	     	 i!= p_string_3->end();
 	     	 ++i) {
 		cmd->Result_String ("\t" + *i);
@@ -647,102 +648,102 @@ dumpInfo()
 {
 
     // Command name.
-    cout << "\nCommand: " << this->getCommandname() << endl;
+    std::cout << "\nCommand: " << this->getCommandname() << std::endl;
 
     // Experimant id list.
     s_dumpRange(this->getExpIdList(), "Experiment Id",false /* is_hex */);
 
 
     // Experiment types.
-    vector<string> *p_slist = this->getExpList();
-    vector<string>::iterator j;
+    std::vector<std::string> *p_slist = this->getExpList();
+    std::vector<std::string>::iterator j;
 	
     if (p_slist->begin() != p_slist->end())
-    	cout << "\tExperiment Types: " ;
+    	std::cout << "\tExperiment Types: " ;
     for (j=p_slist->begin();j != p_slist->end(); j++) {
-    	cout << *j << " " ;
+    	std::cout << *j << " " ;
     }
     if (p_slist->begin() != p_slist->end())
-    	cout << endl ;
+    	std::cout << std::endl ;
 
     // Generic strings. 
     // Currently used by echo.
     p_slist = this->getStringList();
 	
     if (p_slist->begin() != p_slist->end())
-    	cout << "\tGeneric strings: " ;
+    	std::cout << "\tGeneric strings: " ;
     for (j=p_slist->begin();j != p_slist->end(); j++) {
-    	cout << *j << " " ;
+    	std::cout << *j << " " ;
     }
     if (p_slist->begin() != p_slist->end())
-    	cout << endl ;
+    	std::cout << std::endl ;
 
     // view types.
     p_slist = this->getViewList();
 	
     if (p_slist->begin() != p_slist->end())
-    	cout << "\tView Types: " ;
+    	std::cout << "\tView Types: " ;
     for (j=p_slist->begin();j != p_slist->end(); j++) {
-    	cout << *j << " " ;
+    	std::cout << *j << " " ;
     }
     if (p_slist->begin() != p_slist->end())
-    	cout << endl ;
+    	std::cout << std::endl ;
 
     // help keywords.
     p_slist = this->getHelpList();
 	
     if (p_slist->begin() != p_slist->end())
-    	cout << "\tHelp Keywords: " ;
+    	std::cout << "\tHelp Keywords: " ;
     for (j=p_slist->begin();j != p_slist->end(); j++) {
-    	cout << *j << " " ;
+    	std::cout << *j << " " ;
     }
     if (p_slist->begin() != p_slist->end())
-    	cout << endl ;
+    	std::cout << std::endl ;
 
     // help modifiers.
     p_slist = this->getHelpModifierList();
 	
     if (p_slist->begin() != p_slist->end())
-    	cout << "\tHelp Modifiers: " ;
+    	std::cout << "\tHelp Modifiers: " ;
     for (j=p_slist->begin();j != p_slist->end(); j++) {
-    	cout << *j << " " ;
+    	std::cout << *j << " " ;
     }
     if (p_slist->begin() != p_slist->end())
-    	cout << endl ;
+    	std::cout << std::endl ;
 
     // general modifier types.
     p_slist = this->getModifierList();
 	
     if (p_slist->begin() != p_slist->end())
-    	cout << "\tGeneral Modifier Types: " ;
+    	std::cout << "\tGeneral Modifier Types: " ;
     for (j=p_slist->begin();j != p_slist->end(); j++) {
-    	cout << *j << " " ;
+    	std::cout << *j << " " ;
     }
     if (p_slist->begin() != p_slist->end())
-    	cout << endl ;
+    	std::cout << std::endl ;
 
     // general instrumentor types.
     p_slist = this->getInstrumentor();
 	
     if (p_slist->begin() != p_slist->end())
-    	cout << "\tGeneral Instrumentor Type: " ;
+    	std::cout << "\tGeneral Instrumentor Type: " ;
     for (j=p_slist->begin();j != p_slist->end(); j++) {
-    	cout << *j << " " ;
+    	std::cout << *j << " " ;
     }
     if (p_slist->begin() != p_slist->end())
-    	cout << endl ;
+    	std::cout << std::endl ;
 
     // Break id list.
-    vector<int>::iterator i;
-    vector<int> *p_ilist = this->getBreakList();
+    std::vector<int>::iterator i;
+    std::vector<int> *p_ilist = this->getBreakList();
 	
     if (p_ilist->begin() != p_ilist->end())
-    	cout << "\tBreak ids: " ;
+    	std::cout << "\tBreak ids: " ;
     for (i=p_ilist->begin();i != p_ilist->end(); i++) {
-    	cout << *i << " " ;
+    	std::cout << *i << " " ;
     }
     if (p_ilist->begin() != p_ilist->end())
-    	cout << endl ;
+    	std::cout << std::endl ;
 
     // View set list.
     s_dumpRange(this->getViewSet(), "VIEW SETS",false /* is_hex */);
@@ -767,12 +768,12 @@ dumpInfo()
     s_dumpRange(this->getErrorList(), "ERROR", false /* is_hex */);
 
     // target list.
-    vector<ParseTarget>::iterator t_iter;
-    vector<ParseTarget> *p_tlist = this->getTargetList();
+    std::vector<ParseTarget>::iterator t_iter;
+    std::vector<ParseTarget> *p_tlist = this->getTargetList();
 
     int64_t count = 1;
     for (t_iter=p_tlist->begin() ;t_iter != p_tlist->end(); t_iter++) {
-    	cout << "\tTarget #" << count++ << " : " << endl;
+    	std::cout << "\tTarget #" << count++ << " : " << std::endl;
 	
 	// various lists
 	s_dumpRange(t_iter->getHostList(), "HOST",true /* is_hex */);
@@ -783,16 +784,16 @@ dumpInfo()
 	s_dumpRange(t_iter->getClusterList(), "CLUSTER",false /* is_hex */);
     }
     
-    string *p_string = this->getRedirectTarget();
+    std::string *p_string = this->getRedirectTarget();
     if (p_string->length() > 0) {
     	
-    	cout << "\tCopy Redirect target: " << *p_string << endl;
+    	std::cout << "\tCopy Redirect target: " << *p_string << std::endl;
     }
     
     p_string = this->getAppendTarget();
     if (p_string->length() > 0) {
     	
-    	cout << "\tAppend Redirect target: " << *p_string << endl;
+    	std::cout << "\tAppend Redirect target: " << *p_string << std::endl;
     }
 }
 
@@ -962,11 +963,11 @@ int
 ParseResult::
 getExpId()
 {
-    vector<ParseRange> *p_list = this->getExpIdList();
+    std::vector<ParseRange> *p_list = this->getExpIdList();
     int the_id = 0;
     
     if (p_list->begin() != p_list->end()) {
-    	vector<ParseRange>::iterator iter;
+    	std::vector<ParseRange>::iterator iter;
     	iter=p_list->begin();
     	parse_range_t *p_range = iter->getRange();
     	the_id = p_range->start_range.num;
@@ -993,7 +994,7 @@ ParseResult::
 isExpId()
 {
 
-    vector<ParseRange> *p_slist = this->getExpIdList();
+    std::vector<ParseRange> *p_slist = this->getExpIdList();
 
     if (p_slist->begin() != p_slist->end())
     	return true;
@@ -1016,8 +1017,8 @@ ParseResult::
 expIdCount()
 {
 
-    vector<ParseRange> *p_list = this->getExpIdList();
-    vector<ParseRange>::iterator iter;
+    std::vector<ParseRange> *p_list = this->getExpIdList();
+    std::vector<ParseRange>::iterator iter;
     int count = 0;
     
     for (iter=p_list->begin();iter != p_list->end(); iter++) {
@@ -1135,7 +1136,7 @@ setError(const char * name1, const char * name2)
     ParseRange range(name1,name2);
 
 #if DEBUG_CLI
-    cout << "ParseResult::in setError(" << name1 << "," << name2 << ")" << endl;
+    std::cout << "ParseResult::in setError(" << name1 << "," << name2 << ")" << std::endl;
 #endif
 
     dm_error_set = true;
@@ -1160,7 +1161,7 @@ setError(const char * name)
     ParseRange range(name);
 
 #if DEBUG_CLI
-    cout << "in ParseResult::setError(" << name << ")" << endl;
+    std::cout << "in ParseResult::setError(" << name << ")" << std::endl;
 #endif
 
     dm_error_set = true;
@@ -1295,14 +1296,14 @@ setIntervalAttribute(const char *attribute)
  * @todo    Error handling.
  *
  */
-const string *
+const std::string *
 ParseResult::
 getIntervalAttribute()
 {
     if (dm_interval_attribute_set)
     	return &dm_interval_attribute;
     else
-    	return (const string *)NULL;
+    	return (const std::string *)NULL;
 }
  
 /**

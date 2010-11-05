@@ -39,7 +39,7 @@ static FILE *ttyin = NULL;  // Read directly from this xterm window.
 static ss_ostream *ss_err = NULL;
 static ss_ostream *ss_out = NULL;
 static ss_ostream *ss_ttyout = NULL;
-static ofstream *ttyout_stream = NULL;
+static std::ofstream *ttyout_stream = NULL;
 
 // Forward definitions of local functions
 CommandWindowID *Find_Command_Window (CMDWID WindowID);
@@ -55,16 +55,16 @@ inline std::string ptr2str (void *p) {
 // Local Macros
 
 static inline
-ostream *Predefined_ofstream (std::string oname)
+std::ostream *Predefined_ofstream (std::string oname)
 {
   if (oname.length() == 0) {
     return NULL;
   } if (oname == "stdout") {
-    return (ss_out != NULL) ? &ss_out->mystream () : &cout;
+    return (ss_out != NULL) ? &ss_out->mystream () : &std::cout;
   } else if (oname == "stderr") {
-    return (ss_err != NULL) ? &ss_err->mystream () : &cerr;
+    return (ss_err != NULL) ? &ss_err->mystream () : &std::cerr;
   } else if (oname == "/dev/tty") {
-    return (ss_ttyout != NULL) ? &ss_ttyout->mystream () : &cout;
+    return (ss_ttyout != NULL) ? &ss_ttyout->mystream () : &std::cout;
   } else {
     return NULL;
   }
@@ -143,7 +143,7 @@ class Input_Source
   InputLineObject *Input_Object;
   bool Record_To_A_Predefined_File;
   std::string Record_Name;
-  ostream *Record_Stream;
+  std::ostream *Record_Stream;
 
  // Used if files are to be read
  // These pointers are copied to the InputLineObject generated for each line from the file.
@@ -262,7 +262,7 @@ class Input_Source
           this_ss_stream->releaseLock();
 
         } else {
-          cerr << "ERROR: Input line from " << Name << " is too long for buffer.\n" << std::flush;
+          std::cerr << "ERROR: Input line from " << Name << " is too long for buffer.\n" << std::flush;
         }
         return NULL;
       }
@@ -289,11 +289,11 @@ class Input_Source
     if (Record_Stream && !Record_To_A_Predefined_File) {
       delete Record_Stream;
     }
-    ostream *tof = Predefined_ofstream (tofname);
+    std::ostream *tof = Predefined_ofstream (tofname);
     Record_Name = tofname;
     Record_To_A_Predefined_File = (tof != NULL);
     if (tof == NULL) {
-      tof = new ofstream (tofname.c_str(), ios::out);
+      tof = new std::ofstream (tofname.c_str(), std::ios::out);
     }
     Record_Stream = tof;
     return (tof != NULL);
@@ -308,10 +308,10 @@ class Input_Source
   }
   bool Record_File_Is_Predefined () { return Record_To_A_Predefined_File; }
   std::string Record_File_Name () { return Record_Name; }
-  ostream *Record_Ostream () { return Record_Stream; }
+  std::ostream *Record_Ostream () { return Record_Stream; }
 
   // Debug aids
-  void Dump (ostream &mystream) {
+  void Dump (std::ostream &mystream) {
     bool nl_at_eol = false;
     mystream << "    Read from: " << ((Fp) ? Name : (Input_Object) ? "image " : "buffer ");
     if (Input_Object != NULL) {
@@ -361,11 +361,11 @@ class CommandWindowID
 
   pthread_mutex_t Log_File_Lock;
   std::string Log_File_Name;
-  ostream *Log_Stream;
+  std::ostream *Log_Stream;
   bool Log_File_Is_A_Temporary_File;
 
   std::string Record_File_Name;
-  ostream *Record_Stream;
+  std::ostream *Record_Stream;
   bool Record_File_Is_A_Temporary_File;
 
   pthread_mutex_t Cmds_List_Lock;
@@ -439,7 +439,7 @@ class CommandWindowID
         char base[20];
         snprintf(base, 20, "sstr%lld.XXXXXX",id);
         Log_File_Name = std::string(tempnam ("./", &base[0] )) + ".openss";
-        Log_Stream = new ofstream (Log_File_Name.c_str(), ios::out);
+        Log_Stream = new std::ofstream (Log_File_Name.c_str(), std::ios::out);
         Log_File_Is_A_Temporary_File = true;
       }
       Record_File_Name = "";
@@ -891,10 +891,10 @@ public:
   void    set_outstream (ss_ostream *output) { default_outstream = output; }
   void    set_errstream (ss_ostream *errput) { default_errstream = errput; }
   bool has_outstream () { return (default_outstream != NULL); }
-  ostream &outstream () { return default_outstream->mystream(); }
+  std::ostream &outstream () { return default_outstream->mystream(); }
   ss_ostream *ss_outstream () { return default_outstream; }
   bool has_errstream () { return (default_errstream != NULL); }
-  ostream &errstream () { return default_errstream->mystream(); }
+  std::ostream &errstream () { return default_errstream->mystream(); }
   ss_ostream *ss_errstream () { return default_errstream; }
   CMDWID  ID () { return id; }
   std::string IAM () { return I_Call_Myself; }
@@ -925,8 +925,8 @@ public:
   }
   bool   Set_Log_File ( std::string tofname ) {
     Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
-    ostream *tof = Predefined_ofstream (tofname);
-    ios_base::openmode open_mode = ios::out;  // The default is to overwrite existing files.
+    std::ostream *tof = Predefined_ofstream (tofname);
+    std::ios_base::openmode open_mode = std::ios::out;  // The default is to overwrite existing files.
     if ((Log_Stream != NULL) &&
         (predefined_filename (Log_File_Name) == NULL)) {
      // Copy the old file to the new file.
@@ -941,7 +941,7 @@ public:
           Assert(pthread_mutex_unlock(&Log_File_Lock) == 0);
           return false;
         }
-        open_mode = ios::app;  // Save recently generated records.
+        open_mode = std::ios::app;  // Save recently generated records.
         Log_File_Is_A_Temporary_File = false;
       }
     }
@@ -950,7 +950,7 @@ public:
       (void) remove (Log_File_Name.c_str());
     }
     if (tof == NULL) {
-      tof = new ofstream (tofname.c_str(), open_mode);
+      tof = new std::ofstream (tofname.c_str(), open_mode);
     }
     Log_File_Name = tofname;
     Log_Stream = tof;
@@ -984,11 +984,11 @@ public:
       if (Record_Stream && !Record_File_Is_A_Temporary_File) {
         delete Record_Stream;
       }
-      ostream *tof = Predefined_ofstream (tofname);
+      std::ostream *tof = Predefined_ofstream (tofname);
       Record_File_Name = tofname;
       Record_File_Is_A_Temporary_File = (tof != NULL);
       if (tof == NULL) {
-        tof = new ofstream (tofname.c_str(), ios::out);
+        tof = new std::ofstream (tofname.c_str(), std::ios::out);
       }
       Record_Stream = tof;
       file_was_set = (tof != NULL);
@@ -1012,7 +1012,7 @@ public:
   }
   void Record (InputLineObject *clip) {
     Assert(pthread_mutex_lock(&Log_File_Lock) == 0);
-    ostream *tof = NULL;
+    std::ostream *tof = NULL;
     bool is_predefined = false;
     if (Input) {
       tof = Input->Record_Ostream();
@@ -1032,11 +1032,11 @@ public:
   }
 
   // For error reporting
-  void Print_Location(ostream &mystream) {
+  void Print_Location(std::ostream &mystream) {
     mystream << Host_ID << " " << Process_ID;
   }
   // Debug aids
-  bool Print_Queued_Cmds (ostream &mystream) {
+  bool Print_Queued_Cmds (std::ostream &mystream) {
    // Print the list of waiting commands
     bool there_are_some = false;
 
@@ -1064,7 +1064,7 @@ public:
     Assert(pthread_mutex_unlock(&Input_List_Lock) == 0);
     return there_are_some;
   }
-  bool Print_Active_Cmds (ostream &mystream) {
+  bool Print_Active_Cmds (std::ostream &mystream) {
    // Print the list of completed commands
     bool there_are_some = false;
 
@@ -1089,7 +1089,7 @@ public:
     Assert(pthread_mutex_unlock(&Cmds_List_Lock) == 0);
     return there_are_some;
   }
-  void Print_Header(ostream &mystream) {
+  void Print_Header(std::ostream &mystream) {
     mystream << "W " << id << ":";
     mystream << (Input_Is_Async?" async":" sync") << (remote?" remote":" local");
     mystream << "IAM:" << I_Call_Myself << " " << Host_ID << " " << Process_ID;
@@ -1364,7 +1364,7 @@ EXPID Experiment_Focus (CMDWID WindowID, EXPID ExperimentID)
 }
 
 static bool Read_Log_File_History (CommandObject *cmd, enum Log_Entry_Type log_type,
-                                   std::string fname, ostream *toStream)
+                                   std::string fname, std::ostream *toStream)
 {
   FILE *cmdf = fopen (fname.c_str(), "r");
   struct stat stat_buf;
@@ -1468,19 +1468,19 @@ void Commander_Initialization () {
   class err_ostream : public ss_ostream {
    private:
     virtual void output_string (std::string s) {
-      cerr << s;
+      std::cerr << s;
     }
     virtual void flush_ostream () {
-      cerr << std::flush;
+      std::cerr << std::flush;
     }
   };
   class out_ostream : public ss_ostream {
    private:
     virtual void output_string (std::string s) {
-      cout << s;
+      std::cout << s;
     }
     virtual void flush_ostream () {
-      cout << std::flush;
+      std::cout << std::flush;
     }
   };
   ss_err = new err_ostream ();
@@ -1522,7 +1522,7 @@ CMDWID TLI_Window (const char *my_name, const char *my_host, pid_t my_pid, int64
 
   ss_ttyout->Set_Issue_Prompt (true);
 
-  ttyout_stream = new ofstream ("/dev/tty", ios::out);
+  ttyout_stream = new std::ofstream ("/dev/tty", std::ios::out);
 
  // Create a new Window
   CommandWindowID *cwid = new TLI_CommandWindowID(std::string(my_name ? my_name : ""),
@@ -1734,16 +1734,16 @@ void Internal_Info_Dump (CMDWID issuedbywindow) {
   bool Fatal_Error_Encountered = false;
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   if ((cw == NULL) || (cw->ID() == 0)) {
-    cerr << "    ERROR: the window(" << issuedbywindow << ") this command came from is illegal" << std::endl;
+    std::cerr << "    ERROR: the window(" << issuedbywindow << ") this command came from is illegal" << std::endl;
     return;
   }
   if (!(cw->has_outstream())) {
-    cerr << "    ERROR: window(" << issuedbywindow << ") thas no defined output stream" << std::endl;
+    std::cerr << "    ERROR: window(" << issuedbywindow << ") thas no defined output stream" << std::endl;
     return;
   }
   ss_ostream *this_ss_stream = Window_outstream (issuedbywindow);
   this_ss_stream->acquireLock();
-  ostream &mystream = this_ss_stream->mystream();
+  std::ostream &mystream = this_ss_stream->mystream();
   mystream << PACKAGE_STRING << " Status:" << std::endl;
   mystream << "    " << (Looking_for_Async_Inputs?" ":"Not") << " Waiting for Async input" << std::endl;
   if (Looking_for_Async_Inputs) {
@@ -1800,7 +1800,7 @@ void User_Info_Dump (CMDWID issuedbywindow) {
 
   ss_ostream *this_ss_stream = Window_outstream (issuedbywindow);
   this_ss_stream->acquireLock();
-  ostream &mystream = this_ss_stream->mystream();
+  std::ostream &mystream = this_ss_stream->mystream();
 
   mystream << std::endl << "************************" << std::endl;
   mystream << "Current status of " << PACKAGE_STRING << std::endl;
@@ -2016,11 +2016,11 @@ do_escape_cmd (void *arg) {
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
 
   if ((cw == NULL) || (cw->ID() == 0)) {
-    cerr << "    ERROR: the window(" << issuedbywindow << ") this command came from is illegal" << std::endl;
+    std::cerr << "    ERROR: the window(" << issuedbywindow << ") this command came from is illegal" << std::endl;
     return;
   }
   if (!(cw->has_outstream())) {
-    cerr << "    ERROR: window(" << issuedbywindow << ") thas no defined output stream" << std::endl;
+    std::cerr << "    ERROR: window(" << issuedbywindow << ") thas no defined output stream" << std::endl;
     return;
   }
 
@@ -2044,7 +2044,7 @@ do_escape_cmd (void *arg) {
   Assert(pthread_mutex_unlock(&Escape_Command_Lock) == 0);
 
   ss_ostream *this_ss_stream = Window_outstream (issuedbywindow);
-  ostream &mystream = this_ss_stream->mystream();
+  std::ostream &mystream = this_ss_stream->mystream();
 
   FILE *input = fdopen(in_fd, "r");
   char line [DEFAULT_INPUT_BUFFER_SIZE];
@@ -2231,12 +2231,12 @@ void ReDirect_User_Stdout (const char *S, const int &len, void *tag) {
 
   if (this_ss_stream != NULL) {
     this_ss_stream->acquireLock();
-    ostream &mystream = this_ss_stream->mystream();
+    std::ostream &mystream = this_ss_stream->mystream();
     mystream.write( S, len);
     this_ss_stream->releaseLock();
   } else {
-    cout.write( S, len );
-    cout << flush;
+    std::cout.write( S, len );
+    std::cout << std::flush;
   }
 }
 
@@ -2248,12 +2248,12 @@ void ReDirect_User_Stderr (const char *S, const int &len, void *tag) {
 
   if (this_ss_stream != NULL) {
     this_ss_stream->acquireLock();
-    ostream &mystream = this_ss_stream->mystream();
+    std::ostream &mystream = this_ss_stream->mystream();
     mystream.write( S, len);
     this_ss_stream->releaseLock();
   } else {
-    cerr.write( S, len );
-    cerr << flush;
+    std::cerr.write( S, len );
+    std::cerr << std::flush;
   }
 }
 
@@ -2482,7 +2482,7 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   }
 
   catch (std::bad_alloc) {
-    cerr << "ERROR: Unable to allocate memory to read input." << std::endl;
+    std::cerr << "ERROR: Unable to allocate memory to read input." << std::endl;
     abort();
   }
 
@@ -2734,7 +2734,7 @@ read_another_window:
     return clip;
   }
   catch (std::bad_alloc) {
-    cerr << "ERROR: Unable to allocate memory to process input." << std::endl;
+    std::cerr << "ERROR: Unable to allocate memory to process input." << std::endl;
     return NULL;
   }
 }

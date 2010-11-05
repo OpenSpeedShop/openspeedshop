@@ -21,7 +21,7 @@
 #include "SS_Settings.hxx"
 // where is this include????    #include <libxml/xmlreader.h>
 
-int64_t OPENSS_VIEW_FIELD_SIZE = 20;
+int64_t OPENSS_VIEW_FIELD_SIZE = 24;
 int64_t OPENSS_VIEW_PRECISION = 6;
 int64_t OPENSS_HISTORY_LIMIT = 100;
 int64_t OPENSS_HISTORY_DEFAULT = 24;

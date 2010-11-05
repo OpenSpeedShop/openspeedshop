@@ -44,7 +44,6 @@
 #define PLUGIN_DIR 0
 #endif
 
-using namespace std;
 
 /**
  * Method: s_make_path_from_pid
@@ -69,7 +68,7 @@ using namespace std;
  */
 #define MY_BUFSIZE 512
 static bool
-s_make_path_from_pid(string& exe_path,string& lib_path)
+s_make_path_from_pid(std::string& exe_path,std::string& lib_path)
 {
     char name[MY_BUFSIZE];
     char name2[MY_BUFSIZE];
@@ -77,7 +76,7 @@ s_make_path_from_pid(string& exe_path,string& lib_path)
     pid_t cur_pid = getpid(); // This had better be openss.
     
     // Cobble together "/proc/<pid>/exe"
-    string symlink ("/proc/");
+    std::string symlink ("/proc/");
     sprintf(&name2[0],"%d",cur_pid);
     symlink += name2;
     symlink += "/exe";
@@ -88,15 +87,15 @@ s_make_path_from_pid(string& exe_path,string& lib_path)
     // Do I need the strdup() or will string make a copy?
     exe_path = strdup(name);
     
-    string::size_type end_ndx;
+    std::string::size_type end_ndx;
 
     // Do I need the strdup() or will string make a copy?
     lib_path = strdup(name);
-    string path = strdup(name);
+    std::string path = strdup(name);
 
     if (!path.empty()						// string not empty 
     	&& (*path.rbegin() != '/')				// and does not end with a slash
-    	&& ((end_ndx = path.find_last_of("/")) != string::npos)) // but has at least one slash
+    	&& ((end_ndx = path.find_last_of("/")) != std::string::npos)) // but has at least one slash
 	{
     	end_ndx -=  4;
     	if (!path.compare(end_ndx, 4, "/bin")) {
@@ -131,9 +130,9 @@ s_make_path_from_pid(string& exe_path,string& lib_path)
  *
  */
 static void
-s_check_add_unique(string *input_str, vector<string> *v_string)
+s_check_add_unique(std::string *input_str, std::vector<std::string> *v_string)
 {
-    vector<string>::iterator iter;
+    std::vector<std::string>::iterator iter;
     for (iter=v_string->begin();
     	 iter != v_string->end(); 
 	 iter++) {
@@ -172,7 +171,7 @@ s_check_add_unique(string *input_str, vector<string> *v_string)
  *
  */
 static void
-s_add_plugin_path(char *path_str, vector<string> *v_string, bool add_dir) 
+s_add_plugin_path(char *path_str, std::vector<std::string> *v_string, bool add_dir) 
 {
     	char *old_ptr = (char *)path_str;
 
@@ -180,7 +179,7 @@ s_add_plugin_path(char *path_str, vector<string> *v_string, bool add_dir)
     	    char *new_ptr = strchr(old_ptr,PATH_DELIMITER);
 	
     	    if (!new_ptr) {
-    	    	string temp_path(old_ptr);
+    	    	std::string temp_path(old_ptr);
 		if (add_dir)
     	    	    temp_path += RELATIVE_OPENSS_PLUGIN_PATH;
 		//std::cout << "temp_path = " << temp_path.c_str() << std::endl;
@@ -193,7 +192,7 @@ s_add_plugin_path(char *path_str, vector<string> *v_string, bool add_dir)
     
     	    	strncpy(p_buf,old_ptr,size);
 		p_buf[size] = '\0';
-		string temp_path(p_buf);
+		std::string temp_path(p_buf);
 		if (add_dir)
     	    	    temp_path += RELATIVE_OPENSS_PLUGIN_PATH;
 
@@ -240,11 +239,11 @@ s_add_plugin_path(char *path_str, vector<string> *v_string, bool add_dir)
  *
  */
 static void
-SetOpenssLibPath(string& exe_path)
+SetOpenssLibPath(std::string& exe_path)
 {
 
     static char* ld_library_path_cstr = NULL;
-    string ld_library_path("LD_LIBRARY_PATH=");
+    std::string ld_library_path("LD_LIBRARY_PATH=");
     
     // std::cout << "in SetOpenssLibPath() before check" << std::endl;
     // std::cout << "Libpath = " << LIBRARY_DIR << std::endl;
@@ -264,7 +263,7 @@ SetOpenssLibPath(string& exe_path)
 
 	// add the path relative to where the a.out is
 	if (1) {
-	    string t_name;
+	    std::string t_name;
 
 	    if (s_make_path_from_pid(exe_path,t_name)){
 	    	ld_library_path += ":" + t_name;
@@ -296,7 +295,7 @@ SetOpenssLibPath(string& exe_path)
     	// Start with an empty libltdl search path
     	Assert(lt_dlsetsearchpath("") == 0);
     
-    	vector<string> v_string;
+    	std::vector<std::string> v_string;
     	// Add the user-specified plugin path
     	if(getenv("OPENSS_PLUGIN_PATH") != NULL) {
     	    s_add_plugin_path((char *)getenv("OPENSS_PLUGIN_PATH"), 

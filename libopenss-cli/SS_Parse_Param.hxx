@@ -99,7 +99,7 @@ class ParseParam {
     	char *getParamType() {return dm_param_type;}
 
     	/** Handle list of line numbers. */
-    	vector<ParamVal> * getValList()
+    	std::vector<ParamVal> * getValList()
 	{
 	    return &dm_param_val_list;
 	}
@@ -124,7 +124,7 @@ class ParseParam {
     	char * dm_param_type;
 
     	/** Container of param values */
-    	vector<ParamVal> dm_param_val_list;
+    	std::vector<ParamVal> dm_param_val_list;
 };
 
 } }

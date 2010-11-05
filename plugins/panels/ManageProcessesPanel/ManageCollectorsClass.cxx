@@ -690,7 +690,7 @@ ManageCollectorsClass::updateAttachedList()
         std::vector<std::string>::iterator e 
                         = unique(v.begin(), v.end());
 
-        for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
+        for( std::vector<std::string>::iterator hi = v.begin(); hi != e; hi++ ) 
         {
           MPListViewItem *item = new MPListViewItem( attachCollectorsListView, *hi );
           DescriptionClassObject *dco = new DescriptionClassObject(TRUE, QString::null, QString::null, QString::null, QString::null, QString::null  );
@@ -913,7 +913,7 @@ if( lv == psetListView )
         DescriptionClassObject *host_dco = new DescriptionClassObject(TRUE, pset_name);
         host_items->descriptionClassObject = host_dco;
 
-        for( std::vector<string>::iterator hi = v.begin(); hi != e; hi++ ) 
+        for( std::vector<std::string>::iterator hi = v.begin(); hi != e; hi++ ) 
         {
           pset_name = QString(*hi);
           MPListViewItem *item = new MPListViewItem( host_items, pset_name, *hi );

@@ -22,7 +22,6 @@
 
 #include "Python.h"
 
-using namespace std;
 
 #include "SS_Parse_Result.hxx"
 #include "SS_Parse_Target.hxx"
@@ -197,7 +196,7 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
   }
 
   std::string *Metric_List = vt->Metrics();
-  vector<ParseRange> *p_slist = p_result->getexpMetricList();
+  std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
 
   if (p_slist->empty()) {
 

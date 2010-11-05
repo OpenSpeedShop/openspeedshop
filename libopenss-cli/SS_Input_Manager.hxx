@@ -88,7 +88,6 @@
   if (signal (s, SIG_IGN) != SIG_IGN)                 \
     signal (s, reinterpret_cast <void (*)(int)> (f));
 
-using namespace std;
 
 #include "ToolAPI.hxx"
 #include "Queries.hxx"

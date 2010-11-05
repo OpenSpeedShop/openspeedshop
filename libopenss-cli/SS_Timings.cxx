@@ -23,7 +23,6 @@
 #include <string>
 #include <map>
 
-using namespace std;
 
 #include "SS_Timings.hxx"
 
@@ -842,7 +841,7 @@ SS_Timings::CLIPerformanceDataEvents SS_Timings::findTotalEvent( CLIPerformanceD
          return MaxMinTable[i].total_cli_event;
       }
     }
-  cerr << "BAD exit findTotalEvent inputCountEvent = " << inputCountEvent << " \n ";
+  std::cerr << "BAD exit findTotalEvent inputCountEvent = " << inputCountEvent << " \n ";
   return perfTableNullTotal;
 }
 
@@ -850,15 +849,15 @@ SS_Timings::CLIPerformanceDataEvents SS_Timings::findMinEvent( CLIPerformanceDat
 {
     for(unsigned i = 0; MaxMinTable[i].count_cli_event != perfTableNullCount; ++i) {
 #if 0
-      cerr << "in findMinEvent, i = " << i << " \n ";
-      cerr << "MaxMinTable[i].count_cli_event = " << MaxMinTable[i].count_cli_event << " \n ";
-      cerr << "inputCountEvent = " << inputCountEvent << " \n ";
+      std::cerr << "in findMinEvent, i = " << i << " \n ";
+      std::cerr << "MaxMinTable[i].count_cli_event = " << MaxMinTable[i].count_cli_event << " \n ";
+      std::cerr << "inputCountEvent = " << inputCountEvent << " \n ";
 #endif
       if (MaxMinTable[i].count_cli_event == inputCountEvent) {
          return MaxMinTable[i].min_cli_event;
       }
     }
-  cerr << "BAD exit findMinEvent inputCountEvent = " << inputCountEvent << " \n ";
+  std::cerr << "BAD exit findMinEvent inputCountEvent = " << inputCountEvent << " \n ";
   return perfTableNullMin;
 }
 
@@ -869,7 +868,7 @@ SS_Timings::CLIPerformanceDataEvents SS_Timings::findMaxEvent( CLIPerformanceDat
          return MaxMinTable[i].max_cli_event;
       }
     }
-  cerr << "BAD exit findMaxEvent inputCountEvent = " << inputCountEvent << "  \n";
+  std::cerr << "BAD exit findMaxEvent inputCountEvent = " << inputCountEvent << "  \n";
   return perfTableNullMax;
 }
 

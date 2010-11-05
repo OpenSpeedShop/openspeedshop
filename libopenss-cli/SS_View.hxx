@@ -132,7 +132,7 @@ class ViewInstruction
   int64_t TMP2 () { return TMP_index2; }
   int64_t TMP3 () { return TMP_index3; }
 
-  void Print (ostream &to) {
+  void Print (std::ostream &to) {
     std::string op;
     switch (Instruction) {
      case VIEWINST_Define_Total_Metric: op = "Define_Total_Metric"; break;
@@ -366,7 +366,7 @@ int64_t Find_Max_ExtraMetrics (std::vector<ViewInstruction *>& IV);
 bool Select_User_Metrics (CommandObject *cmd, ExperimentObject *exp,
                           std::vector<Collector>& CV, std::vector<std::string>& MV,
                           std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV);
-void Print_View_Params (ostream &to,
+void Print_View_Params (std::ostream &to,
                         std::vector<Collector>& CV,
                         std::vector<std::string>& MV,
                         std::vector<ViewInstruction *>& IV);

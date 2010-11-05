@@ -35,7 +35,7 @@ typedef enum {
 
 typedef struct {
     // union is not possible with type string
-    string name;
+    std::string name;
     int64_t num;
     val_enum_t tag; /** Determines with field to be used */
 } parse_val_t;

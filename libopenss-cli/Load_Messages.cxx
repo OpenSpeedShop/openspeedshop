@@ -26,7 +26,6 @@
 #include <string>
 #include <iostream>
 
-using namespace std;
 
 #include "SS_Message_Element.hxx"
 #include "SS_Message_Czar.hxx"
