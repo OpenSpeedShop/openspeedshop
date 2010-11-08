@@ -19,13 +19,60 @@ openspeedshop
 toyprograms
 webtutorial
 
+# save some space
+#-*.i686
+-openvpn
+-gnome-bluetooth*
+-pulseaudio-module-bluetooth
+-bluez*
+-wireless-tools*
+-empathy
+-telepathy-gabble
+-telepathy-idle
+-telepathy-filesystem
+-telepathy-glib
+-python-telepathy
+-telepathy-butterfly
+-telepathy-haze
+-telepathy-farsight
+-telepathy-salut
+-telepathy-mission-control
+#-ImageMagick
+-samba-client
+-mpage
+-sox
+-hplip
+-hpijs
+-numactl
+-isdn4k-utils
+-autofs
+# smartcards won't really work on the livecd.
+-coolkey
+-ccid
+-wget
+
+# qlogic firmwares
+-ql2100-firmware
+-ql2200-firmware
+-ql23xx-firmware
+-ql2400-firmware
+
+# scanning takes quite a bit of space :/
+-xsane
+-xsane-gimp
+-sane-backends
+
 # dictionaries are big
 -aspell-*
 -man-pages-*
 -scim-tables-*
 -wqy-bitmap-fonts
+-dejavu-dup
 -dejavu-fonts-experimental
 -dejavu-fonts
+-hunspell-*
+-words
+
 
 # more fun with space saving 
 -scim-lang-chinese
@@ -33,6 +80,7 @@ scim-chewing
 scim-pinyin
 
 # save some space
+-ibus-pinyin-open-phrase
 -gnome-user-docs
 -gimp-help
 -evolution-help
@@ -42,8 +90,23 @@ scim-pinyin
 #-evolution TODO: need to mod the gnome panel...
 -ekiga
 -pidgin
--transmission
+-transmission-common
+-transmission-gtk
 -tomboy
+# new deletions
+-cjkuni-fonts-common
+-cjkuni-ukai-fonts
+-cjkuni-uming-fonts
+-thunderbird
+-eclipse-*
+-rhythmbox
+-valgrind
+-digikam
+-ghostscript
+-ghostscript-cups
+-ghostscript-fonts
+
+
 
 %end
 

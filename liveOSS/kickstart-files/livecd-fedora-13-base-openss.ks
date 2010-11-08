@@ -5,7 +5,7 @@ auth --useshadow --enablemd5
 selinux --disabled
 firewall --enabled
 xconfig --startxonboot
-part / --size 9216
+part / --size 4096
 services --enabled=NetworkManager --disabled=network,sshd
 
 repo --name=a-base --baseurl=file:///var/www/html/yum/base
@@ -22,6 +22,61 @@ kernel
 #memtest86+
 
 # save some space
+#-*.i686
+-openvpn
+-gnome-bluetooth*
+-pulseaudio-module-bluetooth
+-bluez*
+-wireless-tools*
+-empathy
+-telepathy-gabble
+-telepathy-idle
+-telepathy-filesystem
+-telepathy-glib
+-python-telepathy
+-telepathy-butterfly
+-telepathy-haze
+-telepathy-farsight
+-telepathy-salut
+-telepathy-mission-control
+#-ImageMagick
+-samba-client
+-mpage
+-sox
+-hplip
+-hpijs
+-numactl
+-isdn4k-utils
+-autofs
+# smartcards won't really work on the livecd.
+-coolkey
+-ccid
+-wget
+
+# qlogic firmwares
+-ql2100-firmware
+-ql2200-firmware
+-ql23xx-firmware
+-ql2400-firmware
+
+# scanning takes quite a bit of space :/
+-xsane
+-xsane-gimp
+-sane-backends
+-deja-dup
+
+-ibus-pinyin-open-phrase
+-cjkuni-fonts-common
+-cjkuni-ukai-fonts
+-cjkuni-uming-fonts
+-thunderbird
+-eclipse-*
+-rhythmbox
+-valgrind
+-digikam
+-ghostscript                  
+-ghostscript-cups             
+-ghostscript-fonts  
 -specspo
 -esc
 -samba-client
