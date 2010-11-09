@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
 <!--
@@ -22,8 +22,8 @@
  style="width: 303px; height: 38px;"><br>
 <big><big style="font-weight: bold;"><big>Plugin Creation Guide</big></big></big></p>
 <div style="text-align: center;"><big><span style="font-weight: bold;">Version
-1.9.3.4 Release</span><br style="font-weight: bold;">
-<span style="font-weight: bold;">June 20, 2010<br>
+2.0.0 Release</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">October 31, 2010<br>
 (NOTE: concepts are still valid but some diagrams need updating)<br>
 </span></big></div>
 <br>
@@ -342,7 +342,8 @@ Line Interface (CLI) Plugin Outline</a></li>
   </li>
 </ul>
 <h2><a class="mozTocH2" name="mozTocId462188"></a><span class="mozTocH2"></span>Open|SpeedShop
-Overview and Information Resources</h2>
+Overview
+and Information Resources</h2>
 Open|SpeedShop is a project co-funded by the
 Department of Energy (DOE), managed by the Tri-laboratories
 of LLNL, LANL, and Sandia, and developed by SGI.&nbsp; Open|SpeedShop
@@ -455,7 +456,8 @@ Interface</a> - Detailed description of the CLI commands and usage<br>
  href="../test_plan/SGI_TestPlan.html">n</a> - Testing plan description<br>
   </li>
   <li><a href="../usability_plan/UsabilityPlanforOpenSpeedShop.html">Open|SpeedShop
-Usability Study Plan and Detailed Results</a> - List of Usability
+Usability
+Study Plan and Detailed Results</a> - List of Usability
 Studies and Results of Conducted Studies<br>
   </li>
 </ul>
@@ -577,7 +579,8 @@ are two dso's for each experiment collector.&nbsp;&nbsp; For example,
 here is what is shown for the PC Sampling experiment collector:<br>
 <div style="text-align: left;"><small><span style="font-style: italic;">pcsamp.la*&nbsp;
 pcsamp-rt.la*&nbsp;
-pcsamp-rt.so*&nbsp; pcsamp.so*</span></small><br>
+pcsamp-rt.so*&nbsp;
+pcsamp.so*</span></small><br>
 </div>
 <br>
 The runtime portion of the experiment collector plugin is appended with
@@ -716,7 +719,8 @@ collector plugins if not installed in the default location.</li>
 Plugin Section</a><br>
 <h4><a class="mozTocH4" name="mozTocId636342"></a><span class="mozTocH4"></span>Performance
 Data
-Collector Plugin Structure</h4>
+Collector
+Plugin Structure</h4>
 As noted above, the experiment collector plugin is actually physically
 two dynamic shared objects.&nbsp; If one was to view the directory
 where the Open|SpeedShop plugins are installed
@@ -726,7 +730,8 @@ here is what is shown for the PC Sampling experiment collector:<br>
 <br>
 <div style="text-align: left;"><span style="font-style: italic;">pcsamp.la*&nbsp;
 pcsamp-rt.la*&nbsp;
-pcsamp-rt.so*&nbsp; pcsamp.so*</span><br>
+pcsamp-rt.so*&nbsp;
+pcsamp.so*</span><br>
 </div>
 <br>
 The runtime portion of the experiment collector plugin is appended with
@@ -803,7 +808,8 @@ before a sample is taken)<br>
 <br>
 <span
  style="font-weight: bold; font-style: italic; text-decoration: underline;">Key
-point: <br>
+point:
+<br>
 If the parameter is a type that is already supported by
 Open|SpeedShop, additional GUI and/or CLI plugins may not have to be
 written to support the new collector plugin.&nbsp;&nbsp; Since, the
@@ -864,7 +870,8 @@ define the special entry point
 "&lt;your_plugin_name&gt;_LTX_CollectoryFactory".&nbsp;&nbsp;&nbsp; The
 Example collector plugin shows this in the file
 "examples/libopenss-framework/collector/ExampleCollector.cxx"&nbsp;&nbsp;&nbsp;
-Here is the definition of "example_LTX_CollectorFactory()" from the
+Here
+is the definition of "example_LTX_CollectorFactory()" from the
 example collector. <br>
 <br>
 <small><span style="font-style: italic;">/**</span><br
@@ -991,7 +998,8 @@ definitions in blobs.x.<br>
 <small><span style="font-style: italic;">struct example_parameters {</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-u_int sampling_rate;</span><br style="font-style: italic;">
+u_int
+sampling_rate;</span><br style="font-style: italic;">
 <span style="font-style: italic;">};</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">typedef struct example_parameters
@@ -1000,15 +1008,20 @@ example_parameters;</span><br style="font-style: italic;">
 <span style="font-style: italic;">struct example_data {</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-uint64_t interval;</span><br style="font-style: italic;">
+uint64_t
+interval;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-struct {</span><br style="font-style: italic;">
+struct
+{</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-u_int pc_len;</span><br style="font-style: italic;">
+u_int
+pc_len;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-uint64_t *pc_val;</span><br style="font-style: italic;">
+uint64_t
+*pc_val;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-} pc;</span><br style="font-style: italic;">
+}
+pc;</span><br style="font-style: italic;">
 <span style="font-style: italic;">};</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">typedef struct example_data
@@ -1017,13 +1030,17 @@ example_data;</span><br style="font-style: italic;">
 <span style="font-style: italic;">struct example_start_sampling_args {</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-u_int sampling_rate;</span><br style="font-style: italic;">
+u_int
+sampling_rate;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-int experiment;</span><br style="font-style: italic;">
+int
+experiment;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-int collector;</span><br style="font-style: italic;">
+int
+collector;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-int thread;</span><br style="font-style: italic;">
+int
+thread;</span><br style="font-style: italic;">
 <span style="font-style: italic;">};</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">typedef struct
@@ -1077,15 +1094,19 @@ example_parameters *objp)</span><br style="font-style: italic;">
 <span style="font-style: italic;">{</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-register int32_t *buf;</span><br style="font-style: italic;">
+register
+int32_t *buf;</span><br style="font-style: italic;">
 <br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-if (!xdr_u_int (xdrs, &amp;objp-&gt;sampling_rate))</span><br
+if
+(!xdr_u_int (xdrs, &amp;objp-&gt;sampling_rate))</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-return FALSE;</span><br style="font-style: italic;">
+return
+FALSE;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-return TRUE;</span><br style="font-style: italic;">
+return
+TRUE;</span><br style="font-style: italic;">
 <span style="font-style: italic;">}</span><br
  style="font-style: italic;">
 <br style="font-style: italic;">
@@ -1096,23 +1117,30 @@ example_data *objp)</span><br style="font-style: italic;">
 <span style="font-style: italic;">{</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-register int32_t *buf;</span><br style="font-style: italic;">
+register
+int32_t *buf;</span><br style="font-style: italic;">
 <br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-if (!xdr_uint64_t (xdrs, &amp;objp-&gt;interval))</span><br
+if
+(!xdr_uint64_t (xdrs, &amp;objp-&gt;interval))</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-return FALSE;</span><br style="font-style: italic;">
+return
+FALSE;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-if (!xdr_array (xdrs, (char **)&amp;objp-&gt;pc.pc_val, (u_int *)
+if
+(!xdr_array (xdrs, (char **)&amp;objp-&gt;pc.pc_val, (u_int *)
 &amp;objp-&gt;pc.pc_len, ~0,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-sizeof (uint64_t), (xdrproc_t) xdr_uint64_t))</span><br
+sizeof
+(uint64_t), (xdrproc_t) xdr_uint64_t))</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-return FALSE;</span><br style="font-style: italic;">
+return
+FALSE;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-return TRUE;</span><br style="font-style: italic;">
+return
+TRUE;</span><br style="font-style: italic;">
 <span style="font-style: italic;">}<br>
 </span></small><small><a href="index.html#Data_blobs_">Return to top of
 Data blobs section</a></small><small><span style="font-style: italic;"></span></small><br>
@@ -1179,7 +1207,8 @@ data blob. */</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp; struct {</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-uint64_t pc[BufferSize];&nbsp; /**&lt; Program counter (PC) addresses.
+uint64_t
+pc[BufferSize];&nbsp; /**&lt; Program counter (PC) addresses.
 */</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp; } buffer;</span><br
  style="font-style: italic;">
@@ -1372,7 +1401,8 @@ samples remaining in the sample buffer */</span><br
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
 if(tls.data.pc.pc_len &gt; 0)</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-OpenSS_Send(&amp;(tls.header), (xdrproc_t)xdr_example_data,
+OpenSS_Send(&amp;(tls.header),
+(xdrproc_t)xdr_example_data,
 &amp;(tls.data));</span><br style="font-style: italic;">
 <span style="font-style: italic;">}</span></small><br>
 <a href="index.html#Collector_Runtime_-_ServerVictim_"><small>Back To
@@ -1451,7 +1481,8 @@ Collector Plugin:<br>
 ExampleCollector::startCollecting (const Collector &amp;
 collector,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Thread &amp; thread ) const</span><br>
+const
+Thread &amp; thread ) const</span><br>
 <p></p>
 <h6><a class="mozTocH6" name="mozTocId347609"></a><big><b>Parameters:</b></big></h6>
 <dl compact="compact">
@@ -1503,7 +1534,8 @@ which to start collecting data.<br>
 &nbsp;*/<br>
 void ExampleCollector::startCollecting(const Collector&amp; collector,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Thread&amp; thread) const<br>
+const
+Thread&amp; thread) const<br>
 {<br>
 &nbsp;&nbsp;&nbsp; // Assemble and encode arguments to
 example_start_sampling()<br>
@@ -1522,12 +1554,14 @@ arguments(reinterpret_cast&lt;xdrproc_t&gt;(xdr_example_start_sampling_args),<br
 exit() for the thread<br>
 &nbsp;&nbsp;&nbsp; executeAtEntry(collector, thread,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"exit", "example-rt: example_stop_sampling", Blob());<br>
+"exit",
+"example-rt: example_stop_sampling", Blob());<br>
 <br>
 &nbsp;&nbsp;&nbsp; // Execute example_start_sampling() in the thread<br>
 &nbsp;&nbsp;&nbsp; executeNow(collector, thread,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"example-rt: example_start_sampling", arguments);<br>
+"example-rt:
+example_start_sampling", arguments);<br>
 }</small><br>
 <h5><a class="mozTocH5" name="mozTocId992246"></a><big><big><small>The
 Stop
@@ -1542,7 +1576,8 @@ Plugin:<br>
 <span style="font-style: italic;">void ExampleCollector::stopCollecting
 (const Collector &amp; collector,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Thread &amp; thread ) const</span><br>
+const
+Thread &amp; thread ) const</span><br>
 <p></p>
 <h6><a class="mozTocH6" name="mozTocId139139"></a><big><b>Parameters:</b></big></h6>
 <dl compact="compact">
@@ -1598,7 +1633,8 @@ collecting data.</span><br style="font-style: italic;">
 ExampleCollector::stopCollecting(const Collector&amp; collector,</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Thread&amp; thread) const</span><br style="font-style: italic;">
+const
+Thread&amp; thread) const</span><br style="font-style: italic;">
 <span style="font-style: italic;">{</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp; // Execute
@@ -1607,8 +1643,8 @@ example_stop_sampling() in the thread</span><br
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
 executeNow(collector, thread,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"example-rt: example_stop_sampling", Blob());</span><br
- style="font-style: italic;">
+"example-rt:
+example_stop_sampling", Blob());</span><br style="font-style: italic;">
 <br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp; // Remove all
 instrumentation associated with this collector/thread pairing</span><br
@@ -1636,13 +1672,17 @@ Plugin:<br>
 ExampleCollector::getMetricValues(const std::string&amp; metric,</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Extent&amp; extent,</span><br style="font-style: italic;">
+const
+Extent&amp; extent,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Blob&amp; blob,</span><br style="font-style: italic;">
+const
+Blob&amp; blob,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const ExtentGroup&amp; subextents,</span><br style="font-style: italic;">
+const
+ExtentGroup&amp; subextents,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-void* ptr) const<br>
+void*
+ptr) const<br>
 </span>
 <h6><a class="mozTocH6" name="mozTocId530275"></a><big><b>Parameters:</b></big></h6>
 The meaning or definitions for the arguments above are summarized here:<br>
@@ -1719,17 +1759,23 @@ pointer to the values of the metric.</span><br
 ExampleCollector::getMetricValues(const std::string&amp; metric,</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Collector&amp; collector,</span><br style="font-style: italic;">
+const
+Collector&amp; collector,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Thread&amp; thread,</span><br style="font-style: italic;">
+const
+Thread&amp; thread,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Extent&amp; extent,</span><br style="font-style: italic;">
+const
+Extent&amp; extent,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Blob&amp; blob,</span><br style="font-style: italic;">
+const
+Blob&amp; blob,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const ExtentGroup&amp; subextents,</span><br style="font-style: italic;">
+const
+ExtentGroup&amp; subextents,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-void* ptr) const</span><br style="font-style: italic;">
+void*
+ptr) const</span><br style="font-style: italic;">
 <span style="font-style: italic;">{</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp; // Only the "time"
@@ -1769,8 +1815,8 @@ time (in seconds) attributable to each sample</span><br
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp; double t_sample =</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-static_cast&lt;double&gt;(data.interval) / 1000000000.0;</span><br
- style="font-style: italic;">
+static_cast&lt;double&gt;(data.interval)
+/ 1000000000.0;</span><br style="font-style: italic;">
 <br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp; // Calculate time
 (in nS) of data blob's extent</span><br style="font-style: italic;">
@@ -1786,11 +1832,12 @@ each of the samples</span><br style="font-style: italic;">
 0; i &lt; data.pc.pc_len; ++i) {</span><br style="font-style: italic;">
 <br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// Find the subextents that contain this sample</span><br
+//
+Find the subextents that contain this sample</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-std::set&lt;ExtentGroup::size_type&gt; intersection =</span><br
- style="font-style: italic;">
+std::set&lt;ExtentGroup::size_type&gt;
+intersection =</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 subextents.getIntersectionWith(</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -1801,35 +1848,43 @@ AddressRange(data.pc.pc_val[i]))</span><br style="font-style: italic;">
 );</span><br style="font-style: italic;">
 <br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// Iterate over each subextent in the intersection</span><br
+//
+Iterate over each subextent in the intersection</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 for(std::set&lt;ExtentGroup::size_type&gt;::const_iterator</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-j = intersection.begin(); j != intersection.end(); ++j) {</span><br
+j
+= intersection.begin(); j != intersection.end(); ++j) {</span><br
  style="font-style: italic;">
 <br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// Calculate intersection time (in nS) of subextent and data blob</span><br
+//
+Calculate intersection time (in nS) of subextent and data blob</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-double t_intersection = static_cast&lt;double&gt;</span><br
+double
+t_intersection = static_cast&lt;double&gt;</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-((extent.getTimeInterval() &amp;</span><br style="font-style: italic;">
+((extent.getTimeInterval()
+&amp;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 subextents[*j].getTimeInterval()).getWidth());</span><br
  style="font-style: italic;">
 <br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// Add (to the subextent's metric value) the appropriate fraction</span><br
+//
+Add (to the subextent's metric value) the appropriate fraction</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// of the total time attributable to this sample</span><br
+//
+of the total time attributable to this sample</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-(*values)[*j] += t_sample * (t_intersection / t_blob);</span><br
+(*values)[*j]
++= t_sample * (t_intersection / t_blob);</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 }</span><br style="font-style: italic;">
@@ -1847,7 +1902,8 @@ reinterpret_cast&lt;char*&gt;(&amp;data));</span><br
 <span style="font-style: italic;">}</span></small><br>
 <h5><a class="mozTocH5" name="mozTocId271962"></a><big><big><small><small>The
 Set
-Parameter function</small></small><br>
+Parameter
+function</small></small><br>
 </big></big></h5>
 <h6><a class="mozTocH6" name="mozTocId753822"></a><big><b>What it does:</b></big></h6>
 <p>The set a parameter function is responsible for setting one of the
@@ -1862,9 +1918,11 @@ Collector Plugin:<br>
 ExampleCollector::setParameterValue(const std::string&amp;
 parameter,</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const void* ptr, </span><br style="font-style: italic;">
+const
+void* ptr, </span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Blob&amp; data) const</span><br>
+Blob&amp;
+data) const</span><br>
 </p>
 <p></p>
 <h6><a class="mozTocH6" name="mozTocId699056"></a><small> </small><big><b>Parameters:</b></big></h6>
@@ -1906,7 +1964,8 @@ containing the parameter values.<br>
 void ExampleCollector::setParameterValue(const std::string&amp;
 parameter,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const void* ptr, Blob&amp; data) const<br>
+const
+void* ptr, Blob&amp; data) const<br>
 {<br>
 &nbsp;&nbsp;&nbsp; // Decode the blob containing the parameter values<br>
 &nbsp;&nbsp;&nbsp; example_parameters parameters;<br>
@@ -1933,7 +1992,8 @@ Blob(reinterpret_cast&lt;xdrproc_t&gt;(xdr_example_parameters),<br>
 <h5><a class="mozTocH5" name="mozTocId518369"></a><big><big><small><small>The
 Get
 Default
-Parameters function</small></small><br>
+Parameters
+function</small></small><br>
 </big></big></h5>
 <h6><a class="mozTocH6" name="mozTocId709984"></a><big><b>What it does:</b></big></h6>
 The get default parameters function implements getting the default
@@ -1998,7 +2058,8 @@ Plugin:<br>
 void ExampleCollector::getParameterValue(const std::string&amp;
 parameter,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-const Blob&amp; data, void* ptr) const<br>
+const
+Blob&amp; data, void* ptr) const<br>
 <h6><a class="mozTocH6" name="mozTocId731991"></a><big><b>Parameters:</b></big></h6>
 <ol>
   <li>parameter - Unique identifier of the input parameter to be get.</li>
@@ -2039,7 +2100,8 @@ Untyped pointer to the parameter value.<br>
 void ExampleCollector::getParameterValue(const std::string&amp;
 parameter,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
 &nbsp;&nbsp; const Blob&amp; data, void* ptr) const<br>
 {<br>
@@ -2098,16 +2160,20 @@ CollectorImpl("example",</span><br
 <span style="font-style: italic; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 "Example",</span><br style="font-style: italic; font-weight: bold;">
 <span style="font-style: italic; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"Simple example performance data collector illustrating the "</span><br
+"Simple
+example performance data collector illustrating the "</span><br
  style="font-style: italic; font-weight: bold;">
 <span style="font-style: italic; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"basics of the Collector API. Periodically interrupts the "</span><br
+"basics
+of the Collector API. Periodically interrupts the "</span><br
  style="font-style: italic; font-weight: bold;">
 <span style="font-style: italic; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"running thread, obtains the current program counter (PC) "</span><br
+"running
+thread, obtains the current program counter (PC) "</span><br
  style="font-style: italic; font-weight: bold;">
 <span style="font-style: italic; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"value, stores it, and allows the thread to continue "</span><br
+"value,
+stores it, and allows the thread to continue "</span><br
  style="font-style: italic; font-weight: bold;">
 <span style="font-style: italic; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 "execution.")</span><br style="font-style: italic;">
@@ -2119,8 +2185,8 @@ parameters</span><br style="font-style: italic;">
 declareParameter(Metadata("sampling_rate", "Sampling Rate",</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"Sampling rate in samples/seconds.",</span><br
- style="font-style: italic;">
+"Sampling
+rate in samples/seconds.",</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 typeid(unsigned)));</span><br style="font-style: italic;">
 <br style="font-style: italic;">
@@ -2131,7 +2197,8 @@ typeid(unsigned)));</span><br style="font-style: italic;">
 declareMetric(Metadata("time", "CPU Time",</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"Exclusive CPU time in seconds.",</span><br style="font-style: italic;">
+"Exclusive
+CPU time in seconds.",</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 typeid(double)));</span><br style="font-style: italic;">
 <span style="font-style: italic;">}</span></small><br>
@@ -2168,16 +2235,20 @@ CollectorImpl("example",</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 "Example",</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"Simple example performance data collector illustrating the "</span><br
+"Simple
+example performance data collector illustrating the "</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"basics of the Collector API. Periodically interrupts the "</span><br
+"basics
+of the Collector API. Periodically interrupts the "</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"running thread, obtains the current program counter (PC) "</span><br
+"running
+thread, obtains the current program counter (PC) "</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"value, stores it, and allows the thread to continue "</span><br
+"value,
+stores it, and allows the thread to continue "</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 "execution.")</span><br style="font-style: italic;">
@@ -2190,7 +2261,8 @@ CollectorImpl("example",</span><br style="font-style: italic;">
 declareParameter(Metadata("sampling_rate", "Sampling Rate",</span><br
  style="font-style: italic; font-weight: bold;">
 <span style="font-style: italic; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"Sampling rate in samples/seconds.",</span><br
+"Sampling
+rate in samples/seconds.",</span><br
  style="font-style: italic; font-weight: bold;">
 <span style="font-style: italic; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 typeid(unsigned)));</span><br style="font-style: italic;">
@@ -2201,7 +2273,8 @@ metrics</span><br style="font-style: italic; font-weight: bold;">
  style="font-style: italic;">&nbsp; declareMetric(Metadata("time", "CPU
 Time",</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"Exclusive CPU time in seconds.",</span><br style="font-style: italic;">
+"Exclusive
+CPU time in seconds.",</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 typeid(double)));</span><br
  style="font-style: italic; font-weight: bold;">
@@ -2260,16 +2333,20 @@ CollectorImpl("example",</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 "Example",</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"Simple example performance data collector illustrating the "</span><br
+"Simple
+example performance data collector illustrating the "</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"basics of the Collector API. Periodically interrupts the "</span><br
+"basics
+of the Collector API. Periodically interrupts the "</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"running thread, obtains the current program counter (PC) "</span><br
+"running
+thread, obtains the current program counter (PC) "</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"value, stores it, and allows the thread to continue "</span><br
+"value,
+stores it, and allows the thread to continue "</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 "execution.")</span><br style="font-style: italic;">
@@ -2281,8 +2358,8 @@ parameters</span><br style="font-style: italic;">
 declareParameter(Metadata("sampling_rate", "Sampling Rate",</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"Sampling rate in samples/seconds.",</span><br
- style="font-style: italic;">
+"Sampling
+rate in samples/seconds.",</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 typeid(unsigned)));</span><br style="font-style: italic;">
 <br style="font-style: italic;">
@@ -2293,7 +2370,8 @@ typeid(unsigned)));</span><br style="font-style: italic;">
 declareMetric(Metadata("time", "CPU Time",</span><br
  style="font-style: italic; font-weight: bold;">
 <span style="font-style: italic; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"Exclusive CPU time in seconds.",</span><br
+"Exclusive
+CPU time in seconds.",</span><br
  style="font-style: italic; font-weight: bold;">
 <span style="font-style: italic; font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 typeid(double)));</span><br style="font-style: italic;">
@@ -2384,7 +2462,8 @@ new collector plugin.<br>
 </div>
 <ul>
   <li><span style="font-weight: bold;">ExampleCollector.cxx</span>&nbsp;
--&nbsp; Contains code that is used on
+-&nbsp;
+Contains code that is used on
 the client side to decode the data blobs, control collecting, and
 manage
 parameters.&nbsp;&nbsp; This file also contains the collector's factory
@@ -2478,9 +2557,11 @@ Time&nbsp; Function Name<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 141.2500&nbsp; f3(fred: f3.c,2)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-95.0400&nbsp; f2(fred: f2.c,2)<br>
+95.0400&nbsp;
+f2(fred: f2.c,2)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-47.5100&nbsp; f1(fred: f1.c,2)<br>
+47.5100&nbsp;
+f1(fred: f1.c,2)<br>
 openss&gt;&gt;<br>
 <br>
 <div style="margin-left: 40px;"></div>
@@ -2632,7 +2713,8 @@ DebugPanel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs
 IOPanel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Makefile.in&nbsp;
 mvover&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-SourcePanel&nbsp;&nbsp;&nbsp; UserTimePanel<br>
+SourcePanel&nbsp;&nbsp;&nbsp;
+UserTimePanel<br>
 <br>
 Now we run the "./mknewpanel" script which creates the TestPanel
 subdirectory in "plugins/panels".<br>
@@ -2668,7 +2750,8 @@ ManageProcessesPanel&nbsp; pcSamplePanel&nbsp; <span
 DebugPanel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Makefile&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 MPIPanel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-SourcePanel&nbsp;&nbsp;&nbsp; UserTimePanel<br>
+SourcePanel&nbsp;&nbsp;&nbsp;
+UserTimePanel<br>
 FPE_TracingPanel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Makefile.am&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 mvover&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -2794,7 +2877,8 @@ panel.
 <br>
 &nbsp;&nbsp;&nbsp; Panel *sourcePanel =
 getPanelContainer()-&gt;findNamedPanel(getPanelContainer()-.getMasterPC(),
-(char *)name.ascii() );
+(char
+*)name.ascii() );
 <br>
 &nbsp;&nbsp;&nbsp; // Now you can send information directly to that
 source panel.
@@ -2908,7 +2992,8 @@ getBaseWidgetFrame(), "statusLabelText");<br>
 &nbsp; QWidget *namedPanelContainerWidget = new QWidget(
 getBaseWidgetFrame(),<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"namedPanelContainerWidget" );<br>
+"namedPanelContainerWidget"
+);<br>
 &nbsp; PanelContainer *topPPL = createPanelContainer(
 namedPanelContainerWidget, "", NULL, pc-&gt;getMasterPCList() );<br>
 &nbsp; frameLayout-&gt;addWidget( namedPanelContainerWidget );<br>
@@ -2980,58 +3065,68 @@ the experiment/victim application<br>
 case&nbsp; RUN_T:</span><span style="font-style: italic;"></span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// Put out some notification that we're about to run this.</span><br
+//
+Put out some notification that we're about to run this.</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// Otherwise there's a deafning silence between when the user</span><br
+//
+Otherwise there's a deafning silence between when the user</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// clicks the run button and when the run actually begins.</span><br
+//
+clicks the run button and when the run actually begins.</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-// This gives the user immediate feedback of what's taking place.</span><br
+//
+This gives the user immediate feedback of what's taking place.</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-aboutToRunFLAG = TRUE;</span><br style="font-style: italic;">
+aboutToRunFLAG
+= TRUE;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 pco-&gt;runButton-&gt;setEnabled(FALSE);</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-pco-&gt;runButton-&gt;enabledFLAG = FALSE;</span><br
- style="font-style: italic;">
+pco-&gt;runButton-&gt;enabledFLAG
+= FALSE;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 pco-&gt;pauseButton-&gt;setEnabled(FALSE);</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-pco-&gt;pauseButton-&gt;enabledFLAG = FALSE;</span><br
- style="font-style: italic;">
+pco-&gt;pauseButton-&gt;enabledFLAG
+= FALSE;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 pco-&gt;updateButton-&gt;setEnabled(FALSE);</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-pco-&gt;updateButton-&gt;enabledFLAG = FALSE;</span></small><br>
+pco-&gt;updateButton-&gt;enabledFLAG
+= FALSE;</span></small><br>
 <small><span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-command = QString("expGo -x %1\n").arg(expID);</span><br
+command
+= QString("expGo -x %1\n").arg(expID);</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 {</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-int status = -1;</span><br style="font-style: italic;">
+int
+status = -1;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-nprintf( DEBUG_MESSAGES ) ("Run\n");</span><br
- style="font-style: italic;">
+nprintf(
+DEBUG_MESSAGES ) ("Run\n");</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-statusLabelText-&gt;setText( tr("Process running...") );</span><br
- style="font-style: italic;">
+statusLabelText-&gt;setText(
+tr("Process running...") );</span><br style="font-style: italic;">
 <br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-int wid = getPanelContainer()-&gt;getMainWindow()-&gt;widStr.toInt();</span><span
+int
+wid = getPanelContainer()-&gt;getMainWindow()-&gt;widStr.toInt();</span><span
  style="font-style: italic;"></span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 cli-&gt;runSynchronousCLI(command.ascii());</span><br
  style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-ret_val = 1;</span><br style="font-style: italic;">
+ret_val
+= 1;</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 }</span><br style="font-style: italic;">
 <span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3051,7 +3146,8 @@ the "&lt;top_srcdir&gt;/plugins/panels/TemplatePanel" directory in the
 Open|SpeedShop source tree.<br>
 <br>
 <h2><a class="mozTocH2" name="mozTocId90403"></a><span class="mozTocH2"></span>Interactive
-Command Line
+Command
+Line
 Interface Plugin Information</h2>
 tbd<br>
 <h3><a class="mozTocH3" name="mozTocId192580"></a>Interactive Command
