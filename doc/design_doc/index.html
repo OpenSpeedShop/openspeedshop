@@ -10,7 +10,8 @@
 	 Texts.  A copy of the license is included in the section entitled "GNU
       Free Documentation License".
 -->
-  <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=ISO-8859-1">
   <title>Open|SpeedShop Design Overview: Main Page</title>
   <link href="doxygen.css" rel="stylesheet" type="text/css">
 </head>
@@ -25,8 +26,8 @@ Document</big></big></big></div>
 <big><big><big></big></big></big>
 <div></div>
 <div style="text-align: center;"><big style="font-weight: bold;">Version
-1.9.3.4 Release<br>
-June 20, 2010</big><br>
+2.0.0 Release<br>
+October 31, 2010</big><br>
 </div>
 <br>
 <h2><a name="mozTocId156671" class="mozTocH2"></a><a class="anchor"
@@ -121,12 +122,13 @@ source component, DPCL, is integrated into Open|SpeedShop to provide
 the clustering capability.&nbsp;&nbsp; The use of the Dyninst component
 allows Open|SpeedShop to insert instrumentation and also to attach to
 running processes.&nbsp; See more details in the paragraphs that follow.</span><br>
+<br>
+<br>
+<img style="width: 777px; height: 583px;"
+ alt="OSS Internal Infrastructure" src="OSS_Internals.png"><br>
 <span style="font-family: times new roman,times,serif;"><br>
 <br style="font-family: times new roman,times,serif;">
-<img src="Design.png" title="Open|SpeedShop Design Diagram"
- alt="Open|SpeedShop Design Diagram"
- style="width: 563px; height: 679px;"></span><br
- style="font-family: times new roman,times,serif;">
+</span><br style="font-family: times new roman,times,serif;">
 <span style="font-family: times new roman,times,serif;"><br>
 The diagram above lists both the existing open source and university
 software as well as the software being developed from scratch by SGI
@@ -136,7 +138,8 @@ dependence and interaction with each other.&nbsp; For example, the
 Framework component uses the DPCL API to interact with the DPCL
 component. The Framework also interacts with the PAPI component through
 the </span><span style="font-family: times new roman,times,serif;">PAPI
-API.&nbsp;&nbsp; So, one can determine component relationships by
+API.&nbsp;&nbsp;
+So, one can determine component relationships by
 viewing the diagram.&nbsp; The plugins (GUI panel, CLI, and Collector)
 together define a performance measurement experiment
 definition.&nbsp;&nbsp; This definition along with the applications it
@@ -174,8 +177,7 @@ objects. Dyninst also provides a certain amount of symbol table lookup
 ability. It supports queries such as "What is the function at address
 XYZ?" </span><br style="font-family: times new roman,times,serif;">
 <h3><a class="mozTocH3" name="mozTocId850761"></a>Dyninst and MRNet
-(work is progressing on full support for this online/dynamic mode of
-Open|SpeedShop operation)<br>
+(Better support as of 2.0.0 release)<br>
 </h3>
 <span style="font-family: times new roman,times,serif;"><a
  href="http://www.dyninst.org">Dyninst </a></span><span
@@ -439,7 +441,8 @@ Python scripting API documentation found at this <a
  href="../pyscripting_doc/index.html">link</a>.<br>
 <h3><a name="mozTocId902967" class="mozTocH3"></a><a
  name="OpenSpeedShop_Command_Definition" class="mozTocH3"></a>Open|SpeedShop
-Invocation Command&nbsp; "openss"<br>
+Invocation
+Command&nbsp; "openss"<br>
 </h3>
 The Open|SpeedShop program will be invoked by the user typing the
 "openss" command.&nbsp; When the user invokes Open|SpeedShop command
@@ -487,8 +490,9 @@ CLI interactive commands that can be entered in either the GUI Command
 Panel or the CLI window are
 defined in the <small><small><small><font face="Courier New" size="5"><small><small><a
  href="file:///usr/people/jeg/openss/current/doc/cli_doc/command_definition.html">Open/SpeedShop
-Command Line Definitions</a> </small></small></font><font
- face="Courier New" size="5"><small><small>document.&nbsp; This
+Command
+Line Definitions</a> </small></small></font><font face="Courier New"
+ size="5"><small><small>document.&nbsp; This
 document also contains general usage scenarios to aid in successful
 usage of the commands.</small></small></font></small></small></small><br>
 <small><small><small><font face="Courier New" size="5"><small><small><br>
