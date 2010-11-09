@@ -1,6 +1,6 @@
 /******************************************************************************e
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2007, 2008 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2010 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
