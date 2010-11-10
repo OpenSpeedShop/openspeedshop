@@ -69,14 +69,13 @@
 #include "HW_CounterDescription.hxx"
 
 #include "SS_Input_Manager.hxx"
+#include "OpenSS_Papi_Events.h"
 
 // Temporary default value for instrumentor is offline preference
 // We need to set up a class for the preference defaults to access them across the GUI panels and wizards.
 bool defaultValue_instrumentorIsOffline = TRUE;
 
 using namespace OpenSpeedShop::Framework;
-#include "PapiAPI.h"
-#include "PapiAPI.cxx"
 
 typedef std::pair<std::string, std::string> papi_preset_event;
 
@@ -84,7 +83,7 @@ HW_CounterWizardPanel::HW_CounterWizardPanel(PanelContainer *pc, const char *n, 
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("HW_CounterWizardPanel::HW_CounterWizardPanel() constructor called\n");
 
-  original_overflow_rate = 2600000;
+  original_overflow_rate = 20000000;
   original_papi_str = QString::null;
   if ( !getName() )
   {
@@ -1665,8 +1664,24 @@ void
 HW_CounterWizardPanel::initPapiTypes()
 {
   papi_available_presets.clear();
+  std::pair<std::string, std::string> *pe;
 
-  papi_available_presets = OpenSS_papi_available_presets();
+  for(unsigned i = 0; OpenSS_Papi_NonDerivedEvents[i]  != NULL; ++i) {
+	std::string ev = OpenSS_Papi_NonDerivedEvents[i];
+
+	char delimitor = ':';
+	std::string::size_type start = 0;
+	std::string::size_type end;
+
+	while ((end =  ev.find_first_of(delimitor,start)) != std::string::npos) {
+	pe = new std::pair<std::string, std::string>
+				(std::string(ev,start,end-start),
+				 std::string(ev,end+1,std::string::npos));
+	papi_available_presets.push_back(*pe);
+	
+	start = end+1;
+	}
+  }
 
 
 /*

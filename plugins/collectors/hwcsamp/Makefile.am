@@ -58,18 +58,15 @@ endif
 if !BUILD_RUNTIME
 hwcsamp_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-message \
-	-I$(top_srcdir)/libopenss-framework \
-	@PAPI_CPPFLAGS@
+	-I$(top_srcdir)/libopenss-framework
 
 hwcsamp_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-message \
 	-L$(top_srcdir)/libopenss-framework \
-	@PAPI_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 hwcsamp_la_LIBADD = \
-	-lopenss-message -lopenss-framework \
-	@PAPI_LIBS@
+	-lopenss-message -lopenss-framework
 
 hwcsamp_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \

@@ -117,6 +117,7 @@ static bool setparam(Collector C, std::string pname,
 {
 
   std::set<Metadata>::const_iterator mi;
+
   std::set<Metadata> md = C.getParameters();
   for (mi = md.begin(); mi != md.end(); mi++) {
     Metadata m = *mi;
@@ -503,6 +504,8 @@ int OfflineExperiment::convertToOpenSSDB()
 		if (expCollector == "hwcsamp") {
 			o_param.pushVal((char*)expEvent.c_str());
 		} else if (expCollector == "hwc") {
+			o_param.pushVal((char*)expEvent.c_str());
+		} else if (expCollector == "hwctime") {
 			o_param.pushVal((char*)expEvent.c_str());
 		} else {
 		  char *evptr, *saveptr, *ev_token;

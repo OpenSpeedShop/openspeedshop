@@ -149,39 +149,6 @@ void offline_start_sampling(const char* in_arguments)
 #endif
     Assert(tls != NULL);
 
-    hwc_start_sampling_args args;
-    char arguments[3 * sizeof(hwc_start_sampling_args)];
-
-    /* Access the environment-specified arguments */
-    const char* sampling_rate = getenv("OPENSS_HWC_THRESHOLD");
-
-    /* Encode those arguments for hwc_start_sampling() */
-    if (sampling_rate != NULL) {
-        args.sampling_rate=atoi(sampling_rate);
-    } else {
-#if defined(linux)
-        if (hw_info) {
-            args.sampling_rate = (unsigned) hw_info->mhz*10000*2;
-        } else {
-            args.sampling_rate = THRESHOLD*2;
-        }
-#else
-        args.sampling_rate = THRESHOLD*2;
-#endif
-    }
-
-    /* For some reason we can not init papi here and translate
-     * the OPENSS_HWC_EVENT string to an event code without hosing
-     * the papi initialization for the papi handler. FIXME.
-     */
-
-    args.collector = 1;
-    args.experiment = 0;
-    args.hwc_event = PAPI_NULL;  /*hwc_start_sampling will set args.hwc_event. */
-    OpenSS_EncodeParameters(&args,
-			    (xdrproc_t)xdr_hwc_start_sampling_args,
-			    arguments);
-        
     tls->time_started = OpenSS_GetTime();
 
     tls->dsoname_len = 0;
@@ -193,7 +160,7 @@ void offline_start_sampling(const char* in_arguments)
     offline_sent_data(0);
     tls->finished = 0;
     tls->started = 1;
-    hwc_start_sampling(arguments);
+    hwc_start_sampling(NULL); /* offline processes parameters in runtime.*/
 }
 
 
@@ -275,22 +242,8 @@ void offline_finish()
 
     /* Access the environment-specified arguments */
     const char* sampling_rate = getenv("OPENSS_HWC_THRESHOLD");
-    info.rate = (sampling_rate != NULL) ? atoi(sampling_rate) : 100;
+    info.rate = (sampling_rate != NULL) ? atoi(sampling_rate) : THRESHOLD*2;
 
-    if (sampling_rate != NULL) {
-        info.rate=atoi(sampling_rate);
-    } else {
-#if defined(linux)
-        if (hw_info) {
-            info.rate = (unsigned) hw_info->mhz*10000*2;
-        } else {
-            info.rate = THRESHOLD*2;
-        }
-#else
-        info.rate = THRESHOLD*2;
-#endif
-    }
-    
     const char* hwc_event_param = getenv("OPENSS_HWC_EVENT");
     if (hwc_event_param != NULL) {
         info.event = strdup(hwc_event_param);
@@ -301,8 +254,10 @@ void offline_finish()
     /* Send the offline "info" blob */
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"offline_stop_sampling SENDS INFO for HOST %s, PID %d, POSIX_TID %lu\n",
-        header.host, header.pid, header.posix_tid);
+	fprintf(stderr,"offline_stop_sampling SENDS INFO for HOST %s, PID %d, POSIX_TID %lu\n",
+		header.host, header.pid, header.posix_tid);
+	fprintf(stderr,"offline_stop_sampling event is %s, threshold is %d\n",
+		info.event,info.rate);
     }
 #endif
 

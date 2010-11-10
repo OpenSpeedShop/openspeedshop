@@ -273,8 +273,6 @@ hwctimePAPIHandler(int EventSet, void *address, long_long overflow_vector, void*
  */
 void hwctime_start_sampling(const char* arguments)
 {
-    hwctime_start_sampling_args args;
-
     /* Create and access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
     TLS* tls = malloc(sizeof(TLS));
@@ -285,13 +283,38 @@ void hwctime_start_sampling(const char* arguments)
 #endif
     Assert(tls != NULL);
 
-    /* Decode the passed function arguments */
+    hwctime_start_sampling_args args;
     memset(&args, 0, sizeof(args));
+
+    /* set defaults */ 
+    int hwctime_papithreshold = THRESHOLD*2;
+    char* hwctime_papi_event = "";
+
+    /* Decode the passed function arguments */
+#if defined (OPENSS_OFFLINE)
+    char* hwctime_event_param = getenv("OPENSS_HWCTIME_EVENT");
+    if (hwctime_event_param != NULL) {
+        hwctime_papi_event=hwctime_event_param;
+    } else {
+	hwctime_papi_event="PAPI_TOT_CYC";
+    }
+
+    const char* sampling_rate = getenv("OPENSS_HWCTIME_THRESHOLD");
+    if (sampling_rate != NULL) {
+        hwctime_papithreshold=atoi(sampling_rate);
+    }
+    args.collector = 1;
+    args.experiment = 0;
+    tls->data.interval = hwctime_papithreshold;
+#else
     OpenSS_DecodeParameters(arguments,
 			    (xdrproc_t)xdr_hwctime_start_sampling_args,
 			    &args);
+    hwctime_papithreshold = (uint64_t)(args.sampling_rate);
+    hwctime_papi_event = args.hwctime_event;
+    tls->data.interval = (uint64_t)(args.sampling_rate);
+#endif
 
-    int hwctime_papithreshold = (uint64_t)(args.sampling_rate);
     
     /* 
      * Initialize the data blob's header
@@ -311,7 +334,6 @@ void hwctime_start_sampling(const char* arguments)
     tls->header.addr_end = 0;
 
     /* Initialize the actual data blob */
-    tls->data.interval = (uint64_t)(args.sampling_rate);
     tls->data.bt.bt_len = 0;
     tls->data.bt.bt_val = tls->buffer.bt;
     tls->data.count.count_len = 0;
@@ -330,36 +352,11 @@ void hwctime_start_sampling(const char* arguments)
 	hwctime_papi_init_done = 1;
     }
 
-    int hwctime_papi_event = PAPI_NULL;
-#if defined (OPENSS_OFFLINE)
-    const char* hwctime_event_param = getenv("OPENSS_HWCTIME_EVENT");
-    if (hwctime_event_param != NULL) {
-        hwctime_papi_event=get_papi_eventcode((char *)hwctime_event_param);
-    } else {
-        hwctime_papi_event=get_papi_eventcode("PAPI_TOT_CYC");
-    }
-    const char* sampling_rate = getenv("OPENSS_HWCTIME_THRESHOLD");
-    if (sampling_rate != NULL) {
-        hwctime_papithreshold=atoi(sampling_rate);
-    } else {
-#if defined(linux)
-        if (hw_info) {
-            hwctime_papithreshold = (unsigned) hw_info->mhz*10000*2;
-        } else {
-            hwctime_papithreshold = THRESHOLD*2;
-        }
-#else
-        hwctime_papithreshold = THRESHOLD*2;
-#endif
-    }
-
-#else
-    hwctime_papi_event = args.hwctime_event;
-#endif
+    unsigned papi_event_code = get_papi_eventcode(hwctime_papi_event);
 
     OpenSS_Create_Eventset(&tls->EventSet);
-    OpenSS_AddEvent(tls->EventSet, hwctime_papi_event);
-    OpenSS_Overflow(tls->EventSet, hwctime_papi_event,
+    OpenSS_AddEvent(tls->EventSet, papi_event_code);
+    OpenSS_Overflow(tls->EventSet, papi_event_code,
 		    hwctime_papithreshold, hwctimePAPIHandler);
     OpenSS_Start(tls->EventSet);
 }
@@ -385,19 +382,27 @@ void hwctime_stop_sampling(const char* arguments)
 
     Assert(tls != NULL);
 
-    /* Stop sampling */
-    OpenSS_Stop(tls->EventSet, NULL);
-
-    tls->header.time_end = OpenSS_GetTime();
-
     if (tls->EventSet == PAPI_NULL) {
 	/*fprintf(stderr,"hwctime_stop_sampling RETURNS - NO EVENTSET!\n");*/
 	/* we are called before eny events are set in papi. just return */
         return;
     }
 
-    /* Send any samples remaining in the sample buffer */
+    /* Stop sampling */
+    OpenSS_Stop(tls->EventSet, NULL);
+
+    tls->header.time_end = OpenSS_GetTime();
+
+    /* Are there any unsent samples? */
     if(tls->data.bt.bt_len > 0) {
+
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	    fprintf(stderr, "hwctime_stop_sampling calls send_samples.\n");
+	}
+#endif
+
+	/* Send these samples */
 	send_samples(tls);
     }
 

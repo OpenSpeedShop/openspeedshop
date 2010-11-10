@@ -106,8 +106,8 @@ static void send_samples(TLS *tls)
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"hwc send_samples: sends data:\n");
-        fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] bt_len(%d)\n",
+        fprintf(stderr,"HWC send_samples DATA:\n");
+        fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] pc_len(%d)\n",
             tls->header.time_end,tls->header.addr_begin,
 	    tls->header.addr_end,tls->data.pc.pc_len);
     }
@@ -158,11 +158,7 @@ hwcPAPIHandler(int EventSet, void* pc, long_long overflow_vector, void* context)
 
 #ifndef NDEBUG
         if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-            fprintf(stderr,"hwcPAPIHandler sends data:\n");
-            fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] pc_len(%d) count_len(%d)\n",
-                tls->header.time_end,tls->header.addr_begin,
-		tls->header.addr_end,tls->data.pc.pc_len,
-                tls->data.count.count_len);
+            fprintf(stderr,"hwcPAPIHandler sends data buffer length is %d\n",tls->buffer.length);
         }
 #endif
 
@@ -194,8 +190,6 @@ hwcPAPIHandler(int EventSet, void* pc, long_long overflow_vector, void* context)
  */
 void hwc_start_sampling(const char* arguments)
 {
-    hwc_start_sampling_args args;
-
     /* Create and access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
     TLS* tls = malloc(sizeof(TLS));
@@ -206,13 +200,36 @@ void hwc_start_sampling(const char* arguments)
 #endif
     Assert(tls != NULL);
 
-    /* Decode the passed function arguments */
+    hwc_start_sampling_args args;
     memset(&args, 0, sizeof(args));
+
+    /* set defaults */ 
+    int hwc_papithreshold = THRESHOLD*2;
+    char* hwc_papi_event = "PAPI_TOT_CYC";
+
+    /* Decode the passed function arguments */
+#if defined (OPENSS_OFFLINE)
+    char* hwc_event_param = getenv("OPENSS_HWC_EVENT");
+    if (hwc_event_param != NULL) {
+        hwc_papi_event=hwc_event_param;
+    }
+
+    const char* sampling_rate = getenv("OPENSS_HWC_THRESHOLD");
+    if (sampling_rate != NULL) {
+        hwc_papithreshold=atoi(sampling_rate);
+    }
+    args.collector = 1;
+    args.experiment = 0;
+    tls->data.interval = hwc_papithreshold;
+#else
     OpenSS_DecodeParameters(arguments,
 			    (xdrproc_t)xdr_hwc_start_sampling_args,
 			    &args);
+    hwc_papithreshold = (uint64_t)(args.sampling_rate);
+    hwc_papi_event = args.hwc_event;
+    tls->data.interval = (uint64_t)(args.sampling_rate);
+#endif
 
-    int hwc_papithreshold = (uint64_t)(args.sampling_rate);
     
     /* 
      * Initialize the data blob's header
@@ -232,7 +249,6 @@ void hwc_start_sampling(const char* arguments)
     tls->header.addr_end = 0;
 
     /* Initialize the actual data blob */
-    tls->data.interval = (uint64_t)(args.sampling_rate);
     tls->data.pc.pc_val = tls->buffer.pc;
     tls->data.count.count_val = tls->buffer.count;
 
@@ -251,37 +267,11 @@ void hwc_start_sampling(const char* arguments)
 	hwc_papi_init_done = 1;
     }
 
-    int hwc_papi_event = PAPI_NULL;
-#if defined (OPENSS_OFFLINE)
-    const char* hwc_event_param = getenv("OPENSS_HWC_EVENT");
-    if (hwc_event_param != NULL) {
-        hwc_papi_event=get_papi_eventcode((char *)hwc_event_param);
-    } else {
-        hwc_papi_event=get_papi_eventcode("PAPI_TOT_CYC");
-    }
-
-    const char* sampling_rate = getenv("OPENSS_HWC_THRESHOLD");
-    if (sampling_rate != NULL) {
-        hwc_papithreshold=atoi(sampling_rate);
-    } else {
-#if defined(linux)
-        if (hw_info) {
-            hwc_papithreshold = (unsigned) hw_info->mhz*10000*2;
-        } else {
-            hwc_papithreshold = THRESHOLD*2;
-        }
-#else
-        hwc_papithreshold = THRESHOLD*2;
-#endif
-    }
-
-#else
-    hwc_papi_event = args.hwc_event;
-#endif
+    unsigned papi_event_code = get_papi_eventcode(hwc_papi_event);
 
     OpenSS_Create_Eventset(&tls->EventSet);
-    OpenSS_AddEvent(tls->EventSet, hwc_papi_event);
-    OpenSS_Overflow(tls->EventSet, hwc_papi_event,
+    OpenSS_AddEvent(tls->EventSet, papi_event_code);
+    OpenSS_Overflow(tls->EventSet, papi_event_code,
 		    hwc_papithreshold, hwcPAPIHandler);
     OpenSS_Start(tls->EventSet);
 }
@@ -323,11 +313,7 @@ void hwc_stop_sampling(const char* arguments)
 
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-	    fprintf(stderr, "hwc_stop_sampling:\n");
-	    fprintf(stderr, "time_end(%#lu) addr range[%#lx, %#lx] pc_len(%d) count_len(%d)\n",
-		tls->header.time_end,tls->header.addr_begin,
-		tls->header.addr_end,tls->data.pc.pc_len,
-		tls->data.count.count_len);
+	    fprintf(stderr, "hwc_stop_sampling calls send_samples.\n");
 	}
 #endif
 

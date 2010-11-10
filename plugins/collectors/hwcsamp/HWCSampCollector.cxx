@@ -28,8 +28,6 @@
 #include "PCBuffer.hxx"
 
 #include "blobs.h"
-#include "PapiAPI.h"
-#include "PapiAPI.cxx"
 #include "HWCSampDetail.hxx"
 #include "HWCSampEvents.h"
 
@@ -92,7 +90,6 @@ HWCSampCollector::HWCSampCollector() :
                            "Exclusive sample detail.",
                            typeid(SampleDetail)));
 
-    //hwc_register_events_for_help();
 }
 
 
@@ -110,18 +107,9 @@ Blob HWCSampCollector::getDefaultParameterValues() const
     hwcsamp_parameters parameters;
     memset(&parameters, 0, sizeof(parameters));
 
-    hwc_init_papi();
-
     // Set the default parameters
     parameters.sampling_rate = 100;
-#if 0
-    for (int i = 0; i < 6; i++ ) {
-	if (HWCSampEvents[i])
-            parameters.hwcsamp_event[i] = get_papi_eventcode((char *) HWCSampEvents[i]);
-    }
-#else
-    parameters.hwcsamp_event[0] = get_papi_eventcode((char*) "PAPI_TOT_CYC");
-#endif
+    strncpy(parameters.hwcsamp_event,"PAPI_TOT_CYC",strlen("PAPI_TOT_CYC"));
 
     // Return the encoded blob to the caller
     return Blob(reinterpret_cast<xdrproc_t>(xdr_hwcsamp_parameters),
@@ -155,17 +143,9 @@ void HWCSampCollector::getParameterValue(const std::string& parameter,
     }
  
     if(parameter == "event") {
-	std::string env_param;
-	hwc_init_papi();
-        std::string* value = reinterpret_cast<std::string*>(ptr);
-        char EventCodeStr[PAPI_MAX_STR_LEN];
-	for (int i = 0; i < 6; i++) {
-	    if (parameters.hwcsamp_event[i]) {
-                get_papi_name(parameters.hwcsamp_event[i],EventCodeStr);
-	        env_param = env_param + EventCodeStr + ",";
-	    }
-	}
-        *value = env_param;
+	std::string* value = reinterpret_cast<std::string*>(ptr);
+	std::string ecstr(parameters.hwcsamp_event);
+	*value = ecstr;
     }
 
     // Free the decoded parameters blob
@@ -203,23 +183,14 @@ void HWCSampCollector::setParameterValue(const std::string& parameter,
     }
     
     if(parameter == "event") {
-
-	std::string evtoken;
-
-        char EventCodeStr[PAPI_MAX_STR_LEN];
         const std::string* papi_event_name =
                                 reinterpret_cast<const std::string*>(ptr);
-        const char *str = papi_event_name->c_str();
-	std::istringstream evss(papi_event_name->c_str());
-
-        //char *var = (char *)str;
-	int i = 0;
-	while ( getline(evss, evtoken, ',') ) {
-	    const char *evstr = evtoken.c_str();
-            parameters.hwcsamp_event[i] = get_papi_eventcode((char*)evstr);
-	    i++;
-	}
-        setenv("OPENSS_HWCSAMP_EVENTS", str, 1);
+	// clear any previous event preset
+	memset(&parameters.hwcsamp_event, 0, sizeof(parameters.hwcsamp_event));
+	// copy the noew event preset
+	strncpy(parameters.hwcsamp_event,papi_event_name->c_str(),
+		strlen(papi_event_name->c_str()));
+	setenv("OPENSS_HWCSAMP_EVENTS", papi_event_name->c_str(), 1);
     }
 
     // Re-encode the blob containing the parameter values
@@ -248,6 +219,11 @@ void HWCSampCollector::startCollecting(const Collector& collector,
     hwcsamp_start_sampling_args args;
     memset(&args, 0, sizeof(args));
     collector.getParameterValue("sampling_rate", args.sampling_rate);
+
+    std::string papi_event_name;
+    collector.getParameterValue("event", papi_event_name);
+    strncpy(args.hwcsamp_event,papi_event_name.c_str(),strlen(papi_event_name.c_str()));
+
     args.experiment = getExperimentId(collector);
     args.collector = getCollectorId(collector);
     Blob arguments(reinterpret_cast<xdrproc_t>(xdr_hwcsamp_start_sampling_args),
@@ -354,7 +330,7 @@ void HWCSampCollector::getMetricValues(const std::string& metric,
 	trace.push_back(addr);
 
 #if 0
-	if (!is_detail) {
+	if (is_detail) {
 	    for (int ii = 0; ii < 6; ii++) {
 		if (data.events.events_val[i].hwccounts[ii] > 0) {
 std::cerr << "HWCSAMP::getMetricValues pc "

@@ -149,22 +149,6 @@ void offline_start_sampling(const char* in_arguments)
 #endif
     Assert(tls != NULL);
 
-    hwcsamp_start_sampling_args args;
-    char arguments[3 * sizeof(hwcsamp_start_sampling_args)];
-
-    /* Access the environment-specified arguments */
-    const char* sampling_rate = getenv("OPENSS_HWCSAMP_RATE");
-    memset(&args.hwcsamp_event,0,sizeof(args.hwcsamp_event));
-
-    /* Encode those arguments for pcsamp_start_sampling() */
-    args.sampling_rate = (sampling_rate != NULL) ? atoi(sampling_rate) : 100;
-    args.collector = 1;
-    args.experiment = 0;
-
-    OpenSS_EncodeParameters(&args,
-			    (xdrproc_t)xdr_hwcsamp_start_sampling_args,
-			    arguments);
-
     tls->time_started = OpenSS_GetTime();
 
     tls->dsoname_len = 0;
@@ -176,7 +160,7 @@ void offline_start_sampling(const char* in_arguments)
     offline_sent_data(0);
     tls->finished = 0;
     tls->started = 1;
-    hwcsamp_start_sampling(arguments);
+    hwcsamp_start_sampling(NULL); /* offline processes parameters in runtime.*/
 }
 
 
@@ -252,31 +236,32 @@ void offline_finish()
     
     /* Initialize the offline "info" blob */
     OpenSS_InitializeParameters(&info);
+    info.collector = strdup("hwcsamp");
     info.exename = strdup(OpenSS_GetExecutablePath());
     info.rank = monitor_mpi_comm_rank();
 
-    info.collector = strdup("hwcsamp");
     /* Access the environment-specified arguments */
     const char* sampling_rate = getenv("OPENSS_HWCSAMP_RATE");
     info.rate = (sampling_rate != NULL) ? atoi(sampling_rate) : 100;
 
-    const char* hwc_events = getenv("OPENSS_HWCSAMP_EVENTS");
-    if (hwc_events != NULL  && strcmp(hwc_events,"") != 0) {
-	info.event = strdup(hwc_events);
+    const char* hwcsamp_event_param = getenv("OPENSS_HWCSAMP_EVENTS");
+    if (hwcsamp_event_param != NULL) {
+        info.event = strdup(hwcsamp_event_param);
     } else {
+        info.event = strdup("PAPI_TOT_CYC");
     }
 
-
-    OpenSS_SetSendToFile(&header, "hwcsamp", "openss-info");
-    
     /* Send the offline "info" blob */
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"offline_stop_sampling SENDS INFO for HOST %s, PID %d, POSIX_TID %lu\n",
-        header.host, header.pid, header.posix_tid);
+	fprintf(stderr,"offline_stop_sampling SENDS INFO for HOST %s, PID %d, POSIX_TID %lu\n",
+		header.host, header.pid, header.posix_tid);
+	fprintf(stderr,"offline_stop_sampling event is %s, threshold is %d\n",
+		info.event,info.rate);
     }
 #endif
 
+    OpenSS_SetSendToFile(&header, "hwc", "openss-info");
     OpenSS_Send(&header, (xdrproc_t)xdr_openss_expinfo, &info);
 
     /* Write the thread's initial address space to the appropriate file */

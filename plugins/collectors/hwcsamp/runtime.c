@@ -27,11 +27,8 @@
 #endif
 
 #include "RuntimeAPI.h"
-
-#include "PapiAPI.h"
 #include "blobs.h"
-
-static int hwc_papi_init_done = 0;
+#include "PapiAPI.h"
 
 /** Type defining the items stored in thread-local storage. */
 typedef struct {
@@ -42,9 +39,9 @@ typedef struct {
     OpenSS_HWCPCData buffer;      /**< PC sampling data buffer. */
 
     int EventSet;
-
 } TLS;
 
+static int hwc_papi_init_done = 0;
 static long_long evalues[6] = { 0, 0, 0, 0, 0, 0 };
 
 #ifdef USE_EXPLICIT_TLS
@@ -78,12 +75,8 @@ void samp_start_timer()
 #else
     TLS* tls = &the_tls;
 #endif
-    if (tls == NULL)
+    if (hwc_papi_init_done == 0 || tls == NULL)
 	return;
-
-    if (hwc_papi_init_done == 0) {
-	return;
-    }
     OpenSS_Start(tls->EventSet);
 
     OpenSS_Timer(tls->data.interval, hwcsampTimerHandler);
@@ -104,12 +97,12 @@ void samp_stop_timer()
         return;
     OpenSS_Stop(tls->EventSet, evalues);
 }
-
-#endif /*OFFLINE*/
+#endif
 
 
 static void send_samples(TLS *tls)
 {
+    /* Send these samples */
     tls->header.time_end = OpenSS_GetTime();
     tls->header.addr_begin = tls->buffer.addr_begin;
     tls->header.addr_end = tls->buffer.addr_end;
@@ -143,10 +136,10 @@ fprintf(stderr,"send_samples: size of eventssize = %d\n",eventssize);
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"send_samples: sends data:\n");
+        fprintf(stderr,"HWCSamp send_samples DATA:\n");
         fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] pc_len(%d)\n",
             tls->header.time_end,tls->header.addr_begin,
-            tls->header.addr_end,tls->data.pc.pc_len);
+	    tls->header.addr_end,tls->data.pc.pc_len);
     }
 #endif
 
@@ -156,18 +149,19 @@ fprintf(stderr,"send_samples: size of eventssize = %d\n",eventssize);
     offline_sent_data(1);
 #endif
 
+    /* Re-initialize the data blob's header */
     tls->header.time_begin = tls->header.time_end;
     tls->header.time_end = 0;
     tls->header.addr_begin = ~0;
     tls->header.addr_end = 0;
 
+    /* Re-initialize the actual data blob */
     tls->data.pc.pc_len = 0;
     tls->data.count.count_len = 0;
     memset(tls->buffer.hash_table, 0, sizeof(tls->buffer.hash_table));
     memset(tls->buffer.hwccounts, 0, sizeof(tls->buffer.hwccounts));
     tls->data.events.events_len = 0;
 }
-
 
 /**
  * Timer event handler.
@@ -207,6 +201,7 @@ static void hwcsampTimerHandler(const ucontext_t* context)
         }
 #endif
 
+	/* Send these samples */
 	send_samples(tls);
     }
 
@@ -238,8 +233,6 @@ static void hwcsampTimerHandler(const ucontext_t* context)
  */
 void hwcsamp_start_sampling(const char* arguments)
 {
-    hwcsamp_start_sampling_args args;
-
     /* Create and access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
     TLS* tls = malloc(sizeof(TLS));
@@ -250,11 +243,36 @@ void hwcsamp_start_sampling(const char* arguments)
 #endif
     Assert(tls != NULL);
 
-    /* Decode the passed function arguments */
+    hwcsamp_start_sampling_args args;
     memset(&args, 0, sizeof(args));
+
+    /* set defaults */ 
+    int hwcsamp_rate = 100;
+    char* hwcsamp_papi_event = "PAPI_TOT_CYC";
+
+    /* Decode the passed function arguments */
+#if defined (OPENSS_OFFLINE)
+    char* hwcsamp_event_param = getenv("OPENSS_HWCSAMP_EVENTS");
+    if (hwcsamp_event_param != NULL) {
+        hwcsamp_papi_event=hwcsamp_event_param;
+    }
+
+    const char* sampling_rate = getenv("OPENSS_HWCSAMP_RATE");
+    if (sampling_rate != NULL) {
+        hwcsamp_rate=atoi(sampling_rate);
+    }
+    args.collector = 1;
+    args.experiment = 0;
+    tls->data.interval = hwcsamp_rate;
+#else
     OpenSS_DecodeParameters(arguments,
 			    (xdrproc_t)xdr_hwcsamp_start_sampling_args,
 			    &args);
+    hwcsamp_rate = (uint64_t)(args.sampling_rate);
+    hwcsamp_papi_event = args.hwcsamp_event;
+    tls->data.interval = (uint64_t)(args.sampling_rate);
+#endif
+
     
     /* 
      * Initialize the data blob's header
@@ -274,7 +292,7 @@ void hwcsamp_start_sampling(const char* arguments)
     
     /* Initialize the actual data blob */
     tls->data.interval = 
-	(uint64_t)(1000000000) / (uint64_t)(args.sampling_rate);
+	(uint64_t)(1000000000) / (uint64_t)(hwcsamp_rate);
     tls->data.pc.pc_val = tls->buffer.pc;
     tls->data.count.count_val = tls->buffer.count;
 
@@ -289,9 +307,9 @@ void hwcsamp_start_sampling(const char* arguments)
 
     memset(tls->buffer.hwccounts, 0, sizeof(tls->buffer.hwccounts));
     if(hwc_papi_init_done == 0) {
-        hwc_init_papi();
-        tls->EventSet = PAPI_NULL;
-        hwc_papi_init_done = 1;
+	hwc_init_papi();
+	tls->EventSet = PAPI_NULL;
+	hwc_papi_init_done = 1;
     }
 
     memset(evalues,0,sizeof(evalues));
@@ -331,11 +349,9 @@ void hwcsamp_start_sampling(const char* arguments)
 #endif
 
 
-#if defined (OPENSS_OFFLINE)
-    const char* hwc_event_param = getenv("OPENSS_HWCSAMP_EVENTS");
-    if (hwc_event_param != NULL) {
+    if (hwcsamp_papi_event != NULL) {
 	char *tfptr, *saveptr, *tf_token;
-	tfptr = strdup(hwc_event_param);
+	tfptr = strdup(hwcsamp_papi_event);
 	int i;
 	for (i = 1;  ; i++, tfptr = NULL) {
 	    tf_token = strtok_r(tfptr, ":,", &saveptr);
@@ -349,13 +365,8 @@ void hwcsamp_start_sampling(const char* arguments)
     } else {
 	OpenSS_AddEvent(tls->EventSet, get_papi_eventcode("PAPI_TOT_CYC"));
     }
-#else
-    /* TODO: verify setting events via passed arguments for online */
-    OpenSS_AddEvent(tls->EventSet, get_papi_eventcode("PAPI_TOT_CYC"));
-#endif
 
     OpenSS_Start(tls->EventSet);
-
     OpenSS_Timer(tls->data.interval, hwcsampTimerHandler);
 }
 
@@ -380,29 +391,30 @@ void hwcsamp_stop_sampling(const char* arguments)
 
     Assert(tls != NULL);
 
+    if (tls->EventSet == PAPI_NULL) {
+	/*fprintf(stderr,"hwc_stop_sampling RETURNS - NO EVENTSET!\n");*/
+	/* we are called before eny events are set in papi. just return */
+        return;
+    }
+
+    /* Stop counters */
+    OpenSS_Stop(tls->EventSet, evalues);
+
     /* Stop sampling */
     OpenSS_Timer(0, NULL);
 
     tls->header.time_end = OpenSS_GetTime();
-
-    if (tls->EventSet == PAPI_NULL) {
-	return;
-    }
-    OpenSS_Stop(tls->EventSet, evalues);
 
     /* Are there any unsent samples? */
     if(tls->buffer.length > 0) {
 
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-	    fprintf(stderr, "samp_stop_sampling:\n");
-	    fprintf(stderr, "time_end(%#lu) addr range[%#lx, %#lx] pc_len(%d) count_len(%d)\n",
-		tls->header.time_end,tls->header.addr_begin,
-		tls->header.addr_end,tls->data.pc.pc_len,
-		tls->data.count.count_len);
+	    fprintf(stderr, "hwcsamp_stop_sampling calls send_samples.\n");
 	}
 #endif
 
+	/* Send these samples */
 	send_samples(tls);
 
     }

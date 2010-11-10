@@ -3274,7 +3274,20 @@ static bool setparam (Collector C, std::string pname, std::vector<ParamVal> *val
       } else if( m.isType(typeid(std::string)) ) {
         std::string sval;
         if (pvalue.getValType() == PARAM_VAL_STRING) {
-          sval = std::string(pvalue.getSVal());
+	  // The paramter values for hwcsamp are comma seperated lists.
+	  // We need to preserve this list as a csv since the grammar
+	  // uses the comma itself to distinguish params.
+	  // It also seems to be that most parameters seem to allow
+	  // only one value. The string param list for hwcsamp is
+	  // different from the tracing collectors in that it does
+	  // not map a string to a boolean.
+	  for (std::vector<ParamVal>::iterator iv = value_list->begin();
+		iv != value_list->end(); iv++) {
+	    sval.append((*iv).getSVal());
+	    if (iv + 1  != value_list->end() ) {
+	       sval.append(","); 
+	    }
+	  }
         } else {
           char cval[20];
           sprintf( cval, "%d", pvalue.getIVal());

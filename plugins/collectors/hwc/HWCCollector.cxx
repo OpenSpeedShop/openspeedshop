@@ -25,8 +25,6 @@
  
 #include "HWCCollector.hxx"
 #include "blobs.h"
-#include "PapiAPI.h"
-#include "PapiAPI.cxx"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -34,13 +32,16 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include "OpenSS_Papi_Events.h"
 
+static bool we_dun_registered = false;
 
 #include "SS_Message_Element.hxx"
 #include "SS_Message_Czar.hxx"
 
 using namespace OpenSpeedShop;
 extern SS_Message_Czar& theMessageCzar();
+
 using namespace OpenSpeedShop::Framework;
 
 
@@ -92,7 +93,9 @@ HWCCollector::HWCCollector() :
                            typeid(uint64_t)));
 
     // Register the event names in the message facility.
+    if (!we_dun_registered) {
     hwc_register_events_for_help();
+    }
 
 }
 
@@ -111,24 +114,11 @@ Blob HWCCollector::getDefaultParameterValues() const
     hwc_parameters parameters;
     memset(&parameters, 0, sizeof(parameters));
 
-    hwc_init_papi();
-
-    // Set the default parameters
-    // FIXME: the default threshold below may be too large
-    // for some events. May need to calculate a default
-    // based on event type...
-
-#if defined(linux)
-    if (hw_info) {
-	parameters.sampling_rate = (uint64_t) hw_info->mhz*10000*2;
-    } else {
-	parameters.sampling_rate = (uint64_t) THRESHOLD*2;
-    }
-#else
-    parameters.sampling_rate = THRESHOLD*2;
-#endif
+    // THRESHOLD is defined in PapiAPI.h. We do not want any
+    // dependency on papi here. We define it anyways to 10000000.
+    parameters.sampling_rate = 10000000*2;
     
-    parameters.hwc_event = get_papi_eventcode((char *) "PAPI_TOT_CYC");
+    strncpy(parameters.hwc_event,"PAPI_TOT_CYC",strlen("PAPI_TOT_CYC"));
 
     // Return the encoded blob to the caller
     return Blob(reinterpret_cast<xdrproc_t>(xdr_hwc_parameters),
@@ -154,8 +144,6 @@ void HWCCollector::getParameterValue(const std::string& parameter,
     memset(&parameters, 0, sizeof(parameters));
     data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_hwc_parameters),
                         &parameters);
-    hwc_init_papi();
-
     // Handle the "sampling_rate" parameter
     if(parameter == "sampling_rate") {
         uint64_t* value = reinterpret_cast<uint64_t*>(ptr);
@@ -165,9 +153,7 @@ void HWCCollector::getParameterValue(const std::string& parameter,
     // Handle the "hwc_event" parameter
     if(parameter == "event") {
         std::string* value = reinterpret_cast<std::string*>(ptr);
-	char EventCodeStr[PAPI_MAX_STR_LEN];
-	get_papi_name(parameters.hwc_event,EventCodeStr);
-	std::string ecstr(EventCodeStr);
+	std::string ecstr(parameters.hwc_event);
 	*value = ecstr;
     }
 }
@@ -204,13 +190,14 @@ void HWCCollector::setParameterValue(const std::string& parameter,
     // Handle the "hwc_event" parameter
     if(parameter == "event") {
 
-	char EventCodeStr[PAPI_MAX_STR_LEN];
 	const std::string* papi_event_name =
 				reinterpret_cast<const std::string*>(ptr);
-	const char *str = papi_event_name->c_str();
-	char *var = (char *)str;
-	parameters.hwc_event = get_papi_eventcode(var);
-	setenv("OPENSS_HWC_EVENT", (char *)var, 1);
+	// clear any previous event preset
+	memset(&parameters.hwc_event, 0, sizeof(parameters.hwc_event));
+	// copy the noew event preset
+	strncpy(parameters.hwc_event,papi_event_name->c_str(),
+		strlen(papi_event_name->c_str()));
+	setenv("OPENSS_HWC_EVENT", papi_event_name->c_str(), 1);
     }
     
     // Re-encode the blob containing the parameter values
@@ -238,17 +225,7 @@ void HWCCollector::startCollecting(const Collector& collector,
 
     std::string papi_event_name;
     collector.getParameterValue("event", papi_event_name);
-
-    int EventCode = PAPI_NULL;
-    char* strptr;
-    char ename[PAPI_MAX_STR_LEN];
-    strcpy(ename,papi_event_name.c_str());
-    strptr = ename;
-    if (PAPI_event_name_to_code(strptr,&EventCode) != PAPI_OK) {
-	fprintf(stderr,"HWCCollector::startCollecting PAPI_event_name_to_code failed!\n");
-	return;
-    }
-    args.hwc_event = EventCode;
+    strncpy(args.hwc_event,papi_event_name.c_str(),strlen(papi_event_name.c_str()));
 
     args.experiment = getExperimentId(collector);
     args.collector = getCollectorId(collector);
@@ -372,7 +349,7 @@ void HWCCollector::getMetricValues(const std::string& metric,
 
 
 typedef std::pair<std::string, std::string> papi_preset_event;
-typedef std::vector<papi_event> papi_available_presets;
+typedef std::vector<papi_preset_event> papi_available_presets;
 
 /**
  * Method: hwc_register_events_for_help()
@@ -388,7 +365,6 @@ typedef std::vector<papi_event> papi_available_presets;
  * @todo    Error handling.
  *
  */
-static bool we_dun_registered = false;
 void
 hwc_register_events_for_help()
 {
@@ -396,12 +372,6 @@ hwc_register_events_for_help()
 
     if (we_dun_registered)
     	return;
-
-  // Check if PAPI will work at all
-    int rval = PAPI_library_init(PAPI_VER_CURRENT);
-    if (rval < 0)
-    	return;
-
 
   // Send information to the message czar.
     SS_Message_Czar& czar = theMessageCzar();
@@ -432,7 +402,24 @@ hwc_register_events_for_help()
 
 
     papi_available_presets.clear();
-    papi_available_presets = OpenSS_papi_available_presets();
+
+    std::pair<std::string, std::string> *pe;
+    for(unsigned i = 0; OpenSS_Papi_NonDerivedEvents[i]  != NULL; ++i) {
+	std::string ev = OpenSS_Papi_NonDerivedEvents[i];
+
+	char delimitor = ':';
+	std::string::size_type start = 0;
+	std::string::size_type end;
+
+	while ((end =  ev.find_first_of(delimitor,start)) != std::string::npos) {
+	    pe = new std::pair<std::string, std::string>
+		(std::string(ev,start,end-start),
+		std::string(ev,end+1,std::string::npos));
+	    papi_available_presets.push_back(*pe);
+	    start = end+1;
+	}
+    }
+
     
     std::vector<papi_preset_event>::const_iterator it;
     for(    it = papi_available_presets.begin(); 

@@ -64,12 +64,12 @@ static oss_boolean OpenSS_event_exists (int event)
 		info.symbol ? info.symbol : "",
 		info.short_descr ? info.short_descr : "");
 	}
-#endif
 
 	if (info.count > 1) {
 	    fprintf (stderr,"%s is a derived event on this hardware.\n",
 		info.symbol ? info.symbol : "");
 	}
+#endif
 }
 
 void OpenSS_Create_Eventset(int *EventSet)

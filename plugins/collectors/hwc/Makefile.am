@@ -66,34 +66,29 @@ endif
 if !BUILD_RUNTIME
 if !HAVE_TARGET_LIBMONITOR
 hwc_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-message \
-	-I$(top_srcdir)/libopenss-framework \
-	@PAPI_CPPFLAGS@
+	-I$(top_srcdir)/libopenss-framework
 
 hwc_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-message \
 	-L$(top_srcdir)/libopenss-framework \
-	@PAPI_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 hwc_la_LIBADD = \
-	-lopenss-message -lopenss-framework \
-	@PAPI_LIBS@
+	-lopenss-message -lopenss-framework
 else
 hwc_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-message \
-	-I$(top_srcdir)/libopenss-framework \
-	@TARGET_PAPI_CPPFLAGS@
+	-I$(top_srcdir)/libopenss-framework
 
 hwc_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-message \
 	-L$(top_srcdir)/libopenss-framework \
-	@TARGET_PAPI_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 hwc_la_LIBADD = \
-	-lopenss-message -lopenss-framework \
-	@TARGET_PAPI_LIBS@
+	-lopenss-message -lopenss-framework
 endif
 hwc_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \

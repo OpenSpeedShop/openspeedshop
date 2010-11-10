@@ -310,3 +310,27 @@ OpenSS_DataHeader.h OpenSS_DataHeader.c : OpenSS_DataHeader.x
 
 doc:
 	$(DOXYGEN)
+
+if HAVE_PAPI
+BUILT_SOURCES += OpenSS_Papi_Events.h
+
+OpenSS_Papi_Events.h:
+	@rm -rf OpenSS_Papi_Events.h
+	@echo "static const char* OpenSS_Papi_ALLEvents[] = {" > OpenSS_Papi_Events.h
+	@$(PAPI_DIR)/bin/papi_avail -a | grep ^PAPI_ |  awk '{ printf("\""); printf($$1);  printf(":"); for(i=4;i<=NF;i++) {printf("%s ",$$i) } ; printf("\",\n") }' >> OpenSS_Papi_Events.h
+	@echo "NULL" >> OpenSS_Papi_Events.h
+	@echo "};" >> OpenSS_Papi_Events.h
+	@echo "static const char* OpenSS_Papi_NonDerivedEvents[] = {"  >> OpenSS_Papi_Events.h
+	@$(PAPI_DIR)/bin/papi_avail -a | grep ^PAPI_ | grep No |  awk '{ printf("\""); printf($$1);  printf(":"); for(i=4;i<=NF;i++) {printf("%s ",$$i) } ; printf("\",\n") }' >> OpenSS_Papi_Events.h
+	@echo "NULL" >> OpenSS_Papi_Events.h
+	@echo "};" >> OpenSS_Papi_Events.h
+else
+OpenSS_Papi_Events.h:
+	@rm -rf OpenSS_Papi_Events.h
+	@echo "static const char* OpenSS_Papi_ALLEvents[] = {" > OpenSS_Papi_Events.h
+	@echo "NULL" >> OpenSS_Papi_Events.h
+	@echo "};" >> OpenSS_Papi_Events.h
+	@echo "static const char* OpenSS_Papi_NonDerivedEvents[] = {"  >> OpenSS_Papi_Events.h
+	@echo "NULL" >> OpenSS_Papi_Events.h
+	@echo "};" >> OpenSS_Papi_Events.h
+endif

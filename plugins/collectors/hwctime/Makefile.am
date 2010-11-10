@@ -65,21 +65,19 @@ endif
 if !BUILD_RUNTIME
 if !HAVE_TARGET_LIBMONITOR
 hwctime_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework \
-	@PAPI_CPPFLAGS@
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-framework
 else
 hwctime_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-framework \
-	@TARGET_PAPI_CPPFLAGS@
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-framework
 endif
 
 hwctime_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
-	@PAPI_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
 hwctime_la_LIBADD = \
-	@PAPI_LIBS@ \
 	-lopenss-framework
 
 hwctime_la_SOURCES = \

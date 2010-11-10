@@ -37,7 +37,7 @@
 #include <papi.h>
 
 /* default papi threshold */
-#define THRESHOLD   1000000
+#define THRESHOLD   10000000
 
 #ifdef __cplusplus
 extern "C" {

@@ -145,13 +145,17 @@ static bool define_hwcsamp_columns (
     delimPos = Value.find_first_of(",", pos);
     tokenPos = Value.find_first_not_of(",", pos);
 
-    papi_names[num_events++] = Value.substr(pos,delimPos-pos);
+    papi_names[num_events] = Value.substr(pos,delimPos-pos);
+    num_events++;
 
     while (end < len) {
-      while ((end < len) && (Value[end] != *(","))) end++;
-      if (end < len) {
+      while ((end < len) && (Value[end] != *(","))) {
+	end++;
+      }
+      if (end <= len) {
         std::string N = Value.substr(start,end-start);
-        papi_names[num_events++] = N;
+        papi_names[num_events] = N;
+	num_events++;
         start = end + 1;
         end = start;
       }
