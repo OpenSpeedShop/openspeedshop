@@ -311,8 +311,8 @@ OpenSS_DataHeader.h OpenSS_DataHeader.c : OpenSS_DataHeader.x
 doc:
 	$(DOXYGEN)
 
-if HAVE_PAPI
 BUILT_SOURCES += OpenSS_Papi_Events.h
+if HAVE_PAPI
 
 OpenSS_Papi_Events.h:
 	@rm -rf OpenSS_Papi_Events.h
