@@ -40,15 +40,21 @@ if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += hwctime-rt.la
 endif
 endif
+# endif for HAVE_PAPI
+endif
 
 if BUILD_INSTRUMENTOR
+if HAVE_PAPI
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
 	offline.c
 
 pkglib_LTLIBRARIES += hwctime-rt-offline.la libhwctime-offline.la
 endif
+# endif for HAVE_PAPI
+endif
 
+if HAVE_TARGET_PAPI
 if HAVE_TARGET_LIBMONITOR
 OFFLINE_SOURCES = \
 	offline.c
@@ -61,8 +67,8 @@ endif
 
 pkglib_LTLIBRARIES += libhwctime-offline.la
 endif
+# endif for HAVE_TARGET_PAPI
 endif
-# endif for HAVE_PAPI
 endif
 
 
@@ -91,8 +97,8 @@ hwctime_la_SOURCES = \
 	HWTimeDetail.hxx
 endif
 
-if HAVE_PAPI
 if BUILD_INSTRUMENTOR
+if HAVE_PAPI
 
 if !BUILD_OFFLINE
 if BUILD_MRNET
@@ -183,6 +189,10 @@ libhwctime_offline_la_SOURCES = \
 	$(OFFLINE_SOURCES) \
 	runtime.c
 endif
+# endif for HAVE_PAPI
+endif
+
+if HAVE_TARGET_PAPI
 
 if HAVE_TARGET_LIBMONITOR
 
@@ -248,8 +258,8 @@ libhwctime_offline_la_SOURCES = \
 	$(OFFLINE_SOURCES) \
 	runtime.c
 endif
+# endif for HAVE_TARGET_PAPI
 endif
-# endif for HAVE_PAPI
 endif
 
 SUFFIXES = .x
