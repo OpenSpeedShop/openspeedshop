@@ -4250,9 +4250,16 @@ the time
 of the exception. Floating-point exception tracing experiments should
 incur a
 slowdown in execution of the program of no more than 15%.&nbsp; These
-measurements are exact, not statistical.<br>
-  <br>
+measurements are exact, not statistical.</p>
+  <p class="MsoNormal"><br>
+NOTE: An increasing number of MPI Implementations are catching SIGFPE
+and causing this experiment to fail.&nbsp;&nbsp; For openmpi use the
+--disable-pretty-print-stacktrace configure option when building to
+prevent this failure.&nbsp;&nbsp; SGI MPT has a similar issue where the
+environment variable MPI_SIGTRAP controls if the signal handler will be
+overridden.<br>
   </p>
+  <p class="MsoNormal"> </p>
 </blockquote>
 <blockquote style="margin: 5pt 56.9pt;">
   <blockquote style="margin: 5pt 56.9pt;"></blockquote>
