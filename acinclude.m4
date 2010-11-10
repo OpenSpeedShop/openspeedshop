@@ -1098,7 +1098,11 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
 
       TARGET_PAPI_DIR="$target_papi_dir"
       TARGET_PAPI_CPPFLAGS="-I$target_papi_dir/include"
-      TARGET_PAPI_LDFLAGS="-L$target_papi_dir/$abi_libdir"
+      if test -d $target_papi_dir/$abi_libdir; then
+        TARGET_PAPI_LDFLAGS="-L$target_papi_dir/$abi_libdir"
+      elif test -d $target_papi_dir/$alt_abi_libdir; then
+        TARGET_PAPI_LDFLAGS="-L$target_papi_dir/$alt_abi_libdir"
+      fi
 
       if test -f $target_papi_dir/$abi_libdir/libpapi.so; then
         foundPS=1
@@ -1112,6 +1116,8 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
             ;;
 	*)
             if test -f $target_papi_dir/$abi_libdir/libperfctr.so; then
+              TARGET_PAPI_LIBS="-lpapi -lperfctr -lpfm"
+            elif test -f $target_papi_dir/$alt_abi_libdir/libperfctr.so; then
               TARGET_PAPI_LIBS="-lpapi -lperfctr -lpfm"
             else
               TARGET_PAPI_LIBS="-lpapi -lpfm"
