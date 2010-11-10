@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-# Copyright (c) 2006,2007,2008,2009 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -34,6 +34,7 @@ pkglib_LTLIBRARIES += hwctime.la
 endif
 endif
 
+if HAVE_PAPI
 if BUILD_INSTRUMENTOR
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += hwctime-rt.la
@@ -61,6 +62,10 @@ endif
 pkglib_LTLIBRARIES += libhwctime-offline.la
 endif
 endif
+# endif for HAVE_PAPI
+endif
+
+
 
 if !BUILD_RUNTIME
 if !HAVE_TARGET_LIBMONITOR
@@ -86,6 +91,7 @@ hwctime_la_SOURCES = \
 	HWTimeDetail.hxx
 endif
 
+if HAVE_PAPI
 if BUILD_INSTRUMENTOR
 
 if !BUILD_OFFLINE
@@ -242,6 +248,8 @@ libhwctime_offline_la_SOURCES = \
 	$(OFFLINE_SOURCES) \
 	runtime.c
 endif
+endif
+# endif for HAVE_PAPI
 endif
 
 SUFFIXES = .x

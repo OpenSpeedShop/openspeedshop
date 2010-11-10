@@ -35,7 +35,7 @@ SUBDIRS += usertime io iot
 endif
 endif
 
-if HAVE_PAPI
+#if HAVE_PAPI
 SUBDIRS += hwc hwcsamp
 if HAVE_LIBUNWIND
 SUBDIRS += hwctime
@@ -44,7 +44,7 @@ if !BUILD_INSTRUMENTOR
 SUBDIRS += hwctime
 endif
 endif
-endif
+#endif
 
 if HAVE_TARGET_LIBMONITOR
 if HAVE_TARGET_PAPI

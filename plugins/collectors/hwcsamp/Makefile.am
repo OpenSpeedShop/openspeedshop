@@ -27,6 +27,7 @@ pkglib_LTLIBRARIES += hwcsamp.la
 endif
 endif
 
+if HAVE_PAPI
 if BUILD_INSTRUMENTOR
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += hwcsamp-rt.la
@@ -54,6 +55,8 @@ endif
 pkglib_LTLIBRARIES += libhwcsamp-offline.la
 endif
 endif
+# endif for if HAVE_PAPI
+endif
 
 if !BUILD_RUNTIME
 hwcsamp_la_CXXFLAGS = \
@@ -73,6 +76,7 @@ hwcsamp_la_SOURCES = \
 	HWCSampCollector.hxx HWCSampCollector.cxx
 endif
 
+if HAVE_PAPI
 if BUILD_INSTRUMENTOR
 if !BUILD_OFFLINE
 if BUILD_MRNET
@@ -208,6 +212,8 @@ libhwcsamp_offline_la_SOURCES = \
 	$(OFFLINE_SOURCES) \
 	runtime.c
 endif
+endif
+# endif for if HAVE_PAPI
 endif
 
 
