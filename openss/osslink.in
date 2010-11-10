@@ -6,8 +6,10 @@ mach_type=`uname -m`
 
 if test "$mach_type" == "x86_64" ; then
     machlibdir=lib64
+    altmachlibdir=lib
 else
     machlibdir=lib
+    altmachlibdir=lib64
 fi
 
 oss_target=@@osstargetos@@
@@ -25,7 +27,12 @@ libunwind_prefix=@@libunwinddir@@
 libunwind_libdir="${libunwind_prefix}/${machlibdir}"
 libunwind="${libunwind_libdir}/libunwind.a"
 libpapi_prefix=@@papidir@@
-libpapi_libdir="${libpapi_prefix}/${machlibdir}"
+if test -d ${libpapi_prefix}/${machlibdir} ; then
+  libpapi_libdir="${libpapi_prefix}/${machlibdir}"
+elif test -d ${libpapi_prefix}/${altmachlibdir} ; then
+  libpapi_libdir="${libpapi_prefix}/${altmachlibdir}"
+fi
+
 libpapi="${libpapi_libdir}/libpapi.a"
 
 # monitor always has these
