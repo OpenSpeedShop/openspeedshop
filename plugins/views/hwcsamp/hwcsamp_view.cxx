@@ -127,7 +127,7 @@ static bool define_hwcsamp_columns (
   int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp);
   std::string ByThread_Header = Find_Metadata ( CV[0], "time" ).getShortName();
 
- // Determine the available events for the detail metric.
+  // Determine the available events for the detail metric.
   int64_t num_events = 0;
   std::string papi_names[OpenSS_NUMCOUNTERS];
   Collector c = CV[0];
@@ -136,29 +136,12 @@ static bool define_hwcsamp_columns (
     std::string Value;
     CV[0].getParameterValue("event", Value);
 
-   // Parse the event string.
-    int len = Value.length();
-    int end = Value.find(",")+1;
-    int start = end;
-
-    std::string::size_type delimPos = 0, tokenPos = 0, pos = 0;
-    delimPos = Value.find_first_of(",", pos);
-    tokenPos = Value.find_first_not_of(",", pos);
-
-    papi_names[num_events] = Value.substr(pos,delimPos-pos);
-    num_events++;
-
-    while (end < len) {
-      while ((end < len) && (Value[end] != *(","))) {
-	end++;
-      }
-      if (end <= len) {
-        std::string N = Value.substr(start,end-start);
-        papi_names[num_events] = N;
+    // Parse the event string.
+    std::istringstream evStream(Value);
+    std::string evElement;
+    while( std::getline(evStream, evElement, ',') ) {
+	papi_names[num_events] = evElement;
 	num_events++;
-        start = end + 1;
-        end = start;
-      }
     }
   }
   
@@ -167,7 +150,7 @@ static bool define_hwcsamp_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_time_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, extime_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, excnt_temp));
-  //for (int i=0; i < OpenSS_NUMCOUNTERS; i++) {
+
   for (int i=0; i < num_events ; i++) {
     IV.push_back(new ViewInstruction (VIEWINST_Add, event_temps+i));
   }
