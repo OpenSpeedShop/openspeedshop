@@ -944,19 +944,19 @@ StatsPanel::displayUsingFunction()
 
   if (originatingUserSelectedReportStr.startsWith("minMaxAverage") ) {
 
-     minMaxAverageSelected();
+//     minMaxAverageSelected();
 
   } else if (originatingUserSelectedReportStr.startsWith("clusterAnalysis") &&
              currentUserSelectedReportStr.startsWith("Comparison" ) ) {
 
-     clusterAnalysisSelected();
+//     clusterAnalysisSelected();
 
   } else if (originatingUserSelectedReportStr.startsWith("DefaultView") &&
             (currentUserSelectedReportStr.startsWith("Functions") ) || 
             (currentUserSelectedReportStr.startsWith("Statements") ) || 
             (currentUserSelectedReportStr.startsWith("LinkedObjects") ) ) {
 
-     defaultViewSelected();
+//     defaultViewSelected();
 
   }
 }
@@ -971,15 +971,15 @@ StatsPanel::displayUsingStatement()
   currentDisplayUsingTypeStr = "statements";
   currentDisplayUsingType = displayUsingStatementType;
   if (originatingUserSelectedReportStr.startsWith("minMaxAverage") ) {
-     minMaxAverageSelected();
+//     minMaxAverageSelected();
   } else if (originatingUserSelectedReportStr.startsWith("clusterAnalysis") &&
              currentUserSelectedReportStr.startsWith("Comparison" ) ) {
-     clusterAnalysisSelected();
+//     clusterAnalysisSelected();
   } else if (originatingUserSelectedReportStr.startsWith("DefaultView") &&
             (currentUserSelectedReportStr.startsWith("Functions") ) || 
             (currentUserSelectedReportStr.startsWith("Statements") ) || 
             (currentUserSelectedReportStr.startsWith("LinkedObjects") ) ) {
-     defaultViewSelected();
+//     defaultViewSelected();
   }
 }
 
@@ -993,15 +993,15 @@ StatsPanel::displayUsingLinkedObject()
   currentDisplayUsingTypeStr = "linkedobjects";
   currentDisplayUsingType = displayUsingLinkedObjectType;
   if (originatingUserSelectedReportStr.startsWith("minMaxAverage") ) {
-     minMaxAverageSelected();
+//     minMaxAverageSelected();
   } else if (originatingUserSelectedReportStr.startsWith("clusterAnalysis") &&
              currentUserSelectedReportStr.startsWith("Comparison" ) ) {
-     clusterAnalysisSelected();
+//     clusterAnalysisSelected();
   } else if (originatingUserSelectedReportStr.startsWith("DefaultView") &&
             (currentUserSelectedReportStr.startsWith("Functions") ) || 
             (currentUserSelectedReportStr.startsWith("Statements") ) || 
             (currentUserSelectedReportStr.startsWith("LinkedObjects") ) ) {
-     defaultViewSelected();
+//     defaultViewSelected();
   }
 }
 
