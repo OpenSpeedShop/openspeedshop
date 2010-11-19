@@ -10901,6 +10901,25 @@ StatsPanel::addHWCReports(QPopupMenu *menu )
 }
 
 void
+StatsPanel::addHWCSampReports(QPopupMenu *menu )
+{
+  QAction *qaction = new QAction(this, "showFunctions");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Functions") );
+  qaction->setToolTip(tr("Show by Functions.") );
+
+  qaction = new QAction(this, "showStatements");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Statements") );
+  qaction->setToolTip(tr("Show by Statements.") );
+
+  qaction = new QAction(this, "showLinkedObjects");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: LinkedObjects") );
+  qaction->setToolTip(tr("Show by LinkedObjects.") );
+}
+
+void
 StatsPanel::addHWCTimeReports(QPopupMenu *menu )
 {
   QAction *qaction = new QAction(this, "showFunctions");
