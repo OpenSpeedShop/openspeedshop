@@ -298,6 +298,8 @@ OptionalViewsDialog::OptionalViewsDialog( QWidget* parent,
 //    settings->insertSearchPath( QSettings::Unix, "openspeedshop" );
 
     readPreferencesOnEntry();
+    // Set the values to the defaults upon 
+    resetPreferenceDefaults();
 }
 
 /*
@@ -2329,10 +2331,10 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      iot_syscallno_CheckBox->setChecked(iot_syscallno);
      iot_nsysargs = FALSE;
      iot_nsysargs_CheckBox->setChecked(iot_nsysargs);
-     iot_retval = FALSE;
+     iot_retval = TRUE;
      iot_retval_CheckBox->setChecked(iot_retval);
 #if PATHNAME_READY
-     iot_pathname = FALSE;
+     iot_pathname = TRUE;
      iot_pathname_CheckBox->setChecked(iot_pathname);
 #endif
    } else if (globalCollectorString.contains("io") ) {
