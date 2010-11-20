@@ -623,6 +623,18 @@ static bool define_iot_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back("% of Total Time");
 
+#if 1
+    if (vfc == VFC_Trace) {
+  // display function return values for each function
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
+      HV.push_back("Function Dependent Return Value");
+
+  // display function pathname for each function call
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, pathname_temp));
+      HV.push_back("File/Path Name");
+    }
+#endif
+
   // display a count of the calls to each function
     if (vfc != VFC_Trace) {
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
