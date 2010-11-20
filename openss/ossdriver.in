@@ -1994,6 +1994,7 @@ then
     echo "DEBUG: in COMPARE EXPERIMENT SECTION, OPENSS_CREATE_CSV=$OPENSS_CREATE_CSV"
   fi
 
+  unset type_of_dbase
   create_csv_files=0
   if [ -z "$OPENSS_CREATE_CSV" ]
   then
@@ -2080,7 +2081,7 @@ do
 
   db_file_input_split "$line"
 
-# printf "%s\n" "${values[1]}" ## print field N (numbered from 0)
+# echo "%s\n" "${values[1]}" ## print field N (numbered from 0)
 
 done < /tmp/$USER/osscompare_file2.csv
 
@@ -2094,12 +2095,96 @@ do
   
 done < /tmp/$USER/osscompare_vnum_val
 
+# Check databases for type of experiment
+
+for i in {0..4}
+do
+
+  if [ $i -ge $number_of_databases ] 
+  then
+    continue
+  else
+    if [ $debug_flag == 1 ]
+    then
+       echo "value[$i]=%s\n" "${values[$i]}" ## print field N (numbered from 0)
+    fi
+    j=($i + 1)
+    dbase_name="dbase${j}_exptype.txt"
+    if [ $debug_flag == 1 ]
+    then
+      echo "dbase_name = $dbase_name"
+    fi
+    echo "exprestore -f ${values[$i]}" > /tmp/$USER/osscompare_commands.txt
+    echo "list -v exptypes > /tmp/$USER/$dbase_name" >> /tmp/$USER/osscompare_commands.txt
+
+    openss -batch < /tmp/$USER/osscompare_commands.txt
+
+    while read -r line
+    do
+     type_of_dbase[$i]=$line
+     if [ $debug_flag == 1 ]
+     then
+       echo "database $i section line=$line"
+       echo "type of database $i=${type_of_dbase[$i]}"
+     fi
+    done < /tmp/$USER/$dbase_name
+  fi
+done
+
+# Validate that all the databases are of the same type
+
+
+for i in {2..5}
+do
+   if [ $debug_flag == 1 ]
+   then
+     echo "Begin Looking at database $j and number of dbs is: $number_of_databases"
+   fi
+   if [ $i -gt  $number_of_databases ]
+   then
+     continue
+   else
+     j=$i-1
+     if [ $debug_flag == 1 ]
+     then
+       echo "Looking at database 0 and database $j (j) i= $i"
+     fi
+     if [ "${type_of_dbase[0]}" == "${type_of_dbase[$j]}" ]
+     then
+       if [ $debug_flag == 1 ]
+       then
+          echo "GOOD in osscompare: Types of database compare files match: ${type_of_dbase[0]} is the same as ${type_of_dbase[$j]}" 
+       fi
+     else
+        echo "[openss]: ERROR in osscompare: Types of database compare files must match: ${type_of_dbase[0]} is not the same as ${type_of_dbase[$j]}" 
+        exit
+     fi
+   fi
+done
+
+
+# Make sure we handle the hardware counter experiments correctly,  time is not the correct
+# metric for hwc, hwctime.  Must be counts.
+if [ "$number_of_databases" -ge "2" ] 
+then
+   if [ "${type_of_dbase[0]}" == "hwc" -o "${type_of_dbase[0]}" == "hwctime" ]
+   then
+      echo "[openss]: NOTE; Must use the event counts as the metric for hwc and hwctime experiment comparisons." 
+      echo "[openss]: NOTE; osscompare is overriding any specification and comparing with repect to the counts of events"
+      use_compare_metric=counts
+   elif [  "${type_of_dbase[0]}" == "hwcsamp" ]
+   then
+# FIXME - how do we get the event names to use as the compare metric
+      use_compare_metric=time
+   fi
+fi
+
 
 if [ "$number_of_databases" -ge "1" ] 
 then
   if [ $debug_flag == 1 ]
   then
-     printf "value[0]=%s\n" "${values[0]}" ## print field N (numbered from 0)
+     echo "value[0]=%s\n" "${values[0]}" ## print field N (numbered from 0)
   fi
   echo "exprestore -f ${values[0]}" > /tmp/$USER/osscompare_commands.txt
   echo "cviewCreate -x 1 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
@@ -2109,7 +2194,7 @@ if [ "$number_of_databases" -ge "2" ]
 then
   if [ $debug_flag == 1 ]
   then
-    printf "value[1]=%s\n" "${values[1]}" ## print field N (numbered from 0)
+    echo "value[1]=%s\n" "${values[1]}" ## print field N (numbered from 0)
   fi
   echo "exprestore -f ${values[1]}" >> /tmp/$USER/osscompare_commands.txt
   echo "cviewCreate -x 3 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
@@ -2119,7 +2204,7 @@ if [ "$number_of_databases" -eq "2" ]
 then
   if [ $debug_flag == 1 ]
   then
-    printf "create cview -c 2 -c 4" 
+    echo "create cview -c 2 -c 4" 
   fi
 
 #  echo "${values[0]}" | tr -d '\.openss'
@@ -2140,7 +2225,7 @@ if [ "$number_of_databases" -ge "3" ]
 then
   if [ $debug_flag == 1 ]
   then
-    printf "value[2]=%s\n" "${values[2]}" ## print field N (numbered from 0)
+    echo "value[2]=%s\n" "${values[2]}" ## print field N (numbered from 0)
   fi
   echo "exprestore -f ${values[2]}" >> /tmp/$USER/osscompare_commands.txt
   echo "cviewCreate -x 5 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
@@ -2150,7 +2235,7 @@ if [ "$number_of_databases" -eq "3" ]
 then
   if [ $debug_flag == 1 ]
   then
-    printf "create cview -c 2 -c 4 -c 6" 
+    echo "create cview -c 2 -c 4 -c 6" 
   fi
   if [ $create_csv_files -eq 1 ]
   then
@@ -2163,7 +2248,7 @@ if [ "$number_of_databases" -ge "4" ]
 then
   if [ $debug_flag == 1 ]
   then
-    printf "value[3]=%s\n" "${values[3]}" ## print field N (numbered from 0)
+    echo "value[3]=%s\n" "${values[3]}" ## print field N (numbered from 0)
   fi
   echo "exprestore -f ${values[3]}" >> /tmp/$USER/osscompare_commands.txt
   echo "cviewCreate -x 7 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
@@ -2173,7 +2258,7 @@ if [ "$number_of_databases" -eq "4" ]
 then
   if [ $debug_flag == 1 ]
   then
-    printf "create cview -c 2 -c 4 -c 6 -c 8" 
+    echo "create cview -c 2 -c 4 -c 6 -c 8" 
   fi
   if [ $create_csv_files -eq 1 ]
   then
@@ -2188,7 +2273,7 @@ if [ "$number_of_databases" -ge "5" ]
 then
   if [ $debug_flag == 1 ]
   then
-    printf "value[4]=%s\n" "${values[4]}" ## print field N (numbered from 0)
+    echo "value[4]=%s\n" "${values[4]}" ## print field N (numbered from 0)
   fi
   echo "exprestore -f ${values[4]}" >> /tmp/$USER/osscompare_commands.txt
   echo "cviewCreate -x 9 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
@@ -2198,7 +2283,7 @@ if [ "$number_of_databases" -eq "5" ]
 then
   if [ $debug_flag == 1 ]
   then
-    printf "create cview -c 2 -c 4 -c 6 -c 8 -c 10" 
+    echo "create cview -c 2 -c 4 -c 6 -c 8 -c 10" 
   fi
   if [ $create_csv_files -eq 1 ]
   then
@@ -2229,7 +2314,7 @@ fi
 
 openss -batch < /tmp/$USER/osscompare_commands.txt
 
-if [ "$number_of_databases" -ge "2" ]
+if [ "$number_of_databases" -eq "2" ]
 then
 #
 # First we handle the csv file then the normal output file
@@ -2271,7 +2356,7 @@ then
   fi
 fi
 
-if [ "$number_of_databases" -ge "3" ]
+if [ "$number_of_databases" -eq "3" ]
 then
 #
 # First we handle the csv file then the normal output file
@@ -2317,7 +2402,7 @@ then
   fi
 fi
 
-if [ "$number_of_databases" -ge "4" ]
+if [ "$number_of_databases" -eq "4" ]
 then
 #
 # First we handle the csv file then the normal output file
@@ -2364,7 +2449,7 @@ then
   fi
 fi
 
-if [ "$number_of_databases" -ge "5" ]
+if [ "$number_of_databases" -eq "5" ]
 then
 #
 # First we handle the csv file then the normal output file
