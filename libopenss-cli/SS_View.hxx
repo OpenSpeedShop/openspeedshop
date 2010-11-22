@@ -55,6 +55,9 @@ enum ViewOpCode {
      VIEWINST_Display_StdDeviation_Tmp, // TmpResult is column# to display in.
                                         // TMP_index1 is row_tmp# with sums.
                                         // TMP_index2 is row_tmp# with sum of squares
+     VIEWINST_Display_Flops_Tmp,        // TmpResult is column# to display in.
+                                        // TMP_index1 is row_tmp# with counts
+                                        // TMP_index2 is row_tmp# with time
      VIEWINST_Display_Summary,          // Generate column summary.
      VIEWINST_Sort_Ascending,           // if TMP_index1 is not 0, sort final report in ascending order
      VIEWINST_Add,                      // TMP_index1 is predefined temp# combined with '+' op. 
@@ -146,6 +149,7 @@ class ViewInstruction
      case VIEWINST_Display_Percent_Tmp: op = "Display_Percent_Tmp"; break;
      case VIEWINST_Display_Average_Tmp: op = "Display_Average_Tmp"; break;
      case VIEWINST_Display_StdDeviation_Tmp: op = "Display_StdDeviation_Tmp"; break;
+     case VIEWINST_Display_Flops_Tmp: op = "Display_Flops_Tmp"; break;
      case VIEWINST_Display_Summary: op = "Display_Summary"; break;
      case VIEWINST_Sort_Ascending: op = "Ascending_Sort"; break;
      case VIEWINST_Add: op = "Add"; break;

@@ -87,6 +87,7 @@ void Construct_View_Output (CommandObject *cmd,
         (vp->OpCode() == VIEWINST_Display_Percent_Column) ||
         (vp->OpCode() == VIEWINST_Display_Percent_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_Average_Tmp) ||
+        (vp->OpCode() == VIEWINST_Display_Flops_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
      // Assert (vp->TR() < num_input_temps);
       if (vp->TR() < num_input_temps) ViewInst[vp->TR()] = vp;
@@ -192,6 +193,10 @@ void Construct_View_Output (CommandObject *cmd,
           CommandResult *V2 = (*it->second)[vinst->TMP2()];
           CommandResult *V3 = (*it->second)[vinst->TMP3()];
           Next_Metric_Value = Calculate_StdDev (V1, V2, V3);
+        } else if (vinst->OpCode() ==VIEWINST_Display_Flops_Tmp) {
+          CommandResult *V1 = (*it->second)[vinst->TMP1()];
+          CommandResult *V2 = (*it->second)[vinst->TMP2()];
+          Next_Metric_Value = Calculate_Flops (V1, V2);
         }
         if (Next_Metric_Value == NULL) {
           Next_Metric_Value = CRPTR ("");
@@ -263,6 +268,10 @@ void Construct_View_Output (CommandObject *cmd,
           CommandResult *V2 = summary_temp[sinst->TMP2()];
           CommandResult *V3 = summary_temp[sinst->TMP3()];
           summary = Calculate_StdDev (V1, V2, V3);
+        } else if (sinst->OpCode() == VIEWINST_Display_Flops_Tmp) {
+          CommandResult *V1 = summary_temp[sinst->TMP1()];
+          CommandResult *V2 = summary_temp[sinst->TMP2()];
+          summary = Calculate_Flops (V1, V2);
         } else if (sinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
           CommandResult *V = summary_temp[sinst->TMP1()];
           summary = Calculate_Percent (V, Total_Value[sinst->TMP2()]);

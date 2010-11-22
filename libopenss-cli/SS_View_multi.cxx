@@ -397,6 +397,16 @@ static void Setup_Sort(
       CommandResult *V3 = (*cp.second)[vinst->TMP3()];
       New = Calculate_StdDev (V1, V2, V3);
 
+    } else if (vinst->OpCode() ==VIEWINST_Display_Flops_Tmp) {
+
+#if DEBUG_CLI
+      printf("in Setup_Sort, VIEWINST_Display_Flops_Tmp\n");
+#endif
+
+      CommandResult *V1 = (*cp.second)[vinst->TMP1()];
+      CommandResult *V2 = (*cp.second)[vinst->TMP2()];
+      New = Calculate_Flops (V1, V2);
+
     }
 
     Assert (New != NULL);

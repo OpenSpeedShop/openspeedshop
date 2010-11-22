@@ -1675,4 +1675,5 @@ CommandResult *CR_Init_of_CR_type( CommandResult *A );
 // Computation utilities.
 CommandResult *Calculate_Average (CommandResult *A, CommandResult *B);
 CommandResult *Calculate_StdDev  (CommandResult *A, CommandResult *B, CommandResult *C);
+CommandResult *Calculate_Flops  (CommandResult *A, CommandResult *B);
 CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B);

@@ -183,8 +183,30 @@ static bool define_hwcsamp_columns (
 
       if (!strcasecmp(M_Name.c_str(), "time") ||
           !strcasecmp(M_Name.c_str(), "times")) {
+
         IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
         HV.push_back(Find_Metadata ( CV[0], "time" ).getDescription());
+
+       } else if (!strcasecmp(M_Name.c_str(), "flops")) {
+
+            int icnt = 0;
+         // flops is calculated from two temps: the PAPI_FP_OPS counts and exclusive time values.
+            bool found_cycles = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("PAPI_FP_OPS") == 0) {
+                   found_cycles = true;
+                   break;
+              }
+            }
+            if (found_cycles) {
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Flops_Tmp, last_column++, event_temps+icnt, extime_temp));
+              HV.push_back("Megaflops");
+            } else {
+              std::string s("The metric (PAPI_FP_OPS) required to generate the flops metric are not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
+         
       } else if (!strcasecmp(M_Name.c_str(), "percent") ||
                  !strcmp(M_Name.c_str(), "%")           ||
                  !strcasecmp(M_Name.c_str(), "%time")   ||

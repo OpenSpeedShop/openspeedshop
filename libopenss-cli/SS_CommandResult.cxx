@@ -253,6 +253,84 @@ CommandResult *Calculate_StdDev  (CommandResult *A, CommandResult *B, CommandRes
   return isnan(result) ? NULL : new CommandResult_Float (result);
 }
 
+
+CommandResult *Calculate_Flops  (CommandResult *A, CommandResult *B) {
+
+  if ((A == NULL) ||
+      (B == NULL)) {
+    return NULL;
+  }
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Flops, A=%x, B=%x\n", A, B);
+#endif
+
+  double Avalue = 0.0;
+  double Bvalue = 1.0;
+  int64_t Ivalue = 0;
+
+  
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Flops, A->Type()=%d, B->Type()=%d\n", 
+         A->Type(), B->Type());
+#endif
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    uint64_t Uvalue;
+    ((CommandResult_Uint *)A)->Value(Uvalue);
+    Avalue = Uvalue;
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(Ivalue);
+    Avalue = Ivalue;
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(Avalue);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(Ivalue);
+    Avalue = Ivalue;
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(Avalue);
+    break;
+  }
+
+  switch (B->Type()) {
+   case CMD_RESULT_UINT:
+    uint64_t Uvalue;
+    ((CommandResult_Uint *)B)->Value(Uvalue);
+    Bvalue = Uvalue;
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)B)->Value(Ivalue);
+    Bvalue = Ivalue;
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)B)->Value(Bvalue);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)B)->Value(Ivalue);
+    Bvalue = Ivalue;
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)B)->Value(Bvalue);
+    break;
+  }
+
+//  double result =  ( (Avalue / ((Bvalue / 1000000.0) * 1000000.0))) ;
+  double result =  ( (Avalue / ((Bvalue / 1000000.0) * 1000000.0)) / 1000000.0) ;
+
+  switch (A->Type()) {
+   case CMD_RESULT_DURATION:
+    return isnan(result) ? NULL : new CommandResult_Duration (result);
+   case CMD_RESULT_INTERVAL:
+    return isnan(result) ? NULL : new CommandResult_Interval (result);
+  }
+  return isnan(result) ? NULL : new CommandResult_Float (result);
+}
+
 CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
 
 #if DEBUG_CLI
