@@ -1306,20 +1306,6 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     rightSideLayout->addWidget( mpit_stddev_CheckBox );
     }
 
-    if (isInCurrentModifierList("size")) {
-       mpit_size = TRUE;
-    } else {
-       mpit_size = FALSE;
-    }
-
-    { // mpit_size
-    mpit_size_CheckBox = new QCheckBox( GeneralGroupBox, "mpit_size" );
-    mpit_size_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpit_size_CheckBox->sizePolicy().hasHeightForWidth() ) );
-    mpit_size_CheckBox->setChecked( TRUE );
-    mpit_size_CheckBox->setText( tr( "MPIT Message Size Values." ) );
-    rightSideLayout->addWidget( mpit_size_CheckBox );
-    }
-
     if (isInCurrentModifierList("start_time")) {
        mpit_start_time = TRUE;
     } else {
@@ -1416,6 +1402,20 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     mpit_datatype_CheckBox->setChecked( TRUE );
     mpit_datatype_CheckBox->setText( tr( "MPIT Message Data Type Values." ) );
     rightSideVTraceLayout->addWidget( mpit_datatype_CheckBox );
+    }
+
+    if (isInCurrentModifierList("size")) {
+       mpit_size = TRUE;
+    } else {
+       mpit_size = FALSE;
+    }
+
+    { // mpit_size
+    mpit_size_CheckBox = new QCheckBox( VTraceGroupBox, "mpit_size" );
+    mpit_size_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpit_size_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mpit_size_CheckBox->setChecked( TRUE );
+    mpit_size_CheckBox->setText( tr( "MPIT Message Size Values." ) );
+    rightSideVTraceLayout->addWidget( mpit_size_CheckBox );
     }
 
     if (isInCurrentModifierList("retval")) {
@@ -2378,15 +2378,15 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      mpit_percent_CheckBox->setChecked(mpit_percent);
      mpit_stddev = FALSE;
      mpit_stddev_CheckBox->setChecked(mpit_stddev);
-     mpit_size = FALSE;
+     mpit_size = TRUE;
      mpit_size_CheckBox->setChecked(mpit_size);
      mpit_start_time = TRUE;
      mpit_start_time_CheckBox->setChecked(mpit_start_time);
      mpit_stop_time = FALSE;
      mpit_stop_time_CheckBox->setChecked(mpit_stop_time);
-     mpit_source = FALSE;
+     mpit_source = TRUE;
      mpit_source_CheckBox->setChecked(mpit_source);
-     mpit_dest = FALSE;
+     mpit_dest = TRUE;
      mpit_dest_CheckBox->setChecked(mpit_dest);
      mpit_tag = FALSE;
      mpit_tag_CheckBox->setChecked(mpit_tag);
@@ -2394,7 +2394,7 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      mpit_communicator_CheckBox->setChecked(mpit_communicator);
      mpit_datatype = FALSE;
      mpit_datatype_CheckBox->setChecked(mpit_datatype);
-     mpit_retval = FALSE;
+     mpit_retval = TRUE;
      mpit_retval_CheckBox->setChecked(mpit_retval);
    } else if ( globalCollectorString.contains("mpi") ) {
      mpi_exclusive_times = FALSE;

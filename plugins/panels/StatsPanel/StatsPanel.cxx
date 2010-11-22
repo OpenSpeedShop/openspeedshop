@@ -22,6 +22,7 @@
 //
 //#define DEBUG_StatsPanel 1
 //#define DEBUG_StatsPanel_chart 1
+//#define DEBUG_Sorting 1
 //#define DEBUG_INTRO 1
 //#define DEBUG_StatsPanel_source 1
 //#define DEBUG_StatsPanel_toolbar 1
@@ -396,6 +397,9 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   collectorStrFromMenu = QString::null;
   groupID = ao->int_data;
   expID = -1;
+#ifdef DEBUG_Sorting
+  printf("StatsPanel::StatsPanel set descending_sort to true\n");
+#endif
   descending_sort = true;
   TotalTime = 0;
   maxEntryBasedOnTotalTime = 0;
@@ -557,6 +561,9 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   cf->setCaption("SPChartFormIntoSplitterA");
 
   splv = new SPListView(this, splitterB, getName(), 0);
+#ifdef DEBUG_Sorting
+  printf("StatsPanel:: splitterB calling setSorting with FALSE\n");
+#endif
   splv->setSorting ( 0, FALSE );
 
   sml =new QLabel(splitterB,"stats_message_label");
@@ -3563,6 +3570,9 @@ StatsPanel::headerSelected(int index)
 
   if(  headerStr == "|Difference|" )
   {
+#ifdef DEBUG_Sorting
+    printf("StatsPanel::headerSelected set absDiffFLAG to true\n");
+#endif
     absDiffFLAG = TRUE; // Major hack to do sort based on absolute values.
   }
 }
@@ -5127,6 +5137,8 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   // Reinitialize these flags because of the "hiding of the no data message"
   // The no data message caused the splv (stats panel data) and cf (chart form) to be hidden
 #ifdef DEBUG_StatsPanel_chart
+  printf("ENTER StatsPanel::updateStatsPanelData, command.isEmpty()= %d\n", command.isEmpty() );
+  printf("ENTER StatsPanel::updateStatsPanelData, command=%s, toolBarFLAG=%d\n", command.ascii() , toolBarFLAG);
   printf("ENTER StatsPanel::updateStatsPanelData, chartFLAG=%d\n", chartFLAG);
   printf("ENTER StatsPanel::updateStatsPanelData, currentUserSelectedReportStr=%s\n", currentUserSelectedReportStr.ascii() );
 #endif
@@ -5135,6 +5147,8 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   // and Turn back on if the chartFLAG is FALSE but the preference is for the chart to be on
   if ((currentUserSelectedReportStr.startsWith("Butterfly") || 
        currentUserSelectedReportStr.startsWith("CallTrees") || 
+       currentCollectorStr.contains("iot") || 
+       currentCollectorStr.contains("mpit") || 
        currentUserSelectedReportStr.startsWith("TraceBacks") ||
        currentUserSelectedReportStr.startsWith("minMaxAverage") ||
        currentUserSelectedReportStr.startsWith("clusterAnalysis") ||
@@ -5147,6 +5161,8 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
     showChart();
   } else if ((currentUserSelectedReportStr.startsWith("Butterfly") || 
        currentUserSelectedReportStr.startsWith("CallTrees") || 
+       currentCollectorStr.contains("iot") || 
+       currentCollectorStr.contains("mpit") || 
        currentUserSelectedReportStr.startsWith("TraceBacks") ||
        currentUserSelectedReportStr.startsWith("minMaxAverage") ||
        currentUserSelectedReportStr.startsWith("clusterAnalysis") ||
@@ -5400,7 +5416,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   connect( progressTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
   pd->show();
 //progressUpdate();
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_Sorting
   printf("updateStatsPanelData,sort command?, command.ascii()=%s\n", command.ascii());
   fflush(stdout);
   fflush(stderr);
@@ -5410,7 +5426,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   qApp->flushX();
   qApp->processEvents(4000);
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_Sorting
   printf("updateStatsPanelData,sort command?, command.ascii()=%s\n", command.ascii());
 #endif
 
@@ -5421,7 +5437,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
     // Don't sort these report types..  If you get a request to sort then only
     // sort on the last column.
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_Sorting
     printf("updateStatsPanelData,butterfly, calltree, or tracebacks, Don't sort this display.\n");
 #endif
 
@@ -5430,21 +5446,29 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   } else if( command.startsWith("cview -c") && command.contains("-m ") )
   { // CLUSTER.. Don't sort this one...
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_Sorting
     printf("updateStatsPanelData,cview type - Don't sort this display.\n");
 #endif
 
     splv->setSorting ( -1 );
 
-  } else
-  {
-    // Set the resort to be the first column when a new report is requested.
-
-#ifdef DEBUG_StatsPanel
-    printf("updateStatsPanelData,Sort this display on column 0.\n");
+  } else {
+    //
+    // Set the re-sort to be the first column when a new report is requested.
+    //
+    if( command.contains("-v trace")) {
+#ifdef DEBUG_Sorting
+      printf("updateStatsPanelData, do not sort this display on column 0, contains -v trace.\n");
 #endif
+      splv->setSorting ( -1 );
 
-    splv->setSorting ( 0, FALSE );
+    } else {
+
+#ifdef DEBUG_Sorting
+      printf("updateStatsPanelData,Sort this display on column 0.\n");
+#endif
+      splv->setSorting ( 0, FALSE );
+    }
 
   }
 
@@ -5757,6 +5781,9 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
     insertDiffColumn(insertColumn);
     insertDiffColumnFLAG = TRUE;
   
+#ifdef DEBUG_Sorting
+   printf("StatsPanel::updateStatsPanelData command.startsWith(cview -c), canWeDiff() is true, insertColumn=%d\n", insertColumn);
+#endif
     // Force a re-sort in this case...
     splv->setSorting ( insertColumn, FALSE );
     splv->sort();

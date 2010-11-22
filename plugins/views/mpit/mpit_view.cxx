@@ -475,9 +475,13 @@ static bool define_mpit_columns (
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m dest' only supported for '-v Trace' option.");
           }
         } else if (!strcasecmp(M_Name.c_str(), "size")) {
-         // display size of message
-          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, size_temp));
-          HV.push_back("Message Size");
+          if (vfc == VFC_Trace) {
+          // display size of message
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, size_temp));
+            HV.push_back("Message Size");
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m size' only supported for '-v Trace' option.");
+          }
         } else if (!strcasecmp(M_Name.c_str(), "tag")) {
           if (vfc == VFC_Trace) {
            // display tag of the message
@@ -578,6 +582,21 @@ static bool define_mpit_columns (
     }
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back("% of Total");
+
+    if (vfc == VFC_Trace) {
+      // display source rank
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, source_temp));
+      HV.push_back("Source Rank");
+      // display destination rank
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, destination_temp));
+      HV.push_back("Destination Rank");
+      // display size of message
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, size_temp));
+      HV.push_back("Message Size");
+      // display enumerated return value
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
+      HV.push_back("Return Value");
+    }
 
   // display a count of the calls to each function
     if (vfc != VFC_Trace) {
