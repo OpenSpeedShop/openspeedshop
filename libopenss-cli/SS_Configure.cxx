@@ -33,7 +33,7 @@ bool    OPENSS_VIEW_DEFINING_LOCATION = true;
 bool    OPENSS_VIEW_MANGLED_NAME = false;
 bool    OPENSS_VIEW_SUPPRESS_UNUSED_ELEMENTS = true;
 bool    OPENSS_VIEW_THREAD_ID_WITH_MAX_OR_MIN = true;
-bool    OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO = true;
+bool    OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO = false;
 bool    OPENSS_REDIRECT_USE_BLANK_IN_PLACE_OF_ZERO = false;
 bool    OPENSS_SAVE_EXPERIMENT_DATABASE = true;
 bool    OPENSS_ASK_ABOUT_CHANGING_ARGS = true;
@@ -208,7 +208,7 @@ void SS_Configure () {
             "Declare whether or not Blanks are displayed for Zero valued fields "
             "in the columns of output from an 'expView' command. "
             "See 'redirectBlankInPlaceOfZero' when output is redirected to a file. "
-            "The default is true, causing blanks to replace Zero values.");
+            "The default is false, causing zeros values to be displayed in the output.");
   Bvalue = settings->readBoolEntry(std::string("viewBlankInPlaceOfZero"), OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO, &ok);
   if (ok) OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO = Bvalue;
 
