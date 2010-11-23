@@ -248,7 +248,7 @@ void hwcsamp_start_sampling(const char* arguments)
 
     /* set defaults */ 
     int hwcsamp_rate = 100;
-    char* hwcsamp_papi_event = "PAPI_TOT_CYC";
+    char* hwcsamp_papi_event = "PAPI_TOT_CYC,PAPI_FP_OPS";
 
     /* Decode the passed function arguments */
 #if defined (OPENSS_OFFLINE)
@@ -329,7 +329,8 @@ void hwcsamp_start_sampling(const char* arguments)
     }
 #endif
 
-
+/* In Component PAPI, EventSets must be assigned a component index
+ * before you can fiddle with their internals. 0 is always the cpu component */
 #if (PAPI_VERSION_MAJOR(PAPI_VERSION)>=4)
     rval = PAPI_assign_eventset_component( tls->EventSet, 0 );
     if (rval != PAPI_OK) {
@@ -338,16 +339,16 @@ void hwcsamp_start_sampling(const char* arguments)
     }
 #endif
 
+    if (getenv("OPENSS_HWCSAMP_MULTIPLEX") != NULL) {
 #if !defined(TARGET_OS_BGP) 
-    rval = PAPI_set_multiplex( tls->EventSet );
-    if ( rval == PAPI_ENOSUPP) {
-        fprintf(stderr,"OpenSS_Create_Eventset: Multiplex not supported\n");
-    } else if (rval != PAPI_OK)  {
-        OpenSS_PAPIerror(rval,"OpenSS_Create_Eventset set_multiplex");
-        return;
-    }
+	rval = PAPI_set_multiplex( tls->EventSet );
+	if ( rval == PAPI_ENOSUPP) {
+	    fprintf(stderr,"OpenSS_Create_Eventset: Multiplex not supported\n");
+	} else if (rval != PAPI_OK)  {
+	    OpenSS_PAPIerror(rval,"OpenSS_Create_Eventset set_multiplex");
+	}
 #endif
-
+    }
 
     if (hwcsamp_papi_event != NULL) {
 	char *tfptr, *saveptr, *tf_token;
@@ -364,6 +365,7 @@ void hwcsamp_start_sampling(const char* arguments)
 	
     } else {
 	OpenSS_AddEvent(tls->EventSet, get_papi_eventcode("PAPI_TOT_CYC"));
+	OpenSS_AddEvent(tls->EventSet, get_papi_eventcode("PAPI_FP_OPS"));
     }
 
     OpenSS_Start(tls->EventSet);

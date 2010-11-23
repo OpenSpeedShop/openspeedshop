@@ -248,7 +248,7 @@ void offline_finish()
     if (hwcsamp_event_param != NULL) {
         info.event = strdup(hwcsamp_event_param);
     } else {
-        info.event = strdup("PAPI_TOT_CYC");
+        info.event = strdup("PAPI_TOT_CYC,PAPI_FP_OPS");
     }
 
     /* Send the offline "info" blob */

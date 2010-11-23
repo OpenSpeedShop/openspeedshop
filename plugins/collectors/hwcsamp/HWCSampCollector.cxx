@@ -109,7 +109,7 @@ Blob HWCSampCollector::getDefaultParameterValues() const
 
     // Set the default parameters
     parameters.sampling_rate = 100;
-    strncpy(parameters.hwcsamp_event,"PAPI_TOT_CYC",strlen("PAPI_TOT_CYC"));
+    strncpy(parameters.hwcsamp_event,"PAPI_TOT_CYC,PAPI_FP_OPS",strlen("PAPI_TOT_CYC,PAPI_FP_OPS"));
 
     // Return the encoded blob to the caller
     return Blob(reinterpret_cast<xdrproc_t>(xdr_hwcsamp_parameters),

@@ -48,7 +48,7 @@ hwc_default_event="PAPI_TOT_CYC"
 hwc_default_threshold=10000
 
 # Corresponds to OPENSS_HWCSAMP_EVENTS
-hwcsamp_default_events="PAPI_TOT_CYC"
+hwcsamp_default_events="PAPI_TOT_CYC,PAPI_FP_OPS"
 
 # Corresponds to OPENSS_HWCSAMP_RATE
 hwcsamp_default_rate=100
