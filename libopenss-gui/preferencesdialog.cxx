@@ -77,6 +77,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    onRerunSaveCopyOfExperimentDatabase = TRUE; 
    instrumentorIsOffline = TRUE; 
    lessRestrictiveComparisons = TRUE;
+   viewBlankInPlaceOfZero = FALSE;
 
 
    globalRemoteShell = "/usr/bin/rsh";
@@ -429,7 +430,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     { // COMPARISON OUTPUT NULL ENTRIES OPTIONAL BLANKS VS ZERO ENTRY OPTION
     viewBlankInPlaceOfZeroCheckBox = new QCheckBox( vpage0big_box, "viewBlankInPlaceOfZeroCheckBox" );
     viewBlankInPlaceOfZeroCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, viewBlankInPlaceOfZeroCheckBox->sizePolicy().hasHeightForWidth() ) );
-    viewBlankInPlaceOfZeroCheckBox->setChecked( TRUE );
+    viewBlankInPlaceOfZeroCheckBox->setChecked( FALSE );
     viewBlankInPlaceOfZeroCheckBox->setText( tr( "Use Blanks In Comparison Output" ) );
     rightSideLayout->addWidget( viewBlankInPlaceOfZeroCheckBox );
     }
