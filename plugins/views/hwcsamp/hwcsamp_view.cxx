@@ -202,7 +202,7 @@ static bool define_hwcsamp_columns (
               IV.push_back(new ViewInstruction (VIEWINST_Display_Flops_Tmp, last_column++, event_temps+icnt, extime_temp));
               HV.push_back("Megaflops");
             } else {
-              std::string s("The metric (PAPI_FP_OPS) required to generate the flops metric are not available in the experiment.");
+              std::string s("The metric (PAPI_FP_OPS) required to generate the flops metric is not available in the experiment.");
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
