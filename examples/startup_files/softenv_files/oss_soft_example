@@ -4,18 +4,18 @@
 # Use the basic environment.
 @default
 
-OSS = /home/jeg/oss
+OSS = /home/jgalaro/oss
 TARCH = bgp
 
 # Set up my environment variables
 
 # Find the executable portions of OpenSpeedShop
-PATH += $OSS/bin
 PATH += $OSS/$TARCH/bin
+PATH += $OSS/bin
 
 # Find the libraries for OpenSpeedShop
-LD_LIBRARY_PATH += $OSS/lib
 LD_LIBRARY_PATH += $OSS/$TARCH/lib
+LD_LIBRARY_PATH += $OSS/lib
 
 # Find the runtime collectors
 OPENSS_PLUGIN_PATH = $OSS/$TARCH/lib/openspeedshop:$OSS/lib/openspeedshop
