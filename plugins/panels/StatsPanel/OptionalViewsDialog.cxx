@@ -27,9 +27,6 @@
 
 #include "PreferencesChangedObject.hxx"
 
-
-#include "preferencesdialog.hxx"
-
 #include <qvariant.h>
 #include <qpushbutton.h>
 #include <qsplitter.h>
