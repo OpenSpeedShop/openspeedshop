@@ -1,0 +1,30 @@
+# The OpenSpeedShop .soft file.
+# Remember to type "resoft" after working on this file.
+
+# Use the basic environment.
+@default
+
+OSS = /home/jeg/oss
+TARCH = bgp
+
+# Set up my environment variables
+
+# Find the executable portions of OpenSpeedShop
+PATH += $OSS/bin
+PATH += $OSS/$TARCH/bin
+
+# Find the libraries for OpenSpeedShop
+LD_LIBRARY_PATH += $OSS/lib
+LD_LIBRARY_PATH += $OSS/$TARCH/lib
+
+# Find the runtime collectors
+OPENSS_PLUGIN_PATH = $OSS/$TARCH/lib/openspeedshop:$OSS/lib/openspeedshop
+
+# Tell the tool what the application MPI implementation is
+# Needed if supporting multiple implementations and running the "mpi", "mpit", or "mpiotf" experiments
+OPENSS_MPI_IMPLEMENTATION = mpich2
+
+# Paths to documentation and man pages
+OPENSS_DOC_DIR = $OSS/share/doc/packages/OpenSpeedShop
+MANPATH = $OSS/share/man
+
