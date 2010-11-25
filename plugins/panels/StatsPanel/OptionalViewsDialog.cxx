@@ -47,7 +47,7 @@
 #include <qvalidator.h>
 #include <fstream>
 #include <iostream>
-#include "preferencesdialog.ui.hxx"
+//#include "preferencesdialog.ui.hxx"
 #include "OptionalViewsDialog.hxx"
 #include "StatsPanel.hxx"
 
