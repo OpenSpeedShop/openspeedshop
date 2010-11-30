@@ -156,6 +156,8 @@ AC_SUBST(topdir_execprefix)
 
 abi_libdir_name=${abi_libdir}
 AC_SUBST(abi_libdir_name)
+alt_abi_libdir_name=${alt_abi_libdir}
+AC_SUBST(alt_abi_libdir_name)
 
 ################################################################################
 # Check for POSIX Threads (ISO/IEC 9945-1:1996)

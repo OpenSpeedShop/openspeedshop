@@ -1,21 +1,10 @@
 #! /bin/bash
 # Some of this code is inspired by the libmonitor package (monitor-run).
 
-mach_type=`uname -m`
-if test "$mach_type" == "x86_64" ; then
-    machlibdir=lib64
-    altmachlibdir=lib
-elif [ "$mach_type" == "ppc" ]; then
-    machlibdir=lib
-    altmachlibdir=lib64
-elif [ "$mach_type" == "ppc64" ]; then
-    machlibdir=lib
-    altmachlibdir=lib64
-else
-    machlibdir=lib
-    altmachlibdir=lib64
-fi
-
+# The machine dependent abi libdir name has been computed 
+# so use the information from one central location. 
+machlibdir=@@machine_dependent_libdir@@
+alt_machlibdir=@@alt_machine_dependent_libdir@@
 
 monitor_prefix=@@libmonitordir@@
 monitor_exec_prefix="${monitor_prefix}"

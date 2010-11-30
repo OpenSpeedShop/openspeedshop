@@ -137,6 +137,8 @@ if !BUILD_RUNTIME
 ossrun: ossrun.in
 	@rm -f ossrun
 	@sed \
+		-e 's,@@machine_dependent_libdir@@,$(abi_libdir_name),' \
+		-e 's,@@alt_machine_dependent_libdir@@,$(alt_abi_libdir_name),' \
 		-e 's,@@ossinstalldir@@,$(prefix),' \
 		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
 		-e 's,@@lamdir@@,$(LAM_DIR),' \
