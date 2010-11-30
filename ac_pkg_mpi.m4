@@ -566,7 +566,7 @@ AC_DEFUN([AC_PKG_MPICH2], [
 #
 # Check now for Intel MPI version of installation for their MPICH2 based MPI Implementation
 #
-    if test $found_mpich2 -eq 0 && test $abi_libdir == "lib64" ; then
+    if test $found_mpich2 -eq 0 && test "$abi_libdir" == "lib64" ; then
 
        AC_MSG_CHECKING([for Intel MPICH2 64 bit library and headers using mpigcc])
 
@@ -600,7 +600,7 @@ AC_DEFUN([AC_PKG_MPICH2], [
 #
 # Check now for Intel MPI version of installation for their MPICH2 based MPI Implementation
 #
-    if test $found_mpich2 -eq 0 && test $abi_libdir == "lib" ; then
+    if test $found_mpich2 -eq 0 && test "$abi_libdir" == "lib" ; then
 
        AC_MSG_CHECKING([for Intel 32 bit MPICH2 library and headers using mpigcc])
 
@@ -632,7 +632,7 @@ AC_DEFUN([AC_PKG_MPICH2], [
 #
 # Check now for Intel MPI version of installation for their MPICH2 based MPI Implementation
 #
-    if test $found_mpich2 -eq 0 && test $abi_libdir == "lib64" ; then
+    if test $found_mpich2 -eq 0 && test "$abi_libdir" == "lib64" ; then
 
        AC_MSG_CHECKING([for Intel MPICH2 64 bit library and headers using mpicc])
 
@@ -666,7 +666,7 @@ AC_DEFUN([AC_PKG_MPICH2], [
 #
 # Check now for Intel MPI version of installation for their MPICH2 based MPI Implementation
 #
-    if test $found_mpich2 -eq 0 && test $abi_libdir == "lib" ; then
+    if test $found_mpich2 -eq 0 && test "$abi_libdir" == "lib" ; then
 
        AC_MSG_CHECKING([for Intel 32 bit MPICH2 library and headers using mpicc])
 
