@@ -28,7 +28,7 @@ libopenss_framework_mrnet_la_CXXFLAGS = \
 
 libopenss_framework_mrnet_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework/mrnet/common \
-	@BINUTILS_LDFLAGS@ \
+	@BINUTILS_IBERTY_LDFLAGS@ \
 	@MRNET_LDFLAGS@
 
 libopenss_framework_mrnet_la_LIBADD = \

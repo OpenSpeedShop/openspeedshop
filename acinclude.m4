@@ -110,12 +110,23 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 # Chose the pic version over the normal version - binutils-2.20 divides the main library into pic and non-pic
     if test -f $binutils_dir/$abi_libdir/libiberty_pic.a; then
        BINUTILS_IBERTY_LIB="-liberty_pic"
+       BINUTILS_IBERTY_LDFLAGS="-L$binutils_dir/$abi_libdir"
        binutils_iberty_lib="-liberty_pic"
     elif test -f $binutils_dir/$abi_libdir/libiberty.a; then
        BINUTILS_IBERTY_LIB="-liberty"
+       BINUTILS_IBERTY_LDFLAGS="-L$binutils_dir/$abi_libdir"
+       binutils_iberty_lib="-liberty"
+    elif test -f $binutils_dir/$alt_abi_libdir/libiberty_pic.a; then
+       BINUTILS_IBERTY_LIB="-liberty_pic"
+       BINUTILS_IBERTY_LDFLAGS="-L$binutils_dir/$alt_abi_libdir"
+       binutils_iberty_lib="-liberty_pic"
+    elif test -f $binutils_dir/$alt_abi_libdir/libiberty.a; then
+       BINUTILS_IBERTY_LIB="-liberty"
+       BINUTILS_IBERTY_LDFLAGS="-L$binutils_dir/$alt_abi_libdir"
        binutils_iberty_lib="-liberty"
     else
        BINUTILS_IBERTY_LIB=
+       BINUTILS_IBERTY_LDFLAGS=
        binutils_iberty_lib=
     fi
 
@@ -170,6 +181,7 @@ AC_DEFUN([AC_PKG_BINUTILS], [
             BINUTILS_LIBS=""
             BINUTILS_DIR=""
             BINUTILS_IBERTY_LIB=""
+            BINUTILS_IBERTY_LDFLAGS=""
 
         ]
     )
@@ -183,6 +195,7 @@ AC_DEFUN([AC_PKG_BINUTILS], [
     AC_SUBST(BINUTILS_LIBS)
     AC_SUBST(BINUTILS_DIR)
     AC_SUBST(BINUTILS_IBERTY_LIB)
+    AC_SUBST(BINUTILS_IBERTY_LDFLAGS)
 
 ])
 

@@ -32,7 +32,7 @@ openssd_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework/mrnet/common \
 	-L$(top_srcdir)/libopenss-framework/mrnet/openssd/watcher \
 	@DYNINST_LDFLAGS@ \
-	@BINUTILS_LDFLAGS@ \
+	@BINUTILS_IBERTY_LDFLAGS@ \
 	@LIBDWARF_LDFLAGS@ \
 	@MRNET_LDFLAGS@
 
