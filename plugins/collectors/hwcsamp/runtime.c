@@ -309,7 +309,10 @@ void hwcsamp_start_sampling(const char* arguments)
     if(hwc_papi_init_done == 0) {
 	hwc_init_papi();
 	tls->EventSet = PAPI_NULL;
+	tls->data.clock_mhz = (float) hw_info->mhz;
 	hwc_papi_init_done = 1;
+    } else {
+	tls->data.clock_mhz = (float) hw_info->mhz;
     }
 
     memset(evalues,0,sizeof(evalues));

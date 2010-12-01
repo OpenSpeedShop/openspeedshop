@@ -42,6 +42,7 @@ struct hwcsamp_data {
     uint64_t pc<>;        /**< Program counter (PC) addresses. */
     uint8_t count<>;      /**< Sample counts at those addresses. */    
     hwcsamp_event events<>;
+    float  clock_mhz;
 };
 
 
