@@ -98,6 +98,8 @@ AC_ARG_WITH(ppc64_bitmode,
 			   [Specify ppc64 library bit mode @<:@32@:>@]),
 	    ppc64_bitmode=$withval, ppc64_bitmode="32")
 
+AC_MSG_CHECKING([Configuring for host = $host  with ppc64_bitmode = $ppc64_bitmode])
+
 case "$host" in
     powerpc-*-linux*) 
         AC_MSG_CHECKING([Configuring for powerpc-star-linux])
@@ -109,7 +111,7 @@ case "$host" in
         fi
         LDFLAGS="-L/usr/lib -DLIB_DIR=lib $LDFLAGS"
         ;;
-    powerpc64-*-linux*) 
+    powerpc64-*-*) 
 
 	AC_MSG_CHECKING([Configuring for powerpc64-star-linux with ppc64_bitmode = $ppc64_bitmode])
 	if test "$ppc64_bitmode" = "64" ; then
