@@ -460,13 +460,15 @@ AC_DEFUN([AC_PKG_MPICH2], [
     # tests, where $MPICH2_CC is used, and is not needed when building
     # the MPI-related plugins, where $MPICH2_CC is not used.
     MPICH2_CC="$mpich2_dir/bin/mpicc"
-#    MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
-    MPICH2_CPPFLAGS="-I$mpich2_dir/include"
     MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
-#    MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir -L$mpich2_dir/$abi_libdir/libmpich.a"
     MPICH2_LIBS="-lmpich"
-#    MPICH2_LIBS=""
-    MPICH2_HEADER="$mpich2_dir/include/mpi.h"
+    if (test -d $mpich2_dir/include64 && test -f $mpich2_dir/include64/mpi.h) ; then
+         MPICH2_HEADER="$mpich2_dir/include64/mpi.h"
+         MPICH2_CPPFLAGS="-I$mpich2_dir/include64"
+    else
+         MPICH2_HEADER="$mpich2_dir/include/mpi.h"
+         MPICH2_CPPFLAGS="-I$mpich2_dir/include"
+    fi
     MPICH2_DIR="$mpich2_dir"
 
     # On the systems "mcr" and "thunder" at LLNL they have an MPICH variant
@@ -552,11 +554,13 @@ AC_DEFUN([AC_PKG_MPICH2], [
          if (test -f $mpich2_dir/$alt_abi_libdir/libmpich.so) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir"
 	    found_mpich2=1
+            AC_MSG_CHECKING([found MPICH2 library alt locations found alt_abi_libdir and headers])
          fi
 
          if (test -f $mpich2_dir/$alt_abi_libdir/shared/libmpich.so) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir/shared -L$mpich2_dir/$alt_abi_libdir"
 	    found_mpich2=1
+            AC_MSG_CHECKING([found MPICH2 library alt locations found shared/alt_abi_libdir and headers])
          fi 
 
 	, )
@@ -590,6 +594,7 @@ AC_DEFUN([AC_PKG_MPICH2], [
          if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
 	    found_mpich2=1
+            AC_MSG_CHECKING([found Intel MPICH2 64 bit library and headers using mpigcc])
          fi
 
 	, )
@@ -624,6 +629,7 @@ AC_DEFUN([AC_PKG_MPICH2], [
          if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
 	    found_mpich2=1
+            AC_MSG_CHECKING([found Intel 32 bit MPICH2 library and headers using mpigcc])
          fi
 
 	, )
@@ -637,10 +643,15 @@ AC_DEFUN([AC_PKG_MPICH2], [
        AC_MSG_CHECKING([for Intel MPICH2 64 bit library and headers using mpicc])
 
        MPICH2_CC="$mpich2_dir/bin64/mpicc"
-       MPICH2_CPPFLAGS="-I$mpich2_dir/include"
        MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
        MPICH2_LIBS="-lmpich"
-       MPICH2_HEADER="$mpich2_dir/include/mpi.h"
+       if (test -d $mpich2_dir/include64 && test -f $mpich2_dir/include64/mpi.h) ; then
+         MPICH2_HEADER="$mpich2_dir/include64/mpi.h"
+         MPICH2_CPPFLAGS="-I$mpich2_dir/include64"
+       else
+         MPICH2_HEADER="$mpich2_dir/include/mpi.h"
+         MPICH2_CPPFLAGS="-I$mpich2_dir/include"
+       fi
        MPICH2_DIR="$mpich2_dir"
 
        CC="$MPICH2_CC"
@@ -656,6 +667,7 @@ AC_DEFUN([AC_PKG_MPICH2], [
          if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
 	    found_mpich2=1
+            AC_MSG_CHECKING([found Intel MPICH2 64 bit library and headers using mpicc])
          fi
 
 	, )
@@ -690,6 +702,7 @@ AC_DEFUN([AC_PKG_MPICH2], [
          if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
 	    found_mpich2=1
+            AC_MSG_CHECKING([found Intel 32 bit MPICH2 library and headers using mpicc])
          fi
 
 	, )
