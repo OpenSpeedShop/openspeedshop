@@ -462,7 +462,7 @@ AC_DEFUN([AC_PKG_MPICH2], [
     MPICH2_CC="$mpich2_dir/bin/mpicc"
     MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
     MPICH2_LIBS="-lmpich"
-    if (test -d $mpich2_dir/include64 && test -f $mpich2_dir/include64/mpi.h) ; then
+    if (test "$abi_libdir" == "lib64" && test -d $mpich2_dir/include64 && test -f $mpich2_dir/include64/mpi.h) ; then
          MPICH2_HEADER="$mpich2_dir/include64/mpi.h"
          MPICH2_CPPFLAGS="-I$mpich2_dir/include64"
     else
@@ -645,7 +645,7 @@ AC_DEFUN([AC_PKG_MPICH2], [
        MPICH2_CC="$mpich2_dir/bin64/mpicc"
        MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
        MPICH2_LIBS="-lmpich"
-       if (test -d $mpich2_dir/include64 && test -f $mpich2_dir/include64/mpi.h) ; then
+       if (test "$abi_libdir" == "lib64" && test -d $mpich2_dir/include64 && test -f $mpich2_dir/include64/mpi.h) ; then
          MPICH2_HEADER="$mpich2_dir/include64/mpi.h"
          MPICH2_CPPFLAGS="-I$mpich2_dir/include64"
        else
