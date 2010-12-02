@@ -137,6 +137,8 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
 	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers $binutils_iberty_lib"
+	    BINUTILS_OPCODES_LIB="-lopcodes$binutils_vers"
+	    BINUTILS_BFD_LIB="-lbfd$binutils_vers"
             ;;
 	x86_64-*-linux*)
 	    binutils_required="true"
@@ -144,6 +146,8 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
 	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers $binutils_iberty_lib"
+	    BINUTILS_OPCODES_LIB="-lopcodes$binutils_vers"
+	    BINUTILS_BFD_LIB="-lbfd$binutils_vers"
             ;;
 	*)
 	    binutils_required="true"
@@ -151,6 +155,8 @@ AC_DEFUN([AC_PKG_BINUTILS], [
 	    BINUTILS_CPPFLAGS="-I$binutils_dir/include"
 	    BINUTILS_LDFLAGS="-L$binutils_dir/$abi_libdir"
 	    BINUTILS_LIBS="-lopcodes$binutils_vers -lbfd$binutils_vers $binutils_iberty_lib"
+	    BINUTILS_OPCODES_LIB="-lopcodes$binutils_vers"
+	    BINUTILS_BFD_LIB="-lbfd$binutils_vers"
             ;;
     esac
 
@@ -179,6 +185,8 @@ AC_DEFUN([AC_PKG_BINUTILS], [
             BINUTILS_CPPFLAGS=""
             BINUTILS_LDFLAGS=""
             BINUTILS_LIBS=""
+	    BINUTILS_OPCODES_LIB=""
+	    BINUTILS_BFD_LIB=""
             BINUTILS_DIR=""
             BINUTILS_IBERTY_LIB=""
             BINUTILS_IBERTY_LDFLAGS=""
@@ -193,6 +201,8 @@ AC_DEFUN([AC_PKG_BINUTILS], [
     AC_SUBST(BINUTILS_CPPFLAGS)
     AC_SUBST(BINUTILS_LDFLAGS)
     AC_SUBST(BINUTILS_LIBS)
+    AC_SUBST(BINUTILS_OPCODES_LIB)
+    AC_SUBST(BINUTILS_BFD_LIB)
     AC_SUBST(BINUTILS_DIR)
     AC_SUBST(BINUTILS_IBERTY_LIB)
     AC_SUBST(BINUTILS_IBERTY_LDFLAGS)

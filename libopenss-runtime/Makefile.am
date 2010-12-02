@@ -170,7 +170,7 @@ libopenss_runtime_binutils_la_LDFLAGS = \
 	@BINUTILS_LDFLAGS@
 
 libopenss_runtime_binutils_la_LIBADD = \
-	@BINUTILS_LIBS@
+	@BINUTILS_OPCODES_LIB@
 endif
 
 if HAVE_TARGET_BINUTILS

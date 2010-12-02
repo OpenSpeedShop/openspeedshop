@@ -36,7 +36,7 @@ libopenss_framework_binutils_la_LDFLAGS = \
 	-export-dynamic -version-info 1:0:0
 libopenss_framework_binutils_la_LIBADD = \
 	$(LIBLTDL) \
-	@BINUTILS_LIBS@ \
+	@BINUTILS_BFD_LIB@ \
 	-lpthread -lrt
 
 libopenss_framework_la_CXXFLAGS = \

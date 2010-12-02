@@ -87,7 +87,7 @@ ossutil_LDFLAGS = \
         -L$(top_srcdir)/libopenss-runtime
 
 ossutil_LDADD = \
-        @BINUTILS_LIBS@ \
+        @BINUTILS_BFD_LIB@ \
         $(LIBLTDL) \
 	-lopenss-framework \
 	-lopenss-framework-binutils \
