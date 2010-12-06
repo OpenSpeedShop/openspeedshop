@@ -161,6 +161,12 @@ AC_SUBST(abi_libdir_name)
 alt_abi_libdir_name=${alt_abi_libdir}
 AC_SUBST(alt_abi_libdir_name)
 
+oss_platform=`uname -i`
+oss_hardware_platform=$oss_platform
+AC_MSG_CHECKING([Checking for oss_hardware_platform=$oss_hardware_platform])
+AC_SUBST(oss_hardware_platform)
+
+
 ################################################################################
 # Check for POSIX Threads (ISO/IEC 9945-1:1996)
 ################################################################################

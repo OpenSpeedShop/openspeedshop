@@ -881,18 +881,27 @@ AC_DEFUN([AC_PKG_OPENMPI], [
 
     AC_ARG_WITH(openmpi,
 		AC_HELP_STRING([--with-openmpi=DIR],
-			       [OpenMPI installation @<:@/usr/local@:>@]),
-		openmpi_dir=$withval, openmpi_dir="/usr/local")
+			       [OpenMPI installation @<:@/usr/$abi_libdir/openmpi@:>@]),
+		openmpi_dir=$withval, openmpi_dir="/usr/$abi_libdir/openmpi")
 
     AC_MSG_CHECKING([for OpenMPI library and headers])
 
     found_openmpi=0
 
     OPENMPI_CC="$openmpi_dir/bin/mpicc"
-    OPENMPI_CPPFLAGS="-I$openmpi_dir/include"
-    OPENMPI_LDFLAGS="-L$openmpi_dir/$abi_libdir"
+    if (test -e $openmpi_dir/include/mpi.h) ; then
+      OPENMPI_CPPFLAGS="-I$openmpi_dir/include"
+      OPENMPI_HEADER="$openmpi_dir/include/mpi.h"
+    elif (test -e /usr/include/openmpi-$oss_hardware_platform/mpi.h) ; then
+      OPENMPI_CPPFLAGS="-I/usr/include/openmpi-$oss_hardware_platform"
+      OPENMPI_HEADER="-I/usr/include/openmpi-$oss_hardware_platform/mpi.h"
+    fi
+    if (test -e $openmpi_dir/$abi_libdir/libmpi.so) ; then
+      OPENMPI_LDFLAGS="-L$openmpi_dir/$abi_libdir"
+    elif (test -e $openmpi_dir/$alt_abi_libdir/libmpi.so) ; then
+      OPENMPI_LDFLAGS="-L$openmpi_dir/$alt_abi_libdir"
+    fi
     OPENMPI_LIBS="-lmpi"
-    OPENMPI_HEADER="$openmpi_dir/include/mpi.h"
     OPENMPI_DIR="$openmpi_dir"
 
     openmpi_saved_CC=$CC
@@ -910,9 +919,11 @@ AC_DEFUN([AC_PKG_OPENMPI], [
 	]]),
 
 	if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
+	   (objdump -T $openmpi_dir/$alt_abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
            (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
            (objdump -T /usr/$abi_libdir/openmpi/libmpi_f90.a | grep "ompi_mpi" >/dev/null) ||
-           (objdump -T $openmpi_dir/$abi_libdir/libmpi.a | grep "^ompi_mpi" >/dev/null) ; then
+           (objdump -T $openmpi_dir/$abi_libdir/libmpi.a | grep "^ompi_mpi" >/dev/null) ||
+           (objdump -T $openmpi_dir/$alt_abi_libdir/libmpi.a | grep "^ompi_mpi" >/dev/null) ; then
 	    found_openmpi=1
 	fi
 
