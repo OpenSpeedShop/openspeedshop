@@ -1541,7 +1541,7 @@ if( start_index != -1 ) {
 // Currently you're not passing the file descriptor down... you need to.sao->f, sao->ts);
 
     f = sao->f;
-    exportData();
+    exportData(EXPORT_TEXT);
   }
 
 #ifdef DEBUG_StatsPanel
@@ -1775,11 +1775,17 @@ StatsPanel::menu( QPopupMenu* contextMenu)
   }
 #endif // COLUMNS_MENU
 
-  qaction = new QAction( this,  "exportDataAction");
+  qaction = new QAction( this,  "exportDataCSVAction");
   qaction->addTo( contextMenu );
-  qaction->setText( "Export Report Data..." );
-  connect( qaction, SIGNAL( activated() ), this, SLOT( exportData() ) );
-  qaction->setStatusTip( tr("Save the report's data to an ascii file.") );
+  qaction->setText( "Export Report Data (csv)..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( exportCSVData() ) );
+  qaction->setStatusTip( tr("Save the report's data as a comma separated list to a csv file.") );
+
+  qaction = new QAction( this,  "exportDataTextAction");
+  qaction->addTo( contextMenu );
+  qaction->setText( "Export Report Data (text)..." );
+  connect( qaction, SIGNAL( activated() ), this, SLOT( exportTextData() ) );
+  qaction->setStatusTip( tr("Save the report's data as a space separated list to an ascii text file.") );
 
 #ifdef DEBUG_StatsPanel_menu
   printf("menu, splv->selectedItem()=%d\n", splv->selectedItem());
@@ -2584,16 +2590,32 @@ StatsPanel::details()
   printf("details() menu selected.\n");
 #endif
 }
+void
+StatsPanel::exportCSVData()
+{
+      exportData(EXPORT_CSV);
+}
+ 
+void
+StatsPanel::exportTextData()
+{
+      exportData(EXPORT_TEXT);
+}
 
 void
-StatsPanel::exportData()
+StatsPanel::exportData(EXPORT_TYPE_ENUM exportTypeParam)
 {
 // printf("exportData() menu selected.\n");
   Orientation o = splitterB->orientation();
   QListViewItemIterator it( splv );
   int cols =  splv->columns();
   int i=0;
-  QString fileName = "StatsPanel.txt";
+  QString fileName;
+  if (exportTypeParam == EXPORT_TEXT ) {
+    fileName = "StatsPanel.txt";
+  } else {
+    fileName = "StatsPanel.csv";
+  }
   QString dirName = QString::null;
 
   if( f == NULL)
@@ -2604,35 +2626,37 @@ StatsPanel::exportData()
     fd->setSelection(fileName);
     QString types( 
                       "Data files (*.dat);;"
+                      "CSV files (*.csv);;"
                       "Text files (*.txt);;"
                       "Any File (*.*);;"
                       );
     fd->setFilters( types );
     // Pick the initial default types to put out.
-    const QString mask = QString("*.txt");
+    QString mask;
+    if (exportTypeParam == EXPORT_TEXT ) {
+      mask = QString("*.txt");
+    } else {
+      mask = QString("*.csv");
+    }
     fd->setSelectedFilter( mask );
     fd->setDir(dirName);
   
-    if( fd->exec() == QDialog::Accepted )
-    {
+    if( fd->exec() == QDialog::Accepted ) {
       fileName = fd->selectedFile();
     }
     
-    if( !fileName.isEmpty() )
-    {
+    if( !fileName.isEmpty() ) {
         f = new QFile(fileName);
         f->open(IO_WriteOnly );
     }
   }
 
   bool datFLAG = FALSE;
-  if( fileName.endsWith(".dat") )
-  {
+  if( fileName.endsWith(".dat") ) {
     datFLAG = TRUE;
   }
 
-  if( f != NULL )
-  {
+  if( f != NULL ) {
     // Write out the header info
     QString line = QString("  ");
     for(i=0;i<cols;i++)
@@ -2641,16 +2665,72 @@ StatsPanel::exportData()
       {
         if( datFLAG == TRUE )
         {
-          if( i < cols-1 )
-          {
+          if( i < cols-1 ) {
             line += QString(splv->columnText(i))+"; ";
-          } else
-          {
-            line += QString(splv->columnText(i))+" ";
+#if 0
+            printf("header, i < cols-1, line=%s\n", line.ascii());
+            printf("header, i < cols-1, QString(splv->columnText(i)).ascii()=%s\n", QString(splv->columnText(i)).ascii());
+#endif
+          } else {
+            line += QString(splv->columnText(i));
+            if (exportTypeParam == EXPORT_TEXT ) {
+               line += " ";
+            } else {
+               line += ",";
+            }
+#if 0
+            printf("header, else of i < cols-1, line=%s\n", line.ascii());
+            printf("header, else of i < cols-1, QString(splv->columnText(i)).ascii()=%s\n", QString(splv->columnText(i)).ascii());
+#endif
           }
-        } else
-        {
-          line += QString(splv->columnText(i))+" ";
+        } else {
+          QString my_column_text = QString(splv->columnText(i));
+
+          if (exportTypeParam == EXPORT_CSV ) {
+            if(!QString(splv->columnText(i)).isEmpty() ) {
+#if 0
+              printf("TOP of SEARCH,else of dataFLAG, QString(splv->columnText(i)).ascii()=%s\n", QString(splv->columnText(i)).ascii());
+#endif
+              int comma_search_start_index = 0;
+              int comma_dx = -1;
+#if 0
+              printf("else of dataFLAG, comma_dx=%d, comma_search_start_index=%d\n", comma_dx, comma_search_start_index);
+#endif
+              while (comma_search_start_index != -1) {
+                comma_dx = QString(splv->columnText(i)).find(",", comma_search_start_index);
+#if 0
+                printf("else of dataFLAG, comma_dx=%d\n", comma_dx);
+#endif
+                
+                if (comma_dx != -1) {
+                  my_column_text = QString(splv->columnText(i)).replace( comma_dx, 1, ":");
+#if 0
+                  printf("REPLACED COMMA, else of dataFLAG, my_column_columnText.ascii()=%s\n", my_column_text.ascii());
+#endif
+                  // End the search, should only be 1 comma
+                  comma_search_start_index = -1;
+                  break;
+                }
+                comma_search_start_index = comma_dx;
+              }
+             }
+            line += my_column_text+",";
+          } else {
+            line += my_column_text+" ";
+          }
+
+#if 0
+          line += QString(splv->columnText(i));
+          if (exportTypeParam == EXPORT_TEXT ) {
+             line += " ";
+          } else {
+             line += ",";
+          }
+#endif
+#if 0
+          printf("header, else of dataFLAG, line=%s\n", line.ascii());
+          printf("header, else of dataFLAG, QString(splv->columnText(i)).ascii()=%s\n", QString(splv->columnText(i)).ascii());
+#endif
         }
       }
       line += QString("\n");
@@ -2666,16 +2746,67 @@ StatsPanel::exportData()
       {
         if( datFLAG == TRUE )
         {
-          if( i < cols-1 )
-          {
+          if( i < cols-1 ) {
             line += QString(item->text(i))+"; ";
-          } else
-          {
-            line += QString(item->text(i))+" ";
+#if 0
+            printf("i < cols-1, line=%s\n", line.ascii());
+            printf("i < cols-1, QString(item->text(i)).ascii()=%s\n", QString(item->text(i)).ascii());
+#endif
+
+          } else {
+            line += QString(item->text(i));
+            if (exportTypeParam == EXPORT_TEXT ) {
+               line += " ";
+            } else {
+               line += ",";
+            }
+#if 0
+            printf("else of i < cols-1, line=%s\n", line.ascii());
+            printf("else of i < cols-1, QString(item->text(i)).ascii()=%s\n", QString(item->text(i)).ascii());
+#endif
           }
-        } else
-        {
-          line += QString(item->text(i))+" ";
+        } else {
+          QString my_column_text = QString(item->text(i));
+
+          if (exportTypeParam == EXPORT_CSV ) {
+            if(!QString(item->text(i)).isEmpty() ) {
+#if 0
+              printf("TOP of SEARCH,else of dataFLAG, QString(item->text(i)).ascii()=%s\n", QString(item->text(i)).ascii());
+#endif
+              int comma_search_start_index = 0;
+              int comma_dx = -1;
+#if 0
+              printf("else of dataFLAG, comma_dx=%d, comma_search_start_index=%d\n", comma_dx, comma_search_start_index);
+#endif
+              while (comma_search_start_index != -1) {
+                comma_dx = QString(item->text(i)).find(",", comma_search_start_index);
+#if 0
+                printf("else of dataFLAG, comma_dx=%d\n", comma_dx);
+#endif
+                
+                if (comma_dx != -1) {
+                  my_column_text = QString(item->text(i)).replace( comma_dx, 1, ":");
+#if 0
+                  printf("REPLACED COMMA, else of dataFLAG, my_column_text.ascii()=%s\n", my_column_text.ascii());
+#endif
+                  // End the search, should only be 1 comma
+                  comma_search_start_index = -1;
+                  break;
+                }
+                comma_search_start_index = comma_dx;
+              }
+             }
+            line += my_column_text+",";
+          } else {
+            line += my_column_text+" ";
+          }
+#if 0
+//          line += QString(item->text(i))+",";
+          printf("else of dataFLAG, line=%s\n", line.ascii());
+          printf("else of dataFLAG, QString(item->text(i)).ascii()=%s\n", QString(item->text(i)).ascii());
+          printf("END of SEARCH,else of dataFLAG, QString(item->text(i)).ascii()=%s\n", QString(item->text(i)).ascii());
+          printf("END of SEARCH,else of dataFLAG, my_column_text.ascii()=%s\n", my_column_text.ascii());
+#endif
         }
       }
       line += QString("\n");

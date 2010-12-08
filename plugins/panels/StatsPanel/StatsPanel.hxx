@@ -93,6 +93,7 @@ typedef QValueList <QListView *> CompareList;
 #include <qtimer.h>
 
 enum CURRENTTHREADSTR_ENUM { UNKNOWN, RANK,  THREAD, PID };
+enum EXPORT_TYPE_ENUM { EXPORT_TEXT, EXPORT_CSV };
 
 
 class CInfoClass
@@ -332,6 +333,7 @@ class StatsPanel  : public Panel
     void updateCollectorMetricList();
     void outputAboutData(QString *data);
     void outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineNumber);
+    void exportData( EXPORT_TYPE_ENUM exportTypeParam = EXPORT_CSV );
     QString getPartialExperimentInfo();
     bool MPItraceFLAG;
     bool IOtraceFLAG;
@@ -424,6 +426,7 @@ class StatsPanel  : public Panel
     QPopupMenu *experimentsMenu;
 
     CURRENTTHREADSTR_ENUM currentThreadsStrENUM;
+    EXPORT_TYPE_ENUM exportType;
     QString currentThreadsStr;
     QString currentMenuThreadsStr;
     QString currentCollectorStr;
@@ -457,7 +460,8 @@ class StatsPanel  : public Panel
     void returnPressed( QListViewItem * );
     void itemSelected( int );
     void doOption(int id);
-    void exportData();
+    void exportCSVData();
+    void exportTextData();
     void details();
     void originalQuery();
     void cviewQueryStatements();
