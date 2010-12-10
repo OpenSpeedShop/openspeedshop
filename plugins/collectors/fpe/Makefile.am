@@ -92,6 +92,7 @@ endif
 fpe_rt_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
 	@BINUTILS_LDFLAGS@ \
+        @BINUTILS_IBERTY_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
@@ -100,6 +101,7 @@ fpe_rt_la_LIBADD = \
 	-lopenss-runtime-binutils \
 	-lopenss-runtime-unwind \
 	@BINUTILS_OPCODES_LIB@ \
+        @BINUTILS_IBERTY_LIB@ \
 	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt -lm
 
@@ -120,6 +122,7 @@ fpe_rt_offline_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-runtime \
 	-L$(top_srcdir)/libopenss-runtime/offline \
 	@BINUTILS_LDFLAGS@ \
+        @BINUTILS_IBERTY_LDFLAGS@ \
 	@LIBUNWIND_LDFLAGS@ \
 	-no-undefined -module -avoid-version
 
@@ -128,6 +131,7 @@ fpe_rt_offline_la_LIBADD = \
 	-lopenss-runtime-binutils \
 	-lopenss-runtime-unwind \
 	@BINUTILS_OPCODES_LIB@ \
+        @BINUTILS_IBERTY_LIB@ \
 	@LIBUNWIND_LIBS@ \
 	-lpthread -lrt -lm
 
