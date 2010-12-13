@@ -187,6 +187,84 @@ static bool define_hwcsamp_columns (
         IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
         HV.push_back(Find_Metadata ( CV[0], "time" ).getDescription());
 
+       } else if (!strcasecmp(M_Name.c_str(), "cmpercent")) {
+
+            int icnt = 0;
+            int l1_dcm_icnt = 0;
+         // cmpercent is calculated from two temps: the PAPI_L1_DCM counts and PAPI_L1_DCA counts.
+            bool found_misses = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("PAPI_L1_DCM") == 0) {
+                   found_misses = true;
+                   l1_dcm_icnt = icnt;
+                   break;
+              }
+            }
+            icnt = 0;
+            int l1_dca_icnt = 0;
+            bool found_accesses = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("PAPI_L1_DCA") == 0) {
+                   found_accesses = true;
+                   l1_dca_icnt = icnt;
+                   break;
+              }
+            }
+
+            if (found_misses & found_accesses) {
+              IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, event_temps+l1_dcm_icnt));
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+l1_dcm_icnt, totalIndex++));
+              HV.push_back("L1 CacheMiss Percent");
+#if 0
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+l1_dcm_icnt, event_temps+l1_dca_icnt));
+              HV.push_back("L1 CacheMiss Percent");
+#endif
+            } else {
+              std::string s("The metric (PAPI_L1_DCM and PAPI_L1_DCA) required to generate the L1 Cache Miss percentage metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
+         
+#if 0
+       } else if (!strcasecmp(M_Name.c_str(), "cmcapercent")) {
+
+            int icnt = 0;
+            int l1_dcm_icnt = 0;
+         // cmpercent is calculated from two temps: the PAPI_L1_DCM counts and PAPI_L1_DCA counts.
+            bool found_misses = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("PAPI_L1_DCM") == 0) {
+                   found_misses = true;
+                   l1_dcm_icnt = icnt;
+                   break;
+              }
+            }
+            icnt = 0;
+            int l1_dca_icnt = 0;
+            bool found_accesses = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("PAPI_L1_DCA") == 0) {
+                   found_accesses = true;
+                   l1_dca_icnt = icnt;
+                   break;
+              }
+            }
+
+            if (found_misses & found_accesses) {
+//              IV.push_back(new ViewInstruction (VIEWINST_Define_Tmp, totalIndex, event_temps+l1_dcm_icnt));
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+l1_dca_icnt, totalIndex++));
+              HV.push_back("L1 Cache Misses/Accesses Percent");
+#if 0
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+l1_dcm_icnt, event_temps+l1_dca_icnt));
+              HV.push_back("L1 CacheMiss Percent");
+#endif
+            } else {
+              std::string s("The metric (PAPI_L1_DCM and PAPI_L1_DCA) required to generate the L1 Cache Miss percentage metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
+#endif
+         
        } else if (!strcasecmp(M_Name.c_str(), "flops")) {
 
             int icnt = 0;
