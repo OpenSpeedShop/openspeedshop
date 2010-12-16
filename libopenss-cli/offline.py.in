@@ -187,7 +187,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    ismpi = bool(1)
 		    mpi_driver = os.path.realpath(file_arg)
 		    orig_mpi_driver = s
-		    program = program.replace(s, file_arg)
+                    program = program.replace(file_arg, mpi_driver)
 		    preload_files = ""
 		    if ismpi:
 			islampi = os.system('nm ' + file_arg + ' | grep -q lampi_environ_init')
