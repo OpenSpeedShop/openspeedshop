@@ -107,26 +107,53 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 
     /* Initialize the unwind cursor from the context */
     Assert(unw_init_local(&cursor, &context) == 0);
-	
-    /* unwind past signal frames if present */
-    if(skip_signal_frames) {
-	while (!unw_is_signal_frame (&cursor)) {
-	   if (unw_step (&cursor) < 0) {
-		fprintf(stderr,"No Signal Frames in this context.\n");
-	   }
-	}
-    }
 
+#if defined(__linux) && defined(__ia64)
+	
     /* Iterate over each frame in the stack trace from this context */
     while(TRUE) {
 
+	/* Are we still unwinding past skipped signal frames? */
+	if(skip_signal_frames) {
+	    
+	    /* Stop skipping signal frames after we've encountered one */
+	    retval = unw_is_signal_frame(&cursor);
+	    Assert(retval >= 0);
+	    if(retval > 0)		
+		skip_signal_frames = FALSE;
+	    
+	}
+	
 	/* Are we still unwinding past skipped additional frames? */
-	if(skip_frames > 0) {
+	else if(skip_frames > 0) {
 	    
 	    /* Decrement the number of fixed additional frames to be skipped */
 	    --skip_frames;
 	    
 	}
+#else
+
+    /* unwind past signal frames if present */
+    if(skip_signal_frames) {
+        while (!unw_is_signal_frame (&cursor)) {
+           if (unw_step (&cursor) < 0) {
+                fprintf(stderr,"No Signal Frames in this context.\n");
+           }
+        }
+    }
+
+    /* Iterate over each frame in the stack trace from this context */
+    while(TRUE) {
+
+        /* Are we still unwinding past skipped additional frames? */
+        if(skip_frames > 0) {
+
+            /* Decrement the number of fixed additional frames to be skipped */
+            --skip_frames;
+
+        }
+
+#endif
 	
 	/* Stop unwinding if the stack trace buffer is full */
 	else if(index == max_frames)
