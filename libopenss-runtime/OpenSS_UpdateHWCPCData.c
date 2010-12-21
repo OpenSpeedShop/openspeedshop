@@ -50,7 +50,7 @@
  */
 bool_t OpenSS_UpdateHWCPCData(uint64_t pc, OpenSS_HWCPCData* buffer, long long * evcounts)
 {
-    unsigned bucket, entry;
+    unsigned i, bucket, entry = 0;
 
     /*
      * Search the sample buffer for an existing entry corresponding to this
@@ -58,18 +58,18 @@ bool_t OpenSS_UpdateHWCPCData(uint64_t pc, OpenSS_HWCPCData* buffer, long long *
      * the search.
      */
     bucket = (pc >> 4) % OpenSS_HWCPCHashTableSize;
+
     while((buffer->hash_table[bucket] > 0) &&
           (buffer->pc[buffer->hash_table[bucket] - 1] != pc))
         bucket = (bucket + 1) % OpenSS_HWCPCHashTableSize;
 
-    int i;
-
     /* Increment count for existing entry if found and not already maxed */
     if((buffer->hash_table[bucket] > 0) &&
-       (buffer->pc[buffer->hash_table[bucket] - 1] == pc  &&
-       (buffer->count[buffer->hash_table[bucket] - 1] < UINT8_MAX))
-       ) {
-	buffer->count[buffer->hash_table[bucket] - 1]++;
+       (buffer->pc[buffer->hash_table[bucket] - 1] == pc) &&
+       (buffer->count[buffer->hash_table[bucket] - 1] < UINT8_MAX)) {
+
+        buffer->count[buffer->hash_table[bucket] - 1]++;
+
 	for (i = 0; i < 6; i++) {
             buffer->hwccounts[buffer->hash_table[bucket] - 1][i] += evcounts[i];
 #if 0
