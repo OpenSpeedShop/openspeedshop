@@ -34,8 +34,8 @@
 typedef struct {
 
     OpenSS_DataHeader header;  /**< Header for following data blob. */
-
     hwcsamp_data data;          /**< Actual data blob. */
+
     OpenSS_HWCPCData buffer;      /**< PC sampling data buffer. */
 
     int EventSet;
@@ -64,7 +64,6 @@ static __thread TLS the_tls;
 
 #if defined (OPENSS_OFFLINE)
 extern void offline_sent_data(int);
-
 static void hwcsampTimerHandler(const ucontext_t* context);
 
 void samp_start_timer()
@@ -205,6 +204,8 @@ static void hwcsampTimerHandler(const ucontext_t* context)
 	send_samples(tls);
     }
 
+    //fprintf(stderr,"sampTimerHandler tls->buffer.length = %d\n", tls->buffer.length);
+
     /* reset our values */
     memset(evalues,0,sizeof(evalues));
 
@@ -233,6 +234,8 @@ static void hwcsampTimerHandler(const ucontext_t* context)
  */
 void hwcsamp_start_sampling(const char* arguments)
 {
+    hwcsamp_start_sampling_args args;
+
     /* Create and access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
     TLS* tls = malloc(sizeof(TLS));
@@ -243,14 +246,13 @@ void hwcsamp_start_sampling(const char* arguments)
 #endif
     Assert(tls != NULL);
 
-    hwcsamp_start_sampling_args args;
+    /* Decode the passed function arguments */
     memset(&args, 0, sizeof(args));
 
-    /* set defaults */ 
+    /* First set defaults */ 
     int hwcsamp_rate = 100;
     char* hwcsamp_papi_event = "PAPI_TOT_CYC,PAPI_FP_OPS";
 
-    /* Decode the passed function arguments */
 #if defined (OPENSS_OFFLINE)
     char* hwcsamp_event_param = getenv("OPENSS_HWCSAMP_EVENTS");
     if (hwcsamp_event_param != NULL) {
@@ -286,26 +288,24 @@ void hwcsamp_start_sampling(const char* arguments)
     OpenSS_InitializeDataHeader(args.experiment, args.collector,
 				&local_data_header);
     memcpy(&tls->header, &local_data_header, sizeof(OpenSS_DataHeader));
-
     OpenSS_SetSendToFile(&(tls->header), "hwcsamp", "openss-data");
-    tls->data.events.events_val = tls->buffer.hwccounts;
     
     /* Initialize the actual data blob */
     tls->data.interval = 
 	(uint64_t)(1000000000) / (uint64_t)(hwcsamp_rate);
     tls->data.pc.pc_val = tls->buffer.pc;
     tls->data.count.count_val = tls->buffer.count;
+    tls->data.events.events_val = tls->buffer.hwccounts;
 
     /* Initialize the sampling buffer */
     tls->buffer.addr_begin = ~0;
     tls->buffer.addr_end = 0;
     tls->buffer.length = 0;
     memset(tls->buffer.hash_table, 0, sizeof(tls->buffer.hash_table));
-
-    /* Begin sampling */
-    tls->header.time_begin = OpenSS_GetTime();
-
     memset(tls->buffer.hwccounts, 0, sizeof(tls->buffer.hwccounts));
+    memset(evalues,0,sizeof(evalues));
+
+
     if(hwc_papi_init_done == 0) {
 	hwc_init_papi();
 	tls->EventSet = PAPI_NULL;
@@ -315,8 +315,8 @@ void hwcsamp_start_sampling(const char* arguments)
 	tls->data.clock_mhz = (float) hw_info->mhz;
     }
 
-    memset(evalues,0,sizeof(evalues));
 
+fprintf(stderr, " SIZE OF OpenSS_HWCPCData is %d\n", sizeof (OpenSS_HWCPCData));
 
     OpenSS_Create_Eventset(&tls->EventSet);
 
@@ -358,7 +358,7 @@ void hwcsamp_start_sampling(const char* arguments)
 	tfptr = strdup(hwcsamp_papi_event);
 	int i;
 	for (i = 1;  ; i++, tfptr = NULL) {
-	    tf_token = strtok_r(tfptr, ":,", &saveptr);
+	    tf_token = strtok_r(tfptr, ",", &saveptr);
 	    if (tf_token == NULL) {
 		break;
 	    }
@@ -371,6 +371,8 @@ void hwcsamp_start_sampling(const char* arguments)
 	OpenSS_AddEvent(tls->EventSet, get_papi_eventcode("PAPI_FP_OPS"));
     }
 
+    /* Begin sampling */
+    tls->header.time_begin = OpenSS_GetTime();
     OpenSS_Start(tls->EventSet);
     OpenSS_Timer(tls->data.interval, hwcsampTimerHandler);
 }
