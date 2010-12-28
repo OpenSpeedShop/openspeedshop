@@ -39,7 +39,7 @@ libpapi="${libpapi_libdir}/libpapi.a"
 
 # for the cray-xt5 we don't want system defined by default, not sure why
 # but undefining it using the -u arguments does not work.
-if [ ${oss_target} = cray-xt5 ]
+if [ ${oss_target} = cray-xt5 -o ${oss_target} = cray-xt4 ]
 then
   monitor_wrap_base_names="main exit _exit"
 else
