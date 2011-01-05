@@ -303,6 +303,7 @@ class ParseResult {
     	std::vector<ParseInterval> * getParseIntervalList() {return &dm_interval_list;}
 
     	/** Handle list of expMetrics. */
+    	void pushExpMetric(const char * name1, const char * name2, const char * name3);
     	void pushExpMetric(const char * name1, const char * name2);
     	void pushExpMetric(const char * name);
     	std::vector<ParseRange> * getexpMetricList() {return &dm_exp_metric_list;}

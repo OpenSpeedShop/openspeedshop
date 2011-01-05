@@ -1307,6 +1307,43 @@ getIntervalAttribute()
 }
  
 /**
+ * * Method: ParseResult::pushExpMetric(char * name1, char * name2, char * name3)
+ * *
+ * *     Recombine name2 and name3 strings with a ":" in between to allow
+ * *     colons to be used as part of a valid name in certain contexts.
+ * *    * @return  void.
+ * *
+ * * @todo    Error handling.
+ * *
+ * */
+void
+ParseResult::
+pushExpMetric(const char * name1, const char * name2, const char * name3)
+{
+
+#if DEBUG_CLI
+   printf("ParseResult::pushExpMetric, name1=%s, name2=%s, name3=%s\n", name1, name2, name3);
+#endif
+
+   int name2_len = strlen(name2);
+   int name3_len = strlen(name3);
+   char *name23 = (char *)malloc(name2_len + name3_len + 2);
+   name23 = strcpy(name23, name2);
+   name23 = strcat(name23, ":");
+   name23 = strcat(name23, name3);
+
+   if (name1 != NULL) {
+     ParseRange range(name1,name23);
+     dm_exp_metric_list.push_back(range);
+   } else {
+     ParseRange range(name23);
+     dm_exp_metric_list.push_back(range);
+   }
+
+   return ;
+}
+
+/**
  * Method: ParseResult::pushExpMetric(char * name1, char * name2)
  * 
  *     
@@ -1319,16 +1356,18 @@ void
 ParseResult::
 pushExpMetric(const char * name1, const char * name2)
 {
-    ParseRange range(name1,name2);
 
 #if DEBUG_CLI
     printf("ParseResult::pushExpMetric, name1=%s, name2=%s\n", name1, name2);
 #endif
+
+    ParseRange range(name1,name2);
     dm_exp_metric_list.push_back(range);
 
     return ;
 }
  
+
 /**
  * Method: ParseResult::pushExpMetric(char * name)
  * 
@@ -1342,13 +1381,13 @@ void
 ParseResult::
 pushExpMetric(const char * name)
 {
-    ParseRange range(name);
 
 #if DEBUG_CLI
     printf("ParseResult::pushExpMetric, name=%s\n", name);
 #endif
 
-   dm_exp_metric_list.push_back(range);
+    ParseRange range(name);
+    dm_exp_metric_list.push_back(range);
 
     return ;
 }
