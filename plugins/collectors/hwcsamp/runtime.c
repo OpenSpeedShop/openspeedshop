@@ -316,7 +316,11 @@ void hwcsamp_start_sampling(const char* arguments)
     }
 
 
-fprintf(stderr, " SIZE OF OpenSS_HWCPCData is %d\n", sizeof (OpenSS_HWCPCData));
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+       fprintf(stderr, " SIZE OF OpenSS_HWCPCData is %d\n", sizeof (OpenSS_HWCPCData));
+    }
+#endif
 
     OpenSS_Create_Eventset(&tls->EventSet);
 
