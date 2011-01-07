@@ -125,9 +125,12 @@ static void send_samples(TLS *tls)
     tls->header.addr_begin = ~0;
     tls->header.addr_end = 0;
 
-    /* Re-initialize the actual data blob */
-    tls->data.pc.pc_len = 0;
-    tls->data.count.count_len = 0;
+
+    /* Re-initialize the sampling buffer */
+    tls->buffer.addr_begin = ~0;
+    tls->buffer.addr_end = 0;
+    tls->buffer.length = 0;
+    memset(tls->buffer.hash_table, 0, sizeof(tls->buffer.hash_table));
 }
 
 /**
@@ -164,15 +167,6 @@ hwcPAPIHandler(int EventSet, void* pc, long_long overflow_vector, void* context)
 
 	/* Send these samples */
 	send_samples(tls);
-
-	/* Re-initialize the data blob's header */
-	tls->header.time_begin = tls->header.time_end;
-
-	/* Re-initialize the sampling buffer */
-	tls->buffer.addr_begin = ~0;
-	tls->buffer.addr_end = 0;
-	tls->buffer.length = 0;
-	memset(tls->buffer.hash_table, 0, sizeof(tls->buffer.hash_table));
 
     }
 }

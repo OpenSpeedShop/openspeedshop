@@ -146,6 +146,7 @@ static void send_samples(TLS *tls)
     tls->data.bt.bt_len = 0;
     tls->data.count.count_len = 0;
 
+    /* Re-initialize the sampling buffer */
     memset(tls->buffer.bt, 0, sizeof(tls->buffer.bt));
     memset(tls->buffer.count, 0, sizeof(tls->buffer.count));
 }
