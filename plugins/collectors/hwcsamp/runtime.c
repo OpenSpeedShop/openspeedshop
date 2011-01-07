@@ -107,7 +107,6 @@ static void send_samples(TLS *tls)
     tls->header.addr_end = tls->buffer.addr_end;
     tls->data.pc.pc_len = tls->buffer.length;
     tls->data.count.count_len = tls->buffer.length;
-
     tls->data.events.events_len = tls->buffer.length;
 
 #ifndef NDEBUG
@@ -155,11 +154,12 @@ fprintf(stderr,"send_samples: size of eventssize = %d\n",eventssize);
     tls->header.addr_end = 0;
 
     /* Re-initialize the actual data blob */
-    tls->data.pc.pc_len = 0;
-    tls->data.count.count_len = 0;
+    tls->buffer.addr_begin = ~0;
+    tls->buffer.addr_end = 0;
+    tls->buffer.length = 0;
     memset(tls->buffer.hash_table, 0, sizeof(tls->buffer.hash_table));
     memset(tls->buffer.hwccounts, 0, sizeof(tls->buffer.hwccounts));
-    tls->data.events.events_len = 0;
+    memset(evalues,0,sizeof(evalues));
 }
 
 /**
