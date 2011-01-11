@@ -18,6 +18,9 @@
 
 //#define DEBUG_COMPARE 1
 
+// This turns on the ability to see the database names in the experiment selection menu items
+#define DBNAMES 1
+
 #include "ColumnSet.hxx"
 #include "CompareSet.hxx"
 #include "CustomizeClass.hxx"
@@ -51,6 +54,55 @@ using namespace OpenSpeedShop::Framework;
 #include "LinkedObject.hxx"
 #include "PanelContainer.hxx"
 #include "FocusObject.hxx"
+
+
+// Database name request code
+//
+std::list<std::string> list_of_dbnames;
+
+#ifdef DBNAMES
+void ColumnSet::getDatabaseName(int exp_id)
+{
+
+// Now get the executables
+
+  QString command = QString::null;
+
+#ifdef DEBUG_COMPARE
+  printf("getDatabaseName exp_id=%d\n", exp_id);
+#endif
+
+  command = QString("list -v database -x %1").arg(exp_id);
+
+#ifdef DEBUG_COMPARE
+  printf("getDatabaseName-attempt to run (%s)\n", command.ascii() );
+#endif
+
+  CLIInterface *cli = this->compareSet->compareClass->p->getPanelContainer()->getMainWindow()->cli;
+  list_of_dbnames.clear();
+  InputLineObject *clip = NULL;
+  if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
+         &list_of_dbnames, clip, TRUE ) )
+  {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+#ifdef DEBUG_COMPARE
+  printf("getDatabaseName, ran %s, list_of_dbnames.size()=%d\n", command.ascii(), list_of_dbnames.size() );
+#endif
+
+  if( list_of_dbnames.size() > 0 )
+  {
+    for( std::list<std::string>::const_iterator it = list_of_dbnames.begin();
+         it != list_of_dbnames.end(); it++ )
+    {
+      std::string databaseName = *it;
+#ifdef DEBUG_COMPARE
+      printf("getDatabaseName, databaseName=(%s)\n", databaseName.c_str() );
+#endif
+    }
+  }
+}
+#endif
 
 
 ColumnSet::ColumnSet(QWidget *w, CompareSet *cc) : QWidget(0, "columnSetObject")
@@ -226,18 +278,20 @@ ColumnSet::gatherExperimentInfo()
   int eid = 1;
   int saved_eid = 0;
   std::list<int64_t>::iterator it;
+
 #ifdef DEBUG_COMPARE
   printf("int_list.size() =%d\n", int_list.size() );
 #endif
-  for(it = int_list.begin(); it != int_list.end(); it++ )
-  {
+
+  for(it = int_list.begin(); it != int_list.end(); it++ ) {
+
     eid = (int64_t)(*it);
+
 #ifdef DEBUG_COMPARE
      printf("eid=(%d)\n", eid );
 #endif
 
-    if( saved_eid == 0 )
-    {
+    if( saved_eid == 0 ) {
       saved_eid = eid;
     }
     QString expIDStr = QString("%1").arg(eid);
@@ -269,15 +323,40 @@ ColumnSet::gatherExperimentInfo()
         printf("  collector_name=(%s)\n", collector_name.ascii() );
 #endif
 
-        if( expTypes.isEmpty() )
-        {
+        if( expTypes.isEmpty() ) {
           expTypes = QString("Exp:%1 %2").arg(eid).arg(collector_name);
-        } else
-        {
+        } else {
           expTypes += ", " + collector_name;
         }
       }
     }
+
+
+    // get the datafile file name
+#ifdef DBNAMES
+#ifdef DEBUG_COMPARE
+  printf("ColumnSet::gatherExperimentInfo() , list_of_dbnames.size()=%d\n", list_of_dbnames.size());
+#endif
+  getDatabaseName(eid);
+  if( list_of_dbnames.size() > 0 )
+  {
+    int dbnames_count = 0;
+    for( std::list<std::string>::const_iterator it = list_of_dbnames.begin();
+         it != list_of_dbnames.end(); it++ )
+    {
+      dbnames_count = dbnames_count + 1;
+      std::string dbnames = *it;
+      QString dbnamesStr = QString("%1").arg(dbnames.c_str());
+#ifdef DEBUG_COMPARE
+      printf("ColumnSet::gatherExperimentInfo() , dbnames=(%s)\n", dbnames.c_str() );
+#endif
+      expTypes += " Database Name: " + dbnamesStr;
+    }
+
+  }
+#endif
+
+
     if( !expTypes.isEmpty() )
     {
       const char *str = expTypes.ascii();
@@ -293,7 +372,7 @@ ColumnSet::gatherExperimentInfo()
 #endif
       }
     }
-  }
+  } // end of the for loop over the compare list of experiments
 
   // Update the experiment fields
   // First save the existing state (if any).

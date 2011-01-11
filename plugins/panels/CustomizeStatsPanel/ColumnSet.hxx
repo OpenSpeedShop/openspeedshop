@@ -68,6 +68,7 @@ class ColumnSet : public QWidget
     void initializeListView();
 
     int getExpidFromExperimentComboBoxStr( const QString path );
+    void getDatabaseName(int expID );
   protected:
 
   private:
