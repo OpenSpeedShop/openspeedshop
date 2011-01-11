@@ -321,7 +321,7 @@ class StatsPanel  : public Panel
     void updateThreadsList();
     void getApplicationCommand(int expID);
     void getExperimentType(int expID);
-    void getDatabaseName(int expID);
+    void getDatabaseName(int expID, bool force_use_of_exp_id);
     void getPidList(int expID);
     void getHostList(int expID);
     void getExecutableList(int expID);

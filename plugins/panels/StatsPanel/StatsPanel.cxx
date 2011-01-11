@@ -20,6 +20,8 @@
 //
 // To enable debuging uncomment define DEBUG_StatsPanel statement
 //
+#define DBNAMES 1
+
 //#define DEBUG_StatsPanel 1
 //#define DEBUG_StatsPanel_chart 1
 //#define DEBUG_Sorting 1
@@ -4387,7 +4389,7 @@ void StatsPanel::getExperimentType(int exp_id)
 }
 
 #ifdef DBNAMES
-void StatsPanel::getDatabaseName(int exp_id)
+void StatsPanel::getDatabaseName(int exp_id, bool force_exp)
 {
 
 // Now get the executables
@@ -4397,7 +4399,7 @@ void StatsPanel::getDatabaseName(int exp_id)
 #endif
 
 //  currentThreadsStrENUM = UNKNOWN;
-  if( focusedExpID == -1 ) {
+  if( focusedExpID == -1 || force_exp) {
     command = QString("list -v database -x %1").arg(exp_id);
   } else {
     command = QString("list -v database -x %1").arg(focusedExpID);
@@ -4606,6 +4608,7 @@ QString StatsPanel::getPartialExperimentInfo()
 void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 {
   QString partialExperimentViewInfo;
+  bool force_use_of_exp_id = TRUE;
 
 
 //  if ( isHeaderInfoAlreadyProcessed(exp_id)) {
@@ -4642,7 +4645,12 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
   getApplicationCommand(exp_id);
   getExecutableList(exp_id);
 #ifdef DBNAMES
-  getDatabaseName(exp_id);
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::updateStatsPanelInfoHeader, calling getDatabaseName, exp_id=%d\n", exp_id );
+#endif
+  force_use_of_exp_id = TRUE;
+  getDatabaseName(exp_id, force_use_of_exp_id);
 #endif
 
   int cviewinfo_aux_index = -1;
@@ -4739,6 +4747,8 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::updateStatsPanelInfoHeader() , list_of_dbnames.size()=%d\n", list_of_dbnames.size());
 #endif
+  force_use_of_exp_id = TRUE;
+  getDatabaseName(exp_id, force_use_of_exp_id);
   if( list_of_dbnames.size() > 0 )
   {
     infoString += QString("\nDatabase Name: ");
@@ -12477,6 +12487,25 @@ StatsPanel::analyzeTheCView()
 
     // Make a list of comma separated experiment ids for the stats panel info header
     infoAboutStringCompareExpIDs += QString("%1,").arg(expID);
+
+    bool force_use_of_exp_id = TRUE;
+    getDatabaseName(expID, force_use_of_exp_id);
+    if( list_of_dbnames.size() > 0 )
+    {
+      int dbnames_count = 0;
+      for( std::list<std::string>::const_iterator it = list_of_dbnames.begin();
+           it != list_of_dbnames.end(); it++ )
+      {
+        dbnames_count = dbnames_count + 1;
+        std::string dbnames = *it;
+        QString dbnamesStr = QString("%1").arg(dbnames.c_str());
+#ifdef DEBUG_StatsPanel
+        printf("StatsPanel::analyzeTheCView, dbnames=(%s)\n", dbnames.c_str() );
+#endif
+        infoAboutComparingString += QString(" Database Name: %1 ").arg(dbnamesStr);
+      }
+
+    }
 
     QString host_pid_names = QString::null;
 
