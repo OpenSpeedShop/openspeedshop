@@ -2109,13 +2109,14 @@ do
        echo "value[$i]=%s\n" "${values[$i]}" ## print field N (numbered from 0)
     fi
     j=($i + 1)
-    dbase_name="dbase${j}_exptype.txt"
-    if [ $debug_flag == 1 ]
-    then
-      echo "dbase_name = $dbase_name"
-    fi
+#    dbase_name="dbase${j}_exptype.txt"
+#    if [ $debug_flag == 1 ]
+#    then
+#      echo "dbase_name = $dbase_name"
+#    fi
     echo "exprestore -f ${values[$i]}" > /tmp/$USER/osscompare_commands.txt
-    echo "list -v exptypes > /tmp/$USER/$dbase_name" >> /tmp/$USER/osscompare_commands.txt
+    echo "list -v exptypes > /tmp/$USER/dbase${j}_exptype.txt" >> /tmp/$USER/osscompare_commands.txt
+#    echo "list -v exptypes > /tmp/$USER/$dbase_name" >> /tmp/$USER/osscompare_commands.txt
 
     openss -batch < /tmp/$USER/osscompare_commands.txt
 
