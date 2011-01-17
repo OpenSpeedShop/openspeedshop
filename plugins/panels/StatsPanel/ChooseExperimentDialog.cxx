@@ -37,7 +37,7 @@
  *  TRUE to construct a modal dialog.
  */
 
-ChooseExperimentDialog::ChooseExperimentDialog( QWidget* parent,  const char* name, std::vector<int> *argCompareExpIDs, std::vector<QString> *argCompareExpDBNames, bool modal, WFlags f )
+ChooseExperimentDialog::ChooseExperimentDialog( QWidget* parent,  const char* name, std::vector<int> *argCompareExpIDs, std::vector<QString> *argCompareExpDBNames, std::vector<QString> *argCompareSrcFilenames, int argFocusOnExpIDsCheckBox, bool modal, WFlags f )
     : QDialog( parent, name, modal, f )
 {
     if ( !name )
@@ -49,9 +49,11 @@ ChooseExperimentDialog::ChooseExperimentDialog( QWidget* parent,  const char* na
     setCaption( tr( "Choose Experiment for View"  ) );
     compareExpIDs = argCompareExpIDs;
     compareExpDBNames = argCompareExpDBNames;
+    compareSrcFilenames = argCompareSrcFilenames;
+    focusOnExpIDsCheckBox = argFocusOnExpIDsCheckBox;
     int howManyButtons = compareExpIDs->size();
 #if DEBUG_Choose
-    printf("ChooseExperimentDialog::ChooseExperimentDialog, howManyButtons=%d\n", howManyButtons);
+    printf("ChooseExperimentDialog::ChooseExperimentDialog, howManyButtons=%d, focusOnExpIDsCheckBox=%d\n", howManyButtons, focusOnExpIDsCheckBox);
 #endif
     focusExpID = -1;
 
@@ -168,6 +170,7 @@ ChooseExperimentDialog::languageChange()
 
   int count = 0;
   std::vector<QString>::const_iterator itDB = compareExpDBNames->begin();
+  std::vector<QString>::const_iterator itSF = compareSrcFilenames->begin();
   for( std::vector<int>::const_iterator it = compareExpIDs->begin();
        it != compareExpIDs->end(); it++ )
   {
@@ -175,9 +178,15 @@ ChooseExperimentDialog::languageChange()
       int exp_id = *it;
       QString dbName = *itDB;
       itDB++;
-      char expIdStr[1024];
-      sprintf(expIdStr, "Experiment %d", exp_id);
-      sprintf(expIdStr, "Experiment:%d, Database Name:%s", exp_id, dbName.ascii());
+      QString sfName = *itSF;
+      itSF++;
+      char expIdStr[2048];
+//      sprintf(expIdStr, "Experiment %d", exp_id);
+      if (sfName != QString::null) {
+        sprintf(expIdStr, "Experiment: %d, Database Name: %s\nSource Info: %s", exp_id, dbName.ascii(), sfName.ascii());
+      } else {
+        sprintf(expIdStr, "Experiment: %d, Database Name: %s", exp_id, dbName.ascii());
+      }
 
 #if DEBUG_Choose
       printf("ChooseExperimentDialog::languageChange, expIdStr=%s\n", expIdStr);

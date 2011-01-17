@@ -2171,7 +2171,7 @@ then
    if [ "${type_of_dbase[0]}" == "hwc" -o "${type_of_dbase[0]}" == "hwctime" ]
    then
       echo "[openss]: NOTE; Must use the event counts as the metric for hwc and hwctime experiment comparisons." 
-      echo "[openss]: NOTE; osscompare is overriding any specification and comparing with repect to the counts of events"
+      echo "[openss]: NOTE; osscompare is overriding any specification and comparing with respect to the counts of events"
       use_compare_metric=counts
    elif [  "${type_of_dbase[0]}" == "hwcsamp" ]
    then

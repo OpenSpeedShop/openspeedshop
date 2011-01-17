@@ -196,11 +196,13 @@ class StatsPanel  : public Panel
     int focusedCompareExpID;
     std::vector<int> compareExpIDs;
     std::vector<QString> compareExpDBNames;
+    std::vector<QString> compareSrcFilenames;
     ExperimentGroupList experimentGroupList;
     CInfoClassList cInfoClassList;
 
     void analyzeTheCView();
     int getValidExperimentIdForView();
+    QString getFullPathSrcFileName(QString srcFilename, int exp_id);
     bool canWeDiff();
 
     SPListView *splv;
@@ -287,6 +289,7 @@ class StatsPanel  : public Panel
     std::list<std::string> list_of_appcommands;
     std::list<std::string> list_of_types;
     std::list<std::string> list_of_dbnames;
+    std::list<std::string> list_of_srcfilenames;
     std::list<std::string> list_of_collectors_metrics;
     std::list<std::string> list_of_collectors;
     std::list<int64_t> list_of_pids;

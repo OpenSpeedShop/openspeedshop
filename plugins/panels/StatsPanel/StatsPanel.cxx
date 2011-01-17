@@ -4388,6 +4388,48 @@ void StatsPanel::getExperimentType(int exp_id)
  }
 }
 
+QString StatsPanel::getFullPathSrcFileName(QString noPathFileName, int exp_id)
+{
+
+  QString command = QString::null;
+  std::string fullPathSrcFilename = "";
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getFullPathSrcFileName noPathFileName=%s, exp_id=%d\n", noPathFileName, exp_id);
+#endif
+
+  command = QString("list -v srcfullpath -x %1 -f %2").arg(exp_id).arg(noPathFileName);
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getFullPathSrcFileName-attempt to run (%s)\n", command.ascii() );
+#endif
+
+  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  list_of_srcfilenames.clear();
+  InputLineObject *clip = NULL;
+  if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_srcfilenames, clip, TRUE ) )
+  {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getFullPathSrcFileName, ran %s, list_of_srcfilenames.size()=%d\n", command.ascii(), list_of_srcfilenames.size() );
+#endif
+
+  if( list_of_srcfilenames.size() > 0 ) {
+    for( std::list<std::string>::const_iterator it = list_of_srcfilenames.begin();
+         it != list_of_srcfilenames.end(); it++ )
+    {
+      fullPathSrcFilename = *it;
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::getFullPathSrcFileName, fullPathSrcFilename=(%s)\n", fullPathSrcFilename.c_str() );
+#endif
+    }
+  }
+  return(QString(fullPathSrcFilename.c_str()));
+}
+
+
+
 #ifdef DBNAMES
 void StatsPanel::getDatabaseName(int exp_id, bool force_exp)
 {
@@ -4467,9 +4509,13 @@ QString StatsPanel::getDBName(int exp_id)
       QString db  = dbnamesStr;
       if (!fullPathBool) {
            int basename_index = dbnamesStr.findRev("/");
+#ifdef DEBUG_StatsPanel
            printf("basename_index = %d\n", basename_index);
+#endif
            if( basename_index != -1 ) {
+#ifdef DEBUG_StatsPanel
              printf("dbnamesStr.length() = %d\n", dbnamesStr.length());
+#endif
              db =  dbnamesStr.right((dbnamesStr.length()-basename_index)-1);
            } 
       }
@@ -9335,14 +9381,13 @@ StatsPanel::generateCommand()
 
      } else {
 
-     exp_id = getValidExperimentIdForView();    
+       exp_id = getValidExperimentIdForView();    
 
 #ifdef DEBUG_StatsPanel_toolbar
-     printf("GENERATE_COMMAND, 2nd method, exp_id=%d\n", exp_id);
-     printf("GENERATE_COMMAND, 2nd method,  lastCommand=(%s)\n", lastCommand.ascii());
-     printf("GENERATE_COMMAND, after getValidExperimentIdForView, exp_id=%d\n", exp_id);
+       printf("GENERATE_COMMAND, 2nd method, exp_id=%d\n", exp_id);
+       printf("GENERATE_COMMAND, 2nd method,  lastCommand=(%s)\n", lastCommand.ascii());
+       printf("GENERATE_COMMAND, after getValidExperimentIdForView, exp_id=%d\n", exp_id);
 #endif
-
 
      }
 
@@ -11225,6 +11270,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
   QString _fileName  = qfi.fileName();
 
 
+  QString fullPathFilename  = filename;
   QString fn  = filename;
   int basename_index = filename.findRev("/");
   if( basename_index != -1 ) {
@@ -11324,8 +11370,23 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 #endif
               } else if (compareExpIDs.size()  > 1) {
 
+                  // We need to look up the full path name for each experiment and store the results in the global/class 
+                  // vector structure for the full path source filename before calling getValidExperimentForView
+                  // We need the full path to the source file.  So, generate the proper command to get that filename if we don't already have a path
+                  for( std::vector<int>::const_iterator it = compareExpIDs.begin(); it != compareExpIDs.end(); it++ ) {
+                      int tmp_exp_id = *it;
+                      QString tmpFullPathFilename = getFullPathSrcFileName(fullPathFilename, tmp_exp_id);
+                      compareSrcFilenames.push_back (tmpFullPathFilename);
+                  }
+//  int basename_index = srcFilename.findRev("/");
+//  if( basename_index == -1 ) {
+     // Use the non-fullpath filename as an argument to get the full pathname filename
+//     yyyyygetFullPathSrcFileName(srcFilename, 
+//  } 
+  
+  
+                  
                    localExpID = getValidExperimentIdForView();    
-//                   localExpID = getValidExperimentIdForView( filename );    
 #ifdef DEBUG_StatsPanel
                    printf("StatsPanel::lookUpFileHighlights2, 33, more than one experiment , localExpID=(%d), filename=%s, fn=%s\n", localExpID, filename.ascii(), fn.ascii() );
 #endif
@@ -11369,6 +11430,14 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 
               } else if (compareExpIDs.size()  > 1) {
 
+                   // We need to look up the full path name for each experiment and store the results in the global/class 
+                   // vector structure for the full path source filename before calling getValidExperimentForView
+                   // We need the full path to the source file.  So, generate the proper command to get that filename if we don't already have a path
+                   for( std::vector<int>::const_iterator it = compareExpIDs.begin(); it != compareExpIDs.end(); it++ ) {
+                      int tmp_exp_id = *it;
+                      QString tmpFullPathFilename = getFullPathSrcFileName(fullPathFilename, tmp_exp_id);
+                      compareSrcFilenames.push_back (tmpFullPathFilename);
+                   }
                    localExpID = getValidExperimentIdForView();    
                    newExpId = localExpID;
 #ifdef DEBUG_StatsPanel
@@ -12190,10 +12259,11 @@ StatsPanel::getValidExperimentIdForView()
   }
 #endif
 
+
   if( chooseExperimentDialog == NULL ) {
       chooseExperimentDialog = new ChooseExperimentDialog(getPanelContainer()->getMainWindow(), 
                                                           "Select Experiment For View:", 
-                                                           &compareExpIDs, &compareExpDBNames);
+                                                           &compareExpIDs, &compareExpDBNames, &compareSrcFilenames, focusedExpID);
       chooseExperimentDialog->show();
   } else {
       chooseExperimentDialog->show();

@@ -37,7 +37,7 @@ class ChooseExperimentDialog : public QDialog
     Q_OBJECT
 
 public:
-    ChooseExperimentDialog( QWidget* parent = 0, const char* name = 0, std::vector<int> *argCompareExpIDs = NULL,  std::vector<QString> *compareExpDBNames = NULL, bool modal = FALSE, WFlags f = 0 );
+    ChooseExperimentDialog( QWidget* parent = 0, const char* name = 0, std::vector<int> *argCompareExpIDs = NULL,  std::vector<QString> *argCompareExpDBNames = NULL, std::vector<QString> *argCompareSrcFilenames = NULL, int argFocusOnExpIDsCheckBox=-1, bool modal = FALSE, WFlags f = 0 );
     ~ChooseExperimentDialog();
 
     QHBoxLayout *buttonLayout;
@@ -46,6 +46,8 @@ public:
     QVBoxLayout *checkBoxLayout;
     std::vector<int> *compareExpIDs;
     std::vector<QString> *compareExpDBNames;
+    std::vector<QString> *compareSrcFilenames;
+    int focusOnExpIDsCheckBox;
 
     QButtonGroup *ExperimentChoiceBG;
     QGroupBox *GeneralGroupBox;
