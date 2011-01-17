@@ -55,6 +55,7 @@
 using namespace OpenSpeedShop::Framework;
 
 static int askAboutSavingTheDatabaseCount = 0;
+std::list<std::string> list_of_dbnames;
 
 class EPOutputClass : public ss_ostream
 {
@@ -82,6 +83,107 @@ class EPOutputClass : public ss_ostream
 
 /*!  CustomExperimentPanel Class
  */
+
+
+void
+CustomExperimentPanel::getDatabaseName( int exp_id )
+{
+
+
+#ifdef DEBUG_CustomPanel
+    fprintf(stderr,"CustomExperimentPanel::getDatabaseName, exp_id=%d\n", exp_id);
+    fflush(stderr);
+#endif
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    InputLineObject *clip = NULL;
+
+    std::string cstring = "";
+    list_of_dbnames.clear();
+    QString command = QString("list -x %1 -v database").arg(exp_id);
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_dbnames, clip, TRUE ) ) {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+    if( list_of_dbnames.size() > 0 )
+    {
+      for( std::list<std::string>::const_iterator it = list_of_dbnames.begin();
+           it != list_of_dbnames.end(); it++ )
+      {
+        std::string cstring = *it;
+#ifdef DEBUG_StatsPanel
+        printf("CustomExperiment::getDatabaseName, databaseName=(%s)\n", databaseName.c_str() );
+#endif
+      }
+    }
+
+    QString str = QString( cstring.c_str() );
+
+#ifdef DEBUG_CustomPanel
+    fprintf(stderr,"CustomExperimentPanel::getDatabaseName, cstring.c_str()=%s\n", cstring.c_str());
+    fflush(stderr);
+#endif
+
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::getDatabaseName, str=%s\n", str.ascii());
+#endif
+}
+
+void
+CustomExperimentPanel::getDatabaseName()
+{
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::getDatabaseName, expID=%d\n", expID);
+#endif
+   getDatabaseName(expID);
+   QString tmpDBName = getDBName(expID);
+}
+
+
+QString CustomExperimentPanel::getDBName(int exp_id)
+{
+#ifdef DEBUG_CustomPanel
+  printf("CustomExperimentPanel::getDBName() , list_of_dbnames.size()=%d\n", list_of_dbnames.size());
+#endif
+  getDatabaseName(exp_id);
+  if( list_of_dbnames.size() > 0 )
+  {
+    int dbnames_count = 0;
+    for( std::list<std::string>::const_iterator it = list_of_dbnames.begin();
+         it != list_of_dbnames.end(); it++ )
+    {
+      dbnames_count = dbnames_count + 1;
+      std::string dbnames = *it;
+      QString dbnamesStr = QString("%1").arg(dbnames.c_str());
+#ifdef DEBUG_CustomPanel
+      printf("CustomExperimentPanel::getDBName, dbnames=(%s)\n", dbnames.c_str() );
+#endif
+
+      QSettings *settings = new QSettings();
+      bool fullPathBool = settings->readBoolEntry( "/openspeedshop/general/viewFullPath");
+
+#ifdef DEBUG_CustomPanel
+      printf("CustomExperimentPanel::getDBName, CLI: /openspeedshop/general/viewFullPath == fullPathBool=(%d)\n", fullPathBool );
+#endif
+
+      QString db  = dbnamesStr;
+      if (fullPathBool) {
+      } else {
+           int basename_index = dbnamesStr.findRev("/");
+           if( basename_index != -1 ) {
+             db =  dbnamesStr.right((dbnamesStr.length()-basename_index)-1);
+           }
+      }
+      delete settings;
+
+#ifdef DEBUG_CustomPanel
+      printf("CustomExperimentPanel::getDBName, returning db=%s\n", db.ascii());
+#endif
+      return(db);
+
+    }
+
+  }
+}
 
 bool
 CustomExperimentPanel::wasAlreadyRun()
@@ -171,8 +273,7 @@ if( attachFLAG ) {
   experiment = NULL;
 //  executableNameStr = QString::null;
   executableNameStr = QString((const char *)0);
-//  databaseNameStr = QString::null;
-  databaseNameStr = QString((const char *)0);
+//  databaseNameStr = QString((const char *)0);
 //  argsStr = QString::null;
   argsStr = QString((const char *)0);
   parallelPrefixCommandStr = QString::null;
@@ -476,7 +577,8 @@ if( attachFLAG ) {
           eo->Determine_Status() == ExpStatus_InError || 
           eo->Determine_Status() == ExpStatus_Terminated )
       {
-        statusLabelText->setText( tr(QString("Loaded saved data from file %1.").arg(getDatabaseName()) ) );
+        getDatabaseName(expID);
+        statusLabelText->setText( tr(QString("Loaded saved data from file %1.").arg(getDBName(expID)) ) );
 #ifdef DEBUG_CustomPanel
         printf("CustomExperimentPanel::init, calling loadStatsPanel\n");
 #endif
@@ -1089,7 +1191,28 @@ CustomExperimentPanel::listener(void *msg)
       UpdateObject *msg = new UpdateObject((void *)NULL, -1, command.ascii(), 1);
       statsPanel->listener( (void *)msg );
 
-      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Experiment %1 is being compared with experiment %2").arg(leftSideExpID).arg(rightSideExpID) );
+#ifdef DEBUG_CustomPanel
+        fprintf(stderr, "CustomExperimentPanel::listener, leftSideExpID=%d, rightSideExpID=%d\n", leftSideExpID, rightSideExpID);
+        fflush(stderr);
+#endif
+
+      getDatabaseName(leftSideExpID);
+      QString db1 = getDBName(leftSideExpID);
+
+#ifdef DEBUG_CustomPanel
+        fprintf(stderr, "CustomExperimentPanel::listener, after calling getDatabaseName(leftSideExpID=%d), rightSideExpID=%d, db1=%s\n", leftSideExpID, rightSideExpID, db1.ascii() );
+        fflush(stderr);
+#endif
+      getDatabaseName(rightSideExpID);
+      QString db2 = getDBName(rightSideExpID);
+
+#ifdef DEBUG_CustomPanel
+        fprintf(stderr, "CustomExperimentPanel::listener, leftSideExpID=%d, after calling getDatabaseName(rightSideExpID=%d), db2=%s\n", leftSideExpID, rightSideExpID, db2.ascii() );
+        fflush(stderr);
+#endif
+
+      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Experiment: %1 Database: %2  is being compared with Experiment: %3 Database: %4").arg(leftSideExpID).arg(db1).arg(rightSideExpID).arg(db2) );
+//      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Experiment: %1 is being compared with Experiment: %3").arg(leftSideExpID).arg(rightSideExpID) );
 
     }
   } else if( mo->msgType == "ClosingDownObject" )
@@ -1763,7 +1886,15 @@ CustomExperimentPanel::loadStatsPanel()
          new UpdateObject((void *)NULL, -1, original_cview_command.ascii(), 1);
       statsPanel->listener( (void *)msg );
 
-      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Experiment %1 is being compared with experiment %2").arg(leftSideExpID).arg(rightSideExpID) );
+#ifdef DEBUG_CustomPanel
+        printf("CustomExperimentPanel::loadStatsPanel, leftSideExpID=%d, rightSideExpID=%d\n", leftSideExpID, rightSideExpID);
+#endif
+
+      getDatabaseName(leftSideExpID);
+      QString db1 = getDBName(leftSideExpID);
+      getDatabaseName(rightSideExpID);
+      QString db2 = getDBName(rightSideExpID);
+      statusLabel->setText( tr("Status:") ); statusLabelText->setText( tr("Experiment: %1 Database: %2 is being compared with Experiment: %3 Database: %4").arg(leftSideExpID).arg(db1).arg(rightSideExpID).arg(db2) );
     }
   }
 #ifdef DEBUG_CustomPanel
@@ -2009,7 +2140,8 @@ CustomExperimentPanel::updateStatus()
         eo->Determine_Status() == ExpStatus_InError || 
         eo->Determine_Status() == ExpStatus_Terminated )
     {
-      statusLabelText->setText( tr(QString("Loaded saved data from file %1.").arg(getDatabaseName()) ) );
+      getDatabaseName(expID);
+      statusLabelText->setText( tr(QString("Loaded saved data from file %1.").arg(getDBName(expID)) ) );
       runnableFLAG = FALSE;
       pco->runButton->setEnabled(FALSE);
       pco->runButton->enabledFLAG = FALSE;
@@ -2826,22 +2958,4 @@ CustomExperimentPanel::getMostImportantMetric(QString collector_name)
   }
   
   return(metric);
-}
-
-QString
-CustomExperimentPanel::getDatabaseName()
-{
-  if( databaseNameStr.isEmpty() ) {
-    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-    InputLineObject *clip = NULL;
-
-    std::string cstring = "";
-    QString command = QString("list -x %1 -v database").arg(expID);
-    if( !cli->getStringValueFromCLI( (char *)command.ascii(), &cstring, clip, TRUE ) ) {
-      printf("Unable to run %s command.\n", command.ascii() );
-    }
-    QString str = QString( cstring.c_str() );
-    databaseNameStr = str;
-  }
-  return( databaseNameStr );
 }

@@ -195,6 +195,7 @@ class StatsPanel  : public Panel
     int focusedExpID;
     int focusedCompareExpID;
     std::vector<int> compareExpIDs;
+    std::vector<QString> compareExpDBNames;
     ExperimentGroupList experimentGroupList;
     CInfoClassList cInfoClassList;
 
@@ -322,6 +323,7 @@ class StatsPanel  : public Panel
     void getApplicationCommand(int expID);
     void getExperimentType(int expID);
     void getDatabaseName(int expID, bool force_use_of_exp_id);
+    QString getDBName(int);
     void getPidList(int expID);
     void getHostList(int expID);
     void getExecutableList(int expID);

@@ -690,7 +690,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   frameLayout->addWidget( splitterA );
 
 #ifdef DEBUG_StatsPanel_chart
-    printf("StatsPanel::StatsPanel, before checks getMainWindow->preferenceDialog->showGraphicsCheckBox, chartFLAG=%d\n", chartFLAG);
+    printf("StatsPanel::StatsPanel, before checks getMainWindow->preferencesDialog->showGraphicsCheckBox, chartFLAG=%d\n", chartFLAG);
 #endif
 
   if( pc->getMainWindow()->preferencesDialog->showGraphicsCheckBox->isChecked() ) {
@@ -698,14 +698,14 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
     chartFLAG = TRUE;
 
 #ifdef DEBUG_StatsPanel_chart
-    printf("StatsPanel::StatsPanel, insides checks getMainWindow->preferenceDialog->showGraphicsCheckBox, setting TRUE, chartFLAG=%d\n", chartFLAG);
+    printf("StatsPanel::StatsPanel, insides checks getMainWindow->preferencesDialog->showGraphicsCheckBox, setting TRUE, chartFLAG=%d\n", chartFLAG);
 
 #endif
 
     cf->show();
   } else {
 #ifdef DEBUG_StatsPanel_chart
-    printf("StatsPanel::StatsPanel, insides checks getMainWindow->preferenceDialog->showGraphicsCheckBox, setting FALSE, chartFLAG=%d\n", chartFLAG);
+    printf("StatsPanel::StatsPanel, insides checks getMainWindow->preferencesDialog->showGraphicsCheckBox, setting FALSE, chartFLAG=%d\n", chartFLAG);
 #endif
     chartFLAG = FALSE;
     cf->hide();
@@ -4435,6 +4435,59 @@ void StatsPanel::getDatabaseName(int exp_id, bool force_exp)
 }
 #endif
 
+
+
+#ifdef DBNAMES
+QString StatsPanel::getDBName(int exp_id)
+{
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getDBName() , list_of_dbnames.size()=%d\n", list_of_dbnames.size());
+#endif
+  bool force_use_of_exp_id = TRUE;
+  getDatabaseName(exp_id, force_use_of_exp_id);
+  if( list_of_dbnames.size() > 0 )
+  {
+    int dbnames_count = 0;
+    for( std::list<std::string>::const_iterator it = list_of_dbnames.begin();
+         it != list_of_dbnames.end(); it++ )
+    {
+      dbnames_count = dbnames_count + 1;
+      std::string dbnames = *it;
+      QString dbnamesStr = QString("%1").arg(dbnames.c_str());
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::getDBName, dbnames=(%s), dbnamesStr.ascii()=%s\n", dbnames.c_str(), dbnamesStr.ascii() );
+#endif
+
+      QSettings *settings = new QSettings();
+      bool fullPathBool = settings->readBoolEntry( "/openspeedshop/general/viewFullPath");
+#ifdef DEBUG_StatsPanel
+      printf("CLI: /openspeedshop/general/viewFullPath == fullPathBool=(%d)\n", fullPathBool );
+#endif
+
+      QString db  = dbnamesStr;
+      if (!fullPathBool) {
+           int basename_index = dbnamesStr.findRev("/");
+           printf("basename_index = %d\n", basename_index);
+           if( basename_index != -1 ) {
+             printf("dbnamesStr.length() = %d\n", dbnamesStr.length());
+             db =  dbnamesStr.right((dbnamesStr.length()-basename_index)-1);
+           } 
+      }
+      delete settings;
+
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::getDBName, returning db=%s\n", db.ascii());
+#endif
+
+
+      return(db);
+    }
+
+  }
+}
+#endif
+
+
 void StatsPanel::updateMetadataForCompareIndication( QString compareStr )
 {
 #ifdef DEBUG_StatsPanel
@@ -4747,25 +4800,12 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::updateStatsPanelInfoHeader() , list_of_dbnames.size()=%d\n", list_of_dbnames.size());
 #endif
+  // Add the database name for this particular experiment into the info header    
   force_use_of_exp_id = TRUE;
   getDatabaseName(exp_id, force_use_of_exp_id);
-  if( list_of_dbnames.size() > 0 )
-  {
-    infoString += QString("\nDatabase Name: ");
-    int dbnames_count = 0;
-    for( std::list<std::string>::const_iterator it = list_of_dbnames.begin();
-         it != list_of_dbnames.end(); it++ )
-    {
-      dbnames_count = dbnames_count + 1;
-      std::string dbnames = *it;
-      QString dbnamesStr = QString("%1").arg(dbnames.c_str());
-#ifdef DEBUG_StatsPanel
-      printf("StatsPanel::updateStatsPanelInfoHeader, dbnames=(%s)\n", dbnames.c_str() );
-#endif
-      infoString += QString(" %1 ").arg(dbnamesStr);
-    }
-
-  }
+  infoString += QString("\n  Database Name: ");
+  QString dbnameStr = getDBName(exp_id);
+  infoString += QString(" %1 ").arg(dbnameStr);
 #endif
 
 #ifdef DEBUG_StatsPanel
@@ -5826,6 +5866,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
    setHeaderInfoAlreadyProcessed(-1);
 
    compareExpIDs.clear();
+   compareExpDBNames.clear();
    int compareID_count = 0;
    bool alreadyGeneratedToolBar = FALSE;
 
@@ -5856,6 +5897,9 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
           if (!skip_this_one) {
             compareID_count = compareID_count + 1;
             compareExpIDs.push_back (compareExpID);
+            // Save the database name to pass to the choose experiment dialog panel
+            QString tmpDBName = getDBName(compareExpID);
+            compareExpDBNames.push_back (tmpDBName);
           }
           toolbar_status_label->setText("Showing Comparison Report...");
           currentUserSelectedReportStr = "Comparison";
@@ -8220,11 +8264,11 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
 
         QSettings *settings = new QSettings();
         bool fullPathBool = settings->readBoolEntry( "/openspeedshop/general/viewFullPath");
+        if( fullPathBool ) {
 
 #ifdef DEBUG_StatsPanel
-        printf("/openspeedshop/general/viewFullPath == fullPathBool=(%d)\n", fullPathBool );
+        printf("fullPathBool=(%d)\n", fullPathBool );
 #endif
-         if (fullPathBool) {
            columnWidth = 1200;
          } else {
            columnWidth = 600;
@@ -11281,8 +11325,9 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
               } else if (compareExpIDs.size()  > 1) {
 
                    localExpID = getValidExperimentIdForView();    
+//                   localExpID = getValidExperimentIdForView( filename );    
 #ifdef DEBUG_StatsPanel
-                   printf("StatsPanel::lookUpFileHighlights2, 33, more than one experiment , localExpID=(%d)\n", localExpID );
+                   printf("StatsPanel::lookUpFileHighlights2, 33, more than one experiment , localExpID=(%d), filename=%s, fn=%s\n", localExpID, filename.ascii(), fn.ascii() );
 #endif
               }
 
@@ -12148,7 +12193,7 @@ StatsPanel::getValidExperimentIdForView()
   if( chooseExperimentDialog == NULL ) {
       chooseExperimentDialog = new ChooseExperimentDialog(getPanelContainer()->getMainWindow(), 
                                                           "Select Experiment For View:", 
-                                                           &compareExpIDs);
+                                                           &compareExpIDs, &compareExpDBNames);
       chooseExperimentDialog->show();
   } else {
       chooseExperimentDialog->show();
@@ -12488,24 +12533,13 @@ StatsPanel::analyzeTheCView()
     // Make a list of comma separated experiment ids for the stats panel info header
     infoAboutStringCompareExpIDs += QString("%1,").arg(expID);
 
+    // Add the database name for this particular experiment into the info header    
     bool force_use_of_exp_id = TRUE;
     getDatabaseName(expID, force_use_of_exp_id);
-    if( list_of_dbnames.size() > 0 )
-    {
-      int dbnames_count = 0;
-      for( std::list<std::string>::const_iterator it = list_of_dbnames.begin();
-           it != list_of_dbnames.end(); it++ )
-      {
-        dbnames_count = dbnames_count + 1;
-        std::string dbnames = *it;
-        QString dbnamesStr = QString("%1").arg(dbnames.c_str());
-#ifdef DEBUG_StatsPanel
-        printf("StatsPanel::analyzeTheCView, dbnames=(%s)\n", dbnames.c_str() );
-#endif
-        infoAboutComparingString += QString(" Database Name: %1 ").arg(dbnamesStr);
-      }
+    QString dbnamesStr = getDBName(expID);
+    infoAboutComparingString += QString(" Database Name: %1 ").arg(dbnamesStr);
 
-    }
+
 
     QString host_pid_names = QString::null;
 

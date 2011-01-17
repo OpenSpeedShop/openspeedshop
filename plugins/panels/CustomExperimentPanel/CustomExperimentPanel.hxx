@@ -125,7 +125,6 @@ public:
   bool staticDataFLAG;
 
   QString executableNameStr;
-  QString databaseNameStr;
   QString argsStr;
   QString parallelPrefixCommandStr;
   QString pidStr;
@@ -202,7 +201,9 @@ private:
   QString expStatsInfoStr;
 
   virtual void resetRedirect();
-  virtual QString getDatabaseName();
+  void getDatabaseName();
+  void getDatabaseName(int exp_id);
+  QString getDBName(int exp_id);
 
   bool instrumentorIsOffline;
 

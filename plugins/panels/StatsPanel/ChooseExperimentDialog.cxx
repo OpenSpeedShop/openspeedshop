@@ -37,20 +37,21 @@
  *  TRUE to construct a modal dialog.
  */
 
-ChooseExperimentDialog::ChooseExperimentDialog( QWidget* parent,  const char* name, std::vector<int> *argCompareExpIDs, bool modal, WFlags f )
+ChooseExperimentDialog::ChooseExperimentDialog( QWidget* parent,  const char* name, std::vector<int> *argCompareExpIDs, std::vector<QString> *argCompareExpDBNames, bool modal, WFlags f )
     : QDialog( parent, name, modal, f )
 {
     if ( !name )
         setName( "ChooseExperimentDialog" );
 
-    resize( 310, 222 );
+//    resize( 310, 222 );
+    resize( 610, 222 );
 
     setCaption( tr( "Choose Experiment for View"  ) );
     compareExpIDs = argCompareExpIDs;
+    compareExpDBNames = argCompareExpDBNames;
     int howManyButtons = compareExpIDs->size();
 #if DEBUG_Choose
-    printf("ChooseExperimentDialog::ChooseExperimentDialog, howManyButtons=%d\n",
-            howManyButtons);
+    printf("ChooseExperimentDialog::ChooseExperimentDialog, howManyButtons=%d\n", howManyButtons);
 #endif
     focusExpID = -1;
 
@@ -166,13 +167,17 @@ ChooseExperimentDialog::languageChange()
       SLOT( reject() ) );
 
   int count = 0;
+  std::vector<QString>::const_iterator itDB = compareExpDBNames->begin();
   for( std::vector<int>::const_iterator it = compareExpIDs->begin();
        it != compareExpIDs->end(); it++ )
   {
       count = count + 1;
       int exp_id = *it;
-      char expIdStr[20];
+      QString dbName = *itDB;
+      itDB++;
+      char expIdStr[1024];
       sprintf(expIdStr, "Experiment %d", exp_id);
+      sprintf(expIdStr, "Experiment:%d, Database Name:%s", exp_id, dbName.ascii());
 
 #if DEBUG_Choose
       printf("ChooseExperimentDialog::languageChange, expIdStr=%s\n", expIdStr);
