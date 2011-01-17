@@ -5548,6 +5548,72 @@ static bool SS_ListSrc (CommandObject *cmd) {
   return true;
 }
 
+
+/**
+ * SemanticRoutine: SS_ListSrcFullPath ()
+ * 
+ * List the basename or full path (based on the value of OPENSS_VIEW_FULLPATH)
+ * for every function that is part of a specified experiment.
+ *     
+ * @param   cmd - the CommandObject being processed.
+ *
+ * @return  "true" on successful complation of the command.
+ *
+ * @error   " false" returned if no experiment can be determined.
+ *
+ */
+static bool SS_ListSrcFullPath (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // List the functions for a specified Experiment or the focused Experiment.
+  ExperimentObject *exp = Find_Specified_Experiment (cmd);
+  if (exp == NULL) {
+    return false;
+  }
+
+ // Prevent this experiment from changing until we are done.
+  exp->Q_Lock (cmd, true);
+
+ // Get a list of the unique threads used in the specified experiment.
+  ThreadGroup tgrp = exp->FW()->getThreads();
+  Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+ // Filter that thread list with any "-f" specification and get a Function list.
+  std::set<Function> flset;
+  Get_Filtered_Objects (cmd, exp, tgrp, flset);
+
+ // Put the names of all the functions in a set to eliminate duplicates.
+  std::set<std::string> mset;
+  for (std::set<Function>:: iterator fi = flset.begin(); fi != flset.end(); fi++) {
+
+   // Check for asynchronous abort command
+    if (cmd->Status() == CMD_ABORTED) {
+      mset.clear();
+      break;
+    }
+
+    Function fobj = *fi;
+    std::set<Statement> sobj = fobj.getDefinitions();
+    if( sobj.size() > 0 ) {
+      std::set<Statement>::const_iterator sobji = sobj.begin();
+      std::string F = sobji->getPath();
+      mset.insert ( F );
+    }
+  }
+
+ // Now we're ready to list the file names.
+  for (std::set<std::string>::iterator mseti = mset.begin(); mseti != mset.end(); mseti++) {
+    cmd->Result_String ( *mseti );
+  }
+
+  exp->Q_UnLock ();
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+
 static bool SS_ListStatements (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -6073,6 +6139,8 @@ bool SS_ListGeneric (CommandObject *cmd) {
       result_of_first_list = SS_ListRanks(cmd);
     } else if (!strcasecmp(S.c_str(),"src")) {
       result_of_first_list = SS_ListSrc(cmd);
+    } else if (!strcasecmp(S.c_str(),"srcfullpath")) {
+      result_of_first_list = SS_ListSrcFullPath(cmd);
     } else if (!strcasecmp(S.c_str(),"functions")) {
       result_of_first_list = SS_ListFunctions(cmd);
     } else if (!strcasecmp(S.c_str(),"mangled")) {
