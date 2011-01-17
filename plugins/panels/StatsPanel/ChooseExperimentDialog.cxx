@@ -193,22 +193,47 @@ ChooseExperimentDialog::languageChange()
 #endif
 
       if (count == 1) {
+        if (exp_id == focusOnExpIDsCheckBox) {
+          ExpChoiceCheckBox1->setChecked( TRUE );
+        } else {
+          ExpChoiceCheckBox1->setChecked( FALSE );
+        }
         ExpChoiceCheckBox1->setText( tr( expIdStr ) );
         connect( ExpChoiceCheckBox1, SIGNAL( clicked() ), this, 
                  SLOT( ExpChoiceCheckBox1Selected() ) );
       } else if (count == 2) {
+        if (exp_id == focusOnExpIDsCheckBox) {
+          ExpChoiceCheckBox2->setChecked( TRUE );
+        } else {
+          ExpChoiceCheckBox2->setChecked( FALSE );
+        }
         ExpChoiceCheckBox2->setText( tr( expIdStr ) );
         connect( ExpChoiceCheckBox2, SIGNAL( clicked() ), this, 
                  SLOT( ExpChoiceCheckBox2Selected() ) );
       } else if (count == 3) {
+        if (exp_id == focusOnExpIDsCheckBox) {
+          ExpChoiceCheckBox3->setChecked( TRUE );
+        } else {
+          ExpChoiceCheckBox3->setChecked( FALSE );
+        }
         ExpChoiceCheckBox3->setText( tr( expIdStr ) );
         connect( ExpChoiceCheckBox3, SIGNAL( clicked() ), this, 
                  SLOT( ExpChoiceCheckBox3Selected() ) );
       } else if (count == 4) {
+        if (exp_id == focusOnExpIDsCheckBox) {
+          ExpChoiceCheckBox4->setChecked( TRUE );
+        } else {
+          ExpChoiceCheckBox4->setChecked( FALSE );
+        }
         ExpChoiceCheckBox4->setText( tr( expIdStr ) );
         connect( ExpChoiceCheckBox4, SIGNAL( clicked() ), this, 
                  SLOT( ExpChoiceCheckBox4Selected() ) );
       } else if (count == 5) {
+        if (exp_id == focusOnExpIDsCheckBox) {
+          ExpChoiceCheckBox5->setChecked( TRUE );
+        } else {
+          ExpChoiceCheckBox5->setChecked( FALSE );
+        }
         ExpChoiceCheckBox5->setText( tr( expIdStr ) );
         connect( ExpChoiceCheckBox5, SIGNAL( clicked() ), this, 
                  SLOT( ExpChoiceCheckBox5Selected() ) );
