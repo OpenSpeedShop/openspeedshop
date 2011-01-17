@@ -12513,13 +12513,14 @@ StatsPanel::analyzeTheCView()
 
 #ifdef DEBUG_StatsPanel_cview
       printf("analyzeTheCView, END-STRING ANALYSIS compare id string: cid=%d, str=(%s)\n", cid, str.ascii() );
+      printf("analyzeTheCView, cidStr=%s\n", cidStr.ascii() );
       printf("analyzeTheCView, start_host=%d, start_index=%d, end_index=%d\n", start_host, start_index, end_index);
       printf("analyzeTheCView, start_metric=%d, start_process=%d, start_rank=%d\n", start_metric, start_process, start_rank);
       printf("analyzeTheCView, start_expid=%d, end_expid_index=%d\n", start_expid, end_expid_index);
 #endif
 
     if(!cidStr.isEmpty() ) {
-      infoAboutComparingString += QString("\nColumn %1: ").arg( columnNum );
+      infoAboutComparingString += QString("\nColumn(s) labeled -c %1: ").arg(cidStr.ascii());
     }
 
     QString expIDStr = str.mid(start_expid, end_expid_index-start_expid);
