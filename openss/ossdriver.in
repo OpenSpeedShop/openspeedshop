@@ -2177,7 +2177,7 @@ then
    then
 # FIXME - how do we get the event names to use as the compare metric
 #      use_compare_metric=time
-      use_compare_metric=allevents
+      use_compare_metric=time,allevents
    fi
 fi
 
