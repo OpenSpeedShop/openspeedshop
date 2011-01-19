@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2011 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -1186,7 +1186,11 @@ CustomExperimentPanel::listener(void *msg)
 #endif
       }
 
-      command = QString("cview -c %1, %2").arg(leftSideCval).arg(rightSideCval);
+      // metric contains the -m tag
+      command = QString("cview -c %1, %2 %3,absdiff").arg(leftSideCval).arg(rightSideCval).arg(metric);
+#ifdef DEBUG_CustomPanel
+      printf("CustomExperimentPanel::listener, command=(%s)\n", command.ascii());
+#endif
       original_cview_command = command;
       UpdateObject *msg = new UpdateObject((void *)NULL, -1, command.ascii(), 1);
       statsPanel->listener( (void *)msg );
