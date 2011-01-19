@@ -375,7 +375,11 @@ void Backend::startMessagePump(int argc, char* argv[])
 #endif
     if(the_network->has_Error())
 	throw std::runtime_error("Unable to initialize MRNet.");
+
+#if defined(MRNET_301) 
+#else
     the_network->set_TerminateBackEndsOnShutdown(false);
+#endif
     
     // Create the stream used by backends to pass data to the frontend.
     int tag = -1;
