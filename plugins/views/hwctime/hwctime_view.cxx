@@ -310,7 +310,10 @@ static bool define_hwctime_columns (
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
           std::string H = Event_Name_Header (CV[0], "inclusive_overflows");
           HV.push_back(std::string("% of Total ") + H + " Counts");
-        }
+       } else if (!strcasecmp(M_Name.c_str(), "absdiff")) {
+        // Ignore this because cview -c 3 -c 5 -mtime,absdiff actually works outside of this view code
+        //         // Mark_Cmd_With_Soft_Error(cmd,"AbsDiff option, '-m " + M_Name + "'");
+       }
 // Recognize and generate pseudo instructions to calculate and display By Thread metrics for
 // ThreadMax, ThreadMaxIndex, ThreadMin, ThreadMinIndex, ThreadAverage and loadbalance.
 #include "SS_View_bythread_recognize.hxx"

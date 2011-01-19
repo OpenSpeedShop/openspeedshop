@@ -501,6 +501,9 @@ static bool define_io_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m stop_time' only supported for '-v Trace' option.");
           }
+        } else if (!strcasecmp(M_Name.c_str(), "absdiff")) {
+        // Ignore this because cview -c 3 -c 5 -mtime,absdiff actually works outside of this view code
+        // Mark_Cmd_With_Soft_Error(cmd,"AbsDiff option, '-m " + M_Name + "'");
         }
 // Recognize and generate pseudo instructions to calculate and display By Thread metrics for
 // ThreadMax, ThreadMaxIndex, ThreadMin, ThreadMinIndex, ThreadAverage and loadbalance.

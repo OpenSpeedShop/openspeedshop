@@ -294,6 +294,9 @@ static bool define_hwcsamp_columns (
         IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
         IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
         HV.push_back("% of Total Exclusive Time");
+      } else if (!strcasecmp(M_Name.c_str(), "absdiff")) {
+        // Ignore this because cview -c 3 -c 5 -mtime,absdiff actually works outside of this view code
+        // Mark_Cmd_With_Soft_Error(cmd,"AbsDiff option, '-m " + M_Name + "'");
       }
 #include "SS_View_bythread_recognize.hxx"
 

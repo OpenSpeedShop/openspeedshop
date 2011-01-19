@@ -600,6 +600,10 @@ static bool define_fpe_columns (
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
           HV.push_back("Average Exclusive Fpe Event Counts Across Threads");
           user_defined = true;
+
+        } else if (!strcasecmp(M_Name.c_str(), "absdiff")) {
+         // Ignore this because cview -c 3 -c 5 -mtime,absdiff actually works outside of this view code
+         // Mark_Cmd_With_Soft_Error(cmd,"AbsDiff option, '-m " + M_Name + "'");
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
         }

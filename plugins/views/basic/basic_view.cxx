@@ -154,6 +154,9 @@ static bool define_pcsamp_columns (
                                           View_ByThread_Identifier));
         HV.push_back( std::string("Average ") + Find_Metadata ( CV[0], MV[0] ).getDescription()
                       + " Across Threads");
+      } else if (!strcasecmp(M_Name.c_str(), "absdiff")) {
+        // Ignore this because cview -c 3 -c 5 -mtime,absdiff actually works outside of this view code
+        //Mark_Cmd_With_Soft_Error(cmd,"AbsDiff option, '-m " + M_Name + "'");
       } else {
        // Unrecognized '-m' option.
         Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
@@ -380,6 +383,9 @@ static bool define_hwc_columns (
                                           ViewReduction_mean,
                                           View_ByThread_Identifier));
         HV.push_back("Average Counts Across Threads");
+      } else if (!strcasecmp(M_Name.c_str(), "absdiff")) {
+        // Ignore this because cview -c 3 -c 5 -mtime,absdiff actually works outside of this view code
+        //Mark_Cmd_With_Soft_Error(cmd,"AbsDiff option, '-m " + M_Name + "'");
       } else {
        // Unrecognized '-m' option.
         Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");

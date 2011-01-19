@@ -296,6 +296,9 @@ static bool define_usertime_columns (
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, incnt_temp, totalIndex++));
           HV.push_back("% of Total Inclusive Counts");
+        } else if (!strcasecmp(M_Name.c_str(), "absdiff")) {
+        // Ignore this because cview -c 3 -c 5 -mtime,absdiff actually works outside of this view code
+        // Mark_Cmd_With_Soft_Error(cmd,"AbsDiff option, '-m " + M_Name + "'");
         }
 // Recognize and generate pseudo instructions to calculate and display By Thread metrics for
 // ThreadMax, ThreadMaxIndex, ThreadMin, ThreadMinIndex, ThreadAverage and loadbalance.
