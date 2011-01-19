@@ -113,8 +113,18 @@ namespace OpenSpeedShop { namespace Framework {
 	Address& operator+=(const difference_type& other)
 	{
 	    value_type result = dm_value + other;
-	    Assert((other > 0) || (result <= dm_value));
-            Assert((other < 0) || (result >= dm_value));
+//	    Assert((other > 0) || (result <= dm_value));
+	    if ((other <= 0) && (result > dm_value)) {
+              std::cerr << "ASSERT other > 0 WOULD HAVE HAPPENED other=" 
+                        << other << " result=" << result << " dm_value=" 
+                        << dm_value << std::endl;
+            }
+//          Assert((other < 0) || (result >= dm_value));
+            if ((other >= 0) && (result < dm_value)) {
+              std::cerr << "ASSERT other < 0 WOULD HAVE HAPPENED other=" 
+                        << other << " result=" << result << " dm_value=" 
+                        << dm_value << std::endl;
+            }
 	    dm_value = result;
 	    return *this;
 	}
