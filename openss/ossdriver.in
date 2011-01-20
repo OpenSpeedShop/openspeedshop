@@ -2289,7 +2289,7 @@ then
   fi
   if [ $create_csv_files -eq 1 ]
   then
-    echo "cview -c 2 -c 4 -c 6 -c 8 > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+    echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
   fi
   echo "cview -c 2 -c 4 -c 6 -c 8 -c 10" >> /tmp/$USER/osscompare_commands.txt
 #  echo "quit" >> /tmp/$USER/osscompare_commands.txt
