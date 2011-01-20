@@ -2528,6 +2528,7 @@ then
 #
 # Now add the header information to the screen output results.
 #
+  echo "" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.legends.txt
   echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
        >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.legends.txt
   echo "[openss]: Legend: -c 2 represents ${values[0]}" \
@@ -2575,6 +2576,7 @@ then
 #
 # Now add the header information to the screen output results.
 #
+  echo "" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.legends.txt
   echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
        >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.legends.txt
   echo "[openss]: Legend: -c 2 represents ${values[0]}" \
@@ -2624,6 +2626,7 @@ then
 #
 # Now add the header information to the screen output results.
 #
+  echo "" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.legends.txt
   echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
        >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.legends.txt
   echo "[openss]: Legend: -c 2 represents ${values[0]}" \
@@ -2675,6 +2678,7 @@ then
 #
 # Now add the header information to the screen output results.
 #
+  echo "" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.legends.txt
   echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
        >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.legends.txt
   echo "[openss]: Legend: -c 2 represents ${values[0]}" \
@@ -2699,7 +2703,7 @@ then
 fi
 
 
-if [ "$number_of_databases" -eq "7" ]
+if [ "$number_of_databases" -eq "8" ]
 then
 #
 # First we handle the csv file then the normal output file
@@ -2729,6 +2733,7 @@ then
 #
 # Now add the header information to the screen output results.
 #
+  echo "" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt
   echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
        >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt
   echo "[openss]: Legend: -c 2 represents ${values[0]}" \
