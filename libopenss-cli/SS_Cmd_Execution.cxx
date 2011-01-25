@@ -4366,6 +4366,7 @@ bool SS_expStatus(CommandObject *cmd) {
   return true;
 }
 
+
 /**
  * SemanticRoutine: SS_expView()
  * 
@@ -5834,6 +5835,100 @@ static bool SS_ListStatus (CommandObject *cmd) {
 }
 
 /**
+ * SemanticRoutine SS_ListWallTime ()
+ * 
+ * Print information about an experiment.
+ *     
+ * @param   cmd- the CommandObject being processed.
+ *
+ * @return  "true" if the command was successful.
+ *
+ * @error   "false" returned if no experiment is specified
+ *          or if an error was detected while looking at
+ *          the associated database.
+ *
+ */
+bool SS_ListWallTime(CommandObject *cmd) {
+
+
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+    // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, false);
+    exp->Determine_Status ();
+
+   try {
+
+    if (exp->FW() != NULL) {
+
+    Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
+    if ((databaseExtent.getTimeInterval().getBegin() == Time::TheBeginning()) ||
+        (databaseExtent.getTimeInterval().getBegin() ==
+                        databaseExtent.getTimeInterval().getEnd())) {
+       cmd->Result_String ("    There is no performance data recorded in the database.");
+    } else {
+       std::ostringstream lt(std::ios::out);
+       std::ostringstream st(std::ios::out);
+       std::ostringstream et(std::ios::out);
+       Time ST = databaseExtent.getTimeInterval().getBegin();
+       Time ET = databaseExtent.getTimeInterval().getEnd();
+
+       int64_t elapsed_time = ((ET - ST));
+       int64_t scaled_time = (elapsed_time / 1000000000);
+       CommandResult *elapsed_cr = new CommandResult_Duration (elapsed_time);
+      // Format elapsed time.
+       lt << elapsed_cr->Form();
+      // Determine resulting units.
+       std::string UNITS;
+       if (scaled_time >= (60 * 60 * 24)) {
+         UNITS = "dd:hh:mm:ss";
+       } else if (scaled_time >= (60 * 60)) {
+         UNITS = "hh:mm:ss";
+       } else if (scaled_time >= (60)) {
+         UNITS = "mm:ss";
+       } else if (scaled_time >= 1) {
+         UNITS = "seconds";
+       } else if (elapsed_time >= 1000000) {
+         UNITS = "ms";
+       } else {
+         UNITS = "ns";
+       }
+       delete elapsed_cr;
+
+       st << databaseExtent.getTimeInterval().getBegin();
+       et << databaseExtent.getTimeInterval().getEnd();
+       cmd->Result_String ("Performance data spans "
+                              + lt.str()
+                              + " " + UNITS + "  from "
+                              + st.str()
+                              + " to "
+                              + et.str());
+    }
+
+   }
+  } // try
+
+
+  catch(const Exception& error) {
+    Mark_Cmd_With_Std_Error (cmd, error);
+    cmd->Result_String ( "}");
+    exp->Q_UnLock ();
+    return false;
+  }
+
+  exp->Q_UnLock ();
+
+#if DEBUG_CLI
+  printf("In SS_ListWallTime, calling cmd->set_Status(CMD_COMPLETE); before exiting\n");
+#endif
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+/**
  * SemanticRoutine: SS_ListThreads ()
  * 
  * List the OpenMP or Posix thread Id's for the application
@@ -6153,6 +6248,8 @@ bool SS_ListGeneric (CommandObject *cmd) {
       result_of_first_list = SS_ListThreads(cmd);
     } else if (!strcasecmp(S.c_str(),"views")) {
       result_of_first_list = SS_ListViews(cmd);
+    } else if (!strcasecmp(S.c_str(),"walltime")) {
+      result_of_first_list = SS_ListWallTime(cmd);
     } else if (!strcasecmp(S.c_str(),"cviews")) {
       result_of_first_list = SS_ListCviews(cmd);
     } else {
