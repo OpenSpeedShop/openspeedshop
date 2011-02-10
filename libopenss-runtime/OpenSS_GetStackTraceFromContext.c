@@ -74,7 +74,19 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
  * unwind through the signalhandler frames if skip_signal_frames
  * is TRUE. 
  */
-#if defined(__linux) && (defined(__i386) || defined(__x86_64))
+#if defined(TARGET_OS_BGP)
+    if (signal_context != NULL) {
+       context = *signal_context;
+       skip_signal_frames = FALSE;
+       skip_frames = 0;
+    }
+    else {
+       Assert(unw_getcontext(&context) == 0);
+    }
+    //Work-around to a libunwind bug
+    context.uc_mcontext.regs->link = context.uc_mcontext.regs->nip;
+
+#elif defined(__linux) && (defined(__i386) || defined(__x86_64))
 
     if(signal_context != NULL) {
         memmove(&context, signal_context, sizeof(unw_context_t));
