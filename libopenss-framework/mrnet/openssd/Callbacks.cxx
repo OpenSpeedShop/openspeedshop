@@ -161,8 +161,15 @@ void Callbacks::attachToThreads(const Blob& blob)
 	// Otherwise attach to the process containing the specified thread
 	BPatch* bpatch = BPatch::getBPatch();
 	Assert(bpatch != NULL);
+
+#if (DYNINST_MAJOR == 7)
+        BPatch_process* process = BPatch::bpatch->processAttach("", i->getProcessId(), BPatch_normalMode);
+	if(process == NULL) {
+#else
 	thread = bpatch->attachProcess(NULL, i->getProcessId());
 	if(thread == NULL) {
+#endif
+
 
 #ifndef NDEBUG
 	    if(Backend::isDebugEnabled()) {
@@ -183,7 +190,7 @@ void Callbacks::attachToThreads(const Blob& blob)
 	    continue;
 	}
 
-	BPatch_process* process = thread->getProcess();
+	process = thread->getProcess();
 	Assert(process != NULL);
 	
 	// Get the list of threads in this process
@@ -783,7 +790,16 @@ void Callbacks::getGlobalInteger(const Blob& blob)
 #endif
 	return;
     }
+
+#if (DYNINST_MAJOR == 7)
+    BPatch_process* process = thread->getProcess();
+    Assert(process != NULL);
+
+    if(!process->isStopped()) {
+#else
     if(!thread->isStopped()) {
+#endif
+
 #ifndef NDEBUG
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
@@ -795,8 +811,6 @@ void Callbacks::getGlobalInteger(const Blob& blob)
 	}
 #endif
     }
-    BPatch_process* process = thread->getProcess();
-    Assert(process != NULL);
 
     // Get the global variable
     std::pair<bool, int64_t> value = std::make_pair(false, 0);
@@ -856,7 +870,16 @@ void Callbacks::getGlobalString(const Blob& blob)
 #endif
 	return;
     }
+
+#if (DYNINST_MAJOR == 7)
+    BPatch_process* process = thread->getProcess();
+    Assert(process != NULL);
+
+    if(!process->isStopped()) {
+#else
     if(!thread->isStopped()) {
+#endif
+
 #ifndef NDEBUG
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
@@ -868,8 +891,6 @@ void Callbacks::getGlobalString(const Blob& blob)
 	}
 #endif
     }
-    BPatch_process* process = thread->getProcess();
-    Assert(process != NULL);
 
     // Get the global variable
     std::pair<bool, std::string> value = std::make_pair(false, std::string());
@@ -929,7 +950,16 @@ void Callbacks::getMPICHProcTable(const Blob& blob)
 #endif
 	return;
     }
+
+#if (DYNINST_MAJOR == 7)
+    BPatch_process* process = thread->getProcess();
+    Assert(process != NULL);
+
+    if(!process->isStopped()) {
+#else
     if(!thread->isStopped()) {
+#endif
+
 #ifndef NDEBUG
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
@@ -941,8 +971,6 @@ void Callbacks::getMPICHProcTable(const Blob& blob)
 	}
 #endif
     }
-    BPatch_process* process = thread->getProcess();
-    Assert(process != NULL);
 
     // Get the global variable
     std::pair<bool, Job> value = std::make_pair(false, Job());
@@ -1002,7 +1030,14 @@ void Callbacks::setGlobalInteger(const Blob& blob)
 #endif
 	return;
     }
+#if (DYNINST_MAJOR == 7)
+    BPatch_process* process = thread->getProcess();
+    Assert(process != NULL);
+
+    if(!process->isStopped()) {
+#else
     if(!thread->isStopped()) {
+#endif
 #ifndef NDEBUG
 	if(Backend::isDebugEnabled()) {
 	    std::stringstream output;
@@ -1014,8 +1049,6 @@ void Callbacks::setGlobalInteger(const Blob& blob)
 	}
 #endif
     }
-    BPatch_process* process = thread->getProcess();
-    Assert(process != NULL);
 
     // Set the global variable
     Dyninst::setGlobal(*process, message.global, message.value);

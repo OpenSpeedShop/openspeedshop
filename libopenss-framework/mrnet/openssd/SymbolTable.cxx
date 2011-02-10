@@ -28,7 +28,7 @@
 
 #include <algorithm>
 #include <BPatch_function.h>
-#if (DYNINST_MAJOR == 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2)
+#if (DYNINST_MAJOR == 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2) || (DYNINST_MAJOR == 7)
 #include <BPatch_statement.h>
 #endif
 #include <deque>
@@ -223,19 +223,18 @@ void SymbolTable::addModule(/* const */ BPatch_image& image,
     }
 
     // Get the list of statements in this module
-#if (DYNINST_MAJOR == 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2)
+#if (DYNINST_MAJOR == 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2) || (DYNINST_MAJOR == 7)
     std::vector<BPatch_statement> statements;
     module.getStatements(statements);
 #else
-    std::vector<struct BPatch_module::Statement> statements =
-	module.getStatements();
+    std::vector<struct BPatch_module::Statement> statements = module.getStatements();
 #endif
     
     // Iterate over each statement in this module
     for(int i = 0; i < statements.size(); ++i) {
 
 	// Construct a StatementEntry for this statement
-#if (DYNINST_MAJOR == 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2)
+#if (DYNINST_MAJOR == 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2) || (DYNINST_MAJOR == 7)
 	StatementEntry entry(FileName(statements[i].fileName()),
                              statements[i].lineNumber(), statements[i].lineOffset());
 #else
@@ -250,7 +249,7 @@ void SymbolTable::addModule(/* const */ BPatch_image& image,
 		).first;
 
 	// Get the begin/end addresses of the statement
-#if (DYNINST_MAJOR == 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2)
+#if (DYNINST_MAJOR == 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2) || (DYNINST_MAJOR == 7)
 	Address begin((uint64_t)statements[i].startAddr());
 	Address end((uint64_t)statements[i].endAddr());
 #else
@@ -265,7 +264,7 @@ void SymbolTable::addModule(/* const */ BPatch_image& image,
 	    if(Backend::isSymbolsDebugEnabled()) {
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
-#if (DYNINST_MAJOR == 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2)
+#if (DYNINST_MAJOR == 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2) || (DYNINST_MAJOR == 7)
 		       << "addModule(): Statement " << statements[i].fileName() 
 		       << ", line " << statements[i].lineNumber()
 		       << ", column " << statements[i].lineOffset()
@@ -290,7 +289,7 @@ void SymbolTable::addModule(/* const */ BPatch_image& image,
 	    if(Backend::isSymbolsDebugEnabled()) {
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
-#if (DYNINST_MAJOR == 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2)
+#if (DYNINST_MAJOR == 6) || (DYNINST_MAJOR == 5 && DYNINST_MINOR == 2) || (DYNINST_MAJOR == 7)
 		       << "addModule(): Statement " << statements[i].fileName() 
 		       << ", line " << statements[i].lineNumber()
 		       << ", column " << statements[i].lineOffset()

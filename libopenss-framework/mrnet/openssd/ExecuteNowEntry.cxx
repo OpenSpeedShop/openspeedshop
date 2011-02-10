@@ -89,7 +89,13 @@ void ExecuteNowEntry::install()
 	return;
 
     // Return immediately if the thread is terminated
+#if (DYNINST_MAJOR == 7)
+    BPatch_process* process = dm_thread.getProcess();
+    Assert(process != NULL);
+    if( process->isTerminated()) {
+#else
     if(dm_thread.isTerminated()) {
+#endif
 	
 #ifndef NDEBUG
 	if(Backend::isDebugEnabled()) {
@@ -105,7 +111,11 @@ void ExecuteNowEntry::install()
     }
 
     // Get the Dyninst process pointer for the thread to be instrumented
+#if (DYNINST_MAJOR == 7)
+    process = dm_thread.getProcess();
+#else
     BPatch_process* process = dm_thread.getProcess();
+#endif
     Assert(process != NULL);
 
     // Find the "callee" function
