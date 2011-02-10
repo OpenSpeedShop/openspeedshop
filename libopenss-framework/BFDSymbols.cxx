@@ -247,6 +247,16 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 
     AddressRange range_in_this_obj(Address((uint64_t)obj_load_addr),
 			Address((uint64_t)obj_end_addr));
+#ifndef NDEBUG
+            if(is_debug_symbols_enabled) {
+	      std::cerr << "BFDSymbols::getFunctionSyms ENTERED"
+                << " Address((uint64_t)obj_load_addr)= "
+                << Address((uint64_t)obj_load_addr)
+                << " Address((uint64_t)obj_end_addr)= "
+                << Address((uint64_t)obj_end_addr)
+		<< " to pc's found" << std::endl;
+	    }
+#endif
 
     for (unsigned ii = 0; ii < addrbuf->length; ii++) {
 	if (range_in_this_obj.doesContain(static_cast<Address>(addrbuf->pc[ii]))) {
@@ -303,8 +313,7 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 	<< std::endl;
 
       std::cerr << "getFunctionSyms: offset "
-	<< (bfd_signed_vma ) ((bfd_signed_vma) bfd_text_begin -
-			      (bfd_signed_vma) obj_load_addr)
+	<< (bfd_signed_vma ) ((bfd_signed_vma) bfd_text_begin - (bfd_signed_vma) obj_load_addr)
 	<< std::endl;
     }
 #endif
@@ -322,26 +331,59 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 // DEBUG
 #ifndef NDEBUG
     if(is_debug_symbols_enabled) {
-      std::cerr << "getFunctionSyms: using base address " << base
-	<< " for function offsets" << std::endl;
+      std::cerr << "getFunctionSyms: using base address " << base << " for function offsets" << std::endl;
     }
 #endif
 
     int foundpcs = 0;
     for (int i = 0; i < numsortedsyms; i++) {
 	asymbol* sym = sortedsyms[i];
+#ifndef NDEBUG
+        if(is_debug_symbols_enabled) {
+            std::cerr << "getFunctionSyms: before if sym->flags= " << sym->flags
+                      << " BSF_FUNCTION= " << BSF_FUNCTION
+                      << " (sym->flags & BSF_FUNCTION)= " << (sym->flags & BSF_FUNCTION)
+                      << " sym->section= " << sym->section
+                      << " !bfd_is_und_section(sym->section)= " << !bfd_is_und_section(sym->section)
+      	              << std::endl;
+          }
+#endif
 	if ((sym->flags & BSF_FUNCTION) && !bfd_is_und_section(sym->section)) {
 	
 	    bfd_size_type size = bfd_get_section_size(sym->section);
 	    bfd_vma section_vma = bfd_get_section_vma (theBFD, sym->section);
 	    bfd_vma begin_addr = bfd_asymbol_value(sym);
+#ifndef NDEBUG
+            if(is_debug_symbols_enabled) {
+              std::cerr << "getFunctionSyms: inside if sym->flags, size=" << size
+        	<< " section_vma=" << Address(section_vma) 
+        	<< " begin_addr=" << Address(begin_addr)
+        	<< std::endl;
+            }
+#endif
 
 	    if (section_vma <= begin_addr && begin_addr > size + section_vma) {
+#ifndef NDEBUG
+                if(is_debug_symbols_enabled) {
+                  std::cerr << "getFunctionSyms: BREAK in section_vma if test " 
+	                    << std::endl;
+                }
+#endif
 		break;
 	    } 
 
 	    Address real_begin(base + (uint64_t)begin_addr);
 	    if (!range_in_this_obj.doesContain(real_begin)) {
+#ifndef NDEBUG
+                if(is_debug_symbols_enabled) {
+                  std::cerr << "getFunctionSyms: CONTINUE in range_in_this_obj if test " 
+	                    << " base =" << base
+	                    << " begin_addr =" << Address(begin_addr)
+	                    << " real_begin =" << real_begin
+		            << " PC range_in_this_obj " << range_in_this_obj
+	                    << std::endl;
+                }
+#endif
 		continue;
 	    }
 
@@ -355,6 +397,7 @@ BFDSymbols::getFunctionSyms (PCBuffer *addrbuf,
 	      std::cerr << "getFunctionSyms: TESTING "
 		<< symname << " at " << real_begin
 		<< "," << Address(base + end_addr)
+		<< " end_addr" << Address(end_addr)
 		<< " in section " << Address(base + section_vma)
 		<< " with size " <<  size
 		<< " PC range_in_this_obj " << range_in_this_obj << std::endl;
@@ -881,11 +924,26 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 
 	// Find only those functions whose address range contains a value
 	// in the passed address buffer addrbuf.
+#ifndef NDEBUG
+	if(is_debug_symbols_enabled) {
+	    std::cerr << "Calling getFunctionSyms for "
+	        << " (*si).getBegin().getValue()=" << Address((*si).getBegin().getValue())
+	        << " (*si).getEnd().getValue()=" << Address((*si).getEnd().getValue())
+                << std::endl;
+	}
+#endif
 
 	int found_functions = getFunctionSyms(addrbuf,
 					      (*si).getBegin().getValue(),
 					      (*si).getEnd().getValue());
 
+#ifndef NDEBUG
+	if(is_debug_symbols_enabled) {
+	    std::cerr << "After Calling getFunctionSyms for "
+                << " found_functions=" << found_functions
+                << std::endl;
+	}
+#endif
 	// foreach address in addrvec, find the function, file, line number.
 	// See find_address_in_section for details.
 	// store functions begin and end address for functions with found
@@ -900,6 +958,13 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 				       f !=  functionvec.end(); ++f) {
 
 		AddressRange range(f->getFuncBegin(),f->getFuncEnd());
+#ifndef NDEBUG
+		    if (is_debug_symbols_enabled) {
+		      std::cerr << "getBFDFunctionStatements: LOOKING FOR FUNCTION for pc " << cur_pc
+		        << " at " << ii << " range is: Function Begin=" << f->getFuncBegin()
+		        << " Function End=" << f->getFuncEnd() << std::endl;
+		    }
+#endif
 
 		if (range.doesContain(cur_pc)) {
 // DEBUG
@@ -919,6 +984,19 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 		    // for statement info and added to our statements.
 		    function_begin_addresses.insert(f->getFuncBegin());
 		}
+#ifndef NDEBUG
+ 	        if(is_debug_symbols_enabled) {
+		    if (foundpc == 0) {
+		        if(is_debug_symbols_enabled) {
+		            std::cerr << "getBFDFunctionStatements: FAILED FUNCTION for pc " << cur_pc
+		    	    << " at " << ii << " of " << addrbuf->length 
+		            << " range is: Function Begin=" << f->getFuncBegin()
+		            << " Function End=" << f->getFuncEnd() 
+                            << std::endl;
+		        }
+		    }
+	        }
+#endif
 	    }
 
 	    if (foundpc > 1) {
@@ -940,7 +1018,8 @@ BFDSymbols::getBFDFunctionStatements(PCBuffer *addrbuf,
 		if (foundpc == 0) {
 		    if(is_debug_symbols_enabled) {
 		        std::cerr << "getBFDFunctionStatements: FAILED FUNCTION for pc " << cur_pc
-		    	<< " at " << ii << " of " << addrbuf->length << std::endl;
+		    	<< " at " << ii << " of " << addrbuf->length 
+                        << std::endl;
 		    }
 		}
 	    }
