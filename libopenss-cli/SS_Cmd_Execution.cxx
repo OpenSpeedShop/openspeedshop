@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2010 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2011 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -2440,8 +2440,9 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     std::string runOfflineCmd = "RunOfflineExp(program=\"" + appCommand + "\", collector=\"" + S + "\")";
 
 #ifdef DEBUG_CLI
-    std::cerr << "In Execute_Experiment, offline, runOfflineCmd=" << runOfflineCmd << "\n";
+    std::cerr << "In Execute_Experiment, offline, runOfflineCmd=" << runOfflineCmd << "\n" << std::endl ;
 #endif
+
 
     PyRun_SimpleString(runOfflineCmd.c_str());
 
@@ -5851,6 +5852,21 @@ static bool SS_ListStatus (CommandObject *cmd) {
 bool SS_ListWallTime(CommandObject *cmd) {
 
 
+    bool All_Keyword = Look_For_KeyWord (cmd, "all");
+    if (All_Keyword) {
+      //printf("SS_ListWallTime, found all keyword\n");
+    }
+
+    bool Time_Keyword = Look_For_KeyWord (cmd, "timeonly");
+    if (Time_Keyword) {
+      //printf("SS_ListWallTime, found timeonly keyword\n");
+    }
+
+    bool Range_Keyword = Look_For_KeyWord (cmd, "rangeonly");
+    if (Range_Keyword) {
+      //printf("SS_ListWallTime, found rangeonly keyword\n");
+    }
+
     ExperimentObject *exp = Find_Specified_Experiment (cmd);
     if (exp == NULL) {
       return false;
@@ -5900,12 +5916,20 @@ bool SS_ListWallTime(CommandObject *cmd) {
 
        st << databaseExtent.getTimeInterval().getBegin();
        et << databaseExtent.getTimeInterval().getEnd();
-       cmd->Result_String ("Performance data spans "
+       if (Time_Keyword) {
+          cmd->Result_String (lt.str());
+       } else if (Range_Keyword) {
+          cmd->Result_String (st.str()
+                              + " to "
+                              + et.str());
+       } else {
+          cmd->Result_String ("Performance data spans "
                               + lt.str()
                               + " " + UNITS + "  from "
                               + st.str()
                               + " to "
                               + et.str());
+       }
     }
 
    }
@@ -6185,6 +6209,14 @@ bool SS_ListGeneric (CommandObject *cmd) {
     std::string S = *j;
 
     if (!strcasecmp(S.c_str(),"all")) {
+      continue;
+    }
+
+    if (!strcasecmp(S.c_str(),"timeonly")) {
+      continue;
+    }
+
+    if (!strcasecmp(S.c_str(),"rangeonly")) {
       continue;
     }
 
