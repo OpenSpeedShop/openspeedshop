@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2007 Krell Institute  All Rights Reserved.
+# Copyright (c) 2007-2011 Krell Institute  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,14 +19,15 @@
 
 BUILT_SOURCES = \
 	__init__.py \
+	 openss.py \
 	 openss_classes.py \
 	 openss_commands.py \
 	 openss_parse.py
 
 dist_pkglib_SCRIPTS = \
-	__init__.py  openss_classes.py  openss_commands.py  openss_parse.py
+	__init__.py  openss.py openss_classes.py  openss_commands.py  openss_parse.py
 
-doc:	__init__.py openss_classes.py openss_commands.py openss_parse.py
+doc:	__init__.py openss.py openss_classes.py openss_commands.py openss_parse.py
 	ln -sf $(top_srcdir)/libopenss-cli/.libs/libopenss-cli.so.0.0.0 PYopenss.so;
 
 __init__.py: __init__.py.in
@@ -34,6 +35,12 @@ __init__.py: __init__.py.in
 	@cat \
 		$(srcdir)/__init__.py.in > __init__.py
 	@chmod 755 __init__.py
+
+openss.py: openss.py.in
+	@rm -f openss.py
+	@cat \
+		$(srcdir)/openss.py.in > openss.py
+	@chmod 755 openss.py
 
 openss_classes.py: openss_classes.py.in
 	@rm -f openss_classes.py
@@ -56,4 +63,4 @@ openss_parse.py: openss_parse.py.in
 clean:
 	rm -rf *.py *.pyc PYopenss.so
 
-EXTRA_DIST = __init__.py.in openss_classes.py.in openss_commands.py.in openss_parse.py.in
+EXTRA_DIST = __init__.py.in openss.py.in openss_classes.py.in openss_commands.py.in openss_parse.py.in
