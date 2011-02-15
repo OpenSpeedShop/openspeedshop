@@ -95,9 +95,10 @@ void ExecuteAtEntryOrExitEntry::install()
 	return;
 
     // Return immediately if the thread is terminated
-#if (DYNINST_MAJOR == 7)
     BPatch_process* process = dm_thread.getProcess();
     Assert(process != NULL);
+
+#if (DYNINST_MAJOR == 7)
     if (process->isTerminated() ) {
 #else
     if(dm_thread.isTerminated()) {

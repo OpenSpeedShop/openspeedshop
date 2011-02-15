@@ -162,8 +162,10 @@ void Callbacks::attachToThreads(const Blob& blob)
 	BPatch* bpatch = BPatch::getBPatch();
 	Assert(bpatch != NULL);
 
+        BPatch_process* process = NULL;
+
 #if (DYNINST_MAJOR == 7)
-        BPatch_process* process = BPatch::bpatch->processAttach("", i->getProcessId(), BPatch_normalMode);
+        process = BPatch::bpatch->processAttach("", i->getProcessId(), BPatch_normalMode);
 	if(process == NULL) {
 #else
 	thread = bpatch->attachProcess(NULL, i->getProcessId());
@@ -190,8 +192,11 @@ void Callbacks::attachToThreads(const Blob& blob)
 	    continue;
 	}
 
+#if (DYNINST_MAJOR < 7)
 	process = thread->getProcess();
 	Assert(process != NULL);
+#endif
+
 	
 	// Get the list of threads in this process
 	BPatch_Vector<BPatch_thread*> threads;
@@ -791,9 +796,11 @@ void Callbacks::getGlobalInteger(const Blob& blob)
 	return;
     }
 
-#if (DYNINST_MAJOR == 7)
-    BPatch_process* process = thread->getProcess();
+    BPatch_process* process = NULL;
+    process = thread->getProcess();
     Assert(process != NULL);
+
+#if (DYNINST_MAJOR == 7)
 
     if(!process->isStopped()) {
 #else
@@ -871,10 +878,10 @@ void Callbacks::getGlobalString(const Blob& blob)
 	return;
     }
 
-#if (DYNINST_MAJOR == 7)
     BPatch_process* process = thread->getProcess();
     Assert(process != NULL);
 
+#if (DYNINST_MAJOR == 7)
     if(!process->isStopped()) {
 #else
     if(!thread->isStopped()) {
@@ -951,10 +958,10 @@ void Callbacks::getMPICHProcTable(const Blob& blob)
 	return;
     }
 
-#if (DYNINST_MAJOR == 7)
     BPatch_process* process = thread->getProcess();
     Assert(process != NULL);
 
+#if (DYNINST_MAJOR == 7)
     if(!process->isStopped()) {
 #else
     if(!thread->isStopped()) {
@@ -1030,10 +1037,11 @@ void Callbacks::setGlobalInteger(const Blob& blob)
 #endif
 	return;
     }
-#if (DYNINST_MAJOR == 7)
+
     BPatch_process* process = thread->getProcess();
     Assert(process != NULL);
 
+#if (DYNINST_MAJOR == 7)
     if(!process->isStopped()) {
 #else
     if(!thread->isStopped()) {
