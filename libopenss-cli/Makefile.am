@@ -143,4 +143,12 @@ mrnet.py: mrnet.py.in
 		$(srcdir)/mrnet.py.in > mrnet.py
 	@chmod 755 mrnet.py
 
+
+install-exec-hook: libopenss-cli.la
+# PYopenss.so
+	@rm -f $(DESTDIR)$(libdir)/openspeedshop/PYopenss.so
+	$(LN_S) $(DESTDIR)$(libdir)/libopenss-cli.so  $(DESTDIR)$(libdir)/openspeedshop/PYopenss.so
+	chmod 644 $(DESTDIR)$(libdir)/openspeedshop/PYopenss.so
+
+
 EXTRA_DIST += offline.py.in mrnet.py
