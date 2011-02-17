@@ -497,6 +497,9 @@ Experiment::Experiment(const std::string& name) :
     // Set the experiment's rerun count to 0
     setRerunCount(-1);
 
+    // Set the experiment's instrumentor type to default to offline
+    setIsInstrumentorOffline(true);
+
 }
 
 

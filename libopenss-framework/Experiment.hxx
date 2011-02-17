@@ -159,6 +159,10 @@ namespace OpenSpeedShop { namespace Framework {
 
 	std::set<LinkedObject> getExecutables() const;
 
+        bool getIsInstrumentorOffline () {return isInstrumentorOffline;}
+        void setIsInstrumentorOffline (bool flag) {isInstrumentorOffline = flag;}
+
+
         int rerunCount;
 
         int setRerunCount(int count) {
@@ -191,6 +195,7 @@ namespace OpenSpeedShop { namespace Framework {
 	static bool getMPIJobFromMPT(const Thread&, Job&);
 	static bool getMPIJobFromMPICH(const Thread&, Job&);
 
+        bool isInstrumentorOffline;
 
 	/** Experiment database. */
 	SmartPtr<Database> dm_database;

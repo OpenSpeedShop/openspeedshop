@@ -1444,6 +1444,7 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
    // Use all the collectors that are already part of the experiment.
     try {
       cgrp = exp->FW()->getCollectors();
+      exp->FW()->setIsInstrumentorOffline(offlineInstrumentor);
     }
     catch(const Exception& error) {
 
