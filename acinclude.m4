@@ -1225,6 +1225,45 @@ AC_DEFUN([AC_PKG_SQLITE], [
 ])
 
 
+#############################################################################################
+# Check for sqlite for Target Architecture   (http://www.sqlite.org)
+#############################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_SQLITE], [
+
+    AC_ARG_WITH(target-sqlite,
+                AC_HELP_STRING([--with-target-sqlite=DIR],
+                               [sqlite target architecture installation @<:@/opt@:>@]),
+                target_sqlite_dir=$withval, target_sqlite_dir="/zzz")
+
+    AC_MSG_CHECKING([for Targetted sqlite support])
+
+    if test "$target_sqlite_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_SQLITE, false)
+      TARGET_SQLITE_CPPFLAGS=""
+      TARGET_SQLITE_LDFLAGS=""
+      TARGET_SQLITE_LIBS=""
+      TARGET_SQLITE_DIR=""
+      AC_MSG_RESULT(no)
+    else
+      AC_MSG_RESULT(yes)
+      AM_CONDITIONAL(HAVE_TARGET_SQLITE, true)
+      AC_DEFINE(HAVE_TARGET_SQLITE, 1, [Define to 1 if you have a target version of SQLITE.])
+      TARGET_SQLITE_CPPFLAGS="-I$target_sqlite_dir/include"
+      TARGET_SQLITE_LDFLAGS="-L$target_sqlite_dir/$abi_libdir"
+      TARGET_SQLITE_LIBS="-lunwind"
+      TARGET_SQLITE_DIR="$target_sqlite_dir"
+    fi
+
+
+    AC_SUBST(TARGET_SQLITE_CPPFLAGS)
+    AC_SUBST(TARGET_SQLITE_LDFLAGS)
+    AC_SUBST(TARGET_SQLITE_LIBS)
+    AC_SUBST(TARGET_SQLITE_DIR)
+
+])
+
+
 ################################################################################
 # Check for PYTHON libraries
 # Some of this code was found by an internet search for python configuration/

@@ -54,7 +54,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
         print "[openss]: Using OPENSS_PREFIX installed in " + installed
     
     # set up plugins path
-    if os.environ.has_key("OPENSS_PLUGIN_PATH"):
+    if os.environ.has_key("OPENSS_TARGET_PLUGIN_PATH"):
+        plugins = os.environ["OPENSS_TARGET_PLUGIN_PATH"]
+    elif os.environ.has_key("OPENSS_PLUGIN_PATH"):
 	plugins = os.environ["OPENSS_PLUGIN_PATH"]
     else:
 	plugin_dir =  OpenssInstallDir + "/lib64/openspeedshop"
