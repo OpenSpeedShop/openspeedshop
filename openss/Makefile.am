@@ -37,15 +37,25 @@ if !BUILD_RUNTIME
 dist_bin_SCRIPTS += ossrun ossdriver
 BUILT_FILES += ossrun ossdriver
 endif
+if HAVE_TARGET_SHARED
+dist_bin_SCRIPTS += ossrun ossdriver
+BUILT_FILES += ossrun ossdriver
+endif
 endif
 
 LDFLAGS = 
 
 bin_PROGRAMS =
-
+#
+# building target shared and not building the runtime are mutually exclusive
+# therefore no else is used
+#
 if !BUILD_RUNTIME
 bin_PROGRAMS += openss 
-
+endif
+if HAVE_TARGET_SHARED
+bin_PROGRAMS += openss 
+endif
 
 openss_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
@@ -64,7 +74,6 @@ openss_LDADD = \
 
 openss_SOURCES = \
 	openss.cxx
-endif
 
 if BUILD_INSTRUMENTOR
 if !BUILD_RUNTIME
@@ -96,8 +105,42 @@ ossutil_LDADD = \
 ossutil_SOURCES = \
         ossutil.cxx
 endif
+
+#
+# building target shared and not building the runtime are mutually exclusive
+# therefore no else is used
+#
+if HAVE_TARGET_SHARED
+bin_PROGRAMS += ossutil 
+
+ossutil_CXXFLAGS = \
+        @TARGET_BINUTILS_CPPFLAGS@ \
+        -I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-queries \
+        -I$(top_srcdir)/libopenss-runtime \
+        -DLIBRARY_DIR=\"$(libdir)\" \
+        -DPLUGIN_DIR=\"$(pkglibdir)\" \
+        -DLIB_DIR_NAME=\"$(abi_libdir_name)\" \
+        $(LTDLINCL)
+
+ossutil_LDFLAGS = \
+        @TARGET_BINUTILS_LDFLAGS@ \
+        -L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-queries \
+        -L$(top_srcdir)/libopenss-runtime
+
+ossutil_LDADD = \
+        @TARGET_BINUTILS_LIBS@ \
+        $(LIBLTDL) \
+	-lopenss-framework \
+	-lopenss-framework-binutils \
+        -lpthread
+
+ossutil_SOURCES = \
+        ossutil.cxx
 endif
 
+endif
 
 CLEANFILES = $(BUILT_FILES)
 
@@ -108,14 +151,16 @@ CLEANFILES = $(BUILT_FILES)
 # TODO: need to configure location of libmonitor.so
 # via "-e 's,@@libmonitordir@@,$(monitorlibdir),' \"
 
-if BUILD_TARGETED
+if BUILD_TARGETED 
 monitor_dir=$(TARGET_LIBMONITOR_DIR)
 unwind_dir=$(TARGET_LIBUNWIND_DIR)
 papi_dir=$(TARGET_PAPI_DIR)
+mpich2_dir=$(TARGET_MPICH2_DIR)
 else
 monitor_dir=$(LIBMONITOR_DIR)
 unwind_dir=$(LIBUNWIND_DIR)
 papi_dir=$(PAPI_DIR)
+mpich2_dir=$(MPICH2_DIR)
 endif
 
 if BUILD_INSTRUMENTOR
@@ -135,16 +180,20 @@ endif
 if BUILD_INSTRUMENTOR
 if !BUILD_RUNTIME
 ossrun: ossrun.in
+endif
+if HAVE_TARGET_SHARED
+ossrun: ossrun.in
+endif
 	@rm -f ossrun
 	@sed \
 		-e 's,@@machine_dependent_libdir@@,$(abi_libdir_name),' \
 		-e 's,@@alt_machine_dependent_libdir@@,$(alt_abi_libdir_name),' \
 		-e 's,@@ossinstalldir@@,$(prefix),' \
-		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
+		-e 's,@@libmonitordir@@,$(monitor_dir),' \
 		-e 's,@@lamdir@@,$(LAM_DIR),' \
 		-e 's,@@lampidir@@,$(LAMPI_DIR),' \
 		-e 's,@@mpichdir@@,$(MPICH_DIR),' \
-		-e 's,@@mpich2dir@@,$(MPICH2_DIR),' \
+		-e 's,@@mpich2dir@@,$(mpich2_dir),' \
 		-e 's,@@mvapichdir@@,$(MVAPICH_DIR),' \
 		-e 's,@@mvapich2dir@@,$(MVAPICH2_DIR),' \
 		-e 's,@@mptdir@@,$(MPT_DIR),' \
@@ -207,7 +256,7 @@ install-exec-hook: ossdriver
 	@rm -f $(DESTDIR)$(bindir)/osscompare
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osscompare
 	chmod 755 $(DESTDIR)$(bindir)/osscompare
-endif
+#endif
 endif
 
 EXTRA_DIST = ossrun.in ossdriver.in osslink.in
