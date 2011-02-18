@@ -25,6 +25,33 @@ DIST_SUBDIRS = dpcl dyninst mrnet offline
 
 lib_LTLIBRARIES = libopenss-framework.la libopenss-framework-binutils.la
 
+if HAVE_TARGET_SHARED
+libopenss_framework_binutils_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	$(LTDLINCL) \
+	@TARGET_BINUTILS_CPPFLAGS@
+
+libopenss_framework_binutils_la_LDFLAGS = \
+	@TARGET_BINUTILS_LDFLAGS@ \
+	-export-dynamic -version-info 1:0:0
+libopenss_framework_binutils_la_LIBADD = \
+	$(LIBLTDL) \
+	@TARGET_BINUTILS_LIBS@ \
+	-lpthread -lrt
+
+libopenss_framework_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	$(LTDLINCL) \
+	@ARRAYSVCS_CPPFLAGS@ \
+	@TARGET_SQLITE_CPPFLAGS@
+
+libopenss_framework_la_LDFLAGS = \
+	@ARRAYSVCS_LDFLAGS@ \
+	@TARGET_SQLITE_LDFLAGS@ \
+	-export-dynamic -version-info 1:0:0
+else
 libopenss_framework_binutils_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
@@ -50,6 +77,26 @@ libopenss_framework_la_LDFLAGS = \
 	@ARRAYSVCS_LDFLAGS@ \
 	@SQLITE_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
+endif
+
+
+if HAVE_TARGET_SHARED
+if BUILD_INSTRUMENTOR
+libopenss_framework_la_LIBADD = \
+	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
+	$(LIBLTDL) \
+	@ARRAYSVCS_LIBS@ \
+	@TARGET_SQLITE_LIBS@ \
+	-lpthread -lrt @TARGET_BINUTILS_LDFLAGS@ @TARGET_BINUTILS_LIBS@
+else
+libopenss_framework_la_LIBADD = \
+	$(LIBLTDL) \
+	@ARRAYSVCS_LIBS@ \
+	@TARGET_SQLITE_LIBS@ \
+	-lpthread -lrt @TARGET_BINUTILS_LDFLAGS@ @TARGET_BINUTILS_LIBS@
+endif
+
+else
 
 if BUILD_INSTRUMENTOR
 libopenss_framework_la_LIBADD = \
@@ -64,6 +111,8 @@ libopenss_framework_la_LIBADD = \
 	@ARRAYSVCS_LIBS@ \
 	@SQLITE_LIBS@ \
 	-lpthread -lrt @BINUTILS_IBERTY_LDFLAGS@ @BINUTILS_IBERTY_LIB@
+endif
+
 endif
 
 COMMON_SOURCES = \
