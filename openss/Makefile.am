@@ -178,12 +178,15 @@ osslink: osslink.in
 endif
 
 if BUILD_INSTRUMENTOR
+
 if !BUILD_RUNTIME
 ossrun: ossrun.in
 endif
+
 if HAVE_TARGET_SHARED
 ossrun: ossrun.in
 endif
+
 	@rm -f ossrun
 	@sed \
 		-e 's,@@machine_dependent_libdir@@,$(abi_libdir_name),' \
@@ -202,6 +205,11 @@ endif
 			$(srcdir)/ossrun.in > ossrun
 	@chmod 755 ossrun
 
+#
+# FIXME - how to also do this for HAVE_TARGET_SHARED?
+# need OR HAVE_TARGET_SHARED added here, but not sure how (jeg)
+#
+if !BUILD_TARGETED 
 ossdriver: ossdriver.in
 	@rm -f ossdriver
 	cp $(srcdir)/ossdriver.in ossdriver
@@ -256,7 +264,11 @@ install-exec-hook: ossdriver
 	@rm -f $(DESTDIR)$(bindir)/osscompare
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osscompare
 	chmod 755 $(DESTDIR)$(bindir)/osscompare
-#endif
+
+# endif for !BUILD_TARGETED
+endif
+
+# endif for BUILD_INSTRUMENTOR
 endif
 
 EXTRA_DIST = ossrun.in ossdriver.in osslink.in
