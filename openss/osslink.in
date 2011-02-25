@@ -346,6 +346,7 @@ if [ ${oss_target} = bgl ]
 then
 #   undef_args="${undef_args} -Wl,-u,__wrap_fork"
    undef_args="${undef_args} -Wl,-u,__wrap_pthread_create"
+   undef_args="${undef_args} -Wl,-u,__wrap_open"
 fi
 
 # Need to undefine fork for bgp
@@ -353,6 +354,7 @@ if [ ${oss_target} = bgp ]
 then
 #   undef_args="${undef_args} -Wl,-u,__wrap_fork"
    undef_args="${undef_args} -Wl,-u,__wrap_pthread_create"
+   undef_args="${undef_args} -Wl,-u,__wrap_open"
 fi
 
 
