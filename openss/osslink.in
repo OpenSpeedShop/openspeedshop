@@ -250,7 +250,13 @@ monitor_has_mpi=`nm ${libmonitor} | grep -i __wrap_mpi_init`
 
 collector_libs=""
 
-static_args=" -static "
+if [[ $command == *mpix* ]]
+then
+  static_args="  "
+else
+  static_args=" -static "
+fi
+
 wrap_args=
 for name in $monitor_wrap_base_names $wrap_names
 do
