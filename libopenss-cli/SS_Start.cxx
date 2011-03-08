@@ -483,6 +483,9 @@ static void
 Initial_Python ()
 {
     const char* initialization_filename = "init.py";
+#if DEBUG_CLI
+    std::cerr << "ENTERING Initial_Python" << std::endl;
+#endif
 
     // Insure the libltdl user-defined library search path has been set
     Assert(lt_dlgetsearchpath() != NULL);
@@ -767,6 +770,9 @@ extern "C"
   {
     try {
 
+#if DEBUG_CLI
+      std::cerr << "ENTER cli_init" << std::endl;
+#endif
       cli_timing_handle = new SS_Timings();
       cli_timing_handle->in_expCreate(false);
       cli_timing_handle->in_expAttach(false);
@@ -776,6 +782,9 @@ extern "C"
          cli_timing_handle->cli_perf_data[SS_Timings::cliBasicInitStart] = Time::Now();
     }
 
+#if DEBUG_CLI
+      std::cerr << "IN cli_init, calling Openss_Basic_Initialization()" << std::endl;
+#endif
      // Basic Initialization
       Openss_Basic_Initialization();
 
@@ -835,11 +844,22 @@ extern "C"
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::cliCmdLinePythonStart] = Time::Now();
     }
+#if DEBUG_CLI
+      std::cerr << "IN cli_init, calling Process_Command_Line()" << std::endl;
+#endif
 
       Process_Command_Line (argc, argv);
 
+#if DEBUG_CLI
+      std::cerr << "IN cli_init, calling pcli_load_messages()" << std::endl;
+#endif
+
      // Load in pcli messages into message czar
       pcli_load_messages();
+
+#if DEBUG_CLI
+      std::cerr << "IN cli_init, calling Initial_Python()" << std::endl;
+#endif
 
      // Open the Python interpreter.
       Initial_Python ();
@@ -860,7 +880,7 @@ extern "C"
     }
 
 #if DEBUG_CLI
-      std::cerr << "Checking need_command_line=" << need_command_line <<  " read_stdin_file=" << read_stdin_file << std::endl;
+      std::cerr << "In cli_init, Checking need_command_line=" << need_command_line <<  " read_stdin_file=" << read_stdin_file << std::endl;
 #endif
 
      // Create the input windows that we will need.
@@ -881,7 +901,7 @@ extern "C"
       }
 
 #if DEBUG_CLI
-      std::cerr << "Checking command_line_window=" << command_line_window <<  std::endl;
+      std::cerr << "In cli_init, Checking command_line_window=" << command_line_window <<  std::endl;
 #endif
 
      // Complete set up for each input window.
@@ -907,13 +927,13 @@ extern "C"
       }
 
 #if DEBUG_CLI
-        std::cerr << "Checking need_tli=" <<  need_tli << std::endl;
+        std::cerr << "In cli_init, Checking need_tli=" <<  need_tli << std::endl;
 #endif
 
       if (need_tli) {
 
 #if DEBUG_CLI
-        std::cerr << "Calling pthread_create for SS_Direct_stdin_Input" <<  std::endl;
+        std::cerr << "In cli_init, Calling pthread_create for SS_Direct_stdin_Input" <<  std::endl;
 #endif
 
        // Start up the Text Line Interface to read from the keyboard.
@@ -923,7 +943,7 @@ extern "C"
 				(void   *)tli_window);
 
 #if DEBUG_CLI
-        std::cerr << "After Calling pthread_create for SS_Direct_stdin_Input" << phandle[1] << std::endl;
+        std::cerr << "In cli_init, After Calling pthread_create for SS_Direct_stdin_Input" << phandle[1] << std::endl;
 #endif
 
       } // end need_tli
@@ -941,7 +961,7 @@ extern "C"
     }
 
 #if DEBUG_CLI
-      std::cerr << "Calling Start_Command_Line, need_gui? " << need_gui <<  " \n" << std::endl;
+      std::cerr << "In cli_init, Calling Start_Command_Line, need_gui? " << need_gui <<  " \n" << std::endl;
 #endif
 
       // Gather performance information on the cli's gui loading
@@ -1042,6 +1062,10 @@ extern "C"
     const char *gui_entry_point = getenv("OPENSS_GUI_ENTRY_POINT");
     const char *gui_exit_point = getenv("OPENSS_GUI_EXIT_POINT");
     // char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
+    //
+#if DEBUG_CLI
+      std::cerr << "ENTER loadTheGUI" << std::endl;
+#endif
 
     // Insure the libltdl user-defined library search path has been set
     Assert(lt_dlgetsearchpath() != NULL);
@@ -1050,12 +1074,20 @@ extern "C"
     if( !gui_dl_name ) gui_dl_name = "libopenss-gui";
     if( !gui_entry_point ) gui_entry_point = "gui_init";
     if( !gui_exit_point ) gui_exit_point = "gui_exit";
+
+#if DEBUG_CLI
+      std::cerr << "IN loadTheGUI, attempting to load the GUI" << std::endl;
+#endif
   
     lt_dlhandle dl_gui_object = lt_dlopenext((const char *)gui_dl_name);
     if( dl_gui_object == NULL ) {
       std::cerr << "ERROR: can not load GUI - " << lt_dlerror() << std::endl;
       exit(EXIT_FAILURE);
     }
+
+#if DEBUG_CLI
+      std::cerr << "IN loadTheGUI, attempting to init the GUI" << std::endl;
+#endif
 
     lt_ptr (*dl_gui_init_routine)(void *, pthread_t *);
     dl_gui_init_routine = (lt_ptr (*)(void *, pthread_t *))lt_dlsym(dl_gui_object, gui_entry_point);
@@ -1072,6 +1104,9 @@ extern "C"
       exit(EXIT_FAILURE);
     }
   
+#if DEBUG_CLI
+      std::cerr << "IN loadTheGUI, attempting to call the GUI phandle." << std::endl;
+#endif
     //    pthread_t gui_phandle;
     (*dl_gui_init_routine)((void *)argStruct, &phandle[2]);
   }
