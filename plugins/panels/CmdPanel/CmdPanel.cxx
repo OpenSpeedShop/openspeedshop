@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006-2011 The Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -132,7 +133,11 @@ CmdPanel::CmdPanel(PanelContainer *pc, const char *n, void *argument) : Panel(pc
   show();
 
 // printf("CmdPanel.   Redirect all output here...\n");
+
   int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+
+//  printf("CmdPanel::CmdPanel, calling Redirect_Window_Output(wid=%d, ...)\n", wid);
+
   Redirect_Window_Output( wid, oclass, oclass );
   putOutPrompt();
   output->getCursorPosition(&start_history_para, &start_history_index);
@@ -201,6 +206,9 @@ CmdPanel::returnPressed()
     QString command = (QString) *ci;
     nprintf(DEBUG_PANELS) ("Send down (%s)\n", command.ascii());
     int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+
+//    printf("CmdPanel::returnPressed, calling Redirect_Window_Output(wid=%d, ...)\n", wid);
+
     Redirect_Window_Output( wid, oclass, oclass );
 
     InputLineObject clip;
@@ -413,6 +421,7 @@ CmdPanel::listener(void *msg)
     // ----------------------------- REDIRECT-WINDOW-OUTPUT
     // ----------------------------- 
     int wid = getPanelContainer()->getMainWindow()->widStr.toInt();
+//    printf("CmdPanel::listener, calling Redirect_Window_Output(wid=%d, ...)\n", wid);
     Redirect_Window_Output( wid, oclass, oclass );
   }
   
