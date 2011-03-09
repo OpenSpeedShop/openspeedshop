@@ -20,6 +20,8 @@
 #include "SS_Input_Manager.hxx"
 extern "C" void loadTheGUI(ArgStruct *);
 
+//#define DEBUG_CLI 1
+
 #include <fstream>
 #include <iostream>
 
@@ -501,6 +503,9 @@ class CommandWindowID
 
      // Reclaim ss_ostream structures if not used in another window.
       if (command_line_window != 0) {
+#if DEBUG_CLI
+        std::cerr << " CommandWindowID, command_line_window=" << command_line_window << std::endl;
+#endif
         CommandWindowID *dw = Find_Command_Window (command_line_window);
 
         if (default_outstream == dw->ss_outstream()) default_outstream = NULL;
@@ -684,6 +689,9 @@ class CommandWindowID
      // determine if the output stream is shared between windows.
       CommandWindowID *cw = NULL;
       if (command_line_window == id) {
+#if DEBUG_CLI
+        std::cerr << " Remove_Completed_Input_Lines, tli_window=" << tli_window << std::endl;
+#endif
         if (tli_window != 0) {
          // Command line and TLI share a window.  
 
@@ -691,6 +699,9 @@ class CommandWindowID
 
         } else if (gui_window != 0) {
          // Command line and GUI share a window.  
+#if DEBUG_CLI
+          std::cerr << " Remove_Completed_Input_Lines, gui_window=" << gui_window << std::endl;
+#endif
           cw = Find_Command_Window (gui_window);
         }
       }
@@ -1175,6 +1186,10 @@ CommandWindowID *Find_Command_Window (CMDWID WindowID)
 
   Assert(pthread_mutex_lock(&Window_List_Lock) == 0);
 
+#if DEBUG_CLI
+   std::cerr << "IN Find_Command_Window, WindowID=" << WindowID << std::endl;
+#endif
+
 // Search for existing entry.
   if (WindowID > 0) {
     std::list<CommandWindowID *>::iterator cwi;
@@ -1195,6 +1210,9 @@ CommandWindowID *Find_Command_Window (CMDWID WindowID)
 
 void Send_Message_To_Window (CMDWID to_window, std::string S)
 {
+#if DEBUG_CLI
+    std::cerr << " Send_Message_To_Window, to_window=" << to_window << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (to_window);
   if ((cw != NULL) &&
       (cw->has_outstream())) {
@@ -1212,6 +1230,9 @@ void Send_Message_To_Window (CMDWID to_window, std::string S)
 void Link_Cmd_Obj_to_Input (InputLineObject *I, CommandObject *C)
 {
 
+#if DEBUG_CLI
+    std::cerr << " Link_Cmd_Obj_to_Input, I->Who()=" << I->Who() << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (I->Who());
 
   Assert(cw != NULL);
@@ -1284,6 +1305,9 @@ void Cmd_Obj_Complete (CommandObject *C) {
     clip->Set_Semantics_Complete ();
 
     CMDWID w = clip->Who();
+#if DEBUG_CLI
+    std::cerr << " Cmd_Obj_Complete, w=" << w << std::endl;
+#endif
     CommandWindowID *cw = (w) ? Find_Command_Window (w) : NULL;
     if (cw != NULL) cw->Remove_Completed_Input_Lines (true);
   }
@@ -1291,6 +1315,11 @@ void Cmd_Obj_Complete (CommandObject *C) {
 
 int64_t Find_Command_Level (CMDWID WindowID)
 {
+
+#if DEBUG_CLI
+  std::cerr << " Find_Command_Level, WindowID=" << WindowID << std::endl;
+#endif
+
   CommandWindowID *cwi = Find_Command_Window (WindowID);
   return (cwi != NULL) ? cwi->Input_Level() : 0;
 }
@@ -1298,6 +1327,9 @@ int64_t Find_Command_Level (CMDWID WindowID)
 // Semantic Utilities
 bool Window_Is_Async (CMDWID WindowID)
 {
+#if DEBUG_CLI
+    std::cerr << " Window_Is_Async, WindowID=" << WindowID << std::endl;
+#endif
   CommandWindowID *cwi = Find_Command_Window (WindowID);
 
 
@@ -1323,6 +1355,9 @@ EXPID Experiment_Focus (CMDWID WindowID)
 {
   if (WindowID == 0) WindowID = Last_ReadWindow;
 
+#if DEBUG_CLI
+    std::cerr << " Experiment_Focus, WindowID=" << WindowID << std::endl;
+#endif
   CommandWindowID *my_window = Find_Command_Window (WindowID);
 
   EXPID f = my_window ? my_window->Focus() : 0;
@@ -1355,6 +1390,9 @@ EXPID Experiment_Focus (CMDWID WindowID)
 EXPID Experiment_Focus (CMDWID WindowID, EXPID ExperimentID)
 {
   if (WindowID == 0) WindowID = Last_ReadWindow;
+#if DEBUG_CLI
+    std::cerr << " Experiment_Focus2, WindowID=" << WindowID << " Last_ReadWindow=" << Last_ReadWindow << std::endl;
+#endif
   CommandWindowID *my_window = Find_Command_Window (WindowID);
   if (my_window) {
     ExperimentObject *Experiment = (ExperimentID) ? Find_Experiment_Object (ExperimentID) : NULL;
@@ -1437,11 +1475,17 @@ static bool Read_Log_File_History (CommandObject *cmd, enum Log_Entry_Type log_t
 // Set up an alternative log file at user request.
 bool Command_Log_ON (CMDWID WindowID, std::string tofname)
 {
+#if DEBUG_CLI
+    std::cerr << " Command_Log_ON, WindowID=" << WindowID << std::endl;
+#endif
   CommandWindowID *cmdw = Find_Command_Window (WindowID);
   return (cmdw->Set_Log_File (tofname));
 }
 bool Command_Log_OFF (CMDWID WindowID)
 {
+#if DEBUG_CLI
+    std::cerr << " Command_Log_OFF, WindowID=" << WindowID << std::endl;
+#endif
   CommandWindowID *cmdw = Find_Command_Window (WindowID);
   cmdw->Remove_Log_File ();
   return true;
@@ -1450,12 +1494,18 @@ bool Command_Log_OFF (CMDWID WindowID)
 // Set up an alternative record file at user request.
 bool Command_Record_ON (CMDWID WindowID, std::string tofname)
 {
+#if DEBUG_CLI
+    std::cerr << " Command_Record_ON, WindowID=" << WindowID << std::endl;
+#endif
   CommandWindowID *cmdw = Find_Command_Window (WindowID);
   return (cmdw->Set_Record_File (tofname));
 }
 
 bool Command_Record_OFF (CMDWID WindowID)
 {
+#if DEBUG_CLI
+    std::cerr << " Command_Record_OFF, WindowID=" << WindowID << std::endl;
+#endif
   CommandWindowID *cmdw = Find_Command_Window (WindowID);
   cmdw->Remove_Record_File ();
   return true;
@@ -1564,13 +1614,24 @@ CMDWID TLI_Window (const char *my_name, const char *my_host, pid_t my_pid, int64
 CMDWID GUI_Window (const char *my_name, const char *my_host, pid_t my_pid, int64_t my_panel, bool Input_is_Async)
 {
  // Create a new Window
+#if DEBUG_CLI
+  std::cerr << "ENTER GUI_Window, gui_window=" << gui_window << " my_pid=" << my_pid << std::endl;
+#endif
   Assert(gui_window == 0);
   CommandWindowID *cwid = new GUI_CommandWindowID(std::string(my_name ? my_name : ""),
                                                  std::string(my_host ? my_host : ""),
                                                  my_pid, my_panel, Input_is_Async);
 
+#if DEBUG_CLI
+  std::cerr << "IN GUI_Window, after calling GUI_CommandWindowID, cwid=" << cwid << " my_host=" << my_host << std::endl;
+  std::cerr << "IN GUI_Window, after calling GUI_CommandWindowID, cwid=" << cwid << " my_panel=" << my_panel << std::endl;
+#endif
+
   Async_Inputs |= Input_is_Async;
   gui_window = cwid->ID();
+#if DEBUG_CLI
+  std::cerr << "EXIT GUI_Window, after calling GUI_CommandWindowID, gui_window=" << gui_window << " Async_Inputs=" << Async_Inputs << std::endl;
+#endif
   return gui_window;
 }
 
@@ -1604,6 +1665,9 @@ void Window_Termination (CMDWID im)
 {
   if (im) {
 
+#if DEBUG_CLI
+    std::cerr << " Window_Termination, im=" << im << std::endl;
+#endif
     CommandWindowID *my_window = Find_Command_Window (im);
 
    // Clear base ID's that are used in the destructor.
@@ -1662,11 +1726,17 @@ void Commander_Termination () {
 }
 
 void Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream *for_err) {
+#if DEBUG_CLI
+    std::cerr << " Redirect_Window_Output, for_window=" << for_window << std::endl;
+#endif
   CommandWindowID *my_window = Find_Command_Window (for_window);
   if ((for_out == NULL) &&
       (for_window != tli_window) &&
       (tli_window != 0)) {
    // Find a default value to use for the stream.
+#if DEBUG_CLI
+    std::cerr << " Redirect_Window_Output, tli_window=" << tli_window << std::endl;
+#endif
     CommandWindowID *tliw = Find_Command_Window (tli_window);
     for_out = tliw->has_outstream() ? tliw->ss_outstream() : ss_out;
   }
@@ -1685,6 +1755,9 @@ void Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream 
       (for_window != tli_window) &&
       (tli_window != 0)) {
    // Find a default value to use for the stream.
+#if DEBUG_CLI
+    std::cerr << " Redirect_Window_Output, tli_window=" << tli_window << std::endl;
+#endif
     CommandWindowID *tliw = Find_Command_Window (tli_window);
     for_err = tliw->has_errstream() ? tliw->ss_errstream() : ss_err;
   }
@@ -1705,11 +1778,17 @@ void Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream 
       (tli_window == 0)) {
     if (isatty(fileno(stdout))) {
      // Replace uses of stdout on the command line with the GUI text window.
+#if DEBUG_CLI
+    std::cerr << " Redirect_Window_Output, command_line_window=" << command_line_window << std::endl;
+#endif
       CommandWindowID *my_window = Find_Command_Window (command_line_window);
       my_window->set_outstream ( for_out );
     }
     if (isatty(fileno(stderr))) {
      // Replace uses of stderr on the command line with the GUI text window.
+#if DEBUG_CLI
+    std::cerr << " Redirect_Window_Output2, command_line_window=" << command_line_window << std::endl;
+#endif
       CommandWindowID *my_window = Find_Command_Window (command_line_window);
       my_window->set_errstream ( for_err );
     }
@@ -1717,22 +1796,34 @@ void Redirect_Window_Output (CMDWID for_window, ss_ostream *for_out, ss_ostream 
 }
 
 ss_ostream *Window_outstream (CMDWID for_window) {
+#if DEBUG_CLI
+    std::cerr << " Window_outstream, for_window=" << for_window << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (for_window);
   return (cw != NULL) ? cw->ss_outstream() : NULL;
 }
 
 ss_ostream *Window_errstream (CMDWID for_window) {
+#if DEBUG_CLI
+    std::cerr << " Window_errstream, for_window=" << for_window << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (for_window);
   return (cw != NULL) ? cw->ss_errstream() : NULL;
 }
 
 static std::string Window_Name (CMDWID issuedbywindow) {
+#if DEBUG_CLI
+    std::cerr << " Window_Name, issuedbywindow=" << issuedbywindow << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   return ((cw == NULL) ? "DEAD" : cw->IAM());
 }
 
 void Internal_Info_Dump (CMDWID issuedbywindow) {
   bool Fatal_Error_Encountered = false;
+#if DEBUG_CLI
+    std::cerr << " Internal_Info_Dump, issuedbywindow=" << issuedbywindow << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   if ((cw == NULL) || (cw->ID() == 0)) {
     std::cerr << "    ERROR: the window(" << issuedbywindow << ") this command came from is illegal" << std::endl;
@@ -1751,6 +1842,9 @@ void Internal_Info_Dump (CMDWID issuedbywindow) {
     if (More_Input_Needed_From_Window) {
       mystream << "    " << "Processing of a complex statement requires input from W "
                << More_Input_Needed_From_Window  << std::endl;
+#if DEBUG_CLI
+    std::cerr << " Internal_Info_Dump, More_Input_Needed_From_Window=" << More_Input_Needed_From_Window << std::endl;
+#endif
       CommandWindowID *lw = Find_Command_Window (More_Input_Needed_From_Window);
       if ((lw == NULL) || (!lw->Input_Available())) {
         mystream << "    ERROR: this window can not provide more input!!" << std::endl;
@@ -1788,6 +1882,9 @@ void Internal_Info_Dump (CMDWID issuedbywindow) {
 
 void User_Info_Dump (CMDWID issuedbywindow) {
   bool Fatal_Error_Encountered = false;
+#if DEBUG_CLI
+    std::cerr << " User_Info_Dump, issuedbywindow=" << issuedbywindow << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   std::list<CommandWindowID *>::reverse_iterator cwi;
   Assert (cw != NULL);
@@ -1811,6 +1908,9 @@ void User_Info_Dump (CMDWID issuedbywindow) {
   if (More_Input_Needed_From_Window) {
     mystream << "Processing of a complex statement requires input from "
              << Window_Name(More_Input_Needed_From_Window) << std::endl;
+#if DEBUG_CLI
+    std::cerr << " User_Info_Dump, More_Input_Needed_From_Window=" << More_Input_Needed_From_Window << std::endl;
+#endif
     CommandWindowID *lw = Find_Command_Window (More_Input_Needed_From_Window);
     if ((lw == NULL) || (!lw->Input_Available())) {
       mystream << "    ERROR: this window can not provide more input!!" << std::endl;
@@ -2014,6 +2114,9 @@ do_escape_cmd (void *arg) {
   CMDWID issuedbywindow = args->first;
   const char *command = args->second;
 
+#if DEBUG_CLI
+    std::cerr << " do_escape_cmd, issuedbywindow=" << issuedbywindow << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
 
   if ((cw == NULL) || (cw->ID() == 0)) {
@@ -2129,6 +2232,9 @@ static InputLineObject *Append_Input_String (CMDWID issuedbywindow, InputLineObj
   if (clip != NULL) {
     if (Isa_SS_Command(issuedbywindow,clip->Command().c_str())) {
 
+#if DEBUG_CLI
+    std::cerr << " Append_Input_String, issuedbywindow=" << issuedbywindow << std::endl;
+#endif
       CommandWindowID *cw = Find_Command_Window (issuedbywindow);
 
       Assert (cw);
@@ -2152,6 +2258,9 @@ InputLineObject *Append_Input_String (CMDWID issuedbywindow, const char *b_ptr,
 
   if (Isa_SS_Command(issuedbywindow, (const char *)b_ptr)) {
 
+#if DEBUG_CLI
+    std::cerr << " Append_Input_String4, issuedbywindow=" << issuedbywindow << std::endl;
+#endif
     CommandWindowID *cw = Find_Command_Window (issuedbywindow);
 
     Assert (cw);
@@ -2168,6 +2277,9 @@ InputLineObject *Append_Input_String (CMDWID issuedbywindow, const char *b_ptr,
 
 static bool Append_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
 
+#if DEBUG_CLI
+    std::cerr << " Append_Input_Buffer, issuedbywindow=" << issuedbywindow << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
 
   Assert (cw);
@@ -2181,6 +2293,9 @@ bool Append_Input_File (CMDWID issuedbywindow, std::string fromfname,
                                       void (*CallBackLine) (InputLineObject *b),
                                       void (*CallBackCmd) (CommandObject *b)) {
 
+#if DEBUG_CLI
+    std::cerr << " Append_Input_File3, issuedbywindow=" << issuedbywindow << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
 
   Assert (cw);
@@ -2196,6 +2311,9 @@ bool Append_Input_File (CMDWID issuedbywindow, std::string fromfname,
 
 static bool Push_Input_Buffer (CMDWID issuedbywindow, int64_t b_size, char *b_ptr) {
 
+#if DEBUG_CLI
+    std::cerr << " Push_Input_Buffer, issuedbywindow=" << issuedbywindow << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
 
   Assert (cw);
@@ -2208,6 +2326,9 @@ bool Push_Input_File (CMDWID issuedbywindow, std::string fromfname,
                                       void (*CallBackLine) (InputLineObject *b),
                                       void (*CallBackCmd) (CommandObject *b)) {
 
+#if DEBUG_CLI
+    std::cerr << " Push_Input_File, issuedbywindow=" << issuedbywindow << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
 
   Assert (cw);
@@ -2225,6 +2346,9 @@ void ReDirect_User_Stdout (const char *S, const int &len, void *tag) {
 
   CMDWID to_window = (CMDWID)tag;
 
+#if DEBUG_CLI
+    std::cerr << " ReDirect_User_Stdout, to_window=" << to_window << std::endl;
+#endif
   CommandWindowID *cw = (to_window) ? Find_Command_Window (to_window) : NULL;
 
   ss_ostream *this_ss_stream = ((cw != NULL) &&
@@ -2243,6 +2367,9 @@ void ReDirect_User_Stdout (const char *S, const int &len, void *tag) {
 
 void ReDirect_User_Stderr (const char *S, const int &len, void *tag) {
   CMDWID to_window = (CMDWID)tag;
+#if DEBUG_CLI
+    std::cerr << " ReDirect_User_Stderr, to_window=" << to_window << std::endl;
+#endif
   CommandWindowID *cw = (to_window) ? Find_Command_Window (to_window) : NULL;
   ss_ostream *this_ss_stream = ((cw != NULL) &&
                                 cw->has_errstream()) ? cw->ss_errstream() : ss_err;
@@ -2285,6 +2412,9 @@ void Default_TLI_Command_Output (CommandObject *C) {
         (C->Status() != CMD_ABORTED)) {
       InputLineObject *clip = C->Clip ();
       CMDWID w = (clip) ? clip->Who() : 0;
+#if DEBUG_CLI
+    std::cerr << " Default_TLI_Command_Output, w=" << w << std::endl;
+#endif
       CommandWindowID *cw = (w) ? Find_Command_Window (w) : NULL;
 
      // Print the ResultdObject list
@@ -2302,10 +2432,16 @@ void Default_TLI_Command_Output (CommandObject *C) {
 }
 
 void Default_Log_Output (CommandObject *C) {
+#if DEBUG_CLI
+    std::cerr << " Default_Log_Output, C->Clip()->Who()=" << C->Clip()->Who() << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (C->Clip()->Who());
   if (cw != NULL) cw->Print_Log_File (C);
 }
 void Default_Log_Output (InputLineObject *clip) {
+#if DEBUG_CLI
+    std::cerr << " Default_Log_Output, clip->Who()=" << clip->Who() << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (clip->Who());
   if (cw != NULL) cw->Print_Log_File (clip);
 }
@@ -2335,6 +2471,9 @@ void   Purge_Executing_Commands () {
 // Catch keyboard interrupt signals from TLI window.
 
 static void User_Interrupt (CMDWID issuedbywindow) {
+#if DEBUG_CLI
+    std::cerr << " User_Interrupt, issuedbywindow=" << issuedbywindow << std::endl;
+#endif
   CommandWindowID *cw = Find_Command_Window (issuedbywindow);
   if (cw != NULL) {
    // Get rid of all queued commands from this window.
@@ -2392,6 +2531,9 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
   try{
     Assert ((CMDWID)attachtowindow != 0);
 
+#if DEBUG_CLI
+    std::cerr << " SS_Direct_stdin_Input, (CMDWID)attachtowindow=" << (CMDWID)attachtowindow << std::endl;
+#endif
     CommandWindowID *cw = Find_Command_Window ((CMDWID)attachtowindow);
 
     Assert (cw);
@@ -2502,6 +2644,9 @@ static CMDWID select_input_window (int is_more) {
   if ((is_more == 0) &&
       (Last_ReadWindow != 0)) {
 
+#if DEBUG_CLI
+    std::cerr << " select_input_window, Last_ReadWindow=" << Last_ReadWindow << std::endl;
+#endif
     CommandWindowID *cw = Find_Command_Window (Last_ReadWindow);
 
     if (cw) {
@@ -2573,7 +2718,10 @@ InputLineObject *SpeedShop_ReadLine (int is_more)
 {
 
   try {
-
+ 
+#if DEBUG_CLI
+    std::cerr << " SpeedShop_ReadLine, Last_ReadWindow=" << Last_ReadWindow << std::endl;
+#endif
     CommandWindowID *cw = (Last_ReadWindow != 0) ? Find_Command_Window (Last_ReadWindow) : NULL;
 
     if ((Waiting_For_Complex_Cmd == false) &&
@@ -2596,6 +2744,9 @@ InputLineObject *SpeedShop_ReadLine (int is_more)
     Waiting_For_Complex_Cmd = is_more;
 
 read_another_window:
+#if DEBUG_CLI
+    std::cerr << " read_another_window:, readfromwindow=" << readfromwindow << std::endl;
+#endif
     cw = Find_Command_Window (readfromwindow);
 
     Assert (cw);

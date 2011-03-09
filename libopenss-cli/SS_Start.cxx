@@ -896,8 +896,14 @@ extern "C"
         tli_window = TLI_Window ("TLI",&HostName[0],my_pid,0,true);
       }
 
+#if DEBUG_CLI
+      std::cerr << "In cli_init, Checking need_gui=" << need_gui <<  " my_pid=" << my_pid << std::endl;
+#endif
       if (need_gui) {
         gui_window = GUI_Window ("GUI",&HostName[0],my_pid,0,true);
+#if DEBUG_CLI
+        std::cerr << "In cli_init, We DO need_gui=" << need_gui <<  " gui_window=" << gui_window << std::endl;
+#endif
       }
 
 #if DEBUG_CLI
@@ -962,6 +968,7 @@ extern "C"
 
 #if DEBUG_CLI
       std::cerr << "In cli_init, Calling Start_Command_Line, need_gui? " << need_gui <<  " \n" << std::endl;
+      std::cerr << "In cli_init, Calling Start_Command_Line, gui_window= " << gui_window <<  " \n" << std::endl;
 #endif
 
       // Gather performance information on the cli's gui loading
@@ -983,9 +990,24 @@ extern "C"
 
         argStruct->addArg("-gui");
         argStruct->addArg("-wid");
+
+#if DEBUG_CLI
+        std::cerr << "In cli_init, Calling loadTheGUI, gui_window? " << gui_window <<  " \n" << std::endl;
+#endif
+
+#if 1
         char buffer[10];
-        sprintf(buffer, "%d", gui_window);
+        sprintf(buffer, "%lld", gui_window);
         argStruct->addArg(buffer);
+#else
+        if (gui_window == 1) {
+          argStruct->addArg("1");
+        } else if (gui_window == 2) {
+          argStruct->addArg("2");
+        } else {
+          argStruct->addArg("0");
+        } 
+#endif
        // The gui will be started in a pthread and do it's own initialization.
         extern void loadTheGUI(ArgStruct *);
 //        loadTheGUI((ArgStruct *)NULL); // argStruct);
@@ -1105,10 +1127,13 @@ extern "C"
     }
   
 #if DEBUG_CLI
-      std::cerr << "IN loadTheGUI, attempting to call the GUI phandle." << std::endl;
+      std::cerr << "IN loadTheGUI, before attempting to call the GUI phandle." << std::endl;
 #endif
     //    pthread_t gui_phandle;
     (*dl_gui_init_routine)((void *)argStruct, &phandle[2]);
+#if DEBUG_CLI
+      std::cerr << "EXIT/IN loadTheGUI, after attempting to call the GUI phandle." << std::endl;
+#endif
   }
 
 /**
