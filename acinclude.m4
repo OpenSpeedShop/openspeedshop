@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-# Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2011 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -1411,9 +1411,14 @@ $ac_distutils_result])
                     from string import join; \
                     print '-L' + get_python_lib(0,1), \
                     '-lpython';"`$py_version
+
+            so_designator=".so"
+            PYTHON_LIBRARY_NAME="libpython$py_version$so_designator"
+
     fi
     AC_MSG_RESULT([$PYTHON_LDFLAGS])
     AC_SUBST([PYTHON_LDFLAGS])
+    AC_SUBST([PYTHON_LIBRARY_NAME])
 
     #
     # Check for site packages
