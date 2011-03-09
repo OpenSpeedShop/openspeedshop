@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006-2011 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -22,6 +22,8 @@
     This is the implementation of the MainWinwdow container for Open Speed
     Shop.  It contains the container for the statusBar, and the menu bar.
  */
+
+//#define DEBUG_GUI 1
 
 #include "openspeedshop.hxx"
 
@@ -68,6 +70,10 @@ OpenSpeedshop::OpenSpeedshop( int _wid, int _climode, QWidget* parent, const cha
   shuttingDown = FALSE;
 
   widStr = QString("%1").arg(_wid);
+
+#if DEBUG_GUI
+  printf("OpenSpeedshop::OpenSpeedshop, _wid=%d, widStr=%s\n",  _wid, widStr.ascii());
+#endif
 
   climode = _climode;
 
@@ -288,7 +294,9 @@ OpenSpeedshop::print()
 void
 OpenSpeedshop::closeEvent(QCloseEvent *e)
 {
-//  printf("OpenSpeedshop::closeEvent() entered.\n");
+#if DEBUG_GUI
+  printf("OpenSpeedshop::closeEvent() entered.\n");
+#endif
 
   int ret_val =  QMessageBox::Cancel;
 

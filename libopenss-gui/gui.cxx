@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006-2011 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -50,10 +50,11 @@ extern "C"
 {
   static bool isGUIBeenCreate = FALSE;
   OpenSpeedshop *w = NULL;
+
   // This routine starts another QApplication gui.  It is called from 
   // gui_init to have the gui started in it's own thread.
-  void
-  guithreadinit(void *ptr)
+
+  void guithreadinit(void *ptr)
   {
 
 #if DEBUG_GUI
@@ -68,8 +69,7 @@ extern "C"
     bool onlineMode = false;
     bool onlineOptionsFound = false;
 
-    if( ptr != NULL )
-    {
+    if( ptr != NULL ) {
       arg_struct = (ArgStruct *)ptr;
       argc = arg_struct->argc;
       argv = arg_struct->argv;
@@ -84,6 +84,7 @@ extern "C"
 
 #if DEBUG_GUI
       printf("guithreadinit(), argv[%d]=(%s)\n", i, argv[i] );
+      printf("guithreadinit(), argv[%d]=(0x%lx)\n", i, argv[i] );
 #endif
 
       QString arg = argv[i];
@@ -257,6 +258,9 @@ extern "C"
     }
 
 
+#if DEBUG_GUI
+    printf("libopenss-gui/gui.cxx: guithreadinit(),calling new OpenSpeedshop widStr.toInt()=%d, widStr.ascii()=%s\n", widStr.toInt(), widStr.ascii());
+#endif
     w = new OpenSpeedshop(widStr.toInt(), climode);
 
     QPixmap *splash_pixmap = NULL;
@@ -294,6 +298,10 @@ extern "C"
 
     w->executableName = executableStr;
     w->widStr = widStr;
+#if DEBUG_GUI
+    printf("guithreadinit(),w->widStr.ascii()=%s\n", w->widStr.ascii());
+    printf("guithreadinit(),w->widStr.toInt()=%d\n", w->widStr.toInt());
+#endif
     w->pidStr = pidStr;
     w->pidStrList = NULL;
     w->rankStr = rankStr;
@@ -360,17 +368,13 @@ extern "C"
 #if DEBUG_GUI
     printf("gui_init entered\n");
 #endif
-    if( isGUIBeenCreate == TRUE )
-    {
-      if( !qapplication )
-      {
+    if( isGUIBeenCreate == TRUE ) {
+      if( !qapplication ) {
         fprintf(stderr, "Unable to reattach to the gui.  No qapplication.  Returning.\n");
-      } else
-      {
+      } else {
         w->raiseGUI();
       }
-    } else
-    {
+    } else {
 //    gui_thread_id = pthread_create(&phandle[0], 0, (void *(*)(void *))guithreadinit,arg_struct);
       pthread_create(phandle, 0, (void *(*)(void *))guithreadinit,arg_struct);
     }
