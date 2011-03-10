@@ -31,6 +31,10 @@
 #include <Python.h>
 #include <sstream>
 
+#include <dlfcn.h>
+// Get the full path name for the python dynamic library
+#include "config.h" 
+
 using namespace OpenSpeedShop::Framework;
 
 // Global links to some windows.
@@ -482,7 +486,10 @@ extern "C" void initPY_Input ();
 static void
 Initial_Python ()
 {
+    void *handle;
     const char* initialization_filename = "init.py";
+    std::string python_dso_name = PYTHON_FP_LIB_NAME;
+ 
 #if DEBUG_CLI
     std::cerr << "ENTERING Initial_Python" << std::endl;
 #endif
@@ -505,6 +512,16 @@ Initial_Python ()
 	Path candidate = directory + Path(initialization_filename);
 	if(candidate.isFile()) {
 	    
+#if DEBUG_CLI
+           std::cerr << "IN Initial_Python, python_dso_name.c_str()=" << python_dso_name.c_str() << std::endl;
+#endif
+            handle = dlopen(python_dso_name.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+            if (!handle) {
+               fprintf (stderr, "openss error: python dynamic shared object failed to load: %s\n", dlerror());
+               // exit(1);
+            }
+
+ 
 	    // Initialize Python
 	    Py_Initialize();
 	    
