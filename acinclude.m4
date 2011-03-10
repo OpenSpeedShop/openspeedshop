@@ -1415,10 +1415,22 @@ $ac_distutils_result])
             so_designator=".so"
             PYTHON_LIBRARY_NAME="libpython$py_version$so_designator"
 
+            python_full_path_tmp1=`$PYTHON -c "from distutils.sysconfig import *; \
+                    from string import join; \
+                    print get_python_lib(0,1), " | sed 's?python?libpython?'`;
+            AC_SUBST([python_full_path_tmp1])
+            PYTHON_FULL_PATH_LIBRARY_NAME="${python_full_path_tmp1}$so_designator"
+
     fi
     AC_MSG_RESULT([$PYTHON_LDFLAGS])
     AC_SUBST([PYTHON_LDFLAGS])
+    AC_DEFINE_UNQUOTED(PYTHON_FP_LIB_NAME, "$PYTHON_FULL_PATH_LIBRARY_NAME",
+                           [Name of full path python dynamic library])
+    AC_DEFINE_UNQUOTED(PYTHON_LIB_NAME, "$PYTHON_LIBRARY_NAME",
+                           [Name of python dynamic library])
+
     AC_SUBST([PYTHON_LIBRARY_NAME])
+    AC_SUBST([PYTHON_FULL_PATH_LIBRARY_NAME])
 
     #
     # Check for site packages
