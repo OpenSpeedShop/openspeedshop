@@ -357,9 +357,9 @@ AC_SUBST(HAVE_TARGET_FORK)
 #
 AC_MSG_CHECKING(for target shared libraries build specification)
 AC_ARG_ENABLE([target-shared],
-    [AS_HELP_STRING([--enable-target-shared],
-        [Enable support on target architecture for building shared libraries [default=no]])],
-    [enable_target_shared=yes],
+    [AS_HELP_STRING([--enable-target-shared=@<:@yes/no@:>@],
+        [Enable support on target architecture for building shared libraries @<:@default=no@:>@])],
+    [],
     [enable_target_shared=no])
 
 if test "x$enable_target_shared" = xyes ; then
