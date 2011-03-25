@@ -353,6 +353,10 @@ AC_DEFUN([AC_PKG_DYNINST], [
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI" 
             ;;
+	"7.0")
+            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
+            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI" 
+            ;;
 	*)
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI" 
