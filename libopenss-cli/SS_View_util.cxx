@@ -20,6 +20,8 @@
 
 #include "SS_Input_Manager.hxx"
 
+//#define DEBUG_CLI 1
+
 #include "Queries.hxx"
 
 // Global View management utilities
@@ -1254,8 +1256,46 @@ std::string View_ByThread_Id_name[5] = {
        "Posix ThreadId",
        "ProccessId" }; 
 int64_t Determine_ByThread_Id (ExperimentObject *exp) {
+
+  int thread_count = 0;
+  int rank_count = 0;
+
   ThreadGroup tgrp = exp->FW()->getThreads();
+  bool skip_first = false;
+  bool first_thread_has_no_rank = false;
+
+#if DEBUG_CLI
+  printf("Enter Determine_ByThread_Id - SS_View_util.cxx\n");
+#endif
+
+  // Do a loop prior to the sorting so we know if we have the case where we have a non-rank
+  // thread followed by threads with rank information.  This is the case with the online mpi
+  // experiment databases.  See comments below.
+
+  ThreadGroup::iterator dti;
+  for (dti = tgrp.begin(); dti != tgrp.end(); dti++) {
+    Thread t = *dti;
+    std::pair<bool, int> prank = t.getMPIRank();
+    thread_count = thread_count + 1;
+    if (prank.first) {
+      rank_count = rank_count + 1;
+    } else {
+      if (thread_count == 1) first_thread_has_no_rank = true;
+    }
+  }
+
+  if (thread_count > 2 && 
+     (thread_count-rank_count == 1) &&
+      first_thread_has_no_rank ) {
+     skip_first = true;
+  }
+
   ThreadGroup::iterator ti = tgrp.begin();
+  // For online we have a thread for the orterun, mpirun process which does not have a rank
+  // but all the other threads in the thread group do and we want to return ranks in that situation.
+  // So, we will skip the first thread (orterun or mpirun, etc.) and look at the threads that follow
+  // as long as there is only 1 thread without rank information and more than 2 total threads.
+  if (skip_first) ti = ++ti;
   if (ti != tgrp.end()) {
     Thread t1 = *ti;
     if ((++ti) != tgrp.end()) {
