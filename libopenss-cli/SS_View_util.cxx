@@ -1274,21 +1274,50 @@ int64_t Determine_ByThread_Id (ExperimentObject *exp) {
 
   ThreadGroup::iterator dti;
   for (dti = tgrp.begin(); dti != tgrp.end(); dti++) {
+
+#if DEBUG_CLI
+    std::cerr << " Determine_ByThread_Id, ProcessId in tgrp=" << (*dti).getProcessId() << " HostID in tgrp=" << (*dti).getHost() << std::endl;
+#endif
+
     Thread t = *dti;
     std::pair<bool, int> prank = t.getMPIRank();
     thread_count = thread_count + 1;
     if (prank.first) {
+#if DEBUG_CLI
+      std::cerr << " Rank in tgrp=" << prank.second << "\n" <<  std::endl;
+#endif
+
       rank_count = rank_count + 1;
     } else {
       if (thread_count == 1) first_thread_has_no_rank = true;
+
+#if DEBUG_CLI
+      std::cerr << " NO Rank in tgrp=" << "\n" <<  std::endl;
+#endif
+
     }
   }
 
+  // There are cases where there are multiple threads generated for each rank
+  // We account for these by the 2,3,4 times the rank count.  The difference should
+  // always be one.  This indicates the one thread for the mpirun, orterun, srun, or other
+  // mpi start up process.
   if (thread_count > 2 && 
-     (thread_count-rank_count == 1) &&
+     ( (thread_count-rank_count == 1) || 
+       ((thread_count-(2*rank_count)) == 1) ||
+       ((thread_count-(3*rank_count)) == 1) ||
+       ((thread_count-(4*rank_count)) == 1)
+     ) &&
       first_thread_has_no_rank ) {
      skip_first = true;
   }
+#if DEBUG_CLI
+  std::cerr << " Determine_ByThread_Id, thread_count=" << thread_count << " rank_count=" << rank_count << std::endl;
+  std::cerr << " Determine_ByThread_Id, thread_count-rank_count=" << thread_count-rank_count << " (thread_count-(2*rank_count))=" << (thread_count-(2*rank_count)) << std::endl;
+  std::cerr << " Determine_ByThread_Id, (thread_count-(3*rank_count))=" << (thread_count-(3*rank_count)) << " (thread_count-(4*rank_count))=" << (thread_count-(4*rank_count)) << std::endl;
+  std::cerr << " Determine_ByThread_Id, skip_first=" << skip_first << " first_thread_has_no_rank=" << first_thread_has_no_rank << std::endl;
+#endif
+
 
   ThreadGroup::iterator ti = tgrp.begin();
   // For online we have a thread for the orterun, mpirun process which does not have a rank
@@ -1303,11 +1332,28 @@ int64_t Determine_ByThread_Id (ExperimentObject *exp) {
       Thread t2 = *ti;
       std::pair<bool, int> prank1 = t1.getMPIRank();
       std::pair<bool, int> prank2 = t2.getMPIRank();
+#if DEBUG_CLI
+    std::cerr << " Determine_ByThread_Id, In rank code, ProcessId in tgrp=" << (*ti).getProcessId() << " HostID in tgrp=" << (*ti).getHost() << std::endl;
+    std::cerr << " Determine_ByThread_Id, In rank code, prank1.first=" << prank1.first << " prank2.first=" << prank2.first << std::endl;
+
+    if (prank1.first) {
+       std::cerr << " Determine_ByThread_Id, In rank code, prank1.second=" << prank1.second << std::endl;
+    }
+    if (prank2.first) {
+       std::cerr << " Determine_ByThread_Id, In rank code, prank2.second=" << prank2.second << std::endl;
+    }
+#endif
+
       if ( prank1.first && prank2.first &&
            (prank1.second != prank2.second) ) {
        // Use Ranks to distinguish threads.
         return View_ByThread_Rank;
       }
+#if DEBUG_CLI
+      printf("In Determine_ByThread_Id - SS_View_util.cxx, fall past the RANK CODE INTO THREAD CODE\n");
+//      std::cerr << " Determine_ByThread_Id, fall past rank code, t1.getPosixThreadId()=" << t1.getPosixThreadId() << " t2.getPosixThreadId()=" << t2.getPosixThreadId() << std::endl;
+#endif
+
       std::pair<bool, pthread_t> posixthread1 = t1.getPosixThreadId();
       std::pair<bool, pthread_t> posixthread2 = t2.getPosixThreadId();
       if ( posixthread1.first && posixthread2.first &&
