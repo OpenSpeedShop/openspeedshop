@@ -69,9 +69,12 @@ lib_LTLIBRARIES += libopenss-runtime-offline.la
 endif
 
 if HAVE_PAPI
+if !HAVE_TARGET_PAPI
 lib_LTLIBRARIES += libopenss-runtime-papi.la
 library_include_HEADERS += PapiAPI.h
 endif
+endif
+
 if HAVE_TARGET_PAPI
 lib_LTLIBRARIES += libopenss-runtime-papi.la
 library_include_HEADERS += PapiAPI.h
@@ -90,9 +93,12 @@ library_include_HEADERS += BinutilsAPI.h
 endif
 
 if HAVE_LIBUNWIND
+if !HAVE_TARGET_LIBUNWIND
 lib_LTLIBRARIES += libopenss-runtime-unwind.la
 library_include_HEADERS += UnwindAPI.h
 endif
+endif
+
 if HAVE_TARGET_LIBUNWIND
 lib_LTLIBRARIES += libopenss-runtime-unwind.la
 library_include_HEADERS += UnwindAPI.h
