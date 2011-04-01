@@ -52,3 +52,15 @@ insert into JUNK (version) values(1);
 cntl-D
 
 
+HOW TO BOOTSTRAP:
+
+If autotools not built then cd OpenSpeedShop_ROOT
+export OPENSS_AUTOTOOLS_ROOT=<autotools_path>
+./install.sh --devel
+# adjust module for autotools
+
+module load autotools-2.2.6b
+./bootstrap
+module unload autotools-2.2.6b
+
+
