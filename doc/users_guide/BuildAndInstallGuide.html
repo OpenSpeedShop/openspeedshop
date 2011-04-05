@@ -38,9 +38,9 @@ w\:* {behavior:url(#default#VML);}
  alt="Open|SpeedShop logo" src="OpenSpeedShop_Logo.jpg"
  style="width: 303px; height: 38px;"><br>
 Build and Installation Guide<br>
-</span></b><big><span style="font-weight: bold;">Version 2.0.0 Release</span><br
+</span></b><big><span style="font-weight: bold;">Version 2.0.1 Release</span><br
  style="font-weight: bold;">
-<span style="font-weight: bold;">October 31, 2010</span></big><br>
+<span style="font-weight: bold;">March 31, 2011</span></big><br>
 </p>
 <div class="Section2"><b style=""><br style="" clear="all">
 </b>
@@ -130,7 +130,7 @@ and Tutorial<br>
 <span style="font-size: 11pt; font-family: &quot;Times New Roman&quot;;"></span>
 <div class="Section3">
 <div style="text-align: left; margin-left: 40px;">Open|SpeedShop
-release 2.0.0 comes with an install script that will build all the
+release 2.0.1 comes with an install script that will build all the
 supporting components and Open|SpeedShop itself in one step, or the
 builder can invoke the script multiple times to build each component
 separately.&nbsp;&nbsp; The <a
@@ -150,7 +150,7 @@ which can be found at our web site: <a href="www.openspeedshop.org">www.openspee
 <br>
 The next section explains how to build from our development source
 tree.&nbsp;&nbsp; If you are not interested in doing that but are
-interested in building the current 2.0.0 release of Open|SpeedShop
+interested in building the current 2.0.1 release of Open|SpeedShop
 skip
 to the <a href="#OpenSpeedShop_Build_And_Installation">Build and
 Installation section.</a><br>
@@ -259,9 +259,9 @@ instructions below using OpenSpeedShop_ROOT as the top level
 installation directory.&nbsp;&nbsp;&nbsp; To use the existing
 install.sh installation script, OpenSpeedShop must be moved to the
 openspeedshop-1.9,3.4 directory name, tarred into
-openspeedshop-2.0.0.tar,
-gzipped into openspeedshop-2.0.0.tar.gz, and moved into
-OpenSpeedShop_ROOT/SOURCES/openspeedshop-2.0.0.tar.gz. &nbsp; This is
+openspeedshop-2.0.1.tar,
+gzipped into openspeedshop-2.0.1.tar.gz, and moved into
+OpenSpeedShop_ROOT/SOURCES/openspeedshop-2.0.1.tar.gz. &nbsp; This is
 what is done when a release tarball is prepared.
 </div>
 </div>
@@ -541,15 +541,15 @@ and the versions that have been used successfully with Open|SpeedShop.<br>
 Information<br>
 </h3>
 <br>
-Please gunzip and untar the openspeedshop-release-2.0.0.tar.gz file
+Please gunzip and untar the openspeedshop-release-2.0.1.tar.gz file
 and
-change directory into the openspeedshop-release-2.0.0
+change directory into the openspeedshop-release-2.0.1
 directory.&nbsp;&nbsp; <br>
 <br>
 For example:<br>
-gunzip openspeedshop-release-2.0.0.tar.gz<br>
-tar -xvf openspeedshop-release-2.0.0.tar<br>
-cd openspeedshop-release-2.0.0<br>
+gunzip openspeedshop-release-2.0.1.tar.gz<br>
+tar -xvf openspeedshop-release-2.0.1.tar<br>
+cd openspeedshop-release-2.0.1<br>
 <br>
 Inside the top level release directory is the key script, install.sh,
 that can be used in building the Open|SpeedShop performance tool.<br>
@@ -621,15 +621,15 @@ and configure for each MPI implementation specfied in this manner.<br>
 The spec files associated with this build process include:<br>
 qtver=3.3.8b<br>
 libelfver=0.8.5_a<br>
-libdwarfver=20091230_a<br>
+libdwarfver=20110113_a<br>
 libunwindver=020100123_a<br>
-papiver=3.7.0_a<br>
-sqlitever=3.6.22_a<br>
-monitorver=20091010_a<br>
+papiver=4.1.2.1_a<br>
+sqlitever=3.7.4_a<br>
+monitorver=20110321_a<br>
 vampirtracever=5.3.2_a<br>
-dyninstver=6.1_a<br>
-mrnetver=3.0_a<br>
-openspeedshopver=2.0.0_a<br>
+dyninstver=7.0_a<br>
+mrnetver=3.0.1_a<br>
+openspeedshopver=2.0.1_a<br>
 <br>
 There is an order that is required in building the components because
 some of the components depend oneach other.&nbsp; The install script
@@ -855,7 +855,7 @@ Vampirtrace<br>
 <br>
 &nbsp;&nbsp;&nbsp; 0&nbsp; - Set ~/.rpmmacros %_topdir to:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-/home/jeg/release-2.0.0/OpenSpeedShop_ROOT&nbsp; <br>
+/home/jeg/release-2.0.1/OpenSpeedShop_ROOT&nbsp; <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; original will be
 copied to .rpmmacros.##<br>
 &nbsp;&nbsp;&nbsp; 0a - View environment variables that may be set<br>
