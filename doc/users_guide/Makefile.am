@@ -24,8 +24,12 @@ DIST_SUBDIRS = TroubleShootingGuide BuildInstallGuide_files BuildTutorial usersG
 
 EXTRA_DIST = BuildingInstallingDPCL.html \
 	BuildInstallGuideTutorial.html \
+	OpenSpeedShopTargetUsage.html \
+	QuickStartGuide.html \
 	index.html \
 	Makefile.am \
+	ossscript.html \
+	OfflineEnvironmentVariables.html \
 	OpenSpeedShop_Logo.jpg \
 	rpmQuery.asc 
 
