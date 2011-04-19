@@ -255,7 +255,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
                   ismvapich = os.system('grep -q -i \"Wrapper for job submission on Hert related machines\" ' + file_arg)
                   ismvapich2 = os.system('grep -q -i \"MVAPICH2 software package developed\" ' + file_arg)
 
-		  if os.WEXITSTATUS(ismpich2) and os.WEXITSTATUS(ismvapich2):
+		  # if both ismpich2 and ismvapich2 are set, choose mpich2
+		  if not os.WEXITSTATUS(ismpich2) and not os.WEXITSTATUS(ismvapich2):
 			ismpich2 = bool(0)
 
 		  if os.WEXITSTATUS(ismpich2):
