@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2011 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -154,13 +154,12 @@ SPListViewItem::compare(QListViewItem *other, int c, bool b) const
   printf("statsPanel->splv->sortColumn=(%d)\n", statsPanel->splv->sortColumn() );
 #endif
 
-  if( c != statsPanel->splv->sortColumn() )
-  {
+  if( c != statsPanel->splv->sortColumn() ) {
     return 0;
   }
 
 #if DEBUG_StatsPanel 
-  printf("other->text(%d)=%s text(%d)=%s\n", c, other->text(c).ascii(), c, text(c).ascii() );
+  printf("other->text(%lld)=%s text(%lld)=%s\n", c, other->text(c).ascii(), c, text(c).ascii() );
 #endif
   
   QString s = text(c);
@@ -170,61 +169,111 @@ SPListViewItem::compare(QListViewItem *other, int c, bool b) const
 
   d = text(c).toDouble(&ok1);
   other_d = other->text(c).toDouble(&ok2);
-  int i = 0;
-  int other_i = 0;
+  uint64_t i = 0;
+  uint64_t other_i = 0;
   
+#if DEBUG_StatsPanel 
+  printf("ok1=%d, ok2=%d\n", ok1, ok2 );
+#endif
+
   if( ok1 && ok2 )
+
   {  // It's numeric!
-    if( s.contains(".") || other_s.contains(".") )
-    { // Treat the compare as a doubles.
-// printf("sort by double %s vs %s\n", s.ascii(), other_s.ascii() );
+#if DEBUG_StatsPanel 
+  printf("it is numeric, ok1=%d, ok2=%d\n", ok1, ok2 );
+#endif
+    if( s.contains(".") || other_s.contains(".") ) {
+    // Treat the compare as a doubles.
+    
+#if DEBUG_StatsPanel 
+      printf("sort by double s: %s vs other: %s\n", s.ascii(), other_s.ascii() );
+#endif
+
       /* sorting by double */
       d = s.toDouble();
       other_d = other_s.toDouble();
-// printf("sort by double %f vs %f\n", d, other_d );
+
+#if DEBUG_StatsPanel 
+      printf("sort by double d: %f vs other: %f\n", d, other_d );
+#endif
   
-      if( d < other_d )
-      {
-// printf("     <   \n");
+      if( d < other_d ) {
+#if DEBUG_StatsPanel 
+        printf("RETURN -1,     <   \n");
+#endif
         return -1;
-      } else if( d > other_d )
-      {
-// printf("     >   \n");
+
+      } else if( d > other_d ) {
+#if DEBUG_StatsPanel 
+        printf("RETURN 1,     >   \n");
+#endif
         return 1;
-      } else 
-      {
-// printf("     ==   \n");
+
+      } else {
+#if DEBUG_StatsPanel 
+        printf("RETURN 0,     ==   \n");
+#endif
         return 0;
       }
-    } else 
-    { // Threat the compare as integers.
+    } else { // Threat the compare as integers.
+
       /* sorting by int */
-// printf("sort by int %s vs %s\n", s.ascii(), other_s.ascii());
-      i = s.toInt();
-      other_i = other_s.toInt();
+#if DEBUG_StatsPanel 
+      printf("sort by INT s: %lls vs other: %lls\n", s.ascii(), other_s.ascii());
+#endif
+
+      i = s.toLongLong();
+      other_i = other_s.toLongLong();
+
+#if DEBUG_StatsPanel 
+      printf("sort by INT i: %lld vs other: %lld\n", i, other_i );
+#endif
   
-      if( i < other_i )
-      {
+      if( i < other_i ) {
+
+#if DEBUG_StatsPanel 
+        printf("RETURN -1, sort by INT i: %lld less than other: %lld\n", i, other_i );
+#endif
         return -1;
-      } else if( i > other_i )
-      {
+
+      } else if ( i > other_i ) {
+
+#if DEBUG_StatsPanel 
+        printf("RETURN 1, sort by INT i %lld greater than other: %lld\n", i, other_i );
+#endif
         return 1;
-      } else 
-      {
+
+      } else {
+
+#if DEBUG_StatsPanel 
+        printf("RETURN 0, sort by INT i: %lld equals other: %lld\n", i, other_i );
+#endif
+
         return 0;
       }
     }
-  } else
-  {
-// printf("sort by other %s vs %s\n", s.ascii(), other_s.ascii());
-    if( s < other_s )
-    {
+  } else {
+
+#if DEBUG_StatsPanel 
+    printf("sort by STRING, s: %s vs other: %s\n", s.ascii(), other_s.ascii());
+#endif
+
+    if( s < other_s ) {
+
+#if DEBUG_StatsPanel 
+    printf("RETURN -1, sort by STRING, s: %s less than other: %s\n", s.ascii(), other_s.ascii());
+#endif
+
       return -1;
-    } else if( s > other_s )
-    {
+    } else if( s > other_s ) {
+#if DEBUG_StatsPanel 
+    printf("RETURN 1, sort by STRING, s: %s greater than other: %s\n", s.ascii(), other_s.ascii());
+#endif
       return 1;
-    } else 
-    {
+    } else {
+#if DEBUG_StatsPanel 
+    printf("RETURN 0, sort by STRING, s: %s equals other:%s\n", s.ascii(), other_s.ascii());
+#endif
       return 0;
     }
   }

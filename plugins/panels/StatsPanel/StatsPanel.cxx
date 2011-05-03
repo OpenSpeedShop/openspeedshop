@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2010 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2011 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -4395,7 +4395,7 @@ QString StatsPanel::getFullPathSrcFileName(QString noPathFileName, int exp_id)
   std::string fullPathSrcFilename = "";
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::getFullPathSrcFileName noPathFileName=%s, exp_id=%d\n", noPathFileName, exp_id);
+  printf("StatsPanel::getFullPathSrcFileName noPathFileName=%s, exp_id=%d\n", noPathFileName.ascii(), exp_id);
 #endif
 
   command = QString("list -v srcfullpath -x %1 -f %2").arg(exp_id).arg(noPathFileName);

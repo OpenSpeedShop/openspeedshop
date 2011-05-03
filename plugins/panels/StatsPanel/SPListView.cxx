@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2011 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -29,6 +29,8 @@
 #include <qcursor.h>
 #include "StatsPanel.hxx"
 
+//#define DEBUG_SPL 1
+
 #include "debug.hxx"
 
 #include <stdlib.h>  // for the free() call below.
@@ -39,7 +41,9 @@
 SPListView::SPListView( StatsPanel *sp, QSplitter *splitter, const char *n, int flags )
      : QListView( splitter, n, flags )
 {
-// printf ( "SPListView::SPListView( ) constructor called\n");
+#if DEBUG_SPL
+  fprintf (stderr, "SPListView::SPListView( ) constructor called\n");
+#endif
 
   statsPanel = sp;
 
@@ -50,6 +54,9 @@ SPListView::SPListView( StatsPanel *sp, QSplitter *splitter, const char *n, int 
 
   // If there should be sort indicators in the header, show them here.
   setShowSortIndicator(TRUE);
+#if DEBUG_SPL
+  fprintf (stderr, "SPListView::contentsContextMenuEvent() entered\n");
+#endif
 
 //  QToolTip::add( this, tr( "The list of statistics collected." ) );
 
