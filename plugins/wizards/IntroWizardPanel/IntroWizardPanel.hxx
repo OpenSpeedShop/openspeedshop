@@ -136,6 +136,7 @@ public:
     QLabel* vpage1SpacerItem2;
     QLabel* vpage1SpacerItem3;
     QLabel* vpage1SpacerItem4;
+    QLabel* vpage1SpacerItem4b;
     QLabel* vpage1SpacerItem5;
     QLabel* vpage1SpacerItem6;
     QLabel* vpage1SpacerItem7;
@@ -146,6 +147,7 @@ public:
     QRadioButton* vpage1pcSampleRB;
     QRadioButton* vpage1UserTimeRB;
     QRadioButton* vpage1HardwareCounterRB;
+    QRadioButton* vpage1HardwareCounterSampRB;
     QRadioButton* vpage1FloatingPointRB;
     QRadioButton* vpage1InputOutputRB;
     QRadioButton* vpage1MPIRB;
@@ -162,6 +164,7 @@ public:
     QLabel* epage1SpacerItem2;
     QLabel* epage1SpacerItem3;
     QLabel* epage1SpacerItem4;
+    QLabel* epage1SpacerItem4b;
     QLabel* epage1SpacerItem5;
     QLabel* epage1SpacerItem6;
     QLabel* epage1SpacerItem7;
@@ -174,6 +177,7 @@ public:
     QRadioButton* epage1pcSampleRB;
     QRadioButton* epage1UserTimeRB;
     QRadioButton* epage1HardwareCounterRB;
+    QRadioButton* epage1HardwareCounterSampRB;
     QRadioButton* epage1FloatingPointRB;
     QRadioButton* epage1InputOutputRB;
     QRadioButton* epage1MPIRB;
@@ -317,6 +321,7 @@ public slots:
     void vpage1pcSampleRBChanged();
     void vpage1UserTimeRBChanged();
     void vpage1HardwareCounterRBChanged();
+    void vpage1HardwareCounterSampRBChanged();
     void vpage1FloatingPointRBChanged();
     void vpage1InputOutputRBChanged();
     void vpage1MPIRBChanged();
@@ -326,6 +331,7 @@ public slots:
     void epage1pcSampleRBChanged();
     void epage1UserTimeRBChanged();
     void epage1HardwareCounterRBChanged();
+    void epage1HardwareCounterSampRBChanged();
     void epage1FloatingPointRBChanged();
     void epage1InputOutputRBChanged();
     void epage1MPIRBChanged();

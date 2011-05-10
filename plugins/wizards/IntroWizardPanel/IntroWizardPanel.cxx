@@ -311,6 +311,11 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   vpage1HardwareCounterRB = new QRadioButton( vpage1big_box, "vpage1HardwareCounterRB" );
   vpage1HardwareCounterRB->setChecked(FALSE);
 
+  vpage1SpacerItem4b = new QLabel( vpage1big_box, "vpage1SpacerItem4b" );
+
+  vpage1HardwareCounterSampRB = new QRadioButton( vpage1big_box, "vpage1HardwareCounterSampRB" );
+  vpage1HardwareCounterSampRB->setChecked(FALSE);
+
   vpage1SpacerItem5 = new QLabel( vpage1big_box, "vpage1SpacerItem5" );
 
   vpage1FloatingPointRB = new QRadioButton( vpage1big_box, "vpage1FloatingPointRB" );
@@ -404,6 +409,11 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   epage1HardwareCounterRB = new QRadioButton( epage1big_box, "epage1HardwareCounterRB" );
   epage1HardwareCounterRB->setChecked(FALSE);
 
+  epage1SpacerItem4b = new QLabel( epage1big_box, "epage1SpacerItem4b" );
+
+  epage1HardwareCounterSampRB = new QRadioButton( epage1big_box, "epage1HardwareCounterSampRB" );
+  epage1HardwareCounterSampRB->setChecked(FALSE);
+
   epage1SpacerItem5 = new QLabel( epage1big_box, "epage1SpacerItem5" );
 
   epage1FloatingPointRB = new QRadioButton( epage1big_box, "epage1FloatingPointRB" );
@@ -488,6 +498,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   connect( vpage1pcSampleRB, SIGNAL( clicked() ), this, SLOT(vpage1pcSampleRBChanged() ) );
   connect( vpage1UserTimeRB, SIGNAL( clicked() ), this, SLOT(vpage1UserTimeRBChanged() ) );
   connect( vpage1HardwareCounterRB, SIGNAL( clicked() ), this, SLOT(vpage1HardwareCounterRBChanged() ) );
+  connect( vpage1HardwareCounterSampRB, SIGNAL( clicked() ), this, SLOT(vpage1HardwareCounterSampRBChanged() ) );
   connect( vpage1FloatingPointRB, SIGNAL( clicked() ), this, SLOT(vpage1FloatingPointRBChanged() ) );
   connect( vpage1InputOutputRB, SIGNAL( clicked() ), this, SLOT(vpage1InputOutputRBChanged() ) );
   connect( vpage1MPIRB, SIGNAL( clicked() ), this, SLOT(vpage1MPIRBChanged() ) );
@@ -495,6 +506,7 @@ IntroWizardPanel::IntroWizardPanel(PanelContainer *pc, const char *n, void *argu
   connect( epage1pcSampleRB, SIGNAL( clicked() ), this, SLOT(epage1pcSampleRBChanged() ) );
   connect( epage1UserTimeRB, SIGNAL( clicked() ), this, SLOT(epage1UserTimeRBChanged() ) );
   connect( epage1HardwareCounterRB, SIGNAL( clicked() ), this, SLOT(epage1HardwareCounterRBChanged() ) );
+  connect( epage1HardwareCounterSampRB, SIGNAL( clicked() ), this, SLOT(epage1HardwareCounterSampRBChanged() ) );
   connect( epage1FloatingPointRB, SIGNAL( clicked() ), this, SLOT(epage1FloatingPointRBChanged() ) );
   connect( epage1InputOutputRB, SIGNAL( clicked() ), this, SLOT(epage1InputOutputRBChanged() ) );
   connect( epage1MPIRB, SIGNAL( clicked() ), this, SLOT(epage1MPIRBChanged() ) );
@@ -663,6 +675,7 @@ void IntroWizardPanel::languageChange()
   vpage1SpacerItem2->setText( tr( "\n" ) );
   vpage1SpacerItem3->setText( tr( "\n" ) );
   vpage1SpacerItem4->setText( tr( "\n" ) );
+  vpage1SpacerItem4b->setText( tr( "\n" ) );
   vpage1SpacerItem5->setText( tr( "\n" ) );
   vpage1SpacerItem6->setText( tr( "\n" ) );
   vpage1SpacerItem7->setText( tr( "\n" ) );
@@ -671,6 +684,7 @@ void IntroWizardPanel::languageChange()
   vpage1pcSampleRB->setText( tr( "PCSAMP: I'm trying to find where my program is spending most of its time.  Most lightweight impact on application." ) );
   vpage1UserTimeRB->setText( tr( "USERTIME: I'd like to see information about which routines are calling other routines in addition to the inclusive/exclusive timing information." ) );
   vpage1HardwareCounterRB->setText( tr( "HWC: I'd like to see what kind of performance information the internal Hardware Counters can show me." ) );
+  vpage1HardwareCounterSampRB->setText( tr( "HWCSAMP: I'd like to sample up to six (6) internal Hardware Counters." ) );
   vpage1FloatingPointRB->setText( tr( "FPE: I would like to know how many times my program is causing Floating Point Exceptions and where in my program they are occuring." ) );
   vpage1InputOutputRB->setText( tr( "I/O: I would like to see which Input/Output calls are being made and where most of that time is being spent." ) );
   vpage1MPIRB->setText( tr( "MPI: I would like to see what MPI calls are being made and where the MPI calls are being made in my program." ) );
@@ -679,6 +693,7 @@ void IntroWizardPanel::languageChange()
   epage1SpacerItem2->setText( tr( "\n" ) );
   epage1SpacerItem3->setText( tr( "\n" ) );
   epage1SpacerItem4->setText( tr( "\n" ) );
+  epage1SpacerItem4b->setText( tr( "\n" ) );
   epage1SpacerItem5->setText( tr( "\n" ) );
   epage1SpacerItem6->setText( tr( "\n" ) );
   epage1SpacerItem7->setText( tr( "\n" ) );
@@ -688,6 +703,7 @@ void IntroWizardPanel::languageChange()
   epage1pcSampleRB->setText( tr( "PCSAMP: (Program Counter Sampling)" ) );
   epage1UserTimeRB->setText( tr( "USERTIME: (CallStack Sampling)" ) );
   epage1HardwareCounterRB->setText( tr( "HWC: (Time and Record Hardware Counter Events)" ) );
+  epage1HardwareCounterSampRB->setText( tr( "HWCSAMP: (Sample up to six (6) Hardware Counter Events)" ) );
   epage1FloatingPointRB->setText( tr( "FPE: (Record Floating Point Exception Events)" ) );
   epage1InputOutputRB->setText( tr( "I/O: (Wrap/Trace Input/Output Calls and Record Info)" ) );
   epage1MPIRB->setText( tr( "MPI: (Wrap/Trace MPI Calls and Record Info) " ) );
@@ -1249,6 +1265,23 @@ void IntroWizardPanel::vORepage1NextButtonSelected()
     }
 
 #if DEBUG_INTRO
+    printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), vpage1HardwareCounterSampRB->isOn()=%d\n", vpage1HardwareCounterSampRB->isOn() );
+#endif
+
+    if( vpage1HardwareCounterSampRB->isOn() ) {
+      p = getPanelContainer()->raiseNamedPanel((char *) "HW Counter Samp Wizard");
+      if( !p ) {
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Samp Wizard", getPanelContainer(), ao);
+        delete ao;
+      } else {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
+    }
+
+#if DEBUG_INTRO
     printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), vpage1FloatingPointRB->isOn()=%d\n", vpage1FloatingPointRB->isOn() );
 #endif
 
@@ -1364,6 +1397,23 @@ void IntroWizardPanel::vORepage1NextButtonSelected()
     }
 
 #if DEBUG_INTRO
+    printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), epage1HardwareCounterSampRB->isOn()=%d\n", epage1HardwareCounterSampRB->isOn() );
+#endif
+
+    if( epage1HardwareCounterSampRB->isOn() ) {
+      p = getPanelContainer()->raiseNamedPanel((char *) "HW Counter Samp Wizard");
+      if( !p ) {
+        ArgumentObject *ao = new ArgumentObject("ArgumentObject", 1);
+        getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW Counter Samp Wizard", getPanelContainer(), ao);
+        delete ao;
+      } else {
+        MessageObject *msg = new MessageObject("Wizard_Raise_First_Page");
+        p->listener((void *)msg);
+        delete msg;
+      }
+    }
+
+#if DEBUG_INTRO
     printf("Enter IntroWizardPanel::vORepage1NextButtonSelected(), epage1FloatingPointRB->isOn()=%d\n", epage1FloatingPointRB->isOn() );
 #endif
 
@@ -1442,6 +1492,14 @@ void IntroWizardPanel::vpage1HardwareCounterRBChanged()
   printf("IntroWizardPanel::vpage1HardwareCounterRBChanged(), vpage1HardwareCounterRB->isOn()=%d\n", vpage1HardwareCounterRB->isOn());
 #endif
   vpage1SetStateChanged(vpage1HardwareCounterRB);
+}
+
+void IntroWizardPanel::vpage1HardwareCounterSampRBChanged()
+{
+#if DEBUG_INTRO
+  printf("IntroWizardPanel::vpage1HardwareCounterSampRBChanged(), vpage1HardwareCounterSampRB->isOn()=%d\n", vpage1HardwareCounterSampRB->isOn());
+#endif
+  vpage1SetStateChanged(vpage1HardwareCounterSampRB);
 }
 
 void IntroWizardPanel::vpage1FloatingPointRBChanged()
@@ -1540,6 +1598,7 @@ void IntroWizardPanel::vpage1SetStateChanged(QRadioButton *rb)
   printf("Enter IntroWizardPanel::vpage1SetStateChanged, vpage1pcSampleRB->isOn()=%d\n", vpage1pcSampleRB->isOn());
   printf("Enter IntroWizardPanel::vpage1SetStateChanged, vpage1UserTimeRB->isOn()=%d\n", vpage1UserTimeRB->isOn());
   printf("Enter IntroWizardPanel::vpage1SetStateChanged, vpage1HardwareCounterRB->isOn()=%d\n", vpage1HardwareCounterRB->isOn());
+  printf("Enter IntroWizardPanel::vpage1SetStateChanged, vpage1HardwareCounterSampRB->isOn()=%d\n", vpage1HardwareCounterSampRB->isOn());
   printf("Enter IntroWizardPanel::vpage1SetStateChanged, vpage1FloatingPointRB->isOn()=%d\n", vpage1FloatingPointRB->isOn());
   printf("Enter IntroWizardPanel::vpage1SetStateChanged, vpage1InputOutputRB->isOn()=%d\n", vpage1InputOutputRB->isOn());
   printf("Enter IntroWizardPanel::vpage1SetStateChanged, vpage1MPIRB->isOn()=%d\n", vpage1MPIRB->isOn());
@@ -1555,6 +1614,7 @@ void IntroWizardPanel::vpage1SetStateChanged(QRadioButton *rb)
   vpage1pcSampleRB->setChecked( FALSE );
   vpage1UserTimeRB->setChecked( FALSE );
   vpage1HardwareCounterRB->setChecked( FALSE );
+  vpage1HardwareCounterSampRB->setChecked( FALSE );
   vpage1FloatingPointRB->setChecked( FALSE );
   vpage1InputOutputRB->setChecked( FALSE );
   vpage1MPIRB->setChecked( FALSE );
@@ -1566,6 +1626,7 @@ void IntroWizardPanel::vpage1SetStateChanged(QRadioButton *rb)
   printf("Exit IntroWizardPanel::vpage1SetStateChanged, vpage1pcSampleRB->isOn()=%d\n", vpage1pcSampleRB->isOn());
   printf("Exit IntroWizardPanel::vpage1SetStateChanged, vpage1UserTimeRB->isOn()=%d\n", vpage1UserTimeRB->isOn());
   printf("Exit IntroWizardPanel::vpage1SetStateChanged, vpage1HardwareCounterRB->isOn()=%d\n", vpage1HardwareCounterRB->isOn());
+  printf("Exit IntroWizardPanel::vpage1SetStateChanged, vpage1HardwareCounterSampRB->isOn()=%d\n", vpage1HardwareCounterSampRB->isOn());
   printf("Exit IntroWizardPanel::vpage1SetStateChanged, vpage1FloatingPointRB->isOn()=%d\n", vpage1FloatingPointRB->isOn());
   printf("Exit IntroWizardPanel::vpage1SetStateChanged, vpage1InputOutputRB->isOn()=%d\n", vpage1InputOutputRB->isOn());
   printf("Exit IntroWizardPanel::vpage1SetStateChanged, vpage1MPIRB->isOn()=%d\n", vpage1MPIRB->isOn());
@@ -1626,6 +1687,14 @@ void IntroWizardPanel::epage1HardwareCounterRBChanged()
   epage1SetStateChanged(epage1HardwareCounterRB);
 }
 
+void IntroWizardPanel::epage1HardwareCounterSampRBChanged()
+{
+#if DEBUG_INTRO
+  printf("Enter IntroWizardPanel::epage1HardwareCounterSampRBChanged, epage1HardwareCounterSampRB->isOn()=%d\n", epage1HardwareCounterSampRB->isOn());
+#endif
+  epage1SetStateChanged(epage1HardwareCounterSampRB);
+}
+
 void IntroWizardPanel::epage1FloatingPointRBChanged()
 {
 #if DEBUG_INTRO
@@ -1656,6 +1725,7 @@ void IntroWizardPanel::epage1SetStateChanged(QRadioButton *rb)
   printf("Enter IntroWizardPanel::epage1SetStateChanged, epage1pcSampleRB->isOn()=%d\n", epage1pcSampleRB->isOn());
   printf("Enter IntroWizardPanel::epage1SetStateChanged, epage1UserTimeRB->isOn()=%d\n", epage1UserTimeRB->isOn());
   printf("Enter IntroWizardPanel::epage1SetStateChanged, epage1HardwareCounterRB->isOn()=%d\n", epage1HardwareCounterRB->isOn());
+  printf("Enter IntroWizardPanel::epage1SetStateChanged, epage1HardwareCounterSampRB->isOn()=%d\n", epage1HardwareCounterSampRB->isOn());
   printf("Enter IntroWizardPanel::epage1SetStateChanged, epage1FloatingPointRB->isOn()=%d\n", epage1FloatingPointRB->isOn());
   printf("Enter IntroWizardPanel::epage1SetStateChanged, epage1InputOutputRB->isOn()=%d\n", epage1InputOutputRB->isOn());
   printf("Enter IntroWizardPanel::epage1SetStateChanged, epage1MPIRB->isOn()=%d\n", epage1MPIRB->isOn());
@@ -1670,6 +1740,7 @@ void IntroWizardPanel::epage1SetStateChanged(QRadioButton *rb)
   epage1pcSampleRB->setChecked( FALSE );
   epage1UserTimeRB->setChecked( FALSE );
   epage1HardwareCounterRB->setChecked( FALSE );
+  epage1HardwareCounterSampRB->setChecked( FALSE );
   epage1FloatingPointRB->setChecked( FALSE );
   epage1InputOutputRB->setChecked( FALSE );
   epage1MPIRB->setChecked( FALSE );
@@ -1681,6 +1752,7 @@ void IntroWizardPanel::epage1SetStateChanged(QRadioButton *rb)
   printf("Exit IntroWizardPanel::epage1SetStateChanged, epage1pcSampleRB->isOn()=%d\n", epage1pcSampleRB->isOn());
   printf("Exit IntroWizardPanel::epage1SetStateChanged, epage1UserTimeRB->isOn()=%d\n", epage1UserTimeRB->isOn());
   printf("Exit IntroWizardPanel::epage1SetStateChanged, epage1HardwareCounterRB->isOn()=%d\n", epage1HardwareCounterRB->isOn());
+  printf("Exit IntroWizardPanel::epage1SetStateChanged, epage1HardwareCounterSampRB->isOn()=%d\n", epage1HardwareCounterSampRB->isOn());
   printf("Exit IntroWizardPanel::epage1SetStateChanged, epage1FloatingPointRB->isOn()=%d\n", epage1FloatingPointRB->isOn());
   printf("Exit IntroWizardPanel::epage1SetStateChanged, epage1InputOutputRB->isOn()=%d\n", epage1InputOutputRB->isOn());
   printf("Exit IntroWizardPanel::epage1SetStateChanged, epage1MPIRB->isOn()=%d\n", epage1MPIRB->isOn());
@@ -1761,6 +1833,7 @@ IntroWizardPanel::handleSizeEvent(QResizeEvent *e)
   calculated_height += vpage1pcSampleRB->height();
   calculated_height += vpage1UserTimeRB->height();
   calculated_height += vpage1HardwareCounterRB->height();
+  calculated_height += vpage1HardwareCounterSampRB->height();
   calculated_height += vpage1FloatingPointRB->height();
   calculated_height += vpage1InputOutputRB->height();
   calculated_height += vpage1MPIRB->height();

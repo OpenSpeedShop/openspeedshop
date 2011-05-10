@@ -33,6 +33,7 @@ endif
 if HAVE_PAPI
 if BUILD_INSTRUMENTOR
 SUBDIRS += HW_CounterWizardPanel
+SUBDIRS += HW_CounterSampWizardPanel
 endif
 endif
  

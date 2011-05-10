@@ -597,6 +597,7 @@ AC_CONFIG_FILES(
 	plugins/wizards/UserTimeWizardPanel/Makefile
 	plugins/wizards/FPE_TracingWizardPanel/Makefile
 	plugins/wizards/HW_CounterWizardPanel/Makefile
+	plugins/wizards/HW_CounterSampWizardPanel/Makefile
 	plugins/wizards/IOWizardPanel/Makefile
 	plugins/wizards/MPIWizardPanel/Makefile
 	plugins/wizards/CompareWizardPanel/Makefile
