@@ -82,7 +82,7 @@ HW_CounterSampWizardPanel::HW_CounterSampWizardPanel(PanelContainer *pc, const c
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("HW_CounterSampWizardPanel::HW_CounterSampWizardPanel() constructor called\n");
 
-  original_sampling_rate = 20000000;
+  original_sampling_rate = 100;
   original_papi_str = QString::null;
   if ( !getName() )
   {
@@ -129,10 +129,13 @@ HW_CounterSampWizardPanel::HW_CounterSampWizardPanel(PanelContainer *pc, const c
   bool boolOK = false;
   bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline", defaultValue_instrumentorIsOffline, &boolOK);
   setGlobalToolInstrumentorIsOffline(temp_instrumentorIsOffline);
+
 #ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizard setup: /openspeedshop/general/instrumentorIsOffline=(%d), boolOK=%d\n", temp_instrumentorIsOffline, boolOK );
 #endif
+
   delete settings;
+
 #endif
 
 // Begin: verbose description page
@@ -600,6 +603,34 @@ HW_CounterSampWizardPanel::menu(QPopupMenu* contextMenu)
 
   return( FALSE );
 }
+
+static void createTokens(const std::string& str,
+                  std::vector<std::string>& tokens,
+                  const std::string& delimiters = " ")
+{
+    /* Skip delimiters at beginning. */
+    std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    /* Find first "non-delimiter". */
+    std::string::size_type pos     = str.find_first_of(delimiters, lastPos);
+
+    while (std::string::npos != pos || std::string::npos != lastPos)
+    {
+        /* Found a token, add it to the vector. */
+        tokens.push_back(str.substr(lastPos, pos - lastPos));
+
+        /* Skip delimiters.  Note the "not_of" */
+        lastPos = str.find_first_not_of(delimiters, pos);
+
+        /* Find next "non-delimiter" */
+        pos = str.find_first_of(delimiters, lastPos);
+
+#ifdef DEBUG_CLI
+        printf("createTokens, in while, str.c_str()=%s, lastPos = %d, pos = %d\n", str.c_str(), lastPos, pos);
+#endif
+
+    }
+}
+
 
 //! Save ascii version of this panel.
 /*! If the user panel provides save to ascii functionality, their function
@@ -1408,7 +1439,9 @@ void HW_CounterSampWizardPanel::finishButtonSelected()
 void HW_CounterSampWizardPanel::vSummaryPageFinishButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vSummaryPageFinishButtonSelected() \n");
-// printf("vSummaryPageFinishButtonSelected() \n");
+#ifdef DEBUG_HWCSampWizard
+  printf("vSummaryPageFinishButtonSelected() \n");
+#endif
 
   Panel *p = hwCounterSampPanel;
   if( getPanelContainer()->getMainWindow() )
@@ -1426,9 +1459,13 @@ void HW_CounterSampWizardPanel::vSummaryPageFinishButtonSelected()
 
       int i = vParameterPagePAPIDescriptionText->currentText().find(' ');
       QString PAPI_str = vParameterPagePAPIDescriptionText->currentText().left(i);
-// printf("PAPI_str=(%s)\n", PAPI_str.ascii() );
+#ifdef DEBUG_HWCSampWizard
+       printf("PAPI_str=(%s)\n", PAPI_str.ascii() );
+#endif
       paramList->push_back(PAPI_str);
-// printf("A: push_back (%s)\n", vParameterPagePAPIDescriptionText->currentText().ascii() );
+#ifdef DEBUG_HWCSampWizard
+      printf("A: push_back (%s)\n", vParameterPagePAPIDescriptionText->currentText().ascii() );
+#endif
 
       if( !mw->executableName.isEmpty() ) {
 
@@ -1519,7 +1556,7 @@ HW_CounterSampWizardPanel::languageChange()
 "<br><br>The available PAPI events that can be set are:<br>"
 "%2<br> ").arg(sampling_rate).arg(papi_preset_event_strings) ) );
   vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
-  vParameterPageSampleRateLabel->setText( tr( "Overflow rate:" ) );
+  vParameterPageSampleRateLabel->setText( tr( "Sampling rate (in samples per second):" ) );
   vParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
   QToolTip::add( vParameterPageSampleRateText, tr( QString("The number of times to sampling before logging location.   (Default %1.)").arg(sampling_rate) ) );
 
@@ -1556,7 +1593,7 @@ HW_CounterSampWizardPanel::languageChange()
 
   eParameterPageDescriptionLabel->setText( tr( "The following options (parameters) are available to adjust.     <br><br>These are the options the collector has exported.<br>%1" ).arg(papi_preset_event_strings) );
   eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
-  eParameterPageSampleRateLabel->setText( tr( "Overflow rate:" ) );
+  eParameterPageSampleRateLabel->setText( tr( "Sampling rate (in samples per second):" ) );
   eParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
   QToolTip::add( eParameterPageSampleRateText, tr( QString("The number of times an sampling occurs before taking sample.   (Default %1.)").arg(sampling_rate) ) );
 
@@ -1615,19 +1652,39 @@ HW_CounterSampWizardPanel::languageChange()
       std::set<Metadata>::const_iterator mi;
       for (mi = md.begin(); mi != md.end(); mi++) {
         Metadata m = *mi;
-// printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
-// printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
-// printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+#ifdef DEBUG_HWCSampWizard
+        printf("%s::%s\n", cm.getUniqueId().c_str(), m.getUniqueId().c_str() );
+        printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
+        printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
+#endif
       }
       hwCounterSampCollector.getParameterValue("sampling_rate", sampling_rate);
-// printf("sampling_rate=%d\n", sampling_rate);
-// printf("Initialize the text fields... (%d)\n", sampling_rate);
+#ifdef DEBUG_HWCSampWizard
+      printf("sampling_rate=%d\n", sampling_rate);
+      printf("Initialize the text fields... (%d)\n", sampling_rate);
+#endif
       vParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
       eParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
       original_sampling_rate = sampling_rate;
       hwCounterSampCollector.getParameterValue("event", PAPIDescriptionStr);
-// printf("event=%s\n", PAPIDescriptionStr.c_str() );
-      original_papi_str = findPAPIStr(QString(PAPIDescriptionStr.c_str()));
+#ifdef DEBUG_HWCSampWizard
+      printf("event==(PAPIDescriptionStr.c_str())=%s\n", PAPIDescriptionStr.c_str() );
+#endif
+
+      std::string lastToken;
+      std::vector<std::string> tokens;
+      createTokens(PAPIDescriptionStr.c_str(), tokens, ",");
+      std::vector<std::string>::iterator k;
+
+      for (k=tokens.begin();k != tokens.end(); k++) {
+          lastToken = *k;
+#ifdef DEBUG_HWCSampWizard
+          printf("in for, lastToken.c_str()=%s\n", lastToken.c_str());
+#endif
+      }
+
+      original_papi_str = findPAPIStr(QString(lastToken.c_str()));
+//      original_papi_str = findPAPIStr(QString(PAPIDescriptionStr.c_str()));
       vParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
       eParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
 
@@ -1694,17 +1751,23 @@ HW_CounterSampWizardPanel::appendComboBoxItems()
 QString
 HW_CounterSampWizardPanel::findPAPIStr(QString param)
 {
-// printf("findPAPIStr() param=(%s)\n", param.ascii() );
+#ifdef DEBUG_HWCSampWizard
+  printf("findPAPIStr() param=(%s)\n", param.ascii() );
+#endif
 
   for(std::vector<papi_preset_event>::const_iterator it = papi_available_presets.begin(); it != papi_available_presets.end(); ++it)
   {
-// printf("it->first.c_str()=%s it->second.c_str()=%s\n", it->first.c_str(), it->second.c_str() );
+#ifdef DEBUG_HWCSampWizard
+    printf("it->first.c_str()=%s it->second.c_str()=%s\n", it->first.c_str(), it->second.c_str() );
+#endif
     if( param == QString(it->first.c_str()) )
     {
       return( QString("%1  %2").arg(it->first.c_str()).arg(it->second.c_str()) );
     }
   }
-// printf("findPAPIStr() there are no presets!!!\n");
+#ifdef DEBUG_HWCSampWizard
+  printf("findPAPIStr() there are no presets!!!\n");
+#endif
   QMessageBox::information( this, "PAPI preset information:", "There are no PAPI preset strings available..", QMessageBox::Ok );
 
   return(QString::null);
