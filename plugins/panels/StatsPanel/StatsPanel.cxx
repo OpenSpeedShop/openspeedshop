@@ -13264,6 +13264,8 @@ if (currentCollectorStr != lastCollectorStr ||
 
     // Create a compare type button group
     QButtonGroup *vDisplayTypeBG = new QButtonGroup( 1, QGroupBox::Vertical, "View/Display Choice", fileTools);
+    QToolTip::add(vDisplayTypeBG, tr("Select either Function, Statement, or Library view type.  Then select an icon representing a display type.\nFor example: D for Default view, LB for Load Balance View, etc.\nTypical action is to select Statements as the view type and click D to display the Default view with statements as the view level.") );
+
     vDisplayTypeBG->setExclusive( TRUE );
 
 #ifdef DEBUG_StatsPanel_toolbar
