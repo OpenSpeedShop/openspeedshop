@@ -4,6 +4,10 @@
 ################################################################################
 debug_flag=0
 
+# Initialize the comparison "row_limit" parameter to a high number
+# It can be reset to a smaller value by the rows=nn argument to osscompare
+row_limit=100000
+
 # Initialize to indicate no "high" parameter was seen
 # If this is set we will up the sampling rate or threshold depending on the experiment
 high_flag=0
@@ -179,7 +183,7 @@ if [[ -z "$1" || $might_have_error == 1 ]]
 then
    echo ""
    if [[ "$experiment_name" == "osscompare" ]]; then
-     echo "Usage: $0 \"database_file_list\" [extra_args]"
+     echo "Usage: $0 \"database_file_list\" [extra_args] [rows=nn]"
      echo "    where \"database_file_list\" is defined as a comma separated list of "
      echo "                                 Open|SpeedShop database files from a previous"
      echo "                                 run of Open|SpeedShop on an application the " 
@@ -187,10 +191,16 @@ then
      echo "    where the optional \"extra_args\" is defined as follows:"
      echo "            \"time\"     - Compare based on the exclusive time metric."
      echo "            \"percent\"  - Compare based on the percent metric."
+     echo "    where the optional \"rows=nn\" is defined as follows:"
+     echo "            \"nn\"     - Number of rows/lines of performance data output."
      echo ""
      echo "Example: osscompare nbody-usertime.openss,nbody-usertime-1.openss percent"
      echo "         This example compares the two specified databases using the metric:"
      echo "         percent of exclusive time"
+     echo "Example: osscompare nbody-usertime.openss,nbody-usertime-1.openss percent" 10
+     echo "         This example compares the two specified databases using the metric:"
+     echo "         percent of exclusive time and showing the top 10 lines of comparision output"
+     echo ""
      echo ""
    else
      echo "Usage: $0 \"executable\" [extra_args]"
@@ -393,11 +403,27 @@ else
        fi
      else
         if [[ "$experiment_name" == "osscompare" ]]; then
-           input_argument_compare_metric=$2
-           if [ $debug_flag == 1 ]
+           match=`expr match "$2" 'rows='`
+           if [ $match == 0 ]
            then
-             echo "DEBUG: SETTING input_argument_compare_metric to $2"
+             input_argument_compare_metric=$2
+             if [ $debug_flag == 1 ]
+             then
+               echo "DEBUG: SETTING input_argument_compare_metric to $2"
+             fi
+           else
+             # need to parse off the numeric value
+             if [ $debug_flag == 1 ]
+             then
+               echo "DEBUG: SETTING rows_limit value specified in argument 2=$2"
+             fi
+             tmp_row_limit=$2
+             row_limit=`echo ${tmp_row_limit//[^0-9]/}`
+             echo "row_limit=${row_limit}"
+
            fi
+
+
         elif [[ "$experiment_name" == "ossio" || "$experiment_name" == "ossiot" ]]; then
            input_argument_event_or_trace_list_value=$2
         elif [[ "$experiment_name" == "ossmpi" || "$experiment_name" == "ossmpit" || "$experiment_name" == "ossmpiotf" ]]; then
@@ -437,7 +463,28 @@ else
      use_default_flag=1
   else
      match=0
-     if [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwcsamp" || "$experiment_name" == "osshwctime" ]]; then
+     if [[ "$experiment_name" == "osscompare" ]]; then
+           match=`expr match "$3" 'rows='`
+           if [ $match == 0 ]
+           then
+             if [ $debug_flag == 1 ]
+             then
+               echo "DEBUG: ERROR the third argument to osscompare must be rows=nn, not $3"
+             fi
+           else
+             # need to parse off the numeric value
+             if [ $debug_flag == 1 ]
+             then
+               echo "DEBUG: SETTING rows_limit value specified in argument 3=$3"
+             fi
+             tmp_row_limit=$3
+             row_limit=`echo ${tmp_row_limit//[^0-9]/}`
+             echo "row_limit=${row_limit}"
+
+           fi
+
+
+     elif [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwcsamp" || "$experiment_name" == "osshwctime" ]]; then
         # We have seen the PAPI_event, so the next argument must be the threshold value
         if [ $input_argument_event_or_trace_list_value != 0 ]
         then
@@ -2242,6 +2289,7 @@ then
 fi
 
 # Assign the type of database to a short named variable for use in naming
+dbname=${type_of_dbase[0]}
 if [ "$use_internal_naming" -eq "1" ]
 then
   dbname=${type_of_dbase[0]}
@@ -2289,12 +2337,12 @@ then
   then
     if [ "$use_internal_naming" -eq "1" ]
     then
-      echo "cview -c 2 -c 4 > /tmp/$USER/${dbname}DB1_DB2.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+      echo "cview -c 2 -c 4 ${dbname}${row_limit} > /tmp/$USER/${dbname}DB1_DB2.compare.txt" >> /tmp/$USER/osscompare_commands.txt
     else
-      echo "cview -c 2 -c 4 > /tmp/$USER/${values[0]%.*}_${values[1]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+      echo "cview -c 2 -c 4 ${dbname}${row_limit} > /tmp/$USER/${values[0]%.*}_${values[1]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
     fi
   fi
-  echo "cview -c 2 -c 4" >> /tmp/$USER/osscompare_commands.txt
+  echo "cview -c 2 -c 4 ${dbname}${row_limit} " >> /tmp/$USER/osscompare_commands.txt
 
 fi
 
@@ -2318,12 +2366,12 @@ then
   then
     if [ "$use_internal_naming" -eq "1" ]
     then
-      echo "cview -c 2 -c 4 -c 6  > /tmp/$USER/${dbname}DB1_DB2_DB3.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+      echo "cview -c 2 -c 4 -c 6 ${dbname}${row_limit}  > /tmp/$USER/${dbname}DB1_DB2_DB3.compare.txt" >> /tmp/$USER/osscompare_commands.txt
     else
-      echo "cview -c 2 -c 4 -c 6  > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+      echo "cview -c 2 -c 4 -c 6  ${dbname}${row_limit} > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
     fi
   fi
-  echo "cview -c 2 -c 4 -c 6" >> /tmp/$USER/osscompare_commands.txt
+  echo "cview -c 2 -c 4 -c 6 ${dbname}${row_limit}" >> /tmp/$USER/osscompare_commands.txt
 fi
 
 if [ "$number_of_databases" -ge "4" ] 
@@ -2346,12 +2394,12 @@ then
   then
     if [ "$use_internal_naming" -eq "1" ]
     then
-      echo "cview -c 2 -c 4 -c 6 -c 8 > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+      echo "cview -c 2 -c 4 -c 6 -c 8 ${dbname}${row_limit} > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.compare.txt" >> /tmp/$USER/osscompare_commands.txt
     else
-      echo "cview -c 2 -c 4 -c 6 -c 8 > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+      echo "cview -c 2 -c 4 -c 6 -c 8 ${dbname}${row_limit} > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
     fi
   fi
-  echo "cview -c 2 -c 4 -c 6 -c 8" >> /tmp/$USER/osscompare_commands.txt
+  echo "cview -c 2 -c 4 -c 6 -c 8 ${dbname}${row_limit}" >> /tmp/$USER/osscompare_commands.txt
 #  echo "quit" >> /tmp/$USER/osscompare_commands.txt
 fi
 
@@ -2376,12 +2424,12 @@ then
   then
     if [ "$use_internal_naming" -eq "1" ]
     then
-      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 ${dbname}${row_limit} > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.compare.txt" >> /tmp/$USER/osscompare_commands.txt
     else
-      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 ${dbname}${row_limit} > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
     fi
   fi
-  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10" >> /tmp/$USER/osscompare_commands.txt
+  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 ${dbname}${row_limit}" >> /tmp/$USER/osscompare_commands.txt
 #  echo "quit" >> /tmp/$USER/osscompare_commands.txt
 fi
 
@@ -2406,12 +2454,12 @@ then
   then
     if [ "$use_internal_naming" -eq "1" ]
     then
-      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 ${dbname}${row_limit} > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.txt" >> /tmp/$USER/osscompare_commands.txt
     else
-      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 ${dbname}${row_limit} > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
     fi
   fi
-  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12" >> /tmp/$USER/osscompare_commands.txt
+  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 ${dbname}${row_limit}" >> /tmp/$USER/osscompare_commands.txt
 #  echo "quit" >> /tmp/$USER/osscompare_commands.txt
 fi
 
@@ -2436,12 +2484,12 @@ then
   then
     if [ "$use_internal_naming" -eq "1" ]
     then
-      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 ${dbname}${row_limit} > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.txt" >> /tmp/$USER/osscompare_commands.txt
     else
-      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 ${dbname}${row_limit} > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
     fi
   fi
-  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14" >> /tmp/$USER/osscompare_commands.txt
+  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 ${dbname}${row_limit}" >> /tmp/$USER/osscompare_commands.txt
 #  echo "quit" >> /tmp/$USER/osscompare_commands.txt
 fi
 
@@ -2466,12 +2514,12 @@ then
   then
     if [ "$use_internal_naming" -eq "1" ]
     then
-      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 -c 16 > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 -c 16 ${dbname}${row_limit} > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.txt" >> /tmp/$USER/osscompare_commands.txt
     else
-      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 -c 16 > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 -c 16 ${dbname}${row_limit} > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
     fi
   fi
-  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 -c 16" >> /tmp/$USER/osscompare_commands.txt
+  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 -c 16 ${dbname}${row_limit}" >> /tmp/$USER/osscompare_commands.txt
 #  echo "quit" >> /tmp/$USER/osscompare_commands.txt
 fi
 
