@@ -283,8 +283,8 @@ protected slots:
 private:
     QString PAPIDescription;
 
-    QString overflowRate;
-    uint64_t original_overflow_rate;
+    QString samplingRate;
+    unsigned int original_sampling_rate;
     QString original_papi_str;
     Panel *hwCounterSampPanel;
 

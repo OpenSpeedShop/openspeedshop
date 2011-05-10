@@ -18,7 +18,7 @@
 
 //
 // Debug Flag
-//#define DEBUG_HWCWizard 1
+//#define DEBUG_HWCSampWizard 1
 //
 
 // This comments out the restrictions for using offline in the GUI Wizards - leave this set
@@ -82,7 +82,7 @@ HW_CounterSampWizardPanel::HW_CounterSampWizardPanel(PanelContainer *pc, const c
 {
   nprintf(DEBUG_CONST_DESTRUCT) ("HW_CounterSampWizardPanel::HW_CounterSampWizardPanel() constructor called\n");
 
-  original_overflow_rate = 20000000;
+  original_sampling_rate = 20000000;
   original_papi_str = QString::null;
   if ( !getName() )
   {
@@ -129,7 +129,7 @@ HW_CounterSampWizardPanel::HW_CounterSampWizardPanel(PanelContainer *pc, const c
   bool boolOK = false;
   bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline", defaultValue_instrumentorIsOffline, &boolOK);
   setGlobalToolInstrumentorIsOffline(temp_instrumentorIsOffline);
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizard setup: /openspeedshop/general/instrumentorIsOffline=(%d), boolOK=%d\n", temp_instrumentorIsOffline, boolOK );
 #endif
   delete settings;
@@ -174,7 +174,7 @@ HW_CounterSampWizardPanel::HW_CounterSampWizardPanel(PanelContainer *pc, const c
   bool vGlobalInstrumentorIsOffline = getGlobalToolInstrumentorIsOffline();
   bool vLocalInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("Initial Setup values for offline RADIO BUTTONS: globalInstrumentorIsOffline=(%d), localInstrumentorIsOffline=(%d)\n", vGlobalInstrumentorIsOffline, vLocalInstrumentorIsOffline );
 #endif
 
@@ -229,12 +229,6 @@ HW_CounterSampWizardPanel::HW_CounterSampWizardPanel(PanelContainer *pc, const c
   vParameterPageLayout->addWidget( vParameterPageLine );
 
   vParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "vParameterPageParameterLayout"); 
-
-//  vParameterTraceCheckBox = new QCheckBox( vParameterPageWidget, "vParameterTraceComboBox" );
-//  vParameterTraceCheckBox->setText(tr("Gather additional information for each overflow. (hwctime)") );
-//  vParameterPageParameterLayout->addWidget( vParameterTraceCheckBox );
-//  QToolTip::add( vParameterTraceCheckBox, tr( "Records extra information, with more overhead.") );
-
 
   vParameterPageSampleRateHeaderLabel = new QLabel( vParameterPageWidget, "vParameterPageSampleRateHeaderLabel" );
 //  vParameterPageSampleRateHeaderLabel->setMinimumSize( QSize(10,10) );
@@ -409,11 +403,6 @@ vParameterPagePAPIDescriptionLayout->addItem( vParameterPageSpacer );
   eParameterPageLayout->addWidget( eParameterPageLine );
 
   eParameterPageParameterLayout = new QVBoxLayout( 0, 0, 6, "eParameterPageParameterLayout"); 
-
-//  eParameterTraceCheckBox = new QCheckBox( eParameterPageWidget, "eParameterTraceComboBox" );
-//  eParameterTraceCheckBox->setText(tr("Gather additional information for each overflow. (hwctime)") );
-//  eParameterPageParameterLayout->addWidget( eParameterTraceCheckBox );
-//  QToolTip::add( eParameterTraceCheckBox, tr( "Records extra information, with more overhead.") );
 
 
   eParameterPageSampleRateHeaderLabel = new QLabel( eParameterPageWidget, "eParameterPageSampleRateHeaderLabel" );
@@ -638,13 +627,13 @@ int
 HW_CounterSampWizardPanel::listener(void *msg)
 {
   nprintf(DEBUG_PANELS) ("HW_CounterSampWizardPanel::listener() requested.\n");
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::listener() requested.\n");
 #endif
 
   MessageObject *messageObject = (MessageObject *)msg;
   nprintf(DEBUG_PANELS) ("  HW_CounterSampWizardPanel::listener, messageObject->msgType = %s\n", messageObject->msgType.ascii() );
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::listener,  messageObject->msgType = %s\n", messageObject->msgType.ascii() );
 #endif
   if( messageObject->msgType == getName() )
@@ -677,20 +666,20 @@ HW_CounterSampWizardPanel::listener(void *msg)
 
     QString name = "loadPanel";
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
     printf("HW_CounterSampWizardPanel::listener, Wizard_Raise_LoadPanel_Back_Page, try to find panel (%s)\n", name.ascii() );
 #endif
 
 //    Panel *loadPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
     Panel *loadPanel = getThisWizardsLoadPanel();
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
     printf("HW_CounterSampWizardPanel::listener, Wizard_Raise_LoadPanel_Back_Page, loadPanel=0x%x\n", loadPanel);
 #endif
 
     if( loadPanel ) {
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
       printf("HW_CounterSampWizardPanel::listener, Wizard_Raise_LoadPanel_Back_Page, Found the loadPanel... Try to hide it.\n");
 #endif
 
@@ -724,7 +713,7 @@ HW_CounterSampWizardPanel::listener(void *msg)
     eSummaryPageBackButton->setEnabled(TRUE);
     qApp->flushX();
     
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
     printf("HW_CounterSampWizardPanel::listener, Wizard_Raise_Summary_Page if block \n");
 #endif
     vPrepareForSummaryPage();
@@ -734,7 +723,7 @@ HW_CounterSampWizardPanel::listener(void *msg)
   if( messageObject->msgType == "PreferencesChangedObject" ) {
 
    bool temp_instrumentorIsOffline = getToolPreferenceInstrumentorIsOffline();
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
    printf("HWCWizard::listener, PREFERENCE-CHANGED-OBJECT temp_instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
 #endif
     return 1;
@@ -758,7 +747,7 @@ bool HW_CounterSampWizardPanel::getToolPreferenceInstrumentorIsOffline()
 {
   QSettings *settings = new QSettings();
   bool temp_instrumentorIsOffline = settings->readBoolEntry( "/openspeedshop/general/instrumentorIsOffline");
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::getToolPreferenceInstrumentorIsOffline, /openspeedshop/general/instrumentorIsOffline == instrumentorIsOffline=(%d)\n", temp_instrumentorIsOffline );
 #endif
   delete settings;
@@ -767,14 +756,14 @@ bool HW_CounterSampWizardPanel::getToolPreferenceInstrumentorIsOffline()
 void HW_CounterSampWizardPanel::vOfflineRBSelected()
 {
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::vOfflineRBSelected() entered.\n");
 #endif
   bool offlineCheckBoxValue = vOfflineRB->isOn();
   if ( offlineCheckBoxValue ) {
    // toggle the button settings or is this done for us?
   }
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::vOfflineRBSelected() offlineCheckBoxValue=(%d)\n", offlineCheckBoxValue);
 #endif
 
@@ -808,14 +797,14 @@ void HW_CounterSampWizardPanel::vOfflineRBSelected()
 
 void HW_CounterSampWizardPanel::vOnlineRBSelected()
 {
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::vOnlineRBSelected() entered.\n");
 #endif
   bool onlineCheckBoxValue = vOnlineRB->isOn();
   if ( onlineCheckBoxValue ) {
    // toggle the button settings or is this done for us?
   }
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::vOnlineRBSelected() onlineCheckBoxValue=(%d)\n", onlineCheckBoxValue);
 #endif
   setThisWizardsInstrumentorIsOffline(!onlineCheckBoxValue);
@@ -824,14 +813,14 @@ void HW_CounterSampWizardPanel::vOnlineRBSelected()
 
 void HW_CounterSampWizardPanel::eOfflineRBSelected()
 {
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::eOfflineRBSelected() entered.\n");
 #endif
   bool offlineCheckBoxValue = eOfflineRB->isOn();
   if ( offlineCheckBoxValue ) {
    // toggle the button settings or is this done for us?
   }
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::eOfflineRBSelected() offlineCheckBoxValue=(%d)\n", offlineCheckBoxValue);
 #endif
 #if WHEN_OFFLINE_READY
@@ -864,14 +853,14 @@ void HW_CounterSampWizardPanel::eOfflineRBSelected()
 
 void HW_CounterSampWizardPanel::eOnlineRBSelected()
 {
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::eOnlineRBSelected() entered.\n");
 #endif
   bool onlineCheckBoxValue = eOnlineRB->isOn();
   if ( onlineCheckBoxValue ) {
    // toggle the button settings or is this done for us?
   }
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::eOnlineRBSelected() onlineCheckBoxValue=(%d)\n", onlineCheckBoxValue);
 #endif
   setThisWizardsInstrumentorIsOffline(!onlineCheckBoxValue);
@@ -880,11 +869,11 @@ void HW_CounterSampWizardPanel::eOnlineRBSelected()
 #if 0
 void HW_CounterSampWizardPanel::instrumentorIsOfflineModeSelected()
 {
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::instrumentorIsOfflineModeSelected() entered.\n");
 #endif
   bool checkBoxValue = instrumentorIsOfflineMode->isOn();
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::instrumentorIsOfflineModeSelected() checkBoxValue=(%d)\n", checkBoxValue);
 #endif
   setThisWizardsInstrumentorIsOffline(checkBoxValue);
@@ -975,12 +964,12 @@ Panel* HW_CounterSampWizardPanel::findAndRaiseLoadPanel()
 
   if (getThisWizardsInstrumentorIsOffline() == getThisWizardsPreviousInstrumentorIsOffline() ) {
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
      printf("HW_CounterSampWizardPanel::findAndRaiseLoadPanel, p=%x, getThisWizardsInstrumentorIsOffline()=%d, getThisWizardsPreviousInstrumentorIsOffline()=%d\n",
             p, getThisWizardsInstrumentorIsOffline(), getThisWizardsPreviousInstrumentorIsOffline());
 #endif
   } else {
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
      printf("HW_CounterSampWizardPanel::findAndRaiseLoadPanel, SET P NULL, p=%x, getThisWizardsInstrumentorIsOffline()=%d, getThisWizardsPreviousInstrumentorIsOffline()=%d\n",
             p, getThisWizardsInstrumentorIsOffline(), getThisWizardsPreviousInstrumentorIsOffline());
 #endif
@@ -988,13 +977,13 @@ Panel* HW_CounterSampWizardPanel::findAndRaiseLoadPanel()
      p = NULL;
   }
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::findAndRaiseLoadPanel, found thisWizardsLoadPanel - now raising, p=0x%x\n", p);
 #endif
   if (p) {
      p->getPanelContainer()->raisePanel(p);
   } else {
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
     printf("HW_CounterSampWizardPanel::findAndRaiseLoadPanel, did not find loadPanel\n");
 #endif
   }
@@ -1007,7 +996,7 @@ Panel* HW_CounterSampWizardPanel::findAndRaiseLoadPanel()
 
   if (p) {
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
      printf("HW_CounterSampWizardPanel::findAndRaiseLoadPanel, found loadPanel - now raising, p=%x\n", p);
 #endif
 
@@ -1015,7 +1004,7 @@ Panel* HW_CounterSampWizardPanel::findAndRaiseLoadPanel()
 
   } else {
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
     printf("HW_CounterSampWizardPanel::findAndRaiseLoadPanel, did not find loadPanel\n");
 #endif
 
@@ -1055,10 +1044,10 @@ void HW_CounterSampWizardPanel::eParameterPageNextButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("eParameterPageNextButtonSelected() \n");
 
-  overflowRate = eParameterPageSampleRateText->text();
+  samplingRate = eParameterPageSampleRateText->text();
   vParameterPageSampleRateText->setText(eParameterPageSampleRateText->text());
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::eParameterPageNextButtonSelected, calling findAndRaiseLoadPanel()\n");
 #endif
   Panel *p = findAndRaiseLoadPanel();
@@ -1071,7 +1060,7 @@ void HW_CounterSampWizardPanel::eParameterPageNextButtonSelected()
 
   } else {
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
     printf("HW_CounterSampWizardPanel, calling loadNewProgramPanel()\n");
 #endif
     OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
@@ -1080,11 +1069,11 @@ void HW_CounterSampWizardPanel::eParameterPageNextButtonSelected()
      mw->argsStr = QString((const char *)0);
      mw->parallelPrefixCommandStr = QString((const char *)0);
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
      printf("HW_CounterSampWizardPanel calling mw->loadNewProgramPanel, this=0x%x\n", this );
 #endif
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
      printf("HWCWizardPanel calling mw->loadNewProgramPanel, this=0x%x, getThisWizardsInstrumentorIsOffline()=%d \n", 
              this, getThisWizardsInstrumentorIsOffline() );
 #endif
@@ -1098,11 +1087,11 @@ void HW_CounterSampWizardPanel::eParameterPageNextButtonSelected()
 
      QString executableNameStr = mw->executableName;
      if( !mw->executableName.isEmpty() ) {
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
       printf("HW_CounterSampWizardPanel, executableName=%s\n", mw->executableName.ascii() );
 #endif
      } else {
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
       printf("HW_CounterSampWizardPanel, executableName is empty\n" );
 #endif
      } // end if clause for empty executable name
@@ -1115,8 +1104,8 @@ void HW_CounterSampWizardPanel::eParameterPageNextButtonSelected()
 void HW_CounterSampWizardPanel::eParameterPageResetButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("eParameterPageResetButtonSelected() \n");
-  vParameterPageSampleRateText->setText(QString("%1").arg(original_overflow_rate));
-  eParameterPageSampleRateText->setText(QString("%1").arg(original_overflow_rate));
+  vParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
+  eParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
   vParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
   eParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
 }
@@ -1131,7 +1120,7 @@ void HW_CounterSampWizardPanel::eSummaryPageBackButtonSelected()
  // we may have hidden the panel and now just need to raise it instead
  // of creating a new one.
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::eSummaryPageBackButtonSelected, calling findAndRaiseLoadPanel()\n");
 #endif
   Panel *p = findAndRaiseLoadPanel();
@@ -1143,7 +1132,7 @@ void HW_CounterSampWizardPanel::eSummaryPageBackButtonSelected()
     delete msg;
   } else {
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
     printf("HW_CounterSampWizardPanel::eSummaryPageBackButtonSelected, creating loadPanel, getThisWizardsInstrumentorIsOffline()=%d\n", getThisWizardsInstrumentorIsOffline());
 #endif
 
@@ -1154,7 +1143,7 @@ void HW_CounterSampWizardPanel::eSummaryPageBackButtonSelected()
 
     if (p) {
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
      printf("HW_CounterSampWizardPanel::eSummaryPageBackButtonSelected, found loadPanel, p=%x\n", p);
 #endif
 
@@ -1216,14 +1205,14 @@ void HW_CounterSampWizardPanel::vParameterPageNextButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vParameterPageNextButtonSelected() \n");
 
-  overflowRate = vParameterPageSampleRateText->text();
+  samplingRate = vParameterPageSampleRateText->text();
   eParameterPageSampleRateText->setText(vParameterPageSampleRateText->text());
 
  // See if loadPanel already exists - if user used the back button
  // we may have hidden the panel and now just need to raise it instead
  // of creating a new one.
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::vParameterPageNextButtonSelected, calling findAndRaiseLoadPanel()\n");
 #endif
   Panel *p = findAndRaiseLoadPanel();
@@ -1235,7 +1224,7 @@ void HW_CounterSampWizardPanel::vParameterPageNextButtonSelected()
     delete msg;
   } else {
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
    printf("HW_CounterSampWizardPanel, calling loadNewProgramPanel()\n");
 #endif
    OpenSpeedshop *mw = getPanelContainer()->getMainWindow();
@@ -1244,7 +1233,7 @@ void HW_CounterSampWizardPanel::vParameterPageNextButtonSelected()
     mw->argsStr = QString((const char *)0);
     mw->parallelPrefixCommandStr = QString((const char *)0);
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
     printf("HW_CounterSampWizardPanel -2- calling mw->loadNewProgramPanel, this=0x%x, getThisWizardsInstrumentorIsOffline()=%d \n", this, getThisWizardsInstrumentorIsOffline()  );
 #endif
 
@@ -1258,13 +1247,13 @@ void HW_CounterSampWizardPanel::vParameterPageNextButtonSelected()
 
     if( !mw->executableName.isEmpty() ) {
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
       printf("HW_CounterSampWizardPanel, executableName=%s\n", mw->executableName.ascii() );
 #endif
 
     } else {
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
       printf("HW_CounterSampWizardPanel, executableName is empty\n" );
 #endif
 
@@ -1277,8 +1266,8 @@ void HW_CounterSampWizardPanel::vParameterPageNextButtonSelected()
 void HW_CounterSampWizardPanel::vParameterPageResetButtonSelected()
 {
   nprintf(DEBUG_PANELS) ("vParameterPageResetButtonSelected() \n");
-  vParameterPageSampleRateText->setText(QString("%1").arg(original_overflow_rate));
-  eParameterPageSampleRateText->setText(QString("%1").arg(original_overflow_rate));
+  vParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
+  eParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
   vParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
   eParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
 }
@@ -1286,7 +1275,7 @@ void HW_CounterSampWizardPanel::vParameterPageResetButtonSelected()
 void HW_CounterSampWizardPanel::vPrepareForSummaryPage()
 {
   nprintf(DEBUG_PANELS) ("HW_CounterSampWizardPanel::vPrepareForSummaryPage() \n");
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::vPrepareForSummaryPage() \n");
 #endif
 
@@ -1303,7 +1292,7 @@ void HW_CounterSampWizardPanel::vPrepareForSummaryPage()
     QString pid_name = mw->pidStr.section(' ', 1, 1, QString::SectionSkipEmpty);
     QString prog_name = mw->pidStr.section(' ', 2, 2, QString::SectionSkipEmpty);
 
-    sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for process \"%s\" running on host \"%s\".<br>Furthermore, you've chosen a overflow rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"HWC\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
+    sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for process \"%s\" running on host \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%s\".<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"HWC\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->pidStr.ascii(), mw->hostStr.ascii(), vParameterPageSampleRateText->text().ascii() );
   } else if( !mw->executableName.isEmpty() ) {
 
     QString host_name = mw->pidStr.section(' ', 0, 0, QString::SectionSkipEmpty);
@@ -1314,16 +1303,16 @@ void HW_CounterSampWizardPanel::vPrepareForSummaryPage()
 
       if (getThisWizardsInstrumentorIsOffline()) {
 
-         sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a overflow rate of \"%s\"<br>using offline instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPagePAPIDescriptionText->currentText().ascii(), vParameterPageSampleRateText->text().ascii() );
+         sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%s\"<br>using offline instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPagePAPIDescriptionText->currentText().ascii(), vParameterPageSampleRateText->text().ascii() );
       } else {
-         sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a overflow rate of \"%s\"<br>using online/dynamic instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPagePAPIDescriptionText->currentText().ascii(), vParameterPageSampleRateText->text().ascii() );
+         sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%s\"<br>using online/dynamic instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPagePAPIDescriptionText->currentText().ascii(), vParameterPageSampleRateText->text().ascii() );
       } 
 
     } else {
       if (getThisWizardsInstrumentorIsOffline()) {
-        sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for command/executable<br>\"%s %s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a overflow rate of \"%s\"<br>using offline instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPagePAPIDescriptionText->currentText().ascii(), vParameterPageSampleRateText->text().ascii() );
+        sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for command/executable<br>\"%s %s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%s\"<br>using offline instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPagePAPIDescriptionText->currentText().ascii(), vParameterPageSampleRateText->text().ascii() );
       } else {
-        sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for command/executable<br>\"%s %s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a overflow rate of \"%s\"<br>using online/dynamic instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPagePAPIDescriptionText->currentText().ascii(), vParameterPageSampleRateText->text().ascii() );
+        sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for command/executable<br>\"%s %s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%s\"<br>using online/dynamic instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPagePAPIDescriptionText->currentText().ascii(), vParameterPageSampleRateText->text().ascii() );
       }
 
     }
@@ -1334,19 +1323,19 @@ void HW_CounterSampWizardPanel::vPrepareForSummaryPage()
   mainWidgetStack->raiseWidget(vSummaryPageWidget);
 
   QString name = "loadPanel";
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("try to find panel (%s)\n", name.ascii() );
 #endif
 //  Panel *loadPanel = getPanelContainer()->findNamedPanel(getPanelContainer()->getMasterPC(), (char *)name.ascii() );
   Panel *loadPanel = getThisWizardsLoadPanel();
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
   printf("HW_CounterSampWizardPanel::vPrepareForSummaryPage(), loadPanel=0x%x\n", loadPanel);
 #endif
 
   if( loadPanel ) {
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
      printf("Found the loadPanel... Try to hide it.\n");
 #endif
 
@@ -1367,7 +1356,7 @@ void HW_CounterSampWizardPanel::vSummaryPageBackButtonSelected()
 
   if (p) {
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
      printf("HW_CounterSampWizardPanel::vSummaryPageBackButtonSelected, found loadPanel, p=%x\n", p);
 #endif
 
@@ -1376,7 +1365,7 @@ void HW_CounterSampWizardPanel::vSummaryPageBackButtonSelected()
     p->listener((void *)msg);
     delete msg;
   } else {
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
     printf("HW_CounterSampWizardPanel::vSummaryPageBackButtonSelected, did not find loadPanel, getThisWizardsInstrumentorIsOffline()=%d\n", getThisWizardsInstrumentorIsOffline());
 #endif
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
@@ -1384,7 +1373,7 @@ void HW_CounterSampWizardPanel::vSummaryPageBackButtonSelected()
     ao->isInstrumentorOffline = localInstrumentorIsOffline;
     p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("loadPanel", getPanelContainer(), ao);
     if (p) {
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
      printf("HW_CounterSampWizardPanel::vSummaryPageBackButtonSelected, found loadPanel, p=%x\n", p);
 #endif
      MessageObject *msg = new MessageObject("Wizard_Raise_Second_Page");
@@ -1431,7 +1420,7 @@ void HW_CounterSampWizardPanel::vSummaryPageFinishButtonSelected()
       paramList->push_back(vParameterPageSampleRateText->text() );
       bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
       printf("vSummaryPageFinishButtonSelected(), A: push_back (%s), localInstrumentorIsOffline=%d\n", vParameterPageSampleRateText->text().ascii(), localInstrumentorIsOffline );
 #endif
 
@@ -1448,7 +1437,7 @@ void HW_CounterSampWizardPanel::vSummaryPageFinishButtonSelected()
 
       } else if( !mw->pidStr.isEmpty() ) {
 
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
         printf("vSummaryPageFinishButtonSelected(), A: pid was specified.\n");
 #endif
         lao = new LoadAttachObject((char *)NULL, mw->pidStr, (char *)NULL, paramList, TRUE, localInstrumentorIsOffline);
@@ -1467,11 +1456,11 @@ void HW_CounterSampWizardPanel::vSummaryPageFinishButtonSelected()
           ArgumentObject *ao = new ArgumentObject("ArgumentObject", -1 );
           ao->lao = lao;
           ao->isInstrumentorOffline = localInstrumentorIsOffline;
-#ifdef DEBUG_HWCWizard
+#ifdef DEBUG_HWCSampWizard
           printf("HW_CounterSampleWizardPanel::vSummaryPageBackButtonSelected, creating HWC Sampling experiment panel, getThisWizardsInstrumentorIsOffline()=%d\n", getThisWizardsInstrumentorIsOffline());
 #endif
 
-          p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HW CounterSamp", getPanelContainer(), ao);
+          p = getPanelContainer()->getMasterPC()->dl_create_and_add_panel("HWCSamp Panel", getPanelContainer(), ao);
 
           delete ao;
         } else {
@@ -1498,7 +1487,7 @@ HW_CounterSampWizardPanel::languageChange()
 // printf("HW_CounterSampWizardPanel::languageChange() entered\n");
 
 
-  uint64_t overflow_rate = original_overflow_rate;
+  unsigned int sampling_rate = original_sampling_rate;
   std::string PAPIDescriptionStr;;
 // printf("HW_CounterSampWizardPanel::languageChange(A) entered\n");
 
@@ -1521,18 +1510,18 @@ HW_CounterSampWizardPanel::languageChange()
   papi_preset_event_strings += "</pre>";
 
   vParameterPageDescriptionText->setText( tr( QString("The following options (parameters) are available to adjust.   These are the options the collector has exported.<br><br>\n"
-"The smaller the number used for the overflow rate, the more\n"
+"The smaller the number used for the sampling rate, the more\n"
 "HW CounterSamp detail will be shown.   However, the trade off will be slower\n"
 "performance and a larger data file.<br><br>\n"
 "It may take a little experimenting to find the right setting for your \n"
 "particular executable.   We suggest starting with the default setting\n"
 "of %1.\n\n"
 "<br><br>The available PAPI events that can be set are:<br>"
-"%2<br> ").arg(overflow_rate).arg(papi_preset_event_strings) ) );
+"%2<br> ").arg(sampling_rate).arg(papi_preset_event_strings) ) );
   vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   vParameterPageSampleRateLabel->setText( tr( "Overflow rate:" ) );
-  vParameterPageSampleRateText->setText( tr( QString("%1").arg(overflow_rate) ) );
-  QToolTip::add( vParameterPageSampleRateText, tr( QString("The number of times to overflow before logging location.   (Default %1.)").arg(overflow_rate) ) );
+  vParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
+  QToolTip::add( vParameterPageSampleRateText, tr( QString("The number of times to sampling before logging location.   (Default %1.)").arg(sampling_rate) ) );
 
   vParamaterPagePAPIDescriptionLabel->setText( tr( "PAPI String:" ) );
   appendComboBoxItems();
@@ -1550,7 +1539,7 @@ HW_CounterSampWizardPanel::languageChange()
 
 
   vSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a HW CounterSamp experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a overflow rate of \"%d\".<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
+"You've selected a HW CounterSamp experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%d\".<br><br>To complete the exeriment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>" ) );
   vSummaryPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( vSummaryPageBackButton, tr( "Takes you back one page." ) );
   vSummaryPageFinishButton->setText( tr( "Finish..." ) );
@@ -1568,8 +1557,8 @@ HW_CounterSampWizardPanel::languageChange()
   eParameterPageDescriptionLabel->setText( tr( "The following options (parameters) are available to adjust.     <br><br>These are the options the collector has exported.<br>%1" ).arg(papi_preset_event_strings) );
   eParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   eParameterPageSampleRateLabel->setText( tr( "Overflow rate:" ) );
-  eParameterPageSampleRateText->setText( tr( QString("%1").arg(overflow_rate) ) );
-  QToolTip::add( eParameterPageSampleRateText, tr( QString("The number of times an overflow occurs before taking sample.   (Default %1.)").arg(overflow_rate) ) );
+  eParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
+  QToolTip::add( eParameterPageSampleRateText, tr( QString("The number of times an sampling occurs before taking sample.   (Default %1.)").arg(sampling_rate) ) );
 
   eParamaterPagePAPIDescriptionLabel->setText( tr( "PAPI String:" ) );
   QToolTip::add( eParameterPagePAPIDescriptionText, tr( QString("The HW CounterSamp one wants to leverage - Default Total Cycles: PAPI_TOT_CYC") ));
@@ -1585,7 +1574,7 @@ HW_CounterSampWizardPanel::languageChange()
   eParameterPageFinishButton->setEnabled(FALSE);
 
   eSummaryPageFinishLabel->setText( tr( "<p align=\"left\">\n"
-"You've selected a HW CounterSamp experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a overflow rate of \"%d\".<br><br></p>" ) );
+"You've selected a HW CounterSamp experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%d\".<br><br></p>" ) );
   eSummaryPageBackButton->setText( tr( "< Back" ) );
   QToolTip::add( eSummaryPageBackButton, tr( "Takes you back one page." ) );
   eSummaryPageFinishButton->setText( tr( "Finish..." ) );
@@ -1609,7 +1598,7 @@ HW_CounterSampWizardPanel::languageChange()
     for( std::set<Metadata>::const_iterator mi = collectortypes.begin();
          mi != collectortypes.end(); mi++ )
     {
-      if( mi->getUniqueId() == "hwc" )
+      if( mi->getUniqueId() == "hwcsamp" )
       {
         found_one = TRUE;
       }
@@ -1619,7 +1608,7 @@ HW_CounterSampWizardPanel::languageChange()
       return;
     }
 
-    Collector hwCounterSampCollector = dummy_experiment.createCollector("hwc");
+    Collector hwCounterSampCollector = dummy_experiment.createCollector("hwcsamp");
 
     Metadata cm = hwCounterSampCollector.getMetadata();
       std::set<Metadata> md =hwCounterSampCollector.getParameters();
@@ -1630,12 +1619,12 @@ HW_CounterSampWizardPanel::languageChange()
 // printf("%s::%s\n", cm.getShortName().c_str(), m.getShortName().c_str() );
 // printf("%s::%s\n", cm.getDescription().c_str(), m.getDescription().c_str() );
       }
-      hwCounterSampCollector.getParameterValue("sampling_rate", overflow_rate);
-// printf("sampling_rate=%d\n", overflow_rate);
-// printf("Initialize the text fields... (%d)\n", overflow_rate);
-      vParameterPageSampleRateText->setText(QString("%1").arg(overflow_rate));
-      eParameterPageSampleRateText->setText(QString("%1").arg(overflow_rate));
-      original_overflow_rate = overflow_rate;
+      hwCounterSampCollector.getParameterValue("sampling_rate", sampling_rate);
+// printf("sampling_rate=%d\n", sampling_rate);
+// printf("Initialize the text fields... (%d)\n", sampling_rate);
+      vParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
+      eParameterPageSampleRateText->setText(QString("%1").arg(sampling_rate));
+      original_sampling_rate = sampling_rate;
       hwCounterSampCollector.getParameterValue("event", PAPIDescriptionStr);
 // printf("event=%s\n", PAPIDescriptionStr.c_str() );
       original_papi_str = findPAPIStr(QString(PAPIDescriptionStr.c_str()));
