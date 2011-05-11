@@ -86,7 +86,7 @@ HW_CounterSampWizardPanel::HW_CounterSampWizardPanel(PanelContainer *pc, const c
   original_papi_str = QString::null;
   if ( !getName() )
   {
-	setName( "HW Counter" );
+	setName( "HW Counter Samp" );
   }
 
   // Clear out the containers for executables and pids
@@ -216,10 +216,10 @@ HW_CounterSampWizardPanel::HW_CounterSampWizardPanel(PanelContainer *pc, const c
 
   vParameterPageDescriptionText = new QTextEdit( vParameterPageWidget, "vParameterPageDescriptionText" );
   vParameterPageDescriptionText->setReadOnly(TRUE);
-  vParameterPageDescriptionText->setMinimumSize( QSize(10,10) );
+//  vParameterPageDescriptionText->setMinimumSize( QSize(10,10) );
 
   vParameterPageDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
-  vParameterPageDescriptionText->setMinimumSize( QSize(10,10) );
+  vParameterPageDescriptionText->setMinimumSize( QSize(20,20) );
   vParameterPageDescriptionText->setWordWrap( QTextEdit::WidgetWidth );
   vParameterPageLayout->addWidget( vParameterPageDescriptionText );
 
@@ -257,13 +257,16 @@ vParamaterPagePAPIDescriptionLabel = new QLabel( vParameterPageWidget, "vParamat
 vParamaterPagePAPIDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
 vParameterPagePAPIDescriptionLayout->addWidget( vParamaterPagePAPIDescriptionLabel );
 
-// vParameterPagePAPIDescriptionText = new QLineEdit( vParameterPageWidget, "vParameterPagePAPIDescriptionText" );
-vParameterPagePAPIDescriptionText = new QComboBox( TRUE, vParameterPageWidget, "vParameterPagePAPIDescriptionText" );
+//vParameterPagePAPIDescriptionText = new QComboBox( TRUE, vParameterPageWidget, "vParameterPagePAPIDescriptionText" );
+vParameterPagePAPIDescriptionText = new QListBox( vParameterPageWidget, "vParameterPagePAPIDescriptionText" );
+vParameterPagePAPIDescriptionText->clearSelection();
+vParameterPagePAPIDescriptionText->setSelectionMode( QListBox::Extended );
+
 vParameterPagePAPIDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
 vParameterPagePAPIDescriptionLayout->addWidget( vParameterPagePAPIDescriptionText );
 
 
-vParameterPageSpacer = new QSpacerItem( 400, 30, QSizePolicy::Preferred, QSizePolicy::Fixed );
+vParameterPageSpacer = new QSpacerItem( 200, 30, QSizePolicy::Preferred, QSizePolicy::Fixed );
 vParameterPagePAPIDescriptionLayout->addItem( vParameterPageSpacer );
 
   vParameterPageParameterLayout->addLayout( vParameterPageSampleRateLayout );
@@ -1137,7 +1140,11 @@ void HW_CounterSampWizardPanel::eParameterPageResetButtonSelected()
   nprintf(DEBUG_PANELS) ("eParameterPageResetButtonSelected() \n");
   vParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
   eParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
-  vParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
+  //vParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
+  //jeg int i = 0;
+  //jeg while( ++i <= 25 )
+  //jeg   vParameterPagePAPIDescriptionText->insertItem( QString::fromLatin1( "Item " ) + QString::number( i ), i );
+
   eParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
 }
 
@@ -1299,7 +1306,10 @@ void HW_CounterSampWizardPanel::vParameterPageResetButtonSelected()
   nprintf(DEBUG_PANELS) ("vParameterPageResetButtonSelected() \n");
   vParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
   eParameterPageSampleRateText->setText(QString("%1").arg(original_sampling_rate));
-  vParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
+  //vParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
+  //jeg int i = 0;
+  //jeg while( ++i <= 25 )
+  //jeg   vParameterPagePAPIDescriptionText->insertItem( QString::fromLatin1( "Item " ) + QString::number( i ), i );
   eParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
 }
 
@@ -1457,14 +1467,38 @@ void HW_CounterSampWizardPanel::vSummaryPageFinishButtonSelected()
       printf("vSummaryPageFinishButtonSelected(), A: push_back (%s), localInstrumentorIsOffline=%d\n", vParameterPageSampleRateText->text().ascii(), localInstrumentorIsOffline );
 #endif
 
-      int i = vParameterPagePAPIDescriptionText->currentText().find(' ');
-      QString PAPI_str = vParameterPagePAPIDescriptionText->currentText().left(i);
+#ifdef DEBUG_HWCSampWizard
+    // Find selected items
+    QString PAPI_str = "\"";
+    bool first_time = true;
+    for ( unsigned int i = 0; i < vParameterPagePAPIDescriptionText->count(); i++ ) {
+        QListBoxItem *item = vParameterPagePAPIDescriptionText->item( i );
+        // if the item is selected...
+        if ( item->isSelected() ) {
+          
+          printf("THIS ITEM IS SELECTED=(%s)\n", item->text().left(0).ascii());
+          if (first_time) {
+            first_time = false;
+          } else {
+            PAPI_str.append(",");
+          }
+          int left_string_len = item->text().find(' ');
+          QString tempQString = QString(item->text().left(left_string_len));
+          PAPI_str.append(tempQString.ascii());
+//          PAPI_str.append(QString(item->text().left(left_string_len)).ascii());
+        }
+    }
+      PAPI_str.append("\"");
+      printf("currentText()=(%s)\n", vParameterPagePAPIDescriptionText->currentText().ascii());
+#endif
+//      int i = vParameterPagePAPIDescriptionText->currentText().find(' ');
+//      QString PAPI_str = vParameterPagePAPIDescriptionText->currentText().left(i);
 #ifdef DEBUG_HWCSampWizard
        printf("PAPI_str=(%s)\n", PAPI_str.ascii() );
 #endif
       paramList->push_back(PAPI_str);
 #ifdef DEBUG_HWCSampWizard
-      printf("A: push_back (%s)\n", vParameterPagePAPIDescriptionText->currentText().ascii() );
+      printf("A: push_back (%s)\n", PAPI_str.ascii() );
 #endif
 
       if( !mw->executableName.isEmpty() ) {
@@ -1685,7 +1719,10 @@ HW_CounterSampWizardPanel::languageChange()
 
       original_papi_str = findPAPIStr(QString(lastToken.c_str()));
 //      original_papi_str = findPAPIStr(QString(PAPIDescriptionStr.c_str()));
-      vParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
+      //vParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
+      //jeg int i = 0;
+      //jeg while( ++i <= 25 )
+      //jeg   vParameterPagePAPIDescriptionText->insertItem( QString::fromLatin1( "Item " ) + QString::number( i ), i );
       eParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
 
     if( temp_name )
@@ -1707,8 +1744,8 @@ HW_CounterSampWizardPanel::initPapiTypes()
   papi_available_presets.clear();
   std::pair<std::string, std::string> *pe;
 
-  for(unsigned i = 0; OpenSS_Papi_NonDerivedEvents[i]  != NULL; ++i) {
-	std::string ev = OpenSS_Papi_NonDerivedEvents[i];
+  for(unsigned i = 0; OpenSS_Papi_ALLEvents[i]  != NULL; ++i) {
+	std::string ev = OpenSS_Papi_ALLEvents[i];
 
 	char delimitor = ':';
 	std::string::size_type start = 0;
@@ -1742,10 +1779,26 @@ HW_CounterSampWizardPanel::appendComboBoxItems()
   for(std::vector<papi_preset_event>::const_iterator it = papi_available_presets.begin(); it != papi_available_presets.end(); ++it)
   {
     QString t = QString("%1  %2").arg(it->first.c_str()).arg(it->second.c_str());
+#ifdef DEBUG_HWCSampWizard
+    printf("PAPI presets arg first and arg second:%s   %s\n", it->first.c_str(), it->second.c_str() );
+#endif
     
     vParameterPagePAPIDescriptionText->insertItem(t);
     eParameterPagePAPIDescriptionText->insertItem(t);
   }
+  QListBoxItem* tot_cyc_item = vParameterPagePAPIDescriptionText->findItem("PAPI_TOT_CYC");
+  int tot_cyc_index = vParameterPagePAPIDescriptionText->index(tot_cyc_item);
+#ifdef DEBUG_HWCSampWizard
+  printf("tot_cyc_index=%d\n", tot_cyc_index);
+#endif
+  QListBoxItem* fp_ops_item = vParameterPagePAPIDescriptionText->findItem("PAPI_FP_OPS");
+  int fp_ops_index = vParameterPagePAPIDescriptionText->index(fp_ops_item);
+#ifdef DEBUG_HWCSampWizard
+  printf("fp_ops_index=%d\n", fp_ops_index);
+#endif
+  vParameterPagePAPIDescriptionText->setSelected(tot_cyc_item, TRUE);
+  vParameterPagePAPIDescriptionText->setSelected(fp_ops_item, TRUE);
+
 }
 
 QString

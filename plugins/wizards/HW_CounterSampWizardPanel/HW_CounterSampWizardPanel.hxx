@@ -133,7 +133,8 @@ public:
     QLineEdit* vParameterPageSampleRateText;
     QLabel* vParamaterPagePAPIDescriptionLabel;
 // QLineEdit* vParameterPagePAPIDescriptionText;
-    QComboBox* vParameterPagePAPIDescriptionText;
+//    QComboBox* vParameterPagePAPIDescriptionText;
+    QListBox* vParameterPagePAPIDescriptionText;
     QPushButton* vParameterPageBackButton;
     QPushButton* vParameterPageResetButton;
     QPushButton* vParameterPageNextButton;
