@@ -684,7 +684,7 @@ void IntroWizardPanel::languageChange()
   vpage1pcSampleRB->setText( tr( "PCSAMP: I'm trying to find where my program is spending most of its time.  Most lightweight impact on application." ) );
   vpage1UserTimeRB->setText( tr( "USERTIME: I'd like to see information about which routines are calling other routines in addition to the inclusive/exclusive timing information." ) );
   vpage1HardwareCounterRB->setText( tr( "HWC: I'd like to see what kind of performance information the internal Hardware Counters can show me." ) );
-  vpage1HardwareCounterSampRB->setText( tr( "HWCSAMP: I'd like to sample up to six (6) internal Hardware Counters." ) );
+  vpage1HardwareCounterSampRB->setText( tr( "HWCSAMP: I'd like get an overview of how many hardware counter events are occurring for my selected set of up to six (6) internal hardware counters." ) );
   vpage1FloatingPointRB->setText( tr( "FPE: I would like to know how many times my program is causing Floating Point Exceptions and where in my program they are occuring." ) );
   vpage1InputOutputRB->setText( tr( "I/O: I would like to see which Input/Output calls are being made and where most of that time is being spent." ) );
   vpage1MPIRB->setText( tr( "MPI: I would like to see what MPI calls are being made and where the MPI calls are being made in my program." ) );
