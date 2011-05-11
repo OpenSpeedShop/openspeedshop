@@ -243,6 +243,8 @@ CustomExperimentPanel::init( PanelContainer *pc, const char *n, ArgumentObject *
     wizardName = "pc Sample Wizard";
   } else if( collector_names.stripWhiteSpace().startsWith("usertime") ) {
     wizardName = "User Time Wizard";
+  } else if( collector_names.stripWhiteSpace().startsWith("hwcsamp") ) {
+    wizardName = "HW Counter Samp Wizard"; 
   } else if( collector_names.stripWhiteSpace().startsWith("hwc") ) {
     wizardName = "HW Counter Wizard"; 
   } else if( collector_names.stripWhiteSpace().startsWith("mpi") ) {
@@ -2575,10 +2577,12 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
 
         }
 
-        if( QString(getName()).contains("HW Counter") ) {
+        if( QString(getName()).contains("HW Counter") ||
+            QString(getName()).contains("HWCTime Panel") ||
+            QString(getName()).contains("HWCSamp Panel")) {
 
 #ifdef DEBUG_CustomPanel
-          printf("CustomExperimentPanel::processLAO(), We're the HW Counter Panel!!!\n");
+          printf("CustomExperimentPanel::processLAO(), We're the HW Counter,HWCTime or HWCSamp Panel!!!\n");
 #endif
               
           ParamList::Iterator it = lao->paramList->begin();
