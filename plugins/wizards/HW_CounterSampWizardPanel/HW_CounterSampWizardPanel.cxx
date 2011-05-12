@@ -219,7 +219,7 @@ HW_CounterSampWizardPanel::HW_CounterSampWizardPanel(PanelContainer *pc, const c
 //  vParameterPageDescriptionText->setMinimumSize( QSize(10,10) );
 
   vParameterPageDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
-  vParameterPageDescriptionText->setMinimumSize( QSize(10,100) );
+  vParameterPageDescriptionText->setMinimumSize( QSize(10,70) );
   vParameterPageDescriptionText->setWordWrap( QTextEdit::WidgetWidth );
   vParameterPageLayout->addWidget( vParameterPageDescriptionText );
 
@@ -245,7 +245,7 @@ HW_CounterSampWizardPanel::HW_CounterSampWizardPanel(PanelContainer *pc, const c
   vParameterPageSampleRateLayout->addWidget( vParameterPageSampleRateLabel );
 
   vParameterPageSampleRateText = new QLineEdit( vParameterPageWidget, "vParameterPageSampleRateText" );
-  vParameterPageSampleRateText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
+  vParameterPageSampleRateText->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
 
   vParameterPageSampleRateLayout->addWidget( vParameterPageSampleRateText );
 
@@ -262,8 +262,9 @@ vParameterPagePAPIDescriptionText = new QListBox( vParameterPageWidget, "vParame
 vParameterPagePAPIDescriptionText->clearSelection();
 vParameterPagePAPIDescriptionText->setSelectionMode( QListBox::Extended );
 
-vParameterPagePAPIDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
-vParameterPagePAPIDescriptionText->setMinimumWidth( 300 );
+vParameterPagePAPIDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
+vParameterPagePAPIDescriptionText->setMinimumWidth( 500 );
+vParameterPagePAPIDescriptionText->setMinimumHeight( 40 );
 vParameterPagePAPIDescriptionLayout->addWidget( vParameterPagePAPIDescriptionText );
 
 
