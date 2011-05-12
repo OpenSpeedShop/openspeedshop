@@ -13141,7 +13141,7 @@ if (currentCollectorStr != lastCollectorStr ||
 
   // ----------------- Start of the View Generation Icons
   QPixmap *functions_icon = new QPixmap( defaultView_xpm );
-  new QToolButton(*functions_icon, "SHOW DEFAULT VIEW: Generate a performance statistics report\nshowing the performance data delineated by functions (default) and optionally statements or linked objects.", QString::null, this, SLOT( defaultViewSelected()), fileTools, "show default view");
+  new QToolButton(*functions_icon, "SHOW DEFAULT VIEW: Generate a performance statistics report\nshowing the performance data delineated by functions (default) and optionally\nstatements or linked objects by using the View/Display Choice options.", QString::null, this, SLOT( defaultViewSelected()), fileTools, "show default view");
 
 #ifdef DEBUG_StatsPanel_toolbar
  printf("StatsPanel::generateToolBar, currentCollectorStr.ascii()=%s\n", currentCollectorStr.ascii() );
@@ -13233,10 +13233,10 @@ if (currentCollectorStr != lastCollectorStr ||
 #endif
   if ( list_of_pids.size() > 1 ) {
     QPixmap *load_balance_icon = new QPixmap( load_balance_icon_xpm );
-    new QToolButton(*load_balance_icon, "LOAD BALANCE: Show minimum, maximum, and average statistics across ranks,\nthreads, processes: generate a performance statistics report for these metric\nvalues, creating comparison columns for each value.", QString::null, this, SLOT( minMaxAverageSelected()), fileTools, "Show min, max, average statistics across ranks, threads, processes.");
+    new QToolButton(*load_balance_icon, "LOAD BALANCE: Show minimum, maximum, and average statistics across ranks,\nthreads, processes: generate a performance statistics report for these metric\nvalues, creating comparison columns for each value.\nUse the View/Display Choice options to see the data for statements or linked objects.", QString::null, this, SLOT( minMaxAverageSelected()), fileTools, "Show min, max, average statistics across ranks, threads, processes.");
 
     QPixmap *compare_and_analyze_icon = new QPixmap( compare_and_analyze_xpm );
-    new QToolButton(*compare_and_analyze_icon, "COMPARE AND ANALYZE: Show Comparison and Analysis across ranks, threads,\nprocesses: generate a performance statistics report as the result of a \ncluster analysis algorithm to group ranks, threads or processes that have\nsimilar performance statistic characteristics.", QString::null, this, SLOT( clusterAnalysisSelected()), fileTools, "show comparison analysis");
+    new QToolButton(*compare_and_analyze_icon, "COMPARE AND ANALYZE: Show Comparison and Analysis across ranks, threads,\nprocesses: generate a performance statistics report as the result of a \ncluster analysis algorithm to group ranks, threads or processes that have\nsimilar performance statistic characteristics.\nUse the View/Display Choice options to see the data for statements or linked objects.", QString::null, this, SLOT( clusterAnalysisSelected()), fileTools, "show comparison analysis");
   }
 
   QPixmap *custom_comparison_icon = new QPixmap( custom_comparison_xpm );
@@ -13264,7 +13264,7 @@ if (currentCollectorStr != lastCollectorStr ||
 
     // Create a compare type button group
     QButtonGroup *vDisplayTypeBG = new QButtonGroup( 1, QGroupBox::Vertical, "View/Display Choice", fileTools);
-    QToolTip::add(vDisplayTypeBG, tr("Select either Function, Statement, or Library view type.  Then select an icon representing a display type.\nFor example: D for Default view, LB for Load Balance View, etc.\nTypical action is to select Statements as the view type and click D to display the Default view with statements as the view level.") );
+    QToolTip::add(vDisplayTypeBG, tr("Select either Function, Statement, or Library view type.\nThen select an icon representing a display type.\nFor example: D for Default view, LB for Load Balance View, etc.\nTypical action is to select Statements as the view type and\nclick D to display the Default view with statements as the view level.") );
 
     vDisplayTypeBG->setExclusive( TRUE );
 
