@@ -219,7 +219,7 @@ HW_CounterSampWizardPanel::HW_CounterSampWizardPanel(PanelContainer *pc, const c
 //  vParameterPageDescriptionText->setMinimumSize( QSize(10,10) );
 
   vParameterPageDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
-  vParameterPageDescriptionText->setMinimumSize( QSize(10,70) );
+  vParameterPageDescriptionText->setMinimumSize( QSize(10,100) );
   vParameterPageDescriptionText->setWordWrap( QTextEdit::WidgetWidth );
   vParameterPageLayout->addWidget( vParameterPageDescriptionText );
 
