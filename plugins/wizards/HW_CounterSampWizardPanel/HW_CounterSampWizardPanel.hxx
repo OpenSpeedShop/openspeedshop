@@ -114,7 +114,8 @@ public:
   int broadcast(char *msg);
 
 
-  QVBoxLayout * hwCounterSampFormLayout;
+    QVBoxLayout * hwCounterSampFormLayout;
+    QString selected_papi_events_str;
     QFrame* mainFrame;
     QWidgetStack* mainWidgetStack;
     QWidget* vDescriptionPageWidget;
@@ -154,9 +155,9 @@ public:
     QFrame* eParameterPageLine;
     QLabel* eParameterPageSampleRateHeaderLabel;
     QLabel* eParameterPageSampleRateLabel;
-QLabel* eParamaterPagePAPIDescriptionLabel;
+    QLabel* eParamaterPagePAPIDescriptionLabel;
 // QLineEdit* eParameterPagePAPIDescriptionText;
-QComboBox* eParameterPagePAPIDescriptionText;
+    QListBox* eParameterPagePAPIDescriptionText;
     QLineEdit* eParameterPageSampleRateText;
     QPushButton* eParameterPageBackButton;
     QPushButton* eParameterPageResetButton;

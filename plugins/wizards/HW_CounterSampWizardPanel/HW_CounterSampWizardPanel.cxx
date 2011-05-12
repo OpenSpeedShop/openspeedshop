@@ -219,7 +219,7 @@ HW_CounterSampWizardPanel::HW_CounterSampWizardPanel(PanelContainer *pc, const c
 //  vParameterPageDescriptionText->setMinimumSize( QSize(10,10) );
 
   vParameterPageDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, 0, 0, FALSE ) );
-  vParameterPageDescriptionText->setMinimumSize( QSize(20,20) );
+  vParameterPageDescriptionText->setMinimumSize( QSize(10,10) );
   vParameterPageDescriptionText->setWordWrap( QTextEdit::WidgetWidth );
   vParameterPageLayout->addWidget( vParameterPageDescriptionText );
 
@@ -266,7 +266,7 @@ vParameterPagePAPIDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Fixe
 vParameterPagePAPIDescriptionLayout->addWidget( vParameterPagePAPIDescriptionText );
 
 
-vParameterPageSpacer = new QSpacerItem( 200, 30, QSizePolicy::Preferred, QSizePolicy::Fixed );
+vParameterPageSpacer = new QSpacerItem( 400, 30, QSizePolicy::Preferred, QSizePolicy::Fixed );
 vParameterPagePAPIDescriptionLayout->addItem( vParameterPageSpacer );
 
   vParameterPageParameterLayout->addLayout( vParameterPageSampleRateLayout );
@@ -434,7 +434,10 @@ eParamaterPagePAPIDescriptionLabel = new QLabel( eParameterPageWidget, "eParamat
 eParamaterPagePAPIDescriptionLabel->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
 eParameterPagePAPIDescriptionLayout->addWidget( eParamaterPagePAPIDescriptionLabel );
 
-eParameterPagePAPIDescriptionText = new QComboBox( TRUE, eParameterPageWidget, "eParameterPagePAPIDescriptionText" );
+//eParameterPagePAPIDescriptionText = new QComboBox( TRUE, eParameterPageWidget, "eParameterPagePAPIDescriptionText" );
+eParameterPagePAPIDescriptionText = new QListBox( eParameterPageWidget, "eParameterPagePAPIDescriptionText" );
+eParameterPagePAPIDescriptionText->clearSelection();
+eParameterPagePAPIDescriptionText->setSelectionMode( QListBox::Extended );
 eParameterPagePAPIDescriptionText->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed, 0, 0, FALSE ) );
 eParameterPagePAPIDescriptionLayout->addWidget( eParameterPagePAPIDescriptionText );
 
@@ -1145,7 +1148,7 @@ void HW_CounterSampWizardPanel::eParameterPageResetButtonSelected()
   //jeg while( ++i <= 25 )
   //jeg   vParameterPagePAPIDescriptionText->insertItem( QString::fromLatin1( "Item " ) + QString::number( i ), i );
 
-  eParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
+  //jeg eParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
 }
 
 void HW_CounterSampWizardPanel::eSummaryPageBackButtonSelected()
@@ -1244,7 +1247,7 @@ void HW_CounterSampWizardPanel::vParameterPageNextButtonSelected()
   nprintf(DEBUG_PANELS) ("vParameterPageNextButtonSelected() \n");
 
   samplingRate = vParameterPageSampleRateText->text();
-  eParameterPageSampleRateText->setText(vParameterPageSampleRateText->text());
+  vParameterPageSampleRateText->setText(vParameterPageSampleRateText->text());
 
  // See if loadPanel already exists - if user used the back button
  // we may have hidden the panel and now just need to raise it instead
@@ -1310,7 +1313,7 @@ void HW_CounterSampWizardPanel::vParameterPageResetButtonSelected()
   //jeg int i = 0;
   //jeg while( ++i <= 25 )
   //jeg   vParameterPagePAPIDescriptionText->insertItem( QString::fromLatin1( "Item " ) + QString::number( i ), i );
-  eParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
+  //jeg eParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
 }
 
 void HW_CounterSampWizardPanel::vPrepareForSummaryPage()
@@ -1326,6 +1329,36 @@ void HW_CounterSampWizardPanel::vPrepareForSummaryPage()
   if( !mw ) {
     return;
   } 
+
+  // Find selected items
+  QString PAPI_str = "\"";
+  bool first_time = true;
+  for ( unsigned int i = 0; i < vParameterPagePAPIDescriptionText->count(); i++ ) {
+      QListBoxItem *item = vParameterPagePAPIDescriptionText->item( i );
+      // if the item is selected...
+      if ( item->isSelected() ) {
+          
+#ifdef DEBUG_HWCSampWizard
+          printf("THIS ITEM IS SELECTED=(%s)\n", item->text().left(0).ascii());
+#endif
+        if (first_time) {
+          first_time = false;
+        } else {
+          PAPI_str.append(",");
+        }
+        int left_string_len = item->text().find(' ');
+        PAPI_str.append(QString(item->text().left(left_string_len)).ascii());
+      }
+  }
+  PAPI_str.append("\"");
+
+#ifdef DEBUG_HWCSampWizard
+  printf("PAPI_str=(%s)\n", PAPI_str.ascii() );
+#endif
+
+  // Set this for future push_back in the Finish page
+  selected_papi_events_str = PAPI_str;
+
 
   if( !mw->pidStr.isEmpty() ) {
 
@@ -1344,16 +1377,16 @@ void HW_CounterSampWizardPanel::vPrepareForSummaryPage()
 
       if (getThisWizardsInstrumentorIsOffline()) {
 
-         sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%s\"<br>using offline instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPagePAPIDescriptionText->currentText().ascii(), vParameterPageSampleRateText->text().ascii() );
+         sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%s\"<br>using offline instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), selected_papi_events_str.ascii(), vParameterPageSampleRateText->text().ascii() );
       } else {
-         sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%s\"<br>using online/dynamic instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPagePAPIDescriptionText->currentText().ascii(), vParameterPageSampleRateText->text().ascii() );
+         sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for executable \"%s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%s\"<br>using online/dynamic instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->executableName.ascii(), mw->hostStr.ascii(), selected_papi_events_str.ascii(), vParameterPageSampleRateText->text().ascii() );
       } 
 
     } else {
       if (getThisWizardsInstrumentorIsOffline()) {
-        sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for command/executable<br>\"%s %s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%s\"<br>using offline instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPagePAPIDescriptionText->currentText().ascii(), vParameterPageSampleRateText->text().ascii() );
+        sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for command/executable<br>\"%s %s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%s\"<br>using offline instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), selected_papi_events_str.ascii(), vParameterPageSampleRateText->text().ascii() );
       } else {
-        sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for command/executable<br>\"%s %s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%s\"<br>using online/dynamic instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), vParameterPagePAPIDescriptionText->currentText().ascii(), vParameterPageSampleRateText->text().ascii() );
+        sprintf(buffer, "<p align=\"left\">You've selected a HW CounterSamp experiment for command/executable<br>\"%s %s\" to be run on host \"%s\" tracing \"%s\".<br>Furthermore, you've chosen a sampling rate of \"%s\"<br>using online/dynamic instrumentation.<br><br>To complete the experiment setup select the \"Finish\" button.<br><br>After selecting the \"Finish\" button an experiment \"hwCounterSamp\" panel will be raised to allow you to futher control the experiment.<br><br>Press the \"Back\" button to go back to the previous page.</p>", mw->parallelPrefixCommandStr.ascii(), mw->executableName.ascii(), mw->hostStr.ascii(), selected_papi_events_str.ascii(), vParameterPageSampleRateText->text().ascii() );
       }
 
     }
@@ -1464,41 +1497,16 @@ void HW_CounterSampWizardPanel::vSummaryPageFinishButtonSelected()
       bool localInstrumentorIsOffline = getThisWizardsInstrumentorIsOffline();
 
 #ifdef DEBUG_HWCSampWizard
-      printf("vSummaryPageFinishButtonSelected(), A: push_back (%s), localInstrumentorIsOffline=%d\n", vParameterPageSampleRateText->text().ascii(), localInstrumentorIsOffline );
+      printf("vSummaryPageFinishButtonSelected(), A: sampling rate, push_back (%s), localInstrumentorIsOffline=%d\n", vParameterPageSampleRateText->text().ascii(), localInstrumentorIsOffline );
 #endif
 
 #ifdef DEBUG_HWCSampWizard
-    // Find selected items
-    QString PAPI_str = "\"";
-    bool first_time = true;
-    for ( unsigned int i = 0; i < vParameterPagePAPIDescriptionText->count(); i++ ) {
-        QListBoxItem *item = vParameterPagePAPIDescriptionText->item( i );
-        // if the item is selected...
-        if ( item->isSelected() ) {
-          
-          printf("THIS ITEM IS SELECTED=(%s)\n", item->text().left(0).ascii());
-          if (first_time) {
-            first_time = false;
-          } else {
-            PAPI_str.append(",");
-          }
-          int left_string_len = item->text().find(' ');
-          QString tempQString = QString(item->text().left(left_string_len));
-          PAPI_str.append(tempQString.ascii());
-//          PAPI_str.append(QString(item->text().left(left_string_len)).ascii());
-        }
-    }
-      PAPI_str.append("\"");
-      printf("currentText()=(%s)\n", vParameterPagePAPIDescriptionText->currentText().ascii());
+      printf("selected_papi_events_str=(%s)\n", selected_papi_events_str.ascii() );
 #endif
-//      int i = vParameterPagePAPIDescriptionText->currentText().find(' ');
-//      QString PAPI_str = vParameterPagePAPIDescriptionText->currentText().left(i);
+
+      paramList->push_back(selected_papi_events_str);
 #ifdef DEBUG_HWCSampWizard
-       printf("PAPI_str=(%s)\n", PAPI_str.ascii() );
-#endif
-      paramList->push_back(PAPI_str);
-#ifdef DEBUG_HWCSampWizard
-      printf("A: push_back (%s)\n", PAPI_str.ascii() );
+      printf("vSummaryPageFinishButtonSelected(), A: papi events, push_back (%s)\n", selected_papi_events_str.ascii() );
 #endif
 
       if( !mw->executableName.isEmpty() ) {
@@ -1723,7 +1731,7 @@ HW_CounterSampWizardPanel::languageChange()
       //jeg int i = 0;
       //jeg while( ++i <= 25 )
       //jeg   vParameterPagePAPIDescriptionText->insertItem( QString::fromLatin1( "Item " ) + QString::number( i ), i );
-      eParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
+      //jeg eParameterPagePAPIDescriptionText->setCurrentText(original_papi_str);
 
     if( temp_name )
     {
@@ -1786,18 +1794,26 @@ HW_CounterSampWizardPanel::appendComboBoxItems()
     vParameterPagePAPIDescriptionText->insertItem(t);
     eParameterPagePAPIDescriptionText->insertItem(t);
   }
-  QListBoxItem* tot_cyc_item = vParameterPagePAPIDescriptionText->findItem("PAPI_TOT_CYC");
-  int tot_cyc_index = vParameterPagePAPIDescriptionText->index(tot_cyc_item);
+  QListBoxItem* v_tot_cyc_item = vParameterPagePAPIDescriptionText->findItem("PAPI_TOT_CYC");
+  QListBoxItem* e_tot_cyc_item = eParameterPagePAPIDescriptionText->findItem("PAPI_TOT_CYC");
+  int v_tot_cyc_index = vParameterPagePAPIDescriptionText->index(v_tot_cyc_item);
+  int e_tot_cyc_index = eParameterPagePAPIDescriptionText->index(e_tot_cyc_item);
 #ifdef DEBUG_HWCSampWizard
-  printf("tot_cyc_index=%d\n", tot_cyc_index);
+  printf("v_tot_cyc_index=%d\n", v_tot_cyc_index);
+  printf("e_tot_cyc_index=%d\n", e_tot_cyc_index);
 #endif
-  QListBoxItem* fp_ops_item = vParameterPagePAPIDescriptionText->findItem("PAPI_FP_OPS");
-  int fp_ops_index = vParameterPagePAPIDescriptionText->index(fp_ops_item);
+  QListBoxItem* v_fp_ops_item = vParameterPagePAPIDescriptionText->findItem("PAPI_FP_OPS");
+  QListBoxItem* e_fp_ops_item = eParameterPagePAPIDescriptionText->findItem("PAPI_FP_OPS");
+  int v_fp_ops_index = vParameterPagePAPIDescriptionText->index(v_fp_ops_item);
+  int e_fp_ops_index = eParameterPagePAPIDescriptionText->index(e_fp_ops_item);
 #ifdef DEBUG_HWCSampWizard
-  printf("fp_ops_index=%d\n", fp_ops_index);
+  printf("v_fp_ops_index=%d\n", v_fp_ops_index);
+  printf("e_fp_ops_index=%d\n", e_fp_ops_index);
 #endif
-  vParameterPagePAPIDescriptionText->setSelected(tot_cyc_item, TRUE);
-  vParameterPagePAPIDescriptionText->setSelected(fp_ops_item, TRUE);
+  vParameterPagePAPIDescriptionText->setSelected(v_tot_cyc_item, TRUE);
+  vParameterPagePAPIDescriptionText->setSelected(v_fp_ops_item, TRUE);
+  eParameterPagePAPIDescriptionText->setSelected(e_tot_cyc_item, TRUE);
+  eParameterPagePAPIDescriptionText->setSelected(e_fp_ops_item, TRUE);
 
 }
 
