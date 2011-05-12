@@ -1598,7 +1598,15 @@ HW_CounterSampWizardPanel::languageChange()
 "It may take a little experimenting to find the right setting for your \n"
 "particular executable.   We suggest starting with the default setting\n"
 "of %1.\n\n"
-"<br><br>You may choose up to six (6) hardware counter events to\nread when the sample is taken. Not all hardware counters are available together.\nSome conflict because they share internal hardware resources.\nWe suggest using papi_event_chooser to check for compatible combinations before\nselection below. In general combinations that are valid will have to pass a test:\n\n     papi_event_chooser PRESET event1 event2 .. eventn\n\nThe output for an valid/acceptable combination will contain this:\n   event_chooser.c                          PASSED\n\nThe available PAPI events that can be set are:<br>%2<br> ").arg(sampling_rate).arg(papi_preset_event_strings) ) );
+"<br><br>You may choose up to six (6) hardware counter events to\n"
+"read when the sample is taken. Not all hardware counters are available together.\n"
+"Some conflict because they share internal hardware resources.\n\n"
+"We suggest using papi_event_chooser to check for compatible combinations before\n"
+"selection below. In general combinations that are valid will have to pass a test:\n\n"
+"<br>     papi_event_chooser PRESET event1 event2 .. eventn<br>\n\n"
+"The output for an valid/acceptable combination will contain this:\n\n"
+"<br>   event_chooser.c                          PASSED<br>\n\n"
+"\nThe available PAPI events that can be set are:<br>%2<br> ").arg(sampling_rate).arg(papi_preset_event_strings) ) );
   vParameterPageSampleRateHeaderLabel->setText( tr( "You can set the following option(s):" ) );
   vParameterPageSampleRateLabel->setText( tr( "Sampling rate (in samples per second):" ) );
   vParameterPageSampleRateText->setText( tr( QString("%1").arg(sampling_rate) ) );
