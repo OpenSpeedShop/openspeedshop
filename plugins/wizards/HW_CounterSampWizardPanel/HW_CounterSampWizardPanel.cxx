@@ -223,7 +223,6 @@ HW_CounterSampWizardPanel::HW_CounterSampWizardPanel(PanelContainer *pc, const c
   vParameterPageDescriptionText->setWordWrap( QTextEdit::WidgetWidth );
   vParameterPageLayout->addWidget( vParameterPageDescriptionText );
 
-
   vParameterPageLine = new QFrame( vParameterPageWidget, "vParameterPageLine" );
   vParameterPageLine->setMinimumSize( QSize(10,10) );
   vParameterPageLine->setFrameShape( QFrame::HLine );
