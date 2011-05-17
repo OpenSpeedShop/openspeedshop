@@ -20,8 +20,9 @@
 /* Take the define below out of comments for debug
    output in the CLI routines that
    are present in this file.
-#define DEBUG_CLI 1
 #define DEBUG_STATUS 1
+#define DEBUG_CLI 1
+#define DEBUG_CLI_APPC 1
 */
 
 
@@ -1504,8 +1505,12 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
 #endif
   
   if (offlineInstrumentor) {
+//#ifdef DEBUG_CLI
+   std::string appCommand = exp->FW()->getApplicationCommand();
+   std::cerr << "In Process_expTypes, early exit check, getApplicationCommand == appCommand.c_str()=" << appCommand.c_str() << "\n" << std::endl;
+//#endif
    // Save the application command for use in Execute_Experiment
-   // exp->FW()->setApplicationCommand(appCommand.c_str());
+   // exp->FW()->setApplicationCommand(appCommand.c_str(), false /* trust_me */);
 
 #ifdef DEBUG_CLI
      std::cerr << "EARLY EXIT Process_expTypes" << "\n";
@@ -2255,7 +2260,7 @@ static bool Enable_Experiment (CommandObject *cmd, ExperimentObject *exp) {
  * @return  void
  *
  * @todo    Error handling.
- *
+
  */
 bool SS_expEnable (CommandObject *cmd) {
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
@@ -2438,7 +2443,13 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 //jeg 11-2-08    exp->Q_UnLock ();
 
     // Run the offline experirment via RunOfflineExp instead of using the MRNet instrumentor
+    // This call is for the interactive offline experiment not the oss convenience calls    
     std::string runOfflineCmd = "RunOfflineExp(program=\"" + appCommand + "\", collector=\"" + S + "\")";
+#ifdef DEBUG_CLI
+    std::cerr << "In Execute_Experiment, runOfflineCmd=" << runOfflineCmd.c_str() << "\n";
+    fflush(stderr);
+#endif
+    exp->FW()->setApplicationCommand(appCommand.c_str(), false /* trust_me */);
 
 #ifdef DEBUG_CLI
     std::cerr << "In Execute_Experiment, offline, runOfflineCmd=" << runOfflineCmd << "\n" << std::endl ;
@@ -2919,6 +2930,20 @@ bool SS_expPause (CommandObject *cmd) {
   return true;
 }
 
+static std::string eraseAll(
+  std::string result, 
+  const std::string& eraseWhat )
+{
+  while(1)
+  {
+    const int pos = result.find(eraseWhat);
+    if (pos==-1) break;
+    result.erase(pos,eraseWhat.size());
+  }
+  return result;
+}
+
+
 /**
  * Method: ()
  * 
@@ -2956,6 +2981,8 @@ bool SS_expRestore (CommandObject *cmd) {
     return false;
   }
 
+  std::cerr << "SS_expRestore application command=" << clip->Command() << "\n";
+
   std::string data_base_name = file_name_value->name;
 #ifdef DEBUG_CLI
   std::cerr << "SS_expRestore data_base_name=" << data_base_name << "\n";
@@ -2984,19 +3011,12 @@ bool SS_expRestore (CommandObject *cmd) {
 
   exp = Find_Specified_Experiment (cmd, false /* do not put out the no focus warning */);
 
-#ifdef DEBUG_CLI
-  std::cerr << "In SS_expRestore, exp= " << exp << "\n";
-  if (exp) {
-    bool DEBUG_offlineInstrumentor = exp->getIsInstrumentorOffline();
-    std::cerr << "In SS_expRestore, offlineInstrumentor= " << DEBUG_offlineInstrumentor << "\n";
-  }
-#endif
-
   EXPID preferredEXP = 0;
 
+  bool offlineInstrumentor = true;
   if (exp != NULL) {
 
-     bool offlineInstrumentor = exp->getIsInstrumentorOffline();
+     offlineInstrumentor = exp->getIsInstrumentorOffline();
 
 #ifdef DEBUG_CLI
      std::cerr << "In SS_expRestore, offlineInstrumentor= " << offlineInstrumentor << "\n";
@@ -3010,19 +3030,58 @@ bool SS_expRestore (CommandObject *cmd) {
      }
   }
 
-#ifdef DEBUG_CLI
+#ifdef DEBUG_CLI_APPC
   std::cerr << "In SS_expRestore, calling new ExperimentObject with data_base_name=" << data_base_name << " preferredEXP=" << preferredEXP << "\n";
 #endif
 
   exp = new ExperimentObject (data_base_name, preferredEXP);
+  offlineInstrumentor = exp->getIsInstrumentorOffline();
+#ifdef DEBUG_CLI_APPC
+   std::cerr << "In SS_expRestore, before runOfflineCmd code, offlineInstrumentor=" <<  offlineInstrumentor 
+             << " exp=" << exp << " preferredEXP=" << preferredEXP << "\n";
+#endif
+
+  //
+  // Set the application command into the database for the oss convenience type offline 
+  // invocation.  The interactive saving of the application command is done in Execute_Experiment
+  //
+  if (offlineInstrumentor && exp &&exp->FW() != NULL && clip != NULL) {
+      std::string runOfflineCmd = clip->Command();
+      if (runOfflineCmd.c_str() ) {
+         std::string::size_type found = std::string::npos;
+         found = runOfflineCmd.find("program=");
+         if (found!=std::string::npos) {
+           found = found+9;
+           runOfflineCmd.erase(0,found);
+#ifdef DEBUG_CLI_APPC
+           std::cerr << "In SS_expRestore, 1st erase, runOfflineCmd=" << runOfflineCmd.c_str() << "\n";
+#endif
+           found = runOfflineCmd.find(" ,collector=");
+           if (found!=std::string::npos) {
+              runOfflineCmd.erase(found,runOfflineCmd.length() );
+#ifdef DEBUG_CLI_APPC
+              std::cerr << "In SS_expRestore, 2nd erase, runOfflineCmd=" << runOfflineCmd.c_str() << "\n";
+#endif
+           }
+//           std::string findCmd = runOfflineCmd;
+//           std::string findCmd = eraseAll(runOfflineCmd, "\"");
+           runOfflineCmd.erase( remove( runOfflineCmd.begin(), runOfflineCmd.end(), '\"' ), runOfflineCmd.end());
+
+#ifdef DEBUG_CLI_APPC
+           std::cerr << "In SS_expRestore, runOfflineCmd=" << runOfflineCmd.c_str() << "\n";
+           fflush(stderr);
+#endif
+           exp->FW()->setApplicationCommand(runOfflineCmd.c_str(), true /* trust_me */);
+         } 
+      }
+  }
+#endif
 
 #ifdef DEBUG_CLI
   std::cerr << "In SS_expRestore, after calling new ExperimentObject with data_base_name=" << data_base_name << " preferredEXP=" << preferredEXP << " exp=" << exp << "\n";
   if (exp) {
     std::cerr << "In SS_expRestore, after calling new ExperimentObject with data_base_name=" << data_base_name << " preferredEXP=" << preferredEXP << " exp->ExperimentObject_ID()=" << exp->ExperimentObject_ID() << "\n";
   }
-#endif
-
 #endif
 
   if ((exp == NULL) ||
@@ -3044,6 +3103,7 @@ bool SS_expRestore (CommandObject *cmd) {
 #ifdef DEBUG_CLI
   std::cerr << "In SS_expRestore, after calling Experiment_Focus() with ExperimentID=" << ExperimentID << " preferredEXP=" << preferredEXP << " exp=" << exp << "\n";
 #endif
+
 
  // Annotate the command
   cmd->Result_Annotation ("[openss]: The restored experiment identifier is:  -x ");
@@ -3582,7 +3642,7 @@ bool SS_expSetArgs (CommandObject *cmd) {
 
   } // end appCommand not empty
 
-  exp->FW()->setApplicationCommand(appCommand.c_str());
+  exp->FW()->setApplicationCommand(appCommand.c_str(), false /* trust_me */);
   exp->Q_UnLock ();
 
   if ((cmd->Status() == CMD_ERROR) ||
@@ -3998,6 +4058,212 @@ static std::string getRankRange(std::list<int64_t> &list_of_ranks)
   }
   return(infoString);
 }
+
+/**
+ * Utility: ReportComponents ()
+ * 
+ * Helper routine for the 'list -v components' command.  Extract
+ * information form a database and format a report about
+ * what it contains..
+ *     
+ * @param   cmd - the CommandObject being processed.
+ * @param   exp - the Experiment being interrogated.
+ *
+ * @return  "true" on successful generation of information.
+ *
+ * @error   "false" is returned if a thrown exception is caught
+ *          while looking at the database.
+ *
+ */
+static bool ReportComponents(CommandObject *cmd, ExperimentObject *exp, bool FullDisplay) {
+
+ std::list<int64_t> list_of_ranks;
+ std::list<std::string> list_of_hosts;
+ int FullRankLimitValue = 128;
+ char tNumHostsStr[10];
+
+#if DEBUG_CLI
+  printf("In ReportComponents, FullDisplay=%d\n", FullDisplay);
+#endif
+
+ // Prevent this experiment from changing until we are done.
+  exp->Q_Lock (cmd, false);
+  exp->Determine_Status ();
+
+//  char id[20]; sprintf(&id[0],"%lld",(int64_t)exp->ExperimentObject_ID());
+//  cmd->Result_String ("Experiment definition");
+//  std::string TmpDB = exp->Data_Base_Is_Tmp() ? "Temporary" : "Saved";
+//  cmd->Result_String ("{ # ExpId is " + std::string(&id[0])
+//                         + ", Status is " + exp->ExpStatus_Name()
+//                         + ", " + TmpDB + " database is " + exp->Data_Base_Name ());
+  try {
+      if (exp->FW() != NULL) {
+
+//        bool offlineInstrumentor = exp->getIsInstrumentorOffline();
+#if OFFLINE_IN_CLI
+//        if (offlineInstrumentor) {
+//          cmd->Result_String ("    Instrumentor: Offline");
+//        } else {
+#if HAVE_MRNET
+//          cmd->Result_String ("    Instrumentor: Online (MRNet)");
+#else
+//          cmd->Result_String ("    Instrumentor: Online (DPCL)");
+#endif
+//        } 
+#endif
+
+        ThreadGroup tgrp = exp->FW()->getThreads();
+        ThreadGroup::iterator ti;
+        bool atleastone = false;
+#if DEBUG_CLI
+        printf("ReportComponents, tgrp.size()=%d\n", tgrp.size());
+#endif
+
+      if (!FullDisplay) {
+
+        // Place every rank into a set so that it will only be listed once.
+         std::set<int64_t> rset;
+         std::set<std::string> hset;
+
+         for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+             Thread t = *ti;
+
+            // Check for asynchronous abort command
+             if (cmd->Status() == CMD_ABORTED) {
+               rset.clear();
+               hset.clear();
+               break;
+             }
+
+             std::pair<bool, int> prank = t.getMPIRank();
+             if (prank.first) {
+               rset.insert ( prank.second );
+             }
+
+             std::string myHost = t.getHost();
+             hset.insert ( myHost );
+
+           }
+
+            for (std::set<std::string>::iterator hseti = hset.begin(); hseti != hset.end(); hseti++) {
+              list_of_hosts.push_back(*hseti );
+            }
+
+           for (std::set<int64_t>::iterator rseti = rset.begin(); rseti != rset.end(); rseti++) {
+//             printf(" list ranks, *rseti=%d\n", *rseti);
+             list_of_ranks.push_back(*rseti );
+           }
+
+#if DEBUG_CLI
+           printf(" list ranks, list_of_ranks.size()=%d\n", list_of_ranks.size());
+           printf(" list hosts, list_of_hosts.size()=%d\n", list_of_hosts.size());
+#endif
+        }
+          
+         sprintf(tNumHostsStr, "%d", list_of_hosts.size());
+         std::string numHostsStr = tNumHostsStr;
+         std::string listRankStr = getRankRange(list_of_ranks);
+
+        for (ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+          Thread t = *ti;
+          if (!atleastone) {
+            atleastone = true;
+            int tgrp_size = tgrp.size();
+            if (!FullDisplay && tgrp_size > FullRankLimitValue ) {
+              
+              char sTgrpSize[20]; sprintf(&sTgrpSize[0],"%lld",tgrp_size);
+              std::string SCSC = "  Currently Specified Components: (Summary Information, use expStatus -v full to see all of the individual " + std::string(&sTgrpSize[0]) + " Components)";
+              cmd->Result_String (SCSC);
+            } else {
+              cmd->Result_String ("  Currently Specified Components:");
+            } 
+
+          }
+
+          std::string S = "";
+          if ( FullDisplay || (!FullDisplay && tgrp.size() <= FullRankLimitValue) ) {
+
+            std::string host = t.getHost();
+            pid_t pid = t.getProcessId();
+            int64_t p = pid;
+            char spid[20]; sprintf(&spid[0],"%lld",p);
+            S = "    -h " + host + " -p " + std::string(&spid[0]);
+  
+            std::pair<bool, int> pthread = t.getOpenMPThreadId();
+            bool threadHasThreadId = false;
+            int64_t pthreadid = 0;
+            if (pthread.first) {
+              threadHasThreadId = true;
+              pthreadid = pthread.second;
+            } else {
+              std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
+              if (posixthread.first) {
+                threadHasThreadId = true;
+                pthreadid = posixthread.second;
+              }
+            }
+            if (threadHasThreadId) {
+              char tid[20]; sprintf(&tid[0],"%lld",pthreadid);
+              S = S + " -t " + std::string(&tid[0]);
+            }
+
+            std::pair<bool, int> rank = t.getMPIRank();
+            if (rank.first) {
+              int64_t r = rank.second;
+              char rid[20]; sprintf(&rid[0],"%lld",r);
+              S = S + " -r " + std::string(&rid[0]);
+            }
+  
+            CollectorGroup cgrp = t.getCollectors();
+            CollectorGroup::iterator ci;
+            int collector_count = 0;
+            for (ci = cgrp.begin(); ci != cgrp.end(); ci++) {
+              Collector c = *ci;
+              Metadata m = c.getMetadata();
+              if (collector_count) {
+                S = S + ",";
+              } else {
+                S = S + " ";
+                collector_count = 1;
+              }
+              S = S + m.getUniqueId();
+            }
+
+     	    std::pair<bool, LinkedObject> tExe = t.getExecutable();
+	    if (tExe.first) {
+	    	    std::string epath = tExe.second.getPath().getBaseName();
+		    S = S + " (" + epath + ")";
+	    }
+            cmd->Result_String ( S );
+
+          } else {
+            cmd->Result_String ("  Ranks: " + listRankStr);
+            cmd->Result_String ("  Hosts: " + numHostsStr);
+            std::string host = t.getHost();
+            cmd->Result_String ("  First Host: " + host);
+            pid_t pid = t.getProcessId();
+            int64_t p = pid;
+            char spid[20]; sprintf(&spid[0],"%lld",p);
+            cmd->Result_String ("  First Process Id: " + std::string(&spid[0]));
+            break;
+          }
+        }
+
+      }
+//    cmd->Result_String ( "}");
+  }
+  catch(const Exception& error) {
+    Mark_Cmd_With_Std_Error (cmd, error);
+    cmd->Result_String ( "}");
+    exp->Q_UnLock ();
+    return false;
+  }
+
+  exp->Q_UnLock ();
+  return true;
+}
+
 
 /**
  * Utility: ReportStatus ()
@@ -4922,6 +5188,53 @@ static bool SS_ListHosts (CommandObject *cmd) {
 }
 
 /**
+ * SemanticRoutine SS_ListComponents ()
+ * 
+ * Print information about an experiment.
+ *     
+ * @param   cmd- the CommandObject being processed.
+ *
+ * @return  "true" if the command was successful.
+ *
+ * @error   "false" returned if no experiment is specified
+ *          or if an error was detected while looking at
+ *          the associated database.
+ *
+ */
+bool SS_ListComponents(CommandObject *cmd) {
+
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+  bool Full_KeyWord = Look_For_KeyWord (cmd, "full");
+
+  if (All_KeyWord) {
+    std::list<ExperimentObject *>::reverse_iterator expi;
+    for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++) {
+      ExperimentObject *exp = *expi;
+      if (!ReportStatus (cmd, exp, Full_KeyWord)) {
+        return false;
+      }
+    }
+  } else {
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+    if (!ReportComponents (cmd, exp, Full_KeyWord)) {
+      return false;
+    }
+  }
+
+#if DEBUG_CLI
+  printf("In SS_ListComponents, calling cmd->set_Status(CMD_COMPLETE); before exiting\n");
+#endif
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+
+
+/**
  * SemanticRoutine: SS_ListMetrics ()
  * 
  * List all the metrics for the collectors that are used
@@ -4940,6 +5253,9 @@ static bool SS_ListMetrics (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
+#if DEBUG_CLI
+  printf("In SS_ListMetrics\n");
+#endif
  // Look at general modifier types for "all" option.
   Assert(cmd->P_Result() != NULL);
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
@@ -5037,6 +5353,9 @@ static bool SS_ListMetrics (CommandObject *cmd) {
   if (!cmd_error) {
     cmd->set_Status(CMD_COMPLETE);
   }
+#if DEBUG_CLI
+  printf("EXIT SS_ListMetrics\n");
+#endif
   return cmd_error;
 }
 
@@ -6235,6 +6554,8 @@ bool SS_ListGeneric (CommandObject *cmd) {
       result_of_first_list = SS_ListAppCommand(cmd);
     } else if (!strcasecmp(S.c_str(),"breaks")) {
       result_of_first_list = SS_ListBreaks(cmd);
+    } else if (!strcasecmp(S.c_str(),"components")) {
+      result_of_first_list = SS_ListComponents(cmd);
     } else if (!strcasecmp(S.c_str(),"database") ||
                !strcasecmp(S.c_str(),"restoredfile")) {
       result_of_first_list = SS_ListDatabase(cmd);
@@ -6254,12 +6575,15 @@ bool SS_ListGeneric (CommandObject *cmd) {
       result_of_first_list = SS_ListMPIFunctions(cmd);
     } else if (!strcasecmp(S.c_str(),"mpicategories")) {
       result_of_first_list = SS_ListMPICategories(cmd);
-    } else if (!strcasecmp(S.c_str(),"obj")) {
+    } else if (!strcasecmp(S.c_str(),"obj") ||
+               !strcasecmp(S.c_str(),"objects") ||
+               !strcasecmp(S.c_str(),"linkedobjs")) {
       result_of_first_list = SS_ListObj(cmd);
     } else if (!strcasecmp(S.c_str(),"params")) {
       result_of_first_list = SS_ListParams(cmd, false);
     } else if (!strcasecmp(S.c_str(),"paramvalues") ||
-               !strcasecmp(S.c_str(),"paramvals")) {
+               !strcasecmp(S.c_str(),"paramvals") ||
+               !strcasecmp(S.c_str(),"paramsvalues")) {
       result_of_first_list = SS_ListParams(cmd, true);
     } else if (!strcasecmp(S.c_str(),"pids")) {
       result_of_first_list = SS_ListPids(cmd);
