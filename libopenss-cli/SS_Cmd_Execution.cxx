@@ -2981,7 +2981,9 @@ bool SS_expRestore (CommandObject *cmd) {
     return false;
   }
 
+#ifdef DEBUG_CLI_APPC
   std::cerr << "SS_expRestore application command=" << clip->Command() << "\n";
+#endif
 
   std::string data_base_name = file_name_value->name;
 #ifdef DEBUG_CLI
