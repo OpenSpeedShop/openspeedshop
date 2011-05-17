@@ -150,7 +150,7 @@ namespace OpenSpeedShop { namespace Framework {
 	Extent getPerformanceDataExtent() const;
 	
 	std::string getApplicationCommand();
-	void setApplicationCommand(const char *);
+	void setApplicationCommand(const char *, bool trust_me);
 
 	void prepareToRerun(const OutputCallback =
 			        OutputCallback(NULL, NULL),

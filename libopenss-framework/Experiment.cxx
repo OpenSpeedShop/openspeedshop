@@ -1646,7 +1646,7 @@ std::string Experiment::getApplicationCommand()
  *  experiment. 
  *
  */
-void Experiment::setApplicationCommand(const char *newCommand) 
+void Experiment::setApplicationCommand(const char *newCommand, bool trust_me) 
 {
     // Table mapping original thread names to their corresponding collectors
     std::vector<std::pair<ThreadName, CollectorGroup> > names_to_collectors;
@@ -1661,7 +1661,8 @@ void Experiment::setApplicationCommand(const char *newCommand)
 	names_to_collectors.push_back(std::make_pair(name, i->getCollectors()));
 
 	// Ignore this thread if it wasn't created directly by the framework
-	if(name.getCommand().first) {
+	if(trust_me || name.getCommand().first) {
+           // Set the application command
           (*i).setCommand(newCommand);
 #ifndef NDEBUG
           if(is_debug_mpijob_enabled) {
