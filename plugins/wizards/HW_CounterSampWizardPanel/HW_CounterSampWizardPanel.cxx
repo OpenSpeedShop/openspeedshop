@@ -1601,7 +1601,7 @@ HW_CounterSampWizardPanel::languageChange()
 "<br><br>You may choose up to six (6) hardware counter events to\n"
 "read when the sample is taken. Not all hardware counters are available together.\n"
 "Some conflict because they share internal hardware resources.\n\n"
-"We suggest using papi_event_chooser to check for compatible combinations before\n"
+"WARNING: OpenSpeedShop does not currently verify that the events you choose will work together.\nWe suggest using papi_event_chooser to check for compatible combinations before\n"
 "selection below. In general combinations that are valid will have to pass a test:\n\n"
 "<br>     papi_event_chooser PRESET event1 event2 .. eventn<br>\n\n"
 "The output for an valid/acceptable combination will contain this:\n\n"
