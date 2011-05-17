@@ -97,7 +97,8 @@ class ExperimentObject
     exp_rerun_count = 0;
 
     // Determine real value for this from the expCreate command (-i offline)
-    setIsInstrumentorOffline(false);
+    // Since the default instrumentation is offline, initialize the offline instrumentation accordingly
+    setIsInstrumentorOffline(true);
     offlineCollectorList.clear();
 
     Assert(pthread_mutex_init(&Experiment_Lock, NULL) == 0); // dynamic initialization
