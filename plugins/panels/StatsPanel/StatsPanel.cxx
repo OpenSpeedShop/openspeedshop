@@ -23,6 +23,7 @@
 #define DBNAMES 1
 
 //#define DEBUG_StatsPanel 1
+//#define DEBUG_StatsPanel_APPC 1
 //#define DEBUG_StatsPanel_chart 1
 //#define DEBUG_Sorting 1
 //#define DEBUG_INTRO 1
@@ -4289,7 +4290,7 @@ void StatsPanel::getApplicationCommand(int exp_id)
 {
 // Now get the executables
   QString command = QString::null;
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_APPC
   printf("StatsPanel::getApplicationCommand exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
 #endif
 
@@ -4301,7 +4302,7 @@ void StatsPanel::getApplicationCommand(int exp_id)
     command = QString("list -v appcommand -x %1").arg(focusedExpID);
   }
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_APPC
   printf("StatsPanel::getApplicationCommand-attempt to run (%s)\n", command.ascii() );
 #endif
 
@@ -4313,24 +4314,23 @@ void StatsPanel::getApplicationCommand(int exp_id)
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_APPC
   printf("StatsPanel::getApplicationCommand, ran %s, list_of_appcommands.size()=%d\n", command.ascii(), list_of_appcommands.size() );
 #endif
 
-  if( list_of_appcommands.size() > 1 )
-  {
+  if( list_of_appcommands.size() >= 1 ) {
     for( std::list<std::string>::const_iterator it = list_of_appcommands.begin();
          it != list_of_appcommands.end(); it++ )
     {
       std::string appcommands = *it;
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_APPC
       printf("StatsPanel::getApplicationCommand, appcommands=(%s)\n", appcommands.c_str() );
 #endif
     }
   }
  } else {
   list_of_appcommands.clear();
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_APPC
   printf("StatsPanel::getApplicationCommand, not valid exp_id=%d, no appcommand\n", exp_id);
 #endif
  }
