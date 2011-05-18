@@ -124,13 +124,19 @@ static void Determine_Objects (
   OpenSpeedShop::cli::ParseTarget pt;
   std::set<Function> mpi_objects;
   std::set<Function> pmpi_objects;
+  std::set<Function> lcpmpi_objects;
+  std::set<Function> lcmpi_objects;
   if (p_tlist->begin() == p_tlist->end()) {
    // There is no <target> list for filtering.
    // Get all the mpi functions for all the threads.
     pmpi_objects = exp->FW()->getFunctionsByNamePattern ("PMPI*");
     mpi_objects = exp->FW()->getFunctionsByNamePattern ("MPI*");
+    lcpmpi_objects = exp->FW()->getFunctionsByNamePattern ("pmpi*");
+    lcmpi_objects = exp->FW()->getFunctionsByNamePattern ("mpi*"); 
     objects.insert(pmpi_objects.begin(), pmpi_objects.end());
     objects.insert(mpi_objects.begin(), mpi_objects.end());
+    objects.insert(lcpmpi_objects.begin(), lcpmpi_objects.end());
+    objects.insert(lcmpi_objects.begin(), lcmpi_objects.end());
   } else {
    // There is a list.  Is there a "-f" specifier?
     std::vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
@@ -142,8 +148,12 @@ static void Determine_Objects (
      // Get all the mpi functions for all, previously selected, threads.
       pmpi_objects = exp->FW()->getFunctionsByNamePattern ("PMPI*");
       mpi_objects = exp->FW()->getFunctionsByNamePattern ("MPI*");
+      lcpmpi_objects = exp->FW()->getFunctionsByNamePattern ("pmpi*");
+      lcmpi_objects = exp->FW()->getFunctionsByNamePattern ("mpi*"); 
       objects.insert(pmpi_objects.begin(), pmpi_objects.end());
       objects.insert(mpi_objects.begin(), mpi_objects.end());
+      objects.insert(lcpmpi_objects.begin(), lcpmpi_objects.end());
+      objects.insert(lcmpi_objects.begin(), lcmpi_objects.end());
     } else {
      // use the general utility to select the specified threads.
       Get_Filtered_Objects (cmd, exp, tgrp, objects);
