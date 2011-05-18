@@ -1,6 +1,9 @@
 #! /bin/bash
 # Some of this code is inspired by the libmonitor package (monitor-run).
 
+# Debug flag
+ossrun_debug=False
+
 # The machine dependent abi libdir name has been computed 
 # so use the information from one central location. 
 machlibdir=@@machine_dependent_libdir@@
@@ -89,7 +92,11 @@ $0 "mpirun -np 2 foo" collector
 
    -h, --help
 
-   -o, -output  <directory>
+   -c, --collector  <collector name>
+Where collector name is one of the OpenSpeedShop
+collectors: pcsamp, usertime, hwc, hwctime, ...
+
+   -o, --output  <directory>
 Where directory is the location to write the
 raw performance data files. The utility tool
 ${oss_bindir}/ossutil is then run with the
@@ -104,15 +111,33 @@ EOF
     exit 0
 }
 
+#echo "ABOVE LOOPING THROUGH ARGUMENTS: $1"
+
 while test "x$1" != x
 do
+    #echo "DEBUG: ARGUMENT 1: $1"
+    #echo "DEBUG: ARGUMENT 2: $2"
+    #echo "DEBUG: ARGUMENT 3: $3"
+    #echo "DEBUG: ARGUMENT 4: $4"
+    #echo "DEBUG: ARGUMENT 5: $5"
     case "$1" in
 
         -h | --help )
             usage
             ;;
 
+	-c | --collector)
+            #echo "DEBUG: -c, 1st COLLECTOR ARGUMENT: $1"
+            #echo "DEBUG: -c, 2nd COLLECTOR ARGUMENT: $2"
+            test "x$2" != x || die "missing argument: $*"
+	    collector=$2
+            #echo "DEBUG: -c, set collector to 2nd COLLECTOR ARGUMENT: $2"
+            shift ; shift
+            ;;
+
 	-o | --output)
+            #echo "DEBUG: -o, 1st OUTPUT ARGUMENT: $1"
+            #echo "DEBUG: -o, 2nd OUTPUT ARGUMENT: $2"
             test "x$2" != x || die "missing argument: $*"
             case "$2" in
                 /* )  dir="$2" ;;
@@ -124,15 +149,18 @@ do
             ;;
 
         -- )
+            #echo "DEBUG: --, 1st DASH DASH ARGUMENT: $1"
             shift
             break
             ;;
 
         -* )
+            #echo "DEBUG: -*, 1st UNKNOWN ARGUMENT: $1"
             die "unknown option: $1"
             ;;
 
         * )
+            #echo "DEBUG: *, DEFAULT - BREAK OUT OF WHILE, 1st DEFAULT ARGUMENT: $1"
             break
             ;;
     esac
@@ -158,8 +186,6 @@ case "$mpitouse" in
       extra_mpi_libs=${f_mvapich2_libs}
 esac
 
-# 
-collector=$2
 case "$collector" in
     # The mpi tracing plugins already collect mpi rank information so
     # we do not add the preload_file...

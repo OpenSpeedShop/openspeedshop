@@ -379,8 +379,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
         else:
            ossrun_command = OpenssInstallDir + "/bin/ossrun"
 
-	command = program.replace(mpi_exe_orig, ossrun_command + " \"" + mpi_executable)
-	command = command + "\" " +  orig_collectorname
+ 	command = program.replace(mpi_exe_orig, ossrun_command + " -c " + orig_collectorname + " \"" + mpi_executable)
+ 	command = command + "\" " 
+
     else:
 	preload_files = ""
 	command = program
