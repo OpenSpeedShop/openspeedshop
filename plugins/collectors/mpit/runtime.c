@@ -73,6 +73,7 @@ typedef struct {
 #if defined (OPENSS_OFFLINE)
     char mpit_traced[PATH_MAX];
 #endif
+    int do_trace;
 } TLS;
 
 
@@ -97,6 +98,17 @@ int mpit_init_tls_done = 0;
 static __thread TLS the_tls;
 
 #endif
+
+void defer_trace(int defer_tracing) {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+    tls->do_trace = defer_tracing;
+}
 
 
 /**
@@ -359,6 +371,12 @@ void mpit_start_tracing(const char* arguments)
 #endif
     Assert(tls != NULL);
 
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	fprintf(stderr,"ENTERED mpit_start_tracing for %d\n",getpid());
+    }
+#endif
+
     /* Decode the passed function arguments. */
     memset(&args, 0, sizeof(args));
     OpenSS_DecodeParameters(arguments,
@@ -384,6 +402,14 @@ void mpit_start_tracing(const char* arguments)
     OpenSS_InitializeDataHeader(args.experiment, args.collector, &(local_header));
     memcpy(&tls->header, &local_header, sizeof(OpenSS_DataHeader));
     OpenSS_SetSendToFile(&(tls->header), "mpit", "openss-data");
+
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	fprintf(stderr,"INIT HOST %s, PID %d, POSIX_TID %lu\n",
+	tls->header.host, tls->header.pid, tls->header.posix_tid);
+    }
+#endif
+
 
     tls->header.time_begin = 0;
     tls->header.time_end = 0;
@@ -422,8 +448,27 @@ void mpit_stop_tracing(const char* arguments)
     Assert(tls != NULL);
 
     /* Send events if there are any remaining in the tracing buffer */
-    if(tls->data.events.events_len > 0)
+    if(tls->data.events.events_len > 0) {
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+	    fprintf(stderr,"RANK (%d) SENDING DUE TO FINISHED, %d * %d = %d\n",
+		getpid(),
+		tls->data.stacktraces.stacktraces_len,
+		sizeof(uint64_t),
+		(tls->data.stacktraces.stacktraces_len * sizeof(uint64_t)) );
+	    fprintf(stderr,"EVENTBufferSize, %d * %d = %d\n",
+		tls->data.events.events_len,
+		sizeof(mpit_event),
+		tls->data.events.events_len * sizeof(mpit_event));
+	    fprintf(stderr,"RANK (%d) TOTAL SENT %d\n",  getpid(),
+		(tls->data.stacktraces.stacktraces_len * sizeof(uint64_t)) +
+		(tls->data.events.events_len * sizeof(mpit_event)));
+	}
+#endif
+        defer_trace(0);
+
 	mpit_send_events(tls);
+    }
 }
 
 bool_t mpit_do_trace(const char* traced_func)
@@ -455,6 +500,13 @@ bool_t mpit_do_trace(const char* traced_func)
     TLS* tls = &the_tls;
 #endif
     Assert(tls != NULL);
+
+   if (tls->do_trace == 0) {
+        if (tls->nesting_depth > 1)
+            --tls->nesting_depth;
+        return FALSE;
+    }
+
 
     /* See if this function has been selected for tracing */
 
