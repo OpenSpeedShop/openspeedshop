@@ -71,6 +71,7 @@ typedef struct {
 #if defined (OPENSS_OFFLINE)
     char mpi_traced[PATH_MAX];
 #endif
+    int do_trace;
 } TLS;
 
 
@@ -95,6 +96,17 @@ int mpi_init_tls_done = 0;
 static __thread TLS the_tls;
 
 #endif
+
+void defer_trace(int defer_tracing) {
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+    tls->do_trace = defer_tracing;
+}
 
 
 /**
@@ -452,6 +464,8 @@ void mpi_stop_tracing(const char* arguments)
 		(tls->data.events.events_len * sizeof(mpi_event)));
 	}
 #endif
+        defer_trace(0);
+
 	mpi_send_events(tls);
     }
 }
@@ -485,6 +499,13 @@ bool_t mpi_do_trace(const char* traced_func)
     TLS* tls = &the_tls;
 #endif
     Assert(tls != NULL);
+
+   if (tls->do_trace == 0) {
+        if (tls->nesting_depth > 1)
+            --tls->nesting_depth;
+        return FALSE;
+    }
+
 
     /* See if this function has been selected for tracing */
 

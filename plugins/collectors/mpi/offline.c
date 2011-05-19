@@ -73,6 +73,8 @@ static __thread TLS the_tls;
 
 #endif
 
+extern void defer_trace(int);
+
 
 void offline_finish();
 
@@ -86,7 +88,16 @@ void offline_pause_sampling()
 #endif
     Assert(tls != NULL);
 
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+        fprintf(stderr,"offline_pause_sampling setting defer_trace(0) HOST %s, PID %d, POSIX_TID %lu\n",
+        tls->dso_header.host, tls->dso_header.pid, tls->dso_header.posix_tid);
+    }
+#endif
+
     tls->is_tracing = 0;
+    defer_trace(0);
+
 }
 
 void offline_resume_sampling()
@@ -99,7 +110,15 @@ void offline_resume_sampling()
 #endif
     Assert(tls != NULL);
 
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+        fprintf(stderr,"offline_resume_sampling setting defer_trace(1) HOST %s, PID %d, POSIX_TID %lu\n",
+        tls->dso_header.host, tls->dso_header.pid, tls->dso_header.posix_tid);
+    }
+#endif
+
     tls->is_tracing = 1;
+    defer_trace(1);
 }
 
 void offline_sent_data(int sent_data)
@@ -251,6 +270,8 @@ void offline_stop_sampling(const char* in_arguments, const int finished)
 	return;
     }
 
+    defer_trace(0);
+
     /* Stop sampling */
     mpi_stop_tracing(NULL);
 
@@ -345,6 +366,10 @@ void offline_record_dso(const char* dsoname,
 #endif
     Assert(tls != NULL);
 
+    if (is_dlopen) {
+        defer_trace(0);
+    }
+
     //fprintf(stderr,"offline_record_dso called for %s, is_dlopen = %d\n",dsoname, is_dlopen);
 
     /* Initialize the offline "dso" blob's header */
@@ -389,4 +414,9 @@ void offline_record_dso(const char* dsoname,
            &objects, sizeof(objects));
     tls->data.objs.objs_len++;
     tls->dsoname_len += dsoname_len;
+
+    if (is_dlopen) {
+        defer_trace(1);
+    }
+
 }
