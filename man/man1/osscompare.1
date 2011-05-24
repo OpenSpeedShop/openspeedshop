@@ -12,7 +12,7 @@ osscompare \- Open|SpeedShop compare experiments script
 .SH TYPICAL USAGE FORM
 .nf
 
-osscompare "database_file, database_file" [ time, percent ]
+osscompare "database_file, database_file" [ time, percent ] [rows=nn]
 
 For example:
 
@@ -39,7 +39,7 @@ This option specifies a database file that was previously created with
 Open|SpeedShop and is a valid database file.
 
 At this time the limit for database files that can be specified on one
-osscompare command is five (5).
+osscompare command is eight (8).
 
 For example:
 
@@ -57,6 +57,17 @@ Compare by exclusive time.  This is the default.
 .IP """percent"""
 Compare by the percentage for the aggregated exclusive CPU time across all the functions 
 in the application
+
+.IP "-m metrics are allowed"
+Any acceptable/valid metric (-m) expview option can be used to override the default values of time and percent.  This includes hardware counter values in the hwcsamp experiment.  For example, if you gathered data for a few counters, including PAPI_FP_OPS, you could specify: PAPI_FP_OPS as the comparison metric.  Or one could specify another of the other counter events.
+
+
+.IP "rows=nn"
+Limit the number of rows of comparison data output to a specific number, which will include 
+the most significant differences.  The most significant differences will always be the first
+few lines of the output.   So, setting rows=10 will give the top ten lines representing the most
+significant variation output from the comparison.
+
 
 .IP """<no arguments>"""
 If no optional arguments are specified then the default comparison metric is exclusive
@@ -82,6 +93,12 @@ This environment variable indicates to osscompare to create a
 comparison file that contains the comparison output separated
 by commas.  The name of the file will be the concatenated names 
 of all the database files with a .csv suffix.
+
+.IP OPENSS_USE_INTERNAL_NAMING
+This environment variable indicates to osscompare to use internal
+naming for the comparison output file names.  By default, osscompare
+will use the names of the database files to create an output file name
+for the file containing the text or csv comparison output.
 
 .SH DIAGNOSTICS
 The following diagnostics may be TBD:
@@ -110,6 +127,16 @@ produces a report similar to this:
             0.310000              0.420000  hypre_SemiRestrict (smg2000: semi_restrict.c,125)
             0.160000              0.240000  hypre_SMGAxpy (smg2000: smg_axpy.c,27)
 
+.fi
+.SH ADVANCED USAGE EXAMPLE
+In this example the two smg2000 MPI application program counter sampling (pcsamp)
+experiments will be compared to each other using the pcsamp metric threadaverage and 
+in the second example, threadmax, to create a side-by-side report will be generated.
+What this means is that the comparison will be made using the metric values across all the
+MPI ranks for average in the first example and max in the second example.  
+.nf
+  osscompare "smg2000-pcsamp-2.openss,smg2000-pcsamp-2.openss" pcsamp::threadaverage rows=5
+  osscompare "smg2000-pcsamp-2.openss,smg2000-pcsamp-2.openss" pcsamp::threadmax rows=5
 .fi
 
 .SH BUGS
