@@ -20,6 +20,7 @@
 
 EXTRA_DIST	=  \
 	openss.1\
+	oss.1\
 	osscompare.1\
 	osshwc.1\
 	osshwcsamp.1\
