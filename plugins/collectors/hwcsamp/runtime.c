@@ -38,6 +38,8 @@ typedef struct {
 
     OpenSS_HWCPCData buffer;      /**< PC sampling data buffer. */
 
+    bool_t defer_sampling;
+
     int EventSet;
 } TLS;
 
@@ -76,10 +78,10 @@ void samp_start_timer()
 #endif
     if (hwc_papi_init_done == 0 || tls == NULL)
 	return;
+
+    tls->defer_sampling=FALSE;
+
     OpenSS_Start(tls->EventSet);
-
-    OpenSS_Timer(tls->data.interval, hwcsampTimerHandler);
-
 }
 
 void samp_stop_timer()
@@ -90,10 +92,12 @@ void samp_stop_timer()
 #else
     TLS* tls = &the_tls;
 #endif
-    OpenSS_Timer(0, NULL);
 
     if (hwc_papi_init_done == 0 || tls == NULL)
         return;
+
+    tls->defer_sampling=TRUE;
+
     OpenSS_Stop(tls->EventSet, evalues);
 }
 #endif
@@ -181,6 +185,11 @@ static void hwcsampTimerHandler(const ucontext_t* context)
     TLS* tls = &the_tls;
 #endif
     Assert(tls != NULL);
+
+    if(tls->defer_sampling == TRUE) {
+	return;
+    }
+
     
     /* Obtain the program counter (PC) address from the thread context */
     uint64_t pc = OpenSS_GetPCFromContext(context);
@@ -245,6 +254,8 @@ void hwcsamp_start_sampling(const char* arguments)
     TLS* tls = &the_tls;
 #endif
     Assert(tls != NULL);
+
+    tls->defer_sampling=FALSE;
 
     /* Decode the passed function arguments */
     memset(&args, 0, sizeof(args));

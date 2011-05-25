@@ -39,6 +39,8 @@ typedef struct {
 
     OpenSS_PCData buffer;      /**< PC sampling data buffer. */
 
+    bool_t defer_sampling;
+
 } TLS;
 
 
@@ -74,12 +76,21 @@ void pcsamp_start_timer()
 #endif
     if (tls == NULL)
 	return;
-    OpenSS_Timer(tls->data.interval, pcsampTimerHandler);
+
+    tls->defer_sampling=FALSE;
 }
 
 void pcsamp_stop_timer()
 {
-    OpenSS_Timer(0, NULL);
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    if (tls == NULL)
+	return;
+    tls->defer_sampling=TRUE;
 }
 #endif
 
@@ -103,6 +114,11 @@ static void pcsampTimerHandler(const ucontext_t* context)
     TLS* tls = &the_tls;
 #endif
     Assert(tls != NULL);
+
+    if(tls->defer_sampling == TRUE) {
+	return;
+    }
+
     
     /* Obtain the program counter (PC) address from the thread context */
     uint64_t pc = OpenSS_GetPCFromContext(context);
@@ -170,6 +186,8 @@ void pcsamp_start_sampling(const char* arguments)
     TLS* tls = &the_tls;
 #endif
     Assert(tls != NULL);
+
+    tls->defer_sampling=FALSE;
 
     /* Decode the passed function arguments */
     memset(&args, 0, sizeof(args));
