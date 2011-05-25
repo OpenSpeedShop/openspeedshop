@@ -1258,7 +1258,7 @@ AC_DEFUN([AC_PKG_TARGET_SQLITE], [
       AC_DEFINE(HAVE_TARGET_SQLITE, 1, [Define to 1 if you have a target version of SQLITE.])
       TARGET_SQLITE_CPPFLAGS="-I$target_sqlite_dir/include"
       TARGET_SQLITE_LDFLAGS="-L$target_sqlite_dir/$abi_libdir"
-      TARGET_SQLITE_LIBS="-lunwind"
+      TARGET_SQLITE_LIBS="-lsqlite3"
       TARGET_SQLITE_DIR="$target_sqlite_dir"
     fi
 
