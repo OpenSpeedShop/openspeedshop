@@ -77,6 +77,7 @@ openss_SOURCES = \
 
 if BUILD_INSTRUMENTOR
 if !BUILD_RUNTIME
+if !HAVE_TARGET_SHARED
 bin_PROGRAMS += ossutil
 
 ossutil_CXXFLAGS = \
@@ -105,6 +106,7 @@ ossutil_LDADD = \
 ossutil_SOURCES = \
         ossutil.cxx
 endif
+endif
 
 #
 # building target shared and not building the runtime are mutually exclusive
@@ -115,6 +117,7 @@ bin_PROGRAMS += ossutil
 
 ossutil_CXXFLAGS = \
         @TARGET_BINUTILS_CPPFLAGS@ \
+        @TARGET_SQLITE_CPPFLAGS@ \
         -I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-queries \
         -I$(top_srcdir)/libopenss-runtime \
@@ -125,12 +128,14 @@ ossutil_CXXFLAGS = \
 
 ossutil_LDFLAGS = \
         @TARGET_BINUTILS_LDFLAGS@ \
+        @TARGET_SQLITE_LDFLAGS@ \
         -L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-queries \
         -L$(top_srcdir)/libopenss-runtime
 
 ossutil_LDADD = \
         @TARGET_BINUTILS_LIBS@ \
+        @TARGET_SQLITE_LIBS@ \
         $(LIBLTDL) \
 	-lopenss-framework \
 	-lopenss-framework-binutils \
@@ -214,6 +219,16 @@ ossdriver: ossdriver.in
 	@rm -f ossdriver
 	cp $(srcdir)/ossdriver.in ossdriver
 	chmod 755 ossdriver
+# endif for !BUILD_TARGETED
+endif
+
+if HAVE_TARGET_SHARED
+ossdriver: ossdriver.in
+	@rm -f ossdriver
+	cp $(srcdir)/ossdriver.in ossdriver
+	chmod 755 ossdriver
+# endif for HAVE_TARGET_SHARED
+endif
 
 install-exec-hook: ossdriver
 # osspcsamp
@@ -265,8 +280,6 @@ install-exec-hook: ossdriver
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osscompare
 	chmod 755 $(DESTDIR)$(bindir)/osscompare
 
-# endif for !BUILD_TARGETED
-endif
 
 # endif for BUILD_INSTRUMENTOR
 endif
