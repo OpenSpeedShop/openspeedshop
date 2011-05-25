@@ -43,6 +43,10 @@ PLUGINS_SUBDIRS = plugins
 
 COLLECTOR_SUBDIRS = plugins/collectors
 
+SHARED_PLUGINS_SUBDIRS = \
+                        plugins/collectors \
+                        plugins/views 
+
 CLIENT_SUBDIRS = \
 	openss
 
@@ -63,7 +67,7 @@ BASE_SUBDIRS += \
 	$(RT_SUBDIRS) \
 	$(FW_SUBDIRS) \
 	$(CLI_SUBDIRS) \
-	$(PLUGINS_SUBDIRS) \
+	$(SHARED_PLUGINS_SUBDIRS) \
 	$(CLIENT_SUBDIRS) \
 	$(MISC_SUBDIRS)
 else
