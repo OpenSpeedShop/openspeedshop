@@ -98,7 +98,7 @@ class ExperimentObject
 
     // Determine real value for this from the expCreate command (-i offline)
 #if 0 
--- This did not work - jeg 05/24/2011 so I'm reverting back to previous setting
+-- This did not work - jeg 05/24/2011 so I am reverting back to previous setting
 -- Change was to help obtain application command for offline convenience script runs
 // Since the default instrumentation is offline, initialize the offline instrumentation accordingly
 //    setIsInstrumentorOffline(true);
