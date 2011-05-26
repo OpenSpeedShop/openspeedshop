@@ -43,7 +43,7 @@ PLUGINS_SUBDIRS = plugins
 
 COLLECTOR_SUBDIRS = plugins/collectors
 
-SHARED_PLUGINS_SUBDIRS = \
+TARGET_SHARED_PLUGINS_SUBDIRS = \
                         plugins/collectors \
                         plugins/views 
 
@@ -57,6 +57,11 @@ MISC_SUBDIRS = \
 	sanity \
 	usability
 
+TARGET_SHARED_MISC_SUBDIRS = \
+	pyscripting \
+	sanity \
+	usability
+
 if HAVE_QTLIB
 
 if BUILD_RUNTIME
@@ -67,9 +72,9 @@ BASE_SUBDIRS += \
 	$(RT_SUBDIRS) \
 	$(FW_SUBDIRS) \
 	$(CLI_SUBDIRS) \
-	$(SHARED_PLUGINS_SUBDIRS) \
+	$(TARGET_SHARED_PLUGINS_SUBDIRS) \
 	$(CLIENT_SUBDIRS) \
-	$(MISC_SUBDIRS)
+	$(TARGET_SHARED_MISC_SUBDIRS)
 else
 BASE_SUBDIRS += \
 	$(RT_SUBDIRS) \
@@ -98,9 +103,9 @@ BASE_SUBDIRS += \
 	$(RT_SUBDIRS) \
 	$(FW_SUBDIRS) \
 	$(CLI_SUBDIRS) \
-	$(PLUGINS_SUBDIRS) \
+	$(TARGET_SHARED_PLUGINS_SUBDIRS) \
 	$(CLIENT_SUBDIRS) \
-	$(MISC_SUBDIRS)
+	$(TARGET_SHARED_MISC_SUBDIRS)
 else
 BASE_SUBDIRS += \
 	$(RT_SUBDIRS) \
