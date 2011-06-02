@@ -137,6 +137,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     mpi_executable = ""
     mpi_exe_implmentation = ""
     ismpi = bool(0)
+    # This is set to 1 because this is checked based on the exit status from os calls
+    # and is not used as a bool as ismpi is (specifed, initialized above)
+    ismpidriver = 1
     mpi_driver = ""
     path_list = os.path.expandvars("$PATH").split(":")
 
