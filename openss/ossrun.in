@@ -111,7 +111,7 @@ EOF
     exit 0
 }
 
-echo "ABOVE LOOPING THROUGH ARGUMENTS: $1"
+#echo "DEBUG: ABOVE LOOPING THROUGH ARGUMENTS: $1"
 
 while test "x$1" != x
 do
