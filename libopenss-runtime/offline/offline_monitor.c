@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) 2007,2008,2009 The Krell Institue. All Rights Reserved.
+** Copyright (c) 2007-2011 The Krell Institue. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -41,8 +41,9 @@
  * monitor_dlopen(const char *path, int flags, void *handle)  Openss callback.
  * monitor_dlclose(void *handle)
  * monitor_init_mpi(int *argc, char ***argv)
-                  monitor_mpi_comm_size(), monitor_mpi_comm_rank(), *argc);
+ * monitor_mpi_comm_size(), monitor_mpi_comm_rank(), *argc);
  * monitor_fini_mpi(void)
+ * monitor_mpi_pcontrol(int level)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -602,4 +603,65 @@ void monitor_mpi_post_fini(void)
 	tls->sampling_status = OpenSS_Monitor_Resumed;
 	offline_resume_sampling();
     }
+}
+
+/* monitor_mpi_pcontrol is reponsible for starting and stopping data
+ * collection based on the user coding:
+ *
+ *     MPI_Pcontrol(0) to disable collection
+ *     and
+ *     MPI_Pcontrol(1) to reenable data collection
+ *
+*/
+void monitor_mpi_pcontrol(int level)
+{
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+  if ( (getenv("OPENSS_ENABLE_MPI_PCONTROL") != NULL)) {
+
+    if (tls->debug) {
+	fprintf(stderr,"monitor_mpi_pcontrol CALLED %d,%lu\n",
+		tls->pid,tls->tid);
+    }
+
+
+    if (level == 0) {
+       if ((tls->sampling_status == OpenSS_Monitor_Started ||
+   	    tls->sampling_status == OpenSS_Monitor_Resumed) && !tls->in_mpi_pre_init) {
+
+	   tls->sampling_status = OpenSS_Monitor_Paused;
+	   offline_pause_sampling();
+
+           if (tls->debug) {
+	       fprintf(stderr,"monitor_mpi_pcontrol PAUSE SAMPLING %d,%lu\n",
+		   tls->pid,tls->tid);
+           }
+       }
+    } else if  (level == 1) {
+       if (tls->sampling_status == OpenSS_Monitor_Paused && !tls->in_mpi_pre_init) {
+
+	   tls->sampling_status = OpenSS_Monitor_Resumed;
+	   offline_resume_sampling();
+
+           if (tls->debug) {
+	       fprintf(stderr,"monitor_mpi_pcontrol RESUME SAMPLING %d,%lu\n",
+	   	    tls->pid,tls->tid);
+           }
+       }
+    } else if  (level == 2) {
+	fprintf(stderr,"monitor_mpi_pcontrol CALLED with unsupported level=%d\n", level);
+    } else {
+	fprintf(stderr,"monitor_mpi_pcontrol CALLED with unsupported level=%d\n", level);
+    }
+  } else {
+      /* early return - do not honor mpi_pcontrol */
+      return;
+ }
+
 }
