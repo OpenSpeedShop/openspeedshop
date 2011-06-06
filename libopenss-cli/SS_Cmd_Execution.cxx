@@ -1505,10 +1505,10 @@ static bool Process_expTypes (CommandObject *cmd, ExperimentObject *exp,
 #endif
   
   if (offlineInstrumentor) {
-//#ifdef DEBUG_CLI
+#ifdef DEBUG_CLI
    std::string appCommand = exp->FW()->getApplicationCommand();
    std::cerr << "In Process_expTypes, early exit check, getApplicationCommand == appCommand.c_str()=" << appCommand.c_str() << "\n" << std::endl;
-//#endif
+#endif
    // Save the application command for use in Execute_Experiment
    // exp->FW()->setApplicationCommand(appCommand.c_str(), false /* trust_me */);
 
