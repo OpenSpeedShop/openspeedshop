@@ -212,8 +212,20 @@ void *monitor_init_process(int *argc, char **argv, void *data)
 
     tls->in_mpi_pre_init = 0;
     tls->OpenSS_monitor_type = OpenSS_Monitor_Proc;
-    tls->sampling_status = OpenSS_Monitor_Started;
-    offline_start_sampling(NULL);
+
+    /* Start with gathering data disabled if environment variable is set */
+    if ( (getenv("OPENSS_ENABLE_MPI_PCONTROL") != NULL) && (getenv("OPENSS_START_DISABLED") != NULL)) {
+      if (tls->debug) {
+        fprintf(stderr,"monitor_init_process OPENSS_START_DISABLED was set. Skip starting sampling. \n");
+      }
+      tls->sampling_status = OpenSS_Monitor_Not_Started;
+    } else {
+      if (tls->debug) {
+        fprintf(stderr,"monitor_init_process OPENSS_START_DISABLED was NOT set \n");
+      }
+      tls->sampling_status = OpenSS_Monitor_Started;
+      offline_start_sampling(NULL);
+    }
     return (data);
 }
 
@@ -294,8 +306,22 @@ void *monitor_init_thread(int tid, void *data)
 
     tls->in_mpi_pre_init = 0;
     tls->OpenSS_monitor_type = OpenSS_Monitor_Thread;
-    tls->sampling_status = OpenSS_Monitor_Started;
-    offline_start_sampling(NULL);
+
+
+    /* Start with gathering data disabled if environment variable is set */
+    if ( (getenv("OPENSS_ENABLE_MPI_PCONTROL") != NULL) && (getenv("OPENSS_START_DISABLED") != NULL)) {
+       if (tls->debug) {
+         fprintf(stderr,"monitor_init_thread OPENSS_START_DISABLED was set \n");
+       }
+       tls->sampling_status = OpenSS_Monitor_Not_Started;
+    } else {
+       if (tls->debug) {
+          fprintf(stderr,"monitor_init_thread OPENSS_START_DISABLED was NOT set \n");
+       }
+       tls->sampling_status = OpenSS_Monitor_Started;
+       offline_start_sampling(NULL);
+    }
+
     return(data);
 }
 
@@ -378,6 +404,7 @@ monitor_pre_dlopen(const char *path, int flags)
     }
 
     if ((tls->sampling_status == OpenSS_Monitor_Started ||
+       /*  tls->sampling_status == OpenSS_Monitor_Not_Started || */
 	 tls->sampling_status == OpenSS_Monitor_Resumed) && !tls->in_mpi_pre_init) {
         if (tls->debug) {
 	    fprintf(stderr,"monitor_pre_dlopen PAUSE SAMPLING %d,%lu\n",
@@ -404,6 +431,7 @@ monitor_dlclose(void *handle)
 
     if (!tls->thread_is_terminating || !tls->process_is_terminating) {
 	if ((tls->sampling_status == OpenSS_Monitor_Started ||
+        /*     tls->sampling_status == OpenSS_Monitor_Not_Started || */
 	     tls->sampling_status == OpenSS_Monitor_Resumed) && !tls->in_mpi_pre_init) {
             if (tls->debug) {
 	        fprintf(stderr,"monitor_dlclose PAUSE SAMPLING %d,%lu\n",
@@ -617,17 +645,17 @@ void monitor_mpi_pcontrol(int level)
 {
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
-    TLS* tls = OpenSS_GetTLS(TLSKey);
+  TLS* tls = OpenSS_GetTLS(TLSKey);
 #else
-    TLS* tls = &the_tls;
+  TLS* tls = &the_tls;
 #endif
-    Assert(tls != NULL);
+  Assert(tls != NULL);
+
 
   if ( (getenv("OPENSS_ENABLE_MPI_PCONTROL") != NULL)) {
 
     if (tls->debug) {
-	fprintf(stderr,"monitor_mpi_pcontrol CALLED %d,%lu\n",
-		tls->pid,tls->tid);
+	fprintf(stderr,"monitor_mpi_pcontrol CALLED %d,%lu\n", tls->pid,tls->tid);
     }
 
 
@@ -639,19 +667,26 @@ void monitor_mpi_pcontrol(int level)
 	   offline_pause_sampling();
 
            if (tls->debug) {
-	       fprintf(stderr,"monitor_mpi_pcontrol PAUSE SAMPLING %d,%lu\n",
-		   tls->pid,tls->tid);
+	       fprintf(stderr,"monitor_mpi_pcontrol PAUSE SAMPLING %d,%lu\n", tls->pid,tls->tid);
            }
        }
     } else if  (level == 1) {
-       if (tls->sampling_status == OpenSS_Monitor_Paused && !tls->in_mpi_pre_init) {
+       if (tls->sampling_status == OpenSS_Monitor_Not_Started ) {
+
+           if (tls->debug) {
+	      fprintf(stderr,"monitor_mpi_pcontrol RESUME SAMPLING with start_sampling call %d,%lu\n", tls->pid,tls->tid);
+           }
+           tls->OpenSS_monitor_type = OpenSS_Monitor_Proc;
+           tls->sampling_status = OpenSS_Monitor_Started;
+           offline_start_sampling(NULL);
+
+       } else if (tls->sampling_status == OpenSS_Monitor_Paused && !tls->in_mpi_pre_init) {
 
 	   tls->sampling_status = OpenSS_Monitor_Resumed;
 	   offline_resume_sampling();
 
            if (tls->debug) {
-	       fprintf(stderr,"monitor_mpi_pcontrol RESUME SAMPLING %d,%lu\n",
-	   	    tls->pid,tls->tid);
+	       fprintf(stderr,"monitor_mpi_pcontrol RESUME SAMPLING %d,%lu\n", tls->pid,tls->tid);
            }
        }
     } else if  (level == 2) {
