@@ -492,6 +492,44 @@ AC_DEFUN([AC_PKG_TARGET_LIBUNWIND], [
 
 ])
 
+#############################################################################################
+# Check for STDC_PLUS_PLUS for Target Architecture
+#############################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_STDC_PLUSPLUS], [
+
+    AC_ARG_WITH(target-stdc-plusplus,
+                AC_HELP_STRING([--with-target-stdc-plusplus=DIR],
+                               [stdc-plusplus target architecture installation @<:@/opt@:>@]),
+                target_stdc_plusplus_dir=$withval, target_stdc_plusplus_dir="/zzz")
+
+    AC_MSG_CHECKING([for Targetted stdc++ support])
+
+    if test "$target_stdc_plusplus_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_STDC_PLUSPLUS, false)
+      TARGET_STDC_PLUSPLUS_CPPFLAGS=""
+      TARGET_STDC_PLUSPLUS_LDFLAGS=""
+      TARGET_STDC_PLUSPLUS_LIBS=""
+      TARGET_STDC_PLUSPLUS_DIR=""
+      AC_MSG_RESULT(no)
+    else
+      AC_MSG_RESULT(yes)
+      AM_CONDITIONAL(HAVE_TARGET_STDC_PLUSPLUS, true)
+      AC_DEFINE(HAVE_TARGET_STDC_PLUSPLUS, 1, [Define to 1 if you have a target version of STDC_PLUSPLUS.])
+      TARGET_STDC_PLUSPLUS_CPPFLAGS="-I$target_stdc_plusplus_dir/include -DUNW_LOCAL_ONLY"
+      TARGET_STDC_PLUSPLUS_LDFLAGS="-L$target_stdc_plusplus_dir/$abi_libdir"
+      TARGET_STDC_PLUSPLUS_LIBS="-lstdc++"
+      TARGET_STDC_PLUSPLUS_DIR="$target_stdc_plusplus_dir"
+    fi
+
+
+    AC_SUBST(TARGET_STDC_PLUSPLUS_CPPFLAGS)
+    AC_SUBST(TARGET_STDC_PLUSPLUS_LDFLAGS)
+    AC_SUBST(TARGET_STDC_PLUSPLUS_LIBS)
+    AC_SUBST(TARGET_STDC_PLUSPLUS_DIR)
+
+])
+
 ################################################################################
 # Check for MPI (http://www.mpi-forum.org)
 ################################################################################
