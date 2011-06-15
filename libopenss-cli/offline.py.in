@@ -262,7 +262,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		  if not os.WEXITSTATUS(ismpich2) and not os.WEXITSTATUS(ismvapich2):
 			ismpich2 = bool(0)
 
-		  if os.WEXITSTATUS(ismpich2):
+		  # if ismpich is set then don't do a check for mpich2
+		  if os.WEXITSTATUS(ismpich) and os.WEXITSTATUS(ismpich2):
 			ismpich2 = os.system('grep -q -i Intel ' + file_arg)
 
 		  isMPT = os.system('grep -q -i sgimpirun ' + file_arg)
