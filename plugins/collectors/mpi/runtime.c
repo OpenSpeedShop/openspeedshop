@@ -1,7 +1,7 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 ** Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-** Copyright (c) 2008 The Krell Institute. All Rights Reserved.
+** Copyright (c) 2008-2011 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -106,6 +106,12 @@ void defer_trace(int defer_tracing) {
 #endif
     Assert(tls != NULL);
     tls->do_trace = defer_tracing;
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+        fprintf(stderr,"MPI setting defer_trace to %d for HOST %s, pid %d, posix_tid %#lux\n",
+		tls->do_trace, tls->header.host, tls->header.pid, tls->header.posix_tid);
+    }
+#endif
 }
 
 

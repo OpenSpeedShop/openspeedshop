@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) The Krell Institute (2007,2008,2009). All Rights Reserved.
+** Copyright (c) The Krell Institute (2007-2011). All Rights Reserved.
 ** Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
@@ -203,8 +203,15 @@ void offline_start_sampling(const char* in_arguments)
 	return;
     }
 
+    defer_trace(1);
     tls->is_tracing = 1;
     tls->pid = getpid();
+
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+       fprintf(stderr,"offline_start_sampling SET tls->is_tracing=%d for pid=%d\n",tls->is_tracing, tls->pid);
+    }
+#endif
 
     mpi_start_tracing_args args;
     char arguments[3 * sizeof(mpi_start_tracing_args)];
