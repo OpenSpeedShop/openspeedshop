@@ -214,14 +214,20 @@ void *monitor_init_process(int *argc, char **argv, void *data)
     tls->OpenSS_monitor_type = OpenSS_Monitor_Proc;
 
     /* Start with gathering data disabled if environment variable is set */
-    if ( (getenv("OPENSS_ENABLE_MPI_PCONTROL") != NULL) && (getenv("OPENSS_START_DISABLED") != NULL)) {
+    if ( (getenv("OPENSS_ENABLE_MPI_PCONTROL") != NULL) && !(getenv("OPENSS_START_ENABLED") != NULL)) {
       if (tls->debug) {
-        fprintf(stderr,"monitor_init_process OPENSS_START_DISABLED was set. Skip starting sampling. \n");
+        fprintf(stderr,"monitor_init_process OPENSS_START_ENABLED was NOT set. Skip starting sampling at start-up time. \n");
       }
       tls->sampling_status = OpenSS_Monitor_Not_Started;
+    } else if ( (getenv("OPENSS_ENABLE_MPI_PCONTROL") != NULL) && (getenv("OPENSS_START_ENABLED") != NULL)) {
+      if (tls->debug) {
+        fprintf(stderr,"monitor_init_process OPENSS_START_ENABLED was set.  Start gathering from beginning of program.\n");
+      }
+      tls->sampling_status = OpenSS_Monitor_Started;
+      offline_start_sampling(NULL);
     } else {
       if (tls->debug) {
-        fprintf(stderr,"monitor_init_process OPENSS_START_DISABLED was NOT set \n");
+        fprintf(stderr,"monitor_init_process OPENSS_ENABLE_MPI_PCONTROL was NOT set.  Normal start-up path.\n");
       }
       tls->sampling_status = OpenSS_Monitor_Started;
       offline_start_sampling(NULL);
@@ -309,9 +315,9 @@ void *monitor_init_thread(int tid, void *data)
 
 
     /* Start with gathering data disabled if environment variable is set */
-    if ( (getenv("OPENSS_ENABLE_MPI_PCONTROL") != NULL) && (getenv("OPENSS_START_DISABLED") != NULL)) {
+    if ( (getenv("OPENSS_ENABLE_MPI_PCONTROL") != NULL) && !(getenv("OPENSS_START_ENABLED") != NULL)) {
        if (tls->debug) {
-         fprintf(stderr,"monitor_init_thread OPENSS_START_DISABLED was set \n");
+         fprintf(stderr,"monitor_init_thread OPENSS_START_ENABLED was NOT set. Do not start gathering performance data. \n");
        }
        tls->sampling_status = OpenSS_Monitor_Not_Started;
     } else {
@@ -696,6 +702,9 @@ void monitor_mpi_pcontrol(int level)
     }
   } else {
       /* early return - do not honor mpi_pcontrol */
+      if (tls->debug) {
+  	fprintf(stderr,"monitor_mpi_pcontrol CALLED OPENSS_ENABLE_MPI_PCONTROL **NOT** SET IGNORING MPI_PCONTROL CALL %d,%lu\n", tls->pid,tls->tid);
+      }
       return;
  }
 
