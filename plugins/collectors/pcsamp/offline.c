@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) The Krell Institute (2007,2008,2009). All Rights Reserved.
+** Copyright (c) The Krell Institute (2007-2011). All Rights Reserved.
 ** Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
@@ -76,11 +76,21 @@ void offline_finish();
 
 void offline_pause_sampling()
 {
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+      fprintf(stderr, "PCSAMP offline_pause_sampling called\n");
+    }
+#endif
     pcsamp_stop_timer();
 }
 
 void offline_resume_sampling()
 {
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+      fprintf(stderr, "PCSAMP offline_resume_sampling called\n");
+    }
+#endif
     pcsamp_start_timer();
 }
 
