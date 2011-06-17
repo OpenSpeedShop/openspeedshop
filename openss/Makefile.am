@@ -219,16 +219,6 @@ ossdriver: ossdriver.in
 	@rm -f ossdriver
 	cp $(srcdir)/ossdriver.in ossdriver
 	chmod 755 ossdriver
-# endif for !BUILD_TARGETED
-endif
-
-if HAVE_TARGET_SHARED
-ossdriver: ossdriver.in
-	@rm -f ossdriver
-	cp $(srcdir)/ossdriver.in ossdriver
-	chmod 755 ossdriver
-# endif for HAVE_TARGET_SHARED
-endif
 
 install-exec-hook: ossdriver
 # osspcsamp
@@ -280,6 +270,67 @@ install-exec-hook: ossdriver
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osscompare
 	chmod 755 $(DESTDIR)$(bindir)/osscompare
 
+# endif for !BUILD_TARGETED
+endif
+
+if HAVE_TARGET_SHARED
+ossdriver: ossdriver.in
+	@rm -f ossdriver
+	cp $(srcdir)/ossdriver.in ossdriver
+	chmod 755 ossdriver
+
+install-exec-hook: ossdriver
+# osspcsamp
+	@rm -f $(DESTDIR)$(bindir)/osspcsamp
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osspcsamp
+	chmod 755 $(DESTDIR)$(bindir)/osspcsamp
+# ossusertime
+	@rm -f $(DESTDIR)$(bindir)/ossusertime
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossusertime
+	chmod 755 $(DESTDIR)$(bindir)/ossusertime
+# osshwc
+	@rm -f $(DESTDIR)$(bindir)/osshwc
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osshwc
+	chmod 755 $(DESTDIR)$(bindir)/osshwc
+# osshwcsamp
+	@rm -f $(DESTDIR)$(bindir)/osshwcsamp
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osshwcsamp
+	chmod 755 $(DESTDIR)$(bindir)/osshwcsamp
+# osshwctime
+	@rm -f $(DESTDIR)$(bindir)/osshwctime
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osshwctime
+	chmod 755 $(DESTDIR)$(bindir)/osshwctime
+# ossio
+	@rm -f $(DESTDIR)$(bindir)/ossio
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossio
+	chmod 755 $(DESTDIR)$(bindir)/ossio
+# ossiot
+	@rm -f $(DESTDIR)$(bindir)/ossiot
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossiot
+	chmod 755 $(DESTDIR)$(bindir)/ossiot
+# ossmpi
+	@rm -f $(DESTDIR)$(bindir)/ossmpi
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossmpi
+	chmod 755 $(DESTDIR)$(bindir)/ossmpi
+# ossmpit
+	@rm -f $(DESTDIR)$(bindir)/ossmpit
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossmpit
+	chmod 755 $(DESTDIR)$(bindir)/ossmpit
+# ossmpiotf
+	@rm -f $(DESTDIR)$(bindir)/ossmpiotf
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossmpiotf
+	chmod 755 $(DESTDIR)$(bindir)/ossmpiotf
+# ossfpe
+	@rm -f $(DESTDIR)$(bindir)/ossfpe
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossfpe
+	chmod 755 $(DESTDIR)$(bindir)/ossfpe
+# osscompare
+	@rm -f $(DESTDIR)$(bindir)/osscompare
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osscompare
+	chmod 755 $(DESTDIR)$(bindir)/osscompare
+
+# endif for HAVE_TARGET_SHARED
+endif
 
 # endif for BUILD_INSTRUMENTOR
 endif
