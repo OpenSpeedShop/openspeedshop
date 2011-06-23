@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 //    }
 
     // Create the running program
-    BPatch_thread* appThread = bpatch.createProcess(argv[1], (const char **)&(argv[1]));
+    BPatch_process* appThread = bpatch.processCreate(argv[1], (const char **)&(argv[1]));
 
 
  // Read the program's image and get the associated image object

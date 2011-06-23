@@ -14,7 +14,8 @@ int main(int argc, char* argv[])
     }
     
     // Attach to the running program
-    BPatch_thread* appThread = bpatch.attachProcess(NULL, atoi(argv[1]));
+    BPatch_process* appThread = bpatch.processAttach(NULL, atoi(argv[1]));
+//    BPatch_thread* appThread = bpatch.attachProcess(NULL, atoi(argv[1]));
     
     
     // Read the program's image and get the associated image object

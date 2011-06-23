@@ -34,6 +34,7 @@ mutator_CXXFLAGS = \
 mutator_LDFLAGS = \
 	$(DYNINST_LDFLAGS) \
 	$(DYNINST_LIBS) \
+	-lparseAPI \
         $(LIBDWARF_LDFLAGS) \
         $(LIBDWARF_LIBS) \
 	-lelf -liberty -ldl
