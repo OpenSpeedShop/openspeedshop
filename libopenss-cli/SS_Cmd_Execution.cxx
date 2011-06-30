@@ -2966,7 +2966,7 @@ bool SS_expRestore (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
-#ifdef DEBUG_CLI
+#ifdef DEBUG_CLI_APPC
   std::cerr << "Enter SS_expRestore before printing clip=" << clip << "\n";
   if (clip != NULL) {
     clip->Print(std::cerr);
@@ -3007,7 +3007,7 @@ bool SS_expRestore (CommandObject *cmd) {
 
 #else
 
-#ifdef DEBUG_CLI
+#ifdef DEBUG_CLI_APPC
      std::cerr << "In SS_expRestore, after calling new ExperimentObject " << "\n";
 #endif
 
@@ -3015,18 +3015,23 @@ bool SS_expRestore (CommandObject *cmd) {
 
   EXPID preferredEXP = 0;
 
+#ifdef DEBUG_CLI_APPC
+     std::cerr << "In SS_expRestore, before checking exp= " << exp << "\n";
+#endif
+
   bool offlineInstrumentor = true;
+
   if (exp != NULL) {
 
      offlineInstrumentor = exp->getIsInstrumentorOffline();
 
-#ifdef DEBUG_CLI
+#ifdef DEBUG_CLI_APPC
      std::cerr << "In SS_expRestore, offlineInstrumentor= " << offlineInstrumentor << "\n";
 #endif
 
      if (offlineInstrumentor) {
        preferredEXP = exp->ExperimentObject_ID();
-#ifdef DEBUG_CLI
+#ifdef DEBUG_CLI_APPC
        std::cerr << "In SS_expRestore, preferredEXP= " << preferredEXP << "\n";
 #endif
      }
@@ -3079,7 +3084,8 @@ bool SS_expRestore (CommandObject *cmd) {
   }
 #endif
 
-#ifdef DEBUG_CLI
+
+#ifdef DEBUG_CLI_APPC
   std::cerr << "In SS_expRestore, after calling new ExperimentObject with data_base_name=" << data_base_name << " preferredEXP=" << preferredEXP << " exp=" << exp << "\n";
   if (exp) {
     std::cerr << "In SS_expRestore, after calling new ExperimentObject with data_base_name=" << data_base_name << " preferredEXP=" << preferredEXP << " exp->ExperimentObject_ID()=" << exp->ExperimentObject_ID() << "\n";
@@ -3095,14 +3101,14 @@ bool SS_expRestore (CommandObject *cmd) {
  // Pick up the EXPID for an allocated experiment.
   EXPID ExperimentID = exp->ExperimentObject_ID();
 
-#ifdef DEBUG_CLI
+#ifdef DEBUG_CLI_APPC
   std::cerr << "In SS_expRestore, after calling exp->ExperimentObject_ID(), ExperimentID=" << ExperimentID << " preferredEXP=" << preferredEXP << " exp=" << exp << "\n";
 #endif
 
  // Set the focus to point to the new EXPID.
   (void)Experiment_Focus (WindowID, ExperimentID);
 
-#ifdef DEBUG_CLI
+#ifdef DEBUG_CLI_APPC
   std::cerr << "In SS_expRestore, after calling Experiment_Focus() with ExperimentID=" << ExperimentID << " preferredEXP=" << preferredEXP << " exp=" << exp << "\n";
 #endif
 
@@ -5557,6 +5563,13 @@ static bool SS_ListParams (CommandObject *cmd, bool showValues) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
+#ifdef DEBUG_CLI
+  std::cerr << "Enter SS_ListParams before printing clip=" << clip << "\n";
+  if (clip != NULL) {
+    clip->Print(std::cerr);
+  }
+#endif
+
  // Look at general modifier types for "all" option.
   Assert(cmd->P_Result() != NULL);
   bool All_KeyWord = Look_For_KeyWord (cmd, "all");
@@ -6561,7 +6574,8 @@ bool SS_ListGeneric (CommandObject *cmd) {
     } else if (!strcasecmp(S.c_str(),"database") ||
                !strcasecmp(S.c_str(),"restoredfile")) {
       result_of_first_list = SS_ListDatabase(cmd);
-    } else if (!strcasecmp(S.c_str(),"executable")) {
+    } else if (!strcasecmp(S.c_str(),"executable") ||
+               !strcasecmp(S.c_str(),"executables")) {
       result_of_first_list = SS_ListExecutable(cmd);
     } else if (!strcasecmp(S.c_str(),"exp") ||
                !strcasecmp(S.c_str(),"expid")) {
@@ -6581,13 +6595,18 @@ bool SS_ListGeneric (CommandObject *cmd) {
                !strcasecmp(S.c_str(),"objects") ||
                !strcasecmp(S.c_str(),"linkedobjs")) {
       result_of_first_list = SS_ListObj(cmd);
-    } else if (!strcasecmp(S.c_str(),"params")) {
+    } else if (!strcasecmp(S.c_str(),"params") ||
+               !strcasecmp(S.c_str(),"param")) {
       result_of_first_list = SS_ListParams(cmd, false);
     } else if (!strcasecmp(S.c_str(),"paramvalues") ||
+               !strcasecmp(S.c_str(),"paramval") ||
                !strcasecmp(S.c_str(),"paramvals") ||
+               !strcasecmp(S.c_str(),"paramsvals") ||
+               !strcasecmp(S.c_str(),"paramsvalue") ||
                !strcasecmp(S.c_str(),"paramsvalues")) {
       result_of_first_list = SS_ListParams(cmd, true);
-    } else if (!strcasecmp(S.c_str(),"pids")) {
+    } else if (!strcasecmp(S.c_str(),"pids") ||
+               !strcasecmp(S.c_str(),"processes")) {
       result_of_first_list = SS_ListPids(cmd);
     } else if (!strcasecmp(S.c_str(),"ranks")) {
       result_of_first_list = SS_ListRanks(cmd);
