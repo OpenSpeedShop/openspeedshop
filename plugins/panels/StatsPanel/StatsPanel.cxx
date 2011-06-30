@@ -387,6 +387,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   selectedFunctionStr = QString::null;
   threadMenu = NULL;
   currentMetricStr = QString::null;
+  sourcePanelMetricStr = QString::null;
   currentUserSelectedReportStr = QString::null;
   lastUserSelectedReportStr = QString::null;
   originatingUserSelectedReportStr = QString::null;
@@ -3035,10 +3036,8 @@ StatsPanel::optionalViewsCreationSelected()
 
       std::map<std::string, bool> hwcsamp_desired_list;
       hwcsamp_desired_list.clear();
-      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::exclusive_counts",optionalViewsDialog->hwcsamp_exclusive_counts));
-      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::exclusive_overflows",optionalViewsDialog->hwcsamp_exclusive_overflows));
-      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::inclusive_overflows",optionalViewsDialog->hwcsamp_inclusive_overflows));
-      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::inclusive_counts",optionalViewsDialog->hwcsamp_inclusive_counts));
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::time",optionalViewsDialog->hwcsamp_time));
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::allEvents",optionalViewsDialog->hwcsamp_allEvents));
       hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::percent",optionalViewsDialog->hwcsamp_percent));
       hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::ThreadAverage",optionalViewsDialog->hwcsamp_ThreadAverage));
       hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::ThreadMin",optionalViewsDialog->hwcsamp_ThreadMin));
@@ -3236,7 +3235,7 @@ StatsPanel::optionalViewsCreationSelected()
 
       updateCurrentModifierList(list_of_fpe_modifiers, &current_list_of_fpe_modifiers, fpe_desired_list);
 
-     } // end iot specific
+     } // end fpe specific
 
      updateStatsPanelData(DONT_FORCE_UPDATE);
    }
@@ -3830,6 +3829,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   printf("StatsPanel::matchSelectedItem, matchSelectedItem() entered. sf=%s\n", sf.c_str() );
   printf("StatsPanel::matchSelectedItem, A: currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
   printf("StatsPanel::matchSelectedItem, A: currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
+  printf("StatsPanel::matchSelectedItem, A: currentMetricStr=(%s)\n", currentMetricStr.ascii() );
 #endif
 
   QString lineNumberStr = "-1";
@@ -3877,7 +3877,7 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
          filename.ascii(), expID, focusedExpID);
 #endif
 
-  spo = lookUpFileHighlights(filename, lineNumberStr, highlightList);
+  spo = lookUpFileHighlights(filename, lineNumberStr, highlightList, currentMetricStr);
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::matchSelectedItem, after calling lookUpFileHighlights, filename=%s expID=%d, focusedExpID=%d\n", 
@@ -9531,14 +9531,15 @@ StatsPanel::generateCommand()
 #endif
 
 
-  if( currentCollectorStr == "pcsamp" && 
+  if( (currentCollectorStr == "pcsamp" || 
+       currentCollectorStr == "hwcsamp" ) &&
       (currentUserSelectedReportStr == "Functions") || 
       (currentUserSelectedReportStr == "LinkedObjects") || 
       (currentUserSelectedReportStr == "Statements by Function") ||
       (currentUserSelectedReportStr == "Statements") ) {
 
 #ifdef DEBUG_StatsPanel
-       printf("generateCommand, inside pcsamp specific processing, currentUserSelectedReportStr=(%s)\n",
+       printf("generateCommand, inside pcsamp/hwcsamp specific processing, currentUserSelectedReportStr=(%s)\n",
               currentUserSelectedReportStr.ascii());
 #endif
 
@@ -9549,7 +9550,7 @@ StatsPanel::generateCommand()
     if( currentUserSelectedReportStr == "Statements by Function" ) {
 
 #ifdef DEBUG_StatsPanel
-       printf("generateCommand, pcsamp, Statements by Function\n");
+       printf("generateCommand, pcsamp/hwcsamp, Statements by Function\n");
 #endif
 
       selectedFunctionStr = findSelectedFunction();
@@ -9557,7 +9558,7 @@ StatsPanel::generateCommand()
         bool ok = FALSE;
 
 #ifdef DEBUG_StatsPanel
-        printf("generateCommand, pcsamp, StatementsByFunction, A: NO FUNCTION SELECTED Prompt for one!\n");
+        printf("generateCommand, pcsamp/hwcsamp, StatementsByFunction, A: NO FUNCTION SELECTED Prompt for one!\n");
 #endif
         selectedFunctionStr = QInputDialog::getText("Enter Filename or Function Name Dialog:", 
                                  QString("Which filename or function?:"), 
@@ -9584,7 +9585,7 @@ StatsPanel::generateCommand()
   }
 
 #ifdef DEBUG_StatsPanel
-  printf("start of pcsamp generated command (%s)\n", command.ascii() );
+  printf("end of pcsamp/hwcsamp generated command (%s)\n", command.ascii() );
 #endif
 
   } else if( currentCollectorStr == "usertime" || 
@@ -9784,7 +9785,7 @@ StatsPanel::generateCommand()
                  currentUserSelectedReportStr.startsWith("io") || 
                  currentUserSelectedReportStr.startsWith("TraceBacks") || 
                  currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || 
-                 currentUserSelectedReportStr.startsWith("Butterfly") ) )) { 
+                 currentUserSelectedReportStr.startsWith("Butterfly") ) )) {
 
 #ifdef DEBUG_StatsPanel
     printf("generateCommand, It thinks we're mpi | io!\n");
@@ -9947,6 +9948,8 @@ StatsPanel::generateCommand()
       modifier_list = &current_list_of_hwc_modifiers;
     } else if( currentCollectorStr == "hwctime" ) {
       modifier_list = &current_list_of_hwctime_modifiers;
+    } else if( currentCollectorStr == "hwcsamp" ) {
+      modifier_list = &current_list_of_hwcsamp_modifiers;
     } else if( currentCollectorStr == "io" ) {
       modifier_list = &current_list_of_io_modifiers;
     } else if( currentCollectorStr == "iot" ) {
@@ -10214,10 +10217,8 @@ void
 StatsPanel::generateHWCSAMPmodifiers()
 {
   list_of_hwcsamp_modifiers.clear();
-  list_of_hwcsamp_modifiers.push_back("hwcsamp::exclusive_counts");
-  list_of_hwcsamp_modifiers.push_back("hwcsamp::exclusive_overflows");
-  list_of_hwcsamp_modifiers.push_back("hwcsamp::inclusive_overflows");
-  list_of_hwcsamp_modifiers.push_back("hwcsamp::inclusive_counts");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::time");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::allEvents");
   list_of_hwcsamp_modifiers.push_back("hwcsamp::percent");
   list_of_hwcsamp_modifiers.push_back("hwcsamp::ThreadAverage");
   list_of_hwcsamp_modifiers.push_back("hwcsamp::ThreadMin");
@@ -10546,10 +10547,8 @@ StatsPanel::generateHWCSampMenu(QString collectorName)
   generateHWCTIMEmodifiers();
 #else
   list_of_hwcsamp_modifiers.clear();
-  list_of_hwcsamp_modifiers.push_back("hwcsamp::exclusive_counts");
-  list_of_hwcsamp_modifiers.push_back("hwcsamp::exclusive_overflows");
-  list_of_hwcsamp_modifiers.push_back("hwcsamp::inclusive_overflows");
-  list_of_hwcsamp_modifiers.push_back("hwcsamp::inclusive_counts");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::time");
+  list_of_hwcsamp_modifiers.push_back("hwcsamp::allEvents");
   list_of_hwcsamp_modifiers.push_back("hwcsamp::percent");
   list_of_hwcsamp_modifiers.push_back("hwcsamp::ThreadAverage");
   list_of_hwcsamp_modifiers.push_back("hwcsamp::ThreadMin");
@@ -11248,7 +11247,7 @@ qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO functions by fu
 
 
 SourceObject *
-StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, HighlightList *highlightList)
+StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, HighlightList *highlightList, QString highlightMetricStr)
 {
   SourceObject *spo = NULL;
   HighlightObject *hlo = NULL;
@@ -11258,7 +11257,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::lookUpFileHighlights, lfhA: expID=%d focusedExpID=%d\n", expID, focusedExpID );
-  printf("StatsPanel::lookUpFileHighlights, localExpID=%d, currentMetricStr=%s\n", localExpID, currentMetricStr.ascii() );
+  printf("StatsPanel::lookUpFileHighlights, localExpID=%d, highlightMetricStr=%s\n", localExpID, highlightMetricStr.ascii() );
   printf("StatsPanel::lookUpFileHighlights, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
   printf("StatsPanel::lookUpFileHighlights, currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii() );
   printf("StatsPanel::lookUpFileHighlights, timeIntervalString=(%s)\n", timeIntervalString.ascii() );
@@ -11278,10 +11277,10 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
   }
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::lookUpFileHighlights, file BaseName=(%s), currentMetricStr.ascii()=%s\n", fn.ascii(), currentMetricStr.ascii());
+  printf("StatsPanel::lookUpFileHighlights, file BaseName=(%s), highlightMetricStr.ascii()=%s\n", fn.ascii(), highlightMetricStr.ascii());
 #endif
 
-  if( currentMetricStr.isEmpty() ) {
+  if( highlightMetricStr.isEmpty() ) {
 
     if( _fileName.isEmpty() ) {
       return(spo);
@@ -11303,7 +11302,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
       }
 
 #ifdef DEBUG_StatsPanel
-      printf("StatsPanel::lookUpFileHighlights, localExpID=%d, currentMetricStr=%s\n", localExpID, currentMetricStr.ascii() );
+      printf("StatsPanel::lookUpFileHighlights, localExpID=%d, highlightMetricStr=%s\n", localExpID, highlightMetricStr.ascii() );
 #endif
       // Trace experiments do not have Statements metrics! why?
       if (currentCollectorStr == "io" || 
@@ -11343,7 +11342,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 	    currentCollectorStr == "mpi" || 
             currentCollectorStr == "mpit" ) {
 
-            command = QString("expView -x %1 -f %2 -m %3 %4").arg(localExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+            command = QString("expView -x %1 -f %2 -m %3 %4").arg(localExpID).arg(fn).arg(highlightMetricStr).arg(timeIntervalString);
 
 #ifdef DEBUG_StatsPanel
             printf("StatsPanel::lookUpFileHighlights, 33, fn=%s, command=(%s)\n", fn.ascii(), command.ascii() );
@@ -11398,7 +11397,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 #endif
           }
 
-            command = QString("expView -x %1 -v statements -f %2 -m %3 %4").arg(localExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+            command = QString("expView -x %1 -v statements -f %2 -m %3 %4").arg(localExpID).arg(fn).arg(highlightMetricStr).arg(timeIntervalString);
 
 #ifdef DEBUG_StatsPanel
             printf("StatsPanel::lookUpFileHighlights2, 33, fn=%s, command=(%s)\n", fn.ascii(), command.ascii() );
@@ -11457,7 +11456,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 	  currentCollectorStr == "mpi" || 
           currentCollectorStr == "mpit" ) {
 
-          command = QString("expView -x %1 -f %2 -m %3 %4").arg(localExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+          command = QString("expView -x %1 -f %2 -m %3 %4").arg(localExpID).arg(fn).arg(highlightMetricStr).arg(timeIntervalString);
 
 #ifdef DEBUG_StatsPanel
           printf("StatsPanel::lookUpFileHighlights, 44, fn=%s, command=(%s), lastCommand=(%s)\n", 
@@ -11466,7 +11465,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 
       } else {
 
-          command = QString("expView -x %1 -v statements -f %2 -m %3 %4").arg(localExpID).arg(fn).arg(currentMetricStr).arg(timeIntervalString);
+          command = QString("expView -x %1 -v statements -f %2 -m %3 %4").arg(localExpID).arg(fn).arg(highlightMetricStr).arg(timeIntervalString);
 
 #ifdef DEBUG_StatsPanel
           printf("StatsPanel::lookUpFileHighlights2, 44, fn=%s, command=(%s), lastCommand=(%s)\n", 

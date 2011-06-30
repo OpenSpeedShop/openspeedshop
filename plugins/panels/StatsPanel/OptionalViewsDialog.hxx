@@ -104,10 +104,8 @@ public:
     bool hwc_ThreadMin;
     bool hwc_ThreadMax;
 
-    bool hwcsamp_exclusive_counts;
-    bool hwcsamp_exclusive_overflows;
-    bool hwcsamp_inclusive_overflows;
-    bool hwcsamp_inclusive_counts;
+    bool hwcsamp_time;
+    bool hwcsamp_allEvents;
     bool hwcsamp_percent;
     bool hwcsamp_ThreadAverage;
     bool hwcsamp_ThreadMin;
@@ -275,10 +273,8 @@ protected:
     QCheckBox *usertime_ThreadMin_CheckBox;
     QCheckBox *usertime_ThreadMax_CheckBox;
 
-    QCheckBox *hwcsamp_exclusive_counts_CheckBox;
-    QCheckBox *hwcsamp_exclusive_overflows_CheckBox;
-    QCheckBox *hwcsamp_inclusive_overflows_CheckBox;
-    QCheckBox *hwcsamp_inclusive_counts_CheckBox;
+    QCheckBox *hwcsamp_time_CheckBox;
+    QCheckBox *hwcsamp_allEvents_CheckBox;
     QCheckBox *hwcsamp_percent_CheckBox;
     QCheckBox *hwcsamp_ThreadAverage_CheckBox;
     QCheckBox *hwcsamp_ThreadMin_CheckBox;

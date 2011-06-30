@@ -392,6 +392,7 @@ class StatsPanel  : public Panel
     void setCurrentCollector();
 
     QString currentMetricStr;
+    QString sourcePanelMetricStr;
     void setCurrentMetricStr();
     QString currentUserSelectedReportStr;
     QString lastUserSelectedReportStr;
@@ -658,7 +659,7 @@ class StatsPanel  : public Panel
 
     SPListViewItem *MYListViewItem( StatsPanel *arg1, QString xxxfuncName, QString xxxfileName, int xxxlineNumber, QListView *arg2, SPListViewItem *arg3, QString *strings);
 
-    SourceObject *lookUpFileHighlights(QString filename, QString lineNumberStr, HighlightList *highlightList);
+    SourceObject *lookUpFileHighlights(QString filename, QString lineNumberStr, HighlightList *highlightList, QString highlightMetricStr);
 
 };
 #endif // STATSPANEL_H
