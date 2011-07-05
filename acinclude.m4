@@ -379,7 +379,14 @@ AC_DEFUN([AC_PKG_DYNINST], [
 	#include <BPatch.h>
         ]], [[
 	BPatch bpatch();
-        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
+        ]]), [ AC_MSG_RESULT(yes) 
+               AM_CONDITIONAL(HAVE_DYNINST, true)
+               AC_DEFINE(HAVE_DYNINST, 1, [Define to 1 if you have Dyninst.])
+
+        ],
+        [ AC_MSG_RESULT(no)
+          AM_CONDITIONAL(HAVE_DYNINST, false)
+
 	# for offline only builds, dyninst is not installed.
 	# do not die.
         #AC_MSG_FAILURE(cannot locate Dyninst API library and/or headers.) ]
@@ -396,7 +403,6 @@ AC_DEFUN([AC_PKG_DYNINST], [
     AC_SUBST(DYNINST_DIR)
     AC_SUBST(DYNINST_VERS)
 
-    AC_DEFINE(HAVE_DYNINST, 1, [Define to 1 if you have Dyninst.])
 
 ])
 
