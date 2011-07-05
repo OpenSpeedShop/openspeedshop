@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2009 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2011 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -180,6 +180,28 @@ osslink: osslink.in
 		-e 's,@@papidir@@,$(papi_dir),' \
 			$(srcdir)/osslink.in > osslink
 	@chmod 755 osslink
+
+
+if HAVE_DYNINST
+bin_PROGRAMS += osswrapper 
+
+osswrapper_CXXFLAGS = \
+        @DYNINST_CPPFLAGS@ \
+        @LIBDWARF_CPPFLAGS@ 
+
+osswrapper_LDFLAGS = \
+        @DYNINST_LDFLAGS@ \
+        @LIBDWARF_LDFLAGS@ 
+
+osswrapper_LDADD = \
+	$(LIBLTDL) \
+        @DYNINST_LIBS@ \
+        @LIBDWARF_LDFLAGS@ 
+
+osswrapper_SOURCES = \
+	osswrapper.cxx
+
+endif
 endif
 
 if BUILD_INSTRUMENTOR
