@@ -82,8 +82,11 @@ class CommandResult {
     C = NULL;
   }
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     return std::string("");
+  }
+  virtual std::string Form () {
+    return Form (OPENSS_VIEW_FIELD_SIZE);
   }
   virtual PyObject * pyValue () {
     return Py_BuildValue("");
@@ -206,7 +209,7 @@ class CommandResult_Address :
     U = uint_value;
   }
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     char s[OPENSS_VIEW_FIELD_SIZE];
     sprintf ( s, "0x%llx", uint_value);
     return std::string (s);
@@ -215,7 +218,7 @@ class CommandResult_Address :
     return Py_BuildValue("l", uint_value);
   }
   virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
-    std::string S = Form();
+    std::string S = Form(fieldsize);
     if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << S;
@@ -264,7 +267,7 @@ class CommandResult_Uint :
     U = uint_value;
   }
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     char s[OPENSS_VIEW_FIELD_SIZE];
     sprintf ( s, "%lld", uint_value);
     return std::string (s);
@@ -273,7 +276,7 @@ class CommandResult_Uint :
     return Py_BuildValue("l", uint_value);
   }
   virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
-    std::string S = Form();
+    std::string S = Form(fieldsize);
     if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << S;
@@ -331,7 +334,7 @@ class CommandResult_Int :
     I = int_value;
   }
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     char s[OPENSS_VIEW_FIELD_SIZE];
     sprintf ( s, "%lld", int_value);
     return std::string (s);
@@ -340,7 +343,7 @@ class CommandResult_Int :
     return Py_BuildValue("l", int_value);
   }
   virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
-    std::string S = Form();
+    std::string S = Form(fieldsize);
     if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << S;
@@ -403,11 +406,11 @@ class CommandResult_Float :
     F = float_value;
   }
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     if (isnan(float_value)) return std::string ("nan");
     char F[20];
     F[0] = *("%"); // left justify in field
-    sprintf(&F[1], "%lld.%lldf\0", OPENSS_VIEW_FIELD_SIZE, OPENSS_VIEW_PRECISION);
+    sprintf(&F[1], "%lld.%lldf\0", fieldsize, OPENSS_VIEW_PRECISION);
 
     char s[OPENSS_VIEW_FIELD_SIZE];
     sprintf ( s, &F[0], float_value);
@@ -417,7 +420,7 @@ class CommandResult_Float :
     return Py_BuildValue("d", float_value);
   }
   virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
-    std::string S = Form();
+    std::string S = Form(fieldsize);
     if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << S;
@@ -462,7 +465,7 @@ class CommandResult_String :
     S = string_value;
   }
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     return string_value;
   }
   virtual PyObject * pyValue () {
@@ -543,7 +546,7 @@ class CommandResult_RawString :
     S = string_value;
   }
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     return string_value;
   }
   virtual PyObject * pyValue () {
@@ -621,7 +624,7 @@ class CommandResult_Function :
     st = ST;
   }
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     std::string S = OPENSS_VIEW_MANGLED_NAME ? getMangledName() : getDemangledName();
     LinkedObject L = getLinkedObject();
     std::set<Statement> T = getDefinitions();
@@ -654,12 +657,12 @@ class CommandResult_Function :
     return S;
   }
   virtual PyObject * pyValue () {
-    std::string F = Form ();
+    std::string F = Form (OPENSS_VIEW_FIELD_SIZE);
     return Py_BuildValue("s",F.c_str());
   }
 
   virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
-    std::string string_value = Form ();
+    std::string string_value = Form (fieldsize);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
@@ -720,7 +723,7 @@ class CommandResult_Statement :
     L = (int64_t)getLine();
   }
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     char l[20];
     sprintf( &l[0], "%lld", (int64_t)getLine());
     std::string S = (OPENSS_VIEW_FULLPATH)
@@ -730,11 +733,11 @@ class CommandResult_Statement :
     return S;
   }
   virtual PyObject * pyValue () {
-    std::string S = Form ();
+    std::string S = Form (OPENSS_VIEW_FIELD_SIZE);
     return Py_BuildValue("s",S.c_str());
   }
   virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
-    std::string string_value = Form ();
+    std::string string_value = Form (fieldsize);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
@@ -808,18 +811,18 @@ class CommandResult_LinkedObject :
     off = Offset;
   }
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     std::string S = (OPENSS_VIEW_FULLPATH)
                       ? getPath()
                       : getPath().getBaseName();
     return S;
   }
   virtual PyObject * pyValue () {
-    std::string F = Form ();
+    std::string F = Form (OPENSS_VIEW_FIELD_SIZE);
     return Py_BuildValue("s",F.c_str());
   }
   virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
-    std::string string_value = Form ();
+    std::string string_value = Form (fieldsize);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
@@ -931,7 +934,7 @@ class CommandResult_CallStackEntry : public CommandResult {
     return (CallStack->CSV);
   };
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     int64_t sz = CallStack->CSV->size();
     if (sz <= 0) return std::string("");
     std::vector<CommandResult *> *C1 = CallStack->CSV;
@@ -969,12 +972,15 @@ class CommandResult_CallStackEntry : public CommandResult {
     Name += CE->Form();
     return Name;
   }
+  virtual std::string Form () {
+    return Form(OPENSS_VIEW_FIELD_SIZE);
+  }
   virtual PyObject * pyValue () {
-    std::string F = Form ();
+    std::string F = Form (OPENSS_VIEW_FIELD_SIZE);
     return Py_BuildValue("s",F.c_str());
   }
   virtual void Print (std::ostream &to, int64_t fieldsize, bool leftjustified) {
-    std::string string_value = Form ();
+    std::string string_value = Form (fieldsize);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
@@ -1041,18 +1047,25 @@ class CommandResult_Time : public CommandResult {
     t = time_value;
   };
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     std::ostringstream form(std::ios::out);
     form << time_value;
+    if (OPENSS_VIEW_DATE_TIME_PRECISION > 0) {
+      int64_t remaining = time_value.getValue() % 1000000000;  // Fractions of seconds.
+      remaining += 1000000000;  // Add dummy padding to force leading zero fill.
+      std::ostringstream s(std::ios::ate);
+      s << remaining;
+      form << "." << s.str().substr(1,OPENSS_VIEW_DATE_TIME_PRECISION); // Remove padding.
+    }
     //return form.ostringstream::str();
     return form.str();
   }
   virtual PyObject * pyValue () {
-    std::string F = Form ();
+    std::string F = Form (OPENSS_VIEW_FIELD_SIZE);
     return Py_BuildValue("s",F.c_str());
   }
   virtual void Print (std::ostream &to, int64_t fieldsize, bool leftjustified) {
-    std::string string_value = Form ();
+    std::string string_value = Form (fieldsize);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
@@ -1135,7 +1148,7 @@ class CommandResult_Duration : public CommandResult {
     d = duration_value;
   };
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     std::ostringstream form(std::ios::ate);
     int64_t time_scale = 1000000000;
     int64_t remaining = duration_value;
@@ -1192,11 +1205,11 @@ class CommandResult_Duration : public CommandResult {
     return form.str();
   }
   virtual PyObject * pyValue () {
-    std::string F = Form ();
+    std::string F = Form (OPENSS_VIEW_FIELD_SIZE);
     return Py_BuildValue("s",F.c_str());
   }
   virtual void Print (std::ostream &to, int64_t fieldsize, bool leftjustified) {
-    std::string string_value = Form ();
+    std::string string_value = Form (fieldsize);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
@@ -1302,7 +1315,7 @@ class CommandResult_Interval : public CommandResult {
     d = interval_value;
   };
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     if (isnan(interval_value)) return std::string ("nan");
     std::ostringstream form(std::ios::ate);
     double float_value = interval_value * 1000; // Convert to milli-seconds
@@ -1310,18 +1323,18 @@ class CommandResult_Interval : public CommandResult {
 
     char F[20];
     F[0] = *("%"); // left justify in field
-    sprintf(&F[1], "%lld.%lldf\0", OPENSS_VIEW_FIELD_SIZE, OPENSS_VIEW_PRECISION);
+    sprintf(&F[1], "%lld.%lldf\0", fieldsize, OPENSS_VIEW_PRECISION);
 
     char s[OPENSS_VIEW_FIELD_SIZE];
     sprintf ( s, &F[0], float_value);
     return std::string (s);
   }
   virtual PyObject * pyValue () {
-    std::string F = Form ();
+    std::string F = Form (OPENSS_VIEW_FIELD_SIZE);
     return Py_BuildValue("s",F.c_str());
   }
   virtual void Print (std::ostream &to, int64_t fieldsize, bool leftjustified) {
-    std::string string_value = Form ();
+    std::string string_value = Form (fieldsize);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
@@ -1360,7 +1373,7 @@ class CommandResult_Title :
     S = string_value;
   }
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     return string_value;
   }
   virtual PyObject * pyValue () {
@@ -1376,10 +1389,12 @@ class CommandResult_Headers :
 
  int64_t number_of_columns;
  std::list<CommandResult *> Headers;
+ int64_t *column_widths;
 
  public:
   CommandResult_Headers () : CommandResult(CMD_RESULT_COLUMN_HEADER) {
     number_of_columns = 0;
+    column_widths = NULL;
   }
   virtual ~CommandResult_Headers () {
     Reclaim_CR_Space (Headers);
@@ -1390,6 +1405,9 @@ class CommandResult_Headers :
     number_of_columns++;
     Headers.push_back(R);
   }
+  void Add_Column_Widths (int64_t *C) {
+    column_widths = C;
+  }
   void Value (std::list<CommandResult *>& R) {
     R = Headers;
   }
@@ -1397,7 +1415,7 @@ class CommandResult_Headers :
     NC = number_of_columns;
   }
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     std::string S;
     S = "";
     std::list<CommandResult *>::iterator cri = Headers.begin();
@@ -1407,13 +1425,13 @@ class CommandResult_Headers :
       std::string R = (*cri)->Form ();
       if (num_results < number_of_columns) {
        // Except for the last column ...
-        if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
+        if (R.size () > fieldsize) {
          // Shorten the original string.
-          R.resize (OPENSS_VIEW_FIELD_SIZE);
-        } else if (R.size () < OPENSS_VIEW_FIELD_SIZE) {
+          R.resize (fieldsize);
+        } else if (R.size () < fieldsize) {
          // Lengthen the original string.
           std::string T;
-          T.resize ((OPENSS_VIEW_FIELD_SIZE - R.size ()), *" ");
+          T.resize ((fieldsize - R.size ()), *" ");
           R = T + R;
         }
       }
@@ -1434,8 +1452,10 @@ class CommandResult_Headers :
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
     for (coi = Headers.begin(); coi != Headers.end(); coi++) {
+     // column_widths allows support of dynamic field size.
+      int64_t use_fieldsize = (column_widths != NULL) ? column_widths[num_results] : fieldsize;
       if (num_results++ != 0) to << "  ";
-      (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
+      (*coi)->Print (to, use_fieldsize, (num_results >= number_of_columns) ? true : false);
     }
 
   }
@@ -1446,6 +1466,7 @@ class CommandResult_Enders :
 
  int64_t number_of_columns;
  std::list<CommandResult *> Enders;
+ int64_t *column_widths;
 
  public:
   CommandResult_Enders () : CommandResult(CMD_RESULT_COLUMN_ENDER) {
@@ -1460,8 +1481,14 @@ class CommandResult_Enders :
     number_of_columns++;
     Enders.push_back(R);
   }
+  void Add_Column_Widths (int64_t *C) {
+    column_widths = C;
+  }
   void Value (std::list<CommandResult *>& R) {
     R = Enders;
+  }
+  void Value (int64_t& NC) {
+    NC = number_of_columns;
   }
   void Enders_AbsDiff (CommandResult *A, int IDX) {
     cmd_result_type_enum T = A->Type();
@@ -1499,7 +1526,7 @@ class CommandResult_Enders :
     }
   }
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     std::string S;
     S = "";
     std::list<CommandResult *>::iterator cri = Enders.begin();
@@ -1509,13 +1536,13 @@ class CommandResult_Enders :
       std::string R = (*cri)->Form ();
       if (num_results < number_of_columns) {
        // Except for the last column ...
-        if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
+        if (R.size () > fieldsize) {
          // shorten the original string.
-          R.resize (OPENSS_VIEW_FIELD_SIZE);
-        } else if (R.size () < OPENSS_VIEW_FIELD_SIZE) {
+          R.resize (fieldsize);
+        } else if (R.size () < fieldsize) {
          // lengthen the original string.
           std::string T;
-          T.resize ((OPENSS_VIEW_FIELD_SIZE - R.size ()), *" ");
+          T.resize ((fieldsize - R.size ()), *" ");
           R = T + R;
         }
       }
@@ -1536,8 +1563,10 @@ class CommandResult_Enders :
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
     for (coi = Enders.begin(); coi != Enders.end(); coi++) {
+     // column_widths allows support of dynamic field size.
+      int64_t use_fieldsize = (column_widths != NULL) ? column_widths[num_results] : fieldsize;
       if (num_results++ != 0) to << "  ";
-      (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
+      (*coi)->Print (to, use_fieldsize, (num_results >= number_of_columns) ? true : false);
     }
 
   }
@@ -1548,10 +1577,12 @@ class CommandResult_Columns :
 
  int64_t number_of_columns;
  std::list<CommandResult *> Columns;
+ int64_t *column_widths;
 
  public:
   CommandResult_Columns (int64_t C = 0) : CommandResult(CMD_RESULT_COLUMN_VALUES) {
     number_of_columns = C;
+    column_widths = NULL;
   }
   virtual ~CommandResult_Columns () {
     Reclaim_CR_Space (Columns);
@@ -1564,6 +1595,12 @@ class CommandResult_Columns :
   }
   void Value (std::list<CommandResult *>& R) {
     R = Columns;
+  }
+  void Value (int64_t& NC) {
+    NC = number_of_columns;
+  }
+  void Add_Column_Widths (int64_t *C) {
+    column_widths = C;
   }
   void Column_AbsDiff (CommandResult *A, int IDX) {
     cmd_result_type_enum T = A->Type();
@@ -1601,7 +1638,7 @@ class CommandResult_Columns :
     }
   }
 
-  virtual std::string Form () {
+  virtual std::string Form (int64_t fieldsize) {
     std::string S;
     S = "";
     std::list<CommandResult *>::iterator cri = Columns.begin();
@@ -1611,13 +1648,13 @@ class CommandResult_Columns :
       std::string R = (*cri)->Form ();
       if (num_results < number_of_columns) {
        // Except for the last column ...
-        if (R.size () > OPENSS_VIEW_FIELD_SIZE) {
+        if (R.size () > fieldsize) {
          // Shorten the original string.
-          R.resize (OPENSS_VIEW_FIELD_SIZE);
-        } else if (R.size () < OPENSS_VIEW_FIELD_SIZE) {
+          R.resize (fieldsize);
+        } else if (R.size () < fieldsize) {
          // Lengthen the original string.
           std::string T;
-          T.resize ((OPENSS_VIEW_FIELD_SIZE - R.size ()), *" ");
+          T.resize ((fieldsize - R.size ()), *" ");
           R = T + R;
         }
       }
@@ -1638,15 +1675,17 @@ class CommandResult_Columns :
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
     for (coi = Columns.begin(); coi != Columns.end(); coi++) {
+     // column_widths allows support of dynamic field size.
+      int64_t use_fieldsize = (column_widths != NULL) ? column_widths[num_results] : fieldsize;
       if (num_results++ != 0) to << "  ";
       if ((*coi)->ValueIsNull() &&
           !((*coi)->IsValueID()) &&
           OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO) {
        // Avoid printing lots of meaningless "0" values - blank fill the field.
         to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
-           << std::setw(fieldsize) << " ";
+           << std::setw(use_fieldsize) << " ";
       } else {
-        (*coi)->Print (to, fieldsize, (num_results >= number_of_columns) ? true : false);
+        (*coi)->Print (to, use_fieldsize, (num_results >= number_of_columns) ? true : false);
       }
     }
 

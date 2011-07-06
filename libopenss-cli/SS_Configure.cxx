@@ -22,11 +22,14 @@
 // where is this include????    #include <libxml/xmlreader.h>
 
 int64_t OPENSS_VIEW_FIELD_SIZE = 24;
+int64_t OPENSS_VIEW_MAX_FIELD_SIZE = 4096;
 int64_t OPENSS_VIEW_PRECISION = 6;
+int64_t OPENSS_VIEW_DATE_TIME_PRECISION = 0;
 int64_t OPENSS_HISTORY_LIMIT = 100;
 int64_t OPENSS_HISTORY_DEFAULT = 24;
 int64_t OPENSS_MAX_ASYNC_COMMANDS = 20;
 int64_t OPENSS_HELP_LEVEL_DEFAULT = 1;
+bool    OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC = false;
 bool    OPENSS_VIEW_FULLPATH = false;
 bool    OPENSS_VIEW_ENTIRE_STRING = true;
 bool    OPENSS_VIEW_DEFINING_LOCATION = true;
@@ -104,15 +107,44 @@ void SS_Configure () {
 
   Add_Help (czar, "viewFieldSize", "an integer, preference",
             "Define the width of each field when the result "
-            "of an 'expView' command is printed.  The default is 20 columns.");
+            "of an 'expView' command is printed.  The default is 24 columns.");
   Ivalue = settings->readNumEntry(std::string("viewFieldSize"), OPENSS_VIEW_FIELD_SIZE, &ok);
   if (ok && (Ivalue >= 0)) OPENSS_VIEW_FIELD_SIZE = Ivalue;
+
+  Add_Help (czar, "viewMaxFieldSize", "an integer, preference",
+            "Define the maximum width of each field when the result "
+            "of an 'expView' command is printed.  Field width is flexible, "
+            "but a limit is needed for internal buffers. The default is 4096 characters.");
+  Ivalue = settings->readNumEntry(std::string("viewMaxFieldSize"), OPENSS_VIEW_MAX_FIELD_SIZE, &ok);
+  if (ok && (Ivalue >= 0)) OPENSS_VIEW_MAX_FIELD_SIZE = Ivalue;
 
   Add_Help (czar, "viewPrecision", "an integer, preference",
             "Define the precision used to format a floating point number when "
             "the result of an 'expView' command is printed.  The default is 6.");
   Ivalue = settings->readNumEntry(std::string("viewPrecision"), OPENSS_VIEW_PRECISION, &ok);
   if (ok && (Ivalue >= 0)) OPENSS_VIEW_PRECISION = Ivalue;
+
+  Add_Help (czar, "viewDateTimePrecision", "an integer, preference",
+            "Define the precision used to format a time value that is part of a Start or "
+            "End time displayed when the result of an 'expView' command is printed. "
+            "Valid values are \"0\" to \"9\" and control the number of decimal points of "
+            "accuracy displayed for fractions of a second. Since each value requires a "
+            "column in the output, the width of output fields, \"viewFieldSize\", will "
+            "be automatically increased when it is too small.  "
+            "The default is 0.");
+  Ivalue = settings->readNumEntry(std::string("viewDateTimePrecision"), OPENSS_VIEW_DATE_TIME_PRECISION, &ok);
+  if (ok && (Ivalue >= 0)) {
+   if (Ivalue < 0) {
+     Ivalue = 0;
+   } else if (Ivalue > 9) {
+     Ivalue = 9;
+   }
+   if (OPENSS_VIEW_FIELD_SIZE < (20 + Ivalue)) {
+    // Need to make fixed sized fields larger to accommodate decimal point and fraction.
+     OPENSS_VIEW_FIELD_SIZE = 20 + Ivalue;
+   }
+   OPENSS_VIEW_DATE_TIME_PRECISION = Ivalue;
+  }
 
   Add_Help (czar, "historyLimit", "an integer, preference",
             "Define the maximum number of commands that are remembered for the "
@@ -146,6 +178,14 @@ void SS_Configure () {
             "\nThe default is level 1, 'normal'.");
   Ivalue = settings->readNumEntry(std::string("helpLevelDefault"), OPENSS_HELP_LEVEL_DEFAULT, &ok);
   if (ok && (Ivalue >= 0)) OPENSS_HELP_LEVEL_DEFAULT = Ivalue;
+
+  Add_Help (czar, "viewDynamicFieldSize", "a boolean, preference",
+            "Declare whether or not the width of each column of ouput is "
+            "is dynamically determined by the minimum width actually required by the data, "
+            "or is fixed and determined by \"viewFieldSize\". "
+            "The default is false.");
+  Bvalue = settings->readBoolEntry(std::string("viewDynamicFieldSize"), OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC, &ok);
+  if (ok) OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC = Bvalue;
 
   Add_Help (czar, "viewFullPath", "a boolean, preference",
             "Declare whether or not a full path is displayed in place of "

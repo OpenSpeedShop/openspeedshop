@@ -33,11 +33,14 @@ enum OpenSpeedShop_Start_Modes {
 
 // User control over some of OpenSpeedShop's behavior.
 extern int64_t OPENSS_VIEW_FIELD_SIZE;
+extern int64_t OPENSS_VIEW_MAX_FIELD_SIZE;
 extern int64_t OPENSS_VIEW_PRECISION;
+extern int64_t OPENSS_VIEW_DATE_TIME_PRECISION;
 extern int64_t OPENSS_HISTORY_LIMIT;
 extern int64_t OPENSS_HISTORY_DEFAULT;
 extern int64_t OPENSS_MAX_ASYNC_COMMANDS;
 extern int64_t OPENSS_HELP_LEVEL_DEFAULT;
+extern bool    OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC;
 extern bool    OPENSS_VIEW_FULLPATH;
 extern bool    OPENSS_VIEW_ENTIRE_STRING;
 extern bool    OPENSS_VIEW_DEFINING_LOCATION;

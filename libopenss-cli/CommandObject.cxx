@@ -106,10 +106,41 @@ void CommandObject::Print (std::ostream &mystream) {
 // For printing the results to an Xterm Window.
 
 /**
+ * Utility: Min_Header_Column_width ()
+ *
+ * Scan a character string and determine the length of each
+ * word in an attempt to avoid splitting words when they
+ * are placed in a header field.
+ *
+ * @param  std::string, the one to scan.
+ *
+ * @return int64_t, the size of the largest blank seperated word.
+ *
+ */
+static inline int64_t Min_Header_Column_Width (std::string S) {
+  int64_t last_index = S.size() - 1;
+  int64_t max_word_size = 0;
+  int64_t current_word_size = 0;
+
+  for (int64_t i=0; i<last_index; i++) {
+    if (S[i] == *" ") {
+      if (current_word_size > max_word_size) {
+        max_word_size = current_word_size;
+      }
+      current_word_size = 0;
+      continue;
+    }
+    current_word_size++;
+  }
+
+  return (current_word_size > max_word_size) ? current_word_size : max_word_size;
+}
+
+/**
  * Utility: Break_At ()
  *
  * Scan a character string and determine how best to break it into
- * segments that will fit in an output field of length OPENSS_VIEW_FIELD_SIZE.
+ * segments that will fit in an output field of length use_columnsize.
  *
  * Breaks are prefered at spaces and the resulting substring
  * will ignore leading blanks when calculating the length.
@@ -120,7 +151,7 @@ void CommandObject::Print (std::ostream &mystream) {
  * @return int64_t, the selected end of the substring.
  *
  */
-static inline int64_t Break_At (std::string S, int64_t start) {
+static inline int64_t Break_At (std::string S, int64_t start, int64_t use_columnsize) {
   int64_t last_index = S.size() - 1;
   int64_t start_segment = start;
 
@@ -142,7 +173,7 @@ static inline int64_t Break_At (std::string S, int64_t start) {
       }
     }
 
-    if ((nextBreak - start_segment) > OPENSS_VIEW_FIELD_SIZE) {
+    if ((nextBreak - start_segment) > use_columnsize) {
      // Including the new segment will cause S.substr(start_segment,nextBreak)
      // to overflow the field.  Return the last segment - without trailing blanks.
       while ((end_segment > start_segment) &&
@@ -150,7 +181,7 @@ static inline int64_t Break_At (std::string S, int64_t start) {
         end_segment--;
       }
 
-      return ((start_segment == end_segment) ? (start + OPENSS_VIEW_FIELD_SIZE) : end_segment);
+      return ((start_segment == end_segment) ? (start + use_columnsize) : end_segment);
     }
 
     end_segment = nextBreak;
@@ -163,22 +194,22 @@ static inline int64_t Break_At (std::string S, int64_t start) {
  *
  * Scan a string and determine how many segments it should be
  * broken down into so that each one fits into a field of length
- * OPENSS_VIEW_FIELD_SIZE.
+ * use_columnsize.
  *
  * @param  std::string, the original string.
  *
  * @return int64_t the number of segments.
  *
  */
-static inline int64_t Count_Partitions(std::string S) {
+static inline int64_t Count_Partitions(std::string S, int64_t use_columnsize) {
   int64_t len = S.size();
-  if (len <= OPENSS_VIEW_FIELD_SIZE) {
+  if (len <= use_columnsize) {
     return 1;
   } else {
     int64_t cnt = 0;
     int64_t start_scan = 0;
     while (start_scan < len) {
-      start_scan = Break_At (S, start_scan) + 1;
+      start_scan = Break_At (S, start_scan, use_columnsize) + 1;
       cnt++;
     }
     return cnt;
@@ -189,7 +220,7 @@ static inline int64_t Count_Partitions(std::string S) {
  * Utility: Print_Header ()
  *
  * Format a CommandResult_Headers entry so that each column value fits within
- * a field of length OPENSS_VIEW_FIELD_SIZE.
+ * a field of length column_widths[] or OPENSS_VIEW_FIELD_SIZE.
  *
  * Each header is scanned to determine how many segments are required.
  * New CommandResult_Headers are created for the maximum number of segments.
@@ -205,10 +236,13 @@ static inline int64_t Count_Partitions(std::string S) {
  * @return void.
  *
  */
-static void Print_Header (std::ostream &to, std::string list_seperator, CommandResult *H) {
+static void Print_Header (std::ostream &to, std::string list_seperator,
+                          CommandResult *H, int64_t *column_widths) {
   std::list<CommandResult *> Headers;
   ((CommandResult_Headers *)H)->Value(Headers);
   int64_t len = Headers.size() - 1; // ignore right most header - it can be as long as it wants.
+
+ // Determine the maximum number of lines required for the headers.
   int64_t max_Breaks = 0;
   std::list<CommandResult *>::iterator hi = Headers.begin();
   for (int64_t i = 0; i < len; i++) {
@@ -220,14 +254,19 @@ static void Print_Header (std::ostream &to, std::string list_seperator, CommandR
       ((CommandResult_RawString *)next)->Value(next_str);
     }
     if (!next_str.empty()) {
-      max_Breaks = std::max(max_Breaks,Count_Partitions(next_str));
+      int64_t use_columnsize = (column_widths != NULL) ? column_widths[i] : OPENSS_VIEW_FIELD_SIZE;
+      max_Breaks = std::max(max_Breaks,Count_Partitions(next_str, use_columnsize));
     }
   }
+
   if (max_Breaks == 1) {
+    ((CommandResult_Headers *)H)->Add_Column_Widths(column_widths);
     H->Print(to, OPENSS_VIEW_FIELD_SIZE, true);
+    ((CommandResult_Headers *)H)->Add_Column_Widths(NULL);
   } else {
+   // Reformat each header, except the last, into the desired number of lines.
     std::vector<CommandResult_Headers> HL(max_Breaks);
-    std::list<CommandResult *>::iterator hi = Headers.begin();
+    hi = Headers.begin();
     for (int64_t i = 0; i < len; i++) {
       CommandResult *next = *hi++;
       std::string next_str;
@@ -239,7 +278,8 @@ static void Print_Header (std::ostream &to, std::string list_seperator, CommandR
       int64_t next_len = next_str.size();
       int64_t nextH = 0;
       int64_t start_scan = 0;
-
+      int64_t use_columnsize = (column_widths != NULL) ? column_widths[i] : OPENSS_VIEW_FIELD_SIZE;
+  
       while (start_scan < next_len) {
 
        // Skip over any leading blanks, since Break_At does the same.
@@ -248,8 +288,8 @@ static void Print_Header (std::ostream &to, std::string list_seperator, CommandR
           start_scan++;
         }
 
-        int64_t next_scan = Break_At (next_str, start_scan) + 1;
-        //Assert ((next_scan - start_scan) <= OPENSS_VIEW_FIELD_SIZE);
+        int64_t next_scan = Break_At (next_str, start_scan, use_columnsize) + 1;
+        //Assert ((next_scan - start_scan) <= use_columnsize);
         HL[nextH++].Add_Header(new CommandResult_String(next_str.substr(start_scan,(next_scan - start_scan))));
         start_scan = next_scan;
       }
@@ -258,7 +298,7 @@ static void Print_Header (std::ostream &to, std::string list_seperator, CommandR
       }
     }
 
-   // Attach right most header to end of first re-write
+   // Attach right most header to end of first line of the re-write list
    // and put dummy strings at the end of all the other re-writes.
     HL[0].Add_Header (Headers.back()->Copy());
     for (int64_t BreakNum = 1; BreakNum < max_Breaks; BreakNum++) {
@@ -267,13 +307,16 @@ static void Print_Header (std::ostream &to, std::string list_seperator, CommandR
 
    // Now we can print the re-formatted headers.
     for (int64_t BreakNum = 0; BreakNum < max_Breaks; BreakNum++) {
+      HL[BreakNum].Add_Column_Widths(column_widths);
       HL[BreakNum].Print(to, OPENSS_VIEW_FIELD_SIZE, true);
+      HL[BreakNum].Add_Column_Widths(NULL);
       if ((BreakNum + 1) < max_Breaks) {
        // Start next header line at left margin.
         to << list_seperator;
       }
     }
   }
+
 }
 
 /**
@@ -310,8 +353,72 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
     return true;
   }
 
- // Print the result information
+ // Determine the required width of each column.
+  int64_t num_columns = 1;
   std::list<CommandResult *>::iterator cri = cmd_result.begin();
+  for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
+    if ((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) {
+      int64_t cnt = 0;
+      ((CommandResult_Headers *)(*cri))->Value(cnt);
+      num_columns = std::max (num_columns, cnt);
+      break; // Yes, we are assuming there is only 1 header associated with each view.
+    } else if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES) {
+      int64_t cnt = 0;
+      ((CommandResult_Columns *)(*cri))->Value(cnt);
+      num_columns = std::max (num_columns, cnt);
+    } else if ((*cri)->Type() == CMD_RESULT_COLUMN_ENDER) {
+      int64_t cnt = 0;
+      ((CommandResult_Enders *)(*cri))->Value(cnt);
+      num_columns = std::max (num_columns, cnt);
+    }
+  }
+  int64_t Column_Width[num_columns];
+  if (num_columns > 0) {
+   // Initialize column width to defaults.
+    for (int64_t i = 0; i < num_columns; i++) {
+      Column_Width[i] = (OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC ? 0 : OPENSS_VIEW_FIELD_SIZE);
+    }
+
+    if (OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC) {
+     // Need to look at every value in each column.
+      std::list<CommandResult *>::iterator cri = cmd_result.begin();
+      for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
+        if ( ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES) ||
+             ((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) ||
+             ((*cri)->Type() == CMD_RESULT_COLUMN_ENDER) ) {
+          CommandResult *V = (*cri);
+          std::list<CommandResult *> cr;
+          ((CommandResult_Columns *)(*cri))->Value(cr);
+          std::list<CommandResult *>::iterator coi = cr.begin();
+          int64_t num_results = 0;
+          for (num_results = 0, coi = cr.begin();
+               ((num_results < num_columns) && (coi != cr.end()));
+               num_results++,  coi++) {
+            std::string F = (*coi)->Form();
+            int64_t min_size = 0;
+            if ((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) {
+              min_size = Min_Header_Column_Width (F);
+            } else {
+              min_size = F.length();
+            }
+            int64_t leading_blank_cnt = 0;
+            for (int64_t j=0; j < min_size; j++) {
+              if (F.substr(j,1) == " ") {
+                leading_blank_cnt++;
+              } else break;
+            }
+            min_size -= leading_blank_cnt;
+            if (min_size > Column_Width[num_results]) {
+              Column_Width[num_results] = min_size;
+            }
+          }
+        }
+      }
+    }
+  }
+
+ // Print the result information
+  cri = cmd_result.begin();
   if  (cri != cmd_result.end()) {
     if (((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) ||
          (++cri != cmd_result.end())) {
@@ -324,7 +431,15 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
       if ((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) {
        // Special processing required, because the headers
        // may need multiple lines.
-        Print_Header (to, list_seperator, *cri);
+        Print_Header (to, list_seperator, *cri, Column_Width);
+      } else if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES) {
+        ((CommandResult_Columns *)(*cri))->Add_Column_Widths(Column_Width);
+        (*cri)->Print (to, OPENSS_VIEW_FIELD_SIZE, true);
+        ((CommandResult_Columns *)(*cri))->Add_Column_Widths(NULL);
+      } else if ((*cri)->Type() == CMD_RESULT_COLUMN_ENDER) {
+        ((CommandResult_Enders *)(*cri))->Add_Column_Widths(Column_Width);
+        (*cri)->Print (to, OPENSS_VIEW_FIELD_SIZE, true);
+        ((CommandResult_Enders *)(*cri))->Add_Column_Widths(NULL);
       } else {
         (*cri)->Print (to, OPENSS_VIEW_FIELD_SIZE, true);
       }
@@ -340,7 +455,7 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
         }
       }
 
-     // Check for asnychonous abort command
+     // Check for asynchonous abort command
       if (Cmd_Status == CMD_ABORTED) {
         break;
       }
