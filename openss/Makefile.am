@@ -196,7 +196,7 @@ osswrapper_LDFLAGS = \
 osswrapper_LDADD = \
 	$(LIBLTDL) \
         @DYNINST_LIBS@ \
-        @LIBDWARF_LDFLAGS@ 
+        @LIBDWARF_LIBS@ 
 
 osswrapper_SOURCES = \
 	osswrapper.cxx
