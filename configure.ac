@@ -18,7 +18,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-AC_INIT(OpenSpeedShop, 2.0.1_beta6)
+AC_INIT(OpenSpeedShop, 2.0.1_beta7)
 AC_COPYRIGHT([[Copyright (c) 2006-2011 Krell Institute. All Rights Reserved.]])
 AC_CONFIG_AUX_DIR([libltdl/config])
 AM_INIT_AUTOMAKE
@@ -415,6 +415,7 @@ case "$INSTRUMENTOR" in
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
 	AM_CONDITIONAL(HAVE_MRNET, false)
+	AM_CONDITIONAL(HAVE_DYNINST, false)
 	AM_CONDITIONAL(BUILD_INSTRUMENTOR, false)
 	AC_DEFINE(BUILD_INSTRUMENTOR, 0, [Define to 1 if you do not want an instrumentor built.])
 	;; 
@@ -442,6 +443,7 @@ case "$INSTRUMENTOR" in
 
     offline)
 	AM_CONDITIONAL(BUILD_DPCL, false)
+	AM_CONDITIONAL(HAVE_DYNINST, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
 	AM_CONDITIONAL(HAVE_MRNET, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, true)

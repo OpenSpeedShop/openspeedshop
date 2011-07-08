@@ -379,17 +379,19 @@ AC_DEFUN([AC_PKG_DYNINST], [
 	#include <BPatch.h>
         ]], [[
 	BPatch bpatch();
-        ]]), [ AC_MSG_RESULT(yes) 
-               AM_CONDITIONAL(HAVE_DYNINST, true)
-               AC_DEFINE(HAVE_DYNINST, 1, [Define to 1 if you have Dyninst.])
-
+        ]]), 
+        [  AC_MSG_RESULT(yes) 
+           AM_CONDITIONAL(HAVE_DYNINST, true)
+           AC_DEFINE(HAVE_DYNINST, 1, [Define to 1 if you have Dyninst.])
         ],
         [ AC_MSG_RESULT(no)
           AM_CONDITIONAL(HAVE_DYNINST, false)
-
-	# for offline only builds, dyninst is not installed.
-	# do not die.
-        #AC_MSG_FAILURE(cannot locate Dyninst API library and/or headers.) ]
+          DYNINST_CPPFLAGS=""
+          DYNINST_LDFLAGS=""
+          DYNINST_LIBS=""
+          DYNINST_DIR=""
+          DYNINST_VERS=""
+        ]
     )
 
     CPPFLAGS=$dyninst_saved_CPPFLAGS
@@ -434,19 +436,18 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
         #include <libunwind.h>
         ]], [[
         unw_init_local((void*)0, (void*)0);
-        ]]), [ AC_MSG_RESULT(yes)
-
+        ]]), 
+        [   AC_MSG_RESULT(yes)
             AM_CONDITIONAL(HAVE_LIBUNWIND, true)
             AC_DEFINE(HAVE_LIBUNWIND, 1, [Define to 1 if you have libunwind.])
 
-        ], [ AC_MSG_RESULT(no)
-
+        ], 
+        [   AC_MSG_RESULT(no)
             AM_CONDITIONAL(HAVE_LIBUNWIND, false)
             LIBUNWIND_CPPFLAGS=""
             LIBUNWIND_LDFLAGS=""
             LIBUNWIND_LIBS=""
             LIBUNWIND_DIR=""
-
         ]
     )
 
