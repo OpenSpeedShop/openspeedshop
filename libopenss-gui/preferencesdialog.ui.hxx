@@ -126,6 +126,12 @@ void PreferencesDialog::readPreferencesOnEntry()
 
   showGraphicsCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/showGraphics") );
+
+  viewDateTimePrecision =
+    settings->readNumEntry("/openspeedshop/general/viewDateTimePrecision");
+
+  viewFieldSizeIsDynamicCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/viewFieldSizeIsDynamic") );
 }
 
 void PreferencesDialog::resetPreferenceDefaults()
@@ -183,6 +189,10 @@ void PreferencesDialog::resetPreferenceDefaults()
    lessRestrictiveComparisonsCheckBox->setChecked(lessRestrictiveComparisons);
    viewBlankInPlaceOfZero = TRUE;
    viewBlankInPlaceOfZeroCheckBox->setChecked(viewBlankInPlaceOfZero);
+   viewDateTimePrecision = 3;
+   viewDateTimePrecisionLineEdit->setText(QString("%1").arg(viewDateTimePrecision));
+   viewFieldSizeIsDynamic = TRUE;
+   viewFieldSizeIsDynamicCheckBox->setChecked(viewFieldSizeIsDynamic);
 
 
   // Begin reset all preferences to defaults
@@ -290,12 +300,14 @@ void PreferencesDialog::applyPreferences()
   globalRemoteShell = remoteShellEdit->text();
 
 { // cli specific prefrences
+  extern int64_t OPENSS_VIEW_DATE_TIME_PRECISION;
   extern int64_t OPENSS_VIEW_FIELD_SIZE;
   extern int64_t OPENSS_VIEW_PRECISION;
   extern int64_t OPENSS_HISTORY_LIMIT;
   extern int64_t OPENSS_HISTORY_DEFAULT;
   extern int64_t OPENSS_MAX_ASYNC_COMMANDS;
   extern int64_t OPENSS_HELP_LEVEL_DEFAULT;
+  extern bool    OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC;
   extern bool    OPENSS_VIEW_FULLPATH;
   extern bool    OPENSS_SAVE_EXPERIMENT_DATABASE;
   extern bool    OPENSS_ASK_ABOUT_CHANGING_ARGS;
@@ -330,6 +342,7 @@ void PreferencesDialog::applyPreferences()
     viewBlankInPlaceOfZeroCheckBox->isChecked();
   OPENSS_VIEW_FULLPATH =
     viewFullPathCheckBox->isChecked();
+  OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC = viewFieldSizeIsDynamicCheckBox->isChecked();
   OPENSS_HELP_LEVEL_DEFAULT = helpLevelDefaultLineEdit->text().toInt();
   OPENSS_MAX_ASYNC_COMMANDS = maxAsyncCommandsLineEdit->text().toInt();
   if(  OPENSS_MAX_ASYNC_COMMANDS <= 0 )
@@ -343,6 +356,7 @@ void PreferencesDialog::applyPreferences()
   OPENSS_HISTORY_LIMIT = historyLimitLineEdit->text().toInt();
   OPENSS_VIEW_PRECISION = viewPrecisionLineEdit->text().toInt();
   OPENSS_VIEW_FIELD_SIZE = viewFieldSizeLineEdit->text().toInt();
+  OPENSS_VIEW_DATE_TIME_PRECISION = viewDateTimePrecisionLineEdit->text().toInt();
 } // cli specific preferences
 
 
@@ -409,6 +423,11 @@ void PreferencesDialog::savePreferences()
     printf("Unable to write showGraphics.\n");
   }
 
+  if( !settings->writeEntry("/openspeedshop/general/viewDateTimePrecision", viewDateTimePrecisionLineEdit->text() ) )
+  {
+    printf("Unable to write viewDateTimePrecision.\n");
+  }
+
   if( !settings->writeEntry("/openspeedshop/general/viewFieldSize", viewFieldSizeLineEdit->text() ) )
   {
     printf("Unable to write viewFieldSize.\n");
@@ -437,6 +456,11 @@ void PreferencesDialog::savePreferences()
   if( !settings->writeEntry("/openspeedshop/general/helpLevelDefault", helpLevelDefaultLineEdit->text() ) )
   {
     printf("Unable to write helpLevelDefault.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/viewFieldSizeIsDynamic", viewFieldSizeIsDynamicCheckBox->isChecked() ) )
+  {
+    printf("Unable to write viewFieldSizeIsDynamic.\n");
   }
 
   if( !settings->writeEntry( "/openspeedshop/general/viewFullPath", viewFullPathCheckBox->isChecked() ) )

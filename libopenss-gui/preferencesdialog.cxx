@@ -62,6 +62,10 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    globalFontWeight = QFont::Normal;
    globalFontItalic = FALSE;
 
+   // For the views 
+   viewDateTimePrecision = 3;
+   viewFieldSizeIsDynamic = TRUE;
+
    viewFieldSize = 20; 
    viewPrecision = 6; 
    historyLimit = 100; 
@@ -435,6 +439,26 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     rightSideLayout->addWidget( viewBlankInPlaceOfZeroCheckBox );
     }
 
+    { // DYNAMICALLY ADJUST VIEW FIELD SIZE
+    viewFieldSizeIsDynamicCheckBox = new QCheckBox( vpage0big_box, "viewFieldSizeIsDynamicCheckBox" );
+    viewFieldSizeIsDynamicCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, viewFieldSizeIsDynamicCheckBox->sizePolicy().hasHeightForWidth() ) );
+    viewFieldSizeIsDynamicCheckBox->setChecked( TRUE );
+    viewFieldSizeIsDynamicCheckBox->setText( tr( "Dynamically Adjust View Field Size To Data Size" ) );
+    rightSideLayout->addWidget( viewFieldSizeIsDynamicCheckBox );
+    }
+
+    { // VIEW_DATE TIME PRECISION - for I/O MPI -v trace type displays
+    viewDateTimePrecisionLayout = new QHBoxLayout( 0, 0, 6, "viewDateTimePrecisionLayout");
+    viewDateTimePrecisionLabel = new QLabel( vpage0big_box, "viewDateTimePrecisionLabel" );
+    viewDateTimePrecisionLabel->setText("Start/End Time view field size extension:");
+    viewDateTimePrecisionLayout->addWidget( viewDateTimePrecisionLabel );
+    viewDateTimePrecisionLineEdit = new QLineEdit( vpage0big_box, "viewDateTimePrecisionLineEdit" );
+    viewDateTimePrecisionLineEdit->setText("123");
+    viewDateTimePrecisionLineEdit->setValidator( new QIntValidator( 1, 99999, viewDateTimePrecisionLineEdit ) );
+    viewDateTimePrecisionLayout->addWidget( viewDateTimePrecisionLineEdit );
+    rightSideLayout->addLayout( viewDateTimePrecisionLayout );
+    }
+
 
     generalStackPageLayout->addWidget( vpage0sv );
     stack->addWidget( generalStackPage, 0 );
@@ -464,6 +488,10 @@ void PreferencesDialog::languageChange()
   setShowSplashScreenCheckBox->setChecked( TRUE );
 
   showGraphicsCheckBox->setChecked(FALSE);
+
+  viewDateTimePrecisionLineEdit->setText( QString("%1").arg(viewDateTimePrecision) );
+  QToolTip::add(viewDateTimePrecisionLineEdit,
+                tr("Define the width of the field used for date and time displays when\nan 'expView' command is printed.  The default is 3 (display millisecond). A setting of 6 would display microseconds") );
 
   viewFieldSizeLineEdit->setText( QString("%1").arg(viewFieldSize) );
   QToolTip::add(viewFieldSizeLineEdit,
@@ -501,6 +529,9 @@ void PreferencesDialog::languageChange()
   QToolTip::add(askAboutChangingArgsCheckBox,
                 tr("When rerunning an experiment, pop up a dialog box that allows the application arguments to be changed") );
 
+  viewFieldSizeIsDynamicCheckBox->setChecked(viewFieldSizeIsDynamic);
+  QToolTip::add(viewFieldSizeIsDynamicCheckBox,
+                tr("When displaying data, dynamically compute the size of the display field required to place the data into.\nThis may cost a bit more time for display but keeps the display more compact.") );
 
   askAboutSavingTheDatabaseCheckBox->setChecked(askAboutSavingTheDatabase);
   QToolTip::add(askAboutChangingArgsCheckBox,

@@ -88,6 +88,9 @@ QString globalRemoteShell;
     int globalFontWeight;
     bool globalFontItalic;
 
+    int viewDateTimePrecision;
+    bool viewFieldSizeIsDynamic;
+
     int viewFieldSize;
     int viewPrecision; 
     int historyLimit; 
@@ -128,6 +131,11 @@ protected:
     QVBoxLayout* generalStackPageLayout_4;
     QHBoxLayout* preferenceDialogWidgetStackLayout;
     QSpacerItem* Horizontal_Spacing2;
+
+    QHBoxLayout *viewDateTimePrecisionLayout;
+      QLabel *viewDateTimePrecisionLabel;
+      QLineEdit *viewDateTimePrecisionLineEdit;
+    QCheckBox *viewFieldSizeIsDynamicCheckBox;
 
     QHBoxLayout *viewFieldSizeLayout;
       QLabel *viewFieldSizeLabel;
