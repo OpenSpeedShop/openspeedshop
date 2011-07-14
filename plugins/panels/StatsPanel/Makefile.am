@@ -64,6 +64,8 @@ StatsPanel_la_SOURCES = \
 	moc_ChooseExperimentDialog.cxx  \
 	OptionalViewsDialog.hxx OptionalViewsDialog.cxx \
 	moc_OptionalViewsDialog.cxx  \
+	SourcePanelAnnotationDialog.hxx SourcePanelAnnotationDialog.cxx \
+	moc_SourcePanelAnnotationDialog.cxx  \
 	StatsPanel.hxx StatsPanel.cxx moc_StatsPanel.cxx \
 	SPTextEdit.hxx SPTextEdit.cxx moc_SPTextEdit.cxx \
 	local_plugin_info.hxx \
@@ -81,6 +83,9 @@ moc_StatsPanel.cxx: StatsPanel.hxx
 moc_OptionalViewsDialog.cxx: OptionalViewsDialog.hxx OptionalViewsDialog.cxx
 	-$(QTLIB_HOME)/bin/moc -o moc_OptionalViewsDialog.cxx OptionalViewsDialog.hxx
 
+moc_SourcePanelAnnotationDialog.cxx: SourcePanelAnnotationDialog.hxx SourcePanelAnnotationDialog.cxx
+	-$(QTLIB_HOME)/bin/moc -o moc_SourcePanelAnnotationDialog.cxx SourcePanelAnnotationDialog.hxx
+
 moc_ChooseExperimentDialog.cxx: ChooseExperimentDialog.hxx ChooseExperimentDialog.cxx
 	-$(QTLIB_HOME)/bin/moc -o moc_ChooseExperimentDialog.cxx ChooseExperimentDialog.hxx
 
@@ -92,5 +97,6 @@ CLEANFILES = \
 	moc_SPCheckBox.cxx \
 	moc_StatsPanel.cxx \
 	moc_OptionalViewsDialog.cxx \
+	moc_SourcePanelAnnotationDialog.cxx \
 	moc_ChooseExperimentDialog.cxx \
 	moc_SPTextEdit.cxx

@@ -54,13 +54,16 @@ extern "C"
   QCheckBox* focusSourcePanelCheckBox;
 
   QHBoxLayout* layoutTopN;
+  QHBoxLayout* layoutTopNTrace;
   QHBoxLayout* layoutTopNChart;
 
   QLabel* levelsToOpenTextLabel;
   QLineEdit* levelsToOpenLineEdit;
 
   QLabel* showTopNTextLabel;
+  QLabel* showTopNTraceTextLabel;
   QLineEdit* showTopNLineEdit;
+  QLineEdit* showTopNTraceLineEdit;
 
   QLabel* showTopNChartTextLabel;
   QLineEdit* showTopNChartLineEdit;
@@ -116,6 +119,12 @@ extern "C"
   {
 // printf("getPreferenceTopNLineEdit(%s)\n", pname);
     return( showTopNLineEdit->text() );
+  }
+
+  QString getPreferenceTopNTraceLineEdit()
+  {
+// printf("getPreferenceTopNTraceLineEdit(%s)\n", pname);
+    return( showTopNTraceLineEdit->text() );
   }
 
   QString getPreferenceTopNChartLineEdit()
@@ -194,6 +203,7 @@ extern "C"
     focusSourcePanelCheckBox->setChecked(FALSE);
     levelsToOpenLineEdit->setText( "-1" );
     showTopNLineEdit->setText( "100" );
+    showTopNTraceLineEdit->setText( "1000000" );
     showTopNChartLineEdit->setText( "5" );
     showColumnToSortLineEdit->setText( "0" );
     showTextInChartCheckBox->setChecked(TRUE);
@@ -254,6 +264,19 @@ extern "C"
     layoutTopN->addWidget( showTopNLineEdit );
 
     layout8->addLayout( layoutTopN );
+
+    layoutTopNTrace = new QHBoxLayout( 0, 0, 6, "layoutTopN");
+
+    showTopNTraceTextLabel =
+      new QLabel( statsPanelGroupBox, "showTopNTraceTextLabel" );
+    layoutTopNTrace->addWidget( showTopNTraceTextLabel );
+
+    showTopNTraceLineEdit =
+      new QLineEdit( statsPanelGroupBox, "showTopNTraceLineEdit" );
+
+    layoutTopNTrace->addWidget( showTopNTraceLineEdit );
+
+    layout8->addLayout( layoutTopNTrace );
 
     layoutTopNChart = new QHBoxLayout( 0, 0, 6, "layoutTopNChart");
 
@@ -375,6 +398,7 @@ extern "C"
     focusSourcePanelCheckBox->setText( "Focus Source Panel" );
     levelsToOpenTextLabel->setText( "Open this many levels in display:" );
     showTopNTextLabel->setText( "Show top N items in list:" );
+    showTopNTraceTextLabel->setText( "Show top N trace related items in list:" );
     showTopNChartTextLabel->setText( "Show top N items in chart:" );
     showColumnToSortTextLabel->setText( "Column to sort:" );
     showTextInChartCheckBox->setText( "Show text in chart:" );
@@ -411,6 +435,11 @@ extern "C"
         "openspeedshop", name, showTopNLineEdit->name() );
       showTopNLineEdit->setText(
         settings->readEntry(settings_buffer, "100") );
+
+      sprintf(settings_buffer, "/%s/%s/%s",
+        "openspeedshop", name, showTopNTraceLineEdit->name() );
+      showTopNTraceLineEdit->setText(
+        settings->readEntry(settings_buffer, "1000000") );
 
       sprintf(settings_buffer, "/%s/%s/%s",
         "openspeedshop", name, showTopNChartLineEdit->name() );
@@ -476,9 +505,13 @@ extern "C"
     }
 
     QToolTip::add(showTopNLineEdit,
-      "Define the top number of statistic entries to display.\nTo show all entries set to -1 or blank the field.  The default is 10." );
+      "Define the top number of statistic entries to display.\nTo show all entries set to -1 or blank the field.  The default is 100." );
+
     QToolTip::add(showTopNChartLineEdit,
       "Define the top number of entries to display in the graphic.\nThe default is 5.");
+
+    QToolTip::add(showTopNTraceLineEdit,
+      "Define the top number of statistic entries for trace output to display.\nTo show all entries set to -1 or blank the field.  The default is 1000000." );
 
     return statsPanelStackPage;
   }
@@ -502,10 +535,13 @@ extern "C"
       "openspeedshop", name, focusSourcePanelCheckBox->name() );
     settings->writeEntry(settings_buffer, focusSourcePanelCheckBox->isChecked() );
 
-
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showTopNLineEdit->name() );
     settings->writeEntry(settings_buffer, showTopNLineEdit->text() );
+
+    sprintf(settings_buffer, "/%s/%s/%s",
+      "openspeedshop", name, showTopNTraceLineEdit->name() );
+    settings->writeEntry(settings_buffer, showTopNTraceLineEdit->text() );
 
     sprintf(settings_buffer, "/%s/%s/%s",
       "openspeedshop", name, showTopNChartLineEdit->name() );

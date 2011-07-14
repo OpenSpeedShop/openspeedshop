@@ -79,6 +79,7 @@
 #include "clear_auxiliary.xpm"
 #include "timeSegment.xpm"
 #include "optional_views_icon.xpm"
+#include "sourceAnnotation_icon.xpm"
 #include "hotcallpath_icon.xpm"
 
 class MetricHeaderInfo;
@@ -257,6 +258,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   timeSegmentDialog = NULL;;
 #if OPTIONAL_VIEW
   optionalViewsDialog = NULL;;
+  sourcePanelAnnotationDialog = NULL;;
 #endif
   chooseExperimentDialog = NULL;;
 
@@ -2961,6 +2963,290 @@ StatsPanel::updateCurrentModifierList( std::list<std::string> genericModifierLis
 
 
 #if OPTIONAL_VIEW
+
+void
+StatsPanel::sourcePanelAnnotationCreationSelected()
+{
+#ifdef DEBUG_StatsPanel
+ printf("StatsPanel::sourcePanelAnnotationCreationSelected, WE have a sourcePanelAnnotationDialog=%d\n", sourcePanelAnnotationDialog);
+ printf("StatsPanel::sourcePanelAnnotationCreationSelected, currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
+#endif
+
+  if( sourcePanelAnnotationDialog == NULL ) {
+    sourcePanelAnnotationDialog = new SourcePanelAnnotationDialog(getPanelContainer()->getMainWindow(), "Source Panel Annotation Views Creation:", currentCollectorStr, &current_list_of_iot_modifiers);
+    sourcePanelAnnotationDialog->show();
+  } else {
+
+#ifdef DEBUG_StatsPanel
+      printf("WE have a sourcePanelAnnotationDialog=%d\n", sourcePanelAnnotationDialog);
+#endif
+      sourcePanelAnnotationDialog->show();
+  } 
+
+    if( sourcePanelAnnotationDialog->exec() == QDialog::Accepted ) { 
+
+     if( currentCollectorStr == "pcsamp" ) {
+
+      // Generate the list of pcsamp modifiers
+      generatePCSAMPmodifiers();
+
+      std::map<std::string, bool> pcsamp_desired_list;
+      pcsamp_desired_list.clear();
+      pcsamp_desired_list.insert(std::pair<std::string,int>("pcsamp::time",sourcePanelAnnotationDialog->pcsamp_time));
+      pcsamp_desired_list.insert(std::pair<std::string,int>("pcsamp::percent",sourcePanelAnnotationDialog->pcsamp_percent));
+      pcsamp_desired_list.insert(std::pair<std::string,int>("pcsamp::ThreadAverage",sourcePanelAnnotationDialog->pcsamp_ThreadAverage));
+      pcsamp_desired_list.insert(std::pair<std::string,int>("pcsamp::ThreadMin",sourcePanelAnnotationDialog->pcsamp_ThreadMin));
+      pcsamp_desired_list.insert(std::pair<std::string,int>("pcsamp::ThreadMax",sourcePanelAnnotationDialog->pcsamp_ThreadMax));
+
+      updateCurrentModifierList(list_of_pcsamp_modifiers, &current_list_of_pcsamp_modifiers, pcsamp_desired_list);
+
+     }else if( currentCollectorStr == "usertime" ) {
+      // Generate the list of usertime modifiers
+      generateUSERTIMEmodifiers();
+
+      std::map<std::string, bool> usertime_desired_list;
+      usertime_desired_list.clear();
+      usertime_desired_list.insert(std::pair<std::string,int>("usertime::exclusive_times",sourcePanelAnnotationDialog->usertime_exclusive_times));
+      usertime_desired_list.insert(std::pair<std::string,int>("usertime::inclusive_times",sourcePanelAnnotationDialog->usertime_inclusive_times));
+      usertime_desired_list.insert(std::pair<std::string,int>("usertime::percent",sourcePanelAnnotationDialog->usertime_percent));
+      usertime_desired_list.insert(std::pair<std::string,int>("usertime::count",sourcePanelAnnotationDialog->usertime_count));
+      usertime_desired_list.insert(std::pair<std::string,int>("usertime::ThreadAverage",sourcePanelAnnotationDialog->usertime_ThreadAverage));
+      usertime_desired_list.insert(std::pair<std::string,int>("usertime::ThreadMin",sourcePanelAnnotationDialog->usertime_ThreadMin));
+      usertime_desired_list.insert(std::pair<std::string,int>("usertime::ThreadMax",sourcePanelAnnotationDialog->usertime_ThreadMax));
+      updateCurrentModifierList(list_of_usertime_modifiers, &current_list_of_usertime_modifiers, usertime_desired_list);
+
+     }else if( currentCollectorStr == "hwc" ) {
+
+      // Generate the list of hwc modifiers
+      generateHWCmodifiers();
+
+      std::map<std::string, bool> hwc_desired_list;
+
+      hwc_desired_list.clear();
+      hwc_desired_list.insert(std::pair<std::string,int>("hwc::overflows",sourcePanelAnnotationDialog->hwc_overflows));
+      hwc_desired_list.insert(std::pair<std::string,int>("hwc::counts",sourcePanelAnnotationDialog->hwc_counts));
+      hwc_desired_list.insert(std::pair<std::string,int>("hwc::percent",sourcePanelAnnotationDialog->hwc_percent));
+      hwc_desired_list.insert(std::pair<std::string,int>("hwc::ThreadAverage",sourcePanelAnnotationDialog->hwc_ThreadAverage));
+      hwc_desired_list.insert(std::pair<std::string,int>("hwc::ThreadMin",sourcePanelAnnotationDialog->hwc_ThreadMin));
+      hwc_desired_list.insert(std::pair<std::string,int>("hwc::ThreadMax",sourcePanelAnnotationDialog->hwc_ThreadMax));
+
+      updateCurrentModifierList(list_of_hwc_modifiers, &current_list_of_hwc_modifiers, hwc_desired_list);
+
+     }else if( currentCollectorStr == "hwcsamp" ) {
+
+      // Generate the list of hwcsamp modifiers
+      generateHWCSAMPmodifiers();
+
+      std::map<std::string, bool> hwcsamp_desired_list;
+      hwcsamp_desired_list.clear();
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::time",sourcePanelAnnotationDialog->hwcsamp_time));
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::allEvents",sourcePanelAnnotationDialog->hwcsamp_allEvents));
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::percent",sourcePanelAnnotationDialog->hwcsamp_percent));
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::ThreadAverage",sourcePanelAnnotationDialog->hwcsamp_ThreadAverage));
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::ThreadMin",sourcePanelAnnotationDialog->hwcsamp_ThreadMin));
+      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::ThreadMax",sourcePanelAnnotationDialog->hwcsamp_ThreadMax));
+
+      updateCurrentModifierList(list_of_hwcsamp_modifiers, &current_list_of_hwcsamp_modifiers, hwcsamp_desired_list);
+
+     }else if( currentCollectorStr == "hwctime" ) {
+
+      // Generate the list of hwctime modifiers
+      generateHWCTIMEmodifiers();
+
+      std::map<std::string, bool> hwctime_desired_list;
+      hwctime_desired_list.clear();
+      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::exclusive_counts",sourcePanelAnnotationDialog->hwctime_exclusive_counts));
+      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::exclusive_overflows",sourcePanelAnnotationDialog->hwctime_exclusive_overflows));
+      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::inclusive_overflows",sourcePanelAnnotationDialog->hwctime_inclusive_overflows));
+      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::inclusive_counts",sourcePanelAnnotationDialog->hwctime_inclusive_counts));
+      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::percent",sourcePanelAnnotationDialog->hwctime_percent));
+      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::ThreadAverage",sourcePanelAnnotationDialog->hwctime_ThreadAverage));
+      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::ThreadMin",sourcePanelAnnotationDialog->hwctime_ThreadMin));
+      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::ThreadMax",sourcePanelAnnotationDialog->hwctime_ThreadMax));
+
+      updateCurrentModifierList(list_of_hwctime_modifiers, &current_list_of_hwctime_modifiers, hwctime_desired_list);
+
+     }else if( currentCollectorStr == "io" ) {
+
+#ifdef DEBUG_StatsPanel
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, io, The user hit accept.\n");
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->io_exclusive_times=%d\n", sourcePanelAnnotationDialog->io_exclusive_times);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->io_min=%d\n", sourcePanelAnnotationDialog->io_min);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->io_percent=%d\n", sourcePanelAnnotationDialog->io_percent);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->io_average=%d\n", sourcePanelAnnotationDialog->io_average);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->io_count=%d\n", sourcePanelAnnotationDialog->io_count);
+#endif
+
+      // Generate the list of io modifiers
+      generateIOmodifiers();
+
+      std::map<std::string, bool> io_desired_list;
+      io_desired_list.clear();
+      io_desired_list.insert(std::pair<std::string,int>("io::exclusive_times",sourcePanelAnnotationDialog->io_exclusive_times));
+      io_desired_list.insert(std::pair<std::string,int>("min",sourcePanelAnnotationDialog->io_min));
+      io_desired_list.insert(std::pair<std::string,int>("max",sourcePanelAnnotationDialog->io_max));
+      io_desired_list.insert(std::pair<std::string,int>("average",sourcePanelAnnotationDialog->io_average));
+      io_desired_list.insert(std::pair<std::string,int>("count",sourcePanelAnnotationDialog->io_count));
+      io_desired_list.insert(std::pair<std::string,int>("percent",sourcePanelAnnotationDialog->io_percent));
+      io_desired_list.insert(std::pair<std::string,int>("stddev",sourcePanelAnnotationDialog->io_stddev));
+      io_desired_list.insert(std::pair<std::string,int>("ThreadAverage",sourcePanelAnnotationDialog->io_ThreadAverage));
+      io_desired_list.insert(std::pair<std::string,int>("ThreadMin",sourcePanelAnnotationDialog->io_ThreadMin));
+      io_desired_list.insert(std::pair<std::string,int>("ThreadMax",sourcePanelAnnotationDialog->io_ThreadMax));
+
+      updateCurrentModifierList(list_of_io_modifiers, &current_list_of_io_modifiers, io_desired_list);
+
+     }else if( currentCollectorStr == "iot" ) {
+
+#ifdef DEBUG_StatsPanel
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, The user hit accept.\n");
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_exclusive_times=%d\n", sourcePanelAnnotationDialog->iot_exclusive_times);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_inclusive_times=%d\n", sourcePanelAnnotationDialog->iot_inclusive_times);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_min=%d\n", sourcePanelAnnotationDialog->iot_min);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_max=%d\n", sourcePanelAnnotationDialog->iot_max);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_average=%d\n", sourcePanelAnnotationDialog->iot_average);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_count=%d\n", sourcePanelAnnotationDialog->iot_count);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_percent=%d\n", sourcePanelAnnotationDialog->iot_percent);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_stddev=%d\n", sourcePanelAnnotationDialog->iot_stddev);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_start_time=%d\n", sourcePanelAnnotationDialog->iot_start_time);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_stop_time=%d\n", sourcePanelAnnotationDialog->iot_stop_time);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_syscallno=%d\n", sourcePanelAnnotationDialog->iot_syscallno);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_nsysargs=%d\n", sourcePanelAnnotationDialog->iot_nsysargs);
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_retval=%d\n", sourcePanelAnnotationDialog->iot_retval);
+#if PATHNAME_READY
+     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_pathname=%d\n", sourcePanelAnnotationDialog->iot_pathname);
+#endif
+
+#endif
+
+      // Generate the list of iot modifiers
+      generateIOTmodifiers();
+
+      std::map<std::string, bool> iot_desired_list;
+      iot_desired_list.clear();
+      iot_desired_list.insert(std::pair<std::string,int>("iot::exclusive_times",sourcePanelAnnotationDialog->iot_exclusive_times));
+      iot_desired_list.insert(std::pair<std::string,int>("iot::inclusive_times",sourcePanelAnnotationDialog->iot_inclusive_times));
+      iot_desired_list.insert(std::pair<std::string,int>("min",sourcePanelAnnotationDialog->iot_min));
+      iot_desired_list.insert(std::pair<std::string,int>("max",sourcePanelAnnotationDialog->iot_max));
+      iot_desired_list.insert(std::pair<std::string,int>("average",sourcePanelAnnotationDialog->iot_average));
+      iot_desired_list.insert(std::pair<std::string,int>("count",sourcePanelAnnotationDialog->iot_count));
+      iot_desired_list.insert(std::pair<std::string,int>("percent",sourcePanelAnnotationDialog->iot_percent));
+      iot_desired_list.insert(std::pair<std::string,int>("stddev",sourcePanelAnnotationDialog->iot_stddev));
+      iot_desired_list.insert(std::pair<std::string,int>("start_time",sourcePanelAnnotationDialog->iot_start_time));
+      iot_desired_list.insert(std::pair<std::string,int>("stop_time",sourcePanelAnnotationDialog->iot_stop_time));
+      iot_desired_list.insert(std::pair<std::string,int>("syscallno",sourcePanelAnnotationDialog->iot_syscallno));
+      iot_desired_list.insert(std::pair<std::string,int>("nsysargs",sourcePanelAnnotationDialog->iot_nsysargs));
+      iot_desired_list.insert(std::pair<std::string,int>("retval",sourcePanelAnnotationDialog->iot_retval));
+#if PATHNAME_READY
+      iot_desired_list.insert(std::pair<std::string,int>("pathname",sourcePanelAnnotationDialog->iot_pathname));
+#endif
+
+      // If the modifier is in the list already then ....
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::sourcePanelAnnotationCreationSelected, before calling updateCurrentModifierList\n");
+      printf("StatsPanel::sourcePanelAnnotationCreationSelected, &current_list_of_iot_modifiers=(%x)\n", &current_list_of_iot_modifiers);
+
+      for( std::list<std::string>::const_iterator iot_it = list_of_iot_modifiers.begin();
+           iot_it != list_of_iot_modifiers.end(); iot_it++ ) {
+         std::string iot_modifier = (std::string)*iot_it;
+         printf("StatsPanel::sourcePanelAnnotationCreationSelected,generic iot_modifier = (%s)\n", iot_modifier.c_str() );
+      }
+
+      for( std::list<std::string>::const_iterator iot_it = current_list_of_iot_modifiers.begin();
+           iot_it != current_list_of_iot_modifiers.end(); iot_it++ ) {
+         std::string iot_modifier = (std::string)*iot_it;
+         printf("StatsPanel::sourcePanelAnnotationCreationSelected, selected iot_modifier = (%s)\n", iot_modifier.c_str() );
+      }
+#endif
+      updateCurrentModifierList(list_of_iot_modifiers, &current_list_of_iot_modifiers, iot_desired_list);
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::sourcePanelAnnotationCreationSelected, after calling updateCurrentModifierList\n");
+      printf("StatsPanel::sourcePanelAnnotationCreationSelected, &current_list_of_iot_modifiers=(%x)\n", &current_list_of_iot_modifiers);
+
+      for( std::list<std::string>::const_iterator iot_it = current_list_of_iot_modifiers.begin();
+           iot_it != current_list_of_iot_modifiers.end(); iot_it++ ) {
+         std::string iot_modifier = (std::string)*iot_it;
+         printf("StatsPanel::sourcePanelAnnotationCreationSelected,, iot_modifier = (%s)\n", iot_modifier.c_str() );
+      }
+#endif
+
+     }else if( currentCollectorStr == "mpi" ) {
+
+      // Generate the list of MPI modifiers
+      generateMPImodifiers();
+
+      std::map<std::string, bool> mpi_desired_list;
+      mpi_desired_list.clear();
+      mpi_desired_list.insert(std::pair<std::string,int>("mpi::exclusive_times",sourcePanelAnnotationDialog->mpi_exclusive_times));
+      mpi_desired_list.insert(std::pair<std::string,int>("mpi::inclusive_times",sourcePanelAnnotationDialog->mpi_inclusive_times));
+      mpi_desired_list.insert(std::pair<std::string,int>("min",sourcePanelAnnotationDialog->mpi_min));
+      mpi_desired_list.insert(std::pair<std::string,int>("max",sourcePanelAnnotationDialog->mpi_max));
+      mpi_desired_list.insert(std::pair<std::string,int>("average",sourcePanelAnnotationDialog->mpi_average));
+      mpi_desired_list.insert(std::pair<std::string,int>("count",sourcePanelAnnotationDialog->mpi_count));
+      mpi_desired_list.insert(std::pair<std::string,int>("percent",sourcePanelAnnotationDialog->mpi_percent));
+      mpi_desired_list.insert(std::pair<std::string,int>("stddev",sourcePanelAnnotationDialog->mpi_stddev));
+
+      updateCurrentModifierList(list_of_mpi_modifiers, &current_list_of_mpi_modifiers, mpi_desired_list);
+
+     }else if( currentCollectorStr == "mpit" ) {
+
+      // Generate the list of MPIT modifiers
+      generateMPITmodifiers();
+
+      std::map<std::string, bool> mpit_desired_list;
+      mpit_desired_list.clear();
+      mpit_desired_list.insert(std::pair<std::string,int>("mpit::exclusive_times",sourcePanelAnnotationDialog->mpit_exclusive_times));
+      mpit_desired_list.insert(std::pair<std::string,int>("mpit::inclusive_times",sourcePanelAnnotationDialog->mpit_inclusive_times));
+      mpit_desired_list.insert(std::pair<std::string,int>("min",sourcePanelAnnotationDialog->mpit_min));
+      mpit_desired_list.insert(std::pair<std::string,int>("max",sourcePanelAnnotationDialog->mpit_max));
+      mpit_desired_list.insert(std::pair<std::string,int>("average",sourcePanelAnnotationDialog->mpit_average));
+      mpit_desired_list.insert(std::pair<std::string,int>("count",sourcePanelAnnotationDialog->mpit_count));
+      mpit_desired_list.insert(std::pair<std::string,int>("percent",sourcePanelAnnotationDialog->mpit_percent));
+      mpit_desired_list.insert(std::pair<std::string,int>("stddev",sourcePanelAnnotationDialog->mpit_stddev));
+      mpit_desired_list.insert(std::pair<std::string,int>("start_time",sourcePanelAnnotationDialog->mpit_start_time));
+      mpit_desired_list.insert(std::pair<std::string,int>("stop_time",sourcePanelAnnotationDialog->mpit_stop_time));
+      mpit_desired_list.insert(std::pair<std::string,int>("source",sourcePanelAnnotationDialog->mpit_source));
+      mpit_desired_list.insert(std::pair<std::string,int>("dest",sourcePanelAnnotationDialog->mpit_dest));
+      mpit_desired_list.insert(std::pair<std::string,int>("size",sourcePanelAnnotationDialog->mpit_size));
+      mpit_desired_list.insert(std::pair<std::string,int>("tag",sourcePanelAnnotationDialog->mpit_tag));
+      mpit_desired_list.insert(std::pair<std::string,int>("communicator",sourcePanelAnnotationDialog->mpit_communicator));
+      mpit_desired_list.insert(std::pair<std::string,int>("datatype",sourcePanelAnnotationDialog->mpit_datatype));
+      mpit_desired_list.insert(std::pair<std::string,int>("retval",sourcePanelAnnotationDialog->mpit_retval));
+
+      updateCurrentModifierList(list_of_mpit_modifiers, &current_list_of_mpit_modifiers, mpit_desired_list);
+
+     }else if( currentCollectorStr == "fpe" ) {
+
+      // Generate the list of FPE modifiers
+      generateFPEmodifiers();
+
+      std::map<std::string, bool> fpe_desired_list;
+      fpe_desired_list.clear();
+
+      fpe_desired_list.insert(std::pair<std::string,int>("fpe::time",sourcePanelAnnotationDialog->fpe_time));
+      fpe_desired_list.insert(std::pair<std::string,int>("fpe::counts",sourcePanelAnnotationDialog->fpe_counts));
+      fpe_desired_list.insert(std::pair<std::string,int>("fpe::percent",sourcePanelAnnotationDialog->fpe_percent));
+      fpe_desired_list.insert(std::pair<std::string,int>("fpe::ThreadAverage",sourcePanelAnnotationDialog->fpe_ThreadAverage));
+      fpe_desired_list.insert(std::pair<std::string,int>("fpe::ThreadMin",sourcePanelAnnotationDialog->fpe_ThreadMin));
+      fpe_desired_list.insert(std::pair<std::string,int>("fpe::ThreadMax",sourcePanelAnnotationDialog->fpe_ThreadMax));
+      fpe_desired_list.insert(std::pair<std::string,int>("fpe::inexact_result_count",sourcePanelAnnotationDialog->fpe_inexact_result_count));
+      fpe_desired_list.insert(std::pair<std::string,int>("fpe::underflow_count",sourcePanelAnnotationDialog->fpe_underflow_count));
+      fpe_desired_list.insert(std::pair<std::string,int>("fpe::overflow_count",sourcePanelAnnotationDialog->fpe_overflow_count));
+      fpe_desired_list.insert(std::pair<std::string,int>("fpe::division_by_zero_count",sourcePanelAnnotationDialog->fpe_division_by_zero_count));
+      fpe_desired_list.insert(std::pair<std::string,int>("fpe::unnormal_count",sourcePanelAnnotationDialog->fpe_unnormal_count));
+      fpe_desired_list.insert(std::pair<std::string,int>("fpe::invalid_count",sourcePanelAnnotationDialog->fpe_invalid_count));
+      fpe_desired_list.insert(std::pair<std::string,int>("fpe::unknown_count",sourcePanelAnnotationDialog->fpe_unknown_count));
+
+      updateCurrentModifierList(list_of_fpe_modifiers, &current_list_of_fpe_modifiers, fpe_desired_list);
+
+     } // end fpe specific
+
+     updateStatsPanelData(DONT_FORCE_UPDATE);
+   }
+#ifdef DEBUG_StatsPanel
+ printf("EXIT StatsPanel::sourcePanelAnnotationCreationSelected, sourcePanelAnnotationDialog=%d\n", sourcePanelAnnotationDialog);
+#endif
+}
+
 void
 StatsPanel::optionalViewsCreationSelected()
 {
@@ -3877,7 +4163,11 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
          filename.ascii(), expID, focusedExpID);
 #endif
 
-  spo = lookUpFileHighlights(filename, lineNumberStr, highlightList, currentMetricStr);
+  if ( sourcePanelMetricStr.isEmpty() ) {
+     spo = lookUpFileHighlights(filename, lineNumberStr, highlightList, currentMetricStr);
+  } else {
+     spo = lookUpFileHighlights(filename, lineNumberStr, highlightList, sourcePanelMetricStr);
+  }
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::matchSelectedItem, after calling lookUpFileHighlights, filename=%s expID=%d, focusedExpID=%d\n", 
@@ -4201,8 +4491,7 @@ void StatsPanel::getHostList(int exp_id)
   list_of_hosts.clear();
   InputLineObject *clip = NULL;
 
-  if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-         &list_of_hosts, clip, TRUE ) ) {
+  if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_hosts, clip, TRUE ) ) {
 
     printf("Unable to run %s command.\n", command.ascii() );
 
@@ -4256,8 +4545,7 @@ void StatsPanel::getExecutableList(int exp_id)
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   list_of_executables.clear();
   InputLineObject *clip = NULL;
-  if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-         &list_of_executables, clip, TRUE ) )
+  if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_executables, clip, TRUE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }
@@ -4309,8 +4597,7 @@ void StatsPanel::getApplicationCommand(int exp_id)
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   list_of_appcommands.clear();
   InputLineObject *clip = NULL;
-  if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-         &list_of_appcommands, clip, TRUE ) )
+  if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_appcommands, clip, TRUE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }
@@ -4360,8 +4647,7 @@ void StatsPanel::getExperimentType(int exp_id)
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   list_of_types.clear();
   InputLineObject *clip = NULL;
-  if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-         &list_of_types, clip, TRUE ) )
+  if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_types, clip, TRUE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }
@@ -4454,8 +4740,7 @@ void StatsPanel::getDatabaseName(int exp_id, bool force_exp)
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   list_of_dbnames.clear();
   InputLineObject *clip = NULL;
-  if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-         &list_of_dbnames, clip, TRUE ) )
+  if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_dbnames, clip, TRUE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }
@@ -5436,6 +5721,11 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
     numberItemsToDisplayInStats = getPreferenceTopNLineEdit().toInt(&ok);
   }
 
+  if( !getPreferenceTopNTraceLineEdit().isEmpty() ) {
+    bool ok;
+    numberTraceItemsToDisplayInStats = getPreferenceTopNTraceLineEdit().toInt(&ok);
+  }
+
   numberItemsToDisplayInChart = 5;
 
   if( !getPreferenceTopNChartLineEdit().isEmpty() ) {
@@ -5687,7 +5977,8 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 #ifdef DEBUG_Sorting
       printf("updateStatsPanelData, do not sort this display on column 0, contains -v trace.\n");
 #endif
-      splv->setSorting ( -1 );
+//JEG      splv->setSorting ( -1 );
+      splv->setSorting ( 0, TRUE );
 
     } else {
 
@@ -7821,8 +8112,7 @@ StatsPanel::findCollectors( int experimentID )
 
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     InputLineObject *clip = NULL;
-    if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-               &local_list_of_collectors, clip, TRUE ) ) {
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &local_list_of_collectors, clip, TRUE ) ) {
       printf("Unable to run %s command.\n", command.ascii() );
     }
 
@@ -7845,8 +8135,7 @@ StatsPanel::findCollectors( int experimentID )
     local_list_of_collectors.clear();
     InputLineObject *clip = NULL;
 
-    if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-           &local_list_of_collectors, clip, TRUE ) ) {
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &local_list_of_collectors, clip, TRUE ) ) {
       printf("Unable to run %s command.\n", command.ascii() );
     }
 
@@ -7877,8 +8166,7 @@ StatsPanel::updateCollectorList()
 #endif
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     InputLineObject *clip = NULL;
-    if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-               &list_of_collectors, clip, TRUE ) ) {
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_collectors, clip, TRUE ) ) {
       printf("Unable to run %s command.\n", command.ascii() );
     }
   } else {
@@ -7900,8 +8188,7 @@ StatsPanel::updateCollectorList()
     list_of_collectors.clear();
     InputLineObject *clip = NULL;
 
-    if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-           &list_of_collectors, clip, TRUE ) ) {
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_collectors, clip, TRUE ) ) {
       printf("Unable to run %s command.\n", command.ascii() );
     }
 
@@ -7936,8 +8223,7 @@ StatsPanel::updateCollectorMetricList()
   list_of_collectors_metrics.clear();
   list_of_generic_modifiers.clear();
   InputLineObject *clip = NULL;
-  if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
-         &list_of_collectors_metrics, clip, TRUE ) )
+  if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_collectors_metrics, clip, TRUE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }
@@ -7964,6 +8250,65 @@ StatsPanel::updateCollectorMetricList()
 #endif
       }
 list_of_generic_modifiers.push_back(collector_name);
+    }
+  }
+}
+
+void
+StatsPanel::updateCollectorParamsValList()
+{
+  // Now get the collectors... and their metrics...
+  QString command = QString::null;
+
+  if( focusedExpID == -1 ) {
+    command = QString("list -v paramvals -x %1").arg(expID);
+  } else {
+    command = QString("list -v paramvals -x %1").arg(focusedExpID);
+  }
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::updateCollectorParamsValList-attempt to run (%s)\n", command.ascii() );
+#endif
+
+  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  list_of_collectors_paramsval.clear();
+  list_of_generic_modifiers.clear();
+  InputLineObject *clip = NULL;
+
+  if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_collectors_paramsval, clip, TRUE ) )
+  {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::updateCollectorParamsValList-ran %s\n", command.ascii() );
+#endif
+
+  if( list_of_collectors_paramsval.size() > 0 )
+  {
+    for( std::list<std::string>::const_iterator it = list_of_collectors_paramsval.begin();
+         it != list_of_collectors_paramsval.end(); it++ )
+    {
+
+      std::string collector_name = (std::string)*it;
+
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::updateCollectorParamsValList-collector_name/paramsval name=(%s)\n", collector_name.c_str() );
+#endif
+
+      if( currentCollectorStr.isEmpty() )
+      {
+        QString s = QString(collector_name.c_str());
+        int index = s.find("::");
+        currentCollectorStr = s.mid(0, index );
+
+#ifdef DEBUG_StatsPanel
+        printf("StatsPanel::updateCollectorParamsValList-Default the current collector to (%s)\n", collector_name.c_str());
+#endif
+
+      }
+
+      list_of_generic_modifiers.push_back(collector_name);
     }
   }
 }
@@ -8261,11 +8606,23 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
     {
       QString s = ((QString)*it).stripWhiteSpace();
       columnHeaderList.push_back(s);
+
+#ifdef DEBUG_StatsPanel
+      printf("outputCLIData, looking for Start or Stop Time, s=(%s), columnWidth=%d\n", s.ascii(), columnWidth);
+#endif
+      if ( (s.startsWith("Start Time") != -1) || (s.startsWith("Stop Time") != -1)) {
+
+           columnWidth = 200;
+#ifdef DEBUG_StatsPanel
+           printf("outputCLIData, found Start or Stop Time, columnWidth=%d\n", columnWidth);
+#endif
+      } else {
 #if 0
       columnWidth = 200;
 #else
       columnWidth = 160;
 #endif
+     }
 
 #ifdef DEBUG_StatsPanel
       printf("outputCLIData, columnHeaderList.push_back(s), outputCLIData, s=(%s), column i=%d\n",
@@ -8310,7 +8667,8 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
 
         QSettings *settings = new QSettings();
         bool fullPathBool = settings->readBoolEntry( "/openspeedshop/general/viewFullPath");
-        if( fullPathBool ) {
+        bool dynamicFieldSize = settings->readBoolEntry( "/openspeedshop/general/viewFieldSizeIsDynamic");
+        if( fullPathBool  && !dynamicFieldSize ) {
 
 #ifdef DEBUG_StatsPanel
         printf("fullPathBool=(%d)\n", fullPathBool );
@@ -9341,6 +9699,9 @@ QString
 StatsPanel::generateCommand()
 {
 
+  // Local that holds either the trace or non-trace preference for how many items to display in the stats panel
+  int items_to_display = 0;
+
 #ifdef DEBUG_StatsPanel
   if (!currentCollectorStr.isEmpty()) {
      printf("StatsPanel::generateCommand, currentCollectorStr=(%s), MPItraceFLAG=(%d), IOtraceFLAG=%d\n", 
@@ -9427,6 +9788,12 @@ StatsPanel::generateCommand()
     }
   }
 
+  if( !traceAddition.isEmpty() ) {
+     items_to_display = numberTraceItemsToDisplayInStats;
+  } else {
+     items_to_display = numberItemsToDisplayInStats;
+  }
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::generateCommand, traceAddition=(%s)\n", traceAddition.ascii() );
 #endif
@@ -9436,6 +9803,8 @@ StatsPanel::generateCommand()
   updateCollectorList();
 
   updateCollectorMetricList();
+
+  //updateCollectorParamsValList();
 
   updateThreadsList();
 
@@ -9456,16 +9825,16 @@ StatsPanel::generateCommand()
   // For Hot Call Path view, just set the number of items to display to one and change the 
   // user requested report string to CallTrees with a FullStack.
   if (currentUserSelectedReportStr == "HotCallPath") {
-     numberItemsToDisplayInStats = 1;
+     items_to_display = 1;
      currentUserSelectedReportStr = "CallTrees,FullStack";
   }
 
   if( currentCollectorStr.isEmpty() ) {
-    if( numberItemsToDisplayInStats > 0 ) {
+    if( items_to_display > 0 ) {
 
-      command += QString(" %1%2").arg("stats").arg(numberItemsToDisplayInStats);
-      aboutString += QString("Requested data for all collectors for top %1 items\n").arg(numberItemsToDisplayInStats);
-      infoAboutString += QString("Experiment type: 'all' for top %1 items\n").arg(numberItemsToDisplayInStats);
+      command += QString(" %1%2").arg("stats").arg(items_to_display);
+      aboutString += QString("Requested data for all collectors for top %1 items\n").arg(items_to_display);
+      infoAboutString += QString("Experiment type: 'all' for top %1 items\n").arg(items_to_display);
 
     } else {
 
@@ -9478,16 +9847,16 @@ StatsPanel::generateCommand()
 
    // Current collector string is not empty
 
-    if( numberItemsToDisplayInStats > 0 ) {
+    if( items_to_display > 0 ) {
 
-      command += QString(" %1%2").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
-      aboutString += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+      command += QString(" %1%2").arg(currentCollectorStr).arg(items_to_display);
+      aboutString += QString("Requested data for collector %1 for top %2 items\n").arg(currentCollectorStr).arg(items_to_display);
 
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::generateCommand() before setting, infoAboutString.ascii()=%s\n", infoAboutString.ascii());
 #endif
 
-      infoAboutString += QString("Experiment type: %1 for top %2 items\n").arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+      infoAboutString += QString("Experiment type: %1 for top %2 items\n").arg(currentCollectorStr).arg(items_to_display);
 
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::generateCommand() after setting, infoAboutString.ascii()=%s\n", infoAboutString.ascii());
@@ -9570,15 +9939,15 @@ StatsPanel::generateCommand()
 
       }
 
-      command = QString("expView -x %1 %4%2 -v statements -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+      command = QString("expView -x %1 %4%2 -v statements -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
 #ifdef DEBUG_StatsPanel
      printf("generateCommand, StatementsByFunction, command=(%s)\n", command.ascii() );
 #endif
 
   } else {
 
-    if( numberItemsToDisplayInStats > 0 ) {
-      command = QString("expView -x %1 %2%3 -v %4").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
+    if( items_to_display > 0 ) {
+      command = QString("expView -x %1 %2%3 -v %4").arg(exp_id).arg(currentCollectorStr).arg(items_to_display).arg(currentUserSelectedReportStr);
     } else {
       command = QString("expView -x %1 %2 -v %4").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
     }
@@ -9628,7 +9997,7 @@ StatsPanel::generateCommand()
       printf("generateCommand, selectedFunctionStr=(%s)\n", selectedFunctionStr.ascii() );
 #endif
 
-      command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+      command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
 
     } else if( currentUserSelectedReportStr == "Statements by Function" ) {
 
@@ -9651,7 +10020,7 @@ StatsPanel::generateCommand()
         } 
 
       } 
-      command = QString("expView -x %1 %4%2 -v statements -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+      command = QString("expView -x %1 %4%2 -v statements -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
 
 #ifdef DEBUG_StatsPanel
      printf("generateCommand, StatementsByFunction, command=(%s)\n", command.ascii() );
@@ -9678,7 +10047,7 @@ StatsPanel::generateCommand()
           return( QString::null );
         } 
       } 
-      command = QString("expView -x %1 %4%2 -v CallTrees -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+      command = QString("expView -x %1 %4%2 -v CallTrees -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
 
     } else if( currentUserSelectedReportStr == "CallTrees,FullStack by Function" ) {
 
@@ -9701,7 +10070,7 @@ StatsPanel::generateCommand()
           return( QString::null );
         } 
       } 
-      command = QString("expView -x %1 %4%2 -v CallTrees,FullStack -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+      command = QString("expView -x %1 %4%2 -v CallTrees,FullStack -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
 
     } else if( currentUserSelectedReportStr == "TraceBacks by Function" ) {
 
@@ -9723,7 +10092,7 @@ StatsPanel::generateCommand()
           return( QString::null );
         } 
       } 
-      command = QString("expView -x %1 %4%2 -v Tracebacks -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+      command = QString("expView -x %1 %4%2 -v Tracebacks -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
 
 
     } else if( currentUserSelectedReportStr == "TraceBacks,FullStack by Function" ) {
@@ -9746,7 +10115,7 @@ StatsPanel::generateCommand()
           return( QString::null );
         } 
       }
-      command = QString("expView -x %1 %4%2 -v Tracebacks,FullStack -f \"%3\"").arg(exp_id).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr).arg(currentCollectorStr);
+      command = QString("expView -x %1 %4%2 -v Tracebacks,FullStack -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
 
 
     } else {
@@ -9755,8 +10124,8 @@ StatsPanel::generateCommand()
       printf("generateCommand, Here's the usertime menu work stuff.\n");
 #endif
 
-      if( numberItemsToDisplayInStats > 0 ) {
-        command = QString("expView -x %1 %2%3 -v %4").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
+      if( items_to_display > 0 ) {
+        command = QString("expView -x %1 %2%3 -v %4").arg(exp_id).arg(currentCollectorStr).arg(items_to_display).arg(currentUserSelectedReportStr);
 
 #ifdef DEBUG_StatsPanel
         printf("generateCommand, A: USERTIME! command=(%s)\n", command.ascii() );
@@ -9792,8 +10161,8 @@ StatsPanel::generateCommand()
 #endif
     if( currentUserSelectedReportStr.isEmpty() || currentUserSelectedReportStr == "CallTrees" ) {
 
-      if( numberItemsToDisplayInStats > 0 ) {
-        command = QString("expView -x %1 %2%3 -v CallTrees").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+      if( items_to_display > 0 ) {
+        command = QString("expView -x %1 %2%3 -v CallTrees").arg(exp_id).arg(currentCollectorStr).arg(items_to_display);
       } else {
         command = QString("expView -x %1 %2 -v CallTrees").arg(exp_id).arg(currentCollectorStr);
       }
@@ -9812,24 +10181,24 @@ StatsPanel::generateCommand()
         } 
       }
 
-      if( numberItemsToDisplayInStats > 0 ) {
-        command = QString("expView -x %1 %2%3 -v CallTrees -f %4").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
+      if( items_to_display > 0 ) {
+        command = QString("expView -x %1 %2%3 -v CallTrees -f %4").arg(exp_id).arg(currentCollectorStr).arg(items_to_display).arg(selectedFunctionStr);
       } else {
         command = QString("expView -x %1 %2 -v CallTrees -f %4").arg(exp_id).arg(currentCollectorStr).arg(selectedFunctionStr);
       }
 
     } else if ( currentUserSelectedReportStr == "TraceBacks" ) {
 
-      if( numberItemsToDisplayInStats > 0 ) {
-        command = QString("expView -x %1 %2%3 -v TraceBacks").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+      if( items_to_display > 0 ) {
+        command = QString("expView -x %1 %2%3 -v TraceBacks").arg(exp_id).arg(currentCollectorStr).arg(items_to_display);
       } else {
         command = QString("expView -x %1 %2%3 -v TraceBacks").arg(exp_id).arg(currentCollectorStr);
       }
 
     } else if ( currentUserSelectedReportStr == "TraceBacks,FullStack" ) {
 
-      if( numberItemsToDisplayInStats > 0 ) {
-        command = QString("expView -x %1 %2%3 -v TraceBacks,FullStack").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+      if( items_to_display > 0 ) {
+        command = QString("expView -x %1 %2%3 -v TraceBacks,FullStack").arg(exp_id).arg(currentCollectorStr).arg(items_to_display);
       } else {
         command = QString("expView -x %1 %2 -v TraceBacks,FullStack").arg(exp_id).arg(currentCollectorStr);
       }
@@ -9851,9 +10220,9 @@ StatsPanel::generateCommand()
         } 
       }
 
-      if( numberItemsToDisplayInStats > 0 ) {
+      if( items_to_display > 0 ) {
 
-        command = QString("expView -x %1 %2%3 -v Butterfly -f \"%4\"").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(selectedFunctionStr);
+        command = QString("expView -x %1 %2%3 -v Butterfly -f \"%4\"").arg(exp_id).arg(currentCollectorStr).arg(items_to_display).arg(selectedFunctionStr);
 
       } else {
 
@@ -9863,8 +10232,8 @@ StatsPanel::generateCommand()
 
     } else {
 
-      if( numberItemsToDisplayInStats > 0 ) {
-        command = QString("expView -x %1 %2%3 -v Functions").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+      if( items_to_display > 0 ) {
+        command = QString("expView -x %1 %2%3 -v Functions").arg(exp_id).arg(currentCollectorStr).arg(items_to_display);
       } else {
         command = QString("expView -x %1 %2 -v Functions").arg(exp_id).arg(currentCollectorStr);
       }
@@ -9887,8 +10256,8 @@ StatsPanel::generateCommand()
 
    if( currentUserSelectedReportStr.startsWith("Statements") ) { 
 
-    if( numberItemsToDisplayInStats > 0 ) {
-      command = QString("expView -x %1 %2%3 -v statements").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats);
+    if( items_to_display > 0 ) {
+      command = QString("expView -x %1 %2%3 -v statements").arg(exp_id).arg(currentCollectorStr).arg(items_to_display);
     } else {
       command = QString("expView -x %1 %2 -v statements").arg(exp_id).arg(currentCollectorStr);
     }
@@ -9896,8 +10265,9 @@ StatsPanel::generateCommand()
    } else {
 
     // report string does not start with Statements
-    if( numberItemsToDisplayInStats > 0 ) {
-      command = QString("expView -x %1 %2%3 -v %4").arg(exp_id).arg(currentCollectorStr).arg(numberItemsToDisplayInStats).arg(currentUserSelectedReportStr);
+
+    if( items_to_display > 0 ) {
+      command = QString("expView -x %1 %2%3 -v %4").arg(exp_id).arg(currentCollectorStr).arg(items_to_display).arg(currentUserSelectedReportStr);
     } else {
       command = QString("expView -x %1 %2 -v %4").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
     }
@@ -10177,6 +10547,7 @@ StatsPanel::generateMPIMenu(QString collectorName)
   }
 
 }
+
 void
 StatsPanel::generatePCSAMPmodifiers()
 {
@@ -10337,6 +10708,169 @@ StatsPanel::generateFPEmodifiers()
   list_of_fpe_modifiers.push_back("fpe::unnormal_count");
   list_of_fpe_modifiers.push_back("fpe::invalid_count");
   list_of_fpe_modifiers.push_back("fpe::unknown_count");
+}
+
+
+void
+StatsPanel::generatePCSAMPAnnotationmodifiers()
+{
+  list_of_pcsamp_annotation_modifiers.clear();
+  list_of_pcsamp_annotation_modifiers.push_back("pcsamp::time");
+  list_of_pcsamp_annotation_modifiers.push_back("pcsamp::percent");
+  list_of_pcsamp_annotation_modifiers.push_back("pcsamp::ThreadAverage");
+  list_of_pcsamp_annotation_modifiers.push_back("pcsamp::ThreadMin");
+  list_of_pcsamp_annotation_modifiers.push_back("pcsamp::ThreadMax");
+}
+
+void
+StatsPanel::generateUSERTIMEAnnotationmodifiers()
+{
+  list_of_usertime_annotation_modifiers.clear();
+  list_of_usertime_annotation_modifiers.push_back("usertime::exclusive_times");
+  list_of_usertime_annotation_modifiers.push_back("usertime::inclusive_times");
+  list_of_usertime_annotation_modifiers.push_back("usertime::percent");
+  list_of_usertime_annotation_modifiers.push_back("usertime::count");
+  list_of_usertime_annotation_modifiers.push_back("usertime::ThreadAverage");
+  list_of_usertime_annotation_modifiers.push_back("usertime::ThreadMin");
+  list_of_usertime_annotation_modifiers.push_back("usertime::ThreadMax");
+}
+
+void
+StatsPanel::generateHWCAnnotationmodifiers()
+{
+  list_of_hwc_annotation_modifiers.clear();
+  list_of_hwc_annotation_modifiers.push_back("hwc::overflows");
+  list_of_hwc_annotation_modifiers.push_back("hwc::counts");
+  list_of_hwc_annotation_modifiers.push_back("hwc::percent");
+  list_of_hwc_annotation_modifiers.push_back("hwc::ThreadAverage");
+  list_of_hwc_annotation_modifiers.push_back("hwc::ThreadMin");
+  list_of_hwc_annotation_modifiers.push_back("hwc::ThreadMax");
+}
+
+void
+StatsPanel::generateHWCSAMPAnnotationmodifiers()
+{
+  list_of_hwcsamp_annotation_modifiers.clear();
+  list_of_hwcsamp_annotation_modifiers.push_back("hwcsamp::time");
+  list_of_hwcsamp_annotation_modifiers.push_back("hwcsamp::allEvents");
+  list_of_hwcsamp_annotation_modifiers.push_back("hwcsamp::percent");
+  list_of_hwcsamp_annotation_modifiers.push_back("hwcsamp::ThreadAverage");
+  list_of_hwcsamp_annotation_modifiers.push_back("hwcsamp::ThreadMin");
+  list_of_hwcsamp_annotation_modifiers.push_back("hwcsamp::ThreadMax");
+}
+
+
+void
+StatsPanel::generateHWCTIMEAnnotationmodifiers()
+{
+  list_of_hwctime_annotation_modifiers.clear();
+  list_of_hwctime_annotation_modifiers.push_back("hwctime::exclusive_counts");
+  list_of_hwctime_annotation_modifiers.push_back("hwctime::exclusive_overflows");
+  list_of_hwctime_annotation_modifiers.push_back("hwctime::inclusive_overflows");
+  list_of_hwctime_annotation_modifiers.push_back("hwctime::inclusive_counts");
+  list_of_hwctime_annotation_modifiers.push_back("hwctime::percent");
+  list_of_hwctime_annotation_modifiers.push_back("hwctime::ThreadAverage");
+  list_of_hwctime_annotation_modifiers.push_back("hwctime::ThreadMin");
+  list_of_hwctime_annotation_modifiers.push_back("hwctime::ThreadMax");
+}
+
+void
+StatsPanel::generateIOAnnotationmodifiers()
+{
+    list_of_io_annotation_modifiers.clear();
+    list_of_io_annotation_modifiers.push_back("io::exclusive_times");
+    list_of_io_annotation_modifiers.push_back("min");
+    list_of_io_annotation_modifiers.push_back("max");
+    list_of_io_annotation_modifiers.push_back("average");
+    list_of_io_annotation_modifiers.push_back("count");
+    list_of_io_annotation_modifiers.push_back("percent");
+    list_of_io_annotation_modifiers.push_back("stddev");
+    list_of_io_annotation_modifiers.push_back("ThreadAverage");
+    list_of_io_annotation_modifiers.push_back("ThreadMin");
+    list_of_io_annotation_modifiers.push_back("ThreadMax");
+}
+
+void
+StatsPanel::generateIOTAnnotationmodifiers()
+{
+    list_of_iot_annotation_modifiers.clear();
+    list_of_iot_annotation_modifiers.push_back("iot::exclusive_times");
+    list_of_iot_annotation_modifiers.push_back("iot::inclusive_times");
+    list_of_iot_annotation_modifiers.push_back("min");
+    list_of_iot_annotation_modifiers.push_back("max");
+    list_of_iot_annotation_modifiers.push_back("average");
+    list_of_iot_annotation_modifiers.push_back("count");
+    list_of_iot_annotation_modifiers.push_back("percent");
+    list_of_iot_annotation_modifiers.push_back("stddev");
+    list_of_iot_annotation_modifiers.push_back("start_time");
+    list_of_iot_annotation_modifiers.push_back("stop_time");
+    list_of_iot_annotation_modifiers.push_back("syscallno");
+    list_of_iot_annotation_modifiers.push_back("nsysargs");
+    list_of_iot_annotation_modifiers.push_back("retval");
+#if PATHNAME_READY
+    list_of_iot_annotation_modifiers.push_back("pathname");
+#endif
+}
+
+void
+StatsPanel::generateMPIAnnotationmodifiers()
+{
+//  list_of_mpi_annotation_modifiers.push_back("mpi::exclusive_details");
+//  list_of_mpi_annotation_modifiers.push_back("mpi::inclusive_details");
+//
+    list_of_mpi_annotation_modifiers.clear();
+    list_of_mpi_annotation_modifiers.push_back("mpi::exclusive_times");
+    list_of_mpi_annotation_modifiers.push_back("mpi::inclusive_times");
+    list_of_mpi_annotation_modifiers.push_back("min");
+    list_of_mpi_annotation_modifiers.push_back("max");
+    list_of_mpi_annotation_modifiers.push_back("average");
+    list_of_mpi_annotation_modifiers.push_back("count");
+    list_of_mpi_annotation_modifiers.push_back("percent");
+    list_of_mpi_annotation_modifiers.push_back("stddev");
+}
+
+void
+StatsPanel::generateMPITAnnotationmodifiers()
+{
+//  list_of_mpit_annotation_modifiers.push_back("mpit::exclusive_details");
+//  list_of_mpit_annotation_modifiers.push_back("mpit::inclusive_details");
+//
+    list_of_mpit_annotation_modifiers.push_back("mpit::exclusive_times");
+    list_of_mpit_annotation_modifiers.push_back("mpit::inclusive_times");
+    list_of_mpit_annotation_modifiers.push_back("min");
+    list_of_mpit_annotation_modifiers.push_back("max");
+    list_of_mpit_annotation_modifiers.push_back("average");
+    list_of_mpit_annotation_modifiers.push_back("count");
+    list_of_mpit_annotation_modifiers.push_back("percent");
+    list_of_mpit_annotation_modifiers.push_back("stddev");
+    list_of_mpit_annotation_modifiers.push_back("start_time");
+    list_of_mpit_annotation_modifiers.push_back("stop_time");
+    list_of_mpit_annotation_modifiers.push_back("source");
+    list_of_mpit_annotation_modifiers.push_back("dest");
+    list_of_mpit_annotation_modifiers.push_back("size");
+    list_of_mpit_annotation_modifiers.push_back("tag");
+    list_of_mpit_annotation_modifiers.push_back("communicator");
+    list_of_mpit_annotation_modifiers.push_back("datatype");
+    list_of_mpit_annotation_modifiers.push_back("retval");
+}
+
+void
+StatsPanel::generateFPEAnnotationmodifiers()
+{
+  list_of_fpe_annotation_modifiers.clear();
+  list_of_fpe_annotation_modifiers.push_back("fpe::time");
+  list_of_fpe_annotation_modifiers.push_back("fpe::counts");
+  list_of_fpe_annotation_modifiers.push_back("fpe::percent");
+  list_of_fpe_annotation_modifiers.push_back("fpe::ThreadAverage");
+  list_of_fpe_annotation_modifiers.push_back("fpe::ThreadMin");
+  list_of_fpe_annotation_modifiers.push_back("fpe::ThreadMax");
+  list_of_fpe_annotation_modifiers.push_back("fpe::inexact_result_count");
+  list_of_fpe_annotation_modifiers.push_back("fpe::underflow_count");
+  list_of_fpe_annotation_modifiers.push_back("fpe::overflow_count");
+  list_of_fpe_annotation_modifiers.push_back("fpe::division_by_zero_count");
+  list_of_fpe_annotation_modifiers.push_back("fpe::unnormal_count");
+  list_of_fpe_annotation_modifiers.push_back("fpe::invalid_count");
+  list_of_fpe_annotation_modifiers.push_back("fpe::unknown_count");
 }
 
 void
@@ -11280,6 +11814,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
   printf("StatsPanel::lookUpFileHighlights, file BaseName=(%s), highlightMetricStr.ascii()=%s\n", fn.ascii(), highlightMetricStr.ascii());
 #endif
 
+// test jeg  highlightMetricStr = "PAPI_TOT_CYC";
   if( highlightMetricStr.isEmpty() ) {
 
     if( _fileName.isEmpty() ) {
@@ -12415,8 +12950,7 @@ StatsPanel::analyzeTheCView()
 #endif
 
     QString command = QString("cviewinfo -c %1 %2").arg(cid_str).arg(timeIntervalString);
-    if( !cli->getStringValueFromCLI( (char *)command.ascii(),
-           &cstring, clip, TRUE ) )
+    if( !cli->getStringValueFromCLI( (char *)command.ascii(), &cstring, clip, TRUE ) )
     {
       printf("Unable to run %s command.\n", command.ascii() );
     }
@@ -13218,8 +13752,13 @@ if (currentCollectorStr != lastCollectorStr ||
 #if OPTIONAL_VIEW
     QPixmap *optional_views_icon = new QPixmap( optional_views_icon_xpm );
     new QToolButton(*optional_views_icon, "SHOW OPTIONAL VIEW: Select icon to launch dialog box which will present\na number of optional fields/columns to include in the creation of an\noptional view of the existing data.", QString::null, this, SLOT( optionalViewsCreationSelected()), fileTools, "create optional view ");
-
 #endif
+
+#if SOURCE_ANNOTATION
+    QPixmap *sourceAnnotation_icon = new QPixmap( sourceAnnotation_icon_xpm );
+    new QToolButton(*sourceAnnotation_icon, "SHOW OPTIONAL VIEW: Select icon to launch dialog box which will present\na number of optional metrics to view in the creation of\nthe source panel.", QString::null, this, SLOT( sourcePanelAnnotationCreationSelected()), fileTools, "create source annotation view ");
+#endif
+
 
   // ----------------- Start of the Analysis Icons
   if( currentCollectorStr == "iot" || currentCollectorStr == "mpit" ) {

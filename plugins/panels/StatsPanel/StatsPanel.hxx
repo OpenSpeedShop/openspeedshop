@@ -26,6 +26,7 @@
 #include "GenericProgressDialog.hxx"
 #include "SelectTimeSegmentDialog.hxx"
 #include "OptionalViewsDialog.hxx"
+#include "SourcePanelAnnotationDialog.hxx"
 #include "ChooseExperimentDialog.hxx"
 
 #include "ToolAPI.hxx"
@@ -166,6 +167,17 @@ class StatsPanel  : public Panel
     void generateMPITmodifiers();
     void generateFPEmodifiers();
 
+    void generatePCSAMPAnnotationmodifiers();
+    void generateUSERTIMEAnnotationmodifiers();
+    void generateHWCAnnotationmodifiers();
+    void generateHWCTIMEAnnotationmodifiers();
+    void generateHWCSAMPAnnotationmodifiers();
+    void generateIOAnnotationmodifiers();
+    void generateIOTAnnotationmodifiers();
+    void generateMPIAnnotationmodifiers();
+    void generateMPITAnnotationmodifiers();
+    void generateFPEAnnotationmodifiers();
+
     void updateCurrentModifierList( std::list<std::string> genericModifierList,
                                     std::list<std::string> *currentSelectedModifierList,
                                     std::map<std::string, bool> newDesiredModifierList);
@@ -183,6 +195,7 @@ class StatsPanel  : public Panel
     SelectTimeSegmentDialog *timeSegmentDialog;
     ChooseExperimentDialog *chooseExperimentDialog;
     OptionalViewsDialog *optionalViewsDialog;
+    SourcePanelAnnotationDialog *sourcePanelAnnotationDialog;
     QString timeIntervalString;
     QString prevTimeIntervalString;
     QTimer *progressTimer;
@@ -291,6 +304,7 @@ class StatsPanel  : public Panel
     std::list<std::string> list_of_dbnames;
     std::list<std::string> list_of_srcfilenames;
     std::list<std::string> list_of_collectors_metrics;
+    std::list<std::string> list_of_collectors_paramsval;
     std::list<std::string> list_of_collectors;
     std::list<int64_t> list_of_pids;
     std::list<std::string> list_of_modifiers;
@@ -321,6 +335,29 @@ class StatsPanel  : public Panel
     std::list<std::string> list_of_generic_modifiers;
     std::list<std::string> current_list_of_generic_modifiers;
 
+    std::list<std::string> list_of_mpi_annotation_modifiers;
+    std::list<std::string> current_list_of_mpi_annotation_modifiers;
+    std::list<std::string> list_of_mpit_annotation_modifiers;
+    std::list<std::string> current_list_of_mpit_annotation_modifiers;
+    std::list<std::string> list_of_io_annotation_modifiers;
+    std::list<std::string> current_list_of_io_annotation_modifiers;
+    std::list<std::string> list_of_iot_annotation_modifiers;
+    std::list<std::string> current_list_of_iot_annotation_modifiers;
+    std::list<std::string> list_of_hwc_annotation_modifiers;
+    std::list<std::string> current_list_of_hwc_annotation_modifiers;
+    std::list<std::string> list_of_hwcsamp_annotation_modifiers;
+    std::list<std::string> current_list_of_hwcsamp_annotation_modifiers;
+    std::list<std::string> list_of_hwctime_annotation_modifiers;
+    std::list<std::string> current_list_of_hwctime_annotation_modifiers;
+    std::list<std::string> list_of_pcsamp_annotation_modifiers;
+    std::list<std::string> current_list_of_pcsamp_annotation_modifiers;
+    std::list<std::string> list_of_usertime_annotation_modifiers;
+    std::list<std::string> current_list_of_usertime_annotation_modifiers;
+    std::list<std::string> list_of_fpe_annotation_modifiers;
+    std::list<std::string> current_list_of_fpe_annotation_modifiers;
+    std::list<std::string> list_of_generic_annotation_modifiers;
+    std::list<std::string> current_list_of_generic_annotation_modifiers;
+
     void setLastCommand(QString value) { lastCommand = value; } ;
     void updateThreadsList();
     void getApplicationCommand(int expID);
@@ -336,6 +373,7 @@ class StatsPanel  : public Panel
     std::list<std::string> findCollectors(int expID);
     int findExperimentID(QString command);
     void updateCollectorMetricList();
+    void updateCollectorParamsValList();
     void outputAboutData(QString *data);
     void outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineNumber);
     void exportData( EXPORT_TYPE_ENUM exportTypeParam = EXPORT_CSV );
@@ -549,6 +587,7 @@ class StatsPanel  : public Panel
 
     void timeSliceSelected();
     void optionalViewsCreationSelected();
+    void sourcePanelAnnotationCreationSelected();
 
   private:
     QString getMostImportantClusterMetric(QString collector_name);
@@ -605,6 +644,7 @@ class StatsPanel  : public Panel
 
     double total_percent;
     int numberItemsToDisplayInStats;
+    int numberTraceItemsToDisplayInStats;
     int numberItemsToDisplayInChart;
     const char **color_names;
     ChartTextValueList ctvl;
