@@ -5546,7 +5546,7 @@ static bool SS_ListObj (CommandObject *cmd) {
  * List the parameters that can be set for collectors that are
  * used in experiments.
  *     
- * @param   cmd - the CommandObject baing processed.
+ * @param   cmd - the CommandObject being processed.
  *
  * @return  "true" on successful completion of the command.
  *
@@ -5558,7 +5558,7 @@ static bool SS_ListObj (CommandObject *cmd) {
  * current values of the parameters is not determined.
  *
  */
-static bool SS_ListParams (CommandObject *cmd, bool showValues) {
+static bool SS_ListParams (CommandObject *cmd, bool showValues, bool onlyValues) {
   bool cmd_error = false;
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
@@ -5657,6 +5657,8 @@ static bool SS_ListParams (CommandObject *cmd, bool showValues) {
 
         if (!showValues) {
           cmd->Result_String ( cm.getUniqueId() + "::" +  m.getUniqueId() );
+        } else if (onlyValues) {
+           cmd->Result_Predefined (Get_Collector_Metadata (c, m));
         } else {
            S = "    " + cm.getUniqueId() + "::" + m.getUniqueId() + " =";
            C->CommandResult_Columns::Add_Column (new CommandResult_RawString (S));
@@ -6597,14 +6599,17 @@ bool SS_ListGeneric (CommandObject *cmd) {
       result_of_first_list = SS_ListObj(cmd);
     } else if (!strcasecmp(S.c_str(),"params") ||
                !strcasecmp(S.c_str(),"param")) {
-      result_of_first_list = SS_ListParams(cmd, false);
+      result_of_first_list = SS_ListParams(cmd, false, false);
     } else if (!strcasecmp(S.c_str(),"paramvalues") ||
                !strcasecmp(S.c_str(),"paramval") ||
                !strcasecmp(S.c_str(),"paramvals") ||
+               !strcasecmp(S.c_str(),"paramsval") ||
                !strcasecmp(S.c_str(),"paramsvals") ||
                !strcasecmp(S.c_str(),"paramsvalue") ||
                !strcasecmp(S.c_str(),"paramsvalues")) {
-      result_of_first_list = SS_ListParams(cmd, true);
+      result_of_first_list = SS_ListParams(cmd, true, false);
+    } else if (!strcasecmp(S.c_str(),"justparamvalues")) {
+      result_of_first_list = SS_ListParams(cmd, true, true);
     } else if (!strcasecmp(S.c_str(),"pids") ||
                !strcasecmp(S.c_str(),"processes")) {
       result_of_first_list = SS_ListPids(cmd);
