@@ -33,6 +33,7 @@
 #include "Senders.hxx"
 #include "ThreadGroup.hxx"
 #include "ThreadTable.hxx"
+#include <unistd.h>
 
 using namespace OpenSpeedShop::Framework;
 
@@ -247,9 +248,7 @@ void Instrumentor::create(const Thread& thread,
     while(database->executeStatement());    
     END_TRANSACTION(database);
 
-    // Declare access to the external environment variables
-    extern char** environ;
-
+    // Use access to the external environment variables
     // Assemble the environment variables into a single concatenated buffer
     unsigned env_size = 0;
     for(int i = 0; environ[i] != NULL; ++i)

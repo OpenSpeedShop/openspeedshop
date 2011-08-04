@@ -95,7 +95,6 @@ int main(int argc, char* argv[])
     // Display a startup message
     std::cout << "Started Open|SS MRNet Daemon: " << Time::Now() << std::endl;
     std::cout << std::endl;
-    extern char** environ;
     for(int i = 0; environ[i] != NULL; ++i)
 	std::cout << environ[i] << std::endl;
     std::cout << std::endl;
