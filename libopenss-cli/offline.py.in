@@ -266,6 +266,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		  if os.WEXITSTATUS(ismpich) and os.WEXITSTATUS(ismpich2):
 			ismpich2 = os.system('grep -q -i Intel ' + file_arg)
 
+                  ismpt = os.system('grep -q -i \"SGI Message Passing Toolkit\" ' + file_arg)
+
 		  isMPT = os.system('grep -q -i sgimpirun ' + file_arg)
 		  isopenmpi = os.system('grep -q -i orterun ' + file_arg)
                   if not os.WEXITSTATUS(ismpich):
@@ -282,6 +284,13 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    program = program.replace(s, file_arg)
 		    preload_files = ""
 		    mpi_exe_implmentation = "mpich2"
+                  if not os.WEXITSTATUS(ismpt):
+                    ismpi = bool(1)
+                    mpi_driver = os.path.realpath(file_arg)
+                    orig_mpi_driver = s
+                    program = program.replace(s, file_arg)
+                    preload_files = ""
+                    mpi_exe_implmentation = "mpt"
 		  if not os.WEXITSTATUS(isMPT):
 		    ismpi = bool(1)
 		    mpi_driver = os.path.realpath(file_arg)
