@@ -44,19 +44,23 @@ mkdir -p /var/www/html/yum/{base,updates}
 
 #cp /media/Fedora\ 8\ i386\ DVD/repodata/Fedora-8-comps.xml /var/www/html/yum/base/
 
-cp /media/Fedora\ 11\ x86_64\ DVD/repodata/4254aba126bd4df25bc40ebf1db3427b5726626f44286fdb0bced49dfdcec70b-Fedora-11-comps.xml /var/www/html/yum/base/.
+#cp /media/Fedora\ 11\ x86_64\ DVD/repodata/4254aba126bd4df25bc40ebf1db3427b5726626f44286fdb0bced49dfdcec70b-Fedora-11-comps.xml /var/www/html/yum/base/.
 
-cp /media/Fedora\ 13\ i386\ DVD/repodata/fce31f091be8211a394d8942fcf4f6cbeffa3d40d87b61af55a97b1a88b46987-Fedora-13-comps.xml /var/www/html/yum/base/.
+#cp /media/Fedora\ 13\ i386\ DVD/repodata/fce31f091be8211a394d8942fcf4f6cbeffa3d40d87b61af55a97b1a88b46987-Fedora-13-comps.xml /var/www/html/yum/base/.
 
-cp /media/Fedora\ 14\ x86_64\ DVD/repodata/1d46a2073097bdb6b7b6f6fba60e4525ca0bf2d1165026a3e1c87b0b2abaf07f-Fedora-14-comps.xml /var/www/html/yum/base/.
+#cp /media/Fedora\ 14\ x86_64\ DVD/repodata/1d46a2073097bdb6b7b6f6fba60e4525ca0bf2d1165026a3e1c87b0b2abaf07f-Fedora-14-comps.xml /var/www/html/yum/base/.
+
+cp /media/Fedora\ 15\ x86_64\ DVD/repodata/2837838aa7c648a3b6cd5eb754dee7b1df7b98bc42c58532937d9e4f397db7e8-Fedora-15-comps.xml /var/www/html/yum/base/.
 
 #cp -r /media/Fedora\ 8\ i386\ DVD/Packages/*.rpm /var/www/html/yum/base/
 
-cp /media/Fedora\ 11\ x86_64\ DVD/Packages/*.rpm  /var/www/html/yum/base/.
+#cp /media/Fedora\ 11\ x86_64\ DVD/Packages/*.rpm  /var/www/html/yum/base/.
 
-cp /media/Fedora\ 13\ i386\ DVD/Packages/*.rpm /var/www/html/yum/base/.
+#cp /media/Fedora\ 13\ i386\ DVD/Packages/*.rpm /var/www/html/yum/base/.
 
-cp /media/Fedora\ 14\ x86_64\ DVD/Packages/*.rpm /var/www/html/yum/base/.
+#cp /media/Fedora\ 14\ x86_64\ DVD/Packages/*.rpm /var/www/html/yum/base/.
+
+cp /media/Fedora\ 15\ x86_64\ DVD/Packages/*.rpm /var/www/html/yum/base/.
 
 see NOTE.fc13 for additional copies that had to be done.
 
