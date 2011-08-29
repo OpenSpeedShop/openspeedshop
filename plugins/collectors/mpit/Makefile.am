@@ -504,7 +504,7 @@ endif
 
 
 if HAVE_MPT
-mpit_rt_mpt_la_CFLAGS = $(call rt_CFLAGS_generate,@MPT_CPPFLAGS@)
+mpit_rt_mpt_la_CFLAGS = -DSGI_MPT $(call rt_CFLAGS_generate,@MPT_CPPFLAGS@)
 mpit_rt_mpt_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPT_LDFLAGS@)
 mpit_rt_mpt_la_LIBADD = $(call rt_LIBADD_generate,@MPT_LIBS@)
 mpit_rt_mpt_la_DEPENDENCIES =
@@ -512,14 +512,14 @@ mpit_rt_mpt_la_SOURCES = $(rt_sources)
 nodist_mpit_rt_mpt_la_SOURCES = 
 
 if HAVE_LIBMONITOR
-mpit_mpt_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
+mpit_mpt_rt_offline_la_CFLAGS = -DSGI_MPT $(call rt_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
 mpit_mpt_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
 mpit_mpt_rt_offline_la_LIBADD = $(call rt_offline_LIBADD_generate,@MPT_LIBS@)
 mpit_mpt_rt_offline_la_DEPENDENCIES =
 mpit_mpt_rt_offline_la_SOURCES = $(rt_offline_sources)
 nodist_mpit_mpt_rt_offline_la_SOURCES = 
 
-libmpit_mpt_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
+libmpit_mpt_offline_la_CFLAGS = -DSGI_MPT -static $(call lib_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
 libmpit_mpt_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
 libmpit_mpt_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MPT_LIBS@)
 libmpit_mpt_offline_la_DEPENDENCIES =
@@ -527,7 +527,7 @@ libmpit_mpt_offline_la_SOURCES = $(lib_offline_sources)
 nodist_libmpit_mpt_offline_la_SOURCES =
 endif
 if HAVE_TARGET_LIBMONITOR
-libmpit_mpt_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
+libmpit_mpt_offline_la_CFLAGS = -DSGI_MPT -static $(call lib_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
 libmpit_mpt_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
 libmpit_mpt_offline_la_LIBADD = $(call lib_offline_LIBADD_generate,@MPT_LIBS@)
 libmpit_mpt_offline_la_DEPENDENCIES =

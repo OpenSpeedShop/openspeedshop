@@ -32,6 +32,11 @@
 
 #include <mpi.h>
 
+#if defined (SGI_MPT)
+#define MPI_Status_c2f(c,f) *(MPI_Status *)f=*(MPI_Status *)c
+#define MPI_Status_f2c(f,c) *(MPI_Status *)c=*(MPI_Status *)f 
+#endif
+
 /* Is there a better way to do this? */
 #ifndef MPI_STATUS_SIZE
 #define MPI_STATUS_SIZE 5
