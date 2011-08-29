@@ -188,6 +188,30 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		# is this the actual mpi program.
 		if not ismpi:
 		  ismpidriver = os.system('nm ' + file_arg + ' | grep -q -i MPIR')
+
+                  #
+                  # Do some special checking on SGI systems because we can not detect
+                  # that the SGI mpiexec files are mpidrivers.  They do not contain
+                  # MPI specific symbols.  So, check to see we are using MPT and then
+                  # if the name is mpiexec or mpiexec_mpt set that it is a mpidriver.
+                  # BUT - OPENSS_MPI_IMPLEMENTATION must be set.  So, this seems safe
+                  #
+
+                  #print "[openss-debug]: file_arg=" + file_arg
+                  if os.WEXITSTATUS(ismpidriver):
+                     #print "[openss-debug]: inside if not os.WEX(ismpidriver)"
+                     if 'OPENSS_MPI_IMPLEMENTATION' in os.environ:
+                        #print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is set"
+                        set_mpi_impl = os.environ["OPENSS_MPI_IMPLEMENTATION"]
+                        if set_mpi_impl == "MPT" or set_mpi_impl == "mpt":
+			     #print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is equal to mpt"
+			     file_arg_basename = os.path.basename(file_arg)
+			     #print "[openss-debug]: file_arg_basename=" + file_arg_basename
+			     if file_arg_basename == "mpiexec" or file_arg_basename == "mpiexec_mpt":
+			         #print "[openss-debug]: inside file_arg_basename is equal to mpiexec or mpiexec_mpt"
+			         ismpidriver = bool(1)
+			         #print "[openss-debug]: setting ismpidriver to bool 1"
+
 		  if not os.WEXITSTATUS(ismpidriver):
 		    ismpi = bool(1)
 		    mpi_driver = os.path.realpath(file_arg)
@@ -253,8 +277,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		isscript = os.system('file -L ' + file_arg + ' | grep -q script')
 		if not os.WEXITSTATUS(isscript):
 		  # Lets hope the mpich2 driver always has Argonne in its copyright.
-		  ismpich = os.system('grep -q -i \"MPIRUN for MPICH\" ' + file_arg)
-		  ismpich2 = os.system('grep -q -i Argonne ' + file_arg)
+                  ismpich = os.system('grep -q -i \"MPIRUN for MPICH\" ' + file_arg)
+                  ismpich2 = os.system('grep -q -i Argonne ' + file_arg)
                   ismvapich = os.system('grep -q -i \"Wrapper for job submission on Hert related machines\" ' + file_arg)
                   ismvapich2 = os.system('grep -q -i \"MVAPICH2 software package developed\" ' + file_arg)
 
@@ -267,7 +291,6 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 			ismpich2 = os.system('grep -q -i Intel ' + file_arg)
 
                   ismpt = os.system('grep -q -i \"SGI Message Passing Toolkit\" ' + file_arg)
-
 		  isMPT = os.system('grep -q -i sgimpirun ' + file_arg)
 		  isopenmpi = os.system('grep -q -i orterun ' + file_arg)
                   if not os.WEXITSTATUS(ismpich):
@@ -291,6 +314,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
                     program = program.replace(s, file_arg)
                     preload_files = ""
                     mpi_exe_implmentation = "mpt"
+                    #print "[openss-debug]: ismpt orig_mpi_driver=" + orig_mpi_driver
 		  if not os.WEXITSTATUS(isMPT):
 		    ismpi = bool(1)
 		    mpi_driver = os.path.realpath(file_arg)
@@ -361,7 +385,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	mpiplugin = ""
 
     # Allow the user to just use the know mpi and mpit collector names.
-    # We will prepend the prper mpi implementation.
+    # We will prepend the proper mpi implementation.
     orig_collectorname = collector;
     if collector.startswith("mpi"):
 	preload_files = ""
@@ -402,6 +426,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    command = os.curdir + "/" + command
 
     collectorplugin =  plugins + "/" + collector + "-rt-offline.so"
+    #print "[openss-debug]: Plugins %(plu)s offline %(col)s experiment using the command:\n\"%(cmd)s\"\n" \
+    #       % {'plu':plugins,'col':collector,'cmd':command}
+
 
     if not os.path.isfile(collectorplugin):
 	raise RuntimeError("[openss error]: Failed to locate the " +  collector + " runtime plugin.")
