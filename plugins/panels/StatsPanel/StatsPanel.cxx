@@ -190,6 +190,39 @@ static const char *blue_color_names[] = {
 using namespace OpenSpeedShop::Framework;
 
 
+
+// This routine is strongly based (copy of) 
+// on the Tokenizer routine found at this URL:
+// http://www.oopweb.com/CPP/Documents/CPPHOWTO/Volume/C++Programming-HOWTO-7.html
+
+void createTokens(const std::string& str,
+                  std::vector<std::string>& tokens,
+                  const std::string& delimiters = " ")
+{
+    // Skip delimiters at beginning.
+    std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    // Find first "non-delimiter".
+    std::string::size_type pos     = str.find_first_of(delimiters, lastPos);
+
+    while (std::string::npos != pos || std::string::npos != lastPos)
+    {
+        // Found a token, add it to the vector.
+        tokens.push_back(str.substr(lastPos, pos - lastPos));
+
+        // Skip delimiters.  Note the "not_of"
+        lastPos = str.find_first_not_of(delimiters, pos);
+
+        // Find next "non-delimiter"
+        pos = str.find_first_of(delimiters, lastPos);
+
+#ifdef DEBUG_CLI
+        printf("createTokens, in while, str.c_str()=%s, lastPos = %d, pos = %d\n", str.c_str(), lastPos, pos);
+#endif
+
+    }
+}
+
+
 class AboutOutputClass : public ss_ostream
 {
   public:
@@ -2892,7 +2925,7 @@ StatsPanel::updateCurrentModifierList( std::list<std::string> genericModifierLis
   {
     std::string gModifier = (std::string)*genericIt;
 #ifdef DEBUG_StatsPanel
-   printf("StatsPanel::optionalViewsCreationSelected, gModifier=(%s)\n", gModifier.c_str() );
+   printf("StatsPanel::updateCurrentModifierList, gModifier=(%s)\n", gModifier.c_str() );
 #endif
 
     bool FOUND = FALSE;
@@ -2903,13 +2936,13 @@ StatsPanel::updateCurrentModifierList( std::list<std::string> genericModifierLis
     {
       std::string sModifier = (std::string)*selectedIt;
 #ifdef DEBUG_StatsPanel
-      printf("StatsPanel::optionalViewsCreationSelected, sModifier=(%s)\n", sModifier.c_str() );
+      printf("StatsPanel::updateCurrentModifierList, sModifier=(%s)\n", sModifier.c_str() );
 #endif
 
       if( gModifier ==  sModifier ) {   
          // It's in the list, return now
 #ifdef DEBUG_StatsPanel
-         printf("StatsPanel::optionalViewsCreationSelected, gModifier=(%s)==sModifier=(%s) FOUND==TRUE\n", gModifier.c_str(), sModifier.c_str() );
+         printf("StatsPanel::updateCurrentModifierList, gModifier=(%s)==sModifier=(%s) FOUND==TRUE\n", gModifier.c_str(), sModifier.c_str() );
 #endif
          FOUND = TRUE;
          break;
@@ -2932,23 +2965,23 @@ StatsPanel::updateCurrentModifierList( std::list<std::string> genericModifierLis
       if( FOUND && isDesired ) {   
          // this modifier was set in the current list and was in the desired list so, do nothing
 #ifdef DEBUG_StatsPanel
-         printf("StatsPanel::optionalViewsCreationSelected, FOUND is TRUE, and isDesired=%d is TRUE\n", isDesired );
+         printf("StatsPanel::updateCurrentModifierList, FOUND is TRUE, and isDesired=%d is TRUE\n", isDesired );
 #endif
       } else if ( FOUND && !isDesired ) {
          // if the flag is not set - remove the existing entry.  The user doesn't want to see it
          currentSelectedModifierList->remove(gModifier);
 #ifdef DEBUG_StatsPanel
-         printf("StatsPanel::optionalViewsCreationSelected, FOUND is TRUE, and isDesired=%d is FALSE\n", isDesired );
+         printf("StatsPanel::updateCurrentModifierList, FOUND is TRUE, and isDesired=%d is FALSE\n", isDesired );
 #endif
       } else if ( !FOUND && isDesired ) {
          // the modifier is not in the list.  if the user wants to see this modifier add it else do nothing
 #ifdef DEBUG_StatsPanel
-         printf("StatsPanel::optionalViewsCreationSelected, FOUND is FALSE, and isDesired=%d is TRUE\n", isDesired );
+         printf("StatsPanel::updateCurrentModifierList, FOUND is FALSE, and isDesired=%d is TRUE\n", isDesired );
 #endif
          currentSelectedModifierList->push_back(gModifier);
       } else {
 #ifdef DEBUG_StatsPanel
-         printf("StatsPanel::optionalViewsCreationSelected, FOUND is FALSE, and isDesired=%d is FALSE\n", isDesired );
+         printf("StatsPanel::updateCurrentModifierList, FOUND is FALSE, and isDesired=%d is FALSE\n", isDesired );
 #endif
           // this modifier was not set in the current list and was not in the desired list so, do nothing
       }
@@ -2972,8 +3005,10 @@ StatsPanel::sourcePanelAnnotationCreationSelected()
  printf("StatsPanel::sourcePanelAnnotationCreationSelected, currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
 #endif
 
+  generateHWCSAMPmodifiers();
+
   if( sourcePanelAnnotationDialog == NULL ) {
-    sourcePanelAnnotationDialog = new SourcePanelAnnotationDialog(getPanelContainer()->getMainWindow(), "Source Panel Annotation Views Creation:", currentCollectorStr, &current_list_of_iot_modifiers);
+    sourcePanelAnnotationDialog = new SourcePanelAnnotationDialog(getPanelContainer()->getMainWindow(), "Source Panel Annotation Views Creation:", currentCollectorStr, &list_of_hwcsamp_modifiers);
     sourcePanelAnnotationDialog->show();
   } else {
 
@@ -2988,255 +3023,95 @@ StatsPanel::sourcePanelAnnotationCreationSelected()
      if( currentCollectorStr == "pcsamp" ) {
 
       // Generate the list of pcsamp modifiers
-      generatePCSAMPmodifiers();
-
-      std::map<std::string, bool> pcsamp_desired_list;
-      pcsamp_desired_list.clear();
-      pcsamp_desired_list.insert(std::pair<std::string,int>("pcsamp::time",sourcePanelAnnotationDialog->pcsamp_time));
-      pcsamp_desired_list.insert(std::pair<std::string,int>("pcsamp::percent",sourcePanelAnnotationDialog->pcsamp_percent));
-      pcsamp_desired_list.insert(std::pair<std::string,int>("pcsamp::ThreadAverage",sourcePanelAnnotationDialog->pcsamp_ThreadAverage));
-      pcsamp_desired_list.insert(std::pair<std::string,int>("pcsamp::ThreadMin",sourcePanelAnnotationDialog->pcsamp_ThreadMin));
-      pcsamp_desired_list.insert(std::pair<std::string,int>("pcsamp::ThreadMax",sourcePanelAnnotationDialog->pcsamp_ThreadMax));
-
-      updateCurrentModifierList(list_of_pcsamp_modifiers, &current_list_of_pcsamp_modifiers, pcsamp_desired_list);
+      //generatePCSAMPmodifiers();
+      //std::map<std::string, bool> pcsamp_desired_list;
+      //pcsamp_desired_list.clear();
+      //updateCurrentModifierList(list_of_pcsamp_modifiers, &current_list_of_pcsamp_modifiers, pcsamp_desired_list);
 
      }else if( currentCollectorStr == "usertime" ) {
       // Generate the list of usertime modifiers
-      generateUSERTIMEmodifiers();
-
-      std::map<std::string, bool> usertime_desired_list;
-      usertime_desired_list.clear();
-      usertime_desired_list.insert(std::pair<std::string,int>("usertime::exclusive_times",sourcePanelAnnotationDialog->usertime_exclusive_times));
-      usertime_desired_list.insert(std::pair<std::string,int>("usertime::inclusive_times",sourcePanelAnnotationDialog->usertime_inclusive_times));
-      usertime_desired_list.insert(std::pair<std::string,int>("usertime::percent",sourcePanelAnnotationDialog->usertime_percent));
-      usertime_desired_list.insert(std::pair<std::string,int>("usertime::count",sourcePanelAnnotationDialog->usertime_count));
-      usertime_desired_list.insert(std::pair<std::string,int>("usertime::ThreadAverage",sourcePanelAnnotationDialog->usertime_ThreadAverage));
-      usertime_desired_list.insert(std::pair<std::string,int>("usertime::ThreadMin",sourcePanelAnnotationDialog->usertime_ThreadMin));
-      usertime_desired_list.insert(std::pair<std::string,int>("usertime::ThreadMax",sourcePanelAnnotationDialog->usertime_ThreadMax));
-      updateCurrentModifierList(list_of_usertime_modifiers, &current_list_of_usertime_modifiers, usertime_desired_list);
+      //generateUSERTIMEmodifiers();
+      //std::map<std::string, bool> usertime_desired_list;
+      //usertime_desired_list.clear();
+      //updateCurrentModifierList(list_of_usertime_modifiers, &current_list_of_usertime_modifiers, usertime_desired_list);
 
      }else if( currentCollectorStr == "hwc" ) {
 
       // Generate the list of hwc modifiers
-      generateHWCmodifiers();
-
-      std::map<std::string, bool> hwc_desired_list;
-
-      hwc_desired_list.clear();
-      hwc_desired_list.insert(std::pair<std::string,int>("hwc::overflows",sourcePanelAnnotationDialog->hwc_overflows));
-      hwc_desired_list.insert(std::pair<std::string,int>("hwc::counts",sourcePanelAnnotationDialog->hwc_counts));
-      hwc_desired_list.insert(std::pair<std::string,int>("hwc::percent",sourcePanelAnnotationDialog->hwc_percent));
-      hwc_desired_list.insert(std::pair<std::string,int>("hwc::ThreadAverage",sourcePanelAnnotationDialog->hwc_ThreadAverage));
-      hwc_desired_list.insert(std::pair<std::string,int>("hwc::ThreadMin",sourcePanelAnnotationDialog->hwc_ThreadMin));
-      hwc_desired_list.insert(std::pair<std::string,int>("hwc::ThreadMax",sourcePanelAnnotationDialog->hwc_ThreadMax));
-
-      updateCurrentModifierList(list_of_hwc_modifiers, &current_list_of_hwc_modifiers, hwc_desired_list);
+      //generateHWCmodifiers();
+      //std::map<std::string, bool> hwc_desired_list;
+      //hwc_desired_list.clear();
+      //updateCurrentModifierList(list_of_hwc_modifiers, &current_list_of_hwc_modifiers, hwc_desired_list);
 
      }else if( currentCollectorStr == "hwcsamp" ) {
 
       // Generate the list of hwcsamp modifiers
-      generateHWCSAMPmodifiers();
+//      generateHWCSAMPmodifiers();
 
       std::map<std::string, bool> hwcsamp_desired_list;
       hwcsamp_desired_list.clear();
-      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::time",sourcePanelAnnotationDialog->hwcsamp_time));
-      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::allEvents",sourcePanelAnnotationDialog->hwcsamp_allEvents));
-      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::percent",sourcePanelAnnotationDialog->hwcsamp_percent));
-      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::ThreadAverage",sourcePanelAnnotationDialog->hwcsamp_ThreadAverage));
-      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::ThreadMin",sourcePanelAnnotationDialog->hwcsamp_ThreadMin));
-      hwcsamp_desired_list.insert(std::pair<std::string,int>("hwcsamp::ThreadMax",sourcePanelAnnotationDialog->hwcsamp_ThreadMax));
+
+#if DEBUG_StatsPanel
+      printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->hwcsamp_maxModIdx=%d\n", sourcePanelAnnotationDialog->hwcsamp_maxModIdx);
+#endif
+
+      for (int idx=0; idx < sourcePanelAnnotationDialog->hwcsamp_maxModIdx; idx++) {
+
+#if DEBUG_StatsPanel
+        printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->displayed_hwcsamp_CheckBox_status[idx=%d]=%d\n", idx, sourcePanelAnnotationDialog->displayed_hwcsamp_CheckBox_status[idx]);
+#endif
+
+        hwcsamp_desired_list.insert(std::pair<std::string,int>(sourcePanelAnnotationDialog->hwcsamp_Modifiers[idx],
+                                                               sourcePanelAnnotationDialog->displayed_hwcsamp_CheckBox_status[idx]));
+      }
 
       updateCurrentModifierList(list_of_hwcsamp_modifiers, &current_list_of_hwcsamp_modifiers, hwcsamp_desired_list);
 
      }else if( currentCollectorStr == "hwctime" ) {
 
       // Generate the list of hwctime modifiers
-      generateHWCTIMEmodifiers();
-
-      std::map<std::string, bool> hwctime_desired_list;
-      hwctime_desired_list.clear();
-      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::exclusive_counts",sourcePanelAnnotationDialog->hwctime_exclusive_counts));
-      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::exclusive_overflows",sourcePanelAnnotationDialog->hwctime_exclusive_overflows));
-      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::inclusive_overflows",sourcePanelAnnotationDialog->hwctime_inclusive_overflows));
-      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::inclusive_counts",sourcePanelAnnotationDialog->hwctime_inclusive_counts));
-      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::percent",sourcePanelAnnotationDialog->hwctime_percent));
-      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::ThreadAverage",sourcePanelAnnotationDialog->hwctime_ThreadAverage));
-      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::ThreadMin",sourcePanelAnnotationDialog->hwctime_ThreadMin));
-      hwctime_desired_list.insert(std::pair<std::string,int>("hwctime::ThreadMax",sourcePanelAnnotationDialog->hwctime_ThreadMax));
-
-      updateCurrentModifierList(list_of_hwctime_modifiers, &current_list_of_hwctime_modifiers, hwctime_desired_list);
+      //generateHWCTIMEmodifiers();
+      //std::map<std::string, bool> hwctime_desired_list;
+      //hwctime_desired_list.clear();
+      //updateCurrentModifierList(list_of_hwctime_modifiers, &current_list_of_hwctime_modifiers, hwctime_desired_list);
 
      }else if( currentCollectorStr == "io" ) {
 
-#ifdef DEBUG_StatsPanel
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, io, The user hit accept.\n");
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->io_exclusive_times=%d\n", sourcePanelAnnotationDialog->io_exclusive_times);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->io_min=%d\n", sourcePanelAnnotationDialog->io_min);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->io_percent=%d\n", sourcePanelAnnotationDialog->io_percent);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->io_average=%d\n", sourcePanelAnnotationDialog->io_average);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->io_count=%d\n", sourcePanelAnnotationDialog->io_count);
-#endif
-
       // Generate the list of io modifiers
-      generateIOmodifiers();
-
-      std::map<std::string, bool> io_desired_list;
-      io_desired_list.clear();
-      io_desired_list.insert(std::pair<std::string,int>("io::exclusive_times",sourcePanelAnnotationDialog->io_exclusive_times));
-      io_desired_list.insert(std::pair<std::string,int>("min",sourcePanelAnnotationDialog->io_min));
-      io_desired_list.insert(std::pair<std::string,int>("max",sourcePanelAnnotationDialog->io_max));
-      io_desired_list.insert(std::pair<std::string,int>("average",sourcePanelAnnotationDialog->io_average));
-      io_desired_list.insert(std::pair<std::string,int>("count",sourcePanelAnnotationDialog->io_count));
-      io_desired_list.insert(std::pair<std::string,int>("percent",sourcePanelAnnotationDialog->io_percent));
-      io_desired_list.insert(std::pair<std::string,int>("stddev",sourcePanelAnnotationDialog->io_stddev));
-      io_desired_list.insert(std::pair<std::string,int>("ThreadAverage",sourcePanelAnnotationDialog->io_ThreadAverage));
-      io_desired_list.insert(std::pair<std::string,int>("ThreadMin",sourcePanelAnnotationDialog->io_ThreadMin));
-      io_desired_list.insert(std::pair<std::string,int>("ThreadMax",sourcePanelAnnotationDialog->io_ThreadMax));
-
-      updateCurrentModifierList(list_of_io_modifiers, &current_list_of_io_modifiers, io_desired_list);
+      //generateIOmodifiers();
+      //std::map<std::string, bool> io_desired_list;
+      //io_desired_list.clear();
+      //updateCurrentModifierList(list_of_io_modifiers, &current_list_of_io_modifiers, io_desired_list);
 
      }else if( currentCollectorStr == "iot" ) {
-
-#ifdef DEBUG_StatsPanel
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, The user hit accept.\n");
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_exclusive_times=%d\n", sourcePanelAnnotationDialog->iot_exclusive_times);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_inclusive_times=%d\n", sourcePanelAnnotationDialog->iot_inclusive_times);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_min=%d\n", sourcePanelAnnotationDialog->iot_min);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_max=%d\n", sourcePanelAnnotationDialog->iot_max);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_average=%d\n", sourcePanelAnnotationDialog->iot_average);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_count=%d\n", sourcePanelAnnotationDialog->iot_count);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_percent=%d\n", sourcePanelAnnotationDialog->iot_percent);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_stddev=%d\n", sourcePanelAnnotationDialog->iot_stddev);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_start_time=%d\n", sourcePanelAnnotationDialog->iot_start_time);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_stop_time=%d\n", sourcePanelAnnotationDialog->iot_stop_time);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_syscallno=%d\n", sourcePanelAnnotationDialog->iot_syscallno);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_nsysargs=%d\n", sourcePanelAnnotationDialog->iot_nsysargs);
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_retval=%d\n", sourcePanelAnnotationDialog->iot_retval);
-#if PATHNAME_READY
-     printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->iot_pathname=%d\n", sourcePanelAnnotationDialog->iot_pathname);
-#endif
-
-#endif
-
       // Generate the list of iot modifiers
-      generateIOTmodifiers();
-
-      std::map<std::string, bool> iot_desired_list;
-      iot_desired_list.clear();
-      iot_desired_list.insert(std::pair<std::string,int>("iot::exclusive_times",sourcePanelAnnotationDialog->iot_exclusive_times));
-      iot_desired_list.insert(std::pair<std::string,int>("iot::inclusive_times",sourcePanelAnnotationDialog->iot_inclusive_times));
-      iot_desired_list.insert(std::pair<std::string,int>("min",sourcePanelAnnotationDialog->iot_min));
-      iot_desired_list.insert(std::pair<std::string,int>("max",sourcePanelAnnotationDialog->iot_max));
-      iot_desired_list.insert(std::pair<std::string,int>("average",sourcePanelAnnotationDialog->iot_average));
-      iot_desired_list.insert(std::pair<std::string,int>("count",sourcePanelAnnotationDialog->iot_count));
-      iot_desired_list.insert(std::pair<std::string,int>("percent",sourcePanelAnnotationDialog->iot_percent));
-      iot_desired_list.insert(std::pair<std::string,int>("stddev",sourcePanelAnnotationDialog->iot_stddev));
-      iot_desired_list.insert(std::pair<std::string,int>("start_time",sourcePanelAnnotationDialog->iot_start_time));
-      iot_desired_list.insert(std::pair<std::string,int>("stop_time",sourcePanelAnnotationDialog->iot_stop_time));
-      iot_desired_list.insert(std::pair<std::string,int>("syscallno",sourcePanelAnnotationDialog->iot_syscallno));
-      iot_desired_list.insert(std::pair<std::string,int>("nsysargs",sourcePanelAnnotationDialog->iot_nsysargs));
-      iot_desired_list.insert(std::pair<std::string,int>("retval",sourcePanelAnnotationDialog->iot_retval));
-#if PATHNAME_READY
-      iot_desired_list.insert(std::pair<std::string,int>("pathname",sourcePanelAnnotationDialog->iot_pathname));
-#endif
-
-      // If the modifier is in the list already then ....
-#ifdef DEBUG_StatsPanel
-      printf("StatsPanel::sourcePanelAnnotationCreationSelected, before calling updateCurrentModifierList\n");
-      printf("StatsPanel::sourcePanelAnnotationCreationSelected, &current_list_of_iot_modifiers=(%x)\n", &current_list_of_iot_modifiers);
-
-      for( std::list<std::string>::const_iterator iot_it = list_of_iot_modifiers.begin();
-           iot_it != list_of_iot_modifiers.end(); iot_it++ ) {
-         std::string iot_modifier = (std::string)*iot_it;
-         printf("StatsPanel::sourcePanelAnnotationCreationSelected,generic iot_modifier = (%s)\n", iot_modifier.c_str() );
-      }
-
-      for( std::list<std::string>::const_iterator iot_it = current_list_of_iot_modifiers.begin();
-           iot_it != current_list_of_iot_modifiers.end(); iot_it++ ) {
-         std::string iot_modifier = (std::string)*iot_it;
-         printf("StatsPanel::sourcePanelAnnotationCreationSelected, selected iot_modifier = (%s)\n", iot_modifier.c_str() );
-      }
-#endif
-      updateCurrentModifierList(list_of_iot_modifiers, &current_list_of_iot_modifiers, iot_desired_list);
-#ifdef DEBUG_StatsPanel
-      printf("StatsPanel::sourcePanelAnnotationCreationSelected, after calling updateCurrentModifierList\n");
-      printf("StatsPanel::sourcePanelAnnotationCreationSelected, &current_list_of_iot_modifiers=(%x)\n", &current_list_of_iot_modifiers);
-
-      for( std::list<std::string>::const_iterator iot_it = current_list_of_iot_modifiers.begin();
-           iot_it != current_list_of_iot_modifiers.end(); iot_it++ ) {
-         std::string iot_modifier = (std::string)*iot_it;
-         printf("StatsPanel::sourcePanelAnnotationCreationSelected,, iot_modifier = (%s)\n", iot_modifier.c_str() );
-      }
-#endif
+      //generateIOTmodifiers();
+      //std::map<std::string, bool> iot_desired_list;
+      //iot_desired_list.clear();
 
      }else if( currentCollectorStr == "mpi" ) {
 
       // Generate the list of MPI modifiers
-      generateMPImodifiers();
-
-      std::map<std::string, bool> mpi_desired_list;
-      mpi_desired_list.clear();
-      mpi_desired_list.insert(std::pair<std::string,int>("mpi::exclusive_times",sourcePanelAnnotationDialog->mpi_exclusive_times));
-      mpi_desired_list.insert(std::pair<std::string,int>("mpi::inclusive_times",sourcePanelAnnotationDialog->mpi_inclusive_times));
-      mpi_desired_list.insert(std::pair<std::string,int>("min",sourcePanelAnnotationDialog->mpi_min));
-      mpi_desired_list.insert(std::pair<std::string,int>("max",sourcePanelAnnotationDialog->mpi_max));
-      mpi_desired_list.insert(std::pair<std::string,int>("average",sourcePanelAnnotationDialog->mpi_average));
-      mpi_desired_list.insert(std::pair<std::string,int>("count",sourcePanelAnnotationDialog->mpi_count));
-      mpi_desired_list.insert(std::pair<std::string,int>("percent",sourcePanelAnnotationDialog->mpi_percent));
-      mpi_desired_list.insert(std::pair<std::string,int>("stddev",sourcePanelAnnotationDialog->mpi_stddev));
-
-      updateCurrentModifierList(list_of_mpi_modifiers, &current_list_of_mpi_modifiers, mpi_desired_list);
+      //generateMPImodifiers();
+      //std::map<std::string, bool> mpi_desired_list;
+      //mpi_desired_list.clear();
+      //updateCurrentModifierList(list_of_mpi_modifiers, &current_list_of_mpi_modifiers, mpi_desired_list);
 
      }else if( currentCollectorStr == "mpit" ) {
 
       // Generate the list of MPIT modifiers
-      generateMPITmodifiers();
-
-      std::map<std::string, bool> mpit_desired_list;
-      mpit_desired_list.clear();
-      mpit_desired_list.insert(std::pair<std::string,int>("mpit::exclusive_times",sourcePanelAnnotationDialog->mpit_exclusive_times));
-      mpit_desired_list.insert(std::pair<std::string,int>("mpit::inclusive_times",sourcePanelAnnotationDialog->mpit_inclusive_times));
-      mpit_desired_list.insert(std::pair<std::string,int>("min",sourcePanelAnnotationDialog->mpit_min));
-      mpit_desired_list.insert(std::pair<std::string,int>("max",sourcePanelAnnotationDialog->mpit_max));
-      mpit_desired_list.insert(std::pair<std::string,int>("average",sourcePanelAnnotationDialog->mpit_average));
-      mpit_desired_list.insert(std::pair<std::string,int>("count",sourcePanelAnnotationDialog->mpit_count));
-      mpit_desired_list.insert(std::pair<std::string,int>("percent",sourcePanelAnnotationDialog->mpit_percent));
-      mpit_desired_list.insert(std::pair<std::string,int>("stddev",sourcePanelAnnotationDialog->mpit_stddev));
-      mpit_desired_list.insert(std::pair<std::string,int>("start_time",sourcePanelAnnotationDialog->mpit_start_time));
-      mpit_desired_list.insert(std::pair<std::string,int>("stop_time",sourcePanelAnnotationDialog->mpit_stop_time));
-      mpit_desired_list.insert(std::pair<std::string,int>("source",sourcePanelAnnotationDialog->mpit_source));
-      mpit_desired_list.insert(std::pair<std::string,int>("dest",sourcePanelAnnotationDialog->mpit_dest));
-      mpit_desired_list.insert(std::pair<std::string,int>("size",sourcePanelAnnotationDialog->mpit_size));
-      mpit_desired_list.insert(std::pair<std::string,int>("tag",sourcePanelAnnotationDialog->mpit_tag));
-      mpit_desired_list.insert(std::pair<std::string,int>("communicator",sourcePanelAnnotationDialog->mpit_communicator));
-      mpit_desired_list.insert(std::pair<std::string,int>("datatype",sourcePanelAnnotationDialog->mpit_datatype));
-      mpit_desired_list.insert(std::pair<std::string,int>("retval",sourcePanelAnnotationDialog->mpit_retval));
-
-      updateCurrentModifierList(list_of_mpit_modifiers, &current_list_of_mpit_modifiers, mpit_desired_list);
+      //generateMPITmodifiers();
+      //std::map<std::string, bool> mpit_desired_list;
+      //mpit_desired_list.clear();
+      //updateCurrentModifierList(list_of_mpit_modifiers, &current_list_of_mpit_modifiers, mpit_desired_list);
 
      }else if( currentCollectorStr == "fpe" ) {
 
       // Generate the list of FPE modifiers
-      generateFPEmodifiers();
-
-      std::map<std::string, bool> fpe_desired_list;
-      fpe_desired_list.clear();
-
-      fpe_desired_list.insert(std::pair<std::string,int>("fpe::time",sourcePanelAnnotationDialog->fpe_time));
-      fpe_desired_list.insert(std::pair<std::string,int>("fpe::counts",sourcePanelAnnotationDialog->fpe_counts));
-      fpe_desired_list.insert(std::pair<std::string,int>("fpe::percent",sourcePanelAnnotationDialog->fpe_percent));
-      fpe_desired_list.insert(std::pair<std::string,int>("fpe::ThreadAverage",sourcePanelAnnotationDialog->fpe_ThreadAverage));
-      fpe_desired_list.insert(std::pair<std::string,int>("fpe::ThreadMin",sourcePanelAnnotationDialog->fpe_ThreadMin));
-      fpe_desired_list.insert(std::pair<std::string,int>("fpe::ThreadMax",sourcePanelAnnotationDialog->fpe_ThreadMax));
-      fpe_desired_list.insert(std::pair<std::string,int>("fpe::inexact_result_count",sourcePanelAnnotationDialog->fpe_inexact_result_count));
-      fpe_desired_list.insert(std::pair<std::string,int>("fpe::underflow_count",sourcePanelAnnotationDialog->fpe_underflow_count));
-      fpe_desired_list.insert(std::pair<std::string,int>("fpe::overflow_count",sourcePanelAnnotationDialog->fpe_overflow_count));
-      fpe_desired_list.insert(std::pair<std::string,int>("fpe::division_by_zero_count",sourcePanelAnnotationDialog->fpe_division_by_zero_count));
-      fpe_desired_list.insert(std::pair<std::string,int>("fpe::unnormal_count",sourcePanelAnnotationDialog->fpe_unnormal_count));
-      fpe_desired_list.insert(std::pair<std::string,int>("fpe::invalid_count",sourcePanelAnnotationDialog->fpe_invalid_count));
-      fpe_desired_list.insert(std::pair<std::string,int>("fpe::unknown_count",sourcePanelAnnotationDialog->fpe_unknown_count));
-
-      updateCurrentModifierList(list_of_fpe_modifiers, &current_list_of_fpe_modifiers, fpe_desired_list);
+      //generateFPEmodifiers();
+      //std::map<std::string, bool> fpe_desired_list;
+      //fpe_desired_list.clear();
+      //updateCurrentModifierList(list_of_fpe_modifiers, &current_list_of_fpe_modifiers, fpe_desired_list);
 
      } // end fpe specific
 
@@ -4045,7 +3920,7 @@ StatsPanel::returnPressed(QListViewItem *item)
 {
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::StatsPanel::returnPressed, lastCommand=(%s)\n", lastCommand.ascii());
+  printf("StatsPanel::returnPressed, lastCommand=(%s)\n", lastCommand.ascii());
 #endif
 
   if( lastCommand.contains("Butterfly") ) {
@@ -7614,8 +7489,7 @@ StatsPanel::hwcsampModifierSelected(int val)
 // printf("B1: modifierStr=(%s)\n", s.c_str() );
 
   bool FOUND = FALSE;
-  for( std::list<std::string>::const_iterator it = current_list_of_hwcsamp_modifiers.begin();
-       it != current_list_of_hwcsamp_modifiers.end();  )
+  for( std::list<std::string>::const_iterator it = current_list_of_hwcsamp_modifiers.begin(); it != current_list_of_hwcsamp_modifiers.end();  )
   {
     std::string modifier = (std::string)*it;
 
@@ -8261,9 +8135,9 @@ StatsPanel::updateCollectorParamsValList()
   QString command = QString::null;
 
   if( focusedExpID == -1 ) {
-    command = QString("list -v paramvals -x %1").arg(expID);
+    command = QString("list -v justparamvalues -x %1").arg(expID);
   } else {
-    command = QString("list -v paramvals -x %1").arg(focusedExpID);
+    command = QString("list -v justparamvalues -x %1").arg(focusedExpID);
   }
 
 #ifdef DEBUG_StatsPanel
@@ -8274,16 +8148,19 @@ StatsPanel::updateCollectorParamsValList()
   list_of_collectors_paramsval.clear();
   list_of_generic_modifiers.clear();
   InputLineObject *clip = NULL;
+  std::string cstring;
 
-  if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_collectors_paramsval, clip, TRUE ) )
+  //if( !cli->getStringValueFromCLI( (char *)command.ascii(), &list_of_collectors_paramsval, clip, TRUE ) )
+  if( !cli->getStringValueFromCLI( (char *)command.ascii(), &cstring, clip, TRUE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::updateCollectorParamsValList-ran %s\n", command.ascii() );
+  printf("StatsPanel::updateCollectorParamsValList-ran %s, result=%s\n", command.ascii(), cstring.c_str() );
 #endif
 
+#if JIM
   if( list_of_collectors_paramsval.size() > 0 )
   {
     for( std::list<std::string>::const_iterator it = list_of_collectors_paramsval.begin();
@@ -8311,6 +8188,7 @@ StatsPanel::updateCollectorParamsValList()
       list_of_generic_modifiers.push_back(collector_name);
     }
   }
+#endif
 }
 
 
@@ -9804,7 +9682,7 @@ StatsPanel::generateCommand()
 
   updateCollectorMetricList();
 
-  //updateCollectorParamsValList();
+  updateCollectorParamsValList();
 
   updateThreadsList();
 
@@ -10587,6 +10465,9 @@ StatsPanel::generateHWCmodifiers()
 void
 StatsPanel::generateHWCSAMPmodifiers()
 {
+#ifdef DEBUG_StatsPanel
+  printf("ENTER StatsPanel::generateHWCSAMPmodifiers\n" );
+#endif
   list_of_hwcsamp_modifiers.clear();
   list_of_hwcsamp_modifiers.push_back("hwcsamp::time");
   list_of_hwcsamp_modifiers.push_back("hwcsamp::allEvents");
@@ -10594,6 +10475,57 @@ StatsPanel::generateHWCSAMPmodifiers()
   list_of_hwcsamp_modifiers.push_back("hwcsamp::ThreadAverage");
   list_of_hwcsamp_modifiers.push_back("hwcsamp::ThreadMin");
   list_of_hwcsamp_modifiers.push_back("hwcsamp::ThreadMax");
+
+  // Now get the the metrics for hwcsamp to pull off the event names to add to the metrics list
+  QString command = QString::null;
+    
+  if( focusedExpID == -1 ) {
+     command = QString("list -v justparamvalues -x %1").arg(expID);
+  } else {
+     command = QString("list -v justparamvalues -x %1").arg(focusedExpID);
+  }
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::generateHWCSAMPmodifiers, -attempt to run (%s)\n", command.ascii() );
+#endif
+
+  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  list_of_collectors_paramsval.clear();
+  list_of_generic_modifiers.clear();
+  InputLineObject *clip = NULL;
+  std::string cstring;
+  std::string lastToken;
+
+
+  if( !cli->getStringValueFromCLI( (char *)command.ascii(), &cstring, clip, TRUE ) )
+  {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::generateHWCSAMPmodifiers -ran %s, result=%s\n", command.ascii(), cstring.c_str() );
+#endif
+  std::vector<std::string> tokens;
+  createTokens(cstring, tokens, ",");
+  std::vector<std::string>::iterator k;
+
+  for (k=tokens.begin();k != tokens.end(); k++) {
+     lastToken = *k;
+#ifdef DEBUG_StatsPanel
+     printf("StatsPanel::generateHWCSAMPmodifiers list_of_hwcsamp_modifiers.push_back, lastToken=%s\n", lastToken.c_str() );
+#endif
+     list_of_hwcsamp_modifiers.push_back(lastToken.c_str());
+  }
+  for( std::list<std::string>::const_iterator it = list_of_hwcsamp_modifiers.begin();
+       it != list_of_hwcsamp_modifiers.end();  )
+  {
+    std::string modifier = (std::string)*it;
+#ifdef DEBUG_StatsPanel
+     printf("StatsPanel::generateHWCSAMPmodifiers LOOP THROUGH, list_of_hwcsamp_modifiers, modifier=%s\n", modifier.c_str() );
+#endif
+     it++;
+  }
+
+//
 }
 
 
@@ -10708,169 +10640,6 @@ StatsPanel::generateFPEmodifiers()
   list_of_fpe_modifiers.push_back("fpe::unnormal_count");
   list_of_fpe_modifiers.push_back("fpe::invalid_count");
   list_of_fpe_modifiers.push_back("fpe::unknown_count");
-}
-
-
-void
-StatsPanel::generatePCSAMPAnnotationmodifiers()
-{
-  list_of_pcsamp_annotation_modifiers.clear();
-  list_of_pcsamp_annotation_modifiers.push_back("pcsamp::time");
-  list_of_pcsamp_annotation_modifiers.push_back("pcsamp::percent");
-  list_of_pcsamp_annotation_modifiers.push_back("pcsamp::ThreadAverage");
-  list_of_pcsamp_annotation_modifiers.push_back("pcsamp::ThreadMin");
-  list_of_pcsamp_annotation_modifiers.push_back("pcsamp::ThreadMax");
-}
-
-void
-StatsPanel::generateUSERTIMEAnnotationmodifiers()
-{
-  list_of_usertime_annotation_modifiers.clear();
-  list_of_usertime_annotation_modifiers.push_back("usertime::exclusive_times");
-  list_of_usertime_annotation_modifiers.push_back("usertime::inclusive_times");
-  list_of_usertime_annotation_modifiers.push_back("usertime::percent");
-  list_of_usertime_annotation_modifiers.push_back("usertime::count");
-  list_of_usertime_annotation_modifiers.push_back("usertime::ThreadAverage");
-  list_of_usertime_annotation_modifiers.push_back("usertime::ThreadMin");
-  list_of_usertime_annotation_modifiers.push_back("usertime::ThreadMax");
-}
-
-void
-StatsPanel::generateHWCAnnotationmodifiers()
-{
-  list_of_hwc_annotation_modifiers.clear();
-  list_of_hwc_annotation_modifiers.push_back("hwc::overflows");
-  list_of_hwc_annotation_modifiers.push_back("hwc::counts");
-  list_of_hwc_annotation_modifiers.push_back("hwc::percent");
-  list_of_hwc_annotation_modifiers.push_back("hwc::ThreadAverage");
-  list_of_hwc_annotation_modifiers.push_back("hwc::ThreadMin");
-  list_of_hwc_annotation_modifiers.push_back("hwc::ThreadMax");
-}
-
-void
-StatsPanel::generateHWCSAMPAnnotationmodifiers()
-{
-  list_of_hwcsamp_annotation_modifiers.clear();
-  list_of_hwcsamp_annotation_modifiers.push_back("hwcsamp::time");
-  list_of_hwcsamp_annotation_modifiers.push_back("hwcsamp::allEvents");
-  list_of_hwcsamp_annotation_modifiers.push_back("hwcsamp::percent");
-  list_of_hwcsamp_annotation_modifiers.push_back("hwcsamp::ThreadAverage");
-  list_of_hwcsamp_annotation_modifiers.push_back("hwcsamp::ThreadMin");
-  list_of_hwcsamp_annotation_modifiers.push_back("hwcsamp::ThreadMax");
-}
-
-
-void
-StatsPanel::generateHWCTIMEAnnotationmodifiers()
-{
-  list_of_hwctime_annotation_modifiers.clear();
-  list_of_hwctime_annotation_modifiers.push_back("hwctime::exclusive_counts");
-  list_of_hwctime_annotation_modifiers.push_back("hwctime::exclusive_overflows");
-  list_of_hwctime_annotation_modifiers.push_back("hwctime::inclusive_overflows");
-  list_of_hwctime_annotation_modifiers.push_back("hwctime::inclusive_counts");
-  list_of_hwctime_annotation_modifiers.push_back("hwctime::percent");
-  list_of_hwctime_annotation_modifiers.push_back("hwctime::ThreadAverage");
-  list_of_hwctime_annotation_modifiers.push_back("hwctime::ThreadMin");
-  list_of_hwctime_annotation_modifiers.push_back("hwctime::ThreadMax");
-}
-
-void
-StatsPanel::generateIOAnnotationmodifiers()
-{
-    list_of_io_annotation_modifiers.clear();
-    list_of_io_annotation_modifiers.push_back("io::exclusive_times");
-    list_of_io_annotation_modifiers.push_back("min");
-    list_of_io_annotation_modifiers.push_back("max");
-    list_of_io_annotation_modifiers.push_back("average");
-    list_of_io_annotation_modifiers.push_back("count");
-    list_of_io_annotation_modifiers.push_back("percent");
-    list_of_io_annotation_modifiers.push_back("stddev");
-    list_of_io_annotation_modifiers.push_back("ThreadAverage");
-    list_of_io_annotation_modifiers.push_back("ThreadMin");
-    list_of_io_annotation_modifiers.push_back("ThreadMax");
-}
-
-void
-StatsPanel::generateIOTAnnotationmodifiers()
-{
-    list_of_iot_annotation_modifiers.clear();
-    list_of_iot_annotation_modifiers.push_back("iot::exclusive_times");
-    list_of_iot_annotation_modifiers.push_back("iot::inclusive_times");
-    list_of_iot_annotation_modifiers.push_back("min");
-    list_of_iot_annotation_modifiers.push_back("max");
-    list_of_iot_annotation_modifiers.push_back("average");
-    list_of_iot_annotation_modifiers.push_back("count");
-    list_of_iot_annotation_modifiers.push_back("percent");
-    list_of_iot_annotation_modifiers.push_back("stddev");
-    list_of_iot_annotation_modifiers.push_back("start_time");
-    list_of_iot_annotation_modifiers.push_back("stop_time");
-    list_of_iot_annotation_modifiers.push_back("syscallno");
-    list_of_iot_annotation_modifiers.push_back("nsysargs");
-    list_of_iot_annotation_modifiers.push_back("retval");
-#if PATHNAME_READY
-    list_of_iot_annotation_modifiers.push_back("pathname");
-#endif
-}
-
-void
-StatsPanel::generateMPIAnnotationmodifiers()
-{
-//  list_of_mpi_annotation_modifiers.push_back("mpi::exclusive_details");
-//  list_of_mpi_annotation_modifiers.push_back("mpi::inclusive_details");
-//
-    list_of_mpi_annotation_modifiers.clear();
-    list_of_mpi_annotation_modifiers.push_back("mpi::exclusive_times");
-    list_of_mpi_annotation_modifiers.push_back("mpi::inclusive_times");
-    list_of_mpi_annotation_modifiers.push_back("min");
-    list_of_mpi_annotation_modifiers.push_back("max");
-    list_of_mpi_annotation_modifiers.push_back("average");
-    list_of_mpi_annotation_modifiers.push_back("count");
-    list_of_mpi_annotation_modifiers.push_back("percent");
-    list_of_mpi_annotation_modifiers.push_back("stddev");
-}
-
-void
-StatsPanel::generateMPITAnnotationmodifiers()
-{
-//  list_of_mpit_annotation_modifiers.push_back("mpit::exclusive_details");
-//  list_of_mpit_annotation_modifiers.push_back("mpit::inclusive_details");
-//
-    list_of_mpit_annotation_modifiers.push_back("mpit::exclusive_times");
-    list_of_mpit_annotation_modifiers.push_back("mpit::inclusive_times");
-    list_of_mpit_annotation_modifiers.push_back("min");
-    list_of_mpit_annotation_modifiers.push_back("max");
-    list_of_mpit_annotation_modifiers.push_back("average");
-    list_of_mpit_annotation_modifiers.push_back("count");
-    list_of_mpit_annotation_modifiers.push_back("percent");
-    list_of_mpit_annotation_modifiers.push_back("stddev");
-    list_of_mpit_annotation_modifiers.push_back("start_time");
-    list_of_mpit_annotation_modifiers.push_back("stop_time");
-    list_of_mpit_annotation_modifiers.push_back("source");
-    list_of_mpit_annotation_modifiers.push_back("dest");
-    list_of_mpit_annotation_modifiers.push_back("size");
-    list_of_mpit_annotation_modifiers.push_back("tag");
-    list_of_mpit_annotation_modifiers.push_back("communicator");
-    list_of_mpit_annotation_modifiers.push_back("datatype");
-    list_of_mpit_annotation_modifiers.push_back("retval");
-}
-
-void
-StatsPanel::generateFPEAnnotationmodifiers()
-{
-  list_of_fpe_annotation_modifiers.clear();
-  list_of_fpe_annotation_modifiers.push_back("fpe::time");
-  list_of_fpe_annotation_modifiers.push_back("fpe::counts");
-  list_of_fpe_annotation_modifiers.push_back("fpe::percent");
-  list_of_fpe_annotation_modifiers.push_back("fpe::ThreadAverage");
-  list_of_fpe_annotation_modifiers.push_back("fpe::ThreadMin");
-  list_of_fpe_annotation_modifiers.push_back("fpe::ThreadMax");
-  list_of_fpe_annotation_modifiers.push_back("fpe::inexact_result_count");
-  list_of_fpe_annotation_modifiers.push_back("fpe::underflow_count");
-  list_of_fpe_annotation_modifiers.push_back("fpe::overflow_count");
-  list_of_fpe_annotation_modifiers.push_back("fpe::division_by_zero_count");
-  list_of_fpe_annotation_modifiers.push_back("fpe::unnormal_count");
-  list_of_fpe_annotation_modifiers.push_back("fpe::invalid_count");
-  list_of_fpe_annotation_modifiers.push_back("fpe::unknown_count");
 }
 
 void
@@ -11078,7 +10847,7 @@ StatsPanel::generateHWCSampMenu(QString collectorName)
   connect(hwcsamp_menu, SIGNAL( activated(int) ),
          this, SLOT(collectorHWCSampReportSelected(int)) );
 #if 1
-  generateHWCTIMEmodifiers();
+  generateHWCSAMPmodifiers();
 #else
   list_of_hwcsamp_modifiers.clear();
   list_of_hwcsamp_modifiers.push_back("hwcsamp::time");
@@ -11089,8 +10858,7 @@ StatsPanel::generateHWCSampMenu(QString collectorName)
   list_of_hwcsamp_modifiers.push_back("hwcsamp::ThreadMax");
 #endif
 
-  if( hwcsampModifierMenu )
-  {
+  if( hwcsampModifierMenu ) {
     delete hwcsampModifierMenu;
   }
   hwcsampModifierMenu = new QPopupMenu(this);
@@ -11935,7 +11703,7 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
             command = QString("expView -x %1 -v statements -f %2 -m %3 %4").arg(localExpID).arg(fn).arg(highlightMetricStr).arg(timeIntervalString);
 
 #ifdef DEBUG_StatsPanel
-            printf("StatsPanel::lookUpFileHighlights2, 33, fn=%s, command=(%s)\n", fn.ascii(), command.ascii() );
+            printf("StatsPanel::lookUpFileHighlights2, 77jeg, fn=%s, command=(%s)\n", fn.ascii(), command.ascii() );
 #endif
 
       } // end else not io, iot, mpi, mpit
@@ -13538,7 +13306,7 @@ StatsPanel::generateBaseToolBar( QString command )
                                         QString::null, this, SLOT( infoEditHeaderMoreButtonSelected()), 
                                         fileTools, "show more experiment metadata");
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::StatsPanel() generateBaseToolBar CREATING metadataToolButton=0x%lx, currentCollectorStr.ascii()=%s, lastCollectorStr.ascii()=%s, recycleFLAG=%d\n", 
+  printf("StatsPanel() generateBaseToolBar CREATING metadataToolButton=0x%lx, currentCollectorStr.ascii()=%s, lastCollectorStr.ascii()=%s, recycleFLAG=%d\n", 
           metadataToolButton, currentCollectorStr.ascii(), lastCollectorStr.ascii(), recycleFLAG);
 #endif
 
@@ -13653,7 +13421,7 @@ if (currentCollectorStr != lastCollectorStr ||
                                         QString::null, this, SLOT( infoEditHeaderMoreButtonSelected()), 
                                         fileTools, "show more experiment metadata");
 #ifdef DEBUG_StatsPanel_toolbar
-  printf("StatsPanel::StatsPanel() generateToolBar CREATING metadataToolButton=0x%lx, currentCollectorStr.ascii()=%s, lastCollectorStr.ascii()=%s, recycleFLAG=%d\n", 
+  printf("StatsPanel() generateToolBar CREATING metadataToolButton=0x%lx, currentCollectorStr.ascii()=%s, lastCollectorStr.ascii()=%s, recycleFLAG=%d\n", 
           metadataToolButton, currentCollectorStr.ascii(), lastCollectorStr.ascii(), recycleFLAG);
 #endif
 
@@ -13754,11 +13522,13 @@ if (currentCollectorStr != lastCollectorStr ||
     new QToolButton(*optional_views_icon, "SHOW OPTIONAL VIEW: Select icon to launch dialog box which will present\na number of optional fields/columns to include in the creation of an\noptional view of the existing data.", QString::null, this, SLOT( optionalViewsCreationSelected()), fileTools, "create optional view ");
 #endif
 
-#if SOURCE_ANNOTATION
+  if(  currentCollectorStr == "hwcsamp" )
+  {
+#if 1
     QPixmap *sourceAnnotation_icon = new QPixmap( sourceAnnotation_icon_xpm );
     new QToolButton(*sourceAnnotation_icon, "SHOW OPTIONAL VIEW: Select icon to launch dialog box which will present\na number of optional metrics to view in the creation of\nthe source panel.", QString::null, this, SLOT( sourcePanelAnnotationCreationSelected()), fileTools, "create source annotation view ");
 #endif
-
+  }
 
   // ----------------- Start of the Analysis Icons
   if( currentCollectorStr == "iot" || currentCollectorStr == "mpit" ) {
@@ -13807,7 +13577,7 @@ if (currentCollectorStr != lastCollectorStr ||
     vDisplayTypeBG->setExclusive( TRUE );
 
 #ifdef DEBUG_StatsPanel_toolbar
-    printf("StatsPanel::StatsPanel, in compare type button group, creation, fileTools=0x%lx)\n", fileTools);
+    printf("StatsPanel::generateToolBar, in compare type button group, creation, fileTools=0x%lx)\n", fileTools);
 #endif
 
     // insert 1 or 3 radiobuttons
@@ -13820,7 +13590,7 @@ if (currentCollectorStr != lastCollectorStr ||
     }
 
 #ifdef DEBUG_StatsPanel_toolbar
-    printf("StatsPanel::StatsPanel, in compare type button group, creation, full_display_by_menu=%d)\n", full_display_by_menu);
+    printf("StatsPanel::generateToolBar, in compare type button group, creation, full_display_by_menu=%d)\n", full_display_by_menu);
 #endif
 
     if (full_display_by_menu) {
@@ -13832,34 +13602,34 @@ if (currentCollectorStr != lastCollectorStr ||
       connect( vDisplayTypeLinkedObjectRB, SIGNAL( clicked() ), this, SLOT( displayUsingLinkedObject() ) );
 
 #ifdef DEBUG_StatsPanel_toolbar
-      printf("StatsPanel::StatsPanel, in compare type button group, creation, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
+      printf("StatsPanel::generateToolBar, in compare type button group, creation, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
 #endif
       if (currentDisplayUsingType == displayUsingFunctionType) {
          vDisplayTypeFunctionRB->setChecked(TRUE);
          vDisplayTypeStatementRB->setChecked(FALSE);
          vDisplayTypeLinkedObjectRB->setChecked(FALSE);
 #ifdef DEBUG_StatsPanel_toolbar
-         printf("StatsPanel::StatsPanel, in compare type button group, displayUsingFunctionType, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
+         printf("StatsPanel::generateToolBar, in compare type button group, displayUsingFunctionType, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
 #endif
       } else if (currentDisplayUsingType == displayUsingStatementType) {
          vDisplayTypeFunctionRB->setChecked(FALSE);
          vDisplayTypeStatementRB->setChecked(TRUE);
          vDisplayTypeLinkedObjectRB->setChecked(FALSE);
 #ifdef DEBUG_StatsPanel_toolbar
-         printf("StatsPanel::StatsPanel, in compare type button group, displayUsingStatementType, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
+         printf("StatsPanel::generateToolBar, in compare type button group, displayUsingStatementType, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
 #endif
       } else {
          vDisplayTypeFunctionRB->setChecked(FALSE);
          vDisplayTypeStatementRB->setChecked(FALSE);
          vDisplayTypeLinkedObjectRB->setChecked(TRUE);
 #ifdef DEBUG_StatsPanel_toolbar
-         printf("StatsPanel::StatsPanel, in compare type button group, displayUsingLOType, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
+         printf("StatsPanel::generateToolBar, in compare type button group, displayUsingLOType, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
 #endif
       }
     } else {
          vDisplayTypeFunctionRB->setChecked(TRUE);
 #ifdef DEBUG_StatsPanel_toolbar
-         printf("StatsPanel::StatsPanel, in compare type button group, default, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
+         printf("StatsPanel::generateToolBar, in compare type button group, default, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
 #endif
     }
 

@@ -335,29 +335,6 @@ class StatsPanel  : public Panel
     std::list<std::string> list_of_generic_modifiers;
     std::list<std::string> current_list_of_generic_modifiers;
 
-    std::list<std::string> list_of_mpi_annotation_modifiers;
-    std::list<std::string> current_list_of_mpi_annotation_modifiers;
-    std::list<std::string> list_of_mpit_annotation_modifiers;
-    std::list<std::string> current_list_of_mpit_annotation_modifiers;
-    std::list<std::string> list_of_io_annotation_modifiers;
-    std::list<std::string> current_list_of_io_annotation_modifiers;
-    std::list<std::string> list_of_iot_annotation_modifiers;
-    std::list<std::string> current_list_of_iot_annotation_modifiers;
-    std::list<std::string> list_of_hwc_annotation_modifiers;
-    std::list<std::string> current_list_of_hwc_annotation_modifiers;
-    std::list<std::string> list_of_hwcsamp_annotation_modifiers;
-    std::list<std::string> current_list_of_hwcsamp_annotation_modifiers;
-    std::list<std::string> list_of_hwctime_annotation_modifiers;
-    std::list<std::string> current_list_of_hwctime_annotation_modifiers;
-    std::list<std::string> list_of_pcsamp_annotation_modifiers;
-    std::list<std::string> current_list_of_pcsamp_annotation_modifiers;
-    std::list<std::string> list_of_usertime_annotation_modifiers;
-    std::list<std::string> current_list_of_usertime_annotation_modifiers;
-    std::list<std::string> list_of_fpe_annotation_modifiers;
-    std::list<std::string> current_list_of_fpe_annotation_modifiers;
-    std::list<std::string> list_of_generic_annotation_modifiers;
-    std::list<std::string> current_list_of_generic_annotation_modifiers;
-
     void setLastCommand(QString value) { lastCommand = value; } ;
     void updateThreadsList();
     void getApplicationCommand(int expID);
