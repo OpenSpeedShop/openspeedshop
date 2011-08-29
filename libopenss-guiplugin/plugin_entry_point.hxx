@@ -74,7 +74,7 @@ extern "C"
 
 #ifdef DEBUG_PI
     // printf type output
-    plugin_entry->Print();
+//    plugin_entry->Print();
     printf("plugin_info_init() return 1 - first\n");
 #endif
     return 1;
@@ -165,7 +165,7 @@ dprintf("  panel_init() entered\n");
 #ifdef DEBUG_PI
         printf("panel_init, Found %s at %d for %s\n", pluginInfo->menu_heading, i, pluginInfo->panel_type );
         // printf type output
-        pluginInfo->Print();
+//        pluginInfo->Print();
 #endif
 
         found = TRUE;

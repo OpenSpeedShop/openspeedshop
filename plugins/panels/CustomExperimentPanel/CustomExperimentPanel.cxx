@@ -1868,7 +1868,13 @@ CustomExperimentPanel::loadStatsPanel()
     if( staticDataFLAG == TRUE ) {
       ao->loadedFromSavedFile = TRUE;
     }
+#ifdef DEBUG_CustomPanel
+    printf("in CustomExperimentPanel::loadStatsPanel(), Calling dl_create_and_add_panel, to create StatsPanel\n");
+#endif
     statsPanel = getPanelContainer()->getMasterPC()->dl_create_and_add_panel((const char *)"Stats Panel", pc, ao, (const char *)NULL);
+#ifdef DEBUG_CustomPanel
+    printf("in CustomExperimentPanel::loadStatsPanel(), after Calling dl_create_and_add_panel, to create StatsPanel, statsPanel=%d\n", statsPanel);
+#endif
     delete ao;
 
     nprintf( DEBUG_PANELS )("call (%s)'s listener routine.\n", statsPanel->getName());
@@ -1882,14 +1888,11 @@ CustomExperimentPanel::loadStatsPanel()
     printf("in CustomExperimentPanel::loadStatsPanel(), eo->expRunAtLeastOnceAlready()=%d\n", eo->expRunAtLeastOnceAlready());
 #endif
         experiment = eo->FW();
-        UpdateObject *msg =
-          new UpdateObject((void *)experiment, expID, collector_names, 1);
+        UpdateObject *msg = new UpdateObject((void *)experiment, expID, collector_names, 1);
         statsPanel->listener( (void *)msg );
       }
-    } else
-    {
-      UpdateObject *msg =
-         new UpdateObject((void *)NULL, -1, original_cview_command.ascii(), 1);
+    } else {
+      UpdateObject *msg = new UpdateObject((void *)NULL, -1, original_cview_command.ascii(), 1);
       statsPanel->listener( (void *)msg );
 
 #ifdef DEBUG_CustomPanel

@@ -560,7 +560,11 @@ CLIInterface::getStringValueFromCLI(const char *command, std::string *str_val, b
 bool
 CLIInterface::getStringListValueFromCLI(const char *command, std::list<std::string> *str_list, InputLineObject *clip, bool mark_value_for_delete, int mt, bool wot )
 {
-//  printf("getStringListValueFromCLI(%s)\n", command);
+
+#if DEBUG_GUI
+  printf("getStringListValueFromCLI(%s)\n", command);
+#endif
+
   maxTime = mt;
   warn_of_time = wot;
 
@@ -606,6 +610,9 @@ nprintf(DEBUG_COMMANDS) ("getStringListValueFromCLI() command = (%s)\n", command
         {
           CommandResult_String *cr_str = (CommandResult_String *)(*cri);
 
+#ifdef DEBUG_GUI
+         printf("CLIInterface::getStringListValueFromCLI, calling Value\n");
+#endif
           std::string str_val;
           cr_str->Value(str_val);
           (*str_list).push_back(str_val);
