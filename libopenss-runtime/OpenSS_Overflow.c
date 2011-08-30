@@ -115,10 +115,34 @@ void OpenSS_Overflow(int EventSet, int event, int threshold , void *hwcPAPIHandl
 
 void OpenSS_Start(int EventSet)
 {
-    int rval = PAPI_start(EventSet);
 
+    int status = 0;
+    int rval = 0;
+
+    rval = PAPI_state(EventSet, &status);
     if (rval != PAPI_OK) {
-	OpenSS_PAPIerror(rval,"OpenSS_Start");
+	OpenSS_PAPIerror(rval,"OpenSS_Status");
+    } else {
+#if 0
+        printf("IN OpenSS_Start, RETURN FROM PAPI_state call, State is now 0x%x\n",status);
+        printf("IN OpenSS_Start, State value for status & PAPI_RUNNING is: 0x%x\n",(status & PAPI_RUNNING));
+#endif
+    }
+    // Do not start PAPI if already running
+    if (!(status & PAPI_RUNNING)) {
+ 
+#if 0
+      printf("IN OpenSS_Start, CALLING PAPI_start: 0x%x\n", status);
+#endif
+      rval = PAPI_start(EventSet);
+
+      if (rval != PAPI_OK) {
+  	OpenSS_PAPIerror(rval,"OpenSS_Start");
+      }
+    } else {
+#if 0
+      printf("IN OpenSS_Start, SKIPPING call to PAPI_start: 0x%x\n", status);
+#endif
     }
 }
 
@@ -131,16 +155,38 @@ void OpenSS_Stop(int EventSet, long_long* evalues)
 #endif
         return;
     }
+    int status = 0;
+    int rval = 0;
 
-    int rval = PAPI_stop(EventSet,evalues);
-
-    if (rval == PAPI_ENOTRUN) {
-	OpenSS_PAPIerror(rval,"OpenSS_Stop");
-	return;
-    }
-
+    rval = PAPI_state(EventSet, &status);
     if (rval != PAPI_OK) {
-	OpenSS_PAPIerror(rval,"OpenSS_Stop");
+	OpenSS_PAPIerror(rval,"OpenSS_Status");
+    } else {
+#if 0
+        printf("IN OpenSS_Stop, RETURN FROM PAPI_state call, State is now 0x%x\n",status);
+        printf("IN OpenSS_Stop, State value for status & PAPI_STOPPED is: 0x%x\n",(status & PAPI_STOPPED));
+#endif
+    }
+    // Do not stop PAPI if already stopped
+    if (! (status & PAPI_STOPPED) ) {
+    
+#if 0
+      printf("IN OpenSS_Stop, CALLING PAPI_stop: 0x%x\n", status);
+#endif
+      rval = PAPI_stop(EventSet,evalues);
+
+      if (rval == PAPI_ENOTRUN) {
+  	OpenSS_PAPIerror(rval,"OpenSS_Stop");
+  	return;
+      }
+
+      if (rval != PAPI_OK) {
+  	OpenSS_PAPIerror(rval,"OpenSS_Stop");
+      }
+    } else {
+#if 0
+      printf("IN OpenSS_Stop, SKIPPING call to PAPI_stop: 0x%x\n", status);
+#endif
     }
 }
 
