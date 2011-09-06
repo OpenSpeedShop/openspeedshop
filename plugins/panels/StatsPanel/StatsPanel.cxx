@@ -9682,7 +9682,9 @@ StatsPanel::generateCommand()
 
   updateCollectorMetricList();
 
-  updateCollectorParamsValList();
+  if (currentCollectorStr == "hwcsamp" ) {
+    updateCollectorParamsValList();
+  }
 
   updateThreadsList();
 
