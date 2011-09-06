@@ -11702,7 +11702,11 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 #endif
           }
 
-            command = QString("expView -x %1 -v statements -f %2 -m %3 %4").arg(localExpID).arg(fn).arg(highlightMetricStr).arg(timeIntervalString);
+            if( fn.isEmpty() ) {
+               command = QString("expView -x %1 -v statements -m %3 %4").arg(localExpID).arg(highlightMetricStr).arg(timeIntervalString);
+            } else {
+               command = QString("expView -x %1 -v statements -f %2 -m %3 %4").arg(localExpID).arg(fn).arg(highlightMetricStr).arg(timeIntervalString);
+            } 
 
 #ifdef DEBUG_StatsPanel
             printf("StatsPanel::lookUpFileHighlights2, 77jeg, fn=%s, command=(%s)\n", fn.ascii(), command.ascii() );
