@@ -91,6 +91,7 @@ createrepo -dg /var/www/html/yum/base/4254aba126bd4df25bc40ebf1db3427b5726626f44
 
 createrepo -dg /var/www/html/yum/base/1d46a2073097bdb6b7b6f6fba60e4525ca0bf2d1165026a3e1c87b0b2abaf07f-Fedora-14-comps.xml /var/www/html/yum/base/
 
+createrepo -dg  /var/www/html/yum/base/2837838aa7c648a3b6cd5eb754dee7b1df7b98bc42c58532937d9e4f397db7e8-Fedora-15-comps.xml /var/www/html/yum/base/
 
 //============================================================================//
 // Build Patched Kernel
