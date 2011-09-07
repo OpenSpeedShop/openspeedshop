@@ -1115,7 +1115,7 @@ extern "C"
     if( !gui_exit_point ) gui_exit_point = "gui_exit";
 
 #if DEBUG_CLI
-      std::cerr << "IN loadTheGUI, attempting to load the GUI" << std::endl;
+      std::cerr << "IN loadTheGUI, attempting to load the GUI, gui_dl_name=" << gui_dl_name << std::endl;
 #endif
   
     lt_dlhandle dl_gui_object = lt_dlopenext((const char *)gui_dl_name);
