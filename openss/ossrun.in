@@ -3,6 +3,10 @@
 
 # Debug flag
 ossrun_debug=0
+if [ -n "$OPENSS_DEBUG_STARTUP" ]
+then
+    ossrun_debug=$OPENSS_DEBUG_STARTUP
+fi
 
 # The machine dependent abi libdir name has been computed 
 # so use the information from one central location. 
@@ -49,13 +53,13 @@ if [ -n "$OPENSS_MPI_IMPLEMENTATION" ]
 then
     mpitouse=$OPENSS_MPI_IMPLEMENTATION
     if [ $ossrun_debug == 1 ]; then
-       echo "DEBUG: uing mpitouse from OPENSS_MPI_IMPLEMENTATION: $mpitouse"
+       echo "OSSRUN DEBUG: uing mpitouse from OPENSS_MPI_IMPLEMENTATION: $mpitouse"
     fi
 else
     mpitouse=`echo ${default_mpi_impl} |tr '[A-Z]' '[a-z]'`
     export OPENSS_MPI_IMPLEMENTATION=$mpitouse
     if [ $ossrun_debug == 1 ]; then
-       echo "DEBUG: uing mpitouse from default_mpi_impl: $mpitouse"
+       echo "OSSRUN DEBUG: uing mpitouse from default_mpi_impl: $mpitouse"
     fi
 fi
 
@@ -118,17 +122,17 @@ EOF
 }
 
 if [ $ossrun_debug == 1 ]; then
-  echo "DEBUG: ABOVE LOOPING THROUGH ARGUMENTS: $1"
+  echo "OSSRUN DEBUG: ABOVE LOOPING THROUGH ARGUMENTS: $1"
 fi
 
 while test "x$1" != x
 do
     if [ $ossrun_debug == 1 ]; then
-      echo "DEBUG: ARGUMENT 1: $1"
-      echo "DEBUG: ARGUMENT 2: $2"
-      echo "DEBUG: ARGUMENT 3: $3"
-      echo "DEBUG: ARGUMENT 4: $4"
-      echo "DEBUG: ARGUMENT 5: $5"
+      echo "OSSRUN DEBUG: ARGUMENT 1: $1"
+      echo "OSSRUN DEBUG: ARGUMENT 2: $2"
+      echo "OSSRUN DEBUG: ARGUMENT 3: $3"
+      echo "OSSRUN DEBUG: ARGUMENT 4: $4"
+      echo "OSSRUN DEBUG: ARGUMENT 5: $5"
     fi
     case "$1" in
 
@@ -138,21 +142,21 @@ do
 
 	-c | --collector)
             if [ $ossrun_debug == 1 ]; then
-              echo "DEBUG: -c, 1st COLLECTOR ARGUMENT: $1"
-              echo "DEBUG: -c, 2nd COLLECTOR ARGUMENT: $2"
+              echo "OSSRUN DEBUG: -c, 1st COLLECTOR ARGUMENT: $1"
+              echo "OSSRUN DEBUG: -c, 2nd COLLECTOR ARGUMENT: $2"
             fi
             test "x$2" != x || die "missing argument: $*"
 	    collector=$2
             if [ $ossrun_debug == 1 ]; then
-              echo "DEBUG: -c, set collector to 2nd COLLECTOR ARGUMENT: $2"
+              echo "OSSRUN DEBUG: -c, set collector to 2nd COLLECTOR ARGUMENT: $2"
             fi
             shift ; shift
             ;;
 
 	-o | --output)
             if [ $ossrun_debug == 1 ]; then
-              echo "DEBUG: -o, 1st OUTPUT ARGUMENT: $1"
-              echo "DEBUG: -o, 2nd OUTPUT ARGUMENT: $2"
+              echo "OSSRUN DEBUG: -o, 1st OUTPUT ARGUMENT: $1"
+              echo "OSSRUN DEBUG: -o, 2nd OUTPUT ARGUMENT: $2"
             fi
             test "x$2" != x || die "missing argument: $*"
             case "$2" in
@@ -166,7 +170,7 @@ do
 
         -- )
             if [ $ossrun_debug == 1 ]; then
-              echo "DEBUG: --, 1st DASH DASH ARGUMENT: $1"
+              echo "OSSRUN DEBUG: --, 1st DASH DASH ARGUMENT: $1"
             fi
             shift
             break
@@ -174,14 +178,14 @@ do
 
         -* )
             if [ $ossrun_debug == 1 ]; then
-              echo "DEBUG: -*, 1st UNKNOWN ARGUMENT: $1"
+              echo "OSSRUN DEBUG: -*, 1st UNKNOWN ARGUMENT: $1"
             fi
             die "unknown option: $1"
             ;;
 
         * )
             if [ $ossrun_debug == 1 ]; then
-              echo "DEBUG: *, DEFAULT - BREAK OUT OF WHILE, 1st DEFAULT ARGUMENT: $1"
+              echo "OSSRUN DEBUG: *, DEFAULT - BREAK OUT OF WHILE, 1st DEFAULT ARGUMENT: $1"
             fi
             break
             ;;
@@ -199,26 +203,26 @@ fi
 extra_mpi_libs=""
 
 if [ $ossrun_debug == 1 ]; then
-  echo "DEBUG: mpitouse, mpitouse=: $mpitouse"
+  echo "OSSRUN DEBUG: mpitouse, mpitouse=: $mpitouse"
 fi
 
 case "$mpitouse" in
     mpich2)
       extra_mpi_libs=${f_mpich2_libs}
       if [ $ossrun_debug == 1 ]; then
-        echo "DEBUG: mpich2, extra_mpi_libs=: $extra_mpi_libs"
+        echo "OSSRUN DEBUG: mpich2, extra_mpi_libs=: $extra_mpi_libs"
       fi
     ;;
 
     mvapich2)
       extra_mpi_libs=${f_mvapich2_libs}
       if [ $ossrun_debug == 1 ]; then
-        echo "DEBUG: mvapich2, extra_mpi_libs=: $extra_mpi_libs"
+        echo "OSSRUN DEBUG: mvapich2, extra_mpi_libs=: $extra_mpi_libs"
       fi
 esac
 
 if [ $ossrun_debug == 1 ]; then
-   echo "DEBUG: before case COLLECTOR: $collector"
+   echo "OSSRUN DEBUG: before case COLLECTOR: $collector"
 fi
 
 case "$collector" in
@@ -228,7 +232,7 @@ case "$collector" in
     mpicollector=${collector}-${mpitouse}
     export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${extra_mpi_libs}:${libmonitor}
     if [ $ossrun_debug == 1 ]; then
-      echo "DEBUG: 1 - mpicollector: $collector"
+      echo "OSSRUN DEBUG: 1 - mpicollector: $collector"
     fi
 
     ;;
@@ -237,7 +241,7 @@ case "$collector" in
     mpicollector=${collector}
     export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${extra_mpi_libs}:${libmonitor}
     if [ $ossrun_debug == 1 ]; then
-      echo "DEBUG: 2 - mpicollector: $collector"
+      echo "OSSRUN DEBUG: 2 - mpicollector: $collector"
     fi
     ;;
 
@@ -251,8 +255,8 @@ case "$collector" in
 esac
 
 if [ $ossrun_debug == 1 ]; then
-   echo "DEBUG: COLLECTOR: $collector"
-   echo "DEBUG: ABOUT TO EXEC: $@"
+   echo "OSSRUN DEBUG: COLLECTOR: $collector"
+   echo "OSSRUN DEBUG: ABOUT TO EXEC: $@"
 fi
 
 exec $@
