@@ -1392,6 +1392,99 @@ AC_DEFUN([AC_PKG_MVAPICH2], [
     CPPFLAGS=$mvapich2_saved_CPPFLAGS
     LDFLAGS=$mvapich2_saved_LDFLAGS
 
+    if test $found_mvapich2 -eq 0; then
+
+      AC_MSG_CHECKING([for MVAPICH2 library and headers])
+
+      # Put -shlib into MVAPICH2_CC, since it is needed when building the
+      # tests, where $MVAPICH2_CC is used, and is not needed when building
+      # the MPI-related plugins, where $MVAPICH2_CC is not used.
+      MVAPICH2_CC="$mvapich2_dir/bin/mpicc -shlib"
+      MVAPICH2_CPPFLAGS="-I$mvapich2_dir/include"
+      MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir -L$mvapich2_ofed_dir/$abi_libdir"
+      MVAPICH2_LIBS="-lmpich -libverbs"
+      MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
+      MVAPICH2_DIR="$mvapich2_dir"
+      MVAPICH2_NULL=""
+
+      # On the systems "mcr" and "thunder" at LLNL they have an MPICH variant
+      # that has things moved around a bit. Handle this by allowing a "llnl"
+      # pseudo-driver that makes the necessary configuration changes.
+#      if test x"$mvapich2_driver" == x"llnl"; then
+#  	   MVAPICH2_CC="$mvapich2_dir/bin/mpicc -shlib"
+#          MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir"
+#      fi
+
+      mvapich2_saved_CC=$CC
+      mvapich2_saved_CPPFLAGS=$CPPFLAGS
+      mvapich2_saved_LDFLAGS=$LDFLAGS
+
+      CC="$MVAPICH2_CC"
+      CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
+      LDFLAGS="$LDFLAGS $MVAPICH2_LIBS $MVAPICH2_LDFLAGS $MVAPICH2_LIBS"
+
+      AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+	#include <mpi.h>
+	]], [[
+	MPI_Initialized((int*)0);
+	]]),
+
+         if (test -f $mvapich2_dir/$abi_libdir/libmpich.so); then
+             found_mvapich2=1
+             MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir -L$mvapich2_ofed_dir/$abi_libdir"
+         fi
+        
+         if (test -f $mvapich2_dir/$abi_libdir/shared/libmpich.so); then
+	    found_mvapich2=1
+            MVAPICH2_LDFLAGS="-L$mvapich2_dir/$abi_libdir/shared -L$mvapich2_ofed_dir/$abi_libdir"
+        fi 
+
+	, )
+    fi
+
+    if test $found_mvapich2 -eq 0; then
+
+       AC_MSG_CHECKING([for MVAPICH2 library (alt locations), no libcommon  and headers])
+
+       # Put -shlib into MVAPICH2_CC, since it is needed when building the
+       # tests, where $MVAPICH2_CC is used, and is not needed when building
+       # the MPI-related plugins, where $MVAPICH2_CC is not used.
+       MVAPICH2_CC="$mvapich2_dir/bin/mpicc -shlib"
+       MVAPICH2_CPPFLAGS="-I$mvapich2_dir/include"
+       MVAPICH2_LDFLAGS="-L$mvapich2_dir/$alt_abi_libdir -L$mvapich2_ofed_dir/$alt_abi_libdir"
+       MVAPICH2_LIBS="-lmpich -libverbs" 
+       MVAPICH2_HEADER="$mvapich2_dir/include/mpi.h"
+       MVAPICH2_DIR="$mvapich2_dir"
+       MVAPICH2_NULL=""
+
+       CC="$MVAPICH2_CC"
+       CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MVAPICH2_LIBS $MVAPICH2_LDFLAGS $MVAPICH2_LIBS"
+
+       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]]),
+
+          if (test -f $mvapich2_dir/$alt_abi_libdir/libmpich.so); then
+	    found_mvapich2=1
+            MVAPICH2_LDFLAGS="-L$mvapich2_dir/$alt_abi_libdir -L$mvapich2_ofed_dir/$alt_abi_libdir"
+          fi
+
+          if (test -f $mvapich2_dir/$alt_abi_libdir/shared/libmpich.so); then
+	    found_mvapich2=1
+            MVAPICH2_LDFLAGS="-L$mvapich2_dir/$alt_abi_libdir/shared -L$mvapich2_ofed_dir/$alt_abi_libdir"
+          fi 
+
+	, )
+
+    fi
+
+    CC=$mvapich2_saved_CC
+    CPPFLAGS=$mvapich2_saved_CPPFLAGS
+    LDFLAGS=$mvapich2_saved_LDFLAGS
+
     if test $found_mvapich2 -eq 1; then
 	AC_MSG_RESULT(yes)
 	AM_CONDITIONAL(HAVE_MVAPICH2, true)
