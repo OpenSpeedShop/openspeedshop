@@ -27,6 +27,8 @@ import sys
 import PY_Input
 
 offlinepy_debug = 0
+if 'OPENSS_DEBUG_STARTUP' in os.environ:
+    offlinepy_debug = os.environ["OPENSS_DEBUG_STARTUP"]
 
 def create_unique_dbname(db_name):
     cnt = 1
@@ -199,20 +201,20 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
                   # BUT - OPENSS_MPI_IMPLEMENTATION must be set.  So, this seems safe
                   #
 
-                  if offlinepy_debug == 1: print "[openss-debug]: file_arg=" + file_arg
+                  if offlinepy_debug != 0: print "[openss-debug]: special checking section, file_arg=" + file_arg
                   if os.WEXITSTATUS(ismpidriver):
-                     if offlinepy_debug == 1: print "[openss-debug]: inside if not os.WEX(ismpidriver)"
+                     if offlinepy_debug != 0: print "[openss-debug]: inside if not os.WEX(ismpidriver)"
                      if 'OPENSS_MPI_IMPLEMENTATION' in os.environ:
-                        if offlinepy_debug == 1: print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is set"
+                        if offlinepy_debug != 0: print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is set"
                         set_mpi_impl = os.environ["OPENSS_MPI_IMPLEMENTATION"]
                         if set_mpi_impl == "MPT" or set_mpi_impl == "mpt":
-			     if offlinepy_debug == 1: print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is equal to mpt"
+			     if offlinepy_debug != 0: print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is equal to mpt"
 			     file_arg_basename = os.path.basename(file_arg)
-			     if offlinepy_debug == 1: print "[openss-debug]: file_arg_basename=" + file_arg_basename
+			     if offlinepy_debug != 0: print "[openss-debug]: file_arg_basename=" + file_arg_basename
 			     if file_arg_basename == "mpiexec" or file_arg_basename == "mpiexec_mpt":
-			         if offlinepy_debug == 1: print "[openss-debug]: inside file_arg_basename is equal to mpiexec or mpiexec_mpt"
+			         if offlinepy_debug != 0: print "[openss-debug]: inside file_arg_basename is equal to mpiexec or mpiexec_mpt"
 			         ismpidriver = bool(1)
-			         if offlinepy_debug == 1: print "[openss-debug]: setting ismpidriver to bool 1"
+			         if offlinepy_debug != 0: print "[openss-debug]: setting ismpidriver to bool 1"
 
 		  if not os.WEXITSTATUS(ismpidriver):
 		    ismpi = bool(1)
@@ -256,29 +258,37 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
                   #
                   if os.WEXITSTATUS(has_mpi_init) and not os.environ["OPENSS_MPI_IMPLEMENTATION"] == "":
 		    mpi_executable = file_arg
+                    if offlinepy_debug != 0: print "[openss-debug]: no has_mpi_init and no MPI_IMPLEMENTATION, mpi_executable is file_arg=" + file_arg
 		    break
 		  if not os.WEXITSTATUS(has_mpi_init):
 		    mpi_executable = file_arg
+                    if offlinepy_debug != 0: print "[openss-debug]: has_mpi_init, mpi_executable is file_arg=" + file_arg
 		    break
 		  if mpi_exe_implmentation == "mpich2":
+                    if offlinepy_debug != 0: print "[openss-debug]: mpich2, mpi_executable is file_arg=" + file_arg
 		    mpi_executable = file_arg
 		    break
 		  if mpi_exe_implmentation == "mpt":
+                    if offlinepy_debug != 0: print "[openss-debug]: mpt, mpi_executable is file_arg=" + file_arg
 		    mpi_executable = file_arg
 		    break
 		  if mpi_exe_implmentation == "openmpi":
 		    mpi_executable = file_arg
+                    if offlinepy_debug != 0: print "[openss-debug]: openmpi, mpi_executable is file_arg=" + file_arg
 		    break
 		  if mpi_exe_implmentation == "mvapich":
 		    mpi_executable = file_arg
+                    if offlinepy_debug != 0: print "[openss-debug]: mvapich, mpi_executable is file_arg=" + file_arg
 		    break
 		  if mpi_exe_implmentation == "mvapich2":
 		    mpi_executable = file_arg
+                    if offlinepy_debug != 0: print "[openss-debug]: mvapich2, mpi_executable is file_arg=" + file_arg
 		    break
 	    else:
 		isscript = os.system('file -L ' + file_arg + ' | grep -q script')
 		if not os.WEXITSTATUS(isscript):
 		  # Lets hope the mpich2 driver always has Argonne in its copyright.
+                  if offlinepy_debug != 0: print "[openss-debug]: isscript section, file_arg=" + file_arg
                   ismpich = os.system('grep -q -i \"MPIRUN for MPICH\" ' + file_arg)
                   ismpich2 = os.system('grep -q -i Argonne ' + file_arg)
                   ismvapich = os.system('grep -q -i \"Wrapper for job submission on Hert related machines\" ' + file_arg)
@@ -287,12 +297,12 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		  # if both ismpich2 and ismvapich2 are set, choose mpich2
 		  if not os.WEXITSTATUS(ismpich2) and not os.WEXITSTATUS(ismvapich2):
 			ismpich2 = bool(0)
-                        if offlinepy_debug == 1: print "[openss-debug]: both ismpich2 and ismvapich2 are set choose mpich2"
+                        if offlinepy_debug != 0: print "[openss-debug]: both ismpich2 and ismvapich2 are set choose mpich2"
 
 		  # if ismpich is set then don't do a check for mpich2
 		  if os.WEXITSTATUS(ismpich) and os.WEXITSTATUS(ismpich2):
 			ismpich2 = os.system('grep -q -i Intel ' + file_arg)
-                        if offlinepy_debug == 1: print "[openss-debug]: if ismpich is set then don't do a check for mpich2"
+                        if offlinepy_debug != 0: print "[openss-debug]: if ismpich is set then don't do a check for mpich2"
 
                   ismpt = os.system('grep -q -i \"SGI Message Passing Toolkit\" ' + file_arg)
 		  isMPT = os.system('grep -q -i sgimpirun ' + file_arg)
@@ -304,7 +314,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
                     program = program.replace(s, file_arg)
                     preload_files = ""
                     mpi_exe_implmentation = "mpich"
-                    if offlinepy_debug == 1: print "[openss-debug]: ismpich orig_mpi_driver=" + orig_mpi_driver
+                    if offlinepy_debug != 0: print "[openss-debug]: ismpich orig_mpi_driver=" + orig_mpi_driver
 		  if not os.WEXITSTATUS(ismpich2):
 		    ismpi = bool(1)
 		    mpi_driver = os.path.realpath(file_arg)
@@ -312,7 +322,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    program = program.replace(s, file_arg)
 		    preload_files = ""
 		    mpi_exe_implmentation = "mpich2"
-                    if offlinepy_debug == 1: print "[openss-debug]: ismpich2 orig_mpi_driver=" + orig_mpi_driver
+                    if offlinepy_debug != 0: print "[openss-debug]: ismpich2 orig_mpi_driver=" + orig_mpi_driver
                   if not os.WEXITSTATUS(ismpt):
                     ismpi = bool(1)
                     mpi_driver = os.path.realpath(file_arg)
@@ -320,7 +330,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
                     program = program.replace(s, file_arg)
                     preload_files = ""
                     mpi_exe_implmentation = "mpt"
-                    if offlinepy_debug == 1: print "[openss-debug]: ismpt orig_mpi_driver=" + orig_mpi_driver
+                    if offlinepy_debug != 0: print "[openss-debug]: ismpt orig_mpi_driver=" + orig_mpi_driver
 		  if not os.WEXITSTATUS(isMPT):
 		    ismpi = bool(1)
 		    mpi_driver = os.path.realpath(file_arg)
@@ -328,6 +338,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    program = program.replace(s, file_arg)
 		    preload_files = ""
 		    mpi_exe_implmentation = "mpt"
+                    if offlinepy_debug != 0: print "[openss-debug]: isMPT orig_mpi_driver=" + orig_mpi_driver
 		  if not os.WEXITSTATUS(isopenmpi):
 		    ismpi = bool(1)
 		    mpi_driver = os.path.realpath(file_arg)
@@ -335,7 +346,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    program = program.replace(s, file_arg)
 		    preload_files = ""
 		    mpi_exe_implmentation = "openmpi"
-                    if offlinepy_debug == 1: print "[openss-debug]: isopenmpi orig_mpi_driver=" + orig_mpi_driver
+                    if offlinepy_debug != 0: print "[openss-debug]: isopenmpi orig_mpi_driver=" + orig_mpi_driver
 		  if not os.WEXITSTATUS(ismvapich):
                     ismpi = bool(1)
                     mpi_driver = os.path.realpath(file_arg)
@@ -343,7 +354,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
                     program = program.replace(s, file_arg)
                     preload_files = ""
                     mpi_exe_implmentation = "mvapich"
-                    if offlinepy_debug == 1: print "[openss-debug]: ismvapich orig_mpi_driver=" + orig_mpi_driver
+                    if offlinepy_debug != 0: print "[openss-debug]: ismvapich orig_mpi_driver=" + orig_mpi_driver
 		  if not os.WEXITSTATUS(ismvapich2):
                     ismpi = bool(1)
                     mpi_driver = os.path.realpath(file_arg)
@@ -351,7 +362,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
                     program = program.replace(s, file_arg)
                     preload_files = ""
                     mpi_exe_implmentation = "mvapich2"
-                    if offlinepy_debug == 1: print "[openss-debug]: ismvapich2 orig_mpi_driver=" + orig_mpi_driver
+                    if offlinepy_debug != 0: print "[openss-debug]: ismvapich2 orig_mpi_driver=" + orig_mpi_driver
 
 
 
@@ -365,6 +376,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 
       if 'OPENSS_MPI_IMPLEMENTATION' in os.environ:
 	use_mpi_impl = os.environ["OPENSS_MPI_IMPLEMENTATION"]
+        if offlinepy_debug != 0: print "[openss-debug]: ismpi, and have OPENSS_MPI_IMPLEMENTATION set use_mpi_impl=" + use_mpi_impl
       else:
 	if mpi_exe_implmentation == "":
 	    use_mpi_impl = default_mpi_impl.lower()
@@ -381,6 +393,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
                raise RuntimeError("[openss error]: Failed to locate the mpi program.")
 
       mpiplugin = plugins + "/mpi-" + use_mpi_impl + "-rt-offline.so"
+      if offlinepy_debug != 0: print "[openss-debug]: mpiplugin=%(plu)s\n" % {'plu':mpiplugin}
 
       os.environ['OPENSS_MPI_IMPLEMENTATION'] = use_mpi_impl
 
@@ -392,6 +405,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	print "[openss warning]: No MPI rank identifiers will be recorded in the openss database."
     else:
 	mpiplugin = ""
+        if offlinepy_debug != 0: print "[openss-debug]: NULL case, mpiplugin=%(plu)s\n" % {'plu':mpiplugin}
 
     # Allow the user to just use the know mpi and mpit collector names.
     # We will prepend the proper mpi implementation.
@@ -404,6 +418,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    collector = collector + "-" + use_mpi_impl
         elif collector == "mpiotf":
             collector = collector + "-" + use_mpi_impl
+        if offlinepy_debug != 0: print "[openss-debug]: mpi collector case, collector=%(col)s\n" % {'col':collector}
     else:
 	# In case this may be an mpi program, setup preload_files to
 	# also include the mpi plugin.  
@@ -435,7 +450,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    command = os.curdir + "/" + command
 
     collectorplugin =  plugins + "/" + collector + "-rt-offline.so"
-    if offlinepy_debug == 1: print "[openss-debug]: Plugins %(plu)s offline %(col)s experiment using the command:\n\"%(cmd)s\"\n" \
+    if offlinepy_debug != 0: print "[openss-debug]: Plugins %(plu)s offline %(col)s experiment using the command:\n\"%(cmd)s\"\n" \
            % {'plu':plugins,'col':collector,'cmd':command}
 
 
@@ -474,14 +489,14 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    command = "env" +  \
              " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
 
-	    if offlinepy_debug == 1: print "\n[openss debug]: USING os.system to execute " + command
+	    if offlinepy_debug != 0: print "\n[openss debug]: USING os.system to execute " + command
 	    os.system(command)
 	else:
 	    # This is specificly here for mpi programs.
 	    command = "env" +  \
              " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
 
-	    if offlinepy_debug == 1: print "\n[openss debug]: USING os.system to execute " + command
+	    if offlinepy_debug != 0: print "\n[openss debug]: USING os.system to execute " + command
 	    os.system(command)
 
 	# Comment out the subprocess code for now.
