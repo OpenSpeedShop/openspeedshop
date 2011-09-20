@@ -1,0 +1,47 @@
+I had to copy these RPMs into /var/www/html/yum/base
+in order to create the live os for OpenSpeedShop
+
+anaconda-15.31-1.fc15.x86_64.rpm
+anaconda-yum-plugins-1.0-6.fc15.noarch.rpm
+fcoe-utils-1.0.18-2.fc15.x86_64.rpm
+isomd5sum-1.0.7-1.fc15.x86_64.rpm
+libhbalinux-1.0.10-2.fc15.x86_64.rpm
+libhbaapi-2.2-11.fc15.x86_64.rpm
+libxml2-python-2.7.8-6.fc15.i686.rpm
+lldpad-devel-0.9.41-1.fc15.x86_64.rpm
+makebootfat-1.4-12.fc15.x86_64.rpm
+perl-Git-1.7.3.2-1.fc11.x86_64.rpm
+pykickstart-1.82-1.fc15.noarch.rpm
+pyparted-3.5-3.fc15.x86_64.rpm
+python-cryptsetup-0.0.11-2.fc15.x86_64.rpm
+python-devel-2.6.0-8.6.x86_64.rpm
+python-nss-0.9-9.fc14.x86_64.rpm
+python-pyblock-0.49-2.fc15.x86_64.rpm
+qt3-3.3.8b-35.fc15.x86_64.rpm
+qt3-devel-3.3.8b-35.fc15.x86_64.rpm
+scim-chewing-0.3.3-3.fc15.x86_64.rpm
+scim-libs-1.4.9-8.fc15.x86_64.rpm
+scim-pinyin-0.5.91-28.fc15.x86_64.rpm
+squashfs-tools-4.2-1.fc15.x86_64.rpm
+syslinux-4.02-4.fc15.x86_64.rpm
+tigervnc-1.1.0-1.fc15.x86_64.rpm
+tigervnc-server-1.1.0-1.fc15.x86_64.rpm
+tigervnc-server-minimal-1.0.90-4.fc15.x86_64.rpm
+lldpad-devel-0.9.41-1.fc15.x86_64 (1).rpm
+lldpad-0.9.41-4.fc15.x86_64.rpm
+scim-1.4.9-8.fc15.x86_64.rpm
+#webtutorial-debuginfo.OSS.x86_64.rpm
+#toyprograms.OSS.x86_64.rpm
+#webtutorial.OSS.x86_64.rpm
+#binutils.OSS.x86_64.rpm
+#dyninst.OSS.x86_64.rpm
+#libdwarf.OSS.x86_64.rpm
+#libmonitor.OSS.x86_64.rpm
+#libunwind.OSS.x86_64.rpm
+#mrnet.OSS.x86_64.rpm
+#openspeedshop.OSS.x86_64.rpm
+#papi.OSS.x86_64.rpm
+#sqlite.OSS.x86_64.rpm
+#vampirtrace.OSS.x86_64.rpm
+
+cp /home/jeg/Downloads/*.rpm /var/www/html/yum/base/.
