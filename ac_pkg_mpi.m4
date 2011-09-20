@@ -465,6 +465,12 @@ AC_DEFUN([AC_PKG_MPICH2], [
     if (test "$abi_libdir" == "lib64" && test -d $mpich2_dir/include64 && test -f $mpich2_dir/include64/mpi.h) ; then
          MPICH2_HEADER="$mpich2_dir/include64/mpi.h"
          MPICH2_CPPFLAGS="-I$mpich2_dir/include64"
+    elif (test -e $mpich2/include/mpi.h) ; then
+         MPICH2_CPPFLAGS="-I$mpich2/include"
+         MPICH2_HEADER="$mpich2/include/mpi.h"
+    elif (test -e /usr/include/openmpi-$oss_hardware_platform/mpi.h) ; then
+         MPICH2_CPPFLAGS="-I/usr/include/mpich2-$oss_hardware_platform"
+         MPICH2_HEADER="-I/usr/include/mpich2-$oss_hardware_platform/mpi.h"
     else
          MPICH2_HEADER="$mpich2_dir/include/mpi.h"
          MPICH2_CPPFLAGS="-I$mpich2_dir/include"
@@ -673,7 +679,6 @@ AC_DEFUN([AC_PKG_MPICH2], [
 	, )
 
     fi
-
 
 #
 # Check now for Intel MPI version of installation for their MPICH2 based MPI Implementation
