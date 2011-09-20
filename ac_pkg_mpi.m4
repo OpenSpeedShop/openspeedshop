@@ -468,7 +468,7 @@ AC_DEFUN([AC_PKG_MPICH2], [
     elif (test -e $mpich2/include/mpi.h) ; then
          MPICH2_CPPFLAGS="-I$mpich2/include"
          MPICH2_HEADER="$mpich2/include/mpi.h"
-    elif (test -e /usr/include/openmpi-$oss_hardware_platform/mpi.h) ; then
+    elif (test -e /usr/include/mpich2-$oss_hardware_platform/mpi.h) ; then
          MPICH2_CPPFLAGS="-I/usr/include/mpich2-$oss_hardware_platform"
          MPICH2_HEADER="-I/usr/include/mpich2-$oss_hardware_platform/mpi.h"
     else
@@ -546,6 +546,13 @@ AC_DEFUN([AC_PKG_MPICH2], [
 #       MPICH2_LIBS=""
        MPICH2_HEADER="$mpich2_dir/include/mpi.h"
        MPICH2_DIR="$mpich2_dir"
+       if (test -e $mpich2/include/mpi.h) ; then
+         MPICH2_CPPFLAGS="-I$mpich2/include"
+         MPICH2_HEADER="$mpich2/include/mpi.h"
+       elif (test -e /usr/include/mpich2-$oss_hardware_platform/mpi.h) ; then
+         MPICH2_CPPFLAGS="-I/usr/include/mpich2-$oss_hardware_platform"
+         MPICH2_HEADER="-I/usr/include/mpich2-$oss_hardware_platform/mpi.h"
+       fi
 
        CC="$MPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
