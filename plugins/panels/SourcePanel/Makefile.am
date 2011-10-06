@@ -1,6 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2006-2011 Krell Institute All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -35,12 +36,14 @@ SourcePanel_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-guibase \
 	-L$(top_srcdir)/libopenss-cli \
+	-L$(top_srcdir)/libopenss-guiobjects \
 	@QTLIB_LDFLAGS@ \
 	-export-dynamic -export-all-symbols -module -avoid-version
 
 SourcePanel_la_LIBADD = \
 	-lopenss-framework \
 	-lopenss-guibase \
+	-lopenss-guiobjects \
 	-lopenss-cli \
 	@QTLIB_LIBS@
 
