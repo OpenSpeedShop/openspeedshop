@@ -3000,15 +3000,27 @@ StatsPanel::updateCurrentModifierList( std::list<std::string> genericModifierLis
 void
 StatsPanel::sourcePanelAnnotationCreationSelected()
 {
+
+std::list<std::string> generic_list_of_modifiers;
+
 #ifdef DEBUG_StatsPanel
  printf("StatsPanel::sourcePanelAnnotationCreationSelected, WE have a sourcePanelAnnotationDialog=%d\n", sourcePanelAnnotationDialog);
  printf("StatsPanel::sourcePanelAnnotationCreationSelected, currentCollectorStr=(%s)\n", currentCollectorStr.ascii() );
 #endif
 
+ if( currentCollectorStr == "hwcsamp" ) {
   generateHWCSAMPmodifiers();
+  generic_list_of_modifiers = list_of_hwcsamp_modifiers;
+
+ } else if( currentCollectorStr == "usertime" ) {
+  generateUSERTIMEmodifiers();
+  generic_list_of_modifiers = list_of_usertime_modifiers;
+ }
 
   if( sourcePanelAnnotationDialog == NULL ) {
-    sourcePanelAnnotationDialog = new SourcePanelAnnotationDialog(getPanelContainer()->getMainWindow(), "Source Panel Annotation Views Creation:", currentCollectorStr, &list_of_hwcsamp_modifiers);
+    sourcePanelAnnotationDialog = new SourcePanelAnnotationDialog(getPanelContainer()->getMainWindow(), 
+                                                                  "Source Panel Annotation Views Creation:", 
+                                                                  currentCollectorStr, &generic_list_of_modifiers);
     sourcePanelAnnotationDialog->show();
   } else {
 
@@ -3029,11 +3041,24 @@ StatsPanel::sourcePanelAnnotationCreationSelected()
       //updateCurrentModifierList(list_of_pcsamp_modifiers, &current_list_of_pcsamp_modifiers, pcsamp_desired_list);
 
      }else if( currentCollectorStr == "usertime" ) {
-      // Generate the list of usertime modifiers
-      //generateUSERTIMEmodifiers();
-      //std::map<std::string, bool> usertime_desired_list;
-      //usertime_desired_list.clear();
-      //updateCurrentModifierList(list_of_usertime_modifiers, &current_list_of_usertime_modifiers, usertime_desired_list);
+       std::map<std::string, bool> usertime_desired_list;
+       usertime_desired_list.clear();
+
+#if DEBUG_StatsPanel
+       printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->usertime_maxModIdx=%d\n", sourcePanelAnnotationDialog->usertime_maxModIdx);
+#endif
+
+      for (int idx=0; idx < sourcePanelAnnotationDialog->usertime_maxModIdx; idx++) {
+
+#if DEBUG_StatsPanel
+        printf("StatsPanel::sourcePanelAnnotationCreationSelected, after returning, SourcePanelAnnotationCreationDialog, sourcePanelAnnotationDialog->displayed_usertime_CheckBox_status[idx=%d]=%d\n", idx, sourcePanelAnnotationDialog->displayed_usertime_CheckBox_status[idx]);
+#endif
+
+        usertime_desired_list.insert(std::pair<std::string,int>(sourcePanelAnnotationDialog->usertime_Modifiers[idx],
+                                                               sourcePanelAnnotationDialog->displayed_usertime_CheckBox_status[idx]));
+      }
+
+      updateCurrentModifierList(list_of_usertime_modifiers, &current_list_of_usertime_modifiers, usertime_desired_list);
 
      }else if( currentCollectorStr == "hwc" ) {
 
@@ -9684,6 +9709,10 @@ StatsPanel::generateCommand()
 
   if (currentCollectorStr == "hwcsamp" ) {
     updateCollectorParamsValList();
+#if 0
+  } else if (currentCollectorStr == "usertime" ) {
+    updateCollectorParamsValList();
+#endif
   }
 
   updateThreadsList();
@@ -9997,6 +10026,21 @@ StatsPanel::generateCommand()
       }
       command = QString("expView -x %1 %4%2 -v Tracebacks,FullStack -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
 
+    } else if( currentUserSelectedReportStr == "minMaxAverage" ) {
+
+      if( items_to_display > 0 ) {
+        command = QString("expView -x %1 %2%3 -m loadbalance ").arg(exp_id).arg(currentCollectorStr).arg(items_to_display).arg(currentUserSelectedReportStr);
+
+#ifdef DEBUG_StatsPanel
+        printf("generateCommand, A: load balance command=(%s)\n", command.ascii() );
+#endif
+      } else {
+        command = QString("expView -x %1 %2 -m loadbalance").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
+
+#ifdef DEBUG_StatsPanel
+        printf("generateCommand, B: load balance, command=(%s)\n", command.ascii() );
+#endif
+      }
 
     } else {
 
@@ -13528,8 +13572,11 @@ if (currentCollectorStr != lastCollectorStr ||
     new QToolButton(*optional_views_icon, "SHOW OPTIONAL VIEW: Select icon to launch dialog box which will present\na number of optional fields/columns to include in the creation of an\noptional view of the existing data.", QString::null, this, SLOT( optionalViewsCreationSelected()), fileTools, "create optional view ");
 #endif
 
-  if(  currentCollectorStr == "hwcsamp" )
-  {
+#if 0
+  if( currentCollectorStr == "hwcsamp" || currentCollectorStr == "usertime" ) {
+#else
+  if( currentCollectorStr == "hwcsamp" ) {
+#endif
 #if 1
     QPixmap *sourceAnnotation_icon = new QPixmap( sourceAnnotation_icon_xpm );
     new QToolButton(*sourceAnnotation_icon, "SHOW OPTIONAL VIEW: Select icon to launch dialog box which will present\na number of optional metrics to view in the creation of\nthe source panel.", QString::null, this, SLOT( sourcePanelAnnotationCreationSelected()), fileTools, "create source annotation view ");
