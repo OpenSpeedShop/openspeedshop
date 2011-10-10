@@ -103,7 +103,7 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
     tr( QString("Collectors attached to experiment: '%1':").arg(expID) ) );
   attachCollectorsListView->addColumn("                   ");
   attachCollectorsListView->addColumn( tr( QString("Name") ) );
-  attachCollectorsListView->addColumn( tr( QString("Name") ) );
+  attachCollectorsListView->addColumn( tr( QString("") ) );
   attachCollectorsListView->setColumnWidthMode(0, QListView::Manual);
   attachCollectorsListView->setColumnWidthMode(1, QListView::Maximum);
   attachCollectorsListView->setColumnWidth(0, 100);
