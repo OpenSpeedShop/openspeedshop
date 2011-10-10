@@ -56,6 +56,9 @@ class CustomView
   CustomView (OpenSpeedShop::cli::ParseResult *p) {
     Assert(pthread_mutex_lock(&Experiment_List_Lock) == 0);
     Exp_ID = ++Experiment_Sequence_Number;
+#if DEBUG_COMPARE
+    printf("SSCOMPARE: CustomView1 -- Experiment_Sequence_Number=%d, Exp_ID=%dn", Experiment_Sequence_Number, Exp_ID);
+#endif
     p_result = p;
     CustomView_List.push_front(this);
     Assert(pthread_mutex_unlock(&Experiment_List_Lock) == 0);
@@ -64,6 +67,9 @@ class CustomView
               const Framework::ThreadGroup& tgrp) {
     Assert(pthread_mutex_lock(&Experiment_List_Lock) == 0);
     Exp_ID = ++Experiment_Sequence_Number;
+#if DEBUG_COMPARE
+    printf("SSCOMPARE: CustomView2 -- Experiment_Sequence_Number=%d, Exp_ID=%d\n", Experiment_Sequence_Number, Exp_ID);
+#endif
     p_result = p;
     Custom_tgrp = tgrp;
     CustomView_List.push_front(this);
