@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2011 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -2651,7 +2651,7 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 
   qaction = new QAction( this,  "focusOnProcess");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Focus on Thread(s) and/or Process(es)...") );
+  qaction->setText( tr("Focus on Selected Thread(s) and/or Process(es)...") );
   if( leftSide == TRUE ) {
 #if DEBUG_MPPanel
    printf("ManageCollectorsClass::menu() LEFT SIDE MENU\n");
@@ -2669,14 +2669,14 @@ ManageCollectorsClass::menu(QPopupMenu* contextMenu)
 
   qaction = new QAction( this,  "focusOnRank");
   qaction->addTo( contextMenu );
-  qaction->setText( tr("Focus on Rank(s)...") );
+  qaction->setText( tr("Focus on Selected Rank(s) and underlying threads...") );
   if( leftSide == TRUE ) {
 #if DEBUG_MPPanel
    printf("ManageCollectorsClass::menu() LEFT SIDE MENU\n");
    printf("ManageCollectorsClass::menu()  Focus on selected ranks(s)\n");
 #endif
     connect( qaction, SIGNAL( activated() ), this, SLOT( focusOnRankSelected() ) );
-    qaction->setStatusTip( tr("Focus on selected rank(s).") );
+    qaction->setStatusTip( tr("Focus on selected rank(s). If an individual rank is selected, also focus on underlying threads.") );
   } else {
 #if DEBUG_MPPanel
    printf("ManageCollectorsClass::menu() RIGHT SIDE MENU\n");
