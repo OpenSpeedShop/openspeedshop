@@ -388,7 +388,7 @@ void SS_Get_Views (CommandObject *cmd, OpenSpeedShop::Framework::Experiment *fex
 bool Validate_V_Options(CommandObject *cmd, std::string allowed[]);
 View_Form_Category Determine_Form_Category (CommandObject *cmd);
 bool Determine_TraceBack_Ordering (CommandObject *cmd);
-int64_t Determine_ByThread_Id (ExperimentObject *exp);
+int64_t Determine_ByThread_Id (ExperimentObject *exp, CommandObject *cmd);
 std::vector<CommandResult *> *
        Construct_CallBack (bool TraceBack_Order, bool add_stmts, Framework::StackTrace& st);
 std::vector<CommandResult *> *

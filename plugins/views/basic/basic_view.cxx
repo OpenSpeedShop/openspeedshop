@@ -51,7 +51,7 @@ static bool define_pcsamp_columns (
   std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
   int64_t last_column = 0;
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
-  int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp);
+  int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp, cmd);
 
   if (Generate_Summary) {
    // Total time is always displayed - also add display of the summary time.
@@ -276,7 +276,7 @@ static bool define_hwc_columns (
   std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
   int64_t last_column = 0;
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
-  int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp);
+  int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp, cmd);
   
   if (Generate_Summary) {
    // Total time is always displayed - also add display of the summary time.

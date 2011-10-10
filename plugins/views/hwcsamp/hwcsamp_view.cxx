@@ -124,7 +124,7 @@ static bool define_hwcsamp_columns (
 
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
   bool Generate_ButterFly = false;  // Not supported for this view.
-  int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp);
+  int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp, cmd);
   std::string ByThread_Header = Find_Metadata ( CV[0], "time" ).getShortName();
 
   // Determine the available events for the detail metric.

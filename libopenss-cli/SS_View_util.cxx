@@ -1238,7 +1238,7 @@ bool Determine_TraceBack_Ordering (CommandObject *cmd) {
 
 
 /**
- * Utility: Determine_ByThread_Id(ExperimentObject *exp)
+ * Utility: Determine_ByThread_Id(ExperimentObject *exp, CommandObj *cmd)
  * 
  * Look at the threads in an experiment and determine the
  * identifier that varies between threads and, as such,
@@ -1255,12 +1255,14 @@ std::string View_ByThread_Id_name[5] = {
        "OpenMpi ThreadId",
        "Posix ThreadId",
        "ProccessId" }; 
-int64_t Determine_ByThread_Id (ExperimentObject *exp) {
+int64_t Determine_ByThread_Id (ExperimentObject *exp, CommandObject *cmd) {
 
   int thread_count = 0;
   int rank_count = 0;
+  int prev_rank = -1;
 
   ThreadGroup tgrp = exp->FW()->getThreads();
+  Filter_ThreadGroup (cmd->P_Result(), tgrp);
   bool skip_first = false;
   bool first_thread_has_no_rank = false;
 
@@ -1272,6 +1274,7 @@ int64_t Determine_ByThread_Id (ExperimentObject *exp) {
   // thread followed by threads with rank information.  This is the case with the online mpi
   // experiment databases.  See comments below.
 
+  bool first_time = false;
   ThreadGroup::iterator dti;
   for (dti = tgrp.begin(); dti != tgrp.end(); dti++) {
 
@@ -1279,6 +1282,9 @@ int64_t Determine_ByThread_Id (ExperimentObject *exp) {
     std::cerr << " Determine_ByThread_Id, ProcessId in tgrp=" << (*dti).getProcessId() << " HostID in tgrp=" << (*dti).getHost() << std::endl;
 #endif
 
+    // Count ranks, but if the rank shows up multiple times, such as in hybrid MPI and openMP codes
+    // only count the rank once.  We see -r 0 -t thread1, -r 0 -t thread2, etc. so we need to only count 
+    // that as one rank.
     Thread t = *dti;
     std::pair<bool, int> prank = t.getMPIRank();
     thread_count = thread_count + 1;
@@ -1286,8 +1292,19 @@ int64_t Determine_ByThread_Id (ExperimentObject *exp) {
 #if DEBUG_CLI
       std::cerr << " Rank in tgrp=" << prank.second << "\n" <<  std::endl;
 #endif
+      if (!first_time) {
+         if (prev_rank != prank.second) {
+            rank_count = rank_count + 1;
+            prev_rank = prank.second;
+         } else {  
+            // skipping adding rank because it is the same as previous
+         } 
 
-      rank_count = rank_count + 1;
+      } else {
+         prev_rank = prank.second;
+         rank_count = 1;
+      } 
+
     } else {
       if (thread_count == 1) first_thread_has_no_rank = true;
 
@@ -1344,11 +1361,27 @@ int64_t Determine_ByThread_Id (ExperimentObject *exp) {
     }
 #endif
 
-      if ( prank1.first && prank2.first &&
-           (prank1.second != prank2.second) ) {
+#if 1
+      // If there multiple ranks then use RANKS to distinguish
+      if ( rank_count > 1) {
        // Use Ranks to distinguish threads.
+#if DEBUG_CLI
+        std::cerr << "Determine_ByThread_Id, multiple ranks, RETURN View_ByThread_Rank=" << View_ByThread_Rank << std::endl;
+#endif
         return View_ByThread_Rank;
       }
+
+#else
+      // If there is a rank for the top two entries and they are not the same rank
+      if ( prank1.first && prank2.first && (prank1.second != prank2.second) ) {
+       // Use Ranks to distinguish threads.
+#if DEBUG_CLI
+        std::cerr << "Determine_ByThread_Id, RETURN View_ByThread_Rank=" << View_ByThread_Rank << std::endl;
+#endif
+        return View_ByThread_Rank;
+      }
+#endif
+
 #if DEBUG_CLI
       printf("In Determine_ByThread_Id - SS_View_util.cxx, fall past the RANK CODE INTO THREAD CODE\n");
 //      std::cerr << " Determine_ByThread_Id, fall past rank code, t1.getPosixThreadId()=" << t1.getPosixThreadId() << " t2.getPosixThreadId()=" << t2.getPosixThreadId() << std::endl;
@@ -1359,19 +1392,29 @@ int64_t Determine_ByThread_Id (ExperimentObject *exp) {
       if ( posixthread1.first && posixthread2.first &&
            (posixthread1.second != posixthread2.second) ) {
        // Use Thread ids.
+#if DEBUG_CLI
+        std::cerr << "Determine_ByThread_Id, RETURN View_ByThread_PosixThread=" << View_ByThread_PosixThread << std::endl;
+#endif
         return View_ByThread_PosixThread;
       }
+
       std::pair<bool, int> pthread1 = t1.getOpenMPThreadId();
       std::pair<bool, int> pthread2 = t2.getOpenMPThreadId();
       if ( pthread1.first && pthread2.first &&
            (pthread1.second != pthread2.second) ) {
        // Use Thread ids.
+#if DEBUG_CLI
+        std::cerr << "Determine_ByThread_Id, RETURN View_ByThread_OpenMPThread=" << View_ByThread_OpenMPThread << std::endl;
+#endif
         return View_ByThread_OpenMPThread;
       }
       pid_t pid1 = t1.getProcessId();
       pid_t pid2 = t2.getProcessId();
       if (pid1 != pid2) {
        // Use Process ids.
+#if DEBUG_CLI
+        std::cerr << "Determine_ByThread_Id, RETURN View_ByThread_Process=" << View_ByThread_Process << std::endl;
+#endif
         return View_ByThread_Process;
       }
     } else {
@@ -1379,25 +1422,40 @@ int64_t Determine_ByThread_Id (ExperimentObject *exp) {
       std::pair<bool, int> prank1 = t1.getMPIRank();
       if ( prank1.first ) {
        // Use Rank.
-                return View_ByThread_Rank;
+#if DEBUG_CLI
+        std::cerr << "Determine_ByThread_Id, 2RETURN View_ByThread_Rank=" << View_ByThread_Rank << std::endl;
+#endif
+        return View_ByThread_Rank;
       }
       std::pair<bool, pthread_t> posixthread1 = t1.getPosixThreadId();
       if ( posixthread1.first ) {
        // Use Thread.
+#if DEBUG_CLI
+        std::cerr << "Determine_ByThread_Id, 2RETURN View_ByThread_PosixThread=" << View_ByThread_PosixThread << std::endl;
+#endif
         return View_ByThread_PosixThread;
       }
       std::pair<bool, int> pthread1 = t1.getOpenMPThreadId();
       if ( pthread1.first ) {
        // Use Thread.
+#if DEBUG_CLI
+        std::cerr << "Determine_ByThread_Id, 2RETURN View_ByThread_OpenMPThread=" << View_ByThread_OpenMPThread << std::endl;
+#endif
         return View_ByThread_OpenMPThread;
       }
       pid_t pid1 = t1.getProcessId();
       if ( pid1 ) {
        // Use PID.
+#if DEBUG_CLI
+        std::cerr << "Determine_ByThread_Id, 2RETURN View_ByThread_Process=" << View_ByThread_Process << std::endl;
+#endif
         return View_ByThread_Process;
       }
     }
   }
+#if DEBUG_CLI
+  std::cerr << "Determine_ByThread_Id, RETURN View_ByThread_NotSpecified=" << View_ByThread_NotSpecified << std::endl;
+#endif
   return View_ByThread_NotSpecified;
 }
 

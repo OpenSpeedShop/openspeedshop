@@ -142,7 +142,7 @@ static bool define_usertime_columns (
   std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
-  int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp);
+  int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp, cmd);
   std::string ByThread_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
 
   if (Generate_Summary) {
