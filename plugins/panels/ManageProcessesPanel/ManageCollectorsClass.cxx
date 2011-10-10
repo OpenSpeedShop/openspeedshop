@@ -103,9 +103,11 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
     tr( QString("Collectors attached to experiment: '%1':").arg(expID) ) );
   attachCollectorsListView->addColumn("                   ");
   attachCollectorsListView->addColumn( tr( QString("Name") ) );
+  attachCollectorsListView->addColumn( tr( QString("Name") ) );
   attachCollectorsListView->setColumnWidthMode(0, QListView::Manual);
   attachCollectorsListView->setColumnWidthMode(1, QListView::Maximum);
   attachCollectorsListView->setColumnWidth(0, 100);
+  attachCollectorsListView->setColumnWidth(2, 120);
   attachCollectorsListView->setSelectionMode( QListView::Multi );
   attachCollectorsListView->setAllColumnsShowFocus( TRUE );
   attachCollectorsListView->setShowSortIndicator( TRUE );
@@ -366,6 +368,7 @@ ManageCollectorsClass::updateAttachedList()
       printf("--------ManageCollectorsClass::updateAttachedList(), PID_T: expID=%d\n", expID );
 #endif
       QString ridstr = QString::null;
+      QString tidstr = QString::null;
       try
       {
         ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
@@ -448,7 +451,7 @@ ManageCollectorsClass::updateAttachedList()
 
             QString pidstr = QString("%1").arg(pid);
             std::pair<bool, pthread_t> pthread = t.getPosixThreadId();
-            QString tidstr = QString::null;
+            tidstr = QString::null;
             if (pthread.first) {
               tidstr = QString("%1").arg(pthread.second);
             }
@@ -468,7 +471,11 @@ ManageCollectorsClass::updateAttachedList()
             if( ridstr.isEmpty() ) {
               item = new MPListViewItem( attachCollectorsListView, pidstr, threadStatusStr );
             } else {
-              item = new MPListViewItem( attachCollectorsListView, pidstr, ridstr, threadStatusStr );
+              if( tidstr.isEmpty() ) {
+                item = new MPListViewItem( attachCollectorsListView, pidstr, ridstr, threadStatusStr );
+              } else {
+                item = new MPListViewItem( attachCollectorsListView, pidstr, ridstr, tidstr, threadStatusStr );
+              } 
             }
 
             DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr, tidstr  );
@@ -485,7 +492,11 @@ ManageCollectorsClass::updateAttachedList()
               if( ridstr.isEmpty() ) {
                 item2 = new MPListViewItem( item, host, m.getUniqueId());
               } else {
-                item2 = new MPListViewItem( item, host, ridstr, m.getUniqueId());
+                if( tidstr.isEmpty() ) {
+                  item2 = new MPListViewItem( item, host, ridstr, m.getUniqueId());
+                } else {
+                  item2 = new MPListViewItem( item, host, ridstr, tidstr, m.getUniqueId());
+                } 
               }
 
               DescriptionClassObject *dco = new DescriptionClassObject(FALSE, QString::null, host, pidstr, ridstr, tidstr  );
@@ -507,9 +518,16 @@ ManageCollectorsClass::updateAttachedList()
         attachCollectorsListView->setColumnText( 1, tr( QString("Status") ) );
         attachCollectorsListView->setColumnText( 2, "            " );
       } else {
-        attachCollectorsListView->setColumnText( 0, tr( QString("Processes:")) );
-        attachCollectorsListView->setColumnText( 1, tr( QString("Rank") ) );
-        attachCollectorsListView->setColumnText( 2, tr( QString("Status") ) );
+        if( tidstr.isEmpty() ) {
+          attachCollectorsListView->setColumnText( 0, tr( QString("Processes:")) );
+          attachCollectorsListView->setColumnText( 1, tr( QString("Rank") ) );
+          attachCollectorsListView->setColumnText( 2, tr( QString("Status") ) );
+        } else {
+          attachCollectorsListView->setColumnText( 0, tr( QString("Processes:")) );
+          attachCollectorsListView->setColumnText( 1, tr( QString("Rank") ) );
+          attachCollectorsListView->setColumnText( 2, tr( QString("Thread") ) );
+          attachCollectorsListView->setColumnText( 3, tr( QString("Status") ) );
+        } 
       }
     }
     break;
