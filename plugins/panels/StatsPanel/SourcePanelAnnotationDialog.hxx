@@ -122,6 +122,10 @@ public:
     int hwcsamp_maxModIdx;
     std::string hwcsamp_Modifiers[20];
 
+    bool displayed_usertime_CheckBox_status[20];
+    int usertime_maxModIdx;
+    std::string usertime_Modifiers[20];
+
 public slots:
     virtual void resetPreferenceDefaults();
     virtual void listItemSelected(QListViewItem *);
@@ -164,6 +168,8 @@ protected:
 
     QCheckBox *hwcsamp_CheckBox[20];
     bool hwcsamp_modInList[20];
+    QCheckBox *usertime_CheckBox[20];
+    bool usertime_modInList[20];
 
     QCheckBox *saveExperimentDatabaseCheckBox;
     QCheckBox *onRerunSaveCopyOfExperimentDatabaseCheckBox;

@@ -84,6 +84,11 @@ SourcePanelAnnotationDialog::SourcePanelAnnotationDialog( QWidget* parent,
           displayed_hwcsamp_CheckBox_status[idx] = FALSE;
           hwcsamp_CheckBox[idx]->setChecked( FALSE );
      }
+   } else if ( globalCollectorString.contains("usertime") ) {
+     for (int idx = 0; idx < usertime_maxModIdx; idx++) {
+          displayed_usertime_CheckBox_status[idx] = FALSE;
+          usertime_CheckBox[idx]->setChecked( FALSE );
+     }
    } else {
    }
 
@@ -313,6 +318,40 @@ SourcePanelAnnotationDialog::createExperimentDependentOptionalView(QWidgetStack*
 
     } // end for
 
+  } else if ( globalCollectorString.contains("usertime") ) {
+
+    VTraceGroupBox->hide();
+    int mod_idx = 0;
+    usertime_maxModIdx = 0;
+    for( std::list<std::string>::const_iterator it = globalCurrentModifiers->begin(); it != globalCurrentModifiers->end(); it++ )
+    {
+      std::string cModifier = *it;
+#if DEBUG_sourceAnno
+      printf("LISTING THE current modifiers for USERTIME, cModifier=%s\n", cModifier.c_str());
+#endif
+
+
+      { // usertime_time
+      std::string ModifierStringInfo = cModifier;
+      std::string ModifierStringInfo1 = ModifierStringInfo.append("_CheckBox");
+      usertime_Modifiers[mod_idx] = cModifier;
+      usertime_CheckBox[mod_idx] = new QCheckBox( GeneralGroupBox, "modifier checkbox" );
+      usertime_CheckBox[mod_idx]->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, usertime_CheckBox[mod_idx]->sizePolicy().hasHeightForWidth() ) );
+      if ( usertime_Modifiers[mod_idx] == "usertime::exclusive_time" ) {
+          usertime_CheckBox[mod_idx]->setChecked( TRUE );
+      } else {
+          usertime_CheckBox[mod_idx]->setChecked( FALSE );
+      } 
+      std::string ModifierStringInfo2 = "USERTIME_";
+      std::string ModifierStringInfo3 = ModifierStringInfo2.append(cModifier);
+      usertime_CheckBox[mod_idx]->setText( cModifier );
+      rightSideLayout->addWidget( usertime_CheckBox[mod_idx] );
+    } // end usertime
+    mod_idx = mod_idx + 1;
+    usertime_maxModIdx = mod_idx;
+
+    } // end for
+
    } else {
     VTraceGroupBox->hide();
    }
@@ -329,16 +368,27 @@ SourcePanelAnnotationDialog::createExperimentDependentOptionalView(QWidgetStack*
  */
 void SourcePanelAnnotationDialog::languageChange()
 {
-#if DEBUG_sourceAnno
-   printf("SourcePanelAnnotationDialog::languageChange, entered, hwcsamp_maxModIdx=%d\n", hwcsamp_maxModIdx);
-#endif
 
    if ( globalCollectorString.contains("hwcsamp") ) {
+
+#if DEBUG_sourceAnno
+     printf("SourcePanelAnnotationDialog::languageChange, entered, hwcsamp_maxModIdx=%d\n", hwcsamp_maxModIdx);
+#endif
 
      for (int idx = 0; idx < hwcsamp_maxModIdx; idx++) {
         displayed_hwcsamp_CheckBox_status[idx] = hwcsamp_CheckBox[idx]->isChecked();
      }
+   } else if ( globalCollectorString.contains("usertime") ) {
+
+#if DEBUG_sourceAnno
+     printf("SourcePanelAnnotationDialog::languageChange, entered, usertime_maxModIdx=%d\n", usertime_maxModIdx);
+#endif
+
+     for (int idx = 0; idx < usertime_maxModIdx; idx++) {
+        displayed_usertime_CheckBox_status[idx] = usertime_CheckBox[idx]->isChecked();
+     }
    }
+
 
 // printf("SourcePanelAnnotationDialog::languageChange() entered\n");
 
@@ -348,6 +398,8 @@ void SourcePanelAnnotationDialog::languageChange()
 
     if ( globalCollectorString.contains("hwcsamp") ) {
        GeneralGroupBox->setTitle( tr( "HWCSAMP Experiment Source Panel Metric Annotation Selection Dialog" ) );
+    } else if ( globalCollectorString.contains("usertime") ) {
+       GeneralGroupBox->setTitle( tr( "USERTIME Experiment Source Panel Metric Annotation Selection Dialog" ) );
     } 
 
     buttonHelp->setText( tr( "&Help" ) );
@@ -383,6 +435,17 @@ void SourcePanelAnnotationDialog::resetPreferenceDefaults()
         } else {
           displayed_hwcsamp_CheckBox_status[idx] = FALSE;
           hwcsamp_CheckBox[idx]->setChecked( FALSE );
+        } 
+     }
+
+   } else if ( globalCollectorString.contains("usertime") ) {
+     for (int idx = 0; idx < usertime_maxModIdx; idx++) {
+        if ( usertime_Modifiers[idx] == "usertime::time" ) {
+          displayed_usertime_CheckBox_status[idx] = TRUE;
+          usertime_CheckBox[idx]->setChecked( TRUE );
+        } else {
+          displayed_usertime_CheckBox_status[idx] = FALSE;
+          usertime_CheckBox[idx]->setChecked( FALSE );
         } 
      }
 
@@ -451,6 +514,22 @@ void SourcePanelAnnotationDialog::applyPreferences()
            // error condition
         fprintf(stderr, "Only one Source Annotation can be done at a time, please only choose one metric\n"); 
      }
+
+
+   } else if ( globalCollectorString.contains("usertime") ) {
+
+     int itemsSetCount = 0;
+     for (int idx = 0; idx < usertime_maxModIdx; idx++) {
+        displayed_usertime_CheckBox_status[idx] = usertime_CheckBox[idx]->isChecked();
+        if (usertime_CheckBox[idx]->isChecked() == TRUE) {
+          itemsSetCount = itemsSetCount + 1;
+        }
+     }
+     if (itemsSetCount > 1) {
+           // error condition
+        fprintf(stderr, "Only one Source Annotation can be done at a time, please only choose one metric\n"); 
+     }
+
 
    } else {
    }
