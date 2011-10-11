@@ -93,6 +93,13 @@ input_compare_metric=0
 #
 # END DEFAULT VALUES
 #
+if [ -z "$OPENSS_DEBUG_DRIVER" ]
+then
+  echo ""
+else
+  debug_flag=1
+  echo "DEBUG: turning DEBUG flag on because OPENSS_DEBUG_DRIVER is set"
+fi
 
 use_compare_metric=$compare_default_metric
 #
@@ -322,8 +329,8 @@ if [[ "$experiment_name" == "osscompare" ]]; then
 
   if [ $debug_flag == 1 ]
   then
-    echo "Input compare database list: $1" 
-    echo "Input compare database list after whitespace removal: $1" | tr -d ' '
+    echo "DEBUG: Input compare database list: $1" 
+    echo "DEBUG: Input compare database list after whitespace removal: $1" | tr -d ' '
   fi
   echo "$1" | tr -d ' ' > /tmp/$USER/osscompare_nospaces.txt 
   while read -r line
@@ -2193,17 +2200,23 @@ do
 
   db_file_input_split "$line"
 
-# echo "%s\n" "${values[1]}" ## print field N (numbered from 0)
+# echo "values[1]\n" "${values[1]}" ## print field N (numbered from 0)
 
 done < /tmp/$USER/osscompare_file2.csv
 
 while read -r line
 do
 
-# echo "vnum_val line=$line"
+ if [ $debug_flag == 1 ]
+ then
+   echo "DEBUG: vnum_val line=$line"
+ fi
  number_of_databases=$line
  let number_of_databases=$number_of_databases+1
-# echo "number_of_databases=$number_of_databases"
+ if [ $debug_flag == 1 ]
+ then
+   echo "DEBUG: number_of_databases=$number_of_databases"
+ fi
   
 done < /tmp/$USER/osscompare_vnum_val
 
@@ -2218,14 +2231,16 @@ do
   else
     if [ $debug_flag == 1 ]
     then
-       echo "value[$i]=%s\n" "${values[$i]}" ## print field N (numbered from 0)
+       echo "DEBUG: value[$i]=" "${values[$i]}" ## print field N (numbered from 0)
     fi
     j=($i + 1)
     dbase_name="dbase${j}_exptype.txt"
-#    if [ $debug_flag == 1 ]
-#    then
-#      echo "dbase_name = $dbase_name"
-#    fi
+
+    if [ $debug_flag == 1 ]
+    then
+      echo "DEBUG: dbase_name = $dbase_name"
+    fi
+
     echo "exprestore -f ${values[$i]}" > /tmp/$USER/osscompare_commands.txt
     echo "list -v exptypes > /tmp/$USER/dbase${j}_exptype.txt" >> /tmp/$USER/osscompare_commands.txt
     echo "list -v walltime" >> /tmp/$USER/osscompare_commands.txt
@@ -2239,8 +2254,8 @@ do
      type_of_dbase[$i]=$line
      if [ $debug_flag == 1 ]
      then
-       echo "database $i section line=$line"
-       echo "type of database $i=${type_of_dbase[$i]}"
+       echo "DEBUG: database $i section line=$line"
+       echo "DEBUG: type of database $i=${type_of_dbase[$i]}"
      fi
     done < /tmp/$USER/$dbase_name
   fi
@@ -2253,7 +2268,7 @@ for i in {2..8}
 do
    if [ $debug_flag == 1 ]
    then
-     echo "Begin Looking at database $j and number of dbs is: $number_of_databases"
+     echo "DEBUG: Begin Looking at database $j and number of dbs is: $number_of_databases"
    fi
    if [ $i -gt  $number_of_databases ]
    then
@@ -2262,13 +2277,13 @@ do
      j=$i-1
      if [ $debug_flag == 1 ]
      then
-       echo "Looking at database 0 and database $j (j) i= $i"
+       echo "DEBUG: Looking at database 0 and database $j (j) i= $i"
      fi
      if [ "${type_of_dbase[0]}" == "${type_of_dbase[$j]}" ]
      then
        if [ $debug_flag == 1 ]
        then
-          echo "GOOD in osscompare: Types of database compare files match: ${type_of_dbase[0]} is the same as ${type_of_dbase[$j]}" 
+          echo "DEBUG: GOOD in osscompare: Types of database compare files match: ${type_of_dbase[0]} is the same as ${type_of_dbase[$j]}" 
        fi
      else
         echo "[openss]: ERROR in osscompare: Types of database compare files must match: ${type_of_dbase[0]} is not the same as ${type_of_dbase[$j]}" 
@@ -2307,7 +2322,7 @@ then
   dbname=${type_of_dbase[0]}
   if [ $debug_flag == 1 ]
   then
-     echo "dbname=%s\n" "$dbname" 
+     echo "DEBUG: dbname=\n" "$dbname" 
   fi
 fi
 
@@ -2316,7 +2331,7 @@ if [ "$number_of_databases" -ge "1" ]
 then
   if [ $debug_flag == 1 ]
   then
-     echo "value[0]=%s\n" "${values[0]}" ## print field N (numbered from 0)
+     echo "DEBUG: value[0]=" "${values[0]}" ## print field N (numbered from 0)
   fi
   echo "exprestore -f ${values[0]}" > /tmp/$USER/osscompare_commands.txt
   echo "cviewCreate -x 1 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
@@ -2326,7 +2341,7 @@ if [ "$number_of_databases" -ge "2" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "value[1]=%s\n" "${values[1]}" ## print field N (numbered from 0)
+    echo "DEBUG: value[1]=" "${values[1]}" ## print field N (numbered from 0)
   fi
   echo "exprestore -f ${values[1]}" >> /tmp/$USER/osscompare_commands.txt
   echo "cviewCreate -x 3 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
@@ -2336,7 +2351,7 @@ if [ "$number_of_databases" -eq "2" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "create cview -c 2 -c 4" 
+    echo "DEBUG: create cview -c 2 -c 4" 
   fi
 
 #  echo "${values[0]}" | tr -d '\.openss'
@@ -2362,7 +2377,7 @@ if [ "$number_of_databases" -ge "3" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "value[2]=%s\n" "${values[2]}" ## print field N (numbered from 0)
+    echo "DEBUG: value[2]=" "${values[2]}" ## print field N (numbered from 0)
   fi
   echo "exprestore -f ${values[2]}" >> /tmp/$USER/osscompare_commands.txt
   echo "cviewCreate -x 5 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
@@ -2372,7 +2387,7 @@ if [ "$number_of_databases" -eq "3" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "create cview -c 2 -c 4 -c 6" 
+    echo "DEBUG: create cview -c 2 -c 4 -c 6" 
   fi
   if [ $create_csv_files -eq 1 ]
   then
@@ -2390,7 +2405,7 @@ if [ "$number_of_databases" -ge "4" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "value[3]=%s\n" "${values[3]}" ## print field N (numbered from 0)
+    echo "DEBUG: value[3]=" "${values[3]}" ## print field N (numbered from 0)
   fi
   echo "exprestore -f ${values[3]}" >> /tmp/$USER/osscompare_commands.txt
   echo "cviewCreate -x 7 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
@@ -2400,7 +2415,7 @@ if [ "$number_of_databases" -eq "4" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "create cview -c 2 -c 4 -c 6 -c 8" 
+    echo "DEBUG: create cview -c 2 -c 4 -c 6 -c 8" 
   fi
   if [ $create_csv_files -eq 1 ]
   then
@@ -2420,7 +2435,7 @@ if [ "$number_of_databases" -ge "5" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "value[4]=%s\n" "${values[4]}" ## print field N (numbered from 0)
+    echo "DEBUG: value[4]=" "${values[4]}" ## print field N (numbered from 0)
   fi
   echo "exprestore -f ${values[4]}" >> /tmp/$USER/osscompare_commands.txt
   echo "cviewCreate -x 9 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
@@ -2430,7 +2445,7 @@ if [ "$number_of_databases" -eq "5" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "create cview -c 2 -c 4 -c 6 -c 8 -c 10" 
+    echo "DEBUG: create cview -c 2 -c 4 -c 6 -c 8 -c 10" 
   fi
   if [ $create_csv_files -eq 1 ]
   then
@@ -2450,7 +2465,7 @@ if [ "$number_of_databases" -ge "6" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "value[5]=%s\n" "${values[5]}" ## print field N (numbered from 0)
+    echo "DEBUG: value[5]=" "${values[5]}" ## print field N (numbered from 0)
   fi
   echo "exprestore -f ${values[5]}" >> /tmp/$USER/osscompare_commands.txt
   echo "cviewCreate -x 11 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
@@ -2460,7 +2475,7 @@ if [ "$number_of_databases" -eq "6" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "create cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12" 
+    echo "DEBUG: create cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12" 
   fi
   if [ $create_csv_files -eq 1 ]
   then
@@ -2480,7 +2495,7 @@ if [ "$number_of_databases" -ge "7" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "value[6]=%s\n" "${values[6]}" ## print field N (numbered from 0)
+    echo "DEBUG: value[6]=\n" "${values[6]}" ## print field N (numbered from 0)
   fi
   echo "exprestore -f ${values[6]}" >> /tmp/$USER/osscompare_commands.txt
   echo "cviewCreate -x 13 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
@@ -2490,7 +2505,7 @@ if [ "$number_of_databases" -eq "7" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "create cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14" 
+    echo "DEBUG: create cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14" 
   fi
   if [ $create_csv_files -eq 1 ]
   then
@@ -2510,7 +2525,7 @@ if [ "$number_of_databases" -ge "8" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "value[7]=%s\n" "${values[7]}" ## print field N (numbered from 0)
+    echo "DEBUG: value[7]=" "${values[7]}" ## print field N (numbered from 0)
   fi
   echo "exprestore -f ${values[7]}" >> /tmp/$USER/osscompare_commands.txt
   echo "cviewCreate -x 15 -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
@@ -2520,7 +2535,7 @@ if [ "$number_of_databases" -eq "8" ]
 then
   if [ $debug_flag == 1 ]
   then
-    echo "create cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 -c 16" 
+    echo "DEBUG: create cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 -c 16" 
   fi
   if [ $create_csv_files -eq 1 ]
   then
