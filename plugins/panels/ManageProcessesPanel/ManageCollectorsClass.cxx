@@ -540,6 +540,7 @@ ManageCollectorsClass::updateAttachedList()
     attachCollectorsListView->setColumnText( 1, tr( QString("Process ID") ) );
     attachCollectorsListView->setColumnText( 2, "            " );
     attachCollectorsListView->setSorting(0, TRUE);
+    attachCollectorsListView->setShowSortIndicator(TRUE);
 
     {
 #ifdef DEBUG_MPPanel
