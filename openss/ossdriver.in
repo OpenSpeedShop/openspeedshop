@@ -85,6 +85,11 @@ fpe_default_events="inexact_result,division_by_zero,underflow,overflow,invalid_o
 # Options vary by experiment: percent is another alternative to time
 compare_default_metric="time"
 
+# Indicate whether or not there was a metric specified on the osscompare command (used for hwcsamp, currently)
+# If set then there was an argument, so don't override later with a hwcsamp default set of metrics
+# If not set, then use the hwcsamp default set of metrics (time and allEvents, currently)
+input_compare_metric=0
+
 #
 # END DEFAULT VALUES
 #
@@ -2119,6 +2124,7 @@ then
   if [ $input_argument_compare_metric != 0 ]
   then
      use_compare_metric=$input_argument_compare_metric
+     input_compare_metric=1
      echo "[openss]: Executing compare experiment using osscompare command input metric value=$input_argument_compare_metric."
      if [ -z "$OPENSS_COMPARE_METRIC" ]
      then
@@ -2129,6 +2135,7 @@ then
      else
         echo "[openss]: Executing compare experiment using OPENSS_COMPARE_METRIC value=$OPENSS_COMPARE_METRIC for osscompare command metric value, overriding osscommand input metric value=$input_argument_compare_metric."
         use_compare_metric=$OPENSS_COMPARE_METRIC
+        input_compare_metric=1
      fi
   else
       use_compare_metric=$compare_default_metric
@@ -2284,7 +2291,12 @@ then
    then
 # FIXME - how do we get the event names to use as the compare metric
 #      use_compare_metric=time
-      use_compare_metric=time,allevents
+      # if there is a input compare metric specified already then use it, do not override
+      # else use the time,allevents for comparing hwcsamp info.
+      if [ $input_compare_metric == 0 ]
+      then
+         use_compare_metric=time,allevents
+      fi
    fi
 fi
 
