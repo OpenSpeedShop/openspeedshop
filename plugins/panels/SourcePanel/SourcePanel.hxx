@@ -71,7 +71,7 @@ public:
   void save();
 
   //! Does the actual writing of the data.
-  void doSaveAs(QTextStream *ts);
+  void doSaveAs(QTextStream *ts, bool htmlOutput = false);
 
   //! Update the preferences from file settings
   void preferencesChanged();

@@ -394,33 +394,28 @@ SourcePanel::saveAs()
 
   QFileDialog *sfd = NULL;
   QString dirName = QString::null;
-  if( sfd == NULL )
-  {
+
     sfd = new QFileDialog(this, "file dialog", TRUE );
     sfd->setCaption( QFileDialog::tr("Enter filename:") );
     sfd->setMode( QFileDialog::AnyFile );
-    sfd->setSelection(QString("SourcePanel.txt"));
-    QString types(
-                  "Html files (*.txt);;"
-                  );
-    sfd->setFilters( types );
+  sfd->setSelection(fileName.right(fileName.length() - fileName.findRev('/') - 1) + ".html");
+  sfd->setFilters( tr("Html files (*.html);;Text files (*.txt)") );
     sfd->setDir(dirName);
-  }
 
-  QString fileName = QString::null;
+  QString filePath = QString::null;
   if( sfd->exec() == QDialog::Accepted )
   {
-    fileName = sfd->selectedFile();
+    filePath = sfd->selectedFile();
 
-    if( !fileName.isEmpty() )
+    if( !filePath.isEmpty() )
     {
-      QFile file(fileName);
+      QFile file(filePath);
 
       if( file.open( IO_WriteOnly ) ) 
       {
         QTextStream stream(&file);
 
-        doSaveAs(&stream);
+        doSaveAs(&stream, filePath.endsWith("html", false));
 
         file.close();
       }
@@ -1499,13 +1494,88 @@ SourcePanel::calculateLastParameters()
 }
 
 void
-SourcePanel::doSaveAs(QTextStream *ts)
+SourcePanel::doSaveAs(QTextStream *ts, bool htmlOutput)
 {
 #ifdef DEBUG_SourcePanel
    printf("SourcePanel::doSaveAs() entered\n");
 #endif
-  *ts << fileName;
-  *ts << textEdit->text();
+
+  QStringList lines(QStringList::split('\n', textEdit->text(), true));
+
+  /* Find longest annotation to determine width of left column */
+  int longestAnnotation = 0;
+  QString annotationHeader;
+  HighlightObject *hlo = NULL;
+  for( HighlightList::Iterator it = highlightList->begin(); it != highlightList->end(); ++it) {
+    hlo = (HighlightObject *)*it;
+    if(!longestAnnotation) {
+      annotationHeader = hlo->value_description;
+    }
+    if(longestAnnotation < hlo->value.length()) {
+      longestAnnotation = hlo->value.length();
+    }
+  }
+
+  if(htmlOutput) {  /* Save as html */
+    /* Add the header to the file */
+    *ts << "<html>\n<head>\n<title>" << fileName << "</title>\n";
+    *ts << "<style type=\"text/css\"><!-- body{font-family:\"Courier New\",\"Courier\",monospace;} a{font-weight:bolder;} --></style>\n";
+    *ts << "</head>\n<body>\n";
+
+    /* Iterate over each line in the source */
+    for(int i=0; i < lines.count(); ++i) {
+      /* Attempt to find data description for line */
+      HighlightObject *hlo = NULL;
+      QString value;
+      for( HighlightList::Iterator it = highlightList->begin(); it != highlightList->end(); ++it) {
+        hlo = (HighlightObject *)*it;
+        if(hlo->line == i+1) {
+          *ts << "<div title=\"" << hlo->description << "\" style=\"background:" << hlo->color << "\">";
+          value = hlo->value;
+          break;
+        }
+      }
+
+      QString sanitized(value.leftJustify(longestAnnotation, ' ') + *lines.at(i));
+      sanitized = sanitized.replace('&', "&amp;");
+      sanitized = sanitized.replace('\t', "&nbsp;&nbsp;&nbsp;&nbsp;");
+      sanitized = sanitized.replace(' ', "&nbsp;");
+      sanitized = sanitized.replace('>', "&gt;");
+      sanitized = sanitized.replace('<', "&lt;");
+      sanitized = sanitized.replace('\"', "&quot;");
+      sanitized = sanitized.replace('\'', "&apos;");
+      *ts << sanitized << "<br />";
+
+      if(!value.isEmpty()) {
+        *ts << "</div>";
+      }
+
+      *ts << "\n";
+    }
+
+   *ts << "</body></html>";
+
+  } else {  /* Save as plain text, with columns */
+    /* Add the header to the file */
+    *ts << "File: \"" << fileName << "\"\n";
+    *ts << "Metric: \"" << annotationHeader << "\"\n";
+    *ts << QString().fill('=', longestAnnotation+86) << "\n\n";
+
+    /* Iterate over each line in the source */
+    for(int i=0; i < lines.count(); ++i) {
+      /* Attempt to find data description for line */
+      QString value;
+      for( HighlightList::Iterator it = highlightList->begin(); it != highlightList->end(); ++it) {
+        hlo = (HighlightObject *)*it;
+        if(hlo->line == i+1) {
+          value = hlo->value;
+          break;
+        }
+      }
+
+      *ts << value.leftJustify(longestAnnotation, ' ') << *lines.at(i) << "\n";
+    }
+  }
 }
 
 void
