@@ -55,6 +55,37 @@ using namespace OpenSpeedShop::Framework;
 #include "PanelContainer.hxx"
 #include "FocusObject.hxx"
 
+// This routine is strongly based (copy of) 
+// on the Tokenizer routine found at this URL:
+// http://www.oopweb.com/CPP/Documents/CPPHOWTO/Volume/C++Programming-HOWTO-7.html
+
+void createTokens(const std::string& str,
+                  std::vector<std::string>& tokens,
+                  const std::string& delimiters = " ")
+{
+    // Skip delimiters at beginning.
+    std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    // Find first "non-delimiter".
+    std::string::size_type pos     = str.find_first_of(delimiters, lastPos);
+
+    while (std::string::npos != pos || std::string::npos != lastPos)
+    {
+        // Found a token, add it to the vector.
+        tokens.push_back(str.substr(lastPos, pos - lastPos));
+
+        // Skip delimiters.  Note the "not_of"
+        lastPos = str.find_first_not_of(delimiters, pos);
+
+        // Find next "non-delimiter"
+        pos = str.find_first_of(delimiters, lastPos);
+
+#ifdef DEBUG_CLI
+        printf("createTokens, in while, str.c_str()=%s, lastPos = %d, pos = %d\n", str.c_str(), lastPos, pos);
+#endif
+
+    }
+}
+
 
 // Database name request code
 //
@@ -386,14 +417,16 @@ ColumnSet::gatherExperimentInfo()
 #ifdef DEBUG_COMPARE
       printf("There was a combo box.  It was (%s)\n", expStr.ascii() );
 #endif
-    } else
-    {
+    } else {
+
       // THIS IS A BUG.   This code block should be look "back"
       // for the previous columns experiment string and attempting
       // to focus this information with that information.
+      //
 #ifdef DEBUG_COMPARE
       printf("There was a combo box.  IT WAS EMPTY!!\n");
 #endif
+
     }
     
 #ifdef DEBUG_COMPARE
@@ -416,16 +449,19 @@ ColumnSet::gatherExperimentInfo()
     printf("str1=(%s) str2=(%s)\n", str1.ascii(), str2.ascii() );
 #endif
 
-    if( experimentComboBox )
-    {
+    if( experimentComboBox ) {
+
 #ifdef DEBUG_COMPARE
       printf("WE HAVE AN experimentComboBox!\n");
 #endif
+
       QString label(str2);
       experimentComboBox->insertItem( label );
+
 #ifdef DEBUG_COMPARE
       printf("label.ascii()=(%s) expStr.ascii()=(%s)\n", label.ascii(), expStr.ascii() );
 #endif
+
       if( compareSet->compareClass->focusedExpID > 0 )
       {
         if( getExpidFromExperimentComboBoxStr(str2) == compareSet->compareClass->focusedExpID )
@@ -440,32 +476,38 @@ ColumnSet::gatherExperimentInfo()
 //          compareSet->compareClass->focusedExpID = -1;
 
           expStr = str2;
-        } else if( label == expStr )
-        {
+        } else if( label == expStr ) {
+
           expStrFoundFLAG = TRUE;
           saved_eid = getExpidFromExperimentComboBoxStr(str2);
 #ifdef DEBUG_COMPARE
           printf("A: We found the existing label, prepare to reset it.\n");
 #endif
           expStr = str2;
+
         }
-      } else if( label == expStr )
-      {
+
+      } else if( label == expStr ) {
+
         expStrFoundFLAG = TRUE;
         saved_eid = getExpidFromExperimentComboBoxStr(str2);
+
 #ifdef DEBUG_COMPARE
         printf("B: We found the existing label, prepare to reset it.\n");
 #endif
+
         expStr = str2;
       }
     }
   }
-  if( !expStr.isEmpty() )
-  {
+  if( !expStr.isEmpty() ) {
+
 #ifdef DEBUG_COMPARE
     printf("Try to set the ComboBox back to what it was. (%s)\n", expStr.ascii() );
 #endif
+
     experimentComboBox->setCurrentText( expStr );
+
   }
 
 #ifdef DEBUG_COMPARE
@@ -475,13 +517,18 @@ ColumnSet::gatherExperimentInfo()
   if( saved_eid > 0 ) {
     eid = saved_eid;
   }
+
   if( compareSet->compareClass->focusedExpID > 0 )
   {
+
 #ifdef DEBUG_COMPARE
     printf("If saved_eid <= 0 force the new one!\n");
 #endif
+
     saved_eid = compareSet->compareClass->focusedExpID;
+
   }
+
 #ifdef DEBUG_COMPARE
   printf("Sending eid=(%d) down to gatherCollectorInfo()\n", eid) ;
 #endif
@@ -609,25 +656,24 @@ ColumnSet::gatherMetricInfo(CollectorEntry *ce)
   // First save the existing state (if any).
   QString metricStr = QString::null;
   bool metricStrFoundFLAG = FALSE;
-  if( metricComboBox )
-  {
-    if( !metricComboBox->currentText().isEmpty() )
-    {
+
+  if( metricComboBox ) {
+    if( !metricComboBox->currentText().isEmpty() ) {
       metricStr = metricComboBox->currentText();
     }
 
 #ifdef DEBUG_COMPARE
-    printf("metricStr = (%s)\n", metricStr.ascii() );
+    printf("ColumnSet::gatherMetricInfo, metricStr = (%s)\n", metricStr.ascii() );
 #endif
   
     int cb_count = 0;
-    for(cb_count = metricComboBox->count(); cb_count > 0; cb_count--)
-    {
+    for(cb_count = metricComboBox->count(); cb_count > 0; cb_count--) {
       metricComboBox->removeItem(cb_count-1);
     }
   }
+
 #ifdef DEBUG_COMPARE
-  printf("Now look up up the metrics of the ce->name (%s) collector\n", ce->name.ascii() );
+  printf("ColumnSet::gatherMetricInfo, Now look up up the metrics of the ce->name (%s) collector\n", ce->name.ascii() );
 #endif
 
   CollectorMetricEntryList::Iterator plit;
@@ -635,35 +681,37 @@ ColumnSet::gatherMetricInfo(CollectorEntry *ce)
        plit != ce->metricList.end(); ++plit )
   {
     CollectorMetricEntry *cpe = (CollectorMetricEntry *)*plit;
-    if( metricComboBox )
-    {
+    if( metricComboBox ) {
       metricComboBox->insertItem( cpe->name );
+
 #ifdef DEBUG_COMPARE
-      printf("Add (%s) to metricComboBox\n", cpe->name.ascii() );
+      printf("ColumnSet::gatherMetricInfo, Add (%s) to metricComboBox\n", cpe->name.ascii() );
 #endif
-      if( metricStr == cpe->name )
-      {
+
+      if( metricStr == cpe->name ) {
         metricStrFoundFLAG = TRUE;
         metricStr = cpe->name;
 #ifdef DEBUG_COMPARE
-        printf("Found! (%s)\n", cpe->name.ascii() );
+        printf("ColumnSet::gatherMetricInfo, Found! (%s)\n", cpe->name.ascii() );
 #endif
       }
-      if( metricStr.isEmpty() )
-      {
+      if( metricStr.isEmpty() ) {
 #ifdef DEBUG_COMPARE
-        printf("Set a default for metricStr!!!\n");
+        printf("ColumnSet::gatherMetricInfo, Set a default for metricStr!!!\n");
 #endif
         metricStr = cpe->name;
       }
     }
+
 #ifdef DEBUG_COMPARE
-  printf("Put this to a menu: cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
+  printf("ColumnSet::gatherMetricInfo, Put this to a menu: cpe->name=(%s) cpe->type=(%s) cpe->metric_val=(%s)\n", cpe->name.ascii(), cpe->type.ascii(), cpe->metric_val.ascii() );
 #endif
-  }
-  if( metricComboBox )
-  {
-    if( ce->name == "pcsamp" || ce->name == "hwc" )
+
+  } // end for
+
+  if( metricComboBox ) {
+
+    if( ce->name == "pcsamp" || ce->name == "hwc" || ce->name == "hwcsamp" )
     { // Nothing extra here... only the collector defined metric.
       metricComboBox->insertItem("percent");
       if( metricStr == "percent" )
@@ -777,10 +825,88 @@ ColumnSet::gatherMetricInfo(CollectorEntry *ce)
         metricStr = "retval";
       }
     }
-  }
+
+    // Add the actual hwc (PAPI) events here
+    if( ce->name == "hwcsamp" ) { 
+
 
 #ifdef DEBUG_COMPARE
-  printf("down here!  metricStr=(%s)\n", metricStr.ascii() );
+       printf("ColumnSet::gatherMetricInfo, dealing with hwcsamp metrics\n" );
+#endif
+
+       // Now get the the metrics for hwcsamp to pull off the event names to add to the metrics list
+       QString expStr = QString::null;
+       int expID = -1;
+       QString command = QString::null;
+       std::list<std::string> list_of_hwcsamp_modifiers;
+       if( experimentComboBox )
+       {
+         if( !experimentComboBox->currentText().isEmpty() )
+         {
+           expStr = experimentComboBox->currentText();
+           expID = getExpidFromExperimentComboBoxStr(expStr);
+#ifdef DEBUG_COMPARE
+           printf("There was a combo box.  It was (%s)\n", expStr.ascii() );
+#endif
+         } 
+       } 
+    
+       if( expID > 0 ) {
+          command = QString("list -v justparamvalues -x %1").arg(expID);
+       } else {
+          printf("ERROR no experiment could be found when processing hwcsamp metrics\n");
+       }
+
+#ifdef DEBUG_COMPARE
+       printf("ColumnSet::gatherMetricInfo, attempt to run (%s)\n", command.ascii() );
+#endif
+
+       //CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+       CLIInterface *cli = this->compareSet->compareClass->p->getPanelContainer()->getMainWindow()->cli;
+       list_of_hwcsamp_modifiers.clear();
+       InputLineObject *clip = NULL;
+       std::string cstring;
+       std::string lastToken;
+
+       if( !cli->getStringValueFromCLI( (char *)command.ascii(), &cstring, clip, TRUE ) )
+       {
+         printf("Unable to run %s command.\n", command.ascii() );
+       }
+
+#ifdef DEBUG_COMPARE
+         printf("ColumnSet::gatherMetricInfo, ran %s, result=%s\n", command.ascii(), cstring.c_str() );
+#endif
+
+       std::vector<std::string> tokens;
+       createTokens(cstring, tokens, ",");
+       std::vector<std::string>::iterator k;
+       
+       // Find the hwcsamp PAPI event names
+       for (k=tokens.begin();k != tokens.end(); k++) {
+          lastToken = *k;
+#ifdef DEBUG_COMPARE
+          printf("ColumnSet::gatherMetricInfo, list_of_hwcsamp_modifiers.push_back, lastToken=%s\n", lastToken.c_str() );
+#endif
+          list_of_hwcsamp_modifiers.push_back(lastToken.c_str());
+       }
+
+       // Now add to the metricComboBox
+       for( std::list<std::string>::const_iterator it = list_of_hwcsamp_modifiers.begin();
+            it != list_of_hwcsamp_modifiers.end();  )
+       {
+         std::string modifier = (std::string)*it;
+         metricComboBox->insertItem(modifier.c_str());
+#ifdef DEBUG_COMPARE
+          printf("ColumnSet::gatherMetricInfo, LOOP THROUGH, list_of_hwcsamp_modifiers, modifier=%s\n", modifier.c_str() );
+#endif
+          it++;
+       }
+
+    } // end hwcsamp
+
+
+#ifdef DEBUG_COMPARE
+  printf("ColumnSet::gatherMetricInfo, down here!  metricStr=(%s)\n", metricStr.ascii() );
 #endif
 
   if( metricStrFoundFLAG == FALSE )
@@ -792,10 +918,11 @@ ColumnSet::gatherMetricInfo(CollectorEntry *ce)
   if( !metricStr.isEmpty() )
   {
 #ifdef DEBUG_COMPARE
-    printf("Attempt to reset the metricComboBox to the saved text\n");
+    printf("ColumnSet::gatherMetricInfo, Attempt to reset the metricComboBox to the saved text\n");
 #endif
     metricComboBox->setCurrentText( metricStr );
   }
+ }
 }
 
 int
