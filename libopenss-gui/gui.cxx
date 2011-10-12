@@ -390,6 +390,9 @@ extern "C"
 #endif
       w->topPC->closeAllExternalPanelContainers();
       delete w->topPC;
+
+      delete w;
+      w = NULL;
   }
 
 }

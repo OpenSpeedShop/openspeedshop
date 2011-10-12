@@ -189,6 +189,13 @@ OpenSpeedshop::OpenSpeedshop( int _wid, int _climode, QWidget* parent, const cha
   resize( QSize(850, 620).expandedTo(minimumSizeHint()) );
   clearWState( WState_Polished );
 
+  QSettings settings;
+  int x = settings.readNumEntry("/openspeedshop/geometry/x", this->x());
+  int y = settings.readNumEntry("/openspeedshop/geometry/y", this->y());
+  int width = settings.readNumEntry("/openspeedshop/geometry/width", this->width());
+  int height = settings.readNumEntry("/openspeedshop/geometry/height", this->height());
+  this->setGeometry(x,y,width,height);
+
   cli = new CLIInterface(_wid);
 }
 
@@ -197,6 +204,12 @@ OpenSpeedshop::OpenSpeedshop( int _wid, int _climode, QWidget* parent, const cha
  */
 OpenSpeedshop::~OpenSpeedshop()
 {
+  QSettings settings;
+  settings.writeEntry("/openspeedshop/geometry/x", this->x());
+  settings.writeEntry("/openspeedshop/geometry/y", this->y());
+  settings.writeEntry("/openspeedshop/geometry/width", this->width());
+  settings.writeEntry("/openspeedshop/geometry/height", this->height());
+
     destroy();
     // no need to delete child widgets, Qt does it all for us
 }
