@@ -1122,7 +1122,7 @@ height+=50;   // FIX
 
 void OpenSpeedshop::destroy()
 {
-fprintf(stderr, "OpenSpeedshop::destroy() entered.\n");
+  //fprintf(stderr, "OpenSpeedshop::destroy() entered.\n");
   qApp->restoreOverrideCursor();
 }
 
