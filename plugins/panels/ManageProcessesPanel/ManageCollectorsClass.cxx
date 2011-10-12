@@ -148,10 +148,20 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
     sizeList.push_back((int)(height/4));
     sizeList.push_back(height-(int)(height/6));
   } else {
-    sizeList.push_back((int)(width/4));
-    sizeList.push_back(width-(int)(width/6));
+    sizeList.push_back((int)(width/2));
+    sizeList.push_back(width-(int)(width/2));
   }
   splitter->setSizes(sizeList);
+
+  // Restore geometry settings
+  QSettings settings;
+  QValueList<int> currentSizes = splitter->sizes();
+  QValueList<int> persistedSizes;
+  int index = 0;
+  for(QValueList<int>::Iterator currentSize = currentSizes.begin(); currentSize != currentSizes.end(); ++currentSize) {
+    persistedSizes.push_back(settings.readNumEntry(QString("/openspeedshop/managecollectors/splitter/size_%1").arg(index++), *currentSize));
+  }
+  splitter->setSizes(persistedSizes);
 
   ManageCollectorsClassLayout->addWidget( splitter );
 
@@ -168,6 +178,14 @@ ManageCollectorsClass::ManageCollectorsClass( Panel *_p, QWidget* parent, const 
  */
 ManageCollectorsClass::~ManageCollectorsClass()
 {
+  // Store geometry settings
+  QSettings settings;
+  QValueList<int> currentSizes = splitter->sizes();
+  int index = 0;
+  for(QValueList<int>::Iterator currentSize = currentSizes.begin(); currentSize != currentSizes.end(); ++currentSize) {
+    settings.writeEntry(QString("/openspeedshop/managecollectors/splitter/size_%1").arg(index++), *currentSize);
+  }
+
   // no need to delete child widgets, Qt does it all for us
   nprintf(DEBUG_CONST_DESTRUCT) ("ManageCollectorsClass::ManageCollectorsClass() destructor called.\n");
 #if DEBUG_MPPanel
