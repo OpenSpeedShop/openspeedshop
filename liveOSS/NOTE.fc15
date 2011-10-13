@@ -1,6 +1,9 @@
 I had to copy these RPMs into /var/www/html/yum/base
 in order to create the live os for OpenSpeedShop
 
+# Some of these must match with the build system
+#  - binutils, mpich2, openmpi, qt3
+
 anaconda-15.31-1.fc15.x86_64.rpm
 anaconda-yum-plugins-1.0-6.fc15.noarch.rpm
 fcoe-utils-1.0.18-2.fc15.x86_64.rpm
@@ -30,18 +33,27 @@ tigervnc-server-minimal-1.0.90-4.fc15.x86_64.rpm
 lldpad-devel-0.9.41-1.fc15.x86_64 (1).rpm
 lldpad-0.9.41-4.fc15.x86_64.rpm
 scim-1.4.9-8.fc15.x86_64.rpm
-#webtutorial-debuginfo.OSS.x86_64.rpm
-#toyprograms.OSS.x86_64.rpm
-#webtutorial.OSS.x86_64.rpm
-#binutils.OSS.x86_64.rpm
-#dyninst.OSS.x86_64.rpm
-#libdwarf.OSS.x86_64.rpm
-#libmonitor.OSS.x86_64.rpm
-#libunwind.OSS.x86_64.rpm
-#mrnet.OSS.x86_64.rpm
-#openspeedshop.OSS.x86_64.rpm
-#papi.OSS.x86_64.rpm
-#sqlite.OSS.x86_64.rpm
-#vampirtrace.OSS.x86_64.rpm
+openmpi-devel-1.5-3.fc15.x86_64.rpm
+openmpi-1.5-3.fc15.x86_64.rpm
+mpich2-1.4.1p1-1.fc15.x86_64.rpm
+mpich2-devel-1.4.1p1-1.fc15.x86_64.rpm
+binutils-2.21.51.0.6-6.fc15.x86_64.rpm
+binutils-devel-2.21.51.0.6-6.fc15.x86_64.rpm
+hwloc-1.2-0.fc15.x86_64.rpm
+
+# Then OSS related
+toyprograms.OSS.x86_64.rpm
+webtutorial-debuginfo.OSS.x86_64.rpm
+webtutorial.OSS.x86_64.rpm
+sqlite.OSS.x86_64.rpm
+dyninst.OSS.x86_64.rpm
+libdwarf.OSS.x86_64.rpm
+libmonitor.OSS.x86_64.rpm
+libunwind.OSS.x86_64.rpm
+mrnet.OSS.x86_64.rpm
+openspeedshop.OSS.x86_64.rpm
+papi.OSS.x86_64.rpm
+vampirtrace.OSS.x86_64.rpm
+
 
 cp /home/jeg/Downloads/*.rpm /var/www/html/yum/base/.
