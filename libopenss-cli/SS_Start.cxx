@@ -231,7 +231,7 @@ Process_Command_Line (int argc, char **argv)
           ((i+1)<argc) && 
           (argv[i+1] != NULL) && 
           strstr( argv[i+1], ".openss") &&
-          !strstr( argv[i+1], "-f")) {
+          !strstr( argv[i+1], "-f ")) {
 #if DEBUG_CLI
         std::cerr << "Process_Command_Line, Parsing openss args, FOUND .openss: clause" << std::endl;
 #endif
@@ -272,6 +272,7 @@ Process_Command_Line (int argc, char **argv)
     std::cerr << "Process_Command_Line, starting_checks, found_r_option=" << found_r_option << std::endl;
     std::cerr << "Process_Command_Line, starting_checks, found_h_option=" << found_h_option << std::endl;
     std::cerr << "Process_Command_Line, starting_checks, found_c_option=" << found_c_option << std::endl;
+    std::cerr << "Process_Command_Line, starting_checks, found_database=" << found_database << std::endl;
 #endif
 
   // If we find a dynamic option then we have to run as online, so force the mode to online
