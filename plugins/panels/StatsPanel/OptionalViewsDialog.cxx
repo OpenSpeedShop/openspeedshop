@@ -167,8 +167,11 @@ OptionalViewsDialog::OptionalViewsDialog( QWidget* parent,
      mpi_percent = FALSE;
      mpi_stddev = FALSE;
    } else if ( globalCollectorString.contains("fpe") ) {
+#if 0
      fpe_time = FALSE;
+#endif
      fpe_counts = FALSE;
+     fpe_inclusive_counts = FALSE;
      fpe_percent = FALSE;
      fpe_ThreadAverage = FALSE;
      fpe_ThreadMin = FALSE;
@@ -1517,6 +1520,7 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
    } else if ( globalCollectorString.contains("fpe") ) {
     VTraceGroupBox->hide();
 
+#if 0
     if (isInCurrentModifierList("fpe::time")) {
        fpe_time = TRUE;
     } else {
@@ -1530,6 +1534,7 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     fpe_time_CheckBox->setText( tr( "FPE Experiment Time Value" ) );
     rightSideLayout->addWidget( fpe_time_CheckBox );
     }
+#endif
 
     if (isInCurrentModifierList("fpe::counts")) {
        fpe_counts = TRUE;
@@ -1541,9 +1546,24 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     fpe_counts_CheckBox = new QCheckBox( GeneralGroupBox, "fpe_counts_CheckBox" );
     fpe_counts_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, fpe_counts_CheckBox->sizePolicy().hasHeightForWidth() ) );
     fpe_counts_CheckBox->setChecked( TRUE );
-    fpe_counts_CheckBox->setText( tr( "FPE Experiment Counts Value" ) );
+    fpe_counts_CheckBox->setText( tr( "FPE Experiment Exclusive Counts Value" ) );
     rightSideLayout->addWidget( fpe_counts_CheckBox );
     }
+
+    if (isInCurrentModifierList("fpe::inclusive_counts")) {
+       fpe_inclusive_counts = TRUE;
+    } else {
+       fpe_inclusive_counts = FALSE;
+    }
+
+    { // fpe_inclusive_counts
+    fpe_inclusive_counts_CheckBox = new QCheckBox( GeneralGroupBox, "fpe_inclusive_counts_CheckBox" );
+    fpe_inclusive_counts_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, fpe_inclusive_counts_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    fpe_inclusive_counts_CheckBox->setChecked( TRUE );
+    fpe_inclusive_counts_CheckBox->setText( tr( "FPE Experiment Inclusive Counts Value" ) );
+    rightSideLayout->addWidget( fpe_inclusive_counts_CheckBox );
+    }
+
 
     if (isInCurrentModifierList("fpe::percent")) {
        fpe_percent = TRUE;
@@ -2078,13 +2098,20 @@ void OptionalViewsDialog::languageChange()
 
    } else if ( globalCollectorString.contains("fpe") ) {
 
+#if 0
     fpe_time_CheckBox->setChecked(fpe_time);
     QToolTip::add(fpe_time_CheckBox,
                 tr("Display FPE experiment time values.") );
+#endif
 
     fpe_counts_CheckBox->setChecked(fpe_counts);
     QToolTip::add(fpe_counts_CheckBox,
-                tr("Display FPE experiment counts values.") );
+                tr("Display FPE experiment exclusive counts values.") );
+
+    fpe_inclusive_counts_CheckBox->setChecked(fpe_inclusive_counts);
+    QToolTip::add(fpe_inclusive_counts_CheckBox,
+                tr("Display FPE experiment inclusive counts values.") );
+
 
     fpe_percent_CheckBox->setChecked(fpe_percent);
     QToolTip::add(fpe_percent_CheckBox,
@@ -2369,8 +2396,11 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      mpi_percent_CheckBox->setChecked(mpi_percent);
      mpi_stddev_CheckBox->setChecked(mpi_stddev);
    } else if ( globalCollectorString.contains("fpe") ) {
+#if 0
      fpe_time = TRUE;
-     fpe_counts = FALSE;
+#endif
+     fpe_counts = TRUE;
+     fpe_inclusive_counts = TRUE;
      fpe_percent = TRUE;
      fpe_ThreadAverage = FALSE;
      fpe_ThreadMin = FALSE;
@@ -2382,8 +2412,11 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      fpe_unnormal_count = FALSE;
      fpe_invalid_count = FALSE;
      fpe_unknown_count = FALSE;
+#if 0
      fpe_time_CheckBox->setChecked(fpe_time);
+#endif
      fpe_counts_CheckBox->setChecked(fpe_counts);
+     fpe_inclusive_counts_CheckBox->setChecked(fpe_inclusive_counts);
      fpe_percent_CheckBox->setChecked(fpe_percent);
      fpe_ThreadAverage_CheckBox->setChecked(fpe_ThreadAverage);
      fpe_ThreadMin_CheckBox->setChecked(fpe_ThreadMin);
@@ -2548,8 +2581,11 @@ void OptionalViewsDialog::applyPreferences()
      mpi_percent_CheckBox->isChecked();
      mpi_stddev_CheckBox->isChecked();
    } else if ( globalCollectorString.contains("fpe") ) {
+#if 0
      fpe_time = fpe_time_CheckBox->isChecked();
+#endif
      fpe_counts = fpe_counts_CheckBox->isChecked();
+     fpe_inclusive_counts = fpe_inclusive_counts_CheckBox->isChecked();
      fpe_percent = fpe_percent_CheckBox->isChecked();
      fpe_ThreadAverage = fpe_ThreadAverage_CheckBox->isChecked();
      fpe_ThreadMin = fpe_ThreadMin_CheckBox->isChecked();

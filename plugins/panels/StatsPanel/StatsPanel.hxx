@@ -229,6 +229,7 @@ class StatsPanel  : public Panel
     QString infoAboutStringCompareExpIDs;
     QString originalCommand;
     QString lastCommand;
+    QString lastCurrentThreadsStr;
     bool staticDataFLAG;
 
     QVBoxLayout *frameLayout;
@@ -307,6 +308,15 @@ class StatsPanel  : public Panel
     std::list<std::string> list_of_collectors_paramsval;
     std::list<std::string> list_of_collectors;
     std::list<int64_t> list_of_pids;
+    std::list<int64_t> list_of_ranks;
+    std::list<int64_t> list_of_threads;
+    std::list<int64_t> separate_list_of_pids;
+    std::list<int64_t> separate_list_of_ranks;
+    std::list<int64_t> separate_list_of_threads;
+    std::list<int64_t> rt_list_of_ranks;
+    std::list<int64_t> rt_list_of_threads;
+    std::list<int64_t> partial_list_of_threads;
+    std::list<int64_t> partial_list_of_ranks;
     std::list<std::string> list_of_modifiers;
 
     std::list<int> current_list_of_cview_exp_ids;
@@ -341,7 +351,11 @@ class StatsPanel  : public Panel
     void getExperimentType(int expID);
     void getDatabaseName(int expID, bool force_use_of_exp_id);
     QString getDBName(int);
-    void getPidList(int expID);
+    void getRankThreadPidList(int expID);
+    void getRankThreadList(int expID);
+    void getSeparatePidList(int expID);
+    void getSeparateRankList(int expID);
+    void getSeparateThreadList(int expID);
     void getHostList(int expID);
     void getExecutableList(int expID);
     void updateStatsPanelInfoHeader(int expID);
@@ -385,10 +399,14 @@ class StatsPanel  : public Panel
     void setHeaderInfoAlreadyProcessed(int exp_id) {
 
 #if DEBUG_StatsPanel
-       printf("setHeaderInfoAlreadyProcessed, exp_id=%d, headerInfoProcessedExpID=%d\n", exp_id, headerInfoProcessedExpID);
+       printf("Enter setHeaderInfoAlreadyProcessed, exp_id=%d, headerInfoProcessedExpID=%d\n", exp_id, headerInfoProcessedExpID);
 #endif
 
        headerInfoProcessedExpID = exp_id;
+
+#if DEBUG_StatsPanel
+       printf("Exit setHeaderInfoAlreadyProcessed, exp_id=%d, headerInfoProcessedExpID=%d\n", exp_id, headerInfoProcessedExpID);
+#endif
 
     }
 

@@ -354,6 +354,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   // the same, don't update this panel. 
   originalCommand = QString::null;
   lastCommand = QString::null;
+  lastCurrentThreadsStr = QString::null; 
   staticDataFLAG = false;
 
 #ifdef DEBUG_StatsPanel
@@ -604,6 +605,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   printf("StatsPanel:: splitterB calling setSorting with FALSE\n");
 #endif
   splv->setSorting ( 0, FALSE );
+  splv->setShowSortIndicator ( TRUE );
 
   sml =new QLabel(splitterB,"stats_message_label");
   sml->setText("There were no data samples for this experiment execution.\nPossible reasons for this could be:\n   The executable being run didn't run long enough to record performance data.\n   The type of performance data being gathered may not be present in the executable being executed.\n   The executable was not compiled with debug symbols enabled (-g option or variant).\n");
@@ -988,6 +990,10 @@ StatsPanel::displayUsingFunction()
   currentDisplayUsingTypeStr = "functions";
   currentDisplayUsingType = displayUsingFunctionType;
 
+#if 0
+  // Comment out this code.  It used to be used when clicking on the display type 
+  // would automatically call the previously selected view, but now we have reversed 
+  // the method to select the view type and then hit the type of report.
   if (originatingUserSelectedReportStr.startsWith("minMaxAverage") ) {
 
 //     minMaxAverageSelected();
@@ -1005,6 +1011,7 @@ StatsPanel::displayUsingFunction()
 //     defaultViewSelected();
 
   }
+#endif
 }
 
 void
@@ -1016,6 +1023,10 @@ StatsPanel::displayUsingStatement()
 #endif
   currentDisplayUsingTypeStr = "statements";
   currentDisplayUsingType = displayUsingStatementType;
+#if 0
+  // Comment out this code.  It used to be used when clicking on the display type 
+  // would automatically call the previously selected view, but now we have reversed 
+  // the method to select the view type and then hit the type of report.
   if (originatingUserSelectedReportStr.startsWith("minMaxAverage") ) {
 //     minMaxAverageSelected();
   } else if (originatingUserSelectedReportStr.startsWith("clusterAnalysis") &&
@@ -1027,6 +1038,7 @@ StatsPanel::displayUsingStatement()
             (currentUserSelectedReportStr.startsWith("LinkedObjects") ) ) {
 //     defaultViewSelected();
   }
+#endif
 }
 
 void
@@ -1038,6 +1050,10 @@ StatsPanel::displayUsingLinkedObject()
 #endif
   currentDisplayUsingTypeStr = "linkedobjects";
   currentDisplayUsingType = displayUsingLinkedObjectType;
+#if 0
+  // Comment out this code.  It used to be used when clicking on the display type 
+  // would automatically call the previously selected view, but now we have reversed 
+  // the method to select the view type and then hit the type of report.
   if (originatingUserSelectedReportStr.startsWith("minMaxAverage") ) {
 //     minMaxAverageSelected();
   } else if (originatingUserSelectedReportStr.startsWith("clusterAnalysis") &&
@@ -1049,6 +1065,7 @@ StatsPanel::displayUsingLinkedObject()
             (currentUserSelectedReportStr.startsWith("LinkedObjects") ) ) {
 //     defaultViewSelected();
   }
+#endif
 }
 
 
@@ -1110,6 +1127,7 @@ StatsPanel::listener(void *msg)
    recycleFLAG = FALSE;
    originalCommand = QString::null;
    lastCommand = QString::null;
+   lastCurrentThreadsStr = QString::null; 
    staticDataFLAG = false;
    raiseManageProcessesPanel();
    ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
@@ -1270,7 +1288,12 @@ StatsPanel::listener(void *msg)
     printf("StatsPanel::listener FocusObject, call updateStatsPanelData  Do we need to update?\n");
 #endif // DEBUG_StatsPanel
 
-    updateStatsPanelData(DONT_FORCE_UPDATE);
+    if (originatingUserSelectedReportStr.startsWith("clusterAnalysis") &&
+      currentUserSelectedReportStr.startsWith("Comparison")) {
+      clusterAnalysisSelected();
+    } else {
+      updateStatsPanelData(DONT_FORCE_UPDATE);
+    }
     if( msg->raiseFLAG == TRUE ) {
 
 #ifdef DEBUG_StatsPanel
@@ -2119,6 +2142,7 @@ StatsPanel::clusterAnalysisSelected()
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::clusterAnalysisSelected() ENTERED, currentDisplayUsingType=%d\n", currentDisplayUsingType );
   printf("StatsPanel::clusterAnalysisSelected() ENTERED, currentCollectorStr=%s\n", currentCollectorStr.ascii() );
+  printf("StatsPanel::clusterAnalysisSelected() ENTERED, currentThreadsStr=%s\n", currentThreadsStr.ascii() );
 #endif
 
   displayType = "functions";
@@ -2133,9 +2157,9 @@ StatsPanel::clusterAnalysisSelected()
 #endif
 
   if( focusedExpID == -1 ) {
-    command = QString("cviewCluster -x %1 %2 %3 -v %4").arg(expID).arg(timeIntervalString).arg(mim).arg(displayType);
+    command = QString("cviewCluster -x %1 %2 %3 -v %4 %5").arg(expID).arg(timeIntervalString).arg(mim).arg(displayType).arg(currentThreadsStr);
   } else {
-    command = QString("cviewCluster -x %1 %2 %3 -v %4").arg(focusedExpID).arg(timeIntervalString).arg(mim).arg(displayType);
+    command = QString("cviewCluster -x %1 %2 %3 -v %4 %5").arg(focusedExpID).arg(timeIntervalString).arg(mim).arg(displayType).arg(currentThreadsStr);
   }
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -2253,7 +2277,7 @@ StatsPanel::minMaxAverageSelected()
 #if 0
     command = QString("expview -x %1 %2 -m %3::ThreadMin, %4::ThreadMax, %5::ThreadAverage -v %6").arg(expID).arg(timeIntervalString).arg(currentCollectorStr).arg(currentCollectorStr).arg(currentCollectorStr).arg(displayType);
 #else
-    command = QString("expview -x %1 %2 -m loadbalance -v %3").arg(expID).arg(timeIntervalString).arg(displayType);
+    command = QString("expview -x %1 %2 -m loadbalance -v %3 %4").arg(expID).arg(timeIntervalString).arg(displayType).arg(currentThreadsStr);
 #endif
 
   } else {
@@ -2261,7 +2285,7 @@ StatsPanel::minMaxAverageSelected()
 #if 0
     command = QString("expview -x %1 %2 -m %3::ThreadMin, %4::ThreadMax, %5::ThreadAverage -v %6").arg(focusedExpID).arg(timeIntervalString).arg(currentCollectorStr).arg(currentCollectorStr).arg(currentCollectorStr).arg(displayType);
 #else
-    command = QString("expview -x %1 %2 -m loadbalance -v %3").arg(focusedExpID).arg(timeIntervalString).arg(displayType);
+    command = QString("expview -x %1 %2 -m loadbalance -v %3 %4").arg(focusedExpID).arg(timeIntervalString).arg(displayType).arg(currentThreadsStr);
 #endif
   }
 
@@ -2300,6 +2324,14 @@ StatsPanel::clearAuxiliarySelected()
   traceAddition = QString::null;
 
   currentUserSelectedReportStr = QString::null;
+
+  currentThreadsStr = QString::null;
+
+// This was changed on 10/13/2011 in order to make the GUI more flexible.
+// The Default, Cluster Analysis and Load Balance views will now honor previous metric selections, time segments, specific thread or rank selections
+// Users must now use the CL (clear icon) to clear these selections away.
+// This call clears the modifiers
+  clearModifiers();
 
 //  updateStatsPanelData(DONT_FORCE_UPDATE, command);
   toolbar_status_label->setText("Cleared Auxiliary Setttings, future reports are aggregated over all processes,threads, or ranks:");
@@ -2459,6 +2491,7 @@ StatsPanel::showChart()
       printf("StatsPanel::showChart(), CHART, CLEARING lastCommand=(%s)\n", lastCommand.ascii() );
 #endif
 
+      lastCurrentThreadsStr = QString::null; 
       lastCommand = QString::null;  // This will force a redraw of the data.
       // I'm not sure why, but the text won't draw unless the 
       // piechart is visible.
@@ -2589,6 +2622,7 @@ StatsPanel::showDiff()
     removeDiffColumn(0); // zero is always the "|Difference|" column.
     // Force a resort in this case...
     splv->setSorting ( 0, FALSE );
+    splv->setShowSortIndicator ( TRUE );
     splv->sort();
     insertDiffColumnFLAG = FALSE;
   } else
@@ -2600,6 +2634,7 @@ StatsPanel::showDiff()
 
     // Force a resort in this case...
     splv->setSorting ( insertColumn, FALSE );
+    splv->setShowSortIndicator ( TRUE );
     splv->sort();
   }
 }
@@ -3405,8 +3440,11 @@ StatsPanel::optionalViewsCreationSelected()
       std::map<std::string, bool> fpe_desired_list;
       fpe_desired_list.clear();
 
+#if 0
       fpe_desired_list.insert(std::pair<std::string,int>("fpe::time",optionalViewsDialog->fpe_time));
+#endif
       fpe_desired_list.insert(std::pair<std::string,int>("fpe::counts",optionalViewsDialog->fpe_counts));
+      fpe_desired_list.insert(std::pair<std::string,int>("fpe::inclusive_counts",optionalViewsDialog->fpe_inclusive_counts));
       fpe_desired_list.insert(std::pair<std::string,int>("fpe::percent",optionalViewsDialog->fpe_percent));
       fpe_desired_list.insert(std::pair<std::string,int>("fpe::ThreadAverage",optionalViewsDialog->fpe_ThreadAverage));
       fpe_desired_list.insert(std::pair<std::string,int>("fpe::ThreadMin",optionalViewsDialog->fpe_ThreadMin));
@@ -4249,7 +4287,8 @@ static int findNextMajorToken(QString str, int start_index, QString searchStr)
 
 }
 
-void StatsPanel::getPidList(int exp_id)
+
+void StatsPanel::getRankThreadPidList(int exp_id)
 {
 
 // Now get the threads.
@@ -4257,7 +4296,7 @@ void StatsPanel::getPidList(int exp_id)
  QString command = QString::null;
 
 #ifdef DEBUG_StatsPanel
- printf("StatsPanel::getPidList exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
+ printf("StatsPanel::getRankThreadPidList exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
 #endif
 
  currentThreadsStrENUM = UNKNOWN;
@@ -4272,7 +4311,7 @@ void StatsPanel::getPidList(int exp_id)
   currentThreadsStrENUM = RANK;
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::getPidList-attempt to run (%s)\n", command.ascii() );
+  printf("StatsPanel::getRankThreadPidList-attempt to run (%s)\n", command.ascii() );
 #endif
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -4284,7 +4323,7 @@ void StatsPanel::getPidList(int exp_id)
   }
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::getPidList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
+  printf("StatsPanel::getRankThreadPidList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
 #endif
 
   if( list_of_pids.size() == 0 ) {
@@ -4307,7 +4346,7 @@ void StatsPanel::getPidList(int exp_id)
     }
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::getPidList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
+  printf("StatsPanel::getRankThreadPidList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
 #endif
 
   } 
@@ -4331,7 +4370,7 @@ void StatsPanel::getPidList(int exp_id)
     }
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::getPidList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
+  printf("StatsPanel::getRankThreadPidList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
 #endif
 
   } 
@@ -4344,7 +4383,7 @@ void StatsPanel::getPidList(int exp_id)
       int64_t pid = (int64_t)*it;
 
 #ifdef DEBUG_StatsPanel
-      printf("StatsPanel::getPidList, pid=(%ld)\n", pid );
+      printf("StatsPanel::getRankThreadPidList, pid=(%ld)\n", pid );
 #endif
 
     }
@@ -4355,7 +4394,274 @@ void StatsPanel::getPidList(int exp_id)
     list_of_pids.clear();
 
 #ifdef DEBUG_StatsPanel
-    printf("StatsPanel::getPidList, not valid exp_id=%d, no pids/ranks/threads\n", exp_id);
+    printf("StatsPanel::getRankThreadPidList, not valid exp_id=%d, no pids/ranks/threads\n", exp_id);
+#endif
+
+ }
+}
+void StatsPanel::getSeparatePidList(int exp_id)
+{
+
+// Now get the threads.
+
+ QString command = QString::null;
+
+#ifdef DEBUG_StatsPanel
+ printf("StatsPanel::getSeparatePidList exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
+#endif
+
+ currentThreadsStrENUM = UNKNOWN;
+
+ if( exp_id > 0 || focusedExpID > 0 ) {
+
+    currentThreadsStrENUM = PID;
+    if( focusedExpID == -1 ) {
+      command = QString("list -v pids -x %1").arg(exp_id);
+    } else {
+      command = QString("list -v pids -x %1").arg(focusedExpID);
+    }
+
+// printf("attempt to run (%s)\n", command.ascii() );
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    separate_list_of_pids.clear();
+    InputLineObject *clip = NULL;
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
+           &separate_list_of_pids, clip, TRUE ) ) {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getSeparatePidList, ran %s, separate_list_of_pids.size()=%d\n", command.ascii(), separate_list_of_pids.size() );
+#endif
+
+  if( separate_list_of_pids.size() > 1 ) {
+
+    for( std::list<int64_t>::const_iterator it = separate_list_of_pids.begin();
+         it != separate_list_of_pids.end(); it++ ) {
+
+      int64_t pid = (int64_t)*it;
+
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::getSeparatePidList, pid=(%ld)\n", pid );
+#endif
+
+    }
+  }
+
+ } else {
+
+    separate_list_of_pids.clear();
+
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::getSeparatePidList, not valid exp_id=%d, no pids/ranks/threads\n", exp_id);
+#endif
+
+ }
+}
+
+void StatsPanel::getSeparateThreadList(int exp_id)
+{
+
+// Now get the threads.
+
+ QString command = QString::null;
+
+#ifdef DEBUG_StatsPanel
+ printf("StatsPanel::getSeparateThreadList exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
+#endif
+
+ currentThreadsStrENUM = UNKNOWN;
+
+ if( exp_id > 0 || focusedExpID > 0 ) {
+
+    currentThreadsStrENUM = THREAD;
+    if( focusedExpID == -1 ) {
+      command = QString("list -v threads -x %1").arg(exp_id);
+    } else {
+      command = QString("list -v threads -x %1").arg(focusedExpID);
+    }
+
+// printf("attempt to run (%s)\n", command.ascii() );
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    separate_list_of_threads.clear();
+    InputLineObject *clip = NULL;
+
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
+           &separate_list_of_threads, clip, TRUE ) ) {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getSeparateThreadList, ran %s, separate_list_of_threads.size()=%d\n", command.ascii(), separate_list_of_threads.size() );
+#endif
+
+ } else {
+
+    separate_list_of_threads.clear();
+
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::getSeparateThreadList, not valid exp_id=%d, no threads\n", exp_id);
+#endif
+
+ }
+}
+
+void StatsPanel::getSeparateRankList(int exp_id)
+{
+
+// Now get the threads.
+
+ QString command = QString::null;
+
+#ifdef DEBUG_StatsPanel
+ printf("StatsPanel::getSeparateRankList exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
+#endif
+
+ currentThreadsStrENUM = UNKNOWN;
+
+ if( exp_id > 0 || focusedExpID > 0 ) {
+
+  if( focusedExpID == -1 ) {
+    command = QString("list -v ranks -x %1").arg(exp_id);
+  } else {
+    command = QString("list -v ranks -x %1").arg(focusedExpID);
+  }
+
+  currentThreadsStrENUM = RANK;
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getSeparateRankList-attempt to run (%s)\n", command.ascii() );
+#endif
+
+  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  separate_list_of_ranks.clear();
+  InputLineObject *clip = NULL;
+  if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
+         &separate_list_of_ranks, clip, TRUE ) ) {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getSeparateRankList, ran %s, separate_list_of_ranks.size()=%d\n", command.ascii(), separate_list_of_ranks.size() );
+#endif
+
+
+ } else {
+
+    separate_list_of_ranks.clear();
+
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::getSeparateRankList, not valid exp_id=%d, no pids/ranks/threads\n", exp_id);
+#endif
+
+ }
+}
+
+
+void StatsPanel::getRankThreadList(int exp_id)
+{
+
+// Now get the threads.
+
+ QString command = QString::null;
+
+#ifdef DEBUG_StatsPanel
+ printf("StatsPanel::getRankThreadList exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
+#endif
+
+ currentThreadsStrENUM = UNKNOWN;
+
+ if( exp_id > 0 || focusedExpID > 0 ) {
+
+  if( focusedExpID == -1 ) {
+    command = QString("list -v ranks -x %1").arg(exp_id);
+  } else {
+    command = QString("list -v ranks -x %1").arg(focusedExpID);
+  }
+
+  currentThreadsStrENUM = RANK;
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getRankThreadList-attempt to run (%s)\n", command.ascii() );
+#endif
+
+  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  rt_list_of_ranks.clear();
+  InputLineObject *clip = NULL;
+  if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
+         &rt_list_of_ranks, clip, TRUE ) ) {
+    printf("Unable to run %s command.\n", command.ascii() );
+  }
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::getRankThreadList, ran %s, rt_list_of_ranks.size()=%d\n", command.ascii(), rt_list_of_ranks.size() );
+#endif
+
+  if( rt_list_of_ranks.size() > 0 )
+  {
+    infoString += QString("\n Ranks and Underlying Threads: ");
+    bool first_time = true;
+    int rank_count = 0;
+    for( std::list<int64_t>::const_iterator it = rt_list_of_ranks.begin();
+         it != rt_list_of_ranks.end(); it++ )
+    {
+      rank_count = rank_count + 1;
+      int64_t rank = (int64_t)*it;
+      QString rankStr = QString("%1").arg(rank);
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::getRankThreadList, rank=%ld, rank_count=%d, rt_list_of_ranks.size()=%d\n", rank, rank_count, rt_list_of_ranks.size() );
+#endif
+     currentThreadsStrENUM = THREAD;
+     if( focusedExpID == -1 ) {
+       command = QString("list -v threads -x %1 -r %2").arg(exp_id).arg(rank);
+     } else {
+       command = QString("list -v threads -x %1 -r %2").arg(focusedExpID).arg(rank);
+     }
+
+// printf("attempt to run (%s)\n", command.ascii() );
+
+     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+     rt_list_of_threads.clear();
+     int thread_count = 0;
+     InputLineObject *clip = NULL;
+
+     if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
+            &rt_list_of_threads, clip, TRUE ) ) {
+       printf("Unable to run %s command.\n", command.ascii() );
+     }
+
+#ifdef DEBUG_StatsPanel
+     printf("StatsPanel::getRankThreadList, ran %s, rt_list_of_threads.size()=%d\n", command.ascii(), rt_list_of_threads.size() );
+#endif
+     if( rt_list_of_threads.size() > 0 )
+     {
+       for( std::list<int64_t>::const_iterator it = rt_list_of_threads.begin();
+            it != rt_list_of_threads.end(); it++ )
+       {
+         thread_count = thread_count + 1;
+         int64_t thread = (int64_t)*it;
+         QString threadStr = QString("%1").arg(thread);
+#ifdef DEBUG_StatsPanel
+         printf("StatsPanel::getRankThreadList, thread=%ld, thread_count=%d, rt_list_of_threads.size()=%d\n", thread, thread_count, rt_list_of_threads.size() );
+#endif
+          
+       } // end for list of threads
+
+     } // end if threads.size
+
+    } // end for rank
+
+  }
+
+
+ } else {
+
+    rt_list_of_ranks.clear();
+
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::getRankThreadList, not valid exp_id=%d, no ranks with underlying threads\n", exp_id);
 #endif
 
  }
@@ -4906,6 +5212,14 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 //     setHeaderInfoAlreadyProcessed(exp_id);
 //  }
 
+  int64_t previous_rank = -1;
+  int64_t max_range_rank = -1;
+  int64_t min_range_rank = -1;
+
+  int64_t previous_thread = -1;
+  int64_t max_range_thread = -1;
+  int64_t min_range_thread = -1;
+
   int64_t previous_pid = -1;
   int64_t max_range_pid = -1;
   int64_t min_range_pid = -1;
@@ -4921,6 +5235,8 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 
   list_of_hosts.clear();
   list_of_pids.clear();
+  list_of_ranks.clear();
+  list_of_threads.clear();
   list_of_executables.clear();
   list_of_appcommands.clear();
   list_of_types.clear();
@@ -4976,7 +5292,7 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 
     partialExperimentViewInfo = getPartialExperimentInfo();
     if (!partialExperimentViewInfo.isEmpty()) {
-      partialExperimentViewInfo.insert(0,"\n  Partial Experiment View Information:");
+      partialExperimentViewInfo.insert(0,"\n Partial Experiment View Information:");
     }
     partialExperimentViewInfo += QString("\n  Full Experiment Information:");
 
@@ -4988,7 +5304,13 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
   }
 
   getHostList(exp_id);
-  getPidList(exp_id);
+  getRankThreadPidList(exp_id);
+#if SEPARATED_LISTS
+  getRankThreadList(exp_id);
+  getSeparatePidList(exp_id);
+  getSeparateRankList(exp_id);
+  getSeparateThreadList(exp_id);
+#endif
 
   infoString += QString("Metadata for Experiment %1:").arg(exp_id);
 
@@ -5608,7 +5930,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   color_names = NULL;
 
 #ifdef DEBUG_StatsPanel_chart
-  printf("updateStatsPanelData, currentUserSelectedReportStr=%s\n", currentUserSelectedReportStr.ascii() );
+  printf("updateStatsPanelData, CHART, currentUserSelectedReportStr=%s\n", currentUserSelectedReportStr.ascii() );
   printf("updateStatsPanelData, CHART, calling cf->init()\n" );
 #endif
 
@@ -5651,17 +5973,20 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 
 
 #ifdef DEBUG_StatsPanel
-  printf("updateStatsPanelData, command.isEmpty()= %d\n", command.isEmpty() );
-  printf("updateStatsPanelData, lastCommand= %s\n", lastCommand.ascii() );
-  printf("updateStatsPanelData, lastCommand.startsWith(\"cview -c\")=%d\n", lastCommand.startsWith("cview -c") );
-  printf("updateStatsPanelData, currentCollectorStr=%s\n", currentCollectorStr.ascii() );
-  printf("updateStatsPanelData, currentUserSelectedReportStr=%s\n", currentUserSelectedReportStr.ascii() );
-  printf("updateStatsPanelData, currentThreadsStr=%s\n", currentThreadsStr.ascii() );
+  printf("updateStatsPanelData, lastC, command.isEmpty()= %d\n", command.isEmpty() );
+  printf("updateStatsPanelData, lastC, lastCommand= %s\n", lastCommand.ascii() );
+  printf("updateStatsPanelData, lastC, lastCommand.startsWith(\"cview -c\")=%d\n", lastCommand.startsWith("cview -c") );
+  printf("updateStatsPanelData, lastC, currentCollectorStr=%s\n", currentCollectorStr.ascii() );
+  printf("updateStatsPanelData, lastC, currentUserSelectedReportStr=%s\n", currentUserSelectedReportStr.ascii() );
+  printf("updateStatsPanelData, lastC, lastUserSelectedReportStr=%s\n", lastUserSelectedReportStr.ascii() );
+  printf("updateStatsPanelData, lastC, currentThreadsStr=%s\n", currentThreadsStr.ascii() );
+  printf("updateStatsPanelData, lastC, lastCurrentThreadsStr=%s\n", lastCurrentThreadsStr.ascii() );
 #endif
 
   // jeg 9/22/08 and refined 10/13/08
   if (lastCommand.startsWith("cview -c") && 
       command.isEmpty() && 
+      lastCurrentThreadsStr == currentThreadsStr  &&
       currentUserSelectedReportStr.startsWith("Comparison") ) {
        command = lastCommand;
   }
@@ -5867,7 +6192,10 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
     printf("updateStatsPanelData,cview type - Don't sort this display.\n");
 #endif
 
-    splv->setSorting ( -1 );
+    // jeg 10/10/11 - allow sorting for cluster analysis views
+    // splv->setSorting ( -1 );
+    splv->setSorting ( 0, FALSE );
+    splv->setShowSortIndicator ( TRUE );
 
   } else {
     //
@@ -5879,6 +6207,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 #endif
 //JEG      splv->setSorting ( -1 );
       splv->setSorting ( 0, TRUE );
+      splv->setShowSortIndicator ( TRUE );
 
     } else {
 
@@ -5886,6 +6215,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
       printf("updateStatsPanelData,Sort this display on column 0.\n");
 #endif
       splv->setSorting ( 0, FALSE );
+      splv->setShowSortIndicator ( TRUE );
     }
 
   }
@@ -5912,6 +6242,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
     originalCommand = command;
   }
   lastCommand = command;
+  lastCurrentThreadsStr = currentThreadsStr; 
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::updateStatsPanelData before if,&statspanel_clip=0x%x,statspanel_clip=0x%x\n", &statspanel_clip,statspanel_clip);
@@ -6139,6 +6470,9 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
             compareExpDBNames.push_back (tmpDBName);
           }
           toolbar_status_label->setText("Showing Comparison Report...");
+#ifdef DEBUG_StatsPanel
+          printf("SP::updateStatsPanelData setting currentUserSelectedReportStr=%s to %s\n", currentUserSelectedReportStr.ascii(), "Comparison");
+#endif
           currentUserSelectedReportStr = "Comparison";
 
 #ifdef DEBUG_StatsPanel
@@ -6208,6 +6542,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 #endif
     // Force a re-sort in this case...
     splv->setSorting ( insertColumn, FALSE );
+    splv->setShowSortIndicator ( TRUE );
     splv->sort();
   }
 
@@ -9813,6 +10148,7 @@ StatsPanel::generateCommand()
        currentCollectorStr == "hwcsamp" ) &&
       (currentUserSelectedReportStr == "Functions") || 
       (currentUserSelectedReportStr == "LinkedObjects") || 
+      (currentUserSelectedReportStr == "minMaxAverage") || 
       (currentUserSelectedReportStr == "Statements by Function") ||
       (currentUserSelectedReportStr == "Statements") ) {
 
@@ -9853,6 +10189,21 @@ StatsPanel::generateCommand()
      printf("generateCommand, StatementsByFunction, command=(%s)\n", command.ascii() );
 #endif
 
+    } else if( currentUserSelectedReportStr == "minMaxAverage" ) {
+
+      if( items_to_display > 0 ) {
+        command = QString("expView -x %1 %2%3 -m loadbalance ").arg(exp_id).arg(currentCollectorStr).arg(items_to_display).arg(currentUserSelectedReportStr);
+
+#ifdef DEBUG_StatsPanel
+        printf("generateCommand, pcsamp A: load balance command=(%s)\n", command.ascii() );
+#endif
+      } else {
+        command = QString("expView -x %1 %2 -m loadbalance").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
+
+#ifdef DEBUG_StatsPanel
+        printf("generateCommand, pcsamp B: load balance, command=(%s)\n", command.ascii() );
+#endif
+      }
   } else {
 
     if( items_to_display > 0 ) {
@@ -10219,6 +10570,83 @@ StatsPanel::generateCommand()
     command += QString(" %1").arg(currentThreadsStr);
     aboutString += QString("for threads %1\n").arg(currentThreadsStr);
     infoAboutString += QString("Hosts/Threads %1\n").arg(currentThreadsStr);
+    int ranks_present = currentThreadsStr.find("-r", 0, TRUE);
+    QString local_ranks_command = QString::null;
+    if (ranks_present > 0) {
+#ifdef DEBUG_StatsPanel
+        printf("StatsPanel::generateCommand, PARTIAL EXP. INFO,list_of_pids.size()=%d\n", list_of_pids.size() );
+#endif
+#if 1
+
+      if( focusedExpID == -1 ) {
+        local_ranks_command = QString("list -v ranks -x %1").arg(exp_id);
+      } else {
+        local_ranks_command = QString("list -v ranks -x %1").arg(focusedExpID);
+      }
+
+
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::getRankThreadList-attempt to run (%s)\n", local_ranks_command.ascii() );
+#endif
+
+      currentThreadsStrENUM = RANK;
+      CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+      partial_list_of_ranks.clear();
+      InputLineObject *clip = NULL;
+      if( !cli->getIntListValueFromCLI( (char *) local_ranks_command.ascii(),
+             &partial_list_of_ranks, clip, TRUE ) ) {
+        printf("Unable to run %s local_ranks_command.\n", local_ranks_command.ascii() );
+      }
+
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::getRankThreadList, ran %s, partial_list_of_ranks.size()=%d\n", local_ranks_command.ascii(), partial_list_of_ranks.size() );
+#endif
+       int rank_cnt = partial_list_of_ranks.size();
+#else
+       int rank_cnt = 1;
+#endif
+       if (rank_cnt == 1) {
+           // let us look for threads to present to the user in the partial experiment info.  These may be openMP threads
+           currentThreadsStrENUM = THREAD;
+           QString local_command = QString::null;
+           if( focusedExpID == -1 ) {
+             local_command = QString("list -v threads -x %1 %2").arg(exp_id).arg(currentThreadsStr);
+           } else {
+             local_command = QString("list -v threads -x %1 %2").arg(focusedExpID).arg(currentThreadsStr);
+           }
+
+// printf("attempt to run (%s)\n", command.ascii() );
+
+           CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+           partial_list_of_threads.clear();
+           InputLineObject *clip = NULL;
+
+           if( !cli->getIntListValueFromCLI( (char *)local_command.ascii(),
+                  &partial_list_of_threads, clip, TRUE ) ) {
+             printf("Unable to run %s command.\n", local_command.ascii() );
+           }
+
+#ifdef DEBUG_StatsPanel
+         printf("StatsPanel::generateCommand, ran %s, partial_list_of_threads.size()=%d\n", local_command.ascii(), partial_list_of_threads.size() );
+#endif
+           if( partial_list_of_threads.size() > 0 )
+           {
+             for( std::list<int64_t>::const_iterator it = partial_list_of_threads.begin();
+                  it != partial_list_of_threads.end(); it++ )
+             {
+               int local_thread_count = local_thread_count + 1;
+               int64_t local_thread = (int64_t)*it;
+               QString local_threadStr = QString("%1").arg(local_thread);
+               infoAboutString += QString("Thread: %1\n").arg(local_threadStr);
+#ifdef DEBUG_StatsPanel
+               printf("StatsPanel::generateCommand, local_thread=%ld, local_thread_count=%d, partial_list_of_threads.size()=%d\n", local_thread, local_thread_count, partial_list_of_threads.size() );
+#endif
+          
+             } // end for list of threads
+
+           } // end if threads.size
+       }
+    }
 
 #ifdef DEBUG_StatsPanel
     printf("generateCommand, after add any focus, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
@@ -10675,6 +11103,7 @@ StatsPanel::generateFPEmodifiers()
   list_of_fpe_modifiers.clear();
   list_of_fpe_modifiers.push_back("fpe::time");
   list_of_fpe_modifiers.push_back("fpe::counts");
+  list_of_fpe_modifiers.push_back("fpe::inclusive_counts");
   list_of_fpe_modifiers.push_back("fpe::percent");
   list_of_fpe_modifiers.push_back("fpe::ThreadAverage");
   list_of_fpe_modifiers.push_back("fpe::ThreadMin");
@@ -11085,6 +11514,7 @@ StatsPanel::generateFPEMenu()
   list_of_fpe_modifiers.clear();
   list_of_fpe_modifiers.push_back("fpe::time");
   list_of_fpe_modifiers.push_back("fpe::counts");
+  list_of_fpe_modifiers.push_back("fpe::inclusive_counts");
   list_of_fpe_modifiers.push_back("fpe::percent");
   list_of_fpe_modifiers.push_back("fpe::ThreadAverage");
   list_of_fpe_modifiers.push_back("fpe::ThreadMin");
@@ -13447,10 +13877,12 @@ if (currentCollectorStr == NULL && lastCollectorStr == NULL ) {
   printf("StatsPanel::generateToolBar, IFCHECK, recycleFLAG=%d\n", recycleFLAG);
   printf("StatsPanel::generateToolBar, IFCHECK, currentCollectorStr.ascii()=%s\n", currentCollectorStr.ascii() );
   printf("StatsPanel::generateToolBar, IFCHECK, lastCollectorStr.ascii()=%s\n", lastCollectorStr.ascii() );
+  printf("StatsPanel::generateToolBar, IFCHECK, lastUserSelectedReportStr.ascii()=%s\n", lastUserSelectedReportStr.ascii() );
+  printf("StatsPanel::generateToolBar, IFCHECK, currentUserSelectedReportStr.ascii()=%s\n", currentUserSelectedReportStr.ascii() );
 #endif
 
-if (currentCollectorStr != lastCollectorStr || 
-    (currentCollectorStr == NULL && lastCollectorStr == NULL) || 
+if (currentCollectorStr != lastCollectorStr ||
+    (currentCollectorStr == NULL && lastCollectorStr == NULL) ||
     (lastUserSelectedReportStr != currentUserSelectedReportStr) ||
     (originatingUserSelectedReportStr != NULL) ||
     recycleFLAG == FALSE ) {
@@ -13579,7 +14011,7 @@ if (currentCollectorStr != lastCollectorStr ||
 #endif
 #if 1
     QPixmap *sourceAnnotation_icon = new QPixmap( sourceAnnotation_icon_xpm );
-    new QToolButton(*sourceAnnotation_icon, "SHOW OPTIONAL VIEW: Select icon to launch dialog box which will present\na number of optional metrics to view in the creation of\nthe source panel.", QString::null, this, SLOT( sourcePanelAnnotationCreationSelected()), fileTools, "create source annotation view ");
+    new QToolButton(*sourceAnnotation_icon, "CHANGE SOURCE ANNOTATION METRIC: Select icon to launch dialog box which will present\na number of optional metrics to view in the creation of\nthe source panel.", QString::null, this, SLOT( sourcePanelAnnotationCreationSelected()), fileTools, "create source annotation view ");
 #endif
   }
 
@@ -13736,8 +14168,13 @@ StatsPanel::defaultViewSelected()
   // Clear all trace display - this should be a purely function view
   traceAddition = QString::null;
 
+// This was changed on 10/13/2011 in order to make the GUI more flexible.
+// The Default view will now honor previous metric selections, time segments, specific thread or rank selections
+// Users must now use the CL (clear icon) to clear these selections away.
+#if 0
   // Clear all the -m modifiers (metrics)
   clearModifiers();
+#endif
 
   if (currentDisplayUsingType == displayUsingFunctionType) {
       displayType = "functions";

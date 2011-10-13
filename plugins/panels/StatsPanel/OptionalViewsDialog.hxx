@@ -175,6 +175,7 @@ public:
 
     bool fpe_time;
     bool fpe_counts;
+    bool fpe_inclusive_counts;
     bool fpe_percent;
     bool fpe_ThreadAverage;
     bool fpe_ThreadMin;
@@ -351,6 +352,7 @@ protected:
 
     QCheckBox *fpe_time_CheckBox;
     QCheckBox *fpe_counts_CheckBox;
+    QCheckBox *fpe_inclusive_counts_CheckBox;
     QCheckBox *fpe_percent_CheckBox;
     QCheckBox *fpe_ThreadAverage_CheckBox;
     QCheckBox *fpe_ThreadMin_CheckBox;
