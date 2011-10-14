@@ -4,6 +4,28 @@ echo "Running setup_and_build_rpms.sh...."
 echo "..........................................."
 ################################################################################
 
+MPIWRAPPER=$(which mpicc)
+echo "MPIWRAPPER=${MPIWRAPPER}"
+if [[ "${MPIWRAPPER}" == "" ]] ; then
+  echo "..........................................."
+  echo "Do you have the MPI module loaded that you want to build the MPI test programs with? ... "
+  echo "..........................................."
+  echo "Please load the module and restart (nothing has been copied, so no cvs update is required - answer with a 'y' or 'Y' to exit and restart."
+  read answer
+#
+  if [ "$answer" = Y -o "$answer" = y ]; then
+     echo "..........................................."
+     echo "Exiting the build ....."
+     echo "..........................................."
+     exit
+  else
+     echo "..........................................."
+     echo "Exiting the build ....."
+     echo "..........................................."
+     exit
+  fi
+fi
+
 rm -rf SPECS SOURCES RPMS toyprograms-0.0.1 webtutorial-0.0.1
 
 echo "..........................................."
@@ -64,10 +86,12 @@ echo "..........................................."
 echo "Building sequential version of smg2000....."
 echo "..........................................."
 make
-cd ../../mpi/smg2000
 echo "..........................................."
 echo "Building mpi version of smg2000....."
 echo "..........................................."
+#
+#
+cd ../../mpi/smg2000
 make
 cd ../nbody
 chmod 755 buildit
@@ -164,43 +188,42 @@ elif [ "$(uname -i)" = "x86_64" ]; then
   ls -lastr RPMS/localhost.localdomain/toyprograms.OSS.x86_64.rpm
 fi
 
-echo "..........................................."
-echo "Checking for SOURCES/openmpi-1.4.3.tar.gz....."
-echo "..........................................."
+#echo "..........................................."
+#echo "Checking for SOURCES/openmpi-1.4.3.tar.gz....."
+#echo "..........................................."
+#
+#if [ -f SOURCES/openmpi-1.4.3.tar.gz ]; then
+#     echo "..........................................."
+#     echo "Building RPM for openmpi-1.4.3....."
+#     echo "..........................................."
+#     ./Build-RPM openmpi-1.4.3
+#else
+#     echo "No SOURCES/openmpi-1.4.3.tar.gz file was found."
+#     echo "Please place the file into SOURCES/openmpi-1.4.3.tar.gz and answer with a 'y' or 'Y' to continue."
+#     read answer
+#
+#     if [ "$answer" = Y -o "$answer" = y ]; then
+#        echo "..........................................."
+#        echo "Building RPM for openmpi-1.4.3....."
+#        echo "..........................................."
+#        ./Build-RPM openmpi-1.4.3
+#     else
+#        echo "..........................................."
+#        echo "Skipping the build of the RPM for openmpi-1.4.3....."
+#        echo "..........................................."
+#     fi
+#fi
 
-if [ -f SOURCES/openmpi-1.4.3.tar.gz ]; then
-     echo "..........................................."
-     echo "Building RPM for openmpi-1.4.3....."
-     echo "..........................................."
-     ./Build-RPM openmpi-1.4.3
-else
-     echo "No SOURCES/openmpi-1.4.3.tar.gz file was found."
-     echo "Please place the file into SOURCES/openmpi-1.4.3.tar.gz and answer with a 'y' or 'Y' to continue."
-     read answer
-
-     if [ "$answer" = Y -o "$answer" = y ]; then
-        echo "..........................................."
-        echo "Building RPM for openmpi-1.4.3....."
-        echo "..........................................."
-        ./Build-RPM openmpi-1.4.3
-     else
-        echo "..........................................."
-        echo "Skipping the build of the RPM for openmpi-1.4.3....."
-        echo "..........................................."
-     fi
-fi
-
-echo "..........................................."
-echo "Listing the location RPM for openmpi-1.n.m....."
-echo "..........................................."
-
-# only works on x86, x86_64
-if [ "$(uname -i)" = "i386" ]; then
- ls -lastr RPMS/localhost.localdomain/openmpi.OSS.i686.rpm
-elif [ "$(uname -i)" = "x86_64" ]; then
-  ls -lastr RPMS/localhost.localdomain/openmpi.OSS.x86_64.rpm
-fi
-
+#echo "..........................................."
+#echo "Listing the location RPM for openmpi-1.n.m....."
+#echo "..........................................."
+#
+## only works on x86, x86_64
+#if [ "$(uname -i)" = "i386" ]; then
+# ls -lastr RPMS/localhost.localdomain/openmpi.OSS.i686.rpm
+#elif [ "$(uname -i)" = "x86_64" ]; then
+#  ls -lastr RPMS/localhost.localdomain/openmpi.OSS.x86_64.rpm
+#fi
 
 echo "............................................."
 echo "PLEASE MANUALLY COPY THE RPMS OVER TO /var/www/html/yum/base as super user."
