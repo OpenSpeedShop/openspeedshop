@@ -18,6 +18,35 @@
 *******************************************************************************/
 
 
+#if 0
+NaN expands to 'not a number'. Various floating point operations can lead to this value. 
+IEEE-754 is the most widely used floating point computation standards. It defines 5 possible 
+exceptions that can occur during floating point arithematic:
+
+    1) Invalid Operation (NaN): when an invalid operation is performed on a number, for example, 
+       taking square root of a negative value, taking log of 0 or a negative number, etc.
+    2) Division by Zero: when a number is divided by zero
+    3) Overflow: when the result is too large to be representable
+    4) Underflow: when the result is too small to be representable
+    5) Inexact: when the result is inexact meaning the number was rounded and caused discarding of any non-zero digits
+
+The cases falling under invalid operation would result in a value of NaN as per the above mentioned standard. 
+(I get -INF with gcc 3.4.4, but NaN for any negative number's logarithm). You would check for NaNs and Infinities 
+resulting out of computations in order to determine the success and validity of the operation but that can 
+lead to code that is cluttered with ifs and elses and can become almost un-readable. You can, however, 
+do the checks at every logical chunk of the computation. However, NaNs and INFs can get lost mid-calculations. 
+The standard dictates that an exceptional value NaN or INF should get propagated throughout the calculations 
+so that the checks at the end of a computation could catch them but certain operations can lose them, for example:
+
+    1) NaN operation with INF value would result in INF, as in NaN + INF = INF.
+    2) INF can become 0, as in x/INF = 0
+
+The way to catch these would be to check the sticky bits that are essentially the exception flags that are set 
+on occurence of floating point exceptions anywhere during the calculation. But let's not get too carried away and 
+leave it to the credibility of the programmers and users to be able to handle the various cases in the most sensible way.
+
+#endif
+
 
 #include "SS_Input_Manager.hxx"
 #include "FPECollector.hxx"
