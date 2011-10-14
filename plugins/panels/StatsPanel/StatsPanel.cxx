@@ -13801,7 +13801,7 @@ StatsPanel::generateBaseToolBar( QString command )
   new QToolButton(*update_icon, "UPDATE: Update the statistics panel.  Make viewing option changes\nand then click on this icon to display the new view.", QString::null, this, SLOT( updatePanel()), fileTools, "Update the statistics panel to show updated view");
 
   QPixmap *clear_auxiliary = new QPixmap( clear_auxiliary_xpm );
-  new QToolButton(*clear_auxiliary, "CLEAR: Clear all auxiliary view settings, such as, specific function setting,\ntime segment settings, per event display settings, etc..", QString::null, this, SLOT( clearAuxiliarySelected()), fileTools, "clear auxiliary settings");
+  new QToolButton(*clear_auxiliary, "CLEAR: Clear all auxiliary \"sticky\" view settings, such as, specific function setting,\ntime segment settings, per event display settings, specific ranks, threads,\nor processes that were focused from the Manage Process Panel, etc..", QString::null, this, SLOT( clearAuxiliarySelected()), fileTools, "clear auxiliary settings");
   // ----------------- End of the Panel Administration Icons
 
   toolbar_status_label = new QLabel(fileTools,"toolbar_status_label");
@@ -13918,13 +13918,13 @@ if (currentCollectorStr != lastCollectorStr ||
   new QToolButton(*update_icon, "UPDATE: Update the statistics panel.  Make viewing option changes\nand then click on this icon to display the new view.", QString::null, this, SLOT( updatePanel()), fileTools, "Update the statistics panel to show updated view");
 
   QPixmap *clear_auxiliary = new QPixmap( clear_auxiliary_xpm );
-  new QToolButton(*clear_auxiliary, "CLEAR: Clear all auxiliary view settings, such as, specific function setting,\ntime segment settings, per event display settings, etc..", QString::null, this, SLOT( clearAuxiliarySelected()), fileTools, "clear auxiliary settings");
+  new QToolButton(*clear_auxiliary, "CLEAR: Clear all auxiliary \"sticky\" view settings, such as, specific function setting,\ntime segment settings, per event display settings, specific ranks, threads,\nor processes that were focused from the Manage Process Panel, etc..", QString::null, this, SLOT( clearAuxiliarySelected()), fileTools, "clear auxiliary settings");
   // ----------------- End of the Panel Administration Icons
 
 
   // ----------------- Start of the View Generation Icons
   QPixmap *functions_icon = new QPixmap( defaultView_xpm );
-  new QToolButton(*functions_icon, "SHOW DEFAULT VIEW: Generate a performance statistics report\nshowing the performance data delineated by functions (default) and optionally\nstatements or linked objects by using the View/Display Choice options.", QString::null, this, SLOT( defaultViewSelected()), fileTools, "show default view");
+  new QToolButton(*functions_icon, "SHOW DEFAULT VIEW: Generate a performance statistics report\nshowing the performance data delineated by functions (default) and optionally\nstatements or linked objects by using the View/Display Choice options.\n\nNOTE: To clear \"sticky\" view settings, such as, specific function setting,\ntime segment settings, per event display settings, specific ranks, threads,\nor processes that were focused from the Manage Process Panel, etc..\nuse the CL (Clear auxiliary settings) icon.  The CL icon will set\nthe view back to the original aggregated data view.", QString::null, this, SLOT( defaultViewSelected()), fileTools, "show default view");
 
 #ifdef DEBUG_StatsPanel_toolbar
  printf("StatsPanel::generateToolBar, currentCollectorStr.ascii()=%s\n", currentCollectorStr.ascii() );
@@ -14026,10 +14026,10 @@ if (currentCollectorStr != lastCollectorStr ||
 #endif
   if ( list_of_pids.size() > 1 ) {
     QPixmap *load_balance_icon = new QPixmap( load_balance_icon_xpm );
-    new QToolButton(*load_balance_icon, "LOAD BALANCE: Show minimum, maximum, and average statistics across ranks,\nthreads, processes: generate a performance statistics report for these metric\nvalues, creating comparison columns for each value.\nUse the View/Display Choice options to see the data for statements or linked objects.", QString::null, this, SLOT( minMaxAverageSelected()), fileTools, "Show min, max, average statistics across ranks, threads, processes.");
+    new QToolButton(*load_balance_icon, "LOAD BALANCE: Show minimum, maximum, and average statistics across ranks,\nthreads, processes: generate a performance statistics report for these metric\nvalues, creating comparison columns for each value.\nUse the View/Display Choice options to see the data for statements or linked objects.\n\nNOTE: To clear \"sticky\" view settings, such as, specific function setting,\ntime segment settings, per event display settings, specific ranks, threads,\nor processes that were focused from the Manage Process Panel, etc..\nuse the CL (Clear auxiliary settings) icon.  The CL icon will set\nthe view back to the original aggregated data view.", QString::null, this, SLOT( minMaxAverageSelected()), fileTools, "Show min, max, average statistics across ranks, threads, processes.");
 
     QPixmap *compare_and_analyze_icon = new QPixmap( compare_and_analyze_xpm );
-    new QToolButton(*compare_and_analyze_icon, "COMPARE AND ANALYZE: Show Comparison and Analysis across ranks, threads,\nprocesses: generate a performance statistics report as the result of a \ncluster analysis algorithm to group ranks, threads or processes that have\nsimilar performance statistic characteristics.\nUse the View/Display Choice options to see the data for statements or linked objects.", QString::null, this, SLOT( clusterAnalysisSelected()), fileTools, "show comparison analysis");
+    new QToolButton(*compare_and_analyze_icon, "COMPARE AND ANALYZE: Show Comparison and Analysis across ranks, threads,\nprocesses: generate a performance statistics report as the result of a \ncluster analysis algorithm to group ranks, threads or processes that have\nsimilar performance statistic characteristics.\nUse the View/Display Choice options to see the data for statements or linked objects.\n\nNOTE: To clear \"sticky\" view settings, such as, specific function setting,\ntime segment settings, per event display settings, specific ranks, threads,\nor processes that were focused from the Manage Process Panel, etc..\nuse the CL (Clear auxiliary settings) icon.  The CL icon will set\nthe view back to the original aggregated data view.", QString::null, this, SLOT( clusterAnalysisSelected()), fileTools, "show comparison analysis");
   }
 
   QPixmap *custom_comparison_icon = new QPixmap( custom_comparison_xpm );
