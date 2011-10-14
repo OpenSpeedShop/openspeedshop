@@ -337,7 +337,7 @@ SourcePanelAnnotationDialog::createExperimentDependentOptionalView(QWidgetStack*
       usertime_Modifiers[mod_idx] = cModifier;
       usertime_CheckBox[mod_idx] = new QCheckBox( GeneralGroupBox, "modifier checkbox" );
       usertime_CheckBox[mod_idx]->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, usertime_CheckBox[mod_idx]->sizePolicy().hasHeightForWidth() ) );
-      if ( usertime_Modifiers[mod_idx] == "usertime::exclusive_time" ) {
+      if ( usertime_Modifiers[mod_idx] == "usertime::exclusive_times" ) {
           usertime_CheckBox[mod_idx]->setChecked( TRUE );
       } else {
           usertime_CheckBox[mod_idx]->setChecked( FALSE );
@@ -440,7 +440,7 @@ void SourcePanelAnnotationDialog::resetPreferenceDefaults()
 
    } else if ( globalCollectorString.contains("usertime") ) {
      for (int idx = 0; idx < usertime_maxModIdx; idx++) {
-        if ( usertime_Modifiers[idx] == "usertime::time" ) {
+        if ( usertime_Modifiers[idx] == "usertime::exclusive_times" ) {
           displayed_usertime_CheckBox_status[idx] = TRUE;
           usertime_CheckBox[idx]->setChecked( TRUE );
         } else {
