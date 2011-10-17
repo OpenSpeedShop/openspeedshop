@@ -14004,7 +14004,7 @@ if (currentCollectorStr != lastCollectorStr ||
     new QToolButton(*optional_views_icon, "SHOW OPTIONAL VIEW: Select icon to launch dialog box which will present\na number of optional fields/columns to include in the creation of an\noptional view of the existing data.", QString::null, this, SLOT( optionalViewsCreationSelected()), fileTools, "create optional view ");
 #endif
 
-#if 0
+#if 1
   if( currentCollectorStr == "hwcsamp" || currentCollectorStr == "usertime" ) {
 #else
   if( currentCollectorStr == "hwcsamp" ) {
