@@ -201,10 +201,11 @@ chmod 664 /root/.gnome-terminal.desktop
 cp /root/.firefox.desktop /home/openssuser/.config/autostart/firefox.desktop
 cp /root/.gnome-terminal.desktop /home/openssuser/.config/autostart/gnome-terminal.desktop
 chown openssuser:openssuser -R /home/openssuser/.config
-chmod 664 /home/openssuser/.config/autostart
-chmod 664 /home/openssuser/.config
-chmod 664 /home/openssuser/.config/autostart/firefox.desktop
-chmod 664 /home/openssuser/.config/autostart/gnome-terminal.desktop
+#chown openssuser:openssuser -R /home/openssuser/.config/autostart
+chmod 777 /home/openssuser/.config/autostart
+chmod 777 /home/openssuser/.config
+chmod 777 /home/openssuser/.config/autostart/firefox.desktop
+chmod 777 /home/openssuser/.config/autostart/gnome-terminal.desktop
 rm -f /root/.firefox.desktop
 rm -f /root/.gnome-terminal.desktop
 
@@ -219,7 +220,7 @@ echo "" >> /root/.openspeedshoprc
 echo "[Source Panel]" >> /root/.openspeedshoprc
 echo "leftSideLineEdit0=/home/jeg/OpenSpeedShop/liveOSS/toyprograms-0.0.1" >> /root/.openspeedshoprc
 echo "leftSideLineEdit1=/usr/global/tools/openspeedshop/dev/NPB3.3.1/NPB3.3-MPI/" >> /root/.openspeedshoprc
-echo "leftSideLineEdit2=" >> /root/.openspeedshoprc
+echo "leftSideLineEdit2=/home/jeg/Download/NPB3.2-MZ/NPB3.2-MZ-MPI/BT-MZ" >> /root/.openspeedshoprc
 echo "leftSideLineEdit3=" >> /root/.openspeedshoprc
 echo "leftSideLineEdit4=" >> /root/.openspeedshoprc
 echo "leftSideLineEdit5=" >> /root/.openspeedshoprc
@@ -229,7 +230,7 @@ echo "leftSideLineEdit8=" >> /root/.openspeedshoprc
 echo "leftSideLineEdit9=" >> /root/.openspeedshoprc
 echo "rightSideLineEdit0=/home/openssuser" >> /root/.openspeedshoprc
 echo "rightSideLineEdit1=/home/openssuser/mpi/" >> /root/.openspeedshoprc
-echo "rightSideLineEdit2=" >> /root/.openspeedshoprc
+echo "rightSideLineEdit2=/home/openssuser/hybrid" >> /root/.openspeedshoprc
 echo "rightSideLineEdit3=" >> /root/.openspeedshoprc
 echo "rightSideLineEdit4=" >> /root/.openspeedshoprc
 echo "rightSideLineEdit5=" >> /root/.openspeedshoprc
@@ -313,7 +314,7 @@ rm /root/.known_hosts
 
 #move apps to /home/openssuser
 #mkdir -p /home/openssuser/{mpi,openmp,sequential}
-mkdir -p /home/openssuser/{mpi,multi,sequential}
+mkdir -p /home/openssuser/{mpi,multi,sequential,hybrid}
 mv /opt/tempapps/mpi/smg2000 /home/openssuser/mpi/.
 mv /opt/tempapps/mpi/nbody /home/openssuser/mpi/.
 mv /opt/tempapps/mpi/LU /home/openssuser/mpi/.
@@ -325,10 +326,12 @@ mv /opt/tempapps/sequential/threads /home/openssuser/sequential/.
 mv /opt/tempapps/sequential/mutatee /home/openssuser/sequential/.
 mv /opt/tempapps/multi/openmp_stress /home/openssuser/multi/.
 mv /opt/tempapps/sequential/matmul /home/openssuser/sequential/.
+mv /opt/tempapps/hybrid /home/openssuser/.
 
 chown openssuser:openssuser -R /home/openssuser/mpi
 chown openssuser:openssuser -R /home/openssuser/sequential
 chown openssuser:openssuser -R /home/openssuser/multi
+chown openssuser:openssuser -R /home/openssuser/hybrid
 rm -rf /opt/tempapps
 
 rm -rf /tmp/*
