@@ -1,7 +1,7 @@
 Summary: Sample Applications For Use In OpenSpeedShop-Live
 Name: toyprograms
 Version: 0.0.1
-Release: 2
+Release: 3
 License: GPL
 Group: Development/Libraries
 URL: http://www.openspeedshop.org/
@@ -163,6 +163,11 @@ install -D -m ugo+rw stress.input $RPM_BUILD_ROOT%{prefix}/multi/openmp_stress
 install -D -m ugo+rw README.omp_stress $RPM_BUILD_ROOT%{prefix}/multi/openmp_stress
 install -D -m ugo+rwx buildit $RPM_BUILD_ROOT%{prefix}/multi/openmp_stress
 
+cd ../..
+cd hybrid
+mkdir -p $RPM_BUILD_ROOT%{prefix}/hybrid
+install -D -m ugo+rw *.f $RPM_BUILD_ROOT%{prefix}/hybrid
+install -D -m ugo+rw *.openss $RPM_BUILD_ROOT%{prefix}/hybrid
 
 
 cd ../..
@@ -178,6 +183,8 @@ fi
 %{prefix}/*
 
 %changelog
+* Tue Oct 17 2011 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
+- Add hybrid directory for hybrid NPB BT  - 3
 * Thu Oct 7 2010 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
 - Add multi directory for openmp and mpi/LU  - 2
 * Fri Jul 9 2010 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
