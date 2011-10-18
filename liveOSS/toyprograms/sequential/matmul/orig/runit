@@ -11,6 +11,4 @@
 
 #
 #
-module load openss-mrnet
-#openss -offline -f "./matmul < ./matmul_input.txt" usertime
 ossusertime "./matmul < ./matmul_input.txt"
