@@ -3148,9 +3148,7 @@ then
 #
   if [ $create_csv_files -eq 1 ]
   then
-    if [ "$use_internal_naming" -eq "1" ]
-    then
-      sed 's/,/:/g' \
+    sed 's/,/:/g' \
       /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.txt \
       | sed -r 's/\s{3,100}/  /g' \
       | sed -r 's/^\s{4,4}/,/g' \
@@ -3163,82 +3161,44 @@ then
 #
 # Now add the header information to the temporary csv file to create the final csv file.
 #
-      echo "${values[0]},${values[1]},${values[2]},${values[3]},${values[4]},${values[5]},Functions" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.header.txt 
-      cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.csv > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.csv
-    else
-      sed 's/,/:/g' \
-      /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.compare.txt \
-      | sed -r 's/\s{3,100}/  /g' \
-      | sed -r 's/^\s{4,4}/,/g' \
-      | sed -r 's/^\s{2,2}//g' \
-      | sed -r 's/\s{2,2}/,/g' \
-      | sed '/^$/d' \
-      | sed 's/-c [0-9*]://g' \
-      > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.compare.csv
-
+    echo "${values[0]},${values[1]},${values[2]},${values[3]},${values[4]},${values[5]},Functions" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.header.txt 
 #
 # Now add the header information to the temporary csv file to create the final csv file.
 #
-      echo "${values[0]},${values[1]},${values[2]},${values[3]},${values[4]},${values[5]},Functions" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.header.txt 
-      if [ $input_argument_oname != 0 ]
-      then
-         cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.compare.csv > ${input_argument_oname}.compare.csv
-      else
-         cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.compare.csv > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.compare.csv
-      fi
+    if [ $input_argument_oname != 0 ]
+    then
+         cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.csv > ${input_argument_oname}.compare.csv
+    else
+         cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.csv > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.csv
     fi
   fi
 
 #
 # Now add the header information to the screen output results.
 #
-  if [ "$use_internal_naming" -eq "1" ]
+  echo "" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "[openss]: Legend: -c 2 represents ${values[0]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "[openss]: Legend: -c 4 represents ${values[1]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "[openss]: Legend: -c 6 represents ${values[2]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "[openss]: Legend: -c 8 represents ${values[3]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "[openss]: Legend: -c 10 represents ${values[4]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "[openss]: Legend: -c 12 represents ${values[5]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "" >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  if [ $create_csv_files -eq 1 ]
   then
-    echo "" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
-    echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
-    echo "[openss]: Legend: -c 2 represents ${values[0]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
-    echo "[openss]: Legend: -c 4 represents ${values[1]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
-    echo "[openss]: Legend: -c 6 represents ${values[2]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
-    echo "[openss]: Legend: -c 8 represents ${values[3]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
-    echo "[openss]: Legend: -c 10 represents ${values[4]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
-    echo "[openss]: Legend: -c 12 represents ${values[5]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
-    echo "" >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
-    if [ $create_csv_files -eq 1 ]
+    if [ $input_argument_oname != 0 ]
     then
+      cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.txt > ${input_argument_oname}.compare.txt
+    else
       cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.txt > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.txt
-    fi
-  else
-    echo "" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.legends.txt
-    echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.legends.txt
-    echo "[openss]: Legend: -c 2 represents ${values[0]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.legends.txt
-    echo "[openss]: Legend: -c 4 represents ${values[1]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.legends.txt
-    echo "[openss]: Legend: -c 6 represents ${values[2]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.legends.txt
-    echo "[openss]: Legend: -c 8 represents ${values[3]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.legends.txt
-    echo "[openss]: Legend: -c 10 represents ${values[4]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.legends.txt
-    echo "[openss]: Legend: -c 12 represents ${values[5]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.legends.txt
-    echo "" >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.legends.txt
-    if [ $create_csv_files -eq 1 ]
-    then
-      if [ $input_argument_oname != 0 ]
-      then
-        cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.legends.txt /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.compare.txt > ${input_argument_oname}.compare.txt
-      else
-        cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.legends.txt /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.compare.txt > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.compare.txt
-      fi
     fi
   fi
 fi
@@ -3253,8 +3213,6 @@ then
 #
   if [ $create_csv_files -eq 1 ]
   then
-    if [ "$use_internal_naming" -eq "1" ]
-    then
       sed 's/,/:/g' \
       /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.txt \
       | sed -r 's/\s{3,100}/  /g' \
@@ -3269,36 +3227,20 @@ then
 # Now add the header information to the temporary csv file to create the final csv file.
 #
       echo "${values[0]},${values[1]},${values[2]},${values[3]},${values[4]},${values[5]},${values[6]},Functions" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.header.txt 
-      cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.csv > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.csv
-    else
-      sed 's/,/:/g' \
-      /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.compare.txt \
-      | sed -r 's/\s{3,100}/  /g' \
-      | sed -r 's/^\s{4,4}/,/g' \
-      | sed -r 's/^\s{2,2}//g' \
-      | sed -r 's/\s{2,2}/,/g' \
-      | sed '/^$/d' \
-      | sed 's/-c [0-9*]://g' \
-      > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.compare.csv
-
 #
 # Now add the header information to the temporary csv file to create the final csv file.
 #
-      echo "${values[0]},${values[1]},${values[2]},${values[3]},${values[4]},${values[5]},${values[6]},Functions" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.header.txt 
       if [ $input_argument_oname != 0 ]
       then
-        cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.compare.csv > ${input_argument_oname}.compare.csv
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.csv > ${input_argument_oname}.compare.csv
       else
-        cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.compare.csv > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.compare.csv
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.csv > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.csv
       fi
-    fi
   fi
 
 #
 # Now add the header information to the screen output results.
 #
-  if [ "$use_internal_naming" -eq "1" ]
-  then
     echo "" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt
     echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
          >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt
@@ -3319,37 +3261,13 @@ then
     echo "" >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt
     if [ $create_csv_files -eq 1 ]
     then
-      cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.txt > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.txt
-    fi
-  else
-    echo "" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.legends.txt
-    echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.legends.txt
-    echo "[openss]: Legend: -c 2 represents ${values[0]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.legends.txt
-    echo "[openss]: Legend: -c 4 represents ${values[1]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.legends.txt
-    echo "[openss]: Legend: -c 6 represents ${values[2]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.legends.txt
-    echo "[openss]: Legend: -c 8 represents ${values[3]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.legends.txt
-    echo "[openss]: Legend: -c 10 represents ${values[4]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.legends.txt
-    echo "[openss]: Legend: -c 12 represents ${values[5]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.legends.txt
-    echo "[openss]: Legend: -c 14 represents ${values[6]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.legends.txt
-    echo "" >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.legends.txt
-    if [ $create_csv_files -eq 1 ]
-    then
       if [ $input_argument_oname != 0 ]
       then
-        cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.legends.txt /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.compare.txt > ${input_argument_oname}.compare.txt
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.txt > ${input_argument_oname}.compare.txt
       else
-        cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.legends.txt /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.compare.txt > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.compare.txt
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.txt > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.txt
       fi
     fi
-  fi
 fi
 
 
@@ -3363,8 +3281,6 @@ then
 #
   if [ $create_csv_files -eq 1 ]
   then
-    if [ "$use_internal_naming" -eq "1" ]
-    then
       sed 's/,/:/g' \
       /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.txt \
       | sed -r 's/\s{3,100}/  /g' \
@@ -3379,89 +3295,48 @@ then
 # Now add the header information to the temporary csv file to create the final csv file.
 #
       echo "${values[0]},${values[1]},${values[2]},${values[3]},${values[4]},${values[5]},${values[6]},${values[7]},Functions" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.header.txt 
-      cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_r.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.csv > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.csv
-    else
-      sed 's/,/:/g' \
-      /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.compare.txt \
-      | sed -r 's/\s{3,100}/  /g' \
-      | sed -r 's/^\s{4,4}/,/g' \
-      | sed -r 's/^\s{2,2}//g' \
-      | sed -r 's/\s{2,2}/,/g' \
-      | sed '/^$/d' \
-      | sed 's/-c [0-9*]://g' \
-      > /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.compare.csv
-
+#
 #
 # Now add the header information to the temporary csv file to create the final csv file.
 #
-      echo "${values[0]},${values[1]},${values[2]},${values[3]},${values[4]},${values[5]},${values[6]},${values[7]},Functions" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.header.txt 
       if [ $input_argument_oname != 0 ]
       then
-        cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.compare.csv > ${input_argument_oname}.compare.csv
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_r.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.csv > ${input_argument_oname}.compare.csv
       else
-        cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.header.txt /tmp/$USER/old.${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.compare.csv > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.compare.csv
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_r.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.csv > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.csv
       fi
-    fi
   fi
 
 #
 # Now add the header information to the screen output results.
 #
-  if [ "$use_internal_naming" -eq "1" ]
+  echo "" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 2 represents ${values[0]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 4 represents ${values[1]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 6 represents ${values[2]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 8 represents ${values[3]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 10 represents ${values[4]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 12 represents ${values[5]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 14 represents ${values[6]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 16 represents ${values[7]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "" >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  if [ $create_csv_files -eq 1 ]
   then
-    echo "" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
-    echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
-    echo "[openss]: Legend: -c 2 represents ${values[0]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
-    echo "[openss]: Legend: -c 4 represents ${values[1]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
-    echo "[openss]: Legend: -c 6 represents ${values[2]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
-    echo "[openss]: Legend: -c 8 represents ${values[3]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
-    echo "[openss]: Legend: -c 10 represents ${values[4]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
-    echo "[openss]: Legend: -c 12 represents ${values[5]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
-    echo "[openss]: Legend: -c 14 represents ${values[6]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
-    echo "[openss]: Legend: -c 16 represents ${values[7]}" \
-         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
-    echo "" >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
-    if [ $create_csv_files -eq 1 ]
+    if [ $input_argument_oname != 0 ]
     then
+      cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.txt > ${input_argument_oname}.compare.txt
+    else
       cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.txt > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.txt
-    fi
-  else
-    echo "" > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt
-    echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt
-    echo "[openss]: Legend: -c 2 represents ${values[0]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt
-    echo "[openss]: Legend: -c 4 represents ${values[1]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt
-    echo "[openss]: Legend: -c 6 represents ${values[2]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt
-    echo "[openss]: Legend: -c 8 represents ${values[3]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt
-    echo "[openss]: Legend: -c 10 represents ${values[4]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt
-    echo "[openss]: Legend: -c 12 represents ${values[5]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt
-    echo "[openss]: Legend: -c 14 represents ${values[6]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt
-    echo "[openss]: Legend: -c 16 represents ${values[7]}" \
-         >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt
-    echo "" >> /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt
-    if [ $create_csv_files -eq 1 ]
-    then
-      if [ $input_argument_oname != 0 ]
-      then
-        cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.compare.txt > ${input_argument_oname}.compare.txt
-      else
-        cat /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.legends.txt /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.compare.txt > ${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.compare.txt
-      fi
     fi
   fi
 fi
