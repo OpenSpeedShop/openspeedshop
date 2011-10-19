@@ -12,7 +12,7 @@ osscompare \- Open|SpeedShop compare experiments script
 .SH TYPICAL USAGE FORM
 .nf
 
-osscompare "database_file, database_file" [ time, percent ] [rows=nn]
+osscompare "database_file, database_file" [ time, percent, <other metrics> ] 
 
 For example:
 
@@ -30,9 +30,21 @@ comparison report is generated from the database files that are specified.
 Information that is presented after the execution of the osscompare
 experiment is exclusive CPU time or optionally, percentage of time spent
 in each function, for all the functions in the application across all the
-database files specified on the command line.  
+database files specified on the command line. Other metrics are also available
+depending on the experiment.  For the hardware counter sampling experiment 
+(hwcsamp), the PAPI event name may be specified as the metric, for example:
+PAPI_TOT_CYC or PAPI_L1_DCM.
+
+Also, osscompare supports the "rows" option which limits the output to a
+specific number of lines of output.  There is a "viewtype" option which allows
+the comparison to be done using either function level, statement level, or
+library (linkedobjects) level granuality.  Function level is the default.
+The "oname" option lets the user name the output file names if the OPENSS_CREATE_CSV
+environment variable is set.
 
 .SH OPTIONS
+
+osscompare "database_file, database_file" [ time, percent, <other metrics> ] [rows=nn] [viewtype=[functions|statements|linkedobjects]] [oname=<output filename>]
 
 .IP " ""database file"" "
 This option specifies a database file that was previously created with
@@ -68,6 +80,18 @@ the most significant differences.  The most significant differences will always 
 few lines of the output.   So, setting rows=10 will give the top ten lines representing the most
 significant variation output from the comparison.
 
+.IP "viewtype=[functions|statements|linkedobjects]"
+
+Specify the view granualarity.  Compare based on the function, statement, or library level.
+Function level is the default.  So, by default the compare will be done comparing the performance
+of functions in each of the databases.  If statments is specified then all the comparisons will
+be made by looking at the performance of each statement in all the databases that are specified.
+Similar for libraries, if linkedobject is selected as the viewtype parameter.
+
+.IP "oname=<output file name>"
+
+Specify the name of the comma separated list and compare text files which are created if the
+OPENSS_CREATE_CSV environment is set.
 
 .IP """<no arguments>"""
 If no optional arguments are specified then the default comparison metric is exclusive
@@ -93,12 +117,6 @@ This environment variable indicates to osscompare to create a
 comparison file that contains the comparison output separated
 by commas.  The name of the file will be the concatenated names 
 of all the database files with a .csv suffix.
-
-.IP OPENSS_USE_INTERNAL_NAMING
-This environment variable indicates to osscompare to use internal
-naming for the comparison output file names.  By default, osscompare
-will use the names of the database files to create an output file name
-for the file containing the text or csv comparison output.
 
 .SH DIAGNOSTICS
 The following diagnostics may be TBD:
