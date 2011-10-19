@@ -1,0 +1,1700 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+  <head>
+    <!--
+      Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
+      Permission is granted to copy, distribute and/or modify this document
+      under the terms of the GNU Free Documentation License, Version 1.2
+      or any later version published by the Free Software Foundation;
+      with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+         Texts.  A copy of the license is included in the section entitled "GNU
+      Free Documentation License".
+-->
+    <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+    <title>OSS Scripts</title>
+    <meta name="GENERATOR" content="OpenOffice.org 2.3 (Unix)">
+    <meta name="CREATED" content="0;0">
+    <meta name="CHANGED" content="0;0">
+    <style type="text/css">
+	<!--
+		@page { size: 8.5in 11in; margin: 0.79in }
+		P { margin-bottom: 0.08in }
+	-->
+	</style>
+  </head>
+  <body dir="ltr" lang="en-US">
+    <pre></pre>
+    <h2 style="text-align: center;"><a class="mozTocH3"
+        name="mozTocId949034"></a>Convenience Scripts for Open|SpeedShop
+      Offline Mode of Operation</h2>
+    <div style="text-align: center;"><big style="font-weight: bold;">Version
+
+        2.0.1<br>
+        October 31, 2011</big><br>
+    </div>
+    <br>
+    <ul class="readonly" id="mozToc">
+      <!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6-->
+      <li><a href="#mozTocId949034">Convenience Scripts for
+          Open|SpeedShop Offline Mode of Operation</a>
+        <ul>
+          <li><a href="#mozTocId329422">Introduction </a></li>
+          <li><a href="#mozTocId189828">General Usage Rules </a></li>
+          <li><a href="#mozTocId206825">General and Experiment Specific
+              Environment Variables</a></li>
+          <li><a href="#mozTocId828074">Experiment Specific Syntax and
+              Rules </a>
+            <ul>
+              <li><a href="#mozTocId181957">PCSAMP (osspcsamp) </a>
+                <ul>
+                  <li><a href="#mozTocId576866">Default Arguments:</a></li>
+                  <li><a href="#mozTocId562902">Example usage:</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId266083">USERTIME (ossusertime) </a>
+                <ul>
+                  <li><a href="#mozTocId922590">Default Arguments:</a></li>
+                  <li><a href="#mozTocId67282">Example usage:</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId117856">HWC (osshwc)</a>
+                <ul>
+                  <li><a href="#mozTocId203371">Default Arguments:</a></li>
+                  <li><a href="#mozTocId18566">Example usage:</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId498003">HWCSAMP (osshwcsamp)</a>
+                <ul>
+                  <li><a href="#mozTocId12075">Default Arguments:</a></li>
+                  <li><a href="#mozTocId174863">Example usage:</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId890824">HWCTIME (osshwctime)</a>
+                <ul>
+                  <li><a href="#mozTocId12075">Default Arguments:</a></li>
+                  <li><a href="#mozTocId174863">Example usage:</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId298390">IO (ossio) </a>
+                <ul>
+                  <li><a href="#mozTocId335647">Default Arguments:</a></li>
+                  <li><a href="#mozTocId639524">Example usage:</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId64450">IOT (ossiot) </a>
+                <ul>
+                  <li><a href="#mozTocId323138">Default Arguments:</a></li>
+                  <li><a href="#mozTocId727637">Example usage:</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId898864">MPI (ossmpi) </a>
+                <ul>
+                  <li><a href="#mozTocId302157">Default Arguments:</a></li>
+                  <li><a href="#mozTocId740700">Example usage:</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId874232">MPIT (ossmpit) </a>
+                <ul>
+                  <li><a href="#mozTocId709137">Default Arguments:</a></li>
+                  <li><a href="#mozTocId409434">Example usage:</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId172663">MPIOTF (ossmpiotf) </a>
+                <ul>
+                  <li><a href="#mozTocId677100">Default Arguments:</a></li>
+                  <li><a href="#mozTocId384594">Example usage:</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId342825">FPE (ossfpe) </a>
+                <ul>
+                  <li><a href="#mozTocId159062">Default Arguments:</a></li>
+                  <li><a href="#mozTocId584268">Example usage:</a></li>
+                </ul>
+              </li>
+              <li><a href="#mozTocId923586">COMPARE (osscompare) </a>
+                <ul>
+                  <li><a href="#mozTocId159062">Default Arguments:</a></li>
+                  <li><a href="#mozTocId584268">Example usage:</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <br>
+    <h2><a class="mozTocH3" name="mozTocId329422"></a>Introduction<br>
+    </h2>
+    Open|SpeedShop versions 1.9.2 and beyond contain convenience scripts
+    that hide some of the underlying options for running the offline
+    version of Open|SpeedShop. These scripts hide the <span
+      style="font-weight: bold;">-f</span>, <span style="font-weight:
+      bold;">-offline</span>, and experiment specification options. The
+    new script names, which correspond to all the Open|SpeedShop
+    experiments, are: <br>
+    <ul>
+      <li style="font-weight: bold;">osspcsamp </li>
+      <li style="font-weight: bold;">ossusertime </li>
+      <li style="font-weight: bold;">osshwc </li>
+      <li style="font-weight: bold;">osshwctime </li>
+      <li style="font-weight: bold;">ossio </li>
+      <li style="font-weight: bold;">ossiot </li>
+      <li style="font-weight: bold;">ossmpi </li>
+      <li style="font-weight: bold;">ossmpit </li>
+      <li style="font-weight: bold;">ossmpiotf </li>
+      <li><span style="font-weight: bold;">ossfpe</span></li>
+      <li><span style="font-weight: bold;">osscompare<br>
+        </span></li>
+    </ul>
+    <br>
+    For example, the command: <br>
+    <br>
+    <div style="margin-left: 40px;"><span style="font-weight: bold;">osspcsamp
+
+        "executable" <br>
+        <br>
+      </span></div>
+    is equivalent to the long hand version of executing program counter
+    sampling experiment on "executable": <br>
+    <br>
+    <div style="margin-left: 40px;"><span style="font-weight: bold;">openss
+-offline
+
+        -f "executable" pcsamp </span><br>
+    </div>
+    <br>
+    This convenience method is true for all the other Open|SpeedShop
+    experiments as well.&nbsp;&nbsp; In addition to the above mentioned
+    change, there are also additional options added to the convenience
+    commands.&nbsp; The additional options (default, high, low, and
+    input value(s)) are explained below in an experiment specific
+    manner. <br>
+    <br>
+    <span style="font-weight: bold;">"executable"</span> is the general
+    form used for illustration.&nbsp; Real life examples are:<br>
+    <ul>
+      <ul>
+        <li style="font-weight: bold;">"mpirun -np 64 sweep3d.mpi"</li>
+        <li style="font-weight: bold;">"myExecutable &lt; input"</li>
+        <li style="font-weight: bold;">"/usr/bin/srun -N 64 -n 512
+          ./smg2000 -n 5 5 5"</li>
+      </ul>
+    </ul>
+    Use the same syntax that is used to run the executable normally
+    enclosed in quotes as the "exeutable" and pass it to the convenience
+    routines, or pass it to <span style="font-weight: bold;">openss
+      -offline </span>prefixed by the <big><span style="font-weight:
+        bold;">-f</span></big> file/executable designator.<br>
+    <h2><a class="mozTocH3" name="mozTocId189828"></a>General Usage
+      Rules<br>
+    </h2>
+    GENERAL usage rules for using the <span style="font-weight: bold;">oss&lt;experiment_name&gt;
+
+    </span>scripts:<br>
+    <br>
+    The script always will override the default experiment parameters
+    and any environment variable settings that are related to the
+    experiment parameters. The script will warn when it overrides an
+    experiment variable or default setting.<small><br>
+    </small><br>
+    <h2><a class="mozTocH2" name="mozTocId206825"></a>General and
+      Experiment Specific Environment Variables</h2>
+    <br>
+    There are several environment variables that affect the
+    OpenSpeedShop performance experiment execution.&nbsp; <a
+      href="OfflineEnvironmentVariables.html">The experiment specific
+      environment variable section</a> is suggested reading before
+    proceeding to the Experiment Specific Rules sections.&nbsp;&nbsp;
+    The experiment specific environment variables section describes both
+    general and experiment specific environment variables that are
+    references in the following sections.<br>
+    <br>
+    <h2><a class="mozTocH3" name="mozTocId828074"></a>Experiment
+      Specific Syntax and Rules<br>
+    </h2>
+    <pre><br></pre>
+    <span style="font-family: serif;">Experiment specific syntax and
+      rules for using the <span style="font-weight: bold;">oss&lt;experiment_name&gt;</span>
+      scripts follow below.&nbsp;&nbsp; Note that each numbered item
+      under the experiment section indicates the usage syntax for the <span
+        style="font-weight: bold;">oss&lt;experiment_name&gt;</span>
+      script. </span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <h3><a class="mozTocH4" name="mozTocId181957"></a>PCSAMP (osspcsamp)<br>
+    </h3>
+    The command options for the <span style="font-weight: bold;">osspcsamp</span>
+    command are as follows.&nbsp; <br>
+    <br>
+    <span style="font-family: serif;">1) <span style="font-weight:
+        bold;">osspcsamp </span>"executable"</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_PCSAMP_RATE</span> is not set, <span
+        style="font-weight: bold;">osspcsamp</span> runs using the
+      default sampling rate which is currently 100 samples per second.</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_PCSAMP_RATE</span> is set, <span
+        style="font-weight: bold;">osspcsamp</span> runs using the
+      sampling rate specified by the <span style="font-weight: bold;">OPENSS_PCSAMP_RATE</span>
+      environment variable.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">2) <span style="font-weight:
+        bold;">osspcsamp</span> "executable" <span style="font-weight:
+        bold;">default</span></span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_PCSAMP_RATE</span> is not set, <span
+        style="font-weight: bold;">osspcsamp</span> runs using the
+      default sampling rate which is currently 100 samples per second.</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_PCSAMP_RATE</span> is set, <span
+        style="font-weight: bold;">osspcsamp</span> runs using the
+      default sampling rate which is currently 100 samples per second
+      and warns that it is not honoring the sampling rate specified by
+      the <span style="font-weight: bold;">OPENSS_PCSAMP_RATE</span>
+      environment variable.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">3) <span style="font-weight:
+        bold;">osspcsamp </span>"executable" <span style="font-weight:
+        bold;">high</span></span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_PCSAMP_RATE</span> is not set, <span
+        style="font-weight: bold;">osspcsamp</span> overrides the
+      default sampling rate by multiplying it by 4 (4 * 100), so 400 is
+      used as the sampling rate</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_PCSAMP_RATE</span> is set, <span
+        style="font-weight: bold;">osspcsamp</span> overrides the
+      environment variable sampling rate by using the default sampling
+      rate multiplied by 4 (4 *100), so 400 is used as the sampling rate</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">4) <span style="font-weight:
+        bold;">osspcsamp</span> "executable" <span style="font-weight:
+        bold;">low</span></span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_PCSAMP_RATE</span> is not set, <span
+        style="font-weight: bold;">osspcsamp</span> overrides the
+      default sampling rate by dividing by 2, so 50 is used as the
+      sampling rate</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_PCSAMP_RATE</span> is set, <span
+        style="font-weight: bold;">osspcsamp</span> overrides the
+      environment variable sampling rate by using the default sampling
+      rate dividing by 2, so 50 is used as the sampling rate</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">5) <span style="font-weight:
+        bold;">osspcsamp</span> "executable"<span style="font-weight:
+        bold;"> &lt;input_rate_value&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_PCSAMP_RATE</span> is not set, <span
+        style="font-weight: bold;">osspcsamp</span> overrides the
+      default sampling rate by using the <span style="font-weight:
+        bold;">&lt;input_rate_value&gt;</span> value as the sampling
+      rate.</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_PCSAMP_RATE</span> is set, <span
+        style="font-weight: bold;">osspcsamp</span> overrides the
+      environment variable sampling rate by using <span
+        style="font-weight: bold;">&lt;input_rate_value&gt;</span> value
+      as the sampling rate.</span><br>
+    <br>
+    <h4><a class="mozTocH4" name="mozTocId576866"></a>Default Arguments:</h4>
+    <span style="font-family: serif;">The default sampling rate for the
+      PCSAMP experiment is currently 100 samples per second.<br>
+    </span>
+    <h4><a class="mozTocH4" name="mozTocId562902"></a><span
+        style="font-family: serif;">Example usage:</span></h4>
+    <span style="font-family: serif;"><span style="font-weight: bold;">osspcsamp
+
+      </span>"mpirun -np 64 nbody_exe"<br>
+    </span><br>
+    <h3><a class="mozTocH4" name="mozTocId266083"></a>USERTIME
+      (ossusertime)<br>
+    </h3>
+    The command options for the <span style="font-weight: bold;">ossusertime</span>
+    command are as follows.&nbsp; <br>
+    <br>
+    1) <span style="font-weight: bold;">ossusertime</span> "executable"<br>
+    <br>
+    If <span style="font-weight: bold;">OPENSS_USERTIME_RATE</span> is
+    not set, <span style="font-weight: bold;">ossusertime</span> runs
+    using the default sampling rate which is currently 35 samples per
+    second.<br>
+    If <span style="font-weight: bold;">OPENSS_USERTIME_RATE</span> is
+    set, <span style="font-weight: bold;">ossusertime</span> runs using
+    the sampling rate specified by the <span style="font-weight: bold;">OPENSS_USERTIME_RATE</span>
+    environment variable.<br>
+    <br>
+    2) <span style="font-weight: bold;">ossusertime</span> "executable"
+    <span style="font-weight: bold;">default</span><br>
+    <br>
+    If <span style="font-weight: bold;">OPENSS_USERTIME_RATE</span> is
+    not set, <span style="font-weight: bold;">ossusertime</span> runs
+    using the default sampling rate which is currently 35 samples per
+    second.<br>
+    If <span style="font-weight: bold;">OPENSS_USERTIME_RATE</span> is
+    set, <span style="font-weight: bold;">ossusertime</span> runs using
+    the default sampling rate which is currently 35 samples per second
+    and warns that it is not honoring the sampling rate specified by the
+    <span style="font-weight: bold;">OPENSS_USERTIME_RATE</span>
+    environment variable.<br>
+    <br>
+    3) <span style="font-weight: bold;">ossusertime</span> "executable"
+    <span style="font-weight: bold;">high</span><br>
+    <br>
+    If <span style="font-weight: bold;">OPENSS_USERTIME_RATE</span> is
+    not set, <span style="font-weight: bold;">ossusertime</span>
+    overrides the default sampling rate by multiplying by 4, so 140 is
+    used as the sampling rate<br>
+    If <span style="font-weight: bold;">OPENSS_USERTIME_RATE</span> is
+    set, <span style="font-weight: bold;">ossusertime</span> overrides
+    the environment variable sampling rate by using the default sampling
+    rate multiplied by 4, so 140 is used as the sampling rate<br>
+    <br>
+    <span style="font-family: serif;">4) <span style="font-weight:
+        bold;">ossusertime</span> "executable" <span
+        style="font-weight: bold;">low</span></span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_USERTIME_RATE</span> is not set, <span
+        style="font-weight: bold;">ossusertime</span> overrides the
+      default sampling rate by dividing by 2, so 17 is used as the
+      sampling rate</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_USERTIME_RATE</span> is set, <span
+        style="font-weight: bold;">ossusertime</span> overrides the
+      environment variable sampling rate by using the default sampling
+      rate dividing by 2, so 17 is used as the sampling rate</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">5) <span style="font-weight:
+        bold;">ossusertime</span> "executable" <span
+        style="font-weight: bold;">&lt;input_rate_value&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_USERTIME_RATE</span> is not set, <span
+        style="font-weight: bold;">ossusertime</span> overrides the
+      default sampling rate by using the <span style="font-weight:
+        bold;">&lt;input_rate_value&gt;</span> value as the sampling
+      rate.</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_USERTIME_RATE</span> is set, <span
+        style="font-weight: bold;">ossusertime</span> overrides the
+      environment variable sampling rate by using <span
+        style="font-weight: bold;">&lt;input_rate_value&gt;</span> value
+      as the sampling rate.</span><br>
+    <h4><a class="mozTocH4" name="mozTocId922590"></a>Default Arguments:</h4>
+    <span style="font-family: serif;">The default sampling rate for the
+      USERTIME experiment is currently 35 samples per second.<br>
+    </span>
+    <h4><a class="mozTocH4" name="mozTocId67282"></a><span
+        style="font-family: serif;">Example usage:</span></h4>
+    <span style="font-family: serif;"><span style="font-weight: bold;">ossusertime
+
+      </span>"mpirun -np 64 nbody_exe"<br>
+    </span><br>
+    <br>
+    <h3><a class="mozTocH4" name="mozTocId117856"></a>HWC (osshwc)</h3>
+    The command options for the <span style="font-weight: bold;">osshwc</span>
+    command are as follows.&nbsp; <br>
+    <br>
+    <pre><span style="font-family: serif;">0) <span style="font-weight: bold;">osshwc</span> <br><br>This command lists the available PAPI events that are available to be used as arguments for <span style="font-weight: bold;">OPENSS_HWC_EVENT</span> in the command variations below.<br></span></pre>
+    <span style="font-family: serif;">1) <span style="font-weight:
+        bold;">osshwc</span> "executable"</span><br style="font-family:
+      serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_EVENT</span> is not set, <span
+        style="font-weight: bold;">osshwc</span> will run with default
+      papi event which is currently <span style="font-weight: bold;">PAPI_TOT_CYC</span></span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_EVENT</span> is set, <span
+        style="font-weight: bold;">osshwc</span> warns the user that it
+      is overriding the environment variable <span style="font-weight:
+        bold;">OPENSS_HWC_EVENT</span> setting.</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_THRESHOLD</span> is not set, <span
+        style="font-weight: bold;">osshwc</span> will run using the
+      default papi event threshold which is currently 10000</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_THRESHOLD</span> is set, <span
+        style="font-weight: bold;">osshwc</span> warns the user that it
+      is overriding the default and is using the environment variable <span
+        style="font-weight: bold;">OPENSS_HWC_THRESHOLD</span> setting.</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">2) <span style="font-weight:
+        bold;">osshwc</span> "executable" <span style="font-weight:
+        bold;">default</span></span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_EVENT</span> is not set, <span
+        style="font-weight: bold;">osshwc</span> will run with default
+      papi event which is currently <span style="font-weight: bold;">PAPI_TOT_CYC</span></span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_EVENT</span> is set, <span
+        style="font-weight: bold;">osshwc</span> will run with default
+      papi event which is currently <span style="font-weight: bold;">PAPI_TOT_CYC</span>
+      and warns that it is not using the papi event specified by the <span
+        style="font-weight: bold;">OPENSS_HWC_EVENT</span> environment
+      variable.</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_THRESHOLD</span> is not set, <span
+        style="font-weight: bold;">osshwc</span> will run using the
+      default papi event threshold which is currently 10000</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_THRESHOLD</span> is set, <span
+        style="font-weight: bold;">osshwc</span> will run using the
+      default papi event threshold which is currently 10000</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">3) <span style="font-weight:
+        bold;">osshwc</span> "executable" <span style="font-weight:
+        bold;">&lt;input_papi_event_name&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_EVENT</span> is not set, <span
+        style="font-weight: bold;">osshwc</span> will override the
+      default papi event value and use the <span style="font-weight:
+        bold;">&lt;input_papi_event_name&gt;</span> event</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_EVENT</span> is set, <span
+        style="font-weight: bold;">osshwc</span> warns the user that it
+      is overriding the environment variable <span style="font-weight:
+        bold;">OPENSS_HWC_EVENT</span> setting.</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_THRESHOLD</span> is not set, <span
+        style="font-weight: bold;">osshwc</span> will run using the
+      default papi event threshold which is currently 10000</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_THRESHOLD</span> is set, <span
+        style="font-weight: bold;">osshwc</span> warns the user that it
+      is overriding the default and is using the environment variable <span
+        style="font-weight: bold;">OPENSS_HWC_THRESHOLD</span> setting.</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">4) <span style="font-weight:
+        bold;">osshwc</span> "executable" <span style="font-weight:
+        bold;">&lt;input_papi_threshold&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_EVENT</span> is not set, <span
+        style="font-weight: bold;">osshwc</span> will run with default
+      papi event which is currently <span style="font-weight: bold;">PAPI_TOT_CYC</span></span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_EVENT</span> is set, <span
+        style="font-weight: bold;">osshwc</span> will warn the user that
+      it is overriding the default papi event and is using the papi
+      event specified by <span style="font-weight: bold;">OPENSS_HWC_EVENT</span></span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_THRESHOLD</span> is not set, <span
+        style="font-weight: bold;">osshwc</span> warns the user that it
+      is overriding the default papi threshold value and is using the <span
+        style="font-weight: bold;">&lt;input_papi_threshold&gt;</span>
+      value</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <big style="font-weight:
+        bold;">OPENSS_HWC_THRESHOLD</big> is set, <span
+        style="font-weight: bold;">osshwc</span> warns the user that it
+      is overriding the environment variable <span style="font-weight:
+        bold;">OPENSS_HWC_THRESHOLD</span> setting and is using the <span
+        style="font-weight: bold;">&lt;input_papi_threshold&gt;</span>
+      value.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">5) <span style="font-weight:
+        bold;">osshwc</span> "executable" <span style="font-weight:
+        bold;">&lt;input_papi_event_name&gt;</span> <span
+        style="font-weight: bold;">&lt;input_papi_threshold&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_EVENT</span> is not set, <span
+        style="font-weight: bold;">osshwc</span> will override the
+      default papi event value and use the <span style="font-weight:
+        bold;">&lt;input_papi_event_name&gt;</span> event</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_EVENT</span> is set, <span
+        style="font-weight: bold;">osshwc</span> warns the user that it
+      is overriding the environment variable <span style="font-weight:
+        bold;">OPENSS_HWC_EVENT</span> setting.</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_THRESHOLD</span> is not set, <span
+        style="font-weight: bold;">osshwc</span> will override the
+      default papi threshold value and use the
+      &lt;input_papi_threshold&gt; value</span><br style="font-family:
+      serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWC_THRESHOLD</span> is set, <span
+        style="font-weight: bold;">osshwc</span> warns the user that it
+      is overriding the environment variable <span style="font-weight:
+        bold;">OPENSS_HWC_THRESHOLD</span> setting and uses the
+      &lt;input_papi_threshold&gt; value.</span><br>
+    <h4><a class="mozTocH4" name="mozTocId203371"></a>Default Arguments:</h4>
+    <span style="font-family: serif;">The default papi event for the HWC
+      experiment is currently </span><span style="font-family: serif;"><span
+        style="font-weight: bold;">PAPI_TOT_CYC</span></span><span
+      style="font-family: serif;"> for the hardware counter event and </span><span
+      style="font-family: serif;">the default papi event threshold is
+      currently 10000.</span><br>
+    <h4><a class="mozTocH4" name="mozTocId18566"></a><span
+        style="font-family: serif;">Example usage:</span></h4>
+    <span style="font-family: serif;"><span style="font-weight: bold;">osshwc
+
+      </span>"mpirun -np 64 nbody_exe" PAPI_L1_DCM&nbsp; 20000<br>
+      <br>
+      if the user wanted to track the Level 1 data cache misses in their
+      application at double the default hardware counter threshold
+      value.<br>
+    </span><br>
+    <h3><a class="mozTocH3" name="mozTocId498003"></a>HWCSAMP
+      (osshwcsamp)</h3>
+    The command options for the <span style="font-weight: bold;">osshwcsamp</span>
+    command are as follows.&nbsp; <br>
+    <br>
+    <span style="font-family: serif;">0) <span style="font-weight:
+        bold;">osshwcsamp </span></span><span style="font-family:
+      serif;"><br>
+      <br>
+      This command lists the available PAPI events that are available to
+      be used as arguments for <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+      in the command variations below.<br>
+      <br>
+    </span><span style="font-family: serif;">1) <span
+        style="font-weight: bold;">osshwcsamp</span> "executable"</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_EVENTS</span> is not set, <span
+        style="font-weight: bold;">osshwcsamp</span> will run with
+      default papi event list which is currently <span
+        style="font-weight: bold;">PAPI_TOT_CYC</span></span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_EVENTS</span> is set, <span
+        style="font-weight: bold;">osshwcsamp</span> will use the papi
+      event specified by <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span></span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_RATE</span> is not set, <span
+        style="font-weight: bold;">osshwcsamp</span> will run using the
+      default papi event list sampling rate which is currently 100
+      samples per second</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_RATE</span> is set, <span
+        style="font-weight: bold;">osshwcsamp</span> warns the user that
+      it is overriding the default and is using the environment variable
+      OPENSS_HWCSAMP_RATE setting.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">2) <span style="font-weight:
+        bold;">osshwcsamp</span> "executable" <span style="font-weight:
+        bold;">default</span></span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_EVENTS</span> is not set, <span
+        style="font-weight: bold;">osshwcsamp</span> will run with
+      default papi event list which is currently <span
+        style="font-weight: bold;">PAPI_TOT_CYC</span></span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_EVENTS</span> is set, <span
+        style="font-weight: bold;">osshwcsamp</span> will use the
+      default papi event list and warns that it is not honoring the papi
+      event specified by <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span>
+      environment variable.</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_RATE</span> is not set, <span
+        style="font-weight: bold;">osshwcsamp</span> will run using the
+      default papi event list sampling rate which is currently 100
+      samples per second</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_RATE</span> is set, <span
+        style="font-weight: bold;">osshwcsamp</span> will run using the
+      default papi event list sampling rate and warns the user that it
+      not honoring the sampling rate specified by the environment
+      variable <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+      setting.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">3) <span style="font-weight:
+        bold;">osshwcsamp</span> "executable" <span style="font-weight:
+        bold;">&lt;input_papi_event_list&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_EVENTS</span> is not set, <span
+        style="font-weight: bold;">osshwcsamp</span> will override the
+      default papi event list value and use the <span
+        style="font-weight: bold;">&lt;input_papi_event_list&gt;</span>
+      event</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_EVENTS</span> is set, <span
+        style="font-weight: bold;">osshwcsamp</span> warns the user that
+      it is overriding the environment variable <span
+        style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span> setting.</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_RATE</span> is not set, <span
+        style="font-weight: bold;">osshwcsamp</span> will run using the
+      default papi event list sampling rate which is currently 100
+      samples per second</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_RATE</span> is set, <span
+        style="font-weight: bold;">osshwcsamp</span> warns the user that
+      it is overriding the default and is using the environment variable
+      <span style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span>
+      setting.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">4) <span style="font-weight:
+        bold;">osshwcsamp</span> "executable" <span style="font-weight:
+        bold;">&lt;input_papi_rate&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_EVENTS</span> is not set, <span
+        style="font-weight: bold;">osshwcsamp</span> will run with
+      default papi event list which is currently <span
+        style="font-weight: bold;">PAPI_TOT_CYC</span></span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_EVENTS</span> is set, <span
+        style="font-weight: bold;">osshwcsamp</span> will warn the user
+      that it is overriding the default papi event list and is using the
+      papi event specified by <span style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span></span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_RATE</span> is not set, <span
+        style="font-weight: bold;">osshwcsamp</span> warns the user that
+      it is overriding the default papi sampling rate value and is using
+      the &lt;input_papi_rate&gt; value</span><br style="font-family:
+      serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_RATE</span> is set, <span
+        style="font-weight: bold;">osshwcsamp</span> warns the user that
+      it is overriding the environment variable <span
+        style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span> setting
+      and is using the <span style="font-weight: bold;">&lt;input_papi_rate&gt;</span>
+      value.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">5) <span style="font-weight:
+        bold;">osshwcsamp</span> "executable" <span style="font-weight:
+        bold;">&lt;input_papi_event_list&gt;</span> <span
+        style="font-weight: bold;">&lt;input_papi_rate&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_EVENTS</span> is not set, <span
+        style="font-weight: bold;">osshwcsamp</span> will override the
+      default papi event list value and use the <span
+        style="font-weight: bold;">&lt;input_papi_event_list&gt;</span>
+      event</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_EVENTS</span> is set, <span
+        style="font-weight: bold;">osshwcsamp</span> warns the user that
+      it is overriding the environment variable <span
+        style="font-weight: bold;">OPENSS_HWCSAMP_EVENTS</span> setting.</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_RATE</span> is not set, <span
+        style="font-weight: bold;">osshwcsamp</span> will override the
+      default papi sampling rate value and use the <span
+        style="font-weight: bold;">&lt;input_papi_rate&gt;</span> value</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCSAMP_RATE</span> is set, <span
+        style="font-weight: bold;">osshwcsamp</span> warns the user that
+      it is overriding the environment variable <span
+        style="font-weight: bold;">OPENSS_HWCSAMP_RATE</span> setting
+      and uses the <span style="font-weight: bold;">&lt;input_papi_rate&gt;</span>
+      value.</span><br>
+    <br>
+    <h4><a class="mozTocH4" name="mozTocId12075"></a>Default Arguments:</h4>
+    <span style="font-family: serif;">The default papi event list for
+      the HWCSAMP experiment is currently </span><span
+      style="font-family: serif;"><span style="font-weight: bold;">PAPI_TOT_CYC</span></span><span
+      style="font-family: serif;"> for the hardware counter samp event
+      and </span><span style="font-family: serif;">the default papi
+      event list sampling rate is currently 100 samples per second.</span><br>
+    <h4><a class="mozTocH4" name="mozTocId174863"></a><span
+        style="font-family: serif;">Example usage:</span></h4>
+    <span style="font-family: serif;"><span style="font-weight: bold;">osshwcsamp
+
+      </span>"mpirun -np 64 nbody_exe"&nbsp; PAPI_RES_STL<br>
+      <br>
+      if the user wanted to monitor the Cycles stalled on any resource
+      with the default hardware counter samp ling rate value (100
+      samples per second).</span><br>
+    <br>
+    <h3><a class="mozTocH4" name="mozTocId890824"></a>HWCTIME
+      (osshwctime)</h3>
+    The command options for the <span style="font-weight: bold;">osshwctime</span>
+    command are as follows.&nbsp; <br>
+    <br>
+    <span style="font-family: serif;">0) <span style="font-weight:
+        bold;">osshwctime </span></span><span style="font-family:
+      serif;"><br>
+      <br>
+      This command lists the available PAPI events that are available to
+      be used as arguments for <span style="font-weight: bold;">OPENSS_HWCTIME_EVENT</span>
+      in the command variations below.<br>
+      <br>
+    </span><span style="font-family: serif;">1) <span
+        style="font-weight: bold;">osshwctime</span> "executable"</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_EVENT</span> is not set, <span
+        style="font-weight: bold;">osshwctime</span> will run with
+      default papi event which is currently <span style="font-weight:
+        bold;">PAPI_TOT_CYC</span></span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_EVENT</span> is set, <span
+        style="font-weight: bold;">osshwctime</span> will use the papi
+      event specified by <span style="font-weight: bold;">OPENSS_HWCTIME_EVENT</span></span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_THRESHOLD</span> is not set, <span
+        style="font-weight: bold;">osshwctime</span> will run using the
+      default papi event threshold which is currently 10000</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_THRESHOLD</span> is set, <span
+        style="font-weight: bold;">osshwctime</span> warns the user that
+      it is overriding the default and is using the environment variable
+      OPENSS_HWCTIME_THRESHOLD setting.</span><br style="font-family:
+      serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">2) <span style="font-weight:
+        bold;">osshwctime</span> "executable" <span style="font-weight:
+        bold;">default</span></span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_EVENT</span> is not set, <span
+        style="font-weight: bold;">osshwctime</span> will run with
+      default papi event which is currently <span style="font-weight:
+        bold;">PAPI_TOT_CYC</span></span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_EVENT</span> is set, <span
+        style="font-weight: bold;">osshwctime</span> will use the
+      default papi event and warns that it is not honoring the papi
+      event specified by <span style="font-weight: bold;">OPENSS_HWCTIME_EVENT</span>
+      environment variable.</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_THRESHOLD</span> is not set, <span
+        style="font-weight: bold;">osshwctime</span> will run using the
+      default papi event threshold which is currently 10000</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_THRESHOLD</span> is set, <span
+        style="font-weight: bold;">osshwctime</span> will run using the
+      default papi event threshold and warns the user that it not
+      honoring the threshold specified by the environment variable <span
+        style="font-weight: bold;">OPENSS_HWCTIME_THRESHOLD</span>
+      setting.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">3) <span style="font-weight:
+        bold;">osshwctime</span> "executable" <span style="font-weight:
+        bold;">&lt;input_papi_event_name&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_EVENT</span> is not set, <span
+        style="font-weight: bold;">osshwctime</span> will override the
+      default papi event value and use the <span style="font-weight:
+        bold;">&lt;input_papi_event_name&gt;</span> event</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_EVENT</span> is set, <span
+        style="font-weight: bold;">osshwctime</span> warns the user that
+      it is overriding the environment variable <span
+        style="font-weight: bold;">OPENSS_HWCTIME_EVENT</span> setting.</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_THRESHOLD</span> is not set, <span
+        style="font-weight: bold;">osshwctime</span> will run using the
+      default papi event threshold which is currently 10000</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_THRESHOLD</span> is set, <span
+        style="font-weight: bold;">osshwctime</span> warns the user that
+      it is overriding the default and is using the environment variable
+      <span style="font-weight: bold;">OPENSS_HWCTIME_THRESHOLD</span>
+      setting.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">4) <span style="font-weight:
+        bold;">osshwctime</span> "executable" <span style="font-weight:
+        bold;">&lt;input_papi_threshold&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_EVENT</span> is not set, <span
+        style="font-weight: bold;">osshwctime</span> will run with
+      default papi event which is currently <span style="font-weight:
+        bold;">PAPI_TOT_CYC</span></span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_EVENT</span> is set, <span
+        style="font-weight: bold;">osshwctime</span> will warn the user
+      that it is overriding the default papi event and is using the papi
+      event specified by <span style="font-weight: bold;">OPENSS_HWCTIME_EVENT</span></span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_THRESHOLD</span> is not set, <span
+        style="font-weight: bold;">osshwctime</span> warns the user that
+      it is overriding the default papi threshold value and is using the
+      &lt;input_papi_threshold&gt; value</span><br style="font-family:
+      serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_THRESHOLD</span> is set, <span
+        style="font-weight: bold;">osshwctime</span> warns the user that
+      it is overriding the environment variable <span
+        style="font-weight: bold;">OPENSS_HWCTIME_THRESHOLD</span>
+      setting and is using the <span style="font-weight: bold;">&lt;input_papi_threshold&gt;</span>
+      value.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">5) <span style="font-weight:
+        bold;">osshwctime</span> "executable" <span style="font-weight:
+        bold;">&lt;input_papi_event_name&gt;</span> <span
+        style="font-weight: bold;">&lt;input_papi_threshold&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_EVENT</span> is not set, <span
+        style="font-weight: bold;">osshwctime</span> will override the
+      default papi event value and use the <span style="font-weight:
+        bold;">&lt;input_papi_event_name&gt;</span> event</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_EVENT</span> is set, <span
+        style="font-weight: bold;">osshwctime</span> warns the user that
+      it is overriding the environment variable <span
+        style="font-weight: bold;">OPENSS_HWCTIME_EVENT</span> setting.</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_THRESHOLD</span> is not set, <span
+        style="font-weight: bold;">osshwctime</span> will override the
+      default papi threshold value and use the <span
+        style="font-weight: bold;">&lt;input_papi_threshold&gt;</span>
+      value</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_HWCTIME_THRESHOLD</span> is set, <span
+        style="font-weight: bold;">osshwctime</span> warns the user that
+      it is overriding the environment variable <span
+        style="font-weight: bold;">OPENSS_HWCTIME_THRESHOLD</span>
+      setting and uses the <span style="font-weight: bold;">&lt;input_papi_threshold&gt;</span>
+      value.</span><br>
+    <br>
+    <h4><a class="mozTocH4" name="mozTocId12075"></a>Default Arguments:</h4>
+    <span style="font-family: serif;">The default papi event for the
+      HWCTIME experiment is currently </span><span style="font-family:
+      serif;"><span style="font-weight: bold;">PAPI_TOT_CYC</span></span><span
+      style="font-family: serif;"> for the hardware counter time event
+      and </span><span style="font-family: serif;">the default papi
+      event threshold is currently 10000.</span><br>
+    <h4><a class="mozTocH4" name="mozTocId174863"></a><span
+        style="font-family: serif;">Example usage:</span></h4>
+    <span style="font-family: serif;"><span style="font-weight: bold;">osshwctime
+
+      </span>"mpirun -np 64 nbody_exe"&nbsp; PAPI_RES_STL<br>
+      <br>
+      if the user wanted to monitor the Cycles stalled on any resource
+      with the default hardware counter time threshold value (10000).<br>
+    </span>
+    <h3><a class="mozTocH4" name="mozTocId298390"></a>IO (ossio)<br>
+    </h3>
+    The command options for the <span style="font-weight: bold;">ossio</span>
+    command are as follows. <br>
+    <br>
+    <span style="font-family: serif;">1) <span style="font-weight:
+        bold;">ossio</span> "executable"</span><br style="font-family:
+      serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_IO_TRACED</span> is not set, <span
+        style="font-weight: bold;">ossio</span> runs using the default
+      list of I/O functions to trace.</span><br style="font-family:
+      serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_IO_TRACED</span> is set, <span
+        style="font-weight: bold;">ossio</span> runs using the list of
+      I/O functions specified by the <span style="font-weight: bold;">OPENSS_IO_TRACED</span>
+      environment variable.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">2) <span style="font-weight:
+        bold;">ossio</span> "executable" <span style="font-weight:
+        bold;">default</span></span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_IO_TRACED</span> is not set, ossio runs using the
+      default list of I/O functions to trace.</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_IO_TRACED</span> is set, ossio runs using the
+      default list of I/O functions to trace and warns that it is not
+      honoring the function list specified by the <span
+        style="font-weight: bold;">OPENSS_IO_TRACED</span> environment
+      variable.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">3) <span style="font-weight:
+        bold;">ossio</span> "executable" <span style="font-weight:
+        bold;">&lt;input_function_trace_list&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_IO_TRACED</span> is not set, <span
+        style="font-weight: bold;">ossio</span> overrides the default
+      list of I/O functions to trace by using the function list
+      specified by the <span style="font-weight: bold;">&lt;input_function_trace_list&gt;</span>
+      argument.</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_IO_TRACED</span> is set, <span
+        style="font-weight: bold;">ossio</span> overrides the
+      environment variable list of I/O functions to trace by using the
+      function list specified by the <span style="font-weight: bold;">&lt;input_function_trace_list&gt;</span>
+      argument.</span><br>
+    <br>
+    <h4><a class="mozTocH4" name="mozTocId335647"></a>Default Arguments:</h4>
+    <span style="font-family: serif;">The default function list for the
+      IO experiment is currently the list of I/O functions consisting
+      of:<br>
+    </span>
+    <ul style="margin-left: 40px;">
+      <li><span style="font-family: serif;">close</span></li>
+      <li><span style="font-family: serif;">creat</span></li>
+      <li><span style="font-family: serif;">creat64</span></li>
+      <li><span style="font-family: serif;">dup</span></li>
+      <li><span style="font-family: serif;">dup2</span></li>
+      <li><span style="font-family: serif;">lseek</span></li>
+      <li><span style="font-family: serif;">lseek64</span></li>
+      <li><span style="font-family: serif;">open</span></li>
+      <li><span style="font-family: serif;">open64</span></li>
+      <li><span style="font-family: serif;">pipe</span></li>
+      <li><span style="font-family: serif;">pread</span></li>
+      <li><span style="font-family: serif;">pread64</span></li>
+      <li><span style="font-family: serif;">pwrite</span></li>
+      <li><span style="font-family: serif;">pwrite64</span></li>
+      <li><span style="font-family: serif;">read</span></li>
+      <li><span style="font-family: serif;">readv</span></li>
+      <li><span style="font-family: serif;">write</span></li>
+      <li><span style="font-family: serif;">writev</span></li>
+    </ul>
+    <h4><a class="mozTocH4" name="mozTocId639524"></a><span
+        style="font-family: serif;">Example usage:</span></h4>
+    <span style="font-family: serif;"><span style="font-weight: bold;">ossio
+
+      </span>"mpirun -np 64 nbody_exe" read,write,pipe<br>
+    </span><br>
+    if the user only wanted to trace read, write, and pipe.<br>
+    <br>
+    <h3><a class="mozTocH4" name="mozTocId64450"></a>IOT (ossiot)<br>
+    </h3>
+    The command options for the <span style="font-weight: bold;">ossiot</span>
+    command are as follows. <br>
+    <br>
+    <span style="font-family: serif;">1) <span style="font-weight:
+        bold;">ossiot</span> "executable"</span><br style="font-family:
+      serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_IOT_TRACED</span> is not set, <span
+        style="font-weight: bold;">ossiot</span> runs using the default
+      list of I/O functions to trace.</span><br style="font-family:
+      serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_IOT_TRACED</span> is set, <span
+        style="font-weight: bold;">ossiot</span> runs using the list of
+      I/O functions specified by the <span style="font-weight: bold;">OPENSS_IOT_TRACED</span>
+      environment variable.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">2) <span style="font-weight:
+        bold;">ossiot</span> "executable" <span style="font-weight:
+        bold;">default</span></span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_IOT_TRACED</span> is not set, <span
+        style="font-weight: bold;">ossiot</span> runs using the default
+      list of I/O functions to trace.</span><br style="font-family:
+      serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_IOT_TRACED</span> is set, <span
+        style="font-weight: bold;">ossiot</span> runs using the default
+      list of I/O functions to trace and warns that it is not honoring
+      the function list specified by the <span style="font-weight:
+        bold;">OPENSS_IOT_TRACED</span> environment variable.</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">3) <span style="font-weight:
+        bold;">ossiot</span> "executable" <span style="font-weight:
+        bold;">&lt;input_function_trace_list&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_IOT_TRACED</span> is not set, <span
+        style="font-weight: bold;">ossiot</span> overrides the default
+      list of I/O functions to trace by using the function list
+      specified by the <span style="font-weight: bold;">&lt;input_function_trace_list&gt;</span>
+      argument.</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_IOT_TRACED</span> is set, <span
+        style="font-weight: bold;">ossiot</span> overrides the
+      environment variable list of I/O functions to trace by using the
+      function list specified by the <span style="font-weight: bold;">&lt;input_function_trace_list&gt;</span>
+      argument.</span><br style="font-family: serif;">
+    <h4><a class="mozTocH4" name="mozTocId323138"></a>Default Arguments:</h4>
+    <span style="font-family: serif;">The default parameter (I/O
+      function list) for the IOT experiment is currently the list of I/O
+      functions consisting of:<br>
+    </span>
+    <ul style="margin-left: 40px;">
+      <li><span style="font-family: serif;">close</span></li>
+      <li><span style="font-family: serif;">creat</span></li>
+      <li><span style="font-family: serif;">creat64</span></li>
+      <li><span style="font-family: serif;">dup</span></li>
+      <li><span style="font-family: serif;">dup2</span></li>
+      <li><span style="font-family: serif;">lseek</span></li>
+      <li><span style="font-family: serif;">lseek64</span></li>
+      <li><span style="font-family: serif;">open</span></li>
+      <li><span style="font-family: serif;">open64</span></li>
+      <li><span style="font-family: serif;">pipe</span></li>
+      <li><span style="font-family: serif;">pread</span></li>
+      <li><span style="font-family: serif;">pread64</span></li>
+      <li><span style="font-family: serif;">pwrite</span></li>
+      <li><span style="font-family: serif;">pwrite64</span></li>
+      <li><span style="font-family: serif;">read</span></li>
+      <li><span style="font-family: serif;">readv</span></li>
+      <li><span style="font-family: serif;">write</span></li>
+      <li><span style="font-family: serif;">writev</span></li>
+    </ul>
+    <h4><a class="mozTocH4" name="mozTocId727637"></a><span
+        style="font-family: serif;">Example usage:</span></h4>
+    <span style="font-family: serif;"><span style="font-weight: bold;">ossiot
+
+      </span>"mpirun -np 64 nbody_exe" read,write,pipe<br>
+    </span><br>
+    if the user only wanted to trace read, write, and pipe.<br>
+    <h3><a class="mozTocH4" name="mozTocId898864"></a>MPI (ossmpi)<br>
+    </h3>
+    The command options for the <span style="font-weight: bold;">ossmpi</span>
+    command are as follows. <br>
+    <br>
+    <span style="font-family: serif;">1) <span style="font-weight:
+        bold;">ossmpi</span> "executable"</span><br style="font-family:
+      serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPI_TRACED</span> is not set, ossmpi runs using
+      the default list of MPI functions to trace.</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPI_TRACED</span> is set, ossmpi runs using the
+      list of MPI functions specified by the <span style="font-weight:
+        bold;">OPENSS_MPI_TRACED</span> environment variable.</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">2) <span style="font-weight:
+        bold;">ossmpi</span> "executable" <span style="font-weight:
+        bold;">default</span></span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPI_TRACED</span> is not set, <span
+        style="font-weight: bold;">ossmpi</span> runs using the default
+      list of MPI functions to trace.</span><br style="font-family:
+      serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPI_TRACED</span> is set, <span
+        style="font-weight: bold;">ossmpi</span> runs using the default
+      list of MPI functions to trace and warns that it is not honoring
+      the function list specified by the <span style="font-weight:
+        bold;">OPENSS_MPI_TRACED</span> environment variable.</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">3) <span style="font-weight:
+        bold;">ossmpi</span> "executable" <span style="font-weight:
+        bold;">&lt;input_function_trace_list&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPI_TRACED</span> is not set, <span
+        style="font-weight: bold;">ossmpi</span> overrides the default
+      list of MPI functions to trace by using the function list
+      specified by the <span style="font-weight: bold;">&lt;input_function_trace_list&gt;</span>
+      argument.</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPI_TRACED</span> is set, <span
+        style="font-weight: bold;">ossmpi</span> overrides the
+      environment variable list of MPI functions to trace by using the
+      function list specified by the <span style="font-weight: bold;">&lt;input_function_trace_list&gt;</span>
+      argument.</span><br style="font-family: serif;">
+    <br>
+    <h4><a class="mozTocH4" name="mozTocId302157"></a>Default Arguments:</h4>
+    <span style="font-family: serif;">The default parameters for the MPI
+      experiment is currently the list of MPI functions consisting of:<br>
+    </span>
+    <ul style="margin-left: 40px;">
+      <li><span style="font-family: serif;">MPI_Allgather</span></li>
+      <li><span style="font-family: serif;">MPI_Allgatherv</span></li>
+      <li><span style="font-family: serif;">MPI_Allreduce</span></li>
+      <li><span style="font-family: serif;">MPI_Alltoall </span></li>
+      <li><span style="font-family: serif;">MPI_Alltoallv</span></li>
+      <li><span style="font-family: serif;">MPI_Barrier</span></li>
+      <li><span style="font-family: serif;">MPI_Bcast</span></li>
+      <li><span style="font-family: serif;">MPI_Bsend</span></li>
+      <li><span style="font-family: serif;">MPI_Bsend_init </span></li>
+      <li><span style="font-family: serif;">MPI_Cancel</span></li>
+      <li><span style="font-family: serif;">MPI_Cart_create</span></li>
+      <li><span style="font-family: serif;">MPI_Cart_sub</span></li>
+      <li><span style="font-family: serif;">MPI_Comm_create </span></li>
+      <li><span style="font-family: serif;">MPI_Comm_dup</span></li>
+      <li><span style="font-family: serif;">MPI_Comm_free</span></li>
+      <li><span style="font-family: serif;">MPI_Comm_split</span></li>
+      <li><span style="font-family: serif;">MPI_Finalize </span></li>
+      <li><span style="font-family: serif;">MPI_Gather</span></li>
+      <li><span style="font-family: serif;">MPI_Gatherv</span></li>
+      <li><span style="font-family: serif;">MPI_Get_count</span></li>
+      <li><span style="font-family: serif;">MPI_Graph_create </span></li>
+      <li><span style="font-family: serif;">MPI_Ibsend</span></li>
+      <li><span style="font-family: serif;">MPI_Init</span></li>
+      <li><span style="font-family: serif;">MPI_Intercomm_create</span></li>
+      <li><span style="font-family: serif;">MPI_Intercomm_merge </span></li>
+      <li><span style="font-family: serif;">MPI_Iprobe</span></li>
+      <li><span style="font-family: serif;">MPI_Irecv</span></li>
+      <li><span style="font-family: serif;">MPI_Irsend</span></li>
+      <li><span style="font-family: serif;">MPI_Isend</span></li>
+      <li><span style="font-family: serif;">MPI_Issend </span></li>
+      <li><span style="font-family: serif;">MPI_Pack</span></li>
+      <li><span style="font-family: serif;">MPI_Probe</span></li>
+      <li><span style="font-family: serif;">MPI_Recv</span></li>
+      <li><span style="font-family: serif;">MPI_Recv_init</span></li>
+      <li><span style="font-family: serif;">MPI_Reduce </span></li>
+      <li><span style="font-family: serif;">MPI_Reduce_scatter</span></li>
+      <li><span style="font-family: serif;">MPI_Request_free</span></li>
+      <li><span style="font-family: serif;">MPI_Rsend</span></li>
+      <li><span style="font-family: serif;">MPI_Rsend_init </span></li>
+      <li><span style="font-family: serif;">MPI_Scan</span></li>
+      <li><span style="font-family: serif;">MPI_Scatter</span></li>
+      <li><span style="font-family: serif;">MPI_Scatterv</span></li>
+      <li><span style="font-family: serif;">MPI_Send</span></li>
+      <li><span style="font-family: serif;">MPI_Sendrecv </span></li>
+      <li><span style="font-family: serif;">MPI_Sendrecv_replace</span></li>
+      <li><span style="font-family: serif;">MPI_Ssend</span></li>
+      <li><span style="font-family: serif;">MPI_Ssend_init</span></li>
+      <li><span style="font-family: serif;">MPI_Start </span></li>
+      <li><span style="font-family: serif;">MPI_Startall</span></li>
+      <li><span style="font-family: serif;">MPI_Test</span></li>
+      <li><span style="font-family: serif;">MPI_Testall</span></li>
+      <li><span style="font-family: serif;">MPI_Testany</span></li>
+      <li><span style="font-family: serif;">MPI_Testsome </span></li>
+      <li><span style="font-family: serif;">MPI_Unpack</span></li>
+      <li><span style="font-family: serif;">MPI_Wait</span></li>
+      <li><span style="font-family: serif;">MPI_Waitall</span></li>
+      <li><span style="font-family: serif;">MPI_Waitany</span></li>
+      <li><span style="font-family: serif;">MPI_Waitsome</span></li>
+    </ul>
+    And additionally, one of the MPI groupings can be specified by using
+    the "Acceptable Argument" values listed in the table below.<br>
+    <br>
+    <table style="width: 493px; height: 256px;" border="1"
+      cellpadding="2" cellspacing="2">
+      <tbody>
+        <tr>
+          <td style="vertical-align: top;">MPI Category<br>
+          </td>
+          <td style="vertical-align: top;">Acceptable Argument<br>
+          </td>
+        </tr>
+        <tr>
+          <td>All the MPI Functions </td>
+          <td style="font-weight: bold;">all</td>
+        </tr>
+        <tr>
+          <td>Collective Communicators </td>
+          <td style="font-weight: bold;">collective_com</td>
+        </tr>
+        <tr>
+          <td>Persistent_Communicators </td>
+          <td style="font-weight: bold;">persistent_com</td>
+        </tr>
+        <tr>
+          <td>Synchronous Point to Point </td>
+          <td style="font-weight: bold;">synchronous_p2p</td>
+        </tr>
+        <tr>
+          <td>Asynchronous Point to Point </td>
+          <td style="font-weight: bold;">asynchronous_p2p</td>
+        </tr>
+        <tr>
+          <td>Process Topologies </td>
+          <td style="font-weight: bold;">process_topologies</td>
+        </tr>
+        <tr>
+          <td>Groups Contexts Communicators </td>
+          <td style="font-weight: bold;">graphs_contexts_comms</td>
+        </tr>
+        <tr>
+          <td>Environment </td>
+          <td style="font-weight: bold;">environment</td>
+        </tr>
+        <tr>
+          <td>Datatypes </td>
+          <td style="font-weight: bold;">datatypes</td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <span style="font-weight: bold;"></span><br>
+    <h4><a class="mozTocH4" name="mozTocId740700"></a><span
+        style="font-family: serif;">Example usage:</span></h4>
+    <span style="font-family: serif;"><span style="font-weight: bold;">ossmpi
+
+      </span>"mpirun -np 64 nbody_exe" MPI_Scatter, MPI_Scatterv<br>
+    </span><br>
+    if the user only wanted to trace the MPI scatter functions.<br>
+    <h3><a class="mozTocH4" name="mozTocId874232"></a>MPIT (ossmpit)<br>
+    </h3>
+    The command options for the <span style="font-weight: bold;">ossmpit</span>
+    command are as follows. <br>
+    <br>
+    <span style="font-family: serif;">1) <span style="font-weight:
+        bold;">ossmpit</span> "executable"</span><br style="font-family:
+      serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPIT_TRACED</span> is not set, <span
+        style="font-weight: bold;">ossmpit</span> runs using the default
+      list of MPI functions to trace.</span><br style="font-family:
+      serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPIT_TRACED</span> is set, <span
+        style="font-weight: bold;">ossmpit</span> runs using the list of
+      MPI functions specified by the <span style="font-weight: bold;">OPENSS_MPIT_TRACED</span>
+      environment variable.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">2) <span style="font-weight:
+        bold;">ossmpit</span> "executable" <span style="font-weight:
+        bold;">default</span></span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPIT_TRACED</span> is not set, <span
+        style="font-weight: bold;">ossmpit</span> runs using the default
+      list of MPI functions to trace.</span><br style="font-family:
+      serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPIT_TRACED</span> is set, <span
+        style="font-weight: bold;">ossmpit</span> runs using the default
+      list of MPI functions to trace and warns that it is not honoring
+      the function list specified by the <span style="font-weight:
+        bold;">OPENSS_MPIT_TRACED</span> environment variable.</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">3) <span style="font-weight:
+        bold;">ossmpit</span> "executable" <span style="font-weight:
+        bold;">&lt;input_function_trace_list&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPIT_TRACED</span> is not set, ossmpit overrides
+      the default list of MPI functions to trace by using the function
+      list specified by the <span style="font-weight: bold;">&lt;input_function_trace_list&gt;</span>
+      argument.</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPIT_TRACED</span> is set, ossmpit overrides the
+      environment variable list of MPI functions to trace by using the
+      function list specified by the <span style="font-weight: bold;">&lt;input_function_trace_list&gt;</span>
+      argument.</span><br>
+    <br>
+    <h4><a class="mozTocH4" name="mozTocId709137"></a>Default Arguments:</h4>
+    <span style="font-family: serif;">The default parameters for the
+      MPIT experiment is currently the list of MPI functions consisting
+      of:<br>
+    </span>
+    <ul style="margin-left: 40px;">
+      <li><span style="font-family: serif;">MPI_Allgather</span></li>
+      <li><span style="font-family: serif;">MPI_Allgatherv</span></li>
+      <li><span style="font-family: serif;">MPI_Allreduce</span></li>
+      <li><span style="font-family: serif;">MPI_Alltoall </span></li>
+      <li><span style="font-family: serif;">MPI_Alltoallv</span></li>
+      <li><span style="font-family: serif;">MPI_Barrier</span></li>
+      <li><span style="font-family: serif;">MPI_Bcast</span></li>
+      <li><span style="font-family: serif;">MPI_Bsend</span></li>
+      <li><span style="font-family: serif;">MPI_Bsend_init </span></li>
+      <li><span style="font-family: serif;">MPI_Cancel</span></li>
+      <li><span style="font-family: serif;">MPI_Cart_create</span></li>
+      <li><span style="font-family: serif;">MPI_Cart_sub</span></li>
+      <li><span style="font-family: serif;">MPI_Comm_create </span></li>
+      <li><span style="font-family: serif;">MPI_Comm_dup</span></li>
+      <li><span style="font-family: serif;">MPI_Comm_free</span></li>
+      <li><span style="font-family: serif;">MPI_Comm_split</span></li>
+      <li><span style="font-family: serif;">MPI_Finalize </span></li>
+      <li><span style="font-family: serif;">MPI_Gather</span></li>
+      <li><span style="font-family: serif;">MPI_Gatherv</span></li>
+      <li><span style="font-family: serif;">MPI_Get_count</span></li>
+      <li><span style="font-family: serif;">MPI_Graph_create </span></li>
+      <li><span style="font-family: serif;">MPI_Ibsend</span></li>
+      <li><span style="font-family: serif;">MPI_Init</span></li>
+      <li><span style="font-family: serif;">MPI_Intercomm_create</span></li>
+      <li><span style="font-family: serif;">MPI_Intercomm_merge </span></li>
+      <li><span style="font-family: serif;">MPI_Iprobe</span></li>
+      <li><span style="font-family: serif;">MPI_Irecv</span></li>
+      <li><span style="font-family: serif;">MPI_Irsend</span></li>
+      <li><span style="font-family: serif;">MPI_Isend</span></li>
+      <li><span style="font-family: serif;">MPI_Issend </span></li>
+      <li><span style="font-family: serif;">MPI_Pack</span></li>
+      <li><span style="font-family: serif;">MPI_Probe</span></li>
+      <li><span style="font-family: serif;">MPI_Recv</span></li>
+      <li><span style="font-family: serif;">MPI_Recv_init</span></li>
+      <li><span style="font-family: serif;">MPI_Reduce </span></li>
+      <li><span style="font-family: serif;">MPI_Reduce_scatter</span></li>
+      <li><span style="font-family: serif;">MPI_Request_free</span></li>
+      <li><span style="font-family: serif;">MPI_Rsend</span></li>
+      <li><span style="font-family: serif;">MPI_Rsend_init </span></li>
+      <li><span style="font-family: serif;">MPI_Scan</span></li>
+      <li><span style="font-family: serif;">MPI_Scatter</span></li>
+      <li><span style="font-family: serif;">MPI_Scatterv</span></li>
+      <li><span style="font-family: serif;">MPI_Send</span></li>
+      <li><span style="font-family: serif;">MPI_Sendrecv </span></li>
+      <li><span style="font-family: serif;">MPI_Sendrecv_replace</span></li>
+      <li><span style="font-family: serif;">MPI_Ssend</span></li>
+      <li><span style="font-family: serif;">MPI_Ssend_init</span></li>
+      <li><span style="font-family: serif;">MPI_Start </span></li>
+      <li><span style="font-family: serif;">MPI_Startall</span></li>
+      <li><span style="font-family: serif;">MPI_Test</span></li>
+      <li><span style="font-family: serif;">MPI_Testall</span></li>
+      <li><span style="font-family: serif;">MPI_Testany</span></li>
+      <li><span style="font-family: serif;">MPI_Testsome </span></li>
+      <li><span style="font-family: serif;">MPI_Unpack</span></li>
+      <li><span style="font-family: serif;">MPI_Wait</span></li>
+      <li><span style="font-family: serif;">MPI_Waitall</span></li>
+      <li><span style="font-family: serif;">MPI_Waitany</span></li>
+      <li><span style="font-family: serif;">MPI_Waitsome</span></li>
+    </ul>
+    And additionally, one of the MPI groupings can be specified by using
+    the "Acceptable Argument" values listed in the table below.<br>
+    <br>
+    <table style="width: 493px; height: 256px;" border="1"
+      cellpadding="2" cellspacing="2">
+      <tbody>
+        <tr>
+          <td style="vertical-align: top;">MPI Category<br>
+          </td>
+          <td style="vertical-align: top;">Acceptable Argument<br>
+          </td>
+        </tr>
+        <tr>
+          <td>All the MPI Functions </td>
+          <td style="font-weight: bold;">all</td>
+        </tr>
+        <tr>
+          <td>Collective Communicators </td>
+          <td style="font-weight: bold;">collective_com</td>
+        </tr>
+        <tr>
+          <td>Persistent_Communicators </td>
+          <td style="font-weight: bold;">persistent_com</td>
+        </tr>
+        <tr>
+          <td>Synchronous Point to Point </td>
+          <td style="font-weight: bold;">synchronous_p2p</td>
+        </tr>
+        <tr>
+          <td>Asynchronous Point to Point </td>
+          <td style="font-weight: bold;">asynchronous_p2p</td>
+        </tr>
+        <tr>
+          <td>Process Topologies </td>
+          <td style="font-weight: bold;">process_topologies</td>
+        </tr>
+        <tr>
+          <td>Groups Contexts Communicators </td>
+          <td style="font-weight: bold;">graphs_contexts_comms</td>
+        </tr>
+        <tr>
+          <td>Environment </td>
+          <td style="font-weight: bold;">environment</td>
+        </tr>
+        <tr>
+          <td>Datatypes </td>
+          <td style="font-weight: bold;">datatypes</td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <span style="font-weight: bold;"></span>
+    <h4><a class="mozTocH4" name="mozTocId409434"></a><span
+        style="font-family: serif;">Example usage:</span></h4>
+    <span style="font-family: serif;"><span style="font-weight: bold;">ossmpit
+
+      </span>"mpirun -np 64 nbody_exe" MPI_Scatter, MPI_Scatterv<br>
+    </span><br>
+    if the user only wanted to trace the MPI scatter functions.<br>
+    <h3><a class="mozTocH4" name="mozTocId172663"></a>MPIOTF (ossmpiotf)<br>
+    </h3>
+    The command options for the <span style="font-weight: bold;">ossmpiotf</span>
+    command are as follows. <br>
+    <br>
+    <span style="font-family: serif;">1) <span style="font-weight:
+        bold;">ossmpiotf</span> "executable"</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPIOTF_TRACED</span> is not set, <span
+        style="font-weight: bold;">ossmpiotf</span> runs using the
+      default list of MPI functions to trace.</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPIOTF_TRACED</span> is set, <span
+        style="font-weight: bold;">ossmpiotf</span> runs using the list
+      of MPI functions specified by the <span style="font-weight:
+        bold;">OPENSS_MPIOTF_TRACED</span> environment variable.</span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">2) <span style="font-weight:
+        bold;">ossmpiotf</span> "executable" <span style="font-weight:
+        bold;">default</span></span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPIOTF_TRACED</span> is not set, <span
+        style="font-weight: bold;">ossmpiotf</span> runs using the
+      default list of MPI functions to trace.</span><br
+      style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPIOTF_TRACED</span> is set, <span
+        style="font-weight: bold;">ossmpiotf</span> runs using the
+      default list of MPI functions to trace and warns that it is not
+      honoring the function list specified by the <span
+        style="font-weight: bold;">OPENSS_MPIOTF_TRACED</span>
+      environment variable.</span><br style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">3) <span style="font-weight:
+        bold;">ossmpiotf</span> "executable" <span style="font-weight:
+        bold;">&lt;input_function_trace_list&gt;</span></span><br
+      style="font-family: serif;">
+    <br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPIOTF_TRACED</span> is not set, <span
+        style="font-weight: bold;">ossmpiotf</span> overrides the
+      default list of MPI functions to trace by using the function list
+      specified by the <span style="font-weight: bold;">&lt;input_function_trace_list&gt;</span>
+      argument.</span><br style="font-family: serif;">
+    <span style="font-family: serif;">If <span style="font-weight:
+        bold;">OPENSS_MPIOTF_TRACED</span> is set, <span
+        style="font-weight: bold;">ossmpiotf</span> overrides the
+      environment variable list of MPI functions to trace by using the
+      function list specified by the <span style="font-weight: bold;">&lt;input_function_trace_list&gt;</span>
+      argument.</span><br>
+    <br>
+    <h4><a class="mozTocH4" name="mozTocId677100"></a>Default Arguments:</h4>
+    <span style="font-family: serif;">The default parameters for the
+      MPIOTF experiment is currently the list of MPI functions
+      consisting of:<br>
+    </span>
+    <ul style="margin-left: 40px;">
+      <li><span style="font-family: serif;">MPI_Allgather</span></li>
+      <li><span style="font-family: serif;">MPI_Allgatherv</span></li>
+      <li><span style="font-family: serif;">MPI_Allreduce</span></li>
+      <li><span style="font-family: serif;">MPI_Alltoall </span></li>
+      <li><span style="font-family: serif;">MPI_Alltoallv</span></li>
+      <li><span style="font-family: serif;">MPI_Barrier</span></li>
+      <li><span style="font-family: serif;">MPI_Bcast</span></li>
+      <li><span style="font-family: serif;">MPI_Bsend</span></li>
+      <li><span style="font-family: serif;">MPI_Bsend_init </span></li>
+      <li><span style="font-family: serif;">MPI_Cancel</span></li>
+      <li><span style="font-family: serif;">MPI_Cart_create</span></li>
+      <li><span style="font-family: serif;">MPI_Cart_sub</span></li>
+      <li><span style="font-family: serif;">MPI_Comm_create </span></li>
+      <li><span style="font-family: serif;">MPI_Comm_dup</span></li>
+      <li><span style="font-family: serif;">MPI_Comm_free</span></li>
+      <li><span style="font-family: serif;">MPI_Comm_split</span></li>
+      <li><span style="font-family: serif;">MPI_Finalize </span></li>
+      <li><span style="font-family: serif;">MPI_Gather</span></li>
+      <li><span style="font-family: serif;">MPI_Gatherv</span></li>
+      <li><span style="font-family: serif;">MPI_Get_count</span></li>
+      <li><span style="font-family: serif;">MPI_Graph_create </span></li>
+      <li><span style="font-family: serif;">MPI_Ibsend</span></li>
+      <li><span style="font-family: serif;">MPI_Init</span></li>
+      <li><span style="font-family: serif;">MPI_Intercomm_create</span></li>
+      <li><span style="font-family: serif;">MPI_Intercomm_merge </span></li>
+      <li><span style="font-family: serif;">MPI_Iprobe</span></li>
+      <li><span style="font-family: serif;">MPI_Irecv</span></li>
+      <li><span style="font-family: serif;">MPI_Irsend</span></li>
+      <li><span style="font-family: serif;">MPI_Isend</span></li>
+      <li><span style="font-family: serif;">MPI_Issend </span></li>
+      <li><span style="font-family: serif;">MPI_Pack</span></li>
+      <li><span style="font-family: serif;">MPI_Probe</span></li>
+      <li><span style="font-family: serif;">MPI_Recv</span></li>
+      <li><span style="font-family: serif;">MPI_Recv_init</span></li>
+      <li><span style="font-family: serif;">MPI_Reduce </span></li>
+      <li><span style="font-family: serif;">MPI_Reduce_scatter</span></li>
+      <li><span style="font-family: serif;">MPI_Request_free</span></li>
+      <li><span style="font-family: serif;">MPI_Rsend</span></li>
+      <li><span style="font-family: serif;">MPI_Rsend_init </span></li>
+      <li><span style="font-family: serif;">MPI_Scan</span></li>
+      <li><span style="font-family: serif;">MPI_Scatter</span></li>
+      <li><span style="font-family: serif;">MPI_Scatterv</span></li>
+      <li><span style="font-family: serif;">MPI_Send</span></li>
+      <li><span style="font-family: serif;">MPI_Sendrecv </span></li>
+      <li><span style="font-family: serif;">MPI_Sendrecv_replace</span></li>
+      <li><span style="font-family: serif;">MPI_Ssend</span></li>
+      <li><span style="font-family: serif;">MPI_Ssend_init</span></li>
+      <li><span style="font-family: serif;">MPI_Start </span></li>
+      <li><span style="font-family: serif;">MPI_Startall</span></li>
+      <li><span style="font-family: serif;">MPI_Test</span></li>
+      <li><span style="font-family: serif;">MPI_Testall</span></li>
+      <li><span style="font-family: serif;">MPI_Testany</span></li>
+      <li><span style="font-family: serif;">MPI_Testsome </span></li>
+      <li><span style="font-family: serif;">MPI_Unpack</span></li>
+      <li><span style="font-family: serif;">MPI_Wait</span></li>
+      <li><span style="font-family: serif;">MPI_Waitall</span></li>
+      <li><span style="font-family: serif;">MPI_Waitany</span></li>
+      <li><span style="font-family: serif;">MPI_Waitsome</span></li>
+    </ul>
+    And additionally, one of the MPI groupings can be specified by using
+    the "Acceptable Argument" values listed in the table below.<br>
+    <br>
+    <table style="width: 493px; height: 256px;" border="1"
+      cellpadding="2" cellspacing="2">
+      <tbody>
+        <tr>
+          <td style="vertical-align: top;">MPI Category<br>
+          </td>
+          <td style="vertical-align: top;">Acceptable Argument<br>
+          </td>
+        </tr>
+        <tr>
+          <td>All the MPI Functions </td>
+          <td style="font-weight: bold;">all</td>
+        </tr>
+        <tr>
+          <td>Collective Communicators </td>
+          <td style="font-weight: bold;">collective_com</td>
+        </tr>
+        <tr>
+          <td>Persistent_Communicators </td>
+          <td style="font-weight: bold;">persistent_com</td>
+        </tr>
+        <tr>
+          <td>Synchronous Point to Point </td>
+          <td style="font-weight: bold;">synchronous_p2p</td>
+        </tr>
+        <tr>
+          <td>Asynchronous Point to Point </td>
+          <td style="font-weight: bold;">asynchronous_p2p</td>
+        </tr>
+        <tr>
+          <td>Process Topologies </td>
+          <td style="font-weight: bold;">process_topologies</td>
+        </tr>
+        <tr>
+          <td>Groups Contexts Communicators </td>
+          <td style="font-weight: bold;">graphs_contexts_comms</td>
+        </tr>
+        <tr>
+          <td>Environment </td>
+          <td style="font-weight: bold;">environment</td>
+        </tr>
+        <tr>
+          <td>Datatypes </td>
+          <td style="font-weight: bold;">datatypes</td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <span style="font-weight: bold;"></span>
+    <h4><a class="mozTocH4" name="mozTocId384594"></a><span
+        style="font-family: serif;">Example usage:</span></h4>
+    <span style="font-family: serif;"><span style="font-weight: bold;">ossmpiotf
+
+      </span>"mpirun -np 64 nbody_exe" MPI_Scatter, MPI_Scatterv<br>
+    </span><br>
+    if the user only wanted to trace the MPI scatter functions.<br>
+    <h3><a class="mozTocH4" name="mozTocId342825"></a>FPE (ossfpe)<br>
+    </h3>
+    The command options for the <span style="font-weight: bold;">ossfpe</span>
+    command are as follows.
+    <pre><span style="font-family: serif;">1) <span style="font-weight: bold;">ossfpe</span> "executable"</span><br style="font-family: serif;"><br style="font-family: serif;"><span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_FPE_EVENT</span> is not set, <span style="font-weight: bold;">ossfpe</span> runs using the default list of floating point events to monitor.</span><br style="font-family: serif;"><span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_FPE_EVENT</span> is set, <span style="font-weight: bold;">ossfpe</span> runs using the list of floating point events to monitor specified by the <span style="font-weight: bold;">OPENSS_FPE_EVENT</span> environment variable.</span><br style="font-family: serif;"><br style="font-family: serif;"><span style="font-family: serif;">2) <span style="font-weight: bold;">ossfpe</span> "executable" <span style="font-weight: bold;">default</span></span><br style="font-family: serif;"><br style="font-family: serif;"><span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_FPE_EVENT</span> is not set, <span style="font-weight: bold;">ossfpe</span> runs using the default list of floating point events to monitor.</span><br style="font-family: serif;"><span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_FPE_EVENT</span> is set, <span style="font-weight: bold;">ossfpe</span> runs using the default list of floating point events to monitor and warns that it is not honoring the events specified by the <span style="font-weight: bold;">OPENSS_FPE_EVENT</span> environment variable.</span><br style="font-family: serif;"><br style="font-family: serif;"><span style="font-family: serif;">3) <span style="font-weight: bold;">ossfpe</span> "executable" <span style="font-weight: bold;">&lt;input_function_trace_list&gt;</span></span><br style="font-family: serif;"><br style="font-family: serif;"><span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_FPE_EVENT</span> is not set, <span style="font-weight: bold;">ossfpe</span> overrides the default list of floating point events to monitor by using the function list specified by the <span style="font-weight: bold;">&lt;input_function_trace_list&gt;</span> argument.</span><br style="font-family: serif;"><span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_FPE_EVENT</span> is set, <span style="font-weight: bold;">ossfpe</span> overrides the environment variable list of floating point events monitor by using the function list specified by the <span style="font-weight: bold;">&lt;input_function_trace_list&gt;</span> argument.</span><br style="font-family: serif;"></pre>
+    <br>
+    <h4><a class="mozTocH4" name="mozTocId159062"></a>Default Arguments:</h4>
+    <span style="font-family: serif;">The default parameters for the FPE
+      experiment is currently the list of floating point exception
+      events consisting of:<br>
+    </span>
+    <ul style="margin-left: 40px;">
+      <li>inexact_result</li>
+      <li>division_by_zero</li>
+      <li>underflow</li>
+      <li>overflow</li>
+      <li>invalid_operation</li>
+    </ul>
+    <h4><a class="mozTocH4" name="mozTocId584268"></a><span
+        style="font-family: serif;">Example usage:</span></h4>
+    <span style="font-family: serif;"><span style="font-weight: bold;">ossfpe
+
+      </span>"mpirun -np 64 nbody_exe" division_by_zero<br>
+    </span><br>
+    if the user only wanted to trace the division by zero floating point
+    exception.<br>
+    <br>
+    <br>
+    <h3><a class="mozTocH3" name="mozTocId923586"></a>COMPARE
+      (osscompare)<br>
+    </h3>
+    The command options for the <span style="font-weight: bold;">osscompare</span>
+    command are as follows.
+    <pre><span style="font-family: serif;">1) <span style="font-weight: bold;">osscompare</span> "database_file, database_file [, database_file] ..."</span><br style="font-family: serif;"><br style="font-family: serif;"><span style="font-family: serif;"><span style="font-weight: bold;">osscompare</span> runs using the default comparison metric, exclusive CPU time, comparing the performance data from each of the experiments represented by the datbase files specified.  </span><span style="font-family: serif;"></span><br style="font-family: serif;"><br style="font-family: serif;"><span style="font-family: serif;">2) </span><span style="font-family: serif;"><span style="font-weight: bold;">osscompare</span> "database_file, database_file [, database_file] ..."</span><span style="font-family: serif;"> <span style="font-weight: bold;">[time | percent]</span></span><br style="font-family: serif;"><span style="font-family: serif;"></span><br style="font-family: serif;"><span style="font-family: serif;"><span style="font-weight: bold;">osscompare</span> runs using the either, the time (exclusive CPU time) or percentage of CPU time, comparison metric: exclusive CPU time, comparing the performance data from each of the experiments represented by the datbase files specified.  </span>
+<br style="font-family: serif;"><span style="font-family: serif;">3) <span style="font-weight: bold;">osscompare " as above in 1) or 2) "</span><span style="font-weight: bold;"></span></span><br style="font-family: serif;"><br style="font-family: serif;"><span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_CREATE_CSV</span> is not set, <span style="font-weight: bold;">osscompare</span> generates the comparison output to stdout.<br></span><span style="font-family: serif;">If <span style="font-weight: bold;">OPENSS_CREATE_CSV</span> is set, <span style="font-weight: bold;">osscompare</span> generates the comparison output to stdout and creates two additional files in the directory the command was run in.  These two files contain:<br></span></pre>
+    <ul>
+      <li>File 1: contains the same stdout comparison output that
+        contains a side-by-side comparison</li>
+      <li>File 2: contains a comma separated list that corresponds to
+        the&nbsp; side-by-side comparison output, but can be input into
+        a spreadsheet program.<br>
+      </li>
+    </ul>
+    <h4><a class="mozTocH4" name="mozTocId159062"></a>Default Arguments:</h4>
+    <span style="font-family: serif;">The default parameters for the
+      osscompare:<br>
+    </span>
+    <ul>
+      <li><span style="font-family: serif;">The comparison metric is:
+          exclusive CPU time</span></li>
+      <li><span style="font-family: serif;">The view type is: Function
+          level</span></li>
+      <li><span style="font-family: serif;">Output filename is
+          internally generated</span></li>
+      <li><span style="font-family: serif;">Row count is unlimited.</span></li>
+    </ul>
+    These are changable by using the osscompare arguments for metric,
+    viewtype, oname and rows.<br>
+    <span style="font-family: serif;"> </span> <br>
+    <h4><a class="mozTocH4" name="mozTocId584268"></a><span
+        style="font-family: serif;">Example usage:</span></h4>
+    <span style="font-family: serif;"><span style="font-weight: bold;">osscompare
+
+      </span>"smg2000-pcsamp-run1.openss, smg2000-pcsamp-run2.openss"<br>
+    </span><br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+  </body>
+</html>
