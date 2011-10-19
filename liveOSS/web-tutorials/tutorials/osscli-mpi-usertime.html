@@ -39,27 +39,23 @@ table.exp td {
     </center>
     <h2 id="climpi">Using Open|SpeedShop's CLI</h2>
     <p>Within a terminal window, enter <b><font face="courier">openss
-          -cli
-        </font></b>and hit &lt;Enter&gt;. <br>
+          -cli </font></b>and hit &lt;Enter&gt;. <br>
     </p>
     <p>This will start Open|SpeedShop's interactive command line
-      interface.
-      <br>
+      interface. <br>
     </p>
     <p>In this particular example, we are going to gather user time
       information from an MPI job (<b>Note:</b> We are going to simulate
-      an
-      MPI run by oversubscribing our processor). <br>
+      an MPI run by oversubscribing our processor). <br>
     </p>
     <p>For demonstration purposes, we are going to gather information
-      from
-      one of Open|SpeedShop's supported implementations of the message
-      passing interface - OpenMPI. <br>
+      from one of Open|SpeedShop's supported implementations of the
+      message passing interface - OpenMPI. <br>
       We have provided test binaries that can be utilized for our
-      purposes.
-    </p>
+      purposes. </p>
     <p>Within the interactive CLI, enter <b><font face="courier">expcreate
 -f
+
           "mpirun -np 2 /home/openssuser/mpi/smg2000/test/smg2000"
           usertime</font></b><br>
       <b>Note: </b> In this particular case, the double quotes are
@@ -68,20 +64,16 @@ table.exp td {
     <p>We should then be greeted with a new focused experiment
       identifier.<br>
       Enter <b><font face="courier">expgo</font></b> to start the
-      focused
-      experiment. <br>
+      focused experiment. <br>
       <br>
     </p>
-    &nbsp;
-    <img style=" width: 1196px; height: 589px;" alt="Running in the CLI
-      first step" src="../img/smg2000-usertime-cli1.png"><br>
+    &nbsp; <img style=" width: 1196px; height: 589px;" alt="Running in
+      the CLI first step" src="../img/smg2000-usertime-cli1.png"><br>
     <img style=" width: 1196px; height: 661px;" alt="expgo command and
       output" src="../img/smg2000-usertime-cli2.png"><br>
     <p>Once the experiment has terminated, we can view the collected
-      data
-      through the CLI by entering <b><font face="courier">expview</font></b>,
-      or
-      we can open the GUI by entering <b><font face="courier">openGui</font></b>.
+      data through the CLI by entering <b><font face="courier">expview</font></b>,
+      or we can open the GUI by entering <b><font face="courier">openGui</font></b>.
       <br>
     </p>
     <p>Other test binaries are located in
@@ -89,20 +81,17 @@ table.exp td {
       /home/openssuser/mpi/smg2000/test and are supplied for further
       exploration. </p>
     Please also explore the various options offered via a panel's pull
-    down
-    menu. Further options can be accessed by clicking on a colored
+    down menu. Further options can be accessed by clicking on a colored
     downward-facing arrow.<br>
     <br>
     &nbsp;<img style=" width: 1087px; height: 727px;" alt="GUI view from
       opengui command" src="../img/smg2000-usertime-cli11.png"> <br>
     <br>
     There are alternative views of the gathered usertime
-    data.&nbsp;&nbsp;
-    The following slides show these alternative views.<br>
+    data.&nbsp;&nbsp; The following slides show these alternative views.<br>
     <br>
     Here we examine the hot call path in the program by clicking on the
-    HC
-    StatsPanel Icon.<br>
+    HC StatsPanel Icon.<br>
     <br>
     <br>
     <img style=" width: 1087px; height: 727px;" alt="GUI hot call path"
@@ -116,9 +105,8 @@ table.exp td {
     <br>
     <br>
     Sometimes it may be beneficial to see where the overall time is
-    being
-    spent.&nbsp;&nbsp; Here the performance data is shown per linked or
-    program object.<br>
+    being spent.&nbsp;&nbsp; Here the performance data is shown per
+    linked or program object.<br>
     Show this by clicking on the "L" icon.<br>
     <br>
     <img style=" width: 1087px; height: 727px;" alt="GUI - Show linked
@@ -133,13 +121,11 @@ table.exp td {
       balance" src="../img/smg2000-usertime-cli15.png"><br>
     <br>
     Now, after selecting the Close menu iten in the File Menu in the
-    GUI,
-    we remain active in the CLI.&nbsp;&nbsp; Here we show the same
-    results
-    that we obtained in the GUI<br>
-    can be shown via commands entered into the interactive CLI tool.&nbsp;&nbsp;
-    Here the expview command gives the default view similar to the GUI
-    default view.<br>
+    GUI, we remain active in the CLI.&nbsp;&nbsp; Here we show the same
+    results that we obtained in the GUI<br>
+    can be shown via commands entered into the interactive CLI
+    tool.&nbsp;&nbsp; Here the expview command gives the default view
+    similar to the GUI default view.<br>
     <br>
     <img style=" width: 1178px; height: 715px;" alt="expview output"
       src="../img/smg2000-usertime-cli4.png"><br>
@@ -182,7 +168,11 @@ table.exp td {
     <img style=" width: 1187px; height: 823px;" alt="CLI 10"
       src="../img/smg2000-usertime-cli10.png"><br>
     <br>
+    Thanks!<br>
     <br>
+    Please visit the Open|SpeedShop forum if you have questions:&nbsp; <a
+      href="http://www.openspeedshop.org/forums/index.php">Open|SpeedShop
+      Forum.</a><br>
     <br>
     <a href="../index.html">Back To Getting Started With Open|SpeedShop</a>
   </body>
