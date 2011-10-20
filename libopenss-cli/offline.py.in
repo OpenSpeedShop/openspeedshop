@@ -449,9 +449,12 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
            ossrun_command = OpenssInstallDir + "/bin/ossrun -o " + os.environ['OPENSS_RAWDATA_DIR']
         else:
            ossrun_command = OpenssInstallDir + "/bin/ossrun"
-
- 	command = program.replace(mpi_exe_orig, ossrun_command + " -c " + orig_collectorname + " \"" + mpi_executable)
- 	command = command + "\" " 
+        # 
+        # Change made on 10/20/11 to better support redirection inside the quoted executable. (dpm/jeg) Found at NASA
+        # 
+ 	#command = program.replace(mpi_exe_orig, ossrun_command + " -c " + orig_collectorname + " \"" + mpi_executable)
+ 	#command = command + "\" " 
+        command = program.replace(mpi_exe_orig, ossrun_command + " -c " + orig_collectorname + " " + mpi_executable) 
 
     else:
 	preload_files = ""
