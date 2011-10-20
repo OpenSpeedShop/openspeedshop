@@ -6139,22 +6139,30 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
     return;
   }
 
-  if( pd )
-  {
+#ifdef DEBUG_StatsPanel
+  printf("updateStatsPanelData,deleting the pd=0x%x\n", pd);
+#endif
+  if( pd ) {
     delete pd;
-  }
-  if( progressTimer )
-  {
-    delete progressTimer;
   }
 
 #ifdef DEBUG_StatsPanel
-  printf("updateStatsPanelData,create the progressTimer\n");
+  printf("updateStatsPanelData,deleting the progressTimer=0x%x\n", progressTimer);
 #endif
+  if( progressTimer ) {
+    delete progressTimer;
+  }
+
   steps = 0;
   pd = new GenericProgressDialog(this, "Executing Command:", TRUE );
+#ifdef DEBUG_StatsPanel
+  printf("updateStatsPanelData, creating the pd=0x%x\n", pd);
+#endif
   pd->infoLabel->setText( QString("Running command") );
   progressTimer = new QTimer( this, "progressTimer" );
+#ifdef DEBUG_StatsPanel
+  printf("updateStatsPanelData,create the progressTimer=0x%x\n", progressTimer);
+#endif
   connect( progressTimer, SIGNAL(timeout()), this, SLOT(progressUpdate()) );
   pd->show();
 //progressUpdate();
@@ -6623,18 +6631,23 @@ printf("StatsPanel::updateStatsPanelData, CHART: cpvl.count()=%d numberItemsToDi
 
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::updateStatsPanelData, CHART, now clean up the timer...\n");
+  printf("StatsPanel::updateStatsPanelData, CHART, now clean up the timer, progressTimer=0x%x\n", progressTimer);
+  printf("StatsPanel::updateStatsPanelData, CHART, now clean up the timer, pd=0x%x\n", pd);
 #endif
 
-  progressTimer->stop();
-  delete progressTimer;
-  progressTimer = NULL;
-  pd->hide();
-  delete pd;
-  pd = NULL;
+  if (progressTimer) {
+    progressTimer->stop();
+    delete progressTimer;
+    progressTimer = NULL;
+  }
+  if (pd) {
+    pd->hide();
+    delete pd;
+    pd = NULL;
+  }
 
   QApplication::restoreOverrideCursor();
-  qApp->flushX();
+  if (qApp) qApp->flushX();
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::updateStatsPanelData, EXITING toolBarFLAG=%d\n", toolBarFLAG);
@@ -10192,13 +10205,13 @@ StatsPanel::generateCommand()
     } else if( currentUserSelectedReportStr == "minMaxAverage" ) {
 
       if( items_to_display > 0 ) {
-        command = QString("expView -x %1 %2%3 -m loadbalance ").arg(exp_id).arg(currentCollectorStr).arg(items_to_display).arg(currentUserSelectedReportStr);
+        command = QString("expView -x %1 %2%3 -m loadbalance ").arg(exp_id).arg(currentCollectorStr).arg(items_to_display);
 
 #ifdef DEBUG_StatsPanel
         printf("generateCommand, pcsamp A: load balance command=(%s)\n", command.ascii() );
 #endif
       } else {
-        command = QString("expView -x %1 %2 -m loadbalance").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
+        command = QString("expView -x %1 %2 -m loadbalance").arg(exp_id).arg(currentCollectorStr);
 
 #ifdef DEBUG_StatsPanel
         printf("generateCommand, pcsamp B: load balance, command=(%s)\n", command.ascii() );
@@ -10380,13 +10393,13 @@ StatsPanel::generateCommand()
     } else if( currentUserSelectedReportStr == "minMaxAverage" ) {
 
       if( items_to_display > 0 ) {
-        command = QString("expView -x %1 %2%3 -m loadbalance ").arg(exp_id).arg(currentCollectorStr).arg(items_to_display).arg(currentUserSelectedReportStr);
+        command = QString("expView -x %1 %2%3 -m loadbalance ").arg(exp_id).arg(currentCollectorStr).arg(items_to_display);
 
 #ifdef DEBUG_StatsPanel
         printf("generateCommand, A: load balance command=(%s)\n", command.ascii() );
 #endif
       } else {
-        command = QString("expView -x %1 %2 -m loadbalance").arg(exp_id).arg(currentCollectorStr).arg(currentUserSelectedReportStr);
+        command = QString("expView -x %1 %2 -m loadbalance").arg(exp_id).arg(currentCollectorStr);
 
 #ifdef DEBUG_StatsPanel
         printf("generateCommand, B: load balance, command=(%s)\n", command.ascii() );
@@ -14118,7 +14131,13 @@ if (currentCollectorStr != lastCollectorStr ||
 #endif
     }
 
+#if 1
+    vDisplayTypeFunctionRB->show();
+    vDisplayTypeStatementRB->show();
+    vDisplayTypeLinkedObjectRB->show();
+#else
     vDisplayTypeBG->show();
+#endif
   }
 #endif
 
@@ -14190,7 +14209,7 @@ StatsPanel::defaultViewSelected()
       toolbar_status_label->setText("Generating Linked Objects Report...");
   }
   // Clear all thread specific options
-  currentThreadsStr = QString::null;
+//  currentThreadsStr = QString::null;
 
 #ifdef DEBUG_StatsPanel_toolbar
   printf("StatsPanel::defaultViewSelected(), calling updateStatsPanelData\n" );
