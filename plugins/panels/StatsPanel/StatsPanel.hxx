@@ -369,6 +369,7 @@ class StatsPanel  : public Panel
     void outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineNumber);
     void exportData( EXPORT_TYPE_ENUM exportTypeParam = EXPORT_CSV );
     QString getPartialExperimentInfo();
+    QString getPartialExperimentInfo2(int);
     bool MPItraceFLAG;
     bool IOtraceFLAG;
     PanelContainer* thisPC;

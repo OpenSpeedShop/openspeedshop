@@ -5127,6 +5127,112 @@ void StatsPanel::checkForDashI()
 
 }
 
+QString StatsPanel::getPartialExperimentInfo2(int exp_id)
+{
+
+    QString returnString = QString::null;
+
+#ifdef DEBUG_StatsPanel
+    printf("getPartialExperimentInfo2, before add any focus, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+#endif
+
+    aboutString += QString("for threads %1\n").arg(currentThreadsStr);
+    infoAboutString += QString("Hosts/Threads %1\n").arg(currentThreadsStr);
+    int ranks_present = currentThreadsStr.find("-r", 0, TRUE);
+    QString local_ranks_command = QString::null;
+    if (ranks_present > 0) {
+#ifdef DEBUG_StatsPanel
+        printf("StatsPanel::getPartialExperimentInfo2, PARTIAL EXP. INFO,list_of_pids.size()=%d\n", list_of_pids.size() );
+#endif
+#if 1
+
+      if( focusedExpID == -1 ) {
+        local_ranks_command = QString("list -v ranks -x %1 %2").arg(exp_id).arg(currentThreadsStr);
+      } else {
+        local_ranks_command = QString("list -v ranks -x %1 %2").arg(focusedExpID).arg(currentThreadsStr);
+      }
+
+
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::getRankThreadList-attempt to run (%s)\n", local_ranks_command.ascii() );
+#endif
+
+      currentThreadsStrENUM = RANK;
+      CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+      partial_list_of_ranks.clear();
+      InputLineObject *clip = NULL;
+      if( !cli->getIntListValueFromCLI( (char *) local_ranks_command.ascii(),
+             &partial_list_of_ranks, clip, TRUE ) ) {
+        printf("Unable to run %s local_ranks_command.\n", local_ranks_command.ascii() );
+      }
+
+#ifdef DEBUG_StatsPanel
+      printf("StatsPanel::getRankThreadList, ran %s, partial_list_of_ranks.size()=%d\n", local_ranks_command.ascii(), partial_list_of_ranks.size() );
+#endif
+       int rank_cnt = partial_list_of_ranks.size();
+#else
+       int rank_cnt = 1;
+#endif
+       if (rank_cnt == 1) {
+           // let us look for threads to present to the user in the partial experiment info.  These may be openMP threads
+           currentThreadsStrENUM = THREAD;
+           QString local_command = QString::null;
+           if( focusedExpID == -1 ) {
+             local_command = QString("list -v threads -x %1 %2").arg(exp_id).arg(currentThreadsStr);
+           } else {
+             local_command = QString("list -v threads -x %1 %2").arg(focusedExpID).arg(currentThreadsStr);
+           }
+
+// printf("attempt to run (%s)\n", command.ascii() );
+
+           CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+           partial_list_of_threads.clear();
+           InputLineObject *clip = NULL;
+
+           if( !cli->getIntListValueFromCLI( (char *)local_command.ascii(), &partial_list_of_threads, clip, TRUE ) ) {
+             printf("Unable to run %s command.\n", local_command.ascii() );
+           }
+
+#ifdef DEBUG_StatsPanel
+         printf("StatsPanel::getPartialExperimentInfo2, ran %s, partial_list_of_threads.size()=%d\n", local_command.ascii(), partial_list_of_threads.size() );
+#endif
+           if( partial_list_of_threads.size() > 0 ) {
+#ifdef DEBUG_StatsPanel
+           printf("StatsPanel::getPartialExperimentInfo2, inside if, partial_list_of_threads.size()=%d\n", partial_list_of_threads.size() );
+#endif
+             int local_thread_count = 0;
+             int64_t local_thread = -1;
+             for( std::list<int64_t>::const_iterator local_it = partial_list_of_threads.begin();
+                  local_it != partial_list_of_threads.end(); local_it++ )
+             {
+               local_thread = (int64_t)*local_it;
+
+#ifdef DEBUG_StatsPanel
+               printf("StatsPanel::getPartialExperimentInfo2, inside for, partial_list_of_threads.size()=%d\n", partial_list_of_threads.size() );
+#endif
+               local_thread_count = local_thread_count + 1;
+               QString local_threadStr = QString("%1").arg(local_thread);
+               infoAboutString += QString("Thread: %1\n").arg(local_threadStr);
+#ifdef DEBUG_StatsPanel
+               printf("StatsPanel::getPartialExperimentInfo2, local_thread=%ld, local_thread_count=%d, partial_list_of_threads.size()=%d\n", local_thread, local_thread_count, partial_list_of_threads.size() );
+#endif
+          
+             } // end for list of threads
+
+           } // end if threads.size
+       }
+    }
+    if (!infoAboutString.isEmpty()) {
+      returnString = QString("\n%1\n").arg(infoAboutString);
+    }
+
+#ifdef DEBUG_StatsPanel
+    printf("getPartialExperimentInfo2, after add any focus, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
+#endif
+    return returnString;
+
+}
+
 // ----------------------------------------------
 // ----------------------------------------------
 // StatsPanel::getPartialExperimentInfo()
@@ -5291,6 +5397,10 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
   if( cviewinfo_index != -1 || cviewinfo_aux_index != -1 ) {
 
     partialExperimentViewInfo = getPartialExperimentInfo();
+    // Look at printing underlying threads under a paricular rank
+    if( !currentThreadsStr.isEmpty() ) {
+       partialExperimentViewInfo = getPartialExperimentInfo2(exp_id);
+    }
     if (!partialExperimentViewInfo.isEmpty()) {
       partialExperimentViewInfo.insert(0,"\n Partial Experiment View Information:");
     }
@@ -6359,7 +6469,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   while( !statspanel_clip->Semantics_Complete() ) {
 
 #ifdef DEBUG_StatsPanel
-    printf("StatsPanel::updateStatsPanelData, pinging... while( !statspanel_clip->Semantics_Complete() )\n");
+    printf("StatsPanel::updateStatsPanelData, pinging... while( !statspanel_clip->Semantics_Complete() ), qApp=0x%x\n", qApp);
 #endif
 
     qApp->flushX();
@@ -6368,7 +6478,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   }
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::updateStatsPanelData, done pinging... while( !statspanel_clip->Semantics_Complete() )\n");
+  printf("StatsPanel::updateStatsPanelData, done pinging... while( !statspanel_clip->Semantics_Complete() ), pd=0x%x\n", pd);
 #endif
 
   pd->infoLabel->setText( tr("Processing information for display") );
@@ -10581,85 +10691,9 @@ StatsPanel::generateCommand()
 #endif
 
     command += QString(" %1").arg(currentThreadsStr);
-    aboutString += QString("for threads %1\n").arg(currentThreadsStr);
-    infoAboutString += QString("Hosts/Threads %1\n").arg(currentThreadsStr);
-    int ranks_present = currentThreadsStr.find("-r", 0, TRUE);
-    QString local_ranks_command = QString::null;
-    if (ranks_present > 0) {
-#ifdef DEBUG_StatsPanel
-        printf("StatsPanel::generateCommand, PARTIAL EXP. INFO,list_of_pids.size()=%d\n", list_of_pids.size() );
-#endif
-#if 1
 
-      if( focusedExpID == -1 ) {
-        local_ranks_command = QString("list -v ranks -x %1").arg(exp_id);
-      } else {
-        local_ranks_command = QString("list -v ranks -x %1").arg(focusedExpID);
-      }
-
-
-#ifdef DEBUG_StatsPanel
-      printf("StatsPanel::getRankThreadList-attempt to run (%s)\n", local_ranks_command.ascii() );
-#endif
-
-      currentThreadsStrENUM = RANK;
-      CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-      partial_list_of_ranks.clear();
-      InputLineObject *clip = NULL;
-      if( !cli->getIntListValueFromCLI( (char *) local_ranks_command.ascii(),
-             &partial_list_of_ranks, clip, TRUE ) ) {
-        printf("Unable to run %s local_ranks_command.\n", local_ranks_command.ascii() );
-      }
-
-#ifdef DEBUG_StatsPanel
-      printf("StatsPanel::getRankThreadList, ran %s, partial_list_of_ranks.size()=%d\n", local_ranks_command.ascii(), partial_list_of_ranks.size() );
-#endif
-       int rank_cnt = partial_list_of_ranks.size();
-#else
-       int rank_cnt = 1;
-#endif
-       if (rank_cnt == 1) {
-           // let us look for threads to present to the user in the partial experiment info.  These may be openMP threads
-           currentThreadsStrENUM = THREAD;
-           QString local_command = QString::null;
-           if( focusedExpID == -1 ) {
-             local_command = QString("list -v threads -x %1 %2").arg(exp_id).arg(currentThreadsStr);
-           } else {
-             local_command = QString("list -v threads -x %1 %2").arg(focusedExpID).arg(currentThreadsStr);
-           }
-
-// printf("attempt to run (%s)\n", command.ascii() );
-
-           CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-           partial_list_of_threads.clear();
-           InputLineObject *clip = NULL;
-
-           if( !cli->getIntListValueFromCLI( (char *)local_command.ascii(),
-                  &partial_list_of_threads, clip, TRUE ) ) {
-             printf("Unable to run %s command.\n", local_command.ascii() );
-           }
-
-#ifdef DEBUG_StatsPanel
-         printf("StatsPanel::generateCommand, ran %s, partial_list_of_threads.size()=%d\n", local_command.ascii(), partial_list_of_threads.size() );
-#endif
-           if( partial_list_of_threads.size() > 0 )
-           {
-             for( std::list<int64_t>::const_iterator it = partial_list_of_threads.begin();
-                  it != partial_list_of_threads.end(); it++ )
-             {
-               int local_thread_count = local_thread_count + 1;
-               int64_t local_thread = (int64_t)*it;
-               QString local_threadStr = QString("%1").arg(local_thread);
-               infoAboutString += QString("Thread: %1\n").arg(local_threadStr);
-#ifdef DEBUG_StatsPanel
-               printf("StatsPanel::generateCommand, local_thread=%ld, local_thread_count=%d, partial_list_of_threads.size()=%d\n", local_thread, local_thread_count, partial_list_of_threads.size() );
-#endif
-          
-             } // end for list of threads
-
-           } // end if threads.size
-       }
-    }
+    // Adding to infoAboutString, so ignore result.
+    //QString ignore = getPartialExperimentInfo2(exp_id);
 
 #ifdef DEBUG_StatsPanel
     printf("generateCommand, after add any focus, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
