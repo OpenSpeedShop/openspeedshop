@@ -1,14 +1,11 @@
-#gfortran -c -g matmul.f90
-#gfortran -o matmul -L/usr/lib64/libblas.so.3.1.1 matmul.o -llapack
-#
+
+# Run outside of OpenSpeedShop
 #./matmul < matmul_input.txt
 
+# original syntax prior to convenience scripts
+#openss -f "./matmul < ./matmul_input.txt" usertime
 #
-#gfortran -c -g matmulMOD.f90
-#gfortran -o matmulMOD -L/usr/lib64/libblas.so.3.1.1 matmulMOD.o -llapack
+#or
 #
-#./matmulMOD < matmul_input.txt
-
-#
-#
+# convenience script syntax
 ossusertime "./matmul < ./matmul_input.txt"
