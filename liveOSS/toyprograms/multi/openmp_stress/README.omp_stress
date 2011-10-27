@@ -5,12 +5,11 @@ Run using the input file:
 stress_omp < stress.input
 
 under openss:
-export OMP_NUM_THREADS=8
+export OMP_NUM_THREADS=<a number that makes sense>
 osspcsamp "./stress_omp < stress.input"
+ossusertime "./stress_omp < stress.input"
 osshwc "./stress_omp < stress.input"
-
-
-openss -offline -f "stress_omp < stress.input" pcsamp
-openss -offline -f "stress_omp < stress.input" usertime
-openss -offline -f "stress_omp < stress.input" hwc
-openss -offline -f "stress_omp < stress.input" io
+osshwcsamp "./stress_omp < stress.input"
+osshwctime "./stress_omp < stress.input"
+osshwcio "./stress_omp < stress.input"
+osshwciot "./stress_omp < stress.input"
