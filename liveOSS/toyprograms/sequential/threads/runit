@@ -1,6 +1,11 @@
+# original syntax prior to convenience scripts
 #openss -f ./threads pcsamp
 #or
+# convenience script examples
 osspcsamp ./threads
 ossusertime ./threads
+osshwc ./threads
+osshwctime ./threads
+osshwcsamp ./threads
 
 
