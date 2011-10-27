@@ -120,7 +120,8 @@ cat >> /etc/rc.d/init.d/livesys << EOF
 # disable screensaver locking
 gconftool-2 --direct --config-source=xml:readwrite:/etc/gconf/gconf.xml.defaults -s -t bool /apps/gnome-screensaver/lock_enabled false >/dev/null
 # set up timed auto-login for after 1 second
-sed -i -e 's/\[daemon\]/[daemon]\nTimedLoginEnable=true\nTimedLogin=openssuser\nTimedLoginDelay=1/' /etc/gdm/custom.conf
+#sed -i -e 's/\[daemon\]/[daemon]\nTimedLoginEnable=true\nTimedLogin=openssuser\nTimedLoginDelay=1/' /etc/gdm/custom.conf
+sed -i -e 's/\[daemon\]/[daemon]\nAutomaticLoginEnable=true\nAutomaticLogin=openssuser\nTimedLoginEnable=true\nTimedLogin=openssuser\nTimedLoginDelay=0/' /etc/gdm/custom.conf
 if [ -e /usr/share/icons/hicolor/96x96/apps/fedora-logo-icon.png ] ; then
     cp /usr/share/icons/hicolor/96x96/apps/fedora-logo-icon.png /home/openssuser/.face
     chown openssuser:openssuser /home/fedora/.face
@@ -154,7 +155,7 @@ echo "export OPENSS_PREFIX=/opt/OSS" >> /root/.bashrc.oss
 echo "export OPENSS_PLUGIN_PATH=\\\$OPENSS_PREFIX/lib64/openspeedshop" >> /root/.bashrc.oss
 echo "export OPENSS_DOC_DIR=\\\$OPENSS_PREFIX/share/doc/packages/OpenSpeedShop" >> /root/.bashrc.oss
 echo "export OPENSS_INSTRUMENTOR=mrnet" >> /root/.bashrc.oss
-echo "export OPENSS_RAWDATA_DIR=/tmp" >> /root/.bashrc.oss
+echo "export OPENSS_RAWDATA_DIR=/opt/shared" >> /root/.bashrc.oss
 echo "export OPENSS_MPI_IMPLEMENTATION=openmpi" >> /root/.bashrc.oss
 echo "export DYNINSTAPI_RT_LIB=\\\$OPENSS_PREFIX/lib64/libdyninstAPI_RT.so" >> /root/.bashrc.oss
 echo "export PATH=\\\$OPENSS_PREFIX/bin:/usr/lib64/openmpi/bin:\\\$PATH" >> /root/.bashrc.oss
@@ -172,6 +173,8 @@ rm -f /root/.bashrc.oss
 
 mkdir -p /home/openssuser/.config/autostart
 chmod 775 /home/openssuser/.config/autostart
+mkdir -p /opt/shared
+chmod 777 /opt/shared
 
 echo "[Desktop Entry]" > /root/.firefox.desktop
 echo "Type=Application" >> /root/.firefox.desktop
