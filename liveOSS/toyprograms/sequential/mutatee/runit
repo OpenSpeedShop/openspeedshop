@@ -1,6 +1,16 @@
-
+#
+# original syntax prior to convenience scripts
 #openss -f mutatee usertime
 #or
+# convenience script format
 ossusertime mutatee
 
+# optional experiments
+# osspcsamp mutatee
+# osshwc mutatee
+# osshwcsamp mutatee
+# osshwctime mutatee
+# ossio mutatee (no i/o in mutatee)
+# ossiot mutatee (no i/o in mutatee)
+# ossfpe mutatee (no fp in mutatee)
 
