@@ -1,7 +1,11 @@
 
+# Run outside of OpenSpeedShop
 #./matmul < matmul_input.txt
 
+# original syntax prior to convenience scripts
 #openss -f "./matmul < ./matmul_input.txt" usertime
+#
 #or
 #
+# convenience script syntax
 ossusertime "./matmul < ./matmul_input.txt"
