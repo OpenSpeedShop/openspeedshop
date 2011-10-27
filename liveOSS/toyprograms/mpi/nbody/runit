@@ -1,7 +1,15 @@
 
+# original syntax prior to convenience scripts
 #openss -f "mpirun -np 2 nbody" pcsamp
 #or
+# convenience script examples
 osspcsamp "mpirun -np 2 nbody" 
+ossusertime "mpirun -np 2 nbody" 
+osshwc "mpirun -np 2 nbody" PAPI_L1_DCM
+osshwctime "mpirun -np 2 nbody" PAPI_L1_DCA
+osshwcsamp "mpirun -np 2 nbody" PAPI_ST_RES
+ossmpi "mpirun -np 2 nbody" MPI_Send,MPI_Recv
+ossmpit "mpirun -np 2 nbody" 
 
 # to view
-#openss -f nbody.pcsamp.openss
+openss -f nbody.pcsamp.openss

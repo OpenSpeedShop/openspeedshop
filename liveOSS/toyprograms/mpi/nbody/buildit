@@ -1,3 +1,4 @@
-mpicc -o nbody -O0 -g nbody-mpi.c
+
+mpicc -o nbody -O1 -g nbody-mpi.c
 
 
