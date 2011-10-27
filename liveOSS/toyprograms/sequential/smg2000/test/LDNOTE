@@ -1,3 +1,0 @@
-
-setenv LD_PRELOAD /lib64/libdl-2.4.so
-dpcld -p localhost.localdomain:15001
