@@ -1,3 +1,2 @@
-
 gcc -o mutatee -O0 -g mutatee.c
 
