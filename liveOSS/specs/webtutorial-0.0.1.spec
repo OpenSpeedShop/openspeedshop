@@ -1,7 +1,7 @@
 Summary: Web Tutorial For Use In OpenSpeedShop-Live
 Name: webtutorial
 Version: 0.0.1
-Release: 2
+Release: 3
 License: GPL
 Group: Documentation
 URL: http://www.openspeedshop.org/
@@ -47,6 +47,8 @@ fi
 %{prefix}/*
 
 %changelog
+* Thu Oct 27 2011 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
+- Add SC2011 tutorial slides webtutorial-0.0.1 - 3
 * Thu Oct 7 2010 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
 - Add SC2010 tutorial slides webtutorial-0.0.1 - 2
 * Tue Aug 4 2009 Jim Galarowicz <jeg@krellinst.org> - 0.0.1

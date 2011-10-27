@@ -1,7 +1,7 @@
 Summary: Sample Applications For Use In OpenSpeedShop-Live
 Name: toyprograms
 Version: 0.0.1
-Release: 3
+Release: 4
 License: GPL
 Group: Development/Libraries
 URL: http://www.openspeedshop.org/
@@ -60,6 +60,8 @@ install -D -m ugo+rw utilities/*.c $RPM_BUILD_ROOT%{prefix}/sequential/smg2000/u
 install -D -m ugo+rw utilities/*.h $RPM_BUILD_ROOT%{prefix}/sequential/smg2000/utilities/
 install -D -m ugo+rw utilities/*.a $RPM_BUILD_ROOT%{prefix}/sequential/smg2000/utilities/
 
+
+install -D -m ugo+rw test/README.txt $RPM_BUILD_ROOT%{prefix}/sequential/smg2000/test/
 install -D -m ugo+rw test/*.c $RPM_BUILD_ROOT%{prefix}/sequential/smg2000/test/
 install -D -m ugo+rwx test/smg2000 $RPM_BUILD_ROOT%{prefix}/sequential/smg2000/test/
 
@@ -133,6 +135,7 @@ install -D -m ugo+rw utilities/*.c $RPM_BUILD_ROOT%{prefix}/mpi/smg2000/utilitie
 install -D -m ugo+rw utilities/*.h $RPM_BUILD_ROOT%{prefix}/mpi/smg2000/utilities/
 install -D -m ugo+rw utilities/*.a $RPM_BUILD_ROOT%{prefix}/mpi/smg2000/utilities/
 
+install -D -m ugo+rw test/README.txt $RPM_BUILD_ROOT%{prefix}/mpi/smg2000/test/
 install -D -m ugo+rw test/*.c $RPM_BUILD_ROOT%{prefix}/mpi/smg2000/test/
 install -D -m ugo+rwx test/smg2000 $RPM_BUILD_ROOT%{prefix}/mpi/smg2000/test/
 
@@ -147,6 +150,7 @@ cd ../..
 mkdir -p $RPM_BUILD_ROOT%{prefix}/mpi/LU
 cd mpi/LU
 
+install -D -m ugo+rw README.txt $RPM_BUILD_ROOT%{prefix}/mpi/LU/
 install -D -m ugo+rw *.f $RPM_BUILD_ROOT%{prefix}/mpi/LU/
 install -D -m ugo+rw *.openss $RPM_BUILD_ROOT%{prefix}/mpi/LU/
 install -D -m ugo+rwx Makefile $RPM_BUILD_ROOT%{prefix}/mpi/LU/
@@ -166,6 +170,7 @@ install -D -m ugo+rwx buildit $RPM_BUILD_ROOT%{prefix}/multi/openmp_stress
 cd ../..
 cd hybrid
 mkdir -p $RPM_BUILD_ROOT%{prefix}/hybrid
+install -D -m ugo+rw README.txt $RPM_BUILD_ROOT%{prefix}/hybrid
 install -D -m ugo+rw *.f $RPM_BUILD_ROOT%{prefix}/hybrid
 install -D -m ugo+rw *.openss $RPM_BUILD_ROOT%{prefix}/hybrid
 
@@ -183,6 +188,8 @@ fi
 %{prefix}/*
 
 %changelog
+* Thu Oct 27 2011 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
+- Add more README information for users.  - 4
 * Tue Oct 17 2011 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
 - Add hybrid directory for hybrid NPB BT  - 3
 * Thu Oct 7 2010 Jim Galarowicz <jeg@krellinst.org> - 0.0.1
