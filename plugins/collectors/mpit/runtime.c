@@ -103,11 +103,24 @@ void defer_trace(int defer_tracing) {
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
     TLS* tls = OpenSS_GetTLS(TLSKey);
+
+    if (tls == NULL) {
+       tls = malloc(sizeof(TLS));
+       Assert(tls != NULL);
+       OpenSS_SetTLS(TLSKey, tls);
+       mpit_init_tls_done = 1;
+    }
 #else
     TLS* tls = &the_tls;
 #endif
-    Assert(tls != NULL);
+
     tls->do_trace = defer_tracing;
+#ifndef NDEBUG
+    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+        fprintf(stderr,"MPI setting defer_trace to %d for HOST %s, pid %d, posix_tid %#lux\n",
+               tls->do_trace, tls->header.host, tls->header.pid, tls->header.posix_tid);
+    }
+#endif
 }
 
 
@@ -125,7 +138,8 @@ static void mpit_send_events(TLS *tls)
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"MPIT Collector runtime sends data:\n");
+        fprintf(stderr,"MPI mpi_send_events SENDS DATA for HOST %s, pid %d, posix_tid %#lux\n",
+               tls->header.host, tls->header.pid, tls->header.posix_tid);
         fprintf(stderr,"time(%lu,%#lu) addr range [%#lx, %#lx] "
 		" stacktraces_len(%d) events_len(%d)\n",
             tls->header.time_begin,tls->header.time_end,
@@ -362,10 +376,13 @@ void mpit_start_tracing(const char* arguments)
 
     /* Create and access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
-    TLS* tls = malloc(sizeof(TLS));
-    Assert(tls != NULL);
-    OpenSS_SetTLS(TLSKey, tls);
-    mpit_init_tls_done = 1;
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+    if (tls == NULL) {
+       tls = malloc(sizeof(TLS));
+       Assert(tls != NULL);
+       OpenSS_SetTLS(TLSKey, tls);
+       mpit_init_tls_done = 1;
+    }
 #else
     TLS* tls = &the_tls;
 #endif
@@ -376,6 +393,7 @@ void mpit_start_tracing(const char* arguments)
 	fprintf(stderr,"ENTERED mpit_start_tracing for %d\n",getpid());
     }
 #endif
+
 
     /* Decode the passed function arguments. */
     memset(&args, 0, sizeof(args));
@@ -421,6 +439,8 @@ void mpit_start_tracing(const char* arguments)
     tls->data.stacktraces.stacktraces_val = tls->buffer.stacktraces;
     tls->data.events.events_len = 0;
     tls->data.events.events_val = tls->buffer.events;
+
+    unsetenv("LD_PRELOAD");
 
     /* Set the begin time of this data blob */
     tls->header.time_begin = OpenSS_GetTime();
