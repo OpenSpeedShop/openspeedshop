@@ -101,10 +101,17 @@ void defer_trace(int defer_tracing) {
     /* Access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
     TLS* tls = OpenSS_GetTLS(TLSKey);
+
+    if (tls == NULL) {
+       tls = malloc(sizeof(TLS));
+       Assert(tls != NULL);
+       OpenSS_SetTLS(TLSKey, tls);
+       mpi_init_tls_done = 1;
+    }
 #else
     TLS* tls = &the_tls;
 #endif
-    Assert(tls != NULL);
+
     tls->do_trace = defer_tracing;
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
@@ -367,10 +374,13 @@ void mpi_start_tracing(const char* arguments)
 
     /* Create and access our thread-local storage */
 #ifdef USE_EXPLICIT_TLS
-    TLS* tls = malloc(sizeof(TLS));
-    Assert(tls != NULL);
-    OpenSS_SetTLS(TLSKey, tls);
-    mpi_init_tls_done = 1;
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+    if (tls == NULL) {
+       tls = malloc(sizeof(TLS));
+       Assert(tls != NULL);
+       OpenSS_SetTLS(TLSKey, tls);
+       mpi_init_tls_done = 1;
+    }
 #else
     TLS* tls = &the_tls;
 #endif
@@ -381,6 +391,7 @@ void mpi_start_tracing(const char* arguments)
 	fprintf(stderr,"ENTERED mpi_start_tracing for %d\n",getpid());
     }
 #endif
+
 
     /* Decode the passed function arguments. */
     memset(&args, 0, sizeof(args));
@@ -426,6 +437,8 @@ void mpi_start_tracing(const char* arguments)
     tls->data.stacktraces.stacktraces_val = tls->buffer.stacktraces;
     tls->data.events.events_len = 0;
     tls->data.events.events_val = tls->buffer.events;
+
+    unsetenv("LD_PRELOAD");
 
     /* Set the begin time of this data blob */
     tls->header.time_begin = OpenSS_GetTime();
