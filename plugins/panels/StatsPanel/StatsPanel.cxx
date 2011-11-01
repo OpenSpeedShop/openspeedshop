@@ -14119,6 +14119,8 @@ if (currentCollectorStr != lastCollectorStr ||
     bool full_display_by_menu = TRUE;
     if (currentCollectorStr.contains("mpi") || currentCollectorStr.contains("io")) {
       full_display_by_menu = FALSE;
+      vDisplayTypeStatementRB = NULL;
+      vDisplayTypeLinkedObjectRB = NULL;
     }
 
 #ifdef DEBUG_StatsPanel_toolbar
@@ -14166,11 +14168,19 @@ if (currentCollectorStr != lastCollectorStr ||
     }
 
 #if 1
-    vDisplayTypeFunctionRB->show();
-    vDisplayTypeStatementRB->show();
-    vDisplayTypeLinkedObjectRB->show();
+    if (vDisplayTypeFunctionRB) {
+      vDisplayTypeFunctionRB->show();
+    }
+    if (vDisplayTypeStatementRB) {
+      vDisplayTypeStatementRB->show();
+    }
+    if (vDisplayTypeLinkedObjectRB) {
+      vDisplayTypeLinkedObjectRB->show();
+    }
 #else
-    vDisplayTypeBG->show();
+    if (vDisplayTypeBG) {
+      vDisplayTypeBG->show();
+    }
 #endif
   }
 #endif
