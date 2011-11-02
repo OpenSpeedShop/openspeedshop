@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html;
+      charset=ISO-8859-1">
+    <title>Using Open|SpeedShop&#8482;</title>
+    <style type="text/css">
+table.exp {
+	border-width: 0px 0px 0px 0px;
+	border-spacing: 0px;
+	border-style: outset outset outset outset;
+	border-color: gray gray gray gray;
+	border-collapse: collapse;
+	background-color: white;
+	width:80%;
+	height:80%;
+}
+table.exp th {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+table.exp td {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+  </style>
+  </head>
+  <body>
+    <br>
+    <center> <img src="../img/OpenSpeedShop_Logo.jpg"> <br>
+      <big>Using Open|SpeedShop&#8482;</big><br>
+    </center>
+    <h2 id="climpi">Comparing performance data from different executions
+      of an application.</h2>
+    For this tutorial, we will run matmul under Open|SpeedShop using the
+    pcsamp experiment, then modify the source and run matmul <br>
+    again using the pcsamp experiment.&nbsp;&nbsp; Then we will use the
+    osscompare script to show the differences.<br>
+    <br>
+    <h3> Using the convenience scripts to compare a base run and a run
+      after modifying the source</h3>
+    Here we show the two malmul directories, one with the original
+    source (orig) and the other directory where the "do" loops have been<br>
+    swapped to improve performance.&nbsp; By running an experiment on
+    the application built with the respective sources we can compare how<br>
+    much performance has improved.<br>
+    <br>
+    <br>
+    <img style=" width: 1241px; height: 715px;" alt="Comparison -
+      Running experiment 1" src="../img/matmul_compare1.png"><br>
+    <br>
+    <br>
+    Using the command: ossusertime "matmul &lt; matmul_input.txt" we
+    show the end of the application output and the Open|SpeedShop<br>
+    default convenience script (ossusertime) output for the original
+    source.<br>
+    <br>
+    <br>
+    <img style=" width: 1241px; height: 715px;" alt="Compare 2"
+      src="../img/matmul-compare2.png"><br>
+    <br>
+    <br>
+    Note: we now see the Open|SpeedShop database file:&nbsp;
+    matmul_input.txt-usertime.openss in the orig directory.&nbsp;&nbsp;
+    This is the result of the ossusertime<br>
+    command done in the figure above.<br>
+    <br>
+    <br>
+    <img style=" width: 1241px; height: 535px;" alt="Compare 3"
+      src="../img/matmul-compare3.png"><br>
+    <br>
+    Here we show the output for the ossusertime experiment run on the
+    modified source version of the applicaton.<br>
+    <br>
+    <img style=" width: 1241px; height: 697px;" alt="Compare 4"
+      src="../img/matmul-compare4.png"><br>
+    <br>
+    Here we show the new database file for the run of ossusertime on the
+    modified source version of the application.&nbsp;&nbsp; We also show
+    the syntax of<br>
+    the osscompare convenience script that will compare one run against
+    the other.<br>
+    <br>
+    <img style=" width: 1241px; height: 697px;" alt="Compare 5"
+      src="../img/matmul-compare5.png"><br>
+    <br>
+    <br>
+    Here we see that the modified version has a significant speed-up due
+    to the source changes, as i4_ijk_ is three times faster.<br>
+    Note the legend shows column headers that use "-c nn" syntax.&nbsp;
+    This is internal to Open|SpeedShop and somewhat difficult to change,<br>
+    so we map these back to the database names.&nbsp; <br>
+    <br>
+    <img style=" width: 1250px; height: 697px;" alt="Compare 6"
+      src="../img/matmul-compare6.png"><br>
+    <br>
+    Note: Here we use the compare metric of "percent" to compare
+    against.&nbsp;&nbsp; The syntax of osscompare allows many options
+    for the metric argument.<br>
+    Anything that the Command Line Interface (CLI) tool will accept as a
+    "-m arg" argument, can be used as the osscompare metric.<br>
+    <br>
+    <img style=" width: 1250px; height: 697px;" alt="Compare 7"
+      src="../img/matmul-compare7.png"><br>
+    <br>
+    With the environment variable OPENSS_CREATE_CSV set, osscompare will
+    create two files in addition to the side-by-side compare listing.<br>
+    The files are a comma separated list file that can be imported to
+    spreadsheet programs for graphing and a text based file that can be
+    kept <br>
+    as a record of the compare.&nbsp;&nbsp;&nbsp; The comparison must be
+    done twice to create these files so that is why the environment
+    variable was created. <br>
+    Some users only want the side-by-side listing.<br>
+    <br>
+    <img style=" width: 1250px; height: 805px;" alt="Compare 8-9"
+      src="../img/matmul-compare9.png"><br>
+    <br>
+    Here we compare using the metric: inclusive_time.&nbsp;&nbsp; This
+    metric includes the time spent in the function (xyz for example) and
+    all the time spent <br>
+    in the functions it (xyz for example) calls.<br>
+    <br>
+    <img style=" width: 1250px; height: 913px;" alt="Compare 10"
+      src="../img/matmul-compare10.png"><br>
+    <br>
+    Executing osscompare without arguments gives the help output.&nbsp;
+    Note you can compare at the Function, Statement, or Linked Object
+    (libray)<br>
+    level.&nbsp;&nbsp; Use the viewtype= option to select the view type
+    level of comparison.<br>
+    <br>
+    <img style=" width: 1223px; height: 625px;" alt="Help image"
+      src="../img/matmul-compare11.png"><br>
+    <br>
+    Here we show a comparison by statement limiting the output to 5 rows
+    and naming the output files pizza.csv and pizza.txt.<br>
+    <br>
+    <img style=" width: 1223px; height: 643px;" alt="by statement"
+      src="../img/matmul-compare12.png"><br>
+    <br>
+    Thanks!<br>
+    <br>
+    Please visit the Open|SpeedShop forum if you have questions:&nbsp; <a
+      href="http://www.openspeedshop.org/forums/index.php">Open|SpeedShop
+      Forum.</a><br>
+    <br>
+    <a href="../index.html">Back To Getting Started With Open|SpeedShop</a>
+  </body>
+</html>

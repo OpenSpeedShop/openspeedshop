@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html;
+      charset=ISO-8859-1">
+    <title>Using Open|SpeedShop&#8482;</title>
+    <style type="text/css">
+table.exp {
+	border-width: 0px 0px 0px 0px;
+	border-spacing: 0px;
+	border-style: outset outset outset outset;
+	border-color: gray gray gray gray;
+	border-collapse: collapse;
+	background-color: white;
+	width:80%;
+	height:80%;
+}
+table.exp th {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+table.exp td {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+  </style>
+  </head>
+  <body>
+    <center> <img src="../img/OpenSpeedShop_Logo.jpg"> <br>
+      <big>Using Open|SpeedShop&#8482;</big><br>
+    </center>
+    <h2 id="climpi">Using Open|SpeedShop's Convenience Script Syntax<br>
+    </h2>
+    <p><small style="font-family: Courier New,Courier,monospace;">Within
+        a terminal window, enter</small><span style="font-family:
+        Courier New,Courier,monospace;">:</span>&nbsp; <b><font
+          face="courier"><br>
+          ossusertime "mpirun -np 2
+          /home/openssuser/mpi/smg2000/test/smg2000 -n 50 50 50"<br>
+        </font></b><font face="courier"><br>
+      </font><font face="courier"><small style="font-family: Courier
+          New,Courier,monospace;">This corresponds to the general full
+          syntax command form: </small></font><b><font face="courier"><br>
+          openss -f "executable_or_mpi_application"
+          &lt;experiment_type&gt;<br>
+        </font></b></p>
+    <p><font face="courier"><small style="font-family: Courier
+          New,Courier,monospace;">The Open|SpeedShop team suggests using
+          the convenience command form<span style="font-weight: bold;">
+            which follows this general form:</span></small></font><b><font
+          face="courier"><br>
+          oss&lt;experiment_type&gt; "</font></b><b><font face="courier">executable_or_mpi_application"</font></b>
+    </p>
+    <p>The convenience script command will start Open|SpeedShop's
+      immediate command interface and execute the executable or
+      application with Open|SpeedShop's performance analysis gathering
+      enabled.<br>
+      <br>
+      The output/results will be: <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+      1) Application execution output<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+2)
+
+      Performance analysis data report generation<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+3)
+
+      An Open|SpeedShop database file<br>
+    </p>
+    <p>In this particular example, we are going to gather user time
+      information from an MPI job (<b>Note:</b> We are going to simulate
+      an MPI run by oversubscribing our processor). <br>
+    </p>
+    <p>For demonstration purposes, we are going to gather information
+      from one of Open|SpeedShop's supported implementations of the
+      message passing interface - OpenMPI. <br>
+      We have provided test binaries that can be utilized for our
+      purposes. </p>
+    <p>Within the terminal window, enter:<br>
+      <b><font face="courier"></font></b><b><font face="courier">ossusertime
+
+          "mpirun -np 2 /home/openssuser/mpi/smg2000/test/smg2000 -n 50
+          50 50"<br>
+        </font></b></p>
+    <p><b><br>
+        Note: </b> In these particular cases, the double quotes are
+      required.&nbsp;&nbsp; Open|SpeedShop accepts the executable or
+      application with the syntax that is used to run the executable or
+      application normally, with it enclosed in quotes.<br>
+    </p>
+    <p>When executing the application under control of Open|SpeedShop we
+      will be greeted with the program output and the usertime
+      experiment results for the smg2000 application.<br>
+      <br>
+    </p>
+    &nbsp; <img style=" width: 1259px; height: 679px;" alt="Running
+      ossusertime on smg2000" src="../img/smg2000-usertime-immed1.png"><br>
+    <br>
+    <img style=" width: 1259px; height: 679px;" alt="Output from
+      ossusertime" src="../img/smg2000-usertime-immed2.png"><br>
+    <br>
+    <br>
+    <img style=" width: 1259px; height: 679px;" alt="CLI output"
+      src="../img/smg2000-usertime-immed3.png"><br>
+    <br>
+    <img style=" width: 1196px; height: 589px;" alt="More CLI output"
+      src="../img/smg2000-usertime-immed4.png"><br>
+    <p>Once the experiment has terminated, we can view the collected
+      data in other forms than that of the default output by going
+      through the GUI by using the command: <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+      <span style="font-weight: bold;">openss -f</span>
+      smg2000.usertime.openss.&nbsp;&nbsp; <br>
+    </p>
+    <p>smg2000.usertime.openss is the name of the database file created
+      by Open|SpeedShop<br>
+      after running the usertime experiment on smg2000.&nbsp;&nbsp;
+      Open|SpeedShop uses the name of the application and the name of
+      the experiment type to form the performance results database file
+      name.<br>
+    </p>
+    <p>The opening of the performance database creates the default view
+      corresponding to the experiment type.&nbsp; For usertime, the
+      default view is shown below.<br>
+    </p>
+    <p><img style=" width: 1087px; height: 727px;" alt="Default GUI
+        view" src="../img/smg2000-usertime-gui1.png"><br>
+    </p>
+    Please also explore the various options offered via a panel's pull
+    down menu. Further options can be accessed by clicking on a colored
+    downward-facing arrow or<br>
+    using the StatsPanel icons.&nbsp; Red icons represent view options,
+    such as updating the data or clearing the view options. The "green"
+    icons correspond to different <br>
+    possible views of the usertime data.&nbsp;&nbsp; The "dark blue"
+    icons correspond to analysis options while the "light blue" icon
+    corresponds to information about the experiment.<br>
+    There is context sensitive text that is shown when you hover over
+    the icons.<br>
+    <br>
+    <img style=" width: 1087px; height: 727px;" alt="Statement View"
+      src="../img/smg2000-usertime-gui2.png"><br>
+    <br>
+    Here is an example of panel splitting so that the SourcePanel and
+    StatsPanel can be side by side.<br>
+    <br>
+    The first step done to create this view was to click on the "S" icon
+    to get the performance data shown on a per statement basis.&nbsp;
+    Then double click on the first statement in that<br>
+    view, that focuses the source panel on that line.&nbsp;&nbsp; Drag
+    the ManageProcess panel to the bottom panel area (next to the
+    CommandPanel)&nbsp; Then click on the the vertical split panel icon<br>
+    on the far right side of the area containing the Source and Stats
+    panels.&nbsp;&nbsp; This will split the existing panel space into
+    two panels with the source being in one and the statistics being<br>
+    in the other.<br>
+    <br>
+    <br>
+    <br>
+    <img style=" width: 1087px; height: 727px;" alt="Source and Stats
+      Panel view - statement that took the most time"
+      src="../img/smg2000-usertime-gui3.png"><br>
+    <br>
+    Focus the Stats Panel on an individual rank using the
+    ManageProcessPanel by using the right mouse button down over the
+    rank or thread you want to focus on.&nbsp; Then choose Focus on rank
+    when wanting to focus on a rank and its underlying
+    threads.&nbsp;&nbsp; Or choose focus on Threads or Processes when
+    you want a particular rank and thread combination (if multiple
+    threads within a rank).<br>
+    <br>
+    <img style=" width: 1087px; height: 727px;" alt="How to focus on
+      individual ranks" src="../img/smg2000-usertime-gui4.png"><br>
+    <br>
+    <br>
+    Thanks!<br>
+    <br>
+    Please visit the Open|SpeedShop forum if you have questions:&nbsp; <a
+      href="http://www.openspeedshop.org/forums/index.php">Open|SpeedShop
+      Forum.</a><br>
+    <br>
+    <a href="../index.html">Back To Getting Started With Open|SpeedShop</a>
+  </body>
+</html>

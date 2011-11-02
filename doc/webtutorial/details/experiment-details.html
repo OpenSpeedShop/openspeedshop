@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  <title>Available Experiments</title>
+  <style type="text/css">
+table.exp {
+    border-width: 0px 0px 0px 0px;
+    border-spacing: 0px;
+    border-style: outset outset outset outset;
+    border-color: gray gray gray gray;
+    border-collapse: collapse;
+    background-color: white;
+    width:80%;
+    height:80%;
+}
+table.exp th {
+    border-width: 1px 1px 1px 1px;
+    padding: 7px 7px 7px 7px;
+    border-style: inset inset inset inset;
+    border-color: gray gray gray gray;
+    background-color: white;
+    -moz-border-radius: 0px 0px 0px 0px;
+}
+table.exp td {
+    border-width: 1px 1px 1px 1px;
+    padding: 7px 7px 7px 7px;
+    border-style: inset inset inset inset;
+    border-color: gray gray gray gray;
+    background-color: white;
+    -moz-border-radius: 0px 0px 0px 0px;
+}
+  </style>
+</head>
+<body>
+<center> <img src="../img/OpenSpeedShop_Logo.jpg"> <br>
+Available Experiments <br>
+</center>
+<h2>Available Experiments</h2>
+<p><b>Table: Summary of Experiments</b></p>
+<table class="exp">
+  <colgroup><col char="c" align="left"><col char="c" align="left"> <col
+ char="c" align="left"></colgroup><thead valign="bottom"> <tr
+ valign="top">
+    <th scope="col" char="c" valign="bottom" align="center">
+    <p>Experiment</p>
+    </th>
+    <th scope="col" char="c" valign="bottom" align="center">
+    <p>Clues</p>
+    </th>
+    <th scope="col" char="c" valign="bottom" align="center">
+    <p>Data Collected</p>
+    </th>
+  </tr>
+  </thead><tbody valign="top">
+    <tr valign="top">
+      <td scope="row" char="c" valign="top" align="left">
+      <p><tt>fpe</tt></p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>High system time. Presence of floating point operations.</p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>All floating-point exceptions, with the exception type and the
+call stack at the time of the exception.<br>
+      </p>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td scope="row" char="c" valign="top" align="left">
+      <p><tt>hwc</tt></p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>High user CPU time.</p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>Counts at the source line, machine instruction, and function
+levels of various hardware events, including: clock cycles, graduated
+instructions, primary instruction cache misses, secondary instruction
+cache misses, primary data cache misses, secondary data cache misses,
+translation lookaside buffer (TLB) misses, and graduated floating-point
+instructions.&nbsp; PC sampling is used.&nbsp;&nbsp; </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><tt>hwcsamp</tt></td>
+      <td style="vertical-align: top;">High user CPU time.</td>
+      <td style="vertical-align: top;">Similar to <span
+ style="font-family: monospace;">pcsamp</span> experiment, except that
+up to six (6) hardware counter event are read in addition to the
+program counter.<br>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td scope="row" char="c" valign="top" align="left">
+      <p><tt>hwctime</tt></p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>High user CPU time.</p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>Similar to <tt>hwc</tt> experiment, except that callstack
+sampling is used.&nbsp;&nbsp; </p>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td scope="row" char="c" valign="top" align="left">
+      <p><tt>io</tt></p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>I/O-bound.</p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>Times the following I/O system calls: <tt>read</tt>, <tt>readv</tt>,
+
+      <tt>write</tt>, <tt>writev</tt>, <tt>open</tt>, <tt>close</tt>,
+
+      <tt>dup</tt>, <tt>pipe</tt>, <tt>creat</tt>.&nbsp;&nbsp; The
+time reported is wall clock time.<br>
+      </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><tt>iot</tt></td>
+      <td style="vertical-align: top;">I/O-bound.</td>
+      <td style="vertical-align: top;">Traces and times the following
+I/O system calls: <tt>read</tt>, <tt>readv</tt>, <tt>write</tt>, <tt>writev</tt>,
+
+      <tt>open</tt>, <tt>close</tt>, <tt>dup</tt>, <tt>pipe</tt>, <tt>creat</tt>.&nbsp;&nbsp;
+The
+time reported is wall clock time.&nbsp;&nbsp; Output can optionally
+be a time sorted line of output per each I/O system call.<br>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td scope="row" char="c" valign="top" align="left">
+      <p><tt>mpi</tt></p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>MPI performance is poor.</p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>Times calls to various MPI routines.&nbsp;&nbsp; The time
+reported is wall clock time.<br>
+      <br>
+      </p>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td scope="row" char="c" valign="top" align="left">
+      <p><tt>mpiotf</tt></p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>MPI performance is poor.</p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>Traces and times calls to various MPI routines and creates
+Open Trace Format (OTF) files.&nbsp;&nbsp; Output is Open Trace Format
+(OTF) files that need to be read by another tool, such as Vampir-NG.
+All calls are accounted for - no sampling. .&nbsp;&nbsp; The time
+reported is wall clock time.<br>
+      <br>
+      </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><tt>mpit</tt></td>
+      <td style="vertical-align: top;">MPI performance is poor <br>
+      </td>
+      <td style="vertical-align: top;">Traces and times calls to
+various MPI routines.&nbsp;&nbsp; Output can optionally be a line of
+trace per MPI call.&nbsp; All calls are accounted for - no
+sampling.&nbsp;&nbsp; The time reported is wall clock time.<br>
+      <br>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td scope="row" char="c" valign="top" align="left">
+      <p><tt>pcsamp</tt></p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>High user CPU time.</p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>Actual CPU time at the source line, machine instruction, and
+function levels by sampling the program counter at 10 or 1-millisecond
+intervals.</p>
+      </td>
+    </tr>
+    <tr valign="top">
+      <td scope="row" char="c" valign="top" align="left">
+      <p><tt>usertime</tt></p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>Slow program, nothing else known. Not CPU-bound. </p>
+      </td>
+      <td char="c" valign="top" align="left">
+      <p>Inclusive and exclusive CPU time for each function by sampling
+the callstack at 30-millisecond intervals.</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<a href="../index.html">Back To Getting Started With Open|SpeedShop</a>
+</body>
+</html>

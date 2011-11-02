@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html;
+      charset=ISO-8859-1">
+    <title>Open|SpeedShop&#8482; Invocation</title>
+    <style type="text/css">
+table.exp {
+	border-width: 0px 0px 0px 0px;
+	border-spacing: 0px;
+	border-style: outset outset outset outset;
+	border-color: gray gray gray gray;
+	border-collapse: collapse;
+	background-color: white;
+	width:80%;
+	height:80%;
+}
+table.exp th {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+table.exp td {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+  </style>
+  </head>
+  <body>
+    <center> <img src="../img/OpenSpeedShop_Logo.jpg"> <br>
+      Open|SpeedShop&#8482; Invocation<br>
+    </center>
+    <h2>Open|SpeedShop Invocation</h2>
+    <b>Open|SpeedShop</b> will be invoked by the user typing the <span
+      style="font-weight: bold;">"openss"</span>
+    command or by using an <span style="font-weight: bold;">Open|SpeedShop</span>
+    convenience script.<br>
+    When the user invokes <b>Open|SpeedShop</b> <span
+      style="font-weight: bold;">"openss"</span> command there are
+    three options for its mode of operation:<br>
+    <blockquote>
+      <ul>
+        <li>
+          <h3><a class="mozTocH3" name="mozTocId171398"></a>openss -gui</h3>
+        </li>
+      </ul>
+      <div style="margin-left: 40px;">This invocation of <b>Open|SpeedShop</b>
+        causes the GUI to be raised then a command panel is also
+        created. This
+        command panel window becomes the interactive CLI window. Under
+        this
+        invocation <b>Open|SpeedShop</b> interactive commands can be
+        entered
+        into the Graphical User Interface's command panel and have the
+        same
+        effect as if they were entered under the "openss -cli" option.</div>
+      <ul>
+        <li>
+          <h3><a class="mozTocH3" name="mozTocId654701"></a>openss -cli
+            [
+            -online | -offline ]:</h3>
+        </li>
+      </ul>
+      <div style="margin-left: 40px;">This invocation of <b>Open|SpeedShop</b>
+        causes the window terminal becomes the interactive CLI window.</div>
+      <ul>
+        <li>
+          <h3><a class="mozTocH3" name="mozTocId3287"></a>openss -batch:</h3>
+        </li>
+      </ul>
+      <div style="margin-left: 40px;">This invocation of <b>Open|SpeedShop</b>
+        will execute a performance experiment. specified by additional
+        arguments, directly without user interaction. The -batch
+        operation can
+        be used in scripts and batch processing environments.<br>
+      </div>
+      <ul>
+        <li>
+          <h3> openss [ -offline ] -f "executable and
+            arguments" experiment_type:</h3>
+        </li>
+      </ul>
+      <div style="margin-left: 40px;"> This invocation of Open|SpeedShop
+        will execute the command following the -f parameter. The
+        experiment
+        type at the end is the collector used. As this collection method
+        utilizes LD_PRELOAD to intercept calls, it must run during the
+        entire
+        execution time and will output files at the processor level that
+        are
+        post processed to add to the experiment database. <br>
+        <br>
+        An important environment variable for this type of invocation is
+        <span style="font-weight: bold;">OPENSS_RAWDATA_DIR</span>.&nbsp;
+        The <span style="font-weight: bold;">OPENSS_RAWDATA_DIR</span>
+        variable must be
+        defined within the user's environment before OpenSpeedShop is
+        invoked
+        if /tmp is not a shared file system across the cluster. If the
+        <span style="font-weight: bold;">OPENSS_RAWDATA_DIR</span>
+        environment variable is not defined in the user's
+        current terminal session before the invocation of OpenSpeedShop,
+        then
+        all raw performance data files will be placed in
+        /tmp/offline-oss which
+        is expected to be shared file space. <br>
+        <br>
+        Either the -gui or -cli interface can be brought up to load the
+        experiment data for further analysis. <br>
+        <br>
+        <b>NOTE</b>: In general, it is best if a user selects a target
+        directory located where processor written files are best placed.
+        <br>
+        <br>
+        <b>WARNING</b>: Concurrent instances of OpenSpeedShop MUST have
+        unique OPENSS_RAWDATA_DIR target values associated with each
+        respective
+        OpenSpeedShop instance. Also make sure the target exists.<br>
+        <br>
+        <br>
+        These convenience scripts have been developed to hide some of
+        the original command syntax, for example:<br>
+        <br>
+        <span style="font-weight: bold;">osspcsamp</span> "executable" <br>
+        <br>
+        can be used in place of:<br>
+        <br>
+        <span style="font-weight: bold;">openss -offline -f </span>"executable"
+        <span style="font-weight: bold;">pcsamp</span><br>
+        <br>
+        There is a convenience script for each of the <span
+          style="font-weight: bold;">Open|SpeedShop</span> experiments
+        and one for comparing two to eight Open|SpeedShop database files
+        to each other.<br>
+        <ul>
+          <li style="font-weight: bold;">osspcsamp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            - program counter sampling<br>
+          </li>
+          <li style="font-weight: bold;">ossusertime&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            - call path profiling<br>
+          </li>
+          <li style="font-weight: bold;">osshwc&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            - hardware counter overflow/threshold sampling<br>
+          </li>
+          <li style="font-weight: bold;">osshwctime&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            - hardware counter overflow/threshold sampling with call
+            path profiling</li>
+          <li style="font-weight: bold;">osshwcsamp
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;&nbsp; -
+            hardware counter timer based sampling (up to six events for
+            each run)<br>
+          </li>
+          <li style="font-weight: bold;">ossio
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; - Input/Output
+            function tracing with call path profiling<br>
+          </li>
+          <li style="font-weight: bold;">ossiot
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; - Input/Output function
+            tracing with call path profiling and I/O function argument
+            info<br>
+          </li>
+          <li style="font-weight: bold;">ossmpi &nbsp; &nbsp; &nbsp;
+            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; - MPI
+            function tracing with call path profiling</li>
+          <li style="font-weight: bold;">ossmpit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            - MPI function tracing with call path profiling and MPI
+            function argument info</li>
+          <li style="font-weight: bold;">ossmpiot&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            - MPI function tracing with call path profiling and OTF
+            (Open Trace Format) file creation<br>
+          </li>
+          <li><span style="font-weight: bold;">ossfpe&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; - Floating point
+              exeception tracing </span></li>
+          <li><span style="font-weight: bold;">osscompare &nbsp; &nbsp;
+              &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; - Compare
+              Open|SpeedShop database files to each other (one
+              performance analysis run to another, up to 8)</span><br>
+          </li>
+        </ul>
+        See the <a href="../tutorials/OSSQuickStartGuide-093011.pdf">Quick
+          Start Guide</a> for latest syntax.<br>
+        <br>
+        We suggest using the convenience scripts to gather the data and
+        then use the GUI: <span style="font-weight: bold;">openss -f </span>&lt;database
+        file&gt; to view the data.<br>
+      </div>
+    </blockquote>
+    <br>
+    <a href="../index.html">Back To Getting Started With Open|SpeedShop</a>
+  </body>
+</html>
