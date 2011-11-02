@@ -1,0 +1,318 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html;
+      charset=ISO-8859-1">
+    <title>Getting Started With Open|SpeedShop&#8482;</title>
+    <style type="text/css">
+table.exp {
+	border-width: 0px 0px 0px 0px;
+	border-spacing: 0px;
+	border-style: outset outset outset outset;
+	border-color: gray gray gray gray;
+	border-collapse: collapse;
+	background-color: white;
+	width:80%;
+	height:80%;
+}
+table.exp th {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+table.exp td {
+	border-width: 1px 1px 1px 1px;
+	padding: 7px 7px 7px 7px;
+	border-style: inset inset inset inset;
+	border-color: gray gray gray gray;
+	background-color: white;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+  </style>
+  </head>
+  <body>
+    <center> <img src="img/OpenSpeedShop_Logo.jpg"> <br>
+      Getting Started With Open|SpeedShop&#8482; 2.0.1<br>
+      LA-UR-07-7012 <br>
+    </center>
+    <h2> Welcome To OpenSpeedShop Live </h2>
+    Welcome to OpenSpeedShop Live, a live Linux distribution with a
+    pre-configured OpenSpeedShop installation. <br>
+    Test applications:<br>
+    <ul>
+      <li>mpi: smg2000<br>
+      </li>
+      <li>sequential programs: smg2000,forever, mutatee, threads, and
+        matmul.</li>
+      <li>multi-process: omp_stress</li>
+      <li>hybrid: bt database file<br>
+      </li>
+    </ul>
+    These test programs are located in /home/openssuser/sequential
+    and&nbsp; /home/openssuser/mpi.
+    <h2>Open|SpeedShop Tutorials</h2>
+    <ul>
+      <li><a href="tutorials/oss-immediate-mpi-usertime.html">Using
+          Open|SpeedShop's convenience command to run the <span
+            style="font-weight: bold;">usertime</span> experiment, then
+          view with GUI and CLI.<br>
+        </a> </li>
+      <li><a href="tutorials/osscli-mpi-usertime.html">Using
+          Open|SpeedShop's CLI to run the <span style="font-weight:
+            bold;">usertime</span> experiment, then view with GUI and
+          CLI.<br>
+        </a></li>
+      <li><a href="tutorials/oss-hybrid-examples.html">Using
+          Open|SpeedShop for analysis of hybrid (MPI &amp; openMP)
+          applications.</a></li>
+      <li><a href="tutorials/oss-comparing-performance-data.html">Using
+          Open|SpeedShop to compare performance analysis runs
+          (Open|SpeedShop database files) to each other.</a></li>
+    </ul>
+    <br>
+    <h2>Open|SpeedShop Additional Information<br>
+    </h2>
+    <ul>
+      <li><a href="tutorials/ossscript.html">Information about the
+          convenience scripts.</a></li>
+      <li><a href="tutorials/OSSQuickStartGuide.pdf">Latest
+          Open|SpeedShop Quick Start Guide</a><br>
+      </li>
+      <li><a href="tutorials/SC2011_tutorial-monday-v5.pdf">SuperComputing
+
+
+
+
+          2011 Monday November 14 Slide Set</a></li>
+      <li><a href="tutorials/2011-11-sc-friday-v4.pdf">SuperComputing
+          2011 Friday November 18 Slide Set</a></li>
+    </ul>
+    <a href="tutorials/ossgui-attach-pcsamp.html"></a>
+    <ul>
+    </ul>
+    <h2> Brief Open|SpeedShop Overview </h2>
+    Open|SpeedShop is a community effort by <a
+      href="http://www.krellinst.org/"
+onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://www.krellinst.org']);"
+      target="_blank">The Krell Institute</a> with current direct
+    funding from DOE&#8217;s NNSA and Office of Science. It is building on top
+    of a broad list of community infrastructures, most notably Dyninst
+    and MRNet from the Universities of Wisconsin and Maryland,
+    libmonitor from Rice University, and PAPI from the University of
+    Tennessee at Knoxville. Open|SpeedShop is an open source multi
+    platform Linux performance tool which is initially targeted to
+    support performance analysis of applications running on both single
+    node and large scale IA64, IA32, EM64T, AMD64, and IBM Power PC
+    platforms. Support for the Cray XT platform was added in release
+    1.9.3.4 and support for the IBM Blue Gene platforms was added in the
+    2.0.0 release. Further updates to the Blue Gene and Cray platforms
+    were delivered in the 2.0.1 release.&nbsp;&nbsp; Support for
+    shared/dynamic executables on the Cray-XE platforms are included in
+    the 2.0.1 release. <br>
+    <p>Open|SpeedShop is explicitly designed with usability in mind and
+      is for application developers and computer scientists. The base
+      functionality include:</p>
+    <ul type="disc">
+      <li>Sampling Experiments</li>
+      <li>Support for Callstack Analysis</li>
+      <li>Hardware Performance Counters</li>
+      <li>MPI Profiling and Tracing</li>
+      <li>I/O Profiling and Tracing</li>
+      <li>Floating Point Exception Analysis</li>
+    </ul>
+    <p>In addition, Open|SpeedShop is designed to be modular and
+      extensible. It supports several levels of plug-ins which allow
+      users to add their own performance experiments.</p>
+    <p>Open|SpeedShop development is hosted by the Krell Institute. The
+      infrastructure and base components of Open|SpeedShop are released
+      as open source code primarily under LGPL.</p>
+    <p><strong>Highlights</strong><strong></strong></p>
+    <ul type="disc">
+      <li>Comprehensive performance analysis for sequential,
+        multithreaded, and MPI applications</li>
+      <li>No need to recompile the user&#8217;s application.</li>
+      <li>Supports both first analysis steps as well as deeper analysis
+        options for performance experts</li>
+      <li>Easy to use GUI and fully scriptable through a command line
+        interface and Python</li>
+      <li>Supports Linux Systems and Clusters with Intel and AMD
+        processors</li>
+      <li>Extensible through new performance analysis plugins ensuring
+        consistent look and feel</li>
+      <li>In production use on all major cluster platforms at LANL,
+        LLNL, and SNL</li>
+    </ul>
+    <p><strong>Features</strong><strong></strong></p>
+    <ul type="disc">
+      <li>Four user interface options: batch, command line interface,
+        graphical user interface and Python scripting API.</li>
+      <li>Supports multi-platform single system image(SSI) and
+        traditional clusters.</li>
+      <li>Scales to large numbers of processes, threads, and ranks.</li>
+      <li>Ability to automatically create and attach to both sequential
+        and parallel jobs from within Open|SpeedShop.</li>
+      <li>View performance data using multiple customizable views.</li>
+      <li>View intermediate performance measurement data while the
+        experiment is running.</li>
+      <li>Save and restore performance experiment data and symbol
+        information for post experiment performance analysis</li>
+      <li>View performance data for all of application&#8217;s lifetime or
+        smaller time slices.</li>
+      <li>Compare performance results between processes, threads, or
+        ranks between a previous experiment and current experiment.</li>
+      <li>GUI Wizard facility and context sensitive help.</li>
+      <li>Interactive CLI help facility which lists the CLI commands,
+        syntax, and typical usage.</li>
+      <li>Python Scripting API accesses Open|SpeedShop functionality
+        corresponding to CLI commands.</li>
+      <li>Option to automatically group like performing processes,
+        threads, or ranks.</li>
+      <li>Create traces in OTF (Open Trace Format).</li>
+      <li>Comprehensive installation scripts.</li>
+      <li>Support for hybrid MPI and openMP applications.&nbsp;&nbsp;
+        View the performance of the openMP threads that are running
+        inside the MPI ranks.<br>
+      </li>
+    </ul>
+    <br>
+    The Open|SpeedShop web site is located at: <a
+      href="http://www.openspeedshop.org/wp">www.openspeedshop.org</a><a
+      href="http://www.openspeedshop.org/wp"></a><a>.&nbsp; </a><br>
+    <br>
+    Downloads are available from the Open|SpeedShop sourceforge web
+    site: <a href="http://www.sourceforge.net/projects/openss">
+      www.sourceforge.net/projects/openss</a> <br>
+    <a href="details/oss-details.html"></a><b><br>
+    </b>
+    <h2> About Getting Started </h2>
+    The primary focus of this document will be on introducing many of
+    Open|SpeedShop's key features. In particular we will be covering: <br>
+    <ul>
+      <li>Common Terminology</li>
+      <li>Available Experiments</li>
+      <li>Open|SpeedShop Invocation</li>
+      <li>Using Open|SpeedShop's Interactive Command Line Interface
+        (CLI)</li>
+      <li>Using Open|SpeedShop's Graphical User Interface (GUI)</li>
+      <li>Getting More Information</li>
+    </ul>
+    <br>
+    <h2>Common Terminology</h2>
+    Technical terms can have multiple and/or context sensitive meanings,
+    therefore this section attempts to explain and clarify the meanings
+    of the terms used in this document.
+    <ul>
+      <li><b>Experiment:</b> A set of collectors and executables bound
+        together to generate performance metrics.</li>
+      <li><b>Focused Experiment:</b> The current experiment commands
+        operate on. The user may run or view multiple experiments
+        simultaneously and unless a particular experiment is specified
+        directly, the focused experiment will used. Experiments are
+        given an enumeration (expId) for identification.</li>
+      <li><b>Component(s):</b> A somewhat self-contained section of the
+        Open|SpeedShop performance tool. This section of code does a set
+        of specific related tasks for the tool. For example, the GUI
+        component does all the tasks related to displaying
+        Open|SpeedShop wizards, experiment creation, and results using a
+        graphical user interface. The CLI component does similar
+        functions but uses the interactive command line delivery method.</li>
+      <li><b>Collector:</b> The portion of the tool containing logic
+        that is responsible for the gathering of the performance metric.
+        A collector is a portion of the code that is included in the
+        experiment plugin.</li>
+      <li><b>Metric:</b> The entity, which the collector/experiment is
+        gathering. A time, occurrence counter, or other entity, which
+        reflects in some way on the applications performance and is
+        gathered by a performance experiment (by the collector).</li>
+      <li><b>Param:</b> Each collector allows the user to set certain
+        values that control the way a collector behaves. The parameter
+        or param may cause the collector to perform various operations
+        at certain time intervals or it may cause a collector to measure
+        certain types of data. Although Open|SpeedShop provides a
+        standard way to set a parameter, it is up to the individual
+        collector to decide what to do with that information. Detailed
+        documentation about the available parameters is part of the
+        collector's documentation.</li>
+      <li><b>Framework:</b> The set of API functions that allows the
+        user interface to manage the creation and viewing of performance
+        experiments. It is the interface between the user interface and
+        the cluster support and dynamic instrumentation components.</li>
+      <li><b>Plugin:</b> A portion of the performance tool that can be
+        loaded and included in the tool at tool start-up time.
+        Development of the plugin uses a tool specific interface (API)
+        so that the plugin, and the tool it is to be included in, know
+        how to interact with each other. Plugins are normally placed in
+        a specific directory so that the tool knows where to find the
+        plugins.</li>
+      <li><b>Target:</b> This is the application or part of the
+        application one is running the experiment on. In order to fine
+        tune what is being targeted, Open|SpeedShop gives target options
+        that describes file names, host names, thread identifiers, rank
+        identifiers and process identifiers.</li>
+    </ul>
+    <br>
+    <h2>Available Experiments</h2>
+    <p><a href="details/experiment-details.html">Table: Summary of
+        Experiments</a></p>
+    <ul>
+      <li><b>fpe:</b> Collects all floating-point exceptions with the
+        call stack and the time of exception. </li>
+      <li><b>hwc:</b> Counts at the source line, machine instruction,
+        and function levels of various hardware events. </li>
+      <li><b>hwctime:</b> Similar to <b>hwc</b>, except that callstack
+        sampling is used.</li>
+      <li><span style="font-weight: bold;">hwcsamp:</span> Similar to
+        pcsamp, except that up to 6 hardware counter registers are read
+        in addition to the program counter sampling.<br>
+      </li>
+      <li><b>io:</b> Times I/O system calls. The time reported is wall
+        clock time. </li>
+      <li><b>iot:</b> Traces and times I/O system calls. The time
+        reported is wall clock time. </li>
+      <li><b>mpi:</b> Times calls to various MPI routines. The time
+        reported is wall clock time. </li>
+      <li><b>mpiotf:</b> Traces ant time to various MPI routines - OTF
+        format. The time reported is wall clock time. </li>
+      <li><b>mpit:</b> Traces and times calls to various MPI routines.
+        The time reported is wall clock time. </li>
+      <li><b>pcsamp:</b> Actual CPU time at the source line, machine
+        instruction, and function level. </li>
+      <li><b>usertime:</b> Inclusive and exclusive CPU time for each
+        function. </li>
+    </ul>
+    <br>
+    <h2>Open|SpeedShop Invocation</h2>
+    <a href="details/invocation-details.html">Open|SpeedShop Invocation
+      Details</a> <br>
+    <ul>
+      <li><b>openss [-gui]:</b> Start Open|SpeedShop's graphical
+        interface. </li>
+      <li><b>openss -cli:</b> Start Open|SpeedShop's interactive command
+        line interface. </li>
+      <li><b>openss -offline:</b> Start an offline (link in collectors)
+        performance experiment. (e.g. openss -offline -f "mpirun -np
+        1024 ./smg2000 -n 40 40 40" pcsamp).&nbsp; This is default,
+        "-offline" is optional.</li>
+      <ul>
+        <li>Now have osspcsamp, ossusertime, osshwc, osshwctime, etc.
+          convenience routines.</li>
+        <li>Example syntax: osspcsamp "mpirun -np 1024 ./smg2000 -n 40
+          40 40"</li>
+      </ul>
+      <li><b>openss -online:</b> Start an online (dynamic) performance
+        experiment. (e.g. openss -online -f "mpirun -np 1024 ./smg2000
+        -n 40 40 40" pcsamp)</li>
+      <li><b>openss -batch:</b> Start a performance experiment.
+        specified by additional arguments, directly without user
+        interaction </li>
+      <li>oss&lt;experiment-type&gt; convenience scripts.&nbsp;&nbsp; A
+        script for each experiment that hides the openss syntax and
+        gives easy access to additional options.<br>
+      </li>
+    </ul>
+    <br>
+  </body>
+</html>
