@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007, 2008 Krell Institute. All Rights Reserved.
+// Copyright (c) 2006-2011 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -536,12 +536,11 @@ SourcePanel::listener(void *msg)
       }
     }
 
-    last_spo = spo;
-
 #ifdef DEBUG_SourcePanel
-    printf ("SourcePanel::listener(), last_spo=%d\n", last_spo );
+    printf ("SourcePanel::listener(), assigning spo to last_spo, last_spo=%d, spo=%d\n", last_spo, spo );
 #endif
 
+    last_spo = spo;
 
 #if OLDWAY
     lineCount = 0;
@@ -557,6 +556,9 @@ SourcePanel::listener(void *msg)
     }
 
 
+#ifdef DEBUG_SourcePanel
+    printf ("SourcePanel::listener(), getting highlightList from  spo=%d, last_spo=%d\n", spo, last_spo );
+#endif
     highlightList = spo->highlightList;
     doFileHighlights();
 
@@ -572,7 +574,7 @@ SourcePanel::listener(void *msg)
     }
 
 #ifdef DEBUG_SourcePanel
-  printf("SourcePanel::listener(), Try to position at line %d\n", spo->line_number);
+  printf("SourcePanel::listener(), Try to position at line %d, spo=%d, last_spo=%d\n", spo->line_number, spo, last_spo);
 #endif
     nprintf(DEBUG_PANELS) ("Try to position at line %d\n", spo->line_number);
 
@@ -1411,6 +1413,9 @@ SourcePanel::doFileHighlights()
   if( hlo )
   {
     QString header_label = hlo->value_description;
+#ifdef DEBUG_SourcePanel
+    printf("SourcePanel::doFileHighlights(), header_label.ascii()=%s\n", header_label.ascii());
+#endif
     canvasForm->header->setLabel(0, header_label);
   }
 
@@ -1429,6 +1434,9 @@ SourcePanel::getDescription(int line)
     hlo = (HighlightObject *)*it;
     if( hlo->line == line )
     {
+#ifdef DEBUG_SourcePanel
+      printf("SourcePanel::doFileHighlights(), hlo->fileName.ascii()=%s, hlo->description.ascii()=%s\n", hlo->fileName.ascii(), hlo->description.ascii());
+#endif
       return( hlo->fileName+
               ":"+
               QString::number(hlo->line)+
@@ -1691,7 +1699,7 @@ SourcePanel::refresh()
   if (last_spo == NULL) {
     printf ("SourcePanel::refresh(), last_spo=%d is NULL\n", last_spo );
   } else {
-    printf ("SourcePanel::refresh(), load the file last_spo->fileName=%s\n", last_spo->fileName.ascii() );
+    printf ("SourcePanel::refresh(), load the file last_spo=%d, last_spo->fileName=%s\n", last_spo, last_spo->fileName.ascii() );
   }
 #endif
   if( last_spo == NULL || loadFile(last_spo->fileName) == FALSE )
@@ -1711,6 +1719,10 @@ SourcePanel::refresh()
   {
     this->getPanelContainer()->raisePanel(this);
   }
+
+#ifdef DEBUG_SourcePanel
+  printf("Try to position at line %d, last_spo=%d\n", last_spo->line_number, last_spo);
+#endif
 
   nprintf(DEBUG_PANELS) ("Try to position at line %d\n", last_spo->line_number);
 
