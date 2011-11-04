@@ -315,6 +315,7 @@ class StatsPanel  : public Panel
     std::list<int64_t> separate_list_of_threads;
     std::list<int64_t> rt_list_of_ranks;
     std::list<int64_t> rt_list_of_threads;
+    std::list<int64_t> partial_list_of_pids;
     std::list<int64_t> partial_list_of_threads;
     std::list<int64_t> partial_list_of_ranks;
     std::list<std::string> list_of_modifiers;
@@ -353,6 +354,7 @@ class StatsPanel  : public Panel
     QString getDBName(int);
     void getRankThreadPidList(int expID);
     void getRankThreadList(int expID);
+    void getPartialPidList(int expID);
     void getSeparatePidList(int expID);
     void getSeparateRankList(int expID);
     void getSeparateThreadList(int expID);
