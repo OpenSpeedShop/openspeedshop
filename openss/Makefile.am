@@ -64,6 +64,15 @@ openss_CXXFLAGS = \
 	-DLIB_DIR_NAME=\"$(abi_libdir_name)\" \
 	$(LTDLINCL)
 
+if HAVE_TARGET_SHARED
+openss_LDFLAGS = \
+	@TARGET_OPENMP_LDFLAGS@
+
+openss_LDADD = \
+	$(LIBLTDL) \
+	@TARGET_OPENMP_LIBS@ \
+	-lpthread
+else
 openss_LDFLAGS = \
 	@OPENMP_LDFLAGS@
 
@@ -71,6 +80,7 @@ openss_LDADD = \
 	$(LIBLTDL) \
 	@OPENMP_LIBS@ \
 	-lpthread
+endif
 
 openss_SOURCES = \
 	openss.cxx
@@ -129,6 +139,7 @@ ossutil_CXXFLAGS = \
 ossutil_LDFLAGS = \
         @TARGET_BINUTILS_LDFLAGS@ \
         @TARGET_SQLITE_LDFLAGS@ \
+        @TARGET_STDC_PLUSPLUS_LDFLAGS@ \
         -L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-queries \
         -L$(top_srcdir)/libopenss-runtime
@@ -136,6 +147,7 @@ ossutil_LDFLAGS = \
 ossutil_LDADD = \
         @TARGET_BINUTILS_LIBS@ \
         @TARGET_SQLITE_LIBS@ \
+        @TARGET_STDC_PLUSPLUS_LIBS@ \
         $(LIBLTDL) \
 	-lopenss-framework \
 	-lopenss-framework-binutils \

@@ -29,6 +29,23 @@
 
 lib_LTLIBRARIES = libopenss-queries.la
 
+if HAVE_TARGET_SHARED
+libopenss_queries_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-cli \
+	-I$(top_srcdir)/libopenss-framework \
+	@TARGET_STDC_PLUSPLUS_CPPFLAGS@ \
+	@TARGET_OPENMP_CPPFLAGS@
+
+libopenss_queries_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-framework \
+	@TARGET_STDC_PLUSPLUS_LDFLAGS@ \
+	-export-dynamic -version-info 1:0:0 
+
+libopenss_queries_la_LIBADD = \
+	@TARGET_STDC_PLUSPLUS_LIBS@ \
+	-lopenss-framework
+else
+
 libopenss_queries_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-cli \
 	-I$(top_srcdir)/libopenss-framework \
@@ -40,6 +57,7 @@ libopenss_queries_la_LDFLAGS = \
 
 libopenss_queries_la_LIBADD = \
 	-lopenss-framework
+endif
 
 libopenss_queries_la_SOURCES = \
 	AdditionAssignment.txx \

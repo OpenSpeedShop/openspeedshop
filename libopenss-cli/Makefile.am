@@ -44,6 +44,25 @@ libopenss_cli_la_CXXFLAGS = \
 	$(LTDLINCL) \
 	@PYTHON_CPPFLAGS@
 
+if HAVE_TARGET_SHARED
+libopenss_cli_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-message \
+	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-queries \
+	@PYTHON_LDFLAGS@ \
+	@TARGET_OPENMP_LDFLAGS@ \
+	-export-dynamic -version-info 0:0:0
+
+libopenss_cli_la_LIBADD = \
+	-lopenss-message \
+	-lopenss-framework \
+	-lopenss-framework-binutils \
+	-lopenss-queries \
+	$(LIBLTDL) \
+	@PYTHON_EXTRA_LIBS@ \
+	@TARGET_OPENMP_LIBS@ \
+	-lpthread -lutil
+else
 libopenss_cli_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-message \
 	-L$(top_srcdir)/libopenss-framework \
@@ -61,6 +80,7 @@ libopenss_cli_la_LIBADD = \
 	@PYTHON_EXTRA_LIBS@ \
 	@OPENMP_LIBS@ \
 	-lpthread -lutil
+endif
 
 libopenss_cli_la_SOURCES = \
 	ArgClass.hxx \

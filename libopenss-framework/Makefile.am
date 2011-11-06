@@ -30,14 +30,18 @@ libopenss_framework_binutils_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	$(LTDLINCL) \
+	@TARGET_STDC_PLUSPLUS_CPPFLAGS@ \
 	@TARGET_BINUTILS_CPPFLAGS@
 
 libopenss_framework_binutils_la_LDFLAGS = \
 	@TARGET_BINUTILS_LDFLAGS@ \
+	@TARGET_STDC_PLUSPLUS_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
+
 libopenss_framework_binutils_la_LIBADD = \
 	$(LIBLTDL) \
 	@TARGET_BINUTILS_LIBS@ \
+	@TARGET_STDC_PLUSPLUS_LIBS@ \
 	-lpthread -lrt
 
 libopenss_framework_la_CXXFLAGS = \
@@ -87,12 +91,14 @@ libopenss_framework_la_LIBADD = \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
 	@TARGET_SQLITE_LIBS@ \
+	@TARGET_STDC_PLUSPLUS_LDFLAGS@ \
 	-lpthread -lrt @TARGET_BINUTILS_LDFLAGS@ @TARGET_BINUTILS_LIBS@
 else
 libopenss_framework_la_LIBADD = \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
 	@TARGET_SQLITE_LIBS@ \
+	@TARGET_STDC_PLUSPLUS_LIBS@ \
 	-lpthread -lrt @TARGET_BINUTILS_LDFLAGS@ @TARGET_BINUTILS_LIBS@
 endif
 
