@@ -233,6 +233,9 @@ case "$collector" in
     export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${extra_mpi_libs}:${libmonitor}
     if [ $ossrun_debug == 1 ]; then
       echo "OSSRUN DEBUG: 1 - mpicollector: $collector"
+      echo "OSSRUN DEBUG: 1 - LD_PRELOAD: $LD_PRELOAD"
+      echo "OSSRUN DEBUG: 1 - libmonitor: ${libmonitor}"
+      echo "OSSRUN DEBUG: 1 - oss_plugins: ${oss_plugins}"
     fi
 
     ;;
@@ -242,6 +245,9 @@ case "$collector" in
     export LD_PRELOAD=${oss_plugins}/$mpicollector-rt-offline.so:${extra_mpi_libs}:${libmonitor}
     if [ $ossrun_debug == 1 ]; then
       echo "OSSRUN DEBUG: 2 - mpicollector: $collector"
+      echo "OSSRUN DEBUG: 2 - LD_PRELOAD: $LD_PRELOAD"
+      echo "OSSRUN DEBUG: 2 - libmonitor: ${libmonitor}"
+      echo "OSSRUN DEBUG: 2 - oss_plugins: ${oss_plugins}"
     fi
     ;;
 
@@ -251,6 +257,11 @@ case "$collector" in
     # in the THREADS table of the openss database.
     * )
     export LD_PRELOAD=${oss_plugins}/$collector-rt-offline.so:${libmonitor}
+    if [ $ossrun_debug == 1 ]; then
+      echo "OSSRUN DEBUG: non-tracing mpi - LD_PRELOAD: $LD_PRELOAD"
+      echo "OSSRUN DEBUG: non-tracing mpi - libmonitor: ${libmonitor}"
+      echo "OSSRUN DEBUG: non-tracing mpi - oss_plugins: ${oss_plugins}"
+    fi
     ;;
 esac
 
