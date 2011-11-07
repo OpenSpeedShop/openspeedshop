@@ -299,6 +299,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		if not os.WEXITSTATUS(isscript):
 		  # Lets hope the mpich2 driver always has Argonne in its copyright.
                   if offlinepy_debug != 0: print "[openss-debug]: isscript section, file_arg=" + file_arg
+                  ismpich2_cray = os.system('grep -q -i \"srun - Wrapper for Cray\" ' + file_arg)
                   ismpich = os.system('grep -q -i \"MPIRUN for MPICH\" ' + file_arg)
                   ismpich2 = os.system('grep -q -i Argonne ' + file_arg)
                   ismvapich = os.system('grep -q -i \"Wrapper for job submission on Hert related machines\" ' + file_arg)
@@ -325,6 +326,14 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
                     preload_files = ""
                     mpi_exe_implmentation = "mpich"
                     if offlinepy_debug != 0: print "[openss-debug]: ismpich orig_mpi_driver=" + orig_mpi_driver
+ 		  if not os.WEXITSTATUS(ismpich2_cray):
+ 		    ismpi = bool(1)
+ 		    mpi_driver = os.path.realpath(file_arg)
+ 		    orig_mpi_driver = s
+ 		    program = program.replace(s, file_arg)
+ 		    preload_files = ""
+ 		    mpi_exe_implmentation = "mpich2"
+                    if offlinepy_debug != 0: print "[openss-debug]: ismpich2_cray orig_mpi_driver=" + orig_mpi_driver
 		  if not os.WEXITSTATUS(ismpich2):
 		    ismpi = bool(1)
 		    mpi_driver = os.path.realpath(file_arg)
