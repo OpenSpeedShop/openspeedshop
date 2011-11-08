@@ -33,15 +33,18 @@ if HAVE_TARGET_SHARED
 libopenss_queries_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-cli \
 	-I$(top_srcdir)/libopenss-framework \
+	@TARGET_BINUTILS_CPPFLAGS@ \
 	@TARGET_STDC_PLUSPLUS_CPPFLAGS@ \
 	@TARGET_OPENMP_CPPFLAGS@
 
 libopenss_queries_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
+	@TARGET_BINUTILS_LDFLAGS@ \
 	@TARGET_STDC_PLUSPLUS_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0 
 
 libopenss_queries_la_LIBADD = \
+	@TARGET_BINUTILS_LIBS@ \
 	@TARGET_STDC_PLUSPLUS_LIBS@ \
 	-lopenss-framework
 else
