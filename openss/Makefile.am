@@ -137,17 +137,17 @@ ossutil_CXXFLAGS = \
         $(LTDLINCL)
 
 ossutil_LDFLAGS = \
-        @TARGET_BINUTILS_LDFLAGS@ \
-        @TARGET_SQLITE_LDFLAGS@ \
         @TARGET_STDC_PLUSPLUS_LDFLAGS@ \
+        @TARGET_SQLITE_LDFLAGS@ \
+        @TARGET_BINUTILS_LDFLAGS@ \
         -L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-queries \
         -L$(top_srcdir)/libopenss-runtime
 
 ossutil_LDADD = \
-        @TARGET_BINUTILS_LIBS@ \
         @TARGET_SQLITE_LIBS@ \
         @TARGET_STDC_PLUSPLUS_LIBS@ \
+        @TARGET_BINUTILS_LIBS@ \
         $(LIBLTDL) \
 	-lopenss-framework \
 	-lopenss-framework-binutils \

@@ -54,6 +54,7 @@ libopenss_framework_la_CXXFLAGS = \
 libopenss_framework_la_LDFLAGS = \
 	@ARRAYSVCS_LDFLAGS@ \
 	@TARGET_SQLITE_LDFLAGS@ \
+	@TARGET_STDC_PLUSPLUS_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
 else
 libopenss_framework_binutils_la_CXXFLAGS = \
@@ -65,6 +66,7 @@ libopenss_framework_binutils_la_CXXFLAGS = \
 libopenss_framework_binutils_la_LDFLAGS = \
 	@BINUTILS_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
+
 libopenss_framework_binutils_la_LIBADD = \
 	$(LIBLTDL) \
 	@BINUTILS_BFD_LIB@ \
