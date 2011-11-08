@@ -740,7 +740,7 @@ AC_DEFUN([AC_PKG_OPENMP], [
 
 
 ################################################################################
-# Check for OpenMP (http://www.openmp.org)
+# Check for Target OpenMP (http://www.openmp.org)
 ################################################################################
 
 AC_DEFUN([AC_PKG_TARGET_OPENMP], [

@@ -50,6 +50,7 @@ libopenss_cli_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-queries \
 	@PYTHON_LDFLAGS@ \
+	@TARGET_BINUTILS_LDFLAGS@ \
 	@TARGET_OPENMP_LDFLAGS@ \
 	-export-dynamic -version-info 0:0:0
 
@@ -59,6 +60,7 @@ libopenss_cli_la_LIBADD = \
 	-lopenss-framework-binutils \
 	-lopenss-queries \
 	$(LIBLTDL) \
+	@TARGET_BINUTILS_LIBS@ \
 	@PYTHON_EXTRA_LIBS@ \
 	@TARGET_OPENMP_LIBS@ \
 	-lpthread -lutil
