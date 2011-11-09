@@ -1,0 +1,6 @@
+echo '   ==========================================='
+echo '   =      NAS PARALLEL BENCHMARKS 3.2        ='
+echo '   =      MPI+OpenMP Multi-Zone Versions     ='
+echo '   =      F77                                ='
+echo '   ==========================================='
+echo ''
