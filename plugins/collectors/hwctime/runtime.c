@@ -188,8 +188,20 @@ hwctimePAPIHandler(int EventSet, void *address, long_long overflow_vector, void*
 
     /* get stack address for current context and store them into framebuf. */
 
+#if defined(__linux) && defined(__x86_64)
+    /* The latest version of libunwind provides a fast trace
+     * backtrace function we now use. We need to manually
+     * skip signal frames when using that unwind function.
+     * For PAPI's handler we need to skip 6 frames of
+     * overhead.
+     */
+
+    OpenSS_GetStackTraceFromContext (context, FALSE, 6,
+                        MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
+#else
     OpenSS_GetStackTraceFromContext (context, TRUE, 0,
                         MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
+#endif
 
     bool_t stack_already_exists = FALSE;
 

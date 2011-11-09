@@ -242,10 +242,24 @@ void fpe_record_event(const fpe_event* event, const ucontext_t* context)
     unsigned stacktrace_size = 0;
     unsigned entry, start, i;
 
+#if defined(__linux) && defined(__x86_64)
+    /* The latest version of libunwind provides a fast trace
+     * backtrace function we now use. We need to manually
+     * skip signal frames when using that unwind function.
+     * For the FPE handler we need to skip 6 frames of
+     * overhead.
+     */
+
+    OpenSS_GetStackTraceFromContext (context, FALSE, 6,
+                        MaxFramesPerStackTrace /* maxframes*/,
+			&stacktrace_size, stacktrace) ;
+
+#else
     /* Obtain the stack trace from the current thread context */
     OpenSS_GetStackTraceFromContext(context, TRUE, 0,
 				    MaxFramesPerStackTrace,
 				    &stacktrace_size, stacktrace);
+#endif
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {

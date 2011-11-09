@@ -86,7 +86,7 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
     //Work-around to a libunwind bug
     context.uc_mcontext.regs->link = context.uc_mcontext.regs->nip;
 
-#elif defined(__linux) && (defined(__i386) || defined(__x86_64))
+#elif defined(__linux) && defined(__i386)
 
     if(signal_context != NULL) {
         memmove(&context, signal_context, sizeof(unw_context_t));
@@ -95,6 +95,21 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 	Assert(unw_getcontext(&context) == 0);
     }
 
+#elif defined(__linux) && defined(__x86_64)
+    uint64_t framebuf[max_frames];
+    *stacktrace_size = backtrace(framebuf,max_frames);
+
+    if (skip_frames == 0 && skip_signal_frames)
+	skip_frames = 5;
+
+    int i;
+    for (i = skip_frames; i < *stacktrace_size; i++) {
+	stacktrace[i-skip_frames] = framebuf[i];
+    }
+
+    *stacktrace_size -= skip_frames;
+    return;
+ 
 #elif defined(__linux) && defined( __powerpc64__ )
 
     Assert(getcontext(&context) == 0);
