@@ -1,0 +1,41 @@
+NAS Parallel Benchmarks 3.2, Multi-Zone Versions
+-------------------------------------------------
+
+For the description of the benchmarks, please refer to
+   http://www.nas.nasa.gov/Research/Reports/Techreports/2003/
+   nas-03-010-abstract.html
+
+The current distribution contains the following implementations:
+
+   NPB3.2-MZ-SER:  a serial version
+   NPB3.2-MZ-MPI:  a hybrid MPI + OpenMP version
+   NPB3.2-MZ-SMP:  a hybrid SMP + OpenMP version
+
+Version 3.2 includes two new classes of problem: E and F, to stress
+very large parallel computer systems.  Class E is about 20 times as
+large as Class D, and Class F is about 20 times as large as Class E.
+
+-----------------------------------------------------------------
+Class   Number of Zones     Aggregate Grid    Memory Requirement
+      BT-MZ&SP-MZ  LU-MZ      (Gx*Gy*Gz)          (approx.)
+-----------------------------------------------------------------
+ S       2 x 2     4 x 4      24 x 24 x 6             1 MB
+ W       4 x 4     4 x 4      64 x 64 x 8             6 MB
+ A       4 x 4     4 x 4     128 x 128 x 16          50 MB
+ B       8 x 8     4 x 4     304 x 208 x 17         200 MB
+ C      16 x 16    4 x 4     480 x 320 x 28         0.8 GB
+ D      32 x 32    4 x 4    1632 x 1216 x 34       12.8 GB
+ E      64 x 64    4 x 4    4224 x 3456 x 92        250 GB
+ F     128 x 128   4 x 4   12032 x 8960 x 250       5.0 TB
+-----------------------------------------------------------------
+
+See individual README files in the corresponding directory
+for details on compilation and execution.  Revision history
+is given in Changes.log.
+
+
+   NPB Development Team
+   npb@nas.nasa.gov
+
+   November, 2004
+

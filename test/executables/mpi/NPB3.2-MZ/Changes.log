@@ -1,0 +1,117 @@
+History of Changes
+
+
+Version: NPB3.2-MZ
+
+[02-Nov-05]
+ - Introduce two new classes of problem: E and F
+   Versions affected: all
+
+ - Combine the 'timer.flag' file into 'input<benchmark>.data' so that
+   parameters are more consistently handled.
+   Versions affected: all
+
+ - Add "SCHEDULE(STATIC)" to the OpenMP layer to ensure OpenMP codes
+   won't break under different types of runtime scheduling.
+   Versions affected: all parallel versions
+
+ - Minor cache optimization in z_solve of BT-MZ.
+   Versions affected: all
+
+ - Speed optimization in setparams.c (mainly get_comm_index).
+   Versions affected: all parallel versions
+
+ - New environment variable NPB_VERBOSE to control verbose printing.
+   Versions affected: all
+
+ - Re-order communication buffers so that large messages can be sent.
+   Versions affected: MPI version
+
+ - Fix a dependency bug in LU-MZ/Makefile, add variable 'v' to
+   "!$OMP FLUSH()" to ensure data properly flushed for pipeline.
+   Versions affected: all parallel versions
+
+
+Version: NPB3.1-MZ
+
+[29-Mar-04]
+ - Allow a variable number of threads for individual process and define
+   a processor group for each process.  This is done by reading data 
+   from a load data file, i.e. loadbt-mz.data, loadsp-mz.data, or 
+   loadlu-mz.data.
+   Versions affected: all parallel versions
+
+ - Report the total number of threads (instead of threads-per-process).
+   Versions affected: all parallel versions
+
+ - Use a surface term in the MFLOPS calculation so that the results
+   take into account the variable dimension sizes of multi-zones.
+   Versions affected: all
+
+ - Improvements for LU-MZ:
+    * removed a redundant 'exch_qbc' call
+    * add one SSOR iteraction before the timing loop to touch all data pages
+    * improved the memory usage for array 'tv'
+    * made rhs and erhs more cache-friendly
+   Versions affected: all
+
+ - Print built-in timers for all processes
+   Versions affected: all parallel versions
+
+
+Version: NPB3.0.2-MZ
+
+[22-Dec-03]
+ - Bug fix in NPB3.0-MZ-MPI: 'omp_set_num_threads()' is required
+   for the MPI+OpenMP version.  Use broadcast for setting global parameters.
+
+[02-Jan-04]
+ - Minor improvement in sys/setparams.c: Calculate the exact value
+   for problem_size, which could potentially improve BT-MZ.
+   Versions modified: all
+
+ - Added the initial data touching for 'tv' and 'tu' in LU-MZ.
+   Versions modified: all
+
+
+Version: NPB3.0.1-MZ
+
+[15-Aug-03]
+ - Improved the load balancing scheme with threads.  The new version
+   has more balanced work distribution among threads.
+   This involves modification to the following files:
+      NPB3.0-MZ-MPI/*/mpi_setup.f
+      NPB3.0-MZ-SMP/*/smp_setup.f
+      NPB3.0-MZ-MLP/*/mlp_setup.f
+
+ - Include 'mzone_bload' as part of NPB3.0-MZ to subdirectory 'utils'.
+   The load balancing scheme was included as option [4].
+
+ - Organized the testing scripts in 'tests'.
+
+[27-Aug-03]
+ - Fixed a timing bug in NPB3.0-MZ-SMP and NPB3.0-MZ-MLP.
+   A barrier was added right before the total timer starts.
+
+ - Fixed an incorrect report of num_threads when OpenMP was not compiled.
+   Versions affected: NPB3.0-MZ-MPI, NPB3.0-MZ-SMP, NPB3.0-MZ-MLP
+
+ - Slightly speed up the comm_index calculation.  It won't change any
+   benchmark timing results.
+
+[03-Sep-03] NPB3.0.1-MZ release
+ - Made the use of THREADPRIVATE in the MPI+OpenMP version as the default
+   option.  Included a note in the corresponding README that indicates
+   a workaround for running on SGI Origins.
+
+
+Version: NPB3.0-MZ
+
+[06-Aug-03] NPB3.0-MZ release
+   The first official release of NPB3.0-MZ.  
+   It includes the following packages:
+      NPB3.0-MZ-MPI
+      NPB3.0-MZ-SMP
+      NPB3.0-MZ-SER
+   Description of these packages is in README.
+
