@@ -1,0 +1,19 @@
+c
+c***controls printing of the progress of iterations: ipr    inorm
+   1      50      (not used)
+c
+c***the maximum no. of pseudo-time steps to be performed: nitmax
+   0      (0 for default: 250 for A-C, 300 for D-F)
+c
+c***magnitude of the time step: dt 
+   0.0    (0.0 for default)
+c
+c***relaxation factor for SSOR iterations: omega
+   1.2
+c
+c***tolerance levels for steady-state residuals: tolrsd(m),m=1,5
+   1.0e-08   1.0e-08   1.0e-08  1.0e-08  1.0e-08       (not used)
+c
+c***additional timer flag: itimer
+   0      (0 no, 1 yes)
+
