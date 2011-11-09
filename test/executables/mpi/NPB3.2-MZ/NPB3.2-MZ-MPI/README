@@ -1,3 +1,29 @@
+
+For OSS:
+
+Adjust config/make.def to your system and compiler availability.
+
+module load openmpi-1.5.3
+make CLASS=B NPROCS=4 
+
+The executable is built into the "bin" directory.
+lsr bin
+total 612
+204 -r--r--r--.  1 jeg jeg 205371 Nov  9 10:01 x_solve.f.html
+ 52 -r--r--r--.  1 jeg jeg  50907 Nov  9 10:01 blts.f.html
+  4 drwxrwxr-x.  2 jeg jeg   4096 Nov  9 10:07 CVS
+  4 drwxrwxr-x.  3 jeg jeg   4096 Nov  9 10:09 .
+344 -rwxrwxr-x.  1 jeg jeg 348454 Nov  9 10:09 bt-mz.B.4
+  4 drwxrwxr-x. 10 jeg jeg   4096 Nov  9 10:10 ..
+
+cd bin
+module load openss-201b13
+export OMP_NUM_THREADS=4
+osspcsamp "mpirun -np 4 bt-mz.B.4"
+
+
+
+
 NPB3.2-MZ (Multi-Zone) MPI+OpenMP Versions
 -------------------------------------------
 
