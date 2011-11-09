@@ -1,0 +1,5 @@
+module load openmpi-1.5.3 openss-201b13
+mpicc -o spawn_example spawn_example.c
+ossusertime  "mpirun -np 2 spawn_example"
+
+
