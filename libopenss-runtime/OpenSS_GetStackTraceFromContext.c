@@ -97,7 +97,7 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 
 #elif defined(__linux) && defined(__x86_64)
     uint64_t framebuf[max_frames];
-    *stacktrace_size = backtrace(framebuf,max_frames);
+    *stacktrace_size = unw_backtrace((void**)framebuf,max_frames);
 
     if (skip_frames == 0 && skip_signal_frames)
 	skip_frames = 5;
