@@ -138,6 +138,7 @@ libopenss_runtime_offline_la_LDFLAGS = \
 	@TARGET_LIBUNWIND_LDFLAGS@
 
 libopenss_runtime_offline_la_LIBADD = \
+ 	$(top_srcdir)/libopenss-runtime/offline/libopenss-runtime-monitor.la \
 	@TARGET_LIBUNWIND_LIBS@ \
 	-lpthread -lrt
 endif
