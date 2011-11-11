@@ -78,10 +78,12 @@ endif
 if !BUILD_OFFLINE
 if BUILD_MRNET
 usertime_rt_la_CFLAGS = \
+	-DUSE_FASTTRACE \
         -I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@
 else
 usertime_rt_la_CFLAGS = \
+	-DUSE_FASTTRACE \
 	-I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@
 endif
@@ -105,6 +107,7 @@ endif
 if HAVE_LIBMONITOR
 usertime_rt_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE \
+	-DUSE_FASTTRACE \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	@LIBUNWIND_CPPFLAGS@

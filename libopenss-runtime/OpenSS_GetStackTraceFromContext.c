@@ -96,19 +96,13 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
     }
 
 #elif defined(__linux) && defined(__x86_64)
-    uint64_t framebuf[max_frames];
-    *stacktrace_size = unw_backtrace((void**)framebuf,max_frames);
 
-    if (skip_frames == 0 && skip_signal_frames)
-	skip_frames = 5;
-
-    int i;
-    for (i = skip_frames; i < *stacktrace_size; i++) {
-	stacktrace[i-skip_frames] = framebuf[i];
+    if(signal_context != NULL) {
+        memmove(&context, signal_context, sizeof(unw_context_t));
+        skip_signal_frames = FALSE;
+    } else {
+	Assert(unw_getcontext(&context) == 0);
     }
-
-    *stacktrace_size -= skip_frames;
-    return;
  
 #elif defined(__linux) && defined( __powerpc64__ )
 
@@ -223,3 +217,25 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
     /* Return the stack trace size to the caller */
     *stacktrace_size = index;
 }
+
+#if defined(__linux) && defined(__x86_64)
+// use only for dynamic collection on x86_64
+void OpenSS_GetStackTrace( bool_t skip_signal_frames,
+			   unsigned skip_frames,
+			   unsigned max_frames,
+			   unsigned* stacktrace_size,
+			   uint64_t* stacktrace)
+{
+    uint64_t framebuf[max_frames];
+    *stacktrace_size = unw_backtrace((void**)framebuf,max_frames);
+    if (skip_frames == 0 && skip_signal_frames)
+	skip_frames = 5;
+
+    int i;
+    for (i = skip_frames; i < *stacktrace_size; i++) {
+	stacktrace[i-skip_frames] = framebuf[i];
+    }
+
+    *stacktrace_size -= skip_frames;
+}
+#endif

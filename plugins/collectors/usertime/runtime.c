@@ -212,8 +212,20 @@ static void usertimeTimerHandler(const ucontext_t* context)
 
     /* get stack address for current context and store them into framebuf. */
 
+#if defined(__linux) && defined(__x86_64)
+
+#if defined(USE_FASTTRACE)
+    OpenSS_GetStackTrace(TRUE, 0,
+                        MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
+#else
     OpenSS_GetStackTraceFromContext (context, TRUE, 0,
                         MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
+#endif
+
+#else
+    OpenSS_GetStackTraceFromContext (context, TRUE, 0,
+                        MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
+#endif
 
     bool_t stack_already_exists = FALSE;
 

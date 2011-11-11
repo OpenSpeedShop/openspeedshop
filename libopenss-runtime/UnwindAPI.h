@@ -29,3 +29,8 @@
 void OpenSS_GetStackTraceFromContext(const ucontext_t*,
                                      bool_t, unsigned, unsigned,
                                      unsigned*, uint64_t*);
+
+#if defined(__linux) && defined(__x86_64)
+void OpenSS_GetStackTrace( bool_t, unsigned, unsigned,
+			   unsigned*, uint64_t*);
+#endif

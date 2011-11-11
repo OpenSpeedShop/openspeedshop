@@ -103,11 +103,13 @@ if HAVE_PAPI
 if !BUILD_OFFLINE
 if BUILD_MRNET
 hwctime_rt_la_CFLAGS = \
+	-DUSE_FASTTRACE \
 	-I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
 else
 hwctime_rt_la_CFLAGS = \
+	-DUSE_FASTTRACE \
 	-I$(top_srcdir)/libopenss-runtime \
 	@LIBUNWIND_CPPFLAGS@ \
 	@PAPI_CPPFLAGS@
@@ -135,6 +137,7 @@ endif
 if HAVE_LIBMONITOR
 hwctime_rt_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE \
+	-DUSE_FASTTRACE \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	@LIBUNWIND_CPPFLAGS@ \

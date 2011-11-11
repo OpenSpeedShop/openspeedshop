@@ -196,8 +196,14 @@ hwctimePAPIHandler(int EventSet, void *address, long_long overflow_vector, void*
      * overhead.
      */
 
-    OpenSS_GetStackTraceFromContext (context, FALSE, 6,
+#if defined(USE_FASTTRACE)
+    OpenSS_GetStackTrace(FALSE, 6,
                         MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
+#else
+    OpenSS_GetStackTraceFromContext (context, TRUE, 0,
+                        MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
+#endif
+
 #else
     OpenSS_GetStackTraceFromContext (context, TRUE, 0,
                         MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
