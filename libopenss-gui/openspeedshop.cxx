@@ -204,11 +204,7 @@ OpenSpeedshop::OpenSpeedshop( int _wid, int _climode, QWidget* parent, const cha
  */
 OpenSpeedshop::~OpenSpeedshop()
 {
-  QSettings settings;
-  settings.writeEntry("/openspeedshop/geometry/x", this->x());
-  settings.writeEntry("/openspeedshop/geometry/y", this->y());
-  settings.writeEntry("/openspeedshop/geometry/width", this->width());
-  settings.writeEntry("/openspeedshop/geometry/height", this->height());
+  storeGeometry();
 
     destroy();
     // no need to delete child widgets, Qt does it all for us
@@ -334,3 +330,17 @@ OpenSpeedshop::closeEvent(QCloseEvent *e)
   {
   }
 }
+
+/*! 
+ * Stores the window geometry for later restoration.
+ */
+void 
+OpenSpeedshop::storeGeometry()
+{
+  QSettings settings;
+  settings.writeEntry("/openspeedshop/geometry/x", this->x());
+  settings.writeEntry("/openspeedshop/geometry/y", this->y());
+  settings.writeEntry("/openspeedshop/geometry/width", this->width());
+  settings.writeEntry("/openspeedshop/geometry/height", this->height());
+}
+

@@ -388,11 +388,12 @@ extern "C"
 #if DEBUG_GUI
       printf("Exit the gui!\n");
 #endif
+
+      // Store the geometry of the main window
+      w->storeGeometry();
+
       w->topPC->closeAllExternalPanelContainers();
       delete w->topPC;
-
-      delete w;
-      w = NULL;
   }
 
 }

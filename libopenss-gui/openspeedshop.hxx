@@ -64,6 +64,11 @@ class OpenSpeedshop : public QMainWindow
     //! Destructor for the QMainWindow.
     ~OpenSpeedshop();
 
+    /*! \todo The destructor is never called, so this has to be public so it can be called externally;
+              this needs to be fixed by properly disposing of this object. */
+    //! Stores the window geometry for later restoration
+    void storeGeometry();
+
     //! The mainwindow menu bar.
     QMenuBar *menubar;
     QPopupMenu *fileMenu;
