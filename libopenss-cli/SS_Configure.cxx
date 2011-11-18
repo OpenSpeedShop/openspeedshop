@@ -179,12 +179,12 @@ void SS_Configure () {
   Ivalue = settings->readNumEntry(std::string("helpLevelDefault"), OPENSS_HELP_LEVEL_DEFAULT, &ok);
   if (ok && (Ivalue >= 0)) OPENSS_HELP_LEVEL_DEFAULT = Ivalue;
 
-  Add_Help (czar, "viewDynamicFieldSize", "a boolean, preference",
+  Add_Help (czar, "viewFieldSizeIsDynamic", "a boolean, preference",
             "Declare whether or not the width of each column of ouput is "
             "is dynamically determined by the minimum width actually required by the data, "
             "or is fixed and determined by \"viewFieldSize\". "
             "The default is false.");
-  Bvalue = settings->readBoolEntry(std::string("viewDynamicFieldSize"), OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC, &ok);
+  Bvalue = settings->readBoolEntry(std::string("viewFieldSizeIsDynamic"), OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC, &ok);
   if (ok) OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC = Bvalue;
 
   Add_Help (czar, "viewFullPath", "a boolean, preference",
