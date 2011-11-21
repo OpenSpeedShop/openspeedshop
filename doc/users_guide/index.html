@@ -2224,6 +2224,7 @@ of
 collectors
 and
 
+
       executables bound together to generate performance metrics. </p>
     <p style="margin: 5pt 0in 0.0001pt 1in; text-indent: -0.25in;"><!--[if !supportLists]--><span
         style="font-size: 10pt; font-family: Symbol;"><span style=""><span
@@ -2231,6 +2232,7 @@ and
             normal; font-variant: normal; font-weight: normal;
             font-size: 7pt; line-height: normal; font-size-adjust: none;
             font-stretch: normal;"></span></span></span><!--[endif]--><b><i>Focused
+
 
           Experiment</i>:</b>&nbsp; The current experiment commands
       operate on. The user may run or view multiple experiments
@@ -2248,6 +2250,7 @@ somewhat
 self-contained
 section
 of
+
 
       the <b>Open|SpeedShop</b> performance tool.&nbsp;&nbsp; This
       section of code does a set of specific related tasks for the
@@ -2268,6 +2271,7 @@ of
 the
 tool
 
+
       containing logic that is responsible for the gathering of the
       performance metric.&nbsp;&nbsp;&nbsp; A collector is a portion of
       the code that is included in the experiment plugin. </p>
@@ -2283,6 +2287,7 @@ which
 the
 collector/experiment
 
+
       is gathering.&nbsp; A time, occurrence counter, or other entity,
       which reflects in some way on the applications performance and is
       gathered by a performance experiment (by the collector). </p>
@@ -2292,6 +2297,7 @@ collector/experiment
             normal; font-variant: normal; font-weight: normal;
             font-size: 7pt; line-height: normal; font-size-adjust: none;
             font-stretch: normal;"></span></span></span><!--[endif]--><b><i>Offline:
+
 
         </i></b><span style="">Gathering performance data using
         libMonitor to link Open|SpeedShop performance data gathering
@@ -2325,6 +2331,7 @@ allows
 the
 user
 
+
       to set certain values that control the way a collector behaves.
       The parameter or <b>param</b> may cause the collector to perform
       various operations at certain time intervals or it may cause a
@@ -2345,6 +2352,7 @@ of
 API
 functions
 
+
       that allows the user interface to manage the creation and viewing
       of performance experiments.&nbsp; It is the interface between the<span
         class="GramE">&nbsp; user</span> interface and the cluster
@@ -2359,6 +2367,7 @@ A
 portion
 (library)
 of
+
 
       the performance tool that can be loaded and included in the tool
       at tool start-up time.&nbsp; Development of the plugin uses a tool
@@ -2377,6 +2386,7 @@ is
 the
 application
 or
+
 
       part of the application one is running the experiment on. In order
       to fine tune what is being targeted, <b>Open|SpeedShop</b> gives
@@ -2513,6 +2523,7 @@ or
           <td style="vertical-align: top;"><small>Similar to </small><tt><span
                 style="font-size: 10pt;">hwc</span></tt> <small>experiment,
 
+
               except that periodic sampling is used instead of the
               overflow mechansim.&nbsp;&nbsp; See <a
                 href="index.html#HW_Counter_Experiment">"Hardware
@@ -2561,6 +2572,7 @@ or
                   style="font-size: 10pt;">pipe</span></tt>, <tt><span
                   style="font-size: 10pt;">creat</span></tt>.&nbsp;&nbsp;
 
+
               The time reported is wall clock time.</p>
           </td>
         </tr>
@@ -2586,6 +2598,7 @@ or
                   style="font-size: 10pt;">dup</span></tt>, <tt><span
                   style="font-size: 10pt;">pipe</span></tt>, <tt><span
                   style="font-size: 10pt;">creat</span></tt>.&nbsp;&nbsp;
+
 
               The time reported is wall clock time.</p>
           </td>
@@ -2758,6 +2771,7 @@ or
         mode of operation when the openss command is invoked.<span
           style="">&nbsp;&nbsp; </span>See the preferences section for
         details on how to change this preference.<span style="">&nbsp; </span>It
+
         is currently set to place Open|SpeedShop into the offline mode
         of operation by default when the openss command is invoked with
         no options.&nbsp; The following is a set of simple invocation
@@ -2819,14 +2833,17 @@ or
       including version 1.9.2 of Open|SpeedShop to hide some of the
       offline command syntax.&nbsp; An example of the syntax is:<b><span
           style="" lang="EN-GB">&nbsp; osspcsamp "executable" </span></b>which
+
       is equivalent in functionality to: <span style="font-weight:
         bold;">openss -offline -f "executable" pcsamp.</span>&nbsp;&nbsp;
+
       A convenience command for each Open|SpeedShop experiment type is
       provided: <span style="font-weight: bold;">osspcamp, ossusertime,
         osshwc, osshwctime, ossio, ossiot, ossmpi, ossmpit, ossmpiotf,
         and ossfpe.&nbsp;&nbsp; </span>Please view the man page for
       each of the convenience commands, for more information about their
       usage. &nbsp;&nbsp; There is also an <a href="ossscript.html">html
+
         convenience script summary</a> describing the input arguments
       and environment variables that effect the output performance data
       when running the convenience scripts.<br>
@@ -3090,6 +3107,14 @@ or
             width="547"><small> Example usage: osshwc "mpirun -np 256
               smg2000 -n 50 50 50"&nbsp; PAPI_L1_DCM</small> </td>
         </tr>
+        <tr>
+          <td style="vertical-align: top;"><tt><span style="font-size:
+                10pt;">hwcsamp</span></tt></td>
+          <td style="vertical-align: top;"><small>osshwcsamp</small></td>
+          <td style="vertical-align: top;"><small> Example usage:
+              osshwcsamp "mpirun -np 256 smg2000 -n 50 50 50"&nbsp;
+              PAPI_L1_DCM,PAPI_L1_DCA</small></td>
+        </tr>
         <tr style="">
           <td style="padding: 1.5pt; width: 65.35pt;" valign="top"
             width="87">
@@ -3101,8 +3126,8 @@ or
             <p class="MsoNormal" style="">osshwctime</p>
           </td>
           <td style="padding: 1.5pt; width: 410.3pt;" valign="top"
-            width="547"><small> Example usage: osshwc "mpirun -np 256
-              smg2000 -n 50 50 50"&nbsp; PAPI_L1_DCM</small><br>
+            width="547"><small> Example usage: osshwctime "mpirun -np
+              256 smg2000 -n 50 50 50"&nbsp; PAPI_L1_DCM</small><br>
           </td>
         </tr>
         <tr style="">
@@ -3237,6 +3262,7 @@ or
               line-height: normal; font-size-adjust: none; font-stretch:
               normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span><!--[endif]--><span
           style="" lang="EN-GB">Outputs from running:<b><span style="">&nbsp;
+
             </span>openss -offline -f "executable" pcsamp </b>or it's
           equivalent: <b>osspcsamp "executable":<br>
           </b></span></p>
@@ -3326,6 +3352,7 @@ or
     <p style="margin-left: 80px;"><span style="" lang="EN-GB">For this
         example, we run on a large cluster using 128 processors and
         examine the steps needed to run and view the performance data.<o:p></o:p>&nbsp;
+
         <br>
       </span></p>
     <p style="margin-left: 80px;"><span style="" lang="EN-GB">The
@@ -3384,9 +3411,9 @@ or
       of the normal program output followed by Open|SpeedShop reporting
       of symbols being processed.<span style="">&nbsp; </span>Then the
       actual performance data report is output to the screen.<span
-        style="">&nbsp; </span>In
-      this experiment (pcsamp) a sorted list of functions taking the
-      most time in sweep3d.mpi is the default output.</p>
+        style="">&nbsp; </span>In this experiment (pcsamp) a sorted
+      list of functions taking the most time in sweep3d.mpi is the
+      default output.</p>
     <blockquote style="margin-top: 5pt; margin-bottom: 5pt;"> </blockquote>
     <p style="margin-left: 40px;"><a class="mozTocH5"
         name="mozTocId782001"></a><!--[if gte vml 1]><v:shape id="_x0000_i1027"
@@ -3416,6 +3443,7 @@ visibility:visible'>
           lang="EN-GB"></span><span style="font-weight: normal;">or</span><span
           style="font-weight: normal;" lang="EN-GB"> the equivalent
           convenience command </span><span style="" lang="EN-GB"><b>osspcsamp
+
             "</b></span><b style="">orterun -np 128 sweep3d.mpi"</b></h4>
       <ul style="margin-left: 40px;">
         <li><!--[if !supportLists]--><span style="font-family:
@@ -3481,12 +3509,13 @@ visibility:visible'>
       <p class="MsoNormal" style="margin-left: 0.5in;">This output is
         from the CLI tool which was invoked by the "openss -cli -f
         sweep3d.mpi-pcsamp.openss" command.<span style="">&nbsp; </span>This
+
         opens the sweep3d.mpi-pcsamp.openss database file created by the
         experiment that was run for this example.<span style="">&nbsp;&nbsp;
+
         </span>The "expstatus" command provides the information about
-        the experiment.<span style="">&nbsp; </span>The
-        "expview -r 0" command provides the performance data only for
-        rank 0.</p>
+        the experiment.<span style="">&nbsp; </span>The "expview -r 0"
+        command provides the performance data only for rank 0.</p>
       <p class="MsoNormal" style="margin-left: 0.5in;"><o:p>&nbsp;</o:p></p>
       <p class="MsoNormal" style="margin-left: 0.5in;"><o:p>&nbsp;</o:p></p>
       <p class="MsoNormal" style="margin-left: 0.5in;"><o:p>&nbsp;</o:p></p>
@@ -3510,6 +3539,7 @@ visibility:visible'>
         view that the user will see when opening the database file with
         the GUI using the "<b style="">openss -f
           sweep3d.mpi-pcsamp.openss</b>" command.<span style="">&nbsp;&nbsp;
+
         </span>This first view is of the ManageProcessPanel which shows
         the hosts, pids, ranks, etc. that were involved in the
         experiment that was run and created the database file
@@ -3545,12 +3575,14 @@ visibility:visible'>
       <h4><a class="mozTocH5" name="mozTocId801953"></a>View that
         associates the <span class="GramE">performance<span style="">&nbsp;
 
+
           </span>data</span> results for pcsamp to the program source
         lines of sweep3d.mpi</h4>
       <p class="MsoNormal" style="margin-left: 0.5in;">Double clicking
         on the source line of interest in the StatsPanel will position
         the SourcePanel to that line of source corresponding to the
         statistics shown in the StatsPanel.<span style="">&nbsp; </span>The
+
         panels can be split so the data and the source can be viewed
         simultaneously.</p>
       <p><a class="mozTocH5" name="mozTocId351575"></a><!--[if gte vml 1]><v:shape id="_x0000_i1031"
@@ -3574,6 +3606,7 @@ visibility:visible'>
         allows the user to run in two instrumentation modes (offline and
         online).<span style="">&nbsp; </span>This section describes how
         to run in the offline mode via the GUI.<span style="">&nbsp;&nbsp;
+
         </span>The Open|SpeedShop default mode of operation is to use
         offline instrumentation.<span style="">&nbsp;&nbsp; </span>Why?<span
           style="">&nbsp; </span>Offline instrumentation is used by
@@ -3591,6 +3624,7 @@ visibility:visible'>
         instrumentation mode.<span style="">&nbsp;&nbsp; </span>Here "<span
           class="SpellE">Instrumentor</span> Is Offline" is set
         unchecked, for illustration purposes.<span style="">&nbsp; </span>This
+
         means the <span class="SpellE">instrumentor</span>
         Open|SpeedShop will use is online.</p>
       <p class="MsoNormal"><o:p>&nbsp;</o:p></p>
@@ -3657,6 +3691,7 @@ style='width:472.5pt;height:269.25pt'>
           href="#Attaching_to_Already_Running_MPI">MPI jobs section </a>for
 information
 on
+
 
         attaching to processes running on other hosts or partitions.<br>
         <br>
@@ -3758,6 +3793,7 @@ style='width:471.75pt;height:299.25pt;visibility:visible'>
           See the <a href="#mozTocId120565">Introductory Wizard </a>section
 and/or
 
+
           the <a href="#mozTocId260843">Wizard Menu </a>section for
           more details.<br>
         </o:p></p>
@@ -3857,6 +3893,7 @@ height:168.75pt'>
           Experiment</a> menu item.&nbsp;&nbsp; In this example, the
         user has chosen to save the usertime experiment whose experiment
         identification number is two (2).&nbsp;&nbsp;<span style="">&nbsp;
+
         </span></p>
       <p class="MsoNormal">&nbsp; <br>
         <br>
@@ -4325,6 +4362,7 @@ height:273.75pt'>
         best.<span style="">&nbsp; </span>It has the lowest startup and
         running time for most programs.<span style="">&nbsp;&nbsp; </span>The
 
+
         online instrumentation type has a higher start-up cost, but
         gives the user the ability to attach to running processes and
         also to see intermediate performance data results gathered from
@@ -4349,6 +4387,7 @@ style='width:472.5pt;height:269.25pt'>
         it.<span style="">&nbsp; </span>This is the sampling rate, this
         means, how often Open|SpeedShop interrupt the user program to
         take a performance data sample.<span style="">&nbsp;&nbsp; </span>The
+
         higher the sampling rate the more the user application will be
         perturbed.<span style="">&nbsp; </span>The recommended sampling
         rates are provided as the default value.</p>
@@ -4570,6 +4609,7 @@ id="_x0000_i1054" type="#_x0000_t75" style='width:284.25pt;height:372pt'>
         window to close but the <b>Open|SpeedShop</b> will continue if
         the GUI was invoked by the Interactive Command Line Interface
         (CLI) via the "opengui" command.<span style="">&nbsp;&nbsp; </span>The
+
         Close menu item choice will close the GUI but not the
         interactive session that was started by the "openss -cli"
         command.<o:p>&nbsp;</o:p></p>
@@ -4607,6 +4647,7 @@ id="_x0000_i1054" type="#_x0000_t75" style='width:284.25pt;height:372pt'>
           href="../cli_doc/command_definition.html"><span style="color:
             black; text-decoration: none;"><span style="">&nbsp;</span></span>CLI
 
+
           command section</a> for more information.</p>
       <p class="MsoNormal"><o:p>&nbsp;</o:p></p>
     </blockquote>
@@ -4636,6 +4677,7 @@ height:282pt'>
       <p class="MsoNormal">Although the Stats Panel isn't part of the
         tool menu it is a panel that is available from the experiment
         tab panel and is a significant<span class="GramE">&nbsp; panel</span>.&nbsp;&nbsp;
+
 
         It is home to many of the important options used in viewing the
         performance experiment results.&nbsp; Options currently
@@ -4687,9 +4729,10 @@ style='width:474pt;height:282pt'>
       <p class="MsoNormal">The most used items that can be found in the
         StatsPanel menu that is found under the StatsPanel tab are also
         available in the StatsPanel ToolBar.<span style="">&nbsp; </span>The
+
         StatsPanel Toolbar is provided as a convenience.<span style="">&nbsp;&nbsp;
-        </span>The
-        following is a quick overview of the toolbar options.<span
+
+        </span>The following is a quick overview of the toolbar options.<span
           style="">&nbsp;&nbsp; </span>The contents of the toolbar vary
         by experiment, because some options don't make sense for all
         experiments.</p>
@@ -4700,6 +4743,7 @@ style='width:474pt;height:282pt'>
 such
 as
 the
+
 
           experiment type, processes, ranks, threads, hosts, and other
           experiment specific information is displayed.</li>
@@ -4712,12 +4756,14 @@ the
 version
 only)
 
+
           provides for the viewing of intermediate results while the
           user application is still running.</li>
         <li class="MsoNormal" style="">"CL" - Clear auxiliary
           information.<span style="">&nbsp;&nbsp; </span>If the user
           has chosen a time segment of the performance data or a
           specific function to view the data for.<span style="">&nbsp; </span>This
+
           option clears the settings for that and allows the next view
           selection to show data for the entire program again.</li>
         <li class="MsoNormal" style="">"F" - Show performance results
@@ -4730,13 +4776,13 @@ only)
         <li class="MsoNormal" style="">"S, down arrow" - Show the
           performance results related back to the source statements in
           the application for the selected function.<span style="">&nbsp;
-          </span>Highlight
-          a
-          function
-          in the StatsPanel and click on this icon.</li>
+
+          </span>Highlight a function in the StatsPanel and click on
+          this icon.</li>
         <li class="MsoNormal" style="">"C" - Show the calling path for
           all paths in this application.<span style="">&nbsp;&nbsp; </span>Duplicate
 paths
+
 
           will be coalesced.</li>
         <li class="MsoNormal" style="">"C, down arrow" - Show the
@@ -4749,17 +4795,16 @@ paths
 will
 not
 
+
           be coalesced.<span style="">&nbsp; </span>All of the calling
           paths will be shown in their entirety.</li>
         <li class="MsoNormal" style="">"C, plus sign, down arrow" - Show
           all the calling paths in this application for the selected
           function only.<span style="">&nbsp; </span>Highlight a
           function in the StatsPanel and click on this icon.<span
-            style="">&nbsp; </span>Duplicate
-          paths
-          will
-          not be coalesced.<span style="">&nbsp; </span>All of the
-          calling paths will be shown in their entirety.</li>
+            style="">&nbsp; </span>Duplicate paths will not be
+          coalesced.<span style="">&nbsp; </span>All of the calling
+          paths will be shown in their entirety.</li>
         <li class="MsoNormal" style="">"HC" - Hot Call Path - Show the
           callpath in the application that took the most time.&nbsp;
           This is a short cut to find the "hot" call path.<br>
@@ -4771,6 +4816,7 @@ not
         <li class="MsoNormal" style="">"T, down arrow" - Show the
           calling paths; trace back style, for all paths in this
           application for the selected function only.<span style="">&nbsp;
+
           </span>Highlight a function in the StatsPanel and click on
           this icon.</li>
         <li class="MsoNormal" style="">"T, plus sign" - Show all the
@@ -4782,6 +4828,7 @@ not
           all the calling paths, trace back style, in this application
           for the selected function only.<span style="">&nbsp; </span>Highlight
 
+
           a function in the StatsPanel and click on this icon.<span
             style="">&nbsp; </span>Duplicate paths will not be
           coalesced.<span style="">&nbsp; </span>All of the calling
@@ -4790,6 +4837,7 @@ not
           which displays the callers and callees of the selected
           function.<span style="">&nbsp; </span>Highlight a function in
           the StatsPanel and click on this icon.<span style="">&nbsp; </span>Then
+
           repeat to "drill" down into the callers and/or callees.</li>
         <li class="MsoNormal" style="">"TS" - Time Segment - Show a
           portion of the performance data results based on the time
@@ -4821,6 +4869,7 @@ not
     </blockquote>
     <blockquote style="margin-top: 5pt; margin-bottom: 5pt;">
       <p class="MsoNormal" style="margin-bottom: 12pt;"><o:p>&nbsp;&nbsp;&nbsp;
+
 
           &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;<img style="width: 811px;
             height: 86px;" alt="StatsPanel Toolbar"
@@ -4913,6 +4962,7 @@ type="#_x0000_t75" style='width:473.25pt;height:317.25pt'>
       <p class="MsoNormal"><br>
         The user can now click on Next to proceed with the wizard
         process or go back to the previous page.<span style="">&nbsp; </span>The
+
         Finish button is "grayed out" and is included here for
         consistency in the button placement.&nbsp;&nbsp; Shown below, is
         the next window in the wizard process assuming the user clicked
@@ -4964,6 +5014,7 @@ type="#_x0000_t75" style='width:471.75pt;height:316.5pt'>
       process.<span style="">&nbsp;&nbsp; </span>Only loading
       executable options are presented if Open|SpeedShop is operating in
       the offline instrumentation mode.<span style="">&nbsp;&nbsp; </span>Offline
+
       experiments must be started from the initial creation which
       disallows attaching to running applications.</p>
     <p class="MsoNormal" style="margin-left: 56.9pt;"><o:p>&nbsp;</o:p></p>
@@ -4981,6 +5032,7 @@ type="#_x0000_t75" style='width:468.75pt;height:314.25pt'>
     <p style="margin-left: 59.75pt;"><o:p>&nbsp;</o:p></p>
     <p style="margin-left: 59.75pt;">View after selection of "Start/Run
       a multi-process executable from disk (MPI).<span style="">&nbsp;&nbsp;
+
 
       </span>Here "Step 1" expects the user to enter the parallel prefix
       that they would normally include as part of their MPI invocation.<span
@@ -5154,10 +5206,12 @@ type="#_x0000_t75" style='width:477pt;height:283.5pt'>
         <li class="MsoNormal" style="">\&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Step
 
+
           into the next statement</li>
       </ul>
       <ul>
         <li class="MsoNormal" style="">!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
           Stop the experiment</li>
       </ul>
@@ -5248,6 +5302,7 @@ style='width:468.75pt;height:279pt'>
       panel container so that the source and performance data results
       (PC Stats Panel) will be side by side follow the Panel Container
       menu and select split horizontal.<span style="">&nbsp;&nbsp; </span>The
+
       result of split horizontal panel action is shown in the next
       figure.<b><br style="">
         <!--[if !supportLineBreakNewLine]--><br style="">
@@ -5318,16 +5373,14 @@ style='width:468.75pt;height:279pt'>
       <br>
       Note: using this <b>Open|SpeedShop</b> command:<span style="">&nbsp;
 
+
       </span><b style="">openss -gui -online -f "orterun -np 2 nbody"
         pcsamp</b> will get the same result as the following steps which
       are needed when one invokes <b>Open|SpeedShop</b> with the
       "openss" (no arguments) command.&nbsp; Invoking the former command
       will create the PC Sampling experiment and load the executable, <span
-        class="GramE">fred</span>,&nbsp;resulting
-      in
-      an
-      openss GUI as shown in this link: <a
-        href="#Ready_to_Run_the_Experiment">Ready
+        class="GramE">fred</span>,&nbsp;resulting in an openss GUI as
+      shown in this link: <a href="#Ready_to_Run_the_Experiment">Ready
         to run experiment</a>.</p>
     <p style="margin: 5pt 0in 0.0001pt 59.75pt;"><!--[if gte vml 1]><v:shape id="_x0000_i1075" type="#_x0000_t75"
 
@@ -5444,6 +5497,7 @@ can
 attach
 to
 individual
+
 
         MPI processes/ranks automatically, but in order to do that the
         MPI implementation installed must have the MPIR interface
@@ -5697,6 +5751,7 @@ height:318.75pt'>
     <p style="margin-left: 1.25in;"><span class="GramE"><b style="">openss
 -gui
 
+
           [-offline | -online]</b></span><b style=""> -f "mpirun -np 256
         sweep3d.mpi" [pcsamp, usertime, hwc, hwctime, io, iot, fpe, mpi,
         mpit, mpiotf]<o:p></o:p></b></p>
@@ -5731,6 +5786,7 @@ height:318.75pt'>
     <p class="MsoNormal" style="margin-left: 1in;">As mentioned above,
       all the various ways of running Open|SpeedShop create a database
       file that has the suffix ".openss".<span style="">&nbsp;&nbsp; </span>This
+
       file contains all the symbols, time stamps, and performance data
       information to view the results of the Open|SpeedShop performance
       experiment which was run on the user's application.</p>
@@ -5754,9 +5810,11 @@ command
 will
 load
 
+
         the database information into the GUI in one step.<span style="">&nbsp;
-        </span>When
-        the GUI is raised the data will be presented for viewing.</li>
+
+        </span>When the GUI is raised the data will be presented for
+        viewing.</li>
     </ul>
     <h4 style="margin-left: 1in;"><a class="mozTocH4"
         name="mozTocId530206"></a>Source Panel</h4>
@@ -5781,11 +5839,8 @@ height:282pt'>
     <p class="MsoNormal" style="margin-left: 87.1pt;">Although the Stats
       Panel isn't part of the tool menu it is a panel that is available
       from the experiment tab panel and is a significant<span
-        class="GramE">&nbsp; panel</span>.&nbsp;&nbsp;
-      It
-      is
-      home
-      to many of the important options used in viewing the performance
+        class="GramE">&nbsp; panel</span>.&nbsp;&nbsp; It is home to
+      many of the important options used in viewing the performance
       experiment results.&nbsp; Key options currently available (viewed
       by right mouse down click in Stats Panel tab) include:</p>
     <ul style="margin-left: 120px;">
@@ -5816,6 +5871,7 @@ result
 data
 to
 
+
         a text file</li>
       <li><!--[if !supportLists]--><span style="font-size: 10pt;
           font-family: Symbol;"><span style=""><span style="font-family:
@@ -5839,13 +5895,11 @@ type="#_x0000_t75" style='width:474pt;height:282pt'>
     <p class="MsoNormal" style="margin-left: 87.1pt;">The most used
       items that can be found in the StatsPanel menu that is found under
       the StatsPanel tab are also available in the StatsPanel ToolBar.<span
-        style="">&nbsp; </span>The
-      StatsPanel Toolbar is provided as a convenience.<span style="">&nbsp;&nbsp;
-
-      </span>The following is a quick overview of the toolbar options.<span
-        style="">&nbsp;&nbsp; </span>The contents of the toolbar vary
-      by experiment, because some options don't make sense for all
-      experiments.</p>
+        style="">&nbsp; </span>The StatsPanel Toolbar is provided as a
+      convenience.<span style="">&nbsp;&nbsp; </span>The following is a
+      quick overview of the toolbar options.<span style="">&nbsp;&nbsp;
+      </span>The contents of the toolbar vary by experiment, because
+      some options don't make sense for all experiments.</p>
     <p class="MsoNormal" style="margin-left: 87.1pt;"><o:p>&nbsp;</o:p></p>
     <ul style="margin-left: 120px;">
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
@@ -5857,10 +5911,12 @@ type="#_x0000_t75" style='width:474pt;height:282pt'>
 Information
 -
 
+
         This option shows the metadata for the experiment.<span style="">&nbsp;
-        </span>Information
-        such as the experiment type, processes, ranks, threads, hosts,
-        and other experiment specific information is displayed.</li>
+
+        </span>Information such as the experiment type, processes,
+        ranks, threads, hosts, and other experiment specific information
+        is displayed.</li>
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
             style=""><span style="font-family: &quot;Times New
               Roman&quot;; font-style: normal; font-variant: normal;
@@ -5870,15 +5926,13 @@ Information
 Update
 -
 
-        This option updates the information in the StatsPanel display.<span
-          style="">&nbsp; </span>This
-        can
-        be
-        used to display any new data that may have come from the nodes
-        on which the application is running.<span style="">&nbsp; </span>Open|SpeedShop
 
-        (online version only) provides for the viewing of intermediate
-        results while the user application is still running.</li>
+        This option updates the information in the StatsPanel display.<span
+          style="">&nbsp; </span>This can be used to display any new
+        data that may have come from the nodes on which the application
+        is running.<span style="">&nbsp; </span>Open|SpeedShop (online
+        version only) provides for the viewing of intermediate results
+        while the user application is still running.</li>
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
             style=""><span style="font-family: &quot;Times New
               Roman&quot;; font-style: normal; font-variant: normal;
@@ -5887,6 +5941,7 @@ Update
 -
 Clear
 auxiliary
+
 
         information.<span style="">&nbsp;&nbsp; </span>If the user has
         chosen a time segment of the performance data or a specific
@@ -5902,6 +5957,7 @@ auxiliary
 Show
 performance
 
+
         results related back to the functions in the application.</li>
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
             style=""><span style="font-family: &quot;Times New
@@ -5911,6 +5967,7 @@ performance
 -
 Show
 performance
+
 
         results related back to the linked objects (main program and
         dynamically linked objects) in the application.</li>
@@ -5923,6 +5980,7 @@ performance
 Show
 performance
 
+
         results related back to the source statements in the
         application.</li>
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
@@ -5933,6 +5991,7 @@ performance
 down
 arrow"
 -
+
 
         Show the <span class="GramE">performance<span style="">&nbsp; </span>results</span>
         related back to the source statements in the application for the
@@ -5947,7 +6006,9 @@ arrow"
 Show
 the
 
+
         calling path for all paths in this application.<span style="">&nbsp;&nbsp;
+
         </span>Duplicate paths will be coalesced.</li>
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
             style=""><span style="font-family: &quot;Times New
@@ -5957,6 +6018,7 @@ the
 down
 arrow"
 -
+
 
         Show the calling path for all paths in this application for the
         selected function only.<span style="">&nbsp; </span>Highlight a
@@ -5970,8 +6032,11 @@ plus
 sign"
 -
 
+
         Show all the calling paths in this application.<span style="">&nbsp;
+
         </span>Duplicate paths will not be coalesced.<span style="">&nbsp;
+
         </span>All of the calling paths will be shown in their entirety.</li>
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
             style=""><span style="font-family: &quot;Times New
@@ -5982,10 +6047,13 @@ plus
 sign,
 down
 
+
         arrow" - Show all the calling paths in this application for the
         selected function only.<span style="">&nbsp; </span>Highlight a
         function in the StatsPanel and click on this icon.<span style="">&nbsp;
+
         </span>Duplicate paths will not be coalesced.<span style="">&nbsp;
+
         </span>All of the calling paths will be shown in their entirety.</li>
       <li>"HC" - Hot Call Path - Show the callpath in the application
         that took the most time.&nbsp; This is a short cut to find the
@@ -5995,6 +6063,7 @@ down
 paths
 will
 be
+
 
         coalesced</li>
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
@@ -6006,10 +6075,11 @@ down
 arrow"
 -
 
+
         Show the calling <span class="GramE">paths,</span> trace back
         style, for all paths in this application for the selected
-        function only.<span style="">&nbsp; </span>Highlight
-        a function in the StatsPanel and click on this icon.</li>
+        function only.<span style="">&nbsp; </span>Highlight a function
+        in the StatsPanel and click on this icon.</li>
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
             style=""><span style="font-family: &quot;Times New
               Roman&quot;; font-style: normal; font-variant: normal;
@@ -6019,10 +6089,11 @@ plus
 sign"
 -
 
+
         Show all the calling paths, trace back style, in this
-        application.<span style="">&nbsp; </span>Duplicate
-        paths will not be coalesced.<span style="">&nbsp; </span>All of
-        the calling paths will be shown in their entirety.</li>
+        application.<span style="">&nbsp; </span>Duplicate paths will
+        not be coalesced.<span style="">&nbsp; </span>All of the
+        calling paths will be shown in their entirety.</li>
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
             style=""><span style="font-family: &quot;Times New
               Roman&quot;; font-style: normal; font-variant: normal;
@@ -6032,14 +6103,13 @@ plus
 sign,
 down
 
+
         arrow" - Show all the calling paths, trace back style, in this
         application for the selected function only.<span style="">&nbsp;
         </span>Highlight a function in the StatsPanel and click on this
-        icon.<span style="">&nbsp; </span>Duplicate
-        paths
-        will
-        not be coalesced.<span style="">&nbsp; </span>All of the
-        calling paths will be shown in their entirety.</li>
+        icon.<span style="">&nbsp; </span>Duplicate paths will not be
+        coalesced.<span style="">&nbsp; </span>All of the calling paths
+        will be shown in their entirety.</li>
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
             style=""><span style="font-family: &quot;Times New
               Roman&quot;; font-style: normal; font-variant: normal;
@@ -6049,9 +6119,11 @@ down
 Show
 the
 
+
         butterfly view which displays the callers and callees of the
         selected function.<span style="">&nbsp; </span>Highlight a
         function in the StatsPanel and click on this icon.<span style="">&nbsp;
+
         </span>Then repeat to "drill" down into the callers and/or
         callees.</li>
       <li class="MsoNormal" style=""><small><small>"TS" - Time Segment -
@@ -6070,8 +6142,10 @@ the
 Show
 the
 
+
         load balance view which displays the min, max, and average
         performance values for the application.<span style="">&nbsp;&nbsp;
+
         </span>Only available on threaded or multiple process
         applications.<span style="">&nbsp;&nbsp; </span></li>
       <li><!--[if !supportLists]--><span style="font-family: Symbol;"><span
@@ -6082,6 +6156,7 @@ the
 -
 Show
 the
+
 
         comparative analysis view which displays the output of a cluster
         analysis algorithm run against the threaded or multiple process
@@ -6097,6 +6172,7 @@ the
 -
 Raise
 the
+
 
         custom comparison panel which provides mechanisms allowing the
         user to create custom views of the performance analysis results.<span
@@ -6116,6 +6192,7 @@ type="#_x0000_t75" style='width:517.5pt;height:62.25pt'>
         94px;" alt="Stats Panel Toolbar"
         src="usersGuide-1.9c_files/ToolBar.png"><!--[endif]--></p>
     <p class="MsoNormal" style="margin-left: 1in;"><o:p>&nbsp;&nbsp;&nbsp;&nbsp;
+
 
         <br>
       </o:p></p>
@@ -6143,9 +6220,11 @@ command
 will
 load
 
+
         the database information into the CLI in one step.<span style="">&nbsp;
-        </span>When
-        the CLI is opened the data will be loaded for viewing.</li>
+
+        </span>When the CLI is opened the data will be loaded for
+        viewing.</li>
     </ul>
     <!--[if !supportLists]-->
     <p class="MsoNormal" style="margin-left: 1in;">In both cases above,
@@ -6247,15 +6326,13 @@ command
 usage
 document
 
+
         </a>shows information similar to the help that the interactive
         command tool gives when requests for help on a command are
         entered.&nbsp;&nbsp; <span class="GramE">A simple scenario to
           illustrate usage, both in command only form and command and
-          explanation form.</span>&nbsp;&nbsp;
-        Click
-        on
-        this <a href="../cli_doc/s1.html">link</a> to view the
-        scenario.</p>
+          explanation form.</span>&nbsp;&nbsp; Click on this <a
+          href="../cli_doc/s1.html">link</a> to view the scenario.</p>
       <p class="MsoNormal"><o:p>&nbsp;</o:p></p>
     </blockquote>
     <h3 style="margin: 0in 56.9pt 5pt;"><a class="mozTocH3"
@@ -6329,6 +6406,7 @@ document
         Usage: /home/openss/demo/Simple/mutatee &lt;size&gt;<br>
         No size argument given.&nbsp;&nbsp; <span class="GramE">Defaulting
 
+
           to 250.</span><br>
         /home/openss/demo/Simple/mutatee: successfully completed.<b><br>
           <br>
@@ -6347,13 +6425,16 @@ document
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2.090000&nbsp;
 
+
         f3<br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.320000&nbsp;
 
+
         f2<br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.650000&nbsp;
+
 
         f1<br>
         # Open|SpeedShop prompt for additional command input<br>
@@ -6403,6 +6484,7 @@ document
           is:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
         </li>
       </ul>
     </blockquote>
@@ -6438,6 +6520,7 @@ document
           collectors and the application you are running under openss is
           an mpich2 MPI application.&nbsp;&nbsp; You would set <span
             style="font-family: &quot;Courier New&quot;;">OPENSS_MPI_IMPLEMENTATION
+
 
             to mpich2,&nbsp; like this: </span></li>
       </ul>
@@ -6567,6 +6650,7 @@ document
         0 S userid &nbsp; 19236 19233<span class="GramE">&nbsp; 0</span>&nbsp;
 77&nbsp;&nbsp;
 
+
         0&nbsp;&nbsp;&nbsp; -&nbsp; 1094 pipe_w 08:13
         ttyp0&nbsp;&nbsp;&nbsp; 00:00:00 grep mpirun <br>
         <br>
@@ -6670,11 +6754,13 @@ document
 of
 Total&nbsp;
 
+
         Function Name <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         39162720000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 13.2517&nbsp;
 hypre_SMGResidual(smg2000)
+
 
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -6682,11 +6768,13 @@ hypre_SMGResidual(smg2000)
 8.4087&nbsp;
 hypre_CyclicReduction(smg2000)
 
+
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         2350560000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.6919&nbsp;
 hypre_SemiInterp(smg2000)
+
 
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -6694,11 +6782,13 @@ hypre_SemiInterp(smg2000)
 0.2661&nbsp;
 hypre_SemiRestrict(smg2000)
 
+
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         756960000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.3725&nbsp;
 MPIR_UnPack_Hvector(smg2000)
+
 
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -6706,11 +6796,13 @@ MPIR_UnPack_Hvector(smg2000)
 0.1064&nbsp;
 memcpy(libc.so.6)
 
+
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         438240000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.1064&nbsp;
 hypre_StructAxpy(smg2000)
+
 
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -6718,11 +6810,13 @@ hypre_StructAxpy(smg2000)
 0.2661&nbsp;
 hypre_SMGAxpy(smg2000)
 
+
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         398400000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.0532&nbsp;
 hypre_InitializeCommunication(smg2000)
+
 
         <br>
         ...<br>
@@ -6754,11 +6848,13 @@ hypre_InitializeCommunication(smg2000)
 of
 Total&nbsp;
 
+
         Function Name <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         9920160000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 53.4335&nbsp;
 hypre_SMGResidual(smg2000)
+
 
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -6766,11 +6862,13 @@ hypre_SMGResidual(smg2000)
 33.9056&nbsp;
 hypre_CyclicReduction(smg2000)
 
+
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         517920000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2.7897&nbsp;
 hypre_SemiInterp(smg2000)
+
 
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -6778,11 +6876,13 @@ hypre_SemiInterp(smg2000)
 1.5021&nbsp;
 MPIR_UnPack_Hvector(smg2000)
 
+
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         199200000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.0730&nbsp;
 hypre_SemiRestrict(smg2000)
+
 
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -6790,11 +6890,13 @@ hypre_SemiRestrict(smg2000)
 1.0730&nbsp;
 hypre_SMGAxpy(smg2000)
 
+
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         119520000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.6438&nbsp;
 MPIR_Unpack2(smg2000)
+
 
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -6802,11 +6904,13 @@ MPIR_Unpack2(smg2000)
 0.6438&nbsp;
 MPID_CH_Eagerb_isend_short(smg2000)
 
+
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         119520000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.6438&nbsp;
 hypre_SMGSetStructVectorConstantValues(smg2000)
+
 
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -6814,15 +6918,18 @@ hypre_SMGSetStructVectorConstantValues(smg2000)
 0.4292&nbsp;
 memcpy(libc.so.6)
 
+
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 79680000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.4292&nbsp;
 hypre_StructAxpy(smg2000)
 
+
         <br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 39840000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
         0.2146&nbsp; _int_malloc(libc.so.6) \<br>
         ...<br>
@@ -6897,6 +7004,7 @@ hypre_StructAxpy(smg2000)
       &lt;segment_count&gt;<br>
       No size argument given.&nbsp;&nbsp; <span class="GramE">Defaulting
 
+
         to 750.</span><br>
       /work/jeg/OpenSpeedShop/usability/phaseII/<span class="GramE">fred</span>:
       successfully completed.<br>
@@ -6909,6 +7017,7 @@ hypre_StructAxpy(smg2000)
       <span class="GramE">in</span>
       seconds.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
+
       CPU Time<br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       5.45714275&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -6916,6 +7025,7 @@ hypre_StructAxpy(smg2000)
 51.62162162&nbsp;
 f3
 (fred:
+
 
       f3.c,23)<br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -6925,6 +7035,7 @@ f3
 f2
 (fred:
 
+
       f2.c,2)<br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       1.79999996&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -6933,15 +7044,18 @@ f2
 f1
 (fred:
 
+
       f1.c,2)<br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       0.00000000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-10.57142836&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      10.57142836&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
       0.00000000&nbsp; __libc_start_main (libc.so.6)<br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       0.00000000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-10.57142836&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      10.57142836&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
       0.00000000&nbsp; _start (fred)<br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -6951,6 +7065,7 @@ f1
 work
 (fred:
 
+
       work.c,2)<br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       0.00000000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -6958,6 +7073,7 @@ work
 0.00000000&nbsp;
 main
 (fred:
+
 
       fred.c,5)<span style="font-size: 10pt;"> </span></p>
     <h3><a class="mozTocH3" name="mozTocId76604"></a><a
@@ -7064,6 +7180,7 @@ main
         Excl. CPU time&nbsp;&nbsp; % of CPU Time&nbsp; Function (def.
         location)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
+
         \<br>
         &nbsp;&nbsp;&nbsp;&nbsp;
         4.6700&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -7078,6 +7195,7 @@ main
         </b>The example creates a program counter sampling experiment
         (pcsamp) for the executable that is located in the relative
         directory path "../..<span class="GramE">/usability/phaseII/".</span>&nbsp;&nbsp;
+
         The oss.expGo python statement runs the experiment and the
         oss.dumpView prints the results.<br>
         <br>
@@ -7105,6 +7223,7 @@ main
 variables
 that
 relate
+
 
             to Open|SpeedShop functionality or access.</span></span></span><span
         style=""></span><span style="font-size: 14pt;"><o:p></o:p></span></h3>
@@ -7157,6 +7276,7 @@ relate
 this
 variable
 will
+
 
       only be used to override the auto-detection code.</p>
     <h4 style="margin-left: 0.5in;"><a class="mozTocH4"
@@ -7342,6 +7462,7 @@ will
       plugin.&nbsp; A plugin is a mechanism in which to extend the
       capability of <b>Open|SpeedShop</b> by adding additional
       experiment collectors, Graphical User Interface<span class="GramE">&nbsp;
+
         panels</span> or Interactive Command Line Interface data
       views.&nbsp;&nbsp; These are multiple plugin types used in <b>Open|SpeedShop</b>:</p>
     <p style="margin: 5pt 0in 0.0001pt 66.25pt; text-indent: -0.25in;"><!--[if !supportLists]--><span
@@ -7350,12 +7471,14 @@ will
           font-weight: normal; font-size: 7pt; line-height: normal;
           font-size-adjust: none; font-stretch: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
+
         </span></span><!--[endif]-->Collector Plugins </p>
     <p style="margin: 5pt 0in 0.0001pt 66.25pt; text-indent: -0.25in;"><!--[if !supportLists]--><span
         style="">2.<span style="font-family: &quot;Times New
           Roman&quot;; font-style: normal; font-variant: normal;
           font-weight: normal; font-size: 7pt; line-height: normal;
           font-size-adjust: none; font-stretch: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
         </span></span><!--[endif]-->Graphical User Interface Plugins </p>
     <p style="margin-left: 66.25pt; text-indent: -0.25in;"><!--[if !supportLists]--><span
@@ -7364,6 +7487,7 @@ will
           font-weight: normal; font-size: 7pt; line-height: normal;
           font-size-adjust: none; font-stretch: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
+
         </span></span><!--[endif]-->Interactive Command Line Interface
       View Plugins </p>
     <p class="MsoNormal" style="margin-left: 30.25pt;">Plugins are in
@@ -7371,6 +7495,7 @@ will
       plugins control experiment definition, data collection and data
       display, whether ASCII output or as a GUI panel. All the stock
       experiments are in plugin form.<span style="">&nbsp;&nbsp; </span>Plugins
+
       can be written for advanced/enhanced versions of experiment
       collectors, and views for all the User Interfaces. These plugins
       allow the <b>Open|SpeedShop</b> performance tool to be enhanced
