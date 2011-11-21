@@ -749,17 +749,19 @@ Build
               manner.<br>
               <br>
               The spec files associated with this build process include:<br>
+              binutilsver=2.20.51_a<br>
               qtver=3.3.8b<br>
               libelfver=0.8.5_a<br>
               libdwarfver=20110113_a<br>
-              libunwindver=020100123_a<br>
-              papiver=4.1.2.1_a<br>
+              libunwindver=1.0.1_a<br>
+              papiver=4.2.0_a<br>
               sqlitever=3.7.4_a<br>
-              monitorver=20110321_a<br>
+              monitorver=20110520_a<br>
               vampirtracever=5.3.2_a<br>
-              dyninstver=7.0_a<br>
-              mrnetver=3.0.1_a<br>
+              dyninstver=7.0.1_a<br>
+              mrnetver=20110714_a<br>
               openspeedshopver=2.0.1_a<br>
+              <br>
               <br>
               There is an order that is required in building the
               components because
@@ -846,68 +848,55 @@ Build
                 &nbsp;&nbsp;&nbsp;
 ---------------------------------------------------------------------------<br>
                 &nbsp;&nbsp;&nbsp; This script builds RPMs and supports
-                installation as
-                non-root through cpio<br>
+                installation as non-root through cpio<br>
                 &nbsp;&nbsp;&nbsp; <br>
                 &nbsp;&nbsp;&nbsp; The default install prefix is
-                /opt/OSS. If another
-                is preferred, please set<br>
+                /opt/OSS. If another is preferred, please set<br>
                 &nbsp;&nbsp;&nbsp; the OPENSS_PREFIX environment
-                variable to reflect
-                the new target directory&nbsp;&nbsp; <br>
+                variable to reflect the new target directory&nbsp;&nbsp;
+                <br>
                 &nbsp;&nbsp;&nbsp;&nbsp; <br>
                 &nbsp;&nbsp;&nbsp; If you plan on installing RPMs as
-                root, it will let
-                you know at what point<br>
+                root, it will let you know at what point<br>
                 &nbsp;&nbsp;&nbsp;
 ---------------------------------------------------------------------------<br>
                 <br>
                 <br>
-                &nbsp;&nbsp;&nbsp; You are building for default
-                Open|SpeedShop
-                instrumentor: offline.<br>
-                &nbsp;&nbsp;&nbsp; If you wish to change the
-                Open|SpeedShop
-                instrumentor, use<br>
-                &nbsp;&nbsp;&nbsp; the OPENSS_INSTRUMENTOR to specify:
-                mrnet, or
+                &nbsp;&nbsp;&nbsp; You are building for Open|SpeedShop
+                instrumentor: mrnet<br>
+                &nbsp;&nbsp;&nbsp; You have manually specified a
+                Open|SpeedShop instrumentor using<br>
+                &nbsp;&nbsp;&nbsp; the environment variable
+                OPENSS_INSTRUMENTOR to override the<br>
+                &nbsp;&nbsp;&nbsp; default Open|SpeedShop instrumentor:
                 offline.<br>
-                <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
                 &nbsp;&nbsp; <br>
                 &nbsp;&nbsp; <br>
                 &nbsp;&nbsp;&nbsp; Checking for prerequisite components
-                needed to build
-                Open|SpeedShop and/or <br>
+                needed to build Open|SpeedShop and/or <br>
                 &nbsp;&nbsp;&nbsp; the Open|SpeedShop required component
-                packages. If
-                all the prerequisite<br>
+                packages. If all the prerequisite<br>
                 &nbsp;&nbsp;&nbsp; packages are present the script will
-                continue, if
-                not all the prerequisites<br>
+                continue, if not all the prerequisites<br>
                 &nbsp;&nbsp;&nbsp; are found, the script exits because
-                the build will
-                fail without the <br>
+                the build will fail without the <br>
                 &nbsp;&nbsp;&nbsp; prerequisite components installed.<br>
                 &nbsp;&nbsp;&nbsp; We are checking for these components:<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a) GNU patch<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b) libelf
                 and/or libelf-devel<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c) libxml2
-                and/or
-                libxml2-devel<br>
+                and/or libxml2-devel<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                NOTE:
-                libxml2 and/or libxml2-devel are not needed<br>
+                NOTE: libxml2 and/or libxml2-devel are not needed<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-if
-                using OPENSS_INSTRUMENTOR=offline, however,<br>
+                if using OPENSS_INSTRUMENTOR=offline, however,<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-the
-                online (mrnet) version does need libxml2 and
+                the online (mrnet) version does need libxml2 and
                 libxml2-devel<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; d) binutils
-                and/or
-                binutils-devel<br>
+                and/or binutils-devel<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; e) qt and/or
                 qt-devel<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f) python
@@ -916,8 +905,7 @@ the
                 flex<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; h) libtool<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i) The
-                environment variable
-                QTDIR is set<br>
+                environment variable QTDIR is set<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j) rpm<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; k) libltdl
                 and libltdl-devel<br>
@@ -930,19 +918,15 @@ the
                 &nbsp;&nbsp;&nbsp; NOTE: GNU patch was detected in
                 /usr/bin<br>
                 &nbsp;&nbsp;&nbsp; NOTE: libelf and libelf-devel
-                detected in
-                /usr/&lt;lib&gt;...<br>
+                detected in /usr/&lt;lib&gt;...<br>
                 &nbsp;&nbsp;&nbsp; NOTE: libxml2 and libxml2-devel
-                detected in
-                /usr/&lt;lib&gt;...<br>
+                detected in /usr/&lt;lib&gt;...<br>
                 &nbsp;&nbsp;&nbsp; NOTE: binutils and binutils-devel
-                detected in
-                /usr/bin and /usr/&lt;lib&gt;...<br>
+                detected in /usr/bin and /usr/&lt;lib&gt;...<br>
                 &nbsp;&nbsp;&nbsp; NOTE: qt and qt-devel detected in
                 /usr/&lt;lib&gt;/qt...<br>
                 &nbsp;&nbsp;&nbsp; NOTE: python and python-devel
-                detected in /usr/bin
-                and /usr/&lt;lib&gt;...<br>
+                detected in /usr/bin and /usr/&lt;lib&gt;...<br>
                 &nbsp;&nbsp;&nbsp; NOTE: flex and/or bison was detected
                 in /usr/bin<br>
                 &nbsp;&nbsp;&nbsp; NOTE: libtool was detected in
@@ -951,8 +935,7 @@ the
                 &nbsp;&nbsp;&nbsp; NOTE: rpm was detected in /usr/bin or
                 /bin<br>
                 &nbsp;&nbsp;&nbsp; NOTE: libltdl and libltdl-devel were
-                detected in
-                /usr/lib64<br>
+                detected in /usr/lib64<br>
                 &nbsp;&nbsp; <br>
                 &nbsp;&nbsp; <br>
                 &nbsp;&nbsp;&nbsp; <br>
@@ -960,211 +943,167 @@ the
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -General<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_PREFIX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-set
-                to alternate install prefix.&nbsp; default is /opt/OSS<br>
+                set to alternate install prefix.&nbsp; default is
+                /opt/OSS<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_INSTRUMENTOR&nbsp;&nbsp;&nbsp;&nbsp; set to the
-                underlying
-                instrumentation type openss will use.&nbsp; default is
-                offline (does
-                not include online/mrnet)<br>
+                underlying instrumentation type openss will use.&nbsp;
+                default is offline (does not include online/mrnet)<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_TARGET_ARCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set to
-                the target
-                architecture to build the Open|SpeedShop runtime
-                environment for.<br>
+                the target architecture to build the Open|SpeedShop
+                runtime environment for.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_PPC64_BITMODE_64 set to indicate you want a 64
+                bit version of ppc64 OSS built.&nbsp; Set to 1 or leave
+                unset to indicate 32 bit build.<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                -Open|SpeedShop MPI and
-                Vampirtrace<br>
+                -Open|SpeedShop MPI and Vampirtrace<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_MPI_LAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-set
-                to MPI LAM installation dir. default is null.<br>
+                set to MPI LAM installation dir. default is null.<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_MPI_LAMPI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                set to MPI
-                LAMPI installation dir. default is null.<br>
+                set to MPI LAMPI installation dir. default is null.<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_MPI_OPENMPI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set to
-                MPI OPENMPI
-                installation dir. default is null.<br>
+                MPI OPENMPI installation dir. default is null.<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_MPI_MPICH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                set to MPI
-                MPICH installation dir. default is null.<br>
+                set to MPI MPICH installation dir. default is null.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_MPI_MPICH_DRIVER mpich driver name [ch-p4].
+                default is null.<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_MPI_MPICH2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                set to MPI MPICH2
-                installation dir. default is null.<br>
+                set to MPI MPICH2 installation dir. default is null.<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_MPI_MPICH_DRIVER mpich/mpich2 driver name
-                [ch-p4]. default is
-                null.<br>
+                OPENSS_MPI_MPICH2_DRIVER&nbsp; set to mpich2 driver name
+                [cray]. default is null.<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_MPI_MPT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-set
-                to SGI MPI MPT installation dir. default is null.<br>
+                set to SGI MPI MPT installation dir. default is null.<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_MPI_MVAPICH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set to
-                MPI MVAPICH
-                installation dir. default is null.<br>
+                MPI MVAPICH installation dir. default is null.<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_MPI_MVAPICH2&nbsp;&nbsp;&nbsp;&nbsp; set to MPI
-                MVAPICH2
-                installation dir. default is null.<br>
+                MVAPICH2 installation dir. default is null.<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_OFED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-set
-                to OPEN FABRICS installation dir. default is /usr.<br>
+                set to OPEN FABRICS installation dir. default is /usr.<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_BINUTILS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                set to
-                alternative directory location for binutils components.
-                default is /usr<br>
+                set to alternative directory location for binutils
+                components. default is /usr<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_PYTHON&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-set
-                to alternative directory location for python components.
-                default is
-                /usr<br>
+                set to alternative directory location for python
+                components. default is /usr<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_LIBXML2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-set
-                to alternative directory location for libxml2
-                components. default
-                is /usr<br>
+                set to alternative directory location for libxml2
+                components. default is /usr<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_IMPLICIT_TLS&nbsp;&nbsp;&nbsp;&nbsp; When set,
-                this enables
-                Open|SpeedShop to use implicitly created tls storage.
-                default is
-                explicit.<br>
+                this enables Open|SpeedShop to use implicitly created
+                tls storage. default is explicit.<br>
                 &nbsp;&nbsp;&nbsp; <br>
                 &nbsp;&nbsp; <br>
                 &nbsp;&nbsp; <br>
                 &nbsp;&nbsp;&nbsp; Checking to see if OPENSS_PREFIX is
-                set.&nbsp; This
-                is the installation path for all <br>
+                set.&nbsp; This is the installation path for all <br>
                 &nbsp;&nbsp;&nbsp; the OpenSpeedShop supporting
-                components and also the
-                OpenSpeedShop components.<br>
+                components and also the OpenSpeedShop components.<br>
                 &nbsp;&nbsp; <br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
-                OPENSS_PREFIX=/opt/OSS-mrnet<br>
+                OPENSS_PREFIX=/opt/oss-201b14<br>
                 &nbsp;&nbsp;&nbsp; <br>
                 &nbsp;&nbsp;&nbsp; Current Values for OPENSS Environment
                 Variables:<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -General<br>
                 <br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
-                OPENSS_PREFIX=/opt/OSS-mrnet<br>
+                OPENSS_PREFIX=/opt/oss-201b14<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
-                OPENSS_INSTRUMENTOR=offline<br>
+                OPENSS_INSTRUMENTOR=mrnet<br>
                 &nbsp;&nbsp;&nbsp; <br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                -Open|SpeedShop MPI and
-                Vampirtrace<br>
+                -Open|SpeedShop MPI and Vampirtrace<br>
                 <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
+                OPENSS_MPI_OPENMPI=/usr/lib64/openmpi<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
+                OPENSS_MPI_MPICH2=/usr/lib64/mpich2<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
+                OPENSS_MPI_MVAPICH=/opt/mvapich-1.1<br>
                 <br>
                 &nbsp;&nbsp;&nbsp; Choices:<br>
-                <br>
-                &nbsp;&nbsp;&nbsp; 0&nbsp; - Set ~/.rpmmacros %_topdir
-                to:<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                /home/jeg/release-2.0.1/OpenSpeedShop_ROOT&nbsp; <br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                original will be
-                copied to .rpmmacros.##<br>
-                &nbsp;&nbsp;&nbsp; 0a - View environment variables that
-                may be set<br>
                 &nbsp;&nbsp;&nbsp; <br>
-                &nbsp;&nbsp;&nbsp; 1&nbsp; - Check if libelf is
-                installed, build if
-                necessary<br>
-                &nbsp;&nbsp;&nbsp; 1a - Install libelf if built
-                (non-root/cpio)<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -
-                Otherwise install
-                RPM manually at this point<br>
+                &nbsp;&nbsp;&nbsp; 1&nbsp; - Build binutils (optional),
+                Check/Build libelf libraries<br>
+                &nbsp;&nbsp;&nbsp; 1a - Install binutils (optional),
+                libelf, if built (non-root/cpio)<br>
                 &nbsp;&nbsp;&nbsp; 2&nbsp; - Build base Support
                 libraries: libdwarf<br>
                 &nbsp;&nbsp;&nbsp; 2a - Install libdwarf if built
                 (non-root/cpio)<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -
-                Otherwise install
-                RPM manually at this point<br>
+                Otherwise install RPM manually at this point<br>
                 &nbsp;&nbsp;&nbsp; 3&nbsp; - Build base Support
-                libraries: libunwind,
-                papi, sqlite, monitor<br>
+                libraries: libunwind, papi, sqlite, monitor<br>
                 &nbsp;&nbsp;&nbsp; 3a - Install base Support libraries
-                (non-root/cpio):
-                libunwind, papi,<br>
+                (non-root/cpio): libunwind, papi,<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sqlite,
                 monitor<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -
-                Otherwise install
-                RPMs manually at this point<br>
+                Otherwise install RPMs manually at this point<br>
                 &nbsp;&nbsp;&nbsp; 4&nbsp; - Build base Support
-                libraries: vampirtrace,
-                dyninst<br>
+                libraries: vampirtrace, dyninst<br>
                 &nbsp;&nbsp;&nbsp; 4a - Install base Support library
-                (non-root/cpio):
-                vampirtrace, dyninst<br>
+                (non-root/cpio): vampirtrace, dyninst<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -
-                Otherwise install
-                RPMs manually at this point<br>
+                Otherwise install RPMs manually at this point<br>
                 &nbsp;&nbsp;&nbsp; 5&nbsp; - Build base Support
                 libraries: mrnet<br>
                 &nbsp;&nbsp;&nbsp; 5a - Install base Support library:
                 mrnet<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -
-                Otherwise install
-                RPMs manually at this point<br>
+                Otherwise install RPMs manually at this point<br>
                 &nbsp;&nbsp;&nbsp; 6&nbsp; - Check if base GUI support
-                library is
-                installed, build if necessary: qt3/qt3.3<br>
+                library is installed, build if necessary: qt3/qt3.3<br>
                 &nbsp;&nbsp;&nbsp; 6a - Install base GUI support library
-                if built
-                (non-root/cpio): qt3/qt-3.3<br>
+                if built (non-root/cpio): qt3/qt-3.3<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -
-                Otherwise install
-                RPMs manually at this point<br>
+                Otherwise install RPMs manually at this point<br>
                 &nbsp;&nbsp;&nbsp; 7&nbsp; - Build Open|SpeedShop<br>
                 &nbsp;&nbsp;&nbsp; 7a - Install Open|SpeedShop<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -
-                Otherwise install
-                RPMs manually at this point<br>
+                Otherwise install RPMs manually at this point<br>
                 &nbsp;&nbsp;&nbsp; 8&nbsp; - Install status<br>
                 <br>
                 &nbsp;&nbsp;&nbsp; 9&nbsp; - Automatic - Run all steps
-                with no
-                questions asked. Assume that the<br>
+                with no questions asked. Assume that the<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-answer
-                to any question which will be asked is yes. Please<br>
+                answer to any question which will be asked is yes.
+                Please<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-make
-                certain that all required environment variables are<br>
+                make certain that all required environment variables are<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-set
-                properly. It may be best for fresh installations<br>
+                set properly. It may be best for fresh installations<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-to
-                run though the choices one at a time, in ascending<br>
+                to run though the choices one at a time, in ascending<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-order,
-                as this may help discover any missing system<br>
+                order, as this may help discover any missing system<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-dependencies.&nbsp;
-                Everything will be installed in<br>
+                dependencies.&nbsp; Everything will be installed in<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-/opt/OSS
-                (if OPENSS_PREFIX is not set) via cpio process<br>
+                /opt/OSS (if OPENSS_PREFIX is not set) via cpio process<br>
                 <br>
                 &nbsp;&nbsp;&nbsp; Please feel free to contact us via
-                this email alias:
-                oss-questions@openspeedshop.org<br>
+                this email alias: oss-questions@openspeedshop.org<br>
+                <br>
                 <br>
                 Enter Option: <br>
               </span><br>
@@ -1408,18 +1347,17 @@ then
               combinations have been tried and/or successfully tested:<br>
               <ul>
                 <li>SLES 10 IA64</li>
-                <li>Fedora 3-13 on x86 and x86_64<br>
+                <li>Fedora 3-15 on x86 and x86_64<br>
                 </li>
-                <li>RedHat Enterprise Linux (RHEL4 &amp; RHEL5) on x86,
+                <li>RedHat Enterprise Linux (RHEL4 - RHEL6) on x86,
                   x86_64<br>
                 </li>
                 <li>SuSE Professional on x86_64 and x86<br>
                 </li>
                 <li>SuSE 10.*, SuSE 11, and SuSE 11.1 on x86 and x86_64</li>
-                <li>Ubuntu 8.04, 8.10, 9.04, 9.10, 10.4 on x86 and
-                  x86_64<br>
+                <li>Ubuntu 8.04 - 11.10 on x86 and x86_64<br>
                 </li>
-                <li>Debian 4.0r5 and 5.0 on x86</li>
+                <li>Debian 4.0r5 - 6.0.3 on x86</li>
               </ul>
               <br>
             </div>
