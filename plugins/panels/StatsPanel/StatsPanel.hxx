@@ -431,6 +431,8 @@ class StatsPanel  : public Panel
     QString sourcePanelMetricStr;
     void setCurrentMetricStr();
     QString currentUserSelectedReportStr;
+    bool firstGenerateCommandCall;
+
     QString lastUserSelectedReportStr;
     QString originatingUserSelectedReportStr;
     QString traceAddition;

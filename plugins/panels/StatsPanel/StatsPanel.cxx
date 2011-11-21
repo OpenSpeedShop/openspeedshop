@@ -97,7 +97,6 @@ typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
 
 #include "GenericProgressDialog.hxx"
 
-static bool firstGenerateCommandCall = true;
 
 #if 1
 // These are the pie chart colors..
@@ -338,6 +337,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 
   currentDisplayUsingType = displayUsingFunctionType; // default compare type is by function
   currentDisplayUsingTypeStr = "functions"; // default current compare by string
+  firstGenerateCommandCall = true;
 
 
   // for the metadata information header
@@ -780,6 +780,10 @@ if( !getChartTypeComboBox() ) {
 #endif
 #if MORE_BUTTON
   connect( infoEditHeaderMoreButton, SIGNAL( clicked() ), this, SLOT( infoEditHeaderMoreButtonSelected() ) );
+#endif
+
+#if DEBUG_StatsPanel
+  printf("EXIT StatsPanel::StatsPanel() constructor\n");
 #endif
 
 }
@@ -1246,23 +1250,23 @@ StatsPanel::listener(void *msg)
   printf("StatsPanel::listener, FocusObject, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
 #endif // DEBUG_StatsPanel
 
+#if 1
 // Begin determine if there's mpi stats
     try
     {
       ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-      if( eo && eo->FW() )
-      {
+      if( eo && eo->FW() ) {
         Experiment *fw_experiment = eo->FW();
         CollectorGroup cgrp = fw_experiment->getCollectors();
 
 #ifdef DEBUG_StatsPanel
-   printf("StatsPanel::listener, FocusObject, Is says you have %d collectors.\n", cgrp.size() );
-#endif // DEBUG_StatsPanel
+        printf("StatsPanel::listener, FocusObject, The FW says you have %d collectors.\n", cgrp.size() );
+#endif
 
-        if( cgrp.size() == 0 )
-        {
+        if( cgrp.size() == 0 ) {
           fprintf(stderr, "There are no known collectors for this experiment.\n");
         }
+
         for(CollectorGroup::iterator ci = cgrp.begin();ci != cgrp.end();ci++)
         {
           Collector collector = *ci;
@@ -1270,8 +1274,8 @@ StatsPanel::listener(void *msg)
           QString name = QString(cm.getUniqueId().c_str());
 
 #ifdef DEBUG_StatsPanel
-   printf("StatsPanel::listener, FocusObject, B: Try to match: name.ascii()=%s currentCollectorStr.ascii()=%s\n", name.ascii(), currentCollectorStr.ascii() );
-#endif // DEBUG_StatsPanel
+          printf("StatsPanel::listener, FocusObject, B: Try to match: name.ascii()=%s currentCollectorStr.ascii()=%s\n", name.ascii(), currentCollectorStr.ascii() );
+#endif 
 
         }
       }
@@ -1286,6 +1290,9 @@ StatsPanel::listener(void *msg)
       return FALSE;
     }
 // End determine if there's mpi stats
+#else
+   // want to try list -v collector here?
+#endif
 
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::listener FocusObject, call updateStatsPanelData  Do we need to update?\n");
@@ -2303,6 +2310,9 @@ StatsPanel::minMaxAverageSelected()
   toolbar_status_label->setText("Generating Load Balance (min,max,ave) Report:");
   updateStatsPanelData(DONT_FORCE_UPDATE, command);
   toolbar_status_label->setText("Showing Load Balance (min,max,ave) Report:");
+#ifdef DEBUG_StatsPanel
+  printf("Exit StatsPanel::minMaxAverageSelected()\n" );
+#endif
 
 }
 //#endif
@@ -10177,6 +10187,7 @@ StatsPanel::generateCommand()
   int items_to_display = 0;
 
 #ifdef DEBUG_StatsPanel
+  printf("ENTER StatsPanel::generateCommand, expID=(%d), focusedExpID=%d\n",  expID, focusedExpID);
   if (!currentCollectorStr.isEmpty()) {
      printf("StatsPanel::generateCommand, currentCollectorStr=(%s), MPItraceFLAG=(%d), IOtraceFLAG=%d\n", 
          currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii(), MPItraceFLAG, IOtraceFLAG );
@@ -10184,7 +10195,6 @@ StatsPanel::generateCommand()
   if (!currentUserSelectedReportStr.isEmpty()) {
      printf("StatsPanel::generateCommand, currentUserSelectedReportStr=(%s)\n", currentUserSelectedReportStr.ascii());
   }
-  printf("StatsPanel::generateCommand, expID=(%d), focusedExpID=%d\n",  expID, focusedExpID);
 
   if (!currentThreadsStr.isEmpty()) {
     printf("StatsPanel::generateCommand, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
@@ -14205,6 +14215,7 @@ if (currentCollectorStr != lastCollectorStr ||
 #ifdef DEBUG_StatsPanel_toolbar
  printf("StatsPanel::generateToolBar, fileTools=0x%lx, toolBarFLAG=%d\n", fileTools, toolBarFLAG );
  printf("StatsPanel::generateToolBar, HIDE if toolBarFLAG is FALSE, SHOW if toolBarFLAG is TRUE, toolbar_status_label=0x%lx\n", toolbar_status_label );
+ printf("ENTER StatsPanel::generateToolBar,before minMaxAverage check recycleFLAG=%d\n", recycleFLAG );
  printf("ENTER StatsPanel::generateToolBar,before minMaxAverage check this=0x%lx, currentUserSelectedReportStr.ascii()=%s\n", this, currentUserSelectedReportStr.ascii() );
  printf("ENTER StatsPanel::generateToolBar,before minMaxAverage check this=0x%lx, originatingUserSelectedReportStr.ascii()=%s\n", this, originatingUserSelectedReportStr.ascii() );
 #endif
