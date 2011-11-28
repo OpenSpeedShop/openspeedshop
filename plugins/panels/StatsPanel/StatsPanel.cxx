@@ -10315,7 +10315,7 @@ StatsPanel::generateCommand()
   // For Hot Call Path view, just set the number of items to display to one and change the 
   // user requested report string to CallTrees with a FullStack.
   if (currentUserSelectedReportStr == "HotCallPath") {
-     items_to_display = 1;
+     items_to_display = 5;
      currentUserSelectedReportStr = "CallTrees,FullStack";
   }
 
@@ -14142,7 +14142,7 @@ if (currentCollectorStr != lastCollectorStr ||
     new QToolButton(*calltreesfullByFunction_icon, "SHOW CALL PATHS WITH FULL STACK BY FUNCTION:  This view displays all\nthe call paths in your program that include the selected function.\nNone of the common portions of the call paths are suppressed.  To use click\non one of the functions and then click the Calltrees By Function FullStack icon.", QString::null, this, SLOT( calltreesFullStackByFunctionSelected()), fileTools, "calltrees,fullstack by function");
 
     QPixmap *hotcallpath_icon = new QPixmap( hotcallpath_icon_xpm );
-    new QToolButton(*hotcallpath_icon, "SHOW HOT CALL PATH: Show the top time taking callpath in this program:\nThis view displays the most expensive call path in your program.\n", QString::null, this, SLOT( hotCallpathSelected()), fileTools, "hot call path");
+    new QToolButton(*hotcallpath_icon, "SHOW HOT CALL PATH: Show the top five (5) time taking callpaths in this program:\nThis view displays the most expensive call paths in your program.\n", QString::null, this, SLOT( hotCallpathSelected()), fileTools, "hot call path");
 
   if ( getPreferenceAdvancedToolbarCheckBox() == TRUE ) {
     QPixmap *tracebacks_icon = new QPixmap( tracebacks_xpm );
