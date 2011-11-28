@@ -77,6 +77,10 @@ int mpit_PMPI_Irecv(
     event.communicator = (int64_t) comm;
     event.datatype = (int64_t) datatype;
 
+    /* Initialize unused arguments */
+    event.destination = -1;
+
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Irecv));
 
     }
@@ -130,6 +134,9 @@ int mpit_PMPI_Recv(
     event.communicator = (int64_t) comm;
     event.datatype = (int64_t) datatype;
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.destination = -1;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Recv));
 
@@ -186,6 +193,9 @@ int mpit_PMPI_Recv_init(
     event.datatype = (int64_t) datatype;
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.destination = -1;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Recv_init));
 
     }
@@ -235,6 +245,11 @@ int mpit_PMPI_Iprobe(
     event.communicator = (int64_t) comm;
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.destination = -1;
+    event.datatype = 0;
+    event.size = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Iprobe));
 
     }
@@ -282,6 +297,11 @@ int mpit_PMPI_Probe(
     event.tag = tag;
     event.communicator = (int64_t) comm;
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.destination = -1;
+    event.datatype = 0;
+    event.size = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Probe));
 
@@ -981,6 +1001,13 @@ int mpit_PMPI_Waitall(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.datatype = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Waitall));
 
     }
@@ -1024,6 +1051,13 @@ int mpit_PMPI_Finalize()
     event.stop_time = OpenSS_GetTime();
 
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.source = -1;
+    event.datatype = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Finalize));
 
@@ -1076,6 +1110,13 @@ int mpit_PMPI_Waitsome(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.datatype = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Waitsome));
 
     }
@@ -1127,6 +1168,13 @@ int mpit_PMPI_Testsome(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.datatype = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Testsome));
 
     }
@@ -1171,6 +1219,13 @@ int mpit_PMPI_Waitany(
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.datatype = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Waitany));
 
@@ -1229,6 +1284,11 @@ int mpit_PMPI_Unpack(
     event.datatype = (int64_t) datatype;
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.tag = 0;
+    event.communicator = -1;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Unpack));
 
     }
@@ -1271,6 +1331,13 @@ int mpit_PMPI_Wait(
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.datatype = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Wait));
 
@@ -1318,6 +1385,13 @@ int mpit_PMPI_Testany(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.datatype = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Testany));
 
     }
@@ -1363,6 +1437,13 @@ int mpit_PMPI_Testall(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.datatype = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Testall));
 
     }
@@ -1406,6 +1487,13 @@ int mpit_PMPI_Test(
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.datatype = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Test));
 
@@ -1460,6 +1548,10 @@ int mpit_PMPI_Scan(
     event.datatype = (int64_t) datatype;
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.tag = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Scan));
 
     }
@@ -1503,6 +1595,13 @@ int mpit_PMPI_Request_free(
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.datatype = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Request_free));
 
@@ -1560,6 +1659,10 @@ int mpit_PMPI_Reduce_scatter(
     event.datatype = (int64_t) datatype;
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.tag = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Reduce_scatter));
 
     }
@@ -1613,6 +1716,10 @@ int mpit_PMPI_Reduce(
     event.communicator = (int64_t) comm;
     event.datatype = (int64_t) datatype;
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.tag = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Reduce));
 
@@ -1669,6 +1776,10 @@ int mpit_PMPI_Pack(
     event.datatype = (int64_t) datatype;
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.tag = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Pack));
 
     }
@@ -1718,6 +1829,13 @@ int mpit_PMPI_Init(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.datatype = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Init));
 
     }
@@ -1764,6 +1882,11 @@ int mpit_PMPI_Get_count(
     event.size = *count * datatype_size;
     event.datatype = (int64_t) datatype;
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.tag = 0;
+    event.communicator = -1;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Get_count));
 
@@ -1822,6 +1945,11 @@ int mpit_PMPI_Gatherv(
     event.datatype = (int64_t) recvtype;
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.tag = 0;
+    event.communicator = -1;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Gatherv));
 
     }
@@ -1879,6 +2007,10 @@ int mpit_PMPI_Gather(
     event.datatype = (int64_t) recvtype;
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.tag = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Gather));
 
     }
@@ -1922,6 +2054,13 @@ int mpit_PMPI_Cancel(
 
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.datatype = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Cancel));
 
@@ -1975,6 +2114,10 @@ int mpit_PMPI_Bcast(
     event.datatype = (int64_t) datatype;
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.tag = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Bcast));
 
     }
@@ -2019,6 +2162,12 @@ int mpit_PMPI_Barrier(
     PMPI_Comm_rank(MPI_COMM_WORLD, &(event.destination));
     event.communicator = (int64_t) comm;
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.datatype = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Barrier));
 
@@ -2133,6 +2282,10 @@ int mpit_PMPI_Alltoall(
     event.datatype = (int64_t) recvtype;
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.tag = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Alltoall));
 
     }
@@ -2185,6 +2338,10 @@ int mpit_PMPI_Allreduce(
     event.communicator = (int64_t) comm;
     event.datatype = (int64_t) datatype;
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.tag = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Allreduce));
 
@@ -2243,6 +2400,10 @@ int mpit_PMPI_Allgatherv(
     event.datatype = (int64_t) recvtype;
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.tag = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Allgatherv));
 
     }
@@ -2298,6 +2459,10 @@ int mpit_PMPI_Allgather(
     event.datatype = (int64_t) recvtype;
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.tag = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Allgather));
 
     }
@@ -2349,6 +2514,9 @@ mpit_PMPI_Scatter(
     
     send_event.start_time = OpenSS_GetTime();
 
+    /* Initialize unused arguments */
+    send_event.tag = 0;
+
     }
 
     retval = PMPI_Scatter( sendbuf, sendcount, sendtype,  
@@ -2372,6 +2540,9 @@ mpit_PMPI_Scatter(
 
     recv_event.communicator = (int64_t) comm;
     recv_event.retval = retval;
+
+    /* Initialize unused arguments */
+    recv_event.tag = 0;
 
     mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(PMPI_Scatter));
 
@@ -2439,6 +2610,10 @@ mpit_PMPI_Scatterv(
     send_event.retval = retval;
     recv_event.start_time = send_event.start_time;
     recv_event.stop_time = send_event.stop_time;
+
+    /* Initialize unused arguments */
+    send_event.tag = 0;
+
     mpit_record_event(&send_event, OpenSS_GetAddressOfFunction(PMPI_Scatterv));
 
     /* Set up the recv record */
@@ -2448,6 +2623,9 @@ mpit_PMPI_Scatterv(
 
     recv_event.communicator = (int64_t) comm;
     recv_event.retval = retval;
+
+    /* Initialize unused arguments */
+    recv_event.tag = 0;
 
     mpit_record_event(&recv_event, OpenSS_GetAddressOfFunction(PMPI_Scatterv));
 
@@ -2670,6 +2848,14 @@ int mpit_PMPI_Cart_create(
     event.stop_time = OpenSS_GetTime();
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.destination = -1;
+    event.datatype = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Cart_create));
 
     }
@@ -2714,6 +2900,14 @@ int mpit_PMPI_Cart_sub (
 
     event.stop_time = OpenSS_GetTime();
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.destination = -1;
+    event.datatype = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Cart_sub));
 
@@ -2763,6 +2957,14 @@ int mpit_PMPI_Graph_create(
 
     event.stop_time = OpenSS_GetTime();
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.destination = -1;
+    event.datatype = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Graph_create));
 
@@ -2814,6 +3016,14 @@ int mpit_PMPI_Intercomm_create (
     event.stop_time = OpenSS_GetTime();
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.destination = -1;
+    event.datatype = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Intercomm_create));
 
     }
@@ -2857,6 +3067,14 @@ int mpit_PMPI_Intercomm_merge (
 
     event.stop_time = OpenSS_GetTime();
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.destination = -1;
+    event.datatype = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Intercomm_merge));
 
@@ -2902,6 +3120,14 @@ int mpit_PMPI_Comm_free(
 
     event.stop_time = OpenSS_GetTime();
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.destination = -1;
+    event.datatype = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Comm_free));
 
@@ -2954,6 +3180,14 @@ int mpit_PMPI_Comm_dup(
     event.stop_time = OpenSS_GetTime();
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.destination = -1;
+    event.datatype = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Comm_dup));
 
     }
@@ -2995,6 +3229,14 @@ int mpit_PMPI_Comm_create(
 
     event.stop_time = OpenSS_GetTime();
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.destination = -1;
+    event.datatype = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Comm_create));
 
@@ -3039,6 +3281,14 @@ int mpit_PMPI_Comm_split(
     event.stop_time = OpenSS_GetTime();
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.destination = -1;
+    event.datatype = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Comm_split));
 
     }
@@ -3082,6 +3332,14 @@ int mpit_PMPI_Start
     event.stop_time = OpenSS_GetTime();
     event.retval = retval;
 
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.destination = -1;
+    event.datatype = 0;
+
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Start));
 
     }
@@ -3124,6 +3382,14 @@ int mpit_PMPI_Startall
 
     event.stop_time = OpenSS_GetTime();
     event.retval = retval;
+
+    /* Initialize unused arguments */
+    event.source = -1;
+    event.size = 0;
+    event.tag = 0;
+    event.communicator = -1;
+    event.destination = -1;
+    event.datatype = 0;
 
     mpit_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Startall));
 
