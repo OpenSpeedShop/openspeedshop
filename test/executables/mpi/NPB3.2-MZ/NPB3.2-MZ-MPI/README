@@ -4,7 +4,8 @@ For OSS:
 Adjust config/make.def to your system and compiler availability.
 
 module load openmpi-1.5.3
-make CLASS=B NPROCS=4 
+make bt-mz CLASS=B NPROCS=4 
+#make CLASS=B NPROCS=4 
 
 The executable is built into the "bin" directory.
 lsr bin
