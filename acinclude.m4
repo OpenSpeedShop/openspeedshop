@@ -625,6 +625,7 @@ AC_DEFUN([AC_PKG_MRNET], [
 
     AC_MSG_CHECKING([for MRNet library and headers])
 
+    LIBS="${LIBS} $MRNET_LDFLAGS $MRNET_LIBS" 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
 	#include <mrnet/MRNet.h>
         ]], [[
