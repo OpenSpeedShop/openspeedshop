@@ -86,6 +86,19 @@ UserTimeCollector::UserTimeCollector() :
     declareMetric(Metadata("exclusive_detail", "Exclusive Detail",
 			   "Exclusive sample detail.",
 			   typeid(SampleDetail)));
+    declareMetric(Metadata("threadAverage", "Thread Average Time",
+                           "Average Exclusive CPU time in seconds across threads or ranks.",
+                           typeid(double)));
+    declareMetric(Metadata("threadMin", "Thread Minimum Time",
+                           "Minimum Exclusive CPU time in seconds across threads or ranks.",
+                           typeid(double)));
+    declareMetric(Metadata("threadMax", "Thread Maximum Time",
+                           "Maximum Exclusive CPU time in seconds across threads or ranks.",
+                           typeid(double)));
+    declareMetric(Metadata("percent", "Percent of Exclusive CPU Time",
+                           "Percent of Exclusive CPU Time.",
+                           typeid(double)));
+
 }
 
 

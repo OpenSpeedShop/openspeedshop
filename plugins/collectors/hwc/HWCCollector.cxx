@@ -91,6 +91,19 @@ HWCCollector::HWCCollector() :
     declareMetric(Metadata("overflows", "Overflows",
                            "Exclusive overflows in hardware counter events.",
                            typeid(uint64_t)));
+    declareMetric(Metadata("threadAverage", "Thread Average Time",
+                           "Average Exclusive event counts across threads or ranks.",
+                           typeid(uint64_t)));
+    declareMetric(Metadata("threadMin", "Thread Minimum Time",
+                           "Minimum Exclusive event counts across threads or ranks.",
+                           typeid(uint64_t)));
+    declareMetric(Metadata("threadMax", "Thread Maximum Time",
+                           "Maximum Exclusive event counts across threads or ranks.",
+                           typeid(uint64_t)));
+    declareMetric(Metadata("percent", "Percent of Exclusive event counts",
+                           "Percent of Exclusive event counts.",
+                           typeid(double)));
+
 
     // Register the event names in the message facility.
     if (!we_dun_registered) {

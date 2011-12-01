@@ -120,6 +120,43 @@ IOTCollector::IOTCollector() :
     declareMetric(Metadata("exclusive_details", "Exclusive Details",
 			   "Exclusive I/O call details.",
 			   typeid(CallDetails)));
+    declareMetric(Metadata("min", "Minimum Time",
+			   "Mininum call times in seconds.",
+			   typeid(double)));
+    declareMetric(Metadata("max", "Maximum Time",
+ 			   "Maximum call times in seconds.",
+ 			   typeid(double)));
+    declareMetric(Metadata("average", "Average Time",
+ 			   "Average call times in seconds.",
+ 			   typeid(double)));
+    declareMetric(Metadata("threadAverage", "Thread Average Time",
+ 			   "Average Exclusive I/O call times in seconds across threads or ranks.",
+ 			   typeid(double)));
+    declareMetric(Metadata("threadMin", "Thread Minimum Time",
+ 			   "Minimum Exclusive I/O call times in seconds across threads or ranks.",
+ 			   typeid(double)));
+    declareMetric(Metadata("threadMax", "Thread Maximum Time",
+ 			   "Maximum Exclusive I/O call times in seconds across threads or ranks.",
+ 			   typeid(double)));
+    declareMetric(Metadata("stddev", "Standard Deviation Time",
+ 			   "Standard Deviation call times in seconds.",
+ 			   typeid(double)));
+    declareMetric(Metadata("count", "Number of Calls",
+ 			   "Number of calls to this function.",
+ 			   typeid(uint64_t)));
+    declareMetric(Metadata("nsysarg", "Number of System Arguments for each I/O Call",
+ 			   "Number of system arguments for I/O calls to this function.",
+ 			   typeid(uint64_t)));
+    declareMetric(Metadata("retval", "Function dependent return value for each I/O Call",
+ 			   "Function dependent return value for each I/O call to this function.",
+ 			   typeid(uint64_t)));
+    declareMetric(Metadata("syscallno", "System call value for this I/O Call",
+ 			   "System call value for this I/O function call.",
+ 			   typeid(uint64_t)));
+    declareMetric(Metadata("pathname", "Pathname used in this I/O Call",
+ 			   "Pathname used in this I/O function fall.",
+ 			   typeid(std::string)));
+
 }
 
 

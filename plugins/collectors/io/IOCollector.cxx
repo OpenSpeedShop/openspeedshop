@@ -114,6 +114,30 @@ IOCollector::IOCollector() :
     declareMetric(Metadata("exclusive_details", "Exclusive Details",
 			   "Exclusive I/O call details.",
 			   typeid(CallDetails)));
+    declareMetric(Metadata("min", "Minimum Time",
+			   "Mininum call times in seconds.",
+			   typeid(double)));
+    declareMetric(Metadata("max", "Maximum Time",
+			   "Maximum call times in seconds.",
+			   typeid(double)));
+    declareMetric(Metadata("average", "Average Time",
+			   "Average call times in seconds.",
+			   typeid(double)));
+    declareMetric(Metadata("threadAverage", "Thread Average Time",
+			   "Average Exclusive I/O call times in seconds across threads or ranks.",
+			   typeid(double)));
+    declareMetric(Metadata("threadMin", "Thread Minimum Time",
+			   "Minimum Exclusive I/O call times in seconds across threads or ranks.",
+			   typeid(double)));
+    declareMetric(Metadata("threadMax", "Thread Maximum Time",
+			   "Maximum Exclusive I/O call times in seconds across threads or ranks.",
+			   typeid(double)));
+    declareMetric(Metadata("stddev", "Standard Deviation Time",
+			   "Standard Deviation call times in seconds.",
+			   typeid(double)));
+    declareMetric(Metadata("count", "Number of Calls",
+			   "Number of calls to this function.",
+			   typeid(uint64_t)));
 }
 
 

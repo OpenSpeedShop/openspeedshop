@@ -200,6 +200,13 @@ static std::string VIEW_pcsamp_long  =
                   " Posix threads, Mpi threads or Ranks."
                   " \n\t'-m time' reports the total cpu time for all the processes."
                   " \n\t'-m percent' reports the percent of total cpu time for all the processes."
+                  " \n\t'-m ThreadMax' reports the maximum counts for a process."
+                  " \n\t'-m ThreadMaxIndex' reports the procecss Id for the thread of the 'ThreadMax'."
+                  " \n\t'-m ThreadMin' reports the minimum counts for a process."
+                  " \n\t'-m ThreadMinIndex' reports the procecss Id for the thread of the 'ThreadMin'."
+                  " \n\t'-m ThreadAverage' reports the average counts for a process."
+                  " \n\t'-m loadbalance' is the same as '-m ThreadMax, ThreadMaxIndex, ThreadMin,"
+                  " ThreadMinIndex, ThreadAverage'."
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
                   "\n";

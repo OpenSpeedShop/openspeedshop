@@ -69,6 +69,19 @@ PCSampCollector::PCSampCollector() :
     declareMetric(Metadata("time", "CPU Time",
                            "Exclusive CPU time in seconds.",
                            typeid(double)));
+    declareMetric(Metadata("threadAverage", "Thread Average Time",
+                           "Average Exclusive times in seconds across threads or ranks.",
+                           typeid(double)));
+    declareMetric(Metadata("threadMin", "Thread Minimum Time",
+                           "Minimum Exclusive times in seconds across threads or ranks.",
+                           typeid(double)));
+    declareMetric(Metadata("threadMax", "Thread Maximum Time",
+                           "Maximum Exclusive times in seconds across threads or ranks.",
+                           typeid(double)));
+    declareMetric(Metadata("percent", "Percent of Exclusive Time",
+                           "Percent of Exclusive Time.",
+                           typeid(double)));
+
 }
 
 
