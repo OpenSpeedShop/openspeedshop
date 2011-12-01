@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2007-2011 The Krell Institute . All Rights Reserved.
+// Copyright (c) 2007-2012 The Krell Institute . All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -117,6 +117,31 @@ MPICollector::MPICollector() :
     declareMetric(Metadata("exclusive_details", "Exclusive Details",
 			   "Exclusive MPI call details.",
 			   typeid(CallDetails)));
+    declareMetric(Metadata("min", "Minimum Time",
+                           "Mininum MPI call times in seconds.",
+                           typeid(double)));
+    declareMetric(Metadata("max", "Maximum Time",
+                           "Maximum MPI call times in seconds.",
+                           typeid(double)));
+    declareMetric(Metadata("average", "Average Time",
+                           "Average MPI call times in seconds.",
+                           typeid(double)));
+    declareMetric(Metadata("threadAverage", "Thread Average Time",
+                           "Average Exclusive MPI call times in seconds across threads or ranks.",
+                           typeid(double)));
+    declareMetric(Metadata("threadMin", "Thread Minimum Time",
+                           "Minimum Exclusive MPI call times in seconds across threads or ranks.",
+                           typeid(double)));
+    declareMetric(Metadata("threadMax", "Thread Maximum Time",
+                           "Maximum Exclusive MPI call times in seconds across threads or ranks.",
+                           typeid(double)));
+    declareMetric(Metadata("stddev", "Standard Deviation Time",
+                           "Standard Deviation for MPI call times in seconds.",
+                           typeid(double)));
+    declareMetric(Metadata("count", "Number of Calls",
+                           "Number of calls to this MPI function.",
+                           typeid(uint64_t)));
+
 }
 
 
