@@ -1348,6 +1348,7 @@ AC_DEFUN([AC_PKG_SQLITE], [
 
     AC_MSG_CHECKING([for SQLite library and headers])
 
+    LIBS="${LIBS} $SQLITE_LDFLAGS $SQLITE_LIBS" 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
         #include <sqlite3.h>
         ]], [[
