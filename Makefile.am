@@ -180,8 +180,8 @@ framework:
 CLIONLY_SUBDIRS = \
 	$(MESSAGE_SUBDIRS) \
 	$(RT_SUBDIRS) \
-	$(FW_SUBDIRS)
-	$(CLI_SUBDIRS)
+	$(FW_SUBDIRS) \
+	$(CLI_SUBDIRS) \
 	openss \
 	plugins/collectors \
 	plugins/views \
