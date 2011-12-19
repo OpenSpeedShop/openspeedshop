@@ -379,6 +379,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
 
     AC_MSG_CHECKING([for Dyninst API library and headers])
 
+    LIBS="${LIBS} $DYNINST_LDFLAGS $DYNINST_LIBS $BINUTILS_LDFLAGS -liberty $LIBDWARF_LDFLAGS $LIBDWARF_LIBS" 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
 	#include <BPatch.h>
         ]], [[
@@ -436,6 +437,7 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
 
     AC_MSG_CHECKING([for libunwind library and headers])
 
+    LIBS="${LIBS} $LIBUNWIND_LDFLAGS $LIBUNWIND_LIBS" 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
         #include <libunwind.h>
         ]], [[
@@ -647,6 +649,7 @@ AC_DEFUN([AC_PKG_MRNET], [
 
         AC_MSG_CHECKING([in alternative abi directory look for MRNet library and headers])
 
+        LIBS="${LIBS} $MRNET_LDFLAGS $MRNET_LIBS" 
         AC_LINK_IFELSE(AC_LANG_PROGRAM([[
     	    #include <mrnet/MRNet.h>
             ]], [[
@@ -1195,6 +1198,7 @@ AC_DEFUN([AC_PKG_PAPI], [
 
     AC_MSG_CHECKING([for PAPI library and headers])
 
+    LIBS="${LIBS} $PAPI_LDFLAGS $PAPI_LIBS" 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
         #include <papi.h>
         ]], [[
@@ -2108,6 +2112,7 @@ AC_DEFUN([AC_PKG_LIBMONITOR], [
 
     AC_MSG_CHECKING([for libmonitor library and headers])
 
+    LIBS="${LIBS} $LIBMONITOR_LDFLAGS $LIBMONITOR_LIBS -lpthread" 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
         #include <monitor.h>
         ]], [[
@@ -2201,6 +2206,7 @@ AC_DEFUN([AC_PKG_LIBDWARF], [
 
     AC_MSG_CHECKING([for libdwarf library and headers])
 
+    LIBS="${LIBS} $LIBDWARF_LDFLAGS $LIBDWARF_LIBS -lelf -lpthread" 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
         #include <dwarf.h>
         ]], [[
@@ -2224,6 +2230,7 @@ AC_DEFUN([AC_PKG_LIBDWARF], [
 
          AC_MSG_CHECKING([for libdwarf library and headers])
 
+         LIBS="${LIBS} $LIBDWARF_LDFLAGS $LIBDWARF_LIBS -lelf -lpthread" 
          AC_LINK_IFELSE(AC_LANG_PROGRAM([[
              #include <dwarf.h>
              ]], [[
