@@ -2263,6 +2263,44 @@ AC_DEFUN([AC_PKG_LIBDWARF], [
 
 ])
 
+#############################################################################################
+# Check for libdwarf for Target Architecture (http://www.reality.sgiweb.org/davea/dwarf.html)
+#############################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_LIBDWARF], [
+
+    AC_ARG_WITH(target-libdwarf,
+                AC_HELP_STRING([--with-target-libdwarf=DIR],
+                               [libdwarf target architecture installation @<:@/opt@:>@]),
+                target_libdwarf_dir=$withval, target_libdwarf_dir="/zzz")
+
+    AC_MSG_CHECKING([for Targetted libdwarf support])
+
+    if test "$target_libdwarf_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_LIBDWARF, false)
+      TARGET_LIBDWARF_CPPFLAGS=""
+      TARGET_LIBDWARF_LDFLAGS=""
+      TARGET_LIBDWARF_LIBS=""
+      TARGET_LIBDWARF_DIR=""
+      AC_MSG_RESULT(no)
+    else
+      AM_CONDITIONAL(HAVE_TARGET_LIBDWARF, true)
+      AC_DEFINE(HAVE_TARGET_LIBDWARF, 1, [Define to 1 if you have a target version of LIBDWARF.])
+      TARGET_LIBDWARF_CPPFLAGS="-I$target_libdwarf_dir/include"
+      TARGET_LIBDWARF_LDFLAGS="-L$target_libdwarf_dir/$abi_libdir"
+      TARGET_LIBDWARF_LIBS="-ldwarf"
+      TARGET_LIBDWARF_DIR="$target_libdwarf_dir"
+      AC_MSG_RESULT(yes)
+    fi
+
+
+    AC_SUBST(TARGET_LIBDWARF_CPPFLAGS)
+    AC_SUBST(TARGET_LIBDWARF_LDFLAGS)
+    AC_SUBST(TARGET_LIBDWARF_LIBS)
+    AC_SUBST(TARGET_LIBDWARF_DIR)
+
+])
+
 
 ################################################################################
 # Check for XERCES (http://xerces.apache.org/xerces-c)
