@@ -145,8 +145,8 @@ ossutil_LDFLAGS = \
         -L$(top_srcdir)/libopenss-runtime
 
 ossutil_LDADD = \
-        @TARGET_SQLITE_LIBS@ \
         @TARGET_STDC_PLUSPLUS_LIBS@ \
+        @TARGET_SQLITE_LIBS@ \
         @TARGET_BINUTILS_LIBS@ \
         $(LIBLTDL) \
 	-lopenss-framework \

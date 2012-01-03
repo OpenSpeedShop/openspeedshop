@@ -373,6 +373,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
 
     dyninst_saved_CPPFLAGS=$CPPFLAGS
     dyninst_saved_LDFLAGS=$LDFLAGS
+    dyninst_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $DYNINST_CPPFLAGS"
     LDFLAGS="$CXXFLAGS $DYNINST_LDFLAGS $DYNINST_LIBS $BINUTILS_LDFLAGS -liberty $LIBDWARF_LDFLAGS $LIBDWARF_LIBS"
@@ -401,6 +402,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
 
     CPPFLAGS=$dyninst_saved_CPPFLAGS
     LDFLAGS=$dyninst_saved_LDFLAGS
+    LIBS=$dyninst_saved_LIBS
 
     AC_LANG_POP(C++)
 
@@ -431,6 +433,7 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
 
     libunwind_saved_CPPFLAGS=$CPPFLAGS
     libunwind_saved_LDFLAGS=$LDFLAGS
+    libunwind_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $LIBUNWIND_CPPFLAGS"
     LDFLAGS="$LDFLAGS $LIBUNWIND_LDFLAGS $LIBUNWIND_LIBS"
@@ -459,6 +462,7 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
 
     CPPFLAGS=$libunwind_saved_CPPFLAGS
     LDFLAGS=$libunwind_saved_LDFLAGS
+    LIBS=$libunwind_saved_LIBS
 
     AC_SUBST(LIBUNWIND_CPPFLAGS)
     AC_SUBST(LIBUNWIND_LDFLAGS)
@@ -621,6 +625,7 @@ AC_DEFUN([AC_PKG_MRNET], [
 
     mrnet_saved_CPPFLAGS=$CPPFLAGS
     mrnet_saved_LDFLAGS=$LDFLAGS
+    mrnet_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $MRNET_CPPFLAGS"
     LDFLAGS="$CXXFLAGS $MRNET_LDFLAGS $MRNET_LIBS"
@@ -679,6 +684,7 @@ AC_DEFUN([AC_PKG_MRNET], [
 
     CPPFLAGS=$mrnet_saved_CPPFLAGS
     LDFLAGS=$mrnet_saved_LDFLAGS
+    LIBS=$mrnet_saved_LIBS
 
     AC_LANG_POP(C++)
 
@@ -1346,6 +1352,7 @@ AC_DEFUN([AC_PKG_SQLITE], [
 
     sqlite_saved_CPPFLAGS=$CPPFLAGS
     sqlite_saved_LDFLAGS=$LDFLAGS
+    sqlite_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $SQLITE_CPPFLAGS"
     LDFLAGS="$LDFLAGS $SQLITE_LDFLAGS $SQLITE_LIBS"
@@ -1362,6 +1369,7 @@ AC_DEFUN([AC_PKG_SQLITE], [
 
     CPPFLAGS=$sqlite_saved_CPPFLAGS
     LDFLAGS=$sqlite_saved_LDFLAGS
+    LIBS=$sqlite_saved_LIBS
 
     if test $found_sqlite -eq 1; then
       AC_MSG_RESULT([yes])
@@ -2106,6 +2114,7 @@ AC_DEFUN([AC_PKG_LIBMONITOR], [
 
     libmonitor_saved_CPPFLAGS=$CPPFLAGS
     libmonitor_saved_LDFLAGS=$LDFLAGS
+    libmonitor_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $LIBMONITOR_CPPFLAGS"
     LDFLAGS="$LDFLAGS $LIBMONITOR_LDFLAGS $LIBMONITOR_LIBS -lpthread"
@@ -2135,6 +2144,7 @@ AC_DEFUN([AC_PKG_LIBMONITOR], [
 
     CPPFLAGS=$libmonitor_saved_CPPFLAGS
     LDFLAGS=$libmonitor_saved_LDFLAGS
+    LIBS=$libmonitor_saved_LIBS
 
     AC_SUBST(LIBMONITOR_CPPFLAGS)
     AC_SUBST(LIBMONITOR_LDFLAGS)
@@ -2200,6 +2210,7 @@ AC_DEFUN([AC_PKG_LIBDWARF], [
 
     libdwarf_saved_CPPFLAGS=$CPPFLAGS
     libdwarf_saved_LDFLAGS=$LDFLAGS
+    libdwarf_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $LIBDWARF_CPPFLAGS"
     LDFLAGS="$LDFLAGS $LIBDWARF_LDFLAGS $LIBDWARF_LIBS -lelf -lpthread"
@@ -2255,7 +2266,9 @@ AC_DEFUN([AC_PKG_LIBDWARF], [
          fi
     fi
 
-    CPPFLAGS=$libdwarf_saved_CPPFLAGS LDFLAGS=$libdwarf_saved_LDFLAGS
+    CPPFLAGS=$libdwarf_saved_CPPFLAGS 
+    LDFLAGS=$libdwarf_saved_LDFLAGS
+    LIBS=$libdwarf_saved_LIBS
 
     AC_SUBST(LIBDWARF_CPPFLAGS)
     AC_SUBST(LIBDWARF_LDFLAGS)
