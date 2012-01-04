@@ -4,7 +4,12 @@
 
 mach_type=`uname -m`
 
+oss_target=@@osstargetos@@
+
 if test "$mach_type" == "x86_64" ; then
+    machlibdir=lib64
+    altmachlibdir=lib
+elif test "$mach_type" == "ppc64" && test "$oss_target" == "bgq" ; then
     machlibdir=lib64
     altmachlibdir=lib
 else
@@ -12,7 +17,6 @@ else
     altmachlibdir=lib64
 fi
 
-oss_target=@@osstargetos@@
 
 # TODO: handle the target prefix
 oss_prefix=@@ossinstalldir@@
