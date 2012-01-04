@@ -484,14 +484,19 @@ AC_DEFUN([AC_PKG_TARGET_LIBUNWIND], [
 
     AC_MSG_CHECKING([for Targetted libunwind support])
 
-    if test "$target_libunwind_dir" == "/zzz" ; then
+    found_target_libunwind=0
+    if test -f  $target_libunwind_dir/include/libunwind.h; then
+       found_target_libunwind=1
+    fi
+
+    if test $found_target_libunwind == 0 && test "$target_libunwind_dir" == "/zzz" ; then
       AM_CONDITIONAL(HAVE_TARGET_LIBUNWIND, false)
       TARGET_LIBUNWIND_CPPFLAGS=""
       TARGET_LIBUNWIND_LDFLAGS=""
       TARGET_LIBUNWIND_LIBS=""
       TARGET_LIBUNWIND_DIR=""
       AC_MSG_RESULT(no)
-    else
+    elif test $found_target_libunwind == 1 ; then
       AC_MSG_RESULT(yes)
       AM_CONDITIONAL(HAVE_TARGET_LIBUNWIND, true)
       AC_DEFINE(HAVE_TARGET_LIBUNWIND, 1, [Define to 1 if you have a target version of LIBUNWIND.])
@@ -499,6 +504,13 @@ AC_DEFUN([AC_PKG_TARGET_LIBUNWIND], [
       TARGET_LIBUNWIND_LDFLAGS="-L$target_libunwind_dir/$abi_libdir"
       TARGET_LIBUNWIND_LIBS="-lunwind"
       TARGET_LIBUNWIND_DIR="$target_libunwind_dir"
+    else 
+      AM_CONDITIONAL(HAVE_TARGET_LIBUNWIND, false)
+      TARGET_LIBUNWIND_CPPFLAGS=""
+      TARGET_LIBUNWIND_LDFLAGS=""
+      TARGET_LIBUNWIND_LIBS=""
+      TARGET_LIBUNWIND_DIR=""
+      AC_MSG_RESULT(no)
     fi
 
 

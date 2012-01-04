@@ -243,6 +243,13 @@ case "$TARGET_OS" in
 	AC_DEFINE_UNQUOTED(TARGET_OS,bgp,
 			   [Name targeted OS])
 	;; 
+    bgq)
+        AM_CONDITIONAL(BUILD_TARGETED, true)
+        AC_DEFINE(BUILD_TARGETED, 1, [Define to 0 if not building a targeted runtime.])
+        AC_DEFINE(TARGET_OS_BGQ, 1, [Do not define if not building for targeted bgq.])
+        AC_DEFINE_UNQUOTED(TARGET_OS,bgq,
+                           [Name targeted OS])
+        ;;
     *)
 	AM_CONDITIONAL(BUILD_TARGETED, false)
 	AC_DEFINE(BUILD_TARGETED, 0, [Define to 1 if building a targeted runtime.])
