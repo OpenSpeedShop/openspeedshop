@@ -208,7 +208,8 @@ osswrapper_LDFLAGS = \
 osswrapper_LDADD = \
 	$(LIBLTDL) \
         @DYNINST_LIBS@ \
-        @LIBDWARF_LIBS@ 
+        @LIBDWARF_LIBS@ \
+         -lpthread
 
 osswrapper_SOURCES = \
 	osswrapper.cxx
