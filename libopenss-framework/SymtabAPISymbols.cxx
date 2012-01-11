@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2009 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2009-2012 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -28,7 +28,8 @@
 #include "LinkedObject.hxx"
 #include "Function.hxx"
 #include "Statement.hxx"
-#include "Symtab.h"
+#include "dyninst/Symtab.h"
+#include "dyninst/LineInformation.h"
 
 using namespace OpenSpeedShop::Framework;
 using namespace Dyninst;
@@ -76,14 +77,15 @@ SymtabAPISymbols::getSymbols(const LinkedObject& linkedobject,
 		base = lrange.getBegin();
 	    }
 
-	    vector <Symbol *>fsyms;
+	    std::vector <Symbol *>fsyms;
 
 	    if(symtab && !symtab->getAllSymbolsByType(fsyms,Symbol::ST_FUNCTION)) {
-		std::cerr << "getAllSymbolsByType unable to get all Functions "
+		std::cerr << "symtabAPI interface:  getAllSymbolsByType unable to get all Functions "
 		    << Symtab::printError(Symtab::getLastSymtabError()).c_str()
 		    << std::endl;
 	    }
 
+#if 0
 	    for(unsigned i = 0; i< fsyms.size();i++){
 		OpenSpeedShop::Framework::Address begin(fsyms[i]->getAddr());
 
@@ -99,8 +101,23 @@ SymtabAPISymbols::getSymbols(const LinkedObject& linkedobject,
 		    st.addFunction(begin + base, end + base,fsyms[i]->getName());
 		}
 	    }
+#else
+	    for(unsigned i = 0; i< fsyms.size();i++){
+		OpenSpeedShop::Framework::Address begin(fsyms[i]->getAddr());
+		OpenSpeedShop::Framework::Address end(begin + fsyms[i]->getSize());
 
-	    vector <Module *>mods;
+// DEBUG
+#ifndef NDEBUG
+		    if(is_debug_symtabapi_symbols_enabled) {
+		        std::cerr << "symtabAPI interface:  ADDING FUNCTION " << fsyms[i]->getName()
+			<< " RANGE " << begin << "," << end << std::endl;
+		    }
+#endif
+		    st.addFunction(begin + base, end + base,fsyms[i]->getName());
+	    }
+#endif
+
+	    std::vector <Module *>mods;
 	    AddressRange module_range;
 	    std::string module_name;
 	    if(symtab && !symtab->getAllModules(mods)) {
@@ -147,7 +164,7 @@ SymtabAPISymbols::getSymbols(const LinkedObject& linkedobject,
 // DEBUG
 #ifndef NDEBUG
 			if(is_debug_symtabapi_symbols_enabled) {
-			    std::cerr << "ADDING STATEMENT " << b << ":" << e
+			    std::cerr << "symtabAPI interface:  ADDING STATEMENT " << b << ":" << e
 			    <<" " << line.first << ":" << line.second  << std::endl;
 			}
 #endif

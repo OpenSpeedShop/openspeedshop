@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2011 Krell Institute All Rights Reserved.
+# Copyright (c) 2006-2012 Krell Institute All Rights Reserved.
 # Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -19,7 +19,7 @@
 ################################################################################
 
 AC_INIT(OpenSpeedShop, 2.0.1)
-AC_COPYRIGHT([[Copyright (c) 2006-2011 Krell Institute. All Rights Reserved.]])
+AC_COPYRIGHT([[Copyright (c) 2006-2012 Krell Institute. All Rights Reserved.]])
 AC_CONFIG_AUX_DIR([libltdl/config])
 AM_INIT_AUTOMAKE
 
@@ -31,7 +31,7 @@ AM_CONFIG_HEADER([config.h])
 
 AH_TOP([
 /*******************************************************************************
-** Copyright (c) 2006-2011 Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2012 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -177,6 +177,47 @@ AC_CHECK_HEADER(pthread.h, [ AC_CHECK_LIB(pthread, pthread_create, [
     AC_MSG_FAILURE([cannot locate POSIX thread library and/or headers.])
 ]) ])
 
+################################################################################
+# Check for symbol resolution option, default to bfd
+################################################################################
+
+AC_ARG_ENABLE(resolve-symbols,
+[--enable-resolve-symbols=mechanism - Control the mechanism used to resolve symbols in Open|SpeedShop
+    bfd       - Use the binutils bfd interface
+    symtabapi - Use the Dyninst symtabAPI interface],,enable_resolve_symbols=bfd)
+
+AC_MSG_CHECKING([Checking for enable_resolve_symbols=$enable_resolve_symbols])
+
+#AS_IF([test "x$enable_resolve_symbols" == "xsymtabapi"], [
+#  dnl Do the stuff needed for enabling the feature
+#    AM_CONDITIONAL(OPENSS_USE_SYMTABAPI, true)
+#    AC_DEFINE(OPENSS_USE_SYMTABAPI, 1, [Define to 1 if you want to use bfd to resolve symbols.])
+#])
+
+#AS_IF([test "x$enable_resolve_symbols" == "xbfd"], [
+#  dnl Do the stuff needed for enabling the feature
+#    AM_CONDITIONAL(OPENSS_USE_SYMTABAPI, false)
+#])
+#
+#AC_ARG_WITH(resolve-symbols,
+#        AC_HELP_STRING([--with-resolve-symbols=TYPE],
+#               [resolvesymbols (bfd, symtabapi) @<:@bfd@:>@]),
+#        RESSYM=$withval, RESSYM="bfd")
+
+case "$enable_resolve_symbols" in
+    bfd)
+    AM_CONDITIONAL(OPENSS_USE_SYMTABAPI, false)
+    ;;
+
+    symtabapi)
+    AM_CONDITIONAL(OPENSS_USE_SYMTABAPI, true)
+    AC_DEFINE(OPENSS_USE_SYMTABAPI, 1, [Define to 1 if you want to use bfd to resolve symbols.])
+    ;;
+
+    *)
+    AC_MSG_ERROR([invalid symbolresolution (resolve-symbols) specification "$RESSYM".])
+    ;;
+esac 
 ################################################################################
 # Check for TLS option, default to implicit
 ################################################################################
@@ -421,6 +462,7 @@ AC_ARG_WITH(instrumentor,
 
 case "$INSTRUMENTOR" in
     none)
+	AM_CONDITIONAL(HAVE_SYMTABAPI, false)
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
@@ -431,6 +473,7 @@ case "$INSTRUMENTOR" in
 	;; 
 
     dyninst)
+	AM_CONDITIONAL(HAVE_SYMTABAPI, false)
 	AC_PKG_DYNINST()
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
@@ -441,6 +484,7 @@ case "$INSTRUMENTOR" in
 	;;
 
     mrnet)
+	# AC_PKG_DYNINST checks for SYMTABAPI
 	AC_PKG_DYNINST()
 	AC_PKG_MRNET()
 	AM_CONDITIONAL(BUILD_MRNET, true)
@@ -452,6 +496,7 @@ case "$INSTRUMENTOR" in
 	;;
 
     offline)
+	AC_PKG_OFFLINE_SYMTABAPI()
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(HAVE_DYNINST, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)

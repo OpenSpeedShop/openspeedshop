@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-# Copyright (c) 2006-2011 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2012 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -327,7 +327,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
     AC_ARG_WITH(dyninst-version,
                 AC_HELP_STRING([--with-dyninst-version=VERS],
                                [dyninst-version installation @<:@6.1@:>@]),
-                dyninst_vers=$withval, dyninst_vers="6.1")
+                dyninst_vers=$withval, dyninst_vers="7.0.1")
 
     DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
     DYNINST_LDFLAGS="-L$dyninst_dir/$abi_libdir"
@@ -367,6 +367,11 @@ AC_DEFUN([AC_PKG_DYNINST], [
             ;;
     esac
 
+    SYMTABAPI_CPPFLAGS="-I$dyninst_dir/include -I$dyninst_dir/include/dyninst"
+    SYMTABAPI_LDFLAGS="-L$dyninst_dir/$abi_libdir"
+    SYMTABAPI_DIR="$dyninst_dir" 
+    SYMTABAPI_CPPFLAGS="$SYMTABAPI_CPPFLAGS -DUSE_STL_VECTOR"
+    SYMTABAPI_LIBS="-lsymtabAPI -lcommon" 
 
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP
@@ -388,7 +393,9 @@ AC_DEFUN([AC_PKG_DYNINST], [
         ]]), 
         [  AC_MSG_RESULT(yes) 
            AM_CONDITIONAL(HAVE_DYNINST, true)
+           AM_CONDITIONAL(HAVE_SYMTABAPI, true)
            AC_DEFINE(HAVE_DYNINST, 1, [Define to 1 if you have Dyninst.])
+           AC_DEFINE(HAVE_SYMTABAPI, 1, [Define to 1 if you have symtabAPI.])
         ],
         [ AC_MSG_RESULT(no)
           AM_CONDITIONAL(HAVE_DYNINST, false)
@@ -397,6 +404,12 @@ AC_DEFUN([AC_PKG_DYNINST], [
           DYNINST_LIBS=""
           DYNINST_DIR=""
           DYNINST_VERS=""
+
+          AM_CONDITIONAL(HAVE_SYMTABAPI, false)
+          SYMTABAPI_CPPFLAGS=""
+          SYMTABAPI_LDFLAGS=""
+          SYMTABAPI_LIBS=""
+          SYMTABAPI_DIR=""
         ]
     )
 
@@ -411,6 +424,72 @@ AC_DEFUN([AC_PKG_DYNINST], [
     AC_SUBST(DYNINST_LIBS)
     AC_SUBST(DYNINST_DIR)
     AC_SUBST(DYNINST_VERS)
+
+
+])
+
+################################################################################
+# Check for symtabAPI (http://www.dyninst.org)
+################################################################################
+
+AC_DEFUN([AC_PKG_OFFLINE_SYMTABAPI], [
+
+    AC_ARG_WITH(symtabapi,
+                AC_HELP_STRING([--with-symtabapi=DIR],
+                               [symtabAPI installation @<:@/usr@:>@]),
+                symtabapi_dir=$withval, symtabapi_dir="/usr")
+
+    SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -I$symtabapi_dir/include/dyninst"
+    SYMTABAPI_LDFLAGS="-L$symtabapi_dir/$abi_libdir"
+    SYMTABAPI_DIR="$symtabapi_dir" 
+    SYMTABAPI_CPPFLAGS="$SYMTABAPI_CPPFLAGS -DUSE_STL_VECTOR"
+    SYMTABAPI_LIBS="-lsymtabAPI -lcommon" 
+
+    AC_LANG_PUSH(C++)
+    AC_REQUIRE_CPP
+
+    symtabapi_saved_CPPFLAGS=$CPPFLAGS
+    symtabapi_saved_LDFLAGS=$LDFLAGS
+    symtabapi_saved_LIBS=$LIBS
+
+    CPPFLAGS="$CPPFLAGS $SYMTABAPI_CPPFLAGS"
+    LDFLAGS="$CXXFLAGS $SYMTABAPI_LDFLAGS $SYMTABAPI_LIBS $BINUTILS_LDFLAGS -liberty $LIBDWARF_LDFLAGS $LIBDWARF_LIBS"
+
+    AC_MSG_CHECKING([for symtabAPI API library and headers])
+
+    LIBS="${LIBS} $SYMTABAPI_LDFLAGS $SYMTABAPI_LIBS $BINUTILS_LDFLAGS -liberty $LIBDWARF_LDFLAGS $LIBDWARF_LIBS" 
+    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+	#include "Symbol.h"
+	#include "Symtab.h"
+	using namespace Dyninst;
+	using namespace SymtabAPI;
+	
+        ]], [[
+        Symtab symtab = Symtab();
+        ]]), 
+        [  AC_MSG_RESULT(yes) 
+           AM_CONDITIONAL(HAVE_SYMTABAPI, true)
+           AC_DEFINE(HAVE_SYMTABAPI, 1, [Define to 1 if you have symtabAPI.])
+        ],
+        [ AC_MSG_RESULT(no)
+          AM_CONDITIONAL(HAVE_SYMTABAPI, false)
+          SYMTABAPI_CPPFLAGS=""
+          SYMTABAPI_LDFLAGS=""
+          SYMTABAPI_LIBS=""
+          SYMTABAPI_DIR=""
+        ]
+    )
+
+    CPPFLAGS=$symtabapi_saved_CPPFLAGS
+    LDFLAGS=$symtabapi_saved_LDFLAGS
+    LIBS=$symtabapi_saved_LIBS
+
+    AC_LANG_POP(C++)
+
+    AC_SUBST(SYMTABAPI_CPPFLAGS)
+    AC_SUBST(SYMTABAPI_LDFLAGS)
+    AC_SUBST(SYMTABAPI_LIBS)
+    AC_SUBST(SYMTABAPI_DIR)
 
 
 ])

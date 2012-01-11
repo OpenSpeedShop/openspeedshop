@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2010 Krell Institute All Rights Reserved.
+# Copyright (c) 2006-2012 Krell Institute All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -25,6 +25,10 @@ DIST_SUBDIRS = dpcl dyninst mrnet offline
 
 lib_LTLIBRARIES = libopenss-framework.la libopenss-framework-binutils.la
 
+#
+# HAVE_TARGET_SHARED indicates shared builds on traditionally 
+# static platforms like the Cray and Blue Gene
+#
 if HAVE_TARGET_SHARED
 libopenss_framework_binutils_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
@@ -56,6 +60,10 @@ libopenss_framework_la_LDFLAGS = \
 	@TARGET_SQLITE_LDFLAGS@ \
 	@TARGET_STDC_PLUSPLUS_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
+#
+# the else clause indicates not HAVE_TARGET_SHARED, 
+# so use the non target CPPFLAGS, LDFLAGS in this else clause
+#
 else
 libopenss_framework_binutils_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
@@ -72,6 +80,30 @@ libopenss_framework_binutils_la_LIBADD = \
 	@BINUTILS_BFD_LIB@ \
 	-lpthread -lrt
 
+
+#
+# HAVE_SYMTABAPI means use the symtabAPI interface to 
+# resolve symbols, instead of the BFD interface from bintuils
+#
+if HAVE_SYMTABAPI
+libopenss_framework_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	$(LTDLINCL) \
+	@ARRAYSVCS_CPPFLAGS@ \
+	@SYMTABAPI_CPPFLAGS@ \
+	@SQLITE_CPPFLAGS@
+
+libopenss_framework_la_LDFLAGS = \
+	@ARRAYSVCS_LDFLAGS@ \
+	@SQLITE_LDFLAGS@ \
+	@SYMTABAPI_LDFLAGS@ \
+	-export-dynamic -version-info 1:0:0
+#
+# We are not using the symtabAPI interface to 
+# resolve symbols, so don't compile/link using the symtabAPI interface
+else
+
 libopenss_framework_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
@@ -83,10 +115,14 @@ libopenss_framework_la_LDFLAGS = \
 	@ARRAYSVCS_LDFLAGS@ \
 	@SQLITE_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
+# end of the else clause for the non-symtabAPI section
+endif
+# end of the else clause for the non-target shared section
 endif
 
 
 if HAVE_TARGET_SHARED
+
 if BUILD_INSTRUMENTOR
 libopenss_framework_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
@@ -107,20 +143,48 @@ endif
 else
 
 if BUILD_INSTRUMENTOR
+
+if HAVE_SYMTABAPI
+libopenss_framework_la_LIBADD = \
+	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
+	$(LIBLTDL) \
+	@ARRAYSVCS_LIBS@ \
+	@SYMTABAPI_LIBS@ \
+	@SQLITE_LIBS@ \
+	-lpthread -lrt @BINUTILS_IBERTY_LDFLAGS@ @BINUTILS_IBERTY_LIB@
+else
 libopenss_framework_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
 	@SQLITE_LIBS@ \
 	-lpthread -lrt @BINUTILS_IBERTY_LDFLAGS@ @BINUTILS_IBERTY_LIB@
+endif
+
 else
+
+if HAVE_SYMTABAPI
+libopenss_framework_la_LIBADD = \
+	$(LIBLTDL) \
+	@ARRAYSVCS_LIBS@ \
+	@SQLITE_LIBS@ \
+	@SYMTABAPI_LIBS@ \
+	-lpthread -lrt @BINUTILS_IBERTY_LDFLAGS@ @BINUTILS_IBERTY_LIB@
+else
+
 libopenss_framework_la_LIBADD = \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
 	@SQLITE_LIBS@ \
 	-lpthread -lrt @BINUTILS_IBERTY_LDFLAGS@ @BINUTILS_IBERTY_LIB@
+
+# endif for not using symtabAPI else clause
 endif
 
+# endif for not build instrumentor else clause
+endif
+
+# endif for not having target shared else clause
 endif
 
 COMMON_SOURCES = \
@@ -168,6 +232,10 @@ COMMON_SOURCES = \
 	TimeInterval.hxx \
 	ToolAPI.hxx \
 	TotallyOrdered.hxx
+
+if HAVE_SYMTABAPI
+COMMON_SOURCES += SymtabAPISymbols.hxx SymtabAPISymbols.cxx 
+endif
 
 INSTRUMENTOR_SOURCES = \
 	$(top_srcdir)/libopenss-runtime/offline/offline.c \

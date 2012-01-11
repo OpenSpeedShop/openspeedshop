@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008,2009 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2008-2012 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -35,7 +35,7 @@
 
 #if defined(OPENSS_USE_SYMTABAPI)
 #include "SymtabAPISymbols.hxx"
-#include "Symtab.h"
+//#include "dyninst/Symtab.h"
 #else
 #include "BFDSymbols.hxx"
 #endif
