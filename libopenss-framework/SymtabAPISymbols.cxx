@@ -89,6 +89,9 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 		    << std::endl;
 	    }
 
+
+	    std::set<Address> function_begin_addresses;
+
 	    for(unsigned i = 0; i< fsyms.size();i++){
 		OpenSpeedShop::Framework::Address begin(fsyms[i]->getAddr());
 		OpenSpeedShop::Framework::Address end(begin + fsyms[i]->getSize());
@@ -108,6 +111,13 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 			}
 #endif
 			st.addFunction(begin, end,fsyms[i]->getName());
+
+			// Record the function begin addresses, This allows the cli and gui
+			// to focus on or display the first statement of a function.
+			// The function begin addresses will be processed later
+			// for statement info and added to our statements.
+			function_begin_addresses.insert(begin);
+
 			break;
 		    }
 		}
@@ -124,7 +134,6 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 	    } else {
 // DEBUG
 #ifndef NDEBUG
-		//if(0) {
 	        if(is_debug_symtabapi_symbols_enabled) {
 		    for(unsigned i = 0; i< mods.size();i++){
 		        module_range =
@@ -160,8 +169,8 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 			OpenSpeedShop::Framework::Address b(range.first);
 			OpenSpeedShop::Framework::Address e(range.second);
 
+			AddressRange srange(b+base,e+base);
 		        for (unsigned ii = 0; ii < addrbuf->length; ++ii) {
-			    AddressRange srange(b+base,e+base);
 
 			    if(srange.doesContain(Address(addrbuf->pc[ii]))) {
 // DEBUG
@@ -176,6 +185,25 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 				st.addStatement(b,e,line.first,line.second,line.column);
 			    }
 
+			}
+
+			// Find any statements for the beginning of a function that
+			// contained a valid sample address.
+			for(std::set<Address>::const_iterator fi = function_begin_addresses.begin();
+			                                      fi != function_begin_addresses.end();
+			                                      ++fi) {
+			    if(srange.doesContain(*fi) ) {
+// DEBUG
+#ifndef NDEBUG
+				if(is_debug_symtabapi_symbols_enabled) {
+				    std::cerr << "ADDING Function BEGIN STATEMENT "
+				    << b << ":" << e
+				    <<" " << line.first << ":" << line.second
+				    << std::endl;
+				}
+#endif
+				st.addStatement(b,e,line.first,line.second,line.column);
+			    }
 			}
 		    }
 		}
