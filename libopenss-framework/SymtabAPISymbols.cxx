@@ -42,26 +42,30 @@ bool SymtabAPISymbols::is_debug_symtabapi_symbols_enabled =
 #endif
 
 void
-SymtabAPISymbols::getSymbols(const LinkedObject& linkedobject,
+SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
+			     const LinkedObject& linkedobject,
 			     SymbolTableMap& stm)
 {
 
     std::string objname = linkedobject.getPath();
-
     std::set<AddressRange> lorange = linkedobject.getAddressRange();
-    AddressRange lrange;
     std::set<AddressRange>::iterator si;
+
     for(si = lorange.begin() ; si != lorange.end(); ++si) {
+	AddressRange lrange;
 
 // DEBUG
 #ifndef NDEBUG
 	if(is_debug_symtabapi_symbols_enabled) {
 	    std::cerr << "Processing linked object "
-	    << objname << " with address range " << (*si) << std::endl;
+	    << objname << " with address range " << (*si)
+	    << " addrbuf->length is " << addrbuf->length
+	    << std::endl;
 	}
 #endif
 
 	lrange = (*si);
+
 	if (stm.find(*si) != stm.end()) {
 	    SymbolTable& st =  stm.find(*si)->second.first;
 
@@ -80,42 +84,35 @@ SymtabAPISymbols::getSymbols(const LinkedObject& linkedobject,
 	    std::vector <Symbol *>fsyms;
 
 	    if(symtab && !symtab->getAllSymbolsByType(fsyms,Symbol::ST_FUNCTION)) {
-		std::cerr << "symtabAPI interface:  getAllSymbolsByType unable to get all Functions "
+		std::cerr << "getAllSymbolsByType unable to get all Functions "
 		    << Symtab::printError(Symtab::getLastSymtabError()).c_str()
 		    << std::endl;
 	    }
 
-#if 0
-	    for(unsigned i = 0; i< fsyms.size();i++){
-		OpenSpeedShop::Framework::Address begin(fsyms[i]->getAddr());
-
-		if (i + 1 != fsyms.size()) {
-		    OpenSpeedShop::Framework::Address end(fsyms[i+1]->getAddr());
-// DEBUG
-#ifndef NDEBUG
-		    if(is_debug_symtabapi_symbols_enabled) {
-		        std::cerr << "ADDING FUNCTION " << fsyms[i]->getName()
-			<< " RANGE " << begin << "," << end << std::endl;
-		    }
-#endif
-		    st.addFunction(begin + base, end + base,fsyms[i]->getName());
-		}
-	    }
-#else
 	    for(unsigned i = 0; i< fsyms.size();i++){
 		OpenSpeedShop::Framework::Address begin(fsyms[i]->getAddr());
 		OpenSpeedShop::Framework::Address end(begin + fsyms[i]->getSize());
+		begin = begin+base;
+		end = end+base;
+	     
+		if (begin >= end) continue;
+		AddressRange frange(begin,end);
 
+		for (unsigned ii = 0; ii < addrbuf->length; ++ii) {
+		    if (frange.doesContain(Address(addrbuf->pc[ii]))) {
 // DEBUG
 #ifndef NDEBUG
-		    if(is_debug_symtabapi_symbols_enabled) {
-		        std::cerr << "symtabAPI interface:  ADDING FUNCTION " << fsyms[i]->getName()
-			<< " RANGE " << begin << "," << end << std::endl;
+			if(is_debug_symtabapi_symbols_enabled) {
+		            std::cerr << "ADDING FUNCTION " << fsyms[i]->getName()
+			    << " RANGE " << begin << "," << end << std::endl;
+			}
+#endif
+			st.addFunction(begin, end,fsyms[i]->getName());
+			break;
 		    }
-#endif
-		    st.addFunction(begin + base, end + base,fsyms[i]->getName());
+		}
+
 	    }
-#endif
 
 	    std::vector <Module *>mods;
 	    AddressRange module_range;
@@ -127,12 +124,13 @@ SymtabAPISymbols::getSymbols(const LinkedObject& linkedobject,
 	    } else {
 // DEBUG
 #ifndef NDEBUG
-		if(0) {
+		//if(0) {
+	        if(is_debug_symtabapi_symbols_enabled) {
 		    for(unsigned i = 0; i< mods.size();i++){
 		        module_range =
 			   AddressRange(mods[i]->addr(), mods[i]->addr() + symtab->imageLength());
 		        module_name = mods[i]->fullName();
-		        std::cerr << "getAllModules MNAME " << mods[i]->fullName()
+		        std::cerr << "getAllModules module name " << mods[i]->fullName()
 			    << " Range " << module_range << std::endl;
 		    }
 		}
@@ -161,14 +159,24 @@ SymtabAPISymbols::getSymbols(const LinkedObject& linkedobject,
 			LineNoTuple line = iter->second;
 			OpenSpeedShop::Framework::Address b(range.first);
 			OpenSpeedShop::Framework::Address e(range.second);
+
+		        for (unsigned ii = 0; ii < addrbuf->length; ++ii) {
+			    AddressRange srange(b+base,e+base);
+
+			    if(srange.doesContain(Address(addrbuf->pc[ii]))) {
 // DEBUG
 #ifndef NDEBUG
-			if(is_debug_symtabapi_symbols_enabled) {
-			    std::cerr << "symtabAPI interface:  ADDING STATEMENT " << b << ":" << e
-			    <<" " << line.first << ":" << line.second  << std::endl;
-			}
+				if(is_debug_symtabapi_symbols_enabled) {
+				    std::cerr << "ADDING STATEMENT "
+				    << b << ":" << e
+				    <<" " << line.first << ":" << line.second
+				    << std::endl;
+				}
 #endif
-			st.addStatement(b,e,line.first,line.second,line.column);
+				st.addStatement(b,e,line.first,line.second,line.column);
+			    }
+
+			}
 		    }
 		}
 	    }

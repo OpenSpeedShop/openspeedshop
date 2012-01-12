@@ -35,7 +35,6 @@
 
 #if defined(OPENSS_USE_SYMTABAPI)
 #include "SymtabAPISymbols.hxx"
-//#include "dyninst/Symtab.h"
 #else
 #include "BFDSymbols.hxx"
 #endif
@@ -993,7 +992,7 @@ void OfflineExperiment::createOfflineSymbolTable()
 	LinkedObject lo = (*j);
 
 #if defined(OPENSS_USE_SYMTABAPI)
-	stapi_symbols.getSymbols(lo,symtabmap);
+	stapi_symbols.getSymbols(&data_addr_buffer,lo,symtabmap);
 #else
 	bfd_symbols.getSymbols(&data_addr_buffer,lo,symtabmap);
 #endif

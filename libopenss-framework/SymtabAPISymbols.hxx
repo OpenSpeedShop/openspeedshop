@@ -30,7 +30,7 @@ namespace OpenSpeedShop { namespace Framework {
 class SymtabAPISymbols {
 
     public:
-	void    getSymbols(const LinkedObject&, SymbolTableMap&);
+	void    getSymbols(PCBuffer*, const LinkedObject&, SymbolTableMap&);
 
     private:
 
