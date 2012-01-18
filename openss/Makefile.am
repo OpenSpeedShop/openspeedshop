@@ -66,10 +66,12 @@ openss_CXXFLAGS = \
 
 if HAVE_TARGET_SHARED
 openss_LDFLAGS = \
+	@TARGET_SYMTABAPI_LDFLAGS@ \
 	@TARGET_OPENMP_LDFLAGS@
 
 openss_LDADD = \
 	$(LIBLTDL) \
+	@TARGET_SYMTABAPI_LIBS@ \
 	@TARGET_OPENMP_LIBS@ \
 	-lpthread
 else
@@ -136,6 +138,24 @@ ossutil_CXXFLAGS = \
         -DLIB_DIR_NAME=\"$(abi_libdir_name)\" \
         $(LTDLINCL)
 
+if HAVE_TARGET_SYMTABAPI
+ossutil_LDFLAGS = \
+        @TARGET_STDC_PLUSPLUS_LDFLAGS@ \
+        @TARGET_SQLITE_LDFLAGS@ \
+	@TARGET_SYMTABAPI_LDFLAGS@ \
+        -L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-queries \
+        -L$(top_srcdir)/libopenss-runtime
+
+ossutil_LDADD = \
+        @TARGET_STDC_PLUSPLUS_LIBS@ \
+        @TARGET_SQLITE_LIBS@ \
+	@TARGET_SYMTABAPI_LIBS@ \
+        $(LIBLTDL) \
+	-lopenss-framework \
+	-lopenss-framework-binutils \
+        -lpthread
+else
 ossutil_LDFLAGS = \
         @TARGET_STDC_PLUSPLUS_LDFLAGS@ \
         @TARGET_SQLITE_LDFLAGS@ \
@@ -152,6 +172,8 @@ ossutil_LDADD = \
 	-lopenss-framework \
 	-lopenss-framework-binutils \
         -lpthread
+endif
+
 
 ossutil_SOURCES = \
         ossutil.cxx

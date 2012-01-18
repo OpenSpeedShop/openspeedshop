@@ -101,16 +101,6 @@ AC_ARG_WITH(ppc64_bitmode,
 AC_MSG_CHECKING([Configuring for host = $host  with ppc64_bitmode = $ppc64_bitmode])
 
 case "$host" in
-    powerpc-*-linux*) 
-        AC_MSG_CHECKING([Configuring for powerpc-star-linux])
-
-        abi_libdir="lib"
-        alt_abi_libdir="lib64"
-        if test x"$libdir" == x'${exec_prefix}/lib64'; then
-            libdir='${exec_prefix}/lib'
-        fi
-        LDFLAGS="-L/usr/lib -DLIB_DIR=lib $LDFLAGS"
-        ;;
     powerpc64-*-*) 
 
 	AC_MSG_CHECKING([Configuring for powerpc64-star-linux with ppc64_bitmode = $ppc64_bitmode])
@@ -135,6 +125,17 @@ case "$host" in
 		LDFLAGS="-L/usr/lib -DLIB_DIR=lib $LDFLAGS"
 	fi
 	;;
+
+    powerpc-*-linux*) 
+        AC_MSG_CHECKING([Configuring for powerpc-star-linux])
+
+        abi_libdir="lib"
+        alt_abi_libdir="lib64"
+        if test x"$libdir" == x'${exec_prefix}/lib64'; then
+            libdir='${exec_prefix}/lib'
+        fi
+        LDFLAGS="-L/usr/lib -DLIB_DIR=lib $LDFLAGS"
+        ;;
 
     x86_64-*-linux*)
         AC_MSG_CHECKING([Configuring for x86_64--star-linux host])
@@ -448,6 +449,7 @@ AC_PKG_TARGET_LIBUNWIND()
 AC_PKG_TARGET_OTF()
 AC_PKG_TARGET_PAPI()
 AC_PKG_TARGET_SQLITE()
+AC_PKG_TARGET_SYMTABAPI()
 AC_PKG_TARGET_VT()
 AC_PKG_VT()
 AC_PKG_XERCES()

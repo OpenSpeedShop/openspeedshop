@@ -494,6 +494,57 @@ AC_DEFUN([AC_PKG_OFFLINE_SYMTABAPI], [
 
 ])
 
+
+#############################################################################################
+# Check for symtabAPI for Target Architecture 
+#############################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_SYMTABAPI], [
+
+    AC_ARG_WITH(target-symtabapi,
+                AC_HELP_STRING([--with-target-symtabapi=DIR],
+                               [symtabapi target architecture installation @<:@/opt@:>@]),
+                target_symtabapi_dir=$withval, target_symtabapi_dir="/zzz")
+
+    AC_MSG_CHECKING([for Targetted symtabapi support])
+
+    found_target_symtabapi=0
+    if test -f  $target_symtabapi_dir/include/dyninst/Symtab.h; then
+       found_target_symtabapi=1
+    fi
+
+    if test $found_target_symtabapi == 0 && test "$target_symtabapi_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_SYMTABAPI, false)
+      TARGET_SYMTABAPI_CPPFLAGS=""
+      TARGET_SYMTABAPI_LDFLAGS=""
+      TARGET_SYMTABAPI_LIBS=""
+      TARGET_SYMTABAPI_DIR=""
+      AC_MSG_RESULT(no)
+    elif test $found_target_symtabapi == 1 ; then
+      AC_MSG_RESULT(yes)
+      AM_CONDITIONAL(HAVE_TARGET_SYMTABAPI, true)
+      AC_DEFINE(HAVE_TARGET_SYMTABAPI, 1, [Define to 1 if you have a target version of SYMTABAPI.])
+      TARGET_SYMTABAPI_CPPFLAGS="-I$target_symtabapi_dir/include -DUNW_LOCAL_ONLY"
+      TARGET_SYMTABAPI_LDFLAGS="-L$target_symtabapi_dir/$abi_libdir"
+      TARGET_SYMTABAPI_LIBS="-lsymtabAPI"
+      TARGET_SYMTABAPI_DIR="$target_symtabapi_dir"
+    else 
+      AM_CONDITIONAL(HAVE_TARGET_SYMTABAPI, false)
+      TARGET_SYMTABAPI_CPPFLAGS=""
+      TARGET_SYMTABAPI_LDFLAGS=""
+      TARGET_SYMTABAPI_LIBS=""
+      TARGET_SYMTABAPI_DIR=""
+      AC_MSG_RESULT(no)
+    fi
+
+
+    AC_SUBST(TARGET_SYMTABAPI_CPPFLAGS)
+    AC_SUBST(TARGET_SYMTABAPI_LDFLAGS)
+    AC_SUBST(TARGET_SYMTABAPI_LIBS)
+    AC_SUBST(TARGET_SYMTABAPI_DIR)
+
+])
+
 ################################################################################
 # Check for Libunwind (http://www.hpl.hp.com/research/linux/libunwind)
 ################################################################################
