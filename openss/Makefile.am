@@ -66,14 +66,12 @@ openss_CXXFLAGS = \
 
 if HAVE_TARGET_SHARED
 openss_LDFLAGS = \
-	@TARGET_SYMTABAPI_LDFLAGS@ \
 	@TARGET_OPENMP_LDFLAGS@
 
 openss_LDADD = \
 	$(LIBLTDL) \
-	@TARGET_SYMTABAPI_LIBS@ \
 	@TARGET_OPENMP_LIBS@ \
-	-lpthread
+	@TARGET_LIBPTHREAD_LIBS@ 
 else
 openss_LDFLAGS = \
 	@OPENMP_LDFLAGS@
@@ -142,19 +140,17 @@ if HAVE_TARGET_SYMTABAPI
 ossutil_LDFLAGS = \
         @TARGET_STDC_PLUSPLUS_LDFLAGS@ \
         @TARGET_SQLITE_LDFLAGS@ \
-	@TARGET_SYMTABAPI_LDFLAGS@ \
         -L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-queries \
-        -L$(top_srcdir)/libopenss-runtime
+        -L$(top_srcdir)/libopenss-runtime 
 
 ossutil_LDADD = \
         @TARGET_STDC_PLUSPLUS_LIBS@ \
         @TARGET_SQLITE_LIBS@ \
-	@TARGET_SYMTABAPI_LIBS@ \
         $(LIBLTDL) \
 	-lopenss-framework \
-	-lopenss-framework-binutils \
-        -lpthread
+	@TARGET_LIBPTHREAD_LDFLAGS@ @TARGET_LIBPTHREAD_LIBS@ \
+	@TARGET_SYMTABAPI_LDFLAGS@ @TARGET_SYMTABAPI_LIBS@ 
 else
 ossutil_LDFLAGS = \
         @TARGET_STDC_PLUSPLUS_LDFLAGS@ \
@@ -171,7 +167,7 @@ ossutil_LDADD = \
         $(LIBLTDL) \
 	-lopenss-framework \
 	-lopenss-framework-binutils \
-        -lpthread
+	@TARGET_LIBPTHREAD_LDFLAGS@ @TARGET_LIBPTHREAD_LIBS@ 
 endif
 
 

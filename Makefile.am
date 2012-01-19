@@ -59,8 +59,7 @@ MISC_SUBDIRS = \
 
 TARGET_SHARED_MISC_SUBDIRS = \
 	pyscripting \
-	sanity \
-	usability
+	sanity 
 
 if HAVE_QTLIB
 

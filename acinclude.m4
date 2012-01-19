@@ -432,7 +432,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
 # Check for symtabAPI (http://www.dyninst.org)
 ################################################################################
 
-AC_DEFUN([AC_PKG_OFFLINE_SYMTABAPI], [
+AC_DEFUN([AC_PKG_SYMTABAPI], [
 
     AC_ARG_WITH(symtabapi,
                 AC_HELP_STRING([--with-symtabapi=DIR],
@@ -509,7 +509,11 @@ AC_DEFUN([AC_PKG_TARGET_SYMTABAPI], [
     AC_MSG_CHECKING([for Targetted symtabapi support])
 
     found_target_symtabapi=0
-    if test -f  $target_symtabapi_dir/include/dyninst/Symtab.h; then
+    if test -f  $target_symtabapi_dir/$abi_libdir/libsymtabAPI.so; then
+       TARGET_SYMTABAPI_LDFLAGS="-L$target_symtabapi_dir/$abi_libdir"
+       found_target_symtabapi=1
+    elif test -f  $target_symtabapi_dir/$alt_abi_libdir/libsymtabAPI.so; then
+       TARGET_SYMTABAPI_LDFLAGS="-L$target_symtabapi_dir/$alt_abi_libdir"
        found_target_symtabapi=1
     fi
 
@@ -524,8 +528,7 @@ AC_DEFUN([AC_PKG_TARGET_SYMTABAPI], [
       AC_MSG_RESULT(yes)
       AM_CONDITIONAL(HAVE_TARGET_SYMTABAPI, true)
       AC_DEFINE(HAVE_TARGET_SYMTABAPI, 1, [Define to 1 if you have a target version of SYMTABAPI.])
-      TARGET_SYMTABAPI_CPPFLAGS="-I$target_symtabapi_dir/include -DUNW_LOCAL_ONLY"
-      TARGET_SYMTABAPI_LDFLAGS="-L$target_symtabapi_dir/$abi_libdir"
+      TARGET_SYMTABAPI_CPPFLAGS="-I$target_symtabapi_dir/include -I$target_symtabapi_dir/include/dyninst -DUNW_LOCAL_ONLY"
       TARGET_SYMTABAPI_LIBS="-lsymtabAPI"
       TARGET_SYMTABAPI_DIR="$target_symtabapi_dir"
     else 
@@ -542,6 +545,113 @@ AC_DEFUN([AC_PKG_TARGET_SYMTABAPI], [
     AC_SUBST(TARGET_SYMTABAPI_LDFLAGS)
     AC_SUBST(TARGET_SYMTABAPI_LIBS)
     AC_SUBST(TARGET_SYMTABAPI_DIR)
+
+])
+
+
+#############################################################################################
+# Check for libpthread for Target Architecture 
+#############################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_LIBPTHREAD], [
+
+    AC_ARG_WITH(target-libpthread,
+                AC_HELP_STRING([--with-target-libpthread=DIR],
+                               [libpthread target architecture installation @<:@/opt@:>@]),
+                target_libpthread_dir=$withval, target_libpthread_dir="/zzz")
+
+    AC_MSG_CHECKING([for Targetted libpthread support])
+
+    found_target_libpthread=0
+    if test -f  $target_libpthread_dir/$abi_libdir/libpthread.so; then
+       found_target_libpthread=1
+       TARGET_LIBPTHREAD_LDFLAGS="-L$target_libpthread_dir/$abi_libdir"
+    elif test -f  $target_libpthread_dir/$alt_abi_libdir/libpthread.so; then
+       found_target_libpthread=1
+       TARGET_LIBPTHREAD_LDFLAGS="-L$target_libpthread_dir/$alt_abi_libdir"
+    fi
+
+    if test $found_target_libpthread == 0 && test "$target_libpthread_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_LIBPTHREAD, false)
+      TARGET_LIBPTHREAD_CPPFLAGS=""
+      TARGET_LIBPTHREAD_LDFLAGS=""
+      TARGET_LIBPTHREAD_LIBS=""
+      TARGET_LIBPTHREAD_DIR=""
+      AC_MSG_RESULT(no)
+    elif test $found_target_libpthread == 1 ; then
+      AC_MSG_RESULT(yes)
+      AM_CONDITIONAL(HAVE_TARGET_LIBPTHREAD, true)
+      AC_DEFINE(HAVE_TARGET_LIBPTHREAD, 1, [Define to 1 if you have a target version of LIBPTHREAD.])
+      TARGET_LIBPTHREAD_CPPFLAGS="-I$target_libpthread_dir/include -DUNW_LOCAL_ONLY"
+      TARGET_LIBPTHREAD_LIBS="-lpthread"
+      TARGET_LIBPTHREAD_DIR="$target_libpthread_dir"
+    else 
+      AM_CONDITIONAL(HAVE_TARGET_LIBPTHREAD, false)
+      TARGET_LIBPTHREAD_CPPFLAGS=""
+      TARGET_LIBPTHREAD_LDFLAGS=""
+      TARGET_LIBPTHREAD_LIBS=""
+      TARGET_LIBPTHREAD_DIR=""
+      AC_MSG_RESULT(no)
+    fi
+
+
+    AC_SUBST(TARGET_LIBPTHREAD_CPPFLAGS)
+    AC_SUBST(TARGET_LIBPTHREAD_LDFLAGS)
+    AC_SUBST(TARGET_LIBPTHREAD_LIBS)
+    AC_SUBST(TARGET_LIBPTHREAD_DIR)
+
+])
+
+#############################################################################################
+# Check for librt for Target Architecture 
+#############################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_LIBRT], [
+
+    AC_ARG_WITH(target-librt,
+                AC_HELP_STRING([--with-target-librt=DIR],
+                               [librt target architecture installation @<:@/opt@:>@]),
+                target_librt_dir=$withval, target_librt_dir="/zzz")
+
+    AC_MSG_CHECKING([for Targetted librt support])
+
+    found_target_librt=0
+    if test -f  $target_librt_dir/$abi_libdir/librt.so; then
+       TARGET_LIBRT_LDFLAGS="-L$target_librt_dir/$abi_libdir"
+       found_target_librt=1
+    elif test -f  $target_librt_dir/$alt_abi_libdir/librt.so; then
+       TARGET_LIBRT_LDFLAGS="-L$target_librt_dir/$alt_abi_libdir"
+       found_target_librt=1
+    fi
+
+    if test $found_target_librt == 0 && test "$target_librt_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_LIBRT, false)
+      TARGET_LIBRT_CPPFLAGS=""
+      TARGET_LIBRT_LDFLAGS=""
+      TARGET_LIBRT_LIBS=""
+      TARGET_LIBRT_DIR=""
+      AC_MSG_RESULT(no)
+    elif test $found_target_librt == 1 ; then
+      AC_MSG_RESULT(yes)
+      AM_CONDITIONAL(HAVE_TARGET_LIBRT, true)
+      AC_DEFINE(HAVE_TARGET_LIBRT, 1, [Define to 1 if you have a target version of LIBRT.])
+      TARGET_LIBRT_CPPFLAGS="-I$target_librt_dir/include -DUNW_LOCAL_ONLY"
+      TARGET_LIBRT_LIBS="-lrt"
+      TARGET_LIBRT_DIR="$target_librt_dir"
+    else 
+      AM_CONDITIONAL(HAVE_TARGET_LIBRT, false)
+      TARGET_LIBRT_CPPFLAGS=""
+      TARGET_LIBRT_LDFLAGS=""
+      TARGET_LIBRT_LIBS=""
+      TARGET_LIBRT_DIR=""
+      AC_MSG_RESULT(no)
+    fi
+
+
+    AC_SUBST(TARGET_LIBRT_CPPFLAGS)
+    AC_SUBST(TARGET_LIBRT_LDFLAGS)
+    AC_SUBST(TARGET_LIBRT_LIBS)
+    AC_SUBST(TARGET_LIBRT_DIR)
 
 ])
 
@@ -615,8 +725,12 @@ AC_DEFUN([AC_PKG_TARGET_LIBUNWIND], [
     AC_MSG_CHECKING([for Targetted libunwind support])
 
     found_target_libunwind=0
-    if test -f  $target_libunwind_dir/include/libunwind.h; then
+    if test -f  $target_libunwind_dir/$abi_libdir/libunwind.so; then
        found_target_libunwind=1
+       TARGET_LIBUNWIND_LDFLAGS="-L$target_libunwind_dir/$abi_libdir"
+    elif test -f  $target_libunwind_dir/$alt_abi_libdir/libunwind.so; then
+       found_target_libunwind=1
+       TARGET_LIBUNWIND_LDFLAGS="-L$target_libunwind_dir/$alt_abi_libdir"
     fi
 
     if test $found_target_libunwind == 0 && test "$target_libunwind_dir" == "/zzz" ; then
@@ -631,7 +745,6 @@ AC_DEFUN([AC_PKG_TARGET_LIBUNWIND], [
       AM_CONDITIONAL(HAVE_TARGET_LIBUNWIND, true)
       AC_DEFINE(HAVE_TARGET_LIBUNWIND, 1, [Define to 1 if you have a target version of LIBUNWIND.])
       TARGET_LIBUNWIND_CPPFLAGS="-I$target_libunwind_dir/include -DUNW_LOCAL_ONLY"
-      TARGET_LIBUNWIND_LDFLAGS="-L$target_libunwind_dir/$abi_libdir"
       TARGET_LIBUNWIND_LIBS="-lunwind"
       TARGET_LIBUNWIND_DIR="$target_libunwind_dir"
     else 
@@ -676,7 +789,11 @@ AC_DEFUN([AC_PKG_TARGET_STDC_PLUSPLUS], [
       AM_CONDITIONAL(HAVE_TARGET_STDC_PLUSPLUS, true)
       AC_DEFINE(HAVE_TARGET_STDC_PLUSPLUS, 1, [Define to 1 if you have a target version of STDC_PLUSPLUS.])
       TARGET_STDC_PLUSPLUS_CPPFLAGS="-I$target_stdc_plusplus_dir/include -DUNW_LOCAL_ONLY"
-      TARGET_STDC_PLUSPLUS_LDFLAGS="-L$target_stdc_plusplus_dir/$abi_libdir"
+      if test -f  $target_stdc_plusplus_dir/$abi_libdir/libstdc++.so; then
+        TARGET_STDC_PLUSPLUS_LDFLAGS="-L$target_stdc_plusplus_dir/$abi_libdir"
+      elif test -f  $target_stdc_plusplus_dir/$alt_abi_libdir/libstdc++.so; then
+        TARGET_STDC_PLUSPLUS_LDFLAGS="-L$target_stdc_plusplus_dir/$alt_abi_libdir"
+      fi
       TARGET_STDC_PLUSPLUS_LIBS="-lstdc++"
       TARGET_STDC_PLUSPLUS_DIR="$target_stdc_plusplus_dir"
     fi
@@ -903,9 +1020,7 @@ AC_DEFUN([AC_PKG_TARGET_OPENMP], [
                 target_openmp_dir=$withval, target_openmp_dir="/usr")
 
     TARGET_OPENMP_DIR="$target_openmp_dir"
-    TARGET_OPENMP_LIBSDIR="$target_openmp_dir/$abi_libdir"
     TARGET_OPENMP_CPPFLAGS="-fopenmp"
-    TARGET_OPENMP_LDFLAGS="-L$target_openmp_dir/$abi_libdir"
     TARGET_OPENMP_LIBS="-lgomp"
 
 
@@ -924,6 +1039,13 @@ AC_DEFUN([AC_PKG_TARGET_OPENMP], [
 
     found_target_openmp=0
     if test -f  $target_openmp_dir/$abi_libdir/libgomp.so; then
+       TARGET_OPENMP_LIBSDIR="$target_openmp_dir/$abi_libdir"
+       TARGET_OPENMP_LDFLAGS="-L$target_openmp_dir/$abi_libdir"
+       AC_MSG_CHECKING([found Targetted OTF library])
+       found_target_openmp=1
+    elif test -f  $target_openmp_dir/$alt_abi_libdir/libgomp.so; then
+       TARGET_OPENMP_LIBSDIR="$target_openmp_dir/$alt_abi_libdir"
+       TARGET_OPENMP_LDFLAGS="-L$target_openmp_dir/$alt_abi_libdir"
        AC_MSG_CHECKING([found Targetted OTF library])
        found_target_openmp=1
     fi
@@ -2308,6 +2430,14 @@ AC_DEFUN([AC_PKG_TARGET_LIBMONITOR], [
 
     AC_MSG_CHECKING([for Targetted libmonitor support])
 
+    if test -f  $target_libmonitor_dir/$abi_libdir/libmonitor.so; then
+       found_target_libmonitor=1
+       TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
+    elif test -f  $target_libmonitor_dir/$alt_abi_libdir/libmonitor.so; then
+       found_target_libmonitor=1
+       TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$alt_abi_libdir"
+    fi
+
     if test "$target_libmonitor_dir" == "/zzz" ; then
       AM_CONDITIONAL(HAVE_TARGET_LIBMONITOR, false)
       TARGET_LIBMONITOR_CPPFLAGS=""
@@ -2319,7 +2449,6 @@ AC_DEFUN([AC_PKG_TARGET_LIBMONITOR], [
       AM_CONDITIONAL(HAVE_TARGET_LIBMONITOR, true)
       AC_DEFINE(HAVE_TARGET_LIBMONITOR, 1, [Define to 1 if you have a target version of LIBMONITOR.])
       TARGET_LIBMONITOR_CPPFLAGS="-I$target_libmonitor_dir/include"
-      TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
       TARGET_LIBMONITOR_LIBS="-lmonitor"
       TARGET_LIBMONITOR_DIR="$target_libmonitor_dir"
       AC_MSG_RESULT(yes)
@@ -2431,6 +2560,14 @@ AC_DEFUN([AC_PKG_TARGET_LIBDWARF], [
 
     AC_MSG_CHECKING([for Targetted libdwarf support])
 
+    if test -f  $target_libdwarf_dir/$abi_libdir/libdwarf.so; then
+       found_target_libdwarf=1
+       TARGET_LIBDWARF_LDFLAGS="-L$target_libdwarf_dir/$abi_libdir"
+    elif test -f  $target_libdwarf_dir/$alt_abi_libdir/libdwarf.so; then
+       found_target_libdwarf=1
+       TARGET_LIBDWARF_LDFLAGS="-L$target_libdwarf_dir/$alt_abi_libdir"
+    fi
+
     if test "$target_libdwarf_dir" == "/zzz" ; then
       AM_CONDITIONAL(HAVE_TARGET_LIBDWARF, false)
       TARGET_LIBDWARF_CPPFLAGS=""
@@ -2442,7 +2579,6 @@ AC_DEFUN([AC_PKG_TARGET_LIBDWARF], [
       AM_CONDITIONAL(HAVE_TARGET_LIBDWARF, true)
       AC_DEFINE(HAVE_TARGET_LIBDWARF, 1, [Define to 1 if you have a target version of LIBDWARF.])
       TARGET_LIBDWARF_CPPFLAGS="-I$target_libdwarf_dir/include"
-      TARGET_LIBDWARF_LDFLAGS="-L$target_libdwarf_dir/$abi_libdir"
       TARGET_LIBDWARF_LIBS="-ldwarf"
       TARGET_LIBDWARF_DIR="$target_libdwarf_dir"
       AC_MSG_RESULT(yes)
