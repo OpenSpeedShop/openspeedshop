@@ -361,6 +361,10 @@ AC_DEFUN([AC_PKG_DYNINST], [
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI" 
             ;;
+	"8.0.0")
+            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
+            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI -lpatchAPI" 
+            ;;
 	*)
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI" 
@@ -2430,6 +2434,7 @@ AC_DEFUN([AC_PKG_TARGET_LIBMONITOR], [
 
     AC_MSG_CHECKING([for Targetted libmonitor support])
 
+    found_target_libmonitor=0
     if test -f  $target_libmonitor_dir/$abi_libdir/libmonitor.so; then
        found_target_libmonitor=1
        TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
@@ -2438,20 +2443,27 @@ AC_DEFUN([AC_PKG_TARGET_LIBMONITOR], [
        TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$alt_abi_libdir"
     fi
 
-    if test "$target_libmonitor_dir" == "/zzz" ; then
+    if test $found_target_libmonitor == 0 && test "$target_libmonitor_dir" == "/zzz" ; then
       AM_CONDITIONAL(HAVE_TARGET_LIBMONITOR, false)
       TARGET_LIBMONITOR_CPPFLAGS=""
       TARGET_LIBMONITOR_LDFLAGS=""
       TARGET_LIBMONITOR_LIBS=""
       TARGET_LIBMONITOR_DIR=""
       AC_MSG_RESULT(no)
-    else
+    elif test $found_target_libmonitor == 1 ; then
       AM_CONDITIONAL(HAVE_TARGET_LIBMONITOR, true)
       AC_DEFINE(HAVE_TARGET_LIBMONITOR, 1, [Define to 1 if you have a target version of LIBMONITOR.])
       TARGET_LIBMONITOR_CPPFLAGS="-I$target_libmonitor_dir/include"
       TARGET_LIBMONITOR_LIBS="-lmonitor"
       TARGET_LIBMONITOR_DIR="$target_libmonitor_dir"
       AC_MSG_RESULT(yes)
+    else
+      AM_CONDITIONAL(HAVE_TARGET_LIBMONITOR, false)
+      TARGET_LIBMONITOR_CPPFLAGS=""
+      TARGET_LIBMONITOR_LDFLAGS=""
+      TARGET_LIBMONITOR_LIBS=""
+      TARGET_LIBMONITOR_DIR=""
+      AC_MSG_RESULT(no)
     fi
 
 
@@ -2560,6 +2572,7 @@ AC_DEFUN([AC_PKG_TARGET_LIBDWARF], [
 
     AC_MSG_CHECKING([for Targetted libdwarf support])
 
+    found_target_libdwarf=0
     if test -f  $target_libdwarf_dir/$abi_libdir/libdwarf.so; then
        found_target_libdwarf=1
        TARGET_LIBDWARF_LDFLAGS="-L$target_libdwarf_dir/$abi_libdir"
@@ -2568,20 +2581,27 @@ AC_DEFUN([AC_PKG_TARGET_LIBDWARF], [
        TARGET_LIBDWARF_LDFLAGS="-L$target_libdwarf_dir/$alt_abi_libdir"
     fi
 
-    if test "$target_libdwarf_dir" == "/zzz" ; then
+    if test $found_target_libdwarf == 0 && test "$target_libdwarf_dir" == "/zzz" ; then
       AM_CONDITIONAL(HAVE_TARGET_LIBDWARF, false)
       TARGET_LIBDWARF_CPPFLAGS=""
       TARGET_LIBDWARF_LDFLAGS=""
       TARGET_LIBDWARF_LIBS=""
       TARGET_LIBDWARF_DIR=""
       AC_MSG_RESULT(no)
-    else
+    elif test $found_target_libdwarf == 1 ; then
       AM_CONDITIONAL(HAVE_TARGET_LIBDWARF, true)
       AC_DEFINE(HAVE_TARGET_LIBDWARF, 1, [Define to 1 if you have a target version of LIBDWARF.])
       TARGET_LIBDWARF_CPPFLAGS="-I$target_libdwarf_dir/include"
       TARGET_LIBDWARF_LIBS="-ldwarf"
       TARGET_LIBDWARF_DIR="$target_libdwarf_dir"
       AC_MSG_RESULT(yes)
+    else
+      AM_CONDITIONAL(HAVE_TARGET_LIBDWARF, false)
+      TARGET_LIBDWARF_CPPFLAGS=""
+      TARGET_LIBDWARF_LDFLAGS=""
+      TARGET_LIBDWARF_LIBS=""
+      TARGET_LIBDWARF_DIR=""
+      AC_MSG_RESULT(no)
     fi
 
 
