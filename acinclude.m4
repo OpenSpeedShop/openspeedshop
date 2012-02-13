@@ -513,10 +513,10 @@ AC_DEFUN([AC_PKG_TARGET_SYMTABAPI], [
     AC_MSG_CHECKING([for Targetted symtabapi support])
 
     found_target_symtabapi=0
-    if test -f  $target_symtabapi_dir/$abi_libdir/libsymtabAPI.so; then
+    if test -f $target_symtabapi_dir/$abi_libdir/libsymtabAPI.a || test -f $target_symtabapi_dir/$abi_libdir/libsymtabAPI.so; then
        TARGET_SYMTABAPI_LDFLAGS="-L$target_symtabapi_dir/$abi_libdir"
        found_target_symtabapi=1
-    elif test -f  $target_symtabapi_dir/$alt_abi_libdir/libsymtabAPI.so; then
+    elif test -f $target_symtabapi_dir/$alt_abi_libdir/libsymtabAPI.a || test -f $target_symtabapi_dir/$alt_abi_libdir/libsymtabAPI.so; then
        TARGET_SYMTABAPI_LDFLAGS="-L$target_symtabapi_dir/$alt_abi_libdir"
        found_target_symtabapi=1
     fi
@@ -567,10 +567,10 @@ AC_DEFUN([AC_PKG_TARGET_LIBPTHREAD], [
     AC_MSG_CHECKING([for Targetted libpthread support])
 
     found_target_libpthread=0
-    if test -f  $target_libpthread_dir/$abi_libdir/libpthread.so; then
+    if test -f $target_libpthread_dir/$abi_libdir/libpthread.a || test -f $target_libpthread_dir/$abi_libdir/libpthread.so; then
        found_target_libpthread=1
        TARGET_LIBPTHREAD_LDFLAGS="-L$target_libpthread_dir/$abi_libdir"
-    elif test -f  $target_libpthread_dir/$alt_abi_libdir/libpthread.so; then
+    elif test -f $target_libpthread_dir/$alt_abi_libdir/libpthread.a || test -f $target_libpthread_dir/$alt_abi_libdir/libpthread.so; then
        found_target_libpthread=1
        TARGET_LIBPTHREAD_LDFLAGS="-L$target_libpthread_dir/$alt_abi_libdir"
     fi
@@ -620,10 +620,10 @@ AC_DEFUN([AC_PKG_TARGET_LIBRT], [
     AC_MSG_CHECKING([for Targetted librt support])
 
     found_target_librt=0
-    if test -f  $target_librt_dir/$abi_libdir/librt.so; then
+    if test -f $target_librt_dir/$abi_libdir/librt.so; then
        TARGET_LIBRT_LDFLAGS="-L$target_librt_dir/$abi_libdir"
        found_target_librt=1
-    elif test -f  $target_librt_dir/$alt_abi_libdir/librt.so; then
+    elif test -f $target_librt_dir/$alt_abi_libdir/librt.so; then
        TARGET_LIBRT_LDFLAGS="-L$target_librt_dir/$alt_abi_libdir"
        found_target_librt=1
     fi
@@ -729,10 +729,10 @@ AC_DEFUN([AC_PKG_TARGET_LIBUNWIND], [
     AC_MSG_CHECKING([for Targetted libunwind support])
 
     found_target_libunwind=0
-    if test -f  $target_libunwind_dir/$abi_libdir/libunwind.so; then
+    if test -f $target_libunwind_dir/$abi_libdir/libunwind.a || test -f $target_libunwind_dir/$abi_libdir/libunwind.so; then
        found_target_libunwind=1
        TARGET_LIBUNWIND_LDFLAGS="-L$target_libunwind_dir/$abi_libdir"
-    elif test -f  $target_libunwind_dir/$alt_abi_libdir/libunwind.so; then
+    elif test -f $target_libunwind_dir/$alt_abi_libdir/libunwind.a || test -f $target_libunwind_dir/$alt_abi_libdir/libunwind.so; then
        found_target_libunwind=1
        TARGET_LIBUNWIND_LDFLAGS="-L$target_libunwind_dir/$alt_abi_libdir"
     fi
@@ -1042,12 +1042,12 @@ AC_DEFUN([AC_PKG_TARGET_OPENMP], [
     AC_MSG_CHECKING([for Targetted OpenMP support])
 
     found_target_openmp=0
-    if test -f  $target_openmp_dir/$abi_libdir/libgomp.so; then
+    if test -f $target_openmp_dir/$abi_libdir/libgomp.so; then
        TARGET_OPENMP_LIBSDIR="$target_openmp_dir/$abi_libdir"
        TARGET_OPENMP_LDFLAGS="-L$target_openmp_dir/$abi_libdir"
        AC_MSG_CHECKING([found Targetted OTF library])
        found_target_openmp=1
-    elif test -f  $target_openmp_dir/$alt_abi_libdir/libgomp.so; then
+    elif test -f $target_openmp_dir/$alt_abi_libdir/libgomp.so; then
        TARGET_OPENMP_LIBSDIR="$target_openmp_dir/$alt_abi_libdir"
        TARGET_OPENMP_LDFLAGS="-L$target_openmp_dir/$alt_abi_libdir"
        AC_MSG_CHECKING([found Targetted OTF library])
@@ -2435,10 +2435,10 @@ AC_DEFUN([AC_PKG_TARGET_LIBMONITOR], [
     AC_MSG_CHECKING([for Targetted libmonitor support])
 
     found_target_libmonitor=0
-    if test -f  $target_libmonitor_dir/$abi_libdir/libmonitor.so; then
+    if test -f $target_libmonitor_dir/$abi_libdir/libmonitor.a || test -f $target_libmonitor_dir/$abi_libdir/libmonitor.so; then
        found_target_libmonitor=1
        TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
-    elif test -f  $target_libmonitor_dir/$alt_abi_libdir/libmonitor.so; then
+    elif test -f $target_libmonitor_dir/$alt_abi_libdir/libmonitor.a || test -f $target_libmonitor_dir/$alt_abi_libdir/libmonitor.so; then
        found_target_libmonitor=1
        TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$alt_abi_libdir"
     fi
@@ -2573,10 +2573,10 @@ AC_DEFUN([AC_PKG_TARGET_LIBDWARF], [
     AC_MSG_CHECKING([for Targetted libdwarf support])
 
     found_target_libdwarf=0
-    if test -f  $target_libdwarf_dir/$abi_libdir/libdwarf.so; then
+    if test -f $target_libdwarf_dir/$abi_libdir/libdwarf.a || test -f $target_libdwarf_dir/$abi_libdir/libdwarf.so; then
        found_target_libdwarf=1
        TARGET_LIBDWARF_LDFLAGS="-L$target_libdwarf_dir/$abi_libdir"
-    elif test -f  $target_libdwarf_dir/$alt_abi_libdir/libdwarf.so; then
+    elif test -f $target_libdwarf_dir/$alt_abi_libdir/libdwarf.a || test -f $target_libdwarf_dir/$alt_abi_libdir/libdwarf.so; then
        found_target_libdwarf=1
        TARGET_LIBDWARF_LDFLAGS="-L$target_libdwarf_dir/$alt_abi_libdir"
     fi
