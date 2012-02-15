@@ -18,7 +18,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-AC_INIT(OpenSpeedShop, 2.0.1)
+AC_INIT(OpenSpeedShop, 2.0.2b1)
 AC_COPYRIGHT([[Copyright (c) 2006-2012 Krell Institute. All Rights Reserved.]])
 AC_CONFIG_AUX_DIR([libltdl/config])
 AM_INIT_AUTOMAKE
