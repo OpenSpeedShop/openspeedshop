@@ -129,6 +129,7 @@ libopenss_framework_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	$(LTDLINCL) \
 	@ARRAYSVCS_CPPFLAGS@ \
+	@BINUTILS_CPPFLAGS@ \
 	@SQLITE_CPPFLAGS@
 
 libopenss_framework_la_LDFLAGS = \
