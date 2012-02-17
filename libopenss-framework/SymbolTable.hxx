@@ -70,6 +70,12 @@ namespace OpenSpeedShop { namespace Framework {
 			  const Path&, const int&, const int&);
 	
 	void processAndStore(const LinkedObject&);
+
+	// Offline uses this while checking that all sampled
+	// addresses have been resolved for function symbols.
+	std::map<AddressRange, std::string> getFunctions() {
+		return dm_functions;
+	};
 	
     private:
 

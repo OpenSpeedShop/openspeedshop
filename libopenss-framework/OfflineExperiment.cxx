@@ -89,9 +89,13 @@ namespace {
 };
 
 #ifndef NDEBUG
-/** Flag indicating if debuging for MPI jobs is enabled. */
+/** Flag indicating if debuging for offline symbols is enabled. */
 bool OfflineExperiment::is_debug_offlinesymbols_enabled =
     (getenv("OPENSS_DEBUG_OFFLINE_SYMBOLS") != NULL);
+
+/** Flag indicating if debuging for offline symbols is enabled. */
+bool OfflineExperiment::is_debug_offlinesymbols_detailed_enabled =
+    (getenv("OPENSS_DEBUG_OFFLINE_SYMBOLS_DETAILS") != NULL);
 
 /** Flag indicating if debuging for offline experiments is enabled. */
 bool OfflineExperiment::is_debug_offline_enabled =
@@ -913,10 +917,10 @@ void OfflineExperiment::createOfflineSymbolTable()
 
     std::map<AddressRange, std::set<LinkedObject> > tneeded;
 
+    AddressSpace taddress_space;
     for(ThreadGroup::const_iterator i = threads.begin();
                                     i != threads.end(); ++i) {
-	AddressSpace taddress_space;
-        Instrumentor::retain(*i);
+	Instrumentor::retain(*i);
 
 	// add performance sample addresses to address buffer
 	// for this thread group.
@@ -1000,14 +1004,70 @@ void OfflineExperiment::createOfflineSymbolTable()
     } // end for threads linkedobjects
 
     // Now update the database with all our functions and statements...
+    std::map<AddressRange, std::string> allfuncs; // used to verify symbols.
     for(SymbolTableMap::iterator i = symtabmap.begin();
-        i != symtabmap.end();
-        ++i) {
+		i != symtabmap.end(); ++i) {
+
         for(std::set<LinkedObject>::const_iterator j = i->second.second.begin();
-            j != i->second.second.end();
-            ++j) {
-            i->second.first.processAndStore(*j);
+		j != i->second.second.end(); ++j) {
+	    i->second.first.processAndStore(*j);
         }
+
+	// Used to find any sampled addresses for which no symbol
+	// was found.
+	std::map<AddressRange, std::string> stfunc = i->second.first.getFunctions();
+
+ 	for(std::map<AddressRange, std::string>::const_iterator
+            jj = stfunc.begin(); jj != stfunc.end(); ++jj) {
+	    allfuncs.insert(*jj);
+	}
+    }
+
+    // Used to find any sampled addresses for which no symbol
+    // was found.
+    std::set<Address> foundpcs;
+    for (unsigned ii = 0; ii < data_addr_buffer.length; ii++) {
+	for(std::map<AddressRange, std::string>::const_iterator
+            jj = allfuncs.begin(); jj != allfuncs.end(); ++jj) {
+
+	    AddressRange frange(jj->first.getBegin(),jj->first.getEnd());
+	    if (frange.doesContain(Address(data_addr_buffer.pc[ii])) ) {
+// DEBUG
+#ifndef NDEBUG
+		if(is_debug_offlinesymbols_detailed_enabled) {
+		std::cerr << "FNAME " << jj->second
+			<< " FRANGE " << frange
+			<< " contains " << Address(data_addr_buffer.pc[ii])
+			 << std::endl;
+		}
+#endif
+		foundpcs.insert(Address(data_addr_buffer.pc[ii]));
+		break;
+	     }
+	}
+    }
+
+    // Used to find any sampled addresses for which no symbol
+    // was found.
+    for (unsigned ii = 0; ii < data_addr_buffer.length; ii++) {
+	bool found = false;
+	for(std::set<Address>::const_iterator k = foundpcs.begin();
+						k != foundpcs.end(); ++k) {
+	     if (Address(data_addr_buffer.pc[ii]) == *k) {
+		found = true;
+		break;
+	     }
+	}
+
+// DEBUG
+#ifndef NDEBUG
+	if(is_debug_offlinesymbols_enabled) {
+	  if (!found) {
+	    std::cerr << "MISSING FUNCTION symbols for "
+	        << Address(data_addr_buffer.pc[ii]) << std::endl;
+	  }
+	}
+#endif
     }
 
     // clear names to range for our next linked object.

@@ -36,6 +36,7 @@ class SymtabAPISymbols {
 
 #ifndef NDEBUG
     static bool is_debug_symtabapi_symbols_enabled;
+    static bool is_debug_symtabapi_symbols_detailed_enabled;
 #endif
 
 };

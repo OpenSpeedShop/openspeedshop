@@ -113,6 +113,7 @@ class OfflineExperiment
 
 #ifndef NDEBUG
     static bool is_debug_offlinesymbols_enabled;
+    static bool is_debug_offlinesymbols_detailed_enabled;
     static bool is_debug_offline_enabled;
 #endif
 

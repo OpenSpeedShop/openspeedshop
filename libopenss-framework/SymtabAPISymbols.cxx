@@ -36,9 +36,12 @@ using namespace Dyninst;
 using namespace Dyninst::SymtabAPI;
 
 #ifndef NDEBUG
-/** Flag indicating if debuging for MPI jobs is enabled. */
+/** Flag indicating if debuging for offline symbols is enabled. */
 bool SymtabAPISymbols::is_debug_symtabapi_symbols_enabled =
-    (getenv("OPENSS_DEBUG_OFFLINE_SYMBOLS") != NULL);
+    (getenv("OPENSS_DEBUG_SYMTABAPI_SYMBOLS") != NULL);
+/** Flag indicating if debuging for detailed offline symbols is enabled. */
+bool SymtabAPISymbols::is_debug_symtabapi_symbols_detailed_enabled =
+    (getenv("OPENSS_DEBUG_SYMTABAPI_SYMBOLS_DETAILS") != NULL);
 #endif
 
 void
@@ -76,6 +79,13 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 	    OpenSpeedShop::Framework::Address image_length(symtab->imageLength());
 	    AddressRange image_range(image_offset,image_offset+image_length);
 
+// DEBUG
+#ifndef NDEBUG
+	    if(is_debug_symtabapi_symbols_enabled) {
+	        std::cerr << "Image range of " << objname << " is " << image_range << std::endl;
+	    }
+#endif
+
 	    OpenSpeedShop::Framework::Address base(0);
 	    if ( (image_range.getBegin() - lrange.getBegin()) < 0 ) {
 		base = lrange.getBegin();
@@ -98,16 +108,23 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 		begin = begin+base;
 		end = end+base;
 	     
-		if (begin >= end) continue;
+		if (begin > end) continue;
+
+		if (begin == end) {
+		   end = end+1;
+		}
+
 		AddressRange frange(begin,end);
 
 		for (unsigned ii = 0; ii < addrbuf->length; ++ii) {
 		    if (frange.doesContain(Address(addrbuf->pc[ii]))) {
 // DEBUG
 #ifndef NDEBUG
-			if(is_debug_symtabapi_symbols_enabled) {
+			if(is_debug_symtabapi_symbols_detailed_enabled) {
 		            std::cerr << "ADDING FUNCTION " << fsyms[i]->getName()
-			    << " RANGE " << begin << "," << end << std::endl;
+			    << " RANGE " << begin << "," << end
+			    << " for pc " << Address(addrbuf->pc[ii])
+			    << std::endl;
 			}
 #endif
 			st.addFunction(begin, end,fsyms[i]->getName());
@@ -117,12 +134,11 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 			// The function begin addresses will be processed later
 			// for statement info and added to our statements.
 			function_begin_addresses.insert(begin);
-
 			break;
 		    }
 		}
-
 	    }
+
 
 	    std::vector <Module *>mods;
 	    AddressRange module_range;
@@ -134,7 +150,7 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 	    } else {
 // DEBUG
 #ifndef NDEBUG
-	        if(is_debug_symtabapi_symbols_enabled) {
+	        if(is_debug_symtabapi_symbols_detailed_enabled) {
 		    for(unsigned i = 0; i< mods.size();i++){
 		        module_range =
 			   AddressRange(mods[i]->addr(), mods[i]->addr() + symtab->imageLength());
@@ -175,7 +191,7 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 			    if(srange.doesContain(Address(addrbuf->pc[ii]))) {
 // DEBUG
 #ifndef NDEBUG
-				if(is_debug_symtabapi_symbols_enabled) {
+				if(is_debug_symtabapi_symbols_detailed_enabled) {
 				    std::cerr << "ADDING STATEMENT "
 				    << b << ":" << e
 				    <<" " << line.first << ":" << line.second
@@ -195,7 +211,7 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 			    if(srange.doesContain(*fi) ) {
 // DEBUG
 #ifndef NDEBUG
-				if(is_debug_symtabapi_symbols_enabled) {
+				if(is_debug_symtabapi_symbols_detailed_enabled) {
 				    std::cerr << "ADDING Function BEGIN STATEMENT "
 				    << b << ":" << e
 				    <<" " << line.first << ":" << line.second
@@ -208,7 +224,6 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 		    }
 		}
 	    }
-	    break;
 	}
     }
 }

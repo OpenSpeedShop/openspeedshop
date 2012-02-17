@@ -206,7 +206,7 @@ libopenss_framework_la_LIBADD = \
 	@ARRAYSVCS_LIBS@ \
 	@SQLITE_LIBS@ \
 	@SYMTABAPI_LIBS@ \
-	-lpthread -lrt @BINUTILS_IBERTY_LDFLAGS@ @BINUTILS_IBERTY_LIB@
+	-lpthread -lrt 
 else
 
 libopenss_framework_la_LIBADD = \
@@ -271,11 +271,11 @@ COMMON_SOURCES = \
 	TotallyOrdered.hxx
 
 if HAVE_SYMTABAPI
-COMMON_SOURCES += SymtabAPISymbols.hxx SymtabAPISymbols.cxx 
+COMMON_SOURCES += SymtabAPISymbols.hxx SymtabAPISymbols.cxx PCBuffer.hxx PCBuffer.cxx
 endif
 
 if HAVE_TARGET_SYMTABAPI
-COMMON_SOURCES += SymtabAPISymbols.hxx SymtabAPISymbols.cxx 
+COMMON_SOURCES += SymtabAPISymbols.hxx SymtabAPISymbols.cxx PCBuffer.hxx PCBuffer.cxx
 endif
 
 INSTRUMENTOR_SOURCES = \
