@@ -46,16 +46,25 @@ libpapi="${libpapi_libdir}/libpapi.a"
 if [ ${oss_target} = cray-xt5 -o ${oss_target} = cray-xt4 -o ${oss_target} = bgp ]
 then
   monitor_wrap_base_names="main exit _exit"
+elif test "$mach_type" == "ppc64" && test "$oss_target" == "bgq" ; 
+then
+  monitor_wrap_base_names="main exit _exit"
 else
   monitor_wrap_base_names="main exit _exit system"
 fi
+
+# monitor has --enable-pthread
+if test "$mach_type" == "ppc64" && test "$oss_target" == "bgq" ; then
+   monitor_wrap_pthread_names="pthread_exit pthread_sigmask"
+else
+   monitor_wrap_pthread_names="pthread_create pthread_exit pthread_sigmask"
+fi
+ 
 
 # monitor has --enable-fork
 monitor_wrap_fork_names="fork vfork execl execlp execle execv execvp execve"
 # monitor has --enable-dlfcn
 monitor_wrap_dlopen_names="dlopen dlclose"
-# monitor has --enable-pthread
-monitor_wrap_pthread_names="pthread_create pthread_exit pthread_sigmask"
 # monitor has --enable-signals
 monitor_wrap_signal_names="signal sigaction sigprocmask"
 # monitor has mpi. These are the base names for the non mpi collectors
