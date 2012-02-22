@@ -20,6 +20,7 @@
 
 
 #include "SS_Input_Manager.hxx"
+#include "SS_View_Expr.hxx"
 #include "HWTimeCollector.hxx"
 #include "HWTimeDetail.hxx"
 
@@ -138,11 +139,13 @@ static bool define_hwctime_columns (
             CommandObject *cmd,
             ExperimentObject *exp,
             std::vector<Collector>& CV,
+            std::vector<std::string>& MV,
             std::vector<ViewInstruction *>& IV,
             std::vector<std::string>& HV,
             View_Form_Category vfc) {
   int64_t last_column = 0;  // Number of columns of information displayed.
   int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
+  int64_t last_used_temp = Last_ByThread_Temp; // Track maximum temps - needed for expressions.
 
  // Define combination instructions for predefined temporaries.
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
@@ -171,11 +174,43 @@ static bool define_hwctime_columns (
     }
   }
 
+ // Define map for metrics to metric temp.
+  std::map<std::string, int64_t> MetricMap;
+  MetricMap["exclusive_detail"] = exevents_temp;
+  MetricMap["exclusive_details"] = exevents_temp;
+  MetricMap["exclusive_count"] = exevents_temp;
+  MetricMap["exclusive_counts"] = exevents_temp;
+  MetricMap["overflow"] = excnt_temp;
+  MetricMap["overflows"] = excnt_temp;
+  MetricMap["exclusive_overflow"] = excnt_temp;
+  MetricMap["exclusive_overflows"] = excnt_temp;
+  MetricMap["inclusive_detail"] = inevents_temp;
+  MetricMap["inclusive_details"] = inevents_temp;
+  MetricMap["inclusive_count"] = inevents_temp;
+  MetricMap["inclusive_counts"] = inevents_temp;
+  MetricMap["inclusive_overflow"] = incnt_temp;
+  MetricMap["inclusive_overflows"] = incnt_temp;
+  if (Generate_ButterFly) {
+    MetricMap["event"] = inevents_temp;
+    MetricMap["events"] = inevents_temp;
+    MetricMap["count"] = inevents_temp;
+    MetricMap["counts"] = inevents_temp;
+  } else {
+    MetricMap["event"] = exevents_temp;
+    MetricMap["events"] = exevents_temp;
+    MetricMap["count"] = exevents_temp;
+    MetricMap["counts"] = exevents_temp;
+  }
+
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
     int64_t i = 0;
     std::vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
+
+// Look for a metric expression and invoke processing.
+#include "SS_View_metric_expressions.hxx"
+
       parse_range_t *m_range = (*mi).getRange();
       std::string C_Name;
       std::string M_Name;
@@ -376,7 +411,7 @@ static bool hwctime_definition (
     MV.push_back ("inclusive_detail"); // define the metric needed for getting main time values
     CV.push_back (Get_Collector (exp->FW(), "hwctime"));  // Define the collector
     MV.push_back ("exclusive_overflows"); // define the metric needed for calculating total time.
-    return define_hwctime_columns (cmd, exp, CV, IV, HV, vfc);
+    return define_hwctime_columns (cmd, exp, CV, MV, IV, HV, vfc);
 }
 
 static std::string VIEW_hwctime_brief = "Hardware Counter Report";

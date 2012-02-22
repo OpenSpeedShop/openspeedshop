@@ -891,5 +891,5 @@ class stats_view : public ViewType {
 //   Also exported are: 'Generic_View' and 'Select_User_Metrics'
 // However, Calls to the 'stats' VIEW needs to be done through the ViewType class objects.
 extern "C" void stats_LTX_ViewFactory () {
-  Define_New_View (new stats_view());
+//  Define_New_View (new stats_view());
 }

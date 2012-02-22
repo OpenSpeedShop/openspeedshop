@@ -17,6 +17,7 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+#define DEBUG_CLI 0
 #include "SS_Input_Manager.hxx"
 
 
@@ -86,6 +87,7 @@ CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
   double Avalue;
   double Bvalue;
   int64_t Ivalue;
+  uint64_t Uvalue;
 
 #if DEBUG_CLI
   printf("In CommandResult *Calculate_Average, A->Type()=%d, B->Type()=%d\n", A->Type(), B->Type());
@@ -94,7 +96,6 @@ CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
 
   switch (A->Type()) {
    case CMD_RESULT_UINT:
-    uint64_t Uvalue;
     ((CommandResult_Uint *)A)->Value(Uvalue);
     Avalue = Uvalue;
     break;
@@ -117,7 +118,6 @@ CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
 
   switch (B->Type()) {
    case CMD_RESULT_UINT:
-    uint64_t Uvalue;
     ((CommandResult_Uint *)B)->Value(Uvalue);
     Bvalue = Uvalue;
     break;
@@ -137,6 +137,7 @@ CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
     break;
   }
 
+  if (Bvalue == 0.0) return NULL;
   double average = Avalue / Bvalue;
 
 #if DEBUG_CLI
@@ -169,7 +170,7 @@ CommandResult *Calculate_StdDev  (CommandResult *A, CommandResult *B, CommandRes
   double Bvalue = 0.0;
   double Cvalue = 0.0;
   int64_t Ivalue = 0;
-
+  uint64_t Uvalue;
   
 #if DEBUG_CLI
   printf("In CommandResult *Calculate_StdDev, A->Type()=%d, B->Type()=%d, C->Type()=%d\n", 
@@ -199,7 +200,6 @@ CommandResult *Calculate_StdDev  (CommandResult *A, CommandResult *B, CommandRes
   }
   switch (B->Type()) {
    case CMD_RESULT_UINT:
-    uint64_t Uvalue;
     ((CommandResult_Uint *)B)->Value(Uvalue);
     Bvalue = Uvalue;
     break;
@@ -220,7 +220,6 @@ CommandResult *Calculate_StdDev  (CommandResult *A, CommandResult *B, CommandRes
   }
   switch (C->Type()) {
    case CMD_RESULT_UINT:
-    uint64_t Uvalue;
     ((CommandResult_Uint *)C)->Value(Uvalue);
     Cvalue = Uvalue;
     break;
@@ -268,7 +267,7 @@ CommandResult *Calculate_Flops  (CommandResult *A, CommandResult *B) {
   double Avalue = 0.0;
   double Bvalue = 1.0;
   int64_t Ivalue = 0;
-
+  uint64_t Uvalue;
   
 #if DEBUG_CLI
   printf("In CommandResult *Calculate_Flops, A->Type()=%d, B->Type()=%d\n", 
@@ -277,7 +276,6 @@ CommandResult *Calculate_Flops  (CommandResult *A, CommandResult *B) {
 
   switch (A->Type()) {
    case CMD_RESULT_UINT:
-    uint64_t Uvalue;
     ((CommandResult_Uint *)A)->Value(Uvalue);
     Avalue = Uvalue;
     break;
@@ -299,7 +297,6 @@ CommandResult *Calculate_Flops  (CommandResult *A, CommandResult *B) {
 
   switch (B->Type()) {
    case CMD_RESULT_UINT:
-    uint64_t Uvalue;
     ((CommandResult_Uint *)B)->Value(Uvalue);
     Bvalue = Uvalue;
     break;
@@ -319,6 +316,7 @@ CommandResult *Calculate_Flops  (CommandResult *A, CommandResult *B) {
     break;
   }
 
+  if (Bvalue == 0.0) return NULL;
 //  double result =  ( (Avalue / ((Bvalue / 1000000.0) * 1000000.0))) ;
   double result =  ( (Avalue / ((Bvalue / 1000000.0) * 1000000.0)) / 1000000.0) ;
 
@@ -347,6 +345,7 @@ CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
   double Avalue;
   double Bvalue;
   int64_t Ivalue;
+  uint64_t Uvalue;
 
 #if DEBUG_CLI
   printf("In CommandResult *Calculate_Percent, A->Type()=%d, B->Type()=%d\n", 
@@ -355,7 +354,6 @@ CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
 
   switch (A->Type()) {
    case CMD_RESULT_UINT:
-    uint64_t Uvalue;
     ((CommandResult_Uint *)A)->Value(Uvalue);
     Avalue = Uvalue;
     break;
@@ -376,7 +374,6 @@ CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
   }
   switch (B->Type()) {
    case CMD_RESULT_UINT:
-    uint64_t Uvalue;
     ((CommandResult_Uint *)B)->Value(Uvalue);
     Bvalue = Uvalue;
     break;
@@ -403,4 +400,1101 @@ CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
     if (percent < 0.0) percent = 0.0;
   }
   return isnan(percent) ? NULL : new CommandResult_Float (percent);
+}
+
+
+static CommandResult *Calculate_Add (CommandResult *A, CommandResult *B) {
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Add, A->Type()=%d, B->Type()=%d\n", A->Type(), B->Type());
+  std::cout << "\tA = " << ((A != NULL) ? A->Form() : "(nil)")
+            << "\tB = " << ((B != NULL) ? B->Form() : "(nil)")
+            << std::endl;
+#endif
+
+  if (A == NULL) {
+    return (B == NULL) ? NULL : B->Copy();
+  } else if (B == NULL) {
+    return A->Copy();
+  }
+
+  double ADvalue = 0.0;
+  int64_t AIvalue= 0;
+  uint64_t AUvalue= 0;
+  double BDvalue= 0.0;
+  int64_t BIvalue= 0;
+  uint64_t BUvalue= 0;
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Value(AUvalue);
+
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(ADvalue);
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(ADvalue);
+    break;
+  }
+
+
+  switch (B->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)B)->Value(BUvalue);
+    if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue + BUvalue);
+    } else if ( (A->Type() == CMD_RESULT_INT) ||
+                (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR (AIvalue + BUvalue);
+    } else {
+      return CRPTR (ADvalue + BUvalue);
+    }
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)B)->Value(BIvalue);
+    if ( (A->Type() == CMD_RESULT_INT) ||
+         (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR (AIvalue + BIvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue + BIvalue);
+    } else {
+      return CRPTR (ADvalue + BIvalue);
+    }
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)B)->Value(BDvalue);
+    if ( (A->Type() == CMD_RESULT_FLOAT) ||
+         (A->Type() == CMD_RESULT_INTERVAL) ) {
+      return CRPTR (ADvalue + BDvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue + BDvalue);
+    } else {
+      return CRPTR (AIvalue + BDvalue);
+    }
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)B)->Value(BIvalue);
+    if ( (A->Type() == CMD_RESULT_INT) ||
+         (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR (AIvalue + BIvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue + BIvalue);
+    } else {
+      return CRPTR (ADvalue + BIvalue);
+    }
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)B)->Value(BDvalue);
+    if ( (A->Type() == CMD_RESULT_FLOAT) ||
+         (A->Type() == CMD_RESULT_INTERVAL) ) {
+      return CRPTR (ADvalue + BDvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue + BDvalue);
+    } else {
+      return CRPTR (AIvalue + BDvalue);
+    }
+    break;
+  }
+
+  return NULL;
+}
+
+static CommandResult *Calculate_Sub (CommandResult *A, CommandResult *B) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_Sub, A=%x, B=%x\n", A, B);
+#endif
+
+  if (A == NULL) {
+    return (B == NULL) ? NULL : B->Copy();
+  } else if (B == NULL) {
+    return A->Copy();
+  }
+
+  double ADvalue = 0.0;
+  int64_t AIvalue= 0;
+  uint64_t AUvalue= 0;
+  double BDvalue= 0.0;
+  int64_t BIvalue= 0;
+  uint64_t BUvalue= 0;
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Sub, A->Type()=%d, B->Type()=%d\n", A->Type(), B->Type());
+#endif
+
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Value(AUvalue);
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(ADvalue);
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(ADvalue);
+    break;
+  }
+
+
+  switch (B->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)B)->Value(BUvalue);
+    if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue - BUvalue);
+    } else if ( (A->Type() == CMD_RESULT_INT) ||
+                (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR (AIvalue - BUvalue);
+    } else {
+      return CRPTR (ADvalue - BUvalue);
+    }
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)B)->Value(BIvalue);
+    if ( (A->Type() == CMD_RESULT_INT) ||
+         (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR (AIvalue - BIvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue - BIvalue);
+    } else {
+      return CRPTR (ADvalue - BIvalue);
+    }
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)B)->Value(BDvalue);
+    if ( (A->Type() == CMD_RESULT_FLOAT) ||
+         (A->Type() == CMD_RESULT_INTERVAL) ) {
+      return CRPTR (ADvalue - BDvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue - BDvalue);
+    } else {
+      return CRPTR (AIvalue - BDvalue);
+    }
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)B)->Value(BIvalue);
+    if ( (A->Type() == CMD_RESULT_INT) ||
+         (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR (AIvalue - BIvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue - BIvalue);
+    } else {
+      return CRPTR (ADvalue - BIvalue);
+    }
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)B)->Value(BDvalue);
+    if ( (A->Type() == CMD_RESULT_FLOAT) ||
+         (A->Type() == CMD_RESULT_INTERVAL) ) {
+      return CRPTR (ADvalue - BDvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue - BDvalue);
+    } else {
+      return CRPTR (AIvalue - BDvalue);
+    }
+    break;
+  }
+
+  return NULL;
+}
+
+static CommandResult *Calculate_Mult (CommandResult *A, CommandResult *B) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_Mult, A=%x, B=%x\n", A, B);
+#endif
+
+  if (A == NULL) {
+    return (B == NULL) ? NULL : B->Copy();
+  } else if (B == NULL) {
+    return A->Copy();
+  }
+
+  double ADvalue = 0.0;
+  int64_t AIvalue= 0;
+  uint64_t AUvalue= 0;
+  double BDvalue= 0.0;
+  int64_t BIvalue= 0;
+  uint64_t BUvalue= 0;
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Mult, A->Type()=%d, B->Type()=%d\n", A->Type(), B->Type());
+#endif
+
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Value(AUvalue);
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(ADvalue);
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(ADvalue);
+    break;
+  }
+
+
+  switch (B->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)B)->Value(BUvalue);
+    if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue * BUvalue);
+    } else if ( (A->Type() == CMD_RESULT_INT) ||
+                (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR (AIvalue * BUvalue);
+    } else {
+      return CRPTR (ADvalue * BUvalue);
+    }
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)B)->Value(BIvalue);
+    if ( (A->Type() == CMD_RESULT_INT) ||
+         (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR (AIvalue * BIvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue * BIvalue);
+    } else {
+      return CRPTR (ADvalue * BIvalue);
+    }
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)B)->Value(BDvalue);
+    if ( (A->Type() == CMD_RESULT_FLOAT) ||
+         (A->Type() == CMD_RESULT_INTERVAL) ) {
+      return CRPTR (ADvalue * BDvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue * BDvalue);
+    } else {
+      return CRPTR (AIvalue * BDvalue);
+    }
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)B)->Value(BIvalue);
+    if ( (A->Type() == CMD_RESULT_INT) ||
+         (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR (AIvalue * BIvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue * BIvalue);
+    } else {
+      return CRPTR (ADvalue * BIvalue);
+    }
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)B)->Value(BDvalue);
+    if ( (A->Type() == CMD_RESULT_FLOAT) ||
+         (A->Type() == CMD_RESULT_INTERVAL) ) {
+      return CRPTR (ADvalue * BDvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue * BDvalue);
+    } else {
+      return CRPTR (AIvalue * BDvalue);
+    }
+    break;
+  }
+
+  return NULL;
+}
+
+static CommandResult *Calculate_Div (CommandResult *A, CommandResult *B) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_Div, A=%x, B=%x\n", A, B);
+#endif
+
+  if (A == NULL) {
+    return (B == NULL) ? NULL : B->Copy();
+  } else if (B == NULL) {
+    return A->Copy();
+  }
+  if (B->ValueIsNull()) return NULL;
+
+  double ADvalue = 0.0;
+  int64_t AIvalue= 0;
+  uint64_t AUvalue= 0;
+  double BDvalue= 0.0;
+  int64_t BIvalue= 0;
+  uint64_t BUvalue= 0;
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Div, A->Type()=%d, B->Type()=%d\n", A->Type(), B->Type());
+#endif
+
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Value(AUvalue);
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(ADvalue);
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(ADvalue);
+    break;
+  }
+
+
+  switch (B->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)B)->Value(BUvalue);
+    if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue / BUvalue);
+    } else if ( (A->Type() == CMD_RESULT_INT) ||
+                (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR (AIvalue / BUvalue);
+    } else {
+      return CRPTR (ADvalue / BUvalue);
+    }
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)B)->Value(BIvalue);
+    if ( (A->Type() == CMD_RESULT_INT) ||
+         (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR (AIvalue / BIvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue / BIvalue);
+    } else {
+      return CRPTR (ADvalue / BIvalue);
+    }
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)B)->Value(BDvalue);
+    if ( (A->Type() == CMD_RESULT_FLOAT) ||
+         (A->Type() == CMD_RESULT_INTERVAL) ) {
+      return CRPTR (ADvalue / BDvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue / BDvalue);
+    } else {
+      return CRPTR (AIvalue / BDvalue);
+    }
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)B)->Value(BIvalue);
+    if ( (A->Type() == CMD_RESULT_INT) ||
+         (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR (AIvalue / BIvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue / BIvalue);
+    } else {
+      return CRPTR (ADvalue / BIvalue);
+    }
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)B)->Value(BDvalue);
+    if ( (A->Type() == CMD_RESULT_FLOAT) ||
+         (A->Type() == CMD_RESULT_INTERVAL) ) {
+      return CRPTR (ADvalue / BDvalue);
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue / BDvalue);
+    } else {
+      return CRPTR (AIvalue / BDvalue);
+    }
+    break;
+  }
+
+  return NULL;
+}
+
+static CommandResult *Calculate_Mod (CommandResult *A, CommandResult *B) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_Mod, A=%x, B=%x\n", A, B);
+#endif
+
+  if (A == NULL) {
+    return (B == NULL) ? NULL : B->Copy();
+  } else if (B == NULL) {
+    return A->Copy();
+  }
+
+  double ADvalue = 0.0;
+  int64_t AIvalue= 0;
+  uint64_t AUvalue= 0;
+  double BDvalue= 0.0;
+  int64_t BIvalue= 0;
+  uint64_t BUvalue= 0;
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Mod, A->Type()=%d, B->Type()=%d\n", A->Type(), B->Type());
+#endif
+
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Value(AUvalue);
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(ADvalue);
+    AIvalue = ADvalue;
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(ADvalue);
+    AIvalue = ADvalue;
+    break;
+   default: return NULL;
+  }
+
+
+  switch (B->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)B)->Value(BUvalue);
+    if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR (AUvalue % BUvalue);
+    }
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)B)->Value(BIvalue);
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)B)->Value(BDvalue);
+    BIvalue = BDvalue;
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)B)->Value(BIvalue);
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)B)->Value(BDvalue);
+    BIvalue = BDvalue;
+    break;
+   default: return NULL;
+  }
+
+  if (BIvalue == 0) return  NULL;
+  if (A->Type() == CMD_RESULT_UINT) {
+    return CRPTR (AUvalue % BIvalue);
+  }
+  return CRPTR (AIvalue % BIvalue);
+}
+
+static CommandResult *Calculate_Min (CommandResult *A, CommandResult *B) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_Min, A=%x, B=%x\n", A, B);
+#endif
+
+  if (A == NULL) {
+    return (B == NULL) ? NULL : B->Copy();
+  } else if (B == NULL) {
+    return A->Copy();
+  }
+
+  double ADvalue = 0.0;
+  int64_t AIvalue= 0;
+  uint64_t AUvalue= 0;
+  double BDvalue= 0.0;
+  int64_t BIvalue= 0;
+  uint64_t BUvalue= 0;
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Min, A->Type()=%d, B->Type()=%d\n", A->Type(), B->Type());
+#endif
+
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Value(AUvalue);
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(ADvalue);
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(ADvalue);
+    break;
+  }
+
+
+  switch (B->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)B)->Value(BUvalue);
+    if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (AUvalue <= BUvalue) ? AUvalue : BUvalue );
+    } else if ( (A->Type() == CMD_RESULT_INT) ||
+                (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR ( (AIvalue <= BUvalue) ? AIvalue : BUvalue );
+    } else {
+      return CRPTR ( (ADvalue <= BUvalue) ? ADvalue : BUvalue );
+    }
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)B)->Value(BIvalue);
+    if ( (A->Type() == CMD_RESULT_INT) ||
+         (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR ( (AIvalue <= BIvalue) ? AIvalue : BIvalue );
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (AUvalue <= BIvalue) ? AUvalue : BIvalue );
+    } else {
+      return CRPTR ( (ADvalue <= BIvalue) ? ADvalue : BIvalue );
+    }
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)B)->Value(BDvalue);
+    if ( (A->Type() == CMD_RESULT_FLOAT) ||
+         (A->Type() == CMD_RESULT_INTERVAL) ) {
+      return CRPTR ( (ADvalue <= BDvalue) ? ADvalue : BDvalue );
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (AUvalue <= BDvalue) ? AUvalue : BDvalue );
+    } else {
+      return CRPTR ( (AIvalue <= BDvalue) ? AIvalue : BDvalue );
+    }
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)B)->Value(BIvalue);
+    if ( (A->Type() == CMD_RESULT_INT) ||
+         (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR ( (AIvalue <= BIvalue) ? AIvalue : BIvalue );
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (AUvalue <= BIvalue) ? AUvalue : BIvalue );
+    } else {
+      return CRPTR ( (ADvalue <= BIvalue) ? ADvalue : BIvalue );
+    }
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)B)->Value(BDvalue);
+    if ( (A->Type() == CMD_RESULT_FLOAT) ||
+         (A->Type() == CMD_RESULT_INTERVAL) ) {
+      return CRPTR ( (ADvalue <= BDvalue) ? ADvalue : BDvalue );
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (AUvalue <= BDvalue) ? AUvalue : BDvalue );
+    } else {
+      return CRPTR ( (AIvalue <= BDvalue) ? AIvalue : BDvalue );
+    }
+    break;
+  }
+
+  return NULL;
+}
+
+static CommandResult *Calculate_Max (CommandResult *A, CommandResult *B) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_Max, A=%x, B=%x\n", A, B);
+#endif
+
+  if (A == NULL) {
+    return (B == NULL) ? NULL : B->Copy();
+  } else if (B == NULL) {
+    return A->Copy();
+  }
+
+  double ADvalue = 0.0;
+  int64_t AIvalue= 0;
+  uint64_t AUvalue= 0;
+  double BDvalue= 0.0;
+  int64_t BIvalue= 0;
+  uint64_t BUvalue= 0;
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Max, A->Type()=%d, B->Type()=%d\n", A->Type(), B->Type());
+#endif
+
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Value(AUvalue);
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(ADvalue);
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(ADvalue);
+    break;
+  }
+
+
+  switch (B->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)B)->Value(BUvalue);
+    if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (AUvalue > BUvalue) ? AUvalue : BUvalue );
+    } else if ( (A->Type() == CMD_RESULT_INT) ||
+                (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR ( (AIvalue > BUvalue) ? AIvalue : BUvalue );
+    } else {
+      return CRPTR ( (ADvalue > BUvalue) ? ADvalue : BUvalue );
+    }
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)B)->Value(BIvalue);
+    if ( (A->Type() == CMD_RESULT_INT) ||
+         (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR ( (AIvalue > BIvalue) ? AIvalue : BIvalue );
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (AUvalue > BIvalue) ? AUvalue : BIvalue );
+    } else {
+      return CRPTR ( (ADvalue > BIvalue) ? ADvalue : BIvalue );
+    }
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)B)->Value(BDvalue);
+    if ( (A->Type() == CMD_RESULT_FLOAT) ||
+         (A->Type() == CMD_RESULT_INTERVAL) ) {
+      return CRPTR ( (ADvalue > BDvalue) ? ADvalue : BDvalue );
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (AUvalue > BDvalue) ? AUvalue : BDvalue );
+    } else {
+      return CRPTR ( (AIvalue > BDvalue) ? AIvalue : BDvalue );
+    }
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)B)->Value(BIvalue);
+    if ( (A->Type() == CMD_RESULT_INT) ||
+         (A->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR ( (AIvalue > BIvalue) ? AIvalue : BIvalue );
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (AUvalue > BIvalue) ? AUvalue : BIvalue );
+    } else {
+      return CRPTR ( (ADvalue > BIvalue) ? ADvalue : BIvalue );
+    }
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)B)->Value(BDvalue);
+    if ( (A->Type() == CMD_RESULT_FLOAT) ||
+         (A->Type() == CMD_RESULT_INTERVAL) ) {
+      return CRPTR ( (ADvalue > BDvalue) ? ADvalue : BDvalue );
+    } else if (A->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (AUvalue > BDvalue) ? AUvalue : BDvalue );
+    } else {
+      return CRPTR ( (AIvalue > BDvalue) ? AIvalue : BDvalue );
+    }
+    break;
+  }
+
+  return NULL;
+}
+
+static CommandResult *Calculate_Condexp (CommandResult *A, CommandResult *B, CommandResult *C) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_Condexp, A=%x, B=%x C=%x\n", A, B, C);
+#endif
+
+  if (A == NULL) {
+    return (B == NULL) ? NULL : B->Copy();
+  } else if (B == NULL) {
+    return A->Copy();
+  }
+
+  bool condition = FALSE;
+  double ADvalue = 0.0;
+  int64_t AIvalue= 0;
+  uint64_t AUvalue= 0;
+  double BDvalue= 0.0;
+  int64_t BIvalue= 0;
+  uint64_t BUvalue= 0;
+  double CDvalue= 0.0;
+  int64_t CIvalue= 0;
+  uint64_t CUvalue= 0;
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Condexp, A->Type()=%d, B->Type()=%d\n", A->Type(), B->Type());
+#endif
+
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Value(AUvalue);
+    condition = (AUvalue != 0);
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(AIvalue);
+    condition = (AIvalue != 0);
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(ADvalue);
+    condition = (ADvalue != 0);
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(AIvalue);
+    condition = (AIvalue != 0);
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(ADvalue);
+    condition = (ADvalue != 0);
+    break;
+  }
+
+  switch (B->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)B)->Value(BUvalue);
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)B)->Value(BIvalue);
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)B)->Value(BDvalue);
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)B)->Value(BIvalue);
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)B)->Value(BDvalue);
+    break;
+  }
+
+
+  switch (C->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)C)->Value(CUvalue);
+    if (B->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (condition) ? BUvalue : CUvalue );
+    } else if ( (B->Type() == CMD_RESULT_INT) ||
+                (B->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR ( (condition) ? BIvalue : CUvalue );
+    } else {
+      return CRPTR ( (condition) ? BDvalue : CUvalue );
+    }
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)C)->Value(CIvalue);
+    if ( (B->Type() == CMD_RESULT_INT) ||
+         (B->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR ( (condition) ? BIvalue : CIvalue );
+    } else if (B->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (condition) ? BUvalue : CIvalue );
+    } else {
+      return CRPTR ( (condition) ? BDvalue : CIvalue );
+    }
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)C)->Value(CDvalue);
+    if ( (B->Type() == CMD_RESULT_FLOAT) ||
+         (B->Type() == CMD_RESULT_INTERVAL) ) {
+      return CRPTR ( (condition) ? BDvalue : CDvalue );
+    } else if (B->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (condition) ? BUvalue : CDvalue );
+    } else {
+      return CRPTR ( (condition) ? BIvalue : CDvalue );
+    }
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)C)->Value(CIvalue);
+    if ( (B->Type() == CMD_RESULT_INT) ||
+         (B->Type() == CMD_RESULT_DURATION) ) {
+      return CRPTR ( (condition) ? BIvalue : CIvalue );
+    } else if (B->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (condition) ? BUvalue : CIvalue );
+    } else {
+      return CRPTR ( (condition) ? BDvalue : CIvalue );
+    }
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)C)->Value(CDvalue);
+    if ( (B->Type() == CMD_RESULT_FLOAT) ||
+         (B->Type() == CMD_RESULT_INTERVAL) ) {
+      return CRPTR ( (condition) ? BDvalue : CDvalue );
+    } else if (B->Type() == CMD_RESULT_UINT) {
+      return CRPTR ( (condition) ? BUvalue : CDvalue );
+    } else {
+      return CRPTR ( (condition) ? BIvalue : CDvalue );
+    }
+    break;
+  }
+
+  return NULL;
+}
+
+static CommandResult *Calculate_Uminus (CommandResult *A) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_Unimus, A=%x\n", A);
+#endif
+
+  if (A == NULL) {
+    return NULL;
+  }
+
+  double ADvalue = 0.0;
+  int64_t AIvalue= 0;
+  uint64_t AUvalue= 0;
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Uminus, A->Type()=%d\n", A->Type());
+#endif
+
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Value(AUvalue);
+    return CRPTR ( -AUvalue );
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(AIvalue);
+    return CRPTR ( -AIvalue );
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(ADvalue);
+    return CRPTR ( -ADvalue );
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(AIvalue);
+    return CRPTR ( -AIvalue );
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(ADvalue);
+    return CRPTR ( -ADvalue );
+    break;
+  }
+
+  return NULL;
+}
+
+static CommandResult *Calculate_Abs (CommandResult *A) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_Abs, A=%x\n", A);
+#endif
+
+  if (A == NULL) {
+    return NULL;
+  }
+
+  double ADvalue = 0.0;
+  int64_t AIvalue= 0;
+  uint64_t AUvalue= 0;
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Abs, A->Type()=%d\n", A->Type());
+#endif
+
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Value(AUvalue);
+    return CRPTR ( (AUvalue >= 0) ? AUvalue : -AUvalue );
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(AIvalue);
+    return CRPTR ( (AIvalue >= 0) ? AIvalue : -AIvalue );
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(ADvalue);
+    return CRPTR ( (ADvalue >= 0) ? ADvalue : -ADvalue );
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(AIvalue);
+    return CRPTR ( (AIvalue >= 0) ? AIvalue : -AIvalue );
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(ADvalue);
+    return CRPTR ( (ADvalue >= 0) ? ADvalue : -ADvalue );
+    break;
+  }
+
+  return NULL;
+}
+
+static CommandResult *Calculate_Sqrt (CommandResult *A) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_Sqrt, A=%x\n", A);
+#endif
+
+  if (A == NULL) {
+    return NULL;
+  }
+
+  double ADvalue = 0.0;
+  int64_t AIvalue= 0;
+  uint64_t AUvalue= 0;
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Sqrt, A->Type()=%d\n", A->Type());
+#endif
+
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Value(AUvalue);
+    ADvalue = AUvalue;
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(AIvalue);
+    ADvalue = AIvalue;
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(ADvalue);
+    break;
+   case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(AIvalue);
+    ADvalue = AIvalue;
+    break;
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(ADvalue);
+    break;
+  }
+
+  double result = sqrt (ADvalue);
+  switch (A->Type()) {
+   case CMD_RESULT_DURATION:
+    return isnan(result) ? NULL : new CommandResult_Duration (result);
+   case CMD_RESULT_INTERVAL:
+    return isnan(result) ? NULL : new CommandResult_Interval (result);
+   default:
+    return isnan(result) ? NULL : new CommandResult_Float (result);
+  }
+}
+
+// The Accumulate (or Array) operations must appear to accumulate values
+// into the first operand.  If a new result operand is created, the
+// space for the first operand must be reclaimed by the system.
+static CommandResult *Calculate_A_Add (CommandResult *A, CommandResult *B) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_A_Add, A=%x, B=%x\n", A, B);
+#endif
+
+  if (A == NULL) {
+    return (B == NULL) ? NULL : B->Copy();
+  } else if (B == NULL) {
+    return A->Copy();
+  }
+
+  if (A->Type() == B->Type()) {
+    A->Accumulate_Value(B);
+    return A;
+  } else {
+    CommandResult *R = Calculate_Add (A, B);
+    delete A;
+    return R;
+  }
+}
+
+static CommandResult *Calculate_A_Mult (CommandResult *A, CommandResult *B) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_A_Mult, A=%x, B=%x\n", A, B);
+#endif
+
+  if (A == NULL) {
+    return (B == NULL) ? NULL : B->Copy();
+  } else if (B == NULL) {
+    return A->Copy();
+  }
+
+  CommandResult *R = Calculate_Add (A, B);
+  delete A;
+  return R;
+}
+
+static CommandResult *Calculate_A_Min (CommandResult *A, CommandResult *B) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_A_Min, A=%x, B=%x\n", A, B);
+#endif
+
+  if (A == NULL) {
+    return (B == NULL) ? NULL : B->Copy();
+  } else if (B == NULL) {
+    return A->Copy();
+  }
+
+  if (A->Type() == B->Type()) {
+    A->Accumulate_Min(B);
+    return A;
+  } else {
+    CommandResult *R = Calculate_Min (A, B);
+    delete A;
+    return R;
+  }
+}
+
+static CommandResult *Calculate_A_Max (CommandResult *A, CommandResult *B) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_A_Max, A=%x, B=%x\n", A, B);
+#endif
+
+  if (A == NULL) {
+    return (B == NULL) ? NULL : B->Copy();
+  } else if (B == NULL) {
+    return A->Copy();
+  }
+
+  if (A->Type() == B->Type()) {
+    A->Accumulate_Max(B);
+    return A;
+  } else {
+    CommandResult *R = Calculate_Max (A, B);
+    delete A;
+    return R;
+  }
+}
+
+CommandResult *Calculate_Expression(expression_operation_t op,
+                                    CommandResult *A,
+                                    CommandResult *B,
+                                    CommandResult *C) {
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *Calculate_Expression %s, A=%x, B=%x C=%x\n",
+          ExprOperator(op).c_str(), A, B, C);
+#endif
+
+  switch (op) {
+   case EXPRESSION_OP_ERROR: return NULL;
+//   case EXPRESSION_OP_NAME:
+//   case EXPRESSION_OP_CONST:
+   case EXPRESSION_OP_UMINUS: return Calculate_Uminus (A);
+   case EXPRESSION_OP_ABS: return Calculate_Abs (A);
+   case EXPRESSION_OP_ADD: return Calculate_Add (A, B);
+   case EXPRESSION_OP_SUB: return Calculate_Sub (A, B);
+   case EXPRESSION_OP_MULT: return Calculate_Mult (A, B);
+   case EXPRESSION_OP_DIV: return Calculate_Div (A, B);
+   case EXPRESSION_OP_MOD: return Calculate_Mod (A, B);
+   case EXPRESSION_OP_MIN: return Calculate_Min (A, B);
+   case EXPRESSION_OP_MAX: return Calculate_Max (A, B);
+   case EXPRESSION_OP_SQRT: return Calculate_Sqrt (A);
+   case EXPRESSION_OP_STDEV: return Calculate_StdDev (A, B, C);
+   case EXPRESSION_OP_PERCENT: return Calculate_Percent (A, B);
+   case EXPRESSION_OP_CONDEXP: return Calculate_Condexp (A, B, C);
+   case EXPRESSION_OP_A_ADD: return Calculate_A_Add (A, B);
+   case EXPRESSION_OP_A_MULT: return Calculate_A_Mult (A, B);
+   case EXPRESSION_OP_A_MIN: return Calculate_A_Min (A, B);
+   case EXPRESSION_OP_A_MAX: return Calculate_A_Max (A, B);
+   default:
+    return NULL;
+  }
+  return new CommandResult_Int (1);
 }

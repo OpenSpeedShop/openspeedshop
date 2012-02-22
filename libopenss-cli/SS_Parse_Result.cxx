@@ -16,6 +16,7 @@
 // along with this library; if not, write to the Free Software Foundation, Inc.,
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////// */
+#define DEBUG_CLI 0
 
 /** @file
  *
@@ -29,7 +30,6 @@
 #include <cctype>
 
 #include "SS_Input_Manager.hxx"
-/* #define DEBUG_CLI 1 */
 
 
 #include "SS_Message_Element.hxx"
@@ -319,7 +319,7 @@ s_dumpParam(ParseParam *p_parm, const char *label)
 }
 
 /**
- * Method: s_dumpError()
+ * Method: ParseResult::dumpError()
  * 
  * Dump error lists. Basically a variation on s_dumpRange
  * but talored for syntax error reporting.
@@ -1305,9 +1305,12 @@ getIntervalAttribute()
     else
     	return (const std::string *)NULL;
 }
+
+void Dump_ParseResult(ParseRange *p) {
+}
  
 /**
- * * Method: ParseResult::pushExpMetric(char * name1, char * name2, char * name3)
+ * * Method: ParseResult::ExpMetric(char * name1, char * name2, char * name3)
  * *
  * *     Recombine name2 and name3 strings with a ":" in between to allow
  * *     colons to be used as part of a valid name in certain contexts.
@@ -1316,13 +1319,12 @@ getIntervalAttribute()
  * * @todo    Error handling.
  * *
  * */
-void
+ParseRange *
 ParseResult::
-pushExpMetric(const char * name1, const char * name2, const char * name3)
+ExpMetric(const char * name1, const char * name2, const char * name3)
 {
-
 #if DEBUG_CLI
-   printf("ParseResult::pushExpMetric, name1=%s, name2=%s, name3=%s\n", name1, name2, name3);
+   printf("ParseResult::ExpMetric, name1=%s, name2=%s, name3=%s\n", name1, name2, name3);
 #endif
 
    int name2_len = strlen(name2);
@@ -1332,19 +1334,189 @@ pushExpMetric(const char * name1, const char * name2, const char * name3)
    name23 = strcat(name23, ":");
    name23 = strcat(name23, name3);
 
+   ParseRange *pr;
    if (name1 != NULL) {
-     ParseRange range(name1,name23);
-     dm_exp_metric_list.push_back(range);
+     pr = new ParseRange(name1,name23);
    } else {
-     ParseRange range(name23);
-     dm_exp_metric_list.push_back(range);
+     pr = new ParseRange(name23);
    }
 
-   return ;
+   return pr;
+}
+ 
+/**
+ * * Method: ParseResult::pushExpMetricExpr(char *name1, ParseRange *arg1)
+ * *
+ * *     Create an expression out of the arguments: name1 indicates the requrired operation.
+ * *     This entry point is used for unary functions.
+ * *    * @return  void.
+ * *
+ * * @todo    Error handling.
+ * *
+ * */
+ParseRange *
+ParseResult::
+ExpMetricExpr1(const char * name, ParseRange *arg1)
+{
+#if DEBUG_CLI
+   printf("ParseResult::pushExpMetricExpr1, name=%s\n",name);
+#endif
+
+   ParseRange *arg2 = NULL;
+   expression_operation_t arith_op = EXPRESSION_OP_ERROR;
+   if (name != NULL) {
+     if (!strcasecmp(name, "uminus")) {
+       arith_op = EXPRESSION_OP_UMINUS;
+     } else if (!strcasecmp(name, "abs")) {
+       arith_op = EXPRESSION_OP_ABS;
+     } else if (!strcasecmp(name, "sqrt")) {
+       arith_op = EXPRESSION_OP_SQRT;
+     } else if (!strcasecmp(name, "a_add")) {
+       arith_op = EXPRESSION_OP_A_ADD;
+     } else if (!strcasecmp(name, "a_mult")) {
+       arith_op = EXPRESSION_OP_A_MULT;
+     } else if (!strcasecmp(name, "a_min")) {
+       arith_op = EXPRESSION_OP_A_MIN;
+     } else if (!strcasecmp(name, "a_max")) {
+       arith_op = EXPRESSION_OP_A_MAX;
+     } else {
+      // This is probably an error.
+       printf("Error: unrecognized operation in Metric Expression (1 argument) '%s'\n",name);
+     }
+   }
+
+   return new ParseRange(arith_op,arg1);
+}
+ 
+/**
+ * * Method: ParseResult::ExpMetricExpr(char *name1, ParseRange *arg1, ParseRange *arg2)
+ * *
+ * *     Create an expression out of the arguments: name1 indicates the requrired operation.
+ * *     This entry point is used for binary expressions.
+ * *    * @return  void.
+ * *
+ * * @todo    Error handling.
+ * *
+ * */
+ParseRange *
+ParseResult::
+ExpMetricExpr2(const char * name, ParseRange *arg1, ParseRange *arg2)
+{
+#if DEBUG_CLI
+   printf("ParseResult::ExpMetricExpr2, name=%s\n",name);
+#endif
+
+   expression_operation_t arith_op = EXPRESSION_OP_ERROR;
+   if (name != NULL) {
+     if (!strcasecmp(name, "header")) {
+       arith_op = EXPRESSION_OP_HEADER;
+     } else if (!strcasecmp(name, "+") ||
+                !strcasecmp(name, "add")) {
+       arith_op = EXPRESSION_OP_ADD;
+     } else if (!strcasecmp(name, "-") ||
+                !strcasecmp(name, "sub")) {
+       arith_op = EXPRESSION_OP_SUB;
+     } else if (!strcasecmp(name, "*") ||
+                !strcasecmp(name, "mult")) {
+       arith_op = EXPRESSION_OP_MULT;
+     } else if (!strcasecmp(name, "/") ||
+                !strcasecmp(name, "div")) {
+       arith_op = EXPRESSION_OP_DIV;
+     } else if (!strcasecmp(name, "%") ||
+                !strcasecmp(name, "mod")) {
+       arith_op = EXPRESSION_OP_MOD;
+     } else if (!strcasecmp(name, "min")) {
+       arith_op = EXPRESSION_OP_MIN;
+     } else if (!strcasecmp(name, "max")) {
+       arith_op = EXPRESSION_OP_MAX;
+     } else if (!strcasecmp(name, "percent")) {
+       arith_op = EXPRESSION_OP_PERCENT;
+     } else {
+      // This is probably an error.
+       printf("Error: unrecognized operation in Metric Expression (2 arguments) '%s'\n",name);
+     }
+   }
+
+   return new ParseRange(arith_op,arg1,arg2);
+}
+ 
+/**
+ * * Method: ParseResult::ExpMetricExpr3(char *name1, ParseRange *arg1, ParseRange *arg2, ParseRange *arg3)
+ * *
+ * *     Create an expression out of the arguments: name1 indicates the requrired operation.
+ * *     This entry point is used for conditional expressions.
+ * *    * @return  void.
+ * *
+ * * @todo    Error handling.
+ * *
+ * */
+ParseRange *
+ParseResult::
+ExpMetricExpr3(const char * name, ParseRange *arg1, ParseRange *arg2, ParseRange *arg3)
+{
+#if DEBUG_CLI
+   printf("ParseResult::ExpMetricExpr3, name=%s\n",name);
+#endif
+
+   expression_operation_t arith_op = EXPRESSION_OP_ERROR;
+   if (name != NULL) {
+     if (!strcasecmp(name, "condexp")) {
+       arith_op = EXPRESSION_OP_CONDEXP;
+     } else if (!strcasecmp(name, "stdev")) {
+       arith_op = EXPRESSION_OP_STDEV;
+     } else {
+      // This is probably an error.
+       printf("Error: unrecognized operation in Metric Expression (3 arguments) '%s'\n",name);
+     }
+   }
+
+   return new ParseRange(arith_op,arg1,arg2,arg3);
+}
+ 
+/**
+  * Method: ParseResult::ExpMetricExpr(int64_t ival)
+  * 
+  *     
+  * @return  void.
+  *
+  * @todo    Error handling.
+  *
+  */
+ParseRange *
+ParseResult::
+ExpMetricConstant(char* c)
+{
+#if DEBUG_CLI
+   printf("ParseResult::ExpMetricConstant, char=%s\n",c);
+#endif
+
+  ParseRange *pr = new ParseRange(EXPRESSION_OP_CONST, c);
+  return pr;
+}
+ 
+/**
+  * Method: ParseResult::ExpMetricExpr(int64_t ival)
+  * 
+  *     
+  * @return  void.
+  *
+  * @todo    Error handling.
+  *
+  */
+ParseRange *
+ParseResult::
+ExpMetricConstant(int64_t ival)
+{
+#if DEBUG_CLI
+   printf("ParseResult::ExpMetricConstant, int64_t=%lld\n",ival);
+#endif
+
+  ParseRange *pr = new ParseRange(EXPRESSION_OP_CONST, ival);
+  return pr;
 }
 
 /**
- * Method: ParseResult::pushExpMetric(char * name1, char * name2)
+ * Method: ParseResult::ExpMetricExpr(double dval)
  * 
  *     
  * @return  void.
@@ -1352,24 +1524,73 @@ pushExpMetric(const char * name1, const char * name2, const char * name3)
  * @todo    Error handling.
  *
  */
-void
+ParseRange *
 ParseResult::
-pushExpMetric(const char * name1, const char * name2)
+ExpMetricConstant(double dval)
 {
-
 #if DEBUG_CLI
-    printf("ParseResult::pushExpMetric, name1=%s, name2=%s\n", name1, name2);
+   printf("ParseResult::ExpMetricConstant, double=%20.10f\n",dval);
 #endif
 
-    ParseRange range(name1,name2);
-    dm_exp_metric_list.push_back(range);
-
-    return ;
+  ParseRange *pr = new ParseRange(EXPRESSION_OP_CONST, dval);
+  return pr;
+  
 }
- 
 
 /**
- * Method: ParseResult::pushExpMetric(char * name)
+ * * Method: ParseResult::ExpMetricExpr(char *name1, ParseRange *arg1, ParseRange *arg2, ParseRange *arg3)
+ * *
+ * *     Create an expression out of the arguments: name1 indicates the requrired operation.
+ * *    * @return  void.
+ * *
+ * * @todo    Error handling.
+ * *
+ * */
+ParseRange *
+ParseResult::
+ExpMetricExpr(const char * name, ParseRange *arg1, ParseRange *arg2, ParseRange *arg3)
+{
+#if DEBUG_CLI
+   printf("ParseResult::ExpMetricExpr, name=%s %p %p %p\n",name,arg1,arg2,arg3);
+   if (arg1 != NULL) {printf("\targ1: "); arg1->Dump(); printf("\n");}
+   if (arg2 != NULL) {printf("\targ2: "); arg2->Dump(); printf("\n");}
+   if (arg3 != NULL) {printf("\targ3: "); arg3->Dump(); printf("\n");}
+#endif
+
+   if (strcasecmp(name, "single") == 0) {
+     return arg1;
+   }
+   if (strcasecmp(name, "parens") == 0) {
+     return arg1;
+   }
+   if (strcasecmp(name, "list") == 0) {
+     return arg1;
+   }
+
+   if ( (arg1 != NULL) && (arg2 == NULL) && (arg3 == NULL) ) {
+    arg2 = arg1->getNext();
+    if (arg2 != NULL) {
+      arg3 = arg2->getNext();
+    }
+   }
+
+   expression_operation_t arith_op = EXPRESSION_OP_ERROR;
+   if (name != NULL) {
+     if ( (arg1 != NULL) && (arg2 == NULL) && (arg3 == NULL) ) {
+       return ExpMetricExpr1 (name, arg1);
+     } else if ( (arg1 != NULL) && (arg2 != NULL) && (arg3 == NULL) ) {
+       return ExpMetricExpr2 (name, arg1, arg2);
+     } else if ( (arg1 != NULL) && (arg2 != NULL) && (arg3 != NULL) ) {
+       return ExpMetricExpr3 (name, arg1, arg2, arg3);
+     } else {
+      // This is probably an error.
+       printf("Error: unrecognized operation in Metric Expression '%s'\n",name);
+     }
+   }
+}
+
+/**
+ * Method: ParseResult::ExpMetric(char * name1, char * name2)
  * 
  *     
  * @return  void.
@@ -1377,18 +1598,99 @@ pushExpMetric(const char * name1, const char * name2)
  * @todo    Error handling.
  *
  */
-void
+ParseRange *
 ParseResult::
-pushExpMetric(const char * name)
+ExpMetric(const char * name1, const char * name2)
 {
-
 #if DEBUG_CLI
-    printf("ParseResult::pushExpMetric, name=%s\n", name);
+    printf("ParseResult::ExpMetric, name1=%s, name2=%s\n", name1, name2);
 #endif
 
-    ParseRange range(name);
-    dm_exp_metric_list.push_back(range);
-
-    return ;
+    return new ParseRange(name1,name2);
 }
  
+
+/**
+ * Method: ParseResult::ExpMetric(char * name)
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+ParseRange *
+ParseResult::
+ExpMetric(const char * name)
+{
+#if DEBUG_CLI
+    printf("ParseResult::ExpMetric, name=%s\n", name);
+#endif
+
+ParseRange *pr = new ParseRange(name);
+  return pr;
+}
+
+ParseRange *
+ParseResult::
+ExpMetric(const char * name, ParseRange *pr)
+{
+#if DEBUG_CLI
+    printf("ParseResult::ExpMetric(name,pr)), %p name=%s\n", pr, name);
+    printf("\t");pr->Dump(); return pr;
+#endif
+    return pr;
+}
+ 
+/**
+ * * Method: ExpMetricList(ParseRange *expr1, ParseRange expr2)
+ * *
+ * *     Connect 2 ParseRange structures in a list by placing
+ * *     expr2 at the end of any existing list already attached
+ * *     to expr1.
+ * *    * @return  ParseRange*
+ * *
+ * */
+ParseRange *
+ParseResult::
+ExpMetricList(ParseRange *expr1, ParseRange *expr2)
+{
+#if DEBUG_CLI
+  printf("\nExpMetricList, expression=%p->%p\n", expr1, expr2);
+#endif
+
+  if (expr1 == NULL) {
+    return expr2;
+  }
+
+  ParseRange *pr = expr1;
+ // Find the end of the list on arg1.
+  for ( ParseRange *npr = pr->getNext(); npr != NULL; npr = npr->getNext() ) { pr = npr; }
+
+ // Attach arg2 to the end of arg1.
+  pr->setNext(expr2);
+  return expr1;
+}
+
+/**
+ * * Method: pushMetricList(ParseRange *expr)
+ * *
+ * *     Convert a ParseRange list into an vector.
+ * *    * @return  void
+ * *
+ * */
+void
+ParseResult::
+pushMetricList(ParseRange *expr)
+{
+#if DEBUG_CLI
+    printf("\npushMetricList, expression=%p\n", expr);
+#endif
+    for (ParseRange *pr = expr; pr != NULL; )
+    {
+      ParseRange *npr = pr->getNext();
+      pr->setNext(NULL);
+      dm_exp_metric_list.push_back(*pr);
+      pr = npr;
+    }
+}

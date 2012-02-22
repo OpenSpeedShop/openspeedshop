@@ -73,10 +73,18 @@ static void Calculate_Totals (
 
 #if DEBUG_CLI
   printf("in Calculate_Totals, c_items.size()=%d, IV.size()=%d\n", c_items.size(), IV.size());
+  printf("Total_Values:\n");
+  for (int64_t i=0; i < Total_Values.size(); i++) {
+    printf("\tTotal_Values[%d] = ",i);
+    if (Total_Values[i] != NULL) {
+      printf("%s\n",Total_Values[i]->Form().c_str());
+    } else {
+      printf("NULL\n");
+    }
+  }
 #endif
 
   for (int64_t i = 0; i < IV.size(); i++) {
-
 
     ViewInstruction *vp = IV[i];
 
@@ -105,7 +113,9 @@ static void Calculate_Totals (
       printf("\nin Calculate_Totals, VIEWINST_Define_Total_Metric, end print TotalValue=\n" );
 #endif
       Gen_Total_Percent = true;
-    } else if (vp->OpCode() == VIEWINST_Define_Total_Tmp) {
+    } else if ( (vp->OpCode() == VIEWINST_Define_Total_Tmp) ||
+                ( (vp->OpCode() == VIEWINST_Expression) &&
+                  vp->AccumulateExpr() ) ) {
      // Sum the specified temp.
       int64_t tmpIndex = vp->TMP1();
 #if DEBUG_CLI
@@ -160,12 +170,140 @@ static void Calculate_Totals (
       Assert(vp->TR() >= 0);
       Total_Values[vp->TR()] = TotalValue;
 #if DEBUG_CLI
-      printf("START printing TotalValue in Gen_Total_Percent section using  TotalValue->Print()\n");
+      printf("START printing TotalValue[%d] in Gen_Total_Percent section using  TotalValue->Print()\n",vp->TR());
       TotalValue->Print(std::cerr);
-      printf("\nEnd printing TotalValue in Gen_Total_Percent section using  TotalValue->Print()\n");
+      printf("\nEnd printing TotalValuei[%d]=%p in Gen_Total_Percent section using  TotalValue->Print()\n",vp->TR(),Total_Values[vp->TR()]);
 #endif
     }
   }
+
+#if DEBUG_CLI
+  printf("Exit Calculate_Totals:\n");
+  for (int64_t i = 0; i < Total_Values.size(); i++) {
+    std::cerr << "\tTotalValue[" << i << "] = ";
+    if (Total_Values[i] != NULL) {
+      printf("%s\n",Total_Values[i]->Form().c_str());
+    } else {
+      printf("NULL\n");
+    }
+  }
+#endif
+
+}
+
+static void Calculate_Temporary_Values (
+      CommandObject *cmd,
+      ThreadGroup& tgrp,
+      std::vector<Collector>& CV,
+      std::vector<std::string>& MV,
+      std::vector<ViewInstruction *>& IV,
+      std::vector<std::pair<CommandResult *,
+                            SmartPtr<std::vector<CommandResult *> > > >& c_items,
+      std::vector<CommandResult *>& Total_Values) {
+
+#if DEBUG_CLI
+  printf("in Calculate_Temporary_Values, c_items.size()=%d, IV.size()=%d\n", c_items.size(), IV.size());
+#endif
+
+ // Set up quick access to expression data combining instructions.
+  int64_t num_temps_used = std::max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
+  std::vector<bool> temp_is_accumulated(num_temps_used);
+  for (int64_t i = 0; i < num_temps_used; i++) temp_is_accumulated[i] = false;
+  std::vector<ViewInstruction *> ExprInst(num_temps_used);
+  int64_t last_evaluated_temp = num_temps_used;
+  int64_t num_ExprInst = 0;
+  for (int64_t i = 0; i < num_temps_used; i++) ExprInst[i] = NULL;
+
+ // Find the instructions we need to process.
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    if (vp->OpCode() == VIEWINST_Expression) {
+      if (vp->TR() < last_evaluated_temp) last_evaluated_temp = vp->TR();
+      if (vp->OpCode() == VIEWINST_Expression) {
+        ExprInst[num_ExprInst++] = vp;
+      }
+    }
+    else if ((vp->OpCode() == VIEWINST_SetConstString) ||
+             (vp->OpCode() == VIEWINST_SetConstInt) ||
+             (vp->OpCode() == VIEWINST_SetConstFloat)) {
+        ExprInst[num_ExprInst++] = vp;
+    }
+  }
+
+ // Decide which temps are metrics values and which are calculated from expressions.
+  if ( (num_ExprInst > 0) &&
+       (c_items.begin() != c_items.end()) ) {
+
+    for (int i=0; i<num_ExprInst; i++) {
+     // Evaluate one instruction across every sample.
+      ViewInstruction *vp = ExprInst[i];
+      std::vector<std::pair<CommandResult *, SmartPtr<std::vector<CommandResult *> > > >::iterator ci;
+
+      if ((vp->OpCode() == VIEWINST_SetConstString) ||
+           (vp->OpCode() == VIEWINST_SetConstInt) ||
+           (vp->OpCode() == VIEWINST_SetConstFloat)) {
+       // Copy the constant into temporary.
+        int64_t result_temp = vp->TR();
+        CommandResult *constvalue = vp->ConstValue();
+        for (ci = c_items.begin(); ci != c_items.end(); ci++) {
+          (*(*ci).second)[result_temp] = constvalue->Copy();
+        }
+        Total_Values[result_temp] = constvalue->Copy();
+        last_evaluated_temp = result_temp;
+        continue;
+      }
+
+     // Calculate this expression for each sample.
+      CommandResult *TotalValue_temp = NULL;
+      Assert( (vp->TMP1() <= last_evaluated_temp) &&
+              (vp->TMP2() <= last_evaluated_temp) &&
+              (vp->TMP3() <= last_evaluated_temp) );
+
+     // Scan each data sample for each instruction.
+     // (Assume the ExprInst table is sorted by the result of each instruction.)
+      for (ci = c_items.begin(); ci != c_items.end(); ci++) {
+        CommandResult *ExpressionValue_temp = NULL;
+        if (Can_Accumulate(vp->ExprOpCode())) {
+          ExpressionValue_temp = (*(*ci).second)[vp->TMP1()];
+          temp_is_accumulated[vp->TR()] = true;
+        } else {
+          CommandResult *opr1 = NULL;
+          if (vp->TMP1() >= 0) {
+            opr1 = (temp_is_accumulated[vp->TMP1()])
+                                ? Total_Values[vp->TMP1()] : (*(*ci).second)[vp->TMP1()];
+          }
+          CommandResult *opr2 = NULL;
+          if (vp->TMP2() >= 0) {
+            opr2 = (temp_is_accumulated[vp->TMP2()])
+                                ? Total_Values[vp->TMP2()] : (*(*ci).second)[vp->TMP2()];
+          }
+          CommandResult *opr3 = NULL;
+          if (vp->TMP3() >= 0) {
+            opr3 = (temp_is_accumulated[vp->TMP3()])
+                                ? Total_Values[vp->TMP3()] : (*(*ci).second)[vp->TMP3()];
+          }
+          ExpressionValue_temp = Calculate_Expression ( vp->ExprOpCode(),
+                                                        opr1, // (*(*ci).second)[vp->TMP1()],
+                                                        opr2, // (*(*ci).second)[vp->TMP2()],
+                                                        opr3); // (*(*ci).second)[vp->TMP3()]);
+          (*(*ci).second)[vp->TR()] = ExpressionValue_temp;
+        }
+        if (Can_Accumulate(vp->ExprOpCode())) {
+          TotalValue_temp = Calculate_Expression ( vp->ExprOpCode(),
+                                                   TotalValue_temp,
+                                                   ExpressionValue_temp,
+                                                 (*(*ci).second)[vp->TMP3()]);
+        }
+      }
+
+      if (TotalValue_temp != NULL) {
+        Total_Values[vp->TR()] = TotalValue_temp;
+      }
+      last_evaluated_temp = vp->TR();
+    }
+
+  }
+
 }
 
 static void Pack_Vector_Elements (
@@ -257,9 +395,10 @@ static void Suppress_Unused_Elements (
 static void Setup_Sort( 
        int64_t temp_index,
        std::vector<std::pair<CommandResult *,
-                             SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+                             SmartPtr<std::vector<CommandResult *> > > >& c_items,
+       std::vector<CommandResult *>& Total_Values) {
 #if DEBUG_CLI
-  printf("in Setup_Sort, temp_index=%d\n", temp_index);
+  printf("in Setup_Sort, temp_index=%d, c_items.size-%d\n", temp_index,c_items.size());
 #endif
   if (temp_index == VMulti_sort_temp) return;
   std::vector<std::pair<CommandResult *,
@@ -308,9 +447,16 @@ static void Setup_Sort(
 static void Setup_Sort( 
        ViewInstruction *vinst,
        std::vector<std::pair<CommandResult *,
-                             SmartPtr<std::vector<CommandResult *> > > >& c_items) {
+                             SmartPtr<std::vector<CommandResult *> > > >& c_items,
+       std::vector<CommandResult *>& Total_Values) {
 #if DEBUG_CLI
   printf("in Setup_Sort\n");
+  if (vinst == NULL) {
+    printf("\tbad instruction\n");
+  } else {
+    printf("\tprocess instruction: ");
+    vinst->Print (std::cout);
+  }
 #endif
 
   if ((vinst->OpCode() == VIEWINST_Display_Metric) ||
@@ -321,6 +467,7 @@ static void Setup_Sort(
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator vpi;
 
+  int64_t temp_index = vinst->TMP1();
   for (vpi = c_items.begin(); vpi != c_items.end(); vpi++) {
    // Foreach CallStack entry, set the desired sort value into the VMulti_sort_temp field.
     std::pair<CommandResult *,
@@ -342,7 +489,7 @@ static void Setup_Sort(
 
     if (Old != NULL) delete Old;
     CommandResult *New = NULL;
-    CommandResult *V1 = (*cp.second)[vinst->TMP1()];
+    CommandResult *V1 = (*cp.second)[temp_index];
 
 #if DEBUG_CLI
     if (V1 != NULL) {
@@ -361,10 +508,13 @@ static void Setup_Sort(
     if (vinst->OpCode() == VIEWINST_Display_Tmp) {
 
 #if DEBUG_CLI
-      printf("in Setup_Sort, VIEWINST_Display_Tmp\n");
+      printf("in Setup_Sort, VIEWINST_Display_Tmp %d\n",vinst->TMP1());
 #endif
 
-      New = V1->Copy();
+      if (V1 == NULL) {
+        V1 = Total_Values[temp_index];
+      }
+      if (V1 != NULL) New = V1->Copy();
 
     } else if (vinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
 
@@ -381,9 +531,7 @@ static void Setup_Sort(
       printf("in Setup_Sort, VIEWINST_Display_Average_Tmp\n");
 #endif
 
-/*
       if (!V1->ValueIsNull ()) {
-*/{
         New = Calculate_Average (V1, (*cp.second)[vinst->TMP2()]);
       }
     } else if (vinst->OpCode() ==VIEWINST_Display_StdDeviation_Tmp) {
@@ -397,7 +545,7 @@ static void Setup_Sort(
       CommandResult *V3 = (*cp.second)[vinst->TMP3()];
       New = Calculate_StdDev (V1, V2, V3);
 
-    } else if (vinst->OpCode() ==VIEWINST_Display_Flops_Tmp) {
+    } else if (vinst->OpCode() == VIEWINST_Display_Flops_Tmp) {
 
 #if DEBUG_CLI
       printf("in Setup_Sort, VIEWINST_Display_Flops_Tmp\n");
@@ -406,6 +554,17 @@ static void Setup_Sort(
       CommandResult *V1 = (*cp.second)[vinst->TMP1()];
       CommandResult *V2 = (*cp.second)[vinst->TMP2()];
       New = Calculate_Flops (V1, V2);
+
+    } else if (vinst->OpCode() == VIEWINST_Expression) {
+
+#if DEBUG_CLI
+      printf("in Setup_Sort, VIEWINST_Expression\n");
+#endif
+
+      CommandResult *V1 = (*cp.second)[vinst->TMP1()];
+      CommandResult *V2 = (*cp.second)[vinst->TMP2()];
+      CommandResult *V3 = (*cp.second)[vinst->TMP3()];
+      New = Calculate_Expression (vinst->ExprOpCode(), V1, V2, V3);
 
     }
 
@@ -441,6 +600,7 @@ static void Dump_Intermediate_CallStack (std::ostream &tostream,
 static std::vector<CommandResult *> *
        Dup_Call_Stack (int64_t len,
                        std::vector<CommandResult *> *cs) {
+
 #if DEBUG_CLI
   printf("in Dup_Call_Stack, len=%d\n", len);
 #endif
@@ -621,6 +781,8 @@ static inline void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& 
         A[i]->Accumulate_Min (B[i]);
       } else if (Vop == VIEWINST_Max) {
         A[i]->Accumulate_Max (B[i]);
+      } else if (Vop == VIEWINST_Expression) {
+        A[i]->Accumulate_Max (B[i]);
       }
     }
   }
@@ -797,7 +959,11 @@ static SmartPtr<std::vector<CommandResult *> >
 // next->Print(std::cerr,20,true);printf("\n");
         } else {
          // Create an empty initial value.
-          next = (*crv)[j]->Init();
+          if ((*crv)[j] != NULL) {
+            next = (*crv)[j]->Init();
+          } else {
+            next = NULL;
+          }
         }
         vcs->push_back ( next );
       }
@@ -814,7 +980,11 @@ static SmartPtr<std::vector<CommandResult *> >
                            );
      // Generate initial value for each column.
       for (int64_t j = 0; j < crv->size(); j++) {
-        vcs->push_back ( (*crv)[j]->Copy() );
+        if ((*crv)[j] != NULL) {
+          vcs->push_back ( (*crv)[j]->Copy() );
+        } else {
+          vcs->push_back ( NULL );
+        }
       }
   return vcs;
 }
@@ -967,6 +1137,7 @@ bool Generic_Multi_View (
   Print_View_Params (std::cerr, CV,MV,IV);
   std::cerr << "\nEnter Generic_Multi_View, in SS_View_multi.cxx, c_items.size()= " << c_items.size() << "\n";
   std::cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
+ // Dump the input callstack entries.
   std::vector<std::pair<CommandResult *,
                         SmartPtr<std::vector<CommandResult *> > > >::iterator jegvpi;
 
@@ -974,6 +1145,7 @@ bool Generic_Multi_View (
    // Foreach CallStack entry, copy the desired sort value into the VMulti_sort_temp field.
     std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > jegcp = *jegvpi;
+/* TEST
     int64_t jegi;
     for (jegi = 0; jegi < (*jegcp.second).size(); jegi++ ) {
       CommandResult *jegp = (*jegcp.second)[jegi];
@@ -986,6 +1158,7 @@ bool Generic_Multi_View (
       }
       printf("Generic_Multi_View, END printing CommandResult jegp\n");
     }
+TEST */
 
   }
   fflush(stderr);
@@ -1000,7 +1173,8 @@ bool Generic_Multi_View (
   }
 
   int64_t i;
-  std::vector<CommandResult *> Total_Value(0); // Values needed for % computations.
+  std::vector<CommandResult *> Total_Value(Find_Max_Temp(IV)+1); // Values needed for % computations.
+  for (i = 0; i < Total_Value.size(); i++) Total_Value[i] = NULL;
   if (topn == 0) topn = LONG_MAX;
 
   try {
@@ -1035,6 +1209,15 @@ bool Generic_Multi_View (
         if (vp->TMP1() < num_temps_used) {
           AccumulateInst[vp->TMP1()] = vp;
         }
+      } else if ( (vp->OpCode() == VIEWINST_Expression) &&
+                  ( (vp->ExprOpCode() == EXPRESSION_OP_ADD) ||
+                    (vp->ExprOpCode() == EXPRESSION_OP_MIN) ||
+                    (vp->ExprOpCode() == EXPRESSION_OP_MAX) ||
+                    (vp->ExprOpCode() == EXPRESSION_OP_PERCENT) ||
+                    (vp->ExprOpCode() == EXPRESSION_OP_A_ADD) ||
+                    (vp->ExprOpCode() == EXPRESSION_OP_A_MIN) ||
+                    (vp->ExprOpCode() == EXPRESSION_OP_A_MAX) )  ) {
+        AccumulateInst[vp->TR()] = vp;
       } else if (vp->OpCode() == VIEWINST_Sort_Ascending) {
        sortInst = vp;
       } else if (vp->OpCode() == VIEWINST_Require_Field_Equal) {
@@ -1045,6 +1228,9 @@ bool Generic_Multi_View (
    // Acquire base set of metric values.
     int64_t Column0index = (ViewInst[0]->OpCode() == VIEWINST_Display_Metric) ? ViewInst[0]->TMP1() : 0;
 
+   // Calculate any temporaries that are needed.
+    Calculate_Temporary_Values (cmd, tgrp, CV, MV, IV, c_items, Total_Value);
+
    // Calculate any Totals that are needed to do percentages.
     bool Gen_Total_Percent = false;
     int64_t max_percent_index = -1;
@@ -1054,11 +1240,16 @@ bool Generic_Multi_View (
         max_percent_index = std::max(max_percent_index,vp->TMP2());
       } else if (vp->OpCode() == VIEWINST_Display_Percent_Column) {
         max_percent_index = std::max(max_percent_index,vp->TMP2());
+      } else if (vp->OpCode() == VIEWINST_Define_Total_Tmp) {
+        max_percent_index = std::max(max_percent_index,vp->TR());
+      } else if ( (vp->OpCode() == VIEWINST_Expression) &&
+                  (vp->ExprOpCode() == EXPRESSION_OP_PERCENT) ) {
+        max_percent_index = std::max(max_percent_index,vp->TMP2());
       }
     }
     if (max_percent_index >= 0) {
       Gen_Total_Percent = true;
-      Total_Value.reserve(max_percent_index+1);
+      Total_Value.reserve(Find_Max_Temp(IV)+1);
       for (i = 0; i < (max_percent_index+1); i++) Total_Value[i] = NULL;
       if (!Look_For_KeyWord(cmd, "ButterFly")) {
        // Totals must be determined before we get rid of unneeded records
@@ -1084,7 +1275,7 @@ bool Generic_Multi_View (
 #if DEBUG_CLI
         printf("in Generic_Multi_View, calling Setup_Sort, VFC_Trace, Sort VMulti_time_temp, by the value displayed in the left most column. \n");
 #endif
-        Setup_Sort (VMulti_time_temp, c_items);
+        Setup_Sort (VMulti_time_temp, c_items, Total_Value);
 
 
 #if DEBUG_CLI
@@ -1120,7 +1311,7 @@ bool Generic_Multi_View (
 #if DEBUG_CLI
       printf("in Generic_Multi_View, calling Setup_Sort, VFC_Trace, Sort ViewInst[0], by the value displayed in the left most column. \n");
 #endif
-      Setup_Sort (ViewInst[0], c_items);
+      Setup_Sort (ViewInst[0], c_items, Total_Value);
 
       if ((sortInst == NULL) ||
           (sortInst->TMP1() == 0)) {
@@ -1174,7 +1365,7 @@ bool Generic_Multi_View (
 #if DEBUG_CLI
       printf("in Generic_Multi_View, calling Setup_Sort VFC_CallStack, Sort by the value displayed in the left most column. \n");
 #endif
-      Setup_Sort (ViewInst[0], c_items);
+      Setup_Sort (ViewInst[0], c_items, Total_Value);
       std::sort(c_items.begin(), c_items.end(),
                 sort_descending_CommandResult<std::pair<CommandResult *,
                                                         SmartPtr<std::vector<CommandResult *> > > >());
@@ -1220,7 +1411,7 @@ bool Generic_Multi_View (
 #if DEBUG_CLI
       printf("in Generic_Multi_View, calling Setup_Sort, else clause, Sort by the value displayed in the left most column. \n");
 #endif
-      Setup_Sort (ViewInst[0], c_items);
+      Setup_Sort (ViewInst[0], c_items, Total_Value);
       std::sort(c_items.begin(), c_items.end(),
                 sort_descending_CommandResult<std::pair<CommandResult *,
                                                         SmartPtr<std::vector<CommandResult *> > > >());
@@ -1291,7 +1482,9 @@ bool Generic_Multi_View (
 
           if (!result.empty()) {
             std::list<CommandResult *> view_unit;
+           // Calculate any temporaries that are needed.
             if (Gen_Total_Percent) {
+             // Needed to calculate percents for ButterFly views.
               Calculate_Totals (cmd, tgrp, CV, MV, IV, result, Total_Value);
             }
             Construct_View_Output (cmd, exp, tgrp, CV, MV, IV, Total_Value, result, view_unit);

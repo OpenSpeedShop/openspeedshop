@@ -31,7 +31,7 @@ enum ViewOpCode {
                                         // TMP_index1 is CV & MV index of value that, when summed, is the Total.
      VIEWINST_Define_Total_Tmp,         // TmpResult is the id of the total.
                                         // TMP_index1 is row_tmp# of fields in the records that are summed.
-     VIEWINST_Define_ByThread_Metric,   // TmpResult is the ExtraMetric index that contains the values.
+     VIEWINST_Define_ByThread_Metric,   // TmpResult is only set for ViewReduction_sum, otherwise it must always be '-1'.
                                         // TMP_index1 is CV & MV index of the value to display.
                                         // TMP_index2 is the indicator of the reduction that is applied.
                                         // TMP_index3 is the indicator of the associated thread identifier.
@@ -60,11 +60,22 @@ enum ViewOpCode {
                                         // TMP_index2 is row_tmp# with time
      VIEWINST_Display_Summary,          // Generate column summary.
      VIEWINST_Sort_Ascending,           // if TMP_index1 is not 0, sort final report in ascending order
+     VIEWINST_Expression,               // TmpResult is the predefined temp# that is the result of an expression evaluation
+                                        // Expression_op indicates the arithmetic operation
+                                        // TMP_index1 is row_tmp# with first value
+                                        // TMP_index2 is row_tmp# with second value
+                                        // TMP_index3 is row_tmp# with third value
      VIEWINST_Add,                      // TMP_index1 is predefined temp# combined with '+' op. 
      VIEWINST_Min,                      // TMP_index1 is predefined temp# combined with 'min' op.
      VIEWINST_Max,                      // TMP_index1 is predefined temp# combined with 'max' op.
      VIEWINST_Summary_Max,              // TMP_index1 is predefined temp# combined with 'max' op.
      VIEWINST_StackExpand,              // TMP_index1 is predefined temp# that is expanded by copy.
+     VIEWINST_SetConstString,           // TmpResult is the predefined temp# that is assigned the value.
+                                        // TMP_index1 is the value of the constant.
+     VIEWINST_SetConstInt,              // TmpResult is the predefined temp# that is assigned the value.
+                                        // TMP_index1 is the value of the constant.
+     VIEWINST_SetConstFloat,            // TmpResult is the predefined temp# that is assigned the value.
+                                        // TMP_index1 is the value of the constant.
 };
 
 // Indicators of the ByThread reduction functions.
@@ -88,52 +99,96 @@ class ViewInstruction
 {
  private:
   ViewOpCode Instruction;
+  expression_operation_t Expression_op;
+  bool Accumulate_expression; // Mark VIEWINST_Expression ops that are used to accumulate values
   int64_t TmpResult;  // result temp or column number
   int64_t TMP_index1; // index of Collector::Metric vectors or temp
   int64_t TMP_index2; // index of temp
   int64_t TMP_index3; // index of temp
+  CommandResult *constValue; // only valid for 'VIEWINST_SetConst...' entries.
 
  public:
   ViewInstruction (ViewOpCode I) {
     Instruction = I;
+    Expression_op = EXPRESSION_OP_ERROR;
+    Accumulate_expression = false;
     TmpResult = -1;
     TMP_index1 = -1;
     TMP_index2 = -1;
     TMP_index3 = -1;
+    constValue = NULL;
   }
   ViewInstruction (ViewOpCode I, int64_t TR) {
     Instruction = I;
+    Expression_op = EXPRESSION_OP_ERROR;
+    Accumulate_expression = false;
     TmpResult = -1;
     TMP_index1 = TR;
     TMP_index2 = -1;
     TMP_index3 = -1;
+    constValue = NULL;
   }
   ViewInstruction (ViewOpCode I, int64_t TR, int64_t TMP1) {
     Instruction = I;
+    Expression_op = EXPRESSION_OP_ERROR;
+    Accumulate_expression = false;
     TmpResult = TR;
     TMP_index1 = TMP1;
     TMP_index2 = -1;
     TMP_index3 = -1;
+    constValue = NULL;
   }
   ViewInstruction (ViewOpCode I, int64_t TR, int64_t TMP1, int64_t TMP2) {
     Instruction = I;
+    Expression_op = EXPRESSION_OP_ERROR;
+    Accumulate_expression = false;
     TmpResult = TR;
     TMP_index1 = TMP1;
     TMP_index2 = TMP2;
     TMP_index3 = -1;
+    constValue = NULL;
   }
   ViewInstruction (ViewOpCode I, int64_t TR, int64_t TMP1, int64_t TMP2, int64_t TMP3) {
     Instruction = I;
+    Expression_op = EXPRESSION_OP_ERROR;
+    Accumulate_expression = false;
     TmpResult = TR;
     TMP_index1 = TMP1;
     TMP_index2 = TMP2;
     TMP_index3 = TMP3;
+    constValue = NULL;
   }
+
+  ~ViewInstruction () {
+    if (constValue != NULL) delete constValue;
+   }
+/*
+
+  inline ViewInstruction *ViewInstructionConstant (ViewOpCode I, int64_t TR, CommandResult *cv) {
+    ViewInstruction *VI = new ViewInstruction (I, TR);
+    VI->constValue = cv;
+    return VI;
+  }
+*/
+
   ViewOpCode OpCode () { return Instruction; }
+  expression_operation_t ExprOpCode () { return Expression_op;}
+  bool AccumulateExpr () { return (Accumulate_expression || Can_Accumulate(Expression_op)); }
   int64_t TR () { return TmpResult; }
   int64_t TMP1 () { return TMP_index1; }
   int64_t TMP2 () { return TMP_index2; }
   int64_t TMP3 () { return TMP_index3; }
+  CommandResult *ConstValue() { return constValue; }
+
+  void Set_ViewExprOpCode (expression_operation_t op) {
+    Assert (Instruction == VIEWINST_Expression);
+    Expression_op = op;
+  }
+  void Set_ViewExprAccumulate () {
+    Assert (Instruction == VIEWINST_Expression);
+    Assert (Expression_op != EXPRESSION_OP_ERROR);
+    Accumulate_expression = true;
+  }
 
   void Print (std::ostream &to) {
     std::string op;
@@ -152,19 +207,37 @@ class ViewInstruction
      case VIEWINST_Display_Flops_Tmp: op = "Display_Flops_Tmp"; break;
      case VIEWINST_Display_Summary: op = "Display_Summary"; break;
      case VIEWINST_Sort_Ascending: op = "Ascending_Sort"; break;
+     case VIEWINST_Expression: op = "Expression[";
+                               op += ExprOperator(Expression_op).c_str();
+                               op += "]"; break;
      case VIEWINST_Add: op = "Add"; break;
      case VIEWINST_Min: op = "Min"; break;
      case VIEWINST_Max: op = "Max"; break;
      case VIEWINST_Summary_Max: op = "Summary_Max"; break;
      case VIEWINST_StackExpand: op = "StackExpand"; break;
+     case VIEWINST_SetConstString: op = "SetConstString"; break;
+     case VIEWINST_SetConstInt: op = "SetConstInt"; break;
+     case VIEWINST_SetConstFloat: op = "SetConstFloat"; break;
      default: op ="(unknown)"; break;
     }
+    if (Accumulate_expression) to << " Accumulate ";
     to << op << " " << TmpResult  << " "
                     << TMP_index1 << " "
                     << TMP_index2 << " "
-                    << TMP_index3 << std::endl;
+                    << TMP_index3;
+    if (constValue != NULL) {to << "  :";constValue->Print(to, 20, true);}
+    to << std::endl;
   }
+
+friend ViewInstruction *ViewInstructionConstant (ViewOpCode I, int64_t TR, CommandResult *cv);
 };
+
+  inline ViewInstruction *ViewInstructionConstant (ViewOpCode I, int64_t TR, CommandResult *cv) {
+    ViewInstruction *VI = new ViewInstruction (I);
+    VI->TmpResult = TR;
+    VI->constValue = cv;
+    return VI;
+  }
 
 class ViewType
 {
@@ -406,3 +479,14 @@ void Construct_View_Output (CommandObject *cmd,
                             std::vector<std::pair<CommandResult *,
                                                   SmartPtr<std::vector<CommandResult *> > > >& items,
                             std::list<CommandResult *>& view_result );
+
+inline std::string lowerstring (std::string A)
+{
+  const char *old_name = A.c_str();
+  int64_t old_len = strlen(old_name);
+  std::string new_name;
+  for (int64_t cix=0; cix<old_len; cix++) {
+    new_name += tolower(old_name[cix]);
+  }
+  return new_name;
+}

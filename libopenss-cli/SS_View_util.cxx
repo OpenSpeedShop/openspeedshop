@@ -182,9 +182,9 @@ bool GetAllReducedMetrics(
         int64_t CM_Index = vinst->TMP1();
         int64_t reductionType  = vinst->TMP2();
 #if DEBUG_CLI
-        printf("In GetAllReducedMetrics  - SS_View_util.cxx, reductionIndex=%d, ViewReduction_Count=%d\n", reductionIndex, ViewReduction_Count);
+        printf("In GetAllReducedMetrics  - SS_View_util.cxx, reductionIndex=%d, ViewReduction_Count=%d, CM_Index=%d\n", reductionIndex, ViewReduction_Count,CM_Index);
 #endif
-        if (reductionIndex < ViewReduction_Count) {
+       if (reductionIndex < ViewReduction_Count) {
           Assert ((reductionType == ViewReduction_sum) ||
                   (reductionType == ViewReduction_mean) ||
                   (reductionType == ViewReduction_min) ||
@@ -200,7 +200,7 @@ bool GetAllReducedMetrics(
               (reductionType == ViewReduction_max) ||
               (reductionType == ViewReduction_imax) ||
               (reductionType == ViewReduction_mean)) {
-            if (Values[ViewReduction_min]->empty()) {  // if already determined, skip
+            if (Values[ViewReduction_min]->empty()) {  // else already determined so skip and return existing values.
               GetReducedMaxMinIdxAvg (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], vinst->TMP3(),
                                       objects,
                                       Values[ViewReduction_min],
@@ -210,6 +210,7 @@ bool GetAllReducedMetrics(
                                       Values[ViewReduction_mean]);
             }
           } else {
+           // (reductionType == ViewReduction_sum)
             GetReducedType (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, reductionType, Values[reductionType]);
           }
         } else {
@@ -1224,7 +1225,7 @@ View_Form_Category Determine_Form_Category (CommandObject *cmd) {
 bool Determine_TraceBack_Ordering (CommandObject *cmd) {
  // Determine call stack ordering
 #if DEBUG_CLI
-  printf("Determine_TraceBack_Ordering  - SS_View_util.cxx\n");
+  printf("Determine_TraceBack_Ordering  - SS_View_util.cxx %p\n",cmd);
 #endif
   if (Look_For_KeyWord(cmd, "CallTree") ||
       Look_For_KeyWord(cmd, "CallTrees")) {
@@ -1713,6 +1714,8 @@ int64_t Find_Max_Temp (std::vector<ViewInstruction *>& IV) {
       Max_Temp = std::max (Max_Temp, vp->TMP2());
     } else if (vp->OpCode() == VIEWINST_Define_Total_Tmp) {
       Max_Temp = std::max (Max_Temp, vp->TMP1());
+    } else if (vp->OpCode() == VIEWINST_Expression) {
+      Max_Temp = std::max (Max_Temp, vp->TR());
     }
   }
   return Max_Temp;
@@ -1747,4 +1750,124 @@ void Print_View_Params (std::ostream &to,
     to << "\t";
     IV[i]->Print (to);
   }
+}
+
+
+/**
+ * function: evaluate_parse_expression
+ * 
+ * Convert a parse expression into view instructions that can
+ * be used to generate the value of a Metric Expression that
+ * is needed for the user's requested report.
+ *     
+ * return: the index of the expression temporary that contains
+ *         the result of the evaulated Metric Expression.
+ *
+ */
+
+ int64_t evaluate_parse_expression (
+            CommandObject *cmd,
+            ExperimentObject *exp,
+            std::vector<Collector>& CV,
+            std::vector<std::string>& MV,
+            std::vector<ViewInstruction *>& IV,
+            std::vector<std::string>& HV,
+            View_Form_Category vfc,
+            ParseRange *pr,
+            int64_t &last_used_temp,
+            std::string view_for_collector,
+            std::map<std::string, int64_t> &MetricMap) {
+  if (pr->getParseType() == PARSE_EXPRESSION_VALUE) {
+   // It must be a nested expression.
+
+    if (pr->getOperation() == EXPRESSION_OP_ERROR) {
+     // Error has already been detected and reported.
+      return -1;
+    }
+   
+    if (pr->getOperation() == EXPRESSION_OP_CONST) {
+     // These should not make it past the parser.
+      return -1;
+    }
+
+    if (pr->getOperation() == EXPRESSION_OP_HEADER) {
+     // Not meaningful to nest headers.
+      std::string s("A HEADER expression may not be nested within another expression.");
+      Mark_Cmd_With_Soft_Error(cmd,s);
+      return -1;
+    }
+   
+   // Evaluate the nested expression.
+    parse_expression_t *prt = pr->getExpression();
+    std::vector<ParseRange *> *prexp = &(prt->exp_operands);
+    std::vector<ParseRange *>::iterator prexpi;
+    int64_t ops_count = 0;
+    int64_t ops[3];
+    for (int i=0; i<3; i++) ops[i] = -1;
+    bool error_in_argument = false;
+    for (prexpi = prexp->begin(); prexpi != prexp->end(); prexpi++) {
+     // All input operands must be evaluated before creating a result temp.
+      ParseRange *pr = (*prexpi);
+      int64_t temp_result = evaluate_parse_expression (cmd, exp, CV, MV, IV, HV, vfc, pr, last_used_temp, view_for_collector, MetricMap);
+      if (temp_result < 0) {
+       // Save error condition but conttinue processing arguments.
+        error_in_argument = true;
+      }
+      ops[ops_count++] = temp_result;
+    }
+    if (error_in_argument) {
+     // return error condition back through the call tree.
+      return -1;
+     }
+
+    // Create a temp for this result and return it.
+    int64_t new_result = ++last_used_temp;
+    ViewInstruction *VI = NULL;
+
+    VI = new ViewInstruction (VIEWINST_Expression, new_result, ops[0], ops[1], ops[2]);
+    VI->Set_ViewExprOpCode (pr->getOperation());
+    IV.push_back(VI);
+    return new_result;
+  } else if ( (pr->getParseType() == PARSE_RANGE_VALUE) &&
+              (pr->getRange()->start_range.tag != VAL_STRING) ) {
+   // It must be a user defined constant.
+    int64_t new_result = ++last_used_temp;
+    ViewInstruction *VI = NULL;
+    parse_range_t *p_range = pr->getRange();
+    parse_val_t *p_vals = &p_range->start_range;
+    if (p_vals->tag == VAL_STRING) {
+      VI = ViewInstructionConstant (VIEWINST_SetConstString, new_result, CRPTR(p_vals->name));
+    } else if (p_vals->tag == VAL_NUMBER) {
+      VI = ViewInstructionConstant (VIEWINST_SetConstInt, new_result, CRPTR(p_vals->num));
+    } else {
+      VI = ViewInstructionConstant (VIEWINST_SetConstFloat, new_result, CRPTR(p_vals->val));
+    }
+    IV.push_back(VI);
+    return new_result;
+  } else {
+   // It must be a collector defined metric.
+    parse_range_t *m_range = pr->getRange();
+    std::string M_Name;
+    if (m_range->is_range) {
+      std::string C_Name = m_range->start_range.name;
+      M_Name = m_range->end_range.name;
+    } else {
+      M_Name = m_range->start_range.name;
+    }
+   // Try look up with the user defined string.
+    int64_t metric_temp = (MetricMap.find(M_Name) != MetricMap.end()) ? MetricMap[M_Name] : -1;
+    if (metric_temp < 0) {
+     // Try again after converting to a lowercase string.
+      std::string newmetric = lowerstring(M_Name);
+      metric_temp = (MetricMap.find(newmetric) != MetricMap.end()) ? MetricMap[newmetric] : -1;
+    }
+    if (metric_temp < 0) {
+      std::string s(M_Name +
+                    " is not available for use within this Metric expression of this '" +
+                    view_for_collector + "' view.");
+      Mark_Cmd_With_Soft_Error(cmd,s);
+    }
+    return metric_temp;
+  }
+  return -1;
 }

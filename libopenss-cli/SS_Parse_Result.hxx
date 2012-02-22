@@ -303,9 +303,19 @@ class ParseResult {
     	std::vector<ParseInterval> * getParseIntervalList() {return &dm_interval_list;}
 
     	/** Handle list of expMetrics. */
-    	void pushExpMetric(const char * name1, const char * name2, const char * name3);
-    	void pushExpMetric(const char * name1, const char * name2);
-    	void pushExpMetric(const char * name);
+    	void pushMetricList(ParseRange *pr);
+	ParseRange *ExpMetricList(ParseRange *arg1, ParseRange *arg2);
+	ParseRange *ExpMetric(const char * name, ParseRange *pr);
+    	ParseRange *ExpMetric(const char * name);
+    	ParseRange *ExpMetric(const char * name1, const char * name2);
+    	ParseRange *ExpMetric(const char * name1, const char * name2, const char * name3);
+	ParseRange *ExpMetricConstant(char *c);
+	ParseRange *ExpMetricConstant(int64_t ival);
+	ParseRange *ExpMetricConstant(double dval);
+	ParseRange *ExpMetricExpr(const char *name, ParseRange *arg1, ParseRange *arg2 = NULL, ParseRange *arg3 = NULL);
+	ParseRange *ExpMetricExpr1(const char *name, ParseRange *arg1);
+    	ParseRange *ExpMetricExpr2(const char *name, ParseRange *arg1, ParseRange *agr2);
+    	ParseRange *ExpMetricExpr3(const char *name, ParseRange *arg1, ParseRange *agr2, ParseRange *arg3);
     	std::vector<ParseRange> * getexpMetricList() {return &dm_exp_metric_list;}
 
     	/** Handle list of break ids. */

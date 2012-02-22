@@ -29,14 +29,21 @@
 namespace OpenSpeedShop { namespace cli {
 
 typedef enum {
+    PARSE_RANGE_VALUE,
+    PARSE_EXPRESSION_VALUE
+} parse_type_enum_t;
+
+typedef enum {
     VAL_STRING,
-    VAL_NUMBER
+    VAL_NUMBER,
+    VAL_DOUBLE
 } val_enum_t;
 
 typedef struct {
     // union is not possible with type string
     std::string name;
     int64_t num;
+    double val;
     val_enum_t tag; /** Determines with field to be used */
 } parse_val_t;
 
@@ -45,6 +52,12 @@ typedef struct {
     parse_val_t end_range;  	/** End of Range */
     bool   is_range;	    	/** Is this a range or single point */
 } parse_range_t;
+
+class ParseRange;
+typedef struct {
+    expression_operation_t exp_op;
+    std::vector<ParseRange *> exp_operands;
+} parse_expression_t;
 
 /**
  * Parser result class.
@@ -65,6 +78,14 @@ class ParseRange {
 	ParseRange(const char * name1, const char * name2);
 	ParseRange(int64_t num, const char * name);
 	ParseRange(int64_t num1, int64_t num2);
+	ParseRange(expression_operation_t op, char *c);
+	ParseRange(expression_operation_t op, int64_t ival);
+	ParseRange(expression_operation_t op, double dval);
+	ParseRange(expression_operation_t op, ParseRange *operand0);
+	ParseRange(expression_operation_t op, ParseRange *operand0, ParseRange *operand1);
+	ParseRange(expression_operation_t op, ParseRange *operand0,
+                                         ParseRange *operand1, ParseRange *operand2);
+	void Dump();
 
 //	/** Destructor. */
 //	~ParseRange();
@@ -74,9 +95,37 @@ class ParseRange {
 	    return &dm_range;
 	}
 
+    	ParseRange *getNext()
+	{
+	    return next;
+	}
+
+    	void setNext(ParseRange *newNext)
+	{
+	    next = newNext;
+	}
+
+    	parse_type_enum_t getParseType()
+	{
+	    return dm_parse_type;
+	}
+
+    	expression_operation_t getOperation()
+	{
+	    return dm_exp.exp_op;
+	}
+
+    	parse_expression_t *getExpression()
+	{
+	    return &dm_exp;
+	}
+
     private:
     	/** range struct to fill */
+    	parse_type_enum_t dm_parse_type;
+    	parse_expression_t dm_exp;
     	parse_range_t dm_range;
+    	ParseRange *next;
 
 };
 

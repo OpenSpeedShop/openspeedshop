@@ -105,6 +105,7 @@ extern SS_Message_Czar& theMessageCzar();
 
 #include "SS_Output.hxx"
 
+#include "SS_Parse_Expr.hxx"
 #include "SS_Parse_Interval.hxx"
 #include "SS_Parse_Range.hxx"
 #include "SS_Parse_Target.hxx"

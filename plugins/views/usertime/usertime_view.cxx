@@ -20,6 +20,7 @@
 
 
 #include "SS_Input_Manager.hxx"
+#include "SS_View_Expr.hxx"
 #include "UserTimeCollector.hxx"
 #include "UserTimeDetail.hxx"
 
@@ -126,6 +127,7 @@ static bool define_usertime_columns (
             View_Form_Category vfc) {
   int64_t last_column = 0;  // Number of columns of information displayed.
   int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
+  int64_t last_used_temp = Last_ByThread_Temp; // Track maximum temps - needed for expressions.
   int64_t first_time_temp = 0;
   bool generate_nested_accounting = false;
 
@@ -155,11 +157,46 @@ static bool define_usertime_columns (
     }
   }
 
+ // Define map for metrics to metric temp.
+  std::map<std::string, int64_t> MetricMap;
+  MetricMap["exclusive_time"] = extime_temp;
+  MetricMap["exclusive_times"] = extime_temp;
+  MetricMap["exclusive_detail"] = extime_temp;
+  MetricMap["exclusive_details"] = extime_temp;
+  MetricMap["exclusive_count"] = excnt_temp;
+  MetricMap["exclusive_counts"] = excnt_temp;
+  MetricMap["inclusive_time"] = intime_temp;
+  MetricMap["inclusive_times"] = intime_temp;
+  MetricMap["inclusive_detail"] = intime_temp;
+  MetricMap["inclusive_details"] = intime_temp;
+  MetricMap["inclusive_count"] = incnt_temp;
+  MetricMap["inclusive_counts"] = incnt_temp;
+  if (Generate_ButterFly) {
+    MetricMap["time"] = intime_temp;
+    MetricMap["times"] = intime_temp;
+    MetricMap["count"] = incnt_temp;
+    MetricMap["counts"] = incnt_temp;
+    MetricMap["call"] = incnt_temp;
+    MetricMap["calls"] = incnt_temp;
+  } else {
+    MetricMap["time"] = extime_temp;
+    MetricMap["times"] = extime_temp;
+    MetricMap["count"] = excnt_temp;
+    MetricMap["counts"] = excnt_temp;
+    MetricMap["call"] = excnt_temp;
+    MetricMap["calls"] = excnt_temp;
+  }
+
+ // Determine the number of columns in the view and the information that is needed.
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
     int64_t i = 0;
     std::vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
+
+// Look for a metric expression and invoke processing.
+#include "SS_View_metric_expressions.hxx"
+
       parse_range_t *m_range = (*mi).getRange();
       std::string C_Name;
       std::string M_Name;

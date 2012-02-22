@@ -643,6 +643,8 @@ AC_CONFIG_FILES(
 	plugins/panels/loadPanel/Makefile
 	plugins/views/Makefile
 	plugins/views/basic/Makefile
+	plugins/views/hwc/Makefile
+	plugins/views/pcsamp/Makefile
 	plugins/views/hwcsamp/Makefile
 	plugins/views/hwctime/Makefile
 	plugins/views/io/Makefile

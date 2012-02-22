@@ -17,8 +17,8 @@
 *******************************************************************************/
 
 
-
 #include "SS_Input_Manager.hxx"
+#include "SS_View_Expr.hxx"
 #include "../../collectors/hwcsamp/HWCSampCollector.hxx"
 #include "../../collectors/hwcsamp/HWCSampDetail.hxx"
 #include "../../collectors/hwcsamp/HWCSampEvents.h"
@@ -108,7 +108,6 @@ static std::string allowed_hwcsamp_V_options[] = {
 };
 
 
-
 static bool define_hwcsamp_columns (
             CommandObject *cmd,
             ExperimentObject *exp,
@@ -121,28 +120,45 @@ static bool define_hwcsamp_columns (
   std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
   int64_t last_column = 0;
   int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
+  int64_t last_used_temp = Last_ByThread_Temp; // Track maximum temps - needed for expressions.
 
   bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
-  bool Generate_ButterFly = false;  // Not supported for this view.
+  bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp, cmd);
   std::string ByThread_Header = Find_Metadata ( CV[0], "time" ).getShortName();
+
+  if (Generate_ButterFly) {
+   // No stack trace captured by this collector.
+    Generate_ButterFly = FALSE;
+    Mark_Cmd_With_Soft_Error(cmd,"Warning: '-v ButterFly' is not supported with this view.");
+  }
+
+ // Define map for metrics to metric temp.
+  std::map<std::string, int64_t> MetricMap;
+  MetricMap["time"] = extime_temp;
+  MetricMap["times"] = extime_temp;
 
   // Determine the available events for the detail metric.
   int64_t num_events = 0;
   std::string papi_names[OpenSS_NUMCOUNTERS];
   Collector c = CV[0];
-  std::string id = "event";
-  {
-    std::string Value;
-    CV[0].getParameterValue("event", Value);
+  std::string Value;
+  CV[0].getParameterValue("event", Value);
 
-    // Parse the event string.
-    std::istringstream evStream(Value);
-    std::string evElement;
-    while( std::getline(evStream, evElement, ',') ) {
-	papi_names[num_events] = evElement;
-	num_events++;
-    }
+  // Parse the event string.
+  std::istringstream evStream(Value);
+  std::string evElement;
+  while( std::getline(evStream, evElement, ',') ) {
+   // Save names in lowercase.
+    std::string event_name = lowerstring(evElement);
+
+   // Save in array.
+    papi_names[num_events] = event_name;
+
+   // Save in map.
+    MetricMap[event_name] = event_temps+num_events;
+
+    num_events++;
   }
   
  // Define combination instructions for predefined temporaries.
@@ -160,13 +176,18 @@ static bool define_hwcsamp_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
   }
 
-  std::string M_Name;
+ // Determine the number of columns in the view and the information that is needed.
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
     std::vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
+
+// Look for a metric expression and invoke processing.
+#include "SS_View_metric_expressions.hxx"
+
       parse_range_t *m_range = (*mi).getRange();
       std::string C_Name;
+      std::string M_Name;
       if (m_range->is_range) {
         C_Name = m_range->start_range.name;
         if (strcasecmp(C_Name.c_str(), "hwcsamp")) {
@@ -339,22 +360,16 @@ static bool define_hwcsamp_columns (
     HV.push_back( std::string("% of ") + Find_Metadata ( CV[0], "time" ).getShortName() );
 
 #if 1
-    // This code copied from above adds the individual event results into the default view
+    // This code (copied from above) adds the individual event results into the default view
     //
     // Look for Event options.
-    bool event_found = false;
     for (int i=0; i < num_events; i++) {
       const char *c = papi_names[i].c_str();
       if (c == NULL) break;
-        event_found = true;
         IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+i));
         HV.push_back( papi_names[i] );
     }
 
-    if (!event_found) {
-     // Unrecognized '-m' option.
-      Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
-    }
 #endif
    // Total time is always displayed - also add display of the summary time.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
@@ -466,9 +481,7 @@ class hwcsamp_view : public ViewType {
         return false;   // There is no collector, return.
       }
 
-//      CommandResult *dummyVector;
       std::vector<HWCSampDetail> dummyVector;
-// TEST      HWCSampDetail *dummyVector;
       switch (vfc) {
        case VFC_Function:
         Framework::Function *fp;

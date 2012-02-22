@@ -4567,7 +4567,7 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp, bool FullDis
             std::set<Metadata> md = c.getParameters();
             std::set<Metadata>::const_iterator mi;
             for (mi = md.begin(); mi != md.end(); mi++) {
-              CommandResult_Columns *C = new CommandResult_Columns (2);
+              CommandResult_Columns *C = new CommandResult_Columns ();
               Metadata m = *mi;
               SColl = "    " + cm.getUniqueId() + "::" + m.getUniqueId() + " =";
               C->CommandResult_Columns::Add_Column (new CommandResult_RawString (SColl));
@@ -5652,7 +5652,7 @@ static bool SS_ListParams (CommandObject *cmd, bool showValues, bool onlyValues)
       std::set<Metadata> md = c.getParameters();
       std::set<Metadata>::const_iterator mi;
       for (mi = md.begin(); mi != md.end(); mi++) {
-        CommandResult_Columns *C = new CommandResult_Columns (2);
+        CommandResult_Columns *C = new CommandResult_Columns ();
         Metadata m = *mi;
 
         if (!showValues) {

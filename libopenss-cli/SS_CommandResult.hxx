@@ -1580,8 +1580,8 @@ class CommandResult_Columns :
  int64_t *column_widths;
 
  public:
-  CommandResult_Columns (int64_t C = 0) : CommandResult(CMD_RESULT_COLUMN_VALUES) {
-    number_of_columns = C;
+  CommandResult_Columns () : CommandResult(CMD_RESULT_COLUMN_VALUES) {
+    number_of_columns = 0;
     column_widths = NULL;
   }
   virtual ~CommandResult_Columns () {
@@ -1716,3 +1716,7 @@ CommandResult *Calculate_Average (CommandResult *A, CommandResult *B);
 CommandResult *Calculate_StdDev  (CommandResult *A, CommandResult *B, CommandResult *C);
 CommandResult *Calculate_Flops  (CommandResult *A, CommandResult *B);
 CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B);
+CommandResult *Calculate_Expression(expression_operation_t op, 
+                                    CommandResult *A,
+                                    CommandResult *B, 
+                                    CommandResult *C);

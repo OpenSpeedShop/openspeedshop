@@ -203,7 +203,7 @@ bool Detail_Trace_Report(
 */
   
    // Get any required intermediate reduction temps.
-    std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(Find_Max_ExtraMetrics(IV)+1);
+    std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(ViewReduction_Count);
     bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
 #if DEBUG_CLI
     printf("In Detail_Trace_Report, SS_View_detail.txx, after GetReducedMetrics, ExtraTemps=%d\n", ExtraTemps);
@@ -580,7 +580,7 @@ bool Detail_Base_Report(
 */
 
    // Get any required intermediate reduction temps.
-    std::vector<SmartPtr<std::map<TOBJECT, CommandResult *> > > Extra_Values(Find_Max_ExtraMetrics(IV)+1);
+    std::vector<SmartPtr<std::map<TOBJECT, CommandResult *> > > Extra_Values(ViewReduction_Count);
     bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
 
    // Combine all the items for each function, statement or linked object.
@@ -768,7 +768,7 @@ bool Detail_CallStack_Report (
 */
 
    // Get any required intermediate reduction temps.
-    std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(Find_Max_ExtraMetrics(IV)+1);
+    std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(ViewReduction_Count);
     bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
 
 #if DEBUG_CLI
@@ -983,7 +983,7 @@ bool Detail_ButterFly_Report (
 
    // Get any required intermediate reduction temps.
 
-    std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(Find_Max_ExtraMetrics(IV)+1);
+    std::vector<SmartPtr<std::map<Function, CommandResult *> > > Extra_Values(ViewReduction_Count);
     bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
 
    // Generate a separate butterfly view for each function in the list.
@@ -1147,4 +1147,175 @@ Dump_CallStack (std::vector<CommandResult *> *call_stack,
   }
 
   return true;
+}
+
+//
+//  Simple_Base_Report generates views for collectors that use a simple metric value
+//                     and do not accumulate call stacks.
+//  At the moment, this template is only used with 2 collectors: pcsamp and hwc.
+//
+template <typename TOBJECT>
+bool Simple_Base_Report(
+              CommandObject *cmd, ExperimentObject *exp, int64_t topn,
+              ThreadGroup& tgrp, std::vector<Collector>& CV, std::vector<std::string>& MV,
+              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
+              bool primary_is_inclusive,
+              TOBJECT *dummyObject, View_Form_Category vfc,
+              std::list<CommandResult *>& view_output) {
+
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+      cli_timing_handle->cli_perf_data[SS_Timings::detailBaseReportStart] = Time::Now();
+  }
+
+  int64_t num_temps = std::max ((int64_t)VMulti_time_temp, Find_Max_Temp(IV)) + 1;
+
+#if DEBUG_CLI
+  printf("Enter Simple_Base_Report, SS_View_detail.txx, num_temps=%d, primary_is_inclusive=%d\n",
+          num_temps, primary_is_inclusive);
+#endif
+
+  Collector collector = CV[0];
+  std::string metric = MV[0];
+  std::vector<std::pair<CommandResult *,
+                        SmartPtr<std::vector<CommandResult *> > > > c_items;
+
+ // Get the list of desired functions.
+  std::set<TOBJECT> objects;
+  Determine_Objects ( cmd, exp, tgrp, objects);
+  if (objects.empty()) {
+    Mark_Cmd_With_Soft_Error(cmd, "(There are no objects specified for the basic Detail report.)");
+    return false;
+  }
+
+  try {
+    collector.lockDatabase();
+    Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
+    Time base_time = databaseExtent .getTimeInterval().getBegin();
+
+#if DEBUG_CLI
+    printf("In Simple_Base_Report, SS_View_detail.txx, base_time.getValue()=%u\n", base_time.getValue());
+#endif
+
+
+   // Acquire the specified set of time intervals.
+    std::vector<std::pair<Time,Time> > intervals;
+
+#if DEBUG_CLI
+    printf("In Simple_Base_Report, SS_View_detail.txx, calling Parse_Interval_Specification\n");
+#endif
+
+    Parse_Interval_Specification (cmd, exp, intervals);
+
+   // Acquire base set of metric values.
+    SmartPtr<std::map<TOBJECT, CommandResult *> > raw_items =
+            Framework::SmartPtr<std::map<TOBJECT, CommandResult *> >(
+                new std::map<TOBJECT, CommandResult * >()
+                );
+//                      std::map<TOBJECT, CommandResult *> > >  raw_items;
+//                      std::map<Framework::StackTrace,
+//                               TDETAIL> > > raw_items;
+
+#if DEBUG_CLI
+    printf("In Simple_Base_Report, about to call GetMetricInThreadGroup, tgrp.size()=%d\n", tgrp.size());
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+      std::pair<bool, int> prank = ti->getMPIRank();
+      int64_t rank = prank.first ? prank.second : -1;
+      std::pair<bool, pthread_t> xtid = ti->getPosixThreadId();
+      std::cout << "In Simple_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.first=" << xtid.first << std::endl;
+      std::cout << "In Simple_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.second=" << xtid.second << " rank=" << rank << std::endl;
+   }
+#endif
+
+
+    GetMetricByObjectSet   (cmd, exp, tgrp, collector, metric, objects, raw_items);
+
+   // Get any required intermediate reduction temps.
+    std::vector<SmartPtr<std::map<TOBJECT, CommandResult *> > > Extra_Values(ViewReduction_Count);
+    bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
+
+   // Combine all the items for each function, statement or linked object.
+    typename std::map<TOBJECT, CommandResult *>::iterator fi;
+
+    for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
+     // Use macro to allocate imtermediate temporaries
+      def_Detail_values
+
+      TOBJECT F = (*fi).first;
+      get_exclusive_values ((*fi).second, 1)
+      CommandResult *second = (*fi).second;
+
+     // Use macro to construct result array
+      SmartPtr<std::vector<CommandResult *> > vcs
+               = Framework::SmartPtr<std::vector<CommandResult *> >(
+                           new std::vector<CommandResult *>(num_temps)
+                           );
+      set_Detail_values((*vcs), primary_is_inclusive)
+      set_ExtraMetric_values((*vcs), Extra_Values, F)
+
+     // Construct callstack for last entry in the stack trace.
+      std::vector<CommandResult *> *call_stack = new std::vector<CommandResult *>(1);
+      (*call_stack)[0] = CRPTR (F);
+      CommandResult *CSE = new CommandResult_CallStackEntry (call_stack);
+      c_items.push_back(std::make_pair(CSE, vcs));
+    }
+
+    if (ExtraTemps) {
+      for (int64_t i = 0; i < Extra_Values.size(); i++) {
+        if (!Extra_Values[i].isNull() &&
+            !Extra_Values[i]->empty()) {
+          Reclaim_CR_Space (Extra_Values[i]);
+        }
+      }
+    }
+  }
+  catch (const Exception& error) {
+    Mark_Cmd_With_Std_Error (cmd, error);
+    collector.unlockDatabase();
+    return false;
+  }
+
+  collector.unlockDatabase();
+
+ // Generate the report.
+
+#if DEBUG_CLI
+  printf("In Simple_Base_Report, SS_View_detail.txx, before Generic_Multi_View\n");
+  printf("In Simple_Base_Report, about to call Generic_Multi_View, tgrp.size()=%d\n", tgrp.size());
+  for (ThreadGroup::iterator dbti = tgrp.begin(); dbti != tgrp.end(); dbti++) {
+    std::pair<bool, int> dbprank = dbti->getMPIRank();
+    int64_t dbrank = dbprank.first ? dbprank.second : -1;
+    std::pair<bool, pthread_t> dbxtid = dbti->getPosixThreadId();
+    std::cout << "In Simple_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.first=" << dbxtid.first << std::endl;
+    std::cout << "In Simple_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.second=" << dbxtid.second << " dbrank=" << dbrank << std::endl;
+  }
+#endif
+
+  bool view_built = Generic_Multi_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc, c_items, view_output);
+
+#if DEBUG_CLI
+  printf("In Simple_Base_Report, SS_View_detail.txx, after Generic_Multi_View\n");
+#endif
+
+ // Release instructions
+  for (int64_t i = 0; i < IV.size(); i++) {
+    ViewInstruction *vp = IV[i];
+    delete vp;
+    IV[i] = NULL;
+  }
+
+#if DEBUG_CLI
+  printf("Exit Simple_Base_Report, SS_View_detail.txx, view_built=%d, topn=%d\n",
+          view_built, topn);
+#endif
+
+  if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
+      cli_timing_handle->processTimingEventEnd( SS_Timings::detailBaseReportStart,
+                                                SS_Timings::detailBaseReportCount,
+                                                SS_Timings::detailBaseReportMax,
+                                                SS_Timings::detailBaseReportMin,
+                                                SS_Timings::detailBaseReportTotal,
+                                                SS_Timings::detailBaseReportEnd);
+  }
+
+  return view_built;
 }

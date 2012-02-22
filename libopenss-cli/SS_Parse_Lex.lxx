@@ -53,6 +53,8 @@ extern char * ip_number(char *,int);
 ":" 	{ return COLON; }
 "::" 	{ return DOUBLE_COLON; }
 "=" 	{ return EQUAL; }
+"("	{ return LPAREN; }
+")"	{ return RPAREN; }
 
 "expattach" 	{ return ATTACH_HEAD; }
 "expAttach" 	{ return ATTACH_HEAD; }

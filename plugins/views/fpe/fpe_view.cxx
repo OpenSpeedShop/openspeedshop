@@ -49,6 +49,7 @@ leave it to the credibility of the programmers and users to be able to handle th
 
 
 #include "SS_Input_Manager.hxx"
+#include "SS_View_Expr.hxx"
 #include "FPECollector.hxx"
 #include "FPEDetail.hxx"
 
@@ -358,6 +359,7 @@ static bool define_fpe_columns (
             View_Form_Category vfc) {
   int64_t last_column = 0;  // Number of columns of information displayed.
   int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
+  int64_t last_used_temp = extra_unnormal_temp; // Track maximum temps - needed for expressions.
   bool user_defined = false;
   bool ByThread_Rank = exp->Has_Ranks();
 
@@ -392,12 +394,67 @@ static bool define_fpe_columns (
     }
   }
 
+ // Define map for metrics to metric temp.
+  std::map<std::string, int64_t> MetricMap;
+  MetricMap["count"] = excnt_temp;
+  MetricMap["counts"] = excnt_temp;
+  MetricMap["event"] = excnt_temp;
+  MetricMap["events"] = excnt_temp;
+  MetricMap["total_count"] = excnt_temp;
+  MetricMap["total_counts"] = excnt_temp;
+  MetricMap["exclusive_count"] = excnt_temp;
+  MetricMap["exclusive_counts"] = excnt_temp;
+  MetricMap["exclusive_detail"] = excnt_temp;
+  MetricMap["exclusive_details"] = excnt_temp;
+  MetricMap["inclusive_count"] = incnt_temp;
+  MetricMap["inclusive_counts"] = incnt_temp;
+  MetricMap["inclusive_detail"] = incnt_temp;
+  MetricMap["inclusive_details"] = incnt_temp;
+  if ((vfc == VFC_Trace) ||
+      (vfc == VFC_CallStack)) {
+    MetricMap["type"] = fpeType_temp;
+    MetricMap["types"] = fpeType_temp;
+  }
+  if (vfc == VFC_Trace) {
+    MetricMap["time"] = start_temp;
+    MetricMap["times"] = start_temp;
+    MetricMap["start_time"] = start_temp;
+    MetricMap["start_times"] = start_temp;
+  }
+
+/* The following items are only available with By_Thread compuatations,
+ * which are not supported the current expression mechanism.
+  MetricMap["DivideByZero"] = extra_division_by_zero_temp;
+  MetricMap["Divide_By_Zero"] = extra_division_by_zero_temp;
+  MetricMap["DivisionByZero"] = extra_division_by_zero_temp;
+  MetricMap["division_by_zero"] = extra_division_by_zero_temp;
+  MetricMap["division_by_zero_count"] = extra_division_by_zero_temp;
+  MetricMap["InexactResult"] = extra_inexact_result_temp;
+  MetricMap["inexact_result"] = extra_inexact_result_temp;
+  MetricMap["inexact_result_count"] = extra_inexact_result_temp;
+  MetricMap["invalid"] = extra_invalid_temp;
+  MetricMap["invalid_operation"] = extra_invalid_temp;
+  MetricMap["invalid_count"] = extra_invalid_temp;
+  MetricMap["overflow"] = extra_overflow_temp;
+  MetricMap["overflow_count"] = extra_overflow_temp;
+  MetricMap["underflow"] = extra_underflow_temp;
+  MetricMap["underflow_count"] = extra_underflow_temp;
+  MetricMap["unknown"] = extra_unknown_temp;
+  MetricMap["unknown_count"] = extra_unknown_temp;
+  MetricMap["unnormal"] = extra_unnormal_temp;
+  MetricMap["unnormal_count"] = extra_unnormal_temp;
+*/
+
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
     int64_t i = 0;
     bool time_metric_selected = false;
     std::vector<ParseRange>::iterator mi;
     for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
+
+// Look for a metric expression and invoke processing.
+#include "SS_View_metric_expressions.hxx"
+
       bool column_is_DateTime = false;
       parse_range_t *m_range = (*mi).getRange();
       std::string C_Name;

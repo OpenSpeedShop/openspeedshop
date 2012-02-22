@@ -391,8 +391,9 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
           ((CommandResult_Columns *)(*cri))->Value(cr);
           std::list<CommandResult *>::iterator coi = cr.begin();
           int64_t num_results = 0;
+          int64_t num_columns_to_check = cr.size() - 1;
           for (num_results = 0, coi = cr.begin();
-               ((num_results < (num_columns - 1)) && (coi != cr.end()));
+               ((num_results < num_columns_to_check) && (coi != cr.end()));
                num_results++,  coi++) {
             std::string F = (*coi)->Form();
             int64_t min_size = 0;
