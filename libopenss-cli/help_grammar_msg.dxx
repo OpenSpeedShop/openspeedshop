@@ -586,7 +586,7 @@ const char *gram_metric_expression_detailed[] = {
     "\n",
     "Examples:",
     "\n",
-    "\texpview hwc -m count,Header(\\\"percent of counts\\\",Percent(count,A_Add(count)) -v summary",
+    "\texpview hwc -m count,Header(\\\"percent of counts\\\",Percent(count,A_Add(count))) -v summary",
     "\texpview mpi -v butterfly -f MPI_Alltoallv -m time,Header(\"average time/count\",Div(Mult(time,1000),counts))"
     "\n",
     " "
