@@ -35,7 +35,7 @@ const char *gram_expId_related[] = {
 };
 
 const char *gram_expMetric_related[] = {
-//    ""
+    "<metric_expression>"
 };
 
 const char *gram_metric_name_related[] = {
@@ -109,6 +109,9 @@ const char *gram_expMetric_arg = {
 };
 const char *gram_metric_name_arg = {
     "<metric_name> ::= <string>"
+};
+const char *gram_metric_expression_arg = {
+    "<metric_expression> ::= <string> ( [ <constant> || <metric_expression> ] [ , [ <constant> || <metric_expression> ] ]* ) "
 };
 const char *gram_expParamValue_arg = {
     "<expParamValue> ::= [ <int> || <float> || <string> || \"<string>\"]"
@@ -324,6 +327,9 @@ const char *gram_expMetric_list_spec_brief = {
 const char *gram_metric_name_brief = {
     "Symbolic name representing desired metric."
 };
+const char *gram_metric_expression_brief = {
+    "A user defined expression that uses metrics to compute a special value for display in a report."
+};
 const char *gram_param_name_brief = {
     "Symbolic name representing parameter desired."
 };
@@ -532,6 +538,57 @@ const char *gram_metric_name_detailed[] = {
     " ",
     gram_metric_name_brief,
     " ",
+    " "
+};
+const char *gram_metric_expression_detailed[] = {
+    gram_metric_expression_arg,
+    " ",
+    gram_metric_expression_brief,
+    " ",
+    "User defined expression can be added to an <expMetric_list>.",
+    "A functional notation is used to build the desired expression",
+    "and the following, simple, arithmetic operations are available:",
+    "\tfunction\t# arguments\treturns",
+    "\t--------\t-----------\t-------",
+    "\tUminus()\t1\tunary minus of the argument",
+    "\tAbs()\t\t1\tAbsolute value of the argument",
+    "\tAdd()\t\t2\tsummation of the arguments",
+    "\tSub()\t\t2\tdifference of the arguments",
+    "\tMult()\t\t2\tproduct of the arguments",
+    "\tDiv()\t\t2\tfirst argument divided by second",
+    "\tMod()\t\t2\tremainder of divide operation",
+    "\tMin()\t\t2\tminimum of the arguments",
+    "\tMax()\t\t2\tmaximum of the arguments",
+    "\tA_Add()\t\t1\tsum of all the data samples specified for the view",
+    "\tA_Mult()\t1\tproduct of all the data samples specified for the view",
+    "\tA_Min()\t\t1\tminimim of all the data samples specified for the view",
+    "\tA_Max()\t\t1\tmaximum of all the data samples specified for the view",
+    "\tSqrt()\t\t1\tsquare root of the argument",
+    "\tStdev()\t\t3\tstandard deviation calcualtion",
+    "\tPercent()\t2\tpercent the first arguemnt is of the second",
+    "\tCondexp()\t3\t\"C\" expression: \"(first argument) ? second argument : third argument\"",
+    "\tHeader()\t2\tuse the first argument as a column header for the display of the second",
+    "\n",
+    "Note:",
+    "\n",
+    "Integer and floating constants are supported as arguments as are "
+    "the metric keywords associated with the experiment view.",
+    "\n",
+    "Arguments to these functions can be <metric_expressions>, "
+    "with the exception of the first argument of \'Header\'.",
+    "\n",
+    "The first argument of \'Header\' must be a character string that is "
+    "preceeded with and followed by \'\\\"\'.",
+    "\n",
+    "When the \'-v summary' option is used, it is not generally possible to "
+    "produce a meaningful column summary.",
+    "A summary is produced for Add(), Max(), Min(), Percent(), A_Add(), A_Max and A_Min(). ",
+    "\n",
+    "Examples:",
+    "\n",
+    "\texpview hwc -m count,Header(\\\"percent of counts\\\",Percent(count,A_Add(count)) -v summary",
+    "\texpview mpi -v butterfly -f MPI_Alltoallv -m time,Header(\"average time/count\",Div(Mult(time,1000),counts))"
+    "\n",
     " "
 };
 const char *gram_expMetric_detailed[] = {
@@ -1226,8 +1283,15 @@ OpenSpeedShop::message_element_t grammar_msg[] = {
     gram_metric_name_detailed,sizeof(gram_metric_name_detailed)/sizeof(char **),
     NULL,0,NULL,0,
     NULL,0,
+//    <metric_expression>
+    -1,"metric_expression",NULL,0,"grammar",gram_metric_expression_brief,
+    gram_metric_expression_detailed,sizeof(gram_metric_expression_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    NULL,0,
 //    <expMetric>
-    -1,"expMetric",NULL,0,"grammar",gram_expMetric_brief,
+    -1,"expMetric",
+    gram_expMetric_related,sizeof(gram_expMetric_related)/sizeof(char **),
+    "grammar",gram_expMetric_brief,
     gram_expMetric_detailed,sizeof(gram_expMetric_detailed)/sizeof(char **),
     NULL,0,NULL,0,
     NULL,0,
