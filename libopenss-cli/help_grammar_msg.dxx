@@ -550,6 +550,9 @@ const char *gram_metric_expression_detailed[] = {
     "and the following, simple, arithmetic operations are available:",
     "\tfunction\t# arguments\treturns",
     "\t--------\t-----------\t-------",
+    "\tUint()\t\t1\tconvert the argument to unsigned integer",
+    "\tInt()\t\t1\tconvert the argument to signed integer",
+    "\tFloat()\t\t1\tconvert the argument to double",
     "\tUminus()\t1\tunary minus of the argument",
     "\tAbs()\t\t1\tAbsolute value of the argument",
     "\tAdd()\t\t2\tsummation of the arguments",
@@ -584,10 +587,13 @@ const char *gram_metric_expression_detailed[] = {
     "produce a meaningful column summary.",
     "A summary is produced for Add(), Max(), Min(), Percent(), A_Add(), A_Max and A_Min(). ",
     "\n",
+    "Data conversion is done automatically according to the rules of \"C\". ",
+    "If needed, the user can force data conversion with the \'Uint\', \'Int\' or \'Float\' functions.\n"
+    "\n",
     "Examples:",
     "\n",
     "\texpview hwc -m count,Header(\\\"percent of counts\\\",Percent(count,A_Add(count))) -v summary",
-    "\texpview mpi -v butterfly -f MPI_Alltoallv -m time,Header(\"average time/count\",Div(Mult(time,1000),counts))"
+    "\texpview mpi -v butterfly -f MPI_Alltoallv -m time,Header(\\\"average time/count\\\",Div(Mult(time,1000),counts))"
     "\n",
     " "
 };

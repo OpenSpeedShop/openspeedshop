@@ -1379,6 +1379,12 @@ ExpMetricExpr1(const char * name, ParseRange *arg1)
        arith_op = EXPRESSION_OP_A_MIN;
      } else if (!strcasecmp(name, "a_max")) {
        arith_op = EXPRESSION_OP_A_MAX;
+     } else if (!strcasecmp(name, "uint")) {
+       arith_op = EXPRESSION_OP_UINT;
+     } else if (!strcasecmp(name, "int")) {
+       arith_op = EXPRESSION_OP_INT;
+     } else if (!strcasecmp(name, "float")) {
+       arith_op = EXPRESSION_OP_FLOAT;
      } else {
       // This is probably an error.
        printf("Error: unrecognized operation in Metric Expression (1 argument) '%s'\n",name);

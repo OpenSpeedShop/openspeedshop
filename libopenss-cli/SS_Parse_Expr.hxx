@@ -44,7 +44,10 @@ typedef enum {
     EXPRESSION_OP_A_ADD,
     EXPRESSION_OP_A_MULT,
     EXPRESSION_OP_A_MIN,
-    EXPRESSION_OP_A_MAX
+    EXPRESSION_OP_A_MAX,
+    EXPRESSION_OP_UINT,
+    EXPRESSION_OP_INT,
+    EXPRESSION_OP_FLOAT
 } expression_operation_t;
 
 inline bool Can_Accumulate (expression_operation_t op) {
@@ -81,6 +84,9 @@ inline std::string ExprOperator (expression_operation_t op) {
     case EXPRESSION_OP_A_MULT: S = std::string("a_mult"); break;
     case EXPRESSION_OP_A_MIN: S = std::string("a_min"); break;
     case EXPRESSION_OP_A_MAX: S = std::string("a_max"); break;
+    case EXPRESSION_OP_UINT: S = std::string("uint"); break;
+    case EXPRESSION_OP_INT: S = std::string("int"); break;
+    case EXPRESSION_OP_FLOAT: S = std::string("float"); break;
   }
   return S;
 }
