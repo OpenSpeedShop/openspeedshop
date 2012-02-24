@@ -1,0 +1,91 @@
+#!/bin/bash
+#set -x
+
+die()
+{
+    echo "$0: error: $*" 1>&2
+    exit 1
+}
+
+usage()
+{
+    cat <<EOF
+Usage: $0 [options] original_database new_database
+
+   -h, --help
+
+   -i, --input  <openss database filename>
+Takes an openss database and creates a copy where
+the functions table only contains functions where
+the exclusive time percentage is greater than 1
+percent.
+
+EOF
+    exit 0
+}
+
+while test "x$1" != x
+do
+    case "$1" in
+
+        -h | --help )
+            usage
+            ;;
+
+        -i | --input)
+            test "x$2" != x || die "missing argument: $*"
+            orig_database=$2
+	    trimname=`echo ${orig_database%\.openss}`
+	    new_database=${trimname}-new.openss
+	    echo "Creating new database " $new_database
+            shift ; shift
+            ;;
+        -- )
+            shift
+            break
+            ;;
+
+        -* )
+            die "unknown option: $1"
+            ;;
+
+        * )
+            break
+            ;;
+    esac
+done
+
+batchname=${trimname}-ossbatch
+percentview=${trimname}-percent
+topfuncs=${trimname}-topfuncs
+allfuncs=${trimname}-allfuncs
+rm -f $batchname
+echo "exprestore -f " $orig_database > $batchname
+echo "!touch " $percentview >> $batchname
+echo "wait" >> $batchname
+echo "expview -mpercent > " $percentview >> $batchname
+echo "wait" >> $batchname
+echo "!touch " $topfuncs >> $batchname
+echo "!awk < " $percentview " '\$1>1 { print \$2 }' > " $topfuncs  >> $batchname
+echo "!touch " $allfuncs >> $batchname
+echo "!awk < " $percentview " '{ print \$2 }' > " $allfuncs  >> $batchname
+echo "exit" >> $batchname
+
+openss -batch < $batchname
+
+trimfuncs=${trimname}-trimfuncs
+awk > $trimfuncs 'NR==FNR{arr[$1];next}!($1 in arr)' $topfuncs $allfuncs
+
+rm -f $new_database
+cp $orig_database $new_database
+
+while read line
+do
+    if [ "$line" != "" ] ; then
+	#echo "remove " $line;
+	sqlite3 $new_database 'delete from functions where name = "'$line'" '
+    fi
+done < $trimfuncs
+
+sqlite3 $new_database 'VACUUM'
+rm -f $batchname $percentview $topfuncs $allfuncs $trimfuncs
