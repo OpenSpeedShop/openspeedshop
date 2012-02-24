@@ -1,6 +1,15 @@
 #! /bin/bash
 # Some of this code is inspired by the libmonitor package (monitor-link).
 #set -x
+debug_flag=0
+
+if [ -z "$OPENSS_DEBUG_OSSLINK" ]
+then
+  echo ""
+else
+  debug_flag=1
+  echo "DEBUG: turning DEBUG flag on because OPENSS_DEBUG_OSSLINK is set"
+fi
 
 mach_type=`uname -m`
 
@@ -261,6 +270,33 @@ monitor_has_pthreads=`nm ${libmonitor} | grep -i __wrap_pthread_create`
 monitor_has_dlopen=`nm ${libmonitor} | grep -i __wrap_dlopen`
 monitor_has_mpi=`nm ${libmonitor} | grep -i __wrap_mpi_init`
 
+if [ $debug_flag == 1 ]
+then
+  echo
+  if [ -n "$monitor_has_fork" ]
+  then
+    echo "DEBUG: osslink monitor_has_fork is non-null"
+  fi
+  if [ -n "$monitor_has_signals" ]
+  then
+    echo "DEBUG: osslink monitor_has_signals is non-null"
+  fi
+  if [ -n "$monitor_has_pthreads" ]
+  then
+    echo "DEBUG: osslink monitor_has_pthreads is non-null"
+  fi
+  if [ -n "$monitor_has_dlopen" ]
+  then
+    echo "DEBUG: osslink monitor_has_dlopen is non-null"
+  fi
+  if [ -n "$monitor_has_mpi" ]
+  then
+    echo "DEBUG: osslink monitor_has_mpi = $monitor_has_mpi"
+  fi
+  echo
+fi
+
+
 collector_libs=""
 
 if [[ $command == *mpix* ]]
@@ -270,11 +306,24 @@ else
   static_args=" -static "
 fi
 
+if [ $debug_flag == 1 ]
+then
+  echo
+  echo "DEBUG: osslink static_args = $static_args"
+fi
+
 wrap_args=
 for name in $monitor_wrap_base_names $wrap_names
 do
     wrap_args="${wrap_args} -Wl,--wrap,${name}"
 done
+
+if [ $debug_flag == 1 ]
+then
+  echo
+  echo "DEBUG: osslink wrap_args for monitor_wrap_base_names = $wrap_args"
+fi
+
 
 if [ -n "$monitor_has_fork" ]
 then
@@ -284,6 +333,13 @@ then
     done
 fi
 
+if [ $debug_flag == 1 ]
+then
+  echo
+  echo "DEBUG: osslink wrap_args for monitor_wrap_fork_names = $wrap_args"
+fi
+
+
 if [ -n "$monitor_has_signals" ]
 then
     for name in $monitor_wrap_signal_names
@@ -291,6 +347,13 @@ then
 	wrap_args="${wrap_args} -Wl,--wrap,${name}"
     done
 fi
+
+if [ $debug_flag == 1 ]
+then
+  echo
+  echo "DEBUG: osslink wrap_args for monitor_wrap_signal_names = $wrap_args"
+fi
+
 
 if [ -n "$monitor_has_pthreads" ]
 then
@@ -301,6 +364,14 @@ then
     collector_libs="${collector_libs} -lpthread"
 fi
 
+if [ $debug_flag == 1 ]
+then
+  echo
+  echo "DEBUG: osslink wrap_args for monitor_wrap_pthread_names = $wrap_args"
+  echo "DEBUG: osslink collector_libs for monitor_wrap_pthread_names = $collector_libs"
+fi
+
+
 if [ -n "$monitor_has_dlopen" ]
 then
     for name in $monitor_wrap_dlopen_names
@@ -310,12 +381,26 @@ then
     collector_libs="${collector_libs} -ldl"
 fi
 
+if [ $debug_flag == 1 ]
+then
+  echo
+  echo "DEBUG: osslink wrap_args for monitor_wrap_dlopen_names = $wrap_args"
+  echo "DEBUG: osslink collector_libs for monitor_wrap_dlopen_names = $collector_libs"
+fi
+
+
 if [ -n "$monitor_has_mpi" ]
 then
     for name in $monitor_wrap_mpibase_names
     do
 	wrap_args="${wrap_args} -Wl,--wrap,${name}"
     done
+fi
+
+if [ $debug_flag == 1 ]
+then
+  echo
+  echo "DEBUG: osslink wrap_args for monitor_wrap_mpibase_names = $wrap_args"
 fi
 
 undef_args=
@@ -340,6 +425,12 @@ for name in $pthread_undefines
 do
     undef_args="${undef_args} -Wl,-u,__wrap_${name}"
 done
+
+if [ $debug_flag == 1 ]
+then
+  echo
+  echo "DEBUG: osslink oss_target = $oss_target"
+fi
 
 # Need to undefine system for cray-xt5
 if [ ${oss_target} = cray-xt5 ]
@@ -370,6 +461,11 @@ then
    undef_args="${undef_args} -Wl,-u,__wrap_open"
 fi
 
+if [ $debug_flag == 1 ]
+then
+  echo
+  echo "DEBUG: osslink collector = $collector"
+fi
 
 case "$collector" in
     mpi|mpit|mpiotf )
@@ -403,9 +499,11 @@ case "$collector" in
     # gather the mpi rank information needed for the mpi_rank field
     # in the THREADS table of the openss database.
     pcsamp)
+
     static_collector=${oss_plugins}/lib${collector}-offline.a
     collector_libs="${collector_libs} -lrt"
     ;;
+
     usertime)
     static_collector=${oss_plugins}/lib${collector}-offline.a
     collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-unwind -L ${libunwind_libdir} -lunwind"
@@ -447,6 +545,13 @@ case "$collector" in
     collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-unwind -lopenss-runtime-binutils -L ${libunwind_libdir} -lunwind -lbfd -liberty -lopcodes -lz -lm"
     ;;
 esac
+    if [ $debug_flag == 1 ]
+    then
+      echo
+      echo "DEBUG: osslink (after collector setup) collector collector=$collector"
+      echo "DEBUG: osslink (after collector setup) collector static_collector=$static_collector"
+      echo "DEBUG: osslink (after collector setup) collector collector_libs=$collector_libs"
+    fi
 
 insert_files="$monitor_callbacks $static_collector $static_offline"
 mon_args="${insert_files} ${libmonitor} ${appl_libs} ${library_names}"
