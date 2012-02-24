@@ -27,7 +27,7 @@
 #       the runtime for the other libraries that actually use it.
 #
 
-dist_bin_SCRIPTS =
+dist_bin_SCRIPTS = ossdbtool
 BUILT_FILES =
 
 if BUILD_INSTRUMENTOR
