@@ -567,7 +567,6 @@ const char *gram_metric_expression_detailed[] = {
     "\tA_Min()\t\t1\tminimim of all the data samples specified for the view",
     "\tA_Max()\t\t1\tmaximum of all the data samples specified for the view",
     "\tSqrt()\t\t1\tsquare root of the argument",
-    "\tStdev()\t\t3\tstandard deviation calcualtion",
     "\tPercent()\t2\tpercent the first arguemnt is of the second",
     "\tCondexp()\t3\t\"C\" expression: \"(first argument) ? second argument : third argument\"",
     "\tHeader()\t2\tuse the first argument as a column header for the display of the second",
