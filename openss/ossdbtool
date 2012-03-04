@@ -1,6 +1,8 @@
 #!/bin/bash
 #set -x
 
+#export OPENSS_DBTOOL=1
+
 die()
 {
     echo "$0: error: $*" 1>&2
@@ -10,7 +12,7 @@ die()
 usage()
 {
     cat <<EOF
-Usage: $0 [options] original_database new_database
+Usage: $0 [options] -i databasename or --input databasename
 
    -h, --help
 
@@ -18,11 +20,35 @@ Usage: $0 [options] original_database new_database
 Takes an openss database and creates a copy where
 the functions table only contains functions where
 the exclusive time percentage is greater than 1
-percent.
+percent. Required option.
+
+   -t, --threshold <value>
+Float value representing the percent execution time
+threshold used to determince what functions to keep
+in the new database. Default is 1 percent.
+
+   -f, --numfuncs
+Explict number of functions to keep. Overrides the
+threshold value.
+
+   --keep_callstack_functions
+Keep callstack functions in new database.  Default
+is to delete them. Will affect viewing calltrees
+in experiments that record callstacks. Not implemented.
 
 EOF
     exit 0
 }
+
+if [ "$1" == "" ] ; then
+    echo "Must specify an input database!"
+    usage
+fi
+
+threshold=1
+numfuncstokeep=20
+override_threshold="false"
+aggressive="true"
 
 while test "x$1" != x
 do
@@ -32,6 +58,14 @@ do
             usage
             ;;
 
+        -n | --numfuncs)
+            test "x$2" != x || die "missing argument: $*"
+	    numfuncstokeep=$2
+	    override_threshold="true"
+	    echo "Number of functions to keep is  " $numfuncstokeep
+            shift ; shift
+            ;;
+
         -i | --input)
             test "x$2" != x || die "missing argument: $*"
             orig_database=$2
@@ -39,6 +73,17 @@ do
 	    new_database=${trimname}-new.openss
 	    echo "Creating new database " $new_database
             shift ; shift
+            ;;
+        -t | --threshold)
+            test "x$2" != x || die "missing argument: $*"
+	    threshold=$2
+	    echo "Trim threshold is  " $threshold
+            shift ; shift
+            ;;
+        --keep_callstack_functions )
+	    aggressive="false"
+            shift
+            break
             ;;
         -- )
             shift
@@ -50,32 +95,74 @@ do
             ;;
 
         * )
-            break
+	    shift
+	    break
             ;;
     esac
 done
 
+# name of openss batch script
 batchname=${trimname}-ossbatch
+# view functions by percent metric
 percentview=${trimname}-percent
+# view top N functions by percent metric
+topNpercentview=${trimname}-topNpercent
+# list of functions names by percent metric
 topfuncs=${trimname}-topfuncs
+# list of functions names by top N percent metric
+topNfuncs=${trimname}-topNfuncs
+# list of all functions where a sample occurred.
 allfuncs=${trimname}-allfuncs
-rm -f $batchname
+# list of all know functions (including callstack frames)
+funclist=${trimname}-funclist
+# list of top N functions by inclusive_detail metric
+incfuncs=${trimname}-incfuncs
+#list of functions to remove from new database
+trimfuncs=${trimname}-trimfuncs
+
+# get our collector name
+collector=$( sqlite3 $orig_database "select unique_id from collectors")
+# prepare the topN specification
+numfuncs=${collector}${numfuncstokeep}
+
+# determine if inclusive metric is available
+has_inclusive="true"
+case "$collector" in
+    hwc | hwcsamp | pcsamp )
+    has_inclusive="false"
+    ;;
+esac
+
+# cleanup and prepare
+rm -f $batchname $percentview $topNpercentview $topfuncs $topNfuncs $allfuncs $incfuncs $funclist $trimfuncs
+touch $batchname $percentview $topNpercentview $topfuncs $topNfuncs $allfuncs $incfuncs $funclist $trimfuncs
+
+# create our batch script
 echo "exprestore -f " $orig_database > $batchname
-echo "!touch " $percentview >> $batchname
-echo "wait" >> $batchname
 echo "expview -mpercent > " $percentview >> $batchname
-echo "wait" >> $batchname
-echo "!touch " $topfuncs >> $batchname
-echo "!awk < " $percentview " '\$1>1 { print \$2 }' > " $topfuncs  >> $batchname
-echo "!touch " $allfuncs >> $batchname
-echo "!awk < " $percentview " '{ print \$2 }' > " $allfuncs  >> $batchname
+echo "list -v functions > " $funclist >> $batchname
+if [ "$override_threshold" != "false" ] ; then
+  echo "expview -m% $numfuncs > " $topNpercentview >> $batchname
+fi
+if [ "$has_inclusive" != "true" ] ; then
+  echo "expview -minclusive_detail $numfuncs > " $incfuncs >> $batchname
+fi
 echo "exit" >> $batchname
 
+# now execute batch script in openss
 openss -batch < $batchname
 
-trimfuncs=${trimname}-trimfuncs
-awk > $trimfuncs 'NR==FNR{arr[$1];next}!($1 in arr)' $topfuncs $allfuncs
+# create list of functions to remove
+awk < $percentview '/^ *[0-9]/ { print $2 }' > $allfuncs
+if [ "$override_threshold" != "false" ] ; then
+  awk < $topNpercentview '/^ *[0-9]/ { print $2 }' >  $topNfuncs
+  awk > $trimfuncs 'NR==FNR{arr[$1];next}!($1 in arr)' $topNfuncs $funclist
+else
+  awk < $percentview -v tr="$threshold" '$1>tr { print $2 }' >  $topfuncs
+  awk > $trimfuncs 'NR==FNR{arr[$1];next}!($1 in arr)' $topfuncs $funclist
+fi
 
+# prepare new database and delete unwanted functions
 rm -f $new_database
 cp $orig_database $new_database
 
@@ -87,5 +174,9 @@ do
     fi
 done < $trimfuncs
 
+# Vacuum optimizes new database by removing dead allocations
+# for removed functions.
 sqlite3 $new_database 'VACUUM'
-rm -f $batchname $percentview $topfuncs $allfuncs $trimfuncs
+
+# cleanup
+rm -f $batchname $percentview $topfuncs $topNfuncs $topNpercentview $allfuncs $incfuncs $funclist $trimfuncs
