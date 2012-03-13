@@ -874,6 +874,9 @@ AC_DEFUN([AC_PKG_MRNET], [
 	"20110714")
             MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_30=1 -DMRNET_301=1"
             ;;
+	"400a")
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -I$mrnet_dir/$abi_libdir -DMRNET_30=1 -DMRNET_301=1"
+            ;;
 	*)
             MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_30=1 -DMRNET_301=1"
             ;;

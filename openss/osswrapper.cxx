@@ -114,17 +114,22 @@ static bool findFunction(string func_s, BPatch_function* &func, bool err_on_fail
    return true;
 }
 
-#if defined(DYNINST_8_0)
+#if (DYNINST_MAJOR == 8)
+
 static bool wrapFunction(string wrappee_s, string wrapper_s)
 {
    BPatch_function *wrappee = NULL, *wrapper = NULL;
+#include "Symtab.h"
+   Dyninst::SymtabAPI::Symbol *wrapper_clone = NULL;
+
    bool result = findFunction(wrappee_s, wrappee);
    if (!result)
       return false;
    result = findFunction(wrapper_s, wrapper);
    if (!result)
       return false;
-   result = addrspace->wrapFunction(*wrappee, *wrapper);
+   result = addrspace->wrapFunction(wrappee, wrapper, wrapper_clone);
+/*   result = addrspace->wrapFunction(*wrappee, *wrapper); */
    if (!result) {
       warning_printf("DyninstAPI failed to wrap function %s with %s\n", wrappee_s.c_str(), wrapper_s.c_str());
       return false;

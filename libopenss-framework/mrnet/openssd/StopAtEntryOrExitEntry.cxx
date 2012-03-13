@@ -87,7 +87,7 @@ void StopAtEntryOrExitEntry::install()
         return;
 
     // Return immediately if the thread is terminated
-#if (DYNINST_MAJOR == 7)
+#if (DYNINST_MAJOR == 7 || DYNINST_MAJOR == 8)
     BPatch_process* process = dm_thread.getProcess();
     Assert(process != NULL);
     if(process->isTerminated()) {
@@ -109,7 +109,7 @@ void StopAtEntryOrExitEntry::install()
     }
 
     // Get the Dyninst process pointer for the thread to be instrumented
-#if (DYNINST_MAJOR == 7)
+#if (DYNINST_MAJOR == 7 || DYNINST_MAJOR == 8)
     process = dm_thread.getProcess();
 #else
     BPatch_process* process = dm_thread.getProcess();
@@ -187,7 +187,7 @@ void StopAtEntryOrExitEntry::remove()
         return;
 
     // Return immediately if the thread is terminated
-#if (DYNINST_MAJOR == 7)
+#if (DYNINST_MAJOR == 7 || DYNINST_MAJOR == 8)
     BPatch_process* process = dm_thread.getProcess();
     Assert(process != NULL);
     if(process->isTerminated()) {
@@ -209,7 +209,7 @@ void StopAtEntryOrExitEntry::remove()
     }
 
     // Get the Dyninst process pointer for the thread to be instrumented
-#if (DYNINST_MAJOR == 7)
+#if (DYNINST_MAJOR == 7 || DYNINST_MAJOR == 8)
     process = dm_thread.getProcess();
 #else
     BPatch_process* process = dm_thread.getProcess();

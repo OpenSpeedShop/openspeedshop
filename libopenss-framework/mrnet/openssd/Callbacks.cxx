@@ -164,7 +164,7 @@ void Callbacks::attachToThreads(const Blob& blob)
 
         BPatch_process* process = NULL;
 
-#if (DYNINST_MAJOR == 7)
+#if (DYNINST_MAJOR == 7 || DYNINST_MAJOR == 8)
         process = BPatch::bpatch->processAttach("", i->getProcessId(), BPatch_normalMode);
 	if(process == NULL) {
 #else
@@ -800,7 +800,7 @@ void Callbacks::getGlobalInteger(const Blob& blob)
     process = thread->getProcess();
     Assert(process != NULL);
 
-#if (DYNINST_MAJOR == 7)
+#if (DYNINST_MAJOR == 7 || DYNINST_MAJOR == 8 )
 
     if(!process->isStopped()) {
 #else
@@ -881,7 +881,7 @@ void Callbacks::getGlobalString(const Blob& blob)
     BPatch_process* process = thread->getProcess();
     Assert(process != NULL);
 
-#if (DYNINST_MAJOR == 7)
+#if (DYNINST_MAJOR == 7 || DYNINST_MAJOR == 8)
     if(!process->isStopped()) {
 #else
     if(!thread->isStopped()) {
@@ -961,7 +961,7 @@ void Callbacks::getMPICHProcTable(const Blob& blob)
     BPatch_process* process = thread->getProcess();
     Assert(process != NULL);
 
-#if (DYNINST_MAJOR == 7)
+#if (DYNINST_MAJOR == 7 || DYNINST_MAJOR == 8)
     if(!process->isStopped()) {
 #else
     if(!thread->isStopped()) {
@@ -1041,7 +1041,7 @@ void Callbacks::setGlobalInteger(const Blob& blob)
     BPatch_process* process = thread->getProcess();
     Assert(process != NULL);
 
-#if (DYNINST_MAJOR == 7)
+#if (DYNINST_MAJOR == 7 || DYNINST_MAJOR == 8)
     if(!process->isStopped()) {
 #else
     if(!thread->isStopped()) {

@@ -87,7 +87,7 @@ void ExecuteInPlaceOfEntry::install()
         return;
 
     // Return immediately if the thread is terminated
-#if (DYNINST_MAJOR == 7)
+#if (DYNINST_MAJOR == 7 || DYNINST_MAJOR == 8)
     BPatch_process* process = dm_thread.getProcess();
     Assert(process != NULL);
     if(process->isTerminated()) {
@@ -120,7 +120,7 @@ void ExecuteInPlaceOfEntry::install()
 #endif
 
     // Get the Dyninst process pointer for the thread to be instrumented
-#if (DYNINST_MAJOR == 7)
+#if (DYNINST_MAJOR == 7 || DYNINST_MAJOR == 8)
     process = dm_thread.getProcess();
 #else
     BPatch_process* process = dm_thread.getProcess();
@@ -151,6 +151,9 @@ void ExecuteInPlaceOfEntry::install()
 	Assert(type != NULL);
 	dm_flag = process->malloc(*type);
         
+// FIX ME - Add code to handle the Dyninst 8.0 wrapping methods
+// This just comments out the code that will not compile with Dyninst-8.0 enabled
+#if (DYNINST_MAJOR != 8)
 	//
 	// Create instrumentation snippet for the code sequence:
 	//
@@ -188,6 +191,7 @@ void ExecuteInPlaceOfEntry::install()
 			    BPatch_constExpr(dm_thread.getBPatchID())),
 	    body
             );
+#endif
 
 	char mbuf[1024];
 	
@@ -214,11 +218,13 @@ void ExecuteInPlaceOfEntry::install()
 	bpatch->setTrampRecursive(true);
         
         // Request the instrumentation be inserted
+#if (DYNINST_MAJOR != 8)
 	if(process->isMultithreadCapable())
 	    dm_handle = process->insertSnippet(expression, *points);
 	else
 	    dm_handle = process->insertSnippet(body, *points);
         Assert(dm_handle != NULL);
+#endif
 	
 	// Restore the allowance of recursive calls to its previous state
         bpatch->setTrampRecursive(saved_tramp_recursive);
@@ -255,7 +261,7 @@ void ExecuteInPlaceOfEntry::remove()
         return;
 
     // Return immediately if the thread is terminated
-#if (DYNINST_MAJOR == 7)
+#if (DYNINST_MAJOR == 7 || DYNINST_MAJOR == 8)
     BPatch_process* process = dm_thread.getProcess();
     Assert(process != NULL);
     if(process->isTerminated()) {
@@ -277,7 +283,7 @@ void ExecuteInPlaceOfEntry::remove()
     }
     
     // Get the Dyninst process pointer for the thread to be instrumented
-#if (DYNINST_MAJOR == 7)
+#if (DYNINST_MAJOR == 7 || DYNINST_MAJOR == 8)
     process = dm_thread.getProcess();
 #else
     BPatch_process* process = dm_thread.getProcess();
