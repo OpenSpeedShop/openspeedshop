@@ -27,8 +27,8 @@ w\:* {behavior:url(#default#VML);}
   <body style="color: rgb(0, 0, 0); background-color: rgb(255, 255,
     255);" alink="#000099" lang="EN-US" link="blue" vlink="purple">
     <div style="text-align: left;"><br>
-      <span style="text-decoration: underline;"></span>
-      <span style="text-decoration: underline;"></span></div>
+      <span style="text-decoration: underline;"></span> <span
+        style="text-decoration: underline;"></span></div>
     <div class="moz-text-html" lang="x-western">
       <div style="text-align: center;">
         <div class="Section1"><br>
@@ -39,8 +39,8 @@ w\:* {behavior:url(#default#VML);}
                   303px; height: 38px;"><br>
                 Build and Installation Guide<br>
               </span></b><big><span style="font-weight: bold;">Version
-                2.0.1 Release</span><br style="font-weight: bold;">
-              <span style="font-weight: bold;">November 21, 2011</span></big><br>
+                2.0.2 Release</span><br style="font-weight: bold;">
+              <span style="font-weight: bold;">March 15, 2012</span></big><br>
           </p>
           <div class="Section2"><b style=""><br style="" clear="all">
             </b>
@@ -61,21 +61,19 @@ w\:* {behavior:url(#default#VML);}
                 <li><a href="#mozTocId208182">Build and Installation
                     Guide Introduction </a>
                   <ol>
-                    <li><a href="#mozTocId821143">Introduction
-                        and Tutorial </a></li>
+                    <li><a href="#mozTocId821143">Introduction and
+                        Tutorial </a></li>
                     <li><a href="#mozTocId200693">Downloading the
-                        Open|SpeedShop Component
-                        Source Using CVS trees </a></li>
+                        Open|SpeedShop Component Source Using CVS trees
+                      </a></li>
                   </ol>
                 </li>
-                <li><a href="#mozTocId334016">Open|SpeedShop
-                    Build and Installation </a>
+                <li><a href="#mozTocId334016">Open|SpeedShop Build and
+                    Installation </a>
                   <ol>
                     <li><a href="#mozTocId733358">Building
-                        Open|SpeedShop
-                        and
-                        Open|SpeedShop
-                        Development RPM Usage Information</a>
+                        Open|SpeedShop and Open|SpeedShop Development
+                        RPM Usage Information</a>
                       <ol>
                         <li><a href="#mozTocId585528">Prerequistite
                             Needs </a></li>
@@ -83,19 +81,19 @@ w\:* {behavior:url(#default#VML);}
                             Information </a></li>
                         <li><a href="#mozTocId560453">To Run
                             Open|SpeedShop </a></li>
-                        <li><a href="#mozTocId132468">Key
-                            Environment Variables Needed for Building
-                            Open|SpeedShop </a>
+                        <li><a href="#mozTocId132468">Key Environment
+                            Variables Needed for Building Open|SpeedShop
+                          </a>
                           <ol>
                             <li><a href="#mozTocId520988">OPENSS_PREFIX</a></li>
                             <li><a href="#mozTocId613200">OPENSS_INSTRUMENTOR</a></li>
                           </ol>
                         </li>
-                        <li><a href="#mozTocId911379">Key
-                            Environment Variables Needed for Running
-                            Open|SpeedShop</a>
+                        <li><a href="#mozTocId911379">Key Environment
+                            Variables Needed for Running Open|SpeedShop</a>
                           <ol>
                             <li><a href="#mozTocId579302">OPENSS_PLUGIN_PATH
+
                               </a></li>
                             <li><a href="#mozTocId173759">LD_LIBRARY_PATH</a></li>
                             <li><a href="#mozTocId537563">OPENSS_MPI_IMPLEMENTATION</a></li>
@@ -106,14 +104,14 @@ w\:* {behavior:url(#default#VML);}
                           </ol>
                         </li>
                         <li><a href="#mozTocId435044">Open|SpeedShop
-                            Tested
-                            Platforms:</a>
+                            Tested Platforms:</a>
                           <ol>
                             <li><a href="#mozTocId871553">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Note
+
                                 for Ubuntu and Debian these packages are
-                                needed to be applied to
-                                the base systems:</a></li>
+                                needed to be applied to the base
+                                systems:</a></li>
                           </ol>
                         </li>
                       </ol>
@@ -126,8 +124,7 @@ Note
             <br>
             <h1><a class="mozTocH1" name="mozTocId208182"></a><b
                 style=""><span style="font-size: 22pt; font-family:
-                  SGIAlt;">Build and Installation
-                  Guide Introduction<br>
+                  SGIAlt;">Build and Installation Guide Introduction<br>
                 </span></b></h1>
             <p style="text-align: left;" class="MsoToc1"><!--if supportFields><span
 style='text-transform:none;font-weight:normal'><span style='mso-element:field-begin'></span><span
@@ -135,8 +132,7 @@ style='mso-spacerun:yes'>&nbsp;</span>TOC \o &quot;1-4&quot; <span
 style='mso-element:field-separator'></span></span><![endif]--></p>
             <div style="text-align: left;"><br>
               <h2 style="margin-left: 40px;"><a class="mozTocH2"
-                  name="mozTocId821143"></a>Introduction
-                and Tutorial<br>
+                  name="mozTocId821143"></a>Introduction and Tutorial<br>
               </h2>
             </div>
           </div>
@@ -145,73 +141,57 @@ style='mso-element:field-separator'></span></span><![endif]--></p>
           <div class="Section3">
             <div style="text-align: left; margin-left: 40px;">Open|SpeedShop
 release
-              2.0.1 comes with an install script that will build all the
+              2.0.2 comes with an install script that will build all the
               supporting components and Open|SpeedShop itself in one
-              step, or the
-              builder can invoke the script multiple times to build each
-              component
-              separately.&nbsp;&nbsp; The <a
+              step, or the builder can invoke the script multiple times
+              to build each component separately.&nbsp;&nbsp; The <a
                 href="BuildAndInstallGuide2.html#mozTocId733358">Building
 Open|SpeedShop
 and
 Open|SpeedShop
 Development
+
                 RPM Usage Information</a> section describes the steps
               necessary to prepare for the build and to do the actual
-              building of
-              Open|SpeedShop and components.&nbsp;&nbsp;&nbsp; <a
+              building of Open|SpeedShop and
+              components.&nbsp;&nbsp;&nbsp; <a
                 href="BuildInstallGuideTutorial.html">This tutorial </a>gives
-              an
-              overview of
-              the build process and necessary environment
-              setup.&nbsp;&nbsp; The
-              tutorial is based on a section from our larger tutorial
-              presentations
-              which can be found at our web site: <a
-                href="www.openspeedshop.org">www.openspeedshop.org.</a>&nbsp;
+
+              an overview of the build process and necessary environment
+              setup.&nbsp;&nbsp; The tutorial is based on a section from
+              our larger tutorial presentations which can be found at
+              our web site: <a href="www.openspeedshop.org">www.openspeedshop.org.</a>&nbsp;
+
               <br>
               <br>
               The next section explains how to build from our
-              development source
-              tree.&nbsp;&nbsp; If you are not interested in doing that
-              but are
-              interested in building the current 2.0.1 release of
-              Open|SpeedShop
-              skip
-              to the <a href="#OpenSpeedShop_Build_And_Installation">Build
-                and
+              development source tree.&nbsp;&nbsp; If you are not
+              interested in doing that but are interested in building
+              the current 2.0.2 release of Open|SpeedShop skip to the <a
+                href="#OpenSpeedShop_Build_And_Installation">Build and
                 Installation section.</a><br>
               <h2><a class="mozTocH3" name="mozTocId200693"></a><font
                   face="ARIAL NARROW,HELVETICA"><a
                     name="Downloading_the_OpenSpeedShop_Component"></a>Downloading
-                  the
-                  Open|SpeedShop Component
-                  Source Using CVS trees
-                </font></h2>
+
+                  the Open|SpeedShop Component Source Using CVS trees </font></h2>
               <p>For building from the Open|SpeedShop development tree,
-                this section
-                provides information about how to download the
-                OpenSpeedShop and OpenSpeedShop_ROOT source repositories
-                from the
-                sourceforge website.&nbsp;&nbsp;&nbsp;&nbsp; The
-                OpenSpeedShop cvs tree
-                contains the source and documentation for the
-                Open|SpeedShop
-                performance tool itself.&nbsp; The OpenSpeedShop_ROOT
-                cvs tree contains
-                the source and rpms for the supporting components
-                required by
-                Open|SpeedShop in order for Open|SpeedShop to function
+                this section provides information about how to download
+                the OpenSpeedShop and OpenSpeedShop_ROOT source
+                repositories from the sourceforge
+                website.&nbsp;&nbsp;&nbsp;&nbsp; The OpenSpeedShop cvs
+                tree contains the source and documentation for the
+                Open|SpeedShop performance tool itself.&nbsp; The
+                OpenSpeedShop_ROOT cvs tree contains the source and rpms
+                for the supporting components required by Open|SpeedShop
+                in order for Open|SpeedShop to function
                 correctly.&nbsp;&nbsp;&nbsp; <br>
               </p>
               <p>If not familar with cvs, see <a
                   href="http://sourceforge.net/cvs/?group_id=176777">CVS
-                  information on
-                  sourceforge</a>.&nbsp;&nbsp;&nbsp;
-                It contains links to general CVS documentation.
-              </p>
-              <p>
-                Set the CVSROOT environment variable.
+                  information on sourceforge</a>.&nbsp;&nbsp;&nbsp; It
+                contains links to general CVS documentation. </p>
+              <p> Set the CVSROOT environment variable.
                 <table border="0" cellspacing="2" width="100%">
                   <tbody>
                     <tr>
@@ -232,10 +212,8 @@ CVSROOT=':pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss'</span></
                   </tbody>
                 </table>
               </p>
-              <p>
-                Login to the CVS server (this only needs to be done
-                ONCE, not every
-                time you access CVS).
+              <p> Login to the CVS server (this only needs to be done
+                ONCE, not every time you access CVS).
                 <table border="0" cellspacing="2" width="100%">
                   <tbody>
                     <tr>
@@ -250,9 +228,8 @@ CVSROOT=':pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss'</span></
                   </tbody>
                 </table>
               </p>
-              <p>
-                Now grab the OpenSpeedShop and OpenSpeedShop_ROOT source
-                trees:&nbsp;
+              <p> Now grab the OpenSpeedShop and OpenSpeedShop_ROOT
+                source trees:&nbsp;
                 <table border="0" cellspacing="2" width="100%">
                   <tbody>
                     <tr>
@@ -261,16 +238,14 @@ CVSROOT=':pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss'</span></
                             checkout OpenSpeedShop</span></tt><span
                           style="font-weight: bold;"> </span><br>
                         <tt>$ <span style="font-weight: bold;">cvs
-                            checkout
-                            OpenSpeedShop_ROOT</span></tt><span
+                            checkout OpenSpeedShop_ROOT</span></tt><span
                           style="font-weight: bold;"> </span><br>
                         &nbsp;</td>
                     </tr>
                   </tbody>
                 </table>
               </p>
-              <p>
-              </p>
+              <p> </p>
               <p>Subsequently, you can checkout new code using:&nbsp;
                 <table border="0" cellspacing="2" width="100%">
                   <tbody>
@@ -285,8 +260,7 @@ CVSROOT=':pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss'</span></
                 </table>
               </p>
               <p>We recommend using these cvs options. You may place
-                them in a .cvsrc
-                file in your home directory:&nbsp;
+                them in a .cvsrc file in your home directory:&nbsp;
                 <table border="0" cellspacing="2" width="100%">
                   <tbody>
                     <tr>
@@ -302,24 +276,18 @@ CVSROOT=':pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss'</span></
               <br>
             </div>
             <div style="text-align: left; margin-left: 40px;">Now follow
-              the
-              instructions below using OpenSpeedShop_ROOT as the top
-              level
-              installation directory.&nbsp;&nbsp;&nbsp; To use the
-              existing
-              install.sh installation script, OpenSpeedShop must be
-              moved to the
-              openspeedshop-1.9,3.4 directory name, tarred into
-              openspeedshop-2.0.1.tar,
-              gzipped into openspeedshop-2.0.1.tar.gz, and moved into
-              OpenSpeedShop_ROOT/SOURCES/openspeedshop-2.0.1.tar.gz.
-              &nbsp; This is
-              what is done when a release tarball is prepared.
-            </div>
+              the instructions below using OpenSpeedShop_ROOT as the top
+              level installation directory.&nbsp;&nbsp;&nbsp; To use the
+              existing install.sh installation script, OpenSpeedShop
+              must be moved to the openspeedshop-1.9,3.4 directory name,
+              tarred into openspeedshop-2.0.2.tar, gzipped into
+              openspeedshop-2.0.2.tar.gz, and moved into
+              OpenSpeedShop_ROOT/SOURCES/openspeedshop-2.0.2.tar.gz.
+              &nbsp; This is what is done when a release tarball is
+              prepared. </div>
           </div>
           <div style="text-align: left;"><span style="font-size: 11pt;
-              font-family: &quot;Times New Roman&quot;;">
-            </span></div>
+              font-family: &quot;Times New Roman&quot;;"> </span></div>
           <div style="text-align: left;" class="Section4">
             <h1 style="margin-left: 40px; text-align: left;"><a
                 class="mozTocH1" name="mozTocId334016"></a><b style=""><a
@@ -327,49 +295,35 @@ CVSROOT=':pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss'</span></
                   style="color: rgb(0, 0, 128);"><a
                     name="OpenSpeedShop_Build_And_Installation"></a>Open|SpeedShop
 Build
+
                   and Installation<br>
                 </span></b></h1>
-            <blockquote>The following sections describe how to build
-              and install <b>Open|SpeedShop</b>.&nbsp;&nbsp; The RPM
-              packages that
-              are
-              needed to build <b>Open|SpeedShop</b> and the RPM
-              packages that are
-              needed to
-              run <b>Open|SpeedShop</b> are defined below.&nbsp;&nbsp;
-              These are the
-              packages that can be found in the OpenSpeedShop_ROOT cvs
-              tree (see
+            <blockquote>The following sections describe how to build and
+              install <b>Open|SpeedShop</b>.&nbsp;&nbsp; The RPM
+              packages that are needed to build <b>Open|SpeedShop</b>
+              and the RPM packages that are needed to run <b>Open|SpeedShop</b>
+              are defined below.&nbsp;&nbsp; These are the packages that
+              can be found in the OpenSpeedShop_ROOT cvs tree (see
               above).<br>
               <br>
               This section documents the list of software packages used
-              by the
-              Open|SpeedShop developers when building Open|SpeedShop or
-              developing
-              plugin modules for it.&nbsp; For each package, a minimum
-              and maximum
-              version is given. These are the KNOWN minimum and maximum
-              verions that
-              have been found to work with Open|SpeedShop. You may find
-              newer (or
-              older) versions of these packages work just fine. Go ahead
-              and update
-              this document when you do! Packages not commonly found in
-              some (e.g.
-              SuSE Professional 11, SLES 11, Fedora Core 7/8/9) Linux
-              distributions
-              are provided here in this directory as source tarballs and
-              binary RPMs
+              by the Open|SpeedShop developers when building
+              Open|SpeedShop or developing plugin modules for it.&nbsp;
+              For each package, a minimum and maximum version is given.
+              These are the KNOWN minimum and maximum verions that have
+              been found to work with Open|SpeedShop. You may find newer
+              (or older) versions of these packages work just fine. Go
+              ahead and update this document when you do! Packages not
+              commonly found in some (e.g. SuSE Professional 11, SLES
+              11, Fedora Core 7/8/9) Linux distributions are provided
+              here in this directory as source tarballs and binary RPMs
               for key platforms may be found on the Open|SpeedShop
-              download area on
-              sourceforge.<br>
+              download area on sourceforge.<br>
               <br>
               In addition, the components listed below are also needed
-              for building
-              Open|SpeedShop. Note that the Maximum versions are only
-              reflective of
-              what we have tested with.&nbsp; Newer versions will
-              probably work also.<br>
+              for building Open|SpeedShop. Note that the Maximum
+              versions are only reflective of what we have tested
+              with.&nbsp; Newer versions will probably work also.<br>
               <br>
               <table style="width: 676px; height: 713px;" border="1"
                 cellpadding="2" cellspacing="2">
@@ -565,188 +519,146 @@ Build
               <br>
               <ol>
                 <li>Always use the Dyninst and MRNet versions supplied
-                  with
-                  Open|SpeedShop.&nbsp; Others will almost certainly not
-                  work with
-                  Open|SpeedShop. </li>
+                  with Open|SpeedShop.&nbsp; Others will almost
+                  certainly not work with Open|SpeedShop. </li>
                 <li>Utilities commonly used by the Open|SpeedShop
-                  developers but
-                  not strictly needed to build Open|SpeedShop.</li>
+                  developers but not strictly needed to build
+                  Open|SpeedShop.</li>
                 <li>On SLES 9/10/11 Linux distributions the necessary qt
                   development components require qt3-devel-doc and
-                  qt3-devel-tools in
-                  addition to qt3-devel.</li>
+                  qt3-devel-tools in addition to qt3-devel.</li>
               </ol>
               <br>
               See the INSTALL-note_a file for directions on how to use
-              the
-              install.sh&nbsp; and Build-RPM scripts to build the
-              Open|SpeedShop
-              supporting rpms and Open|SpeedShop itself.&nbsp; These are
-              found in the
-              main directory of the release directory once the release
-              tarball has
-              been gunzipped and untarred.<br>
+              the install.sh&nbsp; and Build-RPM scripts to build the
+              Open|SpeedShop supporting rpms and Open|SpeedShop
+              itself.&nbsp; These are found in the main directory of the
+              release directory once the release tarball has been
+              gunzipped and untarred.<br>
               <br>
               <b style=""> </b></blockquote>
             <h2 style="margin-left: 40px;"><a class="mozTocH2"
                 name="mozTocId733358"></a><b style=""><a
                   name="Building_OpenSpeedShop.html"></a>Building
-                Open|SpeedShop</b>
-              and
-              Open|SpeedShop
-              Development RPM Usage Information</h2>
+                Open|SpeedShop</b> and Open|SpeedShop Development RPM
+              Usage Information</h2>
             <div style="text-align: left; margin-left: 80px;">The
-              release top level
-              directory contains the install script (install.sh) that is
-              intended to
-              make the build and installation of the components that <br>
+              release top level directory contains the install script
+              (install.sh) that is intended to make the build and
+              installation of the components that <br>
               are needed to support Open|SpeedShop and Open|SpeedShop
               itself easier.<br>
               <br>
               Because Open|SpeedShop depends on components that are
-              highly dependent
-              on Operating System interfaces and libraries, it is
-              difficult to
-              produce executable rpms<br>
+              highly dependent on Operating System interfaces and
+              libraries, it is difficult to produce executable rpms<br>
               for installation.&nbsp; This is why we offer a source
-              build
-              installation.<br>
+              build installation.<br>
               <br>
               <h3><a class="mozTocH3" name="mozTocId585528"></a>Prerequistite
+
                 Needs<br>
               </h3>
               <br>
               There are some prerequisite packages that are necessary
-              for building
-              and running the Open|SpeedShop performance tool. Most will
-              be present
-              on a system that is used for debugging and performance
-              analysis.&nbsp;
-              The README file in the release top level directory lists
-              the components
+              for building and running the Open|SpeedShop performance
+              tool. Most will be present on a system that is used for
+              debugging and performance analysis.&nbsp; The README file
+              in the release top level directory lists the components
               and the versions that have been used successfully with
               Open|SpeedShop.<br>
               <br>
               <h3><a class="mozTocH3" name="mozTocId893375"></a>Installation
+
                 Information<br>
               </h3>
               <br>
               Please gunzip and untar the
-              openspeedshop-release-2.0.1.tar.gz file
-              and
-              change directory into the openspeedshop-release-2.0.1
+              openspeedshop-release-2.0.2.tar.gz file and change
+              directory into the openspeedshop-release-2.0.2
               directory.&nbsp;&nbsp; <br>
               <br>
               For example:<br>
-              gunzip openspeedshop-release-2.0.1.tar.gz<br>
-              tar -xvf openspeedshop-release-2.0.1.tar<br>
-              cd openspeedshop-release-2.0.1<br>
+              gunzip openspeedshop-release-2.0.2.tar.gz<br>
+              tar -xvf openspeedshop-release-2.0.2.tar<br>
+              cd openspeedshop-release-2.0.2<br>
               <br>
               Inside the top level release directory is the key script,
-              install.sh,
-              that can be used in building the Open|SpeedShop
-              performance tool.<br>
+              install.sh, that can be used in building the
+              Open|SpeedShop performance tool.<br>
               <br>
               The script, <span style="font-weight: bold;">install.sh</span>,
-              can
-              either step you through building the support libraries and
-              Open|SpeedShop or you can <span style="font-weight:
-                bold;">choose an
-                option (9)</span> that will do all the steps without
-              user intervention.<br>
+              can either step you through building the support libraries
+              and Open|SpeedShop or you can <span style="font-weight:
+                bold;">choose an option (9)</span> that will do all the
+              steps without user intervention.<br>
               <br>
               This process builds RPMs for each package and allows you
-              the option of
-              installing via RPM or to install as non-root through a rpm
-              to cpio
-              process that is built into the script.&nbsp; The default
-              installation
-              path is /opt/OSS<br>
+              the option of installing via RPM or to install as non-root
+              through a rpm to cpio process that is built into the
+              script.&nbsp; The default installation path is /opt/OSS<br>
               <br>
               If you would like to install in another location, set the
-              environment
-              variable OPENSS_PREFIX.&nbsp; We recommend setting the
-              variable.&nbsp;
-              You can base your LD_LIBRARY_PATH and PATH variables off
-              the
-              OPENSS_PREFIX variable when you have Open|SpeedShop built
-              and you are
+              environment variable OPENSS_PREFIX.&nbsp; We recommend
+              setting the variable.&nbsp; You can base your
+              LD_LIBRARY_PATH and PATH variables off the OPENSS_PREFIX
+              variable when you have Open|SpeedShop built and you are
               ready to run it.<br>
               <br>
               For example:<br>
               export OPENSS_PREFIX=/usr/projects/OSS<br>
               <br>
               Another variable that is advisable to set is QTDIR for the
-              location to
-              the QT library if different from the default.&nbsp; The
-              default is
-              /usr/lib64/qt-3.3<br>
+              location to the QT library if different from the
+              default.&nbsp; The default is /usr/lib64/qt-3.3<br>
               <br>
               Additional (optional) environment variables needed for
-              building
-              vampirtrace and configuring for MPI experiments.
-              vampirtrace needs a
-              MPI implementation specified in order to be built.&nbsp;
-              So, the intent
-              is to be able to run vampirtrace trace under
-              Open|SpeedShop, then one
-              of the following MPI implementations must be
-              specified.&nbsp; <br>
+              building vampirtrace and configuring for MPI experiments.
+              vampirtrace needs a MPI implementation specified in order
+              to be built.&nbsp; So, the intent is to be able to run
+              vampirtrace trace under Open|SpeedShop, then one of the
+              following MPI implementations must be specified.&nbsp; <br>
               <br>
               &nbsp;&nbsp; OPENSS_MPI_LAM&nbsp; set to MPI LAM
               installation directory<br>
               &nbsp;&nbsp; OPENSS_MPI_LAMPI&nbsp; set to MPI LAMPI
-              installation
-              directory <br>
+              installation directory <br>
               &nbsp;&nbsp; OPENSS_MPI_OPENMPI&nbsp; set to MPI OPENMPI
-              installation
-              directory<br>
+              installation directory<br>
               &nbsp;&nbsp; OPENSS_MPI_MPICH&nbsp; set to MPI MPICH
-              installation
-              directory<br>
+              installation directory<br>
               &nbsp;&nbsp; OPENSS_MPI_MPICH2&nbsp; set to MPI MPICH2
-              installation
-              directory<br>
+              installation directory<br>
               &nbsp;&nbsp; OPENSS_MPI_MPICH_DRIVER mpich/mpich2 driver
               name [ch-p4]<br>
               &nbsp;&nbsp; OPENSS_MPI_MPT&nbsp; set to SGI MPI MPT
-              installation
-              directory<br>
+              installation directory<br>
               &nbsp;&nbsp; OPENSS_MPI_MVAPICH&nbsp; set to MPI MVAPICH
-              installation
-              directory<br>
+              installation directory<br>
               &nbsp;&nbsp; OPENSS_MPI_MVAPICH2&nbsp; set to MPI MVAPICH2
-              installation
-              directory<br>
+              installation directory<br>
               <br>
               If the above variables are not set most Open|SpeedShop
-              experiments will
-              work, but the mpi, mpit, mpiotf experiments will not be
-              built.&nbsp;
-              These variables are not necessary to run pcsamp, usertime,
-              hwc, io, or
-              fpe experiments. <br>
+              experiments will work, but the mpi, mpit, mpiotf
+              experiments will not be built.&nbsp; These variables are
+              not necessary to run pcsamp, usertime, hwc, io, or fpe
+              experiments. <br>
               <br>
               The install script and the Open|SpeedShop configuration
-              code will read
-              these environment variables and if set will configure
-              Open|SpeedShop to
-              recognize these MPI implementations.&nbsp; That will allow
-              users the
-              ability to create MPI experiments (mpi, mpit, mpiotf) and
-              gather&nbsp;
-              performance data for MPI applications built with the
-              specific MPI
-              implementation (for example: openmpi).&nbsp; <br>
+              code will read these environment variables and if set will
+              configure Open|SpeedShop to recognize these MPI
+              implementations.&nbsp; That will allow users the ability
+              to create MPI experiments (mpi, mpit, mpiotf) and
+              gather&nbsp; performance data for MPI applications built
+              with the specific MPI implementation (for example:
+              openmpi).&nbsp; <br>
               <br>
               For example:<br>
               export OPENSS_MPI_OPENMPI=/usr/projects/openmpi-1.4.1<br>
               <br>
               The Open|SpeedShop configure will read the
-              OPENSS_MPI_xxxxx variables
-              and configure for each MPI implementation specfied in this
-              manner.<br>
+              OPENSS_MPI_xxxxx variables and configure for each MPI
+              implementation specfied in this manner.<br>
               <br>
               The spec files associated with this build process include:<br>
               binutilsver=2.20.51_a<br>
@@ -760,20 +672,18 @@ Build
               vampirtracever=5.3.2_a<br>
               dyninstver=7.0.1_a<br>
               mrnetver=20110714_a<br>
-              openspeedshopver=2.0.1_a<br>
+              openspeedshopver=2.0.2_a<br>
               <br>
               <br>
               There is an order that is required in building the
-              components because
-              some of the components depend oneach other.&nbsp; The
-              install script
-              will lead you through the process.<br>
+              components because some of the components depend oneach
+              other.&nbsp; The install script will lead you through the
+              process.<br>
               <br>
               There is an expectation that you have libelf available.
-              Option 1 will
-              check and build if necessary and option 1a will install
-              if&nbsp; you
-              are doing the non-root cpio process.<br>
+              Option 1 will check and build if necessary and option 1a
+              will install if&nbsp; you are doing the non-root cpio
+              process.<br>
               <br>
               To start, type:<br>
               <br>
@@ -783,57 +693,40 @@ Build
               <br>
               For the most automated way to build the entire tool would
               be to&nbsp; <span style="font-weight: bold;">choose
-                option: 9</span>.&nbsp; With this
-              option all the components and openspeedshop will be built
-              and installed
+                option: 9</span>.&nbsp; With this option all the
+              components and openspeedshop will be built and installed
               into the location/path specified in your OPENSS_PREFIX
-              environment
-              variable.<br>
+              environment variable.<br>
               <br>
               If you have trouble using option 9, you can build the
-              components and
-              openspeedshop in a step by step manner to find any
-              issues.&nbsp; After
-              each&nbsp; step you will need to run ./install.sh again to
-              get to the
-              next step. You may also type install.sh and choose option
-              8 to see
-              which component is not installed.&nbsp; You may only have
-              to rebuild
-              from that component onward.<br>
+              components and openspeedshop in a step by step manner to
+              find any issues.&nbsp; After each&nbsp; step you will need
+              to run ./install.sh again to get to the next step. You may
+              also type install.sh and choose option 8 to see which
+              component is not installed.&nbsp; You may only have to
+              rebuild from that component onward.<br>
               <br>
               Because Open|SpeedShop currently uses MRNet as its (online
-              version
-              only) communication mechanism, a MRNet daemon must run on
-              your machine
-              and, if you have a cluster, a MRNet daemon must run on
-              each node of
-              your
-              cluster.&nbsp; We have a default file named "mrnet.py"
-              that we will
-              install
+              version only) communication mechanism, a MRNet daemon must
+              run on your machine and, if you have a cluster, a MRNet
+              daemon must run on each node of your cluster.&nbsp; We
+              have a default file named "mrnet.py" that we will install
               during the installation of OpenSpeedShop.&nbsp; The
-              mrnet.py file will
-              create a MRNet topology file (needed by MRNet to
-              communicate with the
-              daemons) without intervention on your single system image
-              machine, like
-              a pc or laptop (or a SGI single system image (SSI)
-              machine). If you are
-              going to run Open|SpeedShop on a cluster, some tweaking of
-              the mrnet.py
-              file may be necessary.&nbsp;&nbsp; It is reliable on
-              systems using the
-              SLURM and
-              PBS job schedulers.<br>
+              mrnet.py file will create a MRNet topology file (needed by
+              MRNet to communicate with the daemons) without
+              intervention on your single system image machine, like a
+              pc or laptop (or a SGI single system image (SSI) machine).
+              If you are going to run Open|SpeedShop on a cluster, some
+              tweaking of the mrnet.py file may be
+              necessary.&nbsp;&nbsp; It is reliable on systems using the
+              SLURM and PBS job schedulers.<br>
               <br>
               Note: the offline version of openss does not need to
-              create daemons and
-              therefore also doesn't need to create a topology file.<br>
+              create daemons and therefore also doesn't need to create a
+              topology file.<br>
               <br>
               Please contact us at: oss-questions@openspeedshop.org if
-              you need
-              assistance.<br>
+              you need assistance.<br>
               <br>
               &nbsp;<br>
               This is what will be displayed when you type install.sh:<br>
@@ -889,10 +782,13 @@ Build
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c) libxml2
                 and/or libxml2-devel<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                 NOTE: libxml2 and/or libxml2-devel are not needed<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                 if using OPENSS_INSTRUMENTOR=offline, however,<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                 the online (mrnet) version does need libxml2 and
                 libxml2-devel<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; d) binutils
@@ -943,6 +839,7 @@ Build
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -General<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_PREFIX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                 set to alternate install prefix.&nbsp; default is
                 /opt/OSS<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -992,6 +889,7 @@ Build
                 MVAPICH2 installation dir. default is null.<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_OFED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                 set to OPEN FABRICS installation dir. default is /usr.<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_BINUTILS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -999,6 +897,7 @@ Build
                 components. default is /usr<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_PYTHON&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                 set to alternative directory location for python
                 components. default is /usr<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -1086,19 +985,26 @@ Build
                 &nbsp;&nbsp;&nbsp; 9&nbsp; - Automatic - Run all steps
                 with no questions asked. Assume that the<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                 answer to any question which will be asked is yes.
                 Please<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                 make certain that all required environment variables are<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                 set properly. It may be best for fresh installations<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                 to run though the choices one at a time, in ascending<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                 order, as this may help discover any missing system<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                 dependencies.&nbsp; Everything will be installed in<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
                 /opt/OSS (if OPENSS_PREFIX is not set) via cpio process<br>
                 <br>
                 &nbsp;&nbsp;&nbsp; Please feel free to contact us via
@@ -1112,80 +1018,63 @@ Build
               </h3>
               <br>
               Please refer to the <a href="QuickStartGuide.html">QuickStart
-                Guide</a>
-              for a short introduction or access the <a
-                href="index.html">Users Guide</a>.&nbsp;
-              These are the best sources for information on how to run
-              Open|SpeedShop.<br>
+
+                Guide</a> for a short introduction or access the <a
+                href="index.html">Users Guide</a>.&nbsp; These are the
+              best sources for information on how to run Open|SpeedShop.<br>
               <br>
               <br>
             </div>
             <br>
             <h3 style="margin-left: 40px;"><a class="mozTocH3"
-                name="mozTocId132468"></a><b style="">Key
-                Environment Variables Needed for Building Open|SpeedShop<br>
+                name="mozTocId132468"></a><b style="">Key Environment
+                Variables Needed for Building Open|SpeedShop<br>
               </b></h3>
             <h4 style="margin-left: 120px;"><a class="mozTocH4"
                 name="mozTocId520988"></a><a
                 name="OpenSpeedShop_developer_related"></a>OPENSS_PREFIX</h4>
             <ul style="margin-left: 200px;">
-              <li>&nbsp;This environment variable
-                specifies where the <b>Open|SpeedShop</b> binaries and
-                libraries will
-                be
-                installed.&nbsp; Set this variable to a path, (e.g.
-                "setenv
-                OPENSS_PREFIX /scratch/jeg/openss/install).&nbsp;&nbsp;
-                After
+              <li>&nbsp;This environment variable specifies where the <b>Open|SpeedShop</b>
+                binaries and libraries will be installed.&nbsp; Set this
+                variable to a path, (e.g. "setenv OPENSS_PREFIX
+                /scratch/jeg/openss/install).&nbsp;&nbsp; After
                 installation, a bin and lib directory containing the <b>Open|SpeedShop</b>
                 components, will be present under the
-                /scratch/jeg/openss/install
-                directory.</li>
+                /scratch/jeg/openss/install directory.</li>
             </ul>
             <h4 style="margin-left: 120px;"><a class="mozTocH4"
                 name="mozTocId613200"></a>OPENSS_INSTRUMENTOR</h4>
             <ul style="margin-left: 200px;">
-              <li>This environment variable
-                specifies the instrumentation mechanism to be used for
-                the online
+              <li>This environment variable specifies the
+                instrumentation mechanism to be used for the online
                 (dynamic instrumentation) mode of operation.&nbsp;
-                offline is the
-                default. &nbsp;&nbsp; If using the online
-                instrumentation mode of
-                operation OPENSS_INSTRUMENTOR can be set to "mrnet"
-                (e.g. setenv
-                OPENSS_INSTRUMENTOR mrnet).&nbsp; In this case MRNet and
-                Dyninst will
-                be built and online instrumentation will
-                available.&nbsp; By default,
-                the MRNet and Dyninst components are not built and
-                online
-                instrumentation is not available.<br>
+                offline is the default. &nbsp;&nbsp; If using the online
+                instrumentation mode of operation OPENSS_INSTRUMENTOR
+                can be set to "mrnet" (e.g. setenv OPENSS_INSTRUMENTOR
+                mrnet).&nbsp; In this case MRNet and Dyninst will be
+                built and online instrumentation will available.&nbsp;
+                By default, the MRNet and Dyninst components are not
+                built and online instrumentation is not available.<br>
               </li>
             </ul>
             <br>
             <h3 style="margin-left: 40px;"><a class="mozTocH3"
-                name="mozTocId911379"></a><b><b style="">Key
-                  Environment Variables Needed for Running
-                  Open|SpeedShop</b></b></h3>
+                name="mozTocId911379"></a><b><b style="">Key Environment
+                  Variables Needed for Running Open|SpeedShop</b></b></h3>
             <br>
             <h4 style="margin-left: 120px;"><a class="mozTocH4"
                 name="mozTocId579302"></a>OPENSS_PLUGIN_PATH<br>
             </h4>
             <div style="margin-left: 200px;">
               <ul>
-                <li>This environment variable
-                  specifies where the <b>Open|SpeedShop</b> main
-                  program will look for
-                  experiment plugins.&nbsp; This is in addition to the
-                  normal search
-                  path, which is
-                  "&lt;installdir&gt;/lib{64}/openspeedshop"&nbsp; Prior
-                  to <b>Open|SpeedShop</b>
-                  initialization set this
-                  variable to the path to your non-default
-                  plugins,&nbsp; (e.g.
-                  "setenv <span style="font-weight: bold;">OPENSS_PLUGIN_PATH</span>
+                <li>This environment variable specifies where the <b>Open|SpeedShop</b>
+                  main program will look for experiment plugins.&nbsp;
+                  This is in addition to the normal search path, which
+                  is "&lt;installdir&gt;/lib{64}/openspeedshop"&nbsp;
+                  Prior to <b>Open|SpeedShop</b> initialization set
+                  this variable to the path to your non-default
+                  plugins,&nbsp; (e.g. "setenv <span
+                    style="font-weight: bold;">OPENSS_PLUGIN_PATH</span>
                   /g2/install/lib/openspeedshop)</li>
               </ul>
             </div>
@@ -1194,11 +1083,10 @@ Build
             <div style="margin-left: 200px;">
               <ul>
                 <li>This environment variable points to the directories
-                  where
-                  Open|SpeedShop component libraries and Open|SpeedShop
-                  libraries are
-                  installed.&nbsp; Set this environment variable to
-                  $<span style="font-weight: bold;">OPENSS_PREFIX</span>/<span
+                  where Open|SpeedShop component libraries and
+                  Open|SpeedShop libraries are installed.&nbsp; Set this
+                  environment variable to $<span style="font-weight:
+                    bold;">OPENSS_PREFIX</span>/<span
                     style="font-weight: bold;">lib{64}</span> (e.g.
                   "setenv <span style="font-weight: bold;">LD_LIBRARY_PATH</span>
                   <span style="font-weight: bold;">$OPENSS_PREFIX</span>/<span
@@ -1213,10 +1101,10 @@ Build
               <ul>
                 <li><big><small>&nbsp;This envirionmnent variable s</small></big><big><small>pecifies
 the
+
                       MPI implementation being used by the MPI
-                      application whose</small></big>
-                  performance is being analyzed. Should be set to one of
-                  the currently
+                      application whose</small></big> performance is
+                  being analyzed. Should be set to one of the currently
                   supported MPI implementations:<br>
                 </li>
               </ul>
@@ -1235,10 +1123,9 @@ the
               <small><br>
               </small>Open|SpeedShop can auto-detect most of the MPI
               implementations that an MPI application is using.&nbsp;
-              So, this
-              variable will only be used
-              to override the auto-detection code, if need be.<span
-                style="font-family: monospace;"><br>
+              So, this variable will only be used to override the
+              auto-detection code, if need be.<span style="font-family:
+                monospace;"><br>
               </span></div>
             <br>
             <br>
@@ -1252,17 +1139,21 @@ the
                       <ul>
                         <li><big><small>This envirionmnent variable s</small></big><big><small>pecifies
 the
+
                               path to the Dyninst (dynamic
-                              instrumentation package) libraries and
-                              is only needed for running in the online
+                              instrumentation package) libraries and is
+                              only needed for running in the online
                               instrumentation mode of
                               operation.&nbsp;&nbsp;&nbsp; Set this
                               to:&nbsp; <span style="font-weight:
                                 bold;">$OPENSS_PREFIX/lib{64}/ </span></small></big><span
                             style="font-weight: bold;">libdyninstAPI_RT.so.1
+
                           </span>(e.g. <span style="font-weight: bold;">setenv
 DYNINSTAPI_RT_LIB
+
                             $OPENSS_PREFIX/lib64/libdyninstAPI_RT.so.1</span>).
+
                         </li>
                       </ul>
                     </ul>
@@ -1275,10 +1166,10 @@ DYNINSTAPI_RT_LIB
             <ul style="margin-left: 200px;">
               <li><big><small>This envirionmnent variable s</small></big><big><small>pecifies
 the
+
                     path to the Open|SpeedShop component executables and
-                    to the
-                    Open|SpeedShop executables.&nbsp; Set this to:&nbsp;
-                    $<span style="font-weight: bold;">OPENSS_PREFIX</span>/bin</small></big>
+                    to the Open|SpeedShop executables.&nbsp; Set this
+                    to:&nbsp; $<span style="font-weight: bold;">OPENSS_PREFIX</span>/bin</small></big>
                 (e.g. <span style="font-weight: bold;">setenv PATH
                   $OPENSS_PREFIX/bin:$PATH</span>).</li>
             </ul>
@@ -1288,63 +1179,54 @@ the
             <ul style="margin-left: 200px;">
               <li><big><small>This envirionmnent variable s</small></big><big><small>pecifies
 the
+
                     path to where the offline version of openss will
-                    store the rawdata
-                    files representing the performance data that was
-                    gathered from the
-                    user application. &nbsp; This is needed on clusters
-                    where the default
+                    store the rawdata files representing the performance
+                    data that was gathered from the user application.
+                    &nbsp; This is needed on clusters where the default
                     rawdata file directory, /tmp, is not shared across
-                    the nodes. &nbsp; If
-                    this is the case on the cluster you are running "<span
-                      style="font-weight: bold;">openss -offline</span>"
-                    or
-                    using the GUI or CLI to run <span
+                    the nodes. &nbsp; If this is the case on the cluster
+                    you are running "<span style="font-weight: bold;">openss
+                      -offline</span>" or using the GUI or CLI to run <span
                       style="font-weight: bold;">offline </span>experiment,
 then
+
                     <span style="font-weight: bold;">OPENSS_RAWDATA_DIR</span>
                     must be set to a shared file system directory.&nbsp;
-                    Otherwise, /tmp is
-                    used. &nbsp;&nbsp; Set this to:&nbsp; <span
-                      style="font-weight: bold;">OPENSS_RAWDATA_DIR</span>
+                    Otherwise, /tmp is used. &nbsp;&nbsp; Set this
+                    to:&nbsp; <span style="font-weight: bold;">OPENSS_RAWDATA_DIR</span>
                     &lt;path_to_subdir_for_rawdata_file_writing&gt; </small></big>(e.g.
+
                 <span style="font-weight: bold;">setenv
-                  OPENSS_RAWDATA_DIR
-                  /p/lscratchc/jeg</span>).</li>
+                  OPENSS_RAWDATA_DIR /p/lscratchc/jeg</span>).</li>
             </ul>
             <h4 style="margin-left: 120px;"><a class="mozTocH4"
                 name="mozTocId588440"></a>OPENSS_DB_DIR</h4>
             <div style="margin-left: 200px;">
               <ul>
                 <li>This envirionmnent variable specifies the path to
-                  where the
-                  offline version of openss will build the OpenSpeedShop
-                  database file.
-                  If you are on a file system that does not have file
-                  locking
-                  turned on, the sqlite component will not be able to
-                  create the
+                  where the offline version of openss will build the
+                  OpenSpeedShop database file. If you are on a file
+                  system that does not have file locking turned on, the
+                  sqlite component will not be able to create the
                   database file.&nbsp; You can use this environment
-                  variable to specify a
-                  path to a file system that does have locking turned to
-                  be used for the
-                  database file creation.</li>
+                  variable to specify a path to a file system that does
+                  have locking turned to be used for the database file
+                  creation.</li>
               </ul>
             </div>
             <br>
             <h3 style="margin-left: 40px;"><a class="mozTocH3"
                 name="mozTocId435044"></a><a
                 name="OpenSpeedShop_Tested_Platforms:"></a>Open|SpeedShop
-              Tested
-              Platforms:</h3>
+
+              Tested Platforms:</h3>
             <div style="margin-left: 40px;"><b>Open|SpeedShop</b> has
-              been run
-              successfully on IA32, IA64, and X86_64 platforms.&nbsp;
-              There are Linux
-              operating
-              system differences that can cause problems.&nbsp;&nbsp;
-              The following
-              combinations have been tried and/or successfully tested:<br>
+              been run successfully on IA32, IA64, and X86_64
+              platforms.&nbsp; There are Linux operating system
+              differences that can cause problems.&nbsp;&nbsp; The
+              following combinations have been tried and/or successfully
+              tested:<br>
               <ul>
                 <li>SLES 10 IA64</li>
                 <li>Fedora 3-15 on x86 and x86_64<br>
@@ -1364,12 +1246,11 @@ then
             <h4 style="margin-left: 40px;"><a class="mozTocH4"
                 name="mozTocId871553"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               Note for Ubuntu and Debian these packages are needed to be
-              applied to
-              the base systems:</h4>
+              applied to the base systems:</h4>
             <br>
             <div style="margin-left: 80px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              sudo
-              apt-get install automake autoconf binutils libtool<br>
+
+              sudo apt-get install automake autoconf binutils libtool<br>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install flex
               bison<br>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install rpm<br>
@@ -1383,8 +1264,7 @@ then
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install
               binutils-dev<br>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install
-              libelf1 elfutils
-              libelf-dev<br>
+              libelf1 elfutils libelf-dev<br>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install g++<br>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install make
               patch<br>
