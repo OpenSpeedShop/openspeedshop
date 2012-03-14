@@ -485,6 +485,13 @@ AC_DEFUN([AC_PKG_MPICH2], [
         MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
     fi
 
+    if test x"$mpich2_driver" == x"bluegeneq"; then
+	found_mpich2=1
+	MPICH2_CC="cc"
+        MPICH2_LIBS="-lmpich"
+        MPICH2_LDFLAGS="-L$mpich2_dir/lib"
+    fi
+
     if test x"$mpich2_driver" == x"bluegene"; then
 	found_mpich2=1
 	MPICH2_CC="cc"
