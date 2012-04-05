@@ -255,10 +255,16 @@ AC_ARG_WITH(target-os,
                     TARGET_OS=$withval, TARGET_OS="$host")
 
 
+AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
+AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
+AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
 AM_CONDITIONAL(BUILD_TARGETED, false)
 case "$TARGET_OS" in
     cray-xt5)
 	AM_CONDITIONAL(BUILD_TARGETED, true)
+	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
 	AC_DEFINE(BUILD_TARGETED, 1, [Define to 0 if not building a targeted runtime.])
 	AC_DEFINE(TARGET_OS_CRAYXT5, 1, [Do not define if not building for targeted cray-xt5.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,cray-xt5,
@@ -266,6 +272,9 @@ case "$TARGET_OS" in
 	;; 
     cray-xt4)
 	AM_CONDITIONAL(BUILD_TARGETED, true)
+	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
 	AC_DEFINE(BUILD_TARGETED, 1, [Define to 0 if not building a targeted runtime.])
 	AC_DEFINE(TARGET_OS_CRAYXT4, 1, [Do not define if not building for targeted cray-xt4.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,cray-xt4,
@@ -273,6 +282,9 @@ case "$TARGET_OS" in
 	;; 
     bgl)
 	AM_CONDITIONAL(BUILD_TARGETED, true)
+	AM_CONDITIONAL(BUILD_TARGETED_BGL, true)
+	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
 	AC_DEFINE(BUILD_TARGETED, 1, [Define to 0 if not building a targeted runtime.])
 	AC_DEFINE(TARGET_OS_BGL, 1, [Do not define if not building for targeted bgl.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,bgl,
@@ -280,6 +292,9 @@ case "$TARGET_OS" in
 	;; 
     bgp)
 	AM_CONDITIONAL(BUILD_TARGETED, true)
+	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGP, true)
+	AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
 	AC_DEFINE(BUILD_TARGETED, 1, [Define to 0 if not building a targeted runtime.])
 	AC_DEFINE(TARGET_OS_BGP, 1, [Do not define if not building for targeted bgp.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,bgp,
@@ -287,6 +302,9 @@ case "$TARGET_OS" in
 	;; 
     bgq)
         AM_CONDITIONAL(BUILD_TARGETED, true)
+	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGQ, true)
         AC_DEFINE(BUILD_TARGETED, 1, [Define to 0 if not building a targeted runtime.])
         AC_DEFINE(TARGET_OS_BGQ, 1, [Do not define if not building for targeted bgq.])
         AC_DEFINE_UNQUOTED(TARGET_OS,bgq,
@@ -294,12 +312,18 @@ case "$TARGET_OS" in
         ;;
     *)
 	AM_CONDITIONAL(BUILD_TARGETED, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
 	AC_DEFINE(BUILD_TARGETED, 0, [Define to 1 if building a targeted runtime.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,$host,
 			   [Name targeted OS])
 	;; 
 esac
 
+AC_SUBST(BUILD_TARGETED_BGL)
+AC_SUBST(BUILD_TARGETED_BGP)
+AC_SUBST(BUILD_TARGETED_BGQ)
 AC_SUBST(BUILD_TARGETED)
 AC_SUBST(TARGET_OS)
 
