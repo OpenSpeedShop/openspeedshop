@@ -251,12 +251,15 @@ then
      echo "        use to execute your program: but in quotes"
      echo "    For example: $0 \"mpirun -N 16 -n 256 ./smg2000 -n 50 50 50\" [extra_args]"
      echo "        where the optional \"extra_args\" is defined as follows:"
-     echo "            \"high\"     - Increase the default sampling rate or threshold "
-     echo "                           value to increase the number of samples taken."
-     echo "            \"low\"      - Decrease the default sampling rate or threshold "
-     echo "                           value to decrease the number of samples taken."
-     echo "            \"default\"  - Use the default sampling rate or threshold value. "
-     echo "                           This will override any environment variable settings."
+     if [[ "$experiment_name" != "ossio" && "$experiment_name" != "ossiot"  && 
+           "$experiment_name" != "ossmpi" && "$experiment_name" != "ossmpit" && "$experiment_name" != "ossmpiotf" ]]; then
+       echo "            \"high\"     - Increase the default sampling rate or threshold "
+       echo "                           value to increase the number of samples taken."
+       echo "            \"low\"      - Decrease the default sampling rate or threshold "
+       echo "                           value to decrease the number of samples taken."
+       echo "            \"default\"  - Use the default sampling rate or threshold value. "
+       echo "                           This will override any environment variable settings."
+     fi
    fi
    if [[ "$experiment_name" == "osspcsamp" || "$experiment_name" == "ossusertime" ]]; then
      echo "            \"rate value\"  - Use this sampling rate"
