@@ -257,6 +257,47 @@ AC_DEFUN([AC_PKG_TARGET_BINUTILS], [
 
 ])
 
+
+################################################################################
+# Check for the location of the BG personality includes for Target Architecture 
+################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_PERSONALITY], [
+
+    AC_ARG_WITH(target-personality,
+                AC_HELP_STRING([--with-target-personality=DIR],
+                               [personality target architecture installation @<:@/opt@:>@]),
+                target_personality_dir=$withval, target_personality_dir="/zzz")
+
+    AC_MSG_CHECKING([for Targetted personality support])
+
+    if test "$target_personality_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_PERSONALITY, false)
+      TARGET_PERSONALITY_DIR=""
+      TARGET_PERSONALITY_CPPFLAGS=""
+      AC_MSG_RESULT(no)
+    else
+      AC_MSG_RESULT(yes)
+      AM_CONDITIONAL(HAVE_TARGET_PERSONALITY, true)
+      AC_DEFINE(HAVE_TARGET_PERSONALITY, 1, [Define to 1 if you have a target version of PERSONALITY.])
+      case "$target_os" in
+	cray-xt5)
+            TARGET_PERSONALITY_DIR="$target_personality_dir"
+	    TARGET_PERSONALITY_CPPFLAGS="-I$target_personality_dir/include"
+            ;;
+	*)
+            TARGET_PERSONALITY_DIR="$target_personality_dir"
+	    TARGET_PERSONALITY_CPPFLAGS="-I$target_personality_dir/include"
+            ;;
+      esac
+    fi
+
+
+    AC_SUBST(TARGET_PERSONALITY_CPPFLAGS)
+    AC_SUBST(TARGET_PERSONALITY_DIR)
+
+])
+
 ################################################################################
 # Check for DPCL (http://oss.software.ibm.com/developerworks/opensource/dpcl)
 ################################################################################

@@ -18,7 +18,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-AC_INIT(OpenSpeedShop, 2.0.2b1)
+AC_INIT(OpenSpeedShop, 2.0.2b3)
 AC_COPYRIGHT([[Copyright (c) 2006-2012 Krell Institute. All Rights Reserved.]])
 AC_CONFIG_AUX_DIR([libltdl/config])
 AM_INIT_AUTOMAKE
@@ -286,6 +286,7 @@ case "$TARGET_OS" in
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
 	AC_DEFINE(BUILD_TARGETED, 1, [Define to 0 if not building a targeted runtime.])
+	AC_DEFINE(BUILD_TARGETED_BGL, 1, [Define to 0 if not building a targeted runtime.])
 	AC_DEFINE(TARGET_OS_BGL, 1, [Do not define if not building for targeted bgl.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,bgl,
 			   [Name targeted OS])
@@ -296,6 +297,7 @@ case "$TARGET_OS" in
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, true)
 	AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
 	AC_DEFINE(BUILD_TARGETED, 1, [Define to 0 if not building a targeted runtime.])
+	AC_DEFINE(BUILD_TARGETED_BGP, 1, [Define to 0 if not building a targeted runtime.])
 	AC_DEFINE(TARGET_OS_BGP, 1, [Do not define if not building for targeted bgp.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,bgp,
 			   [Name targeted OS])
@@ -306,6 +308,7 @@ case "$TARGET_OS" in
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGQ, true)
         AC_DEFINE(BUILD_TARGETED, 1, [Define to 0 if not building a targeted runtime.])
+	AC_DEFINE(BUILD_TARGETED_BGQ, 1, [Define to 0 if not building a targeted runtime.])
         AC_DEFINE(TARGET_OS_BGQ, 1, [Do not define if not building for targeted bgq.])
         AC_DEFINE_UNQUOTED(TARGET_OS,bgq,
                            [Name targeted OS])
@@ -467,6 +470,7 @@ AC_PKG_SQLITE()
 AC_PKG_TARGET_OPENMP()
 AC_PKG_TARGET_STDC_PLUSPLUS()
 AC_PKG_TARGET_BINUTILS()
+AC_PKG_TARGET_PERSONALITY()
 AC_PKG_TARGET_LIBDWARF()
 AC_PKG_TARGET_LIBMONITOR()
 AC_PKG_TARGET_LIBPTHREAD()
