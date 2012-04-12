@@ -16,7 +16,6 @@
  * ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * *******************************************************************************/
 
-#if defined(TARGET_OS_BGP) 
 #include <stdio.h>
 #include <common/bgp_personality.h>
 #include <common/bgp_personality_inlines.h>
@@ -29,18 +28,18 @@ static _BGP_Personality_t oss_bgp_personality;
 void oss_bgp_platform_personality_init() {
 
   Kernel_GetPersonality(&oss_bgp_personality, sizeof(_BGP_Personality_t));
+  //fprintf(stdout, "oss_bgp_personality=0x%llx\n", oss_bgp_personality);
 
 }
-
 
  /* Get unique numeric SMP-node identifier */
 long oss_bgp_platform_personality_node_id() {
 #ifdef BGP_GROUP_ON_NODEBOARD
-  _BGP_UniversalComponentIdentifier uci;
-  uci.UCI = oss_bgp_personality.Kernel_Config.UniversalComponentIdentifier;
+  _BGP_UniversalComponentIdentifier bgp_uci;
+  bgp_uci.UCI = oss_bgp_personality.Kernel_Config.UniversalComponentIdentifier;
   /* use upper part of UCI (upto NodeCard, ignore lower 14bits)
     ** but only use the 13 bits (1FFF) that describe row,col,mp,nc */
-  return ((uci.UCI>>14)&0x1FFF);
+  return ((bgp_uci.UCI>>14)&0x1FFF);
 #else
   return ( BGP_Personality_psetNum(&oss_bgp_personality) *
            BGP_Personality_psetSize(&oss_bgp_personality) +
@@ -50,23 +49,28 @@ long oss_bgp_platform_personality_node_id() {
 }
 
 static void oss_bgp_platform_personality_getNodeidString(const _BGP_Personality_t *p, char *buf) {
-   _BGP_UniversalComponentIdentifier uci;
-  uci.UCI = p->Kernel_Config.UniversalComponentIdentifier;
+   _BGP_UniversalComponentIdentifier bgp_uci;
+  bgp_uci.UCI = p->Kernel_Config.UniversalComponentIdentifier;
 
-  if ((uci.ComputeCard.Component == _BGP_UCI_Component_ComputeCard) ||
-      (uci.IOCard.Component == _BGP_UCI_Component_IOCard)) {
+  if ((bgp_uci.ComputeCard.Component == _BGP_UCI_Component_ComputeCard) ||
+      (bgp_uci.IOCard.Component == _BGP_UCI_Component_IOCard)) {
 
-    unsigned row = uci.ComputeCard.RackRow;
-    unsigned col = uci.ComputeCard.RackColumn;
-    unsigned mp  = uci.ComputeCard.Midplane;
-    unsigned nc  = uci.ComputeCard.NodeCard;
+    unsigned row = bgp_uci.ComputeCard.RackRow;
+    unsigned col = bgp_uci.ComputeCard.RackColumn;
+    unsigned mp  = bgp_uci.ComputeCard.Midplane;
+    unsigned nc  = bgp_uci.ComputeCard.NodeCard;
+    //fprintf(stdout, "after 4 stmts, R%x%x-M%d-N%x\n", row, col, mp, nc);
 
-    if (row == 0xff)
+    if (row == 0xff) {
       sprintf(buf, "Rxx-Mx-N%x", nc);
-    else
+      //fprintf(stdout, "if 0xff, R%x%x-M%d-N%x\n", row, col, mp, nc);
+    } else {
       sprintf(buf, "R%x%x-M%d-N%x", row, col, mp, nc);
+      // fprintf(stdout, "if not 0xff, R%x%x-M%d-N%x\n", row, col, mp, nc);
+    }
   } else {
     sprintf(buf, "R?\?-M?-N?");
+    //fprintf(stdout, "else, R?\?-M?-N? \n");
   }
 }
 
@@ -74,7 +78,8 @@ static void oss_bgp_platform_personality_getNodeidString(const _BGP_Personality_
 char* oss_bgp_platform_personality_node_name() {
 #ifdef BGP_GROUP_ON_NODEBOARD
   static char buf[BGPPERSONALITY_MAX_LOCATION];
-  bgp_getNodeidString(&oss_bgp_personality, buf);
+  oss_bgp_platform_personality_getNodeidString(&oss_bgp_personality, buf);
+  //fprintf(stdout, "buf=%s\n", buf);
   return buf;
 #else
   static char node[128];
@@ -82,6 +87,7 @@ char* oss_bgp_platform_personality_node_name() {
   unsigned y = BGP_Personality_yCoord(&oss_bgp_personality);
   unsigned z = BGP_Personality_zCoord(&oss_bgp_personality);
 
+  //fprintf(stdout, "node-%03d-%03d-%03d-%d\n", x, y, z, Kernel_PhysicalProcessorID());
   sprintf(node, "node-%03d-%03d-%03d-%d", x, y, z, Kernel_PhysicalProcessorID());
   return node;
 #endif
@@ -95,6 +101,3 @@ int oss_bgp_platform_personality_num_cpus() {
   return 1;
 #endif
 }
-
-#endif
-

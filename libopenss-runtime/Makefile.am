@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2010 Krell Institute All Rights Reserved.
 # Copyright (c) 2008 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2006-2012 Krell Institute All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -129,9 +129,16 @@ libopenss_runtime_offline_la_LIBADD = \
 endif
 
 if HAVE_TARGET_LIBMONITOR
+if HAVE_TARGET_PERSONALITY
+libopenss_runtime_offline_la_CFLAGS = \
+	-DOPENSS_OFFLINE \
+	@TARGET_PERSONALITY_CPPFLAGS@ \
+	@TARGET_LIBUNWIND_CPPFLAGS@
+else
 libopenss_runtime_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE \
 	@TARGET_LIBUNWIND_CPPFLAGS@
+endif
 
 libopenss_runtime_offline_la_LDFLAGS = \
 	-static \
@@ -238,6 +245,18 @@ INSTRUMENTOR_SOURCES = \
 	OpenSS_SetPCInContext.c \
 	OpenSS_Path_From_Pid.c \
 	RuntimeAPI.h
+
+if BUILD_TARGETED_BGQ
+INSTRUMENTOR_SOURCES += OpenSS_BGQNodeName.c
+endif
+
+if BUILD_TARGETED_BGP
+INSTRUMENTOR_SOURCES += OpenSS_BGPNodeName.c
+endif
+
+if BUILD_TARGETED_BGL
+INSTRUMENTOR_SOURCES += OpenSS_BGLNodeName.c
+endif
 
 if HAVE_PAPI
 libopenss_runtime_papi_la_SOURCES = \

@@ -61,12 +61,21 @@ void OpenSS_InitializeDataHeader(int experiment, int collector,
     /* Zero the header */
     memset(header, 0, sizeof(OpenSS_DataHeader));
 
+#if defined(BUILD_TARGETED_BGP)
+    oss_bgp_platform_personality_init();
+#endif
+
     /* Fill in the specified experiment and collector identifiers */
     header->experiment = experiment;
     header->collector = collector;
 
     /* Fill in the name of the host containing this thread */
+
+#if defined(BUILD_TARGETED_BGP)
+    snprintf(header->host, sizeof(header->host) - 1, "%s", oss_bgp_platform_personality_node_name());
+#else
     Assert(gethostname(header->host, HOST_NAME_MAX) == 0);
+#endif
 
 
 #if !defined(OPENSS_OFFLINE)
