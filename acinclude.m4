@@ -879,8 +879,8 @@ AC_DEFUN([AC_PKG_MRNET], [
 
     AC_ARG_WITH(mrnet-version,
                 AC_HELP_STRING([--with-mrnet-version=VERS],
-                               [mrnet-version installation @<:@2.2@:>@]),
-                mrnet_vers=$withval, mrnet_vers="2.2")
+                               [mrnet-version installation @<:@20110714@:>@]),
+                mrnet_vers=$withval, mrnet_vers="20110714")
 
 #   Temporary fix for problems with the MRNet public header files.  They depend on os_linux or other flags being set
 
@@ -925,6 +925,9 @@ AC_DEFUN([AC_PKG_MRNET], [
             ;;
 	"400a")
             MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -I$mrnet_dir/$abi_libdir -DMRNET_30=1 -DMRNET_301=1"
+            ;;
+	"4.0.0")
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -I$mrnet_dir/$abi_libdir/mrnet-4.0.0/include -I$mrnet_dir/$abi_libdir/xplat-4.0.0/include -DMRNET_30=1 -DMRNET_301=1"
             ;;
 	*)
             MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_30=1 -DMRNET_301=1"
