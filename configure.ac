@@ -269,6 +269,7 @@ case "$TARGET_OS" in
 	AC_DEFINE(TARGET_OS_CRAYXT5, 1, [Do not define if not building for targeted cray-xt5.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,cray-xt5,
 			   [Name targeted OS])
+        target_os=cray-xt5
 	;; 
     cray-xt4)
 	AM_CONDITIONAL(BUILD_TARGETED, true)
@@ -279,6 +280,7 @@ case "$TARGET_OS" in
 	AC_DEFINE(TARGET_OS_CRAYXT4, 1, [Do not define if not building for targeted cray-xt4.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,cray-xt4,
 			   [Name targeted OS])
+        target_os=cray-xt4
 	;; 
     bgl)
 	AM_CONDITIONAL(BUILD_TARGETED, true)
@@ -290,6 +292,7 @@ case "$TARGET_OS" in
 	AC_DEFINE(TARGET_OS_BGL, 1, [Do not define if not building for targeted bgl.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,bgl,
 			   [Name targeted OS])
+        target_os=bgl
 	;; 
     bgp)
 	AM_CONDITIONAL(BUILD_TARGETED, true)
@@ -301,6 +304,7 @@ case "$TARGET_OS" in
 	AC_DEFINE(TARGET_OS_BGP, 1, [Do not define if not building for targeted bgp.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,bgp,
 			   [Name targeted OS])
+        target_os=bgp
 	;; 
     bgq)
         AM_CONDITIONAL(BUILD_TARGETED, true)
@@ -312,6 +316,7 @@ case "$TARGET_OS" in
         AC_DEFINE(TARGET_OS_BGQ, 1, [Do not define if not building for targeted bgq.])
         AC_DEFINE_UNQUOTED(TARGET_OS,bgq,
                            [Name targeted OS])
+        target_os=bgq
         ;;
     *)
 	AM_CONDITIONAL(BUILD_TARGETED, false)

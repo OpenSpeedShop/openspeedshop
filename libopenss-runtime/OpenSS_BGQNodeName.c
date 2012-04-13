@@ -17,14 +17,18 @@
  * *******************************************************************************/
 
 
-#if defined(TARGET_OS_BGQ) 
+#include <hwi/include/common/uci.h>
+#include <spi/include/kernel/process.h>
+#include <spi/include/kernel/location.h>
 #include <stdio.h>
-#include <common/bgq_personality.h>
-#include <common/bgq_personality_inlines.h>
-#include <spi/kernel_interface.h>
+
+//#include <common/bgq_personality.h>
+//#include <common/bgq_personality_inlines.h>
+//#include <spi/kernel_interface.h>
 
 #define BGQ_GROUP_ON_NODEBOARD
 
+#if 0
 static _BGQ_Personality_t oss_bgq_personality;
 
 void oss_bgq_platform_personality_init() {
@@ -49,43 +53,30 @@ long oss_bgq_platform_personality_node_id() {
            + Kernel_PhysicalProcessorID();
 #endif
 }
+#endif
 
-static void oss_bgq_platform_personality_getNodeidString(const _BGQ_Personality_t *p, char *buf) {
-   _BGQ_UniversalComponentIdentifier uci;
-  uci.UCI = p->Kernel_Config.UniversalComponentIdentifier;
+static void oss_bgq_platform_personality_getNodeidString(char *buf) {
 
-  if ((uci.ComputeCard.Component == _BGQ_UCI_Component_ComputeCard) ||
-      (uci.IOCard.Component == _BGQ_UCI_Component_IOCard)) {
+    Personality_t pers;
+    BG_UniversalComponentIdentifier uci;
+    Kernel_GetPersonality( &pers, sizeof(pers) );
+    char ucStrg[128];
+    uci = pers.Kernel_Config.UCI;
+    if (bg_uci_toString( uci, ucStrg) < 0) {
+        ucStrg[0] = '\0';
+    }
+    buf = &ucStrg;
+    fprintf(stdout, "buf=%s, ucStrg=%s, core ID(%d) Thread ID(%d)\n",
+                buf, ucStrg, Kernel_ProcessorCoreID(), Kernel_ProcessorThreadID());
 
-    unsigned row = uci.ComputeCard.RackRow;
-    unsigned col = uci.ComputeCard.RackColumn;
-    unsigned mp  = uci.ComputeCard.Midplane;
-    unsigned nc  = uci.ComputeCard.NodeCard;
 
-    if (row == 0xff)
-      sprintf(buf, "Rxx-Mx-N%x", nc);
-    else
-      sprintf(buf, "R%x%x-M%d-N%x", row, col, mp, nc);
-  } else {
-    sprintf(buf, "R?\?-M?-N?");
-  }
 }
 
 /* unique string SMP-node identifier */
 char* oss_bgq_platform_personality_node_name() {
-#ifdef BGQ_GROUP_ON_NODEBOARD
-  static char buf[BGQPERSONALITY_MAX_LOCATION];
-  bgq_getNodeidString(&oss_bgq_personality, buf);
+  static char buf[128];
+  oss_bgq_platform_personality_getNodeidString(buf);
   return buf;
-#else
-  static char node[128];
-  unsigned x = BGQ_Personality_xCoord(&oss_bgq_personality);
-  unsigned y = BGQ_Personality_yCoord(&oss_bgq_personality);
-  unsigned z = BGQ_Personality_zCoord(&oss_bgq_personality);
-
-  sprintf(node, "node-%03d-%03d-%03d-%d", x, y, z, Kernel_PhysicalProcessorID());
-  return node;
-#endif
 }
 
 /* number of CPUs */
@@ -96,6 +87,3 @@ int oss_bgq_platform_personality_num_cpus() {
   return 1;
 #endif
 }
-
-#endif
-

@@ -284,10 +284,17 @@ AC_DEFUN([AC_PKG_TARGET_PERSONALITY], [
 	cray-xt5)
             TARGET_PERSONALITY_DIR="$target_personality_dir"
 	    TARGET_PERSONALITY_CPPFLAGS="-I$target_personality_dir/include"
+	    TARGET_PERSONALITY_OS="$target_os"
+            ;;
+	bgq)
+            TARGET_PERSONALITY_DIR="$target_personality_dir"
+	    TARGET_PERSONALITY_CPPFLAGS="-I$target_personality_dir -I$target_personality_dir/spi/include -I$target_personality_dir/spi/include/kernel/cnk -I$target_personality_dir/spi/include/kernel"
+	    TARGET_PERSONALITY_OS="$target_os"
             ;;
 	*)
             TARGET_PERSONALITY_DIR="$target_personality_dir"
-	    TARGET_PERSONALITY_CPPFLAGS="-I$target_personality_dir/include"
+	    TARGET_PERSONALITY_CPPFLAGS="-I$target_personality_dir -I$target_personality_dir/include"
+	    TARGET_PERSONALITY_OS="$target_os"
             ;;
       esac
     fi
@@ -295,6 +302,7 @@ AC_DEFUN([AC_PKG_TARGET_PERSONALITY], [
 
     AC_SUBST(TARGET_PERSONALITY_CPPFLAGS)
     AC_SUBST(TARGET_PERSONALITY_DIR)
+    AC_SUBST(TARGET_PERSONALITY_OS)
 
 ])
 
