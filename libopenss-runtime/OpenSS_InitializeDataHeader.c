@@ -73,6 +73,8 @@ void OpenSS_InitializeDataHeader(int experiment, int collector,
 
 #if defined(BUILD_TARGETED_BGP)
     snprintf(header->host, sizeof(header->host) - 1, "%s", oss_bgp_platform_personality_node_name());
+#elif defined(BUILD_TARGETED_BGQ)
+    snprintf(header->host, sizeof(header->host) - 1, "%s", oss_bgq_platform_personality_node_name());
 #else
     Assert(gethostname(header->host, HOST_NAME_MAX) == 0);
 #endif
