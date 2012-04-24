@@ -1508,7 +1508,7 @@ AC_DEFUN([AC_PKG_PAPI], [
 	*)
             if test -f $papi_dir/$abi_libdir/libperfctr.so -o -f /usr/$abi_libdir/libperfctr.so; then
               PAPI_LIBS="-lpapi -lperfctr -lpfm"
-            elif test -f $papi_dir/$abi_libdir/libpfm.so -o -f /usr/$abi_libdir/libpfm.so
+            elif test -f $papi_dir/$abi_libdir/libpfm.so -o -f /usr/$abi_libdir/libpfm.so \
                    -o -f $papi_dir/$abi_libdir/libpfm.a -o -f /usr/$abi_libdir/libpfm.a; then
               PAPI_LIBS="-lpapi -lpfm"
             else
