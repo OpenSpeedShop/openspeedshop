@@ -879,8 +879,8 @@ AC_DEFUN([AC_PKG_MRNET], [
 
     AC_ARG_WITH(mrnet-version,
                 AC_HELP_STRING([--with-mrnet-version=VERS],
-                               [mrnet-version installation @<:@20110714@:>@]),
-                mrnet_vers=$withval, mrnet_vers="20110714")
+                               [mrnet-version installation @<:@4.0.0@:>@]),
+                mrnet_vers=$withval, mrnet_vers="4.0.0")
 
 #   Temporary fix for problems with the MRNet public header files.  They depend on os_linux or other flags being set
 
