@@ -621,6 +621,40 @@ AC_DEFUN([AC_PKG_MPICH2], [
 
     fi
 
+#
+# Check now for Intel MPI version of installation for their MPICH2 based MPI Implementation with libmpi not libmpich
+#
+    if test $found_mpich2 -eq 0 && test "$abi_libdir" == "lib" ; then
+
+       AC_MSG_CHECKING([for Intel 32 bit MPICH2 library and headers using mpicc])
+
+       MPICH2_CC="$mpich2_dir/bin/mpicc"
+       MPICH2_CPPFLAGS="-I$mpich2_dir/include"
+       MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+       MPICH2_LIBS="-lmpi"
+       MPICH2_HEADER="$mpich2_dir/include/mpi.h"
+       MPICH2_DIR="$mpich2_dir"
+
+       CC="$MPICH2_CC"
+       CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+
+       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]]),
+
+         if (test -f $mpich2_dir/$abi_libdir/libmpi.so) ; then
+            MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+	    found_mpich2=1
+            AC_MSG_CHECKING([found Intel 32 bit MPICH2 library and headers using mpicc])
+         fi
+
+	, )
+
+    fi
+
 
 #
 # Check now for Intel MPI version of installation for their MPICH2 based MPI Implementation
