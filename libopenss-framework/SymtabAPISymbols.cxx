@@ -30,6 +30,8 @@
 #include "Statement.hxx"
 #include "dyninst/Symtab.h"
 #include "dyninst/LineInformation.h"
+#include "dyninst/Function.h"
+
 
 using namespace OpenSpeedShop::Framework;
 using namespace Dyninst;
@@ -75,8 +77,9 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 	    Symtab *symtab;
 	    bool err = Symtab::openFile(symtab, objname);
 
-	    OpenSpeedShop::Framework::Address image_offset(symtab->imageOffset());
-	    OpenSpeedShop::Framework::Address image_length(symtab->imageLength());
+
+	    Framework::Address image_offset(symtab->imageOffset());
+	    Framework::Address image_length(symtab->imageLength());
 	    AddressRange image_range(image_offset,image_offset+image_length);
 
 // DEBUG
@@ -86,51 +89,54 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 	    }
 #endif
 
-	    OpenSpeedShop::Framework::Address base(0);
+	    Framework::Address base(0);
 	    if ( (image_range.getBegin() - lrange.getBegin()) < 0 ) {
 		base = lrange.getBegin();
 	    }
 
-	    std::vector <Symbol *>fsyms;
+	    std::vector <SymtabAPI::Function *>fsyms;
 
-	    if(symtab && !symtab->getAllSymbolsByType(fsyms,Symbol::ST_FUNCTION)) {
+	    if(symtab && !symtab->getAllFunctions(fsyms)) {
 		std::cerr << "getAllSymbolsByType unable to get all Functions "
 		    << Symtab::printError(Symtab::getLastSymtabError()).c_str()
 		    << std::endl;
 	    }
 
 
-	    std::set<Address> function_begin_addresses;
+	    std::set<Framework::Address> function_begin_addresses;
+	    std::vector<SymtabAPI::Function *>::iterator fsit;
 
-	    for(unsigned i = 0; i< fsyms.size();i++){
-		OpenSpeedShop::Framework::Address begin(fsyms[i]->getAddr());
-		OpenSpeedShop::Framework::Address end(begin + fsyms[i]->getSize());
-		begin = begin+base;
-		end = end+base;
-	     
-		if (begin > end) continue;
+	    for(fsit = fsyms.begin(); fsit != fsyms.end(); ++fsit) {
+		int sym_size = (*fsit)->getSize();
+		Framework::Address begin((*fsit)->getOffset());
+		Framework::Address end(begin + sym_size);
 
-		if (begin == end) {
-		   end = end+1;
-		}
+		// don't let an invalid range through...
+		if (begin >= end) continue;
 
 		AddressRange frange(begin,end);
 
 		for (unsigned ii = 0; ii < addrbuf->length; ++ii) {
-		    if (frange.doesContain(Address(addrbuf->pc[ii]))) {
+		    Framework::Address theAddr(addrbuf->pc[ii] - base.getValue()) ; 
+		    if (frange.doesContain( theAddr )) {
+
+			std::string out_name =
+				(*fsit)->getFirstSymbol()->getPrettyName();
 // DEBUG
 #ifndef NDEBUG
 			if(is_debug_symtabapi_symbols_detailed_enabled) {
-		            std::cerr << "ADDING FUNCTION " << fsyms[i]->getName()
-			    << " RANGE " << begin << "," << end
-			    << " for pc " << Address(addrbuf->pc[ii])
+		            std::cerr << "ADDING FUNCTION " << out_name
+			    << " RANGE " << frange
+			    << " for pc " << Framework::Address(addrbuf->pc[ii])
+			    << " adjusted pc " << theAddr
 			    << std::endl;
 			}
 #endif
-			st.addFunction(begin, end,fsyms[i]->getName());
+			st.addFunction(begin+base,end+base,out_name);
 
-			// Record the function begin addresses, This allows the cli and gui
-			// to focus on or display the first statement of a function.
+			// Record the function begin addresses, This allows the
+			// cli and gui to focus on or display the first
+			// statement of a function.
 			// The function begin addresses will be processed later
 			// for statement info and added to our statements.
 			function_begin_addresses.insert(begin);
@@ -153,7 +159,8 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 	        if(is_debug_symtabapi_symbols_detailed_enabled) {
 		    for(unsigned i = 0; i< mods.size();i++){
 		        module_range =
-			   AddressRange(mods[i]->addr(), mods[i]->addr() + symtab->imageLength());
+			   AddressRange(mods[i]->addr(),
+					mods[i]->addr() + symtab->imageLength());
 		        module_name = mods[i]->fullName();
 		        std::cerr << "getAllModules module name " << mods[i]->fullName()
 			    << " Range " << module_range << std::endl;
@@ -182,13 +189,14 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 		    for(;iter!=lineInformation->end();iter++) {
 			const std::pair<Offset, Offset> range = iter->first;
 			LineNoTuple line = iter->second;
-			OpenSpeedShop::Framework::Address b(range.first);
-			OpenSpeedShop::Framework::Address e(range.second);
+			Framework::Address b(range.first);
+			Framework::Address e(range.second);
 
+			//TODO: Do we need to consider offsets here too?
 			AddressRange srange(b+base,e+base);
 		        for (unsigned ii = 0; ii < addrbuf->length; ++ii) {
-
-			    if(srange.doesContain(Address(addrbuf->pc[ii]))) {
+			    Framework::Address saddress(Framework::Address(addrbuf->pc[ii]));
+			    if(srange.doesContain(saddress)) {
 // DEBUG
 #ifndef NDEBUG
 				if(is_debug_symtabapi_symbols_detailed_enabled) {
@@ -205,7 +213,7 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 
 			// Find any statements for the beginning of a function that
 			// contained a valid sample address.
-			for(std::set<Address>::const_iterator fi = function_begin_addresses.begin();
+			for(std::set<Framework::Address>::const_iterator fi = function_begin_addresses.begin();
 			                                      fi != function_begin_addresses.end();
 			                                      ++fi) {
 			    if(srange.doesContain(*fi) ) {
@@ -225,5 +233,8 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 		}
 	    }
 	}
+	// only look at first linkedobject since we normalize addresses
+	// before lookup in symbols from symtabapi...
+	break;
     }
 }
