@@ -97,9 +97,10 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 	    std::vector <SymtabAPI::Function *>fsyms;
 
 	    if(symtab && !symtab->getAllFunctions(fsyms)) {
-		std::cerr << "getAllSymbolsByType unable to get all Functions "
+		std::cerr << "Dyninst::SymtabAPI::Symbol::getAllFunctions unable to get all Functions "
 		    << Symtab::printError(Symtab::getLastSymtabError()).c_str()
 		    << std::endl;
+		std::cerr << "Problem with linked object " << objname << " range: " << image_range << std::endl;
 	    }
 
 
