@@ -368,6 +368,15 @@ void hwcsamp_start_sampling(const char* arguments)
 #endif
     }
 
+    /* TODO: check return values of direct PAPI calls
+     * and handle them as needed.
+     */
+    /* Rework the code here to call PAPI directly rather than
+     * call any OPENSS helper functions due to inconsitent
+     * behaviour seen on various lab systems
+     */
+    int eventcode = 0;
+    rval = PAPI_OK;
     if (hwcsamp_papi_event != NULL) {
 	char *tfptr, *saveptr, *tf_token;
 	tfptr = strdup(hwcsamp_papi_event);
@@ -377,13 +386,17 @@ void hwcsamp_start_sampling(const char* arguments)
 	    if (tf_token == NULL) {
 		break;
 	    }
-	    OpenSS_AddEvent(tls->EventSet, get_papi_eventcode(tf_token));
+	    PAPI_event_name_to_code(tf_token,&eventcode);
+	    rval = PAPI_add_event(tls->EventSet,eventcode);
+
 	    if (tfptr) free(tfptr);
 	}
 	
     } else {
-	OpenSS_AddEvent(tls->EventSet, get_papi_eventcode("PAPI_TOT_CYC"));
-	OpenSS_AddEvent(tls->EventSet, get_papi_eventcode("PAPI_FP_OPS"));
+	PAPI_event_name_to_code("PAPI_TOT_CYC",&eventcode);
+	rval = PAPI_add_event(tls->EventSet,eventcode);
+	PAPI_event_name_to_code("PAPI_FP_OPS",&eventcode);
+	rval = PAPI_add_event(tls->EventSet,eventcode);
     }
 
     /* Begin sampling */
