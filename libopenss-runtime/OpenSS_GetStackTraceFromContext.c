@@ -98,8 +98,6 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
     else {
        Assert(unw_getcontext(&context) == 0);
     }
-    //Work-around to a libunwind bug
-    context.uc_mcontext.regs->link = context.uc_mcontext.regs->nip;
 
 #elif defined(__linux) && defined(__i386)
 
