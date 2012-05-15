@@ -92,7 +92,11 @@ monitor_wrap_mpi_syncP2P="MPI_Bsend mpi_bsend mpi_bsend_ mpi_bsend__ MPI_Get_cou
 # The default for mpi collectors.
 monitor_wrap_mpi_all="${monitor_wrap_mpi_asyncP2P} ${monitor_wrap_mpi_collectives} ${monitor_wrap_mpi_datatypes} ${monitor_wrap_mpi_environment} ${monitor_wrap_mpi_graphcontexts} ${monitor_wrap_mpi_persistent} ${monitor_wrap_mpi_processtopologies} ${monitor_wrap_mpi_syncP2P}"
 
-monitor_wrap_io_names="close creat creat64 dup dup2 lseek lseek64 open open64 pipe pread pread64 pwrite pwrite64 read readv write writev"
+if test "$mach_type" == "ppc64" && test "$oss_target" == "bgq" ; 
+  monitor_wrap_io_names="close creat creat64 dup dup2 lseek lseek64 open open64 pipe pread pread64 pwrite pwrite64 read readv write"
+else
+  monitor_wrap_io_names="close creat creat64 dup dup2 lseek lseek64 open open64 pipe pread pread64 pwrite pwrite64 read readv write writev"
+fi
 
 mpi_undefines=
 fork_undefines=
