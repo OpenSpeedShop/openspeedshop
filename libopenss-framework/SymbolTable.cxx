@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2008 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2012 The Krell Institue. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -96,6 +97,8 @@ void SymbolTable::addFunction(const Address& begin,
 	return;
     
     // Add this function to the symbol table
+    //std::cerr << "SymbolTable::addFunction INSERTS to dm_functions "
+    //    << name << std::endl;
     dm_functions.insert(std::make_pair(range, name));
 }
 
@@ -146,6 +149,14 @@ void SymbolTable::addStatement(const Address& begin,
 		std::vector<AddressRange>())
 	    ).first;
     
+#if 0
+    std::cerr << "SymbolTable::addStatment INSERTS to dm_statements " << path
+	<< ":" << line
+	<< ":" << column
+	<< " range: " << range
+	 << std::endl;
+#endif
+
     // Add this address range to the statement
     i->second.push_back(range);
 }

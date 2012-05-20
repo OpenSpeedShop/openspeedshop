@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2012 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -500,6 +501,11 @@ Experiment::Experiment(const std::string& name) :
     // Set the experiment's instrumentor type to default to offline
     setIsInstrumentorOffline(true);
 
+#if ( BUILD_CBTF == 1 )
+    setInstrumentorUsesCBTF(true);
+#else
+    setInstrumentorUsesCBTF(false);
+#endif
 }
 
 
@@ -844,6 +850,7 @@ ThreadGroup Experiment::getThreads() const
  *
  * @param command            Command to be executed.
  * @param host               Name of host on which to execute the command.
+ * @param numBE              Min number of mrnet backends if using cbtf.
  * @param stdout_callback    Standard output stream callback for the process.
  * @param stderr_callback    Standard error stream callback for the process.
  * @return                   Newly created threads.
@@ -851,6 +858,7 @@ ThreadGroup Experiment::getThreads() const
 ThreadGroup Experiment::createProcess(
     const std::string& command,
     const std::string& host,
+    uint64_t numBE,
     const OutputCallback stdout_callback,
     const OutputCallback stderr_callback) const
 {   
@@ -864,6 +872,10 @@ ThreadGroup Experiment::createProcess(
     // Allocate the thread outside the transaction's try/catch block
     Thread thread;
 
+    //std::cerr << "INSERT INTO Threads (command, host) " << command
+    //    << " , " << canonical << std::endl;
+    //std::cerr << "INSERT INTO Threads numBE=" << numBE << std::endl;
+
     // Create the thread entry in the database
     BEGIN_WRITE_TRANSACTION(dm_database);
     dm_database->prepareStatement(
@@ -876,10 +888,21 @@ ThreadGroup Experiment::createProcess(
     threads.insert(thread);
     END_TRANSACTION(dm_database);
 
+    //std::cerr << "Thread constructer with pid " << thread.getProcessId()
+    //    <<  std::endl;
+
     // Create the underlying thread for executing the command
     try {
 	// Instrumentor::retain(thread);  (Implied by Following Line)
+#if defined(BUILD_CBTF)
+	// will need to pass the collector from the cli...
+	std::string collector("pcsamp");
+	Instrumentor::create(thread, command,
+			     collector, numBE,
+			     stdout_callback, stderr_callback);
+#else
 	Instrumentor::create(thread, command, stdout_callback, stderr_callback);
+#endif
     }
     catch(...) {
 
@@ -895,6 +918,12 @@ ThreadGroup Experiment::createProcess(
 
     }
 
+    //std::cerr << "After Instrumentor::create with pid "
+    //    << thread.getProcessId() <<  std::endl;
+    //std::cerr << "THREAD STATE "
+    //    << OpenSpeedShop::Framework::toString(thread.getState())
+    //    << std::endl;
+ 
     // Wait until the thread finishes connecting
     while(thread.isState(Thread::Connecting))
 	suspend();
@@ -932,9 +961,12 @@ ThreadGroup Experiment::createProcess(
         if(is_debug_mpijob_enabled) {
             std::stringstream output;
             output << "[TID " << pthread_self() << "] "
-                   << " Experiment::createProcess, thread.getProcessId() =" << thread.getProcessId() << " is_mpich_job=" << is_mpich_job
-                   << " is_mpt_job=" << is_mpt_job << " is_mpirun.first=" << is_mpirun.first
-                   << " is_mpirun.second=" << is_mpirun.second << "thread.getHost()=" << thread.getHost()
+                   << " Experiment::createProcess, thread.getProcessId() ="
+		   << thread.getProcessId() << " is_mpich_job=" << is_mpich_job
+                   << " is_mpt_job=" << is_mpt_job << " is_mpirun.first="
+		   << is_mpirun.first
+                   << " is_mpirun.second=" << is_mpirun.second
+		   << "thread.getHost()=" << thread.getHost()
                    << std::endl;
             std::cerr << output.str();
         }
@@ -989,6 +1021,10 @@ ThreadGroup Experiment::createProcess(
 
     }
 
+    //std::cerr << "Thread RETURN pid " << thread.getProcessId() <<  std::endl;
+    //std::cerr << "RETURNING FROM Experiment::createProcess threads size = "
+    //    << threads.size() << std::endl;
+ 
     // Return the threads to the caller
     return threads;
 }
@@ -1729,7 +1765,7 @@ void Experiment::prepareToRerun(const OutputCallback stdout_callback,
 
 	// Recreate the process on the same host
         ThreadGroup threads = createProcess(name.getCommand().second, 
-					    name.getHost(),
+					    name.getHost(), 0,
 					    stdout_callback, stderr_callback);
 	new_threads.insert(threads.begin(), threads.end());
 

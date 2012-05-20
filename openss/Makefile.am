@@ -31,11 +31,17 @@ dist_bin_SCRIPTS = ossdbtool
 BUILT_FILES =
 
 if BUILD_INSTRUMENTOR
+if !BUILD_CBTF
 dist_bin_SCRIPTS += osslink
 BUILT_FILES += osslink
-if !BUILD_RUNTIME
-dist_bin_SCRIPTS += ossrun ossdriver
-BUILT_FILES += ossrun ossdriver
+endif
+if !BUILD_RUNTIME_ONLY
+dist_bin_SCRIPTS += ossdriver
+BUILT_FILES += ossdriver
+if !BUILD_CBTF
+dist_bin_SCRIPTS += ossrun
+BUILT_FILES += ossrun
+endif
 endif
 if HAVE_TARGET_SHARED
 dist_bin_SCRIPTS += ossrun ossdriver
@@ -46,11 +52,12 @@ endif
 LDFLAGS = 
 
 bin_PROGRAMS =
+
 #
 # building target shared and not building the runtime are mutually exclusive
 # therefore no else is used
 #
-if !BUILD_RUNTIME
+if !BUILD_RUNTIME_ONLY
 bin_PROGRAMS += openss 
 endif
 if HAVE_TARGET_SHARED
@@ -86,10 +93,36 @@ openss_SOURCES = \
 	openss.cxx
 
 if BUILD_INSTRUMENTOR
-if !BUILD_RUNTIME
+
+if !BUILD_RUNTIME_ONLY
 if !HAVE_TARGET_SHARED
+if !BUILD_CBTF
 bin_PROGRAMS += ossutil
 
+if OPENSS_USE_SYMTABAPI
+ossutil_CXXFLAGS = \
+        @SYMTABAPI_CPPFLAGS@ \
+        -I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-queries \
+        -I$(top_srcdir)/libopenss-runtime \
+        -DLIBRARY_DIR=\"$(libdir)\" \
+        -DPLUGIN_DIR=\"$(pkglibdir)\" \
+        -DLIB_DIR_NAME=\"$(abi_libdir_name)\" \
+        $(LTDLINCL)
+
+ossutil_LDFLAGS = \
+        @SYMTABAPI_LDFLAGS@ \
+        -L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-queries \
+        -L$(top_srcdir)/libopenss-runtime
+
+ossutil_LDADD = \
+        @SYMTABAPI_LIBS@ \
+        $(LIBLTDL) \
+	-lopenss-framework \
+	-lopenss-framework-symtabapi \
+        -lpthread
+else
 ossutil_CXXFLAGS = \
         @BINUTILS_CPPFLAGS@ \
         -I$(top_srcdir)/libopenss-framework \
@@ -112,9 +145,12 @@ ossutil_LDADD = \
 	-lopenss-framework \
 	-lopenss-framework-binutils \
         -lpthread
+endif
 
 ossutil_SOURCES = \
         ossutil.cxx
+
+endif
 endif
 endif
 
@@ -123,6 +159,7 @@ endif
 # therefore no else is used
 #
 if HAVE_TARGET_SHARED
+if !BUILD_CBTF
 bin_PROGRAMS += ossutil 
 
 ossutil_CXXFLAGS = \
@@ -174,7 +211,7 @@ endif
 ossutil_SOURCES = \
         ossutil.cxx
 endif
-
+endif
 endif
 
 CLEANFILES = $(BUILT_FILES)
@@ -213,6 +250,7 @@ osslink: osslink.in
 
 
 if HAVE_DYNINST
+if !BUILD_CBTF
 bin_PROGRAMS += osswrapper 
 
 osswrapper_CXXFLAGS = \
@@ -234,11 +272,14 @@ osswrapper_SOURCES = \
 
 endif
 endif
+endif
 
 if BUILD_INSTRUMENTOR
 
-if !BUILD_RUNTIME
+if !BUILD_RUNTIME_ONLY
+if !BUILD_CBTF
 ossrun: ossrun.in
+endif
 endif
 
 if HAVE_TARGET_SHARED
@@ -274,6 +315,7 @@ ossdriver: ossdriver.in
 	chmod 755 ossdriver
 
 install-exec-hook: ossdriver
+if !BUILD_CBTF
 # osspcsamp
 	@rm -f $(DESTDIR)$(bindir)/osspcsamp
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osspcsamp
@@ -318,11 +360,25 @@ install-exec-hook: ossdriver
 	@rm -f $(DESTDIR)$(bindir)/ossfpe
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossfpe
 	chmod 755 $(DESTDIR)$(bindir)/ossfpe
+endif
 # osscompare
 	@rm -f $(DESTDIR)$(bindir)/osscompare
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osscompare
 	chmod 755 $(DESTDIR)$(bindir)/osscompare
 
+uninstall-hook:
+	@rm -f $(DESTDIR)$(bindir)/osscompare
+	@rm -f $(DESTDIR)$(bindir)/ossfpe
+	@rm -f $(DESTDIR)$(bindir)/osshwctime
+	@rm -f $(DESTDIR)$(bindir)/osshwcsamp
+	@rm -f $(DESTDIR)$(bindir)/osshwc
+	@rm -f $(DESTDIR)$(bindir)/osspcsamp
+	@rm -f $(DESTDIR)$(bindir)/ossusertime
+	@rm -f $(DESTDIR)$(bindir)/ossmpiotf
+	@rm -f $(DESTDIR)$(bindir)/ossmpit
+	@rm -f $(DESTDIR)$(bindir)/ossmpi
+	@rm -f $(DESTDIR)$(bindir)/ossio
+	@rm -f $(DESTDIR)$(bindir)/ossiot
 # endif for !BUILD_TARGETED
 endif
 
@@ -382,6 +438,19 @@ install-exec-hook: ossdriver
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osscompare
 	chmod 755 $(DESTDIR)$(bindir)/osscompare
 
+uninstall-hook:
+	@rm -f $(DESTDIR)$(bindir)/osscompare
+	@rm -f $(DESTDIR)$(bindir)/ossfpe
+	@rm -f $(DESTDIR)$(bindir)/osshwctime
+	@rm -f $(DESTDIR)$(bindir)/osshwcsamp
+	@rm -f $(DESTDIR)$(bindir)/osshwc
+	@rm -f $(DESTDIR)$(bindir)/osspcsamp
+	@rm -f $(DESTDIR)$(bindir)/ossusertime
+	@rm -f $(DESTDIR)$(bindir)/ossmpiotf
+	@rm -f $(DESTDIR)$(bindir)/ossmpit
+	@rm -f $(DESTDIR)$(bindir)/ossmpi
+	@rm -f $(DESTDIR)$(bindir)/ossio
+	@rm -f $(DESTDIR)$(bindir)/ossiot
 # endif for HAVE_TARGET_SHARED
 endif
 

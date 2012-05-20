@@ -29,6 +29,7 @@ BUILT_SOURCES = \
 pkglib_LTLIBRARIES =
 
 if BUILD_INSTRUMENTOR
+if !BUILD_CBTF
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
 	offline.c
@@ -39,15 +40,17 @@ OFFLINE_SOURCES = \
 	offline.c
 endif
 endif
+endif
 
 
-if !BUILD_RUNTIME
+if !BUILD_RUNTIME_ONLY
 if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += mpit.la
 endif
 endif
 
 if BUILD_INSTRUMENTOR
+if !BUILD_CBTF
 
 if HAVE_LAM
 if !BUILD_OFFLINE
@@ -173,8 +176,9 @@ endif
 endif
 
 endif
+endif
 
-if !BUILD_RUNTIME
+if !BUILD_RUNTIME_ONLY
 mpit_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -191,6 +195,7 @@ mpit_la_SOURCES = \
 	MPITDetail.hxx
 endif
 
+if !BUILD_CBTF
 # Common definitions for all MPI implementations
 #
 # See comments in plugins/collectors/mpi/Makefile.am.  Remarks there
@@ -638,6 +643,8 @@ endif
 endif
 
 #endif for !BUILD_OFFLINE
+#endif for !BUILD_CBTF
+endif
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)

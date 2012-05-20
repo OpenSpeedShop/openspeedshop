@@ -1049,6 +1049,10 @@ site_specific_startup_file = OpenssInstallDir + "/lib64/openspeedshop/offline.py
 if os.path.isfile(site_specific_startup_file):
     execfile(site_specific_startup_file)
 
+site_specific_startup_file = OpenssInstallDir + "/lib64/openspeedshop/cbtf-offline.py"
+if os.path.isfile(site_specific_startup_file):
+    execfile(site_specific_startup_file)
+
 ################################################################################
 # Load the mrnet-specific Python startup file (if it exists)
 ################################################################################

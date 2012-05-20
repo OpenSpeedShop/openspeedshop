@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2012 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -37,6 +38,10 @@
 #include "TimeInterval.hxx"
 
 #include "OpenSS_DataHeader.h"
+
+#if defined BUILD_CBTF
+#include "KrellInstitute/Messages/DataHeader.h"
+#endif
 
 #include <deque>
 #include <pthread.h>
@@ -171,19 +176,42 @@ namespace {
 	BEGIN_WRITE_TRANSACTION(database);	
 	
 	// Decode the performance data header
+#if defined(BUILD_CBTF)
+	CBTF_DataHeader header;
+	memset(&header, 0, sizeof(header));
+	unsigned header_size = blob.getXDRDecoding(
+	    reinterpret_cast<xdrproc_t>(xdr_CBTF_DataHeader), &header
+	    );
+#else
 	OpenSS_DataHeader header;
 	memset(&header, 0, sizeof(header));
 	unsigned header_size = blob.getXDRDecoding(
 	    reinterpret_cast<xdrproc_t>(xdr_OpenSS_DataHeader), &header
 	    );
+#endif
 	
 	// Silently ignore the data if the address range is invalid
-	if(header.addr_begin >= header.addr_end)
+	if(header.addr_begin >= header.addr_end) {
 	    ignore_data = true;
+#ifndef DEBUG
+	    if (is_debug_enabled) {
+	    std::cerr << "storePerformanceData: IGNORE DATA header.addr_begin "
+		<< " >= header.addr_end " << std::endl;
+	    }
+#endif
+	}
 	
 	// Silently ignore the data if the time interval is invalid
-	if(header.time_begin >= header.time_end)
+	if(header.time_begin >= header.time_end) {
 	    ignore_data = true;
+#ifndef DEBUG
+	    if (is_debug_enabled) {
+	    std::cerr << "storePerformanceData: IGNORE DATA header.time_begin "
+		<< Time(header.time_begin) << ">= header.time_end "
+		<< Time(header.time_end) << std::endl;
+	    }
+#endif
+	}
 	
 	// Note: It is assumed here that the experiment identifier for this
 	//       blob corresponds to the database into which we are writing
@@ -197,8 +225,15 @@ namespace {
 	database->bindArgument(1, header.collector);
 	while(database->executeStatement())		
 	    collector_rows = database->getResultAsInteger(1);
-	if(collector_rows != 1)
+	if(collector_rows != 1) {
 	    ignore_data = true;
+#ifndef DEBUG
+	    if (is_debug_enabled) {
+	    std::cerr << "storePerformanceData: IGNORE DATA"
+		<< " collector_rows != 1 " << std::endl;
+	    }
+#endif
+	}
 
 	// Note: See the "todo" item in this function's description.
 
@@ -262,14 +297,22 @@ namespace {
 		thread = database->getResultAsInteger(1); 
 	}
 
-	if(thread == 0)
+	if(thread == 0) {
 	    ignore_data = true;
+#ifndef DEBUG
+	    if (is_debug_enabled) {
+	    std::cerr << "storePerformanceData: IGNORE DATA thread is  0 ??? "
+		<< thread << " ignore_data is " << ignore_data << std::endl;
+	    }
+#endif
+	}
 
 	// Calculate the size and location of the actual data
 	unsigned data_size = blob.getSize() - header_size;
 	const void* data_ptr =
 	    &(reinterpret_cast<const char*>(blob.getContents())[header_size]);
 	
+	//
 	// Create an entry for this data
 	if(!ignore_data) {
 	    database->prepareStatement(
@@ -302,8 +345,6 @@ namespace {
 	// End this multi-statement transaction
 	END_TRANSACTION(database);
     }
-
-
 
 }
 
@@ -548,10 +589,17 @@ void DataQueues::flushDatabase(const SmartPtr<Database>& database)
 void DataQueues::enqueuePerformanceData(const Blob& blob)
 {
     // Decode the performance data header
+#if defined(BUILD_CBTF)
+    CBTF_DataHeader header;
+    memset(&header, 0, sizeof(header));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_CBTF_DataHeader),
+			&header);
+#else
     OpenSS_DataHeader header;
     memset(&header, 0, sizeof(header));
     blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_OpenSS_DataHeader),
 			&header);
+#endif
     
     // Acquire exclusive access to our unnamed namespace variables
     Assert(pthread_mutex_lock(&exclusive_access_lock) == 0);
@@ -590,6 +638,7 @@ void DataQueues::enqueuePerformanceData(const Blob& blob)
  */
 void DataQueues::flushPerformanceData()
 {
+
     const int64_t maximumFlushTime = 1000 * 1000 * 1000;  // 1 second
 
     // Keep track of whether we've exceeded the maximum flush time
@@ -639,11 +688,14 @@ void DataQueues::flushPerformanceData()
 		    is_time_up == true;
 		
 	    }
-	    
+ 
 	    // End this multi-statement transaction
 	    END_TRANSACTION(identifier_to_database[i->first]);
 	    
+
+	} else {
 	}
+ 
 
 #ifndef DEBUG
     // Performance statistics

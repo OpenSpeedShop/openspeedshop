@@ -27,7 +27,7 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
-if !BUILD_RUNTIME
+if !BUILD_RUNTIME_ONLY
 if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += usertime.la
 endif
@@ -35,19 +35,24 @@ endif
 
 if BUILD_INSTRUMENTOR
 if !BUILD_OFFLINE
+if !BUILD_CBTF
 pkglib_LTLIBRARIES += usertime-rt.la
+endif
 endif
 endif
 
 if BUILD_INSTRUMENTOR
 if HAVE_LIBMONITOR
+if !BUILD_CBTF
 OFFLINE_SOURCES = \
 	offline.c
 
 pkglib_LTLIBRARIES += usertime-rt-offline.la libusertime-offline.la
 endif
+endif
 
 if HAVE_TARGET_LIBMONITOR
+if !BUILD_CBTF
 OFFLINE_SOURCES = \
 	offline.c
 
@@ -57,8 +62,9 @@ pkglib_LTLIBRARIES += usertime-rt-offline.la
 endif
 endif
 endif
+endif
 
-if !BUILD_RUNTIME
+if !BUILD_RUNTIME_ONLY
 usertime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -76,6 +82,7 @@ usertime_la_SOURCES = \
 endif
 
 if !BUILD_OFFLINE
+if !BUILD_CBTF
 if BUILD_MRNET
 usertime_rt_la_CFLAGS = \
 	-DUSE_FASTTRACE \
@@ -206,6 +213,7 @@ libusertime_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	$(OFFLINE_SOURCES) \
 	runtime.c
+endif
 endif
 
 SUFFIXES = .x

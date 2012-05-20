@@ -17,13 +17,26 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+# CBTF needs:
+# MESSAGES_PERFDATA_LIBS
+# -I MESSAGES_CPPFLAGS
+#  DataHeader.h
+#
+
 if BUILD_INSTRUMENTOR
 SUBDIRS = @INSTRUMENTOR@
 endif
 
-DIST_SUBDIRS = dpcl dyninst mrnet offline
+DIST_SUBDIRS = cbtf dpcl dyninst mrnet offline
 
-lib_LTLIBRARIES = libopenss-framework.la libopenss-framework-binutils.la
+#lib_LTLIBRARIES = libopenss-framework.la libopenss-framework-binutils.la
+lib_LTLIBRARIES = libopenss-framework-binutils.la
+
+if HAVE_SYMTABAPI
+lib_LTLIBRARIES += libopenss-framework-symtabapi.la
+endif
+
+lib_LTLIBRARIES += libopenss-framework.la
 
 #
 # HAVE_TARGET_SHARED indicates shared builds on traditionally 
@@ -51,19 +64,38 @@ libopenss_framework_binutils_la_LIBADD = \
 	@TARGET_LIBPTHREAD_LIBS@ \
 	@TARGET_LIBRT_LIBS@ 
 
+libopenss_framework_symtabapi_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	$(LTDLINCL) \
+	@TARGET_STDC_PLUSPLUS_CPPFLAGS@ \
+	@TARGET_SYMTABAPI_CPPFLAGS@
+
+libopenss_framework_symtabapi_la_LDFLAGS = \
+	@TARGET_SYMTABAPI_LDFLAGS@ \
+	@TARGET_STDC_PLUSPLUS_LDFLAGS@ \
+	@TARGET_LIBPTHREAD_LDFLAGS@ \
+	@TARGET_LIBRT_LDFLAGS@ \
+	-export-dynamic -version-info 1:0:0
+
+libopenss_framework_symtabapi_la_LIBADD = \
+	$(LIBLTDL) \
+	@TARGET_SYMTABAPI_LIBS@ \
+	@TARGET_STDC_PLUSPLUS_LIBS@ \
+	@TARGET_LIBPTHREAD_LIBS@ \
+	@TARGET_LIBRT_LIBS@ 
+
 if HAVE_TARGET_SYMTABAPI
 libopenss_framework_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	$(LTDLINCL) \
 	@ARRAYSVCS_CPPFLAGS@ \
-	@TARGET_SYMTABAPI_CPPFLAGS@
 	@TARGET_SQLITE_CPPFLAGS@
 
 libopenss_framework_la_LDFLAGS = \
 	@ARRAYSVCS_LDFLAGS@ \
 	@TARGET_SQLITE_LDFLAGS@ \
-	@TARGET_SYMTABAPI_LDFLAGS@ \
 	@TARGET_STDC_PLUSPLUS_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
 else
@@ -80,6 +112,8 @@ libopenss_framework_la_LDFLAGS = \
 	@TARGET_STDC_PLUSPLUS_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
 endif
+
+
 #
 # the else clause indicates not HAVE_TARGET_SHARED, 
 # so use the non target CPPFLAGS, LDFLAGS in this else clause
@@ -100,6 +134,21 @@ libopenss_framework_binutils_la_LIBADD = \
 	@BINUTILS_BFD_LIB@ \
 	-lpthread -lrt
 
+libopenss_framework_symtabapi_la_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-runtime \
+	-I$(top_srcdir)/libopenss-runtime/offline \
+	$(LTDLINCL) \
+	@SYMTABAPI_CPPFLAGS@
+
+libopenss_framework_symtabapi_la_LDFLAGS = \
+	@SYMTABAPI_LDFLAGS@ \
+	-export-dynamic -version-info 1:0:0
+
+libopenss_framework_symtabapi_la_LIBADD = \
+	$(LIBLTDL) \
+	@SYMTABAPI_LIBS@ \
+	-lpthread -lrt
+
 
 #
 # HAVE_SYMTABAPI means use the symtabAPI interface to 
@@ -111,14 +160,21 @@ libopenss_framework_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	$(LTDLINCL) \
 	@ARRAYSVCS_CPPFLAGS@ \
-	@SYMTABAPI_CPPFLAGS@ \
 	@SQLITE_CPPFLAGS@
+
 
 libopenss_framework_la_LDFLAGS = \
 	@ARRAYSVCS_LDFLAGS@ \
 	@SQLITE_LDFLAGS@ \
-	@SYMTABAPI_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
+
+if BUILD_CBTF
+libopenss_framework_la_CXXFLAGS += \
+	@MESSAGES_CPPFLAGS@
+libopenss_framework_la_LDFLAGS += \
+	@MESSAGES_LDFLAGS@
+endif
+
 #
 # We are not using the symtabAPI interface to 
 # resolve symbols, so don't compile/link using the symtabAPI interface
@@ -136,6 +192,14 @@ libopenss_framework_la_LDFLAGS = \
 	@ARRAYSVCS_LDFLAGS@ \
 	@SQLITE_LDFLAGS@ \
 	-export-dynamic -version-info 1:0:0
+
+if BUILD_CBTF
+libopenss_framework_la_CXXFLAGS += \
+	@MESSAGES_CPPFLAGS@
+libopenss_framework_la_LDFLAGS += \
+	@MESSAGES_LDFLAGS@
+endif
+
 # end of the else clause for the non-symtabAPI section
 endif
 # end of the else clause for the non-target shared section
@@ -151,7 +215,6 @@ libopenss_framework_la_LIBADD = \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
 	@TARGET_SQLITE_LIBS@ \
-	@TARGET_SYMTABAPI_LDFLAGS@ @TARGET_SYMTABAPI_LIBS@ \
 	@TARGET_STDC_PLUSPLUS_LIBS@ \
 	@TARGET_LIBPTHREAD_LDFLAGS@ @TARGET_LIBPTHREAD_LIBS@ \
 	@TARGET_LIBRT_LDFLAGS@ @TARGET_LIBRT_LIBS@ 
@@ -186,7 +249,6 @@ libopenss_framework_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
-	@SYMTABAPI_LIBS@ \
 	@SQLITE_LIBS@ \
 	-lpthread -lrt @BINUTILS_IBERTY_LDFLAGS@ @BINUTILS_IBERTY_LIB@
 else
@@ -198,6 +260,15 @@ libopenss_framework_la_LIBADD = \
 	-lpthread -lrt @BINUTILS_IBERTY_LDFLAGS@ @BINUTILS_IBERTY_LIB@
 endif
 
+if BUILD_CBTF
+libopenss_framework_la_LDFLAGS += \
+	-L$(top_srcdir)/libopenss-framework/.libs
+
+libopenss_framework_la_LIBADD += \
+	-lopenss-framework-symtabapi \
+	@MESSAGES_PERFDATA_LIBS@
+endif
+
 else
 
 if HAVE_SYMTABAPI
@@ -205,8 +276,17 @@ libopenss_framework_la_LIBADD = \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
 	@SQLITE_LIBS@ \
-	@SYMTABAPI_LIBS@ \
 	-lpthread -lrt 
+
+if BUILD_CBTF
+libopenss_framework_la_LDFLAGS += \
+	-L$(top_srcdir)/libopenss-framework/.libs
+
+libopenss_framework_la_LIBADD += \
+	-lopenss-framework-symtabapi \
+	@MESSAGES_PERFDATA_LIBS@
+endif
+
 else
 
 libopenss_framework_la_LIBADD = \
@@ -214,6 +294,11 @@ libopenss_framework_la_LIBADD = \
 	@ARRAYSVCS_LIBS@ \
 	@SQLITE_LIBS@ \
 	-lpthread -lrt @BINUTILS_IBERTY_LDFLAGS@ @BINUTILS_IBERTY_LIB@
+
+if BUILD_CBTF
+libopenss_framework_la_LIBADD += \
+	@MESSAGES_PERFDATA_LIBS@
+endif
 
 # endif for not using symtabAPI else clause
 endif
@@ -257,6 +342,7 @@ COMMON_SOURCES = \
 	Metadata.hxx \
 	NonCopyable.hxx \
 	Path.hxx Path.cxx \
+	PCBuffer.hxx PCBuffer.cxx \
 	SmartPtr.hxx \
 	StackTrace.hxx \
 	Statement.hxx Statement.cxx \
@@ -270,36 +356,38 @@ COMMON_SOURCES = \
 	ToolAPI.hxx \
 	TotallyOrdered.hxx
 
-if HAVE_SYMTABAPI
-COMMON_SOURCES += SymtabAPISymbols.hxx SymtabAPISymbols.cxx PCBuffer.hxx PCBuffer.cxx
-endif
-
-if HAVE_TARGET_SYMTABAPI
-COMMON_SOURCES += SymtabAPISymbols.hxx SymtabAPISymbols.cxx PCBuffer.hxx PCBuffer.cxx
-endif
-
 INSTRUMENTOR_SOURCES = \
-	$(top_srcdir)/libopenss-runtime/offline/offline.c \
 	CallSite.hxx CallSite.cxx \
 	Instrumentor.hxx \
 	Job.hxx \
-	OutputCallback.hxx \
+	OutputCallback.hxx
+
+if !BUILD_CBTF
+INSTRUMENTOR_SOURCES += \
+	$(top_srcdir)/libopenss-runtime/offline/offline.c \
 	OfflineExperiment.hxx OfflineExperiment.cxx
+endif
 
 OPENSSBINUTILS_SOURCES = \
-	BFDSymbols.hxx BFDSymbols.cxx \
-	PCBuffer.hxx PCBuffer.cxx
+	BFDSymbols.hxx BFDSymbols.cxx
+
+OPENSSSYMTABAPI_SOURCES = \
+	SymtabAPISymbols.hxx SymtabAPISymbols.cxx
 
 if BUILD_INSTRUMENTOR
 libopenss_framework_la_SOURCES = \
 	$(COMMON_SOURCES) $(INSTRUMENTOR_SOURCES)
 libopenss_framework_binutils_la_SOURCES = \
 	$(OPENSSBINUTILS_SOURCES)
+libopenss_framework_symtabapi_la_SOURCES = \
+	$(OPENSSSYMTABAPI_SOURCES)
 else
 libopenss_framework_la_SOURCES = \
 	$(COMMON_SOURCES)
 libopenss_framework_binutils_la_SOURCES = \
 	$(OPENSSBINUTILS_SOURCES)
+libopenss_framework_symtabapi_la_SOURCES = \
+	$(OPENSSSYMTABAPI_SOURCES)
 endif
 
 EXTRA_DIST = OpenSSPath.cxx PapiAPI.h PapiAPI.cxx

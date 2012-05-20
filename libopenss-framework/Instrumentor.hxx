@@ -63,8 +63,16 @@ namespace OpenSpeedShop { namespace Framework {
     {
 	void retain(const Thread&);
 	void release(const Thread&);
+
+#if defined(BUILD_CBTF)
+	void create(const Thread&, const std::string&,
+		    const std::string&,
+		    const uint64_t numBE,
+		    const OutputCallback, const OutputCallback);
+#else
 	void create(const Thread&, const std::string&,
 		    const OutputCallback, const OutputCallback);
+#endif
 
 	Thread::State getState(const Thread&);
 	void changeState(const ThreadGroup&, const Thread::State&);

@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2012 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -112,6 +113,7 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	ThreadGroup createProcess(const std::string&,
 				  const std::string& = getLocalHost(),
+                                  uint64_t numBE = 0,
 				  const OutputCallback = 
 				      OutputCallback(NULL, NULL),
 				  const OutputCallback = 
@@ -161,6 +163,22 @@ namespace OpenSpeedShop { namespace Framework {
 
         bool getIsInstrumentorOffline () {return isInstrumentorOffline;}
         void setIsInstrumentorOffline (bool flag) {isInstrumentorOffline = flag;}
+        bool getInstrumentorUsesCBTF () {return instrumentorUsesCBTF;}
+        void setInstrumentorUsesCBTF (bool flag) {instrumentorUsesCBTF = flag;}
+
+
+        int numBEprocs;
+
+        int setBEprocCount(int count) {
+           //std::cerr << "Enter setBEprocCount, count=" << count << std::endl;
+           numBEprocs = count;
+        }
+
+        int getBEprocCount() {
+           //std::cerr << "Enter getBEprocCount, numBEprocs=" << numBEprocs
+           //    << std::endl;
+           return numBEprocs;
+        }
 
 
         int rerunCount;
@@ -196,6 +214,7 @@ namespace OpenSpeedShop { namespace Framework {
 	static bool getMPIJobFromMPICH(const Thread&, Job&);
 
         bool isInstrumentorOffline;
+        bool instrumentorUsesCBTF;
 
 	/** Experiment database. */
 	SmartPtr<Database> dm_database;

@@ -76,6 +76,27 @@ namespace OpenSpeedShop { namespace Framework {
 	std::map<AddressRange, std::string> getFunctions() {
 		return dm_functions;
 	};
+
+	void removeFunctions(std::map<AddressRange, std::string>& other)
+	{
+		//dm_functions = other;
+	    for (std::map<AddressRange, std::string>::iterator i = other.begin();
+                i != other.end(); ++i) {
+		     std::map<AddressRange, std::string>::iterator it = dm_functions.find(i->first);
+		     if (it == dm_functions.end()) {
+#if 0
+			std::cerr << "DID not find " << i->second
+			    << "range: " << i->first << " in dm_functions" << std::endl;
+#endif
+		     } else {
+#if 0
+			std::cerr << "ERASE " << i->second
+			    << "range: " << i->first << " in dm_functions" << std::endl;
+#endif
+		         dm_functions.erase(it);
+		     }
+	    }
+	};
 	
     private:
 

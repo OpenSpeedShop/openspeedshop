@@ -23,7 +23,7 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
-if !BUILD_RUNTIME
+if !BUILD_RUNTIME_ONLY
 if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += pcsamp.la
 endif
@@ -31,12 +31,15 @@ endif
 
 if BUILD_INSTRUMENTOR
 if !BUILD_OFFLINE
+if !BUILD_CBTF
 pkglib_LTLIBRARIES += pcsamp-rt.la
+endif
 endif
 endif
 
 if BUILD_INSTRUMENTOR
 if HAVE_LIBMONITOR
+if !BUILD_CBTF
 OFFLINE_SOURCES = \
 	offline.c
 
@@ -53,8 +56,9 @@ pkglib_LTLIBRARIES += pcsamp-rt-offline.la
 endif
 endif
 endif
+endif
 
-if !BUILD_RUNTIME
+if !BUILD_RUNTIME_ONLY
 pcsamp_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -68,9 +72,11 @@ pcsamp_la_LIBADD = \
 pcsamp_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	PCSampCollector.hxx PCSampCollector.cxx
+
 endif
 
 if BUILD_INSTRUMENTOR
+if !BUILD_CBTF
 if !BUILD_OFFLINE
 if BUILD_MRNET
 pcsamp_rt_la_CFLAGS = \
@@ -92,8 +98,10 @@ pcsamp_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.c
 endif
+endif
 
 if HAVE_LIBMONITOR
+if !BUILD_CBTF
 pcsamp_rt_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
@@ -134,10 +142,12 @@ libpcsamp_offline_la_SOURCES = \
 	$(OFFLINE_SOURCES) \
 	runtime.c
 endif
+endif
 
 if HAVE_TARGET_LIBMONITOR
 
 if HAVE_TARGET_SHARED
+if !BUILD_CBTF
 pcsamp_rt_offline_la_CFLAGS = \
         -DOPENSS_OFFLINE \
         -I$(top_srcdir)/libopenss-runtime \
@@ -179,6 +189,7 @@ libpcsamp_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	$(OFFLINE_SOURCES) \
 	runtime.c
+endif
 endif
 endif
 

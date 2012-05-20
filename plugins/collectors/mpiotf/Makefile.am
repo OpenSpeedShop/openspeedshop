@@ -29,6 +29,7 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+if !BUILD_CBTF
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
         offline.c
@@ -38,15 +39,17 @@ if HAVE_TARGET_LIBMONITOR
 OFFLINE_SOURCES = \
         offline.c
 endif
+endif
 
 #noinst_LIBRARIES = libvt.mpi.a
 
-if !BUILD_RUNTIME
+if !BUILD_RUNTIME_ONLY
 if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += mpiotf.la
 endif
 endif
 
+if !BUILD_CBTF
 if HAVE_LAM
 
 if !BUILD_OFFLINE
@@ -171,7 +174,9 @@ pkglib_LTLIBRARIES += libmpiotf-openmpi-offline.la
 endif
 endif
 
-if !BUILD_RUNTIME
+endif
+
+if !BUILD_RUNTIME_ONLY
 mpiotf_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -188,6 +193,7 @@ mpiotf_la_SOURCES = \
 	MPIOTFDetail.hxx
 endif
 
+if !BUILD_CBTF
 if HAVE_LAM
 libvt-lam-mpi-a:
 	cp -r @VT_LIBSDIR@/libvt.mpi.a libvt.mpi.lam.a
@@ -1023,8 +1029,9 @@ endif
 
 endif
 
+endif
 
-SUFFIXES = .x 
+
 CLEANFILES = $(BUILT_SOURCES) 
 if HAVE_LAM
 CLEANFILES += libvt.mpi.lam.a
@@ -1054,6 +1061,7 @@ if HAVE_OPENMPI
 CLEANFILES += libvt.mpi.openmpi.a
 endif
 
+SUFFIXES = .x 
 blobs.h blobs.c: blobs.x 
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<

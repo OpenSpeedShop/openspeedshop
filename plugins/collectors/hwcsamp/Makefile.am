@@ -21,7 +21,7 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
-if !BUILD_RUNTIME
+if !BUILD_RUNTIME_ONLY
 if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += hwcsamp.la
 endif
@@ -29,14 +29,17 @@ endif
 
 if HAVE_PAPI
 if BUILD_INSTRUMENTOR
+if !BUILD_CBTF
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += hwcsamp-rt.la
+endif
 endif
 endif
 # endif for if HAVE_PAPI
 endif
 
 if BUILD_INSTRUMENTOR
+if !BUILD_CBTF
 if HAVE_PAPI
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
@@ -64,8 +67,9 @@ endif
 endif
 
 endif
+endif
 
-if !BUILD_RUNTIME
+if !BUILD_RUNTIME_ONLY
 hwcsamp_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-framework
@@ -84,6 +88,7 @@ hwcsamp_la_SOURCES = \
 endif
 
 if BUILD_INSTRUMENTOR
+if !BUILD_CBTF
 
 if HAVE_PAPI
 
@@ -230,6 +235,7 @@ endif
 
 endif
 
+endif
 
 
 SUFFIXES = .x

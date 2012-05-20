@@ -18,8 +18,15 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+SUBDIRS =
+BUILT_SOURCES =
+CFLAGS =
+
+
 if BUILD_INSTRUMENTOR
-SUBDIRS = @INSTRUMENTOR@
+if !BUILD_CBTF
+SUBDIRS += @INSTRUMENTOR@
+endif
 
 if HAVE_LIBMONITOR
 SUBDIRS += offline
@@ -31,12 +38,16 @@ endif
 
 else
 
-SUBDIRS =
+SUBDIRS +=
 
 endif
 
-DIST_SUBDIRS = dpcl dyninst offline mrnet
+DIST_SUBDIRS = cbtf dpcl dyninst offline mrnet
 
+BUILT_SOURCES += \
+	OpenSS_DataHeader.h OpenSS_DataHeader.c
+
+if !BUILD_CBTF
 library_includedir = $(includedir)/openspeedshop
 library_include_HEADERS = RuntimeAPI.h
 
@@ -47,10 +58,8 @@ library_include_HEADERS = RuntimeAPI.h
 #       under both "-O1" and "-O2" on affected systems. For now it is safest to
 #       turn off ALL optimizations for code that uses TLS.
 
-CFLAGS = -g -O0
+CFLAGS += -g -O0
 
-BUILT_SOURCES = \
-	OpenSS_DataHeader.h OpenSS_DataHeader.c
 
 lib_LTLIBRARIES =
 
@@ -224,6 +233,7 @@ endif
 
 endif
 
+
 COMMON_SOURCES = \
 	Assert.h \
 	OpenSS_DataHeader.x $(BUILT_SOURCES)
@@ -324,6 +334,8 @@ endif #HAVE_TARGET_LIBMONITOR
 endif #USE_EXPLICIT_TLS
 
 endif
+endif
+
 
 SUFFIXES = .x
 CLEANFILES = $(BUILT_SOURCES)
@@ -332,6 +344,8 @@ OpenSS_DataHeader.h OpenSS_DataHeader.c : OpenSS_DataHeader.x
 	rm -f  $(patsubst %.x, %.h, $<) $(patsubst %.x, %.c, $<)
 	$(RPCGEN) -h -o $(patsubst %.x, %.h, $<) $<
 	$(RPCGEN) -c -o $(patsubst %.x, %.c, $<) $<
+if !BUILD_CBTF
+endif
 
 doc:
 	$(DOXYGEN)

@@ -25,7 +25,7 @@
 #define _OpenSpeedShop_Framework_PCBuffer_
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+//#include "config.h"
 #endif
 
 #define UINT8_MAX (255)

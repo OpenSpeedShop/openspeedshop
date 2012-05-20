@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2011 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2012 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -94,6 +94,21 @@ inline std::string int2str (int64_t e) {
   char s[40];
   sprintf ( s, "%lld", e);
   return std::string (s);
+}
+
+/**
+ * Utility: str2int ()
+ * 
+ * Convert a string value into an int64_t.
+ *     
+ * @param   e - the int64_t value.
+ *
+ * @return  std::string the character representation of the value.
+ *
+ */
+inline int64_t str2int (std::string s) {
+  int64_t value = atoi(s.c_str()); 
+  return value;
 }
 
 /**
@@ -222,10 +237,61 @@ void createTokens(const std::string& str,
         pos = str.find_first_of(delimiters, lastPos);
 
 #ifdef DEBUG_CLI
-        printf("createTokens, in while, str.c_str()=%s, lastPos = %d, pos = %d\n", str.c_str(), lastPos, pos);
+        std::cerr << "createTokens, in while, str.c_str()=" << str.c_str()
+	    << " , lastPos = " << lastPos << ", pos = " << pos << std::endl;
 #endif
 
     }
+}
+
+static int getBEcountFromCommand(std::string command) {
+
+  int retval = 1;
+#ifdef DEBUG_CLI
+  std::cerr << "Enter getBEcountFromCommand, command=" << command
+	<< " retval=" << retval << std::endl;
+#endif
+
+  std::vector<std::string> tokens;
+  createTokens(command, tokens );
+  std::vector<std::string>::iterator k;
+  std::string S = "";
+
+  bool found_be_count = false;
+
+  for (k=tokens.begin();k != tokens.end(); k++) {
+#ifdef DEBUG_CLI
+    std::cerr << "In getBEcountFromCommand, token=" << *k << std::endl;
+#endif
+    S = *k;
+    if (found_be_count) {
+      S = *k;
+#ifdef DEBUG_CLI
+      std::cerr << "In getBEcountFromCommand, found, -np, before calling "
+	<< "st2int, S.c_str()=" << S << std::endl;
+#endif
+      retval = str2int( S );
+#ifdef DEBUG_CLI
+      std::cerr << "In getBEcountFromCommand, found, -np, retval="
+	<< retval << std::endl;
+#endif
+      break;
+    } else if (!strcmp( S.c_str(), std::string("-np").c_str())) {
+      found_be_count = true;
+#ifdef DEBUG_CLI
+      std::cerr << "In getBEcountFromCommand, found, -np, S="
+	<< S << std::endl;
+#endif
+    } else if (!strcmp(S.c_str(), std::string("-n").c_str())) {
+      found_be_count = true;
+#ifdef DEBUG_CLI
+      std::cerr << "In getBEcountFromCommand, found, -n, S=" << S << std::endl;
+#endif
+    }
+  }
+
+
+  return retval;
 }
 
 /**
@@ -1164,39 +1230,50 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
           cli_timing_handle->cli_perf_data[SS_Timings::expCreate_FW_createProcess_Start] = Time::Now();
         }
 
-        // Start to gather performance information on the sub-task portions of expAttach
-        // Here the processing of creating the process in the Framework
+        // Start to gather performance information on the sub-task portions of
+        // expAttach. Here the processing of creating the process in the
+        // Framework.
         if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled()  && 
             cli_timing_handle->in_expAttach()) {
           cli_timing_handle->cli_perf_data[SS_Timings::expAttach_FW_createProcess_Start] = Time::Now();
         }
 
-#if 1
-        // offline changes: don't create a process for offline, we are executing this outside of the cli/framework infrastructure
-        // see expGo (actually Execute_Experiment for details of how we are executing under offline)
+        // offline changes: don't create a process for offline, we are executing
+        // this outside of the cli/framework infrastructure see expGo
+        // (actually Execute_Experiment for details of how we are executing
+        // under offline)
 
         bool offlineInstrumentor = exp->getIsInstrumentorOffline();
 
 #ifdef DEBUG_CLI
         std::cerr << "In Resolve_F_Target, local value of offlineInstrumentor=" << offlineInstrumentor << "\n";
+        std::cerr << "In Resolve_F_Target, f_val1->name=" << f_val1->name << "\n" << std::endl;
 #endif
 
-	if (!offlineInstrumentor) {
-          ThreadGroup tg = exp->FW()->createProcess( f_val1->name, host_name, 
+
+	if (offlineInstrumentor) {
+#ifdef DEBUG_CLI
+          std::cerr << "In Resolve_F_Target, calling setOfflineAppCommand, offline case, f_val1->name=" << f_val1->name << "\n";
+          std::cerr << "In Resolve_F_Target, calling setOfflineAppCommand, offline case, host_name=" << host_name << "\n";
+#endif
+          int numBE = getBEcountFromCommand(f_val1->name);
+          exp->FW()->setBEprocCount( numBE );
+          ThreadGroup tg = exp->FW()->createProcess( f_val1->name, host_name, numBE, 
                                                      OutputCallback(&ReDirect_User_Stdout,(void *)w), 
                                                      OutputCallback(&ReDirect_User_Stderr,(void *)w)   );
           tgrp->insert(tg.begin(), tg.end());
+          exp->setOfflineAppCommand(f_val1->name.c_str());
 
         } else {
 
+	    // FIXME???:  This is not the offline path!
 #ifdef DEBUG_CLI
             std::cerr << "In Resolve_F_Target, calling setOfflineAppCommand, offline case, f_val1->name=" << f_val1->name << "\n";
             std::cerr << "In Resolve_F_Target, calling setOfflineAppCommand, offline case, host_name=" << host_name << "\n";
 #endif
 
             exp->setOfflineAppCommand(f_val1->name.c_str());
-          }
-#endif
+        }
 
         if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() && cli_timing_handle->in_expCreate()) {
           cli_timing_handle->processTimingEventEnd( SS_Timings::expCreate_FW_createProcess_Start,
@@ -1205,7 +1282,7 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
                                                     SS_Timings::expCreate_FW_createProcess_Min,
                                                     SS_Timings::expCreate_FW_createProcess_Total,
                                                     SS_Timings::expCreate_FW_createProcess_End);
-         }
+        }
 
         if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled()  && cli_timing_handle->in_expAttach()) {
           cli_timing_handle->processTimingEventEnd( SS_Timings::expAttach_FW_createProcess_Start,
@@ -1214,7 +1291,7 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
                                                     SS_Timings::expAttach_FW_createProcess_Min,
                                                     SS_Timings::expAttach_FW_createProcess_Total,
                                                     SS_Timings::expAttach_FW_createProcess_End);
-         }
+        }
 
 
       }
@@ -1223,7 +1300,6 @@ static void Resolve_F_Target (CommandObject *cmd, ExperimentObject *exp, ThreadG
          return;
       }
     }
-
   }
 }
 
@@ -2421,12 +2497,15 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 #endif
 
 
-       // Now let's check to see if we have a mpi type experiment and then modify the collector to match what is necessary to pass to RunOfflineExp
+    // Now let's check to see if we have a mpi type experiment and then
+    // modify the collector to match what is necessary to pass to
+    // RunOfflineExp or the CBTF version.
     std::string S ;
     S.clear();
     std::list<std::string>::iterator offc;
     bool firstTime = true;
-    for (offc = exp->offlineCollectorList.begin(); offc != exp->offlineCollectorList.end(); offc++) {
+    for (offc = exp->offlineCollectorList.begin();
+	 offc != exp->offlineCollectorList.end(); offc++) {
 
         if (firstTime) {
           firstTime = false;
@@ -2434,7 +2513,9 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
           S = S + ",";
         }
 #ifdef DEBUG_CLI
-        std::cerr << "In Execute_Experiment, offline, exp->offlineCollectorList, (collector)=" << (*offc) << "\n";
+        std::cerr << "In Execute_Experiment, offline, "
+	    << "exp->offlineCollectorList, (collector)=" << (*offc)
+	    << std::endl;
 #endif
         S = (*offc);
 
@@ -2444,15 +2525,25 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
 
     // Run the offline experirment via RunOfflineExp instead of using the MRNet instrumentor
     // This call is for the interactive offline experiment not the oss convenience calls    
-    std::string runOfflineCmd = "RunOfflineExp(program=\"" + appCommand + "\", collector=\"" + S + "\")";
+    // CBTF: hope we know its cbtf here. CBTFRunOfflineExp is used.
+    std::string runOfflineCmd;
+    if ( exp->getInstrumentorUsesCBTF() ) {
+     runOfflineCmd = "RunCBTFOfflineExp(program=\"" + appCommand
+		     + "\", collector=\"" + S + "\")";
+    } else {
+     runOfflineCmd = "RunOfflineExp(program=\"" + appCommand
+		     + "\", collector=\"" + S + "\")";
+    }
 #ifdef DEBUG_CLI
-    std::cerr << "In Execute_Experiment, runOfflineCmd=" << runOfflineCmd.c_str() << "\n";
+    std::cerr << "In Execute_Experiment, runOfflineCmd="
+	<< runOfflineCmd.c_str() << std::endl;
     fflush(stderr);
 #endif
     exp->FW()->setApplicationCommand(appCommand.c_str(), false /* trust_me */);
 
 #ifdef DEBUG_CLI
-    std::cerr << "In Execute_Experiment, offline, runOfflineCmd=" << runOfflineCmd << "\n" << std::endl ;
+    std::cerr << "In Execute_Experiment, offline, runOfflineCmd="
+	<< runOfflineCmd << "\n" << std::endl ;
 #endif
 
 
@@ -2481,7 +2572,8 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
   exp->Q_UnLock ();
 
 #ifdef DEBUG_CLI
-  std::cerr << "In Execute_Experiment, exp->Status()=" << exp->Status() << "\n";
+  std::cerr << "In Execute_Experiment, exp->Status()=" << exp->Status()
+	<< std::endl;
 #endif
 
   if (exp->Status() == ExpStatus_InError) {
@@ -2492,19 +2584,22 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     Mark_Cmd_With_Soft_Error(cmd,s);
     return false;
 
-  } else if (exp->Status() != ExpStatus_Paused && exp->FW()->getRerunCount() != -1) {
+  } else if (exp->Status() != ExpStatus_Paused &&
+	     exp->FW()->getRerunCount() != -1) {
 
    // Received a run request of a non-paused process, try to rerun
    // Do preparation to rerun before falling into the code below which
    // sets up the thread state and issues the run/rerun.
    // FIXME - how to determine whether the paused state is from 1st time
    // run (then don't do the prepareToRerun) or an actual pause via the user.
-   // If we are starting from a user pause, then we want to restart so call prepareToRerun.
+   // If we are starting from a user pause, then we want to restart
+   // so call prepareToRerun.
 
   std::string Data_File_Name = experiment->getName();
 
 #ifdef DEBUG_CLI
-  printf("Execute_Experiment, Data_File_Name of input experiment is %s\n", Data_File_Name.c_str());
+  std::cerr << "Execute_Experiment, Data_File_Name of input experiment is "
+	<< Data_File_Name.c_str();
 #endif
 
       //
@@ -2517,12 +2612,13 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
         EXPID active_exp_id = exp->ExperimentObject_ID();
         
         exp->FW()->incrementRerunCount();
-        std::string new_data_base_name = exp->createRerunNameFromCurrentName(active_exp_id, 
-                                                                             exp->FW()->getRerunCount(), 
-                                                                             Data_File_Name.c_str());
+        std::string new_data_base_name =
+		exp->createRerunNameFromCurrentName(active_exp_id, 
+                                                    exp->FW()->getRerunCount(), 
+                                                    Data_File_Name.c_str());
 #ifdef DEBUG_CLI
-        printf("Execute_Experiment, new_data_base_name of input experiment is %s\n", 
-               new_data_base_name.c_str());
+        std::cerr << "Execute_Experiment, new_data_base_name of input "
+	    << "experiment is " << new_data_base_name.c_str();
 #endif
         exp->Q_Lock (cmd, false);
         exp->CopyDB (new_data_base_name);
@@ -2534,9 +2630,11 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     exp->Q_Lock (cmd, false);
     std::string appCommand = experiment->getApplicationCommand();
     if (appCommand.empty()) {
-      printf("Execute_Experiment, appCommand for the experiment is EMPTY\n");
+      std::cerr << "Execute_Experiment, appCommand for the experiment is EMPTY
+	<< std::endl;
     } else {
-      printf("Execute_Experiment, appCommand for the experiment is %s\n", appCommand.c_str());
+      std::cerr << "Execute_Experiment, appCommand for the experiment is "
+	<< appCommand.c_str() << std::endl;
     } 
     exp->Q_UnLock ();
 #endif
@@ -2553,7 +2651,9 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
       exp->Q_UnLock ();
 
 #ifdef DEBUG_CLI
-      std::cerr << "Execute_Experiment, after prepareToRerun, exp->ExpStatus_Name() " << exp->ExpStatus_Name() << "\n";
+      std::cerr << "Execute_Experiment, after prepareToRerun, "
+	<< "exp->ExpStatus_Name() " << exp->ExpStatus_Name()
+	<< std::endl;
 #endif
 
   } 
@@ -2601,7 +2701,9 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
             (t.getState() == Thread::Nonexistent)) {
          // These states cause errors, but we can ignore them.
 #ifdef DEBUG_CLI
-          std::cerr << "In Execute_Experiment, after prepareToRerun, terminated or nonexistent clause, t.getState()= " << t.getState() << "\n";
+          std::cerr << "In Execute_Experiment, after prepareToRerun, "
+	    << "terminated or nonexistent clause, t.getState()= "
+	    << t.getState() << std::endl;
 #endif
           continue;
         }
@@ -2615,7 +2717,8 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     (void) Wait_For_Exp_State (cmd, ExpStatus_Running, exp);
 
 #ifdef DEBUG_CLI
-     std::cerr << "In Execute_Experiment, Embedded_WindowID= " << Embedded_WindowID << "\n";
+     std::cerr << "In Execute_Experiment, Embedded_WindowID= "
+	<< Embedded_WindowID << std::endl;
 #endif
    // Notify the user when the experiment has terminated.
     if (Embedded_WindowID == 0) {
@@ -2625,11 +2728,12 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     std::string appCommand = exp->FW()->getApplicationCommand();
 
 #ifdef DEBUG_CLI
-     std::cerr << "In Execute_Experiment, appCommand= " << appCommand << "\n";
+     std::cerr << "In Execute_Experiment, appCommand= "
+	<< appCommand << std::endl;
 #endif
 
-    // Protect against empty application command and then use default execution message
-    // which does not contain the executable name
+    // Protect against empty application command and then use default
+    // execution message which does not contain the executable name
     if (appCommand.empty() ) {
 
       // Annotate the command
@@ -4502,7 +4606,7 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp, bool FullDis
               S = S + m.getUniqueId();
             }
 
-     	    std::pair<bool, LinkedObject> tExe = t.getExecutable();
+     	    std::pair<bool, LinkedObject> tExe = t.getExecutable(Time::Now());
 	    if (tExe.first) {
 	    	    std::string epath = tExe.second.getPath().getBaseName();
 		    S = S + " (" + epath + ")";

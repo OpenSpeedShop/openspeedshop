@@ -20,6 +20,7 @@
 
 AC_INIT(OpenSpeedShop, 2.0.2b3)
 AC_COPYRIGHT([[Copyright (c) 2006-2012 Krell Institute. All Rights Reserved.]])
+AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([libltdl/config])
 AM_INIT_AUTOMAKE
 
@@ -72,15 +73,7 @@ LT_INIT([dlopen])
 # Enable building of the installable libltdl library
 LTDL_INIT([installable])
 
-#AC_LIBLTDL_INSTALLABLE
-#AC_SUBST(LTDLINCL)
-#AC_SUBST(LIBLTDL)
-#LT_CONFIG_LTDL_DIR([libltdl])
-#AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
-#AC_CONFIG_SUBDIRS(libltdl)
-
-
 
 AC_PATH_PROG([DOXYGEN], doxygen)
 AC_PROG_INSTALL
@@ -219,6 +212,7 @@ case "$enable_resolve_symbols" in
     AC_MSG_ERROR([invalid symbolresolution (resolve-symbols) specification "$RESSYM".])
     ;;
 esac 
+
 ################################################################################
 # Check for TLS option, default to implicit
 ################################################################################
@@ -488,18 +482,20 @@ AC_PKG_TARGET_SYMTABAPI()
 AC_PKG_TARGET_VT()
 AC_PKG_VT()
 AC_PKG_XERCES()
+
 ################################################################################
 # Check for Instrumentor
 ################################################################################
 
 AC_ARG_WITH(instrumentor,
 	    AC_HELP_STRING([--with-instrumentor=TYPE],
-			   [instrumentor (dyninst, mrnet, offline, none) @<:@offline@:>@]),
+			   [instrumentor (cbtf, dyninst, mrnet, offline, none) @<:@offline@:>@]),
 	    INSTRUMENTOR=$withval, INSTRUMENTOR="offline")
 
 case "$INSTRUMENTOR" in
     none)
 	AM_CONDITIONAL(HAVE_SYMTABAPI, false)
+	AM_CONDITIONAL(BUILD_CBTF, false)
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
@@ -512,6 +508,7 @@ case "$INSTRUMENTOR" in
     dyninst)
 	AM_CONDITIONAL(HAVE_SYMTABAPI, false)
 	AC_PKG_DYNINST()
+	AM_CONDITIONAL(BUILD_CBTF, false)
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
@@ -524,6 +521,7 @@ case "$INSTRUMENTOR" in
 	# AC_PKG_DYNINST checks for SYMTABAPI
 	AC_PKG_DYNINST()
 	AC_PKG_MRNET()
+	AM_CONDITIONAL(BUILD_CBTF, false)
 	AM_CONDITIONAL(BUILD_MRNET, true)
 	AC_DEFINE(BUILD_MRNET, 1, [Define to 1 if you only want the mrnet instrumentor.])
 	AM_CONDITIONAL(BUILD_DPCL, false)
@@ -534,12 +532,36 @@ case "$INSTRUMENTOR" in
 
     offline)
 	AC_PKG_SYMTABAPI()
+	AM_CONDITIONAL(BUILD_CBTF, false)
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(HAVE_DYNINST, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
 	AM_CONDITIONAL(HAVE_MRNET, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, true)
 	AC_DEFINE(BUILD_OFFLINE, 1, [Define to 1 if you only want the offline instrumentor.])
+	AM_CONDITIONAL(BUILD_INSTRUMENTOR, true)
+	AC_DEFINE(BUILD_INSTRUMENTOR, 1, [Define to 1 if you do not want an instrumentor built.])
+	;;
+
+    cbtf)
+	AC_PKG_DYNINST()
+	AC_PKG_MRNET()
+	AX_BOOST_BASE([1.35.0])
+	AX_BOOST_DATE_TIME()
+	AX_BOOST_SYSTEM()
+	AX_BOOST_THREAD()
+	AX_CBTF()
+	AX_CBTF_XML()
+	AX_CBTF_MRNET()
+	AX_MESSAGES()
+	AX_CBTF_SERVICES()
+
+	AM_CONDITIONAL(BUILD_DPCL, false)
+	AM_CONDITIONAL(HAVE_DYNINST, true)
+	AM_CONDITIONAL(BUILD_MRNET, false)
+	AM_CONDITIONAL(BUILD_OFFLINE, false)
+	AM_CONDITIONAL(BUILD_CBTF, true)
+	AC_DEFINE(BUILD_CBTF, 1, [Define to 1 if you only want the cbtf instrumentor.])
 	AM_CONDITIONAL(BUILD_INSTRUMENTOR, true)
 	AC_DEFINE(BUILD_INSTRUMENTOR, 1, [Define to 1 if you do not want an instrumentor built.])
 	;;
@@ -565,13 +587,13 @@ AC_ARG_ENABLE([runtime-only],
     [], [enable_runtime_only=no])
 
 if test "x$enable_runtime_only" = xyes ; then
-    AM_CONDITIONAL(BUILD_RUNTIME, true)
-    AC_DEFINE(BUILD_RUNTIME, 1, [Define to 1 if you do want only collector runtime support built.])
+    AM_CONDITIONAL(BUILD_RUNTIME_ONLY, true)
+    AC_DEFINE(BUILD_RUNTIME_ONLY, 1, [Define to 1 if you do want only collector runtime support built.])
 else
-    AM_CONDITIONAL(BUILD_RUNTIME, false)
-    AC_DEFINE(BUILD_RUNTIME, 0, [Define to 1 if you do not want only collector runtime support built.])
+    AM_CONDITIONAL(BUILD_RUNTIME_ONLY, false)
+    AC_DEFINE(BUILD_RUNTIME_ONLY, 0, [Define to 1 if you do not want only collector runtime support built.])
 fi
-AC_SUBST(BUILD_RUNTIME)
+AC_SUBST(BUILD_RUNTIME_ONLY)
 
 ################################################################################
 # build gui/cli with no collectors but supports running experiments with
@@ -599,6 +621,7 @@ fi
 
 AC_SUBST(BUILD_GUI_ONLY)
 
+
 ################################################################################
 # Generate Output Files
 ################################################################################
@@ -623,12 +646,14 @@ AC_CONFIG_FILES(
 	doc/design_doc/Runtime/Makefile
 	libopenss-message/Makefile
 	libopenss-runtime/Makefile
+	libopenss-runtime/cbtf/Makefile
 	libopenss-runtime/dpcl/Makefile
 	libopenss-runtime/dyninst/Makefile
 	libopenss-runtime/mrnet/Makefile
 	libopenss-runtime/offline/Makefile
 	libopenss-runtime/fileio/Makefile
 	libopenss-framework/Makefile
+	libopenss-framework/cbtf/Makefile
 	libopenss-framework/dpcl/Makefile
 	libopenss-framework/dyninst/Makefile
 	libopenss-framework/mrnet/Makefile

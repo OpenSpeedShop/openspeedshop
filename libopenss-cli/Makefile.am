@@ -22,6 +22,7 @@ BUILT_SOURCES = \
 	SS_Parse_Yacc.cxx \
 	SS_Parse_Yacc.h \
 	SS_Parse_Yacc.hxx \
+	cbtf-offline.py \
 	offline.py \
 	mrnet.py
 
@@ -29,7 +30,7 @@ AM_YFLAGS = -d
 YFLAGS = -d
 
 dist_pkglib_SCRIPTS = \
-	init.py offline.py mrnet.py
+	init.py cbtf-offline.py offline.py mrnet.py
 
 lib_LTLIBRARIES = libopenss-cli.la
 
@@ -79,7 +80,6 @@ libopenss_cli_la_LDFLAGS = \
 libopenss_cli_la_LIBADD = \
 	-lopenss-message \
 	-lopenss-framework \
-	-lopenss-framework-binutils \
 	-lopenss-queries \
 	$(LIBLTDL) \
 	@PYTHON_EXTRA_LIBS@ \
@@ -153,6 +153,21 @@ CLEANFILES = $(BUILT_SOURCES)
 doc:
 	$(DOXYGEN)
 
+cbtf-offline.py: cbtf-offline.py.in
+	@rm -f cbtf-offline.py
+	@sed \
+		-e 's,@@cbtfinstalldir@@,$(CBTF_INSTALLDIR),' \
+		-e 's,@@cbtflibdir@@,$(CBTF_LIBDIR),' \
+		-e 's,@@cbtfruncmd@@,$(CBTF_TOOLS_CBTFRUN),' \
+		-e 's,@@cbtfcollectors@@,$(CBTF_TOOLS_COLLECTORS),' \
+		-e 's,@@cbtfcomponents@@,$(CBTF_TOOLS_COMPONENTS),' \
+		-e 's,@@cbtfxmldir@@,$(CBTF_TOOLS_XML),' \
+		-e 's,@@osslibdir@@,$(pkglibdir),' \
+		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
+		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
+		$(srcdir)/cbtf-offline.py.in > cbtf-offline.py
+	@chmod 755 cbtf-offline.py
+
 offline.py: offline.py.in
 	@rm -f offline.py
 	@sed \
@@ -169,11 +184,14 @@ mrnet.py: mrnet.py.in
 	@chmod 755 mrnet.py
 
 
-install-exec-hook: libopenss-cli.la
 # PYopenss.so
+install-exec-hook: libopenss-cli.la
 	@rm -f $(DESTDIR)$(libdir)/openspeedshop/PYopenss.so
 	$(LN_S) $(DESTDIR)$(libdir)/libopenss-cli.so  $(DESTDIR)$(libdir)/openspeedshop/PYopenss.so
-	chmod 644 $(DESTDIR)$(libdir)/openspeedshop/PYopenss.so
+	chmod 755 $(DESTDIR)$(libdir)/openspeedshop/PYopenss.so
+
+uninstall-hook:
+	@rm -f $(DESTDIR)$(libdir)/openspeedshop/PYopenss.so
 
 
 EXTRA_DIST += offline.py.in mrnet.py

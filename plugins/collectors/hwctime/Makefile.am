@@ -28,7 +28,7 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
-if !BUILD_RUNTIME
+if !BUILD_RUNTIME_ONLY
 if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += hwctime.la
 endif
@@ -36,14 +36,17 @@ endif
 
 if HAVE_PAPI
 if BUILD_INSTRUMENTOR
+if !BUILD_CBTF
 if !BUILD_OFFLINE
 pkglib_LTLIBRARIES += hwctime-rt.la
+endif
 endif
 endif
 # endif for HAVE_PAPI
 endif
 
 if BUILD_INSTRUMENTOR
+if !BUILD_CBTF
 if HAVE_PAPI
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
@@ -70,10 +73,11 @@ endif
 # endif for HAVE_TARGET_PAPI
 endif
 endif
+endif
 
 
 
-if !BUILD_RUNTIME
+if !BUILD_RUNTIME_ONLY
 if !HAVE_TARGET_LIBMONITOR
 hwctime_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
@@ -98,6 +102,7 @@ hwctime_la_SOURCES = \
 endif
 
 if BUILD_INSTRUMENTOR
+if !BUILD_CBTF
 if HAVE_PAPI
 
 if !BUILD_OFFLINE
@@ -262,6 +267,7 @@ libhwctime_offline_la_SOURCES = \
 	runtime.c
 endif
 # endif for HAVE_TARGET_PAPI
+endif
 endif
 endif
 

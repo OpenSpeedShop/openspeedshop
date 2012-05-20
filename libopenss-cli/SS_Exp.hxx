@@ -56,6 +56,7 @@ class ExperimentObject
   std::list<CommandObject *> waiting_cmds;
   bool isBatch;
   bool isInstrumentorOffline;
+  bool instrumentorUsesCBTF;
   std::string offlineAppCommand;
 
  public:
@@ -105,6 +106,13 @@ class ExperimentObject
 #else
     setIsInstrumentorOffline(false);
 #endif
+
+#if (BUILD_CBTF == 1 )
+    setInstrumentorUsesCBTF(true);
+#else
+    setInstrumentorUsesCBTF(false);
+#endif
+
     offlineCollectorList.clear();
 
     Assert(pthread_mutex_init(&Experiment_Lock, NULL) == 0); // dynamic initialization
@@ -248,6 +256,9 @@ class ExperimentObject
   void setExpIsBatch (bool flag) {isBatch = flag;}
   bool getIsInstrumentorOffline () {return isInstrumentorOffline;}
   void setIsInstrumentorOffline (bool flag) {isInstrumentorOffline = flag;}
+  // flag for CBTF
+  bool getInstrumentorUsesCBTF () {return instrumentorUsesCBTF;}
+  void setInstrumentorUsesCBTF (bool flag) {instrumentorUsesCBTF = flag;}
 
   void setOfflineAppCommand(std::string appCmd) {
          offlineAppCommand = appCmd;
