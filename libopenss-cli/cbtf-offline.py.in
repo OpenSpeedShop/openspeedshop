@@ -1,0 +1,629 @@
+################################################################################
+# Copyright (c) 2008-2012 Krell Institute  All Rights Reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+################################################################################
+
+import types
+import code
+import os
+import os.path
+import re
+import string
+import sys
+
+import PY_Input
+
+offlinepy_debug = 0
+
+if 'OPENSS_DEBUG_STARTUP' in os.environ:
+    offlinepy_debug = os.environ["OPENSS_DEBUG_STARTUP"]
+
+def create_unique_dbname(db_name):
+    cnt = 1
+    base_name, ext = os.path.splitext(db_name)
+    # Python 2.3 does not have lexists which would be prefered here.
+    while os.path.isfile(db_name):
+	db_name = "%s-%d%s" % (base_name, cnt, ext)
+	cnt += 1
+    return db_name
+
+
+
+def RunCBTFOfflineExp(program="*", collector="*", installed="/usr"):
+    """Run CBTF offline experiment for Open|SpeedShop.
+    """
+    #print "enter RunCBTFOfflineExp with program " + program \
+#	  + " collector " + collector + " installed " + installed
+
+    cbtfinstalldir = "@@cbtfinstalldir@@"
+    cbtflibdir = "@@cbtflibdir@@"
+    cbtfruncmd = "@@cbtfruncmd@@"
+    cbtfcollectors = "@@cbtfcollectors@@"
+    cbtfcomponents = "@@cbtfcomponents@@"
+    cbtfxmldir = "@@cbtfxmldir@@"
+
+
+    if os.environ.has_key("OPENSS_DEBUG_CLI_PYTHON_GC"):
+        gc.set_debug(gc.DEBUG_LEAK)
+        gc.get_objects()
+    gc.disable()
+
+    # HANDLE CBTF environment here too if needed.
+    # We may want to consider driving all collection through
+    # the cbtfrun script.  We do this for mpi jobs already
+    # in the current offline python code...
+
+    #Check For OPENSS_PREFIX and use it.  That is, only if
+    #installed's default value has not changed.  Allows
+    #users to explicitly define a different OSS installation path (even
+    #if OPENSS_PREFIX is defined).
+    if (os.environ.has_key("OPENSS_PREFIX") and installed == "/usr"):
+        installed = os.environ["OPENSS_PREFIX"]
+        if os.environ.has_key("OPENSS_TARGET_ARCH"):
+            targ_arch = os.environ["OPENSS_TARGET_ARCH"]
+	    installed = installed + "/" + targ_arch
+        print "[openss]: Using OPENSS_PREFIX installed in " + installed
+    
+    # set up plugins path
+    # Note: this is really the location of collector runtime dsos
+    # For cbtf there are collector runtime dsos, and possibly
+    # cbtf component dsos and cbtf xml component network files.
+    if os.environ.has_key("CBTF_TARGET_PLUGIN_PATH"):
+        plugins = os.environ["CBTF_TARGET_PLUGIN_PATH"]
+    elif os.environ.has_key("CBTF_PLUGIN_PATH"):
+	plugins = os.environ["CBTF_PLUGIN_PATH"]
+    else:
+	plugin_dir =  cbtfcollectors
+        if not os.path.isdir(plugin_dir):
+	    raise RuntimeError("Failed to locate the cbtf runtime plugins directory.")
+	plugins = plugin_dir
+
+    # CBTF collection uses libmonitor too. Rather than worry that
+    # everything is based off of OPENSS_PREFIX or any prefix for
+    # that matter, find a better way of finding the libmonitor
+    # used to build with the cbtf tools services.
+    #
+    # Locate the libmonitor directory
+    # If OPENSS_PREFIX is set, do not assume libmonitor is there.
+    # The following test ensures that installed (either /usr or the
+    # path from OPENSS_PREFIX) does indeed have a proper libdir.
+    libdir = installed + "/lib64"
+    if not os.path.isdir(libdir):
+        libdir = installed + "/lib"
+    if not os.path.isdir(libdir):
+        raise RuntimeError("[openss error]: Failed to locate the libmonitor library directory.")
+
+    # Locate the libmonitor runtime dso.
+    # If libmonitor.so is not found in the "installed" path, then
+    # fallback to /usr and try again (again, do not assume libmonitor
+    # was installed into OPENSS_PREFIX.
+    libmonitor = "@@libmonitordir@@/lib64/libmonitor.so"
+    if not os.path.isfile(libmonitor):
+     libmonitor = "@@libmonitordir@@/lib/libmonitor.so"
+     if not os.path.isfile(libmonitor):
+      libmonitor = libdir + "/libmonitor.so"
+      if not os.path.isfile(libmonitor):
+	systemdir = "/usr"
+	libdir = systemdir + "/lib64"
+	if not os.path.isdir(libdir):
+	    libdir = systemdir + "/lib"
+	if not os.path.isdir(libdir):
+            raise RuntimeError("[openss error]: Failed to locate the libmonitor library directory.")
+	libmonitor = libdir + "/libmonitor.so"
+	if not os.path.isfile(libmonitor):
+            raise RuntimeError("[openss error]: Failed to locate the libmonitor.so library. " + libmonitor)
+
+    if offlinepy_debug != 0: print "[openss-debug]: special checking section, libmonitor=" + libmonitor
+
+    # Set the default mpi implementation defined by the O|SS configuration.
+    default_mpi_impl = "@@ossdefaultmpi@@"
+
+    program_list = program.split()
+
+    #print "PROGRAM is " + program
+
+    # We need to see if any of the programs participating in the
+    # experiment are an mpi program.
+    mpi_executable = ""
+    mpi_exe_implmentation = ""
+    ismpi = bool(0)
+    # This is set to 1 because this is checked based on the exit status from os calls
+    # and is not used as a bool as ismpi is (specifed, initialized above)
+    ismpidriver = 1
+    mpi_driver = ""
+    path_list = os.path.expandvars("$PATH").split(":")
+
+    for s in program_list:
+	file_arg = s
+	#print "s in program_list: " + s
+	if s.startswith("~"):
+	    file_arg = s.replace("~", os.path.expanduser("~"))
+	    program = program.replace("~", os.path.expanduser("~"))
+	    
+	for p in path_list:
+	   if not os.path.isfile(s) and not ismpi \
+	      and not s.startswith("-"):
+		file_arg = p + "/" + s
+		if os.path.isfile(file_arg):
+		    break
+		else:
+		    file_arg = s
+
+# begin code to replace aliases
+#
+#       Recognize an alias for the executable and replace the alias with the actual value
+#       We must recognize the shell the user is running and execute the alias command using
+#       that shell, for example:  /bin/csh -c "alias executable"
+#       to see if there is an alias for executable.   Then use the replace command in the
+#       file_arg and program strings to put in the real command.
+        if os.environ.has_key("OPENSS_ALIAS_DETECTION"):
+            result = ""
+            mySHELL = 'echo $SHELL'
+            myshell_result = commands.getoutput(mySHELL)
+            if myshell_result.find("tcsh") != -1 or myshell_result.find("csh") != -1:
+               myAliasCommand = "alias " + file_arg
+               myAliasString = myshell_result + ' -c "' + myAliasCommand + '"'
+               result = commands.getoutput(myAliasString)
+               if result != "":
+                  program = program.replace(file_arg, result)
+                  file_arg = s.replace(file_arg, result)
+
+# end code to replace aliases
+	
+	if os.path.isfile(file_arg):
+	    # test if the file is elf binary and has the symbol MPI_Init.
+	    # We use os.WEXITSTATUS to properly decode the status.
+	    isexecutable = os.system('file -L ' + file_arg + ' | grep -q ELF')
+
+	    if not os.WEXITSTATUS(isexecutable):
+		# is this the actual mpi program.
+		if not ismpi:
+		  ismpidriver = os.system('nm ' + file_arg + ' | grep -q -i MPIR')
+
+                  #
+                  # Do some special checking on SGI systems because we can not detect
+                  # that the SGI mpiexec files are mpidrivers.  They do not contain
+                  # MPI specific symbols.  So, check to see we are using MPT and then
+                  # if the name is mpiexec or mpiexec_mpt set that it is a mpidriver.
+                  # BUT - OPENSS_MPI_IMPLEMENTATION must be set.  So, this seems safe
+                  #
+
+                  if offlinepy_debug != 0: print "[openss-debug]: special checking section, file_arg=" + file_arg
+                  if os.WEXITSTATUS(ismpidriver):
+                     if offlinepy_debug != 0: print "[openss-debug]: inside if not os.WEX(ismpidriver)"
+                     if 'OPENSS_MPI_IMPLEMENTATION' in os.environ:
+                        if offlinepy_debug != 0: print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is set"
+                        set_mpi_impl = os.environ["OPENSS_MPI_IMPLEMENTATION"]
+
+                        if set_mpi_impl == "MPT" or set_mpi_impl == "mpt":
+			     if offlinepy_debug != 0: print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is equal to mpt"
+			     file_arg_basename = os.path.basename(file_arg)
+			     if offlinepy_debug != 0: print "[openss-debug]: file_arg_basename=" + file_arg_basename
+			     if file_arg_basename == "mpiexec" or file_arg_basename == "mpiexec_mpt":
+			         if offlinepy_debug != 0: print "[openss-debug]: inside file_arg_basename is equal to mpiexec or mpiexec_mpt"
+			         ismpidriver = bool(1)
+			         if offlinepy_debug != 0: print "[openss-debug]: setting ismpidriver to bool 1"
+
+                        if set_mpi_impl == "openmpi":
+			     if offlinepy_debug != 0: print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is equal to openmpi"
+			     file_arg_basename = os.path.basename(file_arg)
+			     if offlinepy_debug != 0: print "[openss-debug]: file_arg_basename=" + file_arg_basename
+			     if file_arg_basename == "mpirun" or file_arg_basename == "orterun" or file_arg_basename == "mpiexec":
+			         if offlinepy_debug != 0: print "[openss-debug]: inside file_arg_basename is equal to mpirun or orterun"
+			         ismpidriver = bool(1)
+			         if offlinepy_debug != 0: print "[openss-debug]: setting ismpidriver to bool 1"
+
+		  if not os.WEXITSTATUS(ismpidriver):
+		    ismpi = bool(1)
+		    mpi_driver = os.path.realpath(file_arg)
+		    #print "MPI DRIVER is " + mpi_driver
+		    orig_mpi_driver = s
+                    program = program.replace(file_arg, mpi_driver)
+		    if ismpi:
+			islampi = os.system('nm ' + file_arg + ' | grep -q lampi_environ_init')
+			ismpt = os.system('nm ' + file_arg + ' | grep -q  MPI_debug_breakpoint')
+			islam = os.system('nm ' + file_arg + ' | grep -q  lam_tv_init')
+			isopenmpi = os.system('nm ' + file_arg + ' | grep -q orterun')
+		        if not os.WEXITSTATUS(isopenmpi):
+		          mpi_exe_implmentation = "openmpi"
+			  #print "IS OPENMPI"
+		        elif not os.WEXITSTATUS(islam):
+		          mpi_exe_implmentation = "lam"
+		        elif not os.WEXITSTATUS(islampi):
+		          mpi_exe_implmentation = "lampi"
+		        elif not os.WEXITSTATUS(ismpt):
+		          mpi_exe_implmentation = "mpt"
+
+		        continue
+
+		# is this the mpidriver and what implementation is it.
+		if ismpi:
+		  has_mpi_init = os.system('nm ' + file_arg + ' | grep -q -i MPI_Init')
+                  #
+                  # Do not require that the mpi program run by mpirun have the
+                  # symbol MPI_Init.  i.e. mpirun -np 2 /bin/date should be allowed.
+                  # We do not find MPI in the file_arg and there is a specific MPI IMPLEMENTATION known
+                  # So, we assign the file_arg as the mpi executable.
+                  #
+                  if os.WEXITSTATUS(has_mpi_init) and not len(mpi_exe_implmentation) == 0:
+                    mpi_executable = file_arg
+                    break
+                  #
+                  # We do not find MPI in the file_arg 
+                  # So, if the OPENSS_MPI_IMPLEMENTATION variable is set then we can assign the file_arg as the mpi executable.
+                  # Why?  There are use cases where the user has an executable that does not contain MPI symbols but is an
+                  # MPI executable because they use dlopen to load the MPI code into the executable later.
+                  #
+                  if os.WEXITSTATUS(has_mpi_init) and not os.environ["OPENSS_MPI_IMPLEMENTATION"] == "":
+		    mpi_executable = file_arg
+                    if offlinepy_debug != 0: print "[openss-debug]: no has_mpi_init and no MPI_IMPLEMENTATION, mpi_executable is file_arg=" + file_arg
+		    break
+		  if not os.WEXITSTATUS(has_mpi_init):
+		    mpi_executable = file_arg
+                    if offlinepy_debug != 0: print "[openss-debug]: has_mpi_init, mpi_executable is file_arg=" + file_arg
+		    break
+		  if mpi_exe_implmentation == "mpich2":
+                    if offlinepy_debug != 0: print "[openss-debug]: mpich2, mpi_executable is file_arg=" + file_arg
+		    mpi_executable = file_arg
+		    break
+		  if mpi_exe_implmentation == "mpt":
+                    if offlinepy_debug != 0: print "[openss-debug]: mpt, mpi_executable is file_arg=" + file_arg
+		    mpi_executable = file_arg
+		    break
+		  if mpi_exe_implmentation == "openmpi":
+		    mpi_executable = file_arg
+                    if offlinepy_debug != 0: print "[openss-debug]: openmpi, mpi_executable is file_arg=" + file_arg
+		    break
+		  if mpi_exe_implmentation == "mvapich":
+		    mpi_executable = file_arg
+                    if offlinepy_debug != 0: print "[openss-debug]: mvapich, mpi_executable is file_arg=" + file_arg
+		    break
+		  if mpi_exe_implmentation == "mvapich2":
+		    mpi_executable = file_arg
+                    if offlinepy_debug != 0: print "[openss-debug]: mvapich2, mpi_executable is file_arg=" + file_arg
+		    break
+	    else:
+		isscript = os.system('file -L ' + file_arg + ' | grep -q script')
+		if not os.WEXITSTATUS(isscript):
+		  # Lets hope the mpich2 driver always has Argonne in its copyright.
+                  if offlinepy_debug != 0: print "[openss-debug]: isscript section, file_arg=" + file_arg
+                  ismpich2_cray_vers1 = os.system('grep -q -i \"srun - Wrapper for Cray\" ' + file_arg)
+                  ismpich2_cray_vers2 = os.system('grep -q -i \"aprun -- A wrapper around the Cray aprun\" ' + file_arg)
+                  ismpich = os.system('grep -q -i \"MPIRUN for MPICH\" ' + file_arg)
+                  ismpich2 = os.system('grep -q -i Argonne ' + file_arg)
+                  ismvapich = os.system('grep -q -i \"Wrapper for job submission on Hert related machines\" ' + file_arg)
+                  ismvapich2 = os.system('grep -q -i \"MVAPICH2 software package developed\" ' + file_arg)
+
+		  # if both ismpich2 and ismvapich2 are set, choose mpich2
+		  if not os.WEXITSTATUS(ismpich2) and not os.WEXITSTATUS(ismvapich2):
+			ismpich2 = bool(0)
+                        if offlinepy_debug != 0: print "[openss-debug]: both ismpich2 and ismvapich2 are set choose mpich2"
+
+		  # if ismpich is set then don't do a check for mpich2
+		  if os.WEXITSTATUS(ismpich) and os.WEXITSTATUS(ismpich2):
+			ismpich2 = os.system('grep -q -i Intel ' + file_arg)
+                        if offlinepy_debug != 0: print "[openss-debug]: if ismpich is set then don't do a check for mpich2"
+
+                  ismpt = os.system('grep -q -i \"SGI Message Passing Toolkit\" ' + file_arg)
+		  isMPT = os.system('grep -q -i sgimpirun ' + file_arg)
+		  isopenmpi = os.system('grep -q -i orterun ' + file_arg)
+                  if not os.WEXITSTATUS(ismpich):
+                    ismpi = bool(1)
+                    mpi_driver = os.path.realpath(file_arg)
+                    orig_mpi_driver = s
+                    program = program.replace(s, file_arg)
+                    mpi_exe_implmentation = "mpich"
+                    if offlinepy_debug != 0: print "[openss-debug]: ismpich orig_mpi_driver=" + orig_mpi_driver
+ 		  if not os.WEXITSTATUS(ismpich2_cray_vers1):
+ 		    ismpi = bool(1)
+ 		    mpi_driver = os.path.realpath(file_arg)
+ 		    orig_mpi_driver = s
+ 		    program = program.replace(s, file_arg)
+ 		    mpi_exe_implmentation = "mpich2"
+                    if offlinepy_debug != 0: print "[openss-debug]: ismpich2_cray_vers1 orig_mpi_driver=" + orig_mpi_driver
+ 		  if not os.WEXITSTATUS(ismpich2_cray_vers2):
+ 		    ismpi = bool(1)
+ 		    mpi_driver = os.path.realpath(file_arg)
+ 		    orig_mpi_driver = s
+ 		    program = program.replace(s, file_arg)
+ 		    mpi_exe_implmentation = "mpich2"
+                    if offlinepy_debug != 0: print "[openss-debug]: ismpich2_cray_vers2 orig_mpi_driver=" + orig_mpi_driver
+		  if not os.WEXITSTATUS(ismpich2):
+		    ismpi = bool(1)
+		    mpi_driver = os.path.realpath(file_arg)
+		    orig_mpi_driver = s
+		    program = program.replace(s, file_arg)
+		    mpi_exe_implmentation = "mpich2"
+                    if offlinepy_debug != 0: print "[openss-debug]: ismpich2 orig_mpi_driver=" + orig_mpi_driver
+                  if not os.WEXITSTATUS(ismpt):
+                    ismpi = bool(1)
+                    mpi_driver = os.path.realpath(file_arg)
+                    orig_mpi_driver = s
+                    program = program.replace(s, file_arg)
+                    mpi_exe_implmentation = "mpt"
+                    if offlinepy_debug != 0: print "[openss-debug]: ismpt orig_mpi_driver=" + orig_mpi_driver
+		  if not os.WEXITSTATUS(isMPT):
+		    ismpi = bool(1)
+		    mpi_driver = os.path.realpath(file_arg)
+		    orig_mpi_driver = s
+		    program = program.replace(s, file_arg)
+		    mpi_exe_implmentation = "mpt"
+                    if offlinepy_debug != 0: print "[openss-debug]: isMPT orig_mpi_driver=" + orig_mpi_driver
+		  if not os.WEXITSTATUS(isopenmpi):
+		    ismpi = bool(1)
+		    mpi_driver = os.path.realpath(file_arg)
+		    orig_mpi_driver = s
+		    program = program.replace(s, file_arg)
+		    mpi_exe_implmentation = "openmpi"
+                    if offlinepy_debug != 0: print "[openss-debug]: isopenmpi orig_mpi_driver=" + orig_mpi_driver
+		  if not os.WEXITSTATUS(ismvapich):
+                    ismpi = bool(1)
+                    mpi_driver = os.path.realpath(file_arg)
+                    orig_mpi_driver = s
+                    program = program.replace(s, file_arg)
+                    mpi_exe_implmentation = "mvapich"
+                    if offlinepy_debug != 0: print "[openss-debug]: ismvapich orig_mpi_driver=" + orig_mpi_driver
+		  if not os.WEXITSTATUS(ismvapich2):
+                    ismpi = bool(1)
+                    mpi_driver = os.path.realpath(file_arg)
+                    orig_mpi_driver = s
+                    program = program.replace(s, file_arg)
+                    mpi_exe_implmentation = "mvapich2"
+                    if offlinepy_debug != 0: print "[openss-debug]: ismvapich2 orig_mpi_driver=" + orig_mpi_driver
+
+
+    # CBTF will be similar.  Should we add CBTF_MPI_IMPLEMENTATION?
+    # Set the mpiplugin to use for mpi jobs.  The OPENSS_MPI_IMPLEMENTATION
+    # is primarily used to choose a different mpi (e.g. mpich vs. openmpi)
+    # for systems that have more than on mpi implementation configured for
+    # use with O|SS.
+    use_mpi_impl = ""
+
+    if ismpi:
+
+      if 'OPENSS_MPI_IMPLEMENTATION' in os.environ:
+	use_mpi_impl = os.environ["OPENSS_MPI_IMPLEMENTATION"]
+        if offlinepy_debug != 0: print "[openss-debug]: ismpi, and have OPENSS_MPI_IMPLEMENTATION set use_mpi_impl=" + use_mpi_impl
+      else:
+	if mpi_exe_implmentation == "":
+	    use_mpi_impl = default_mpi_impl.lower()
+	else:
+	    use_mpi_impl = mpi_exe_implmentation
+
+      if mpi_executable == "":
+	if use_mpi_impl == "":
+            raise RuntimeError("[openss error]: Failed to locate the mpi program.")
+        else:
+            if not os.WEXITSTATUS(ismpidriver):
+               mpi_executable = file_arg
+            else:
+               raise RuntimeError("[openss error]: Failed to locate the mpi program.")
+
+      mpiplugin = plugins + "/mpi-" + use_mpi_impl + "-rt-offline.so"
+      if offlinepy_debug != 0: print "[openss-debug]: mpiplugin=%(plu)s\n" % {'plu':mpiplugin}
+
+      os.environ['OPENSS_MPI_IMPLEMENTATION'] = use_mpi_impl
+
+    else:
+	mpiplugin = ""
+        if offlinepy_debug != 0: print "[openss-debug]: NULL case, mpiplugin=%(plu)s\n" % {'plu':mpiplugin}
+
+    # Allow the user to just use the known mpi and mpit collector names.
+    # We will prepend the proper mpi implementation.
+    orig_collectorname = collector;
+    if collector.startswith("mpi"):
+	if collector == "mpi":
+	    collector = collector + "-" + use_mpi_impl
+	elif collector == "mpit":
+	    collector = collector + "-" + use_mpi_impl
+        elif collector == "mpiotf":
+            collector = collector + "-" + use_mpi_impl
+        if offlinepy_debug != 0: print "[openss-debug]: mpi collector case, collector=%(col)s\n" % {'col':collector}
+
+    # Form the command that will run the offline experiment
+    # For MPI programs we will call cbtfrun to handle setting up the
+    # collector for just the actual mpi program and not the mpi driver too.
+    # With CBTF the cbtfrun command should be used where ever cbtfrun was
+    # was used to run the application with collectors.
+
+
+    # cbtfrun has these options which differ from ossrun:
+    # -m, --mrnet Use mrnet to send data.
+    # --mpi Use mpi version of collector. This lightweight mrnet backends
+    #       need this to properly connect to the mrnet tree for mpi programs.
+    # And the standard -c,--collector.
+
+    if mpi_executable != "":
+	mpi_exe_orig = mpi_executable
+        if not mpi_executable.startswith("/") and not mpi_executable.startswith("."):
+	    mpi_executable = os.curdir + "/" + mpi_executable
+
+	# HANDLE CBTF version here...
+        if collector == "mpiotf":
+           cbtfrun_command = cbtfruncmd + os.environ['OPENSS_RAWDATA_DIR']
+        else:
+           cbtfrun_command = cbtfruncmd
+        if offlinepy_debug != 0:
+	    print "[openss-debug]: mpi, collector=%(col)s\n" % {'col':collector}
+	    print "[openss-debug]: mpi, mpi_executable=%(exe)s\n" % {'exe':mpi_executable}
+        # 
+        # Change made on 10/20/11 to better support redirection
+        # inside the quoted executable. (dpm/jeg) Found at NASA
+        # 
+	# The --mrnet --mpi options are needed for LW BE mrnet mpi programs.
+	# The --mrnet option is needed for LW BE mrnet sequential programs.
+        command = program.replace(mpi_exe_orig, cbtfrun_command +
+		  " --mrnet --mpi" +
+		  " -c " + orig_collectorname + " " + mpi_executable) 
+
+        print "command is: " + command
+
+    else:
+	command = program
+	if not command.startswith("/") and not command.startswith("."):
+	    command = os.curdir + "/" + command
+	command = cbtfruncmd + " --mrnet -c " + orig_collectorname + " " + command
+        print "command is: " + command
+
+    #collectorplugin =  plugins + "/" + collector + "-rt-offline.so"
+    if offlinepy_debug != 0:
+	print "[openss-debug]: Plugins %(plu)s offline %(col)s " \
+	      "experiment using the command:\n\"%(cmd)s\"\n" \
+           % {'plu':plugins,'col':collector,'cmd':command}
+
+
+    #if not os.path.isfile(collectorplugin):
+#	raise RuntimeError("[openss error]: Failed to locate the " +
+#			   collector + " runtime plugin.")
+	# this code below could replace the error here so we could
+	# just let the program run without our data collectors.
+	#collectorplugin = ""
+
+    # HANDLE CBTF. We need to setup the preload if not using cbtfrun
+    # in the same manner that cbtfrun would expect.
+    # Prepare our collectors and libmonitor for LD_PRELOAD.
+    # FIXME: Given the code below, oss_preload for mpi programs will be empty.
+    oss_preload = ""
+    if mpi_executable == "":
+        oss_preload = \
+	      ":" + libmonitor
+        if offlinepy_debug != 0:
+	    print "[openss-debug]: oss_preload=%(opl)s\n" % {'opl':oss_preload}
+
+
+    # Execute the command in a subprocess rather than replacing the
+    # current process like os.system does. Need Python 2.4 or later for this.
+    print "[openss]: Running offline %(col)s experiment " \
+	  "using the command:\n\"%(cmd)s\"\n" \
+	   % {'col':collector,'cmd':command}
+
+    # HANDLE CBTF way of running collectors.
+    # If we direct all execution thru cbtfrun, oss_preload is not needed?
+    python_ver = sys.version[0:3]
+    if python_ver > "2.3":
+	# For python versions > 2.4 we run mpi programs using the Popen method
+	# of the subprocess class.  If the program is not MPI then just use
+	# the os.system call.
+	if mpi_executable == "":
+	    # This is the easiest way for simple scalar programs.
+	    # We do not need to worry about interfering with
+	    # interactive programs and muck with any stdIO here.
+	    # If we can handle an interactive programm (like openss itself)
+	    # with the subprocess method then we should eventually do that.
+	    # NOTE: for cbtf we may just want to run thru cbtfrun here.
+	    command = "env" +  \
+             " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
+
+	    if offlinepy_debug != 0:
+		print "\n[openss debug]: non-mpi, USING os.system to execute " \
+			+ command
+	    if offlinepy_debug != 0:
+		print "\n[openss debug]: non-mpi, oss_preload=" + oss_preload
+
+	    os.system(command)
+	else:
+	    # This is specificly here for mpi programs.
+	    command = "env" +  \
+             " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
+
+	    if offlinepy_debug != 0:
+		print "\n[openss debug]: mpi, USING os.system to execute " \
+			+ command
+	    if offlinepy_debug != 0:
+		print "\n[openss debug]: mpi, oss_preload=" + oss_preload
+
+	    os.system(command)
+
+	# Comment out the subprocess code for now.
+	    #import subprocess
+	    #subp = subprocess.Popen(command, shell=True,
+	#			    stdout=subprocess.PIPE,
+	#			    stdin=subprocess.PIPE,)
+				    #env={"LD_PRELOAD":oss_preload})
+	#    while True:
+	#        o = subp.stdout.readline()
+	#        if o == '' and subp.poll() != None: break
+	#        sys.stdout.write(o)
+
+    else:
+	# For python 2.3 just run the experiment using os.system.
+	# This includes mpi programs.
+	command = "env" +  \
+             " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
+	os.system(command)
+
+    # NO raw files for CBTF with mrnet. Note that CBTF does allow
+    # for writing to rawdata files but no utility has been created
+    # to unify those raw files into an openss database.
+    if not collector.startswith("mpiotf"):
+   	  oss_cur_dir = os.getcwd()
+     	  oss_db_dir = os.getcwd()
+	  if os.environ.has_key("OPENSS_DB_DIR"):
+	    oss_db_dir = os.environ['OPENSS_DB_DIR']
+	    os.chdir(oss_db_dir)
+
+	  #print "\n[openss]: Converting raw data from %(rawdata)s into temp file %(ossfile)s\n" \
+	  #    % {'rawdata':os.environ['OPENSS_RAWDATA_DIR'],'ossfile':"X.0.openss"}
+   
+   	  # currently ossutil writes openss databases to ever increasing
+   	  # database files from the lowest it finds.
+   	  # Lets just always remove X.0.openss so that is our default for now.
+   	  # Always defaulting to X.0.openss allows us to use restore below with
+   	  # no need to worry about finding which file was just written.
+   	  #clean_command = "/bin/rm -f " + oss_db_dir + "/X.0.openss"
+   	  #os.system(clean_command)
+   
+   	  # Convert the rawdata files into opens database format.
+   	  #convert_command = OpenssInstallDir + "/bin/ossutil " + os.environ['OPENSS_RAWDATA_DIR']
+   	  #os.system(convert_command)
+   
+   	  # rename the default X.0.openss database with program name
+   	  # and collector name as a base.  The create_unique_dbname call
+   	  # will ensure we do not overwrite and existing openss database
+   	  # by bumping a count and prepending it before the .openss extension.
+	  if mpi_executable == "":
+	    ossdbfile = os.path.basename(program)
+	  else:
+	    ossdbfile = os.path.basename(mpi_executable)
+   
+	  # Remove spaces and any arguments to the program.
+	  prgwargs = ossdbfile.split(" ")
+	  ossdbfile = prgwargs[0] +  "-" + collector
+   
+	  tfile = ossdbfile + ".openss"
+	  tfile = create_unique_dbname(tfile)
+   	  # Python 2.3 does not have lexists which would be prefered here.
+ 	  if  os.path.isfile('X.0.openss'):
+	    os.rename('X.0.openss',tfile)
+	  else:
+	    sv_line = myparse.process("expsave -f " + oss_db_dir + "/" + tfile)
+	    myparse.runsource(sv_line, "stderr")
+   	    return
+   
+	  print "\n[openss]: Restoring and displaying default view for:\n\t" + oss_db_dir + "/" + tfile
+   
+	  # restore the newly created database into openss.
+	  r_line = myparse.process("exprestore -f " + oss_db_dir + "/" + tfile)
+	  myparse.runsource(r_line, "stderr")
+   
+	  # restore original rawdata directory
+	  #os.environ['OPENSS_RAWDATA_DIR'] = rawdir
+	  # restore current working directory
+	  if os.environ.has_key("OPENSS_DB_DIR"):
+	    os.chdir(oss_cur_dir)
+    else:
+ 	  print "\n[openss]: Open Trace Files (OTF) files have been created.  Use an appropriate tool for viewing the OTF files."
+   
