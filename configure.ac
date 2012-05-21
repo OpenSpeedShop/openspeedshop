@@ -18,7 +18,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-AC_INIT(OpenSpeedShop, 2.0.2b3)
+AC_INIT(OpenSpeedShop, 2.0.2b4)
 AC_COPYRIGHT([[Copyright (c) 2006-2012 Krell Institute. All Rights Reserved.]])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([libltdl/config])
@@ -178,25 +178,9 @@ AC_CHECK_HEADER(pthread.h, [ AC_CHECK_LIB(pthread, pthread_create, [
 AC_ARG_ENABLE(resolve-symbols,
 [--enable-resolve-symbols=mechanism - Control the mechanism used to resolve symbols in Open|SpeedShop
     bfd       - Use the binutils bfd interface
-    symtabapi - Use the Dyninst symtabAPI interface],,enable_resolve_symbols=bfd)
+    symtabapi - Use the Dyninst symtabAPI interface],,enable_resolve_symbols=symtabapi)
 
 AC_MSG_CHECKING([Checking for enable_resolve_symbols=$enable_resolve_symbols])
-
-#AS_IF([test "x$enable_resolve_symbols" == "xsymtabapi"], [
-#  dnl Do the stuff needed for enabling the feature
-#    AM_CONDITIONAL(OPENSS_USE_SYMTABAPI, true)
-#    AC_DEFINE(OPENSS_USE_SYMTABAPI, 1, [Define to 1 if you want to use bfd to resolve symbols.])
-#])
-
-#AS_IF([test "x$enable_resolve_symbols" == "xbfd"], [
-#  dnl Do the stuff needed for enabling the feature
-#    AM_CONDITIONAL(OPENSS_USE_SYMTABAPI, false)
-#])
-#
-#AC_ARG_WITH(resolve-symbols,
-#        AC_HELP_STRING([--with-resolve-symbols=TYPE],
-#               [resolvesymbols (bfd, symtabapi) @<:@bfd@:>@]),
-#        RESSYM=$withval, RESSYM="bfd")
 
 case "$enable_resolve_symbols" in
     bfd)
