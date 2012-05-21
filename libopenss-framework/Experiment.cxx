@@ -26,7 +26,6 @@
 
 #include "AddressBitmap.hxx"
 #include "AddressSpace.hxx"
-#include "BFDSymbols.hxx"
 #include "CollectorGroup.hxx"
 #include "DataCache.hxx"
 #include "DataQueues.hxx"
