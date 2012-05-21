@@ -32,7 +32,7 @@ DIST_SUBDIRS = cbtf dpcl dyninst mrnet offline
 #lib_LTLIBRARIES = libopenss-framework.la libopenss-framework-binutils.la
 lib_LTLIBRARIES = libopenss-framework-binutils.la
 
-if HAVE_SYMTABAPI
+if OPENSS_USE_SYMTABAPI
 lib_LTLIBRARIES += libopenss-framework-symtabapi.la
 endif
 
@@ -151,10 +151,10 @@ libopenss_framework_symtabapi_la_LIBADD = \
 
 
 #
-# HAVE_SYMTABAPI means use the symtabAPI interface to 
+# OPENSS_USE_SYMTABAPI means use the symtabAPI interface to 
 # resolve symbols, instead of the BFD interface from bintuils
 #
-if HAVE_SYMTABAPI
+if OPENSS_USE_SYMTABAPI
 libopenss_framework_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
@@ -244,7 +244,7 @@ else
 
 if BUILD_INSTRUMENTOR
 
-if HAVE_SYMTABAPI
+if OPENSS_USE_SYMTABAPI
 libopenss_framework_la_LIBADD = \
 	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
 	$(LIBLTDL) \
@@ -271,7 +271,7 @@ endif
 
 else
 
-if HAVE_SYMTABAPI
+if OPENSS_USE_SYMTABAPI
 libopenss_framework_la_LIBADD = \
 	$(LIBLTDL) \
 	@ARRAYSVCS_LIBS@ \
