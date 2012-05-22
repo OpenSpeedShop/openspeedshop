@@ -439,6 +439,7 @@ fi
 # Need to undefine system for cray-xt5
 if [ ${oss_target} = cray-xt5 ]
 then
+   undef_args="${undef_args} -Wl,-u,__wrap_fork"
    undef_args="${undef_args} -Wl,-u,__wrap_pthread_create"
 fi
 
