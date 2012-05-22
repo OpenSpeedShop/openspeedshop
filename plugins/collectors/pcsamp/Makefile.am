@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006,2007,2008,2009 Krell Institute All Rights Reserved.
+# Copyright (c) 2006-2012 Krell Institute All Rights Reserved.
 # Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -48,6 +48,7 @@ endif
 endif
 
 if HAVE_TARGET_LIBMONITOR
+if !BUILD_CBTF
 OFFLINE_SOURCES = \
 	offline.c
 
@@ -56,6 +57,8 @@ if HAVE_TARGET_SHARED
 pkglib_LTLIBRARIES += pcsamp-rt-offline.la
 endif
 endif
+endif
+
 endif
 
 if !BUILD_RUNTIME_ONLY

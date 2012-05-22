@@ -48,7 +48,9 @@ OFFLINE_SOURCES = \
 	offline.c
 
 pkglib_LTLIBRARIES += usertime-rt-offline.la libusertime-offline.la
+# endif (below) for !BUILD_CBT
 endif
+# endif (below) for if HAVE_LIBMONITOR
 endif
 
 if HAVE_TARGET_LIBMONITOR
@@ -60,9 +62,12 @@ pkglib_LTLIBRARIES += libusertime-offline.la
 if HAVE_TARGET_SHARED
 pkglib_LTLIBRARIES += usertime-rt-offline.la
 endif
+
+# endif (below) for !BUILD_CBT
 endif
+# endif (below) for if HAVE_TARGET_LIBMONITOR
 endif
-endif
+
 
 if !BUILD_RUNTIME_ONLY
 usertime_la_CXXFLAGS = \
@@ -79,10 +84,13 @@ usertime_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	UserTimeCollector.hxx UserTimeCollector.cxx \
 	UserTimeDetail.hxx
+#endif (below) for if !BUILD_RUNTIME_ONLY
 endif
 
-if !BUILD_OFFLINE
+if BUILD_INSTRUMENTOR
 if !BUILD_CBTF
+if !BUILD_OFFLINE
+
 if BUILD_MRNET
 usertime_rt_la_CFLAGS = \
 	-DUSE_FASTTRACE \
@@ -109,6 +117,9 @@ usertime_rt_la_LIBADD = \
 usertime_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.c
+#endif (below) for if !BUILD_OFFLINE
+endif
+#endif (below) for if !BUILD_CBTF
 endif
 
 if HAVE_LIBMONITOR
@@ -160,10 +171,12 @@ libusertime_offline_la_SOURCES = \
 	$(OFFLINE_SOURCES) \
 	runtime.c
 endif
+endif
 
 if HAVE_TARGET_LIBMONITOR
 
 if HAVE_TARGET_SHARED
+if !BUILD_CBTF
 
 usertime_rt_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE \
@@ -213,6 +226,7 @@ libusertime_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	$(OFFLINE_SOURCES) \
 	runtime.c
+endif
 endif
 endif
 
