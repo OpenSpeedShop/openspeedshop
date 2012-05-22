@@ -45,6 +45,7 @@ OFFLINE_SOURCES = \
 
 pkglib_LTLIBRARIES += pcsamp-rt-offline.la libpcsamp-offline.la
 endif
+endif
 
 if HAVE_TARGET_LIBMONITOR
 OFFLINE_SOURCES = \
@@ -53,7 +54,6 @@ OFFLINE_SOURCES = \
 pkglib_LTLIBRARIES += libpcsamp-offline.la
 if HAVE_TARGET_SHARED
 pkglib_LTLIBRARIES += pcsamp-rt-offline.la
-endif
 endif
 endif
 endif
