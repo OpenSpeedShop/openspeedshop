@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2007-2011 Krell Institute  All Rights Reserved.
+# Copyright (c) 2007-2012 Krell Institute  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -16,6 +16,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
+
 
 BUILT_SOURCES = \
 	SS_Parse_Lex.cxx \
@@ -46,29 +47,6 @@ libopenss_cli_la_CXXFLAGS = \
 	$(LTDLINCL) \
 	@PYTHON_CPPFLAGS@
 
-if HAVE_TARGET_SHARED
-libopenss_cli_la_LDFLAGS = \
-	-L$(top_srcdir)/libopenss-message \
-	-L$(top_srcdir)/libopenss-framework \
-	-L$(top_srcdir)/libopenss-queries \
-	@PYTHON_LDFLAGS@ \
-        @TARGET_STDC_PLUSPLUS_LDFLAGS@ \
-	@TARGET_BINUTILS_LDFLAGS@ \
-	@TARGET_OPENMP_LDFLAGS@ \
-	-export-dynamic -version-info 0:0:0
-
-libopenss_cli_la_LIBADD = \
-	-lopenss-message \
-	-lopenss-framework \
-	-lopenss-framework-binutils \
-	-lopenss-queries \
-	$(LIBLTDL) \
-	@TARGET_BINUTILS_LIBS@ \
-	@PYTHON_EXTRA_LIBS@ \
-        @TARGET_STDC_PLUSPLUS_LIBS@ \
-	@TARGET_OPENMP_LIBS@ \
-	-lpthread -lutil
-else
 libopenss_cli_la_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-message \
 	-L$(top_srcdir)/libopenss-framework \
@@ -85,7 +63,6 @@ libopenss_cli_la_LIBADD = \
 	@PYTHON_EXTRA_LIBS@ \
 	@OPENMP_LIBS@ \
 	-lpthread -lutil
-endif
 
 libopenss_cli_la_SOURCES = \
 	ArgClass.hxx \
@@ -193,5 +170,5 @@ install-exec-hook: libopenss-cli.la
 uninstall-hook:
 	@rm -f $(DESTDIR)$(libdir)/openspeedshop/PYopenss.so
 
-
 EXTRA_DIST += offline.py.in mrnet.py
+

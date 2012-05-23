@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2011 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2012 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -44,8 +44,8 @@ BUILT_FILES += ossrun
 endif
 endif
 if HAVE_TARGET_SHARED
-dist_bin_SCRIPTS += ossrun ossdriver
-BUILT_FILES += ossrun ossdriver
+dist_bin_SCRIPTS += ossrun
+BUILT_FILES += ossrun
 endif
 endif
 
@@ -60,9 +60,6 @@ bin_PROGRAMS =
 if !BUILD_RUNTIME_ONLY
 bin_PROGRAMS += openss 
 endif
-if HAVE_TARGET_SHARED
-bin_PROGRAMS += openss 
-endif
 
 openss_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
@@ -71,15 +68,6 @@ openss_CXXFLAGS = \
 	-DLIB_DIR_NAME=\"$(abi_libdir_name)\" \
 	$(LTDLINCL)
 
-if HAVE_TARGET_SHARED
-openss_LDFLAGS = \
-	@TARGET_OPENMP_LDFLAGS@
-
-openss_LDADD = \
-	$(LIBLTDL) \
-	@TARGET_OPENMP_LIBS@ \
-	@TARGET_LIBPTHREAD_LIBS@ 
-else
 openss_LDFLAGS = \
 	@OPENMP_LDFLAGS@
 
@@ -87,7 +75,6 @@ openss_LDADD = \
 	$(LIBLTDL) \
 	@OPENMP_LIBS@ \
 	-lpthread
-endif
 
 openss_SOURCES = \
 	openss.cxx
@@ -95,7 +82,6 @@ openss_SOURCES = \
 if BUILD_INSTRUMENTOR
 
 if !BUILD_RUNTIME_ONLY
-if !HAVE_TARGET_SHARED
 if !BUILD_CBTF
 bin_PROGRAMS += ossutil
 
@@ -152,66 +138,7 @@ ossutil_SOURCES = \
 
 endif
 endif
-endif
 
-#
-# building target shared and not building the runtime are mutually exclusive
-# therefore no else is used
-#
-if HAVE_TARGET_SHARED
-if !BUILD_CBTF
-bin_PROGRAMS += ossutil 
-
-ossutil_CXXFLAGS = \
-        @TARGET_BINUTILS_CPPFLAGS@ \
-        @TARGET_SQLITE_CPPFLAGS@ \
-        -I$(top_srcdir)/libopenss-framework \
-	-I$(top_srcdir)/libopenss-queries \
-        -I$(top_srcdir)/libopenss-runtime \
-        -DLIBRARY_DIR=\"$(libdir)\" \
-        -DPLUGIN_DIR=\"$(pkglibdir)\" \
-        -DLIB_DIR_NAME=\"$(abi_libdir_name)\" \
-        $(LTDLINCL)
-
-if HAVE_TARGET_SYMTABAPI
-ossutil_LDFLAGS = \
-        @TARGET_STDC_PLUSPLUS_LDFLAGS@ \
-        @TARGET_SQLITE_LDFLAGS@ \
-        -L$(top_srcdir)/libopenss-framework \
-	-L$(top_srcdir)/libopenss-queries \
-        -L$(top_srcdir)/libopenss-runtime 
-
-ossutil_LDADD = \
-        @TARGET_STDC_PLUSPLUS_LIBS@ \
-        @TARGET_SQLITE_LIBS@ \
-        $(LIBLTDL) \
-	-lopenss-framework \
-	@TARGET_LIBPTHREAD_LDFLAGS@ @TARGET_LIBPTHREAD_LIBS@ \
-	@TARGET_SYMTABAPI_LDFLAGS@ @TARGET_SYMTABAPI_LIBS@ 
-else
-ossutil_LDFLAGS = \
-        @TARGET_STDC_PLUSPLUS_LDFLAGS@ \
-        @TARGET_SQLITE_LDFLAGS@ \
-        @TARGET_BINUTILS_LDFLAGS@ \
-        -L$(top_srcdir)/libopenss-framework \
-	-L$(top_srcdir)/libopenss-queries \
-        -L$(top_srcdir)/libopenss-runtime
-
-ossutil_LDADD = \
-        @TARGET_STDC_PLUSPLUS_LIBS@ \
-        @TARGET_SQLITE_LIBS@ \
-        @TARGET_BINUTILS_LIBS@ \
-        $(LIBLTDL) \
-	-lopenss-framework \
-	-lopenss-framework-binutils \
-	@TARGET_LIBPTHREAD_LDFLAGS@ @TARGET_LIBPTHREAD_LIBS@ 
-endif
-
-
-ossutil_SOURCES = \
-        ossutil.cxx
-endif
-endif
 endif
 
 CLEANFILES = $(BUILT_FILES)
@@ -281,11 +208,6 @@ if !BUILD_CBTF
 ossrun: ossrun.in
 endif
 endif
-
-if HAVE_TARGET_SHARED
-ossrun: ossrun.in
-endif
-
 	@rm -f ossrun
 	@sed \
 		-e 's,@@machine_dependent_libdir@@,$(abi_libdir_name),' \
@@ -304,10 +226,6 @@ endif
 			$(srcdir)/ossrun.in > ossrun
 	@chmod 755 ossrun
 
-#
-# FIXME - how to also do this for HAVE_TARGET_SHARED?
-# need OR HAVE_TARGET_SHARED added here, but not sure how (jeg)
-#
 if !BUILD_TARGETED 
 ossdriver: ossdriver.in
 	@rm -f ossdriver
@@ -366,77 +284,9 @@ endif
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osscompare
 	chmod 755 $(DESTDIR)$(bindir)/osscompare
 
-uninstall-hook:
-	@rm -f $(DESTDIR)$(bindir)/osscompare
-	@rm -f $(DESTDIR)$(bindir)/ossfpe
-	@rm -f $(DESTDIR)$(bindir)/osshwctime
-	@rm -f $(DESTDIR)$(bindir)/osshwcsamp
-	@rm -f $(DESTDIR)$(bindir)/osshwc
-	@rm -f $(DESTDIR)$(bindir)/osspcsamp
-	@rm -f $(DESTDIR)$(bindir)/ossusertime
-	@rm -f $(DESTDIR)$(bindir)/ossmpiotf
-	@rm -f $(DESTDIR)$(bindir)/ossmpit
-	@rm -f $(DESTDIR)$(bindir)/ossmpi
-	@rm -f $(DESTDIR)$(bindir)/ossio
-	@rm -f $(DESTDIR)$(bindir)/ossiot
 # endif for !BUILD_TARGETED
 endif
 
-if HAVE_TARGET_SHARED
-ossdriver: ossdriver.in
-	@rm -f ossdriver
-	cp $(srcdir)/ossdriver.in ossdriver
-	chmod 755 ossdriver
-
-install-exec-hook: ossdriver
-# osspcsamp
-	@rm -f $(DESTDIR)$(bindir)/osspcsamp
-	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osspcsamp
-	chmod 755 $(DESTDIR)$(bindir)/osspcsamp
-# ossusertime
-	@rm -f $(DESTDIR)$(bindir)/ossusertime
-	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossusertime
-	chmod 755 $(DESTDIR)$(bindir)/ossusertime
-# osshwc
-	@rm -f $(DESTDIR)$(bindir)/osshwc
-	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osshwc
-	chmod 755 $(DESTDIR)$(bindir)/osshwc
-# osshwcsamp
-	@rm -f $(DESTDIR)$(bindir)/osshwcsamp
-	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osshwcsamp
-	chmod 755 $(DESTDIR)$(bindir)/osshwcsamp
-# osshwctime
-	@rm -f $(DESTDIR)$(bindir)/osshwctime
-	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osshwctime
-	chmod 755 $(DESTDIR)$(bindir)/osshwctime
-# ossio
-	@rm -f $(DESTDIR)$(bindir)/ossio
-	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossio
-	chmod 755 $(DESTDIR)$(bindir)/ossio
-# ossiot
-	@rm -f $(DESTDIR)$(bindir)/ossiot
-	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossiot
-	chmod 755 $(DESTDIR)$(bindir)/ossiot
-# ossmpi
-	@rm -f $(DESTDIR)$(bindir)/ossmpi
-	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossmpi
-	chmod 755 $(DESTDIR)$(bindir)/ossmpi
-# ossmpit
-	@rm -f $(DESTDIR)$(bindir)/ossmpit
-	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossmpit
-	chmod 755 $(DESTDIR)$(bindir)/ossmpit
-# ossmpiotf
-	@rm -f $(DESTDIR)$(bindir)/ossmpiotf
-	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossmpiotf
-	chmod 755 $(DESTDIR)$(bindir)/ossmpiotf
-# ossfpe
-	@rm -f $(DESTDIR)$(bindir)/ossfpe
-	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossfpe
-	chmod 755 $(DESTDIR)$(bindir)/ossfpe
-# osscompare
-	@rm -f $(DESTDIR)$(bindir)/osscompare
-	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osscompare
-	chmod 755 $(DESTDIR)$(bindir)/osscompare
 
 uninstall-hook:
 	@rm -f $(DESTDIR)$(bindir)/osscompare
@@ -451,8 +301,6 @@ uninstall-hook:
 	@rm -f $(DESTDIR)$(bindir)/ossmpi
 	@rm -f $(DESTDIR)$(bindir)/ossio
 	@rm -f $(DESTDIR)$(bindir)/ossiot
-# endif for HAVE_TARGET_SHARED
-endif
 
 # endif for BUILD_INSTRUMENTOR
 endif

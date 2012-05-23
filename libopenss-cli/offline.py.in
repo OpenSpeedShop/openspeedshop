@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2008-2011 Krell Institute  All Rights Reserved.
+# Copyright (c) 2008-2012 Krell Institute  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -55,16 +55,20 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     gc.disable()
     if (os.environ.has_key("OPENSS_PREFIX") and installed == "/usr"):
         installed = os.environ["OPENSS_PREFIX"]
+	if offlinepy_debug != 0: print "[openss-debug]: using OPENSS_PREFIX to set installed=" + installed
         if os.environ.has_key("OPENSS_TARGET_ARCH"):
             targ_arch = os.environ["OPENSS_TARGET_ARCH"]
 	    installed = installed + "/" + targ_arch
+	    if offlinepy_debug != 0: print "[openss-debug]: using OPENSS_TARGET_ARCH to create installed=" + installed
         print "[openss]: Using OPENSS_PREFIX installed in " + installed
     
     # set up plugins path
     if os.environ.has_key("OPENSS_TARGET_PLUGIN_PATH"):
         plugins = os.environ["OPENSS_TARGET_PLUGIN_PATH"]
+	if offlinepy_debug != 0: print "[openss-debug]: using OPENSS_TARGET_PLUGIN_PATH to find OSS plugins"
     elif os.environ.has_key("OPENSS_PLUGIN_PATH"):
 	plugins = os.environ["OPENSS_PLUGIN_PATH"]
+	if offlinepy_debug != 0: print "[openss-debug]: using OPENSS_PLUGIN_PATH to find OSS plugins"
     else:
 	plugin_dir =  OpenssInstallDir + "/lib64/openspeedshop"
 	if not os.path.isdir(plugin_dir):
@@ -73,6 +77,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    raise RuntimeError("Failed to locate the openspeedshop plugins directory.")
 	plugins = plugin_dir
 
+    if offlinepy_debug != 0: print "[openss-debug]: plugins=" + plugins
     rawdir = "/tmp"
 
     # always write into /tmp/$USER/offline-oss or
@@ -106,6 +111,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # The following test ensures that installed (either /usr or the
     # path from OPENSS_PREFIX) does indeed have a proper libdir.
     libdir = installed + "/lib64"
+    if offlinepy_debug != 0: print "[openss-debug]: libdir for libmonitor=" + libdir
     if not os.path.isdir(libdir):
         libdir = installed + "/lib"
     if not os.path.isdir(libdir):
@@ -115,12 +121,13 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # If libmonitor.so is not found in the "installed" path, then
     # fallback to /usr and try again (again, do not assume libmonitor
     # was installed into OPENSS_PREFIX.
-    libmonitor = "@@libmonitordir@@/lib64/libmonitor.so"
+    # Using libdir from above instead of at at libmonitordir.  This for target shared on Cray, etc.
+    #libmonitor = "@@libmonitordir@@/lib64/libmonitor.so"
+    libmonitor = libdir + "/libmonitor.so"
+    if offlinepy_debug != 0: print "[openss-debug]: libmonitor="  + libmonitor
     if not os.path.isfile(libmonitor):
      libmonitor = "@@libmonitordir@@/lib/libmonitor.so"
      if not os.path.isfile(libmonitor):
-      libmonitor = libdir + "/libmonitor.so"
-      if not os.path.isfile(libmonitor):
 	systemdir = "/usr"
 	libdir = systemdir + "/lib64"
 	if not os.path.isdir(libdir):
@@ -469,9 +476,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    mpi_executable = os.curdir + "/" + mpi_executable
 
         if collector == "mpiotf":
-           ossrun_command = OpenssInstallDir + "/bin/ossrun -o " + os.environ['OPENSS_RAWDATA_DIR']
+           ossrun_command = installed + "/bin/ossrun -o " + os.environ['OPENSS_RAWDATA_DIR']
         else:
-           ossrun_command = OpenssInstallDir + "/bin/ossrun"
+           ossrun_command = installed + "/bin/ossrun"
         # 
         # Change made on 10/20/11 to better support redirection inside the quoted executable. (dpm/jeg) Found at NASA
         # 

@@ -38,87 +38,6 @@ endif
 
 lib_LTLIBRARIES += libopenss-framework.la
 
-#
-# HAVE_TARGET_SHARED indicates shared builds on traditionally 
-# static platforms like the Cray and Blue Gene
-#
-if HAVE_TARGET_SHARED
-libopenss_framework_binutils_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/offline \
-	$(LTDLINCL) \
-	@TARGET_STDC_PLUSPLUS_CPPFLAGS@ \
-	@TARGET_BINUTILS_CPPFLAGS@
-
-libopenss_framework_binutils_la_LDFLAGS = \
-	@TARGET_BINUTILS_LDFLAGS@ \
-	@TARGET_STDC_PLUSPLUS_LDFLAGS@ \
-	@TARGET_LIBPTHREAD_LDFLAGS@ \
-	@TARGET_LIBRT_LDFLAGS@ \
-	-export-dynamic -version-info 1:0:0
-
-libopenss_framework_binutils_la_LIBADD = \
-	$(LIBLTDL) \
-	@TARGET_BINUTILS_LIBS@ \
-	@TARGET_STDC_PLUSPLUS_LIBS@ \
-	@TARGET_LIBPTHREAD_LIBS@ \
-	@TARGET_LIBRT_LIBS@ 
-
-libopenss_framework_symtabapi_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/offline \
-	$(LTDLINCL) \
-	@TARGET_STDC_PLUSPLUS_CPPFLAGS@ \
-	@TARGET_SYMTABAPI_CPPFLAGS@
-
-libopenss_framework_symtabapi_la_LDFLAGS = \
-	@TARGET_SYMTABAPI_LDFLAGS@ \
-	@TARGET_STDC_PLUSPLUS_LDFLAGS@ \
-	@TARGET_LIBPTHREAD_LDFLAGS@ \
-	@TARGET_LIBRT_LDFLAGS@ \
-	-export-dynamic -version-info 1:0:0
-
-libopenss_framework_symtabapi_la_LIBADD = \
-	$(LIBLTDL) \
-	@TARGET_SYMTABAPI_LIBS@ \
-	@TARGET_STDC_PLUSPLUS_LIBS@ \
-	@TARGET_LIBPTHREAD_LIBS@ \
-	@TARGET_LIBRT_LIBS@ 
-
-if HAVE_TARGET_SYMTABAPI
-libopenss_framework_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/offline \
-	$(LTDLINCL) \
-	@ARRAYSVCS_CPPFLAGS@ \
-	@TARGET_SQLITE_CPPFLAGS@
-
-libopenss_framework_la_LDFLAGS = \
-	@ARRAYSVCS_LDFLAGS@ \
-	@TARGET_SQLITE_LDFLAGS@ \
-	@TARGET_STDC_PLUSPLUS_LDFLAGS@ \
-	-export-dynamic -version-info 1:0:0
-else
-libopenss_framework_la_CXXFLAGS = \
-	-I$(top_srcdir)/libopenss-runtime \
-	-I$(top_srcdir)/libopenss-runtime/offline \
-	$(LTDLINCL) \
-	@ARRAYSVCS_CPPFLAGS@ \
-	@TARGET_SQLITE_CPPFLAGS@
-
-libopenss_framework_la_LDFLAGS = \
-	@ARRAYSVCS_LDFLAGS@ \
-	@TARGET_SQLITE_LDFLAGS@ \
-	@TARGET_STDC_PLUSPLUS_LDFLAGS@ \
-	-export-dynamic -version-info 1:0:0
-endif
-
-
-#
-# the else clause indicates not HAVE_TARGET_SHARED, 
-# so use the non target CPPFLAGS, LDFLAGS in this else clause
-#
-else
 libopenss_framework_binutils_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
@@ -202,45 +121,7 @@ endif
 
 # end of the else clause for the non-symtabAPI section
 endif
-# end of the else clause for the non-target shared section
-endif
 
-
-if HAVE_TARGET_SHARED
-
-if BUILD_INSTRUMENTOR
-if HAVE_TARGET_SYMTABAPI
-libopenss_framework_la_LIBADD = \
-	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
-	$(LIBLTDL) \
-	@ARRAYSVCS_LIBS@ \
-	@TARGET_SQLITE_LIBS@ \
-	@TARGET_STDC_PLUSPLUS_LIBS@ \
-	@TARGET_LIBPTHREAD_LDFLAGS@ @TARGET_LIBPTHREAD_LIBS@ \
-	@TARGET_LIBRT_LDFLAGS@ @TARGET_LIBRT_LIBS@ 
-else
-libopenss_framework_la_LIBADD = \
-	@INSTRUMENTOR@/libopenss-framework-@INSTRUMENTOR@.la \
-	$(LIBLTDL) \
-	@ARRAYSVCS_LIBS@ \
-	@TARGET_SQLITE_LIBS@ \
-	@TARGET_STDC_PLUSPLUS_LIBS@ \
-	@TARGET_LIBPTHREAD_LDFLAGS@ @TARGET_LIBPTHREAD_LIBS@ \
-	@TARGET_LIBRT_LDFLAGS@ @TARGET_LIBRT_LIBS@ \
-	@TARGET_BINUTILS_LDFLAGS@ @TARGET_BINUTILS_LIBS@
-endif
-else
-libopenss_framework_la_LIBADD = \
-	$(LIBLTDL) \
-	@ARRAYSVCS_LIBS@ \
-	@TARGET_SQLITE_LIBS@ \
-	@TARGET_STDC_PLUSPLUS_LIBS@ \
-	@TARGET_LIBPTHREAD_LDFLAGS@ @TARGET_LIBPTHREAD_LIBS@ \
-	@TARGET_LIBRT_LDFLAGS@ @TARGET_LIBRT_LIBS@ \
-	@TARGET_BINUTILS_LDFLAGS@ @TARGET_BINUTILS_LIBS@
-endif
-
-else
 
 if BUILD_INSTRUMENTOR
 
@@ -304,9 +185,6 @@ endif
 endif
 
 # endif for not build instrumentor else clause
-endif
-
-# endif for not having target shared else clause
 endif
 
 COMMON_SOURCES = \

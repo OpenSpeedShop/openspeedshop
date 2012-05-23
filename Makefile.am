@@ -44,8 +44,7 @@ PLUGINS_SUBDIRS = plugins
 COLLECTOR_SUBDIRS = plugins/collectors
 
 TARGET_SHARED_PLUGINS_SUBDIRS = \
-                        plugins/collectors \
-                        plugins/views 
+                        plugins/collectors  
 
 CLIENT_SUBDIRS = \
 	openss
@@ -66,14 +65,9 @@ if HAVE_QTLIB
 if BUILD_RUNTIME_ONLY
 if HAVE_TARGET_SHARED
 BASE_SUBDIRS += \
-	$(LTDL_SUBDIRS) \
-	$(MESSAGE_SUBDIRS) \
 	$(RT_SUBDIRS) \
-	$(FW_SUBDIRS) \
-	$(CLI_SUBDIRS) \
 	$(TARGET_SHARED_PLUGINS_SUBDIRS) \
-	$(CLIENT_SUBDIRS) \
-	$(TARGET_SHARED_MISC_SUBDIRS)
+	$(CLIENT_SUBDIRS)  
 else
 BASE_SUBDIRS += \
 	$(RT_SUBDIRS) \
@@ -97,11 +91,7 @@ else
 if BUILD_RUNTIME_ONLY
 if HAVE_TARGET_SHARED
 BASE_SUBDIRS += \
-	$(LTDL_SUBDIRS) \
-	$(MESSAGE_SUBDIRS) \
 	$(RT_SUBDIRS) \
-	$(FW_SUBDIRS) \
-	$(CLI_SUBDIRS) \
 	$(TARGET_SHARED_PLUGINS_SUBDIRS) \
 	$(CLIENT_SUBDIRS) \
 	$(TARGET_SHARED_MISC_SUBDIRS)
