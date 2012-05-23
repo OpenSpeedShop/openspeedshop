@@ -27,36 +27,42 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
-if !HAVE_TARGET_LIBMONITOR
 if !BUILD_RUNTIME_ONLY
+if !HAVE_TARGET_LIBMONITOR
 pkglib_LTLIBRARIES += fpe.la
 endif
 endif
 
 if BUILD_INSTRUMENTOR
-if !BUILD_CBTF
 if !BUILD_OFFLINE
+if !BUILD_CBTF
 pkglib_LTLIBRARIES += fpe-rt.la
 endif
+endif
+endif
 
+if BUILD_INSTRUMENTOR
 if HAVE_LIBMONITOR
+if !BUILD_CBTF
 OFFLINE_SOURCES = \
 	offline.c
 
 pkglib_LTLIBRARIES += fpe-rt-offline.la libfpe-offline.la
 endif
+endif
 
 if HAVE_TARGET_LIBMONITOR
+if !BUILD_CBTF
 OFFLINE_SOURCES = \
 	offline.c
 
+pkglib_LTLIBRARIES += libfpe-offline.la
 if HAVE_TARGET_SHARED
 pkglib_LTLIBRARIES += fpe-rt-offline.la
 endif
+endif
+endif
 
-pkglib_LTLIBRARIES += libfpe-offline.la
-endif
-endif
 endif
 
 if !BUILD_RUNTIME_ONLY
@@ -112,8 +118,10 @@ fpe_rt_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	runtime.c
 endif
+endif
 
 if HAVE_LIBMONITOR
+if !BUILD_CBTF
 fpe_rt_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
@@ -172,10 +180,12 @@ libfpe_offline_la_SOURCES = \
 	$(OFFLINE_SOURCES) \
 	runtime.c
 endif
+endif
 
 if HAVE_TARGET_LIBMONITOR
 
 if HAVE_TARGET_SHARED
+if !BUILD_CBTF
 fpe_rt_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \
@@ -234,9 +244,7 @@ libfpe_offline_la_SOURCES = \
 	$(OFFLINE_SOURCES) \
 	runtime.c
 endif
-
 endif
-
 endif
 
 SUFFIXES = .x
