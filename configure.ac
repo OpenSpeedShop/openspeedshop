@@ -465,7 +465,8 @@ AC_PKG_TARGET_SQLITE()
 AC_PKG_TARGET_SYMTABAPI()
 AC_PKG_TARGET_VT()
 AC_PKG_VT()
-AC_PKG_XERCES()
+#AC_PKG_XERCES()
+
 
 ################################################################################
 # Check for Instrumentor
@@ -534,8 +535,14 @@ case "$INSTRUMENTOR" in
 	AX_BOOST_DATE_TIME()
 	AX_BOOST_SYSTEM()
 	AX_BOOST_THREAD()
+        AX_XERCESC()
+        # This helps with targeted builds when there is no xercesc
+        if test "$LIBXERCES_C" = "-lxerces-c" ; then
+          AX_XERCESC_VERSION()
+        fi
 	AX_CBTF()
 	AX_CBTF_XML()
+        AX_MRNET()
 	AX_CBTF_MRNET()
 	AX_MESSAGES()
 	AX_CBTF_SERVICES()
