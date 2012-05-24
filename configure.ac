@@ -465,7 +465,6 @@ AC_PKG_TARGET_SQLITE()
 AC_PKG_TARGET_SYMTABAPI()
 AC_PKG_TARGET_VT()
 AC_PKG_VT()
-#AC_PKG_XERCES()
 
 
 ################################################################################
@@ -492,6 +491,7 @@ case "$INSTRUMENTOR" in
 
     dyninst)
 	AM_CONDITIONAL(HAVE_SYMTABAPI, false)
+	AC_PKG_XERCES()
 	AC_PKG_DYNINST()
 	AM_CONDITIONAL(BUILD_CBTF, false)
 	AM_CONDITIONAL(BUILD_DPCL, false)
@@ -506,6 +506,7 @@ case "$INSTRUMENTOR" in
 	# AC_PKG_DYNINST checks for SYMTABAPI
 	AC_PKG_DYNINST()
 	AC_PKG_MRNET()
+	AC_PKG_XERCES()
 	AM_CONDITIONAL(BUILD_CBTF, false)
 	AM_CONDITIONAL(BUILD_MRNET, true)
 	AC_DEFINE(BUILD_MRNET, 1, [Define to 1 if you only want the mrnet instrumentor.])
