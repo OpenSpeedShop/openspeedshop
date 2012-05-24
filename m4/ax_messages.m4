@@ -42,10 +42,10 @@ AC_DEFUN([AX_MESSAGES], [
 
     AC_MSG_CHECKING([for CBTF MESSAGES library and headers])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <KrellInstitute/Messages/Address.h>
         ]], [[
-        ]]), [ 
+        ]])], [ 
             AC_MSG_RESULT(yes)
         ], [
             AC_MSG_RESULT(no)

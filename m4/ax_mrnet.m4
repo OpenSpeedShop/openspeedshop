@@ -57,11 +57,11 @@ AC_DEFUN([AX_MRNET], [
 
     AC_MSG_CHECKING([for MRNet library and headers])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <mrnet/MRNet.h>
         ]], [[
         MRN::set_OutputLevel(0);
-        ]]), [ 
+        ]])], [ 
             AC_MSG_RESULT(yes)
 
 	    foundMRNET=1

@@ -25,13 +25,13 @@ AC_DEFUN([AX_XERCESC_VERSION], [
     xerces_saved_CPPFLAGS=$CPPFLAGS
     CPPFLAGS="$CPPFLAGS $LIBXERCES_C_CPPFLAGS"
 
-    AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
         #include "xercesc/util/XercesVersion.hpp"
         ]], [[
         #if _XERCES_VERSION < 3000
             #error "libxerces-c version is too old!"
         #endif
-        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
+        ]])], AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
         AC_MSG_FAILURE(libxerces-c version isn't 3.0.0 or higher.)
         ]
     )
@@ -53,13 +53,13 @@ AC_DEFUN([AX_TARGET_XERCESC_VERSION], [
     xerces_saved_CPPFLAGS=$CPPFLAGS
     CPPFLAGS="$CPPFLAGS $TARGET_LIBXERCES_C_CPPFLAGS"
 
-    AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
         #include "xercesc/util/XercesVersion.hpp"
         ]], [[
         #if _XERCES_VERSION < 3000
             #error "libxerces-c version is too old!"
         #endif
-        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
+        ]])], AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
         AC_MSG_FAILURE(libxerces-c version isn't 3.0.0 or higher.)
         ]
     )

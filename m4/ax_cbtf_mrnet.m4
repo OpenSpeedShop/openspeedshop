@@ -38,10 +38,10 @@ AC_DEFUN([AX_CBTF_MRNET], [
 
     AC_MSG_CHECKING([for CBTF MRNet library and headers])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <KrellInstitute/CBTF/XDR.hpp>
         ]], [[
-        ]]), [ 
+        ]])], [ 
             AC_MSG_RESULT(yes)
         ], [
             AC_MSG_RESULT(no)

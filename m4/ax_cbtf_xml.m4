@@ -38,11 +38,11 @@ AC_DEFUN([AX_CBTF_XML], [
 
     AC_MSG_CHECKING([for CBTF XML library and headers])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <KrellInstitute/CBTF/XML.hpp>
         ]], [[
         KrellInstitute::CBTF::registerXML("");
-        ]]), [ 
+        ]])], [ 
             AC_MSG_RESULT(yes)
         ], [
             AC_MSG_RESULT(no)

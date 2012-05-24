@@ -71,12 +71,12 @@ AC_DEFUN([AX_CBTF], [
 
     AC_MSG_CHECKING([for CBTF library and headers])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <KrellInstitute/CBTF/Type.hpp>
         #include <typeinfo>
         ]], [[
         KrellInstitute::CBTF::Type type(typeid(int));
-        ]]), [ 
+        ]])], [ 
             AC_MSG_RESULT(yes)
         ], [
             AC_MSG_RESULT(no)

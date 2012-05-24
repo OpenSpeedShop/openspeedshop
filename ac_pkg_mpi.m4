@@ -36,11 +36,11 @@ AC_DEFUN([AC_PKG_LAM], [
     CPPFLAGS="$CPPFLAGS $LAM_CPPFLAGS"
     LDFLAGS="$LDFLAGS $LAM_LDFLAGS $LAM_LIBS"
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
 	]], [[
 	MPI_Initialized((int*)0);
-	]]),
+	]])],
 
 	if objdump -T $lam_dir/$abi_libdir/libmpi.so \
 		| cut -d' ' -f3 | grep "^lam_init" >/dev/null; then
@@ -83,11 +83,11 @@ AC_DEFUN([AC_PKG_LAM], [
          CPPFLAGS="$CPPFLAGS $LAM_CPPFLAGS"
          LDFLAGS="$LDFLAGS $LAM_LDFLAGS $LAM_LIBS"
 
-         AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+         AC_LINK_IFELSE([AC_LANG_PROGRAM([[
              #include <mpi.h>
              ]], [[
              MPI_Initialized((int*)0);
-             ]]),
+             ]])],
 
              if objdump -T $lam_dir/$alt_abi_libdir/libmpi.so \
                 | cut -d' ' -f3 | grep "^lam_init" >/dev/null; then
@@ -164,11 +164,11 @@ AC_DEFUN([AC_PKG_LAMPI], [
     CPPFLAGS="$CPPFLAGS $LAMPI_CPPFLAGS"
     LDFLAGS="$LDFLAGS $LAMPI_LDFLAGS $LAMPI_LIBS"
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
 	]], [[
 	MPI_Initialized((int*)0);
-	]]),
+	]])],
 
 	if objdump -T $lampi_dir/$abi_libdir/libmpi.so \
 		| cut -d' ' -f3 | grep "^lampi_init" >/dev/null; then
@@ -211,11 +211,11 @@ AC_DEFUN([AC_PKG_LAMPI], [
          CPPFLAGS="$CPPFLAGS $LAMPI_CPPFLAGS"
          LDFLAGS="$LDFLAGS $LAMPI_LDFLAGS $LAMPI_LIBS"
 
-         AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+         AC_LINK_IFELSE([AC_LANG_PROGRAM([[
              #include <mpi.h>
              ]], [[
              MPI_Initialized((int*)0);
-             ]]),
+             ]])],
 
              if objdump -T $lampi_dir/$alt_abi_libdir/libmpi.so \
                 | cut -d' ' -f3 | grep "^lampi_init" >/dev/null; then
@@ -340,11 +340,11 @@ AC_DEFUN([AC_PKG_MPICH], [
     CPPFLAGS="$CPPFLAGS $MPICH_CPPFLAGS"
     LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
 	]], [[
 	MPI_Initialized((int*)0);
-	]]),
+	]])],
 
         if ( (test -f $mpich_dir/$abi_libdir/shared/libmpich.so) ) ; then
 	    found_mpich=1
@@ -365,11 +365,11 @@ AC_DEFUN([AC_PKG_MPICH], [
 #        MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir -L$mpich_dir/$alt_abi_libdir/libmpich.a"
         LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
 
-        AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
     	    #include <mpi.h>
 	    ]], [[
 	    MPI_Initialized((int*)0);
-	    ]]),
+	    ]])],
 
             if ( (test -f $mpich_dir/$alt_abi_libdir/libmpich.so) ) ; then
     	        found_mpich=1
@@ -391,11 +391,11 @@ AC_DEFUN([AC_PKG_MPICH], [
 #             MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir -L$mpich_dir/$abi_libdir/libmpich.a"
              LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
 
-             AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+             AC_LINK_IFELSE([AC_LANG_PROGRAM([[
                  #include <mpi.h>
                  ]], [[
                  MPI_Initialized((int*)0);
-                 ]]),
+                 ]])],
 
                  if ( (test -f $mpich_dir/$abi_libdir/libmpich.so) ) ; then
 	           found_mpich=1
@@ -516,11 +516,11 @@ AC_DEFUN([AC_PKG_MPICH2], [
 
     if test $found_mpich2 -eq 0; then
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
 	]], [[
 	MPI_Initialized((int*)0);
-	]]),
+	]])],
 
         if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
 	    found_mpich2=1
@@ -565,11 +565,11 @@ AC_DEFUN([AC_PKG_MPICH2], [
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
        LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
 
-       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
 	  ]], [[
 	  MPI_Initialized((int*)0);
-	  ]]),
+	  ]])],
 
          if (test -f $mpich2_dir/$alt_abi_libdir/libmpich.so) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir"
@@ -605,11 +605,11 @@ AC_DEFUN([AC_PKG_MPICH2], [
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
        LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
 
-       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
 	  ]], [[
 	  MPI_Initialized((int*)0);
-	  ]]),
+	  ]])],
 
          if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
@@ -639,11 +639,11 @@ AC_DEFUN([AC_PKG_MPICH2], [
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
        LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
 
-       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
 	  ]], [[
 	  MPI_Initialized((int*)0);
-	  ]]),
+	  ]])],
 
          if (test -f $mpich2_dir/$abi_libdir/libmpi.so) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
@@ -674,11 +674,11 @@ AC_DEFUN([AC_PKG_MPICH2], [
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
        LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
 
-       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
 	  ]], [[
 	  MPI_Initialized((int*)0);
-	  ]]),
+	  ]])],
 
          if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
@@ -712,11 +712,11 @@ AC_DEFUN([AC_PKG_MPICH2], [
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
        LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
 
-       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
 	  ]], [[
 	  MPI_Initialized((int*)0);
-	  ]]),
+	  ]])],
 
          if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
@@ -746,11 +746,11 @@ AC_DEFUN([AC_PKG_MPICH2], [
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
        LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
 
-       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
 	  ]], [[
 	  MPI_Initialized((int*)0);
-	  ]]),
+	  ]])],
 
          if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
@@ -890,11 +890,11 @@ AC_DEFUN([AC_PKG_MPT], [
     CPPFLAGS="$CPPFLAGS $MPT_CPPFLAGS"
     LDFLAGS="$LDFLAGS $MPT_LDFLAGS $MPT_LIBS"
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
 	]], [[
 	MPI_Initialized((int*)0);
-	]]),
+	]])],
 	, )
 
     CC=$mpt_saved_CC
@@ -965,11 +965,11 @@ AC_DEFUN([AC_PKG_OPENMPI], [
     CPPFLAGS="-O0 -g $CPPFLAGS $OPENMPI_CPPFLAGS"
     LDFLAGS="$OPENMPI_LDFLAGS $OPENMPI_LIBS"
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
 	]], [[
 	MPI_Initialized((int*)0);
-	]]),
+	]])],
 
 	if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
 	   (objdump -T $openmpi_dir/$alt_abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
@@ -991,11 +991,11 @@ AC_DEFUN([AC_PKG_OPENMPI], [
      LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS $OPENMPI_LIBS"
      CPPFLAGS="-O0 -g $CPPFLAGS $OPENMPI_CPPFLAGS"
 
-     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	#include <mpi.h>
    	]], [[
    	MPI_Initialized((int*)0);
-   	]]),
+   	]])],
    
    	if (objdump -T $openmpi_dir/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
            (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
@@ -1017,11 +1017,11 @@ AC_DEFUN([AC_PKG_OPENMPI], [
      LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS $OPENMPI_LIBS"
      CPPFLAGS="-O0 -g $CPPFLAGS $OPENMPI_CPPFLAGS"
 
-     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	#include <mpi.h>
    	]], [[
    	MPI_Initialized((int*)0);
-   	]]),
+   	]])],
    
    	if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
            (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
@@ -1040,11 +1040,11 @@ AC_DEFUN([AC_PKG_OPENMPI], [
      OPENMPI_LDFLAGS="-L$openmpi_dir/$alt_abi_libdir"
      LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS $OPENMPI_LIBS"
 
-     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	#include <mpi.h>
    	]], [[
    	MPI_Initialized((int*)0);
-   	]]),
+   	]])],
    
    	if (objdump -T $openmpi_dir/$alt_abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
            (objdump -T /usr/$alt_abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
@@ -1065,11 +1065,11 @@ AC_DEFUN([AC_PKG_OPENMPI], [
      OPENMPI_CC="$openmpi_dir/bin/om-mpicxx"
      CC="$OPENMPI_CC"
 
-     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	#include <mpi.h>
    	]], [[
    	MPI_Initialized((int*)0);
-   	]]),
+   	]])],
    
    	if (objdump -T $openmpi_dir/$abi_libdir/libmpi.so | grep "ompi_mpi" >/dev/null) ||
            (objdump -T /usr/$abi_libdir/openmpi/libmpi.so | grep "ompi_mpi" >/dev/null) ||
@@ -1251,11 +1251,11 @@ AC_DEFUN([AC_PKG_MVAPICH], [
     CPPFLAGS="$CPPFLAGS $MVAPICH_CPPFLAGS"
     LDFLAGS="$LDFLAGS $MVAPICH_LIBS $MVAPICH_LDFLAGS $MVAPICH_LIBS"
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
 	]], [[
 	MPI_Initialized((int*)0);
-	]]),
+	]])],
 
         if (test -f $mvapich_dir/$abi_libdir/libmpich.so); then
             MVAPICH_LDFLAGS="-L$mvapich_dir/$abi_libdir"
@@ -1286,11 +1286,11 @@ AC_DEFUN([AC_PKG_MVAPICH], [
        CPPFLAGS="$CPPFLAGS $MVAPICH_CPPFLAGS"
        LDFLAGS="$LDFLAGS $MVAPICH_LIBS $MVAPICH_LDFLAGS $MVAPICH_LIBS"
 
-       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
 	  ]], [[
 	  MPI_Initialized((int*)0);
-	  ]]),
+	  ]])],
 
          if (test -f $mvapich_dir/$alt_abi_libdir/libmpich.so); then
              MVAPICH_LDFLAGS="-L$mvapich_dir/$alt_abi_libdir"
@@ -1384,11 +1384,11 @@ AC_DEFUN([AC_PKG_MVAPICH2], [
     CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
     LDFLAGS="$LDFLAGS $MVAPICH2_LIBS $MVAPICH2_LDFLAGS $MVAPICH2_LIBS"
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
 	]], [[
 	MPI_Initialized((int*)0);
-	]]),
+	]])],
 
          if (test -f $mvapich2_dir/$abi_libdir/libmpich.so); then
              found_mvapich2=1
@@ -1421,11 +1421,11 @@ AC_DEFUN([AC_PKG_MVAPICH2], [
        CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
        LDFLAGS="$LDFLAGS $MVAPICH2_LIBS $MVAPICH2_LDFLAGS $MVAPICH2_LIBS"
 
-       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
 	  ]], [[
 	  MPI_Initialized((int*)0);
-	  ]]),
+	  ]])],
 
           if (test -f $mvapich2_dir/$alt_abi_libdir/libmpich.so); then
 	    found_mvapich2=1
@@ -1476,11 +1476,11 @@ AC_DEFUN([AC_PKG_MVAPICH2], [
       CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
       LDFLAGS="$LDFLAGS $MVAPICH2_LIBS $MVAPICH2_LDFLAGS $MVAPICH2_LIBS"
 
-      AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+      AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
 	]], [[
 	MPI_Initialized((int*)0);
-	]]),
+	]])],
 
          if (test -f $mvapich2_dir/$abi_libdir/libmpich.so); then
              found_mvapich2=1
@@ -1514,11 +1514,11 @@ AC_DEFUN([AC_PKG_MVAPICH2], [
        CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
        LDFLAGS="$LDFLAGS $MVAPICH2_LIBS $MVAPICH2_LDFLAGS $MVAPICH2_LIBS"
 
-       AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
 	  ]], [[
 	  MPI_Initialized((int*)0);
-	  ]]),
+	  ]])],
 
           if (test -f $mvapich2_dir/$alt_abi_libdir/libmpich.so); then
 	    found_mvapich2=1

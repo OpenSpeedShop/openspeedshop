@@ -336,11 +336,11 @@ AC_DEFUN([AC_PKG_PAPI], [
 
     AC_MSG_CHECKING([for PAPI library and headers])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <papi.h>
         ]], [[
 	PAPI_is_initialized();
-        ]]), [ AC_MSG_RESULT(yes)
+        ]])], [ AC_MSG_RESULT(yes)
 
             AM_CONDITIONAL(HAVE_PAPI, true)
             AC_DEFINE(HAVE_PAPI, 1, [Define to 1 if you have PAPI.])
