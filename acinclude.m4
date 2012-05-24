@@ -51,11 +51,11 @@ AC_DEFUN([AC_PKG_ARRAYSVCS], [
 
     AC_MSG_CHECKING([for array services library and headers])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <arraysvcs.h>
         ]], [[
         asgeterror();
-        ]]), [ AC_MSG_RESULT(yes)
+        ]])], [ AC_MSG_RESULT(yes)
 
             AC_DEFINE(HAVE_ARRAYSVCS, 1, 
                       [Define to 1 if you have array services.])
@@ -341,11 +341,11 @@ AC_DEFUN([AC_PKG_DPCL], [
 
     AC_MSG_CHECKING([for DPCL client library and headers])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <dpcl.h>
         ]], [[
         Ais_initialize();
-        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
+        ]])], AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
         AC_MSG_FAILURE(cannot locate DPCL client library and/or headers.) ]
     )
 
@@ -439,11 +439,11 @@ AC_DEFUN([AC_PKG_DYNINST], [
     AC_MSG_CHECKING([for Dyninst API library and headers])
 
     LIBS="${LIBS} $DYNINST_LDFLAGS $DYNINST_LIBS $BINUTILS_LDFLAGS -liberty $LIBDWARF_LDFLAGS $LIBDWARF_LIBS" 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <BPatch.h>
         ]], [[
 	BPatch bpatch();
-        ]]), 
+        ]])], 
         [  AC_MSG_RESULT(yes) 
            AM_CONDITIONAL(HAVE_DYNINST, true)
            AM_CONDITIONAL(HAVE_SYMTABAPI, true)
@@ -511,7 +511,7 @@ AC_DEFUN([AC_PKG_SYMTABAPI], [
     AC_MSG_CHECKING([for symtabAPI API library and headers])
 
     LIBS="${LIBS} $SYMTABAPI_LDFLAGS $SYMTABAPI_LIBS $BINUTILS_LDFLAGS -liberty $LIBDWARF_LDFLAGS $LIBDWARF_LIBS" 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include "Symbol.h"
 	#include "Symtab.h"
 	using namespace Dyninst;
@@ -519,7 +519,7 @@ AC_DEFUN([AC_PKG_SYMTABAPI], [
 	
         ]], [[
         Symtab symtab = Symtab();
-        ]]), 
+        ]])], 
         [  AC_MSG_RESULT(yes) 
            AM_CONDITIONAL(HAVE_SYMTABAPI, true)
            AC_DEFINE(HAVE_SYMTABAPI, 1, [Define to 1 if you have symtabAPI.])
@@ -734,11 +734,11 @@ AC_DEFUN([AC_PKG_LIBUNWIND], [
     AC_MSG_CHECKING([for libunwind library and headers])
 
     LIBS="${LIBS} $LIBUNWIND_LDFLAGS $LIBUNWIND_LIBS" 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <libunwind.h>
         ]], [[
         unw_init_local((void*)0, (void*)0);
-        ]]), 
+        ]])], 
         [   AC_MSG_RESULT(yes)
             AM_CONDITIONAL(HAVE_LIBUNWIND, true)
             AC_DEFINE(HAVE_LIBUNWIND, 1, [Define to 1 if you have libunwind.])
@@ -951,11 +951,11 @@ AC_DEFUN([AC_PKG_MRNET], [
     AC_MSG_CHECKING([for MRNet library and headers])
 
     LIBS="${LIBS} $MRNET_LDFLAGS $MRNET_LIBS" 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mrnet/MRNet.h>
         ]], [[
 	MRN::set_OutputLevel(0);
-        ]]), [ AC_MSG_RESULT(yes)
+        ]])], [ AC_MSG_RESULT(yes)
 
             foundMRNET=1
 
@@ -973,11 +973,11 @@ AC_DEFUN([AC_PKG_MRNET], [
         AC_MSG_CHECKING([in alternative abi directory look for MRNet library and headers])
 
         LIBS="${LIBS} $MRNET_LDFLAGS $MRNET_LIBS" 
-        AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
     	    #include <mrnet/MRNet.h>
             ]], [[
 	    MRN::set_OutputLevel(0);
-            ]]), [ AC_MSG_RESULT(yes)
+            ]])], [ AC_MSG_RESULT(yes)
 
                 foundMRNET=1
 
@@ -1033,14 +1033,14 @@ AC_DEFUN([AC_PKG_OPENMP], [
 
     AC_MSG_CHECKING([for OpenMP support])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <omp.h>
 	#include <stdio.h>
         ]], [[
 	#pragma omp parallel for
 	for(int i = 0; i < 100; ++i)
 	    printf("[%d] i = %d\n", omp_get_thread_num(), i);
-        ]]), [ AC_MSG_RESULT(yes)
+        ]])], [ AC_MSG_RESULT(yes)
 
             AM_CONDITIONAL(HAVE_OPENMP, true)
 	    AC_DEFINE(HAVE_OPENMP, 1, [Define to 1 if you have OpenMP.])
@@ -1528,11 +1528,11 @@ AC_DEFUN([AC_PKG_PAPI], [
     AC_MSG_CHECKING([for PAPI library and headers])
 
     LIBS="${LIBS} $PAPI_LDFLAGS $PAPI_LIBS" 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <papi.h>
         ]], [[
 	PAPI_is_initialized();
-        ]]), [ AC_MSG_RESULT(yes)
+        ]])], [ AC_MSG_RESULT(yes)
 
             AM_CONDITIONAL(HAVE_PAPI, true)
             AC_DEFINE(HAVE_PAPI, 1, [Define to 1 if you have PAPI.])
@@ -1683,11 +1683,11 @@ AC_DEFUN([AC_PKG_SQLITE], [
     AC_MSG_CHECKING([for SQLite library and headers])
 
     LIBS="${LIBS} $SQLITE_LDFLAGS $SQLITE_LIBS" 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <sqlite3.h>
         ]], [[
 	sqlite3_libversion();
-        ]]),[ found_sqlite=1 ], [ found_sqlite=0 ]
+        ]])],[ found_sqlite=1 ], [ found_sqlite=0 ]
     )
 
     CPPFLAGS=$sqlite_saved_CPPFLAGS
@@ -2301,16 +2301,16 @@ LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
 dnl Check if we have qglobal.h which is an indication of QT 3.3 or greater
 AC_CACHE_CHECK( [for Qt library version >= 3.3.0], ac_cv_qtlib_version,
 [
-#    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+#    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #	#include <qglobal.h>
 #	        ]], [[
-#	        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
+#	        ]])], AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
 #	        AC_MSG_FAILURE(Can not locate Qt library and/or the headers.) ]
 #   	    )
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <qglobal.h>
 	        ]], [[
-	        ]]), found_qt_inc=1, [ found_qt_inc=0 ]
+	        ]])], found_qt_inc=1, [ found_qt_inc=0 ]
    	    )
 
     if test $found_qt_inc -eq 1; then
@@ -2322,10 +2322,10 @@ dnl Use QT CPPFLAGS and LDFLAGS variables for the qt version test
       CPPFLAGS="$CPPFLAGS $QTLIB_CPPFLAGS"
       LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
 
-      AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+      AC_LINK_IFELSE([AC_LANG_PROGRAM([[
   	#include <qglobal.h>
 	        ]], [[
-	        ]]), found_qt_inc=1, [ found_qt_inc=0 ]
+	        ]])], found_qt_inc=1, [ found_qt_inc=0 ]
    	    )
     fi
 
@@ -2445,11 +2445,11 @@ AC_DEFUN([AC_PKG_LIBMONITOR], [
     AC_MSG_CHECKING([for libmonitor library and headers])
 
     LIBS="${LIBS} $LIBMONITOR_LDFLAGS $LIBMONITOR_LIBS -lpthread" 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <monitor.h>
         ]], [[
         monitor_init_library();
-        ]]), [ AC_MSG_RESULT(yes)
+        ]])], [ AC_MSG_RESULT(yes)
 
             AM_CONDITIONAL(HAVE_LIBMONITOR, true)
             AC_DEFINE(HAVE_LIBMONITOR, 1, [Define to 1 if you have libmonitor.])
@@ -2556,13 +2556,13 @@ AC_DEFUN([AC_PKG_LIBDWARF], [
     AC_MSG_CHECKING([for libdwarf library and headers])
 
     LIBS="${LIBS} $LIBDWARF_LDFLAGS $LIBDWARF_LIBS -lelf -lpthread" 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <dwarf.h>
         ]], [[
         if (DW_ID_up_case != DW_ID_down_case) {
            int mycase = DW_ID_up_case;
         }
-        ]]), [ found_libdwarf=1 ], [ found_libdwarf=0 ])
+        ]])], [ found_libdwarf=1 ], [ found_libdwarf=0 ])
 
     if test $found_libdwarf -eq 1; then
         AC_MSG_RESULT(yes)
@@ -2580,13 +2580,13 @@ AC_DEFUN([AC_PKG_LIBDWARF], [
          AC_MSG_CHECKING([for libdwarf library and headers])
 
          LIBS="${LIBS} $LIBDWARF_LDFLAGS $LIBDWARF_LIBS -lelf -lpthread" 
-         AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+         AC_LINK_IFELSE([AC_LANG_PROGRAM([[
              #include <dwarf.h>
              ]], [[
              if (DW_ID_up_case != DW_ID_down_case) {
                 int mycase = DW_ID_up_case;
              }
-             ]]), [ found_libdwarf=1
+             ]])], [ found_libdwarf=1
 
              ], [ found_libdwarf=0 ])
 
