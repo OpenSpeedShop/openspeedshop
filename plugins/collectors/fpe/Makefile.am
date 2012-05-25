@@ -184,8 +184,8 @@ endif
 
 if HAVE_TARGET_LIBMONITOR
 
-if HAVE_TARGET_SHARED
 if !BUILD_CBTF
+if HAVE_TARGET_SHARED
 fpe_rt_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE \
 	-I$(top_srcdir)/libopenss-runtime \

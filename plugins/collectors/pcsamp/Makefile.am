@@ -39,11 +39,13 @@ endif
 
 if BUILD_INSTRUMENTOR
 if HAVE_LIBMONITOR
+if !HAVE_TARGET_LIBMONITOR
 if !BUILD_CBTF
 OFFLINE_SOURCES = \
 	offline.c
 
 pkglib_LTLIBRARIES += pcsamp-rt-offline.la libpcsamp-offline.la
+endif
 endif
 endif
 
@@ -104,6 +106,7 @@ endif
 endif
 
 if HAVE_LIBMONITOR
+if !HAVE_TARGET_LIBMONITOR
 if !BUILD_CBTF
 pcsamp_rt_offline_la_CFLAGS = \
 	-DOPENSS_OFFLINE \
@@ -146,11 +149,12 @@ libpcsamp_offline_la_SOURCES = \
 	runtime.c
 endif
 endif
+endif
 
 if HAVE_TARGET_LIBMONITOR
 
-if HAVE_TARGET_SHARED
 if !BUILD_CBTF
+if HAVE_TARGET_SHARED
 pcsamp_rt_offline_la_CFLAGS = \
         -DOPENSS_OFFLINE \
         -I$(top_srcdir)/libopenss-runtime \
