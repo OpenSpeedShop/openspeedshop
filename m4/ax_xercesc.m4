@@ -46,7 +46,7 @@ AC_DEFUN([AX_XERCESC], [
        foundXERCES=1
     else
        foundXERCES=0
-       AC_MSG_CHECKING([did not fine xerces headers])
+       AC_MSG_CHECKING([did not find xerces headers])
     fi
 
     if test $foundXERCES == 1; then

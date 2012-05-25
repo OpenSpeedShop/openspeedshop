@@ -505,7 +505,11 @@ case "$INSTRUMENTOR" in
 	# AC_PKG_DYNINST checks for SYMTABAPI
 	AC_PKG_DYNINST()
 	AC_PKG_MRNET()
-	AC_PKG_XERCES()
+        AX_XERCESC()
+        # This helps with targeted builds when there is no xercesc
+        if test "$LIBXERCES_C" = "-lxerces-c" ; then
+          AX_XERCESC_VERSION()
+        fi
 	AM_CONDITIONAL(BUILD_CBTF, false)
 	AM_CONDITIONAL(BUILD_MRNET, true)
 	AC_DEFINE(BUILD_MRNET, 1, [Define to 1 if you only want the mrnet instrumentor.])
@@ -517,7 +521,11 @@ case "$INSTRUMENTOR" in
 
     offline)
 	AC_PKG_SYMTABAPI()
-	AC_PKG_XERCES()
+        AX_XERCESC()
+        # This helps with targeted builds when there is no xercesc
+        if test "$LIBXERCES_C" = "-lxerces-c" ; then
+          AX_XERCESC_VERSION()
+        fi
 	AM_CONDITIONAL(BUILD_CBTF, false)
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(HAVE_DYNINST, false)
