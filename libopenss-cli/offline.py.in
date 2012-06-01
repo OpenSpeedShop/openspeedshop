@@ -110,6 +110,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # If OPENSS_PREFIX is set, do not assume libmonitor is there.
     # The following test ensures that installed (either /usr or the
     # path from OPENSS_PREFIX) does indeed have a proper libdir.
+    # NOTE: It is not a requirement that libmonitor be installed int
+    # the same location as OpenSpeedShop itself.  So the libdir defined
+    # here is essentially only useful for the OpenSpeedShop libs. 
     libdir = installed + "/lib64"
     if offlinepy_debug != 0: print "[openss-debug]: libdir for libmonitor=" + libdir
     if not os.path.isdir(libdir):
@@ -122,10 +125,23 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # fallback to /usr and try again (again, do not assume libmonitor
     # was installed into OPENSS_PREFIX.
     # Using libdir from above instead of at at libmonitordir.  This for target shared on Cray, etc.
-    #libmonitor = "@@libmonitordir@@/lib64/libmonitor.so"
-    libmonitor = libdir + "/libmonitor.so"
+    # NOTE: The danger of using libdir is that it is defined for the OpenSpeedShop install
+    # by it's prefix and presumably --libdir option.  But, libmonitor is installed
+    # by the OpenSpeedShop_ROOT build/install and it may not be installed into
+    # the same location as OpenSpeedShop itself.  The OpenSpeedShop configuration
+    # will create a macro defining the libmonitor install which is defined
+    # by libmonitordir here.  What is missing is the name of the library dir.
+    # That is either lib or lib64.  We can not hardcode lib or lib64 here.
+    # For now, we can use the @@machine_dependent_libdir@@.  But that may
+    # potentially not set correctly in the ROOT install (it should be if not).
+    #machdir = "@@machine_dependent_libdir@@"
+    #libmonitor = libdir + "/libmonitor.so"
+    libmonitor = "@@libmonitordir@@/@@machine_dependent_libdir@@/libmonitor.so" 
     if offlinepy_debug != 0: print "[openss-debug]: libmonitor="  + libmonitor
     if not os.path.isfile(libmonitor):
+     # it would be preferable to not need this extra check.
+     # i.e.  we really should change the libmonitor m4 files
+     # to set $LIBMONITOR_LIBDIR so we can avoid all of this... 
      libmonitor = "@@libmonitordir@@/lib/libmonitor.so"
      if not os.path.isfile(libmonitor):
 	systemdir = "/usr"
@@ -470,15 +486,18 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # For MPI programs we will call ossrun to handle setting up the
     # collector for just the actual mpi program and not the mpi driver too.
 
+    real_ossrun_command = "@@oss_installation_dir@@" + "/bin/ossrun" 
     if mpi_executable != "":
 	mpi_exe_orig = mpi_executable
         if not mpi_executable.startswith("/") and not mpi_executable.startswith("."):
 	    mpi_executable = os.curdir + "/" + mpi_executable
 
         if collector == "mpiotf":
-           ossrun_command = installed + "/bin/ossrun -o " + os.environ['OPENSS_RAWDATA_DIR']
+           #ossrun_command = installed + "/bin/ossrun -o " + os.environ['OPENSS_RAWDATA_DIR']
+           ossrun_command = real_ossrun_command + " -o " + os.environ['OPENSS_RAWDATA_DIR'] 
         else:
-           ossrun_command = installed + "/bin/ossrun"
+           #ossrun_command = installed + "/bin/ossrun"
+           ossrun_command = real_ossrun_command 
         # 
         # Change made on 10/20/11 to better support redirection inside the quoted executable. (dpm/jeg) Found at NASA
         # 

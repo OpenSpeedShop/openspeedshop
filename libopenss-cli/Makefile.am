@@ -148,6 +148,8 @@ cbtf-offline.py: cbtf-offline.py.in
 offline.py: offline.py.in
 	@rm -f offline.py
 	@sed \
+		-e 's,@@oss_installation_dir@@,$(prefix),' \
+		-e 's,@@machine_dependent_libdir@@,$(abi_libdir_name),' \
 		-e 's,@@osslibdir@@,$(pkglibdir),' \
 		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
 		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
