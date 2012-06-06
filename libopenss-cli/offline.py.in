@@ -493,11 +493,11 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    mpi_executable = os.curdir + "/" + mpi_executable
 
         if collector == "mpiotf":
-           #ossrun_command = installed + "/bin/ossrun -o " + os.environ['OPENSS_RAWDATA_DIR']
-           ossrun_command = real_ossrun_command + " -o " + os.environ['OPENSS_RAWDATA_DIR'] 
+           ossrun_command = installed + "/bin/ossrun -o " + os.environ['OPENSS_RAWDATA_DIR']
+           #ossrun_command = real_ossrun_command + " -o " + os.environ['OPENSS_RAWDATA_DIR'] 
         else:
-           #ossrun_command = installed + "/bin/ossrun"
-           ossrun_command = real_ossrun_command 
+           ossrun_command = installed + "/bin/ossrun"
+           #ossrun_command = real_ossrun_command 
         # 
         # Change made on 10/20/11 to better support redirection inside the quoted executable. (dpm/jeg) Found at NASA
         # 
