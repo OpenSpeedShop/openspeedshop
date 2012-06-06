@@ -18,7 +18,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-AC_INIT(OpenSpeedShop, 2.0.2b4)
+AC_INIT(OpenSpeedShop, 2.0.2b5)
 AC_COPYRIGHT([[Copyright (c) 2006-2012 Krell Institute. All Rights Reserved.]])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([libltdl/config])
@@ -544,11 +544,12 @@ case "$INSTRUMENTOR" in
 	AX_BOOST_DATE_TIME()
 	AX_BOOST_SYSTEM()
 	AX_BOOST_THREAD()
-        AX_XERCESC()
-        # This helps with targeted builds when there is no xercesc
-        if test "$LIBXERCES_C" = "-lxerces-c" ; then
-          AX_XERCESC_VERSION()
-        fi
+	AX_BOOST_FILESYSTEM()
+	AX_XERCESC()
+	# This helps with targeted builds when there is no xercesc
+	if test "$LIBXERCES_C" = "-lxerces-c" ; then
+	   AX_XERCESC_VERSION()
+	fi
 	AX_CBTF()
 	AX_CBTF_XML()
         AX_MRNET()

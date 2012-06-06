@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2011 Krell Institute. All Rights Reserved.
+# Copyright (c) 2012 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -34,7 +34,7 @@ AC_DEFUN([AX_CBTF_MRNET], [
     cbtf_mrnet_saved_LDFLAGS=$LDFLAGS
 
     CPPFLAGS="$CPPFLAGS $CBTF_MRNET_CPPFLAGS $BOOST_CPPFLAGS $MRNET_CPPFLAGS"
-    LDFLAGS="$CXXFLAGS $CBTF_MRNET_LDFLAGS $CBTF_MRNET_LIBS $LIBXERCES_C_LDFLAGS $LIBXERCES_C $BOOST_LDFLAGS $MRNET_LDFLAGS"
+    LDFLAGS="$CXXFLAGS $CBTF_MRNET_LDFLAGS $CBTF_MRNET_LIBS $LIBXERCES_C_LDFLAGS $LIBXERCES_C $BOOST_LDFLAGS $MRNET_LDFLAGS $BOOST_THREAD_LIB $BOOST_FILESYSTEM_LIB"
 
     AC_MSG_CHECKING([for CBTF MRNet library and headers])
 
