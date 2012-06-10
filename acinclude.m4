@@ -930,7 +930,7 @@ AC_DEFUN([AC_PKG_MRNET], [
             MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -I$mrnet_dir/$abi_libdir/mrnet-4.0.0/include -I$mrnet_dir/$abi_libdir/xplat-4.0.0/include -DMRNET_30=1 -DMRNET_301=1"
             ;;
 	*)
-            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_30=1 -DMRNET_301=1"
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -I$mrnet_dir/$abi_libdir/mrnet-4.0.0/include -I$mrnet_dir/$abi_libdir/xplat-4.0.0/include -DMRNET_30=1 -DMRNET_301=1"
             ;;
     esac
 
