@@ -51,6 +51,11 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 			     const LinkedObject& linkedobject,
 			     SymbolTableMap& stm)
 {
+    std::set<Address> addresses;
+    std::set<Address>::iterator ai;
+    for (unsigned ii = 0; ii < addrbuf->length; ++ii) {
+	addresses.insert(Address(addrbuf->pc[ii]));
+    }
 
     std::string objname = linkedobject.getPath();
     std::set<AddressRange> lorange = linkedobject.getAddressRange();
@@ -58,6 +63,7 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 
     for(si = lorange.begin() ; si != lorange.end(); ++si) {
 	AddressRange lrange;
+
 
 // DEBUG
 #ifndef NDEBUG
@@ -122,8 +128,9 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 
 		AddressRange frange(begin,end);
 
-		for (unsigned ii = 0; ii < addrbuf->length; ++ii) {
-		    Framework::Address theAddr(addrbuf->pc[ii] - base.getValue()) ; 
+		for (ai=addresses.equal_range(lrange.getBegin()).first;
+	     		ai!=addresses.equal_range(lrange.getEnd()).second;ai++) {
+		    Framework::Address theAddr(*ai - base.getValue()) ; 
 		    if (frange.doesContain( theAddr )) {
 
 			std::string out_name =
@@ -133,7 +140,7 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 			if(is_debug_symtabapi_symbols_detailed_enabled) {
 		            std::cerr << "ADDING FUNCTION " << out_name
 			    << " RANGE " << frange
-			    << " for pc " << Framework::Address(addrbuf->pc[ii])
+			    << " for pc " << *ai
 			    << " adjusted pc " << theAddr
 			    << std::endl;
 			}
@@ -198,11 +205,12 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 			Framework::Address b(range.first);
 			Framework::Address e(range.second);
 
-			//TODO: Do we need to consider offsets here too?
-			AddressRange srange(b+base,e+base);
-		        for (unsigned ii = 0; ii < addrbuf->length; ++ii) {
-			    Framework::Address saddress(Framework::Address(addrbuf->pc[ii]));
-			    if(srange.doesContain(saddress)) {
+			AddressRange srange(b,e);
+			for (ai=addresses.equal_range(lrange.getBegin()).first;
+	     		    ai!=addresses.equal_range(lrange.getEnd()).second;ai++) {
+			    // Lookup address by subtracting base offset.
+		    	    Framework::Address theAddr(*ai - base.getValue()) ; 
+			    if(srange.doesContain(theAddr)) {
 // DEBUG
 #ifndef NDEBUG
 				if(is_debug_symtabapi_symbols_detailed_enabled) {
@@ -212,7 +220,8 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 				    << std::endl;
 				}
 #endif
-				st.addStatement(b,e,line.first,line.second,line.column);
+				// add the base offset back when recording statement.
+				st.addStatement(b+base,e+base,line.first,line.second,line.column);
 			    }
 
 			}
@@ -232,7 +241,8 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 				    << std::endl;
 				}
 #endif
-				st.addStatement(b,e,line.first,line.second,line.column);
+				// add the base offset back when recording statement.
+				st.addStatement(b+base,e+base,line.first,line.second,line.column);
 			    }
 			}
 		    }
