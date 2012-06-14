@@ -194,61 +194,82 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 	    }
 #endif
 
-
-	    for(unsigned i = 0; i< mods.size();i++) {
-		LineInformation *lineInformation = mods[i]->getLineInformation();
-		if(lineInformation) {
-		    LineInformation::const_iterator iter = lineInformation->begin();
-		    for(;iter!=lineInformation->end();iter++) {
-			const std::pair<Offset, Offset> range = iter->first;
-			LineNoTuple line = iter->second;
-			Framework::Address b(range.first);
-			Framework::Address e(range.second);
-
-			AddressRange srange(b,e);
-			for (ai=addresses.equal_range(lrange.getBegin()).first;
+	    for (ai=addresses.equal_range(lrange.getBegin()).first;
 	     		    ai!=addresses.equal_range(lrange.getEnd()).second;ai++) {
-			    // Lookup address by subtracting base offset.
-		    	    Framework::Address theAddr(*ai - base.getValue()) ; 
-			    if(srange.doesContain(theAddr)) {
+		// Lookup address by subtracting base offset.
+		Framework::Address theAddr(*ai - base.getValue()) ; 
+		Offset myoffset = theAddr.getValue();
+
+	      for(unsigned i = 0; i< mods.size();i++) {
+		std::vector< Dyninst::SymtabAPI::Statement *> mylines;
+		mods[i]->getSourceLines(mylines,myoffset);
+		if (mylines.size() > 0) {
+		    for (std::vector<Dyninst::SymtabAPI::Statement *>::iterator si = mylines.begin();
+			 si != mylines.end(); si++) {
 // DEBUG
 #ifndef NDEBUG
-				if(is_debug_symtabapi_symbols_detailed_enabled) {
-				    std::cerr << "ADDING STATEMENT "
-				    << b << ":" << e
-				    <<" " << line.first << ":" << line.second
-				    << std::endl;
-				}
-#endif
-				// add the base offset back when recording statement.
-				st.addStatement(b+base,e+base,line.first,line.second,line.column);
-			    }
-
+			if(is_debug_symtabapi_symbols_detailed_enabled) {
+			    std::cerr << " SAMPLE Address:" << theAddr + base
+				  << " File:" << (*si)->getFile()
+				  << " Line:" << (*si)->getLine()
+				  << " Column:" << (int) (*si)->getColumn()
+				  << " startAddr:" << Framework::Address((*si)->startAddr()) +base
+				  << " endAddr:" << Framework::Address((*si)->endAddr()) +base
+				  << std::endl;
 			}
-
-			// Find any statements for the beginning of a function that
-			// contained a valid sample address.
-			for(std::set<Framework::Address>::const_iterator fi = function_begin_addresses.begin();
-			                                      fi != function_begin_addresses.end();
-			                                      ++fi) {
-			    if(srange.doesContain(*fi) ) {
-// DEBUG
-#ifndef NDEBUG
-				if(is_debug_symtabapi_symbols_detailed_enabled) {
-				    std::cerr << "ADDING Function BEGIN STATEMENT "
-				    << b << ":" << e
-				    <<" " << line.first << ":" << line.second
-				    << std::endl;
-				}
 #endif
-				// add the base offset back when recording statement.
-				st.addStatement(b+base,e+base,line.first,line.second,line.column);
-			    }
-			}
+			// add the base offset back when recording statement.
+			st.addStatement(Framework::Address((*si)->startAddr()) +base,
+					Framework::Address((*si)->endAddr()) +base,
+					(*si)->getFile(),
+					(*si)->getLine(),
+					(int) (*si)->getColumn()
+					);
 		    }
 		}
-	    }
-	}
+	      } // mods loop
+	    } // sampled addresses loop
+
+	    // Find any statements for the beginning of a function that
+	    // contained a valid sample address.
+	    for(std::set<Framework::Address>::const_iterator fi = function_begin_addresses.begin();
+			                                      fi != function_begin_addresses.end();
+			                                      ++fi) {
+		// Lookup address by subtracting base offset.
+		Framework::Address theAddr(*fi - base.getValue()) ; 
+		Offset myoffset = theAddr.getValue();
+	        for(unsigned i = 0; i< mods.size();i++) {
+		  std::vector< Dyninst::SymtabAPI::Statement *> mylines;
+		  mods[i]->getSourceLines(mylines,myoffset);
+		  if (mylines.size() > 0) {
+		    for(std::vector<Dyninst::SymtabAPI::Statement *>::iterator si = mylines.begin();
+			si != mylines.end(); si++) {
+
+// DEBUG
+#ifndef NDEBUG
+			if(is_debug_symtabapi_symbols_detailed_enabled) {
+			std::cerr << " FUNCTION BEGIN Address:" << theAddr + base
+				  << " File:" << (*si)->getFile()
+				  << " Line:" << (*si)->getLine()
+				  << " Column:" << (int) (*si)->getColumn()
+				  << " startAddr:" << Framework::Address((*si)->startAddr()) +base
+				  << " endAddr:" << Framework::Address((*si)->endAddr()) +base
+				  << std::endl;
+			}
+#endif
+
+			// add the base offset back when recording statement.
+			st.addStatement(Framework::Address((*si)->startAddr()) +base,
+					Framework::Address((*si)->endAddr()) +base,
+					(*si)->getFile(),
+					(*si)->getLine(),
+					(int) (*si)->getColumn()
+					);
+		    }
+		}
+	      } // mods loop
+	    } // function begin statement loop
+	} // if stm loop
 	// only look at first linkedobject since we normalize addresses
 	// before lookup in symbols from symtabapi...
 	break;
