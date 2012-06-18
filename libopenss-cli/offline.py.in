@@ -493,11 +493,25 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    mpi_executable = os.curdir + "/" + mpi_executable
 
         if collector == "mpiotf":
+	 # For shared executable support on the Crays we need to use the OPENSS_PREFIX
+         # and OPENSS_TARGET_ARCH to get the target path to the ossrun script.
+         # But, this is not required for the main line execution on clusters, pcs, laptops.
+         # Putting this in as a workaround until we determine how to get that path at runtime
+         # without using OPENSS_PREFIX and OPENSS_TARGET_ARCH to determine it.  jeg - 06/18/2012
+         if (os.environ.has_key("OPENSS_PREFIX") and installed == "/usr"):
            ossrun_command = installed + "/bin/ossrun -o " + os.environ['OPENSS_RAWDATA_DIR']
-           #ossrun_command = real_ossrun_command + " -o " + os.environ['OPENSS_RAWDATA_DIR'] 
+         else:
+           ossrun_command = real_ossrun_command + " -o " + os.environ['OPENSS_RAWDATA_DIR'] 
         else:
+	 # For shared executable support on the Crays we need to use the OPENSS_PREFIX
+         # and OPENSS_TARGET_ARCH to get the target path to the ossrun script.
+         # But, this is not required for the main line execution on clusters, pcs, laptops.
+         # Putting this in as a workaround until we determine how to get that path at runtime
+         # without using OPENSS_PREFIX and OPENSS_TARGET_ARCH to determine it.  jeg - 06/18/2012
+         if (os.environ.has_key("OPENSS_PREFIX") and installed == "/usr"):
            ossrun_command = installed + "/bin/ossrun"
-           #ossrun_command = real_ossrun_command 
+         else:
+           ossrun_command = real_ossrun_command 
         # 
         # Change made on 10/20/11 to better support redirection inside the quoted executable. (dpm/jeg) Found at NASA
         # 
