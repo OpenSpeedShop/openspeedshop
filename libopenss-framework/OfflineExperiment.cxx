@@ -970,6 +970,12 @@ void OfflineExperiment::createOfflineSymbolTable()
 	tneeded = taddress_space.updateThread(*i);
     } // end for threads
 
+    std::set<Address> addresses;
+    std::set<Address>::iterator ai;
+    for (unsigned ii = 0; ii < data_addr_buffer.length; ++ii) {
+        addresses.insert(Address(data_addr_buffer.pc[ii]));
+    }
+
     for(std::map<AddressRange, std::set<LinkedObject> >::const_iterator
 		t = tneeded.begin(); t != tneeded.end(); ++t) {
 // DEBUG
@@ -996,7 +1002,7 @@ void OfflineExperiment::createOfflineSymbolTable()
 	LinkedObject lo = (*j);
 
 #if defined(OPENSS_USE_SYMTABAPI)
-	stapi_symbols.getSymbols(&data_addr_buffer,lo,symtabmap);
+	stapi_symbols.getSymbols(addresses,lo,symtabmap);
 #else
 	bfd_symbols.getSymbols(&data_addr_buffer,lo,symtabmap);
 #endif

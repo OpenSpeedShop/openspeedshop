@@ -31,6 +31,7 @@ class SymtabAPISymbols {
 
     public:
 	void    getSymbols(PCBuffer*, const LinkedObject&, SymbolTableMap&);
+	void    getSymbols(const std::set<Address>&, const LinkedObject&, SymbolTableMap&);
 
     private:
 
