@@ -160,6 +160,15 @@ oss_hardware_platform=$oss_platform
 AC_MSG_CHECKING([Checking for oss_hardware_platform=$oss_hardware_platform])
 AC_SUBST(oss_hardware_platform)
 
+AC_MSG_CHECKING([Checking whether to enable debug compilation])
+AC_ARG_ENABLE(debug, [  --enable-debug Turn on debug compilation], [enable_debug=yes], [enable_debug=no])
+if test x$enable_debug = xyes; then
+  CPPFLAGS="${CPPFLAGS} -g"
+  CFLAGS="${CFLAGS} -g"
+  CXXFLAGS="${CXXFLAGS} -g"
+fi
+AC_MSG_RESULT([$enable_debug])
+
 
 ################################################################################
 # Check for POSIX Threads (ISO/IEC 9945-1:1996)
@@ -176,9 +185,9 @@ AC_CHECK_HEADER(pthread.h, [ AC_CHECK_LIB(pthread, pthread_create, [
 ################################################################################
 
 AC_ARG_ENABLE(resolve-symbols,
-[--enable-resolve-symbols=mechanism - Control the mechanism used to resolve symbols in Open|SpeedShop
-    bfd       - Use the binutils bfd interface
-    symtabapi - Use the Dyninst symtabAPI interface],,enable_resolve_symbols=symtabapi)
+[  --enable-resolve-symbols=mechanism - Control the mechanism used to resolve symbols in Open|SpeedShop
+       bfd       - Use the binutils bfd interface
+       symtabapi - Use the Dyninst symtabAPI interface (default)],,enable_resolve_symbols=symtabapi)
 
 AC_MSG_CHECKING([Checking for enable_resolve_symbols=$enable_resolve_symbols])
 
