@@ -172,6 +172,12 @@ AC_DEFUN([AC_PKG_TARGET_BINUTILS], [
       AM_CONDITIONAL(HAVE_TARGET_BINUTILS, true)
       AC_DEFINE(HAVE_TARGET_BINUTILS, 1, [Define to 1 if you have a target version of BINUTILS.])
       case "$target_os" in
+	cray-xe)
+            TARGET_BINUTILS_DIR="$target_binutils_dir"
+	    TARGET_BINUTILS_CPPFLAGS="-I$target_binutils_dir/include"
+	    TARGET_BINUTILS_LDFLAGS="-L$target_binutils_dir/$abi_libdir"
+	    TARGET_BINUTILS_LIBS="-lopcodes-lbfd -liberty"
+            ;;
 	cray-xt5)
             TARGET_BINUTILS_DIR="$target_binutils_dir"
 	    TARGET_BINUTILS_CPPFLAGS="-I$target_binutils_dir/include"
@@ -412,6 +418,9 @@ AC_DEFUN([AC_PKG_TARGET_PAPI], [
       fi
 
       case "$target_os" in
+	cray-xe)
+	    TARGET_PAPI_LIBS="-lpapi -lpfm"
+            ;;
 	cray-xt5)
 	    TARGET_PAPI_LIBS="-lpapi -lpfm"
             ;;
