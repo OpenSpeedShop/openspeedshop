@@ -500,8 +500,5 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 	      } // mods loop
 	    } // function begin statement loop
 	} // if stm loop
-	// only look at first linkedobject since we normalize addresses
-	// before lookup in symbols from symtabapi...
-	break;
     }
 }
