@@ -705,8 +705,8 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	// on a 128 node parition. Why did such a small blob
 	// get written to the openss-data file?
 	if (blobsize < 1024 ) {
-	    std::cerr << "Data blob possibly corrupt from " << rawfilename
-		<< " blobsize is " << blobsize << std::endl;
+	    std::cerr << "[ossutil] Warning: Data blob possibly corrupt from " << rawfilename
+		<< ". Unexpected blobsize is " << blobsize << std::endl;
 	    continue;
 	}
 
@@ -723,7 +723,7 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	if (bytesRead == 0 || bytesRead != blobsize) {
 	    // FIXME: On some nodes of hyperion there are
 	    // bad writes to the offline-data files.
-	    std::cerr << "Bad read of data for " << rawfilename
+	    std::cerr << "[ossutil] Warning: Bad read of data blob from " << rawfilename
 		<< " expected: " << blobsize << " got:" << bytesRead << std::endl;
 	    if (theData) free(theData);
 	    continue;
