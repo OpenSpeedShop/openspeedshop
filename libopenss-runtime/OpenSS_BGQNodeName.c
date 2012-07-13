@@ -24,10 +24,10 @@
 
 char* oss_bgq_platform_personality_node_name() {
 
+    static char ucStrg[128];
     Personality_t pers;
     BG_UniversalComponentIdentifier uci;
     Kernel_GetPersonality( &pers, sizeof(pers) );
-    char ucStrg[128];
     uci = pers.Kernel_Config.UCI;
     if (bg_uci_toString( uci, ucStrg) < 0) {
         ucStrg[0] = '\0';
