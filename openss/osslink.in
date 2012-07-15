@@ -567,3 +567,12 @@ if test "$verbose" = yes ; then
 fi
 
 exec $command $static_args $wrap_args $undef_args "$@" $mon_args  $collector_libs
+
+
+if [ ${oss_target} = cray-xt4 || ${oss_target} = cray-xt5 || ${oss_target} = cray-xe || ${oss_target} = cray-xk ]
+then
+      echo
+      echo "NOTE: The aprun -bb option is required when running the executable produced by osslink"
+      echo
+fi
+
