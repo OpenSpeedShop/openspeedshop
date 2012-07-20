@@ -498,7 +498,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
          # But, this is not required for the main line execution on clusters, pcs, laptops.
          # Putting this in as a workaround until we determine how to get that path at runtime
          # without using OPENSS_PREFIX and OPENSS_TARGET_ARCH to determine it.  jeg - 06/18/2012
-         if (os.environ.has_key("OPENSS_PREFIX") and installed == "/usr"):
+         if (os.environ.has_key("OPENSS_PREFIX") and installed != "/usr"):
            ossrun_command = installed + "/bin/ossrun -o " + os.environ['OPENSS_RAWDATA_DIR']
          else:
            ossrun_command = real_ossrun_command + " -o " + os.environ['OPENSS_RAWDATA_DIR'] 
@@ -508,7 +508,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
          # But, this is not required for the main line execution on clusters, pcs, laptops.
          # Putting this in as a workaround until we determine how to get that path at runtime
          # without using OPENSS_PREFIX and OPENSS_TARGET_ARCH to determine it.  jeg - 06/18/2012
-         if (os.environ.has_key("OPENSS_PREFIX") and installed == "/usr"):
+         if (os.environ.has_key("OPENSS_PREFIX") and installed != "/usr"):
            ossrun_command = installed + "/bin/ossrun"
          else:
            ossrun_command = real_ossrun_command 
