@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2008 The Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2012 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -98,7 +98,11 @@ ssize_t ioread(int fd, void *buf, size_t count)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_read));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_read);
 #else
@@ -141,7 +145,11 @@ ssize_t iowrite(int fd, void *buf, size_t count)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_write));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_write);
 #else
@@ -185,7 +193,11 @@ off_t iolseek(int fd, off_t offset, int whence)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_lseek));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_lseek);
 #else
@@ -228,7 +240,11 @@ __off_t iolseek64(int fd, __off_t offset, int whence)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_lseek64));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_lseek64);
 #else
@@ -271,7 +287,11 @@ int ioopen(const char *pathname, int flags, mode_t mode)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_open));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_open);
 #else
@@ -315,7 +335,11 @@ int ioopen64(const char *pathname, int flags, mode_t mode)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_open64));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_open64);
 #else
@@ -357,7 +381,11 @@ int ioclose(int fd)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_close));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_close);
 #else
@@ -400,7 +428,11 @@ int iodup(int oldfd)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_dup));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_dup);
 #else
@@ -443,7 +475,11 @@ int iodup2(int oldfd, int newfd)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_dup2));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_dup2);
 #else
@@ -486,7 +522,11 @@ int iocreat(char *pathname, mode_t mode)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_creat));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_creat);
 #else
@@ -529,7 +569,11 @@ int iocreat64(char *pathname, mode_t mode)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_creat64));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_creat64);
 #else
@@ -573,7 +617,11 @@ int iopipe(int filedes[2])
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pipe));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_pipe);
 #else
@@ -616,7 +664,11 @@ ssize_t iopread(int fd, void *buf, size_t count, off_t offset)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pread));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_pread);
 #else
@@ -659,7 +711,11 @@ ssize_t iopread64(int fd, void *buf, size_t count, off_t offset)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pread64));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_pread64);
 #else
@@ -702,7 +758,11 @@ ssize_t iopwrite(int fd, __const void *buf, size_t count, __off64_t offset)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pwrite));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_pwrite);
 #else
@@ -745,7 +805,11 @@ ssize_t iopwrite64(int fd, void *buf, size_t count, off_t offset)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pwrite64));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_pwrite64);
 #else
@@ -788,7 +852,11 @@ ssize_t ioreadv(int fd, const struct iovec *vector, size_t count)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_readv));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_readv);
 #else
@@ -832,7 +900,11 @@ ssize_t iowritev(int fd, const struct iovec *vector, size_t count)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
+#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+        io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
+#else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_writev));
+#endif
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
         io_record_event(&event, (uint64_t) __real_writev);
 #else
