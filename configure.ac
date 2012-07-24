@@ -247,6 +247,17 @@ AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
 AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
 AM_CONDITIONAL(BUILD_TARGETED, false)
 case "$TARGET_OS" in
+    cray-xk)
+	AM_CONDITIONAL(BUILD_TARGETED, true)
+	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
+	AC_DEFINE(BUILD_TARGETED, 1, [Define to 0 if not building a targeted runtime.])
+	AC_DEFINE(TARGET_OS_CRAYXK, 1, [Do not define if not building for targeted cray-xk.])
+	AC_DEFINE_UNQUOTED(TARGET_OS,cray-xk,
+			   [Name targeted OS])
+        target_os=cray-xk
+	;; 
     cray-xe)
 	AM_CONDITIONAL(BUILD_TARGETED, true)
 	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)

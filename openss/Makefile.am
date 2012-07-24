@@ -278,11 +278,11 @@ if !BUILD_CBTF
 	@rm -f $(DESTDIR)$(bindir)/ossfpe
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossfpe
 	chmod 755 $(DESTDIR)$(bindir)/ossfpe
-endif
 # osscompare
 	@rm -f $(DESTDIR)$(bindir)/osscompare
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osscompare
 	chmod 755 $(DESTDIR)$(bindir)/osscompare
+endif
 
 # endif for !BUILD_TARGETED
 endif
