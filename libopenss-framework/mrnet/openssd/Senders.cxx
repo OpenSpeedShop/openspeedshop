@@ -42,7 +42,9 @@ using namespace OpenSpeedShop::Framework;
 
 
 
-namespace {
+// This should be namespace, not namespace anonymous but gcc can not handle that
+// With dyninst-8.0.0 adding more ::convert methods gcc complains with an error.
+namespace anonymous {
 
 
 
@@ -242,7 +244,9 @@ void Senders::globalJobValue(const ThreadName& thread,
     message.thread = thread;
     convert(global, message.global);
     message.found = found;
-    ::convert(job, message.value);
+    // This should be :: not anonymous:: but gcc can not handle that
+    // With dyninst-8.0.0 adding more ::convert methods gcc complains with an error.
+    anonymous::convert(job, message.value);
     
 #ifndef NDEBUG
     if(Backend::isDebugEnabled()) {
