@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2011 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2012 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -6548,7 +6548,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
           this, currentCollectorStr.ascii() );
 #endif
 
-   generateToolBar( command );
+   generateToolBar( command, expID );
 
    if (expID <= 0) {
      expID = findExperimentID( command);
@@ -6738,7 +6738,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 
      // Only generate the toolbar once
      if (!alreadyGeneratedToolBar) {
-       generateToolBar(command);
+       generateToolBar(command, expID);
        alreadyGeneratedToolBar = TRUE;
      }
 #endif
@@ -13985,16 +13985,17 @@ StatsPanel::generateBaseToolBar( QString command )
 }
 
 void
-StatsPanel::generateToolBar( QString command )
+StatsPanel::generateToolBar( QString command, int expID )
 {
 
 #ifdef DEBUG_StatsPanel_toolbar
  printf("ENTER StatsPanel::generateToolBar, this=0x%lx, currentUserSelectedReportStr.ascii()=%s\n", this, currentUserSelectedReportStr.ascii() );
  printf("ENTER StatsPanel::generateToolBar, this=0x%lx, currentCollectorStr.ascii()=%s\n", this, currentCollectorStr.ascii() );
  printf("ENTER StatsPanel::generateToolBar, lastCollectorStr.ascii()=%s\n", lastCollectorStr.ascii() );
- printf("ENTER StatsPanel::generateToolBar, recycleFLAG=%d\n", recycleFLAG );
+ printf("ENTER StatsPanel::generateToolBar, recycleFLAG=%d, expID=%d\n", recycleFLAG, expID );
  printf("ENTER StatsPanel::generateToolBar, fileTools=0x%lx, command=%s\n", fileTools, command.ascii()  );
 #endif
+
 
 // If this invocation is related to a new StatsPanel from reuse
 // the necessary info is not usually available at this point.
@@ -14192,9 +14193,16 @@ if (currentCollectorStr != lastCollectorStr ||
   }
 
 #ifdef DEBUG_StatsPanel_toolbar
-  printf("StatsPanel::generateToolBar, list_of_pids.size()=%d\n", list_of_pids.size() );
+  printf("GGGGGGG ---------- StatsPanel::generateToolBar, list_of_pids.size()=%d\n", list_of_pids.size() );
+  printf("GGGGGGG ---------- StatsPanel::generateToolBar, separate_list_of_threads.size()=%d\n", list_of_threads.size() );
 #endif
-  if ( list_of_pids.size() > 1 ) {
+
+  if ( list_of_pids.size() == 1 ) {
+    getSeparateThreadList(expID);
+  }
+
+  if ( ( list_of_pids.size() > 1 ) || ( list_of_pids.size() == 1 && separate_list_of_threads.size() > 1) ) {
+
     QPixmap *load_balance_icon = new QPixmap( load_balance_icon_xpm );
     new QToolButton(*load_balance_icon, "LOAD BALANCE: Show minimum, maximum, and average statistics across ranks,\nthreads, processes: generate a performance statistics report for these metric\nvalues, creating comparison columns for each value.\nUse the View/Display Choice options to see the data for statements or linked objects.\n\nNOTE: To clear \"sticky\" view settings, such as, specific function setting,\ntime segment settings, per event display settings, specific ranks, threads,\nor processes that were focused from the Manage Process Panel, etc..\nuse the CL (Clear auxiliary settings) icon.  The CL icon will set\nthe view back to the original aggregated data view.", QString::null, this, SLOT( minMaxAverageSelected()), fileTools, "Show min, max, average statistics across ranks, threads, processes.");
 

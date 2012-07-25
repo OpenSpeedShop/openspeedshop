@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2011 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2012 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -479,7 +479,7 @@ class StatsPanel  : public Panel
     QString collectorStrFromMenu;
 
     QFile *f;
-    void generateToolBar(QString command);
+    void generateToolBar(QString command, int expID);
     void generateBaseToolBar(QString command);
     QLabel *toolbar_status_label;
 
