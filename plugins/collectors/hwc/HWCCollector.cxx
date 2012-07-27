@@ -322,7 +322,9 @@ void HWCCollector::getMetricValues(const std::string& metric,
     Assert(data.pc.pc_len == data.count.count_len);
 
     // Calculate time (in nS) of data blob's extent
-    uint64_t t_blob = static_cast<uint64_t>(extent.getTimeInterval().getWidth());
+    // Use a double here same as hwctime does.
+    //uint64_t t_blob = static_cast<uint64_t>(extent.getTimeInterval().getWidth());
+    double t_blob = static_cast<double>(extent.getTimeInterval().getWidth());
 
     // Iterate over each of the samples
     for(unsigned i = 0; i < data.pc.pc_len; ++i) {
@@ -343,14 +345,24 @@ void HWCCollector::getMetricValues(const std::string& metric,
 		j = intersection.begin(); j != intersection.end(); ++j) {
 	    
 	    // Calculate intersection time (in nS) of subextent and data blob
-	    uint64_t t_intersection = static_cast<uint64_t>
+	    double t_intersection = static_cast<double>
 		((extent.getTimeInterval() & 
-		  subextents[*j].getTimeInterval()).getWidth());	    
+		subextents[*j].getTimeInterval()).getWidth());	    
+
 
 	    // Add (to the subextent's metric value) the appropriate fraction
-	    // of the total time attributable to this sample
-	    (*values)[*j] += t_sample * (t_intersection / t_blob);
-	    
+	    // of the total counts attributable to this sample.  Never let
+	    // this be a value if 0.  If t_sample has a value > 0 then for
+	    // hwc, the fraction for t_intersection / t_blob if less than
+	    // 1 will be 0 due to the types used here.  Remember, the values
+	    // are counts at a threshold and therfore will always be some
+	    // integer multiple of that threshold.
+
+	    uint64_t multiplier = static_cast<uint64_t>(t_intersection / t_blob);
+	    if (multiplier == 0 ) {
+		multiplier = 1;
+	    }
+	    (*values)[*j] += t_sample * multiplier;
 	}
 	
     }
