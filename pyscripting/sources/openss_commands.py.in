@@ -783,6 +783,30 @@ def expSave(*arglist):
     return return_none(cmd_string)
 
 ##################################################
+# expStatus
+##################################################
+def expStatus(*arglist):
+
+    """
+    - Report the experiment meta data information.
+        - For each experiment, information about the executable 
+	  programs that are instrumented, information about the 
+	  instrumentation that is used and any performance data that 
+	  is collected are saved in a database.
+    Example1::
+    	# Store the currently focused experiment
+	info = openss.expStatus(exp_id)
+	print info
+
+    @param arglist: 1 class object:
+	- I{ExpId}                   (optional)
+
+    """
+
+    cmd_string = deconstruct("expStatus",*arglist)
+    return return_none(cmd_string)
+
+##################################################
 # expSetParam
 ##################################################
 def expSetParam(*arglist):
