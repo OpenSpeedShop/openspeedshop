@@ -50,6 +50,7 @@
 #include <inttypes.h>
 #include <stdexcept>
 #include <string>
+#include <sstream>
 
 #include <vector>
 #include <iostream>

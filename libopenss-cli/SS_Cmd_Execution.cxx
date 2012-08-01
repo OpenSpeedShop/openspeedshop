@@ -2630,7 +2630,7 @@ static bool Execute_Experiment (CommandObject *cmd, ExperimentObject *exp) {
     exp->Q_Lock (cmd, false);
     std::string appCommand = experiment->getApplicationCommand();
     if (appCommand.empty()) {
-      std::cerr << "Execute_Experiment, appCommand for the experiment is EMPTY
+      std::cerr << "Execute_Experiment, appCommand for the experiment is EMPTY"
 	<< std::endl;
     } else {
       std::cerr << "Execute_Experiment, appCommand for the experiment is "
@@ -6476,6 +6476,238 @@ static bool SS_ListThreads (CommandObject *cmd) {
   return true;
 }
 
+
+/**
+ * SemanticRoutine: SS_ListPidsAndThreads ()
+ * 
+ * List the Process ID and OpenMP or Posix thread Id's for the application
+ * attached to an experiment.  If both thread types are present,
+ * return the OpenMP thread Id..
+ *     
+ * @param   cmd - the CommandObject being processed.
+ *
+ * @return  "true" on successful complation of the command.
+ *
+ * @error   "false" is returned if no experiment can be determined
+ *          or the "-f" filter option is specified.
+ *
+ */
+static bool SS_ListPidsAndThreads (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+   // List all the Threads on the system.
+   // We have decided not to support this option.
+    Mark_Cmd_With_Soft_Error(cmd, "'list -v pidsandthreads, all' is not supported.");
+    return false;
+  } else {
+   // Get the Threads for a specified Experiment or the focused Experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+    if (Filter_Uses_F(cmd)) {
+      Mark_Cmd_With_Soft_Error(cmd, "'list -v pidsandthreads' does not support the '-f' option.");
+      return false;
+    }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
+   // Get the list of threads used in the specified experiment.
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+   // Place all the thread ID's into a set so each will be listed only once.
+    std::set<int64_t> tset;
+    std::set<std::string> pair_pt_set;
+    std::string tmp_pair;
+    std::string tmp_pair_p;
+    std::string tmp_pair_t;
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+     // Check for asynchronous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        pair_pt_set.clear();
+        break;
+      }
+
+      Thread t = *ti;
+
+      std::pair<bool, int> pthread = t.getOpenMPThreadId();
+      int64_t pthreadid = 0;
+      if (pthread.first) {
+        pthreadid = pthread.second;
+        
+        std::stringstream pid_out;
+        pid_out << t.getProcessId();
+        tmp_pair_p = pid_out.str();
+
+        std::stringstream pthread_out;
+        pthread_out << pthreadid;
+        tmp_pair_t = pthread_out.str();
+
+        tmp_pair = tmp_pair_p + ":" + tmp_pair_t ;
+        pair_pt_set.insert (tmp_pair);
+
+        
+      } else {
+        std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
+        if (posixthread.first) {
+          pthreadid = posixthread.second;
+        }
+
+        std::stringstream pid_out;
+        pid_out << t.getProcessId();
+        tmp_pair_p = pid_out.str();
+
+        std::stringstream pthread_out;
+        pthread_out << pthreadid;
+        tmp_pair_t = pthread_out.str();
+
+        tmp_pair = tmp_pair_p + ":" + tmp_pair_t ;
+        pair_pt_set.insert (tmp_pair);
+      }
+    }
+    for (std::set<std::string>::iterator pair_pt_seti = pair_pt_set.begin(); pair_pt_seti != pair_pt_set.end(); pair_pt_seti++) {
+      cmd->Result_String ( *pair_pt_seti );
+    }
+
+    exp->Q_UnLock ();
+  }
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+
+/**
+ * SemanticRoutine: SS_ListRanksAndThreads ()
+ * 
+ * List the Process ID and OpenMP or Posix thread Id's for the application
+ * attached to an experiment.  If both thread types are present,
+ * return the OpenMP thread Id..
+ *     
+ * @param   cmd - the CommandObject being processed.
+ *
+ * @return  "true" on successful complation of the command.
+ *
+ * @error   "false" is returned if no experiment can be determined
+ *          or the "-f" filter option is specified.
+ *
+ */
+static bool SS_ListRanksAndThreads (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+   // List all the Threads on the system.
+   // We have decided not to support this option.
+    Mark_Cmd_With_Soft_Error(cmd, "'list -v pidsandthreads, all' is not supported.");
+    return false;
+  } else {
+   // Get the Threads for a specified Experiment or the focused Experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+    if (Filter_Uses_F(cmd)) {
+      Mark_Cmd_With_Soft_Error(cmd, "'list -v pidsandthreads' does not support the '-f' option.");
+      return false;
+    }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
+   // Get the list of threads used in the specified experiment.
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+   // Place all the thread ID's into a set so each will be listed only once.
+    std::set<std::string> pair_pt_set;
+    std::string tmp_pair;
+    std::string tmp_pair_r;
+    std::string tmp_pair_t;
+    int rankid = 0;
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+     // Check for asynchronous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        pair_pt_set.clear();
+        break;
+      }
+
+      Thread t = *ti;
+
+      std::pair<bool, int> pthread = t.getOpenMPThreadId();
+      int64_t pthreadid = 0;
+      if (pthread.first) {
+        pthreadid = pthread.second;
+        
+        // There may not be any rank information
+        rankid = 0;
+        std::pair<bool, int> prank = t.getMPIRank();
+        if (prank.first) {
+          rankid = prank.second;
+        }
+        std::stringstream rank_out;
+        rank_out << rankid;
+        tmp_pair_r = rank_out.str();
+
+        std::stringstream pthread_out;
+        pthread_out << pthreadid;
+        tmp_pair_t = pthread_out.str();
+
+        tmp_pair = tmp_pair_r + ":" + tmp_pair_t ;
+        pair_pt_set.insert (tmp_pair);
+
+        
+      } else {
+        std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
+        if (posixthread.first) {
+          pthreadid = posixthread.second;
+        }
+
+        // There may not be any rank information
+        rankid = 0;
+        std::pair<bool, int> prank = t.getMPIRank();
+        if (prank.first) {
+          rankid = prank.second;
+        }
+        std::stringstream rank_out;
+        rank_out << rankid;
+        tmp_pair_r = rank_out.str();
+
+        std::stringstream pthread_out;
+        pthread_out << pthreadid;
+        tmp_pair_t = pthread_out.str();
+
+        tmp_pair = tmp_pair_r + ":" + tmp_pair_t ;
+        pair_pt_set.insert (tmp_pair);
+      }
+    }
+    for (std::set<std::string>::iterator pair_pt_seti = pair_pt_set.begin(); pair_pt_seti != pair_pt_set.end(); pair_pt_seti++) {
+      cmd->Result_String ( *pair_pt_seti );
+    }
+
+    exp->Q_UnLock ();
+  }
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
 /**
  * SemanticRoutine: SS_ListTypes ()
  * 
@@ -6717,8 +6949,12 @@ bool SS_ListGeneric (CommandObject *cmd) {
     } else if (!strcasecmp(S.c_str(),"pids") ||
                !strcasecmp(S.c_str(),"processes")) {
       result_of_first_list = SS_ListPids(cmd);
+    } else if (!strcasecmp(S.c_str(),"pidsandthreads")) {
+      result_of_first_list = SS_ListPidsAndThreads(cmd);
     } else if (!strcasecmp(S.c_str(),"ranks")) {
       result_of_first_list = SS_ListRanks(cmd);
+    } else if (!strcasecmp(S.c_str(),"ranksandthreads")) {
+      result_of_first_list = SS_ListRanksAndThreads(cmd);
     } else if (!strcasecmp(S.c_str(),"src")) {
       result_of_first_list = SS_ListSrc(cmd);
     } else if (!strcasecmp(S.c_str(),"srcfullpath")) {

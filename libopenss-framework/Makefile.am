@@ -240,17 +240,20 @@ INSTRUMENTOR_SOURCES = \
 	Job.hxx \
 	OutputCallback.hxx
 
-if !BUILD_CBTF
-INSTRUMENTOR_SOURCES += \
-	$(top_srcdir)/libopenss-runtime/offline/offline.c \
-	OfflineExperiment.hxx OfflineExperiment.cxx
-endif
-
 OPENSSBINUTILS_SOURCES = \
 	BFDSymbols.hxx BFDSymbols.cxx
 
 OPENSSSYMTABAPI_SOURCES = \
 	SymtabAPISymbols.hxx SymtabAPISymbols.cxx
+
+if !BUILD_CBTF
+OPENSSBINUTILS_SOURCES += \
+    $(top_srcdir)/libopenss-runtime/offline/offline.c \
+    OfflineExperiment.hxx OfflineExperiment.cxx
+OPENSSSYMTABAPI_SOURCES += \
+    $(top_srcdir)/libopenss-runtime/offline/offline.c \
+    OfflineExperiment.hxx OfflineExperiment.cxx
+endif
 
 if BUILD_INSTRUMENTOR
 libopenss_framework_la_SOURCES = \
