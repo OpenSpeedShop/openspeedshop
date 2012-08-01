@@ -82,12 +82,7 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 
 	    Symtab *symtab;
 
-#if (DYNINST_MAJOR == 8) 
-	    bool err = Symtab::openFile(symtab, objname, Symtab::NotDefensive);
-#else
 	    bool err = Symtab::openFile(symtab, objname);
-#endif
-
 
 	    Framework::Address image_offset(symtab->imageOffset());
 	    Framework::Address image_length(symtab->imageLength());
@@ -314,12 +309,7 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 
 	    Symtab *symtab;
 
-#if (DYNINST_MAJOR == 8) 
-	    bool err = Symtab::openFile(symtab, objname, Symtab::NotDefensive);
-#else
 	    bool err = Symtab::openFile(symtab, objname);
-#endif
-
 
 	    Framework::Address image_offset(symtab->imageOffset());
 	    Framework::Address image_length(symtab->imageLength());
