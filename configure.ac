@@ -579,6 +579,7 @@ case "$INSTRUMENTOR" in
 	AX_BOOST_SYSTEM()
 	AX_BOOST_THREAD()
 	AX_BOOST_FILESYSTEM()
+	AX_BOOST_PROGRAM_OPTIONS()
 	AX_XERCESC()
 	# This helps with targeted builds when there is no xercesc
 	if test "$LIBXERCES_C" = "-lxerces-c" ; then
