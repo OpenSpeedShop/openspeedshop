@@ -59,6 +59,10 @@ bin_PROGRAMS =
 #
 if !BUILD_RUNTIME_ONLY
 bin_PROGRAMS += openss 
+if BUILD_CBTF
+bin_PROGRAMS += osscollect 
+xmldir = $(datadir)/KrellInstitute/xml
+endif
 endif
 
 openss_CXXFLAGS = \
@@ -78,6 +82,30 @@ openss_LDADD = \
 
 openss_SOURCES = \
 	openss.cxx
+
+osscollect_CXXFLAGS = \
+	-DXMLDIR="\"$(xmldir)\"" \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-framework/cbtf \
+	@BOOST_CPPFLAGS@ \
+	@CBTF_CPPFLAGS@ \
+	$(LTDLINCL)
+
+osscollect_LDFLAGS = \
+        -L$(top_srcdir)/libopenss-framework \
+        @BOOST_LDFLAGS@
+
+osscollect_LDADD = \
+	$(LIBLTDL) \
+        @BOOST_PROGRAM_OPTIONS_LIB@ \
+        @BOOST_SYSTEM_LIB@ \
+        @BOOST_THREAD_LIB@ \
+	-lopenss-framework \
+	-lopenss-framework-symtabapi \
+	-lpthread
+
+osscollect_SOURCES = \
+	osscollect.cxx
 
 if BUILD_INSTRUMENTOR
 
