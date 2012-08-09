@@ -976,6 +976,43 @@ void OfflineExperiment::createOfflineSymbolTable()
         addresses.insert(Address(data_addr_buffer.pc[ii]));
     }
 
+    std::set<LinkedObject> ttgrp_lo = threads.getLinkedObjects();
+
+    std::set<Address>::const_iterator aci;
+#if defined(OPENSS_USE_SYMTABAPI)
+    std::set<std::string> linkedobjs;
+    for(std::set<LinkedObject>::const_iterator li = ttgrp_lo.begin();
+        li != ttgrp_lo.end(); ++li) {
+	std::set<AddressRange> addr_range(li->getAddressRange());
+	for(std::set<AddressRange>::const_iterator ar = addr_range.begin();
+	    ar != addr_range.end(); ++ar) {
+	    bool foundaddress = false;
+	    for (aci = addresses.begin(); aci != addresses.end(); ++aci) {
+		if (!foundaddress && ar->doesContain(aci->getValue()) ) {
+		    std::set<LinkedObject> stlo;
+		    std::pair<std::set<std::string>::iterator,bool> ret = linkedobjs.insert((*li).getPath());
+		    if (ret.second) {
+// DEBUG
+#ifndef NDEBUG
+			if(is_debug_offlinesymbols_enabled) {
+			    std::cerr << "OfflineExperiment::createOfflineSymbolTable "
+				<< " insert  symtab for " << (*li).getPath()
+				<< std::endl;
+			}
+#endif
+		        stlo.insert(*li);
+		        symtabmap.insert(std::make_pair(*ar,
+				     std::make_pair(SymbolTable(*ar), stlo)
+				    ));
+		    }
+		    foundaddress = true;
+		    break;
+		}
+		if (foundaddress) break;
+	    }
+	}
+    }
+#else
     for(std::map<AddressRange, std::set<LinkedObject> >::const_iterator
 		t = tneeded.begin(); t != tneeded.end(); ++t) {
 // DEBUG
@@ -994,9 +1031,9 @@ void OfflineExperiment::createOfflineSymbolTable()
 			 std::make_pair(SymbolTable(t->first), t->second))
 			);
     }
+#endif
 
 
-    std::set<LinkedObject> ttgrp_lo = threads.getLinkedObjects();
     for(std::set<LinkedObject>::const_iterator j = ttgrp_lo.begin();
 					       j != ttgrp_lo.end(); ++j) {
 	LinkedObject lo = (*j);
@@ -1014,21 +1051,47 @@ void OfflineExperiment::createOfflineSymbolTable()
     for(SymbolTableMap::iterator i = symtabmap.begin();
 		i != symtabmap.end(); ++i) {
 
+
+	// This records any previously resolved function symbols.
+	// We will use this later to remove them from the corresponding
+	// symboltable since we do not want processAndStore to record
+	// them into the database more than once.
+	std::map<AddressRange, std::string> existingfunctions;
+
+	SymbolTable st = i->second.first;
+	std::map<AddressRange, std::string> stfuncs = st.getFunctions();
+	for (std::map<AddressRange,
+	     std::string>::iterator kk = stfuncs.begin();
+	     kk != stfuncs.end(); ++kk) {
+
+	    // allfuncs records already processed function symbols.
+	    // look for the function there first.
+	    std::map<AddressRange, std::string>::iterator it = allfuncs.find(kk->first);
+
+	    if (it == allfuncs.end()) {
+		// We have not seen this function before. so this function
+		// will be processed for storage into the database.
+		allfuncs.insert(*kk);
+	    }  else {
+		// need to remove this function from this symtabs dm_functions
+		// before calling processandStore.
+		existingfunctions.insert(*kk);
+	    }
+	}
+
+	// remove any functions for which we have added to the database.
+	i->second.first.removeFunctions(existingfunctions);
+
         for(std::set<LinkedObject>::const_iterator j = i->second.second.begin();
 		j != i->second.second.end(); ++j) {
 	    i->second.first.processAndStore(*j);
         }
 
-	// Used to find any sampled addresses for which no symbol
-	// was found.
-	std::map<AddressRange, std::string> stfunc = i->second.first.getFunctions();
-
- 	for(std::map<AddressRange, std::string>::const_iterator
-            jj = stfunc.begin(); jj != stfunc.end(); ++jj) {
-	    allfuncs.insert(*jj);
-	}
     }
 
+// DEBUG
+#ifndef NDEBUG
+  if(is_debug_offlinesymbols_detailed_enabled) {
     // Used to find any sampled addresses for which no symbol
     // was found.
     std::set<Address> foundpcs;
@@ -1038,15 +1101,10 @@ void OfflineExperiment::createOfflineSymbolTable()
 
 	    AddressRange frange(jj->first.getBegin(),jj->first.getEnd());
 	    if (frange.doesContain(Address(data_addr_buffer.pc[ii])) ) {
-// DEBUG
-#ifndef NDEBUG
-		if(is_debug_offlinesymbols_detailed_enabled) {
 		std::cerr << "FNAME " << jj->second
 			<< " FRANGE " << frange
 			<< " contains " << Address(data_addr_buffer.pc[ii])
 			 << std::endl;
-		}
-#endif
 		foundpcs.insert(Address(data_addr_buffer.pc[ii]));
 		break;
 	     }
@@ -1065,16 +1123,13 @@ void OfflineExperiment::createOfflineSymbolTable()
 	     }
 	}
 
-// DEBUG
-#ifndef NDEBUG
-	if(is_debug_offlinesymbols_enabled) {
-	  if (!found) {
+	if (!found) {
 	    std::cerr << "MISSING FUNCTION symbols for "
 	        << Address(data_addr_buffer.pc[ii]) << std::endl;
-	  }
 	}
-#endif
     }
+  }
+#endif
 
     // clear names to range for our next linked object.
     dsoVec.clear();
