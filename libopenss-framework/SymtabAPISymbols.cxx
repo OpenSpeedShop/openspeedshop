@@ -329,6 +329,12 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 
 	    std::vector <SymtabAPI::Function *>fsyms;
 
+
+            // Make sure we get the full filename
+	    if(symtab) {
+                symtab->setTruncateLinePaths(false);
+            }
+
 	    if(symtab && !symtab->getAllFunctions(fsyms)) {
 #ifndef NDEBUG
 		if(is_debug_symtabapi_symbols_enabled) {
