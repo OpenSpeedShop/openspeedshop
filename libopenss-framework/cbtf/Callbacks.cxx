@@ -481,7 +481,7 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 	addresses.insert(aci->first.getValue());
     }
     //std::cerr << "Callbacks::addressBuffer number of addresses "
-    //    << addresses.size() << std::endl;
+     //   << addresses.size() << std::endl;
 
     OpenSpeedShop::Framework::SymbolTableMap symtabmap;
 
@@ -503,14 +503,14 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
     END_TRANSACTION(database);
 
     //std::cerr << "Callbacks::addressBuffer number of threads "
-    //    << threads.size() << std::endl;
+     //   << threads.size() << std::endl;
 
     // Now get the currently recorded linkedobjects for these threads
     // from the database.
     std::set<LinkedObject> ttgrp_lo = threads.getLinkedObjects();
 
     //std::cerr << "Callbacks::addressBuffer number of linkedobjects "
-    //    << ttgrp_lo.size() << std::endl;
+      //  << ttgrp_lo.size() << std::endl;
 
     // loop through linkedobjects looking for those with addresseranges
     // that contain an address from the passed addressbuffer.
@@ -761,12 +761,12 @@ void Callbacks::linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedOb
 
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
-    }
-#endif
 	std::stringstream output;
 	output << "[TID " << pthread_self() << "] Callbacks::"
 	       << toString(message);
 	std::cerr << output.str();
+    }
+#endif
 
     const CBTF_Protocol_ThreadName& msg_thread = message.thread;
     ThreadName tname(msg_thread);
@@ -1161,6 +1161,7 @@ void Callbacks::performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & in
     CBTF_Protocol_Blob message;
     memset(&message, 0, sizeof(message));
     memcpy(&message, in.get(),sizeof(CBTF_Protocol_Blob)); 
+
 #ifndef NDEBUG
     if(Frontend::isPerfDataDebugEnabled()) {
 

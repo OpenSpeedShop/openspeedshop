@@ -895,7 +895,14 @@ ThreadGroup Experiment::createProcess(
 	// Instrumentor::retain(thread);  (Implied by Following Line)
 #if defined(BUILD_CBTF)
 	// will need to pass the collector from the cli...
-	std::string collector("pcsamp");
+	//std::string collector("pcsamp");
+	std::string collector;
+	CollectorGroup current_cgrp = getCollectors();
+	CollectorGroup::iterator ci;
+	for (ci = current_cgrp.begin(); ci != current_cgrp.end(); ci++) {
+	    Collector C = *ci;
+	    collector = C.getMetadata().getUniqueId();
+	}
 	Instrumentor::create(thread, command,
 			     collector, numBE,
 			     stdout_callback, stderr_callback);

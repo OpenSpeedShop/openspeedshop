@@ -38,6 +38,9 @@ class FEThread
 
   void start( const std::string& collector, const unsigned int& numBE,
 	     bool& finished);
+  void start( const std::string& topology, const std::string& connections,
+	      const std::string& collector, const unsigned int& numBE,
+	     bool& finished);
 
   void join();
 

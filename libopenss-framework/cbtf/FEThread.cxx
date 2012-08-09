@@ -69,6 +69,14 @@ void FEThread::start( const std::string& collector, const unsigned int& numBE,
 			      collector, numBE, finished);
 }
 
+void FEThread::start( const std::string& topology, const std::string& connections,
+		      const std::string& collector, const unsigned int& numBE,
+		      bool& finished)
+{
+    dm_thread = boost::thread(&FEThread::run, this, topology, connections,
+			      collector, numBE, finished);
+}
+
 void FEThread::join()
 {
     dm_thread.join();
@@ -78,6 +86,7 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 	   const std::string& collector, const unsigned int& numBE,
 	   bool& finished)
   {
+    //std::cerr << "FEThread::run for collector " << collector << std::endl;
     std::string xmlfile(collector);
     xmlfile += ".xml";
     registerXML(filesystem::path(CBTF_TOOLS_XMLDIR) / xmlfile);

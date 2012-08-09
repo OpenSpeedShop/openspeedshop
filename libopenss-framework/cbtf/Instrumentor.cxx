@@ -119,6 +119,7 @@ void Instrumentor::create(const Thread& thread,
 
     bool finished = false;
     FEThread fethread;
+    //std::cerr << "Instrumentor::create: calling fethread for collector " << collector << std::endl;
     fethread.start(collector,numBE,finished);
 }
 
