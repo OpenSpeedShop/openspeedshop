@@ -31,9 +31,11 @@
 #include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
+#include <boost/algorithm/string.hpp>
 #include "Collector.hxx"
 #include "Experiment.hxx"
 #include "FEThread.hxx"
+#include "Path.hxx"
 #include "ThreadGroup.hxx"
 #include "KrellInstitute/Core/SymtabAPISymbols.hpp"
 
@@ -42,23 +44,22 @@ using namespace KrellInstitute::Core;
 using namespace OpenSpeedShop::Framework;
 
 
-// taken from cli code.
-// FIXME: modify to create a name based on the program.
-static std::string createName(int LocalExpId,
-			      bool LocalDataFileHasAGeneratedName)
+static std::string createDBName(std::string dbprefix)
 {
      std::string LocalDataFileName;
-     // Create a file in /tmp, for fastest access,
-     // of the form "X<exp_id>.XXXXXX.openss".
-     char base[L_tmpnam];
-     snprintf(base, L_tmpnam, "X%lld.",LocalExpId);
+
      char *database_directory = getenv("OPENSS_DB_DIR");
-     char *tName = NULL;
-     char tmp_tName[256];
+     char tmp_tName[1024];
+
      if (database_directory) {
-        int64_t cnt = 0;
-        for (cnt = 0; cnt < 1000; cnt++) {
-         snprintf(tmp_tName, 256, "%s/X%lld.%lld.openss",database_directory, LocalExpId, cnt);
+	LocalDataFileName = database_directory;
+     } else {
+	LocalDataFileName = ".";
+     }
+
+     int cnt = 0;
+     for (cnt = 0; cnt < 1000; cnt++) {
+         snprintf(tmp_tName, 512, "%s/%s-%d.openss",LocalDataFileName.c_str(), dbprefix.c_str(), cnt);
          Assert(tmp_tName != NULL);
 
          int fd;
@@ -69,12 +70,6 @@ static std::string createName(int LocalExpId,
          }
          LocalDataFileName = std::string(tmp_tName);
          break;
-        }
-     } else {
-       tName = tempnam ( (LocalDataFileHasAGeneratedName ? NULL : "./"), base );
-       Assert(tName != NULL);
-       LocalDataFileName = std::string(tName) + ".openss";
-       free (tName);
      }
 
      return LocalDataFileName;
@@ -140,15 +135,35 @@ int main(int argc, char** argv)
 
     bool finished = false;
 
-    std::string dbname = createName (1,false);
+    // find name of application and strip any path.
+    OpenSpeedShop::Framework::Path prg(mpiexecutable);
+    if (prg.empty()) {
+	prg += program;
+    }
+    prg = prg.getBaseName();
+
+    // application may have arguments. remove them.
+    std::vector<std::string> strs;
+    boost::split(strs, prg, boost::is_any_of("\t "));
+    prg = strs[0];
+
+    // create a database prefix based on application name and collector.
+    std::string dbprefix = prg + "-" + collector;
+    // get a dbname that does not conflict with an existing dbname.
+    std::string dbname = createDBName(dbprefix);
+
+    // create the actual database and create an experiment object.
     OpenSpeedShop::Framework::Experiment::create (dbname);
     OpenSpeedShop::Framework::Experiment *FW_Experiment = new OpenSpeedShop::Framework::Experiment (dbname);
 
+    // setup the experiment to run with cbtf.
     FW_Experiment->setBEprocCount( numBE );
     Collector mycollector = FW_Experiment->createCollector( collector );
     ThreadGroup tg = FW_Experiment->createProcess("FOO", "localhost", numBE,
                                                      OutputCallback(NULL,NULL),
                                                      OutputCallback(NULL,NULL)   );
+
+    // From this point on we run the application with cbtf and specified collector.
     // verify valid numBE.
     if (numBE == 0) {
         std::cout << desc << std::endl;
@@ -160,6 +175,7 @@ int main(int argc, char** argv)
 	FEThread fethread;
 	fethread.start(topology,connections,collector,numBE,finished);
 	std::cout << "Running Frontend for " << collector << " collector."
+	  << "\nCreating openss database: " << dbname
 	  << "\nNumber of mrnet backends: "  << numBE
           << "\nTopology file used: " << topology << std::endl;
 	std::cout << "Start mrnet backends now..." << std::endl;
@@ -171,6 +187,7 @@ int main(int argc, char** argv)
     } else {
         std::cout << "Running " << collector << " collector."
 	  << "\nProgram: " << program
+	  << "\nCreating openss database: " << dbname
 	  << "\nNumber of mrnet backends: "  << numBE
           << "\nTopology file used: " << topology << std::endl;
     }
