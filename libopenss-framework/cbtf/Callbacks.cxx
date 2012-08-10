@@ -29,6 +29,7 @@
 #include "Callbacks.hxx"
 #include "Database.hxx"
 #include "DataQueues.hxx"
+#include "Extent.hxx"
 #include "Frontend.hxx"
 #include "LinkedObject.hxx"
 #include "SmartPtr.hxx"
@@ -602,6 +603,42 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
             i->second.first.processAndStore(*j);
         }
     }
+
+#if 1
+    Extent extent;
+
+    BEGIN_TRANSACTION(database);
+    database->prepareStatement(
+        "SELECT time_begin, time_end, addr_begin, addr_end FROM Data;"
+        );
+    while(database->executeStatement())
+        if(extent.isEmpty())
+            extent = Extent(TimeInterval(database->getResultAsTime(1),
+                                         database->getResultAsTime(2)),
+                            AddressRange(database->getResultAsAddress(3),
+                                         database->getResultAsAddress(4)));
+        else
+            extent |= Extent(TimeInterval(database->getResultAsTime(1),
+                                          database->getResultAsTime(2)),
+                             AddressRange(database->getResultAsAddress(3),
+                                          database->getResultAsAddress(4)));
+
+	TimeInterval ti = extent.getTimeInterval();
+	Time t_end = ti.getEnd();
+
+	database->prepareStatement(
+                "UPDATE AddressSpaces "
+                "SET time_end = ? "
+                "WHERE time_end = ?;"
+                );
+            database->bindArgument(1, t_end);
+            database->bindArgument(2, Time::TheEnd());
+	while(database->executeStatement());
+
+    END_TRANSACTION(database);
+
+#endif
+
 }
 
 /**
