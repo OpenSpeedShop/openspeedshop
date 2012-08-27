@@ -93,10 +93,14 @@ osscollect_CXXFLAGS = \
 
 osscollect_LDFLAGS = \
         -L$(top_srcdir)/libopenss-framework \
+        @DYNINST_LDFLAGS@ \
+	@LIBXERCES_C_LDFLAGS@ \
         @BOOST_LDFLAGS@
 
 osscollect_LDADD = \
 	$(LIBLTDL) \
+        @DYNINST_LIBS@ \
+	@LIBXERCES_C@ \
         @BOOST_PROGRAM_OPTIONS_LIB@ \
         @BOOST_SYSTEM_LIB@ \
         @BOOST_THREAD_LIB@ \
