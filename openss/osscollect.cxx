@@ -38,6 +38,7 @@
 #include "Path.hxx"
 #include "ThreadGroup.hxx"
 #include "KrellInstitute/Core/SymtabAPISymbols.hpp"
+#include "KrellInstitute/Core/CBTFTopology.hpp"
 
 using namespace boost;
 using namespace KrellInstitute::Core;
@@ -81,13 +82,16 @@ int main(int argc, char** argv)
     bool isMPI;
     std::string topology, connections, collector, program, mpiexecutable, cbtfrunpath;
 
+
     // create a default for topology file.
     char const* home = getenv("HOME");
     std::string default_topology(home);
     default_topology += "/.cbtf/cbtf_topology";
+
     // create a default for connections file.
     std::string default_connections(home);
     default_connections += "/.cbtf/attachBE_connections";
+
     // create a default for the collection type.
     std::string default_collector("pcsamp");
 
@@ -97,14 +101,14 @@ int main(int argc, char** argv)
         ("numBE", boost::program_options::value<unsigned int>(&numBE)->default_value(1),
 	    "Number of lightweight mrnet backends. Default is 1, For an mpi job this must match the number of mpi ranks specififed in the mpi launcher arguments.")
         ("topology",
-	    boost::program_options::value<std::string>(&topology)->default_value(default_topology),
-	    "Path name to a valid mrnet topology file. (i.e. from mrnet_topgen),")
+	    boost::program_options::value<std::string>(&topology)->default_value(""),
+	    "By default the tool will create a topology for you.  Use this option to pass a path name to a valid mrnet topology file. (i.e. from mrnet_topgen). Use this options with care.")
         ("connections",
 	    boost::program_options::value<std::string>(&connections)->default_value(default_connections),
 	    "Path name to a valid backend connections file. The connections file is created by the mrnet backends based on the mrnet topology file. The default is sufficient for most cases.")
         ("collector",
 	    boost::program_options::value<std::string>(&collector)->default_value(default_collector),
-	    "Name of collector to use [pcsamp | usertime]. Default is pcsamp.")
+	    "Name of collector to use [pcsamp | usertime | hwc]. Default is pcsamp.")
         ("program",
 	    boost::program_options::value<std::string>(&program)->default_value(""),
 	    "Program to collect data from, Program with arguments needs double quotes.  If program is not specified this client will start the mrnet tree and wait for the user to manually attach backends in another window via cbtfrun.")
@@ -135,6 +139,21 @@ int main(int argc, char** argv)
 
     bool finished = false;
 
+    // TODO: pass numBE to CBTFTopology and record as the number
+    // of application processes.
+    std::string fenodename;
+    if (topology.empty()) {
+      CBTFTopology cbtftopology;
+      cbtftopology.autoCreateTopology(BE_ATTACH);
+      topology = cbtftopology.getTopologyFileName();
+      fenodename =  cbtftopology.getFENodeStr();
+      std::cerr << "Generated topology file: " << topology << std::endl;
+    } else {
+      topology = default_topology;
+      fenodename =  "localhost";
+    }
+
+
     // find name of application and strip any path.
     OpenSpeedShop::Framework::Path prg(mpiexecutable);
     if (prg.empty()) {
@@ -158,10 +177,13 @@ int main(int argc, char** argv)
 
     // setup the experiment to run with cbtf.
     FW_Experiment->setBEprocCount( numBE );
+    FW_Experiment->setInstrumentorUsesCBTF( false );
     Collector mycollector = FW_Experiment->createCollector( collector );
-    ThreadGroup tg = FW_Experiment->createProcess("FOO", "localhost", numBE,
+    ThreadGroup tg = FW_Experiment->createProcess(program, fenodename, numBE,
                                                      OutputCallback(NULL,NULL),
                                                      OutputCallback(NULL,NULL)   );
+
+    FEThread fethread;
 
     // From this point on we run the application with cbtf and specified collector.
     // verify valid numBE.
@@ -172,7 +194,6 @@ int main(int argc, char** argv)
 	// this allows us to start the mrnet client FE
 	// and then start the program with collector in
 	// a separate window using cbtfrun.
-	FEThread fethread;
 	fethread.start(topology,connections,collector,numBE,finished);
 	std::cout << "Running Frontend for " << collector << " collector."
 	  << "\nCreating openss database: " << dbname
@@ -192,9 +213,7 @@ int main(int argc, char** argv)
           << "\nTopology file used: " << topology << std::endl;
     }
 
-
-    // TODO: need to cleanly terminate mrnet.
-    FEThread fethread;
+    // TODO: does cbtf cleanly terminate mrnet.
     fethread.start(topology,connections,collector,numBE,finished);
     sleep(3);
 
