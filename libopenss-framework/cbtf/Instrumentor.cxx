@@ -93,7 +93,7 @@ void Instrumentor::release(const Thread& thread)
 void Instrumentor::create(const Thread& thread, 
 			  const std::string& command,
 			  const std::string& collector,
-			  const uint64_t numBE,
+			  const uint64_t numBE, const bool useFET,
 			  const OpenSpeedShop::Framework::OutputCallback stdout_callback,
 			  const OpenSpeedShop::Framework::OutputCallback stderr_callback)
 {
@@ -117,10 +117,14 @@ void Instrumentor::create(const Thread& thread,
     while(database->executeStatement());    
     END_TRANSACTION(database);
 
-    bool finished = false;
-    FEThread fethread;
-    //std::cerr << "Instrumentor::create: calling fethread for collector " << collector << std::endl;
-    fethread.start(collector,numBE,finished);
+    // Only start fethread IFF called via expcreate command.
+    // The osscollect client has it's own fethread.
+    if (useFET) { 
+	bool finished = false;
+	FEThread fethread;
+	//std::cerr << "Instrumentor::create: calling fethread for collector " << collector << std::endl;
+	fethread.start(collector,numBE,finished);
+    }
 }
 
 

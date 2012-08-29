@@ -515,6 +515,7 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 
     // loop through linkedobjects looking for those with addresseranges
     // that contain an address from the passed addressbuffer.
+    std::set<std::string> linkedobjs;
     for(std::set<LinkedObject>::const_iterator li = ttgrp_lo.begin();
 	li != ttgrp_lo.end(); ++li) {
 
@@ -528,27 +529,26 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 	    for (aci = in.addresscounts.begin(); aci != in.addresscounts.end(); ++aci) {
 
 	      if (!foundaddress && ar->doesContain(aci->first.getValue()) ) {
-		// found an address. create a symtab for it.
+		// found an address. create a symtab for it if object path
+		// is not already present in symtab.
 		std::set<LinkedObject> stlo;
-		stlo.insert(*li);
-		symtabmap.insert(std::make_pair(*ar,
+		std::pair<std::set<std::string>::iterator,bool> ret = linkedobjs.insert((*li).getPath());
+		if (ret.second) {
+		    stlo.insert(*li);
+		    symtabmap.insert(std::make_pair(*ar,
 				std::make_pair(SymbolTable(*ar), stlo)
                                 ));
+		}
+
 		foundaddress = true;
-    		//std::cerr << "Callbacks::addressBuffer found sample "
-    		//    << aci->first << std::endl;
 		break;
 	      }
 	      if (foundaddress) break;
 	    }
         }
 
-	//  TODO: verify that we found something... ?
-	//if(!foundaddress) {
-	//	std::cerr << "CANNOT RESOLVE symbols for address "
-	//		<< aci->first  << std::endl;
-	//}
     }
+
 
     // Use symtabapi for symbols. TODO: add support for BFD???
     SymtabAPISymbols stapi_symbols;

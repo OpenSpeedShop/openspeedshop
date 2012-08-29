@@ -67,7 +67,7 @@ namespace OpenSpeedShop { namespace Framework {
 #if defined(BUILD_CBTF)
 	void create(const Thread&, const std::string&,
 		    const std::string&,
-		    const uint64_t numBE,
+		    const uint64_t numBE, const bool,
 		    const OutputCallback, const OutputCallback);
 #else
 	void create(const Thread&, const std::string&,

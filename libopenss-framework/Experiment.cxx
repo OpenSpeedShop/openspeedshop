@@ -904,7 +904,7 @@ ThreadGroup Experiment::createProcess(
 	    collector = C.getMetadata().getUniqueId();
 	}
 	Instrumentor::create(thread, command,
-			     collector, numBE,
+			     collector, numBE, instrumentorUsesCBTF,
 			     stdout_callback, stderr_callback);
 #else
 	Instrumentor::create(thread, command, stdout_callback, stderr_callback);
