@@ -34,6 +34,7 @@
 
 #include "debug.hxx"  // This includes the definition of nprintf(DEBUG_FRAMES) 
 
+#include <cstddef>
 #include "Frame.hxx"
 
 #include "PanelContainer.hxx"

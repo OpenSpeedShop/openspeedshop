@@ -20,6 +20,7 @@
 #ifndef TABBARWIDGET_H
 #define TABBARWIDGET_H
 
+#include <cstddef>
 #include <qwidget.h>
 #include <qtabbar.h>
 

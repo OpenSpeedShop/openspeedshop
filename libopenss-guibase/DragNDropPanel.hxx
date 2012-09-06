@@ -25,6 +25,7 @@
 class PanelContainer;
 class Frame;
 
+#include <cstddef>
 #include <qwidget.h>
 #include <qframe.h>
 #include <qdragobject.h>

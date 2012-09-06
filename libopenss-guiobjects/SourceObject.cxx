@@ -23,6 +23,7 @@
 
     Currently this is only implemented between TopPanel and SourcePanel.
  */
+#include <cstddef>
 #include "SourceObject.hxx"
 #include <stdio.h>
 #include <string.h>

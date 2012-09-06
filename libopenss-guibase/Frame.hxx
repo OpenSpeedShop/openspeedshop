@@ -20,6 +20,7 @@
 #ifndef FRAME_H
 #define FRAME_H
 
+#include <cstddef>
 #include "debug.hxx"
 
 class PanelContainer;

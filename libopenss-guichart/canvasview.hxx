@@ -20,6 +20,7 @@
 #ifndef CANVASVIEW_H
 #define CANVASVIEW_H
 
+#include <cstddef>
 #include "element.hxx"
 #include "canvastext.hxx"
 #include "canvasellipse.hxx"

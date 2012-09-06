@@ -19,6 +19,7 @@
 
 /*! \class FocusObject
  */
+#include <cstddef>
 #include "FocusObject.hxx"
 #include <stdio.h>
 #include <string.h>

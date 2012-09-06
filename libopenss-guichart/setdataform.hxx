@@ -20,6 +20,7 @@
 #ifndef SETDATAFORM_H
 #define SETDATAFORM_H
 
+#include <cstddef>
 #include "element.hxx"
 
 #include <qdialog.h>

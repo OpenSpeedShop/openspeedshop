@@ -21,6 +21,7 @@
     Overloaded function so we can trap hook into the hide() function.
  */
 
+#include <cstddef>
 #include <qapplication.h>
 #include <qevent.h>
 #include "WhatsThis.hxx"

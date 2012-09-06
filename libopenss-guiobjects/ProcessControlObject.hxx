@@ -20,6 +20,7 @@
 #ifndef PROCESS_CONTROL_OBJECT_H
 #define PROCESS_CONTROL_OBJECT_H
 
+#include <cstddef>
 #include "AnimatedQPushButton.hxx"
 #include "Panel.hxx"
 #include <qpushbutton.h>

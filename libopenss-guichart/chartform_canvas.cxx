@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#include <cstddef>
 #include "canvasellipse.hxx"
 #include "canvasshadowellipse.hxx"
 #include "canvasrectangle.hxx"

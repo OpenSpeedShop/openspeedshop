@@ -21,6 +21,7 @@
     This class manages mouse events of the QTabBarWidget.
  */
 
+#include <cstddef>
 #include "qtimer.h"
 
 #include "TabWidget.hxx"

@@ -24,6 +24,7 @@
 
     Currently this is only implemented between TopPanel and SourcePanel.
  */
+#include <cstddef>
 #include "LoadAttachObject.hxx"
 #include <stdio.h>
 #include <string.h>

@@ -20,6 +20,7 @@
 #ifndef INFOEVENTFILTER_H
 #define INFOEVENTFILTER_H
 
+#include <cstddef>
 #include <qwidget.h>
 #include <qtextedit.h>
 #include <qscrollbar.h>

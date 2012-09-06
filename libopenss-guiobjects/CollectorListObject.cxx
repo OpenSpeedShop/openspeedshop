@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#include <cstddef>
 #include "CollectorListObject.hxx"
 #include <stdio.h>
 #include <string.h>

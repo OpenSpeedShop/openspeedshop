@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#include <cstddef>
 #include <qpushbutton.h>
 #include <qbitmap.h>
 #include "AnimatedQPushButton.hxx"

@@ -22,6 +22,7 @@
     It is used to send the user's selected process control actions.
 
  */
+#include <cstddef>
 #include "ControlObject.hxx"
 #include <stdio.h>
 #include <string.h>

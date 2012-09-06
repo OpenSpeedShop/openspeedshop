@@ -22,6 +22,7 @@
 
 class PanelContainer;
 
+#include <cstddef>
 #include <qwidget.h>
 #include <qtabwidget.h>
 
