@@ -533,7 +533,6 @@ case "$INSTRUMENTOR" in
 	;;
 
     mrnet)
-	# AC_PKG_DYNINST checks for SYMTABAPI
 	AX_BOOST_BASE([1.35.0])
 	AC_PKG_DYNINST()
 	AC_PKG_MRNET()
