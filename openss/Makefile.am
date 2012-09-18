@@ -88,6 +88,7 @@ osscollect_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-framework/cbtf \
 	@BOOST_CPPFLAGS@ \
+	@MRNET_CPPFLAGS@ \
 	@CBTF_CPPFLAGS@ \
 	$(LTDLINCL)
 
@@ -102,6 +103,7 @@ osscollect_LDADD = \
         @DYNINST_LIBS@ \
 	@LIBXERCES_C@ \
         @BOOST_PROGRAM_OPTIONS_LIB@ \
+        @BOOST_FILESYSTEM_LIB@ \
         @BOOST_SYSTEM_LIB@ \
         @BOOST_THREAD_LIB@ \
 	-lopenss-framework \
