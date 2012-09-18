@@ -54,6 +54,7 @@ libopenss_framework_binutils_la_LIBADD = \
 	-lpthread -lrt
 
 libopenss_framework_symtabapi_la_CXXFLAGS = \
+	@BOOST_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-runtime \
 	-I$(top_srcdir)/libopenss-runtime/offline \
 	$(LTDLINCL) \
