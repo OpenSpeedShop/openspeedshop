@@ -572,14 +572,13 @@ case "$INSTRUMENTOR" in
 	;;
 
     cbtf)
-	AC_PKG_DYNINST()
-	AC_PKG_MRNET()
 	AX_BOOST_BASE([1.35.0])
 	AX_BOOST_DATE_TIME()
 	AX_BOOST_SYSTEM()
 	AX_BOOST_THREAD()
 	AX_BOOST_FILESYSTEM()
 	AX_BOOST_PROGRAM_OPTIONS()
+	AC_PKG_DYNINST()
 	AX_XERCESC()
 	# This helps with targeted builds when there is no xercesc
 	if test "$LIBXERCES_C" = "-lxerces-c" ; then
