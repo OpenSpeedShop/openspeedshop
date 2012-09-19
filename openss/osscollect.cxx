@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 {
     unsigned int numBE;
     bool isMPI;
-    std::string topology, connections, collector, program, mpiexecutable, cbtfrunpath;
+    std::string topology, arch, connections, collector, program, mpiexecutable, cbtfrunpath;
 
 
     // create a default for topology file.
@@ -100,6 +100,10 @@ int main(int argc, char** argv)
         ("help,h", "Produce this help message.")
         ("numBE", boost::program_options::value<unsigned int>(&numBE)->default_value(1),
 	    "Number of lightweight mrnet backends. Default is 1, For an mpi job this must match the number of mpi ranks specififed in the mpi launcher arguments.")
+        ("arch",
+            boost::program_options::value<std::string>(&arch)->default_value(""),
+            "automatic topology type defaults to a standard cluster.  These options are specific to a Cray or BlueGene. [cray | bluegene]")
+
         ("topology",
 	    boost::program_options::value<std::string>(&topology)->default_value(""),
 	    "By default the tool will create a topology for you.  Use this option to pass a path name to a valid mrnet topology file. (i.e. from mrnet_topgen). Use this options with care.")
@@ -144,12 +148,16 @@ int main(int argc, char** argv)
     std::string fenodename;
     if (topology.empty()) {
       CBTFTopology cbtftopology;
-      cbtftopology.autoCreateTopology(BE_ATTACH);
+      if (arch == "cray") {
+          cbtftopology.autoCreateTopology(BE_CRAY_ATTACH);
+      } else {
+          cbtftopology.autoCreateTopology(BE_ATTACH);
+      }
       topology = cbtftopology.getTopologyFileName();
       fenodename =  cbtftopology.getFENodeStr();
       std::cerr << "Generated topology file: " << topology << std::endl;
     } else {
-      topology = default_topology;
+      //topology = default_topology;
       fenodename =  "localhost";
     }
 
