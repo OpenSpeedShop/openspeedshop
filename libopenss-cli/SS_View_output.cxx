@@ -420,4 +420,4 @@ void Construct_View_Output (CommandObject *cmd,
       view_output.push_back (N);  // attach no data samples to output
  } // end else no data samples
 
-} // end routine
+} // end routine Construct_View_Output

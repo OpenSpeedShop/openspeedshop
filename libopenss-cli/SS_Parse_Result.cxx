@@ -40,6 +40,7 @@
 #include "SS_Parse_Range.hxx"
 #include "SS_Parse_Target.hxx"
 #include "SS_Parse_Result.hxx"
+#include "SS_Settings.hxx"
 
 using namespace OpenSpeedShop::cli;
 using namespace OpenSpeedShop;
@@ -756,6 +757,9 @@ dumpInfo()
 
     // Metric list.
     s_dumpRange(this->getexpMetricList(), "METRICS",false /* is_hex */);
+
+    // Metric list.
+    s_dumpRange(this->getexpFormatList(), "METRICS",false /* is_hex */);
 
     // Interval list.
     s_dumpInterval(this, this->getParseIntervalList(), "INTERVALS");
@@ -1700,3 +1704,185 @@ pushMetricList(ParseRange *expr)
       pr = npr;
     }
 }
+ 
+
+ 
+/**
+  * Method: ParseResult::ExpFormatConstant(const char *name)
+  * 
+  *     
+  * @return  void.
+  *
+  * @todo    Error handling.
+  *
+  */
+ParseRange *
+ParseResult::
+ExpFormatConstant(const char *name)
+{
+#if DEBUG_CLI
+   printf("ParseResult::ExpFormatConstant, name=%s\n",name);
+#endif
+
+  ParseRange *pr = new ParseRange(name);
+  if (!check_validFormatName(name)) {
+    printf("Error: unsupported format specifier '%s'\n",name);
+    pr->setParseTypeError();
+  }
+  return pr;
+}
+ 
+/**
+  * Method: ParseResult::ExpFormatConstant(const char *name, char *c)
+  * 
+  *     
+  * @return  void.
+  *
+  * @todo    Error handling.
+  *
+  */
+ParseRange *
+ParseResult::
+ExpFormatConstant(const char *name, char* c)
+{
+#if DEBUG_CLI
+   printf("ParseResult::ExpFormatConstant, name=%s, char=%s\n",name,c);
+#endif
+
+  ParseRange *pr = new ParseRange(name, c);
+  if (!check_validFormatName(name)) {
+    printf("Error: unsupported format specifier '%s'\n",name);
+    pr->setParseTypeError();
+  }
+  return pr;
+}
+ 
+/**
+  * Method: ParseResult::ExpFormatConstant(const char *name, int64_t ival)
+  * 
+  *     
+  * @return  void.
+  *
+  * @todo    Error handling.
+  *
+  */
+ParseRange *
+ParseResult::
+ExpFormatConstant(const char *name, int64_t ival)
+{
+#if DEBUG_CLI
+   printf("ParseResult::ExpFormatConstant, name=%s, int64_t=%lld\n",name,ival);
+#endif
+
+  ParseRange *pr = new ParseRange(name, ival);
+  if (!check_validFormatName(name)) {
+    printf("Error: unsupported format specifier '%s'\n",name);
+    pr->setParseTypeError();
+  }
+  return pr;
+}
+
+/**
+ * Method: ParseResult::ExpFormatConstant(const char *name, double dval)
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+ParseRange *
+ParseResult::
+ExpFormatConstant(const char *name, double dval)
+{
+#if DEBUG_CLI
+   printf("ParseResult::ExpFormatConstant, name=%s, double=%20.10f\n",name,dval);
+#endif
+
+  ParseRange *pr = new ParseRange(name, dval);
+  if (!check_validFormatName(name)) {
+    printf("Error: unsupported format specifier '%s'\n",name);
+    pr->setParseTypeError();
+  }
+  return pr;
+  
+}
+
+/**
+ * Method: ParseResult::ExpFormat(char * name1, ParseRange *pr)
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+ParseRange *
+ParseResult::
+ExpFormat(const char * name, ParseRange *pr)
+{
+#if DEBUG_CLI
+    printf("ParseResult::ExpFormat(name,pr), %p name=%s\n", pr, name);
+    printf("\t");pr->Dump();
+#endif
+    return pr;
+}
+ 
+/**
+ * * Method: ExpFormatList(ParseRange *expr1, ParseRange expr2)
+ * *
+ * *     Connect 2 ParseRange structures in a list by placing
+ * *     expr2 at the end of any existing list already attached
+ * *     to expr1.
+ * *    * @return  ParseRange*
+ * *
+ * */
+ParseRange *
+ParseResult::
+ExpFormatList(ParseRange *expr1, ParseRange *expr2)
+{
+#if DEBUG_CLI
+  printf("\nExpFormatList, expression=%p->%p\n", expr1, expr2);
+#endif
+
+  if (expr1 == NULL) {
+    return expr2;
+  }
+  if (expr2->getParseType() == PARSE_RANGE_ERROR) {
+    delete expr2;
+    return expr1;
+  }
+
+  ParseRange *pr = expr1;
+ // Find the end of the list on arg1.
+  for ( ParseRange *npr = pr->getNext(); npr != NULL; npr = npr->getNext() ) { pr = npr; }
+
+ // Attach arg2 to the end of arg1.
+  pr->setNext(expr2);
+  return expr1;
+}
+
+/**
+ * * Method: pushFormatList(ParseRange *expr)
+ * *
+ * *     Convert a ParseRange list into an vector.
+ * *    * @return  void
+ * *
+ * */
+void
+ParseResult::
+pushFormatList(ParseRange *expr)
+{
+#if DEBUG_CLI
+    printf("\npushFormatList, expression=%p\n", expr);
+#endif
+    for (ParseRange *pr = expr; pr != NULL; )
+    {
+      ParseRange *npr = pr->getNext();
+      pr->setNext(NULL);
+      dm_exp_format_list.push_back(*pr);
+      pr = npr;
+    }
+}
+
+void ParseRangeTrace(int t) { fprintf(stderr,"ParseRangeTrace: %d\n",t); }

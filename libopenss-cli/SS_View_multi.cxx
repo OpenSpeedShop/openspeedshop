@@ -50,7 +50,7 @@ static void Dump_items (std::vector<std::pair<CommandResult *,
       CommandResult *p = (*cp.second)[i];
       std::cerr << "  ";
       if (p != NULL) {
-        p->Print(std::cerr); std::cerr << "\n";
+        p->Print(std::cerr); std::cerr << std::endl;
       } else {
         std::cerr << "NULL\n";
       }

@@ -358,7 +358,7 @@ const char *cmd_expStatus_args[] = {
 };
 
 const char *cmd_expView_args[] = {
-    "expView [-v <modifier_list>] [-x <expId>] [<viewType>] [-m <expMetric_list>] [<target_spec>]"
+    "expView [-v <modifier_list>] [-x <expId>] [<viewType>] [-m <expMetric_list>] [<target_spec>] [<format_spec>]"
 };
 
 const char *cmd_cViewCreate_args[] = {
@@ -1259,6 +1259,10 @@ const char *cmd_expView_detailed[] = {
     " ",
     "- If a <target_list> is specified, only the data for the",
     "  specified targets will be included in the report.",
+    " ",
+    "- If a <format_spec> is specified, the listed options will",
+    "  override the global preferences that are set for",
+    "  the option.",
     " ",
     "- The report may also be controlled through <modifier_list>",
     "  or <expMetric_list> specifiers.  The meaning of these options",

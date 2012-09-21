@@ -20,6 +20,112 @@
 #include "SS_Input_Manager.hxx"
 
 /**
+ * utility: Look_For_Format_Specification
+ *       Search for specific options the the list.
+ *     
+ * @param   std::vector<ParseRange> that lists declared format specifiers.
+ * @param   std::string the option being searched for.
+ *
+ * @return  ParseRange * of the matching entry, or NULL if not found.
+ *
+ */
+ParseRange *Look_For_Format_Specification (std::vector<ParseRange> *f_list, std::string Key) {
+
+ //  Look at general modifier types for a specific KeyWord option.
+  if (f_list == NULL) return NULL;
+  std::vector<ParseRange>::iterator j;
+ 
+  for (j=f_list->begin();j != f_list->end(); j++) {
+    if ( ((*j).getParseType() == PARSE_RANGE_VALUE) &&
+         ((*j).getRange()->start_range.tag == VAL_STRING ) &&
+         (!strcasecmp(((*j).getRange()->start_range.name).c_str(), Key.c_str())) ) {
+      return &(*j);
+    }
+  }
+
+  return NULL;
+}
+
+/**
+ *  Utility: Capture_User_Format_Information(PrintControl &pc)
+ *
+ *  Scan the format list specifier, look for valid keywords and transfer
+ *  information into the PrintControl entry.
+ * 
+ **/
+static void Capture_User_Format_Information( std::vector<ParseRange> *f_list, PrintControl &format_spec ) {
+  if (f_list == NULL) return;
+
+ // Look for End_Of_Column specifier.
+  ParseRange *key_range = Look_For_Format_Specification ( f_list, "viewEOC");
+  if ( (key_range  != NULL) &&
+       (key_range->getRange()->is_range) &&
+       (key_range->getRange()->end_range.tag == VAL_STRING) ) {
+    format_spec.Set_PrintControl_eoc(key_range->getRange()->end_range.name);
+  }
+ // Look for End_Of_Line specifier.
+  key_range = Look_For_Format_Specification ( f_list, "viewEOL");
+  if ( (key_range  != NULL) &&
+       (key_range->getRange()->is_range) &&
+       (key_range->getRange()->end_range.tag == VAL_STRING) ) {
+    format_spec.Set_PrintControl_eol(key_range->getRange()->end_range.name);
+  }
+ // Look for End_Of_View specifier.
+  key_range = Look_For_Format_Specification ( f_list, "viewEOV");
+  if ( (key_range  != NULL) &&
+       (key_range->getRange()->is_range) &&
+       (key_range->getRange()->end_range.tag == VAL_STRING) ) {
+    format_spec.Set_PrintControl_eov(key_range->getRange()->end_range.name);
+  }
+ // Look for dynamic fieldsize specifier.
+  key_range = Look_For_Format_Specification ( f_list, "viewFieldSizeIsDynamic");
+  if (key_range != NULL) {
+    if ( key_range->getRange()->is_range &&
+         ( ( (key_range->getRange()->end_range.tag == VAL_NUMBER) &&
+             (key_range->getRange()->end_range.num == 0) ) ||
+           ( (key_range->getRange()->end_range.tag == VAL_STRING) &&
+             (strcasecmp( key_range->getRange()->end_range.name.c_str(), "false") == 0) ) ) ) {
+      format_spec.Set_PrintControl_dynamic_size( false );
+    } else {
+      format_spec.Set_PrintControl_dynamic_size( true );
+    }
+  }
+ // Look for fieldsize specifier.
+  key_range = Look_For_Format_Specification ( f_list, "viewFieldSize" );
+  if ( (key_range != NULL) &&
+       (key_range->getRange()->end_range.tag == VAL_NUMBER) &&
+       (key_range->getRange()->end_range.num != 0) ) {
+    format_spec.Set_PrintControl_field_size( key_range->getRange()->end_range.num);
+  }
+ // Look for left blank-in-place-of-zero formatting.
+  key_range = Look_For_Format_Specification ( f_list, "viewBlankInPlaceOfZero");
+  if (key_range != NULL) {
+    if ( key_range->getRange()->is_range &&
+         ( ( (key_range->getRange()->end_range.tag == VAL_NUMBER) &&
+             (key_range->getRange()->end_range.num == 0) ) ||
+           ( (key_range->getRange()->end_range.tag == VAL_STRING) &&
+             (strcasecmp( key_range->getRange()->end_range.name.c_str(), "false") == 0) ) ) ) {
+      format_spec.Set_PrintControl_blank_in_place_of_zero( false );
+    } else {
+      format_spec.Set_PrintControl_blank_in_place_of_zero( true );
+    }
+  }
+ // Look for left justified formatting.
+  key_range = Look_For_Format_Specification ( f_list, "viewLeftJustify" );
+  if (key_range != NULL) {
+    if ( key_range->getRange()->is_range &&
+         ( ( (key_range->getRange()->end_range.tag == VAL_NUMBER) &&
+             (key_range->getRange()->end_range.num == 0) ) ||
+           ( (key_range->getRange()->end_range.tag == VAL_STRING) &&
+             (strcasecmp( key_range->getRange()->end_range.name.c_str(), "false") == 0) ) ) ) {
+      format_spec.Set_PrintControl_left_justify_all( false );
+    } else {
+      format_spec.Set_PrintControl_left_justify_all( true );
+    }
+  }
+}
+
+/**
  * Method: CommandObject::set_Status ()
  *
  * Attempt to set the field "Cmd_Status" with a particular value.
@@ -236,8 +342,7 @@ static inline int64_t Count_Partitions(std::string S, int64_t use_columnsize) {
  * @return void.
  *
  */
-static void Print_Header (std::ostream &to, std::string list_seperator,
-                          CommandResult *H, int64_t *column_widths) {
+static void Print_Header (std::ostream &to, PrintControl &pc, CommandResult *H) {
   std::list<CommandResult *> Headers;
   ((CommandResult_Headers *)H)->Value(Headers);
   int64_t len = Headers.size() - 1; // ignore right most header - it can be as long as it wants.
@@ -254,15 +359,13 @@ static void Print_Header (std::ostream &to, std::string list_seperator,
       ((CommandResult_RawString *)next)->Value(next_str);
     }
     if (!next_str.empty()) {
-      int64_t use_columnsize = (column_widths != NULL) ? column_widths[i] : OPENSS_VIEW_FIELD_SIZE;
+      int64_t use_columnsize = (pc.column_widths != NULL) ? pc.column_widths[i] : pc.field_size;
       max_Breaks = std::max(max_Breaks,Count_Partitions(next_str, use_columnsize));
     }
   }
 
   if (max_Breaks == 1) {
-    ((CommandResult_Headers *)H)->Add_Column_Widths(column_widths);
-    H->Print(to, OPENSS_VIEW_FIELD_SIZE, true);
-    ((CommandResult_Headers *)H)->Add_Column_Widths(NULL);
+    H->Print(to, pc, 0);
   } else {
    // Reformat each header, except the last, into the desired number of lines.
     std::vector<CommandResult_Headers> HL(max_Breaks);
@@ -278,7 +381,7 @@ static void Print_Header (std::ostream &to, std::string list_seperator,
       int64_t next_len = next_str.size();
       int64_t nextH = 0;
       int64_t start_scan = 0;
-      int64_t use_columnsize = (column_widths != NULL) ? column_widths[i] : OPENSS_VIEW_FIELD_SIZE;
+      int64_t use_columnsize = (pc.column_widths != NULL) ? pc.column_widths[i] : pc.field_size;
   
       while (start_scan < next_len) {
 
@@ -307,12 +410,10 @@ static void Print_Header (std::ostream &to, std::string list_seperator,
 
    // Now we can print the re-formatted headers.
     for (int64_t BreakNum = 0; BreakNum < max_Breaks; BreakNum++) {
-      HL[BreakNum].Add_Column_Widths(column_widths);
-      HL[BreakNum].Print(to, OPENSS_VIEW_FIELD_SIZE, true);
-      HL[BreakNum].Add_Column_Widths(NULL);
+      HL[BreakNum].Print(to, pc, 0);
       if ((BreakNum + 1) < max_Breaks) {
        // Start next header line at left margin.
-        to << list_seperator;
+        to << pc.eol;
       }
     }
   }
@@ -338,13 +439,26 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
  // Pick up information lists from CommandObject.
   std::list<CommandResult *> cmd_result = Result_List();
   std::list<CommandResult_RawString *> cmd_annotation = Annotation_List ();
+  std::vector<ParseRange> *f_list = P_Result()->getexpFormatList();
+
+ // Look for user format control.
+  ParseRange *key_range;
+  PrintControl format_spec;
+  Capture_User_Format_Information( P_Result()->getexpFormatList(), format_spec );
+
+ // Did the user want control over formatting?
+  bool EOC_specified = strcasecmp(format_spec.eoc.c_str(), OPENSS_VIEW_EOC.c_str()) ? true : false;
 
  // Print any Annotation information
   bool annotation_printed = false;
   std::list<CommandResult_RawString *>::iterator ari;
-  for (ari = cmd_annotation.begin(); ari != cmd_annotation.end(); ari++) {
-    (*ari)->Print (to, OPENSS_VIEW_FIELD_SIZE, true);
-    annotation_printed = true;
+  if (cmd_annotation.begin() != cmd_annotation.end()) {
+    int64_t annotation_column = 0; // Just 1 column.
+    format_spec.Set_PrintControl_column_widths( 1, &annotation_column );
+    for (ari = cmd_annotation.begin(); ari != cmd_annotation.end(); ari++) {
+      (*ari)->Print (to, format_spec, 0);
+      annotation_printed = true;
+    }
   }
 
   if (annotation_printed &&
@@ -375,11 +489,31 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
   int64_t Column_Width[num_columns];
   if (num_columns > 0) {
    // Initialize column width to defaults.
+    ParseRange *lookup = NULL;
+    int64_t default_value = 0;
+    key_range = Look_For_Format_Specification ( f_list, "viewFieldSizeIsDynamic" );
+    if ( (key_range  != NULL) &&
+         ( (!key_range->getRange()->is_range) ||
+           ( (key_range->getRange()->end_range.tag == VAL_STRING) &&
+             (!strcasecmp((key_range->getRange()->end_range.name).c_str(), "true")) ) ||
+           ( (key_range->getRange()->end_range.tag == VAL_NUMBER) &&
+             (key_range->getRange()->end_range.num != 0)  ) ) ) {
+      default_value = 0;
+    } else {
+      key_range = Look_For_Format_Specification ( f_list, "viewFieldSize" );
+      if ( (key_range != NULL) &&
+           (key_range->getRange()->end_range.tag == VAL_NUMBER) &&
+           (key_range->getRange()->end_range.num != 0) ) {
+        default_value = key_range->getRange()->end_range.num;
+      } else {
+        default_value = (format_spec.field_size_dynamic) ? 0 : format_spec.field_size;
+      }
+    }
     for (int64_t i = 0; i < num_columns; i++) {
-      Column_Width[i] = (OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC ? 0 : OPENSS_VIEW_FIELD_SIZE);
+      Column_Width[i] = default_value;
     }
 
-    if (OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC) {
+    if (format_spec.field_size_dynamic && !EOC_specified) {
      // Need to look at every value in each column.
       std::list<CommandResult *>::iterator cri = cmd_result.begin();
       for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
@@ -419,6 +553,7 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
   }
 
  // Print the result information
+  format_spec.Set_PrintControl_column_widths( num_columns, Column_Width );
   cri = cmd_result.begin();
   if  (cri != cmd_result.end()) {
     if (((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) ||
@@ -430,19 +565,20 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
       if (list_seperator_needed) to << list_seperator;
 
       if ((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) {
-       // Special processing required, because the headers
-       // may need multiple lines.
-        Print_Header (to, list_seperator, *cri, Column_Width);
+        if (EOC_specified) {
+         // Print each column header without regard to size.
+          (*cri)->Print (to, format_spec, 0);
+        } else {
+         // Special processing required, because the headers
+         // may need multiple lines.
+          Print_Header (to, format_spec, *cri);
+        }
       } else if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES) {
-        ((CommandResult_Columns *)(*cri))->Add_Column_Widths(Column_Width);
-        (*cri)->Print (to, OPENSS_VIEW_FIELD_SIZE, true);
-        ((CommandResult_Columns *)(*cri))->Add_Column_Widths(NULL);
+        (*cri)->Print (to, format_spec, 0);
       } else if ((*cri)->Type() == CMD_RESULT_COLUMN_ENDER) {
-        ((CommandResult_Enders *)(*cri))->Add_Column_Widths(Column_Width);
-        (*cri)->Print (to, OPENSS_VIEW_FIELD_SIZE, true);
-        ((CommandResult_Enders *)(*cri))->Add_Column_Widths(NULL);
+        (*cri)->Print (to, format_spec, 0);
       } else {
-        (*cri)->Print (to, OPENSS_VIEW_FIELD_SIZE, true);
+        (*cri)->Print (to, format_spec, 0);
       }
 
       list_seperator_needed = true;

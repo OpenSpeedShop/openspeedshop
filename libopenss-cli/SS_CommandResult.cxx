@@ -20,7 +20,6 @@
 #define DEBUG_CLI 0
 #include "SS_Input_Manager.hxx"
 
-
 // Defined here so they can reference CommandResult_CallStackEntry.
   bool CommandResult_Uint::LT (CommandResult *A) {
     if (typeid(*A) == typeid(CommandResult_CallStackEntry)) {
@@ -1462,6 +1461,117 @@ static CommandResult *Calculate_A_Max (CommandResult *A, CommandResult *B) {
   }
 }
 
+static CommandResult *ConvertToUint (CommandResult *A)
+{
+  uint64_t AUvalue = 0;
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *ConvertToUint, A=%n",A);
+#endif
+
+  if (A == NULL) {
+    return NULL;
+  }
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Value(AUvalue);
+    break;
+   case CMD_RESULT_INT:
+    { 
+      int64_t AIvalue = 0;
+      ((CommandResult_Int *)A)->Value(AIvalue);
+      AUvalue = AIvalue;
+    }
+    break;
+   case CMD_RESULT_FLOAT:
+   case CMD_RESULT_DURATION:
+   case CMD_RESULT_INTERVAL:
+    {
+      double ADvalue = 0.0;
+      ((CommandResult_Float *)A)->Value(ADvalue);
+      AUvalue = ADvalue;
+    }
+    break;
+  }
+
+  return CRPTR ( AUvalue );
+}
+
+static CommandResult *ConvertToInt (CommandResult *A)
+{
+  int64_t AIvalue = 0;
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *ConvertToInt, A=%n",A);
+#endif
+
+  if (A == NULL) {
+    return NULL;
+  }
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    {
+      uint64_t AUvalue = 0;
+      ((CommandResult_Uint *)A)->Value(AUvalue);
+      AIvalue = AUvalue;
+    }
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(AIvalue);
+    break;
+   case CMD_RESULT_FLOAT:
+   case CMD_RESULT_DURATION:
+   case CMD_RESULT_INTERVAL:
+    {
+      double ADvalue = 0.0;
+      ((CommandResult_Float *)A)->Value(ADvalue);
+      AIvalue = ADvalue;
+    }
+    break;
+  }
+
+  return CRPTR ( AIvalue );
+}
+
+static CommandResult *ConvertToFloat (CommandResult *A)
+{
+  double ADvalue = 0.0;
+
+#if DEBUG_CLI
+  printf("Enter CommandResult *ConvertToUint, A=%n",A);
+#endif
+
+  if (A == NULL) {
+    return NULL;
+  }
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    {
+      uint64_t AUvalue = 0;
+      ((CommandResult_Uint *)A)->Value(AUvalue);
+      ADvalue = AUvalue;
+    }
+    break;
+   case CMD_RESULT_INT:
+    {
+      int64_t AIvalue = 0;
+      ((CommandResult_Int *)A)->Value(AIvalue);
+      ADvalue = AIvalue;
+    }
+    break;
+   case CMD_RESULT_FLOAT:
+   case CMD_RESULT_DURATION:
+   case CMD_RESULT_INTERVAL:
+    ((CommandResult_Float *)A)->Value(ADvalue);
+    break;
+  }
+
+  return CRPTR ( ADvalue );
+}
+
 CommandResult *Calculate_Expression(expression_operation_t op,
                                     CommandResult *A,
                                     CommandResult *B,
@@ -1493,6 +1603,9 @@ CommandResult *Calculate_Expression(expression_operation_t op,
    case EXPRESSION_OP_A_MULT: return Calculate_A_Mult (A, B);
    case EXPRESSION_OP_A_MIN: return Calculate_A_Min (A, B);
    case EXPRESSION_OP_A_MAX: return Calculate_A_Max (A, B);
+   case EXPRESSION_OP_UINT: return ConvertToUint (A);
+   case EXPRESSION_OP_INT: return ConvertToInt (A);
+   case EXPRESSION_OP_FLOAT: return ConvertToFloat (A);
    default:
     return NULL;
   }

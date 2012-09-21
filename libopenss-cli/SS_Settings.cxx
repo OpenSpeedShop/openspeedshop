@@ -114,7 +114,7 @@ SS_Settings::~SS_Settings()
 // If unable to find the entry, set to any defaults (def) passed in.
 // Upon successful look up, assigns 'ok' == 1.
 std::string 
-SS_Settings::readEntry(std::string key, const std::string &def=0, bool *ok=0)
+SS_Settings::readEntry(std::string key, const std::string &def, bool *ok)
 {
   std::string str = find(key,ok);
 
@@ -141,7 +141,7 @@ SS_Settings::readEntry(std::string key, const std::string &def=0, bool *ok=0)
 // If unable to find the entry, set to any defaults (def) passed in.
 // Upon successful look up, assigns 'ok' == 1.
 int64_t
-SS_Settings::readNumEntry(std::string key, int64_t def=0, bool *ok = 0)
+SS_Settings::readNumEntry(std::string key, int64_t def, bool *ok)
 {
   std::string str = find(key,ok);
 
@@ -164,7 +164,7 @@ SS_Settings::readNumEntry(std::string key, int64_t def=0, bool *ok = 0)
 // If unable to find the entry, set to any defaults (def) passed in.
 // Upon successful look up, assigns 'ok' == 1.
 double 
-SS_Settings::readDoubleEntry(std::string key, double def, bool *ok=0)
+SS_Settings::readDoubleEntry(std::string key, double def, bool *ok)
 {
   std::string str = find(key,ok);
 
@@ -188,7 +188,7 @@ SS_Settings::readDoubleEntry(std::string key, double def, bool *ok=0)
 // If unable to find the entry, set to any defaults (def) passed in.
 // Upon successful look up, assigns 'ok' == 1.
 bool 
-SS_Settings::readBoolEntry(std::string key, bool def = false, bool *ok=0)
+SS_Settings::readBoolEntry(std::string key, bool def, bool *ok)
 {
   std::string str = find(key,ok);
 

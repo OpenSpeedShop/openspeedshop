@@ -21,6 +21,9 @@
 #include "SS_Settings.hxx"
 // where is this include????    #include <libxml/xmlreader.h>
 
+std::string OPENSS_VIEW_EOC = "  ";
+std::string OPENSS_VIEW_EOL = "\n";
+std::string OPENSS_VIEW_EOV = "\n";
 int64_t OPENSS_VIEW_FIELD_SIZE = 24;
 int64_t OPENSS_VIEW_MAX_FIELD_SIZE = 4096;
 int64_t OPENSS_VIEW_PRECISION = 6;
@@ -47,6 +50,35 @@ bool    OPENSS_LOG_BY_DEFAULT = false;
 bool    OPENSS_LIMIT_SIGNAL_CATCHING = false;
 bool    OPENSS_INSTRUMENTOR_IS_OFFLINE = true;
 bool    OPENSS_LESS_RESTRICTIVE_COMPARISONS = true;
+
+// Remember valid user names for error cehcking of format specifiers on view commands.
+// Valid names are captured when SS_Configure.cxx looks them up with the following utilities.
+#include <string.h>
+#include <vector>
+
+static std::vector<std::string> validConfigurationNames;
+bool check_validConfigurationName(std::string s) {
+  for (std::vector<std::string>::iterator j=validConfigurationNames.begin();
+       j != validConfigurationNames.end(); j++) {
+    if (!strcasecmp((*j).c_str(), s.c_str())) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+static std::vector<std::string> validFormatNames;
+bool check_validFormatName(std::string s) {
+  for (std::vector<std::string>::iterator j=validFormatNames.begin();
+       j != validFormatNames.end(); j++) {
+    if (!strcasecmp((*j).c_str(), s.c_str())) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 static inline void set_int64 (int64_t &env, std::string envName) {
   char *S = getenv (envName.c_str());
@@ -86,6 +118,7 @@ static void Add_Help (SS_Message_Czar& czar,
 
 void SS_Configure () {
   SS_Message_Czar& czar = theMessageCzar();
+  std::string configName;
   bool ok;
 
  // Open the prefence data base
@@ -97,6 +130,8 @@ void SS_Configure () {
   bool Bvalue;
   std::string Svalue;
 
+  configName = "DpcldListenerPort";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "DpcldListenerPort", "an internal configuration",
             "When DPCL is initalized, it determines which port to listen on "
             "for manually started daemons.  The string is in the form "
@@ -105,25 +140,35 @@ void SS_Configure () {
             "the user.  In most environments, the daemons are installed in "
             "system libraries and do not need to be manually started.");
 
-  Add_Help (czar, "viewFieldSize", "an integer, preference",
+  configName = "viewFieldSize";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
+  validFormatNames.push_back(configName);
+  Add_Help (czar, "viewFieldSize", "an integer, view format preference",
             "Define the width of each field when the result "
             "of an 'expView' command is printed.  The default is 24 columns.");
   Ivalue = settings->readNumEntry(std::string("viewFieldSize"), OPENSS_VIEW_FIELD_SIZE, &ok);
   if (ok && (Ivalue >= 0)) OPENSS_VIEW_FIELD_SIZE = Ivalue;
 
-  Add_Help (czar, "viewMaxFieldSize", "an integer, preference",
+  configName = "viewMaxFieldSize";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
+  validFormatNames.push_back(configName);
+  Add_Help (czar, "viewMaxFieldSize", "an integer, view format preference",
             "Define the maximum width of each field when the result "
             "of an 'expView' command is printed.  Field width is flexible, "
             "but a limit is needed for internal buffers. The default is 4096 characters.");
   Ivalue = settings->readNumEntry(std::string("viewMaxFieldSize"), OPENSS_VIEW_MAX_FIELD_SIZE, &ok);
   if (ok && (Ivalue >= 0)) OPENSS_VIEW_MAX_FIELD_SIZE = Ivalue;
 
+  configName = "viewPrecision";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "viewPrecision", "an integer, preference",
             "Define the precision used to format a floating point number when "
             "the result of an 'expView' command is printed.  The default is 6.");
   Ivalue = settings->readNumEntry(std::string("viewPrecision"), OPENSS_VIEW_PRECISION, &ok);
   if (ok && (Ivalue >= 0)) OPENSS_VIEW_PRECISION = Ivalue;
 
+  configName = "viewDateTimePrecision";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "viewDateTimePrecision", "an integer, preference",
             "Define the precision used to format a time value that is part of a Start or "
             "End time displayed when the result of an 'expView' command is printed. "
@@ -146,6 +191,8 @@ void SS_Configure () {
    OPENSS_VIEW_DATE_TIME_PRECISION = Ivalue;
   }
 
+  configName = "historyLimit";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "historyLimit", "an integer, preference",
             "Define the maximum number of commands that are remembered for the "
             "'history' command.  If the command is issued with a larger number, "
@@ -153,6 +200,8 @@ void SS_Configure () {
   Ivalue = settings->readNumEntry(std::string("historyLimit"), OPENSS_HISTORY_LIMIT, &ok);
   if (ok && (Ivalue >= 0)) OPENSS_HISTORY_LIMIT = Ivalue;
 
+  configName = "historyDefault";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "historyDefault", "an integer, preference",
             "Define the number of previous commands that will be printed when "
             "the 'history' command is issued without a requesting length. The "
@@ -160,6 +209,8 @@ void SS_Configure () {
   Ivalue = settings->readNumEntry(std::string("historyDefault"), OPENSS_HISTORY_DEFAULT, &ok);
   if (ok && (Ivalue >= 0)) OPENSS_HISTORY_DEFAULT = Ivalue;
 
+  configName = "maxAsyncCommands";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "maxAsyncCommands", "an integer, preference",
             "Define the maximum number of commands that can be processed at "
             "the same time. This is a limit on the parallel execution of "
@@ -168,6 +219,8 @@ void SS_Configure () {
   Ivalue = settings->readNumEntry(std::string("maxAsyncCommands"), OPENSS_MAX_ASYNC_COMMANDS, &ok);
   if (ok && (Ivalue > 0)) OPENSS_MAX_ASYNC_COMMANDS = Ivalue;
 
+  configName = "helpLevelDefault";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "helpLevelDefault", "an integer, preference",
             "Define the level of help information that is displayed when "
             "the 'help' command is issued without a <verbosity_list_spec>. "
@@ -179,7 +232,10 @@ void SS_Configure () {
   Ivalue = settings->readNumEntry(std::string("helpLevelDefault"), OPENSS_HELP_LEVEL_DEFAULT, &ok);
   if (ok && (Ivalue >= 0)) OPENSS_HELP_LEVEL_DEFAULT = Ivalue;
 
-  Add_Help (czar, "viewFieldSizeIsDynamic", "a boolean, preference",
+  configName = "viewFieldSizeIsDynamic";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
+  validFormatNames.push_back(configName);
+  Add_Help (czar, "viewFieldSizeIsDynamic", "a boolean, view format preference",
             "Declare whether or not the width of each column of ouput is "
             "is dynamically determined by the minimum width actually required by the data, "
             "or is fixed and determined by \"viewFieldSize\". "
@@ -187,7 +243,10 @@ void SS_Configure () {
   Bvalue = settings->readBoolEntry(std::string("viewFieldSizeIsDynamic"), OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC, &ok);
   if (ok) OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC = Bvalue;
 
-  Add_Help (czar, "viewFullPath", "a boolean, preference",
+  configName = "viewFullPath";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
+  validFormatNames.push_back(configName);
+  Add_Help (czar, "viewFullPath", "a boolean, view format preference",
             "Declare whether or not a full path is displayed in place of "
             "a file name when the function, linkedobject, or statement "
             "location is displayed as part of an 'expView' command.  The "
@@ -196,7 +255,10 @@ void SS_Configure () {
   Bvalue = settings->readBoolEntry(std::string("viewFullPath"), OPENSS_VIEW_FULLPATH, &ok);
   if (ok) OPENSS_VIEW_FULLPATH = Bvalue;
 
-  Add_Help (czar, "viewEntireString", "a boolean, preference",
+  configName = "viewEntireString";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
+  validFormatNames.push_back(configName);
+  Add_Help (czar, "viewEntireString", "a boolean, view format preference",
             "Declare whether or not an entire string is displayed for "
             "a file name when the length of the string exceeds the "
             "size specified by viewFieldSize preference.  The "
@@ -210,14 +272,20 @@ void SS_Configure () {
   Bvalue = settings->readBoolEntry(std::string("viewEntireString"), OPENSS_VIEW_ENTIRE_STRING, &ok);
   if (ok) OPENSS_VIEW_ENTIRE_STRING = Bvalue;
 
-  Add_Help (czar, "viewDefiningLocation", "a boolean, preference",
+  configName = "viewDefiningLocation";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
+  validFormatNames.push_back(configName);
+  Add_Help (czar, "viewDefiningLocation", "a boolean preference",
             "Declare whether or not the defining location is displayed "
             "when a function name is displayed as part of an 'expView' "
             "command.  The default is true");
   Bvalue = settings->readBoolEntry(std::string("viewDefiningLocation"), OPENSS_VIEW_DEFINING_LOCATION, &ok);
   if (ok) OPENSS_VIEW_DEFINING_LOCATION = Bvalue;
 
-  Add_Help (czar, "viewMangledName", "a boolean, preference",
+  configName = "viewMangledName";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
+  validFormatNames.push_back(configName);
+  Add_Help (czar, "viewMangledName", "a boolean preference",
             "Declare whether or not a mangled name is displayed "
             "when a function is displayed as part of an 'expView' command. "
             "The default is false, allowing the demangled names, that are "
@@ -225,7 +293,10 @@ void SS_Configure () {
   Bvalue = settings->readBoolEntry(std::string("viewMangledName"), OPENSS_VIEW_MANGLED_NAME, &ok);
   if (ok) OPENSS_VIEW_MANGLED_NAME = Bvalue;
 
-  Add_Help (czar, "viewSuppressUnusedElements", "a boolean, preference",
+  configName = "viewSuppressUnusedElements";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
+  validFormatNames.push_back(configName);
+  Add_Help (czar, "viewSuppressUnusedElements", "a boolean preference",
             "Declare whether or not a line of ouput is suppressed if "
             "there were no measurements recorded for the associated "
             "statement, function or linked object. "
@@ -234,6 +305,8 @@ void SS_Configure () {
   Bvalue = settings->readBoolEntry(std::string("viewSuppressUnusedElements"), OPENSS_VIEW_SUPPRESS_UNUSED_ELEMENTS, &ok);
   if (ok) OPENSS_VIEW_SUPPRESS_UNUSED_ELEMENTS = Bvalue;
 
+  configName = "viewThreadIdWithMaxMin";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "viewThreadIdWithMaxMin", "a boolean, preference",
             "Declare whether or not the thread ID, of the tread that "
             "contains the Max or Min value, is displayed "
@@ -244,7 +317,10 @@ void SS_Configure () {
   Bvalue = settings->readBoolEntry(std::string("viewThreadIdWithMaxMin"), OPENSS_VIEW_THREAD_ID_WITH_MAX_OR_MIN, &ok);
   if (ok) OPENSS_VIEW_THREAD_ID_WITH_MAX_OR_MIN = Bvalue;
 
-  Add_Help (czar, "viewBlankInPlaceOfZero", "a boolean, preference",
+  configName = "viewBlankInPlaceOfZero";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
+  validFormatNames.push_back(configName);
+  Add_Help (czar, "viewBlankInPlaceOfZero", "a boolean preference",
             "Declare whether or not Blanks are displayed for Zero valued fields "
             "in the columns of output from an 'expView' command. "
             "See 'redirectBlankInPlaceOfZero' when output is redirected to a file. "
@@ -252,7 +328,48 @@ void SS_Configure () {
   Bvalue = settings->readBoolEntry(std::string("viewBlankInPlaceOfZero"), OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO, &ok);
   if (ok) OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO = Bvalue;
 
-  Add_Help (czar, "redirectBlankInPlaceOfZero", "a boolean, preference",
+  configName = "viewLeftJustify";
+  validFormatNames.push_back(configName);  // Capture valid names for error checking.
+  Add_Help (czar, "viewLeftJustify", "a boolean, view format option",
+            "Declare whether or not all output should be left justified "
+            "in the columns of output for an 'expView'. "
+            "The default is false, causing only the right most column to be left justified.");
+
+  configName = "viewEoc";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
+  validFormatNames.push_back(configName);
+  Add_Help (czar, "viewEoc", "a character string, view format preference",
+            "Specify the character string that is appended to the end "
+            "of each column of output generated by an 'expView'. "
+            "The default is \"  \" (2 spaces).");
+  Svalue = settings->readEntry(std::string("viewEoc"), OPENSS_VIEW_EOC, &ok);
+  if (ok) OPENSS_VIEW_EOC = Svalue;
+
+  configName = "viewEol";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
+  validFormatNames.push_back(configName);
+  Add_Help (czar, "viewEol", "a character string, view format preference",
+            "Specify the character string that is appended to the end "
+            "of each row of output generated by an 'expView'. "
+            "The default is \"\n\" (a line feed).");
+  Svalue = settings->readEntry(std::string("viewEol"), OPENSS_VIEW_EOL, &ok);
+  if (ok) OPENSS_VIEW_EOL = Svalue;
+
+  configName = "viewEov";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
+  validFormatNames.push_back(configName);
+  Add_Help (czar, "viewEov", "a character string, view format preference",
+            "Specify the character string that is appended to the end "
+            "of the output generated from an 'expView' command. "
+            "It is intended to aid the readability of the output."
+            "The default is \"\n\" (line feed).");
+  Svalue = settings->readEntry(std::string("viewEov"), OPENSS_VIEW_EOV, &ok);
+  if (ok) OPENSS_VIEW_EOV = Svalue;
+
+  configName = "redirectBlankInPlaceOfZero";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
+  validFormatNames.push_back(configName);
+  Add_Help (czar, "redirectBlankInPlaceOfZero", "a boolean, view format preference",
             "Declare whether or not Blanks are displayed for Zero valued fields "
             "in the columns of output for an 'expView' command when "
             "output is redirected to a file. "
@@ -261,6 +378,8 @@ void SS_Configure () {
   Bvalue = settings->readBoolEntry(std::string("redirectBlankInPlaceOfZero"), OPENSS_REDIRECT_USE_BLANK_IN_PLACE_OF_ZERO, &ok);
   if (ok) OPENSS_REDIRECT_USE_BLANK_IN_PLACE_OF_ZERO = Bvalue;
 
+  configName = "saveExperimentDatabase";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "saveExperimentDatabase", "a boolean, preference",
             "Declare that the database created when an 'expCreate' "
             "command is issued will be saved when the OpenSS session is "
@@ -275,6 +394,8 @@ void SS_Configure () {
   Bvalue = settings->readBoolEntry(std::string("saveExperimentDatabase"), OPENSS_SAVE_EXPERIMENT_DATABASE, &ok);
   if (ok) OPENSS_SAVE_EXPERIMENT_DATABASE = Bvalue;
 
+  configName = "askAboutSavingTheDatabase";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "askAboutSavingTheDatabase", "a boolean, preference",
             "Declare that when rerunning an experiment create a dialog"
             " message that allows the experiment database file to be saved "
@@ -282,6 +403,8 @@ void SS_Configure () {
   Bvalue = settings->readBoolEntry(std::string("askAboutSavingTheDatabase"), OPENSS_ASK_ABOUT_SAVING_THE_DATABASE, &ok);
   if (ok) OPENSS_ASK_ABOUT_SAVING_THE_DATABASE = Bvalue;
 
+  configName = "askAboutChangingArgs";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "askAboutChangingArgs", "a boolean, preference",
             "Declare that when rerunning an experiment create a dialog"
             " message that allows the application's arguments to be changed prior "
@@ -289,6 +412,8 @@ void SS_Configure () {
   Bvalue = settings->readBoolEntry(std::string("askAboutChangingArgs"), OPENSS_ASK_ABOUT_CHANGING_ARGS, &ok);
   if (ok) OPENSS_ASK_ABOUT_CHANGING_ARGS = Bvalue;
 
+  configName = "onRerunSaveCopyOfExperimentDatabase";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "onRerunSaveCopyOfExperimentDatabase", "a boolean, preference",
             "Declare that the database created when an 'expCreate' "
             "command is issued will be saved when the OpenSS session is "
@@ -303,12 +428,16 @@ void SS_Configure () {
   Bvalue = settings->readBoolEntry(std::string("onRerunSaveCopyOfExperimentDatabase"), OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE, &ok);
   if (ok) OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE = Bvalue;
 
+  configName = "allowPythonCommands";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "allowPythonCommands", "a boolean, preference",
             "Declare that Python commands may be intermixed with OpenSS "
             "commands.  The default is false.");
   Bvalue = settings->readBoolEntry(std::string("allowPythonCommands"), OPENSS_ALLOW_PYTHON_COMMANDS, &ok);
   if (ok) OPENSS_ALLOW_PYTHON_COMMANDS = Bvalue;
 
+  configName = "instrumentorIsOffline";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "instrumentorIsOffline", "a boolean, preference",
             "Declare whether or not the underlying instrumention mechanism for Open|SpeedShop "
             "is offline, or if not set: dynamic.  What this means is "
@@ -320,6 +449,8 @@ void SS_Configure () {
   Bvalue = settings->readBoolEntry(std::string("instrumentorIsOffline"), OPENSS_INSTRUMENTOR_IS_OFFLINE, &ok);
   if (ok) OPENSS_INSTRUMENTOR_IS_OFFLINE = Bvalue;
 
+  configName = "lessRestrictiveComparisons";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "lessRestrictiveComparisons", "a boolean, preference",
             "Declare whether or not comparisons should consider the directory path and linked object "
             "when comparing performance data for a particular function.  If this preference is set, "
@@ -329,6 +460,8 @@ void SS_Configure () {
 //  std::cout << " SS_Configure.cxx, lessRestrictiveComparisons section, Bvalue=" << Bvalue << " ok=" << ok << std::endl;
   if (ok) OPENSS_LESS_RESTRICTIVE_COMPARISONS = Bvalue;
 
+  configName = "OPENSS_LOG_BY_DEFAULT";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "OPENSS_LOG_BY_DEFAULT", "a boolean, environment",
             "Declare that a log file will be opened and each command "
             "will be tracked through the various internal processing "
@@ -336,6 +469,8 @@ void SS_Configure () {
             "aid and is not generally useful.  The default is false.");
   set_bool (OPENSS_LOG_BY_DEFAULT, "OPENSS_LOG_BY_DEFAULT");
 
+  configName = "OPENSS_LIMIT_SIGNAL_CATCHING";
+  validConfigurationNames.push_back(configName); // Capture valid names for error checking.
   Add_Help (czar, "OPENSS_LIMIT_SIGNAL_CATCHING", "a boolean, environment",
             "Declare that OpenSS should limit the types of signals it "
             "traps. When set to true, OpenSS will ignore the following "

@@ -44,7 +44,7 @@ ParseTarget() :
  */
 void
 ParseTarget::
-pushHostPoint(char * name)
+pushHostPoint(const char * name)
 {
     this->dm_used = true;   // All insertions need to do this currently
     ParseRange range(name);
@@ -63,7 +63,7 @@ pushHostPoint(char * name)
  */
 void
 ParseTarget::
-pushHostPoint(int num)
+pushHostPoint(int64_t num)
 {
     this->dm_used = true;   // All insertions need to do this currently
     ParseRange range(num);
@@ -82,7 +82,7 @@ pushHostPoint(int num)
  */
 void
 ParseTarget::
-pushHostRange(char * name, int num)
+pushHostRange(const char * name, int64_t num)
 {
     this->dm_used = true;   // All insertions need to do this currently
     ParseRange range(name,num);
@@ -101,7 +101,7 @@ pushHostRange(char * name, int num)
  */
 void
 ParseTarget::
-pushHostRange(char * name1, char * name2)
+pushHostRange(const char * name1, const char * name2)
 {
     this->dm_used = true;   // All insertions need to do this currently
     ParseRange range(name1,name2);
@@ -120,7 +120,7 @@ pushHostRange(char * name1, char * name2)
  */
 void
 ParseTarget::
-pushHostRange(int num, char * name)
+pushHostRange(int64_t num, const char * name)
 {
     this->dm_used = true;   // All insertions need to do this currently
     ParseRange range(num,name);
@@ -139,7 +139,7 @@ pushHostRange(int num, char * name)
  */
 void
 ParseTarget::
-pushHostRange( int num1, int num2)
+pushHostRange( int64_t num1, int64_t num2)
 {
     this->dm_used = true;   // All insertions need to do this currently
     ParseRange range(num1,num2);

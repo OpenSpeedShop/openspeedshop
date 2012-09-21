@@ -22,6 +22,9 @@
  * Definition of the information that the user has control over w.r.t. OpenSpeedShop's behavior.
  *
  */
+
+#include <string>
+
 enum OpenSpeedShop_Start_Modes {
    SM_Batch,        /**< -batch  */
    SM_Cli,          /**< -cli */
@@ -32,6 +35,9 @@ enum OpenSpeedShop_Start_Modes {
 };
 
 // User control over some of OpenSpeedShop's behavior.
+extern std::string OPENSS_VIEW_EOC;
+extern std::string OPENSS_VIEW_EOL;
+extern std::string OPENSS_VIEW_EOV;
 extern int64_t OPENSS_VIEW_FIELD_SIZE;
 extern int64_t OPENSS_VIEW_MAX_FIELD_SIZE;
 extern int64_t OPENSS_VIEW_PRECISION;
@@ -63,3 +69,7 @@ extern OpenSpeedShop_Start_Modes actualCLIStartMode;
 
 // Read in the environment variables that control OpenSpeedShop
 void SS_Configure ();
+
+// Look up valid names with the following utilities:
+bool check_validConfigurationName(std::string s);
+bool check_validFormatName(std::string s);

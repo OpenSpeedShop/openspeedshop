@@ -48,9 +48,87 @@ enum cmd_result_type_enum {
 /* 18 */  CMD_RESULT_EXTENSION,
 };
 
+class PrintControl {
+
+ public:
+  int64_t num_columns;
+  int64_t *column_widths;
+  int64_t field_size;
+  std::string eoc;
+  std::string eol;
+  std::string eov;
+  int64_t precision;
+  int64_t date_time_precision;
+  bool field_size_dynamic;
+  bool full_path;
+  bool entire_string;
+  bool defining_location;
+  bool mangled_name;
+  bool blank_in_place_of_zero;
+  bool left_justify_all;
+
+  PrintControl () {
+    column_widths = NULL;
+    num_columns = 0;
+    field_size = OPENSS_VIEW_FIELD_SIZE;
+    eoc = OPENSS_VIEW_EOC;
+    eol = OPENSS_VIEW_EOL;
+    eov = OPENSS_VIEW_EOV;
+    precision = OPENSS_VIEW_PRECISION;
+    date_time_precision = OPENSS_VIEW_DATE_TIME_PRECISION;
+    full_path = OPENSS_VIEW_FULLPATH;
+    entire_string = OPENSS_VIEW_ENTIRE_STRING;
+    defining_location = OPENSS_VIEW_DEFINING_LOCATION;
+    mangled_name = OPENSS_VIEW_MANGLED_NAME;
+    blank_in_place_of_zero = OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO;
+    left_justify_all = false;
+  }
+
+  ~PrintControl () { column_widths = NULL; }
+
+  void Set_PrintControl_column_widths(int64_t n, int64_t *w) { num_columns = n; column_widths = w; }
+  void Set_PrintControl_field_size(int64_t l) { field_size = l; }
+  void Set_PrintControl_eoc(std::string c) { eoc = c; }
+  void Set_PrintControl_eol(std::string c) { eol = c; }
+  void Set_PrintControl_eov(std::string c) { eov = c; }
+  void Set_PrintControl_precision(int64_t p) { precision = p; }
+  void Set_PrintControl_date_time_precision(int64_t p) { date_time_precision = p; }
+  void Set_PrintControl_dynamic_size(bool b) { field_size_dynamic = b; }
+  void Set_PrintControl_full_path(bool b) { full_path = b; }
+  void Set_PrintControl_entire_string(bool b) { entire_string = b; }
+  void Set_PrintControl_defining_location(bool b) { defining_location = b; }
+  void Set_PrintControl_mangled_name(bool b) { mangled_name = b; }
+  void Set_PrintControl_blank_in_place_of_zero(bool b) { blank_in_place_of_zero = b; }
+  void Set_PrintControl_left_justify_all(bool b) { left_justify_all = b; }
+};
+
+// Adjust size of string when the field is to be placed left justified into a fixed size field.
+// If there is unused space in the field, pad with blanks.
+inline std::string Left_Justify( int64_t fieldsize, std::string S ) {
+ // Find the first non-blank character.
+  int64_t stringsize = S.length();
+  int64_t first_non_blank = 0;
+  for ( ; first_non_blank < stringsize; first_non_blank++) {
+    if (S.substr(first_non_blank, 1) != (" ")) {
+      break;
+    }
+  }
+
+  std::string R = S.substr(first_non_blank, (stringsize - first_non_blank));
+
+  if (R.length() < fieldsize) {
+    for (int64_t j=R.length(); j < fieldsize; j++) {
+      R += " ";
+    }
+  } else if (R.length() > fieldsize) {
+    return R.substr( 0, fieldsize );
+  }
+  return R;
+}
+
 class CommandResult {
   cmd_result_type_enum Result_Type;
-  bool ValueIsID;  // ID's can not be combined of blanked.
+  bool ValueIsID;  // ID's can not be combined or blanked.
 
  private:
   CommandResult () {
@@ -91,10 +169,20 @@ class CommandResult {
   virtual PyObject * pyValue () {
     return Py_BuildValue("");
   }
-  virtual void Print (std::ostream& to, int64_t fieldsize=20, bool leftjustified=false) {
-    if (fieldsize == 0) fieldsize = strlen("(none)");
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column=0) {
+    int64_t fieldsize = strlen("(none)");
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) &&
+         (pc.column_widths[column] != 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << "(none)";
+  }
+  virtual void Print (std::ostream& to, int64_t fieldsize=20, bool leftjustified=false) {
+    PrintControl default_format;
+    default_format.Set_PrintControl_field_size( fieldsize );
+    default_format.Set_PrintControl_left_justify_all( leftjustified );
+    Print ( to, default_format, 0 );  // Invoke format controlled print.
   }
 };
 
@@ -217,7 +305,11 @@ class CommandResult_Address :
   virtual PyObject * pyValue () {
     return Py_BuildValue("l", uint_value);
   }
-  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
     std::string S = Form(fieldsize);
     if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
@@ -275,7 +367,11 @@ class CommandResult_Uint :
   virtual PyObject * pyValue () {
     return Py_BuildValue("l", uint_value);
   }
-  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
     std::string S = Form(fieldsize);
     if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
@@ -342,7 +438,11 @@ class CommandResult_Int :
   virtual PyObject * pyValue () {
     return Py_BuildValue("l", int_value);
   }
-  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
     std::string S = Form(fieldsize);
     if (fieldsize == 0) fieldsize = S.length();
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
@@ -419,9 +519,16 @@ class CommandResult_Float :
   virtual PyObject * pyValue () {
     return Py_BuildValue("d", float_value);
   }
-  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
     std::string S = Form(fieldsize);
     if (fieldsize == 0) fieldsize = S.length();
+    if (leftjustified) {
+      S = Left_Justify( fieldsize, S );
+    }
     to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
        << std::setw(fieldsize) << S;
   }
@@ -471,7 +578,11 @@ class CommandResult_String :
   virtual PyObject * pyValue () {
     return Py_BuildValue("s",string_value.c_str());
   }
-  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
@@ -489,7 +600,7 @@ class CommandResult_String :
     } else if (string_value.length() > fieldsize) {
      // The string is too big for the field.
      // Decide how, or if, to truncate the string.
-      if (OPENSS_VIEW_ENTIRE_STRING) {
+      if (pc.entire_string) {
        // Ignore the field size and print the full string.
         to << std::setiosflags(std::ios::left) << string_value;
       } else {
@@ -552,7 +663,7 @@ class CommandResult_RawString :
   virtual PyObject * pyValue () {
     return Py_BuildValue("s",string_value.c_str());
   }
-  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
     // Ignore fieldsize and leftjustified specifications and just dump the
     // the raw string to the output stream.
     to << string_value;
@@ -661,7 +772,11 @@ class CommandResult_Function :
     return Py_BuildValue("s",F.c_str());
   }
 
-  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
     std::string string_value = Form (fieldsize);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
@@ -736,7 +851,11 @@ class CommandResult_Statement :
     std::string S = Form (OPENSS_VIEW_FIELD_SIZE);
     return Py_BuildValue("s",S.c_str());
   }
-  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
     std::string string_value = Form (fieldsize);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
@@ -821,7 +940,11 @@ class CommandResult_LinkedObject :
     std::string F = Form (OPENSS_VIEW_FIELD_SIZE);
     return Py_BuildValue("s",F.c_str());
   }
-  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
     std::string string_value = Form (fieldsize);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
@@ -979,7 +1102,11 @@ class CommandResult_CallStackEntry : public CommandResult {
     std::string F = Form (OPENSS_VIEW_FIELD_SIZE);
     return Py_BuildValue("s",F.c_str());
   }
-  virtual void Print (std::ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
     std::string string_value = Form (fieldsize);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
@@ -1064,7 +1191,11 @@ class CommandResult_Time : public CommandResult {
     std::string F = Form (OPENSS_VIEW_FIELD_SIZE);
     return Py_BuildValue("s",F.c_str());
   }
-  virtual void Print (std::ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
     std::string string_value = Form (fieldsize);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
@@ -1208,7 +1339,11 @@ class CommandResult_Duration : public CommandResult {
     std::string F = Form (OPENSS_VIEW_FIELD_SIZE);
     return Py_BuildValue("s",F.c_str());
   }
-  virtual void Print (std::ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
     std::string string_value = Form (fieldsize);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
@@ -1333,7 +1468,11 @@ class CommandResult_Interval : public CommandResult {
     std::string F = Form (OPENSS_VIEW_FIELD_SIZE);
     return Py_BuildValue("s",F.c_str());
   }
-  virtual void Print (std::ostream &to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
     std::string string_value = Form (fieldsize);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
@@ -1379,7 +1518,7 @@ class CommandResult_Title :
   virtual PyObject * pyValue () {
     return Py_BuildValue("s",string_value.c_str());
   }
-  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
     to << string_value;
   }
 };
@@ -1448,14 +1587,14 @@ class CommandResult_Headers :
     }
     return p_object;
   }
-  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
     for (coi = Headers.begin(); coi != Headers.end(); coi++) {
      // column_widths allows support of dynamic field size.
-      int64_t use_fieldsize = (column_widths != NULL) ? column_widths[num_results] : fieldsize;
-      if (num_results++ != 0) to << "  ";
-      (*coi)->Print (to, use_fieldsize, (num_results >= number_of_columns) ? true : false);
+      if (num_results != 0) to << pc.eoc;
+      (*coi)->Print (to, pc, num_results);
+      num_results++;
     }
 
   }
@@ -1559,14 +1698,14 @@ class CommandResult_Enders :
     }
     return p_object;
   }
-  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
     for (coi = Enders.begin(); coi != Enders.end(); coi++) {
      // column_widths allows support of dynamic field size.
-      int64_t use_fieldsize = (column_widths != NULL) ? column_widths[num_results] : fieldsize;
-      if (num_results++ != 0) to << "  ";
-      (*coi)->Print (to, use_fieldsize, (num_results >= number_of_columns) ? true : false);
+      if (num_results != 0) to << pc.eoc;
+      (*coi)->Print (to, pc, num_results);
+      num_results++;
     }
 
   }
@@ -1671,22 +1810,26 @@ class CommandResult_Columns :
     }
     return p_object;
   }
-  virtual void Print (std::ostream& to, int64_t fieldsize, bool leftjustified) {
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
     std::list<CommandResult *>::iterator coi;
     int64_t num_results = 0;
     for (coi = Columns.begin(); coi != Columns.end(); coi++) {
      // column_widths allows support of dynamic field size.
-      int64_t use_fieldsize = (column_widths != NULL) ? column_widths[num_results] : fieldsize;
-      if (num_results++ != 0) to << "  ";
+      int64_t fieldsize = pc.field_size;
+      if ( (pc.column_widths != NULL) &&
+           (column >= 0) ) fieldsize = pc.column_widths[column];
+      bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
+      if (num_results != 0) to << pc.eoc;
       if ((*coi)->ValueIsNull() &&
           !((*coi)->IsValueID()) &&
-          OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO) {
+          pc.blank_in_place_of_zero) {
        // Avoid printing lots of meaningless "0" values - blank fill the field.
         to << (leftjustified ? std::setiosflags(std::ios::left) : std::setiosflags(std::ios::right))
-           << std::setw(use_fieldsize) << " ";
+           << std::setw(fieldsize) << " ";
       } else {
-        (*coi)->Print (to, use_fieldsize, (num_results >= number_of_columns) ? true : false);
+        (*coi)->Print (to, pc, num_results);
       }
+      num_results++;
     }
 
   }

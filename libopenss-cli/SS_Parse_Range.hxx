@@ -29,6 +29,7 @@
 namespace OpenSpeedShop { namespace cli {
 
 typedef enum {
+    PARSE_RANGE_ERROR,
     PARSE_RANGE_VALUE,
     PARSE_EXPRESSION_VALUE
 } parse_type_enum_t;
@@ -71,10 +72,11 @@ class ParseRange {
 
     public:
 
-//	/** Constructor. */
+	/** Constructor. */
 	ParseRange(int64_t num);
-	ParseRange(const char *);
+	ParseRange(const char *name);
 	ParseRange(const char * name, int64_t num);
+	ParseRange(const char * name, double dval);
 	ParseRange(const char * name1, const char * name2);
 	ParseRange(int64_t num, const char * name);
 	ParseRange(int64_t num1, int64_t num2);
@@ -103,6 +105,11 @@ class ParseRange {
     	void setNext(ParseRange *newNext)
 	{
 	    next = newNext;
+	}
+
+    	void setParseTypeError()
+	{
+	    dm_parse_type = PARSE_RANGE_ERROR;;
 	}
 
     	parse_type_enum_t getParseType()

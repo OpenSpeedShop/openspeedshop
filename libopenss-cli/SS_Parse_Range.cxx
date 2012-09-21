@@ -111,6 +111,30 @@ ParseRange(const char * name, int64_t num)
  *
  */
 ParseRange::
+ParseRange(const char * name, double dval)
+{
+    dm_parse_type = PARSE_RANGE_VALUE;
+    next = NULL;
+
+    dm_range.start_range.tag = VAL_STRING;
+    dm_range.start_range.name = name;
+	    
+    dm_range.end_range.tag = VAL_DOUBLE;
+    dm_range.end_range.val = dval;
+	    
+    dm_range.is_range = true;
+}
+ 
+/**
+ * Method: ParseRange::ParseRange()
+ * 
+ *     
+ * @return  void.
+ *
+ * @todo    Error handling.
+ *
+ */
+ParseRange::
 ParseRange(const char * name1, const char * name2)
 {
     dm_parse_type = PARSE_RANGE_VALUE;
@@ -239,7 +263,7 @@ ParseRange(expression_operation_t op, char *c)
     pv->push_back(operand0);
     dm_exp.exp_operand.push_back(operand0);
     dm_exp.exp_operand[0] = operand0;
-    printf("\tExit ParseRange <char *>: %p ",this);this->Dump();
+    printf("\tExit ParseRangeExp <char *>: %p ",pr);pr->Dump();
 #endif
 }
  

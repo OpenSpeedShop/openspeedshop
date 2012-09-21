@@ -318,6 +318,16 @@ class ParseResult {
     	ParseRange *ExpMetricExpr3(const char *name, ParseRange *arg1, ParseRange *agr2, ParseRange *arg3);
     	std::vector<ParseRange> * getexpMetricList() {return &dm_exp_metric_list;}
 
+    	/** Handle list of expFormats. */
+    	void pushFormatList(ParseRange *pr);
+	ParseRange *ExpFormatList(ParseRange *arg1, ParseRange *arg2);
+	ParseRange *ExpFormat(const char * name, ParseRange *pr);
+	ParseRange *ExpFormatConstant(const char * name);
+	ParseRange *ExpFormatConstant(const char * name, char *c);
+	ParseRange *ExpFormatConstant(const char * name, int64_t ival);
+	ParseRange *ExpFormatConstant(const char * name, double dval);
+    	std::vector<ParseRange> * getexpFormatList() {return &dm_exp_format_list;}
+
     	/** Handle list of break ids. */
     	std::vector<int> * getBreakList(){return &dm_break_id_list;}
 
@@ -335,11 +345,11 @@ class ParseResult {
 	    ParseRange range(name);
     	    dm_address_list.push_back(range);
 	}
-    	void pushAddressPoint(int num) {
+    	void pushAddressPoint(int64_t num) {
 	    ParseRange range(num);
     	    dm_address_list.push_back(range);
 	}
-    	void pushAddressRange(const char * name, int num) {
+    	void pushAddressRange(const char * name, int64_t num) {
 	    ParseRange range(name,num);
     	    dm_address_list.push_back(range);
 	}
@@ -347,11 +357,11 @@ class ParseResult {
 	    ParseRange range(name1,name2);
     	    dm_address_list.push_back(range);
 	}
-    	void pushAddressRange(int num, const char * name) {
+    	void pushAddressRange(int64_t num, const char * name) {
 	    ParseRange range(num,name);
     	    dm_address_list.push_back(range);
 	}
-    	void pushAddressRange(int num1, int num2) {
+    	void pushAddressRange(int64_t num1, int64_t num2) {
 	    ParseRange range(num1,num2);
     	    dm_address_list.push_back(range);
 	}
@@ -379,11 +389,11 @@ class ParseResult {
 	    ParseRange range(name);
     	    dm_lineno_list.push_back(range);
 	}
-    	void pushLineNoPoint(int num) {
+    	void pushLineNoPoint(int64_t num) {
 	    ParseRange range(num);
     	    dm_lineno_list.push_back(range);
 	}
-    	void pushLineNoRange(const char * name, int num) {
+    	void pushLineNoRange(const char * name, int64_t num) {
 	    ParseRange range(name,num);
     	    dm_lineno_list.push_back(range);
 	}
@@ -395,7 +405,7 @@ class ParseResult {
 	    ParseRange range(num,name);
     	    dm_lineno_list.push_back(range);
 	}
-    	void pushLineNoRange(int num1, int num2) {
+    	void pushLineNoRange(int64_t num1, int64_t num2) {
 	    ParseRange range(num1,num2);
     	    dm_lineno_list.push_back(range);
 	}
@@ -490,6 +500,8 @@ class ParseResult {
     	std::vector<ParseInterval> dm_interval_list;
     	/** Container of expMetric tuples */
     	std::vector<ParseRange> dm_exp_metric_list;
+    	/** Container of expFormat tuples */
+    	std::vector<ParseRange> dm_exp_format_list;
 
     	/** Container of host/file/rpt as class HostFileRPT */
     	std::vector<ParseTarget> dm_target_list;

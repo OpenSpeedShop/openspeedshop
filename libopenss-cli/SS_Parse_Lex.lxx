@@ -48,6 +48,18 @@ extern char * ip_number(char *,int);
 	    return NAME;
 	    }
 
+\'[^'\n][\ \!\"\#\$\%\&\(\)\*\+\-\.\,\/0-z\{\|\}\~]*['\n] {
+    	    yylval.string = strdup(yytext+1);
+	    yylval.string[yyleng-2] = 0;
+	    return NAME;
+	    }
+
+\'[\ \!\"\#\$\%\&\(\)\*\+\-\.\,\/0-z\{\|\}\~]*\' {
+    	    yylval.string = strdup(yytext+1);
+	    yylval.string[yyleng-2] = 0;
+	    return NAME;
+	    }
+
 ","     { return COMMA; }
 ";" 	{ return SEMICOLON; }
 ":" 	{ return COLON; }
@@ -137,6 +149,7 @@ extern char * ip_number(char *,int);
 "-p"	{ return PROCESS_ID; }
 "-t"	{ return THREAD_ID; }
 "-f"	{ return FILE_ID; }
+"-F"	{ return FORMAT_ID; }
 "-a"	{ return ARGS_ID; }
 "-x"	{ return EXP_ID; }
 "-l"	{ return LINE_ID;}

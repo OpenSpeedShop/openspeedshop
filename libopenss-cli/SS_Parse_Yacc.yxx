@@ -40,6 +40,7 @@ extern char *yytext;
 extern int yylex();
 extern int yywrap();
 extern ParseResult *p_parse_result;
+extern void ParseRangeTrace(int t);
 
 %}
 
@@ -79,7 +80,7 @@ void *parserange;
 %token JUST_QUIT_HEAD
 
 %token RANK_ID HOST_ID THREAD_ID ARGS_ID FILE_ID EXP_ID PROCESS_ID
-%token LINE_ID VIEW_ID METRIC_ID MODIFIER_ID INTERVAL_ID INSTRUMENTOR_ID
+%token LINE_ID VIEW_ID METRIC_ID FORMAT_ID MODIFIER_ID INTERVAL_ID INSTRUMENTOR_ID
 
 %token COMMA SEMICOLON COLON END_LINE EQUAL DOUBLE_COLON REDIRECT APPEND LPAREN RPAREN
 
@@ -91,8 +92,9 @@ void *parserange;
 
 %type <ival> lineno
 %type <ival> ip_address
-%type <string>  param_name expType
+%type <string>  param_name expType expFormatType
 %type <parserange>  expMetric_list expMetric_expr expMetric
+%type <parserange>  expFormat_list expFormat_expr
 
 %%
 
@@ -242,7 +244,7 @@ exp_create_element: modifier_list_spec
     	    	;
 
     	    /** EXP_COMPARE **/
-    	    /** expCompare [ <expId_spec> ] [ <modifier_list_spec> ] [ <expMetric_list_spec> ] <target_list> [ <expType_list> ] **/
+    	    /** expCompare [ <expId_spec> ] [ <modifier_list_spec> ] [ <expMetric_list_spec> ] [ <expFormat_list_spec> ] <target_list> [ <expType_list> ] **/
 exp_compare_com:    COMPARE_HEAD set_view_args 
   	    	|   COMPARE_HEAD set_view_args error END_LINE 
   	    	|   COMPARE_HEAD error END_LINE 
@@ -384,9 +386,9 @@ exp_status_arg:     /* empty */
 
     	    /** EXP_VIEW **/
     	    /** This will be supplanted by view **/
-    	    /** expView [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <target_list> ] **/
+    	    /** expView [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <expFormat_list_spec> ] [ <target_list> ] **/
 exp_view_com:	    VIEW_HEAD_OLD 
-  	    	|   VIEW_HEAD_OLD set_view_args 
+  	    	|   VIEW_HEAD_OLD set_view_args
   	    	|   VIEW_HEAD_OLD  error END_LINE 
   	    	|   VIEW_HEAD_OLD set_view_args error END_LINE 
       	    	;
@@ -400,7 +402,7 @@ exp_data_com:	    DATA_HEAD
       	    	;
 
     	    /** C_VIEW_CLUSTER **/
-    	    /** cViewCluster [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <target_list> ] **/
+    	    /** cViewCluster [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <expFormat_list_spec> ] [ <target_list> ] **/
 c_view_cluster_create_com:  CVIEWCLUSTER_HEAD
   	    	|   CVIEWCLUSTER_HEAD error END_LINE 
   	    	|   CVIEWCLUSTER_HEAD set_view_args 
@@ -408,7 +410,7 @@ c_view_cluster_create_com:  CVIEWCLUSTER_HEAD
       	    	;
 
     	    /** C_VIEW_CREATE **/
-    	    /** cViewCreate [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <target_list> ] **/
+    	    /** cViewCreate [ <expId_spec> ] [-v modifier_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <expFormat_list_spec> ] [ <target_list> ] **/
 c_view_create_com:  CVIEWCREATE_HEAD
   	    	|   CVIEWCREATE_HEAD error END_LINE 
   	    	|   CVIEWCREATE_HEAD set_view_args 
@@ -445,7 +447,7 @@ c_view_com:	    CVIEW_HEAD set_view_args
 
     	    /** VIEW **/
     	    /** This will supplant cview and expview **/
-    	    /** expView [ <expId_spec> ] [-v modifier_list] [-c view_id_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <target_list> ] **/
+    	    /** expView [ <expId_spec> ] [-v modifier_list] [-c view_id_list] [ <viewType_list> ] [ -m <expMetric_list> ] [ <expFormat_list_spec> ] [ <target_list> ] **/
 view_com:	    VIEW_HEAD set_view_args
   	    	|   VIEW_HEAD error END_LINE 
   	    	|   VIEW_HEAD set_view_args error END_LINE 
@@ -458,6 +460,7 @@ set_view_args:	    set_view_element
 set_view_element:   expId_list_spec
     	    	|   modifier_list_spec
 		|   expMetric_list_spec
+		|   expFormat_list_spec
 		|   target_list
 		|   view_id_list_spec
 		|   viewType_list
@@ -573,6 +576,7 @@ gen_help_arg:	    NAME {p_parse_result->pushHelp($1);}
     	    	|   EXP_ID	    {p_parse_result->pushHelp("-x");}
     	    	|   LINE_ID	    {p_parse_result->pushHelp("-l");}
     	    	|   METRIC_ID	    {p_parse_result->pushHelp("-m");}
+    	    	|   FORMAT_ID	    {p_parse_result->pushHelp("-F");}
     	    	|   VIEW_ID	    {p_parse_result->pushHelp("-c");}
 
     	    	;
@@ -893,6 +897,23 @@ expType_list:  	    expType {p_parse_result->pushExpType($1);}
 
 expType:	    NAME		     
 		;
+
+expFormat_list_spec:  FORMAT_ID expFormat_list {p_parse_result->pushFormatList((ParseRange *)$2);}
+		;
+
+expFormat_list:     expFormat_expr {$$ = p_parse_result->ExpFormat("list",(ParseRange *)$1);}
+    	    	|   expFormat_list COMMA expFormat_expr {$$ = p_parse_result->ExpFormatList((ParseRange *)$1,(ParseRange *)$3);}
+		;
+
+expFormat_expr:     expFormatType {$$ = p_parse_result->ExpFormatConstant($1);}
+                |   expFormatType EQUAL NUMBER {$$ = p_parse_result->ExpFormatConstant($1,$3);}
+    	    	|   expFormatType EQUAL DOUBLE {$$ = p_parse_result->ExpFormatConstant($1,$3);}
+    	    	|   expFormatType EQUAL NAME   {$$ = p_parse_result->ExpFormatConstant($1,$3);}
+		;
+
+expFormatType:	    NAME		     
+		;
+
 
 viewType_list:	    viewType
     	    	|   viewType_list COMMA viewType

@@ -37,12 +37,12 @@ class ParseTarget {
 	    return &dm_host_list;
 	}
 
-    	void pushHostPoint(char * name);
-    	void pushHostPoint(int num);
-    	void pushHostRange(char * name, int num);
-    	void pushHostRange(char * name1, char * name2);
-    	void pushHostRange(int num, char * name);
-    	void pushHostRange(int num1, int num2);
+    	void pushHostPoint(const char * name);
+    	void pushHostPoint(int64_t num);
+    	void pushHostRange(const char * name, int64_t num);
+    	void pushHostRange(const char * name1, const char * name2);
+    	void pushHostRange(int64_t num, const char * name);
+    	void pushHostRange(int64_t num1, int64_t num2);
 
     	/** Handle list of file names. */
     	std::vector<ParseRange> * getFileList()
@@ -60,22 +60,22 @@ class ParseTarget {
 	    ParseRange range(num);
     	    dm_file_list.push_back(range);
 	}
-    	void pushFileRange(char * name, int num) {
+    	void pushFileRange(const char * name, int64_t num) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(name,num);
     	    dm_file_list.push_back(range);
 	}
-    	void pushFileRange(char * name1, char * name2) {
+    	void pushFileRange(const char * name1, char * name2) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(name1,name2);
     	    dm_file_list.push_back(range);
 	}
-    	void pushFileRange(int num, char * name) {
+    	void pushFileRange(int64_t num, char * name) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(num,name);
     	    dm_file_list.push_back(range);
 	}
-    	void pushFileRange(int num1, int num2) {
+    	void pushFileRange(int64_t num1, int64_t num2) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(num1,num2);
     	    dm_file_list.push_back(range);
@@ -86,32 +86,32 @@ class ParseTarget {
 	{
 	    return &dm_cluster_list;
 	}
-    	void pushClusterPoint(char * name) {
+    	void pushClusterPoint(const char * name) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(name);
     	    dm_cluster_list.push_back(range);
 	}
-    	void pushClusterPoint(int num) {
+    	void pushClusterPoint(int64_t num) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(num);
     	    dm_cluster_list.push_back(range);
 	}
-    	void pushClusterRange(char * name, int num) {
+    	void pushClusterRange(const char * name, int64_t num) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(name,num);
     	    dm_cluster_list.push_back(range);
 	}
-    	void pushClusterRange(char * name1, char * name2) {
+    	void pushClusterRange(const char * name1, const char * name2) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(name1,name2);
     	    dm_cluster_list.push_back(range);
 	}
-    	void pushClusterRange(int num, char * name) {
+    	void pushClusterRange(int64_t num, const char * name) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(num,name);
     	    dm_cluster_list.push_back(range);
 	}
-    	void pushClusterRange(int num1, int num2) {
+    	void pushClusterRange(int64_t num1, int64_t num2) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(num1,num2);
     	    dm_cluster_list.push_back(range);
@@ -122,32 +122,32 @@ class ParseTarget {
 	{
 	    return &dm_rank_list;
 	}
-    	void pushRankPoint(char * name) {
+    	void pushRankPoint(const char * name) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(name);
     	    dm_rank_list.push_back(range);
 	}
-    	void pushRankPoint(int num) {
+    	void pushRankPoint(int64_t num) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(num);
     	    dm_rank_list.push_back(range);
 	}
-    	void pushRankRange(char * name, int num) {
+    	void pushRankRange(const char * name, int64_t num) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(name,num);
     	    dm_rank_list.push_back(range);
 	}
-    	void pushRankRange(char * name1, char * name2) {
+    	void pushRankRange(const char * name1, const char * name2) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(name1,name2);
     	    dm_rank_list.push_back(range);
 	}
-    	void pushRankRange(int num, char * name) {
+    	void pushRankRange(int64_t num, const char * name) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(num,name);
     	    dm_rank_list.push_back(range);
 	}
-    	void pushRankRange(int num1, int num2) {
+    	void pushRankRange(int64_t num1, int64_t num2) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(num1,num2);
     	    dm_rank_list.push_back(range);
@@ -158,32 +158,32 @@ class ParseTarget {
 	{
 	    return &dm_pid_list;
 	}
-    	void pushPidPoint(char * name) {
+    	void pushPidPoint(const char * name) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(name);
     	    dm_pid_list.push_back(range);
 	}
-    	void pushPidPoint(int num) {
+    	void pushPidPoint(int64_t num) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(num);
     	    dm_pid_list.push_back(range);
 	}
-    	void pushPidRange(char * name, int num) {
+    	void pushPidRange(const char * name, int64_t num) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(name,num);
     	    dm_pid_list.push_back(range);
 	}
-    	void pushPidRange(char * name1, char * name2) {
+    	void pushPidRange(const char * name1, const char * name2) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(name1,name2);
     	    dm_pid_list.push_back(range);
 	}
-    	void pushPidRange(int num, char * name) {
+    	void pushPidRange(int64_t num, const char * name) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(num,name);
     	    dm_pid_list.push_back(range);
 	}
-    	void pushPidRange(int num1, int num2) {
+    	void pushPidRange(int64_t num1, int64_t num2) {
 	    this->dm_used = true;   // All insertions need to do this currently
 	    ParseRange range(num1,num2);
     	    dm_pid_list.push_back(range);
