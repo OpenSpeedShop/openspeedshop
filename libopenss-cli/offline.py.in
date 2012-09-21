@@ -219,7 +219,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    if not os.WEXITSTATUS(isexecutable):
 		# is this the actual mpi program.
 		if not ismpi:
-		  ismpidriver = os.system('nm ' + file_arg + ' | grep -q -i MPIR')
+		  ismpidriver = os.system('nm ' + file_arg + ' | grep -q -i MPIR_')
 
                   #
                   # Do some special checking on SGI systems because we can not detect
