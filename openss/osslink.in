@@ -57,14 +57,14 @@ then
   monitor_wrap_base_names="main exit _exit"
 elif test "$mach_type" == "ppc64" && test "$oss_target" == "bgq" ; 
 then
-  monitor_wrap_base_names="main exit _exit"
+  monitor_wrap_base_names="main exit _exit system"
 else
   monitor_wrap_base_names="main exit _exit system"
 fi
 
 # monitor has --enable-pthread
 if test "$mach_type" == "ppc64" && test "$oss_target" == "bgq" ; then
-   monitor_wrap_pthread_names="pthread_exit pthread_sigmask"
+   monitor_wrap_pthread_names="pthread_create pthread_exit pthread_sigmask sigwaitinfo sigtimedwait"
 else
    monitor_wrap_pthread_names="pthread_create pthread_exit pthread_sigmask"
 fi
