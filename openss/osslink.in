@@ -436,21 +436,38 @@ then
   echo "DEBUG: osslink oss_target = $oss_target"
 fi
 
-# Need to undefine system for cray-xt5
+# Need to undefine certain functions for cray-xk because of link ordering
+if [ ${oss_target} = cray-xk ]
+then
+   undef_args="${undef_args} -Wl,-u,__wrap_fork"
+   undef_args="${undef_args} -Wl,-u,__wrap_pthread_create"
+   undef_args="${undef_args} -Wl,-u,__wrap_open"
+fi
+
+
+# Need to undefine certain functions for cray-xe because of link ordering
+if [ ${oss_target} = cray-xe ]
+then
+   undef_args="${undef_args} -Wl,-u,__wrap_fork"
+   undef_args="${undef_args} -Wl,-u,__wrap_pthread_create"
+   undef_args="${undef_args} -Wl,-u,__wrap_open"
+fi
+
+# Need to undefine certain functions for cray-xt5 because of link ordering
 if [ ${oss_target} = cray-xt5 ]
 then
    #undef_args="${undef_args} -Wl,-u,__wrap_fork"
    undef_args="${undef_args} -Wl,-u,__wrap_pthread_create"
 fi
 
-# Need to undefine fork for cray-xt4
+# Need to undefine certain functions for cray-xt4 because of link ordering
 if [ ${oss_target} = cray-xt4 ]
 then
    undef_args="${undef_args} -Wl,-u,__wrap_fork"
    undef_args="${undef_args} -Wl,-u,__wrap_pthread_create"
 fi
 
-# Need to undefine fork for bgl 
+# to undefine certain functions for bgl because of link ordering
 if [ ${oss_target} = bgl ]
 then
 #   undef_args="${undef_args} -Wl,-u,__wrap_fork"
@@ -458,7 +475,7 @@ then
    undef_args="${undef_args} -Wl,-u,__wrap_open"
 fi
 
-# Need to undefine fork for bgp
+# to undefine certain functions for bgp because of link ordering
 if [ ${oss_target} = bgp ]
 then
 #   undef_args="${undef_args} -Wl,-u,__wrap_fork"
@@ -466,7 +483,7 @@ then
    undef_args="${undef_args} -Wl,-u,__wrap_open"
 fi
 
-# undefine functions for bgq
+# to undefine certain functions for bgq because of link ordering
 if [ ${oss_target} = bgq ]
 then
 #   undef_args="${undef_args} -Wl,-u,__wrap_fork"
