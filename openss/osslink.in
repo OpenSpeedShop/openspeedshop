@@ -466,6 +466,16 @@ then
    undef_args="${undef_args} -Wl,-u,__wrap_open"
 fi
 
+# undefine functions for bgq
+if [ ${oss_target} = bgq ]
+then
+#   undef_args="${undef_args} -Wl,-u,__wrap_fork"
+   undef_args="${undef_args} -Wl,-u,__wrap_pthread_create"
+   undef_args="${undef_args} -Wl,-u,__wrap_open"
+fi
+
+
+
 if [ $debug_flag == 1 ]
 then
   echo
