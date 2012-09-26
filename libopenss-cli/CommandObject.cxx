@@ -439,12 +439,12 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
  // Pick up information lists from CommandObject.
   std::list<CommandResult *> cmd_result = Result_List();
   std::list<CommandResult_RawString *> cmd_annotation = Annotation_List ();
-  std::vector<ParseRange> *f_list = P_Result()->getexpFormatList();
+  std::vector<ParseRange> *f_list = (P_Result() != NULL) ? P_Result()->getexpFormatList() : NULL;
 
  // Look for user format control.
   ParseRange *key_range;
   PrintControl format_spec;
-  Capture_User_Format_Information( P_Result()->getexpFormatList(), format_spec );
+  Capture_User_Format_Information( f_list, format_spec );
 
  // Did the user want control over formatting?
   bool EOC_specified = strcasecmp(format_spec.eoc.c_str(), OPENSS_VIEW_EOC.c_str()) ? true : false;
