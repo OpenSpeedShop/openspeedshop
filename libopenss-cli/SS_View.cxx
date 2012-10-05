@@ -44,6 +44,238 @@ static int64_t Get_Trailing_Int (std::string viewname, int64_t start) {
   return topn;
 }
 
+static int64_t Get_Trailing_Int (char *S, int64_t start, int64_t length) {
+  int64_t val = 0;
+  for (int i = start; i < start+length; i++) {
+    char c = S[i];
+    if ((c >= *"0") && (c <= *"9")) {
+      val = (val * 10) + (c - *"0");
+    }
+  }
+  return val;
+}
+
+struct save_file_header
+{
+  int64_t type;  // Format type of header.
+  int64_t data_offset;
+  int64_t command_offset;
+  int64_t eoc_offset;
+  int64_t eol_offset;
+  Time last_sample;
+};
+int64_t header_offset_to_command( save_file_header *H )
+{
+  Assert(H->type == 1);
+  return H->command_offset;
+}
+int64_t header_offset_to_data( save_file_header *H )
+{
+  Assert(H->type == 1);
+  return H->data_offset;
+}
+
+bool SS_Find_Previous_View (CommandObject *cmd, ExperimentObject *exp)
+{
+  if (!OPENSS_SAVE_VIEWS_FOR_REUSE) return false;
+
+ // Is there a good chance that a matching view has been saved?
+  if (exp->Status() == ExpStatus_Paused) return false;
+  if (exp->Status() == ExpStatus_Running) return false;
+  if (exp->FW() == NULL) return false;
+ // Use a time stamp to convience us that the database we are told
+ // to look at is the one used to generate the view.
+  Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
+  Time EndTime = databaseExtent.getTimeInterval().getEnd();
+
+  std::string previous_view("");
+
+  InputLineObject *clip = cmd->Clip();
+  if (clip == NULL) return false;
+  std::string command = clip->Command();
+
+  std::string Data_File_Name;
+  Data_File_Name = exp->FW()->getName();
+  if (Data_File_Name.length() == 0) return false;
+
+ // Determine format information.
+  std::string eoc_marker = OPENSS_VIEW_EOC;
+  std::string eol_marker = OPENSS_VIEW_EOL;
+  if ( (cmd->P_Result() != NULL) &&
+       (cmd->P_Result()->getexpFormatList() != NULL) ) {
+    std::vector<ParseRange> *f_list = cmd->P_Result()->getexpFormatList();
+    ParseRange *key_range = Look_For_Format_Specification ( f_list, "viewEOC");
+    if ( (key_range  != NULL) &&
+         (key_range->getRange()->is_range) &&
+         (key_range->getRange()->end_range.tag == VAL_STRING) ) {
+      eoc_marker = key_range->getRange()->end_range.name;
+    }
+    key_range = Look_For_Format_Specification ( f_list, "viewEOL");
+    if ( (key_range  != NULL) &&
+         (key_range->getRange()->is_range) &&
+         (key_range->getRange()->end_range.tag == VAL_STRING) ) {
+      eol_marker = key_range->getRange()->end_range.name;
+    }
+  }
+
+ // Isolate the important parts of the command.
+  std::string cmdstr = clip->Command();
+  std::string viewcmd("expview ");
+  char *cidx = strcasestr( (char *)cmdstr.c_str(), (char *)viewcmd.c_str() );
+  if (cidx != 0) cmdstr = std::string( cidx );
+ // Remove any ending '\n'.
+  cidx = (char *)cmdstr.c_str();
+  for (int shorten_to = cmdstr.length()-1; shorten_to != 0; shorten_to--) {
+    if (cidx[shorten_to] == *("\n")) {
+      cmdstr = cmdstr.substr( 0, shorten_to);
+      break;
+    }
+  }
+ // Remove any redirect-output specifier.
+  cidx = (char *)cmdstr.c_str();
+  for (int shorten_to = cmdstr.length()-1; shorten_to != 0; shorten_to--) {
+    if (cidx[shorten_to] == *(">")) {
+      if ( (shorten_to > 0) &&
+           (cidx[shorten_to] == *(">")) ) {
+        shorten_to--;
+      }
+      cmdstr = cmdstr.substr( 0, shorten_to);
+      break;
+    }
+  }
+ // Remove trailing blanks.
+  cidx = (char *)cmdstr.c_str();
+  for (int shorten_to = cmdstr.length()-1; shorten_to != 0; shorten_to--) {
+    if (cidx[shorten_to] != *(" ")) {
+      if (shorten_to != (cmdstr.length()-1)) {
+        cmdstr = cmdstr.substr( 0, shorten_to);
+      }
+      break;
+    }
+  }
+ // Remove '-x' specifier.
+  cidx = (char *)cmdstr.c_str();
+  int prior_end_of_field = 0;
+  for (int xat = 0; xat < cmdstr.length()-1; xat++) {
+    if (cidx[xat] != *(" ")) prior_end_of_field++;
+    if ( strncasecmp( &cidx[xat], "-x", 2 ) == 0) {
+     //  Asssume that parsing has handled any errors
+     //  and that there is exactly 1 experiment id specified.
+      bool looking_for_start_of_field = true;
+      bool found_end_of_field = false;
+      int toc = xat+2;
+      for ( ; toc < cmdstr.length()-1; toc++) {
+        if (cidx[toc] == *(" ")) {
+          if (!looking_for_start_of_field) {
+            found_end_of_field = true;
+          }
+        } else if (cidx[toc] == *(",")) {
+          if (!looking_for_start_of_field) {
+           // Multiple experiments are ot handled.
+            return false;
+          }
+        } else {
+          if (found_end_of_field) break;
+          looking_for_start_of_field = false;
+        }
+      }
+      cmdstr = cmdstr.substr( 0, prior_end_of_field) + cmdstr.substr( toc, cmdstr.length()-1);
+    }
+  }
+
+ // Look for an existing output that was generated with the same command.
+  std::string first_unused_file_name = "";
+  bool first_unused_file_name_found = false;
+  char base[256];
+  int64_t cnt = 0;
+  for (cnt = 0; cnt < 1000; cnt++) {
+    char *database_directory = getenv("OPENSS_DB_DIR");
+    if (database_directory) {
+       snprintf(base, 256, "%s/%s.%lld.view",database_directory, Data_File_Name.c_str(),cnt);
+     } else {
+       snprintf(base, 256, "%s.%lld.view",Data_File_Name.c_str(),cnt);
+     }
+
+    int fd = open(base, O_RDONLY);;
+    if (fd == -1) {
+      if (!first_unused_file_name_found) {
+        first_unused_file_name = base;
+        first_unused_file_name_found = true;
+      }
+    } else {
+     // A file with the generted name was found.
+     // Now open it and check that the generating commands match.
+      char* buffer = new char[OPENSS_VIEW_MAX_FIELD_SIZE];
+      int num = read( fd, buffer, OPENSS_VIEW_MAX_FIELD_SIZE );
+      save_file_header H;
+      if (num >= sizeof(H)) {
+        char *cp = (char *)(&H);
+        for (int i = 0; i < sizeof(H); i ++) { cp[i] = buffer[i]; }
+      }
+      if ( (H.type == 1) &&
+           (num >= (sizeof(H) + cmdstr.length())) ) {
+       // Set the EOC and EOL strings to end with proper string terminator.
+        buffer[H.eoc_offset-1] = *("\0");
+        buffer[H.eol_offset-1] = *("\0");
+        buffer[H.data_offset-1] = *("\0");
+        int offset_to_command = header_offset_to_command (&H);
+
+        std::string new_eoc(&buffer[H.eoc_offset]);
+        std::string new_eol(&buffer[H.eol_offset]);
+        if ( (H.command_offset >= 0) &&
+             (H.data_offset <= num) &&
+             (H.last_sample == EndTime) &&
+             ((H.command_offset+cmdstr.length()) == (H.eoc_offset-1)) &&
+             (strncasecmp( cmdstr.c_str(), &buffer[H.command_offset], cmdstr.length() ) == 0) &&
+             (new_eoc.length() == eoc_marker.length()) &&
+             (strncasecmp( new_eoc.c_str(), eoc_marker.c_str(), new_eoc.length() ) == 0) &&
+             (new_eol.length() == eol_marker.length()) &&
+             (strncasecmp( new_eol.c_str(), eol_marker.c_str(), new_eol.length() ) == 0) ) {
+          cmd->setSaveResultFile(base);
+          cmd->setSaveResultDataOffset( header_offset_to_data(&H) );
+          cmd->setSaveEoc( new_eoc );
+          cmd->setSaveEol( new_eol );
+          Assert(close(fd) == 0);
+          return true;
+        }
+      }
+
+      Assert(close(fd) == 0);
+      continue;
+    }
+  }
+
+  if (first_unused_file_name_found) {
+   // There was no previous generated report we could use.
+   // Open an output stream to save the redirected report.
+    std::ostream *tof = new std::ofstream (first_unused_file_name.c_str(), std::ios::out);
+   // Generate and save the header descriptor in binary form.
+    save_file_header H;
+    H.type = 1;
+    H.command_offset = sizeof(H) + 1;
+    H.eoc_offset = H.command_offset + cmdstr.length() + 1;
+    H.eol_offset = H.eoc_offset + eoc_marker.length() + 1;
+    H.data_offset = H.eol_offset + eol_marker.length() + 1;
+    H.last_sample = EndTime;
+    char *cp = (char *)(&H);
+    for (int i = 0; i < sizeof(H); i ++) { *tof << cp[i]; }
+   // Save associated command and column and end of line markers in character form.
+    *tof << ":" << cmdstr
+         << ":" << eoc_marker
+         << ":" << eol_marker
+         << ":" << std::flush;
+   // Preserve file name and format information in the command
+   // for immediate display of the report after it has been saved.
+    cmd->setSaveResultFile(first_unused_file_name);
+    cmd->setSaveResult(true);
+    cmd->setSaveResultOstream( tof );
+    cmd->setSaveEoc( eoc_marker );
+    cmd->setSaveEol( eol_marker );
+    cmd->setSaveResultDataOffset(H.data_offset);
+  }
+  return false;
+}
+
 // Supporting semantic routines
 
 void SS_Get_Views (CommandObject *cmd) {
@@ -259,6 +491,19 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
 #if DEBUG_CLI
   printf("In SS_Generate_View in SS_View.cxx, before calling vt->GenerateView\n");
 #endif
+
+ // Try to find previously generated view output.
+  if ( OPENSS_SAVE_VIEWS_FOR_REUSE &&
+       SS_Find_Previous_View( cmd, exp ) ) {
+
+#if DEBUG_CLI
+    printf("In SS_Generate_View in SS_View.cxx, reuse view from file: %s\n",
+           cmd->SaveResultFile().c_str());
+#endif
+
+    return true;
+  }
+
  // Try to Generate the Requested View!
   bool success = vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),
                                    tgrp, cmd->Result_List());

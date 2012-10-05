@@ -12675,8 +12675,92 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
 
   std::list<CommandResult *>::iterator cri;
   std::list<CommandResult *> cmd_result = co->Result_List();
-  for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
 
+  if (co->SaveResultFile().length() > 0) {
+   // The output has been saved in a file.
+   // It needs to be read from there and prepared for display
+   // rather than formatted with a call to the CLI routines.
+    try {
+      QString vs = QString::null;
+      columnFieldList.clear();
+
+      // Allocate a buffer for performing the copy
+      const int copyBufferSize = 65536;
+      char* buffer = new char[copyBufferSize];
+
+      // Open the source file for read-only access
+      int source_fd = open(co->SaveResultFile().c_str(), O_RDONLY);
+      Assert(source_fd != -1);
+
+      // Read into the buffer, identify separate strings
+      // and perform the copy to 'columnFieldList' for disaplay.
+      int header_length = co->SaveResultDataOffset();
+      QString EOC = co->SaveEoc();
+      QString EOL = co->SaveEol();
+      for(int num = 1; num > 0;) {
+
+        // Read bytes from the source file
+        num = read(source_fd, buffer, copyBufferSize);
+        Assert((num >= 0) || ((num == -1) && (errno == EINTR)));
+
+        // Write bytes until none remain
+        if(num > 0) {
+            QString vs = QString::null;
+            bool looking_for_start_of_field_data = true;
+            for(int i = header_length; i < num; i++) {
+              if  (strncasecmp( &buffer[i], EOL.ascii(), EOL.length() ) == 0) {
+               // found line separator
+                if (!looking_for_start_of_field_data) {
+                  vs += EOL;
+                  columnFieldList.push_back(vs);
+                  outputCLIData( xxxfuncName, xxxfileName, xxxlineNumber );
+                  columnFieldList.clear();
+                  vs = QString::null;
+                  looking_for_start_of_field_data = true;
+                }
+                i = i + EOL.length() - 1;
+                continue;
+              } else if (strncasecmp( &buffer[i], EOC.ascii(), EOC.length() ) == 0) {
+                if (!looking_for_start_of_field_data) {
+                 // found column separator
+                  columnFieldList.push_back(vs);
+                  vs = QString::null;
+                  looking_for_start_of_field_data = true;
+                } else {
+                 // just more insignificant blanks
+                  vs = vs + EOC;
+                }
+                i = i + EOC.length() - 1;
+                continue;
+              } else if ( !looking_for_start_of_field_data &&
+                          (strcasecmp( &buffer[i], " ") == 0) ) {
+               // insignificant blank
+                continue;
+              } else {
+               // We are in or starting a data item.
+                looking_for_start_of_field_data = false;
+                vs = vs + buffer[i];
+              }
+            }
+            if (num != copyBufferSize) break;
+        } // end of 'if(num > 0)'
+      } // end of 'for(int num = 1; num > 0;)'
+
+     // Destroy the copy buffer
+      delete [] buffer;
+
+      return;
+    } catch(const std::exception& error) { 
+      std::cerr << std::endl << "Error: "
+                << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
+                "Unknown runtime error." : error.what()) << std::endl
+                << std::endl << std::flush;
+      return;
+    }
+
+  } // end 'if (co->SaveResultFile().length() > 0)'
+
+  for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::process_clip, TOP OF FOR cmd_result loop ----------------------------------\n");
 #endif
@@ -13042,7 +13126,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
         i++;
       }
 
-    } else if ((*cri)->Type() == CMD_RESULT_STRING) {  
+    } else if ((*cri)->Type() == CMD_RESULT_STRING) {
       // This looks to be a message we should display
 
 #ifdef DEBUG_StatsPanel

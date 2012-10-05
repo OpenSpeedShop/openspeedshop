@@ -586,10 +586,17 @@ catch(const Exception& error) {
   }
 
   if (redirect_streamP != NULL) {
-   cmd->Print_Results (*redirect_streamP, "\n", "\n" );
-   cmd->set_Results_Used ();
-   redirect_streamP->flush();
-   delete redirect_streamP;
+    cmd->Print_Results (*redirect_streamP, "\n", "\n" );
+    cmd->set_Results_Used ();
+    redirect_streamP->flush();
+    delete redirect_streamP;
+  } else if ( (cmd->Clip() != NULL) &&
+              (cmd->Clip()->Who() != tli_window) &&
+              OPENSS_SAVE_EXPERIMENT_DATABASE &&
+              cmd->SaveResult() &&
+              (cmd->SaveResultFile().length() > 0) ) {
+    cmd->Print_Results (std::cerr, "\n", "\n" );
+    cmd->set_Results_Used ();
   }
 
   Cmd_Obj_Complete (cmd);

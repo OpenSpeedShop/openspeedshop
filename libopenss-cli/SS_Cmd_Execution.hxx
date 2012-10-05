@@ -23,7 +23,7 @@
  *
  */
 
-// A utility used to look at command options
+// Utility used to find command options after parsing.
 bool Look_For_KeyWord (CommandObject *cmd, std::string Key);
 
 // One to convert time interval specifications to unix time.

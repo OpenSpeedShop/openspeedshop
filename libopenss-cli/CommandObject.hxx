@@ -47,6 +47,12 @@ class CommandObject
   std::list<CommandResult *> CMD_Result;
   std::list<CommandResult_RawString *> CMD_Annotation;
   pthread_cond_t wait_on_dependency;
+  bool save_result;
+  std::string save_result_filename;
+  int save_result_file_header_offset;
+  std::ostream *save_result_file_stream;
+  std::string save_eoc;
+  std::string save_eol;
 
   void Associate_Input ()
   {
@@ -69,6 +75,12 @@ public:
     result_needed_in_python = false;
     results_used = false;
     pthread_cond_init(&wait_on_dependency, (pthread_condattr_t *)NULL);
+    save_result = false;
+    save_result_filename = "";
+    save_result_file_header_offset = 0;
+    save_result_file_stream = NULL;
+    save_eoc = "";
+    save_eol = "";
   }
   CommandObject(OpenSpeedShop::cli::ParseResult *pr, bool use_by_python)
   {
@@ -79,6 +91,12 @@ public:
     result_needed_in_python = use_by_python;
     results_used = false;
     pthread_cond_init(&wait_on_dependency, (pthread_condattr_t *)NULL);
+    save_result = false;
+    save_result_filename = "";
+    save_result_file_header_offset = 0;
+    save_result_file_stream = NULL;
+    save_eoc = "";
+    save_eol = "";
   }
   ~CommandObject() {
    // Destroy ParseResult object
@@ -92,6 +110,11 @@ public:
 
    // Safety check.
     pthread_cond_destroy (&wait_on_dependency);
+
+   // Free file descriptor.
+    if (save_result_file_stream != NULL) {
+      delete save_result_file_stream;
+    }
   }
 
   InputLineObject *Clip () { return Associated_Clip; }
@@ -109,6 +132,18 @@ public:
   }
   // command_t *P_Result () { return Parse_Result; }
   //command_type_t *P_Result () { return Parse_Result; }
+  bool SaveResult() { return save_result; }
+  void setSaveResult( bool b ) { save_result = b; }
+  std::string SaveResultFile() { return save_result_filename; }
+  void setSaveResultFile( std::string s ) { save_result_filename = s; }
+  void setSaveResultOstream( std::ostream *sp ) { save_result_file_stream = sp; }
+  std::ostream *SaveResultOstream() { return save_result_file_stream; }
+  int  SaveResultDataOffset() { return save_result_file_header_offset; }
+  void setSaveResultDataOffset( int l ) { save_result_file_header_offset = l; }
+  void setSaveEoc( std::string s ) { save_eoc = s; }
+  std::string SaveEoc() { return save_eoc; }
+  void setSaveEol( std::string s ) { save_eol = s; }
+  std::string SaveEol() { return save_eol; }
 
   void Wait_On_Dependency (pthread_mutex_t& exp_lock) {
    // Suspend processing of the command.

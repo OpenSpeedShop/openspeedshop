@@ -19,6 +19,57 @@
 
 #include "SS_Input_Manager.hxx"
 
+/** * Copy a file.
+ *
+ * Copies the contents of one file over the contents of another. The source and
+ * destination file must both already exist and the original contents of the
+ * destination file are completely destroyed.
+ *
+ * @param source         File to be copied.
+ * @param destination    File to be overwritten.
+ */
+// void copyFile(std::string source, std::string destination)
+void copyFile(std::string source, std::ostream &destination , int starting_offset )
+{
+  const int copyBufferSize = 65536;
+
+  // Open the source file for read-only access
+  int source_fd = open(source.c_str(), O_RDONLY);
+  Assert(source_fd != -1);
+
+  // Allocate a buffer for performing the copy
+  char* buffer = new char[copyBufferSize];
+
+  // Perform the copy
+  int header_length = starting_offset;
+  for(int num = 1; num > 0;) {
+
+    // Read bytes from the source file
+    num = read(source_fd, buffer, copyBufferSize);
+    Assert((num >= 0) || ((num == -1) && (errno == EINTR)));
+
+    // Write bytes until none remain
+    if(num > 0) {
+
+      for(int i = header_length; i < num; i++) {
+        // Write bytes to the destination file
+        destination << buffer[i];
+      }
+
+      header_length = 0;
+      if (num != copyBufferSize) break;
+    }
+  }
+
+  // Destroy the copy buffer
+  delete [] buffer;
+
+  // Close the input file.
+  Assert(close(source_fd) == 0);
+}
+
+
+
 /**
  * utility: Look_For_Format_Specification
  *       Search for specific options the the list.
@@ -29,7 +80,8 @@
  * @return  ParseRange * of the matching entry, or NULL if not found.
  *
  */
-ParseRange *Look_For_Format_Specification (std::vector<ParseRange> *f_list, std::string Key) {
+ParseRange *OpenSpeedShop::cli::Look_For_Format_Specification (std::vector<ParseRange> *f_list,
+                                                               std::string Key) {
 
  //  Look at general modifier types for a specific KeyWord option.
   if (f_list == NULL) return NULL;
@@ -122,6 +174,12 @@ static void Capture_User_Format_Information( std::vector<ParseRange> *f_list, Pr
     } else {
       format_spec.Set_PrintControl_left_justify_all( true );
     }
+  }
+ // Look for Comma Separated Values specifier.
+  key_range = Look_For_Format_Specification ( f_list, "CSV" );
+  if ( (key_range != NULL) &&
+       (Look_For_Format_Specification ( f_list, "CSV") != NULL) ) {
+    format_spec.Set_PrintControl_eoc(",");
   }
 }
 
@@ -436,6 +494,21 @@ static void Print_Header (std::ostream &to, PrintControl &pc, CommandResult *H) 
  */
 bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator, std::string termination_char) {
 
+  bool save_for_reuse = false;
+  std::ostream *tof = &to;
+  if ( OPENSS_SAVE_EXPERIMENT_DATABASE &&
+       (SaveResultFile().length() > 0) ) {
+    if (!SaveResult()) {
+     // Required output has already been generated.
+      copyFile( SaveResultFile(), *tof, SaveResultDataOffset() );
+      return true;
+    } else {
+     // The output generated here will be saved for future use.
+      save_for_reuse = TRUE;
+      tof = SaveResultOstream();
+    }
+  }
+
  // Pick up information lists from CommandObject.
   std::list<CommandResult *> cmd_result = Result_List();
   std::list<CommandResult_RawString *> cmd_annotation = Annotation_List ();
@@ -456,7 +529,7 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
     int64_t annotation_column = 0; // Just 1 column.
     format_spec.Set_PrintControl_column_widths( 1, &annotation_column );
     for (ari = cmd_annotation.begin(); ari != cmd_annotation.end(); ari++) {
-      (*ari)->Print (to, format_spec, 0);
+      (*ari)->Print (*tof, format_spec, 0);
       annotation_printed = true;
     }
   }
@@ -513,7 +586,11 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
       Column_Width[i] = default_value;
     }
 
-    if (format_spec.field_size_dynamic && !EOC_specified) {
+    if ( format_spec.field_size_dynamic &&
+         !EOC_specified &&
+         ( (Clip() == NULL) ||
+           (Clip()->Who() == command_line_window) ||
+           (Clip()->Who() == tli_window) ) ) {
      // Need to look at every value in each column.
       std::list<CommandResult *>::iterator cri = cmd_result.begin();
       for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
@@ -553,32 +630,37 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
   }
 
  // Print the result information
+  bool data_written = false;
   format_spec.Set_PrintControl_column_widths( num_columns, Column_Width );
   cri = cmd_result.begin();
   if  (cri != cmd_result.end()) {
+    data_written = true;
     if (((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) ||
          (++cri != cmd_result.end())) {
       to << std::endl;
     }
     bool list_seperator_needed = false;
     for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
-      if (list_seperator_needed) to << list_seperator;
+      if (list_seperator_needed) *tof << list_seperator;
 
       if ((*cri)->Type() == CMD_RESULT_COLUMN_HEADER) {
-        if (EOC_specified) {
+        if ( EOC_specified ||
+            ( (Clip() != NULL) &&
+              (Clip()->Who() != command_line_window) &&
+              (Clip()->Who() != tli_window) ) ) {
          // Print each column header without regard to size.
-          (*cri)->Print (to, format_spec, 0);
+          (*cri)->Print (*tof, format_spec, 0);
         } else {
          // Special processing required, because the headers
          // may need multiple lines.
-          Print_Header (to, format_spec, *cri);
+          Print_Header (*tof, format_spec, *cri);
         }
       } else if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES) {
-        (*cri)->Print (to, format_spec, 0);
+        (*cri)->Print (*tof, format_spec, 0);
       } else if ((*cri)->Type() == CMD_RESULT_COLUMN_ENDER) {
-        (*cri)->Print (to, format_spec, 0);
+        (*cri)->Print (*tof, format_spec, 0);
       } else {
-        (*cri)->Print (to, format_spec, 0);
+        (*cri)->Print (*tof, format_spec, 0);
       }
 
       list_seperator_needed = true;
@@ -599,10 +681,22 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
     }
     if (list_seperator_needed ||
         (list_seperator != termination_char)) {
-      to << termination_char;
+      *tof << termination_char;
     }
-    return true;
-  } else {
-    return false;
+   // Be sure that all data has been transfered to output file.
+    *tof << std::flush;
   }
+  if (save_for_reuse) {
+    *tof << std::endl << std::flush;
+    delete tof;
+    setSaveResult( false );
+    setSaveResultOstream( NULL );
+    if ( (Clip() == NULL) ||
+         (Clip()->Who() == command_line_window) ||
+         (Clip()->Who() == tli_window) ) {
+     // Copy data from save file to desired output stream.
+      copyFile( SaveResultFile(), to, SaveResultDataOffset() );
+    }
+  }
+  return data_written;
 }

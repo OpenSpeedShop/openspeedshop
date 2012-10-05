@@ -136,6 +136,9 @@ class ParseRange {
 
 };
 
+// Utility used to find format options after parsing.
+ParseRange *Look_For_Format_Specification (std::vector<ParseRange> *f_list, std::string Key);
+
 } }
 
 #endif // __OpenSpeedShop_Parse_Range_HXX__

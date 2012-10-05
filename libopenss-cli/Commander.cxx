@@ -2408,6 +2408,7 @@ void Default_TLI_Command_Output (CommandObject *C) {
     std::list<CommandResult *> cmd_result = C->Result_List();
     std::list<CommandResult_RawString *> cmd_annotation = C->Annotation_List();
     if (((cmd_result.begin() != cmd_result.end()) ||
+         (C->SaveResultFile().length() > 0) ||
          (cmd_annotation.begin() != cmd_annotation.end())) &&
         (C->Status() != CMD_ABORTED)) {
       InputLineObject *clip = C->Clip ();
