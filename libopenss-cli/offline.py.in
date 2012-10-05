@@ -305,6 +305,15 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		  if mpi_exe_implmentation == "mpich2":
                     if offlinepy_debug != 0: print "[openss-debug]: mpich2, mpi_executable is file_arg=" + file_arg
 		    mpi_executable = file_arg
+                    mpich2_prefix_val = "@@mpich2dir@@"
+                    machine_dependent_libdir_val = "@@machine_dependent_libdir@@"
+                    fmpich_so_exists = os.system('test -f' + mpich2_prefix_val + '/' + machine_dependent_libdir_val + '/' + libfmpich.so)
+		    if not os.WEXITSTATUS(fmpich_so_exists):
+                      f_mpich2_libs = mpich2_prefix_val + '/' + machine_dependent_libdir_val + '/' + libfmpich.so
+                    alt_machine_dependent_libdir_val = "@@alt_machine_dependent_libdir@@"
+                    fmpich_so_exists = os.system('test -f' + mpich2_prefix_val + '/' + alt_machine_dependent_libdir_val + '/' + libfmpich.so)
+		    if not os.WEXITSTATUS(fmpich_so_exists):
+                      f_mpich2_libs = mpich2_prefix_val + "/" + alt_machine_dependent_libdir_val + "/" + libfmpich.so
 		    break
 		  if mpi_exe_implmentation == "mpt":
                     if offlinepy_debug != 0: print "[openss-debug]: mpt, mpi_executable is file_arg=" + file_arg
@@ -320,6 +329,16 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    break
 		  if mpi_exe_implmentation == "mvapich2":
 		    mpi_executable = file_arg
+                    mvapich2_prefix_val = "@@mvapich2dir@@"
+                    machine_dependent_libdir_val = "@@machine_dependent_libdir@@"
+                    fmpich_so_exists = os.system('test -f' + mvapich2_prefix_val + "/" + machine_dependent_libdir_val + "/" + libfmpich.so)
+		    if not os.WEXITSTATUS(fmpich_so_exists):
+                      f_mvapich2_libs = mvapich2_prefix_val + "/" + machine_dependent_libdir_val + "/" + libfmpich.so
+                    alt_machine_dependent_libdir_val = "@@alt_machine_dependent_libdir@@"
+                    fmpich_so_exists = os.system('test -f' + mvapich2_prefix_val + "/" + alt_machine_dependent_libdir_val + "/" + libfmpich.so)
+		    if not os.WEXITSTATUS(fmpich_so_exists):
+                      f_mvapich2_libs = mvapich2_prefix_val + "/" + alt_machine_dependent_libdir_val + "/" + libfmpich.so
+		    break
                     if offlinepy_debug != 0: print "[openss-debug]: mvapich2, mpi_executable is file_arg=" + file_arg
 		    break
 	    else:
@@ -418,8 +437,29 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
                     program = program.replace(s, file_arg)
                     preload_files = ""
                     mpi_exe_implmentation = "mvapich2"
+                    # See if libmpich.so exists and setup the variables for BG specific usage.  Not probably needed at this point, but in for completeness
+                    mvapich2_prefix_val = "@@mvapich2dir@@"
+                    machine_dependent_libdir_val = "@@machine_dependent_libdir@@"
+                    fmpich_so_exists = os.system('test -f' + mvapich2_prefix_val + "/" + machine_dependent_libdir_val + "/" + libfmpich.so)
+                    if not os.WEXITSTATUS(fmpich_so_exists):
+                      f_mvapich2_libs = mvapich2_prefix_val + "/" + machine_dependent_libdir_val + "/" + libfmpich.so
+                    alt_machine_dependent_libdir_val = "@@alt_machine_dependent_libdir@@"
+                    fmpich_so_exists = os.system('test -f' + mvapich2_prefix_val + "/" + alt_machine_dependent_libdir_val + "/" + libfmpich.so)
+                    if not os.WEXITSTATUS(fmpich_so_exists):
+                      f_mvapich2_libs = mvapich2_prefix_val + "/" + alt_machine_dependent_libdir_val + "/" + libfmpich.so
                     if offlinepy_debug != 0: print "[openss-debug]: ismvapich2 orig_mpi_driver=" + orig_mpi_driver
 
+                    # See if libmpich.so exists and setup the variables for BG specific usage. 
+                    if mpi_exe_implementation == "mpich2":
+                      mpich2_prefix_val = "@@mpich2dir@@"
+                      machine_dependent_libdir_val = "@@machine_dependent_libdir@@"
+                      fmpich_so_exists = os.system('test -f' + mpich2_prefix_val + '/' + machine_dependent_libdir_val + '/' + libfmpich.so)
+                      if not os.WEXITSTATUS(fmpich_so_exists):
+                        f_mpich2_libs = mpich2_prefix_val + '/' + machine_dependent_libdir_val + '/' + libfmpich.so
+                      alt_machine_dependent_libdir_val = "@@alt_machine_dependent_libdir@@"
+                      fmpich_so_exists = os.system('test -f' + mpich2_prefix_val + '/' + alt_machine_dependent_libdir_val + '/' + libfmpich.so)
+                      if not os.WEXITSTATUS(fmpich_so_exists):
+                        f_mpich2_libs = mpich2_prefix_val + "/" + alt_machine_dependent_libdir_val + "/" + libfmpich.so
 
 
     # Set the mpiplugin to use for mpi jobs.  The OPENSS_MPI_IMPLEMENTATION
@@ -431,7 +471,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     if ismpi:
 
       if 'OPENSS_MPI_IMPLEMENTATION' in os.environ:
-	use_mpi_impl = os.environ["OPENSS_MPI_IMPLEMENTATION"]
+        use_mpi_impl = os.environ["OPENSS_MPI_IMPLEMENTATION"]
         if offlinepy_debug != 0: print "[openss-debug]: ismpi, and have OPENSS_MPI_IMPLEMENTATION set use_mpi_impl=" + use_mpi_impl
       else:
 	if mpi_exe_implmentation == "":
@@ -440,7 +480,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    use_mpi_impl = mpi_exe_implmentation
 
       if mpi_executable == "":
-	if use_mpi_impl == "":
+        if use_mpi_impl == "":
             raise RuntimeError("[openss error]: Failed to locate the mpi program.")
         else:
             if not os.WEXITSTATUS(ismpidriver):
@@ -461,17 +501,17 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	print "[openss warning]: No MPI rank identifiers will be recorded in the openss database."
     else:
 	mpiplugin = ""
-        if offlinepy_debug != 0: print "[openss-debug]: NULL case, mpiplugin=%(plu)s\n" % {'plu':mpiplugin}
+	if offlinepy_debug != 0: print "[openss-debug]: NULL case, mpiplugin=%(plu)s\n" % {'plu':mpiplugin}
 
     # Allow the user to just use the know mpi and mpit collector names.
     # We will prepend the proper mpi implementation.
     orig_collectorname = collector;
     if collector.startswith("mpi"):
-	preload_files = ""
-	if collector == "mpi":
-	    collector = collector + "-" + use_mpi_impl
-	elif collector == "mpit":
-	    collector = collector + "-" + use_mpi_impl
+        preload_files = ""
+        if collector == "mpi":
+            collector = collector + "-" + use_mpi_impl
+        elif collector == "mpit":
+            collector = collector + "-" + use_mpi_impl
         elif collector == "mpiotf":
             collector = collector + "-" + use_mpi_impl
         if offlinepy_debug != 0: print "[openss-debug]: mpi collector case, collector=%(col)s\n" % {'col':collector}
@@ -486,116 +526,148 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # For MPI programs we will call ossrun to handle setting up the
     # collector for just the actual mpi program and not the mpi driver too.
 
-    real_ossrun_command = "@@oss_installation_dir@@" + "/bin/ossrun" 
-    if mpi_executable != "":
-	mpi_exe_orig = mpi_executable
-        if not mpi_executable.startswith("/") and not mpi_executable.startswith("."):
-	    mpi_executable = os.curdir + "/" + mpi_executable
+    # Determine if this is a Blue Gene platform.  For shared execution on a Blue Gene platform
+    # we can not execute a script (ossrun) on the compute nodes.  We must do the creation of the
+    # LD_PRELOAD values for the offline experiment here instead of in ossrun.  We pass the LD_PRELOAD
+    # values on the Blue Gene through the mpi driver command as an argument.
+    do_preload_here = 0
+    ldpreload = ""
+    if os.environ.has_key("OPENSS_TARGET_ARCH"):
+       targ_arch = os.environ["OPENSS_TARGET_ARCH"]
+       if targ_arch == "bgq" or targ_arch == "bgp":
+           do_preload_here = 1
 
-        if collector == "mpiotf":
-	 # For shared executable support on the Crays we need to use the OPENSS_PREFIX
-         # and OPENSS_TARGET_ARCH to get the target path to the ossrun script.
-         # But, this is not required for the main line execution on clusters, pcs, laptops.
-         # Putting this in as a workaround until we determine how to get that path at runtime
-         # without using OPENSS_PREFIX and OPENSS_TARGET_ARCH to determine it.  jeg - 06/18/2012
-         if (os.environ.has_key("OPENSS_PREFIX") and installed != "/usr"):
-           ossrun_command = installed + "/bin/ossrun -o " + os.environ['OPENSS_RAWDATA_DIR']
-         else:
-           ossrun_command = real_ossrun_command + " -o " + os.environ['OPENSS_RAWDATA_DIR'] 
-        else:
-	 # For shared executable support on the Crays we need to use the OPENSS_PREFIX
-         # and OPENSS_TARGET_ARCH to get the target path to the ossrun script.
-         # But, this is not required for the main line execution on clusters, pcs, laptops.
-         # Putting this in as a workaround until we determine how to get that path at runtime
-         # without using OPENSS_PREFIX and OPENSS_TARGET_ARCH to determine it.  jeg - 06/18/2012
-         if (os.environ.has_key("OPENSS_PREFIX") and installed != "/usr"):
-           ossrun_command = installed + "/bin/ossrun"
-         else:
-           ossrun_command = real_ossrun_command 
-        # 
-        # Change made on 10/20/11 to better support redirection inside the quoted executable. (dpm/jeg) Found at NASA
-        # 
- 	#command = program.replace(mpi_exe_orig, ossrun_command + " -c " + orig_collectorname + " \"" + mpi_executable)
- 	#command = command + "\" " 
-        command = program.replace(mpi_exe_orig, ossrun_command + " -c " + orig_collectorname + " " + mpi_executable) 
+       if offlinepy_debug != 0: print "[openss-debug]: using OPENSS_TARGET_ARCH=" + targ_arch
+
+    if do_preload_here == 1:
+
+       if offlinepy_debug != 0: print "[openss-debug]: (1)do_preload_here=%(dph)s" % {'dph':do_preload_here}
+
+       if collector == "mpi" or collector == "mpit" or collector == "mpiotf":
+           mpicollector = collector + "-" + use_mpi_impl
+           ldpreload = oss_plugins + mpicollector + "-rt-offline.so" + ":$" + extra_mpi_libs + ":$" + libmonitor
+       elif collector == "mpi-*" or collector == "mpit-*" or collector == "mpiotf-*":
+           mpicollector = collector
+           ldpreload = oss_plugins + mpicollector + "-rt-offline.so" + ":$" + extra_mpi_libs + ":$" + libmonitor
+       else:
+           ldpreload = oss_plugins + collector + "-rt-offline.so" + ":$" + libmonitor
 
     else:
-	preload_files = ""
-	command = program
-	if not command.startswith("/") and not command.startswith("."):
-	    command = os.curdir + "/" + command
+       if offlinepy_debug != 0: print "[openss-debug]: (0)do_preload_here=%(dph)s" % {'dph':do_preload_here}
+       real_ossrun_command = "@@oss_installation_dir@@" + "/bin/ossrun" 
+       if mpi_executable != "":
+           mpi_exe_orig = mpi_executable
+           if not mpi_executable.startswith("/") and not mpi_executable.startswith("."):
+             mpi_executable = os.curdir + "/" + mpi_executable
 
-    collectorplugin =  plugins + "/" + collector + "-rt-offline.so"
-    if offlinepy_debug != 0: print "[openss-debug]: Plugins %(plu)s offline %(col)s experiment using the command:\n\"%(cmd)s\"\n" \
-           % {'plu':plugins,'col':collector,'cmd':command}
+           if collector == "mpiotf":
+            # For shared executable support on the Crays we need to use the OPENSS_PREFIX
+            # and OPENSS_TARGET_ARCH to get the target path to the ossrun script.
+            # But, this is not required for the main line execution on clusters, pcs, laptops.
+            # Putting this in as a workaround until we determine how to get that path at runtime
+            # without using OPENSS_PREFIX and OPENSS_TARGET_ARCH to determine it.  jeg - 06/18/2012
+            if (os.environ.has_key("OPENSS_PREFIX") and installed != "/usr"):
+              ossrun_command = installed + "/bin/ossrun -o " + os.environ['OPENSS_RAWDATA_DIR']
+            else:
+              ossrun_command = real_ossrun_command + " -o " + os.environ['OPENSS_RAWDATA_DIR'] 
+           else:
+            # For shared executable support on the Crays we need to use the OPENSS_PREFIX
+            # and OPENSS_TARGET_ARCH to get the target path to the ossrun script.
+            # But, this is not required for the main line execution on clusters, pcs, laptops.
+            # Putting this in as a workaround until we determine how to get that path at runtime
+            # without using OPENSS_PREFIX and OPENSS_TARGET_ARCH to determine it.  jeg - 06/18/2012
+            if (os.environ.has_key("OPENSS_PREFIX") and installed != "/usr"):
+              ossrun_command = installed + "/bin/ossrun"
+            else:
+              ossrun_command = real_ossrun_command 
+           # 
+           # Change made on 10/20/11 to better support redirection inside the quoted executable. (dpm/jeg) Found at NASA
+           # 
+           #command = program.replace(mpi_exe_orig, ossrun_command + " -c " + orig_collectorname + " \"" + mpi_executable)
+           #command = command + "\" " 
+           command = program.replace(mpi_exe_orig, ossrun_command + " -c " + orig_collectorname + " " + mpi_executable) 
+
+       else:
+           preload_files = ""
+           command = program
+           if not command.startswith("/") and not command.startswith("."):
+             command = os.curdir + "/" + command
+
+       collectorplugin =  plugins + "/" + collector + "-rt-offline.so"
+       if offlinepy_debug != 0: print "[openss-debug]: Plugins %(plu)s offline %(col)s experiment using the command:\n\"%(cmd)s\"\n" \
+              % {'plu':plugins,'col':collector,'cmd':command}
 
 
-    if not os.path.isfile(collectorplugin):
-	raise RuntimeError("[openss error]: Failed to locate the " +  collector + " runtime plugin.")
-	# this code below could replace the error here so we could
-	# just let the program run without our data collectors.
-	#collectorplugin = ""
-	#preload_files = ""
+       if not os.path.isfile(collectorplugin):
+         raise RuntimeError("[openss error]: Failed to locate the " +  collector + " runtime plugin.")
+         # this code below could replace the error here so we could
+         # just let the program run without our data collectors.
+         #collectorplugin = ""
+         #preload_files = ""
 
-    # Prepare our collectors and libmonitor for LD_PRELOAD.
-    oss_preload = ""
-    if offlinepy_debug != 0: print "[openss-debug]: preload_files=%(plf)s\n" % {'plf':preload_files}
-    if mpi_executable == "":
-        oss_preload = \
-              collectorplugin + \
-	      ":" + preload_files + \
-	      ":" + libmonitor
-        if offlinepy_debug != 0: print "[openss-debug]: oss_preload=%(opl)s\n" % {'opl':oss_preload}
+       # Prepare our collectors and libmonitor for LD_PRELOAD.
+       oss_preload = ""
+       if offlinepy_debug != 0: print "[openss-debug]: preload_files=%(plf)s\n" % {'plf':preload_files}
+       if mpi_executable == "":
+           oss_preload = \
+                 collectorplugin + \
+                   ":" + preload_files + \
+                   ":" + libmonitor
+           if offlinepy_debug != 0: print "[openss-debug]: oss_preload=%(opl)s\n" % {'opl':oss_preload}
 
 
-    # Execute the command in a subprocess rather than replacing the
-    # current process like os.system does. Need Python 2.4 or later for this.
-    print "[openss]: Running offline %(col)s experiment using the command:\n\"%(cmd)s\"\n" \
-	   % {'col':collector,'cmd':command}
+       # Execute the command in a subprocess rather than replacing the
+       # current process like os.system does. Need Python 2.4 or later for this.
+       print "[openss]: Running offline %(col)s experiment using the command:\n\"%(cmd)s\"\n" \
+              % {'col':collector,'cmd':command}
 
-    python_ver = sys.version[0:3]
-    if python_ver > "2.3":
-	# For python versions > 2.4 we run mpi programs using the Popen method
-	# of the subprocess class.  If the program is not MPI then just use
-	# the os.system call.
-	if mpi_executable == "":
-	    # This is the easiest way for simple scalar programs.
-	    # We do not need to worry about interfering with
-	    # interactive programs and muck with any stdIO here.
-	    # If we can handle an interactive programm (like openss itself)
-	    # with the subprocess method then we should eventually do that.
-	    command = "env" +  \
-             " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
+       python_ver = sys.version[0:3]
+       if python_ver > "2.3":
+           # For python versions > 2.4 we run mpi programs using the Popen method
+           # of the subprocess class.  If the program is not MPI then just use
+           # the os.system call.
+           if mpi_executable == "":
+               # This is the easiest way for simple scalar programs.
+               # We do not need to worry about interfering with
+               # interactive programs and muck with any stdIO here.
+               # If we can handle an interactive programm (like openss itself)
+	       # with the subprocess method then we should eventually do that.
+	       command = "env" +  \
+                   " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
 
-	    if offlinepy_debug != 0: print "\n[openss debug]: non-mpi, USING os.system to execute " + command
-	    if offlinepy_debug != 0: print "\n[openss debug]: non-mpi, oss_preload=" + oss_preload
-	    os.system(command)
-	else:
-	    # This is specificly here for mpi programs.
-	    command = "env" +  \
-             " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
+	       if offlinepy_debug != 0: print "\n[openss debug]: non-mpi, USING os.system to execute " + command
+	       if offlinepy_debug != 0: print "\n[openss debug]: non-mpi, oss_preload=" + oss_preload
+	       os.system(command)
+	   else:
+	       # This is specificly here for mpi programs.
+	       command = "env" +  \
+                   " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
 
-	    if offlinepy_debug != 0: print "\n[openss debug]: mpi, USING os.system to execute " + command
-	    if offlinepy_debug != 0: print "\n[openss debug]: mpi, oss_preload=" + oss_preload
-	    os.system(command)
+	       if offlinepy_debug != 0: print "\n[openss debug]: mpi, USING os.system to execute " + command
+	       if offlinepy_debug != 0: print "\n[openss debug]: mpi, oss_preload=" + oss_preload
+	       os.system(command)
 
-	# Comment out the subprocess code for now.
-	    #import subprocess
-	    #subp = subprocess.Popen(command, shell=True,
-	#			    stdout=subprocess.PIPE,
-	#			    stdin=subprocess.PIPE,)
+	   # Comment out the subprocess code for now.
+	       #import subprocess
+	       #subp = subprocess.Popen(command, shell=True,
+      	       #			    stdout=subprocess.PIPE,
+	       #			    stdin=subprocess.PIPE,)
 				    #env={"LD_PRELOAD":oss_preload})
-	#    while True:
-	#        o = subp.stdout.readline()
-	#        if o == '' and subp.poll() != None: break
-	#        sys.stdout.write(o)
+	       #    while True:
+	       #        o = subp.stdout.readline()
+	       #        if o == '' and subp.poll() != None: break
+	       #        sys.stdout.write(o)
 
-    else:
-	# For python 2.3 just run the experiment using os.system.
-	# This includes mpi programs.
-	command = "env" +  \
-             " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
-	os.system(command)
+       else:
+	   # For python 2.3 just run the experiment using os.system.
+	   # This includes mpi programs.
+	   command = "env" +  \
+                     " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
+	   os.system(command)
+
+    # -----------------------------------------------------------------------------------------------------------------------------------
+    # After the execution of the application under control of OpenSpeedShop, we now process the raw data files and create a database file
+    # -----------------------------------------------------------------------------------------------------------------------------------
 
     if os.environ.has_key("OPENSS_RAWDATA_ONLY"):
 	print "\n[openss]: Raw data files have been created.  Use ossutil to create an Open|SpeedShop database."

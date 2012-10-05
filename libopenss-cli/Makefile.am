@@ -130,6 +130,16 @@ CLEANFILES = $(BUILT_SOURCES)
 doc:
 	$(DOXYGEN)
 
+
+if BUILD_TARGETED 
+monitor_dir=$(TARGET_LIBMONITOR_DIR)
+mpich2_dir=$(TARGET_MPICH2_DIR)
+else
+monitor_dir=$(LIBMONITOR_DIR)
+mpich2_dir=$(MPICH2_DIR)
+endif
+
+
 cbtf-offline.py: cbtf-offline.py.in
 	@rm -f cbtf-offline.py
 	@sed \
@@ -152,7 +162,14 @@ offline.py: offline.py.in
 		-e 's,@@machine_dependent_libdir@@,$(abi_libdir_name),' \
 		-e 's,@@osslibdir@@,$(pkglibdir),' \
 		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
-		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
+		-e 's,@@libmonitordir@@,$(monitor_dir),' \
+                -e 's,@@alt_machine_dependent_libdir@@,$(alt_abi_libdir_name),' \
+                -e 's,@@mpichdir@@,$(MPICH_DIR),' \
+                -e 's,@@mpich2dir@@,$(mpich2_dir),' \
+                -e 's,@@mvapichdir@@,$(MVAPICH_DIR),' \
+                -e 's,@@mvapich2dir@@,$(MVAPICH2_DIR),' \
+                -e 's,@@mptdir@@,$(MPT_DIR),' \
+                -e 's,@@openmpidir@@,$(OPENMPI_DIR),' \
 		$(srcdir)/offline.py.in > offline.py
 	@chmod 755 offline.py
 
