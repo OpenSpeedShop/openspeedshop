@@ -63,6 +63,48 @@ static unsigned int new_list_size = 0;
 #define LIST_INITIAL_SIZE 32
 static unsigned int lists_max_size = 0;
 
+static int checked_for_static = 0;
+static int is_static = 0;
+
+#if (_LP64)
+#define ElfX_auxv_t Elf64_auxv_t
+#define ElfX_phdr Elf64_Phdr
+#else
+#define ElfX_auxv_t Elf32_auxv_t
+#define ElfX_phdr Elf32_Phdr
+#endif
+
+extern char **environ;
+
+static int exe_is_static()
+{
+   char **walk_environ = environ;
+   ElfX_auxv_t *auxv;
+   ElfX_phdr *phdr = NULL;
+
+   /* AuxV vector comes after environment */
+   while (*walk_environ) walk_environ++;
+   walk_environ++;
+
+   /* Extract phdrs from auxv */
+   for (auxv = (Elf32_auxv_t *) walk_environ; auxv->a_type != AT_NULL; auxv++) {
+      if (auxv->a_type == AT_PHDR) {
+         phdr = (ElfX_phdr *) auxv->a_un.a_val;
+      }
+   }
+
+   if (!phdr) {
+      fprintf(stderr, "Error - expected to find program headers\n");
+   }
+
+   /* If phdrs have a INTERP, then dynamic */
+   for (; phdr->p_type != PT_NULL; phdr++) {
+      if (phdr->p_type == PT_INTERP)
+         return 0;
+   }
+   return 1;
+}
+
 static int dl_cb(struct dl_phdr_info *info, size_t size, void *data)
 {
    if (new_list_size >= lists_max_size) {
@@ -203,10 +245,16 @@ static void lc(ElfW(Addr) base_address, const char *name, mem_region *regions, u
 
 int OpenSS_GetDLInfo(pid_t pid, char *path)
 {
-#if defined(TARGET_OS_BGP)
-    offline_record_dso(OpenSS_GetExecutablePath(),(uint64_t)0x01000000,(uint64_t)&etext,0);
-#elif defined(TARGET_OS_BGQ)
-    offline_record_dso(OpenSS_GetExecutablePath(),(uint64_t)0x01000000,(uint64_t)&etext,0);
+#if defined(TARGET_OS_BGP) || defined(TARGET_OS_BGQ)
+    if (checked_for_static == 0) {
+	is_static = exe_is_static();
+	checked_for_static = 1;
+    }
+    if (is_static) {
+	offline_record_dso(OpenSS_GetExecutablePath(),(uint64_t)0x01000000,(uint64_t)&etext,0);
+    } else {
+	monlibs_getLibraries(lc);
+    }
 #else
 
 #if defined(OPENSS_USE_DL_ITERATE)
