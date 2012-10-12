@@ -21,6 +21,10 @@
 #include "config.h"
 #endif
 
+#if defined(TARGET_OS_BGP) || defined(TARGET_OS_BGQ)
+#define BLUEGENE 1
+#endif
+
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
