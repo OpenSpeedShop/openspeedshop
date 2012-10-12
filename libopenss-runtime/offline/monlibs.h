@@ -1,5 +1,4 @@
 /*******************************************************************************
- * ** Copyright (c) 2012 Matt LeGendre. All Rights Reserved.
  * ** Copyright (c) 2012 The Krell Institue. All Rights Reserved.
  * **
  * ** This library is free software; you can redistribute it and/or modify it under

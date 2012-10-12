@@ -1,6 +1,5 @@
 /*******************************************************************************
  * ** Copyright (c) 2006-2012 The Krell Institue. All Rights Reserved.
- * ** Copyright (c) 2012 Matt LeGendre. All Rights Reserved.
  * **
  * ** This library is free software; you can redistribute it and/or modify it under
  * ** the terms of the GNU Lesser General Public License as published by the Free
