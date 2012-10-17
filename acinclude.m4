@@ -434,7 +434,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
             ;;
 	"8.0.0")
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR $BOOST_CPPFLAGS"
-            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI -lpatchAPI -lpcontrol -lstackwalk" 
+            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI -lpatchAPI -lpcontrol -lstackwalk -ldynElf -ldynDwarf -lsymLite"
             ;;
 	*)
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
