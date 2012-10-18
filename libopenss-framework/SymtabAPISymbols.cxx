@@ -84,6 +84,11 @@ SymtabAPISymbols::getSymbols(PCBuffer* addrbuf,
 
 	    bool err = Symtab::openFile(symtab, objname);
 
+            // The object may not have any symbols, so skip it.
+            if (symtab == NULL) {
+               return;
+            }
+
 	    Framework::Address image_offset(symtab->imageOffset());
 	    Framework::Address image_length(symtab->imageLength());
 	    AddressRange image_range(image_offset,image_offset+image_length);
@@ -310,6 +315,11 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 	    Symtab *symtab;
 
 	    bool err = Symtab::openFile(symtab, objname);
+
+            // The object may not have any symbols, so skip it.
+            if (symtab == NULL) {
+               return;
+            }
 
 	    Framework::Address image_offset(symtab->imageOffset());
 	    Framework::Address image_length(symtab->imageLength());
