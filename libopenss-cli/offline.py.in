@@ -136,6 +136,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # potentially not set correctly in the ROOT install (it should be if not).
     #machdir = "@@machine_dependent_libdir@@"
     #libmonitor = libdir + "/libmonitor.so"
+    targ_arch = ""
+    if os.environ.has_key("OPENSS_TARGET_ARCH"):
+       targ_arch = os.environ["OPENSS_TARGET_ARCH"]
     if targ_arch == "bgq":
        libmonitor = "@@libmonitordir@@/bgq/@@machine_dependent_libdir@@/libmonitor.so" 
     elif targ_arch == "bgp":
