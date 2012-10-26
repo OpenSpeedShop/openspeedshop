@@ -67,7 +67,7 @@
       </small></div>
     <small><br>
     </small>
-    <div style="text-align: center;"><big>March 15, 2012</big><br>
+    <div style="text-align: center;"><big>November 9, 2012</big><br>
     </div>
     <br>
     <p class="P3">&nbsp;</p>
@@ -86,8 +86,8 @@
           <li><a href="#mozTocId505316">Introduction</a></li>
           <li><a href="#mozTocId73673">Where to get help?</a></li>
           <li><a href="#mozTocId959417">Using the Open|SpeedShop on
-              Cray-{XT4, XT5, XE} compute node runtimes and collectors
-              to gather application performance data</a>
+              Cray-{XT, XE,XK} compute node runtimes and collectors to
+              gather application performance data</a>
             <ol>
               <li><a href="#mozTocId776004">NOTE: KEY POINTS </a></li>
               <li><a href="#mozTocId319904">Viewing the Open|SpeedShop
@@ -161,30 +161,26 @@
     <h2><a class="mozTocH2" name="mozTocId505316"></a><span
         style="font-family: Liberation Serif,Times New Roman;">Introduction</span></h2>
     <p class="P3">&nbsp;</p>
-    <p class="P6"><small>The steps to use a working copy of
-        Open|SpeedShop on targeted platforms where static linking is
-        required are described below. &nbsp;Since there are some O/S
-        features not available on the compute nodes of the platforms
-        being addressed here, the Open|SpeedShop tool must be used in an
-        alternative manner than it is on general vanilla flavored
-        clusters.&nbsp; Open|SpeedShop is built for running the analysis
-        and viewing on the front end nodes and for the backend nodes the
-        collectors to gather the performance data are built to be
-        inserted into the application.&nbsp; The Open|SpeedShop build on
-        the front end node creates </small><small>GUI and CLI </small><small>tools
-for
-
-
-        viewing the performance data gathered on the compute nodes.
-        &nbsp;The second build step builds the targeted runtime
-        libraries and the targeted performance information gathering
-        collectors. &nbsp;These runtime libraries and collectors will be
-        linked into the user's application and do require the
-        application to be relinked, but not necessarily
-        recompiled.&nbsp; Open|SpeedShop provides a command, “osslink”
-        that can be embedded into the users makefile to make the
-        inclusion of the Open|SpeedShop runtimes and collectors
-        easier.&nbsp; The details are described in the sections below.</small><br>
+    <p class="P6">The steps to use a working copy of Open|SpeedShop on
+      targeted platforms where static linking is required are described
+      below. &nbsp;Since there are some O/S features not available on
+      the compute nodes of the platforms being addressed here, the
+      Open|SpeedShop tool must be used in an alternative manner than it
+      is on general vanilla flavored clusters.&nbsp; Open|SpeedShop is
+      built for running the analysis and viewing on the front end nodes
+      and for the backend nodes the collectors to gather the performance
+      data are built to be inserted into the application.&nbsp; The
+      Open|SpeedShop build on the front end node creates GUI and CLI
+      tools for viewing the performance data gathered on the compute
+      nodes. &nbsp;The second build step builds the targeted runtime
+      libraries and the targeted performance information gathering
+      collectors. &nbsp;These runtime libraries and collectors will be
+      linked into the user's application and do require the application
+      to be relinked, but not necessarily recompiled.&nbsp;
+      Open|SpeedShop provides a command, “osslink” that can be embedded
+      into the users makefile to make the inclusion of the
+      Open|SpeedShop runtimes and collectors easier.&nbsp; The details
+      are described in the sections below.<br>
     </p>
     <p class="P6"><br>
     </p>
@@ -198,6 +194,8 @@ for
         href="http://www.openspeedshop.org/forums/index.php">Open|SpeedShop
 
 
+
+
         Forum</a>.</big><br>
     <p class="P6"></p>
     <br>
@@ -206,101 +204,101 @@ for
     <p class="P7"><br>
     </p>
     <h2><a class="mozTocH2" name="mozTocId959417"></a>Using the
-      Open|SpeedShop on Cray-{XT4, XT5, XE} compute node runtimes and
+      Open|SpeedShop on Cray-{XT, XE,XK} compute node runtimes and
       collectors to gather application performance data</h2>
     <p class="P3">&nbsp;</p>
-    <p style="font-weight: normal;" class="P7"><small>There is a script,
-        osslink, that is installed into the
-        &lt;openspeedshop_install_dir&gt;/cray-{xt4,xt5, or xe}/bin
-        directory that can be used in the user's makefile to infuse the
-        Open|SpeedShop runtimes and collector into the user's
-        application without recompilation. &nbsp;Here is an example:</small></p>
-    <p class="P7">&nbsp;</p>
-    <p class="P9">default: $(TARGET) </p>
-    <p class="P9">&nbsp;</p>
-    <p class="P9">$(TARGET): $(OBJ) </p>
-    <p class="P9"><span style="">$(F90) -o $@ $(FFLAGS) $(OBJ)
-        $(LDFLAGS) </span></p>
-    <p class="P9">&nbsp;</p>
-    <p class="P9">oss-pcsamp: $(OBJ) </p>
-    <p class="P9"><small><span style=""><big>osslink -v -c pcsamp $(F90)
-            -o $(TARGET)-pcsamp $(FFLAGS) $(OBJ) $(LDFLAGS)</big> </span></small></p>
-    <p class="P7">&nbsp;</p>
-    <p style="font-weight: normal;" class="P7"><small>In this example,
-        the oss-pcsamp target uses the osslink script to create another
-        executable, $(TARGET)-pcsamp that includes the Open|SpeedShop
-        libraries and Program Counter Sampling collector code that will
-        gather performance information about the $(TARGET)
-        application.&nbsp; Then you run your code as you would normally
-        do.&nbsp;&nbsp; So, the process is to find the key point
-        where&nbsp; your application makefile does the final link of all
-        the pieces and add another target that uses osslink.<br>
-      </small></p>
-    <p style="font-weight: normal;" class="P7">&nbsp;</p>
+    <p style="font-weight: normal;" class="P7">There is a script,
+      "osslink", that is installed into the
+      &lt;openspeedshop_install_dir&gt;/cray-{xt4,xt5,xe,xk}/bin
+      directory that can be used in the user's makefile to infuse the
+      Open|SpeedShop runtimes and collector into the user's application
+      without recompilation. &nbsp;Here is an example:</p>
+    <p class="P7"><big>&nbsp;</big></p>
+    <p class="P9"><big>default: $(TARGET) </big></p>
+    <p class="P9"><big>&nbsp;</big></p>
+    <p class="P9"><big>$(TARGET): $(OBJ) </big></p>
+    <p class="P9"><big><span style="">$(F90) -o $@ $(FFLAGS) $(OBJ)
+          $(LDFLAGS) </span></big></p>
+    <p class="P9"><big>&nbsp;</big></p>
+    <p class="P9"><big>oss-pcsamp: $(OBJ) </big></p>
+    <p class="P9"><span style=""><big>osslink -v -c pcsamp $(F90) -o
+          $(TARGET)-pcsamp $(FFLAGS) $(OBJ) $(LDFLAGS)</big> </span></p>
+    <p class="P7"><big>&nbsp;</big></p>
+    <p style="font-weight: normal;" class="P7">In this example, the
+      oss-pcsamp target uses the "osslink" script to create another
+      executable, $(TARGET)-pcsamp that includes the Open|SpeedShop
+      libraries and Program Counter Sampling collector code that will
+      gather performance information about the $(TARGET)
+      application.&nbsp; Then you run your code as you would normally
+      do.&nbsp;&nbsp; So, the process is to find the key point
+      where&nbsp; your application makefile does the final link of all
+      the pieces and add another target that uses osslink.<br>
+    </p>
+    <p style="font-weight: normal;" class="P7"><big>&nbsp;</big></p>
     <h3><a class="mozTocH3" name="mozTocId776004"></a><small><big><big><span
               style="font-weight: bold;">NOTE: KEY POINTS</span></big></big>
       </small></h3>
-    <p style="font-weight: normal;" class="P7"><small>Once, you have
-        created the new executable, run this executable as you would the
-        one without the Open|SpeedShop collection code inserted, except
-        for two changes:</small></p>
-    <p style="font-weight: normal;" class="P7">&nbsp;</p>
-    <p class="P5"><span class="T1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<small>
-          a) use -bb on aprun (aprun -bb)</small></span></p>
-    <p class="P5"><span class="T1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <small><span
-            style="font-weight: normal;"><span style="font-weight:
-              bold;">b) </span>Set the environment variable:</span><small><big>
-              OPENSS_RAWDATA_DIR to</big><span style="font-style:
-              italic; font-weight: normal;"> </span></small></small></span><span
-        style="font-weight: normal;" class="T1"><small>a shared file
-          system path. &nbsp;This is where Open|SpeedShop will write the
-          raw data files containing the performance data gathered while
-          the application is running.</small></span></p>
-    <p style="font-weight: normal;" class="P7">&nbsp;</p>
-    <p style="font-weight: normal;" class="P7"><small>After the run is
-        completed, run the Open|SpeedShop utility tool that converts the
-        raw data files into an Open|SpeedShop database file. &nbsp; The
-        command would be:</small></p>
-    <p class="P5"><small><span class="T1">&nbsp; &nbsp; &nbsp; &nbsp; <small>ossutil
+    <p style="font-weight: normal;" class="P7">Once, you have created
+      the new executable, run this executable as you would the one
+      without the Open|SpeedShop collection code inserted, except for
+      two changes:</p>
+    <p style="font-weight: normal;" class="P7"><big>&nbsp;</big></p>
+    <p class="P5"><big><span class="T1">&nbsp; &nbsp; &nbsp; &nbsp;
+          &nbsp;<small> a) use -bb on aprun (aprun -bb)</small></span></big></p>
+    <p class="P5"><big><span class="T1">&nbsp; &nbsp; &nbsp; &nbsp;
+          &nbsp; <small><span style="font-weight: normal;"><span
+                style="font-weight: bold;">b) </span>Set the
+              environment variable:</span><small><big>
+                OPENSS_RAWDATA_DIR to</big><span style="font-style:
+                italic; font-weight: normal;"> </span></small></small></span><span
+          style="font-weight: normal;" class="T1"><small>a shared file
+            system path. &nbsp;This is where Open|SpeedShop will write
+            the raw data files containing the performance data gathered
+            while the application is running.</small></span></big></p>
+    <p style="font-weight: normal;" class="P7"><big>&nbsp;</big></p>
+    <p style="font-weight: normal;" class="P7">After the run is
+      completed, run the Open|SpeedShop utility tool that converts the
+      raw data files into an Open|SpeedShop database file. &nbsp; The
+      command would be:</p>
+    <p class="P5"><span class="T1">&nbsp; &nbsp; &nbsp; &nbsp; <small>ossutil
 
 
-          </small></span><small><span class="T3"><small>$OPENSS_RAWDATA_DIR</small></span></small></small></p>
-    <p class="P7"><br>
-    </p>
-    <p style="font-weight: normal;" class="P7"><small>The command could
-        actually be included in the batch script as a convenience to
-        eliminate another manual step.&nbsp; <br>
+
+
+        </small></span><small><span class="T3"><small>$OPENSS_RAWDATA_DIR</small></span></small></p>
+    <p class="P7"><big><br>
+      </big></p>
+    <p style="font-weight: normal;" class="P7"><small><big>The command
+          could actually be included in the batch script as a
+          convenience to eliminate another manual step.&nbsp; </big><br>
       </small></p>
     <p style="font-weight: normal;" class="P7"><br>
     </p>
     <h3><a class="mozTocH3" name="mozTocId319904"></a><small>Viewing the
         Open|SpeedShop database file (.openss suffix)</small></h3>
     <p style="font-weight: normal;" class="P7"><small><br>
-        After the ossutil command is run and the raw performance data
-        files are converted into an Open|SpeedShop database file, we are
-        ready to view the data with the Open|SpeedShop base tool using
-        one of these commands.</small></p>
-    <p style="font-weight: normal;" class="P7">&nbsp;</p>
-    <p class="P5"><span class="T1">&nbsp; &nbsp; <small>&nbsp; a) Using
-          the GUI:</small></span></p>
+        <big>After the ossutil command is run and the raw performance
+          data files are converted into an Open|SpeedShop database file,
+          we are ready to view the data with the Open|SpeedShop base
+          tool using one of these commands.</big></small></p>
+    <p style="font-weight: normal;" class="P7"><big>&nbsp;</big></p>
+    <p class="P5"><big><span class="T1">&nbsp; &nbsp; <small>&nbsp; a)
+            Using the GUI:</small></span></big></p>
+    <p class="P5"><span class="T1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+        &nbsp; &nbsp; &nbsp; &nbsp;<small>openss -f &lt;Open|SpeedShop
+          database file&gt;</small></span></p>
+    <p class="P5"><span class="T1">&nbsp; &nbsp; &nbsp; <small>b) Using
+          the CLI:</small></span></p>
+    <p class="P5"><span class="T1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+        &nbsp; &nbsp; &nbsp; &nbsp;<small>openss -cli -f
+          &lt;Open|SpeedShop database file&gt;</small></span></p>
+    <p class="P7">&nbsp;</p>
+    <p class="P5"><span class="T1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+        &nbsp; &nbsp; &nbsp; &nbsp;<small>&gt; expview &nbsp; &nbsp;-
+          shows the performance data information</small></span></p>
     <p class="P5"><small><span class="T1">&nbsp; &nbsp; &nbsp; &nbsp;
-          &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<small>openss -f
-            &lt;Open|SpeedShop database file&gt;</small></span></small></p>
-    <p class="P5"><small><span class="T1">&nbsp; &nbsp; &nbsp; <small>b)
-Using
-
-
-            the CLI:</small></span></small></p>
-    <p class="P5"><small><span class="T1">&nbsp; &nbsp; &nbsp; &nbsp;
-          &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<small>openss -cli -f
-            &lt;Open|SpeedShop database file&gt;</small></span></small></p>
-    <p class="P7"><small>&nbsp;</small></p>
-    <p class="P5"><small><span class="T1">&nbsp; &nbsp; &nbsp; &nbsp;
-          &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<small>&gt; expview &nbsp;
-            &nbsp;- shows the performance data information</small></span></small></p>
-    <p class="P5"><small><small><span class="T1">&nbsp; &nbsp; &nbsp;
-            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<small>&gt;
-              expstatus – shows the metadata information</small></span></small></small></p>
+          &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<small>&gt; expstatus –
+            shows the metadata information</small></span></small></p>
     <p class="P2">&nbsp;</p>
     <p class="P2">&nbsp;</p>
     <h2 style="text-align: left;"><a class="mozTocH2"
@@ -424,6 +422,8 @@ href="http://www.openspeedshop.org/wp/wp-content/uploads/2011/01/hopper-fe-opens
     1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
     &nbsp;<br>
     openss&gt;&gt;<big><span style="font-weight: bold;">expstatus</span></big><br>
     <br>
@@ -478,11 +478,15 @@ href="http://www.openspeedshop.org/wp/wp-content/uploads/2011/01/hopper-fe-opens
     100&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
     &nbsp;<br>
     &nbsp; Available Views: &nbsp;<br>
     &nbsp;&nbsp;&nbsp;
     pcsamp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>
     }&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
 
 
     &nbsp;<br>
@@ -495,10 +499,14 @@ href="http://www.openspeedshop.org/wp/wp-content/uploads/2011/01/hopper-fe-opens
     seconds.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
     &nbsp;<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     28.960000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 94.270833&nbsp;
+
+
 
 
     __compute_MOD_matmuljg (myexe-pcsamp: moda.f90,5)<br>
@@ -507,10 +515,14 @@ href="http://www.openspeedshop.org/wp/wp-content/uploads/2011/01/hopper-fe-opens
 3.320312&nbsp;
 
 
+
+
     _gfortran_arandom_r8 (myexe-pcsamp: random.c,427)<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     0.740000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2.408854&nbsp;
+
+
 
 
     kiss_random_kernel (myexe-pcsamp: random.c,271)<br>
@@ -527,12 +539,16 @@ href="http://www.openspeedshop.org/wp/wp-content/uploads/2011/01/hopper-fe-opens
     seconds.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
     <br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     1.810000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.810000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.810000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.810000&nbsp;
+
+
 
 
     __compute_MOD_matmuljg (myexe-pcsamp: moda.f90,5)<br>
@@ -543,12 +559,16 @@ href="http://www.openspeedshop.org/wp/wp-content/uploads/2011/01/hopper-fe-opens
 0.050000&nbsp;
 
 
+
+
     kiss_random_kernel (myexe-pcsamp: random.c,271)<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     0.040000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.040000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.060000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.060000&nbsp;
+
+
 
 
     _gfortran_arandom_r8 (myexe-pcsamp: random.c,427)<br>
@@ -634,6 +654,8 @@ href="http://www.openspeedshop.org/wp/wp-content/uploads/2011/01/hopper-fe-opens
           style="font-weight: bold;">osslink -v -c mpit </span>$(F90)
         -o $(TARGET)<span style="font-weight: bold;">-mpit </span>$(FFLAGS)
 $(OBJ)
+
+
 
 
         $(LDFLAGS) </span></p>
@@ -752,6 +774,8 @@ href="http://www.openspeedshop.org/wp/wp-content/uploads/2011/01/hopper-fe-opens
     1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
     &nbsp;<br>
     openss&gt;&gt;<big><span style="font-weight: bold;">expstatus</span></big><br>
     <br>
@@ -806,11 +830,15 @@ href="http://www.openspeedshop.org/wp/wp-content/uploads/2011/01/hopper-fe-opens
     100&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
     &nbsp;<br>
     &nbsp; Available Views: &nbsp;<br>
     &nbsp;&nbsp;&nbsp;
     pcsamp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>
     }&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
 
 
     &nbsp;<br>
@@ -823,10 +851,14 @@ href="http://www.openspeedshop.org/wp/wp-content/uploads/2011/01/hopper-fe-opens
     seconds.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
     &nbsp;<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     28.960000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 94.270833&nbsp;
+
+
 
 
     __compute_MOD_matmuljg (myexe-pcsamp: moda.f90,5)<br>
@@ -835,10 +867,14 @@ href="http://www.openspeedshop.org/wp/wp-content/uploads/2011/01/hopper-fe-opens
 3.320312&nbsp;
 
 
+
+
     _gfortran_arandom_r8 (myexe-pcsamp: random.c,427)<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     0.740000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2.408854&nbsp;
+
+
 
 
     kiss_random_kernel (myexe-pcsamp: random.c,271)<br>
@@ -855,12 +891,16 @@ href="http://www.openspeedshop.org/wp/wp-content/uploads/2011/01/hopper-fe-opens
     seconds.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
     <br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     1.810000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.810000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.810000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.810000&nbsp;
+
+
 
 
     __compute_MOD_matmuljg (myexe-pcsamp: moda.f90,5)<br>
@@ -871,12 +911,16 @@ href="http://www.openspeedshop.org/wp/wp-content/uploads/2011/01/hopper-fe-opens
 0.050000&nbsp;
 
 
+
+
     kiss_random_kernel (myexe-pcsamp: random.c,271)<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     0.040000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.040000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.060000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.060000&nbsp;
+
+
 
 
     _gfortran_arandom_r8 (myexe-pcsamp: random.c,427)<br>
@@ -905,6 +949,8 @@ href="http://www.openspeedshop.org/wp/wp-content/uploads/2011/01/hopper-fe-opens
 Makefile
 
 
+
+
           to build the GTC code<br style="font-weight: normal;">
           #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           ==================================<br style="font-weight:
@@ -924,6 +970,8 @@ Makefile
           #OR, PETSC 2.3.3 with libsci: setenv PETSC_DIR
           /global/homes/r/rpreissl/GTS_test/GTS_Hopper_LIBS/robert_petsc233_CRAY_real64/petsc-2.3.3-p15.libsci/
 ;
+
+
 
 
           setenv PETSC_ARCH cray-xt5_O; setenv PATH
@@ -1145,10 +1193,14 @@ http://www.openspeedshop.org/wp/wp-content/uploads/2010/11/OSS-Quick-Start-Guide
       /global/u1/r/rpreissl/GTS_test/GTS_Hopper_LIBS/robert_petsc300_CRAY_real64/petsc-3.0.0-p12
 
 
+
+
       <br>
       setenv PETSC_ARCH cray-xt5_O <br>
       setenv PATH
       /global/u1/r/rpreissl/GTS_test/GTS_Hopper_LIBS/robert_petsc300_CRAY_real64/petsc-3.0.0-p12/bin:$PATH
+
+
 
 
       <br>
@@ -1168,12 +1220,16 @@ http://www.openspeedshop.org/wp/wp-content/uploads/2010/11/OSS-Quick-Start-Guide
 64_1threads_job_script&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
       <br>
       pcsamp experiment:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       pcsamp_oss_64_1threads_job_script <br>
       mpi
       experiment:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 mpi_oss_64_1threads_job_script&nbsp;&nbsp;&nbsp;
+
+
 
 
       <br>
@@ -1456,6 +1512,8 @@ mpi_oss_64_1threads_job_script&nbsp;&nbsp;&nbsp;
         =&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
         35 </span></p>
     <p><span style="font-weight: normal;">&nbsp; Available Views: </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp; usertime </span></p>
@@ -1469,10 +1527,14 @@ seconds.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 seconds.
 
 
+
+
         &nbsp;Time </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2399.257095&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2399.257095
+
+
 
 
         38.384429&nbsp; MatMult_SeqAIJ (GTS-usertime) </span></p>
@@ -1481,10 +1543,14 @@ seconds.
 565.571417
 
 
+
+
         9.048274&nbsp; VecMAXPY_Seq (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 481.171419&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 481.171419
+
+
 
 
         7.698004&nbsp; VecMDot_Seq (GTS-usertime) </span></p>
@@ -1493,10 +1559,14 @@ seconds.
 362.599993
 
 
+
+
         5.801043&nbsp; sched_yield (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 191.371425&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 191.371425
+
+
 
 
         3.061649&nbsp; MatSetValues_MPIAIJ (GTS-usertime: mpiaij.c,305)
@@ -1506,10 +1576,14 @@ seconds.
 145.371426
 
 
+
+
         2.325720&nbsp; pow (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 91.028570&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 91.028570
+
+
 
 
         1.456317&nbsp; VecPointwiseMult_Seq (GTS-usertime) </span></p>
@@ -1518,10 +1592,14 @@ seconds.
 91.999998
 
 
+
+
         1.432091&nbsp; PtlEQPeek (GTS-usertime: api-eq.c,47) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 82.999998&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 82.999998
+
+
 
 
         1.327873&nbsp; gcmotion__cray$mt$p0001 (GTS-usertime) </span></p>
@@ -1530,10 +1608,14 @@ seconds.
 82.485713
 
 
+
+
         1.319645&nbsp; pthread_mutex_lock (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 78.971427&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 78.971427
+
+
 
 
         1.263422&nbsp; gcmotion_e__cray$mt$p0002 (GTS-usertime) </span></p>
@@ -1542,16 +1624,22 @@ seconds.
 70.171427
 
 
+
+
         1.122635&nbsp; charge_ion__cray$mt$p0001 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 69.457141&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 69.457141
 
 
+
+
         1.111208&nbsp; __pthread_mutex_unlock_usercnt (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 67.457142&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 423.799992
+
+
 
 
         1.079211&nbsp; fast_nal_poll (GTS-usertime: uk_bridge_api.c,258)
@@ -1561,10 +1649,14 @@ seconds.
 57.657142
 
 
+
+
         0.922426&nbsp; MatMultAdd_SeqAIJ (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 51.542856&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 51.542856
+
+
 
 
         0.824607&nbsp; pushi__cray$mt$p0004 (GTS-usertime) </span></p>
@@ -1573,10 +1665,14 @@ seconds.
 180.771425
 
 
+
+
         0.810436&nbsp; PtlEQGet (GTS-usertime: api-eq.c,108) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 46.057142&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 46.057142
+
+
 
 
         0.736844&nbsp; pushi__cray$mt$p0002 (GTS-usertime) </span></p>
@@ -1585,10 +1681,14 @@ seconds.
 42.799999
 
 
+
+
         0.684734&nbsp; ioctl (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 41.828571&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 41.828571
+
+
 
 
         0.669193&nbsp; poisson_initial_ (GTS-usertime) </span></p>
@@ -1597,10 +1697,14 @@ seconds.
 39.714285
 
 
+
+
         0.635368&nbsp; pushe__cray$mt$p0003 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 39.171428&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 39.171428
+
+
 
 
         0.626683&nbsp; smooth_ (GTS-usertime) </span></p>
@@ -1609,10 +1713,14 @@ seconds.
 38.857142
 
 
+
+
         0.621655&nbsp; field_ (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 38.657142&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 38.657142
+
+
 
 
         0.618455&nbsp; charge_ion__cray$mt$p0002 (GTS-usertime) </span></p>
@@ -1621,10 +1729,14 @@ seconds.
 36.799999
 
 
+
+
         0.588743&nbsp; MPIDI_CRAY_smpdev_progress (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 36.799999&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 127.885712
+
+
 
 
         0.588743&nbsp; PtlEQGet_internal (GTS-usertime: api-eq.c,85) </span></p>
@@ -1633,10 +1745,14 @@ seconds.
 35.571428
 
 
+
+
         0.569088&nbsp; __dset (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 34.057142&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 34.057142
+
+
 
 
         0.544862&nbsp; add_gk_value$phit_matrix_class_ (GTS-usertime:
@@ -1646,11 +1762,15 @@ seconds.
 33.485714
 
 
+
+
         0.535720&nbsp; esiget2dthese_ (GTS-usertime:
         escZ_march03.c,2620) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 32.028571&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 32.028571
+
+
 
 
         0.512408&nbsp; memcpy (GTS-usertime) </span></p>
@@ -1659,10 +1779,14 @@ seconds.
 29.628571
 
 
+
+
         0.474012&nbsp; charge_eon__cray$mt$p0001 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 28.971428&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 28.971428
+
+
 
 
         0.463498&nbsp; pushe__cray$mt$p0005 (GTS-usertime) </span></p>
@@ -1671,10 +1795,14 @@ seconds.
 28.114285
 
 
+
+
         0.449785&nbsp; smooth__cray$mt$p0004 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 25.228571&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 25.228571
+
+
 
 
         0.403618&nbsp; field__cray$mt$p0008 (GTS-usertime: field.f90,1)
@@ -1684,10 +1812,14 @@ seconds.
 24.771428
 
 
+
+
         0.396305&nbsp; ptl_hndl2nal (GTS-usertime: types.h,84) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 24.514285&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 24.514285
+
+
 
 
         0.392191&nbsp; _EXP_V (GTS-usertime) </span></p>
@@ -1696,10 +1828,14 @@ seconds.
 22.914285
 
 
+
+
         0.366593&nbsp; field__cray$mt$p0003 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 21.085714&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 353.742850
+
+
 
 
         0.337339&nbsp; check_eqs_for_event (GTS-usertime: api-eq.c,197)
@@ -1709,10 +1845,14 @@ seconds.
 19.714285
 
 
+
+
         0.315398&nbsp; field__cray$mt$p0004 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 17.142857&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 17.142857
+
+
 
 
         0.274259&nbsp; MatStashScatterBegin_Private (GTS-usertime) </span></p>
@@ -1721,10 +1861,14 @@ seconds.
 16.400000
 
 
+
+
         0.262375&nbsp; electron_locator__cray$mt$p0008 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 15.914285&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 439.371420
+
+
 
 
         0.254604&nbsp; PtlEQPoll (GTS-usertime: api-eq.c,162) </span></p>
@@ -1733,10 +1877,14 @@ seconds.
 15.685714
 
 
+
+
         0.250947&nbsp; field__cray$mt$p0005 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 15.342857&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 15.342857
+
+
 
 
         0.245462&nbsp; dnrm2_k (GTS-usertime) </span></p>
@@ -1745,10 +1893,14 @@ seconds.
 15.314285
 
 
+
+
         0.245005&nbsp; pushe__cray$mt$p0002 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 15.085714&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 15.085714
+
+
 
 
         0.241348&nbsp; MPIDI_CRAY_progress (GTS-usertime) </span></p>
@@ -1757,10 +1909,14 @@ seconds.
 14.828571
 
 
+
+
         0.237234&nbsp; field__cray$mt$p0010 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 13.628571&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 13.628571
+
+
 
 
         0.218036&nbsp; field__cray$mt$p0002 (GTS-usertime) </span></p>
@@ -1769,10 +1925,14 @@ seconds.
 13.057143
 
 
+
+
         0.208894&nbsp; smooth__cray$mt$p0011 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 12.685714&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 12.685714
+
+
 
 
         0.202952&nbsp; n_t_u_group__cray$mt$p0005 (GTS-usertime) </span></p>
@@ -1781,10 +1941,14 @@ seconds.
 12.314285
 
 
+
+
         0.197010&nbsp; MatSetValues (GTS-usertime: matrix.c,894) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 12.200000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 12.228571
+
+
 
 
         0.195181&nbsp; charge_eon_ (GTS-usertime) </span></p>
@@ -1793,10 +1957,14 @@ seconds.
 11.914285
 
 
+
+
         0.190610&nbsp; charge_ion_ (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 11.371428&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 459.399991
+
+
 
 
         0.181925&nbsp; MPIDI_CRAY_ptldev_progress (GTS-usertime) </span></p>
@@ -1805,10 +1973,14 @@ seconds.
 11.314285
 
 
+
+
         0.181011&nbsp; dscal_k (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 10.885714&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 10.885714
+
+
 
 
         0.174155&nbsp; _cos (GTS-usertime) </span></p>
@@ -1817,10 +1989,14 @@ seconds.
 10.828571
 
 
+
+
         0.173241&nbsp; n_t_u_group_e__cray$mt$p0009 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 10.714285&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 10.714285
+
+
 
 
         0.171412&nbsp; lock (GTS-usertime: uk_bridge_api.c,332) </span></p>
@@ -1829,10 +2005,14 @@ seconds.
 10.342857
 
 
+
+
         0.165470&nbsp; unlock (GTS-usertime: uk_bridge_api.c,336) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 10.314286&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 10.857143
+
+
 
 
         0.165013&nbsp; shifte_orig_ (GTS-usertime) </span></p>
@@ -1841,16 +2021,22 @@ seconds.
 9.942857
 
 
+
+
         0.159070&nbsp; smooth__cray$mt$p0010 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 9.828571&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 9.828571
 
 
+
+
         0.157242&nbsp; poisson__cray$mt$p0001 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 9.600000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 9.600000
+
+
 
 
         0.153585&nbsp; MatStashValuesRow_Private (GTS-usertime:
@@ -1860,10 +2046,14 @@ seconds.
 9.257143
 
 
+
+
         0.148100&nbsp; charge_eon__cray$mt$p0002 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 9.257143&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 9.257143
+
+
 
 
         0.148100&nbsp; ti_at_electrons__cray$mt$p0012 (GTS-usertime) </span></p>
@@ -1872,10 +2062,14 @@ seconds.
 8.742857
 
 
+
+
         0.139872&nbsp; charge_ion__cray$mt$p0003 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 8.714286&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 8.714286
+
+
 
 
         0.139415&nbsp; smooth__cray$mt$p0009 (GTS-usertime) </span></p>
@@ -1884,10 +2078,14 @@ seconds.
 7.914286
 
 
+
+
         0.126159&nbsp; MPIR_SUM (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 7.400000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 7.400000
+
+
 
 
         0.118389&nbsp; smooth__cray$mt$p0001 (GTS-usertime) </span></p>
@@ -1896,10 +2094,14 @@ seconds.
 7.057143
 
 
+
+
         0.112903&nbsp; pushe__cray$mt$p0001 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6.942857&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6.942857
+
+
 
 
         0.111075&nbsp; smooth__cray$mt$p0014 (GTS-usertime) </span></p>
@@ -1908,10 +2110,14 @@ seconds.
 6.800000
 
 
+
+
         0.108790&nbsp; __dcopy (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6.657143&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6.657143
+
+
 
 
         0.106504&nbsp; smooth__cray$mt$p0012 (GTS-usertime) </span></p>
@@ -1920,10 +2126,14 @@ seconds.
 6.628571
 
 
+
+
         0.106047&nbsp; shifte_orig__cray$mt$p0007 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6.314286&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6.314286
+
+
 
 
         0.101019&nbsp; esigetrzb_ (GTS-usertime) </span></p>
@@ -1932,10 +2142,14 @@ seconds.
 6.200000
 
 
+
+
         0.099190&nbsp; pushe__cray$mt$p0004 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 5.914286&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 5.914286
+
+
 
 
         0.094619&nbsp; charge_eon__cray$mt$p0005 (GTS-usertime) </span></p>
@@ -1944,10 +2158,14 @@ seconds.
 5.800000
 
 
+
+
         0.092791&nbsp; pushi__cray$mt$p0003 (GTS-usertime) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 5.771428&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 5.771428
+
+
 
 
         0.092334&nbsp; smooth__cray$mt$p0003 (GTS-usertime) </span></p>
@@ -2114,6 +2332,8 @@ seconds.
         =&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
         100 </span></p>
     <p><span style="font-weight: normal;">&nbsp; Available Views: </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp; pcsamp </span></p>
@@ -2124,9 +2344,13 @@ seconds.
 %
 
 
+
+
         of CPU Time&nbsp; Function (defining location) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 seconds.
+
+
 
 
       </span></p>
@@ -2135,10 +2359,14 @@ seconds.
 41.787324&nbsp;
 
 
+
+
         MatMult_SeqAIJ (GTS-pcsamp: aij.c,921) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 528.030000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 9.838219&nbsp;
+
+
 
 
         VecMAXPY_Seq (GTS-pcsamp: dvec2.c,592) </span></p>
@@ -2147,10 +2375,14 @@ seconds.
 8.419584&nbsp;
 
 
+
+
         VecMDot_Seq (GTS-pcsamp: dvec2.c,96) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 177.020000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 3.298225&nbsp;
+
+
 
 
         MatSetValues_MPIAIJ (GTS-pcsamp: mpiaij.c,305) </span></p>
@@ -2159,10 +2391,14 @@ seconds.
 2.801125&nbsp;
 
 
+
+
         sched_yield (GTS-pcsamp) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 134.030000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2.497238&nbsp;
+
+
 
 
         pow (GTS-pcsamp) </span></p>
@@ -2171,10 +2407,14 @@ seconds.
 1.510118
 
 
+
+
         VecPointwiseMult_Seq (GTS-pcsamp: dvec2.c,823) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 77.830000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.450123
+
+
 
 
         gcmotion__cray$mt$p0001 (GTS-pcsamp: escZ_march03.c,1668) </span></p>
@@ -2183,10 +2423,14 @@ seconds.
 1.371683
 
 
+
+
         gcmotion_e__cray$mt$p0002 (GTS-pcsamp: escZ_march03.c,1963) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 65.400000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.218528
+
+
 
 
         charge_ion__cray$mt$p0001 (GTS-pcsamp: charge_ion.F90,1) </span></p>
@@ -2195,10 +2439,14 @@ seconds.
 1.013577&nbsp;
 
 
+
+
         MatMultAdd_SeqAIJ (GTS-pcsamp: aij.c,983) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 46.390000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.864335
+
+
 
 
         pushi__cray$mt$p0004 (GTS-pcsamp: pushi.F90,1) </span></p>
@@ -2207,10 +2455,14 @@ seconds.
 0.826885
 
 
+
+
         pushi__cray$mt$p0002 (GTS-pcsamp: pushi.F90,1) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 40.390000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.752544&nbsp;
+
+
 
 
         poisson_initial_ (GTS-pcsamp: poisson.F90,172) </span></p>
@@ -2219,10 +2471,14 @@ seconds.
 0.750308&nbsp;
 
 
+
+
         ioctl (GTS-pcsamp) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 39.160000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.729626&nbsp;
+
+
 
 
         PtlEQPeek (GTS-pcsamp: api-eq.c,47) </span></p>
@@ -2231,10 +2487,14 @@ seconds.
 0.698884
 
 
+
+
         pushe__cray$mt$p0003 (GTS-pcsamp: pushe.F90,1) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 36.880000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.687146&nbsp;
+
+
 
 
         field_ (GTS-pcsamp: field.f90,1) </span></p>
@@ -2243,10 +2503,14 @@ seconds.
 0.681183
 
 
+
+
         charge_ion__cray$mt$p0002 (GTS-pcsamp: charge_ion.F90,1) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 35.460000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.660688&nbsp;
+
+
 
 
         smooth_ (GTS-pcsamp: smooth.F90,1) </span></p>
@@ -2255,10 +2519,14 @@ seconds.
 0.654353&nbsp;
 
 
+
+
         pthread_mutex_lock (GTS-pcsamp) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 33.970000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.632927
+
+
 
 
         add_gk_value$phit_matrix_class_ (GTS-pcsamp:
@@ -2268,10 +2536,14 @@ seconds.
 0.596408&nbsp;
 
 
+
+
         esiget2dthese_ (GTS-pcsamp: escZ_march03.c,2620) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 31.340000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.583925&nbsp;
+
+
 
 
         __dset (GTS-pcsamp) </span></p>
@@ -2280,10 +2552,14 @@ seconds.
 0.578149&nbsp;
 
 
+
+
         fast_nal_poll (GTS-pcsamp: uk_bridge_api.c,258) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 29.900000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.557095
+
+
 
 
         __pthread_mutex_unlock_usercnt (GTS-pcsamp) </span></p>
@@ -2292,10 +2568,14 @@ seconds.
 0.555232
 
 
+
+
         charge_eon__cray$mt$p0001 (GTS-pcsamp: charge_eon.F90,1) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 29.740000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.554114&nbsp;
+
+
 
 
         memcpy (GTS-pcsamp) </span></p>
@@ -2304,10 +2584,14 @@ seconds.
 0.509583
 
 
+
+
         smooth__cray$mt$p0004 (GTS-pcsamp: smooth.F90,1) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 27.130000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.505484
+
+
 
 
         pushe__cray$mt$p0005 (GTS-pcsamp: pushe.F90,1) </span></p>
@@ -2316,10 +2600,14 @@ seconds.
 0.454246&nbsp;
 
 
+
+
         _EXP_V (GTS-pcsamp) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 22.860000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.425926
+
+
 
 
         field__cray$mt$p0003 (GTS-pcsamp: field.f90,1) </span></p>
@@ -2328,10 +2616,14 @@ seconds.
 0.421641
 
 
+
+
         field__cray$mt$p0008 (GTS-pcsamp: field.f90,1) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 21.630000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.403009&nbsp;
+
+
 
 
         PtlEQGet (GTS-pcsamp: api-eq.c,108) </span></p>
@@ -2340,10 +2632,14 @@ seconds.
 0.348603
 
 
+
+
         field__cray$mt$p0004 (GTS-pcsamp: field.f90,1) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 16.230000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.302396&nbsp;
+
+
 
 
         PtlEQGet_internal (GTS-pcsamp: api-eq.c,85) </span></p>
@@ -2352,10 +2648,14 @@ seconds.
 0.299229
 
 
+
+
         MatStashScatterBegin_Private (GTS-pcsamp: matstash.c,440) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 15.620000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.291031
+
+
 
 
         field__cray$mt$p0005 (GTS-pcsamp: field.f90,1) </span></p>
@@ -2364,10 +2664,14 @@ seconds.
 0.269231
 
 
+
+
         electron_locator__cray$mt$p0008 (GTS-pcsamp: pushe.F90,295) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 14.160000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.263828
+
+
 
 
         pushe__cray$mt$p0002 (GTS-pcsamp: pushe.F90,1) </span></p>
@@ -2376,10 +2680,14 @@ seconds.
 0.261220&nbsp;
 
 
+
+
         dnrm2_k (GTS-pcsamp) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 13.670000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.254699
+
+
 
 
         field__cray$mt$p0010 (GTS-pcsamp: field.f90,1) </span></p>
@@ -2388,10 +2696,14 @@ seconds.
 0.247432
 
 
+
+
         MPIDI_CRAY_smpdev_progress (GTS-pcsamp) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 12.460000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.232154
+
+
 
 
         n_t_u_group__cray$mt$p0005 (GTS-pcsamp: function_gg.f90,1164) </span></p>
@@ -2400,10 +2712,14 @@ seconds.
 0.227310
 
 
+
+
         field__cray$mt$p0002 (GTS-pcsamp: field.f90,1) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 11.840000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.220602&nbsp;
+
+
 
 
         MatSetValues (GTS-pcsamp: matrix.c,894) </span></p>
@@ -2412,10 +2728,14 @@ seconds.
 0.207746&nbsp;
 
 
+
+
         charge_eon_ (GTS-pcsamp: charge_eon.F90,1) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 11.080000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.206442
+
+
 
 
         smooth__cray$mt$p0011 (GTS-pcsamp: smooth.F90,1) </span></p>
@@ -2424,10 +2744,14 @@ seconds.
 0.201784&nbsp;
 
 
+
+
         charge_ion_ (GTS-pcsamp: charge_ion.F90,1) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 10.150000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.189114&nbsp;
+
+
 
 
         _cos (GTS-pcsamp) </span></p>
@@ -2436,16 +2760,22 @@ seconds.
 0.185201&nbsp;
 
 
+
+
         shifte_orig_ (GTS-pcsamp: shifte.F90,89) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 9.770000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.182034&nbsp;
 
 
+
+
         ptl_hndl2nal (GTS-pcsamp: types.h,84) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 9.660000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.179984
+
+
 
 
         smooth__cray$mt$p0010 (GTS-pcsamp: smooth.F90,1) </span></p>
@@ -2637,6 +2967,8 @@ seconds.
 Maximum
 
 
+
+
         MPI Call&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         Minimum MPI
         Call&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -2648,12 +2980,16 @@ Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Time(ms)
 
 
+
+
       </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6075.263000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 90.345000
 4792.355906&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 64&nbsp;
+
+
 
 
         MPI_Init (GTS-mpi) </span></p>
@@ -2664,12 +3000,16 @@ Time(ms)
 192&nbsp;
 
 
+
+
         MPI_Comm_dup (GTS-mpi) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2043.497000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.000001
 0.918958&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 336368&nbsp;
+
+
 
 
         MPI_Allreduce (GTS-mpi) </span></p>
@@ -2680,12 +3020,16 @@ Time(ms)
 61504&nbsp;
 
 
+
+
         MPI_Sendrecv (GTS-mpi) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 217.571000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.001000
 0.309177&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 7488&nbsp;
+
+
 
 
         MPI_Reduce (GTS-mpi) </span></p>
@@ -2696,12 +3040,16 @@ Time(ms)
 2048&nbsp;
 
 
+
+
         MPI_Bcast (GTS-mpi) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 74.004000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.018000
 0.142436&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 153304&nbsp;
+
+
 
 
         MPI_Waitany (GTS-mpi) </span></p>
@@ -2712,12 +3060,16 @@ Time(ms)
 26816&nbsp;
 
 
+
+
         MPI_Gather (GTS-mpi) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 63.367000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.002000
 30.621391&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 64&nbsp;
+
+
 
 
         MPI_Recv (GTS-mpi) </span></p>
@@ -2728,12 +3080,16 @@ Time(ms)
 64&nbsp;
 
 
+
+
         MPI_Finalize (GTS-mpi) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6.166000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.004000
 0.268766&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 384&nbsp;
+
+
 
 
         MPI_Scan (GTS-mpi) </span></p>
@@ -2744,12 +3100,16 @@ Time(ms)
 896&nbsp;
 
 
+
+
         MPI_Isend (GTS-mpi) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.885000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.261000
 0.755977&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 128&nbsp;
+
+
 
 
         MPI_Comm_split (GTS-mpi) </span></p>
@@ -2760,12 +3120,16 @@ Time(ms)
 6080&nbsp;
 
 
+
+
         MPI_Allgather (GTS-mpi) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.704000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.209000
 0.343246&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 256&nbsp;
+
+
 
 
         MPI_Allgatherv (GTS-mpi) </span></p>
@@ -2776,12 +3140,16 @@ Time(ms)
 152792&nbsp;
 
 
+
+
         MPI_Start (GTS-mpi) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.185000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.000001
 0.001715&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 153560&nbsp;
+
+
 
 
         MPI_Waitall (GTS-mpi) </span></p>
@@ -2792,12 +3160,16 @@ Time(ms)
 64&nbsp;
 
 
+
+
         MPI_Barrier (GTS-mpi) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.052000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.001000
 0.002567&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 152792&nbsp;
+
+
 
 
         MPI_Startall (GTS-mpi) </span></p>
@@ -2808,12 +3180,16 @@ Time(ms)
 1024&nbsp;
 
 
+
+
         MPI_Request_free (GTS-mpi) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.007000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.000001
 0.001221&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 512&nbsp;
+
+
 
 
         MPI_Recv_init (GTS-mpi) </span></p>
@@ -2824,12 +3200,16 @@ Time(ms)
 192&nbsp;
 
 
+
+
         MPI_Comm_free (GTS-mpi) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.005000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.000001
 0.001236&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 896&nbsp;
+
+
 
 
         MPI_Irecv (GTS-mpi) </span></p>
@@ -2840,12 +3220,16 @@ Time(ms)
 64&nbsp;
 
 
+
+
         MPI_Send (GTS-mpi) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.003000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.000001
 0.000942&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 512&nbsp;
+
+
 
 
         MPI_Get_count (GTS-mpi) </span></p>
@@ -2872,9 +3256,13 @@ Time(ms)
 Rank
 
 
+
+
         of Max&nbsp; Min MPI Call Time
         Across&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Rank
+
+
 
 
         of Min&nbsp;&nbsp;&nbsp;&nbsp; Average MPI Call Time&nbsp;
@@ -2885,10 +3273,14 @@ Ranks(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp
 Across
 
 
+
+
         Ranks(ms) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6513.841001&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 49
+
+
 
 
         &nbsp;
@@ -2896,9 +3288,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp;&nbsp; &nbsp;
         44&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 4829.815360
+
+
 
 
         MPI_Allreduce (GTS-mpi) </span></p>
@@ -2907,14 +3303,20 @@ Across
 55
 
 
+
+
         &nbsp;&nbsp;
         90.345000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;
 
 
+
+
         &nbsp; &nbsp;&nbsp;
         62&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 4792.355906&nbsp;
+
+
 
 
         MPI_Init (GTS-mpi) </span></p>
@@ -2923,10 +3325,14 @@ Across
 46
 
 
+
+
         &nbsp;
         2581.949000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 3737.620859
+
+
 
 
         MPI_Sendrecv (GTS-mpi) </span></p>
@@ -2937,9 +3343,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp;&nbsp; &nbsp;&nbsp;
         24&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 302.290625
+
+
 
 
         MPI_Comm_dup (GTS-mpi) </span></p>
@@ -2950,9 +3360,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp;
         28&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 292.443531
+
+
 
 
         MPI_Gather (GTS-mpi) </span></p>
@@ -2963,9 +3377,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp;&nbsp; &nbsp;&nbsp;
         44&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 341.188406
+
+
 
 
         MPI_Waitany (GTS-mpi) </span></p>
@@ -2976,9 +3394,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp; &nbsp;&nbsp;
         23&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 36.173672&nbsp;
+
+
 
 
         MPI_Reduce (GTS-mpi) </span></p>
@@ -2989,9 +3411,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp; &nbsp; &nbsp;
         0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 169.517656&nbsp;
+
+
 
 
         MPI_Bcast (GTS-mpi) </span></p>
@@ -3002,9 +3428,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp; &nbsp;
         46&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 84.582703&nbsp;
+
+
 
 
         MPI_Start (GTS-mpi) </span></p>
@@ -3015,9 +3445,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp;&nbsp; &nbsp;
         24&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 61.242781&nbsp;
+
+
 
 
         MPI_Recv (GTS-mpi) </span></p>
@@ -3028,9 +3462,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp; &nbsp; &nbsp;
         24&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 20.473219
+
+
 
 
         MPI_Finalize (GTS-mpi) </span></p>
@@ -3041,9 +3479,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
         2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 7.394641&nbsp;
+
+
 
 
         MPI_Isend (GTS-mpi) </span></p>
@@ -3054,9 +3496,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
         0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.612594&nbsp;
+
+
 
 
         MPI_Scan (GTS-mpi) </span></p>
@@ -3067,9 +3513,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp; &nbsp; &nbsp;
         41&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6.127453
+
+
 
 
         MPI_Startall (GTS-mpi) </span></p>
@@ -3081,6 +3531,8 @@ Across
 4.115096
 
 
+
+
         MPI_Waitall (GTS-mpi) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2.254000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3088,6 +3540,8 @@ Across
 1.143000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.372984
+
+
 
 
         MPI_Allgatherv (GTS-mpi) </span></p>
@@ -3098,9 +3552,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
         48&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.511953
+
+
 
 
         MPI_Comm_split (GTS-mpi) </span></p>
@@ -3111,9 +3569,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
         55&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.568085
+
+
 
 
         MPI_Allgather (GTS-mpi) </span></p>
@@ -3124,9 +3586,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
         62&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.094562
+
+
 
 
         MPI_Barrier (GTS-mpi) </span></p>
@@ -3137,9 +3603,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
         0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.032859
+
+
 
 
         MPI_Request_free (GTS-mpi) </span></p>
@@ -3150,9 +3620,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
         16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.017301&nbsp;
+
+
 
 
         MPI_Irecv (GTS-mpi) </span></p>
@@ -3163,9 +3637,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
         1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.009768
+
+
 
 
         MPI_Recv_init (GTS-mpi) </span></p>
@@ -3176,9 +3654,13 @@ Across
 &nbsp;
 
 
+
+
         &nbsp; &nbsp; &nbsp; &nbsp;
         62&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.007953
+
+
 
 
         MPI_Comm_free (GTS-mpi) </span></p>
@@ -3190,6 +3672,8 @@ Across
 0.007533
 
 
+
+
         MPI_Get_count (GTS-mpi) </span></p>
     <p><span style="font-weight: normal;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.007000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3197,6 +3681,8 @@ Across
 0.004000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 53&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.005531&nbsp;
+
+
 
 
         MPI_Send (GTS-mpi) </span></p>
@@ -3396,12 +3882,16 @@ Across
 Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
       Time(ms) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 89.655000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 7285.565000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6413.506203&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 64&nbsp;
+
+
 
 
       MPI_Init (GTS-mpit) </p>
@@ -3412,12 +3902,16 @@ Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 128&nbsp;
 
 
+
+
       MPI_Comm_split (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.228000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.700000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.337691&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 256&nbsp;
+
+
 
 
       MPI_Allgatherv (GTS-mpit) </p>
@@ -3428,12 +3922,16 @@ Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 64&nbsp;
 
 
+
+
       MPI_Finalize (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.052000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.120000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.085016&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 64&nbsp;
+
+
 
 
       MPI_Barrier (GTS-mpit) </p>
@@ -3444,12 +3942,16 @@ Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 192&nbsp;
 
 
+
+
       MPI_Comm_dup (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.019000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.231000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.036294&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 152792&nbsp;
+
+
 
 
       MPI_Start (GTS-mpit) </p>
@@ -3460,12 +3962,16 @@ Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 153304&nbsp;
 
 
+
+
       MPI_Waitany (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.004000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 5.875000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.282596&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 384&nbsp;
+
+
 
 
       MPI_Scan (GTS-mpit) </p>
@@ -3476,12 +3982,16 @@ Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 26816&nbsp;
 
 
+
+
       MPI_Gather (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.002000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 4669.709000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 145.150019&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2048&nbsp;
+
+
 
 
       MPI_Bcast (GTS-mpit) </p>
@@ -3492,12 +4002,16 @@ Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 192&nbsp;
 
 
+
+
       MPI_Comm_free (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.001000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 519.031000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.044230&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 7488&nbsp;
+
+
 
 
       MPI_Reduce (GTS-mpit) </p>
@@ -3508,12 +4022,16 @@ Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 896&nbsp;
 
 
+
+
       MPI_Isend (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.001000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 3.930000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.566875&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 64&nbsp;
+
+
 
 
       MPI_Recv (GTS-mpit) </p>
@@ -3524,12 +4042,16 @@ Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1024&nbsp;
 
 
+
+
       MPI_Request_free (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.001000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.008000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.003844&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 64&nbsp;
+
+
 
 
       MPI_Send (GTS-mpit) </p>
@@ -3540,12 +4062,16 @@ Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 61504&nbsp;
 
 
+
+
       MPI_Sendrecv (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.000001&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 57803.096000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 20.673469&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 336368&nbsp;
+
+
 
 
       MPI_Allreduce (GTS-mpit) </p>
@@ -3556,12 +4082,16 @@ Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 153560&nbsp;
 
 
+
+
       MPI_Waitall (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.000001&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.182000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.002640&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 152792&nbsp;
+
+
 
 
       MPI_Startall (GTS-mpit) </p>
@@ -3572,12 +4102,16 @@ Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 512&nbsp;
 
 
+
+
       MPI_Recv_init (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.000001&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.006000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.001258&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 896&nbsp;
+
+
 
 
       MPI_Irecv (GTS-mpit) </p>
@@ -3588,12 +4122,16 @@ Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 512&nbsp;
 
 
+
+
       MPI_Get_count (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.000001&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.201000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.005891&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6080&nbsp;
+
+
 
 
       MPI_Allgather (GTS-mpit) </p>
@@ -3612,9 +4150,13 @@ Time(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Rank
 
 
+
+
       of Max&nbsp; Min MPI Call Time
       Across&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Rank
+
+
 
 
       of Min&nbsp;&nbsp;&nbsp;&nbsp; Average MPI Call Time&nbsp;
@@ -3623,6 +4165,8 @@ Rank
 Ranks(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Ranks(ms)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Across
+
+
 
 
       Ranks(ms) </p>
@@ -3634,6 +4178,8 @@ Across
 72782.752062&nbsp;
 
 
+
+
       MPI_Sendrecv (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       146145.067000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3641,6 +4187,8 @@ Across
 38778.452001&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 44&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 108654.585173&nbsp;
+
+
 
 
       MPI_Allreduce (GTS-mpit) </p>
@@ -3652,6 +4200,8 @@ Across
 1543.932609&nbsp;
 
 
+
+
       MPI_Waitany (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 16173.616000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3659,6 +4209,8 @@ Across
 0.282000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1496.972078&nbsp;
+
+
 
 
       MPI_Comm_dup (GTS-mpit) </p>
@@ -3670,6 +4222,8 @@ Across
 6413.506203&nbsp;
 
 
+
+
       MPI_Init (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 4722.719000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3677,6 +4231,8 @@ Across
 2.764000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 4644.800594&nbsp;
+
+
 
 
       MPI_Bcast (GTS-mpit) </p>
@@ -3688,6 +4244,8 @@ Across
 1469.139844&nbsp;
 
 
+
+
       MPI_Gather (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1050.635000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3695,6 +4253,8 @@ Across
 9.746000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 22&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 122.174875&nbsp;
+
+
 
 
       MPI_Reduce (GTS-mpit) </p>
@@ -3706,6 +4266,8 @@ Across
 86.646406&nbsp;
 
 
+
+
       MPI_Start (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 10.276000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3713,6 +4275,8 @@ Across
 5.714000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 7.535297&nbsp;
+
+
 
 
       MPI_Isend (GTS-mpit) </p>
@@ -3724,6 +4288,8 @@ Across
 1.695578&nbsp;
 
 
+
+
       MPI_Scan (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 7.135000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3731,6 +4297,8 @@ Across
 5.455001&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 54&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6.303219&nbsp;
+
+
 
 
       MPI_Startall (GTS-mpit) </p>
@@ -3742,6 +4310,8 @@ Across
 5.313299&nbsp;
 
 
+
+
       MPI_Waitall (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 5.069000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3749,6 +4319,8 @@ Across
 0.096000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 46&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.352734&nbsp;
+
+
 
 
       MPI_Finalize (GTS-mpit) </p>
@@ -3760,6 +4332,8 @@ Across
 1.133750&nbsp;
 
 
+
+
       MPI_Recv (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.944000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3767,6 +4341,8 @@ Across
 1.086000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 39&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.350766&nbsp;
+
+
 
 
       MPI_Allgatherv (GTS-mpit) </p>
@@ -3778,6 +4354,8 @@ Across
 1.519234&nbsp;
 
 
+
+
       MPI_Comm_split (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.801005&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3785,6 +4363,8 @@ Across
 0.411007&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 39&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.559648&nbsp;
+
+
 
 
       MPI_Allgather (GTS-mpit) </p>
@@ -3796,6 +4376,8 @@ Across
 0.085016&nbsp;
 
 
+
+
       MPI_Barrier (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.044000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3803,6 +4385,8 @@ Across
 0.029000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 59&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.036109&nbsp;
+
+
 
 
       MPI_Request_free (GTS-mpit) </p>
@@ -3814,6 +4398,8 @@ Across
 0.017614&nbsp;
 
 
+
+
       MPI_Irecv (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.023000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3821,6 +4407,8 @@ Across
 0.007004&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 44&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.013845&nbsp;
+
+
 
 
       MPI_Get_count (GTS-mpit) </p>
@@ -3832,6 +4420,8 @@ Across
 0.009469&nbsp;
 
 
+
+
       MPI_Comm_free (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.014002&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3841,6 +4431,8 @@ Across
 0.009877&nbsp;
 
 
+
+
       MPI_Recv_init (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.011000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -3848,6 +4440,8 @@ Across
 0.005000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 63&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.007688&nbsp;
+
+
 
 
       MPI_Send (GTS-mpit) </p>
@@ -3865,10 +4459,14 @@ Across
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
       Time(ms) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       146515.959000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 961&nbsp;
+
+
 
 
       MPI_Sendrecv (GTS-mpit) </p>
@@ -3877,10 +4475,14 @@ Across
 5215&nbsp;
 
 
+
+
       MPI_Allreduce (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6755.763000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1&nbsp;
+
+
 
 
       MPI_Init (GTS-mpit) </p>
@@ -3889,10 +4491,14 @@ Across
 32&nbsp;
 
 
+
+
       MPI_Bcast (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 292.916000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2375&nbsp;
+
+
 
 
       MPI_Waitany (GTS-mpit) </p>
@@ -3901,10 +4507,14 @@ Across
 419&nbsp;
 
 
+
+
       MPI_Gather (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 83.479000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2367&nbsp;
+
+
 
 
       MPI_Start (GTS-mpit) </p>
@@ -3913,10 +4523,14 @@ Across
 117&nbsp;
 
 
+
+
       MPI_Reduce (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 6.496000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2367&nbsp;
+
+
 
 
       MPI_Startall (GTS-mpit) </p>
@@ -3925,10 +4539,14 @@ Across
 14&nbsp;
 
 
+
+
       MPI_Isend (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 5.236002&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2379&nbsp;
+
+
 
 
       MPI_Waitall (GTS-mpit) </p>
@@ -3937,10 +4555,14 @@ Across
 2&nbsp;
 
 
+
+
       MPI_Comm_split (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.098000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 4&nbsp;
+
+
 
 
       MPI_Allgatherv (GTS-mpit) </p>
@@ -3949,10 +4571,14 @@ Across
 95&nbsp;
 
 
+
+
       MPI_Allgather (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.330000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 3&nbsp;
+
+
 
 
       MPI_Comm_dup (GTS-mpit) </p>
@@ -3961,10 +4587,14 @@ Across
 6&nbsp;
 
 
+
+
       MPI_Scan (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.096000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1&nbsp;
+
+
 
 
       MPI_Finalize (GTS-mpit) </p>
@@ -3973,10 +4603,14 @@ Across
 1&nbsp;
 
 
+
+
       MPI_Barrier (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.032000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 16&nbsp;
+
+
 
 
       MPI_Request_free (GTS-mpit) </p>
@@ -3985,10 +4619,14 @@ Across
 14&nbsp;
 
 
+
+
       MPI_Irecv (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.010003&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 8&nbsp;
+
+
 
 
       MPI_Get_count (GTS-mpit) </p>
@@ -3997,16 +4635,22 @@ Across
 8&nbsp;
 
 
+
+
       MPI_Recv_init (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.009000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2&nbsp;
 
 
+
+
       MPI_Recv (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.005000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 3&nbsp;
+
+
 
 
       MPI_Comm_free (GTS-mpit) </p>
@@ -4019,10 +4663,14 @@ Across
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
       Time(ms) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       104166.234000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 5299&nbsp;
+
+
 
 
       MPI_Allreduce (GTS-mpit) </p>
@@ -4031,10 +4679,14 @@ Across
 2417&nbsp;
 
 
+
+
       MPI_Waitany (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 8798.204000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 961&nbsp;
+
+
 
 
       MPI_Sendrecv (GTS-mpit) </p>
@@ -4043,10 +4695,14 @@ Across
 1&nbsp;
 
 
+
+
       MPI_Init (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 4716.262000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 32&nbsp;
+
+
 
 
       MPI_Bcast (GTS-mpit) </p>
@@ -4055,10 +4711,14 @@ Across
 419&nbsp;
 
 
+
+
       MPI_Gather (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 84.139000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2409&nbsp;
+
+
 
 
       MPI_Start (GTS-mpit) </p>
@@ -4067,10 +4727,14 @@ Across
 117&nbsp;
 
 
+
+
       MPI_Reduce (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 7.398000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 14&nbsp;
+
+
 
 
       MPI_Isend (GTS-mpit) </p>
@@ -4079,10 +4743,14 @@ Across
 2409&nbsp;
 
 
+
+
       MPI_Startall (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 5.413003&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2421&nbsp;
+
+
 
 
       MPI_Waitall (GTS-mpit) </p>
@@ -4091,10 +4759,14 @@ Across
 2&nbsp;
 
 
+
+
       MPI_Recv (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.527000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2&nbsp;
+
+
 
 
       MPI_Comm_split (GTS-mpit) </p>
@@ -4103,10 +4775,14 @@ Across
 4&nbsp;
 
 
+
+
       MPI_Allgatherv (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.801005&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 95&nbsp;
+
+
 
 
       MPI_Allgather (GTS-mpit) </p>
@@ -4115,10 +4791,14 @@ Across
 6&nbsp;
 
 
+
+
       MPI_Scan (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.352000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 3&nbsp;
+
+
 
 
       MPI_Comm_dup (GTS-mpit) </p>
@@ -4127,10 +4807,14 @@ Across
 1&nbsp;
 
 
+
+
       MPI_Finalize (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.085000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1&nbsp;
+
+
 
 
       MPI_Barrier (GTS-mpit) </p>
@@ -4139,10 +4823,14 @@ Across
 16&nbsp;
 
 
+
+
       MPI_Request_free (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.018003&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 14&nbsp;
+
+
 
 
       MPI_Irecv (GTS-mpit) </p>
@@ -4151,16 +4839,22 @@ Across
 8&nbsp;
 
 
+
+
       MPI_Get_count (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.013000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 3&nbsp;
 
 
+
+
       MPI_Comm_free (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.011003&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 8&nbsp;
+
+
 
 
       MPI_Recv_init (GTS-mpit) </p>
@@ -4184,15 +4878,21 @@ Across
 %
 
 
+
+
       of
       Total&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       Number of Calls&nbsp; Call Stack Function (defining location) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
       Time(ms) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 shifti_orig_
+
+
 
 
       (GTS-mpit: shifti.F90,85) </p>
@@ -4206,9 +4906,13 @@ shifti_orig_
 3200
 
 
+
+
       &gt;&gt;&gt;MPI_Allreduce (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 __libc_start_main
+
+
 
 
       (GTS-mpit) </p>
@@ -4228,6 +4932,8 @@ __libc_start_main
 64
 
 
+
+
       &gt;&gt;&gt;&gt;&gt;&gt;MPI_Allreduce (GTS-mpit) </p>
     <p>openss&gt;&gt;expview -vcalltrees,fullstack -f MPI_Allreduce
       mpit2 -r 46 </p>
@@ -4237,15 +4943,21 @@ __libc_start_main
 %
 
 
+
+
       of
       Total&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       Number of Calls&nbsp; Call Stack Function (defining location) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
       Time(ms) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 charge_eon_
+
+
 
 
       (GTS-mpit: charge_eon.F90,1) </p>
@@ -4259,9 +4971,13 @@ charge_eon_
 51
 
 
+
+
       &gt;&gt;&gt;MPI_Allreduce (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 __libc_start_main
+
+
 
 
       (GTS-mpit) </p>
@@ -4281,6 +4997,8 @@ __libc_start_main
 1
 
 
+
+
       &gt;&gt;&gt;&gt;&gt;&gt;MPI_Allreduce (GTS-mpit) </p>
     <p>openss&gt;&gt;expview -vcalltrees,fullstack -f MPI_Allreduce
       mpit2 -r 20 </p>
@@ -4290,15 +5008,21 @@ __libc_start_main
 %
 
 
+
+
       of
       Total&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       Number of Calls&nbsp; Call Stack Function (defining location) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
       Time(ms) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 shifti_orig_
+
+
 
 
       (GTS-mpit: shifti.F90,85) </p>
@@ -4312,9 +5036,13 @@ shifti_orig_
 50
 
 
+
+
       &gt;&gt;&gt;MPI_Allreduce (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 VecNorm_MPI
+
+
 
 
       (GTS-mpit: pvec2.c,49) </p>
@@ -4322,6 +5050,8 @@ VecNorm_MPI
 25533.886000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 17.092655&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2460
+
+
 
 
       &gt;MPI_Allreduce (GTS-mpit) </p>
@@ -4333,15 +5063,21 @@ VecNorm_MPI
 %
 
 
+
+
       of
       Total&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       Number of Calls&nbsp; Call Stack Function (defining location) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
       Time(ms) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 shifti_orig_
+
+
 
 
       (GTS-mpit: shifti.F90,85) </p>
@@ -4355,9 +5091,13 @@ shifti_orig_
 50
 
 
+
+
       &gt;&gt;&gt;MPI_Sendrecv (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 smooth_
+
+
 
 
       (GTS-mpit: smooth.F90,1) </p>
@@ -4371,6 +5111,8 @@ smooth_
 102
 
 
+
+
       &gt;&gt;&gt;MPI_Sendrecv (GTS-mpit) </p>
     <p>openss&gt;&gt;expview -vcalltrees,fullstack -f MPI_Sendrecv mpit2
       -r 20 </p>
@@ -4380,15 +5122,21 @@ smooth_
 %
 
 
+
+
       of
       Total&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       Number of Calls&nbsp; Call Stack Function (defining location) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
       Time(ms) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 field_
+
+
 
 
       (GTS-mpit: field.f90,1) </p>
@@ -4402,9 +5150,13 @@ field_
 51
 
 
+
+
       &gt;&gt;&gt;MPI_Sendrecv (GTS-mpit) </p>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 smooth_
+
+
 
 
       (GTS-mpit: smooth.F90,1) </p>
@@ -4416,6 +5168,8 @@ smooth_
 626.308000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.419257&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 102
+
+
 
 
       &gt;&gt;&gt;MPI_Sendrecv (GTS-mpit) </p>
@@ -4582,6 +5336,8 @@ smooth_
       =&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
       100 <br>
       &nbsp; Available Views: <br>
       &nbsp;&nbsp;&nbsp; hwcsamp <br>
@@ -4592,14 +5348,20 @@ smooth_
 %
 
 
+
+
       of CPU Time
       PAPI_TOT_CYC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 PAPI_FP_OPS&nbsp;
 
 
+
+
       Function (defining location) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 seconds.
+
+
 
 
       <br>
@@ -4610,12 +5372,16 @@ seconds.
 13095019531&nbsp;
 
 
+
+
       sched_yield (GTS-hwcsamp) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2207.140000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 8.971505
 6324184906802&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1140358631065&nbsp;
+
+
 
 
       MatMult_SeqAIJ (GTS-hwcsamp: aij.c,921) <br>
@@ -4626,12 +5392,16 @@ seconds.
 3537741120&nbsp;
 
 
+
+
       PtlEQPeek (GTS-hwcsamp: api-eq.c,47) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1801.300000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 7.321861
 3233424530462&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2841405132&nbsp;
+
+
 
 
       pthread_mutex_lock (GTS-hwcsamp) <br>
@@ -4642,12 +5412,16 @@ seconds.
 2648525396&nbsp;
 
 
+
+
       __pthread_mutex_unlock_usercnt (GTS-hwcsamp) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1378.710000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 5.604132
 2476702901875&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2544729423&nbsp;
+
+
 
 
       fast_nal_poll (GTS-hwcsamp: uk_bridge_api.c,258) <br>
@@ -4658,12 +5432,16 @@ seconds.
 1608687675&nbsp;
 
 
+
+
       PtlEQGet (GTS-hwcsamp: api-eq.c,108) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 839.890000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 3.413955
 1507250229244&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1321757888&nbsp;
+
+
 
 
       PtlEQGet_internal (GTS-hwcsamp: api-eq.c,85) <br>
@@ -4674,12 +5452,16 @@ seconds.
 1482836192&nbsp;
 
 
+
+
       MPIDI_CRAY_smpdev_progress (GTS-hwcsamp) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 522.230000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2.122742
 1494573008873&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 290242524930&nbsp;
+
+
 
 
       VecMAXPY_Seq (GTS-hwcsamp: dvec2.c,592) <br>
@@ -4690,12 +5472,16 @@ seconds.
 964601628&nbsp;
 
 
+
+
       ptl_hndl2nal (GTS-hwcsamp: types.h,84) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 443.520000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.802804
 1273706684084&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 231501206456&nbsp;
+
+
 
 
       VecMDot_Seq (GTS-hwcsamp: dvec2.c,96) <br>
@@ -4706,12 +5492,16 @@ seconds.
 549617633&nbsp;
 
 
+
+
       check_eqs_for_event (GTS-hwcsamp: api-eq.c,197) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 325.800000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.324300
 584897395194&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 521370391&nbsp;
+
+
 
 
       MPIDI_CRAY_progress (GTS-hwcsamp) <br>
@@ -4722,12 +5512,16 @@ seconds.
 632508267&nbsp;
 
 
+
+
       PtlEQPoll (GTS-hwcsamp: api-eq.c,162) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 250.940000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 1.020012
 450476465997&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 468315950&nbsp;
+
+
 
 
       MPIDI_CRAY_ptldev_progress (GTS-hwcsamp) <br>
@@ -4738,12 +5532,16 @@ seconds.
 325570056&nbsp;
 
 
+
+
       lock (GTS-hwcsamp: uk_bridge_api.c,332) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 200.870000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.816489
 360506583425&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 312549925&nbsp;
+
+
 
 
       unlock (GTS-hwcsamp: uk_bridge_api.c,336) <br>
@@ -4754,12 +5552,16 @@ seconds.
 6353296924&nbsp;
 
 
+
+
       MatSetValues_MPIAIJ (GTS-hwcsamp: mpiaij.c,305) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 133.000000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.540614
 377725754098&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 116058402107&nbsp;
+
+
 
 
       pow (GTS-hwcsamp) <br>
@@ -4770,12 +5572,16 @@ seconds.
 40116891861&nbsp;
 
 
+
+
       VecPointwiseMult_Seq (GTS-hwcsamp: dvec2.c,823) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 79.720000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.324043
 143119740921&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 134635860&nbsp;
+
+
 
 
       pthread_mutex_unlock (GTS-hwcsamp) <br>
@@ -4786,12 +5592,16 @@ seconds.
 82457232585&nbsp;
 
 
+
+
       gcmotion__cray$mt$p0001 (GTS-hwcsamp: escZ_march03.c,1668) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 72.370000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.294167
 208142750370&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 71123934434&nbsp;
+
+
 
 
       gcmotion_e__cray$mt$p0002 (GTS-hwcsamp: escZ_march03.c,1963) <br>
@@ -4802,12 +5612,16 @@ seconds.
 20082654350&nbsp;
 
 
+
+
       charge_ion__cray$mt$p0001 (GTS-hwcsamp: charge_ion.F90,1) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 57.850000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.235147
 103944302191&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 133655208&nbsp;
+
+
 
 
       PMI_CPR_CS_Enter (GTS-hwcsamp: pmi_cpr.c,341) <br>
@@ -4818,12 +5632,16 @@ seconds.
 29320694952&nbsp;
 
 
+
+
       MatMultAdd_SeqAIJ (GTS-hwcsamp: aij.c,983) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 51.790000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.210514
 92885910864&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 62491315&nbsp;
+
+
 
 
       PMI_CPR_CS_Exit (GTS-hwcsamp: pmi_cpr.c,367) <br>
@@ -4834,12 +5652,16 @@ seconds.
 34508997608&nbsp;
 
 
+
+
       pushi__cray$mt$p0004 (GTS-hwcsamp: pushi.F90,1) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 44.860000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.182345
 80768430501&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 104755290&nbsp;
+
+
 
 
       MPIDI_CRAY_Progress_wait (GTS-hwcsamp) <br>
@@ -4850,12 +5672,16 @@ seconds.
 59863384980&nbsp;
 
 
+
+
       pushi__cray$mt$p0002 (GTS-hwcsamp: pushi.F90,1) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 39.810000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.161818
 90872177589&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 4688856570&nbsp;
+
+
 
 
       ioctl (GTS-hwcsamp) <br>
@@ -4866,12 +5692,16 @@ seconds.
 3389784984&nbsp;
 
 
+
+
       poisson_initial_ (GTS-hwcsamp: poisson.F90,172) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 36.750000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.149380
 99026393302&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2127033330&nbsp;
+
+
 
 
       field_ (GTS-hwcsamp: field.f90,1) <br>
@@ -4882,12 +5712,16 @@ seconds.
 13117843914&nbsp;
 
 
+
+
       pushe__cray$mt$p0003 (GTS-hwcsamp: pushe.F90,1) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 35.930000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.146047
 103074869797&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 18146195281&nbsp;
+
+
 
 
       charge_ion__cray$mt$p0002 (GTS-hwcsamp: charge_ion.F90,1) <br>
@@ -4898,6 +5732,8 @@ seconds.
 6582586502&nbsp;
 
 
+
+
       smooth_ (GTS-hwcsamp: smooth.F90,1) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 31.750000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -4906,12 +5742,16 @@ seconds.
 6558635466&nbsp;
 
 
+
+
       __dset (GTS-hwcsamp) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 31.570000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.128325
 88923875211&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 2684164003&nbsp;
+
+
 
 
       add_gk_value$phit_matrix_class_ (GTS-hwcsamp:
@@ -4923,12 +5763,16 @@ seconds.
 33582442028&nbsp;
 
 
+
+
       esiget2dthese_ (GTS-hwcsamp: escZ_march03.c,2620) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 29.250000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.118894
 78969137395&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 8959482946&nbsp;
+
+
 
 
       memcpy (GTS-hwcsamp) <br>
@@ -4939,12 +5783,16 @@ seconds.
 5615357589&nbsp;
 
 
+
+
       charge_eon__cray$mt$p0001 (GTS-hwcsamp: charge_eon.F90,1) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 26.610000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.108163
 71142076538&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 5255152269&nbsp;
+
+
 
 
       smooth__cray$mt$p0004 (GTS-hwcsamp: smooth.F90,1) <br>
@@ -4955,12 +5803,16 @@ seconds.
 19582131003&nbsp;
 
 
+
+
       pushe__cray$mt$p0005 (GTS-hwcsamp: pushe.F90,1) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 24.880000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.101131
 44787670919&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 54349682&nbsp;
+
+
 
 
       MPI_Sendrecv (GTS-hwcsamp) <br>
@@ -4971,12 +5823,16 @@ seconds.
 8288466&nbsp;
 
 
+
+
       MPIC_Recv (GTS-hwcsamp) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 23.340000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.094872
 66128702137&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 22473023697&nbsp;
+
+
 
 
       _EXP_V (GTS-hwcsamp) <br>
@@ -4987,12 +5843,16 @@ seconds.
 675343652&nbsp;
 
 
+
+
       field__cray$mt$p0008 (GTS-hwcsamp: field.f90,1) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 21.980000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.089344
 61330448105&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 3077997402&nbsp;
+
+
 
 
       field__cray$mt$p0003 (GTS-hwcsamp: field.f90,1) <br>
@@ -5003,12 +5863,16 @@ seconds.
 94168502&nbsp;
 
 
+
+
       MPIC_Sendrecv (GTS-hwcsamp) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 18.650000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.075808
 53474913047&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 4287329867&nbsp;
+
+
 
 
       field__cray$mt$p0004 (GTS-hwcsamp: field.f90,1) <br>
@@ -5019,12 +5883,16 @@ seconds.
 460420&nbsp;
 
 
+
+
       MatStashScatterBegin_Private (GTS-hwcsamp: matstash.c,440) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 14.920000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.060646
 33782979943&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 256717734&nbsp;
+
+
 
 
       field__cray$mt$p0005 (GTS-hwcsamp: field.f90,1) <br>
@@ -5035,12 +5903,16 @@ seconds.
 7828230031&nbsp;
 
 
+
+
       dnrm2_k (GTS-hwcsamp) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 14.350000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 0.058329
 29267481948&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 71567&nbsp;
+
+
 
 
       field__cray$mt$p0010 (GTS-hwcsamp: field.f90,1) <br>
@@ -5051,6 +5923,8 @@ seconds.
 1278203632&nbsp;
 
 
+
+
       electron_locator__cray$mt$p0008 (GTS-hwcsamp: pushe.F90,295) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 13.770000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -5059,13 +5933,19 @@ seconds.
 1833454731&nbsp;
 
 
+
+
       pushe__cray$mt$p0002 (GTS-hwcsamp: pushe.F90,1) <br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 12.850000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 
+
+
       0.052232
       31199373241&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
 
 
       76984 <br>

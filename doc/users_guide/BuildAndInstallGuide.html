@@ -40,7 +40,7 @@ w\:* {behavior:url(#default#VML);}
                 Build and Installation Guide<br>
               </span></b><big><span style="font-weight: bold;">Version
                 2.0.2 Release</span><br style="font-weight: bold;">
-              <span style="font-weight: bold;">March 15, 2012</span></big><br>
+              <span style="font-weight: bold;">November 9, 2012</span></big><br>
           </p>
           <div class="Section2"><b style=""><br style="" clear="all">
             </b>
@@ -94,6 +94,7 @@ w\:* {behavior:url(#default#VML);}
                           <ol>
                             <li><a href="#mozTocId579302">OPENSS_PLUGIN_PATH
 
+
                               </a></li>
                             <li><a href="#mozTocId173759">LD_LIBRARY_PATH</a></li>
                             <li><a href="#mozTocId537563">OPENSS_MPI_IMPLEMENTATION</a></li>
@@ -108,6 +109,7 @@ w\:* {behavior:url(#default#VML);}
                           <ol>
                             <li><a href="#mozTocId871553">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Note
+
 
                                 for Ubuntu and Debian these packages are
                                 needed to be applied to the base
@@ -141,6 +143,7 @@ style='mso-element:field-separator'></span></span><![endif]--></p>
           <div class="Section3">
             <div style="text-align: left; margin-left: 40px;">Open|SpeedShop
 release
+
               2.0.2 comes with an install script that will build all the
               supporting components and Open|SpeedShop itself in one
               step, or the builder can invoke the script multiple times
@@ -151,16 +154,19 @@ and
 Open|SpeedShop
 Development
 
+
                 RPM Usage Information</a> section describes the steps
               necessary to prepare for the build and to do the actual
               building of Open|SpeedShop and
               components.&nbsp;&nbsp;&nbsp; <a
                 href="BuildInstallGuideTutorial.html">This tutorial </a>gives
 
+
               an overview of the build process and necessary environment
               setup.&nbsp;&nbsp; The tutorial is based on a section from
               our larger tutorial presentations which can be found at
               our web site: <a href="www.openspeedshop.org">www.openspeedshop.org.</a>&nbsp;
+
 
               <br>
               <br>
@@ -173,6 +179,7 @@ Development
               <h2><a class="mozTocH3" name="mozTocId200693"></a><font
                   face="ARIAL NARROW,HELVETICA"><a
                     name="Downloading_the_OpenSpeedShop_Component"></a>Downloading
+
 
                   the Open|SpeedShop Component Source Using CVS trees </font></h2>
               <p>For building from the Open|SpeedShop development tree,
@@ -296,6 +303,7 @@ CVSROOT=':pserver:anonymous@openss.cvs.sourceforge.net:/cvsroot/openss'</span></
                     name="OpenSpeedShop_Build_And_Installation"></a>Open|SpeedShop
 Build
 
+
                   and Installation<br>
                 </span></b></h1>
             <blockquote>The following sections describe how to build and
@@ -312,204 +320,107 @@ Build
               For each package, a minimum and maximum version is given.
               These are the KNOWN minimum and maximum verions that have
               been found to work with Open|SpeedShop. You may find newer
-              (or older) versions of these packages work just fine. Go
-              ahead and update this document when you do! Packages not
-              commonly found in some (e.g. SuSE Professional 11, SLES
-              11, Fedora Core 7/8/9) Linux distributions are provided
-              here in this directory as source tarballs and binary RPMs
-              for key platforms may be found on the Open|SpeedShop
-              download area on sourceforge.<br>
+              (or older) versions of these packages work just fine. <br>
+              <br>
+              Packages not commonly found in some Linux distributions
+              are provided here in this directory as source tarballs and
+              binary RPMs for key platforms may be found on the
+              Open|SpeedShop download area on sourceforge.<br>
               <br>
               In addition, the components listed below are also needed
-              for building Open|SpeedShop. Note that the Maximum
-              versions are only reflective of what we have tested
-              with.&nbsp; Newer versions will probably work also.<br>
+              for building Open|SpeedShop. <br>
               <br>
-              <table style="width: 676px; height: 713px;" border="1"
-                cellpadding="2" cellspacing="2">
+              <table border="1" cellpadding="2" cellspacing="2"
+                height="702" width="453">
                 <tbody>
                   <tr>
                     <td>Component Name<br>
                     </td>
-                    <td>Minimum </td>
-                    <td>Maximum </td>
                     <td>Notes </td>
                   </tr>
                   <tr>
                     <td>autoconf </td>
-                    <td>2.59 </td>
-                    <td>2.68 </td>
                     <td>none</td>
                   </tr>
                   <tr>
                     <td>automake </td>
-                    <td>1.7.9 </td>
-                    <td>1.11.1 </td>
                     <td>none</td>
                   </tr>
                   <tr>
                     <td>binutils </td>
-                    <td>2.15 </td>
-                    <td>2.20</td>
-                    <td><br>
+                    <td>none<br>
                     </td>
                   </tr>
                   <tr>
                     <td>doxygen </td>
-                    <td>1.3.6 </td>
-                    <td>1.5.6-1 </td>
                     <td>(2)</td>
                   </tr>
                   <tr>
                     <td>dyninst </td>
-                    <td>see-note-1 </td>
-                    <td>see-note-2 </td>
                     <td>(1)</td>
                   </tr>
                   <tr>
                     <td>gcc/g++ </td>
-                    <td>3.4.6 </td>
-                    <td>4.6 </td>
                     <td>none</td>
                   </tr>
                   <tr>
                     <td>libdwarf </td>
-                    <td>2004/02/03 </td>
-                    <td>2011/01/13 </td>
                     <td>none</td>
                   </tr>
                   <tr>
-                    <td>monitor </td>
-                    <td>2007/02/15 </td>
-                    <td>2011/05/20 </td>
-                    <td><br>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
+                    <td>libmonitor </td>
+                    <td>(1)<br>
                     </td>
                   </tr>
                   <tr>
                     <td>libelf </td>
-                    <td>0.8.5 </td>
-                    <td>0.8.13 </td>
                     <td>none</td>
                   </tr>
                   <tr>
                     <td>or</td>
                     <td style="vertical-align: top;"><br>
                     </td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
+                  </tr>
+                  <tr>
+                    <td>elfutils-libelf</td>
+                    <td style="vertical-align: top;">none<br>
                     </td>
                   </tr>
                   <tr>
-                    <td>elfutils-libelf-0.97.1-3</td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>elfutils-libelf-devel-0.97.1-3</td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>or</td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>elfutils-libelf-0.119.1.2.1 </td>
-                    <td>none</td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>elfutils-libelf-devel-0.119.1.2.1 </td>
-                    <td>none</td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
-                    </td>
-                    <td style="vertical-align: top;"><br>
+                    <td>elfutils-libelf-deve</td>
+                    <td style="vertical-align: top;">none<br>
                     </td>
                   </tr>
                   <tr>
                     <td>libtool </td>
-                    <td>1.5.14 </td>
-                    <td>2.2.10 </td>
                     <td>none</td>
                   </tr>
                   <tr>
                     <td>libunwind </td>
-                    <td>0.98.5 </td>
-                    <td> 1.0.1<br>
-                    </td>
                     <td>none</td>
                   </tr>
                   <tr>
                     <td>papi </td>
-                    <td>3.0.8.1 </td>
-                    <td>4.2.0</td>
                     <td>none</td>
                   </tr>
                   <tr>
                     <td>python </td>
-                    <td>2.3.3 </td>
-                    <td>2.7 </td>
                     <td>none</td>
                   </tr>
                   <tr>
                     <td>python-devel </td>
-                    <td>2.3.3 </td>
-                    <td>2.7 </td>
                     <td>none</td>
                   </tr>
                   <tr>
                     <td>sqlite </td>
-                    <td>3.0.8 </td>
-                    <td>3.7.4 </td>
                     <td>none</td>
                   </tr>
                   <tr>
                     <td>qt </td>
-                    <td>3.3.1 </td>
-                    <td>3.3.8 </td>
                     <td>none</td>
                   </tr>
                   <tr>
                     <td>qt-devel </td>
-                    <td>3.3.1 </td>
-                    <td>3.3.8 </td>
                     <td>(3)</td>
                   </tr>
                 </tbody>
@@ -518,13 +429,13 @@ Build
               NOTES:<br>
               <br>
               <ol>
-                <li>Always use the Dyninst and MRNet versions supplied
-                  with Open|SpeedShop.&nbsp; Others will almost
-                  certainly not work with Open|SpeedShop. </li>
+                <li>Always use the Dyninst, libmonitor, and MRNet
+                  versions supplied with Open|SpeedShop.&nbsp; Others
+                  will almost certainly not work with Open|SpeedShop. </li>
                 <li>Utilities commonly used by the Open|SpeedShop
                   developers but not strictly needed to build
                   Open|SpeedShop.</li>
-                <li>On SLES 9/10/11 Linux distributions the necessary qt
+                <li>On SLES&nbsp; Linux distributions the necessary qt
                   development components require qt3-devel-doc and
                   qt3-devel-tools in addition to qt3-devel.</li>
               </ol>
@@ -557,6 +468,7 @@ Build
               <br>
               <h3><a class="mozTocH3" name="mozTocId585528"></a>Prerequistite
 
+
                 Needs<br>
               </h3>
               <br>
@@ -569,6 +481,7 @@ Build
               Open|SpeedShop.<br>
               <br>
               <h3><a class="mozTocH3" name="mozTocId893375"></a>Installation
+
 
                 Information<br>
               </h3>
@@ -732,8 +645,7 @@ Build
               This is what will be displayed when you type install.sh:<br>
               <br>
               ---------------------------------------<br>
-              <span style="font-weight: bold;"><br>
-                ./install.sh<br>
+              <span style="font-weight: bold;">./install.sh<br>
                 <br>
                 &nbsp;&nbsp;&nbsp; machine:&nbsp; localhost.localdomain<br>
                 <br>
@@ -751,12 +663,20 @@ Build
                 &nbsp;&nbsp;&nbsp;&nbsp; <br>
                 &nbsp;&nbsp;&nbsp; If you plan on installing RPMs as
                 root, it will let you know at what point<br>
+                <br>
+                &nbsp;&nbsp;&nbsp; Typical build only needs these
+                OpenSpeedShop build variables set:<br>
+                &nbsp;&nbsp;&nbsp; export OPENSS_PREFIX to the directory
+                where you want OpenSpeeShop installed<br>
+                &nbsp;&nbsp;&nbsp; export OPENSS_MPI_&lt;mpt type&gt; to
+                install directory of &lt;mpi type&gt; = {MPT, OPENMPI,
+                MPICH2, ...}<br>
                 &nbsp;&nbsp;&nbsp;
 ---------------------------------------------------------------------------<br>
                 <br>
                 <br>
                 &nbsp;&nbsp;&nbsp; You are building for Open|SpeedShop
-                instrumentor: mrnet<br>
+                instrumentor: offline<br>
                 &nbsp;&nbsp;&nbsp; You have manually specified a
                 Open|SpeedShop instrumentor using<br>
                 &nbsp;&nbsp;&nbsp; the environment variable
@@ -782,13 +702,10 @@ Build
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c) libxml2
                 and/or libxml2-devel<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
                 NOTE: libxml2 and/or libxml2-devel are not needed<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
                 if using OPENSS_INSTRUMENTOR=offline, however,<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
                 the online (mrnet) version does need libxml2 and
                 libxml2-devel<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; d) binutils
@@ -817,8 +734,14 @@ Build
                 detected in /usr/&lt;lib&gt;...<br>
                 &nbsp;&nbsp;&nbsp; NOTE: libxml2 and libxml2-devel
                 detected in /usr/&lt;lib&gt;...<br>
-                &nbsp;&nbsp;&nbsp; NOTE: binutils and binutils-devel
-                detected in /usr/bin and /usr/&lt;lib&gt;...<br>
+                &nbsp;&nbsp;&nbsp; PROBLEM: binutils and/or
+                binutils-devel not detected - please install binutils<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                and/or binutils-devel versions that match your system.<br>
+                &nbsp;&nbsp;&nbsp; binutils-devel: detected missing
+                file: /usr/bin/ld<br>
+                &nbsp;&nbsp;&nbsp; SOLUTION: Script will build binutils
+                for you.<br>
                 &nbsp;&nbsp;&nbsp; NOTE: qt and qt-devel detected in
                 /usr/&lt;lib&gt;/qt...<br>
                 &nbsp;&nbsp;&nbsp; NOTE: python and python-devel
@@ -834,80 +757,120 @@ Build
                 detected in /usr/lib64<br>
                 &nbsp;&nbsp; <br>
                 &nbsp;&nbsp; <br>
+                OPENSS_INSTRUMENTOR=offline<br>
+                found_libxml2=1<br>
                 &nbsp;&nbsp;&nbsp; <br>
                 &nbsp;&nbsp;&nbsp; OPENSS Environment Variables:<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -General<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_PREFIX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-                set to alternate install prefix.&nbsp; default is
+                Set to alternate install prefix.&nbsp; default is
                 /opt/OSS<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_INSTRUMENTOR&nbsp;&nbsp;&nbsp;&nbsp; set to the
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_INSTRUMENTOR&nbsp;&nbsp;&nbsp;&nbsp; Set to the
                 underlying instrumentation type openss will use.&nbsp;
                 default is offline (does not include online/mrnet)<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_TARGET_ARCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set to
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_TARGET_ARCH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set to
                 the target architecture to build the Open|SpeedShop
                 runtime environment for.<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_PPC64_BITMODE_64 set to indicate you want a 64
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_PPC64_BITMODE_64 Set to indicate you want a 64
                 bit version of ppc64 OSS built.&nbsp; Set to 1 or leave
                 unset to indicate 32 bit build.<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                -Open|SpeedShop MPI and Vampirtrace<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_MPI_LAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                set to MPI LAM installation dir. default is null.<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_MPI_LAMPI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                set to MPI LAMPI installation dir. default is null.<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_MPI_OPENMPI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set to
-                MPI OPENMPI installation dir. default is null.<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_MPI_MPICH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                set to MPI MPICH installation dir. default is null.<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_MPI_MPICH_DRIVER mpich driver name [ch-p4].
-                default is null.<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_MPI_MPICH2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                set to MPI MPICH2 installation dir. default is null.<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_MPI_MPICH2_DRIVER&nbsp; set to mpich2 driver name
-                [cray]. default is null.<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_MPI_MPT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                set to SGI MPI MPT installation dir. default is null.<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_MPI_MVAPICH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set to
-                MPI MVAPICH installation dir. default is null.<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_MPI_MVAPICH2&nbsp;&nbsp;&nbsp;&nbsp; set to MPI
-                MVAPICH2 installation dir. default is null.<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_OFED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-                set to OPEN FABRICS installation dir. default is /usr.<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_BINUTILS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                set to alternative directory location for binutils
-                components. default is /usr<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_PYTHON&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-                set to alternative directory location for python
-                components. default is /usr<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                OPENSS_LIBXML2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                set to alternative directory location for libxml2
-                components. default is /usr<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 OPENSS_IMPLICIT_TLS&nbsp;&nbsp;&nbsp;&nbsp; When set,
                 this enables Open|SpeedShop to use implicitly created
                 tls storage. default is explicit.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                -Open|SpeedShop MPI and Vampirtrace<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_MPI_LAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Set to MPI LAM installation dir. default is null.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_MPI_LAMPI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Set to MPI LAMPI installation dir. default is null.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_MPI_OPENMPI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set to
+                MPI OPENMPI installation dir. default is null.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_MPI_MPICH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Set to MPI MPICH installation dir. default is null.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_MPI_MPICH_DRIVER Set to mpich driver name
+                [ch-p4]. default is null.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_MPI_MPICH2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Set to MPI MPICH2 installation dir. default is null.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_MPI_MPICH2_DRIVER&nbsp; Set to mpich2 driver name
+                [cray]. default is null.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_MPI_MPT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Set to SGI MPI MPT installation dir. default is null.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_MPI_MVAPICH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set to
+                MPI MVAPICH installation dir. default is null.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_MPI_MVAPICH2&nbsp;&nbsp;&nbsp;&nbsp; Set to MPI
+                MVAPICH2 installation dir. default is null.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                -Open|SpeedShop Use This Component instead of building
+                it<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_OFED&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Set to OPEN FABRICS installation dir. default is /usr.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_QT3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Use this qt3 package instead of building it.&nbsp;
+                default is /usr<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_PYTHON&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Use this python package instead of building it.&nbsp;
+                default is /usr<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_BINUTILS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Use this binutils package instead of building it.&nbsp;
+                default is /usr<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_LIBXML2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Use this libxml2 package instead of building it.&nbsp;
+                default is /usr<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_LIBELF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Use this libelf package instead of building it.&nbsp;
+                default is /usr<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_LIBDWARF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Use this libdwarf package instead of building it.&nbsp;
+                default is /usr<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_PAPI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Use this papi package instead of building it.&nbsp;
+                default is /usr<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_SQLITE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Use this sqlite package instead of building it.&nbsp;
+                default is /usr<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                -Open|SpeedShop Force the build of this component, even
+                if installed on the system<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_FORCE_LIBELF_BUILD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Force the build of libelf even if one is installed<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_FORCE_LIBDWARF_BUILD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Force the build of libdwarf even if one is installed<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_FORCE_PAPI_BUILD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Force the build of papi even if one is installed<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_FORCE_SQLITE_BUILD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Force the build of sqlite even if one is installed<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                OPENSS_FORCE_QT_BUILD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Force the build of qt3 even if one is installed<br>
                 &nbsp;&nbsp;&nbsp; <br>
                 &nbsp;&nbsp; <br>
                 &nbsp;&nbsp; <br>
@@ -917,26 +880,24 @@ Build
                 components and also the OpenSpeedShop components.<br>
                 &nbsp;&nbsp; <br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
-                OPENSS_PREFIX=/opt/oss-201b14<br>
+                OPENSS_PREFIX=/opt/OSS<br>
                 &nbsp;&nbsp;&nbsp; <br>
                 &nbsp;&nbsp;&nbsp; Current Values for OPENSS Environment
                 Variables:<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -General<br>
                 <br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
-                OPENSS_PREFIX=/opt/oss-201b14<br>
+                OPENSS_PREFIX=/opt/OSS<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
-                OPENSS_INSTRUMENTOR=mrnet<br>
+                OPENSS_INSTRUMENTOR=offline<br>
                 &nbsp;&nbsp;&nbsp; <br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 -Open|SpeedShop MPI and Vampirtrace<br>
                 <br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
-                OPENSS_MPI_OPENMPI=/usr/lib64/openmpi<br>
+                OPENSS_MPI_OPENMPI=/opt/openmpi-1.5.5<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
                 OPENSS_MPI_MPICH2=/usr/lib64/mpich2<br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Using
-                OPENSS_MPI_MVAPICH=/opt/mvapich-1.1<br>
                 <br>
                 &nbsp;&nbsp;&nbsp; Choices:<br>
                 &nbsp;&nbsp;&nbsp; <br>
@@ -959,9 +920,11 @@ Build
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -
                 Otherwise install RPMs manually at this point<br>
                 &nbsp;&nbsp;&nbsp; 4&nbsp; - Build base Support
-                libraries: vampirtrace, dyninst<br>
+                libraries: vampirtrace, dyninst (online) or symtabAPI
+                (offline)<br>
                 &nbsp;&nbsp;&nbsp; 4a - Install base Support library
-                (non-root/cpio): vampirtrace, dyninst<br>
+                (non-root/cpio): vampirtrace, dyninst (online) or
+                symtabAPI (offline)<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -
                 Otherwise install RPMs manually at this point<br>
                 &nbsp;&nbsp;&nbsp; 5&nbsp; - Build base Support
@@ -985,39 +948,35 @@ Build
                 &nbsp;&nbsp;&nbsp; 9&nbsp; - Automatic - Run all steps
                 with no questions asked. Assume that the<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
                 answer to any question which will be asked is yes.
                 Please<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
                 make certain that all required environment variables are<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
                 set properly. It may be best for fresh installations<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
                 to run though the choices one at a time, in ascending<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
                 order, as this may help discover any missing system<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
                 dependencies.&nbsp; Everything will be installed in<br>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
                 /opt/OSS (if OPENSS_PREFIX is not set) via cpio process<br>
                 <br>
                 &nbsp;&nbsp;&nbsp; Please feel free to contact us via
                 this email alias: oss-questions@openspeedshop.org<br>
                 <br>
+                -last option: <br>
                 <br>
                 Enter Option: <br>
+                <br>
               </span><br>
               <h3><a class="mozTocH3" name="mozTocId560453"></a>To Run
                 Open|SpeedShop<br>
               </h3>
               <br>
               Please refer to the <a href="QuickStartGuide.html">QuickStart
+
 
                 Guide</a> for a short introduction or access the <a
                 href="index.html">Users Guide</a>.&nbsp; These are the
@@ -1062,6 +1021,15 @@ Build
                 name="mozTocId911379"></a><b><b style="">Key Environment
                   Variables Needed for Running Open|SpeedShop</b></b></h3>
             <br>
+            <h4 style="margin-left: 120px;">OPENSS_PREFIX</h4>
+            <ul style="margin-left: 200px;">
+              <li>&nbsp;This environment variable specifies where the <b>Open|SpeedShop</b>
+                binaries and libraries are installed.&nbsp; Set this
+                variable to a path, (e.g. "setenv OPENSS_PREFIX
+                /scratch/jeg/openss/install).&nbsp;&nbsp; The
+                convenience scripts depend on this variable to work
+                properly.</li>
+            </ul>
             <h4 style="margin-left: 120px;"><a class="mozTocH4"
                 name="mozTocId579302"></a>OPENSS_PLUGIN_PATH<br>
             </h4>
@@ -1102,6 +1070,7 @@ Build
                 <li><big><small>&nbsp;This envirionmnent variable s</small></big><big><small>pecifies
 the
 
+
                       MPI implementation being used by the MPI
                       application whose</small></big> performance is
                   being analyzed. Should be set to one of the currently
@@ -1140,6 +1109,7 @@ the
                         <li><big><small>This envirionmnent variable s</small></big><big><small>pecifies
 the
 
+
                               path to the Dyninst (dynamic
                               instrumentation package) libraries and is
                               only needed for running in the online
@@ -1149,10 +1119,13 @@ the
                                 bold;">$OPENSS_PREFIX/lib{64}/ </span></small></big><span
                             style="font-weight: bold;">libdyninstAPI_RT.so.1
 
+
                           </span>(e.g. <span style="font-weight: bold;">setenv
 DYNINSTAPI_RT_LIB
 
+
                             $OPENSS_PREFIX/lib64/libdyninstAPI_RT.so.1</span>).
+
 
                         </li>
                       </ul>
@@ -1167,6 +1140,7 @@ DYNINSTAPI_RT_LIB
               <li><big><small>This envirionmnent variable s</small></big><big><small>pecifies
 the
 
+
                     path to the Open|SpeedShop component executables and
                     to the Open|SpeedShop executables.&nbsp; Set this
                     to:&nbsp; $<span style="font-weight: bold;">OPENSS_PREFIX</span>/bin</small></big>
@@ -1180,6 +1154,7 @@ the
               <li><big><small>This envirionmnent variable s</small></big><big><small>pecifies
 the
 
+
                     path to where the offline version of openss will
                     store the rawdata files representing the performance
                     data that was gathered from the user application.
@@ -1187,15 +1162,18 @@ the
                     rawdata file directory, /tmp, is not shared across
                     the nodes. &nbsp; If this is the case on the cluster
                     you are running "<span style="font-weight: bold;">openss
+
                       -offline</span>" or using the GUI or CLI to run <span
                       style="font-weight: bold;">offline </span>experiment,
 then
+
 
                     <span style="font-weight: bold;">OPENSS_RAWDATA_DIR</span>
                     must be set to a shared file system directory.&nbsp;
                     Otherwise, /tmp is used. &nbsp;&nbsp; Set this
                     to:&nbsp; <span style="font-weight: bold;">OPENSS_RAWDATA_DIR</span>
                     &lt;path_to_subdir_for_rawdata_file_writing&gt; </small></big>(e.g.
+
 
                 <span style="font-weight: bold;">setenv
                   OPENSS_RAWDATA_DIR /p/lscratchc/jeg</span>).</li>
@@ -1216,39 +1194,16 @@ then
               </ul>
             </div>
             <br>
-            <h3 style="margin-left: 40px;"><a class="mozTocH3"
-                name="mozTocId435044"></a><a
-                name="OpenSpeedShop_Tested_Platforms:"></a>Open|SpeedShop
+            <h3 style="margin-left: 40px;"><br>
+            </h3>
+            <h3 style="margin-left: 40px;"><big><a class="mozTocH4"
+                  name="mozTocId871553"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-              Tested Platforms:</h3>
-            <div style="margin-left: 40px;"><b>Open|SpeedShop</b> has
-              been run successfully on IA32, IA64, and X86_64
-              platforms.&nbsp; There are Linux operating system
-              differences that can cause problems.&nbsp;&nbsp; The
-              following combinations have been tried and/or successfully
-              tested:<br>
-              <ul>
-                <li>SLES 10 IA64</li>
-                <li>Fedora 3-15 on x86 and x86_64<br>
-                </li>
-                <li>RedHat Enterprise Linux (RHEL4 - RHEL6) on x86,
-                  x86_64<br>
-                </li>
-                <li>SuSE Professional on x86_64 and x86<br>
-                </li>
-                <li>SuSE 10.*, SuSE 11, and SuSE 11.1 on x86 and x86_64</li>
-                <li>Ubuntu 8.04 - 11.10 on x86 and x86_64<br>
-                </li>
-                <li>Debian 4.0r5 - 6.0.3 on x86</li>
-              </ul>
-              <br>
-            </div>
-            <h4 style="margin-left: 40px;"><a class="mozTocH4"
-                name="mozTocId871553"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              Note for Ubuntu and Debian these packages are needed to be
-              applied to the base systems:</h4>
+                Note for Ubuntu and Debian these packages are needed to
+                be applied to the base systems:</big></h3>
             <br>
             <div style="margin-left: 80px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
               sudo apt-get install automake autoconf binutils libtool<br>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo apt-get install flex
