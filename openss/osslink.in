@@ -99,7 +99,11 @@ else
 fi
 
 mpi_undefines=
+if test "$mach_type" == "ppc64" && test "$oss_target" == "bgq" ; then
+fork_undefines=execve
+else
 fork_undefines=
+fi
 pthread_undefines=
 
 static_collector=
