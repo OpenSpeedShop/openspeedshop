@@ -28,7 +28,11 @@
 void OpenSS_PAPIerror (int rval, const char *where)
 {
 	char error_str[PAPI_MAX_STR_LEN];
+#if (PAPI_VERSION_MAJOR(PAPI_VERSION) >= 5)
+	PAPI_perror(error_str);
+#else
 	PAPI_perror(rval,error_str,PAPI_MAX_STR_LEN);
+#endif
 	unsigned long mytid = PAPI_thread_id();
 	fprintf(stderr,"OpenSS_PAPIerror:%s, %d in %lu: %s\n",where,rval,mytid,error_str);
 }
