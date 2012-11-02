@@ -510,7 +510,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	#print "[openss warning]: Failed to locate the mpi runtime plugin. " + mpiplugin
 	#print "[openss warning]: No MPI rank identifiers will be recorded in the openss database."
 	if offlinepy_debug != 0: print "[openss-debug]: NON-NULL case, mpiplugin=%(plu)s\n" % {'plu':mpiplugin}
-      else:
+    else:
 	mpiplugin = ""
 	if offlinepy_debug != 0: print "[openss-debug]: NULL case, mpiplugin=%(plu)s\n" % {'plu':mpiplugin}
 
