@@ -1,0 +1,63 @@
+#!/usr/bin/python
+
+import sys;
+import sqlite3;
+import shutil;
+
+print "=============================================";
+print "Open|SpeedShop Anonymizer";
+
+if len(sys.argv) != 3:
+    print "Usage: ossanon <input.openss> <output.openss>";
+    print "Anonymize names from input database into the output database.";
+    print "=============================================";
+    quit();
+
+infile=sys.argv[1];
+outfile=sys.argv[2];
+
+print "Input  file: "+infile;
+print "Output file: "+outfile;
+print "=============================================";
+
+print "Copying file ..."
+shutil.copyfile(infile,outfile);
+
+print "Opening database ..."
+conn=sqlite3.connect(outfile);
+c=conn.cursor();
+c2=conn.cursor();
+
+print "Deleting function names ..."
+c.execute("SELECT COUNT(*) FROM functions;");
+num=c.fetchone()[0];
+print num,"functions";
+for i in range(1,num+1):
+    c.execute("UPDATE functions SET name=? WHERE id=?;",("function"+str(i),str(i)));
+
+print "Deleting file names ..."
+c.execute("SELECT COUNT(*) FROM files WHERE path NOT LIKE '/opt%' AND path NOT LIKE '/usr%' AND path NOT LIKE '/lib%'");
+num=c.fetchone()[0];
+c2.execute("SELECT id FROM files WHERE path NOT LIKE '/opt%' AND path NOT LIKE '/usr%' AND path NOT LIKE '/lib%'");
+print num,"files";
+for i in range(1,num+1):
+    id=c2.fetchone()[0];
+    c.execute("UPDATE files SET path=? WHERE id=?;",("file"+str(i),str(id)));
+
+print "Deleting node names ..."
+c.execute("SELECT COUNT(distinct host) FROM threads;");
+num=c.fetchone()[0];
+c2.execute("SELECT distinct host FROM threads;");
+print num,"nodes";
+for i in range(1,num+1):
+    host=c2.fetchone()[0];
+    c.execute("UPDATE threads SET host=?,command='deleted' WHERE host=?;",("node"+str(i),host));
+
+print "Cleaning up ...";
+c.execute("VACUUM");
+
+print "Closing database ...";
+conn.commit();
+c.close();
+
+print "Done."
