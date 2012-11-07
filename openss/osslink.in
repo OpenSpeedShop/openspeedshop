@@ -52,18 +52,18 @@ libpapi="${libpapi_libdir}/libpapi.a"
 
 # for the cray-xt5 we don't want system defined by default, not sure why
 # but undefining it using the -u arguments does not work.
-if [ ${oss_target} = cray-xt5 -o ${oss_target} = cray-xt4 -o ${oss_target} = bgp ]
-then
+if [ ${oss_target} = cray-xt5 -o ${oss_target} = cray-xt4 -o ${oss_target} = bgp ] ; then
   monitor_wrap_base_names="main exit _exit"
-elif test "$mach_type" == "ppc64" && test "$oss_target" == "bgq" ; 
-then
+elif [ ${mach_type} = ppc64 -a ${oss_target} = bgq ] ; then
   monitor_wrap_base_names="main exit _exit system"
 else
   monitor_wrap_base_names="main exit _exit system"
 fi
 
 # monitor has --enable-pthread
-if test "$mach_type" == "ppc64" && test "$oss_target" == "bgq" ; then
+if [ ${mach_type} = ppc64 -a ${oss_target} = bgq ]; then
+   monitor_wrap_pthread_names="pthread_create pthread_exit pthread_sigmask sigwaitinfo sigtimedwait"
+elif [ ${oss_target} = cray-xe -o ${oss_target} = cray-xk ]; then
    monitor_wrap_pthread_names="pthread_create pthread_exit pthread_sigmask sigwaitinfo sigtimedwait"
 else
    monitor_wrap_pthread_names="pthread_create pthread_exit pthread_sigmask"
