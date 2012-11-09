@@ -347,6 +347,7 @@ void hwcsamp_start_sampling(const char* arguments)
     }
 #endif
 
+#if !defined(TARGET_OS_BGQ) 
 /* In Component PAPI, EventSets must be assigned a component index
  * before you can fiddle with their internals. 0 is always the cpu component */
 #if (PAPI_VERSION_MAJOR(PAPI_VERSION)>=4)
@@ -355,6 +356,7 @@ void hwcsamp_start_sampling(const char* arguments)
         OpenSS_PAPIerror(rval,"OpenSS_Create_Eventset assign_eventset_component");
         return;
     }
+#endif
 #endif
 
     if (getenv("OPENSS_HWCSAMP_MULTIPLEX") != NULL) {
