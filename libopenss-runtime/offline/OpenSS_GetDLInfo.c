@@ -260,7 +260,7 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
     }
 #else
 
-#if defined(OPENSS_USE_DL_ITERATE)
+#if defined(OPENSS_USE_DL_ITERATE) && defined(JUNK)
     monlibs_getLibraries(lc);
 #else
     char mapfile_name[PATH_MAX];
@@ -336,9 +336,9 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 #ifndef NDEBUG
 	    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
 		fprintf(stderr,"OpenSS_GetDLInfo LD RECORD %s [%08lx, %08lx]\n", mappedpath, begin, end);
-	        offline_record_dso(mappedpath, begin, end, 0);
 	    }
 #endif
+	    offline_record_dso(mappedpath, begin, end, 0);
 	}
     }
     fclose(mapfile);
