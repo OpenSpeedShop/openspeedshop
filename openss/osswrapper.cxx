@@ -34,7 +34,13 @@ using namespace std;
 using namespace Dyninst;
 
 static set<string> libraries_to_add;
-static set<pair<string, string> > functions_to_wrap;
+struct WrapDesc {
+  std::string wrapper;
+  std::string wrappee;
+  std::string invented_wrappee_name;
+};
+
+static vector< WrapDesc > functions_to_wrap;
 static string output_file;
 static string output_dir;
 static string input_file;
@@ -49,12 +55,14 @@ static BPatch bpatch;
 
 static bool parseArgs(int argc, char *argv[]);
 static bool findFunction(string func_s, BPatch_function* &func, bool err_on_fail = false);
-static bool wrapFunction(string wrappee_s, string wrapper_s);
+static bool wrapFunction(WrapDesc desc);
 static bool addLibrary(string libname);
 static bool openBinary();
 static bool writeBinary();
 static void printResults();
 static void printHelp(char *argv[]);
+
+std::map<std::string, BPatch_object *> loadedLibs;
 
 int main(int argc, char *argv[]) {
    bool wrapped_a_function = false;
@@ -72,8 +80,8 @@ int main(int argc, char *argv[]) {
       if (!result) goto done;
    }
 
-   for (set<pair<string, string> >::iterator i = functions_to_wrap.begin(); i != functions_to_wrap.end(); i++) {
-      result = wrapFunction(i->first, i->second);
+   for (vector<WrapDesc>::iterator i = functions_to_wrap.begin(); i != functions_to_wrap.end(); i++) {
+      result = wrapFunction(*i);
       if (result) 
          wrapped_a_function = true;
    }
@@ -116,22 +124,50 @@ static bool findFunction(string func_s, BPatch_function* &func, bool err_on_fail
 
 #if (DYNINST_MAJOR == 8)
 
-static bool wrapFunction(string wrappee_s, string wrapper_s)
+#include "Symtab.h"
+
+static bool wrapFunction(WrapDesc desc)
 {
    BPatch_function *wrappee = NULL, *wrapper = NULL;
-#include "Symtab.h"
    Dyninst::SymtabAPI::Symbol *wrapper_clone = NULL;
 
-   bool result = findFunction(wrappee_s, wrappee);
+   bool result = findFunction(desc.wrappee, wrappee);
    if (!result)
       return false;
-   result = findFunction(wrapper_s, wrapper);
+   result = findFunction(desc.wrapper, wrapper);
    if (!result)
       return false;
-   result = addrspace->wrapFunction(wrappee, wrapper, wrapper_clone);
+
+
+// let "mpi_bsend_original" be the name of the invented call in the wrapper
+// let mod be the BPatch_module that represents the wrapper library
+
+   // Go from the BPatch_module to its symbol table as represented by a Symtab
+  // When you update, use this line instead
+//   SymtabAPI::Symtab *obj_symtab = SymtabAPI::convert(wrapper->getModule()->getObject());
+   SymtabAPI::Symtab *obj_symtab = SymtabAPI::convert(wrapper->getModule())->exec();
+
+
+   // Look up the symbol for the invented wrapper call
+   std::vector<SymtabAPI::Symbol *> syms;
+   // The "true" says "look in undefined symbols too", so it's important
+   obj_symtab->findSymbol(syms, desc.invented_wrappee_name, SymtabAPI::Symbol::ST_UNKNOWN, SymtabAPI::anyName, false, false, true);
+   // This might be a return false; we didn't find the symbol. 
+   assert(syms.size());
+   // We may find entries in both the static and dynamic symbol tables. Take the first one definitely, then
+   // look for a dynamic one if we can
+   SymtabAPI::Symbol *sym = syms[0];
+   for (unsigned i = 0; i < syms.size(); ++i) {
+     if (syms[i]->isInDynSymtab()) {
+       sym = syms[i];
+     }
+   }
+
+   result = addrspace->wrapFunction(wrappee, wrapper, sym);
 /*   result = addrspace->wrapFunction(*wrappee, *wrapper); */
    if (!result) {
-      warning_printf("DyninstAPI failed to wrap function %s with %s\n", wrappee_s.c_str(), wrapper_s.c_str());
+      warning_printf("DyninstAPI failed to wrap function %s with %s, using invented name %s\n", 
+                      desc.wrappee.c_str(), desc.wrapper.c_str(), desc.invented_wrappee_name.c_str());
       return false;
    }
 
@@ -175,13 +211,16 @@ static bool wrapFunction(string wrappee_s, string wrapper_s)
 }
 #endif
 
+
 static bool addLibrary(string libname)
 {
-   bool result = addrspace->loadLibrary(libname.c_str());
+   BPatch_object *result = addrspace->loadLibrary(libname.c_str());
    if (!result) {
       error_printf("DyninstAPI failed to load library %s\n", libname.c_str());
       return false;
    }
+   loadedLibs[libname] = result;
+
    return true;
 }
 
@@ -235,6 +274,7 @@ static bool parseArgs(int argc, char *argv[]) {
    for (int i = 1; i < argc; i++) {
       if ((strcmp(argv[i], "--wrap") == 0) || strcmp(argv[i], "-w") == 0) {
          CHECK_NEXT;
+
          char *line = strdup(argv[++i]);
          for (char *s = strtok(line, ","); s; s = strtok(NULL, ",")) {
             char *equal = strchr(line, '=');
@@ -243,7 +283,11 @@ static bool parseArgs(int argc, char *argv[]) {
                break;
             }
             *equal = '\0';
-            functions_to_wrap.insert(pair<string, string>(s, equal+1));
+            WrapDesc desc;
+            desc.wrappee = s;
+            desc.wrapper = equal+1;
+            desc.invented_wrappee_name = desc.wrappee + "_original";
+            functions_to_wrap.push_back(desc);
             *equal = '=';
          }
          free(line);
