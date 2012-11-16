@@ -231,13 +231,13 @@ then
      echo "            \"statements\"  - The view type granualarity is per statement"
      echo "            \"linkedobjects\"  - The view type granualarity is per library (linked object)"
      echo ""
-     echo "Example: osscompare \"nbody-usertime.openss,nbody-usertime-1.openss percent\""
+     echo "Example: osscompare \"nbody-usertime.openss,nbody-usertime-1.openss\"" percent
      echo "         This example compares the two specified databases using the metric:"
      echo "         percent of exclusive time."
-     echo "Example: osscompare \"nbody-usertime.openss,nbody-usertime-1.openss percent\"" rows=10
+     echo "Example: osscompare \"nbody-usertime.openss,nbody-usertime-1.openss\"" percent rows=10
      echo "         This example compares the two specified databases using the metric:"
      echo "         percent of exclusive time and showing the top 10 lines of comparision output."
-     echo "Example: osscompare \"nbody-usertime.openss,nbody-usertime-1.openss percent\"" rows=10 oname=mycompare
+     echo "Example: osscompare \"nbody-usertime.openss,nbody-usertime-1.openss\"" percent rows=10 oname=mycompare
      echo "         This example compares the two specified databases using the metric:"
      echo "         percent of exclusive time and showing the top 10 lines of comparision output"
      echo "         and naming the csv and txt files mycompare.csv and mycompare.txt (providing OPENSS_CREATE_CSV was set)."
