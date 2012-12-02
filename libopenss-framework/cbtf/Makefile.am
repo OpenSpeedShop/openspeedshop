@@ -40,6 +40,7 @@ libopenss_framework_cbtf_la_LIBADD = \
 	@CBTF_MRNET_LIBS@\
 	@CBTF_XML_LIBS@\
 	-lcbtf-core \
+	-lcbtf-core-mrnet \
 	@MRNET_LIBS@
 
 libopenss_framework_cbtf_la_SOURCES = \

@@ -90,12 +90,14 @@ osscollect_CXXFLAGS = \
 	@BOOST_CPPFLAGS@ \
 	@MRNET_CPPFLAGS@ \
 	@CBTF_CPPFLAGS@ \
+	@MRNET_CPPFLAGS@ \
 	$(LTDLINCL)
 
 osscollect_LDFLAGS = \
         -L$(top_srcdir)/libopenss-framework \
         @DYNINST_LDFLAGS@ \
 	@LIBXERCES_C_LDFLAGS@ \
+	@MRNET_LDFLAGS@ \
         @BOOST_LDFLAGS@
 
 osscollect_LDADD = \
@@ -106,8 +108,9 @@ osscollect_LDADD = \
         @BOOST_FILESYSTEM_LIB@ \
         @BOOST_SYSTEM_LIB@ \
         @BOOST_THREAD_LIB@ \
+	@MRNET_LIBS@ \
 	-lopenss-framework \
-	-lopenss-framework-symtabapi \
+	-lcbtf-core-symtabapi \
 	-lpthread
 
 osscollect_SOURCES = \

@@ -26,6 +26,7 @@
 #include <sys/wait.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <string>
 #include <iostream>
 #include <sstream>
 #include <boost/program_options.hpp>
@@ -175,7 +176,9 @@ int main(int argc, char** argv)
     prg = strs[0];
 
     // create a database prefix based on application name and collector.
-    std::string dbprefix = prg + "-" + collector;
+    std::string dbprefix(prg);
+    dbprefix += "-";
+    dbprefix += collector;
     // get a dbname that does not conflict with an existing dbname.
     std::string dbname = createDBName(dbprefix);
 

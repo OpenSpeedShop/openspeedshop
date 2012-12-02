@@ -470,7 +470,11 @@ static int abuftimes = 0;
 void Callbacks::addressBuffer(const AddressBuffer& in)
 {
     //std::cerr << "ENTERED Callbacks::addressBuffer " << abuftimes++ << std::endl;
-    in.printResults();
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+       in.printResults();
+    }
+#endif
 
     // create an OSS PCBuffer of the addresses in the passed buffer.
     // We do this so we canuse the OSS symbol resolution functions.
@@ -1217,4 +1221,197 @@ void Callbacks::performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & in
 
 void Callbacks::symbolTable(const boost::shared_ptr<CBTF_Protocol_SymbolTable> & in)
 {
+
+    // Decode the message
+    CBTF_Protocol_SymbolTable message;
+    memset(&message, 0, sizeof(message));
+    memcpy(&message, in.get(),sizeof(CBTF_Protocol_SymbolTable)); 
+
+	// Begin a transaction on this experiment's database
+        SmartPtr<Database> database = 
+	    DataQueues::getDatabase(0);
+	if(database.isNull()) {
+
+#ifndef NDEBUG
+	    if(Frontend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "symbolTable(): Experiment "
+		       << " no longer exists.";
+		std::cerr << output.str();
+	    }
+#endif
+
+	}
+	BEGIN_WRITE_TRANSACTION(database);
+	
+	// Find the existing linked object in the database
+	int linked_object = 
+	    getLinkedObjectIdentifier(database, message.linked_object);
+#ifndef NDEBUG
+	if(linked_object == -1) {
+	    if(Frontend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "symbolTable(): Linked Object "
+		       << toString(message.linked_object) 
+		       << " no longer exists.";
+		std::cerr << output.str();
+	    }
+	}
+#endif
+
+	// Only proceed if the linked object was found
+	if(linked_object != -1) {
+
+	    // Are there functions in the database for this linked object?
+	    bool has_functions = false;
+	    database->prepareStatement(
+	        "SELECT COUNT(*) FROM Functions WHERE linked_object = ?;"
+	        );
+	    database->bindArgument(1, linked_object);
+	    while(database->executeStatement())
+		if(database->getResultAsInteger(1) > 0)
+		    has_functions = true;
+
+	    // Skip adding these functions if they are already present
+	    if(!has_functions) {
+	  
+		// Iterate over each function entry
+		for(int j = 0; j < message.functions.functions_len; ++j) {
+		    const CBTF_Protocol_FunctionEntry& msg_function = 
+			message.functions.functions_val[j];
+
+		    // Create the function entry
+		    database->prepareStatement(
+		        "INSERT INTO Functions "
+			"  (linked_object, name) "
+			"VALUES (?, ?);"
+		        );
+		    database->bindArgument(1, linked_object);
+		    database->bindArgument(2, msg_function.name);
+		    while(database->executeStatement());
+		    int function = database->getLastInsertedUID();
+	    
+		    // Iterate over each bitmap for this function
+		    for(int k = 0; k < msg_function.bitmaps.bitmaps_len; ++k) {
+			const CBTF_Protocol_AddressBitmap& msg_bitmap =
+			    msg_function.bitmaps.bitmaps_val[k];
+
+			// Create the function ranges entry
+			database->prepareStatement(
+		            "INSERT INTO FunctionRanges "
+			    "  (function, addr_begin, addr_end, valid_bitmap) "
+			    "VALUES (?, ?, ?, ?);"
+			    );
+			database->bindArgument(1, function);
+			database->bindArgument(2,
+			    Address(msg_bitmap.range.begin)
+			    );
+			database->bindArgument(3,
+			    Address(msg_bitmap.range.end)
+			    );
+			database->bindArgument(4, 
+			    Blob(msg_bitmap.bitmap.data.data_len,
+				 msg_bitmap.bitmap.data.data_val)
+			    );
+			while(database->executeStatement());
+			
+		    }
+		    
+		}
+		
+	    }
+	    
+	    // Are there statements in the database for this linked object?
+	    bool has_statements = false;
+	    database->prepareStatement(
+                "SELECT COUNT(*) FROM Statements WHERE linked_object = ?;"
+	        );
+	    database->bindArgument(1, linked_object);
+	    while(database->executeStatement())
+		if(database->getResultAsInteger(1) > 0)
+		    has_statements = true;
+
+	    // Skip adding these statements if they are already present
+	    if(!has_statements) {
+
+		// Iterate over each statement entry
+		for(int j = 0; j < message.statements.statements_len; ++j) {
+		    const CBTF_Protocol_StatementEntry& msg_statement =
+			message.statements.statements_val[j];
+		    
+		    // Is there an existing file in the database?
+		    int file = -1;
+		    database->prepareStatement(
+		        "SELECT id FROM Files WHERE path = ?;"
+		        );
+		    database->bindArgument(1, msg_statement.path.path);
+
+		    // TODO: compare the checksum
+		    
+		    while(database->executeStatement())
+			file = database->getResultAsInteger(1);
+
+		    // Create the file entry if it wasn't present
+		    if(file == -1) {
+			database->prepareStatement(
+		            "INSERT INTO Files (path) VALUES (?);"
+			    );
+			database->bindArgument(1, msg_statement.path.path);
+
+			// TODO: insert the checksum
+			
+			while(database->executeStatement());
+			file = database->getLastInsertedUID();
+		    }
+
+		    // Create the statement entry
+		    database->prepareStatement(
+	                "INSERT INTO Statements "
+		        "  (linked_object, file, line, \"column\") "
+		        "VALUES (?, ?, ?, ?);"
+		        );
+		    database->bindArgument(1, linked_object);
+		    database->bindArgument(2, file);
+		    database->bindArgument(3, msg_statement.line);
+		    database->bindArgument(4, msg_statement.column);
+		    while(database->executeStatement());
+		    int statement = database->getLastInsertedUID();
+
+		    // Iterate over each bitmap for this statement
+		    for(int k = 0; k < msg_statement.bitmaps.bitmaps_len; ++k) {
+			const CBTF_Protocol_AddressBitmap& msg_bitmap =
+			    msg_statement.bitmaps.bitmaps_val[k];
+		
+			// Create the statement ranges entry
+			database->prepareStatement(
+		            "INSERT INTO StatementRanges "
+			    "  (statement, addr_begin, addr_end, valid_bitmap) "
+			    "VALUES (?, ?, ?, ?);"
+			    );
+			database->bindArgument(1, statement);
+			database->bindArgument(2,
+			    Address(msg_bitmap.range.begin)
+			    );
+			database->bindArgument(3,
+			    Address(msg_bitmap.range.end)
+			    );
+			database->bindArgument(4, 
+		            Blob(msg_bitmap.bitmap.data.data_len,
+				 msg_bitmap.bitmap.data.data_val)
+			    );
+			while(database->executeStatement());
+		    
+		    }
+		    
+		}
+		
+	    }
+
+	}
+	
+	// End the transaction on this thread's database
+	END_TRANSACTION(database);
+	
 }
