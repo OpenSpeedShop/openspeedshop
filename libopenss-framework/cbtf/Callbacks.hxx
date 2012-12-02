@@ -62,11 +62,12 @@ namespace OpenSpeedShop { namespace Framework {
     {
 	void attachedToThreads(const boost::shared_ptr<CBTF_Protocol_AttachedToThreads> &);
 	void addressBuffer(const KrellInstitute::Core::AddressBuffer&);
-	void createdProcess(   const boost::shared_ptr<CBTF_Protocol_CreatedProcess> &);
-	void performanceData(  const boost::shared_ptr<CBTF_Protocol_Blob> & );
-	void loadedLinkedObject(  const boost::shared_ptr<CBTF_Protocol_LoadedLinkedObject> & );
-	void linkedObjectGroup(  const boost::shared_ptr<CBTF_Protocol_LinkedObjectGroup> & );
-	void linkedObjectEntryVec(  const KrellInstitute::Core::LinkedObjectEntryVec& );
+	void createdProcess(const boost::shared_ptr<CBTF_Protocol_CreatedProcess> &);
+	void performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & );
+	void loadedLinkedObject(const boost::shared_ptr<CBTF_Protocol_LoadedLinkedObject> & );
+	void linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedObjectGroup> & );
+	void linkedObjectEntryVec(const KrellInstitute::Core::LinkedObjectEntryVec& );
+	void symbolTable(const boost::shared_ptr<CBTF_Protocol_SymbolTable> & in);
     }
     
 } }

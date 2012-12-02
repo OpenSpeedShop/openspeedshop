@@ -1214,3 +1214,7 @@ void Callbacks::performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & in
     DataQueues::enqueuePerformanceData(blob);
     DataQueues::flushPerformanceData();
 }
+
+void Callbacks::symbolTable(const boost::shared_ptr<CBTF_Protocol_SymbolTable> & in)
+{
+}
