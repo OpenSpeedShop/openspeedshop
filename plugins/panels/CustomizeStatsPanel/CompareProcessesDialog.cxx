@@ -521,10 +521,10 @@ CompareProcessesDialog::removeProcesses()
     // Loop through and attempt to find and delete this item.
     // First look for a selected item in the drop zone.
     MPListViewItem *selectedItem = NULL;
-    QListViewItemIterator it(lv, QListViewItemIterator::Selected);
-    while( it.current() )
+    QListViewItemIterator sel_it(lv, QListViewItemIterator::Selected);
+    while( sel_it.current() )
     {
-      selectedItem = (MPListViewItem *)it.current();
+      selectedItem = (MPListViewItem *)sel_it.current();
       break;
     }
     // Make sure it the right target
