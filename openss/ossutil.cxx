@@ -21,6 +21,7 @@
 
 #include <string>
 #include <fcntl.h>
+#include <unistd.h>
 
 using namespace OpenSpeedShop::Framework;
 
