@@ -1003,6 +1003,9 @@ AC_DEFUN([AC_PKG_OPENMPI], [
     elif (test -e /usr/include/openmpi-$oss_hardware_platform/mpi.h) ; then
       OPENMPI_CPPFLAGS="-I/usr/include/openmpi-$oss_hardware_platform"
       OPENMPI_HEADER="-I/usr/include/openmpi-$oss_hardware_platform/mpi.h"
+    elif (test -e /usr/include/openmpi/mpi.h) ; then
+      OPENMPI_CPPFLAGS="-I/usr/include/openmpi"
+      OPENMPI_HEADER="-I/usr/include/openmpi/mpi.h"
     fi
     if (test -e $openmpi_dir/$abi_libdir/libmpi.so) ; then
       OPENMPI_LDFLAGS="-L$openmpi_dir/$abi_libdir"
