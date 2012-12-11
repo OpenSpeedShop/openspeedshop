@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) 2010 Krell Institute. All Rights Reserved.
+** Copyright (c) 2010-2012 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -289,10 +289,14 @@ static bool define_hwcsamp_columns (
        } else if (!strcasecmp(M_Name.c_str(), "flops")) {
 
             int icnt = 0;
-         // flops is calculated from two temps: the PAPI_FP_OPS counts and exclusive time values.
+            // flops is calculated from two temps: the PAPI_FP_OPS counts and exclusive time values.
             bool found_cycles = false;
             for (icnt=0; icnt < num_events; icnt++) {
+              //fprintf(stderr, "papi_names[icnt]=%s\n", papi_names[icnt].c_str());
               if (papi_names[icnt].compare("PAPI_FP_OPS") == 0) {
+                   found_cycles = true;
+                   break;
+              } else if (papi_names[icnt].compare("papi_fp_ops") == 0) {
                    found_cycles = true;
                    break;
               }
