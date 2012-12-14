@@ -1500,6 +1500,13 @@ void Database::releaseAllHandles()
     dm_handles.clear();
 }
 
+void Database::vacuum()
+{
+    // Get our per-thread database handle
+    Handle& handle = getHandle();
+    Assert(sqlite3_exec(handle.dm_database, "VACUUM;",
+                            NULL, NULL, NULL) == SQLITE_OK);
+}
 
 
 #ifndef NDEBUG

@@ -51,6 +51,8 @@
 #include "KrellInstitute/Core/LinkedObjectEntry.hpp"
 #include "KrellInstitute/Core/SymbolTable.hpp"
 
+#include <algorithm>
+#include <set>
 #include <iostream>
 #include <sstream>
 #include <map>
@@ -514,9 +516,6 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
     // from the database.
     std::set<LinkedObject> ttgrp_lo = threads.getLinkedObjects();
 
-    //std::cerr << "Callbacks::addressBuffer number of linkedobjects "
-      //  << ttgrp_lo.size() << std::endl;
-
     // loop through linkedobjects looking for those with addresseranges
     // that contain an address from the passed addressbuffer.
     std::set<std::string> linkedobjs;
@@ -642,6 +641,38 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
     END_TRANSACTION(database);
 
 #endif
+
+    // Now clean up any remaining linkedobjects, files, addressspaces
+    // that do not contain any functions or statements.
+    // Begin a multi-statement transaction
+    BEGIN_WRITE_TRANSACTION(database);
+    database->prepareStatement(
+	"DELETE FROM LinkedObjects "
+	"WHERE id NOT IN (SELECT DISTINCT linked_object FROM Functions) "
+	"  AND id NOT IN (SELECT DISTINCT linked_object FROM Statements);"
+	);
+    while(database->executeStatement());
+
+    database->prepareStatement(
+	"DELETE FROM Files "
+	"WHERE id NOT IN (SELECT DISTINCT file FROM LinkedObjects) "
+	"  AND id NOT IN (SELECT DISTINCT file FROM Statements);"
+	);
+    while(database->executeStatement());
+
+    database->prepareStatement(
+	"DELETE FROM AddressSpaces "
+	"WHERE linked_object NOT IN (SELECT DISTINCT id FROM LinkedObjects) "
+	"  AND linked_object NOT IN (SELECT DISTINCT linked_object FROM Statements);"
+	);
+    while(database->executeStatement());
+
+    // TODO:  Could look at removing any thread entries for which there
+    // are no performance data blobs in the data table.
+    END_TRANSACTION(database);
+
+    // Now run vacuum on the database cleanup after removing entries.
+    database->vacuum();
 
 }
 
@@ -911,6 +942,15 @@ void Callbacks::linkedObjectEntryVec(const KrellInstitute::Core::LinkedObjectEnt
     // experiment ID is always 0.
     SmartPtr<Database> database = 
 	    DataQueues::getDatabase(0);
+
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "[TID " << pthread_self() << "] Callbacks::"
+	       <<  " FOR Callbacks::linkedObjectEntryVec";
+	std::cerr << output.str();
+    }
+#endif
 
     BEGIN_WRITE_TRANSACTION(database);
     // Find the existing thread in the database

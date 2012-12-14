@@ -120,6 +120,8 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	void commitTransaction();
 	void rollbackTransaction();
+
+	void vacuum();
 	
     private:
 
