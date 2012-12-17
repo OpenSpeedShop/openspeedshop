@@ -60,7 +60,11 @@ AC_DEFUN([AX_BOOST_THREAD],
 		export CPPFLAGS
 
 		LDFLAGS_SAVED="$LDFLAGS"
-		LDFLAGS="$LDFLAGS $BOOST_LDFLAGS -lboost_system -lboost_chrono"
+                if test -e $BOOSTLIBDIR/libboost_chrono.so || test -e $BOOSTLIBDIR/libboost_chrono-mt.so; then
+                   LDFLAGS="$LDFLAGS $BOOST_LDFLAGS -lboost_system -lboost_chrono"
+                else
+                   LDFLAGS="$LDFLAGS $BOOST_LDFLAGS -lboost_system"
+                fi  
 		export LDFLAGS
 
         AC_CACHE_CHECK(whether the Boost::Thread library is available,
