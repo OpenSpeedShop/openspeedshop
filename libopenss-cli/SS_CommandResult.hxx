@@ -753,8 +753,14 @@ class CommandResult_Function :
             break;
           }
           Statement s = *ti;
+          int64_t gotLine = (int64_t)s.getLine();
+          int64_t gotColumn = (int64_t)s.getColumn();
           char l[50];
-          sprintf( &l[0], "%lld", (int64_t)s.getLine());
+          if (gotColumn > 0) {
+            sprintf( &l[0], "%lld:%lld", gotLine, gotColumn);
+          } else {
+            sprintf( &l[0], "%lld", gotLine);
+          }
           S = S + ": "
                 + ((OPENSS_VIEW_FULLPATH)
                         ? s.getPath()
@@ -839,8 +845,14 @@ class CommandResult_Statement :
   }
 
   virtual std::string Form (int64_t fieldsize) {
-    char l[20];
-    sprintf( &l[0], "%lld", (int64_t)getLine());
+    int64_t gotLine = (int64_t)getLine();
+    int64_t gotColumn = (int64_t)getColumn();
+    char l[50];
+    if (gotColumn > 0) {
+      sprintf( &l[0], "%lld:%lld", gotLine, gotColumn);
+    } else {
+      sprintf( &l[0], "%lld", gotLine);
+    }
     std::string S = (OPENSS_VIEW_FULLPATH)
                         ? getPath()
                         : getPath().getBaseName();
@@ -1075,8 +1087,14 @@ class CommandResult_CallStackEntry : public CommandResult {
         if (T.begin() != T.end()) {
           std::set<Statement>::const_iterator sti = T.begin();;
           Statement S = *sti;
+          int64_t gotLine = (int64_t)S.getLine();
+          int64_t gotColumn = (int64_t)S.getColumn();
           char l[50];
-          sprintf( &l[0], "%lld", (int64_t)(S.getLine()));
+          if (gotColumn > 0) {
+            sprintf( &l[0], "%lld:%lld", gotLine, gotColumn);
+          } else {
+            sprintf( &l[0], "%lld", gotLine);
+          }
           Name = Name + " @ " + l + " in ";
         }
       } else if (CE->Type() == CMD_RESULT_LINKEDOBJECT) {
