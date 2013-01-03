@@ -397,7 +397,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
 
     AC_ARG_WITH(dyninst-version,
                 AC_HELP_STRING([--with-dyninst-version=VERS],
-                               [dyninst-version installation @<:@6.1@:>@]),
+                               [dyninst-version installation @<:@7.0.1@:>@]),
                 dyninst_vers=$withval, dyninst_vers="7.0.1")
 
     DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
@@ -516,11 +516,29 @@ AC_DEFUN([AC_PKG_SYMTABAPI], [
                                [symtabAPI installation @<:@/usr@:>@]),
                 symtabapi_dir=$withval, symtabapi_dir="/usr")
 
+    AC_ARG_WITH(symtabapi-version,
+                AC_HELP_STRING([--with-symtabapi-version=VERS],
+                               [symtabapi-version installation @<:@7.0.1@:>@]),
+                symtabapi_vers=$withval, symtabapi_vers="7.0.1")
+
+
     SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -I$symtabapi_dir/include/dyninst"
     SYMTABAPI_LDFLAGS="-L$symtabapi_dir/$abi_libdir"
     SYMTABAPI_DIR="$symtabapi_dir" 
     SYMTABAPI_CPPFLAGS="$SYMTABAPI_CPPFLAGS -DUSE_STL_VECTOR"
-    SYMTABAPI_LIBS="-lsymtabAPI -lcommon" 
+
+    case "$symtabapi_vers" in
+	"7.0.1")
+            SYMTABAPI_LIBS="-lsymtabAPI -lcommon" 
+            ;;
+	"8.0.0")
+            SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
+            ;;
+	*)
+            SYMTABAPI_LIBS="-lsymtabAPI -lcommon" 
+            ;;
+    esac
+
 
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP
