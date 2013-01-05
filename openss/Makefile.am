@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2012 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2013 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -36,8 +36,8 @@ dist_bin_SCRIPTS += osslink
 BUILT_FILES += osslink
 endif
 if !BUILD_RUNTIME_ONLY
-dist_bin_SCRIPTS += ossdriver
-BUILT_FILES += ossdriver
+dist_bin_SCRIPTS += ossdriver ossdriver_compare
+BUILT_FILES += ossdriver ossdriver_compare
 if !BUILD_CBTF
 dist_bin_SCRIPTS += ossrun
 BUILT_FILES += ossrun
@@ -269,7 +269,12 @@ ossdriver: ossdriver.in
 	cp $(srcdir)/ossdriver.in ossdriver
 	chmod 755 ossdriver
 
-install-exec-hook: ossdriver
+ossdriver_compare: ossdriver_compare.in
+	@rm -f ossdriver_compare
+	cp $(srcdir)/ossdriver_compare.in ossdriver_compare
+	chmod 755 ossdriver_compare
+
+install-exec-hook: ossdriver ossdriver_compare
 if !BUILD_CBTF
 # osspcsamp
 	@rm -f $(DESTDIR)$(bindir)/osspcsamp
@@ -317,7 +322,7 @@ if !BUILD_CBTF
 	chmod 755 $(DESTDIR)$(bindir)/ossfpe
 # osscompare
 	@rm -f $(DESTDIR)$(bindir)/osscompare
-	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osscompare
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver_compare  $(DESTDIR)$(bindir)/osscompare
 	chmod 755 $(DESTDIR)$(bindir)/osscompare
 endif
 
@@ -342,4 +347,4 @@ uninstall-hook:
 # endif for BUILD_INSTRUMENTOR
 endif
 
-EXTRA_DIST = ossrun.in ossdriver.in osslink.in
+EXTRA_DIST = ossrun.in ossdriver.in ossdriver_compare.in osslink.in

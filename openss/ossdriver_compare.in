@@ -1,0 +1,1613 @@
+#!/bin/bash
+################################################################################
+# Display Usage When Necessary
+################################################################################
+debug_flag=0
+
+# Initialize the comparison "row_limit" parameter to a high number
+# It can be reset to a smaller value by the rows=nn argument to osscompare
+row_limit=100000
+
+# Initialize to indicate no "default" parameter was seen
+# If this is set we will use the default sampling rate or default threshold depending on the experiment
+use_default_flag=0
+
+# Initialize to indicate no "input argument output filename value" parameter was seen
+# If this is set we will use the "input argument output filename value" parameter instead of the script created name
+input_argument_oname=0
+
+# Initialize to indicate no "input argument rate value" parameter was seen
+# If this is set we will use the "input argument rate value" parameter instead of the experiment default value
+input_argument_rate_threshold_value=0
+
+# Initialize to indicate no "input argument event value" parameter was seen
+# If this is set we will use the "input argument event value" parameter instead of the experiment default event value
+input_argument_event_or_trace_list_value=0
+
+# Initialize to indicate no "input compare database list value" parameter was seen
+# If this is set we will use the "input argument event value" parameter as the list of database files to compare
+input_compare_database_list=0
+
+# Initialize to indicate no "input argument compare metric" parameter was seen
+# If this is set we will use the "input argument compare metric" parameter instead of the experiment default compare metric value
+input_argument_compare_metric=0
+
+# Initialize to indicate "input argument compare viewtype=" parameter was seen
+# If this is set we will use the "input argument compare viewtype=" parameter instead of the experiment default compare metric value
+input_argument_compare_view_type=0
+
+#
+# DEFAULT VALUES - MUST MATCH THE DEFAULTS INSIDE THE OpenSpeedShop/plugins/collectors/<experiment_type> source
+#
+
+# Corresponds to OPENSS_COMPARE_METRIC
+# Options vary by experiment: percent is another alternative to time
+compare_default_metric="time"
+
+# Corresponds to OPENSS_COMPARE_VIEW_TYPE
+# Options vary by experiment: functions is default, statements and linkedobjects are alternatives
+compare_default_view_type="functions"
+
+# Indicate whether or not there was a metric specified on the osscompare command (used for hwcsamp, currently)
+# If set then there was an argument, so don't override later with a hwcsamp default set of metrics
+# If not set, then use the hwcsamp default set of metrics (time and allEvents, currently)
+input_compare_metric=0
+
+# Indicate whether or not there was a view type specified on the osscompare command 
+# If set then there was an argument, so don't override later with a default view type
+input_compare_view_type=0
+
+#
+# END DEFAULT VALUES
+#
+if [ -z "$OPENSS_DEBUG_DRIVER" ]
+then
+  echo ""
+else
+  debug_flag=1
+  echo "DEBUG: turning DEBUG flag on because OPENSS_DEBUG_DRIVER is set"
+fi
+
+use_compare_metric=$compare_default_metric
+use_compare_view_type=$compare_default_view_type
+#
+# Check if the user requested the creation of a csv file
+#
+create_csv_files=0
+if [ -z "$OPENSS_CREATE_CSV" ]
+then
+   if [ $debug_flag == 1 ]
+   then
+     echo "DEBUG: in COMPARE EXPERIMENT SECTION, setting create_csv_files=0"
+   fi
+   create_csv_files=0
+else
+   if [ $debug_flag == 1 ]
+   then
+     echo "DEBUG: in COMPARE EXPERIMENT SECTION, setting create_csv_files=1"
+   fi
+   create_csv_files=1
+fi
+
+# A function to split the comma separated list values into
+# an array, so that they may be processed individually by the
+# osscompare command.
+#
+# Portions of the db_file_input_split code is credited to:
+# Copyright 2004, Chris F.A. Johnson
+# and may be copied under the terms of the 
+# GNU General Public License
+#
+db_file_input_split() { ## USAGE: db_file_input_split CSV_RECORD
+
+ local record=${1%"${CR}"}
+ local right
+ local vnum=0
+ unset values
+ while [ -n "$record" ] 
+ do
+
+ case $record in
+ \"*) right=${record#*\",}
+    value=${record%%\",*}
+    values[$vnum]=${value#\"}
+    ;;
+ *) values[$vnum]=${record%%,*}
+    right=${record#*,}
+    ;;
+ esac
+
+# echo "record=$record"
+# echo "value=${value#\"}"
+
+ case $record in
+    *,*) record=${right} ;;
+    *) record=${record#\"}
+       values[$vnum]=${record%\"}
+       break;;
+ esac
+
+#echo "values=${values[$vnum]}"
+ vnum=$(( $vnum + 1 ))
+ echo $vnum > /tmp/$USER/osscompare_vnum_val
+
+ done
+}
+
+if [ $debug_flag == 1 ]
+then
+  echo
+  echo "DEBUG: ossdriver_compare command-line argument #0 = $0"
+  echo "DEBUG: ossdriver_compare command-line argument #1 = $1"
+  echo "DEBUG: ossdriver_compare command-line argument #2 = $2"
+  echo "DEBUG: ossdriver_compare command-line argument #3 = $3"
+  echo "DEBUG: ossdriver_compare command-line argument #4 = $4"
+  echo "DEBUG: ossdriver_compare command-line argument #5 = $5"
+  echo "DEBUG: ossdriver_compare command-line argument #6 = $6"
+  echo
+fi
+
+might_have_error=0
+if  [ -z "$6" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+     echo "DEBUG: GOOD, no 6th argument, ossdriver_compare command-line argument #6 = $6"
+  fi
+else
+  echo "[openss]: Too many arguments specified.  Possible issue: Was your executable enclosed in quotes?"
+  might_have_error=1
+fi
+
+calling_script_name=$0
+experiment_name=${calling_script_name##*/}
+
+if [[ -z "$1" || $might_have_error == 1 ]] 
+then
+   echo ""
+   if [[ "$experiment_name" == "osscompare" ]]; then
+     echo "Usage: $0 \"database_file_list\" [extra_args] [rows=nn] [oname=<output file name>]"
+     echo "    where \"database_file_list\" is defined as a comma separated list of "
+     echo "                                 Open|SpeedShop database files from a previous"
+     echo "                                 run of Open|SpeedShop on an application the " 
+     echo "                                 \"database file\" list must be comma separated."
+     echo "    where the optional \"extra_args\" is defined as follows:"
+     echo "            \"time\"     - Compare based on the exclusive time metric."
+     echo "            \"percent\"  - Compare based on the percent metric."
+     echo "    where the optional \"rows=nn\" is defined as follows:"
+     echo "            \"nn\"     - Number of rows/lines of performance data output."
+     echo "    where the optional \"oname=<output file name>\" is defined as follows:"
+     echo "            \"<output file name>\"  - Name given to the output files created for the comparison."
+     echo "    where the optional \"viewtype=<functions | statements | linkedobjects >\" is defined as follows:"
+     echo "            \"functions\"  - The view type granualarity is per function"
+     echo "            \"statements\"  - The view type granualarity is per statement"
+     echo "            \"linkedobjects\"  - The view type granualarity is per library (linked object)"
+     echo ""
+     echo "Example: osscompare \"nbody-usertime.openss,nbody-usertime-1.openss\"" percent
+     echo "         This example compares the two specified databases using the metric:"
+     echo "         percent of exclusive time."
+     echo "Example: osscompare \"nbody-usertime.openss,nbody-usertime-1.openss\"" percent rows=10
+     echo "         This example compares the two specified databases using the metric:"
+     echo "         percent of exclusive time and showing the top 10 lines of comparision output."
+     echo "Example: osscompare \"nbody-usertime.openss,nbody-usertime-1.openss\"" percent rows=10 oname=mycompare
+     echo "         This example compares the two specified databases using the metric:"
+     echo "         percent of exclusive time and showing the top 10 lines of comparision output"
+     echo "         and naming the csv and txt files mycompare.csv and mycompare.txt (providing OPENSS_CREATE_CSV was set)."
+     echo ""
+     echo ""
+   fi
+   echo ""
+   exit
+elif [[ "$1" == "help" ||  "$1" == "--help" ]] 
+then
+   echo ""
+   if [[ "$experiment_name" == "osscompare" ]]; then
+     echo "Usage: $0 \"database_file_list\" [extra_args]"
+     echo "    where \"database_file_list\" is defined as a comma separated list of "
+     echo "                                 Open|SpeedShop database files from a previous"
+     echo "                                 run of Open|SpeedShop on an application the " 
+     echo "                                 \"database file\" list must be comma separated."
+     echo "    where the optional \"extra_args\" is defined as follows:"
+     echo "            \"time\"     - Compare based on the exclusive time metric."
+     echo "            \"percent\"  - Compare based on the percent metric."
+     echo ""
+     echo "Example: osscompare nbody-usertime.openss,nbody-usertime-1.openss percent"
+     echo "         This example compares the two specified databases using the metric:"
+     echo "         percent of exclusive time"
+     echo ""
+   fi
+   exit
+fi
+
+if [[ "$experiment_name" == "osscompare" ]]; then
+
+  if [ -d /tmp/$USER ]
+  then
+     if [ $debug_flag == 1 ]
+     then
+       echo "DEBUG: /tmp/$USER exists." 
+     fi
+  else
+     mkdir /tmp/$USER
+     if [ $debug_flag == 1 ]
+     then
+       echo "DEBUG: CREATED /tmp/$USER." 
+     fi
+  fi
+
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: Input compare database list: $1" 
+    echo "DEBUG: Input compare database list after whitespace removal: $1" | tr -d ' '
+  fi
+  echo "$1" | tr -d ' ' > /tmp/$USER/osscompare_nospaces.txt 
+  while read -r line
+  do
+    input_compare_database_list=$line
+  done < /tmp/$USER/osscompare_nospaces.txt
+
+#  input_compare_database_list=$1
+  if [ $debug_flag == 1 ]
+  then
+     echo "DEBUG: in COMPARE EXPERIMENT INPUT SECTION, SETTING input_compare_database_list=$input_compare_database_list"
+     echo "DEBUG: in COMPARE EXPERIMENT INPUT SECTION, SETTING compare_default_metric=$compare_default_metric"
+     echo ""
+  fi
+fi
+
+if [ -z "$2" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: ossdriver_compare command-line argument #2 was not specified"
+  fi
+else
+#
+# There is an argument 2
+#
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: ossdriver_compare command-line argument #2 = $2"
+  fi
+
+        if [[ "$experiment_name" == "osscompare" ]]; then
+           match_viewtype=`expr match "$2" 'viewtype='`
+           match_oname=`expr match "$2" 'oname='`
+           match_rows=`expr match "$2" 'rows='`
+           if [[ $match_oname == 0 && $match_rows == 0  && $match_viewtype == 0 ]]; then
+             input_argument_compare_metric=$2
+             if [ $debug_flag == 1 ]
+             then
+               echo "DEBUG: SETTING input_argument_compare_metric to $2"
+             fi
+           elif [[ $match_oname != 0 && $match_rows == 0 && $match_viewtype == 0 ]]; then
+             # need to parse off the name value
+             if [ $debug_flag == 1 ]
+             then
+               echo "DEBUG: SETTING output name specified in argument 2=$2"
+             fi
+             new_name=$2
+             input_argument_oname=${new_name#o*=} 
+           elif [[ $match_oname == 0 && $match_rows != 0 && $match_viewtype == 0 ]]; then
+             # need to parse off the numeric value
+             if [ $debug_flag == 1 ]
+             then
+               echo "DEBUG: SETTING rows_limit value specified in argument 2=$2"
+             fi
+             tmp_row_limit=$2
+             row_limit=`echo ${tmp_row_limit//[^0-9]/}`
+             echo "[openss]: Executing compare experiment using osscompare command input rows value=${row_limit}."
+             if [ $debug_flag == 1 ]
+             then
+                echo "row_limit=${row_limit}"
+             fi
+           elif [[ $match_oname == 0 && $match_rows == 0 && $match_viewtype != 0 ]]; then
+             # need to parse off the view type: must be functions or statements or linkedobjects
+             if [ $debug_flag == 1 ]
+             then
+               echo "DEBUG: SETTING view type value specified in argument 2=$2"
+             fi
+             match_viewtype_functions=`expr match "$2" 'viewtype=functions'`
+             match_viewtype_statements=`expr match "$2" 'viewtype=statements'`
+             match_viewtype_linkedobjects=`expr match "$2" 'viewtype=linkedobjects'`
+             if  [ $match_viewtype_functions != 0 ]
+             then
+                input_argument_compare_view_type="functions"
+             elif  [ $match_viewtype_statements != 0 ]
+             then
+                input_argument_compare_view_type="statements"
+             elif  [ $match_viewtype_linkedobjects != 0 ]
+             then
+                input_argument_compare_view_type="linkedobjects"
+             else
+                echo "WARNING: SETTING for viewtype was incorrect using functions instead of input argument 2 was: $2"
+                if [ $debug_flag == 1 ]
+                then
+                  echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_functions: $match_viewtype_functions"
+                  echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_statements: $match_viewtype_statements"
+                  echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_linkedobjects: $match_viewtype_linkedobjects"
+                fi
+                input_argument_compare_view_type=$compare_default_view_type
+             fi
+           else
+             if [ $debug_flag == 1 ]
+             then
+               echo "DEBUG: Unmatched Argument, ERROR argument 2=$2"
+             fi
+
+           fi
+        else
+           input_argument_rate_threshold_value=$2
+        fi
+fi
+
+# Look for argument 3
+
+if [ -z "$3" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: ossdriver_compare command-line argument #3 was not specified"
+  fi
+else
+#
+# There is an argument 3
+#
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: ossdriver_compare command-line argument #3 = $3"
+  fi
+  if  [ "$3" == "high" ]
+  then
+     high_flag=1
+  elif  [ "$3" == "low" ]
+  then
+     low_flag=1
+  elif  [ "$3" == "default" ]
+  then
+     use_default_flag=1
+  else
+     match_viewtype=0
+     match_oname=0
+     match_rows=0
+     if [[ "$experiment_name" == "osscompare" ]]; then
+           match_viewtype=`expr match "$3" 'viewtype='`
+           match_oname=`expr match "$3" 'oname='`
+           match_rows=`expr match "$3" 'rows='`
+           if [[ $match_oname == 0 && $match_rows != 0  && $match_viewtype == 0 ]]; then
+             # need to parse off the numeric value
+             if [ $debug_flag == 1 ]
+             then
+               echo "DEBUG: SETTING rows_limit value specified in argument 3=$3"
+             fi
+             tmp_row_limit=$3
+             row_limit=`echo ${tmp_row_limit//[^0-9]/}`
+             echo "[openss]: Executing compare experiment using osscompare command input rows value=${row_limit}."
+             if [ $debug_flag == 1 ]
+             then
+               echo "row_limit=${row_limit}"
+             fi
+           elif [[ $match_oname != 0 && $match_rows == 0  && $match_viewtype == 0 ]]; then
+             # need to parse off the new output file name value
+             if [ $debug_flag == 1 ]
+             then
+                echo "DEBUG: SETTING output name specified in argument 3=$3"
+             fi
+             new_name=$3
+             input_argument_oname=${new_name#o*=} 
+           elif [[ $match_oname == 0 && $match_rows == 0  && $match_viewtype != 0 ]]; then
+             # need to parse off the view type value
+             if [ $debug_flag == 1 ]
+             then
+               echo "DEBUG: SETTING view type value specified in argument 3=$3"
+             fi
+             match_viewtype_functions=`expr match "$3" 'viewtype=functions'`
+             match_viewtype_statements=`expr match "$3" 'viewtype=statements'`
+             match_viewtype_linkedobjects=`expr match "$3" 'viewtype=linkedobjects'`
+             if  [ $match_viewtype_functions != 0 ]
+             then
+                input_argument_compare_view_type="functions"
+             elif  [ $match_viewtype_statements != 0 ]
+             then
+                input_argument_compare_view_type="statements"
+             elif  [ $match_viewtype_linkedobjects != 0 ]
+             then
+                input_argument_compare_view_type="linkedobjects"
+             else
+                echo "WARNING: SETTING for viewtype was incorrect using functions instead of input argument 3 was: $3"
+                if [ $debug_flag == 1 ]
+                then
+                   echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_functions: $match_viewtype_functions"
+                   echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_statements: $match_viewtype_statements"
+                   echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_linkedobjects: $match_viewtype_linkedobjects"
+                fi
+                input_argument_compare_view_type=$compare_default_view_type
+             fi
+           else
+             if [ $debug_flag == 1 ]
+             then
+               echo "DEBUG: ERROR the third argument to osscompare is unknown, not $3"
+             fi
+
+           fi
+
+
+     fi
+  fi
+
+fi
+
+
+# Look for argument 4
+
+if [ -z "$4" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: ossdriver_compare command-line argument #4 was not specified"
+  fi
+else
+#
+# There is an argument 4
+#
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: ossdriver_compare command-line argument #4 = $4"
+  fi
+  match_viewtype=0
+  match_oname=0
+  match_rows=0
+  if [[ "$experiment_name" == "osscompare" ]]; then
+        match_viewtype=`expr match "$4" 'viewtype='`
+        match_oname=`expr match "$4" 'oname='`
+        match_rows=`expr match "$4" 'rows='`
+        if [[ $match_oname == 0 && $match_rows != 0  && $match_viewtype == 0 ]]; then
+          # need to parse off the numeric value
+          if [ $debug_flag == 1 ]
+          then
+            echo "DEBUG: SETTING rows_limit value specified in argument 4=$4"
+          fi
+          tmp_row_limit=$4
+          row_limit=`echo ${tmp_row_limit//[^0-9]/}`
+          echo "[openss]: Executing compare experiment using osscompare command input rows value=${row_limit}."
+          if [ $debug_flag == 1 ]
+          then
+            echo "row_limit=${row_limit}"
+          fi
+        elif [[ $match_oname != 0 && $match_rows == 0  && $match_viewtype == 0 ]]; then
+          # need to parse off the new output file name value
+          if [ $debug_flag == 1 ]
+          then
+            echo "DEBUG: SETTING output name specified in argument 4=$4"
+          fi
+          new_name=$4
+          input_argument_oname=${new_name#o*=} 
+        elif [[ $match_oname == 0 && $match_rows == 0  && $match_viewtype != 0 ]]; then
+          # need to parse off the view type value
+          if [ $debug_flag == 1 ]
+          then
+            echo "DEBUG: SETTING view type value specified in argument 4=$4"
+          fi
+          match_viewtype_functions=`expr match "$3" 'viewtype=functions'`
+          match_viewtype_statements=`expr match "$3" 'viewtype=statements'`
+          match_viewtype_linkedobjects=`expr match "$3" 'viewtype=linkedobjects'`
+          if  [ $match_viewtype_functions != 0 ]
+          then
+             input_argument_compare_view_type="functions"
+          elif  [ $match_viewtype_statements != 0 ]
+          then
+             input_argument_compare_view_type="statements"
+          elif  [ $match_viewtype_linkedobjects != 0 ]
+          then
+             input_argument_compare_view_type="linkedobjects"
+          else
+             echo "WARNING: SETTING for viewtype was incorrect using functions instead of input argument 3 was: $3"
+             if [ $debug_flag == 1 ]
+             then
+                echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_functions: $match_viewtype_functions"
+                echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_statements: $match_viewtype_statements"
+                echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_linkedobjects: $match_viewtype_linkedobjects"
+             fi
+             input_argument_compare_view_type=$compare_default_view_type
+          fi
+        else
+          if [ $debug_flag == 1 ]
+          then
+            echo "DEBUG: ERROR the third argument to osscompare is unknown, not $4"
+          fi
+
+        fi
+
+  fi
+
+fi
+
+
+# Look for argument 5
+
+if [ -z "$5" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: ossdriver_compare command-line argument #5 was not specified"
+  fi
+else
+#
+# There is an argument 5
+#
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: ossdriver_compare command-line argument #5 = $5"
+  fi
+  match_viewtype=0
+  match_oname=0
+  match_rows=0
+  if [[ "$experiment_name" == "osscompare" ]]; then
+        match_viewtype=`expr match "$5" 'viewtype='`
+        match_oname=`expr match "$5" 'oname='`
+        match_rows=`expr match "$5" 'rows='`
+        if [[ $match_oname == 0 && $match_rows != 0  && $match_viewtype == 0 ]]; then
+          # need to parse off the numeric value
+          if [ $debug_flag == 1 ]
+          then
+            echo "DEBUG: SETTING rows_limit value specified in argument 5=$5"
+          fi
+          tmp_row_limit=$5
+          row_limit=`echo ${tmp_row_limit//[^0-9]/}`
+          echo "[openss]: Executing compare experiment using osscompare command input rows value=${row_limit}."
+          if [ $debug_flag == 1 ]
+          then
+            echo "row_limit=${row_limit}"
+          fi
+        elif [[ $match_oname != 0 && $match_rows == 0  && $match_viewtype == 0 ]]; then
+          # need to parse off the new output file name value
+          if [ $debug_flag == 1 ]
+          then
+            echo "DEBUG: SETTING output name specified in argument 5=$5"
+          fi
+          new_name=$5
+          input_argument_oname=${new_name#o*=} 
+        elif [[ $match_oname == 0 && $match_rows == 0  && $match_viewtype != 0 ]]; then
+          # need to parse off the view type value
+          if [ $debug_flag == 1 ]
+          then
+            echo "DEBUG: SETTING view type value specified in argument 5=$5"
+          fi
+          match_viewtype_functions=`expr match "$3" 'viewtype=functions'`
+          match_viewtype_statements=`expr match "$3" 'viewtype=statements'`
+          match_viewtype_linkedobjects=`expr match "$3" 'viewtype=linkedobjects'`
+          if  [ $match_viewtype_functions != 0 ]
+          then
+             input_argument_compare_view_type="functions"
+          elif  [ $match_viewtype_statements != 0 ]
+          then
+             input_argument_compare_view_type="statements"
+          elif  [ $match_viewtype_linkedobjects != 0 ]
+          then
+             input_argument_compare_view_type="linkedobjects"
+          else
+             echo "WARNING: SETTING for viewtype was incorrect using functions instead of input argument 3 was: $3"
+             if [ $debug_flag == 1 ]
+             then
+                echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_functions: $match_viewtype_functions"
+                echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_statements: $match_viewtype_statements"
+                echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_linkedobjects: $match_viewtype_linkedobjects"
+             fi
+             input_argument_compare_view_type=$compare_default_view_type
+          fi
+        else
+          if [ $debug_flag == 1 ]
+          then
+            echo "DEBUG: ERROR the third argument to osscompare is unknown, not $5"
+          fi
+
+        fi
+
+  fi
+
+fi
+
+################################################################################
+# Run Open|SpeedShop
+################################################################################
+if [ $debug_flag == 1 ]
+then
+  echo "DEBUG: experiment_name=$experiment_name"
+  echo "DEBUG: high_flag=$high_flag"
+  echo "DEBUG: low_flag=$low_flag"
+  echo "DEBUG: use_default_flag=$use_default_flag"
+  echo "DEBUG: input_argument_rate_threshold_value=$input_argument_rate_threshold_value"
+  echo "DEBUG: input_argument_event_or_trace_list_value=$input_argument_event_or_trace_list_value"
+  echo "DEBUG: input_argument_rate_threshold_value=$input_argument_rate_threshold_value"
+  echo "DEBUG: input_argument_oname=$input_argument_oname"
+  echo "DEBUG: use_compare_metric=$use_compare_metric"
+  echo "DEBUG: use_compare_viewtype=$use_compare_viewtype"
+fi
+
+
+# ------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------
+# -- COMPARE EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
+if  [ $experiment_name == "osscompare" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: in COMPARE EXPERIMENT SECTION, input_compare_database_list=$input_compare_database_list"
+    echo "DEBUG: in COMPARE EXPERIMENT SECTION, compare_default_metric=$compare_default_metric"
+    echo "DEBUG: in COMPARE EXPERIMENT SECTION, input_argument_compare_metric=$input_argument_compare_metric"
+    echo "DEBUG: in COMPARE EXPERIMENT SECTION, input_argument_compare_view_type=$input_argument_compare_view_type"
+    echo "DEBUG: in COMPARE EXPERIMENT SECTION, OPENSS_CREATE_CSV=$OPENSS_CREATE_CSV"
+    echo "DEBUG: in COMPARE EXPERIMENT SECTION, OPENSS_USE_INTERNAL_NAMING=$OPENSS_USE_INTERNAL_NAMING"
+    echo "DEBUG: in COMPARE EXPERIMENT SECTION, OPENSS_COMPARE_VIEW_TYPE=$OPENSS_COMPARE_VIEW_TYPE"
+    echo "DEBUG: in COMPARE EXPERIMENT SECTION, OPENSS_COMPARE_METRIC=$OPENSS_COMPARE_METRIC"
+  fi
+
+  unset type_of_dbase
+  use_internal_naming=0
+  if [ -z "$OPENSS_USE_INTERNAL_NAMING" ]
+  then
+     if [ $debug_flag == 1 ]
+     then
+       echo "DEBUG: in COMPARE EXPERIMENT SECTION, setting use_internal_naming=0"
+     fi
+     use_internal_naming=0
+  else
+     if [ $debug_flag == 1 ]
+     then
+       echo "DEBUG: in COMPARE EXPERIMENT SECTION, setting use_internal_naming=1"
+     fi
+     use_internal_naming=1
+  fi
+#  create_csv_files=0
+#  if [ -z "$OPENSS_CREATE_CSV" ]
+#  then
+#     if [ $debug_flag == 1 ]
+#     then
+#       echo "DEBUG: in COMPARE EXPERIMENT SECTION, setting create_csv_files=0"
+#     fi
+#     create_csv_files=0
+#  else
+#     if [ $debug_flag == 1 ]
+#     then
+#       echo "DEBUG: in COMPARE EXPERIMENT SECTION, setting create_csv_files=1"
+#     fi
+#     create_csv_files=1
+#  fi
+
+  if [ $input_argument_oname != 0 ]
+  then
+     echo "[openss]: Executing compare experiment using osscompare command input output file name value=$input_argument_oname."
+  fi
+
+  if [ $input_argument_compare_view_type != 0 ]
+  then
+     use_compare_view_type=$input_argument_compare_view_type
+     input_compare_view_type=1
+     echo "[openss]: Executing compare experiment using osscompare command input viewtype value=$input_argument_compare_view_type."
+     if [ -z "$OPENSS_COMPARE_VIEW_TYPE" ]
+     then
+        if [ $debug_flag == 1 ]
+        then
+          echo "DEBUG: in COMPARE EXPERIMENT SECTION, NO OPENSS_COMPARE_VIEW_TYPE setting, use input_argument_compare_view_type=$input_argument_compare_view_type"
+        fi
+     else
+        echo "[openss]: Executing compare experiment using OPENSS_COMPARE_VIEW_TYPE value=$OPENSS_COMPARE_VIEW_TYPE for osscompare command view_type value, overriding osscommand input view_type value=$input_argument_compare_view_type."
+        use_compare_view_type=$OPENSS_COMPARE_VIEW_TYPE
+        input_compare_view_type=1
+     fi
+  else
+      use_compare_view_type=$compare_default_view_type
+  fi
+
+  if [ $input_argument_compare_metric != 0 ]
+  then
+     use_compare_metric=$input_argument_compare_metric
+     input_compare_metric=1
+     echo "[openss]: Executing compare experiment using osscompare command input metric value=$input_argument_compare_metric."
+     if [ -z "$OPENSS_COMPARE_METRIC" ]
+     then
+        if [ $debug_flag == 1 ]
+        then
+          echo "DEBUG: in COMPARE EXPERIMENT SECTION, NO OPENSS_COMPARE_METRIC setting, use input_argument_compare_metric=$input_argument_compare_metric"
+        fi
+     else
+        echo "[openss]: Executing compare experiment using OPENSS_COMPARE_METRIC value=$OPENSS_COMPARE_METRIC for osscompare command metric value, overriding osscommand input metric value=$input_argument_compare_metric."
+        use_compare_metric=$OPENSS_COMPARE_METRIC
+        input_compare_metric=1
+     fi
+  else
+      use_compare_metric=$compare_default_metric
+  fi
+
+  if [ $input_compare_database_list != 0 ]
+  then
+    if [ -z  "$OPENSS_COMPARE_DATABASES" ]
+    then
+      echo "[openss]: Executing compare experiment using osscompare command input database list specified on the \"osscompare\" command:"
+      echo "[openss]: \"$input_compare_database_list\"."
+      if [ $debug_flag == 1 ]
+      then
+         echo "DEBUG: setting OPENSS_COMPARE_DATABASES to $input_compare_database_list for use with the split_csv routine"
+      fi
+    else
+      echo "[openss]: Executing compare experiment overriding the osscompare command input database list specified on the \"osscompare\" command: \"$input_compare_database_list\" and using the list specified by the OPENSS_COMPARE_DATABASES environment variable."
+      if [ $debug_flag == 1 ]
+      then
+         echo "DEBUG: setting OPENSS_COMPARE_DATABASES to $input_compare_database_list and overriding what was already set in OPENSS_COMPARE_DATABASES"
+      fi
+    fi
+    OPENSS_COMPARE_DATABASES=$input_compare_database_list
+  else
+    # input argument not specified
+    if [ -z  "$OPENSS_COMPARE_DATABASES" ]
+    then
+      echo "[openss]: ERROR: no database list input and no OPENSS_COMPARE_DATABASES environment variable setting was found."
+    else
+      echo "[openss]: Executing compare experiment OPENSS_COMPARE_DATABASES=$OPENSS_COMPARE_DATABASES is set and will be used as the Compare experiment database list."
+      if [ $debug_flag == 1 ]
+      then
+        echo "DEBUG: exporting already set OPENSS_COMPARE_DATABASES to $OPENSS_COMPARE_DATABASES"
+      fi
+    fi
+  fi
+
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: about to call openss -offline for compare experiment, OPENSS_COMPARE_DATABASES=$OPENSS_COMPARE_DATABASES"
+  fi
+#  export OPENSS_COMPARE_DATABASES
+
+  # funnel commands to compare databases into a file and then direct that file into openss
+  # openss -offline -f "$1" fpe
+
+echo $OPENSS_COMPARE_DATABASES > /tmp/$USER/osscompare_file2.csv
+N=3
+CR=$'\n'
+#CR=$'\r'
+while IFS= read -r line
+do
+
+#  echo "line=$line"
+
+  db_file_input_split "$line"
+
+# echo "values[1]\n" "${values[1]}" ## print field N (numbered from 0)
+
+done < /tmp/$USER/osscompare_file2.csv
+
+while read -r line
+do
+
+ if [ $debug_flag == 1 ]
+ then
+   echo "DEBUG: vnum_val line=$line"
+ fi
+ number_of_databases=$line
+ let number_of_databases=$number_of_databases+1
+ if [ $debug_flag == 1 ]
+ then
+   echo "DEBUG: number_of_databases=$number_of_databases"
+ fi
+  
+done < /tmp/$USER/osscompare_vnum_val
+
+# Check databases for type of experiment
+
+for i in {0..7}
+do
+
+  if [ $i -ge $number_of_databases ] 
+  then
+    continue
+  else
+    if [ $debug_flag == 1 ]
+    then
+       echo "DEBUG: value[$i]=" "${values[$i]}" ## print field N (numbered from 0)
+    fi
+    j=($i + 1)
+    dbase_name="dbase${j}_exptype.txt"
+
+    if [ $debug_flag == 1 ]
+    then
+      echo "DEBUG: dbase_name = $dbase_name"
+    fi
+
+    echo "exprestore -f ${values[$i]}" > /tmp/$USER/osscompare_commands.txt
+    echo "list -v exptypes > /tmp/$USER/dbase${j}_exptype.txt" >> /tmp/$USER/osscompare_commands.txt
+    echo "list -v walltime" >> /tmp/$USER/osscompare_commands.txt
+    echo "list -v walltime -v timeonly > /tmp/$USER/dbase${j}_walltime.txt" >> /tmp/$USER/osscompare_commands.txt
+#    echo "list -v exptypes > /tmp/$USER/$dbase_name" >> /tmp/$USER/osscompare_commands.txt
+
+    openss -batch < /tmp/$USER/osscompare_commands.txt
+
+    while read -r line
+    do
+     type_of_dbase[$i]=$line
+     if [ $debug_flag == 1 ]
+     then
+       echo "DEBUG: database $i section line=$line"
+       echo "DEBUG: type of database $i=${type_of_dbase[$i]}"
+     fi
+    done < /tmp/$USER/$dbase_name
+  fi
+done
+
+# Validate that all the databases are of the same type
+
+
+for i in {2..8}
+do
+   if [ $debug_flag == 1 ]
+   then
+     echo "DEBUG: Begin Looking at database $j and number of dbs is: $number_of_databases"
+   fi
+   if [ $i -gt  $number_of_databases ]
+   then
+     continue
+   else
+     j=$i-1
+     if [ $debug_flag == 1 ]
+     then
+       echo "DEBUG: Looking at database 0 and database $j (j) i= $i"
+     fi
+     if [ "${type_of_dbase[0]}" == "${type_of_dbase[$j]}" ]
+     then
+       if [ $debug_flag == 1 ]
+       then
+          echo "DEBUG: GOOD in osscompare: Types of database compare files match: ${type_of_dbase[0]} is the same as ${type_of_dbase[$j]}" 
+       fi
+     else
+        echo "[openss]: ERROR in osscompare: Types of database compare files must match: ${type_of_dbase[0]} is not the same as ${type_of_dbase[$j]}" 
+        exit
+     fi
+   fi
+done
+
+
+# Make sure we handle the hardware counter experiments correctly,  time is not the correct
+# metric for hwc, hwctime.  Must be counts.
+if [ "$number_of_databases" -ge "2" ] 
+then
+   if [ "${type_of_dbase[0]}" == "hwc" -o "${type_of_dbase[0]}" == "hwctime" ]
+   then
+      echo "[openss]: NOTE; Must use the event counts as the metric for hwc and hwctime experiment comparisons." 
+      echo "[openss]: NOTE; osscompare is overriding any specification and comparing with respect to the counts of events"
+      use_compare_metric=counts
+   elif [  "${type_of_dbase[0]}" == "hwcsamp" ]
+   then
+# FIXME - how do we get the event names to use as the compare metric
+#      use_compare_metric=time
+      # if there is a input compare metric specified already then use it, do not override
+      # else use the time,allevents for comparing hwcsamp info.
+      if [ $input_compare_metric == 0 ]
+      then
+         use_compare_metric=time,allevents
+      fi
+   fi
+fi
+
+# Assign the type of database to a short named variable for use in naming
+dbname=${type_of_dbase[0]}
+if [ "$use_internal_naming" -eq "1" ]
+then
+  dbname=${type_of_dbase[0]}
+  if [ $debug_flag == 1 ]
+  then
+     echo "DEBUG: dbname=\n" "$dbname" 
+  fi
+fi
+
+
+if [ "$number_of_databases" -ge "1" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+     echo "DEBUG: value[0]=" "${values[0]}" ## print field N (numbered from 0)
+  fi
+  echo "exprestore -f ${values[0]}" > /tmp/$USER/osscompare_commands.txt
+  echo "cviewCreate -x 1 -v $use_compare_view_type -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
+fi
+ 
+if [ "$number_of_databases" -ge "2" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: value[1]=" "${values[1]}" ## print field N (numbered from 0)
+  fi
+  echo "exprestore -f ${values[1]}" >> /tmp/$USER/osscompare_commands.txt
+  echo "cviewCreate -x 3 -v $use_compare_view_type -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
+fi
+
+if [ "$number_of_databases" -eq "2" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: create cview -c 2 -c 4" 
+  fi
+
+  if [ $create_csv_files -eq 1 ]
+  then
+#    if [ "$use_internal_naming" -eq "1" ]
+#    then
+      echo "cview -c 2 -c 4 ${dbname}${row_limit} > /tmp/$USER/${dbname}DB1_DB2.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+#    else
+#      echo "cview -c 2 -c 4 ${dbname}${row_limit} > /tmp/$USER/${values[0]%.*}_${values[1]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+#    fi
+  fi
+  echo "cview -c 2 -c 4 ${dbname}${row_limit} " >> /tmp/$USER/osscompare_commands.txt
+
+fi
+
+if [ "$number_of_databases" -ge "3" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: value[2]=" "${values[2]}" ## print field N (numbered from 0)
+  fi
+  echo "exprestore -f ${values[2]}" >> /tmp/$USER/osscompare_commands.txt
+  echo "cviewCreate -x 5 -v $use_compare_view_type -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
+fi
+
+if [ "$number_of_databases" -eq "3" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: create cview -c 2 -c 4 -c 6" 
+  fi
+  if [ $create_csv_files -eq 1 ]
+  then
+#    if [ "$use_internal_naming" -eq "1" ]
+#    then
+      echo "cview -c 2 -c 4 -c 6 ${dbname}${row_limit}  > /tmp/$USER/${dbname}DB1_DB2_DB3.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+#    else
+#      echo "cview -c 2 -c 4 -c 6  ${dbname}${row_limit} > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+#    fi
+  fi
+  echo "cview -c 2 -c 4 -c 6 ${dbname}${row_limit}" >> /tmp/$USER/osscompare_commands.txt
+fi
+
+if [ "$number_of_databases" -ge "4" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: value[3]=" "${values[3]}" ## print field N (numbered from 0)
+  fi
+  echo "exprestore -f ${values[3]}" >> /tmp/$USER/osscompare_commands.txt
+  echo "cviewCreate -x 7 -v $use_compare_view_type -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
+fi
+
+if [ "$number_of_databases" -eq "4" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: create cview -c 2 -c 4 -c 6 -c 8" 
+  fi
+  if [ $create_csv_files -eq 1 ]
+  then
+#    if [ "$use_internal_naming" -eq "1" ]
+#    then
+      echo "cview -c 2 -c 4 -c 6 -c 8 ${dbname}${row_limit} > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+#    else
+#      echo "cview -c 2 -c 4 -c 6 -c 8 ${dbname}${row_limit} > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+#    fi
+  fi
+  echo "cview -c 2 -c 4 -c 6 -c 8 ${dbname}${row_limit}" >> /tmp/$USER/osscompare_commands.txt
+#  echo "quit" >> /tmp/$USER/osscompare_commands.txt
+fi
+
+# ----------- fifth database processing
+if [ "$number_of_databases" -ge "5" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: value[4]=" "${values[4]}" ## print field N (numbered from 0)
+  fi
+  echo "exprestore -f ${values[4]}" >> /tmp/$USER/osscompare_commands.txt
+  echo "cviewCreate -x 9 -v $use_compare_view_type -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
+fi
+
+if [ "$number_of_databases" -eq "5" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: create cview -c 2 -c 4 -c 6 -c 8 -c 10" 
+  fi
+  if [ $create_csv_files -eq 1 ]
+  then
+#    if [ "$use_internal_naming" -eq "1" ]
+#    then
+      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 ${dbname}${row_limit} > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+#    else
+#      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 ${dbname}${row_limit} > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+#    fi
+  fi
+  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 ${dbname}${row_limit}" >> /tmp/$USER/osscompare_commands.txt
+#  echo "quit" >> /tmp/$USER/osscompare_commands.txt
+fi
+
+# ----------- sixth database processing
+if [ "$number_of_databases" -ge "6" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: value[5]=" "${values[5]}" ## print field N (numbered from 0)
+  fi
+  echo "exprestore -f ${values[5]}" >> /tmp/$USER/osscompare_commands.txt
+  echo "cviewCreate -x 11 -v $use_compare_view_type -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
+fi
+
+if [ "$number_of_databases" -eq "6" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: create cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12" 
+  fi
+  if [ $create_csv_files -eq 1 ]
+  then
+#    if [ "$use_internal_naming" -eq "1" ]
+#    then
+      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 ${dbname}${row_limit} > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+#    else
+#      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 ${dbname}${row_limit} > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+#    fi
+  fi
+  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 ${dbname}${row_limit}" >> /tmp/$USER/osscompare_commands.txt
+#  echo "quit" >> /tmp/$USER/osscompare_commands.txt
+fi
+
+# ----------- seventh database processing
+if [ "$number_of_databases" -ge "7" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: value[6]=\n" "${values[6]}" ## print field N (numbered from 0)
+  fi
+  echo "exprestore -f ${values[6]}" >> /tmp/$USER/osscompare_commands.txt
+  echo "cviewCreate -x 13 -v $use_compare_view_type -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
+fi
+
+if [ "$number_of_databases" -eq "7" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: create cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14" 
+  fi
+  if [ $create_csv_files -eq 1 ]
+  then
+#    if [ "$use_internal_naming" -eq "1" ]
+#    then
+      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 ${dbname}${row_limit} > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+#    else
+#      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 ${dbname}${row_limit} > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+#    fi
+  fi
+  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 ${dbname}${row_limit}" >> /tmp/$USER/osscompare_commands.txt
+#  echo "quit" >> /tmp/$USER/osscompare_commands.txt
+fi
+
+# ----------- eighth database processing
+if [ "$number_of_databases" -ge "8" ] 
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: value[7]=" "${values[7]}" ## print field N (numbered from 0)
+  fi
+  echo "exprestore -f ${values[7]}" >> /tmp/$USER/osscompare_commands.txt
+  echo "cviewCreate -x 15 -v $use_compare_view_type -m $use_compare_metric" >> /tmp/$USER/osscompare_commands.txt
+fi
+
+if [ "$number_of_databases" -eq "8" ]
+then
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: create cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 -c 16" 
+  fi
+  if [ $create_csv_files -eq 1 ]
+  then
+#    if [ "$use_internal_naming" -eq "1" ]
+#    then
+      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 -c 16 ${dbname}${row_limit} > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+#    else
+#      echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 -c 16 ${dbname}${row_limit} > /tmp/$USER/${values[0]%.*}_${values[1]%.*}_${values[2]%.*}_${values[3]%.*}_${values[4]%.*}_${values[5]%.*}_${values[6]%.*}_${values[7]%.*}.compare.txt" >> /tmp/$USER/osscompare_commands.txt
+#    fi
+  fi
+  echo "cview -c 2 -c 4 -c 6 -c 8 -c 10 -c 12 -c 14 -c 16 ${dbname}${row_limit}" >> /tmp/$USER/osscompare_commands.txt
+#  echo "quit" >> /tmp/$USER/osscompare_commands.txt
+fi
+
+# ----------------------------------------------------
+# ----------------------------------------------------
+# ----------------------------------------------------
+
+if [ "$number_of_databases" -ge "2" ]
+then
+  echo "[openss]: Legend: -c 2 represents ${values[0]}"
+  echo "[openss]: Legend: -c 4 represents ${values[1]}"
+fi
+if [ "$number_of_databases" -ge "3" ]
+then
+  echo "[openss]: Legend: -c 6 represents ${values[2]}"
+fi
+if [ "$number_of_databases" -ge "4" ]
+then
+  echo "[openss]: Legend: -c 8 represents ${values[3]}"
+fi
+
+if [ "$number_of_databases" -ge "5" ]
+then
+  echo "[openss]: Legend: -c 10 represents ${values[4]}"
+fi
+
+if [ "$number_of_databases" -ge "6" ]
+then
+  echo "[openss]: Legend: -c 12 represents ${values[5]}"
+fi
+
+if [ "$number_of_databases" -ge "7" ]
+then
+  echo "[openss]: Legend: -c 14 represents ${values[6]}"
+fi
+
+if [ "$number_of_databases" -ge "8" ]
+then
+  echo "[openss]: Legend: -c 16 represents ${values[7]}"
+fi
+
+if [ $debug_flag == 1 ]
+then
+    echo "DEBUG: BEGIN running osscompare via openss -batch" 
+fi
+openss -batch < /tmp/$USER/osscompare_commands.txt
+if [ $debug_flag == 1 ]
+then
+    echo "DEBUG: END running osscompare via openss -batch" 
+fi
+
+if [ "$number_of_databases" -eq "2" ]
+then
+#
+# First we handle the csv file then the normal output file
+# Here we do a series of sed actions to convert the OpenSpeedShop normal output into a comma
+# separated list which is able to be imported as a sheet from file to Excel like tools.  Please
+# use the comma is a separator option when importing.
+# 
+  if [ $create_csv_files -eq 1 ]
+  then
+#    if [ "$use_internal_naming" -eq "1" ]
+#    then
+      sed 's/,/:/g' \
+      /tmp/$USER/${dbname}DB1_DB2.compare.txt \
+      | sed -r 's/\s{3,100}/  /g' \
+      | sed -r 's/^\s{4,4}/,/g' \
+      | sed -r 's/^\s{2,2}//g' \
+      | sed -r 's/\s{2,2}/,/g' \
+      | sed '/^$/d' \
+      | sed 's/-c [0-9*]://g' \
+      > /tmp/$USER/old.${dbname}DB1_DB2.compare.csv
+#
+# Now add the header information to the temporary csv file.
+#
+      echo "${values[0]},${values[1]},Functions" > /tmp/$USER/${dbname}DB1_DB2.header.txt 
+#
+# Now add the header information to the temporary csv file.
+#
+      if [ $input_argument_oname != 0 ]
+      then
+        cat /tmp/$USER/${dbname}DB1_DB2.header.txt /tmp/$USER/old.${dbname}DB1_DB2.compare.csv > ${input_argument_oname}.compare.csv
+      else
+        cat /tmp/$USER/${dbname}DB1_DB2.header.txt /tmp/$USER/old.${dbname}DB1_DB2.compare.csv > ${dbname}DB1_DB2.compare.csv
+      fi
+  fi
+#
+# Now add the header information to the screen output results.
+#
+  echo "" > /tmp/$USER/${dbname}DB1_DB2.legends.txt
+  echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2.legends.txt
+  echo "[openss]: Legend: -c 2 represents ${values[0]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2.legends.txt
+  echo "[openss]: Legend: -c 4 represents ${values[1]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2.legends.txt
+  echo "" >> /tmp/$USER/${dbname}DB1_DB2.legends.txt
+  if [ $create_csv_files -eq 1 ]
+  then
+      if [ $input_argument_oname != 0 ]
+      then
+        cat /tmp/$USER/${dbname}DB1_DB2.legends.txt /tmp/$USER/${dbname}DB1_DB2.compare.txt > ${input_argument_oname}.compare.txt
+      else
+        cat /tmp/$USER/${dbname}DB1_DB2.legends.txt /tmp/$USER/${dbname}DB1_DB2.compare.txt > ${dbname}DB1_DB2.compare.txt
+      fi
+  fi
+
+fi
+
+if [ "$number_of_databases" -eq "3" ]
+then
+#
+# First we handle the csv file then the normal output file
+# Here we do a series of sed actions to convert the OpenSpeedShop normal output into a comma
+# separated list which is able to be imported as a sheet from file to Excel like tools.  Please
+# use the comma is a separator option when importing.
+#
+  if [ $create_csv_files -eq 1 ]
+  then
+    sed 's/,/:/g' \
+      /tmp/$USER/${dbname}DB1_DB2_DB3.compare.txt  \
+      | sed -r 's/\s{3,100}/  /g' \
+      | sed -r 's/^\s{4,4}/,/g' \
+      | sed -r 's/^\s{2,2}//g' \
+      | sed -r 's/\s{2,2}/,/g' \
+      | sed '/^$/d' \
+      | sed 's/-c [0-9*]://g' \
+      > /tmp/$USER/old.${dbname}DB1_DB2_DB3.compare.csv
+
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+    echo "${values[0]},${values[1]},${values[2]},Functions" > /tmp/$USER/${dbname}DB1_DB2_DB3.header.txt 
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+    if [ $input_argument_oname != 0 ]
+    then
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3.compare.csv >  ${input_argument_oname}.compare.csv
+    else
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3.compare.csv > ${dbname}DB1_DB2_DB3.compare.csv
+    fi
+  fi
+#
+# Now add the header information to the screen output results.
+#
+  echo "" > /tmp/$USER/${dbname}DB1_DB2_DB3.legends.txt
+  echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3.legends.txt
+  echo "[openss]: Legend: -c 2 represents ${values[0]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3.legends.txt
+  echo "[openss]: Legend: -c 4 represents ${values[1]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3.legends.txt
+  echo "[openss]: Legend: -c 6 represents ${values[2]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3.legends.txt
+  echo "" >> /tmp/$USER/${dbname}DB1_DB2_DB3.legends.txt
+  if [ $create_csv_files -eq 1 ]
+  then
+    if [ $input_argument_oname != 0 ]
+    then
+      cat /tmp/$USER/${dbname}DB1_DB2_DB3.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3.compare.txt > ${input_argument_oname}.compare.txt
+    else
+      cat /tmp/$USER/${dbname}DB1_DB2_DB3.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3.compare.txt > ${dbname}DB1_DB2_DB3.compare.txt
+    fi
+  fi
+fi
+
+if [ "$number_of_databases" -eq "4" ]
+then
+#
+# First we handle the csv file then the normal output file
+# Here we do a series of sed actions to convert the OpenSpeedShop normal output into a comma
+# separated list which is able to be imported as a sheet from file to Excel like tools.  Please
+# use the comma is a separator option when importing.
+#
+  if [ $create_csv_files -eq 1 ]
+  then
+    sed 's/,/:/g' \
+      /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.compare.txt \
+      | sed -r 's/\s{3,100}/  /g' \
+      | sed -r 's/^\s{4,4}/,/g' \
+      | sed -r 's/^\s{2,2}//g' \
+      | sed -r 's/\s{2,2}/,/g' \
+      | sed '/^$/d' \
+      | sed 's/-c [0-9*]://g' \
+      > /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4.compare.csv
+
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+    echo "${values[0]},${values[1]},${values[2]},${values[3]},Functions" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.header.txt 
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+    if [ $input_argument_oname != 0 ]
+    then
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4.compare.csv > ${input_argument_oname}.compare.csv
+    else
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4.compare.csv > ${dbname}DB1_DB2_DB3_DB4.compare.csv
+    fi
+  fi
+
+#
+# Now add the header information to the screen output results.
+#
+  echo "" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.legends.txt
+  echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.legends.txt
+  echo "[openss]: Legend: -c 2 represents ${values[0]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.legends.txt
+  echo "[openss]: Legend: -c 4 represents ${values[1]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.legends.txt
+  echo "[openss]: Legend: -c 6 represents ${values[2]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.legends.txt
+  echo "[openss]: Legend: -c 8 represents ${values[3]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.legends.txt
+  echo "" >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.legends.txt
+  if [ $create_csv_files -eq 1 ]
+  then
+    if [ $input_argument_oname != 0 ]
+    then
+      cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.compare.txt > ${input_argument_oname}.compare.txt
+    else
+      cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4.compare.txt > ${dbname}DB1_DB2_DB3_DB4.compare.txt
+    fi
+  fi
+fi
+
+if [ "$number_of_databases" -eq "5" ]
+then
+#
+# First we handle the csv file then the normal output file
+# Here we do a series of sed actions to convert the OpenSpeedShop normal output into a comma
+# separated list which is able to be imported as a sheet from file to Excel like tools.  Please
+# use the comma is a separator option when importing.
+#
+  if [ $create_csv_files -eq 1 ]
+  then
+    sed 's/,/:/g' \
+      /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.compare.txt \
+      | sed -r 's/\s{3,100}/  /g' \
+      | sed -r 's/^\s{4,4}/,/g' \
+      | sed -r 's/^\s{2,2}//g' \
+      | sed -r 's/\s{2,2}/,/g' \
+      | sed '/^$/d' \
+      | sed 's/-c [0-9*]://g' \
+      > /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5.compare.csv
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+    echo "${values[0]},${values[1]},${values[2]},${values[3]},${values[4]},Functions" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.header.txt 
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+    if [ $input_argument_oname != 0 ]
+    then
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5.compare.csv > ${input_argument_oname}.compare.csv
+    else
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5.compare.csv > ${dbname}DB1_DB2_DB3_DB4_DB5.compare.csv
+    fi
+  fi
+
+#
+# Now add the header information to the screen output results.
+#
+  echo "" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.legends.txt
+  echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.legends.txt
+  echo "[openss]: Legend: -c 2 represents ${values[0]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.legends.txt
+  echo "[openss]: Legend: -c 4 represents ${values[1]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.legends.txt
+  echo "[openss]: Legend: -c 6 represents ${values[2]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.legends.txt
+  echo "[openss]: Legend: -c 8 represents ${values[3]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.legends.txt
+  echo "[openss]: Legend: -c 10 represents ${values[4]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.legends.txt
+  echo "" >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.legends.txt
+  if [ $create_csv_files -eq 1 ]
+  then
+    if [ $input_argument_oname != 0 ]
+    then
+      cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.compare.txt > ${input_argument_oname}.compare.txt
+    else
+      cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5.compare.txt > ${dbname}DB1_DB2_DB3_DB4_DB5.compare.txt
+    fi
+  fi
+fi
+
+if [ "$number_of_databases" -eq "6" ]
+then
+#
+# First we handle the csv file then the normal output file
+# Here we do a series of sed actions to convert the OpenSpeedShop normal output into a comma
+# separated list which is able to be imported as a sheet from file to Excel like tools.  Please
+# use the comma is a separator option when importing.
+#
+  if [ $create_csv_files -eq 1 ]
+  then
+    sed 's/,/:/g' \
+      /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.txt \
+      | sed -r 's/\s{3,100}/  /g' \
+      | sed -r 's/^\s{4,4}/,/g' \
+      | sed -r 's/^\s{2,2}//g' \
+      | sed -r 's/\s{2,2}/,/g' \
+      | sed '/^$/d' \
+      | sed 's/-c [0-9*]://g' \
+      > /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.csv
+
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+    echo "${values[0]},${values[1]},${values[2]},${values[3]},${values[4]},${values[5]},Functions" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.header.txt 
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+    if [ $input_argument_oname != 0 ]
+    then
+         cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.csv > ${input_argument_oname}.compare.csv
+    else
+         cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.csv > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.csv
+    fi
+  fi
+
+#
+# Now add the header information to the screen output results.
+#
+  echo "" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "[openss]: Legend: -c 2 represents ${values[0]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "[openss]: Legend: -c 4 represents ${values[1]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "[openss]: Legend: -c 6 represents ${values[2]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "[openss]: Legend: -c 8 represents ${values[3]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "[openss]: Legend: -c 10 represents ${values[4]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "[openss]: Legend: -c 12 represents ${values[5]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  echo "" >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt
+  if [ $create_csv_files -eq 1 ]
+  then
+    if [ $input_argument_oname != 0 ]
+    then
+      cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.txt > ${input_argument_oname}.compare.txt
+    else
+      cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.txt > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6.compare.txt
+    fi
+  fi
+fi
+
+if [ "$number_of_databases" -eq "7" ]
+then
+#
+# First we handle the csv file then the normal output file
+# Here we do a series of sed actions to convert the OpenSpeedShop normal output into a comma
+# separated list which is able to be imported as a sheet from file to Excel like tools.  Please
+# use the comma is a separator option when importing.
+#
+  if [ $create_csv_files -eq 1 ]
+  then
+      sed 's/,/:/g' \
+      /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.txt \
+      | sed -r 's/\s{3,100}/  /g' \
+      | sed -r 's/^\s{4,4}/,/g' \
+      | sed -r 's/^\s{2,2}//g' \
+      | sed -r 's/\s{2,2}/,/g' \
+      | sed '/^$/d' \
+      | sed 's/-c [0-9*]://g' \
+      > /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.csv
+
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+      echo "${values[0]},${values[1]},${values[2]},${values[3]},${values[4]},${values[5]},${values[6]},Functions" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.header.txt 
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+      if [ $input_argument_oname != 0 ]
+      then
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.csv > ${input_argument_oname}.compare.csv
+      else
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.header.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.csv > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.csv
+      fi
+  fi
+
+#
+# Now add the header information to the screen output results.
+#
+    echo "" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt
+    echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt
+    echo "[openss]: Legend: -c 2 represents ${values[0]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt
+    echo "[openss]: Legend: -c 4 represents ${values[1]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt
+    echo "[openss]: Legend: -c 6 represents ${values[2]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt
+    echo "[openss]: Legend: -c 8 represents ${values[3]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt
+    echo "[openss]: Legend: -c 10 represents ${values[4]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt
+    echo "[openss]: Legend: -c 12 represents ${values[5]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt
+    echo "[openss]: Legend: -c 14 represents ${values[6]}" \
+         >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt
+    echo "" >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt
+    if [ $create_csv_files -eq 1 ]
+    then
+      if [ $input_argument_oname != 0 ]
+      then
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.txt > ${input_argument_oname}.compare.txt
+      else
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.txt > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7.compare.txt
+      fi
+    fi
+fi
+
+
+if [ "$number_of_databases" -eq "8" ]
+then
+#
+# First we handle the csv file then the normal output file
+# Here we do a series of sed actions to convert the OpenSpeedShop normal output into a comma
+# separated list which is able to be imported as a sheet from file to Excel like tools.  Please
+# use the comma is a separator option when importing.
+#
+  if [ $create_csv_files -eq 1 ]
+  then
+      sed 's/,/:/g' \
+      /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.txt \
+      | sed -r 's/\s{3,100}/  /g' \
+      | sed -r 's/^\s{4,4}/,/g' \
+      | sed -r 's/^\s{2,2}//g' \
+      | sed -r 's/\s{2,2}/,/g' \
+      | sed '/^$/d' \
+      | sed 's/-c [0-9*]://g' \
+      > /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.csv
+
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+      echo "${values[0]},${values[1]},${values[2]},${values[3]},${values[4]},${values[5]},${values[6]},${values[7]},Functions" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.header.txt 
+#
+#
+# Now add the header information to the temporary csv file to create the final csv file.
+#
+      if [ $input_argument_oname != 0 ]
+      then
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_r.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.csv > ${input_argument_oname}.compare.csv
+      else
+        cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_r.txt /tmp/$USER/old.${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.csv > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.csv
+      fi
+  fi
+
+#
+# Now add the header information to the screen output results.
+#
+  echo "" > /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Comparing ${values[0]} to ${values[1]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 2 represents ${values[0]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 4 represents ${values[1]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 6 represents ${values[2]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 8 represents ${values[3]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 10 represents ${values[4]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 12 represents ${values[5]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 14 represents ${values[6]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "[openss]: Legend: -c 16 represents ${values[7]}" \
+       >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  echo "" >> /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt
+  if [ $create_csv_files -eq 1 ]
+  then
+    if [ $input_argument_oname != 0 ]
+    then
+      cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.txt > ${input_argument_oname}.compare.txt
+    else
+      cat /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.legends.txt /tmp/$USER/${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.txt > ${dbname}DB1_DB2_DB3_DB4_DB5_DB6_DB7_DB8.compare.txt
+    fi
+  fi
+fi
+
+fi
+# ------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------
