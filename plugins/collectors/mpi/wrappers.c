@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2008-2011 The Krell Institute. All Rights Reserved.
+** Copyright (c) 2008-2013 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -2562,20 +2562,15 @@ int mpi_PMPI_Comm_split(
     bool_t dotrace = mpi_do_trace("MPI_Comm_split");
 
     if (dotrace) {
-
-    mpi_start_event(&event);
-    event.start_time = OpenSS_GetTime();
-
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
     }
 
     retval = PMPI_Comm_split(comm, color, key, newcomm);
 
     if (dotrace) {
-
-    event.stop_time = OpenSS_GetTime();
-
-    mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Comm_split));
-
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Comm_split));
     }
 
     return retval;
@@ -2604,20 +2599,15 @@ int mpi_PMPI_Start
     bool_t dotrace = mpi_do_trace("MPI_Start");
 
     if (dotrace) {
-
-    mpi_start_event(&event);
-    event.start_time = OpenSS_GetTime();
-
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
     }
 
     retval = PMPI_Start(request);
 
     if (dotrace) {
-
-    event.stop_time = OpenSS_GetTime();
-
-    mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Start));
-
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Start));
     }
 
     return retval;
@@ -2646,20 +2636,1149 @@ int mpi_PMPI_Startall
     bool_t dotrace = mpi_do_trace("MPI_Startall");
 
     if (dotrace) {
-
-    mpi_start_event(&event);
-    event.start_time = OpenSS_GetTime();
-
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
     }
 
     retval = PMPI_Startall( count, array_of_requests );
 
     if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Startall));
+    }
 
-    event.stop_time = OpenSS_GetTime();
+    return retval;
+}
 
-    mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_Startall));
 
+/*
+ * MPI_File_open
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_open(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_open(
+#else
+int mpi_PMPI_File_open(
+#endif
+    MPI_Comm comm, 
+    char * filename,
+    int amode, 
+    MPI_Info info, 
+    MPI_File* mfile)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_open");
+
+    if (debug_trace) {
+      fprintf(stderr, "WRAPPER, mpi_PMPI_File_open called, comm=%d, dotrace=%d \n", comm, dotrace);
+      fflush(stderr);
+    }
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_open(comm, filename, amode, info, mfile);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_open));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_write
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_write(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_write(
+#else
+int mpi_PMPI_File_write(
+#endif
+    MPI_File mfile,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPI_Status* status)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_write");
+
+    if (debug_trace) {
+      fprintf(stderr, "WRAPPER, mpi_PMPI_File_write called, count=%d, dotrace=%d \n", count, dotrace);
+      fflush(stderr);
+    }
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_write(mfile, buf, count, dtype, status);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_write));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_write_ordered
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_write_ordered(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_write_ordered(
+#else
+int mpi_PMPI_File_write_ordered(
+#endif
+    MPI_File mfile,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPI_Status* status)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_write_ordered");
+
+    if (debug_trace) {
+      fprintf(stderr, "WRAPPER, mpi_PMPI_File_write_ordered called, count=%d, dotrace=%d \n", count, dotrace);
+      fflush(stderr);
+    }
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_write_ordered(mfile, buf, count, dtype, status);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_write_ordered));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_write_shared
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_write_shared(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_write_shared(
+#else
+int mpi_PMPI_File_write_shared(
+#endif
+    MPI_File mfile,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPI_Status* status)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_write_shared");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_write_shared(mfile, buf, count, dtype, status);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_write_shared));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_write_all
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_write_all(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_write_all(
+#else
+int mpi_PMPI_File_write_all(
+#endif
+    MPI_File mfile,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPI_Status* status)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_write_all");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_write_all(mfile, buf, count, dtype, status);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_write_all));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_seek
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_seek(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_seek(
+#else
+int mpi_PMPI_File_seek(
+#endif
+    MPI_File mfile,
+    MPI_Offset offset, 
+    int whence)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_seek");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_seek(mfile, offset, whence);
+
+    if (dotrace) {
+       event.stop_time = OpenSS_GetTime();
+       mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_seek));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_seek_shared
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_seek_shared(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_seek_shared(
+#else
+int mpi_PMPI_File_seek_shared(
+#endif
+    MPI_File mfile,
+    MPI_Offset offset, 
+    int whence)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_seek_shared");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_seek_shared(mfile, offset, whence);
+
+    if (dotrace) {
+       event.stop_time = OpenSS_GetTime();
+       mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_seek_shared));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_set_view
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_set_view(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_set_view(
+#else
+int mpi_PMPI_File_set_view(
+#endif
+    MPI_File mfile,
+    MPI_Offset disp,
+    MPI_Datatype etype, 
+    MPI_Datatype ftype, 
+    char* datarep, 
+    MPI_Info info)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_set_view");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_set_view(mfile, disp, etype, ftype, datarep, info);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_set_view));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_close
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_close(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_close(
+#else
+int mpi_PMPI_File_close(
+#endif
+    MPI_File* mfile)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_close");
+
+    if (debug_trace) {
+      fprintf(stderr, "WRAPPER, mpi_PMPI_File_close called, dotrace=%d \n", dotrace);
+      fflush(stderr);
+    }
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_close(mfile);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_close));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_delete
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_delete(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_delete(
+#else
+int mpi_PMPI_File_delete(
+#endif
+    char * filename,
+    MPI_Info info)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_delete");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_delete(filename, info);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_delete));
+    }
+
+    return retval;
+}
+
+
+
+
+/*
+ * MPI_File_set_size
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_set_size(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_set_size(
+#else
+int mpi_PMPI_File_set_size(
+#endif
+    MPI_File mfile,
+    MPI_Offset size)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_set_size");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_set_size(mfile, size);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_set_size));
+    }
+
+    return retval;
+}
+
+
+
+/*
+ * MPI_File_get_size
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_get_size(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_get_size(
+#else
+int mpi_PMPI_File_get_size(
+#endif
+    MPI_File mfile,
+    MPI_Offset* size)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_get_size");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_get_size(mfile, size);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_get_size));
+    }
+
+    return retval;
+}
+
+/*
+ * MPI_File_get_group
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_get_group(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_get_group(
+#else
+int mpi_PMPI_File_get_group(
+#endif
+    MPI_File mfile,
+    MPI_Group* group)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_get_group");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_get_group(mfile, group);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_get_group));
+    }
+
+    return retval;
+}
+
+/*
+ * MPI_File_get_amode
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_get_amode(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_get_amode(
+#else
+int mpi_PMPI_File_get_amode(
+#endif
+    MPI_File mfile,
+    int * amode)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_get_amode");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_get_amode(mfile, amode);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_get_amode));
+    }
+
+    return retval;
+}
+
+/*
+ * MPI_File_set_info
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_set_info(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_set_info(
+#else
+int mpi_PMPI_File_set_info(
+#endif
+    MPI_File mfile,
+    MPI_Info info)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_set_info");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_set_info(mfile, info);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_set_info));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_get_info
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_get_info(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_get_info(
+#else
+int mpi_PMPI_File_get_info(
+#endif
+    MPI_File mfile,
+    MPI_Info *ginfo)
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_get_info");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_get_info(mfile, ginfo);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_get_info));
+    }
+
+    return retval;
+}
+
+/*
+ * MPI_File_get_view
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_get_view(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_get_view(
+#else
+int mpi_PMPI_File_get_view(
+#endif
+    MPI_File mfile,
+    MPI_Offset* disp,
+    MPI_Datatype* etype, 
+    MPI_Datatype* ftype, 
+    char* datarep) 
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_get_view");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_get_view(mfile, disp, etype, ftype, datarep);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_get_view));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_read
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_read(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_read(
+#else
+int mpi_PMPI_File_read(
+#endif
+    MPI_File mfile,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPI_Status* status) 
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_read");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_read(mfile, buf, count, dtype, status);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_read));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_read_ordered
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_read_ordered(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_read_ordered(
+#else
+int mpi_PMPI_File_read_ordered(
+#endif
+    MPI_File mfile,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPI_Status* status) 
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_read_ordered");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_read_ordered(mfile, buf, count, dtype, status);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_read_ordered));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_read_all
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_read_all(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_read_all(
+#else
+int mpi_PMPI_File_read_all(
+#endif
+    MPI_File mfile,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPI_Status* status) 
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_read_all");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_read_all(mfile, buf, count, dtype, status);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_read_all));
+    }
+
+    return retval;
+}
+
+/*
+ * MPI_File_read_at
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_read_at(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_read_at(
+#else
+int mpi_PMPI_File_read_at(
+#endif
+    MPI_File mfile,
+    MPI_Offset offset,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPI_Status* status) 
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_read_at");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_read_at(mfile, offset, buf, count, dtype, status);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_read_at));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_read_at_all
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_read_at_all(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_read_at_all(
+#else
+int mpi_PMPI_File_read_at_all(
+#endif
+    MPI_File mfile,
+    MPI_Offset offset,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPI_Status* status) 
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_read_at_all");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_read_at_all(mfile, offset, buf, count, dtype, status);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_read_at_all));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_write_at
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_write_at(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_write_at(
+#else
+int mpi_PMPI_File_write_at(
+#endif
+    MPI_File mfile,
+    MPI_Offset offset,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPI_Status* status) 
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_write_at");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_write_at(mfile, offset, buf, count, dtype, status);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_write_at));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_write_at_all
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_write_at_all(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_write_at_all(
+#else
+int mpi_PMPI_File_write_at_all(
+#endif
+    MPI_File mfile,
+    MPI_Offset offset,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPI_Status* status) 
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_write_at_all");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_write_at_all(mfile, offset, buf, count, dtype, status);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_write_at_all));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_iread_at
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_iread_at(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_iread_at(
+#else
+int mpi_PMPI_File_iread_at(
+#endif
+    MPI_File mfile,
+    MPI_Offset offset,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPIO_Request* request) 
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_iread_at");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_iread_at(mfile, offset, buf, count, dtype, request);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_iread_at));
+    }
+
+    return retval;
+}
+
+
+
+/*
+ * MPI_File_iread
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_iread(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_iread(
+#else
+int mpi_PMPI_File_iread(
+#endif
+    MPI_File mfile,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPIO_Request* request) 
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_iread");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_iread(mfile, buf, count, dtype, request);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_iread));
+    }
+
+    return retval;
+}
+
+/*
+ * MPI_File_iread_shared
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_iread_shared(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_iread_shared(
+#else
+int mpi_PMPI_File_iread_shared(
+#endif
+    MPI_File mfile,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPIO_Request* request) 
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_iread_shared");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_iread_shared(mfile, buf, count, dtype, request);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_iread_shared));
+    }
+
+    return retval;
+}
+
+/*
+ * MPI_File_iwrite_at
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_iwrite_at(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_iwrite_at(
+#else
+int mpi_PMPI_File_iwrite_at(
+#endif
+    MPI_File mfile,
+    MPI_Offset offset,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPIO_Request* request) 
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_iwrite_at");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_iwrite_at(mfile, offset, buf, count, dtype, request);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_iwrite_at));
+    }
+
+    return retval;
+}
+
+/*
+ * MPI_File_iwrite
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_iwrite(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_iwrite(
+#else
+int mpi_PMPI_File_iwrite(
+#endif
+    MPI_File mfile,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPIO_Request* request) 
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_iwrite");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_iwrite(mfile, buf, count, dtype, request);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_iwrite));
+    }
+
+    return retval;
+}
+
+
+/*
+ * MPI_File_iwrite_shared
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+int MPI_File_iwrite_shared(
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+int __wrap_MPI_File_iwrite_shared(
+#else
+int mpi_PMPI_File_iwrite_shared(
+#endif
+    MPI_File mfile,
+    void* buf, 
+    int count, 
+    MPI_Datatype dtype, 
+    MPIO_Request* request) 
+{
+    int retval;
+    mpi_event event;
+    
+    bool_t dotrace = mpi_do_trace("MPI_File_iwrite_shared");
+
+    if (dotrace) {
+      mpi_start_event(&event);
+      event.start_time = OpenSS_GetTime();
+    }
+
+    retval = PMPI_File_iwrite_shared(mfile, buf, count, dtype, request);
+
+    if (dotrace) {
+      event.stop_time = OpenSS_GetTime();
+      mpi_record_event(&event, OpenSS_GetAddressOfFunction(PMPI_File_iwrite_shared));
     }
 
     return retval;

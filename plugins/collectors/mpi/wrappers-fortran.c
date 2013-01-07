@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2008-2011 The Krell Institute. All Rights Reserved.
+** Copyright (c) 2008-2013 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -1916,3 +1916,42 @@ OSS_WRAP_FORTRAN(MPI_STARTALL,mpi_startall,__wrap_mpi_startall,
      MPI_Fint array_of_requests[],
      MPI_Fint* ierr),
     (count, array_of_requests, ierr))
+
+
+
+
+/*
+ * MPI_File_open
+ */
+
+#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
+void mpi_file_open
+#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
+void __wrap_mpi_file_open
+#endif
+  ( MPI_Fint* comm,
+    char* filename,
+    MPI_Fint* amode,
+    MPI_Fint* info,
+    MPI_Fint* mfile,
+    MPI_Fint* ierr)
+{
+
+  MPI_Comm local_comm;
+  MPI_Info local_info;
+  MPI_File local_mfile;
+  local_comm = MPI_Comm_f2c(*comm);
+  local_info = MPI_Info_f2c(*info);
+
+  *ierr = MPI_File_open(local_comm, filename, *amode, local_info, &local_mfile);
+  *mfile = MPI_File_c2f(local_mfile);
+
+}
+OSS_WRAP_FORTRAN(MPI_FILE_OPEN,mpi_file_open,__wrap_mpi_file_open,
+  ( MPI_Fint* comm,
+    char* filename,
+    MPI_Fint* amode,
+    MPI_Fint* info,
+    MPI_Fint* mfile,
+    MPI_Fint *ierr),
+    (comm, filename, amode, info, mfile, ierr))

@@ -39,6 +39,36 @@
 	"MPI_Comm_dup",
 	"MPI_Comm_free",
 	"MPI_Comm_split",
+        "MPI_File_close",
+        "MPI_File_delete",
+        "MPI_File_get_amode",
+        "MPI_File_get_group",
+        "MPI_File_get_info",
+        "MPI_File_get_size",
+        "MPI_File_get_view",
+        "MPI_File_iread",
+        "MPI_File_iread_at",
+        "MPI_File_iread_shared",
+        "MPI_File_iwrite",
+        "MPI_File_iwrite_at",
+        "MPI_File_iwrite_shared",
+        "MPI_File_open",
+        "MPI_File_read",
+        "MPI_File_read_all",
+        "MPI_File_read_at",
+        "MPI_File_read_at_all",
+        "MPI_File_read_ordered",
+        "MPI_File_seek",
+        "MPI_File_seek_shared",
+        "MPI_File_set_info",
+        "MPI_File_set_size",
+        "MPI_File_set_view",
+        "MPI_File_write",
+        "MPI_File_write_all",
+        "MPI_File_write_at",
+        "MPI_File_write_at_all",
+        "MPI_File_write_ordered",
+        "MPI_File_write_shared",
 	"MPI_Finalize",
 	"MPI_Gather",
 	"MPI_Gatherv",
@@ -81,7 +111,6 @@
 	"MPI_Waitall",
 	"MPI_Waitany",
 	"MPI_Waitsome",
-	
 	// End Of Table Entry
 	NULL
     };
@@ -92,6 +121,7 @@
 	"collective_com",
 	"datatypes",
 	"environment",
+	"file_io",
 	"graphs_contexts_comms",
 	"persistent_com",
 	"process_topologies",
@@ -150,6 +180,41 @@
     static const char *TraceableEnvironment[] = {
           "MPI_Finalize",
           "MPI_Init",
+	// End Of Table Entry
+	NULL
+    };
+
+    static const char *TraceableFileIO[] = {
+          "MPI_File_close",
+          "MPI_File_delete",
+          "MPI_File_get_amode",
+          "MPI_File_get_group",
+          "MPI_File_get_info",
+          "MPI_File_get_size",
+          "MPI_File_get_view",
+          "MPI_File_iread",
+          "MPI_File_iread_at",
+          "MPI_File_iread_shared",
+          "MPI_File_iwrite",
+          "MPI_File_iwrite_at",
+          "MPI_File_iwrite_shared",
+          "MPI_File_open",
+          "MPI_File_read",
+          "MPI_File_read_all",
+          "MPI_File_read_at",
+          "MPI_File_read_at_all",
+          "MPI_File_read_ordered",
+          "MPI_File_seek",
+          "MPI_File_seek_shared",
+          "MPI_File_set_info",
+          "MPI_File_set_size",
+          "MPI_File_set_view",
+          "MPI_File_write",
+          "MPI_File_write_all",
+          "MPI_File_write_at",
+          "MPI_File_write_at_all",
+          "MPI_File_write_ordered",
+          "MPI_File_write_shared",
 	// End Of Table Entry
 	NULL
     };
@@ -216,6 +281,16 @@ static    char *datatypes = (char *)
 static    char *environment = (char *)
 "MPI_Finalize:MPI_Init";
 
+static    char *file_io = (char *)
+"MPI_File_close:MPI_File_delete:MPI_File_get_amode:MPI_File_get_group:\
+MPI_File_get_info:MPI_File_get_size:MPI_File_get_view:MPI_File_iread:\
+MPI_File_iread_at:MPI_File_iread_shared:MPI_File_iwrite:MPI_File_iwrite_at:\
+MPI_File_iwrite_shared:MPI_File_open:MPI_File_read:MPI_File_read_all:\
+MPI_File_read_at:MPI_File_read_at_all:MPI_File_read_ordered:MPI_File_seek:\
+MPI_File_seek_shared:MPI_File_set_info:MPI_File_set_size:MPI_File_set_view:\
+MPI_File_write:MPI_File_write_all:MPI_File_write_at:MPI_File_write_at_all:\
+MPI_File_write_ordered:MPI_File_write_shared";
+
 static    char *graphs_contexts_comms = (char *)
 "MPI_Comm_create:MPI_Comm_dup:MPI_Comm_free:MPI_Comm_split:\
 MPI_Intercomm_create:MPI_Intercomm_merge";
@@ -235,7 +310,15 @@ static    char *all = (char *)
 "MPI_Allgather:MPI_Allgatherv:MPI_Allreduce:MPI_Alltoall:\
 MPI_Alltoallv:MPI_Barrier:MPI_Bcast:MPI_Bsend:MPI_Bsend_init:\
 MPI_Cancel:MPI_Cart_create:MPI_Cart_sub:MPI_Comm_create:\
-MPI_Comm_dup:MPI_Comm_free:MPI_Comm_split:MPI_Finalize:\
+MPI_Comm_dup:MPI_Comm_free:MPI_Comm_split:MPI_File_close:\
+MPI_File_delete:MPI_File_get_amode:MPI_File_get_group:MPI_File_get_info:\
+MPI_File_get_size:MPI_File_get_view:MPI_File_iread:MPI_File_iread_at:\
+MPI_File_iread_shared:MPI_File_iwrite:MPI_File_iwrite_at:\
+MPI_File_iwrite_shared:MPI_File_open:MPI_File_read:MPI_File_read_all:\
+MPI_File_read_at:MPI_File_read_at_all:MPI_File_read_ordered:MPI_File_seek:\
+MPI_File_seek_shared:MPI_File_set_info:MPI_File_set_size:MPI_File_set_view:\
+MPI_File_write:MPI_File_write_all:MPI_File_write_at:MPI_File_write_at_all:\
+MPI_File_write_ordered:MPI_File_write_shared:MPI_Finalize:\
 MPI_Gather:MPI_Gatherv:MPI_Get_count:MPI_Graph_create:\
 MPI_Ibsend:MPI_Init:MPI_Intercomm_create:MPI_Intercomm_merge:\
 MPI_Iprobe:MPI_Irecv:MPI_Irsend:MPI_Isend:MPI_Issend:\

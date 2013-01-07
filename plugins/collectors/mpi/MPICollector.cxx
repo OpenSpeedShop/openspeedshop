@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2007-2012 The Krell Institute . All Rights Reserved.
+// Copyright (c) 2007-2013 The Krell Institute . All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -31,7 +31,7 @@
 using namespace OpenSpeedShop::Framework;
 
 
-//#define DEBUG_PARAM 1
+#define DEBUG_PARAM 1
 
 namespace {
 
@@ -60,8 +60,6 @@ namespace {
     #include "MPITraceableFunctions.h"
 
 }    
-
-
 
 /**
  * Collector's factory method.
@@ -291,6 +289,7 @@ void MPICollector::setParameterValue(const std::string& parameter, const void* p
           "collective_com",
           "datatypes",
           "environment",
+          "file_io",
           "graphs_contexts_comms",
           "persistent_com",
           "process_topologies",
@@ -369,6 +368,21 @@ void MPICollector::setParameterValue(const std::string& parameter, const void* p
                 std::map<std::string, bool>::iterator tmp_im = tmp_value.find(TraceableEnvironment[i]);
                 tmp_im->second = TRUE;
                 env_param = env_param + TraceableEnvironment[i] + ",";
+            }
+          
+        } 
+
+        if ((tmp_value.find("file_io") != tmp_value.end()) &&
+             tmp_value.find("file_io")->second) {
+
+#if DEBUG_PARAM
+            std::cerr << "MPICollector::setParameterValue, tmp_value.find(file_io) has been FOUND"  << std::endl;
+#endif
+
+            for(unsigned i = 0; TraceableFileIO[i] != NULL; ++i) {
+                std::map<std::string, bool>::iterator tmp_im = tmp_value.find(TraceableFileIO[i]);
+                tmp_im->second = TRUE;
+                env_param = env_param + TraceableFileIO[i] + ",";
             }
           
         } 

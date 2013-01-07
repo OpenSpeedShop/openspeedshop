@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) The Krell Institute (2007-2011). All Rights Reserved.
+** Copyright (c) The Krell Institute (2007-2013). All Rights Reserved.
 ** Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
