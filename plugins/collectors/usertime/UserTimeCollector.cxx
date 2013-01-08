@@ -331,6 +331,12 @@ void UserTimeCollector::getMetricValues(const std::string& metric,
 		<< std::endl; 
 #endif
 	   } else {
+		if (data.bt.bt_val[j] == 0) {
+		    // for some reason pthreaded calltrees have an extra
+		    // frame with address of 0x0.  Do not pass these on to view
+		    // code.  FIXME.  look at unwind code for the real cause...
+		    continue;
+		}
 		trace.push_back(Address(data.bt.bt_val[j]));
 	   }
 	}
