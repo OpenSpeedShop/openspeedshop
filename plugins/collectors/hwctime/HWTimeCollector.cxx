@@ -346,8 +346,16 @@ void HWTimeCollector::getMetricValues(const std::string& metric,
 	
 	// Get the stack trace for this sample
 	StackTrace trace(thread, extent.getTimeInterval().getBegin());
-	for(unsigned j = ib; j < ie; ++j)
+	for(unsigned j = ib; j < ie; ++j) {
+
+	    if (data.bt.bt_val[j] == 0) {
+		    // for some reason pthreaded calltrees have an extra
+		    // frame with address of 0x0.  Do not pass these on to view
+		    // code.  FIXME.  look at unwind code for the real cause...
+		    continue;
+	    }
 	    trace.push_back(Address(data.bt.bt_val[j]));
+	}
 	
 	// Iterate over each of the frames in the current stack trace
 	for(StackTrace::const_iterator
