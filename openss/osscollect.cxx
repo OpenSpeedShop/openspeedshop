@@ -22,6 +22,9 @@
 #include "config.h"
 #endif
 
+#include <sys/stat.h>
+#include <errno.h>
+
 #include <sys/param.h>
 #include <sys/wait.h>
 #include <stdio.h>
@@ -87,6 +90,22 @@ int main(int argc, char** argv)
     // create a default for topology file.
     char const* home = getenv("HOME");
     std::string default_topology(home);
+
+    std::string cbtf_path(home);
+    cbtf_path += "/.cbtf";
+
+    struct stat sb;
+
+    if (!(stat(cbtf_path.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))) {
+      int ret = mkdir(cbtf_path.c_str(), 0755);
+      if (ret != 0 && errno != EEXIST) {
+        fprintf(stderr,"collectionTool: could not create cbtf directory `%s': %s",
+                cbtf_path.c_str(), strerror(errno));
+      }
+    }
+
+
+
     default_topology += "/.cbtf/cbtf_topology";
 
     // create a default for connections file.
