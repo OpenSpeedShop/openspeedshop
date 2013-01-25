@@ -44,6 +44,8 @@
         "MPI_File_get_amode",
         "MPI_File_get_group",
         "MPI_File_get_info",
+        "MPI_File_get_position",
+        "MPI_File_get_position_shared",
         "MPI_File_get_size",
         "MPI_File_get_view",
         "MPI_File_iread",
@@ -58,6 +60,7 @@
         "MPI_File_read_at",
         "MPI_File_read_at_all",
         "MPI_File_read_ordered",
+        "MPI_File_read_shared",
         "MPI_File_seek",
         "MPI_File_seek_shared",
         "MPI_File_set_info",
@@ -190,6 +193,8 @@
           "MPI_File_get_amode",
           "MPI_File_get_group",
           "MPI_File_get_info",
+          "MPI_File_get_position",
+          "MPI_File_get_position_shared",
           "MPI_File_get_size",
           "MPI_File_get_view",
           "MPI_File_iread",
@@ -312,6 +317,7 @@ MPI_Alltoallv:MPI_Barrier:MPI_Bcast:MPI_Bsend:MPI_Bsend_init:\
 MPI_Cancel:MPI_Cart_create:MPI_Cart_sub:MPI_Comm_create:\
 MPI_Comm_dup:MPI_Comm_free:MPI_Comm_split:MPI_File_close:\
 MPI_File_delete:MPI_File_get_amode:MPI_File_get_group:MPI_File_get_info:\
+MPI_File_get_position:MPI_File_get_position_shared: \
 MPI_File_get_size:MPI_File_get_view:MPI_File_iread:MPI_File_iread_at:\
 MPI_File_iread_shared:MPI_File_iwrite:MPI_File_iwrite_at:\
 MPI_File_iwrite_shared:MPI_File_open:MPI_File_read:MPI_File_read_all:\
