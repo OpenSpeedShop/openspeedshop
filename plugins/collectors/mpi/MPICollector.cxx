@@ -31,7 +31,7 @@
 using namespace OpenSpeedShop::Framework;
 
 
-/* #define DEBUG_PARAM 1 */
+//#define DEBUG_PARAM 1
 
 namespace {
 
