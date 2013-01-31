@@ -2976,18 +2976,18 @@ void __wrap_mpi_file_iwrite_shared
     char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPIO_Request* request,
+    MPI_Status* status,
     MPI_Fint* ierr)
 {
 
 
   MPI_File local_mfile;
-  MPIO_Request local_request;
+  MPI_Status local_status;
   MPI_Datatype local_datatype;
   local_mfile = MPI_File_f2c(*mfile);
   local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_iwrite_shared( local_mfile, buf, count, local_datatype, &local_request);
-  *request = MPIO_Request_c2f(local_request);
+  *ierr = MPI_File_iwrite_shared( local_mfile, buf, count, local_datatype, &local_status);
+  MPI_Status_c2f(&local_status, status);
 
 
 }
@@ -2996,9 +2996,9 @@ OSS_WRAP_FORTRAN(MPI_FILE_IWRITE_SHARED,mpi_file_iwrite_shared,__wrap_mpi_file_i
     char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Fint* request,
+    MPI_Status* status,
     MPI_Fint *ierr),
-    (mfile, buf, count, datatype, request, ierr))
+    (mfile, buf, count, datatype, status, ierr))
 
 
 /*
