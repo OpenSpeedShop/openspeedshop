@@ -20,6 +20,7 @@
 #ifndef OPTIONSFORM_H
 #define OPTIONSFORM_H
 
+#include <stddef.h>
 #include <qdialog.h>
 
 class QButtonGroup;

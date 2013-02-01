@@ -20,6 +20,7 @@
 #ifndef CHARTFORM_H
 #define CHARTFORM_H
 
+#include <stddef.h>
 #include "element.hxx"
 
 #include <qmainwindow.h>
