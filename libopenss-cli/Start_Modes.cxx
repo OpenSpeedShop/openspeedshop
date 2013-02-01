@@ -368,8 +368,9 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
  // execute with an "RunOfflineExp" command and display results with "expview stats".
  // Otherwise, assume the input file will control execution.
 
+  bool createDBonly = (getenv("OPENSS_DATABASE_ONLY") != NULL);
   bool doNotViewData = (getenv("OPENSS_RAWDATA_ONLY") != NULL);
-  if (oss_start_mode == SM_Offline && !need_gui && !need_cli && !doNotViewData) {
+  if (oss_start_mode == SM_Offline && !need_gui && !need_cli && !doNotViewData && !createDBonly ) {
 
 #ifdef DEBUG_CLI_OPTIONS
     printf(" Start_COMMAND_LINE_Mode, adding expView to the input stack, oss_start_mode (offline)=%d\n", oss_start_mode);
