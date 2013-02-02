@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2011 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2013 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -17,10 +17,10 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "SPCheckBox.hxx"
 #include <qapplication.h>
 #include <qwidget.h>
 
-#include "SPCheckBox.hxx"
 
 class QCheckBox;
 

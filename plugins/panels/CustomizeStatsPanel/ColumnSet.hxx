@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2011 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2013 Krell Institute All Rights Reserved.
 //
 //
 // This library is free software; you can redistribute it and/or modify it under
@@ -30,6 +30,7 @@ class QTabWidget;
 class QComboBox;
 class MPListView;
 
+#include <stddef.h>
 #include "CollectorListObject.hxx"  // For getting pid list off a host...
 #include "CollectorEntryClass.hxx"
 

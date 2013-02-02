@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2009-2011  Krell Institute  All Rights Reserved.
+// Copyright (c) 2009-2013  Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -19,6 +19,7 @@
 #ifndef CHOOSEEXPERIMENTDIALOG_H
 #define CHOOSEEXPERIMENTDIALOG_H
 
+#include <stddef.h>
 #include <qdialog.h>
 #include <vector>
 

@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006-2013 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -22,6 +23,7 @@
 
 #include "MetricInfo.hxx"
 
+#include <stddef.h>  // For Qt iterators.... but make this non-qt iterator.
 #include <qvaluelist.h>  // For Qt iterators.... but make this non-qt iterator.
 
 //! Experiment Information Class

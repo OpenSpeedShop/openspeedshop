@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007, 2008 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2013 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -21,6 +21,7 @@
 #ifndef MANAGECOLLECTORCLASS_H
 #define MANAGECOLLECTORCLASS_H
 
+#include <stddef.h>
 #include <qvariant.h>
 #include <qdialog.h>
 #include <qpopupmenu.h>
