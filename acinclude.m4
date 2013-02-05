@@ -436,6 +436,10 @@ AC_DEFUN([AC_PKG_DYNINST], [
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR $BOOST_CPPFLAGS"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI -lpatchAPI -lpcontrol -lstackwalk -ldynElf -ldynDwarf -lsymLite"
             ;;
+	"8.1")
+            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR $BOOST_CPPFLAGS"
+            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI -lpatchAPI -lpcontrol -lstackwalk -ldynElf -ldynDwarf -lsymLite"
+            ;;
 	*)
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI" 
@@ -534,6 +538,10 @@ AC_DEFUN([AC_PKG_SYMTABAPI], [
 	"8.0.0")
             SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
             ;;
+	"8.1")
+            SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
+            ;;
+	*)
 	*)
             SYMTABAPI_LIBS="-lsymtabAPI -lcommon" 
             ;;
