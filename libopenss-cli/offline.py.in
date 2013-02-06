@@ -376,6 +376,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
                   ismpich2 = os.system('grep -q -i Argonne ' + file_arg)
                   ismvapich = os.system('grep -q -i \"Wrapper for job submission on Hert related machines\" ' + file_arg)
                   ismvapich2 = os.system('grep -q -i \"MVAPICH2 software package developed\" ' + file_arg)
+                  islsf = os.system('grep -q -i \"PJL_WRAPPER\" ' + file_arg)
 
 		  # if both ismpich2 and ismvapich2 are set, choose mpich2
 		  if not os.WEXITSTATUS(ismpich2) and not os.WEXITSTATUS(ismvapich2):
@@ -383,7 +384,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
                         if offlinepy_debug != 0: print "[openss-debug]: both ismpich2 and ismvapich2 are set choose mpich2"
 
 		  # if ismpich is set then don't do a check for mpich2
-		  if os.WEXITSTATUS(ismpich) and os.WEXITSTATUS(ismpich2):
+		  if os.WEXITSTATUS(ismpich) and os.WEXITSTATUS(ismpich2) and os.WEXITSTATUS(islsf):
 			ismpich2 = os.system('grep -q -i Intel ' + file_arg)
                         if offlinepy_debug != 0: print "[openss-debug]: if ismpich is set then don't do a check for mpich2"
 
@@ -493,6 +494,17 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
                       fmpich_so_exists = os.system('test -f' + mpich2_prefix_val + '/' + alt_machine_dependent_libdir_val + '/' + libfmpich.so)
                       if not os.WEXITSTATUS(fmpich_so_exists):
                         f_mpich2_libs = mpich2_prefix_val + "/" + alt_machine_dependent_libdir_val + "/" + libfmpich.so
+                  if not os.WEXITSTATUS(islsf):
+                    ismpi = bool(1)
+                    mpi_driver = os.path.realpath(file_arg)
+                    orig_mpi_driver = s
+                    program = program.replace(s, file_arg)
+                    preload_files = ""
+                    #mpi_exe_implmentation = "mpich2"
+                    #ismpich2 = bool(1)
+                    if offlinepy_debug != 0: print "[openss-debug]: islsf orig_mpi_driver=" + orig_mpi_driver
+                    if offlinepy_debug != 0: print "[openss-debug]: islsf program=" + program
+
 
 
     # Set the mpiplugin to use for mpi jobs.  The OPENSS_MPI_IMPLEMENTATION
