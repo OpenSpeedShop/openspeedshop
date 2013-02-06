@@ -541,7 +541,6 @@ AC_DEFUN([AC_PKG_SYMTABAPI], [
             SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
             ;;
 	*)
-	*)
             SYMTABAPI_LIBS="-lsymtabAPI -lcommon" 
             ;;
     esac
