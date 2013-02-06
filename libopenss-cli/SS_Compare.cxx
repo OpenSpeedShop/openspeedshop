@@ -432,6 +432,13 @@ static bool Generate_CustomView (CommandObject *cmd,
       printf("SSCOMPARE: Generate_CustomView, after calling vt->GenerateView, tgrp.size()=%d\n", tgrp.size());
 #endif
 
+      if (Quick_Compare_Set[i].partial_view.empty()) {
+        std::string annotation_string = 
+                "There were no data samples available to compare for the '"
+                +Quick_Compare_Set[i].headerPrefix+"' selection.\n";
+        cmd->Result_Annotation (annotation_string.c_str());
+      }
+
       if (!success) {
         Reclaim_CR_Space (Quick_Compare_Set[i].partial_view);
         Quick_Compare_Set[i].partial_view.clear();

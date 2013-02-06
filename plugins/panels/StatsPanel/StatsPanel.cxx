@@ -9052,6 +9052,45 @@ StatsPanel::setCurrentMetricStr()
 }
 
 void
+StatsPanel::outputCLIAnnotation(QString xxxfuncName, QString xxxfileName, int xxxlineNumber)
+{
+
+#ifdef DEBUG_StatsPanel
+   printf("StatsPanel::outputCLIAnnotation, ENTER xxxfuncName.ascii()=%s, xxxfileName.ascii()=%s\n", 
+           xxxfuncName.ascii(), xxxfileName.ascii());
+#endif
+
+  int i = 0;
+
+  SPListViewItem *highlight_item = NULL;
+  bool highlight_line = FALSE;
+  QColor highlight_color = QColor(Qt::blue);
+
+  QString strippedString1 = QString::null; // MPI only.
+
+  QString *strings = NULL;
+
+  for( FieldList::Iterator it = columnFieldList.begin();
+       it != columnFieldList.end();
+       ++it)
+  {
+    QString s = ((QString)*it).stripWhiteSpace();
+
+#ifdef DEBUG_StatsPanel
+    printf("outputCLIAnnotation, PUT OUT ANNOTATION\n");
+#endif
+
+    QMessageBox::information( (QWidget *)this, tr("Info:"), tr(s), QMessageBox::Ok );
+  }
+  
+#ifdef DEBUG_StatsPanel
+   printf("outputCLIAnnotation, return from outputCLIAnnotation\n");
+#endif
+
+  return;
+}
+
+void
 StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineNumber)
 {
 
@@ -9129,7 +9168,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
            printf("outputCLIData, show sml hide splv (sml != NULL)... = (%d)\n", (sml != NULL) );
 #endif
        }
-         
+
       } else if( s.find("%") != -1 ) {
         if( percentIndex == -1 ) {
           percentIndex = i;
@@ -12681,7 +12720,6 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
    // It needs to be read from there and prepared for display
    // rather than formatted with a call to the CLI routines.
     try {
-      QString vs = QString::null;
       columnFieldList.clear();
 
       // Allocate a buffer for performing the copy
@@ -12759,6 +12797,43 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
     }
 
   } // end 'if (co->SaveResultFile().length() > 0)'
+
+ // Process any annotations.
+  std::list<CommandResult_RawString *> cmd_annotation = co->Annotation_List ();
+  for (std::list<CommandResult_RawString *>::iterator ari = cmd_annotation.begin();
+       ari != cmd_annotation.end(); ari++) {
+    if ((*ari)->Type() == CMD_RESULT_RAWSTRING) {
+    }    
+
+    std::string annotation_string = (*ari)->Form(0);
+    QString vs = QString(annotation_string.c_str());
+
+    if( vs.find("There were no data") >= 0 ) {
+      // IF the string contains the no data samples message and there is no generated view then
+      // check to see if there is a StatsPanel Message Label available for use
+      //      IF so, hide the stats panel list widget and chart form
+      //             and view the message label 
+      //      
+      if ( (cmd_result.begin() == cmd_result.end()) &&
+           (sml != NULL) ) {
+#ifdef DEBUG_StatsPanel
+           printf("outputCLIData, show sml hide splv (sml != NULL)... = (%d)\n", (sml != NULL) );
+#endif
+          splv->hide();
+          cf->hide();
+          sml->show();
+        continue;
+      }
+      // Create an 'info' panel for the no data samples mesage.
+#ifdef DEBUG_StatsPanel
+        printf("StatsPanel::process_clip, call outputCLIAnnotation: %s\n",annotation_string.c_str());
+#endif
+      columnFieldList.push_back(vs);
+      outputCLIAnnotation( xxxfuncName, xxxfileName, xxxlineNumber );
+      columnFieldList.clear();
+    }
+
+  } // end - Process any annotations.
 
   for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
 #ifdef DEBUG_StatsPanel
@@ -13187,7 +13262,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
 
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::process_clip, printing the QString s as output %s\n", s.ascii() );
-      printf("StatsPanel::process_clip, calling outputCLIData, xxxfileName.ascii()=%s,printing the QString s as output %s\n", 
+      printf("StatsPanel::process_clip, calling outputCLIData, xxxfileName.ascii()=%s,printing the QString s as output: %s\n", 
               xxxfileName.ascii(), s.ascii() );
 #endif
 
@@ -13195,7 +13270,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
     }
 
 #ifdef DEBUG_StatsPanel
-    printf("StatsPanel::process_clip, BOTTOM OF FOR cmd_result loop ----------------------------------\\n");
+    printf("StatsPanel::process_clip, BOTTOM OF FOR cmd_result loop ----------------------------------\n");
 #endif
   } // end for through results
 

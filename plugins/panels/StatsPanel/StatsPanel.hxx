@@ -368,6 +368,7 @@ class StatsPanel  : public Panel
     void updateCollectorMetricList();
     void updateCollectorParamsValList();
     void outputAboutData(QString *data);
+    void outputCLIAnnotation(QString xxxfuncName, QString xxxfileName, int xxxlineNumber);
     void outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineNumber);
     void exportData( EXPORT_TYPE_ENUM exportTypeParam = EXPORT_CSV );
     QString getPartialExperimentInfo();

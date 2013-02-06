@@ -412,12 +412,11 @@ void Construct_View_Output (CommandObject *cmd,
     // NOTE/WARNING - The first part of this string is searched for in plugins/panels/StatsPanel/StatsPanel.cxx
     // in order to activate a GUI message with the same text.
 
-      CommandResult *no_results = NULL;
-      no_results = new CommandResult_String ("There were no data samples for this experiment execution.\nPossible reasons for this could be:\n   The executable being run didn't run long enough to record performance data.\n   The experiment query may not have found a sample for a specified function or thread.\n   The type of performance data being gathered may not be present in the executable being executed.\n   The executable was not compiled with debug symbols enabled (-g option or variant).\n");
+   if (cmd->Type() != CMD_EXP_COMPARE) {
+     cmd->Result_Annotation (
+      "There were no data samples for this experiment execution.\nPossible reasons for this could be:\n   The executable being run didn't run long enough to record performance data.\n   The experiment query may not have found a sample for a specified function or thread.\n   The type of performance data being gathered may not be present in the executable being executed.\n   The executable was not compiled with debug symbols enabled (-g option or variant).\n");
+   }
 
-      CommandResult_Columns *N = new CommandResult_Columns ();
-      N->CommandResult_Columns::Add_Column (no_results);
-      view_output.push_back (N);  // attach no data samples to output
  } // end else no data samples
 
 } // end routine Construct_View_Output
