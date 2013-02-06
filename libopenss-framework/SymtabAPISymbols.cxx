@@ -55,7 +55,18 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
     std::string objname = linkedobject.getPath();
     std::set<AddressRange> lorange = linkedobject.getAddressRange();
     std::set<AddressRange>::iterator si;
+    AddressRange range_for_stm;
+    Framework::Address base_for_stm(0);
+    bool found_symtab = false;
 
+    //  A linkedobject can be loaded in differing addressranges
+    //  across processes.  So we cycle though the unique
+    //  address ranges finding matching sample addresses and
+    //  then resolving symbols. But, a symboltable is only
+    //  asociated with one address range.  So all functions
+    //  and possibly statements need to be added to the symboltable
+    //  using the base for the addressrange of the symboltable
+    //  found.  Therefore we use range_for_stm and base_for_stm.
     for(si = lorange.begin() ; si != lorange.end(); ++si) {
 	AddressRange lrange;
 
@@ -71,9 +82,15 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 #endif
 
 	lrange = (*si);
+	if (!found_symtab || stm.find(*si) != stm.end()) {
+	    range_for_stm = lrange;
+	    found_symtab = true;
+	}
 
-	if (stm.find(*si) != stm.end()) {
-	    SymbolTable& st =  stm.find(*si)->second.first;
+	if (found_symtab) {
+	    SymbolTable& st =  stm.find(range_for_stm)->second.first;
+	    //SymbolTable& st =  stm.find(*si)->second.first;
+	    //SymbolTable stp = st;
 
 	    Symtab *symtab;
 
@@ -99,6 +116,17 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 	    if ( (image_range.getBegin() - lrange.getBegin()) < 0 ) {
 		base = lrange.getBegin();
 	    }
+
+	    if ( (image_range.getBegin() - range_for_stm.getBegin()) < 0 ) {
+		base_for_stm = range_for_stm.getBegin();
+	    }
+
+#ifndef NDEBUG
+	    if(is_debug_symtabapi_symbols_enabled) {
+	        std::cerr << "base for " << objname << " is " << base << std::endl;
+	        std::cerr << "base for symboltable is " << base_for_stm << std::endl;
+	    }
+#endif
 
 	    std::vector <SymtabAPI::Function *>fsyms;
 
@@ -153,7 +181,7 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 			    << std::endl;
 			}
 #endif
-			st.addFunction(begin+base,end+base,fname);
+			st.addFunction(begin+base_for_stm,end+base_for_stm,fname);
 
 			// Record the function begin addresses, This allows the
 			// cli and gui to focus on or display the first
@@ -279,6 +307,11 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 	      } // mods loop
 	    } // function begin statement loop
 	} // if stm loop
+	else {
+	    std::cerr << "NO STM "
+	    << objname << " with address range " << lrange
+	    << std::endl;
+	}
     }
 }
 

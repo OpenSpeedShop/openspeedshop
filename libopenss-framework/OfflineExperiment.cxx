@@ -348,7 +348,7 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 
     std::set<std::string>::iterator ssi,ssii, temp;
     for( ssi = executables_used.begin(); ssi != executables_used.end(); ++ssi) {
-	std::cerr << "Processing raw data for " << (*ssi) << std::endl;
+	std::cerr << "Processing raw data for " << (*ssi) << " ..." << std::endl;
         for( ssii = dataList.begin(); ssii != dataList.end(); ++ssii) {
 	    if( (*ssii).find((*ssi)) != std::string::npos) {
 		rawfiles.push_back((*ssii));
@@ -550,9 +550,12 @@ int OfflineExperiment::convertToOpenSSDB()
         if (found_datafile) {
             bool_t rval = process_data(rawname);
             if (!rval) {
-	        std::cerr << "Could not process experiment info for: "
+	        std::cerr << "Could not process experiment data for: "
 		        << rawname << std::endl;
-            }
+            } else {
+	        //std::cerr << "Successfully processed experiment data for: "
+		 //       << rawname << std::endl;
+	    }
         }
     }
 
@@ -691,7 +694,7 @@ OfflineExperiment::process_data(const std::string rawfilename)
 
     bool_t done = false;
 
-    while (!done) {
+    while (1) {
 	unsigned int blobsize;
 	if (!xdr_u_int(&xdrs, &blobsize)) {
 	    //  no more entries. done.
@@ -732,9 +735,11 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	// For offline collection we really maintain one dataqueue.
 	// So the collector runtimes need to set the header.experiment to 0.
 	// This is the first index into the DataQueue.
+	//std::cerr << "process_data enquing datablob of " << blobsize << " size for " << rawfilename << std::endl;
 	Blob datablob(blobsize, theData);
 	DataQueues::enqueuePerformanceData(datablob);
 	if (theData) free(theData);
+	done = true;
 
     } // while
 
@@ -742,7 +747,7 @@ OfflineExperiment::process_data(const std::string rawfilename)
     // experimental code to remove raw openss-data file
     // once it is copied to the openss database.
     //std::remove(rawfilename.c_str());
-    return true;
+    return done;
 }
 
 bool OfflineExperiment::process_objects(const std::string rawfilename)
@@ -1037,7 +1042,7 @@ void OfflineExperiment::createOfflineSymbolTable()
     for(std::set<LinkedObject>::const_iterator j = ttgrp_lo.begin();
 					       j != ttgrp_lo.end(); ++j) {
 	LinkedObject lo = (*j);
-
+	std::cerr << "Resolving symbols for " << lo.getPath() << std::endl;
 #if defined(OPENSS_USE_SYMTABAPI)
 	stapi_symbols.getSymbols(addresses,lo,symtabmap);
 #else
@@ -1045,6 +1050,8 @@ void OfflineExperiment::createOfflineSymbolTable()
 #endif
 
     } // end for threads linkedobjects
+
+    std::cerr << "Updating database with functions and statements... " << std::endl;
 
     // Now update the database with all our functions and statements...
     std::map<AddressRange, std::string> allfuncs; // used to verify symbols.
@@ -1063,7 +1070,6 @@ void OfflineExperiment::createOfflineSymbolTable()
 	for (std::map<AddressRange,
 	     std::string>::iterator kk = stfuncs.begin();
 	     kk != stfuncs.end(); ++kk) {
-
 	    // allfuncs records already processed function symbols.
 	    // look for the function there first.
 	    std::map<AddressRange, std::string>::iterator it = allfuncs.find(kk->first);
@@ -1090,7 +1096,8 @@ void OfflineExperiment::createOfflineSymbolTable()
     }
 
 // DEBUG
-#ifndef NDEBUG
+//#ifndef NDEBUG
+#ifdef BADDEBUG
   if(is_debug_offlinesymbols_detailed_enabled) {
     // Used to find any sampled addresses for which no symbol
     // was found.
@@ -1133,4 +1140,5 @@ void OfflineExperiment::createOfflineSymbolTable()
 
     // clear names to range for our next linked object.
     dsoVec.clear();
+    std::cerr << "Finished... " << std::endl;
 }

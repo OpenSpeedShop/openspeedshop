@@ -196,7 +196,10 @@ namespace {
 #ifndef DEBUG
 	    if (is_debug_enabled) {
 	    std::cerr << "storePerformanceData: IGNORE DATA header.addr_begin "
-		<< " >= header.addr_end " << std::endl;
+		<< Address(header.addr_begin)
+		<< " >= header.addr_end "
+		<< Address(header.addr_end)
+		<< std::endl;
 	    }
 #endif
 	}
