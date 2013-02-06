@@ -125,6 +125,7 @@ bin_PROGRAMS += ossutil
 if OPENSS_USE_SYMTABAPI
 ossutil_CXXFLAGS = \
         @SYMTABAPI_CPPFLAGS@ \
+        @LIBDWARF_CPPFLAGS@ \
         -I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-queries \
         -I$(top_srcdir)/libopenss-runtime \
@@ -135,12 +136,14 @@ ossutil_CXXFLAGS = \
 
 ossutil_LDFLAGS = \
         @SYMTABAPI_LDFLAGS@ \
+        @LIBDWARF_LDFLAGS@ \
         -L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-queries \
         -L$(top_srcdir)/libopenss-runtime
 
 ossutil_LDADD = \
         @SYMTABAPI_LIBS@ \
+        @LIBDWARF_LIBS@ \
         $(LIBLTDL) \
 	-lopenss-framework \
 	-lopenss-framework-symtabapi \

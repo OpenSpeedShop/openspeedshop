@@ -400,7 +400,7 @@ AC_DEFUN([AC_PKG_DYNINST], [
                                [dyninst-version installation @<:@7.0.1@:>@]),
                 dyninst_vers=$withval, dyninst_vers="7.0.1")
 
-    DYNINST_CPPFLAGS="-I$dyninst_dir/include/dyninst"
+    DYNINST_CPPFLAGS="-I$dyninst_dir/include -I$dyninst_dir/include/dyninst"
     DYNINST_LDFLAGS="-L$dyninst_dir/$abi_libdir"
     DYNINST_DIR="$dyninst_dir" 
     DYNINST_VERS="$dyninst_vers"
@@ -448,11 +448,10 @@ AC_DEFUN([AC_PKG_DYNINST], [
             ;;
     esac
 
-    SYMTABAPI_CPPFLAGS="-I$dyninst_dir/include -I$dyninst_dir/include/dyninst"
-    SYMTABAPI_LDFLAGS="-L$dyninst_dir/$abi_libdir"
+    SYMTABAPI_CPPFLAGS="$DYNINST_CPPFLAGS"
+    SYMTABAPI_LDFLAGS="$DYNINST_LDFLAGS"
     SYMTABAPI_DIR="$dyninst_dir" 
-    SYMTABAPI_CPPFLAGS="$SYMTABAPI_CPPFLAGS -DUSE_STL_VECTOR"
-    SYMTABAPI_LIBS="-lsymtabAPI -lcommon" 
+    SYMTABAPI_LIBS="$DYNINST_LIBS"
 
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP
