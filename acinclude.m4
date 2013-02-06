@@ -397,8 +397,8 @@ AC_DEFUN([AC_PKG_DYNINST], [
 
     AC_ARG_WITH(dyninst-version,
                 AC_HELP_STRING([--with-dyninst-version=VERS],
-                               [dyninst-version installation @<:@7.0.1@:>@]),
-                dyninst_vers=$withval, dyninst_vers="7.0.1")
+                               [dyninst-version installation @<:@8.1@:>@]),
+                dyninst_vers=$withval, dyninst_vers="8.1")
 
     DYNINST_CPPFLAGS="-I$dyninst_dir/include -I$dyninst_dir/include/dyninst"
     DYNINST_LDFLAGS="-L$dyninst_dir/$abi_libdir"
@@ -521,8 +521,8 @@ AC_DEFUN([AC_PKG_SYMTABAPI], [
 
     AC_ARG_WITH(symtabapi-version,
                 AC_HELP_STRING([--with-symtabapi-version=VERS],
-                               [symtabapi-version installation @<:@7.0.1@:>@]),
-                symtabapi_vers=$withval, symtabapi_vers="7.0.1")
+                               [symtabapi-version installation @<:@8.0.0@:>@]),
+                symtabapi_vers=$withval, symtabapi_vers="8.0.0")
 
 
     SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -I$symtabapi_dir/include/dyninst"
