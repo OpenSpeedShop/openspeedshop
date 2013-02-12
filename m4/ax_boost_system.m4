@@ -69,8 +69,8 @@ AC_DEFUN([AX_BOOST_SYSTEM],
         [AC_LANG_PUSH([C++])
 			 CXXFLAGS_SAVE=$CXXFLAGS
 
-			 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[@%:@include <boost/system/error_code.hpp>]],
-                                   [[boost::system::system_category]])],
+			 AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[@%:@include <boost/system/error_code.hpp>]],
+                                   [[boost::system::system_category]]),
                    ax_cv_boost_system=yes, ax_cv_boost_system=no)
 			 CXXFLAGS=$CXXFLAGS_SAVE
              AC_LANG_POP([C++])
@@ -115,3 +115,63 @@ AC_DEFUN([AX_BOOST_SYSTEM],
     	LDFLAGS="$LDFLAGS_SAVED"
 	fi
 ])
+
+
+#############################################################################################
+# Check for Boost System for Target Architecture 
+#############################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_BOOST_SYSTEM], [
+
+    AC_ARG_WITH(target-boost-system,
+                AC_HELP_STRING([--with-target-boost-system=DIR],
+                               [Boost system target architecture installation @<:@/opt@:>@]),
+                target_boost_system_dir=$withval, target_boost_system_dir="/zzz")
+
+    AC_MSG_CHECKING([for Targetted Boost System support])
+
+    found_target_boost_system=0
+    if test -f $target_boost_system_dir/$abi_libdir/libboost_system.so -o -f $target_boost_system_dir/$abi_libdir/libboost_system.a -o -f $target_boost_system_dir/$abi_libdir/libboost_system.so -o -f $target_boost_system_dir/$abi_libdir/libboost_system.a; then
+       found_target_boost_system=1
+       TARGET_BOOST_SYSTEM_LDFLAGS="-L$target_boost_system_dir/$abi_libdir"
+       TARGET_BOOST_SYSTEM_LIB="$target_boost_system_dir/$abi_libdir"
+    elif test -f $target_boost_system_dir/$alt_abi_libdir/libboost_system.so -o -f $target_boost_system_dir/$alt_abi_libdir/libboost_system.a -o -f $target_boost_system_dir/$alt_abi_libdir/libboost_system.so -o -f $target_boost_system_dir/$alt_abi_libdir/libboost_system.a; then
+       found_target_boost_system=1
+       TARGET_BOOST_SYSTEM_LDFLAGS="-L$target_boost_system_dir/$alt_abi_libdir"
+       TARGET_BOOST_SYSTEM_LIB="$target_boost_system_dir/$abi_libdir"
+    fi
+
+    if test $found_target_boost_system == 0 && test "$target_boost_system_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_BOOST_SYSTEM, false)
+      TARGET_BOOST_SYSTEM_CPPFLAGS=""
+      TARGET_BOOST_SYSTEM_LDFLAGS=""
+      TARGET_BOOST_SYSTEM_LIBS=""
+      TARGET_BOOST_SYSTEM_LIB=""
+      TARGET_BOOST_SYSTEM_DIR=""
+      AC_MSG_RESULT(no)
+    elif test $found_target_boost_system == 1 ; then
+      AC_MSG_RESULT(yes)
+      AM_CONDITIONAL(HAVE_TARGET_BOOST_SYSTEM, true)
+      AC_DEFINE(HAVE_TARGET_BOOST_SYSTEM, 1, [Define to 1 if you have a target version of BOOST_SYSTEM.])
+      TARGET_BOOST_SYSTEM_CPPFLAGS="-I$target_boost_system_dir/include/boost"
+      TARGET_BOOST_SYSTEM_LIBS="-lboost_system"
+      TARGET_BOOST_SYSTEM_LIB="-lboost_system"
+      TARGET_BOOST_DIR="$target_boost_system_dir"
+    else 
+      AM_CONDITIONAL(HAVE_TARGET_BOOST_SYSTEM, false)
+      TARGET_BOOST_SYSTEM_CPPFLAGS=""
+      TARGET_BOOST_SYSTEM_LDFLAGS=""
+      TARGET_BOOST_SYSTEM_LIBS=""
+      TARGET_BOOST_SYSTEM_LIB=""
+      TARGET_BOOST_SYSTEM_DIR=""
+      AC_MSG_RESULT(no)
+    fi
+
+    AC_SUBST(TARGET_BOOST_SYSTEM_LIB)
+    AC_SUBST(TARGET_BOOST_SYSTEM_CPPFLAGS)
+    AC_SUBST(TARGET_BOOST_SYSTEM_LDFLAGS)
+    AC_SUBST(TARGET_BOOST_SYSTEM_LIBS)
+    AC_SUBST(TARGET_BOOST_SYSTEM_DIR)
+
+])
+

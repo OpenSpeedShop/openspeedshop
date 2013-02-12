@@ -238,3 +238,76 @@ fi
 
 ])
 
+
+#############################################################################################
+# Check for Boost for Target Architecture 
+#############################################################################################
+
+AC_DEFUN([AC_PKG_TARGET_BOOST], [
+
+    AC_ARG_WITH(target-boost,
+                AC_HELP_STRING([--with-target-boost=DIR],
+                               [Boost target architecture installation @<:@/opt@:>@]),
+                target_boost_dir=$withval, target_boost_dir="/zzz")
+
+    AC_MSG_CHECKING([for Targetted Boost support])
+
+    found_target_boost=0
+    if test -f $target_boost_dir/$abi_libdir/libboost_system.so -o -f $target_boost_dir/$abi_libdir/libboost_system.a -o -f $target_boost_dir/$abi_libdir/libboost_system.so -o -f $target_boost_dir/$abi_libdir/libboost_system.a; then
+       found_target_boost=1
+       TARGET_BOOST_LDFLAGS="-L$target_boost_dir/$abi_libdir"
+       TARGET_BOOST_LIB="$target_boost_dir/$abi_libdir"
+    elif test -f $target_boost_dir/$alt_abi_libdir/libboost_system.so -o -f $target_boost_dir/$alt_abi_libdir/libboost_system.a -o -f $target_boost_dir/$alt_abi_libdir/libboost_system.so -o -f $target_boost_dir/$alt_abi_libdir/libboost_system.a; then
+       found_target_boost=1
+       TARGET_BOOST_LDFLAGS="-L$target_boost_dir/$alt_abi_libdir"
+       TARGET_BOOST_LIB="$target_boost_dir/$abi_libdir"
+    fi
+
+    if test $found_target_boost == 0 && test "$target_boost_dir" == "/zzz" ; then
+      AM_CONDITIONAL(HAVE_TARGET_BOOST, false)
+      TARGET_BOOST_CPPFLAGS=""
+      TARGET_BOOST_LDFLAGS=""
+      TARGET_BOOST_LIBS=""
+      TARGET_BOOST_LIB=""
+      TARGET_BOOST_DIR=""
+      AC_MSG_RESULT(no)
+    elif test $found_target_boost == 1 ; then
+      AC_MSG_RESULT(yes)
+      AM_CONDITIONAL(HAVE_TARGET_BOOST, true)
+      AC_DEFINE(HAVE_TARGET_BOOST, 1, [Define to 1 if you have a target version of BOOST.])
+      TARGET_BOOST_CPPFLAGS="-I$target_boost_dir/include/boost -I$target_boost_dir/include"
+      TARGET_BOOST_LIBS=""
+      TARGET_BOOST_LIB=""
+      TARGET_BOOST_DIR="$target_boost_dir"
+    else 
+      AM_CONDITIONAL(HAVE_TARGET_BOOST, false)
+      TARGET_BOOST_CPPFLAGS=""
+      TARGET_BOOST_LDFLAGS=""
+      TARGET_BOOST_LIBS=""
+      TARGET_BOOST_LIB=""
+      TARGET_BOOST_DIR=""
+      AC_MSG_RESULT(no)
+    fi
+
+    AC_ARG_WITH(target-boost-libdir,
+                AC_HELP_STRING([--with-target-boost-libdir=DIR],
+                               [Boost target architecture installation @<:@/opt@:>@]),
+                target_boost_lib_dir=$withval, target_boost_lib_dir="/zzz")
+
+    AC_MSG_CHECKING([for Targetted Boost libdir support])
+
+    if test $found_target_boost == 1 && test "$target_boost_dir" != "/zzz" && test "$target_boost_lib_dir" != "/zzz" ; then
+      AC_MSG_RESULT(yes)
+    else
+      AC_MSG_RESULT(no)
+      TARGET_BOOST_LIB=""
+    fi
+
+    AC_SUBST(TARGET_BOOST_LIB)
+    AC_SUBST(TARGET_BOOST_CPPFLAGS)
+    AC_SUBST(TARGET_BOOST_LDFLAGS)
+    AC_SUBST(TARGET_BOOST_LIBS)
+    AC_SUBST(TARGET_BOOST_DIR)
+
+])
+

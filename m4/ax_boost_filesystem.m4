@@ -128,11 +128,11 @@ AC_DEFUN([AC_PKG_TARGET_BOOST_FILESYSTEM], [
     AC_MSG_CHECKING([for Targetted Boost Filesystem support])
 
     found_target_boost_filesystem=0
-    if test -f $target_boost_filesystem_dir/$abi_libdir/libboost_filesystem.so -o -f $target_boost_filesystem_dir/$abi_libdir/libboost_filesystem.a -o -f $target_boost_filesystem_dir/$abi_libdir/libboost_filesystem-mt.so -o -f $target_boost_filesystem_dir/$abi_libdir/libboost_filesystem-mt.a; then
+    if test -f $target_boost_filesystem_dir/$abi_libdir/libboost_filesystem.so -o -f $target_boost_filesystem_dir/$abi_libdir/libboost_filesystem.a -o -f $target_boost_filesystem_dir/$abi_libdir/libboost_filesystem.so -o -f $target_boost_filesystem_dir/$abi_libdir/libboost_filesystem.a; then
        found_target_boost_filesystem=1
        TARGET_BOOST_FILESYSTEM_LDFLAGS="-L$target_boost_filesystem_dir/$abi_libdir"
        TARGET_BOOST_FILESYSTEM_LIB="$target_boost_filesystem_dir/$abi_libdir"
-    elif test -f $target_boost_filesystem_dir/$alt_abi_libdir/libboost_filesystem.so -o -f $target_boost_filesystem_dir/$alt_abi_libdir/libboost_filesystem.a -o -f $target_boost_filesystem_dir/$alt_abi_libdir/libboost_filesystem-mt.so -o -f $target_boost_filesystem_dir/$alt_abi_libdir/libboost_filesystem-mt.a; then
+    elif test -f $target_boost_filesystem_dir/$alt_abi_libdir/libboost_filesystem.so -o -f $target_boost_filesystem_dir/$alt_abi_libdir/libboost_filesystem.a -o -f $target_boost_filesystem_dir/$alt_abi_libdir/libboost_filesystem.so -o -f $target_boost_filesystem_dir/$alt_abi_libdir/libboost_filesystem.a; then
        found_target_boost_filesystem=1
        TARGET_BOOST_FILESYSTEM_LDFLAGS="-L$target_boost_filesystem_dir/$alt_abi_libdir"
        TARGET_BOOST_FILESYSTEM_LIB="$target_boost_filesystem_dir/$abi_libdir"
@@ -151,8 +151,8 @@ AC_DEFUN([AC_PKG_TARGET_BOOST_FILESYSTEM], [
       AM_CONDITIONAL(HAVE_TARGET_BOOST_FILESYSTEM, true)
       AC_DEFINE(HAVE_TARGET_BOOST_FILESYSTEM, 1, [Define to 1 if you have a target version of BOOST_FILESYSTEM.])
       TARGET_BOOST_FILESYSTEM_CPPFLAGS="-I$target_boost_filesystem_dir/include/boost"
-      TARGET_BOOST_FILESYSTEM_LIBS="-lboost_filesystem-mt"
-      TARGET_BOOST_FILESYSTEM_LIB="-lboost_filesystem-mt"
+      TARGET_BOOST_FILESYSTEM_LIBS="-lboost_filesystem"
+      TARGET_BOOST_FILESYSTEM_LIB="-lboost_filesystem"
       TARGET_BOOST_DIR="$target_boost_filesystem_dir"
     else 
       AM_CONDITIONAL(HAVE_TARGET_BOOST_FILESYSTEM, false)
