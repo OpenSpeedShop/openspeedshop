@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2011-12 Krell Institute. All Rights Reserved.
+// Copyright (c) 2011-2013 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -208,7 +208,11 @@ int main(int argc, char** argv)
     // setup the experiment to run with cbtf.
     FW_Experiment->setBEprocCount( numBE );
     FW_Experiment->setInstrumentorUsesCBTF( false );
-    Collector mycollector = FW_Experiment->createCollector( collector );
+
+    Collector mycollector = FW_Experiment->createCollector(
+        (collector == "cuda") ? "io" : collector
+        );
+
     ThreadGroup tg = FW_Experiment->createProcess(program, fenodename, numBE,
                                                      OutputCallback(NULL,NULL),
                                                      OutputCallback(NULL,NULL)   );
