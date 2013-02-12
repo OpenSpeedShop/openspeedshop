@@ -149,7 +149,8 @@ static void Determine_Objects (
 		std::set<AddressRange> lor = lo.getAddressRange();
 		std::set<Thread> lot = lo.getThreads();
 		if (lopath.find("libpthread") != std::string::npos ||
-		    lopath.find("libc") != std::string::npos ) { 
+		    lopath.find("libc") != std::string::npos ||
+		    lopath.find("CUDA") != std::string::npos) { 
 
 #ifdef DEBUG_IO
 		    std::cerr << "Determine_Object IOT INSERT " << f
@@ -211,7 +212,8 @@ static void Determine_Objects (
 		std::set<Thread> lot = lo.getThreads();
 
 		if (lopath.find("libpthread") != std::string::npos ||
-		    lopath.find("libc") != std::string::npos ) { 
+		    lopath.find("libc") != std::string::npos ||
+		    lopath.find("CUDA") != std::string::npos ) { 
 #ifdef DEBUG_IO
 		    std::cerr << "Determine_Object IOT INSERT " << f
 			<< " FROM LO " << lo.getPath() << std::endl;
