@@ -549,9 +549,16 @@ int OfflineExperiment::convertToOpenSSDB()
 
         if (found_datafile) {
             bool_t rval = process_data(rawname);
-            if (!rval) {
-	        std::cerr << "Could not process experiment data for: "
+            if (!rval &&
+		(rawfiles[i].find(".openss-info") != std::string::npos ||
+		 rawfiles[i].find(".openss-dsos") != std::string::npos)) {
+// DEBUG
+#ifndef NDEBUG
+		if(is_debug_offline_enabled) {
+	            std::cerr << "Could not process experiment data for: "
 		        << rawname << std::endl;
+		}
+#endif
             } else {
 	        //std::cerr << "Successfully processed experiment data for: "
 		 //       << rawname << std::endl;
