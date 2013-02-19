@@ -555,6 +555,7 @@ case "$INSTRUMENTOR" in
 	;;
 
     offline)
+	AX_BOOST_BASE([1.35.0])
 	AC_PKG_SYMTABAPI()
         #AX_XERCESC()
         ## This helps with targeted builds when there is no xercesc
