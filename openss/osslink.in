@@ -599,13 +599,17 @@ esac
 
 insert_files="$monitor_callbacks $static_collector $static_offline"
 mon_args="${insert_files} ${libmonitor} ${appl_libs} ${library_names}"
+# The flag represented by special_args is needed to make the eh_frame_hdr section available.
+# eh_frame_hdr section is needed to unwind properly.
+# The .eh_frame sections hold unwind information that aids in unwinding through stackframes.
+# This was found on the Cray platforms: cray-xe and cray-xk
+special_args="-Wl,--eh-frame-hdr"
 
 if test "$verbose" = yes ; then
-    echo "$0, new command line: " $command $static_args $wrap_args $undef_args "$@" $mon_args $collector_libs
-
+    echo "$0, new command line: " $command $static_args $wrap_args $undef_args "$@" $special_args $mon_args $collector_libs
 fi
 
-exec $command $static_args $wrap_args $undef_args "$@" $mon_args  $collector_libs
+exec $command $static_args $wrap_args $undef_args "$@" $special_args $mon_args $collector_libs
 
 
 if [ ${oss_target} = cray-xt4 || ${oss_target} = cray-xt5 || ${oss_target} = cray-xe || ${oss_target} = cray-xk ]
