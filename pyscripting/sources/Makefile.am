@@ -24,7 +24,9 @@ BUILT_SOURCES = \
 	 openss_commands.py \
 	 openss_parse.py
 
-dist_pkglib_SCRIPTS = \
+programfilesdir = $(pkglibdir)
+
+dist_programfiles_SCRIPTS = \
 	__init__.py  openss.py openss_classes.py  openss_commands.py  openss_parse.py
 
 doc:	__init__.py openss.py openss_classes.py openss_commands.py openss_parse.py

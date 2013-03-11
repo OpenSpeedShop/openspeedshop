@@ -30,7 +30,8 @@ BUILT_SOURCES = \
 AM_YFLAGS = -d
 YFLAGS = -d
 
-dist_pkglib_SCRIPTS = \
+programfilesdir = $(pkglibdir)
+dist_programfiles_SCRIPTS = \
 	init.py cbtf-offline.py offline.py mrnet.py
 
 lib_LTLIBRARIES = libopenss-cli.la
