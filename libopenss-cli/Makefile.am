@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2007-2012 Krell Institute  All Rights Reserved.
+# Copyright (c) 2007-2013 Krell Institute  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -16,7 +16,6 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-
 
 BUILT_SOURCES = \
 	SS_Parse_Lex.cxx \
@@ -180,15 +179,14 @@ mrnet.py: mrnet.py.in
 		$(srcdir)/mrnet.py.in > mrnet.py
 	@chmod 755 mrnet.py
 
-
 # PYopenss.so
 install-exec-hook: libopenss-cli.la
-	@rm -f $(DESTDIR)$(libdir)/openspeedshop/PYopenss.so
-	$(LN_S) $(DESTDIR)$(libdir)/libopenss-cli.so  $(DESTDIR)$(libdir)/openspeedshop/PYopenss.so
-	chmod 755 $(DESTDIR)$(libdir)/openspeedshop/PYopenss.so
+	@rm -f $(pkglibdir)/PYopenss.so
+	$(LN_S) $(DESTDIR)$(libdir)/libopenss-cli.so $(pkglibdir)/PYopenss.so
+	chmod 755 $(pkglibdir)/PYopenss.so
 
 uninstall-hook:
-	@rm -f $(DESTDIR)$(libdir)/openspeedshop/PYopenss.so
+	@rm -f $(pkglibdir)/PYopenss.so 
 
 EXTRA_DIST += offline.py.in mrnet.py
 
