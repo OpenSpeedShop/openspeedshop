@@ -320,7 +320,11 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 	    // create the master list of info files.
 	    if (rawfiles[i].find(".openss-info") != std::string::npos) {
 		rawname = rawdatadir + "/" + rawfiles[i];
-		infoList.insert(rawname);
+		struct stat stat_record;
+		stat(rawname.c_str(), &stat_record);
+		if (stat_record.st_size) {
+		    infoList.insert(rawname);
+		}
 	    }
 
 	    // create the master list of data files.
@@ -332,13 +336,22 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 		std::string temp = rawfiles[i].substr(0,pos);
 
 		executables_used.insert(temp);
-		dataList.insert(rawname);
+		
+		struct stat stat_record;
+		stat(rawname.c_str(), &stat_record);
+		if (stat_record.st_size) {
+		    dataList.insert(rawname);
+		}
 	    }
 
 	    // create the master list of dsos files.
 	    if (rawfiles[i].find(".openss-dsos") != std::string::npos) {
 		rawname = rawdatadir + "/" + rawfiles[i];
-		dsosList.insert(rawname);
+		struct stat stat_record;
+		stat(rawname.c_str(), &stat_record);
+		if (stat_record.st_size) {
+		    dsosList.insert(rawname);
+		}
 	    }
 	}
 
@@ -350,8 +363,19 @@ OfflineExperiment::getRawDataFiles (std::string dir)
     for( ssi = executables_used.begin(); ssi != executables_used.end(); ++ssi) {
 	std::cerr << "Processing raw data for " << (*ssi) << " ..." << std::endl;
         for( ssii = dataList.begin(); ssii != dataList.end(); ++ssii) {
-	    if( (*ssii).find((*ssi)) != std::string::npos) {
-		rawfiles.push_back((*ssii));
+	    // Need to base the test for existence on the basename
+	    // of the dataList file.  Who knows what may be in the
+	    // full path name that MAY match up.  e.g. the executable
+	    // "wc" matched a directory named "hwctime".
+	    std::string tname;
+	    size_t pos = (*ssii).find_last_of("/");
+	    if(pos != std::string::npos)
+		tname.assign((*ssii).begin() + pos + 1, (*ssii).end());
+	    else
+		tname = *ssii;
+
+	    if( tname.find((*ssi)) != std::string::npos) {
+		    rawfiles.push_back((*ssii));
 	    }
 	}
 
@@ -366,6 +390,9 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 							++temp) {
 		    if ((*temp).find(ts) != std::string::npos) {
 			rawfiles.push_back((*ssii));
+			// remove it from master list now that it will
+			// be processed.
+		        infoList.erase(ssii);
 		    }
 		}
 	    }
@@ -380,6 +407,10 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 							++temp) {
 		    if ((*temp).find(ts) != std::string::npos) {
 			rawfiles.push_back((*ssii));
+			// remove both from master list now that it will
+			// be processed.
+		        dsosList.erase(ssii);
+		        dataList.erase(temp);
 		    }
 		}
 	    }
