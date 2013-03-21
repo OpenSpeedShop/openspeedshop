@@ -702,11 +702,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	       os.system(command)
 	   else:
 	       # This is specificly here for mpi programs.
-	       command = "env" +  \
-                   " LD_PRELOAD=" + oss_preload + ":$LD_PRELOAD " + command
+	       command = command
 
 	       if offlinepy_debug != 0: print "\n[openss debug]: mpi, USING os.system to execute " + command
-	       if offlinepy_debug != 0: print "\n[openss debug]: mpi, oss_preload=" + oss_preload
 	       os.system(command)
 
 	   # Comment out the subprocess code for now.
