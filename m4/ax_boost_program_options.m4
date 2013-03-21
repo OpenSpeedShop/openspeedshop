@@ -70,6 +70,13 @@ AC_DEFUN([AX_BOOST_PROGRAM_OPTIONS],
                            ax_cv_boost_program_options=yes, ax_cv_boost_program_options=no)
 					AC_LANG_POP([C++])
 		])
+
+            boost_in_usr=no
+            if test "x$BOOST_LDFLAGS" = "x"; then
+                boost_in_usr=yes
+                BOOST_LDFLAGS="-L/usr/lib*"
+            fi
+
 		if test "$ax_cv_boost_program_options" = yes; then
 				AC_DEFINE(HAVE_BOOST_PROGRAM_OPTIONS,,[define if the Boost::PROGRAM_OPTIONS library is available])
                   BOOSTLIBDIR=`echo $BOOST_LDFLAGS | sed -e 's/@<:@^\/@:>@*//'`
@@ -105,6 +112,11 @@ AC_DEFUN([AX_BOOST_PROGRAM_OPTIONS],
 		CPPFLAGS="$CPPFLAGS_SAVED"
 	LDFLAGS="$LDFLAGS_SAVED"
 	fi
+
+                       if test "x$boost_in_usr" = "xyes"; then
+                            BOOST_LDFLAGS=""
+                        fi
+
 ])
 
 #############################################################################################

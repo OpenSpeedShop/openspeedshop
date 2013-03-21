@@ -93,11 +93,13 @@ if test "x$want_boost" = "xyes"; then
     dnl this location ist chosen if boost libraries are installed with the --layout=system option
     dnl or if you install boost with RPM
     if test "$ac_boost_path" != ""; then
+	BOOST_DETECTED_PATH="$ac_boost_path"
         BOOST_LDFLAGS="-L$ac_boost_path/$libsubdir"
         BOOST_CPPFLAGS="-I$ac_boost_path/include"
     elif test "$cross_compiling" != yes; then
         for ac_boost_path_tmp in /usr /usr/local /opt /opt/local ; do
             if test -d "$ac_boost_path_tmp/include/boost" && test -r "$ac_boost_path_tmp/include/boost"; then
+		BOOST_DETECTED_PATH="$ac_boost_path_tmp"
                 BOOST_LDFLAGS="-L$ac_boost_path_tmp/$libsubdir"
                 BOOST_CPPFLAGS="-I$ac_boost_path_tmp/include"
                 break;
@@ -214,6 +216,11 @@ if test "x$want_boost" = "xyes"; then
             ],[
             ])
         AC_LANG_POP([C++])
+    fi
+
+    if test "x$BOOST_DETECTED_PATH" == "x/usr"; then
+        BOOST_LDFLAGS=""
+        BOOST_CPPFLAGS=""
     fi
 
     if test "$succeeded" != "yes" ; then

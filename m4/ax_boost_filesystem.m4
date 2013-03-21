@@ -77,6 +77,13 @@ AC_DEFUN([AX_BOOST_FILESYSTEM],
             				       ax_cv_boost_filesystem=yes, ax_cv_boost_filesystem=no)
          AC_LANG_POP([C++])
 		])
+
+            boost_in_usr=no
+            if test "x$BOOST_LDFLAGS" = "x"; then
+                boost_in_usr=yes
+                BOOST_LDFLAGS="-L/usr/lib*"
+            fi
+
 		if test "x$ax_cv_boost_filesystem" = "xyes"; then
 			AC_DEFINE(HAVE_BOOST_FILESYSTEM,,[define if the Boost::Filesystem library is available])
             BOOSTLIBDIR=`echo $BOOST_LDFLAGS | sed -e 's/@<:@^\/@:>@*//'`
@@ -112,6 +119,10 @@ AC_DEFUN([AX_BOOST_FILESYSTEM],
     		LDFLAGS="$LDFLAGS_SAVED"
 		LIBS="$LIBS_SAVED"
 	fi
+                       if test "x$boost_in_usr" = "xyes"; then
+                            BOOST_LDFLAGS=""
+                        fi
+
 ])
 
 #############################################################################################

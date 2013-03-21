@@ -31,15 +31,57 @@ AC_DEFUN([AX_MRNET], [
                                [MRNet installation @<:@/usr@:>@]),
                 mrnet_dir=$withval, mrnet_dir="/usr")
 
-   if test -f $mrnet_dir/$abi_libdir/mrnet-$mrnet_vers/include/mrnet_config.h && test -f $mrnet_dir/$abi_libdir/xplat-$mrnet_vers/include/xplat_config.h ; then
-       MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/$abi_libdir/mrnet-$mrnet_vers/include -I$mrnet_dir/$abi_libdir/xplat-$mrnet_vers/include  -Dos_linux"
-    elif test -f $mrnet_dir/$abi_libdir/mrnet_config.h ; then
-       MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/$abi_libdir -Dos_linux"
-    elif test -f $mrnet_dir/$alt_abi_libdir/mrnet_config.h ; then
-       MRNET_CPPFLAGS="-I$mrnet_dir/include -I$mrnet_dir/$alt_abi_libdir -Dos_linux"
-    else
-       MRNET_CPPFLAGS="-I$mrnet_dir/include -Dos_linux"
-    fi
+#   Temporary fix for problems with the MRNet public header files.
+#   They depend on os_linux or other flags being set
+    os_release=`uname -r`
+    case "$os_release" in
+      2.4*)
+        MRNET_CPPFLAGS="-Dos_linux=24"
+        ;;
+      2.6*)
+        MRNET_CPPFLAGS="-Dos_linux=26"
+        ;;
+      *)
+        MRNET_CPPFLAGS="-Dos_linux"
+        ;;
+    esac
+
+#   The default is to use mrnet-2.2 cppflags and libs.  
+#   Change that (the default case entry) when you change the default vers to something other than 2.2
+
+    case "$mrnet_vers" in
+	"2.0.1")
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet"
+            ;;
+	"2.1")
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_21=1"
+            ;;
+	"2.2")
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_22=1"
+            ;;
+	"3.0")
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_30=1"
+            ;;
+	"3.0.1")
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_30=1 -DMRNET_301=1"
+            ;;
+	"3.1.0")
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_30=1 -DMRNET_301=1"
+            ;;
+	"20110714")
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -DMRNET_30=1 -DMRNET_301=1"
+            ;;
+	"400a")
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -I$mrnet_dir/$abi_libdir -DMRNET_30=1 -DMRNET_301=1"
+            ;;
+	"4.0.0")
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -I$mrnet_dir/$abi_libdir/mrnet-4.0.0/include -I$mrnet_dir/$abi_libdir/xplat-4.0.0/include -DMRNET_30=1 -DMRNET_301=1"
+            ;;
+	*)
+            MRNET_CPPFLAGS="$MRNET_CPPFLAGS -I$mrnet_dir/include -I$mrnet_dir/include/mrnet -I$mrnet_dir/$abi_libdir/mrnet-4.0.0/include -I$mrnet_dir/$abi_libdir/xplat-4.0.0/include -DMRNET_30=1 -DMRNET_301=1"
+            ;;
+    esac
+
     MRNET_LDFLAGS="-L$mrnet_dir/$abi_libdir"
     MRNET_LIBS="-Wl,--whole-archive -lmrnet -lxplat -Wl,--no-whole-archive"
     MRNET_LIBS="$MRNET_LIBS -lpthread -ldl"
@@ -73,9 +115,11 @@ AC_DEFUN([AX_MRNET], [
 
     mrnet_saved_CPPFLAGS=$CPPFLAGS
     mrnet_saved_LDFLAGS=$LDFLAGS
+    mrnet_saved_LIBS=$LIBS
 
-    CPPFLAGS="$CPPFLAGS $MRNET_CPPFLAGS $BOOST_CPPFLAGS"
-    LDFLAGS="$CXXFLAGS $MRNET_LDFLAGS $MRNET_LIBS"
+    CPPFLAGS="$CPPFLAGS $MRNET_CPPFLAGS"
+    LDFLAGS="$CXXFLAGS $MRNET_LDFLAGS"
+    LIBS="$MRNET_LIBS"
 
     AC_MSG_CHECKING([for MRNet library and headers])
 
@@ -98,6 +142,7 @@ AC_DEFUN([AX_MRNET], [
 
     CPPFLAGS=$mrnet_saved_CPPFLAGS
     LDFLAGS=$mrnet_saved_LDFLAGS
+    LIBS=$mrnet_saved_LIBS
 
     AC_LANG_POP(C++)
 
@@ -121,7 +166,7 @@ AC_DEFUN([AX_MRNET], [
 # Check for MRNet for Target Architecture 
 #############################################################################################
 
-AC_DEFUN([AC_PKG_TARGET_MRNET], [
+AC_DEFUN([AX_TARGET_MRNET], [
 
     AC_ARG_WITH(target-mrnet,
                 AC_HELP_STRING([--with-target-mrnet=DIR],

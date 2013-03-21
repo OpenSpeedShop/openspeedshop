@@ -75,6 +75,13 @@ AC_DEFUN([AX_BOOST_SYSTEM],
 			 CXXFLAGS=$CXXFLAGS_SAVE
              AC_LANG_POP([C++])
 		])
+
+            boost_in_usr=no
+            if test "x$BOOST_LDFLAGS" = "x"; then
+                boost_in_usr=yes
+                BOOST_LDFLAGS="-L/usr/lib*"
+            fi
+
 		if test "x$ax_cv_boost_system" = "xyes"; then
 			AC_SUBST(BOOST_CPPFLAGS)
 
@@ -114,6 +121,10 @@ AC_DEFUN([AX_BOOST_SYSTEM],
 		CPPFLAGS="$CPPFLAGS_SAVED"
     	LDFLAGS="$LDFLAGS_SAVED"
 	fi
+
+                       if test "x$boost_in_usr" = "xyes"; then
+                            BOOST_LDFLAGS=""
+                        fi
 ])
 
 

@@ -16,7 +16,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-AC_DEFUN([AX_MESSAGES], [
+AC_DEFUN([AX_CBTF_MESSAGES], [
 
     AC_ARG_WITH(cbtf-messages,
             AC_HELP_STRING([--with-cbtf-messages=DIR],

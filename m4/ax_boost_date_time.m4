@@ -74,16 +74,23 @@ AC_DEFUN([AX_BOOST_DATE_TIME],
 		])
 		if test "x$ax_cv_boost_date_time" = "xyes"; then
 			AC_DEFINE(HAVE_BOOST_DATE_TIME,,[define if the Boost::Date_Time library is available])
+
+	    boost_in_usr=no
+	    if test "x$BOOST_LDFLAGS" = "x"; then
+	        boost_in_usr=yes
+		BOOST_LDFLAGS="-L/usr/lib*"
+	    fi
+
             BOOSTLIBDIR=`echo $BOOST_LDFLAGS | sed -e 's/@<:@^\/@:>@*//'`
             if test "x$ax_boost_user_date_time_lib" = "x"; then
-                for libextension in `ls $BOOSTLIBDIR/libboost_date_time*.{so,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_date_time.*\)\.so.*$;\1;' -e 's;^lib\(boost_date_time.*\)\.a*$;\1;'` ; do
+                for libextension in `ls -r $BOOSTLIBDIR/libboost_date_time*.{so,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^lib\(boost_date_time.*\)\.so.*$;\1;' -e 's;^lib\(boost_date_time.*\)\.a*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_DATE_TIME_LIB="-l$ax_lib"; AC_SUBST(BOOST_DATE_TIME_LIB) link_date_time="yes"; break],
                                  [link_date_time="no"])
   				done
                 if test "x$link_date_time" != "xyes"; then
-                for libextension in `ls $BOOSTLIBDIR/boost_date_time*.{dll,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_date_time.*\)\.dll.*$;\1;' -e 's;^\(boost_date_time.*\)\.a*$;\1;'` ; do
+                for libextension in `ls -r $BOOSTLIBDIR/boost_date_time*.{dll,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_date_time.*\)\.dll.*$;\1;' -e 's;^\(boost_date_time.*\)\.a*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_DATE_TIME_LIB="-l$ax_lib"; AC_SUBST(BOOST_DATE_TIME_LIB) link_date_time="yes"; break],
@@ -99,6 +106,7 @@ AC_DEFUN([AX_BOOST_DATE_TIME],
                   done
 
             fi
+
 			if test "x$link_date_time" != "xyes"; then
 				AC_MSG_ERROR(Could not link against $ax_lib !)
 			fi
@@ -107,6 +115,9 @@ AC_DEFUN([AX_BOOST_DATE_TIME],
 		CPPFLAGS="$CPPFLAGS_SAVED"
     	LDFLAGS="$LDFLAGS_SAVED"
 	fi
+	    		if test "x$boost_in_usr" = "xyes"; then
+			    BOOST_LDFLAGS=""
+			fi
 ])
 
 

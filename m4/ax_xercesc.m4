@@ -8,8 +8,15 @@ AC_DEFUN([AX_XERCESC], [
 
     LIBXERCES_C_DIR="$xerces_dir"
     LIBXERCES_C_LIBSDIR="$xerces_dir/$abi_libdir"
-    LIBXERCES_C_CPPFLAGS="-I$xerces_dir/include"
-    LIBXERCES_C_LDFLAGS="-L$xerces_dir/$abi_libdir"
+
+    if test "x$BINUTILS_DIR" == "x/usr"; then
+        LIBXERCES_C_CPPFLAGS=""
+        LIBXERCES_C_LDFLAGS=""
+    else
+        LIBXERCES_C_CPPFLAGS="-I$xerces_dir/include"
+        LIBXERCES_C_LDFLAGS="-L$xerces_dir/$abi_libdir"
+    fi
+
     LIBXERCES_C="-lxerces-c"
     LTLIBXERCES_C="-lxerces-c"
 
@@ -84,7 +91,7 @@ AC_DEFUN([AX_XERCESC], [
 # Check for XercesC for Target Architecture 
 #############################################################################################
 
-AC_DEFUN([AC_PKG_TARGET_XERCESC], [
+AC_DEFUN([AX_TARGET_XERCESC], [
 
     AC_ARG_WITH(target-libxerces-c-prefix,
                 AC_HELP_STRING([--with-target-libxerces-c-prefix=DIR],
@@ -141,4 +148,3 @@ AC_DEFUN([AC_PKG_TARGET_XERCESC], [
     AC_SUBST(TARGET_LIBXERCES_C_DIR)
 
 ])
-
