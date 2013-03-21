@@ -80,6 +80,8 @@ typedef struct {
     OpenSS_Monitor_Type OpenSS_monitor_type;
 } TLS;
 
+int OpenSS_in_mpi_startup = 0;
+
 #ifdef USE_EXPLICIT_TLS
 
 /**
@@ -210,6 +212,13 @@ void *monitor_init_process(int *argc, char **argv, void *data)
 		tls->pid,tls->tid);
     }
 
+    if (OpenSS_in_mpi_startup || tls->in_mpi_pre_init == 1) {
+        if (tls->debug) {
+	    fprintf(stderr,"monitor_init_process returns early due to in mpi init\n");
+	}
+	return;
+    }
+
     tls->in_mpi_pre_init = 0;
     tls->OpenSS_monitor_type = OpenSS_Monitor_Proc;
 
@@ -303,6 +312,14 @@ void *monitor_init_thread(int tid, void *data)
 	tls->debug=0;
     }
 
+
+    if (OpenSS_in_mpi_startup || tls->in_mpi_pre_init == 1) {
+        if (tls->debug) {
+	    fprintf(stderr,"monitor_init_thread returns early due to in mpi init\n");
+	}
+	return;
+    }
+
     tls->pid = getpid();
 
     if (tls->debug) {
@@ -353,6 +370,13 @@ void monitor_dlopen(const char *library, int flags, void *handle)
 	return;
     }
 
+    if (OpenSS_in_mpi_startup || tls->in_mpi_pre_init == 1) {
+        if (tls->debug) {
+	    fprintf(stderr,"monitor_dlopen returns early due to in mpi init\n");
+	}
+	return;
+    }
+
     if (library == NULL) {
 	if (tls->debug) {
 	    fprintf(stderr,"monitor_dlopen ignores null library name\n");
@@ -397,6 +421,13 @@ monitor_pre_dlopen(const char *path, int flags)
 	return;
     }
 
+    if (tls->in_mpi_pre_init == 1) {
+        if (tls->debug) {
+	    fprintf(stderr,"monitor_pre_dlopen returns early due to in mpi init\n");
+	}
+	return;
+    }
+
     if (path == NULL) {
 	if (tls->debug) {
 	    fprintf(stderr,"monitor_pre_dlopen ignores null path\n");
@@ -435,6 +466,13 @@ monitor_dlclose(void *handle)
 	return;
     }
 
+    if (tls->in_mpi_pre_init == 1) {
+        if (tls->debug) {
+	    fprintf(stderr,"monitor_dlclose returns early due to in mpi init\n");
+	}
+	return;
+    }
+
     if (!tls->thread_is_terminating || !tls->process_is_terminating) {
 	if ((tls->sampling_status == OpenSS_Monitor_Started ||
         /*     tls->sampling_status == OpenSS_Monitor_Not_Started || */
@@ -460,6 +498,13 @@ monitor_post_dlclose(void *handle, int ret)
 #endif
 
     if (tls == NULL || tls && tls->sampling_status == 0 ) {
+	return;
+    }
+
+    if (tls->in_mpi_pre_init == 1) {
+        if (tls->debug) {
+	    fprintf(stderr,"monitor_post_dlclose returns early due to in mpi init\n");
+	}
 	return;
     }
 
@@ -501,6 +546,14 @@ void * monitor_pre_fork(void)
 #endif
     Assert(tls != NULL);
 
+
+    if (OpenSS_in_mpi_startup || tls->in_mpi_pre_init == 1) {
+        if (tls->debug) {
+	    fprintf(stderr,"monitor_pre_fork returns early due to in mpi init\n");
+	}
+	return;
+    }
+
     /* Stop sampling prior to real fork. */
     if (tls->sampling_status == OpenSS_Monitor_Paused ||
 	tls->sampling_status == OpenSS_Monitor_Started) {
@@ -523,6 +576,13 @@ void monitor_post_fork(pid_t child, void *data)
     TLS* tls = &the_tls;
 #endif
     Assert(tls != NULL);
+
+    if (OpenSS_in_mpi_startup || tls->in_mpi_pre_init == 1) {
+        if (tls->debug) {
+	    fprintf(stderr,"monitor_post_fork returns early due to in mpi init\n");
+	}
+	return;
+    }
 
     /* Resume/start sampling forked process. */
     if (tls->sampling_status == OpenSS_Monitor_Paused ||
@@ -553,6 +613,7 @@ void monitor_mpi_pre_init(void)
     Assert(tls != NULL);
 
     tls->in_mpi_pre_init = 1;
+    OpenSS_in_mpi_startup = 1;
 
     if (tls->sampling_status == OpenSS_Monitor_Started) {
         if (tls->debug) {
@@ -586,6 +647,7 @@ monitor_init_mpi(int *argc, char ***argv)
     }
 
     tls->in_mpi_pre_init = 0;
+    OpenSS_in_mpi_startup = 0;
 }
 
 void monitor_fini_mpi(void)
