@@ -55,14 +55,20 @@ libopenss_gui_la_LIBADD = \
 	-lqassistantclient -lm -lpthread
 
 libopenss_gui_la_SOURCES = \
-	AboutClass.cxx AboutClass.hxx moc_AboutClass.cxx \
-	CLIInterface.hxx CLIInterface.cxx moc_CLIInterface.cxx \
+	AboutClass.cxx AboutClass.hxx \
+	CLIInterface.hxx CLIInterface.cxx \
 	gui.cxx \
 	openspeedshop.hxx openspeedshop.cxx \
-		openspeedshop.ui.hxx moc_openspeedshop.cxx \
+		openspeedshop.ui.hxx \
 	preferencesdialog.hxx preferencesdialog.cxx \
-		preferencesdialog.ui.hxx moc_preferencesdialog.cxx \
+		preferencesdialog.ui.hxx \
 	qmake_image_collection.cxx
+
+nodist_libopenss_gui_la_SOURCES = \
+	moc_AboutClass.cxx \
+	moc_CLIInterface.cxx \
+	moc_openspeedshop.cxx \
+	moc_preferencesdialog.cxx
 
 moc_AboutClass.cxx: AboutClass.hxx
 	-$(QTLIB_HOME)/bin/moc -o moc_AboutClass.cxx AboutClass.hxx

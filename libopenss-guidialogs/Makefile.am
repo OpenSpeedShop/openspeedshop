@@ -78,17 +78,29 @@ moc_SelectTimeSegmentDialog.cxx: SelectTimeSegmentDialog.hxx
 	-$(QTLIB_HOME)/bin/moc -o moc_SelectTimeSegmentDialog.cxx SelectTimeSegmentDialog.hxx
 
 libopenss_guidialogs_la_SOURCES = \
-	AttachArgDialog.hxx AttachArgDialog.cxx moc_AttachArgDialog.cxx \
-	AttachProcessDialog.hxx AttachProcessDialog.cxx moc_AttachProcessDialog.cxx \
-	AttachMPProcessDialog.hxx AttachMPProcessDialog.cxx moc_AttachMPProcessDialog.cxx \
-	AttachProgramDialog.hxx AttachProgramDialog.cxx moc_AttachProgramDialog.cxx \
-	AttachMPProgramDialog.hxx AttachMPProgramDialog.cxx moc_AttachMPProgramDialog.cxx \
-	ManageProcessesDialog.hxx ManageProcessesDialog.cxx moc_ManageProcessesDialog.cxx \
+	AttachArgDialog.hxx AttachArgDialog.cxx \
+	AttachProcessDialog.hxx AttachProcessDialog.cxx \
+	AttachMPProcessDialog.hxx AttachMPProcessDialog.cxx \
+	AttachProgramDialog.hxx AttachProgramDialog.cxx \
+	AttachMPProgramDialog.hxx AttachMPProgramDialog.cxx \
+	ManageProcessesDialog.hxx ManageProcessesDialog.cxx \
 	PanelListViewItem.hxx PanelListViewItem.cxx \
-	GenericProgressDialog.hxx GenericProgressDialog.cxx moc_GenericProgressDialog.cxx \
-	SelectTimeSegmentDialog.hxx SelectTimeSegmentDialog.cxx moc_SelectTimeSegmentDialog.cxx \
-	SelectExperimentDialog.hxx SelectExperimentDialog.cxx moc_SelectExperimentDialog.cxx \
-	SaveAsExperimentDialog.hxx SaveAsExperimentDialog.cxx moc_SaveAsExperimentDialog.cxx \
+	GenericProgressDialog.hxx GenericProgressDialog.cxx \
+	SelectTimeSegmentDialog.hxx SelectTimeSegmentDialog.cxx \
+	SelectExperimentDialog.hxx SelectExperimentDialog.cxx \
+	SaveAsExperimentDialog.hxx SaveAsExperimentDialog.cxx \
 	AboutDialog.hxx AboutDialog.cxx
+
+nodist_libopenss_guidialogs_la_SOURCES = \
+	moc_AttachArgDialog.cxx \
+	moc_AttachProcessDialog.cxx \
+	moc_AttachMPProcessDialog.cxx \
+	moc_AttachProgramDialog.cxx \
+	moc_AttachMPProgramDialog.cxx \
+	moc_ManageProcessesDialog.cxx \
+	moc_GenericProgressDialog.cxx \
+	moc_SelectTimeSegmentDialog.cxx \
+	moc_SelectExperimentDialog.cxx \
+	moc_SaveAsExperimentDialog.cxx
 
 CLEANFILES=moc_AttachArgDialog.cxx moc_AttachProcessDialog.cxx moc_AttachMPProcessDialog.cxx moc_AttachProgramDialog.cxx moc_AttachMPProgramDialog.cxx moc_SelectExperimentDialog.cxx moc_GenericProgressDialog.cxx moc_ManageCollectorsDialog.cxx 

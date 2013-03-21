@@ -44,8 +44,11 @@ libopenss_guiplugin_la_SOURCES = \
     ../libopenss-gui/openspeedshop.hxx \
 	plugin_handler.hxx plugin_handler.cxx \
 	PluginInfo.hxx PluginInfo.cxx \
-	SlotInfo.hxx SlotInfo.cxx moc_SlotInfo.cxx \
+	SlotInfo.hxx SlotInfo.cxx \
 	plugin_entry_point.hxx
+
+nodist_libopenss_guiplugin_la_SOURCES = \
+	moc_SlotInfo.cxx
 
 
 CLEANFILES=moc_SlotInfo.cxx

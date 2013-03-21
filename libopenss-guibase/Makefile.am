@@ -59,14 +59,22 @@ moc_Panel.cxx: Panel.hxx
 libopenss_guibase_la_SOURCES = \
 	pc_plugin.cxx \
 	DragNDropPanel.hxx DragNDropPanel.cxx \
-	TopWidget.hxx TopWidget.cxx moc_TopWidget.cxx \
-	TabWidget.hxx TabWidget.cxx moc_TabWidget.cxx \
-	TabBarWidget.hxx TabBarWidget.cxx moc_TabBarWidget.cxx \
+	TopWidget.hxx TopWidget.cxx \
+	TabWidget.hxx TabWidget.cxx \
+	TabBarWidget.hxx TabBarWidget.cxx \
 	WhatsThis.hxx WhatsThis.cxx  \
-	Frame.hxx Frame.cxx moc_Frame.cxx \
-	Panel.hxx Panel.cxx moc_Panel.cxx \
-	PanelContainer.hxx PanelContainer.cxx moc_PanelContainer.cxx \
+	Frame.hxx Frame.cxx \
+	Panel.hxx Panel.cxx \
+	PanelContainer.hxx PanelContainer.cxx \
 	debug.hxx
+
+nodist_libopenss_guibase_la_SOURCES = \
+	moc_TopWidget.cxx \
+	moc_TabWidget.cxx \
+	moc_TabBarWidget.cxx \
+	moc_Frame.cxx \
+	moc_Panel.cxx \
+	moc_PanelContainer.cxx
 
 
 CLEANFILES=moc_TopWidget.cxx moc_TabWidget.cxx moc_TabBarWidget.cxx moc_Frame.cxx moc_PanelContainer.cxx moc_Panel.cxx

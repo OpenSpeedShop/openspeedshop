@@ -51,13 +51,19 @@ libopenss_guichart_la_SOURCES = \
 	canvasellipse.hxx        canvastext.hxx  chartform.hxx  optionsform.hxx \
 	canvasrectangle.hxx \
 	canvasshadowellipse.hxx  canvasview.hxx  element.hxx    setdataform.hxx \
-	canvasview.cxx        element.cxx          moc_setdataform.cxx \
-	chartform_canvas.cxx  moc_canvasview.cxx   optionsform.cxx \
-	chartform.cxx         moc_chartform.cxx    setdataform.cxx \
-	chartform_files.cxx   moc_optionsform.cxx
+	canvasview.cxx        element.cxx          \
+	chartform_canvas.cxx  optionsform.cxx \
+	chartform.cxx         setdataform.cxx \
+	chartform_files.cxx
+
+nodist_libopenss_guichart_la_SOURCES = \
+	moc_setdataform.cxx \
+	moc_canvasview.cxx \
+	moc_chartform.cxx \
+	moc_optionsform.cxx
 
 # need to include images file in tarball
-EXTRA_DIST = images/*
+EXTRA_DIST = images/*.sk  images/*.xpm
 
 
 CLEANFILES=moc_canvasview.cxx moc_chartform.cxx moc_optionsform.cxx moc_setdataform.cxx

@@ -19,7 +19,4 @@
 # directories that will be affected
 
 EXTRA_DIST	=  \
-	html/*.css \
-	html/*.png \
-	html/*.html \
 	Makefile.am
