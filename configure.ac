@@ -18,7 +18,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-AC_INIT(OpenSpeedShop, 2.0.2-u7)
+AC_INIT([OpenSpeedShop],[2.0.2-u7])
 AC_COPYRIGHT([[Copyright (c) 2006-2013 Krell Institute. All Rights Reserved.]])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([libltdl/config])
@@ -28,7 +28,7 @@ AM_INIT_AUTOMAKE
 # Setup Configuration Header File
 ################################################################################
 
-AM_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 AH_TOP([
 /*******************************************************************************
@@ -54,7 +54,7 @@ AH_TOP([
 # Check for Standard Build Tools
 ################################################################################
 
-AC_GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_FC
@@ -73,7 +73,7 @@ LT_INIT([dlopen])
 # Enable building of the installable libltdl library
 LTDL_INIT([installable])
 
-AC_PROG_LIBTOOL
+LT_INIT
 
 AC_PATH_PROG([DOXYGEN], doxygen)
 AC_PROG_INSTALL
@@ -87,8 +87,7 @@ AC_PROG_LN_S
 # Handle PowerPC and X86-64 Special Cases
 ################################################################################
 AC_ARG_WITH(ppc64_bitmode,
-	    AC_HELP_STRING([--with-ppc64-bitmode=<32,64>],
-			   [Specify ppc64 library bit mode @<:@32@:>@]),
+	    AS_HELP_STRING([--with-ppc64-bitmode=<32,64>],[Specify ppc64 library bit mode @<:@32@:>@]),
 	    ppc64_bitmode=$withval, ppc64_bitmode="32")
 
 AC_MSG_CHECKING([Configuring for host = $host  with ppc64_bitmode = $ppc64_bitmode])
@@ -104,7 +103,6 @@ case "$host" in
 		if test x"$libdir" == x'${exec_prefix}/lib'; then
 		    libdir='${exec_prefix}/lib64'
 		fi
-		#LDFLAGS="-L/usr/lib64 -DLIB_DIR=lib64 $LDFLAGS"
 		LDFLAGS="-DLIB_DIR=lib64 $LDFLAGS"
 		CFLAGS="-m64 $CFLAGS"
 		CXXFLAGS="-m64 $CXXFLAGS"
@@ -116,7 +114,6 @@ case "$host" in
 		if test x"$libdir" == x'${exec_prefix}/lib64'; then
 		    libdir='${exec_prefix}/lib'
 		fi
-		#LDFLAGS="-L/usr/lib -DLIB_DIR=lib $LDFLAGS"
 		LDFLAGS="-DLIB_DIR=lib $LDFLAGS"
 	fi
 	;;
@@ -129,7 +126,6 @@ case "$host" in
         if test x"$libdir" == x'${exec_prefix}/lib64'; then
             libdir='${exec_prefix}/lib'
         fi
-        #LDFLAGS="-L/usr/lib -DLIB_DIR=lib $LDFLAGS"
         LDFLAGS="-DLIB_DIR=lib $LDFLAGS"
         ;;
 
@@ -214,8 +210,7 @@ esac
 ################################################################################
 
 AC_ARG_WITH(tls,
-	    AC_HELP_STRING([--with-tls=TYPE],
-			   [tls (implicit, explicit) @<:@implicit@:>@]),
+	    AS_HELP_STRING([--with-tls=TYPE],[tls (implicit, explicit) @<:@implicit@:>@]),
 	    TLS=$withval, TLS="implicit")
 
 case "$TLS" in
@@ -240,10 +235,8 @@ esac
 target_os=$host
 AC_MSG_CHECKING(for Target O/S)
 AC_ARG_WITH(target-os,
-    AC_HELP_STRING([--with-target-os=TARGET_OS],
-                   [target os specification @<:@$host@:>@]),
+    AS_HELP_STRING([--with-target-os=TARGET_OS],[target os specification @<:@$host@:>@]),
                     TARGET_OS=$withval, TARGET_OS="$host")
-
 
 AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
 AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
@@ -471,34 +464,35 @@ AC_SUBST(HAVE_TARGET_SHARED)
 # Check for Additional Packages
 ################################################################################
 
-AC_PKG_ARRAYSVCS()
-AC_PKG_BINUTILS()
-AC_PKG_EPYDOC()
-AC_PKG_LIBDWARF()
-AC_PKG_LIBMONITOR()
-AC_PKG_LIBUNWIND()
-AC_PKG_MPI()
-AC_PKG_OPENMP()
-AC_PKG_OTF()
-AC_PKG_PAPI()
+AX_ARRAYSVCS()
+AX_BINUTILS()
+AX_EPYDOC()
+AX_LIBDWARF()
+AX_LIBMONITOR()
+AX_LIBUNWIND()
+AX_PKG_MPI()
+AX_OPENMP()
+AX_OTF()
+AX_PAPI()
 AC_PYTHON_DEVEL([>= '2.3'])
-AC_PKG_QTLIB()
-AC_PKG_SQLITE()
-AC_PKG_TARGET_OPENMP()
-AC_PKG_TARGET_STDC_PLUSPLUS()
-AC_PKG_TARGET_BINUTILS()
-AC_PKG_TARGET_PERSONALITY()
-AC_PKG_TARGET_LIBDWARF()
-AC_PKG_TARGET_LIBMONITOR()
+AX_QTLIB()
+AX_SQLITE()
+AX_VT()
+
+AX_TARGET_OPENMP()
+AX_TARGET_STDC_PLUSPLUS()
+AX_TARGET_BINUTILS()
+AX_TARGET_PERSONALITY()
+AX_TARGET_LIBDWARF()
+AX_TARGET_LIBMONITOR()
 AC_PKG_TARGET_LIBPTHREAD()
 AC_PKG_TARGET_LIBRT()
-AC_PKG_TARGET_LIBUNWIND()
-AC_PKG_TARGET_OTF()
-AC_PKG_TARGET_PAPI()
-AC_PKG_TARGET_SQLITE()
-AC_PKG_TARGET_SYMTABAPI()
-AC_PKG_TARGET_VT()
-AC_PKG_VT()
+AX_TARGET_LIBUNWIND()
+AX_TARGET_OTF()
+AX_TARGET_PAPI()
+AX_TARGET_SQLITE()
+AX_TARGET_SYMTABAPI()
+AX_TARGET_VT()
 
 
 ################################################################################
@@ -506,8 +500,7 @@ AC_PKG_VT()
 ################################################################################
 
 AC_ARG_WITH(instrumentor,
-	    AC_HELP_STRING([--with-instrumentor=TYPE],
-			   [instrumentor (cbtf, dyninst, mrnet, offline, none) @<:@offline@:>@]),
+	    AS_HELP_STRING([--with-instrumentor=TYPE],[instrumentor (cbtf, dyninst, mrnet, offline, none) @<:@offline@:>@]),
 	    INSTRUMENTOR=$withval, INSTRUMENTOR="offline")
 
 case "$INSTRUMENTOR" in
@@ -525,7 +518,7 @@ case "$INSTRUMENTOR" in
 
     dyninst)
 	AM_CONDITIONAL(HAVE_SYMTABAPI, false)
-	AC_PKG_DYNINST()
+	AX_DYNINST()
 	AM_CONDITIONAL(BUILD_CBTF, false)
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
@@ -537,14 +530,16 @@ case "$INSTRUMENTOR" in
 
     mrnet)
 	AX_BOOST_BASE([1.35.0])
-	AC_PKG_DYNINST()
-	AC_PKG_MRNET()
+	AX_DYNINST()
+	AX_SYMTABAPI()
+	AX_MRNET()
         #AX_XERCESC()
         # This helps with targeted builds when there is no xercesc
         #if test "$LIBXERCES_C" = "-lxerces-c" ; then
         #  AX_XERCESC_VERSION()
         #fi
 	AM_CONDITIONAL(HAVE_XERCES, false)
+	AM_CONDITIONAL(HAVE_DYNINST, true)
 	AM_CONDITIONAL(BUILD_CBTF, false)
 	AM_CONDITIONAL(BUILD_MRNET, true)
 	AC_DEFINE(BUILD_MRNET, 1, [Define to 1 if you only want the mrnet instrumentor.])
@@ -556,7 +551,7 @@ case "$INSTRUMENTOR" in
 
     offline)
 	AX_BOOST_BASE([1.35.0])
-	AC_PKG_SYMTABAPI()
+	AX_SYMTABAPI()
         #AX_XERCESC()
         ## This helps with targeted builds when there is no xercesc
         #if test "$LIBXERCES_C" = "-lxerces-c" ; then
@@ -581,7 +576,8 @@ case "$INSTRUMENTOR" in
 	AX_BOOST_THREAD()
 	AX_BOOST_FILESYSTEM()
 	AX_BOOST_PROGRAM_OPTIONS()
-	AC_PKG_DYNINST()
+	AX_DYNINST()
+	AX_SYMTABAPI()
 	AX_XERCESC()
 	# This helps with targeted builds when there is no xercesc
 	if test "$LIBXERCES_C" = "-lxerces-c" ; then
@@ -591,7 +587,7 @@ case "$INSTRUMENTOR" in
 	AX_CBTF_XML()
         AX_MRNET()
 	AX_CBTF_MRNET()
-	AX_MESSAGES()
+	AX_CBTF_MESSAGES()
 	AX_CBTF_SERVICES()
 
 	AM_CONDITIONAL(BUILD_DPCL, false)
