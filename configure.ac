@@ -60,6 +60,18 @@ AC_PROG_CXX
 AC_PROG_FC
 AC_PROG_F77
 
+AC_SUBST([build])
+AC_SUBST([build_cpu])
+AC_SUBST([build_os])
+AC_SUBST([host])
+AC_SUBST([host_cpu])
+AC_SUBST([host_os])
+AC_SUBST([is_cross_compile])
+AC_SUBST([prefix])
+
+AC_CANONICAL_BUILD
+AC_CANONICAL_HOST
+
 AC_DISABLE_STATIC
 
 # Name the subdirectory that contains libltdl sources
@@ -232,6 +244,7 @@ esac
 # Target O/S Specification
 ################################################################################
 
+autoconf_for_target=0
 target_os=$host
 AC_MSG_CHECKING(for Target O/S)
 AC_ARG_WITH(target-os,
@@ -242,50 +255,55 @@ AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
 AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
 AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
 AM_CONDITIONAL(BUILD_TARGETED, false)
+
 case "$TARGET_OS" in
     cray-xk)
-	AM_CONDITIONAL(BUILD_TARGETED, true)
+	AM_CONDITIONAL(BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
-	AC_DEFINE(BUILD_TARGETED, 1, [Define to 0 if not building a targeted runtime.])
+	AC_DEFINE(BUILD_TARGETED, 0, [Define to 0 if not building a targeted runtime.])
 	AC_DEFINE(TARGET_OS_CRAYXK, 1, [Do not define if not building for targeted cray-xk.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,cray-xk,
 			   [Name targeted OS])
         target_os=cray-xk
+	autoconf_for_target=0
 	;; 
     cray-xe)
-	AM_CONDITIONAL(BUILD_TARGETED, true)
+	AM_CONDITIONAL(BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
-	AC_DEFINE(BUILD_TARGETED, 1, [Define to 0 if not building a targeted runtime.])
+	AC_DEFINE(BUILD_TARGETED, 0, [Do not Define if not building a targeted runtime.])
 	AC_DEFINE(TARGET_OS_CRAYXE, 1, [Do not define if not building for targeted cray-xe.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,cray-xe,
 			   [Name targeted OS])
         target_os=cray-xe
+	autoconf_for_target=0
 	;; 
     cray-xt5)
-	AM_CONDITIONAL(BUILD_TARGETED, true)
+	AM_CONDITIONAL(BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
-	AC_DEFINE(BUILD_TARGETED, 1, [Define to 0 if not building a targeted runtime.])
+	AC_DEFINE(BUILD_TARGETED, 0, [Do not Define if not building a targeted runtime.])
 	AC_DEFINE(TARGET_OS_CRAYXT5, 1, [Do not define if not building for targeted cray-xt5.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,cray-xt5,
 			   [Name targeted OS])
         target_os=cray-xt5
+	autoconf_for_target=0
 	;; 
     cray-xt4)
-	AM_CONDITIONAL(BUILD_TARGETED, true)
+	AM_CONDITIONAL(BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
-	AC_DEFINE(BUILD_TARGETED, 1, [Define to 0 if not building a targeted runtime.])
+	AC_DEFINE(BUILD_TARGETED, 0, [Do not Define if not building a targeted runtime.])
 	AC_DEFINE(TARGET_OS_CRAYXT4, 1, [Do not define if not building for targeted cray-xt4.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,cray-xt4,
 			   [Name targeted OS])
         target_os=cray-xt4
+	autoconf_for_target=0
 	;; 
     bgl)
 	AM_CONDITIONAL(BUILD_TARGETED, true)
@@ -298,6 +316,7 @@ case "$TARGET_OS" in
 	AC_DEFINE_UNQUOTED(TARGET_OS,bgl,
 			   [Name targeted OS])
         target_os=bgl
+	autoconf_for_target=1
 	;; 
     bgp)
 	AM_CONDITIONAL(BUILD_TARGETED, true)
@@ -310,6 +329,7 @@ case "$TARGET_OS" in
 	AC_DEFINE_UNQUOTED(TARGET_OS,bgp,
 			   [Name targeted OS])
         target_os=bgp
+	autoconf_for_target=1
 	;; 
     bgq)
         AM_CONDITIONAL(BUILD_TARGETED, true)
@@ -322,6 +342,7 @@ case "$TARGET_OS" in
         AC_DEFINE_UNQUOTED(TARGET_OS,bgq,
                            [Name targeted OS])
         target_os=bgq
+	autoconf_for_target=1
         ;;
     *)
 	AM_CONDITIONAL(BUILD_TARGETED, false)
@@ -331,6 +352,7 @@ case "$TARGET_OS" in
 	AC_DEFINE(BUILD_TARGETED, 0, [Define to 1 if building a targeted runtime.])
 	AC_DEFINE_UNQUOTED(TARGET_OS,$host,
 			   [Name targeted OS])
+	autoconf_for_target=0
 	;; 
 esac
 
@@ -479,6 +501,8 @@ AX_QTLIB()
 AX_SQLITE()
 AX_VT()
 
+if test "$autoconf_for_target" = 1 ; then
+
 AX_TARGET_OPENMP()
 AX_TARGET_STDC_PLUSPLUS()
 AX_TARGET_BINUTILS()
@@ -493,6 +517,26 @@ AX_TARGET_PAPI()
 AX_TARGET_SQLITE()
 AX_TARGET_SYMTABAPI()
 AX_TARGET_VT()
+
+else
+
+AM_CONDITIONAL(HAVE_TARGET_OPENMP, false)
+AM_CONDITIONAL(HAVE_TARGET_BINUTILS, false)
+AM_CONDITIONAL(HAVE_TARGET_PERSONALITY, false)
+AM_CONDITIONAL(HAVE_TARGET_LIBDWARF, false)
+AM_CONDITIONAL(HAVE_TARGET_LIBMONITOR, false)
+AM_CONDITIONAL(HAVE_TARGET_LIBPTHREAD, false)
+AM_CONDITIONAL(HAVE_TARGET_LIBRT, false)
+AM_CONDITIONAL(HAVE_TARGET_LIBUNWIND, false)
+AM_CONDITIONAL(HAVE_TARGET_OTF, false)
+AM_CONDITIONAL(HAVE_TARGET_PAPI, false)
+AM_CONDITIONAL(HAVE_TARGET_PAPI_SHARED, false)
+AM_CONDITIONAL(HAVE_TARGET_SQLITE, false)
+AM_CONDITIONAL(HAVE_TARGET_SYMTABAPI, false)
+AM_CONDITIONAL(HAVE_TARGET_VT, false)
+AM_CONDITIONAL(HAVE_TARGET_STDC_PLUSPLUS, false)
+
+fi
 
 
 ################################################################################
@@ -573,6 +617,9 @@ case "$INSTRUMENTOR" in
 	AX_BOOST_BASE([1.35.0])
 	AX_BOOST_DATE_TIME()
 	AX_BOOST_SYSTEM()
+#        #if BOOST_VERSION == 105000
+#	   AX_BOOST_CHRONO()
+#        #endif
 	AX_BOOST_THREAD()
 	AX_BOOST_FILESYSTEM()
 	AX_BOOST_PROGRAM_OPTIONS()

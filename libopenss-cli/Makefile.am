@@ -43,7 +43,6 @@ libopenss_cli_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-guiobjects \
 	-DLIBRARY_DIR=\"$(libdir)\" \
 	-DPLUGIN_DIR=\"$(pkglibdir)\" \
-        @TARGET_STDC_PLUSPLUS_CPPFLAGS@ \
 	$(LTDLINCL) \
 	@PYTHON_CPPFLAGS@
 
@@ -131,10 +130,12 @@ doc:
 	$(DOXYGEN)
 
 
-if BUILD_TARGETED 
+if BUILD_TARGETED
+monitor_libdir=$(TARGET_LIBMONITOR_LIBDIR)
 monitor_dir=$(TARGET_LIBMONITOR_DIR)
 mpich2_dir=$(TARGET_MPICH2_DIR)
 else
+monitor_libdir=$(LIBMONITOR_LIBDIR)
 monitor_dir=$(LIBMONITOR_DIR)
 mpich2_dir=$(MPICH2_DIR)
 endif
@@ -158,11 +159,13 @@ cbtf-offline.py: cbtf-offline.py.in
 offline.py: offline.py.in
 	@rm -f offline.py
 	@sed \
+		-e 's,@@target_os@@,$(TARGET_OS),' \
 		-e 's,@@oss_installation_dir@@,$(prefix),' \
 		-e 's,@@machine_dependent_libdir@@,$(abi_libdir_name),' \
 		-e 's,@@osslibdir@@,$(pkglibdir),' \
 		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
 		-e 's,@@libmonitordir@@,$(monitor_dir),' \
+		-e 's,@@libmonitorlibdir@@,$(LIBMONITOR_LIBDIR),' \
                 -e 's,@@alt_machine_dependent_libdir@@,$(alt_abi_libdir_name),' \
                 -e 's,@@mpichdir@@,$(MPICH_DIR),' \
                 -e 's,@@mpich2dir@@,$(mpich2_dir),' \

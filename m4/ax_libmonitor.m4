@@ -89,9 +89,11 @@ AC_DEFUN([AX_TARGET_LIBMONITOR], [
     if test -f $target_libmonitor_dir/$abi_libdir/libmonitor.so -o -f $target_libmonitor_dir/$abi_libdir/libmonitor_wrap.a ; then
        found_target_libmonitor=1
        TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$abi_libdir"
+       TARGET_LIBMONITOR_LIBDIR="$target_libmonitor_dir/$abi_libdir"
     elif test -f  $target_libmonitor_dir/$alt_abi_libdir/libmonitor.so -o -f $target_libmonitor_dir/$alt_abi_libdir/libmonitor_wrap.a ; then
        found_target_libmonitor=1
        TARGET_LIBMONITOR_LDFLAGS="-L$target_libmonitor_dir/$alt_abi_libdir"
+       TARGET_LIBMONITOR_LIBDIR="$target_libmonitor_dir/$alt_abi_libdir"
     fi
 
     if test "$target_libmonitor_dir" == "/zzz" ; then
@@ -100,6 +102,7 @@ AC_DEFUN([AX_TARGET_LIBMONITOR], [
       TARGET_LIBMONITOR_LDFLAGS=""
       TARGET_LIBMONITOR_LIBS=""
       TARGET_LIBMONITOR_DIR=""
+      TARGET_LIBMONITOR_LIBDIR=""
       AC_MSG_RESULT(no)
     elif test $found_target_libmonitor == 1 ; then
       AM_CONDITIONAL(HAVE_TARGET_LIBMONITOR, true)
@@ -115,6 +118,7 @@ AC_DEFUN([AX_TARGET_LIBMONITOR], [
       TARGET_LIBMONITOR_LDFLAGS=""
       TARGET_LIBMONITOR_LIBS=""
       TARGET_LIBMONITOR_DIR=""
+      TARGET_LIBMONITOR_LIBDIR=""
       AC_MSG_RESULT(no)
     fi
 
@@ -122,6 +126,7 @@ AC_DEFUN([AX_TARGET_LIBMONITOR], [
     AC_SUBST(TARGET_LIBMONITOR_LDFLAGS)
     AC_SUBST(TARGET_LIBMONITOR_LIBS)
     AC_SUBST(TARGET_LIBMONITOR_DIR)
+    AC_SUBST(TARGET_LIBMONITOR_LIBDIR)
 
 ])
 

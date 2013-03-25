@@ -191,13 +191,15 @@ CLEANFILES = $(BUILT_FILES)
 # TODO: need to configure location of libmonitor.so
 # via "-e 's,@@libmonitordir@@,$(monitorlibdir),' \"
 
-if BUILD_TARGETED 
+if BUILD_TARGETED
 monitor_dir=$(TARGET_LIBMONITOR_DIR)
+monitor_libdir=$(TARGET_LIBMONITOR_LIBDIR)
 unwind_dir=$(TARGET_LIBUNWIND_DIR)
 papi_dir=$(TARGET_PAPI_DIR)
 mpich2_dir=$(TARGET_MPICH2_DIR)
 else
 monitor_dir=$(LIBMONITOR_DIR)
+monitor_libdir=$(LIBMONITOR_LIBDIR)
 unwind_dir=$(LIBUNWIND_DIR)
 papi_dir=$(PAPI_DIR)
 mpich2_dir=$(MPICH2_DIR)
@@ -255,6 +257,7 @@ endif
 		-e 's,@@alt_machine_dependent_libdir@@,$(alt_abi_libdir_name),' \
 		-e 's,@@ossinstalldir@@,$(prefix),' \
 		-e 's,@@libmonitordir@@,$(monitor_dir),' \
+		-e 's,@@libmonitorlibdir@@,$(monitor_libdir),' \
 		-e 's,@@lamdir@@,$(LAM_DIR),' \
 		-e 's,@@lampidir@@,$(LAMPI_DIR),' \
 		-e 's,@@mpichdir@@,$(MPICH_DIR),' \
@@ -267,7 +270,7 @@ endif
 			$(srcdir)/ossrun.in > ossrun
 	@chmod 755 ossrun
 
-if !BUILD_TARGETED 
+if !BUILD_TARGETED
 ossdriver: ossdriver.in
 	@rm -f ossdriver
 	cp $(srcdir)/ossdriver.in ossdriver

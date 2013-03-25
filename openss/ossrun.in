@@ -15,8 +15,13 @@ alt_machlibdir=@@alt_machine_dependent_libdir@@
 
 monitor_prefix=@@libmonitordir@@
 monitor_exec_prefix="${monitor_prefix}"
-monitor_libdir="${monitor_prefix}/${machlibdir}"
-libmonitor="${monitor_libdir}/libmonitor.so"
+libmonitor="@@libmonitorlibdir@@/libmonitor.so"
+
+if [ $ossrun_debug == 1 ]; then
+   echo "OSSRUN DEBUG: a - monitor_prefix: $monitor_prefix"
+   echo "OSSRUN DEBUG: a - libmonitor: $libmonitor"
+fi
+
 
 oss_prefix=@@ossinstalldir@@
 oss_libdir="${oss_prefix}/${machlibdir}"
