@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2010 Krell Institute All Rights Reserved.
+# Copyright (c) 2010-2013 Krell Institute All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -15,6 +15,8 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
+
+EXTRA_DIST = HWCSampDetail.hxx HWCSampEvents.h
 
 BUILT_SOURCES = \
 	blobs.h blobs.c

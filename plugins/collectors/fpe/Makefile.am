@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-# Copyright (c) 2007,2008,2009 The Krell Institute. All Rights Reserved.
+# Copyright (c) 2007-2013 The Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -21,6 +21,8 @@
 # Note: See note in "libopenss-runtime/Makefile.am" for why "-O0" is used here.
 
 CFLAGS = -g -O0
+
+EXTRA_DIST = TraceableFPES.h
 
 BUILT_SOURCES = \
 	blobs.h blobs.c
