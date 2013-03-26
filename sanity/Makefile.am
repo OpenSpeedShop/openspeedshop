@@ -1,5 +1,6 @@
 ###############################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2006-2013 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -35,7 +36,7 @@ endif
 SUBDIRS += check_setup
 endif
 
-DIST_SUBDIRS = check_dpcl check_openss check_setup
+DIST_SUBDIRS = check_dpcl check_openss check_setup check_dyninst
 
 EXTRA_DIST = \
 	README runit
