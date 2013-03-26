@@ -272,7 +272,7 @@ libopenss_framework_symtabapi_la_SOURCES = \
 	$(OPENSSSYMTABAPI_SOURCES)
 endif
 
-EXTRA_DIST = OpenSSPath.cxx PapiAPI.h PapiAPI.cxx
+EXTRA_DIST = OpenSSPath.cxx PapiAPI.h PapiAPI.cxx OfflineParameters.hxx
 
 doc:
 	$(DOXYGEN)
