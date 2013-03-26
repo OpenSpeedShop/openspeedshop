@@ -42,7 +42,7 @@ SUBDIRS +=
 
 endif
 
-DIST_SUBDIRS = cbtf dpcl dyninst offline mrnet
+DIST_SUBDIRS = cbtf dpcl dyninst offline mrnet fileio
 
 BUILT_SOURCES += \
 	OpenSS_DataHeader.h OpenSS_DataHeader.c
