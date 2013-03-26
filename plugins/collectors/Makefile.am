@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2007-2010 Krell Institute  All Rights Reserved.
+# Copyright (c) 2006-2013 Krell Institute  All Rights Reserved.
 #
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -111,7 +111,7 @@ endif
 #SUBDIRS = pcsamp usertime hwc hwctime io iot mpi mpit fpe
 
 DIST_SUBDIRS = \
-	pcsamp usertime io iot hwc hwctime mpi mpit mpiotf fpe
+	pcsamp usertime io iot hwc hwcsamp hwctime mpi mpit mpiotf fpe
 
 doc:
 	$(DOXYGEN)
