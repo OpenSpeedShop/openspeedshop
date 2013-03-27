@@ -18,7 +18,7 @@
 ################################################################################
 
 
-EXTRA_DIST = CompareInfo.hxx
+#EXTRA_DIST = CompareInfo.hxx
 
 lib_LTLIBRARIES = libopenss-guiobjects.la
 
@@ -60,6 +60,7 @@ libopenss_guiobjects_la_SOURCES = \
 	HighlightObject.hxx \
 	ProcessEntryClass.hxx \
 	CollectorEntryClass.hxx \
+	CompareInfo.hxx \
 	MessageObject.hxx MessageObject.cxx \
 	SourceObject.hxx SourceObject.cxx \
 	UpdateObject.hxx UpdateObject.cxx \

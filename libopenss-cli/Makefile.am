@@ -98,6 +98,11 @@ libopenss_cli_la_SOURCES = \
 	SS_Watcher.hxx SS_Watcher.cxx \
 	SS_Start.cxx \
 	SS_Settings.hxx SS_Settings.cxx \
+		SS_Parse_Expr.hxx help_cmd_msg.dxx  help_general_msg.dxx  \
+		help_scripting_msg.dxx help_grammar_msg.dxx  help_topic_msg.dxx \
+	        SS_View_bythread_help.hxx SS_View_bythread_recognize.hxx SS_View_detail.hxx  SS_View.hxx \
+	        SS_View_bythread_locations.hxx SS_View_bythread_setmetrics.hxx SS_View_Expr.hxx \
+                SS_View_metric_expressions.hxx \
 	Start_Modes.cxx
 
 LFILES = SS_Parse_Lex.lxx
@@ -121,11 +126,7 @@ SS_Parse_Lex.cxx: $(LFILES) SS_Parse_Yacc.hxx
 	-$(LEX) $(LFILES);
 	-mv lex.yy.c SS_Parse_Lex.cxx
 
-EXTRA_DIST = SS_Parse_Expr.hxx help_cmd_msg.dxx  help_general_msg.dxx  \
-		help_scripting_msg.dxx help_grammar_msg.dxx  help_topic_msg.dxx \
-	        SS_View_bythread_help.hxx SS_View_bythread_recognize.hxx SS_View_detail.hxx  SS_View.hxx \
-	        SS_View_bythread_locations.hxx SS_View_bythread_setmetrics.hxx SS_View_Expr.hxx \
-                SS_View_metric_expressions.hxx
+EXTRA_DIST =
 
 
 CLEANFILES = $(BUILT_SOURCES)

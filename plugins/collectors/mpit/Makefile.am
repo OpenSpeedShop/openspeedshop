@@ -191,6 +191,7 @@ mpit_la_LIBADD = \
 
 mpit_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
+	MPITTraceableFunctions.h \
 	MPITCollector.hxx MPITCollector.cxx \
 	MPITDetail.hxx
 endif

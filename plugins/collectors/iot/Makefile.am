@@ -22,7 +22,7 @@
 
 CFLAGS = -g -O0
 
-EXTRA_DIST = IOTTraceableFunctions.h
+#EXTRA_DIST = IOTTraceableFunctions.h
 
 BUILT_SOURCES = \
 	blobs.h blobs.c
@@ -74,6 +74,7 @@ iot_la_LIBADD = \
 
 iot_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
+	IOTTraceableFunctions.h \
 	IOTCollector.hxx IOTDetail.hxx IOTCollector.cxx
 endif
 

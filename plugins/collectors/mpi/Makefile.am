@@ -212,6 +212,7 @@ mpi_la_LIBADD = \
 
 mpi_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
+	MPITraceableFunctions.h \
 	MPICollector.hxx MPICollector.cxx \
 	MPIDetail.hxx
 endif

@@ -22,7 +22,7 @@
 
 CFLAGS = -g -O0
 
-EXTRA_DIST = TraceableFPES.h
+#EXTRA_DIST = TraceableFPES.h
 
 BUILT_SOURCES = \
 	blobs.h blobs.c
@@ -80,6 +80,7 @@ fpe_la_LIBADD = \
 
 fpe_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
+	TraceableFPES.h \
 	FPECollector.hxx FPECollector.cxx \
 	FPEDetail.hxx
 endif

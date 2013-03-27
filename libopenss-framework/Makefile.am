@@ -233,6 +233,7 @@ COMMON_SOURCES = \
 	Time.hxx \
 	TimeInterval.hxx \
 	ToolAPI.hxx \
+	OfflineParameters.hxx \
 	TotallyOrdered.hxx
 
 INSTRUMENTOR_SOURCES = \
@@ -272,7 +273,7 @@ libopenss_framework_symtabapi_la_SOURCES = \
 	$(OPENSSSYMTABAPI_SOURCES)
 endif
 
-EXTRA_DIST = OpenSSPath.cxx PapiAPI.h PapiAPI.cxx OfflineParameters.hxx
+EXTRA_DIST = OpenSSPath.cxx PapiAPI.h PapiAPI.cxx
 
 doc:
 	$(DOXYGEN)

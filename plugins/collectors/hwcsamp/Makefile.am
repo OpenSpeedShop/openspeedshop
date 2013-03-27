@@ -16,7 +16,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-EXTRA_DIST = HWCSampDetail.hxx HWCSampEvents.h
+#EXTRA_DIST = HWCSampDetail.hxx HWCSampEvents.h
 
 BUILT_SOURCES = \
 	blobs.h blobs.c
@@ -86,6 +86,7 @@ hwcsamp_la_LIBADD = \
 
 hwcsamp_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
+	HWCSampDetail.hxx HWCSampEvents.h \
 	HWCSampCollector.hxx HWCSampCollector.cxx
 endif
 

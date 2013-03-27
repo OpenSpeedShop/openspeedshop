@@ -189,6 +189,7 @@ mpiotf_la_LIBADD = \
 
 mpiotf_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
+	MPIOTFTraceableFunctions.h \
 	MPIOTFCollector.hxx MPIOTFCollector.cxx \
 	MPIOTFDetail.hxx
 endif
