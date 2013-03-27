@@ -123,6 +123,10 @@ SS_Parse_Lex.cxx: $(LFILES) SS_Parse_Yacc.hxx
 
 EXTRA_DIST = SS_Parse_Expr.hxx help_cmd_msg.dxx  help_general_msg.dxx  \
 		help_scripting_msg.dxx help_grammar_msg.dxx  help_topic_msg.dxx
+	        SS_View_bythread_help.hxx SS_View_bythread_recognize.hxx SS_View_detail.hxx  SS_View.hxx \
+	        SS_View_bythread_locations.hxx SS_View_bythread_setmetrics.hxx SS_View_Expr.hxx \
+                SS_View_metric_expressions.hxx
+
 
 CLEANFILES = $(BUILT_SOURCES)
 
