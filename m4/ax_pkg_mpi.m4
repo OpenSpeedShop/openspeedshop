@@ -496,6 +496,7 @@ AC_DEFUN([AX_MPICH2], [
     # On the systems "mcr" and "thunder" at LLNL they have an MPICH variant
     # that has things moved around a bit. Handle this by allowing a "llnl"
     # pseudo-driver that makes the necessary configuration changes.
+    
     if test x"$mpich2_driver" == x"llnl"; then
 	MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
         MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
@@ -528,7 +529,7 @@ AC_DEFUN([AX_MPICH2], [
 
     CC="$MPICH2_CC"
     CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+    LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH2_LIBS"
 
     if test $found_mpich2 -eq 0; then
 
@@ -579,7 +580,7 @@ AC_DEFUN([AX_MPICH2], [
 
        CC="$MPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH2_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
@@ -619,7 +620,7 @@ AC_DEFUN([AX_MPICH2], [
 
        CC="$MPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH2_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
@@ -653,7 +654,7 @@ AC_DEFUN([AX_MPICH2], [
 
        CC="$MPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH2_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
@@ -688,7 +689,7 @@ AC_DEFUN([AX_MPICH2], [
 
        CC="$MPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH2_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
@@ -712,7 +713,14 @@ AC_DEFUN([AX_MPICH2], [
 
        AC_MSG_CHECKING([for Intel MPICH2 64 bit library and headers using mpicc])
 
-       MPICH2_CC="$mpich2_dir/bin64/mpicc"
+       if ( test -d $mpich2_dir/bin64 && test -f $mpich2_dir/bin64/mpicc) ; then
+          MPICH2_CC="$mpich2_dir/bin64/mpicc"
+       elif (test -d $mpich2_dir/bin && test -f $mpich2_dir/bin/mpicc) ; then
+          MPICH2_CC="$mpich2_dir/bin/mpicc"
+       elif ( ! test -d $mpich2_dir/bin ) ; then
+          MPICH2_CC="cc"
+       fi
+
        MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
        MPICH2_LIBS="-lmpich"
        if (test "$abi_libdir" == "lib64" && test -d $mpich2_dir/include64 && test -f $mpich2_dir/include64/mpi.h) ; then
@@ -726,7 +734,7 @@ AC_DEFUN([AX_MPICH2], [
 
        CC="$MPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH2_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
@@ -760,7 +768,7 @@ AC_DEFUN([AX_MPICH2], [
 
        CC="$MPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH_LIBS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH2_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
