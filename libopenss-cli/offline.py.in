@@ -45,23 +45,10 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     """Run offline experiment for Open|SpeedShop.
     """
 
-    #Check For OPENSS_PREFIX and use it.  That is, only if
-    #installed's default value has not changed.  Allows
-    #users to explicitly define a different OSS installation path (even
-    #if OPENSS_PREFIX is defined).
     if os.environ.has_key("OPENSS_DEBUG_CLI_PYTHON_GC"):
 	gc.set_debug(gc.DEBUG_LEAK)
 	gc.get_objects()
     gc.disable()
-    if (os.environ.has_key("OPENSS_PREFIX") and installed == "/usr"):
-	installed = os.environ["OPENSS_PREFIX"]
-	if offlinepy_debug != 0: print "[openss-debug]: using OPENSS_PREFIX to set installed=" + installed
-	if os.environ.has_key("OPENSS_TARGET_ARCH"):
-	    targ_arch = os.environ["OPENSS_TARGET_ARCH"]
-	    installed = installed + "/" + targ_arch
-	    if offlinepy_debug != 0: print "[openss-debug]: using OPENSS_TARGET_ARCH to create installed=" + installed
-	print "[openss]: Using OPENSS_PREFIX installed in " + installed
-    
     # set up plugins path
     if os.environ.has_key("OPENSS_TARGET_PLUGIN_PATH"):
 	plugins = os.environ["OPENSS_TARGET_PLUGIN_PATH"]
@@ -106,50 +93,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    os.makedirs(tempdir)
 	os.environ['OPENSS_RAWDATA_DIR'] = tempdir
 
-    # Locate the libmonitor directory
-    # If OPENSS_PREFIX is set, do not assume libmonitor is there.
-    # The following test ensures that installed (either /usr or the
-    # path from OPENSS_PREFIX) does indeed have a proper libdir.
-    # NOTE: It is not a requirement that libmonitor be installed int
-    # the same location as OpenSpeedShop itself.  So the libdir defined
-    # here is essentially only useful for the OpenSpeedShop libs. 
-    #libdir = installed + "/lib64"
-    #if offlinepy_debug != 0: print "[openss-debug]: libdir for libmonitor=" + libdir
-    #if not os.path.isdir(libdir):
-    #    libdir = installed + "/lib"
-    #if not os.path.isdir(libdir):
-    #    raise RuntimeError("[openss error]: Failed to locate the libmonitor library directory.")
-
-    # Locate the monitor-run command and libmonitor runtime dso.
-    # If libmonitor.so is not found in the "installed" path, then
-    # fallback to /usr and try again (again, do not assume libmonitor
-    # was installed into OPENSS_PREFIX.
-    # Using libdir from above instead of at at libmonitordir.  This for target shared on Cray, etc.
-    # NOTE: The danger of using libdir is that it is defined for the OpenSpeedShop install
-    # by it's prefix and presumably --libdir option.  But, libmonitor is installed
-    # by the OpenSpeedShop_ROOT build/install and it may not be installed into
-    # the same location as OpenSpeedShop itself.  The OpenSpeedShop configuration
-    # will create a macro defining the libmonitor install which is defined
-    # by libmonitordir here.  What is missing is the name of the library dir.
-    # That is either lib or lib64.  We can not hardcode lib or lib64 here.
-    # For now, we can use the @@machine_dependent_libdir@@.  But that may
-    # potentially not set correctly in the ROOT install (it should be if not).
-    #machdir = "@@machine_dependent_libdir@@"
-    #libmonitor = libdir + "/libmonitor.so"
-    #targ_arch = ""
-    #if os.environ.has_key("OPENSS_TARGET_ARCH"):
-    #   targ_arch = os.environ["OPENSS_TARGET_ARCH"]
-    #if targ_arch == "bgq":
-    #   libmonitor = "@@libmonitordir@@/bgq/@@machine_dependent_libdir@@/libmonitor.so" 
-    #elif targ_arch == "bgp":
-    #   libmonitor = "@@libmonitordir@@/bgp/@@machine_dependent_libdir@@/libmonitor.so" 
-    #else:
-    #   libmonitor = "@@libmonitordir@@/@@machine_dependent_libdir@@/libmonitor.so" 
-    #if offlinepy_debug != 0: print "[openss-debug]: libmonitor="  + libmonitor
-    #if not os.path.isfile(libmonitor):
-     # it would be preferable to not need this extra check.
-     # i.e.  we really should change the libmonitor m4 files
-     # to set $LIBMONITOR_LIBDIR so we can avoid all of this... 
+    # Find libmonitor from the configure settings and the libopenss-cli Makefile operations
     libmonitor = "@@libmonitorlibdir@@" + "/libmonitor.so"
     if not os.path.isfile(libmonitor):
 	systemdir = "/usr"
@@ -193,18 +137,26 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    
 	for p in path_list:
 	   if offlinepy_debug != 0: 
+	      print "[openss-debug]: ------------ START ------------------------"
 	      print "[openss-debug]: looping through path_list, p=" + p
 	      print "[openss-debug]: looping through path_list, s=" + s
 	      if not os.path.isfile(s):
 	         print "[openss-debug]: looping through path_list, not os.path.isfile(s)"
 	      else:
-	         print "[openss-debug]: looping through path_list, is os.path.isfile(s)"
+	         print "[openss-debug]: looping through path_list, else not os.path.isfile(s)"
 	      if not ismpi:
 	         print "[openss-debug]: looping through path_list, not ismpi"
 	      else:
-	         print "[openss-debug]: looping through path_list, is ismpi"
+	         print "[openss-debug]: looping through path_list, else not ismpi"
+	      if not s.startswith("-"):
+	         print "[openss-debug]: looping through path_list,  not s.startswith"
+	      else:
+	         print "[openss-debug]: looping through path_list,  else not s.startswith"
+
 	   if offlinepy_debug != 0: print "[openss-debug]: looping through path_list, p=" + p
 	   if offlinepy_debug != 0: print "[openss-debug]: looping through path_list, s=" + s
+	   if offlinepy_debug != 0: print "[openss-debug]: ------------ END   ------------------------"
+
 	   if not os.path.isfile(s) and not ismpi \
 	      and not s.startswith("-"):
 		file_arg = p + "/" + s
@@ -212,6 +164,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		if offlinepy_debug != 0: print "[openss-debug]: combining p and s, s=" + s
 		if offlinepy_debug != 0: print "[openss-debug]: combining p and s, file_arg=" + file_arg
 		if os.path.isfile(file_arg):
+		    if offlinepy_debug != 0: print "[openss-debug]: os.path.isfile, break, file_arg=" + file_arg
 		    break
 		else:
 		    file_arg = s
@@ -239,14 +192,17 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		  if offlinepy_debug != 0: print "[openss-debug]: alias processing with s, file_arg, file_arg=" + file_arg
 
 # end code to replace aliases
+	if offlinepy_debug != 0: print "[openss-debug]: before os.path.isfile, check, file_arg=" + file_arg
 	
 	if os.path.isfile(file_arg):
 	    # test if the file is elf binary and has the symbol MPI_Init.
 	    # We use os.WEXITSTATUS to properly decode the status.
+	    if offlinepy_debug != 0: print "[openss-debug]: inside os.path.isfile, check, file_arg=" + file_arg
 	    isexecutable = os.system('file -L ' + file_arg + ' | grep -q ELF')
 
 	    if not os.WEXITSTATUS(isexecutable):
 		# is this the actual mpi program.
+	        if offlinepy_debug != 0: print "[openss-debug]: inside not os.WEXITSTATUS(isexecutable), check, file_arg=" + file_arg
 		if not ismpi:
 		  ismpidriver = os.system('nm ' + file_arg + ' | grep -q -i MPIR_')
 
@@ -637,24 +593,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	     mpi_executable = os.curdir + "/" + mpi_executable
 
 	   if collector == "mpiotf":
-	    # For shared executable support on the Crays we need to use the OPENSS_PREFIX
-	    # and OPENSS_TARGET_ARCH to get the target path to the ossrun script.
-	    # But, this is not required for the main line execution on clusters, pcs, laptops.
-	    # Putting this in as a workaround until we determine how to get that path at runtime
-	    # without using OPENSS_PREFIX and OPENSS_TARGET_ARCH to determine it.  jeg - 06/18/2012
-	    #if (os.environ.has_key("OPENSS_PREFIX") and installed != "/usr"):
-	    #  ossrun_command = installed + "/bin/ossrun -o " + os.environ['OPENSS_RAWDATA_DIR']
-	    #else:
 	    ossrun_command = real_ossrun_command + " -o " + os.environ['OPENSS_RAWDATA_DIR'] 
 	   else:
-	    # For shared executable support on the Crays we need to use the OPENSS_PREFIX
-	    # and OPENSS_TARGET_ARCH to get the target path to the ossrun script.
-	    # But, this is not required for the main line execution on clusters, pcs, laptops.
-	    # Putting this in as a workaround until we determine how to get that path at runtime
-	    # without using OPENSS_PREFIX and OPENSS_TARGET_ARCH to determine it.  jeg - 06/18/2012
-	    #if (os.environ.has_key("OPENSS_PREFIX") and installed != "/usr"):
-	    #  ossrun_command = installed + "/bin/ossrun"
-	    #else:
 	    ossrun_command = real_ossrun_command 
 	   # 
 	   # Change made on 10/20/11 to better support redirection inside the quoted executable. (dpm/jeg) Found at NASA
