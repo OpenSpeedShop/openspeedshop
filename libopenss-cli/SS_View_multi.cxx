@@ -874,7 +874,14 @@ static void Combine_Duplicate_CallStacks (
         nvpi++;
         continue;
       }
-     // Match failed.  Continue looking for other stacks that match.
+#if 1
+     // Match failed.
+      if (cs_size == ncs->size()) {
+        break;
+      }
+#else
+      // Match failed.  Continue looking for other stacks that match.
+#endif
       nvpi++;
     }
 
