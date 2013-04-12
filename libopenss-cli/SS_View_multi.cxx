@@ -660,34 +660,20 @@ static int64_t Match_Call_Stack (std::vector<CommandResult *> *cs,
       if (*((CommandResult_Function *)cse) != *((CommandResult_Function *)ncse)) return (i - 1);
 
      // To match, the calls must be on the same line.
-      std::set<Statement> LS;
-      std::set<Statement> RS;
-      ((CommandResult_Function *)cse)->Value(LS);
-      ((CommandResult_Function *)ncse)->Value(RS);
-      if ( (LS.begin() != LS.end()) &&
-           (RS.begin() != RS.end()) ) {
-       // The `Value` funcion returns a copy of the set.
-       // This implies that we can not compare pointers and must dig deeper.
-       // Capture the line numbers and compare them.
-        std::set<Statement>::const_iterator LSi = LS.begin();;
-        std::set<Statement>::const_iterator RSi = RS.begin();;
-        Statement L = *LSi;
-        Statement R = *RSi;
-        int64_t leftLine = (int64_t)L.getLine();
-        int64_t rightLine = (int64_t)R.getLine();
-        if (leftLine != rightLine) {
-         // Line numbers, and therefore, the callstacks are different.
-          return (i - 1);
-        }
-       // To match, the calls must be at the same address.
-        int64_t leftColumn = (int64_t)L.getColumn();
-        int64_t rightColumn = (int64_t)R.getColumn();
-        if ( (leftColumn != 0) &&
-             (rightColumn != 0) &&
-             (leftColumn != rightColumn) ) {
-         // Column numbers, and therefore, the callstacks are different.
-          return (i - 1);
-        }
+      int64_t leftLine = ((CommandResult_Function *)cse)->getLine();
+      int64_t rightLine = ((CommandResult_Function *)ncse)->getLine();
+      if (leftLine != rightLine) {
+       // Line numbers, and therefore, the callstacks are different.
+        return (i - 1);
+      }
+     // To match, the calls must be at the same address.
+      int64_t leftColumn = ((CommandResult_Function *)cse)->getColumn();
+      int64_t rightColumn = ((CommandResult_Function *)ncse)->getColumn();
+      if ( (leftColumn != 0) &&
+           (rightColumn != 0) &&
+           (leftColumn != rightColumn) ) {
+       // Column numbers, and therefore, the callstacks are different.
+        return (i - 1);
       }
     } else if (ty == CMD_RESULT_LINKEDOBJECT) {
      // Compare LinkedObjects and offsets.
@@ -865,6 +851,7 @@ static void Combine_Duplicate_CallStacks (
         if ((*ncp.second).begin() != (*ncp.second).end()) {
           for (int64_t i = 0; i < (*ncp.second).size(); i++) {
             delete (*ncp.second)[i];
+            (*ncp.second)[i] = NULL;
           }
         }
        // Because a "c_items.erase(nvpi);" operation takes a lot of time
@@ -874,14 +861,7 @@ static void Combine_Duplicate_CallStacks (
         nvpi++;
         continue;
       }
-#if 1
-     // Match failed.
-      if (cs_size == ncs->size()) {
-        break;
-      }
-#else
-      // Match failed.  Continue looking for other stacks that match.
-#endif
+     // Match failed.  Continue looking for other stacks that match.
       nvpi++;
     }
 

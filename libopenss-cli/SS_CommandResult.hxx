@@ -674,22 +674,35 @@ class CommandResult_Function :
      public CommandResult,
      public Function {
   std::set<Statement> ST;
+  int64_t Line;    // Line number of first statement in set.
+  int64_t Column;  // Column number of first statement in set.
 
  public:
 
   CommandResult_Function (Function F) :
        Framework::Function(F),
        CommandResult(CMD_RESULT_FUNCTION) {
+    Line = 0;
+    Column = 0;
   }
   CommandResult_Function  (Function F, std::set<Statement>& st) :
        Framework::Function(F),
        CommandResult(CMD_RESULT_FUNCTION) {
     ST = st;
+    Line = 0;
+    Column = 0;
+    if (ST.begin() != ST.end()) {
+      std::set<Statement>::const_iterator STi = ST.begin();
+      Line = (int64_t)((*STi).getLine());
+      Column = (int64_t)((*STi).getColumn());
+    }
   }
   CommandResult_Function  (CommandResult_Function *C) :
        Framework::Function(*C),
        CommandResult(CMD_RESULT_FUNCTION) {
     ST = C->ST;
+    Line = C->Line;
+    Column = C->Column;
     if (C->IsValueID()) SetValueIsID();
   }
   virtual ~CommandResult_Function () { }
@@ -715,16 +728,8 @@ class CommandResult_Function :
                                                    *((CommandResult_Function *)A))) {
       return false;
     }
-    std::set<Statement> L = ST;;
-    std::set<Statement> R = ((CommandResult_Function *)A)->ST;
-    int64_t Ls = 0;
-    int64_t Rs = 0;
-    if (L.begin() != L.end()) {
-      Ls = (*L.begin()).getLine();
-    }
-    if (R.begin() != R.end()) {
-      Rs = (*R.begin()).getLine();
-    }
+    int64_t Ls = Line;
+    int64_t Rs = (int64_t)(((CommandResult_Function *)A)->getLine());
     return (Ls > Rs);
   }
 
@@ -733,6 +738,12 @@ class CommandResult_Function :
   }
   void Value (std::set<Statement>& st) {
     st = ST;
+  }
+  int64_t getLine () {
+    return Line;
+  }
+  int64_t getColumn () {
+    return Column;
   }
 
   virtual std::string Form (int64_t fieldsize) {
