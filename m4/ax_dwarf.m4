@@ -35,9 +35,11 @@ AC_DEFUN([AX_LIBDWARF], [
 
     libdwarf_saved_CPPFLAGS=$CPPFLAGS
     libdwarf_saved_LDFLAGS=$LDFLAGS
+    libdwarf_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $LIBDWARF_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $LIBDWARF_LDFLAGS $LIBDWARF_LIBS -lelf -lpthread"
+    LDFLAGS="$LDFLAGS $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
+    LIBS="$LIBS $LIBDWARF_LIBS $LIBELF_LIBS -lpthread"
 
     AC_MSG_CHECKING([for libdwarf library and headers])
 
@@ -60,7 +62,8 @@ AC_DEFUN([AX_LIBDWARF], [
          LIBDWARF_LDFLAGS="-L$libdwarf_dir/$abi_libdir"
 
          CPPFLAGS="$CPPFLAGS $LIBDWARF_CPPFLAGS"
-         LDFLAGS="$LDFLAGS $LIBDWARF_LDFLAGS $LIBDWARF_LIBS -lelf -lpthread"
+         LDFLAGS="$LDFLAGS $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
+         LIBS="$LIBS $LIBDWARF_LIBS $LIBELF_LIBS -lpthread"
 
          AC_MSG_CHECKING([for libdwarf library and headers])
 
@@ -70,9 +73,7 @@ AC_DEFUN([AX_LIBDWARF], [
              if (DW_ID_up_case != DW_ID_down_case) {
                 int mycase = DW_ID_up_case;
              }
-             ]]), [ found_libdwarf=1
-
-             ], [ found_libdwarf=0 ])
+             ]]), [ found_libdwarf=1 ], [ found_libdwarf=0 ])
 
          if test $found_libdwarf -eq 1; then
              AC_MSG_RESULT(yes)
@@ -88,7 +89,9 @@ AC_DEFUN([AX_LIBDWARF], [
          fi
     fi
 
-    CPPFLAGS=$libdwarf_saved_CPPFLAGS LDFLAGS=$libdwarf_saved_LDFLAGS
+    CPPFLAGS=$libdwarf_saved_CPPFLAGS 
+    LDFLAGS=$libdwarf_saved_LDFLAGS
+    LIBS=$libdwarf_saved_LIBS
 
     AC_SUBST(LIBDWARF_CPPFLAGS)
     AC_SUBST(LIBDWARF_LDFLAGS)
