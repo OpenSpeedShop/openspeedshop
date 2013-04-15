@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2010-2012 Krell Institute. All Rights Reserved.
+# Copyright (c) 2010-2013 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -41,26 +41,6 @@ AC_DEFUN([AX_DYNINST], [
 #   The default is to use 6.0 dyninst cppflags and libs.  
 #   Change that (the default case entry) when you change the default vers to something other than 6.0
     case "$dyninst_vers" in
-	"5.1")
-            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -DIBM_BPATCH_COMPAT"
-            DYNINST_LIBS="-ldyninstAPI -lcommon"
-            ;;
-	"5.2")
-            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
-            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI" 
-            ;;
-	"6.0")
-            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
-            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI" 
-            ;;
-	"6.1")
-            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
-            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI" 
-            ;;
-	"7.0")
-            DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
-            DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI" 
-            ;;
 	"7.0.1")
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI" 
@@ -87,9 +67,11 @@ AC_DEFUN([AX_DYNINST], [
 
     dyninst_saved_CPPFLAGS=$CPPFLAGS
     dyninst_saved_LDFLAGS=$LDFLAGS
+    dyninst_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $DYNINST_CPPFLAGS $BOOST_CPPFLAGS"
-    LDFLAGS="$CXXFLAGS $DYNINST_LDFLAGS $DYNINST_LIBS $BINUTILS_LDFLAGS -liberty $LIBDWARF_LDFLAGS $LIBDWARF_LIBS $BOOST_LDFLAGS"
+    LDFLAGS="$CXXFLAGS $DYNINST_LDFLAGS $BINUTILS_LDFLAGS $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS $BOOST_LDFLAGS"
+    LIBS="$CXXFLAGS $DYNINST_LIBS -liberty $LIBDWARF_LIBS $LIBELF_LIBS"
 
     AC_MSG_CHECKING([for Dyninst API library and headers])
 
@@ -105,6 +87,7 @@ AC_DEFUN([AX_DYNINST], [
 
     CPPFLAGS=$dyninst_saved_CPPFLAGS
     LDFLAGS=$dyninst_saved_LDFLAGS
+    LIBS=$dyninst_saved_LIBS
 
     AC_LANG_POP(C++)
 
