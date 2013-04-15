@@ -1,6 +1,6 @@
 /*/*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2012 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2013 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -94,7 +94,8 @@ const char *cmd_expSetParam_related[] = {
     "<expId>",
     "<file_name>",
     "<Param>",
-    "listParams"
+    "listParams",
+    "listParamsVal"
 };
 
 const char *cmd_expStatus_related[] = {
@@ -174,6 +175,7 @@ const char *cmd_list_related[] = {
     "<listMetrics>",
     "<listObj>",
     "<listParams>",
+    "<listParamsVal>",
     "<listPids>",
     "<listRanks>",
     "<listSrc>",
@@ -206,6 +208,12 @@ const char *cmd_listObj_related[] = {
 };
 
 const char *cmd_listParams_related[] = {
+    "<expId>",
+    "<expType>",
+    "<lists>"
+};
+
+const char *cmd_listParamsVal_related[] = {
     "<expId>",
     "<expType>",
     "<lists>"
@@ -426,6 +434,13 @@ const char *cmd_listParams_args[] = {
     "<ListOf_expParam> = list -v params <expType>"
 };
 
+const char *cmd_listParamsVal_args[] = {
+    "<ListOf_expParamVal> = list -v paramsval",
+    "<ListOf_expParamVal> = list -v paramsval,all",
+    "<ListOf_expParamVal> = list -v paramsval -x <expId>",
+    "<ListOf_expParamVal> = list -v paramsval <expType>"
+};
+
 const char *cmd_listPids_args[] = {
     "<ListOf_pidname> = list -v pids [-x <expId>] [-h <host_name> [ , <host_name> ]*]"
 };
@@ -637,6 +652,11 @@ const char *cmd_listParams_brief = {
     "that are part of a specific experiment."
 };
 
+
+const char *cmd_listParamsVal_brief = {
+    "Report the current values assigned to all the parameters\n"
+    "that are part of a specific experiment."
+};
 
 const char *cmd_listRanks_brief = {
     "List the mpi ranks that are known. "
@@ -1432,35 +1452,54 @@ const char *cmd_list_detailed[] = {
     " ",
     "\t Where <listType> is one of: ",
     " ",
-    "\t\t breaks:    List breakpoints (help listBreaks)",
-    "\t\t expId:     List the experiments that have been defined. ",
-    "\t\t            (help listExpId)",
-    "\t\t exptypes:  List the available performance measurement ",
-    "\t\t            utilities that can be used to collect data in ",
-    "\t\t            an experiment. (help listExpTypes)",
-    "\t\t hosts:     Lists the hosts that define the specified cluster. ",
-    "\t\t            (help listHosts)",
-    "\t\t metrics:   Lists the metrics that are associated with a ",
-    "\t\t            ViewTypeList object. (help listMetrics)",
-    "\t\t obj:       List the objects of the applications that are part ",
-    "\t\t            of the specified experiment. (help listObj)",
-    "\t\t params:    List the parameters that are associated with a ",
-    "\t\t            particular <viewType> or set of <viewType>s.",
-    "\t\t            (help listParams)",
-    "\t\t pids:      List running processes associated with a specific ",
-    "\t\t            experiment and, optionally, on a specific machine. ",
-    "\t\t            (help listPids)",
-    "\t\t ranks:     List the mpi ranks associated with a specific ",
-    "\t\t            experiment, a specific Pid or on a specific machine.",
-    "\t\t            (help listRanks)",
-    "\t\t src:       List the source filenames of the modules that are part ",
-    "\t\t            of the specified experiment. (help listSrc)",
-    "\t\t status:    List the status of user experiments. (help listStatus)",
-    "\t\t threads:   List the Threads associated with a specific experiment, ",
-    "\t\t            a specific Pid or on a specific machine. ",
-    "\t\t            (help listThreads)",
-    "\t\t views:     List the views that are available for an ExpTypeList. ",
-    "\t\t            (help listViews)",
+    "\t\t breaks:          List breakpoints (help listBreaks)",
+    "\t\t database:        List the current database loaded into the CLI",
+    "\t\t expId:           List the experiments that have been defined. ",
+    "\t\t                  (help listExpId)",
+    "\t\t exptypes:        List the available performance measurement ",
+    "\t\t                  utilities that can be used to collect data in ",
+    "\t\t                  an experiment. (help listExpTypes)",
+    "\t\t executable:      List the executables in the specified experiment",
+    "\t\t hosts:           Lists the hosts that define the specified cluster. ",
+    "\t\t                  (help listHosts)",
+    "\t\t mangled:         Lists the mangled name and corresponding unmangled name pairs,",
+    "\t\t                  if any are present.",
+    "\t\t metrics:         Lists the metrics that are associated with a ",
+    "\t\t                  ViewTypeList object. (help listMetrics)",
+    "\t\t mpicategories:   List the MPI categories that could be designated as a ",
+    "\t\t                  parameter value(s) for the MPI experiments.",
+    "\t\t mpifunctions:    List the MPI functions that could be designated as a ",
+    "\t\t                  parameter value(s) for the MPI experiments.",
+    "\t\t obj:             List the objects of the applications that are part ",
+    "\t\t                  of the specified experiment. (help listObj)",
+    "\t\t params:          List the parameters that are associated with a ",
+    "\t\t                  particular <viewType> or set of <viewType>s.",
+    "\t\t                  (help listParams)",
+    "\t\t paramsval:       List the parameters that are assigned with a ",
+    "\t\t                  particular experiment.",
+    "\t\t                  (help listParamsVal)",
+    "\t\t pids:            List running processes associated with a specific ",
+    "\t\t                  experiment and, optionally, on a specific machine. ",
+    "\t\t                  (help listPids)",
+    "\t\t pidsandthreads:  List running processes and thread pairs associated with a specific ",
+    "\t\t                  experiment and, optionally, on a specific machine. ",
+    "\t\t ranks:           List the mpi ranks associated with a specific ",
+    "\t\t                  experiment, a specific Pid or on a specific machine.",
+    "\t\t                  (help listRanks)",
+    "\t\t ranksandthreads: List the mpi rank and thread pairs associated with a specific ",
+    "\t\t                  experiment, a specific Pid or on a specific machine.",
+    "\t\t src:             List the source filenames of the modules that are part ",
+    "\t\t                  of the specified experiment. (help listSrc)",
+    "\t\t srcfullpath:     List the source full path filenames of the modules that are part ",
+    "\t\t                  of the specified experiment.",
+    "\t\t statements:      List the statements and start address of experiment executables.",
+    "\t\t status:          List the status of user experiments. (help listStatus)",
+    "\t\t threads:         List the Threads associated with a specific experiment, ",
+    "\t\t                  a specific Pid or on a specific machine. ",
+    "\t\t                  (help listThreads)",
+    "\t\t views:           List the views that are available for an ExpTypeList. ",
+    "\t\t                  (help listViews)",
+    "\t\t walltime:        List the wall clock time corresponding with a specific experiments runnging time.",
     " ",
     "\t The format of the output list is dependant on the type ",
     "\t of list requested.",
@@ -1566,7 +1605,6 @@ const char *cmd_listMetrics_detailed[] = {
     " "
 };
 
-
 const char *cmd_listParams_detailed[] = {
     cmd_listParams_args[0],
     " ",
@@ -1578,6 +1616,28 @@ const char *cmd_listParams_detailed[] = {
     " ",
     "\t The use of -x <expId> will cause the parameters that ",
     "\t are associated with the set of data collectors that are ",
+    "\t part of the specified experiment to be listed.",
+    " ",
+    "\t The use of the keyword all will cause all the parameters ",
+    "\t for all available collectors to be listed.",
+    " ",
+    "\t The use of the \"<expType>\" option will result in a ",
+    "\t listing of only those parameters associated with that ",
+    "\t specific data collector.",
+    " "
+};
+
+const char *cmd_listParamsVal_detailed[] = {
+    cmd_listParamsVal_args[0],
+    " ",
+    cmd_listParamsVal_brief,
+    " ",
+    "\t If no options are selected, the parameters and values ",
+    "\t that are part of the focused experiment will ",
+    "\t be listed.",
+    " ",
+    "\t The use of -x <expId> will cause the parameters and ",
+    "\t values are associated with the set of data collectors that are ",
     "\t part of the specified experiment to be listed.",
     " ",
     "\t The use of the keyword all will cause all the parameters ",
@@ -2425,6 +2485,12 @@ OpenSpeedShop::message_element_t cmd_msg[] = {
     cmd_listParams_detailed,sizeof(cmd_listParams_detailed)/sizeof(char **),
     NULL,0,NULL,0,
     cmd_listParams_args,sizeof(cmd_listParams_args)/sizeof(char **),
+    -1,"listParamsVal",
+    cmd_listParamsVal_related,sizeof(cmd_listParamsVal_related)/sizeof(char **),
+    "sub_commands",cmd_listParamsVal_brief,
+    cmd_listParamsVal_detailed,sizeof(cmd_listParamsVal_detailed)/sizeof(char **),
+    NULL,0,NULL,0,
+    cmd_listParamsVal_args,sizeof(cmd_listParamsVal_args)/sizeof(char **),
 //    Depredated CMD_LIST_PIDS,
     -1,"listPids",
     cmd_listPids_related,sizeof(cmd_listPids_related)/sizeof(char **),
