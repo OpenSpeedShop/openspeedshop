@@ -47,10 +47,12 @@ AC_DEFUN([AX_LAM], [
     lam_saved_CC=$CC
     lam_saved_CPPFLAGS=$CPPFLAGS
     lam_saved_LDFLAGS=$LDFLAGS
+    lam_saved_LIBS=$LIBS
 
     CC="$LAM_CC"
     CPPFLAGS="$CPPFLAGS $LAM_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $LAM_LDFLAGS $LAM_LIBS"
+    LDFLAGS="$LDFLAGS $LAM_LDFLAGS"
+    LIBS="$LAM_LIBS"
 
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
@@ -68,6 +70,7 @@ AC_DEFUN([AX_LAM], [
     CC=$lam_saved_CC
     CPPFLAGS=$lam_saved_CPPFLAGS
     LDFLAGS=$lam_saved_LDFLAGS
+    LIBS=$lam_saved_LIBS
 
     if test $found_lam -eq 1; then
 	AC_MSG_RESULT(yes)
@@ -175,10 +178,12 @@ AC_DEFUN([AX_LAMPI], [
     lampi_saved_CC=$CC
     lampi_saved_CPPFLAGS=$CPPFLAGS
     lampi_saved_LDFLAGS=$LDFLAGS
+    lampi_saved_LIBS=$LIBS
 
     CC="$LAMPI_CC"
     CPPFLAGS="$CPPFLAGS $LAMPI_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $LAMPI_LDFLAGS $LAMPI_LIBS"
+    LDFLAGS="$LDFLAGS $LAMPI_LDFLAGS"
+    LIBS="$LAMPI_LIBS"
 
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
@@ -196,6 +201,7 @@ AC_DEFUN([AX_LAMPI], [
     CC=$lampi_saved_CC
     CPPFLAGS=$lampi_saved_CPPFLAGS
     LDFLAGS=$lampi_saved_LDFLAGS
+    LIBS=$lampi_saved_LIBS
 
     if test $found_lampi -eq 1; then
 	AC_MSG_RESULT(yes)
@@ -222,10 +228,12 @@ AC_DEFUN([AX_LAMPI], [
          lampi_saved_CC=$CC
          lampi_saved_CPPFLAGS=$CPPFLAGS
          lampi_saved_LDFLAGS=$LDFLAGS
+         lampi_saved_LIBS=$LIBS
 
          CC="$LAMPI_CC"
          CPPFLAGS="$CPPFLAGS $LAMPI_CPPFLAGS"
-         LDFLAGS="$LDFLAGS $LAMPI_LDFLAGS $LAMPI_LIBS"
+         LDFLAGS="$LDFLAGS $LAMPI_LDFLAGS"
+         LIBS="$LAMPI_LIBS"
 
          AC_LINK_IFELSE([AC_LANG_PROGRAM([[
              #include <mpi.h>
@@ -244,6 +252,7 @@ AC_DEFUN([AX_LAMPI], [
          CC=$lampi_saved_CC
          CPPFLAGS=$lampi_saved_CPPFLAGS
          LDFLAGS=$lampi_saved_LDFLAGS
+         LIBS=$lampi_saved_LIBS
 
          if test $found_lampi -eq 1; then
              AC_MSG_RESULT(yes)
@@ -351,10 +360,12 @@ AC_DEFUN([AX_MPICH], [
     mpich_saved_CC=$CC
     mpich_saved_CPPFLAGS=$CPPFLAGS
     mpich_saved_LDFLAGS=$LDFLAGS
+    mpich_saved_LIBS=$LIBS
 
     CC="$MPICH_CC"
     CPPFLAGS="$CPPFLAGS $MPICH_CPPFLAGS"
-    LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
+    LDFLAGS="$LDFLAGS $MPICH_LDFLAGS"
+    LIBS="$MPICH_LIBS"
 
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
@@ -441,6 +452,7 @@ AC_DEFUN([AX_MPICH], [
     CC=$mpich_saved_CC
     CPPFLAGS=$mpich_saved_CPPFLAGS
     LDFLAGS=$mpich_saved_LDFLAGS
+    LIBS=$mpich_saved_LIBS
 
     AC_SUBST(MPICH_CC)
     AC_SUBST(MPICH_CPPFLAGS)
@@ -526,10 +538,12 @@ AC_DEFUN([AX_MPICH2], [
     mpich2_saved_CC=$CC
     mpich2_saved_CPPFLAGS=$CPPFLAGS
     mpich2_saved_LDFLAGS=$LDFLAGS
+    mpich2_saved_LIBS=$LIBS
 
     CC="$MPICH2_CC"
     CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH2_LIBS"
+    LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS"
+    LIBS="$MPICH2_LIBS"
 
     if test $found_mpich2 -eq 0; then
 
@@ -580,7 +594,8 @@ AC_DEFUN([AX_MPICH2], [
 
        CC="$MPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH2_LIBS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS"
+       LIBS="$MPICH2_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
@@ -620,7 +635,8 @@ AC_DEFUN([AX_MPICH2], [
 
        CC="$MPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH2_LIBS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS"
+       LIBS="$MPICH2_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
@@ -654,7 +670,8 @@ AC_DEFUN([AX_MPICH2], [
 
        CC="$MPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH2_LIBS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS"
+       LIBS="$MPICH2_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
@@ -689,7 +706,8 @@ AC_DEFUN([AX_MPICH2], [
 
        CC="$MPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH2_LIBS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS"
+       LIBS="$MPICH2_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
@@ -734,7 +752,8 @@ AC_DEFUN([AX_MPICH2], [
 
        CC="$MPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH2_LIBS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS"
+       LIBS="$MPICH2_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
@@ -768,7 +787,8 @@ AC_DEFUN([AX_MPICH2], [
 
        CC="$MPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS $MPICH2_LIBS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS"
+       LIBS="$MPICH2_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
@@ -789,6 +809,7 @@ AC_DEFUN([AX_MPICH2], [
     CC=$mpich2_saved_CC
     CPPFLAGS=$mpich2_saved_CPPFLAGS
     LDFLAGS=$mpich2_saved_LDFLAGS
+    LIBS=$mpich2_saved_LIBS
 
     if test $found_mpich2 -eq 1; then
 	AC_MSG_RESULT(yes)
@@ -909,10 +930,12 @@ AC_DEFUN([AX_MPT], [
     mpt_saved_CC=$CC
     mpt_saved_CPPFLAGS=$CPPFLAGS
     mpt_saved_LDFLAGS=$LDFLAGS
+    mpt_saved_LIBS=$LIBS
 
     CC="$MPT_CC"
     CPPFLAGS="$CPPFLAGS $MPT_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $MPT_LDFLAGS $MPT_LIBS"
+    LDFLAGS="$LDFLAGS $MPT_LDFLAGS"
+    LIBS="$MPT_LIBS"
 
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
@@ -924,6 +947,7 @@ AC_DEFUN([AX_MPT], [
     CC=$mpt_saved_CC
     CPPFLAGS=$mpt_saved_CPPFLAGS
     LDFLAGS=$mpt_saved_LDFLAGS
+    LIBS=$mpt_saved_LIBS
 
     if test $found_mpt -eq 1; then
 	AC_MSG_RESULT(yes)
@@ -984,10 +1008,12 @@ AC_DEFUN([AX_OPENMPI], [
     openmpi_saved_CC=$CC
     openmpi_saved_CPPFLAGS=$CPPFLAGS
     openmpi_saved_LDFLAGS=$LDFLAGS
+    openmpi_saved_LIBS=$LIBS
 
     CC="$OPENMPI_CC"
     CPPFLAGS="-O0 -g $CPPFLAGS $OPENMPI_CPPFLAGS"
-    LDFLAGS="$OPENMPI_LDFLAGS $OPENMPI_LIBS"
+    LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS"
+    LIBS="$OPENMPI_LIBS"
 
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
@@ -1012,7 +1038,8 @@ AC_DEFUN([AX_OPENMPI], [
      OPENMPI_CPPFLAGS="-I$openmpi_dir/include/openmpi"
      OPENMPI_LDFLAGS="-L$openmpi_dir/$abi_libdir/openmpi"
      OPENMPI_HEADER="$openmpi_dir/include/openmpi/mpi.h"
-     LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS $OPENMPI_LIBS"
+     LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS"
+     LIBS="$OPENMPI_LIBS"
      CPPFLAGS="-O0 -g $CPPFLAGS $OPENMPI_CPPFLAGS"
 
      AC_LINK_IFELSE([AC_LANG_PROGRAM([[
@@ -1038,7 +1065,8 @@ AC_DEFUN([AX_OPENMPI], [
      OPENMPI_CPPFLAGS="-I$openmpi_dir/include"
      OPENMPI_HEADER="$openmpi_dir/include/mpi.h"
      OPENMPI_LDFLAGS="-L$openmpi_dir/$abi_libdir"
-     LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS $OPENMPI_LIBS"
+     LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS"
+     LIBS="$OPENMPI_LIBS"
      CPPFLAGS="-O0 -g $CPPFLAGS $OPENMPI_CPPFLAGS"
 
      AC_LINK_IFELSE([AC_LANG_PROGRAM([[
@@ -1085,7 +1113,8 @@ AC_DEFUN([AX_OPENMPI], [
 #
    if test $found_openmpi -eq 0 && test -a $openmpi_dir/bin/om-mpicx; then
      OPENMPI_LDFLAGS="-L$openmpi_dir/$abi_libdir/openmpi"
-     LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS $OPENMPI_LIBS"
+     LDFLAGS="$LDFLAGS $OPENMPI_LDFLAGS"
+     LIBS="$OPENMPI_LIBS"
      OPENMPI_CC="$openmpi_dir/bin/om-mpicxx"
      CC="$OPENMPI_CC"
 
@@ -1108,6 +1137,7 @@ AC_DEFUN([AX_OPENMPI], [
     CC=$openmpi_saved_CC
     CPPFLAGS=$openmpi_saved_CPPFLAGS
     LDFLAGS=$openmpi_saved_LDFLAGS
+    LIBS=$openmpi_saved_LIBS
 
     if test $found_openmpi -eq 1; then
 	AC_MSG_RESULT(yes)
@@ -1270,10 +1300,12 @@ AC_DEFUN([AX_MVAPICH], [
     mvapich_saved_CC=$CC
     mvapich_saved_CPPFLAGS=$CPPFLAGS
     mvapich_saved_LDFLAGS=$LDFLAGS
+    mvapich_saved_LIBS=$LIBS
 
     CC="$MVAPICH_CC"
     CPPFLAGS="$CPPFLAGS $MVAPICH_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $MVAPICH_LIBS $MVAPICH_LDFLAGS $MVAPICH_LIBS"
+    LDFLAGS="$LDFLAGS $MVAPICH_LDFLAGS"
+    LIBS="$MVAPICH_LIBS"
 
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
@@ -1308,7 +1340,8 @@ AC_DEFUN([AX_MVAPICH], [
 
        CC="$MVAPICH_CC"
        CPPFLAGS="$CPPFLAGS $MVAPICH_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MVAPICH_LIBS $MVAPICH_LDFLAGS $MVAPICH_LIBS"
+       LDFLAGS="$LDFLAGS $MVAPICH_LDFLAGS"
+       LIBS="$MVAPICH_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
@@ -1333,6 +1366,7 @@ AC_DEFUN([AX_MVAPICH], [
     CC=$mvapich_saved_CC
     CPPFLAGS=$mvapich_saved_CPPFLAGS
     LDFLAGS=$mvapich_saved_LDFLAGS
+    LIBS=$mvapich_saved_LIBS
 
     if test $found_mvapich -eq 1; then
 	AC_MSG_RESULT(yes)
@@ -1403,10 +1437,12 @@ AC_DEFUN([AX_MVAPICH2], [
     mvapich2_saved_CC=$CC
     mvapich2_saved_CPPFLAGS=$CPPFLAGS
     mvapich2_saved_LDFLAGS=$LDFLAGS
+    mvapich2_saved_LIBS=$LIBS
 
     CC="$MVAPICH2_CC"
     CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $MVAPICH2_LIBS $MVAPICH2_LDFLAGS $MVAPICH2_LIBS"
+    LDFLAGS="$LDFLAGS $MVAPICH2_LDFLAGS"
+    LIBS="$MVAPICH2_LIBS"
 
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
@@ -1443,7 +1479,8 @@ AC_DEFUN([AX_MVAPICH2], [
 
        CC="$MVAPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MVAPICH2_LIBS $MVAPICH2_LDFLAGS $MVAPICH2_LIBS"
+       LDFLAGS="$LDFLAGS $MVAPICH2_LDFLAGS"
+       LIBS="$MVAPICH2_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
@@ -1468,6 +1505,7 @@ AC_DEFUN([AX_MVAPICH2], [
     CC=$mvapich2_saved_CC
     CPPFLAGS=$mvapich2_saved_CPPFLAGS
     LDFLAGS=$mvapich2_saved_LDFLAGS
+    LIBS=$mvapich2_saved_LIBS
 
     if test $found_mvapich2 -eq 0; then
 
@@ -1498,7 +1536,8 @@ AC_DEFUN([AX_MVAPICH2], [
 
       CC="$MVAPICH2_CC"
       CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
-      LDFLAGS="$LDFLAGS $MVAPICH2_LIBS $MVAPICH2_LDFLAGS $MVAPICH2_LIBS"
+      LDFLAGS="$LDFLAGS $MVAPICH2_LDFLAGS"
+      LIBS="$MVAPICH2_LIBS"
 
       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
@@ -1536,7 +1575,8 @@ AC_DEFUN([AX_MVAPICH2], [
 
        CC="$MVAPICH2_CC"
        CPPFLAGS="$CPPFLAGS $MVAPICH2_CPPFLAGS"
-       LDFLAGS="$LDFLAGS $MVAPICH2_LIBS $MVAPICH2_LDFLAGS $MVAPICH2_LIBS"
+       LDFLAGS="$LDFLAGS $MVAPICH2_LDFLAGS"
+       LIBS="$MVAPICH2_LIBS"
 
        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
    	  #include <mpi.h>
@@ -1561,6 +1601,7 @@ AC_DEFUN([AX_MVAPICH2], [
     CC=$mvapich2_saved_CC
     CPPFLAGS=$mvapich2_saved_CPPFLAGS
     LDFLAGS=$mvapich2_saved_LDFLAGS
+    LIBS=$mvapich2_saved_LIBS
 
     if test $found_mvapich2 -eq 1; then
 	AC_MSG_RESULT(yes)
