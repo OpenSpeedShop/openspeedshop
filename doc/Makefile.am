@@ -18,7 +18,7 @@
 ################################################################################
 
 # directories that will be affected
-SUBDIRS = users_guide cli_doc plugin_guide design_doc
+SUBDIRS = users_guide cli_doc plugin_guide
 
 DIST_SUBDIRS = users_guide cli_doc plugin_guide design_doc
 

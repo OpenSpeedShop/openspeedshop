@@ -40,6 +40,9 @@ docdir6  = ${prefix}/share/doc/packages/OpenSpeedShop/design_doc/GUI
 docdir7  = ${prefix}/share/doc/packages/OpenSpeedShop/design_doc/Message
 docdir8  = ${prefix}/share/doc/packages/OpenSpeedShop/design_doc/Queries
 
+CLEANDIRS = CLI/html  Collectors/html  Framework/html  GUI/html \
+	     Message/html  Queries/html  Runtime/html
+
 install-reference: index.html
 	@$(NORMAL_INSTALL)
 	${mkinstalldirs} ${DESTDIR}${docdir1}
@@ -226,3 +229,8 @@ all-local: index.html
 install-data-am: install-reference
 
 uninstall: uninstall-reference
+
+clean-local: clean-local-check
+.PHONY: clean-local-check
+clean-local-check:
+	-rm -rf ${CLEANDIRS}
