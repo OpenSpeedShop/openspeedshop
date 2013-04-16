@@ -33,9 +33,11 @@ AC_DEFUN([AX_OPENMP], [
 
     openmp_saved_CPPFLAGS=$CPPFLAGS
     openmp_saved_LDFLAGS=$LDFLAGS
+    openmp_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $OPENMP_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $OPENMP_LDFLAGS $OPENMP_LIBS"
+    LDFLAGS="$LDFLAGS $OPENMP_LDFLAGS"
+    LIBS="$OPENMP_LIBS"
 
     AC_MSG_CHECKING([for OpenMP support])
 
@@ -63,6 +65,7 @@ AC_DEFUN([AX_OPENMP], [
 
     CPPFLAGS=$openmp_saved_CPPFLAGS
     LDFLAGS=$openmp_saved_LDFLAGS
+    LIBS=$openmp_saved_LIBS
 
     AC_LANG_POP(C++)
 

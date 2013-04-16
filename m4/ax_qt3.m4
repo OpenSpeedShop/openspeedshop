@@ -325,10 +325,12 @@ QTLIB_LDFLAGS="-l$ac_cv_qtlib"
 dnl Save the current CPPFLAGS and LDFLAGS variables prior to qt version test
 qtlib_saved_CPPFLAGS=$CPPFLAGS
 qtlib_saved_LDFLAGS=$LDFLAGS
+qtlib_saved_LIBS=$LIBS
 
 dnl Use QT CPPFLAGS and LDFLAGS variables for the qt version test
 CPPFLAGS="$CPPFLAGS $QTLIB_CPPFLAGS"
-LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
+LDFLAGS="$LDFLAGS $QTLIB_LDFLAGS"
+LIBS="$QTLIB_LIBS"
 
 dnl Check if we have qglobal.h which is an indication of QT 3.3 or greater
 AC_CACHE_CHECK( [for Qt library version >= 3.3.0], ac_cv_qtlib_version,
@@ -352,7 +354,8 @@ AC_CACHE_CHECK( [for Qt library version >= 3.3.0], ac_cv_qtlib_version,
       QTLIB_CPPFLAGS="$CPPFLAGS -I$tmp_lqtdir/include/qt3 -I$KDEDIR/include -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED"
 dnl Use QT CPPFLAGS and LDFLAGS variables for the qt version test
       CPPFLAGS="$CPPFLAGS $QTLIB_CPPFLAGS"
-      LDFLAGS="$CXXFLAGS $QTLIB_LDFLAGS $QTLIB_LIBS"
+      LDFLAGS="$LDFLAGS $QTLIB_LDFLAGS"
+      LIBS="$QTLIB_LIBS"
 
       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
   	#include <qglobal.h>
@@ -428,6 +431,7 @@ dnl This only needed if we continue the build environment ROOT support
 dnl Restore saved flags after the QT version check program compilation
     CPPFLAGS=$qtlib_saved_CPPFLAGS
     LDFLAGS=$qtlib_saved_LDFLAGS
+    LIBS=$qtlib_saved_LIBS
 
 dnl Make the QTLIB flags/libs available
     

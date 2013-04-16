@@ -48,9 +48,11 @@ AC_DEFUN([AX_OTF], [
 
     otf_saved_CPPFLAGS=$CPPFLAGS
     otf_saved_LDFLAGS=$LDFLAGS
+    otf_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $OTF_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $OTF_LDFLAGS $OTF_LIBS"
+    LDFLAGS="$LDFLAGS $OTF_LDFLAGS"
+    LIBS="$OTF_LIBS"
 
     AC_MSG_CHECKING([for OTF support])
 
@@ -103,6 +105,7 @@ AC_DEFUN([AX_OTF], [
 
     CPPFLAGS=$otf_saved_CPPFLAGS
     LDFLAGS=$otf_saved_LDFLAGS
+    LIBS=$otf_saved_LIBS
 
     AC_LANG_POP(C++)
 

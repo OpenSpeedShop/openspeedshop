@@ -35,9 +35,11 @@ AC_DEFUN([AX_LIBMONITOR], [
 
     libmonitor_saved_CPPFLAGS=$CPPFLAGS
     libmonitor_saved_LDFLAGS=$LDFLAGS
+    libmonitor_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $LIBMONITOR_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $LIBMONITOR_LDFLAGS $LIBMONITOR_LIBS -lpthread"
+    LDFLAGS="$LDFLAGS $LIBMONITOR_LDFLAGS"
+    LIBS="$LIBMONITOR_LIBS -lpthread"
 
     AC_MSG_CHECKING([for libmonitor library and headers])
 
@@ -63,6 +65,7 @@ AC_DEFUN([AX_LIBMONITOR], [
 
     CPPFLAGS=$libmonitor_saved_CPPFLAGS
     LDFLAGS=$libmonitor_saved_LDFLAGS
+    LIBS=$libmonitor_saved_LIBS
 
     AC_SUBST(LIBMONITOR_CPPFLAGS)
     AC_SUBST(LIBMONITOR_LDFLAGS)

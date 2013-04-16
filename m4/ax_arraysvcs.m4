@@ -45,9 +45,11 @@ AC_DEFUN([AX_ARRAYSVCS], [
 
     arraysvcs_saved_CPPFLAGS=$CPPFLAGS
     arraysvcs_saved_LDFLAGS=$LDFLAGS
+    arraysvcs_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $ARRAYSVCS_CPPFLAGS"
-    LDFLAGS="$CXXFLAGS $ARRAYSVCS_LDFLAGS $ARRAYSVCS_LIBS"
+    LDFLAGS="$LDFLAGS $ARRAYSVCS_LDFLAGS"
+    LIBS="$ARRAYSVCS_LIBS"
 
     AC_MSG_CHECKING([for array services library and headers])
 
@@ -71,6 +73,7 @@ AC_DEFUN([AX_ARRAYSVCS], [
 
     CPPFLAGS=$arraysvcs_saved_CPPFLAGS
     LDFLAGS=$arraysvcs_saved_LDFLAGS
+    LIBS=$arraysvcs_saved_LIBS
 
     AC_LANG_POP(C++)
 

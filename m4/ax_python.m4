@@ -223,9 +223,11 @@ $ac_distutils_result])
 
     python_saved_CPPFLAGS=$CPPFLAGS
     python_saved_LDFLAGS=$LDFLAGS
+    python_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $PYTHON_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $PYTHON_LDFLAGS $PYTHON_LIBS"
+    LDFLAGS="$LDFLAGS $PYTHON_LDFLAGS"
+    LIBS="$PYTHON_LIBS"
 
     #
     # Check for a version of Python >= 2.1.0
@@ -247,5 +249,6 @@ doesn't work properly with versions of Python before
 
     CPPFLAGS=$python_saved_CPPFLAGS
     LDFLAGS=$python_saved_LDFLAGS
+    LIBS=$python_saved_LIBS
 
 ])
