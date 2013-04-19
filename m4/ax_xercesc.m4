@@ -9,7 +9,7 @@ AC_DEFUN([AX_XERCESC], [
     LIBXERCES_C_DIR="$xerces_dir"
     LIBXERCES_C_LIBSDIR="$xerces_dir/$abi_libdir"
 
-    if test "x$BINUTILS_DIR" == "x/usr"; then
+    if test "x$LIBXERCES_C_DIR" == "x/usr"; then
         LIBXERCES_C_CPPFLAGS=""
         LIBXERCES_C_LDFLAGS=""
     else
