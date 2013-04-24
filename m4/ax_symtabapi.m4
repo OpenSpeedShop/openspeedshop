@@ -51,8 +51,11 @@ AC_DEFUN([AX_SYMTABAPI], [
 	"8.1")
             SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
             ;;
+	"8.1.1")
+            SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
+            ;;
 	*)
-            SYMTABAPI_LIBS="-lsymtabAPI -lcommon" 
+            SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
             ;;
     esac
 
