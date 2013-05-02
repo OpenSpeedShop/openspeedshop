@@ -20,6 +20,7 @@
 # directories that will be built
 SUBDIRS = \
         mpi\
+        openmp\
 	mutatee\
 	forever \
 	forever_cxx  \
@@ -38,6 +39,7 @@ SUBDIRS = \
 #
 DIST_SUBDIRS = \
         mpi\
+        openmp\
 	mutatee\
 	Eon \
 	forever \

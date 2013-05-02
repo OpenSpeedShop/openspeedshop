@@ -260,6 +260,8 @@ AC_CONFIG_FILES(
         executables/mpi/smg2000/utilities/Makefile
         executables/mpi/smg2000/test/Makefile
         executables/mpi/nbody/Makefile
+        executables/openmp/Makefile
+        executables/openmp/lulesh/Makefile
 	src/Makefile
 	src/dpcl/Makefile
 	src/dpcl/one_shot/Makefile
