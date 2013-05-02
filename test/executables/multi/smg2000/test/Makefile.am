@@ -23,7 +23,7 @@ smg2000_CFLAGS = \
 	-I$(smgtopdir)/struct_mv\
 	-I$(smgtopdir)/struct_ls\
 	-I$(smgtopdir)/krylov\
-        -I -g -gdwarf-2 -DHYPRE_USING_OPENMP -DHYPRE_SEQUENTIAL  -fno-default-inline \
+        -I -g -gdwarf-2 -DHYPRE_USING_OPENMP -DHYPRE_SEQUENTIAL -fno-default-inline -fopenmp \
 	-DHYPRE_TIMING
 
 smg2000_LDFLAGS = \
