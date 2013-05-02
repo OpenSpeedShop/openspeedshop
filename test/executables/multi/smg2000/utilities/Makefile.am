@@ -8,21 +8,15 @@
 
 lib_LIBRARIES = libHYPRE_utilities.a
 
-MPI_IMPL = @DEFAULT_MPI_IMPL@
-
-MPICC	= $($(MPI_IMPL)_CC)
-CC	= $(MPICC)
-
 smgtopdir = ../.
 
 libHYPRE_utilities_a_CFLAGS = \
-	$($(MPI_IMPL)_CPPFLAGS) \
 	-I$(smgtopdir)\
 	-I -g -gdwarf-2 -DHYPRE_USING_OPENMP -DHYPRE_SEQUENTIAL  -fno-default-inline\
 	-DHYPRE_TIMING
 
 libHYPRE_utilities_a_LDFLAGS = \
-        -lm $($(MPI_IMPL)_LDFLAGS) $($(MPI_IMPL)_LIBS)
+        -lm
 
 libHYPRE_utilities_a_SOURCES = \
 	memory.h\

@@ -8,22 +8,16 @@
 
 lib_LIBRARIES = libkrylov.a
 
-MPI_IMPL = @DEFAULT_MPI_IMPL@
-
-MPICC	= $($(MPI_IMPL)_CC)
-CC	= $(MPICC)
-
 smgtopdir = ../.
 
 
 libkrylov_a_CFLAGS =\
-	$($(MPI_IMPL)_CPPFLAGS) \
 	-I$(smgtopdir)\
 	-I$(smgtopdir)/utilities\
         -I -g -gdwarf-2 -DHYPRE_USING_OPENMP -DHYPRE_SEQUENTIAL  -fno-default-inline
 
 libkrylov_a_LDFLAGS = \
-        -lm $($(MPI_IMPL)_LDFLAGS) $($(MPI_IMPL)_LIBS)
+        -lm 
 
 libkrylov_a_SOURCES =\
 	krylov.h \

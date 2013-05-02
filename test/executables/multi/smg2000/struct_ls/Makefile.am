@@ -8,15 +8,9 @@
 
 lib_LIBRARIES = libHYPRE_struct_ls.a
 
-MPI_IMPL = @DEFAULT_MPI_IMPL@
-
-MPICC	= $($(MPI_IMPL)_CC)
-CC	= $(MPICC)
-
 smgtopdir = ../.
 
 libHYPRE_struct_ls_a_CFLAGS = \
-	$($(MPI_IMPL)_CPPFLAGS) \
 	-I$(smgtopdir)\
 	-I$(smgtopdir)/utilities\
 	-I$(smgtopdir)/krylov\
@@ -24,7 +18,7 @@ libHYPRE_struct_ls_a_CFLAGS = \
 	-I -g -gdwarf-2 -DHYPRE_USING_OPENMP -DHYPRE_SEQUENTIAL  -fno-default-inline
 
 libHYPRE_struct_ls_a_LDFLAGS = \
-        -lm $($(MPI_IMPL)_LDFLAGS) $($(MPI_IMPL)_LIBS)
+        -lm 
 
 libHYPRE_struct_ls_a_SOURCES = \
 	headers.h\
