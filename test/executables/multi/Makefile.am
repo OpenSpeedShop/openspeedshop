@@ -1,6 +1,5 @@
 ###############################################################################
-# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2013 Krell Institute All Rights Reserved.
+# Copyright (c) 2013 Krell Institute All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -18,42 +17,16 @@
 ################################################################################
 #
 # directories that will be built
-SUBDIRS = \
-        mpi\
-        openmp\
-        multi\
-	mutatee\
-	forever \
-	forever_cxx  \
-	fpe_print \
-	fpetest \
-	fpetest_attach \
-	fredO2 \
-	lulesh \
-	threads \
-	deep_callpath \
-	fred
+SUBDIRS = 
+
+if HAVE_OPENMP
+SUBDIRS += stress_omp smg2000
+endif
 
 #
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 #
-DIST_SUBDIRS = \
-        mpi\
-        openmp\
-        multi\
-	mutatee\
-	Eon \
-	forever \
-	forever_cxx  \
-	fpe_print \
-	fpetest \
-	fpetest_attach \
-	fredO2 \
-	lulesh \
-	threads \
-	deep_callpath \
-	fred \
-	mpi
+DIST_SUBDIRS = stress_omp smg2000
 
 
