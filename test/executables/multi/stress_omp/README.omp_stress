@@ -1,0 +1,29 @@
+
+BUILD:
+gfortran -D__GFORTRAN -g -O -fopenmp -ostress_omp stress_omp.f -lm -lgomp
+
+RUN using the input file:
+stress_omp < stress.input
+
+RUN UNDER openss:
+module load openss
+
+export OMP_NUM_THREADS=8
+export OMP_NUM_THREADS=4
+export OMP_NUM_THREADS=2
+
+osspcsamp "./stress_omp < stress.input"
+ossusertime "./stress_omp < stress.input"
+osshwc "./stress_omp < stress.input"
+osshwcsamp "./stress_omp < stress.input"
+osshwctime "./stress_omp < stress.input"
+ossio "./stress_omp < stress.input"
+ossiot "./stress_omp < stress.input"
+
+
+openss -offline -f "stress_omp < stress.input" pcsamp
+openss -offline -f "stress_omp < stress.input" usertime
+openss -offline -f "stress_omp < stress.input" hwc
+openss -offline -f "stress_omp < stress.input" io
+
+unset OMP_NUM_THREADS

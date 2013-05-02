@@ -1,0 +1,16 @@
+ The Parameters of this run are:
+ Maxcount:                  10
+ nx,ny,nz:                 400         400         800
+ Output interval:           10
+ Weight (wght):     5.00000007E-02
+ Value range:        100.00000    
+ Random seed:                0
+ Using deterministic initialization
+  
+ Initial random values are (i,j,k=1,10):
+ -0.1468E+02 -0.1462E+02 -0.1446E+02 -0.1418E+02 -0.1381E+02 -0.1332E+02
+ -0.1274E+02 -0.1207E+02 -0.1130E+02 -0.1045E+02
+  
+ Final (smoothed?) values are (i,j,k=1,10):
+ -0.1375E+02 -0.1368E+02 -0.1351E+02 -0.1326E+02 -0.1290E+02 -0.1245E+02
+ -0.1191E+02 -0.1128E+02 -0.1056E+02 -0.9765E+01
