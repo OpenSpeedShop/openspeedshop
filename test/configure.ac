@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2010 Krell Institute   All Rights Reserved.
+# Copyright (c) 2006-2013 Krell Institute   All Rights Reserved.
 # Copyright (c) 2007-2008 William Hachfeld. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -18,8 +18,8 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-AC_INIT(OpenSpeedShop, 2.0.0)
-AC_COPYRIGHT([[Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.]])
+AC_INIT(OpenSpeedShop, 2.0.2)
+AC_COPYRIGHT([[Copyright (c) 2006-2013 Krell Institute. All Rights Reserved.]])
 AC_CONFIG_AUX_DIR([libltdl/config])
 AM_INIT_AUTOMAKE
 
@@ -31,7 +31,7 @@ AM_CONFIG_HEADER([config.h])
 
 AH_TOP([
 /*******************************************************************************
-** Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2013 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -248,9 +248,11 @@ AC_CONFIG_FILES(
         executables/Eon/Makefile
         executables/dlopen/Makefile
         executables/deep_callpath/Makefile
+        executables/lulesh/Makefile
         executables/threads/Makefile
         executables/mpi/Makefile
 	executables/mpi/helloworld/Makefile
+	executables/mpi/lulesh/Makefile
         executables/mpi/smg2000/Makefile
         executables/mpi/smg2000/krylov/Makefile
         executables/mpi/smg2000/struct_ls/Makefile

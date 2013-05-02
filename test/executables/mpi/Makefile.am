@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2010 Krell Institute All Rights Reserved.
+# Copyright (c) 2006-2013 Krell Institute All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -21,13 +21,14 @@
 SUBDIRS = 
 
 if HAVE_MPI
-SUBDIRS += nbody smg2000 helloworld
+#SUBDIRS += nbody smg2000 helloworld lulesh
+SUBDIRS += nbody smg2000 helloworld 
 endif
 
 #
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 #
-DIST_SUBDIRS = nbody smg2000 helloworld
+DIST_SUBDIRS = nbody smg2000 helloworld lulesh
 
 
