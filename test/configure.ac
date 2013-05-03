@@ -233,6 +233,13 @@ AC_SUBST(INSTRUMENTOR)
 AC_CONFIG_FILES(
 	Makefile
         executables/Makefile
+        executables/hybrid/Makefile
+        executables/hybrid/smg2000/Makefile
+        executables/hybrid/smg2000/krylov/Makefile
+        executables/hybrid/smg2000/struct_ls/Makefile
+        executables/hybrid/smg2000/struct_mv/Makefile
+        executables/hybrid/smg2000/utilities/Makefile
+        executables/hybrid/smg2000/test/Makefile
         executables/sequential/Makefile
         executables/sequential/forever/Makefile
         executables/sequential/forever_cxx/Makefile
