@@ -22,17 +22,7 @@ SUBDIRS = \
         mpi\
         openmp\
         multi\
-	mutatee\
-	forever \
-	forever_cxx  \
-	fpe_print \
-	fpetest \
-	fpetest_attach \
-	fredO2 \
-	lulesh \
-	threads \
-	deep_callpath \
-	fred
+        sequential
 
 #
 # directories that will be packaged into tar.gz.
@@ -42,18 +32,6 @@ DIST_SUBDIRS = \
         mpi\
         openmp\
         multi\
-	mutatee\
-	Eon \
-	forever \
-	forever_cxx  \
-	fpe_print \
-	fpetest \
-	fpetest_attach \
-	fredO2 \
-	lulesh \
-	threads \
-	deep_callpath \
-	fred \
-	mpi
+        sequential
 
 

@@ -233,23 +233,30 @@ AC_SUBST(INSTRUMENTOR)
 AC_CONFIG_FILES(
 	Makefile
         executables/Makefile
-        executables/forever/Makefile
-        executables/forever_cxx/Makefile
-        executables/fpetest/Makefile
-        executables/fpetest_attach/Makefile
-        executables/fpe_print/Makefile
-        executables/fredO2/Makefile
-        executables/fred/Makefile
-        executables/mutatee/Makefile
-        executables/mutatee/c_version/Makefile
-        executables/mutatee/cplus_version/Makefile
-        executables/mutatee/f77_version/Makefile
-        executables/mutatee/io_c_version/Makefile
-        executables/Eon/Makefile
-        executables/dlopen/Makefile
-        executables/deep_callpath/Makefile
-        executables/lulesh/Makefile
-        executables/threads/Makefile
+        executables/sequential/Makefile
+        executables/sequential/forever/Makefile
+        executables/sequential/forever_cxx/Makefile
+        executables/sequential/fpetest/Makefile
+        executables/sequential/fpetest_attach/Makefile
+        executables/sequential/fpe_print/Makefile
+        executables/sequential/fredO2/Makefile
+        executables/sequential/fred/Makefile
+        executables/sequential/mutatee/Makefile
+        executables/sequential/mutatee/c_version/Makefile
+        executables/sequential/mutatee/cplus_version/Makefile
+        executables/sequential/mutatee/f77_version/Makefile
+        executables/sequential/mutatee/io_c_version/Makefile
+        executables/sequential/Eon/Makefile
+        executables/sequential/dlopen/Makefile
+        executables/sequential/deep_callpath/Makefile
+        executables/sequential/lulesh/Makefile
+        executables/sequential/threads/Makefile
+        executables/sequential/smg2000/Makefile
+        executables/sequential/smg2000/krylov/Makefile
+        executables/sequential/smg2000/struct_ls/Makefile
+        executables/sequential/smg2000/struct_mv/Makefile
+        executables/sequential/smg2000/utilities/Makefile
+        executables/sequential/smg2000/test/Makefile
         executables/mpi/Makefile
 	executables/mpi/helloworld/Makefile
 	executables/mpi/lulesh/Makefile
