@@ -16,7 +16,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-echo expcreate -f ../../../../executables/mutatee/f77_version/mutatee pcsamp >> input.script
+echo expcreate -f ../../../../executables/sequential/mutatee/f77_version/mutatee pcsamp >> input.script
 echo expgo >> input.script
 echo expview stats5 -m time >>input.script
 openss -batch < input.script

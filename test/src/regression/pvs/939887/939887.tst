@@ -17,12 +17,12 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 rm -f input.script
-../../../../executables/forever_cxx/forever >> file &
+../../../../executables/sequential/forever_cxx/forever >> file &
 ls -l file
 cat file
 read i < file
 rm file
-../../../../executables/forever_cxx/forever >> file &
+../../../../executables/sequential/forever_cxx/forever >> file &
 ls -l file
 cat file
 read j < file

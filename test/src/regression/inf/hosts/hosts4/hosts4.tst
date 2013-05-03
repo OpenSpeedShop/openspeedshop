@@ -19,7 +19,7 @@
 rm -f input.script
 rm -f *.expected*
 hostname >> hosts4.tst.expected
-echo expCreate  -f ../../../../../executables/mutatee/io_c_version/mutatee io >> input.script
+echo expCreate  -f ../../../../../executables/sequential/mutatee/io_c_version/mutatee io >> input.script
 echo list -v hosts >> input.script
 echo exit >> input.script
 openss -batch < input.script

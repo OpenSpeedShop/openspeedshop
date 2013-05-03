@@ -17,7 +17,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 rm -f input.script
-echo expcreate -f ../../../../../../executables/mutatee/io_c_version/mutatee io >> input.script
+echo expcreate -f ../../../../../../executables/sequential/mutatee/io_c_version/mutatee io >> input.script
 echo expgo >> input.script
 echo expview -v functions -m exclusive_time >>input.script
 openss -batch < input.script

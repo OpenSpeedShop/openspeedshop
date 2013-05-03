@@ -18,7 +18,7 @@
 ################################################################################
 rm -f input.script
 rm -f *.expected*
-../../../../../executables/forever_cxx/forever >> file &
+../../../../../executables/sequential/forever_cxx/forever >> file &
 ls -l file
 cat file
 read i < file

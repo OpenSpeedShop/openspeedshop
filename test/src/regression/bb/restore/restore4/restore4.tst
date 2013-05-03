@@ -18,7 +18,7 @@
 #
 rm -f input*
 rm -f results.data
-echo expCreate  -f ../../../../../executables/mutatee/cplus_version/mutatee hwctime>> input1.script
+echo expCreate  -f ../../../../../executables/sequential/mutatee/cplus_version/mutatee hwctime>> input1.script
 echo expgo >> input1.script 
 echo wait >> input1.script
 #echo expview  >> input1.script

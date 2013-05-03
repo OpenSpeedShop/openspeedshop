@@ -20,7 +20,7 @@ rm -f input.script
 rm -f file1
 export MPI_TYPE_DEPTH=16
 export MPI_TYPE_MAX=65536
-mpirun -np 2 ../../../../../executables/smg2000/test/smg2000 -n 75 75 75 &
+mpirun -np 2 ../../../../../executables/mpi/smg2000/test/smg2000 -n 75 75 75 &
 ps r -C mpirun -o pid --no-heading > file1
 ls -l file1
 cat file1

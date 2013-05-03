@@ -16,7 +16,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-echo expcreate -f ../../../../executables/fpetest/fpetest fpe > input.script
+echo expcreate -f ../../../../executables/sequential/fpetest/fpetest fpe > input.script
 echo expgo >> input.script
 echo wait >> input.script
 echo expview  >> input.script

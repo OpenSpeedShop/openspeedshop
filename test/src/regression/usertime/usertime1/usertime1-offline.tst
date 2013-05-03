@@ -16,7 +16,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-echo expcreate -i offline -f ../../../../executables/mutatee/c_version/mutatee usertime >> input.script
+echo expcreate -i offline -f ../../../../executables/sequential/mutatee/c_version/mutatee usertime >> input.script
 echo expgo >> input.script
 echo exprestore -f X.0.openss  >> input.script
 echo expview -m usertime::inclusive_time usertime10  >>input.script
