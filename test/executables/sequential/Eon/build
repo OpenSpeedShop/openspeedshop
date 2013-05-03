@@ -1,0 +1,172 @@
+#!/bin/tcsh
+
+if ($?OPTFLAGS == "0") setenv OPTFLAGS "-g -gdwarf-2 -O"
+
+# -- feedback directed optimization pass 1:
+
+g++ $OPTFLAGS -c -o ggCoverageSolidTexture.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggCoverageSolidTexture.cc
+g++ $OPTFLAGS -c -o ggPathDielectricMaterial.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggPathDielectricMaterial.cc
+g++ $OPTFLAGS -c -o ggBox2.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggBox2.cc
+g++ $OPTFLAGS -c -o ggBox3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggBox3.cc
+g++ $OPTFLAGS -c -o ggRasterSurfaceTexture.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggRasterSurfaceTexture.cc
+g++ $OPTFLAGS -c -o ggJitterSample1.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggJitterSample1.cc
+g++ $OPTFLAGS -c -o ggNRooksSample2.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggNRooksSample2.cc
+g++ $OPTFLAGS -c -o ggJitterSample2.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggJitterSample2.cc
+g++ $OPTFLAGS -c -o ggRGBFPixel.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggRGBFPixel.cc
+g++ $OPTFLAGS -c -o ggRotatingPinholeCamera.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggRotatingPinholeCamera.cc
+g++ $OPTFLAGS -c -o ggRandomSample2.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggRandomSample2.cc
+g++ $OPTFLAGS -c -o ggRandomSample3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggRandomSample3.cc
+g++ $OPTFLAGS -c -o ggSolidNoise2.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggSolidNoise2.cc
+g++ $OPTFLAGS -c -o ggSolidNoise3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggSolidNoise3.cc
+g++ $OPTFLAGS -c -o ggSolidTexture.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggSolidTexture.cc
+g++ $OPTFLAGS -c -o ggOakSolidTexture.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggOakSolidTexture.cc
+g++ $OPTFLAGS -c -o ggSpecularMaterial.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggSpecularMaterial.cc
+g++ $OPTFLAGS -c -o ggNA.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggNA.cc
+g++ $OPTFLAGS -c -o ggMaterial.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggMaterial.cc
+g++ $OPTFLAGS -c -o ggDiffuseMaterial.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggDiffuseMaterial.cc
+g++ $OPTFLAGS -c -o ggDielectricMaterial.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggDielectricMaterial.cc
+g++ $OPTFLAGS -c -o ggConductorMaterial.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggConductorMaterial.cc
+g++ $OPTFLAGS -c -o ggEdgeDiscrepancy.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggEdgeDiscrepancy.cc
+g++ $OPTFLAGS -c -o ggPolishedMaterial.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggPolishedMaterial.cc
+g++ $OPTFLAGS -c -o ggFrameInterpolation.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggFrameInterpolation.cc
+g++ $OPTFLAGS -c -o ggQuaternion.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggQuaternion.cc
+g++ $OPTFLAGS -c -o ggSpline.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggSpline.cc
+g++ $OPTFLAGS -c -o ggONB2.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggONB2.cc
+g++ $OPTFLAGS -c -o ggONB3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggONB3.cc
+g++ $OPTFLAGS -c -o ggFrame2.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggFrame2.cc
+g++ $OPTFLAGS -c -o ggFrame3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggFrame3.cc
+g++ $OPTFLAGS -c -o ggHMatrix3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggHMatrix3.cc
+g++ $OPTFLAGS -c -o ggSphere.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggSphere.cc
+g++ $OPTFLAGS -c -o ggRGBE.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggRGBE.cc
+g++ $OPTFLAGS -c -o ggGamma.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggGamma.cc
+g++ $OPTFLAGS -c -o ggBRDF.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggBRDF.cc
+g++ $OPTFLAGS -c -o ggDiffuseBRDF.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggDiffuseBRDF.cc
+g++ $OPTFLAGS -c -o ggPhongBRDF.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggPhongBRDF.cc
+g++ $OPTFLAGS -c -o ggPolishedBRDF.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggPolishedBRDF.cc
+g++ $OPTFLAGS -c -o ggCamera.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggCamera.cc
+g++ $OPTFLAGS -c -o ggPinholeCamera.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggPinholeCamera.cc
+g++ $OPTFLAGS -c -o ggThinLensCamera.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggThinLensCamera.cc
+g++ $OPTFLAGS -c -o ggErr.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggErr.cc
+g++ $OPTFLAGS -c -o ggPixelFilter.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggPixelFilter.cc
+g++ $OPTFLAGS -c -o ggTrianglePixelFilter.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggTrianglePixelFilter.cc
+g++ $OPTFLAGS -c -o ggBoxPixelFilter.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggBoxPixelFilter.cc
+g++ $OPTFLAGS -c -o ggFormat.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggFormat.cc
+g++ $OPTFLAGS -c -o ggGeometry.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggGeometry.cc
+g++ $OPTFLAGS -c -o ggHAffineMatrix3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggHAffineMatrix3.cc
+g++ $OPTFLAGS -c -o ggHShearMatrix3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggHShearMatrix3.cc
+g++ $OPTFLAGS -c -o ggHBoxMatrix3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggHBoxMatrix3.cc
+g++ $OPTFLAGS -c -o ggHPerspectiveMatrix3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggHPerspectiveMatrix3.cc
+g++ $OPTFLAGS -c -o ggHTranslationMatrix3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggHTranslationMatrix3.cc
+g++ $OPTFLAGS -c -o ggHRigidBodyMatrix3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggHRigidBodyMatrix3.cc
+g++ $OPTFLAGS -c -o ggHRotationMatrix3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggHRotationMatrix3.cc
+g++ $OPTFLAGS -c -o ggHScaleMatrix3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggHScaleMatrix3.cc
+g++ $OPTFLAGS -c -o ggHPoint3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggHPoint3.cc
+g++ $OPTFLAGS -c -o ggPoint2.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggPoint2.cc
+g++ $OPTFLAGS -c -o ggPoint3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggPoint3.cc
+g++ $OPTFLAGS -c -o ggOptics.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggOptics.cc
+g++ $OPTFLAGS -c -o ggPlane.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggPlane.cc
+g++ $OPTFLAGS -c -o ggPolygon.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggPolygon.cc
+g++ $OPTFLAGS -c -o ggGrayPixel_x.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggGrayPixel_x.cc
+g++ $OPTFLAGS -c -o ggRGBPixel_x.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggRGBPixel_x.cc
+g++ $OPTFLAGS -c -o ggRay2.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggRay2.cc
+g++ $OPTFLAGS -c -o ggRay3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggRay3.cc
+g++ $OPTFLAGS -c -o ggBoardFloorSolidTexture.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggBoardFloorSolidTexture.cc
+g++ $OPTFLAGS -c -o ggVector2.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggVector2.cc
+g++ $OPTFLAGS -c -o ggVector3.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggVector3.cc
+g++ $OPTFLAGS -c -o ggString.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggString.cc
+g++ $OPTFLAGS -c -o ggFineSpectrum.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggFineSpectrum.cc
+g++ $OPTFLAGS -c -o ggSpectrum.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   ggSpectrum.cc
+g++ $OPTFLAGS -c -o eon.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   eon.cc
+g++ $OPTFLAGS -c -o eonImageCalculator.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   eonImageCalculator.cc
+g++ $OPTFLAGS -c -o mrObjectRecord.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrObjectRecord.cc
+g++ $OPTFLAGS -c -o mrCoarsePixelRenderer.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrCoarsePixelRenderer.cc
+g++ $OPTFLAGS -c -o mrIndirectPixelRenderer.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrIndirectPixelRenderer.cc
+g++ $OPTFLAGS -c -o mrRushmeierPixelRenderer.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrRushmeierPixelRenderer.cc
+g++ $OPTFLAGS -c -o mrBruteForcePixelRenderer.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrBruteForcePixelRenderer.cc
+g++ $OPTFLAGS -c -o mrKajiyaPixelRenderer.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrKajiyaPixelRenderer.cc
+g++ $OPTFLAGS -c -o mrCookPixelRenderer.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrCookPixelRenderer.cc
+g++ $OPTFLAGS -c -o mrGrid.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrGrid.cc
+g++ $OPTFLAGS -c -o mrScene.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrScene.cc
+g++ $OPTFLAGS -c -o mrCamera.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrCamera.cc
+g++ $OPTFLAGS -c -o mrTriangle.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrTriangle.cc
+g++ $OPTFLAGS -c -o mrFastTriangle.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrFastTriangle.cc
+g++ $OPTFLAGS -c -o mrPolygon.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrPolygon.cc
+g++ $OPTFLAGS -c -o mrXYDisk.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrXYDisk.cc
+g++ $OPTFLAGS -c -o mrXZDisk.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrXZDisk.cc
+g++ $OPTFLAGS -c -o mrYZDisk.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrYZDisk.cc
+g++ $OPTFLAGS -c -o mrPhongAreaXYRectangleLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrPhongAreaXYRectangleLuminaire.cc
+g++ $OPTFLAGS -c -o mrPhongAreaXZRectangleLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrPhongAreaXZRectangleLuminaire.cc
+g++ $OPTFLAGS -c -o mrPhongAreaYZRectangleLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrPhongAreaYZRectangleLuminaire.cc
+g++ $OPTFLAGS -c -o mrEmitter.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrEmitter.cc
+g++ $OPTFLAGS -c -o mrImposter.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrImposter.cc
+g++ $OPTFLAGS -c -o mrLinkedObjects.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrLinkedObjects.cc
+g++ $OPTFLAGS -c -o mrBox.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrBox.cc
+g++ $OPTFLAGS -c -o mrXCylinder.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrXCylinder.cc
+g++ $OPTFLAGS -c -o mrYCylinder.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrYCylinder.cc
+g++ $OPTFLAGS -c -o mrZCylinder.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrZCylinder.cc
+g++ $OPTFLAGS -c -o mrDiffuseAreaZCylinderLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrDiffuseAreaZCylinderLuminaire.cc
+g++ $OPTFLAGS -c -o mrDiffuseCosineZCylinderLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrDiffuseCosineZCylinderLuminaire.cc
+g++ $OPTFLAGS -c -o mrDiffuseVisibleAreaZCylinderLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrDiffuseVisibleAreaZCylinderLuminaire.cc
+g++ $OPTFLAGS -c -o mrXEllipticalCylinder.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrXEllipticalCylinder.cc
+g++ $OPTFLAGS -c -o mrYEllipticalCylinder.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrYEllipticalCylinder.cc
+g++ $OPTFLAGS -c -o mrZEllipticalCylinder.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrZEllipticalCylinder.cc
+g++ $OPTFLAGS -c -o mrSpotAreaXYDiskLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrSpotAreaXYDiskLuminaire.cc
+g++ $OPTFLAGS -c -o mrDiffuseAreaXYRectangleLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrDiffuseAreaXYRectangleLuminaire.cc
+g++ $OPTFLAGS -c -o mrDiffuseAreaXZRectangleLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrDiffuseAreaXZRectangleLuminaire.cc
+g++ $OPTFLAGS -c -o mrDiffuseAreaYZRectangleLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrDiffuseAreaYZRectangleLuminaire.cc
+g++ $OPTFLAGS -c -o mrSurfaceList.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrSurfaceList.cc
+g++ $OPTFLAGS -c -o mrDiffuseAreaTriangleLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrDiffuseAreaTriangleLuminaire.cc
+g++ $OPTFLAGS -c -o mrDiffuseAreaSphereLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrDiffuseAreaSphereLuminaire.cc
+g++ $OPTFLAGS -c -o mrDiffuseCosineSphereLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrDiffuseCosineSphereLuminaire.cc
+g++ $OPTFLAGS -c -o mrDiffuseSolidAngleSphereLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrDiffuseSolidAngleSphereLuminaire.cc
+g++ $OPTFLAGS -c -o mrShellLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrShellLuminaire.cc
+g++ $OPTFLAGS -c -o mrInstance.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrInstance.cc
+g++ $OPTFLAGS -c -o mrMaterial.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrMaterial.cc
+g++ $OPTFLAGS -c -o mrPhongAreaTriangleLuminaire.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrPhongAreaTriangleLuminaire.cc
+g++ $OPTFLAGS -c -o mrSolidTexture.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrSolidTexture.cc
+g++ $OPTFLAGS -c -o mrSphere.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrSphere.cc
+g++ $OPTFLAGS -c -o mrSurface.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrSurface.cc
+g++ $OPTFLAGS -c -o mrSurfaceTexture.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrSurfaceTexture.cc
+g++ $OPTFLAGS -c -o mrXYRectangle.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrXYRectangle.cc
+g++ $OPTFLAGS -c -o mrXZRectangle.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrXZRectangle.cc
+g++ $OPTFLAGS -c -o mrYZRectangle.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   mrYZRectangle.cc
+g++ $OPTFLAGS -c -o myrand.o -DSPEC_CPU2000_LP64 -DHAS_ERRLIST -DFMAX_IS_DOUBLE  -I. -DNDEBUG   myrand.cc
+g++ $OPTFLAGS    ggCoverageSolidTexture.o \
+ggPathDielectricMaterial.o ggBox2.o ggBox3.o ggRasterSurfaceTexture.o \
+ ggJitterSample1.o ggNRooksSample2.o ggJitterSample2.o ggRGBFPixel.o \
+ ggRotatingPinholeCamera.o ggRandomSample2.o ggRandomSample3.o ggSolidNoise2.o \
+ ggSolidNoise3.o ggSolidTexture.o ggOakSolidTexture.o ggSpecularMaterial.o \
+ ggNA.o ggMaterial.o ggDiffuseMaterial.o ggDielectricMaterial.o \
+ ggConductorMaterial.o ggEdgeDiscrepancy.o ggPolishedMaterial.o ggFrameInterpolation.o \
+ ggQuaternion.o ggSpline.o ggONB2.o ggONB3.o \
+ ggFrame2.o ggFrame3.o ggHMatrix3.o ggSphere.o \
+ ggRGBE.o ggGamma.o ggBRDF.o ggDiffuseBRDF.o \
+ ggPhongBRDF.o ggPolishedBRDF.o ggCamera.o ggPinholeCamera.o \
+ ggThinLensCamera.o ggErr.o ggPixelFilter.o ggTrianglePixelFilter.o \
+ ggBoxPixelFilter.o ggFormat.o ggGeometry.o ggHAffineMatrix3.o \
+ ggHShearMatrix3.o ggHBoxMatrix3.o ggHPerspectiveMatrix3.o ggHTranslationMatrix3.o \
+ ggHRigidBodyMatrix3.o ggHRotationMatrix3.o ggHScaleMatrix3.o ggHPoint3.o \
+ ggPoint2.o ggPoint3.o ggOptics.o ggPlane.o \
+ ggPolygon.o ggGrayPixel_x.o ggRGBPixel_x.o ggRay2.o \
+ ggRay3.o ggBoardFloorSolidTexture.o ggVector2.o ggVector3.o \
+ ggString.o ggFineSpectrum.o ggSpectrum.o eon.o \
+ eonImageCalculator.o mrObjectRecord.o mrCoarsePixelRenderer.o mrIndirectPixelRenderer.o \
+ mrRushmeierPixelRenderer.o mrBruteForcePixelRenderer.o mrKajiyaPixelRenderer.o mrCookPixelRenderer.o \
+ mrGrid.o mrScene.o mrCamera.o mrTriangle.o \
+ mrFastTriangle.o mrPolygon.o mrXYDisk.o mrXZDisk.o mrYZDisk.o \
+ mrPhongAreaXYRectangleLuminaire.o mrPhongAreaXZRectangleLuminaire.o mrPhongAreaYZRectangleLuminaire.o \
+ mrEmitter.o mrImposter.o mrLinkedObjects.o mrBox.o mrXCylinder.o \
+ mrYCylinder.o mrZCylinder.o mrDiffuseAreaZCylinderLuminaire.o \
+ mrDiffuseCosineZCylinderLuminaire.o mrDiffuseVisibleAreaZCylinderLuminaire.o \
+ mrXEllipticalCylinder.o mrYEllipticalCylinder.o \
+ mrZEllipticalCylinder.o mrSpotAreaXYDiskLuminaire.o \
+ mrDiffuseAreaXYRectangleLuminaire.o mrDiffuseAreaXZRectangleLuminaire.o \
+ mrDiffuseAreaYZRectangleLuminaire.o mrSurfaceList.o \
+ mrDiffuseAreaTriangleLuminaire.o mrDiffuseAreaSphereLuminaire.o \
+ mrDiffuseCosineSphereLuminaire.o mrDiffuseSolidAngleSphereLuminaire.o \
+ mrShellLuminaire.o mrInstance.o \
+ mrMaterial.o mrPhongAreaTriangleLuminaire.o mrSolidTexture.o \
+ mrSphere.o mrSurface.o mrSurfaceTexture.o mrXYRectangle.o \
+ mrXZRectangle.o mrYZRectangle.o myrand.o \
+ -o eon -ldl 
+
