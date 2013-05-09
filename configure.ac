@@ -760,6 +760,8 @@ AC_CONFIG_FILES(
 	plugins/collectors/mpit/Makefile
 	plugins/collectors/mpiotf/Makefile
 	plugins/collectors/fpe/Makefile
+	plugins/collectors/mem/Makefile
+	plugins/collectors/pthreads/Makefile
 	plugins/panels/Makefile
 	plugins/panels/CustomExperimentPanel/Makefile
 	plugins/panels/pcSamplePanel/Makefile
@@ -794,6 +796,8 @@ AC_CONFIG_FILES(
 	plugins/views/mpiotf/Makefile
 	plugins/views/usertime/Makefile
 	plugins/views/fpe/Makefile
+	plugins/views/mem/Makefile
+	plugins/views/pthreads/Makefile
 	plugins/wizards/Makefile
 	plugins/wizards/IntroWizardPanel/Makefile
 	plugins/wizards/pcSampleWizardPanel/Makefile

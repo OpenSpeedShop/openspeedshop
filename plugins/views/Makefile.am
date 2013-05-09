@@ -30,5 +30,10 @@ SUBDIRS = basic \
           iot \
           fpe
 
+if BUILD_CBTF
+SUBDIRS += mem pthreads 
+endif
+
+
 doc:
 	$(DOXYGEN)
