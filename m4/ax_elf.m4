@@ -29,8 +29,14 @@ AC_DEFUN([AX_LIBELF], [
 
     found_libelf=0
 
-    LIBELF_CPPFLAGS="-I$libelf_dir/include"
-    LIBELF_LDFLAGS="-L$libelf_dir/$abi_libdir"
+    if test "x${libelf_dir}" == "x" || test "x${libelf_dir}x" == "x/usr" ; then
+      LIBELF_CPPFLAGS=""
+      LIBELF_LDFLAGS=""
+    else
+      LIBELF_CPPFLAGS="-I$libelf_dir/include"
+      LIBELF_LDFLAGS="-L$libelf_dir/$abi_libdir"
+    fi
+
     LIBELF_LIBS="-lelf"
 
     libelf_saved_CPPFLAGS=$CPPFLAGS
@@ -57,8 +63,13 @@ AC_DEFUN([AX_LIBELF], [
     else
 # Try again with the traditional path instead
          found_libelf=0
-         LIBELF_CPPFLAGS="-I$libelf_dir/include"
-         LIBELF_LDFLAGS="-L$libelf_dir/$alt_abi_libdir"
+         if test "x${libelf_dir}" == "x" || test "x${libelf_dir}x" == "x/usr" ; then
+           LIBELF_CPPFLAGS=""
+           LIBELF_LDFLAGS=""
+         else
+           LIBELF_CPPFLAGS="-I$libelf_dir/include"
+           LIBELF_LDFLAGS="-L$libelf_dir/$alt_abi_libdir"
+         fi 
 
          CPPFLAGS="$CPPFLAGS $LIBELF_CPPFLAGS"
          LDFLAGS="$LDFLAGS $LIBELF_LDFLAGS"
