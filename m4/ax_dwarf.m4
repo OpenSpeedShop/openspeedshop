@@ -29,8 +29,14 @@ AC_DEFUN([AX_LIBDWARF], [
 
     found_libdwarf=0
 
-    LIBDWARF_CPPFLAGS="-I$libdwarf_dir/include"
-    LIBDWARF_LDFLAGS="-L$libdwarf_dir/$abi_libdir"
+    if test "x$libdwarf_dir" == "x/usr"; then
+	LIBDWARF_CPPFLAGS=""
+	LIBDWARF_LDFLAGS=""
+    else
+	LIBDWARF_CPPFLAGS="-I$libdwarf_dir/include"
+	LIBDWARF_LDFLAGS="-L$libdwarf_dir/$abi_libdir"
+    fi
+
     LIBDWARF_LIBS="-ldwarf"
 
     libdwarf_saved_CPPFLAGS=$CPPFLAGS
@@ -56,10 +62,18 @@ AC_DEFUN([AX_LIBDWARF], [
         AM_CONDITIONAL(HAVE_LIBDWARF, true)
         AC_DEFINE(HAVE_LIBDWARF, 1, [Define to 1 if you have LIBDWARF.])
     else
-# Try again with the traditional path instead
+# FIXME.  if we expect libraries in spme specific directory then
+# create an option to set it rather than override the not found above
+# due to lib lib64 inconsistencies.
+# Try again with the traditional library path (lib???) instead
          found_libdwarf=0
-         LIBDWARF_CPPFLAGS="-I$libdwarf_dir/include"
-         LIBDWARF_LDFLAGS="-L$libdwarf_dir/$abi_libdir"
+         if test "x$libdwarf_dir" == "x/usr"; then
+             LIBDWARF_CPPFLAGS=""
+             LIBDWARF_LDFLAGS=""
+	 else
+             LIBDWARF_CPPFLAGS="-I$libdwarf_dir/include"
+             LIBDWARF_LDFLAGS="-L$libdwarf_dir/$abi_libdir"
+	 fi
 
          CPPFLAGS="$CPPFLAGS $LIBDWARF_CPPFLAGS"
          LDFLAGS="$LDFLAGS $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
@@ -98,4 +112,3 @@ AC_DEFUN([AX_LIBDWARF], [
     AC_SUBST(LIBDWARF_LIBS)
 
 ])
-

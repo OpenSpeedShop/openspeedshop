@@ -51,6 +51,7 @@ AC_DEFUN([AX_LIBELF], [
 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
         #include <libelf.h>
+        #include <stdio.h>
         ]], [[ if (elf_version(EV_CURRENT) == EV_NONE) {
 	        printf("ELF library initialization failed: %s", elf_errmsg(-1));
               }
@@ -61,7 +62,10 @@ AC_DEFUN([AX_LIBELF], [
         AM_CONDITIONAL(HAVE_LIBELF, true)
         AC_DEFINE(HAVE_LIBELF, 1, [Define to 1 if you have LIBELF.])
     else
-# Try again with the traditional path instead
+# FIXME.  if we expect libraries in spme specific directory then
+# create an option to set it rather than override the not found above
+# due to lib lib64 inconsistencies.
+# Try again with the traditional library path (lib???) instead
          found_libelf=0
          if test "x${libelf_dir}" == "x" || test "x${libelf_dir}" == "x/usr" ; then
            LIBELF_CPPFLAGS=""
