@@ -29,7 +29,7 @@ AC_DEFUN([AX_LIBELF], [
 
     found_libelf=0
 
-    if test "x${libelf_dir}" == "x" || test "x${libelf_dir}x" == "x/usr" ; then
+    if test "x${libelf_dir}" == "x" || test "x${libelf_dir}" == "x/usr" ; then
       LIBELF_CPPFLAGS=""
       LIBELF_LDFLAGS=""
     else
@@ -63,7 +63,7 @@ AC_DEFUN([AX_LIBELF], [
     else
 # Try again with the traditional path instead
          found_libelf=0
-         if test "x${libelf_dir}" == "x" || test "x${libelf_dir}x" == "x/usr" ; then
+         if test "x${libelf_dir}" == "x" || test "x${libelf_dir}" == "x/usr" ; then
            LIBELF_CPPFLAGS=""
            LIBELF_LDFLAGS=""
          else
