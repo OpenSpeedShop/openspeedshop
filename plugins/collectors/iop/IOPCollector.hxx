@@ -36,16 +36,11 @@
 namespace OpenSpeedShop { namespace Framework {
 
     /**
-     * IOP event tracing collector.
+     * IOP profiling collector.
      *
      * Intercepts all calls to IOP functions that perform any significant amount
-     * of work (primarily those that send messages) and records, for each call,
-     * the current stack trace and start/end time.
-     *
-     * IOPT event tracing collector.
-     *
-     * Same capability as IOP event tracing but records extended information:
-     * arguments, return value, syscall number, pathname (if used as an arg).
+     * of work and records, for each call, the current stack trace,
+     * and time spent in the call.
      *
      */
     class IOPCollector :

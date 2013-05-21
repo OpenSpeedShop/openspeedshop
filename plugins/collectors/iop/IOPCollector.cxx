@@ -67,7 +67,7 @@ namespace {
  *
  * @return    New instance of this collector's implementation.
  */
-extern "C" CollectorImpl* io_LTX_CollectorFactory()
+extern "C" CollectorImpl* iop_LTX_CollectorFactory()
 {
     return new IOPCollector();
 }
@@ -328,9 +328,7 @@ void IOPCollector::getMetricValues(const std::string& metric,
 		break;
 	
 	// Calculate the time (in seconds) attributable to this sample
-	//double t_sample = static_cast<double>(data.count.count_val[ib]) *
-	 //   static_cast<double>(data.interval) / 1000000000.0;
-	double t_sample = static_cast<double>(data.time.time_val[ib]);
+	double t_sample = static_cast<double>(data.time.time_val[ib]/1000000.0);
 	
 	// Get the stack trace for this sample
 	StackTrace trace(thread, extent.getTimeInterval().getBegin());
