@@ -9060,15 +9060,11 @@ StatsPanel::outputCLIAnnotation(QString xxxfuncName, QString xxxfileName, int xx
            xxxfuncName.ascii(), xxxfileName.ascii());
 #endif
 
-  int i = 0;
-
   SPListViewItem *highlight_item = NULL;
   bool highlight_line = FALSE;
   QColor highlight_color = QColor(Qt::blue);
 
   QString strippedString1 = QString::null; // MPI only.
-
-  QString *strings = NULL;
 
   for( FieldList::Iterator it = columnFieldList.begin();
        it != columnFieldList.end();
@@ -12799,6 +12795,8 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
   } // end 'if (co->SaveResultFile().length() > 0)'
 
  // Process any annotations.
+  bool issue_annotations = false;
+  QString s;
   std::list<CommandResult_RawString *> cmd_annotation = co->Annotation_List ();
   for (std::list<CommandResult_RawString *>::iterator ari = cmd_annotation.begin();
        ari != cmd_annotation.end(); ari++) {
@@ -12824,16 +12822,35 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
           sml->show();
         continue;
       }
-      // Create an 'info' panel for the no data samples mesage.
+      try {
+       // Need to create an 'info' panel for the no data samples mesage.
+       // Save this message and output all of them at once.
 #ifdef DEBUG_StatsPanel
         printf("StatsPanel::process_clip, call outputCLIAnnotation: %s\n",annotation_string.c_str());
 #endif
-      columnFieldList.push_back(vs);
-      outputCLIAnnotation( xxxfuncName, xxxfileName, xxxlineNumber );
-      columnFieldList.clear();
+        if (!issue_annotations) {
+          issue_annotations = true;
+        } else if (!s.endsWith("\n")) {
+          s += "\n";
+        }
+        s += vs;
+      }
+      catch(std::bad_alloc)
+      { // Try to issue what might already have been placed in string.
+        break;
+      }
     }
 
   } // end - Process any annotations.
+  if (issue_annotations) {
+    // Create an 'info' panel for the no data samples messages.
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::process_clip, call outputCLIAnnotation %s\n",s);
+#endif
+    columnFieldList.push_back(s);
+    outputCLIAnnotation( xxxfuncName, xxxfileName, xxxlineNumber );
+    columnFieldList.clear();
+  }
 
   for (cri = cmd_result.begin(); cri != cmd_result.end(); cri++) {
 #ifdef DEBUG_StatsPanel
