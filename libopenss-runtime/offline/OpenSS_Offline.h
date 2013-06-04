@@ -29,6 +29,23 @@
 #include "offline.h"
 
 
+typedef struct oss_dlinfo_t oss_dlinfo;
+typedef struct oss_dlinfoList_t oss_dlinfoList;
+
+struct oss_dlinfo_t {
+    uint64_t load_time;
+    uint64_t unload_time;
+    uint64_t addr_begin;
+    uint64_t addr_end;
+    char *name;
+    void *handle;
+};
+
+struct oss_dlinfoList_t {
+    oss_dlinfo oss_dlinfo_entry;
+    oss_dlinfoList *oss_dlinfo_next;
+};
+
 
 #ifdef __cplusplus
 extern "C"
@@ -43,7 +60,7 @@ extern "C"
  */
 #define OpenSS_OBJBufferSize (8*1024)
 
-int OpenSS_GetDLInfo(pid_t pid, char *path);
+int OpenSS_GetDLInfo(pid_t pid, char *path, uint64_t b_time, uint64_t e_time);
 void OpenSS_InitializeParameters (openss_expinfo *info);
 
 #ifdef  __cplusplus

@@ -70,6 +70,7 @@ class OfflineExperiment
     }
 
     Experiment *getExperiment() {return theExperiment;}
+    void findUniqueAddresses();
 
     int		getRawDataFiles(std::string dir);
     int		convertToOpenSSDB();

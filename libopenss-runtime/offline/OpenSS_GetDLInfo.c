@@ -41,10 +41,14 @@
 #include <dlfcn.h>
 #include <pthread.h>
 #include <link.h>
+#include <OpenSS_Offline.h>
+
 
 #define OPENSS_USE_DL_ITERATE 1
 
 extern void offline_record_dso(const char* dsoname, uint64_t begin, uint64_t end, uint8_t is_dlopen);
+extern void offline_record_dlopen(const char* dsoname, uint64_t begin, uint64_t end, uint64_t b_time, uint64_t e_time);
+
 extern const char* OpenSS_GetExecutablePath();
 
 #if defined(TARGET_OS_BGP)
@@ -131,7 +135,8 @@ static int dl_phdr_cmp(const void *a, const void *b)
    return first->dlpi_phdr > second->dlpi_phdr;
 }
 
-static void report(struct dl_phdr_info *pinfo, int is_load, library_cb cb)
+static void report(struct dl_phdr_info *pinfo, int is_load, library_cb cb,
+		   uint64_t b_time, uint64_t e_time)
 {
    mem_region mr[MAX_LOAD_SEGMENTS];
    unsigned int i, j = 0;
@@ -174,7 +179,7 @@ static void report(struct dl_phdr_info *pinfo, int is_load, library_cb cb)
       name = pinfo->dlpi_name;
    }
 
-   cb(base_addr, name, mr, j, is_load);
+   cb(base_addr, name, mr, j, is_load, b_time, e_time);
 
    if (!is_load) {
       if (name != monlibs_vdso_name && name != monlibs_exe_name) {
@@ -183,7 +188,7 @@ static void report(struct dl_phdr_info *pinfo, int is_load, library_cb cb)
    }
 }
 
-void monlibs_getLibraries(library_cb cb)
+void monlibs_getLibraries(library_cb cb, uint64_t b_time, uint64_t e_time)
 {
    unsigned c = 0, n = 0;
    struct dl_phdr_info *temp;
@@ -203,11 +208,11 @@ void monlibs_getLibraries(library_cb cb)
       }
       else if (c == cur_list_size) {
          /* End of cur list, but still have new list.   New object. */
-         report(new_list + n++, 1, cb);
+         report(new_list + n++, 1, cb, b_time, e_time);
       }
       else if (n == new_list_size) {
          /* End of new list, but still have cur list.  Deleted object */
-         report(cur_list + c++, 0, cb);
+         report(cur_list + c++, 0, cb, b_time, e_time);
       }
       else if (cur_list[c].dlpi_phdr == new_list[n].dlpi_phdr) {
          /* Same element in old and new list.  No change here. */
@@ -215,11 +220,11 @@ void monlibs_getLibraries(library_cb cb)
       }
       else if (cur_list[c].dlpi_phdr < new_list[n].dlpi_phdr) {
          /* There's an element in the cur list that we didn't see in the new list.  Deleted object */
-         report(cur_list + c++, 0, cb);
+         report(cur_list + c++, 0, cb, b_time, e_time);
       }
       else if (cur_list[c].dlpi_phdr > new_list[n].dlpi_phdr) {
          /* There's an element in the new list that we didn't see in the cur list.  New object */
-         report(new_list + n++, 1, cb);
+         report(new_list + n++, 1, cb, b_time, e_time);
       }
    }
 
@@ -231,7 +236,9 @@ void monlibs_getLibraries(library_cb cb)
    new_list_size = 0;
 }
 
-static void lc(ElfW(Addr) base_address, const char *name, mem_region *regions, unsigned int num_regions, int is_load)
+static void lc(ElfW(Addr) base_address, const char *name, mem_region *regions,
+		unsigned int num_regions, int is_load,
+		uint64_t b_time, uint64_t e_time)
 
 {
 #ifndef NDEBUG
@@ -243,10 +250,16 @@ static void lc(ElfW(Addr) base_address, const char *name, mem_region *regions, u
    }
 #endif
    
-    offline_record_dso(name, regions[0].mem_addr, regions[0].mem_addr + regions[0].mem_size, is_load);
+    if (is_load) {
+	offline_record_dlopen(name, regions[0].mem_addr,
+			      regions[0].mem_addr + regions[0].mem_size,
+			      b_time, e_time);
+    } else {
+	offline_record_dso(name, regions[0].mem_addr, regions[0].mem_addr + regions[0].mem_size, is_load);
+    }
 }
 
-int OpenSS_GetDLInfo(pid_t pid, char *path)
+int OpenSS_GetDLInfo(pid_t pid, char *path, uint64_t b_time, uint64_t e_time)
 {
 #if defined(TARGET_OS_BGP) || defined(TARGET_OS_BGQ)
     if (checked_for_static == 0) {
@@ -256,13 +269,14 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
     if (is_static) {
 	offline_record_dso(OpenSS_GetExecutablePath(),(uint64_t)0x01000000,(uint64_t)&etext,0);
     } else {
-	monlibs_getLibraries(lc);
+	monlibs_getLibraries(lc,b_time,e_time);
     }
 #else
 
 #if defined(OPENSS_USE_DL_ITERATE) && defined(JUNK)
-    monlibs_getLibraries(lc);
+    monlibs_getLibraries(lc,b_time,e_time);
 #else
+    //fprintf(stderr,"ENTER OpenSS_GetDLInfo: pid %d  path %s btime %ld etime %ld\n", pid, path, b_time,e_time);
     char mapfile_name[PATH_MAX];
     FILE *mapfile;
 
@@ -273,19 +287,6 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 	fprintf(stderr,"Error opening%s: %s\n", mapfile_name, strerror(errno));
 	return(1);
     }
-
-#if 0
-#ifndef NDEBUG
-    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
-
-	pthread_t (*f_pthread_self)();
-        f_pthread_self = (pthread_t (*)())dlsym(RTLD_DEFAULT, "pthread_self");
-	fprintf(stderr,"OpenSS_GetDLInfo called for %s in %d,%lu\n",
-		path ? path : "EMPTY PATH", getpid(),
-		(f_pthread_self != NULL) ? (*f_pthread_self)() : 0);
-    }
-#endif
-#endif
 
     while(!feof(mapfile)) {
 	char buf[PATH_MAX+100], perm[5], dev[6], mappedpath[PATH_MAX];
@@ -323,11 +324,11 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 	    (strncmp(path, mappedpath, strlen(path)) == 0) ) {
 #ifndef NDEBUG
 	    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
-		fprintf(stderr,"OpenSS_GetDLInfo DLOPEN RECORD: %s [%08lx, %08lx]\n",
+		fprintf(stderr,"OpenSS_GetDLInfo (offline_record_dlopen) DLOPEN RECORD: %s [%08lx, %08lx]\n",
 		    mappedpath, begin, end);
 	    }
 #endif
-	    offline_record_dso(mappedpath, begin, end, 1);
+	    offline_record_dlopen(mappedpath, begin, end, b_time, e_time);
 	    break;
 	}
 
@@ -335,7 +336,7 @@ int OpenSS_GetDLInfo(pid_t pid, char *path)
 	else if (perm[2] == 'x' && path == NULL) {
 #ifndef NDEBUG
 	    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
-		fprintf(stderr,"OpenSS_GetDLInfo LD RECORD %s [%08lx, %08lx]\n", mappedpath, begin, end);
+		fprintf(stderr,"OpenSS_GetDLInfo (offline_record_dso) LD RECORD %s [%08lx, %08lx]\n", mappedpath, begin, end);
 	    }
 #endif
 	    offline_record_dso(mappedpath, begin, end, 0);

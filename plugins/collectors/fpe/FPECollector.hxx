@@ -70,6 +70,9 @@ namespace OpenSpeedShop { namespace Framework {
 	virtual void getUniquePCValues( const Thread& thread,
 					const Blob& blob,
 					PCBuffer *buf) const;
+
+	virtual void getUniquePCValues( const Thread& thread, const Blob& blob,
+					std::set<Address>& uaddresses) const;
     };
     
 } }

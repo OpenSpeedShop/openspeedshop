@@ -376,3 +376,35 @@ void PCSampCollector::getUniquePCValues( const Thread& thread,
     xdr_free(reinterpret_cast<xdrproc_t>(xdr_pcsamp_data),
 	     reinterpret_cast<char*>(&data));
 }
+
+
+void PCSampCollector::getUniquePCValues( const Thread& thread,
+                                         const Blob& blob,
+                                         std::set<Address>& uaddresses) const
+{
+
+    // Decode this data blob
+    pcsamp_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_pcsamp_data), &data);
+
+    // Check assertions
+    // Assert(data.pc.pc_len == data.count.count_len);
+    if (data.pc.pc_len != data.count.count_len) {
+        std::cerr << "ASSERT getPCValues pc_len "
+	    << data.pc.pc_len
+	    << " != count_len "
+	    << data.count.count_len << std::endl;
+    } else {
+	// todo
+    }
+
+    // Iterate over each of the samples
+    for(unsigned i = 0; i < data.pc.pc_len; ++i) {
+	uaddresses.insert(Address(data.pc.pc_val[i]));
+    }
+
+    // Free the decoded data blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_pcsamp_data),
+             reinterpret_cast<char*>(&data));
+}

@@ -99,7 +99,6 @@ UserTimeCollector::UserTimeCollector() :
     declareMetric(Metadata("percent", "Percent of Exclusive CPU Time",
                            "Percent of Exclusive CPU Time.",
                            typeid(double)));
-
 }
 
 
@@ -286,6 +285,11 @@ void UserTimeCollector::getMetricValues(const std::string& metric,
     bool is_detail = 
 	(metric == "inclusive_detail") || (metric == "exclusive_detail");
 
+    TimeInterval etimeinterval = extent.getTimeInterval();
+    Time ebegintime = etimeinterval.getBegin();
+    Extent subextbounds = subextents.getBounds();
+    AddressRange subBoundsAR = subextbounds.getAddressRange();
+
     // Check assertions
     if(is_detail) {
 	Assert(reinterpret_cast<std::vector<SampleDetail>*>(ptr)->size() >=
@@ -306,6 +310,7 @@ void UserTimeCollector::getMetricValues(const std::string& metric,
     // Calculate time (in nS) of data blob's extent
     double t_blob = static_cast<double>(extent.getTimeInterval().getWidth());
 
+    ExtentGroup extgrp = subextents;
     // Iterate over each stack trace in the data blob    
     for(unsigned ib = 0, ie = 0; ie < data.bt.bt_len; ib = ie) {
 	
@@ -319,7 +324,7 @@ void UserTimeCollector::getMetricValues(const std::string& metric,
 	    static_cast<double>(data.interval) / 1000000000.0;
 	
 	// Get the stack trace for this sample
-	StackTrace trace(thread, extent.getTimeInterval().getBegin());
+	StackTrace trace(thread, ebegintime);
 	for(unsigned j = ib; j < ie; ++j) {
 	   // libunwind can fail to unwind and deliver a bad address.
 	   // If that address is equal to or exceeds the highest address
@@ -348,11 +353,15 @@ void UserTimeCollector::getMetricValues(const std::string& metric,
 	    // Stop after first frame if this is "exclusive_[time|detail]"
 	    if(is_exclusive && (j != trace.begin()))
 		break;
-	    
+
+	    if (!subBoundsAR.doesContain(*j)) {
+		continue;
+	    }
+
 	    // Find the subextents that contain this frame
 	    std::set<ExtentGroup::size_type> intersection =
 		subextents.getIntersectionWith(
-		    Extent(extent.getTimeInterval(), AddressRange(*j))
+		    Extent(etimeinterval, AddressRange(*j))
 		    );
 
 	    // Iterate over each subextent in the intersection
@@ -361,7 +370,7 @@ void UserTimeCollector::getMetricValues(const std::string& metric,
 
 		// Calculate intersection time (in nS) of subextent and blob
 		double t_intersection = static_cast<double>
-		    ((extent.getTimeInterval() &
+		    ((etimeinterval &
 		      subextents[*k].getTimeInterval()).getWidth());
 
 		// Handle "[inclusive|exclusive]_detail" metric
@@ -424,6 +433,32 @@ void UserTimeCollector::getUniquePCValues( const Thread& thread,
     for(unsigned i = 0; i < data.bt.bt_len; ++i) {
 	if (data.bt.bt_val[i] != 0) {
 	    UpdatePCBuffer(data.bt.bt_val[i], buffer);
+	}
+    }
+
+    // Free the decoded data blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_usertime_data),
+             reinterpret_cast<char*>(&data));
+}
+
+void UserTimeCollector::getUniquePCValues( const Thread& thread,
+                                         const Blob& blob,
+                                         std::set<Address>& uaddresses) const
+{
+
+    // Decode this data blob
+    usertime_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_usertime_data), &data);
+
+    if (data.bt.bt_len == 0) {
+	// todo
+    }
+
+    // Iterate over each stack trace in the data blob
+    for(unsigned i = 0; i < data.bt.bt_len; ++i) {
+	if (data.bt.bt_val[i] != 0) {
+	    uaddresses.insert(Address(data.bt.bt_val[i]));
 	}
     }
 

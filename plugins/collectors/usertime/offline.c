@@ -270,7 +270,7 @@ void offline_finish()
     OpenSS_Send(&header, (xdrproc_t)xdr_openss_expinfo, &info);
 
     /* Write the thread's initial address space to the appropriate file */
-    OpenSS_GetDLInfo(getpid(), NULL);
+    OpenSS_GetDLInfo(getpid(), NULL, tls->time_started, OpenSS_GetTime());
     if(tls->data.objs.objs_len > 0) {
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
@@ -360,4 +360,58 @@ void offline_record_dso(const char* dsoname,
     if (is_dlopen) {
 	usertime_start_timer();
     }
+}
+
+void offline_record_dlopen(const char* dsoname,
+			uint64_t a_begin, uint64_t a_end,
+			uint64_t t_begin, uint64_t t_end)
+{
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    Assert(tls != NULL);
+
+    usertime_stop_timer();
+
+    /* Initialize the offline "dso" blob's header */
+    OpenSS_DataHeader local_header;
+    OpenSS_InitializeDataHeader(0, /* Experiment */
+				1, /* Collector */
+				&local_header);
+    memcpy(&tls->dso_header, &local_header, sizeof(OpenSS_DataHeader));
+
+    openss_objects objects;
+
+    /* Initialize the offline "dso" blob */
+    objects.objname = strdup(dsoname);
+    objects.time_begin = t_begin;
+    objects.time_end = t_end;
+    objects.addr_begin = a_begin;
+    objects.addr_end = a_end;
+    objects.is_open = 1;
+
+    int dsoname_len = strlen(dsoname);
+    int newsize = (tls->data.objs.objs_len * sizeof(objects)) +
+		  (tls->dsoname_len + dsoname_len);
+
+
+    if(newsize > OpenSS_OBJBufferSize) {
+#ifndef NDEBUG
+	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
+            fprintf(stderr,"offline_record_dlopen SENDS OBJS for HOST %s, PID %d, POSIX_TID %lu\n",
+        	   tls->dso_header.host, tls->dso_header.pid, tls->dso_header.posix_tid);
+	}
+#endif
+	offline_send_dsos(tls);
+    }
+
+    memcpy(&(tls->buffer.objs[tls->data.objs.objs_len]),
+           &objects, sizeof(objects));
+    tls->data.objs.objs_len++;
+    tls->dsoname_len += dsoname_len;
+
+    usertime_start_timer();
 }

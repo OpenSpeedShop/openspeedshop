@@ -149,7 +149,7 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 	    }
 
 
-    	    std::set<Address>::iterator ai;
+	    std::set<Address>::iterator ai;
 	    std::set<Framework::Address> function_begin_addresses;
 	    std::vector<SymtabAPI::Function *>::iterator fsit;
 
@@ -162,25 +162,32 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 		if (begin >= end) continue;
 
 		AddressRange frange(begin,end);
+		std::string fname =
+				(*fsit)->getFirstSymbol()->getMangledName();
+#if 0
+		            std::cerr << "TESTING FUNCTION " << fname
+			    << " RANGE " << frange
+			    << " REALRANGE " << AddressRange(frange.getBegin()+base,frange.getEnd()+base)
+			    << std::endl;
+#endif
 
 		for (ai=addresses.equal_range(lrange.getBegin()).first;
 	     		ai!=addresses.equal_range(lrange.getEnd()).second;ai++) {
 		    // normalize address for testing range from symtabapi.
 		    Framework::Address theAddr(*ai - base.getValue()) ; 
-		    if (frange.doesContain( theAddr )) {
+		    if (frange.doesContain( theAddr)) {
 
-			std::string fname =
-				(*fsit)->getFirstSymbol()->getPrettyName();
 // DEBUG
 #ifndef NDEBUG
 			if(is_debug_symtabapi_symbols_detailed_enabled) {
 		            std::cerr << "ADDING FUNCTION " << fname
-			    << " RANGE " << frange
+			    << " RANGE " << AddressRange(frange.getBegin()+base,frange.getEnd()+base)
 			    << " for pc " << *ai
-			    << " adjusted pc " << theAddr
 			    << std::endl;
 			}
 #endif
+			// use base_for_stm when adding a symbol. All linked objects
+			// in our symboltable record only one address range.
 			st.addFunction(begin+base_for_stm,end+base_for_stm,fname);
 
 			// Record the function begin addresses, This allows the
@@ -188,8 +195,20 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 			// statement of a function.
 			// The function begin addresses will be processed later
 			// for statement info and added to our statements.
-			function_begin_addresses.insert(begin);
+			function_begin_addresses.insert(begin+base_for_stm);
 			break;
+
+		    } else {
+#if 0
+			std::string fname =
+				(*fsit)->getFirstSymbol()->getPrettyName();
+		            std::cerr << "NO FUNCTION " << fname
+			    << " RANGE " << frange
+			    << " REALRANGE " << AddressRange(frange.getBegin()+base,frange.getEnd()+base)
+			    << " for pc " << *ai
+			    << " adjusted pc " << theAddr
+			    << std::endl;
+#endif
 		    }
 		}
 	    }
@@ -275,6 +294,16 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 		// normalize address for testing range from symtabapi.
 		Framework::Address theAddr(*fi - base.getValue()) ; 
 		Offset myoffset = theAddr.getValue();
+// DEBUG
+#ifndef NDEBUG
+		if(is_debug_symtabapi_symbols_detailed_enabled) {
+		    std::cerr
+			  << "FIND BEGIN STATMENT for function begin at address " << theAddr
+			  << " base " << base
+			  << " fi " << *fi
+			  << std::endl;
+		}
+#endif
 	        for(unsigned i = 0; i< mods.size();i++) {
 		  std::vector< Dyninst::SymtabAPI::Statement *> mylines;
 		  mods[i]->getSourceLines(mylines,myoffset);

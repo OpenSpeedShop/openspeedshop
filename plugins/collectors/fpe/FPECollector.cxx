@@ -555,3 +555,30 @@ void FPECollector::getUniquePCValues( const Thread& thread,
     xdr_free(reinterpret_cast<xdrproc_t>(xdr_fpe_data),
 	     reinterpret_cast<char*>(&data));
 }
+
+
+void FPECollector::getUniquePCValues( const Thread& thread,
+                                         const Blob& blob,
+                                         std::set<Address>& uaddresses) const
+{
+
+    // Decode this data blob
+    fpe_data data;
+    memset(&data, 0, sizeof(data));
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_fpe_data), &data);
+
+    if (data.stacktraces.stacktraces_len == 0) {
+	// todo
+    }
+
+    // Iterate over each stack trace in the data blob
+    for(unsigned i = 0; i < data.stacktraces.stacktraces_len; ++i) {
+	if (data.stacktraces.stacktraces_val[i] != 0) {
+	    uaddresses.insert(Address(data.stacktraces.stacktraces_val[i]));
+	}
+    }
+
+    // Free the decoded data blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_fpe_data),
+             reinterpret_cast<char*>(&data));
+}

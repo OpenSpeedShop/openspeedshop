@@ -60,11 +60,10 @@
 #include <pthread.h>
 #include "monitor.h"
 #include "OpenSS_Monitor.h"
+#include "OpenSS_Offline.h"
 
 extern void offline_start_sampling(const char* arguments);
 extern void offline_stop_sampling(const char* arguments, const int finished);
-extern void offline_record_dso(const char* dsoname);
-extern void offline_defer_sampling(const int flag);
 extern void offline_pause_sampling();
 extern void offline_resume_sampling();
 
@@ -78,6 +77,8 @@ typedef struct {
     pthread_t tid;
     pid_t pid;
     OpenSS_Monitor_Type OpenSS_monitor_type;
+
+    oss_dlinfoList *oss_dllist_curr, *oss_dllist_head;
 } TLS;
 
 int OpenSS_in_mpi_startup = 0;
@@ -206,6 +207,7 @@ void *monitor_init_process(int *argc, char **argv, void *data)
     }
 
     tls->pid = getpid();
+    tls->oss_dllist_head = NULL;
 
     if (tls->debug) {
 	fprintf(stderr,"monitor_init_process BEGIN SAMPLING %d,%lu\n",
@@ -321,6 +323,7 @@ void *monitor_init_thread(int tid, void *data)
     }
 
     tls->pid = getpid();
+    tls->oss_dllist_head = NULL;
 
     if (tls->debug) {
 	fprintf(stderr,"monitor_init_thread BEGIN SAMPLING %d,%lu\n",
@@ -384,19 +387,18 @@ void monitor_dlopen(const char *library, int flags, void *handle)
 	return;
     }
 
-    /* TODO:
-     * if OpenSS_GetDLInfo does not handle errors do so here.
-     */
     if (tls->debug) {
-	fprintf(stderr,"monitor_dlopen called with %s for %d,%lu\n",
-	    library, tls->pid,tls->tid);
+	fprintf(stderr,"monitor_dlopen called with %s , handle %p, for %d,%lu\n",
+	    library, handle, tls->pid,tls->tid);
     }
 
-    /* On some systems (NASA) it appears that dlopen can be called
-     * before monitor_init_process (or even monitor_early_init).
-     * So we need to use getpid() directly here.
-     */ 
-    int retval = OpenSS_GetDLInfo(getpid(), library);
+    tls->oss_dllist_curr = (oss_dlinfoList*)malloc(sizeof(oss_dlinfoList));
+    tls->oss_dllist_curr->oss_dlinfo_entry.load_time = OpenSS_GetTime();
+    tls->oss_dllist_curr->oss_dlinfo_entry.unload_time = OpenSS_GetTime() + 1;
+    tls->oss_dllist_curr->oss_dlinfo_entry.name = strdup(library);
+    tls->oss_dllist_curr->oss_dlinfo_entry.handle = handle;
+    tls->oss_dllist_curr->oss_dlinfo_next = tls->oss_dllist_head;
+    tls->oss_dllist_head = tls->oss_dllist_curr;
 
     if (tls->sampling_status == OpenSS_Monitor_Paused && !tls->in_mpi_pre_init) {
         if (tls->debug) {
@@ -462,6 +464,7 @@ monitor_dlclose(void *handle)
     TLS* tls = &the_tls;
 #endif
 
+
     if (tls == NULL || tls && tls->sampling_status == 0 ) {
 	return;
     }
@@ -471,6 +474,32 @@ monitor_dlclose(void *handle)
 	    fprintf(stderr,"monitor_dlclose returns early due to in mpi init\n");
 	}
 	return;
+    }
+
+    while (tls->oss_dllist_curr) {
+	if (tls->oss_dllist_curr->oss_dlinfo_entry.handle == handle) {
+	   tls->oss_dllist_curr->oss_dlinfo_entry.unload_time = OpenSS_GetTime();
+
+            if (tls->debug) {
+	        fprintf(stderr,"FOUND %p %s\n",handle, tls->oss_dllist_curr->oss_dlinfo_entry.name);
+	        fprintf(stderr,"loaded at %d, unloaded at %d\n",
+		               tls->oss_dllist_curr->oss_dlinfo_entry.load_time,
+		               tls->oss_dllist_curr->oss_dlinfo_entry.unload_time);
+	    }
+
+	   /* On some systems (NASA) it appears that dlopen can be called
+	    * before monitor_init_process (or even monitor_early_init).
+	    * So we need to use getpid() directly here.
+	    */ 
+
+	   int retval = OpenSS_GetDLInfo(getpid(),
+					 tls->oss_dllist_curr->oss_dlinfo_entry.name,
+					 tls->oss_dllist_curr->oss_dlinfo_entry.load_time,
+					 tls->oss_dllist_curr->oss_dlinfo_entry.unload_time
+					);
+	   break;
+	}
+	tls->oss_dllist_curr = tls->oss_dllist_curr->oss_dlinfo_next;
     }
 
     if (!tls->thread_is_terminating || !tls->process_is_terminating) {

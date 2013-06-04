@@ -55,5 +55,7 @@ extern const char *monlibs_exe_name;  /* = "[exe]" */
  *  - is_load is '1' if this callback is reporting a library load, and '0' if it's
  *    reporting a library unload.
  **/
-typedef void(*library_cb)(ElfW(Addr) base_address, const char *name, mem_region *regions, unsigned int num_regions, int is_load);
-void monlibs_getLibraries(library_cb cb);
+typedef void(*library_cb)(ElfW(Addr) base_address,
+	     const char *name, mem_region *regions, unsigned int num_regions,
+	     int is_load, uint64_t b_time, uint64_t e_time);
+void monlibs_getLibraries(library_cb cb, uint64_t b_time, uint64_t e_time);

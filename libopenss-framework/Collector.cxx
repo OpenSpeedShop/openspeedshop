@@ -946,3 +946,34 @@ void Collector::getUniquePCValues(const Thread& thread,
 	END_TRANSACTION(dm_database);
     }
 }
+
+void Collector::getUniquePCValues(const Thread& thread,
+				  const ExtentGroup& subextents,
+				  std::set<Address> & uaddresses) const
+{
+    // Check assertions
+    Assert(inSameDatabase(thread));
+    Assert(dm_impl != NULL);
+
+    // Iterate over each performance data blob to be processed
+    std::set<int> identifiers = getIdentifiers(thread, subextents);
+    for(std::set<int>::const_iterator
+	    i = identifiers.begin(); i != identifiers.end(); ++i) {
+
+	// Find the specified performance data blob
+	BEGIN_TRANSACTION(dm_database);
+	dm_database->prepareStatement(
+		"SELECT data "
+		"FROM Data "
+		"WHERE ROWID = ?;"
+       	);
+	dm_database->bindArgument(1, *i);
+	while(dm_database->executeStatement()) {
+
+	    Blob blob = dm_database->getResultAsBlob(1);
+	    // Defer to our implementation
+	    dm_impl->getUniquePCValues(thread,blob,uaddresses); 
+	}
+	END_TRANSACTION(dm_database);
+    }
+}

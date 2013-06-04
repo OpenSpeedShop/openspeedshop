@@ -128,6 +128,10 @@ namespace OpenSpeedShop { namespace Framework {
 				const ExtentGroup&,
 				PCBuffer* ) const;
 
+	void getUniquePCValues( const Thread&,
+				const ExtentGroup&,
+				std::set<Address>& ) const;
+
 	Extent getExtentIn(const Thread&) const;
 	
 	ThreadGroup getThreads() const;
