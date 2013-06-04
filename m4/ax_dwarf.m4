@@ -72,7 +72,7 @@ AC_DEFUN([AX_LIBDWARF], [
              LIBDWARF_LDFLAGS=""
 	 else
              LIBDWARF_CPPFLAGS="-I$libdwarf_dir/include"
-             LIBDWARF_LDFLAGS="-L$libdwarf_dir/$abi_libdir"
+             LIBDWARF_LDFLAGS="-L$libdwarf_dir/$alt_abi_libdir"
 	 fi
 
          CPPFLAGS="$CPPFLAGS $LIBDWARF_CPPFLAGS"

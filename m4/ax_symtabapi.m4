@@ -31,8 +31,8 @@ AC_DEFUN([AX_SYMTABAPI], [
 
     AC_ARG_WITH(symtabapi-version,
                 AC_HELP_STRING([--with-symtabapi-version=VERS],
-                               [symtabapi-version installation @<:@8.0.0@:>@]),
-                symtabapi_vers=$withval, symtabapi_vers="8.0.0")
+                               [symtabapi-version installation @<:@8.1.1@:>@]),
+                symtabapi_vers=$withval, symtabapi_vers="8.1.1")
 
 
     SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -I$symtabapi_dir/include/dyninst"
@@ -71,7 +71,9 @@ AC_DEFUN([AX_SYMTABAPI], [
     LDFLAGS="$LDFLAGS $SYMTABAPI_LDFLAGS $BINUTILS_LDFLAGS $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
     LIBS="$SYMTABAPI_LIBS $BINUTILS_IBERTY_LIB $LIBDWARF_LIBS $LIBELF_LIBS" 
 
-    AC_MSG_CHECKING([for symtabAPI API library and headers])
+    found_symtabapi=0
+
+    AC_MSG_CHECKING([for symtabAPI API library and headers using $abi_libdir])
 
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include "Symbol.h"
@@ -82,18 +84,47 @@ AC_DEFUN([AX_SYMTABAPI], [
         ]], [[
         Symtab symtab = Symtab();
         ]])], 
-        [  AC_MSG_RESULT(yes) 
-           AM_CONDITIONAL(HAVE_SYMTABAPI, true)
-           AC_DEFINE(HAVE_SYMTABAPI, 1, [Define to 1 if you have symtabAPI.])
+        [ found_symtabapi=1
         ],
-        [ AC_MSG_RESULT(no)
-          AM_CONDITIONAL(HAVE_SYMTABAPI, false)
-          SYMTABAPI_CPPFLAGS=""
-          SYMTABAPI_LDFLAGS=""
-          SYMTABAPI_LIBS=""
-          SYMTABAPI_DIR=""
+        [ found_symtabapi=0
         ]
     )
+
+    if test $found_symtabapi -eq 1; then
+        AC_MSG_RESULT(yes) 
+        AM_CONDITIONAL(HAVE_SYMTABAPI, true)
+        AC_DEFINE(HAVE_SYMTABAPI, 1, [Define to 1 if you have symtabAPI.])
+    else
+# Try again with $alt_abi_libdir instead
+         SYMTABAPI_LDFLAGS="-L$symtabapi_dir/$alt_abi_libdir"
+         LDFLAGS="$LDFLAGS $SYMTABAPI_LDFLAGS $BINUTILS_LDFLAGS $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
+
+         AC_MSG_CHECKING([for symtabAPI API library and headers using $alt_abi_libdir])
+
+         AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+	     #include "Symbol.h"
+     	     #include "Symtab.h"
+	     using namespace Dyninst;
+	     using namespace SymtabAPI;
+	
+             ]], [[
+             Symtab symtab = Symtab();
+             ]])], 
+             [  AC_MSG_RESULT(yes) 
+                AM_CONDITIONAL(HAVE_SYMTABAPI, true)
+                AC_DEFINE(HAVE_SYMTABAPI, 1, [Define to 1 if you have symtabAPI.])
+             ],
+             [ AC_MSG_RESULT(no)
+               AM_CONDITIONAL(HAVE_SYMTABAPI, false)
+               SYMTABAPI_CPPFLAGS=""
+               SYMTABAPI_LDFLAGS=""
+               SYMTABAPI_LIBS=""
+               SYMTABAPI_DIR=""
+             ]
+         )
+    fi
+
+
 
     CPPFLAGS=$symtabapi_saved_CPPFLAGS
     LDFLAGS=$symtabapi_saved_LDFLAGS
