@@ -108,13 +108,13 @@ endif
 endif
 
 if BUILD_CBTF
-SUBDIRS += mem pthreads
+SUBDIRS += mem pthreads iop
 endif
 
 #SUBDIRS = pcsamp usertime hwc hwctime io iot mpi mpit fpe
 
 DIST_SUBDIRS = \
-	pcsamp usertime io iot hwc hwcsamp hwctime mpi mpit mpiotf fpe mem pthreads
+	pcsamp usertime io iot iop hwc hwcsamp hwctime mpi mpit mpiotf fpe mem pthreads
 
 doc:
 	$(DOXYGEN)

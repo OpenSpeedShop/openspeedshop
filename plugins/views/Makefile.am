@@ -31,7 +31,7 @@ SUBDIRS = basic \
           fpe
 
 if BUILD_CBTF
-SUBDIRS += mem pthreads 
+SUBDIRS += mem pthreads iop
 endif
 
 
