@@ -18,7 +18,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-AC_INIT([OpenSpeedShop],[2.0.2-u8])
+AC_INIT([OpenSpeedShop],[2.0.2-u9])
 AC_COPYRIGHT([[Copyright (c) 2006-2013 Krell Institute. All Rights Reserved.]])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([libltdl/config])
@@ -755,6 +755,7 @@ AC_CONFIG_FILES(
 	plugins/collectors/hwcsamp/Makefile
 	plugins/collectors/hwctime/Makefile
 	plugins/collectors/io/Makefile
+	plugins/collectors/iop/Makefile
 	plugins/collectors/iot/Makefile
 	plugins/collectors/mpi/Makefile
 	plugins/collectors/mpit/Makefile
@@ -790,6 +791,7 @@ AC_CONFIG_FILES(
 	plugins/views/hwcsamp/Makefile
 	plugins/views/hwctime/Makefile
 	plugins/views/io/Makefile
+	plugins/views/iop/Makefile
 	plugins/views/iot/Makefile
 	plugins/views/mpi/Makefile
 	plugins/views/mpit/Makefile
