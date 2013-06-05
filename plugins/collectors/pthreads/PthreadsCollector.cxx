@@ -509,9 +509,9 @@ void PthreadsCollector::getUniquePCValues( const Thread& thread,
 {
 
     // Decode this data blob
-    pthreads_exttrace_data data;
+    CBTF_pthreads_exttrace_data data;
     memset(&data, 0, sizeof(data));
-    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_pthreads_exttrace_data), &data);
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_CBTF_pthreads_exttrace_data), &data);
 
     if (data.stacktraces.stacktraces_len == 0) {
 	// todo
@@ -525,6 +525,6 @@ void PthreadsCollector::getUniquePCValues( const Thread& thread,
     }
 
     // Free the decoded data blob
-    xdr_free(reinterpret_cast<xdrproc_t>(xdr_pthreads_exttrace_data),
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_CBTF_pthreads_exttrace_data),
              reinterpret_cast<char*>(&data));
 }
