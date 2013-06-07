@@ -33,8 +33,26 @@ AC_DEFUN([AX_DYNINST], [
                                [dyninst-version installation @<:@8.1@:>@]),
                 dyninst_vers=$withval, dyninst_vers="8.1")
 
+    AC_ARG_WITH([dyninst-libdir],
+                AS_HELP_STRING([--with-dyninst-libdir=LIB_DIR],
+                [Force given directory for dyninst libraries. Note that this will overwrite library path detection, so use this parameter only if default library detection fails and you know exactly where your dyninst libraries are located.]),
+                [
+                if test -d $withval 
+                then
+                        ac_dyninst_lib_path="$withval"
+                else
+                        AC_MSG_ERROR(--with-dyninst-libdir expected directory name)
+                fi ], 
+                [ac_dyninst_lib_path=""])
+
+
     DYNINST_CPPFLAGS="-I$dyninst_dir/include -I$dyninst_dir/include/dyninst"
-    DYNINST_LDFLAGS="-L$dyninst_dir/$abi_libdir"
+    if test "x$ac_dyninst_lib_path" == "x"; then
+       DYNINST_LDFLAGS="-L$dyninst_dir/$abi_libdir"
+    else
+       DYNINST_LDFLAGS="-L$ac_dyninst_lib_path"
+    fi
+
     DYNINST_DIR="$dyninst_dir" 
     DYNINST_VERS="$dyninst_vers"
 
@@ -79,43 +97,17 @@ AC_DEFUN([AX_DYNINST], [
     LDFLAGS="$LDFLAGS $DYNINST_LDFLAGS $BINUTILS_LDFLAGS $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS $BOOST_LDFLAGS"
     LIBS="$DYNINST_LIBS $BINUTILS_IBERTY_LIB $LIBDWARF_LIBS $LIBELF_LIBS"
 
-    AC_MSG_CHECKING([for Dyninst API library and headers using $abi_libdir])
+    AC_MSG_CHECKING([for Dyninst API library and headers])
 
     AC_LINK_IFELSE(AC_LANG_PROGRAM([[
 	#include <BPatch.h>
         ]], [[
 	BPatch bpatch();
-        ]]), found_dyninst=1, [ found_dyninst=0
-	# for offline only builds, dyninst is not installed: do not die.
+        ]]), AC_MSG_RESULT(yes), [ AC_MSG_RESULT(no)
+	# for offline only builds, dyninst is not installed.
+	# do not die.
         #AC_MSG_FAILURE(cannot locate Dyninst API library and/or headers.) ]
     )
-
-    if test $found_dyninst -eq 1; then
-        AC_MSG_RESULT(yes)
-        AM_CONDITIONAL(HAVE_DYNINST, true)
-        AC_DEFINE(HAVE_DYNINST, 1, [Define to 1 if you have Dyninst.])
-    else
-# Try again with $alt_abi_libdir instead
-
-        DYNINST_LDFLAGS="-L$dyninst_dir/$alt_abi_libdir"
-        LDFLAGS="$LDFLAGS $DYNINST_LDFLAGS $BINUTILS_LDFLAGS $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS $BOOST_LDFLAGS"
-
-        AC_MSG_CHECKING([for Dyninst API library and headers using $alt_abi_libdir])
-
-        AC_LINK_IFELSE(AC_LANG_PROGRAM([[
-    	    #include <BPatch.h>
-            ]], [[
-	    BPatch bpatch();
-            ]]), 
-               AC_MSG_RESULT(yes)
-               AM_CONDITIONAL(HAVE_DYNINST, true)
-               AC_DEFINE(HAVE_DYNINST, 1, [Define to 1 if you have Dyninst.])
-            [ AC_MSG_RESULT(no)
-	    # for offline only builds, dyninst is not installed: do not die.
-            #AC_MSG_FAILURE(cannot locate Dyninst API library and/or headers.) ]
-        )
-    fi
-
 
     CPPFLAGS=$dyninst_saved_CPPFLAGS
     LDFLAGS=$dyninst_saved_LDFLAGS

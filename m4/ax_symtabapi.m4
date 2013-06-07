@@ -34,9 +34,26 @@ AC_DEFUN([AX_SYMTABAPI], [
                                [symtabapi-version installation @<:@8.1.1@:>@]),
                 symtabapi_vers=$withval, symtabapi_vers="8.1.1")
 
+    AC_ARG_WITH([symtabapi-libdir],
+                AS_HELP_STRING([--with-symtabapi-libdir=LIB_DIR],
+                [Force given directory for symtabapi libraries. Note that this will overwrite library path detection, so use this parameter only if default library detection fails and you know exactly where your symtabapi libraries are located.]),
+                [
+                if test -d $withval 
+                then
+                        ac_symtabapi_lib_path="$withval"
+                else
+                        AC_MSG_ERROR(--with-symtabapi-libdir expected directory name)
+                fi ], 
+                [ac_symtabapi_lib_path=""])
+
+
+    if test "x$ac_symtabapi_lib_path" == "x"; then
+       SYMTABAPI_LDFLAGS="-L$symtabapi_dir/$abi_libdir"
+    else
+       SYMTABAPI_LDFLAGS="-L$ac_symtabapi_lib_path"
+    fi
 
     SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -I$symtabapi_dir/include/dyninst"
-    SYMTABAPI_LDFLAGS="-L$symtabapi_dir/$abi_libdir"
     SYMTABAPI_DIR="$symtabapi_dir" 
     SYMTABAPI_CPPFLAGS="$SYMTABAPI_CPPFLAGS -DUSE_STL_VECTOR"
 
@@ -95,33 +112,12 @@ AC_DEFUN([AX_SYMTABAPI], [
         AM_CONDITIONAL(HAVE_SYMTABAPI, true)
         AC_DEFINE(HAVE_SYMTABAPI, 1, [Define to 1 if you have symtabAPI.])
     else
-# Try again with $alt_abi_libdir instead
-         SYMTABAPI_LDFLAGS="-L$symtabapi_dir/$alt_abi_libdir"
-         LDFLAGS="$LDFLAGS $SYMTABAPI_LDFLAGS $BINUTILS_LDFLAGS $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
-
-         AC_MSG_CHECKING([for symtabAPI API library and headers using $alt_abi_libdir])
-
-         AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-	     #include "Symbol.h"
-     	     #include "Symtab.h"
-	     using namespace Dyninst;
-	     using namespace SymtabAPI;
-	
-             ]], [[
-             Symtab symtab = Symtab();
-             ]])], 
-             [  AC_MSG_RESULT(yes) 
-                AM_CONDITIONAL(HAVE_SYMTABAPI, true)
-                AC_DEFINE(HAVE_SYMTABAPI, 1, [Define to 1 if you have symtabAPI.])
-             ],
-             [ AC_MSG_RESULT(no)
-               AM_CONDITIONAL(HAVE_SYMTABAPI, false)
-               SYMTABAPI_CPPFLAGS=""
-               SYMTABAPI_LDFLAGS=""
-               SYMTABAPI_LIBS=""
-               SYMTABAPI_DIR=""
-             ]
-         )
+        AC_MSG_RESULT(no)
+        AM_CONDITIONAL(HAVE_SYMTABAPI, false)
+        SYMTABAPI_CPPFLAGS=""
+        SYMTABAPI_LDFLAGS=""
+        SYMTABAPI_LIBS=""
+        SYMTABAPI_DIR=""
     fi
 
 
