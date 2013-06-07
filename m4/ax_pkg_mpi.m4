@@ -628,7 +628,11 @@ AC_DEFUN([AX_MPICH2], [
 
        MPICH2_CC="$mpich2_dir/bin64/mpgicc"
        MPICH2_CPPFLAGS="-I$mpich2_dir/include"
-       MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+       if (test -d $mpich2_dir/$abi_libdir) ; then
+          MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+       elif (test -d $mpich2_dir/$alt_abi_libdir) ; then
+          MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir"
+       fi
        MPICH2_LIBS="-lmpich"
        MPICH2_HEADER="$mpich2_dir/include/mpi.h"
        MPICH2_DIR="$mpich2_dir"
@@ -646,6 +650,10 @@ AC_DEFUN([AX_MPICH2], [
 
          if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+	    found_mpich2=1
+            AC_MSG_CHECKING([found Intel MPICH2 64 bit library and headers using mpigcc])
+         elif (test -f $mpich2_dir/$alt_abi_libdir/libmpich.so) ; then
+            MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir"
 	    found_mpich2=1
             AC_MSG_CHECKING([found Intel MPICH2 64 bit library and headers using mpigcc])
          fi
@@ -739,7 +747,11 @@ AC_DEFUN([AX_MPICH2], [
           MPICH2_CC="cc"
        fi
 
-       MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+       if (test -d $mpich2_dir/$abi_libdir) ; then
+          MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+       elif (test -d $mpich2_dir/$alt_abi_libdir) ; then
+          MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir"
+       fi
        MPICH2_LIBS="-lmpich"
        if (test "$abi_libdir" == "lib64" && test -d $mpich2_dir/include64 && test -f $mpich2_dir/include64/mpi.h) ; then
          MPICH2_HEADER="$mpich2_dir/include64/mpi.h"
@@ -763,6 +775,10 @@ AC_DEFUN([AX_MPICH2], [
 
          if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
+	    found_mpich2=1
+            AC_MSG_CHECKING([found Intel MPICH2 64 bit library and headers using mpicc])
+         elif (test -f $mpich2_dir/$alt_abi_libdir/libmpich.so) ; then
+            MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir"
 	    found_mpich2=1
             AC_MSG_CHECKING([found Intel MPICH2 64 bit library and headers using mpicc])
          fi
