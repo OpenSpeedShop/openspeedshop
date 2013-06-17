@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2012 The Krell Institute. All Rights Reserved.
+# Copyright (c) 2012-2013 The Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -38,5 +38,5 @@ pthreads_la_LIBADD = \
 	-lopenss-framework
 
 pthreads_la_SOURCES = \
-	PthreadsCollector.hxx PthreadsDetail.hxx PthreadsCollector.cxx
+	PthreadsCollector.hxx PthreadsDetail.hxx PthreadsCollector.cxx PthreadsTraceableFunctions.h
 endif

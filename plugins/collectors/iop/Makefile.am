@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2012 The Krell Institute. All Rights Reserved.
+# Copyright (c) 2012-2013 The Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -38,5 +38,5 @@ iop_la_LIBADD = \
 	-lopenss-framework
 
 iop_la_SOURCES = \
-	IOPCollector.hxx IOPDetail.hxx IOPCollector.cxx
+	IOPCollector.hxx IOPDetail.hxx IOPCollector.cxx IOPTraceableFunctions.h
 endif
