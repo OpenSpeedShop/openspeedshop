@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2012 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2012-13 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -52,17 +52,20 @@ FEThread::FEThread()
 void FEThread::start( const std::string& collector, const unsigned int& numBE,
 	     bool& finished)
 {
-    // default to users home directory.
-    char const* home = getenv("HOME");
+
+    // default to users current directory.
+    // do not create the .cbtf directory as we did when using $HOME
+    char const* cur_dir = getenv("PWD");
     
     // create a default for topology file.
-    std::string default_topology(home), topology;
-    default_topology += "/.cbtf/cbtf_topology";
+    std::string default_topology(cur_dir), topology;
+    default_topology += "/cbtf_topology";
     topology = default_topology;
     //
     // create a default for connections file.
-    std::string default_connections(home),connections;
-    default_connections += "/.cbtf/attachBE_connections";
+    std::string default_connections(cur_dir),connections;
+    default_connections += "/attachBE_connections";
+
     connections = default_connections;
 
     dm_thread = boost::thread(&FEThread::run, this, topology, connections,

@@ -88,34 +88,20 @@ int main(int argc, char** argv)
 
 
     // create a default for topology file.
-    char const* home = getenv("HOME");
-    std::string default_topology(home);
+    char const* cur_dir = getenv("PWD");
+    std::string default_topology(cur_dir);
+    std::string cbtf_path(cur_dir);
 
-    std::string cbtf_path(home);
-    cbtf_path += "/.cbtf";
-
-    struct stat sb;
-
-    if (!(stat(cbtf_path.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))) {
-      int ret = mkdir(cbtf_path.c_str(), 0755);
-      if (ret != 0 && errno != EEXIST) {
-        fprintf(stderr,"collectionTool: could not create cbtf directory `%s': %s",
-                cbtf_path.c_str(), strerror(errno));
-      }
-    }
-
-
-
-    default_topology += "/.cbtf/cbtf_topology";
+    default_topology += "/cbtf_topology";
 
     // create a default for connections file.
-    std::string default_connections(home);
-    default_connections += "/.cbtf/attachBE_connections";
+    std::string default_connections(cur_dir);
+    default_connections += "/attachBE_connections";
 
     // create a default for the collection type.
     std::string default_collector("pcsamp");
 
-    boost::program_options::options_description desc("pcsampDemo options");
+    boost::program_options::options_description desc("osscollect options");
     desc.add_options()
         ("help,h", "Produce this help message.")
         ("numBE", boost::program_options::value<unsigned int>(&numBE)->default_value(1),
@@ -165,9 +151,9 @@ int main(int argc, char** argv)
 
     // TODO: pass numBE to CBTFTopology and record as the number
     // of application processes.
+    CBTFTopology cbtftopology;
     std::string fenodename;
     if (topology.empty()) {
-      CBTFTopology cbtftopology;
       if (arch == "cray") {
           cbtftopology.autoCreateTopology(BE_CRAY_ATTACH);
       } else {
@@ -259,9 +245,22 @@ int main(int argc, char** argv)
     if(child < 0){
         std::cout << "fork failed";
     } else if(child == 0){
+
         if (!mpiexecutable.empty()) {
 
-	    size_t pos = program.find(mpiexecutable);
+            size_t pos;
+            if (cbtftopology.getIsCray()) {
+                if (std::string::npos != program.find("aprun")) {
+                    // Add in the -L list of nodes if aprun is present 
+                    // and we are not co-locating
+                    std::list<std::string> nodes = cbtftopology.getAppNodeList();
+                    std::string appNodesForAprun = "-L " + cbtftopology.createCSVstring(nodes);
+                    pos = program.find("aprun ") + 6;
+                    program.insert(pos, appNodesForAprun);
+                }
+            }
+
+	    pos = program.find(mpiexecutable);
             SymtabAPISymbols stapi_symbols;
 
             // Determine if libmpi is present in the application in order to call out the proper
