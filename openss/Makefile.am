@@ -275,8 +275,10 @@ endif
 if !BUILD_TARGETED
 ossdriver: ossdriver.in
 	@rm -f ossdriver
-	cp $(srcdir)/ossdriver.in ossdriver
-	chmod 755 ossdriver
+	@sed \
+		-e 's,@@oss_instrumentor@@,$(INSTRUMENTOR),' \
+			$(srcdir)/ossdriver.in > ossdriver
+	@chmod 755 ossdriver
 
 ossdriver_compare: ossdriver_compare.in
 	@rm -f ossdriver_compare

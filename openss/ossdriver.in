@@ -2,7 +2,7 @@
 ################################################################################
 # Display Usage When Necessary
 ################################################################################
-debug_flag=0
+debug_flag=1
 
 # Initialize to indicate no "high" parameter was seen
 # If this is set we will up the sampling rate or threshold depending on the experiment
@@ -436,6 +436,10 @@ fi
 ################################################################################
 # Run Open|SpeedShop
 ################################################################################
+
+# Setup the OpenSpeedShop instrumentor variable (cbtf or offline)
+instrumentor=@@oss_instrumentor@@
+
 if [ $debug_flag == 1 ]
 then
   echo "DEBUG: experiment_name=$experiment_name"
@@ -448,7 +452,10 @@ then
   echo "DEBUG: input_argument_oname=$input_argument_oname"
   echo "DEBUG: use_compare_metric=$use_compare_metric"
   echo "DEBUG: use_compare_viewtype=$use_compare_viewtype"
+  echo "DEBUG: instrumentor=$instrumentor"
 fi
+
+
 
 # ------------------------------------------------------------------------------------
 # -- PCSAMP EXPERIMENT SPECIFIC CODE -------------------------------------------------
@@ -560,7 +567,17 @@ then
      fi
   fi 
 
-  openss -offline -f "$1" pcsamp
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: pcsamp experiment calling osscollect."
+    osscollect --program "$1" --collector pcsamp
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: pcsamp experiment calling openss."
+    openss -offline -f "$1" pcsamp
+  else
+    echo "[openss]: pcsamp experiment calling nothing, else clause."
+  fi
 
 # ------------------------------------------------------------------------------------
 # -- USERTIME EXPERIMENT SPECIFIC CODE -------------------------------------------------
@@ -673,7 +690,17 @@ then
      fi
   fi 
 
-  openss -offline -f "$1" usertime
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: usertime experiment calling osscollect."
+    osscollect --program "$1" --collector usertime
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: usertime experiment calling openss."
+    openss -offline -f "$1" usertime
+  else
+    echo "[openss]: usertime experiment calling nothing, else clause."
+  fi
 
 # ------------------------------------------------------------------------------------
 # -- HWC EXPERIMENT SPECIFIC CODE -------------------------------------------------
@@ -925,7 +952,18 @@ then
     echo "DEBUG: about to run \"openss -offline -f "$1" hwc, OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD"
   fi
 
-  openss -offline -f "$1" hwc
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: hwc experiment calling osscollect."
+    osscollect --program "$1" --collector hwc
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: hwc experiment calling openss."
+    openss -offline -f "$1" hwc
+  else
+    echo "[openss]: hwc experiment calling nothing, else clause."
+  fi
 
 
 # ------------------------------------------------------------------------------------
@@ -1176,7 +1214,18 @@ then
     echo "DEBUG: about to run \"openss -offline -f "$1" hwcsamp, OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE"
   fi
 
-  openss -offline -f "$1" hwcsamp
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: hwcsamp experiment calling osscollect."
+    osscollect --program "$1" --collector hwcsamp
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: hwcsamp experiment calling openss."
+    openss -offline -f "$1" hwcsamp
+  else
+    echo "[openss]: hwcsamp experiment calling nothing, else clause."
+  fi
 
 # ------------------------------------------------------------------------------------
 # -- HWCTIME EXPERIMENT SPECIFIC CODE -------------------------------------------------
@@ -1428,7 +1477,18 @@ then
     echo "DEBUG: about to run \"openss -offline -f "$1" hwctime, OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD"
   fi
 
-  openss -offline -f "$1" hwctime
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: hwctime experiment calling osscollect."
+    osscollect --program "$1" --collector hwctime
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: hwctime experiment calling openss."
+    openss -offline -f "$1" hwctime
+  else
+    echo "[openss]: hwctime experiment calling nothing, else clause."
+  fi
 # ------------------------------------------------------------------------------------
 # -- IO EXPERIMENT SPECIFIC CODE -------------------------------------------------
 # ------------------------------------------------------------------------------------
@@ -1519,7 +1579,17 @@ then
 
   export OPENSS_IO_TRACED
 
-  openss -offline -f "$1" io
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: io experiment calling osscollect."
+    osscollect --program "$1" --collector io
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: io experiment calling openss."
+    openss -offline -f "$1" io
+  else
+    echo "[openss]: io experiment calling nothing, else clause."
+  fi
 
 # ------------------------------------------------------------------------------------
 # -- IOT EXPERIMENT SPECIFIC CODE -------------------------------------------------
@@ -1611,7 +1681,17 @@ then
 
   export OPENSS_IOT_TRACED
 
-  openss -offline -f "$1" iot
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: iot experiment calling osscollect."
+    osscollect --program "$1" --collector iot
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: iot experiment calling openss."
+    openss -offline -f "$1" iot
+  else
+    echo "[openss]: iot experiment calling nothing, else clause."
+  fi
 
 # ------------------------------------------------------------------------------------
 # -- MPI EXPERIMENT SPECIFIC CODE -------------------------------------------------
@@ -1788,7 +1868,17 @@ then
   fi
   export OPENSS_MPI_TRACED
 
-  openss -offline -f "$1" mpi
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: mpi experiment calling osscollect."
+    osscollect --program "$1" --collector mpi
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: mpi experiment calling openss."
+    openss -offline -f "$1" mpi
+  else
+    echo "[openss]: mpi experiment calling nothing, else clause."
+  fi
 
 
 # ------------------------------------------------------------------------------------
@@ -1866,7 +1956,17 @@ then
   fi
   export OPENSS_MPIT_TRACED
 
-  openss -offline -f "$1" mpit
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: mpit experiment calling osscollect."
+    osscollect --program "$1" --collector mpit
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: mpit experiment calling openss."
+    openss -offline -f "$1" mpit
+  else
+    echo "[openss]: mpit experiment calling nothing, else clause."
+  fi
 
 
 # ------------------------------------------------------------------------------------
@@ -1944,7 +2044,17 @@ then
   fi
   export OPENSS_MPIOTF_TRACED
 
-  openss -offline -f "$1" mpiotf
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: mpiotf experiment calling osscollect."
+    osscollect --program "$1" --collector mpiotf
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: mpiotf experiment calling openss."
+    openss -offline -f "$1" mpiotf
+  else
+    echo "[openss]: mpiotf experiment calling nothing, else clause."
+  fi
 
 
 # ------------------------------------------------------------------------------------
@@ -2020,8 +2130,17 @@ then
   fi
   export OPENSS_FPE_EVENT
 
-  openss -offline -f "$1" fpe
-
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: fpe experiment calling osscollect."
+    osscollect --program "$1" --collector fpe
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: fpe experiment calling openss."
+    openss -offline -f "$1" fpe
+  else
+    echo "[openss]: fpe experiment calling nothing, else clause."
+  fi
 
 fi
 # ------------------------------------------------------------------------------------

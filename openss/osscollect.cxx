@@ -27,15 +27,25 @@
 
 #include <sys/param.h>
 #include <sys/wait.h>
+
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <vector>
+#include <unistd.h>
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <boost/foreach.hpp>
 #include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/tokenizer.hpp>
 #include "Collector.hxx"
 #include "Experiment.hxx"
 #include "FEThread.hxx"
@@ -47,6 +57,83 @@
 using namespace boost;
 using namespace KrellInstitute::Core;
 using namespace OpenSpeedShop::Framework;
+
+// Experiment Utilities.
+
+// Function that returns the number of BE processes that are required for LW MRNet BEs.
+// The function tokenizes the program command and searches for -np or -n.
+static int getBEcountFromCommand(std::string command) {
+
+    int retval = 1;
+
+    boost::char_separator<char> sep(" ");
+    boost::tokenizer<boost::char_separator<char> > btokens(command, sep);
+    std::string S = "";
+
+    bool found_be_count = false;
+
+    BOOST_FOREACH (const std::string& t, btokens) {
+	S = t;
+	if (found_be_count) {
+	    S = t;
+	    retval = boost::lexical_cast<int>(S);
+	    break;
+	} else if (!strcmp( S.c_str(), std::string("-np").c_str())) {
+	    found_be_count = true;
+	} else if (!strcmp(S.c_str(), std::string("-n").c_str())) {
+	    found_be_count = true;
+	}
+    } // end foreach
+
+    return retval;
+}
+
+// 
+// Determine if libmpi is present in this executable.
+//
+static bool isMpiExe(const std::string exe) {
+    SymtabAPISymbols stapi_symbols;
+    return stapi_symbols.foundLibrary(exe,"libmpi");
+}
+
+
+// Function that returns whether the filename is an executable file.
+// Uses stat to obtain the mode of the filename and if it executable returns true.
+static bool is_executable(std::string file)
+{
+    struct stat status_buffer;
+
+    // Call stat with filename which will fill status_buffer
+    if (stat(file.c_str(), &status_buffer) < 0)
+        return false;
+
+    // Examine for executable status
+    if ((status_buffer.st_mode & S_IEXEC) != 0)
+        return true;
+
+    return false;
+}
+
+// Function that returns the filename of the executable file found in the "command".
+// It tokenizes the command and runs through it backwards looking for the first file that is executable.
+// That might not be sufficient in all cases.
+static std::string getMPIExecutableFromCommand(std::string command) {
+
+    std::string retval = "";
+
+    boost::char_separator<char> sep(" ");
+    boost::tokenizer<boost::char_separator<char> > btokens(command, sep);
+
+    BOOST_FOREACH (const std::string& t, btokens) {
+      if (is_executable( t )) {
+         if (isMpiExe(t)) {
+           return t;
+         }
+      }
+    } // end foreach
+
+  return retval;
+}
 
 
 static std::string createDBName(std::string dbprefix)
@@ -105,7 +192,7 @@ int main(int argc, char** argv)
     desc.add_options()
         ("help,h", "Produce this help message.")
         ("numBE", boost::program_options::value<unsigned int>(&numBE)->default_value(1),
-	    "Number of lightweight mrnet backends. Default is 1, For an mpi job this must match the number of mpi ranks specififed in the mpi launcher arguments.")
+	    "Number of lightweight mrnet backends. Default is 1, For an mpi job, the number of ranks specified to the launcher will be used.")
         ("arch",
             boost::program_options::value<std::string>(&arch)->default_value(""),
             "automatic topology type defaults to a standard cluster.  These options are specific to a Cray or BlueGene. [cray | bluegene]")
@@ -142,6 +229,19 @@ int main(int argc, char** argv)
 				  options(desc).positional(p).run(), vm);
     boost::program_options::notify(vm);
 
+    // Generate the --mpiexecutable argument value if it is not set
+    if (program != "" && mpiexecutable == "") {
+
+      // Find out if there is an mpi driver to key off of
+      // Then match the mpiexecutable value to the program name
+      mpiexecutable = getMPIExecutableFromCommand(program);
+
+    }
+
+    if (mpiexecutable != "") {
+         numBE = getBEcountFromCommand(program);
+    }
+
     if (vm.count("help")) {
         std::cout << desc << std::endl;
         return 1;
@@ -166,7 +266,6 @@ int main(int argc, char** argv)
       //topology = default_topology;
       fenodename =  "localhost";
     }
-
 
     // find name of application and strip any path.
     OpenSpeedShop::Framework::Path prg(mpiexecutable);
@@ -261,13 +360,8 @@ int main(int argc, char** argv)
             }
 
 	    pos = program.find(mpiexecutable);
-            SymtabAPISymbols stapi_symbols;
 
-            // Determine if libmpi is present in the application in order to call out the proper
-            // collector runtime library.
-            bool found_mpi_lib = stapi_symbols.foundLibrary(mpiexecutable,"libmpi");
-
-            if (found_mpi_lib) {
+            if (isMpiExe(mpiexecutable)) {
 
               if (!cbtfrunpath.empty()) {
                 program.insert(pos, " " + cbtfrunpath + " --mrnet --mpi -c " + collector + " \"");
