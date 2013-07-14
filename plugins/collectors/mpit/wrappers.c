@@ -323,7 +323,11 @@ int __wrap_MPI_Isend(
 #else
 int mpit_PMPI_Isend(
 #endif
-    void* buf, 
+#if MPI_VERSION >= 3
+    const void* buf,
+#else
+    void* buf,
+#endif
     int count, 
     MPI_Datatype datatype, 
     int dest,
@@ -377,7 +381,11 @@ int __wrap_MPI_Bsend(
 #else
 int mpit_PMPI_Bsend(
 #endif
-    void* buf, 
+#if MPI_VERSION >= 3
+    const void* buf,
+#else
+    void* buf,
+#endif
     int count, 
     MPI_Datatype datatype, 
     int dest, 
@@ -431,7 +439,11 @@ int __wrap_MPI_Bsend_init(
 #else
 int mpit_PMPI_Bsend_init(
 #endif
-    void* buf, 
+#if MPI_VERSION >= 3
+    const void* buf,
+#else
+    void* buf,
+#endif
     int count, 
     MPI_Datatype datatype, 
     int dest, 
@@ -485,7 +497,11 @@ int __wrap_MPI_Ibsend(
 #else
 int mpit_PMPI_Ibsend(
 #endif
-    void* buf, 
+#if MPI_VERSION >= 3
+    const void* buf,
+#else
+    void* buf,
+#endif
     int count, 
     MPI_Datatype datatype, 
     int dest, 
@@ -539,7 +555,12 @@ int __wrap_MPI_Irsend(
 #else
 int mpit_PMPI_Irsend(    
 #endif
-    void* buf, 
+
+#if MPI_VERSION >= 3
+    const void* buf,
+#else
+    void* buf,
+#endif
     int count, 
     MPI_Datatype datatype, 
     int dest, 
@@ -593,7 +614,11 @@ int __wrap_MPI_Issend(
 #else
 int mpit_PMPI_Issend(
 #endif
-    void* buf, 
+#if MPI_VERSION >= 3
+    const void* buf,
+#else
+    void* buf,
+#endif
     int count, 
     MPI_Datatype datatype, 
     int dest, 
@@ -647,7 +672,11 @@ int __wrap_MPI_Rsend(
 #else
 int mpit_PMPI_Rsend(
 #endif
-    void* buf, 
+#if MPI_VERSION >= 3
+    const void* buf,
+#else
+    void* buf,
+#endif
     int count, 
     MPI_Datatype datatype, 
     int dest, 
@@ -701,7 +730,11 @@ int __wrap_MPI_Rsend_init(
 #else
 int mpit_PMPI_Rsend_init(
 #endif
-    void* buf, 
+#if MPI_VERSION >= 3
+    const void* buf,
+#else
+    void* buf,
+#endif
     int count, 
     MPI_Datatype datatype, 
     int dest, 
@@ -756,7 +789,11 @@ int __wrap_MPI_Send(
 #else
 int mpit_PMPI_Send(
 #endif
-    void* buf, 
+#if MPI_VERSION >= 3
+    const void* buf,
+#else
+    void* buf,
+#endif
     int count, 
     MPI_Datatype datatype, 
     int dest, 
@@ -810,7 +847,11 @@ int __wrap_MPI_Send_init(
 #else
 int mpit_PMPI_Send_init(
 #endif
-    void* buf, 
+#if MPI_VERSION >= 3
+    const void* buf,
+#else
+    void* buf,
+#endif
     int count, 
     MPI_Datatype datatype, 
     int dest, 
@@ -865,7 +906,11 @@ int __wrap_MPI_Ssend(
 #else
 int mpit_PMPI_Ssend(
 #endif
+#if MPI_VERSION >= 3
+    const void* buf,
+#else
     void* buf,
+#endif
     int count, 
     MPI_Datatype datatype, 
     int dest, 
@@ -919,7 +964,11 @@ int __wrap_MPI_Ssend_init(
 #else
 int mpit_PMPI_Ssend_init(
 #endif
+#if MPI_VERSION >= 3
+    const void* buf,
+#else
     void* buf,
+#endif
     int count, 
     MPI_Datatype datatype, 
     int dest, 
@@ -1248,7 +1297,11 @@ int __wrap_MPI_Unpack(
 #else
 int mpit_PMPI_Unpack(
 #endif
+#if MPI_VERSION >= 3
+    const void* inbuf, 
+#else
     void* inbuf, 
+#endif
     int insize, 
     int *position, 
     void *outbuf, 
@@ -1513,7 +1566,11 @@ int __wrap_MPI_Scan(
 #else
 int mpit_PMPI_Scan(
 #endif
+#if MPI_VERSION >= 3
+    const void* sendbuf, 
+#else
     void* sendbuf, 
+#endif
     void* recvbuf, 
     int count, 
     MPI_Datatype datatype, 
@@ -1624,9 +1681,15 @@ int __wrap_MPI_Reduce_scatter(
 #else
 int mpit_PMPI_Reduce_scatter(
 #endif
+#if MPI_VERSION >= 3
+    const void* sendbuf, 
+    void* recvbuf, 
+    const int *recvcounts, 
+#else
     void* sendbuf, 
     void* recvbuf, 
     int *recvcounts, 
+#endif
     MPI_Datatype datatype, 
     MPI_Op op, 
     MPI_Comm comm
@@ -1681,7 +1744,11 @@ int __wrap_MPI_Reduce(
 #else
 int mpit_PMPI_Reduce(
 #endif
+#if MPI_VERSION >= 3
+    const void* sendbuf, 
+#else
     void* sendbuf, 
+#endif
     void* recvbuf, 
     int count, 
     MPI_Datatype datatype, 
@@ -1739,7 +1806,11 @@ int __wrap_MPI_Pack(
 #else
 int mpit_PMPI_Pack(
 #endif
+#if MPI_VERSION >= 3
+    const void* inbuf, 
+#else
     void* inbuf, 
+#endif
     int incount, 
     MPI_Datatype datatype, 
     void *outbuf, 
@@ -1854,7 +1925,13 @@ int __wrap_MPI_Get_count(
 #else
 int mpit_PMPI_Get_count(
 #endif
-    MPI_Status *status, MPI_Datatype datatype, int *count
+#if MPI_VERSION >= 3
+    const MPI_Status *status, 
+#else
+    MPI_Status *status, 
+#endif
+    MPI_Datatype datatype, 
+    int *count
     )
 {
     int retval;
@@ -1906,12 +1983,21 @@ int __wrap_MPI_Gatherv(
 #else
 int mpit_PMPI_Gatherv(
 #endif
+#if MPI_VERSION >= 3
+    const void* sendbuf, 
+    int sendcount, 
+    MPI_Datatype sendtype, 
+    void* recvbuf, 
+    const int *recvcounts, 
+    const int *displs, 
+#else
     void* sendbuf, 
     int sendcount, 
     MPI_Datatype sendtype, 
     void* recvbuf, 
     int *recvcounts, 
     int *displs, 
+#endif
     MPI_Datatype recvtype, 
     int root, 
     MPI_Comm comm
@@ -1968,7 +2054,11 @@ int __wrap_MPI_Gather(
 #else
 int mpit_PMPI_Gather(
 #endif
+#if MPI_VERSION >= 3
+    const void* sendbuf, 
+#else
     void* sendbuf, 
+#endif
     int sendcount, 
     MPI_Datatype sendtype, 
     void* recvbuf, 
@@ -2187,6 +2277,15 @@ int __wrap_MPI_Alltoallv(
 #else
 int mpit_PMPI_Alltoallv(
 #endif
+#if MPI_VERSION >= 3
+    const void* sendbuf, 
+    const int *sendcounts, 
+    const int *sdispls, 
+    MPI_Datatype sendtype, 
+    void* recvbuf, 
+    const int *recvcounts, 
+    const int *rdispls, 
+#else
     void* sendbuf, 
     int *sendcounts, 
     int *sdispls, 
@@ -2194,6 +2293,7 @@ int mpit_PMPI_Alltoallv(
     void* recvbuf, 
     int *recvcounts, 
     int *rdispls, 
+#endif
     MPI_Datatype recvtype, 
     MPI_Comm comm
     )
@@ -2245,7 +2345,11 @@ int __wrap_MPI_Alltoall(
 #else
 int mpit_PMPI_Alltoall(
 #endif
+#if MPI_VERSION >= 3
+    const void* sendbuf, 
+#else
     void* sendbuf, 
+#endif
     int sendcount, 
     MPI_Datatype sendtype, 
     void* recvbuf, 
@@ -2304,7 +2408,11 @@ int __wrap_MPI_Allreduce(
 #else
 int mpit_PMPI_Allreduce(
 #endif
+#if MPI_VERSION >= 3
+    const void* sendbuf, 
+#else
     void* sendbuf, 
+#endif
     void* recvbuf, 
     int count, 
     MPI_Datatype datatype, 
@@ -2361,12 +2469,21 @@ int __wrap_MPI_Allgatherv(
 #else
 int mpit_PMPI_Allgatherv(
 #endif
+#if MPI_VERSION >= 3
+    const void* sendbuf, 
+    int sendcount, 
+    MPI_Datatype sendtype, 
+    void* recvbuf, 
+    const int *recvcounts, 
+    const int *displs, 
+#else
     void* sendbuf, 
     int sendcount, 
     MPI_Datatype sendtype, 
     void* recvbuf, 
     int *recvcounts, 
     int *displs, 
+#endif
     MPI_Datatype recvtype, 
     MPI_Comm comm
     )
@@ -2422,7 +2539,11 @@ int __wrap_MPI_Allgather(
 #else
 int mpit_PMPI_Allgather(
 #endif
+#if MPI_VERSION >= 3
+    const void* sendbuf, 
+#else
     void* sendbuf, 
+#endif
     int sendcount, 
     MPI_Datatype sendtype, 
     void* recvbuf, 
@@ -2481,7 +2602,11 @@ __wrap_MPI_Scatter(
 #else
 mpit_PMPI_Scatter(
 #endif
-    	void*     	sendbuf, 
+#if MPI_VERSION >= 3
+    const void* sendbuf, 
+#else
+    void* sendbuf, 
+#endif
     	int 	    	sendcount, 
     	MPI_Datatype	sendtype, 
 
@@ -2561,9 +2686,16 @@ __wrap_MPI_Scatterv(
 #else
 mpit_PMPI_Scatterv(
 #endif
+
+#if MPI_VERSION >= 3
+    	const void*     	sendbuf, 
+    	const int* 	    	sendcounts, 
+	const int*	    	displs,
+#else
     	void*     	sendbuf, 
     	int* 	    	sendcounts, 
 	int*	    	displs,
+#endif
     	MPI_Datatype	sendtype, 
 
     	void*     	recvbuf, 
@@ -2646,7 +2778,11 @@ __wrap_MPI_Sendrecv(
 #else
 mpit_PMPI_Sendrecv(
 #endif
+#if MPI_VERSION >= 3
+    	const void*     	sendbuf, 
+#else
     	void*     	sendbuf, 
+#endif
     	int 	    	sendcount, 
     	MPI_Datatype	sendtype, 
     	int 	    	dest, 
@@ -2816,8 +2952,13 @@ int mpit_PMPI_Cart_create(
 #endif
 		     MPI_Comm comm_old,
                      int ndims,
+#if MPI_VERSION >= 3
+                     const int* dims,
+                     const int* periodv,
+#else
                      int* dims,
                      int* periodv,
+#endif
                      int reorder,
                      MPI_Comm* comm_cart)
 {
@@ -2871,7 +3012,11 @@ int __wrap_MPI_Cart_sub (
 int mpit_PMPI_Cart_sub (
 #endif
 		   MPI_Comm comm,
+#if MPI_VERSION >= 3
+                   const int *rem_dims,
+#else
                    int *rem_dims,
+#endif
                    MPI_Comm *newcomm)
 {
 
@@ -2927,8 +3072,13 @@ int mpit_PMPI_Graph_create(
 #endif
 		      MPI_Comm comm_old,
                       int nnodes,
+#if MPI_VERSION >= 3
+                      const int* index,
+                      const int* edges,
+#else
                       int* index,
                       int* edges,
+#endif
                       int reorder,
                       MPI_Comm* comm_graph)
 {
