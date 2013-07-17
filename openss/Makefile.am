@@ -286,7 +286,7 @@ ossdriver_compare: ossdriver_compare.in
 	chmod 755 ossdriver_compare
 
 install-exec-hook: ossdriver ossdriver_compare
-if !BUILD_CBTF
+if !BUILD_MRNET
 # osspcsamp
 	@rm -f $(DESTDIR)$(bindir)/osspcsamp
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osspcsamp
@@ -331,11 +331,25 @@ if !BUILD_CBTF
 	@rm -f $(DESTDIR)$(bindir)/ossfpe
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossfpe
 	chmod 755 $(DESTDIR)$(bindir)/ossfpe
+if BUILD_CBTF
+# ossiop
+	@rm -f $(DESTDIR)$(bindir)/ossiop
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossiop
+	chmod 755 $(DESTDIR)$(bindir)/ossiop
+# ossmem
+	@rm -f $(DESTDIR)$(bindir)/ossmem
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossmem
+	chmod 755 $(DESTDIR)$(bindir)/ossmem
+# osspthreads
+	@rm -f $(DESTDIR)$(bindir)/osspthreads
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osspthreads
+	chmod 755 $(DESTDIR)$(bindir)/osspthreads
+endif
+endif
 # osscompare
 	@rm -f $(DESTDIR)$(bindir)/osscompare
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver_compare  $(DESTDIR)$(bindir)/osscompare
 	chmod 755 $(DESTDIR)$(bindir)/osscompare
-endif
 
 # endif for !BUILD_TARGETED
 endif
@@ -354,6 +368,9 @@ uninstall-hook:
 	@rm -f $(DESTDIR)$(bindir)/ossmpi
 	@rm -f $(DESTDIR)$(bindir)/ossio
 	@rm -f $(DESTDIR)$(bindir)/ossiot
+	@rm -f $(DESTDIR)$(bindir)/ossiop
+	@rm -f $(DESTDIR)$(bindir)/ossmem
+	@rm -f $(DESTDIR)$(bindir)/osspthreads
 
 # endif for BUILD_INSTRUMENTOR
 endif

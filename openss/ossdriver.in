@@ -73,6 +73,15 @@ io_default_traceable_functions="close,creat,creat64,dup,dup2,lseek,lseek64,open,
 # Corresponds to OPENSS_IOT_TRACED
 iot_default_traceable_functions="close,creat,creat64,dup,dup2,lseek,lseek64,open,open64,pipe,pread,pread64,pwrite,pwrite64,read,readv,write,writev"
 
+# Corresponds to OPENSS_IOP_TRACED
+iop_default_traceable_functions="close,creat,creat64,dup,dup2,lseek,lseek64,open,open64,pipe,pread,pread64,pwrite,pwrite64,read,readv,write,writev"
+
+# Corresponds to OPENSS_MEM_TRACED
+mem_default_traceable_functions="malloc,free,memalign,posix_memalign,calloc,realloc"
+
+# Corresponds to OPENSS_PTHREADS_TRACED
+pthreads_default_traceable_functions="pthread_create,pthread_mutex_init,pthread_mutex_destroy,pthread_mutex_lock,pthread_mutex_trylock,pthread_mutex_unlock,pthread_cond_init,pthread_cond_destroy,pthread_cond_signal,pthread_cond_broadcast,pthread_cond_wait,pthread_cond_timedwait"
+
 # Corresponds to OPENSS_MPI_TRACED
 mpi_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,MPI_Alltoall,MPI_Alltoallv,MPI_Barrier,MPI_Bcast,MPI_Bsend,MPI_Bsend_init,MPI_Cancel,MPI_Cart_create,MPI_Cart_sub,MPI_Comm_create,MPI_Comm_dup,MPI_Comm_free,MPI_Comm_split,MPI_File_close,MPI_File_delete,MPI_File_get_amode,MPI_File_get_group,MPI_File_get_info,MPI_File_get_position,MPI_File_get_position_shared,MPI_File_get_size,MPI_File_get_view,MPI_File_iread,MPI_File_iread_at,MPI_File_iread_shared,MPI_File_iwrite,MPI_File_iwrite_at,MPI_File_iwrite_shared,MPI_File_open,MPI_File_read,MPI_File_read_all,MPI_File_read_at,MPI_File_read_at_all,MPI_File_read_ordered,MPI_File_read_shared,MPI_File_seek,MPI_File_seek_shared,MPI_File_set_info,MPI_File_set_size,MPI_File_set_view,MPI_File_write,MPI_File_write_all,MPI_File_write_at,MPI_File_write_at_all,MPI_File_write_ordered,MPI_File_write_shared,MPI_Finalize,MPI_Gather,MPI_Gatherv,MPI_Get_count,MPI_Graph_create,MPI_Ibsend,MPI_Init,MPI_Intercomm_create,MPI_Intercomm_merge,MPI_Iprobe,MPI_Irecv,MPI_Irsend,MPI_Isend,MPI_Issend,MPI_Pack,MPI_Probe,MPI_Recv,MPI_Recv_init,MPI_Reduce,MPI_Reduce_scatter,MPI_Request_free,MPI_Rsend,MPI_Rsend_init,MPI_Scan,MPI_Scatter,MPI_Scatterv,MPI_Send,MPI_Sendrecv,MPI_Sendrecv_replace,MPI_Ssend,MPI_Ssend_init,MPI_Start,MPI_Startall,MPI_Test,MPI_Testall,MPI_Testany,MPI_Testsome,MPI_Unpack,MPI_Wait,MPI_Waitall,MPI_Waitany,MPI_Waitsome"
 
@@ -2142,7 +2151,306 @@ then
     echo "[openss]: fpe experiment calling nothing, else clause."
   fi
 
+# ------------------------------------------------------------------------------------
+# -- IOP EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
+
+elif  [ $experiment_name == "ossiop" ]
+then
+
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: in IOP EXPERIMENT SECTION, input_argument_event_or_trace_list_value=$input_argument_event_or_trace_list_value"
+  fi
+
+  if [ $input_argument_event_or_trace_list_value != 0 ]
+  then
+
+    if [ -z  "$OPENSS_IOP_TRACED" ]
+    then
+      echo "[openss]: iop experiment using input iop experiment trace function list specified on the \"ossiop\" command: \"$input_argument_event_or_trace_list_value\" overriding the default I/O function list."
+
+      if [ $debug_flag == 1 ]
+      then
+         echo "DEBUG: setting OPENSS_IOP_TRACED to $input_argument_event_or_trace_list_value and overriding the previous value of OPENSS_IOP_TRACED"
+      fi
+
+    else
+
+      echo "[openss]: iop experiment using input iop experiment trace function list specified on the \"ossiop\" command: \"$input_argument_event_or_trace_list_value\" overriding the I/O function list specified by the environment variable: OPENSS_IOP_TRACED."
+
+      if [ $debug_flag == 1 ]
+      then
+         echo "DEBUG: setting OPENSS_IOP_TRACED to $input_argument_event_or_trace_list_value and overriding what was already set in OPENSS_IOP_TRACED"
+      fi
+
+    fi
+
+    OPENSS_IOP_TRACED=$input_argument_event_or_trace_list_value
+
+  elif [ $use_default_flag == 1 ]
+  then
+
+    if [ -z  "$OPENSS_IOP_TRACED" ]
+    then
+       echo "[openss]: iop experiment using function list: \"$iop_default_traceable_functions\" because the \"default\" parameter is specified."
+     else
+       if [ $iop_default_traceable_functions != $OPENSS_IOP_TRACED ]
+       then
+         echo "[openss]: iop experiment OPENSS_IOP_TRACED=$OPENSS_IOP_TRACED is set and will be altered to \"$iop_default_traceable_functions\" because the \"default\" parameter is specified."
+       fi
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: iop, default, iop_traced=$iop_default_traceable_functions"
+     fi
+     OPENSS_IOP_TRACED=$iop_default_traceable_functions
+     export OPENSS_IOP_TRACED
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in IOP EXPERIMENT SECTION, RESET default, OPENSS_IOP_TRACED=$OPENSS_IOP_TRACED"
+     fi
+
+  else
+
+    # input argument or default argument not specified
+
+    if [ -z  "$OPENSS_IOP_TRACED" ]
+    then
+
+      echo "[openss]: iop experiment using the default I/O experiment trace function list: \"$iop_default_traceable_functions\"."
+      OPENSS_IOP_TRACED=$iop_default_traceable_functions
+
+      if [ $debug_flag == 1 ]
+      then
+        echo "DEBUG: setting OPENSS_IOP_TRACED to default $iop_default_traceable_functions"
+      fi
+    else
+      echo "[openss]: iop experiment OPENSS_IOP_TRACED=$OPENSS_IOP_TRACED is set and will override the default I/O function list."
+      if [ $debug_flag == 1 ]
+      then
+        echo "DEBUG: exporting already set OPENSS_IOP_TRACED to $OPENSS_IOP_TRACED"
+      fi
+    fi
+
+  fi
+
+  export OPENSS_IOP_TRACED
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: iop experiment calling osscollect."
+    osscollect --program "$1" --collector iop
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: iop experiment is not implemented in the offline version of openss."
+    #openss -offline -f "$1" iop
+  else
+    echo "[openss]: iop experiment calling nothing, else clause."
+  fi
+
+
+# ------------------------------------------------------------------------------------
+# -- MEM EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
+
+elif  [ $experiment_name == "ossmem" ]
+then
+
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: in MEM EXPERIMENT SECTION, input_argument_event_or_trace_list_value=$input_argument_event_or_trace_list_value"
+  fi
+
+  if [ $input_argument_event_or_trace_list_value != 0 ]
+  then
+
+    if [ -z  "$OPENSS_MEM_TRACED" ]
+    then
+      echo "[openss]: mem experiment using input mem experiment trace function list specified on the \"ossmem\" command: \"$input_argument_event_or_trace_list_value\" overriding the default I/O function list."
+
+      if [ $debug_flag == 1 ]
+      then
+         echo "DEBUG: setting OPENSS_MEM_TRACED to $input_argument_event_or_trace_list_value and overriding the previous value of OPENSS_MEM_TRACED"
+      fi
+
+    else
+
+      echo "[openss]: mem experiment using input mem experiment trace function list specified on the \"ossmem\" command: \"$input_argument_event_or_trace_list_value\" overriding the I/O function list specified by the environment variable: OPENSS_MEM_TRACED."
+
+      if [ $debug_flag == 1 ]
+      then
+         echo "DEBUG: setting OPENSS_MEM_TRACED to $input_argument_event_or_trace_list_value and overriding what was already set in OPENSS_MEM_TRACED"
+      fi
+
+    fi
+
+    OPENSS_MEM_TRACED=$input_argument_event_or_trace_list_value
+
+  elif [ $use_default_flag == 1 ]
+  then
+
+    if [ -z  "$OPENSS_MEM_TRACED" ]
+    then
+       echo "[openss]: mem experiment using function list: \"$mem_default_traceable_functions\" because the \"default\" parameter is specified."
+     else
+       if [ $mem_default_traceable_functions != $OPENSS_MEM_TRACED ]
+       then
+         echo "[openss]: mem experiment OPENSS_MEM_TRACED=$OPENSS_MEM_TRACED is set and will be altered to \"$mem_default_traceable_functions\" because the \"default\" parameter is specified."
+       fi
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: mem, default, mem_traced=$mem_default_traceable_functions"
+     fi
+     OPENSS_MEM_TRACED=$mem_default_traceable_functions
+     export OPENSS_MEM_TRACED
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in MEM EXPERIMENT SECTION, RESET default, OPENSS_MEM_TRACED=$OPENSS_MEM_TRACED"
+     fi
+
+  else
+
+    # input argument or default argument not specified
+
+    if [ -z  "$OPENSS_MEM_TRACED" ]
+    then
+
+      echo "[openss]: mem experiment using the default I/O experiment trace function list: \"$mem_default_traceable_functions\"."
+      OPENSS_MEM_TRACED=$mem_default_traceable_functions
+
+      if [ $debug_flag == 1 ]
+      then
+        echo "DEBUG: setting OPENSS_MEM_TRACED to default $mem_default_traceable_functions"
+      fi
+    else
+      echo "[openss]: mem experiment OPENSS_MEM_TRACED=$OPENSS_MEM_TRACED is set and will override the default I/O function list."
+      if [ $debug_flag == 1 ]
+      then
+        echo "DEBUG: exporting already set OPENSS_MEM_TRACED to $OPENSS_MEM_TRACED"
+      fi
+    fi
+
+  fi
+
+  export OPENSS_MEM_TRACED
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: mem experiment calling osscollect."
+    osscollect --program "$1" --collector mem
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: mem experiment is not implemented in the offline version of openss."
+    #openss -offline -f "$1" mem
+  else
+    echo "[openss]: mem experiment calling nothing, else clause."
+  fi
+
+# ------------------------------------------------------------------------------------
+# -- PTHREADS EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
+
+elif  [ $experiment_name == "osspthreads" ]
+then
+
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: in PTHREADS EXPERIMENT SECTION, input_argument_event_or_trace_list_value=$input_argument_event_or_trace_list_value"
+  fi
+
+  if [ $input_argument_event_or_trace_list_value != 0 ]
+  then
+
+    if [ -z  "$OPENSS_PTHREADS_TRACED" ]
+    then
+      echo "[openss]: pthreads experiment using input pthreads experiment trace function list specified on the \"osspthreads\" command: \"$input_argument_event_or_trace_list_value\" overriding the default I/O function list."
+
+      if [ $debug_flag == 1 ]
+      then
+         echo "DEBUG: setting OPENSS_PTHREADS_TRACED to $input_argument_event_or_trace_list_value and overriding the previous value of OPENSS_PTHREADS_TRACED"
+      fi
+
+    else
+
+      echo "[openss]: pthreads experiment using input pthreads experiment trace function list specified on the \"osspthreads\" command: \"$input_argument_event_or_trace_list_value\" overriding the I/O function list specified by the environment variable: OPENSS_PTHREADS_TRACED."
+
+      if [ $debug_flag == 1 ]
+      then
+         echo "DEBUG: setting OPENSS_PTHREADS_TRACED to $input_argument_event_or_trace_list_value and overriding what was already set in OPENSS_PTHREADS_TRACED"
+      fi
+
+    fi
+
+    OPENSS_PTHREADS_TRACED=$input_argument_event_or_trace_list_value
+
+  elif [ $use_default_flag == 1 ]
+  then
+
+    if [ -z  "$OPENSS_PTHREADS_TRACED" ]
+    then
+       echo "[openss]: pthreads experiment using function list: \"$pthreads_default_traceable_functions\" because the \"default\" parameter is specified."
+     else
+       if [ $pthreads_default_traceable_functions != $OPENSS_PTHREADS_TRACED ]
+       then
+         echo "[openss]: pthreads experiment OPENSS_PTHREADS_TRACED=$OPENSS_PTHREADS_TRACED is set and will be altered to \"$pthreads_default_traceable_functions\" because the \"default\" parameter is specified."
+       fi
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: pthreads, default, pthreads_traced=$pthreads_default_traceable_functions"
+     fi
+     OPENSS_PTHREADS_TRACED=$pthreads_default_traceable_functions
+     export OPENSS_PTHREADS_TRACED
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in PTHREADS EXPERIMENT SECTION, RESET default, OPENSS_PTHREADS_TRACED=$OPENSS_PTHREADS_TRACED"
+     fi
+
+  else
+
+    # input argument or default argument not specified
+
+    if [ -z  "$OPENSS_PTHREADS_TRACED" ]
+    then
+
+      echo "[openss]: pthreads experiment using the default I/O experiment trace function list: \"$pthreads_default_traceable_functions\"."
+      OPENSS_PTHREADS_TRACED=$pthreads_default_traceable_functions
+
+      if [ $debug_flag == 1 ]
+      then
+        echo "DEBUG: setting OPENSS_PTHREADS_TRACED to default $pthreads_default_traceable_functions"
+      fi
+    else
+      echo "[openss]: pthreads experiment OPENSS_PTHREADS_TRACED=$OPENSS_PTHREADS_TRACED is set and will override the default I/O function list."
+      if [ $debug_flag == 1 ]
+      then
+        echo "DEBUG: exporting already set OPENSS_PTHREADS_TRACED to $OPENSS_PTHREADS_TRACED"
+      fi
+    fi
+
+  fi
+
+  export OPENSS_PTHREADS_TRACED
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: pthreads experiment calling osscollect."
+    osscollect --program "$1" --collector pthreads
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: pthreads experiment is not implemented in the offline version of openss."
+    #openss -offline -f "$1" pthreads
+  else
+    echo "[openss]: pthreads experiment calling nothing, else clause."
+  fi
+
 fi
+
+
 # ------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------
+
+
