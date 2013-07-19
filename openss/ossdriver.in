@@ -448,6 +448,7 @@ fi
 
 # Setup the OpenSpeedShop instrumentor variable (cbtf or offline)
 instrumentor=@@oss_instrumentor@@
+targetos=@@oss_targetos@@
 
 if [ $debug_flag == 1 ]
 then
@@ -579,7 +580,12 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: pcsamp experiment calling osscollect."
-    osscollect --program "$1" --collector pcsamp
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector pcsamp
+    else
+       osscollect --program "$1" --collector pcsamp
+    fi
   elif [ "$instrumentor" == "offline" ]
   then
     echo "[openss]: pcsamp experiment calling openss."
@@ -702,7 +708,12 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: usertime experiment calling osscollect."
-    osscollect --program "$1" --collector usertime
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector usertime
+    else
+       osscollect --program "$1" --collector usertime
+    fi
   elif [ "$instrumentor" == "offline" ]
   then
     echo "[openss]: usertime experiment calling openss."
@@ -965,7 +976,12 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: hwc experiment calling osscollect."
-    osscollect --program "$1" --collector hwc
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector hwc
+    else
+       osscollect --program "$1" --collector hwc
+    fi
   elif [ "$instrumentor" == "offline" ]
   then
     echo "[openss]: hwc experiment calling openss."
@@ -1227,7 +1243,12 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: hwcsamp experiment calling osscollect."
-    osscollect --program "$1" --collector hwcsamp
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector hwcsamp
+    else
+       osscollect --program "$1" --collector hwcsamp
+    fi
   elif [ "$instrumentor" == "offline" ]
   then
     echo "[openss]: hwcsamp experiment calling openss."
@@ -1490,7 +1511,12 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: hwctime experiment calling osscollect."
-    osscollect --program "$1" --collector hwctime
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector hwctime
+    else
+       osscollect --program "$1" --collector hwctime
+    fi
   elif [ "$instrumentor" == "offline" ]
   then
     echo "[openss]: hwctime experiment calling openss."
@@ -1591,7 +1617,12 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: io experiment calling osscollect."
-    osscollect --program "$1" --collector io
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector io
+    else
+       osscollect --program "$1" --collector io
+    fi
   elif [ "$instrumentor" == "offline" ]
   then
     echo "[openss]: io experiment calling openss."
@@ -1693,7 +1724,12 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: iot experiment calling osscollect."
-    osscollect --program "$1" --collector iot
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector iot
+    else
+       osscollect --program "$1" --collector iot
+    fi
   elif [ "$instrumentor" == "offline" ]
   then
     echo "[openss]: iot experiment calling openss."
@@ -1880,7 +1916,12 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: mpi experiment calling osscollect."
-    osscollect --program "$1" --collector mpi
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector mpi
+    else
+       osscollect --program "$1" --collector mpi
+    fi
   elif [ "$instrumentor" == "offline" ]
   then
     echo "[openss]: mpi experiment calling openss."
@@ -1968,7 +2009,12 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: mpit experiment calling osscollect."
-    osscollect --program "$1" --collector mpit
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector mpit
+    else
+       osscollect --program "$1" --collector mpit
+    fi
   elif [ "$instrumentor" == "offline" ]
   then
     echo "[openss]: mpit experiment calling openss."
@@ -2056,7 +2102,12 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: mpiotf experiment calling osscollect."
-    osscollect --program "$1" --collector mpiotf
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector mpiotf
+    else
+       osscollect --program "$1" --collector mpiotf
+    fi
   elif [ "$instrumentor" == "offline" ]
   then
     echo "[openss]: mpiotf experiment calling openss."
@@ -2142,7 +2193,12 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: fpe experiment calling osscollect."
-    osscollect --program "$1" --collector fpe
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector fpe
+    else
+       osscollect --program "$1" --collector fpe
+    fi
   elif [ "$instrumentor" == "offline" ]
   then
     echo "[openss]: fpe experiment calling openss."
@@ -2240,7 +2296,12 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: iop experiment calling osscollect."
-    osscollect --program "$1" --collector iop
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector iop
+    else
+       osscollect --program "$1" --collector iop
+    fi
   elif [ "$instrumentor" == "offline" ]
   then
     echo "[openss]: iop experiment is not implemented in the offline version of openss."
@@ -2339,7 +2400,12 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: mem experiment calling osscollect."
-    osscollect --program "$1" --collector mem
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector mem
+    else
+       osscollect --program "$1" --collector mem
+    fi
   elif [ "$instrumentor" == "offline" ]
   then
     echo "[openss]: mem experiment is not implemented in the offline version of openss."
@@ -2437,7 +2503,12 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: pthreads experiment calling osscollect."
-    osscollect --program "$1" --collector pthreads
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector pthreads
+    else
+       osscollect --program "$1" --collector pthreads
+    fi
   elif [ "$instrumentor" == "offline" ]
   then
     echo "[openss]: pthreads experiment is not implemented in the offline version of openss."

@@ -277,6 +277,7 @@ ossdriver: ossdriver.in
 	@rm -f ossdriver
 	@sed \
 		-e 's,@@oss_instrumentor@@,$(INSTRUMENTOR),' \
+		-e 's,@@oss_targetos@@,$(TARGET_OS),' \
 			$(srcdir)/ossdriver.in > ossdriver
 	@chmod 755 ossdriver
 
