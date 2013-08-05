@@ -39,6 +39,7 @@
 #include "SymtabAPISymbols.hxx"
 #include "ThreadGroup.hxx"
 #include "ThreadTable.hxx"
+#include "Time.hxx"
 #include "Utility.hxx"
 
 #include <KrellInstitute/CBTF/BoostExts.hpp>
@@ -193,7 +194,7 @@ void Callbacks::attachedToThreads(const boost::shared_ptr<CBTF_Protocol_Attached
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
 	std::stringstream output;
-	output << "[TID " << pthread_self() << "] Callbacks::"
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::"
 	       << toString(message);
 	std::cerr << output.str();
     }
@@ -215,7 +216,7 @@ void Callbacks::attachedToThreads(const boost::shared_ptr<CBTF_Protocol_Attached
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "attachedToThreads(): Experiment " 
 		       << msg_thread.experiment 
-		       << " no longer exists.";
+		       << " no longer exists." << std::endl;
 		std::cerr << output.str();
 	    }
 #endif
@@ -255,7 +256,7 @@ void Callbacks::attachedToThreads(const boost::shared_ptr<CBTF_Protocol_Attached
 		       << "attachedToThreads(): " 
 		       << "UPDATE Threads SET posix_tid:" << msg_thread.posix_tid
 		       << " rank:" << msg_thread.rank
-		       << " For thread id:" << thread;
+		       << " For thread id:" << thread << std::endl;
 		    std::cerr << output.str();
 		}
 #endif
@@ -312,7 +313,7 @@ void Callbacks::attachedToThreads(const boost::shared_ptr<CBTF_Protocol_Attached
 		       << " host:" << msg_thread.host
 		       << " pid:" << msg_thread.pid
 		       << " posix_tid:" << msg_thread.posix_tid
-		       << " mpi_rank:" << msg_thread.rank;
+		       << " mpi_rank:" << msg_thread.rank << std::endl;
 		    std::cerr << output.str();
 		}
 #endif
@@ -348,7 +349,7 @@ void Callbacks::attachedToThreads(const boost::shared_ptr<CBTF_Protocol_Attached
 		       << "attachedToThreads(): " 
 		       << "NO entry for HOST:PID in database - INSERTING"
 		       << " host:" << msg_thread.host
-		       << " pid:" << msg_thread.pid;
+		       << " pid:" << msg_thread.pid << std::endl;
 		    std::cerr << output.str();
 		}
 #endif
@@ -395,7 +396,7 @@ void Callbacks::createdProcess(const boost::shared_ptr<CBTF_Protocol_CreatedProc
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
 	std::stringstream output;
-	output << "[TID " << pthread_self() << "] Callbacks::"
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::"
 	       << toString(message);
 	std::cerr << output.str();
     }
@@ -412,7 +413,7 @@ void Callbacks::createdProcess(const boost::shared_ptr<CBTF_Protocol_CreatedProc
 	    output << "[TID " << pthread_self() << "] Callbacks::"
 		   << "createdProcess(): Experiment " 
 		   << message.original_thread.experiment 
-		   << " no longer exists.";
+		   << " no longer exists." << std::endl;
 	    std::cerr << output.str();
 	}
 #endif
@@ -607,7 +608,6 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
         }
     }
 
-#if 1
     Extent extent;
 
     BEGIN_TRANSACTION(database);
@@ -640,12 +640,21 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 
     END_TRANSACTION(database);
 
-#endif
 
-    // Now clean up any remaining linkedobjects, files, addressspaces
-    // that do not contain any functions or statements.
+    // Now clean up any remaining linkedobjects, files, addressspaces,
+    // and threads that do not contain any sample date, functions or statements.
     // Begin a multi-statement transaction
     BEGIN_WRITE_TRANSACTION(database);
+
+    // delete any thread entries where no sample data was recorded.
+    database->prepareStatement(
+	"DELETE FROM Threads "
+	"WHERE id NOT IN (SELECT DISTINCT thread FROM Data);"
+	);
+    while(database->executeStatement());
+
+    // delete any linkedobject entries where no functions or statements
+    // where recorded.
     database->prepareStatement(
 	"DELETE FROM LinkedObjects "
 	"WHERE id NOT IN (SELECT DISTINCT linked_object FROM Functions) "
@@ -653,6 +662,8 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 	);
     while(database->executeStatement());
 
+    // delete any file entries where no linkedobjects or statements
+    // where recorded.
     database->prepareStatement(
 	"DELETE FROM Files "
 	"WHERE id NOT IN (SELECT DISTINCT file FROM LinkedObjects) "
@@ -660,10 +671,20 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 	);
     while(database->executeStatement());
 
+    // delete any addresspace entries where no linkedobjects or statements
+    // where recorded.
     database->prepareStatement(
 	"DELETE FROM AddressSpaces "
 	"WHERE linked_object NOT IN (SELECT DISTINCT id FROM LinkedObjects) "
 	"  AND linked_object NOT IN (SELECT DISTINCT linked_object FROM Statements);"
+	);
+    while(database->executeStatement());
+
+    // delete any addresspace entries for threads where no data
+    // was recorded.
+    database->prepareStatement(
+	"DELETE FROM AddressSpaces "
+	"WHERE thread NOT IN (SELECT DISTINCT id FROM Threads);"
 	);
     while(database->executeStatement());
 
@@ -695,7 +716,7 @@ void Callbacks::loadedLinkedObject(const boost::shared_ptr<CBTF_Protocol_LoadedL
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
 	std::stringstream output;
-	output << "[TID " << pthread_self() << "] Callbacks::"
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::"
 	       << toString(message);
 	std::cerr << output.str();
     }
@@ -732,7 +753,7 @@ void Callbacks::loadedLinkedObject(const boost::shared_ptr<CBTF_Protocol_LoadedL
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "loadedLinkedObject(): Experiment "
 		       << msg_thread.experiment
-		       << " no longer exists.";
+		       << " no longer exists." << std::endl;
 		std::cerr << output.str();
 	    }
 #endif
@@ -750,7 +771,7 @@ void Callbacks::loadedLinkedObject(const boost::shared_ptr<CBTF_Protocol_LoadedL
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "loadedLinkedObject(): Thread "
 		       << toString(msg_thread) 
-		       << " no longer exists.";
+		       << " no longer exists." << std::endl;
 		std::cerr << output.str();
 	    }
 	}
@@ -834,7 +855,7 @@ void Callbacks::linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedOb
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
 	std::stringstream output;
-	output << "[TID " << pthread_self() << "] Callbacks::"
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::"
 	       << toString(message);
 	std::cerr << output.str();
     }
@@ -855,7 +876,7 @@ void Callbacks::linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedOb
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "linkedObjectGroup(): Experiment "
 		       << msg_thread.experiment
-		       << " no longer exists.";
+		       << " no longer exists." << std::endl;
 		std::cerr << output.str();
 	}
 #endif
@@ -946,8 +967,8 @@ void Callbacks::linkedObjectEntryVec(const KrellInstitute::Core::LinkedObjectEnt
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
 	std::stringstream output;
-	output << "[TID " << pthread_self() << "] Callbacks::"
-	       <<  " FOR Callbacks::linkedObjectEntryVec";
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] "
+	       <<  " Callbacks::linkedObjectEntryVec" << std::endl;
 	std::cerr << output.str();
     }
 #endif
@@ -984,11 +1005,13 @@ void Callbacks::linkedObjectEntryVec(const KrellInstitute::Core::LinkedObjectEnt
 		while(database->executeStatement());
 		int file = database->getLastInsertedUID();
 
-#if 0
-std::cerr << "Callbacks::linkedObjectEntryVec INSERT INTO LinkedObjects "
-	<< AddressRange(0,Address((*li).addr_end - (*li).addr_begin))
-	<< " file " << file << " is_executable " << (*li).isExecutable()
-	<< std::endl;
+#ifndef NDEBUG
+		if(Frontend::isDebugEnabled()) {
+		    std::cerr << "Callbacks::linkedObjectEntryVec INSERT INTO LinkedObjects "
+		    << AddressRange(0,Address((*li).addr_end - (*li).addr_begin))
+		    << " file " << file << " is_executable " << (*li).isExecutable()
+		    << std::endl;
+		}
 #endif
 
 		// Create the linked object entry
@@ -1005,13 +1028,15 @@ std::cerr << "Callbacks::linkedObjectEntryVec INSERT INTO LinkedObjects "
 		linked_object = database->getLastInsertedUID();
 	    }
 
-#if 0
-std::cerr << "Callbacks::linkedObjectEntryVec INSERT INTO AddressSpaces "
-	<< " threadID " << thread
-	<< "interval:" << TimeInterval(Time((*li).time_loaded.getValue()), Time((*li).time_unloaded.getValue()))
-	<< " range:" << AddressRange(Address((*li).addr_begin.getValue()), Address((*li).addr_end.getValue()))
-	<< " linked_object " << linked_object 
-	<< std::endl;
+#ifndef NDEBUG
+		if(Frontend::isDebugEnabled()) {
+		    std::cerr << "Callbacks::linkedObjectEntryVec INSERT INTO AddressSpaces "
+			<< " threadID " << thread
+			<< " interval:" << TimeInterval(Time((*li).time_loaded.getValue()), Time((*li).time_unloaded.getValue()))
+			<< " range:" << AddressRange(Address((*li).addr_begin.getValue()), Address((*li).addr_end.getValue()))
+			<< " linked_object " << linked_object 
+			<< std::endl;
+		}
 #endif
 	    // Create an address space entry for this load
 	    database->prepareStatement(
@@ -1137,7 +1162,7 @@ void Callbacks::unloadedLinkedObject(const Blob& blob)
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
 	std::stringstream output;
-	output << "[TID " << pthread_self() << "] Callbacks::"
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::"
 	       << toString(message);
 	std::cerr << output.str();
     }
@@ -1159,7 +1184,7 @@ void Callbacks::unloadedLinkedObject(const Blob& blob)
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "unloadedLinkedObject(): Experiment "
 		       << msg_thread.experiment 
-		       << " no longer exists.";
+		       << " no longer exists." << std::endl;
 		std::cerr << output.str();
 	    }
 #endif
@@ -1177,7 +1202,7 @@ void Callbacks::unloadedLinkedObject(const Blob& blob)
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "unloadedLinkedObject(): Thread "
 		       << toString(msg_thread) 
-		       << " no longer exists.";
+		       << " no longer exists." << std::endl;
 		std::cerr << output.str();
 	    }
 	}
@@ -1193,7 +1218,7 @@ void Callbacks::unloadedLinkedObject(const Blob& blob)
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "unloadedLinkedObject(): Linked Object "
 		       << toString(message.linked_object) 
-		       << " no longer exists.";
+		       << " no longer exists." << std::endl;
 		std::cerr << output.str();
 	    }
 	}
@@ -1247,7 +1272,7 @@ void Callbacks::performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & in
     if(Frontend::isPerfDataDebugEnabled()) {
 
 	std::stringstream output;
-	output << "[TID " << pthread_self() << "] Callbacks::performanceData("
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::performanceData("
 	       << std::endl << toString(message) << ")" << std::endl;
 	std::cerr << output.str();
     }
@@ -1277,7 +1302,7 @@ void Callbacks::symbolTable(const boost::shared_ptr<CBTF_Protocol_SymbolTable> &
 		std::stringstream output;
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "symbolTable(): Experiment "
-		       << " no longer exists.";
+		       << " no longer exists." << std::endl;
 		std::cerr << output.str();
 	    }
 #endif
@@ -1295,7 +1320,7 @@ void Callbacks::symbolTable(const boost::shared_ptr<CBTF_Protocol_SymbolTable> &
 		output << "[TID " << pthread_self() << "] Callbacks::"
 		       << "symbolTable(): Linked Object "
 		       << toString(message.linked_object) 
-		       << " no longer exists.";
+		       << " no longer exists." << std::endl;
 		std::cerr << output.str();
 	    }
 	}
