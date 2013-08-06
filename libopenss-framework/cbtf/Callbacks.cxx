@@ -475,7 +475,11 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
     //std::cerr << "ENTERED Callbacks::addressBuffer " << abuftimes++ << std::endl;
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
-       in.printResults();
+       //in.printResults();
+	std::stringstream output;
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
+	       << " Callbacks::addressBuffer entered" << std::endl;
+	std::cerr << output.str();
     }
 #endif
 
@@ -510,6 +514,16 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 	    threads.insert(Thread(database, database->getResultAsInteger(1)));
     END_TRANSACTION(database);
 
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+       //in.printResults();
+	std::stringstream output;
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
+	       << " Callbacks::addressBuffer find symbol tables" << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
     //std::cerr << "Callbacks::addressBuffer number of threads "
      //   << threads.size() << std::endl;
 
@@ -538,6 +552,15 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 		std::set<LinkedObject> stlo;
 		std::pair<std::set<std::string>::iterator,bool> ret = linkedobjs.insert((*li).getPath());
 		if (ret.second) {
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+       //in.printResults();
+	std::stringstream output;
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
+	       << " Callbacks::addressBuffer insert symtab " << (*li).getPath() << std::endl;
+	std::cerr << output.str();
+    }
+#endif
 		    stlo.insert(*li);
 		    symtabmap.insert(std::make_pair(*ar,
 				std::make_pair(SymbolTable(*ar), stlo)
@@ -553,6 +576,15 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 
     }
 
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+       //in.printResults();
+	std::stringstream output;
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
+	       << " Callbacks::addressBuffer resolving symbols" << std::endl;
+	std::cerr << output.str();
+    }
+#endif
 
     // Use symtabapi for symbols. TODO: add support for BFD???
     SymtabAPISymbols stapi_symbols;
@@ -610,7 +642,18 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 
     Extent extent;
 
-    BEGIN_TRANSACTION(database);
+#if 0
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+       //in.printResults();
+	std::stringstream output;
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
+	       << " Callbacks::addressBuffer hmm. update addressspaces???" << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
+    BEGIN_WRITE_TRANSACTION(database);
     database->prepareStatement(
         "SELECT time_begin, time_end, addr_begin, addr_end FROM Data;"
         );
@@ -639,7 +682,17 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 	while(database->executeStatement());
 
     END_TRANSACTION(database);
+#endif
 
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+       //in.printResults();
+	std::stringstream output;
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
+	       << " Callbacks::addressBuffer finished resolving symbols" << std::endl;
+	std::cerr << output.str();
+    }
+#endif
 
     // Now clean up any remaining linkedobjects, files, addressspaces,
     // and threads that do not contain any sample date, functions or statements.
@@ -694,6 +747,15 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 
     // Now run vacuum on the database cleanup after removing entries.
     database->vacuum();
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+       //in.printResults();
+	std::stringstream output;
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
+	       << " Callbacks::addressBuffer exits" << std::endl;
+	std::cerr << output.str();
+    }
+#endif
 
 }
 
@@ -856,7 +918,7 @@ void Callbacks::linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedOb
     if(Frontend::isDebugEnabled()) {
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::"
-	       << toString(message);
+	       << toString(message) << " num objs " << message.linkedobjects.linkedobjects_len;
 	std::cerr << output.str();
     }
 #endif
@@ -1269,11 +1331,11 @@ void Callbacks::performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & in
     memcpy(&message, in.get(),sizeof(CBTF_Protocol_Blob)); 
 
 #ifndef NDEBUG
-    if(Frontend::isPerfDataDebugEnabled()) {
+    if(Frontend::isDebugEnabled()) {
 
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::performanceData("
-	       << std::endl << toString(message) << ")" << std::endl;
+	       << std::endl << /*toString(message) <<*/ ")" << std::endl;
 	std::cerr << output.str();
     }
 #endif
