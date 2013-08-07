@@ -30,6 +30,7 @@
 #include "config.h"
 #endif
 
+#include <set>
 #include <boost/shared_ptr.hpp>
 #include "KrellInstitute/Messages/Blob.h"
 #include "KrellInstitute/Messages/DataHeader.h"
@@ -42,6 +43,7 @@
 #include "KrellInstitute/Messages/Time.h"
 #include "KrellInstitute/Messages/Thread.h"
 #include "KrellInstitute/Messages/ThreadEvents.h"
+#include "Address.hxx"
 #include "KrellInstitute/Core/AddressBuffer.hpp"
 #include "KrellInstitute/Core/LinkedObjectEntry.hpp"
 
@@ -68,6 +70,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedObjectGroup> & );
 	void linkedObjectEntryVec(const KrellInstitute::Core::LinkedObjectEntryVec& );
 	void symbolTable(const boost::shared_ptr<CBTF_Protocol_SymbolTable> & in);
+	void process_addressspace(const std::set<Address> addresses);
     }
     
 } }

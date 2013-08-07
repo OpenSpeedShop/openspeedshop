@@ -423,6 +423,7 @@ void Callbacks::createdProcess(const boost::shared_ptr<CBTF_Protocol_CreatedProc
 
     // Is there an existing placeholder for the entire process?
     BEGIN_WRITE_TRANSACTION(database);
+#if 0
     int thread = -1;
     database->prepareStatement(
 	    "SELECT id "
@@ -465,6 +466,15 @@ void Callbacks::createdProcess(const boost::shared_ptr<CBTF_Protocol_CreatedProc
         database->bindArgument(2, static_cast<int>(message.created_thread.pid));
 	while(database->executeStatement());
     }
+#else
+        database->prepareStatement(
+            "INSERT INTO Threads (host,pid) VALUES (?,?);"
+            );
+        database->bindArgument(1, (message.created_thread.host));
+        database->bindArgument(2, static_cast<int>(message.created_thread.pid));
+	while(database->executeStatement());
+
+#endif
     END_TRANSACTION(database);
 }
 
@@ -473,6 +483,7 @@ static int abuftimes = 0;
 void Callbacks::addressBuffer(const AddressBuffer& in)
 {
     //std::cerr << "ENTERED Callbacks::addressBuffer " << abuftimes++ << std::endl;
+    //DataQueues::flushPerformanceData();
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
        //in.printResults();
@@ -494,6 +505,8 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
     }
     //std::cerr << "Callbacks::addressBuffer number of addresses "
      //   << addresses.size() << std::endl;
+
+    process_addressspace(addresses);
 
     OpenSpeedShop::Framework::SymbolTableMap symtabmap;
 
@@ -1020,9 +1033,15 @@ void Callbacks::linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedOb
  */
 void Callbacks::linkedObjectEntryVec(const KrellInstitute::Core::LinkedObjectEntryVec & in)
 {
+    linkedobjectvec = in;
+}
+
+void Callbacks::process_addressspace(const std::set<OpenSpeedShop::Framework::Address> addresses)
+{
     // Begin a transaction on this thread's database
     // For offline ld_preloaded collection runtimes, the getDatabase argument
     // experiment ID is always 0.
+    KrellInstitute::Core::LinkedObjectEntryVec in = linkedobjectvec;
     SmartPtr<Database> database = 
 	    DataQueues::getDatabase(0);
 
@@ -1030,7 +1049,7 @@ void Callbacks::linkedObjectEntryVec(const KrellInstitute::Core::LinkedObjectEnt
     if(Frontend::isDebugEnabled()) {
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] "
-	       <<  " Callbacks::linkedObjectEntryVec" << std::endl;
+	       <<  " Callbacks::linkedObjectEntryVec entered vec size is " << in.size() << std::endl;
 	std::cerr << output.str();
     }
 #endif
@@ -1039,7 +1058,19 @@ void Callbacks::linkedObjectEntryVec(const KrellInstitute::Core::LinkedObjectEnt
     // Find the existing thread in the database
     LinkedObjectEntryVec::const_iterator li;
     for (li = in.begin(); li != in.end(); ++li) {
+
+		Address abegin((*li).addr_begin.getValue());
+		Address aend((*li).addr_end.getValue());
+                AddressRange range(abegin,aend) ;
+                std::set<Address>::iterator it,itlow,itup;
+                itlow = addresses.lower_bound (range.getBegin()); itlow--;
+                itup = addresses.upper_bound (range.getEnd()); itup--;
+                if ( !(range.doesContain(*itlow) || range.doesContain(*itup)) ) {
+                    //std::cerr << "range DOES NOT contain " << *itlow << " Or " << *itup << std::endl;
+                    continue;
+                }
 	
+	//BEGIN_WRITE_TRANSACTION(database);
 	CBTF_Protocol_ThreadName message;
 	::convert((*li).tname, message);
         int thread = getThreadIdentifier(database, message);
@@ -1068,7 +1099,7 @@ void Callbacks::linkedObjectEntryVec(const KrellInstitute::Core::LinkedObjectEnt
 		int file = database->getLastInsertedUID();
 
 #ifndef NDEBUG
-		if(Frontend::isDebugEnabled()) {
+		if(0 && Frontend::isDebugEnabled()) {
 		    std::cerr << "Callbacks::linkedObjectEntryVec INSERT INTO LinkedObjects "
 		    << AddressRange(0,Address((*li).addr_end - (*li).addr_begin))
 		    << " file " << file << " is_executable " << (*li).isExecutable()
@@ -1091,7 +1122,7 @@ void Callbacks::linkedObjectEntryVec(const KrellInstitute::Core::LinkedObjectEnt
 	    }
 
 #ifndef NDEBUG
-		if(Frontend::isDebugEnabled()) {
+		if(0 && Frontend::isDebugEnabled()) {
 		    std::cerr << "Callbacks::linkedObjectEntryVec INSERT INTO AddressSpaces "
 			<< " threadID " << thread
 			<< " interval:" << TimeInterval(Time((*li).time_loaded.getValue()), Time((*li).time_unloaded.getValue()))
@@ -1115,10 +1146,21 @@ void Callbacks::linkedObjectEntryVec(const KrellInstitute::Core::LinkedObjectEnt
 	    database->bindArgument(6, linked_object);
 	    while(database->executeStatement());
 	}
+	// End the transaction on this thread's database
+	//END_TRANSACTION(database);
     }
 
     // End the transaction on this thread's database
     END_TRANSACTION(database);
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] "
+	       <<  " Callbacks::linkedObjectEntryVec exits" << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
 }
 
 
@@ -1335,7 +1377,7 @@ void Callbacks::performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & in
 
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::performanceData("
-	       << std::endl << /*toString(message) <<*/ ")" << std::endl;
+	       << ") entered" << std::endl;
 	std::cerr << output.str();
     }
 #endif
@@ -1344,6 +1386,15 @@ void Callbacks::performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & in
     OpenSpeedShop::Framework::Blob blob(message.data.data_len,message.data.data_val);
     DataQueues::enqueuePerformanceData(blob);
     DataQueues::flushPerformanceData();
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+
+	std::stringstream output;
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::performanceData("
+	       << ") exits" << std::endl;
+	std::cerr << output.str();
+    }
+#endif
 }
 
 void Callbacks::symbolTable(const boost::shared_ptr<CBTF_Protocol_SymbolTable> & in)
