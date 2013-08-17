@@ -345,6 +345,10 @@ if BUILD_CBTF
 	@rm -f $(DESTDIR)$(bindir)/osspthreads
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osspthreads
 	chmod 755 $(DESTDIR)$(bindir)/osspthreads
+# osscuda
+	@rm -f $(DESTDIR)$(bindir)/osscuda
+	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/osscuda
+	chmod 755 $(DESTDIR)$(bindir)/osscuda
 endif
 endif
 # osscompare
@@ -372,6 +376,7 @@ uninstall-hook:
 	@rm -f $(DESTDIR)$(bindir)/ossiop
 	@rm -f $(DESTDIR)$(bindir)/ossmem
 	@rm -f $(DESTDIR)$(bindir)/osspthreads
+	@rm -f $(DESTDIR)$(bindir)/osscuda
 
 # endif for BUILD_INSTRUMENTOR
 endif

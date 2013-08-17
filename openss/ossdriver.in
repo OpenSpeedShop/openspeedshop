@@ -2517,6 +2517,110 @@ then
     echo "[openss]: pthreads experiment calling nothing, else clause."
   fi
 
+# ------------------------------------------------------------------------------------
+# -- CUDA EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# ------------------------------------------------------------------------------------
+
+elif  [ $experiment_name == "osscuda" ]
+then
+
+  if [ $debug_flag == 1 ]
+  then
+    echo "DEBUG: in CUDA EXPERIMENT SECTION, input_argument_event_or_trace_list_value=$input_argument_event_or_trace_list_value"
+  fi
+
+  if [ $input_argument_event_or_trace_list_value != 0 ]
+  then
+
+    if [ -z  "$OPENSS_CUDA_TRACED" ]
+    then
+      echo "[openss]: cuda experiment using input cuda experiment trace function list specified on the \"osscuda\" command: \"$input_argument_event_or_trace_list_value\" overriding the default I/O function list."
+
+      if [ $debug_flag == 1 ]
+      then
+         echo "DEBUG: setting OPENSS_CUDA_TRACED to $input_argument_event_or_trace_list_value and overriding the previous value of OPENSS_CUDA_TRACED"
+      fi
+
+    else
+
+      echo "[openss]: cuda experiment using input cuda experiment trace function list specified on the \"osscuda\" command: \"$input_argument_event_or_trace_list_value\" overriding the I/O function list specified by the environment variable: OPENSS_CUDA_TRACED."
+
+      if [ $debug_flag == 1 ]
+      then
+         echo "DEBUG: setting OPENSS_CUDA_TRACED to $input_argument_event_or_trace_list_value and overriding what was already set in OPENSS_CUDA_TRACED"
+      fi
+
+    fi
+
+    OPENSS_CUDA_TRACED=$input_argument_event_or_trace_list_value
+
+  elif [ $use_default_flag == 1 ]
+  then
+
+    if [ -z  "$OPENSS_CUDA_TRACED" ]
+    then
+       echo "[openss]: cuda experiment using function list: \"$cuda_default_traceable_functions\" because the \"default\" parameter is specified."
+     else
+       if [ $cuda_default_traceable_functions != $OPENSS_CUDA_TRACED ]
+       then
+         echo "[openss]: cuda experiment OPENSS_CUDA_TRACED=$OPENSS_CUDA_TRACED is set and will be altered to \"$cuda_default_traceable_functions\" because the \"default\" parameter is specified."
+       fi
+     fi
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: cuda, default, cuda_traced=$cuda_default_traceable_functions"
+     fi
+     OPENSS_CUDA_TRACED=$cuda_default_traceable_functions
+     export OPENSS_CUDA_TRACED
+     if [ $debug_flag == 1 ]
+     then 
+       echo "DEBUG: in CUDA EXPERIMENT SECTION, RESET default, OPENSS_CUDA_TRACED=$OPENSS_CUDA_TRACED"
+     fi
+
+  else
+
+    # input argument or default argument not specified
+
+    if [ -z  "$OPENSS_CUDA_TRACED" ]
+    then
+
+      echo "[openss]: cuda experiment using the default I/O experiment trace function list: \"$cuda_default_traceable_functions\"."
+      OPENSS_CUDA_TRACED=$cuda_default_traceable_functions
+
+      if [ $debug_flag == 1 ]
+      then
+        echo "DEBUG: setting OPENSS_CUDA_TRACED to default $cuda_default_traceable_functions"
+      fi
+    else
+      echo "[openss]: cuda experiment OPENSS_CUDA_TRACED=$OPENSS_CUDA_TRACED is set and will override the default I/O function list."
+      if [ $debug_flag == 1 ]
+      then
+        echo "DEBUG: exporting already set OPENSS_CUDA_TRACED to $OPENSS_CUDA_TRACED"
+      fi
+    fi
+
+  fi
+
+  export OPENSS_CUDA_TRACED
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    echo "[openss]: cuda experiment calling osscollect."
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    then
+       osscollect --arch cray --program "$1" --collector cuda
+    else
+       osscollect --program "$1" --collector cuda
+    fi
+  elif [ "$instrumentor" == "offline" ]
+  then
+    echo "[openss]: cuda experiment is not implemented in the offline version of openss."
+    #openss -offline -f "$1" cuda
+  else
+    echo "[openss]: cuda experiment calling nothing, else clause."
+  fi
+
+
 fi
 
 
