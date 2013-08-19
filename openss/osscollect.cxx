@@ -58,6 +58,8 @@ using namespace boost;
 using namespace KrellInstitute::Core;
 using namespace OpenSpeedShop::Framework;
 
+enum exe_class_types { MPI_exe_type, SEQ_RunAs_MPI_exe_type, SEQ_exe_type };
+
 // Experiment Utilities.
 
 // Function that returns the number of BE processes that are required for LW MRNet BEs.
@@ -93,9 +95,34 @@ static int getBEcountFromCommand(std::string command) {
 //
 static bool isMpiExe(const std::string exe) {
     SymtabAPISymbols stapi_symbols;
-    return stapi_symbols.foundLibrary(exe,"libmpi");
+    bool found_libmpi = stapi_symbols.foundLibrary(exe,"libmpi");
+    return found_libmpi;
 }
 
+//
+// Determine what type of executable situation we have for running with cbtfrun.
+// Is this a pure MPI executable or are we running a sequential executable with a mpi driver?
+// We catagorize these into three types: mpi, seq runing under mpi driver, and sequential
+//
+static exe_class_types typeOfExecutable ( std::string program, const std::string exe ) {
+
+   exe_class_types tmp_exe_type;
+
+   if ( isMpiExe(exe) ) { 
+          tmp_exe_type = MPI_exe_type;
+   } else {
+
+    if ( std::string::npos != program.find("aprun")) {
+        tmp_exe_type = SEQ_RunAs_MPI_exe_type;
+    } else {
+        tmp_exe_type = SEQ_exe_type;
+    }
+
+  }
+ 
+  return tmp_exe_type;
+
+}
 
 // Function that returns whether the filename is an executable file.
 // Uses stat to obtain the mode of the filename and if it executable returns true.
@@ -126,7 +153,8 @@ static std::string getMPIExecutableFromCommand(std::string command) {
 
     BOOST_FOREACH (const std::string& t, btokens) {
       if (is_executable( t )) {
-         if (isMpiExe(t)) {
+         exe_class_types local_exe_type = typeOfExecutable(command, t);
+         if (local_exe_type == MPI_exe_type || local_exe_type == SEQ_RunAs_MPI_exe_type ) {
            return t;
          }
       }
@@ -360,9 +388,10 @@ int main(int argc, char** argv)
             }
 
 	    pos = program.find(mpiexecutable);
+            exe_class_types appl_type =  typeOfExecutable(program, mpiexecutable);
 
-            if (isMpiExe(mpiexecutable)) {
-
+            if (appl_type == MPI_exe_type) {
+              
               if (!cbtfrunpath.empty()) {
                 program.insert(pos, " " + cbtfrunpath + " --mrnet --mpi -c " + collector + " \"");
               } else {
