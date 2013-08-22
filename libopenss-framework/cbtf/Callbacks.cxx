@@ -24,12 +24,14 @@
  */
 
 #include "Address.hxx"
+#include "AddressBitmap.hxx"
 #include "AddressRange.hxx"
 #include "Blob.hxx"
 #include "Callbacks.hxx"
 #include "Database.hxx"
 #include "DataQueues.hxx"
 #include "Extent.hxx"
+#include "EntrySpy.hxx"
 #include "Frontend.hxx"
 #include "LinkedObject.hxx"
 #include "SmartPtr.hxx"
@@ -51,6 +53,7 @@
 #include <KrellInstitute/CBTF/XML.hpp>
 #include "KrellInstitute/Core/LinkedObjectEntry.hpp"
 #include "KrellInstitute/Core/SymbolTable.hpp"
+#include "KrellInstitute/Core/ThreadName.hpp"
 
 #include <algorithm>
 #include <set>
@@ -168,11 +171,233 @@ namespace {
 	return identifier;
     }
 
-
-    LinkedObjectEntryVec linkedobjectvec;
+ThreadGroup getThreads(SmartPtr<Database>& database)
+{
+    ThreadGroup threads;
+    BEGIN_TRANSACTION(database);
+    database->prepareStatement("SELECT id FROM Threads;");
+    while(database->executeStatement())
+        threads.insert(Thread(database, database->getResultAsInteger(1)));
+    END_TRANSACTION(database);
+    return threads;
 }
 
+    LinkedObjectEntryVec linkedobjectvec;
+    std::vector<ThreadName> threadvec;
+    std::vector<CBTF_Protocol_SymbolTable> symvec;
+}
 
+void process_symvec(const CBTF_Protocol_SymbolTable& message);
+
+// Helper function to do bulk updates of the thread table from a vector
+// of ThreadNames created by the attachToThreads callback.
+void updateThreads()
+{
+#ifndef NDEBUG
+    if(Frontend::isDebugEnabled()) {
+	std::stringstream output;
+	output << "TIME " << OpenSpeedShop::Framework::Time::Now() << " [TID " << pthread_self()
+	    << " entered updateThreads with total " << threadvec.size() << std::endl;
+	std::cerr << output.str();
+    }
+#endif
+
+	// Begin a transaction on this thread's database
+        SmartPtr<Database> database = DataQueues::getDatabase(0);
+	if(database.isNull()) {
+
+#ifndef NDEBUG
+	    if(Frontend::isDebugEnabled()) {
+		std::stringstream output;
+		output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "attachedToThreads(): Experiment " 
+		       << 0 
+		       << " no longer exists." << std::endl;
+		std::cerr << output.str();
+	    }
+#endif
+
+	   return;
+	}
+
+    // This can be potentially large so do it in one transaction!
+    BEGIN_WRITE_TRANSACTION(database);
+    std::vector<ThreadName>::const_iterator i;
+    for(i=threadvec.begin(); i != threadvec.end(); i++)
+    {
+	
+
+	// Is there an existing placeholder for the entire process?
+	// The initial createdprocess creates the database entry for
+	// a process with the posix_tid of null. The initial thread
+	// will be updated with it's posix_tid.  All new threads
+	// will look for an exiting host:pid in the database and if
+	// one is found, a new thread entry in the data base will
+	// be created.
+	int thread = -1;
+	database->prepareStatement(
+	    "SELECT id "
+	    "FROM Threads "
+	    "WHERE host = ? "
+	    "  AND pid = ? "
+	    "  AND posix_tid ISNULL;"
+	    );
+	database->bindArgument(1, (*i).getHost());
+	database->bindArgument(2, static_cast<int>((*i).getPid().second));
+	while(database->executeStatement())
+	    thread = database->getResultAsInteger(1);
+
+	// Reuse the placeholder if appropriate
+	if(thread != -1) {
+	    if((*i).getPosixThreadId().first && (thread != -1)) {
+
+#ifndef NDEBUG
+		if(Frontend::isDebugEnabled()) {
+		    std::stringstream output;
+		    output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "attachedToThreads(): " 
+		       << "UPDATE Threads SET posix_tid:" << (*i).getPosixThreadId().second
+		       << " rank:" << (*i).getMPIRank().second
+		       << " For thread id:" << thread << std::endl;
+		    std::cerr << output.str();
+		}
+#endif
+
+		database->prepareStatement(
+		    "UPDATE Threads SET posix_tid = ? WHERE id = ?;"
+		    );
+		database->bindArgument(
+		    1, static_cast<pthread_t>((*i).getPosixThreadId().second)
+		    );
+		database->bindArgument(2, thread);
+		while(database->executeStatement());
+
+		if ((*i).getMPIRank().second >= 0 ) {
+		  database->prepareStatement(
+		    "UPDATE Threads SET mpi_rank = ? WHERE id = ?;"
+		    );
+		  database->bindArgument(
+		    1, static_cast<int>((*i).getMPIRank().second)
+		    );
+		  database->bindArgument(2, thread);
+		  while(database->executeStatement());
+		}
+	    }
+	}
+
+	// See if there is already an entry for this host and pid.
+	// Create a new thread entry for this posix_tid for this host:pid
+	// and include the mpi_rank. For non-mpi jobs this is -1 and
+	// is already set to that by the collector.
+	else {
+
+	thread = -1;
+	database->prepareStatement(
+	    "SELECT id "
+	    "FROM Threads "
+	    "WHERE host = ? "
+	    "  AND pid = ? "
+	    );
+
+	database->bindArgument(1, (*i).getHost());
+	database->bindArgument(2, static_cast<int>((*i).getPid().second));
+
+	while(database->executeStatement())
+	    thread = database->getResultAsInteger(1);
+
+	    if( thread != -1) {
+#ifndef NDEBUG
+		if(Frontend::isDebugEnabled()) {
+		    std::stringstream output;
+		    output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "attachedToThreads(): " 
+		       << "FOUND existing HOST:PID in database"
+		       << " host:" << (*i).getHost()
+		       << " pid:" << (*i).getPid().second
+		       << " posix_tid:" << (*i).getPosixThreadId().second
+		       << " mpi_rank:" << (*i).getMPIRank().second << std::endl;
+		    std::cerr << output.str();
+		}
+#endif
+		database->prepareStatement(
+		    "INSERT INTO Threads (host, pid, posix_tid) VALUES (?, ?, ?);"
+		    );
+	        database->bindArgument(1, (*i).getHost());
+	        database->bindArgument(2, static_cast<int>((*i).getPid().second));
+		database->bindArgument(3, static_cast<pthread_t>((*i).getPosixThreadId().second));
+	        while(database->executeStatement());
+
+	        int thread = database->getLastInsertedUID();
+	        ThreadTable::TheTable.addThread(Thread(database, thread));
+
+		if ((*i).getMPIRank().second >= 0) {
+		  database->prepareStatement(
+		    "UPDATE Threads SET mpi_rank = ? WHERE id = ?;"
+		    );
+		  database->bindArgument(
+		    1, static_cast<int>((*i).getMPIRank().second)
+		    );
+		  database->bindArgument(2, thread);
+		  while(database->executeStatement());
+		}
+
+	    } else {
+		// Must be a new host pid.  Add it to the thread table.
+		// For CBTF, we likely will not enter this case.
+#ifndef NDEBUG
+		if(Frontend::isDebugEnabled()) {
+		    std::stringstream output;
+		    output << "[TID " << pthread_self() << "] Callbacks::"
+		       << "attachedToThreads(): " 
+		       << "New Thread - INSERTING"
+		       << " host:" << (*i).getHost()
+		       << " pid:" << (*i).getPid().second
+		       << " posix tid:" << static_cast<pthread_t>((*i).getPosixThreadId().second)
+		       << " rank:" << (*i).getMPIRank().second << std::endl;
+		    std::cerr << output.str();
+		}
+#endif
+		database->prepareStatement(
+		    "INSERT INTO Threads (host, pid) VALUES (?, ?);"
+		    );
+
+	        database->bindArgument(1, (*i).getHost());
+	        database->bindArgument(2, static_cast<int>((*i).getPid().second));
+	        while(database->executeStatement());
+
+	        int thread = database->getLastInsertedUID();
+	        ThreadTable::TheTable.addThread(Thread(database, thread));
+
+		if ((*i).getPosixThreadId().first ) {
+		  database->prepareStatement(
+		    "UPDATE Threads SET posix_tid = ? WHERE id = ?;"
+		    );
+		  database->bindArgument(
+		    1, static_cast<pthread_t>((*i).getPosixThreadId().second)
+		    );
+		  database->bindArgument(2, thread);
+		  while(database->executeStatement());
+		}
+
+		if ((*i).getMPIRank().second >= 0) {
+		  database->prepareStatement(
+		    "UPDATE Threads SET mpi_rank = ? WHERE id = ?;"
+		    );
+		  database->bindArgument(
+		    1, static_cast<int>((*i).getMPIRank().second)
+		    );
+		  database->bindArgument(2, thread);
+		  while(database->executeStatement());
+		}
+	    }
+	}
+	// End the transaction on this thread's database
+    }
+    END_TRANSACTION(database);
+
+    // clear for any potential new threads
+    threadvec.clear();
+}
 
 
 /**
@@ -201,181 +426,13 @@ void Callbacks::attachedToThreads(const boost::shared_ptr<CBTF_Protocol_Attached
 #endif
 
     // Iterate over each thread attached in this message
+    // and add it to vector for later updating of database.
     for(int i = 0; i < message.threads.names.names_len; ++i) {
-	const CBTF_Protocol_ThreadName& msg_thread =
-	    message.threads.names.names_val[i];
-
-	// Begin a transaction on this thread's database
-	SmartPtr<Database> database = 
-	    DataQueues::getDatabase(msg_thread.experiment);
-	if(database.isNull()) {
-
-#ifndef NDEBUG
-	    if(Frontend::isDebugEnabled()) {
-		std::stringstream output;
-		output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "attachedToThreads(): Experiment " 
-		       << msg_thread.experiment 
-		       << " no longer exists." << std::endl;
-		std::cerr << output.str();
-	    }
-#endif
-
-	    continue;
-	}
-	BEGIN_WRITE_TRANSACTION(database);
-
-	// Is there an existing placeholder for the entire process?
-	// The initial createdprocess creates the database entry for
-	// a process with the posix_tid of null. The initial thread
-	// will be updated with it's posix_tid.  All new threads
-	// will look for an exiting host:pid in the database and if
-	// one is found, a new thread entry in the data base will
-	// be created.
-	int thread = -1;
-	database->prepareStatement(
-	    "SELECT id "
-	    "FROM Threads "
-	    "WHERE host = ? "
-	    "  AND pid = ? "
-	    "  AND posix_tid ISNULL;"
-	    );
-	database->bindArgument(1, msg_thread.host);
-	database->bindArgument(2, static_cast<int>(msg_thread.pid));
-	while(database->executeStatement())
-	    thread = database->getResultAsInteger(1);
-
-	// Reuse the placeholder if appropriate
-	if(thread != -1) {
-	    if(msg_thread.has_posix_tid && (thread != -1)) {
-
-#ifndef NDEBUG
-		if(Frontend::isDebugEnabled()) {
-		    std::stringstream output;
-		    output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "attachedToThreads(): " 
-		       << "UPDATE Threads SET posix_tid:" << msg_thread.posix_tid
-		       << " rank:" << msg_thread.rank
-		       << " For thread id:" << thread << std::endl;
-		    std::cerr << output.str();
-		}
-#endif
-
-		database->prepareStatement(
-		    "UPDATE Threads SET posix_tid = ? WHERE id = ?;"
-		    );
-		database->bindArgument(
-		    1, static_cast<pthread_t>(msg_thread.posix_tid)
-		    );
-		database->bindArgument(2, thread);
-		while(database->executeStatement());
-
-		if (msg_thread.rank >= 0 ) {
-		  database->prepareStatement(
-		    "UPDATE Threads SET mpi_rank = ? WHERE id = ?;"
-		    );
-		  database->bindArgument(
-		    1, static_cast<int>(msg_thread.rank)
-		    );
-		  database->bindArgument(2, thread);
-		  while(database->executeStatement());
-		}
-	    }
-	}
-
-	// See if there is already an entry for this host and pid.
-	// Create a new thread entry for this posix_tid for this host:pid
-	// and include the mpi_rank. For non-mpi jobs this is -1 and
-	// is already set to that by the collector.
-	else {
-
-	thread = -1;
-	database->prepareStatement(
-	    "SELECT id "
-	    "FROM Threads "
-	    "WHERE host = ? "
-	    "  AND pid = ? "
-	    );
-
-	database->bindArgument(1, msg_thread.host);
-	database->bindArgument(2, static_cast<int>(msg_thread.pid));
-
-	while(database->executeStatement())
-	    thread = database->getResultAsInteger(1);
-
-	    if( thread != -1) {
-#ifndef NDEBUG
-		if(Frontend::isDebugEnabled()) {
-		    std::stringstream output;
-		    output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "attachedToThreads(): " 
-		       << "FOUND existing HOST:PID in database"
-		       << " host:" << msg_thread.host
-		       << " pid:" << msg_thread.pid
-		       << " posix_tid:" << msg_thread.posix_tid
-		       << " mpi_rank:" << msg_thread.rank << std::endl;
-		    std::cerr << output.str();
-		}
-#endif
-		database->prepareStatement(
-		    "INSERT INTO Threads (host, pid, posix_tid) VALUES (?, ?, ?);"
-		    );
-	        database->bindArgument(1, msg_thread.host);
-	        database->bindArgument(2, static_cast<int>(msg_thread.pid));
-		database->bindArgument(3, static_cast<pthread_t>(msg_thread.posix_tid));
-	        while(database->executeStatement());
-
-	        int thread = database->getLastInsertedUID();
-	        ThreadTable::TheTable.addThread(Thread(database, thread));
-
-		if (msg_thread.rank >= 0) {
-		  database->prepareStatement(
-		    "UPDATE Threads SET mpi_rank = ? WHERE id = ?;"
-		    );
-		  database->bindArgument(
-		    1, static_cast<int>(msg_thread.rank)
-		    );
-		  database->bindArgument(2, thread);
-		  while(database->executeStatement());
-		}
-
-	    } else {
-		// Must be a new host pid.  Add it to the thread table.
-		// For CBTF, we likely will not enter this case.
-#ifndef NDEBUG
-		if(Frontend::isDebugEnabled()) {
-		    std::stringstream output;
-		    output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "attachedToThreads(): " 
-		       << "NO entry for HOST:PID in database - INSERTING"
-		       << " host:" << msg_thread.host
-		       << " pid:" << msg_thread.pid << std::endl;
-		    std::cerr << output.str();
-		}
-#endif
-		database->prepareStatement(
-		    "INSERT INTO Threads (host, pid) VALUES (?, ?);"
-		    );
-
-	        database->bindArgument(1, msg_thread.host);
-	        database->bindArgument(2, static_cast<int>(msg_thread.pid));
-	        if(msg_thread.has_posix_tid)
-		    database->bindArgument(
-		    3, static_cast<pthread_t>(msg_thread.posix_tid)
-		    );
-	        while(database->executeStatement());
-
-	        int thread = database->getLastInsertedUID();
-	        ThreadTable::TheTable.addThread(Thread(database, thread));
-	    }
-	}
-
-	// End the transaction on this thread's database
-	END_TRANSACTION(database);
-
+//	ThreadName tname(message.threads.names.names_val[i]);
+	threadvec.push_back(message.threads.names.names_val[i]);
+//std::cerr << "pushed host " << message.threads.names.names_val[i].host << std::endl;
     }
 }
-
 
 /**
  * Created a process.
@@ -388,6 +445,17 @@ void Callbacks::attachedToThreads(const boost::shared_ptr<CBTF_Protocol_Attached
  */
 void Callbacks::createdProcess(const boost::shared_ptr<CBTF_Protocol_CreatedProcess> & in)
 {
+
+
+    // This is a holdover from online instrumentation and in particular
+    // is not needed for offline type instrumentation like cbtf collectors use.
+    // So we will return early here.  Likely we do not need to send
+    // this message for cbtf/offline collection as it is redundant and
+    // causes uneeded message traffic and database updates.  all the info
+    // we need to update the thread table in the database comes from the
+    // attachedToThreads messages.
+    return;
+
     // Decode the message
     CBTF_Protocol_CreatedProcess message;
     memset(&message, 0, sizeof(message));
@@ -480,10 +548,20 @@ void Callbacks::createdProcess(const boost::shared_ptr<CBTF_Protocol_CreatedProc
 
 static int abuftimes = 0;
 
+
+/**
+ * When all threads have terminated, this address buffer is sent,
+ *
+ * @param in    address buffer containing the unique addresses with counts.
+ */
 void Callbacks::addressBuffer(const AddressBuffer& in)
 {
-    //std::cerr << "ENTERED Callbacks::addressBuffer " << abuftimes++ << std::endl;
-    //DataQueues::flushPerformanceData();
+ 
+    // This message come after all threads have finished and therefore
+    // all datablobs have been sent and are queued.
+    // Flush the dataqueues now.
+    DataQueues::flushPerformanceData();
+
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
        //in.printResults();
@@ -494,18 +572,19 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
     }
 #endif
 
-    // create an OSS PCBuffer of the addresses in the passed buffer.
-    // We do this so we canuse the OSS symbol resolution functions.
+    // create a set of  addresses in the passed buffer.
+    // We do this so we can use the OSS symbol resolution functions.
     AddressCounts::const_iterator aci;
     AddressCounts ac = in.addresscounts;
  
+    // create the set of addresses used to restrict entries into the database
+    // to those that contain a valid sample or sample related address.
     std::set<OpenSpeedShop::Framework::Address> addresses;
     for (aci = ac.begin(); aci != ac.end(); ++aci) {
 	addresses.insert(aci->first.getValue());
     }
-    //std::cerr << "Callbacks::addressBuffer number of addresses "
-     //   << addresses.size() << std::endl;
 
+    // this updates the addresspace table.
     process_addressspace(addresses);
 
     OpenSpeedShop::Framework::SymbolTableMap symtabmap;
@@ -537,11 +616,15 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
     }
 #endif
 
+
+    // DEBUG
+    //std::cerr << "Callbacks::addressBuffer number of addresses "
+    //   << addresses.size() << std::endl;
     //std::cerr << "Callbacks::addressBuffer number of threads "
-     //   << threads.size() << std::endl;
+    //   << threads.size() << std::endl;
 
     // Now get the currently recorded linkedobjects for these threads
-    // from the database.
+    // from the database. 
     std::set<LinkedObject> ttgrp_lo = threads.getLinkedObjects();
 
     // loop through linkedobjects looking for those with addresseranges
@@ -653,59 +736,20 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
         }
     }
 
-    Extent extent;
-
-#if 0
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
-       //in.printResults();
-	std::stringstream output;
-	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
-	       << " Callbacks::addressBuffer hmm. update addressspaces???" << std::endl;
-	std::cerr << output.str();
-    }
-#endif
-
-    BEGIN_WRITE_TRANSACTION(database);
-    database->prepareStatement(
-        "SELECT time_begin, time_end, addr_begin, addr_end FROM Data;"
-        );
-    while(database->executeStatement())
-        if(extent.isEmpty())
-            extent = Extent(TimeInterval(database->getResultAsTime(1),
-                                         database->getResultAsTime(2)),
-                            AddressRange(database->getResultAsAddress(3),
-                                         database->getResultAsAddress(4)));
-        else
-            extent |= Extent(TimeInterval(database->getResultAsTime(1),
-                                          database->getResultAsTime(2)),
-                             AddressRange(database->getResultAsAddress(3),
-                                          database->getResultAsAddress(4)));
-
-	TimeInterval ti = extent.getTimeInterval();
-	Time t_end = ti.getEnd();
-
-	database->prepareStatement(
-                "UPDATE AddressSpaces "
-                "SET time_end = ? "
-                "WHERE time_end = ?;"
-                );
-            database->bindArgument(1, t_end);
-            database->bindArgument(2, Time::TheEnd());
-	while(database->executeStatement());
-
-    END_TRANSACTION(database);
-#endif
-
-#ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
-       //in.printResults();
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
 	       << " Callbacks::addressBuffer finished resolving symbols" << std::endl;
 	std::cerr << output.str();
     }
 #endif
+
+    // process that symboltable here...
+    for(std::vector<CBTF_Protocol_SymbolTable>::const_iterator si = symvec.begin();
+	si != symvec.end(); si++) {
+	process_symvec(*si);
+    }
 
     // Now clean up any remaining linkedobjects, files, addressspaces,
     // and threads that do not contain any sample date, functions or statements.
@@ -758,11 +802,62 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
     // are no performance data blobs in the data table.
     END_TRANSACTION(database);
 
+#if 0
+    ThreadGroup allThreads = getThreads(database);
+    std::set<Statement> allStatements = allThreads.getStatements();
+
+std::cerr << "FOUND " << allStatements.size() << " statements from " << allThreads.size() << " threads" << std::endl;
+
+    std::set<Thread>::iterator ti;
+    //std::set<std::pair<Statement,uint64_t> > sCounts;
+    std::map<Statement, uint64_t> scMap;
+int totalcounts = 0;
+int totalstatementcounts = 0;
+    for (aci = ac.begin(); aci != ac.end(); ++aci) {
+	OpenSpeedShop::Framework::Address addr(aci->first.getValue());
+	std::cerr << "NEW ADDReSS:" << addr << " counts:" << aci->second << std::endl;
+	totalcounts += aci->second;
+        for(ti=allThreads.begin(); ti!=allThreads.end();ti++)
+        {
+	    std::set<Statement> tstmts = (*ti).getStatementsAt(addr);
+	    if (tstmts.size() > 0 && aci->second > 0) {
+		totalstatementcounts += aci->second;
+		std::set<Statement>::const_iterator si;
+		for (si=tstmts.begin(); si!=tstmts.end(); ++si)
+		{
+		    //sCounts.insert(std::make_pair((*si),aci->second));
+		    std::pair<std::map<Statement,uint64_t>::iterator,bool> ret;
+		    ret = scMap.insert(std::pair<Statement,uint64_t>(*si,aci->second));
+
+		    if (ret.second==false) {
+			ret.first->second += aci->second;
+std::cerr << "Address:" << addr <<  " file:" << (*si).getPath() << " line:" << (*si).getLine() << " count:" << aci->second << " tot counts:" << ret.first->second << " UPDATED" << std::endl;
+  		    } else {
+std::cerr << "Address:" << addr <<  " file:" << (*si).getPath() << " line:" << (*si).getLine() << " count:" << aci->second << " tot counts:" << ret.first->second << " INSERTED" << std::endl;
+		    }
+		}
+	std::cerr << "BREAK THREAD" << std::endl;
+		break;
+	    }
+	    
+        }
+    }
+
+std::cerr << "TOTAL ADDRESS COUNTS:" << totalcounts  << " STATEMENT COUNTS:" << totalstatementcounts << std::endl;
+
+
+    std::map<Statement,uint64_t>::iterator it;
+    for(it=scMap.begin(); it!=scMap.end(); ++it)
+    {
+std::cerr << "Statement at file:" << (*it).first.getPath() << " line:" << (*it).first.getLine() << " counts:" << (*it).second  << std::endl;
+    }
+#endif
+
     // Now run vacuum on the database cleanup after removing entries.
     database->vacuum();
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
-       //in.printResults();
+        //in.printResults();
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
 	       << " Callbacks::addressBuffer exits" << std::endl;
@@ -1027,23 +1122,26 @@ void Callbacks::linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedOb
 /**
  * vector of Linked object entry initially loaded.
  *
- * Updates the experiment databases as necessary.
- *
- * @param blob    Blob containing the message.
+ * @param in  vector in LinkedObjectEntry.
  */
 void Callbacks::linkedObjectEntryVec(const KrellInstitute::Core::LinkedObjectEntryVec & in)
 {
     linkedobjectvec = in;
 }
 
+/**
+ * vector of Linked object entry initially loaded.
+ *
+ * Updates the experiment databases as necessary.
+ *
+ * @param addresses  set of addresses used to compute inclusion into database.
+ */
 void Callbacks::process_addressspace(const std::set<OpenSpeedShop::Framework::Address> addresses)
 {
-    // Begin a transaction on this thread's database
     // For offline ld_preloaded collection runtimes, the getDatabase argument
     // experiment ID is always 0.
+    SmartPtr<Database> database = DataQueues::getDatabase(0);
     KrellInstitute::Core::LinkedObjectEntryVec in = linkedobjectvec;
-    SmartPtr<Database> database = 
-	    DataQueues::getDatabase(0);
 
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
@@ -1054,23 +1152,32 @@ void Callbacks::process_addressspace(const std::set<OpenSpeedShop::Framework::Ad
     }
 #endif
 
+    // This can be potentially very large so do it in one transaction.
     BEGIN_WRITE_TRANSACTION(database);
-    // Find the existing thread in the database
+
+    // iterate through all the linkedobjects sent and record only those for
+    // which we have a sample or callstack frame address.
     LinkedObjectEntryVec::const_iterator li;
     for (li = in.begin(); li != in.end(); ++li) {
 
-		Address abegin((*li).addr_begin.getValue());
-		Address aend((*li).addr_end.getValue());
-                AddressRange range(abegin,aend) ;
-                std::set<Address>::iterator it,itlow,itup;
-                itlow = addresses.lower_bound (range.getBegin()); itlow--;
-                itup = addresses.upper_bound (range.getEnd()); itup--;
-                if ( !(range.doesContain(*itlow) || range.doesContain(*itup)) ) {
-                    //std::cerr << "range DOES NOT contain " << *itlow << " Or " << *itup << std::endl;
-                    continue;
-                }
+	// create a range for this linkedobjects addressspace. will search
+	// this range for any sample address.
+	AddressRange range((*li).addr_begin.getValue(),
+			   (*li).addr_end.getValue()) ;
+
+	// use the begin address of the linkedobject range to see if any
+	// addresses in the set of unique addresses is contained in it.
+	// For now this seems sufficient to determine whether to include
+	// this linkedobject into the linkedobject table and create an
+	// addresspace for it. The end of range is commented out in case
+	// we find a case where we need it.
+	std::set<Address>::const_iterator aib = addresses.equal_range(range.getBegin()).first;
+        //std::set<Address>::const_iterator aie = addresses.equal_range(range.getEnd()).second;
+        // aie--;
+	if ( !(range.doesContain(*aib) /*|| range.doesContain(*aie)*/) ) {
+	    continue;
+	}
 	
-	//BEGIN_WRITE_TRANSACTION(database);
 	CBTF_Protocol_ThreadName message;
 	::convert((*li).tname, message);
         int thread = getThreadIdentifier(database, message);
@@ -1146,12 +1253,11 @@ void Callbacks::process_addressspace(const std::set<OpenSpeedShop::Framework::Ad
 	    database->bindArgument(6, linked_object);
 	    while(database->executeStatement());
 	}
-	// End the transaction on this thread's database
-	//END_TRANSACTION(database);
     }
 
     // End the transaction on this thread's database
     END_TRANSACTION(database);
+
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
 	std::stringstream output;
@@ -1381,11 +1487,16 @@ void Callbacks::performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & in
 	std::cerr << output.str();
     }
 #endif
+ 
+    updateThreads();
+    
 
-    // Enqueue this performance data
+    // Enqueue this performance data.  For now we will not flush
+    // the dataqueue per blob as that is going to thrash the database.
     OpenSpeedShop::Framework::Blob blob(message.data.data_len,message.data.data_val);
     DataQueues::enqueuePerformanceData(blob);
-    DataQueues::flushPerformanceData();
+    // used to flush queue here.
+
 #ifndef NDEBUG
     if(Frontend::isDebugEnabled()) {
 
@@ -1404,10 +1515,12 @@ void Callbacks::symbolTable(const boost::shared_ptr<CBTF_Protocol_SymbolTable> &
     CBTF_Protocol_SymbolTable message;
     memset(&message, 0, sizeof(message));
     memcpy(&message, in.get(),sizeof(CBTF_Protocol_SymbolTable)); 
+    symvec.push_back(message);
+}
 
+void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 	// Begin a transaction on this experiment's database
-        SmartPtr<Database> database = 
-	    DataQueues::getDatabase(0);
+        SmartPtr<Database> database = DataQueues::getDatabase(0);
 	if(database.isNull()) {
 
 #ifndef NDEBUG
@@ -1484,10 +1597,10 @@ void Callbacks::symbolTable(const boost::shared_ptr<CBTF_Protocol_SymbolTable> &
 			    );
 			database->bindArgument(1, function);
 			database->bindArgument(2,
-			    Address(msg_bitmap.range.begin)
+			    OpenSpeedShop::Framework::Address(msg_bitmap.range.begin)
 			    );
 			database->bindArgument(3,
-			    Address(msg_bitmap.range.end)
+			    OpenSpeedShop::Framework::Address(msg_bitmap.range.end)
 			    );
 			database->bindArgument(4, 
 			    Blob(msg_bitmap.bitmap.data.data_len,
@@ -1570,10 +1683,10 @@ void Callbacks::symbolTable(const boost::shared_ptr<CBTF_Protocol_SymbolTable> &
 			    );
 			database->bindArgument(1, statement);
 			database->bindArgument(2,
-			    Address(msg_bitmap.range.begin)
+			    OpenSpeedShop::Framework::Address(msg_bitmap.range.begin)
 			    );
 			database->bindArgument(3,
-			    Address(msg_bitmap.range.end)
+			    OpenSpeedShop::Framework::Address(msg_bitmap.range.end)
 			    );
 			database->bindArgument(4, 
 		            Blob(msg_bitmap.bitmap.data.data_len,
