@@ -215,12 +215,13 @@ void FEThread::run(const std::string& topology, const std::string& connections,
     // defined in the network. At this time only the CUDA collector
     // has an active symboltable_xdr_output.
     //
+    boost::shared_ptr<SignalAdapter
+		     <boost::shared_ptr
+		     <CBTF_Protocol_SymbolTable > > > symboltable;
     std::map<std::string, Type> outputs = network->getOutputs();
     if (outputs.find("symboltable_xdr_output") != outputs.end()) {
-        boost::shared_ptr<SignalAdapter
-		     <boost::shared_ptr
-		     <CBTF_Protocol_SymbolTable > > > symboltable =
-        SignalAdapter<boost::shared_ptr<CBTF_Protocol_SymbolTable > >::instantiate();
+	symboltable = SignalAdapter<
+	boost::shared_ptr<CBTF_Protocol_SymbolTable > >::instantiate();
         Component::Instance symboltable_output_component =
             reinterpret_pointer_cast<Component>(symboltable);
         symboltable->Value.connect(Callbacks::symbolTable);
