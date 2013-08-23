@@ -44,6 +44,9 @@ namespace {
 
     /** Flag indicating if symbols debugging is enabled. */
     bool is_symbols_debug_enabled = false;
+
+    /** Flag indicating if debugging for the frontend is enabled. */
+    bool is_timing_debug_enabled = false;
 #endif
     
 }
@@ -51,6 +54,20 @@ namespace {
 
 
 #ifndef NDEBUG
+/**
+ * Get frontend debugging flag.
+ *
+ * Returns a flag indicating if debugging for the frontend is enabled.
+ *
+ * @return    Boolean "true" if debugging for the frontend is enabled,
+ *            "false" otherwise.
+ */
+bool Frontend::isTimingDebugEnabled()
+{
+    is_timing_debug_enabled = (getenv("OPENSS_DEBUG_CBTF_TIMING") != NULL) ;
+    return is_timing_debug_enabled;
+}
+
 /**
  * Get frontend debugging flag.
  *

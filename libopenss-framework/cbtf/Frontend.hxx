@@ -47,6 +47,7 @@ namespace OpenSpeedShop { namespace Framework {
     {
 #ifndef NDEBUG
 	bool isDebugEnabled();
+	bool isTimingDebugEnabled();
 	bool isPerfDataDebugEnabled();
 	bool isStdioDebugEnabled();
 	bool isSymbolsDebugEnabled();

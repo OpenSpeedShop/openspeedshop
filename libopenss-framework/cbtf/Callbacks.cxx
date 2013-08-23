@@ -191,13 +191,21 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message);
 
 // Helper function to do bulk updates of the thread table from a vector
 // of ThreadNames created by the attachToThreads callback.
+// Threads are queued in the threadvec and not flush to the database until
+// we need to (like when a data blob needs to be added to the DataQueue).
 void updateThreads()
 {
+    // thread vector is empty so no need to access database.
+    //if (threadvec.size() == 0) {
+    if (threadvec.empty()) {
+	return;
+    }
+
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
 	output << "TIME " << OpenSpeedShop::Framework::Time::Now() << " [TID " << pthread_self()
-	    << " entered updateThreads with total " << threadvec.size() << std::endl;
+	    << "] entered updateThreads with " << threadvec.size() << " threads" << std::endl;
 	std::cerr << output.str();
     }
 #endif
@@ -209,8 +217,8 @@ void updateThreads()
 #ifndef NDEBUG
 	    if(Frontend::isDebugEnabled()) {
 		std::stringstream output;
-		output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "attachedToThreads(): Experiment " 
+		output << "[TID " << pthread_self() << "] "
+		       << "updateThreads(): Experiment " 
 		       << 0 
 		       << " no longer exists." << std::endl;
 		std::cerr << output.str();
@@ -254,8 +262,8 @@ void updateThreads()
 #ifndef NDEBUG
 		if(Frontend::isDebugEnabled()) {
 		    std::stringstream output;
-		    output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "attachedToThreads(): " 
+		    output << "[TID " << pthread_self() << "] "
+		       << "updateThreads(): " 
 		       << "UPDATE Threads SET posix_tid:" << (*i).getPosixThreadId().second
 		       << " rank:" << (*i).getMPIRank().second
 		       << " For thread id:" << thread << std::endl;
@@ -309,8 +317,8 @@ void updateThreads()
 #ifndef NDEBUG
 		if(Frontend::isDebugEnabled()) {
 		    std::stringstream output;
-		    output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "attachedToThreads(): " 
+		    output << "[TID " << pthread_self() << "] "
+		       << "updateThreads(): " 
 		       << "FOUND existing HOST:PID in database"
 		       << " host:" << (*i).getHost()
 		       << " pid:" << (*i).getPid().second
@@ -347,8 +355,8 @@ void updateThreads()
 #ifndef NDEBUG
 		if(Frontend::isDebugEnabled()) {
 		    std::stringstream output;
-		    output << "[TID " << pthread_self() << "] Callbacks::"
-		       << "attachedToThreads(): " 
+		    output << "[TID " << pthread_self() << "] "
+		       << "updateThreads(): " 
 		       << "New Thread - INSERTING"
 		       << " host:" << (*i).getHost()
 		       << " pid:" << (*i).getPid().second
@@ -417,9 +425,15 @@ void Callbacks::attachedToThreads(const boost::shared_ptr<CBTF_Protocol_Attached
     memcpy(&message, in.get(),sizeof(CBTF_Protocol_AttachedToThreads)); 
 
 #ifndef NDEBUG
+    if(Frontend::isTimingDebugEnabled()) {
+	std::stringstream output;
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::attachedToThreads"
+		<< std::endl;
+	std::cerr << output.str();
+    }
     if(Frontend::isDebugEnabled()) {
 	std::stringstream output;
-	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::"
+	output << "[TID " << pthread_self() << "] Callbacks::"
 	       << toString(message);
 	std::cerr << output.str();
     }
@@ -462,7 +476,7 @@ void Callbacks::createdProcess(const boost::shared_ptr<CBTF_Protocol_CreatedProc
     memcpy(&message, in.get(),sizeof(CBTF_Protocol_CreatedProcess)); 
 
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::"
 	       << toString(message);
@@ -563,7 +577,7 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
     DataQueues::flushPerformanceData();
 
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
        //in.printResults();
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
@@ -607,7 +621,7 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
     END_TRANSACTION(database);
 
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
        //in.printResults();
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
@@ -649,7 +663,7 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 		std::pair<std::set<std::string>::iterator,bool> ret = linkedobjs.insert((*li).getPath());
 		if (ret.second) {
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
        //in.printResults();
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
@@ -673,7 +687,7 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
     }
 
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
        //in.printResults();
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
@@ -737,7 +751,7 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
     }
 
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
 	       << " Callbacks::addressBuffer finished resolving symbols" << std::endl;
@@ -856,7 +870,7 @@ std::cerr << "Statement at file:" << (*it).first.getPath() << " line:" << (*it).
     // Now run vacuum on the database cleanup after removing entries.
     database->vacuum();
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
         //in.printResults();
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
@@ -884,7 +898,7 @@ void Callbacks::loadedLinkedObject(const boost::shared_ptr<CBTF_Protocol_LoadedL
     memcpy(&message, in.get(),sizeof(CBTF_Protocol_LoadedLinkedObject)); 
 
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::"
 	       << toString(message);
@@ -1023,7 +1037,7 @@ void Callbacks::linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedOb
     memcpy(&message, in.get(),sizeof(CBTF_Protocol_LinkedObjectGroup)); 
 
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::"
 	       << toString(message) << " num objs " << message.linkedobjects.linkedobjects_len;
@@ -1144,10 +1158,10 @@ void Callbacks::process_addressspace(const std::set<OpenSpeedShop::Framework::Ad
     KrellInstitute::Core::LinkedObjectEntryVec in = linkedobjectvec;
 
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] "
-	       <<  " Callbacks::linkedObjectEntryVec entered vec size is " << in.size() << std::endl;
+	       <<  " Callbacks::process_addressspace entered vec size is " << in.size() << std::endl;
 	std::cerr << output.str();
     }
 #endif
@@ -1207,7 +1221,7 @@ void Callbacks::process_addressspace(const std::set<OpenSpeedShop::Framework::Ad
 
 #ifndef NDEBUG
 		if(0 && Frontend::isDebugEnabled()) {
-		    std::cerr << "Callbacks::linkedObjectEntryVec INSERT INTO LinkedObjects "
+		    std::cerr << "Callbacks::process_addresspace INSERT INTO LinkedObjects "
 		    << AddressRange(0,Address((*li).addr_end - (*li).addr_begin))
 		    << " file " << file << " is_executable " << (*li).isExecutable()
 		    << std::endl;
@@ -1230,7 +1244,7 @@ void Callbacks::process_addressspace(const std::set<OpenSpeedShop::Framework::Ad
 
 #ifndef NDEBUG
 		if(0 && Frontend::isDebugEnabled()) {
-		    std::cerr << "Callbacks::linkedObjectEntryVec INSERT INTO AddressSpaces "
+		    std::cerr << "Callbacks::process_addresspace INSERT INTO AddressSpaces "
 			<< " threadID " << thread
 			<< " interval:" << TimeInterval(Time((*li).time_loaded.getValue()), Time((*li).time_unloaded.getValue()))
 			<< " range:" << AddressRange(Address((*li).addr_begin.getValue()), Address((*li).addr_end.getValue()))
@@ -1259,10 +1273,10 @@ void Callbacks::process_addressspace(const std::set<OpenSpeedShop::Framework::Ad
     END_TRANSACTION(database);
 
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] "
-	       <<  " Callbacks::linkedObjectEntryVec exits" << std::endl;
+	       <<  " Callbacks::process_addresspace exits" << std::endl;
 	std::cerr << output.str();
     }
 #endif
@@ -1370,7 +1384,7 @@ void Callbacks::unloadedLinkedObject(const Blob& blob)
 	);
 
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::"
 	       << toString(message);
@@ -1479,7 +1493,7 @@ void Callbacks::performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & in
     memcpy(&message, in.get(),sizeof(CBTF_Protocol_Blob)); 
 
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
 
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::performanceData("
@@ -1498,7 +1512,7 @@ void Callbacks::performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & in
     // used to flush queue here.
 
 #ifndef NDEBUG
-    if(Frontend::isDebugEnabled()) {
+    if(Frontend::isTimingDebugEnabled()) {
 
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::performanceData("
