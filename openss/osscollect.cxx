@@ -381,7 +381,7 @@ int main(int argc, char** argv)
                     // Add in the -L list of nodes if aprun is present 
                     // and we are not co-locating
                     std::list<std::string> nodes = cbtftopology.getAppNodeList();
-                    std::string appNodesForAprun = "-L " + cbtftopology.createCSVstring(nodes);
+                    std::string appNodesForAprun = "-L " + cbtftopology.createRangeCSVstring(nodes) + " ";
                     pos = program.find("aprun ") + 6;
                     program.insert(pos, appNodesForAprun);
                 }
