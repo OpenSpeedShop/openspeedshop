@@ -201,6 +201,7 @@ int main(int argc, char** argv)
     bool isMPI;
     std::string topology, arch, connections, collector, program, mpiexecutable, cbtfrunpath;
 
+    bool is_debug_startup_enabled = (getenv("OPENSS_DEBUG_STARTUP") != NULL);
 
     // create a default for topology file.
     char const* cur_dir = getenv("PWD");
@@ -263,11 +264,17 @@ int main(int argc, char** argv)
       // Find out if there is an mpi driver to key off of
       // Then match the mpiexecutable value to the program name
       mpiexecutable = getMPIExecutableFromCommand(program);
+      if (is_debug_startup_enabled) {
+        std::cerr << "DEBUG: osscollect, program=" << program << " mpiexecutable=" << mpiexecutable << std::endl;
+      }
 
     }
 
     if (mpiexecutable != "") {
          numBE = getBEcountFromCommand(program);
+         if (is_debug_startup_enabled) {
+           std::cerr << "DEBUG: osscollect, numBE=" << numBE << " mpiexecutable=" << mpiexecutable << std::endl;
+         }
     }
 
     if (vm.count("help")) {
@@ -293,6 +300,9 @@ int main(int argc, char** argv)
     } else {
       //topology = default_topology;
       fenodename =  "localhost";
+    }
+    if (is_debug_startup_enabled) {
+      std::cerr << "DEBUG: osscollect, fenodename=" << fenodename << " topology=" << topology << std::endl;
     }
 
     // find name of application and strip any path.
@@ -384,11 +394,20 @@ int main(int argc, char** argv)
                     std::string appNodesForAprun = "-L " + cbtftopology.createRangeCSVstring(nodes) + " ";
                     pos = program.find("aprun ") + 6;
                     program.insert(pos, appNodesForAprun);
+
+                    if (is_debug_startup_enabled) {
+                      std::cerr << "DEBUG: osscollect, program=" << program << " mpiexecutable=" << mpiexecutable << std::endl;
+                      std::cerr << "DEBUG: osscollect, appNodesForAprun=" << appNodesForAprun << " pos=" << pos << std::endl;
+                    }
                 }
             }
 
 	    pos = program.find(mpiexecutable);
             exe_class_types appl_type =  typeOfExecutable(program, mpiexecutable);
+
+            if (is_debug_startup_enabled) {
+              std::cerr << "DEBUG: osscollect, appl_type=" << appl_type << " pos=" << pos << std::endl;
+            }
 
             if (appl_type == MPI_exe_type) {
               
