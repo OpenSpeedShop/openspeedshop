@@ -67,6 +67,11 @@ enum exe_class_types { MPI_exe_type, SEQ_RunAs_MPI_exe_type, SEQ_exe_type };
 static int getBEcountFromCommand(std::string command) {
 
     int retval = 1;
+    bool is_debug_startup_enabled = (getenv("OPENSS_DEBUG_STARTUP") != NULL);
+
+    if (is_debug_startup_enabled) {
+      std::cerr << "DEBUG: osscollect, Enter getBEcountFromCommand, command=" << command << std::endl;
+    }
 
     boost::char_separator<char> sep(" ");
     boost::tokenizer<boost::char_separator<char> > btokens(command, sep);
@@ -79,14 +84,26 @@ static int getBEcountFromCommand(std::string command) {
 	if (found_be_count) {
 	    S = t;
 	    retval = boost::lexical_cast<int>(S);
+            if (is_debug_startup_enabled) {
+              std::cerr << "DEBUG: osscollect, IN getBEcountFromCommand, found_be_count set retval=" << retval << " S=" << S << std::endl;
+            }
 	    break;
 	} else if (!strcmp( S.c_str(), std::string("-np").c_str())) {
+            if (is_debug_startup_enabled) {
+              std::cerr << "DEBUG: osscollect, IN getBEcountFromCommand, found -np value" << std::endl;
+            }
 	    found_be_count = true;
 	} else if (!strcmp(S.c_str(), std::string("-n").c_str())) {
+            if (is_debug_startup_enabled) {
+              std::cerr << "DEBUG: osscollect, IN getBEcountFromCommand, found -n value" << std::endl;
+            }
 	    found_be_count = true;
 	}
     } // end foreach
 
+    if (is_debug_startup_enabled) {
+      std::cerr << "DEBUG: osscollect, Exit getBEcountFromCommand, retval=" << retval << std::endl;
+    }
     return retval;
 }
 
@@ -135,7 +152,7 @@ static bool is_executable(std::string file)
         return false;
 
     // Examine for executable status
-    if ((status_buffer.st_mode & S_IEXEC) != 0)
+    if ((status_buffer.st_mode & S_IEXEC) != 0 && S_ISREG(status_buffer.st_mode))
         return true;
 
     return false;
@@ -148,18 +165,37 @@ static std::string getMPIExecutableFromCommand(std::string command) {
 
     std::string retval = "";
 
+    bool is_debug_startup_enabled = (getenv("OPENSS_DEBUG_STARTUP") != NULL);
+
+    if (is_debug_startup_enabled) {
+      std::cerr << "DEBUG: osscollect, ENTER getMPIExecutableFromCommand, command=" << command << std::endl;
+    }
+
     boost::char_separator<char> sep(" ");
     boost::tokenizer<boost::char_separator<char> > btokens(command, sep);
 
     BOOST_FOREACH (const std::string& t, btokens) {
+      if (is_debug_startup_enabled) {
+        std::cerr << "DEBUG: osscollect, IN getMPIExecutableFromCommand, top of if is_executable, t=" << t << std::endl;
+      }
       if (is_executable( t )) {
          exe_class_types local_exe_type = typeOfExecutable(command, t);
+         if (is_debug_startup_enabled) {
+           std::cerr << "DEBUG: osscollect, IN getMPIExecutableFromCommand, inside checks base on if is_executable, t=" 
+                     << t << " local_exe_type=" << local_exe_type << std::endl;
+         }
          if (local_exe_type == MPI_exe_type || local_exe_type == SEQ_RunAs_MPI_exe_type ) {
+           if (is_debug_startup_enabled) {
+             std::cerr << "DEBUG: osscollect, EXIT getMPIExecutableFromCommand, early return t=" << t << std::endl;
+           }
            return t;
          }
       }
     } // end foreach
 
+  if (is_debug_startup_enabled) {
+    std::cerr << "DEBUG: osscollect, EXIT getMPIExecutableFromCommand, bottom of routine return retval=" << retval << std::endl;
+  }
   return retval;
 }
 
@@ -385,7 +421,11 @@ int main(int argc, char** argv)
 
         if (!mpiexecutable.empty()) {
 
+#if 0
             size_t pos;
+#else
+            int64_t pos;
+#endif
             if (cbtftopology.getIsCray()) {
                 if (std::string::npos != program.find("aprun")) {
                     // Add in the -L list of nodes if aprun is present 
