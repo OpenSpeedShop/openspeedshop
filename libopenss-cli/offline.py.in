@@ -230,6 +230,11 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 				 ismpidriver = bool(1)
 				 if offlinepy_debug != 0: print "[openss-debug]: setting ismpidriver to bool 1"
 
+			     if file_arg_basename == "mpirun":
+				 if offlinepy_debug != 0: print "[openss-debug]: inside file_arg_basename is equal to mpirun"
+				 ismpidriver = bool(1)
+				 if offlinepy_debug != 0: print "[openss-debug]: setting ismpidriver to bool 1"
+
 			if set_mpi_impl == "openmpi":
 			     if offlinepy_debug != 0: print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is equal to openmpi"
 			     file_arg_basename = os.path.basename(file_arg)
