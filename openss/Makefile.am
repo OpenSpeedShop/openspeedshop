@@ -97,6 +97,7 @@ osscollect_CXXFLAGS = \
 osscollect_LDFLAGS = \
         -L$(top_srcdir)/libopenss-framework \
         @DYNINST_LDFLAGS@ \
+        @LIBELF_LDFLAGS@ \
         @LIBDWARF_LDFLAGS@ \
 	@LIBXERCES_C_LDFLAGS@ \
 	@MRNET_LDFLAGS@ \
@@ -105,6 +106,7 @@ osscollect_LDFLAGS = \
 osscollect_LDADD = \
 	$(LIBLTDL) \
         @DYNINST_LIBS@ \
+        @LIBELF_LIBS@ \
         @LIBDWARF_LIBS@ \
 	@LIBXERCES_C@ \
         @BOOST_PROGRAM_OPTIONS_LIB@ \
