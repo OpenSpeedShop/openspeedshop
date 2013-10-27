@@ -950,8 +950,9 @@ bool Parse_Interval_Specification (
     std::cout << "EXIT Parse_Interval_Specification, Iend= " << Iend << "last_time=" << last_time << std::endl;
 #endif
 
-    intervals.push_back(std::make_pair<Time,Time>(Istart,
-                                                  ((Iend == last_time) ? Iend + 1 :  Iend)));
+    intervals.push_back(std::make_pair(Istart, ((Iend == last_time) ? Iend + 1 :  Iend)));
+//    intervals.push_back(std::make_pair<Time,Time>(Istart,
+//                                                  ((Iend == last_time) ? Iend + 1 :  Iend)));
   }
 
   return true;
