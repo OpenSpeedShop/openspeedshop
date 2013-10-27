@@ -2175,7 +2175,7 @@ ManageCollectorsClass::RS_attachCollectorSelected(int val)
           mpChild = (MPListViewItem *)mpChild->nextSibling();
           continue;
         }
-        std::pair<std::string, std::string> p(host_name,pid_name);
+        std::pair<std::string, std::string> p(host_name.ascii(),pid_name.ascii());
 //        msg->host_pid_vector.push_back( p );
         attachStr += QString(" -h %1 -p %2 ").arg(host_name).arg(pid_name);
 #if DEBUG_MPPanel
@@ -2198,7 +2198,7 @@ ManageCollectorsClass::RS_attachCollectorSelected(int val)
       {
         continue;
       }
-      std::pair<std::string, std::string> p(host_name,pid_name);
+      std::pair<std::string, std::string> p(host_name.ascii(),pid_name.ascii());
 //      msg->host_pid_vector.push_back( p );
       attachStr += QString(" -h %1 -p %2 ").arg(host_name).arg(pid_name);
 // printf("B: push_back a new vector list.. (%s-%s)\n", host_name.ascii(), pid_name.ascii() );
