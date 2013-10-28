@@ -23,14 +23,13 @@ MPI_IMPL = @DEFAULT_MPI_IMPL@
 MPICC	= $($(MPI_IMPL)_CC)
 CC	= $(MPICC)
 
-CFLAGS = $($(MPI_IMPL)_CPPFLAGS) -g -gdwarf-2 -O2 -DLULESH_SHOW_PROGRESS=1
+CXXFLAGS = $($(MPI_IMPL)_CPPFLAGS) -g -gdwarf-2 -O2 -DLULESH_SHOW_PROGRESS=1
 
 lulesh_LDFLAGS = \
-	-lm  $($(MPI_IMPL)_LDFLAGS)
+	-lm  $($(MPI_IMPL)_LDFLAGS) $($(MPI_IMPL)_LIBS) -lmpi_cxx
 
-lulesh_LDADD = \
+lulesh_LIBS = \
 	-ldl $($(MPI_IMPL)_LIBS)
-
 
 lulesh_SOURCES = \
 	lulesh.cc
