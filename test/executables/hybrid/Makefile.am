@@ -21,7 +21,7 @@ SUBDIRS =
 
 if HAVE_MPI
 if HAVE_OPENMP
-SUBDIRS += smg2000
+SUBDIRS += smg2000 lulesh
 endif
 endif
 
@@ -29,6 +29,6 @@ endif
 # directories that will be packaged into tar.gz.
 # these can be a subset of the directories in SUBDIRS.
 #
-DIST_SUBDIRS = smg2000
+DIST_SUBDIRS = smg2000 lulesh
 
 

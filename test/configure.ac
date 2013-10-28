@@ -234,6 +234,7 @@ AC_CONFIG_FILES(
 	Makefile
         executables/Makefile
         executables/hybrid/Makefile
+        executables/hybrid/lulesh/Makefile
         executables/hybrid/smg2000/Makefile
         executables/hybrid/smg2000/krylov/Makefile
         executables/hybrid/smg2000/struct_ls/Makefile
