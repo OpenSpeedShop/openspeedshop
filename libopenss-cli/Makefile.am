@@ -140,9 +140,16 @@ monitor_libdir=$(TARGET_LIBMONITOR_LIBDIR)
 monitor_dir=$(TARGET_LIBMONITOR_DIR)
 mpich2_dir=$(TARGET_MPICH2_DIR)
 else
+
+if FE_SETUP_BUILD_TARGETED 
+monitor_libdir=$(LIBMONITOR_LIBDIR)/$(TARGET_OS)
+monitor_dir=$(LIBMONITOR_DIR)/$(TARGET_OS)
+mpich2_dir=$(TARGET_MPICH2_DIR)
+else
 monitor_libdir=$(LIBMONITOR_LIBDIR)
 monitor_dir=$(LIBMONITOR_DIR)
 mpich2_dir=$(MPICH2_DIR)
+endif
 endif
 
 

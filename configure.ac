@@ -18,7 +18,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-AC_INIT([OpenSpeedShop],[2.0.2-u13])
+AC_INIT([OpenSpeedShop],[2.0.2-u14])
 AC_COPYRIGHT([[Copyright (c) 2006-2013 Krell Institute. All Rights Reserved.]])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([libltdl/config])
@@ -255,9 +255,11 @@ AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
 AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
 AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
 AM_CONDITIONAL(BUILD_TARGETED, false)
+AM_CONDITIONAL(FE_SETUP_BUILD_TARGETED, false)
 
 case "$TARGET_OS" in
     cray-xk)
+        AM_CONDITIONAL(FE_SETUP_BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
@@ -270,6 +272,7 @@ case "$TARGET_OS" in
 	autoconf_for_target=0
 	;; 
     cray-xe)
+        AM_CONDITIONAL(FE_SETUP_BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
@@ -282,6 +285,7 @@ case "$TARGET_OS" in
 	autoconf_for_target=0
 	;; 
     cray-xt5)
+        AM_CONDITIONAL(FE_SETUP_BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
@@ -294,6 +298,7 @@ case "$TARGET_OS" in
 	autoconf_for_target=0
 	;; 
     cray-xt4)
+        AM_CONDITIONAL(FE_SETUP_BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
@@ -306,6 +311,7 @@ case "$TARGET_OS" in
 	autoconf_for_target=0
 	;; 
     bgl)
+        AM_CONDITIONAL(FE_SETUP_BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED, true)
 	AM_CONDITIONAL(BUILD_TARGETED_BGL, true)
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
@@ -319,6 +325,7 @@ case "$TARGET_OS" in
 	autoconf_for_target=1
 	;; 
     bgp)
+        AM_CONDITIONAL(FE_SETUP_BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED, true)
 	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, true)
@@ -331,7 +338,24 @@ case "$TARGET_OS" in
         target_os=bgp
 	autoconf_for_target=1
 	;; 
+    bgqfe)
+        AM_CONDITIONAL(FE_SETUP_BUILD_TARGETED, true)
+        AM_CONDITIONAL(BUILD_TARGETED, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
+	AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
+        AC_DEFINE(FE_SETUP_BUILD_TARGETED, 1, [Define to 1 if setting up the front end for targeted runtime.])
+        AC_DEFINE(BUILD_TARGETED, 0, [Define to 0 if not building a targeted runtime.])
+        AC_DEFINE(TARGET_OS_BGQ, 0, [Do not define if not building for targeted bgq.])
+        AC_DEFINE_UNQUOTED(TARGET_OS,bgq,
+                           [Name targeted OS])
+        target_os=bgq
+	TARGET_OS=bgq
+	autoconf_for_target=0
+        ;;
+
     bgq)
+        AM_CONDITIONAL(FE_SETUP_BUILD_TARGETED, false)
         AM_CONDITIONAL(BUILD_TARGETED, true)
 	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
@@ -345,6 +369,7 @@ case "$TARGET_OS" in
 	autoconf_for_target=1
         ;;
     *)
+        AM_CONDITIONAL(FE_SETUP_BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGL, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
@@ -356,6 +381,7 @@ case "$TARGET_OS" in
 	;; 
 esac
 
+AC_SUBST(FE_SETUP_BUILD_TARGETED)
 AC_SUBST(BUILD_TARGETED_BGL)
 AC_SUBST(BUILD_TARGETED_BGP)
 AC_SUBST(BUILD_TARGETED_BGQ)
