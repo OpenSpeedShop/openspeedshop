@@ -345,8 +345,6 @@ case "$TARGET_OS" in
 	AM_CONDITIONAL(BUILD_TARGETED_BGP, false)
 	AM_CONDITIONAL(BUILD_TARGETED_BGQ, false)
         AC_DEFINE(FE_SETUP_BUILD_TARGETED, 1, [Define to 1 if setting up the front end for targeted runtime.])
-        AC_DEFINE(BUILD_TARGETED, 0, [Define to 0 if not building a targeted runtime.])
-        AC_DEFINE(TARGET_OS_BGQ, 0, [Do not define if not building for targeted bgq.])
         AC_DEFINE_UNQUOTED(TARGET_OS,bgq,
                            [Name targeted OS])
         target_os=bgq
