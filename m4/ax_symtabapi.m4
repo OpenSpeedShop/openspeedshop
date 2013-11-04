@@ -31,8 +31,8 @@ AC_DEFUN([AX_SYMTABAPI], [
 
     AC_ARG_WITH(symtabapi-version,
                 AC_HELP_STRING([--with-symtabapi-version=VERS],
-                               [symtabapi-version installation @<:@8.1.1@:>@]),
-                symtabapi_vers=$withval, symtabapi_vers="8.1.1")
+                               [symtabapi-version installation @<:@8.1.2@:>@]),
+                symtabapi_vers=$withval, symtabapi_vers="8.1.2")
 
     AC_ARG_WITH([symtabapi-libdir],
                 AS_HELP_STRING([--with-symtabapi-libdir=LIB_DIR],
@@ -71,7 +71,12 @@ AC_DEFUN([AX_SYMTABAPI], [
 	"8.1.1")
             SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
             ;;
+	"8.1.2")
+            SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -I$symtabapi_dir/include/dyninst -std=c++0x"
+            SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
+            ;;
 	*)
+            SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -I$symtabapi_dir/include/dyninst -std=c++0x"
             SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
             ;;
     esac
