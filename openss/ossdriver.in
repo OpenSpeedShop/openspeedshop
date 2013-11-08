@@ -2,7 +2,7 @@
 ################################################################################
 # Display Usage When Necessary
 ################################################################################
-debug_flag=1
+debug_flag=0
 
 # Initialize to indicate no "high" parameter was seen
 # If this is set we will up the sampling rate or threshold depending on the experiment
