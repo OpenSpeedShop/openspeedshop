@@ -2,13 +2,12 @@
                 Installing Open|SpeedShop from Source
 
 
-Please see the INSTALL-note_a and README files in the 
+Please see the README file in the 
 OpenSpeedShop_ROOT development tree or the openspeedshop-release-r.n 
 release tree for how to build and install into a non-root location.
 
 There is also a build and install document on www.openspeedshop.org/wp/documentation/.
 
-INSTALL_a in this directory is equivalent to INSTALL-note_a for your convenience.
 
 
 

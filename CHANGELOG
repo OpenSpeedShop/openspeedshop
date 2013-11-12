@@ -1,3 +1,14 @@
+
+New OpenSpeedShop-2.1 release
+
+1) MPI-3 standard support in the MPI wrappers.
+2) Experimental CBTF instrumentor support, if built for CBTF instrumentation
+   a) 4 new experiments (under development)  mem, pthread, iop, and cuda
+   b) MRNet based performance data transport mechanism.
+3) Many bug fixes for the offline version.
+4) Different installation mechanism based on install-tool.
+
+
 Changes in 2.0.0 since 1.9.3.4
 
 1) More general support for support of PPC platforms
