@@ -115,9 +115,9 @@ namespace OpenSpeedShop { namespace Framework {
 				  const std::string& = getLocalHost(),
                                   uint64_t numBE = 0,
 				  const OutputCallback = 
-				      OutputCallback(NULL, NULL),
+				      OutputCallback(static_cast<OutputCallback::first_type>(NULL), static_cast<OutputCallback::second_type>(NULL)),
 				  const OutputCallback = 
-				      OutputCallback(NULL, NULL)) const;
+				      OutputCallback(static_cast<OutputCallback::first_type>(NULL), static_cast<OutputCallback::second_type>(NULL))) const;
 	
 	ThreadGroup attachMPIJob(const pid_t&,
 				 const std::string& = getLocalHost()) const;
@@ -155,9 +155,9 @@ namespace OpenSpeedShop { namespace Framework {
 	void setApplicationCommand(const char *, bool trust_me);
 
 	void prepareToRerun(const OutputCallback =
-			        OutputCallback(NULL, NULL),
+			        OutputCallback(static_cast<OutputCallback::first_type>(NULL), static_cast<OutputCallback::second_type>(NULL)),
 			    const OutputCallback =
-			        OutputCallback(NULL, NULL)) const;
+			        OutputCallback(static_cast<OutputCallback::first_type>(NULL), static_cast<OutputCallback::second_type>(NULL))) const;
 
 	std::set<LinkedObject> getExecutables() const;
 
