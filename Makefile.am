@@ -149,7 +149,7 @@ DIST_SUBDIRS = \
 	$(MISC_SUBDIRS)
 
 # Need the images files and the tests files in tarball.
-EXTRA_DIST = libopenss-guiimages/*.xpm libopenss-guiimages/*.bmp mc bootstrap do_build bootstrap_rpm INSTALL_a README-mpi
+EXTRA_DIST = libopenss-guiimages/*.xpm libopenss-guiimages/*.bmp mc bootstrap do_build bootstrap_rpm README-mpi
 
 # The following "framework" target is simply a short-hand for the framework
 # developers (i.e. WDH) to build just those components necessary for working
