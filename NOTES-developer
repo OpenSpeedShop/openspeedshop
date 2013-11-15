@@ -69,3 +69,8 @@ HOW TO BUILD CBTF INSTRUMENTOR VERSION: (example configure)
 # shows where the expected components could/should come from (root, boost, cbtf are main categories)
 ./configure --prefix=/users/jeg/todi/cbtf_oss --with-instrumentor=cbtf --enable-resolve-symbols=symtabapi --with-symtabapi=/users/jeg/todi/krell_root --with-mrnet=/users/jeg/todi/krell_root     --with-mrnet-version=4.0.0 --with-dyninst=/users/jeg/todi/krell_root --with-dyninst-version=8.0.0 --with-libdwarf=/users/jeg/todi/krell_root --with-libmonitor=/users/jeg/todi/krell_root     --with-libxerces-c-prefix=/users/jeg/todi/krell_root --with-cbtf=/users/jeg/todi/cbtf_proper_shared --with-cbtf-xml=/users/jeg/todi/cbtf_proper_shared --with-cbtf-mrnet=/users/jeg/todi/cbtf_proper_shared --with-cbtf-messages=/users/jeg/todi/cbtf_proper_shared --with-cbtf-services=/users/jeg/todi/cbtf_proper_shared --with-boost=/apps/todi/boost/1.50sn/gnu_434 --with-boost-libdir=/apps/todi/boost/1.50sn/gnu_434/lib --with-sqlite=/users/jeg/todi/krell_root
 
+
+HOW to cvs tag the release: (11-15-13 jeg)
+
+cvs tag openspeedshop_21
+
