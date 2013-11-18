@@ -121,6 +121,9 @@ SS_Parse_Yacc.hxx: $(YFILES)
 	-mv y.tab.c SS_Parse_Yacc.cxx
 	-mv y.tab.h SS_Parse_Yacc.hxx
 
+SS_Parse_Yacc.h: $(YFILES) SS_Parse_Yacc.hxx
+	cp SS_Parse_Yacc.hxx SS_Parse_Yacc.h
+
 SS_Parse_Lex.cxx: $(LFILES) SS_Parse_Yacc.hxx
 	-rm -f SS_Parse_Lex.cxx
 	-$(LEX) $(LFILES);
