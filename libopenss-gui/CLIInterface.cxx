@@ -48,6 +48,32 @@
 #include <qinputdialog.h>
 #include <qmessagebox.h>
 
+namespace {
+
+#define CLI_NANOSLEEP_MS 250
+   /**
+     * Suspend the calling thread.
+     *
+     * Suspends the calling thread for approximately CLI_NANOSLEEP_MS. Used to implement
+     * busy loops that are waiting for state changes in threads.
+     *
+     * The suspend here replaced sleep(1) calls wherever seen in this file (11/18/13)
+     */
+    void suspend()
+    {
+        // Setup to wait
+        struct timespec wait;
+        wait.tv_sec = 0;
+        wait.tv_nsec = CLI_NANOSLEEP_MS * 1000 * 1000;
+
+        // Suspend ourselves temporarily
+        // This while loop ensures that nanosleep will sleep at
+        // least the amount of time even if a signal interupts nanosleep.
+        while(nanosleep(&wait, &wait));
+    }
+}
+
+
 bool CLIInterface::interrupt = false;
 #define RETURN_FALSE QApplication::restoreOverrideCursor();return false;
 #define RETURN_TRUE QApplication::restoreOverrideCursor();return true;
@@ -122,7 +148,7 @@ nprintf(DEBUG_COMMANDS) ("runSynchronousCLI() command = (%s)\n", command );
       RETURN_FALSE;
     }
 
-    sleep(1);
+    suspend();
   }
 
   if( timer )
@@ -259,7 +285,7 @@ CLIInterface::getIntValueFromCLI(const char *command, int64_t *val, bool mark_va
       RETURN_FALSE;
     }
 
-    sleep(1);
+    suspend();
   } 
 
   if( timer )
@@ -408,7 +434,7 @@ CLIInterface::getIntListValueFromCLI(const char *command, std::list<int64_t> *in
       RETURN_FALSE;
     }
 
-    sleep(1);
+    suspend();
   } 
 
   if( timer )
@@ -526,7 +552,7 @@ CLIInterface::getStringValueFromCLI(const char *command, std::string *str_val, b
       RETURN_FALSE;
     }
 
-    sleep(1);
+    suspend();
   } 
 
   if( timer )
@@ -639,7 +665,8 @@ nprintf(DEBUG_COMMANDS) ("getStringListValueFromCLI() command = (%s)\n", command
       RETURN_FALSE;
     }
 
-    sleep(1);
+    suspend();
+
   } 
 
   if( timer )
