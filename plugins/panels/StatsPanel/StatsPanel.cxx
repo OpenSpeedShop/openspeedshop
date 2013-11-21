@@ -83,6 +83,7 @@
 #include "sourceAnnotation_icon.xpm"
 #include "hotcallpath_icon.xpm"
 
+
 class MetricHeaderInfo;
 class QPushButton;
 typedef QValueList<MetricHeaderInfo *> MetricHeaderInfoList;
@@ -189,6 +190,30 @@ static const char *blue_color_names[] = {
 #include "ToolAPI.hxx"
 using namespace OpenSpeedShop::Framework;
 
+namespace {
+
+#define CLI_NANOSLEEP_MS 250
+   /**
+     * Suspend the calling thread.
+     *
+     * Suspends the calling thread for approximately CLI_NANOSLEEP_MS. Used to implement
+     * busy loops that are waiting for state changes in threads.
+     *
+     * The suspend here replaced sleep(1) calls wherever seen in this file (11/18/13)
+     */
+    void suspend()
+    {
+        // Setup to wait
+        struct timespec wait;
+        wait.tv_sec = 0;
+        wait.tv_nsec = CLI_NANOSLEEP_MS * 1000 * 1000;
+
+        // Suspend ourselves temporarily
+        // This while loop ensures that nanosleep will sleep at
+        // least the amount of time even if a signal interupts nanosleep.
+        while(nanosleep(&wait, &wait));
+    }
+}
 
 
 // This routine is strongly based (copy of) 
@@ -3556,7 +3581,8 @@ StatsPanel::timeSliceSelected()
     while( !clip->Semantics_Complete() )
     {
       qApp->processEvents(4000);
-      sleep(1);
+      suspend();
+      //sleep(1);
     }
 
     std::list<CommandObject *>::iterator coi;
@@ -6588,7 +6614,8 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
 
     qApp->flushX();
     qApp->processEvents(4000);
-    sleep(1);
+    suspend();
+    //sleep(1);
   }
 
 #ifdef DEBUG_StatsPanel
@@ -12508,7 +12535,8 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
       break;
     }
 
-    sleep(1);
+    suspend();
+    //sleep(1);
   }
 
 #ifdef DEBUG_StatsPanel
