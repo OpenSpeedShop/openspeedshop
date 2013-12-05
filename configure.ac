@@ -241,6 +241,43 @@ case "$TLS" in
 esac
 
 ################################################################################
+# Check for a --with-runtime-dir option
+################################################################################
+
+AC_DEFUN([AX_RUNTIME_DIR], [
+
+    AC_ARG_WITH(runtime-dir,
+                AC_HELP_STRING([--with-runtime-dir=DIR],
+                               [Compute node runtime environment installation directory path@<:@/nodefault@:>@]),
+                runtime_dir=$withval, runtime_dir="/nodefault")
+
+    AC_MSG_CHECKING([for compute runtime environment library])
+    RUNTIME_DIR=""
+    RUNTIME_DIR_LDFLAGS=""
+
+    if (test -e $runtime_dir/$abi_libdir) ; then
+       RUNTIME_DIR="$runtime_dir"
+       AC_DEFINE(HAVE_RUNTIME_DIR, 1, [Define to 1 if you to indicate a runtime directory exists  .])
+       AM_CONDITIONAL(HAVE_RUNTIME_DIR, true)
+       RUNTIME_DIR_LDFLAGS="-L$runtime_dir/$abi_libdir"
+       AC_MSG_RESULT(yes)
+    elif (test -e $runtime_dir/$alt_abi_libdir) ; then
+       RUNTIME_DIR="$runtime_dir"
+       AC_DEFINE(HAVE_RUNTIME_DIR, 1, [Define to 1 if you to indicate a runtime directory exists  .])
+       AM_CONDITIONAL(HAVE_RUNTIME_DIR, true)
+       RUNTIME_DIR_LDFLAGS="-L$runtime_dir/$alt_abi_libdir"
+       AC_MSG_RESULT(yes)
+    else
+       AM_CONDITIONAL(HAVE_RUNTIME_DIR, false)
+       AC_MSG_RESULT(no)
+    fi
+
+    AC_SUBST(RUNTIME_DIR)
+    AC_SUBST(RUNTIME_DIR_LDFLAGS)
+
+])
+
+################################################################################
 # Target O/S Specification
 ################################################################################
 
@@ -636,6 +673,7 @@ case "$INSTRUMENTOR" in
 	AC_DEFINE(BUILD_OFFLINE, 1, [Define to 1 if you only want the offline instrumentor.])
 	AM_CONDITIONAL(BUILD_INSTRUMENTOR, true)
 	AC_DEFINE(BUILD_INSTRUMENTOR, 1, [Define to 1 if you do not want an instrumentor built.])
+	AX_RUNTIME_DIR()
 	;;
 
     cbtf)
@@ -726,6 +764,7 @@ else
 fi
 
 AC_SUBST(BUILD_GUI_ONLY)
+
 
 
 ################################################################################

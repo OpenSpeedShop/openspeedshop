@@ -204,11 +204,21 @@ unwind_dir=$(TARGET_LIBUNWIND_DIR)
 papi_dir=$(TARGET_PAPI_DIR)
 mpich2_dir=$(TARGET_MPICH2_DIR)
 else
+
+if HAVE_RUNTIME_DIR
+monitor_dir=$(RUNTIME_DIR)
+monitor_libdir=$(RUNTIME_DIR)
+unwind_dir=$(RUNTIME_DIR)
+papi_dir=$(RUNTIME_DIR)
+mpich2_dir=$(MPICH2_DIR)
+else
 monitor_dir=$(LIBMONITOR_DIR)
 monitor_libdir=$(LIBMONITOR_LIBDIR)
 unwind_dir=$(LIBUNWIND_DIR)
 papi_dir=$(PAPI_DIR)
 mpich2_dir=$(MPICH2_DIR)
+endif
+
 endif
 
 if BUILD_INSTRUMENTOR

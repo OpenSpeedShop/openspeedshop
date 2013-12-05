@@ -144,6 +144,12 @@ monitor_dir=$(TARGET_LIBMONITOR_DIR)
 mpich2_dir=$(TARGET_MPICH2_DIR)
 else
 
+if HAVE_RUNTIME_DIR
+ossrun_location=$(RUNTIME_DIR)
+else
+ossrun_location=$(prefix)
+endif
+
 if FE_SETUP_BUILD_TARGETED 
 monitor_libdir=$(LIBMONITOR_LIBDIR)/$(TARGET_OS)
 monitor_dir=$(LIBMONITOR_DIR)/$(TARGET_OS)
@@ -175,7 +181,7 @@ offline.py: offline.py.in
 	@rm -f offline.py
 	@sed \
 		-e 's,@@target_os@@,$(TARGET_OS),' \
-		-e 's,@@oss_installation_dir@@,$(prefix),' \
+		-e 's,@@oss_installation_dir@@,$(ossrun_location),' \
 		-e 's,@@machine_dependent_libdir@@,$(abi_libdir_name),' \
 		-e 's,@@osslibdir@@,$(pkglibdir),' \
 		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
