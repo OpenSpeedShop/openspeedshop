@@ -205,11 +205,11 @@ papi_dir=$(TARGET_PAPI_DIR)
 mpich2_dir=$(TARGET_MPICH2_DIR)
 else
 
-if HAVE_RUNTIME_DIR
-monitor_dir=$(RUNTIME_DIR)
-monitor_libdir=$(RUNTIME_DIR)
-unwind_dir=$(RUNTIME_DIR)
-papi_dir=$(RUNTIME_DIR)
+if HAVE_OSS_RUNTIME_DIR
+monitor_dir=$(OSS_RUNTIME_DIR)
+monitor_libdir=$(OSS_RUNTIME_DIR)
+unwind_dir=$(OSS_RUNTIME_DIR)
+papi_dir=$(OSS_RUNTIME_DIR)
 mpich2_dir=$(MPICH2_DIR)
 else
 monitor_dir=$(LIBMONITOR_DIR)

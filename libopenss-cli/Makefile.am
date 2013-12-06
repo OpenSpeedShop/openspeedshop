@@ -139,26 +139,40 @@ doc:
 
 
 if BUILD_TARGETED
+
 monitor_libdir=$(TARGET_LIBMONITOR_LIBDIR)
 monitor_dir=$(TARGET_LIBMONITOR_DIR)
 mpich2_dir=$(TARGET_MPICH2_DIR)
-else
-
-if HAVE_RUNTIME_DIR
-ossrun_location=$(RUNTIME_DIR)
-else
 ossrun_location=$(prefix)
-endif
+
+else
 
 if FE_SETUP_BUILD_TARGETED 
+
 monitor_libdir=$(LIBMONITOR_LIBDIR)/$(TARGET_OS)
 monitor_dir=$(LIBMONITOR_DIR)/$(TARGET_OS)
 mpich2_dir=$(TARGET_MPICH2_DIR)
+
 else
-monitor_libdir=$(LIBMONITOR_LIBDIR)
-monitor_dir=$(LIBMONITOR_DIR)
+
 mpich2_dir=$(MPICH2_DIR)
+
+if HAVE_OSS_RUNTIME_DIR
+
+ossrun_location=$(OSS_RUNTIME_DIR)
+monitor_dir=$(OSS_RUNTIME_DIR)
+monitor_libdir=$(OSS_RUNTIME_DIR)/$(LIBDIR)
+
+else
+
+ossrun_location=$(prefix)
+monitor_dir=$(LIBMONITOR_DIR)
+monitor_libdir=$(LIBMONITOR_LIBDIR)
+
 endif
+
+endif
+
 endif
 
 
@@ -186,7 +200,7 @@ offline.py: offline.py.in
 		-e 's,@@osslibdir@@,$(pkglibdir),' \
 		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
 		-e 's,@@libmonitordir@@,$(monitor_dir),' \
-		-e 's,@@libmonitorlibdir@@,$(LIBMONITOR_LIBDIR),' \
+		-e 's,@@libmonitorlibdir@@,$(monitor_libdir),' \
                 -e 's,@@alt_machine_dependent_libdir@@,$(alt_abi_libdir_name),' \
                 -e 's,@@mpichdir@@,$(MPICH_DIR),' \
                 -e 's,@@mpich2dir@@,$(mpich2_dir),' \
