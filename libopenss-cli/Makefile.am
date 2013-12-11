@@ -157,11 +157,11 @@ else
 
 mpich2_dir=$(MPICH2_DIR)
 
-if HAVE_OSS_RUNTIME_DIR
+if HAVE_RUNTIME_DIR
 
-ossrun_location=$(OSS_RUNTIME_DIR)
-monitor_dir=$(OSS_RUNTIME_DIR)
-monitor_libdir=$(OSS_RUNTIME_DIR)/$(LIBDIR)
+ossrun_location=$(RUNTIME_DIR)
+monitor_dir=$(RUNTIME_DIR)
+monitor_libdir=$(RUNTIME_DIR)/$(LIBDIR)
 
 else
 
