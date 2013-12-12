@@ -249,23 +249,23 @@ AC_DEFUN([AX_RUNTIME_DIR], [
     AC_ARG_WITH(oss-runtime-dir,
                 AC_HELP_STRING([--with-oss-runtime-dir=DIR],
                                [Compute node runtime environment installation directory path@<:@/nodefault@:>@]),
-                oss_runtime_dir=$withval, oss_runtime_dir="/nodefault")
+                runtime_dir=$withval, runtime_dir="/nodefault")
 
     AC_MSG_CHECKING([for compute OpenSpeedShop runtime environment library])
     RUNTIME_DIR=""
     RUNTIME_DIR_LDFLAGS=""
 
-    if (test -e $oss_runtime_dir/$abi_libdir) ; then
-       RUNTIME_DIR="$oss_runtime_dir"
+    if (test -e $runtime_dir/$abi_libdir) ; then
+       RUNTIME_DIR="$runtime_dir"
        AC_DEFINE(HAVE_RUNTIME_DIR, 1, [Define to 1 if you to indicate a runtime directory exists  .])
        AM_CONDITIONAL(HAVE_RUNTIME_DIR, true)
-       RUNTIME_DIR_LDFLAGS="-L$oss_runtime_dir/$abi_libdir"
+       RUNTIME_DIR_LDFLAGS="-L$runtime_dir/$abi_libdir"
        AC_MSG_RESULT(yes)
-    elif (test -e $oss_runtime_dir/$alt_abi_libdir) ; then
-       RUNTIME_DIR="$oss_runtime_dir"
+    elif (test -e $runtime_dir/$alt_abi_libdir) ; then
+       RUNTIME_DIR="$runtime_dir"
        AC_DEFINE(HAVE_RUNTIME_DIR, 1, [Define to 1 if you to indicate a runtime directory exists  .])
        AM_CONDITIONAL(HAVE_RUNTIME_DIR, true)
-       RUNTIME_DIR_LDFLAGS="-L$oss_runtime_dir/$alt_abi_libdir"
+       RUNTIME_DIR_LDFLAGS="-L$runtime_dir/$alt_abi_libdir"
        AC_MSG_RESULT(yes)
     else
        AM_CONDITIONAL(HAVE_RUNTIME_DIR, false)
