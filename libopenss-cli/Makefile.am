@@ -156,23 +156,19 @@ mpich2_dir=$(TARGET_MPICH2_DIR)
 else
 
 mpich2_dir=$(MPICH2_DIR)
-
-if HAVE_RUNTIME_DIR
-
-ossrun_location=$(RUNTIME_DIR)
-monitor_dir=$(RUNTIME_DIR)
-monitor_libdir=$(RUNTIME_DIR)/$(LIBDIR)
-
-else
-
-ossrun_location=$(prefix)
 monitor_dir=$(LIBMONITOR_DIR)
 monitor_libdir=$(LIBMONITOR_LIBDIR)
 
+if HAVE_RUNTIME_DIR
+ossrun_location=$(RUNTIME_DIR)
+else
+ossrun_location=$(prefix)
 endif
 
+# endif for else of FE_SETUP_BUILD_TARGETED
 endif
 
+# endif for else of BUILD_TARGETED
 endif
 
 

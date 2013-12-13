@@ -241,13 +241,13 @@ case "$TLS" in
 esac
 
 ################################################################################
-# Check for a --with-oss-runtime-dir option
+# Check for a --with-runtime-dir option
 ################################################################################
 
 AC_DEFUN([AX_RUNTIME_DIR], [
 
-    AC_ARG_WITH(oss-runtime-dir,
-                AC_HELP_STRING([--with-oss-runtime-dir=DIR],
+    AC_ARG_WITH(runtime-dir,
+                AC_HELP_STRING([--with-runtime-dir=DIR],
                                [Compute node runtime environment installation directory path@<:@/nodefault@:>@]),
                 runtime_dir=$withval, runtime_dir="/nodefault")
 
