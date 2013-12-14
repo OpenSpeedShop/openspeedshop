@@ -23,7 +23,7 @@ MPI_IMPL = @DEFAULT_MPI_IMPL@
 MPICC	= $($(MPI_IMPL)_CC)
 CC	= $(MPICC)
 
-CXXFLAGS = $($(MPI_IMPL)_CPPFLAGS) -g -gdwarf-2 -O2 -fopenmp -DLULESH_SHOW_PROGRESS=1
+CXXFLAGS = $($(MPI_IMPL)_CPPFLAGS) -g -gdwarf-2 -O2 -fopenmp -DUSE_MPI=1
 
 lulesh_LDFLAGS = \
 	-lm  $($(MPI_IMPL)_LDFLAGS) $($(MPI_IMPL)_LIBS) -lmpi_cxx
@@ -34,6 +34,11 @@ lulesh_LIBS = \
 
 
 lulesh_SOURCES = \
-	lulesh.cc
+        lulesh.cc \
+        lulesh-comm.cc \
+        lulesh-viz.cc \
+        lulesh-util.cc \
+        lulesh-init.cc
 
-EXTRA_DIST = lulesh.cc Makefile.am
+EXTRA_DIST = lulesh.cc lulesh-comm.cc lulesh-viz.cc lulesh-util.cc lulesh-init.cc Makefile.am
+

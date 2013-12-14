@@ -1,13 +1,95 @@
-/*            LULESH -- MPI IMPLEMENTATION
+/*
+  This is a Version 2.0 MPI + OpenMP Beta implementation of LULESH
 
-                 Copyright (c) 2010.
+                 Copyright (c) 2010-2013.
       Lawrence Livermore National Security, LLC.
 Produced at the Lawrence Livermore National Laboratory.
                   LLNL-CODE-461231
                 All rights reserved.
 
-This file is part of LULESH, Version 1.0.
+This file is part of LULESH, Version 2.0.
 Please also read this link -- http://www.opensource.org/licenses/index.php
+
+//////////////
+DIFFERENCES BETWEEN THIS VERSION (2.x) AND EARLIER VERSIONS:
+* Addition of regions to make work more representative of multi-material codes
+* Default size of each domain is 30^3 (27000 elem) instead of 45^3. This is
+  more representative of our actual working set sizes
+* Single source distribution supports pure serial, pure OpenMP, MPI-only, 
+  and MPI+OpenMP
+* Addition of ability to visualize the mesh using VisIt 
+  https://wci.llnl.gov/codes/visit/download.html
+* Various command line options (see ./lulesh2.0 -h)
+ -q              : quiet mode - suppress stdout
+ -i <iterations> : number of cycles to run
+ -s <size>       : length of cube mesh along side
+ -r <numregions> : Number of distinct regions (def: 11)
+ -b <balance>    : Load balance between regions of a domain (def: 1)
+ -c <cost>       : Extra cost of more expensive regions (def: 1)
+ -f <filepieces> : Number of file parts for viz output (def: np/9)
+ -p              : Print out progress
+ -v              : Output viz file (requires compiling with -DVIZ_MESH
+ -h              : This message
+
+ printf("Usage: %s [opts]\n", execname);
+      printf(" where [opts] is one or more of:\n");
+      printf(" -q              : quiet mode - suppress all stdout\n");
+      printf(" -i <iterations> : number of cycles to run\n");
+      printf(" -s <size>       : length of cube mesh along side\n");
+      printf(" -r <numregions> : Number of distinct regions (def: 11)\n");
+      printf(" -b <balance>    : Load balance between regions of a domain (def: 1)\n");
+      printf(" -c <cost>       : Extra cost of more expensive regions (def: 1)\n");
+      printf(" -f <numfiles>   : Number of files to split viz dump into (def: (np+10)/9)\n");
+      printf(" -p              : Print out progress\n");
+      printf(" -v              : Output viz file (requires compiling with -DVIZ_MESH\n");
+      printf(" -h              : This message\n");
+      printf("\n\n");
+
+*Notable changes in LULESH 2.0
+
+* Split functionality into different files
+lulesh.cc - where most (all?) of the timed functionality lies
+lulesh-comm.cc - MPI functionality
+lulesh-init.cc - Setup code
+lulesh-viz.cc  - Support for visualization option
+lulesh-util.cc - Non-timed functions
+*
+* The concept of "regions" was added, although every region is the same ideal
+*    gas material, and the same sedov blast wave problem is still the only
+*    problem its hardcoded to solve.
+* Regions allow two things important to making this proxy app more representative:
+*   Four of the LULESH routines are now performed on a region-by-region basis,
+*     making the memory access patterns non-unit stride
+*   Artificial load imbalances can be easily introduced that could impact
+*     parallelization strategies.  
+* The load balance flag changes region assignment.  Region number is raised to
+*   the power entered for assignment probability.  Most likely regions changes
+*   with MPI process id.
+* The cost flag raises the cost of ~45% of the regions to evaluate EOS by the
+*   entered multiple. The cost of 5% is 10x the entered multiple.
+* MPI and OpenMP were added, and coalesced into a single version of the source
+*   that can support serial builds, MPI-only, OpenMP-only, and MPI+OpenMP
+* Added support to write plot files using "poor mans parallel I/O" when linked
+*   with the silo library, which in turn can be read by VisIt.
+* Enabled variable timestep calculation by default (courant condition), which
+*   results in an additional reduction.
+* Default domain (mesh) size reduced from 45^3 to 30^3
+* Command line options to allow numerous test cases without needing to recompile
+* Performance optimizations and code cleanup beyond LULESH 1.0
+* Added a "Figure of Merit" calculation (elements solved per microsecond) and
+*   output in support of using LULESH 2.0 for the 2017 CORAL procurement
+*
+* Possible Differences in Final Release (other changes possible)
+*
+* High Level mesh structure to allow data structure transformations
+* Different default parameters
+* Minor code performance changes and cleanup
+
+TODO in future versions
+* Add reader for (truly) unstructured meshes, probably serial only
+* CMake based build system
+
+//////////////
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -62,46 +144,24 @@ Additional BSD Notice
 
 */
 
+#include <climits>
 #include <vector>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <mpi.h>
-#include "string.h"
-#include "limits.h"
-//#define LULESH_SHOW_PROGRESS 1
+#include <string.h>
+#include <ctype.h>
+#include <time.h>
+#include <sys/time.h>
+#include <iostream>
+#include <unistd.h>
 
-//#define VIZ_MESH 1
+#if _OPENMP
+# include <omp.h>
+#endif
 
-enum { VolumeError = -1, QStopError = -2 } ;
+#include "lulesh.h"
 
-/****************************************************/
-/* Allow flexibility for arithmetic representations */
-/****************************************************/
-
-/* Could also support fixed point and interval arithmetic types */
-typedef float        real4 ;
-typedef double       real8 ;
-typedef long double  real10 ;  /* 10 bytes on x86 */
-
-typedef int    Index_t ; /* array subscript and loop index */
-typedef real8  Real_t ;  /* floating point representation */
-typedef int    Int_t ;   /* integer representation */
-
-inline real4  SQRT(real4  arg) { return sqrtf(arg) ; }
-inline real8  SQRT(real8  arg) { return sqrt(arg) ; }
-inline real10 SQRT(real10 arg) { return sqrtl(arg) ; }
-
-inline real4  CBRT(real4  arg) { return cbrtf(arg) ; }
-inline real8  CBRT(real8  arg) { return cbrt(arg) ; }
-inline real10 CBRT(real10 arg) { return cbrtl(arg) ; }
-
-inline real4  FABS(real4  arg) { return fabsf(arg) ; }
-inline real8  FABS(real8  arg) { return fabs(arg) ; }
-inline real10 FABS(real10 arg) { return fabsl(arg) ; }
-
-
-#define MAX(a, b) ( ((a) > (b)) ? (a) : (b))
 
 /*********************************/
 /* Data structure implementation */
@@ -109,157 +169,6 @@ inline real10 FABS(real10 arg) { return fabsl(arg) ; }
 
 /* might want to add access methods so that memory can be */
 /* better managed, as in luleshFT */
-
-struct Domain {
-   /* Elem-centered */
-
-   Index_t *matElemlist ;  /* material indexset */
-#if 1
-   Index_t *nodelist ;     /* elemToNode connectivity */
-#else
-   Index_t *nodelist0 ;    /* elemToNode connectivity */
-   Index_t *nodelist1 ;
-   Index_t *nodelist2 ;
-   Index_t *nodelist3 ;
-   Index_t *nodelist4 ;
-   Index_t *nodelist5 ;
-   Index_t *nodelist6 ;
-   Index_t *nodelist7 ;
-#endif
-
-   Index_t *lxim ;         /* elem connectivity through face */
-   Index_t *lxip ;
-   Index_t *letam ;
-   Index_t *letap ;
-   Index_t *lzetam ;
-   Index_t *lzetap ;
-
-   Int_t *elemBC ;         /* elem face symm/free-surface flag */
-
-   Real_t *e ;             /* energy */
-
-   Real_t *p ;             /* pressure */
-
-   Real_t *q ;             /* q */
-   Real_t *ql ;            /* linear term for q */
-   Real_t *qq ;            /* quadratic term for q */
-
-   Real_t *v ;             /* relative volume */
-
-   Real_t *volo ;          /* reference volume */
-   Real_t *delv ;          /* m_vnew - m_v */
-   Real_t *vdov ;          /* volume derivative over volume */
-
-   Real_t *arealg ;        /* elem characteristic length */
-
-   Real_t *ss ;            /* "sound speed" */
-
-   Real_t *elemMass ;      /* mass */
-
-   /* Elem temporaries */
-
-   Real_t *vnew ;          /* new relative volume -- temporary */
-
-   Real_t *delv_xi ;       /* velocity gradient -- temporary */
-   Real_t *delv_eta ;
-   Real_t *delv_zeta ;
-
-   Real_t *delx_xi ;       /* position gradient -- temporary */
-   Real_t *delx_eta ;
-   Real_t *delx_zeta ;
-
-   Real_t *dxx ;          /* principal strains -- temporary */
-   Real_t *dyy ;
-   Real_t *dzz ;
-
-   /* Node-centered */
-
-   Real_t *x ;             /* coordinates */
-   Real_t *y ;
-   Real_t *z ;
-
-   Real_t *xd ;            /* velocities */
-   Real_t *yd ;
-   Real_t *zd ;
-
-   Real_t *xdd ;           /* accelerations */
-   Real_t *ydd ;
-   Real_t *zdd ;
-
-   Real_t *fx ;            /* forces */
-   Real_t *fy ;
-   Real_t *fz ;
-
-   Real_t *nodalMass ;     /* mass */
-
-   /* Communication Work space */
-
-   Real_t *commDataSend ;
-   Real_t *commDataRecv ;
-
-   /* Maximum number of block neighbors */
-   MPI_Request recvRequest[26] ; /* 6 faces + 12 edges + 8 corners */
-   MPI_Request sendRequest[26] ; /* 6 faces + 12 edges + 8 corners */
-
-
-   /* Boundary nodesets */
-
-   Index_t *symmX ;        /* Nodes on X symmetry plane */
-   Index_t *symmY ;        /* Nodes on Y symmetry plane */
-   Index_t *symmZ ;        /* Nodes on Z symmetry plane */
-
-   /* Parameters */
-
-   Real_t  dtfixed ;           /* fixed time increment */
-   Real_t  time ;              /* current time */
-   Real_t  deltatime ;         /* variable time increment */
-   Real_t  deltatimemultlb ;
-   Real_t  deltatimemultub ;
-   Real_t  stoptime ;          /* end time for simulation */
-
-   Real_t  u_cut ;             /* velocity tolerance */
-   Real_t  hgcoef ;            /* hourglass control */
-   Real_t  qstop ;             /* excessive q indicator */
-   Real_t  monoq_max_slope ;
-   Real_t  monoq_limiter_mult ;
-   Real_t  e_cut ;             /* energy tolerance */
-   Real_t  p_cut ;             /* pressure tolerance */
-   Real_t  ss4o3 ;
-   Real_t  q_cut ;             /* q tolerance */
-   Real_t  v_cut ;             /* relative volume tolerance */
-   Real_t  qlc_monoq ;         /* linear term coef for q */
-   Real_t  qqc_monoq ;         /* quadratic term coef for q */
-   Real_t  qqc ;
-   Real_t  eosvmax ;
-   Real_t  eosvmin ;
-   Real_t  pmin ;              /* pressure floor */
-   Real_t  emin ;              /* energy floor */
-   Real_t  dvovmax ;           /* maximum allowable volume change */
-   Real_t  refdens ;           /* reference density */
-
-   Real_t  dtcourant ;         /* courant constraint */
-   Real_t  dthydro ;           /* volume change constraint */
-   Real_t  dtmax ;             /* maximum allowable time increment */
-
-   Int_t   cycle ;             /* iteration count for simulation */
-
-   Int_t   numProcs ;
-
-   Index_t colLoc ;
-   Index_t rowLoc ;
-   Index_t planeLoc ;
-   Index_t tp ;
-
-   Index_t sizeX ;
-   Index_t sizeY ;
-   Index_t sizeZ ;
-   Index_t maxPlaneSize ;
-   Index_t maxEdgeSize ;
-   Index_t numElem ;
-
-   Index_t numNode ;
-} ;
-
 
 template <typename T>
 T *Allocate(size_t size)
@@ -277,2150 +186,134 @@ void Release(T **ptr)
 }
 
 
-/* Stuff needed for boundary conditions */
-/* 2 BCs on each of 6 hexahedral faces (12 bits) */
-#define XI_M        0x00007
-#define XI_M_SYMM   0x00001
-#define XI_M_FREE   0x00002
-#define XI_M_COMM   0x00004
-
-#define XI_P        0x00038
-#define XI_P_SYMM   0x00008
-#define XI_P_FREE   0x00010
-#define XI_P_COMM   0x00020
-
-#define ETA_M       0x001c0
-#define ETA_M_SYMM  0x00040
-#define ETA_M_FREE  0x00080
-#define ETA_M_COMM  0x00100
-
-#define ETA_P       0x00e00
-#define ETA_P_SYMM  0x00200
-#define ETA_P_FREE  0x00400
-#define ETA_P_COMM  0x00800
-
-#define ZETA_M      0x07000
-#define ZETA_M_SYMM 0x01000
-#define ZETA_M_FREE 0x02000
-#define ZETA_M_COMM 0x04000
-
-#define ZETA_P      0x38000
-#define ZETA_P_SYMM 0x08000
-#define ZETA_P_FREE 0x10000
-#define ZETA_P_COMM 0x20000
-
-/* Assume 128 byte coherence */
-/* Assume Real_t is an "integral power of 2" bytes wide */
-#define CACHE_COHERENCE_PAD_REAL (128 / sizeof(Real_t))
-
-#define CACHE_ALIGN_REAL(n) \
-   (((n) + (CACHE_COHERENCE_PAD_REAL - 1)) & ~(CACHE_COHERENCE_PAD_REAL-1))
-
-/******************************************/
-
-/* Comm Routines */
-
-#define MAX_FIELDS_PER_MPI_COMM 6
-
-#define ALLOW_UNPACKED_PLANE false
-#define ALLOW_UNPACKED_ROW   false
-#define ALLOW_UNPACKED_COL   false
-
-#define MSG_COMM_SBN      1024
-#define MSG_SYNC_POS_VEL  2048
-#define MSG_MONOQ         3072
-
-/*
-   define one of these three symbols:
-
-   SEDOV_SYNC_POS_VEL_NONE
-   SEDOV_SYNC_POS_VEL_EARLY
-   SEDOV_SYNC_POS_VEL_LATE
-*/
-#define SEDOV_SYNC_POS_VEL_EARLY 1
-
-/*
-   There are coherence issues for packing and unpacking message
-   buffers.  Ideally, you would like a lot of threads to 
-   cooperate in the assembly/dissassembly of each message.
-   To do that, each thread should really be operating in a
-   different coherence zone.
-
-   Let's assume we have three fields, f1 through f3, defined on
-   a 61x61x61 cube.  If we want to send the block boundary
-   information for each field to each neighbor processor across
-   each cube face, then we have three cases for the
-   memory layout/coherence of data on each of the six cube
-   boundaries:
-
-      (a) Two of the faces will be in contiguous memory blocks
-      (b) Two of the faces will be comprised of pencils of
-          contiguous memory.
-      (c) Two of the faces will have large strides between
-          every value living on the face.
-
-   How do you pack and unpack this data in buffers to
-   simultaneous achieve the best memory efficiency and
-   the most thread independence?
-
-   Do do you pack field f1 through f3 tighly to reduce message
-   size?  Do you align each field on a cache coherence boundary
-   within the message so that threads can pack and unpack each
-   field independently?  For case (b), do you align each
-   boundary pencil of each field separately?  This increases
-   the message size, but could improve cache coherence so
-   each pencil could be processed independently by a separate
-   thread with no conflicts.
-
-   Also, memory access for case (c) would best be done without
-   going through the cache (the stride is so large it just causes
-   a lot of useless cache evictions).  Is it worth creating
-   a special case version of the packing algorithm that uses
-   non-coherent load/store opcodes?
-*/
-
-/*
-    Currently, all message traffic occurs at once.
-    We could spread message traffic out like this: 
-
-    CommRecv(domain) ;
-    forall(domain->views()-attr("chunk & boundary")) {
-       ... do work in parallel ...
-    }
-    CommSend(domain) ;
-    forall(domain->views()-attr("chunk & ~boundary")) {
-       ... do work in parallel ...
-    }
-    CommSBN() ;
-
-    or the CommSend() could function as a semaphore
-    for even finer granularity.  When the last chunk
-    on a boundary marks the boundary as complete, the
-    send could happen immediately:
-
-    CommRecv(domain) ;
-    forall(domain->views()-attr("chunk & boundary")) {
-       ... do work in parallel ...
-       CommSend(domain) ;
-    }
-    forall(domain->views()-attr("chunk & ~boundary")) {
-       ... do work in parallel ...
-    }
-    CommSBN() ;
-
-*/
-    
-/* doRecv flag only works with regular block structure */
-void CommRecv(Domain *domain, int msgType, Index_t xferFields,
-              Index_t dx, Index_t dy, Index_t dz, bool doRecv, bool planeOnly) {
-
-   if (domain->numProcs == 1) return ;
-
-   /* post recieve buffers for all incoming messages */
-   int myRank ;
-   Index_t maxPlaneComm = xferFields * domain->maxPlaneSize ;
-   Index_t maxEdgeComm  = xferFields * domain->maxEdgeSize ;
-   Index_t pmsg = 0 ; /* plane comm msg */
-   Index_t emsg = 0 ; /* edge comm msg */
-   Index_t cmsg = 0 ; /* corner comm msg */
-   MPI_Datatype baseType = ((sizeof(Real_t) == 4) ? MPI_FLOAT : MPI_DOUBLE) ;
-   bool rowMin, rowMax, colMin, colMax, planeMin, planeMax ;
-
-   /* assume communication to 6 neighbors by default */
-   rowMin = rowMax = colMin = colMax = planeMin = planeMax = true ;
-
-   if (domain->rowLoc == 0) {
-      rowMin = false ;
-   }
-   if (domain->rowLoc == (domain->tp-1)) {
-      rowMax = false ;
-   }
-   if (domain->colLoc == 0) {
-      colMin = false ;
-   }
-   if (domain->colLoc == (domain->tp-1)) {
-      colMax = false ;
-   }
-   if (domain->planeLoc == 0) {
-      planeMin = false ;
-   }
-   if (domain->planeLoc == (domain->tp-1)) {
-      planeMax = false ;
-   }
-
-   for (Index_t i=0; i<26; ++i) {
-      domain->recvRequest[i] = MPI_REQUEST_NULL ;
-   }
-
-   MPI_Comm_rank(MPI_COMM_WORLD, &myRank) ;
-
-   /* post receives */
-
-   /* receive data from neighboring domain faces */
-   if (planeMin && doRecv) {
-      /* contiguous memory */
-      int fromProc = myRank - domain->tp*domain->tp ;
-      int recvCount = dx * dy * xferFields ;
-      MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm],
-                recvCount, baseType, fromProc, (msgType + fromProc),
-                MPI_COMM_WORLD, &domain->recvRequest[pmsg]) ;
-      ++pmsg ;
-   }
-   if (planeMax) {
-      /* contiguous memory */
-      int fromProc = myRank + domain->tp*domain->tp ;
-      int recvCount = dx * dy * xferFields ;
-      MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm],
-                recvCount, baseType, fromProc, (msgType + fromProc),
-                MPI_COMM_WORLD, &domain->recvRequest[pmsg]) ;
-      ++pmsg ;
-   }
-   if (rowMin && doRecv) {
-      /* semi-contiguous memory */
-      int fromProc = myRank - domain->tp ;
-      int recvCount = dx * dz * xferFields ;
-      MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm],
-                recvCount, baseType, fromProc, (msgType + fromProc),
-                MPI_COMM_WORLD, &domain->recvRequest[pmsg]) ;
-      ++pmsg ;
-   }
-   if (rowMax) {
-      /* semi-contiguous memory */
-      int fromProc = myRank + domain->tp ;
-      int recvCount = dx * dz * xferFields ;
-      MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm],
-                recvCount, baseType, fromProc, (msgType + fromProc),
-                MPI_COMM_WORLD, &domain->recvRequest[pmsg]) ;
-      ++pmsg ;
-   }
-   if (colMin && doRecv) {
-      /* scattered memory */
-      int fromProc = myRank - 1 ;
-      int recvCount = dy * dz * xferFields ;
-      MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm],
-                recvCount, baseType, fromProc, (msgType + fromProc),
-                MPI_COMM_WORLD, &domain->recvRequest[pmsg]) ;
-      ++pmsg ;
-   }
-   if (colMax) {
-      /* scattered memory */
-      int fromProc = myRank + 1 ;
-      int recvCount = dy * dz * xferFields ;
-      MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm],
-                recvCount, baseType, fromProc, (msgType + fromProc),
-                MPI_COMM_WORLD, &domain->recvRequest[pmsg]) ;
-      ++pmsg ;
-   }
-
-   if (!planeOnly) {
-      /* receive data from domains connected only by an edge */
-      if (rowMin && colMin && doRecv) {
-         int fromProc = myRank - domain->tp - 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm],
-                   dz * xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (rowMin && planeMin && doRecv) {
-         int fromProc = myRank - domain->tp*domain->tp - domain->tp ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm],
-                   dx * xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (colMin && planeMin && doRecv) {
-         int fromProc = myRank - domain->tp*domain->tp - 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm],
-                   dy * xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (rowMax && colMax) {
-         int fromProc = myRank + domain->tp + 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm],
-                   dz * xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (rowMax && planeMax) {
-         int fromProc = myRank + domain->tp*domain->tp + domain->tp ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm],
-                   dx * xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (colMax && planeMax) {
-         int fromProc = myRank + domain->tp*domain->tp + 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm],
-                   dy * xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (rowMax && colMin) {
-         int fromProc = myRank + domain->tp - 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm],
-                   dz * xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (rowMin && planeMax) {
-         int fromProc = myRank + domain->tp*domain->tp - domain->tp ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm],
-                   dx * xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (colMin && planeMax) {
-         int fromProc = myRank + domain->tp*domain->tp - 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm],
-                   dy * xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (rowMin && colMax && doRecv) {
-         int fromProc = myRank - domain->tp + 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm],
-                   dz * xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (rowMax && planeMin && doRecv) {
-         int fromProc = myRank - domain->tp*domain->tp + domain->tp ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm],
-                   dx * xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (colMax && planeMin && doRecv) {
-         int fromProc = myRank - domain->tp*domain->tp + 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm],
-                   dy * xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      /* receive data from domains connected only by a corner */
-      if (rowMin && colMin && planeMin && doRecv) {
-         /* corner at domain logical coord (0, 0, 0) */
-         int fromProc = myRank - domain->tp*domain->tp - domain->tp - 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL],
-                   xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-      if (rowMin && colMin && planeMax) {
-         /* corner at domain logical coord (0, 0, 1) */
-         int fromProc = myRank + domain->tp*domain->tp - domain->tp - 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL],
-                   xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-      if (rowMin && colMax && planeMin && doRecv) {
-         /* corner at domain logical coord (1, 0, 0) */
-         int fromProc = myRank - domain->tp*domain->tp - domain->tp + 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL],
-                   xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-      if (rowMin && colMax && planeMax) {
-         /* corner at domain logical coord (1, 0, 1) */
-         int fromProc = myRank + domain->tp*domain->tp - domain->tp + 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL],
-                   xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-      if (rowMax && colMin && planeMin && doRecv) {
-         /* corner at domain logical coord (0, 1, 0) */
-         int fromProc = myRank - domain->tp*domain->tp + domain->tp - 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL],
-                   xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-      if (rowMax && colMin && planeMax) {
-         /* corner at domain logical coord (0, 1, 1) */
-         int fromProc = myRank + domain->tp*domain->tp + domain->tp - 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL],
-                   xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-      if (rowMax && colMax && planeMin && doRecv) {
-         /* corner at domain logical coord (1, 1, 0) */
-         int fromProc = myRank - domain->tp*domain->tp + domain->tp + 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL],
-                   xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-      if (rowMax && colMax && planeMax) {
-         /* corner at domain logical coord (1, 1, 1) */
-         int fromProc = myRank + domain->tp*domain->tp + domain->tp + 1 ;
-         MPI_Irecv(&domain->commDataRecv[pmsg * maxPlaneComm +
-                                         emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL],
-                   xferFields, baseType, fromProc, (msgType + fromProc),
-                   MPI_COMM_WORLD, &domain->recvRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-   }
-}
-
-void CommSend(Domain *domain, int msgType,
-              Index_t xferFields, Real_t **fieldData,
-              Index_t dx, Index_t dy, Index_t dz, bool doSend, bool planeOnly)
-{
-
-   if (domain->numProcs == 1) return ;
-
-   /* post recieve buffers for all incoming messages */
-   int myRank ;
-   Index_t maxPlaneComm = xferFields * domain->maxPlaneSize ;
-   Index_t maxEdgeComm  = xferFields * domain->maxEdgeSize ;
-   Index_t pmsg = 0 ; /* plane comm msg */
-   Index_t emsg = 0 ; /* edge comm msg */
-   Index_t cmsg = 0 ; /* corner comm msg */
-   MPI_Datatype baseType = ((sizeof(Real_t) == 4) ? MPI_FLOAT : MPI_DOUBLE) ;
-   MPI_Status status[26] ;
-   Real_t *destAddr ;
-   bool rowMin, rowMax, colMin, colMax, planeMin, planeMax ;
-   bool packable ;
-   /* assume communication to 6 neighbors by default */
-   rowMin = rowMax = colMin = colMax = planeMin = planeMax = true ;
-   if (domain->rowLoc == 0) {
-      rowMin = false ;
-   }
-   if (domain->rowLoc == (domain->tp-1)) {
-      rowMax = false ;
-   }
-   if (domain->colLoc == 0) {
-      colMin = false ;
-   }
-   if (domain->colLoc == (domain->tp-1)) {
-      colMax = false ;
-   }
-   if (domain->planeLoc == 0) {
-      planeMin = false ;
-   }
-   if (domain->planeLoc == (domain->tp-1)) {
-      planeMax = false ;
-   }
-
-   packable = true ;
-   for (Index_t i=0; i<xferFields-2; ++i) {
-     if((fieldData[i+1] - fieldData[i]) != (fieldData[i+2] - fieldData[i+1])) {
-        packable = false ;
-        break ;
-     }
-   }
-   for (Index_t i=0; i<26; ++i) {
-      domain->sendRequest[i] = MPI_REQUEST_NULL ;
-   }
-
-   MPI_Comm_rank(MPI_COMM_WORLD, &myRank) ;
-
-   /* post sends */
-
-   if (planeMin | planeMax) {
-      /* ASSUMING ONE DOMAIN PER RANK, CONSTANT BLOCK SIZE HERE */
-      static MPI_Datatype msgTypePlane ;
-      static bool packPlane ;
-      int sendCount = dx * dy ;
-
-      if (msgTypePlane == 0) {
-         /* Create an MPI_struct for field data */
-         if (ALLOW_UNPACKED_PLANE && packable) {
-
-            MPI_Type_vector(xferFields, sendCount,
-                            (fieldData[1] - fieldData[0]),
-                            baseType, &msgTypePlane) ;
-            MPI_Type_commit(&msgTypePlane) ;
-            packPlane = false ;
-         }
-         else {
-            msgTypePlane = baseType ;
-            packPlane = true ;
-         }
-      }
-
-      if (planeMin) {
-         /* contiguous memory */
-         if (packPlane) {
-            destAddr = &domain->commDataSend[pmsg * maxPlaneComm] ;
-            for (Index_t fi=0 ; fi<xferFields; ++fi) {
-               Real_t *srcAddr = fieldData[fi] ;
-               memcpy(destAddr, srcAddr, sendCount*sizeof(Real_t)) ;
-               destAddr += sendCount ;
-            }
-            destAddr -= xferFields*sendCount ;
-         }
-         else {
-            destAddr = fieldData[0] ;
-         }
-
-         MPI_Isend(destAddr,
-                   (packPlane ? xferFields*sendCount : 1),
-                    msgTypePlane, myRank - domain->tp*domain->tp,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg]) ;
-         ++pmsg ;
-      }
-      if (planeMax && doSend) {
-         /* contiguous memory */
-         Index_t offset = dx*dy*(dz - 1) ;
-         if (packPlane) {
-            destAddr = &domain->commDataSend[pmsg * maxPlaneComm] ;
-            for (Index_t fi=0 ; fi<xferFields; ++fi) {
-               Real_t *srcAddr = &fieldData[fi][offset] ;
-               memcpy(destAddr, srcAddr, sendCount*sizeof(Real_t)) ;
-               destAddr += sendCount ;
-            }
-            destAddr -= xferFields*sendCount ;
-         }
-         else {
-            destAddr = &fieldData[0][offset] ;
-         }
-
-         MPI_Isend(destAddr,
-                   (packPlane ? xferFields*sendCount : 1),
-                    msgTypePlane, myRank + domain->tp*domain->tp,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg]) ;
-         ++pmsg ;
-      }
-   }
-   if (rowMin | rowMax) {
-      /* ASSUMING ONE DOMAIN PER RANK, CONSTANT BLOCK SIZE HERE */
-      static MPI_Datatype msgTypeRow ;
-      static bool packRow ;
-      int sendCount = dx * dz ;
-
-      if (msgTypeRow == 0) {
-         /* Create an MPI_struct for field data */
-         if (ALLOW_UNPACKED_ROW && packable) {
-
-            static MPI_Datatype msgTypePencil ;
-
-            /* dz pencils per plane */
-            MPI_Type_vector(dz, dx, dx * dy, baseType, &msgTypePencil) ;
-            MPI_Type_commit(&msgTypePencil) ;
-            
-            MPI_Type_vector(xferFields, 1, (fieldData[1] - fieldData[0]),
-                            msgTypePencil, &msgTypeRow) ;
-            MPI_Type_commit(&msgTypeRow) ;
-            packRow = false ;
-         }
-         else {
-            msgTypeRow = baseType ;
-            packRow = true ;
-         }
-      }
-
-      if (rowMin) {
-         /* contiguous memory */
-         if (packRow) {
-            destAddr = &domain->commDataSend[pmsg * maxPlaneComm] ;
-            for (Index_t fi=0; fi<xferFields; ++fi) {
-               Real_t *srcAddr = fieldData[fi] ;
-               for (Index_t i=0; i<dz; ++i) {
-                  memcpy(&destAddr[i*dx], &srcAddr[i*dx*dy],
-                         dx*sizeof(Real_t)) ;
-               }
-               destAddr += sendCount ;
-            }
-            destAddr -= xferFields*sendCount ;
-         }
-         else {
-            destAddr = fieldData[0] ;
-         }
-
-         MPI_Isend(destAddr,
-                   (packRow ? xferFields*sendCount : 1),
-                    msgTypeRow, myRank - domain->tp,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg]) ;
-         ++pmsg ;
-      }
-      if (rowMax && doSend) {
-         /* contiguous memory */
-         Index_t offset = dx*(dy - 1) ;
-         if (packRow) {
-            destAddr = &domain->commDataSend[pmsg * maxPlaneComm] ;
-            for (Index_t fi=0; fi<xferFields; ++fi) {
-               Real_t *srcAddr = &fieldData[fi][offset] ;
-               for (Index_t i=0; i<dz; ++i) {
-                  memcpy(&destAddr[i*dx], &srcAddr[i*dx*dy],
-                         dx*sizeof(Real_t)) ;
-               }
-               destAddr += sendCount ;
-            }
-            destAddr -= xferFields*sendCount ;
-         }
-         else {
-            destAddr = &fieldData[0][offset] ;
-         }
-
-         MPI_Isend(destAddr,
-                   (packRow ? xferFields*sendCount : 1),
-                    msgTypeRow, myRank + domain->tp,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg]) ;
-         ++pmsg ;
-      }
-   }
-   if (colMin | colMax) {
-      /* ASSUMING ONE DOMAIN PER RANK, CONSTANT BLOCK SIZE HERE */
-      static MPI_Datatype msgTypeCol ;
-      static bool packCol ;
-      int sendCount = dy * dz ;
-
-      if (msgTypeCol == 0) {
-         /* Create an MPI_struct for field data */
-         if (ALLOW_UNPACKED_COL && packable) {
-
-            static MPI_Datatype msgTypePoint ;
-            static MPI_Datatype msgTypePencil ;
-
-            /* dy points per pencil */
-            MPI_Type_vector(dy, 1, dx, baseType, &msgTypePoint) ;
-            MPI_Type_commit(&msgTypePoint) ;
-           
-            /* dz pencils per plane */
-            MPI_Type_vector(dz, 1, dx*dy, msgTypePoint, &msgTypePencil) ;
-            MPI_Type_commit(&msgTypePencil) ;
-
-            MPI_Type_vector(xferFields, 1, (fieldData[1] - fieldData[0]),
-                            msgTypePencil, &msgTypeCol) ;
-            MPI_Type_commit(&msgTypeCol) ;
-            packCol = false ;
-         }
-         else {
-            msgTypeCol = baseType ;
-            packCol = true ;
-         }
-      }
-
-      if (colMin) {
-         /* contiguous memory */
-         if (packCol) {
-            destAddr = &domain->commDataSend[pmsg * maxPlaneComm] ;
-            for (Index_t fi=0; fi<xferFields; ++fi) {
-               for (Index_t i=0; i<dz; ++i) {
-                  Real_t *srcAddr = &fieldData[fi][i*dx*dy] ;
-                  for (Index_t j=0; j<dy; ++j) {
-                     destAddr[i*dy + j] = srcAddr[j*dx] ;
-                  }
-               }
-               destAddr += sendCount ;
-            }
-            destAddr -= xferFields*sendCount ;
-         }
-         else {
-            destAddr = fieldData[0] ;
-         }
-
-         MPI_Isend(destAddr,
-                   (packCol ? xferFields*sendCount : 1),
-                    msgTypeCol, myRank - 1,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg]) ;
-         ++pmsg ;
-      }
-      if (colMax && doSend) {
-         /* contiguous memory */
-         Index_t offset = dx - 1 ;
-         if (packCol) {
-            destAddr = &domain->commDataSend[pmsg * maxPlaneComm] ;
-            for (Index_t fi=0; fi<xferFields; ++fi) {
-               for (Index_t i=0; i<dz; ++i) {
-                  Real_t *srcAddr = &fieldData[fi][i*dx*dy + offset] ;
-                  for (Index_t j=0; j<dy; ++j) {
-                     destAddr[i*dy + j] = srcAddr[j*dx] ;
-                  }
-               }
-               destAddr += sendCount ;
-            }
-            destAddr -= xferFields*sendCount ;
-         }
-         else {
-            destAddr = &fieldData[0][offset] ;
-         }
-
-         MPI_Isend(destAddr,
-                   (packCol ? xferFields*sendCount : 1),
-                    msgTypeCol, myRank + 1,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg]) ;
-         ++pmsg ;
-      }
-   }
-
-   if (!planeOnly) {
-      if (rowMin && colMin) {
-         int toProc = myRank - domain->tp - 1 ;
-         destAddr = &domain->commDataSend[pmsg * maxPlaneComm +
-                                          emsg * maxEdgeComm] ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            Real_t *srcAddr = fieldData[fi] ;
-            for (Index_t i=0; i<dz; ++i) {
-               destAddr[i] = srcAddr[i*dx*dy] ;
-            }
-            destAddr += dz ;
-         }
-         destAddr -= xferFields*dz ;
-         MPI_Isend(destAddr, xferFields*dz, baseType, toProc,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (rowMin && planeMin) {
-         int toProc = myRank - domain->tp*domain->tp - domain->tp ;
-         destAddr = &domain->commDataSend[pmsg * maxPlaneComm +
-                                          emsg * maxEdgeComm] ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            Real_t *srcAddr = fieldData[fi] ;
-            for (Index_t i=0; i<dx; ++i) {
-               destAddr[i] = srcAddr[i] ;
-            }
-            destAddr += dx ;
-         }
-         destAddr -= xferFields*dx ;
-         MPI_Isend(destAddr, xferFields*dx, baseType, toProc,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (colMin && planeMin) {
-         int toProc = myRank - domain->tp*domain->tp - 1 ;
-         destAddr = &domain->commDataSend[pmsg * maxPlaneComm +
-                                          emsg * maxEdgeComm] ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            Real_t *srcAddr = fieldData[fi] ;
-            for (Index_t i=0; i<dy; ++i) {
-               destAddr[i] = srcAddr[i*dx] ;
-            }
-            destAddr += dy ;
-         }
-         destAddr -= xferFields*dy ;
-         MPI_Isend(destAddr, xferFields*dy, baseType, toProc,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (rowMax && colMax && doSend) {
-         int toProc = myRank + domain->tp + 1 ;
-         destAddr = &domain->commDataSend[pmsg * maxPlaneComm +
-                                          emsg * maxEdgeComm] ;
-         Index_t offset = dx*dy - 1 ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            Real_t *srcAddr = &fieldData[fi][offset] ;
-            for (Index_t i=0; i<dz; ++i) {
-               destAddr[i] = srcAddr[i*dx*dy] ;
-            }
-            destAddr += dz ;
-         }
-         destAddr -= xferFields*dz ;
-         MPI_Isend(destAddr, xferFields*dz, baseType, toProc,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (rowMax && planeMax && doSend) {
-         int toProc = myRank + domain->tp*domain->tp + domain->tp ;
-         destAddr = &domain->commDataSend[pmsg * maxPlaneComm +
-                                          emsg * maxEdgeComm] ;
-         Index_t offset = dx*(dy-1) + dx*dy*(dz-1) ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            Real_t *srcAddr = &fieldData[fi][offset] ;
-            for (Index_t i=0; i<dx; ++i) {
-              destAddr[i] = srcAddr[i] ;
-            }
-            destAddr += dx ;
-         }
-         destAddr -= xferFields*dx ;
-         MPI_Isend(destAddr, xferFields*dx, baseType, toProc,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (colMax && planeMax && doSend) {
-         int toProc = myRank + domain->tp*domain->tp + 1 ;
-         destAddr = &domain->commDataSend[pmsg * maxPlaneComm +
-                                          emsg * maxEdgeComm] ;
-         Index_t offset = dx*dy*(dz-1) + dx - 1 ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            Real_t *srcAddr = &fieldData[fi][offset] ;
-            for (Index_t i=0; i<dy; ++i) {
-               destAddr[i] = srcAddr[i*dx] ;
-            }
-            destAddr += dy ;
-         }
-         destAddr -= xferFields*dy ;
-         MPI_Isend(destAddr, xferFields*dy, baseType, toProc,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (rowMax && colMin && doSend) {
-         int toProc = myRank + domain->tp - 1 ;
-         destAddr = &domain->commDataSend[pmsg * maxPlaneComm +
-                                          emsg * maxEdgeComm] ;
-         Index_t offset = dx*(dy-1) ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            Real_t *srcAddr = &fieldData[fi][offset] ;
-            for (Index_t i=0; i<dz; ++i) {
-               destAddr[i] = srcAddr[i*dx*dy] ;
-            }
-            destAddr += dz ;
-         }
-         destAddr -= xferFields*dz ;
-         MPI_Isend(destAddr, xferFields*dz, baseType, toProc,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (rowMin && planeMax && doSend) {
-         int toProc = myRank + domain->tp*domain->tp - domain->tp ;
-         destAddr = &domain->commDataSend[pmsg * maxPlaneComm +
-                                          emsg * maxEdgeComm] ;
-         Index_t offset = dx*dy*(dz-1) ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            Real_t *srcAddr = &fieldData[fi][offset] ;
-            for (Index_t i=0; i<dx; ++i) {
-               destAddr[i] = srcAddr[i] ;
-            }
-            destAddr += dx ;
-         }
-         destAddr -= xferFields*dx ;
-         MPI_Isend(destAddr, xferFields*dx, baseType, toProc,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (colMin && planeMax && doSend) {
-         int toProc = myRank + domain->tp*domain->tp - 1 ;
-         destAddr = &domain->commDataSend[pmsg * maxPlaneComm +
-                                          emsg * maxEdgeComm] ;
-         Index_t offset = dx*dy*(dz-1) ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            Real_t *srcAddr = &fieldData[fi][offset] ;
-            for (Index_t i=0; i<dy; ++i) {
-               destAddr[i] = srcAddr[i*dx] ;
-            }
-            destAddr += dy ;
-         }
-         destAddr -= xferFields*dy ;
-         MPI_Isend(destAddr, xferFields*dy, baseType, toProc,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (rowMin && colMax) {
-         int toProc = myRank - domain->tp + 1 ;
-         destAddr = &domain->commDataSend[pmsg * maxPlaneComm +
-                                          emsg * maxEdgeComm] ;
-         Index_t offset = dx - 1 ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            Real_t *srcAddr = &fieldData[fi][offset] ;
-            for (Index_t i=0; i<dz; ++i) {
-               destAddr[i] = srcAddr[i*dx*dy] ;
-            }
-            destAddr += dz ;
-         }
-         destAddr -= xferFields*dz ;
-         MPI_Isend(destAddr, xferFields*dz, baseType, toProc,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (rowMax && planeMin) {
-         int toProc = myRank - domain->tp*domain->tp + domain->tp ;
-         destAddr = &domain->commDataSend[pmsg * maxPlaneComm +
-                                          emsg * maxEdgeComm] ;
-         Index_t offset = dx*(dy - 1) ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            Real_t *srcAddr = &fieldData[fi][offset] ;
-            for (Index_t i=0; i<dx; ++i) {
-               destAddr[i] = srcAddr[i] ;
-            }
-            destAddr += dx ;
-         }
-         destAddr -= xferFields*dx ;
-         MPI_Isend(destAddr, xferFields*dx, baseType, toProc,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-      if (colMax && planeMin) {
-         int toProc = myRank - domain->tp*domain->tp + 1 ;
-         destAddr = &domain->commDataSend[pmsg * maxPlaneComm +
-                                          emsg * maxEdgeComm] ;
-         Index_t offset = dx - 1 ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            Real_t *srcAddr = &fieldData[fi][offset] ;
-            for (Index_t i=0; i<dy; ++i) {
-               destAddr[i] = srcAddr[i*dx] ;
-            }
-            destAddr += dy ;
-         }
-         destAddr -= xferFields*dy ;
-         MPI_Isend(destAddr, xferFields*dy, baseType, toProc,
-                   (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg]) ;
-         ++emsg ;
-      }
-
-
-      if (rowMin && colMin && planeMin) {
-         /* corner at domain logical coord (0, 0, 0) */
-         int toProc = myRank - domain->tp*domain->tp - domain->tp - 1 ;
-         Real_t *comBuf = &domain->commDataSend[pmsg * maxPlaneComm +
-                                                emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            comBuf[fi] = fieldData[fi][0] ;
-         }
-         MPI_Isend(comBuf,
-                   xferFields, baseType,
-                   toProc, (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-      if (rowMin && colMin && planeMax && doSend) {
-         /* corner at domain logical coord (0, 0, 1) */
-         int toProc = myRank + domain->tp*domain->tp - domain->tp - 1 ;
-         Real_t *comBuf = &domain->commDataSend[pmsg * maxPlaneComm +
-                                                emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL] ;
-         Index_t idx = dx*dy*(dz - 1) ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            comBuf[fi] = fieldData[fi][idx] ;
-         }
-         MPI_Isend(comBuf,
-                   xferFields, baseType,
-                   toProc, (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-      if (rowMin && colMax && planeMin) {
-         /* corner at domain logical coord (1, 0, 0) */
-         int toProc = myRank - domain->tp*domain->tp - domain->tp + 1 ;
-         Real_t *comBuf = &domain->commDataSend[pmsg * maxPlaneComm +
-                                                emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL] ;
-         Index_t idx = dx - 1 ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            comBuf[fi] = fieldData[fi][idx] ;
-         }
-         MPI_Isend(comBuf,
-                   xferFields, baseType,
-                   toProc, (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-      if (rowMin && colMax && planeMax && doSend) {
-         /* corner at domain logical coord (1, 0, 1) */
-         int toProc = myRank + domain->tp*domain->tp - domain->tp + 1 ;
-         Real_t *comBuf = &domain->commDataSend[pmsg * maxPlaneComm +
-                                                emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL] ;
-         Index_t idx = dx*dy*(dz - 1) + (dx - 1) ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            comBuf[fi] = fieldData[fi][idx] ;
-         }
-         MPI_Isend(comBuf,
-                   xferFields, baseType,
-                   toProc, (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-      if (rowMax && colMin && planeMin) {
-         /* corner at domain logical coord (0, 1, 0) */
-         int toProc = myRank - domain->tp*domain->tp + domain->tp - 1 ;
-         Real_t *comBuf = &domain->commDataSend[pmsg * maxPlaneComm +
-                                                emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL] ;
-         Index_t idx = dx*(dy - 1) ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            comBuf[fi] = fieldData[fi][idx] ;
-         }
-         MPI_Isend(comBuf,
-                   xferFields, baseType,
-                   toProc, (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-      if (rowMax && colMin && planeMax && doSend) {
-         /* corner at domain logical coord (0, 1, 1) */
-         int toProc = myRank + domain->tp*domain->tp + domain->tp - 1 ;
-         Real_t *comBuf = &domain->commDataSend[pmsg * maxPlaneComm +
-                                                emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL] ;
-         Index_t idx = dx*dy*(dz - 1) + dx*(dy - 1) ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            comBuf[fi] = fieldData[fi][idx] ;
-         }
-         MPI_Isend(comBuf,
-                   xferFields, baseType,
-                   toProc, (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-      if (rowMax && colMax && planeMin) {
-         /* corner at domain logical coord (1, 1, 0) */
-         int toProc = myRank - domain->tp*domain->tp + domain->tp + 1 ;
-         Real_t *comBuf = &domain->commDataSend[pmsg * maxPlaneComm +
-                                                emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL] ;
-         Index_t idx = dx*dy - 1 ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            comBuf[fi] = fieldData[fi][idx] ;
-         }
-         MPI_Isend(comBuf,
-                   xferFields, baseType,
-                   toProc, (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-      if (rowMax && colMax && planeMax && doSend) {
-         /* corner at domain logical coord (1, 1, 1) */
-         int toProc = myRank + domain->tp*domain->tp + domain->tp + 1 ;
-         Real_t *comBuf = &domain->commDataSend[pmsg * maxPlaneComm +
-                                                emsg * maxEdgeComm +
-                                         cmsg * CACHE_COHERENCE_PAD_REAL] ;
-         Index_t idx = dx*dy*dz - 1 ;
-         for (Index_t fi=0; fi<xferFields; ++fi) {
-            comBuf[fi] = fieldData[fi][idx] ;
-         }
-         MPI_Isend(comBuf,
-                   xferFields, baseType,
-                   toProc, (msgType + myRank) , MPI_COMM_WORLD,
-                   &domain->sendRequest[pmsg+emsg+cmsg]) ;
-         ++cmsg ;
-      }
-   }
-
-   MPI_Waitall(26, domain->sendRequest, status) ;
-}
-
-void CommSBN(Domain *domain, int xferFields, Real_t **fieldData) {
-
-   if (domain->numProcs == 1) return ;
-
-   /* summation order should be from smallest value to largest */
-   /* or we could try out kahan summation! */
-
-   int myRank ;
-   Index_t maxPlaneComm = xferFields * domain->maxPlaneSize ;
-   Index_t maxEdgeComm  = xferFields * domain->maxEdgeSize ;
-   Index_t pmsg = 0 ; /* plane comm msg */
-   Index_t emsg = 0 ; /* edge comm msg */
-   Index_t cmsg = 0 ; /* corner comm msg */
-   Index_t dx = domain->sizeX + 1 ;
-   Index_t dy = domain->sizeY + 1 ;
-   Index_t dz = domain->sizeZ + 1 ;
-   MPI_Status status ;
-   Real_t *srcAddr ;
-   Index_t rowMin, rowMax, colMin, colMax, planeMin, planeMax ;
-   /* assume communication to 6 neighbors by default */
-   rowMin = rowMax = colMin = colMax = planeMin = planeMax = 1 ;
-   if (domain->rowLoc == 0) {
-      rowMin = 0 ;
-   }
-   if (domain->rowLoc == (domain->tp-1)) {
-      rowMax = 0 ;
-   }
-   if (domain->colLoc == 0) {
-      colMin = 0 ;
-   }
-   if (domain->colLoc == (domain->tp-1)) {
-      colMax = 0 ;
-   }
-   if (domain->planeLoc == 0) {
-      planeMin = 0 ;
-   }
-   if (domain->planeLoc == (domain->tp-1)) {
-      planeMax = 0 ;
-   }
-
-   MPI_Comm_rank(MPI_COMM_WORLD, &myRank) ;
-
-   if (planeMin | planeMax) {
-      /* ASSUMING ONE DOMAIN PER RANK, CONSTANT BLOCK SIZE HERE */
-      Index_t opCount = dx * dy ;
-
-      if (planeMin) {
-         /* contiguous memory */
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            Real_t *destAddr = fieldData[fi] ;
-            for (Index_t i=0; i<opCount; ++i) {
-               destAddr[i] += srcAddr[i] ;
-            }
-            srcAddr += opCount ;
-         }
-         ++pmsg ;
-      }
-      if (planeMax) {
-         /* contiguous memory */
-         Index_t offset = dx*dy*(dz - 1) ;
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            Real_t *destAddr = &fieldData[fi][offset] ;
-            for (Index_t i=0; i<opCount; ++i) {
-               destAddr[i] += srcAddr[i] ;
-            }
-            srcAddr += opCount ;
-         }
-         ++pmsg ;
-      }
-   }
-
-   if (rowMin | rowMax) {
-      /* ASSUMING ONE DOMAIN PER RANK, CONSTANT BLOCK SIZE HERE */
-      Index_t opCount = dx * dz ;
-
-      if (rowMin) {
-         /* contiguous memory */
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            for (Index_t i=0; i<dz; ++i) {
-               Real_t *destAddr = &fieldData[fi][i*dx*dy] ;
-               for (Index_t j=0; j<dx; ++j) {
-                  destAddr[j] += srcAddr[i*dx + j] ;
-               }
-            }
-            srcAddr += opCount ;
-         }
-         ++pmsg ;
-      }
-      if (rowMax) {
-         /* contiguous memory */
-         Index_t offset = dx*(dy - 1) ;
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            for (Index_t i=0; i<dz; ++i) {
-               Real_t *destAddr = &fieldData[fi][offset + i*dx*dy] ;
-               for (Index_t j=0; j<dx; ++j) {
-                  destAddr[j] += srcAddr[i*dx + j] ;
-               }
-            }
-            srcAddr += opCount ;
-         }
-         ++pmsg ;
-      }
-   }
-   if (colMin | colMax) {
-      /* ASSUMING ONE DOMAIN PER RANK, CONSTANT BLOCK SIZE HERE */
-      Index_t opCount = dy * dz ;
-
-      if (colMin) {
-         /* contiguous memory */
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            for (Index_t i=0; i<dz; ++i) {
-               Real_t *destAddr = &fieldData[fi][i*dx*dy] ;
-               for (Index_t j=0; j<dy; ++j) {
-                  destAddr[j*dx] += srcAddr[i*dy + j] ;
-               }
-            }
-            srcAddr += opCount ;
-         }
-         ++pmsg ;
-      }
-      if (colMax) {
-         /* contiguous memory */
-         Index_t offset = dx - 1 ;
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            for (Index_t i=0; i<dz; ++i) {
-               Real_t *destAddr = &fieldData[fi][offset + i*dx*dy] ;
-               for (Index_t j=0; j<dy; ++j) {
-                  destAddr[j*dx] += srcAddr[i*dy + j] ;
-               }
-            }
-            srcAddr += opCount ;
-         }
-         ++pmsg ;
-      }
-   }
-
-   if (rowMin & colMin) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = fieldData[fi] ;
-         for (Index_t i=0; i<dz; ++i) {
-            destAddr[i*dx*dy] += srcAddr[i] ;
-         }
-         srcAddr += dz ;
-      }
-      ++emsg ;
-   }
-
-   if (rowMin & planeMin) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = fieldData[fi] ;
-         for (Index_t i=0; i<dx; ++i) {
-            destAddr[i] += srcAddr[i] ;
-         }
-         srcAddr += dx ;
-      }
-      ++emsg ;
-   }
-
-   if (colMin & planeMin) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = fieldData[fi] ;
-         for (Index_t i=0; i<dy; ++i) {
-            destAddr[i*dx] += srcAddr[i] ;
-         }
-         srcAddr += dy ;
-      }
-      ++emsg ;
-   }
-
-   if (rowMax & colMax) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx*dy - 1 ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dz; ++i) {
-            destAddr[i*dx*dy] += srcAddr[i] ;
-         }
-         srcAddr += dz ;
-      }
-      ++emsg ;
-   }
-
-   if (rowMax & planeMax) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx*(dy-1) + dx*dy*(dz-1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dx; ++i) {
-            destAddr[i] += srcAddr[i] ;
-         }
-         srcAddr += dx ;
-      }
-      ++emsg ;
-   }
-
-   if (colMax & planeMax) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx*dy*(dz-1) + dx - 1 ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dy; ++i) {
-            destAddr[i*dx] += srcAddr[i] ;
-         }
-         srcAddr += dy ;
-      }
-      ++emsg ;
-   }
-
-   if (rowMax & colMin) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx*(dy-1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dz; ++i) {
-            destAddr[i*dx*dy] += srcAddr[i] ;
-         }
-         srcAddr += dz ;
-      }
-      ++emsg ;
-   }
-
-   if (rowMin & planeMax) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx*dy*(dz-1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dx; ++i) {
-            destAddr[i] += srcAddr[i] ;
-         }
-         srcAddr += dx ;
-      }
-      ++emsg ;
-   }
-
-   if (colMin & planeMax) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx*dy*(dz-1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dy; ++i) {
-            destAddr[i*dx] += srcAddr[i] ;
-         }
-         srcAddr += dy ;
-      }
-      ++emsg ;
-   }
-
-   if (rowMin & colMax) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx - 1 ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dz; ++i) {
-            destAddr[i*dx*dy] += srcAddr[i] ;
-         }
-         srcAddr += dz ;
-      }
-      ++emsg ;
-   }
-
-   if (rowMax & planeMin) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx*(dy - 1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dx; ++i) {
-            destAddr[i] += srcAddr[i] ;
-         }
-         srcAddr += dx ;
-      }
-      ++emsg ;
-   }
-
-   if (colMax & planeMin) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx - 1 ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dy; ++i) {
-            destAddr[i*dx] += srcAddr[i] ;
-         }
-         srcAddr += dy ;
-      }
-      ++emsg ;
-   }
-
-
-   if (rowMin & colMin & planeMin) {
-      /* corner at domain logical coord (0, 0, 0) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][0] += comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-   if (rowMin & colMin & planeMax) {
-      /* corner at domain logical coord (0, 0, 1) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      Index_t idx = dx*dy*(dz - 1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][idx] += comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-   if (rowMin & colMax & planeMin) {
-      /* corner at domain logical coord (1, 0, 0) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      Index_t idx = dx - 1 ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][idx] += comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-   if (rowMin & colMax & planeMax) {
-      /* corner at domain logical coord (1, 0, 1) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      Index_t idx = dx*dy*(dz - 1) + (dx - 1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][idx] += comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-   if (rowMax & colMin & planeMin) {
-      /* corner at domain logical coord (0, 1, 0) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      Index_t idx = dx*(dy - 1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][idx] += comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-   if (rowMax & colMin & planeMax) {
-      /* corner at domain logical coord (0, 1, 1) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      Index_t idx = dx*dy*(dz - 1) + dx*(dy - 1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][idx] += comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-   if (rowMax & colMax & planeMin) {
-      /* corner at domain logical coord (1, 1, 0) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      Index_t idx = dx*dy - 1 ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][idx] += comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-   if (rowMax & colMax & planeMax) {
-      /* corner at domain logical coord (1, 1, 1) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      Index_t idx = dx*dy*dz - 1 ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][idx] += comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-}
-
-void CommSyncPosVel(Domain *domain) {
-
-   if (domain->numProcs == 1) return ;
-
-   int myRank ;
-   bool doRecv = false ;
-   Index_t xferFields = 6 ; /* x, y, z, xd, yd, zd */
-   Real_t *fieldData[6] ;
-   Index_t maxPlaneComm = xferFields * domain->maxPlaneSize ;
-   Index_t maxEdgeComm  = xferFields * domain->maxEdgeSize ;
-   Index_t pmsg = 0 ; /* plane comm msg */
-   Index_t emsg = 0 ; /* edge comm msg */
-   Index_t cmsg = 0 ; /* corner comm msg */
-   Index_t dx = domain->sizeX + 1 ;
-   Index_t dy = domain->sizeY + 1 ;
-   Index_t dz = domain->sizeZ + 1 ;
-   MPI_Status status ;
-   Real_t *srcAddr ;
-   bool rowMin, rowMax, colMin, colMax, planeMin, planeMax ;
-   /* assume communication to 6 neighbors by default */
-   rowMin = rowMax = colMin = colMax = planeMin = planeMax = true ;
-   if (domain->rowLoc == 0) {
-      rowMin = false ;
-   }
-   if (domain->rowLoc == (domain->tp-1)) {
-      rowMax = false ;
-   }
-   if (domain->colLoc == 0) {
-      colMin = false ;
-   }
-   if (domain->colLoc == (domain->tp-1)) {
-      colMax = false ;
-   }
-   if (domain->planeLoc == 0) {
-      planeMin = false ;
-   }
-   if (domain->planeLoc == (domain->tp-1)) {
-      planeMax = false ;
-   }
-
-   fieldData[0] = domain->x ;
-   fieldData[1] = domain->y ;
-   fieldData[2] = domain->z ;
-   fieldData[3] = domain->xd ;
-   fieldData[4] = domain->yd ;
-   fieldData[5] = domain->zd ;
-
-   MPI_Comm_rank(MPI_COMM_WORLD, &myRank) ;
-
-   if (planeMin | planeMax) {
-      /* ASSUMING ONE DOMAIN PER RANK, CONSTANT BLOCK SIZE HERE */
-      Index_t opCount = dx * dy ;
-
-      if (planeMin && doRecv) {
-         /* contiguous memory */
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            Real_t *destAddr = fieldData[fi] ;
-            for (Index_t i=0; i<opCount; ++i) {
-               destAddr[i] = srcAddr[i] ;
-            }
-            srcAddr += opCount ;
-         }
-         ++pmsg ;
-      }
-      if (planeMax) {
-         /* contiguous memory */
-         Index_t offset = dx*dy*(dz - 1) ;
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            Real_t *destAddr = &fieldData[fi][offset] ;
-            for (Index_t i=0; i<opCount; ++i) {
-               destAddr[i] = srcAddr[i] ;
-            }
-            srcAddr += opCount ;
-         }
-         ++pmsg ;
-      }
-   }
-
-   if (rowMin | rowMax) {
-      /* ASSUMING ONE DOMAIN PER RANK, CONSTANT BLOCK SIZE HERE */
-      Index_t opCount = dx * dz ;
-
-      if (rowMin && doRecv) {
-         /* contiguous memory */
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            for (Index_t i=0; i<dz; ++i) {
-               Real_t *destAddr = &fieldData[fi][i*dx*dy] ;
-               for (Index_t j=0; j<dx; ++j) {
-                  destAddr[j] = srcAddr[i*dx + j] ;
-               }
-            }
-            srcAddr += opCount ;
-         }
-         ++pmsg ;
-      }
-      if (rowMax) {
-         /* contiguous memory */
-         Index_t offset = dx*(dy - 1) ;
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            for (Index_t i=0; i<dz; ++i) {
-               Real_t *destAddr = &fieldData[fi][offset + i*dx*dy] ;
-               for (Index_t j=0; j<dx; ++j) {
-                  destAddr[j] = srcAddr[i*dx + j] ;
-               }
-            }
-            srcAddr += opCount ;
-         }
-         ++pmsg ;
-      }
-   }
-   if (colMin | colMax) {
-      /* ASSUMING ONE DOMAIN PER RANK, CONSTANT BLOCK SIZE HERE */
-      Index_t opCount = dy * dz ;
-
-      if (colMin && doRecv) {
-         /* contiguous memory */
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            for (Index_t i=0; i<dz; ++i) {
-               Real_t *destAddr = &fieldData[fi][i*dx*dy] ;
-               for (Index_t j=0; j<dy; ++j) {
-                  destAddr[j*dx] = srcAddr[i*dy + j] ;
-               }
-            }
-            srcAddr += opCount ;
-         }
-         ++pmsg ;
-      }
-      if (colMax) {
-         /* contiguous memory */
-         Index_t offset = dx - 1 ;
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            for (Index_t i=0; i<dz; ++i) {
-               Real_t *destAddr = &fieldData[fi][offset + i*dx*dy] ;
-               for (Index_t j=0; j<dy; ++j) {
-                  destAddr[j*dx] = srcAddr[i*dy + j] ;
-               }
-            }
-            srcAddr += opCount ;
-         }
-         ++pmsg ;
-      }
-   }
-
-   if (rowMin && colMin && doRecv) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = fieldData[fi] ;
-         for (Index_t i=0; i<dz; ++i) {
-            destAddr[i*dx*dy] = srcAddr[i] ;
-         }
-         srcAddr += dz ;
-      }
-      ++emsg ;
-   }
-
-   if (rowMin && planeMin && doRecv) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = fieldData[fi] ;
-         for (Index_t i=0; i<dx; ++i) {
-            destAddr[i] = srcAddr[i] ;
-         }
-         srcAddr += dx ;
-      }
-      ++emsg ;
-   }
-
-   if (colMin && planeMin && doRecv) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = fieldData[fi] ;
-         for (Index_t i=0; i<dy; ++i) {
-            destAddr[i*dx] = srcAddr[i] ;
-         }
-         srcAddr += dy ;
-      }
-      ++emsg ;
-   }
-
-   if (rowMax && colMax) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx*dy - 1 ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dz; ++i) {
-            destAddr[i*dx*dy] = srcAddr[i] ;
-         }
-         srcAddr += dz ;
-      }
-      ++emsg ;
-   }
-
-   if (rowMax && planeMax) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx*(dy-1) + dx*dy*(dz-1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dx; ++i) {
-            destAddr[i] = srcAddr[i] ;
-         }
-         srcAddr += dx ;
-      }
-      ++emsg ;
-   }
-
-   if (colMax && planeMax) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx*dy*(dz-1) + dx - 1 ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dy; ++i) {
-            destAddr[i*dx] = srcAddr[i] ;
-         }
-         srcAddr += dy ;
-      }
-      ++emsg ;
-   }
-
-   if (rowMax && colMin) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx*(dy-1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dz; ++i) {
-            destAddr[i*dx*dy] = srcAddr[i] ;
-         }
-         srcAddr += dz ;
-      }
-      ++emsg ;
-   }
-
-   if (rowMin && planeMax) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx*dy*(dz-1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dx; ++i) {
-            destAddr[i] = srcAddr[i] ;
-         }
-         srcAddr += dx ;
-      }
-      ++emsg ;
-   }
-
-   if (colMin && planeMax) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx*dy*(dz-1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dy; ++i) {
-            destAddr[i*dx] = srcAddr[i] ;
-         }
-         srcAddr += dy ;
-      }
-      ++emsg ;
-   }
-
-   if (rowMin && colMax && doRecv) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx - 1 ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dz; ++i) {
-            destAddr[i*dx*dy] = srcAddr[i] ;
-         }
-         srcAddr += dz ;
-      }
-      ++emsg ;
-   }
-
-   if (rowMax && planeMin && doRecv) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx*(dy - 1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dx; ++i) {
-            destAddr[i] = srcAddr[i] ;
-         }
-         srcAddr += dx ;
-      }
-      ++emsg ;
-   }
-
-   if (colMax && planeMin && doRecv) {
-      srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                       emsg * maxEdgeComm] ;
-      Index_t offset = dx - 1 ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg], &status) ;
-      for (Index_t fi=0 ; fi<xferFields; ++fi) {
-         Real_t *destAddr = &fieldData[fi][offset] ;
-         for (Index_t i=0; i<dy; ++i) {
-            destAddr[i*dx] = srcAddr[i] ;
-         }
-         srcAddr += dy ;
-      }
-      ++emsg ;
-   }
-
-
-   if (rowMin && colMin && planeMin && doRecv) {
-      /* corner at domain logical coord (0, 0, 0) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][0] = comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-   if (rowMin && colMin && planeMax) {
-      /* corner at domain logical coord (0, 0, 1) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      Index_t idx = dx*dy*(dz - 1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][idx] = comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-   if (rowMin && colMax && planeMin && doRecv) {
-      /* corner at domain logical coord (1, 0, 0) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      Index_t idx = dx - 1 ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][idx] = comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-   if (rowMin && colMax && planeMax) {
-      /* corner at domain logical coord (1, 0, 1) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      Index_t idx = dx*dy*(dz - 1) + (dx - 1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][idx] = comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-   if (rowMax && colMin && planeMin && doRecv) {
-      /* corner at domain logical coord (0, 1, 0) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      Index_t idx = dx*(dy - 1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][idx] = comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-   if (rowMax && colMin && planeMax) {
-      /* corner at domain logical coord (0, 1, 1) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      Index_t idx = dx*dy*(dz - 1) + dx*(dy - 1) ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][idx] = comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-   if (rowMax && colMax && planeMin && doRecv) {
-      /* corner at domain logical coord (1, 1, 0) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      Index_t idx = dx*dy - 1 ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][idx] = comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-   if (rowMax && colMax && planeMax) {
-      /* corner at domain logical coord (1, 1, 1) */
-      Real_t *comBuf = &domain->commDataRecv[pmsg * maxPlaneComm +
-                                             emsg * maxEdgeComm +
-                                      cmsg * CACHE_COHERENCE_PAD_REAL] ;
-      Index_t idx = dx*dy*dz - 1 ;
-      MPI_Wait(&domain->recvRequest[pmsg+emsg+cmsg], &status) ;
-      for (Index_t fi=0; fi<xferFields; ++fi) {
-         fieldData[fi][idx] = comBuf[fi] ;
-      }
-      ++cmsg ;
-   }
-}
-
-void CommMonoQ(Domain *domain)
-{
-   if (domain->numProcs == 1) return ;
-
-   int myRank ;
-   Index_t xferFields = 3 ; /* delv_xi, delv_eta, delv_zeta */
-   Real_t *fieldData[3] ;
-   Index_t maxPlaneComm = xferFields * domain->maxPlaneSize ;
-   Index_t pmsg = 0 ; /* plane comm msg */
-   Index_t dx = domain->sizeX ;
-   Index_t dy = domain->sizeY ;
-   Index_t dz = domain->sizeZ ;
-   MPI_Status status ;
-   Real_t *srcAddr ;
-   bool rowMin, rowMax, colMin, colMax, planeMin, planeMax ;
-   /* assume communication to 6 neighbors by default */
-   rowMin = rowMax = colMin = colMax = planeMin = planeMax = true ;
-   if (domain->rowLoc == 0) {
-      rowMin = false ;
-   }
-   if (domain->rowLoc == (domain->tp-1)) {
-      rowMax = false ;
-   }
-   if (domain->colLoc == 0) {
-      colMin = false ;
-   }
-   if (domain->colLoc == (domain->tp-1)) {
-      colMax = false ;
-   }
-   if (domain->planeLoc == 0) {
-      planeMin = false ;
-   }
-   if (domain->planeLoc == (domain->tp-1)) {
-      planeMax = false ;
-   }
-
-   /* point into ghost data area */
-   fieldData[0] = domain->delv_xi + domain->numElem ;
-   fieldData[1] = domain->delv_eta + domain->numElem ;
-   fieldData[2] = domain->delv_zeta + domain->numElem ;
-
-   MPI_Comm_rank(MPI_COMM_WORLD, &myRank) ;
-
-   if (planeMin | planeMax) {
-      /* ASSUMING ONE DOMAIN PER RANK, CONSTANT BLOCK SIZE HERE */
-      Index_t opCount = dx * dy ;
-
-      if (planeMin) {
-         /* contiguous memory */
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            Real_t *destAddr = fieldData[fi] ;
-            for (Index_t i=0; i<opCount; ++i) {
-               destAddr[i] = srcAddr[i] ;
-            }
-            srcAddr += opCount ;
-            fieldData[fi] += opCount ;
-         }
-         ++pmsg ;
-      }
-      if (planeMax) {
-         /* contiguous memory */
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            Real_t *destAddr = fieldData[fi] ;
-            for (Index_t i=0; i<opCount; ++i) {
-               destAddr[i] = srcAddr[i] ;
-            }
-            srcAddr += opCount ;
-            fieldData[fi] += opCount ;
-         }
-         ++pmsg ;
-      }
-   }
-
-   if (rowMin | rowMax) {
-      /* ASSUMING ONE DOMAIN PER RANK, CONSTANT BLOCK SIZE HERE */
-      Index_t opCount = dx * dz ;
-
-      if (rowMin) {
-         /* contiguous memory */
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            Real_t *destAddr = fieldData[fi] ;
-            for (Index_t i=0; i<opCount; ++i) {
-               destAddr[i] = srcAddr[i] ;
-            }
-            srcAddr += opCount ;
-            fieldData[fi] += opCount ;
-         }
-         ++pmsg ;
-      }
-      if (rowMax) {
-         /* contiguous memory */
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            Real_t *destAddr = fieldData[fi] ;
-            for (Index_t i=0; i<opCount; ++i) {
-               destAddr[i] = srcAddr[i] ;
-            }
-            srcAddr += opCount ;
-            fieldData[fi] += opCount ;
-         }
-         ++pmsg ;
-      }
-   }
-   if (colMin | colMax) {
-      /* ASSUMING ONE DOMAIN PER RANK, CONSTANT BLOCK SIZE HERE */
-      Index_t opCount = dy * dz ;
-
-      if (colMin) {
-         /* contiguous memory */
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            Real_t *destAddr = fieldData[fi] ;
-            for (Index_t i=0; i<opCount; ++i) {
-               destAddr[i] = srcAddr[i] ;
-            }
-            srcAddr += opCount ;
-            fieldData[fi] += opCount ;
-         }
-         ++pmsg ;
-      }
-      if (colMax) {
-         /* contiguous memory */
-         srcAddr = &domain->commDataRecv[pmsg * maxPlaneComm] ;
-         MPI_Wait(&domain->recvRequest[pmsg], &status) ;
-         for (Index_t fi=0 ; fi<xferFields; ++fi) {
-            Real_t *destAddr = fieldData[fi] ;
-            for (Index_t i=0; i<opCount; ++i) {
-               destAddr[i] = srcAddr[i] ;
-            }
-            srcAddr += opCount ;
-         }
-         ++pmsg ;
-      }
-   }
-}
 
 /******************************************/
 
 /* Work Routines */
 
 static inline
-void TimeIncrement(Domain *domain)
+void TimeIncrement(Domain& domain)
 {
-   Real_t targetdt = domain->stoptime - domain->time ;
+   Real_t targetdt = domain.stoptime() - domain.time() ;
 
-   if ((domain->dtfixed <= Real_t(0.0)) && (domain->cycle != Int_t(0))) {
+   if ((domain.dtfixed() <= Real_t(0.0)) && (domain.cycle() != Int_t(0))) {
       Real_t ratio ;
-      Real_t olddt = domain->deltatime ;
+      Real_t olddt = domain.deltatime() ;
 
       /* This will require a reduction in parallel */
       Real_t gnewdt = Real_t(1.0e+20) ;
       Real_t newdt ;
-      if (domain->dtcourant < gnewdt) {
-         gnewdt = domain->dtcourant / Real_t(2.0) ;
+      if (domain.dtcourant() < gnewdt) {
+         gnewdt = domain.dtcourant() / Real_t(2.0) ;
       }
-      if (domain->dthydro < gnewdt) {
-         gnewdt = domain->dthydro * Real_t(2.0) / Real_t(3.0) ;
+      if (domain.dthydro() < gnewdt) {
+         gnewdt = domain.dthydro() * Real_t(2.0) / Real_t(3.0) ;
       }
 
+#if USE_MPI      
       MPI_Allreduce(&gnewdt, &newdt, 1,
                     ((sizeof(Real_t) == 4) ? MPI_FLOAT : MPI_DOUBLE),
                     MPI_MIN, MPI_COMM_WORLD) ;
-
+#else
+      newdt = gnewdt;
+#endif
+      
       ratio = newdt / olddt ;
       if (ratio >= Real_t(1.0)) {
-         if (ratio < domain->deltatimemultlb) {
+         if (ratio < domain.deltatimemultlb()) {
             newdt = olddt ;
          }
-         else if (ratio > domain->deltatimemultub) {
-            newdt = olddt*domain->deltatimemultub ;
+         else if (ratio > domain.deltatimemultub()) {
+            newdt = olddt*domain.deltatimemultub() ;
          }
       }
 
-      if (newdt > domain->dtmax) {
-         newdt = domain->dtmax ;
+      if (newdt > domain.dtmax()) {
+         newdt = domain.dtmax() ;
       }
-      domain->deltatime = newdt ;
+      domain.deltatime() = newdt ;
    }
 
    /* TRY TO PREVENT VERY SMALL SCALING ON THE NEXT CYCLE */
-   if ((targetdt > domain->deltatime) &&
-       (targetdt < (Real_t(4.0) * domain->deltatime / Real_t(3.0))) ) {
-      targetdt = Real_t(2.0) * domain->deltatime / Real_t(3.0) ;
+   if ((targetdt > domain.deltatime()) &&
+       (targetdt < (Real_t(4.0) * domain.deltatime() / Real_t(3.0))) ) {
+      targetdt = Real_t(2.0) * domain.deltatime() / Real_t(3.0) ;
    }
 
-   if (targetdt < domain->deltatime) {
-      domain->deltatime = targetdt ;
+   if (targetdt < domain.deltatime()) {
+      domain.deltatime() = targetdt ;
    }
 
-   domain->time += domain->deltatime ;
+   domain.time() += domain.deltatime() ;
 
-   ++domain->cycle ;
+   ++domain.cycle() ;
 }
 
+/******************************************/
+
 static inline
-void InitStressTermsForElems(Real_t *p, Real_t *q,
+void CollectDomainNodesToElemNodes(Domain &domain,
+                                   const Index_t* elemToNode,
+                                   Real_t elemX[8],
+                                   Real_t elemY[8],
+                                   Real_t elemZ[8])
+{
+   Index_t nd0i = elemToNode[0] ;
+   Index_t nd1i = elemToNode[1] ;
+   Index_t nd2i = elemToNode[2] ;
+   Index_t nd3i = elemToNode[3] ;
+   Index_t nd4i = elemToNode[4] ;
+   Index_t nd5i = elemToNode[5] ;
+   Index_t nd6i = elemToNode[6] ;
+   Index_t nd7i = elemToNode[7] ;
+
+   elemX[0] = domain.x(nd0i);
+   elemX[1] = domain.x(nd1i);
+   elemX[2] = domain.x(nd2i);
+   elemX[3] = domain.x(nd3i);
+   elemX[4] = domain.x(nd4i);
+   elemX[5] = domain.x(nd5i);
+   elemX[6] = domain.x(nd6i);
+   elemX[7] = domain.x(nd7i);
+
+   elemY[0] = domain.y(nd0i);
+   elemY[1] = domain.y(nd1i);
+   elemY[2] = domain.y(nd2i);
+   elemY[3] = domain.y(nd3i);
+   elemY[4] = domain.y(nd4i);
+   elemY[5] = domain.y(nd5i);
+   elemY[6] = domain.y(nd6i);
+   elemY[7] = domain.y(nd7i);
+
+   elemZ[0] = domain.z(nd0i);
+   elemZ[1] = domain.z(nd1i);
+   elemZ[2] = domain.z(nd2i);
+   elemZ[3] = domain.z(nd3i);
+   elemZ[4] = domain.z(nd4i);
+   elemZ[5] = domain.z(nd5i);
+   elemZ[6] = domain.z(nd6i);
+   elemZ[7] = domain.z(nd7i);
+
+}
+
+/******************************************/
+
+static inline
+void InitStressTermsForElems(Domain &domain,
                              Real_t *sigxx, Real_t *sigyy, Real_t *sigzz,
                              Index_t numElem)
 {
    //
    // pull in the stresses appropriate to the hydro integration
    //
+
+#pragma omp parallel for firstprivate(numElem)
    for (Index_t i = 0 ; i < numElem ; ++i){
-      sigxx[i] = sigyy[i] = sigzz[i] =  - p[i] - q[i] ;
+      sigxx[i] = sigyy[i] = sigzz[i] =  - domain.p(i) - domain.q(i) ;
    }
 }
+
+/******************************************/
 
 static inline
 void CalcElemShapeFunctionDerivatives( Real_t const x[],
@@ -2451,17 +344,17 @@ void CalcElemShapeFunctionDerivatives( Real_t const x[],
   Real_t cjyxi, cjyet, cjyze;
   Real_t cjzxi, cjzet, cjzze;
 
-  fjxxi = .125 * ( (x6-x0) + (x5-x3) - (x7-x1) - (x4-x2) );
-  fjxet = .125 * ( (x6-x0) - (x5-x3) + (x7-x1) - (x4-x2) );
-  fjxze = .125 * ( (x6-x0) + (x5-x3) + (x7-x1) + (x4-x2) );
+  fjxxi = Real_t(.125) * ( (x6-x0) + (x5-x3) - (x7-x1) - (x4-x2) );
+  fjxet = Real_t(.125) * ( (x6-x0) - (x5-x3) + (x7-x1) - (x4-x2) );
+  fjxze = Real_t(.125) * ( (x6-x0) + (x5-x3) + (x7-x1) + (x4-x2) );
 
-  fjyxi = .125 * ( (y6-y0) + (y5-y3) - (y7-y1) - (y4-y2) );
-  fjyet = .125 * ( (y6-y0) - (y5-y3) + (y7-y1) - (y4-y2) );
-  fjyze = .125 * ( (y6-y0) + (y5-y3) + (y7-y1) + (y4-y2) );
+  fjyxi = Real_t(.125) * ( (y6-y0) + (y5-y3) - (y7-y1) - (y4-y2) );
+  fjyet = Real_t(.125) * ( (y6-y0) - (y5-y3) + (y7-y1) - (y4-y2) );
+  fjyze = Real_t(.125) * ( (y6-y0) + (y5-y3) + (y7-y1) + (y4-y2) );
 
-  fjzxi = .125 * ( (z6-z0) + (z5-z3) - (z7-z1) - (z4-z2) );
-  fjzet = .125 * ( (z6-z0) - (z5-z3) + (z7-z1) - (z4-z2) );
-  fjzze = .125 * ( (z6-z0) + (z5-z3) + (z7-z1) + (z4-z2) );
+  fjzxi = Real_t(.125) * ( (z6-z0) + (z5-z3) - (z7-z1) - (z4-z2) );
+  fjzet = Real_t(.125) * ( (z6-z0) - (z5-z3) + (z7-z1) - (z4-z2) );
+  fjzze = Real_t(.125) * ( (z6-z0) + (z5-z3) + (z7-z1) + (z4-z2) );
 
   /* compute cofactors */
   cjxxi =    (fjyet * fjzze) - (fjzet * fjyze);
@@ -2511,6 +404,8 @@ void CalcElemShapeFunctionDerivatives( Real_t const x[],
   *volume = Real_t(8.) * ( fjxet * cjxet + fjyet * cjyet + fjzet * cjzet);
 }
 
+/******************************************/
+
 static inline
 void SumElemFaceNormal(Real_t *normalX0, Real_t *normalY0, Real_t *normalZ0,
                        Real_t *normalX1, Real_t *normalY1, Real_t *normalZ1,
@@ -2546,6 +441,8 @@ void SumElemFaceNormal(Real_t *normalX0, Real_t *normalY0, Real_t *normalZ0,
    *normalZ2 += areaZ;
    *normalZ3 += areaZ;
 }
+
+/******************************************/
 
 static inline
 void CalcElemNodeNormals(Real_t pfx[8],
@@ -2604,6 +501,8 @@ void CalcElemNodeNormals(Real_t pfx[8],
                   x[6], y[6], z[6], x[5], y[5], z[5]);
 }
 
+/******************************************/
+
 static inline
 void SumElemStressesToNodeForces( const Real_t B[][8],
                                   const Real_t stress_xx,
@@ -2611,143 +510,111 @@ void SumElemStressesToNodeForces( const Real_t B[][8],
                                   const Real_t stress_zz,
                                   Real_t fx[], Real_t fy[], Real_t fz[] )
 {
-  Real_t pfx0 = B[0][0] ;   Real_t pfx1 = B[0][1] ;
-  Real_t pfx2 = B[0][2] ;   Real_t pfx3 = B[0][3] ;
-  Real_t pfx4 = B[0][4] ;   Real_t pfx5 = B[0][5] ;
-  Real_t pfx6 = B[0][6] ;   Real_t pfx7 = B[0][7] ;
-
-  Real_t pfy0 = B[1][0] ;   Real_t pfy1 = B[1][1] ;
-  Real_t pfy2 = B[1][2] ;   Real_t pfy3 = B[1][3] ;
-  Real_t pfy4 = B[1][4] ;   Real_t pfy5 = B[1][5] ;
-  Real_t pfy6 = B[1][6] ;   Real_t pfy7 = B[1][7] ;
-
-  Real_t pfz0 = B[2][0] ;   Real_t pfz1 = B[2][1] ;
-  Real_t pfz2 = B[2][2] ;   Real_t pfz3 = B[2][3] ;
-  Real_t pfz4 = B[2][4] ;   Real_t pfz5 = B[2][5] ;
-  Real_t pfz6 = B[2][6] ;   Real_t pfz7 = B[2][7] ;
-
-  fx[0] = -( stress_xx * pfx0 );
-  fx[1] = -( stress_xx * pfx1 );
-  fx[2] = -( stress_xx * pfx2 );
-  fx[3] = -( stress_xx * pfx3 );
-  fx[4] = -( stress_xx * pfx4 );
-  fx[5] = -( stress_xx * pfx5 );
-  fx[6] = -( stress_xx * pfx6 );
-  fx[7] = -( stress_xx * pfx7 );
-
-  fy[0] = -( stress_yy * pfy0  );
-  fy[1] = -( stress_yy * pfy1  );
-  fy[2] = -( stress_yy * pfy2  );
-  fy[3] = -( stress_yy * pfy3  );
-  fy[4] = -( stress_yy * pfy4  );
-  fy[5] = -( stress_yy * pfy5  );
-  fy[6] = -( stress_yy * pfy6  );
-  fy[7] = -( stress_yy * pfy7  );
-
-  fz[0] = -( stress_zz * pfz0 );
-  fz[1] = -( stress_zz * pfz1 );
-  fz[2] = -( stress_zz * pfz2 );
-  fz[3] = -( stress_zz * pfz3 );
-  fz[4] = -( stress_zz * pfz4 );
-  fz[5] = -( stress_zz * pfz5 );
-  fz[6] = -( stress_zz * pfz6 );
-  fz[7] = -( stress_zz * pfz7 );
+   for(Index_t i = 0; i < 8; i++) {
+      fx[i] = -( stress_xx * B[0][i] );
+      fy[i] = -( stress_yy * B[1][i]  );
+      fz[i] = -( stress_zz * B[2][i] );
+   }
 }
 
-static inline
-void IntegrateStressForElems( Index_t *nodelist,
-                              Real_t *x,  Real_t *y,  Real_t *z,
-                              Real_t *fx, Real_t *fy, Real_t *fz,
-                              Real_t *sigxx, Real_t *sigyy, Real_t *sigzz,
-                              Real_t *determ, Index_t numElem)
-{
-  Real_t B[3][8] ;// shape function derivatives
-  Real_t x_local[8] ;
-  Real_t y_local[8] ;
-  Real_t z_local[8] ;
-  Real_t fx_local[8] ;
-  Real_t fy_local[8] ;
-  Real_t fz_local[8] ;
+/******************************************/
 
+static inline
+void IntegrateStressForElems( Domain &domain,
+                              Real_t *sigxx, Real_t *sigyy, Real_t *sigzz,
+                              Real_t *determ, Index_t numElem, Index_t numNode)
+{
+#if _OPENMP
+   Index_t numthreads = omp_get_max_threads();
+#else
+   Index_t numthreads = 1;
+#endif
+
+   Index_t numElem8 = numElem * 8 ;
+   Real_t *fx_elem;
+   Real_t *fy_elem;
+   Real_t *fz_elem;
+   Real_t fx_local[8] ;
+   Real_t fy_local[8] ;
+   Real_t fz_local[8] ;
+
+
+  if (numthreads > 1) {
+     fx_elem = Allocate<Real_t>(numElem8) ;
+     fy_elem = Allocate<Real_t>(numElem8) ;
+     fz_elem = Allocate<Real_t>(numElem8) ;
+  }
   // loop over all elements
+
+#pragma omp parallel for firstprivate(numElem)
   for( Index_t k=0 ; k<numElem ; ++k )
   {
-    const Index_t* const elemNodes = &nodelist[8*k];
+    const Index_t* const elemToNode = domain.nodelist(k);
+    Real_t B[3][8] ;// shape function derivatives
+    Real_t x_local[8] ;
+    Real_t y_local[8] ;
+    Real_t z_local[8] ;
 
     // get nodal coordinates from global arrays and copy into local arrays.
-    for( Index_t lnode=0 ; lnode<8 ; ++lnode )
-    {
-      Index_t gnode = elemNodes[lnode];
-      x_local[lnode] = x[gnode];
-      y_local[lnode] = y[gnode];
-      z_local[lnode] = z[gnode];
-    }
+    CollectDomainNodesToElemNodes(domain, elemToNode, x_local, y_local, z_local);
 
-    /* Volume calculation involves extra work for numerical consistency. */
+    // Volume calculation involves extra work for numerical consistency
     CalcElemShapeFunctionDerivatives(x_local, y_local, z_local,
                                          B, &determ[k]);
 
     CalcElemNodeNormals( B[0] , B[1], B[2],
                           x_local, y_local, z_local );
 
-    SumElemStressesToNodeForces( B, sigxx[k], sigyy[k], sigzz[k],
-                                         fx_local, fy_local, fz_local ) ;
-
-    // copy nodal force contributions to global force arrray.
-    for( Index_t lnode=0 ; lnode<8 ; ++lnode )
-    {
-      Index_t gnode = elemNodes[lnode];
-      fx[gnode] += fx_local[lnode];
-      fy[gnode] += fy_local[lnode];
-      fz[gnode] += fz_local[lnode];
+    if (numthreads > 1) {
+       // Eliminate thread writing conflicts at the nodes by giving
+       // each element its own copy to write to
+       SumElemStressesToNodeForces( B, sigxx[k], sigyy[k], sigzz[k],
+                                    &fx_elem[k*8],
+                                    &fy_elem[k*8],
+                                    &fz_elem[k*8] ) ;
     }
+    else {
+       SumElemStressesToNodeForces( B, sigxx[k], sigyy[k], sigzz[k],
+                                    fx_local, fy_local, fz_local ) ;
+
+       // copy nodal force contributions to global force arrray.
+       for( Index_t lnode=0 ; lnode<8 ; ++lnode ) {
+          Index_t gnode = elemToNode[lnode];
+          domain.fx(gnode) += fx_local[lnode];
+          domain.fy(gnode) += fy_local[lnode];
+          domain.fz(gnode) += fz_local[lnode];
+       }
+    }
+  }
+
+  if (numthreads > 1) {
+     // If threaded, then we need to copy the data out of the temporary
+     // arrays used above into the final forces field
+#pragma omp parallel for firstprivate(numNode)
+     for( Index_t gnode=0 ; gnode<numNode ; ++gnode )
+     {
+        Index_t count = domain.nodeElemCount(gnode) ;
+        Index_t *cornerList = domain.nodeElemCornerList(gnode) ;
+        Real_t fx_tmp = Real_t(0.0) ;
+        Real_t fy_tmp = Real_t(0.0) ;
+        Real_t fz_tmp = Real_t(0.0) ;
+        for (Index_t i=0 ; i < count ; ++i) {
+           Index_t elem = cornerList[i] ;
+           fx_tmp += fx_elem[elem] ;
+           fy_tmp += fy_elem[elem] ;
+           fz_tmp += fz_elem[elem] ;
+        }
+        domain.fx(gnode) = fx_tmp ;
+        domain.fy(gnode) = fy_tmp ;
+        domain.fz(gnode) = fz_tmp ;
+     }
+     Release(&fz_elem) ;
+     Release(&fy_elem) ;
+     Release(&fx_elem) ;
   }
 }
 
-static inline
-void CollectDomainNodesToElemNodes(Real_t *x, Real_t *y, Real_t *z,
-                                   const Index_t* elemToNode,
-                                   Real_t elemX[8],
-                                   Real_t elemY[8],
-                                   Real_t elemZ[8])
-{
-   Index_t nd0i = elemToNode[0] ;
-   Index_t nd1i = elemToNode[1] ;
-   Index_t nd2i = elemToNode[2] ;
-   Index_t nd3i = elemToNode[3] ;
-   Index_t nd4i = elemToNode[4] ;
-   Index_t nd5i = elemToNode[5] ;
-   Index_t nd6i = elemToNode[6] ;
-   Index_t nd7i = elemToNode[7] ;
-
-   elemX[0] = x[nd0i];
-   elemX[1] = x[nd1i];
-   elemX[2] = x[nd2i];
-   elemX[3] = x[nd3i];
-   elemX[4] = x[nd4i];
-   elemX[5] = x[nd5i];
-   elemX[6] = x[nd6i];
-   elemX[7] = x[nd7i];
-
-   elemY[0] = y[nd0i];
-   elemY[1] = y[nd1i];
-   elemY[2] = y[nd2i];
-   elemY[3] = y[nd3i];
-   elemY[4] = y[nd4i];
-   elemY[5] = y[nd5i];
-   elemY[6] = y[nd6i];
-   elemY[7] = y[nd7i];
-
-   elemZ[0] = z[nd0i];
-   elemZ[1] = z[nd1i];
-   elemZ[2] = z[nd2i];
-   elemZ[3] = z[nd3i];
-   elemZ[4] = z[nd4i];
-   elemZ[5] = z[nd5i];
-   elemZ[6] = z[nd6i];
-   elemZ[7] = z[nd7i];
-
-}
+/******************************************/
 
 static inline
 void VoluDer(const Real_t x0, const Real_t x1, const Real_t x2,
@@ -2778,6 +645,8 @@ void VoluDer(const Real_t x0, const Real_t x1, const Real_t x2,
    *dvdy *= twelfth;
    *dvdz *= twelfth;
 }
+
+/******************************************/
 
 static inline
 void CalcElemVolumeDerivative(Real_t dvdx[8],
@@ -2821,214 +690,85 @@ void CalcElemVolumeDerivative(Real_t dvdx[8],
            &dvdx[7], &dvdy[7], &dvdz[7]);
 }
 
+/******************************************/
+
 static inline
-void CalcElemFBHourglassForce(Real_t *xd, Real_t *yd, Real_t *zd,  Real_t *hourgam0,
-                              Real_t *hourgam1, Real_t *hourgam2, Real_t *hourgam3,
-                              Real_t *hourgam4, Real_t *hourgam5, Real_t *hourgam6,
-                              Real_t *hourgam7, Real_t coefficient,
+void CalcElemFBHourglassForce(Real_t *xd, Real_t *yd, Real_t *zd,  Real_t hourgam[][4],
+                              Real_t coefficient,
                               Real_t *hgfx, Real_t *hgfy, Real_t *hgfz )
 {
-   Index_t i00=0;
-   Index_t i01=1;
-   Index_t i02=2;
-   Index_t i03=3;
-
-   Real_t h00 =
-      hourgam0[i00] * xd[0] + hourgam1[i00] * xd[1] +
-      hourgam2[i00] * xd[2] + hourgam3[i00] * xd[3] +
-      hourgam4[i00] * xd[4] + hourgam5[i00] * xd[5] +
-      hourgam6[i00] * xd[6] + hourgam7[i00] * xd[7];
-
-   Real_t h01 =
-      hourgam0[i01] * xd[0] + hourgam1[i01] * xd[1] +
-      hourgam2[i01] * xd[2] + hourgam3[i01] * xd[3] +
-      hourgam4[i01] * xd[4] + hourgam5[i01] * xd[5] +
-      hourgam6[i01] * xd[6] + hourgam7[i01] * xd[7];
-
-   Real_t h02 =
-      hourgam0[i02] * xd[0] + hourgam1[i02] * xd[1]+
-      hourgam2[i02] * xd[2] + hourgam3[i02] * xd[3]+
-      hourgam4[i02] * xd[4] + hourgam5[i02] * xd[5]+
-      hourgam6[i02] * xd[6] + hourgam7[i02] * xd[7];
-
-   Real_t h03 =
-      hourgam0[i03] * xd[0] + hourgam1[i03] * xd[1] +
-      hourgam2[i03] * xd[2] + hourgam3[i03] * xd[3] +
-      hourgam4[i03] * xd[4] + hourgam5[i03] * xd[5] +
-      hourgam6[i03] * xd[6] + hourgam7[i03] * xd[7];
-
-   hgfx[0] = coefficient *
-      (hourgam0[i00] * h00 + hourgam0[i01] * h01 +
-       hourgam0[i02] * h02 + hourgam0[i03] * h03);
-
-   hgfx[1] = coefficient *
-      (hourgam1[i00] * h00 + hourgam1[i01] * h01 +
-       hourgam1[i02] * h02 + hourgam1[i03] * h03);
-
-   hgfx[2] = coefficient *
-      (hourgam2[i00] * h00 + hourgam2[i01] * h01 +
-       hourgam2[i02] * h02 + hourgam2[i03] * h03);
-
-   hgfx[3] = coefficient *
-      (hourgam3[i00] * h00 + hourgam3[i01] * h01 +
-       hourgam3[i02] * h02 + hourgam3[i03] * h03);
-
-   hgfx[4] = coefficient *
-      (hourgam4[i00] * h00 + hourgam4[i01] * h01 +
-       hourgam4[i02] * h02 + hourgam4[i03] * h03);
-
-   hgfx[5] = coefficient *
-      (hourgam5[i00] * h00 + hourgam5[i01] * h01 +
-       hourgam5[i02] * h02 + hourgam5[i03] * h03);
-
-   hgfx[6] = coefficient *
-      (hourgam6[i00] * h00 + hourgam6[i01] * h01 +
-       hourgam6[i02] * h02 + hourgam6[i03] * h03);
-
-   hgfx[7] = coefficient *
-      (hourgam7[i00] * h00 + hourgam7[i01] * h01 +
-       hourgam7[i02] * h02 + hourgam7[i03] * h03);
-
-   h00 =
-      hourgam0[i00] * yd[0] + hourgam1[i00] * yd[1] +
-      hourgam2[i00] * yd[2] + hourgam3[i00] * yd[3] +
-      hourgam4[i00] * yd[4] + hourgam5[i00] * yd[5] +
-      hourgam6[i00] * yd[6] + hourgam7[i00] * yd[7];
-
-   h01 =
-      hourgam0[i01] * yd[0] + hourgam1[i01] * yd[1] +
-      hourgam2[i01] * yd[2] + hourgam3[i01] * yd[3] +
-      hourgam4[i01] * yd[4] + hourgam5[i01] * yd[5] +
-      hourgam6[i01] * yd[6] + hourgam7[i01] * yd[7];
-
-   h02 =
-      hourgam0[i02] * yd[0] + hourgam1[i02] * yd[1]+
-      hourgam2[i02] * yd[2] + hourgam3[i02] * yd[3]+
-      hourgam4[i02] * yd[4] + hourgam5[i02] * yd[5]+
-      hourgam6[i02] * yd[6] + hourgam7[i02] * yd[7];
-
-   h03 =
-      hourgam0[i03] * yd[0] + hourgam1[i03] * yd[1] +
-      hourgam2[i03] * yd[2] + hourgam3[i03] * yd[3] +
-      hourgam4[i03] * yd[4] + hourgam5[i03] * yd[5] +
-      hourgam6[i03] * yd[6] + hourgam7[i03] * yd[7];
-
-
-   hgfy[0] = coefficient *
-      (hourgam0[i00] * h00 + hourgam0[i01] * h01 +
-       hourgam0[i02] * h02 + hourgam0[i03] * h03);
-
-   hgfy[1] = coefficient *
-      (hourgam1[i00] * h00 + hourgam1[i01] * h01 +
-       hourgam1[i02] * h02 + hourgam1[i03] * h03);
-
-   hgfy[2] = coefficient *
-      (hourgam2[i00] * h00 + hourgam2[i01] * h01 +
-       hourgam2[i02] * h02 + hourgam2[i03] * h03);
-
-   hgfy[3] = coefficient *
-      (hourgam3[i00] * h00 + hourgam3[i01] * h01 +
-       hourgam3[i02] * h02 + hourgam3[i03] * h03);
-
-   hgfy[4] = coefficient *
-      (hourgam4[i00] * h00 + hourgam4[i01] * h01 +
-       hourgam4[i02] * h02 + hourgam4[i03] * h03);
-
-   hgfy[5] = coefficient *
-      (hourgam5[i00] * h00 + hourgam5[i01] * h01 +
-       hourgam5[i02] * h02 + hourgam5[i03] * h03);
-
-   hgfy[6] = coefficient *
-      (hourgam6[i00] * h00 + hourgam6[i01] * h01 +
-       hourgam6[i02] * h02 + hourgam6[i03] * h03);
-
-   hgfy[7] = coefficient *
-      (hourgam7[i00] * h00 + hourgam7[i01] * h01 +
-       hourgam7[i02] * h02 + hourgam7[i03] * h03);
-
-   h00 =
-      hourgam0[i00] * zd[0] + hourgam1[i00] * zd[1] +
-      hourgam2[i00] * zd[2] + hourgam3[i00] * zd[3] +
-      hourgam4[i00] * zd[4] + hourgam5[i00] * zd[5] +
-      hourgam6[i00] * zd[6] + hourgam7[i00] * zd[7];
-
-   h01 =
-      hourgam0[i01] * zd[0] + hourgam1[i01] * zd[1] +
-      hourgam2[i01] * zd[2] + hourgam3[i01] * zd[3] +
-      hourgam4[i01] * zd[4] + hourgam5[i01] * zd[5] +
-      hourgam6[i01] * zd[6] + hourgam7[i01] * zd[7];
-
-   h02 =
-      hourgam0[i02] * zd[0] + hourgam1[i02] * zd[1]+
-      hourgam2[i02] * zd[2] + hourgam3[i02] * zd[3]+
-      hourgam4[i02] * zd[4] + hourgam5[i02] * zd[5]+
-      hourgam6[i02] * zd[6] + hourgam7[i02] * zd[7];
-
-   h03 =
-      hourgam0[i03] * zd[0] + hourgam1[i03] * zd[1] +
-      hourgam2[i03] * zd[2] + hourgam3[i03] * zd[3] +
-      hourgam4[i03] * zd[4] + hourgam5[i03] * zd[5] +
-      hourgam6[i03] * zd[6] + hourgam7[i03] * zd[7];
-
-
-   hgfz[0] = coefficient *
-      (hourgam0[i00] * h00 + hourgam0[i01] * h01 +
-       hourgam0[i02] * h02 + hourgam0[i03] * h03);
-
-   hgfz[1] = coefficient *
-      (hourgam1[i00] * h00 + hourgam1[i01] * h01 +
-       hourgam1[i02] * h02 + hourgam1[i03] * h03);
-
-   hgfz[2] = coefficient *
-      (hourgam2[i00] * h00 + hourgam2[i01] * h01 +
-       hourgam2[i02] * h02 + hourgam2[i03] * h03);
-
-   hgfz[3] = coefficient *
-      (hourgam3[i00] * h00 + hourgam3[i01] * h01 +
-       hourgam3[i02] * h02 + hourgam3[i03] * h03);
-
-   hgfz[4] = coefficient *
-      (hourgam4[i00] * h00 + hourgam4[i01] * h01 +
-       hourgam4[i02] * h02 + hourgam4[i03] * h03);
-
-   hgfz[5] = coefficient *
-      (hourgam5[i00] * h00 + hourgam5[i01] * h01 +
-       hourgam5[i02] * h02 + hourgam5[i03] * h03);
-
-   hgfz[6] = coefficient *
-      (hourgam6[i00] * h00 + hourgam6[i01] * h01 +
-       hourgam6[i02] * h02 + hourgam6[i03] * h03);
-
-   hgfz[7] = coefficient *
-      (hourgam7[i00] * h00 + hourgam7[i01] * h01 +
-       hourgam7[i02] * h02 + hourgam7[i03] * h03);
+   Real_t hxx[4];
+   for(Index_t i = 0; i < 4; i++) {
+      hxx[i] = hourgam[0][i] * xd[0] + hourgam[1][i] * xd[1] +
+               hourgam[2][i] * xd[2] + hourgam[3][i] * xd[3] +
+               hourgam[4][i] * xd[4] + hourgam[5][i] * xd[5] +
+               hourgam[6][i] * xd[6] + hourgam[7][i] * xd[7];
+   }
+   for(Index_t i = 0; i < 8; i++) {
+      hgfx[i] = coefficient *
+                (hourgam[i][0] * hxx[0] + hourgam[i][1] * hxx[1] +
+                 hourgam[i][2] * hxx[2] + hourgam[i][3] * hxx[3]);
+   }
+   for(Index_t i = 0; i < 4; i++) {
+      hxx[i] = hourgam[0][i] * yd[0] + hourgam[1][i] * yd[1] +
+               hourgam[2][i] * yd[2] + hourgam[3][i] * yd[3] +
+               hourgam[4][i] * yd[4] + hourgam[5][i] * yd[5] +
+               hourgam[6][i] * yd[6] + hourgam[7][i] * yd[7];
+   }
+   for(Index_t i = 0; i < 8; i++) {
+      hgfy[i] = coefficient *
+                (hourgam[i][0] * hxx[0] + hourgam[i][1] * hxx[1] +
+                 hourgam[i][2] * hxx[2] + hourgam[i][3] * hxx[3]);
+   }
+   for(Index_t i = 0; i < 4; i++) {
+      hxx[i] = hourgam[0][i] * zd[0] + hourgam[1][i] * zd[1] +
+               hourgam[2][i] * zd[2] + hourgam[3][i] * zd[3] +
+               hourgam[4][i] * zd[4] + hourgam[5][i] * zd[5] +
+               hourgam[6][i] * zd[6] + hourgam[7][i] * zd[7];
+   }
+   for(Index_t i = 0; i < 8; i++) {
+      hgfz[i] = coefficient *
+                (hourgam[i][0] * hxx[0] + hourgam[i][1] * hxx[1] +
+                 hourgam[i][2] * hxx[2] + hourgam[i][3] * hxx[3]);
+   }
 }
 
+/******************************************/
+
 static inline
-void CalcFBHourglassForceForElems( Index_t *nodelist,
-                                   Real_t *ss, Real_t *elemMass,
-                                   Real_t *xd, Real_t *yd, Real_t *zd,
-                                   Real_t *fx, Real_t *fy, Real_t *fz,
+void CalcFBHourglassForceForElems( Domain &domain,
                                    Real_t *determ,
                                    Real_t *x8n, Real_t *y8n, Real_t *z8n,
                                    Real_t *dvdx, Real_t *dvdy, Real_t *dvdz,
-                                   Real_t hourg, Index_t numElem)
+                                   Real_t hourg, Index_t numElem,
+                                   Index_t numNode)
 {
+
+#if _OPENMP
+   Index_t numthreads = omp_get_max_threads();
+#else
+   Index_t numthreads = 1;
+#endif
    /*************************************************
     *
     *     FUNCTION: Calculates the Flanagan-Belytschko anti-hourglass
     *               force.
     *
     *************************************************/
+  
+   Index_t numElem8 = numElem * 8 ;
 
-   Real_t hgfx[8], hgfy[8], hgfz[8] ;
+   Real_t *fx_elem; 
+   Real_t *fy_elem; 
+   Real_t *fz_elem; 
 
-   Real_t coefficient;
+   if(numthreads > 1) {
+      fx_elem = Allocate<Real_t>(numElem8) ;
+      fy_elem = Allocate<Real_t>(numElem8) ;
+      fz_elem = Allocate<Real_t>(numElem8) ;
+   }
 
    Real_t  gamma[4][8];
-   Real_t hourgam0[4], hourgam1[4], hourgam2[4], hourgam3[4] ;
-   Real_t hourgam4[4], hourgam5[4], hourgam6[4], hourgam7[4];
-   Real_t xd1[8], yd1[8], zd1[8] ;
 
    gamma[0][0] = Real_t( 1.);
    gamma[0][1] = Real_t( 1.);
@@ -3067,8 +807,17 @@ void CalcFBHourglassForceForElems( Index_t *nodelist,
 /*    compute the hourglass modes */
 
 
+#pragma omp parallel for firstprivate(numElem, hourg)
    for(Index_t i2=0;i2<numElem;++i2){
-      const Index_t *elemToNode = &nodelist[8*i2];
+      Real_t *fx_local, *fy_local, *fz_local ;
+      Real_t hgfx[8], hgfy[8], hgfz[8] ;
+
+      Real_t coefficient;
+
+      Real_t hourgam[8][4];
+      Real_t xd1[8], yd1[8], zd1[8] ;
+
+      const Index_t *elemToNode = domain.nodelist(i2);
       Index_t i3=8*i2;
       Real_t volinv=Real_t(1.0)/determ[i2];
       Real_t ss1, mass1, volume13 ;
@@ -3092,35 +841,35 @@ void CalcFBHourglassForceForElems( Index_t *nodelist,
             z8n[i3+4] * gamma[i1][4] + z8n[i3+5] * gamma[i1][5] +
             z8n[i3+6] * gamma[i1][6] + z8n[i3+7] * gamma[i1][7];
 
-         hourgam0[i1] = gamma[i1][0] -  volinv*(dvdx[i3  ] * hourmodx +
+         hourgam[0][i1] = gamma[i1][0] -  volinv*(dvdx[i3  ] * hourmodx +
                                                   dvdy[i3  ] * hourmody +
                                                   dvdz[i3  ] * hourmodz );
 
-         hourgam1[i1] = gamma[i1][1] -  volinv*(dvdx[i3+1] * hourmodx +
+         hourgam[1][i1] = gamma[i1][1] -  volinv*(dvdx[i3+1] * hourmodx +
                                                   dvdy[i3+1] * hourmody +
                                                   dvdz[i3+1] * hourmodz );
 
-         hourgam2[i1] = gamma[i1][2] -  volinv*(dvdx[i3+2] * hourmodx +
+         hourgam[2][i1] = gamma[i1][2] -  volinv*(dvdx[i3+2] * hourmodx +
                                                   dvdy[i3+2] * hourmody +
                                                   dvdz[i3+2] * hourmodz );
 
-         hourgam3[i1] = gamma[i1][3] -  volinv*(dvdx[i3+3] * hourmodx +
+         hourgam[3][i1] = gamma[i1][3] -  volinv*(dvdx[i3+3] * hourmodx +
                                                   dvdy[i3+3] * hourmody +
                                                   dvdz[i3+3] * hourmodz );
 
-         hourgam4[i1] = gamma[i1][4] -  volinv*(dvdx[i3+4] * hourmodx +
+         hourgam[4][i1] = gamma[i1][4] -  volinv*(dvdx[i3+4] * hourmodx +
                                                   dvdy[i3+4] * hourmody +
                                                   dvdz[i3+4] * hourmodz );
 
-         hourgam5[i1] = gamma[i1][5] -  volinv*(dvdx[i3+5] * hourmodx +
+         hourgam[5][i1] = gamma[i1][5] -  volinv*(dvdx[i3+5] * hourmodx +
                                                   dvdy[i3+5] * hourmody +
                                                   dvdz[i3+5] * hourmodz );
 
-         hourgam6[i1] = gamma[i1][6] -  volinv*(dvdx[i3+6] * hourmodx +
+         hourgam[6][i1] = gamma[i1][6] -  volinv*(dvdx[i3+6] * hourmodx +
                                                   dvdy[i3+6] * hourmody +
                                                   dvdz[i3+6] * hourmodz );
 
-         hourgam7[i1] = gamma[i1][7] -  volinv*(dvdx[i3+7] * hourmodx +
+         hourgam[7][i1] = gamma[i1][7] -  volinv*(dvdx[i3+7] * hourmodx +
                                                   dvdy[i3+7] * hourmody +
                                                   dvdz[i3+7] * hourmodz );
 
@@ -3129,8 +878,8 @@ void CalcFBHourglassForceForElems( Index_t *nodelist,
       /* compute forces */
       /* store forces into h arrays (force arrays) */
 
-      ss1=ss[i2];
-      mass1=elemMass[i2];
+      ss1=domain.ss(i2);
+      mass1=domain.elemMass(i2);
       volume13=CBRT(determ[i2]);
 
       Index_t n0si2 = elemToNode[0];
@@ -3142,82 +891,140 @@ void CalcFBHourglassForceForElems( Index_t *nodelist,
       Index_t n6si2 = elemToNode[6];
       Index_t n7si2 = elemToNode[7];
 
-      xd1[0] = xd[n0si2];
-      xd1[1] = xd[n1si2];
-      xd1[2] = xd[n2si2];
-      xd1[3] = xd[n3si2];
-      xd1[4] = xd[n4si2];
-      xd1[5] = xd[n5si2];
-      xd1[6] = xd[n6si2];
-      xd1[7] = xd[n7si2];
+      xd1[0] = domain.xd(n0si2);
+      xd1[1] = domain.xd(n1si2);
+      xd1[2] = domain.xd(n2si2);
+      xd1[3] = domain.xd(n3si2);
+      xd1[4] = domain.xd(n4si2);
+      xd1[5] = domain.xd(n5si2);
+      xd1[6] = domain.xd(n6si2);
+      xd1[7] = domain.xd(n7si2);
 
-      yd1[0] = yd[n0si2];
-      yd1[1] = yd[n1si2];
-      yd1[2] = yd[n2si2];
-      yd1[3] = yd[n3si2];
-      yd1[4] = yd[n4si2];
-      yd1[5] = yd[n5si2];
-      yd1[6] = yd[n6si2];
-      yd1[7] = yd[n7si2];
+      yd1[0] = domain.yd(n0si2);
+      yd1[1] = domain.yd(n1si2);
+      yd1[2] = domain.yd(n2si2);
+      yd1[3] = domain.yd(n3si2);
+      yd1[4] = domain.yd(n4si2);
+      yd1[5] = domain.yd(n5si2);
+      yd1[6] = domain.yd(n6si2);
+      yd1[7] = domain.yd(n7si2);
 
-      zd1[0] = zd[n0si2];
-      zd1[1] = zd[n1si2];
-      zd1[2] = zd[n2si2];
-      zd1[3] = zd[n3si2];
-      zd1[4] = zd[n4si2];
-      zd1[5] = zd[n5si2];
-      zd1[6] = zd[n6si2];
-      zd1[7] = zd[n7si2];
+      zd1[0] = domain.zd(n0si2);
+      zd1[1] = domain.zd(n1si2);
+      zd1[2] = domain.zd(n2si2);
+      zd1[3] = domain.zd(n3si2);
+      zd1[4] = domain.zd(n4si2);
+      zd1[5] = domain.zd(n5si2);
+      zd1[6] = domain.zd(n6si2);
+      zd1[7] = domain.zd(n7si2);
 
       coefficient = - hourg * Real_t(0.01) * ss1 * mass1 / volume13;
 
       CalcElemFBHourglassForce(xd1,yd1,zd1,
-                      hourgam0,hourgam1,hourgam2,hourgam3,
-                      hourgam4,hourgam5,hourgam6,hourgam7,
+                      hourgam,
                       coefficient, hgfx, hgfy, hgfz);
 
-      fx[n0si2] += hgfx[0];
-      fy[n0si2] += hgfy[0];
-      fz[n0si2] += hgfz[0];
+      // With the threaded version, we write into local arrays per elem
+      // so we don't have to worry about race conditions
+      if (numthreads > 1) {
+         fx_local = &fx_elem[i3] ;
+         fx_local[0] = hgfx[0];
+         fx_local[1] = hgfx[1];
+         fx_local[2] = hgfx[2];
+         fx_local[3] = hgfx[3];
+         fx_local[4] = hgfx[4];
+         fx_local[5] = hgfx[5];
+         fx_local[6] = hgfx[6];
+         fx_local[7] = hgfx[7];
 
-      fx[n1si2] += hgfx[1];
-      fy[n1si2] += hgfy[1];
-      fz[n1si2] += hgfz[1];
+         fy_local = &fy_elem[i3] ;
+         fy_local[0] = hgfy[0];
+         fy_local[1] = hgfy[1];
+         fy_local[2] = hgfy[2];
+         fy_local[3] = hgfy[3];
+         fy_local[4] = hgfy[4];
+         fy_local[5] = hgfy[5];
+         fy_local[6] = hgfy[6];
+         fy_local[7] = hgfy[7];
 
-      fx[n2si2] += hgfx[2];
-      fy[n2si2] += hgfy[2];
-      fz[n2si2] += hgfz[2];
+         fz_local = &fz_elem[i3] ;
+         fz_local[0] = hgfz[0];
+         fz_local[1] = hgfz[1];
+         fz_local[2] = hgfz[2];
+         fz_local[3] = hgfz[3];
+         fz_local[4] = hgfz[4];
+         fz_local[5] = hgfz[5];
+         fz_local[6] = hgfz[6];
+         fz_local[7] = hgfz[7];
+      }
+      else {
+         domain.fx(n0si2) += hgfx[0];
+         domain.fy(n0si2) += hgfy[0];
+         domain.fz(n0si2) += hgfz[0];
 
-      fx[n3si2] += hgfx[3];
-      fy[n3si2] += hgfy[3];
-      fz[n3si2] += hgfz[3];
+         domain.fx(n1si2) += hgfx[1];
+         domain.fy(n1si2) += hgfy[1];
+         domain.fz(n1si2) += hgfz[1];
 
-      fx[n4si2] += hgfx[4];
-      fy[n4si2] += hgfy[4];
-      fz[n4si2] += hgfz[4];
+         domain.fx(n2si2) += hgfx[2];
+         domain.fy(n2si2) += hgfy[2];
+         domain.fz(n2si2) += hgfz[2];
 
-      fx[n5si2] += hgfx[5];
-      fy[n5si2] += hgfy[5];
-      fz[n5si2] += hgfz[5];
+         domain.fx(n3si2) += hgfx[3];
+         domain.fy(n3si2) += hgfy[3];
+         domain.fz(n3si2) += hgfz[3];
 
-      fx[n6si2] += hgfx[6];
-      fy[n6si2] += hgfy[6];
-      fz[n6si2] += hgfz[6];
+         domain.fx(n4si2) += hgfx[4];
+         domain.fy(n4si2) += hgfy[4];
+         domain.fz(n4si2) += hgfz[4];
 
-      fx[n7si2] += hgfx[7];
-      fy[n7si2] += hgfy[7];
-      fz[n7si2] += hgfz[7];
+         domain.fx(n5si2) += hgfx[5];
+         domain.fy(n5si2) += hgfy[5];
+         domain.fz(n5si2) += hgfz[5];
+
+         domain.fx(n6si2) += hgfx[6];
+         domain.fy(n6si2) += hgfy[6];
+         domain.fz(n6si2) += hgfz[6];
+
+         domain.fx(n7si2) += hgfx[7];
+         domain.fy(n7si2) += hgfy[7];
+         domain.fz(n7si2) += hgfz[7];
+      }
+   }
+
+   if (numthreads > 1) {
+     // Collect the data from the local arrays into the final force arrays
+#pragma omp parallel for firstprivate(numNode)
+      for( Index_t gnode=0 ; gnode<numNode ; ++gnode )
+      {
+         Index_t count = domain.nodeElemCount(gnode) ;
+         Index_t *cornerList = domain.nodeElemCornerList(gnode) ;
+         Real_t fx_tmp = Real_t(0.0) ;
+         Real_t fy_tmp = Real_t(0.0) ;
+         Real_t fz_tmp = Real_t(0.0) ;
+         for (Index_t i=0 ; i < count ; ++i) {
+            Index_t elem = cornerList[i] ;
+            fx_tmp += fx_elem[elem] ;
+            fy_tmp += fy_elem[elem] ;
+            fz_tmp += fz_elem[elem] ;
+         }
+         domain.fx(gnode) += fx_tmp ;
+         domain.fy(gnode) += fy_tmp ;
+         domain.fz(gnode) += fz_tmp ;
+      }
+      Release(&fz_elem) ;
+      Release(&fy_elem) ;
+      Release(&fx_elem) ;
    }
 }
 
+/******************************************/
+
 static inline
-void CalcHourglassControlForElems(Domain *domain,
+void CalcHourglassControlForElems(Domain& domain,
                                   Real_t determ[], Real_t hgcoef)
 {
-   Index_t i, ii, jj ;
-   Real_t  x1[8],  y1[8],  z1[8] ;
-   Real_t pfx[8], pfy[8], pfz[8] ;
-   Index_t numElem = domain->numElem ;
+   Index_t numElem = domain.numElem() ;
    Index_t numElem8 = numElem * 8 ;
    Real_t *dvdx = Allocate<Real_t>(numElem8) ;
    Real_t *dvdy = Allocate<Real_t>(numElem8) ;
@@ -3227,17 +1034,19 @@ void CalcHourglassControlForElems(Domain *domain,
    Real_t *z8n  = Allocate<Real_t>(numElem8) ;
 
    /* start loop over elements */
-   for (i=0 ; i<numElem ; ++i){
+#pragma omp parallel for firstprivate(numElem)
+   for (Index_t i=0 ; i<numElem ; ++i){
+      Real_t  x1[8],  y1[8],  z1[8] ;
+      Real_t pfx[8], pfy[8], pfz[8] ;
 
-      Index_t* elemToNode = &domain->nodelist[8*i];
-      CollectDomainNodesToElemNodes(domain->x, domain->y, domain->z,
-                                    elemToNode, x1, y1, z1);
+      Index_t* elemToNode = domain.nodelist(i);
+      CollectDomainNodesToElemNodes(domain, elemToNode, x1, y1, z1);
 
       CalcElemVolumeDerivative(pfx, pfy, pfz, x1, y1, z1);
 
       /* load into temporary storage for FB Hour Glass control */
-      for(ii=0;ii<8;++ii){
-         jj=8*i+ii;
+      for(Index_t ii=0;ii<8;++ii){
+         Index_t jj=8*i+ii;
 
          dvdx[jj] = pfx[ii];
          dvdy[jj] = pfy[ii];
@@ -3247,21 +1056,22 @@ void CalcHourglassControlForElems(Domain *domain,
          z8n[jj]  = z1[ii];
       }
 
-      determ[i] = domain->volo[i] * domain->v[i];
+      determ[i] = domain.volo(i) * domain.v(i);
 
       /* Do a check for negative volumes */
-      if ( domain->v[i] <= Real_t(0.0) ) {
+      if ( domain.v(i) <= Real_t(0.0) ) {
+#if USE_MPI         
          MPI_Abort(MPI_COMM_WORLD, VolumeError) ;
+#else
+         exit(VolumeError);
+#endif
       }
    }
 
    if ( hgcoef > Real_t(0.) ) {
-      CalcFBHourglassForceForElems( domain->nodelist,
-                                    domain->ss, domain->elemMass,
-                                    domain->xd, domain->yd, domain->zd,
-                                    domain->fx, domain->fy, domain->fz,
+      CalcFBHourglassForceForElems( domain,
                                     determ, x8n, y8n, z8n, dvdx, dvdy, dvdz,
-                                    hgcoef, numElem) ;
+                                    hgcoef, numElem, domain.numNode()) ;
    }
 
    Release(&z8n) ;
@@ -3274,32 +1084,37 @@ void CalcHourglassControlForElems(Domain *domain,
    return ;
 }
 
+/******************************************/
+
 static inline
-void CalcVolumeForceForElems(Domain *domain)
+void CalcVolumeForceForElems(Domain& domain)
 {
-   Index_t numElem = domain->numElem ;
+   Index_t numElem = domain.numElem() ;
    if (numElem != 0) {
-      Real_t  hgcoef = domain->hgcoef ;
+      Real_t  hgcoef = domain.hgcoef() ;
       Real_t *sigxx  = Allocate<Real_t>(numElem) ;
       Real_t *sigyy  = Allocate<Real_t>(numElem) ;
       Real_t *sigzz  = Allocate<Real_t>(numElem) ;
       Real_t *determ = Allocate<Real_t>(numElem) ;
 
       /* Sum contributions to total stress tensor */
-      InitStressTermsForElems(domain->p, domain->q,
-                              sigxx, sigyy, sigzz, numElem);
+      InitStressTermsForElems(domain, sigxx, sigyy, sigzz, numElem);
 
       // call elemlib stress integration loop to produce nodal forces from
       // material stresses.
-      IntegrateStressForElems( domain->nodelist,
-                               domain->x, domain->y, domain->z,
-                               domain->fx, domain->fy, domain->fz,
-                               sigxx, sigyy, sigzz, determ, numElem) ;
+      IntegrateStressForElems( domain,
+                               sigxx, sigyy, sigzz, determ, numElem,
+                               domain.numNode()) ;
 
       // check for negative element volume
+#pragma omp parallel for firstprivate(numElem)
       for ( Index_t k=0 ; k<numElem ; ++k ) {
          if (determ[k] <= Real_t(0.0)) {
+#if USE_MPI            
             MPI_Abort(MPI_COMM_WORLD, VolumeError) ;
+#else
+            exit(VolumeError);
+#endif
          }
       }
 
@@ -3312,157 +1127,176 @@ void CalcVolumeForceForElems(Domain *domain)
    }
 }
 
-static inline void CalcForceForNodes(Domain *domain)
+/******************************************/
+
+static inline void CalcForceForNodes(Domain& domain)
 {
-  Real_t *fieldData[3] ;
-  Index_t numNode = domain->numNode ;
+  Index_t numNode = domain.numNode() ;
 
+#if USE_MPI  
   CommRecv(domain, MSG_COMM_SBN, 3,
-           domain->sizeX + 1, domain->sizeY + 1, domain->sizeZ + 1,
+           domain.sizeX() + 1, domain.sizeY() + 1, domain.sizeZ() + 1,
            true, false) ;
+#endif  
 
+#pragma omp parallel for firstprivate(numNode)
   for (Index_t i=0; i<numNode; ++i) {
-     domain->fx[i] = Real_t(0.0) ;
-     domain->fy[i] = Real_t(0.0) ;
-     domain->fz[i] = Real_t(0.0) ;
+     domain.fx(i) = Real_t(0.0) ;
+     domain.fy(i) = Real_t(0.0) ;
+     domain.fz(i) = Real_t(0.0) ;
   }
 
   /* Calcforce calls partial, force, hourq */
   CalcVolumeForceForElems(domain) ;
 
-  fieldData[0] = domain->fx ;
-  fieldData[1] = domain->fy ;
-  fieldData[2] = domain->fz ;
+#if USE_MPI  
+  Domain_member fieldData[3] ;
+  fieldData[0] = &Domain::fx ;
+  fieldData[1] = &Domain::fy ;
+  fieldData[2] = &Domain::fz ;
+  
   CommSend(domain, MSG_COMM_SBN, 3, fieldData,
-           domain->sizeX + 1, domain->sizeY + 1, domain->sizeZ +  1,
+           domain.sizeX() + 1, domain.sizeY() + 1, domain.sizeZ() +  1,
            true, false) ;
   CommSBN(domain, 3, fieldData) ;
+#endif  
 }
 
+/******************************************/
+
 static inline
-void CalcAccelerationForNodes(Real_t *xdd, Real_t *ydd, Real_t *zdd,
-                              Real_t *fx, Real_t *fy, Real_t *fz,
-                              Real_t *nodalMass, Index_t numNode)
+void CalcAccelerationForNodes(Domain &domain, Index_t numNode)
 {
+   
+#pragma omp parallel for firstprivate(numNode)
    for (Index_t i = 0; i < numNode; ++i) {
-      xdd[i] = fx[i] / nodalMass[i];
-      ydd[i] = fy[i] / nodalMass[i];
-      zdd[i] = fz[i] / nodalMass[i];
+      domain.xdd(i) = domain.fx(i) / domain.nodalMass(i);
+      domain.ydd(i) = domain.fy(i) / domain.nodalMass(i);
+      domain.zdd(i) = domain.fz(i) / domain.nodalMass(i);
    }
 }
 
+/******************************************/
+
 static inline
-void ApplyAccelerationBoundaryConditionsForNodes(Real_t *xdd, Real_t *ydd,
-                                                 Real_t *zdd, Index_t *symmX,
-                                                 Index_t *symmY,
-                                                 Index_t *symmZ, Index_t size)
+void ApplyAccelerationBoundaryConditionsForNodes(Domain& domain)
 {
-  Index_t numNodeBC = (size+1)*(size+1) ;
-  if (symmX != 0) {
-     for(Index_t i=0 ; i<numNodeBC ; ++i)
-        xdd[symmX[i]] = Real_t(0.0) ;
-  }
+   Index_t size = domain.sizeX();
+   Index_t numNodeBC = (size+1)*(size+1) ;
 
-  if (symmY != 0) {
-     for(Index_t i=0 ; i<numNodeBC ; ++i)
-        ydd[symmY[i]] = Real_t(0.0) ;
-  }
+#pragma omp parallel
+   {
+      if (!domain.symmXempty() != 0) {
+#pragma omp for nowait firstprivate(numNodeBC)
+         for(Index_t i=0 ; i<numNodeBC ; ++i)
+            domain.xdd(domain.symmX(i)) = Real_t(0.0) ;
+      }
 
-  if (symmZ != 0) {
-     for(Index_t i=0 ; i<numNodeBC ; ++i)
-        zdd[symmZ[i]] = Real_t(0.0) ;
-  }
+      if (!domain.symmYempty() != 0) {
+#pragma omp for nowait firstprivate(numNodeBC)
+         for(Index_t i=0 ; i<numNodeBC ; ++i)
+            domain.ydd(domain.symmY(i)) = Real_t(0.0) ;
+      }
+
+      if (!domain.symmZempty() != 0) {
+#pragma omp for nowait firstprivate(numNodeBC)
+         for(Index_t i=0 ; i<numNodeBC ; ++i)
+            domain.zdd(domain.symmZ(i)) = Real_t(0.0) ;
+      }
+   }
 }
 
+/******************************************/
+
 static inline
-void CalcVelocityForNodes(Real_t *xd,  Real_t *yd,  Real_t *zd,
-                          Real_t *xdd, Real_t *ydd, Real_t *zdd,
-                          const Real_t dt, const Real_t u_cut,
+void CalcVelocityForNodes(Domain &domain, const Real_t dt, const Real_t u_cut,
                           Index_t numNode)
 {
+
+#pragma omp parallel for firstprivate(numNode)
    for ( Index_t i = 0 ; i < numNode ; ++i )
    {
      Real_t xdtmp, ydtmp, zdtmp ;
 
-     xdtmp = xd[i] + xdd[i] * dt ;
+     xdtmp = domain.xd(i) + domain.xdd(i) * dt ;
      if( FABS(xdtmp) < u_cut ) xdtmp = Real_t(0.0);
-     xd[i] = xdtmp ;
+     domain.xd(i) = xdtmp ;
 
-     ydtmp = yd[i] + ydd[i] * dt ;
+     ydtmp = domain.yd(i) + domain.ydd(i) * dt ;
      if( FABS(ydtmp) < u_cut ) ydtmp = Real_t(0.0);
-     yd[i] = ydtmp ;
+     domain.yd(i) = ydtmp ;
 
-     zdtmp = zd[i] + zdd[i] * dt ;
+     zdtmp = domain.zd(i) + domain.zdd(i) * dt ;
      if( FABS(zdtmp) < u_cut ) zdtmp = Real_t(0.0);
-     zd[i] = zdtmp ;
+     domain.zd(i) = zdtmp ;
    }
 }
 
+/******************************************/
+
 static inline
-void CalcPositionForNodes(Real_t *x,  Real_t *y,  Real_t *z,
-                          Real_t *xd, Real_t *yd, Real_t *zd,
-                          const Real_t dt, Index_t numNode)
+void CalcPositionForNodes(Domain &domain, const Real_t dt, Index_t numNode)
 {
+#pragma omp parallel for firstprivate(numNode)
    for ( Index_t i = 0 ; i < numNode ; ++i )
    {
-     x[i] += xd[i] * dt ;
-     y[i] += yd[i] * dt ;
-     z[i] += zd[i] * dt ;
+     domain.x(i) += domain.xd(i) * dt ;
+     domain.y(i) += domain.yd(i) * dt ;
+     domain.z(i) += domain.zd(i) * dt ;
    }
 }
 
+/******************************************/
+
 static inline
-void LagrangeNodal(Domain *domain)
+void LagrangeNodal(Domain& domain)
 {
 #ifdef SEDOV_SYNC_POS_VEL_EARLY
-   Real_t *fieldData[6] ;
+   Domain_member fieldData[6] ;
 #endif
 
-  const Real_t delt = domain->deltatime ;
-  Real_t u_cut = domain->u_cut ;
+   const Real_t delt = domain.deltatime() ;
+   Real_t u_cut = domain.u_cut() ;
 
   /* time of boundary condition evaluation is beginning of step for force and
    * acceleration boundary conditions. */
   CalcForceForNodes(domain);
 
+#if USE_MPI  
 #ifdef SEDOV_SYNC_POS_VEL_EARLY
    CommRecv(domain, MSG_SYNC_POS_VEL, 6,
-            domain->sizeX + 1, domain->sizeY + 1, domain->sizeZ + 1,
+            domain.sizeX() + 1, domain.sizeY() + 1, domain.sizeZ() + 1,
             false, false) ;
 #endif
-
-  CalcAccelerationForNodes(domain->xdd, domain->ydd, domain->zdd,
-                           domain->fx, domain->fy, domain->fz,
-                           domain->nodalMass, domain->numNode);
-
-  ApplyAccelerationBoundaryConditionsForNodes(domain->xdd, domain->ydd,
-                                              domain->zdd, domain->symmX,
-                                              domain->symmY, domain->symmZ,
-                                              domain->sizeX);
-
-  CalcVelocityForNodes( domain->xd,  domain->yd,  domain->zd,
-                        domain->xdd, domain->ydd, domain->zdd,
-                        delt, u_cut, domain->numNode) ;
-
-  CalcPositionForNodes( domain->x,  domain->y,  domain->z,
-                        domain->xd, domain->yd, domain->zd,
-                        delt, domain->numNode );
-#ifdef SEDOV_SYNC_POS_VEL_EARLY
-   fieldData[0] = domain->x ;
-   fieldData[1] = domain->y ;
-   fieldData[2] = domain->z ;
-   fieldData[3] = domain->xd ;
-   fieldData[4] = domain->yd ;
-   fieldData[5] = domain->zd ;
+#endif
    
+   CalcAccelerationForNodes(domain, domain.numNode());
+   
+   ApplyAccelerationBoundaryConditionsForNodes(domain);
+
+   CalcVelocityForNodes( domain, delt, u_cut, domain.numNode()) ;
+
+   CalcPositionForNodes( domain, delt, domain.numNode() );
+#if USE_MPI
+#ifdef SEDOV_SYNC_POS_VEL_EARLY
+  fieldData[0] = &Domain::x ;
+  fieldData[1] = &Domain::y ;
+  fieldData[2] = &Domain::z ;
+  fieldData[3] = &Domain::xd ;
+  fieldData[4] = &Domain::yd ;
+  fieldData[5] = &Domain::zd ;
+
    CommSend(domain, MSG_SYNC_POS_VEL, 6, fieldData,
-            domain->sizeX + 1, domain->sizeY + 1, domain->sizeZ + 1,
+            domain.sizeX() + 1, domain.sizeY() + 1, domain.sizeZ() + 1,
             false, false) ;
    CommSyncPosVel(domain) ;
 #endif
-
+#endif
+   
   return;
 }
+
+/******************************************/
 
 static inline
 Real_t CalcElemVolume( const Real_t x0, const Real_t x1,
@@ -3549,13 +1383,17 @@ Real_t CalcElemVolume( const Real_t x0, const Real_t x1,
   return volume ;
 }
 
-static inline
+/******************************************/
+
+//inline
 Real_t CalcElemVolume( const Real_t x[8], const Real_t y[8], const Real_t z[8] )
 {
 return CalcElemVolume( x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7],
                        y[0], y[1], y[2], y[3], y[4], y[5], y[6], y[7],
                        z[0], z[1], z[2], z[3], z[4], z[5], z[6], z[7]);
 }
+
+/******************************************/
 
 static inline
 Real_t AreaFace( const Real_t x0, const Real_t x1,
@@ -3578,6 +1416,8 @@ Real_t AreaFace( const Real_t x0, const Real_t x1,
       (fx * gx + fy * gy + fz * gz);
    return area ;
 }
+
+/******************************************/
 
 static inline
 Real_t CalcElemCharacteristicLength( const Real_t x[8],
@@ -3622,13 +1462,15 @@ Real_t CalcElemCharacteristicLength( const Real_t x[8],
    return charLength;
 }
 
+/******************************************/
+
 static inline
 void CalcElemVelocityGradient( const Real_t* const xvel,
-                               const Real_t* const yvel,
-                               const Real_t* const zvel,
-                               const Real_t b[][8],
-                               const Real_t detJ,
-                               Real_t* const d )
+                                const Real_t* const yvel,
+                                const Real_t* const zvel,
+                                const Real_t b[][8],
+                                const Real_t detJ,
+                                Real_t* const d )
 {
   const Real_t inv_detJ = Real_t(1.0) / detJ ;
   Real_t dyddx, dxddy, dzddx, dxddz, dzddy, dyddz;
@@ -3685,58 +1527,51 @@ void CalcElemVelocityGradient( const Real_t* const xvel,
   d[3]  = Real_t( .5) * ( dzddy + dyddz );
 }
 
-static inline
-void CalcKinematicsForElems( Index_t *nodelist,
-                             Real_t *x,   Real_t *y,   Real_t *z,
-                             Real_t *xd,  Real_t *yd,  Real_t *zd,
-                             Real_t *dxx, Real_t *dyy, Real_t *dzz,
-                             Real_t *v, Real_t *volo,
-                             Real_t *vnew, Real_t *delv, Real_t *arealg,
+/******************************************/
+
+//static inline
+void CalcKinematicsForElems( Domain &domain, Real_t *vnew, 
                              Real_t deltaTime, Index_t numElem )
 {
-  Real_t B[3][8] ; /** shape function derivatives */
-  Real_t D[6] ;
-  Real_t x_local[8] ;
-  Real_t y_local[8] ;
-  Real_t z_local[8] ;
-  Real_t xd_local[8] ;
-  Real_t yd_local[8] ;
-  Real_t zd_local[8] ;
-  Real_t detJ = Real_t(0.0) ;
 
   // loop over all elements
+#pragma omp parallel for firstprivate(numElem, deltaTime)
   for( Index_t k=0 ; k<numElem ; ++k )
   {
+    Real_t B[3][8] ; /** shape function derivatives */
+    Real_t D[6] ;
+    Real_t x_local[8] ;
+    Real_t y_local[8] ;
+    Real_t z_local[8] ;
+    Real_t xd_local[8] ;
+    Real_t yd_local[8] ;
+    Real_t zd_local[8] ;
+    Real_t detJ = Real_t(0.0) ;
+
     Real_t volume ;
     Real_t relativeVolume ;
-    const Index_t* const elemToNode = &nodelist[8*k] ;
+    const Index_t* const elemToNode = domain.nodelist(k) ;
 
     // get nodal coordinates from global arrays and copy into local arrays.
-    for( Index_t lnode=0 ; lnode<8 ; ++lnode )
-    {
-      Index_t gnode = elemToNode[lnode];
-      x_local[lnode] = x[gnode];
-      y_local[lnode] = y[gnode];
-      z_local[lnode] = z[gnode];
-    }
+    CollectDomainNodesToElemNodes(domain, elemToNode, x_local, y_local, z_local);
 
     // volume calculations
     volume = CalcElemVolume(x_local, y_local, z_local );
-    relativeVolume = volume / volo[k] ;
+    relativeVolume = volume / domain.volo(k) ;
     vnew[k] = relativeVolume ;
-    delv[k] = relativeVolume - v[k] ;
+    domain.delv(k) = relativeVolume - domain.v(k) ;
 
     // set characteristic length
-    arealg[k] = CalcElemCharacteristicLength(x_local, y_local, z_local,
+    domain.arealg(k) = CalcElemCharacteristicLength(x_local, y_local, z_local,
                                              volume);
 
     // get nodal velocities from global array and copy into local arrays.
     for( Index_t lnode=0 ; lnode<8 ; ++lnode )
     {
       Index_t gnode = elemToNode[lnode];
-      xd_local[lnode] = xd[gnode];
-      yd_local[lnode] = yd[gnode];
-      zd_local[lnode] = zd[gnode];
+      xd_local[lnode] = domain.xd(gnode);
+      yd_local[lnode] = domain.yd(gnode);
+      zd_local[lnode] = domain.zd(gnode);
     }
 
     Real_t dt2 = Real_t(0.5) * deltaTime;
@@ -3751,81 +1586,70 @@ void CalcKinematicsForElems( Index_t *nodelist,
                                       B, &detJ );
 
     CalcElemVelocityGradient( xd_local, yd_local, zd_local,
-                              B, detJ, D );
+                               B, detJ, D );
 
     // put velocity gradient quantities into their global arrays.
-    dxx[k] = D[0];
-    dyy[k] = D[1];
-    dzz[k] = D[2];
+    domain.dxx(k) = D[0];
+    domain.dyy(k) = D[1];
+    domain.dzz(k) = D[2];
   }
 }
 
+/******************************************/
+
 static inline
-void CalcLagrangeElements(Domain *domain)
+void CalcLagrangeElements(Domain& domain, Real_t* vnew)
 {
-   Index_t numElem = domain->numElem ;
+   Index_t numElem = domain.numElem() ;
    if (numElem > 0) {
-      const Real_t deltatime = domain->deltatime ;
+      const Real_t deltatime = domain.deltatime() ;
 
-      domain->dxx  = new Real_t[numElem] ; /* principal strains */
-      domain->dyy  = new Real_t[numElem] ;
-      domain->dzz  = new Real_t[numElem] ;
+      domain.AllocateStrains(numElem);
 
-      CalcKinematicsForElems(domain->nodelist,
-                             domain->x, domain->y, domain->z,
-                             domain->xd, domain->yd, domain->zd,
-                             domain->dxx, domain->dyy, domain->dzz,
-                             domain->v, domain->volo,
-                             domain->vnew, domain->delv, domain->arealg,
-                             deltatime, numElem) ;
+      CalcKinematicsForElems(domain, vnew, deltatime, numElem) ;
 
       // element loop to do some stuff not included in the elemlib function.
+#pragma omp parallel for firstprivate(numElem)
       for ( Index_t k=0 ; k<numElem ; ++k )
       {
-        // calc strain rate and apply as constraint (only done in FB element)
-        Real_t vdov = domain->dxx[k] + domain->dyy[k] + domain->dzz[k] ;
-        Real_t vdovthird = vdov/Real_t(3.0) ;
-        
-        // make the rate of deformation tensor deviatoric
-        domain->vdov[k] = vdov ;
-        domain->dxx[k] -= vdovthird ;
-        domain->dyy[k] -= vdovthird ;
-        domain->dzz[k] -= vdovthird ;
+         // calc strain rate and apply as constraint (only done in FB element)
+         Real_t vdov = domain.dxx(k) + domain.dyy(k) + domain.dzz(k) ;
+         Real_t vdovthird = vdov/Real_t(3.0) ;
+
+         // make the rate of deformation tensor deviatoric
+         domain.vdov(k) = vdov ;
+         domain.dxx(k) -= vdovthird ;
+         domain.dyy(k) -= vdovthird ;
+         domain.dzz(k) -= vdovthird ;
 
         // See if any volumes are negative, and take appropriate action.
-        if (domain->vnew[k] <= Real_t(0.0))
+         if (vnew[k] <= Real_t(0.0))
         {
+#if USE_MPI           
            MPI_Abort(MPI_COMM_WORLD, VolumeError) ;
+#else
+           exit(VolumeError);
+#endif
         }
       }
-
-      delete [] domain->dzz ;
-      delete [] domain->dyy ;
-      delete [] domain->dxx ;
+      domain.DeallocateStrains();
    }
 }
 
-static inline
-void CalcMonotonicQGradientsForElems(Real_t *x,  Real_t *y,  Real_t *z,
-                                     Real_t *xd, Real_t *yd, Real_t *zd,
-                                     Real_t *volo, Real_t *vnew,
-                                     Real_t *delv_xi,
-                                     Real_t *delv_eta,
-                                     Real_t *delv_zeta,
-                                     Real_t *delx_xi,
-                                     Real_t *delx_eta,
-                                     Real_t *delx_zeta,
-                                     Index_t *nodelist,
-                                     Index_t numElem)
-{
-#define SUM4(a,b,c,d) (a + b + c + d)
-   const Real_t ptiny = Real_t(1.e-36) ;
+/******************************************/
 
+static inline
+void CalcMonotonicQGradientsForElems(Domain& domain, Real_t vnew[])
+{
+   Index_t numElem = domain.numElem();
+
+#pragma omp parallel for firstprivate(numElem)
    for (Index_t i = 0 ; i < numElem ; ++i ) {
+      const Real_t ptiny = Real_t(1.e-36) ;
       Real_t ax,ay,az ;
       Real_t dxv,dyv,dzv ;
 
-      const Index_t *elemToNode = &nodelist[8*i];
+      const Index_t *elemToNode = domain.nodelist(i);
       Index_t n0 = elemToNode[0] ;
       Index_t n1 = elemToNode[1] ;
       Index_t n2 = elemToNode[2] ;
@@ -3835,74 +1659,74 @@ void CalcMonotonicQGradientsForElems(Real_t *x,  Real_t *y,  Real_t *z,
       Index_t n6 = elemToNode[6] ;
       Index_t n7 = elemToNode[7] ;
 
-      Real_t x0 = x[n0] ;
-      Real_t x1 = x[n1] ;
-      Real_t x2 = x[n2] ;
-      Real_t x3 = x[n3] ;
-      Real_t x4 = x[n4] ;
-      Real_t x5 = x[n5] ;
-      Real_t x6 = x[n6] ;
-      Real_t x7 = x[n7] ;
+      Real_t x0 = domain.x(n0) ;
+      Real_t x1 = domain.x(n1) ;
+      Real_t x2 = domain.x(n2) ;
+      Real_t x3 = domain.x(n3) ;
+      Real_t x4 = domain.x(n4) ;
+      Real_t x5 = domain.x(n5) ;
+      Real_t x6 = domain.x(n6) ;
+      Real_t x7 = domain.x(n7) ;
 
-      Real_t y0 = y[n0] ;
-      Real_t y1 = y[n1] ;
-      Real_t y2 = y[n2] ;
-      Real_t y3 = y[n3] ;
-      Real_t y4 = y[n4] ;
-      Real_t y5 = y[n5] ;
-      Real_t y6 = y[n6] ;
-      Real_t y7 = y[n7] ;
+      Real_t y0 = domain.y(n0) ;
+      Real_t y1 = domain.y(n1) ;
+      Real_t y2 = domain.y(n2) ;
+      Real_t y3 = domain.y(n3) ;
+      Real_t y4 = domain.y(n4) ;
+      Real_t y5 = domain.y(n5) ;
+      Real_t y6 = domain.y(n6) ;
+      Real_t y7 = domain.y(n7) ;
 
-      Real_t z0 = z[n0] ;
-      Real_t z1 = z[n1] ;
-      Real_t z2 = z[n2] ;
-      Real_t z3 = z[n3] ;
-      Real_t z4 = z[n4] ;
-      Real_t z5 = z[n5] ;
-      Real_t z6 = z[n6] ;
-      Real_t z7 = z[n7] ;
+      Real_t z0 = domain.z(n0) ;
+      Real_t z1 = domain.z(n1) ;
+      Real_t z2 = domain.z(n2) ;
+      Real_t z3 = domain.z(n3) ;
+      Real_t z4 = domain.z(n4) ;
+      Real_t z5 = domain.z(n5) ;
+      Real_t z6 = domain.z(n6) ;
+      Real_t z7 = domain.z(n7) ;
 
-      Real_t xv0 = xd[n0] ;
-      Real_t xv1 = xd[n1] ;
-      Real_t xv2 = xd[n2] ;
-      Real_t xv3 = xd[n3] ;
-      Real_t xv4 = xd[n4] ;
-      Real_t xv5 = xd[n5] ;
-      Real_t xv6 = xd[n6] ;
-      Real_t xv7 = xd[n7] ;
+      Real_t xv0 = domain.xd(n0) ;
+      Real_t xv1 = domain.xd(n1) ;
+      Real_t xv2 = domain.xd(n2) ;
+      Real_t xv3 = domain.xd(n3) ;
+      Real_t xv4 = domain.xd(n4) ;
+      Real_t xv5 = domain.xd(n5) ;
+      Real_t xv6 = domain.xd(n6) ;
+      Real_t xv7 = domain.xd(n7) ;
 
-      Real_t yv0 = yd[n0] ;
-      Real_t yv1 = yd[n1] ;
-      Real_t yv2 = yd[n2] ;
-      Real_t yv3 = yd[n3] ;
-      Real_t yv4 = yd[n4] ;
-      Real_t yv5 = yd[n5] ;
-      Real_t yv6 = yd[n6] ;
-      Real_t yv7 = yd[n7] ;
+      Real_t yv0 = domain.yd(n0) ;
+      Real_t yv1 = domain.yd(n1) ;
+      Real_t yv2 = domain.yd(n2) ;
+      Real_t yv3 = domain.yd(n3) ;
+      Real_t yv4 = domain.yd(n4) ;
+      Real_t yv5 = domain.yd(n5) ;
+      Real_t yv6 = domain.yd(n6) ;
+      Real_t yv7 = domain.yd(n7) ;
 
-      Real_t zv0 = zd[n0] ;
-      Real_t zv1 = zd[n1] ;
-      Real_t zv2 = zd[n2] ;
-      Real_t zv3 = zd[n3] ;
-      Real_t zv4 = zd[n4] ;
-      Real_t zv5 = zd[n5] ;
-      Real_t zv6 = zd[n6] ;
-      Real_t zv7 = zd[n7] ;
+      Real_t zv0 = domain.zd(n0) ;
+      Real_t zv1 = domain.zd(n1) ;
+      Real_t zv2 = domain.zd(n2) ;
+      Real_t zv3 = domain.zd(n3) ;
+      Real_t zv4 = domain.zd(n4) ;
+      Real_t zv5 = domain.zd(n5) ;
+      Real_t zv6 = domain.zd(n6) ;
+      Real_t zv7 = domain.zd(n7) ;
 
-      Real_t vol = volo[i]*vnew[i] ;
+      Real_t vol = domain.volo(i)*vnew[i] ;
       Real_t norm = Real_t(1.0) / ( vol + ptiny ) ;
 
-      Real_t dxj = Real_t(-0.25)*(SUM4(x0,x1,x5,x4) - SUM4(x3,x2,x6,x7)) ;
-      Real_t dyj = Real_t(-0.25)*(SUM4(y0,y1,y5,y4) - SUM4(y3,y2,y6,y7)) ;
-      Real_t dzj = Real_t(-0.25)*(SUM4(z0,z1,z5,z4) - SUM4(z3,z2,z6,z7)) ;
+      Real_t dxj = Real_t(-0.25)*((x0+x1+x5+x4) - (x3+x2+x6+x7)) ;
+      Real_t dyj = Real_t(-0.25)*((y0+y1+y5+y4) - (y3+y2+y6+y7)) ;
+      Real_t dzj = Real_t(-0.25)*((z0+z1+z5+z4) - (z3+z2+z6+z7)) ;
 
-      Real_t dxi = Real_t( 0.25)*(SUM4(x1,x2,x6,x5) - SUM4(x0,x3,x7,x4)) ;
-      Real_t dyi = Real_t( 0.25)*(SUM4(y1,y2,y6,y5) - SUM4(y0,y3,y7,y4)) ;
-      Real_t dzi = Real_t( 0.25)*(SUM4(z1,z2,z6,z5) - SUM4(z0,z3,z7,z4)) ;
+      Real_t dxi = Real_t( 0.25)*((x1+x2+x6+x5) - (x0+x3+x7+x4)) ;
+      Real_t dyi = Real_t( 0.25)*((y1+y2+y6+y5) - (y0+y3+y7+y4)) ;
+      Real_t dzi = Real_t( 0.25)*((z1+z2+z6+z5) - (z0+z3+z7+z4)) ;
 
-      Real_t dxk = Real_t( 0.25)*(SUM4(x4,x5,x6,x7) - SUM4(x0,x1,x2,x3)) ;
-      Real_t dyk = Real_t( 0.25)*(SUM4(y4,y5,y6,y7) - SUM4(y0,y1,y2,y3)) ;
-      Real_t dzk = Real_t( 0.25)*(SUM4(z4,z5,z6,z7) - SUM4(z0,z1,z2,z3)) ;
+      Real_t dxk = Real_t( 0.25)*((x4+x5+x6+x7) - (x0+x1+x2+x3)) ;
+      Real_t dyk = Real_t( 0.25)*((y4+y5+y6+y7) - (y0+y1+y2+y3)) ;
+      Real_t dzk = Real_t( 0.25)*((z4+z5+z6+z7) - (z0+z1+z2+z3)) ;
 
       /* find delvk and delxk ( i cross j ) */
 
@@ -3910,17 +1734,17 @@ void CalcMonotonicQGradientsForElems(Real_t *x,  Real_t *y,  Real_t *z,
       ay = dzi*dxj - dxi*dzj ;
       az = dxi*dyj - dyi*dxj ;
 
-      delx_zeta[i] = vol / SQRT(ax*ax + ay*ay + az*az + ptiny) ;
+      domain.delx_zeta(i) = vol / SQRT(ax*ax + ay*ay + az*az + ptiny) ;
 
       ax *= norm ;
       ay *= norm ;
       az *= norm ;
 
-      dxv = Real_t(0.25)*(SUM4(xv4,xv5,xv6,xv7) - SUM4(xv0,xv1,xv2,xv3)) ;
-      dyv = Real_t(0.25)*(SUM4(yv4,yv5,yv6,yv7) - SUM4(yv0,yv1,yv2,yv3)) ;
-      dzv = Real_t(0.25)*(SUM4(zv4,zv5,zv6,zv7) - SUM4(zv0,zv1,zv2,zv3)) ;
+      dxv = Real_t(0.25)*((xv4+xv5+xv6+xv7) - (xv0+xv1+xv2+xv3)) ;
+      dyv = Real_t(0.25)*((yv4+yv5+yv6+yv7) - (yv0+yv1+yv2+yv3)) ;
+      dzv = Real_t(0.25)*((zv4+zv5+zv6+zv7) - (zv0+zv1+zv2+zv3)) ;
 
-      delv_zeta[i] = ax*dxv + ay*dyv + az*dzv ;
+      domain.delv_zeta(i) = ax*dxv + ay*dyv + az*dzv ;
 
       /* find delxi and delvi ( j cross k ) */
 
@@ -3928,17 +1752,17 @@ void CalcMonotonicQGradientsForElems(Real_t *x,  Real_t *y,  Real_t *z,
       ay = dzj*dxk - dxj*dzk ;
       az = dxj*dyk - dyj*dxk ;
 
-      delx_xi[i] = vol / SQRT(ax*ax + ay*ay + az*az + ptiny) ;
+      domain.delx_xi(i) = vol / SQRT(ax*ax + ay*ay + az*az + ptiny) ;
 
       ax *= norm ;
       ay *= norm ;
       az *= norm ;
 
-      dxv = Real_t(0.25)*(SUM4(xv1,xv2,xv6,xv5) - SUM4(xv0,xv3,xv7,xv4)) ;
-      dyv = Real_t(0.25)*(SUM4(yv1,yv2,yv6,yv5) - SUM4(yv0,yv3,yv7,yv4)) ;
-      dzv = Real_t(0.25)*(SUM4(zv1,zv2,zv6,zv5) - SUM4(zv0,zv3,zv7,zv4)) ;
+      dxv = Real_t(0.25)*((xv1+xv2+xv6+xv5) - (xv0+xv3+xv7+xv4)) ;
+      dyv = Real_t(0.25)*((yv1+yv2+yv6+yv5) - (yv0+yv3+yv7+yv4)) ;
+      dzv = Real_t(0.25)*((zv1+zv2+zv6+zv5) - (zv0+zv3+zv7+zv4)) ;
 
-      delv_xi[i] = ax*dxv + ay*dyv + az*dzv ;
+      domain.delv_xi(i) = ax*dxv + ay*dyv + az*dzv ;
 
       /* find delxj and delvj ( k cross i ) */
 
@@ -3946,57 +1770,53 @@ void CalcMonotonicQGradientsForElems(Real_t *x,  Real_t *y,  Real_t *z,
       ay = dzk*dxi - dxk*dzi ;
       az = dxk*dyi - dyk*dxi ;
 
-      delx_eta[i] = vol / SQRT(ax*ax + ay*ay + az*az + ptiny) ;
+      domain.delx_eta(i) = vol / SQRT(ax*ax + ay*ay + az*az + ptiny) ;
 
       ax *= norm ;
       ay *= norm ;
       az *= norm ;
 
-      dxv = Real_t(-0.25)*(SUM4(xv0,xv1,xv5,xv4) - SUM4(xv3,xv2,xv6,xv7)) ;
-      dyv = Real_t(-0.25)*(SUM4(yv0,yv1,yv5,yv4) - SUM4(yv3,yv2,yv6,yv7)) ;
-      dzv = Real_t(-0.25)*(SUM4(zv0,zv1,zv5,zv4) - SUM4(zv3,zv2,zv6,zv7)) ;
+      dxv = Real_t(-0.25)*((xv0+xv1+xv5+xv4) - (xv3+xv2+xv6+xv7)) ;
+      dyv = Real_t(-0.25)*((yv0+yv1+yv5+yv4) - (yv3+yv2+yv6+yv7)) ;
+      dzv = Real_t(-0.25)*((zv0+zv1+zv5+zv4) - (zv3+zv2+zv6+zv7)) ;
 
-      delv_eta[i] = ax*dxv + ay*dyv + az*dzv ;
+      domain.delv_eta(i) = ax*dxv + ay*dyv + az*dzv ;
    }
-#undef SUM4
 }
 
+/******************************************/
+
 static inline
-void CalcMonotonicQRegionForElems(
-                           Index_t *matElemlist, Index_t *elemBC,
-                           Index_t *lxim,   Index_t *lxip,
-                           Index_t *letam,  Index_t *letap,
-                           Index_t *lzetam, Index_t *lzetap,
-                           Real_t *delv_xi,Real_t *delv_eta,Real_t *delv_zeta,
-                           Real_t *delx_xi,Real_t *delx_eta,Real_t *delx_zeta,
-                           Real_t *vdov, Real_t *volo, Real_t *vnew,
-                           Real_t *elemMass, Real_t *qq, Real_t *ql,
-                           Real_t qlc_monoq, Real_t qqc_monoq,
-                           Real_t monoq_limiter_mult,
-                           Real_t monoq_max_slope,
-                           Real_t ptiny, Index_t numElem )
+void CalcMonotonicQRegionForElems(Domain &domain, Int_t r,
+                                  Real_t vnew[], Real_t ptiny)
 {
-   for ( Index_t ielem = 0 ; ielem < numElem; ++ielem ) {
+   Real_t monoq_limiter_mult = domain.monoq_limiter_mult();
+   Real_t monoq_max_slope = domain.monoq_max_slope();
+   Real_t qlc_monoq = domain.qlc_monoq();
+   Real_t qqc_monoq = domain.qqc_monoq();
+
+#pragma omp parallel for firstprivate(qlc_monoq, qqc_monoq, monoq_limiter_mult, monoq_max_slope, ptiny)
+   for ( Index_t ielem = 0 ; ielem < domain.regElemSize(r); ++ielem ) {
+      Index_t i = domain.regElemlist(r,ielem);
       Real_t qlin, qquad ;
       Real_t phixi, phieta, phizeta ;
-      Index_t i = matElemlist[ielem];
-      Int_t bcMask = elemBC[i] ;
+      Int_t bcMask = domain.elemBC(i) ;
       Real_t delvm, delvp ;
 
       /*  phixi     */
-      Real_t norm = Real_t(1.) / ( delv_xi[i] + ptiny ) ;
+      Real_t norm = Real_t(1.) / (domain.delv_xi(i)+ ptiny ) ;
 
       switch (bcMask & XI_M) {
          case XI_M_COMM: /* needs comm data */
-         case 0:         delvm = delv_xi[lxim[i]] ; break ;
-         case XI_M_SYMM: delvm = delv_xi[i] ;       break ;
+         case 0:         delvm = domain.delv_xi(domain.lxim(i)); break ;
+         case XI_M_SYMM: delvm = domain.delv_xi(i) ;       break ;
          case XI_M_FREE: delvm = Real_t(0.0) ;      break ;
          default:        /* ERROR */ ;              break ;
       }
       switch (bcMask & XI_P) {
          case XI_P_COMM: /* needs comm data */
-         case 0:         delvp = delv_xi[lxip[i]] ; break ;
-         case XI_P_SYMM: delvp = delv_xi[i] ;       break ;
+         case 0:         delvp = domain.delv_xi(domain.lxip(i)) ; break ;
+         case XI_P_SYMM: delvp = domain.delv_xi(i) ;       break ;
          case XI_P_FREE: delvp = Real_t(0.0) ;      break ;
          default:        /* ERROR */ ;              break ;
       }
@@ -4016,19 +1836,19 @@ void CalcMonotonicQRegionForElems(
 
 
       /*  phieta     */
-      norm = Real_t(1.) / ( delv_eta[i] + ptiny ) ;
+      norm = Real_t(1.) / ( domain.delv_eta(i) + ptiny ) ;
 
       switch (bcMask & ETA_M) {
          case ETA_M_COMM: /* needs comm data */
-         case 0:          delvm = delv_eta[letam[i]] ; break ;
-         case ETA_M_SYMM: delvm = delv_eta[i] ;        break ;
+         case 0:          delvm = domain.delv_eta(domain.letam(i)) ; break ;
+         case ETA_M_SYMM: delvm = domain.delv_eta(i) ;        break ;
          case ETA_M_FREE: delvm = Real_t(0.0) ;        break ;
          default:         /* ERROR */ ;                break ;
       }
       switch (bcMask & ETA_P) {
          case ETA_P_COMM: /* needs comm data */
-         case 0:          delvp = delv_eta[letap[i]] ; break ;
-         case ETA_P_SYMM: delvp = delv_eta[i] ;        break ;
+         case 0:          delvp = domain.delv_eta(domain.letap(i)) ; break ;
+         case ETA_P_SYMM: delvp = domain.delv_eta(i) ;        break ;
          case ETA_P_FREE: delvp = Real_t(0.0) ;        break ;
          default:         /* ERROR */ ;                break ;
       }
@@ -4047,19 +1867,19 @@ void CalcMonotonicQRegionForElems(
       if ( phieta > monoq_max_slope)  phieta = monoq_max_slope;
 
       /*  phizeta     */
-      norm = Real_t(1.) / ( delv_zeta[i] + ptiny ) ;
+      norm = Real_t(1.) / ( domain.delv_zeta(i) + ptiny ) ;
 
       switch (bcMask & ZETA_M) {
          case ZETA_M_COMM: /* needs comm data */
-         case 0:           delvm = delv_zeta[lzetam[i]] ; break ;
-         case ZETA_M_SYMM: delvm = delv_zeta[i] ;         break ;
+         case 0:           delvm = domain.delv_zeta(domain.lzetam(i)) ; break ;
+         case ZETA_M_SYMM: delvm = domain.delv_zeta(i) ;         break ;
          case ZETA_M_FREE: delvm = Real_t(0.0) ;          break ;
          default:          /* ERROR */ ;                  break ;
       }
       switch (bcMask & ZETA_P) {
          case ZETA_P_COMM: /* needs comm data */
-         case 0:           delvp = delv_zeta[lzetap[i]] ; break ;
-         case ZETA_P_SYMM: delvp = delv_zeta[i] ;         break ;
+         case 0:           delvp = domain.delv_zeta(domain.lzetap(i)) ; break ;
+         case ZETA_P_SYMM: delvp = domain.delv_zeta(i) ;         break ;
          case ZETA_P_FREE: delvp = Real_t(0.0) ;          break ;
          default:          /* ERROR */ ;                  break ;
       }
@@ -4079,20 +1899,20 @@ void CalcMonotonicQRegionForElems(
 
       /* Remove length scale */
 
-      if ( vdov[i] > Real_t(0.) )  {
+      if ( domain.vdov(i) > Real_t(0.) )  {
          qlin  = Real_t(0.) ;
          qquad = Real_t(0.) ;
       }
       else {
-         Real_t delvxxi   = delv_xi[i]   * delx_xi[i]   ;
-         Real_t delvxeta  = delv_eta[i]  * delx_eta[i]  ;
-         Real_t delvxzeta = delv_zeta[i] * delx_zeta[i] ;
+         Real_t delvxxi   = domain.delv_xi(i)   * domain.delx_xi(i)   ;
+         Real_t delvxeta  = domain.delv_eta(i)  * domain.delx_eta(i)  ;
+         Real_t delvxzeta = domain.delv_zeta(i) * domain.delx_zeta(i) ;
 
          if ( delvxxi   > Real_t(0.) ) delvxxi   = Real_t(0.) ;
          if ( delvxeta  > Real_t(0.) ) delvxeta  = Real_t(0.) ;
          if ( delvxzeta > Real_t(0.) ) delvxzeta = Real_t(0.) ;
 
-         Real_t rho = elemMass[i] / (volo[i] * vnew[i]) ;
+         Real_t rho = domain.elemMass(i) / (domain.volo(i) * vnew[i]) ;
 
          qlin = -qlc_monoq * rho *
             (  delvxxi   * (Real_t(1.) - phixi) +
@@ -4105,117 +1925,102 @@ void CalcMonotonicQRegionForElems(
                delvxzeta*delvxzeta * (Real_t(1.) - phizeta*phizeta)  ) ;
       }
 
-      qq[i] = qquad ;
-      ql[i] = qlin  ;
+      domain.qq(i) = qquad ;
+      domain.ql(i) = qlin  ;
    }
 }
 
+/******************************************/
+
 static inline
-void CalcMonotonicQForElems(Domain *domain)
+void CalcMonotonicQForElems(Domain& domain, Real_t vnew[])
 {  
    //
-   // calculate the monotonic q for pure regions
-   //
-   Index_t numElem = domain->numElem ;
-   if (numElem > 0) {
-      //
-      // initialize parameters
-      // 
-      const Real_t ptiny = Real_t(1.e-36) ;
+   // initialize parameters
+   // 
+   const Real_t ptiny = Real_t(1.e-36) ;
 
-      CalcMonotonicQRegionForElems(
-                           domain->matElemlist, domain->elemBC,
-                           domain->lxim,   domain->lxip,
-                           domain->letam,  domain->letap,
-                           domain->lzetam, domain->lzetap,
-                           domain->delv_xi,domain->delv_eta,domain->delv_zeta,
-                           domain->delx_xi,domain->delx_eta,domain->delx_zeta,
-                           domain->vdov, domain->volo, domain->vnew,
-                           domain->elemMass, domain->qq, domain->ql,
-                           domain->qlc_monoq, domain->qqc_monoq,
-                           domain->monoq_limiter_mult,
-                           domain->monoq_max_slope,
-                           ptiny, numElem );
+   //
+   // calculate the monotonic q for all regions
+   //
+   for (Index_t r=0 ; r<domain.numReg() ; ++r) {
+
+      if (domain.regElemSize(r) > 0) {
+         CalcMonotonicQRegionForElems(domain, r, vnew, ptiny) ;
+      }
    }
 }
 
+/******************************************/
+
 static inline
-void CalcQForElems(Domain *domain)
+void CalcQForElems(Domain& domain, Real_t vnew[])
 {
    //
    // MONOTONIC Q option
    //
 
-   Index_t numElem = domain->numElem ;
+   Index_t numElem = domain.numElem() ;
 
    if (numElem != 0) {
-      Real_t *fieldData[3] ;
-      int allElem = numElem +  /* local elem */
-                    2*domain->sizeX*domain->sizeY + /* plane ghosts */
-                    2*domain->sizeX*domain->sizeZ + /* row ghosts */
-                    2*domain->sizeY*domain->sizeZ ; /* col ghosts */
+      Int_t allElem = numElem +  /* local elem */
+            2*domain.sizeX()*domain.sizeY() + /* plane ghosts */
+            2*domain.sizeX()*domain.sizeZ() + /* row ghosts */
+            2*domain.sizeY()*domain.sizeZ() ; /* col ghosts */
 
-      domain->delv_xi = new Real_t[allElem] ;   /* velocity gradient */
-      domain->delv_eta = new Real_t[allElem] ;
-      domain->delv_zeta = new Real_t[allElem] ;
+      domain.AllocateGradients(numElem, allElem);
 
-      domain->delx_xi = new Real_t[numElem] ;   /* position gradient */
-      domain->delx_eta = new Real_t[numElem] ;
-      domain->delx_zeta = new Real_t[numElem] ;
-
+#if USE_MPI      
       CommRecv(domain, MSG_MONOQ, 3,
-               domain->sizeX, domain->sizeY, domain->sizeZ,
+               domain.sizeX(), domain.sizeY(), domain.sizeZ(),
                true, true) ;
+#endif      
 
       /* Calculate velocity gradients */
-      CalcMonotonicQGradientsForElems(domain->x,  domain->y,  domain->z,
-                                      domain->xd, domain->yd, domain->zd,
-                                      domain->volo, domain->vnew,
-                                      domain->delv_xi,
-                                      domain->delv_eta,
-                                      domain->delv_zeta,
-                                      domain->delx_xi,
-                                      domain->delx_eta,
-                                      domain->delx_zeta,
-                                      domain->nodelist, domain->numElem) ;
+      CalcMonotonicQGradientsForElems(domain, vnew);
 
+#if USE_MPI      
+      Domain_member fieldData[3] ;
+      
       /* Transfer veloctiy gradients in the first order elements */
       /* problem->commElements->Transfer(CommElements::monoQ) ; */
 
-      fieldData[0] = domain->delv_xi ;
-      fieldData[1] = domain->delv_eta ;
-      fieldData[2] = domain->delv_zeta ;
+      fieldData[0] = &Domain::delv_xi ;
+      fieldData[1] = &Domain::delv_eta ;
+      fieldData[2] = &Domain::delv_zeta ;
 
       CommSend(domain, MSG_MONOQ, 3, fieldData,
-               domain->sizeX, domain->sizeY, domain->sizeZ,
+               domain.sizeX(), domain.sizeY(), domain.sizeZ(),
                true, true) ;
+
       CommMonoQ(domain) ;
+#endif      
 
-      CalcMonotonicQForElems(domain) ;
+      CalcMonotonicQForElems(domain, vnew) ;
 
-      delete [] domain->delx_zeta ;
-      delete [] domain->delx_eta ;
-      delete [] domain->delx_xi ;
-
-      delete [] domain->delv_zeta ;
-      delete [] domain->delv_eta ;
-      delete [] domain->delv_xi ;
+      // Free up memory
+      domain.DeallocateGradients();
 
       /* Don't allow excessive artificial viscosity */
-      Real_t qstop = domain->qstop ;
       Index_t idx = -1; 
       for (Index_t i=0; i<numElem; ++i) {
-         if ( domain->q[i] > qstop ) {
+         if ( domain.q(i) > domain.qstop() ) {
             idx = i ;
             break ;
          }
       }
 
       if(idx >= 0) {
+#if USE_MPI         
          MPI_Abort(MPI_COMM_WORLD, QStopError) ;
+#else
+         exit(QStopError);
+#endif
       }
    }
 }
+
+/******************************************/
 
 static inline
 void CalcPressureForElems(Real_t* p_new, Real_t* bvc,
@@ -4223,27 +2028,33 @@ void CalcPressureForElems(Real_t* p_new, Real_t* bvc,
                           Real_t* compression, Real_t *vnewc,
                           Real_t pmin,
                           Real_t p_cut, Real_t eosvmax,
-                          Index_t length)
+                          Index_t length, Index_t *regElemList)
 {
-   Real_t c1s = Real_t(2.0)/Real_t(3.0) ;
+#pragma omp parallel for firstprivate(length)
    for (Index_t i = 0; i < length ; ++i) {
+      Real_t c1s = Real_t(2.0)/Real_t(3.0) ;
       bvc[i] = c1s * (compression[i] + Real_t(1.));
       pbvc[i] = c1s;
    }
 
+#pragma omp parallel for firstprivate(length, pmin, p_cut, eosvmax)
    for (Index_t i = 0 ; i < length ; ++i){
+      Index_t elem = regElemList[i];
+      
       p_new[i] = bvc[i] * e_old[i] ;
 
       if    (FABS(p_new[i]) <  p_cut   )
          p_new[i] = Real_t(0.0) ;
 
-      if    ( vnewc[i] >= eosvmax ) /* impossible condition here? */
+      if    ( vnewc[elem] >= eosvmax ) /* impossible condition here? */
          p_new[i] = Real_t(0.0) ;
 
       if    (p_new[i]       <  pmin)
          p_new[i]   = pmin ;
    }
 }
+
+/******************************************/
 
 static inline
 void CalcEnergyForElems(Real_t* p_new, Real_t* e_new, Real_t* q_new,
@@ -4255,11 +2066,11 @@ void CalcEnergyForElems(Real_t* p_new, Real_t* e_new, Real_t* q_new,
                         Real_t* qq_old, Real_t* ql_old,
                         Real_t rho0,
                         Real_t eosvmax,
-                        Index_t length)
+                        Index_t length, Index_t *regElemList)
 {
-   const Real_t sixth = Real_t(1.0) / Real_t(6.0) ;
    Real_t *pHalfStep = Allocate<Real_t>(length) ;
 
+#pragma omp parallel for firstprivate(length, emin)
    for (Index_t i = 0 ; i < length ; ++i) {
       e_new[i] = e_old[i] - Real_t(0.5) * delvc[i] * (p_old[i] + q_old[i])
          + Real_t(0.5) * work[i];
@@ -4270,8 +2081,9 @@ void CalcEnergyForElems(Real_t* p_new, Real_t* e_new, Real_t* q_new,
    }
 
    CalcPressureForElems(pHalfStep, bvc, pbvc, e_new, compHalfStep, vnewc,
-                   pmin, p_cut, eosvmax, length);
+                        pmin, p_cut, eosvmax, length, regElemList);
 
+#pragma omp parallel for firstprivate(length, rho0)
    for (Index_t i = 0 ; i < length ; ++i) {
       Real_t vhalf = Real_t(1.) / (Real_t(1.) + compHalfStep[i]) ;
 
@@ -4282,8 +2094,8 @@ void CalcEnergyForElems(Real_t* p_new, Real_t* e_new, Real_t* q_new,
          Real_t ssc = ( pbvc[i] * e_new[i]
                  + vhalf * vhalf * bvc[i] * pHalfStep[i] ) / rho0 ;
 
-         if ( ssc <= Real_t(1.111111e-36) ) {
-            ssc = Real_t(.333333e-18) ;
+         if ( ssc <= Real_t(.1111111e-36) ) {
+            ssc = Real_t(.3333333e-18) ;
          } else {
             ssc = SQRT(ssc) ;
          }
@@ -4296,6 +2108,7 @@ void CalcEnergyForElems(Real_t* p_new, Real_t* e_new, Real_t* q_new,
               - Real_t(4.0)*(pHalfStep[i] + q_new[i])) ;
    }
 
+#pragma omp parallel for firstprivate(length, emin, e_cut)
    for (Index_t i = 0 ; i < length ; ++i) {
 
       e_new[i] += Real_t(0.5) * work[i];
@@ -4309,9 +2122,12 @@ void CalcEnergyForElems(Real_t* p_new, Real_t* e_new, Real_t* q_new,
    }
 
    CalcPressureForElems(p_new, bvc, pbvc, e_new, compression, vnewc,
-                   pmin, p_cut, eosvmax, length);
+                        pmin, p_cut, eosvmax, length, regElemList);
 
+#pragma omp parallel for firstprivate(length, rho0, emin, e_cut)
    for (Index_t i = 0 ; i < length ; ++i){
+      const Real_t sixth = Real_t(1.0) / Real_t(6.0) ;
+      Index_t elem = regElemList[i];
       Real_t q_tilde ;
 
       if (delvc[i] > Real_t(0.)) {
@@ -4319,10 +2135,10 @@ void CalcEnergyForElems(Real_t* p_new, Real_t* e_new, Real_t* q_new,
       }
       else {
          Real_t ssc = ( pbvc[i] * e_new[i]
-                 + vnewc[i] * vnewc[i] * bvc[i] * p_new[i] ) / rho0 ;
+                 + vnewc[elem] * vnewc[elem] * bvc[i] * p_new[i] ) / rho0 ;
 
-         if ( ssc <= Real_t(1.111111e-36) ) {
-            ssc = Real_t(.333333e-18) ;
+         if ( ssc <= Real_t(.1111111e-36) ) {
+            ssc = Real_t(.3333333e-18) ;
          } else {
             ssc = SQRT(ssc) ;
          }
@@ -4343,16 +2159,18 @@ void CalcEnergyForElems(Real_t* p_new, Real_t* e_new, Real_t* q_new,
    }
 
    CalcPressureForElems(p_new, bvc, pbvc, e_new, compression, vnewc,
-                   pmin, p_cut, eosvmax, length);
+                        pmin, p_cut, eosvmax, length, regElemList);
 
+#pragma omp parallel for firstprivate(length, rho0, q_cut)
    for (Index_t i = 0 ; i < length ; ++i){
+      Index_t elem = regElemList[i];
 
       if ( delvc[i] <= Real_t(0.) ) {
          Real_t ssc = ( pbvc[i] * e_new[i]
-                 + vnewc[i] * vnewc[i] * bvc[i] * p_new[i] ) / rho0 ;
+                 + vnewc[elem] * vnewc[elem] * bvc[i] * p_new[i] ) / rho0 ;
 
-         if ( ssc <= Real_t(1.111111e-36) ) {
-            ssc = Real_t(.333333e-18) ;
+         if ( ssc <= Real_t(.1111111e-36) ) {
+            ssc = Real_t(.3333333e-18) ;
          } else {
             ssc = SQRT(ssc) ;
          }
@@ -4368,112 +2186,137 @@ void CalcEnergyForElems(Real_t* p_new, Real_t* e_new, Real_t* q_new,
    return ;
 }
 
+/******************************************/
+
 static inline
-void CalcSoundSpeedForElems(Index_t *matElemlist, Real_t *ss,
+void CalcSoundSpeedForElems(Domain &domain,
                             Real_t *vnewc, Real_t rho0, Real_t *enewc,
                             Real_t *pnewc, Real_t *pbvc,
-                            Real_t *bvc, Real_t ss4o3, Index_t nz)
+                            Real_t *bvc, Real_t ss4o3,
+                            Index_t len, Index_t *regElemList)
 {
-   for (Index_t i = 0; i < nz ; ++i) {
-      Index_t iz = matElemlist[i];
-      Real_t ssTmp = (pbvc[i] * enewc[i] + vnewc[i] * vnewc[i] *
+#pragma omp parallel for firstprivate(rho0, ss4o3)
+   for (Index_t i = 0; i < len ; ++i) {
+      Index_t elem = regElemList[i];
+      Real_t ssTmp = (pbvc[i] * enewc[i] + vnewc[elem] * vnewc[elem] *
                  bvc[i] * pnewc[i]) / rho0;
-      if (ssTmp <= Real_t(1.111111e-36)) {
-         ssTmp = Real_t(.333333e-18);
+      if (ssTmp <= Real_t(.1111111e-36)) {
+         ssTmp = Real_t(.3333333e-18);
       }
       else {
          ssTmp = SQRT(ssTmp);
       }
-      ss[iz] = ssTmp ;
+      domain.ss(elem) = ssTmp ;
    }
 }
 
+/******************************************/
+
 static inline
-void EvalEOSForElems(Domain *domain, Real_t *vnewc, Index_t numElem)
+void EvalEOSForElems(Domain& domain, Real_t *vnewc,
+                     Int_t numElemReg, Index_t *regElemList, Int_t rep)
 {
-   Real_t  e_cut = domain->e_cut ;
-   Real_t  p_cut = domain->p_cut ;
-   Real_t  ss4o3 = domain->ss4o3 ;
-   Real_t  q_cut = domain->q_cut ;
+   Real_t  e_cut = domain.e_cut() ;
+   Real_t  p_cut = domain.p_cut() ;
+   Real_t  ss4o3 = domain.ss4o3() ;
+   Real_t  q_cut = domain.q_cut() ;
 
-   Real_t eosvmax = domain->eosvmax ;
-   Real_t eosvmin = domain->eosvmin ;
-   Real_t pmin    = domain->pmin ;
-   Real_t emin    = domain->emin ;
-   Real_t rho0    = domain->refdens ;
+   Real_t eosvmax = domain.eosvmax() ;
+   Real_t eosvmin = domain.eosvmin() ;
+   Real_t pmin    = domain.pmin() ;
+   Real_t emin    = domain.emin() ;
+   Real_t rho0    = domain.refdens() ;
 
-   Real_t *e_old = Allocate<Real_t>(numElem) ;
-   Real_t *delvc = Allocate<Real_t>(numElem) ;
-   Real_t *p_old = Allocate<Real_t>(numElem) ;
-   Real_t *q_old = Allocate<Real_t>(numElem) ;
-   Real_t *compression = Allocate<Real_t>(numElem) ;
-   Real_t *compHalfStep = Allocate<Real_t>(numElem) ;
-   Real_t *qq_old = Allocate<Real_t>(numElem) ;
-   Real_t *ql_old = Allocate<Real_t>(numElem) ;
-   Real_t *work = Allocate<Real_t>(numElem) ;
-   Real_t *p_new = Allocate<Real_t>(numElem) ;
-   Real_t *e_new = Allocate<Real_t>(numElem) ;
-   Real_t *q_new = Allocate<Real_t>(numElem) ;
-   Real_t *bvc = Allocate<Real_t>(numElem) ;
-   Real_t *pbvc = Allocate<Real_t>(numElem) ;
+   // These temporaries will be of different size for 
+   // each call (due to different sized region element
+   // lists)
+   Real_t *e_old = Allocate<Real_t>(numElemReg) ;
+   Real_t *delvc = Allocate<Real_t>(numElemReg) ;
+   Real_t *p_old = Allocate<Real_t>(numElemReg) ;
+   Real_t *q_old = Allocate<Real_t>(numElemReg) ;
+   Real_t *compression = Allocate<Real_t>(numElemReg) ;
+   Real_t *compHalfStep = Allocate<Real_t>(numElemReg) ;
+   Real_t *qq_old = Allocate<Real_t>(numElemReg) ;
+   Real_t *ql_old = Allocate<Real_t>(numElemReg) ;
+   Real_t *work = Allocate<Real_t>(numElemReg) ;
+   Real_t *p_new = Allocate<Real_t>(numElemReg) ;
+   Real_t *e_new = Allocate<Real_t>(numElemReg) ;
+   Real_t *q_new = Allocate<Real_t>(numElemReg) ;
+   Real_t *bvc = Allocate<Real_t>(numElemReg) ;
+   Real_t *pbvc = Allocate<Real_t>(numElemReg) ;
+ 
+   //loop to add load imbalance based on region number 
+   for(Int_t j = 0; j < rep; j++) {
+      /* compress data, minimal set */
+#pragma omp parallel
+      {
+#pragma omp for nowait firstprivate(numElemReg)
+         for (Index_t i=0; i<numElemReg; ++i) {
+            Index_t elem = regElemList[i];
+            e_old[i] = domain.e(elem) ;
+            delvc[i] = domain.delv(elem) ;
+            p_old[i] = domain.p(elem) ;
+            q_old[i] = domain.q(elem) ;
+            qq_old[i] = domain.qq(elem) ;
+            ql_old[i] = domain.ql(elem) ;
+         }
 
-   /* compress data, minimal set */
-   for (Index_t i=0; i<numElem; ++i) {
-      Index_t zidx = domain->matElemlist[i] ;
-      e_old[i] = domain->e[zidx] ;
-      delvc[i] = domain->delv[zidx] ;
-      p_old[i] = domain->p[zidx] ;
-      q_old[i] = domain->q[zidx] ;
-      qq_old[i] = domain->qq[zidx] ;
-      ql_old[i] = domain->ql[zidx] ;
-   }
+#pragma omp for firstprivate(numElemReg)
+         for (Index_t i = 0; i < numElemReg ; ++i) {
+            Index_t elem = regElemList[i];
+            Real_t vchalf ;
+            compression[i] = Real_t(1.) / vnewc[elem] - Real_t(1.);
+            vchalf = vnewc[elem] - delvc[i] * Real_t(.5);
+            compHalfStep[i] = Real_t(1.) / vchalf - Real_t(1.);
+         }
 
-   for (Index_t i = 0; i < numElem ; ++i) {
-      Real_t vchalf ;
-      compression[i] = Real_t(1.) / vnewc[i] - Real_t(1.);
-      vchalf = vnewc[i] - delvc[i] * Real_t(.5);
-      compHalfStep[i] = Real_t(1.) / vchalf - Real_t(1.);
-   }
+      /* Check for v > eosvmax or v < eosvmin */
+         if ( eosvmin != Real_t(0.) ) {
+#pragma omp for nowait firstprivate(numElemReg, eosvmin)
+            for(Index_t i=0 ; i<numElemReg ; ++i) {
+               Index_t elem = regElemList[i];
+               if (vnewc[elem] <= eosvmin) { /* impossible due to calling func? */
+                  compHalfStep[i] = compression[i] ;
+               }
+            }
+         }
+         if ( eosvmax != Real_t(0.) ) {
+#pragma omp for nowait firstprivate(numElemReg, eosvmax)
+            for(Index_t i=0 ; i<numElemReg ; ++i) {
+               Index_t elem = regElemList[i];
+               if (vnewc[elem] >= eosvmax) { /* impossible due to calling func? */
+                  p_old[i]        = Real_t(0.) ;
+                  compression[i]  = Real_t(0.) ;
+                  compHalfStep[i] = Real_t(0.) ;
+               }
+            }
+         }
 
-   /* Check for v > eosvmax or v < eosvmin */
-   if ( eosvmin != Real_t(0.) ) {
-      for(Index_t i=0 ; i<numElem ; ++i) {
-         if (vnewc[i] <= eosvmin) { /* impossible due to calling func? */
-            compHalfStep[i] = compression[i] ;
+#pragma omp for nowait firstprivate(numElemReg)
+         for (Index_t i = 0 ; i < numElemReg ; ++i) {
+            work[i] = Real_t(0.) ; 
          }
       }
-   }
-   if ( eosvmax != Real_t(0.) ) {
-      for(Index_t i=0 ; i<numElem ; ++i) {
-         if (vnewc[i] >= eosvmax) { /* impossible due to calling func? */
-            p_old[i]        = Real_t(0.) ;
-            compression[i]  = Real_t(0.) ;
-            compHalfStep[i] = Real_t(0.) ;
-         }
-      }
+      CalcEnergyForElems(p_new, e_new, q_new, bvc, pbvc,
+                         p_old, e_old,  q_old, compression, compHalfStep,
+                         vnewc, work,  delvc, pmin,
+                         p_cut, e_cut, q_cut, emin,
+                         qq_old, ql_old, rho0, eosvmax,
+                         numElemReg, regElemList);
    }
 
-   for (Index_t i = 0 ; i < numElem ; ++i) {
-      work[i] = Real_t(0.) ; 
+#pragma omp parallel for firstprivate(numElemReg)
+   for (Index_t i=0; i<numElemReg; ++i) {
+      Index_t elem = regElemList[i];
+      domain.p(elem) = p_new[i] ;
+      domain.e(elem) = e_new[i] ;
+      domain.q(elem) = q_new[i] ;
    }
 
-   CalcEnergyForElems(p_new, e_new, q_new, bvc, pbvc,
-                 p_old, e_old,  q_old, compression, compHalfStep,
-                 vnewc, work,  delvc, pmin,
-                 p_cut, e_cut, q_cut, emin,
-                 qq_old, ql_old, rho0, eosvmax, numElem);
-
-
-   for (Index_t i=0; i<numElem; ++i) {
-      Index_t zidx = domain->matElemlist[i] ;
-      domain->p[zidx] = p_new[i] ;
-      domain->e[zidx] = e_new[i] ;
-      domain->q[zidx] = q_new[i] ;
-   }
-
-   CalcSoundSpeedForElems(domain->matElemlist, domain->ss,
-             vnewc, rho0, e_new, p_new,
-             pbvc, bvc, ss4o3, numElem) ;
+   CalcSoundSpeedForElems(domain,
+                          vnewc, rho0, e_new, p_new,
+                          pbvc, bvc, ss4o3,
+                          numElemReg, regElemList) ;
 
    Release(&pbvc) ;
    Release(&bvc) ;
@@ -4491,974 +2334,463 @@ void EvalEOSForElems(Domain *domain, Real_t *vnewc, Index_t numElem)
    Release(&e_old) ;
 }
 
+/******************************************/
+
 static inline
-void ApplyMaterialPropertiesForElems(Domain *domain)
+void ApplyMaterialPropertiesForElems(Domain& domain, Real_t vnew[])
 {
-  Index_t numElem = domain->numElem ;
+   Index_t numElem = domain.numElem() ;
 
   if (numElem != 0) {
     /* Expose all of the variables needed for material evaluation */
-    Real_t eosvmin = domain->eosvmin ;
-    Real_t eosvmax = domain->eosvmax ;
-    Real_t *vnewc = Allocate<Real_t>(numElem) ;
+    Real_t eosvmin = domain.eosvmin() ;
+    Real_t eosvmax = domain.eosvmax() ;
 
-    for (Index_t i=0 ; i<numElem ; ++i) {
-       Index_t zn = domain->matElemlist[i] ;
-       vnewc[i] = domain->vnew[zn] ;
-    }
-
-    if (eosvmin != Real_t(0.)) {
-       for(Index_t i=0 ; i<numElem ; ++i) {
-          if (vnewc[i] < eosvmin)
-             vnewc[i] = eosvmin ;
-       }
-    }
-
-    if (eosvmax != Real_t(0.)) {
-       for(Index_t i=0 ; i<numElem ; ++i) {
-          if (vnewc[i] > eosvmax)
-             vnewc[i] = eosvmax ;
-       }
-    }
-
-    for (Index_t i=0; i<numElem; ++i) {
-       Index_t zn = domain->matElemlist[i] ;
-       Real_t vc = domain->v[zn] ;
+#pragma omp parallel
+    {
+       // Bound the updated relative volumes with eosvmin/max
        if (eosvmin != Real_t(0.)) {
-          if (vc < eosvmin)
-             vc = eosvmin ;
+#pragma omp for firstprivate(numElem)
+          for(Index_t i=0 ; i<numElem ; ++i) {
+             if (vnew[i] < eosvmin)
+                vnew[i] = eosvmin ;
+          }
        }
+
        if (eosvmax != Real_t(0.)) {
-          if (vc > eosvmax)
-             vc = eosvmax ;
+#pragma omp for nowait firstprivate(numElem)
+          for(Index_t i=0 ; i<numElem ; ++i) {
+             if (vnew[i] > eosvmax)
+                vnew[i] = eosvmax ;
+          }
        }
-       if (vc <= 0.) {
-          MPI_Abort(MPI_COMM_WORLD, VolumeError) ;
+
+       // This check may not make perfect sense in LULESH, but
+       // it's representative of something in the full code -
+       // just leave it in, please
+#pragma omp for nowait firstprivate(numElem)
+       for (Index_t i=0; i<numElem; ++i) {
+          Real_t vc = domain.v(i) ;
+          if (eosvmin != Real_t(0.)) {
+             if (vc < eosvmin)
+                vc = eosvmin ;
+          }
+          if (eosvmax != Real_t(0.)) {
+             if (vc > eosvmax)
+                vc = eosvmax ;
+          }
+          if (vc <= 0.) {
+#if USE_MPI             
+             MPI_Abort(MPI_COMM_WORLD, VolumeError) ;
+#else
+             exit(VolumeError);
+#endif
+          }
        }
     }
 
-    EvalEOSForElems(domain, vnewc, numElem);
-
-    Release(&vnewc) ;
+    for (Int_t r=0 ; r<domain.numReg() ; r++) {
+       Index_t numElemReg = domain.regElemSize(r);
+       Index_t *regElemList = domain.regElemlist(r);
+       Int_t rep;
+       //Determine load imbalance for this region
+       //round down the number with lowest cost
+       if(r < domain.numReg()/2)
+	 rep = 1;
+       //you don't get an expensive region unless you at least have 5 regions
+       else if(r < (domain.numReg() - (domain.numReg()+15)/20))
+         rep = 1 + domain.cost();
+       //very expensive regions
+       else
+	 rep = 10 * (1+ domain.cost());
+       EvalEOSForElems(domain, vnew, numElemReg, regElemList, rep);
+    }
 
   }
 }
 
+/******************************************/
+
 static inline
-void UpdateVolumesForElems(Real_t *vnew, Real_t *v,
+void UpdateVolumesForElems(Domain &domain, Real_t *vnew,
                            Real_t v_cut, Index_t length)
 {
    if (length != 0) {
+#pragma omp parallel for firstprivate(length, v_cut)
       for(Index_t i=0 ; i<length ; ++i) {
          Real_t tmpV = vnew[i] ;
 
          if ( FABS(tmpV - Real_t(1.0)) < v_cut )
             tmpV = Real_t(1.0) ;
 
-         v[i] = tmpV ;
+         domain.v(i) = tmpV ;
       }
    }
 
    return ;
 }
 
-static inline
-void LagrangeElements(Domain *domain, Index_t numElem)
-{
-  domain->vnew = new Real_t[numElem] ;  /* new relative volume -- temporary */
+/******************************************/
 
-  CalcLagrangeElements(domain) ;
+static inline
+void LagrangeElements(Domain& domain, Index_t numElem)
+{
+  Real_t *vnew = Allocate<Real_t>(numElem) ;  /* new relative vol -- temp */
+
+  CalcLagrangeElements(domain, vnew) ;
 
   /* Calculate Q.  (Monotonic q option requires communication) */
-  CalcQForElems(domain) ;
+  CalcQForElems(domain, vnew) ;
 
-  ApplyMaterialPropertiesForElems(domain) ;
+  ApplyMaterialPropertiesForElems(domain, vnew) ;
 
-  UpdateVolumesForElems(domain->vnew, domain->v,
-                        domain->v_cut, numElem) ;
+  UpdateVolumesForElems(domain, vnew,
+                        domain.v_cut(), numElem) ;
 
-  delete [] domain->vnew ;
+  Release(&vnew);
 }
 
+/******************************************/
+
 static inline
-void CalcCourantConstraintForElems(Index_t *matElemlist, Real_t *ss,
-                                   Real_t *vdov, Real_t *arealg,
-                                   Real_t qqc, Index_t length,
-                                   Real_t *dtcourant)
+void CalcCourantConstraintForElems(Domain &domain, Index_t length,
+                                   Index_t *regElemlist,
+                                   Real_t qqc, Real_t& dtcourant)
 {
-   Real_t dtcourant_tmp = Real_t(1.0e+20) ;
-   Index_t   courant_elem = -1 ;
+#if _OPENMP   
+   Index_t threads = omp_get_max_threads();
+   static Index_t *courant_elem_per_thread;
+   static Real_t *dtcourant_per_thread;
+   static bool first = true;
+   if (first) {
+     courant_elem_per_thread = new Index_t[threads];
+     dtcourant_per_thread = new Real_t[threads];
+     first = false;
+   }
+#else
+   Index_t threads = 1;
+   Index_t courant_elem_per_thread[1];
+   Real_t  dtcourant_per_thread[1];
+#endif
 
-   Real_t  qqc2 = Real_t(64.0) * qqc * qqc ;
 
-   for (Index_t i = 0 ; i < length ; ++i) {
-      Index_t indx = matElemlist[i] ;
+#pragma omp parallel firstprivate(length, qqc)
+   {
+      Real_t   qqc2 = Real_t(64.0) * qqc * qqc ;
+      Real_t   dtcourant_tmp = dtcourant;
+      Index_t  courant_elem  = -1 ;
 
-      Real_t dtf = ss[indx] * ss[indx] ;
+#if _OPENMP
+      Index_t thread_num = omp_get_thread_num();
+#else
+      Index_t thread_num = 0;
+#endif      
 
-      if ( vdov[indx] < Real_t(0.) ) {
+#pragma omp for 
+      for (Index_t i = 0 ; i < length ; ++i) {
+         Index_t indx = regElemlist[i] ;
+         Real_t dtf = domain.ss(indx) * domain.ss(indx) ;
 
-         dtf = dtf
-            + qqc2 * arealg[indx] * arealg[indx] * vdov[indx] * vdov[indx] ;
+         if ( domain.vdov(indx) < Real_t(0.) ) {
+            dtf = dtf
+                + qqc2 * domain.arealg(indx) * domain.arealg(indx)
+                * domain.vdov(indx) * domain.vdov(indx) ;
+         }
+
+         dtf = SQRT(dtf) ;
+         dtf = domain.arealg(indx) / dtf ;
+
+         if (domain.vdov(indx) != Real_t(0.)) {
+            if ( dtf < dtcourant_tmp ) {
+               dtcourant_tmp = dtf ;
+               courant_elem  = indx ;
+            }
+         }
       }
 
-      dtf = SQRT(dtf) ;
+      dtcourant_per_thread[thread_num]    = dtcourant_tmp ;
+      courant_elem_per_thread[thread_num] = courant_elem ;
+   }
 
-      dtf = arealg[indx] / dtf ;
-
-      /* determine minimum timestep with its corresponding elem */
-
-      if (vdov[indx] != Real_t(0.)) {
-         if ( dtf < dtcourant_tmp ) {
-            dtcourant_tmp = dtf ;
-            courant_elem = indx ;
-         }
+   for (Index_t i = 1; i < threads; ++i) {
+      if (dtcourant_per_thread[i] < dtcourant_per_thread[0] ) {
+         dtcourant_per_thread[0]    = dtcourant_per_thread[i];
+         courant_elem_per_thread[0] = courant_elem_per_thread[i];
       }
    }
 
-   /* Don't try to register a time constraint if none of the elements
-    * were active */
+   if (courant_elem_per_thread[0] != -1) {
+      dtcourant = dtcourant_per_thread[0] ;
+   }
 
-   if (courant_elem != -1) {
-      *dtcourant = dtcourant_tmp ;
+   return ;
+
+}
+
+/******************************************/
+
+static inline
+void CalcHydroConstraintForElems(Domain &domain, Index_t length,
+                                 Index_t *regElemlist, Real_t dvovmax, Real_t& dthydro)
+{
+#if _OPENMP   
+   Index_t threads = omp_get_max_threads();
+   static Index_t *hydro_elem_per_thread;
+   static Real_t *dthydro_per_thread;
+   static bool first = true;
+   if (first) {
+     hydro_elem_per_thread = new Index_t[threads];
+     dthydro_per_thread = new Real_t[threads];
+     first = false;
+   }
+#else
+   Index_t threads = 1;
+   Index_t hydro_elem_per_thread[1];
+   Real_t  dthydro_per_thread[1];
+#endif
+
+#pragma omp parallel firstprivate(length, dvovmax)
+   {
+      Real_t dthydro_tmp = dthydro ;
+      Index_t hydro_elem = -1 ;
+
+#if _OPENMP      
+      Index_t thread_num = omp_get_thread_num();
+#else      
+      Index_t thread_num = 0;
+#endif      
+
+#pragma omp for
+      for (Index_t i = 0 ; i < length ; ++i) {
+         Index_t indx = regElemlist[i] ;
+
+         if (domain.vdov(indx) != Real_t(0.)) {
+            Real_t dtdvov = dvovmax / (FABS(domain.vdov(indx))+Real_t(1.e-20)) ;
+
+            if ( dthydro_tmp > dtdvov ) {
+                  dthydro_tmp = dtdvov ;
+                  hydro_elem = indx ;
+            }
+         }
+      }
+
+      dthydro_per_thread[thread_num]    = dthydro_tmp ;
+      hydro_elem_per_thread[thread_num] = hydro_elem ;
+   }
+
+   for (Index_t i = 1; i < threads; ++i) {
+      if(dthydro_per_thread[i] < dthydro_per_thread[0]) {
+         dthydro_per_thread[0]    = dthydro_per_thread[i];
+         hydro_elem_per_thread[0] =  hydro_elem_per_thread[i];
+      }
+   }
+
+   if (hydro_elem_per_thread[0] != -1) {
+      dthydro =  dthydro_per_thread[0] ;
    }
 
    return ;
 }
 
+/******************************************/
+
 static inline
-void CalcHydroConstraintForElems(Index_t *matElemlist, Real_t *vdov,
-                                 Real_t dvovmax, Index_t length,
-                                 Real_t *dthydro)
-{
-   Real_t dthydro_tmp = Real_t(1.0e+20) ;
-   Index_t hydro_elem = -1 ;
+void CalcTimeConstraintsForElems(Domain& domain) {
 
-   for (Index_t i = 0 ; i < length ; ++i) {
-      Index_t indx = matElemlist[i] ;
+   // Initialize conditions to a very large value
+   domain.dtcourant() = 1.0e+20;
+   domain.dthydro() = 1.0e+20;
 
-      if (vdov[indx] != Real_t(0.)) {
-         Real_t dtdvov = dvovmax / (FABS(vdov[indx])+Real_t(1.e-20)) ;
-         if ( dthydro_tmp > dtdvov ) {
-            dthydro_tmp = dtdvov ;
-            hydro_elem = indx ;
-         }
-      }
+   for (Index_t r=0 ; r < domain.numReg() ; ++r) {
+      /* evaluate time constraint */
+      CalcCourantConstraintForElems(domain, domain.regElemSize(r),
+                                    domain.regElemlist(r),
+                                    domain.qqc(),
+                                    domain.dtcourant()) ;
+
+      /* check hydro constraint */
+      CalcHydroConstraintForElems(domain, domain.regElemSize(r),
+                                  domain.regElemlist(r),
+                                  domain.dvovmax(),
+                                  domain.dthydro()) ;
    }
-
-   if (hydro_elem != -1) {
-      *dthydro = dthydro_tmp ;
-   }
-
-   return ;
 }
 
-static inline
-void CalcTimeConstraintsForElems(Domain *domain) {
-   /* evaluate time constraint */
-   CalcCourantConstraintForElems(domain->matElemlist, domain->ss,
-                                 domain->vdov, domain->arealg,
-                                 domain->qqc, domain->numElem,
-                                 &domain->dtcourant) ;
-
-   /* check hydro constraint */
-   CalcHydroConstraintForElems(domain->matElemlist, domain->vdov,
-                               domain->dvovmax, domain->numElem,
-                               &domain->dthydro) ;
-}
+/******************************************/
 
 static inline
-void LagrangeLeapFrog(Domain *domain)
+void LagrangeLeapFrog(Domain& domain)
 {
 #ifdef SEDOV_SYNC_POS_VEL_LATE
-   Real_t *fieldData[6] ;
+   Domain_member fieldData[6] ;
 #endif
 
    /* calculate nodal forces, accelerations, velocities, positions, with
     * applied boundary conditions and slide surface considerations */
    LagrangeNodal(domain);
 
+
 #ifdef SEDOV_SYNC_POS_VEL_LATE
 #endif
 
    /* calculate element quantities (i.e. velocity gradient & q), and update
     * material states */
-   LagrangeElements(domain, domain->numElem);
+   LagrangeElements(domain, domain.numElem());
 
+#if USE_MPI   
 #ifdef SEDOV_SYNC_POS_VEL_LATE
    CommRecv(domain, MSG_SYNC_POS_VEL, 6,
-            domain->sizeX + 1, domain->sizeY + 1, domain->sizeZ + 1,
+            domain.sizeX() + 1, domain.sizeY() + 1, domain.sizeZ() + 1,
             false, false) ;
 
-   fieldData[0] = domain->x ;
-   fieldData[1] = domain->y ;
-   fieldData[2] = domain->z ;
-   fieldData[3] = domain->xd ;
-   fieldData[4] = domain->yd ;
-   fieldData[5] = domain->zd ;
+   fieldData[0] = &Domain::x ;
+   fieldData[1] = &Domain::y ;
+   fieldData[2] = &Domain::z ;
+   fieldData[3] = &Domain::xd ;
+   fieldData[4] = &Domain::yd ;
+   fieldData[5] = &Domain::zd ;
    
    CommSend(domain, MSG_SYNC_POS_VEL, 6, fieldData,
-            domain->sizeX + 1, domain->sizeY + 1, domain->sizeZ + 1,
+            domain.sizeX() + 1, domain.sizeY() + 1, domain.sizeZ() + 1,
             false, false) ;
 #endif
+#endif   
 
    CalcTimeConstraintsForElems(domain);
 
+#if USE_MPI   
 #ifdef SEDOV_SYNC_POS_VEL_LATE
    CommSyncPosVel(domain) ;
 #endif
-
-   // LagrangeRelease() ;  Creation/destruction of temps may be important to capture 
+#endif   
 }
 
-Domain *NewDomain(Index_t colLoc, Index_t rowLoc, Index_t planeLoc, Index_t nx, int tp)
-{
-   Real_t tx, ty, tz ;
-   Index_t nidx, zidx, pidx ;
-   Index_t ghostIdx[6] ;  /* offsets to ghost locations */
-   struct Domain *domain = new Domain ;
 
-   Index_t edgeElems = nx ;
-   Index_t edgeNodes = edgeElems+1 ;
-
-   Index_t meshEdgeElems = tp*nx ;
-
-   /****************************/
-   /*   Initialize Sedov Mesh  */
-   /****************************/
-
-   /* construct a uniform box for this processor */
-
-   domain->colLoc   =   colLoc ;
-   domain->rowLoc   =   rowLoc ;
-   domain->planeLoc = planeLoc ;
-   domain->tp = tp ;
-   
-   domain->sizeX = edgeElems ;
-   domain->sizeY = edgeElems ;
-   domain->sizeZ = edgeElems ;
-   domain->numElem = edgeElems*edgeElems*edgeElems ;
-
-   domain->numNode = edgeNodes*edgeNodes*edgeNodes ;
-
-   Index_t domElems = domain->numElem ;
-   Index_t domNodes = domain->numNode ;
-
-   /* get run options to measure various metrics */
-
-   /* ... */
-
-   /* allocate field memory */
-
-   
-   /* Elem-centered */
-
-   domain->matElemlist = new Index_t[domElems] ;  /* material indexset */
-   domain->nodelist = new Index_t[8*domElems] ;   /* elemToNode connectivity */
-
-   domain->lxim = new Index_t[domElems] ; /* elem connectivity through face */
-   domain->lxip = new Index_t[domElems] ;
-   domain->letam = new Index_t[domElems] ;
-   domain->letap = new Index_t[domElems] ;
-   domain->lzetam = new Index_t[domElems] ;
-   domain->lzetap = new Index_t[domElems] ;
-
-   domain->elemBC = new Int_t[domElems] ;  /* elem face symm/free-surface flag */
-
-   domain->e = new Real_t[domElems] ;   /* energy */
-   domain->p = new Real_t[domElems] ;   /* pressure */
-
-   domain->q = new Real_t[domElems] ;   /* q */
-   domain->ql = new Real_t[domElems] ;  /* linear term for q */
-   domain->qq = new Real_t[domElems] ;  /* quadratic term for q */
-
-   domain->v = new Real_t[domElems] ;     /* relative volume */
-
-   domain->volo = new Real_t[domElems] ;  /* reference volume */
-   domain->delv = new Real_t[domElems] ;  /* m_vnew - m_v */
-   domain->vdov = new Real_t[domElems] ;  /* volume derivative over volume */
-
-   domain->arealg = new Real_t[domElems] ;  /* elem characteristic length */
-
-   domain->ss = new Real_t[domElems] ;      /* "sound speed" */
-
-   domain->elemMass = new Real_t[domElems] ;  /* mass */
-
-   /* Node-centered */
-
-   domain->x = new Real_t[domNodes] ;  /* coordinates */
-   domain->y = new Real_t[domNodes] ;
-   domain->z = new Real_t[domNodes] ;
-
-   domain->xd = new Real_t[domNodes] ; /* velocities */
-   domain->yd = new Real_t[domNodes] ;
-   domain->zd = new Real_t[domNodes] ;
-
-   domain->xdd = new Real_t[domNodes] ; /* accelerations */
-   domain->ydd = new Real_t[domNodes] ;
-   domain->zdd = new Real_t[domNodes] ;
-
-   domain->fx = new Real_t[domNodes] ;  /* forces */
-   domain->fy = new Real_t[domNodes] ;
-   domain->fz = new Real_t[domNodes] ;
-
-   domain->nodalMass = new Real_t[domNodes] ;  /* mass */
-
-   /* allocate a buffer large enough for nodal ghost data */
-   Index_t rowMin, rowMax, colMin, colMax, planeMin, planeMax ;
-   Index_t maxEdgeSize = MAX(domain->sizeX, MAX(domain->sizeY, domain->sizeZ))+1 ;
-   domain->maxPlaneSize = CACHE_ALIGN_REAL(maxEdgeSize*maxEdgeSize) ;
-   domain->maxEdgeSize = CACHE_ALIGN_REAL(maxEdgeSize) ;
-
-   /* assume communication to 6 neighbors by default */
-   rowMin = rowMax = colMin = colMax = planeMin = planeMax = 1 ;
-   if (rowLoc == 0) {
-      rowMin = 0 ;
-   }
-   if (rowLoc == tp-1) {
-      rowMax = 0 ;
-   }
-   if (colLoc == 0) {
-      colMin = 0 ;
-   }
-   if (colLoc == tp-1) {
-      colMax = 0 ;
-   }
-   if (planeLoc == 0) {
-      planeMin = 0 ;
-   }
-   if (planeLoc == tp-1) {
-      planeMax = 0 ;
-   }
-   /* account for face communication */
-   Index_t comBufSize =
-      (rowMin + rowMax + colMin + colMax + planeMin + planeMax) *
-       domain->maxPlaneSize * MAX_FIELDS_PER_MPI_COMM ;
-
-   /* account for edge communication */
-   comBufSize +=
-      ((rowMin & colMin) + (rowMin & planeMin) + (colMin & planeMin) +
-       (rowMax & colMax) + (rowMax & planeMax) + (colMax & planeMax) +
-       (rowMax & colMin) + (rowMin & planeMax) + (colMin & planeMax) +
-       (rowMin & colMax) + (rowMax & planeMin) + (colMax & planeMin)) *
-       domain->maxEdgeSize * MAX_FIELDS_PER_MPI_COMM ;
-
-   /* account for corner communication */
-   /* factor of 16 is so each buffer has its own cache line */
-   comBufSize += ((rowMin & colMin & planeMin) +
-                  (rowMin & colMin & planeMax) +
-                  (rowMin & colMax & planeMin) +
-                  (rowMin & colMax & planeMax) +
-                  (rowMax & colMin & planeMin) +
-                  (rowMax & colMin & planeMax) +
-                  (rowMax & colMax & planeMin) +
-                  (rowMax & colMax & planeMax)) * CACHE_COHERENCE_PAD_REAL ;
-
-   domain->commDataSend = new Real_t[comBufSize] ;
-   domain->commDataRecv = new Real_t[comBufSize] ;
-   /* prevent floating point exceptions */
-   memset(domain->commDataSend, 0, comBufSize*sizeof(Real_t)) ;
-   memset(domain->commDataRecv, 0, comBufSize*sizeof(Real_t)) ;
-
-   /* Boundary nodesets */
-
-   domain->symmX = ((colLoc == 0) ? (new Index_t[edgeNodes*edgeNodes]) : 0) ;
-   domain->symmY = ((rowLoc == 0) ? (new Index_t[edgeNodes*edgeNodes]) : 0) ;
-   domain->symmZ = ((planeLoc == 0) ? (new Index_t[edgeNodes*edgeNodes]) : 0) ;
-
-   /* Basic Field Initialization */
-
-   for (Index_t i=0; i<domElems; ++i) {
-      domain->e[i] = Real_t(0.0) ;
-      domain->p[i] = Real_t(0.0) ;
-      domain->v[i] = Real_t(1.0) ;
-   }
-
-   for (Index_t i=0; i<domNodes; ++i) {
-      domain->xd[i] = Real_t(0.0) ;
-      domain->yd[i] = Real_t(0.0) ;
-      domain->zd[i] = Real_t(0.0) ;
-   }
-
-   for (Index_t i=0; i<domNodes; ++i) {
-      domain->xdd[i] = Real_t(0.0) ;
-      domain->ydd[i] = Real_t(0.0) ;
-      domain->zdd[i] = Real_t(0.0) ;
-   }
-
-   /* initialize nodal coordinates */
-
-   nidx = 0 ;
-   tz = Real_t(1.125)*Real_t(planeLoc*nx)/Real_t(meshEdgeElems) ;
-   for (Index_t plane=0; plane<edgeNodes; ++plane) {
-      ty = Real_t(1.125)*Real_t(rowLoc*nx)/Real_t(meshEdgeElems) ;
-      for (Index_t row=0; row<edgeNodes; ++row) {
-         tx = Real_t(1.125)*Real_t(colLoc*nx)/Real_t(meshEdgeElems) ;
-         for (Index_t col=0; col<edgeNodes; ++col) {
-            domain->x[nidx] = tx ;
-            domain->y[nidx] = ty ;
-            domain->z[nidx] = tz ;
-            ++nidx ;
-            // tx += ds ; /* may accumulate roundoff... */
-            tx = Real_t(1.125)*Real_t(colLoc*nx+col+1)/Real_t(meshEdgeElems) ;
-         }
-         // ty += ds ;  /* may accumulate roundoff... */
-         ty = Real_t(1.125)*Real_t(rowLoc*nx+row+1)/Real_t(meshEdgeElems) ;
-      }
-      // tz += ds ;  /* may accumulate roundoff... */
-      tz = Real_t(1.125)*Real_t(planeLoc*nx+plane+1)/Real_t(meshEdgeElems) ;
-   }
-
-
-   /* embed hexehedral elements in nodal point lattice */
-
-   nidx = 0 ;
-   zidx = 0 ;
-   for (Index_t plane=0; plane<edgeElems; ++plane) {
-      for (Index_t row=0; row<edgeElems; ++row) {
-         for (Index_t col=0; col<edgeElems; ++col) {
-            Index_t *localNode = &domain->nodelist[8*zidx] ;
-            localNode[0] = nidx                                       ;
-            localNode[1] = nidx                                   + 1 ;
-            localNode[2] = nidx                       + edgeNodes + 1 ;
-            localNode[3] = nidx                       + edgeNodes     ;
-            localNode[4] = nidx + edgeNodes*edgeNodes                 ;
-            localNode[5] = nidx + edgeNodes*edgeNodes             + 1 ;
-            localNode[6] = nidx + edgeNodes*edgeNodes + edgeNodes + 1 ;
-            localNode[7] = nidx + edgeNodes*edgeNodes + edgeNodes     ;
-            ++zidx ;
-            ++nidx ;
-         }
-         ++nidx ;
-      }
-      nidx += edgeNodes ;
-   }
-
-   /* Create a material IndexSet (entire domain same material for now) */
-   for (Index_t i=0; i<domElems; ++i) {
-      domain->matElemlist[i] = i ;
-   }
-   
-   /* initialize material parameters */
-   domain->dtfixed = Real_t(-1.0e-7) ;
-   domain->deltatime = Real_t(1.0e-7) ;
-   domain->deltatimemultlb = Real_t(1.1) ;
-   domain->deltatimemultub = Real_t(1.2) ;
-   domain->stoptime  = Real_t(1.0e-4)*Real_t(edgeElems*tp/45.0) ;
-   domain->dtcourant = Real_t(1.0e+20) ;
-   domain->dthydro   = Real_t(1.0e+20) ;
-   domain->dtmax     = Real_t(1.0e-2) ;
-   domain->time    = Real_t(0.) ;
-   domain->cycle   = 0 ;
-
-   domain->e_cut = Real_t(1.0e-7) ;
-   domain->p_cut = Real_t(1.0e-7) ;
-   domain->q_cut = Real_t(1.0e-7) ;
-   domain->u_cut = Real_t(1.0e-7) ;
-   domain->v_cut = Real_t(1.0e-10) ;
-
-   domain->hgcoef      = Real_t(3.0) ;
-   domain->ss4o3       = Real_t(4.0)/Real_t(3.0) ;
-
-   domain->qstop              =  Real_t(1.0e+12) ;
-   domain->monoq_max_slope    =  Real_t(1.0) ;
-   domain->monoq_limiter_mult =  Real_t(2.0) ;
-   domain->qlc_monoq          = Real_t(0.5) ;
-   domain->qqc_monoq          = Real_t(2.0)/Real_t(3.0) ;
-   domain->qqc                = Real_t(2.0) ;
-
-   domain->pmin =  Real_t(0.) ;
-   domain->emin = Real_t(-1.0e+15) ;
-
-   domain->dvovmax =  Real_t(0.1) ;
-
-   domain->eosvmax =  Real_t(1.0e+9) ;
-   domain->eosvmin =  Real_t(1.0e-9) ;
-
-   domain->refdens =  Real_t(1.0) ;
-
-   /* initialize field data */
-   for (Index_t i=0; i<domNodes; ++i) {
-      domain->nodalMass[i] = 0.0 ;
-   }
-
-   for (Index_t i=0; i<domElems; ++i) {
-      Real_t x_local[8], y_local[8], z_local[8] ;
-      Index_t *elemToNode = &domain->nodelist[8*i] ;
-      for( Index_t lnode=0 ; lnode<8 ; ++lnode )
-      {
-        Index_t gnode = elemToNode[lnode];
-        x_local[lnode] = domain->x[gnode];
-        y_local[lnode] = domain->y[gnode];
-        z_local[lnode] = domain->z[gnode];
-      }
-
-      // volume calculations
-      Real_t volume = CalcElemVolume(x_local, y_local, z_local );
-      domain->volo[i] = volume ;
-      domain->elemMass[i] = volume ;
-      for (Index_t j=0; j<8; ++j) {
-         Index_t idx = elemToNode[j] ;
-         domain->nodalMass[idx] += volume / Real_t(8.0) ;
-      }
-   }
-
-   /* deposit energy */
-   if (rowLoc + colLoc + planeLoc == 0) {
-      domain->e[0] = Real_t(3.948746e+7) ;
-   }
-
-   /* set up symmetry nodesets */
-   nidx = 0 ;
-   for (Index_t i=0; i<edgeNodes; ++i) {
-      Index_t planeInc = i*edgeNodes*edgeNodes ;
-      Index_t rowInc   = i*edgeNodes ;
-      for (Index_t j=0; j<edgeNodes; ++j) {
-         if (planeLoc == 0) {
-            domain->symmZ[nidx] = rowInc   + j ;
-         }
-         if (rowLoc == 0) {
-            domain->symmY[nidx] = planeInc + j ;
-         }
-         if (colLoc == 0) {
-            domain->symmX[nidx] = planeInc + j*edgeNodes ;
-         }
-         ++nidx ;
-      }
-   }
-
-   /* set up elemement connectivity information */
-   domain->lxim[0] = 0 ;
-   for (Index_t i=1; i<domElems; ++i) {
-      domain->lxim[i]   = i-1 ;
-      domain->lxip[i-1] = i ;
-   }
-   domain->lxip[domElems-1] = domElems-1 ;
-
-   for (Index_t i=0; i<edgeElems; ++i) {
-      domain->letam[i] = i ; 
-      domain->letap[domElems-edgeElems+i] = domElems-edgeElems+i ;
-   }
-   for (Index_t i=edgeElems; i<domElems; ++i) {
-      domain->letam[i] = i-edgeElems ;
-      domain->letap[i-edgeElems] = i ;
-   }
-
-   for (Index_t i=0; i<edgeElems*edgeElems; ++i) {
-      domain->lzetam[i] = i ;
-      domain->lzetap[domElems-edgeElems*edgeElems+i] = domElems-edgeElems*edgeElems+i ;
-   }
-   for (Index_t i=edgeElems*edgeElems; i<domElems; ++i) {
-      domain->lzetam[i] = i - edgeElems*edgeElems ;
-      domain->lzetap[i-edgeElems*edgeElems] = i ;
-   }
-
-   /* set up boundary condition information */
-   for (Index_t i=0; i<domElems; ++i) {
-      domain->elemBC[i] = 0 ;  /* clear BCs by default */
-   }
-
-   for (Index_t i=0; i<6; ++i) {
-      ghostIdx[i] = INT_MIN ;
-   }
-
-   pidx = domElems ;
-   if (planeMin != 0) {
-      ghostIdx[0] = pidx ;
-      pidx += domain->sizeX*domain->sizeY ;
-   }
-
-   if (planeMax != 0) {
-      ghostIdx[1] = pidx ;
-      pidx += domain->sizeX*domain->sizeY ;
-   }
-
-   if (rowMin != 0) {
-      ghostIdx[2] = pidx ;
-      pidx += domain->sizeX*domain->sizeZ ;
-   }
-
-   if (rowMax != 0) {
-      ghostIdx[3] = pidx ;
-      pidx += domain->sizeX*domain->sizeZ ;
-   }
-
-   if (colMin != 0) {
-      ghostIdx[4] = pidx ;
-      pidx += domain->sizeY*domain->sizeZ ;
-   }
-
-   if (colMax != 0) {
-      ghostIdx[5] = pidx ;
-   }
-
-   /* symmetry plane or free surface BCs */
-   for (Index_t i=0; i<edgeElems; ++i) {
-      Index_t planeInc = i*edgeElems*edgeElems ;
-      Index_t rowInc   = i*edgeElems ;
-      for (Index_t j=0; j<edgeElems; ++j) {
-         if (planeLoc == 0) {
-            domain->elemBC[rowInc+j] |= ZETA_M_SYMM ;
-         }
-         else {
-            domain->elemBC[rowInc+j] |= ZETA_M_COMM ;
-            domain->lzetam[rowInc+j] = ghostIdx[0] + rowInc + j ;
-         }
-
-         if (planeLoc == tp-1) {
-            domain->elemBC[rowInc+j+domElems-edgeElems*edgeElems] |=
-               ZETA_P_FREE;
-         }
-         else {
-            domain->elemBC[rowInc+j+domElems-edgeElems*edgeElems] |=
-               ZETA_P_COMM ;
-            domain->lzetap[rowInc+j+domElems-edgeElems*edgeElems] =
-               ghostIdx[1] + rowInc + j ;
-         }
-
-         if (rowLoc == 0) {
-            domain->elemBC[planeInc+j] |= ETA_M_SYMM ;
-         }
-         else {
-            domain->elemBC[planeInc+j] |= ETA_M_COMM ;
-            domain->letam[planeInc+j] = ghostIdx[2] + rowInc + j ;
-         }
-
-         if (rowLoc == tp-1) {
-            domain->elemBC[planeInc+j+edgeElems*edgeElems-edgeElems] |= 
-               ETA_P_FREE ;
-         }
-         else {
-            domain->elemBC[planeInc+j+edgeElems*edgeElems-edgeElems] |= 
-               ETA_P_COMM ;
-            domain->letap[planeInc+j+edgeElems*edgeElems-edgeElems] =
-               ghostIdx[3] +  rowInc + j ;
-         }
-
-         if (colLoc == 0) {
-            domain->elemBC[planeInc+j*edgeElems] |= XI_M_SYMM ;
-         }
-         else {
-            domain->elemBC[planeInc+j*edgeElems] |= XI_M_COMM ;
-            domain->lxim[planeInc+j*edgeElems] = ghostIdx[4] + rowInc + j ;
-         }
-
-         if (colLoc == tp-1) {
-            domain->elemBC[planeInc+j*edgeElems+edgeElems-1] |= XI_P_FREE ;
-         }
-         else {
-            domain->elemBC[planeInc+j*edgeElems+edgeElems-1] |= XI_P_COMM ;
-            domain->lxip[planeInc+j*edgeElems+edgeElems-1] =
-               ghostIdx[5] + rowInc + j ;
-         }
-      }
-   }
-
-   return domain ;
-}
-
-#ifdef VIZ_MESH
-
-#ifdef __cplusplus
-  extern "C" {
-#endif
-#include "silo.h"
-#ifdef __cplusplus
-  }
-#endif
-
-#define MAX_LEN_SAMI_HEADER  10
-
-#define SAMI_HDR_NUMBRICK     0
-#define SAMI_HDR_NUMNODES     3
-#define SAMI_HDR_NUMMATERIAL  4
-#define SAMI_HDR_INDEX_START  6
-#define SAMI_HDR_MESHDIM      7
-
-#define MAX_ADJACENCY  14  /* must be 14 or greater */
-
-void DumpSAMI(Domain *domain, char *name)
-{
-   DBfile *fp ;
-   int headerLen = MAX_LEN_SAMI_HEADER ;
-   int headerInfo[MAX_LEN_SAMI_HEADER];
-   char varName[] = "brick_nd0";
-   char coordName[] = "x";
-   char symmName[] = "symm_bcx";
-   int version = 121 ;
-   int numElem = int(domain->numElem) ;
-   int numNode = int(domain->numNode) ;
-   int count ;
-
-   int *materialID ;
-   int *nodeConnect ;
-   double *nodeCoord ;
-
-   if ((fp = DBCreate(name, DB_CLOBBER, DB_LOCAL,
-                        NULL, DB_PDB)) == NULL)
-   {
-      printf("Couldn't create file %s\n", name) ;
-      MPI_Abort(MPI_COMM_WORLD, -100) ;
-   }
-
-   for (int i=0; i<MAX_LEN_SAMI_HEADER; ++i) {
-      headerInfo[i] = 0 ;
-   }
-   headerInfo[SAMI_HDR_NUMBRICK]    = numElem ;
-   headerInfo[SAMI_HDR_NUMNODES]    = numNode ;
-   headerInfo[SAMI_HDR_NUMMATERIAL] = 1 ;
-   headerInfo[SAMI_HDR_INDEX_START] = 1 ;
-   headerInfo[SAMI_HDR_MESHDIM]     = 3 ;
-
-   DBWrite(fp, "mesh_data", headerInfo, &headerLen, 1, DB_INT) ;
-
-   count = 1 ;
-   DBWrite(fp, "version", &version, &count, 1, DB_INT) ;
-
-   nodeConnect = new int[numElem] ;
-
-   for (Index_t i=0; i<8; ++i)
-   {
-      for (Index_t j=0; j<numElem; ++j) {
-         nodeConnect[j] = int(domain->nodelist[j*8 + i]) + 1 ;
-      }
-      varName[8] = '0' + i;
-      DBWrite(fp, varName, nodeConnect, &numElem, 1, DB_INT) ;
-   }
-
-   delete [] nodeConnect ;
-
-   nodeCoord = new double[numNode] ;
-
-   for (Index_t i=0; i<3; ++i)
-   {
-      for (Index_t j=0; j<numNode; ++j) {
-         Real_t coordVal ;
-         switch(i) {
-            case 0: coordVal = double(domain->x[j]) ; break ;
-            case 1: coordVal = double(domain->y[j]) ; break ;
-            case 2: coordVal = double(domain->z[j]) ; break ;
-         }
-         nodeCoord[j] = coordVal ;
-      }
-      coordName[0] = 'x' + i ;
-      DBWrite(fp, coordName, nodeCoord, &numNode, 1, DB_DOUBLE) ;
-   }
-
-   delete [] nodeCoord ;
-
-   materialID = new int[numElem] ;
-
-   for (Index_t i=0; i<numElem; ++i)
-      materialID[i] = 1 ;
-
-   DBWrite(fp, "brick_material", materialID, &numElem, 1, DB_INT) ;
-
-   delete [] materialID ;
-
-   DBClose(fp);
-}
-
-void DumpDomain(Domain *domain, int myRank, int numProcs)
-{
-   char baseName[64] ;
-   char meshName[64] ;
-   sprintf(baseName, "sedov_%d.sami", int(domain->cycle)) ;
-
-   if (myRank == 0) {
-      sprintf(meshName, "sedov_%d.sami", int(domain->cycle)) ;
-   }
-   else {
-      sprintf(meshName, "%s.%d", baseName, myRank) ;
-   }
-
-   DumpSAMI(domain, meshName) ;
-   
-   if ((myRank == 0) && (numProcs > 1)) {
-      FILE *fp ;
-      sprintf(meshName, "%s.visit", baseName) ;
-      if ((fp = fopen(meshName, "w")) == NULL) {
-         printf("Could not create file %s\n", meshName) ;
-         MPI_Abort(MPI_COMM_WORLD, -10) ;
-      }
-      fprintf(fp, "!NBLOCKS %d\n%s\n", numProcs, baseName) ;
-      for (int i=1; i<numProcs; ++i) {
-         fprintf(fp, "%s.%d\n", baseName, i) ;
-      }
-      fclose(fp) ;
-   }
-}
-
-#endif
-
-/* serial vs. parallel */
-/* fixeddt vs courant (reduction vs no reduction) */
-/* slab vs 3d partitioning and processor mapping */
-/* X mmap based fault tolerance */
-
-/* ------------------------------------------------- */
-
-/* structured vs unstructured */
-/* CPU vs GPU */
-/* domain overloading */
-/* MPI, OpenMP, MINT (OMP -> CUDA), thread, Cilk */
-/*  TBB, CUDA, OpenCL, ESSL, work queue? */
-/* hierarchical memory allocation */
-/* two-phase memory allocation */
-/* private/cached/uncached memory operations */
-/* X general fault tolerance capability */
-/* pooled temporary allocation */
-/* loop fission/fusion  (control equations per loop) */
-/* recompute (GPU) vs masked computation (or indexset based) */
-/* mapping to network topology (best/worst case mapping) */
-/* re-use temporaries */
-/* ordered vs. unordered messages (reproducibility) */
-
-/*
-   -pm parallel model
-                            local parallelism > #cores?
-      outer   inner               no                yes
-   -------------------------------------------------------------------
-       MPI     MPI         domain-per-core    domain-overload-per-core
-       MPI     OpenMP
-       MPI     Pthread
-
-*/
-
-/* -dx -dy -dz  subdomains along each dimension */
-/* -tx -ty -tz  threads in each subdomain along each dimension */
-/* -px -py -pz  size of each thread patch along each dimension */
+/******************************************/
 
 int main(int argc, char *argv[])
 {
-   Domain *locDom ;
-   int myDom ;
-   int numProcs ;
-   int myRank ;
-   int testProcs ;
+  Domain *locDom ;
+   Int_t numRanks ;
+   Int_t myRank ;
+   struct cmdLineOpts opts;
+
+#if USE_MPI   
+   Domain_member fieldData ;
+
    MPI_Init(&argc, &argv) ;
-   MPI_Comm_size(MPI_COMM_WORLD, &numProcs) ;
+   MPI_Comm_size(MPI_COMM_WORLD, &numRanks) ;
    MPI_Comm_rank(MPI_COMM_WORLD, &myRank) ;
+#else
+   numRanks = 1;
+   myRank = 0;
+#endif   
 
-   /* Assume cube processor layout for now */
-   testProcs = (int) (cbrt(double(numProcs))+0.5) ;
-   if (testProcs*testProcs*testProcs != numProcs) {
-      printf("num processors must be a cube of an integer (1, 8, 27, ...)\n") ;
-      MPI_Abort(MPI_COMM_WORLD, -1) ;
-   }
-   if (sizeof(Real_t) != 4 && sizeof(Real_t) != 8) {
-      printf("MPI operations only support float and double right now...\n");
-      MPI_Abort(MPI_COMM_WORLD, -1) ;
-   }
-   if (MAX_FIELDS_PER_MPI_COMM > CACHE_COHERENCE_PAD_REAL) {
-      printf("corner element comm buffers too small.  Fix code.\n") ;
-      MPI_Abort(MPI_COMM_WORLD, -1) ;
-   }
+   /* Set defaults that can be overridden by command line opts */
+   opts.its = 9999999;
+   opts.nx  = 30;
+   opts.numReg = 11;
+   opts.numFiles = (int)(numRanks+10)/9;
+   opts.showProg = 0;
+   opts.quiet = 0;
+   opts.viz = 0;
+   opts.balance = 1;
+   opts.cost = 1;
 
-   Index_t dx = testProcs ;
-   Index_t dy = testProcs ;
-   Index_t dz = testProcs ;
+   ParseCommandLineOptions(argc, argv, myRank, &opts);
 
-   Index_t px = 1 ;
-   Index_t py = 1 ;
-   Index_t pz = 1 ;
-
-   Index_t tx = 1 ;
-   Index_t ty = 1 ;
-   Index_t tz = 1 ;
-
-   /* assume cube subdomain geometry for now */
-   Index_t nx = 45 ;
-#if 0
-   Index_t ny = 45 ;
-   Index_t nz = 45 ;
+   if ((myRank == 0) && (opts.quiet == 0)) {
+      printf("Running problem size %d^3 per domain until completion\n", opts.nx);
+      printf("Num processors: %d\n", numRanks);
+#if _OPENMP
+      printf("Num threads: %d\n", omp_get_max_threads());
 #endif
-
-#if 0
-   int numConcurrencyLevels ;
-
-   struct ConcurrencyInfo {
-      /* example hier:  10 nodes, 4 procs, 4 MPI tasks, 4 cores, 4 threads */
-      int minLC ;
-      int actualLC ;
-      int maxLC ;
-      /* mapping TBD (i.e. tot mem, node mem, task mem, core mem, thread mem) */
-      int minMemory ;
-      int actualMemory ;
-      int maxMemory ;
-   } *cinfo ;
-
-   GetConcurrencyInfo(&numConcurrencyLevels,
-                      &cinfo) ;
-#endif
-
-   /* temporary test */
-   if (dx*dy*dz != numProcs) {
-      printf("error -- must have as many domains as procs\n") ;
-      MPI_Abort(MPI_COMM_WORLD, -1) ;
-   }
-   int remainder = dx*dy*dz % numProcs ;
-   if (myRank < remainder) {
-      myDom = myRank*( 1+ (dx*dy*dz / numProcs)) ;
-   }
-   else {
-      myDom = remainder*( 1+ (dx*dy*dz / numProcs)) +
-              (myRank - remainder)*(dx*dy*dz/numProcs) ;
+      printf("Total number of elements: %lld\n\n", numRanks*opts.nx*opts.nx*opts.nx);
+      printf("To run other sizes, use -s <integer>.\n");
+      printf("To run a fixed number of iterations, use -i <integer>.\n");
+      printf("To run a more or less balanced region set, use -b <integer>.\n");
+      printf("To change the relative costs of regions, use -c <integer>.\n");
+      printf("To print out progress, use -p\n");
+      printf("To write an output file for VisIt, use -v\n");
+      printf("See help (-h) for more options\n\n");
    }
 
-   int col = myDom % dx ;
-   int row = (myDom / dx) % dy ;
-   int plane = myDom / (dx*dy) ;
+   // Set up the mesh and decompose. Assumes regular cubes for now
+   Int_t col, row, plane, side;
+   InitMeshDecomp(numRanks, myRank, &col, &row, &plane, &side);
 
-#if 0
-   /* thread chunk coords */
-   int colOffset = col*tx*nx ;
-   int rowOffset = row*ty*ny ;
-   int planeOffset = plane*tz*nz ;
+   // Build the main data structure and initialize it
+   locDom = new Domain(numRanks, col, row, plane, opts.nx,
+                       side, opts.numReg, opts.balance, opts.cost) ;
 
-   int elemOffset = colOffset +
-                    rowOffset*dx*tx*nx +
-                    planeOffset*dx*tx*nx*dy*ty*ny ;
-   locDom = NewDomain(elemOffset,
-                         tx*nx, ty*ny, tz*nz,
-                         1, dx*tx*nx, dx*tx*nx*dy*ty*ny) ;
-#endif
-   locDom = NewDomain(col, row, plane, nx, testProcs) ;
-   locDom->numProcs = numProcs ;
 
-   CommRecv(locDom, MSG_COMM_SBN, 1,
-            locDom->sizeX + 1, locDom->sizeY + 1, locDom->sizeZ + 1,
+#if USE_MPI   
+   fieldData = &Domain::nodalMass ;
+
+   // Initial domain boundary communication 
+   CommRecv(*locDom, MSG_COMM_SBN, 1,
+            locDom->sizeX() + 1, locDom->sizeY() + 1, locDom->sizeZ() + 1,
             true, false) ;
-   CommSend(locDom, MSG_COMM_SBN, 1, &locDom->nodalMass,
-            locDom->sizeX + 1, locDom->sizeY + 1, locDom->sizeZ +  1,
+   CommSend(*locDom, MSG_COMM_SBN, 1, &fieldData,
+            locDom->sizeX() + 1, locDom->sizeY() + 1, locDom->sizeZ() +  1,
             true, false) ;
-   CommSBN(locDom, 1, &locDom->nodalMass) ;
+   CommSBN(*locDom, 1, &fieldData) ;
 
-   /* timestep to solution */
-   while(locDom->time < locDom->stoptime) {
-#ifdef VIZ_MESH
-      char meshName[64] ;
-      if (locDom->cycle % int(100*nx*testProcs/45) == 0) {
-         DumpDomain(locDom, myRank, numProcs) ;
+   // End initialization
+   MPI_Barrier(MPI_COMM_WORLD);
+#endif   
+   
+   // BEGIN timestep to solution */
+#if USE_MPI   
+   double start;
+   start = MPI_Wtime();
+#else
+   timeval start;
+   gettimeofday(&start, NULL) ;
+#endif
+//debug to see region sizes
+//   for(Int_t i = 0; i < locDom->numReg(); i++)
+//      std::cout << "region" << i + 1<< "size" << locDom->regElemSize(i) <<std::endl;
+   while((locDom->time() < locDom->stoptime()) && (locDom->cycle() < opts.its)) {
+
+      TimeIncrement(*locDom) ;
+      LagrangeLeapFrog(*locDom) ;
+
+      if ((opts.showProg != 0) && (opts.quiet == 0) && (myRank == 0)) {
+         printf("cycle = %d, time = %e, dt=%e\n",
+                locDom->cycle(), double(locDom->time()), double(locDom->deltatime()) ) ;
       }
-#endif
-
-      TimeIncrement(locDom) ;
-      LagrangeLeapFrog(locDom) ;
-#if LULESH_SHOW_PROGRESS
-      if (myRank == 0) {
-         printf("time = %e, dt=%e\n",
-                double(locDom->time), double(locDom->deltatime) ) ;
-      }
-#endif
    }
-#ifdef VIZ_MESH
-   if (locDom->cycle % int(100*nx*testProcs/45) != 0) {
-      DumpDomain(locDom, myRank, numProcs) ;
-   }
+
+   // Use reduced max elapsed time
+   double elapsed_time;
+#if USE_MPI   
+   elapsed_time = MPI_Wtime() - start;
+#else
+   timeval end;
+   gettimeofday(&end, NULL) ;
+   elapsed_time = (double)(end.tv_sec - start.tv_sec) + ((double)(end.tv_usec - start.tv_usec))/1000000 ;
+#endif
+   double elapsed_timeG;
+#if USE_MPI   
+   MPI_Reduce(&elapsed_time, &elapsed_timeG, 1, MPI_DOUBLE,
+              MPI_MAX, 0, MPI_COMM_WORLD);
+#else
+   elapsed_timeG = elapsed_time;
 #endif
 
+   // Write out final viz file */
+   if (opts.viz) {
+      DumpToVisit(*locDom, opts.numFiles, myRank, numRanks) ;
+   }
+   
+   if ((myRank == 0) && (opts.quiet == 0)) {
+      VerifyAndWriteFinalOutput(elapsed_timeG, *locDom, opts.nx, numRanks);
+   }
 
-  return 0 ;
+#if USE_MPI
+   MPI_Finalize() ;
+#endif
+
+   return 0 ;
 }
-
