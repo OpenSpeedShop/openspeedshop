@@ -19,7 +19,13 @@
 noinst_PROGRAMS = lulesh 
 
 CXXFLAGS = \
-	-g -gdwarf-2 -O1 -lm
+	-g -gdwarf-2 -O1 -lm -DUSE_MPI=0
+
 
 lulesh_SOURCES = \
-	lulesh.cc
+        lulesh.cc \
+        lulesh-comm.cc \
+        lulesh-viz.cc \
+        lulesh-util.cc \
+        lulesh-init.cc
+
