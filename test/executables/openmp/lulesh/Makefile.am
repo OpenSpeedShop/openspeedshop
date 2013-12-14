@@ -21,10 +21,16 @@ noinst_PROGRAMS = lulesh
 CXXFLAGS = -O2 -g -gdwarf-2
 
 lulesh_CXXFLAGS = \
-	-lm -DLULESH_SHOW_PROGRESS=1 -fopenmp 
+	-lm -DUSE_MPI=0 -fopenmp 
 
 lulesh_LDADD = \
 	-ldl
 
 lulesh_SOURCES = \
-	lulesh.cc
+	lulesh.cc \
+	lulesh-comm.cc \
+	lulesh-viz.cc \
+	lulesh-util.cc \
+	lulesh-init.cc
+
+EXTRA_DIST = lulesh.cc lulesh-comm.cc lulesh-viz.cc lulesh-util.cc lulesh-init.cc Makefile.am
