@@ -19,6 +19,7 @@
 #
 # directories that will be built
 SUBDIRS = \
+        hybrid\
         mpi\
         openmp\
         multi\
@@ -29,6 +30,7 @@ SUBDIRS = \
 # these can be a subset of the directories in SUBDIRS.
 #
 DIST_SUBDIRS = \
+        hybrid\
         mpi\
         openmp\
         multi\
