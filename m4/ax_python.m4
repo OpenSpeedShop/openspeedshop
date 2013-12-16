@@ -220,6 +220,8 @@ $ac_distutils_result])
     fi
     AC_MSG_RESULT([$PYTHON_EXTRA_LDFLAGS])
     AC_SUBST(PYTHON_EXTRA_LDFLAGS)
+    LDFLAGS=$python_saved_LDFLAGS
+    CPPFLAGS=$python_saved_CPPFLAGS
 
     python_saved_CPPFLAGS=$CPPFLAGS
     python_saved_LDFLAGS=$LDFLAGS
