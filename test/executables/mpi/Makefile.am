@@ -21,8 +21,8 @@
 SUBDIRS = 
 
 if HAVE_MPI
-#SUBDIRS += nbody smg2000 helloworld lulesh
-SUBDIRS += nbody smg2000 helloworld 
+SUBDIRS += nbody smg2000 helloworld lulesh
+#SUBDIRS += nbody smg2000 helloworld 
 endif
 
 #
