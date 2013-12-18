@@ -388,7 +388,7 @@ static bool define_pthreads_columns (
         if (!strcasecmp(M_Name.c_str(), "pthreads")) {
          // We only know what to do with the usertime collector.
           std::string s("The specified collector, " + C_Name +
-                        ", can not be displayed as part of a 'io' view.");
+                        ", can not be displayed as part of a 'pthreads' view.");
           Mark_Cmd_With_Soft_Error(cmd,s);
           continue;
         }
@@ -641,7 +641,7 @@ static std::string VIEW_pthreads_long  =
                   "\n\t'-v Trace' will produce a report of each individual  call to an pthread"
                   " function."
                   " It will be sorted in ascending order of the starting time for the event."
-                  " The information available for display from an 'io' experiment is very"
+                  " The information available for display from an 'pthreads' experiment is very"
                   " limited when compared to what is available from an 'iot' experiment."
                   "\n\t'-v CallTrees' will produce a calling stack report that is presented"
                   " in calling tree order - from the start of the program to the measured"
@@ -676,8 +676,8 @@ static std::string VIEW_pthreads_long  =
                   " \n\t'-m max' reports the maximum time spent in the function."
                   " \n\t'-m average' reports the average time spent in the function."
                   " \n\t'-m count' reports the number of times the function was called."
-                  " \n\t'-m percent' reports the percent of pthread time the function represents."
-                  " \n\t'-m stddev' reports the standard deviation of the average pthread time"
+                  " \n\t'-m percent' reports the percent of exclusive time the function represents."
+                  " \n\t'-m stddev' reports the standard deviation of the average exclusive time"
                   " that the function represents."
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
@@ -752,7 +752,7 @@ class pthreads_view : public ViewType {
       Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
       return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report for 'io' view.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report for 'pthreads' view.)");
     return false;
   }
 };

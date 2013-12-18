@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2012 Krell Institute. All Rights Reserved.
+** Copyright (c) 2012-2013 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -32,7 +32,7 @@
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
 
-// These are needed to manage io collector data.
+// These are needed to manage mem collector data.
 #define intime_temp VMulti_free_temp
 #define incnt_temp VMulti_free_temp+1
 #define extime_temp VMulti_free_temp+2
@@ -162,7 +162,7 @@
 
 // The code here restricts any view for Functions (e.g. -v Functions)
 // to the functions listed in MemTTraceablefunctions.h.  In this case,
-// the I/O functions are the only events with data. All other functions
+// the memory functions are the only events with data. All other functions
 // normally returned are just members of the callstacks and are displayed
 // by the various views that use the StackTrace details.
 static void Determine_Objects (
@@ -434,7 +434,7 @@ static bool define_mem_columns (
         if (!strcasecmp(M_Name.c_str(), "mem")) {
          // We only know what to do with the usertime collector.
           std::string s("The specified collector, " + C_Name +
-                        ", can not be displayed as part of a 'io' view.");
+                        ", can not be displayed as part of a 'mem' view.");
           Mark_Cmd_With_Soft_Error(cmd,s);
           continue;
         }
@@ -721,11 +721,9 @@ static std::string VIEW_mem_long  =
                   "\n\t'-v Functions' will produce a summary report that"
                   " will be sorted in descending order of the value in the left most"
                   " column (see the '-m' option).  This is the default display."
-                  "\n\t'-v Trace' will produce a report of each individual  call to an io"
+                  "\n\t'-v Trace' will produce a report of each individual  call to an memory"
                   " function."
                   " It will be sorted in ascending order of the starting time for the event."
-                  " The information available for display from an 'io' experiment is very"
-                  " limited when compared to what is available from an 'iot' experiment."
                   "\n\t'-v CallTrees' will produce a calling stack report that is presented"
                   " in calling tree order - from the start of the program to the measured"
                   " program."
@@ -759,8 +757,8 @@ static std::string VIEW_mem_long  =
                   " \n\t'-m max' reports the maximum time spent in the function."
                   " \n\t'-m average' reports the average time spent in the function."
                   " \n\t'-m count' reports the number of times the function was called."
-                  " \n\t'-m percent' reports the percent of io time the function represents."
-                  " \n\t'-m stddev' reports the standard deviation of the average io time"
+                  " \n\t'-m percent' reports the percent of exclusive time the function represents."
+                  " \n\t'-m stddev' reports the standard deviation of the average exclusive time"
                   " that the function represents."
                   " \n\t'-m memtype' reports the memory call enum associated  with the function."
                   " \n\t'-m retval' reports the value returned from the call."
@@ -840,7 +838,7 @@ class mem_view : public ViewType {
       Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
       return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report for 'io' view.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report for 'mem' view.)");
     return false;
   }
 };
