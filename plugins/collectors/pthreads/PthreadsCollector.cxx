@@ -458,7 +458,144 @@ void PthreadsCollector::getMetricValues(const std::string& metric,
 		    PthreadsDetail details;
 		    details.dm_interval = interval;
 		    details.dm_time = t_intersection / 1000000000.0;
+		    details.dm_pthreadtype = data.events.events_val[i].pthread_type;
+
+#if 1
+		    switch (data.events.events_val[i].pthread_type) {
+
+			case CBTF_PTHREAD_CREATE: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    details.dm_ptr1 = data.events.events_val[i].ptr1;
+			    details.dm_ptr2 = data.events.events_val[i].ptr2;
+			    details.dm_ptr3 = data.events.events_val[i].ptr3;
+			    l->second.push_back(details);
+			break;
+			}
+
+#if 0
+			case CBTF_PTHREAD_JOIN: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    l->second.push_back(details);
+			break;
+			}
+
+			case CBTF_PTHREAD_CANCEL: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    l->second.push_back(details);
+			break;
+			}
+#endif
+
+			case CBTF_PTHREAD_MUTEX_INIT: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    details.dm_ptr1 = data.events.events_val[i].ptr1;
+			    details.dm_ptr2 = data.events.events_val[i].ptr2;
+			    details.dm_ptr3 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+
+			case CBTF_PTHREAD_MUTEX_DESTROY: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    details.dm_ptr1 = data.events.events_val[i].ptr1;
+			    details.dm_ptr2 = 0;
+			    details.dm_ptr3 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+			case CBTF_PTHREAD_MUTEX_LOCK: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    details.dm_ptr1 = data.events.events_val[i].ptr1;
+			    details.dm_ptr2 = 0;
+			    details.dm_ptr3 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+			case CBTF_PTHREAD_MUTEX_UNLOCK: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    details.dm_ptr1 = data.events.events_val[i].ptr1;
+			    details.dm_ptr2 = 0;
+			    details.dm_ptr3 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+			case CBTF_PTHREAD_MUTEX_TRYLOCK: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    details.dm_ptr1 = data.events.events_val[i].ptr1;
+			    details.dm_ptr2 = 0;
+			    details.dm_ptr3 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+			case CBTF_PTHREAD_COND_INIT: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    details.dm_ptr1 = data.events.events_val[i].ptr1;
+			    details.dm_ptr2 = data.events.events_val[i].ptr2;
+			    details.dm_ptr3 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+			case CBTF_PTHREAD_COND_DESTROY: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    details.dm_ptr1 = data.events.events_val[i].ptr1;
+			    details.dm_ptr2 = 0;
+			    details.dm_ptr3 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+			case CBTF_PTHREAD_COND_SIGNAL: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    details.dm_ptr1 = data.events.events_val[i].ptr1;
+			    details.dm_ptr2 = 0;
+			    details.dm_ptr3 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+			case CBTF_PTHREAD_COND_BROADCAST: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    details.dm_ptr1 = data.events.events_val[i].ptr1;
+			    details.dm_ptr2 = 0;
+			    details.dm_ptr3 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+			case CBTF_PTHREAD_COND_WAIT: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    details.dm_ptr1 = data.events.events_val[i].ptr1;
+			    details.dm_ptr2 = data.events.events_val[i].ptr2;
+			    details.dm_ptr3 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+			case CBTF_PTHREAD_COND_TIMEDWAIT: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    details.dm_ptr1 = data.events.events_val[i].ptr1;
+			    details.dm_ptr2 = data.events.events_val[i].ptr2;
+			    details.dm_ptr3 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+
+			case CBTF_PTHREAD_UNKNOWN: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    l->second.push_back(details);
+			break;
+			}
+
+			default: {
+			    details.dm_retval = data.events.events_val[i].retval;
+			    l->second.push_back(details);
+			break;
+			}
+		    }
+#else
+			    details.dm_retval = data.events.events_val[i].retval;
+			    details.dm_ptr1 = data.events.events_val[i].ptr1;
+			    details.dm_ptr2 = data.events.events_val[i].ptr2;
+			    details.dm_ptr3 = data.events.events_val[i].ptr3;
 		    l->second.push_back(details);
+#endif
+
 		    
 		}
 

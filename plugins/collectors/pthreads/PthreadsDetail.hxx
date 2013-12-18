@@ -45,6 +45,11 @@ namespace OpenSpeedShop { namespace Framework {
     {
 	TimeInterval dm_interval;  /**< Begin/End time of the call. */
 	double dm_time;            /**< Time spent in the call. */	
+	uint64_t dm_retval;       /**< return value. */
+	uint64_t dm_ptr1;          /**< ptr arg */
+	uint64_t dm_ptr2;        /**< size 1 arg*/
+	uint64_t dm_ptr3;        /**< size 2 arg*/
+	int dm_pthreadtype;   /**< enumerated val which mem call is it */
 
 	/** Operator "<" defined for two PthreadsDetail objects. */
 	bool operator<(const PthreadsDetail& other) const
@@ -53,6 +58,9 @@ namespace OpenSpeedShop { namespace Framework {
                 return true;
             if(dm_interval > other.dm_interval)
                 return false;
+// FIXME: Need to complete the compare rules here.
+            if(dm_retval < other.dm_retval)
+                return true;
 	    return dm_time < other.dm_time;
         }
 

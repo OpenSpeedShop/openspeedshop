@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2012 Krell Institute. All Rights Reserved.
+** Copyright (c) 2012-13 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -42,8 +42,13 @@
 #define min_temp VMulti_free_temp+6
 #define max_temp VMulti_free_temp+7
 #define ssq_temp VMulti_free_temp+8
+#define pthreadtype_temp  VMulti_free_temp+9
+#define retval_temp  VMulti_free_temp+10
+#define ptr1_temp  VMulti_free_temp+11
+#define ptr2_temp  VMulti_free_temp+12
+#define ptr3_temp  VMulti_free_temp+13
 
-#define First_ByThread_Temp VMulti_free_temp+9
+#define First_ByThread_Temp VMulti_free_temp+14
 #define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
                                  // "2" => times reported in seconds,
                                  // otherwise don't add anything.
@@ -62,7 +67,12 @@
             int64_t excnt = 0;                   \
             double vmax = 0.0;                   \
             double vmin = LONG_MAX;              \
-            double sum_squares = 0.0;
+            double sum_squares = 0.0;            \
+            int64_t detail_pthreadtype = 0;        \
+            uint64_t detail_retval = 0;           \
+            uint64_t detail_ptr1 = 0;         \
+            uint64_t detail_ptr2 = 0;         \
+            uint64_t detail_ptr3 = 0;           
 
 #define get_Pthreads_invalues(primary,num_calls)                       \
               double v = primary.dm_time / num_calls;            \
@@ -72,7 +82,12 @@
               end = std::max(end,primary.dm_interval.getEnd());       \
               vmin = std::min(vmin,v);                                \
               vmax = std::max(vmax,v);                                \
-              sum_squares += v * v;
+              sum_squares += v * v;                              \
+              detail_pthreadtype = primary.dm_pthreadtype;           \
+              detail_retval = primary.dm_retval;                 \
+              detail_ptr1 = primary.dm_ptr1;		 \
+              detail_ptr2 = primary.dm_ptr2;		 \
+              detail_ptr3 = primary.dm_ptr3;
 
 #define get_Pthreads_exvalues(secondary,num_calls)           \
               extime += secondary.dm_time / num_calls; \
@@ -117,7 +132,33 @@
               if (num_temps > max_temp) value_array[max_temp]                             \
                             = new CommandResult_Interval (vmax);                          \
               if (num_temps > ssq_temp) value_array[ssq_temp]                             \
-                            = new CommandResult_Interval (sum_squares);
+                            = new CommandResult_Interval (sum_squares);			  \
+              if (num_temps > pthreadtype_temp) {						  \
+		CommandResult * p = CRPTR (detail_pthreadtype);				  \
+		p->SetValueIsID();							  \
+		value_array[pthreadtype_temp] = p;					  \
+              }										  \
+              if (num_temps > retval_temp) {						  \
+		CommandResult * p = CRPTR (detail_retval);				  \
+		p->SetValueIsID();							  \
+		value_array[retval_temp] = p;						  \
+              }										  \
+              if (num_temps > ptr1_temp) {						  \
+		CommandResult * p = CRPTR (detail_ptr1);				  \
+		p->SetValueIsID();							  \
+		value_array[ptr1_temp] = p;						  \
+              }										  \
+              if (num_temps > ptr2_temp) {						  \
+		CommandResult * p = CRPTR (detail_ptr2);				  \
+		p->SetValueIsID();							  \
+		value_array[ptr2_temp] = p;						  \
+              }										  \
+              if (num_temps > ptr3_temp) {						  \
+		CommandResult * p = CRPTR (detail_ptr3);				  \
+		p->SetValueIsID();							  \
+		value_array[ptr3_temp] = p;						  \
+              }
+
 
 // The code here restricts any view for Functions (e.g. -v Functions)
 // to the functions listed in PthreadsTTraceablefunctions.h.  In this case,
@@ -364,9 +405,15 @@ static bool define_pthreads_columns (
   MetricMap["min"] = min_temp;
   MetricMap["maximum"] = max_temp;
   MetricMap["max"] = max_temp;
+  MetricMap["pthreadtype"] = pthreadtype_temp;
+  MetricMap["ptr1"] = ptr1_temp;
+  MetricMap["ptr2"] = ptr2_temp;
+  MetricMap["ptr3"] = ptr3_temp;
+  MetricMap["retval"] = retval_temp;
   if (vfc == VFC_Trace) {
     MetricMap["start_time"] = start_temp;
     MetricMap["stop_time"] = stop_temp;
+    //MetricMap["retval"] = retval_temp;
   }
 
   if (p_slist->begin() != p_slist->end()) {
@@ -535,9 +582,34 @@ static bool define_pthreads_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m stop_time' only supported for '-v Trace' option.");
           }
+        } else if (!strcasecmp(M_Name.c_str(), "pthreadtype")) {
+
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, pthreadtype_temp));
+            HV.push_back("PthreadType Enum");
+
+        } else if (!strcasecmp(M_Name.c_str(), "retval")) {
+          if (vfc == VFC_Trace) {
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
+            HV.push_back("Function Dependent Return Value");
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m retval' only supported for '-v Trace' option.");
+          }
+        } else if (!strcasecmp(M_Name.c_str(), "ptr1")) {
+ 
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, ptr1_temp));
+            HV.push_back("Ptr 1 Arg");
+ 
+        } else if (!strcasecmp(M_Name.c_str(), "ptr2")) {
+ 
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, ptr2_temp));
+            HV.push_back("Ptr 2 Arg");
+ 
+        } else if (!strcasecmp(M_Name.c_str(), "ptr3")) {
+ 
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, ptr3_temp));
+            HV.push_back("Ptr 3 Arg");
+ 
         } else if (!strcasecmp(M_Name.c_str(), "absdiff")) {
-        // Ignore this because cview -c 3 -c 5 -mtime,absdiff actually works outside of this view code
-        // Mark_Cmd_With_Soft_Error(cmd,"AbsDiff option, '-m " + M_Name + "'");
         }
 // Recognize and generate pseudo instructions to calculate and display By Thread metrics for
 // ThreadMax, ThreadMaxIndex, ThreadMin, ThreadMinIndex, ThreadAverage and loadbalance.
@@ -641,8 +713,6 @@ static std::string VIEW_pthreads_long  =
                   "\n\t'-v Trace' will produce a report of each individual  call to an pthread"
                   " function."
                   " It will be sorted in ascending order of the starting time for the event."
-                  " The information available for display from an 'pthreads' experiment is very"
-                  " limited when compared to what is available from an 'iot' experiment."
                   "\n\t'-v CallTrees' will produce a calling stack report that is presented"
                   " in calling tree order - from the start of the program to the measured"
                   " program."
@@ -676,9 +746,14 @@ static std::string VIEW_pthreads_long  =
                   " \n\t'-m max' reports the maximum time spent in the function."
                   " \n\t'-m average' reports the average time spent in the function."
                   " \n\t'-m count' reports the number of times the function was called."
-                  " \n\t'-m percent' reports the percent of exclusive time the function represents."
+                  " \n\t'-m percent' reports the percent of exclusive time the pthread call represents."
                   " \n\t'-m stddev' reports the standard deviation of the average exclusive time"
-                  " that the function represents."
+                  " that the pthread call represents."
+                  " \n\t'-m pthreadtype' reports the pthread call enum associated  with the function."
+                  " \n\t'-m retval' reports the value returned from the call."
+                  " \n\t'-m ptr' reports any ptr argument to the call."
+                  " \n\t'-m size1' reports  a size argument to the function."
+                  " \n\t'-m size2' reports  a second size argument to the function."
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
                   "\n"; 
@@ -730,9 +805,9 @@ class pthreads_view : public ViewType {
       }
 
       std::vector<PthreadsDetail> dummyVector;
-      PthreadsDetail *dummyDetail;
       switch (Determine_Form_Category(cmd)) {
        case VFC_Trace:
+        PthreadsDetail *dummyDetail;
         return Detail_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                     Determine_Metric_Ordering(IV), dummyDetail, view_output);
        case VFC_CallStack:

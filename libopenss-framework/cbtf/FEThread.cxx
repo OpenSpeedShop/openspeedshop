@@ -143,15 +143,19 @@ void FEThread::run(const std::string& topology, const std::string& connections,
     Component::registerPlugin(
         filesystem::path(CBTF_LIB_DIR) / "libcbtf-messages-base.so");
 
+    std::map<std::string, Type> outputs = network->getOutputs();
+
     boost::shared_ptr<SignalAdapter
 		     <boost::shared_ptr
-		     <CBTF_Protocol_CreatedProcess> > > created_process =
-        SignalAdapter<boost::shared_ptr<CBTF_Protocol_CreatedProcess > >::instantiate();
+		     <CBTF_Protocol_CreatedProcess> > > created_process;
+    if (outputs.find("created_process_xdr_output") != outputs.end()) {
+    created_process = SignalAdapter<boost::shared_ptr<CBTF_Protocol_CreatedProcess > >::instantiate();
     Component::Instance created_process_output_component =
             reinterpret_pointer_cast<Component>(created_process);
     created_process->Value.connect(Callbacks::createdProcess);
     Component::connect(network, "created_process_xdr_output",
 		      created_process_output_component, "value");
+    }
 
     boost::shared_ptr<SignalAdapter
 		     <boost::shared_ptr
@@ -175,13 +179,15 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 
     boost::shared_ptr<SignalAdapter
 		     <boost::shared_ptr
-		     <CBTF_Protocol_LoadedLinkedObject > > > loaded_linked_object =
-        SignalAdapter<boost::shared_ptr<CBTF_Protocol_LoadedLinkedObject > >::instantiate();
+		     <CBTF_Protocol_LoadedLinkedObject > > > loaded_linked_object;
+    if (outputs.find("loaded_linkedobject_xdr_output") != outputs.end()) {
+    loaded_linked_object = SignalAdapter<boost::shared_ptr<CBTF_Protocol_LoadedLinkedObject > >::instantiate();
     Component::Instance loaded_linked_object_output_component =
             reinterpret_pointer_cast<Component>(loaded_linked_object);
     loaded_linked_object->Value.connect(Callbacks::loadedLinkedObject);
     Component::connect(network, "loaded_linkedobject_xdr_output",
 		      loaded_linked_object_output_component, "value");
+    }
 
     boost::shared_ptr<SignalAdapter
 		     <boost::shared_ptr
@@ -218,7 +224,6 @@ void FEThread::run(const std::string& topology, const std::string& connections,
     boost::shared_ptr<SignalAdapter
 		     <boost::shared_ptr
 		     <CBTF_Protocol_SymbolTable > > > symboltable;
-    std::map<std::string, Type> outputs = network->getOutputs();
     if (outputs.find("symboltable_xdr_output") != outputs.end()) {
 	symboltable = SignalAdapter<
 	boost::shared_ptr<CBTF_Protocol_SymbolTable > >::instantiate();

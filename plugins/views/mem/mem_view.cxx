@@ -139,14 +139,10 @@
 		value_array[memtype_temp] = p;					  \
               }										  \
               if (num_temps > retval_temp) {						  \
-		CommandResult * p = CRPTR (detail_retval);				  \
-		p->SetValueIsID();							  \
-		value_array[retval_temp] = p;						  \
+	 	value_array[retval_temp] = new CommandResult_Address (detail_retval);   \
               }										  \
               if (num_temps > ptr_temp) {						  \
-		CommandResult * p = CRPTR (detail_ptr);				  \
-		p->SetValueIsID();							  \
-		value_array[ptr_temp] = p;						  \
+	 	value_array[ptr_temp] = new CommandResult_Address (detail_ptr);   \
               }										  \
               if (num_temps > size1_temp) {						  \
 		CommandResult * p = CRPTR (detail_size1);				  \
@@ -409,10 +405,12 @@ static bool define_mem_columns (
   MetricMap["ptr"] = ptr_temp;
   MetricMap["size1"] = size1_temp;
   MetricMap["size2"] = size2_temp;
+  MetricMap["retval"] = retval_temp;
+  MetricMap["start_time"] = start_temp;
   if (vfc == VFC_Trace) {
-    MetricMap["start_time"] = start_temp;
+    //MetricMap["start_time"] = start_temp;
     MetricMap["stop_time"] = stop_temp;
-    MetricMap["retval"] = retval_temp;
+    //MetricMap["retval"] = retval_temp;
   }
 
   if (p_slist->begin() != p_slist->end()) {
@@ -564,7 +562,7 @@ static bool define_mem_columns (
                                             VMulti_time_temp, ssq_temp, incnt_temp));
           HV.push_back("Standard Deviation");
         } else if (!strcasecmp(M_Name.c_str(), "start_time")) {
-          if (vfc == VFC_Trace) {
+          if (1 || vfc == VFC_Trace) {
            // display start time
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
             HV.push_back("Start Time(d:h:m:s)");
@@ -587,7 +585,7 @@ static bool define_mem_columns (
             HV.push_back("Mem Enum");
 
         } else if (!strcasecmp(M_Name.c_str(), "retval")) {
-          if (vfc == VFC_Trace) {
+          if (1 || vfc == VFC_Trace) {
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
             HV.push_back("Function Dependent Return Value");
           } else {
