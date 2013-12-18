@@ -32,7 +32,7 @@
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
 
-// These are needed to manage io collector data.
+// These are needed to manage pthreads collector data.
 #define intime_temp VMulti_free_temp
 #define incnt_temp VMulti_free_temp+1
 #define extime_temp VMulti_free_temp+2
@@ -121,7 +121,7 @@
 
 // The code here restricts any view for Functions (e.g. -v Functions)
 // to the functions listed in PthreadsTTraceablefunctions.h.  In this case,
-// the I/O functions are the only events with data. All other functions
+// the pthread functions are the only events with data. All other functions
 // normally returned are just members of the callstacks and are displayed
 // by the various views that use the StackTrace details.
 static void Determine_Objects (
@@ -638,7 +638,7 @@ static std::string VIEW_pthreads_long  =
                   "\n\t'-v Functions' will produce a summary report that"
                   " will be sorted in descending order of the value in the left most"
                   " column (see the '-m' option).  This is the default display."
-                  "\n\t'-v Trace' will produce a report of each individual  call to an io"
+                  "\n\t'-v Trace' will produce a report of each individual  call to an pthread"
                   " function."
                   " It will be sorted in ascending order of the starting time for the event."
                   " The information available for display from an 'io' experiment is very"
@@ -676,8 +676,8 @@ static std::string VIEW_pthreads_long  =
                   " \n\t'-m max' reports the maximum time spent in the function."
                   " \n\t'-m average' reports the average time spent in the function."
                   " \n\t'-m count' reports the number of times the function was called."
-                  " \n\t'-m percent' reports the percent of io time the function represents."
-                  " \n\t'-m stddev' reports the standard deviation of the average io time"
+                  " \n\t'-m percent' reports the percent of pthread time the function represents."
+                  " \n\t'-m stddev' reports the standard deviation of the average pthread time"
                   " that the function represents."
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
@@ -693,7 +693,7 @@ static std::string VIEW_pthreads_metrics[] =
     ""
   };
 static std::string VIEW_pthreads_collectors[] =
-  { "io",
+  { "pthreads",
     ""
   };
 class pthreads_view : public ViewType {
