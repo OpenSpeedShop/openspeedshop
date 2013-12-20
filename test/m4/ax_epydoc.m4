@@ -1,6 +1,7 @@
-#! /bin/sh
 ################################################################################
-# Copyright (c) 2009-2010 Krell Institute.  All Rights Reserved.
+# Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2006-2013 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -17,13 +18,19 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+################################################################################
+# Check for EPYDOC (http://epydoc.sourceforge.net/)   
+################################################################################
 
-echo "running bootstrap on top level test directory"
+AC_DEFUN([AX_EPYDOC], [
 
-aclocal --force -I m4
-libtoolize --force --ltdl --copy
-autoheader -f
-automake --foreign --add-missing --copy
-autoconf
-echo "finished - running bootstrap on top (test) directory"
-
+	AC_MSG_CHECKING([for epydoc binary])
+	if epydoc --version >/dev/null 2>/dev/null ; then
+      		AC_MSG_CHECKING([found epydoc binary])
+		      AC_MSG_RESULT(yes)
+		      AM_CONDITIONAL(HAVE_EPYDOC, true)
+		      AC_DEFINE(HAVE_EPYDOC, 1, [Define to 1 if you have EPYDOC.])
+	else
+                AM_CONDITIONAL(HAVE_EPYDOC, false)
+	fi
+])

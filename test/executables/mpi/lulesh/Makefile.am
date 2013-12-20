@@ -25,8 +25,13 @@ CC	= $(MPICC)
 
 CXXFLAGS = $($(MPI_IMPL)_CPPFLAGS) -g -gdwarf-2 -O2 -DUSE_MPI=1
 
+if HAVE_OPENMPI
+lulesh_LDFLAGS = \
+	-lm  $($(MPI_IMPL)_LDFLAGS) $($(MPI_IMPL)_LIBS) -lmpi_cxx
+else
 lulesh_LDFLAGS = \
 	-lm  $($(MPI_IMPL)_LDFLAGS) $($(MPI_IMPL)_LIBS)
+endif
 
 lulesh_LIBS = \
 	-ldl $($(MPI_IMPL)_LIBS)
