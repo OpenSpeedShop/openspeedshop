@@ -43,46 +43,46 @@ input_argument_compare_view_type=0
 #
 # DEFAULT VALUES - MUST MATCH THE DEFAULTS INSIDE THE OpenSpeedShop/plugins/collectors/<experiment_type> source
 #
-# Corresponds to OPENSS_PCSAMP_RATE
+# Corresponds to OPENSS_PCSAMP_RATE or CBTF_PCSAMP_RATE
 pcsamp_default_rate=100
 
-# Corresponds to OPENSS_USERTIME_RATE
+# Corresponds to OPENSS_USERTIME_RATE or CBTF_USERTIME_RATE
 usertime_default_rate=35
 
-# Corresponds to OPENSS_HWC_EVENT
+# Corresponds to OPENSS_HWC_EVENT or CBTF_HWC_EVENT
 hwc_default_event="PAPI_TOT_CYC"
 
-# Corresponds to OPENSS_HWC_THRESHOLD
+# Corresponds to OPENSS_HWC_THRESHOLD or CBTF_HWC_THRESHOLD
 hwc_default_threshold=10000
 
-# Corresponds to OPENSS_HWCSAMP_EVENTS
+# Corresponds to OPENSS_HWCSAMP_EVENTS or CBTF_HWCSAMP_EVENTS
 hwcsamp_default_events="PAPI_TOT_CYC,PAPI_FP_OPS"
 
-# Corresponds to OPENSS_HWCSAMP_RATE
+# Corresponds to OPENSS_HWCSAMP_RATE or CBTF_HWCSAMP_RATE
 hwcsamp_default_rate=100
 
-# Corresponds to OPENSS_HWCTIME_EVENT
+# Corresponds to OPENSS_HWCTIME_EVENT or CBTF_HWCTIME_EVENT
 hwctime_default_event="PAPI_TOT_CYC"
 
-# Corresponds to OPENSS_HWCTIME_THRESHOLD
+# Corresponds to OPENSS_HWCTIME_THRESHOLD or CBTF_HWCTIME_THRESHOLD
 hwctime_default_threshold=10000
 
-# Corresponds to OPENSS_IO_TRACED
+# Corresponds to OPENSS_IO_TRACED or CBTF_IO_TRACED
 io_default_traceable_functions="close,creat,creat64,dup,dup2,lseek,lseek64,open,open64,pipe,pread,pread64,pwrite,pwrite64,read,readv,write,writev"
 
-# Corresponds to OPENSS_IOT_TRACED
+# Corresponds to OPENSS_IOT_TRACED or CBTF_IOT_TRACED
 iot_default_traceable_functions="close,creat,creat64,dup,dup2,lseek,lseek64,open,open64,pipe,pread,pread64,pwrite,pwrite64,read,readv,write,writev"
 
-# Corresponds to OPENSS_IOP_TRACED
+# Corresponds to OPENSS_IOP_TRACED or CBTF_IOP_TRACED
 iop_default_traceable_functions="close,creat,creat64,dup,dup2,lseek,lseek64,open,open64,pipe,pread,pread64,pwrite,pwrite64,read,readv,write,writev"
 
-# Corresponds to OPENSS_MEM_TRACED
+# Corresponds to OPENSS_MEM_TRACED or CBTF_MEM_TRACED
 mem_default_traceable_functions="malloc,free,memalign,posix_memalign,calloc,realloc"
 
-# Corresponds to OPENSS_PTHREADS_TRACED
+# Corresponds to OPENSS_PTHREADS_TRACED or CBTF_PTHREADS_TRACED
 pthreads_default_traceable_functions="pthread_create,pthread_mutex_init,pthread_mutex_destroy,pthread_mutex_lock,pthread_mutex_trylock,pthread_mutex_unlock,pthread_cond_init,pthread_cond_destroy,pthread_cond_signal,pthread_cond_broadcast,pthread_cond_wait,pthread_cond_timedwait"
 
-# Corresponds to OPENSS_MPI_TRACED
+# Corresponds to OPENSS_MPI_TRACED or CBTF_MPI_TRACED
 mpi_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,MPI_Alltoall,MPI_Alltoallv,MPI_Barrier,MPI_Bcast,MPI_Bsend,MPI_Bsend_init,MPI_Cancel,MPI_Cart_create,MPI_Cart_sub,MPI_Comm_create,MPI_Comm_dup,MPI_Comm_free,MPI_Comm_split,MPI_File_close,MPI_File_delete,MPI_File_get_amode,MPI_File_get_group,MPI_File_get_info,MPI_File_get_position,MPI_File_get_position_shared,MPI_File_get_size,MPI_File_get_view,MPI_File_iread,MPI_File_iread_at,MPI_File_iread_shared,MPI_File_iwrite,MPI_File_iwrite_at,MPI_File_iwrite_shared,MPI_File_open,MPI_File_read,MPI_File_read_all,MPI_File_read_at,MPI_File_read_at_all,MPI_File_read_ordered,MPI_File_read_shared,MPI_File_seek,MPI_File_seek_shared,MPI_File_set_info,MPI_File_set_size,MPI_File_set_view,MPI_File_write,MPI_File_write_all,MPI_File_write_at,MPI_File_write_at_all,MPI_File_write_ordered,MPI_File_write_shared,MPI_Finalize,MPI_Gather,MPI_Gatherv,MPI_Get_count,MPI_Graph_create,MPI_Ibsend,MPI_Init,MPI_Intercomm_create,MPI_Intercomm_merge,MPI_Iprobe,MPI_Irecv,MPI_Irsend,MPI_Isend,MPI_Issend,MPI_Pack,MPI_Probe,MPI_Recv,MPI_Recv_init,MPI_Reduce,MPI_Reduce_scatter,MPI_Request_free,MPI_Rsend,MPI_Rsend_init,MPI_Scan,MPI_Scatter,MPI_Scatterv,MPI_Send,MPI_Sendrecv,MPI_Sendrecv_replace,MPI_Ssend,MPI_Ssend_init,MPI_Start,MPI_Startall,MPI_Test,MPI_Testall,MPI_Testany,MPI_Testsome,MPI_Unpack,MPI_Wait,MPI_Waitall,MPI_Waitany,MPI_Waitsome"
 
 mpi_asynchronous_p2p_traceable_functions="MPI_Cancel:MPI_Ibsend:MPI_Iprobe:MPI_Irecv:MPI_Irsend:\
@@ -110,13 +110,13 @@ mpi_process_topologies_traceable_functions="MPI_Cart_create:MPI_Cart_sub:MPI_Gra
 mpi_synchronous_p2p_traceable_functions="MPI_Bsend:MPI_Get_count:MPI_Probe:MPI_Recv:\
 MPI_Rsend:MPI_Send:MPI_Sendrecv:MPI_Sendrecv_replace:MPI_Ssend"
 
-# Corresponds to OPENSS_MPIT_TRACED
+# Corresponds to OPENSS_MPIT_TRACED or CBTF_MPIT_TRACED
 mpit_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,MPI_Alltoall,MPI_Alltoallv,MPI_Barrier,MPI_Bcast,MPI_Bsend,MPI_Bsend_init,MPI_Cancel,MPI_Cart_create,MPI_Cart_sub,MPI_Comm_create,MPI_Comm_dup,MPI_Comm_free,MPI_Comm_split,MPI_Finalize,MPI_Gather,MPI_Gatherv,MPI_Get_count,MPI_Graph_create,MPI_Ibsend,MPI_Init,MPI_Intercomm_create,MPI_Intercomm_merge,MPI_Iprobe,MPI_Irecv,MPI_Irsend,MPI_Isend,MPI_Issend,MPI_Pack,MPI_Probe,MPI_Recv,MPI_Recv_init,MPI_Reduce,MPI_Reduce_scatter,MPI_Request_free,MPI_Rsend,MPI_Rsend_init,MPI_Scan,MPI_Scatter,MPI_Scatterv,MPI_Send,MPI_Sendrecv,MPI_Sendrecv_replace,MPI_Ssend,MPI_Ssend_init,MPI_Start,MPI_Startall,MPI_Test,MPI_Testall,MPI_Testany,MPI_Testsome,MPI_Unpack,MPI_Wait,MPI_Waitall,MPI_Waitany,MPI_Waitsome"
 
-# Corresponds to OPENSS_MPIOTF_TRACED
+# Corresponds to OPENSS_MPIOTF_TRACED or CBTF_MPIOTF_TRACED
 mpiotf_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,MPI_Alltoall, MPI_Alltoallv,MPI_Barrier,MPI_Bcast,MPI_Bsend,MPI_Bsend_init, MPI_Cancel,MPI_Cart_create,MPI_Cart_sub,MPI_Comm_create, MPI_Comm_dup,MPI_Comm_free,MPI_Comm_split,MPI_Finalize, MPI_Gather,MPI_Gatherv,MPI_Get_count,MPI_Graph_create, MPI_Ibsend,MPI_Init,MPI_Intercomm_create,MPI_Intercomm_merge, MPI_Iprobe,MPI_Irecv,MPI_Irsend,MPI_Isend,MPI_Issend, MPI_Pack,MPI_Probe,MPI_Recv,MPI_Recv_init,MPI_Reduce, MPI_Reduce_scatter,MPI_Request_free,MPI_Rsend,MPI_Rsend_init, MPI_Scan,MPI_Scatter,MPI_Scatterv,MPI_Send,MPI_Sendrecv, MPI_Sendrecv_replace,MPI_Ssend,MPI_Ssend_init,MPI_Start, MPI_Startall,MPI_Test,MPI_Testall,MPI_Testany,MPI_Testsome, MPI_Unpack,MPI_Wait,MPI_Waitall,MPI_Waitany,MPI_Waitsome"
 
-# Corresponds to OPENSS_FPE_EVENT
+# Corresponds to OPENSS_FPE_EVENT or CBTF_FPE_EVENT
 fpe_default_events="inexact_result,division_by_zero,underflow,overflow,invalid_operation"
 
 
@@ -497,8 +497,16 @@ then
      then 
        echo "DEBUG: pcsamp, rate=$rate"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_PCSAMP_RATE=$rate
+       export CBTF_PCSAMP_RATE
+     fi
+
      OPENSS_PCSAMP_RATE=$rate
      export OPENSS_PCSAMP_RATE
+
      if [ $debug_flag == 1 ]
      then 
         echo "DEBUG: in PCSAMP EXPERIMENT SECTION, RESET low, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
@@ -517,8 +525,16 @@ then
      then 
        echo "DEBUG: pcsamp, rate=$rate"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_PCSAMP_RATE=$rate
+       export CBTF_PCSAMP_RATE
+     fi
+
      OPENSS_PCSAMP_RATE=$rate
      export OPENSS_PCSAMP_RATE
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in PCSAMP EXPERIMENT SECTION, RESET high, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
@@ -539,8 +555,15 @@ then
      then 
        echo "DEBUG: pcsamp, default, rate=$rate"
      fi
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_PCSAMP_RATE=$rate
+       export CBTF_PCSAMP_RATE
+     fi
+
      OPENSS_PCSAMP_RATE=$rate
      export OPENSS_PCSAMP_RATE
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in PCSAMP EXPERIMENT SECTION, RESET default, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
@@ -561,8 +584,15 @@ then
      then 
        echo "DEBUG: pcsamp, input argument rate threshold value, rate=$rate"
      fi
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_PCSAMP_RATE=$rate
+       export CBTF_PCSAMP_RATE
+     fi
+
      OPENSS_PCSAMP_RATE=$rate
      export OPENSS_PCSAMP_RATE
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in PCSAMP EXPERIMENT SECTION, RESET input_argument_rate_threshold_value, OPENSS_PCSAMP_RATE=$OPENSS_PCSAMP_RATE"
@@ -624,8 +654,16 @@ then
      then 
        echo "DEBUG: rate=$rate"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_USERTIME_RATE=$rate
+       export CBTF_USERTIME_RATE
+     fi
+
      OPENSS_USERTIME_RATE=$rate
      export OPENSS_USERTIME_RATE
+
      if [ $debug_flag == 1 ]
      then 
         echo "DEBUG: in USERTIME EXPERIMENT SECTION, RESET low, OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE"
@@ -645,8 +683,15 @@ then
      then 
        echo "DEBUG: rate=$rate"
      fi
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_USERTIME_RATE=$rate
+       export CBTF_USERTIME_RATE
+     fi
+
      OPENSS_USERTIME_RATE=$rate
      export OPENSS_USERTIME_RATE
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in USERTIME EXPERIMENT SECTION, RESET high, OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE"
@@ -668,8 +713,15 @@ then
 
      rate=$usertime_default_rate
      echo "DEBUG: rate=$rate"
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_USERTIME_RATE=$rate
+       export CBTF_USERTIME_RATE
+     fi
+
      OPENSS_USERTIME_RATE=$rate
      export OPENSS_USERTIME_RATE
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in USERTIME EXPERIMENT SECTION, RESET default, OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE"
@@ -690,8 +742,15 @@ then
      then 
        echo "DEBUG: rate=$rate"
      fi
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_USERTIME_RATE=$rate
+       export CBTF_USERTIME_RATE
+     fi
+
      OPENSS_USERTIME_RATE=$rate
      export OPENSS_USERTIME_RATE
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in USERTIME EXPERIMENT SECTION, RESET input_argument_rate_threshold_value, OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE"
@@ -775,8 +834,16 @@ then
      then 
        echo "DEBUG: threshold=$threshold"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWC_THRESHOLD=$threshold
+       export CBTF_HWC_THRESHOLD
+     fi
+
      OPENSS_HWC_THRESHOLD=$threshold
      export OPENSS_HWC_THRESHOLD
+
      if [ $debug_flag == 1 ]
      then 
         echo "DEBUG: in HWC EXPERIMENT SECTION, RESET low, OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD"
@@ -810,8 +877,16 @@ then
      then 
        echo "DEBUG: hwc, high parameter section, threshold=$threshold"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWC_THRESHOLD=$threshold
+       export CBTF_HWC_THRESHOLD
+     fi
+
      OPENSS_HWC_THRESHOLD=$threshold
      export OPENSS_HWC_THRESHOLD
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in HWC EXPERIMENT SECTION, RESET high, OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD"
@@ -847,8 +922,16 @@ then
      then 
        echo "DEBUG: hwc, default case, threshold=$threshold"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWC_THRESHOLD=$threshold
+       export CBTF_HWC_THRESHOLD
+     fi
+
      OPENSS_HWC_THRESHOLD=$threshold
      export OPENSS_HWC_THRESHOLD
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in HWC EXPERIMENT SECTION, RESET default, OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD"
@@ -903,8 +986,16 @@ then
      then 
        echo "DEBUG: threshold=$threshold"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWC_THRESHOLD=$threshold
+       export CBTF_HWC_THRESHOLD
+     fi
+
      OPENSS_HWC_THRESHOLD=$threshold
      export OPENSS_HWC_THRESHOLD
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in HWC EXPERIMENT SECTION, RESET input_argument_rate_threshold_value, OPENSS_HWC_THRESHOLD=$OPENSS_HWC_THRESHOLD"
@@ -962,8 +1053,15 @@ then
 # The messages above should reflect whether this is set or not.  Now export the input event, if it was specified
   if [ $input_argument_event_or_trace_list_value != 0 ]
   then 
-    OPENSS_HWC_EVENT=$input_argument_event_or_trace_list_value
-    export OPENSS_HWC_EVENT
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWC_EVENT=$input_argument_event_or_trace_list_value
+       export CBTF_HWC_EVENT
+     fi
+
+     OPENSS_HWC_EVENT=$input_argument_event_or_trace_list_value
+     export OPENSS_HWC_EVENT
   fi
 
   if [ $debug_flag == 1 ] 
@@ -1042,8 +1140,16 @@ then
      then 
        echo "DEBUG: sampling_rate=$sampling_rate"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWCSAMP_RATE=$sampling_rate
+       export CBTF_HWCSAMP_RATE
+     fi
+
      OPENSS_HWCSAMP_RATE=$sampling_rate
      export OPENSS_HWCSAMP_RATE
+
      if [ $debug_flag == 1 ]
      then 
         echo "DEBUG: in HWCSAMP EXPERIMENT SECTION, RESET low, OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE"
@@ -1077,8 +1183,16 @@ then
      then 
        echo "DEBUG: sampling_rate=$sampling_rate"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWCSAMP_RATE=$sampling_rate
+       export CBTF_HWCSAMP_RATE
+     fi
+
      OPENSS_HWCSAMP_RATE=$sampling_rate
      export OPENSS_HWCSAMP_RATE
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in HWCSAMP EXPERIMENT SECTION, RESET high, OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE"
@@ -1114,8 +1228,16 @@ then
      then 
        echo "DEBUG: sampling_rate=$sampling_rate"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWCSAMP_RATE=$sampling_rate
+       export CBTF_HWCSAMP_RATE
+     fi
+
      OPENSS_HWCSAMP_RATE=$sampling_rate
      export OPENSS_HWCSAMP_RATE
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in HWCSAMP EXPERIMENT SECTION, RESET default, OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE"
@@ -1170,8 +1292,16 @@ then
      then 
        echo "DEBUG: sampling_rate=$sampling_rate"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWCSAMP_RATE=$sampling_rate
+       export CBTF_HWCSAMP_RATE
+     fi
+
      OPENSS_HWCSAMP_RATE=$sampling_rate
      export OPENSS_HWCSAMP_RATE
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in HWCSAMP EXPERIMENT SECTION, RESET input_argument_rate_threshold_value, OPENSS_HWCSAMP_RATE=$OPENSS_HWCSAMP_RATE"
@@ -1229,8 +1359,13 @@ then
 # The messages above should reflect whether this is set or not.  Now export the input event, if it was specified
   if [ $input_argument_event_or_trace_list_value != 0 ]
   then 
-    OPENSS_HWCSAMP_EVENTS=$input_argument_event_or_trace_list_value
-    export OPENSS_HWCSAMP_EVENTS
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWCSAMP_EVENTS=$input_argument_event_or_trace_list_value
+       export CBTF_HWCSAMP_EVENTS
+     fi
+     OPENSS_HWCSAMP_EVENTS=$input_argument_event_or_trace_list_value
+     export OPENSS_HWCSAMP_EVENTS
   fi
 
   if [ $debug_flag == 1 ] 
@@ -1310,8 +1445,16 @@ then
      then 
        echo "DEBUG: threshold=$threshold"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWCTIME_THRESHOLD=$threshold
+       export CBTF_HWCTIME_THRESHOLD
+     fi
+
      OPENSS_HWCTIME_THRESHOLD=$threshold
      export OPENSS_HWCTIME_THRESHOLD
+
      if [ $debug_flag == 1 ]
      then 
         echo "DEBUG: in HWCTIME EXPERIMENT SECTION, RESET low, OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD"
@@ -1345,8 +1488,16 @@ then
      then 
        echo "DEBUG: threshold=$threshold"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWCTIME_THRESHOLD=$threshold
+       export CBTF_HWCTIME_THRESHOLD
+     fi
+
      OPENSS_HWCTIME_THRESHOLD=$threshold
      export OPENSS_HWCTIME_THRESHOLD
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in HWCTIME EXPERIMENT SECTION, RESET high, OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD"
@@ -1382,8 +1533,16 @@ then
      then 
        echo "DEBUG: threshold=$threshold"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWCTIME_THRESHOLD=$threshold
+       export CBTF_HWCTIME_THRESHOLD
+     fi
+
      OPENSS_HWCTIME_THRESHOLD=$threshold
      export OPENSS_HWCTIME_THRESHOLD
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in HWCTIME EXPERIMENT SECTION, RESET default, OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD"
@@ -1438,8 +1597,16 @@ then
      then 
        echo "DEBUG: threshold=$threshold"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWCTIME_THRESHOLD=$threshold
+       export CBTF_HWCTIME_THRESHOLD
+     fi
+
      OPENSS_HWCTIME_THRESHOLD=$threshold
      export OPENSS_HWCTIME_THRESHOLD
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in HWCTIME EXPERIMENT SECTION, RESET input_argument_rate_threshold_value, OPENSS_HWCTIME_THRESHOLD=$OPENSS_HWCTIME_THRESHOLD"
@@ -1497,8 +1664,13 @@ then
 # The messages above should reflect whether this is set or not.  Now export the input event, if it was specified
   if [ $input_argument_event_or_trace_list_value != 0 ]
   then 
-    OPENSS_HWCTIME_EVENT=$input_argument_event_or_trace_list_value
-    export OPENSS_HWCTIME_EVENT
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_HWCTIME_EVENT=$input_argument_event_or_trace_list_value
+       export CBTF_HWCTIME_EVENT
+     fi
+     OPENSS_HWCTIME_EVENT=$input_argument_event_or_trace_list_value
+     export OPENSS_HWCTIME_EVENT
   fi
 
   if [ $debug_flag == 1 ] 
@@ -1576,8 +1748,16 @@ then
      then 
        echo "DEBUG: io, default, io_traced=$io_default_traceable_functions"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_IO_TRACED=$io_default_traceable_functions
+       export CBTF_IO_TRACED
+     fi
+
      OPENSS_IO_TRACED=$io_default_traceable_functions
      export OPENSS_IO_TRACED
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in IO EXPERIMENT SECTION, RESET default, OPENSS_IO_TRACED=$OPENSS_IO_TRACED"
@@ -1610,6 +1790,11 @@ then
   if [ $debug_flag == 1 ]
   then
     echo "DEBUG: about to call openss -offline for io experiment, OPENSS_IO_TRACED=$OPENSS_IO_TRACED"
+  fi
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    export CBTF_IO_TRACED
   fi
 
   export OPENSS_IO_TRACED
@@ -1683,8 +1868,16 @@ then
      then 
        echo "DEBUG: iot, default, iot_traced=$iot_default_traceable_functions"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_IOT_TRACED=$iot_default_traceable_functions
+       export CBTF_IOT_TRACED
+     fi
+
      OPENSS_IOT_TRACED=$iot_default_traceable_functions
      export OPENSS_IOT_TRACED
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in IOT EXPERIMENT SECTION, RESET default, OPENSS_IOT_TRACED=$OPENSS_IOT_TRACED"
@@ -1717,6 +1910,11 @@ then
   if [ $debug_flag == 1 ]
   then
     echo "DEBUG: about to call openss -offline for iot experiment, OPENSS_IOT_TRACED=$OPENSS_IOT_TRACED"
+  fi
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    export CBTF_IOT_TRACED
   fi
 
   export OPENSS_IOT_TRACED
@@ -1882,8 +2080,16 @@ then
      then 
        echo "DEBUG: mpi, default, mpi_traced=$mpi_default_traceable_functions"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_MPI_TRACED=$mpi_default_traceable_functions
+       export CBTF_MPI_TRACED
+     fi
+
      OPENSS_MPI_TRACED=$mpi_default_traceable_functions
      export OPENSS_MPI_TRACED
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in MPI EXPERIMENT SECTION, RESET default, OPENSS_MPI_TRACED=$OPENSS_MPI_TRACED"
@@ -1911,6 +2117,12 @@ then
   then
     echo "DEBUG: about to call openss -offline for mpi experiment, OPENSS_MPI_TRACED=$OPENSS_MPI_TRACED"
   fi
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    export CBTF_MPI_TRACED
+  fi
+
   export OPENSS_MPI_TRACED
 
   if [ "$instrumentor" == "cbtf" ]
@@ -1975,8 +2187,16 @@ then
      then 
        echo "DEBUG: mpit, default, mpit_traced=$mpit_default_traceable_functions"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_MPIT_TRACED=$mpit_default_traceable_functions
+       export CBTF_MPIT_TRACED
+     fi
+
      OPENSS_MPIT_TRACED=$mpit_default_traceable_functions
      export OPENSS_MPIT_TRACED
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in MPIT EXPERIMENT SECTION, RESET default, OPENSS_MPIT_TRACED=$OPENSS_MPIT_TRACED"
@@ -2004,6 +2224,12 @@ then
   then
     echo "DEBUG: about to call openss -offline for mpit experiment, OPENSS_MPIT_TRACED=$OPENSS_MPIT_TRACED"
   fi
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    export CBTF_MPIT_TRACED
+  fi
+
   export OPENSS_MPIT_TRACED
 
   if [ "$instrumentor" == "cbtf" ]
@@ -2068,8 +2294,16 @@ then
      then 
        echo "DEBUG: mpiotf, default, mpiotf_traced=$mpiotf_default_traceable_functions"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_MPIOTF_TRACED=$mpiotf_default_traceable_functions
+       export CBTF_MPIOTF_TRACED
+     fi
+
      OPENSS_MPIOTF_TRACED=$mpiotf_default_traceable_functions
      export OPENSS_MPIOTF_TRACED
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in MPIOTF EXPERIMENT SECTION, RESET default, OPENSS_MPIOTF_TRACED=$OPENSS_MPIOTF_TRACED"
@@ -2097,6 +2331,12 @@ then
   then
     echo "DEBUG: about to call openss -offline for mpiotf experiment, OPENSS_MPIOTF_TRACED=$OPENSS_MPIOTF_TRACED"
   fi
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    export CBTF_MPIOTF_TRACED
+  fi
+
   export OPENSS_MPIOTF_TRACED
 
   if [ "$instrumentor" == "cbtf" ]
@@ -2159,8 +2399,16 @@ then
      then 
        echo "DEBUG: fpe, default, fpe_traced=$fpe_default_events"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_FPE_EVENT=$fpe_default_events
+       export CBTF_FPE_EVENT
+     fi
+
      OPENSS_FPE_EVENT=$fpe_default_events
      export OPENSS_FPE_EVENT
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in FPE EXPERIMENT SECTION, RESET default, OPENSS_FPE_EVENT=$OPENSS_FPE_EVENT"
@@ -2188,6 +2436,12 @@ then
   then
     echo "DEBUG: about to call openss -offline for fpe experiment, OPENSS_FPE_EVENT=$OPENSS_FPE_EVENT"
   fi
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    export CBTF_FPE_EVENT
+  fi
+
   export OPENSS_FPE_EVENT
 
   if [ "$instrumentor" == "cbtf" ]
@@ -2260,8 +2514,16 @@ then
      then 
        echo "DEBUG: iop, default, iop_traced=$iop_default_traceable_functions"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_IOP_TRACED=$iop_default_traceable_functions
+       export CBTF_IOP_TRACED
+     fi
+
      OPENSS_IOP_TRACED=$iop_default_traceable_functions
      export OPENSS_IOP_TRACED
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in IOP EXPERIMENT SECTION, RESET default, OPENSS_IOP_TRACED=$OPENSS_IOP_TRACED"
@@ -2289,6 +2551,11 @@ then
       fi
     fi
 
+  fi
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    export CBTF_IOP_TRACED
   fi
 
   export OPENSS_IOP_TRACED
@@ -2364,8 +2631,15 @@ then
      then 
        echo "DEBUG: mem, default, mem_traced=$mem_default_traceable_functions"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_MEM_TRACED=$mem_default_traceable_functions
+       export CBTF_MEM_TRACED
+     fi
      OPENSS_MEM_TRACED=$mem_default_traceable_functions
      export OPENSS_MEM_TRACED
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in MEM EXPERIMENT SECTION, RESET default, OPENSS_MEM_TRACED=$OPENSS_MEM_TRACED"
@@ -2393,6 +2667,11 @@ then
       fi
     fi
 
+  fi
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    export CBTF_MEM_TRACED
   fi
 
   export OPENSS_MEM_TRACED
@@ -2467,8 +2746,16 @@ then
      then 
        echo "DEBUG: pthreads, default, pthreads_traced=$pthreads_default_traceable_functions"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_PTHREADS_TRACED=$pthreads_default_traceable_functions
+       export CBTF_PTHREADS_TRACED
+     fi
+
      OPENSS_PTHREADS_TRACED=$pthreads_default_traceable_functions
      export OPENSS_PTHREADS_TRACED
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in PTHREADS EXPERIMENT SECTION, RESET default, OPENSS_PTHREADS_TRACED=$OPENSS_PTHREADS_TRACED"
@@ -2496,6 +2783,11 @@ then
       fi
     fi
 
+  fi
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    export CBTF_PTHREADS_TRACED
   fi
 
   export OPENSS_PTHREADS_TRACED
@@ -2570,8 +2862,16 @@ then
      then 
        echo "DEBUG: cuda, default, cuda_traced=$cuda_default_traceable_functions"
      fi
+
+     if [ "$instrumentor" == "cbtf" ]
+     then
+       CBTF_CUDA_TRACED=$cuda_default_traceable_functions
+       export CBTF_CUDA_TRACED
+     fi
+
      OPENSS_CUDA_TRACED=$cuda_default_traceable_functions
      export OPENSS_CUDA_TRACED
+
      if [ $debug_flag == 1 ]
      then 
        echo "DEBUG: in CUDA EXPERIMENT SECTION, RESET default, OPENSS_CUDA_TRACED=$OPENSS_CUDA_TRACED"
@@ -2599,6 +2899,11 @@ then
       fi
     fi
 
+  fi
+
+  if [ "$instrumentor" == "cbtf" ]
+  then
+    export CBTF_CUDA_TRACED
   fi
 
   export OPENSS_CUDA_TRACED
