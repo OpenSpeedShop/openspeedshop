@@ -2595,7 +2595,7 @@ then
 
     if [ -z  "$OPENSS_MEM_TRACED" ]
     then
-      echo "[openss]: mem experiment using input mem experiment trace function list specified on the \"ossmem\" command: \"$input_argument_event_or_trace_list_value\" overriding the default I/O function list."
+      echo "[openss]: mem experiment using input mem experiment trace function list specified on the \"ossmem\" command: \"$input_argument_event_or_trace_list_value\" overriding the default mem experiment function list."
 
       if [ $debug_flag == 1 ]
       then
@@ -2604,7 +2604,7 @@ then
 
     else
 
-      echo "[openss]: mem experiment using input mem experiment trace function list specified on the \"ossmem\" command: \"$input_argument_event_or_trace_list_value\" overriding the I/O function list specified by the environment variable: OPENSS_MEM_TRACED."
+      echo "[openss]: mem experiment using input mem experiment trace function list specified on the \"ossmem\" command: \"$input_argument_event_or_trace_list_value\" overriding the mem experiment function list specified by the environment variable: OPENSS_MEM_TRACED."
 
       if [ $debug_flag == 1 ]
       then
