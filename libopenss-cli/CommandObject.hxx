@@ -48,6 +48,7 @@ class CommandObject
   std::list<CommandResult_RawString *> CMD_Annotation;
   pthread_cond_t wait_on_dependency;
   bool save_result;
+  savedViewInfo *save_result_ViewInfo;
   std::string save_result_filename;
   int save_result_file_header_offset;
   std::ostream *save_result_file_stream;
@@ -76,6 +77,7 @@ public:
     results_used = false;
     pthread_cond_init(&wait_on_dependency, (pthread_condattr_t *)NULL);
     save_result = false;
+    save_result_ViewInfo = NULL;
     save_result_filename = "";
     save_result_file_header_offset = 0;
     save_result_file_stream = NULL;
@@ -92,6 +94,7 @@ public:
     results_used = false;
     pthread_cond_init(&wait_on_dependency, (pthread_condattr_t *)NULL);
     save_result = false;
+    save_result_ViewInfo = NULL;
     save_result_filename = "";
     save_result_file_header_offset = 0;
     save_result_file_stream = NULL;
@@ -134,6 +137,8 @@ public:
   //command_type_t *P_Result () { return Parse_Result; }
   bool SaveResult() { return save_result; }
   void setSaveResult( bool b ) { save_result = b; }
+  savedViewInfo *SaveResultViewInfo() { return save_result_ViewInfo; }
+  void setSaveResultViewInfo( savedViewInfo *svi) { save_result_ViewInfo = svi; }
   std::string SaveResultFile() { return save_result_filename; }
   void setSaveResultFile( std::string s ) { save_result_filename = s; }
   void setSaveResultOstream( std::ostream *sp ) { save_result_file_stream = sp; }

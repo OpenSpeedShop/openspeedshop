@@ -35,17 +35,12 @@ enum OpenSpeedShop_Start_Modes {
 };
 
 // User control over some of OpenSpeedShop's behavior.
-extern std::string OPENSS_VIEW_EOC;
-extern std::string OPENSS_VIEW_EOL;
-extern std::string OPENSS_VIEW_EOV;
+
+// Formatting output of `expView` commands.
 extern int64_t OPENSS_VIEW_FIELD_SIZE;
 extern int64_t OPENSS_VIEW_MAX_FIELD_SIZE;
 extern int64_t OPENSS_VIEW_PRECISION;
 extern int64_t OPENSS_VIEW_DATE_TIME_PRECISION;
-extern int64_t OPENSS_HISTORY_LIMIT;
-extern int64_t OPENSS_HISTORY_DEFAULT;
-extern int64_t OPENSS_MAX_ASYNC_COMMANDS;
-extern int64_t OPENSS_HELP_LEVEL_DEFAULT;
 extern bool    OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC;
 extern bool    OPENSS_VIEW_FULLPATH;
 extern bool    OPENSS_VIEW_ENTIRE_STRING;
@@ -55,16 +50,27 @@ extern bool    OPENSS_VIEW_SUPPRESS_UNUSED_ELEMENTS;
 extern bool    OPENSS_VIEW_THREAD_ID_WITH_MAX_OR_MIN;
 extern bool    OPENSS_VIEW_USE_BLANK_IN_PLACE_OF_ZERO;
 extern bool    OPENSS_REDIRECT_USE_BLANK_IN_PLACE_OF_ZERO;
-extern bool    OPENSS_SAVE_EXPERIMENT_DATABASE;
+extern std::string OPENSS_VIEW_EOC;
+extern std::string OPENSS_VIEW_EOL;
+extern std::string OPENSS_VIEW_EOV;
+// Saving and reusing output of `expView` commands.
 extern bool    OPENSS_SAVE_VIEWS_FOR_REUSE;
-extern bool    OPENSS_ASK_ABOUT_CHANGING_ARGS;
+extern int64_t OPENSS_SAVE_VIEWS_FILE_LIMIT;
+extern int64_t OPENSS_SAVE_VIEWS_TIME;
+// Modifications of various commands.
+extern bool    OPENSS_SAVE_EXPERIMENT_DATABASE;
 extern bool    OPENSS_ASK_ABOUT_SAVING_THE_DATABASE;
 extern bool    OPENSS_ON_RERUN_SAVE_COPY_OF_EXPERIMENT_DATABASE;
+extern bool    OPENSS_ASK_ABOUT_CHANGING_ARGS;
 extern bool    OPENSS_ALLOW_PYTHON_COMMANDS;
+extern bool    OPENSS_LESS_RESTRICTIVE_COMPARISONS;
 extern bool    OPENSS_LOG_BY_DEFAULT;
 extern bool    OPENSS_LIMIT_SIGNAL_CATCHING;
 extern bool    OPENSS_INSTRUMENTOR_IS_OFFLINE;
-extern bool    OPENSS_LESS_RESTRICTIVE_COMPARISONS;
+extern int64_t OPENSS_HISTORY_LIMIT;
+extern int64_t OPENSS_HISTORY_DEFAULT;
+extern int64_t OPENSS_MAX_ASYNC_COMMANDS;
+extern int64_t OPENSS_HELP_LEVEL_DEFAULT;
 extern OpenSpeedShop_Start_Modes actualCLIStartMode;
 
 

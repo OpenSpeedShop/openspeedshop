@@ -59,6 +59,65 @@ class ExperimentObject
   bool instrumentorUsesCBTF;
   std::string offlineAppCommand;
 
+  bool found_existing_saved_files;
+  int64_t maxSavedViewFiles;
+  savedViewInfo **Saved_View_Files;
+
+  std::string create_savedFileName( std::string base_name, int64_t cnt ) {
+    char base[32];
+    snprintf(base, 32, ".%lld.view", cnt);
+    std::string new_name = base_name + std::string(base);
+    return new_name;
+  }
+
+  void get_savedViewInfo () {
+   // Look for existing output files that were generated with the same command and saved.
+    std::string first_unused_file_name = "";
+    bool first_unused_file_name_found = false;
+    if (!found_existing_saved_files) {
+      found_existing_saved_files = true; // Only do this search once.
+      Saved_View_Files = (savedViewInfo **)calloc( OPENSS_SAVE_VIEWS_FILE_LIMIT,
+                                                    sizeof(savedViewInfo *) );
+      maxSavedViewFiles = OPENSS_SAVE_VIEWS_FILE_LIMIT;
+      std::string Data_File_Name = FW_Experiment->getName();
+ 
+      char* buffer = new char[OPENSS_VIEW_MAX_FIELD_SIZE]; // Create a buffer to read the header.
+      for (int64_t i = 0; i < maxSavedViewFiles; i++) {
+        std::string viewPath = create_savedFileName (Data_File_Name, i);
+        int fd = open(viewPath.c_str(), O_RDONLY);
+        if (fd != -1) {
+          Saved_View_Files[i] = new savedViewInfo (viewPath, false, i);
+          int num = read( fd, buffer, OPENSS_VIEW_MAX_FIELD_SIZE );
+          save_file_header H;
+          if (num >= sizeof(H)) {
+            char *cp = (char *)(&H);
+            for (int i = 0; i < sizeof(H); i ++) { cp[i] = buffer[i]; }
+          }
+          if ( ( (H.type == 1) || (H.type == 2) ) &&
+               (num >= (sizeof(H) + H.data_offset)) ) {
+           // Set the EOC and EOL strings to end with proper string terminator.
+            buffer[H.eoc_offset-1] = *("\0");
+            buffer[H.eol_offset-1] = *("\0");
+            buffer[H.command_offset-1] = *("\0");
+            buffer[H.data_offset-1] = *("\0");
+
+            std::string new_eoc(&buffer[H.eoc_offset]);
+            std::string new_eol(&buffer[H.eol_offset]);
+            std::string new_cmd(&buffer[H.command_offset]);
+            Saved_View_Files[i]->setHeader(H, new_eoc, new_eol, new_cmd);
+          }
+          Assert(close(fd) == 0);
+        } else {
+          Saved_View_Files[i] = NULL;
+        }
+      }
+      delete [] buffer;  // Destroy the read buffer.
+
+    }
+
+    found_existing_saved_files = true;
+  }
+
  public:
 
   std::list<std::string> offlineCollectorList;
@@ -124,6 +183,10 @@ class ExperimentObject
       bool database_not_allocated = true;
       Data_File_Has_A_Generated_Name = !OPENSS_SAVE_EXPERIMENT_DATABASE;
       if (OPENSS_SAVE_EXPERIMENT_DATABASE) {
+        char *database_directory = getenv("OPENSS_DB_DIR");
+        if (database_directory == NULL) {
+             database_directory = ".";
+        }
        // Try to create a file in the current directory
        // of the form "X<exp_id>.XXXX.openss".
        // If the generated name already exists, increment
@@ -133,12 +196,7 @@ class ExperimentObject
         char base[256];
         int64_t cnt = 0;
         for (cnt = 0; cnt < 1000; cnt++) {
-          char *database_directory = getenv("OPENSS_DB_DIR");
-          if (database_directory) {
-             snprintf(base, 256, "%s/X%lld.%lld.openss",database_directory, Exp_ID,cnt);
-           } else {
-             snprintf(base, 256, "./X%lld.%lld.openss",Exp_ID,cnt);
-           } 
+          snprintf(base, 256, "%s/X%lld.%lld.openss",database_directory, Exp_ID, cnt);
       
           int fd;
           if ((fd = open(base, O_RDONLY)) != -1) {
@@ -210,6 +268,11 @@ class ExperimentObject
       FW_Experiment = NULL;
     }
 
+   // Initialize remembered views information.
+    found_existing_saved_files = FALSE;
+    maxSavedViewFiles = 0;
+    Saved_View_Files = NULL;
+
     Assert(pthread_mutex_unlock(&Experiment_Lock) == 0);       // Unlock new experiment
     Assert(pthread_mutex_unlock(&Experiment_List_Lock) == 0);
 
@@ -245,6 +308,21 @@ class ExperimentObject
     }
     Exp_ID = 0;
     ExpStatus = ExpStatus_NonExistent;
+
+   // Remove or save remembered views.
+    if ( found_existing_saved_files &&
+         (Saved_View_Files != NULL) ) {
+      for (int64_t i=0; i<maxSavedViewFiles; i++) {
+        savedViewInfo *svi = Saved_View_Files[i];
+        if (svi != NULL) {
+          delete svi;
+          Saved_View_Files[i] = NULL;
+        }
+      }
+    }
+    Saved_View_Files = NULL;
+    found_existing_saved_files = NULL;
+
     pthread_mutex_destroy(&Experiment_Lock);
   }
 
@@ -503,6 +581,65 @@ class ExperimentObject
     }
     return itcan;
 
+  }
+
+  int64_t Get_SavedViewFileCnt () { 
+    if (!found_existing_saved_files) {
+      get_savedViewInfo ();
+    }
+    return maxSavedViewFiles;
+  }
+
+  savedViewInfo *Get_savedViewInfo (int64_t i) {
+    if (i < maxSavedViewFiles) {
+      return Saved_View_Files[i];
+    }
+    return NULL;
+  }
+
+  savedViewInfo *FindExisting_savedViewInfo (std::string eoc_str,
+                                             std::string eol_str,
+                                             std::string cmd_str) {
+    if (!found_existing_saved_files) {
+      get_savedViewInfo ();
+    }
+    for (int64_t i = 0; i < maxSavedViewFiles; i++) {
+      savedViewInfo *svi = Saved_View_Files[i];
+      if ( (svi != NULL) &&
+           ( !svi->NewFile() ||
+             ( (svi->StartTime() != 0) &&
+               (svi->EndTime() != 0) ) ) &&
+           svi->Header_Matches( eoc_str, eol_str, cmd_str) ) {
+       // Verify that the file can still be read.
+        int source_fd = open(svi->FileName().c_str(), O_RDONLY);
+        if (source_fd != -1) {
+         // Close the input file and return the pointer to the savedViewInfo.
+          Assert(close(source_fd) == 0);
+          return svi;
+        }
+       // Something has happened to this file since we read the header.
+       // Continue looking to see if another file contains what we are looking for.
+      }
+    }
+    return NULL;
+  }
+
+  savedViewInfo *GetFree_savedViewInfo () {
+    savedViewInfo *svi = NULL;
+    if (!found_existing_saved_files) {
+      get_savedViewInfo ();
+    }
+    for (int64_t i = 0; i < maxSavedViewFiles; i++) {
+      savedViewInfo *svi = Saved_View_Files[i];
+      if (svi == NULL) {
+        std::string Data_File_Name = FW_Experiment->getName();
+        std::string viewPath = create_savedFileName (Data_File_Name, i);
+        svi = new savedViewInfo (viewPath, true, i);
+        Saved_View_Files[i] = svi;
+        return svi;
+      }
+    }
+    return NULL;
   }
 
   int Status() { return ExpStatus; }

@@ -72,6 +72,7 @@ libopenss_cli_la_SOURCES = \
 	PY_Input.cxx help_general_msg.dxx \
 	SS_Cmd_Control.hxx SS_Cmd_Control.cxx \
 	SS_Cmd_Execution.hxx SS_Cmd_Execution.cxx \
+	SS_savedViewInfo.hxx \
 	SS_CommandResult.hxx SS_CommandResult.cxx \
 	SS_Compare.cxx \
 	SS_Configure.hxx SS_Configure.cxx \

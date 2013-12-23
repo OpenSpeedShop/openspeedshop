@@ -17,7 +17,6 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
-
 #include "SS_Input_Manager.hxx"
 
 #include "Python.h"
@@ -55,32 +54,12 @@ static int64_t Get_Trailing_Int (char *S, int64_t start, int64_t length) {
   return val;
 }
 
-struct save_file_header
-{
-  int64_t type;  // Format type of header.
-  int64_t data_offset;
-  int64_t command_offset;
-  int64_t eoc_offset;
-  int64_t eol_offset;
-  Time last_sample;
-};
-int64_t header_offset_to_command( save_file_header *H )
-{
-  Assert(H->type == 1);
-  return H->command_offset;
-}
-int64_t header_offset_to_data( save_file_header *H )
-{
-  Assert(H->type == 1);
-  return H->data_offset;
-}
-
 bool SS_Find_Previous_View (CommandObject *cmd, ExperimentObject *exp)
 {
   if (!OPENSS_SAVE_VIEWS_FOR_REUSE) return false;
 
  // Is there a good chance that a matching view has been saved?
-  if (exp->Status() == ExpStatus_Paused) return false;
+//  if (exp->Status() == ExpStatus_Paused) return false;
   if (exp->Status() == ExpStatus_Running) return false;
   if (exp->FW() == NULL) return false;
  // Use a time stamp to convience us that the database we are told
@@ -184,94 +163,41 @@ bool SS_Find_Previous_View (CommandObject *cmd, ExperimentObject *exp)
   }
 
  // Look for an existing output that was generated with the same command.
-  std::string first_unused_file_name = "";
-  bool first_unused_file_name_found = false;
-  char base[256];
-  int64_t cnt = 0;
-  for (cnt = 0; cnt < 1000; cnt++) {
-    char *database_directory = getenv("OPENSS_DB_DIR");
-    if (database_directory) {
-       snprintf(base, 256, "%s/%s.%lld.view",database_directory, Data_File_Name.c_str(),cnt);
-     } else {
-       snprintf(base, 256, "%s.%lld.view",Data_File_Name.c_str(),cnt);
-     }
-
-    int fd = open(base, O_RDONLY);;
-    if (fd == -1) {
-      if (!first_unused_file_name_found) {
-        first_unused_file_name = base;
-        first_unused_file_name_found = true;
-      }
-    } else {
-     // A file with the generted name was found.
-     // Now open it and check that the generating commands match.
-      char* buffer = new char[OPENSS_VIEW_MAX_FIELD_SIZE];
-      int num = read( fd, buffer, OPENSS_VIEW_MAX_FIELD_SIZE );
-      save_file_header H;
-      if (num >= sizeof(H)) {
-        char *cp = (char *)(&H);
-        for (int i = 0; i < sizeof(H); i ++) { cp[i] = buffer[i]; }
-      }
-      if ( (H.type == 1) &&
-           (num >= (sizeof(H) + cmdstr.length())) ) {
-       // Set the EOC and EOL strings to end with proper string terminator.
-        buffer[H.eoc_offset-1] = *("\0");
-        buffer[H.eol_offset-1] = *("\0");
-        buffer[H.data_offset-1] = *("\0");
-        int offset_to_command = header_offset_to_command (&H);
-
-        std::string new_eoc(&buffer[H.eoc_offset]);
-        std::string new_eol(&buffer[H.eol_offset]);
-        if ( (H.command_offset >= 0) &&
-             (H.data_offset <= num) &&
-             (H.last_sample == EndTime) &&
-             ((H.command_offset+cmdstr.length()) == (H.eoc_offset-1)) &&
-             (strncasecmp( cmdstr.c_str(), &buffer[H.command_offset], cmdstr.length() ) == 0) &&
-             (new_eoc.length() == eoc_marker.length()) &&
-             (strncasecmp( new_eoc.c_str(), eoc_marker.c_str(), new_eoc.length() ) == 0) &&
-             (new_eol.length() == eol_marker.length()) &&
-             (strncasecmp( new_eol.c_str(), eol_marker.c_str(), new_eol.length() ) == 0) ) {
-          cmd->setSaveResultFile(base);
-          cmd->setSaveResultDataOffset( header_offset_to_data(&H) );
-          cmd->setSaveEoc( new_eoc );
-          cmd->setSaveEol( new_eol );
-          Assert(close(fd) == 0);
-          return true;
-        }
-      }
-
-      Assert(close(fd) == 0);
-      continue;
-    }
+  savedViewInfo *use_ViewInfo = exp->FindExisting_savedViewInfo (eoc_marker, eol_marker, cmdstr);
+  if (use_ViewInfo != NULL) {
+    cmd->setSaveResultViewInfo(use_ViewInfo);
+    cmd->setSaveResultFile(use_ViewInfo->FileName());
+    cmd->setSaveResult(false);
+    cmd->setSaveResultDataOffset( use_ViewInfo->file_offset_to_data() );
+    cmd->setSaveEoc( eoc_marker );
+    cmd->setSaveEol( eol_marker );
+    return true;
   }
 
-  if (first_unused_file_name_found) {
-   // There was no previous generated report we could use.
-   // Open an output stream to save the redirected report.
-    std::ostream *tof = new std::ofstream (first_unused_file_name.c_str(), std::ios::out);
+ // There was no previously generated report that we could reuse.
+ // Need to create a new file to save view.
+  savedViewInfo *new_ViewInfo = exp->GetFree_savedViewInfo();
+  if (new_ViewInfo != NULL) {
    // Generate and save the header descriptor in binary form.
     save_file_header H;
-    H.type = 1;
+    H.type = 2;
     H.command_offset = sizeof(H) + 1;
     H.eoc_offset = H.command_offset + cmdstr.length() + 1;
     H.eol_offset = H.eoc_offset + eoc_marker.length() + 1;
     H.data_offset = H.eol_offset + eol_marker.length() + 1;
     H.last_sample = EndTime;
-    char *cp = (char *)(&H);
-    for (int i = 0; i < sizeof(H); i ++) { *tof << cp[i]; }
-   // Save associated command and column and end of line markers in character form.
-    *tof << ":" << cmdstr
-         << ":" << eoc_marker
-         << ":" << eol_marker
-         << ":" << std::flush;
+    H.generation_time = 0; // Added after generation.
+    new_ViewInfo->setHeader(H, eoc_marker, eol_marker, cmdstr);
    // Preserve file name and format information in the command
    // for immediate display of the report after it has been saved.
-    cmd->setSaveResultFile(first_unused_file_name);
+    cmd->setSaveResultViewInfo(new_ViewInfo);
+    cmd->setSaveResultFile(new_ViewInfo->FileName());
     cmd->setSaveResult(true);
-    cmd->setSaveResultOstream( tof );
     cmd->setSaveEoc( eoc_marker );
     cmd->setSaveEol( eol_marker );
     cmd->setSaveResultDataOffset(H.data_offset);
+   // Leave file open to receive output of `expView` command.
+    return true;
   }
   return false;
 }
@@ -492,7 +418,8 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
   printf("In SS_Generate_View in SS_View.cxx, before calling vt->GenerateView\n");
 #endif
 
- // Try to find previously generated view output.
+ // Look for a saved view.
+  savedViewInfo *svi = NULL;
   if ( OPENSS_SAVE_VIEWS_FOR_REUSE &&
        SS_Find_Previous_View( cmd, exp ) ) {
 
@@ -501,12 +428,32 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
            cmd->SaveResultFile().c_str());
 #endif
 
-    return true;
+    if (!cmd->SaveResult()) {
+     // Previously generated output file found with requested view.
+      return true;
+    }
+
+   // An existing saved view is not available but provision
+   // has been made to create a new one.
+    svi = cmd->SaveResultViewInfo();
+    if (svi != NULL) {
+     // Set StartTIme to measure how long it takes to generate the view.
+      svi->setStartTime();
+    }
   }
 
  // Try to Generate the Requested View!
   bool success = vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),
                                    tgrp, cmd->Result_List());
+
+ // Set EndTIme if saving info after generation.
+  svi = cmd->SaveResultViewInfo();
+  if (svi != NULL) {
+    svi->setEndTime();
+    std::ostream *tof = svi->writeHeader ();
+    cmd->setSaveResultOstream( tof );
+  }
+
 #if DEBUG_CLI
   printf("In SS_Generate_View in SS_View.cxx, after calling vt->GenerateView\n");
 #endif

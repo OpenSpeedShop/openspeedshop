@@ -29,7 +29,7 @@
  * @param destination    File to be overwritten.
  */
 // void copyFile(std::string source, std::string destination)
-void copyFile(std::string source, std::ostream &destination , int starting_offset )
+static void copyFile(std::string source, std::ostream &destination , int starting_offset )
 {
   const int copyBufferSize = 65536;
 
@@ -496,11 +496,15 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
 
   bool save_for_reuse = false;
   std::ostream *tof = &to;
+  savedViewInfo *svi = SaveResultViewInfo();
+  std::string SavedResultFile;
   if ( OPENSS_SAVE_EXPERIMENT_DATABASE &&
-       (SaveResultFile().length() > 0) ) {
+       (svi != NULL) &&
+       (svi->FileName().length() > 0) ) {
+    SavedResultFile = svi->FileName();
     if (!SaveResult()) {
      // Required output has already been generated.
-      copyFile( SaveResultFile(), *tof, SaveResultDataOffset() );
+      copyFile( SavedResultFile, *tof, SaveResultDataOffset() );
       return true;
     } else {
      // The output generated here will be saved for future use.
@@ -695,7 +699,7 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
          (Clip()->Who() == command_line_window) ||
          (Clip()->Who() == tli_window) ) {
      // Copy data from save file to desired output stream.
-      copyFile( SaveResultFile(), to, SaveResultDataOffset() );
+      copyFile( SavedResultFile, to, SaveResultDataOffset() );
     }
   }
   return data_written;

@@ -29,6 +29,13 @@
 #include "SS_Input_Manager.hxx"
 #include "SS_Timings.hxx"
 
+// Include the folllowing functions from SS_Configure.cxx
+bool List_ConfigInfo(CommandObject *cmd);
+bool set_ConfigValue(std::string name, std::string value);
+bool set_ConfigValue(std::string name, int64_t value);
+bool set_ConfigValue(std::string name, bool value);
+
+
 #include "Python.h"
 
 using namespace OpenSpeedShop::cli;
@@ -4378,6 +4385,8 @@ static bool ReportComponents(CommandObject *cmd, ExperimentObject *exp, bool Ful
 }
 
 
+// Forward reference.
+static bool SS_ListSavedViews (CommandObject *cmd, ExperimentObject *exp);
 /**
  * Utility: ReportStatus ()
  * 
@@ -4688,6 +4697,10 @@ static bool ReportStatus(CommandObject *cmd, ExperimentObject *exp, bool FullDis
           SS_Get_Views (cmd, exp->FW(), "    ");
         }
 
+        if (FullDisplay) {
+          cmd->Result_String ("  Saved View Files:\n");
+          (void) SS_ListSavedViews ( cmd, exp );
+        }
       }
     cmd->Result_String ( "}");
   }
@@ -5345,6 +5358,54 @@ bool SS_ListComponents(CommandObject *cmd) {
   return true;
 }
 
+/**
+ * SemanticRoutine SS_ListPreferences ()
+ * 
+ * Print information about an experiment.
+ *     
+ * @param   cmd- the CommandObject being processed.
+ *
+ * @return  "true" if the command was successful.
+ *
+ * @error   "false" returned if no experiment is specified
+ *          or if an error was detected while looking at
+ *          the associated database.
+ *
+ */
+bool SS_ListPreferences(CommandObject *cmd) {
+
+  if (!List_ConfigInfo(cmd)) {
+    return false;
+  }
+
+/*
+  if (All_KeyWord) {
+    std::list<ExperimentObject *>::reverse_iterator expi;
+    for (expi = ExperimentObject_list.rbegin(); expi != ExperimentObject_list.rend(); expi++) {
+      ExperimentObject *exp = *expi;
+      if (!ReportStatus (cmd, exp, Full_KeyWord)) {
+        return false;
+      }
+    }
+  } else {
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+    if (!ReportComponents (cmd, exp, Full_KeyWord)) {
+      return false;
+    }
+  }
+*/
+
+#if DEBUG_CLI
+  printf("In SS_ListPreferences, calling cmd->set_Status(CMD_COMPLETE); before exiting\n");
+#endif
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
 
 
 /**
@@ -5922,6 +5983,54 @@ static bool SS_ListRanks (CommandObject *cmd) {
     }
 
     exp->Q_UnLock ();
+  }
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+
+/**
+ * SemanticRoutine: SS_ListSavedViews ()
+ * 
+ * List the generated views that have been saved for the experiment.
+ *     
+ * @param   cmd - the CommandObject being processed.
+ *          exp - the associated experiment.
+ *
+ * @return  "true" on successful complation of the command.
+ *
+ * @error   "false" returned if no experiment can be determined.
+ *
+ */
+static bool SS_ListSavedViews (CommandObject *cmd, ExperimentObject *exp) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // List the generated views that have been saved for the experiment.
+  if (exp == NULL) {
+    return false;
+  }
+
+  int64_t num_files = exp->Get_SavedViewFileCnt();
+  for (int64_t i = 0; i < num_files; i++) {
+    savedViewInfo *svi = exp->Get_savedViewInfo (i);
+    if (svi == NULL) continue;
+    std::string info("\t");
+    info += svi->FileName();
+    if (svi->NewFile()) {
+      info += "  (new)";
+    }
+    if (svi->GenTime() != 0) {
+      char buffer[80];
+      sprintf(buffer, "  Generation Time: %lld Seconds.", (svi->GenTime() / 1000000000));
+      info += std::string(buffer);
+    }
+    info += "  `";
+    info += svi->GenCmd();
+    info += "`";
+
+    cmd->Result_String ( info );
   }
 
   cmd->set_Status(CMD_COMPLETE);
@@ -6910,6 +7019,12 @@ bool SS_ListGeneric (CommandObject *cmd) {
       result_of_first_list = SS_ListBreaks(cmd);
     } else if (!strcasecmp(S.c_str(),"components")) {
       result_of_first_list = SS_ListComponents(cmd);
+    } else if (!strcasecmp(S.c_str(),"config") ||
+               !strcasecmp(S.c_str(),"configure") ||
+               !strcasecmp(S.c_str(),"configuration") ||
+               !strcasecmp(S.c_str(),"preference") ||
+               !strcasecmp(S.c_str(),"preferences")) {
+      result_of_first_list = SS_ListPreferences(cmd);
     } else if (!strcasecmp(S.c_str(),"database") ||
                !strcasecmp(S.c_str(),"restoredfile")) {
       result_of_first_list = SS_ListDatabase(cmd);
@@ -6956,6 +7071,8 @@ bool SS_ListGeneric (CommandObject *cmd) {
       result_of_first_list = SS_ListRanks(cmd);
     } else if (!strcasecmp(S.c_str(),"ranksandthreads")) {
       result_of_first_list = SS_ListRanksAndThreads(cmd);
+    } else if (!strcasecmp(S.c_str(),"savedviews")) {
+      result_of_first_list = SS_ListSavedViews( cmd, Find_Specified_Experiment (cmd) );
     } else if (!strcasecmp(S.c_str(),"src")) {
       result_of_first_list = SS_ListSrc(cmd);
     } else if (!strcasecmp(S.c_str(),"srcfullpath")) {

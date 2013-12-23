@@ -109,7 +109,7 @@ class ParseRange {
 
     	void setParseTypeError()
 	{
-	    dm_parse_type = PARSE_RANGE_ERROR;;
+	    dm_parse_type = PARSE_RANGE_ERROR;
 	}
 
     	parse_type_enum_t getParseType()
