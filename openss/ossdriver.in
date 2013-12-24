@@ -70,10 +70,10 @@ hwctime_default_threshold=10000
 # Corresponds to OPENSS_IO_TRACED or CBTF_IO_TRACED
 io_default_traceable_functions="close,creat,creat64,dup,dup2,lseek,lseek64,open,open64,pipe,pread,pread64,pwrite,pwrite64,read,readv,write,writev"
 
-# Corresponds to OPENSS_IOT_TRACED or CBTF_IOT_TRACED
+# Corresponds to OPENSS_IOT_TRACED or CBTF_IO_TRACED
 iot_default_traceable_functions="close,creat,creat64,dup,dup2,lseek,lseek64,open,open64,pipe,pread,pread64,pwrite,pwrite64,read,readv,write,writev"
 
-# Corresponds to OPENSS_IOP_TRACED or CBTF_IOP_TRACED
+# Corresponds to OPENSS_IOP_TRACED or CBTF_IO_TRACED
 iop_default_traceable_functions="close,creat,creat64,dup,dup2,lseek,lseek64,open,open64,pipe,pread,pread64,pwrite,pwrite64,read,readv,write,writev"
 
 # Corresponds to OPENSS_MEM_TRACED or CBTF_MEM_TRACED
@@ -1871,8 +1871,8 @@ then
 
      if [ "$instrumentor" == "cbtf" ]
      then
-       CBTF_IOT_TRACED=$iot_default_traceable_functions
-       export CBTF_IOT_TRACED
+       CBTF_IO_TRACED=$iot_default_traceable_functions
+       export CBTF_IO_TRACED
      fi
 
      OPENSS_IOT_TRACED=$iot_default_traceable_functions
@@ -1914,7 +1914,7 @@ then
 
   if [ "$instrumentor" == "cbtf" ]
   then
-    export CBTF_IOT_TRACED
+    export CBTF_IO_TRACED
   fi
 
   export OPENSS_IOT_TRACED
@@ -2517,8 +2517,8 @@ then
 
      if [ "$instrumentor" == "cbtf" ]
      then
-       CBTF_IOP_TRACED=$iop_default_traceable_functions
-       export CBTF_IOP_TRACED
+       CBTF_IO_TRACED=$iop_default_traceable_functions
+       export CBTF_IO_TRACED
      fi
 
      OPENSS_IOP_TRACED=$iop_default_traceable_functions
@@ -2555,7 +2555,7 @@ then
 
   if [ "$instrumentor" == "cbtf" ]
   then
-    export CBTF_IOP_TRACED
+    export CBTF_IO_TRACED
   fi
 
   export OPENSS_IOP_TRACED
