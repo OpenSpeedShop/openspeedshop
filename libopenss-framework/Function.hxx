@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2013 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -39,12 +40,12 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
-    class CallSite;
     class Database;
     class Experiment;
     class ExtentGroup;
     class FunctionCache;
     class LinkedObject;
+    class Loop;
     template <typename> class SmartPtr;
     class Statement;
     class Thread;
@@ -60,41 +61,41 @@ namespace OpenSpeedShop { namespace Framework {
      * @ingroup CollectorAPI ToolAPI
      */
     class Function :
-	public Entry
+        public Entry
     {
-	friend class Experiment;
-	friend class FunctionCache;
-	friend class LinkedObject;
-	friend class Statement;
-	friend class Thread;
-	friend class ThreadGroup;
-	
+        friend class Experiment;
+        friend class FunctionCache;
+        friend class LinkedObject;
+        friend class Loop;
+        friend class Statement;
+        friend class Thread;
+        friend class ThreadGroup;
+        
     public:
 	
-	std::set<Thread> getThreads() const;
-	ExtentGroup getExtentIn(const Thread&) const;
-	LinkedObject getLinkedObject() const;
+        std::set<Thread> getThreads() const;
+        ExtentGroup getExtentIn(const Thread&) const;
+        LinkedObject getLinkedObject() const;
 
-	// Used by Experiment::compressDB to prune an OpenSpeedShop database of
-	// any entries not found in the experiments sampled addresses.
-	AddressRange getAddressRange() const;
-	
-	std::string getName() const;
-	std::string getMangledName() const;
-	std::string getDemangledName(const bool& = true) const;
-	
-	std::set<Statement> getDefinitions() const;
-	std::set<Statement> getStatements() const;
-	std::set<CallSite> getCallees() const;
-	std::set<CallSite> getCallers() const;
+        std::string getName() const;
+        std::string getMangledName() const;
+        std::string getDemangledName(const bool& = true) const;
+        
+        std::set<Statement> getDefinitions() const;
+        std::set<Loop> getLoops() const;
+        std::set<Statement> getStatements() const;
 
+        AddressRange getAddressRange() const;
+                
     private:
+        
+        static FunctionCache TheCache;
+        
+        Function();
+        Function(const SmartPtr<Database>&, const int&);
 
-	static FunctionCache TheCache;
-	
-	Function();
-	Function(const SmartPtr<Database>&, const int&);
-	
+        void getLinkedObjectAndExtent(LinkedObject&, ExtentGroup&) const;
+        
     };
     
 } }

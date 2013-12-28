@@ -221,6 +221,8 @@ COMMON_SOURCES = \
 	Interval.hxx \
 	LinkedObject.hxx LinkedObject.cxx \
 	Lockable.hxx \
+	Loop.hxx Loop.cxx \
+	LoopCache.hxx LoopCache.cxx \
 	Metadata.hxx \
 	NonCopyable.hxx \
 	Path.hxx Path.cxx \
@@ -240,7 +242,6 @@ COMMON_SOURCES = \
 	TotallyOrdered.hxx
 
 INSTRUMENTOR_SOURCES = \
-	CallSite.hxx CallSite.cxx \
 	Instrumentor.hxx \
 	Job.hxx \
 	OutputCallback.hxx

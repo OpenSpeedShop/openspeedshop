@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2012 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2012,2013 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -53,6 +53,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Experiment;
     class Function;
     class LinkedObject;
+    class Loop;
     class Path;
     class Process;
     template <typename> class SmartPtr;
@@ -60,7 +61,7 @@ namespace OpenSpeedShop { namespace Framework {
     class ThreadGroup;
 
     namespace Callbacks {
-	void attachedToThreads(const Blob&);
+        void attachedToThreads(const Blob&);
     }
     
     /**
@@ -84,90 +85,95 @@ namespace OpenSpeedShop { namespace Framework {
      * @ingroup CollectorAPI ToolAPI
      */
     class Thread :
-	public Entry
+        public Entry
     {
-	friend class Collector;
-	friend class DataCache;
-	friend class Experiment;
-	friend class Function;
-	friend class LinkedObject;
-	friend class Process;
-	friend class Statement;
-	friend class ThreadGroup;
-
-	friend void Callbacks::attachedToThreads(const Blob&);
+        friend class Collector;
+        friend class DataCache;
+        friend class Experiment;
+        friend class Function;
+        friend class LinkedObject;
+        friend class Loop;
+        friend class Process;
+        friend class Statement;
+        friend class ThreadGroup;
+        
+        friend void Callbacks::attachedToThreads(const Blob&);
 	
     public:
 	
-	/**
-	 * Thread state enumeration.
-	 *
-	 * Enumeration defining the state of a thread. This may not enumerate
-	 * all the possible states in which a thread may find itself on a given
-	 * system. It contains only those states that are generally of interest
-	 * to a performance tool.
-	 */
-	enum State {
-	    Disconnected,  /**< Thread isn't connected (may not even exist). */
-	    Connecting,    /**< Thread is being connected. */
-	    Nonexistent,   /**< Thread doesn't exist. */
-	    Running,       /**< Thread is active and running. */
-	    Suspended,     /**< Thread has been temporarily suspended. */
-	    Terminated     /**< Thread has terminated. */
-	};
-	
-	State getState() const;
-	bool isState(const State&) const;
-	void changeState(const State&) const;
-	
-	std::pair<bool, std::string> getCommand() const;
-	void setCommand(const char *) const;	
-	std::pair<bool, std::string> getMPIImplementation() const;
-	void setMPIImplementation(const std::string) const;	
-	std::string getHost() const;
-	pid_t getProcessId() const;
-	std::pair<bool, pthread_t> getPosixThreadId() const;
-	std::pair<bool, int> getOpenMPThreadId() const;
-	std::pair<bool, int> getMPIRank() const;
-	
-	std::set<LinkedObject> getLinkedObjects() const;
-	std::set<Function> getFunctions() const;
-	std::set<Statement> getStatements() const;
-
-	std::pair<bool, LinkedObject> getLinkedObjectAt(
-	    const Address&, const Time& = Time::Now()) const;
-	std::pair<bool, Function> getFunctionAt(
-	    const Address&, const Time& = Time::Now()) const;
-	std::set<Statement> getStatementsAt(
-	    const Address&, const Time& = Time::Now()) const;
-
-	// Used by Experiment::compressDB to prune an OpenSpeedShop database of
-	// any entries not found in the experiments sampled addresses.
-	std::pair<std::pair<bool, Function> , std::set<Statement> >
+        /**
+         * Thread state enumeration.
+         *
+         * Enumeration defining the state of a thread. This may not enumerate
+         * all the possible states in which a thread may find itself on a given
+         * system. It contains only those states that are generally of interest
+         * to a performance tool.
+         */
+        enum State {
+            Disconnected,  /**< Thread isn't connected (may not even exist). */
+            Connecting,    /**< Thread is being connected. */
+            Nonexistent,   /**< Thread doesn't exist. */
+            Running,       /**< Thread is active and running. */
+            Suspended,     /**< Thread has been temporarily suspended. */
+            Terminated     /**< Thread has terminated. */
+        };
+        
+        State getState() const;
+        bool isState(const State&) const;
+        void changeState(const State&) const;
+        
+        std::pair<bool, std::string> getCommand() const;
+        void setCommand(const char *) const;	
+        std::pair<bool, std::string> getMPIImplementation() const;
+        void setMPIImplementation(const std::string) const;	
+        std::string getHost() const;
+        pid_t getProcessId() const;
+        std::pair<bool, pthread_t> getPosixThreadId() const;
+        std::pair<bool, int> getOpenMPThreadId() const;
+        std::pair<bool, int> getMPIRank() const;
+        
+        std::set<LinkedObject> getLinkedObjects() const;
+        std::set<Function> getFunctions() const;
+        std::set<Loop> getLoops() const;
+        std::set<Statement> getStatements() const;
+        
+        std::pair<bool, LinkedObject> getLinkedObjectAt(
+            const Address&, const Time& = Time::Now()) const;
+        std::pair<bool, Function> getFunctionAt(
+            const Address&, const Time& = Time::Now()) const;
+        std::set<Loop> getLoopsAt(
+            const Address&, const Time& = Time::Now()) const;
+        std::set<Statement> getStatementsAt(
+            const Address&, const Time& = Time::Now()) const;
+        
+        // Used by Experiment::compressDB to prune an OpenSpeedShop database of
+        // any entries not found in the experiments sampled addresses.
+        std::pair<std::pair<bool, Function> , std::set<Statement> >
 	    getFunctionAndStatementsAt(const Address& address) const;
-
-	std::pair<bool, LinkedObject> getExecutable(
-	    const Time& = Time::Now()) const;	
-	std::pair<bool, Function> getFunctionByName(const std::string&) const;
-	std::set<Statement> getStatementsBySourceFile(const Path&) const;
-	
-	CollectorGroup getCollectors() const;
-	CollectorGroup getPostponedCollectors() const;
-	
-	Thread(const SmartPtr<Database>&, const int&);
-
+        
+        std::pair<bool, LinkedObject> getExecutable(
+            const Time& = Time::Now()) const;	
+        std::pair<bool, Function> getFunctionByName(const std::string&) const;
+        std::set<Loop> getLoopsBySourceFile(const Path&) const;
+        std::set<Statement> getStatementsBySourceFile(const Path&) const;
+        
+        CollectorGroup getCollectors() const;
+        CollectorGroup getPostponedCollectors() const;
+        
+        Thread(const SmartPtr<Database>&, const int&);
+        
     private:
-
-	Thread();
-
-	bool doesSiblingExist(const pthread_t&) const;
-	void setPosixThreadId(const pthread_t&) const;	
-	Thread createCopy() const;
-	
+        
+        Thread();
+        
+        bool doesSiblingExist(const pthread_t&) const;
+        void setPosixThreadId(const pthread_t&) const;	
+        Thread createCopy() const;
+        
     };
-    
+        
     std::string toString(const Thread::State&);
-    
+        
 } }
 
 

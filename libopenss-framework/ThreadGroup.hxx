@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2013 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -45,6 +46,7 @@ namespace OpenSpeedShop { namespace Framework {
     template <typename, typename> class ExtentTable;
     class Function;
     class LinkedObject;
+    class Loop;
     class Statement;
 
     /**
@@ -58,38 +60,41 @@ namespace OpenSpeedShop { namespace Framework {
      * @ingroup ToolAPI
      */
     class ThreadGroup :
-	public std::set<Thread>
+        public std::set<Thread>
     {
 	
     public:
 
-	ThreadGroup getSubsetWithState(const Thread::State&) const;
+        ThreadGroup getSubsetWithState(const Thread::State&) const;
 
-	// Used by Experiment::compressDB to prune an OpenSpeedShop database of
-	// any entries not found in the experiments sampled addresses.
-	ThreadGroup getSubsetWithLinkedObject(const LinkedObject&) const;
+        // Used by Experiment::compressDB to prune an OpenSpeedShop database of
+        // any entries not found in the experiments sampled addresses.
+        ThreadGroup getSubsetWithLinkedObject(const LinkedObject&) const;
 
-	bool isAnyState(const Thread::State&) const;
-	bool areAllState(const Thread::State&) const;
-	void changeState(const Thread::State&);
+        bool isAnyState(const Thread::State&) const;
+        bool areAllState(const Thread::State&) const;
+        void changeState(const Thread::State&);
 
-	void startCollecting(const Collector&) const;
-	void startCollecting(const CollectorGroup&) const;
-	void postponeCollecting(const Collector&) const;
-	void postponeCollecting(const CollectorGroup&) const;
-	void stopCollecting(const Collector&) const;
-	void stopCollecting(const CollectorGroup&) const;
+        void startCollecting(const Collector&) const;
+        void startCollecting(const CollectorGroup&) const;
+        void postponeCollecting(const Collector&) const;
+        void postponeCollecting(const CollectorGroup&) const;
+        void stopCollecting(const Collector&) const;
+        void stopCollecting(const CollectorGroup&) const;
+        
+        std::set<LinkedObject> getLinkedObjects() const;
+        std::set<Function> getFunctions() const;
+        std::set<Loop> getLoops() const;
+        std::set<Statement> getStatements() const;
 
-	std::set<LinkedObject> getLinkedObjects() const;
-	std::set<Function> getFunctions() const;
-	std::set<Statement> getStatements() const;
-
-	ExtentTable<Thread, LinkedObject> getExtentsOf(
-	    const std::set<LinkedObject>&, const Extent&) const;
-	ExtentTable<Thread, Function> getExtentsOf(
-	    const std::set<Function>&, const Extent&) const;
-	ExtentTable<Thread, Statement> getExtentsOf(
-	    const std::set<Statement>&, const Extent&) const;
+        ExtentTable<Thread, LinkedObject> getExtentsOf(
+            const std::set<LinkedObject>&, const Extent&) const;
+        ExtentTable<Thread, Function> getExtentsOf(
+            const std::set<Function>&, const Extent&) const;
+        ExtentTable<Thread, Loop> getExtentsOf(
+            const std::set<Loop>&, const Extent&) const;
+        ExtentTable<Thread, Statement> getExtentsOf(
+            const std::set<Statement>&, const Extent&) const;
 	
     };
     

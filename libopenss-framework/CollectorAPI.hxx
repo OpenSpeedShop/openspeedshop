@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2013 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -31,7 +32,6 @@
 #endif
 
 #include "Blob.hxx"
-#include "CallSite.hxx"
 #include "Collector.hxx"
 #include "CollectorImpl.hxx"
 #include "Function.hxx"

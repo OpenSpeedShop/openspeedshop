@@ -1,6 +1,4 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 // Copyright (c) 2013 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
@@ -20,7 +18,7 @@
 
 /** @file
  *
- * Definition of the Statement class.
+ * Definition of the Loop class.
  *
  */
 
@@ -34,7 +32,6 @@
 #include "LinkedObject.hxx"
 #include "Loop.hxx"
 #include "LoopCache.hxx"
-#include "Path.hxx"
 #include "Statement.hxx"
 #include "StatementCache.hxx"
 #include "Thread.hxx"
@@ -46,22 +43,22 @@ using namespace OpenSpeedShop::Framework;
 /**
  * Get our threads.
  *
- * Returns the threads containing this statement.
+ * Returns the threads containing this loop.
  *
- * @return    Threads containing this statement.
+ * @return    Threads containing this loop.
  */
-std::set<Thread> Statement::getThreads() const
+std::set<Thread> Loop::getThreads() const
 {
     std::set<Thread> threads;
-
+    
     // Note: This query could be, and in fact used to be, implemented in a
     //       more concise manner as:
     //
     //       SELECT AddressSpaces.thread
     //       FROM AddressSpaces
-    //         JOIN Statements
-    //       ON AddressSpaces.linked_object = Statements.linked_object
-    //       WHERE Statements.id = <dm_entry>;
+    //         JOIN Loops
+    //       ON AddressSpaces.linked_object = Loops.linked_object
+    //       WHERE Loops.id = <dm_entry>;
     //
     //       However the implementation below, combined with an index on
     //       AddressSpaces(linked_object), was found to be quite a bit faster.
@@ -70,7 +67,7 @@ std::set<Thread> Statement::getThreads() const
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-        "SELECT linked_object FROM Statements WHERE Statements.id = ?;"
+        "SELECT linked_object FROM Loops WHERE Loops.id = ?;"
         );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement()) {
@@ -86,10 +83,10 @@ std::set<Thread> Statement::getThreads() const
             threads.insert(Thread(dm_database, 
                                   dm_database->getResultAsInteger(1)));
         
-    }    
+    }	
     if(threads.empty())
         throw Exception(Exception::EntryNotFound, "Threads",
-                        "<Statements-Referenced>");
+                        "<Loops-Referenced>");
     END_TRANSACTION(dm_database);
     
     // Return the threads to the caller
@@ -101,58 +98,57 @@ std::set<Thread> Statement::getThreads() const
 /**
  * Get our extent in a thread.
  *
- * Returns the extent of this statement within the specified thread. An
- * empty extent is returned if this statement isn't present within the
- * specified thread.
+ * Returns the extent of this loop within the specified thread. An empty extent
+ * is returned if this loop isn't present within the specified thread.
  *
- * @pre    The thread must be in the same experiment as the statement. An
- *         assertion failure occurs if the thread is in a different experiment
- *         than the statement.
+ * @pre    The thread must be in the same experiment as the loop. An
+ *         assertion failure occurs if the thread is in a different
+ *         experiment than the loop.
  *
  * @param thread    Thread in which to find our extent.
- * @return          Extent of this statement in that thread.
+ * @return          Extent of this loop in that thread.
  */
-ExtentGroup Statement::getExtentIn(const Thread& thread) const
+ExtentGroup Loop::getExtentIn(const Thread& thread) const
 {
     ExtentGroup extent;
-
+    
     // Check assertions
     Assert(inSameDatabase(thread));
-    
+
     // Note: This query could be, and in fact used to be, implemented in a
     //       more concise manner as:
     //
     //       SELECT AddressSpaces.time_begin,
     //              AddressSpaces.time_end,
-    //	            AddressSpaces.addr_begin,
-    //              StatementRanges.addr_begin,
-    //              StatementRanges.addr_end,
-    //              StatementRanges.valid_bitmap
+    //              AddressSpaces.addr_begin,
+    //              LoopRanges.addr_begin,
+    //              LoopRanges.addr_end,
+    //              LoopRanges.valid_bitmap
     //       FROM AddressSpaces
-    //         JOIN Statements
-    //         JOIN StatementRanges
-    //       ON AddressSpaces.linked_object = Statements.linked_object
-    //         AND Statements.id = StatementRanges.statement
+    //         JOIN Loops
+    //         JOIN LoopRanges
+    //       ON AddressSpaces.linked_object = Loops.linked_object
+    //         AND Loops.id = LoopRanges.loop
     //       WHERE AddressSpaces.thread = <thread.dm_entry>
-    //         AND StatementRanges.statement = <dm_entry>;
+    //         AND LoopRanges.loop = <dm_entry>;
     //
     //       However the implementation below, combined with indices on
-    //       AddressSpaces(linked_object, thread) & StatementRanges(statement),
-    //       was found to be quite a bit faster.
-
+    //       AddressSpaces(linked_object, thread) & LoopRanges(loop), was
+    //       found to be quite a bit faster.
+    
     // Find our linked object and address ranges with associated bitmaps
     BEGIN_TRANSACTION(dm_database);
     validate();
     thread.validate();
     dm_database->prepareStatement(
-        "SELECT Statements.linked_object, "
-        "       StatementRanges.addr_begin, "
-        "       StatementRanges.addr_end, "
-        "       StatementRanges.valid_bitmap "
-        "FROM StatementRanges "
-        "  JOIN Statements "
-        "ON StatementRanges.statement = Statements.id "
-        "WHERE Statements.id = ?;"
+        "SELECT Loops.linked_object, "
+        "       LoopRanges.addr_begin, "
+        "       LoopRanges.addr_end, "
+        "       LoopRanges.valid_bitmap "
+        "FROM LoopRanges "
+        "  JOIN Loops "
+        "ON LoopRanges.loop = Loops.id "
+        "WHERE Loops.id = ?;"
         );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement()) {
@@ -177,7 +173,7 @@ ExtentGroup Statement::getExtentIn(const Thread& thread) const
         dm_database->bindArgument(2, linked_object);
         while(dm_database->executeStatement()) {
             
-            // Iterate over the addresss ranges for this statement
+            // Iterate over the addresss ranges for this loop
             for(std::set<AddressRange>::const_iterator
                     i = ranges.begin(); i != ranges.end(); ++i)
                 extent.push_back(
@@ -203,23 +199,23 @@ ExtentGroup Statement::getExtentIn(const Thread& thread) const
 /**
  * Get our linked object.
  *
- * Returns the linked object containing this statement.
+ * Returns the linked object containing this loop.
  *
- * @return    Linked object containing this statement.
+ * @return    Linked object containing this loop.
  */
-LinkedObject Statement::getLinkedObject() const
+LinkedObject Loop::getLinkedObject() const
 {
     LinkedObject linked_object;
-
+    
     // Find our linked object
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-        "SELECT linked_object FROM Statements WHERE id = ?;"
+        "SELECT linked_object FROM Loops WHERE id = ?;"
         );
     dm_database->bindArgument(1, dm_entry);	
     while(dm_database->executeStatement())
-        linked_object = LinkedObject(dm_database, 
+        linked_object = LinkedObject(dm_database,
                                      dm_database->getResultAsInteger(1));
     END_TRANSACTION(dm_database);
     
@@ -230,96 +226,42 @@ LinkedObject Statement::getLinkedObject() const
 
 
 /**
- * Get our path.
+ * Get our definitions.
  *
- * Returns the full path name of this statement's source file.
+ * Returns the definitions of this loop. An empty set is returned if no
+ * definitions of this loop are found.
  *
- * @return    Full path name of this statement's source file.
+ * @return    Definitions of this loop.
  */
-Path Statement::getPath() const
+std::set<Statement> Loop::getDefinitions() const
 {
-    Path path;
+    // Find our linked object and extent
+    LinkedObject linked_object;
+    ExtentGroup extent;
+    getLinkedObjectAndExtent(linked_object, extent);
 
-    // Find our source file's path
+    // Find our head address
+    Address head;
     BEGIN_TRANSACTION(dm_database);
     validate();
-    dm_database->prepareStatement(
-        "SELECT Files.path "
-        "FROM Statements "
-        "  JOIN Files "
-        "ON Statements.file = Files.id "
-        "WHERE Statements.id = ?;"
-        );
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement()) {
-        if(!path.empty())
-            throw Exception(Exception::EntryNotUnique, "Files",
-                            "<Statements-Referenced>");
-        path = Path(dm_database->getResultAsString(1));
-    }    
-    if(path.empty())
-        throw Exception(Exception::EntryNotFound, "Files",
-                        "<Statements-Referenced>");
-    END_TRANSACTION(dm_database);
-    
-    // Return the full path name to the caller
-    return path;
-}
-
-
-
-/**
- * Get our line number.
- *
- * Returns the line number of this statement.
- *
- * @return    Line number of this statement.
- */
-int Statement::getLine() const
-{
-    int line;
-
-    // Find our line number
-    BEGIN_TRANSACTION(dm_database);
-    validate();
-    dm_database->prepareStatement(
-        "SELECT line FROM Statements WHERE id = ?;"
-        );
+    dm_database->prepareStatement("SELECT addr_head FROM Loops WHERE id = ?;");
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-        line = dm_database->getResultAsInteger(1);
+        head = dm_database->getResultAsAddress(1);
     END_TRANSACTION(dm_database);
+
+    // Use the loop's head address as its extent
+    Extent first(TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+                 AddressRange(head));
+    extent.clear();
+    extent.push_back(first);
     
-    // Return the line number to the caller
-    return line;
-}
-
-
-
-/**
- * Get our column number.
- *
- * Returns the column number of this statement.
- *
- * @return    Column number of this statement.
- */
-int Statement::getColumn() const
-{
-    int column;
-
-    // Find our column number
-    BEGIN_TRANSACTION(dm_database);
-    validate();
-    dm_database->prepareStatement(
-        "SELECT \"column\" FROM Statements WHERE id = ?;"
-        );
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement())
-        column = dm_database->getResultAsInteger(1);
-    END_TRANSACTION(dm_database);
+    // Use the statement cache to find our definitions
+    std::set<Statement> definitions =
+        Statement::TheCache.getStatements(linked_object, extent);
     
-    // Return the column number to the caller
-    return column;
+    // Return the definitions to the caller
+    return definitions;
 }
 
 
@@ -327,12 +269,12 @@ int Statement::getColumn() const
 /**
  * Get our functions.
  *
- * Returns the functions containing this statement. An empty set is returned
- * if no function contains this statement.
+ * Returns the functions containing this loop. An empty set is returned if no
+ * function contains this loop.
  *
- * @return    Functions containing this statement.
+ * @return    Functions containing this loop.
  */
-std::set<Function> Statement::getFunctions() const
+std::set<Function> Loop::getFunctions() const
 {
     // Find our linked object and extent
     LinkedObject linked_object;
@@ -350,42 +292,43 @@ std::set<Function> Statement::getFunctions() const
 
 
 /**
- * Get our loops.
+ * Get our statements.
  *
- * Returns the loops containing this statement. An empty set is returned if no
- * loop contains this statement.
+ * Returns the statements associated with this loop. An empty set is returned
+ * if no statements are associated with this loop.
  *
- * @return    Loops containing this statement.
+ * @return    Statements associated with this loop.
  */
-std::set<Loop> Statement::getLoops() const
+std::set<Statement> Loop::getStatements() const
 {
     // Find our linked object and extent
     LinkedObject linked_object;
     ExtentGroup extent;
     getLinkedObjectAndExtent(linked_object, extent);
     
-    // Use the loop cache to find our loops
-    std::set<Loop> loops = Loop::TheCache.getLoops(linked_object, extent);
+    // Use the statement cache to find our statements
+    std::set<Statement> statements =
+        Statement::TheCache.getStatements(linked_object, extent);
     
-    // Return the loops to the caller
-    return loops;
+    // Return the statements to the caller
+    return statements;
 }
 
 
 
-/** Statement cache. */
-StatementCache Statement::TheCache;
+/** Loop cache. */
+LoopCache Loop::TheCache;
 
 
 
 /**
  * Default constructor.
  *
- * Constructs a Statement that refers to a non-existent statement. Any use of
- * a member function on an object constructed in this way will result in an
- * assertion failure.
+ * Constructs a Loop that refers to a non-existent loop. Any use of a member
+ * function on an object constructed in this way will result in an assertion
+ * failure.
  */
-Statement::Statement() :
+Loop::Loop() :
     Entry()
 {
 }
@@ -393,15 +336,15 @@ Statement::Statement() :
 
 
 /**
- * Constructor from a statement entry.
+ * Constructor from a loop entry.
  *
- * Constructs a new Statement for the specified statement entry.
+ * Constructs a new Loop for the specified loop entry.
  *
- * @param database    Database containing this statement.
- * @param entry       Identifier for this statement.
+ * @param database    Database containing this loop.
+ * @param entry       Identifier for this loop.
  */
-Statement::Statement(const SmartPtr<Database>& database, const int& entry):
-    Entry(database, Entry::Statements, entry)
+Loop::Loop(const SmartPtr<Database>& database, const int& entry) :
+    Entry(database, Entry::Loops, entry)
 {
 }
 
@@ -410,25 +353,25 @@ Statement::Statement(const SmartPtr<Database>& database, const int& entry):
 /**
  * Get our linked object and extent.
  *
- * Returns the linked object containing, and extent of, this statement.
+ * Returns the linked object containing, and extent of, this loop.
  *
- * @retval linked_object    Linked object containing this statement.
- * @retval extent           Extent of this function.
+ * @retval linked_object    Linked object containing this loop.
+ * @retval extent           Extent of this loop.
  */
-void Statement::getLinkedObjectAndExtent(LinkedObject& linked_object,
-                                         ExtentGroup& extent) const
+void Loop::getLinkedObjectAndExtent(LinkedObject& linked_object,
+                                    ExtentGroup& extent) const
 {
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-        "SELECT Statements.linked_object, "
-        "       StatementRanges.addr_begin, "
-        "       StatementRanges.addr_end, "
-        "       StatementRanges.valid_bitmap "
-        "FROM StatementRanges "
-        "  JOIN Statements "
-        "ON StatementRanges.statement = Statements.id "
-        "WHERE Statements.id = ?;"
+        "SELECT Loops.linked_object, "
+        "       LoopRanges.addr_begin, "
+        "       LoopRanges.addr_end, "
+        "       LoopRanges.valid_bitmap "
+        "FROM LoopRanges "
+        "  JOIN Loops "
+        "ON LoopRanges.loop = Loops.id "
+        "WHERE Loops.id = ?;"
         );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement()) {

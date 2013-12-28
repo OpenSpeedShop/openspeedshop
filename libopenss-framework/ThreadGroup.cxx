@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2013 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -30,6 +31,7 @@
 #include "Instrumentor.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
+#include "Loop.hxx"
 #include "Statement.hxx"
 #include "ThreadGroup.hxx"
 
@@ -340,6 +342,64 @@ std::set<Function> ThreadGroup::getFunctions() const
 
 
 /**
+ * Get loops for all threads.
+ *
+ * Returns the loops within the threads in the group. An empty set is returned
+ * if no loops are found.
+ *
+ * @pre    All threads in the thread group must be from the same experiment. An
+ *         assertion failure occurs if more than one experiment is implied.
+ *
+ * @return    Loops contained within this group.
+ */
+std::set<Loop> ThreadGroup::getLoops() const
+{
+    std::set<Loop> loops;
+    
+    // Handle special case of an empty thread group
+    if(empty())
+        return loops;
+
+    // Check preconditions
+    SmartPtr<Database> database = EntrySpy(*begin()).getDatabase();
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
+        Assert(EntrySpy(*i).getDatabase() == database);
+
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(database);
+    
+    // Find all of the linked objects within any thread of this group
+    std::set<int> linked_objects;
+    database->prepareStatement(
+        "SELECT thread, "
+        "       linked_object "
+        "FROM AddressSpaces;"
+        );
+    while(database->executeStatement())
+        if(find(Thread(database, database->getResultAsInteger(1))) != end())
+            linked_objects.insert(database->getResultAsInteger(2));
+
+    // Find all of the loops in any of these linked objects
+    database->prepareStatement(
+        "SELECT id, "
+        "       linked_object "
+        "FROM Loops;"
+        );
+    while(database->executeStatement())
+        if(linked_objects.find(database->getResultAsInteger(2)) !=
+           linked_objects.end())
+            loops.insert(Loop(database, database->getResultAsInteger(1)));
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(database);
+    
+    // Return the loops to the caller
+    return loops;
+}
+
+
+
+/**
  * Get statements for all threads.
  *
  * Returns the statements within the threads in the group. An empty set is
@@ -614,6 +674,149 @@ ThreadGroup::getExtentsOf(const std::set<Function>& objects,
     // End this multi-statement transaction
     END_TRANSACTION(database);
 
+    // Return the table to the caller
+    return table;
+}
+
+
+
+/**
+ * Get extents of loops for all threads.
+ *
+ * Returns the extents of all the specified loops within the threads in the
+ * group. Each extent is intersected with the specified domain extent before
+ * being added to the table.
+ *
+ * @pre    All threads in the thread group must be from the same experiment.
+ *         An assertion failure occurs if more than one experiment is implied.
+ *
+ * @pre    All the specified loops must be from the same experiment as the
+ *         threads in the thread group. An assertion failure occurs if more
+ *         than one experiment is implied.
+ *
+ * @param objects    Loops for which to get extents.
+ * @param domain     Extent defining the domain of interest.
+ * @return           Table of per-thread extents for the loops.
+ */
+ExtentTable<Thread, Loop>
+ThreadGroup::getExtentsOf(const std::set<Loop>& objects, 
+                          const Extent& domain) const
+{
+    ExtentTable<Thread, Loop> table;
+
+    // Handle special case of an empty thread group
+    if(empty())
+        return table;
+
+    // Check preconditions
+    SmartPtr<Database> database = EntrySpy(*begin()).getDatabase();
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
+        Assert(EntrySpy(*i).getDatabase() == database);
+    for(std::set<Loop>::const_iterator
+            i = objects.begin(); i != objects.end(); ++i)
+        Assert(EntrySpy(*i).getDatabase() == database);	
+    
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(database);
+    
+    // Find the extents of all linked objects within any thread of this group
+    std::multimap<std::pair<int, int>, Extent> linked_objects;
+    database->prepareStatement(
+        "SELECT thread, "
+        "       linked_object, "
+        "       time_begin, "
+        "       time_end, "
+        "       addr_begin, "
+        "       addr_end "
+        "FROM AddressSpaces;"
+        );
+    while(database->executeStatement())
+        if(find(Thread(database, database->getResultAsInteger(1))) != end())
+            linked_objects.insert(
+                std::make_pair(
+                    std::make_pair(
+                        database->getResultAsInteger(1),
+                        database->getResultAsInteger(2)),
+                    Extent(
+                        TimeInterval(database->getResultAsTime(3),
+                                     database->getResultAsTime(4)),
+                        AddressRange(database->getResultAsAddress(5),
+                                     database->getResultAsAddress(6))
+                        )
+                    )
+                );
+    
+    // Iterate over each of the specified loops
+    for(std::set<Loop>::const_iterator
+            i = objects.begin(); i != objects.end(); ++i) {
+
+        // Find this loop's linked object and address ranges + bitmaps
+        EntrySpy(*i).validate();
+        database->prepareStatement(
+            "SELECT Loops.linked_object, "
+            "       LoopRanges.addr_begin, "
+            "       LoopRanges.addr_end, "
+            "       LoopRanges.valid_bitmap "
+            "FROM LoopRanges "
+            "  JOIN Loops "
+            "ON LoopRanges.loop = Loops.id "
+            "WHERE Loops.id = ?;"
+            );
+        database->bindArgument(1, EntrySpy(*i).getEntry());
+        while(database->executeStatement()) {
+            
+            std::set<AddressRange> ranges = 
+                AddressBitmap(AddressRange(database->getResultAsAddress(2),
+                                           database->getResultAsAddress(3)),
+                              database->getResultAsBlob(4)).
+                getContiguousRanges(true);
+            
+            // Iterate over each thread of this group
+            for(ThreadGroup::const_iterator j = begin(); j != end(); ++j) {
+                
+                // Form a search key from the thread and the linked object
+                std::pair<int, int> key = 
+                    std::make_pair(EntrySpy(*j).getEntry(), 
+                                   database->getResultAsInteger(1));
+                
+                // Iterate over all occurences of this key
+                for(std::multimap<std::pair<int, int>, Extent>::const_iterator
+                        k = linked_objects.lower_bound(key);
+                    k != linked_objects.upper_bound(key);
+                    ++k) {
+                    
+                    // Iterate over the addresss ranges for this loop
+                    for(std::set<AddressRange>::const_iterator
+                            l = ranges.begin(); l != ranges.end(); ++l) {
+                        
+                        // Intersect this extent with domain of interest
+                        Extent constrained =
+                            Extent(k->second.getTimeInterval(),
+                                   AddressRange(
+                                       k->second.getAddressRange().getBegin() +
+                                       l->getBegin(),
+                                       k->second.getAddressRange().getBegin() +
+                                       l->getEnd()
+                                       )
+                                ) & domain;
+                        
+                        // Add constrained extent (if non-empty) to table
+                        if(!constrained.isEmpty())
+                            table.addExtent(*j, *i, constrained);
+                        
+                    }
+                    
+                }
+                
+            }
+            
+        }
+        
+    }
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(database);
+    
     // Return the table to the caller
     return table;
 }

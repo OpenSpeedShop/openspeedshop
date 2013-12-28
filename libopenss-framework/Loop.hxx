@@ -1,6 +1,4 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 // Copyright (c) 2013 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
@@ -20,12 +18,12 @@
 
 /** @file
  *
- * Declaration of the Statement class.
+ * Declaration of the Loop class.
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_Statement_
-#define _OpenSpeedShop_Framework_Statement_
+#ifndef _OpenSpeedShop_Framework_Loop_
+#define _OpenSpeedShop_Framework_Loop_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -43,53 +41,49 @@ namespace OpenSpeedShop { namespace Framework {
     class Experiment;
     class ExtentGroup;
     class Function;
+    class LoopCache;
     class LinkedObject;
-    class Loop;
-    class Path;
     template <typename> class SmartPtr;
-    class StatementCache;
+    class Statement;
     class Thread;
     class ThreadGroup;
     
     /**
-     * Source code statement.
+     * Source code loop.
      *
-     * Representation of a source code statement. Provides member functions for
-     * requesting information about this statement, where it is contained, and
-     * what it contains.
+     * Representation of a source code loop. Provides member functions for
+     * requesting information about this loop, where it is contained, and what
+     * it contains.
      *
      * @ingroup CollectorAPI ToolAPI
      */
-    class Statement :
+    class Loop :
         public Entry
     {
         friend class Experiment;
         friend class Function;
+        friend class LoopCache;
         friend class LinkedObject;
-        friend class Loop;
-        friend class StatementCache;
+        friend class Statement;
         friend class Thread;
         friend class ThreadGroup;
-	
+        
     public:
-
+	
         std::set<Thread> getThreads() const;
         ExtentGroup getExtentIn(const Thread&) const;
         LinkedObject getLinkedObject() const;
 
-        Path getPath() const;
-        int getLine() const;
-        int getColumn() const;
-
+        std::set<Statement> getDefinitions() const;
         std::set<Function> getFunctions() const;
-        std::set<Loop> getLoops() const;
-        
+        std::set<Statement> getStatements() const;
+                
     private:
         
-        static StatementCache TheCache;
+        static LoopCache TheCache;
         
-        Statement();
-        Statement(const SmartPtr<Database>&, const int&);
+        Loop();
+        Loop(const SmartPtr<Database>&, const int&);
 
         void getLinkedObjectAndExtent(LinkedObject&, ExtentGroup&) const;
         

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2012 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2012,2013 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -35,6 +35,8 @@
 #include "FunctionCache.hxx"
 #include "Instrumentor.hxx"
 #include "LinkedObject.hxx"
+#include "Loop.hxx"
+#include "LoopCache.hxx"
 #include "Path.hxx"
 #include "Statement.hxx"
 #include "StatementCache.hxx"
@@ -66,8 +68,6 @@ namespace {
      * Schema for an experiment database. In addition to documenting the various
      * tables, indicies, records, etc. making up the database, these statements
      * are directly executed by the SQL server when creating a new database.
-     *
-     * @todo    CallSite table needs to be implemented.
      */
     const char* DatabaseSchema[] = {
 
@@ -75,7 +75,7 @@ namespace {
 	"CREATE TABLE \"Open|SpeedShop\" ("
 	"    version INTEGER"
 	");",
-	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (5);",
+	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (6);",
 	
 	// Thread Table
 	"CREATE TABLE Threads ("
@@ -131,13 +131,27 @@ namespace {
 	"    addr_end INTEGER,"
 	"    valid_bitmap BLOB"
 	");",
-        "CREATE INDEX IndexFunctionRangesByFunction "
+    "CREATE INDEX IndexFunctionRangesByFunction "
 	"  ON FunctionRanges (function);",
 	
-	// Call Site Table
-	// "CREATE TABLE CallSites ("
-	// "    id INTEGER PRIMARY KEY"
-	// ");",
+    // Loop Table
+	"CREATE TABLE Loops ("
+	"    id INTEGER PRIMARY KEY,"
+	"    linked_object INTEGER," // From LinkedObjects.id
+    "    addr_head INTEGER"
+	");",
+	"CREATE INDEX IndexLoopsByLinkedObject "
+	"  ON Loops (linked_object);",
+    
+    // Loop Range Table
+	"CREATE TABLE LoopRanges ("
+	"    loop INTEGER," // From Loops.id
+	"    addr_begin INTEGER,"
+	"    addr_end INTEGER,"
+	"    valid_bitmap BLOB"
+	");",
+    "CREATE INDEX IndexLoopRangesByLoop "
+	"  ON LoopRanges (loop);",
 	
 	// Statement Table
 	"CREATE TABLE Statements ("
@@ -157,7 +171,7 @@ namespace {
 	"    addr_end INTEGER,"
 	"    valid_bitmap BLOB"
 	");",
-        "CREATE INDEX IndexStatementRangesByStatement "
+    "CREATE INDEX IndexStatementRangesByStatement "
 	"  ON StatementRanges (statement);",
 	
 	// File Table
@@ -467,39 +481,41 @@ Experiment::Experiment(const std::string& name) :
 {
     // Verify the experiment database is accessible
     if(!isAccessible(name))
-	throw Exception(Exception::DatabaseInvalid, dm_database->getName());
+        throw Exception(Exception::DatabaseInvalid, dm_database->getName());
     
     // Update the experiment's database schema if necessary
     if(getVersion() == 1)
-	updateToVersion2();
+        updateToVersion2();
     if(getVersion() == 2)
-	updateToVersion3();
+        updateToVersion3();
     if(getVersion() == 3)
-	updateToVersion4();
+        updateToVersion4();
     if(getVersion() == 4)
-	updateToVersion5();
+        updateToVersion5();
+    if(getVersion() == 5)
+        updateToVersion6();
 
 #if (BUILD_INSTRUMENTOR == 1)
     // Iterate over each thread in this experiment
     ThreadGroup threads = getThreads();
     for(ThreadGroup::const_iterator
-	    i = threads.begin(); i != threads.end(); ++i) {
-	
-	// Retain this thread in the instrumentor
-	Instrumentor::retain(*i);
-	
+            i = threads.begin(); i != threads.end(); ++i) {
+        
+        // Retain this thread in the instrumentor
+        Instrumentor::retain(*i);
+        
     }
 #endif
 
     // Add this experiment's database to the data queues
     DataQueues::addDatabase(dm_database);
-
+    
     // Set the experiment's rerun count to 0
     setRerunCount(-1);
-
+    
     // Set the experiment's instrumentor type to default to offline
     setIsInstrumentorOffline(true);
-
+    
 #if ( BUILD_CBTF == 1 )
     setInstrumentorUsesCBTF(true);
 #else
@@ -531,14 +547,14 @@ Experiment::~Experiment()
 
     // Postpone all performance data collection
     try {
-	getThreads().postponeCollecting(getCollectors());
+        getThreads().postponeCollecting(getCollectors());
     }
     catch(...) {
     }    
 
     // Remove this experiment's database from the data queues
     try {
-	DataQueues::removeDatabase(dm_database);
+        DataQueues::removeDatabase(dm_database);
     }
     catch(...) {
     }    
@@ -546,16 +562,17 @@ Experiment::~Experiment()
     // Iterate over each thread in this experiment
     ThreadGroup threads = getThreads();
     for(ThreadGroup::const_iterator 
-	    i = threads.begin(); i != threads.end(); ++i) {
+            i = threads.begin(); i != threads.end(); ++i) {
 	    
-	// Release this thread in the instrumentor
-	Instrumentor::release(*i);
-	
+        // Release this thread in the instrumentor
+        Instrumentor::release(*i);
+        
     }
 
-    // Remove experiment's database from data, function, and statement caches
+    // Remove experiment's database from the various caches
     DataQueues::TheCache.removeDatabase(dm_database);
     Function::TheCache.removeDatabase(dm_database);
+    Loop::TheCache.removeDatabase(dm_database);
     Statement::TheCache.removeDatabase(dm_database);
 }
 
@@ -1283,6 +1300,22 @@ void Experiment::removeThread(const Thread& thread) const
 	"WHERE function "
 	"  NOT IN (SELECT DISTINCT id FROM Functions)"
 	);
+    while(dm_database->executeStatement());
+
+    // Remove unused loops
+    dm_database->prepareStatement(
+        "DELETE FROM Loops "
+        "WHERE linked_object "
+        "  NOT IN (SELECT DISTINCT linked_object FROM AddressSpaces);"
+        );
+    while(dm_database->executeStatement());
+
+    // Remove unused loop ranges
+    dm_database->prepareStatement(
+        "DELETE FROM LoopRanges "
+        "WHERE loop "
+        "  NOT IN (SELECT DISTINCT id FROM Loops)"
+        );
     while(dm_database->executeStatement());
 
     // Remove unused statements
@@ -2188,6 +2221,54 @@ void Experiment::updateToVersion5() const
 
 
 /**
+ * Update our schema to version 6.
+ *
+ * Updates the schema of this experiment's database to version 6. Adds empty
+ * loop tables and updates the database's schema version number.
+ */
+void Experiment::updateToVersion6() const
+{
+    // Update procedure
+    const char* UpdateProcedure[] = {
+
+    // Loop Table
+	"CREATE TABLE Loops ("
+	"    id INTEGER PRIMARY KEY,"
+	"    linked_object INTEGER," // From LinkedObjects.id
+    "    addr_head INTEGER"
+	");",
+	"CREATE INDEX IndexLoopsByLinkedObject "
+	"  ON Loops (linked_object);",
+    
+    // Loop Range Table
+	"CREATE TABLE LoopRanges ("
+	"    loop INTEGER," // From Loops.id
+	"    addr_begin INTEGER,"
+	"    addr_end INTEGER,"
+	"    valid_bitmap BLOB"
+	");",
+    "CREATE INDEX IndexLoopRangesByLoop "
+	"  ON LoopRanges (loop);",
+	
+	// Update the database's schema version number
+	"UPDATE \"Open|SpeedShop\" SET version = 6;",
+
+	// End Of Table Entry
+	NULL
+    };
+
+    // Apply the update procedure
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    for(int i = 0; UpdateProcedure[i] != NULL; ++i) {
+        dm_database->prepareStatement(UpdateProcedure[i]);
+        while(dm_database->executeStatement());
+    }
+    END_TRANSACTION(dm_database);
+}
+
+
+
+/**
  * Get MPI job information from MPT.
  *
  * Returns MPI job information for the specified thread. Looks for specific 
@@ -2454,6 +2535,10 @@ void Experiment::updateThreads(const pid_t& pid,
 }
 
 
+
+//
+// LOOP TODO: compressDB() needs to be updated to prune the loop data.
+// 
 
 // TODO: Finish code to prune existing databases of database
 // entries that do not correspond to any of the sampled data.

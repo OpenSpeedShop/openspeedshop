@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2013 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -25,13 +26,14 @@
 
 #include "AddressBitmap.hxx"
 #include "Blob.hxx"
-#include "CallSite.hxx"
 #include "EntrySpy.hxx"
 #include "Exception.hxx"
 #include "ExtentGroup.hxx"
 #include "Function.hxx"
 #include "FunctionCache.hxx"
 #include "LinkedObject.hxx"
+#include "Loop.hxx"
+#include "LoopCache.hxx"
 #include "Statement.hxx"
 #include "StatementCache.hxx"
 #include "Thread.hxx"
@@ -89,26 +91,26 @@ std::set<Thread> Function::getThreads() const
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT linked_object FROM Functions WHERE Functions.id = ?;"
-	);
+        "SELECT linked_object FROM Functions WHERE Functions.id = ?;"
+        );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement()) {
-
-	int linked_object = dm_database->getResultAsInteger(1);	
-
-	// Find all the threads containing our linked object
-	dm_database->prepareStatement(
-	    "SELECT thread FROM AddressSpaces WHERE linked_object = ?;"
-	    );
-	dm_database->bindArgument(1, linked_object);
-	while(dm_database->executeStatement())
-	    threads.insert(Thread(dm_database, 
-				  dm_database->getResultAsInteger(1)));
-	
+        
+        int linked_object = dm_database->getResultAsInteger(1);	
+        
+        // Find all the threads containing our linked object
+        dm_database->prepareStatement(
+            "SELECT thread FROM AddressSpaces WHERE linked_object = ?;"
+            );
+        dm_database->bindArgument(1, linked_object);
+        while(dm_database->executeStatement())
+            threads.insert(Thread(dm_database, 
+                                  dm_database->getResultAsInteger(1)));
+        
     }	
     if(threads.empty())
-	throw Exception(Exception::EntryNotFound, "Threads",
-			"<Functions-Referenced>");
+        throw Exception(Exception::EntryNotFound, "Threads",
+                        "<Functions-Referenced>");
     END_TRANSACTION(dm_database);
     
     // Return the threads to the caller
@@ -165,37 +167,37 @@ ExtentGroup Function::getExtentIn(const Thread& thread) const
     thread.validate();
     dm_database->prepareStatement(
         "SELECT Functions.linked_object, "
-	"       FunctionRanges.addr_begin, "
-	"       FunctionRanges.addr_end, "
-	"       FunctionRanges.valid_bitmap "
-	"FROM FunctionRanges "
-	"  JOIN Functions "
-	"ON FunctionRanges.function = Functions.id "
-	"WHERE Functions.id = ?;"
-	);
+        "       FunctionRanges.addr_begin, "
+        "       FunctionRanges.addr_end, "
+        "       FunctionRanges.valid_bitmap "
+        "FROM FunctionRanges "
+        "  JOIN Functions "
+        "ON FunctionRanges.function = Functions.id "
+        "WHERE Functions.id = ?;"
+        );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement()) {
-
-	int linked_object = dm_database->getResultAsInteger(1);	
+        
+        int linked_object = dm_database->getResultAsInteger(1);	
         std::set<AddressRange> ranges =
             AddressBitmap(AddressRange(dm_database->getResultAsAddress(2),
                                        dm_database->getResultAsAddress(3)),
                           dm_database->getResultAsBlob(4)).
             getContiguousRanges(true);
- 
-	// Find all the uses of this linked object in the specified thread
-	dm_database->prepareStatement(
-	    "SELECT time_begin, "
-	    "       time_end, "
-	    "       addr_begin "
-	    "FROM AddressSpaces "
-	    "WHERE thread = ? "
-	    "  AND linked_object = ?;"
-	    );
-	dm_database->bindArgument(1, EntrySpy(thread).getEntry());
-	dm_database->bindArgument(2, linked_object);
-	while(dm_database->executeStatement()) {
-
+        
+        // Find all the uses of this linked object in the specified thread
+        dm_database->prepareStatement(
+            "SELECT time_begin, "
+            "       time_end, "
+            "       addr_begin "
+            "FROM AddressSpaces "
+            "WHERE thread = ? "
+            "  AND linked_object = ?;"
+            );
+        dm_database->bindArgument(1, EntrySpy(thread).getEntry());
+        dm_database->bindArgument(2, linked_object);
+        while(dm_database->executeStatement()) {
+            
             // Iterate over the addresss ranges for this function
             for(std::set<AddressRange>::const_iterator
                     i = ranges.begin(); i != ranges.end(); ++i)
@@ -207,12 +209,12 @@ ExtentGroup Function::getExtentIn(const Thread& thread) const
                                         dm_database->getResultAsAddress(3) +
                                         i->getEnd()))
                     );
-
-	}
-
+            
+        }
+        
     }	
     END_TRANSACTION(dm_database);
-
+    
     // Return the extent to the caller    
     return extent;
 }
@@ -234,12 +236,12 @@ LinkedObject Function::getLinkedObject() const
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT linked_object FROM Functions WHERE id = ?;"
-	);
+        "SELECT linked_object FROM Functions WHERE id = ?;"
+        );
     dm_database->bindArgument(1, dm_entry);	
     while(dm_database->executeStatement())
-	linked_object = LinkedObject(dm_database,
-				     dm_database->getResultAsInteger(1));
+        linked_object = LinkedObject(dm_database,
+                                     dm_database->getResultAsInteger(1));
     END_TRANSACTION(dm_database);
     
     // Return the linked object to the caller
@@ -279,7 +281,7 @@ std::string Function::getMangledName() const
     dm_database->prepareStatement("SELECT name FROM Functions WHERE id = ?;");
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-	name = dm_database->getResultAsString(1);
+        name = dm_database->getResultAsString(1);
     END_TRANSACTION(dm_database);
     
     // Return the mangled name to the caller
@@ -306,9 +308,9 @@ std::string Function::getDemangledName(const bool& all) const
 
     // Demangle the mangled name
     char* demangled = 
-	cplus_demangle(mangled.c_str(), 
-		       all ? (DMGL_ANSI | DMGL_PARAMS) : DMGL_NO_OPTS);
-
+        cplus_demangle(mangled.c_str(), 
+                       all ? (DMGL_ANSI | DMGL_PARAMS) : DMGL_NO_OPTS);
+    
     // Return the demangled name to the caller
     return demangled ? demangled : mangled;
 }
@@ -325,85 +327,47 @@ std::string Function::getDemangledName(const bool& all) const
  */
 std::set<Statement> Function::getDefinitions() const
 {
+    // Find our linked object and extent
     LinkedObject linked_object;
     ExtentGroup extent;
-
-    // Note: This query could be, and in fact used to be, implemented in a
-    //       straightforward manner as:
-    //
-    //       SELECT Functions.addr_begin,
-    //              Statements.id,
-    //              StatementRanges.addr_begin,
-    //              StatementRanges.addr_end,
-    //              StatementRanges.valid_bitmap
-    //       FROM StatementRanges
-    //         JOIN Statements
-    //         JOIN Functions
-    //       ON StatementRanges.statement = Statements.id
-    //         AND Statements.linked_object = Functions.linked_object
-    //       WHERE Functions.id = ?
-    //         AND Functions.addr_begin >= StatementRanges.addr_begin
-    //         AND Functions.addr_begin < StatementRanges.addr_end;
-    //
-    //       with a subsequent check if the statement bitmap contains the
-    //       function's beginning address. However the performance of this
-    //       direct query was found to be lacking. A statement cache was
-    //       introduced to accelerate such queries and is now used below.
-    //
-    // Note: The above query is no longer correct beginning with experiment
-    //       database schema version 4.
-
-    // Find our linked object and beginning address
-    BEGIN_TRANSACTION(dm_database);
-    validate();
-    dm_database->prepareStatement(
-        "SELECT Functions.linked_object, "
-	"       FunctionRanges.addr_begin, "
-	"       FunctionRanges.addr_end, "
-	"       FunctionRanges.valid_bitmap "
-	"FROM FunctionRanges "
-	"  JOIN Functions "
-	"ON FunctionRanges.function = Functions.id "
-	"WHERE Functions.id = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement()) {
-
-	linked_object = LinkedObject(dm_database,
-				     dm_database->getResultAsInteger(1));
-
-        std::set<AddressRange> ranges =
-            AddressBitmap(AddressRange(dm_database->getResultAsAddress(2),
-                                       dm_database->getResultAsAddress(3)),
-                          dm_database->getResultAsBlob(4)).
-            getContiguousRanges(true);
-
-        for(std::set<AddressRange>::const_iterator
-                i = ranges.begin(); i != ranges.end(); ++i)
-            extent.push_back(
-                Extent(
-                    TimeInterval(Time::TheBeginning(),
-                                 Time::TheEnd()),
-                    *i
-                    )
-                );
-
-    }
-    END_TRANSACTION(dm_database);
+    getLinkedObjectAndExtent(linked_object, extent);
 
     // Use the first (lowest) address of the function as its extent
-    Extent first(TimeInterval(Time::TheBeginning(),
-			      Time::TheEnd()),
-		 AddressRange(extent.getBounds().getAddressRange().getBegin()));
+    Extent first(TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+                 AddressRange(extent.getBounds().getAddressRange().getBegin()));
     extent.clear();
     extent.push_back(first);
     
     // Use the statement cache to find our definitions
     std::set<Statement> definitions =
-	Statement::TheCache.getStatements(linked_object, extent);
-
+        Statement::TheCache.getStatements(linked_object, extent);
+    
     // Return the definitions to the caller
     return definitions;
+}
+
+
+
+/**
+ * Get our loops.
+ *
+ * Returns the loops associated with this function. An empty set is returned
+ * if no loops are associated with this function.
+ *
+ * @return    Loops associated with this function.
+ */
+std::set<Loop> Function::getLoops() const
+{
+    // Find our linked object and extent
+    LinkedObject linked_object;
+    ExtentGroup extent;
+    getLinkedObjectAndExtent(linked_object, extent);
+    
+    // Use the loop cache to find our loops    
+    std::set<Loop> loops = Loop::TheCache.getLoops(linked_object, extent);
+    
+    // Return the loops to the caller
+    return loops;
 }
 
 
@@ -418,77 +382,15 @@ std::set<Statement> Function::getDefinitions() const
  */
 std::set<Statement> Function::getStatements() const
 {
+    // Find our linked object and extent
     LinkedObject linked_object;
     ExtentGroup extent;
-
-    // Note: This query could be, and in fact used to be, implemented in a
-    //       straightforward manner as:
-    //
-    //       SELECT Functions.addr_begin,
-    //              Functions.addr_end,
-    //              Statements.id,
-    //              StatementRanges.addr_begin,
-    //              StatementRanges.addr_end,
-    //              StatementRanges.valid_bitmap
-    //       FROM StatementRanges
-    //         JOIN Statements
-    //         JOIN Functions
-    //       ON StatementRanges.statement = Statements.id
-    //         AND Statements.linked_object = Functions.linked_object
-    //       WHERE Functions.id = ?
-    //         AND Functions.addr_end >= StatementRanges.addr_begin
-    //         AND Functions.addr_begin < StatementRanges.addr_end;
-    //
-    //       with a subsequent check if the statement bitmap contains an
-    //       address in the function. However the performance of this direct
-    //       query was found to be lacking. A statement cache was introduced
-    //       to accelerate such queries and is now used below.
-    //
-    // Note: The above query is no longer correct beginning with experiment
-    //       database schema version 4.
-
-    // Find our linked object and address range
-    BEGIN_TRANSACTION(dm_database);
-    validate();
-    dm_database->prepareStatement(
-        "SELECT Functions.linked_object, "
-	"       FunctionRanges.addr_begin, "
-	"       FunctionRanges.addr_end, "
-	"       FunctionRanges.valid_bitmap "
-	"FROM FunctionRanges "
-	"  JOIN Functions "
-	"ON FunctionRanges.function = Functions.id "
-	"WHERE Functions.id = ?;"
-	);
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement()) {
-
-	linked_object = LinkedObject(dm_database,
-				     dm_database->getResultAsInteger(1));
-
-        std::set<AddressRange> ranges =
-            AddressBitmap(AddressRange(dm_database->getResultAsAddress(2),
-                                       dm_database->getResultAsAddress(3)),
-                          dm_database->getResultAsBlob(4)).
-            getContiguousRanges(true);
-
-        for(std::set<AddressRange>::const_iterator
-                i = ranges.begin(); i != ranges.end(); ++i)
-            extent.push_back(
-                Extent(
-                    TimeInterval(Time::TheBeginning(),
-                                 Time::TheEnd()),
-                    *i
-                    )
-                );
-
-    }
-    END_TRANSACTION(dm_database);
-
+    getLinkedObjectAndExtent(linked_object, extent);
+    
     // Use the statement cache to find our statements
     std::set<Statement> statements =
-	Statement::TheCache.getStatements(linked_object, extent);
-
+        Statement::TheCache.getStatements(linked_object, extent);
+    
     // Return the statements to the caller
     return statements;
 }
@@ -496,35 +398,47 @@ std::set<Statement> Function::getStatements() const
 
 
 /**
- * Get our callees.
- *
- * Returns the known callees of this function. An empty set is returned if no
- * known callees are found.
- *
- * @todo    Needs to be implemented.
- *
- * @return    All known callees of this function.
+ * Used by Experiment::compressDB to prune an OpenSpeedShop database
+ * of any entries not found in the experiments sampled addresses.
  */
-std::set<CallSite> Function::getCallees() const
+AddressRange Function::getAddressRange() const
 {
-    return std::set<CallSite>();
-}
-
-
-
-/**
- * Get our callers.
- *
- * Returns the known callers of this function. An empty set is returned if no
- * known callers are found.
- *
- * @todo    Needs to be implemented.
- * 
- * @return    All known callers of this function.
- */
-std::set<CallSite> Function::getCallers() const
-{
-    return std::set<CallSite>();
+    AddressRange range;
+    
+    // Find our first address range
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+        "SELECT FunctionRanges.addr_begin, "
+        "       FunctionRanges.addr_end, "
+        "       FunctionRanges.valid_bitmap "
+        "FROM FunctionRanges "
+        "  JOIN Functions "
+        "ON FunctionRanges.function = Functions.id "
+        "WHERE Functions.id = ?;"
+        );
+    dm_database->bindArgument(1, dm_entry);
+    bool is_first = true;
+    while(dm_database->executeStatement()) {
+        
+        std::set<AddressRange> ranges =
+            AddressBitmap(AddressRange(dm_database->getResultAsAddress(2),
+                                       dm_database->getResultAsAddress(3)),
+                          dm_database->getResultAsBlob(4)).
+            getContiguousRanges(true);
+        
+        for(std::set<AddressRange>::const_iterator
+                i = ranges.begin(); i != ranges.end(); ++i)
+            if(is_first || (*i < range)) {
+                is_first = true;
+                range = *i;
+            }
+        
+    }
+    END_TRANSACTION(dm_database);
+    
+    // Return the address range to the caller
+    return range;
 }
 
 
@@ -562,44 +476,48 @@ Function::Function(const SmartPtr<Database>& database, const int& entry) :
 }
 
 
-// Used by Experiment::compressDB to prune an OpenSpeedShop database of
-// any entries not found in the experiments sampled addresses.
-AddressRange Function::getAddressRange() const
-{
-    AddressRange range;
 
-    // Find our first address range
+/**
+ * Get our linked object and extent.
+ *
+ * Returns the linked object containing, and extent of, this function.
+ *
+ * @retval linked_object    Linked object containing this function.
+ * @retval extent           Extent of this function.
+ */
+void Function::getLinkedObjectAndExtent(LinkedObject& linked_object,
+                                        ExtentGroup& extent) const
+{
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-        "SELECT FunctionRanges.addr_begin, "
-	"       FunctionRanges.addr_end, "
-	"       FunctionRanges.valid_bitmap "
-	"FROM FunctionRanges "
-	"  JOIN Functions "
-	"ON FunctionRanges.function = Functions.id "
-	"WHERE Functions.id = ?;"
-	);
+        "SELECT Functions.linked_object, "
+        "       FunctionRanges.addr_begin, "
+        "       FunctionRanges.addr_end, "
+        "       FunctionRanges.valid_bitmap "
+        "FROM FunctionRanges "
+        "  JOIN Functions "
+        "ON FunctionRanges.function = Functions.id "
+        "WHERE Functions.id = ?;"
+        );
     dm_database->bindArgument(1, dm_entry);
-    bool is_first = true;
     while(dm_database->executeStatement()) {
-
+        
+        linked_object = LinkedObject(dm_database,
+                                     dm_database->getResultAsInteger(1));
+        
         std::set<AddressRange> ranges =
             AddressBitmap(AddressRange(dm_database->getResultAsAddress(2),
                                        dm_database->getResultAsAddress(3)),
                           dm_database->getResultAsBlob(4)).
             getContiguousRanges(true);
-
+        
         for(std::set<AddressRange>::const_iterator
                 i = ranges.begin(); i != ranges.end(); ++i)
-	    if(is_first || (*i < range)) {
-		is_first = true;
-		range = *i;
-	    }
-
+            extent.push_back(
+                Extent(TimeInterval(Time::TheBeginning(), Time::TheEnd()), *i)
+                );
+        
     }
     END_TRANSACTION(dm_database);
-
-    // Return the address range to the caller
-    return range;
 }

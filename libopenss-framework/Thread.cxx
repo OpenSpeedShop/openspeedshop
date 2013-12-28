@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2007,2013 The Krell Institute. All Rights Reserved.
 // Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
@@ -29,6 +29,7 @@
 #include "Function.hxx"
 #include "Instrumentor.hxx"
 #include "LinkedObject.hxx"
+#include "Loop.hxx"
 #include "Path.hxx"
 #include "Statement.hxx"
 #include "Thread.hxx"
@@ -383,6 +384,46 @@ std::set<Function> Thread::getFunctions() const
 
 
 /**
+ * Get our loops.
+ *
+ * Returns the loops contained within this thread. An empty set is returned if
+ * no loops are found.
+ *
+ * @return    Loops contained within this thread.
+ */
+std::set<Loop> Thread::getLoops() const
+{
+    std::set<Loop> loops;
+
+    // Find our linked objects
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+        "SELECT linked_object FROM AddressSpaces WHERE thread = ?;"
+        );
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement()) {
+        
+        int linked_object = dm_database->getResultAsInteger(1);
+        
+        // Find all the loops in this linked object
+        dm_database->prepareStatement(
+            "SELECT id FROM Loops WHERE linked_object = ?;"
+            );
+        dm_database->bindArgument(1, linked_object);
+        while(dm_database->executeStatement())
+            loops.insert(Loop(dm_database, dm_database->getResultAsInteger(1)));
+        
+    }
+    END_TRANSACTION(dm_database);
+    
+    // Return the loops to the caller
+    return loops;
+}
+
+
+
+/**
  * Get our statements.
  *
  * Returns the statements contained within this thread. An empty set is returned
@@ -583,6 +624,97 @@ Thread::getFunctionAt(const Address& address, const Time& time) const
 
 
 /**
+ * Get the loops at an address.
+ *
+ * Returns the loops containing the specified address at a particular moment
+ * in time. An empty set is returned if no loops are found.
+ *
+ * @param address    Address to be found.
+ * @param time       Time at which to find this address.
+ * @return           Loops containing this address.
+ */
+std::set<Loop> Thread::getLoopsAt(const Address& address,
+                                  const Time& time) const
+{
+    std::set<Loop> loops;
+    
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    
+    // Find the linked object containing the requested address/time
+    bool found_linked_object = false; 
+    int linked_object;
+    Address addr_begin;    
+    dm_database->prepareStatement(
+        "SELECT linked_object, "
+        "       addr_begin "
+        "FROM AddressSpaces "
+        "WHERE thread = ? "
+        "  AND ? >= time_begin "
+        "  AND ? < time_end "
+        "  AND ? >= addr_begin "
+        "  AND ? < addr_end;"
+        );
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, time);
+    dm_database->bindArgument(3, time);
+    dm_database->bindArgument(4, address);
+    dm_database->bindArgument(5, address);	
+    while(dm_database->executeStatement()) {
+        if(found_linked_object)
+            throw Exception(Exception::EntryOverlapping, "AddressSpaces");
+        found_linked_object = true;
+        linked_object = dm_database->getResultAsInteger(1);
+        addr_begin = dm_database->getResultAsAddress(2);
+    }
+    
+    // Did we find the linked object?
+    if(found_linked_object) {
+        
+        // Find the loops containing the requested address    
+        dm_database->prepareStatement(
+            "SELECT Loops.id, "
+            "       LoopRanges.addr_begin, "
+            "       LoopRanges.addr_end, "
+            "       LoopRanges.valid_bitmap "
+            "FROM LoopRanges "
+            "  JOIN Loops "
+            "ON LoopRanges.loop = Loops.id "
+            "WHERE Loops.linked_object = ? "
+            "  AND ? >= LoopRanges.addr_begin "
+            "  AND ? < LoopRanges.addr_end;"
+            );
+        dm_database->bindArgument(1, linked_object);
+        dm_database->bindArgument(2, Address(address - addr_begin));
+        dm_database->bindArgument(3, Address(address - addr_begin));
+        while(dm_database->executeStatement()) {
+            
+            AddressBitmap bitmap(
+                AddressRange(dm_database->getResultAsAddress(2),
+                             dm_database->getResultAsAddress(3)),
+                dm_database->getResultAsBlob(4)
+                );
+            
+            if(bitmap.getValue(address - addr_begin))
+                loops.insert(
+                    Loop(dm_database, dm_database->getResultAsInteger(1))
+                    );
+            
+        }
+        
+    }
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);
+    
+    // Return the loops to the caller
+    return loops;
+}
+
+
+
+/**
  * Get the statements at an address.
  *
  * Returns the statements containing the specified address at a particular
@@ -673,6 +805,10 @@ Thread::getStatementsAt(const Address& address, const Time& time) const
 }
 
 
+
+//
+// LOOP TODO: getFunctionandStatementsAt() might need to be updated...
+// 
 
 // Used by Experiment::compressDB to prune an OpenSpeedShop database of
 // any entries not found in the experiments sampled addresses.
@@ -878,6 +1014,80 @@ Thread::getFunctionByName(const std::string& name) const
     
     // Return the function to the caller
     return function;
+}
+
+
+
+/**
+ * Get loops by source file.
+ *
+ * Returns the loops in the passed source file. An empty set is returned if the
+ * source file cannot be found.
+ *
+ * @param path    Source file for which to obtain loops.
+ * @return        Loops in this source file.
+ */
+std::set<Loop> Thread::getLoopsBySourceFile(const Path& file) const
+{
+    std::set<Loop> loops;
+
+    // Find our linked objects
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+        "SELECT linked_object FROM AddressSpaces WHERE thread = ?;"
+        );
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement()) {        
+        int linked_object = dm_database->getResultAsInteger(1);
+        
+        // Find all the loops in this linked object
+        dm_database->prepareStatement(
+            "SELECT id, addr_head FROM Loops WHERE linked_object = ?;"
+            );
+        dm_database->bindArgument(1, linked_object);
+        while(dm_database->executeStatement()) {
+            int loop = dm_database->getResultAsInteger(1);
+            Address addr_head = dm_database->getResultAsAddress(2);
+
+            // Find the statements containing this loop's head address
+            dm_database->prepareStatement(
+                "SELECT StatementRanges.addr_begin, "
+                "       StatementRanges.addr_end, "
+                "       StatementRanges.valid_bitmap "
+                "FROM StatementRanges "
+                "  JOIN Statements "
+                "  JOIN Files "
+                "ON StatementRanges.statement = Statements.id "
+                "  AND Statements.file = Files.id"
+                "WHERE Statements.linked_object = ? "
+                "  AND Files.path = ? "
+                "  AND ? >= StatementRanges.addr_begin "
+                "  AND ? < StatementRanges.addr_end;"
+                );
+            dm_database->bindArgument(1, linked_object);
+            dm_database->bindArgument(2, file);
+            dm_database->bindArgument(3, addr_head);
+            dm_database->bindArgument(4, addr_head);
+            while(dm_database->executeStatement()) {
+                
+                AddressBitmap bitmap(
+                    AddressRange(dm_database->getResultAsAddress(1),
+                                 dm_database->getResultAsAddress(2)),
+                    dm_database->getResultAsBlob(3)
+                    );
+                
+                if(bitmap.getValue(addr_head))
+                    loops.insert(Loop(dm_database, loop));
+            }
+            
+        }
+        
+    }
+    END_TRANSACTION(dm_database);
+    
+    // Return the loops to the caller
+    return loops;
 }
 
 

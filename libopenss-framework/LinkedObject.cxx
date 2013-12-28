@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2013 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -28,6 +29,7 @@
 #include "ExtentGroup.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
+#include "Loop.hxx"
 #include "Path.hxx"
 #include "Statement.hxx"
 #include "Thread.hxx"
@@ -51,14 +53,14 @@ std::set<Thread> LinkedObject::getThreads() const
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT thread FROM AddressSpaces WHERE linked_object = ?;"
-	);    
+        "SELECT thread FROM AddressSpaces WHERE linked_object = ?;"
+        );    
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-	threads.insert(Thread(dm_database, dm_database->getResultAsInteger(1)));
+        threads.insert(Thread(dm_database, dm_database->getResultAsInteger(1)));
     if(threads.empty())
-	throw Exception(Exception::EntryNotFound, "Threads",
-			"<LinkedObjects-Referenced>");
+        throw Exception(Exception::EntryNotFound, "Threads",
+                        "<LinkedObjects-Referenced>");
     END_TRANSACTION(dm_database);
     
     // Return the threads to the caller
@@ -93,23 +95,23 @@ ExtentGroup LinkedObject::getExtentIn(const Thread& thread) const
     validate();
     thread.validate();
     dm_database->prepareStatement(
-	"SELECT time_begin, "
-	"       time_end, "
-	"       addr_begin, "
-	"       addr_end "
-	"FROM AddressSpaces "
-	"WHERE thread = ? "
-	"  AND linked_object = ?;"
-	);    
+        "SELECT time_begin, "
+        "       time_end, "
+        "       addr_begin, "
+        "       addr_end "
+        "FROM AddressSpaces "
+        "WHERE thread = ? "
+        "  AND linked_object = ?;"
+        );    
     dm_database->bindArgument(1, EntrySpy(thread).getEntry());
     dm_database->bindArgument(2, dm_entry);
     while(dm_database->executeStatement())
-	extent.push_back(
-	    Extent(TimeInterval(dm_database->getResultAsTime(1),
-				dm_database->getResultAsTime(2)),
-		   AddressRange(dm_database->getResultAsAddress(3),
-				dm_database->getResultAsAddress(4)))
-	    );
+        extent.push_back(
+            Extent(TimeInterval(dm_database->getResultAsTime(1),
+                                dm_database->getResultAsTime(2)),
+                   AddressRange(dm_database->getResultAsAddress(3),
+                                dm_database->getResultAsAddress(4)))
+            );
     END_TRANSACTION(dm_database);
     
     // Return the extent to the caller    
@@ -133,22 +135,22 @@ Path LinkedObject::getPath() const
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT Files.path "
-	"FROM LinkedObjects "
-	"  JOIN Files "
-	"ON LinkedObjects.file = Files.id "
-	"WHERE LinkedObjects.id = ?;"
-	);
+        "SELECT Files.path "
+        "FROM LinkedObjects "
+        "  JOIN Files "
+        "ON LinkedObjects.file = Files.id "
+        "WHERE LinkedObjects.id = ?;"
+        );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement()) {
-	if(!path.empty())
-	    throw Exception(Exception::EntryNotUnique, "Files",
-			    "<LinkedObjects-Referenced>");
-	path = Path(dm_database->getResultAsString(1));
+        if(!path.empty())
+            throw Exception(Exception::EntryNotUnique, "Files",
+                            "<LinkedObjects-Referenced>");
+        path = Path(dm_database->getResultAsString(1));
     }
     if(path.empty())
-	throw Exception(Exception::EntryNotFound, "Files",
-			"<LinkedObjects-Referenced>");
+        throw Exception(Exception::EntryNotFound, "Files",
+                        "<LinkedObjects-Referenced>");
     END_TRANSACTION(dm_database);
     
     // Return the full path name to the caller
@@ -176,11 +178,11 @@ bool LinkedObject::isExecutable() const
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT is_executable FROM LinkedObjects WHERE id = ?;"
-	);
+        "SELECT is_executable FROM LinkedObjects WHERE id = ?;"
+        );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-	is_executable = dm_database->getResultAsInteger(1) != 0;
+        is_executable = dm_database->getResultAsInteger(1) != 0;
     END_TRANSACTION(dm_database);
     
     // Return the flag to the caller
@@ -200,21 +202,50 @@ bool LinkedObject::isExecutable() const
 std::set<Function> LinkedObject::getFunctions() const
 {
     std::set<Function> functions;
-
+    
     // Find our functions
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT id FROM Functions WHERE linked_object = ?;"
-	);	
+        "SELECT id FROM Functions WHERE linked_object = ?;"
+        );	
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-	functions.insert(Function(dm_database, 
-				  dm_database->getResultAsInteger(1)));
+        functions.insert(Function(dm_database, 
+                                  dm_database->getResultAsInteger(1)));
     END_TRANSACTION(dm_database);
     
     // Return the functions to the caller
     return functions;
+}
+
+
+
+/**
+ * Get our loops.
+ *
+ * Returns the loops contained within this linked object. An empty set is
+ * returned if no loops are found within this linked object.
+ *
+ * @return    Loops contained within this linked object.
+ */
+std::set<Loop> LinkedObject::getLoops() const
+{
+    std::set<Loop> loops;
+    
+    // Find our loops
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+        "SELECT id FROM Loops WHERE linked_object = ?;"
+        );	
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+        loops.insert(Loop(dm_database, dm_database->getResultAsInteger(1)));
+    END_TRANSACTION(dm_database);
+    
+    // Return the Loops to the caller
+    return loops;
 }
 
 
@@ -235,16 +266,51 @@ std::set<Statement> LinkedObject::getStatements() const
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-	"SELECT id FROM Statements WHERE linked_object = ?;"
-	);	
+        "SELECT id FROM Statements WHERE linked_object = ?;"
+        );	
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
-	statements.insert(Statement(dm_database,
-				    dm_database->getResultAsInteger(1)));
+        statements.insert(Statement(dm_database,
+                                    dm_database->getResultAsInteger(1)));
     END_TRANSACTION(dm_database);
     
     // Return the statements to the caller
     return statements;
+}
+
+
+
+/**
+ * Used by the Offline Experiment BFDSymbols code to find the address range
+ * of a linked object in the database. This is used to restrict the search
+ * of performance sample addresses to those found in the linked object being
+ * processed.
+ */
+std::set<AddressRange> LinkedObject::getAddressRange() const
+{
+    std::set<AddressRange> addressrange;
+
+    // Find the linked object containing the requested address/time
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+        "SELECT addr_begin, "
+        "       addr_end "
+        "FROM AddressSpaces WHERE linked_object = ?;"
+        );
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement()) {
+        Address addr_b = dm_database->getResultAsAddress(1);
+        Address addr_e = dm_database->getResultAsAddress(2);
+        addressrange.insert(AddressRange(addr_b,addr_e));
+        if (addressrange.empty())
+            throw Exception(Exception::EntryNotFound, "Address",
+                            "<LinkedObjects-Referenced>");
+    }
+    END_TRANSACTION(dm_database);
+    
+    // Return the addresses to the caller
+    return addressrange;
 }
 
 
@@ -272,39 +338,7 @@ LinkedObject::LinkedObject() :
  * @param entry       Identifier for this linked object.
  */
 LinkedObject::LinkedObject(const SmartPtr<Database>& database,
-			   const int& entry) :
+                           const int& entry) :
     Entry(database, Entry::LinkedObjects, entry)
 {
-}
-
-
-// Used by the Offline Experiment BFDSymbols code to find
-// the address range of a linked object in the database.
-// This is used to restrict the search of performance sample addresses
-// to those found in the linked object being processed.
-std::set<AddressRange>
-LinkedObject::getAddressRange() const
-{
-    std::set<AddressRange> addressrange;
-    // Find the linked object containing the requested address/time
-    BEGIN_TRANSACTION(dm_database);
-    validate();
-    dm_database->prepareStatement(
-	"SELECT addr_begin, "
-	"       addr_end "
-        "FROM AddressSpaces WHERE linked_object = ?;"
-        );
-    dm_database->bindArgument(1, dm_entry);
-    while(dm_database->executeStatement()) {
-	Address addr_b = dm_database->getResultAsAddress(1);
-	Address addr_e = dm_database->getResultAsAddress(2);
-        addressrange.insert(AddressRange(addr_b,addr_e));
-        if (addressrange.empty())
-            throw Exception(Exception::EntryNotFound, "Address",
-                "<LinkedObjects-Referenced>");
-    }
-    END_TRANSACTION(dm_database);
-
-    // Return the addresses to the caller
-    return addressrange;
 }
