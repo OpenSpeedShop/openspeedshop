@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2011 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -2454,10 +2454,12 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
   if( QString(getName()).startsWith("MPI") || 
       QString(getName()).startsWith("MPT") || 
       QString(getName()).startsWith("FPE") || 
+      QString(getName()).startsWith("MEM") || 
+      QString(getName()).startsWith("PTHREADS") || 
       QString(getName()).startsWith("IO") ) {
 
 #ifdef DEBUG_CustomPanel
-    printf("CustomExperimentPanel::processLAO(), inside MPI, MPT, FPE, IO section\n");
+    printf("CustomExperimentPanel::processLAO(), inside MPI, MPT, FPE, IO, MEM section\n");
 #endif
 
 //    QString paramStr = QString::null;
@@ -2489,6 +2491,20 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
         printf("CustomExperimentPanel::processLAO(), paramStr: fpe =(%s)\n", paramStr.ascii() );
 #endif
 
+      } else if( QString(getName()).startsWith("MEM") ) {
+
+        command = QString("expSetParam -x %1 mem::traced_functions=%2").arg(expID).arg(paramStr);
+
+#ifdef DEBUG_CustomPanel
+        printf("CustomExperimentPanel::processLAO, paramStr: MEM =(%s)\n", paramStr.ascii() );
+#endif
+      } else if( QString(getName()).startsWith("PTHR") ) {
+
+        command = QString("expSetParam -x %1 ptheads::traced_functions=%2").arg(expID).arg(paramStr);
+
+#ifdef DEBUG_CustomPanel
+        printf("CustomExperimentPanel::processLAO, paramStr: PTHREADS =(%s)\n", paramStr.ascii() );
+#endif
       } else if( QString(getName()).startsWith("IO") ) {
 
         command = QString("expSetParam -x %1 io::traced_functions=%2").arg(expID).arg(paramStr);
@@ -2573,7 +2589,9 @@ CustomExperimentPanel::processLAO(LoadAttachObject *lao)
         printf("CustomExperimentPanel::processLAO(), E: %s command=(%s)\n", getName(), command.ascii() );
 #endif
 
-        if( !QString(getName()).startsWith("IO") ) { // IO* doesn't have a sampling_rate
+        if( !QString(getName()).startsWith("IO") && 
+            !QString(getName()).startsWith("PTHREADS") && 
+            !QString(getName()).startsWith("MEM")) { // IO*, PTHREADS, MEM doesn't have a sampling_rate
           if( !cli->runSynchronousCLI((char *)command.ascii() ) ) {
             return 0;
           }
@@ -2952,6 +2970,8 @@ CustomExperimentPanel::getMostImportantMetric(QString collector_name)
     metric = "-m pcsamp::time";
   } else if( collector_name == "usertime" ) {
     metric = "-m usertime::exclusive_time";
+  } else if( collector_name == "iop" ) {
+    metric = "-m iop::exclusive_time";
   } else if( collector_name == "hwc" ) {
     metric = "-m hwc::overflows";
   } else if( collector_name == "hwcsamp" ) {
@@ -2966,6 +2986,10 @@ CustomExperimentPanel::getMostImportantMetric(QString collector_name)
     metric = "-m io::exclusive_times";
   } else if( collector_name == "iot" ) {
     metric = "-m io::exclusive_times";
+  } else if( collector_name == "pthreads" ) {
+    metric = "-m pthreads::start_time, pthreads::end_time, pthreads::exclusive";
+  } else if( collector_name == "mem" ) {
+    metric = "-m mem::start_time, mem::end_time, mem::exclusive";
   }
   
   return(metric);

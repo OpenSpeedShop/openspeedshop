@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006, 2007 Krell Institute All Rights Reserved.
+# Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -33,11 +33,14 @@ SUBDIRS += \
 	pcSamplePanel \
 	UserTimePanel \
 	IOPanel \
+	IOPPanel \
 	IOTPanel \
 	FPE_TracingPanel \
 	MPIPanel \
 	MPITPanel \
-	MPIOTFPanel
+	MPIOTFPanel \
+	MEMPanel \
+	PTHREADSPanel
 
 if HAVE_OTF
 if HAVE_VT

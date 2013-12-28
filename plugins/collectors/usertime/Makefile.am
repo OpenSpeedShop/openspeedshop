@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-# Copyright (c) 2006-2012 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -68,6 +68,8 @@ endif
 # endif (below) for if HAVE_TARGET_LIBMONITOR
 endif
 
+# endif (below) for if BUILD_INSTRUMENTOR
+endif
 
 if !BUILD_RUNTIME_ONLY
 usertime_la_CXXFLAGS = \
@@ -226,7 +228,6 @@ libusertime_offline_la_SOURCES = \
 	blobs.x $(BUILT_SOURCES) \
 	$(OFFLINE_SOURCES) \
 	runtime.c
-endif
 endif
 endif
 

@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2013 Krell Institute All Rights Reserved.
+# Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
 # Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -19,7 +19,7 @@
 ################################################################################
 
 AC_INIT([OpenSpeedShop],[2.1_u2])
-AC_COPYRIGHT([[Copyright (c) 2006-2013 Krell Institute. All Rights Reserved.]])
+AC_COPYRIGHT([[Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.]])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([libltdl/config])
 AM_INIT_AUTOMAKE
@@ -32,7 +32,7 @@ AC_CONFIG_HEADERS([config.h])
 
 AH_TOP([
 /*******************************************************************************
-** Copyright (c) 2006-2013 Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -252,10 +252,13 @@ AC_DEFUN([AX_RUNTIME_DIR], [
                 runtime_dir=$withval, runtime_dir="/nodefault")
 
     AC_MSG_CHECKING([for compute OpenSpeedShop runtime environment library])
-    RUNTIME_DIR=""
-    RUNTIME_DIR_LDFLAGS=""
 
-    if (test -e $runtime_dir/$abi_libdir) ; then
+    if test "x${runtime_dir}" == "x" ; then
+      RUNTIME_DIR=""
+      RUNTIME_DIR_LDFLAGS=""
+      AM_CONDITIONAL(HAVE_RUNTIME_DIR, false)
+      AC_MSG_RESULT(no)
+    elif (test -e $runtime_dir/$abi_libdir) ; then
        RUNTIME_DIR="$runtime_dir"
        AC_DEFINE(HAVE_RUNTIME_DIR, 1, [Define to 1 if you to indicate a runtime directory exists  .])
        AM_CONDITIONAL(HAVE_RUNTIME_DIR, true)
@@ -612,7 +615,8 @@ AC_ARG_WITH(instrumentor,
 case "$INSTRUMENTOR" in
     none)
 	AM_CONDITIONAL(HAVE_XERCES, false)
-	AM_CONDITIONAL(HAVE_SYMTABAPI, false)
+	#AM_CONDITIONAL(HAVE_SYMTABAPI, false)
+	AX_SYMTABAPI()
 	AM_CONDITIONAL(BUILD_CBTF, false)
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
@@ -621,7 +625,9 @@ case "$INSTRUMENTOR" in
 	AM_CONDITIONAL(HAVE_DYNINST, false)
 	AM_CONDITIONAL(BUILD_INSTRUMENTOR, false)
 	AC_DEFINE(BUILD_INSTRUMENTOR, 0, [Define to 1 if you do not want an instrumentor built.])
-        AM_CONDITIONAL(HAVE_RUNTIME_DIR, false)
+        #AM_CONDITIONAL(HAVE_RUNTIME_DIR, false)
+        INSTRUMENTOR=offline
+	AX_RUNTIME_DIR()
 	;; 
 
     dyninst)
@@ -845,12 +851,15 @@ AC_CONFIG_FILES(
 	plugins/panels/HWCSampPanel/Makefile
 	plugins/panels/HWCTimePanel/Makefile
 	plugins/panels/IOPanel/Makefile
+	plugins/panels/IOPPanel/Makefile
 	plugins/panels/IOTPanel/Makefile
 	plugins/panels/MPIPanel/Makefile
 	plugins/panels/MPITPanel/Makefile
 	plugins/panels/MPIOTFPanel/Makefile
 	plugins/panels/DebugPanel/Makefile
 	plugins/panels/FPE_TracingPanel/Makefile
+	plugins/panels/MEMPanel/Makefile
+	plugins/panels/PTHREADSPanel/Makefile
 	plugins/panels/CompareExperimentsPanel/Makefile
 	plugins/panels/loadPanel/Makefile
 	plugins/views/Makefile

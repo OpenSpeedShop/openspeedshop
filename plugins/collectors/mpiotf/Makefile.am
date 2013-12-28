@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2007,2008,2009 Krell Institute  All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-# Copyright (c) 2006,2007,2008,2009 The Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2014 The Krell Institute. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -29,6 +29,7 @@ BUILT_SOURCES = \
 
 pkglib_LTLIBRARIES =
 
+if BUILD_INSTRUMENTOR
 if !BUILD_CBTF
 if HAVE_LIBMONITOR
 OFFLINE_SOURCES = \
@@ -1060,6 +1061,8 @@ CLEANFILES += libvt.mpi.mvapich2.a
 endif
 if HAVE_OPENMPI
 CLEANFILES += libvt.mpi.openmpi.a
+endif
+# endif for BUILD_INSTRUMENTOR
 endif
 
 SUFFIXES = .x 

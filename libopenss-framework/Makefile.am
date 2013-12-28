@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2012 Krell Institute All Rights Reserved.
+# Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -24,6 +24,8 @@
 #
 
 if BUILD_INSTRUMENTOR
+SUBDIRS = @INSTRUMENTOR@
+else
 SUBDIRS = @INSTRUMENTOR@
 endif
 
@@ -124,7 +126,7 @@ endif
 endif
 
 
-if BUILD_INSTRUMENTOR
+#if BUILD_INSTRUMENTOR
 
 if OPENSS_USE_SYMTABAPI
 libopenss_framework_la_LIBADD = \
@@ -151,42 +153,43 @@ libopenss_framework_la_LIBADD += \
 	@MESSAGES_PERFDATA_LIBS@
 endif
 
-else
+# else for BUILD_INSTRUMENTOR
+#else
 
-if OPENSS_USE_SYMTABAPI
-libopenss_framework_la_LIBADD = \
-	$(LIBLTDL) \
-	@ARRAYSVCS_LIBS@ \
-	@SQLITE_LIBS@ \
-	-lpthread -lrt 
+#if OPENSS_USE_SYMTABAPI
+#libopenss_framework_la_LIBADD = \
+#	$(LIBLTDL) \
+#	@ARRAYSVCS_LIBS@ \
+#	@SQLITE_LIBS@ \
+#	-lpthread -lrt 
 
-if BUILD_CBTF
-libopenss_framework_la_LDFLAGS += \
-	-L$(top_srcdir)/libopenss-framework/.libs
-
-libopenss_framework_la_LIBADD += \
-	-lopenss-framework-symtabapi \
-	@MESSAGES_PERFDATA_LIBS@
-endif
-
-else
-
-libopenss_framework_la_LIBADD = \
-	$(LIBLTDL) \
-	@ARRAYSVCS_LIBS@ \
-	@SQLITE_LIBS@ \
-	-lpthread -lrt @BINUTILS_IBERTY_LDFLAGS@ @BINUTILS_IBERTY_LIB@
-
-if BUILD_CBTF
-libopenss_framework_la_LIBADD += \
-	@MESSAGES_PERFDATA_LIBS@
-endif
-
-# endif for not using symtabAPI else clause
-endif
+#if BUILD_CBTF
+#libopenss_framework_la_LDFLAGS += \
+#	-L$(top_srcdir)/libopenss-framework/.libs
+#
+#libopenss_framework_la_LIBADD += \
+#	-lopenss-framework-symtabapi \
+#	@MESSAGES_PERFDATA_LIBS@
+#endif
+#
+#else
+#
+#libopenss_framework_la_LIBADD = \
+#	$(LIBLTDL) \
+#	@ARRAYSVCS_LIBS@ \
+#	@SQLITE_LIBS@ \
+#	-lpthread -lrt @BINUTILS_IBERTY_LDFLAGS@ @BINUTILS_IBERTY_LIB@
+#
+#if BUILD_CBTF
+#libopenss_framework_la_LIBADD += \
+#	@MESSAGES_PERFDATA_LIBS@
+#endif
+#
+## endif for not using symtabAPI else clause
+#endif
 
 # endif for not build instrumentor else clause
-endif
+#endif
 
 COMMON_SOURCES = \
 	$(top_srcdir)/libopenss-runtime/OpenSS_DataHeader.c \
@@ -257,21 +260,21 @@ OPENSSSYMTABAPI_SOURCES += \
     OfflineExperiment.hxx OfflineExperiment.cxx
 endif
 
-if BUILD_INSTRUMENTOR
+#if BUILD_INSTRUMENTOR
 libopenss_framework_la_SOURCES = \
 	$(COMMON_SOURCES) $(INSTRUMENTOR_SOURCES)
 libopenss_framework_binutils_la_SOURCES = \
 	$(OPENSSBINUTILS_SOURCES)
 libopenss_framework_symtabapi_la_SOURCES = \
 	$(OPENSSSYMTABAPI_SOURCES)
-else
-libopenss_framework_la_SOURCES = \
-	$(COMMON_SOURCES)
-libopenss_framework_binutils_la_SOURCES = \
-	$(OPENSSBINUTILS_SOURCES)
-libopenss_framework_symtabapi_la_SOURCES = \
-	$(OPENSSSYMTABAPI_SOURCES)
-endif
+#else
+#libopenss_framework_la_SOURCES = \
+#	$(COMMON_SOURCES)
+#libopenss_framework_binutils_la_SOURCES = \
+#	$(OPENSSBINUTILS_SOURCES)
+#libopenss_framework_symtabapi_la_SOURCES = \
+#	$(OPENSSSYMTABAPI_SOURCES)
+#endif
 
 EXTRA_DIST = OpenSSPath.cxx PapiAPI.h PapiAPI.cxx
 

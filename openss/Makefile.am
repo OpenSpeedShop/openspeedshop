@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2013 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -36,14 +36,14 @@ if !BUILD_CBTF
 nodist_bin_SCRIPTS += osslink
 BUILT_FILES += osslink
 endif
-if !BUILD_RUNTIME_ONLY
+#if !BUILD_RUNTIME_ONLY
 nodist_bin_SCRIPTS += ossdriver ossdriver_compare
 BUILT_FILES += ossdriver ossdriver_compare
 if !BUILD_CBTF
 nodist_bin_SCRIPTS += ossrun
 BUILT_FILES += ossrun
 endif
-endif
+#endif
 if HAVE_TARGET_SHARED
 nodist_bin_SCRIPTS += ossrun
 BUILT_FILES += ossrun
@@ -121,7 +121,7 @@ osscollect_LDADD = \
 osscollect_SOURCES = \
 	osscollect.cxx
 
-if BUILD_INSTRUMENTOR
+#if BUILD_INSTRUMENTOR
 
 if !BUILD_RUNTIME_ONLY
 if !BUILD_CBTF
@@ -183,10 +183,13 @@ endif
 ossutil_SOURCES = \
         ossutil.cxx
 
+# endif for NOT CBTF
 endif
+# endif for NOT RUNTIME ONLY
 endif
 
-endif
+# endif for BUILD_INSTRUMENTOR
+#endif
 
 CLEANFILES = $(BUILT_FILES)
 
@@ -196,6 +199,12 @@ CLEANFILES = $(BUILT_FILES)
 # variable substitution at configure time
 # TODO: need to configure location of libmonitor.so
 # via "-e 's,@@libmonitordir@@,$(monitorlibdir),' \"
+
+if HAVE_RUNTIME_DIR
+oss_location=$(RUNTIME_DIR)
+else
+oss_location=$(prefix)
+endif
 
 if BUILD_TARGETED
 monitor_dir=$(TARGET_LIBMONITOR_DIR)
@@ -218,7 +227,7 @@ osslink: osslink.in
 	@rm -f osslink
 	@sed \
 		-e 's,@@default_mpi_impl@@,$(DEFAULT_MPI_IMPL),' \
-		-e 's,@@ossinstalldir@@,$(prefix),' \
+		-e 's,@@ossinstalldir@@,$(oss_location),' \
 		-e 's,@@libmonitordir@@,$(monitor_dir),' \
 		-e 's,@@libunwinddir@@,$(unwind_dir),' \
 		-e 's,@@osstargetos@@,$(TARGET_OS),' \
@@ -254,16 +263,16 @@ endif
 
 if BUILD_INSTRUMENTOR
 
-if !BUILD_RUNTIME_ONLY
+#if !BUILD_RUNTIME_ONLY
 if !BUILD_CBTF
 ossrun: ossrun.in
 endif
-endif
+#endif
 	@rm -f ossrun
 	@sed \
 		-e 's,@@machine_dependent_libdir@@,$(abi_libdir_name),' \
 		-e 's,@@alt_machine_dependent_libdir@@,$(alt_abi_libdir_name),' \
-		-e 's,@@ossinstalldir@@,$(prefix),' \
+		-e 's,@@ossinstalldir@@,$(oss_location),' \
 		-e 's,@@libmonitordir@@,$(monitor_dir),' \
 		-e 's,@@libmonitorlibdir@@,$(monitor_libdir),' \
 		-e 's,@@lamdir@@,$(LAM_DIR),' \

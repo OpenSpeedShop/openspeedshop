@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2012 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -162,9 +162,12 @@ class StatsPanel  : public Panel
     void generateHWCTIMEmodifiers();
     void generateHWCSAMPmodifiers();
     void generateIOmodifiers();
+    void generateIOPmodifiers();
     void generateIOTmodifiers();
+    void generateMEMmodifiers();
     void generateMPImodifiers();
     void generateMPITmodifiers();
+    void generatePTHREADSmodifiers();
     void generateFPEmodifiers();
 
     void generatePCSAMPAnnotationmodifiers();
@@ -173,9 +176,12 @@ class StatsPanel  : public Panel
     void generateHWCTIMEAnnotationmodifiers();
     void generateHWCSAMPAnnotationmodifiers();
     void generateIOAnnotationmodifiers();
+    void generateIOPAnnotationmodifiers();
     void generateIOTAnnotationmodifiers();
+    void generateMEMAnnotationmodifiers();
     void generateMPIAnnotationmodifiers();
     void generateMPITAnnotationmodifiers();
+    void generatePTHREADSAnnotationmodifiers();
     void generateFPEAnnotationmodifiers();
 
     void updateCurrentModifierList( std::list<std::string> genericModifierList,
@@ -329,6 +335,8 @@ class StatsPanel  : public Panel
     std::list<std::string> current_list_of_mpit_modifiers;
     std::list<std::string> list_of_io_modifiers;
     std::list<std::string> current_list_of_io_modifiers;
+    std::list<std::string> list_of_iop_modifiers;
+    std::list<std::string> current_list_of_iop_modifiers;
     std::list<std::string> list_of_iot_modifiers;
     std::list<std::string> current_list_of_iot_modifiers;
     std::list<std::string> list_of_hwc_modifiers;
@@ -341,6 +349,10 @@ class StatsPanel  : public Panel
     std::list<std::string> current_list_of_pcsamp_modifiers;
     std::list<std::string> list_of_usertime_modifiers;
     std::list<std::string> current_list_of_usertime_modifiers;
+    std::list<std::string> list_of_mem_modifiers;
+    std::list<std::string> current_list_of_mem_modifiers;
+    std::list<std::string> list_of_pthreads_modifiers;
+    std::list<std::string> current_list_of_pthreads_modifiers;
     std::list<std::string> list_of_fpe_modifiers;
     std::list<std::string> current_list_of_fpe_modifiers;
     std::list<std::string> list_of_generic_modifiers;
@@ -448,6 +460,9 @@ class StatsPanel  : public Panel
     QPopupMenu *mpiModifierMenu;
     QPopupMenu *mpitModifierMenu;
     QPopupMenu *ioModifierMenu;
+    QPopupMenu *iopModifierMenu;
+    QPopupMenu *memModifierMenu;
+    QPopupMenu *pthreadsModifierMenu;
     QPopupMenu *iotModifierMenu;
     QPopupMenu *hwcModifierMenu;
     QPopupMenu *hwcsampModifierMenu;
@@ -460,6 +475,9 @@ class StatsPanel  : public Panel
     QPopupMenu *popupMenu;   // Pointer to the contextMenu
     QPopupMenu *mpi_menu;
     QPopupMenu *io_menu;
+    QPopupMenu *iop_menu;
+    QPopupMenu *mem_menu;
+    QPopupMenu *pthreads_menu;
     QPopupMenu *hwc_menu;
     QPopupMenu *hwcsamp_menu;
     QPopupMenu *hwctime_menu;
@@ -520,6 +538,8 @@ class StatsPanel  : public Panel
     void gotoSource(bool use_current_item = FALSE);
     void aboutSelected();
     void MPItraceSelected();
+    void MEMtraceSelected();
+    void PTHREADStraceSelected();
     void IOtraceSelected();
     void customizeExperimentsSelected();
     void clusterAnalysisSelected();
@@ -559,6 +579,7 @@ class StatsPanel  : public Panel
     void mpiModifierSelected(int);
     void mpitModifierSelected(int);
     void ioModifierSelected(int);
+    void iopModifierSelected(int);
     void iotModifierSelected(int);
     void hwcModifierSelected(int);
     void hwcsampModifierSelected(int);
@@ -566,11 +587,16 @@ class StatsPanel  : public Panel
     void genericModifierSelected(int);
     void pcsampModifierSelected(int);
     void usertimeModifierSelected(int);
+    void memModifierSelected(int);
+    void pthreadsModifierSelected(int);
     void fpeModifierSelected(int);
     void collectorMetricSelected(int);
     void collectorMPIReportSelected(int);
     void collectorMPITReportSelected(int);
     void collectorIOReportSelected(int);
+    void collectorIOPReportSelected(int);
+    void collectorMEMReportSelected(int);
+    void collectorPTHREADSReportSelected(int);
     void collectorIOTReportSelected(int);
     void collectorHWCReportSelected(int);
     void collectorHWCSampReportSelected(int);
@@ -603,6 +629,14 @@ class StatsPanel  : public Panel
     void addMPIReports(QPopupMenu *menu);
     void generateIOMenu(QString collectorName);
     void addIOReports(QPopupMenu *menu);
+
+    void generateIOPMenu();
+    void addIOPReports(QPopupMenu *menu);
+
+    void generateMEMMenu(QString collectorName);
+    void addMEMReports(QPopupMenu *menu);
+    void generatePTHREADSMenu(QString collectorName);
+    void addPTHREADSReports(QPopupMenu *menu);
     void generateHWCMenu(QString collectorName);
     void addHWCReports(QPopupMenu *menu);
     void generateHWCSampMenu(QString collectorName);

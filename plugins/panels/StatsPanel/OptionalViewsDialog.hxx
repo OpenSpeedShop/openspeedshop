@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007-2013 Krell Institute  All Rights Reserved.
+// Copyright (c) 2007-2014 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -147,6 +147,25 @@ public:
     bool iot_retval;
     bool iot_pathname;
 
+    bool iop_exclusive_times;
+    bool iop_inclusive_times;
+    bool iop_percent;
+    bool iop_count;
+    bool iop_ThreadAverage;
+    bool iop_ThreadMin;
+    bool iop_ThreadMax;
+
+    bool mem_exclusive_times;
+    bool mem_min;
+    bool mem_max;
+    bool mem_average;
+    bool mem_count;
+    bool mem_percent;
+    bool mem_stddev;
+    bool mem_ThreadAverage;
+    bool mem_ThreadMin;
+    bool mem_ThreadMax;
+
     bool mpi_exclusive_times;
     bool mpi_inclusive_times;
     bool mpi_min;
@@ -173,6 +192,17 @@ public:
     bool mpit_communicator;
     bool mpit_datatype;
     bool mpit_retval;
+
+    bool pthreads_exclusive_times;
+    bool pthreads_min;
+    bool pthreads_max;
+    bool pthreads_average;
+    bool pthreads_count;
+    bool pthreads_percent;
+    bool pthreads_stddev;
+    bool pthreads_ThreadAverage;
+    bool pthreads_ThreadMin;
+    bool pthreads_ThreadMax;
 
     bool fpe_time;
     bool fpe_counts;
@@ -324,6 +354,25 @@ protected:
     QCheckBox *io_ThreadMin_CheckBox;
     QCheckBox *io_ThreadMax_CheckBox;
 
+    QCheckBox *iop_exclusive_times_CheckBox;
+    QCheckBox *iop_inclusive_times_CheckBox;
+    QCheckBox *iop_percent_CheckBox;
+    QCheckBox *iop_count_CheckBox;
+    QCheckBox *iop_ThreadAverage_CheckBox;
+    QCheckBox *iop_ThreadMin_CheckBox;
+    QCheckBox *iop_ThreadMax_CheckBox;
+
+    QCheckBox *mem_exclusive_times_CheckBox;
+    QCheckBox *mem_min_CheckBox;
+    QCheckBox *mem_max_CheckBox;
+    QCheckBox *mem_average_CheckBox;
+    QCheckBox *mem_count_CheckBox;
+    QCheckBox *mem_percent_CheckBox;
+    QCheckBox *mem_stddev_CheckBox;
+    QCheckBox *mem_ThreadAverage_CheckBox;
+    QCheckBox *mem_ThreadMin_CheckBox;
+    QCheckBox *mem_ThreadMax_CheckBox;
+
     QCheckBox *mpi_exclusive_times_CheckBox;
     QCheckBox *mpi_inclusive_times_CheckBox;
     QCheckBox *mpi_min_CheckBox;
@@ -350,6 +399,17 @@ protected:
     QCheckBox *mpit_communicator_CheckBox;
     QCheckBox *mpit_datatype_CheckBox;
     QCheckBox *mpit_retval_CheckBox;
+
+    QCheckBox *pthreads_exclusive_times_CheckBox;
+    QCheckBox *pthreads_min_CheckBox;
+    QCheckBox *pthreads_max_CheckBox;
+    QCheckBox *pthreads_average_CheckBox;
+    QCheckBox *pthreads_count_CheckBox;
+    QCheckBox *pthreads_percent_CheckBox;
+    QCheckBox *pthreads_stddev_CheckBox;
+    QCheckBox *pthreads_ThreadAverage_CheckBox;
+    QCheckBox *pthreads_ThreadMin_CheckBox;
+    QCheckBox *pthreads_ThreadMax_CheckBox;
 
     QCheckBox *fpe_time_CheckBox;
     QCheckBox *fpe_counts_CheckBox;

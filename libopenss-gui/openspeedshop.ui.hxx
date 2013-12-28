@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2011 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -269,10 +269,6 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
           knownCollectorType = TRUE;
           panel_type = "FPE Tracing";
           break;
-        } else if( collector_name == "hwc" ) {
-          panel_type = "HW Counter";
-          knownCollectorType = TRUE;
-          break;
         } else if( collector_name == "hwcsamp" ) {
           panel_type = "HWCSamp Panel";
           knownCollectorType = TRUE;
@@ -281,16 +277,28 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
           panel_type = "HWCTime Panel";
           knownCollectorType = TRUE;
           break;
-        } else if( collector_name == "io" ) {
-          panel_type = "IO";
+        } else if( collector_name == "hwc" ) {
+          panel_type = "HW Counter";
           knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "iop" ) {
+          knownCollectorType = TRUE;
+          panel_type = "IOP";
           break;
         } else if( collector_name == "iot" ) {
           panel_type = "IOT";
           knownCollectorType = TRUE;
           break;
-        } else if( collector_name == "mpi" ) {
-          panel_type = "MPI";
+        } else if( collector_name == "io" ) {
+          panel_type = "IO";
+          knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "pthreads" ) {
+          panel_type = "PTHREADS";
+          knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "mem" ) {
+          panel_type = "MEM";
           knownCollectorType = TRUE;
           break;
         } else if( collector_name == "mpit" ) {
@@ -301,6 +309,10 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
            panel_type = "MPIOTF";
            knownCollectorType = TRUE;
            break;
+        } else if( collector_name == "mpi" ) {
+          panel_type = "MPI";
+          knownCollectorType = TRUE;
+          break;
         }
 
       }
@@ -1634,9 +1646,29 @@ OpenSpeedshop::lookForExperiment(bool hadOfflineArg)
           panel_type = "HWCTime Panel";
           knownCollectorType = TRUE;
           break;
+        } else if( collector_name == "iop" )
+        {
+          panel_type = "IOP";
+          knownCollectorType = TRUE;
+          break;
         } else if( collector_name == "io" )
         {
           panel_type = "IO";
+          knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "iot" )
+        {
+          panel_type = "IOT";
+          knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "pthreads" )
+        {
+          panel_type = "PTHREADS";
+          knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "mem" )
+        {
+          panel_type = "MEM";
           knownCollectorType = TRUE;
           break;
         } else if( collector_name == "mpi" )

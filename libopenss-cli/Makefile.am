@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2007-2013 Krell Institute  All Rights Reserved.
+# Copyright (c) 2007-2014 Krell Institute  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -138,13 +138,17 @@ CLEANFILES = $(BUILT_SOURCES)
 doc:
 	$(DOXYGEN)
 
+if HAVE_RUNTIME_DIR
+ossrun_location=$(RUNTIME_DIR)
+else
+ossrun_location=$(prefix)
+endif
 
 if BUILD_TARGETED
 
 monitor_libdir=$(TARGET_LIBMONITOR_LIBDIR)
 monitor_dir=$(TARGET_LIBMONITOR_DIR)
 mpich2_dir=$(TARGET_MPICH2_DIR)
-ossrun_location=$(prefix)
 
 else
 
@@ -160,18 +164,11 @@ mpich2_dir=$(MPICH2_DIR)
 monitor_dir=$(LIBMONITOR_DIR)
 monitor_libdir=$(LIBMONITOR_LIBDIR)
 
-if HAVE_RUNTIME_DIR
-ossrun_location=$(RUNTIME_DIR)
-else
-ossrun_location=$(prefix)
-endif
-
 # endif for else of FE_SETUP_BUILD_TARGETED
 endif
 
 # endif for else of BUILD_TARGETED
 endif
-
 
 cbtf-offline.py: cbtf-offline.py.in
 	@rm -f cbtf-offline.py
@@ -214,6 +211,7 @@ mrnet.py: mrnet.py.in
 		$(srcdir)/mrnet.py.in > mrnet.py
 	@chmod 755 mrnet.py
 
+if BUILD_INSTRUMENTOR
 # PYopenss.so
 install-exec-hook: libopenss-cli.la
 	@rm -f $(pkglibdir)/PYopenss.so
@@ -222,6 +220,7 @@ install-exec-hook: libopenss-cli.la
 
 uninstall-hook:
 	@rm -f $(pkglibdir)/PYopenss.so 
+endif
 
 EXTRA_DIST += offline.py.in mrnet.py.in cbtf-offline.py.in
 

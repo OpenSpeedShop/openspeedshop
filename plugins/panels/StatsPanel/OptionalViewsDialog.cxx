@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2009-2013  Krell Institute  All Rights Reserved.
+// Copyright (c) 2009-2014  Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -140,6 +140,25 @@ OptionalViewsDialog::OptionalViewsDialog( QWidget* parent,
      io_ThreadAverage = FALSE;
      io_ThreadMin = FALSE;
      io_ThreadMax = FALSE;
+   } else if ( globalCollectorString.contains("iop") ) {
+     iop_exclusive_times = FALSE;
+     iop_inclusive_times = FALSE;
+     iop_percent = FALSE;
+     iop_count = FALSE;
+     iop_ThreadAverage = FALSE;
+     iop_ThreadMin = FALSE;
+     iop_ThreadMax = FALSE;
+   } else if (globalCollectorString.contains("mem") ) {
+     mem_exclusive_times = FALSE;
+     mem_min = FALSE;
+     mem_max = FALSE;
+     mem_average = FALSE;
+     mem_count = FALSE;
+     mem_percent = FALSE;
+     mem_stddev = FALSE;
+     mem_ThreadAverage = FALSE;
+     mem_ThreadMin = FALSE;
+     mem_ThreadMax = FALSE;
    } else if ( globalCollectorString.contains("mpit") ) {
      mpit_exclusive_times = FALSE;
      mpit_inclusive_times = FALSE;
@@ -167,6 +186,17 @@ OptionalViewsDialog::OptionalViewsDialog( QWidget* parent,
      mpi_count = FALSE;
      mpi_percent = FALSE;
      mpi_stddev = FALSE;
+   } else if (globalCollectorString.contains("pthreads") ) {
+     pthreads_exclusive_times = FALSE;
+     pthreads_min = FALSE;
+     pthreads_max = FALSE;
+     pthreads_average = FALSE;
+     pthreads_count = FALSE;
+     pthreads_percent = FALSE;
+     pthreads_stddev = FALSE;
+     pthreads_ThreadAverage = FALSE;
+     pthreads_ThreadMin = FALSE;
+     pthreads_ThreadMax = FALSE;
    } else if ( globalCollectorString.contains("fpe") ) {
 #if 0
      fpe_time = FALSE;
@@ -1022,6 +1052,108 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     }
 #endif
 
+  } else if ( globalCollectorString.contains("iop") ) {
+
+    VTraceGroupBox->hide();
+
+    if (isInCurrentModifierList("iop::exclusive_times")) {
+       iop_exclusive_times = TRUE;
+    } else {
+       iop_exclusive_times = FALSE;
+    }
+
+    { // iop_exclusive_times
+    iop_exclusive_times_CheckBox = new QCheckBox( GeneralGroupBox, "iop_exclusive_times_CheckBox" );
+    iop_exclusive_times_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, iop_exclusive_times_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    iop_exclusive_times_CheckBox->setChecked( TRUE );
+    iop_exclusive_times_CheckBox->setText( tr( "IOP exclusive_times" ) );
+    rightSideLayout->addWidget( iop_exclusive_times_CheckBox );
+    }
+
+    if (isInCurrentModifierList("iop::inclusive_times")) {
+       iop_inclusive_times = TRUE;
+    } else {
+       iop_inclusive_times = FALSE;
+    }
+
+    { // iop_inclusive_times
+    iop_inclusive_times_CheckBox = new QCheckBox( GeneralGroupBox, "iop_inclusive_times_CheckBox" );
+    iop_inclusive_times_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, iop_inclusive_times_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    iop_inclusive_times_CheckBox->setChecked( TRUE );
+    iop_inclusive_times_CheckBox->setText( tr( "IOP inclusive_times" ) );
+    rightSideLayout->addWidget( iop_inclusive_times_CheckBox );
+    }
+
+    if (isInCurrentModifierList("iop::percent")) {
+       iop_percent = TRUE;
+    } else {
+       iop_percent = FALSE;
+    }
+
+    { // iop_percent
+    iop_percent_CheckBox = new QCheckBox( GeneralGroupBox, "iop_percent_CheckBox" );
+    iop_percent_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, iop_percent_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    iop_percent_CheckBox->setChecked( TRUE );
+    iop_percent_CheckBox->setText( tr( "IOP percent" ) );
+    rightSideLayout->addWidget( iop_percent_CheckBox );
+    }
+
+    if (isInCurrentModifierList("iop::count")) {
+       iop_count = TRUE;
+    } else {
+       iop_count = FALSE;
+    }
+
+    { // iop_count
+    iop_count_CheckBox = new QCheckBox( GeneralGroupBox, "iop_count_CheckBox" );
+    iop_count_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, iop_count_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    iop_count_CheckBox->setChecked( TRUE );
+    iop_count_CheckBox->setText( tr( "IOP count" ) );
+    rightSideLayout->addWidget( iop_count_CheckBox );
+    }
+
+    if (isInCurrentModifierList("iop::ThreadAverage")) {
+       iop_ThreadAverage = TRUE;
+    } else {
+       iop_ThreadAverage = FALSE;
+    }
+
+    { // iop_ThreadAverage
+    iop_ThreadAverage_CheckBox = new QCheckBox( GeneralGroupBox, "iop_ThreadAverage_CheckBox" );
+    iop_ThreadAverage_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, iop_ThreadAverage_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    iop_ThreadAverage_CheckBox->setChecked( TRUE );
+    iop_ThreadAverage_CheckBox->setText( tr( "IOP ThreadAverage" ) );
+    rightSideLayout->addWidget( iop_ThreadAverage_CheckBox );
+    }
+
+    if (isInCurrentModifierList("iop::ThreadMin")) {
+       iop_ThreadMin = TRUE;
+    } else {
+       iop_ThreadMin = FALSE;
+    }
+
+    { // iop_ThreadMin
+    iop_ThreadMin_CheckBox = new QCheckBox( GeneralGroupBox, "iop_ThreadMin_CheckBox" );
+    iop_ThreadMin_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, iop_ThreadMin_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    iop_ThreadMin_CheckBox->setChecked( TRUE );
+    iop_ThreadMin_CheckBox->setText( tr( "IOP ThreadMin" ) );
+    rightSideLayout->addWidget( iop_ThreadMin_CheckBox );
+    }
+
+    if (isInCurrentModifierList("iop::ThreadMax")) {
+       iop_ThreadMax = TRUE;
+    } else {
+       iop_ThreadMax = FALSE;
+    }
+
+    { // iop_ThreadMax
+    iop_ThreadMax_CheckBox = new QCheckBox( GeneralGroupBox, "iop_ThreadMax_CheckBox" );
+    iop_ThreadMax_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, iop_ThreadMax_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    iop_ThreadMax_CheckBox->setChecked( TRUE );
+    iop_ThreadMax_CheckBox->setText( tr( "IOP ThreadMax" ) );
+    rightSideLayout->addWidget( iop_ThreadMax_CheckBox );
+    }
+
    } else if (globalCollectorString.contains("io") ) {
     VTraceGroupBox->hide();
 
@@ -1161,6 +1293,147 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     io_ThreadMax_CheckBox->setChecked( TRUE );
     io_ThreadMax_CheckBox->setText( tr( "IO Thread Maximum Value" ) );
     rightSideLayout->addWidget( io_ThreadMax_CheckBox );
+    }
+
+   } else if (globalCollectorString.contains("mem") ) {
+    VTraceGroupBox->hide();
+
+    if (isInCurrentModifierList("mem::exclusive_times")) {
+       mem_exclusive_times = TRUE;
+    } else {
+       mem_exclusive_times = FALSE;
+    }
+    { // mem_exclusive_times
+    mem_exclusive_times_CheckBox = new QCheckBox( GeneralGroupBox, "mem_exclusive_times_CheckBox" );
+    mem_exclusive_times_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mem_exclusive_times_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mem_exclusive_times_CheckBox->setChecked( TRUE );
+    mem_exclusive_times_CheckBox->setText( tr( "MEM Exclusive Times Value" ) );
+    rightSideLayout->addWidget( mem_exclusive_times_CheckBox );
+    }
+
+    if (isInCurrentModifierList("min")) {
+       mem_min = TRUE;
+    } else {
+       mem_min = FALSE;
+    }
+    { // mem_min
+    mem_min_CheckBox = new QCheckBox( GeneralGroupBox, "mem_min_CheckBox" );
+    mem_min_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mem_min_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mem_min_CheckBox->setChecked( TRUE );
+    mem_min_CheckBox->setText( tr( "MEM Minimum Value" ) );
+    rightSideLayout->addWidget( mem_min_CheckBox );
+    }
+
+    if (isInCurrentModifierList("max")) {
+       mem_max = TRUE;
+    } else {
+       mem_max = FALSE;
+    }
+
+    { // mem_max
+    mem_max_CheckBox = new QCheckBox( GeneralGroupBox, "mem_max_CheckBox" );
+    mem_max_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mem_max_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mem_max_CheckBox->setChecked( TRUE );
+    mem_max_CheckBox->setText( tr( "MEM Maximum Value" ) );
+    rightSideLayout->addWidget( mem_max_CheckBox );
+    }
+
+    if (isInCurrentModifierList("average")) {
+       mem_average = TRUE;
+    } else {
+       mem_average = FALSE;
+    }
+
+    { // mem_average
+    mem_average_CheckBox = new QCheckBox( GeneralGroupBox, "mem_average_CheckBox" );
+    mem_average_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mem_average_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mem_average_CheckBox->setChecked( TRUE );
+    mem_average_CheckBox->setText( tr( "MEM Average Value" ) );
+    rightSideLayout->addWidget( mem_average_CheckBox );
+    }
+
+    if (isInCurrentModifierList("count")) {
+       mem_count = TRUE;
+    } else {
+       mem_count = FALSE;
+    }
+
+    { // mem_count
+    mem_count_CheckBox = new QCheckBox( GeneralGroupBox, "mem_count_CheckBox" );
+    mem_count_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mem_count_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mem_count_CheckBox->setChecked( TRUE );
+    mem_count_CheckBox->setText( tr( "MEM Count" ) );
+    rightSideLayout->addWidget( mem_count_CheckBox );
+    }
+
+    if (isInCurrentModifierList("percent")) {
+       mem_percent = TRUE;
+    } else {
+       mem_percent = FALSE;
+    }
+
+    { // mem_percent
+    mem_percent_CheckBox = new QCheckBox( GeneralGroupBox, "mem_percent_CheckBox" );
+    mem_percent_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mem_percent_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mem_percent_CheckBox->setChecked( TRUE );
+    mem_percent_CheckBox->setText( tr( "MEM Percent" ) );
+    rightSideLayout->addWidget( mem_percent_CheckBox );
+    }
+
+    if (isInCurrentModifierList("stddev")) {
+       mem_stddev = TRUE;
+    } else {
+       mem_stddev = FALSE;
+    }
+
+    { // mem_stddev
+    mem_stddev_CheckBox = new QCheckBox( GeneralGroupBox, "mem_stddev_CheckBox" );
+    mem_stddev_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mem_stddev_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mem_stddev_CheckBox->setChecked( TRUE );
+    mem_stddev_CheckBox->setText( tr( "MEM Standard Deviatmemn" ) );
+    rightSideLayout->addWidget( mem_stddev_CheckBox );
+    }
+
+    if (isInCurrentModifierList("ThreadAverage")) {
+       mem_ThreadAverage = TRUE;
+    } else {
+       mem_ThreadAverage = FALSE;
+    }
+
+    { // mem_ThreadAverage
+    mem_ThreadAverage_CheckBox = new QCheckBox( GeneralGroupBox, "mem_ThreadAverage_CheckBox" );
+    mem_ThreadAverage_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mem_ThreadAverage_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mem_ThreadAverage_CheckBox->setChecked( TRUE );
+    mem_ThreadAverage_CheckBox->setText( tr( "MEM Thread Average Value" ) );
+    rightSideLayout->addWidget( mem_ThreadAverage_CheckBox );
+    }
+
+    if (isInCurrentModifierList("ThreadMin")) {
+       mem_ThreadMin = TRUE;
+    } else {
+       mem_ThreadMin = FALSE;
+    }
+
+    { // mem_ThreadMin
+    mem_ThreadMin_CheckBox = new QCheckBox( GeneralGroupBox, "mem_ThreadMin_CheckBox" );
+    mem_ThreadMin_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mem_ThreadMin_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mem_ThreadMin_CheckBox->setChecked( TRUE );
+    mem_ThreadMin_CheckBox->setText( tr( "MEM Thread Minimum Value" ) );
+    rightSideLayout->addWidget( mem_ThreadMin_CheckBox );
+    }
+
+    if (isInCurrentModifierList("ThreadMax")) {
+       mem_ThreadMax = TRUE;
+    } else {
+       mem_ThreadMax = FALSE;
+    }
+
+    { // mem_ThreadMax
+    mem_ThreadMax_CheckBox = new QCheckBox( GeneralGroupBox, "mem_ThreadMax_CheckBox" );
+    mem_ThreadMax_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mem_ThreadMax_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mem_ThreadMax_CheckBox->setChecked( TRUE );
+    mem_ThreadMax_CheckBox->setText( tr( "MEM Thread Maximum Value" ) );
+    rightSideLayout->addWidget( mem_ThreadMax_CheckBox );
     }
 
    } else if ( globalCollectorString.contains("mpit") ) {
@@ -1516,6 +1789,147 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     mpi_stddev_CheckBox->setChecked( TRUE );
     mpi_stddev_CheckBox->setText( tr( "MPI Standard Deviation" ) );
     rightSideLayout->addWidget( mpi_stddev_CheckBox );
+    }
+
+   } else if (globalCollectorString.contains("pthreads") ) {
+    VTraceGroupBox->hide();
+
+    if (isInCurrentModifierList("pthreads::exclusive_times")) {
+       pthreads_exclusive_times = TRUE;
+    } else {
+       pthreads_exclusive_times = FALSE;
+    }
+    { // pthreads_exclusive_times
+    pthreads_exclusive_times_CheckBox = new QCheckBox( GeneralGroupBox, "pthreads_exclusive_times_CheckBox" );
+    pthreads_exclusive_times_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, pthreads_exclusive_times_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    pthreads_exclusive_times_CheckBox->setChecked( TRUE );
+    pthreads_exclusive_times_CheckBox->setText( tr( "PTHREADS Exclusive Times Value" ) );
+    rightSideLayout->addWidget( pthreads_exclusive_times_CheckBox );
+    }
+
+    if (isInCurrentModifierList("min")) {
+       pthreads_min = TRUE;
+    } else {
+       pthreads_min = FALSE;
+    }
+    { // pthreads_min
+    pthreads_min_CheckBox = new QCheckBox( GeneralGroupBox, "pthreads_min_CheckBox" );
+    pthreads_min_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, pthreads_min_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    pthreads_min_CheckBox->setChecked( TRUE );
+    pthreads_min_CheckBox->setText( tr( "PTHREADS Minimum Value" ) );
+    rightSideLayout->addWidget( pthreads_min_CheckBox );
+    }
+
+    if (isInCurrentModifierList("max")) {
+       pthreads_max = TRUE;
+    } else {
+       pthreads_max = FALSE;
+    }
+
+    { // pthreads_max
+    pthreads_max_CheckBox = new QCheckBox( GeneralGroupBox, "pthreads_max_CheckBox" );
+    pthreads_max_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, pthreads_max_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    pthreads_max_CheckBox->setChecked( TRUE );
+    pthreads_max_CheckBox->setText( tr( "PTHREADS Maximum Value" ) );
+    rightSideLayout->addWidget( pthreads_max_CheckBox );
+    }
+
+    if (isInCurrentModifierList("average")) {
+       pthreads_average = TRUE;
+    } else {
+       pthreads_average = FALSE;
+    }
+
+    { // pthreads_average
+    pthreads_average_CheckBox = new QCheckBox( GeneralGroupBox, "pthreads_average_CheckBox" );
+    pthreads_average_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, pthreads_average_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    pthreads_average_CheckBox->setChecked( TRUE );
+    pthreads_average_CheckBox->setText( tr( "PTHREADS Average Value" ) );
+    rightSideLayout->addWidget( pthreads_average_CheckBox );
+    }
+
+    if (isInCurrentModifierList("count")) {
+       pthreads_count = TRUE;
+    } else {
+       pthreads_count = FALSE;
+    }
+
+    { // pthreads_count
+    pthreads_count_CheckBox = new QCheckBox( GeneralGroupBox, "pthreads_count_CheckBox" );
+    pthreads_count_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, pthreads_count_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    pthreads_count_CheckBox->setChecked( TRUE );
+    pthreads_count_CheckBox->setText( tr( "PTHREADS Count" ) );
+    rightSideLayout->addWidget( pthreads_count_CheckBox );
+    }
+
+    if (isInCurrentModifierList("percent")) {
+       pthreads_percent = TRUE;
+    } else {
+       pthreads_percent = FALSE;
+    }
+
+    { // pthreads_percent
+    pthreads_percent_CheckBox = new QCheckBox( GeneralGroupBox, "pthreads_percent_CheckBox" );
+    pthreads_percent_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, pthreads_percent_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    pthreads_percent_CheckBox->setChecked( TRUE );
+    pthreads_percent_CheckBox->setText( tr( "PTHREADS Percent" ) );
+    rightSideLayout->addWidget( pthreads_percent_CheckBox );
+    }
+
+    if (isInCurrentModifierList("stddev")) {
+       pthreads_stddev = TRUE;
+    } else {
+       pthreads_stddev = FALSE;
+    }
+
+    { // pthreads_stddev
+    pthreads_stddev_CheckBox = new QCheckBox( GeneralGroupBox, "pthreads_stddev_CheckBox" );
+    pthreads_stddev_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, pthreads_stddev_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    pthreads_stddev_CheckBox->setChecked( TRUE );
+    pthreads_stddev_CheckBox->setText( tr( "PTHREADS Standard Deviatmemn" ) );
+    rightSideLayout->addWidget( pthreads_stddev_CheckBox );
+    }
+
+    if (isInCurrentModifierList("ThreadAverage")) {
+       pthreads_ThreadAverage = TRUE;
+    } else {
+       pthreads_ThreadAverage = FALSE;
+    }
+
+    { // pthreads_ThreadAverage
+    pthreads_ThreadAverage_CheckBox = new QCheckBox( GeneralGroupBox, "pthreads_ThreadAverage_CheckBox" );
+    pthreads_ThreadAverage_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, pthreads_ThreadAverage_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    pthreads_ThreadAverage_CheckBox->setChecked( TRUE );
+    pthreads_ThreadAverage_CheckBox->setText( tr( "PTHREADS Thread Average Value" ) );
+    rightSideLayout->addWidget( pthreads_ThreadAverage_CheckBox );
+    }
+
+    if (isInCurrentModifierList("ThreadMin")) {
+       pthreads_ThreadMin = TRUE;
+    } else {
+       pthreads_ThreadMin = FALSE;
+    }
+
+    { // pthreads_ThreadMin
+    pthreads_ThreadMin_CheckBox = new QCheckBox( GeneralGroupBox, "pthreads_ThreadMin_CheckBox" );
+    pthreads_ThreadMin_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, pthreads_ThreadMin_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    pthreads_ThreadMin_CheckBox->setChecked( TRUE );
+    pthreads_ThreadMin_CheckBox->setText( tr( "PTHREADS Thread Minimum Value" ) );
+    rightSideLayout->addWidget( pthreads_ThreadMin_CheckBox );
+    }
+
+    if (isInCurrentModifierList("ThreadMax")) {
+       pthreads_ThreadMax = TRUE;
+    } else {
+       pthreads_ThreadMax = FALSE;
+    }
+
+    { // pthreads_ThreadMax
+    pthreads_ThreadMax_CheckBox = new QCheckBox( GeneralGroupBox, "pthreads_ThreadMax_CheckBox" );
+    pthreads_ThreadMax_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, pthreads_ThreadMax_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    pthreads_ThreadMax_CheckBox->setChecked( TRUE );
+    pthreads_ThreadMax_CheckBox->setText( tr( "PTHREADS Thread Maximum Value" ) );
+    rightSideLayout->addWidget( pthreads_ThreadMax_CheckBox );
     }
 
    } else if ( globalCollectorString.contains("fpe") ) {
@@ -1950,6 +2364,36 @@ void OptionalViewsDialog::languageChange()
     QToolTip::add(iot_pathname_CheckBox,
                 tr("Display I/O trace experiment Pathname value.") );
 #endif
+   } else if ( globalCollectorString.contains("iop") ) {
+
+    iop_exclusive_times_CheckBox->setChecked(iop_exclusive_times);
+    QToolTip::add(iop_exclusive_times_CheckBox,
+                tr("Display Light-weight I/O experiment exclusive time.") );
+
+    iop_inclusive_times_CheckBox->setChecked(iop_inclusive_times);
+    QToolTip::add(iop_inclusive_times_CheckBox,
+                tr("Display Light-weight I/O experiment inclusive time.") );
+
+    iop_percent_CheckBox->setChecked(iop_percent);
+    QToolTip::add(iop_percent_CheckBox,
+                tr("Display Light-weight I/O experiment percentage of exclusive time.") );
+
+    iop_count_CheckBox->setChecked(iop_count);
+    QToolTip::add(iop_count_CheckBox,
+                tr("Display Light-weight I/O experiment counts.") );
+
+    iop_ThreadAverage_CheckBox->setChecked(iop_ThreadAverage);
+    QToolTip::add(iop_ThreadAverage_CheckBox,
+                tr("Display Light-weight I/O experiment average of exclusive time across ranks, processes, threads.") );
+
+    iop_ThreadMin_CheckBox->setChecked(iop_ThreadMin);
+    QToolTip::add(iop_ThreadMin_CheckBox,
+                tr("Display Light-weight I/O experiment minimum value of exclusive time across ranks, processes, threads.") );
+
+    iop_ThreadMax_CheckBox->setChecked(iop_ThreadMax);
+    QToolTip::add(iop_ThreadMax_CheckBox,
+                tr("Display Light-weight I/O experiment maximum value of exclusive time across ranks, processes, threads.") );
+
    } else if (globalCollectorString.contains("io") ) {
 
     io_exclusive_times_CheckBox->setChecked(io_exclusive_times);
@@ -1992,6 +2436,47 @@ void OptionalViewsDialog::languageChange()
     QToolTip::add(io_ThreadMax_CheckBox,
                 tr("Display I/O experiment Thread Max value.") );
 
+   } else if (globalCollectorString.contains("mem") ) {
+
+    mem_exclusive_times_CheckBox->setChecked(mem_exclusive_times);
+    QToolTip::add(mem_exclusive_times_CheckBox,
+                tr("Display MEM experiment exclusive times value.") );
+
+    mem_min_CheckBox->setChecked(mem_min);
+    QToolTip::add(mem_min_CheckBox,
+                tr("Display MEM experiment minimum value.") );
+
+    mem_max_CheckBox->setChecked(mem_max);
+    QToolTip::add(mem_max_CheckBox,
+                tr("Display MEM experiment maximum value.") );
+
+    mem_average_CheckBox->setChecked(mem_average);
+    QToolTip::add(mem_average_CheckBox,
+                tr("Display MEM experiment average value.") );
+
+    mem_count_CheckBox->setChecked(mem_count);
+    QToolTip::add(mem_count_CheckBox,
+                tr("Display MEM experiment count value.") );
+
+    mem_percent_CheckBox->setChecked(mem_percent);
+    QToolTip::add(mem_percent_CheckBox,
+                tr("Display MEM experiment percent value.") );
+
+    mem_stddev_CheckBox->setChecked(mem_stddev);
+    QToolTip::add(mem_stddev_CheckBox,
+                tr("Display MEM experiment stddev value.") );
+
+    mem_ThreadAverage_CheckBox->setChecked(mem_ThreadAverage);
+    QToolTip::add(mem_ThreadAverage_CheckBox,
+                tr("Display MEM experiment Thread Average value.") );
+
+    mem_ThreadMin_CheckBox->setChecked(mem_ThreadMin);
+    QToolTip::add(mem_ThreadMin_CheckBox,
+                tr("Display MEM experiment Thread Min value.") );
+
+    mem_ThreadMax_CheckBox->setChecked(mem_ThreadMax);
+    QToolTip::add(mem_ThreadMax_CheckBox,
+                tr("Display MEM experiment Thread Max value.") );
 
    } else if ( globalCollectorString.contains("mpit") ) {
 
@@ -2097,6 +2582,49 @@ void OptionalViewsDialog::languageChange()
     QToolTip::add(mpi_stddev_CheckBox,
                 tr("Display MPI experiment standard deviation values.") );
 
+   } else if (globalCollectorString.contains("pthreads") ) {
+
+    pthreads_exclusive_times_CheckBox->setChecked(pthreads_exclusive_times);
+    QToolTip::add(pthreads_exclusive_times_CheckBox,
+                tr("Display PTHREADS experiment exclusive times value.") );
+
+    pthreads_min_CheckBox->setChecked(pthreads_min);
+    QToolTip::add(pthreads_min_CheckBox,
+                tr("Display PTHREADS experiment minimum value.") );
+
+    pthreads_max_CheckBox->setChecked(pthreads_max);
+    QToolTip::add(pthreads_max_CheckBox,
+                tr("Display PTHREADS experiment maximum value.") );
+
+    pthreads_average_CheckBox->setChecked(pthreads_average);
+    QToolTip::add(pthreads_average_CheckBox,
+                tr("Display PTHREADS experiment average value.") );
+
+    pthreads_count_CheckBox->setChecked(pthreads_count);
+    QToolTip::add(pthreads_count_CheckBox,
+                tr("Display PTHREADS experiment count value.") );
+
+    pthreads_percent_CheckBox->setChecked(pthreads_percent);
+    QToolTip::add(pthreads_percent_CheckBox,
+                tr("Display PTHREADS experiment percent value.") );
+
+    pthreads_stddev_CheckBox->setChecked(pthreads_stddev);
+    QToolTip::add(pthreads_stddev_CheckBox,
+                tr("Display PTHREADS experiment stddev value.") );
+
+    pthreads_ThreadAverage_CheckBox->setChecked(pthreads_ThreadAverage);
+    QToolTip::add(pthreads_ThreadAverage_CheckBox,
+                tr("Display PTHREADS experiment Thread Average value.") );
+
+    pthreads_ThreadMin_CheckBox->setChecked(pthreads_ThreadMin);
+    QToolTip::add(pthreads_ThreadMin_CheckBox,
+                tr("Display PTHREADS experiment Thread Min value.") );
+
+    pthreads_ThreadMax_CheckBox->setChecked(pthreads_ThreadMax);
+    QToolTip::add(pthreads_ThreadMax_CheckBox,
+                tr("Display PTHREADS experiment Thread Max value.") );
+
+
    } else if ( globalCollectorString.contains("fpe") ) {
 
 #if 0
@@ -2181,6 +2709,8 @@ void OptionalViewsDialog::languageChange()
        VTraceGroupBox->setTitle( tr( "IOT Experiment Event List (-v trace) ONLY" ) );
     } else if (globalCollectorString.contains("io") ) {
        GeneralGroupBox->setTitle( tr( "IO Experiment Custom Report Selection Dialog" ) );
+    } else if ( globalCollectorString.contains("iop") ) {
+       GeneralGroupBox->setTitle( tr( "IOP Experiment Custom Report Selection Dialog" ) );
     } else if ( globalCollectorString.contains("mpit") ) {
        GeneralGroupBox->setTitle( tr( "MPIT Experiment Custom Report Selection Dialog" ) );
        VTraceGroupBox->setTitle( tr( "MPIT Experiment Event List (-v trace) ONLY" ) );
@@ -2320,6 +2850,21 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      iot_pathname = TRUE;
      iot_pathname_CheckBox->setChecked(iot_pathname);
 #endif
+   } else if ( globalCollectorString.contains("iop") ) {
+     iop_exclusive_times = TRUE;
+     iop_exclusive_times_CheckBox->setChecked(iop_exclusive_times);
+     iop_inclusive_times = TRUE;
+     iop_inclusive_times_CheckBox->setChecked(iop_inclusive_times);
+     iop_percent = TRUE;
+     iop_percent_CheckBox->setChecked(iop_percent);
+     iop_count = FALSE;
+     iop_count_CheckBox->setChecked(iop_count);
+     iop_ThreadAverage = FALSE;
+     iop_ThreadAverage_CheckBox->setChecked(iop_ThreadAverage);
+     iop_ThreadMin = FALSE;
+     iop_ThreadMin_CheckBox->setChecked(iop_ThreadMin);
+     iop_ThreadMax = FALSE;
+     iop_ThreadMax_CheckBox->setChecked(iop_ThreadMax);
    } else if (globalCollectorString.contains("io") ) {
      io_exclusive_times = TRUE;
 #ifdef DEBUG_optional
@@ -2344,6 +2889,30 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      io_ThreadMin_CheckBox->setChecked(io_ThreadMin);
      io_ThreadMax = FALSE;
      io_ThreadMax_CheckBox->setChecked(io_ThreadMax);
+   } else if (globalCollectorString.contains("mem") ) {
+     mem_exclusive_times = TRUE;
+#ifdef DEBUG_optional
+      printf("OptionalViewsDialog::resetPreferenceDefaults, setting mem_exclusive_times=(%d) to TRUE\n", mem_exclusive_times);
+#endif
+     mem_exclusive_times_CheckBox->setChecked(mem_exclusive_times);
+     mem_min = FALSE;
+     mem_min_CheckBox->setChecked(mem_min);
+     mem_max = FALSE;
+     mem_max_CheckBox->setChecked(mem_max);
+     mem_average = FALSE;
+     mem_average_CheckBox->setChecked(mem_average);
+     mem_count = TRUE;
+     mem_count_CheckBox->setChecked(mem_count);
+     mem_percent = TRUE;
+     mem_percent_CheckBox->setChecked(mem_percent);
+     mem_stddev = FALSE;
+     mem_stddev_CheckBox->setChecked(mem_stddev);
+     mem_ThreadAverage = FALSE;
+     mem_ThreadAverage_CheckBox->setChecked(mem_ThreadAverage);
+     mem_ThreadMin = FALSE;
+     mem_ThreadMin_CheckBox->setChecked(mem_ThreadMin);
+     mem_ThreadMax = FALSE;
+     mem_ThreadMax_CheckBox->setChecked(mem_ThreadMax);
    } else if ( globalCollectorString.contains("mpit") ) {
      mpit_exclusive_times = FALSE;
      mpit_exclusive_times_CheckBox->setChecked(mpit_exclusive_times);
@@ -2396,6 +2965,30 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      mpi_count_CheckBox->setChecked(mpi_count);
      mpi_percent_CheckBox->setChecked(mpi_percent);
      mpi_stddev_CheckBox->setChecked(mpi_stddev);
+   } else if (globalCollectorString.contains("pthreads") ) {
+     pthreads_exclusive_times = TRUE;
+#ifdef DEBUG_optional
+      printf("OptionalViewsDialog::resetPreferenceDefaults, setting pthreads_exclusive_times=(%d) to TRUE\n", pthreads_exclusive_times);
+#endif
+     pthreads_exclusive_times_CheckBox->setChecked(pthreads_exclusive_times);
+     pthreads_min = FALSE;
+     pthreads_min_CheckBox->setChecked(pthreads_min);
+     pthreads_max = FALSE;
+     pthreads_max_CheckBox->setChecked(pthreads_max);
+     pthreads_average = FALSE;
+     pthreads_average_CheckBox->setChecked(pthreads_average);
+     pthreads_count = TRUE;
+     pthreads_count_CheckBox->setChecked(pthreads_count);
+     pthreads_percent = TRUE;
+     pthreads_percent_CheckBox->setChecked(pthreads_percent);
+     pthreads_stddev = FALSE;
+     pthreads_stddev_CheckBox->setChecked(pthreads_stddev);
+     pthreads_ThreadAverage = FALSE;
+     pthreads_ThreadAverage_CheckBox->setChecked(pthreads_ThreadAverage);
+     pthreads_ThreadMin = FALSE;
+     pthreads_ThreadMin_CheckBox->setChecked(pthreads_ThreadMin);
+     pthreads_ThreadMax = FALSE;
+     pthreads_ThreadMax_CheckBox->setChecked(pthreads_ThreadMax);
    } else if ( globalCollectorString.contains("fpe") ) {
 #if 0
      fpe_time = TRUE;
@@ -2543,6 +3136,14 @@ void OptionalViewsDialog::applyPreferences()
      printf("OptionalViewsDialog::applyPreferences, iot_inclusive_times=(%d)\n", iot_inclusive_times);
      printf("OptionalViewsDialog::applyPreferences, iot_min=(%d)\n", iot_min);
 #endif
+   } else if ( globalCollectorString.contains("iop") ) {
+     iop_exclusive_times = iop_exclusive_times_CheckBox->isChecked();
+     iop_inclusive_times = iop_inclusive_times_CheckBox->isChecked();
+     iop_percent = iop_percent_CheckBox->isChecked();
+     iop_count = iop_count_CheckBox->isChecked();
+     iop_ThreadAverage = iop_ThreadAverage_CheckBox->isChecked();
+     iop_ThreadMin = iop_ThreadMin_CheckBox->isChecked();
+     iop_ThreadMax = iop_ThreadMax_CheckBox->isChecked();
    } else if (globalCollectorString.contains("io") ) {
      io_exclusive_times = io_exclusive_times_CheckBox->isChecked();
      io_min = io_min_CheckBox->isChecked();
@@ -2554,6 +3155,17 @@ void OptionalViewsDialog::applyPreferences()
      io_ThreadAverage = io_ThreadAverage_CheckBox->isChecked();
      io_ThreadMin = io_ThreadMin_CheckBox->isChecked();
      io_ThreadMax = io_ThreadMax_CheckBox->isChecked();
+   } else if (globalCollectorString.contains("mem") ) {
+     mem_exclusive_times = mem_exclusive_times_CheckBox->isChecked();
+     mem_min = mem_min_CheckBox->isChecked();
+     mem_max = mem_max_CheckBox->isChecked();
+     mem_average = mem_average_CheckBox->isChecked();
+     mem_count = mem_count_CheckBox->isChecked();
+     mem_percent = mem_percent_CheckBox->isChecked();
+     mem_stddev = mem_stddev_CheckBox->isChecked();
+     mem_ThreadAverage = mem_ThreadAverage_CheckBox->isChecked();
+     mem_ThreadMin = mem_ThreadMin_CheckBox->isChecked();
+     mem_ThreadMax = mem_ThreadMax_CheckBox->isChecked();
    } else if ( globalCollectorString.contains("mpit") ) {
      mpit_exclusive_times = mpit_exclusive_times_CheckBox->isChecked();
      mpit_inclusive_times = mpit_inclusive_times_CheckBox->isChecked();
@@ -2581,6 +3193,17 @@ void OptionalViewsDialog::applyPreferences()
      mpi_count_CheckBox->isChecked();
      mpi_percent_CheckBox->isChecked();
      mpi_stddev_CheckBox->isChecked();
+   } else if (globalCollectorString.contains("pthreads") ) {
+     pthreads_exclusive_times = pthreads_exclusive_times_CheckBox->isChecked();
+     pthreads_min = pthreads_min_CheckBox->isChecked();
+     pthreads_max = pthreads_max_CheckBox->isChecked();
+     pthreads_average = pthreads_average_CheckBox->isChecked();
+     pthreads_count = pthreads_count_CheckBox->isChecked();
+     pthreads_percent = pthreads_percent_CheckBox->isChecked();
+     pthreads_stddev = pthreads_stddev_CheckBox->isChecked();
+     pthreads_ThreadAverage = pthreads_ThreadAverage_CheckBox->isChecked();
+     pthreads_ThreadMin = pthreads_ThreadMin_CheckBox->isChecked();
+     pthreads_ThreadMax = pthreads_ThreadMax_CheckBox->isChecked();
    } else if ( globalCollectorString.contains("fpe") ) {
 #if 0
      fpe_time = fpe_time_CheckBox->isChecked();
