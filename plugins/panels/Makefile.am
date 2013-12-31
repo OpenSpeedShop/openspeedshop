@@ -40,7 +40,8 @@ SUBDIRS += \
 	MPITPanel \
 	MPIOTFPanel \
 	MEMPanel \
-	PTHREADSPanel
+	PTHREADSPanel \
+	CUDAPanel
 
 if HAVE_OTF
 if HAVE_VT
