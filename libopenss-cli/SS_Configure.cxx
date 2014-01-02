@@ -39,7 +39,7 @@ std::string OPENSS_VIEW_EOC = "  ";
 std::string OPENSS_VIEW_EOL = "\n";
 std::string OPENSS_VIEW_EOV = "\n";
 // Saving and reusing ouput of `expView` commands.
-bool    OPENSS_SAVE_VIEWS_FOR_REUSE = true;
+bool    OPENSS_SAVE_VIEWS_FOR_REUSE = false;
 int64_t OPENSS_SAVE_VIEWS_FILE_LIMIT = 200;
 int64_t OPENSS_SAVE_VIEWS_TIME = 60;
 // Modifications of various commands.
