@@ -200,10 +200,14 @@ int OpenSS_SendToFile(const unsigned size, const void* data)
     /* Write the data */
     Assert(write(fd, data, size) == size);
 
+/* fsync call taken out due to slow processing time reported at LLNL */
+/* via Matt Legendre for a LLNL user. */
+#if 0
     /* Flush the data to disk. We could also test for fsyncdata
      * and use that as our fsync vi a #define.
      */
     Assert(fsync(fd) == 0);
+#endif
     
     /* Close the file */
     Assert(close(fd) == 0);
