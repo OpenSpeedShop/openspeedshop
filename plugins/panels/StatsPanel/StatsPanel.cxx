@@ -10012,7 +10012,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
   }
 
 #ifdef DEBUG_StatsPanel
-printf("Are there and cpvl values?\n");
+printf("Are there any cpvl values?\n");
 for( ChartPercentValueList::Iterator it = cpvl.begin();
        it != cpvl.end();
        ++it)
@@ -10230,7 +10230,8 @@ StatsPanel::MYListViewItem( StatsPanel *arg1, QString xxxfuncName, QString xxxfi
   }
 
   return item;
-} 
+}
+#undef outputCLIData
 
 
 SPListViewItem *
@@ -12899,6 +12900,83 @@ qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO functions by fu
 }
 
 
+// Utility function to help with the output of a saved view.
+static void
+Determine_Location_Information (QString &vs, QString &funcName, QString &fileName, int &lineNumber)
+{
+  int vsLength = vs.length();
+  funcName = QString::null;
+  fileName = QString::null;
+  lineNumber = -1;
+  int paren_pos = vs.find("(");
+  if (paren_pos <= 0) paren_pos = vsLength;
+  if (paren_pos) {
+    char *s = (char *)(vs.ascii());
+
+   // Extract function name.
+    bool start_of_string_found = false;
+    for (int k = 0; k < paren_pos; k++) {
+      if (!start_of_string_found) {
+        if (s[k] == *">") continue;
+        if (s[k] == *"<") continue;
+        if (s[k] == *" ") continue;
+        if (s[k] == *"@") {
+          for ( ; k < (paren_pos - 2); k++) {
+            if ( (s[k] == *"i") && (s[k+1] == *"n") ) {
+              k += 2;
+              break;
+            }
+          }
+          continue;
+        }
+      }
+      if (s[k] == *" ") continue;
+      start_of_string_found = true;
+      funcName += s[k];
+    }
+
+   // Extract file name.
+    int colon_pos = vsLength;
+    for (int k = paren_pos+1; k < vsLength; k++) {
+      if (s[k] == *")") break;
+      if (s[k] == *":")  {
+        colon_pos = k;
+        break;
+      }
+    }
+    int comma_pos = vsLength;
+    for (int k = colon_pos+1; k < vsLength; k++) {
+      if (s[k] == *")") break;
+      if (s[k] == *",") {
+       // Found start of line number field.
+        comma_pos = k;
+        break;
+      }
+      if (s[k] == *" ") continue;
+      fileName += s[k];
+    }
+
+   // Extract line number.
+    lineNumber = 0;
+    for (int k = comma_pos+1; k < vsLength; k++) {
+      if (s[k] == *")") break;
+      if (s[k] == *":") break;
+      if (s[k] == *",") break;
+      if (s[k] == *" ") continue;
+      if (s[k] <  *"0") continue;
+      if (s[k] >  *"9") continue;
+      lineNumber = lineNumber*10 + ((s[k]) - *"0");
+    }
+  }
+
+#ifdef DEBUG_StatsPanel
+  printf("Determine_Location_Information: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",
+                      funcName.ascii(),fileName.ascii(),lineNumber);
+#endif
+
+}
+
+
 SourceObject *
 StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, HighlightList *highlightList, QString highlightMetricStr)
 {
@@ -13386,68 +13464,75 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
   if( co == NULL ) {
     std::cerr << "No command object in clip to process.\n";
   }
+  savedViewInfo *svi = co->SaveResultViewInfo();
 
   std::list<CommandResult *>::iterator cri;
   std::list<CommandResult *> cmd_result = co->Result_List();
 
-  if (co->SaveResultFile().length() > 0) {
+  if ( (svi != NULL) &&
+       (svi->FileName().length() > 0) ) {
    // The output has been saved in a file.
    // It needs to be read from there and prepared for display
    // rather than formatted with a call to the CLI routines.
     try {
       columnFieldList.clear();
 
+      int header_length = co->SaveResultDataOffset();
+      QString EOC = co->SaveEoc();
+      QString EOL = co->SaveEol();
+      int min_buffer_length = (EOC.length() >= EOL.length()) ? EOC.length() : EOL.length();
+      int buffer_load_location = 0;
+      int buffer_entries = 0;
+      int buffer_entries_read = 0;
+
       // Allocate a buffer for performing the copy
       const int copyBufferSize = 65536;
-      char* buffer = new char[copyBufferSize];
+      char* buffer = new char[copyBufferSize + min_buffer_length];
 
       // Open the source file for read-only access
-      int source_fd = open(co->SaveResultFile().c_str(), O_RDONLY);
+      int source_fd = open(svi->FileName().c_str(), O_RDONLY);
       Assert(source_fd != -1);
 
       // Read into the buffer, identify separate strings
       // and perform the copy to 'columnFieldList' for disaplay.
-      int header_length = co->SaveResultDataOffset();
-      QString EOC = co->SaveEoc();
-      QString EOL = co->SaveEol();
+      QString vs = QString::null;
+      bool looking_for_start_of_field_data = true;
       for(int num = 1; num > 0;) {
 
         // Read bytes from the source file
-        num = read(source_fd, buffer, copyBufferSize);
+        buffer_entries_read = read(source_fd, &buffer[buffer_load_location], copyBufferSize);
+        num = buffer_entries_read + buffer_load_location;
         Assert((num >= 0) || ((num == -1) && (errno == EINTR)));
 
         // Write bytes until none remain
-        if(num > 0) {
-            QString vs = QString::null;
-            bool looking_for_start_of_field_data = true;
-            for(int i = header_length; i < num; i++) {
+        if (num > 0) {
+          int last_i = 0;
+            for(int i = header_length; i < (num - min_buffer_length); last_i = i, i++) {
               if  (strncasecmp( &buffer[i], EOL.ascii(), EOL.length() ) == 0) {
                // found line separator
                 if (!looking_for_start_of_field_data) {
-                  vs += EOL;
+                  Determine_Location_Information (vs, xxxfuncName, xxxfileName, xxxlineNumber);
                   columnFieldList.push_back(vs);
                   outputCLIData( xxxfuncName, xxxfileName, xxxlineNumber );
                   columnFieldList.clear();
+                  xxxfuncName = QString::null;
+                  xxxfileName = QString::null;
+                  xxxlineNumber = -1;
                   vs = QString::null;
                   looking_for_start_of_field_data = true;
                 }
                 i = i + EOL.length() - 1;
                 continue;
               } else if (strncasecmp( &buffer[i], EOC.ascii(), EOC.length() ) == 0) {
-                if (!looking_for_start_of_field_data) {
-                 // found column separator
-                  columnFieldList.push_back(vs);
-                  vs = QString::null;
-                  looking_for_start_of_field_data = true;
-                } else {
-                 // just more insignificant blanks
-                  vs = vs + EOC;
-                }
+               // found column separator
+                columnFieldList.push_back(vs);
+                vs = QString::null;
+                looking_for_start_of_field_data = true;
                 i = i + EOC.length() - 1;
                 continue;
-              } else if ( !looking_for_start_of_field_data &&
+              } else if ( looking_for_start_of_field_data &&
                           (strcasecmp( &buffer[i], " ") == 0) ) {
-               // insignificant blank
+               // insignificant leading blank
                 continue;
               } else {
                // We are in or starting a data item.
@@ -13455,7 +13540,35 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
                 vs = vs + buffer[i];
               }
             }
-            if (num != copyBufferSize) break;
+
+           // The previous read may have not added any characters to the buffer.
+            if (buffer_entries_read == 0) {
+             // Flush any final output line that may not have been terminated with an EOL.
+              if (vs.length() > 0) {
+                Determine_Location_Information (vs, xxxfuncName, xxxfileName, xxxlineNumber);
+                columnFieldList.push_back(vs);
+              }
+              if (columnFieldList.count() != 0) {
+                outputCLIData( xxxfuncName, xxxfileName, xxxlineNumber );
+                columnFieldList.clear();
+                xxxfuncName = QString::null;
+                xxxfileName = QString::null;
+                xxxlineNumber = -1;
+                vs = QString::null;
+              }
+              break;
+            }
+
+           // There may be more data if the last read filled the buffer.
+           // Next read into buffer appends to unprocessed characters.
+            buffer_load_location = 0;
+           // Move unprocessed characters to start of buffer.
+            for(int i = 0, j = (last_i + 1); (j < num); i++, j++) {
+              buffer[i] = buffer[j];
+              buffer_load_location++;
+            }
+           // Next processing cycle starts with unprocessed characters.
+            header_length = 0;
         } // end of 'if(num > 0)'
       } // end of 'for(int num = 1; num > 0;)'
 
