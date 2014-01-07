@@ -24,7 +24,7 @@
 # checking, so credit to those who originally created parts or all
 # of the code below.
 ################################################################################
-dnl @synopsis AC_PYTHON_DEVEL([version])
+dnl @synopsis AX_PYTHON_DEVEL([version])
 dnl
 dnl Checks for Python and tries to get the include path to 'Python.h'.
 dnl It provides the $(PYTHON_CPPFLAGS) and $(PYTHON_LDFLAGS) output
@@ -58,7 +58,7 @@ dnl @author Matteo Settenvini <matteo@member.fsf.org>
 dnl @version 2006-02-05
 dnl @license GPLWithACException
 
-AC_DEFUN([AC_PYTHON_DEVEL],[
+AC_DEFUN([AX_PYTHON_DEVEL],[
         #
         # Allow the use of a (user set) custom python version
         #

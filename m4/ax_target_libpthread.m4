@@ -22,7 +22,7 @@
 # Check for libpthread for Target Architecture 
 #############################################################################################
 
-AC_DEFUN([AC_PKG_TARGET_LIBPTHREAD], [
+AC_DEFUN([AX_PKG_TARGET_LIBPTHREAD], [
 
     AC_ARG_WITH(target-libpthread,
                 AC_HELP_STRING([--with-target-libpthread=DIR],

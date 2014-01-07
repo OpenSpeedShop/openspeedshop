@@ -22,7 +22,7 @@
 # Check for librt for Target Architecture 
 #############################################################################################
 
-AC_DEFUN([AC_PKG_TARGET_LIBRT], [
+AC_DEFUN([AX_PKG_TARGET_LIBRT], [
 
     AC_ARG_WITH(target-librt,
                 AC_HELP_STRING([--with-target-librt=DIR],
