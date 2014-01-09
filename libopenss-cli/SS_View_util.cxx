@@ -120,6 +120,9 @@ void GetMetricByObjectSet (CommandObject *cmd,
   printf("Enter GetMetricByObjectSet1 - SS_View_util.cxx, metric=%s\n", metric.c_str());
 #endif
   GetMetricBySet (cmd, exp, tgrp, collector, metric, objects, items);
+#if DEBUG_CLI
+  printf("Exit GetMetricByObjectSet1 - SS_View_util.cxx, metric=%s, objects.size()=%d\n", metric.c_str(), objects.size());
+#endif
 }
 
 void GetMetricByObjectSet (CommandObject *cmd,
@@ -133,6 +136,9 @@ void GetMetricByObjectSet (CommandObject *cmd,
   printf("Enter GetMetricByObjectSet2 - SS_View_util.cxx, metric=%s\n", metric.c_str());
 #endif
   GetMetricBySet (cmd, exp, tgrp, collector, metric, objects, items);
+#if DEBUG_CLI
+  printf("Exit GetMetricByObjectSet2 - SS_View_util.cxx, metric=%s, objects.size()=%d\n", metric.c_str(), objects.size());
+#endif
 }
 
 void GetMetricByObjectSet (CommandObject *cmd,
@@ -146,6 +152,9 @@ void GetMetricByObjectSet (CommandObject *cmd,
   printf("Enter GetMetricByObjectSet3 - SS_View_util.cxx, metric=%s\n", metric.c_str());
 #endif
   GetMetricBySet (cmd, exp, tgrp, collector, metric, objects, items);
+#if DEBUG_CLI
+  printf("Exit GetMetricByObjectSet3 - SS_View_util.cxx, metric=%s, objects.size()=%d\n", metric.c_str(), objects.size());
+#endif
 }
 
 void GetMetricByObjectSet (CommandObject *cmd,
@@ -159,6 +168,9 @@ void GetMetricByObjectSet (CommandObject *cmd,
   printf("Enter GetMetricByObjectSet4 - SS_View_util.cxx, metric=%s\n", metric.c_str());
 #endif
   GetMetricBySet (cmd, exp, tgrp, collector, metric, objects, items);
+#if DEBUG_CLI
+  printf("Exit GetMetricByObjectSet4 - SS_View_util.cxx, metric=%s, objects.size()=%d\n", metric.c_str(), objects.size());
+#endif
 }
 
 
@@ -283,6 +295,20 @@ bool GetReducedMetrics(CommandObject *cmd,
                        std::vector<SmartPtr<std::map<LinkedObject, CommandResult *> > >& Values) {
 #if DEBUG_CLI
   printf("Enter GetReducedMetrics3  - SS_View_util.cxx\n");
+#endif
+  return GetAllReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Values);
+}
+
+bool GetReducedMetrics(CommandObject *cmd,
+                       ExperimentObject *exp,
+                       ThreadGroup& tgrp,
+                       std::vector<Collector>& CV,
+                       std::vector<std::string>& MV,
+                       std::vector<ViewInstruction *>& IV,
+                       std::set<Loop>& objects,
+                       std::vector<SmartPtr<std::map<Loop, CommandResult *> > >& Values) {
+#if DEBUG_CLI
+  printf("Enter GetReducedMetrics4  - SS_View_util.cxx\n");
 #endif
   return GetAllReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Values);
 }
