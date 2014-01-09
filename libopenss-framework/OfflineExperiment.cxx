@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008-2012 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2008-2014 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -18,7 +18,7 @@
 
 /** @file
  *
- * Declaration of the OfflineExperiment class.
+ * Definition of the OfflineExperiment class.
  *
  */
 
@@ -35,6 +35,9 @@
 
 #if defined(OPENSS_USE_SYMTABAPI)
 #include "SymtabAPISymbols.hxx"
+#if defined(HAVE_DYNINST)
+#include "DyninstSymbols.hxx"
+#endif
 #else
 #include "BFDSymbols.hxx"
 #endif
@@ -678,7 +681,7 @@ int OfflineExperiment::convertToOpenSSDB()
     findUniqueAddresses();
  
     // Process the list of dsos and address ranges for this experiment.
-    std::cerr << "Processing functions and statements ..." << std::endl;
+    std::cerr << "Processing symbols ..." << std::endl;
     for (unsigned int i = 0;i < rawfiles.size();i++) {
 	bool_t found_dsofile = false;
 	if (rawfiles[i].find(".openss-dsos") != std::string::npos) {
@@ -1132,6 +1135,9 @@ void OfflineExperiment::createOfflineSymbolTable()
 	std::cerr << "Resolving symbols for " << lo.getPath() << std::endl;
 #if defined(OPENSS_USE_SYMTABAPI)
 	stapi_symbols.getSymbols(unique_addresses,lo,symtabmap);
+#if defined(HAVE_DYNINST)
+    DyninstSymbols::getLoops(unique_addresses, lo, symtabmap);
+#endif
 #else
 	// If this is ever reused, it needs to use unique_addresses...
 	bfd_symbols.getSymbols(&data_addr_buffer,lo,symtabmap);
@@ -1139,7 +1145,7 @@ void OfflineExperiment::createOfflineSymbolTable()
 
     } // end for threads linkedobjects
 
-    std::cerr << "Updating database with functions and statements... " << std::endl;
+    std::cerr << "Updating database with symbols ... " << std::endl;
 
     // Now update the database with all our functions and statements...
     std::map<AddressRange, std::string> allfuncs; // used to verify symbols.
@@ -1185,5 +1191,5 @@ void OfflineExperiment::createOfflineSymbolTable()
 
     // clear names to range for our next linked object.
     dsoVec.clear();
-    std::cerr << "Finished... " << std::endl;
+    std::cerr << "Finished ... " << std::endl;
 }

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2008 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2012 The Krell Institue. All Rights Reserved.
+// Copyright (c) 2012,2014 The Krell Institue. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -51,6 +51,7 @@ using namespace OpenSpeedShop::Framework;
 SymbolTable::SymbolTable(const AddressRange& range) :
     dm_range(range),
     dm_functions(),
+    dm_loops(),
     dm_statements()
 {
 }
@@ -100,6 +101,49 @@ void SymbolTable::addFunction(const Address& begin,
     //std::cerr << "SymbolTable::addFunction INSERTS to dm_functions "
     //    << name << std::endl;
     dm_functions.insert(std::make_pair(range, name));
+}
+
+
+
+/**
+ * Add a loop.
+ *
+ * Adds the specified loop with its associated address range to this symbol
+ * table. Loops are discarded when they have an invalid address range, or are
+ * not contained entirely within this symbol table.
+ *
+ * @note    In theory a symbol table will never contain invalid address ranges,
+ *          or address ranges outside the address range of the symbol table
+ *          itself. There are various cases, however, where bogus symbol
+ *          information results in this happening. This function contains
+ *          sanity checks that help keep the experiment database, if not 100%
+ *          correct, at least useable under such circumstances.
+ *
+ * @param begin    Beginning address associated with this loop.
+ * @param end      Ending address associated with this loop.
+ * @param head     Head address of this loop.
+ */
+void SymbolTable::addLoop(const Address& begin, const Address& end,
+                          const Address& head)
+{
+    // Discard loops where (end <= begin)
+    if(end <= begin)
+        return;
+    
+    // Construct the address range [begin, end)
+    AddressRange range(begin, end);
+    
+    // Discard loops not contained entirely within this symbol table
+    if(!dm_range.doesContain(range))
+        return;
+    
+    // Add this loop to the symbol table (or find the existing loop)
+    std::map<Address, std::vector<AddressRange> >::iterator i = dm_loops.insert(
+        std::make_pair(head, std::vector<AddressRange>())
+        ).first;
+    
+    // Add this address range to the loop
+    i->second.push_back(range);
 }
 
 
@@ -222,6 +266,55 @@ void SymbolTable::processAndStore(const LinkedObject& linked_object)
 	database->bindArgument(4, valid_bitmap.getBlob());
 	while(database->executeStatement());
 
+    }
+
+    // Iterate over each loop entry
+    for(std::map<Address, std::vector<AddressRange> >::const_iterator
+            i = dm_loops.begin(); i != dm_loops.end(); ++i) {
+        
+        // Create the loop entry
+        database->prepareStatement(
+            "INSERT INTO Loops (linked_object, addr_head) VALUES (?, ?);"
+            );
+        database->bindArgument(1, EntrySpy(linked_object).getEntry());
+        database->bindArgument(2, i->first);
+        while(database->executeStatement());
+        int loop = database->getLastInsertedUID();
+        
+        // Construct the set of unique addresses for this loop
+        std::set<Address> addresses;
+        for(std::vector<AddressRange>::const_iterator
+                j = i->second.begin(); j != i->second.end(); ++j)
+            for(Address k = j->getBegin(); k != j->getEnd(); ++k)
+                addresses.insert(Address(k - dm_range.getBegin()));
+        
+        // Partition this loop's address set
+        std::vector<std::set<Address> > address_sets =
+            partitionAddressSet(addresses);
+        
+        // Iterate over each partitioned address set
+        for(std::vector<std::set<Address> >::const_iterator
+                j = address_sets.begin(); j != address_sets.end(); ++j) {
+            
+            // Create and populate an address bitmap for this address set
+            AddressBitmap valid_bitmap(AddressRange(*(j->begin()),
+                                                    *(j->rbegin()) + 1));
+            for(std::set<Address>::const_iterator
+                    k = j->begin(); k != j->end(); ++k)
+                valid_bitmap.setValue(*k, true);
+            
+            // Create the loop ranges entry
+            database->prepareStatement(
+                "INSERT INTO LoopRanges "
+                "  (loop, addr_begin, addr_end, valid_bitmap) "
+                "VALUES (?, ?, ?, ?);"
+                );
+            database->bindArgument(1, loop);
+            database->bindArgument(2, valid_bitmap.getRange().getBegin());
+            database->bindArgument(3, valid_bitmap.getRange().getEnd());
+            database->bindArgument(4, valid_bitmap.getBlob());
+            while(database->executeStatement());
+        }
     }
 
     // Iterate over each statement entry

@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2013,2014 The Krell Institue. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -66,6 +67,7 @@ namespace OpenSpeedShop { namespace Framework {
 	SymbolTable(const AddressRange&);
 	
 	void addFunction(const Address&, const Address&, const std::string&);
+    void addLoop(const Address&, const Address&, const Address&);
 	void addStatement(const Address&, const Address&,
 			  const Path&, const int&, const int&);
 	
@@ -148,6 +150,9 @@ namespace OpenSpeedShop { namespace Framework {
 	    }
 
 	};
+
+    /** Loops in this symbol table. */
+    std::map<Address, std::vector<AddressRange> > dm_loops;
 	
 	/** Statements in this symbol table. */
 	std::map<StatementEntry, std::vector<AddressRange> > dm_statements;

@@ -612,6 +612,8 @@ AC_ARG_WITH(instrumentor,
 	    AS_HELP_STRING([--with-instrumentor=TYPE],[instrumentor (cbtf, dyninst, mrnet, offline, none) @<:@offline@:>@]),
 	    INSTRUMENTOR=$withval, INSTRUMENTOR="offline")
 
+AM_CONDITIONAL(HAVE_DYNINST, false)
+
 case "$INSTRUMENTOR" in
     none)
 	AM_CONDITIONAL(HAVE_XERCES, false)
@@ -622,7 +624,6 @@ case "$INSTRUMENTOR" in
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
 	AM_CONDITIONAL(HAVE_MRNET, false)
-	AM_CONDITIONAL(HAVE_DYNINST, false)
 	AM_CONDITIONAL(BUILD_INSTRUMENTOR, false)
 	AC_DEFINE(BUILD_INSTRUMENTOR, 0, [Define to 1 if you do not want an instrumentor built.])
         #AM_CONDITIONAL(HAVE_RUNTIME_DIR, false)
@@ -655,7 +656,6 @@ case "$INSTRUMENTOR" in
         #  AX_XERCESC_VERSION()
         #fi
 	AM_CONDITIONAL(HAVE_XERCES, false)
-	AM_CONDITIONAL(HAVE_DYNINST, true)
 	AM_CONDITIONAL(BUILD_CBTF, false)
 	AM_CONDITIONAL(BUILD_MRNET, true)
 	AC_DEFINE(BUILD_MRNET, 1, [Define to 1 if you only want the mrnet instrumentor.])
@@ -668,6 +668,7 @@ case "$INSTRUMENTOR" in
 
     offline)
 	AX_BOOST_BASE([1.35.0])
+	AX_DYNINST()
 	AX_SYMTABAPI()
         #AX_XERCESC()
         ## This helps with targeted builds when there is no xercesc
@@ -677,7 +678,6 @@ case "$INSTRUMENTOR" in
 	AM_CONDITIONAL(HAVE_XERCES, false)
 	AM_CONDITIONAL(BUILD_CBTF, false)
 	AM_CONDITIONAL(BUILD_DPCL, false)
-	AM_CONDITIONAL(HAVE_DYNINST, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
 	AM_CONDITIONAL(HAVE_MRNET, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, true)
@@ -712,7 +712,6 @@ case "$INSTRUMENTOR" in
 	AX_CBTF_SERVICES()
 
 	AM_CONDITIONAL(BUILD_DPCL, false)
-	AM_CONDITIONAL(HAVE_DYNINST, true)
 	AM_CONDITIONAL(BUILD_MRNET, false)
 	AM_CONDITIONAL(BUILD_OFFLINE, false)
 	AM_CONDITIONAL(BUILD_CBTF, true)

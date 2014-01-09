@@ -71,6 +71,11 @@ libopenss_framework_symtabapi_la_LIBADD = \
 	@SYMTABAPI_LIBS@ \
 	-lpthread -lrt
 
+if HAVE_DYNINST
+libopenss_framework_symtabapi_la_CXXFLAGS += @DYNINST_CPPFLAGS@
+libopenss_framework_symtabapi_la_LDFLAGS += @DYNINST_LDFLAGS@
+libopenss_framework_symtabapi_la_LIBADD += @DYNINST_LIBS@
+endif
 
 #
 # OPENSS_USE_SYMTABAPI means use the symtabAPI interface to 
@@ -259,6 +264,10 @@ OPENSSBINUTILS_SOURCES += \
 OPENSSSYMTABAPI_SOURCES += \
     $(top_srcdir)/libopenss-runtime/offline/offline.c \
     OfflineExperiment.hxx OfflineExperiment.cxx
+endif
+
+if HAVE_DYNINST
+OPENSSSYMTABAPI_SOURCES += DyninstSymbols.hxx DyninstSymbols.cxx
 endif
 
 #if BUILD_INSTRUMENTOR
