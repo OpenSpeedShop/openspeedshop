@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -336,6 +336,8 @@ static std::string allowed_fpe_V_options[] = {
   "Functions",
   "Statement",
   "Statements",
+  "Loop",
+  "Loops",
   "Trace",
   "ButterFly",
   "CallTree",
@@ -783,6 +785,8 @@ static std::string VIEW_fpe_long  =
                   " event ocurred in.  This is the default display."
                   "\n\t'-v Statements' will produce a summary report of the statement the"
                   " event occurred in."
+                  "\n\t'-v Loops' will produce a summary report of the loop the"
+                  " event occurred in."
                   "\n\t'-v LinkeObjects' will produce a summary report of the linked object"
                   " the event occurred in."
                   "\n\t'-v Trace' will produce a report of each call to an mpi function."
@@ -797,7 +801,7 @@ static std::string VIEW_fpe_long  =
                   " will cause the report to include the full call stack for each measured"
                   " function.  Redundant portions of a call stack are suppressed by default."
                   "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
-                  " 'Statements', 'LinkeObjects'"
+                  " 'Statements', 'LinkeObjects','Loops'"
                   " 'CallTrees' or 'TraceBacks' will result in an additional line of output at"
                   " the end of the report that summarizes the information in each column."
                   "\n\t'-v ButterFly' along with a '-f <function_list>' will produce a report"
@@ -911,6 +915,10 @@ class fpe_view : public ViewType {
         Statement *sp;
         return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                    true, sp, vfc, &dummyVector, view_output);
+       case VFC_Loop:
+        Loop *loopp;
+        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                   true, loopp, vfc, &dummyVector, view_output);
       }
       Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name supplied.)");
       return false;

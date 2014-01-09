@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2012 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -37,15 +37,16 @@ enum cmd_result_type_enum {
 /* 7 */  CMD_RESULT_FUNCTION,
 /* 8 */  CMD_RESULT_STATEMENT,
 /* 9 */  CMD_RESULT_LINKEDOBJECT,
-/* 10 */  CMD_RESULT_CALLTRACE,
-/* 11 */  CMD_RESULT_TIME,
-/* 12 */  CMD_RESULT_DURATION,
-/* 13 */  CMD_RESULT_INTERVAL,
-/* 14 */  CMD_RESULT_TITLE,
-/* 15 */  CMD_RESULT_COLUMN_HEADER,
-/* 16 */  CMD_RESULT_COLUMN_VALUES,
-/* 17 */  CMD_RESULT_COLUMN_ENDER,
-/* 18 */  CMD_RESULT_EXTENSION,
+/* 10 */ CMD_RESULT_LOOP,
+/* 11 */ CMD_RESULT_CALLTRACE,
+/* 12 */ CMD_RESULT_TIME,
+/* 13 */ CMD_RESULT_DURATION,
+/* 14 */ CMD_RESULT_INTERVAL,
+/* 15 */ CMD_RESULT_TITLE,
+/* 16 */ CMD_RESULT_COLUMN_HEADER,
+/* 17 */ CMD_RESULT_COLUMN_VALUES,
+/* 18 */ CMD_RESULT_COLUMN_ENDER,
+/* 19 */ CMD_RESULT_EXTENSION,
 };
 
 class PrintControl {
@@ -784,6 +785,114 @@ class CommandResult_Function :
 
     return S;
   }
+  virtual PyObject * pyValue () {
+    std::string F = Form (OPENSS_VIEW_FIELD_SIZE);
+    return Py_BuildValue("s",F.c_str());
+  }
+
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
+    std::string string_value = Form (fieldsize);
+    if (fieldsize == 0) fieldsize = string_value.length();
+    if (leftjustified) {
+     // Left justification is only done on the last column of a report.
+     // Don't truncate the string if it is bigger than the field size.
+     // This is done to make sure everything gets printed.
+
+      to << std::setiosflags(std::ios::left) << string_value;
+
+     // If there is unused space in the field, pad with blanks.
+      if ((string_value.length() < fieldsize) &&
+          (string_value[string_value.length()-1] != *("\n"))) {
+        for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";
+      }
+
+    } else {
+     // Right justify the string in the field.
+     // Don't let it exceed the size of the field.
+     // Also, limit the size based on our internal buffer size.
+      to << std::setiosflags(std::ios::right) << std::setw(fieldsize)
+         << ((string_value.length() <= fieldsize) ? string_value : string_value.substr(0, fieldsize));
+    }
+  }
+};
+
+class CommandResult_Loop :
+     public CommandResult,
+     public Loop {
+  std::set<Statement> ST;
+  int64_t Line;    // Line number of first statement in set.
+  int64_t Column;  // Column number of first statement in set.
+
+ public:
+
+  CommandResult_Loop (Loop F) :
+       Framework::Loop(F),
+       CommandResult(CMD_RESULT_LOOP) {
+    Line = 0;
+    Column = 0;
+  }
+  CommandResult_Loop  (Loop F, std::set<Statement>& st) :
+       Framework::Loop(F),
+       CommandResult(CMD_RESULT_LOOP) {
+    ST = st;
+    Line = 0;
+    Column = 0;
+    if (ST.begin() != ST.end()) {
+      std::set<Statement>::const_iterator STi = ST.begin();
+      Line = (int64_t)((*STi).getLine());
+      Column = (int64_t)((*STi).getColumn());
+    }
+  }
+  CommandResult_Loop  (CommandResult_Loop *C) :
+       Framework::Loop(*C),
+       CommandResult(CMD_RESULT_LOOP) {
+    ST = C->ST;
+    Line = C->Line;
+    Column = C->Column;
+    if (C->IsValueID()) SetValueIsID();
+  }
+  virtual ~CommandResult_Loop () { }
+
+  virtual CommandResult *Copy () { return new CommandResult_Loop (this); }
+  virtual bool LT (CommandResult *A) {
+    if (A->Type() != CMD_RESULT_LOOP) {
+      Assert (A->Type() == CMD_RESULT_CALLTRACE);
+      return A->GT(this);
+    }
+    return OpenSpeedShop::Queries::CompareLoops()(*this,
+                                                      *((CommandResult_Loop *)A)); }
+  virtual bool GT (CommandResult *A) {
+    if (A->Type() != CMD_RESULT_LOOP) {
+      Assert (A->Type() == CMD_RESULT_CALLTRACE);
+      return A->LT(this);
+    }
+    if (OpenSpeedShop::Queries::CompareLoops()(*((CommandResult_Loop *)A),
+                                                   *this)) {
+      return true;
+    }
+    if (OpenSpeedShop::Queries::CompareLoops()(*this,
+                                                   *((CommandResult_Loop *)A))) {
+      return false;
+    }
+    int64_t Ls = Line;
+    int64_t Rs = (int64_t)(((CommandResult_Loop *)A)->getLine());
+    return (Ls > Rs);
+  }
+
+  void Value (std::set<Statement>& st) {
+    st = ST;
+  }
+  int64_t getLine () {
+    return Line;
+  }
+  int64_t getColumn () {
+    return Column;
+  }
+
   virtual PyObject * pyValue () {
     std::string F = Form (OPENSS_VIEW_FIELD_SIZE);
     return Py_BuildValue("s",F.c_str());
@@ -1876,6 +1985,7 @@ inline CommandResult *CRPTR (const char *V) { return new CommandResult_String (s
 inline CommandResult *CRPTR (std::string& V) { return new CommandResult_String (V); }
 inline CommandResult *CRPTR (Function& V) { return new CommandResult_Function (V); }
 inline CommandResult *CRPTR (Statement& V) { return new CommandResult_Statement (V); }
+inline CommandResult *CRPTR (Loop& V) { return new CommandResult_Loop (V); }
 inline CommandResult *CRPTR (LinkedObject& V) { return new CommandResult_LinkedObject (V); }
 inline CommandResult* CRPTR (Time& V) { return new CommandResult_Time (V); }
 

@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -66,6 +66,8 @@ static std::string allowed_hwc_V_options[] = {
   "Functions",
   "Statement",
   "Statements",
+  "Loop",
+  "Loops",
   "Summary",
   "data",       // Raw data output for scripting
   ""
@@ -290,6 +292,7 @@ static std::string VIEW_hwc_long  =
                 "\n\t'-v LinkedObjects' will report counts by linked object."
                 "\n\t'-v Functions' will report counts by function. This is the default."
                 "\n\t'-v Statements' will report counts by statement."
+                "\n\t'-v Loops' will report counts by loop."
                 "\n\nThe information included in the report can be controlled with the"
                 " '-m' option.  More than one item can be selected but only the items"
                 " listed after the option will be printed and they will be printed in"
@@ -361,6 +364,10 @@ class hwc_view : public ViewType {
         Statement *sp;
         return Simple_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                    true, sp, vfc, view_output);
+       case VFC_Loop:
+        Loop *loopp;
+        return Simple_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                   true, loopp, vfc, view_output);
       }
       Mark_Cmd_With_Soft_Error(cmd, "(We could not determine which format to use for the report.)");
       return false;

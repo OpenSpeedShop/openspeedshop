@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -107,6 +108,22 @@ namespace OpenSpeedShop {
 			    const Framework::Statement&) const;
 	};
 
+	/**
+	 * Strict weak ordering predicate for loops.
+	 *
+	 * Defines a strict weak ordering predicate for loops that works
+	 * properly even when the two loops are in different experiment
+	 * databases. This predicate is slower than the less-than operator
+	 * for loops, but is useful when comparing across experiments.
+	 */
+	struct CompareLoops :
+	    std::binary_function<const Framework::Loop&,
+				 const Framework::Loop&,
+				 bool>
+	{
+	    bool operator()(const Framework::Loop&,
+			    const Framework::Loop&) const;
+	};
 
 
 	template <typename TS, typename TM>

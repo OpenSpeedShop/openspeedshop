@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2010 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -328,6 +328,7 @@ enum View_Form_Category {
       VFC_CallStack,
       VFC_LinkedObject,
       VFC_Statement,
+      VFC_Loop,
 };
 
 // Reserved locations in the std::vector<CommandResult *> of c_items argument to Generic_Multi_View
@@ -373,6 +374,13 @@ void GetMetricByObjectSet (CommandObject *cmd,
                            std::string& metric,
                            std::set<LinkedObject>& objects,
                            SmartPtr<std::map<LinkedObject, CommandResult *> >& items);
+void GetMetricByObjectSet (CommandObject *cmd,
+                           ExperimentObject *exp,
+                           ThreadGroup& tgrp,
+                           Collector& collector,
+                           std::string& metric,
+                           std::set<Loop>& objects,
+                           SmartPtr<std::map<Loop, CommandResult *> >& items);
 
 bool GetReducedMetrics(CommandObject *cmd,
                        ExperimentObject *exp,
@@ -398,6 +406,15 @@ bool GetReducedMetrics(CommandObject *cmd,
                        std::vector<ViewInstruction *>& IV,
                        std::set<LinkedObject>& objects,
                        std::vector<SmartPtr<std::map<LinkedObject, CommandResult *> > >& Values);
+bool GetReducedMetrics(CommandObject *cmd,
+                       ExperimentObject *exp,
+                       ThreadGroup& tgrp,
+                       std::vector<Collector>& CV,
+                       std::vector<std::string>& MV,
+                       std::vector<ViewInstruction *>& IV,
+                       std::set<Loop>& objects,
+                       std::vector<SmartPtr<std::map<Loop, CommandResult *> > >& Values);
+
 
 template <typename TE>
 CommandResult *Get_Object_Metric (CommandObject *cmd,
@@ -424,6 +441,9 @@ void Get_Filtered_Objects (CommandObject *cmd, ExperimentObject *exp,
 
 void Get_Filtered_Objects (CommandObject *cmd, ExperimentObject *exp,
                            ThreadGroup& tgrp, std::set<Statement>& objects );
+
+void Get_Filtered_Objects (CommandObject *cmd, ExperimentObject *exp,
+                           ThreadGroup& tgrp, std::set<Loop>& objects );
 
 
 ViewType *Find_View (std::string viewname);

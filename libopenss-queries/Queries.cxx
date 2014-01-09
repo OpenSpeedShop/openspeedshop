@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006, 2007, 2008 Krell Institute. All Rights Reserved.
+// Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -148,7 +148,6 @@ bool Queries::CompareFunctions::operator()(
 }
 
 
-
 /**
  * Strict weak ordering predicate evaluator for statements.
  *
@@ -201,3 +200,35 @@ bool Queries::CompareStatements::operator()(
 	return false;
     return lhs.getLinkedObject().getPath() < rhs.getLinkedObject().getPath();
 }
+
+
+/**
+ * Strict weak ordering predicate evaluator for loops.
+ *
+ * Implements a strict weak ordering predicate for loops that works
+ * properly even when the two loops are in different experiment databases.
+ *
+ * @param lhs    Loop on left hand side of comparison.
+ * @param rhs    Loop on right hand side of comparison.
+ * @return       Boolean "true" if (lhs < rhs), "false" otherwise.
+ */
+bool Queries::CompareLoops::operator()(
+    const Framework::Loop& lhs,
+    const Framework::Loop& rhs) const
+{
+    bool compareOnlyLoopLine = FALSE;
+    if (OPENSS_LESS_RESTRICTIVE_COMPARISONS) {
+       compareOnlyLoopLine = TRUE;
+    }
+
+    std::set<Framework::Statement> lhs_stmt = lhs.getDefinitions();
+    std::set<Framework::Statement> rhs_stmt = rhs.getDefinitions();
+
+    if(lhs_stmt == rhs_stmt) {
+	return true;
+    } else {
+	return false;
+    }
+
+}
+

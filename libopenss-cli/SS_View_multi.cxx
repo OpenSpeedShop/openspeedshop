@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2012 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -1407,6 +1407,8 @@ TEST */
 
      if (vfc == VFC_Function) {
        EO_Title = "Function (defining location)";
+     } else if (vfc == VFC_Loop) {
+       EO_Title = "Loop Start Location (Line Number)";
      } else if (vfc == VFC_Statement) {
        EO_Title = "Statement Location (Line Number)";
      } else if (vfc == VFC_LinkedObject) {

@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -34,6 +34,8 @@ static std::string allowed_pcsamp_V_options[] = {
   "Functions",
   "Statement",
   "Statements",
+  "Loop",
+  "Loops",
   "Summary",
   "data",       // Raw data output for scripting
   ""
@@ -188,6 +190,7 @@ static std::string VIEW_pcsamp_long  =
                    "\n\t'-v LinkedObjects' will report times by linked object."
                    "\n\t'-v Functions' will report times by function. This is the default."
                    "\n\t'-v Statements' will report times by statement."
+                   "\n\t'-v Loops' will report times by loop."
                   "\n\nThe information included in the report can be controlled with the"
                   " '-m' option.  More than one item can be selected but only the items"
                   " listed after the option will be printed and they will be printed in"
@@ -266,6 +269,8 @@ static std::string allowed_hwc_V_options[] = {
   "Functions",
   "Statement",
   "Statements",
+  "Loop",
+  "Loops",
   "Summary",
   "data",       // Raw data output for scripting
   ""
@@ -431,6 +436,7 @@ static std::string VIEW_hwc_long  =
                 "\n\t'-v LinkedObjects' will report counts by linked object."
                 "\n\t'-v Functions' will report counts by function. This is the default."
                 "\n\t'-v Statements' will report counts by statement."
+                "\n\t'-v Loops' will report counts by loop."
                 "\n\nThe information included in the report can be controlled with the"
                 " '-m' option.  More than one item can be selected but only the items"
                 " listed after the option will be printed and they will be printed in"

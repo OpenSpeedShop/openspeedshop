@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) 2010-2012 Krell Institute. All Rights Reserved.
+** Copyright (c) 2010-2014 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -102,6 +102,8 @@ static std::string allowed_hwcsamp_V_options[] = {
   "Functions",
   "Statement",
   "Statements",
+  "Loop",
+  "Loops",
   "Summary",
   "data",        // Raw data output for scripting
   ""
@@ -421,6 +423,7 @@ static std::string VIEW_hwcsamp_long  =
                    "\n\t'-v LinkedObjects' will report times by linked object."
                    "\n\t'-v Functions' will report times by function. This is the default."
                    "\n\t'-v Statements' will report times by statement."
+                   "\n\t'-v Loops' will report times by loop."
                   "\n\nThe information included in the report can be controlled with the"
                   " '-m' option.  More than one item can be selected but only the items"
                   " listed after the option will be printed and they will be printed in"
@@ -499,6 +502,10 @@ class hwcsamp_view : public ViewType {
         Statement *sp;
         return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                    false, sp, vfc, &dummyVector, view_output);
+       case VFC_Loop:
+        Loop *loopp;
+        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                   false, loopp, vfc, &dummyVector, view_output);
       }
       Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name supplied.)");
       return false;

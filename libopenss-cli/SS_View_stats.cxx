@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2011 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -24,7 +24,8 @@
 enum View_Granularity {
   VIEW_FUNCTIONS,
   VIEW_STATEMENTS,
-  VIEW_LINKEDOBJECTS
+  VIEW_LINKEDOBJECTS,
+  VIEW_LOOPS
 };
 
 template <class T>
@@ -418,6 +419,8 @@ static std::string allowed_stats_V_options[] = {
   "Functions",
   "Statement",
   "Statements",
+  "Loop",
+  "Loops",
   "Summary",
   "data",   	// Raw data output for scripting
   ""
@@ -461,6 +464,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
   CommandResult *TotalValue = NULL;
   std::vector<std::pair<Function, CommandResult *> > f_items;
   std::vector<std::pair<Statement, CommandResult *> > s_items;
+  std::vector<std::pair<Loop, CommandResult *> > loop_items;
   std::vector<std::pair<LinkedObject, CommandResult *> > l_items;
   int64_t i;
   if (topn == 0) topn = INT_MAX;
@@ -508,6 +512,9 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
                Look_For_KeyWord(cmd, "Dso") ||
                Look_For_KeyWord(cmd, "Dsos")) {
       vg = VIEW_LINKEDOBJECTS;
+    } else if (Look_For_KeyWord(cmd, "Loop") ||
+               Look_For_KeyWord(cmd, "Loops")) {
+      vg = VIEW_LOOPS;
     }
 
    // Acquire base set of metric values.
@@ -534,6 +541,17 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       }
       topn = (int64_t)l_items.size();
       EO_Title = "LinkedObject";
+      break;
+     }
+     case VIEW_LOOPS: {
+      std::set<Loop> loop_objects;
+      Get_Filtered_Objects (cmd, exp, tgrp, loop_objects);
+      first_column_found = First_Column (cmd, exp, tgrp, CV, MV, IV, loop_objects, loop_items);
+      if (topn < (int64_t)loop_items.size()) {
+        loop_items.erase ( (loop_items.begin() + topn), loop_items.end());
+      }
+      topn = (int64_t)loop_items.size();
+      EO_Title = "Loop Definition Location (Line Number)";
       break;
      }
      default: {

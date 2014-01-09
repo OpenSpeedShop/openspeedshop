@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2011 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -147,6 +147,20 @@ void GetMetricByObjectSet (CommandObject *cmd,
 #endif
   GetMetricBySet (cmd, exp, tgrp, collector, metric, objects, items);
 }
+
+void GetMetricByObjectSet (CommandObject *cmd,
+                           ExperimentObject *exp,
+                           ThreadGroup& tgrp,
+                           Collector& collector,
+                           std::string& metric,
+                           std::set<Loop>& objects,
+                           SmartPtr<std::map<Loop, CommandResult *> >& items) {
+#if DEBUG_CLI
+  printf("Enter GetMetricByObjectSet4 - SS_View_util.cxx, metric=%s\n", metric.c_str());
+#endif
+  GetMetricBySet (cmd, exp, tgrp, collector, metric, objects, items);
+}
+
 
 template <typename TE>
 bool GetAllReducedMetrics(
@@ -680,6 +694,11 @@ static void Merge_LinkedObject_Into_Objects (std::set<LinkedObject>& named_linke
 }
 
 static void Merge_LinkedObject_Into_Objects (std::set<LinkedObject>& named_linkedobjects,
+                                             std::set<Loop>& objects) {
+ // This routine should never be called.
+}
+
+static void Merge_LinkedObject_Into_Objects (std::set<LinkedObject>& named_linkedobjects,
                                              std::set<Function>& objects) {
  // This routine should never be called.
 }
@@ -691,6 +710,18 @@ static void Get_Objects_By_Function (std::set<Function>& named_functions,
     Function f = *fi;
     LinkedObject l = f.getLinkedObject();
     objects.insert (l);
+  }
+}
+
+static void Get_Objects_By_Function (std::set<Function>& named_functions,
+                                     std::set<Loop>& objects) {
+  std::set<Function>::iterator fi;
+  for (fi = named_functions.begin(); fi != named_functions.end(); fi++) {
+    Function f = *fi;
+    std::set<Loop> l = f.getLoops();
+    if (!l.empty()) {
+      objects.insert (l.begin(), l.end());
+    }
   }
 }
 
@@ -731,6 +762,12 @@ static void Get_Source_Objects(const Thread& thread,
     objects = thread.getStatements();
 }
 
+static void Get_Source_Objects(const Thread& thread,
+			       std::set<Loop>& objects)
+{
+    objects = thread.getLoops();
+}
+
 static void Get_TGRP_Source_Objects(const ThreadGroup& tgrp,
 			       std::set<LinkedObject>& objects)
 {
@@ -750,10 +787,17 @@ static void Get_TGRP_Source_Objects(const ThreadGroup& tgrp,
 }
 
 
+static void Get_TGRP_Source_Objects(const ThreadGroup& tgrp,
+			       std::set<Loop>& objects)
+{
+    objects = tgrp.getLoops();
+}
+
 
 static inline bool Object_Is_LinkedObject (std::set<LinkedObject>& objects) { return true; }
 static inline bool Object_Is_LinkedObject (std::set<Function>& objects) { return false; }
 static inline bool Object_Is_LinkedObject (std::set<Statement>& objects) { return false; }
+static inline bool Object_Is_LinkedObject (std::set<Loop>& objects) { return false; }
 
 /**
  * Template: Filtered_Objects
@@ -1081,7 +1125,7 @@ void Filtered_Objects (CommandObject *cmd,
 /**
  * Utility: Get_Filtered_Objects
  *
- * Overloaded function for types: LinkedObject, Function or Statement.
+ * Overloaded function for types: LinkedObject, Function, Statement or Loop.
  *
  * The call to these routines is made after determining which type
  * is needed for a view that is being generated, and after first calling
@@ -1111,6 +1155,13 @@ void Get_Filtered_Objects (CommandObject *cmd,
                            ExperimentObject *exp,
                            ThreadGroup& tgrp,
                            std::set<Statement>& objects ) {
+  Filtered_Objects ( cmd, exp, tgrp, objects);
+}
+
+void Get_Filtered_Objects (CommandObject *cmd,
+                           ExperimentObject *exp,
+                           ThreadGroup& tgrp,
+                           std::set<Loop>& objects ) {
   Filtered_Objects ( cmd, exp, tgrp, objects);
 }
 
@@ -1202,6 +1253,9 @@ View_Form_Category Determine_Form_Category (CommandObject *cmd) {
   } else if (Look_For_KeyWord(cmd, "Statement") ||
              Look_For_KeyWord(cmd, "Statements")) {
     return VFC_Statement;
+  } else if (Look_For_KeyWord(cmd, "Loop") ||
+             Look_For_KeyWord(cmd, "Loops")) {
+    return VFC_Loop;
   }
   return VFC_Function;
 }
