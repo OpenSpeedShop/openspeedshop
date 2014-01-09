@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2011 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -415,7 +415,7 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
   Filter_ThreadGroup (cmd->P_Result(), tgrp);
 
 #if DEBUG_CLI
-  printf("In SS_Generate_View in SS_View.cxx, before calling vt->GenerateView\n");
+  printf("In SS_Generate_View in SS_View.cxx, after calling Filter_ThreadGroup\n");
 #endif
 
  // Look for a saved view.
@@ -441,6 +441,10 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
       svi->setStartTime();
     }
   }
+
+#if DEBUG_CLI
+  printf("In SS_Generate_View in SS_View.cxx, before calling vt->GenerateView\n");
+#endif
 
  // Try to Generate the Requested View!
   bool success = vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),

@@ -259,11 +259,12 @@ ParseRange(expression_operation_t op, char *c)
     dm_range.is_range = false;
 
 #if DEBUG_CLI
-    std::vector<ParseRange *> *pv = &(this->dm_exp.exp_operands);
-    pv->push_back(operand0);
-    dm_exp.exp_operand.push_back(operand0);
-    dm_exp.exp_operand[0] = operand0;
-    printf("\tExit ParseRangeExp <char *>: %p ",pr);pr->Dump();
+    //std::vector<ParseRange *> *pv = &(this->dm_exp.exp_operands);
+    //pv->push_back(operand0);
+    //dm_exp.exp_operand.push_back(operand0);
+    //dm_exp.exp_operand[0] = operand0;
+    //printf("\tExit ParseRangeExp <char *>: %p ",pr);pr->Dump();
+    printf("\tExit ParseRangeExp for char star\n"); 
 #endif
 }
  
@@ -287,11 +288,12 @@ ParseRange(expression_operation_t op, int64_t ival)
     dm_range.is_range = false;
 
 #if DEBUG_CLI
-    std::vector<ParseRange *> *pv = &(this->dm_exp.exp_operands);
-    pv->push_back(operand0);
-    dm_exp.exp_operand.push_back(operand0);
-    dm_exp.exp_operand[0] = operand0;
-    printf("\tExit ParseRange <int64_t>: %p ",this);this->Dump();
+    //std::vector<ParseRange *> *pv = &(this->dm_exp.exp_operands);
+    //pv->push_back(operand0);
+    //dm_exp.exp_operand.push_back(operand0);
+    //dm_exp.exp_operand[0] = operand0;
+    //printf("\tExit ParseRange <int64_t>: %p ",this);this->Dump();
+    printf("\tExit ParseRangeExp for int64\n"); 
 #endif
 }
  
@@ -315,11 +317,12 @@ ParseRange(expression_operation_t op, double dval)
     dm_range.is_range = false;
 
 #if DEBUG_CLI
-    std::vector<ParseRange *> *pv = &(this->dm_exp.exp_operands);
-    pv->push_back(operand0);
-    dm_exp.exp_operand.push_back(operand0);
-    dm_exp.exp_operand[0] = operand0;
-    printf("\tExit ParseRange <double>: %p ",this);this->Dump();
+    //std::vector<ParseRange *> *pv = &(this->dm_exp.exp_operands);
+    //pv->push_back(operand0);
+    //dm_exp.exp_operand.push_back(operand0);
+    //dm_exp.exp_operand[0] = operand0;
+    //printf("\tExit ParseRange <double>: %p ",this);this->Dump();
+    printf("\tExit ParseRangeExp for double\n"); 
 #endif
 }
  

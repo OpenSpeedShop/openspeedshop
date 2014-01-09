@@ -81,7 +81,7 @@ void ReduceMetricByThread ( SmartPtr<std::map<TO, std::map<Thread, TS > > >& ind
 
 
 #if DEBUG_CLI
-        fprintf(stderr, "ReduceMetricByThread, in reduction for loop\n");
+        fprintf(stderr, "ReduceMetricByThread, inside reduction loop\n");
         fflush(stderr);
 #endif
    
@@ -132,6 +132,10 @@ void GetMetricInThreadGroup(
 
    // Reclaim space.
     individual = SmartPtr<std::map<TO, std::map<Thread, TS > > >();
+
+#if DEBUG_CLI
+    printf("GetMetricInThreadGroup, EXIT\n");
+#endif
 }
 
 template <typename TI, typename TOBJECT>

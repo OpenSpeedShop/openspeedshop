@@ -1227,11 +1227,31 @@ bool Simple_Base_Report(
 #endif
 
 
+#if DEBUG_CLI
+    printf("In Simple_Base_Report, about to call GetMetricByObjectSet, tgrp.size()=%d\n", tgrp.size());
+#endif
     GetMetricByObjectSet   (cmd, exp, tgrp, collector, metric, objects, raw_items);
+#if DEBUG_CLI
+    printf("In Simple_Base_Report, after calling GetMetricByObjectSet, tgrp.size()=%d\n", tgrp.size());
+#endif
+
+#if DEBUG_CLI
+    printf("In Simple_Base_Report, before 1 calling GetReducedMetrics, tgrp.size()=%d\n", tgrp.size());
+#endif
 
    // Get any required intermediate reduction temps.
     std::vector<SmartPtr<std::map<TOBJECT, CommandResult *> > > Extra_Values(ViewReduction_Count);
+
+#if DEBUG_CLI
+    printf("In Simple_Base_Report, before 2 calling GetReducedMetrics, tgrp.size()=%d\n", tgrp.size());
+#endif
+
+
     bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
+
+#if DEBUG_CLI
+    printf("In Simple_Base_Report, after calling GetReducedMetrics, tgrp.size()=%d\n", tgrp.size());
+#endif
 
    // Combine all the items for each function, statement or linked object.
     typename std::map<TOBJECT, CommandResult *>::iterator fi;

@@ -56,7 +56,7 @@ bool GetExtraMetrics(CommandObject *cmd,
     bool thereAreExtraMetrics = false;
 
 #if DEBUG_CLI
-    printf("Enter GetExtraMetrics \n");
+    printf("Enter GetExtraMetrics, num_columns=%d\n", num_columns);
 #endif
 
    // Define all the SmartPtrs
@@ -91,6 +91,9 @@ bool GetExtraMetrics(CommandObject *cmd,
         }
 
         if (vinst->OpCode() == VIEWINST_Display_Metric) {
+#if DEBUG_CLI
+         printf("In GetExtraMetrics, calling GetMetricByObjectSet, i=%d\n", i);
+#endif
           GetMetricByObjectSet (cmd, exp, tgrp, CV[CM_Index], MV[CM_Index], objects, Values[i]);
         } else {
           int64_t reductionIndex = vinst->TMP2();
@@ -206,6 +209,9 @@ bool First_Column (CommandObject *cmd,
         GetReducedType (cmd, exp, tgrp, CV[Column0metric], MV[Column0metric], objects, reductionIndex, initial_items);
       }
     } else {
+#if DEBUG_CLI
+     printf("In GetExtraMetrics, else clause, calling GetMetricByObjectSet\n");
+#endif
       GetMetricByObjectSet (cmd, exp, tgrp, CV[Column0metric], MV[Column0metric], objects, initial_items);
     }
 
@@ -883,6 +889,7 @@ class stats_view : public ViewType {
     std::vector<std::string> MV;
     std::vector<ViewInstruction *>IV;
     std::vector<std::string> HV;
+
 #if DEBUG_CLI
     printf("Enter GenerateView \n");
 #endif
@@ -892,14 +899,25 @@ class stats_view : public ViewType {
     if (p_slist->empty()) {
      // If we are attempting a default 'stats' view, show every available data metric.
       if (!Select_All_Metrics (cmd, exp, CV, MV, IV, HV)) {
+#if DEBUG_CLI
+        printf("EXIT early 1 GenerateView \n");
+#endif
         return false;
       }
     } else {
      // Otherwise, use the metrics that the user listed.
       if (!Select_User_Metrics (cmd, exp, CV, MV, IV, HV)) {
+#if DEBUG_CLI
+        printf("EXIT early 2 GenerateView \n");
+#endif
         return false;
       }
     }
+
+#if DEBUG_CLI
+    printf("In GenerateView, calling Generate_View on return from GenerateView\n");
+#endif
+   
     return Generic_View (cmd, exp, topn, tgrp, CV, MV, IV, HV, view_output);
   }
 };
