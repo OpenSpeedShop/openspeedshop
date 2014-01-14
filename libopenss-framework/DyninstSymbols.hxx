@@ -50,8 +50,7 @@ namespace OpenSpeedShop { namespace Framework {
      */
     namespace DyninstSymbols {
 
-        void getLoops(const std::set<Address>&, const LinkedObject&,
-                      SymbolTableMap&);
+        void getLoops(std::set<Address>&, const LinkedObject&, SymbolTableMap&);
         
     }
     

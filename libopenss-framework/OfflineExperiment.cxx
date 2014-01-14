@@ -24,6 +24,7 @@
 
 #include "EntrySpy.hxx"
 #include "ToolAPI.hxx"
+#include "AddressBitmap.hxx"
 #include "AddressSpace.hxx"
 #include "AddressRange.hxx"
 #include "DataQueues.hxx"
@@ -1134,10 +1135,14 @@ void OfflineExperiment::createOfflineSymbolTable()
 	LinkedObject lo = (*j);
 	std::cerr << "Resolving symbols for " << lo.getPath() << std::endl;
 #if defined(OPENSS_USE_SYMTABAPI)
-	stapi_symbols.getSymbols(unique_addresses,lo,symtabmap);
+    // Note that DyninstSymbols::getLoops() must be called before calling
+    // SymtabAPISymbols::getSymbols(). This is because getLoops() updates
+    // unique_addresses with the head address of every loop so that later
+    // getSymbols() will get the statement containing these addresses.
 #if defined(HAVE_DYNINST)
     DyninstSymbols::getLoops(unique_addresses, lo, symtabmap);
 #endif
+	stapi_symbols.getSymbols(unique_addresses,lo,symtabmap);
 #else
 	// If this is ever reused, it needs to use unique_addresses...
 	bfd_symbols.getSymbols(&data_addr_buffer,lo,symtabmap);

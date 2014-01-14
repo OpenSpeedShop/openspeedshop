@@ -186,8 +186,13 @@ std::vector<LoopInfo> getLoopsAt(const Address& address, BPatch_image& image)
  *                            that contain one or more of these addresses.
  * @param linked_object       Linked object for which to get loops.
  * @param symbol_tables       Symbol tables to contain the loop information.
+ *
+ * @note    The set of unique addresses is intentionally non-const in order to
+ *          allow this function to update that list. This is a dirty trick that
+ *          is used to insure that OfflineExperiment resolves all the statements
+ *          containing loop head addresses.
  */
-void DyninstSymbols::getLoops(const std::set<Address>& unique_addresses,
+void DyninstSymbols::getLoops(std::set<Address>& unique_addresses,
                               const LinkedObject& linked_object,
                               SymbolTableMap& symbol_tables)
 {
@@ -285,9 +290,16 @@ void DyninstSymbols::getLoops(const std::set<Address>& unique_addresses,
                 
                 // Add this loop's address ranges to the symbol table. Note
                 // that findLoop() returns addresses which are relative to
-                // the beginning of the linked object.
+                // the beginning of the linked object. Also note that the
+                // loop's head address is inserted back into the caller's
+                // set of unique addresses. This is an ugly trick used to
+                // insure that OfflineExperiment resolves all of the loop 
+                // head addresses to statements, also insuring that all of
+                // the loop definitions are available.
                 
                 Address head(i->getBegin() + j->dm_head);
+                
+                unique_addresses.insert(head); /* NOT unique_addresses_copy! */
                 
                 for (std::vector<AddressRange>::const_iterator
                          k = j->dm_ranges.begin(); k != j->dm_ranges.end(); ++k)
