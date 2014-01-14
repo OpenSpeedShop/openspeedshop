@@ -41,6 +41,27 @@ using namespace OpenSpeedShop::Framework;
 
 
 
+/**
+ * Loop information.
+ *
+ * Structure for per-loop information obtained from Dyninst. Contains the head
+ * address and all address ranges of the loop. Hidden within this file because
+ * it is only used to return data from the internal getLoopsAt() to getLoops().
+ */
+struct LoopInfo
+{
+    /** Head address of the loop. */
+    Address dm_head;
+    
+    /** All address ranges of the loop. */
+    std::vector<AddressRange> dm_ranges;
+    
+    /** Constructor from the loop's head address. */
+    LoopInfo(const Address& head): dm_head(head), dm_ranges() { }
+};
+
+
+
 #ifndef NDEBUG
 /** Flag indicating if debugging for loop information is enabled. */
 bool is_debug_enabled = (getenv("OPENSS_DEBUG_DYNINSTAPI_LOOPS") != NULL);
@@ -48,19 +69,18 @@ bool is_debug_enabled = (getenv("OPENSS_DEBUG_DYNINSTAPI_LOOPS") != NULL);
 
 
 
-/** Find the loop containing the specified address. */
-bool findLoop(const Address& address,
-              BPatch_image& image,
-              Address& loop_head,
-              std::vector<AddressRange>& loop_ranges)
+/** Get the loops containing the specified address. */
+std::vector<LoopInfo> getLoopsAt(const Address& address, BPatch_image& image)
 {
+    std::vector<LoopInfo> retval;
+    
     // Iterate over each module within the specified image
     
     BPatch_Vector<BPatch_module*>* modules = image.getModules();
     
     if (modules == NULL)
     {
-        return false;
+        return retval;
     }
     
     for (unsigned int m = 0; m < modules->size(); ++m)
@@ -90,7 +110,7 @@ bool findLoop(const Address& address,
                 continue;
             }
 
-            // Find the loop containing the specified address
+            // Find the loops containing the specified address
             
             BPatch_flowGraph* cfg = function->getCFG();
             
@@ -106,13 +126,14 @@ bool findLoop(const Address& address,
             {
                 BPatch_basicBlockLoop* loop = loops[l];
                 
-                if ((loop == NULL) || 
-                    !loop->containsAddress((module_base + address).getValue()))
+                if ((loop == NULL) || !loop->containsAddressInclusive(
+                        (module_base + address).getValue()
+                        ))
                 {
                     continue;
                 }
                 
-                // The loop containing this address has been found! Rejoice!
+                // A loop containing this address has been found! Rejoice!
                 // And, of course, obtain the loop's head address and basic
                 // block address ranges...
                 
@@ -122,8 +143,8 @@ bool findLoop(const Address& address,
                 {
                     continue;
                 }
-                
-                loop_head = Address(head->getStartAddress()) - module_base;
+
+                LoopInfo info(Address(head->getStartAddress()) - module_base);
 
                 BPatch_Vector<BPatch_basicBlock*> blocks;
                 loop->getLoopBasicBlocks(blocks);
@@ -134,7 +155,7 @@ bool findLoop(const Address& address,
 
                     if (block != NULL)
                     {
-                        loop_ranges.push_back(
+                        info.dm_ranges.push_back(
                             AddressRange(
                                 Address(block->getStartAddress()) - module_base,
                                 Address(block->getEndAddress()) - module_base
@@ -143,13 +164,13 @@ bool findLoop(const Address& address,
                     }
                 }
                 
-                return true;
-
+                retval.push_back(info);
+                
             } // l
         } // f
     } // m
 
-    return false;
+    return retval;
 }
 
 
@@ -245,14 +266,15 @@ void DyninstSymbols::getLoops(const std::set<Address>& unique_addresses,
             
             SymbolTable& symbol_table = symbol_tables.find(*i)->second.first;
 
-            // Find the loop (if any) that contains this address. Note
-            // that findLoop() expects an address which is relative to
+            // Find the loops (if any) that contain this address. Note
+            // that getLoopAt() expects an address which is relative to
             // the beginning of the linked object.
+
+            std::vector<LoopInfo> loops = 
+                getLoopsAt(next - i->getBegin(), *image);
             
-            Address loop_head;
-            std::vector<AddressRange> loop_ranges;
-            
-            if (findLoop(next - i->getBegin(), *image, loop_head, loop_ranges))
+            for(std::vector<LoopInfo>::const_iterator
+                    j = loops.begin(); j != loops.end(); ++j)
             {
 #ifndef NDEBUG
                 if (is_debug_enabled)
@@ -260,18 +282,18 @@ void DyninstSymbols::getLoops(const std::set<Address>& unique_addresses,
                     std::cout << std::endl;
                 }
 #endif
-
+                
                 // Add this loop's address ranges to the symbol table. Note
                 // that findLoop() returns addresses which are relative to
                 // the beginning of the linked object.
                 
-                Address head(i->getBegin() + loop_head);
+                Address head(i->getBegin() + j->dm_head);
                 
-                for (std::vector<AddressRange>::const_iterator 
-                         j = loop_ranges.begin(); j != loop_ranges.end(); ++j)
+                for (std::vector<AddressRange>::const_iterator
+                         k = j->dm_ranges.begin(); k != j->dm_ranges.end(); ++k)
                 {
-                    Address begin(i->getBegin() + j->getBegin());
-                    Address end(i->getBegin() + j->getEnd());
+                    Address begin(i->getBegin() + k->getBegin());
+                    Address end(i->getBegin() + k->getEnd());
 
 #ifndef NDEBUG
                     if (is_debug_enabled)
@@ -293,8 +315,8 @@ void DyninstSymbols::getLoops(const std::set<Address>& unique_addresses,
                         unique_addresses_copy.upper_bound(end)
                         );
 
-                } // j
-            }
+                } // k
+            } // j
         } // i
 
         // If this address couldn't be resolved it will still be found in

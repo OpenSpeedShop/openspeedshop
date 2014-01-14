@@ -277,7 +277,7 @@ void SymbolTable::processAndStore(const LinkedObject& linked_object)
             "INSERT INTO Loops (linked_object, addr_head) VALUES (?, ?);"
             );
         database->bindArgument(1, EntrySpy(linked_object).getEntry());
-        database->bindArgument(2, i->first);
+        database->bindArgument(2, Address(i->first - dm_range.getBegin()));
         while(database->executeStatement());
         int loop = database->getLastInsertedUID();
         
