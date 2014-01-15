@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2012 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -70,7 +70,9 @@ void Construct_View_Output (CommandObject *cmd,
                                                   SmartPtr<std::vector<CommandResult *> > > >& items,
                             std::list<CommandResult *>& view_output ) {
 #if DEBUG_CLI
+  printf("Enter Construct_View_Output, before calling Print_View_Params\n");
   Print_View_Params (std::cerr, CV,MV,IV);
+  printf("Enter Construct_View_Output, after calling Print_View_Params\n");
 #endif
 
  // If there is data then go through and create headers, etc.

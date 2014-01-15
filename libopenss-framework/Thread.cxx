@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007,2013 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2007-2014 The Krell Institute. All Rights Reserved.
 // Copyright (c) 2008 William Hachfeld. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
@@ -416,6 +416,8 @@ std::set<Loop> Thread::getLoops() const
         
     }
     END_TRANSACTION(dm_database);
+
+    //std::cerr << "DEBUG FRAMEWORK: Exit std::set<Loop> Thread::getLoops() const, loops.size()=" << loops.size() << std::endl;
     
     // Return the loops to the caller
     return loops;

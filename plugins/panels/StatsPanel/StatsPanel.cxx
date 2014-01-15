@@ -1051,6 +1051,9 @@ StatsPanel::displayUsingFunction()
   } else if (originatingUserSelectedReportStr.startsWith("DefaultView") &&
             (currentUserSelectedReportStr.startsWith("Functions") ) || 
             (currentUserSelectedReportStr.startsWith("Statements") ) || 
+#if defined(HAVE_DYNINST)
+            (currentUserSelectedReportStr.startsWith("Loops") ) || 
+#endif
             (currentUserSelectedReportStr.startsWith("LinkedObjects") ) ) {
 
 //     defaultViewSelected();
@@ -1068,22 +1071,6 @@ StatsPanel::displayUsingStatement()
 #endif
   currentDisplayUsingTypeStr = "statements";
   currentDisplayUsingType = displayUsingStatementType;
-#if 0
-  // Comment out this code.  It used to be used when clicking on the display type 
-  // would automatically call the previously selected view, but now we have reversed 
-  // the method to select the view type and then hit the type of report.
-  if (originatingUserSelectedReportStr.startsWith("minMaxAverage") ) {
-//     minMaxAverageSelected();
-  } else if (originatingUserSelectedReportStr.startsWith("clusterAnalysis") &&
-             currentUserSelectedReportStr.startsWith("Comparison" ) ) {
-//     clusterAnalysisSelected();
-  } else if (originatingUserSelectedReportStr.startsWith("DefaultView") &&
-            (currentUserSelectedReportStr.startsWith("Functions") ) || 
-            (currentUserSelectedReportStr.startsWith("Statements") ) || 
-            (currentUserSelectedReportStr.startsWith("LinkedObjects") ) ) {
-//     defaultViewSelected();
-  }
-#endif
 }
 
 void
@@ -1095,24 +1082,22 @@ StatsPanel::displayUsingLinkedObject()
 #endif
   currentDisplayUsingTypeStr = "linkedobjects";
   currentDisplayUsingType = displayUsingLinkedObjectType;
-#if 0
-  // Comment out this code.  It used to be used when clicking on the display type 
-  // would automatically call the previously selected view, but now we have reversed 
-  // the method to select the view type and then hit the type of report.
-  if (originatingUserSelectedReportStr.startsWith("minMaxAverage") ) {
-//     minMaxAverageSelected();
-  } else if (originatingUserSelectedReportStr.startsWith("clusterAnalysis") &&
-             currentUserSelectedReportStr.startsWith("Comparison" ) ) {
-//     clusterAnalysisSelected();
-  } else if (originatingUserSelectedReportStr.startsWith("DefaultView") &&
-            (currentUserSelectedReportStr.startsWith("Functions") ) || 
-            (currentUserSelectedReportStr.startsWith("Statements") ) || 
-            (currentUserSelectedReportStr.startsWith("LinkedObjects") ) ) {
-//     defaultViewSelected();
-  }
-#endif
 }
 
+
+#if defined(HAVE_DYNINST)
+void
+StatsPanel::displayUsingLoop()
+{
+#ifdef DEBUG_StatsPanel_toolbar 
+  printf("StatsPanel::displayUsingLoop() entered, currentUserSelectedReportStr=%s, originatingUserSRS=%s\n",
+         currentUserSelectedReportStr.ascii(), originatingUserSelectedReportStr.ascii());
+#endif
+  currentDisplayUsingTypeStr = "loops";
+  currentDisplayUsingType = displayUsingLoopType;
+}
+
+#endif
 
 
 /*! When a message has been sent (from anyone) and the message broker is
@@ -1554,7 +1539,9 @@ if( start_index != -1 ) {
 #endif // DEBUG_StatsPanel
 
     // Raise or Create a new manage processes panel for loading saved data files
+#if 0
     manageProcessesSelected();
+#endif
 
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::listener, UPDATE-EXPERIMENT-DATA-OBJECT, msg->raiseFLAG=%d, calling updateStatsPanelData \n", msg->raiseFLAG );
@@ -2205,6 +2192,10 @@ StatsPanel::clusterAnalysisSelected()
       displayType = "statements";
   } else if (currentDisplayUsingType == displayUsingLinkedObjectType) {
       displayType = "linkedobjects";
+#if defined(HAVE_DYNINST)
+  } else if (currentDisplayUsingType == displayUsingLoopType) {
+      displayType = "loops";
+#endif
   }
 
 #ifdef DEBUG_StatsPanel
@@ -2293,6 +2284,14 @@ StatsPanel::clusterAnalysisSelected()
      } else {
        command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v linkedobjects");
      }
+#if defined(HAVE_DYNINST)
+  } else if (currentDisplayUsingType == displayUsingLoopType) {
+     if (timeIntervalString != NULL) {
+       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v loops").arg(timeIntervalString);
+     } else {
+       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v loops");
+     }
+#endif
   }
 //  command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg(timeIntervalString).arg("-v %4").arg(displayType);
 // printf("run %s\n", command.ascii() );
@@ -2325,6 +2324,10 @@ StatsPanel::minMaxAverageSelected()
       displayType = "statements";
   } else if (currentDisplayUsingType == displayUsingLinkedObjectType) {
       displayType = "linkedobjects";
+#if defined(HAVE_DYNINST)
+  } else if (currentDisplayUsingType == displayUsingLoopType) {
+      displayType = "loops";
+#endif
   }
 
   if( focusedExpID == -1 ) {
@@ -4074,7 +4077,7 @@ StatsPanel::itemSelected(int index)
 {
 
 #ifdef DEBUG_StatsPanel_source
-  printf("StatsPanel::itemSelected entered, index=(%d)\n", index);
+  printf("StatsPanel::itemSelected (index) entered , index=(%d), splv=%0x\n", index, splv);
 #endif
 
   QListViewItemIterator it( splv );
@@ -4135,7 +4138,7 @@ StatsPanel::itemSelected(QListViewItem *item)
   if( item ) {
 
 #ifdef DEBUG_StatsPanel_source
-    printf("StatsPanel::itemSelected(QListViewItem *) item=%s\n", item->text(fieldCount-1).ascii() );
+    printf("StatsPanel::itemSelected(QListViewItem *) item=%s, splv=0x%x\n", item->text(fieldCount-1).ascii(), splv );
 #endif
 
     matchSelectedItem( item, std::string(item->text(fieldCount-1).ascii()) );
@@ -4195,7 +4198,16 @@ StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
   SourceObject *spo = NULL;
   QString ssf = QString(sf.c_str()).stripWhiteSpace();
 
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::matchSelectedItem after stripWhiteSpace on sf, ssf.ascii()=(%s)\n", ssf.ascii() ); 
+#endif
+
   filename = spitem->fileName.ascii();
+
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::matchSelectedItem after spitem->fileName.ascii(), filename.ascii()=(%s)\n", filename.ascii() ); 
+#endif
+
   if (filename == QString::null) {
     filename = getFilenameFromString(ssf);
 #ifdef DEBUG_StatsPanel
@@ -7027,6 +7039,10 @@ StatsPanel::updateToolBarStatus(QString optionChosen)
   toolbar_status_label->setText("Showing Statements by Function Report:");
  } else if (optionChosen.contains("Statements") ) {
   toolbar_status_label->setText("Showing Statements Report:");
+#if defined(HAVE_DYNINST)
+ } else if (optionChosen.contains("Loops") ) {
+  toolbar_status_label->setText("Showing Loops Report:");
+#endif
  } else if (optionChosen.contains("CallTrees by Function") ) {
   toolbar_status_label->setText("Showing CallTrees by Function Report:");
  } else if (optionChosen.contains("CallTrees,FullStack Report") ) {
@@ -7138,6 +7154,9 @@ if( currentThreadsStrENUM == RANK ) {
 
   // Now, try to focus the source panel on the first entry...
   QListViewItemIterator it( splv );
+#ifdef DEBUG_StatsPanel
+   printf("StatsPanel::threadSelected, try to focus the source panel on the first entry, it.current=0x%x\n", it.current() );
+#endif
   if( it.current() ) {
     int i = 0;
     QListViewItem *item = *it;
@@ -9548,7 +9567,7 @@ StatsPanel::outputCLIAnnotation(QString xxxfuncName, QString xxxfileName, int xx
 {
 
 #ifdef DEBUG_StatsPanel
-   printf("StatsPanel::outputCLIAnnotation, ENTER xxxfuncName.ascii()=%s, xxxfileName.ascii()=%s\n", 
+   printf("ENTER StatsPanel::outputCLIAnnotation, xxxfuncName.ascii()=%s, xxxfileName.ascii()=%s\n", 
            xxxfuncName.ascii(), xxxfileName.ascii());
 #endif
 
@@ -9584,7 +9603,7 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
 
 
 #ifdef DEBUG_StatsPanel
-   printf("StatsPanel::outputCLIData, ENTER xxxfuncName.ascii()=%s, xxxfileName.ascii()=%s\n", 
+   printf("ENTER StatsPanel::outputCLIData, xxxfuncName.ascii()=%s, xxxfileName.ascii()=%s\n", 
            xxxfuncName.ascii(), xxxfileName.ascii());
 #endif
 
@@ -10424,7 +10443,7 @@ StatsPanel::getFilenameFromString( QString selected_qstring )
 
   int efi = selected_qstring.findRev(")");
 #ifdef DEBUG_StatsPanel
-    printf("efi=%d after findRev for ) \n", efi );
+    printf("efi=%d after findRev for right parens \n", efi );
 #endif
   if( efi == -1 ) {
       // return null
@@ -10932,6 +10951,9 @@ StatsPanel::generateCommand()
        currentCollectorStr == "hwcsamp" ) &&
       (currentUserSelectedReportStr == "Functions") || 
       (currentUserSelectedReportStr == "LinkedObjects") || 
+#if defined(HAVE_DYNINST)
+      (currentUserSelectedReportStr == "Loops") || 
+#endif
       (currentUserSelectedReportStr == "minMaxAverage") || 
       (currentUserSelectedReportStr == "Statements by Function") ||
       (currentUserSelectedReportStr == "Statements") ) {
@@ -11306,6 +11328,9 @@ StatsPanel::generateCommand()
             (currentUserSelectedReportStr == "Butterfly") ||
             (currentUserSelectedReportStr == "Functions") ||
             (currentUserSelectedReportStr == "LinkedObjects") ||
+#if defined(HAVE_DYNINST)
+            (currentUserSelectedReportStr == "Loops") ||
+#endif
             (currentUserSelectedReportStr == "Statements") ||
             (currentUserSelectedReportStr == "CallTrees") ||
             (currentUserSelectedReportStr == "CallTrees,FullStack") ||
@@ -12722,6 +12747,13 @@ StatsPanel::addPCSampReports(QPopupMenu *menu )
   qaction->addTo( menu );
   qaction->setText( tr("Show: Statements by Function") );
   qaction->setToolTip(tr("Show timings for statements by function. Select line containing function first."));
+
+#if defined(HAVE_DYNINST)
+  qaction = new QAction(this, "showLoops");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Loops") );
+  qaction->setToolTip(tr("Show Loops.") );
+#endif
 }
 
 
@@ -12808,6 +12840,13 @@ StatsPanel::addHWCReports(QPopupMenu *menu )
   qaction->addTo( menu );
   qaction->setText( tr("Show: LinkedObjects") );
   qaction->setToolTip(tr("Show by LinkedObjects.") );
+
+#if defined(HAVE_DYNINST)
+  qaction = new QAction(this, "showLoops");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Loops") );
+  qaction->setToolTip(tr("Show by Loops.") );
+#endif
 }
 
 void
@@ -12827,6 +12866,13 @@ StatsPanel::addHWCSampReports(QPopupMenu *menu )
   qaction->addTo( menu );
   qaction->setText( tr("Show: LinkedObjects") );
   qaction->setToolTip(tr("Show by LinkedObjects.") );
+
+#if defined(HAVE_DYNINST)
+  qaction = new QAction(this, "showLoops");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Loops") );
+  qaction->setToolTip(tr("Show by Loops.") );
+#endif
 }
 
 void
@@ -12851,6 +12897,13 @@ qaction->setToolTip(tr("Show timings for statements by function"));
   qaction->addTo( menu );
   qaction->setText( tr("Show: LinkedObjects") );
   qaction->setToolTip(tr("Show by LinkedObjects.") );
+
+#if defined(HAVE_DYNINST)
+  qaction = new QAction(this, "showLoops");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Loops") );
+  qaction->setToolTip(tr("Show by Loops.") );
+#endif
 
   qaction = new QAction(this, "showCallTrees");
   qaction->addTo( menu );
@@ -13043,9 +13096,18 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
           currentCollectorStr == "pthreads" ||
 	  currentCollectorStr == "mpi" || 
           currentCollectorStr == "mpit" ) {
-        command = QString("expView -x %1 -f %2 %3").arg(localExpID).arg(fn).arg(timeIntervalString);
+
+        if (currentUserSelectedReportStr.startsWith("Loops" ) ) {
+          command = QString("expView -x %1 -v loops -f %2 %3").arg(localExpID).arg(fn).arg(timeIntervalString);
+        } else {
+          command = QString("expView -x %1 -f %2 %3").arg(localExpID).arg(fn).arg(timeIntervalString);
+        }
       } else {
-        command = QString("expView -x %1 -v statements -f %2 %3").arg(localExpID).arg(fn).arg(timeIntervalString);
+        if (currentUserSelectedReportStr.startsWith("Loops" ) ) {
+          command = QString("expView -x %1 -v loops -f %2 %3").arg(localExpID).arg(fn).arg(timeIntervalString);
+        } else {
+          command = QString("expView -x %1 -v statements -f %2 %3").arg(localExpID).arg(fn).arg(timeIntervalString);
+        }
       }
     } else {
 
@@ -13055,9 +13117,17 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
           currentCollectorStr == "pthreads" ||
 	  currentCollectorStr == "mpi" || 
           currentCollectorStr == "mpit" ) {
-          command = QString("expView -x %1 -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
+          if (currentUserSelectedReportStr.startsWith("Loops" ) ) {
+            command = QString("expView -x %1 -v loops -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
+          } else {
+            command = QString("expView -x %1 -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
+          }
       } else {
-          command = QString("expView -x %1 -v statements -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
+          if (currentUserSelectedReportStr.startsWith("Loops" ) ) {
+            command = QString("expView -x %1 -v loops -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
+          } else {
+            command = QString("expView -x %1 -v statements -f %2 %3").arg(focusedExpID).arg(fn).arg(timeIntervalString);
+          } 
       }
 
     }
@@ -13801,6 +13871,55 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
 #endif
             break;
 
+          case CMD_RESULT_LOOP:
+#ifdef DEBUG_StatsPanel
+            printf("StatsPanel::process_clip, ENTER CASEBLOCK FOR CMD_RESULT_LOOP\n");
+#endif
+            if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_LOOP\n";
+            {
+
+              CommandResult_Loop *crl = (CommandResult_Loop *)cr;
+              std::set<Statement> T = crl->getDefinitions();
+              if( T.size() > 0 ) {
+                std::set<Statement>::const_iterator ti = T.begin();
+                Statement s = *ti;
+
+                if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "    s.getPath()=" << s.getPath() << "\n";
+                if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
+
+                xxxfuncName = QString::null;
+                xxxfileName = QString( s.getPath().c_str() );
+//              xxxfileName = QString( s.getPath().getBaseName().c_str() );
+                xxxlineNumber = s.getLine();
+                if( dumpClipFLAG )
+                {
+                  std::cerr << "DCLIP: CMD_RESULT_LOOP:" <<  "xxxfuncName=" << xxxfuncName << "\n";
+                  std::cerr << "DCLIP: CMD_RESULT_LOOP:" <<  "xxxfileName=" << xxxfileName << "\n";
+                  std::cerr << "DCLIP: CMD_RESULT_LOOP:" <<  "xxxlineNumber=" << xxxlineNumber << "\n";
+                }
+                if( highlightList ) {
+
+                  QString colheader = (QString)*columnHeaderList.begin();
+                  int color_index = getLineColor((double)valueStr.toDouble());
+//                  int color_index = getLineColor((unsigned int)valueStr.toUInt());
+                  hlo = new HighlightObject(xxxfuncName, xxxfileName, xxxlineNumber, 
+                                            hotToCold_color_names[color_index], 
+//                                            hotToCold_color_names[currentItemIndex], 
+                                            valueStr.stripWhiteSpace(), 
+                                            QString("%1 = %2").arg(colheader).arg(valueStr.ascii()), colheader);
+
+                  if( dumpClipFLAG ) hlo->print();
+                  highlightList->push_back(hlo);
+
+                }
+              }
+
+            }
+#ifdef DEBUG_StatsPanel
+            printf("StatsPanel::process_clip, EXIT CASEBLOCK FOR CMD_RESULT_LOOP\n");
+#endif
+            break;
+
           case CMD_RESULT_LINKEDOBJECT:
             if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "Got CMD_RESULT_LINKEDOBJECT\n";
             break;
@@ -13966,6 +14085,69 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
                 highlightList->push_back(hlo);
               }
 
+            } else if( CE->Type() == CMD_RESULT_LOOP ) {
+
+#ifdef DEBUG_StatsPanel
+	      printf("StatsPanel::process_clip, CMD_RESULT_LOOP: sz=%d, function=%s\n",
+                     sz,CE->Form().c_str());
+#endif
+	      nprintf(DEBUG_CLIPS) ("StatsPanel::process_clip,   CMD_RESULT_LOOP: sz=%d, function=%s\n",
+                                    sz,CE->Form().c_str());
+
+              CommandResult_Loop *crl = (CommandResult_Loop *)CE;
+              std::set<Statement> T = crl->getDefinitions();
+              if( T.size() > 0 ) {
+                std::set<Statement>::const_iterator ti = T.begin();
+                Statement s = *ti;
+
+#ifdef DEBUG_StatsPanel
+	        printf("StatsPanel::process_clip, LOOP: s.getPath()=%s, s.getLine()=%d\n",
+                       s.getPath().c_str(),(int64_t)s.getLine());
+#endif
+	        nprintf(DEBUG_CLIPS) ("StatsPanel::process_clip, LOOP: s.getPath()=%s, s.getLine()=%d\n",
+                                    s.getPath().c_str(),(int64_t)s.getLine());
+
+                xxxfuncName = CE->Form().c_str();
+                xxxfileName = QString( s.getPath().c_str() );
+//                xxxfileName = QString( s.getPath().getBaseName().c_str() );
+                xxxlineNumber = s.getLine();
+
+#ifdef DEBUG_StatsPanel
+	        printf("StatsPanel::process_clip, LOOP: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",
+                       xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
+#endif
+	        nprintf(DEBUG_CLIPS) ("StatsPanel::process_clip, LOOP: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",
+                                       xxxfuncName.ascii(),xxxfileName.ascii(),xxxlineNumber);
+
+                if( highlightList ) {
+                  QString colheader = (QString)*columnHeaderList.begin();
+#ifdef DEBUG_StatsPanel
+ 	          printf("StatsPanel::process_clip, LOOP: valueStr=%s, (unsigned int)valueStr.toUInt()=%d, currentItemIndex=%d\n",
+                          valueStr.ascii(),(unsigned int)valueStr.toUInt(), currentItemIndex);
+#endif
+                  int color_index = getLineColor((double)valueStr.toDouble());
+#ifdef DEBUG_StatsPanel
+     	          printf("StatsPanel::process_clip, LOOP: hotToCold_color_names[color_index]=%s\n", hotToCold_color_names[color_index]);
+#endif
+//                  int color_index = getLineColor((unsigned int)valueStr.toUInt());
+                  hlo = new HighlightObject(xxxfuncName, xxxfileName, xxxlineNumber, 
+                                            hotToCold_color_names[color_index], 
+                                            valueStr.stripWhiteSpace(), 
+                                            QString("%1 = %2").arg(colheader).arg(valueStr.ascii()), 
+                                            colheader );
+
+#ifdef DEBUG_StatsPanel
+ 	          printf("StatsPanel::process_clip, before hlo->print() call\n");
+#endif
+                  if( dumpClipFLAG ) hlo->print();
+#ifdef DEBUG_StatsPanel
+ 	          printf("StatsPanel::process_clip, after hlo->print() call\n");
+#endif
+
+                  highlightList->push_back(hlo);
+                }
+              }
+
             } else {
 
               if( dumpClipFLAG ) std::cerr << "DCLIP: " <<  "How do I handle this type? CE->Type() " << CE->Type() << "\n";
@@ -14070,8 +14252,8 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
       QString s = QString((*cri)->Form().c_str());
 
 #ifdef DEBUG_StatsPanel
-      printf("StatsPanel::process_clip, printing the QString s as output %s\n", s.ascii() );
-      printf("StatsPanel::process_clip, calling outputCLIData, xxxfileName.ascii()=%s,printing the QString s as output: %s\n", 
+      printf("StatsPanel::process_clip, printing the QString s as output:%s\n", s.ascii() );
+      printf("StatsPanel::process_clip, calling outputCLIData, xxxfileName.ascii()=%s, printing the QString s as output: %s\n", 
               xxxfileName.ascii(), s.ascii() );
 #endif
 
@@ -15219,7 +15401,7 @@ if (currentCollectorStr != lastCollectorStr ||
     printf("StatsPanel::generateToolBar, in compare type button group, creation, fileTools=0x%lx)\n", fileTools);
 #endif
 
-    // insert 1 or 3 radiobuttons
+    // insert 1 or 4 radiobuttons
     vDisplayTypeFunctionRB = new QRadioButton( "Functions", vDisplayTypeBG );
     connect( vDisplayTypeFunctionRB, SIGNAL( clicked() ), this, SLOT( displayUsingFunction() ) );
 
@@ -15231,6 +15413,9 @@ if (currentCollectorStr != lastCollectorStr ||
       full_display_by_menu = FALSE;
       vDisplayTypeStatementRB = NULL;
       vDisplayTypeLinkedObjectRB = NULL;
+#if defined(HAVE_DYNINST)
+      vDisplayTypeLoopRB = NULL;
+#endif
     }
 
 #ifdef DEBUG_StatsPanel_toolbar
@@ -15245,6 +15430,11 @@ if (currentCollectorStr != lastCollectorStr ||
       vDisplayTypeLinkedObjectRB = new QRadioButton( "Linked Objects", vDisplayTypeBG );
       connect( vDisplayTypeLinkedObjectRB, SIGNAL( clicked() ), this, SLOT( displayUsingLinkedObject() ) );
 
+#if defined(HAVE_DYNINST)
+      vDisplayTypeLoopRB = new QRadioButton( "Loops", vDisplayTypeBG );
+      connect( vDisplayTypeLoopRB, SIGNAL( clicked() ), this, SLOT( displayUsingLoop() ) );
+#endif
+
 #ifdef DEBUG_StatsPanel_toolbar
       printf("StatsPanel::generateToolBar, in compare type button group, creation, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
 #endif
@@ -15252,6 +15442,10 @@ if (currentCollectorStr != lastCollectorStr ||
          vDisplayTypeFunctionRB->setChecked(TRUE);
          vDisplayTypeStatementRB->setChecked(FALSE);
          vDisplayTypeLinkedObjectRB->setChecked(FALSE);
+#if defined(HAVE_DYNINST)
+         vDisplayTypeLoopRB->setChecked(FALSE);
+#endif
+
 #ifdef DEBUG_StatsPanel_toolbar
          printf("StatsPanel::generateToolBar, in compare type button group, displayUsingFunctionType, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
 #endif
@@ -15259,15 +15453,24 @@ if (currentCollectorStr != lastCollectorStr ||
          vDisplayTypeFunctionRB->setChecked(FALSE);
          vDisplayTypeStatementRB->setChecked(TRUE);
          vDisplayTypeLinkedObjectRB->setChecked(FALSE);
+#if defined(HAVE_DYNINST)
+         vDisplayTypeLoopRB->setChecked(FALSE);
+#endif
+
 #ifdef DEBUG_StatsPanel_toolbar
          printf("StatsPanel::generateToolBar, in compare type button group, displayUsingStatementType, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
 #endif
-      } else {
+      } else if (currentDisplayUsingType == displayUsingLinkedObjectType) {
          vDisplayTypeFunctionRB->setChecked(FALSE);
          vDisplayTypeStatementRB->setChecked(FALSE);
          vDisplayTypeLinkedObjectRB->setChecked(TRUE);
-#ifdef DEBUG_StatsPanel_toolbar
-         printf("StatsPanel::generateToolBar, in compare type button group, displayUsingLOType, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
+#if defined(HAVE_DYNINST)
+         vDisplayTypeLoopRB->setChecked(FALSE);
+      } else if (currentDisplayUsingType == displayUsingLoopType) {
+         vDisplayTypeFunctionRB->setChecked(FALSE);
+         vDisplayTypeStatementRB->setChecked(FALSE);
+         vDisplayTypeLinkedObjectRB->setChecked(FALSE);
+         vDisplayTypeLoopRB->setChecked(TRUE);
 #endif
       }
     } else {
@@ -15276,6 +15479,9 @@ if (currentCollectorStr != lastCollectorStr ||
          printf("StatsPanel::generateToolBar, in compare type button group, default, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
 #endif
     }
+#ifdef DEBUG_StatsPanel_toolbar
+    printf("StatsPanel::generateToolBar, in compare type button group, displayUsingLOType, currentDisplayUsingType=%d)\n", currentDisplayUsingType);
+#endif
 
 #if 1
     if (vDisplayTypeFunctionRB) {
@@ -15287,6 +15493,11 @@ if (currentCollectorStr != lastCollectorStr ||
     if (vDisplayTypeLinkedObjectRB) {
       vDisplayTypeLinkedObjectRB->show();
     }
+#if defined(HAVE_DYNINST)
+    if (vDisplayTypeLoopRB) {
+      vDisplayTypeLoopRB->show();
+    }
+#endif
 #else
     if (vDisplayTypeBG) {
       vDisplayTypeBG->show();
@@ -15361,6 +15572,12 @@ StatsPanel::defaultViewSelected()
       displayType = "linkedobjects";
       currentUserSelectedReportStr = "LinkedObjects";
       toolbar_status_label->setText("Generating Linked Objects Report...");
+#if defined(HAVE_DYNINST)
+  } else if (currentDisplayUsingType == displayUsingLoopType) {
+      displayType = "loops";
+      currentUserSelectedReportStr = "Loops";
+      toolbar_status_label->setText("Generating Loops Report...");
+#endif
   }
   // Clear all thread specific options
 //  currentThreadsStr = QString::null;
@@ -15378,6 +15595,10 @@ StatsPanel::defaultViewSelected()
       toolbar_status_label->setText("Showing Statements Report...");
   } else if (currentDisplayUsingType == displayUsingLinkedObjectType) {
       toolbar_status_label->setText("Showing Linked Objects Report...");
+#if defined(HAVE_DYNINST)
+  } else if (currentDisplayUsingType == displayUsingLoopType) {
+      toolbar_status_label->setText("Showing Loops Report...");
+#endif
   }
 }
 

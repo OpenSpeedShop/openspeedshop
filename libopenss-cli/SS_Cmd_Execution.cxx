@@ -6366,13 +6366,13 @@ static bool SS_ListLoops (CommandObject *cmd) {
     if( loopobj.size() > 0 ) {
       for (std::set<Loop>:: iterator li = loopobj.begin(); li != loopobj.end(); li++) {
         Loop lpobj = *li;
-        std::set<Statement> sobj = lpobj.getDefinitions();
+        std::set<Statement> loop_definitions = lpobj.getDefinitions();
 
 #ifdef DEBUG_CLI_LOOPS
-        std::cerr << "DEBUG: from getDefintions, sobj.size()=" << sobj.size() << std::endl;
+        std::cerr << "DEBUG: from getDefintions, loop_definitions.size()=" << loop_definitions.size() << std::endl;
 #endif
-        if( sobj.size() > 0 ) {
-         for (std::set<Statement>:: iterator si = sobj.begin(); si != sobj.end(); si++) {
+        if( loop_definitions.size() > 0 ) {
+         for (std::set<Statement>:: iterator si = loop_definitions.begin(); si != loop_definitions.end(); si++) {
            Statement st = *si;
 	   std::string SL = st.getPath().getBaseName();
 	   SL += ":";

@@ -221,12 +221,22 @@ bool Queries::CompareLoops::operator()(
        compareOnlyLoopLine = TRUE;
     }
 
+#if DEBUG_Queries
+    std::cerr << "LOOP: Queries::CompareLoops::operator()"  << std::endl;
+#endif
+
     std::set<Framework::Statement> lhs_stmt = lhs.getDefinitions();
     std::set<Framework::Statement> rhs_stmt = rhs.getDefinitions();
 
     if(lhs_stmt == rhs_stmt) {
+#if DEBUG_Queries
+        std::cerr << "LOOP: Queries::CompareLoops::operator(), return true"  << std::endl;
+#endif
 	return true;
     } else {
+#if DEBUG_Queries
+        std::cerr << "LOOP: Queries::CompareLoops::operator(), return false"  << std::endl;
+#endif
 	return false;
     }
 

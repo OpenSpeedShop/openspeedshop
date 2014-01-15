@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2013 Krell Institute. All Rights Reserved.
+// Copyright (c) 2013-2014 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -249,6 +249,8 @@ std::set<Statement> Loop::getDefinitions() const
     while(dm_database->executeStatement())
         head = dm_database->getResultAsAddress(1);
     END_TRANSACTION(dm_database);
+
+    //std::cerr << "Loop::getDefinitions(), head=" << head << std::endl;
 
     // Use the loop's head address as its extent
     Extent first(TimeInterval(Time::TheBeginning(), Time::TheEnd()),

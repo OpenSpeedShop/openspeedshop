@@ -271,6 +271,11 @@ void Construct_View (CommandObject *cmd,
 
    // Extract the top "n" items from the sorted list and merge in other columns of information.
     typename std::vector<std::pair<TE, CommandResult *> >::iterator it = items.begin();
+
+#if DEBUG_CLI
+    printf("In ConstructView, SS_View_stats.cxx, above loop for merging in other columns of information, items.size()=%d\n", items.size());
+#endif
+
     for(int64_t foundn = 0; foundn < items.size(); foundn++, it++ ) {
 
      // Check for asnychonous abort command
@@ -528,6 +533,9 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     std::string EO_Title;
     switch (vg) {
      case VIEW_STATEMENTS: {
+#if DEBUG_CLI
+  printf("In Generic_View, VIEW_STATEMENTS case block \n");
+#endif
       std::set<Statement> s_objects;
       Get_Filtered_Objects (cmd, exp, tgrp, s_objects);
       first_column_found = First_Column (cmd, exp, tgrp, CV, MV, IV, s_objects, s_items);
@@ -539,6 +547,9 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       break;
      }
      case VIEW_LINKEDOBJECTS: {
+#if DEBUG_CLI
+  printf("In Generic_View, VIEW_LINKEDOBJECTS case block \n");
+#endif
       std::set<LinkedObject> l_objects;
       Get_Filtered_Objects (cmd, exp, tgrp, l_objects);
       first_column_found = First_Column (cmd, exp, tgrp, CV, MV, IV, l_objects, l_items);
@@ -550,6 +561,9 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       break;
      }
      case VIEW_LOOPS: {
+#if DEBUG_CLI
+  printf("In Generic_View, VIEW_LOOPS case block \n");
+#endif
       std::set<Loop> loop_objects;
       Get_Filtered_Objects (cmd, exp, tgrp, loop_objects);
       first_column_found = First_Column (cmd, exp, tgrp, CV, MV, IV, loop_objects, loop_items);
@@ -561,6 +575,9 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
       break;
      }
      default: {
+#if DEBUG_CLI
+  printf("In Generic_View, default VIEW_FUNCTIONS case block \n");
+#endif
       std::set<Function> f_objects;
       Get_Filtered_Objects (cmd, exp, tgrp, f_objects);
       first_column_found = First_Column (cmd, exp, tgrp, CV, MV, IV, f_objects, f_items);

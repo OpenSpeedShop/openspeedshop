@@ -254,6 +254,9 @@ class pcsamp_view : public ViewType {
     std::vector<ViewInstruction *>IV;
     std::vector<std::string> HV;
 
+#ifdef DEBUG_CLI
+    printf("Enter pcsamp-> GenerateView\n");
+#endif
     View_Form_Category vfc = Determine_Form_Category(cmd);
     if (pcsamp_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc)) {
 
@@ -277,6 +280,9 @@ class pcsamp_view : public ViewType {
         return Simple_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                    false, sp, vfc, view_output);
        case VFC_Loop:
+#ifdef DEBUG_CLI
+        printf("In pcsamp-> CASE VFC_LOOP, calling Simple_Base_Report\n");
+#endif
         Loop *loopp;
         return Simple_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                    false, loopp, vfc, view_output);

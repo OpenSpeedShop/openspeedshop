@@ -97,36 +97,47 @@ static void Calculate_Totals (
 
     if (vp->OpCode() == VIEWINST_Define_Total_Metric) {
      // We calculate Total by adding all the values that were recorded for the thread group.
+
 #if DEBUG_CLI
       printf("in Calculate_Totals, vp->OpCode() == VIEWINST_Define_Total_Metric, c_items.size()=%d\n", 
              c_items.size());
 #endif
+
       int64_t metricIndex = vp->TMP1(); // this is a CV/MV index, not a column number!
+
 #if DEBUG_CLI
       printf("in Calculate_Totals, vp->OpCode() == VIEWINST_Define_Total_Metric, metricIndex=%d\n", 
              metricIndex);
 #endif
+
       TotalValue = Get_Total_Metric ( cmd, tgrp, CV[metricIndex], MV[metricIndex] );
+
 #if DEBUG_CLI
       printf("in Calculate_Totals, VIEWINST_Define_Total_Metric, after TotalValue = Get_Total_Metric call, begin print TotalValue=\n" );
       TotalValue->Print(std::cerr);
       printf("\nin Calculate_Totals, VIEWINST_Define_Total_Metric, end print TotalValue=\n" );
 #endif
+
       Gen_Total_Percent = true;
+
     } else if ( (vp->OpCode() == VIEWINST_Define_Total_Tmp) ||
                 ( (vp->OpCode() == VIEWINST_Expression) &&
                   vp->AccumulateExpr() ) ) {
      // Sum the specified temp.
       int64_t tmpIndex = vp->TMP1();
+
 #if DEBUG_CLI
       printf("in Calculate_Totals, VIEWINST_Define_Total_Tmp, tmpIndex=%d\n", tmpIndex );
 #endif
+
       std::vector<std::pair<CommandResult *, SmartPtr<std::vector<CommandResult *> > > >::iterator ci;
       ci = c_items.begin();
       if (ci == c_items.end()) {
+
 #if DEBUG_CLI
         printf("in Calculate_Totals, ci == c_items.end(), VIEWINST_Define_Total_Tmp, tmpIndex=%d\n", tmpIndex );
 #endif
+
        // Clearly, we can not add up a sequence if there is none.
         Gen_Total_Percent = false;
       } else if (tmpIndex >= (*ci).second->size()) {
@@ -1143,6 +1154,7 @@ bool Generic_Multi_View (
            std::list<CommandResult *>& view_output) {
   bool success = false;
 #if DEBUG_CLI
+  std::cerr << "Enter Generic_Multi_View, in SS_View_multi.cxx, begin calling Print_View_Params" << std::endl;
   Print_View_Params (std::cerr, CV,MV,IV);
   std::cerr << "\nEnter Generic_Multi_View, in SS_View_multi.cxx, c_items.size()= " << c_items.size() << "\n";
   std::cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
@@ -1165,11 +1177,12 @@ bool Generic_Multi_View (
       } else {
         std::cerr << "NULL\n";
       }
-      printf("Generic_Multi_View, END printing CommandResult jegp\n");
+      printf("Enter Generic_Multi_View, END printing CommandResult jegp\n");
     }
 TEST */
 
   }
+  std::cerr << "Enter Generic_Multi_View, in SS_View_multi.cxx, after calling Print_View_Params" << std::endl;
   fflush(stderr);
 #endif
 
@@ -1272,6 +1285,7 @@ TEST */
 
    // What granularity has been requested?
     std::string EO_Title;
+
     if (vfc == VFC_Trace) {
       EO_Title = "Call Stack Function (defining location)";
 
@@ -1316,24 +1330,31 @@ TEST */
         Reclaim_CR_Space (topn, c_items);
         c_items.erase ( (c_items.begin() + topn), c_items.end());
       }
+
      // Sort by the value displayed in the left most column.
+
 #if DEBUG_CLI
       printf("in Generic_Multi_View, calling Setup_Sort, VFC_Trace, Sort ViewInst[0], by the value displayed in the left most column. \n");
 #endif
+
       Setup_Sort (ViewInst[0], c_items, Total_Value);
 
       if ((sortInst == NULL) ||
           (sortInst->TMP1() == 0)) {
+
 #if DEBUG_CLI
       printf("in Generic_Multi_View, sort, VFC_Trace, sortInst == NULL, by the value displayed in the left most column. \n");
 #endif
+
         std::sort(c_items.begin(), c_items.end(),
                   sort_descending_CommandResult<std::pair<CommandResult *,
                                                           SmartPtr<std::vector<CommandResult *> > > >());
       } else {
+
 #if DEBUG_CLI
       printf("in Generic_Multi_View, sort, VFC_Trace, NOT sortInst == NULL, by the value displayed in the left most column. \n");
 #endif
+
         std::sort(c_items.begin(), c_items.end(),
                   sort_ascending_CommandResult<std::pair<CommandResult *,
                                                           SmartPtr<std::vector<CommandResult *> > > >());
@@ -1471,19 +1492,25 @@ TEST */
     if (Look_For_KeyWord(cmd, "ButterFly")) {
      // Foreach function name, build a ButterFly view.
      // Note: we have already verified that there is a '-f' list.
+
       OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
       std::vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
+
       Assert (p_tlist->begin() != p_tlist->end());
       OpenSpeedShop::cli::ParseTarget pt = *p_tlist->begin(); // There can only be one!
+
       std::vector<OpenSpeedShop::cli::ParseRange> *f_list = pt.getFileList();
       Assert ((f_list != NULL) && !(f_list->empty()));
+
       bool MoreThanOne = false;
       std::vector<OpenSpeedShop::cli::ParseRange>::iterator pr_iter;
+
       for (pr_iter=f_list->begin(); pr_iter != f_list->end(); pr_iter++) {
         OpenSpeedShop::cli::parse_range_t R = *pr_iter->getRange();
         OpenSpeedShop::cli::parse_val_t pval1 = R.start_range;
         Assert (pval1.tag == OpenSpeedShop::cli::VAL_STRING);
         std::set<Function> FS = exp->FW()->getFunctionsByNamePattern (pval1.name);
+
         std::set<Function>::iterator fsi;
         for (fsi = FS.begin(); fsi != FS.end(); fsi++) {
           std::vector<std::pair<CommandResult *,
@@ -1519,6 +1546,9 @@ TEST */
       }
 
     } else {
+#if DEBUG_CLI
+     printf("in Generic_Multi_View, calling Construct_View_Output, c_items.size()=%d\n", c_items.size());
+#endif
       Construct_View_Output (cmd, exp, tgrp, CV, MV, IV, Total_Value, c_items, view_output);
     }
 

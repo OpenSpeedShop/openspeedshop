@@ -829,14 +829,15 @@ class CommandResult_Loop :
 
  public:
 
-  CommandResult_Loop (Loop F) :
-       Framework::Loop(F),
+  CommandResult_Loop (Loop L) :
+       Framework::Loop(L),
        CommandResult(CMD_RESULT_LOOP) {
     Line = 0;
     Column = 0;
   }
-  CommandResult_Loop  (Loop F, std::set<Statement>& st) :
-       Framework::Loop(F),
+
+  CommandResult_Loop  (Loop L, std::set<Statement>& st) :
+       Framework::Loop(L),
        CommandResult(CMD_RESULT_LOOP) {
     ST = st;
     Line = 0;
@@ -847,13 +848,13 @@ class CommandResult_Loop :
       Column = (int64_t)((*STi).getColumn());
     }
   }
-  CommandResult_Loop  (CommandResult_Loop *C) :
-       Framework::Loop(*C),
+  CommandResult_Loop  (CommandResult_Loop *L) :
+       Framework::Loop(*L),
        CommandResult(CMD_RESULT_LOOP) {
-    ST = C->ST;
-    Line = C->Line;
-    Column = C->Column;
-    if (C->IsValueID()) SetValueIsID();
+    ST = L->ST;
+    Line = L->Line;
+    Column = L->Column;
+    if (L->IsValueID()) SetValueIsID();
   }
   virtual ~CommandResult_Loop () { }
 
@@ -864,18 +865,18 @@ class CommandResult_Loop :
       return A->GT(this);
     }
     return OpenSpeedShop::Queries::CompareLoops()(*this,
-                                                      *((CommandResult_Loop *)A)); }
+                                                  *((CommandResult_Loop *)A)); }
   virtual bool GT (CommandResult *A) {
     if (A->Type() != CMD_RESULT_LOOP) {
       Assert (A->Type() == CMD_RESULT_CALLTRACE);
       return A->LT(this);
     }
     if (OpenSpeedShop::Queries::CompareLoops()(*((CommandResult_Loop *)A),
-                                                   *this)) {
+                                               *this)) {
       return true;
     }
     if (OpenSpeedShop::Queries::CompareLoops()(*this,
-                                                   *((CommandResult_Loop *)A))) {
+                                               *((CommandResult_Loop *)A))) {
       return false;
     }
     int64_t Ls = Line;
@@ -893,12 +894,33 @@ class CommandResult_Loop :
     return Column;
   }
 
+  virtual std::string Form (int64_t fieldsize) {
+    std::string S = "";
+    std::set<Statement> DEF = getDefinitions();
+    std::set<Statement>::const_iterator s = DEF.begin();
+    if ( DEF.size()) {
+      int64_t gotLine = (int64_t)s->getLine();
+      int64_t gotColumn = (int64_t)s->getColumn();
+      char l[50];
+      if (gotColumn > 0) {
+        sprintf( &l[0], "%lld:%lld", gotLine, gotColumn);
+      } else {
+        sprintf( &l[0], "%lld", gotLine);
+      }
+      S = (OPENSS_VIEW_FULLPATH) ? s->getPath() : s->getPath().getBaseName();
+      S = S + "(" + std::string(l) + ")";
+    }
+    return S;
+  }
+
+
   virtual PyObject * pyValue () {
-    std::string F = Form (OPENSS_VIEW_FIELD_SIZE);
-    return Py_BuildValue("s",F.c_str());
+    std::string S = Form (OPENSS_VIEW_FIELD_SIZE);
+    return Py_BuildValue("s", S.c_str());
   }
 
   virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+
     int64_t fieldsize = pc.field_size;
     if ( (pc.column_widths != NULL) &&
          (column >= 0) ) fieldsize = pc.column_widths[column];
@@ -968,6 +990,7 @@ class CommandResult_Statement :
     int64_t gotLine = (int64_t)getLine();
     int64_t gotColumn = (int64_t)getColumn();
     char l[50];
+
     if (gotColumn > 0) {
       sprintf( &l[0], "%lld:%lld", gotLine, gotColumn);
     } else {
@@ -979,10 +1002,12 @@ class CommandResult_Statement :
     S = S + "(" + std::string(l) + ")";
     return S;
   }
+
   virtual PyObject * pyValue () {
     std::string S = Form (OPENSS_VIEW_FIELD_SIZE);
-    return Py_BuildValue("s",S.c_str());
+    return Py_BuildValue("s", S.c_str());
   }
+
   virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
     int64_t fieldsize = pc.field_size;
     if ( (pc.column_widths != NULL) &&

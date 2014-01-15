@@ -20,8 +20,8 @@
 /* Take the define below out of comments for debug
    output in several CLI routines that
    include this include file.........
+   #define DEBUG_CLI 1 
 */
-/* #define DEBUG_CLI 1 */
 
 
 template <typename TO, typename TS>
@@ -42,6 +42,7 @@ void GetMetricInThreadGroupByThread (
 #if DEBUG_CLI
       printf("In GetMetricInThreadGroupByThread, Start_Time.getValue()=%u\n", Start_Time.getValue());
       printf("In GetMetricInThreadGroupByThread, End_Time.getValue()=%u\n", End_Time.getValue());
+      printf("In GetMetricInThreadGroupByThread, before Queries::GetMetricValues, objects.size()=%d\n", objects.size());
 #endif
 
       Queries::GetMetricValues(collector, metric,
@@ -66,14 +67,14 @@ void ReduceMetricByThread ( SmartPtr<std::map<TO, std::map<Thread, TS > > >& ind
     }
 
 #if DEBUG_CLI
-//    std::cout << "In ReduceMetricByThread  individual->size()=" << individual->size() << std::endl;
+    std::cout << "In ReduceMetricByThread  individual->size()=" << individual->size() << std::endl;
 #endif
 
    // Reduce the per-thread values.
     SmartPtr<std::map<TO, TS > > reduced = Queries::Reduction::Apply(individual, reduction);
 
 #if DEBUG_CLI
-//    std::cout << "In ReduceMetricByThread  reduced->size()=" << reduced->size() << std::endl;
+    std::cout << "In ReduceMetricByThread  reduced->size()=" << reduced->size() << std::endl;
 #endif
 
     // Merge the temporary reduction into the actual results
@@ -106,7 +107,7 @@ void GetMetricInThreadGroup(
    // Allocate (if necessary) a new map of source objects to values
 
 #if DEBUG_CLI
-    printf("GetMetricInThreadGroup, metric.c_str()=%s\n", metric.c_str());
+    printf("GetMetricInThreadGroup, metric.c_str()=%s, objects.size()=%d\n", metric.c_str(), objects.size());
 #endif
 
     if(result.isNull()) {

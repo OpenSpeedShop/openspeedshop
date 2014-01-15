@@ -648,6 +648,9 @@ Metadata Find_Metadata (Collector C, std::string name) {
 }
 
 std::string gen_F_name (Function F) {
+#if DEBUG_CLI
+  printf("gen_F_name  - SS_View_util.cxx, FUNCTION\n");
+#endif
   std::string S = F.getName();
   LinkedObject L = F.getLinkedObject();
   std::set<Statement> T = F.getDefinitions();
@@ -731,6 +734,9 @@ static void Merge_LinkedObject_Into_Objects (std::set<LinkedObject>& named_linke
 
 static void Get_Objects_By_Function (std::set<Function>& named_functions,
                                      std::set<LinkedObject>& objects) {
+#if DEBUG_CLI
+  printf("Get_Objects_By_Function  - SS_View_util.cxx, LINKEDOBJECTS\n");
+#endif
   std::set<Function>::iterator fi;
   for (fi = named_functions.begin(); fi != named_functions.end(); fi++) {
     Function f = *fi;
@@ -741,6 +747,9 @@ static void Get_Objects_By_Function (std::set<Function>& named_functions,
 
 static void Get_Objects_By_Function (std::set<Function>& named_functions,
                                      std::set<Loop>& objects) {
+#if DEBUG_CLI
+  printf("Get_Objects_By_Function  - SS_View_util.cxx, LOOPS\n");
+#endif
   std::set<Function>::iterator fi;
   for (fi = named_functions.begin(); fi != named_functions.end(); fi++) {
     Function f = *fi;
@@ -753,6 +762,9 @@ static void Get_Objects_By_Function (std::set<Function>& named_functions,
 
 static void Get_Objects_By_Function (std::set<Function>& named_functions,
                                      std::set<Statement>& objects) {
+#if DEBUG_CLI
+  printf("Get_Objects_By_Function  - SS_View_util.cxx, STATEMENT\n");
+#endif
   std::set<Function>::iterator fi;
   for (fi = named_functions.begin(); fi != named_functions.end(); fi++) {
     Function f = *fi;
@@ -791,7 +803,13 @@ static void Get_Source_Objects(const Thread& thread,
 static void Get_Source_Objects(const Thread& thread,
 			       std::set<Loop>& objects)
 {
+#if DEBUG_CLI
+    printf("Enter Get_Source_Objects-SS_View_util.cxx, LOOP, objects.size()=%d\n", objects.size());
+#endif
     objects = thread.getLoops();
+#if DEBUG_CLI
+    printf("Exit Get_Source_Objects-SS_View_util.cxx, LOOP, objects.size()=%d\n", objects.size());
+#endif
 }
 
 static void Get_TGRP_Source_Objects(const ThreadGroup& tgrp,
@@ -816,7 +834,13 @@ static void Get_TGRP_Source_Objects(const ThreadGroup& tgrp,
 static void Get_TGRP_Source_Objects(const ThreadGroup& tgrp,
 			       std::set<Loop>& objects)
 {
+#if DEBUG_CLI
+    printf("Enter Get_TGRP_Source_Objects-SS_View_util.cxx, LOOP, objects.size()=%d\n", objects.size());
+#endif
     objects = tgrp.getLoops();
+#if DEBUG_CLI
+    printf("Exit Get_TGRP_Source_Objects-SS_View_util.cxx, LOOP, objects.size()=%d\n", objects.size());
+#endif
 }
 
 
@@ -865,7 +889,7 @@ void Filtered_Objects (CommandObject *cmd,
                        std::set<TE >& objects ) {
 
 #if DEBUG_CLI
-  printf("Filtered_Objects  - SS_View_util.cxx\n");
+  printf("Filtered_Objects  - SS_View_util.cxx, objects.size()=%d\n", objects.size());
 #endif
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   std::vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
@@ -888,6 +912,9 @@ void Filtered_Objects (CommandObject *cmd,
     std::set<TE> new_objects;
     Get_TGRP_Source_Objects(tgrp, new_objects);
     objects.insert(new_objects.begin(), new_objects.end());
+#if DEBUG_CLI
+    printf("EXIT 1 Filtered_Objects  - SS_View_util.cxx, objects.size()=%d\n", objects.size());
+#endif
     return;
   } else if (!Object_Is_LinkedObject(objects)) {
    // There is some sort of "-f name" filter specified.
@@ -1000,7 +1027,7 @@ void Filtered_Objects (CommandObject *cmd,
         }
       }
 
-     // Get the desired function or statement objects.
+     // Get the desired function, statement, or loop objects.
       Get_Objects_By_Function (new_functions, objects );
     }
     return;

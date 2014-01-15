@@ -278,7 +278,12 @@ class StatsPanel  : public Panel
     QString currentDisplayUsingTypeStr;
     enum enumDisplayType { displayUsingFunctionType, 
                            displayUsingStatementType,  
-                           displayUsingLinkedObjectType };
+//#ifdef HAVE_DYNINST
+                           displayUsingLinkedObjectType,  
+                           displayUsingLoopType };
+//#else
+//                           displayUsingLinkedObjectType };
+//#endif
     enumDisplayType  currentDisplayUsingType;
     QString getCollectorName();
 
@@ -286,6 +291,9 @@ class StatsPanel  : public Panel
     QRadioButton *vDisplayTypeFunctionRB;
     QRadioButton *vDisplayTypeStatementRB;
     QRadioButton *vDisplayTypeLinkedObjectRB;
+//#ifdef HAVE_DYNINST
+    QRadioButton *vDisplayTypeLoopRB;
+//#endif
     QButtonGroup *vDisplayTypeBG;
 
 
@@ -518,6 +526,9 @@ class StatsPanel  : public Panel
     void displayUsingFunction();
     void displayUsingStatement();
     void displayUsingLinkedObject();
+//#ifdef HAVE_DYNINST
+    void displayUsingLoop();
+//#endif
 
     void itemSelected( QListViewItem * );
     void returnPressed( QListViewItem * );

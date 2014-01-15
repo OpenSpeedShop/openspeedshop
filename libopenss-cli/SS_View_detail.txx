@@ -1194,6 +1194,7 @@ bool Simple_Base_Report(
 
 #if DEBUG_CLI
     printf("In Simple_Base_Report, SS_View_detail.txx, base_time.getValue()=%u\n", base_time.getValue());
+    printf("In Simple_Base_Report, SS_View_detail.txx, objects.size()=%d\n", objects.size());
 #endif
 
 
@@ -1235,17 +1236,12 @@ bool Simple_Base_Report(
     printf("In Simple_Base_Report, after calling GetMetricByObjectSet, tgrp.size()=%d\n", tgrp.size());
 #endif
 
-#if DEBUG_CLI
-    printf("In Simple_Base_Report, before 1 calling GetReducedMetrics, tgrp.size()=%d\n", tgrp.size());
-#endif
-
    // Get any required intermediate reduction temps.
     std::vector<SmartPtr<std::map<TOBJECT, CommandResult *> > > Extra_Values(ViewReduction_Count);
 
 #if DEBUG_CLI
     printf("In Simple_Base_Report, before 2 calling GetReducedMetrics, tgrp.size()=%d\n", tgrp.size());
 #endif
-
 
     bool ExtraTemps = GetReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Extra_Values);
 
