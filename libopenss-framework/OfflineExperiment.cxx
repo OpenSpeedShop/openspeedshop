@@ -1197,4 +1197,176 @@ void OfflineExperiment::createOfflineSymbolTable()
     // clear names to range for our next linked object.
     dsoVec.clear();
     std::cerr << "Finished ... " << std::endl;
+
+#ifndef NDEBUG
+    // Show the raw symbol information in the database if requested
+    if (getenv("OPENSS_DEBUG_OFFLINE_SYMBOLS_DATABASE") != NULL)
+    {
+        SmartPtr<Database> db(new Database(theExperiment->getName()));
+
+        BEGIN_TRANSACTION(db);
+        db->prepareStatement(
+            "SELECT LinkedObjects.id, "
+            "       Files.path "
+            "FROM LinkedObjects "
+            "JOIN Files ON Files.id = LinkedObjects.file;"
+            );
+        std::cout << std::endl;
+        while (db->executeStatement())
+        {
+            int id = db->getResultAsInteger(1);
+            Path path = Path(db->getResultAsString(2));
+            
+            std::cout << std::setw(3) << std::setfill('0') << id << "  "
+                      << path << std::endl;
+        }
+        END_TRANSACTION(db);
+
+        BEGIN_TRANSACTION(db);
+        db->prepareStatement(
+            "SELECT Functions.id, "
+            "       Functions.linked_object, "
+            "       Functions.name, "
+            "       FunctionRanges.addr_begin, "
+            "       FunctionRanges.addr_end, "
+            "       FunctionRanges.valid_bitmap "
+            "FROM Functions "
+            "JOIN FunctionRanges ON FunctionRanges.function = Functions.id;"
+            );
+        std::cout << std::endl;
+        while (db->executeStatement())
+        {
+            int id = db->getResultAsInteger(1);
+            int linked_object = db->getResultAsInteger(2);
+            std::string name = db->getResultAsString(3);
+            
+            std::set<AddressRange> ranges =
+                AddressBitmap(AddressRange(db->getResultAsAddress(4),
+                                           db->getResultAsAddress(5)),
+                              db->getResultAsBlob(6)).
+                getContiguousRanges(true);
+            
+            for (std::set<AddressRange>::const_iterator
+                     r = ranges.begin(); r != ranges.end(); ++r)
+            {
+                std::cout << std::setw(3) << std::setfill('0') << id << "  "
+                          << std::setw(3) << std::setfill('0') << linked_object
+                          << "  " << *r << "  " << name << std::endl;
+            }
+        }
+        END_TRANSACTION(db);
+
+        BEGIN_TRANSACTION(db);
+        db->prepareStatement(
+            "SELECT Statements.id, "
+            "       Statements.linked_object, "
+            "       Files.path, "
+            "       Statements.line, "
+            "       StatementRanges.addr_begin, "
+            "       StatementRanges.addr_end, "
+            "       StatementRanges.valid_bitmap "
+            "FROM Statements "
+            "JOIN Files ON Files.id = Statements.file "
+            "JOIN StatementRanges ON StatementRanges.statement = Statements.id;"
+            );
+        std::cout << std::endl;
+        while (db->executeStatement())
+        {
+            int id = db->getResultAsInteger(1);
+            int linked_object = db->getResultAsInteger(2);
+            Path path = Path(db->getResultAsString(3));
+            int line = db->getResultAsInteger(4);
+            
+            std::set<AddressRange> ranges =
+                AddressBitmap(AddressRange(db->getResultAsAddress(5),
+                                           db->getResultAsAddress(6)),
+                              db->getResultAsBlob(7)).
+                getContiguousRanges(true);
+            
+            for (std::set<AddressRange>::const_iterator
+                     r = ranges.begin(); r != ranges.end(); ++r)
+            {
+                std::cout << std::setw(3) << std::setfill('0') << id << "  "
+                          << std::setw(3) << std::setfill('0') << linked_object
+                          << "  " << *r << "  " << path.getBaseName()
+                          << ", " << line << std::endl;
+            }
+        }
+        END_TRANSACTION(db);
+
+        BEGIN_TRANSACTION(db);
+        db->prepareStatement(
+            "SELECT Loops.id, "
+            "       Loops.linked_object, "
+            "       Loops.addr_head, "
+            "       LoopRanges.addr_begin, "
+            "       LoopRanges.addr_end, "
+            "       LoopRanges.valid_bitmap "
+            "FROM Loops "
+            "JOIN LoopRanges ON LoopRanges.loop = Loops.id;"
+            );
+        std::cout << std::endl;
+        while (db->executeStatement())
+        {
+            int id = db->getResultAsInteger(1);
+            int linked_object = db->getResultAsInteger(2);
+            Address head = Address(db->getResultAsAddress(3));
+            
+            std::set<AddressRange> ranges =
+                AddressBitmap(AddressRange(db->getResultAsAddress(4),
+                                           db->getResultAsAddress(5)),
+                              db->getResultAsBlob(6)).
+                getContiguousRanges(true);
+            
+            for (std::set<AddressRange>::const_iterator
+                     r = ranges.begin(); r != ranges.end(); ++r)
+            {
+                std::cout << std::setw(3) << std::setfill('0') << id << "  "
+                          << std::setw(3) << std::setfill('0') << linked_object
+                          << "  " << *r << "  " << head << std::endl;
+            }
+        }
+        END_TRANSACTION(db);
+    }
+
+    // Show the loop information (per function) in the database if requested
+    if (getenv("OPENSS_DEBUG_OFFLINE_SYMBOLS_LOOPS") != NULL)
+    {
+        ThreadGroup threads = theExperiment->getThreads();
+        
+        std::set<Function> functions = threads.getFunctions();
+        for (std::set<Function>::const_iterator
+                 f = functions.begin(); f != functions.end(); ++f)
+        {
+            std::cout << std::endl << "Function: " << f->getDemangledName()
+                      << std::endl;
+            
+            std::set<Loop> loops = f->getLoops();
+            for (std::set<Loop>::const_iterator
+                     l = loops.begin(); l != loops.end(); ++l)
+            {
+                std::cout << "    Loop" << std::endl;
+                
+                std::set<Statement> definitions = l->getDefinitions();
+                for (std::set<Statement>::const_iterator
+                         s = definitions.begin(); s != definitions.end(); ++s)
+                {
+                    std::cout << "        Definition: "
+                              << s->getPath().getBaseName() << ", Line #"
+                              << s->getLine() << std::endl;
+                } // s
+                
+                std::set<Statement> statements = l->getStatements();
+                for (std::set<Statement>::const_iterator
+                         s = statements.begin(); s != statements.end(); ++s)
+                {
+                    std::cout << "        Statement: "
+                              << s->getPath().getBaseName() << ", Line #"
+                              << s->getLine() << std::endl;
+                } // s
+                
+            } // l
+        } // f
+    }
+#endif
 }
