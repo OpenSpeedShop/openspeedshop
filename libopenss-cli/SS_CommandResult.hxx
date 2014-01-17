@@ -898,7 +898,7 @@ class CommandResult_Loop :
     std::string S = "";
     std::set<Statement> DEF = getDefinitions();
     std::set<Statement>::const_iterator s = DEF.begin();
-    if ( DEF.size()) {
+    if ( ! DEF.empty()) {
       int64_t gotLine = (int64_t)s->getLine();
       int64_t gotColumn = (int64_t)s->getColumn();
       char l[50];
@@ -909,6 +909,50 @@ class CommandResult_Loop :
       }
       S = (OPENSS_VIEW_FULLPATH) ? s->getPath() : s->getPath().getBaseName();
       S = S + "(" + std::string(l) + ")";
+    } else {
+      // There are no statements associated with the loop, at least in the symbol information.
+      // See if we can put out the function name and if not then the linked object name with
+      // the starting address of the loop.
+
+      std::set<Function> thisFunction = getFunctions();
+      std::set<Function>::const_iterator f = thisFunction.begin();
+      std::string Fname = "";
+      if ( ! thisFunction.empty() ) {
+        Fname = f->getName();
+#if DEBUG_CLI
+        if ( Fname.size() ) {
+           std::cerr << "SS_CommandResult_Loop, Form, Function was found, Fname=" << Fname << std::endl;
+        } 
+#endif
+      } 
+
+      //std::cerr << "Function for null loop is not defined?" << std::endl;
+      LinkedObject thisLinkedObject = getLinkedObject();
+      std::string linkedOname = ((OPENSS_VIEW_FULLPATH) ? thisLinkedObject.getPath() : thisLinkedObject.getPath().getBaseName());
+
+#if DEBUG_CLI
+      std::cerr << "SS_CommandResult_Loop, Form, We have a linked object=" << linkedOname << std::endl;
+#endif
+
+      // Get the thread that the loop is in then use that to get 
+      // the address range and print out the beginning address
+      // for the loop within the linked object file.
+
+      std::set<Thread> loop_threads = getThreads();
+      std::set<Thread>:: iterator ti = loop_threads.begin();
+      Thread t = *ti;
+      AddressRange ar = getExtentIn(t).getBounds().getAddressRange();
+      std::stringstream ssa;
+      ssa << ar.getBegin();
+      S += ssa.str();
+      S += " (";
+      if ( Fname.size() ) {
+        S += Fname;
+        S += " : ";
+      }
+      S += linkedOname;
+      S += ")";
+
     }
     return S;
   }
