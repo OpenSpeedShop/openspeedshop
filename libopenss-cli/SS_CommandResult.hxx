@@ -77,6 +77,7 @@ class PrintControl {
     eov = OPENSS_VIEW_EOV;
     precision = OPENSS_VIEW_PRECISION;
     date_time_precision = OPENSS_VIEW_DATE_TIME_PRECISION;
+    field_size_dynamic = OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC;
     full_path = OPENSS_VIEW_FULLPATH;
     entire_string = OPENSS_VIEW_ENTIRE_STRING;
     defining_location = OPENSS_VIEW_DEFINING_LOCATION;

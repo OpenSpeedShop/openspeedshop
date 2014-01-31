@@ -566,8 +566,7 @@ const char *cmd_expPause_brief = {
 };
 
 const char *cmd_expRestore_brief = {
-    "Restore experiment's definition and previously saved\n"
-    "data from a data base that was saved with an expSave command."
+    "Restore experiment's definition and data from a previously saved data base.\n"
 };
 
 const char *cmd_expSave_brief = {
@@ -603,13 +602,11 @@ const char *cmd_cViewInfo_brief = {
 };
 
 const char *cmd_cView_brief = {
-    "Detailed compare view where the user has defined the\n"
-    "contents of each custom view."
+    "Detailed compare view where the user has defined the contents of each custom view."
 };
 
 const char *cmd_expCompare_brief = {
-    "Simple compare view. \n"
-    "The tool determines the columninformation."
+    "Simple compare view.  The tool determines the columninformation."
 };
 
 const char *cmd_list_brief = {

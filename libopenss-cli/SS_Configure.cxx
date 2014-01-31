@@ -41,7 +41,7 @@ std::string OPENSS_VIEW_EOV = "\n";
 // Saving and reusing ouput of `expView` commands.
 bool    OPENSS_SAVE_VIEWS_FOR_REUSE = false;
 int64_t OPENSS_SAVE_VIEWS_FILE_LIMIT = 200;
-int64_t OPENSS_SAVE_VIEWS_TIME = 60;
+int64_t OPENSS_SAVE_VIEWS_TIME = 20;
 // Modifications of various commands.
 bool    OPENSS_SAVE_EXPERIMENT_DATABASE = true;
 bool    OPENSS_ASK_ABOUT_SAVING_THE_DATABASE = true;
@@ -570,7 +570,7 @@ void SS_Configure () {
             "if it is equal to 0, all files will be saved; "
             "if greater than 0, a file will be saved only if the time taken to generate "
             "it exceeded the number of seconds specified by this preference. "
-            "The default is 60.");
+            "The default is 20.");
   Ivalue = settings->readNumEntry(std::string("saveViewsTime"), OPENSS_SAVE_VIEWS_TIME, &ok);
   if (ok) OPENSS_SAVE_VIEWS_TIME = Ivalue;
   Record_Config_Info(configName, &OPENSS_SAVE_VIEWS_TIME);

@@ -57,6 +57,7 @@ class savedViewInfo {
     std::string file_name; // Full character string name.
     int64_t file_id; // Unique ID appended to database name to create 'file_name'.
     bool new_file;  // Was this file generated during the current session?
+    bool doNotSave; // An error occured or reuse is restricted to the current session.
     Time start;     // When generation of the view was initiated.
     Time end;       // When generation of the view was completed.
     save_file_header svh; // Header for saved information.
@@ -73,6 +74,7 @@ class savedViewInfo {
       file_name = FileName;
       file_id = FileId;
       new_file = NewFile;
+      doNotSave = false;
       start = 0;
       end = 0;
     }
@@ -81,6 +83,7 @@ class savedViewInfo {
        // Decide whether to save or remove files created during this session.
         if ( (start != 0) &&
              (end != 0) &&
+             (!doNotSave) &&
              (OPENSS_SAVE_VIEWS_TIME >= 0) &&
              ( (OPENSS_SAVE_VIEWS_TIME == 0) ||
                (((end - start)/1000000000) >= OPENSS_SAVE_VIEWS_TIME) ) ) {
@@ -101,6 +104,7 @@ class savedViewInfo {
     int64_t file_offset_to_data() { return svh.data_offset;  }
     std::string GenCmd () { return original_cmd; }
  
+    void setDoNotSave() { doNotSave = true; }
     void setStartTime () {
      // Start measurement clock.
       if (new_file == true) start = Time::Now();

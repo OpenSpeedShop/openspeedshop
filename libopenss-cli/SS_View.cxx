@@ -453,9 +453,13 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
  // Set EndTIme if saving info after generation.
   svi = cmd->SaveResultViewInfo();
   if (svi != NULL) {
-    svi->setEndTime();
-    std::ostream *tof = svi->writeHeader ();
-    cmd->setSaveResultOstream( tof );
+    if (success) {
+      svi->setEndTime();
+      std::ostream *tof = svi->writeHeader ();
+      cmd->setSaveResultOstream( tof );
+    } else {
+      svi->setDoNotSave();
+    }
   }
 
 #if DEBUG_CLI

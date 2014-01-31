@@ -934,6 +934,7 @@ bool SS_expCompare (CommandObject *cmd) {
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
 
   Assert(cmd->P_Result() != NULL);
+  Assert (cmd->P_Result()->getViewSet()->empty());
 
   int64_t i;
   std::vector<selectionTarget> Quick_Compare_Set;
@@ -942,7 +943,7 @@ bool SS_expCompare (CommandObject *cmd) {
  // Note: we must always generate at least one compare set for this list.
   std::vector<ParseRange> *p_elist = cmd->P_Result()->getExpIdList();
   if (p_elist->begin() == p_elist->end()) {
-   // The user has not selected a view look for the focused experiment.
+   // The user has not selected an experiment look for the focused experiment.
     EXPID ExperimentID = Experiment_Focus ( WindowID );
     ExperimentObject *exp = (ExperimentID != 0) ?
                             Find_Experiment_Object (ExperimentID) :
@@ -1443,7 +1444,43 @@ bool SS_expCompare (CommandObject *cmd) {
 
   }
 
+ // Look for a saved view.
+  savedViewInfo *svi = NULL;
+  if ( OPENSS_SAVE_VIEWS_FOR_REUSE &&
+       Find_SavedView( cmd ) ) {
+
+#if DEBUG_CLI
+    printf("In SS_expCompare in SS_Compare.cxx, reuse view from file: %s\n",
+            cmd->SaveResultFile().c_str());
+#endif
+
+    if (!cmd->SaveResult()) {
+     // Previously generated output file found with requested view.
+      cmd->set_Status(CMD_COMPLETE);
+      return true;
+    }
+
+   // An existing saved view is not available but provision has been made to create a new one.
+    svi = cmd->SaveResultViewInfo();
+    if (svi != NULL) {
+     // Set StartTime to measure how long it takes to generate the view.
+      svi->setStartTime();
+    }
+  }
+
   bool success = Generate_CustomView (cmd, Quick_Compare_Set);
+
+ // Set EndTIme if saving info after generation.
+  svi = cmd->SaveResultViewInfo();
+  if (svi != NULL) {
+    if (success) {
+      svi->setEndTime();
+      std::ostream *tof = svi->writeHeader ();
+      cmd->setSaveResultOstream( tof );
+    } else {
+      svi->setDoNotSave();
+    }
+  }
 
   cmd->set_Status(CMD_COMPLETE);
   return success;
@@ -1814,6 +1851,8 @@ bool SS_cView (CommandObject *cmd) {
   InputLineObject *clip = cmd->Clip();
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   EXPID exp_focus = Experiment_Focus ( WindowID );
+  EXPID primary_ExperimentID = 0;
+  std::set<EXPID> referenced_experiments;
 
   std::vector<selectionTarget> Quick_Compare_Set;
 
@@ -1873,6 +1912,10 @@ bool SS_cView (CommandObject *cmd) {
           continue;
         }
       }
+
+     // Collect information needed for 'savedView' support.
+      if (primary_ExperimentID == 0) primary_ExperimentID = ExperimentID;
+      referenced_experiments.insert(ExperimentID);
 
      // If there is no modifier list, get one from the custom view definition.
       if (new_mod_list->empty()) {
@@ -1963,7 +2006,75 @@ bool SS_cView (CommandObject *cmd) {
     }
 
   }
+
+ // Look for a saved view.
+  savedViewInfo *svi = NULL;
+  if ( OPENSS_SAVE_VIEWS_FOR_REUSE ) {
+   // Find the experiment to attached the saved file to.
+    std::vector<ParseRange> *expidlist = primary_result->getExpIdList();
+    if ( expidlist->empty() ) {
+     // Add the first experiment to the command so the
+     // saved view file is associated with that experiment.
+      primary_result->pushExpIdPoint(primary_ExperimentID);
+    }
+
+   // If there are multiple EXPIDs involved, create an extra ID tag for any saved view file.
+    std::string new_x_str;
+    if (referenced_experiments.size() > 1) {
+      for (std::set<EXPID>::iterator rx=referenced_experiments.begin();
+           rx != referenced_experiments.end(); rx++) {     
+        char S[40];
+        sprintf( &S[0], "%lld", *rx);
+        if (new_x_str.empty()) {
+          new_x_str = "-x " + std::string(S);
+        } else {
+          new_x_str = new_x_str + ", " + std::string(S);
+        }
+      }
+    }
+
+    if ( Find_SavedView( cmd, new_x_str ) ) {
+
+#if DEBUG_CLI
+    printf("In SS_expCompare in SS_cView.cxx, reuse view from file: %s\n",
+            cmd->SaveResultFile().c_str());
+#endif
+
+      if (!cmd->SaveResult()) {
+       // Previously generated output file found with requested view.
+
+       // Need to delete the copies made of the overriding Parse components.
+        int64_t numQuickSets = Quick_Compare_Set.size();
+        for (int64_t i = 0; i < numQuickSets; i++) {
+          delete Quick_Compare_Set[i].pResult;
+        }
+
+        cmd->set_Status(CMD_COMPLETE);
+        return true;
+      }
+
+     // An existing saved view is not available but provision has been made to create a new one.
+      svi = cmd->SaveResultViewInfo();
+      if (svi != NULL) {
+       // Set StartTime to measure how long it takes to generate the view.
+        svi->setStartTime();
+      }
+    }
+  }
+
   bool success = Generate_CustomView (cmd, Quick_Compare_Set);
+
+ // Set EndTIme if saving info after generation.
+  svi = cmd->SaveResultViewInfo();
+  if (svi != NULL) {
+    if (success) {
+      svi->setEndTime();
+      std::ostream *tof = svi->writeHeader ();
+      cmd->setSaveResultOstream( tof );
+    } else {
+      svi->setDoNotSave();
+    }
+  }
 
  // Need to delete the copies made of the overriding Parse components.
   int64_t numQuickSets = Quick_Compare_Set.size();
@@ -2162,9 +2273,45 @@ bool SS_cvClusters (CommandObject *cmd) {
     return false;
   }
 
- // Perform Cluster Analysis.
+ // Set up for Cluster Analysis.
   View_Form_Category vfc = Determine_Form_Category(cmd);
   Collector C = Get_Collector (experiment, C_Name);
+
+ // Look for a saved view.
+  std::string extended_cmd = C_Name + " -m " + M_Name;
+  savedViewInfo *svi = NULL;
+  if ( OPENSS_SAVE_VIEWS_FOR_REUSE ) {
+   // Find the experiment to attached the saved file to.
+    std::vector<ParseRange> *expidlist = cmd->P_Result()->getExpIdList();
+    if ( expidlist->empty() ) {
+     // Add the experiment to the command so the
+     // saved view file is associated with that experiment.
+      cmd->P_Result()->pushExpIdPoint(ExperimentID);
+    }
+
+    if ( Find_SavedView( cmd, extended_cmd ) ) {
+
+#if DEBUG_CLI
+    printf("In SS_expCompare in SS_cView.cxx, reuse view from file: %s\n",
+            cmd->SaveResultFile().c_str());
+#endif
+
+      if (!cmd->SaveResult()) {
+       // Previously generated output file found with requested view.
+        cmd->set_Status(CMD_COMPLETE);
+        return true;
+      }
+
+     // An existing saved view is not available but provision has been made to create a new one.
+      svi = cmd->SaveResultViewInfo();
+      if (svi != NULL) {
+       // Set StartTIme to measure how long it takes to generate the view.
+        svi->setStartTime();
+      }
+    }
+  }
+
+ // Perform Cluster Analysis.
   std::set<Framework::ThreadGroup> clusters;
   bool Analysis_Okay = false;
   switch (Determine_Form_Category(cmd)) {
@@ -2320,6 +2467,18 @@ bool SS_cvClusters (CommandObject *cmd) {
 
    // Return the EXPID for this command.
     cmd->Result_Int (cvp->cvId());
+  }
+
+ // Set EndTIme if saving info after generation.
+  svi = cmd->SaveResultViewInfo();
+  if (svi != NULL) {
+    if (Analysis_Okay) {
+      svi->setEndTime();
+      std::ostream *tof = svi->writeHeader ();
+      cmd->setSaveResultOstream( tof );
+    } else {
+      svi->setDoNotSave();
+    }
   }
 
   cmd->set_Status(CMD_COMPLETE);

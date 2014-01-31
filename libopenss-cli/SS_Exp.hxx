@@ -619,6 +619,8 @@ class ExperimentObject
         }
        // Something has happened to this file since we read the header.
        // Continue looking to see if another file contains what we are looking for.
+        Saved_View_Files[i] = NULL;
+        delete svi;
       }
     }
     return NULL;
@@ -656,6 +658,7 @@ void Experiment_Termination ();
 
 // Experiment Utilities
 ExperimentObject *Find_Experiment_Object (EXPID ExperimentID);
+bool Find_SavedView (CommandObject *cmd, std::string local_tag = std::string());
 
 bool Collector_Used_In_Experiment (OpenSpeedShop::Framework::Experiment *fexp, std::string myname);
 Collector Get_Collector (OpenSpeedShop::Framework::Experiment *fexp, std::string myname);

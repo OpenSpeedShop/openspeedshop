@@ -522,6 +522,13 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
   ParseRange *key_range;
   PrintControl format_spec;
   Capture_User_Format_Information( f_list, format_spec );
+  if ( (format_spec.eoc == format_spec.eol) &&
+       (OPENSS_VIEW_EOC != OPENSS_VIEW_EOL) ) {
+    Result_Annotation ("viewEOC and viewEol may not be set to the same value.  Defaults used.\n");
+    format_spec.Set_PrintControl_eoc(OPENSS_VIEW_EOC);
+    format_spec.Set_PrintControl_eol(OPENSS_VIEW_EOL);
+    cmd_annotation = Annotation_List ();
+  }
 
  // Did the user want control over formatting?
   bool EOC_specified = strcasecmp(format_spec.eoc.c_str(), OPENSS_VIEW_EOC.c_str()) ? true : false;

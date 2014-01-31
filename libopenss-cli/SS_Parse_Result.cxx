@@ -574,8 +574,6 @@ dumpHelp(CommandObject *cmd)
 	    
     	czar.Find_By_Keyword(name.c_str(), &element);
     
-std::cerr << "LOOKING FOR HELP AGAINST " << name << std::endl;
-
     	if (element.begin() == element.end()) {
 	    cmd->Result_String( "No help for " + name);
 	    continue;

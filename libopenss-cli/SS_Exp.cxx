@@ -167,3 +167,237 @@ void ExperimentObject::Print(std::ostream &mystream) {
   }
   Print_Waiting (mystream);
 }
+
+bool Find_SavedView (CommandObject *cmd, std::string local_tag)
+{
+  if (!OPENSS_SAVE_VIEWS_FOR_REUSE) return false;
+
+ // Determine the ExperimentObject from the command.
+  InputLineObject *clip = cmd->Clip();
+  if (clip == NULL) return false;
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+  ExperimentObject *exp = NULL;
+  std::string cmdstr = clip->Command();
+  bool save_only_for_current_session = false;
+
+  std::vector<ParseRange> *p_elist = cmd->P_Result()->getExpIdList();
+  if (p_elist->begin() == p_elist->end()) {
+   // The user has not selected a view look for the focused experiment.
+    EXPID ExperimentID = Experiment_Focus ( WindowID );
+    exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
+  } else {
+   // Look through the '-x' list for the first experiment.
+    std::vector<ParseRange>::iterator ei;
+    for (ei = p_elist->begin(); ei != p_elist->end(); ei++) {
+     // Determine the experiment needed for the next set.
+      parse_range_t *e_range = (*ei).getRange();
+      Assert (e_range != NULL);
+      parse_val_t eval1 = e_range->start_range;
+      parse_val_t eval2 = (e_range->is_range) ? e_range->end_range : eval1;
+      Assert (eval1.tag == VAL_NUMBER);
+
+      for (int64_t i = eval1.num; i <= eval2.num; i++) {
+        if (exp != NULL) {
+         // Do not permenently save the file when multiple experiments are
+         // specified because we track savedViews through the ExperimentObject
+         // and another session may not have the same data bases available.
+         //
+         // However, we can attach the file to the first experiment and reuse
+         // it during the current session because experiment IDs and cView
+         // Ids are not reused during a session.
+          save_only_for_current_session = true;
+        } else {
+          EXPID ExperimentID = i;
+          exp = (ExperimentID != 0) ? Find_Experiment_Object (ExperimentID) : NULL;
+          if ((exp == NULL) ||
+              (exp->FW() == NULL)) {
+           // This is an error and should be reported.
+            std::ostringstream M;
+            M << "Experiment ID '-x " << ExperimentID << "' is not valid.";
+            Mark_Cmd_With_Soft_Error(cmd, M.str());
+            return false;
+          }
+        }
+      }
+
+    }
+
+  }
+
+ // If there are any "-c" items, allow reuse only during the current session.
+  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+  std::vector<ParseRange> *cv_list = p_result->getViewSet ();
+  if (cv_list->begin() != cv_list->end()) {
+    save_only_for_current_session = true;
+  }
+
+  if ((exp == NULL) ||
+      (exp->FW() == NULL)) {
+   // No experiment was specified, so we can't find a useful view to generate.
+    Mark_Cmd_With_Soft_Error(cmd, "No valid experiment was specified for command.");
+    return false;
+  }
+
+// Is there a good chance that a matching view has been saved?
+// if (Status() == ExpStatus_Paused) return false;
+  if (exp->Status() == ExpStatus_Running) return false;
+  if (exp->FW() == NULL) return false;
+ // Use a time stamp to convience us that the database we are told
+ // to look at is the one used to generate the view.
+  Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
+  Time EndTime = databaseExtent.getTimeInterval().getEnd();
+
+  std::string previous_view("");
+
+  std::string Data_File_Name;
+  Data_File_Name = exp->FW()->getName();
+  if (Data_File_Name.length() == 0) return false;
+
+ // Determine format information.
+  std::string eoc_marker = OPENSS_VIEW_EOC;
+  std::string eol_marker = OPENSS_VIEW_EOL;
+  if ( (cmd->P_Result() != NULL) &&
+       (cmd->P_Result()->getexpFormatList() != NULL) ) {
+    std::vector<ParseRange> *f_list = cmd->P_Result()->getexpFormatList();
+    ParseRange *key_range = Look_For_Format_Specification ( f_list, "viewEOC");
+    if ( (key_range  != NULL) &&
+         (key_range->getRange()->is_range) &&
+         (key_range->getRange()->end_range.tag == VAL_STRING) ) {
+      eoc_marker = key_range->getRange()->end_range.name;
+    }
+    key_range = Look_For_Format_Specification ( f_list, "viewEOL");
+    if ( (key_range  != NULL) &&
+         (key_range->getRange()->is_range) &&
+         (key_range->getRange()->end_range.tag == VAL_STRING) ) {
+      eol_marker = key_range->getRange()->end_range.name;
+    }
+  }
+
+ // Isolate the important parts of the command.
+  std::string viewcmd("View");
+  char *cidx = strcasestr( (char *)cmdstr.c_str(), std::string("View").c_str() );
+  if (cidx == NULL) {
+    viewcmd = "expView";
+    cidx = strcasestr( (char *)cmdstr.c_str(), std::string("expView").c_str() );
+  }
+  if (cidx == NULL) {
+    viewcmd = "expCompare";
+    cidx = strcasestr( (char *)cmdstr.c_str(), std::string("expCompare").c_str() );
+  }
+  if (cidx == NULL) {
+    viewcmd = "cviewCluster";
+    cidx = strcasestr( (char *)cmdstr.c_str(), std::string("cviewCluster").c_str() );
+  }
+  if (cidx == NULL) {
+    viewcmd = "cView";
+    cidx = strcasestr( (char *)cmdstr.c_str(), std::string("cView").c_str() );
+  }
+  if (cidx == NULL) return false;
+  cmdstr = std::string( cidx );
+
+ // Remove any ending '\n'.
+  cidx = (char *)cmdstr.c_str();
+  for (int shorten_to = cmdstr.length()-1; shorten_to != 0; shorten_to--) {
+    if (cidx[shorten_to] == *("\n")) {
+      cmdstr = cmdstr.substr( 0, shorten_to);
+      break;
+    }
+  }
+
+   // Remove any redirect-output specifier.
+  cidx = (char *)cmdstr.c_str();
+  for (int shorten_to = cmdstr.length()-1; shorten_to != 0; shorten_to--) {
+    if (cidx[shorten_to] == *(">")) {
+      if ( (shorten_to > 0) &&
+           (cidx[shorten_to] == *(">")) ) {
+        shorten_to--;
+      }
+      cmdstr = cmdstr.substr( 0, shorten_to);
+      break;
+    }
+  }
+
+ // Remove trailing blanks.
+  cidx = (char *)cmdstr.c_str();
+  for (int shorten_to = cmdstr.length()-1; shorten_to != 0; shorten_to--) {
+    if (cidx[shorten_to] != *(" ")) {
+      if (shorten_to != (cmdstr.length()-1)) {
+        cmdstr = cmdstr.substr( 0, shorten_to);
+      }
+      break;
+    }
+  }
+
+  if ( !save_only_for_current_session ) {
+   // Remove '-x' specifier.
+    cidx = (char *)cmdstr.c_str();
+    int prior_end_of_field = 0;
+    for (int xat = 0; xat < cmdstr.length()-1; xat++) {
+      if (cidx[xat] != *(" ")) prior_end_of_field++;
+      if ( strncasecmp( &cidx[xat], "-x", 2 ) == 0) {
+       //  Asssume that parsing has handled any errors
+       //  and that there is exactly 1 experiment id specified.
+        bool looking_for_start_of_field = true;
+        bool found_end_of_field = false;
+        int toc = xat+2;
+        for ( ; toc < cmdstr.length()-1; toc++) {
+          if ( (cidx[toc] == *(" ")) ||		// Allow blanks between items
+               (cidx[toc] == *(",")) ||		// Allow lists of items
+               (cidx[toc] == *(":")) ||		// Allow ranges of numbers
+               ( (cidx[toc] >= *("0")) &&	// Allow integer numbers
+                 (cidx[toc] <= *("9")) ) ) {
+            continue;
+          }
+          break;
+        }
+        cmdstr = cmdstr.substr( 0, prior_end_of_field) + cmdstr.substr( toc, cmdstr.length()-1);
+      }
+    }
+  }
+
+ // If not empty, append 'local_tag' and do not save file after current session.
+  if ( !local_tag.empty() ) {
+    cmdstr = cmdstr + " " + local_tag;
+    save_only_for_current_session = true;
+  }
+
+ // Look for an existing output that was generated with the same command.
+  savedViewInfo *use_ViewInfo = exp->FindExisting_savedViewInfo (eoc_marker, eol_marker, cmdstr);
+  if (use_ViewInfo != NULL) {
+    cmd->setSaveResultViewInfo(use_ViewInfo);
+    cmd->setSaveResultFile(use_ViewInfo->FileName());
+    cmd->setSaveResult(false);
+    cmd->setSaveResultDataOffset( use_ViewInfo->file_offset_to_data() );
+    cmd->setSaveEoc( eoc_marker );
+    cmd->setSaveEol( eol_marker );
+    return true;
+  }
+
+ // There was no previously generated report that we could reuse.
+ // Need to create a new file to save view.
+  savedViewInfo *new_ViewInfo = exp->GetFree_savedViewInfo();
+  if (new_ViewInfo != NULL) {
+   // Generate and save the header descriptor in binary form.
+    save_file_header H;
+    H.type = 2;
+    H.command_offset = sizeof(H) + 1;
+    H.eoc_offset = H.command_offset + cmdstr.length() + 1;
+    H.eol_offset = H.eoc_offset + eoc_marker.length() + 1;
+    H.data_offset = H.eol_offset + eol_marker.length() + 1;
+    H.last_sample = EndTime;
+    H.generation_time = 0; // Added after generation.
+    new_ViewInfo->setHeader(H, eoc_marker, eol_marker, cmdstr);
+    if (save_only_for_current_session) new_ViewInfo->setDoNotSave();
+   // Preserve file name and format information in the command
+   // for immediate display of the report after it has been saved.
+    cmd->setSaveResultViewInfo(new_ViewInfo);
+    cmd->setSaveResultFile(new_ViewInfo->FileName());
+    cmd->setSaveResult(true);
+    cmd->setSaveEoc( eoc_marker );
+    cmd->setSaveEol( eol_marker );
+    cmd->setSaveResultDataOffset(H.data_offset);
+   // Leave file open to receive output of `expView` command.
+    return true;
+  }
+  return false;
+}
