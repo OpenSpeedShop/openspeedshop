@@ -349,6 +349,7 @@ if( attachFLAG ) {
       printf("CustomExperimentPanel::init, we're coming in from the constructNewExperimentWizardPanel. calling loadManageProcessPanel()\n");
 #endif
 
+      // calling loadManageProcessesPanel to raise the Manage Process Panel
       loadManageProcessesPanel();
 
     } else if( expIDString.toInt() > 0 ) {
@@ -718,7 +719,9 @@ if( attachFLAG ) {
 
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     std::list<int64_t> list_of_pids;
+    std::list<int64_t> list_of_ranks;
     list_of_pids.clear();
+    list_of_ranks.clear();
     InputLineObject *clip = NULL;
     if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
            &list_of_pids, clip, TRUE ) )
@@ -738,6 +741,30 @@ if( attachFLAG ) {
       clip->Set_Results_Used();
     }
     
+    clip = NULL;
+    command = QString("list -v ranks -x %1").arg(expID);
+
+#ifdef DEBUG_CustomPanel
+    printf("CustomExperimentPanel::init, attempt to run (%s)\n", command.ascii() );
+#endif
+
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
+           &list_of_ranks, clip, TRUE ) )
+    {
+
+      printf("Unable to run %s command.\n", command.ascii() );
+#ifdef DEBUG_CustomPanel
+      printf("CustomExperimentPanel::init, Unable to run %s command.\n", command.ascii() );
+#endif
+
+    }
+#ifdef DEBUG_CustomPanel
+      printf("CustomExperimentPanel::init, ran %s\n", command.ascii() );
+#endif
+
+    if( clip ) {
+      clip->Set_Results_Used();
+    }
 
   if( abortPanelFLAG == FALSE ) {
 
@@ -764,10 +791,18 @@ if( attachFLAG ) {
         if( ao && ao->loadedFromSavedFile != TRUE ) {
 
 #ifdef DEBUG_CustomPanel
-     printf("CustomExperimentPanel::init, F: calling loadManageProcessesPanel\n" );
+     printf("CustomExperimentPanel::init, F: calling loadManageProcessesPanel, if less than 8193 ranks\n" );
+     printf("CustomExperimentPanel::init, list_of_pids.size()=(%d)\n",  list_of_pids.size() );
+     printf("CustomExperimentPanel::init, list_of_ranks.size()=(%d)\n",  list_of_ranks.size() );
 #endif
 
-          loadManageProcessesPanel();
+
+          // This particualar call to loadManageProcessPanel causes the load of the Manage Process Panel at start-up time 
+          // If there are a significant number of processes/ranks then it is very unfriendly to users to have the
+          // Manage Process Panel TRY to raise.  It needs optimization for better scaling.
+          if (list_of_ranks.size() <= 8192 ) {
+            loadManageProcessesPanel();
+          }
 
           // Focus on the StatsPanel when loading a saved database
           QString name = QString("Stats Panel [%1]").arg(expID);
@@ -1617,6 +1652,7 @@ CLIInterface::interrupt = true;
     printf("CustomExperimentPanel::listener, B: Calling loadManageProcessPanel.\n");
 #endif
 
+    // calling loadManageProcessesPanel to raise the Manage Process Panel
     loadManageProcessesPanel();
     QString name = wizardName;
 #ifdef DEBUG_CustomPanel
