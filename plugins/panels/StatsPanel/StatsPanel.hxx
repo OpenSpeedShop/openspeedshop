@@ -166,6 +166,7 @@ class StatsPanel  : public Panel
     void generateIOTmodifiers();
     void generateMEMmodifiers();
     void generateMPImodifiers();
+    void generateMPIPmodifiers();
     void generateMPITmodifiers();
     void generatePTHREADSmodifiers();
     void generateFPEmodifiers();
@@ -180,6 +181,7 @@ class StatsPanel  : public Panel
     void generateIOTAnnotationmodifiers();
     void generateMEMAnnotationmodifiers();
     void generateMPIAnnotationmodifiers();
+    void generateMPIPAnnotationmodifiers();
     void generateMPITAnnotationmodifiers();
     void generatePTHREADSAnnotationmodifiers();
     void generateFPEAnnotationmodifiers();
@@ -339,6 +341,8 @@ class StatsPanel  : public Panel
 
     std::list<std::string> list_of_mpi_modifiers;
     std::list<std::string> current_list_of_mpi_modifiers;
+    std::list<std::string> list_of_mpip_modifiers;
+    std::list<std::string> current_list_of_mpip_modifiers;
     std::list<std::string> list_of_mpit_modifiers;
     std::list<std::string> current_list_of_mpit_modifiers;
     std::list<std::string> list_of_io_modifiers;
@@ -466,6 +470,7 @@ class StatsPanel  : public Panel
     QPopupMenu *modifierMenu;
 
     QPopupMenu *mpiModifierMenu;
+    QPopupMenu *mpipModifierMenu;
     QPopupMenu *mpitModifierMenu;
     QPopupMenu *ioModifierMenu;
     QPopupMenu *iopModifierMenu;
@@ -484,6 +489,7 @@ class StatsPanel  : public Panel
     QPopupMenu *mpi_menu;
     QPopupMenu *io_menu;
     QPopupMenu *iop_menu;
+    QPopupMenu *mpip_menu;
     QPopupMenu *mem_menu;
     QPopupMenu *pthreads_menu;
     QPopupMenu *hwc_menu;
@@ -588,6 +594,7 @@ class StatsPanel  : public Panel
     void threadSelected(int);
     void modifierSelected(int);
     void mpiModifierSelected(int);
+    void mpipModifierSelected(int);
     void mpitModifierSelected(int);
     void ioModifierSelected(int);
     void iopModifierSelected(int);
@@ -603,6 +610,7 @@ class StatsPanel  : public Panel
     void fpeModifierSelected(int);
     void collectorMetricSelected(int);
     void collectorMPIReportSelected(int);
+    void collectorMPIPReportSelected(int);
     void collectorMPITReportSelected(int);
     void collectorIOReportSelected(int);
     void collectorIOPReportSelected(int);
@@ -637,7 +645,9 @@ class StatsPanel  : public Panel
     void updateMetadataForTimeLineView(QString intervalStr);
     void updateMetadataForCompareIndication( QString compareStr );
     void generateMPIMenu(QString collectorName);
+    void generateMPIPMenu();
     void addMPIReports(QPopupMenu *menu);
+    void addMPIPReports(QPopupMenu *menu);
     void generateIOMenu(QString collectorName);
     void addIOReports(QPopupMenu *menu);
 

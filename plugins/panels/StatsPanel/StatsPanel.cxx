@@ -274,11 +274,19 @@ class AboutOutputClass : public ss_ostream
 void StatsPanel::clearModifiers()
 {
   list_of_modifiers.clear(); // This is the global known list of modifiers.
+
   list_of_mpi_modifiers.clear();
   current_list_of_mpi_modifiers.clear();  // This is this list of user selected modifiers.
+
+  list_of_mpip_modifiers.clear();
+  current_list_of_mpip_modifiers.clear();  // This is this list of user selected modifiers.
+
+  list_of_mpit_modifiers.clear();
   current_list_of_mpit_modifiers.clear();  // This is this list of user selected modifiers.
+
   list_of_io_modifiers.clear();
   current_list_of_io_modifiers.clear();  // This is this list of user selected modifiers.
+
   list_of_iot_modifiers.clear();
   current_list_of_iot_modifiers.clear();  // This is this list of user selected modifiers.
 
@@ -288,25 +296,33 @@ void StatsPanel::clearModifiers()
 
   list_of_hwc_modifiers.clear();
   current_list_of_hwc_modifiers.clear();  // This is this list of user selected modifiers.
+
   list_of_hwcsamp_modifiers.clear();
   current_list_of_hwcsamp_modifiers.clear();  // This is this list of user selected modifiers.
+
   list_of_hwctime_modifiers.clear();
   current_list_of_hwctime_modifiers.clear();  // This is this list of user selected modifiers.
+
   list_of_pcsamp_modifiers.clear();
   current_list_of_pcsamp_modifiers.clear();  // This is this list of user selected modifiers.
+
   list_of_usertime_modifiers.clear();
   current_list_of_usertime_modifiers.clear();  // This is this list of user selected modifiers.
 
   list_of_iop_modifiers.clear();
   current_list_of_iop_modifiers.clear();  // This is this list of user selected modifiers.
+
   list_of_mem_modifiers.clear();
   current_list_of_mem_modifiers.clear();  // This is this list of user selected modifiers.
+
   list_of_pthreads_modifiers.clear();
   current_list_of_pthreads_modifiers.clear();  // This is this list of user selected modifiers.
 
   list_of_fpe_modifiers.clear();
   current_list_of_fpe_modifiers.clear();  // This is this list of user selected modifiers.
+
   current_list_of_modifiers.clear();  // This is this list of user selected modifiers.
+
   IOtraceFLAG = FALSE;
   MPItraceFLAG = FALSE;
   delete sourcePanelAnnotationDialog;
@@ -401,6 +417,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   experimentsMenu = NULL;
 
   mpiModifierMenu = NULL;
+  mpipModifierMenu = NULL;
   mpitModifierMenu = NULL;
   ioModifierMenu = NULL;
   iopModifierMenu = NULL;
@@ -433,6 +450,9 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 
   list_of_mpi_modifiers.clear();
   current_list_of_mpi_modifiers.clear();  // This is this list of user selected modifiers.
+  list_of_mpip_modifiers.clear();
+  current_list_of_mpip_modifiers.clear();  // This is this list of user selected modifiers.
+  list_of_mpit_modifiers.clear();
   current_list_of_mpit_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_io_modifiers.clear();
   current_list_of_io_modifiers.clear();  // This is this list of user selected modifiers.
@@ -3541,6 +3561,22 @@ StatsPanel::optionalViewsCreationSelected()
 
       updateCurrentModifierList(list_of_mpi_modifiers, &current_list_of_mpi_modifiers, mpi_desired_list);
 
+     }else if( currentCollectorStr == "mpip" ) {
+
+      // Generate the list of mpip modifiers
+      generateMPIPmodifiers();
+
+      std::map<std::string, bool> mpip_desired_list;
+      mpip_desired_list.clear();
+      mpip_desired_list.insert(std::pair<std::string,int>("mpip::exclusive_times",optionalViewsDialog->mpip_exclusive_times));
+      mpip_desired_list.insert(std::pair<std::string,int>("mpip::inclusive_times",optionalViewsDialog->mpip_inclusive_times));
+      mpip_desired_list.insert(std::pair<std::string,int>("mpip::percent",optionalViewsDialog->mpip_percent));
+      mpip_desired_list.insert(std::pair<std::string,int>("mpip::count",optionalViewsDialog->mpip_count));
+      mpip_desired_list.insert(std::pair<std::string,int>("mpip::ThreadAverage",optionalViewsDialog->mpip_ThreadAverage));
+      mpip_desired_list.insert(std::pair<std::string,int>("mpip::ThreadMin",optionalViewsDialog->mpip_ThreadMin));
+      mpip_desired_list.insert(std::pair<std::string,int>("mpip::ThreadMax",optionalViewsDialog->mpip_ThreadMax));
+      updateCurrentModifierList(list_of_mpip_modifiers, &current_list_of_mpip_modifiers, mpip_desired_list);
+
      }else if( currentCollectorStr == "mpit" ) {
 
       // Generate the list of MPIT modifiers
@@ -5040,11 +5076,12 @@ void StatsPanel::getApplicationCommand(int exp_id)
  }
 }
 
-
 void StatsPanel::getExperimentType(int exp_id)
 {
+
 // Now get the executables
   QString command = QString::null;
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getExperimentType exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
 #endif
@@ -5064,30 +5101,36 @@ void StatsPanel::getExperimentType(int exp_id)
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
   list_of_types.clear();
   InputLineObject *clip = NULL;
+
   if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_types, clip, TRUE ) )
   {
     printf("Unable to run %s command.\n", command.ascii() );
   }
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getExperimentType, ran %s, list_of_types.size()=%d\n", command.ascii(), list_of_types.size() );
 #endif
 
-  if( list_of_types.size() > 1 )
-  {
+  if( list_of_types.size() > 1 ) {
     for( std::list<std::string>::const_iterator it = list_of_types.begin();
-         it != list_of_types.end(); it++ )
-    {
+         it != list_of_types.end(); it++ ) {
       std::string types = *it;
+
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::getExperimentType, types=(%s)\n", types.c_str() );
 #endif
-    }
-  }
+
+    } // end for
+
+  } // end types size is greater than 1
+
  } else {
+  // No valid experiment 
   list_of_types.clear();
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getExperimentType, not valid exp_id=%d, no types\n", exp_id);
 #endif
+
  }
 }
 
@@ -7770,8 +7813,6 @@ StatsPanel::collectorUserTimeReportSelected(int val)
 
 }
 
-
-
 void
 StatsPanel::collectorIOPReportSelected(int val)
 { 
@@ -7822,6 +7863,70 @@ StatsPanel::collectorIOPReportSelected(int val)
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::collectorIOPReportSelected, currentUserSelectedReportStr = (%s)\n", currentUserSelectedReportStr.ascii() );
     printf("StatsPanel::collectorIOPReportSelected, calling updateToolBarStatus() \n");
+#endif
+    updateToolBarStatus( currentUserSelectedReportStr );
+  } 
+
+#ifdef DEBUG_StatsPanel
+  printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+  printf("Collector changed call updateStatsPanelData() \n");
+#endif
+  }
+  updateStatsPanelData(DONT_FORCE_UPDATE);
+
+}
+
+
+void
+StatsPanel::collectorMPIPReportSelected(int val)
+{ 
+#ifdef DEBUG_StatsPanel
+   printf("collectorMPIPReportSelected: val=%d\n", val);
+   printf("collectorMPIPReportSelected: mpip_menu=(%s)\n", mpip_menu->text(val).ascii() );
+   printf("collectorMPIPReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#endif
+
+  currentUserSelectedReportStr = QString::null;
+  currentCollectorStr = "mpip";
+  collectorStrFromMenu = QString::null;
+  currentMetricStr = QString::null;
+
+//  QString s = contextMenu->text(val).ascii();
+  QString s = QString::null;
+  s = mpip_menu->text(val).ascii();
+  if( s.isEmpty() ) {
+    s = contextMenu->text(val).ascii();
+  }
+
+// printf("MPIPReport: (%s)\n", s.ascii() );
+
+// printf("E: s=%s\n", s.ascii() );
+  int index = s.find(":");
+  if( index != -1 )
+  {
+// printf("DD: NOW FIND :\n");
+    index = s.find(":");
+    if( index > 0 ) { // The user selected one of the metrics
+      collectorStrFromMenu = s.mid(13, index-13 );
+      currentUserSelectedReportStr = s.mid(index+2);
+// printf("UT1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+      // This one resets to all...
+    } else { // The user wants to do all the metrics on the selected threads...
+      currentMetricStr = QString::null;
+      index = s.find(":");
+      currentUserSelectedReportStr = s.mid(13, index-13);
+      if( !currentUserSelectedReportStr.contains("CallTrees by Selected Function") ) {
+        selectedFunctionStr = QString::null;
+      }
+// printf("UT2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+    }
+
+  // The status for the tool bar needs to reflect what is 
+  // going on when the same features are selected via the menu
+  if( getPreferenceShowToolbarCheckBox() == TRUE ) {
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::collectorMPIPReportSelected, currentUserSelectedReportStr = (%s)\n", currentUserSelectedReportStr.ascii() );
+    printf("StatsPanel::collectorMPIPReportSelected, calling updateToolBarStatus() \n");
 #endif
     updateToolBarStatus( currentUserSelectedReportStr );
   } 
@@ -8756,6 +8861,67 @@ StatsPanel::iopModifierSelected(int val)
       current_list_of_iop_modifiers.push_back(s);
     }
     iopModifierMenu->setItemChecked(val, TRUE);
+  }
+}
+
+
+void
+StatsPanel::mpipModifierSelected(int val)
+{ 
+#ifdef DEBUG_StatsPanel
+  printf("mpipModifierSelected val=%d\n", val);
+  printf("mpipModifierSelected: (%s)\n", mpipModifierMenu->text(val).ascii() );
+#endif
+
+  if( mpipModifierMenu->text(val).isEmpty() )
+  {
+    mpipModifierMenu->insertSeparator();
+    if( mpip_menu )
+    {
+      delete mpip_menu;
+    }
+    mpip_menu = new QPopupMenu(this);
+    mpipModifierMenu->insertItem(QString("Select mpip Reports:"), mpip_menu);
+    addMPIPReports(mpip_menu);
+    connect(mpip_menu, SIGNAL( activated(int) ),
+      this, SLOT(collectorMPIPReportSelected(int)) );
+    return;
+  }
+
+
+  std::string s = mpipModifierMenu->text(val).ascii();
+// printf("B1: modifierStr=(%s)\n", s.c_str() );
+
+  bool FOUND = FALSE;
+  for( std::list<std::string>::const_iterator it = current_list_of_mpip_modifiers.begin();
+       it != current_list_of_mpip_modifiers.end();  )
+  {
+    std::string modifier = (std::string)*it;
+
+    if( modifier ==  s )
+    {   // It's in the list, so take it out...
+// printf("The modifier was in the list ... take it out!\n");
+      FOUND = TRUE;
+    }
+
+    it++;
+
+    if( FOUND == TRUE )
+    {
+      current_list_of_mpip_modifiers.remove(modifier);
+      mpipModifierMenu->setItemChecked(val, FALSE);
+      break;
+    }
+  }
+
+  if( FOUND == FALSE )
+  {
+// printf("The modifier was not in the list ... add it!\n");
+    if( s != PTI )
+    {
+      current_list_of_mpip_modifiers.push_back(s);
+    }
+    mpipModifierMenu->setItemChecked(val, TRUE);
   }
 }
 
@@ -11025,6 +11191,7 @@ StatsPanel::generateCommand()
 
   } else if( currentCollectorStr == "usertime" || 
              currentCollectorStr == "iop" || 
+             currentCollectorStr == "mpip" || 
              currentCollectorStr == "fpe" || 
              currentCollectorStr == "io" || 
              currentCollectorStr == "iot" || 
@@ -11412,6 +11579,8 @@ StatsPanel::generateCommand()
       modifier_list = &current_list_of_io_modifiers;
     } else if( currentCollectorStr == "iop" ) {
       modifier_list = &current_list_of_iop_modifiers;
+    } else if( currentCollectorStr == "mpip" ) {
+      modifier_list = &current_list_of_mpip_modifiers;
     } else if( currentCollectorStr == "mem" ) {
       modifier_list = &current_list_of_mem_modifiers;
     } else if( currentCollectorStr == "pthreads" ) {
@@ -11666,6 +11835,19 @@ StatsPanel::generateUSERTIMEmodifiers()
   list_of_usertime_modifiers.push_back("usertime::ThreadMax");
 }
 
+
+void
+StatsPanel::generateMPIPmodifiers()
+{
+  list_of_mpip_modifiers.clear();
+  list_of_mpip_modifiers.push_back("mpip::exclusive_times");
+  list_of_mpip_modifiers.push_back("mpip::inclusive_times");
+  list_of_mpip_modifiers.push_back("mpip::percent");
+  list_of_mpip_modifiers.push_back("mpip::count");
+  list_of_mpip_modifiers.push_back("mpip::ThreadAverage");
+  list_of_mpip_modifiers.push_back("mpip::ThreadMin");
+  list_of_mpip_modifiers.push_back("mpip::ThreadMax");
+}
 
 void
 StatsPanel::generateIOPmodifiers()
@@ -12175,6 +12357,41 @@ StatsPanel::generateIOPMenu()
     this, SLOT(iopModifierSelected(int)) );
   generateModifierMenu(iopModifierMenu, list_of_iop_modifiers, current_list_of_iop_modifiers);
   iop_menu->insertItem(QString("Select iop Metrics:"), iopModifierMenu);
+}
+
+void
+StatsPanel::generateMPIPMenu()
+{
+// printf("Collector mpip_menu is being created\n");
+
+  mpip_menu = new QPopupMenu(this);
+  connect(mpip_menu, SIGNAL( activated(int) ),
+           this, SLOT(collectorMPIPReportSelected(int)) );
+
+  QString s = QString::null;
+
+  QAction *qaction = NULL;
+
+
+  if( focusedExpID != -1 ) {
+    contextMenu->insertItem(QString("Display Options: (Exp: %1) MPIP").arg(focusedExpID), mpip_menu);
+  } else {
+    contextMenu->insertItem(QString("Display Options: MPIP"), mpip_menu);
+  }
+
+  generateMPIPmodifiers();
+
+  if( mpipModifierMenu )
+  {
+    delete mpipModifierMenu;
+  }
+  mpipModifierMenu = new QPopupMenu(this);
+  addMPIPReports(mpip_menu);
+  mpipModifierMenu->insertTearOffHandle();
+  connect(mpipModifierMenu, SIGNAL( activated(int) ),
+    this, SLOT(mpipModifierSelected(int)) );
+  generateModifierMenu(mpipModifierMenu, list_of_mpip_modifiers, current_list_of_mpip_modifiers);
+  mpip_menu->insertItem(QString("Select mpip Metrics:"), mpipModifierMenu);
 }
 
 void
@@ -15254,6 +15471,8 @@ if (currentCollectorStr != lastCollectorStr ||
   if(  currentCollectorStr != "mpi" && 
        currentCollectorStr != "io" && 
        currentCollectorStr != "iot" && 
+       currentCollectorStr != "iop" && 
+       currentCollectorStr != "mpip" && 
        currentCollectorStr != "mem" &&
        currentCollectorStr != "pthreads" &&
        currentCollectorStr != "mpit" ) {
@@ -15311,8 +15530,10 @@ if (currentCollectorStr != lastCollectorStr ||
     new QToolButton(*tracebacksfullByFunction_icon, " SHOW TRACEBACKS WITH FULL STACK BY FUNCTION: This view displays all the call paths in your program that include\nthe selected function. The paths are displayed from the user function down to the program start function.\nNone of the portions of common paths are suppressed.\nTo use click on one of the functions and then click the Traceback,FullStack By Function icon", QString::null, this, SLOT( tracebacksFullStackByFunctionSelected()), fileTools, "show tracebacks,fullstack by function");
   } // advanced toolbar
 
-    QPixmap *butterfly_icon = new QPixmap( butterfly_xpm );
-    new QToolButton(*butterfly_icon, "SHOW BUTTERFLY:  This view shows the callers of the function selected\n(shown above the function) and the callees of the function selected\n(shown below the function).  Selecting one of the displayed functions\nand clicking on the Butterfly icon will make that function, the pivot \nfunction for the callers and callees display.  To use click on one of\nthe functions and then click the Butterfly icon.", QString::null, this, SLOT( butterflySelected()), fileTools, "show butterfly");
+    if(  currentCollectorStr != "mpip" && currentCollectorStr != "iop" && currentCollectorStr != "pthreads" && currentCollectorStr != "mem" ) {
+      QPixmap *butterfly_icon = new QPixmap( butterfly_xpm );
+      new QToolButton(*butterfly_icon, "SHOW BUTTERFLY:  This view shows the callers of the function selected\n(shown above the function) and the callees of the function selected\n(shown below the function).  Selecting one of the displayed functions\nand clicking on the Butterfly icon will make that function, the pivot \nfunction for the callers and callees display.  To use click on one of\nthe functions and then click the Butterfly icon.", QString::null, this, SLOT( butterflySelected()), fileTools, "show butterfly");
+    }
 
     QPixmap *timeSegment_icon = new QPixmap( timeSegment_xpm );
     new QToolButton(*timeSegment_icon, "SELECT TIME SEGMENT:  This view shows a section of the performance\nexperiments data that was chosen by selecting a segment of time from the\ntime segment dialog slider.  To return to viewing the complete experiment\ndata, click on the Clear icon followed by the Update icon.  This will\nrestore viewing 100 percent of the experiment data.", QString::null, this, SLOT( timeSliceSelected()), fileTools, "show time segment");
@@ -15329,7 +15550,6 @@ if (currentCollectorStr != lastCollectorStr ||
 
 #if 1
   if( currentCollectorStr == "hwcsamp" || 
-      currentCollectorStr == "iop" ||
       currentCollectorStr == "usertime" ) {
 #else
   if( currentCollectorStr == "hwcsamp" ) {

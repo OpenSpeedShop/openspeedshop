@@ -301,6 +301,10 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
           panel_type = "MEM";
           knownCollectorType = TRUE;
           break;
+        } else if( collector_name == "mpip" ) {
+          panel_type = "MPIP";
+          knownCollectorType = TRUE;
+          break;
         } else if( collector_name == "mpit" ) {
           panel_type = "MPIT";
           knownCollectorType = TRUE;
@@ -1674,6 +1678,11 @@ OpenSpeedshop::lookForExperiment(bool hadOfflineArg)
         } else if( collector_name == "mpi" )
         {
           panel_type = "MPI";
+          knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "mpip" )
+        {
+          panel_type = "MPIP";
           knownCollectorType = TRUE;
           break;
         } else if( collector_name == "mpit" )

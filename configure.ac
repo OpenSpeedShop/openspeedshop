@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
 # Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
+# Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -854,6 +854,7 @@ AC_CONFIG_FILES(
 	plugins/panels/IOPPanel/Makefile
 	plugins/panels/IOTPanel/Makefile
 	plugins/panels/MPIPanel/Makefile
+	plugins/panels/MPIPPanel/Makefile
 	plugins/panels/MPITPanel/Makefile
 	plugins/panels/MPIOTFPanel/Makefile
 	plugins/panels/DebugPanel/Makefile

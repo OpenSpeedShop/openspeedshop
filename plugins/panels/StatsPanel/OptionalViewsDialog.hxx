@@ -175,6 +175,14 @@ public:
     bool mpi_percent;
     bool mpi_stddev;
 
+    bool mpip_exclusive_times;
+    bool mpip_inclusive_times;
+    bool mpip_percent;
+    bool mpip_count;
+    bool mpip_ThreadAverage;
+    bool mpip_ThreadMin;
+    bool mpip_ThreadMax;
+
     bool mpit_exclusive_times;
     bool mpit_inclusive_times;
     bool mpit_min;
@@ -381,6 +389,14 @@ protected:
     QCheckBox *mpi_count_CheckBox;
     QCheckBox *mpi_percent_CheckBox;
     QCheckBox *mpi_stddev_CheckBox;
+
+    QCheckBox *mpip_exclusive_times_CheckBox;
+    QCheckBox *mpip_inclusive_times_CheckBox;
+    QCheckBox *mpip_percent_CheckBox;
+    QCheckBox *mpip_count_CheckBox;
+    QCheckBox *mpip_ThreadAverage_CheckBox;
+    QCheckBox *mpip_ThreadMin_CheckBox;
+    QCheckBox *mpip_ThreadMax_CheckBox;
 
     QCheckBox *mpit_exclusive_times_CheckBox;
     QCheckBox *mpit_inclusive_times_CheckBox;

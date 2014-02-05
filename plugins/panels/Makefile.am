@@ -39,6 +39,7 @@ SUBDIRS += \
 	MPIPanel \
 	MPITPanel \
 	MPIOTFPanel \
+	MPIPPanel \
 	MEMPanel \
 	PTHREADSPanel
 

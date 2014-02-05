@@ -159,6 +159,14 @@ OptionalViewsDialog::OptionalViewsDialog( QWidget* parent,
      mem_ThreadAverage = FALSE;
      mem_ThreadMin = FALSE;
      mem_ThreadMax = FALSE;
+   } else if ( globalCollectorString.contains("mpip") ) {
+     mpip_exclusive_times = FALSE;
+     mpip_inclusive_times = FALSE;
+     mpip_percent = FALSE;
+     mpip_count = FALSE;
+     mpip_ThreadAverage = FALSE;
+     mpip_ThreadMin = FALSE;
+     mpip_ThreadMax = FALSE;
    } else if ( globalCollectorString.contains("mpit") ) {
      mpit_exclusive_times = FALSE;
      mpit_inclusive_times = FALSE;
@@ -1436,6 +1444,108 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     rightSideLayout->addWidget( mem_ThreadMax_CheckBox );
     }
 
+  } else if ( globalCollectorString.contains("mpip") ) {
+
+    VTraceGroupBox->hide();
+
+    if (isInCurrentModifierList("mpip::exclusive_times")) {
+       mpip_exclusive_times = TRUE;
+    } else {
+       mpip_exclusive_times = FALSE;
+    }
+
+    { // mpip_exclusive_times
+    mpip_exclusive_times_CheckBox = new QCheckBox( GeneralGroupBox, "mpip_exclusive_times_CheckBox" );
+    mpip_exclusive_times_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpip_exclusive_times_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mpip_exclusive_times_CheckBox->setChecked( TRUE );
+    mpip_exclusive_times_CheckBox->setText( tr( "MPIP exclusive_times" ) );
+    rightSideLayout->addWidget( mpip_exclusive_times_CheckBox );
+    }
+
+    if (isInCurrentModifierList("mpip::inclusive_times")) {
+       mpip_inclusive_times = TRUE;
+    } else {
+       mpip_inclusive_times = FALSE;
+    }
+
+    { // mpip_inclusive_times
+    mpip_inclusive_times_CheckBox = new QCheckBox( GeneralGroupBox, "mpip_inclusive_times_CheckBox" );
+    mpip_inclusive_times_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpip_inclusive_times_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mpip_inclusive_times_CheckBox->setChecked( TRUE );
+    mpip_inclusive_times_CheckBox->setText( tr( "MPIP inclusive_times" ) );
+    rightSideLayout->addWidget( mpip_inclusive_times_CheckBox );
+    }
+
+    if (isInCurrentModifierList("mpip::percent")) {
+       mpip_percent = TRUE;
+    } else {
+       mpip_percent = FALSE;
+    }
+
+    { // mpip_percent
+    mpip_percent_CheckBox = new QCheckBox( GeneralGroupBox, "mpip_percent_CheckBox" );
+    mpip_percent_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpip_percent_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mpip_percent_CheckBox->setChecked( TRUE );
+    mpip_percent_CheckBox->setText( tr( "MPIP percent" ) );
+    rightSideLayout->addWidget( mpip_percent_CheckBox );
+    }
+
+    if (isInCurrentModifierList("mpip::count")) {
+       mpip_count = TRUE;
+    } else {
+       mpip_count = FALSE;
+    }
+
+    { // mpip_count
+    mpip_count_CheckBox = new QCheckBox( GeneralGroupBox, "mpip_count_CheckBox" );
+    mpip_count_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpip_count_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mpip_count_CheckBox->setChecked( TRUE );
+    mpip_count_CheckBox->setText( tr( "MPIP count" ) );
+    rightSideLayout->addWidget( mpip_count_CheckBox );
+    }
+
+    if (isInCurrentModifierList("mpip::ThreadAverage")) {
+       mpip_ThreadAverage = TRUE;
+    } else {
+       mpip_ThreadAverage = FALSE;
+    }
+
+    { // mpip_ThreadAverage
+    mpip_ThreadAverage_CheckBox = new QCheckBox( GeneralGroupBox, "mpip_ThreadAverage_CheckBox" );
+    mpip_ThreadAverage_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpip_ThreadAverage_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mpip_ThreadAverage_CheckBox->setChecked( TRUE );
+    mpip_ThreadAverage_CheckBox->setText( tr( "MPIP ThreadAverage" ) );
+    rightSideLayout->addWidget( mpip_ThreadAverage_CheckBox );
+    }
+
+    if (isInCurrentModifierList("mpip::ThreadMin")) {
+       mpip_ThreadMin = TRUE;
+    } else {
+       mpip_ThreadMin = FALSE;
+    }
+
+    { // mpip_ThreadMin
+    mpip_ThreadMin_CheckBox = new QCheckBox( GeneralGroupBox, "mpip_ThreadMin_CheckBox" );
+    mpip_ThreadMin_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpip_ThreadMin_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mpip_ThreadMin_CheckBox->setChecked( TRUE );
+    mpip_ThreadMin_CheckBox->setText( tr( "MPIP ThreadMin" ) );
+    rightSideLayout->addWidget( mpip_ThreadMin_CheckBox );
+    }
+
+    if (isInCurrentModifierList("mpip::ThreadMax")) {
+       mpip_ThreadMax = TRUE;
+    } else {
+       mpip_ThreadMax = FALSE;
+    }
+
+    { // mpip_ThreadMax
+    mpip_ThreadMax_CheckBox = new QCheckBox( GeneralGroupBox, "mpip_ThreadMax_CheckBox" );
+    mpip_ThreadMax_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, mpip_ThreadMax_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    mpip_ThreadMax_CheckBox->setChecked( TRUE );
+    mpip_ThreadMax_CheckBox->setText( tr( "MPIP ThreadMax" ) );
+    rightSideLayout->addWidget( mpip_ThreadMax_CheckBox );
+    }
+
    } else if ( globalCollectorString.contains("mpit") ) {
 
     if (isInCurrentModifierList("mpit::exclusive_times")) {
@@ -2394,6 +2504,36 @@ void OptionalViewsDialog::languageChange()
     QToolTip::add(iop_ThreadMax_CheckBox,
                 tr("Display Light-weight I/O experiment maximum value of exclusive time across ranks, processes, threads.") );
 
+   } else if ( globalCollectorString.contains("mpip") ) {
+
+    mpip_exclusive_times_CheckBox->setChecked(mpip_exclusive_times);
+    QToolTip::add(mpip_exclusive_times_CheckBox,
+                tr("Display Light-weight MPI experiment exclusive time.") );
+
+    mpip_inclusive_times_CheckBox->setChecked(mpip_inclusive_times);
+    QToolTip::add(mpip_inclusive_times_CheckBox,
+                tr("Display Light-weight MPI experiment inclusive time.") );
+
+    mpip_percent_CheckBox->setChecked(mpip_percent);
+    QToolTip::add(mpip_percent_CheckBox,
+                tr("Display Light-weight MPI experiment percentage of exclusive time.") );
+
+    mpip_count_CheckBox->setChecked(mpip_count);
+    QToolTip::add(mpip_count_CheckBox,
+                tr("Display Light-weight MPI experiment counts.") );
+
+    mpip_ThreadAverage_CheckBox->setChecked(mpip_ThreadAverage);
+    QToolTip::add(mpip_ThreadAverage_CheckBox,
+                tr("Display Light-weight MPI experiment average of exclusive time across ranks, processes, threads.") );
+
+    mpip_ThreadMin_CheckBox->setChecked(mpip_ThreadMin);
+    QToolTip::add(mpip_ThreadMin_CheckBox,
+                tr("Display Light-weight MPI experiment minimum value of exclusive time across ranks, processes, threads.") );
+
+    mpip_ThreadMax_CheckBox->setChecked(mpip_ThreadMax);
+    QToolTip::add(mpip_ThreadMax_CheckBox,
+                tr("Display Light-weight MPI experiment maximum value of exclusive time across ranks, processes, threads.") );
+
    } else if (globalCollectorString.contains("io") ) {
 
     io_exclusive_times_CheckBox->setChecked(io_exclusive_times);
@@ -2711,6 +2851,8 @@ void OptionalViewsDialog::languageChange()
        GeneralGroupBox->setTitle( tr( "IO Experiment Custom Report Selection Dialog" ) );
     } else if ( globalCollectorString.contains("iop") ) {
        GeneralGroupBox->setTitle( tr( "IOP Experiment Custom Report Selection Dialog" ) );
+    } else if ( globalCollectorString.contains("mpip") ) {
+       GeneralGroupBox->setTitle( tr( "MPIP Experiment Custom Report Selection Dialog" ) );
     } else if ( globalCollectorString.contains("mpit") ) {
        GeneralGroupBox->setTitle( tr( "MPIT Experiment Custom Report Selection Dialog" ) );
        VTraceGroupBox->setTitle( tr( "MPIT Experiment Event List (-v trace) ONLY" ) );
@@ -2913,6 +3055,21 @@ void OptionalViewsDialog::resetPreferenceDefaults()
      mem_ThreadMin_CheckBox->setChecked(mem_ThreadMin);
      mem_ThreadMax = FALSE;
      mem_ThreadMax_CheckBox->setChecked(mem_ThreadMax);
+   } else if ( globalCollectorString.contains("mpip") ) {
+     mpip_exclusive_times = TRUE;
+     mpip_exclusive_times_CheckBox->setChecked(mpip_exclusive_times);
+     mpip_inclusive_times = TRUE;
+     mpip_inclusive_times_CheckBox->setChecked(mpip_inclusive_times);
+     mpip_percent = TRUE;
+     mpip_percent_CheckBox->setChecked(mpip_percent);
+     mpip_count = FALSE;
+     mpip_count_CheckBox->setChecked(mpip_count);
+     mpip_ThreadAverage = FALSE;
+     mpip_ThreadAverage_CheckBox->setChecked(mpip_ThreadAverage);
+     mpip_ThreadMin = FALSE;
+     mpip_ThreadMin_CheckBox->setChecked(mpip_ThreadMin);
+     mpip_ThreadMax = FALSE;
+     mpip_ThreadMax_CheckBox->setChecked(mpip_ThreadMax);
    } else if ( globalCollectorString.contains("mpit") ) {
      mpit_exclusive_times = FALSE;
      mpit_exclusive_times_CheckBox->setChecked(mpit_exclusive_times);
@@ -3166,6 +3323,14 @@ void OptionalViewsDialog::applyPreferences()
      mem_ThreadAverage = mem_ThreadAverage_CheckBox->isChecked();
      mem_ThreadMin = mem_ThreadMin_CheckBox->isChecked();
      mem_ThreadMax = mem_ThreadMax_CheckBox->isChecked();
+   } else if ( globalCollectorString.contains("mpip") ) {
+     mpip_exclusive_times = mpip_exclusive_times_CheckBox->isChecked();
+     mpip_inclusive_times = mpip_inclusive_times_CheckBox->isChecked();
+     mpip_percent = mpip_percent_CheckBox->isChecked();
+     mpip_count = mpip_count_CheckBox->isChecked();
+     mpip_ThreadAverage = mpip_ThreadAverage_CheckBox->isChecked();
+     mpip_ThreadMin = mpip_ThreadMin_CheckBox->isChecked();
+     mpip_ThreadMax = mpip_ThreadMax_CheckBox->isChecked();
    } else if ( globalCollectorString.contains("mpit") ) {
      mpit_exclusive_times = mpit_exclusive_times_CheckBox->isChecked();
      mpit_inclusive_times = mpit_inclusive_times_CheckBox->isChecked();
