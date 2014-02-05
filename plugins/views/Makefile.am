@@ -24,6 +24,7 @@ SUBDIRS = basic \
           hwctime \
           usertime \
           mpi \
+          mpip \
           mpit \
           mpiotf \
           io \

@@ -833,6 +833,7 @@ AC_CONFIG_FILES(
 	plugins/collectors/iot/Makefile
 	plugins/collectors/mpi/Makefile
 	plugins/collectors/mpit/Makefile
+	plugins/collectors/mpip/Makefile
 	plugins/collectors/mpiotf/Makefile
 	plugins/collectors/fpe/Makefile
 	plugins/collectors/mem/Makefile
@@ -871,6 +872,7 @@ AC_CONFIG_FILES(
 	plugins/views/iop/Makefile
 	plugins/views/iot/Makefile
 	plugins/views/mpi/Makefile
+	plugins/views/mpip/Makefile
 	plugins/views/mpit/Makefile
 	plugins/views/mpiotf/Makefile
 	plugins/views/usertime/Makefile

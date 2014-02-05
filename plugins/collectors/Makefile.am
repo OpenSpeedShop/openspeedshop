@@ -58,10 +58,10 @@ endif
 
 if HAVE_MPI
 if HAVE_LIBUNWIND
-SUBDIRS += mpi mpit
+SUBDIRS += mpi mpit mpip
 else
 if !BUILD_INSTRUMENTOR
-SUBDIRS += mpi mpit
+SUBDIRS += mpi mpit mpip
 endif
 endif
 endif
