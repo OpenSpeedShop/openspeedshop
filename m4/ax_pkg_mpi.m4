@@ -887,6 +887,14 @@ AC_DEFUN([AX_TARGET_MPICH2], [
         found_mpich2=1
         TARGET_MPICH2_LDFLAGS="-L$target_mpich2_dir/$abi_libdir"
         TARGET_MPICH2_LIBS="-lmpich.cnk"
+      elif (test -f $target_mpich2_dir/$alt_abi_libdir/libmpich-gcc.a) ; then
+        found_mpich2=1
+        TARGET_MPICH2_LIBS="-lmpich-gcc"
+        TARGET_MPICH2_LDFLAGS="-L$target_mpich2_dir/$alt_abi_libdir"
+      elif (test -f $target_mpich2_dir/$abi_libdir/libmpich-gcc.a) ; then
+        found_mpich2=1
+        TARGET_MPICH2_LIBS="-lmpich-gcc"
+        TARGET_MPICH2_LDFLAGS="-L$target_mpich2_dir/$abi_libdir"
       fi 
     fi 
 
