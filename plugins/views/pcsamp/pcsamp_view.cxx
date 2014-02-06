@@ -29,7 +29,7 @@
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
 
-// These are needed to manage usertime collector data.
+// These are needed to manage pcsamp collector data.
 #define extime_temp VMulti_free_temp
 
 #define First_ByThread_Temp VMulti_free_temp+1
@@ -290,7 +290,7 @@ class pcsamp_view : public ViewType {
       Mark_Cmd_With_Soft_Error(cmd, "(We could not determine which format to use for the report.)");
       return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report for 'usertime' view.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report for 'pcsamp' view.)");
     return false;
   }
 };

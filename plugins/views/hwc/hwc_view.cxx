@@ -372,7 +372,7 @@ class hwc_view : public ViewType {
       Mark_Cmd_With_Soft_Error(cmd, "(We could not determine which format to use for the report.)");
       return false;
     }
-    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report for 'usertime' view.)");
+    Mark_Cmd_With_Soft_Error(cmd, "(We could not determine what information to report for 'hwc' view.)");
     return false;
   }
 };

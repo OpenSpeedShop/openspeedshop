@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -360,7 +360,7 @@ static bool define_mpit_columns (
       if (m_range->is_range) {
         C_Name = m_range->start_range.name;
         if (!strcasecmp(M_Name.c_str(), "mpit")) {
-         // We only know what to do with the usertime collector.
+         // We only know what to do with the mpit collector.
           std::string s("The specified collector, " + C_Name +
                         ", can not be displayed as part of a 'mpit' view.");
           Mark_Cmd_With_Soft_Error(cmd,s);

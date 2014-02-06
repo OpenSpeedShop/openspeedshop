@@ -464,7 +464,7 @@ static bool define_fpe_columns (
       if (m_range->is_range) {
         C_Name = m_range->start_range.name;
         if (!strcasecmp(M_Name.c_str(), "fpe")) {
-         // We only know what to do with the usertime collector.
+         // We only know what to do with the fpe collector.
           std::string s("The specified collector, " + C_Name +
                         ", can not be displayed as part of a 'fpe' view.");
           Mark_Cmd_With_Soft_Error(cmd,s);
