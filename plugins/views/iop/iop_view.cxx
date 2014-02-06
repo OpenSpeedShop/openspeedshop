@@ -43,7 +43,7 @@
 
 // iop view
 
-#define def_UserTime_values          \
+#define def_IOP_values          \
             double ex_time = 0.0;    \
             uint64_t ex_cnt = 0;     \
             double in_time = 0.0;    \
@@ -57,7 +57,7 @@
                 ex_time += secondary.dm_time / num_calls; \
                 ex_cnt +=  secondary.dm_count;
 
-#define set_UserTime_values(value_array, sort_extime)                                       \
+#define set_IOP_values(value_array, sort_extime)                                       \
               if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;       \
               if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp]               \
                                                  = CRPTR (sort_extime ? ex_time : in_time); \
@@ -67,8 +67,8 @@
               if (num_temps > incnt_temp) value_array[incnt_temp] = CRPTR (in_cnt);
 
 
-#define def_Detail_values def_UserTime_values
-#define set_Detail_values set_UserTime_values
+#define def_Detail_values def_IOP_values
+#define set_Detail_values set_IOP_values
 #define Determine_Objects Get_Filtered_Objects
 #include "SS_View_detail.txx"
 
@@ -411,8 +411,8 @@ static bool iop_definition (
     return define_iop_columns (cmd, exp, CV, MV, IV, HV, vfc);
 }
 
-static std::string VIEW_iop_brief = "UserTime Report";
-static std::string VIEW_iop_short = "Report the amount of sample time spent in a code unit.";
+static std::string VIEW_iop_brief = "I/O Profiling (IOP) Report";
+static std::string VIEW_iop_short = "Report the amount of sample time spent in I/O functions.";
 static std::string VIEW_iop_long  =
                   "\nA positive integer can be added to the end of the keyword"
                   " 'iop' to indicate the maximum number of items in the report."
@@ -457,11 +457,11 @@ static std::string VIEW_iop_long  =
                   " on that row of the report.  The 'Thread...' selections pertain to the"
                   " process unit that the program was partitioned into: Pid's,"
                   " Posix threads, Mpi threads or Ranks."
-                  " \n\t'-m exclusive_time' reports the wall clock time used in the code unit."
+                  " \n\t'-m exclusive_time' reports the wall clock time used in the I/O function."
                   " \n\t'-m inclusive_time' reports the wall clock time used in the aggregate"
                   " by the unit and all the units it calls."
-                  " \n\t'-m percent' reports the percent of total cpu the code unit represents."
-                  " \n\t'-m count' reports the number calls into the code unit."
+                  " \n\t'-m percent' reports the percent of total cpu the I/O function represents."
+                  " \n\t'-m count' reports the number calls into the I/O function."
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
                   "\n";
