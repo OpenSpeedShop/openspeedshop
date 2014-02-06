@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2013 Krell Institute All Rights Reserved.
+# Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
 # Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -574,6 +574,13 @@ AX_QTLIB()
 AX_SQLITE()
 AX_VT()
 
+AX_BOOST_BASE([1.35.0])
+AX_BOOST_DATE_TIME()
+AX_BOOST_FILESYSTEM()
+AX_BOOST_PROGRAM_OPTIONS()
+AX_BOOST_SYSTEM()
+AX_BOOST_THREAD()
+
 if test "$autoconf_for_target" = 1 ; then
 
 AX_TARGET_OPENMP()
@@ -650,7 +657,6 @@ case "$INSTRUMENTOR" in
 	;;
 
     mrnet)
-	AX_BOOST_BASE([1.35.0])
 	AX_DYNINST()
 	AX_SYMTABAPI()
 	AX_MRNET()
@@ -672,7 +678,6 @@ case "$INSTRUMENTOR" in
 	;;
 
     offline)
-	AX_BOOST_BASE([1.35.0])
 	AX_SYMTABAPI()
         #AX_XERCESC()
         ## This helps with targeted builds when there is no xercesc
@@ -693,15 +698,6 @@ case "$INSTRUMENTOR" in
 	;;
 
     cbtf)
-	AX_BOOST_BASE([1.35.0])
-	AX_BOOST_DATE_TIME()
-	AX_BOOST_SYSTEM()
-#        #if BOOST_VERSION == 105000
-#	   AX_BOOST_CHRONO()
-#        #endif
-	AX_BOOST_THREAD()
-	AX_BOOST_FILESYSTEM()
-	AX_BOOST_PROGRAM_OPTIONS()
 	AX_DYNINST()
 	AX_SYMTABAPI()
 	AX_XERCESC()
@@ -998,7 +994,7 @@ AC_CONFIG_FILES(
         src/regression/views/pcsamp/statements/Makefile
         src/regression/views/pcsamp/statements/state1/Makefile
 	test_scripts/Makefile
-
+    ossdumpsym/Makefile
 )
 
 AC_OUTPUT
