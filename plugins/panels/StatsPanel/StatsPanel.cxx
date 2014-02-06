@@ -15530,10 +15530,8 @@ if (currentCollectorStr != lastCollectorStr ||
     new QToolButton(*tracebacksfullByFunction_icon, " SHOW TRACEBACKS WITH FULL STACK BY FUNCTION: This view displays all the call paths in your program that include\nthe selected function. The paths are displayed from the user function down to the program start function.\nNone of the portions of common paths are suppressed.\nTo use click on one of the functions and then click the Traceback,FullStack By Function icon", QString::null, this, SLOT( tracebacksFullStackByFunctionSelected()), fileTools, "show tracebacks,fullstack by function");
   } // advanced toolbar
 
-    if(  currentCollectorStr != "mpip" && currentCollectorStr != "iop" && currentCollectorStr != "pthreads" && currentCollectorStr != "mem" ) {
-      QPixmap *butterfly_icon = new QPixmap( butterfly_xpm );
-      new QToolButton(*butterfly_icon, "SHOW BUTTERFLY:  This view shows the callers of the function selected\n(shown above the function) and the callees of the function selected\n(shown below the function).  Selecting one of the displayed functions\nand clicking on the Butterfly icon will make that function, the pivot \nfunction for the callers and callees display.  To use click on one of\nthe functions and then click the Butterfly icon.", QString::null, this, SLOT( butterflySelected()), fileTools, "show butterfly");
-    }
+    QPixmap *butterfly_icon = new QPixmap( butterfly_xpm );
+    new QToolButton(*butterfly_icon, "SHOW BUTTERFLY:  This view shows the callers of the function selected\n(shown above the function) and the callees of the function selected\n(shown below the function).  Selecting one of the displayed functions\nand clicking on the Butterfly icon will make that function, the pivot \nfunction for the callers and callees display.  To use click on one of\nthe functions and then click the Butterfly icon.", QString::null, this, SLOT( butterflySelected()), fileTools, "show butterfly");
 
     QPixmap *timeSegment_icon = new QPixmap( timeSegment_xpm );
     new QToolButton(*timeSegment_icon, "SELECT TIME SEGMENT:  This view shows a section of the performance\nexperiments data that was chosen by selecting a segment of time from the\ntime segment dialog slider.  To return to viewing the complete experiment\ndata, click on the Clear icon followed by the Update icon.  This will\nrestore viewing 100 percent of the experiment data.", QString::null, this, SLOT( timeSliceSelected()), fileTools, "show time segment");
