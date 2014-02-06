@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2012-13 Krell Institute. All Rights Reserved.
+** Copyright (c) 2012-14 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -433,7 +433,7 @@ static bool define_pthreads_columns (
       if (m_range->is_range) {
         C_Name = m_range->start_range.name;
         if (!strcasecmp(M_Name.c_str(), "pthreads")) {
-         // We only know what to do with the usertime collector.
+         // We only know what to do with the pthreads collector.
           std::string s("The specified collector, " + C_Name +
                         ", can not be displayed as part of a 'pthreads' view.");
           Mark_Cmd_With_Soft_Error(cmd,s);
@@ -692,8 +692,8 @@ static bool pthreads_definition ( CommandObject *cmd, ExperimentObject *exp, int
 }
 
 
-static std::string VIEW_pthreads_brief = "Pthreads Report";
-static std::string VIEW_pthreads_short = "Report the time spent in each pthread function.";
+static std::string VIEW_pthreads_brief = "POSIX Thread (pthreads) Report";
+static std::string VIEW_pthreads_short = "Report the time spent in each POSIX thread function.";
 static std::string VIEW_pthreads_long  =
                   "\nA positive integer can be added to the end of the keyword"
                   " 'pthreads' to indicate the maximum number of items in the report."
