@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2012-2013 Krell Institute. All Rights Reserved.
+** Copyright (c) 2012-2014 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -430,7 +430,7 @@ static bool define_mem_columns (
       if (m_range->is_range) {
         C_Name = m_range->start_range.name;
         if (!strcasecmp(M_Name.c_str(), "mem")) {
-         // We only know what to do with the usertime collector.
+         // We only know what to do with the mem collector.
           std::string s("The specified collector, " + C_Name +
                         ", can not be displayed as part of a 'mem' view.");
           Mark_Cmd_With_Soft_Error(cmd,s);
@@ -701,8 +701,8 @@ static bool mem_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t 
 }
 
 
-static std::string VIEW_mem_brief = "Mem Report";
-static std::string VIEW_mem_short = "Report the time spent in each pthread function.";
+static std::string VIEW_mem_brief = "Memory Tracing (mem) Report";
+static std::string VIEW_mem_short = "Report the time spent in each memory allocation and deallocation function.";
 static std::string VIEW_mem_long  =
                   "\nA positive integer can be added to the end of the keyword"
                   " 'mem' to indicate the maximum number of items in the report."
