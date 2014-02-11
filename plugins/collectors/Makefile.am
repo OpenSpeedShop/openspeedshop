@@ -58,10 +58,10 @@ endif
 
 if HAVE_MPI
 if HAVE_LIBUNWIND
-SUBDIRS += mpi mpit mpip
+SUBDIRS += mpi mpit
 else
 if !BUILD_INSTRUMENTOR
-SUBDIRS += mpi mpit mpip
+SUBDIRS += mpi mpit
 endif
 endif
 endif
@@ -108,13 +108,13 @@ endif
 endif
 
 if BUILD_CBTF
-SUBDIRS += mem pthreads iop
+SUBDIRS += mem pthreads iop mpip
 endif
 
 #SUBDIRS = pcsamp usertime hwc hwctime io iot mpi mpit fpe
 
 DIST_SUBDIRS = \
-	pcsamp usertime io iot iop hwc hwcsamp hwctime mpi mpit mpiotf fpe mem pthreads
+	pcsamp usertime io iot iop hwc hwcsamp hwctime mpi mpip mpit mpiotf fpe mem pthreads
 
 doc:
 	$(DOXYGEN)
