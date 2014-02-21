@@ -47,8 +47,12 @@
 #define ptr1_temp  VMulti_free_temp+11
 #define ptr2_temp  VMulti_free_temp+12
 #define ptr3_temp  VMulti_free_temp+13
+#define id_temp  VMulti_free_temp+14
+#define rank_temp  VMulti_free_temp+15
+#define thread_temp  VMulti_free_temp+16
 
-#define First_ByThread_Temp VMulti_free_temp+14
+
+#define First_ByThread_Temp VMulti_free_temp+17
 #define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
                                  // "2" => times reported in seconds,
                                  // otherwise don't add anything.
@@ -59,35 +63,60 @@
 // pthreads view
 
 #define def_Pthreads_values \
-            Time start = Time::TheEnd();         \
-            Time end = Time::TheBeginning();     \
-            double intime = 0.0;                 \
-            int64_t incnt = 0;                   \
-            double extime = 0.0;                 \
-            int64_t excnt = 0;                   \
-            double vmax = 0.0;                   \
-            double vmin = LONG_MAX;              \
-            double sum_squares = 0.0;            \
-            int64_t detail_pthreadtype = 0;        \
-            uint64_t detail_retval = 0;           \
+            Time start = Time::TheEnd();      \
+            Time end = Time::TheBeginning();  \
+            double intime = 0.0;              \
+            int64_t incnt = 0;                \
+            double extime = 0.0;              \
+            int64_t excnt = 0;                \
+            double vmax = 0.0;                \
+            double vmin = LONG_MAX;           \
+            double sum_squares = 0.0;         \
+            int64_t detail_pthreadtype = 0;   \
+            uint64_t detail_retval = 0;       \
             uint64_t detail_ptr1 = 0;         \
             uint64_t detail_ptr2 = 0;         \
-            uint64_t detail_ptr3 = 0;           
+            uint64_t detail_ptr3 = 0;         \  
+            std::string detail_id = "";       \
+            int64_t detail_rank = 0;          \
+            int64_t detail_thread = 0;
 
-#define get_Pthreads_invalues(primary,num_calls)                       \
+
+#define get_Pthreads_invalues(primary,num_calls)                 \
               double v = primary.dm_time / num_calls;            \
               intime += v;                                       \
               incnt++;                                           \
               start = std::min(start,primary.dm_interval.getBegin()); \
               end = std::max(end,primary.dm_interval.getEnd());       \
               vmin = std::min(vmin,v);                                \
-              vmax = std::max(vmax,v);                                \
-              sum_squares += v * v;                              \
-              detail_pthreadtype = primary.dm_pthreadtype;           \
-              detail_retval = primary.dm_retval;                 \
-              detail_ptr1 = primary.dm_ptr1;		 \
-              detail_ptr2 = primary.dm_ptr2;		 \
-              detail_ptr3 = primary.dm_ptr3;
+              vmax = std::max(vmax,v);                            \
+              sum_squares += v * v;                               \
+              detail_pthreadtype = primary.dm_pthreadtype;        \
+              detail_retval = primary.dm_retval;                  \
+              detail_ptr1 = primary.dm_ptr1;		          \
+              detail_ptr2 = primary.dm_ptr2;		          \
+              detail_ptr3 = primary.dm_ptr3;                      \
+               std::stringstream ss1;                             \
+               std::stringstream ss2;                             \
+               std::string delim = ":";                           \
+               if ( primary.dm_id.first != -1 ) {                 \
+                 ss1 << primary.dm_id.first;                      \
+                 detail_rank = primary.dm_id.first;               \
+               } else {                                           \
+                 ss1 << "";                                       \
+                 delim = "";                                      \
+                 detail_rank = -1;                                \
+               }                                                  \
+               if ( primary.dm_id.second != 0 ) {                 \
+                 ss2 << primary.dm_id.second;                     \
+                 detail_thread = primary.dm_id.second;            \
+               } else {                                           \
+                 ss2 << "";                                       \
+                 delim = "";                                      \
+                 detail_thread = 0;                               \
+               }                                                  \
+               detail_id = ss1.str() + delim + ss2.str();
+
 
 #define get_Pthreads_exvalues(secondary,num_calls)           \
               extime += secondary.dm_time / num_calls; \
@@ -157,7 +186,23 @@
 		CommandResult * p = CRPTR (detail_ptr3);				  \
 		p->SetValueIsID();							  \
 		value_array[ptr3_temp] = p;						  \
+              }                                                                           \
+              if (num_temps > id_temp) {                                                  \
+                CommandResult * p = CRPTR (detail_id);                                    \
+                p->SetValueIsID();                                                        \
+                value_array[id_temp] = p;                                                 \
+              }                                                                           \
+              if (num_temps > rank_temp) {                                                \
+                CommandResult * p = CRPTR (detail_rank);                                  \
+                p->SetValueIsID();                                                        \
+                value_array[rank_temp] = p;                                               \
+              }                                                                           \
+              if (num_temps > thread_temp) {                                              \
+                CommandResult * p = CRPTR (detail_thread);                                \
+                p->SetValueIsID();                                                        \
+                value_array[thread_temp] = p;                                             \
               }
+
 
 
 // The code here restricts any view for Functions (e.g. -v Functions)
@@ -360,6 +405,9 @@ static bool define_pthreads_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Min, min_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Max, max_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, ssq_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, id_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, rank_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, thread_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
@@ -413,6 +461,9 @@ static bool define_pthreads_columns (
   if (vfc == VFC_Trace) {
     MetricMap["start_time"] = start_temp;
     MetricMap["stop_time"] = stop_temp;
+    MetricMap["id"] = id_temp;
+    MetricMap["rank"] = rank_temp;
+    MetricMap["thread"] = thread_temp;
     //MetricMap["retval"] = retval_temp;
   }
 
@@ -609,6 +660,31 @@ static bool define_pthreads_columns (
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, ptr3_temp));
             HV.push_back("Ptr 3 Arg");
  
+        } else if ( (!strcasecmp(M_Name.c_str(), "threadid")) ) {
+
+          if (vfc == VFC_Trace) {
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, thread_temp));
+            HV.push_back("Event Identifier(s)");
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m thread' only supported for '-v Trace' option.");
+          }
+        } else if ( (!strcasecmp(M_Name.c_str(), "rankid")) ) {
+
+          if (vfc == VFC_Trace) {
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, rank_temp));
+            HV.push_back("Event Identifier(s)");
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m rank' only supported for '-v Trace' option.");
+          }
+        } else if ( (!strcasecmp(M_Name.c_str(), "id")) ) {
+
+          if (vfc == VFC_Trace) {
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
+            HV.push_back("Event Identifier(s)");
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m id' only supported for '-v Trace' option.");
+          }
+
         } else if (!strcasecmp(M_Name.c_str(), "absdiff")) {
         }
 // Recognize and generate pseudo instructions to calculate and display By Thread metrics for
@@ -658,6 +734,10 @@ static bool define_pthreads_columns (
     if (vfc != VFC_Trace) {
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
       HV.push_back("Number of Calls");
+    }
+    if (vfc == VFC_Trace) {
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
+      HV.push_back("Event Identifier(s)");
     }
   }
   if (generate_nested_accounting) {

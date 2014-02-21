@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2012 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2012-2014 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -50,6 +50,8 @@ namespace OpenSpeedShop { namespace Framework {
 	uint64_t dm_ptr2;        /**< size 1 arg*/
 	uint64_t dm_ptr3;        /**< size 2 arg*/
 	int dm_pthreadtype;   /**< enumerated val which mem call is it */
+        std::pair<int, uint64_t> dm_id;  /**< Rank(or Pid) and pthread id of the Event */
+
 
 	/** Operator "<" defined for two PthreadsDetail objects. */
 	bool operator<(const PthreadsDetail& other) const

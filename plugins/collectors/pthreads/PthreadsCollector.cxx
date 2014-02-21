@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2012 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2012-2014 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -459,6 +459,32 @@ void PthreadsCollector::getMetricValues(const std::string& metric,
 		    details.dm_interval = interval;
 		    details.dm_time = t_intersection / 1000000000.0;
 		    details.dm_pthreadtype = data.events.events_val[i].pthread_type;
+                    std::pair<bool, int> prank = thread.getMPIRank();
+                    pid_t processID = thread.getProcessId();
+                    if (prank.first) {
+                       if (getenv("OPENSS_DEBUG_PTHREADS_METRICS") != NULL) {
+                         std::cerr << " Rank in tgrp=" << prank.second << "\n" <<  std::endl;
+                       }
+                      details.dm_id.first = prank.second;
+                    } else {
+                      details.dm_id.first = processID;
+                       if (getenv("OPENSS_DEBUG_PTHREADS_METRICS") != NULL) {
+                         std::cerr << " Process ID in tgrp=" << " processID= " << processID << "\n" <<  std::endl;
+                       }
+                    }
+                    std::pair<bool, pthread_t> posixthread1 = thread.getPosixThreadId();
+                    if ( posixthread1.first ) {
+                      details.dm_id.second = posixthread1.second;
+                       if (getenv("OPENSS_DEBUG_PTHREADS_METRICS") != NULL) {
+                         std::cerr << " POSIX threadid in tgrp=" << posixthread1.second << "\n" <<  std::endl;
+                       }
+                    } else {
+                      details.dm_id.second = 0;
+                       if (getenv("OPENSS_DEBUG_PTHREADS_METRICS") != NULL) {
+                         std::cerr << " POSIX threadid in tgrp=" << " 0 " << "\n" <<  std::endl;
+                       }
+                    }
+
 
 #if 1
 		    switch (data.events.events_val[i].pthread_type) {
