@@ -734,8 +734,7 @@ static bool define_pthreads_columns (
     if (vfc != VFC_Trace) {
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
       HV.push_back("Number of Calls");
-    }
-    if (vfc == VFC_Trace) {
+    } else {
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
       HV.push_back("Event Identifier(s)");
     }

@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -46,6 +47,7 @@ namespace OpenSpeedShop { namespace Framework {
     {
 	TimeInterval dm_interval;  /**< Begin/End time of the call. */
 	double dm_time;            /**< Time spent in the call. */	
+        std::pair<int, uint64_t> dm_id;  /**< Rank(or Pid) and pthread id of the Event */
 
 	/** Operator "<" defined for two MPIDetail objects. */
 	bool operator<(const MPIDetail& other) const

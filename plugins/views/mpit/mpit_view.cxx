@@ -711,9 +711,6 @@ static bool define_mpit_columns (
     HV.push_back("% of Total");
 
     if (vfc == VFC_Trace) {
-      // display rank event occurred in
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
-      HV.push_back("Event Identifier(s)");
       // display source rank
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, source_temp));
       HV.push_back("Source Rank");
@@ -726,6 +723,9 @@ static bool define_mpit_columns (
       // display enumerated return value
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
       HV.push_back("Return Value");
+      // display rank event occurred in
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
+      HV.push_back("Event Identifier(s)");
     }
 
   // display a count of the calls to each function
