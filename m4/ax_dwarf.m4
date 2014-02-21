@@ -1,5 +1,5 @@
 #################################################################################
-# Copyright (c) 2010-2013 Krell Institute. All Rights Reserved.
+# Copyright (c) 2010-2014 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -68,13 +68,13 @@ AC_DEFUN([AX_LIBDWARF], [
 
     AC_MSG_CHECKING([for libdwarf library and headers])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <dwarf.h>
         ]], [[
         if (DW_ID_up_case != DW_ID_down_case) {
            int mycase = DW_ID_up_case;
         }
-        ]]), [ found_libdwarf=1 ], [ found_libdwarf=0 ])
+        ]])], [ found_libdwarf=1 ], [ found_libdwarf=0 ])
 
     if test $found_libdwarf -eq 1; then
         AC_MSG_RESULT(yes)

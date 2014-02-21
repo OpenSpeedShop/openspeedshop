@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2010-2012 Krell Institute. All Rights Reserved.
+# Copyright (c) 2010-2014 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -123,11 +123,11 @@ AC_DEFUN([AX_MRNET], [
 
     AC_MSG_CHECKING([for MRNet library and headers])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <mrnet/MRNet.h>
         ]], [[
         MRN::set_OutputLevel(0);
-        ]]), [ 
+        ]])], [ 
             AC_MSG_RESULT(yes)
 
 	    foundMRNET=1

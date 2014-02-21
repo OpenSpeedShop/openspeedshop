@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2006-2012 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -39,15 +39,21 @@ AC_DEFUN([AX_LIBMONITOR], [
 
     CPPFLAGS="$CPPFLAGS $LIBMONITOR_CPPFLAGS"
     LDFLAGS="$LDFLAGS $LIBMONITOR_LDFLAGS"
-    LIBS="$LIBMONITOR_LIBS -lpthread"
+    if test -f /usr/$abi_libdir/x86_64-linux-gnu/libpthread.a ; then
+       LIBS="$LIBMONITOR_LIBS /usr/$abi_libdir/x86_64-linux-gnu/libpthread.a"
+    elif test -f /usr/$alt_abi_libdir/x86_64-linux-gnu/libpthread.a ; then
+       LIBS="$LIBMONITOR_LIBS /usr/$alt_abi_libdir/x86_64-linux-gnu/libpthread.a"
+    else
+       LIBS="$LIBMONITOR_LIBS -lpthread"
+    fi
 
     AC_MSG_CHECKING([for libmonitor library and headers])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <monitor.h>
         ]], [[
         monitor_init_library();
-        ]]), [ AC_MSG_RESULT(yes)
+        ]])], [ AC_MSG_RESULT(yes)
 
             AM_CONDITIONAL(HAVE_LIBMONITOR, true)
             AC_DEFINE(HAVE_LIBMONITOR, 1, [Define to 1 if you have libmonitor.])

@@ -1,5 +1,5 @@
 #################################################################################
-# Copyright (c) 2013 Krell Institute. All Rights Reserved.
+# Copyright (c) 2013-2014 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -49,13 +49,13 @@ AC_DEFUN([AX_LIBELF], [
 
     AC_MSG_CHECKING([for libelf library and headers])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <libelf.h>
         #include <stdio.h>
         ]], [[ if (elf_version(EV_CURRENT) == EV_NONE) {
 	        printf("ELF library initialization failed: %s", elf_errmsg(-1));
               }
-        ]]), [ found_libelf=1 ], [ found_libelf=0 ])
+        ]])], [ found_libelf=1 ], [ found_libelf=0 ])
 
     if test $found_libelf -eq 1; then
         AC_MSG_RESULT(yes)
@@ -81,12 +81,12 @@ AC_DEFUN([AX_LIBELF], [
 
          AC_MSG_CHECKING([for libelf library and headers])
 
-         AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+         AC_LINK_IFELSE([AC_LANG_PROGRAM([[
              #include <libelf.h>
              ]], [[ if (elf_version(EV_CURRENT) == EV_NONE) {
 	             printf("ELF library initialization failed: %s", elf_errmsg(-1));
                    }
-             ]]), [ found_libelf=1 ], [ found_libelf=0 ])
+             ]])], [ found_libelf=1 ], [ found_libelf=0 ])
 
          if test $found_libelf -eq 1; then
              AC_MSG_RESULT(yes)

@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2006-2012 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -72,11 +72,11 @@ AC_DEFUN([AX_PAPI], [
 
     AC_MSG_CHECKING([for PAPI library and headers])
 
-    AC_LINK_IFELSE(AC_LANG_PROGRAM([[
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
         #include <papi.h>
         ]], [[
 	PAPI_is_initialized();
-        ]]), [ AC_MSG_RESULT(yes)
+        ]])], [ AC_MSG_RESULT(yes)
 
             AM_CONDITIONAL(HAVE_PAPI, true)
             AC_DEFINE(HAVE_PAPI, 1, [Define to 1 if you have PAPI.])

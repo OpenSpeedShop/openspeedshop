@@ -1,5 +1,5 @@
 #################################################################################
-# Copyright (c) 2010-2012 Krell Institute. All Rights Reserved.
+# Copyright (c) 2010-2014 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -648,11 +648,11 @@ AC_DEFUN([AX_MPICH2], [
 	  MPI_Initialized((int*)0);
 	  ]])],
 
-         if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
+         if (test -f $mpich2_dir/$abi_libdir/libmpich.so && test -f $mpich2_dir/include/mpi.h) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
 	    found_mpich2=1
             AC_MSG_CHECKING([found Intel MPICH2 64 bit library and headers using mpigcc])
-         elif (test -f $mpich2_dir/$alt_abi_libdir/libmpich.so) ; then
+         elif (test -f $mpich2_dir/$alt_abi_libdir/libmpich.so && test -f $mpich2_dir/include/mpi.h) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir"
 	    found_mpich2=1
             AC_MSG_CHECKING([found Intel MPICH2 64 bit library and headers using mpigcc])
@@ -687,7 +687,7 @@ AC_DEFUN([AX_MPICH2], [
 	  MPI_Initialized((int*)0);
 	  ]])],
 
-         if (test -f $mpich2_dir/$abi_libdir/libmpi.so) ; then
+         if (test -f $mpich2_dir/$abi_libdir/libmpi.so && test -f $mpich2_dir/include/mpi.h) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
 	    found_mpich2=1
             AC_MSG_CHECKING([found Intel 32 bit MPICH2 library and headers using mpicc])
@@ -723,7 +723,7 @@ AC_DEFUN([AX_MPICH2], [
 	  MPI_Initialized((int*)0);
 	  ]])],
 
-         if (test -f $mpich2_dir/$abi_libdir/libmpich.so) ; then
+         if (test -f $mpich2_dir/$abi_libdir/libmpich.so && test -f $mpich2_dir/include/mpi.h) ; then
             MPICH2_LDFLAGS="-L$mpich2_dir/$abi_libdir"
 	    found_mpich2=1
             AC_MSG_CHECKING([found Intel 32 bit MPICH2 library and headers using mpigcc])
@@ -1008,8 +1008,8 @@ AC_DEFUN([AX_OPENMPI], [
 
     AC_ARG_WITH(openmpi,
 		AC_HELP_STRING([--with-openmpi=DIR],
-			       [OpenMPI installation @<:@/usr/$abi_libdir/openmpi@:>@]),
-		openmpi_dir=$withval, openmpi_dir="/usr/$abi_libdir/openmpi")
+			       [OpenMPI installation @<:@/usr@:>@]),
+		openmpi_dir=$withval, openmpi_dir="/usr")
 
     AC_MSG_CHECKING([for OpenMPI library and headers])
 
@@ -1019,6 +1019,9 @@ AC_DEFUN([AX_OPENMPI], [
     if (test -e $openmpi_dir/include/mpi.h) ; then
       OPENMPI_CPPFLAGS="-I$openmpi_dir/include"
       OPENMPI_HEADER="$openmpi_dir/include/mpi.h"
+    elif (test -e /usr/include/mpi/mpi.h) ; then
+      OPENMPI_CPPFLAGS="-I/usr/include/mpi"
+      OPENMPI_HEADER="-I/usr/include/mpi/mpi.h"
     elif (test -e /usr/include/openmpi-$oss_hardware_platform/mpi.h) ; then
       OPENMPI_CPPFLAGS="-I/usr/include/openmpi-$oss_hardware_platform"
       OPENMPI_HEADER="-I/usr/include/openmpi-$oss_hardware_platform/mpi.h"
