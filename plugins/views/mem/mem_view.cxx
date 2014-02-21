@@ -735,10 +735,10 @@ static bool define_mem_columns (
   // display function return values for each function
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
       HV.push_back("Function Dependent Return Value");
-    }
   // display id of event for each function call
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
       HV.push_back("Event Identifier(s)");
+    }
 #endif
 
   // display a count of the calls to each function
