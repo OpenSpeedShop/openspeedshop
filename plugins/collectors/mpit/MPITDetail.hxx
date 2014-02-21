@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2011 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2006-2014 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -55,6 +55,7 @@ namespace OpenSpeedShop { namespace Framework {
         int dm_communicator;       /**< Communicator used. */
         int dm_datatype;           /**< Data type of the message. */
         int dm_retval;             /**< Enumerated return value. */
+        std::pair<int, uint64_t> dm_id;  /**< Rank(or Pid) and pthread id of the Event */
 
 	/** Operator "<" defined for two MPITDetail objects. */
 	bool operator<(const MPITDetail& other) const

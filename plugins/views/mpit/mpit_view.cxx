@@ -44,8 +44,11 @@
 #define communicator_temp VMulti_free_temp+13
 #define datatype_temp VMulti_free_temp+14
 #define retval_temp VMulti_free_temp+15
+#define id_temp  VMulti_free_temp+16
+#define rank_temp  VMulti_free_temp+17
+#define thread_temp  VMulti_free_temp+18
 
-#define First_ByThread_Temp VMulti_free_temp+16
+#define First_ByThread_Temp VMulti_free_temp+19
 #define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
                                  // "2" => times reported in seconds,
                                  //  otherwise don't add anything.
@@ -70,7 +73,11 @@
             int64_t detail_tag = 0;              \
             int64_t detail_communicator = 0;     \
             int64_t detail_datatype = 0;         \
-            int64_t detail_retval = 0;
+            int64_t detail_retval = 0;           \
+            std::string detail_id = "";          \
+            int64_t detail_rank = 0;             \
+            int64_t detail_thread = 0;
+
 
 #define get_MPIT_invalues(primary,num_calls)                     \
               double v = primary.dm_time / num_calls;            \
@@ -87,7 +94,28 @@
               detail_tag = primary.dm_tag;                       \
               detail_communicator = primary.dm_communicator;     \
               detail_datatype = primary.dm_datatype;             \
-              detail_retval = primary.dm_retval;
+              detail_retval = primary.dm_retval;                 \
+              std::stringstream ss1;                             \
+              std::stringstream ss2;                             \
+              std::string delim = ":";                           \
+              if ( primary.dm_id.first != -1 ) {                 \
+                ss1 << primary.dm_id.first;                      \
+                detail_rank = primary.dm_id.first;               \
+              } else {                                           \
+                ss1 << "";                                       \
+                delim = "";                                      \
+                detail_rank = -1;                                \
+              }                                                  \
+              if ( primary.dm_id.second != 0 ) {                 \
+                ss2 << primary.dm_id.second;                     \
+                detail_thread = primary.dm_id.second;            \
+              } else {                                           \
+                ss2 << "";                                       \
+                delim = "";                                      \
+                detail_thread = 0;                               \
+              }                                                  \
+              detail_id = ss1.str() + delim + ss2.str();
+
 
 #define get_MPIT_exvalues(primary,num_calls)         \
               extime += primary.dm_time / num_calls; \
@@ -163,8 +191,22 @@
                 CommandResult * p = CRPTR (detail_retval);				  \
                 p->SetValueIsID();							  \
                 value_array[retval_temp] = p;						  \
+              } 									  \
+              if (num_temps > id_temp) {                                                  \
+                CommandResult * p = CRPTR (detail_id);                                    \
+                p->SetValueIsID();                                                        \
+                value_array[id_temp] = p;                                                 \
+              }                                                                           \
+              if (num_temps > rank_temp) {                                                \
+                CommandResult * p = CRPTR (detail_rank);                                  \
+                p->SetValueIsID();                                                        \
+                value_array[rank_temp] = p;                                               \
+              }                                                                           \
+              if (num_temps > thread_temp) {                                              \
+                CommandResult * p = CRPTR (detail_thread);                                \
+                p->SetValueIsID();                                                        \
+                value_array[thread_temp] = p;                                             \
               }
-
 
 static void Determine_Objects (
                CommandObject *cmd,
@@ -284,6 +326,9 @@ static bool define_mpit_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Min, min_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Max, max_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, ssq_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, id_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, rank_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, thread_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
 
  // Most detail fields are not combinable in a meaningful way.
@@ -342,6 +387,9 @@ static bool define_mpit_columns (
     MetricMap["communicator"] = communicator_temp;
     MetricMap["datatype"] = datatype_temp;
     MetricMap["retval"] = retval_temp;
+    MetricMap["id"] = id_temp;
+    MetricMap["rank"] = rank_temp;
+    MetricMap["thread"] = thread_temp;
   }
 
   if (p_slist->begin() != p_slist->end()) {
@@ -567,6 +615,30 @@ static bool define_mpit_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m retval' only supported for '-v Trace' option.");
           }
+        } else if ( (!strcasecmp(M_Name.c_str(), "threadid")) ) {
+
+          if (vfc == VFC_Trace) {
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, thread_temp));
+            HV.push_back("Event Identifier(s)");
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m thread' only supported for '-v Trace' option.");
+          }
+        } else if ( (!strcasecmp(M_Name.c_str(), "rankid")) ) {
+
+          if (vfc == VFC_Trace) {
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, rank_temp));
+            HV.push_back("Event Identifier(s)");
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m rank' only supported for '-v Trace' option.");
+          }
+        } else if ( (!strcasecmp(M_Name.c_str(), "id")) ) {
+
+          if (vfc == VFC_Trace) {
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
+            HV.push_back("Event Identifier(s)");
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m id' only supported for '-v Trace' option.");
+          }
         } else if (!strcasecmp(M_Name.c_str(), "absdiff")) {
          // Ignore this because cview -c 3 -c 5 -mtime,absdiff actually works outside of this view code
          // Mark_Cmd_With_Soft_Error(cmd,"AbsDiff option, '-m " + M_Name + "'");
@@ -639,6 +711,9 @@ static bool define_mpit_columns (
     HV.push_back("% of Total");
 
     if (vfc == VFC_Trace) {
+      // display rank event occurred in
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
+      HV.push_back("Event Identifier(s)");
       // display source rank
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, source_temp));
       HV.push_back("Source Rank");
