@@ -152,12 +152,21 @@ case "$host" in
 
     x86_64-*-linux*)
         AC_MSG_CHECKING([Configuring for x86_64--star-linux host])
-        if test x"$libdir" == x'${exec_prefix}/lib'; then
+        if test -d /usr/lib/x86_64-linux-gnu ; then
+          if test x"$libdir" == x'${exec_prefix}/lib64'; then
+            libdir='${exec_prefix}/lib'
+          fi
+          abi_libdir="lib"
+          alt_abi_libdir="lib64"
+          LDFLAGS="-DLIB_DIR=lib $LDFLAGS"
+        else
+          if test x"$libdir" == x'${exec_prefix}/lib'; then
             libdir='${exec_prefix}/lib64'
+          fi
+          abi_libdir="lib64"
+          alt_abi_libdir="lib"
+          LDFLAGS="-DLIB_DIR=lib64 $LDFLAGS"
         fi
-        abi_libdir="lib64"
-        alt_abi_libdir="lib"
-        LDFLAGS="-DLIB_DIR=lib64 $LDFLAGS"
         ;;
 
     *)
