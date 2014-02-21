@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -51,6 +52,7 @@ namespace OpenSpeedShop { namespace Framework {
 	int dm_sysargs[4];         /**< sysargs. */
         std::string dm_pathname;   /**< pathname buffer of characters representing the path name */
 	int pathindex;		   /**< index into pathnames buffer. */
+        std::pair<int, uint64_t> dm_id;  /**< Rank(or Pid) and pthread id of the Event */
 
 	/** Operator "<" defined for two IOTDetail objects. */
 	bool operator<(const IOTDetail& other) const
