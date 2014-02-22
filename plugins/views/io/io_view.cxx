@@ -17,7 +17,6 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
-
 #include "SS_Input_Manager.hxx"
 #include "SS_View_Expr.hxx"
 #include "IOCollector.hxx"
@@ -27,7 +26,6 @@
 /* Uncomment for debug traces
 #define DEBUG_IO 1
 */
-
 
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
@@ -42,8 +40,11 @@
 #define min_temp VMulti_free_temp+6
 #define max_temp VMulti_free_temp+7
 #define ssq_temp VMulti_free_temp+8
+#define id_temp  VMulti_free_temp+9
+#define rank_temp  VMulti_free_temp+10
+#define thread_temp  VMulti_free_temp+11
 
-#define First_ByThread_Temp VMulti_free_temp+9
+#define First_ByThread_Temp VMulti_free_temp+12
 #define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
                                  // "2" => times reported in seconds,
                                  // otherwise don't add anything.
@@ -62,7 +63,10 @@
             int64_t excnt = 0;                   \
             double vmax = 0.0;                   \
             double vmin = LONG_MAX;              \
-            double sum_squares = 0.0;
+            double sum_squares = 0.0;            \
+            std::string detail_id = "";          \
+            int64_t detail_rank = 0;             \
+            int64_t detail_thread = 0;
 
 #define get_IO_invalues(primary,num_calls)                       \
               double v = primary.dm_time / num_calls;            \
@@ -72,7 +76,28 @@
               end = std::max(end,primary.dm_interval.getEnd());       \
               vmin = std::min(vmin,v);                                \
               vmax = std::max(vmax,v);                                \
-              sum_squares += v * v;
+              sum_squares += v * v;                              \
+              std::stringstream ss1;                             \
+              std::stringstream ss2;                             \
+              std::string delim = ":";                           \
+              if ( primary.dm_id.first != -1 ) {                 \
+                ss1 << primary.dm_id.first;                      \
+                detail_rank = primary.dm_id.first;               \
+              } else {                                           \
+                ss1 << "";                                       \
+                delim = "";                                      \
+                detail_rank = -1;                                \
+              }                                                  \
+              if ( primary.dm_id.second != 0 ) {                 \
+                ss2 << primary.dm_id.second;                     \
+                detail_thread = primary.dm_id.second;            \
+              } else {                                           \
+                ss2 << "";                                       \
+                delim = "";                                      \
+                detail_thread = 0;                               \
+              }                                                  \
+              detail_id = ss1.str() + delim + ss2.str();
+
 
 #define get_IO_exvalues(secondary,num_calls)           \
               extime += secondary.dm_time / num_calls; \
@@ -117,7 +142,22 @@
               if (num_temps > max_temp) value_array[max_temp]                             \
                             = new CommandResult_Interval (vmax);                          \
               if (num_temps > ssq_temp) value_array[ssq_temp]                             \
-                            = new CommandResult_Interval (sum_squares);
+                            = new CommandResult_Interval (sum_squares);                   \
+              if (num_temps > id_temp) {                                                  \
+                CommandResult * p = CRPTR (detail_id);                                    \
+                p->SetValueIsID();                                                        \
+                value_array[id_temp] = p;                                                 \
+              }                                                                           \
+              if (num_temps > rank_temp) {                                                \
+                CommandResult * p = CRPTR (detail_rank);                                  \
+                p->SetValueIsID();                                                        \
+                value_array[rank_temp] = p;                                               \
+              }                                                                           \
+              if (num_temps > thread_temp) {                                              \
+                CommandResult * p = CRPTR (detail_thread);                                \
+                p->SetValueIsID();                                                        \
+                value_array[thread_temp] = p;                                             \
+              }                                                                           
 
 // The code here restricts any view for Functions (e.g. -v Functions)
 // to the functions listed in IOTTraceablefunctions.h.  In this case,
@@ -322,6 +362,9 @@ static bool define_io_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Min, min_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Max, max_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, ssq_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, id_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, rank_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, thread_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
@@ -370,6 +413,9 @@ static bool define_io_columns (
   if (vfc == VFC_Trace) {
     MetricMap["start_time"] = start_temp;
     MetricMap["stop_time"] = stop_temp;
+    MetricMap["id"] = id_temp;
+    MetricMap["rank"] = rank_temp;
+    MetricMap["thread"] = thread_temp;
   }
 
   if (p_slist->begin() != p_slist->end()) {
@@ -538,6 +584,31 @@ static bool define_io_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m stop_time' only supported for '-v Trace' option.");
           }
+        } else if ( (!strcasecmp(M_Name.c_str(), "threadid")) ) {
+
+          if (vfc == VFC_Trace) {
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, thread_temp));
+            HV.push_back("Event Identifier(s)");
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m thread' only supported for '-v Trace' option.");
+          }
+        } else if ( (!strcasecmp(M_Name.c_str(), "rankid")) ) {
+
+          if (vfc == VFC_Trace) {
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, rank_temp));
+            HV.push_back("Event Identifier(s)");
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m rank' only supported for '-v Trace' option.");
+          }
+        } else if ( (!strcasecmp(M_Name.c_str(), "id")) ) {
+
+          if (vfc == VFC_Trace) {
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
+            HV.push_back("Event Identifier(s)");
+          } else {
+            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m id' only supported for '-v Trace' option.");
+          }
+
         } else if (!strcasecmp(M_Name.c_str(), "absdiff")) {
         // Ignore this because cview -c 3 -c 5 -mtime,absdiff actually works outside of this view code
         // Mark_Cmd_With_Soft_Error(cmd,"AbsDiff option, '-m " + M_Name + "'");
@@ -585,10 +656,14 @@ static bool define_io_columns (
     }
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back("% of Total");
-  // display a count of the calls to each function
     if (vfc != VFC_Trace) {
+      // display a count of the calls to each function
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
       HV.push_back("Number of Calls");
+    } else {
+      // display the id information for this rank:thread which is reponsible for this event
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
+      HV.push_back("Event Identifier(s)");
     }
   }
   if (generate_nested_accounting) {
