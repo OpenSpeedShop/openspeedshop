@@ -149,14 +149,7 @@ bool Detail_Trace_Report(
 #if DEBUG_CLI
     Framework::TimeInterval basetime = databaseExtent.getTimeInterval();
     Framework::AddressRange baseaddr = databaseExtent.getAddressRange();
-
-    printf("In Detail_Trace_Report, basetime.getBegin().getValue()=%u\n", basetime.getBegin().getValue());
-    printf("In Detail_Trace_Report, basetime.getEnd().getValue()=%u\n", basetime.getEnd().getValue());
-    std::cout << "In Detail_Trace_Report, ------------ baseaddr.getBegin()=" << baseaddr.getBegin() << std::endl;
-    std::cout << "In Detail_Trace_Report, ------------ baseaddr.getEnd()=" << baseaddr.getEnd() << std::endl;
-    printf("In Detail_Trace_Report, baseaddr.getBegin().getValue()=%x\n", baseaddr.getBegin().getValue());
-    printf("In Detail_Trace_Report, baseaddr.getEnd().getValue()=%x\n", baseaddr.getEnd().getValue());
-    printf("In Detail_Trace_Report, SS_View_detail.txx, base_time.getValue()=%u\n", base_time.getValue());
+    std::cout << "In Detail_Trace_Report, databaseExtent: basetime=" << basetime << " baseaddr=" << baseaddr << std::endl;
 #endif
 
    // Acquire the specified set of time intervals.
