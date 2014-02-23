@@ -28,6 +28,8 @@
 /* structure entries  */
 /* #define DEBUG_CLI 1 */
 /* #define DEBUG_DUMP_CITEMS 1 */
+#define DEBUG_CLI 1 
+#define DEBUG_DUMP_CITEMS 1 
 
 /**
  * Four templates are provided to generate the four differently formatted reports
@@ -275,19 +277,13 @@ bool Detail_Trace_Report(
           SubExtents = (*tei).second;
 
 #ifdef DEBUG_CLI
-          std::cout << "In Detail_Trace_Report, getting out SubExtents, SubExtents.size()=" 
-                    << SubExtents.size() << std::endl;
+          std::cout << "In Detail_Trace_Report, SubExtents, SUBEXTENTS.SIZE()=" << SubExtents.size() << std::endl;
           for (Framework::ExtentGroup::iterator debug_ei = SubExtents.begin(); debug_ei != SubExtents.end(); debug_ei++) {
             Framework::Extent check = *debug_ei;
             if (!check.isEmpty()) {
               Framework::TimeInterval time = check.getTimeInterval();
               Framework::AddressRange addr = check.getAddressRange();
-              printf("In Detail_Trace_Report, time.getBegin().getValue()=%u\n", time.getBegin().getValue());
-              printf("In Detail_Trace_Report, time.getEnd().getValue()=%u\n", time.getEnd().getValue());
-              std::cout << "In Detail_Trace_Report, ------------ addr.getBegin()=" << addr.getBegin() << std::endl;
-              std::cout << "In Detail_Trace_Report, ------------ addr.getEnd()=" << addr.getEnd() << std::endl;
-              printf("In Detail_Trace_Report, addr.getBegin().getValue()=%x\n", addr.getBegin().getValue());
-              printf("In Detail_Trace_Report, addr.getEnd().getValue()=%x\n", addr.getEnd().getValue());
+              std::cout << "In Detail_Trace_Report, SubExtents: time=" << time << " addr=" << addr << std::endl;
            }
         }
 #endif

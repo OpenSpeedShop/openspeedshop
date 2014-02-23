@@ -29,6 +29,8 @@
 #include "EntrySpy.hxx"
 #define DEBUG_CLI 1
 */
+#include "EntrySpy.hxx"
+#define DEBUG_CLI 1
 
 
 /**
@@ -58,7 +60,7 @@ inline bool topStack_In_Subextent (
 #if DEBUG_CLI
   printf("In topStack_In_Subextent, last callstack entry address value==> a.getValue()=%x\n", a.getValue());
   printf("Enter topStack_In_Subextent, t.getValue()=%u\n", t.getValue());
-  printf("Enter topStack_In_Subextent, subextents.size()=%d\n", subextents.size());
+  printf("Enter topStack_In_Subextent, SUBEXTENTS.SIZE()=%d\n", subextents.size());
 #endif
 
   for (ExtentGroup::iterator ei = subextents.begin(); ei != subextents.end(); ei++) {
@@ -68,15 +70,7 @@ inline bool topStack_In_Subextent (
       TimeInterval time = check.getTimeInterval();
       AddressRange addr = check.getAddressRange(); 
 #if DEBUG_CLI
-      printf("In topStack_In_Subextent, time.getBegin().getValue()=%u\n", time.getBegin().getValue());
-      printf("In topStack_In_Subextent, time.getEnd().getValue()=%u\n", time.getEnd().getValue());
-//      printf("In topStack_In_Subextent, a.getValue()=%x\n", a.getValue());
-      printf("In topStack_In_Subextent, addr.getBegin().getValue()=%x\n", addr.getBegin().getValue());
-      printf("In topStack_In_Subextent, addr.getEnd().getValue()=%x\n", addr.getEnd().getValue());
-
-      std::cout << "In topStack_In_Subextent, -------------> addr.getBegin()=" << addr.getBegin() << std::endl;
-      printf("In topStack_In_Subextent, a.getValue()=%x\n", a.getValue());
-      std::cout << "In topStack_In_Subextent, -------------> addr.getEnd()=" << addr.getEnd() << std::endl;
+     std::cout << "In topStack_In_Subextent, subextents: time=" << time << " addr=" << addr << std::endl;
 #endif
       
 // Is the address and time for the stack frame being searched inside the subextent?
@@ -141,15 +135,7 @@ inline bool topCallStack_In_Subextent (
       AddressRange addr = check.getAddressRange();
 
 #if DEBUG_CLI
-      printf("In topCallStack_In_Subextent, time.getBegin().getValue()=%u\n", time.getBegin().getValue());
-      printf("In topCallStack_In_Subextent, time.getEnd().getValue()=%u\n", time.getEnd().getValue());
-//      printf("In topCallStack_In_Subextent, a.getValue()=%x\n", a.getValue());
-//      printf("In topCallStack_In_Subextent, addr.getBegin().getValue()=%x\n", addr.getBegin().getValue());
-//      printf("In topCallStack_In_Subextent, addr.getEnd().getValue()=%x\n", addr.getEnd().getValue());
-
-      std::cout << "In topCallStack_In_Subextent, -------------> addr.getBegin()=" << addr.getBegin() << std::endl;
-      printf("In topCallStack_In_Subextent, a.getValue()=%x\n", a.getValue());
-      std::cout << "In topCallStack_In_Subextent, -------------> addr.getEnd()=" << addr.getEnd() << std::endl;
+     std::cout << "In topCallStack_In_Subextent, subextents: time=" << time << " addr=" << addr << std::endl;
 #endif
       
 // Is the address and time for the stack frame being searched inside the subextent?
@@ -181,7 +167,7 @@ void Get_Subextents_To_Object (
     ExtentGroup newExtents = object.getExtentIn (*ti);
 
 #if DEBUG_CLI
-    printf("Enter Get_Subextents_To_Object, newExtents.size()=%d\n", newExtents.size());
+    printf("Enter Get_Subextents_To_Object, NEWEXTENTS.SIZE()=%d\n", newExtents.size());
     std::pair<bool, int> prank = ti->getMPIRank();
     int64_t rank = prank.first ? prank.second : -1;
     std::pair<bool, pthread_t> xtid = ti->getPosixThreadId();
@@ -241,12 +227,7 @@ void Get_Subextents_To_Object_Map (
       if (!Echeck.isEmpty()) {
         TimeInterval Etime = Echeck.getTimeInterval();
         AddressRange Eaddr = Echeck.getAddressRange();
-        printf("In Get_Subextents_To_Object_Map, Etime.getBegin().getValue()=%u\n", Etime.getBegin().getValue());
-        printf("In Get_Subextents_To_Object_Map, Etime.getEnd().getValue()=%u\n", Etime.getEnd().getValue());
-        printf("In Get_Subextents_To_Object_Map, Eaddr.getBegin().getValue()=%x\n", Eaddr.getBegin().getValue());
-        printf("In Get_Subextents_To_Object_Map, Eaddr.getEnd().getValue()=%x\n", Eaddr.getEnd().getValue());
-        std::cout << "In Get_Subextents_To_Object_Map,------> Eaddr.getBegin()=" << Eaddr.getBegin() << std::endl;
-        std::cout << "In Get_Subextents_To_Object_Map,------> Eaddr.getEnd()=" << Eaddr.getEnd() << std::endl;
+        std::cout << "In Get_Subextents_To_Object_Map, newExtents: Etime=" << Etime << " Eaddr=" << Eaddr << std::endl;
       }
 
       printf("In Get_Subextents_To_Object_Map, pushing back *ei subextent to subextents\n");
@@ -286,10 +267,7 @@ inline int64_t stack_contains_N_calls (
       TimeInterval time = check.getTimeInterval();
       AddressRange addr = check.getAddressRange();
 #if DEBUG_CLI
-      printf("In stack_contains_N_calls, time.getBegin().getValue()=%u\n", time.getBegin().getValue());
-      printf("In stack_contains_N_calls, time.getEnd().getValue()=%u\n", time.getEnd().getValue());
-      printf("In stack_contains_N_calls, addr.getBegin().getValue()=%x\n", addr.getBegin().getValue());
-      printf("In stack_contains_N_calls, addr.getEnd().getValue()=%x\n", addr.getEnd().getValue());
+      std::cout << "In stack_contains_N_calls, subextents: time=" << time << " addr=" << addr << std::endl;
 #endif
 
       int64_t sti;
@@ -305,8 +283,7 @@ inline int64_t stack_contains_N_calls (
           num_calls++;
 #if DEBUG_CLI
           printf("In stack_contains_N_calls, if time contains t and addr contains a then bump num_calls=%d\n", num_calls);
-          printf("In stack_contains_N_calls, bump addr.getBegin().getValue()=%x\n", addr.getBegin().getValue());
-          printf("In stack_contains_N_calls, bump addr.getEnd().getValue()=%x\n", addr.getEnd().getValue());
+         std::cout << "In stack_contains_N_calls, bump addr: addr=" << addr << std::endl;
 #endif
        }
       }
