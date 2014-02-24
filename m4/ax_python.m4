@@ -1,7 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-# Copyright (c) 2006-2013 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -161,10 +161,19 @@ $ac_distutils_result])
                     fi
             fi
 
-            PYTHON_LDFLAGS=`$PYTHON -c "from distutils.sysconfig import *; \
+            python_libpath_tmp=`$PYTHON -c "from distutils.sysconfig import *; \
                     from string import join; \
-                    print '-L' + get_python_lib(0,1), \
-                    '-lpython';"`$py_version
+                    print get_python_lib(0,1)"`;
+
+            libpyvers="python$py_version";
+            PYTHON_LIBPATH=`echo $python_libpath_tmp | sed "s?$libpyvers??"` ;
+
+            PYTHON_LDFLAGS="-L$PYTHON_LIBPATH -lpython$py_version"
+
+            #PYTHON_LDFLAGS_TMP=`$PYTHON -c "from distutils.sysconfig import *; \
+            #        from string import join; \
+            #        print '-L' + get_python_lib(0,1), \
+            #        '-lpython';"`$py_version
 
             so_designator=".so"
             PYTHON_LIBRARY_NAME="libpython$py_version$so_designator"
@@ -178,6 +187,7 @@ $ac_distutils_result])
     fi
     AC_MSG_RESULT([$PYTHON_LDFLAGS])
     AC_SUBST([PYTHON_LDFLAGS])
+    AC_SUBST([PYTHON_LIBPATH])
     AC_DEFINE_UNQUOTED(PYTHON_FP_LIB_NAME, "$PYTHON_FULL_PATH_LIBRARY_NAME",
                            [Name of full path python dynamic library])
     AC_DEFINE_UNQUOTED(PYTHON_LIB_NAME, "$PYTHON_LIBRARY_NAME",

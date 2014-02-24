@@ -832,7 +832,7 @@ bool Parse_Interval_Specification (
   Assert (exp != NULL);
   Assert (exp->FW() != NULL);
 #if DEBUG_CLI
-    std::cout << "Enter Parse_Interval_Specification" << std::endl;
+    std::cerr << "Enter Parse_Interval_Specification" << std::endl;
 #endif
   OpenSpeedShop::cli::ParseResult *parse_result = cmd->P_Result();
   std::vector<ParseInterval> *I_list = parse_result->getParseIntervalList();
@@ -840,7 +840,7 @@ bool Parse_Interval_Specification (
   if (I_list->empty()) {
     intervals.push_back(std::make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
 #if DEBUG_CLI
-    std::cout << "Exit TRUE Parse_Interval_Specification I_list is empty" << std::endl;
+    std::cerr << "Exit TRUE Parse_Interval_Specification I_list is empty" << std::endl;
 #endif
     return true;
   }
@@ -864,7 +864,7 @@ bool Parse_Interval_Specification (
       Mark_Cmd_With_Soft_Error(cmd, S.str());
       intervals.push_back(std::make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
 #if DEBUG_CLI
-    std::cout << "Exit TRUE Parse_Interval_Specification invalid attribute" << std::endl;
+    std::cerr << "Exit TRUE Parse_Interval_Specification invalid attribute" << std::endl;
 #endif
       return true;
     }
@@ -946,7 +946,7 @@ bool Parse_Interval_Specification (
       intervals.clear();
       intervals.push_back(std::make_pair<Time,Time>(Time::TheBeginning(),Time::TheEnd()));
 #if DEBUG_CLI
-    std::cout << "Exit TRUE Parse_Interval_Specification start time is greater than end time" << std::endl;
+    std::cerr << "Exit TRUE Parse_Interval_Specification start time is greater than end time" << std::endl;
 #endif
       return true;
     }
@@ -954,8 +954,8 @@ bool Parse_Interval_Specification (
 #if DEBUG_CLI
     std::cerr << "In	Parse_Interval_Specification, Istart= " << Istart << std::endl;
     std::cerr << "In	Parse_Interval_Specification, Iend= " << Iend << "last_time=" << last_time << std::endl;
-    std::cout << "EXIT Parse_Interval_Specification, Istart= " << Istart << std::endl;
-    std::cout << "EXIT Parse_Interval_Specification, Iend= " << Iend << "last_time=" << last_time << std::endl;
+    std::cerr << "EXIT Parse_Interval_Specification, Istart= " << Istart << std::endl;
+    std::cerr << "EXIT Parse_Interval_Specification, Iend= " << Iend << "last_time=" << last_time << std::endl;
 #endif
 
     intervals.push_back(std::make_pair(Istart, ((Iend == last_time) ? Iend + 1 :  Iend)));
@@ -2030,7 +2030,7 @@ bool SS_expCreate (CommandObject *cmd) {
   }
 
 #if DEBUG_CLI
-  std::cout << "SS_expCreate, actualCLIStartMode=" <<  actualCLIStartMode << std::endl;
+  std::cerr << "SS_expCreate, actualCLIStartMode=" <<  actualCLIStartMode << std::endl;
 #endif
 
  // There is no specified experiment.  Allocate a new Experiment.
@@ -2062,7 +2062,7 @@ bool SS_expCreate (CommandObject *cmd) {
       overriding_command_line_option = true; 
 
 #if DEBUG_CLI
-      std::cout << "SS_expCreate, FOUND OFFLINE INSTRUMENTOR INDICATION (-i offline) " <<  std::endl;
+      std::cerr << "SS_expCreate, FOUND OFFLINE INSTRUMENTOR INDICATION (-i offline) " <<  std::endl;
 #endif
 
    } else if (!strcasecmp(S.c_str(),"online")) {
@@ -2071,7 +2071,7 @@ bool SS_expCreate (CommandObject *cmd) {
       isOfflineCmd = false;
       overriding_command_line_option = true; 
 #if DEBUG_CLI
-      std::cout << "SS_expCreate, FOUND ONLINE INSTRUMENTOR INDICATION (-i online) " <<  std::endl;
+      std::cerr << "SS_expCreate, FOUND ONLINE INSTRUMENTOR INDICATION (-i online) " <<  std::endl;
 #endif
 
    }
@@ -2086,26 +2086,26 @@ bool SS_expCreate (CommandObject *cmd) {
     if (actualCLIStartMode == SM_Offline) {
       exp->setIsInstrumentorOffline(true);
 #if DEBUG_CLI
-      std::cout << "SS_expCreate, SM_Offline, setting setIsInstrumentorOffline(true)" << " actualCLIStartMode=" <<  actualCLIStartMode << std::endl;
+      std::cerr << "SS_expCreate, SM_Offline, setting setIsInstrumentorOffline(true)" << " actualCLIStartMode=" <<  actualCLIStartMode << std::endl;
 #endif
       isOfflineCmd = true;
     } else if (actualCLIStartMode == SM_Online || actualCLIStartMode == SM_Batch) {
       exp->setIsInstrumentorOffline(false);
 #if DEBUG_CLI
-      std::cout << "SS_expCreate, SM_Online, setting setIsInstrumentorOffline(false)" << " actualCLIStartMode=" <<  actualCLIStartMode << std::endl;
+      std::cerr << "SS_expCreate, SM_Online, setting setIsInstrumentorOffline(false)" << " actualCLIStartMode=" <<  actualCLIStartMode << std::endl;
 #endif
       isOfflineCmd = false;
     } else {
 
       // now default to the command line option if -online or -offline was specified
 #if DEBUG_CLI
-      std::cout << "SS_expCreate, default mode, using actualCLIStartMode=" <<  actualCLIStartMode << " to set global flag" << std::endl;
+      std::cerr << "SS_expCreate, default mode, using actualCLIStartMode=" <<  actualCLIStartMode << " to set global flag" << std::endl;
 #endif
       // default to offline
       // FIXME - we could try to look at the online/offline setting in the ~USER/.qt/openspeedshoprc file
       exp->setIsInstrumentorOffline(true);
 #if DEBUG_CLI
-      std::cout << "SS_expCreate, else, setting setIsInstrumentorOffline(true)" << " actualCLIStartMode=" <<  actualCLIStartMode << std::endl;
+      std::cerr << "SS_expCreate, else, setting setIsInstrumentorOffline(true)" << " actualCLIStartMode=" <<  actualCLIStartMode << std::endl;
 #endif
       isOfflineCmd = true;
    } 
@@ -2127,7 +2127,7 @@ bool SS_expCreate (CommandObject *cmd) {
   exp->Q_Lock (cmd, true);
 
 #if DEBUG_CLI
-      std::cout << "SS_expCreate, calling Process_expTypes" <<  std::endl;
+      std::cerr << "SS_expCreate, calling Process_expTypes" <<  std::endl;
 #endif
 
  // Determine target and collectors and link them together.
@@ -3559,14 +3559,14 @@ bool SS_expSetArgs (CommandObject *cmd) {
 
 #ifdef DEBUG_CLI
        printf("In SS_expSetArgs(), S.c_str()=%s\n", S.c_str());
-       std::cout << *j << " " ;
+       std::cerr << *j << " " ;
 #endif
 
     } // end for j
 
 #ifdef DEBUG_CLI
     if (p_slist->begin() != p_slist->end())
-        std::cout << std::endl ;
+        std::cerr << std::endl ;
 #endif
 
   exp->Q_Lock (cmd, true);

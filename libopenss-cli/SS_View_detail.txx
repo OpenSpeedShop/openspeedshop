@@ -28,8 +28,6 @@
 /* structure entries  */
 /* #define DEBUG_CLI 1 */
 /* #define DEBUG_DUMP_CITEMS 1 */
-#define DEBUG_CLI 1 
-#define DEBUG_DUMP_CITEMS 1 
 
 /**
  * Four templates are provided to generate the four differently formatted reports
@@ -151,7 +149,7 @@ bool Detail_Trace_Report(
 #if DEBUG_CLI
     Framework::TimeInterval basetime = databaseExtent.getTimeInterval();
     Framework::AddressRange baseaddr = databaseExtent.getAddressRange();
-    std::cout << "In Detail_Trace_Report, databaseExtent: basetime=" << basetime << " baseaddr=" << baseaddr << std::endl;
+    std::cerr << "In Detail_Trace_Report, databaseExtent: basetime interval=" << basetime << " baseaddr range=" << baseaddr << std::endl;
 #endif
 
    // Acquire the specified set of time intervals.
@@ -168,7 +166,7 @@ bool Detail_Trace_Report(
 
 #if DEBUG_CLI
   for (std::vector<std::pair<Time,Time> >::iterator iv = intervals.begin(); iv != intervals.end(); iv++) {
-         std::cout << " In Detail_Trace_Report, SS_View_detail.txx, before GetMetricInThreadGroup, iv->first=" 
+         std::cerr << " In Detail_Trace_Report, SS_View_detail.txx, before GetMetricInThreadGroup, iv->first=" 
               << iv->first << " iv->second=" << iv->second << std::endl;
   }
 #endif
@@ -210,7 +208,7 @@ bool Detail_Trace_Report(
     typename std::map<Function, std::map<Framework::StackTrace, std::vector<TDETAIL> > >::iterator fi;
 #if DEBUG_CLI
     int rawcount = 0;
-    std::cout << "In Detail_Trace_Report, before raw_items loop, rawcount=" << rawcount << std::endl;
+    std::cerr << "In Detail_Trace_Report, before raw_items loop, rawcount=" << rawcount << std::endl;
 #endif
     for (fi = raw_items->begin(); fi != raw_items->end(); fi++) {
      // Foreach Detail function ...
@@ -219,7 +217,7 @@ bool Detail_Trace_Report(
 
 #if DEBUG_CLI
       rawcount = rawcount + 1; 
-      std::cout << "In Detail_Trace_Report, rawcount=" << rawcount << " F.getName()=" << F.getName() << std::endl;
+      std::cerr << "In Detail_Trace_Report, rawcount=" << rawcount << " F.getName()=" << F.getName() << std::endl;
 #endif
 
       // Go off and get the subextents for the function that is being processed.
@@ -229,7 +227,7 @@ bool Detail_Trace_Report(
       Get_Subextents_To_Object_Map (tgrp, F, SubExtents_Map);
 
 #if DEBUG_CLI
-      std::cout << "In Detail_Trace_Report, after Get_Subextents_To_Object_Map, SubExtents_Map.size()=" 
+      std::cerr << "In Detail_Trace_Report, after Get_Subextents_To_Object_Map, SubExtents_Map.size()=" 
                 << SubExtents_Map.size() << std::endl;
 #endif
 
@@ -240,7 +238,7 @@ bool Detail_Trace_Report(
    
 
 #if DEBUG_CLI
-        std::cout << "In Detail_Trace_Report, getting new stacktrace=" << std::endl;
+        std::cerr << "In Detail_Trace_Report, getting new stacktrace=" << std::endl;
 #endif
 
         // Get the details associated with this stacktrace entry (Event?)
@@ -249,7 +247,7 @@ bool Detail_Trace_Report(
        // If we have already processed this StackTrace, skip it!
         if (StackTraces_Processed.find(st) != StackTraces_Processed.end()) {
 #if DEBUG_CLI
-          std::cout << "In Detail_Trace_Report, skipping stacktrace" << std::endl;
+          std::cerr << "In Detail_Trace_Report, skipping stacktrace" << std::endl;
 #endif
           // skipping the reprocessing of a stacktrace item
           continue;
@@ -261,7 +259,7 @@ bool Detail_Trace_Report(
 
 #if DEBUG_CLI
         Thread debugThread = st.getThread();
-        std::cout << "In Detail_Trace_Report, st.getThread(), debugThread.getProcessId()=" 
+        std::cerr << "In Detail_Trace_Report, st.getThread(), debugThread.getProcessId()=" 
                   << debugThread.getProcessId() << std::endl;
 #endif
 
@@ -277,13 +275,13 @@ bool Detail_Trace_Report(
           SubExtents = (*tei).second;
 
 #ifdef DEBUG_CLI
-          std::cout << "In Detail_Trace_Report, SubExtents, SUBEXTENTS.SIZE()=" << SubExtents.size() << std::endl;
+          std::cerr << "In Detail_Trace_Report, SubExtents, SUBEXTENTS.SIZE()=" << SubExtents.size() << std::endl;
           for (Framework::ExtentGroup::iterator debug_ei = SubExtents.begin(); debug_ei != SubExtents.end(); debug_ei++) {
             Framework::Extent check = *debug_ei;
             if (!check.isEmpty()) {
               Framework::TimeInterval time = check.getTimeInterval();
               Framework::AddressRange addr = check.getAddressRange();
-              std::cout << "In Detail_Trace_Report, SubExtents: time=" << time << " addr=" << addr << std::endl;
+              std::cerr << "In Detail_Trace_Report, SubExtents: time interval=" << time << " address range=" << addr << std::endl;
            }
         }
 #endif
@@ -291,7 +289,7 @@ bool Detail_Trace_Report(
         } else {
 
 #ifdef DEBUG_CLI
-         std::cout << "In Detail_Trace_Report, DIDNT FIND SUBEXTENT ENTRY ERROR SubExtents.size()=" 
+         std::cerr << "In Detail_Trace_Report, DIDNT FIND SUBEXTENT ENTRY ERROR SubExtents.size()=" 
                    << SubExtents.size() << std::endl;
 #endif
 
@@ -549,8 +547,8 @@ bool Detail_Base_Report(
       std::pair<bool, int> prank = ti->getMPIRank();
       int64_t rank = prank.first ? prank.second : -1;
       std::pair<bool, pthread_t> xtid = ti->getPosixThreadId();
-      std::cout << "In Detail_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.first=" << xtid.first << std::endl;
-      std::cout << "In Detail_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.second=" << xtid.second << " rank=" << rank << std::endl;
+      std::cerr << "In Detail_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.first=" << xtid.first << std::endl;
+      std::cerr << "In Detail_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.second=" << xtid.second << " rank=" << rank << std::endl;
    }
 #endif
 
@@ -643,8 +641,8 @@ bool Detail_Base_Report(
     std::pair<bool, int> dbprank = dbti->getMPIRank();
     int64_t dbrank = dbprank.first ? dbprank.second : -1;
     std::pair<bool, pthread_t> dbxtid = dbti->getPosixThreadId();
-    std::cout << "In Detail_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.first=" << dbxtid.first << std::endl;
-    std::cout << "In Detail_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.second=" << dbxtid.second << " dbrank=" << dbrank << std::endl;
+    std::cerr << "In Detail_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.first=" << dbxtid.first << std::endl;
+    std::cerr << "In Detail_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.second=" << dbxtid.second << " dbrank=" << dbrank << std::endl;
   }
 #endif
 
@@ -999,7 +997,7 @@ Dump_CallStack (std::vector<CommandResult *> *call_stack,
 
       Function F = (*fi1).first;
 #if DEBUG_CLI
-      std::cout << "In Detail_Butterfly_Report, rawcount=" << rawcount << " F.getName()=" << F.getName() << std::endl;
+      std::cerr << "In Detail_Butterfly_Report, rawcount=" << rawcount << " F.getName()=" << F.getName() << std::endl;
 #endif
 
       std::map<Framework::Thread, Framework::ExtentGroup> SubExtents_Map;
@@ -1211,8 +1209,8 @@ bool Simple_Base_Report(
       std::pair<bool, int> prank = ti->getMPIRank();
       int64_t rank = prank.first ? prank.second : -1;
       std::pair<bool, pthread_t> xtid = ti->getPosixThreadId();
-      std::cout << "In Simple_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.first=" << xtid.first << std::endl;
-      std::cout << "In Simple_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.second=" << xtid.second << " rank=" << rank << std::endl;
+      std::cerr << "In Simple_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.first=" << xtid.first << std::endl;
+      std::cerr << "In Simple_Base_Report, about to call GetMetricInThreadGroup, getPosixThreadId(), xtid.second=" << xtid.second << " rank=" << rank << std::endl;
    }
 #endif
 
@@ -1290,8 +1288,8 @@ bool Simple_Base_Report(
     std::pair<bool, int> dbprank = dbti->getMPIRank();
     int64_t dbrank = dbprank.first ? dbprank.second : -1;
     std::pair<bool, pthread_t> dbxtid = dbti->getPosixThreadId();
-    std::cout << "In Simple_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.first=" << dbxtid.first << std::endl;
-    std::cout << "In Simple_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.second=" << dbxtid.second << " dbrank=" << dbrank << std::endl;
+    std::cerr << "In Simple_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.first=" << dbxtid.first << std::endl;
+    std::cerr << "In Simple_Base_Report, about to call Generic_Multi_View, getPosixThreadId(), dbxtid.second=" << dbxtid.second << " dbrank=" << dbrank << std::endl;
   }
 #endif
 

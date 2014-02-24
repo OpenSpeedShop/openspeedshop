@@ -757,6 +757,13 @@ static std::string VIEW_io_long  =
                   " \n\t'-m percent' reports the percent of io time the function represents."
                   " \n\t'-m stddev' reports the standard deviation of the average io time"
                   " that the function represents."
+                  " The available '-v trace -m' options are:"
+                  " \n\t'-m start_time' reports the time the event started."
+                  " \n\t'-m stop_time' reports the time of the event ended."
+                  " \n\t'-m id' reports the rank/thread/pid of the event, rank/thread/pid the I/O function call took place in."
+                  " \n\t'-m rankid' reports the rank number, or if rank not available then the process id of the event that the I/O function took place in."
+                  " \n\t'-m threadid' reports the POSIX thread number that the I/O function took place in."
+
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
                   "\n"; 

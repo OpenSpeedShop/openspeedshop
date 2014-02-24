@@ -29,8 +29,6 @@
 #include "EntrySpy.hxx"
 #define DEBUG_CLI 1
 */
-#include "EntrySpy.hxx"
-#define DEBUG_CLI 1
 
 
 /**
@@ -70,7 +68,7 @@ inline bool topStack_In_Subextent (
       TimeInterval time = check.getTimeInterval();
       AddressRange addr = check.getAddressRange(); 
 #if DEBUG_CLI
-     std::cout << "In topStack_In_Subextent, subextents: time=" << time << " addr=" << addr << std::endl;
+     std::cerr << "In topStack_In_Subextent, subextents: time interval=" << time << " address range=" << addr << std::endl;
 #endif
       
 // Is the address and time for the stack frame being searched inside the subextent?
@@ -135,7 +133,7 @@ inline bool topCallStack_In_Subextent (
       AddressRange addr = check.getAddressRange();
 
 #if DEBUG_CLI
-     std::cout << "In topCallStack_In_Subextent, subextents: time=" << time << " addr=" << addr << std::endl;
+     std::cerr << "In topCallStack_In_Subextent, subextents: time interval=" << time << " address range=" << addr << std::endl;
 #endif
       
 // Is the address and time for the stack frame being searched inside the subextent?
@@ -171,8 +169,8 @@ void Get_Subextents_To_Object (
     std::pair<bool, int> prank = ti->getMPIRank();
     int64_t rank = prank.first ? prank.second : -1;
     std::pair<bool, pthread_t> xtid = ti->getPosixThreadId();
-    std::cout << "In Get_Subextents_To_Object,  xtid.first=" << xtid.first << std::endl;
-    std::cout << "In Get_Subextents_To_Object,  xtid.second=" << xtid.second << " rank=" << rank << std::endl;
+    std::cerr << "In Get_Subextents_To_Object,  xtid.first=" << xtid.first << std::endl;
+    std::cerr << "In Get_Subextents_To_Object,  xtid.second=" << xtid.second << " rank=" << rank << std::endl;
 #endif
 
     for (ExtentGroup::iterator ei = newExtents.begin(); ei != newExtents.end(); ei++) {
@@ -197,24 +195,24 @@ void Get_Subextents_To_Object_Map (
 
 #if DEBUG_CLI
   printf("Enter Get_Subextents_To_Object_Map,  tgrp.size()=%d\n", tgrp.size());
-  std::cout << "Enter Get_Subextents_To_Object_Map,  tgrp.size()=" << tgrp.size() << std::endl;
-  fflush(stdout);
+  std::cerr << "Enter Get_Subextents_To_Object_Map,  tgrp.size()=" << tgrp.size() << std::endl;
+  fflush(stderr);
 #endif
 
   for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
 
 
 #if DEBUG_CLI
-    std::cout << "In Get_Subextents_To_Object_Map,  thread group loop" << std::endl;
+    std::cerr << "In Get_Subextents_To_Object_Map,  thread group loop" << std::endl;
     Thread debugThread = *ti;
-    std::cout << "In Function::getExtentIn, EntrySpy(thread).getEntry()=" << EntrySpy(debugThread).getEntry() << std::endl;
+    std::cerr << "In Function::getExtentIn, EntrySpy(thread).getEntry()=" << EntrySpy(debugThread).getEntry() << std::endl;
     std::pair<bool, int> prank = ti->getMPIRank();
     int64_t rank = prank.first ? prank.second : -1;
     std::pair<bool, pthread_t> xtid = ti->getPosixThreadId();
-    std::cout << "In Get_Subextents_To_Object_Map,  xtid.first=" << xtid.first << std::endl;
-    std::cout << "In Get_Subextents_To_Object_Map,  xtid.second=" << xtid.second << " rank=" << rank << std::endl;
+    std::cerr << "In Get_Subextents_To_Object_Map,  xtid.first=" << xtid.first << std::endl;
+    std::cerr << "In Get_Subextents_To_Object_Map,  xtid.second=" << xtid.second << " rank=" << rank << std::endl;
     printf("In Get_Subextents_To_Object_Map, calling object.getExtentIn(*ti)\n");
-    fflush(stdout);
+    fflush(stderr);
 #endif
 
     ExtentGroup newExtents = object.getExtentIn (*ti);
@@ -227,7 +225,7 @@ void Get_Subextents_To_Object_Map (
       if (!Echeck.isEmpty()) {
         TimeInterval Etime = Echeck.getTimeInterval();
         AddressRange Eaddr = Echeck.getAddressRange();
-        std::cout << "In Get_Subextents_To_Object_Map, newExtents: Etime=" << Etime << " Eaddr=" << Eaddr << std::endl;
+        std::cerr << "In Get_Subextents_To_Object_Map, newExtents: Etime (time interval)=" << Etime << " Eaddr (address range)=" << Eaddr << std::endl;
       }
 
       printf("In Get_Subextents_To_Object_Map, pushing back *ei subextent to subextents\n");
@@ -241,8 +239,8 @@ void Get_Subextents_To_Object_Map (
 
 #if DEBUG_CLI
     printf("In Get_Subextents_To_Object_Map, adding subextents to the subextents_map[*ti]\n");
-    std::cout << "Exit Get_Subextents_To_Object_Map,  subextents.size()=" << subextents.size() << std::endl;
-    std::cout << "Exit Get_Subextents_To_Object_Map,  subextents_map.size()=" << subextents_map.size() << std::endl;
+    std::cerr << "Exit Get_Subextents_To_Object_Map,  subextents.size()=" << subextents.size() << std::endl;
+    std::cerr << "Exit Get_Subextents_To_Object_Map,  subextents_map.size()=" << subextents_map.size() << std::endl;
 #endif
   }
 
@@ -267,7 +265,7 @@ inline int64_t stack_contains_N_calls (
       TimeInterval time = check.getTimeInterval();
       AddressRange addr = check.getAddressRange();
 #if DEBUG_CLI
-      std::cout << "In stack_contains_N_calls, subextents: time=" << time << " addr=" << addr << std::endl;
+      std::cerr << "In stack_contains_N_calls, subextents: time interval=" << time << " address range =" << addr << std::endl;
 #endif
 
       int64_t sti;
@@ -283,7 +281,7 @@ inline int64_t stack_contains_N_calls (
           num_calls++;
 #if DEBUG_CLI
           printf("In stack_contains_N_calls, if time contains t and addr contains a then bump num_calls=%d\n", num_calls);
-         std::cout << "In stack_contains_N_calls, bump addr: addr=" << addr << std::endl;
+         std::cerr << "In stack_contains_N_calls, bump addr: address range=" << addr << std::endl;
 #endif
        }
       }

@@ -641,7 +641,7 @@ void SS_Configure () {
             "the directory path of the source file and the linked object will not be considered.  Use this if you are comparing "
             "the same program but have different source versions of the program in separate directories.");
   Bvalue = settings->readBoolEntry(std::string("lessRestrictiveComparisons"), OPENSS_LESS_RESTRICTIVE_COMPARISONS, &ok);
-//  std::cout << " SS_Configure.cxx, lessRestrictiveComparisons section, Bvalue=" << Bvalue << " ok=" << ok << std::endl;
+//  std::cerr << " SS_Configure.cxx, lessRestrictiveComparisons section, Bvalue=" << Bvalue << " ok=" << ok << std::endl;
   if (ok) OPENSS_LESS_RESTRICTIVE_COMPARISONS = Bvalue;
   Record_Config_Info(configName, &OPENSS_LESS_RESTRICTIVE_COMPARISONS);
 

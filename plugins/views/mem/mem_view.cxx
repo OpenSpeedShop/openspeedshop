@@ -837,11 +837,19 @@ static std::string VIEW_mem_long  =
                   " \n\t'-m percent' reports the percent of exclusive time the function represents."
                   " \n\t'-m stddev' reports the standard deviation of the average exclusive time"
                   " that the function represents."
+                  " The available '-v trace -m' options are:"
                   " \n\t'-m memtype' reports the memory call enum associated  with the function."
                   " \n\t'-m retval' reports the value returned from the call."
                   " \n\t'-m ptr' reports any ptr argument to the call."
                   " \n\t'-m size1' reports  a size argument to the function."
                   " \n\t'-m size2' reports  a second size argument to the function."
+                  " \n\t'-m start_time' reports the time the event started."
+                  " \n\t'-m stop_time' reports the time of the event ended."
+                  " \n\t'-m id' reports the rank/thread/pid of the event, rank/thread/pid the memory function call took place in."
+                  " \n\t'-m rankid' reports the rank number, or if rank not available then the process id of the event that the memory function took place in."
+                  " \n\t'-m threadid' reports the POSIX thread number that the memory function took place in."
+
+
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
                   "\n"; 

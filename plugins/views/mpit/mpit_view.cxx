@@ -822,6 +822,7 @@ static std::string VIEW_mpit_long  =
                   " \n\t'-m percent' reports the percent of mpi time the event represents."
                   " \n\t'-m stddev' reports the standard deviation of the average mpi time"
                   " that the event represents."
+                  " The available '-v trace -m' options are:"
                   " \n\t'-m start_time' reports the starting time of the event."
                   " \n\t'-m stop_time' reports the ending time of the event."
                   " \n\t'-m source' reports the source rank of the event."
@@ -831,6 +832,11 @@ static std::string VIEW_mpit_long  =
                   " \n\t'-m comm' reports the communicator used for the event."
                   " \n\t'-m datatype' reports the data type of the message."
                   " \n\t'-m retval' reports the return value of the event."
+                  " \n\t'-m id' reports the rank/thread/pid of the event, rank/thread/pid the MPI function call took place in."
+                  " \n\t'-m rankid' reports the rank number, or if rank not available then the process id of the event that the MPI function took place in."
+                  " \n\t'-m threadid' reports the POSIX thread number that the MPI function took place in."
+
+
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
                   "\n";

@@ -228,7 +228,7 @@ void Construct_View_Output (CommandObject *cmd,
 #if DEBUG_CLI
             printf("\tVIEWINST_Display_Tmp %d is NULL\n",CM_Index);
             printf("\t\t reset to %p ",V); if (V != NULL) V->Print(std::cerr,20,true);printf("\n");
-            printf("Set summary_temp[%d] = ",i); if (V != NULL) V->Print(std::cout,20,true);printf("\n");
+            printf("Set summary_temp[%d] = ",i); if (V != NULL) V->Print(std::cerr,20,true);printf("\n");
 #endif
           }
         } else if (vinst->OpCode() == VIEWINST_Display_Percent_Column) {

@@ -853,11 +853,14 @@ static std::string VIEW_iot_long  =
                   " \n\t'-m percent' reports the percent of io time the function represents."
                   " \n\t'-m stddev' reports the standard deviation of the average io time"
                   " that the function represents."
+                  " The available '-v trace -m' options are:"
                   " \n\t'-m syscallno' reports the system call number associated  with the function."
                   " \n\t'-m retval' reports the value returned from the call."
                   " \n\t'-m nsysargs' reports the number of arguments to the call."
                   " \n\t'-m pathname' reports the pathname to the function."
                   " \n\t'-m id' reports the rank/thread/pid of the event, rank/thread/pid the I/O function call took place in."
+                  " \n\t'-m rankid' reports the rank number, or if rank not available then the process id of the event that the I/O function took place in."
+                  " \n\t'-m threadid' reports the POSIX thread number that the I/O function took place in."
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
                   "\n";

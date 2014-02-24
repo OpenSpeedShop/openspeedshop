@@ -406,7 +406,7 @@ static CommandResult *Calculate_Add (CommandResult *A, CommandResult *B) {
 
 #if DEBUG_CLI
   printf("In CommandResult *Calculate_Add, A->Type()=%d, B->Type()=%d\n", A->Type(), B->Type());
-  std::cout << "\tA = " << ((A != NULL) ? A->Form() : "(nil)")
+  std::cerr << "\tA = " << ((A != NULL) ? A->Form() : "(nil)")
             << "\tB = " << ((B != NULL) ? B->Form() : "(nil)")
             << std::endl;
 #endif
