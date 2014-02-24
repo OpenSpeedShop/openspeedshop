@@ -72,14 +72,14 @@ dnl Support the user enabled --with-python option.
     AC_ARG_WITH(python,
                 AC_HELP_STRING([--with-python=PYTHON],
                                [path name of Python libraries]),
-                [ if test "$withval" != "yes"
+                [ if test ! -d "$withval" 
                   then
-                    PYTHON="$withval/bin/python"
-                    python_dir="$withval"
-                    AC_MSG_RESULT($withval)
-                  else
                     python_dir="/usr"
-                    AC_MSG_RESULT(no)
+                    AC_MSG_RESULT("/usr")
+                  else
+                    PYTHON="$with_python/bin/python"
+                    python_dir="$with_python"
+                    AC_MSG_RESULT($with_python)
                   fi
                 ],
                 [ AC_MSG_RESULT(no)
