@@ -132,6 +132,9 @@ void PreferencesDialog::readPreferencesOnEntry()
 
   viewFieldSizeIsDynamicCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/viewFieldSizeIsDynamic") );
+
+  saveViewsForReuseCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/saveViewsForReuse") );
 }
 
 void PreferencesDialog::resetPreferenceDefaults()
@@ -193,6 +196,8 @@ void PreferencesDialog::resetPreferenceDefaults()
    viewDateTimePrecisionLineEdit->setText(QString("%1").arg(viewDateTimePrecision));
    viewFieldSizeIsDynamic = TRUE;
    viewFieldSizeIsDynamicCheckBox->setChecked(viewFieldSizeIsDynamic);
+   saveViewsForReuse = FALSE;
+   saveViewsForReuseCheckBox->setChecked(saveViewsForReuse);
 
 
   // Begin reset all preferences to defaults
@@ -308,6 +313,7 @@ void PreferencesDialog::applyPreferences()
   extern int64_t OPENSS_MAX_ASYNC_COMMANDS;
   extern int64_t OPENSS_HELP_LEVEL_DEFAULT;
   extern bool    OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC;
+  extern bool    OPENSS_SAVE_VIEWS_FOR_REUSE;
   extern bool    OPENSS_VIEW_FULLPATH;
   extern bool    OPENSS_SAVE_EXPERIMENT_DATABASE;
   extern bool    OPENSS_ASK_ABOUT_CHANGING_ARGS;
@@ -343,6 +349,7 @@ void PreferencesDialog::applyPreferences()
   OPENSS_VIEW_FULLPATH =
     viewFullPathCheckBox->isChecked();
   OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC = viewFieldSizeIsDynamicCheckBox->isChecked();
+  OPENSS_SAVE_VIEWS_FOR_REUSE = saveViewsForReuseCheckBox->isChecked();
   OPENSS_HELP_LEVEL_DEFAULT = helpLevelDefaultLineEdit->text().toInt();
   OPENSS_MAX_ASYNC_COMMANDS = maxAsyncCommandsLineEdit->text().toInt();
   if(  OPENSS_MAX_ASYNC_COMMANDS <= 0 )
@@ -461,6 +468,11 @@ void PreferencesDialog::savePreferences()
   if( !settings->writeEntry( "/openspeedshop/general/viewFieldSizeIsDynamic", viewFieldSizeIsDynamicCheckBox->isChecked() ) )
   {
     printf("Unable to write viewFieldSizeIsDynamic.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/saveViewsForReuse", saveViewsForReuseCheckBox->isChecked() ) )
+  {
+    printf("Unable to write saveViewsForReuse.\n");
   }
 
   if( !settings->writeEntry( "/openspeedshop/general/viewFullPath", viewFullPathCheckBox->isChecked() ) )

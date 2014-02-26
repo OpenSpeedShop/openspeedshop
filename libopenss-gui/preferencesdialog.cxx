@@ -65,6 +65,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    // For the views 
    viewDateTimePrecision = 3;
    viewFieldSizeIsDynamic = TRUE;
+   saveViewsForReuse = FALSE;
 
    viewFieldSize = 20; 
    viewPrecision = 6; 
@@ -447,6 +448,17 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     rightSideLayout->addWidget( viewFieldSizeIsDynamicCheckBox );
     }
 
+
+    { // OPENSS_SAVE_VIEWS_FOR_REUSE
+    saveViewsForReuseCheckBox = new QCheckBox( vpage0big_box, "saveViewsForReuseCheckBox" );
+    saveViewsForReuseCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, saveViewsForReuseCheckBox->sizePolicy().hasHeightForWidth() ) );
+    saveViewsForReuseCheckBox->setChecked( TRUE );
+    saveViewsForReuseCheckBox->setText( tr( "Save Views for Reuse in CLI and GUI" ) );
+    rightSideLayout->addWidget( saveViewsForReuseCheckBox );
+    }
+
+
+
     { // VIEW_DATE TIME PRECISION - for I/O MPI -v trace type displays
     viewDateTimePrecisionLayout = new QHBoxLayout( 0, 0, 6, "viewDateTimePrecisionLayout");
     viewDateTimePrecisionLabel = new QLabel( vpage0big_box, "viewDateTimePrecisionLabel" );
@@ -532,6 +544,10 @@ void PreferencesDialog::languageChange()
   viewFieldSizeIsDynamicCheckBox->setChecked(viewFieldSizeIsDynamic);
   QToolTip::add(viewFieldSizeIsDynamicCheckBox,
                 tr("When displaying data, dynamically compute the size of the display field required to place the data into.\nThis may cost a bit more time for display but keeps the display more compact.") );
+
+  saveViewsForReuseCheckBox->setChecked(saveViewsForReuse);
+  QToolTip::add(saveViewsForReuseCheckBox,
+                tr("When generating CLI and GUI views, save the view so it does not have to be recreated again.") );
 
   askAboutSavingTheDatabaseCheckBox->setChecked(askAboutSavingTheDatabase);
   QToolTip::add(askAboutChangingArgsCheckBox,
