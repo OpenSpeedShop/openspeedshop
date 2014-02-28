@@ -3953,7 +3953,7 @@ static CommandResult *Get_Collector_Metadata (Collector c, Metadata m) {
 }
 
 /**
- * SemanticRoutine: SS_ListRanks ()
+ * SemanticRoutine: getListOfRanks ()
  * 
  * List all the MPI ranks associated with an experiment.
  *     
@@ -4013,6 +4013,8 @@ static bool getListOfRanks (CommandObject *cmd) {
         rset.insert ( prank.second );
       }
     }
+
+
     for (std::set<int64_t>::iterator rseti = rset.begin(); rseti != rset.end(); rseti++) {
 //      printf(" list ranks, *rseti=%d\n", *rseti);
       cmd->Result_Int ( *rseti );
@@ -5978,6 +5980,7 @@ static bool SS_ListRanks (CommandObject *cmd) {
         rset.insert ( prank.second );
       }
     }
+
     for (std::set<int64_t>::iterator rseti = rset.begin(); rseti != rset.end(); rseti++) {
 //      printf(" list ranks, *rseti=%d\n", *rseti);
       cmd->Result_Int ( *rseti );
@@ -5990,6 +5993,84 @@ static bool SS_ListRanks (CommandObject *cmd) {
   return true;
 }
 
+
+
+/**
+ * SemanticRoutine: SS_ListNumberOfRanks ()
+ * 
+ * List all the MPI ranks associated with an experiment.
+ *     
+ * @param   cmd - the CommandObject baing processed.
+ *
+ * @return  "true" on successful complation.
+ *
+ * @error   "false" returned if no experiment can be determined
+ *          or if an "-f" filter is attached to the command.
+ *
+ */
+static bool SS_ListNumberOfRanks (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+   // List all the PIDs on the system.
+   // We have decided not to support this option.
+    Mark_Cmd_With_Soft_Error(cmd, "'list -v ranks, all' is not supported.");
+    return false;
+  } else {
+   // Get the Rankss for a specified Experiment or the focused Experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+    if (Filter_Uses_F(cmd)) {
+      Mark_Cmd_With_Soft_Error(cmd, "'list -v ranks' does not support the '-f' option.");
+      return false;
+    }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
+   // Get the list of threads used in the specified experiment.
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+   // Place every rank into a set so that it will only be listed once.
+    std::set<int64_t> rset;
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+     // Check for asynchronous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        rset.clear();
+        break;
+      }
+
+      Thread t = *ti;
+      std::pair<bool, int> prank = t.getMPIRank();
+      if (prank.first) {
+        rset.insert ( prank.second );
+      }
+    }
+
+    int64_t rank_count = 0;
+    for (std::set<int64_t>::iterator rseti = rset.begin(); rseti != rset.end(); rseti++) {
+//      printf(" list ranks, *rseti=%d\n", *rseti);
+      rank_count = rank_count + 1;
+    }
+
+    cmd->Result_Int ( rank_count );
+
+    exp->Q_UnLock ();
+  }
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
 
 /**
  * SemanticRoutine: SS_ListSavedViews ()
@@ -6761,6 +6842,114 @@ static bool SS_ListThreads (CommandObject *cmd) {
 
 
 /**
+ * SemanticRoutine: SS_ListNumberOfThreads ()
+ * 
+ * List the OpenMP or Posix thread Id's for the application
+ * attached to an experiment.  If both thread types are present,
+ * return the OpenMP thread Id..
+ *     
+ * @param   cmd - the CommandObject being processed.
+ *
+ * @return  "true" on successful complation of the command.
+ *
+ * @error   "false" is returned if no experiment can be determined
+ *          or the "-f" filter option is specified.
+ *
+ */
+static bool SS_ListNumberOfThreads (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+  int64_t num_threads=0;
+
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+   // List all the Threads on the system.
+   // We have decided not to support this option.
+    Mark_Cmd_With_Soft_Error(cmd, "'list -v threads, all' is not supported.");
+    return false;
+  } else {
+   // Get the Threads for a specified Experiment or the focused Experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+    if (Filter_Uses_F(cmd)) {
+      Mark_Cmd_With_Soft_Error(cmd, "'list -v threads' does not support the '-f' option.");
+      return false;
+    }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
+
+   // Get the list of threads used in the specified experiment.
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+   // Place all the thread ID's into a set so each will be listed only once.
+    std::set<int64_t> tset;
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+     // Check for asynchronous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        tset.clear();
+        break;
+      }
+
+      Thread t = *ti;
+      int rankid ;
+
+      std::pair<bool, int> prank = t.getMPIRank();
+      // MPI, just check for threads with MPI involved
+      if (prank.first) {
+           rankid = prank.second;
+
+           std::pair<bool, int> pthread = t.getOpenMPThreadId();
+           int64_t pthreadid = 0;
+           if (pthread.first) {
+             // Add one thread to the count
+             num_threads = num_threads + 1;
+           } else {
+             std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
+             if (posixthread.first) {
+               // Add one thread to the count
+               num_threads = num_threads + 1;
+             }
+           }
+      } else {
+       // no mpi, just check for threads w/o MPI involved
+        std::pair<bool, int> pthread = t.getOpenMPThreadId();
+        int64_t pthreadid = 0;
+        if (pthread.first) {
+          // Add one thread to the count
+          num_threads = num_threads + 1;
+        } else {
+          std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
+          if (posixthread.first) {
+            // Add one thread to the count
+            num_threads = num_threads + 1;
+          }
+        }
+      }
+    }
+
+    cmd->Result_Int ( num_threads );
+   
+
+    exp->Q_UnLock ();
+  }
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
+
+
+/**
  * SemanticRoutine: SS_ListPidsAndThreads ()
  * 
  * List the Process ID and OpenMP or Posix thread Id's for the application
@@ -7242,6 +7431,8 @@ bool SS_ListGeneric (CommandObject *cmd) {
       result_of_first_list = SS_ListPidsAndThreads(cmd);
     } else if (!strcasecmp(S.c_str(),"ranks")) {
       result_of_first_list = SS_ListRanks(cmd);
+    } else if (!strcasecmp(S.c_str(),"numranks")) {
+      result_of_first_list = SS_ListNumberOfRanks(cmd);
     } else if (!strcasecmp(S.c_str(),"ranksandthreads")) {
       result_of_first_list = SS_ListRanksAndThreads(cmd);
     } else if (!strcasecmp(S.c_str(),"savedviews")) {
@@ -7264,6 +7455,8 @@ bool SS_ListGeneric (CommandObject *cmd) {
       result_of_first_list = SS_ListStatus(cmd);
     } else if (!strcasecmp(S.c_str(),"threads")) {
       result_of_first_list = SS_ListThreads(cmd);
+    } else if (!strcasecmp(S.c_str(),"numthreads")) {
+      result_of_first_list = SS_ListNumberOfThreads(cmd);
     } else if (!strcasecmp(S.c_str(),"views")) {
       result_of_first_list = SS_ListViews(cmd);
     } else if (!strcasecmp(S.c_str(),"walltime")) {
