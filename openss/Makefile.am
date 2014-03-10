@@ -242,16 +242,17 @@ bin_PROGRAMS += osswrapper
 
 osswrapper_CXXFLAGS = \
         @DYNINST_CPPFLAGS@ \
+        @LIBELF_CPPFLAGS@ \
         @LIBDWARF_CPPFLAGS@ 
 
 osswrapper_LDFLAGS = \
         @DYNINST_LDFLAGS@ \
-        @LIBDWARF_LDFLAGS@ 
+        @DYNINST_EXTRA_LDFLAGS@ 
 
 osswrapper_LDADD = \
 	$(LIBLTDL) \
         @DYNINST_LIBS@ \
-        @LIBDWARF_LIBS@ \
+        @DYNINST_EXTRA_LIBS@ \
          -lpthread
 
 osswrapper_SOURCES = \

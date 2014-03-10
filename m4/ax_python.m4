@@ -168,24 +168,35 @@ $ac_distutils_result])
             libpyvers="python$py_version";
             PYTHON_LIBPATH=`echo $python_libpath_tmp | sed "s?$libpyvers??"` ;
 
-            PYTHON_LDFLAGS="-L$PYTHON_LIBPATH -lpython$py_version"
+            so_designator=".so"
+            libpython_designator="libpython"
+            if test -f $PYTHON_LIBPATH/$libpython_designator$py_version$so_designator; then
+              PYTHON_LDFLAGS="-L$PYTHON_LIBPATH -lpython$py_version"
+            elif test -f $PYTHON_LIBPATH/x86_64-linux-gnu/$libpython_designator$py_version$so_designator; then
+              PYTHON_LDFLAGS="-L$PYTHON_LIBPATH/x86_64-linux-gnu -lpython$py_version"
+            fi
 
             #PYTHON_LDFLAGS_TMP=`$PYTHON -c "from distutils.sysconfig import *; \
             #        from string import join; \
             #        print '-L' + get_python_lib(0,1), \
             #        '-lpython';"`$py_version
 
-            so_designator=".so"
             PYTHON_LIBRARY_NAME="libpython$py_version$so_designator"
 
-            python_full_path_tmp1=`$PYTHON -c "from distutils.sysconfig import *; \
-                    from string import join; \
-                    print get_python_lib(0,1), " | sed 's?python2?libpython2?'`;
+            if test -f $PYTHON_LIBPATH/$libpython_designator$py_version$so_designator; then
+              python_full_path_tmp1=$PYTHON_LIBPATH/$libpython_designator$py_version
+            elif test -f $PYTHON_LIBPATH/x86_64-linux-gnu/$libpython_designator$py_version$so_designator; then
+              python_full_path_tmp1=$PYTHON_LIBPATH/x86_64-linux-gnu/$libpython_designator$py_version
+            fi
+            #python_full_path_tmp1=`$PYTHON -c "from distutils.sysconfig import *; \
+            #        from string import join; \
+            #        print get_python_lib(0,1), " | sed 's?python2?libpython2?'`;
             AC_SUBST([python_full_path_tmp1])
             PYTHON_FULL_PATH_LIBRARY_NAME="${python_full_path_tmp1}$so_designator"
 
     fi
     AC_MSG_RESULT([$PYTHON_LDFLAGS])
+    AC_SUBST([PYTHON_LDFLAGS_TMP])
     AC_SUBST([PYTHON_LDFLAGS])
     AC_SUBST([PYTHON_LIBPATH])
     AC_DEFINE_UNQUOTED(PYTHON_FP_LIB_NAME, "$PYTHON_FULL_PATH_LIBRARY_NAME",

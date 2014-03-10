@@ -31,7 +31,14 @@ AC_DEFUN([AX_SQLITE], [
                 sqlite_dir=$withval, sqlite_dir="/usr")
 
     SQLITE_CPPFLAGS="-I$sqlite_dir/include"
-    SQLITE_LDFLAGS="-L$sqlite_dir/$abi_libdir"
+
+    # Test for installations on debian/ubuntu systems
+    if test -f $sqlite_dir/lib/x86_64-linux-gnu/libsqlite3.so; then
+      SQLITE_LDFLAGS="-L$sqlite_dir/lib/x86_64-linux-gnu"
+    else 
+      SQLITE_LDFLAGS="-L$sqlite_dir/$abi_libdir"
+    fi
+
     SQLITE_LIBS="-lsqlite3"
 
     sqlite_saved_CPPFLAGS=$CPPFLAGS

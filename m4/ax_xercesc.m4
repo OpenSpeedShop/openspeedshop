@@ -10,8 +10,13 @@ AC_DEFUN([AX_XERCESC], [
     LIBXERCES_C_LIBSDIR="$xerces_dir/$abi_libdir"
 
     if test "x$LIBXERCES_C_DIR" == "x/usr"; then
-        LIBXERCES_C_CPPFLAGS=""
-        LIBXERCES_C_LDFLAGS=""
+	if test -f $LIBXERCES_C_DIR/lib/x86_64-linux-gnu/libxerces-c.so; then
+          LIBXERCES_C_CPPFLAGS="-I$xerces_dir/include"
+          LIBXERCES_C_LDFLAGS="-L$xerces_dir/lib/x86_64-linux-gnu"
+        else
+          LIBXERCES_C_CPPFLAGS=""
+          LIBXERCES_C_LDFLAGS=""
+        fi
     else
         LIBXERCES_C_CPPFLAGS="-I$xerces_dir/include"
         LIBXERCES_C_LDFLAGS="-L$xerces_dir/$abi_libdir"
@@ -40,6 +45,12 @@ AC_DEFUN([AX_XERCESC], [
           AC_MSG_CHECKING([found xerces library])
           LIBXERCES_C_LIBSDIR="$xerces_dir/$alt_abi_libdir"
           LIBXERCES_C_LDFLAGS="-L$xerces_dir/$alt_abi_libdir"
+          foundXERCES=1
+          AC_MSG_CHECKING([found xerces lib (so)])
+	elif test -f $xerces_dir/lib/x86_64-linux-gnu/libxerces-c.so; then
+          AC_MSG_CHECKING([found xerces library])
+          LIBXERCES_C_LIBSDIR="$xerces_dir/lib/x86_64-linux-gnu"
+          LIBXERCES_C_LDFLAGS="-L$xerces_dir/lib/x86_64-linux-gnu"
           foundXERCES=1
           AC_MSG_CHECKING([found xerces lib (so)])
        else
