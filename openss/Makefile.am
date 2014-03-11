@@ -247,12 +247,14 @@ osswrapper_CXXFLAGS = \
 
 osswrapper_LDFLAGS = \
         @DYNINST_LDFLAGS@ \
-        @DYNINST_EXTRA_LDFLAGS@ 
+        @LIBELF_LDFLAGS@ \
+        @LIBDWARF_LDFLAGS@ 
 
 osswrapper_LDADD = \
 	$(LIBLTDL) \
         @DYNINST_LIBS@ \
-        @DYNINST_EXTRA_LIBS@ \
+        @LIBELF_LIBS@ \
+        @LIBDWARF_LIBS@ \
          -lpthread
 
 osswrapper_SOURCES = \

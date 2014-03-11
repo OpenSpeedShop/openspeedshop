@@ -91,22 +91,16 @@ AC_DEFUN([AX_DYNINST], [
 	"8.1.2")
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -std=c++0x"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI -lpatchAPI -lstackwalk -lpcontrol -ldynElf -ldynDwarf -lsymLite" 
-            DYNINST_EXTRA_LIBS="$BINUTILS_IBERTY_LIB $LIBELF_LIBS $LIBDWARF_LIBS "
-            DYNINST_EXTRA_LDFLAGS="$BINUTILS_IBERTY_LDFLAGS $LIBELF_LDFLAGS $LIBDWARF_LDFLAGS"
 	    DYNINST_SYMTABAPI_LIBS="-lcommon -lsymtabAPI -linstructionAPI -lparseAPI -ldynElf -ldynDwarf -lsymLite"
             ;;
 	"8.2")
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -std=c++0x"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI -lpatchAPI -lstackwalk -lpcontrol -ldynElf -ldynDwarf -lsymLite" 
-            DYNINST_EXTRA_LIBS="$BINUTILS_IBERTY_LIB $LIBELF_LIBS $LIBDWARF_LIBS "
-            DYNINST_EXTRA_LDFLAGS="$BINUTILS_IBERTY_LDFLAGS $LIBELF_LDFLAGS $LIBDWARF_LDFLAGS"
 	    DYNINST_SYMTABAPI_LIBS="-lcommon -lsymtabAPI -linstructionAPI -lparseAPI -ldynElf -ldynDwarf -lsymLite"
             ;;
 	*)
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -std=c++0x"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI -lpatchAPI -lstackwalk -lpcontrol -ldynElf -ldynDwarf -lsymLite" 
-            DYNINST_EXTRA_LIBS="$BINUTILS_IBERTY_LIB $LIBELF_LIBS $LIBDWARF_LIBS "
-            DYNINST_EXTRA_LDFLAGS="$BINUTILS_IBERTY_LDFLAGS $LIBELF_LDFLAGS $LIBDWARF_LDFLAGS"
 	    DYNINST_SYMTABAPI_LIBS="-lcommon -lsymtabAPI -linstructionAPI -lparseAPI -ldynElf -ldynDwarf -lsymLite"
             ;;
     esac
