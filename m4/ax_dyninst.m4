@@ -55,8 +55,6 @@ AC_DEFUN([AX_DYNINST], [
 
     DYNINST_DIR="$dyninst_dir" 
     DYNINST_VERS="$dyninst_vers"
-    DYNINST_EXTRA_LIBS=" "
-    DYNINST_EXTRA_LDFLAGS=""
 
 #   The default is to use 6.0 dyninst cppflags and libs.  
 #   Change that (the default case entry) when you change the default vers to something other than 6.0
@@ -64,28 +62,20 @@ AC_DEFUN([AX_DYNINST], [
 	"7.0.1")
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI" 
-            DYNINST_EXTRA_LIBS="$BINUTILS_IBERTY_LIB $LIBELF_LIBS $LIBDWARF_LIBS "
-            DYNINST_EXTRA_LDFLAGS="$BINUTILS_IBERTY_LDFLAGS $LIBELF_LDFLAGS $LIBDWARF_LDFLAGS"
             ;;
 	"8.0.0")
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI -lpatchAPI -lstackwalk -lpcontrol -ldynElf -ldynDwarf -lsymLite" 
-            DYNINST_EXTRA_LIBS="$BINUTILS_IBERTY_LIB $LIBELF_LIBS $LIBDWARF_LIBS "
-            DYNINST_EXTRA_LDFLAGS="$BINUTILS_IBERTY_LDFLAGS $LIBELF_LDFLAGS $LIBDWARF_LDFLAGS"
 	    DYNINST_SYMTABAPI_LIBS="-lcommon -lsymtabAPI -linstructionAPI -lparseAPI -ldynElf -ldynDwarf -lsymLite"
             ;;
 	"8.1")
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI -lpatchAPI -lstackwalk -lpcontrol -ldynElf -ldynDwarf -lsymLite" 
-            DYNINST_EXTRA_LIBS="$BINUTILS_IBERTY_LIB $LIBELF_LIBS $LIBDWARF_LIBS "
-            DYNINST_EXTRA_LDFLAGS="$BINUTILS_IBERTY_LDFLAGS $LIBELF_LDFLAGS $LIBDWARF_LDFLAGS"
 	    DYNINST_SYMTABAPI_LIBS="-lcommon -lsymtabAPI -linstructionAPI -lparseAPI -ldynElf -ldynDwarf -lsymLite"
             ;;
 	"8.1.1")
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI -lpatchAPI -lstackwalk -lpcontrol -ldynElf -ldynDwarf -lsymLite" 
-            DYNINST_EXTRA_LIBS="$BINUTILS_IBERTY_LIB $LIBELF_LIBS $LIBDWARF_LIBS "
-            DYNINST_EXTRA_LDFLAGS="$BINUTILS_IBERTY_LDFLAGS $LIBELF_LDFLAGS $LIBDWARF_LDFLAGS"
 	    DYNINST_SYMTABAPI_LIBS="-lcommon -lsymtabAPI -linstructionAPI -lparseAPI -ldynElf -ldynDwarf -lsymLite"
             ;;
 	"8.1.2")
@@ -137,8 +127,6 @@ AC_DEFUN([AX_DYNINST], [
             DYNINST_SYMTABAPI_LIBS=""
             DYNINST_DIR=""
             DYNINST_VERS=""
-            DYNINST_EXTRA_LIBS=" "
-            DYNINST_EXTRA_LDFLAGS=""
         ]
     )
 
@@ -154,8 +142,6 @@ AC_DEFUN([AX_DYNINST], [
     AC_SUBST(DYNINST_SYMTABAPI_LIBS)
     AC_SUBST(DYNINST_DIR)
     AC_SUBST(DYNINST_VERS)
-    AC_SUBST(DYNINST_EXTRA_LDFLAGS)
-    AC_SUBST(DYNINST_EXTRA_LIBS)
 
 ])
 
