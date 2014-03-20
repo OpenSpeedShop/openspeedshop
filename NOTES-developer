@@ -43,7 +43,7 @@ patch -p0 < myOSS.patch
 
 
 
-TEST FOR FILE LOCKING TO SEE IF SQLITE CAN CREATE A DATABASE FILE
+NOTE 3: TEST FOR FILE LOCKING TO SEE IF SQLITE CAN CREATE A DATABASE FILE
 
 cd <directory in file system being checked>
 sqlite3 junkfile 
@@ -52,7 +52,7 @@ insert into JUNK (version) values(1);
 cntl-D
 
 
-HOW TO BOOTSTRAP:
+NOTE 4: HOW TO BOOTSTRAP:
 
 If autotools not built then cd OpenSpeedShop_ROOT
 export OPENSS_AUTOTOOLS_ROOT=<autotools_path>
@@ -65,12 +65,18 @@ module unload autotools-2.2.6b
 
 
 
-HOW TO BUILD CBTF INSTRUMENTOR VERSION: (example configure)
+NOTE 5: HOW TO BUILD CBTF INSTRUMENTOR VERSION: (example configure)
 # shows where the expected components could/should come from (root, boost, cbtf are main categories)
 ./configure --prefix=/users/jeg/todi/cbtf_oss --with-instrumentor=cbtf --enable-resolve-symbols=symtabapi --with-symtabapi=/users/jeg/todi/krell_root --with-mrnet=/users/jeg/todi/krell_root     --with-mrnet-version=4.0.0 --with-dyninst=/users/jeg/todi/krell_root --with-dyninst-version=8.0.0 --with-libdwarf=/users/jeg/todi/krell_root --with-libmonitor=/users/jeg/todi/krell_root     --with-libxerces-c-prefix=/users/jeg/todi/krell_root --with-cbtf=/users/jeg/todi/cbtf_proper_shared --with-cbtf-xml=/users/jeg/todi/cbtf_proper_shared --with-cbtf-mrnet=/users/jeg/todi/cbtf_proper_shared --with-cbtf-messages=/users/jeg/todi/cbtf_proper_shared --with-cbtf-services=/users/jeg/todi/cbtf_proper_shared --with-boost=/apps/todi/boost/1.50sn/gnu_434 --with-boost-libdir=/apps/todi/boost/1.50sn/gnu_434/lib --with-sqlite=/users/jeg/todi/krell_root
 
 
-HOW to cvs tag the release: (11-15-13 jeg)
+NOTE 6: HOW to cvs tag the release: (11-15-13 jeg)
 
 cvs tag openspeedshop_21
 
+NOTE 7: Finding undefined symbols in openss
+
+export LD_DEBUG=libs
+openss -cli
+
+strace openss -cli
