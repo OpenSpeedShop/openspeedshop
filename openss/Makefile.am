@@ -36,14 +36,14 @@ if !BUILD_CBTF
 nodist_bin_SCRIPTS += osslink
 BUILT_FILES += osslink
 endif
-#if !BUILD_RUNTIME_ONLY
+if !BUILD_RUNTIME_ONLY
 nodist_bin_SCRIPTS += ossdriver ossdriver_compare
 BUILT_FILES += ossdriver ossdriver_compare
 if !BUILD_CBTF
 nodist_bin_SCRIPTS += ossrun
 BUILT_FILES += ossrun
 endif
-#endif
+endif
 if HAVE_TARGET_SHARED
 nodist_bin_SCRIPTS += ossrun
 BUILT_FILES += ossrun
