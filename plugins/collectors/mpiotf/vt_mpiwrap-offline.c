@@ -617,7 +617,17 @@ int MPI_Comm_free( MPI_Comm* comm )
 
 /* -- MPI_Send -- */
 
-int MPI_Send( void* buf,
+int MPI_Send( 
+
+/* int  MPI_Send(const void *, int, MPI_Datatype, int, int, MPI_Comm); */
+
+#if MPI_VERSION >= 3
+              const void* buf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+              const void* buf,
+#else
+              void* buf,
+#endif
 	      int count,
 	      MPI_Datatype datatype,
 	      int dest,
@@ -662,7 +672,17 @@ int MPI_Send( void* buf,
 
 /* -- MPI_Bsend -- */
 
-int MPI_Bsend( void* buf,
+/* int  MPI_Bsend(const void *, int, MPI_Datatype, int, int, MPI_Comm); */
+
+
+int MPI_Bsend( 
+#if MPI_VERSION >= 3
+              const void* buf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+              const void* buf,
+#else
+              void* buf,
+#endif
 	      int count,
 	      MPI_Datatype datatype,
 	      int dest,
@@ -707,7 +727,14 @@ int MPI_Bsend( void* buf,
 
 /* -- MPI_Rsend -- */
 
-int MPI_Rsend( void* buf,
+int MPI_Rsend( 
+#if MPI_VERSION >= 3
+               const void* buf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+               const void* buf,
+#else
+               void* buf,
+#endif
                int count,
                MPI_Datatype datatype,
                int dest,
@@ -752,7 +779,14 @@ int MPI_Rsend( void* buf,
 
 /* -- MPI_Ssend -- */
 
-int MPI_Ssend( void* buf,
+int MPI_Ssend( 
+#if MPI_VERSION >= 3
+              const void* buf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+              const void* buf,
+#else
+              void* buf,
+#endif
 	      int count,
 	      MPI_Datatype datatype,
 	      int dest,
@@ -888,7 +922,14 @@ int MPI_Probe( int source,
 
 /* -- MPI_Sendrecv -- */
 
-int MPI_Sendrecv(void* sendbuf,
+int MPI_Sendrecv(
+#if MPI_VERSION >= 3
+                 const void* sendbuf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                 const void* sendbuf,
+#else
+                 void* sendbuf,
+#endif
 		 int sendcount,
 		 MPI_Datatype sendtype,
 		 int dest,
@@ -1019,7 +1060,14 @@ int MPI_Sendrecv_replace(void* buf,
 
 /* -- MPI_Isend -- */
 
-int MPI_Isend( void* buf,
+int MPI_Isend( 
+#if MPI_VERSION >= 3
+               const void* buf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+               const void* buf,
+#else
+               void* buf,
+#endif
 	       int count,
 	       MPI_Datatype datatype,
 	       int dest,
@@ -1118,7 +1166,14 @@ int MPI_Irecv( void* buf,
 
 /* -- MPI_Ibsend -- */
 
-int MPI_Ibsend( void* buf,
+int MPI_Ibsend(
+#if MPI_VERSION >= 3
+                const void* buf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                const void* buf,
+#else
+                void* buf,
+#endif
                 int count,
                 MPI_Datatype datatype,
                 int dest,
@@ -1170,7 +1225,14 @@ int MPI_Ibsend( void* buf,
 
 /* -- MPI_Issend -- */
 
-int MPI_Issend( void* buf,
+int MPI_Issend(
+#if MPI_VERSION >= 3
+                const void* buf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                const void* buf,
+#else
+                void* buf,
+#endif
                 int count,
                 MPI_Datatype datatype,
                 int dest,
@@ -1222,7 +1284,14 @@ int MPI_Issend( void* buf,
 
 /* -- MPI_Irsend -- */
 
-int MPI_Irsend( void* buf,
+int MPI_Irsend( 
+#if MPI_VERSION >= 3
+                const void* buf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                const void* buf,
+#else
+                void* buf,
+#endif
                 int count,
                 MPI_Datatype datatype,
                 int dest,
@@ -1660,7 +1729,14 @@ int MPI_Testsome(int incount,
 
 /* -- MPI_Send_init -- */
 
-int MPI_Send_init( void* buf,
+int MPI_Send_init( 
+#if MPI_VERSION >= 3
+                   const void* buf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                   const void* buf,
+#else
+                   void* buf,
+#endif
 		   int count,
 		   MPI_Datatype datatype,
 		   int dest,
@@ -1751,7 +1827,14 @@ int MPI_Recv_init( void* buf,
 
 /* -- MPI_Bsend_init -- */
 
-int MPI_Bsend_init( void* buf,
+int MPI_Bsend_init(
+#if MPI_VERSION >= 3
+                   const void* buf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                   const void* buf,
+#else
+                   void* buf,
+#endif
 		   int count,
 		   MPI_Datatype datatype,
 		   int dest,
@@ -1796,7 +1879,14 @@ int MPI_Bsend_init( void* buf,
 
 /* -- MPI_Ssend_init -- */
 
-int MPI_Ssend_init( void* buf,
+int MPI_Ssend_init(
+#if MPI_VERSION >= 3
+                   const void* buf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                   const void* buf,
+#else
+                   void* buf,
+#endif
 		   int count,
 		   MPI_Datatype datatype,
 		   int dest,
@@ -1841,7 +1931,14 @@ int MPI_Ssend_init( void* buf,
 
 /* -- MPI_Rsend_init -- */
 
-int MPI_Rsend_init( void* buf,
+int MPI_Rsend_init( 
+#if MPI_VERSION >= 3
+                   const void* buf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                   const void* buf,
+#else
+                   void* buf,
+#endif
 		   int count,
 		   MPI_Datatype datatype,
 		   int dest,
@@ -2091,7 +2188,14 @@ int MPI_Cancel( MPI_Request* request )
 
 /* -- MPI_Allreduce -- */
 
-int MPI_Allreduce ( void* sendbuf,
+int MPI_Allreduce ( 
+#if MPI_VERSION >= 3
+                    const void* sendbuf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                    const void* sendbuf,
+#else
+                    void* sendbuf,
+#endif
 		    void* recvbuf,
 		    int count,
 		    MPI_Datatype datatype,
@@ -2214,7 +2318,14 @@ int MPI_Bcast( void* buf,
 
 /* -- MPI_Gather -- */
 
-int MPI_Gather(void* sendbuf,
+int MPI_Gather(
+#if MPI_VERSION >= 3
+               const void* sendbuf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+               const void* sendbuf,
+#else
+               void* sendbuf,
+#endif
 	       int sendcount,
 	       MPI_Datatype sendtype,
 	       void* recvbuf,
@@ -2270,7 +2381,14 @@ int MPI_Gather(void* sendbuf,
 
 /* -- MPI_Reduce -- */
 
-int MPI_Reduce( void* sendbuf,
+int MPI_Reduce( 
+#if MPI_VERSION >= 3
+                const void* sendbuf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                const void* sendbuf,
+#else
+                void* sendbuf,
+#endif
 		void* recvbuf,
 		int count,
 		MPI_Datatype datatype,
@@ -2316,7 +2434,14 @@ int MPI_Reduce( void* sendbuf,
 
 /* -- MPI_Gatherv -- */
 
-int MPI_Gatherv( void* sendbuf,
+int MPI_Gatherv( 
+#if MPI_VERSION >= 3
+                 const void* sendbuf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                 const void* sendbuf,
+#else
+                 void* sendbuf,
+#endif
 		 int sendcount,
 		 MPI_Datatype sendtype,
 		 void* recvbuf,
@@ -2375,7 +2500,14 @@ int MPI_Gatherv( void* sendbuf,
 
 /* -- MPI_Allgather -- */
 
-int MPI_Allgather( void* sendbuf,
+int MPI_Allgather( 
+#if MPI_VERSION >= 3
+                   const void* sendbuf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                   const void* sendbuf,
+#else
+                   void* sendbuf,
+#endif
 		   int sendcount,
 		   MPI_Datatype sendtype,
 		   void* recvbuf,
@@ -2425,7 +2557,15 @@ int MPI_Allgather( void* sendbuf,
 
 /* -- MPI_Allgatherv -- */
 
-int MPI_Allgatherv( void* sendbuf,
+int MPI_Allgatherv( 
+#if MPI_VERSION >= 3
+                    const void* sendbuf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                    const void* sendbuf,
+#else
+                    void* sendbuf,
+#endif
+
                     int sendcount,
                     MPI_Datatype sendtype,
                     void* recvbuf,
@@ -2479,7 +2619,14 @@ int MPI_Allgatherv( void* sendbuf,
 
 /* -- MPI_Alltoall -- */
 
-int MPI_Alltoall( void* sendbuf,
+int MPI_Alltoall( 
+#if MPI_VERSION >= 3
+                  const void* sendbuf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                  const void* sendbuf,
+#else
+                  void* sendbuf,
+#endif
                   int sendcount,
                   MPI_Datatype sendtype,
                   void* recvbuf,
@@ -2529,7 +2676,14 @@ int MPI_Alltoall( void* sendbuf,
 
 /* -- MPI_Alltoallv -- */
 
-int MPI_Alltoallv( void* sendbuf,
+int MPI_Alltoallv( 
+#if MPI_VERSION >= 3
+                  const void* sendbuf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                  const void* sendbuf,
+#else
+                  void* sendbuf,
+#endif
                    int *sendcounts,
                    int *sdispls,
                    MPI_Datatype sendtype,
@@ -2589,7 +2743,14 @@ int MPI_Alltoallv( void* sendbuf,
 
 /* -- MPI_Scan -- */
 
-int MPI_Scan( void* sendbuf,
+int MPI_Scan( 
+#if MPI_VERSION >= 3
+              const void* sendbuf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+              const void* sendbuf,
+#else
+              void* sendbuf,
+#endif
 	      void* recvbuf,
               int count,
               MPI_Datatype datatype,
@@ -2634,7 +2795,14 @@ int MPI_Scan( void* sendbuf,
 
 /* -- MPI_Scatter -- */
 
-int MPI_Scatter( void* sendbuf,
+int MPI_Scatter( 
+#if MPI_VERSION >= 3
+                 const void* sendbuf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                 const void* sendbuf,
+#else
+                 void* sendbuf,
+#endif
                  int sendcount,
                  MPI_Datatype sendtype,
                  void* recvbuf,
@@ -2690,7 +2858,14 @@ int MPI_Scatter( void* sendbuf,
 
 /* -- MPI_Scatterv -- */
 
-int MPI_Scatterv( void* sendbuf,
+int MPI_Scatterv(
+#if MPI_VERSION >= 3
+                 const void* sendbuf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                 const void* sendbuf,
+#else
+                 void* sendbuf,
+#endif
                   int *sendcounts,
                   int *displs,
                   MPI_Datatype sendtype,
@@ -2746,7 +2921,14 @@ int MPI_Scatterv( void* sendbuf,
 
 /* -- MPI_Reduce_scatter -- */
 
-int MPI_Reduce_scatter( void* sendbuf,
+int MPI_Reduce_scatter(
+#if MPI_VERSION >= 3
+                        const void* sendbuf,
+#elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
+                        const void* sendbuf,
+#else
+                        void* sendbuf,
+#endif
 			void* recvbuf,
 			int *recvcounts,
 			MPI_Datatype datatype,

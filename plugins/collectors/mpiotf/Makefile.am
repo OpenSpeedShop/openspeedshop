@@ -905,20 +905,20 @@ endif
 
 
 if HAVE_MPT
-mpiotf_rt_mpt_la_CFLAGS = $(call rt_CFLAGS_generate,@MPT_CPPFLAGS@)
+mpiotf_rt_mpt_la_CFLAGS = -DSGI_MPT $(call rt_CFLAGS_generate,@MPT_CPPFLAGS@)
 mpiotf_rt_mpt_la_LDFLAGS = -module $(call rt_LDFLAGS_generate,@MPT_LDFLAGS@)
 mpiotf_rt_mpt_la_LIBADD = $(call rt_mpt_LIBADD_generate,@MPT_LIBS@)
 mpiotf_rt_mpt_la_DEPENDENCIES = libvt-mpt-mpi-a
 mpiotf_rt_mpt_la_SOURCES = $(rt_sources)
 
 if HAVE_LIBMONITOR
-mpiotf_mpt_rt_offline_la_CFLAGS = $(call rt_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
+mpiotf_mpt_rt_offline_la_CFLAGS = -DSGI_MPT $(call rt_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
 mpiotf_mpt_rt_offline_la_LDFLAGS = -module $(call rt_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
 mpiotf_mpt_rt_offline_la_LIBADD = $(call rt_offline_mpt_LIBADD_generate,@MPT_LIBS@)
 mpiotf_mpt_rt_offline_la_DEPENDENCIES = libvt-mpt-mpi-a
 mpiotf_mpt_rt_offline_la_SOURCES = $(rt_offline_sources)
 
-libmpiotf_mpt_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
+libmpiotf_mpt_offline_la_CFLAGS = -DSGI_MPT -static $(call lib_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
 libmpiotf_mpt_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
 libmpiotf_mpt_offline_la_LIBADD = $(call lib_offline_mpt_LIBADD_generate,@MPT_LIBS@)
 libmpiotf_mpt_offline_la_DEPENDENCIES = libvt-mpt-mpi-a
@@ -926,7 +926,7 @@ libmpiotf_mpt_offline_la_SOURCES = $(lib_offline_sources)
 nodist_libmpiotf_mpt_offline_la_SOURCES =
 endif
 if HAVE_TARGET_LIBMONITOR
-libmpiotf_mpt_offline_la_CFLAGS = -static $(call lib_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
+libmpiotf_mpt_offline_la_CFLAGS = -DSGI_MPT -static $(call lib_offline_CFLAGS_generate,@MPT_CPPFLAGS@)
 libmpiotf_mpt_offline_la_LDFLAGS = $(call lib_offline_LDFLAGS_generate,@MPT_LDFLAGS@)
 libmpiotf_mpt_offline_la_LIBADD = $(call lib_offline_mpt_LIBADD_generate,@MPT_LIBS@)
 libmpiotf_mpt_offline_la_DEPENDENCIES = libvt-mpt-mpi-a
