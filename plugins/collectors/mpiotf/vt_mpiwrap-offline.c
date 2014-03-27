@@ -376,8 +376,13 @@ int MPI_Comm_split( MPI_Comm comm,
 
 int MPI_Cart_create( MPI_Comm comm_old,
                      int ndims,
+#if MPI_VERSION >= 3
+                     const int* dims,
+                     const int* periodv,
+#else
                      int* dims,
                      int* periodv,
+#endif
                      int reorder,
                      MPI_Comm* comm_cart)
 {
@@ -414,7 +419,11 @@ int MPI_Cart_create( MPI_Comm comm_old,
 }
 
 int MPI_Cart_sub ( MPI_Comm comm,
+#if MPI_VERSION >= 3
+                   const int *rem_dims,
+#else
                    int *rem_dims,
+#endif
                    MPI_Comm *newcomm)
 {
   int result;
@@ -453,8 +462,13 @@ int MPI_Cart_sub ( MPI_Comm comm,
 
 int MPI_Graph_create( MPI_Comm comm_old,
                       int nnodes,
+#if MPI_VERSION >= 3
+                      const int* index,
+                      const int* edges,
+#else
                       int* index,
                       int* edges,
+#endif
                       int reorder,
                       MPI_Comm* comm_graph)
 {
@@ -2435,18 +2449,29 @@ int MPI_Reduce(
 /* -- MPI_Gatherv -- */
 
 int MPI_Gatherv( 
+
 #if MPI_VERSION >= 3
                  const void* sendbuf,
+                 int sendcount,
+                 MPI_Datatype sendtype,
+                 void* recvbuf,
+                 const int *recvcounts,
+                 const int *displs,
 #elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
                  const void* sendbuf,
+                 int sendcount,
+                 MPI_Datatype sendtype,
+                 void* recvbuf,
+                 int *recvcounts,
+                 int *displs,
 #else
                  void* sendbuf,
+                 int sendcount,
+                 MPI_Datatype sendtype,
+                 void* recvbuf,
+                 int *recvcounts,
+                 int *displs,
 #endif
-		 int sendcount,
-		 MPI_Datatype sendtype,
-		 void* recvbuf,
-		 int *recvcounts,
-		 int *displs,
 		 MPI_Datatype recvtype,
 		 int root,
 		 MPI_Comm comm )
@@ -2560,17 +2585,26 @@ int MPI_Allgather(
 int MPI_Allgatherv( 
 #if MPI_VERSION >= 3
                     const void* sendbuf,
+                    int sendcount,
+                    MPI_Datatype sendtype,
+                    void* recvbuf,
+                    const int *recvcounts,
+                    const int *displs,
 #elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
                     const void* sendbuf,
-#else
-                    void* sendbuf,
-#endif
-
                     int sendcount,
                     MPI_Datatype sendtype,
                     void* recvbuf,
                     int *recvcounts,
                     int *displs,
+#else
+                    void* sendbuf,
+                    int sendcount,
+                    MPI_Datatype sendtype,
+                    void* recvbuf,
+                    int *recvcounts,
+                    int *displs,
+#endif
                     MPI_Datatype recvtype,
                     MPI_Comm comm )
 {
@@ -2677,19 +2711,32 @@ int MPI_Alltoall(
 /* -- MPI_Alltoallv -- */
 
 int MPI_Alltoallv( 
+
 #if MPI_VERSION >= 3
-                  const void* sendbuf,
+                   const void* sendbuf,
+                   const int *sendcounts,
+                   const int *sdispls,
+                   MPI_Datatype sendtype,
+                   void* recvbuf,
+                   const int *recvcounts,
+                   const int *rdispls,
 #elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
-                  const void* sendbuf,
-#else
-                  void* sendbuf,
-#endif
+                   const void* sendbuf,
                    int *sendcounts,
                    int *sdispls,
                    MPI_Datatype sendtype,
                    void* recvbuf,
                    int *recvcounts,
                    int *rdispls,
+#else
+                   void* sendbuf,
+                   int *sendcounts,
+                   int *sdispls,
+                   MPI_Datatype sendtype,
+                   void* recvbuf,
+                   int *recvcounts,
+                   int *rdispls,
+#endif
                    MPI_Datatype recvtype,
                    MPI_Comm comm )
 {
@@ -2860,14 +2907,18 @@ int MPI_Scatter(
 
 int MPI_Scatterv(
 #if MPI_VERSION >= 3
-                 const void* sendbuf,
+                  const void* sendbuf,
+                  const int*  sendcounts,
+                  const int*  displs,
 #elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
-                 const void* sendbuf,
+                  const void* sendbuf,
+                  int*        sendcounts,
+                  int*        displs,
 #else
-                 void* sendbuf,
+                  void* sendbuf,
+                  int*  sendcounts,
+                  int*  displs,
 #endif
-                  int *sendcounts,
-                  int *displs,
                   MPI_Datatype sendtype,
                   void* recvbuf,
                   int recvcount,
@@ -2924,13 +2975,17 @@ int MPI_Scatterv(
 int MPI_Reduce_scatter(
 #if MPI_VERSION >= 3
                         const void* sendbuf,
+                        void* recvbuf,
+                        const int *recvcounts,
 #elif defined (SGI_MPT) && MPI_VERSION >= 2 && MPI_SUBVERSION >= 2
                         const void* sendbuf,
+                        void* recvbuf,
+                        int *recvcounts,
 #else
                         void* sendbuf,
+                        void* recvbuf,
+                        int *recvcounts,
 #endif
-			void* recvbuf,
-			int *recvcounts,
 			MPI_Datatype datatype,
 			MPI_Op op,
 			MPI_Comm comm )
