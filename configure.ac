@@ -250,6 +250,38 @@ case "$TLS" in
 esac
 
 ################################################################################
+# Check for ptgf option, default to none
+################################################################################
+
+AC_ARG_WITH(ptgf,
+	    AS_HELP_STRING([--with-ptgf=TYPE],[ptgf (none, direct, all) @<:@none@:>@]),
+	    PTGF=$withval, PTGF="none")
+
+case "$PTGF" in
+    direct)
+	AM_CONDITIONAL(BUILD_PTGF_SERVER, false)
+	AM_CONDITIONAL(BUILD_PTGF_DIRECT, true)
+	AC_DEFINE(BUILD_PTGF_DIRECT, 1, [Define to 1 if you want to use an build only the direct portion of PTGF gui support.])
+	;; 
+
+    all)
+	AM_CONDITIONAL(BUILD_PTGF_DIRECT, true)
+	AC_DEFINE(BUILD_PTGF_DIRECT, 1, [Define to 1 if you want to use an build only the direct portion of PTGF gui support.])
+	AM_CONDITIONAL(BUILD_PTGF_SERVER, true)
+	AC_DEFINE(BUILD_PTGF_SERVER, 1, [Define to 1 if you want to use an build both the server portion of PTGF gui support.])
+	;;
+
+    none)
+	AM_CONDITIONAL(BUILD_PTGF_DIRECT, false)
+	AM_CONDITIONAL(BUILD_PTGF_SERVER, false)
+	;;
+
+    *)
+	AC_MSG_ERROR([invalid ptgf specification "$PTGF".])
+	;;
+esac
+
+################################################################################
 # Check for a --with-runtime-dir option
 ################################################################################
 

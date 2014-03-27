@@ -35,6 +35,7 @@ dist_programfiles_SCRIPTS = \
 
 lib_LTLIBRARIES = libopenss-cli.la
 
+
 libopenss_cli_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-guibase \
 	-I$(top_srcdir)/libopenss-message \
@@ -62,6 +63,62 @@ libopenss_cli_la_LIBADD = \
 	@PYTHON_EXTRA_LIBS@ \
 	@OPENMP_LIBS@ \
 	-lpthread -lutil
+
+if BUILD_PTGF_DIRECT
+
+lib_LTLIBRARIES += libopenss-cli-direct.la
+
+libopenss_cli_direct_la_CXXFLAGS = \
+	@PYTHON_CPPFLAGS@ \
+	-I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-queries \
+        -I$(top_srcdir)/libopenss-runtime \
+        $(LTDLINCL) \
+        -fpermissive -fexceptions -fPIC \
+        @SYMTABAPI_CPPFLAGS@
+
+libopenss_cli_direct_la_LDFLAGS = \
+        -export-dynamic -version-info 1:0:0
+
+libopenss_cli_direct_la_LIBADD = \
+        $(LIBLTDL) \
+        -lpthread -lrt
+
+libopenss_cli_direct_la_SOURCES = \
+	Direct.hxx Direct.cxx \
+	OpenSpeedShopCLI.hxx OpenSpeedShopCLI.cxx 
+
+endif
+
+if BUILD_PTGF_SERVER
+
+lib_LTLIBRARIES += libopenss-cli-server.la
+
+libopenss_cli_server_la_CXXFLAGS = \
+	@PYTHON_CPPFLAGS@ \
+	-I$(top_srcdir)/libopenss-message \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-queries \
+        -I$(top_srcdir)/libopenss-runtime \
+        $(LTDLINCL) \
+        -fpermissive -fexceptions -fPIC \
+        @SYMTABAPI_CPPFLAGS@
+
+libopenss_cli_server_la_LDFLAGS = \
+        -export-dynamic -version-info 1:0:0
+
+libopenss_cli_server_la_LIBADD = \
+        $(LIBLTDL) \
+        -lpthread -lrt
+
+libopenss_cli_server_la_SOURCES = \
+	Socket.hxx Socket.cxx \
+	SocketServer.hxx SocketServer.cxx \
+	FileSystem.hxx FileSystem.cxx \
+	OpenSpeedShopCLI.hxx OpenSpeedShopCLI.cxx 
+
+endif
 
 libopenss_cli_la_SOURCES = \
 	ArgClass.hxx \
