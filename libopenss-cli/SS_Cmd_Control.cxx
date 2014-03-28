@@ -93,15 +93,18 @@ try {
 
   case CMD_EXP_ATTACH:
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expAttach command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expAttachStart] = Time::Now();
          cli_timing_handle->in_expAttach(true);
          cli_timing_handle->in_expCreate(false);
     }
+#endif
 
     cmd_successful = SS_expAttach (cmd);
 
+#if BUILD_CLI_TIMING
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->processTimingEventEnd( SS_Timings::expAttachStart,
                                                    SS_Timings::expAttachCount,
@@ -112,6 +115,7 @@ try {
          cli_timing_handle->in_expAttach(false);
          cli_timing_handle->in_expCreate(false);
     }
+#endif
 
     break;
 
@@ -132,15 +136,18 @@ try {
 
   case CMD_EXP_CREATE:
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expCreate command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expCreateStart] = Time::Now();
          cli_timing_handle->in_expCreate(true);
          cli_timing_handle->in_expAttach(false);
     }
+#endif
 
     cmd_successful = SS_expCreate (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the gathered performance information on the expCreate command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->processTimingEventEnd( SS_Timings::expCreateStart,
@@ -152,17 +159,21 @@ try {
          cli_timing_handle->in_expCreate(false);
          cli_timing_handle->in_expAttach(false);
     }
+#endif
 
     break;
   case CMD_EXP_DETACH:
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expDetach command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expDetachStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_expDetach(cmd);
 
+#if BUILD_CLI_TIMING
     // Process the gathered performance information on the expDetach command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->processTimingEventEnd( SS_Timings::expDetachStart,
@@ -172,17 +183,21 @@ try {
                                                    SS_Timings::expDetachTotal,
                                                    SS_Timings::expDetachEnd);
     }
+#endif
 
     break;
   case CMD_EXP_DISABLE:
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expDisable command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expDisableStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_expDisable(cmd);
 
+#if BUILD_CLI_TIMING
     // Process the gathered performance information on the expDisable command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->processTimingEventEnd( SS_Timings::expDisableStart,
@@ -192,17 +207,21 @@ try {
                                                    SS_Timings::expDisableTotal,
                                                    SS_Timings::expDisableEnd);
     }
+#endif
 
     break;
   case CMD_EXP_ENABLE:
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expEnable command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expEnableStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_expEnable(cmd);
 
+#if BUILD_CLI_TIMING
     // Process the gathered performance information on the expEnable command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->processTimingEventEnd( SS_Timings::expEnableStart,
@@ -212,17 +231,21 @@ try {
                                                    SS_Timings::expEnableTotal,
                                                    SS_Timings::expEnableEnd);
     }
+#endif
 
     break;
   case CMD_EXP_FOCUS:
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expFocus command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expFocusStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_expFocus (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the gathered performance information on the expFocus command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->processTimingEventEnd( SS_Timings::expFocusStart,
@@ -232,17 +255,21 @@ try {
                                                    SS_Timings::expFocusTotal,
                                                    SS_Timings::expFocusEnd);
     }
+#endif
 
     break;
   case CMD_EXP_PAUSE:
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expPause command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expPauseStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_expPause (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the gathered performance information on the expPause command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->processTimingEventEnd( SS_Timings::expPauseStart,
@@ -252,17 +279,21 @@ try {
                                                    SS_Timings::expPauseTotal,
                                                    SS_Timings::expPauseEnd);
     }
+#endif
 
     break;
   case CMD_EXP_GO:
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expGo command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expGoStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_expGo (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the gathered performance information on the expGo command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->processTimingEventEnd( SS_Timings::expGoStart,
@@ -272,17 +303,21 @@ try {
                                                    SS_Timings::expGoTotal,
                                                    SS_Timings::expGoEnd);
     }
+#endif
     break;
 
   case CMD_EXP_RESTORE:
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expRestore command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expRestoreStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_expRestore (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the gathered performance information on the expRestore command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->processTimingEventEnd( SS_Timings::expRestoreStart,
@@ -292,16 +327,20 @@ try {
                                                    SS_Timings::expRestoreTotal,
                                                    SS_Timings::expRestoreEnd);
     }
+#endif
 
     break;
   case CMD_EXP_SAVE:
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expSave command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expSaveStart] = Time::Now();
     }
+#endif
     cmd_successful = SS_expSave (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the gathered performance information on the expSave command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->processTimingEventEnd( SS_Timings::expSaveStart,
@@ -311,6 +350,7 @@ try {
                                                    SS_Timings::expSaveTotal,
                                                    SS_Timings::expSaveEnd);
     }
+#endif
 
     break;
   case CMD_EXP_SETARGS:
@@ -321,13 +361,16 @@ try {
 
   case CMD_EXP_SETPARAM:
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expSetParam command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expSetParamStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_expSetParam (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the gathered performance information on the expSetParam command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->processTimingEventEnd( SS_Timings::expSetParamStart,
@@ -337,19 +380,23 @@ try {
                                                    SS_Timings::expSetParamTotal,
                                                    SS_Timings::expSetParamEnd);
     }
+#endif
 
     break;
 
 // Information Commands
   case CMD_EXP_COMPARE:
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expCompare command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expCompareStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_expCompare (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the gathered performance information on the expCompare command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
        cli_timing_handle->processTimingEventEnd( SS_Timings::expCompareStart,
@@ -359,6 +406,7 @@ try {
                                                  SS_Timings::expCompareTotal,
                                                  SS_Timings::expCompareEnd);
     }
+#endif
 
     break;
   case CMD_EXP_STATUS:
@@ -369,18 +417,23 @@ try {
   case CMD_C_VIEW:
   case CMD_VIEW:
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expCmd_C_View command
     if (cmd->Type() == CMD_C_VIEW && cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expCmd_C_ViewStart] = Time::Now();
     }
+#endif
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expCmd_View command
     if (cmd->Type() == CMD_VIEW && cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expCmd_ViewStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_View (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the gathered performance information on the expCmd_C_View command
     if (cmd->Type() == CMD_C_VIEW && cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
        cli_timing_handle->processTimingEventEnd( SS_Timings::expCmd_C_ViewStart,
@@ -390,7 +443,9 @@ try {
                                                  SS_Timings::expCmd_C_ViewTotal,
                                                  SS_Timings::expCmd_C_ViewEnd);
     }
+#endif
 
+#if BUILD_CLI_TIMING
     // Process the gathered performance information on the expCmd_View command
     if (cmd->Type() == CMD_VIEW && cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
        cli_timing_handle->processTimingEventEnd( SS_Timings::expCmd_ViewStart,
@@ -400,17 +455,21 @@ try {
                                                  SS_Timings::expCmd_ViewTotal,
                                                  SS_Timings::expCmd_ViewEnd);
     }
+#endif
 
     break;
   case CMD_INFO:
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the expCmd_Info command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::expCmd_InfoStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_Info (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the gathered performance information on the expCmd_Info command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
        cli_timing_handle->processTimingEventEnd( SS_Timings::expCmd_InfoStart,
@@ -420,17 +479,21 @@ try {
                                                  SS_Timings::expCmd_InfoTotal,
                                                  SS_Timings::expCmd_InfoEnd);
     }
+#endif
     break;
 
 // Custom View Commands
   case  CMD_C_VIEW_CREATE:
 
+#if BUILD_CLI_TIMING
     // Start timing - spent in the custom view creation processing
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::cvCreateStart] = Time::Now();
     }
+#endif
     cmd_successful = SS_cvSet (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the time spent in the custom view creation processing
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
        cli_timing_handle->processTimingEventEnd( SS_Timings::cvCreateStart,
@@ -440,6 +503,7 @@ try {
                                                  SS_Timings::cvCreateTotal,
                                                  SS_Timings::cvCreateEnd);
     }
+#endif
 
     break;
   case  CMD_C_VIEW_DELETE:
@@ -447,13 +511,16 @@ try {
     break;
   case  CMD_C_VIEW_CLUSTERS:
 
+#if BUILD_CLI_TIMING
     // Time the cluster view generation subroutine
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::cvClustersStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_cvClusters (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the time spent in the custom view cluster analysis processing
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
        cli_timing_handle->processTimingEventEnd( SS_Timings::cvClustersStart,
@@ -463,17 +530,21 @@ try {
                                                  SS_Timings::cvClustersTotal,
                                                  SS_Timings::cvClustersEnd);
     }
+#endif
 
     break;
   case  CMD_C_VIEW_INFO:
 
+#if BUILD_CLI_TIMING
     // Time spent in the custom view information commands
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::cvInfoStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_cvInfo (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the time spent in the custom view information commands
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
        cli_timing_handle->processTimingEventEnd( SS_Timings::cvInfoStart,
@@ -483,6 +554,7 @@ try {
                                                  SS_Timings::cvInfoTotal,
                                                  SS_Timings::cvInfoEnd);
     }
+#endif
 
     break;
 
@@ -490,13 +562,16 @@ try {
 // Low Level Information Commands
   case CMD_LIST_GENERIC:
 
+#if BUILD_CLI_TIMING
     // Time the generic list commands
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::listGenericStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_ListGeneric (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the time spent in the generic list commands
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
        cli_timing_handle->processTimingEventEnd( SS_Timings::listGenericStart,
@@ -506,6 +581,7 @@ try {
                                                  SS_Timings::listGenericTotal,
                                                  SS_Timings::listGenericEnd);
     }
+#endif
 
     break;
 
@@ -542,13 +618,16 @@ try {
     break;
   case CMD_WAIT:
 
+#if BUILD_CLI_TIMING
     // Time the wait command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::cliWaitStart] = Time::Now();
     }
+#endif
 
     cmd_successful = SS_Wait (cmd);
 
+#if BUILD_CLI_TIMING
     // Process the time spent in the wait command
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
        cli_timing_handle->processTimingEventEnd( SS_Timings::cliWaitStart,
@@ -558,6 +637,7 @@ try {
                                                  SS_Timings::cliWaitTotal,
                                                  SS_Timings::cliWaitEnd);
     }
+#endif
 
     break;
   default:
@@ -632,10 +712,12 @@ static void Wait_For_Others_To_Terminate () {
 
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
 
+#if BUILD_CLI_TIMING
   // Start timing the processing time spent in the  Wait_For_Others_To_Terminate routine
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
       cli_timing_handle->cli_perf_data[SS_Timings::cliWaitForOthersTermStart] = Time::Now();
   }
+#endif
 
   while (EXT_Allocated > 2) {   // There must be 2 processes: me and one to wake me up!
    // Wait for other pthreads to finish executing and exit.
@@ -646,6 +728,7 @@ static void Wait_For_Others_To_Terminate () {
     Cmd_Waiting = false;
   }
 
+#if BUILD_CLI_TIMING
   // Process the time spent in the Wait_For_Others_To_Terminate  routine
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
       cli_timing_handle->processTimingEventEnd( SS_Timings::cliWaitForOthersTermStart,
@@ -655,6 +738,7 @@ static void Wait_For_Others_To_Terminate () {
                                                 SS_Timings::cliWaitForOthersTermTotal,
                                                 SS_Timings::cliWaitForOthersTermEnd);
   }
+#endif
 
   Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
 
@@ -668,10 +752,12 @@ void Wait_For_Previous_Cmds () {
 
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
 
+#if BUILD_CLI_TIMING
   // Start timing the processing time spent in the  Wait_For_Previous_Cmds routine
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
       cli_timing_handle->cli_perf_data[SS_Timings::cliWaitForPrevCmdsStart] = Time::Now();
   }
+#endif
 
   while (EXT_Allocated > (EXT_Free + 1)) {
    // Wait for other pthreads to finish executing.
@@ -682,6 +768,7 @@ void Wait_For_Previous_Cmds () {
     Cmd_Waiting = false;
   }
 
+#if BUILD_CLI_TIMING
   // Process the time spent in the Wait_For_Previous_Cmds routine
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
       cli_timing_handle->processTimingEventEnd( SS_Timings::cliWaitForPrevCmdsStart,
@@ -691,6 +778,7 @@ void Wait_For_Previous_Cmds () {
                                                 SS_Timings::cliWaitForPrevCmdsTotal,
                                                 SS_Timings::cliWaitForPrevCmdsEnd);
   }
+#endif
 
   Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
 
@@ -704,10 +792,12 @@ void Purge_Dispatch_Queue () {
 
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
 
+#if BUILD_CLI_TIMING
   // Start timing the processing time spent in the  Purge_Dispatch_Queue routine
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
       cli_timing_handle->cli_perf_data[SS_Timings::cliPurgeDispatchQueueStart] = Time::Now();
   }
+#endif
 
   while (EXT_Dispatch.begin() != EXT_Dispatch.end()) {
     CommandObject *cmd = *EXT_Dispatch.begin();
@@ -716,6 +806,7 @@ void Purge_Dispatch_Queue () {
     Cmd_Obj_Complete (cmd);
   }
 
+#if BUILD_CLI_TIMING
   // Process the time spent in the Purge_Dispatch_Queue routine
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
       cli_timing_handle->processTimingEventEnd( SS_Timings::cliPurgeDispatchQueueStart,
@@ -725,6 +816,7 @@ void Purge_Dispatch_Queue () {
                                                 SS_Timings::cliPurgeDispatchQueueTotal,
                                                 SS_Timings::cliPurgeDispatchQueueEnd);
   }
+#endif
 
   Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
 }
@@ -891,10 +983,12 @@ void SS_Execute_Cmd (CommandObject *cmd) {
   printf("[TID=%ld], SS_Execute_Cmd, entered\n", pthread_self() );
 #endif
 
+#if BUILD_CLI_TIMING
     // Start timing the processing time spent in the SS_Execute_Cmd routine
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::cliExecuteCmdStart] = Time::Now();
     }
+#endif
 
  // Prevent unsafe changes
   Assert(pthread_mutex_lock(&Cmd_EXT_Lock) == 0);
@@ -1002,6 +1096,7 @@ void SS_Execute_Cmd (CommandObject *cmd) {
  // Release the lock so someone can pick up the command
   Assert(pthread_mutex_unlock(&Cmd_EXT_Lock) == 0);
 
+#if BUILD_CLI_TIMING
   // Process the time spent in the SS_Execute_Cmd routine
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
       cli_timing_handle->processTimingEventEnd( SS_Timings::cliExecuteCmdStart,
@@ -1011,4 +1106,5 @@ void SS_Execute_Cmd (CommandObject *cmd) {
                                                 SS_Timings::cliExecuteCmdTotal,
                                                 SS_Timings::cliExecuteCmdEnd);
    }
+#endif
 }

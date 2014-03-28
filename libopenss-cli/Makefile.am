@@ -120,7 +120,10 @@ libopenss_cli_server_la_SOURCES = \
 
 endif
 
-libopenss_cli_la_SOURCES = \
+CLI_TIMING_SOURCES = \
+	SS_Timings.hxx SS_Timings.cxx 
+
+CLI_GENERAL_SOURCES = \
 	ArgClass.hxx \
 	Clip.hxx \
 	Commander.hxx Commander.cxx \
@@ -143,7 +146,6 @@ libopenss_cli_la_SOURCES = \
 	SS_Parse_Result.hxx SS_Parse_Result.cxx \
 	SS_Parse_Target.hxx SS_Parse_Target.cxx \
 	SS_Parse_Yacc.yxx \
-	SS_Timings.hxx SS_Timings.cxx \
 	SS_ThreadInfo.hxx SS_ThreadInfo.cxx \
 	SS_View.hxx SS_View.cxx \
 	SS_View_init.cxx \
@@ -162,6 +164,14 @@ libopenss_cli_la_SOURCES = \
 	        SS_View_bythread_locations.hxx SS_View_bythread_setmetrics.hxx SS_View_Expr.hxx \
                 SS_View_metric_expressions.hxx \
 	Start_Modes.cxx
+
+libopenss_cli_la_SOURCES = \
+	$(CLI_GENERAL_SOURCES)
+
+if BUILD_CLI_TIMING
+libopenss_cli_la_SOURCES += \
+	$(CLI_TIMING_SOURCES)
+endif
 
 LFILES = SS_Parse_Lex.lxx
 YFILES = SS_Parse_Yacc.yxx

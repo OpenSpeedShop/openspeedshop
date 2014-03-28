@@ -58,8 +58,10 @@ static bool executable_encountered;
 static bool collector_encountered;
 static bool read_stdin_file;
 
+#if BUILD_CLI_TIMING
  /** Performance data Timings class instantiation handle  */
 SS_Timings *cli_timing_handle ;
+#endif
 
 
 extern void pcli_load_messages(void);
@@ -709,6 +711,7 @@ extern "C"
     // If the timing of CLI events is enabled then process 
     // the gathered performance data
 
+#if BUILD_CLI_TIMING
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
 
       cli_timing_handle->processTimingEventEnd( SS_Timings::cliAllStart, 
@@ -721,6 +724,8 @@ extern "C"
       // Call performance data output routine to print report
       cli_timing_handle->CLIPerformanceStatistics();
     }
+#endif
+
   }
 
 /**
@@ -791,6 +796,8 @@ extern "C"
 #if DEBUG_CLI
       std::cerr << "ENTER cli_init" << std::endl;
 #endif
+
+#if BUILD_CLI_TIMING
       cli_timing_handle = new SS_Timings();
       cli_timing_handle->in_expCreate(false);
       cli_timing_handle->in_expAttach(false);
@@ -799,6 +806,7 @@ extern "C"
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::cliBasicInitStart] = Time::Now();
     }
+#endif
 
 #if DEBUG_CLI
       std::cerr << "IN cli_init, calling Openss_Basic_Initialization()" << std::endl;
@@ -848,6 +856,7 @@ extern "C"
       executable_encountered = false;
       collector_encountered = false;
 
+#if BUILD_CLI_TIMING
     // Process the performance information on the cli's basic initialization
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->processTimingEventEnd( SS_Timings::cliBasicInitStart,
@@ -857,11 +866,15 @@ extern "C"
                                                    SS_Timings::cliBasicInitTotal,
                                                    SS_Timings::cliBasicInitEnd);
     }
+#endif
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the cli's command line and python initialization
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::cliCmdLinePythonStart] = Time::Now();
     }
+#endif
+
 #if DEBUG_CLI
       std::cerr << "IN cli_init, calling Process_Command_Line()" << std::endl;
 #endif
@@ -882,6 +895,7 @@ extern "C"
      // Open the Python interpreter.
       Initial_Python ();
 
+#if BUILD_CLI_TIMING
     // Process the performance information on the cli's command line and python initialization
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->processTimingEventEnd( SS_Timings::cliCmdLinePythonStart,
@@ -891,11 +905,14 @@ extern "C"
                                                    SS_Timings::cliCmdLinePythonTotal,
                                                    SS_Timings::cliCmdLinePythonEnd);
     } 
+#endif
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the cli's window initialization
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::cliWindowInitStart] = Time::Now();
     }
+#endif
 
 #if DEBUG_CLI
       std::cerr << "In cli_init, Checking need_command_line=" << need_command_line <<  " read_stdin_file=" << read_stdin_file << std::endl;
@@ -975,6 +992,7 @@ extern "C"
     // Process the performance information on the cli's 
     // command line and python initialization
 
+#if BUILD_CLI_TIMING
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->processTimingEventEnd( SS_Timings::cliWindowInitStart,
                                                    SS_Timings::cliWindowInitCount,
@@ -983,16 +1001,19 @@ extern "C"
                                                    SS_Timings::cliWindowInitTotal,
                                                    SS_Timings::cliWindowInitEnd);
     }
+#endif
 
 #if DEBUG_CLI
       std::cerr << "In cli_init, Calling Start_Command_Line, need_gui? " << need_gui <<  " \n" << std::endl;
       std::cerr << "In cli_init, Calling Start_Command_Line, gui_window= " << gui_window <<  " \n" << std::endl;
 #endif
 
+#if BUILD_CLI_TIMING
       // Gather performance information on the cli's gui loading
       if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
            cli_timing_handle->cli_perf_data[SS_Timings::cliGuiLoadStart] = Time::Now();
       }
+#endif
 
       if (need_gui) {
 
@@ -1035,6 +1056,7 @@ extern "C"
       // Process the performance information on the cli's 
       // command line and python initialization
 
+#if BUILD_CLI_TIMING
       if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
            cli_timing_handle->processTimingEventEnd( SS_Timings::cliGuiLoadStart,
                                                      SS_Timings::cliGuiLoadCount,
@@ -1043,6 +1065,7 @@ extern "C"
                                                      SS_Timings::cliGuiLoadTotal,
                                                      SS_Timings::cliGuiLoadEnd);
       }
+#endif
 
      // Fire off Python.
       PyRun_SimpleString( "myparse.do_scripting_input ()\n");

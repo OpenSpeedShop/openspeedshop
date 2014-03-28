@@ -189,6 +189,29 @@ if test x$enable_debug = xyes; then
 fi
 AC_MSG_RESULT([$enable_debug])
 
+################################################################################
+# Build CLI Timing Code Specification
+################################################################################
+#
+# Option: --enable-cli-timing=no
+#
+AC_MSG_CHECKING(for enable build of CLI timing support specification)
+AC_ARG_ENABLE([cli-timing],
+    [AS_HELP_STRING([--enable-cli-timing],
+        [Enable build of CLI timing support [default=no]])],
+    [], [enable_cli_timing=no])
+
+AM_CONDITIONAL([BUILD_CLI_TIMING], [test x$enable_cli_timing = xyes])
+
+if test "x$enable_cli_timing" = xyes ; then
+    AC_MSG_RESULT(yes)
+    AC_DEFINE([BUILD_CLI_TIMING], [1],
+        [Enable build of CLI timing support.])
+else
+    AC_MSG_RESULT(no)
+fi
+
+AC_SUBST(BUILD_CLI_TIMING)
 
 ################################################################################
 # Check for POSIX Threads (ISO/IEC 9945-1:1996)

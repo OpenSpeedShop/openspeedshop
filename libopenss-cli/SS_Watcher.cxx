@@ -246,10 +246,12 @@ catch_TLI_signal (int sig, int error_num)
 // and will notify the user if an application terminates.
 void SS_Watcher () {
 
+#if BUILD_CLI_TIMING
     // Gather performance information on the cli's watcher thread 
     if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
          cli_timing_handle->cli_perf_data[SS_Timings::cliWatcherStart] = Time::Now();
     }
+#endif
 
 #if DEBUG_SYNC
   printf("[TID=%ld], SS_Watcher, Entered\n", pthread_self() );
@@ -357,6 +359,7 @@ void SS_Watcher () {
     }
   }
 
+#if BUILD_CLI_TIMING
   // Process the performance information on the cli's watcher thread 
   if (cli_timing_handle && cli_timing_handle->is_debug_perf_enabled() ) {
       cli_timing_handle->processTimingEventEnd( SS_Timings::cliWatcherStart,
@@ -366,5 +369,6 @@ void SS_Watcher () {
                                                 SS_Timings::cliWatcherTotal,
                                                 SS_Timings::cliWatcherEnd);
   }
+#endif
 
 }
