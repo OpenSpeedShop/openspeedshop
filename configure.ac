@@ -186,6 +186,9 @@ if test x$enable_debug = xyes; then
   CPPFLAGS="${CPPFLAGS} -g"
   CFLAGS="${CFLAGS} -g"
   CXXFLAGS="${CXXFLAGS} -g"
+else
+  AC_DEFINE([NDEBUG], [1],
+            [Disable any NDEBUG debug code in OpenSpeedShop.]) 
 fi
 AC_MSG_RESULT([$enable_debug])
 

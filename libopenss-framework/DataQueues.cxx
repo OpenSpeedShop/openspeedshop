@@ -193,7 +193,8 @@ namespace {
 	// Silently ignore the data if the address range is invalid
 	if(header.addr_begin >= header.addr_end) {
 	    ignore_data = true;
-#ifndef DEBUG
+
+#ifndef NDEBUG
 	    if (is_debug_enabled) {
 	    std::cerr << "storePerformanceData: IGNORE DATA header.addr_begin "
 		<< Address(header.addr_begin)
@@ -207,7 +208,7 @@ namespace {
 	// Silently ignore the data if the time interval is invalid
 	if(header.time_begin >= header.time_end) {
 	    ignore_data = true;
-#ifndef DEBUG
+#ifndef NDEBUG
 	    if (is_debug_enabled) {
 	    std::cerr << "storePerformanceData: IGNORE DATA header.time_begin "
 		<< Time(header.time_begin) << ">= header.time_end "
@@ -230,7 +231,7 @@ namespace {
 	    collector_rows = database->getResultAsInteger(1);
 	if(collector_rows != 1) {
 	    ignore_data = true;
-#ifndef DEBUG
+#ifndef NDEBUG
 	    if (is_debug_enabled) {
 	    std::cerr << "storePerformanceData: IGNORE DATA"
 		<< " collector_rows != 1 " << std::endl;
@@ -302,7 +303,7 @@ namespace {
 
 	if(thread == 0) {
 	    ignore_data = true;
-#ifndef DEBUG
+#ifndef NDEBUG
 	    if (is_debug_enabled) {
 	    std::cerr << "storePerformanceData: IGNORE DATA thread is  0 ??? "
 		<< thread << " ignore_data is " << ignore_data << std::endl;
@@ -558,7 +559,8 @@ void DataQueues::flushDatabase(const SmartPtr<Database>& database)
 
     }
 
-#ifndef DEBUG
+// JEG change from DEBUG to NDEBUG
+#ifndef NDEBUG
     // Performance statistics
     Time debug_stop_time = Time::Now();
     
@@ -699,8 +701,8 @@ void DataQueues::flushPerformanceData()
 	} else {
 	}
  
-
-#ifndef DEBUG
+// JEG CHANGED FROM DEBUG TO NDEBUG
+#ifndef NDEBUG
     // Performance statistics
     Time debug_stop_time = Time::Now();
     

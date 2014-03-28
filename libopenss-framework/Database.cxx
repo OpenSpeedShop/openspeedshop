@@ -211,7 +211,8 @@ void Database::remove(const std::string& name)
  */
 Database::Database(const std::string& name) :
     Lockable(),
-#ifdef NDEBUG
+// JEG changed it to ifndef, it was ifdef
+#ifndef NDEBUG
     dm_debug_stats(),
 #endif
     dm_name(name),

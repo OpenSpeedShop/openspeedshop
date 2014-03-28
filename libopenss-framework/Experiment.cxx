@@ -656,8 +656,8 @@ bool is_debug_mpijob_enabled = (getenv("OPENSS_DEBUG_MPIJOB") != NULL);
                   << std::endl;
            std::cerr << output.str();
          }
-    }
 #endif
+    }
 
     /*
      * The environment variable OPENSS_MPI_IMPLEMENTATION can be set
@@ -1106,9 +1106,11 @@ ThreadGroup Experiment::attachMPIJob(const pid_t& pid,
 
       // Update this process' MPI implementation in the database
       for(ThreadGroup::const_iterator i = connected.begin(); i != connected.end(); ++i) {
+#ifndef NDEBUG
          if(is_debug_mpijob_enabled) {
            fprintf(stderr, "setting mpi_implementation_name=%s\n", mpi_implementation_name.c_str());
          }
+#endif
          (*i).setMPIImplementation(mpi_implementation_name);
       }
 
@@ -1707,8 +1709,8 @@ std::string Experiment::getApplicationCommand()
 	             << std::endl;
       	      std::cerr << output.str();
           }
-        }
 #endif
+        }
 
    } // end for
    return EmptyString;
@@ -1749,8 +1751,8 @@ void Experiment::setApplicationCommand(const char *newCommand, bool trust_me)
 	             << std::endl;
       	      std::cerr << output.str();
           }
-        }
 #endif
+        }
    } // end for
 }
 
