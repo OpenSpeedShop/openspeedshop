@@ -242,6 +242,7 @@ bin_PROGRAMS += osswrapper
 
 osswrapper_CXXFLAGS = \
         @DYNINST_CPPFLAGS@ \
+        @BOOST_CPPFLAGS@ \
         @LIBELF_CPPFLAGS@ \
         @LIBDWARF_CPPFLAGS@ 
 
