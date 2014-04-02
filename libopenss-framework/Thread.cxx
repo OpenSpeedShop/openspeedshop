@@ -565,8 +565,12 @@ Thread::getFunctionAt(const Address& address, const Time& time) const
     dm_database->bindArgument(4, address);
     dm_database->bindArgument(5, address);	
     while(dm_database->executeStatement()) {
+#if 0
 	if(found_linked_object)
 	    throw Exception(Exception::EntryOverlapping, "AddressSpaces");
+#else
+	if(found_linked_object) break;
+#endif
 	found_linked_object = true;
 	linked_object = dm_database->getResultAsInteger(1);
 	addr_begin = dm_database->getResultAsAddress(2);
@@ -755,8 +759,12 @@ Thread::getStatementsAt(const Address& address, const Time& time) const
     dm_database->bindArgument(4, address);
     dm_database->bindArgument(5, address);	
     while(dm_database->executeStatement()) {
+#if 0
 	if(found_linked_object)
 	    throw Exception(Exception::EntryOverlapping, "AddressSpaces");
+#else
+	if(found_linked_object) break;
+#endif
 	found_linked_object = true;
 	linked_object = dm_database->getResultAsInteger(1);
 	addr_begin = dm_database->getResultAsAddress(2);
