@@ -219,20 +219,9 @@ mpich2_dir=$(TARGET_MPICH2_DIR)
 
 else
 
-if FE_SETUP_BUILD_TARGETED 
-
-monitor_libdir=$(LIBMONITOR_LIBDIR)/$(TARGET_OS)
-monitor_dir=$(LIBMONITOR_DIR)/$(TARGET_OS)
-mpich2_dir=$(TARGET_MPICH2_DIR)
-
-else
-
 mpich2_dir=$(MPICH2_DIR)
 monitor_dir=$(LIBMONITOR_DIR)
 monitor_libdir=$(LIBMONITOR_LIBDIR)
-
-# endif for else of FE_SETUP_BUILD_TARGETED
-endif
 
 # endif for else of BUILD_TARGETED
 endif
