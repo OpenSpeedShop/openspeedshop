@@ -80,3 +80,10 @@ export LD_DEBUG=libs
 openss -cli
 
 strace openss -cli
+
+NOTE 8: Finding if library is compiled without -fPIC
+
+> for i in /usr/lib/*.a /usr/local/lib/*.a; do
+> objdump --reloc $i 2>/dev/null | grep R_X86_64_32S > /dev/null && echo $i;
+> done
+>
