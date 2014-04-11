@@ -592,6 +592,7 @@ SymtabAPISymbols::getDepenentLibs(const std::string& objname,
     bool err = Symtab::openFile(symtab, objname);
     if (symtab) {
         dependencies = symtab->getDependencies();
+        symtab->setTruncateLinePaths(false);
     }
 }
 
