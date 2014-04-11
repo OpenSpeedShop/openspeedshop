@@ -66,6 +66,9 @@ libopenss_cli_la_LIBADD = \
 
 if BUILD_PTGF_DIRECT
 
+library_includedir = $(includedir)/openspeedshop
+library_include_HEADERS = Direct.hxx
+
 lib_LTLIBRARIES += libopenss-cli-direct.la
 
 libopenss_cli_direct_la_CXXFLAGS = \
@@ -79,10 +82,14 @@ libopenss_cli_direct_la_CXXFLAGS = \
         @SYMTABAPI_CPPFLAGS@
 
 libopenss_cli_direct_la_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-cli \
         -export-dynamic -version-info 1:0:0
 
 libopenss_cli_direct_la_LIBADD = \
         $(LIBLTDL) \
+	-lopenss-framework \
+	-lopenss-cli \
         -lpthread -lrt
 
 libopenss_cli_direct_la_SOURCES = \
