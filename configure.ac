@@ -303,7 +303,9 @@ case "$PTGF" in
 	;;
 
     *)
-	AC_MSG_ERROR([invalid ptgf specification "$PTGF".])
+	AC_MSG_WARN([Invalid ptgf specification: value received for with-ptgf="$PTGF". Setting value to none and continuing])
+	AM_CONDITIONAL(BUILD_PTGF_DIRECT, false)
+	AM_CONDITIONAL(BUILD_PTGF_SERVER, false)
 	;;
 esac
 
