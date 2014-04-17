@@ -141,16 +141,12 @@ ossutil_CXXFLAGS = \
 
 ossutil_LDFLAGS = \
         @SYMTABAPI_LDFLAGS@ \
-        @LIBELF_LDFLAGS@ \
-        @LIBDWARF_LDFLAGS@ \
         -L$(top_srcdir)/libopenss-framework \
 	-L$(top_srcdir)/libopenss-queries \
         -L$(top_srcdir)/libopenss-runtime
 
 ossutil_LDADD = \
         @SYMTABAPI_LIBS@ \
-        @LIBELF_LIBS@ \
-        @LIBDWARF_LIBS@ \
         $(LIBLTDL) \
 	-lopenss-framework \
 	-lopenss-framework-symtabapi \

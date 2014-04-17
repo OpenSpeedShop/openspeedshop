@@ -40,8 +40,15 @@ AC_DEFUN([AX_OTF], [
     OTF_LDFLAGS="-L$otf_dir/$abi_libdir"
     OTF_LIBS="-lotf"
 
-    OTF_LIBZ_LDFLAGS="-L/usr/$abi_libdir"
+    
     OTF_LIBZ_LIBS="-lz"
+    if test -f $libz_dir/$abi_libdir/libz.so ; then
+       OTF_LIBZ_LDFLAGS="-L$libz_dir/$abi_libdir"
+    elif test -f $libz_dir/$alt_abi_libdir/libz.so ; then
+       OTF_LIBZ_LDFLAGS="-L$libz_dir/$abi_libdir"
+    elif test -f $libz_dir/lib/x86_64-linux-gnu/libz.so ; then
+       OTF_LIBZ_LDFLAGS="-L$libz_dir/lib/x86_64-linux-gnu"
+    fi
 
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP
@@ -78,11 +85,19 @@ AC_DEFUN([AX_OTF], [
        foundOTF=0
     fi
 
-    if test $foundOTF == 1 && test -f  $libz_dir/$abi_libdir/libz.so; then
+    if test $foundOTF == 1 ; then
+     if test -f $libz_dir/$abi_libdir/libz.so; then
        AC_MSG_CHECKING([found libz library used by otf])
        foundOTF=1
-    else
+     elif test -f $libz_dir/$alt_abi_libdir/libz.so; then
+       AC_MSG_CHECKING([found libz library used by otf])
+       foundOTF=1
+     elif test -f $libz_dir/lib/x86_64-linux-gnu/libz.so ; then
+       AC_MSG_CHECKING([found libz library used by otf])
+       foundOTF=1
+     else
        foundOTF=0
+     fi
     fi
 
     if test $foundOTF == 1; then

@@ -85,13 +85,19 @@ AC_DEFUN([AX_DYNINST], [
             ;;
 	"8.2")
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -std=c++0x"
+            DYNINST_LDFLAGS+=" $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI -lpatchAPI -lstackwalk -lpcontrol -ldynElf -ldynDwarf -lsymLite" 
+            DYNINST_LIBS+=" $LIBDWARF_LIBS $LIBELF_LIBS"
 	    DYNINST_SYMTABAPI_LIBS="-lcommon -lsymtabAPI -linstructionAPI -lparseAPI -ldynElf -ldynDwarf -lsymLite"
+	    DYNINST_SYMTABAPI_LIBS+=" $LIBDWARF_LIBS $LIBELF_LIBS"
             ;;
 	*)
             DYNINST_CPPFLAGS="$DYNINST_CPPFLAGS -DUSE_STL_VECTOR -std=c++0x"
+            DYNINST_LDFLAGS+=" $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
             DYNINST_LIBS="-ldyninstAPI -lcommon -lsymtabAPI -linstructionAPI -lparseAPI -lpatchAPI -lstackwalk -lpcontrol -ldynElf -ldynDwarf -lsymLite" 
+            DYNINST_LIBS+=" $LIBDWARF_LIBS $LIBELF_LIBS"
 	    DYNINST_SYMTABAPI_LIBS="-lcommon -lsymtabAPI -linstructionAPI -lparseAPI -ldynElf -ldynDwarf -lsymLite"
+	    DYNINST_SYMTABAPI_LIBS+=" $LIBDWARF_LIBS $LIBELF_LIBS"
             ;;
     esac
 
@@ -104,8 +110,8 @@ AC_DEFUN([AX_DYNINST], [
     dyninst_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $DYNINST_CPPFLAGS $BOOST_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $DYNINST_LDFLAGS $BINUTILS_LDFLAGS $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS $BOOST_LDFLAGS"
-    LIBS="$DYNINST_LIBS $BINUTILS_IBERTY_LIB $LIBDWARF_LIBS $LIBELF_LIBS"
+    LDFLAGS="$LDFLAGS $DYNINST_LDFLAGS $BINUTILS_LDFLAGS $BOOST_LDFLAGS"
+    LIBS="$DYNINST_LIBS $BINUTILS_IBERTY_LIB"
 
     AC_MSG_CHECKING([for Dyninst API library and headers])
 

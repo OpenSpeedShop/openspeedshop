@@ -73,11 +73,21 @@ AC_DEFUN([AX_SYMTABAPI], [
             ;;
 	"8.1.2")
             SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -I$symtabapi_dir/include/dyninst -std=c++0x"
+            SYMTABAPI_LDFLAGS+=" $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
             SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
+            SYMTABAPI_LIBS+=" $LIBDWARF_LIBS $LIBELF_LIBS"
+            ;;
+	"8.2")
+            SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -I$symtabapi_dir/include/dyninst -std=c++0x"
+            SYMTABAPI_LDFLAGS+=" $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
+            SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
+            SYMTABAPI_LIBS+=" $LIBDWARF_LIBS $LIBELF_LIBS"
             ;;
 	*)
             SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -I$symtabapi_dir/include/dyninst -std=c++0x"
+            SYMTABAPI_LDFLAGS+=" $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
             SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
+            SYMTABAPI_LIBS+=" $LIBDWARF_LIBS $LIBELF_LIBS"
             ;;
     esac
 
@@ -90,8 +100,8 @@ AC_DEFUN([AX_SYMTABAPI], [
     symtabapi_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $SYMTABAPI_CPPFLAGS $BOOST_CPPFLAGS"
-    LDFLAGS="$LDFLAGS $SYMTABAPI_LDFLAGS $BINUTILS_LDFLAGS $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
-    LIBS="$SYMTABAPI_LIBS $BINUTILS_IBERTY_LIB $LIBDWARF_LIBS $LIBELF_LIBS" 
+    LDFLAGS="$LDFLAGS $SYMTABAPI_LDFLAGS $BINUTILS_LDFLAGS"
+    LIBS="$SYMTABAPI_LIBS $BINUTILS_IBERTY_LIB" 
 
     found_symtabapi=0
 
