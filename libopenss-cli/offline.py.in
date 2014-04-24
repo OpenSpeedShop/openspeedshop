@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2008-2012 Krell Institute  All Rights Reserved.
+# Copyright (c) 2008-2014 Krell Institute  All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -477,6 +477,8 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    #ismpich2 = bool(1)
 		    if offlinepy_debug != 0: print "[openss-debug]: islsf orig_mpi_driver=" + orig_mpi_driver
 		    if offlinepy_debug != 0: print "[openss-debug]: islsf program=" + program
+		  # Break out of the loop that encompasses this code.  This fixes problems found at LLNL when the executable is a python script
+		  break
 
 
 
