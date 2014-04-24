@@ -505,7 +505,6 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	else:
 	    if not os.WEXITSTATUS(ismpidriver):
 	       mpi_executable = file_arg
-	       if offlinepy_debug != 0: print "[openss-debug]: mpi_exe_implementation is set, mpi_exe_implementation" + mpi_exe_implementation
 	       if offlinepy_debug != 0: print "[openss-debug]: because mpi_exe_implementation is set, mpi_executable is file_arg=" + file_arg
 	    else:
 	       raise RuntimeError("[openss error]: Failed to locate the mpi program.")
