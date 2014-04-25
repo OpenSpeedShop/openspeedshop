@@ -235,6 +235,15 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 				 ismpidriver = bool(1)
 				 if offlinepy_debug != 0: print "[openss-debug]: setting ismpidriver to bool 1"
 
+			if set_mpi_impl == "mpich2" or set_mpi_impl == "MPICH2":
+			     if offlinepy_debug != 0: print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is equal to mpich2"
+			     file_arg_basename = os.path.basename(file_arg)
+			     if offlinepy_debug != 0: print "[openss-debug]: file_arg_basename=" + file_arg_basename
+			     if file_arg_basename == "mpiexec.hydra":
+				 if offlinepy_debug != 0: print "[openss-debug]: inside file_arg_basename is equal to mpiexec.hydra"
+				 ismpidriver = bool(1)
+				 if offlinepy_debug != 0: print "[openss-debug]: setting ismpidriver to bool 1"
+
 			if set_mpi_impl == "openmpi":
 			     if offlinepy_debug != 0: print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is equal to openmpi"
 			     file_arg_basename = os.path.basename(file_arg)
@@ -479,7 +488,6 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    if offlinepy_debug != 0: print "[openss-debug]: islsf program=" + program
 		  # Break out of the loop that encompasses this code.  This fixes problems found at LLNL when the executable is a python script
 		  break
-
 
 
     # Set the mpiplugin to use for mpi jobs.  The OPENSS_MPI_IMPLEMENTATION
