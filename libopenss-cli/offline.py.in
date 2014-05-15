@@ -239,7 +239,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 			     if offlinepy_debug != 0: print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is equal to mpich2"
 			     file_arg_basename = os.path.basename(file_arg)
 			     if offlinepy_debug != 0: print "[openss-debug]: file_arg_basename=" + file_arg_basename
-			     if file_arg_basename == "mpiexec.hydra":
+			     if file_arg_basename == "mpiexec.hydra" or file_arg_basename == "mpiexec.hydra.real":
 				 if offlinepy_debug != 0: print "[openss-debug]: inside file_arg_basename is equal to mpiexec.hydra"
 				 ismpidriver = bool(1)
 				 if offlinepy_debug != 0: print "[openss-debug]: setting ismpidriver to bool 1"
