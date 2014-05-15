@@ -103,7 +103,8 @@ class savedViewInfo {
     uint64_t GenTime () { return svh.generation_time; }
     int64_t file_offset_to_data() { return svh.data_offset;  }
     std::string GenCmd () { return original_cmd; }
- 
+
+    bool DoNotSave() { return doNotSave;  }
     void setDoNotSave() { doNotSave = true; }
     void setStartTime () {
      // Start measurement clock.

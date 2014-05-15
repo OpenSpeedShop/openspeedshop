@@ -500,6 +500,7 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
   std::string SavedResultFile;
   if ( OPENSS_SAVE_EXPERIMENT_DATABASE &&
        (svi != NULL) &&
+       (!svi->DoNotSave()) &&
        (svi->FileName().length() > 0) ) {
     SavedResultFile = svi->FileName();
     if (!SaveResult()) {
