@@ -240,9 +240,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 			     file_arg_basename = os.path.basename(file_arg)
 			     if offlinepy_debug != 0: print "[openss-debug]: file_arg_basename=" + file_arg_basename
 			     if file_arg_basename == "mpiexec.hydra" or file_arg_basename == "mpiexec.hydra.real":
-				 if offlinepy_debug != 0: print "[openss-debug]: inside file_arg_basename is equal to mpiexec.hydra"
+				 if offlinepy_debug != 0: print "[openss-debug]: inside file_arg_basename is equal to mpiexec.hydra or mpiexec.hydra.real"
 				 ismpidriver = bool(1)
-				 if offlinepy_debug != 0: print "[openss-debug]: setting ismpidriver to bool 1"
+				 if offlinepy_debug != 0: print "[openss-debug]: mpiexec.hydra or mpiexec.hydra.real, setting ismpidriver to bool 1"
 
 			if set_mpi_impl == "openmpi":
 			     if offlinepy_debug != 0: print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is equal to openmpi"
@@ -251,7 +251,16 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 			     if file_arg_basename == "mpirun" or file_arg_basename == "orterun" or file_arg_basename == "mpiexec":
 				 if offlinepy_debug != 0: print "[openss-debug]: inside file_arg_basename is equal to mpirun or orterun"
 				 ismpidriver = bool(1)
-				 if offlinepy_debug != 0: print "[openss-debug]: setting ismpidriver to bool 1"
+				 if offlinepy_debug != 0: print "[openss-debug]: mpirun or orterun, setting ismpidriver to bool 1"
+
+			if set_mpi_impl == "mvapich2" or set_mpi_impl == "MVAPICH2":
+			     if offlinepy_debug != 0: print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is equal to mvapich2"
+			     file_arg_basename = os.path.basename(file_arg)
+			     if offlinepy_debug != 0: print "[openss-debug]: file_arg_basename=" + file_arg_basename
+			     if file_arg_basename == "mpiexec" or file_arg_basename == "mpiexec.real":
+				 if offlinepy_debug != 0: print "[openss-debug]: inside file_arg_basename is equal to mpiexec or mpiexec.real"
+				 ismpidriver = bool(1)
+				 if offlinepy_debug != 0: print "[openss-debug]: mpiexec or mpiexec.real, setting ismpidriver to bool 1"
 
 		  if not os.WEXITSTATUS(ismpidriver):
 		    ismpi = bool(1)
