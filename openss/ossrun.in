@@ -28,25 +28,69 @@ oss_libdir="${oss_prefix}/${machlibdir}"
 oss_bindir="${oss_prefix}/bin"
 oss_plugins="${oss_libdir}/openspeedshop"
 
+# Set up the MPI installation and corresponding lib directory paths
 lam_prefix=@@lamdir@@
+lam_libprefix=@@lamlibdir@@
 lampi_prefix=@@lampidir@@
+lampi_libprefix=@@lampilibdir@@
 mpich_prefix=@@mpichdir@@
+mpich_libprefix=@@mpichlibdir@@
 mpich2_prefix=@@mpich2dir@@
+mpich2_libprefix=@@mpich2libdir@@
 mvapich_prefix=@@mvapichdir@@
+mvapich_libprefix=@@mvapichlibdir@@
 mvapich2_prefix=@@mvapich2dir@@
+mvapich2_libprefix=@@mvapich2libdir@@
 mpt_prefix=@@mptdir@@
+mpt_libprefix=@@mptlibdir@@
 openmpi_prefix=@@openmpidir@@
+openmpi_libprefix=@@openmpilibdir@@
 
+#
+# Some MPI implementations require an additional library to handle Fortran MPI applications
+# Also, if we are running a Python script as the executable and there is a MPI driver invoking the script, 
+# if that script invokes a MPI application we need to have the MPI libraries available to handle MPI_Init_thread, 
+# etc..  Therefore we create the b for base b_<mpi type>_libs MPI library variable and load that library 
+# when running # non-mpi (mpi, mpit, mpiotf) experiments.
+#
 if test -f ${mpich2_prefix}/${machlibdir}/libfmpich.so; then
   f_mpich2_libs="${mpich2_prefix}/${machlibdir}/libfmpich.so"
+  b_mpich2_libs="${mpich2_prefix}/${machlibdir}/libmpich.so"
 elif test -f ${mpich2_prefix}/${altmachlibdir}/libfmpich.so; then
   f_mpich2_libs="${mpich2_prefix}/${altmachlibdir}/libfmpich.so"
+  b_mpich2_libs="${mpich2_prefix}/${altmachlibdir}/libmpich.so"
 fi
 
 if test -f ${mvapich2_prefix}/${machlibdir}/libfmpich.so; then
   f_mvapich2_libs="${mvapich2_prefix}/${machlibdir}/libfmpich.so"
+  b_mvapich2_libs="${mvapich2_prefix}/${machlibdir}/libmpich.so"
 elif test -f ${mvapich2_prefix}/${altmachlibdir}/libfmpich.so; then
   f_mvapich2_libs="${mvapich2_prefix}/${altmachlibdir}/libfmpich.so"
+  b_mvapich2_libs="${mvapich2_prefix}/${altmachlibdir}/libmpich.so"
+fi
+
+if test -f ${mvapich_libprefix}/libpmpich.so; then
+  f_mvapich_libs="${mvapich_libprefix}/libfmpich.so"
+  b_mvapich_libs="${mvapich_libprefix}/libmpich.so"
+elif test -f ${mvapich_libprefix}/libpmpich.so; then
+  f_mvapich_libs="${mvapich_libprefix}/libfmpich.so"
+  b_mvapich_libs="${mvapich_libprefix}/libmpich.so"
+fi
+
+if test -f ${openmpi_libprefix}/libmpi.so; then
+  f_openmpi_libs="${openmpi_libprefix}/libmpi_mpifh.so"
+  b_openmpi_libs="${openmpi_libprefix}/libmpi.so"
+elif test -f ${openmpi_libprefix}/libpmpi.so; then
+  f_openmpi_libs="${openmpi_libprefix}/libmpi_mpifh.so"
+  b_openmpi_libs="${openmpi_libprefix}/libmpi.so"
+fi
+
+if test -f ${mpt_libprefix}/libmpi.so; then
+  f_mpt_libs=""
+  b_mpt_libs="${mpt_libprefix}/libmpi.so"
+elif test -f ${mpt_libprefix}/libpmpi.so; then
+  f_mpt_libs=""
+  b_mpt_libs="${mpt_libprefix}/libmpi.so"
 fi
 
 mpi_plugin=
@@ -68,6 +112,8 @@ else
     fi
 fi
 
+isexecutable=
+ismpi=
 
 for i in $*
 do
@@ -79,14 +125,24 @@ do
 	isexecutable=`file $i | grep ELF`
 	if [ -n "$isexecutable" ]
 	then
+            if [ $ossrun_debug == 1 ]; then
+               echo "OSSRUN DEBUG: IS EXECUTABLE: $isexecutable"
+            fi
 	    ismpi=`nm $i | grep -i MPI_Init`
 	fi
 
 	if [ -n "$ismpi" ]
 	then
+            if [ $ossrun_debug == 1 ]; then
+               echo "OSSRUN DEBUG: IS MPI: $ismpi"
+            fi
             mpi_plugin="${oss_plugins}/mpi-${mpitouse}-rt-offline.so"
 	    break
 	fi
+        if [ $ossrun_debug == 1 ]; then
+           echo "OSSRUN DEBUG: end of executable loop, IS EXECUTABLE: $isexecutable"
+           echo "OSSRUN DEBUG: end of executable loop, IS MPI: $ismpi"
+        fi
     fi 
 done
 
@@ -214,16 +270,49 @@ fi
 case "$mpitouse" in
     mpich2)
       extra_mpi_libs=${f_mpich2_libs}
+      base_mpi_libs=${b_mpich2_libs}
       if [ $ossrun_debug == 1 ]; then
         echo "OSSRUN DEBUG: mpich2, extra_mpi_libs=: $extra_mpi_libs"
+        echo "OSSRUN DEBUG: mpich2, base_mpi_libs=: $base_mpi_libs"
+      fi
+    ;;
+
+    mvapich)
+      extra_mpi_libs=${f_mvapich_libs}
+      base_mpi_libs=${b_mvapich_libs}
+      if [ $ossrun_debug == 1 ]; then
+        echo "OSSRUN DEBUG: mvapich, extra_mpi_libs=: $extra_mpi_libs"
+        echo "OSSRUN DEBUG: mvapich, base_mpi_libs=: $base_mpi_libs"
       fi
     ;;
 
     mvapich2)
       extra_mpi_libs=${f_mvapich2_libs}
+      base_mpi_libs=${b_mvapich2_libs}
       if [ $ossrun_debug == 1 ]; then
         echo "OSSRUN DEBUG: mvapich2, extra_mpi_libs=: $extra_mpi_libs"
+        echo "OSSRUN DEBUG: mvapich2, base_mpi_libs=: $base_mpi_libs"
       fi
+    ;;
+
+    mpt)
+      extra_mpi_libs=${f_mpt_libs}
+      base_mpi_libs=${b_mpt_libs}
+      if [ $ossrun_debug == 1 ]; then
+        echo "OSSRUN DEBUG: mpt, extra_mpi_libs=: $extra_mpi_libs"
+        echo "OSSRUN DEBUG: mpt, base_mpi_libs=: $base_mpi_libs"
+      fi
+    ;;
+
+    openmpi)
+      extra_mpi_libs=${f_openmpi_libs}
+      base_mpi_libs=${b_openmpi_libs}
+      if [ $ossrun_debug == 1 ]; then
+        echo "OSSRUN DEBUG: openmpi, extra_mpi_libs=: $extra_mpi_libs"
+        echo "OSSRUN DEBUG: openmpi, base_mpi_libs=: $base_mpi_libs"
+      fi
+    ;;
+
 esac
 
 if [ $ossrun_debug == 1 ]; then
@@ -259,9 +348,18 @@ case "$collector" in
 
     # The non mpi tracing experiments need to trace MPI_Init to
     # gather the mpi rank information needed for the mpi_rank field
-    # in the THREADS table of the openss database.
+    # in the THREADS table of the openss database.  If the specified executable is 
+    # an elf based true executable then do not load the base mpi library, but if it
+    # is not, then it could be a script or python file and we will have to resolve MPI_Init.
+    # Therefore, for those cases, load the MPI base library to resolve MPI_Init, MPI_Init_thread,..
+
     * )
-    export LD_PRELOAD=${oss_plugins}/$collector-rt-offline.so:${libmonitor}
+    if [ -n "$isexecutable" ]
+    then
+       export LD_PRELOAD=${oss_plugins}/$collector-rt-offline.so:${libmonitor}
+    else
+       export LD_PRELOAD=${oss_plugins}/$collector-rt-offline.so:${base_mpi_libs}:${libmonitor}
+    fi
     if [ $ossrun_debug == 1 ]; then
       echo "OSSRUN DEBUG: non-tracing mpi - LD_PRELOAD: $LD_PRELOAD"
       echo "OSSRUN DEBUG: non-tracing mpi - libmonitor: ${libmonitor}"

@@ -208,6 +208,7 @@ monitor_libdir=$(TARGET_LIBMONITOR_LIBDIR)
 unwind_dir=$(TARGET_LIBUNWIND_DIR)
 papi_dir=$(TARGET_PAPI_DIR)
 mpich2_dir=$(TARGET_MPICH2_DIR)
+mpich2_libdir=$(TARGET_MPICH2_LIBDIR)
 else
 
 monitor_dir=$(LIBMONITOR_DIR)
@@ -215,6 +216,7 @@ monitor_libdir=$(LIBMONITOR_LIBDIR)
 unwind_dir=$(LIBUNWIND_DIR)
 papi_dir=$(PAPI_DIR)
 mpich2_dir=$(MPICH2_DIR)
+mpich2_libdir=$(MPICH2_LIBDIR)
 
 endif
 
@@ -276,13 +278,21 @@ endif
 		-e 's,@@libmonitordir@@,$(monitor_dir),' \
 		-e 's,@@libmonitorlibdir@@,$(monitor_libdir),' \
 		-e 's,@@lamdir@@,$(LAM_DIR),' \
+		-e 's,@@lamlibdir@@,$(LAM_LIBDIR),' \
 		-e 's,@@lampidir@@,$(LAMPI_DIR),' \
+		-e 's,@@lampilibdir@@,$(LAMPI_LIBDIR),' \
 		-e 's,@@mpichdir@@,$(MPICH_DIR),' \
+		-e 's,@@mpichlibdir@@,$(MPICH_LIBDIR),' \
 		-e 's,@@mpich2dir@@,$(mpich2_dir),' \
+		-e 's,@@mpich2libdir@@,$(mpich2_libdir),' \
 		-e 's,@@mvapichdir@@,$(MVAPICH_DIR),' \
+		-e 's,@@mvapichlibdir@@,$(MVAPICH_LIBDIR),' \
 		-e 's,@@mvapich2dir@@,$(MVAPICH2_DIR),' \
+		-e 's,@@mvapich2libdir@@,$(MVAPICH2_LIBDIR),' \
 		-e 's,@@mptdir@@,$(MPT_DIR),' \
+		-e 's,@@mptlibdir@@,$(MPT_LIBDIR),' \
 		-e 's,@@openmpidir@@,$(OPENMPI_DIR),' \
+		-e 's,@@openmpilibdir@@,$(OPENMPI_LIBDIR),' \
 		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
 			$(srcdir)/ossrun.in > ossrun
 	@chmod 755 ossrun
