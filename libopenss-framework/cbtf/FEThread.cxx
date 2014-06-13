@@ -106,6 +106,8 @@ void FEThread::run(const std::string& topology, const std::string& connections,
         Type("BasicMRNetLauncherUsingBackendAttach")
         );
 
+    std::map<std::string, Type> outputs = network->getOutputs();
+
     shared_ptr<ValueSource<unsigned int> > backend_attach_count =
         ValueSource<unsigned int>::instantiate();
     Component::Instance backend_attach_count_component = 
@@ -133,17 +135,24 @@ void FEThread::run(const std::string& topology, const std::string& connections,
         );
     Component::connect(launcher, "Network", network, "Network");
 
-    shared_ptr<ValueSink<bool> > done = ValueSink<bool>::instantiate();
-    Component::Instance done_output_component =
-            reinterpret_pointer_cast<Component>(done);
-    Component::connect(network, "output", done_output_component, "value");
+    shared_ptr<ValueSink<bool> > threads_finished = ValueSink<bool>::instantiate();
+    Component::Instance threads_finished_output_component =
+            reinterpret_pointer_cast<Component>(threads_finished);
+    Component::connect(network, "threads_finished", threads_finished_output_component, "value");
+
+    shared_ptr<ValueSink<bool> > symbols_finished = ValueSink<bool>::instantiate();
+    if (outputs.find("symbols_finished") != outputs.end()) {
+    Component::Instance symbols_finished_output_component =
+            reinterpret_pointer_cast<Component>(symbols_finished);
+    Component::connect(network, "symbols_finished", symbols_finished_output_component, "value");
+    }
 
     Component::registerPlugin(
         filesystem::path(CBTF_LIB_DIR) / "libcbtf-messages-converters-base.so");
     Component::registerPlugin(
         filesystem::path(CBTF_LIB_DIR) / "libcbtf-messages-base.so");
 
-    std::map<std::string, Type> outputs = network->getOutputs();
+
 
     boost::shared_ptr<SignalAdapter
 		     <boost::shared_ptr
@@ -159,30 +168,37 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 
     boost::shared_ptr<SignalAdapter
 		     <boost::shared_ptr
-		     <CBTF_Protocol_AttachedToThreads > > > attached_to_threads =
-        SignalAdapter<boost::shared_ptr<CBTF_Protocol_AttachedToThreads > >::instantiate();
-    Component::Instance attached_to_threads_output_component =
+		     <CBTF_Protocol_AttachedToThreads > > > attached_to_threads;
+    Component::Instance attached_to_threads_output_component;
+    if (outputs.find("attached_to_threads_xdr_output") != outputs.end()) {
+    attached_to_threads = SignalAdapter<boost::shared_ptr<CBTF_Protocol_AttachedToThreads > >::instantiate();
+    attached_to_threads_output_component =
             reinterpret_pointer_cast<Component>(attached_to_threads);
     attached_to_threads->Value.connect(Callbacks::attachedToThreads);
     Component::connect(network, "attached_to_threads_xdr_output",
 		      attached_to_threads_output_component, "value");
+    }
 
     boost::shared_ptr<SignalAdapter
 		     <boost::shared_ptr
-		     <CBTF_Protocol_Blob > > > perfdata_blob =
-        SignalAdapter<boost::shared_ptr<CBTF_Protocol_Blob > >::instantiate();
-    Component::Instance perfdata_blob_output_component =
+		     <CBTF_Protocol_Blob > > > perfdata_blob;
+    Component::Instance perfdata_blob_output_component;
+    if (outputs.find("perfdata_xdr_output") != outputs.end()) {
+    perfdata_blob = SignalAdapter<boost::shared_ptr<CBTF_Protocol_Blob > >::instantiate();
+    perfdata_blob_output_component =
             reinterpret_pointer_cast<Component>(perfdata_blob);
     perfdata_blob->Value.connect(Callbacks::performanceData);
     Component::connect(network, "perfdata_xdr_output",
 		      perfdata_blob_output_component, "value");
+    }
 
     boost::shared_ptr<SignalAdapter
 		     <boost::shared_ptr
 		     <CBTF_Protocol_LoadedLinkedObject > > > loaded_linked_object;
+    Component::Instance loaded_linked_object_output_component;
     if (outputs.find("loaded_linkedobject_xdr_output") != outputs.end()) {
     loaded_linked_object = SignalAdapter<boost::shared_ptr<CBTF_Protocol_LoadedLinkedObject > >::instantiate();
-    Component::Instance loaded_linked_object_output_component =
+    loaded_linked_object_output_component =
             reinterpret_pointer_cast<Component>(loaded_linked_object);
     loaded_linked_object->Value.connect(Callbacks::loadedLinkedObject);
     Component::connect(network, "loaded_linkedobject_xdr_output",
@@ -191,31 +207,40 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 
     boost::shared_ptr<SignalAdapter
 		     <boost::shared_ptr
-		     <CBTF_Protocol_LinkedObjectGroup > > > linked_object_group =
-        SignalAdapter<boost::shared_ptr<CBTF_Protocol_LinkedObjectGroup > >::instantiate();
-    Component::Instance linked_object_group_output_component =
+		     <CBTF_Protocol_LinkedObjectGroup > > > linked_object_group;
+    Component::Instance linked_object_group_output_component;
+    if (outputs.find("linkedobjectgroup_xdr_output") != outputs.end()) {
+    linked_object_group = SignalAdapter<boost::shared_ptr<CBTF_Protocol_LinkedObjectGroup > >::instantiate();
+    linked_object_group_output_component =
             reinterpret_pointer_cast<Component>(linked_object_group);
     linked_object_group->Value.connect(Callbacks::linkedObjectGroup);
     Component::connect(network, "linkedobjectgroup_xdr_output",
 		      linked_object_group_output_component, "value");
+    }
 
     boost::shared_ptr<SignalAdapter
-		     <LinkedObjectEntryVec > > linkedobjectentryvec_object =
-        SignalAdapter<LinkedObjectEntryVec >::instantiate();
-    Component::Instance linkedobjectentryvec_output_component =
+		     <LinkedObjectEntryVec > > linkedobjectentryvec_object;
+    Component::Instance linkedobjectentryvec_output_component;
+    if (outputs.find("linkedobjectentryvec_output") != outputs.end()) {
+    linkedobjectentryvec_object = SignalAdapter<LinkedObjectEntryVec >::instantiate();
+    linkedobjectentryvec_output_component =
             reinterpret_pointer_cast<Component>(linkedobjectentryvec_object);
     linkedobjectentryvec_object->Value.connect(Callbacks::linkedObjectEntryVec);
     Component::connect(network, "linkedobjectentryvec_output",
 		      linkedobjectentryvec_output_component, "value");
+    }
 
     boost::shared_ptr<SignalAdapter
-		     <AddressBuffer > > addressbuffer_object =
-        SignalAdapter<AddressBuffer >::instantiate();
-    Component::Instance addressbuffer_output_component =
+		     <AddressBuffer > > addressbuffer_object;
+    Component::Instance addressbuffer_output_component;
+    if (outputs.find("addressbuffer_output") != outputs.end()) {
+    addressbuffer_object = SignalAdapter<AddressBuffer >::instantiate();
+    addressbuffer_output_component =
             reinterpret_pointer_cast<Component>(addressbuffer_object);
     addressbuffer_object->Value.connect(Callbacks::addressBuffer);
     Component::connect(network, "addressbuffer_output",
 		      addressbuffer_output_component, "value");
+    }
 
     // Test for the symboltable_xdr_output and connect it if it is
     // defined in the network. At this time only the CUDA collector
@@ -224,10 +249,11 @@ void FEThread::run(const std::string& topology, const std::string& connections,
     boost::shared_ptr<SignalAdapter
 		     <boost::shared_ptr
 		     <CBTF_Protocol_SymbolTable > > > symboltable;
+    Component::Instance symboltable_output_component;
     if (outputs.find("symboltable_xdr_output") != outputs.end()) {
 	symboltable = SignalAdapter<
 	boost::shared_ptr<CBTF_Protocol_SymbolTable > >::instantiate();
-        Component::Instance symboltable_output_component =
+        symboltable_output_component =
             reinterpret_pointer_cast<Component>(symboltable);
         symboltable->Value.connect(Callbacks::symbolTable);
         Component::connect(network, "symboltable_xdr_output",
@@ -238,11 +264,28 @@ void FEThread::run(const std::string& topology, const std::string& connections,
     *backend_attach_file = connections;
     *topology_file = topology;
 
+    // Pass number of backends expected to component network.
+    std::map<std::string, Type> inputs = network->getInputs();
 
-    int i;
+    if (inputs.find("numBE") != inputs.end()) {
+    boost::shared_ptr<ValueSource<int> > numberBackends =
+        ValueSource<int>::instantiate();
+    Component::Instance numberBackends_component =
+        boost::reinterpret_pointer_cast<Component>(numberBackends);
+    Component::connect(numberBackends_component, "value", network, "numBE");
+    *numberBackends = numBE;
+    }
+
+
+    bool threads_done = false;
     while (true) {
-
-	finished = *done;
-	if (finished) break;
+	threads_done = *threads_finished;
+	nanosleep((struct timespec[]){{0, 500000000}}, NULL);
+	if (threads_done) {
+	    finished = true;
+	    break;
+	}
+	//finished = *threads_finished;
+	//if (finished) break;
     }
 }

@@ -259,29 +259,56 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 	      for(unsigned i = 0; i< mods.size();i++) {
 		std::vector< Dyninst::SymtabAPI::Statement *> mylines;
 		mods[i]->getSourceLines(mylines,myoffset);
+
+		Dyninst::SymtabAPI::Statement *real_stmt;
+		Offset real_stmt_size = 0;
 		if (mylines.size() > 0) {
 		    for (std::vector<Dyninst::SymtabAPI::Statement *>::iterator si = mylines.begin();
 			 si != mylines.end(); si++) {
+			Offset stmt_size = (*si)->endAddr() - (*si)->startAddr();
+#if 0
+			std::cerr << "stmt_size size is " << stmt_size << " for offset " << myoffset
+				  << " " << (*si)->getFile()
+				  << " " << (*si)->getLine()
+				  << " numlines found " << mylines.size()
+			<< std::endl;
+#endif
+			// Due to faulty dwarf information from some compilers, we
+			// can get multiple statements corresponding to a sample address.
+			// We really only expect one statement at this point. So we
+			// choose the statement with the smallest address range.
+			// seen with adagio at SNL.
+			if (real_stmt_size == 0) {
+			    // this sets real_stmt to first stmt from mylines.
+			    // If there is only one statment in mylines, this is used.
+			    real_stmt = *si;
+			    real_stmt_size = stmt_size;
+			} else if (stmt_size < real_stmt_size) {
+			    // if more that one statement is in mylines, we use the
+			    // statement with the smallest address range.
+			    real_stmt = *si;
+			    real_stmt_size = stmt_size;
+			}
+		    }
 // DEBUG
 #ifndef NDEBUG
 			if(is_debug_symtabapi_symbols_detailed_enabled) {
 			    std::cerr << " SAMPLE Address:" << theAddr + base
-				  << " File:" << (*si)->getFile()
-				  << " Line:" << (*si)->getLine()
-				  << " Column:" << (int) (*si)->getColumn()
-				  << " startAddr:" << Framework::Address((*si)->startAddr()) +base
-				  << " endAddr:" << Framework::Address((*si)->endAddr()) +base
+				  << " File:" << real_stmt->getFile()
+				  << " Line:" << real_stmt->getLine()
+				  << " Column:" << (int) real_stmt->getColumn()
+				  << " startAddr:" << Framework::Address(real_stmt->startAddr()) +base
+				  << " endAddr:" << Framework::Address(real_stmt->endAddr()) +base
 				  << std::endl;
 			}
 #endif
 			// add the base offset back when recording statement.
-			st.addStatement(Framework::Address((*si)->startAddr()) +base,
-					Framework::Address((*si)->endAddr()) +base,
-					(*si)->getFile(),
-					(*si)->getLine(),
-					(int) (*si)->getColumn()
+			st.addStatement(Framework::Address(real_stmt->startAddr()) +base,
+					Framework::Address(real_stmt->endAddr()) +base,
+					real_stmt->getFile(),
+					real_stmt->getLine(),
+					(int) real_stmt->getColumn()
 					);
-		    }
 		}
 	      } // mods loop
 	    } // sampled addresses loop

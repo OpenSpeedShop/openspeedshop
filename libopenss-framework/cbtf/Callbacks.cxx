@@ -23,6 +23,7 @@
  *
  */
 
+
 #include "Address.hxx"
 #include "AddressBitmap.hxx"
 #include "AddressRange.hxx"
@@ -30,6 +31,7 @@
 #include "Callbacks.hxx"
 #include "Database.hxx"
 #include "DataQueues.hxx"
+#include "DyninstSymbols.hxx"
 #include "Extent.hxx"
 #include "EntrySpy.hxx"
 #include "Frontend.hxx"
@@ -69,6 +71,7 @@ using namespace KrellInstitute::Core;
 namespace OpenSpeedShop { namespace Framework {
     typedef std::map<AddressRange, std::pair<SymbolTable, std::set<LinkedObject> > > SymbolTableMap;
     static std::map<AddressRange, std::string> allfuncs;
+//    std::vector<OpenSpeedShop::Framework::Blob> pending_data;
 }}
 
 namespace {
@@ -77,7 +80,7 @@ namespace {
     {
         out.experiment = 0;
         OpenSpeedShop::Framework::convert(in.getHost(), out.host);
-        out.pid = in.getPid().second;
+        out.pid = in.getPid();
         std::pair<bool, pthread_t> posix_tid = in.getPosixThreadId();
         out.has_posix_tid = posix_tid.first;
         if(posix_tid.first)
@@ -171,34 +174,47 @@ namespace {
 	return identifier;
     }
 
-ThreadGroup getThreads(SmartPtr<Database>& database)
-{
-    ThreadGroup threads;
-    BEGIN_TRANSACTION(database);
-    database->prepareStatement("SELECT id FROM Threads;");
-    while(database->executeStatement())
-        threads.insert(Thread(database, database->getResultAsInteger(1)));
-    END_TRANSACTION(database);
-    return threads;
-}
+    ThreadGroup getThreads(SmartPtr<Database>& database)
+    {
+	ThreadGroup threads;
+	BEGIN_TRANSACTION(database);
+	database->prepareStatement("SELECT id FROM Threads;");
+	while(database->executeStatement())
+            threads.insert(Thread(database, database->getResultAsInteger(1)));
+	END_TRANSACTION(database);
+	return threads;
+    }
 
     LinkedObjectEntryVec linkedobjectvec;
     std::vector<ThreadName> threadvec;
     std::vector<CBTF_Protocol_SymbolTable> symvec;
+
+    int pending_blobs = 0;
 }
 
+// forward declaration
 void process_symvec(const CBTF_Protocol_SymbolTable& message);
 
 // Helper function to do bulk updates of the thread table from a vector
 // of ThreadNames created by the attachToThreads callback.
 // Threads are queued in the threadvec and not flush to the database until
 // we need to (like when a data blob needs to be added to the DataQueue).
-void updateThreads()
+bool updateThreads()
 {
     // thread vector is empty so no need to access database.
-    //if (threadvec.size() == 0) {
     if (threadvec.empty()) {
-	return;
+#ifndef NDEBUG
+      if(Frontend::isDebugEnabled()) {
+	std::cerr << "EARLY EXIT FROM updateThreads -- threadvec.empty" << std::endl;
+      }
+#endif
+	return false;
+    } else {
+#ifndef NDEBUG
+      if(Frontend::isDebugEnabled()) {
+	std::cerr << "ENTERED updateThreads" << std::endl;
+      }
+#endif
     }
 
 #ifndef NDEBUG
@@ -225,7 +241,7 @@ void updateThreads()
 	    }
 #endif
 
-	   return;
+	   return false;
 	}
 
     // This can be potentially large so do it in one transaction!
@@ -251,7 +267,7 @@ void updateThreads()
 	    "  AND posix_tid ISNULL;"
 	    );
 	database->bindArgument(1, (*i).getHost());
-	database->bindArgument(2, static_cast<int>((*i).getPid().second));
+	database->bindArgument(2, static_cast<int>((*i).getPid()));
 	while(database->executeStatement())
 	    thread = database->getResultAsInteger(1);
 
@@ -265,7 +281,7 @@ void updateThreads()
 		    output << "[TID " << pthread_self() << "] "
 		       << "updateThreads(): " 
 		       << "UPDATE Threads SET posix_tid:" << (*i).getPosixThreadId().second
-		       << " rank:" << (*i).getMPIRank().second
+		       << " rank:" << (*i).getMPIRank()
 		       << " For thread id:" << thread << std::endl;
 		    std::cerr << output.str();
 		}
@@ -280,12 +296,12 @@ void updateThreads()
 		database->bindArgument(2, thread);
 		while(database->executeStatement());
 
-		if ((*i).getMPIRank().second >= 0 ) {
+		if ((*i).getMPIRank() >= 0 ) {
 		  database->prepareStatement(
 		    "UPDATE Threads SET mpi_rank = ? WHERE id = ?;"
 		    );
 		  database->bindArgument(
-		    1, static_cast<int>((*i).getMPIRank().second)
+		    1, static_cast<int>((*i).getMPIRank())
 		    );
 		  database->bindArgument(2, thread);
 		  while(database->executeStatement());
@@ -305,10 +321,18 @@ void updateThreads()
 	    "FROM Threads "
 	    "WHERE host = ? "
 	    "  AND pid = ? "
+#if 1
+	    "  AND posix_tid = ? "
+	    "  AND mpi_rank = ? "
+#endif
 	    );
 
 	database->bindArgument(1, (*i).getHost());
-	database->bindArgument(2, static_cast<int>((*i).getPid().second));
+	database->bindArgument(2, static_cast<int>((*i).getPid()));
+#if 1
+	database->bindArgument(3, static_cast<pthread_t>((*i).getPosixThreadId().second));
+	database->bindArgument(4, static_cast<int>((*i).getMPIRank()));
+#endif
 
 	while(database->executeStatement())
 	    thread = database->getResultAsInteger(1);
@@ -319,31 +343,32 @@ void updateThreads()
 		    std::stringstream output;
 		    output << "[TID " << pthread_self() << "] "
 		       << "updateThreads(): " 
-		       << "FOUND existing HOST:PID in database"
-		       << " host:" << (*i).getHost()
-		       << " pid:" << (*i).getPid().second
-		       << " posix_tid:" << (*i).getPosixThreadId().second
-		       << " mpi_rank:" << (*i).getMPIRank().second << std::endl;
+		       << "FOUND existing thread in database"
+		       << " " << (*i).getHost()
+		       << ":" << (*i).getPid()
+		       << ":" << (*i).getPosixThreadId().second
+		       << ":" << (*i).getMPIRank() << std::endl;
 		    std::cerr << output.str();
 		}
 #endif
+	    } else if (thread == -1 ) {
 		database->prepareStatement(
 		    "INSERT INTO Threads (host, pid, posix_tid) VALUES (?, ?, ?);"
 		    );
 	        database->bindArgument(1, (*i).getHost());
-	        database->bindArgument(2, static_cast<int>((*i).getPid().second));
+	        database->bindArgument(2, static_cast<int>((*i).getPid()));
 		database->bindArgument(3, static_cast<pthread_t>((*i).getPosixThreadId().second));
 	        while(database->executeStatement());
 
 	        int thread = database->getLastInsertedUID();
 	        ThreadTable::TheTable.addThread(Thread(database, thread));
 
-		if ((*i).getMPIRank().second >= 0) {
+		if ((*i).getMPIRank() >= 0) {
 		  database->prepareStatement(
 		    "UPDATE Threads SET mpi_rank = ? WHERE id = ?;"
 		    );
 		  database->bindArgument(
-		    1, static_cast<int>((*i).getMPIRank().second)
+		    1, static_cast<int>((*i).getMPIRank())
 		    );
 		  database->bindArgument(2, thread);
 		  while(database->executeStatement());
@@ -358,10 +383,10 @@ void updateThreads()
 		    output << "[TID " << pthread_self() << "] "
 		       << "updateThreads(): " 
 		       << "New Thread - INSERTING"
-		       << " host:" << (*i).getHost()
-		       << " pid:" << (*i).getPid().second
-		       << " posix tid:" << static_cast<pthread_t>((*i).getPosixThreadId().second)
-		       << " rank:" << (*i).getMPIRank().second << std::endl;
+		       << " " << (*i).getHost()
+		       << ":" << (*i).getPid()
+		       << ":" << static_cast<pthread_t>((*i).getPosixThreadId().second)
+		       << ":" << (*i).getMPIRank() << std::endl;
 		    std::cerr << output.str();
 		}
 #endif
@@ -370,7 +395,7 @@ void updateThreads()
 		    );
 
 	        database->bindArgument(1, (*i).getHost());
-	        database->bindArgument(2, static_cast<int>((*i).getPid().second));
+	        database->bindArgument(2, static_cast<int>((*i).getPid()));
 	        while(database->executeStatement());
 
 	        int thread = database->getLastInsertedUID();
@@ -387,12 +412,12 @@ void updateThreads()
 		  while(database->executeStatement());
 		}
 
-		if ((*i).getMPIRank().second >= 0) {
+		if ((*i).getMPIRank() >= 0) {
 		  database->prepareStatement(
 		    "UPDATE Threads SET mpi_rank = ? WHERE id = ?;"
 		    );
 		  database->bindArgument(
-		    1, static_cast<int>((*i).getMPIRank().second)
+		    1, static_cast<int>((*i).getMPIRank())
 		    );
 		  database->bindArgument(2, thread);
 		  while(database->executeStatement());
@@ -404,7 +429,8 @@ void updateThreads()
     END_TRANSACTION(database);
 
     // clear for any potential new threads
-    threadvec.clear();
+    //threadvec.clear();
+    return true;
 }
 
 
@@ -442,10 +468,20 @@ void Callbacks::attachedToThreads(const boost::shared_ptr<CBTF_Protocol_Attached
     // Iterate over each thread attached in this message
     // and add it to vector for later updating of database.
     for(int i = 0; i < message.threads.names.names_len; ++i) {
-//	ThreadName tname(message.threads.names.names_val[i]);
 	threadvec.push_back(message.threads.names.names_val[i]);
-//std::cerr << "pushed host " << message.threads.names.names_val[i].host << std::endl;
     }
+
+#if 0
+    // DPM TEST
+    if (threadvec.size() > 1000) {
+std::cerr << "Callbacks::attachedToThreads calls  updateThreads for threads > 1000 " << std::endl;
+        updateThreads();
+    }
+#else
+    //std::cerr << "Callbacks::attachedToThreads calls  updateThreads" << std::endl;
+    updateThreads();
+#endif
+
 }
 
 /**
@@ -570,7 +606,23 @@ static int abuftimes = 0;
  */
 void Callbacks::addressBuffer(const AddressBuffer& in)
 {
+    //std::cerr << "Callbacks::addressBuffer entered with " << in.addresscounts.size()
+    //    << " addresses" << std::endl;
  
+    //std::cerr << "Callbacks::addressBuffer calls  updateThreads" << std::endl;
+    updateThreads();
+
+#if 0
+    std::cerr << "Callbacks::addressBuffer pending data blobs " << pending_data.size() << std::endl;
+
+    if (pending_data.size() > 0) {
+	for (std::vector<OpenSpeedShop::Framework::Blob>::iterator it = pending_data.begin();
+	     it != pending_data.end();++it) {
+	DataQueues::enqueuePerformanceData(*it);
+	}
+    }
+#endif
+
     // This message come after all threads have finished and therefore
     // all datablobs have been sent and are queued.
     // Flush the dataqueues now.
@@ -662,14 +714,15 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 		std::set<LinkedObject> stlo;
 		std::pair<std::set<std::string>::iterator,bool> ret = linkedobjs.insert((*li).getPath());
 		if (ret.second) {
+
 #ifndef NDEBUG
-    if(Frontend::isTimingDebugEnabled()) {
-       //in.printResults();
-	std::stringstream output;
-	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
-	       << " Callbacks::addressBuffer insert symtab " << (*li).getPath() << std::endl;
-	std::cerr << output.str();
-    }
+		    if(Frontend::isTimingDebugEnabled()) {
+			std::stringstream output;
+			output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
+			    << " Callbacks::addressBuffer insert symtab " <<
+			    (*li).getPath() << std::endl;
+			std::cerr << output.str();
+		    }
 #endif
 		    stlo.insert(*li);
 		    symtabmap.insert(std::make_pair(*ar,
@@ -688,10 +741,14 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
-       //in.printResults();
+	//in.printResults();
 	std::stringstream output;
 	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "]"
-	       << " Callbacks::addressBuffer resolving symbols" << std::endl;
+#if defined(HAVE_DYNINST)
+	       << " Callbacks::addressBuffer resolving functions,statements,loops" << std::endl;
+#else
+	       << " Callbacks::addressBuffer resolving functions,statements" << std::endl;
+#endif
 	std::cerr << output.str();
     }
 #endif
@@ -705,7 +762,9 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 	std::set<LinkedObject> le = i->second.second;
         for(std::set<LinkedObject>::const_iterator li = le.begin();
 		li != le.end(); ++li) {
-	    //stapi_symbols.getSymbols(&pcbuff,*li,symtabmap);
+#if defined(HAVE_DYNINST)
+	    DyninstSymbols::getLoops(addresses, *li, symtabmap);
+#endif
 	    stapi_symbols.getSymbols(addresses,*li,symtabmap);
 	}
     }
@@ -857,13 +916,13 @@ std::cerr << "Address:" << addr <<  " file:" << (*si).getPath() << " line:" << (
         }
     }
 
-std::cerr << "TOTAL ADDRESS COUNTS:" << totalcounts  << " STATEMENT COUNTS:" << totalstatementcounts << std::endl;
+    std::cerr << "TOTAL ADDRESS COUNTS:" << totalcounts  << " STATEMENT COUNTS:" << totalstatementcounts << std::endl;
 
 
     std::map<Statement,uint64_t>::iterator it;
     for(it=scMap.begin(); it!=scMap.end(); ++it)
     {
-std::cerr << "Statement at file:" << (*it).first.getPath() << " line:" << (*it).first.getLine() << " counts:" << (*it).second  << std::endl;
+	std::cerr << "Statement at file:" << (*it).first.getPath() << " line:" << (*it).first.getLine() << " counts:" << (*it).second  << std::endl;
     }
 #endif
 
@@ -1039,8 +1098,10 @@ void Callbacks::linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedOb
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
-	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::"
-	       << toString(message) << " num objs " << message.linkedobjects.linkedobjects_len;
+	output << "TIME " << Time::Now()
+	       << " [TID " << pthread_self() << "] Callbacks::linkedObjectGroup"
+	       << " num objs " << message.linkedobjects.linkedobjects_len
+	       << std::endl;
 	std::cerr << output.str();
     }
 #endif
@@ -1140,6 +1201,14 @@ void Callbacks::linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedOb
  */
 void Callbacks::linkedObjectEntryVec(const KrellInstitute::Core::LinkedObjectEntryVec & in)
 {
+#ifndef NDEBUG
+    if(Frontend::isTimingDebugEnabled()) {
+	std::stringstream output;
+	output << "TIME " << Time::Now() << " [TID " << pthread_self() << "] Callbacks::linkedObjectEntryVec"
+	       << " input vector size is " << in.size() << std::endl;;
+	std::cerr << output.str();
+    }
+#endif
     linkedobjectvec = in;
 }
 
@@ -1502,14 +1571,30 @@ void Callbacks::performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & in
     }
 #endif
  
-    updateThreads();
+    //std::cerr << "Callbacks::performanceData calls  updateThreads" << std::endl;
+    bool found_threads = updateThreads();
     
 
     // Enqueue this performance data.  For now we will not flush
     // the dataqueue per blob as that is going to thrash the database.
     OpenSpeedShop::Framework::Blob blob(message.data.data_len,message.data.data_val);
+#if 0
+    if (!found_threads) {
+	pending_data.push_back(blob);	
+    std::cerr << "Callbacks::performanceData pending data blobs " << pending_data.size() << std::endl;
+	return;
+    } else {
+	DataQueues::enqueuePerformanceData(blob);
+    }
+#else
+    pending_blobs++;
     DataQueues::enqueuePerformanceData(blob);
+#endif
     // used to flush queue here.
+    if (found_threads && pending_blobs > 1000) {
+	DataQueues::flushPerformanceData();
+	pending_blobs = 0;
+    }
 
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
