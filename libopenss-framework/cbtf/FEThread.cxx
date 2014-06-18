@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2012-13 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2012-14 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -44,6 +44,15 @@ using namespace KrellInstitute::Core;
  * main thread for the example collection tool.
  */
 
+namespace {
+    void suspend()
+    {
+        struct timespec wait;
+        wait.tv_sec = 0;
+        wait.tv_nsec = 5000 * 1000 * 1000;
+        while(nanosleep(&wait, &wait));
+    }
+}
 
 FEThread::FEThread()
 {
@@ -280,12 +289,10 @@ void FEThread::run(const std::string& topology, const std::string& connections,
     bool threads_done = false;
     while (true) {
 	threads_done = *threads_finished;
-	nanosleep((struct timespec[]){{0, 500000000}}, NULL);
+	suspend();
 	if (threads_done) {
 	    finished = true;
 	    break;
 	}
-	//finished = *threads_finished;
-	//if (finished) break;
     }
 }
