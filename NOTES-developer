@@ -14,6 +14,17 @@ select posix_tid from threads;
 select host from threads;
 select command from threads;
 
+# accessing counts inside a table
+select view_cmd from Views;
+select view_data from Views;
+select view_data from Views WHERE view_cmd = "expview"
+
+sqlite> select count (view_data) from Views;
+0
+sqlite> select count (view_cmd) from Views;
+1
+
+
 an so on an so forth...
 
 
@@ -87,3 +98,11 @@ NOTE 8: Finding if library is compiled without -fPIC
 > objdump --reloc $i 2>/dev/null | grep R_X86_64_32S > /dev/null && echo $i;
 > done
 >
+
+
+NOTE 9: cluster analysis in the CLI:
+
+openss>>cviewcluster  # optionally add: -vlinkedobjects or other qualifiers
+2
+3
+openss>>cview -c 2,3 -mthreadaverage 
