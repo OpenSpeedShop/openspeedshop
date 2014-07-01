@@ -468,8 +468,14 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
   printf("Enter Generic_View, print view params with topn=%d \n",topn);
   Print_View_Params (std::cerr, CV,MV,IV);
 #endif
- // Warn about misspelled of meaningless options.
-  Validate_V_Options (cmd, allowed_stats_V_options);
+
+  // Warn about misspelled of meaningless options and exit the build view 
+  // processing allowing the user to correct their bad -v option
+  bool all_valid = Validate_V_Options (cmd, allowed_stats_V_options);
+  if (all_valid == false) {
+      // Soft error was already put out
+      return false;   // All the options were not correct, do not spend all the time for a questionable view
+    }
 
   bool report_Column_summary = false;
   CommandResult *TotalValue = NULL;
