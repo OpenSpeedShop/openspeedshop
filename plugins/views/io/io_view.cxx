@@ -693,7 +693,12 @@ static bool io_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t t
       return false;
     }
 
-    Validate_V_Options (cmd, allowed_io_V_options);
+    // Warn about misspelled of meaningless options and exit command processing without generating a view.
+    bool all_valid = Validate_V_Options (cmd, allowed_io_V_options);
+    if ( all_valid == false ) {
+      return false;
+    }
+
     return define_io_columns (cmd, exp, CV, MV, IV, HV, vfc);
 }
 

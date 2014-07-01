@@ -612,7 +612,12 @@ static bool mpi_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t 
       return false;
     }
 
-    Validate_V_Options (cmd, allowed_mpi_V_options);
+    // Warn about misspelled of meaningless options and exit command processing without generating a view.
+    bool all_valid = Validate_V_Options (cmd, allowed_mpi_V_options);
+    if ( all_valid == false ) {
+      return false;
+    }
+
     return define_mpi_columns (cmd, exp, CV, MV, IV, HV, vfc);
 }
 

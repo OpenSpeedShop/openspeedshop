@@ -401,7 +401,12 @@ static bool usertime_definition (
                              std::vector<ViewInstruction *>& IV, std::vector<std::string>& HV,
                              View_Form_Category vfc) {
 
-    Validate_V_Options (cmd, allowed_usertime_V_options);
+    // Warn about misspelled of meaningless options and exit command processing without generating a view.
+    bool all_valid = Validate_V_Options (cmd, allowed_usertime_V_options);
+    if ( all_valid == false ) {
+      return false;
+    }
+
 
     CV.push_back (Get_Collector (exp->FW(), "usertime"));  // Define the collector
     MV.push_back ("inclusive_detail"); // define the metric needed for getting main time values

@@ -243,8 +243,11 @@ class pcsamp_view : public ViewType {
     std::vector<std::string> HV;
     MV.push_back(VIEW_pcsamp_metrics[0]);  // Use the Collector with the first metric
 
-   // Warn about misspelled of meaningless options.
-    Validate_V_Options (cmd, allowed_pcsamp_V_options);
+   // Warn about misspelled of meaningless options and exit command processing without generating a view.
+    bool all_valid = Validate_V_Options (cmd, allowed_pcsamp_V_options);
+    if ( all_valid == false ) {
+      return false;
+    }
 
    // Initialize the one supported metric.
     CV.push_back( Get_Collector (exp->FW(), VIEW_pcsamp_collectors[0]) ); // use pcsamp collector
@@ -486,8 +489,11 @@ class hwc_view : public ViewType {
     std::vector<ViewInstruction *>IV;
     std::vector<std::string> HV;
 
-   // Warn about misspelled of meaningless options.
-    Validate_V_Options (cmd, allowed_hwc_V_options);
+   // Warn about misspelled of meaningless options and exit command processing without generating a view.
+    bool all_valid = Validate_V_Options (cmd, allowed_hwc_V_options);
+    if ( all_valid == false ) {
+      return false;
+    }
   
    // Initialize the one supported metric.
     CV.push_back( Get_Collector (exp->FW(), VIEW_hwc_collectors[0]) ); // use hwc collector
