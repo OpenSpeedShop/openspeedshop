@@ -106,3 +106,11 @@ openss>>cviewcluster  # optionally add: -vlinkedobjects or other qualifiers
 2
 3
 openss>>cview -c 2,3 -mthreadaverage 
+
+
+NOTE 10: Using valgrind for finding memory bugs:
+
+valgrind --trace-children=yes --log-file=mylog.txt --tool=memcheck --leak-check=yes openss -cli -f smg2000-usertime-1.openss
+
+
+
