@@ -773,12 +773,15 @@ static bool Generate_CustomView (CommandObject *cmd,
   for (int64_t i = 0; i < Quick_Compare_Set[0].numColumns; i ++) {
     Assert (Base_Column_Type[next_column++] != NULL);
   }
-  for (int64_t i = 1, j = 0; i < Quick_Compare_Set[i].numColumns; i++, j++) {
-    if (Base_Column_Type[next_column] == NULL) {
-     // Steal NULL type entry from base metrics and hope it will be okay.
-      Base_Column_Type[next_column] = Base_Column_Type[(Compute_Delta?1:0) + j];
+
+  for (int64_t i = 1; i < numQuickSets; i++) {
+    for (int64_t j = 0; j < Quick_Compare_Set[i].numColumns; j++) {
+      if (Base_Column_Type[next_column] == NULL) {
+       // Steal NULL type entry from base metrics and hope it will be okay.
+        Base_Column_Type[next_column] = Base_Column_Type[(Compute_Delta?1:0) + j];
+      }
+      next_column++;
     }
-    next_column++;
   }
 
  // Merge the values from the various compare sets.
