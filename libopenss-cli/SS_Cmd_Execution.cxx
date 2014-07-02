@@ -5090,15 +5090,10 @@ static bool SS_ListAppCommand (CommandObject *cmd) {
       cmd->Result_String ("'list -v appcommand' must have an experiment active.");
       return false;
   }
-  if (experiment->getVersion() >= 2) {
-    std::string appCommand = experiment->getApplicationCommand();
-    cmd->Result_String ( appCommand );
-  } else {
-#ifdef ERROR_CHECKING
-    cmd->Result_String ("'list -v appcommand' not supported in this version of the database.");
-    return false;
-#endif
-  }
+
+  std::string appCommand = experiment->getApplicationCommand();
+  cmd->Result_String ( appCommand );
+
   cmd->set_Status(CMD_COMPLETE);
   return true;
 }
