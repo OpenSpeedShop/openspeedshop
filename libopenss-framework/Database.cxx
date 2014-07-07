@@ -519,9 +519,15 @@ void Database::prepareStatement(const std::string& statement)
 	
 	// Prepare this statement for execution
 	const char* tail = NULL;
-	int retval = sqlite3_prepare(handle.dm_database, 
-				     statement.c_str(), statement.size(),
-				     &stmt, &tail);
+
+        // switched to sqlite3_prepare_v2 from sqlite3_prepare on July 7, 2014
+        // this change appears to have fixed database version update problems that
+        // had been occurring when old databases were read with a newer version of 
+        // OpenSpeedShop that supported a different database schema.
+
+	int retval = sqlite3_prepare_v2(handle.dm_database, 
+				        statement.c_str(), statement.size(),
+				        &stmt, &tail);
 	if(retval == SQLITE_ERROR) {
 	    std::string errmsg = sqlite3_errmsg(handle.dm_database);
 	    if(errmsg.find("syntax error") == std::string::npos)
