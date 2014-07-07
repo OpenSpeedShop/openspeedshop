@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007-2011 Krell Institute  All Rights Reserved.
+// Copyright (c) 2007-2014 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -92,6 +92,17 @@ CLIInterface::~CLIInterface()
 {
 }
 
+
+/**
+ * Call into the CLI and ultimately the framework to get the metrics associated with the view command
+ *
+ * Returns the clip with command objects that represent the view requested
+ *
+ * @wid           The window id of the requesting window (GUI in this situation)
+ * @return        Clip (InputLineObject *) with included command objects
+ */
+
+
 InputLineObject *
 CLIInterface::run_Append_Input_String( int wid, const char *command )
 {
@@ -101,6 +112,7 @@ CLIInterface::run_Append_Input_String( int wid, const char *command )
 #ifdef DEBUG_GUI
   printf("run_Append_Input_String(2) command = (%s)\n", command );
 #endif
+
 //  nprintf(DEBUG_COMMANDS) ("run_Append_Input_String(2) command = (%s)\n", command );
 
   InputLineObject *clip = Append_Input_String( wid, (char *)command);
@@ -455,7 +467,7 @@ CLIInterface::getIntListValueFromCLI(const char *command, std::list<int64_t> *in
 /*! Run a synchronous command and return a string value.
     \param command   The command line interface (cli) command to execute.
 
-    \param str_val    The string values returned form the cli.
+    \param str_val    The string value returned form the cli.
 
     \param mark_for_delete   If true delete the values in the cli's objects.
 
@@ -573,7 +585,7 @@ CLIInterface::getStringValueFromCLI(const char *command, std::string *str_val, b
 /*! Run a synchronous command and return a list of string values.
     \param command   The command line interface (cli) command to execute.
 
-    \param int_list    The integer values returned form the cli.
+    \param str_list    The string values returned form the cli.
 
     \param mark_for_delete   If true delete the values in the cli's objects.
 
@@ -595,7 +607,9 @@ CLIInterface::getStringListValueFromCLI(const char *command, std::list<std::stri
   warn_of_time = wot;
 
   QApplication::setOverrideCursor(QCursor::WaitCursor);
+
 nprintf(DEBUG_COMMANDS) ("getStringListValueFromCLI() command = (%s)\n", command );
+
   clip = Append_Input_String( wid, (char *)command);
   if( clip == NULL )
   {
