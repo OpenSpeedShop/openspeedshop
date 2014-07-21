@@ -24,7 +24,6 @@ SUBDIRS = basic \
           hwctime \
           usertime \
           mpi \
-          mpip \
           mpit \
           mpiotf \
           io \
@@ -32,7 +31,7 @@ SUBDIRS = basic \
           fpe
 
 if BUILD_CBTF
-SUBDIRS += mem pthreads iop
+SUBDIRS += mem pthreads iop mpip
 endif
 
 
