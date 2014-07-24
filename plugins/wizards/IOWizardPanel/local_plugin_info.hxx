@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+// Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -26,5 +27,5 @@ plugin_entry->plugin_short_description = (char *) "Manages setup for the IO Expe
   plugin_entry->menu_heading = (char *) "&File";
   plugin_entry->sub_menu_heading = (char *) "&Wizards";
   plugin_entry->menu_label = (char *) "IO Wizard";
-  plugin_entry->menu_accel = (char *) "Alt+D";
+  plugin_entry->menu_accel = (char *) "Alt+5";
   plugin_entry->panel_type = (char *) "IO Wizard";

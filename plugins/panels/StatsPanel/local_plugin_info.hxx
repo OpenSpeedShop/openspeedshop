@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2011 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -27,7 +27,7 @@
   plugin_entry->plugin_entry_point = (char *) "panel_init";
   plugin_entry->menu_heading = (char *) ""; // Leaving this blank hides the menu entry.
   plugin_entry->menu_label = (char *) "Stats Panel";
-  plugin_entry->menu_accel = (char *) "Alt+R";
+  plugin_entry->menu_accel = (char *) "Alt+Q";
   plugin_entry->panel_type = (char *) "Stats Panel";
   plugin_entry->preference_category = (char *) "Stats Panel";
   plugin_entry->initialize_preferences_entry_point = (char *) "initialize_preferences_entry_point";

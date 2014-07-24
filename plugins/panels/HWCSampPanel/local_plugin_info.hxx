@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2010 Krell Institute All Rights Reserved.
+// Copyright (c) 2010-2014 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -25,7 +25,7 @@
   plugin_entry->plugin_location = (char *) "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = (char *) "panel_init";
   plugin_entry->menu_heading = (char *) "&File";
-  plugin_entry->sub_menu_heading = (char *) "E&xperiments";
+  plugin_entry->sub_menu_heading = (char *) "&Experiments";
   plugin_entry->menu_label = (char *) "HWCSamp Panel";
-  plugin_entry->menu_accel = (char *) "Alt+H";
+  plugin_entry->menu_accel = (char *) "Alt+E";
   plugin_entry->panel_type = (char *) "HWCSamp Panel";

@@ -28,5 +28,5 @@
   plugin_entry->menu_heading = (char *) "&File";
   plugin_entry->sub_menu_heading = (char *) "&Experiments";
   plugin_entry->menu_label = (char *) "MPIP";
-  plugin_entry->menu_accel = (char *) "Alt+M";
+  plugin_entry->menu_accel = (char *) "Alt+P";
   plugin_entry->panel_type = (char *) "MPIP";

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2011 Krell Institute, Inc. All Rights Reserved.
+// Copyright (c) 2011-2014 Krell Institute, Inc. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -27,5 +27,5 @@ plugin_entry->plugin_short_description = (char *) "Manages setup for the Hardwar
   plugin_entry->menu_heading = (char *) "&File";
   plugin_entry->sub_menu_heading = (char *) "&Wizards";
   plugin_entry->menu_label = (char *) "HW Counter Samp Wizard";
-  plugin_entry->menu_accel = (char *) "Alt+B";
+  plugin_entry->menu_accel = (char *) "Alt+3";
   plugin_entry->panel_type = (char *) "HW Counter Samp Wizard";

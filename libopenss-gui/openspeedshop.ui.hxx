@@ -661,6 +661,7 @@ void OpenSpeedshop::helpContents()
   
   assistant->openAssistant();
   QString s = QString("%1/users_guide/index.html").arg(doc_dir);
+
   assistant->showPage( s );
 }
 

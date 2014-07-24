@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2011 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -134,7 +134,7 @@ OpenSpeedshop::OpenSpeedshop( int _wid, int _climode, QWidget* parent, const cha
   fileMenu->insertSeparator();
   QPopupMenu *experimentsMenu = new QPopupMenu(this);
   QPopupMenu *wizardsMenu = new QPopupMenu(this);
-  fileMenu->insertItem( "E&xperiments", experimentsMenu, 1 );
+  fileMenu->insertItem( "&Experiments", experimentsMenu, 1 );
   fileMenu->insertItem( "&Wizards", wizardsMenu, 3 );
 
   fileMenu->insertSeparator();

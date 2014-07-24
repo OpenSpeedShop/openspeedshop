@@ -26,7 +26,7 @@
   plugin_entry->plugin_location = (char *) "$OPENSS_PLUGIN_PATH";
   plugin_entry->plugin_entry_point = (char *) "panel_init";
   plugin_entry->menu_heading = (char *) "&File";
-  plugin_entry->sub_menu_heading = (char *) "E&xperiments";
+  plugin_entry->sub_menu_heading = (char *) "&Experiments";
   plugin_entry->menu_label = (char *) "Memory Tracing";
-  plugin_entry->menu_accel = (char *) "Alt+M";
+  plugin_entry->menu_accel = (char *) "Alt+K";
   plugin_entry->panel_type = (char *) "MEM";

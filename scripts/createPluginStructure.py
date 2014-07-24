@@ -663,7 +663,7 @@ def add_panel_files() :
 					'\"$OPENSS_PLUGIN_PATH\";\n' +
 					'  plugin_entry->plugin_entry_point = \"panel_init\";\n' +
 					'  plugin_entry->menu_heading =  \"&File\";\n' +
-					'  plugin_entry->sub_menu_heading =  \"E&xperiments\";\n' +
+					'  plugin_entry->sub_menu_heading =  \"&Experiments\";\n' +
 					'  plugin_entry->menu_label =  \"' + 
 					raw_plugin_name + '\";\n' +
 					'  plugin_entry->menu_accel =  \"Alt+Q\";\n' +
