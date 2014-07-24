@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
-# Copyright (c) 2006-2010 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -18,13 +18,11 @@
 ################################################################################
 
 # directories that will be affected
-SUBDIRS = TroubleShootingGuide
+SUBDIRS = OpenSpeedShop_BuildInstallGuide_files OpenSpeedShop_User_Manual_files
 
-DIST_SUBDIRS = TroubleShootingGuide BuildInstallGuide_files BuildTutorial usersGuide-1.9c_files
+DIST_SUBDIRS = OpenSpeedShop_BuildInstallGuide_files OpenSpeedShop_User_Manual_files
 
-EXTRA_DIST = BuildingInstallingDPCL.html \
-	BuildInstallGuideTutorial.html \
-	OpenSpeedShopTargetUsage.html \
+EXTRA_DIST = BuildAndInstallGuide.html \
 	QuickStartGuide.html \
 	index.html \
 	Makefile.am \
@@ -40,14 +38,15 @@ packver = @PACKAGE@-@VERSION@
 #docdir2  = ${prefix}/share/doc/@PACKAGE@-@VERSION@/users_guide/TroubleShootingGuide
 #docdir3  = ${prefix}/share/doc/@PACKAGE@-@VERSION@
 docdir  = ${prefix}/share/doc/packages/OpenSpeedShop/users_guide
-docdir2  = ${prefix}/share/doc/packages/OpenSpeedShop/users_guide/TroubleShootingGuide
 docdir3  = ${prefix}/share/doc/packages/OpenSpeedShop
-docdir4  = ${prefix}/share/doc/packages/OpenSpeedShop/users_guide/usersGuide-1.9c_files
+docdir4  = ${prefix}/share/doc/packages/OpenSpeedShop/users_guide/OpenSpeedShop_User_Manual_files
+docdir5  = ${prefix}/share/doc/packages/OpenSpeedShop/users_guide/OpenSpeedShop_BuildInstallGuide_files
 
 install-reference: index.html
 	@$(NORMAL_INSTALL)
 	${mkinstalldirs} ${DESTDIR}${docdir}
-	${mkinstalldirs} ${DESTDIR}${docdir2}
+	${mkinstalldirs} ${DESTDIR}${docdir4}
+	${mkinstalldirs} ${DESTDIR}${docdir5}
 	if test -f index.html ; then \
 		for file in *.html ; do \
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
@@ -59,43 +58,33 @@ install-reference: index.html
 		done ; \
 		${INSTALL_DATA} OpenSpeedShop_Logo.jpg ${DESTDIR}${docdir} ;\
 	fi
-	if test -f TroubleShootingGuide/index.html ; then \
-		for file in TroubleShootingGuide/*.html ; do \
+	if test -f OpenSpeedShop_User_Manual_files/filelist.xml ; then \
+		for file in OpenSpeedShop_User_Manual_files/*.htm ; do \
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-			${INSTALL_DATA} $$file ${DESTDIR}${docdir2}/$$basefile; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
 		done ; \
-		for file in TroubleShootingGuide/*.png ; do \
+		for file in OpenSpeedShop_User_Manual_files/*.png ; do \
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-			${INSTALL_DATA} $$file ${DESTDIR}${docdir2}/$$basefile; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
 		done ; \
-		${INSTALL_DATA} TroubleShootingGuide/doxygen.css ${DESTDIR}${docdir2} ;\
+		for file in OpenSpeedShop_User_Manual_files/*.xml ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
+		done ; \
+		for file in OpenSpeedShop_User_Manual_files/*.jpg ; do \
+			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
+		done ; \
 	fi
-	if test -f usersGuide-1.9c_files/index.html ; then \
-		for file in usersGuide-1.9c_files/*.htm ; do \
+	if test -f OpenSpeedShop_BuildInstallGuide_files/filelist.xml ; then \
+		for file in OpenSpeedShop_BuildInstallGuide_files/*.htm ; do \
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir5}/$$basefile; \
 		done ; \
-		for file in usersGuide-1.9c_files/*.html ; do \
+		for file in OpenSpeedShop_BuildInstallGuide_files/*.xml ; do \
 			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
+			${INSTALL_DATA} $$file ${DESTDIR}${docdir5}/$$basefile; \
 		done ; \
-		for file in usersGuide-1.9c_files/*.gif ; do \
-			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
-		done ; \
-		for file in usersGuide-1.9c_files/*.png ; do \
-			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
-		done ; \
-		for file in usersGuide-1.9c_files/*.thmx ; do \
-			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
-		done ; \
-		for file in usersGuide-1.9c_files/*.xml ; do \
-			basefile=`echo $$file | sed -e 's,^.*/,,'`; \
-			${INSTALL_DATA} $$file ${DESTDIR}${docdir4}/$$basefile; \
-		done ; \
-		${INSTALL_DATA} usersGuide-1.9c_files/doxygen.css ${DESTDIR}${docdir4} ;\
 	fi
 
 uninstall-reference: index.html
@@ -105,12 +94,13 @@ uninstall-reference: index.html
 	for file in $$dir/* ; do \
 		basefile=`echo $$file | sed -e 's,^.*/,,'`; \
 		rm -f ${DESTDIR}${docdir}/$$basefile; \
-		rm -f ${DESTDIR}${docdir2}/$$basefile; \
 		rm -f ${DESTDIR}${docdir4}/$$basefile; \
+		rm -f ${DESTDIR}${docdir5}/$$basefile; \
 	done
 	-rm -rf ${DESTDIR}${docdir}/
-	-rm -rf ${DESTDIR}${docdir2}/
 	-rm -rf ${DESTDIR}${docdir3}/
+	-rm -rf ${DESTDIR}${docdir4}/
+	-rm -rf ${DESTDIR}${docdir5}/
 
 all-local: index.html
 
