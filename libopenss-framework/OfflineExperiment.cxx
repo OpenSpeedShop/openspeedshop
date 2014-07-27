@@ -936,7 +936,7 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 		itlow = unique_addresses.lower_bound (range.getBegin()); itlow--;
 		itup = unique_addresses.upper_bound (range.getEnd()); itup--;
 		if ( !(range.doesContain(*itlow) || range.doesContain(*itup)) ) {
-		    //std::cerr << "range DOES NOT contain " << *itlow << " Or " << *itup << std::endl;
+		    //std::cerr << "range " << range << " DOES NOT contain " << *itlow << " Or " << *itup << std::endl;
 		    continue;
 		}
 
@@ -949,8 +949,8 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 		TimeInterval time_interval(Time(objs.objs.objs_val[i].time_begin),
 					   Time(objs.objs.objs_val[i].time_end));
 		uint64_t ttime = objs.objs.objs_val[i].time_end - objs.objs.objs_val[i].time_begin;
-		if (ttime < 1000000000) {
-		    //std::cerr << "Time interval to small for meaningful sample " << ttime << std::endl;
+		if (ttime < 50000000) {
+		    std::cerr << "Time interval to small for meaningful sample " << ttime << std::endl;
 		    continue;
 		}
 
@@ -1140,9 +1140,12 @@ void OfflineExperiment::createOfflineSymbolTable()
     // unique_addresses with the head address of every loop so that later
     // getSymbols() will get the statement containing these addresses.
 #if defined(HAVE_DYNINST)
-    DyninstSymbols::getLoops(unique_addresses, lo, symtabmap);
+	//std::cerr << Time::Now() << " Resolve loop address" << std::endl;
+	DyninstSymbols::getLoops(unique_addresses, lo, symtabmap);
 #endif
+	//std::cerr << Time::Now() << " Resolve symbols" << std::endl;
 	stapi_symbols.getSymbols(unique_addresses,lo,symtabmap);
+	//std::cerr << Time::Now() << " Done with loops,symbols" << std::endl;
 #else
 	// If this is ever reused, it needs to use unique_addresses...
 	bfd_symbols.getSymbols(&data_addr_buffer,lo,symtabmap);

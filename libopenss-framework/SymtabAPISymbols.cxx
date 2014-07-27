@@ -89,8 +89,6 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 
 	if (found_symtab) {
 	    SymbolTable& st =  stm.find(range_for_stm)->second.first;
-	    //SymbolTable& st =  stm.find(*si)->second.first;
-	    //SymbolTable stp = st;
 
 	    Symtab *symtab;
 
@@ -149,7 +147,13 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 	    }
 
 
+	    // set up interators to only iterate over addresses that
+	    // are within the range of the shared object we are processing.
+	    // Do this out side of the loop on all symtabpai function symbols.
+	    // The same will be done later on symtabpai statements. 
 	    std::set<Address>::iterator ai;
+	    std::set<Address>::iterator ai_begin = addresses.equal_range(lrange.getBegin()).first;
+	    std::set<Address>::iterator ai_end = addresses.equal_range(lrange.getEnd()).second;
 	    std::set<Framework::Address> function_begin_addresses;
 	    std::vector<SymtabAPI::Function *>::iterator fsit;
 
@@ -171,8 +175,8 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 			    << std::endl;
 #endif
 
-		for (ai=addresses.equal_range(lrange.getBegin()).first;
-	     		ai!=addresses.equal_range(lrange.getEnd()).second;ai++) {
+		for (ai=ai_begin; ai!=ai_end; ++ai)
+		{
 		    // normalize address for testing range from symtabapi.
 		    Framework::Address theAddr(*ai - base.getValue()) ; 
 		    if (frange.doesContain( theAddr)) {
@@ -198,17 +202,6 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 			function_begin_addresses.insert(begin+base_for_stm);
 			break;
 
-		    } else {
-#if 0
-			std::string fname =
-				(*fsit)->getFirstSymbol()->getPrettyName();
-		            std::cerr << "NO FUNCTION " << fname
-			    << " RANGE " << frange
-			    << " REALRANGE " << AddressRange(frange.getBegin()+base,frange.getEnd()+base)
-			    << " for pc " << *ai
-			    << " adjusted pc " << theAddr
-			    << std::endl;
-#endif
 		    }
 		}
 	    }
@@ -250,8 +243,8 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 	    }
 #endif
 
-	    for (ai=addresses.equal_range(lrange.getBegin()).first;
-	     		    ai!=addresses.equal_range(lrange.getEnd()).second;ai++) {
+	    for (ai=ai_begin; ai!=ai_end; ++ai)
+	    {
 		// normalize address for testing range from symtabapi.
 		Framework::Address theAddr(*ai - base.getValue()) ; 
 		Offset myoffset = theAddr.getValue();
