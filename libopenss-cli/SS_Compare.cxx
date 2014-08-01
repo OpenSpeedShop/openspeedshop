@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2011 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -20,6 +20,7 @@
 
 #include "SS_Input_Manager.hxx"
 
+//#define DEBUG_REUSEVIEWS 1
 //#define DEBUG_COMPARE 1
 //#define DEBUG_COMPARE_SETS 1
 
@@ -423,9 +424,11 @@ static bool Generate_CustomView (CommandObject *cmd,
 #endif
 
     if (tgrp.size() > 0) {
+
 #if DEBUG_COMPARE
       printf("SSCOMPARE: Generate_CustomView, before calling vt->GenerateView, tgrp.size()=%d\n", tgrp.size());
 #endif
+
       bool success = vt->GenerateView (cmd, exp, Get_Trailing_Int (viewname, vt->Unique_Name().length()),
                                        tgrp, Quick_Compare_Set[i].partial_view);
 #if DEBUG_COMPARE
@@ -767,9 +770,11 @@ static bool Generate_CustomView (CommandObject *cmd,
   }
  // Third: Check that a base type entry is available to generate NULLs for every column.
   next_column = 0;
+
   if (Compute_Delta) {
     Assert (Base_Column_Type[next_column++] != NULL);
   }
+
   for (int64_t i = 0; i < Quick_Compare_Set[0].numColumns; i ++) {
     Assert (Base_Column_Type[next_column++] != NULL);
   }
@@ -938,6 +943,10 @@ bool SS_expCompare (CommandObject *cmd) {
 
   Assert(cmd->P_Result() != NULL);
   Assert (cmd->P_Result()->getViewSet()->empty());
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "ENTER SS_expCompare in SS_Compare.cxx" << std::endl;
+#endif
 
   int64_t i;
   std::vector<selectionTarget> Quick_Compare_Set;
@@ -1446,32 +1455,51 @@ bool SS_expCompare (CommandObject *cmd) {
     }
 
   }
+#if DEBUG_REUSEVIEWS
+    std::cerr << "IN SS_expCompare in SS_Compare.cxx, before saved view checks" << std::endl;
+#endif
 
  // Look for a saved view.
   savedViewInfo *svi = NULL;
-  if ( OPENSS_SAVE_VIEWS_FOR_REUSE &&
-       Find_SavedView( cmd ) ) {
 
-#if DEBUG_CLI
-    printf("In SS_expCompare in SS_Compare.cxx, reuse view from file: %s\n",
-            cmd->SaveResultFile().c_str());
+  if ( OPENSS_SAVE_VIEWS_FOR_REUSE && Find_SavedView( cmd ) ) {
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In SS_expCompare in SS_Compare.cxx, reuse view from file:" << cmd->SaveResultFile().c_str() << std::endl;
 #endif
 
     if (!cmd->SaveResult()) {
      // Previously generated output file found with requested view.
+
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In SS_expCompare (SS_Compare.cxx), Previously generated output file found with requested view:!cmd->SaveResult==true" << std::endl;
+#endif
       cmd->set_Status(CMD_COMPLETE);
       return true;
     }
 
    // An existing saved view is not available but provision has been made to create a new one.
     svi = cmd->SaveResultViewInfo();
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In SS_expCompare in SS_Compare.cxx, An existing saved view is not available but provision has been made to create a new one, svi=" << svi << std::endl;
+#endif
+
     if (svi != NULL) {
      // Set StartTime to measure how long it takes to generate the view.
       svi->setStartTime();
     }
   }
 
+#if DEBUG_REUSEVIEWS
+  std::cerr << "In SS_expCompare in SS_Compare.cxx, before calling Generate_CustomView" << std::endl;
+#endif
+
   bool success = Generate_CustomView (cmd, Quick_Compare_Set);
+
+#if DEBUG_REUSEVIEWS
+  std::cerr << "In SS_expCompare in SS_Compare.cxx, after calling Generate_CustomView" << std::endl;
+#endif
 
  // Set EndTIme if saving info after generation.
   svi = cmd->SaveResultViewInfo();
@@ -1479,9 +1507,15 @@ bool SS_expCompare (CommandObject *cmd) {
     if (success) {
       svi->setEndTime();
       std::ostream *tof = svi->writeHeader ();
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In SS_expCompare in SS_Compare.cxx, writing header and setting end-time, tof=" << tof << std::endl;
+#endif
       cmd->setSaveResultOstream( tof );
     } else {
       svi->setDoNotSave();
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In SS_expCompare in SS_Compare.cxx, setting DONOTSAVE, svi=" << svi << std::endl;
+#endif
     }
   }
 
@@ -2012,6 +2046,11 @@ bool SS_cView (CommandObject *cmd) {
 
  // Look for a saved view.
   savedViewInfo *svi = NULL;
+
+#if DEBUG_REUSEVIEWS
+  std::cerr << "In SS_cView, before if OPENSS_SAVE_VIEWS_FOR_REUSE=" << OPENSS_SAVE_VIEWS_FOR_REUSE << std::endl;
+#endif
+
   if ( OPENSS_SAVE_VIEWS_FOR_REUSE ) {
    // Find the experiment to attached the saved file to.
     std::vector<ParseRange> *expidlist = primary_result->getExpIdList();
@@ -2023,6 +2062,11 @@ bool SS_cView (CommandObject *cmd) {
 
    // If there are multiple EXPIDs involved, create an extra ID tag for any saved view file.
     std::string new_x_str;
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In SS_cView, before if referenced_experiments.size()=" << referenced_experiments.size() << std::endl;
+#endif
+
     if (referenced_experiments.size() > 1) {
       for (std::set<EXPID>::iterator rx=referenced_experiments.begin();
            rx != referenced_experiments.end(); rx++) {     
@@ -2036,11 +2080,14 @@ bool SS_cView (CommandObject *cmd) {
       }
     }
 
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In SS_cView, before calling Find_SavedView cmd=" << cmd << " new_x_str=" << new_x_str << std::endl;
+#endif
+
     if ( Find_SavedView( cmd, new_x_str ) ) {
 
-#if DEBUG_CLI
-    printf("In SS_expCompare in SS_cView.cxx, reuse view from file: %s\n",
-            cmd->SaveResultFile().c_str());
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In SS_cView, reuse view from file:" << cmd->SaveResultFile().c_str() << std::endl;
 #endif
 
       if (!cmd->SaveResult()) {
@@ -2064,17 +2111,30 @@ bool SS_cView (CommandObject *cmd) {
       }
     }
   }
+#if DEBUG_REUSEVIEWS
+  std::cerr << "In SS_cView, before calling Generate_CustomView" << std::endl;
+#endif
 
   bool success = Generate_CustomView (cmd, Quick_Compare_Set);
+
+#if DEBUG_REUSEVIEWS
+  std::cerr << "In SS_cView, after calling Generate_CustomView" << std::endl;
+#endif
 
  // Set EndTIme if saving info after generation.
   svi = cmd->SaveResultViewInfo();
   if (svi != NULL) {
     if (success) {
       svi->setEndTime();
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In SS_cView, calling writeHeader and saving the Ostream" << std::endl;
+#endif
       std::ostream *tof = svi->writeHeader ();
       cmd->setSaveResultOstream( tof );
     } else {
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In SS_cView-1, setting DONOTSAVE" << std::endl;
+#endif
       svi->setDoNotSave();
     }
   }
@@ -2283,7 +2343,14 @@ bool SS_cvClusters (CommandObject *cmd) {
  // Look for a saved view.
   std::string extended_cmd = C_Name + " -m " + M_Name;
   savedViewInfo *svi = NULL;
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In cvClusters in SS_Compare.cxx, checking the experiment list, OPENSS_SAVE_VIEWS_FOR_REUSE=" 
+              << OPENSS_SAVE_VIEWS_FOR_REUSE << " extended_cmd=" << extended_cmd << std::endl;
+#endif
+
   if ( OPENSS_SAVE_VIEWS_FOR_REUSE ) {
+
    // Find the experiment to attached the saved file to.
     std::vector<ParseRange> *expidlist = cmd->P_Result()->getExpIdList();
     if ( expidlist->empty() ) {
@@ -2292,20 +2359,34 @@ bool SS_cvClusters (CommandObject *cmd) {
       cmd->P_Result()->pushExpIdPoint(ExperimentID);
     }
 
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In cvClusters in SS_Compare.cxx, calling Find_SavedView, extended_cmd=" << extended_cmd << std::endl;
+#endif
+
     if ( Find_SavedView( cmd, extended_cmd ) ) {
 
-#if DEBUG_CLI
-    printf("In SS_expCompare in SS_cView.cxx, reuse view from file: %s\n",
-            cmd->SaveResultFile().c_str());
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In cvClusters in SS_Compare.cxx, reuse view from file: " << cmd->SaveResultFile().c_str() 
+              << " extended_cmd=" << extended_cmd << std::endl;
 #endif
 
       if (!cmd->SaveResult()) {
        // Previously generated output file found with requested view.
         cmd->set_Status(CMD_COMPLETE);
+
+#if DEBUG_REUSEVIEWS
+        std::cerr << "Early exit cvClusters in SS_Compare.cxx, reuse view from file: " << cmd->SaveResultFile().c_str() 
+                  << " extended_cmd=" << extended_cmd << std::endl;
+#endif
         return true;
       }
 
      // An existing saved view is not available but provision has been made to create a new one.
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In cvClusters in SS_Compare.cxx, create new view from file: " << cmd->SaveResultFile().c_str() << std::endl;
+#endif
+
       svi = cmd->SaveResultViewInfo();
       if (svi != NULL) {
        // Set StartTIme to measure how long it takes to generate the view.
@@ -2459,6 +2540,10 @@ bool SS_cvClusters (CommandObject *cmd) {
 
     }
 
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In cvClusters in SS_Compare.cxx, constructing a new CustomView" << std::endl;
+#endif
+
    // Construct a new CustomView.
     CustomView *cvp = new CustomView (new_result, *i);
 
@@ -2478,8 +2563,14 @@ bool SS_cvClusters (CommandObject *cmd) {
     if (Analysis_Okay) {
       svi->setEndTime();
       std::ostream *tof = svi->writeHeader ();
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In cvClusters-2 in SS_Compare.cxx, calling writeHeader and saving the Ostream, tof=" << tof << std::endl;
+#endif
       cmd->setSaveResultOstream( tof );
     } else {
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In cvClusters-2-1, setting DONOTSAVE" << std::endl;
+#endif
       svi->setDoNotSave();
     }
   }

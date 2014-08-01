@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2010 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -54,6 +54,7 @@ class CommandObject
   std::ostream *save_result_file_stream;
   std::string save_eoc;
   std::string save_eol;
+  int save_exp_id;
 
   void Associate_Input ()
   {
@@ -83,6 +84,7 @@ public:
     save_result_file_stream = NULL;
     save_eoc = "";
     save_eol = "";
+    save_exp_id = -1;
   }
   CommandObject(OpenSpeedShop::cli::ParseResult *pr, bool use_by_python)
   {
@@ -100,6 +102,7 @@ public:
     save_result_file_stream = NULL;
     save_eoc = "";
     save_eol = "";
+    save_exp_id = -1;
   }
   ~CommandObject() {
    // Destroy ParseResult object
@@ -146,7 +149,9 @@ public:
   int  SaveResultDataOffset() { return save_result_file_header_offset; }
   void setSaveResultDataOffset( int l ) { save_result_file_header_offset = l; }
   void setSaveEoc( std::string s ) { save_eoc = s; }
+  void setSaveExpId( int exp_id ) { save_exp_id = exp_id; }
   std::string SaveEoc() { return save_eoc; }
+  int SaveExpId() { return save_exp_id; }
   void setSaveEol( std::string s ) { save_eol = s; }
   std::string SaveEol() { return save_eol; }
 
@@ -233,4 +238,8 @@ public:
  // The Print_Results routine is for sending results to the user.
  // The result returned is "true" if there was information printed.
   bool Print_Results (std::ostream& to, std::string list_seperator, std::string termination_char);
+
+
+  void copyFile(std::string orig_cmd, std::string source, std::ostream &destination , int starting_offset );
+
 };

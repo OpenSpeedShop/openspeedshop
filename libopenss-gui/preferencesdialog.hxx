@@ -92,6 +92,7 @@ QString globalRemoteShell;
     int viewDateTimePrecision;
     bool viewFieldSizeIsDynamic;
     bool saveViewsForReuse;
+    int saveViewsTime;
 
     int viewFieldSize;
     int viewPrecision; 
@@ -139,6 +140,9 @@ protected:
       QLineEdit *viewDateTimePrecisionLineEdit;
     QCheckBox *viewFieldSizeIsDynamicCheckBox;
     QCheckBox *saveViewsForReuseCheckBox;
+    QHBoxLayout *saveViewsTimeLayout;
+      QLabel *saveViewsTimeLabel;
+      QLineEdit *saveViewsTimeLineEdit;
 
     QHBoxLayout *viewFieldSizeLayout;
       QLabel *viewFieldSizeLabel;

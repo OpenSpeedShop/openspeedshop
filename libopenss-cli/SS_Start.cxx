@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2011 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -1127,8 +1127,11 @@ extern "C"
     // char *plugin_directory = getenv("OPENSS_PLUGIN_PATH");
     //
 #if DEBUG_CLI
-      std::cerr << "ENTER loadTheGUI" << std::endl;
+      std::cerr << "ENTER loadTheGUI, setting OPENSS_SAVE_VIEWS_FOR_REUSE to false for GUI only save/reuse" << std::endl;
 #endif
+    // Turn off saving and reusing view code in the CLI when the GUI is up.  The GUI has its own methods.
+    OPENSS_SAVE_VIEWS_FOR_REUSE = false;
+
 
     // Insure the libltdl user-defined library search path has been set
     Assert(lt_dlgetsearchpath() != NULL);

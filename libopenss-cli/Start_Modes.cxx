@@ -376,7 +376,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
     printf(" Start_COMMAND_LINE_Mode, adding expView to the input stack, oss_start_mode (offline)=%d\n", oss_start_mode);
 #endif
 
-    if ((NULL == Append_Input_String (my_window, "expView\n", NULL,
+    if ((NULL == Append_Input_String (my_window, "expview\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
       std::cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
       return false;
@@ -394,7 +394,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
 #endif
     if ((NULL == Append_Input_String (my_window, "expStatus\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
-        (NULL == Append_Input_String (my_window, "expView\n", NULL,
+        (NULL == Append_Input_String (my_window, "expview\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
       std::cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
       return false;
@@ -408,7 +408,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
 
     if ((NULL == Append_Input_String (my_window, "expGo\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
-        (NULL == Append_Input_String (my_window, "expView\n", NULL,
+        (NULL == Append_Input_String (my_window, "expview\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
       std::cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
       return false;
@@ -427,7 +427,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
 
     if ((NULL == Append_Input_String (my_window, "expGo\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
-        (NULL == Append_Input_String (my_window, "expView\n", NULL,
+        (NULL == Append_Input_String (my_window, "expview\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
       std::cerr << "ERROR: Unable to initiate execution of commands." << std::endl;
       return false;

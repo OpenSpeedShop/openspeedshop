@@ -66,8 +66,9 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    viewDateTimePrecision = 3;
    viewFieldSizeIsDynamic = TRUE;
    saveViewsForReuse = FALSE;
+   saveViewsTime = 10;
 
-   viewFieldSize = 20; 
+   viewFieldSize = 10; 
    viewPrecision = 6; 
    historyLimit = 100; 
    historyDefault = 24; 
@@ -452,11 +453,22 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     { // OPENSS_SAVE_VIEWS_FOR_REUSE
     saveViewsForReuseCheckBox = new QCheckBox( vpage0big_box, "saveViewsForReuseCheckBox" );
     saveViewsForReuseCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, saveViewsForReuseCheckBox->sizePolicy().hasHeightForWidth() ) );
-    saveViewsForReuseCheckBox->setChecked( TRUE );
+    saveViewsForReuseCheckBox->setChecked( FALSE );
     saveViewsForReuseCheckBox->setText( tr( "Save Views for Reuse in CLI and GUI" ) );
     rightSideLayout->addWidget( saveViewsForReuseCheckBox );
     }
 
+    { // OPENSS_SAVE_VIEWS_TIME
+    saveViewsTimeLayout = new QHBoxLayout( 0, 0, 6, "saveViewsTimeLayout");
+    saveViewsTimeLabel = new QLabel( vpage0big_box, "saveViewsTimeLabel" );
+    saveViewsTimeLabel->setText("Save Views if Time Exceeds this value:");
+    saveViewsTimeLayout->addWidget( saveViewsTimeLabel );
+    saveViewsTimeLineEdit = new QLineEdit( vpage0big_box, "saveViewsTimeLineEdit" );
+    saveViewsTimeLineEdit->setText("10");
+    saveViewsTimeLineEdit->setValidator( new QIntValidator( 0, 99999, saveViewsTimeLineEdit ) );
+    saveViewsTimeLayout->addWidget( saveViewsTimeLineEdit );
+    rightSideLayout->addLayout( saveViewsTimeLayout );
+    }
 
 
     { // VIEW_DATE TIME PRECISION - for I/O MPI -v trace type displays
@@ -548,6 +560,10 @@ void PreferencesDialog::languageChange()
   saveViewsForReuseCheckBox->setChecked(saveViewsForReuse);
   QToolTip::add(saveViewsForReuseCheckBox,
                 tr("When generating CLI and GUI views, save the view so it does not have to be recreated again.") );
+
+  saveViewsTimeLineEdit->setText( QString("%1").arg(saveViewsTime) );
+  QToolTip::add(saveViewsTimeLineEdit,
+                tr("Only save the view for reuse if the time to generate exceeds this time preference value.") );
 
   askAboutSavingTheDatabaseCheckBox->setChecked(askAboutSavingTheDatabase);
   QToolTip::add(askAboutChangingArgsCheckBox,

@@ -1,6 +1,6 @@
 /******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2007-2010 Krell Institute  All Rights Reserved.
+** Copyright (c) 2007-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -23,6 +23,7 @@
  *
  */
 
+//#define DEBUG_REUSEVIEWS 1
 
 struct save_file_header
 {
@@ -58,6 +59,7 @@ class savedViewInfo {
     int64_t file_id; // Unique ID appended to database name to create 'file_name'.
     bool new_file;  // Was this file generated during the current session?
     bool doNotSave; // An error occured or reuse is restricted to the current session.
+    bool removeEntryAtSessionEnd; // This view can not be safely used outside of this session
     Time start;     // When generation of the view was initiated.
     Time end;       // When generation of the view was completed.
     save_file_header svh; // Header for saved information.
@@ -75,8 +77,13 @@ class savedViewInfo {
       file_id = FileId;
       new_file = NewFile;
       doNotSave = false;
+      removeEntryAtSessionEnd = false;
       start = 0;
       end = 0;
+#if DEBUG_REUSEVIEWS
+      std::cerr << "EXIT savedViewInfo constructor, file_file=" << file_name.c_str() 
+                << " file_id=" << file_id << " doNotSave=" << doNotSave << " removeEntryAtSessionEnd=" << removeEntryAtSessionEnd << std::endl;
+#endif
     }
     ~savedViewInfo () {
       if (new_file) {
@@ -88,8 +95,14 @@ class savedViewInfo {
              ( (OPENSS_SAVE_VIEWS_TIME == 0) ||
                (((end - start)/1000000000) >= OPENSS_SAVE_VIEWS_TIME) ) ) {
          // Leave file around.
+#if DEBUG_REUSEVIEWS
+          std::cerr << "In savedViewInfo destructor, KEEPING save/reuse view file=" << file_name.c_str() << std::endl;
+#endif
         } else {
          // Delete file.
+#if DEBUG_REUSEVIEWS
+          std::cerr << "In savedViewInfo destructor, REMOVING save/reuse view file=" << file_name.c_str() << std::endl;
+#endif
           (void) remove (file_name.c_str());
         }
       }
@@ -104,8 +117,32 @@ class savedViewInfo {
     int64_t file_offset_to_data() { return svh.data_offset;  }
     std::string GenCmd () { return original_cmd; }
 
-    bool DoNotSave() { return doNotSave;  }
-    void setDoNotSave() { doNotSave = true; }
+    bool DoNotSave() { 
+#if DEBUG_REUSEVIEWS
+       std::cerr << " ENTER DoNotSave, return DONOTSAVE=" << doNotSave << std::endl;
+#endif
+       return doNotSave; 
+    }
+    void setDoNotSave() { 
+#if DEBUG_REUSEVIEWS
+        std::cerr << " ENTER setDoNotSave setting DONOTSAVE=true" << std::endl;
+#endif
+        doNotSave = true;
+    }
+
+    bool RemoveEntryAtSessionEnd() { 
+#if DEBUG_REUSEVIEWS
+       std::cerr << " ENTER RemoveEntryAtSessionEnd, return REMOVEENTRY=" << removeEntryAtSessionEnd << std::endl;
+#endif
+       return removeEntryAtSessionEnd; 
+    }
+    void setRemoveEntryAtSessionEnd() { 
+#if DEBUG_REUSEVIEWS
+        std::cerr << " ENTER setRemoveEntryAtSessionEnd setting REMOVEENTRY=true" << std::endl;
+#endif
+        removeEntryAtSessionEnd = true;
+    }
+
     void setStartTime () {
      // Start measurement clock.
       if (new_file == true) start = Time::Now();
@@ -117,15 +154,31 @@ class savedViewInfo {
         if (start != 0) svh.generation_time = (end - start);
       }
     }
-    void setHeader (save_file_header &svi, std::string eoc_str,
+    void setHeader (std::string db_name, save_file_header &svi, std::string eoc_str,
                     std::string eol_str, std::string cmd_str) {
+
+#if DEBUG_REUSEVIEWS
+      std::cerr << " ENTER setHeader, this=" << this << " eoc_str=" << eoc_str << " eol_str=" << eol_str  
+                << " cmd_str=" << cmd_str << std::endl;
+#endif
       svh = svi;
       if (svh.type < 2) svh.generation_time = 0;
       eoc_marker = eoc_str;
       eol_marker = eol_str;
       original_cmd = cmd_str;
+
+#if DEBUG_REUSEVIEWS
+      std::cerr << " EXIT setHeader, eoc_marker=" << eoc_marker << " eol_marker=" << eol_marker  << " svh.type=" << svh.type 
+                << " original_cmd=" << original_cmd << std::endl;
+#endif
     }
+
     std::ostream *writeHeader () {
+
+#if DEBUG_REUSEVIEWS
+      std::cerr << " ENTER writeHeader, start=" << start << " end=" << end << " original_cmd=" << original_cmd << std::endl;
+#endif
+
      // Check need to stop measurement clock.
       if ( (start != 0) &&
            (end == 0) ) {
@@ -143,11 +196,24 @@ class savedViewInfo {
                 << ":" << eol_marker
                 << ":" << std::flush;
      // Leave file open to receive output of `expView` command.
+
+#if DEBUG_REUSEVIEWS
+      std::cerr << " EXIT writeHeader, eoc_marker=" << eoc_marker << " eol_marker=" << eol_marker  << " svh.type=" << svh.type 
+                << " original_cmd=" << original_cmd << " base=" << base << " tofile=" << tofile << std::endl;
+#endif
+
       return tofile;
+
     }
+
     bool Header_Matches (std::string eoc_str,
                          std::string eol_str,
                          std::string cmd_str) {
+#if DEBUG_REUSEVIEWS
+      std::cerr << " ENTER Header_Matches, eoc_marker=" << eoc_marker << " eoc_str=" << eoc_str 
+                << " eol_marker=" << eol_marker  << " eol_str=" << eol_str 
+                << " original_cmd=" << original_cmd << " cmd_str=" << cmd_str << std::endl;
+#endif
       return ( (eoc_marker == eoc_str) &&
                (eol_marker == eol_str) &&
                (original_cmd == cmd_str) );

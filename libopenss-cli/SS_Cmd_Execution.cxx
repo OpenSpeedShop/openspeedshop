@@ -6150,6 +6150,47 @@ static bool SS_ListSavedViews (CommandObject *cmd, ExperimentObject *exp) {
     return false;
   }
 
+#if 1
+  if (exp->FW() != NULL) {
+     std::string db_name = exp->FW()->getName();
+     std::vector<std::string> savedDbCommands = exp->FW()->Experiment::getSavedCommandList(db_name);
+     std::vector<std::string>::iterator k;
+     int i = 0;
+     std::string infoheader("");
+     char header1[80];
+     sprintf(header1, "Views from database: %s", db_name.c_str());
+     infoheader += std::string(header1);
+     infoheader += "\n";
+     cmd->Result_String ( infoheader );
+     for (k=savedDbCommands.begin();k != savedDbCommands.end(); k++) {
+        std::string info("  ");
+        info += *k;
+#if 0
+        // This info should be saved in the database
+        savedViewInfo *svi = exp->Get_savedViewInfo (i);
+        //std::cerr << "DEBUG: savedViewInfo, svi=" << svi << " command=" << *k << std::endl;
+        if (svi != NULL )  {
+          if (svi->NewFile()) {
+            info += "  (new)";
+          }
+          if (svi->GenTime() != 0) {
+            char buffer[80];
+            sprintf(buffer, "  Generation Time: %lld Seconds.", (svi->GenTime() / 1000000000));
+            info += std::string(buffer);
+          }
+          info += "  `";
+          info += svi->GenCmd();
+          info += "`";
+        }
+#endif
+        //std::cerr << "Saved View command=" << *k << std::endl;
+        info += "\n";
+        i = i + 1;
+        cmd->Result_String ( info );
+     }
+  }
+
+#else
   int64_t num_files = exp->Get_SavedViewFileCnt();
   for (int64_t i = 0; i < num_files; i++) {
     savedViewInfo *svi = exp->Get_savedViewInfo (i);
@@ -6170,6 +6211,7 @@ static bool SS_ListSavedViews (CommandObject *cmd, ExperimentObject *exp) {
 
     cmd->Result_String ( info );
   }
+#endif
 
   cmd->set_Status(CMD_COMPLETE);
   return true;

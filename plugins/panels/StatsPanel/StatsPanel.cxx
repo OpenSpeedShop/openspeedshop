@@ -20,8 +20,11 @@
 //
 // To enable debuging uncomment define DEBUG_StatsPanel statement
 //
+#define SAVE_REUSE_DATABASE 1
 #define DBNAMES 1
 
+//#define DEBUG_StatsPanel_cache 1
+//#define DEBUG_StatsPanel_reuse 1
 //#define DEBUG_StatsPanel 1
 //#define DEBUG_StatsPanel_APPC 1
 //#define DEBUG_StatsPanel_chart 1
@@ -33,6 +36,8 @@
 //#define DEBUG_StatsPanel_cview 1
 //#define DEBUG_StatsPanel_menu 1
 //#define DEBUG_StatsPanel_diff 1
+//#define DEBUG_StatsPanel_details 1
+//#define DEBUG_StatsPanel_info_details 1
 
 #include "StatsPanel.hxx"   // Change this to your new class header file name
 #include "PanelContainer.hxx"   // Do not remove
@@ -240,13 +245,401 @@ void createTokens(const std::string& str,
         // Find next "non-delimiter"
         pos = str.find_first_of(delimiters, lastPos);
 
-#ifdef DEBUG_CLI
+#ifdef DEBUG_StatsPanel
         printf("createTokens, in while, str.c_str()=%s, lastPos = %d, pos = %d\n", str.c_str(), lastPos, pos);
 #endif
 
     }
 }
 
+/**
+ * StatsPanel::isCommandAssociatedWith: Determine if a cview cluster command is associated with a cview view command.
+ *
+ * Returns a boolean value reflecting whether or not the cviewcluster command output
+ * views (-c values) were used in a cview command and that command was previously 
+ * associated with the cviewcluster command.  We do this so we can prevent calling
+ * down to the framework and CLI for the data that would have already been produced.
+ *
+ * @return    Boolean value indicating whether or not a cview cluster command is linked with a cview view command.
+ */
+
+bool StatsPanel::isCommandAssociatedWith( std::string input_cview_cluster_command)
+{
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "ENTER isCommandAssociatedWith, input_cview_cluster_command=" << input_cview_cluster_command << std::endl;
+  for (std::map<std::string,std::string>::iterator it=associatedCommandMap.begin(); it!=associatedCommandMap.end(); ++it) {
+    std::cerr << "ENTER isCommandAssociatedWith, LOOP THROUGH associatedCommandMap, command:cview_cluster_command=(" << it->first << ": " << it->second << ")" << std::endl;
+  }
+#endif
+
+  std::map<std::string,std::string>:: iterator clipit ;
+  if ( ! associatedCommandMap.empty() ) {
+      clipit = associatedCommandMap.find(input_cview_cluster_command);
+      
+      if (clipit != associatedCommandMap.end() ) {
+
+#ifdef DEBUG_StatsPanel_cache
+          std::cerr << "RETURNING TRUE from isCommandAssociatedWith, clipit->first=" << clipit->first << " clipit->second=" << clipit->second << std::endl;
+#endif
+          return true;
+      } else {
+
+#ifdef DEBUG_StatsPanel_cache
+          std::cerr << "RETURNING FALSE from isCommandAssociatedWith" << std::endl;
+#endif
+          return false;
+      }
+
+  }
+
+#ifdef DEBUG_StatsPanel_cache
+          std::cerr << "FALL THROUGH EXIT, RETURNING FALSE from isCommandAssociatedWith" << std::endl;
+#endif
+          return false;
+
+}
+
+/**
+ * StatsPanel::getAssociatedCommand: Return the cview command associated with cview cluster command.
+ *
+ * Returns the command string that was associated with its corresponding cviewcluster command.
+ *
+ * @return    String value linked with a cviewcluster command.
+ */
+
+std::string StatsPanel::getAssociatedCommand( std::string input_cview_cluster_command)
+{
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "ENTER getAssociatedCommand, input_cview_cluster_command=" << input_cview_cluster_command << std::endl;
+  for (std::map<std::string,std::string>::iterator it=associatedCommandMap.begin(); it!=associatedCommandMap.end(); ++it) {
+    std::cerr << "ENTER getAssociatedCommand, LOOP THROUGH associatedCommandMap, command:cview_cluster_command=(" << it->first << ": " << it->second << ")" << std::endl;
+  }
+#endif
+  std::map<std::string,std::string>:: iterator clipit ;
+  if ( ! associatedCommandMap.empty() ) {
+      clipit = associatedCommandMap.find(input_cview_cluster_command);
+      
+      if (clipit != associatedCommandMap.end() ) {
+
+#ifdef DEBUG_StatsPanel_cache
+          std::cerr << "RETURNING TRUE from getAssociatedCommand, clipit->first=" 
+                    << clipit->first << " clipit->second=" << clipit->second << std::endl;
+#endif
+          return clipit->second;
+      } else {
+#ifdef DEBUG_StatsPanel_cache
+          std::cerr << "RETURNING FALSE from getAssociatedCommand" << std::endl;
+#endif
+          return NULL;
+      }
+
+  }
+
+}
+
+/**
+ * StatsPanel::associateTheseCommands: Associate cview cluster command its counterpart cview view command.
+ *
+ * Links or associates the cviewcluster command with the cview command.
+ * We do this so we can prevent calling down to the framework and CLI for 
+ * the data that would have already been produced.
+ *
+ * @return    none
+ */
+
+void StatsPanel::associateTheseCommands( std::string input_command, std::string input_cview_cluster_command)
+{
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "ENTER associateTheseCommands, input_command=" << input_command << " input_cview_cluster_command=" << input_cview_cluster_command << std::endl;
+  for (std::map<std::string,std::string>::iterator it=associatedCommandMap.begin(); it!=associatedCommandMap.end(); ++it) {
+    std::cerr << "ENTER associateTheseCommands, LOOP THROUGH associatedCommandMap, command:cview_cluster_command=(" << it->first << ": " << it->second << ")" << std::endl;
+  }
+#endif
+
+  std::map<std::string,std::string>:: iterator clipit = associatedCommandMap.begin();
+  associatedCommandMap.insert(clipit, std::pair< std::string, std::string>(input_cview_cluster_command, input_command));
+
+#ifdef DEBUG_StatsPanel_cache
+  for (std::map<std::string,std::string>::iterator it= associatedCommandMap.begin(); it!=associatedCommandMap.end(); ++it) {
+    std::cerr << "EXIT associateTheseCommands, LOOP THROUGH associatedCommandMap, command:cview_cluster_command=(" << it->first << ": " << it->second << ")" << std::endl;
+  }
+#endif
+
+}
+
+/**
+ * StatsPanel::addClipForThisCommand: 
+ * Add the clip corresponding to the input argument command string value to the 
+ * cmdToClipMap map data structure.  This data structure keeps a running map of 
+ * view commands to their corresponding clip.  We use the clip pointer to access
+ * the command objects representing the view, so we don't have to request this data
+ * from the CLI (and therefore the framework and database file).  We just reuse the
+ * already requested data structures to regenerate the same view again.
+ *
+ * @return    none
+ */
+
+void StatsPanel::addClipForThisCommand( std::string input_command, InputLineObject* input_clip)
+{
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "ENTER addClipForThisCommand, input_command=" << input_command << " input_clip=" << input_clip << std::endl;
+
+  for (std::map<std::string,InputLineObject*>::iterator it=cmdToClipMap.begin(); it!=cmdToClipMap.end(); ++it) {
+    std::cerr << "ENTER addClipForThisCommand, LOOP THROUGH cmdToClipMap, command:clip=(" << it->first << ": " << it->second << ")" << std::endl;
+  }
+
+#endif
+
+    // Note: we could check to see if the same view command already exists but existing logic
+    // doesn't require this.  I may add this anyway for completeness.  JEG NOTE FIXME
+
+    std::map<std::string,InputLineObject*>:: iterator clipit = cmdToClipMap.begin();
+    cmdToClipMap.insert(clipit, std::pair< std::string, InputLineObject*>(input_command, input_clip));
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "EXIT addClipForThisCommand, ADDED THIS ITEM TO cmdToClipMap: input_command=" << input_command << " input_clip=" << input_clip << std::endl;
+#endif
+
+}
+
+/**
+ * StatsPanel::check_for_existing_clip:
+ * Search for the clip corresponding to the input argument command string value to the 
+ * cmdToClipMap map data structure.  This data structure keeps a running map of 
+ * view commands to their corresponding clip.  We use the clip pointer to access
+ * the command objects representing the view, so we don't have to request this data
+ * from the CLI (and therefore the framework and database file).  We just reuse the
+ * already requested data structures to regenerate the same view again.
+ *
+ * @return The clip value corresponding to the data representing the command.
+ */
+
+InputLineObject* StatsPanel::check_for_existing_clip(std::string command)
+{
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "ENTER check_for_existing_clip, command=" << command << std::endl;
+  if ( ! cmdToClipMap.empty() ) {
+    for (std::map<std::string,InputLineObject*>::iterator it=cmdToClipMap.begin(); it!=cmdToClipMap.end(); ++it) {
+      std::cerr << "ENTER check_for_existing_clip, LOOP THROUGH cmdToClipMap, command:clip=(" << it->first << " " << ")" << std::endl;
+    }
+  }
+#endif
+
+    std::map<std::string,InputLineObject*>:: iterator clipit;
+
+    if ( ! cmdToClipMap.empty() ) {
+
+      // find the clip that corresponds to the command of interest
+      clipit = cmdToClipMap.find(command);
+      
+      if (clipit != cmdToClipMap.end() && clipit->second) {
+
+#ifdef DEBUG_StatsPanel_cache
+        std::cerr << "EXIT check_for_existing_clip, returning found value=" << clipit->second << std::endl;
+#endif
+
+        // Return the corresponding clip to be used in the regeneration of the requested view.
+        return clipit->second;
+      } else { 
+
+#ifdef DEBUG_StatsPanel_cache
+        std::cerr << "EXIT check_for_existing_clip, returning NULL" << std::endl;
+#endif
+
+        return NULL;
+      }
+    } else {
+        return NULL;
+    }
+
+    return NULL;
+  
+}
+
+/**
+  * StatsPanel::checkForExistingIntList:
+  * Routine to checks to see if the list -v command already has a list of int's associated with it.
+  * Search for the list of integer values corresponding to the input argument command string 
+  * cmdToIntListMap map data structure.  This data structure keeps a running map of value to the 
+  * view commands to their corresponding list values.  We use the list values to create 
+  * parts of the view, so we don't have to request this data from the CLI (and therefore the 
+  * framework and database file).  We just reuse the already requested data structures.
+  *
+  */
+
+bool StatsPanel::checkForExistingIntList(std::string command, std::list<int64_t> & return_list)
+{
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "ENTER checkForExistingIntList, command=" << command << std::endl;
+
+  if ( ! cmdToIntListMap.empty() ) {
+    for (std::map<std::string,std::list<int64_t> >::iterator it=cmdToIntListMap.begin(); it!=cmdToIntListMap.end(); ++it) {
+      std::cerr << "ENTER checkForExistingIntList, LOOP THROUGH cmdToIntListMap, command: listofints=(" << it->first << " " << ")" << std::endl;
+    }
+  }
+#endif
+
+    std::map<std::string,std::list<int64_t> >:: iterator clipit;
+
+    if ( ! cmdToIntListMap.empty() ) {
+
+      // Search for the list of integer values corresponding to the input argument command string 
+      // cmdToIntListMap map data structure.  This data structure keeps a running map of value to the 
+      // view commands to their corresponding list values.  We use the list values to create 
+      // parts of the view, so we don't have to request this data from the CLI (and therefore the 
+      // framework and database file).  We just reuse the already requested data structures.
+
+      clipit = cmdToIntListMap.find(command);
+      
+      if (clipit != cmdToIntListMap.end() /* && *clipit.size() */) {
+
+#ifdef DEBUG_StatsPanel_cache
+        std::cerr << "EXIT checkForExistingIntList, returning found value for command=" << command << std::endl;
+#endif
+
+        // Return the corresponding list to be used in the regeneration of the requested view.
+        return_list = clipit->second;
+        return true;
+
+      } else { 
+
+#ifdef DEBUG_StatsPanel_cache
+        std::cerr << "EXIT checkForExistingIntList, returning NULL" << std::endl;
+#endif
+        return false;
+      }
+    } else {
+        return false;
+    }
+  return false;
+}
+
+
+/**
+  * StatsPanel::checkForExistingStringList:
+  * Routine to checks to see if the list -v command already has a list of string's associated with it.
+  * Search for the list of string values corresponding to the input argument command string 
+  * cmdToStringListMap map data structure.  This data structure keeps a running map of value to the 
+  * view commands to their corresponding list values.  We use the list values to create 
+  * parts of the view, so we don't have to request this data from the CLI (and therefore the 
+  * framework and database file).  We just reuse the already requested data structures.
+  */
+
+bool StatsPanel::checkForExistingStringList(std::string command, std::list<std::string> &return_list)
+{
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "ENTER checkForExistingStringList, command=" << command << std::endl;
+#endif
+
+    std::map<std::string,std::list<std::string> >:: iterator clipit;
+
+    if ( ! cmdToStringListMap.empty() ) {
+
+      // Search for the list of integer values corresponding to the input argument command string 
+      // cmdToStringListMap map data structure.  This data structure keeps a running map of value to the 
+      // view commands to their corresponding list values.  We use the list values to create 
+      // parts of the view, so we don't have to request this data from the CLI (and therefore the 
+      // framework and database file).  We just reuse the already requested data structures.
+
+      clipit = cmdToStringListMap.find(command);
+      
+      if (clipit != cmdToStringListMap.end() ) {
+
+        // Return the corresponding list to be used in the regeneration of the requested view.
+        return_list = clipit->second;
+
+#ifdef DEBUG_StatsPanel_cache
+        std::cerr << "EXIT checkForExistingStringList, returning clipit->second" << std::endl;
+#endif
+
+        return true;
+
+      } else { 
+
+#ifdef DEBUG_StatsPanel_cache
+        std::cerr << "EXIT checkForExistingStringList, returning NULL" << std::endl;
+#endif
+        return false;
+      }
+    } else {
+        return false;
+    }
+  return false;
+}
+
+/**
+  * StatsPanel::addIntListForThisCommand:
+  * Routine that adds the list corresponding to the input argument command integer value to the 
+  * cmdToIntListMap map data structure.  This data structure keeps a running map of 
+  * view commands to their corresponding clip.  We use the clip pointer to access
+  * the command objects representing the view, so we don't have to request this data
+  * from the CLI (and therefore the framework and database file).  We just reuse the
+  * already requested data structures to regenerate the same view again.
+  */
+
+void StatsPanel::addIntListForThisCommand(std::string command, std::list<int64_t> listToSave)
+{
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "ENTER addIntListForThisCommand, command=" << command << " listToSave=" << &listToSave << std::endl;
+#endif
+
+    // Add the list corresponding to the input argument command integer value to the 
+    // cmdToIntListMap map data structure.  This data structure keeps a running map of 
+    // view commands to their corresponding clip.  We use the clip pointer to access
+    // the command objects representing the view, so we don't have to request this data
+    // from the CLI (and therefore the framework and database file).  We just reuse the
+    // already requested data structures to regenerate the same view again.
+
+    // Note: we could check to see if the same view command already exists but existing logic
+    // doesn't require this.  I may add this anyway for completeness.  JEG NOTE FIXME
+    std::map<std::string,std::list<int64_t> >:: iterator clipit = cmdToIntListMap.begin();
+    cmdToIntListMap.insert(clipit, std::pair< std::string, std::list<int64_t> >(command, listToSave));
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "EXIT addIntListForThisCommand, ADDED THIS ITEM TO cmdToClipMap: command=" << command << " listToSave=" << &listToSave << std::endl;
+#endif
+
+}
+
+/**
+  * StatsPanel::addStringListForThisCommand:
+  * Routine that adds the list corresponding to the input argument command string value to the 
+  * cmdToStringListMap map data structure.  This data structure keeps a running map of 
+  * view commands to their corresponding clip.  We use the clip pointer to access
+  * the command objects representing the view, so we don't have to request this data
+  * from the CLI (and therefore the framework and database file).  We just reuse the
+  * already requested data structures to regenerate the same view again.
+  */
+
+void StatsPanel::addStringListForThisCommand(std::string command, std::list<std::string> listToSave)
+{
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "ENTER addStringListForThisCommand, command=" << command << " listToSave=" << &listToSave << std::endl;
+#endif
+
+    // Add the list corresponding to the input argument command string value to the 
+    // cmdToStringListMap map data structure.  This data structure keeps a running map of 
+    // view commands to their corresponding clip.  We use the clip pointer to access
+    // the command objects representing the view, so we don't have to request this data
+    // from the CLI (and therefore the framework and database file).  We just reuse the
+    // already requested data structures to regenerate the same view again.
+
+    // Note: we could check to see if the same view command already exists but existing logic
+    // doesn't require this.  I may add this anyway for completeness.  JEG NOTE FIXME
+    std::map<std::string,std::list<std::string> >:: iterator clipit = cmdToStringListMap.begin();
+    cmdToStringListMap.insert(clipit, std::pair< std::string, std::list<std::string> >(command, listToSave));
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "EXIT addStringListForThisCommand, ADDED THIS ITEM TO cmdToClipMap: command=" << command << " listToSave=" << &listToSave << std::endl;
+#endif
+
+}
 
 class AboutOutputClass : public ss_ostream
 {
@@ -355,6 +748,11 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
 #endif
 
   statspanel_clip = NULL;
+  cmdToClipMap.clear();
+  cmdToIntListMap.clear();
+  cmdToStringListMap.clear();
+  associatedCommandMap.clear();
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::StatsPanel() constructor statspanel_clip=0x%x,statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
 #endif
@@ -855,8 +1253,9 @@ StatsPanel::~StatsPanel()
 {
   // Delete anything you new'd from the constructor.
   nprintf( DEBUG_CONST_DESTRUCT ) ("  StatsPanel::~StatsPanel() destructor called\n");
+
 #ifdef DEBUG_StatsPanel
-  printf("  StatsPanel::~StatsPanel() destructor called\n");
+  std::cerr << "IN StatsPanel::~StatsPanel() destructor called." << std::endl; 
 #endif
 
 
@@ -864,13 +1263,22 @@ StatsPanel::~StatsPanel()
   // trying to figure out where the output is suppose to go.
   resetRedirect();
 
+  // We must clean-up the cached data objects used for saving and restoring clips and their command objects
+  // which allow the GUI to not have to access the CLI after the initial view (for each view) is created.
+  for (std::map<std::string,InputLineObject*>::iterator it=cmdToClipMap.begin(); it!=cmdToClipMap.end(); ++it) {
+#ifdef DEBUG_StatsPanel_cache
+    std::cerr << "IN StatsPanel::~StatsPanel(), LOOP THROUGH cmdToClipMap, setting RESULTS USED for command:clip=(" 
+              << it->first << ": " << it->second << ")" << std::endl;
+#endif
+    it->second->Set_Results_Used();
+  }
 
   // We allocated a Collect, we must delete it.   Otherwise the framework
   // issues a warning on exit.
   if( currentCollector ) {
 
 #ifdef DEBUG_StatsPanel
-   printf("Destructor delete the currentCollector\n");
+   std::cerr << "IN StatsPanel::~StatsPanel(), Destructor delete the currentCollector" << std::endl; 
 #endif
 
     delete currentCollector;
@@ -1824,7 +2232,7 @@ StatsPanel::menu( QPopupMenu* contextMenu)
          it != list_of_pids.end(); it++ )
     {
       int64_t pid = (int64_t)*it;
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_details
       printf("Inside threadMenu generation, pid=(%ld)\n", pid );
 #endif
       QString pidStr = QString("%1").arg(pid);
@@ -2198,6 +2606,7 @@ StatsPanel::clusterAnalysisSelected()
 {
 
   QString command = QString::null;
+  QString cview_cluster_command = QString::null;
   QString mim = getMostImportantClusterMetric(currentCollectorStr);
   QString displayType;
 
@@ -2223,9 +2632,9 @@ StatsPanel::clusterAnalysisSelected()
 #endif
 
   if( focusedExpID == -1 ) {
-    command = QString("cviewCluster -x %1 %2 %3 -v %4 %5").arg(expID).arg(timeIntervalString).arg(mim).arg(displayType).arg(currentThreadsStr);
+    cview_cluster_command = QString("cviewCluster -x %1 %2 %3 -v %4 %5").arg(expID).arg(timeIntervalString).arg(mim).arg(displayType).arg(currentThreadsStr);
   } else {
-    command = QString("cviewCluster -x %1 %2 %3 -v %4 %5").arg(focusedExpID).arg(timeIntervalString).arg(mim).arg(displayType).arg(currentThreadsStr);
+    cview_cluster_command = QString("cviewCluster -x %1 %2 %3 -v %4 %5").arg(focusedExpID).arg(timeIntervalString).arg(mim).arg(displayType).arg(currentThreadsStr);
   }
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
@@ -2233,41 +2642,67 @@ StatsPanel::clusterAnalysisSelected()
   list_of_cids.clear();
   InputLineObject *clip = NULL;
 
-  if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &list_of_cids, clip, TRUE ) ) {
-    printf("Unable to run %s command.\n", command.ascii() );
-  } else {
+  bool command_seen_before = isCommandAssociatedWith(cview_cluster_command.ascii());
 
-#ifdef DEBUG_StatsPanel
-    printf("StatsPanel::clusterAnalysisSelected(), ran this command=%s\n", command.ascii() );
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "StatsPanel::clusterAnalysisSelected(), before check_for_existing_clip, command_seen_before=" 
+            << command_seen_before << std::endl;
+#endif
+  
+
+ if (command_seen_before) {
+
+   // cview cluster command is associated with an existing cview command
+   // we want to use that command instead of creating a new one (code in the main if block above)
+   std::string returned_string_command = getAssociatedCommand(cview_cluster_command.ascii());
+   if (returned_string_command != NULL) {
+      command = QString::fromUtf8(returned_string_command.c_str());
+      //command = QString::fromStdString(returned_string_command.c_str());
+   } else {
+      //FIX ME ERROR
+      command = QString::fromUtf8("");
+      //command = QString::fromStdString("");
+   }
+
+ } else {
+
+  // Call to the framework for the cviewCluster information
+  // Then save the clip for reuse
+
+  if( !cli->getIntListValueFromCLI( (char *)cview_cluster_command.ascii(), &list_of_cids, clip, TRUE ) ) {
+     printf("Unable to run %s cview_cluster_command.\n", cview_cluster_command.ascii() );
+  } else {
+#ifdef DEBUG_StatsPanel_cache
+     std::cerr << "StatsPanel::clusterAnalysisSelected(), ran this cview_cluster_command=" << cview_cluster_command.ascii() << std::endl;
+#endif
+  }
+
+#ifdef DEBUG_StatsPanel_cache
+    std::cerr << "StatsPanel::clusterAnalysisSelected(), ran this cview_cluster_command=" << cview_cluster_command.ascii() << std::endl;
 #endif
 
-  }
-
-
-  if( clip ) {
-    clip->Set_Results_Used();
-  }
+ if( clip ) {
+   clip->Set_Results_Used();
+ }
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::clusterAnalysisSelected() list_of_cids.size()=%d\n", list_of_cids.size() );
 #endif
 
-  QString pidlist = QString::null;
-  if( list_of_cids.size() >= 1 )
-  {
+  QString cidlist = QString::null;
+  if( list_of_cids.size() >= 1 ) {
     for( std::list<int64_t>::const_iterator it = list_of_cids.begin();
-         it != list_of_cids.end(); it++ )
-    {
+         it != list_of_cids.end(); it++ ) {
       int64_t pid = (int64_t)*it;
 
 #ifdef DEBUG_StatsPanel
       printf("StatsPanel::clusterAnalysisSelected() in loop, pid=%ld\n", pid);
 #endif
 
-      if( pidlist.isEmpty() ) { 
-        pidlist = QString("%1").arg(pid);
+      if( cidlist.isEmpty() ) { 
+        cidlist = QString("%1").arg(pid);
       } else {
-        pidlist += QString(", %1").arg(pid);
+        cidlist += QString(", %1").arg(pid);
       }
     }
   } else {
@@ -2279,47 +2714,54 @@ StatsPanel::clusterAnalysisSelected()
     return;
   }
 
-//  command = QString("cview -c %1 -m usertime::exclusive_time %2").arg(pidlist).arg(timeIntervalString);
-//  command = QString("cview -c %1 %2").arg(pidlist).arg(timeIntervalString);
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::clusterAnalysisSelected() after loop, pidlist=%s\n", pidlist.ascii() );
+  printf("StatsPanel::clusterAnalysisSelected() after loop, cidlist=%s\n", cidlist.ascii() );
   printf("StatsPanel::clusterAnalysisSelected() after loop, timeIntervalString=%s\n", timeIntervalString.ascii() );
 #endif
 
   if (currentDisplayUsingType == displayUsingFunctionType) {
      if (timeIntervalString != NULL) {
-       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v functions").arg(timeIntervalString);
+       command = QString("cview -c %1 %2 %3").arg(cidlist).arg("-m ThreadAverage").arg("-v functions").arg(timeIntervalString);
      } else {
-       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v functions");
+       command = QString("cview -c %1 %2 %3").arg(cidlist).arg("-m ThreadAverage").arg("-v functions");
      }
   } else if (currentDisplayUsingType == displayUsingStatementType) {
      if (timeIntervalString != NULL) {
-       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v statements").arg(timeIntervalString);
+       command = QString("cview -c %1 %2 %3").arg(cidlist).arg("-m ThreadAverage").arg("-v statements").arg(timeIntervalString);
      } else {
-       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v statements");
+       command = QString("cview -c %1 %2 %3").arg(cidlist).arg("-m ThreadAverage").arg("-v statements");
      }
   } else if (currentDisplayUsingType == displayUsingLinkedObjectType) {
      if (timeIntervalString != NULL) {
-       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v linkedobjects").arg(timeIntervalString);
+       command = QString("cview -c %1 %2 %3").arg(cidlist).arg("-m ThreadAverage").arg("-v linkedobjects").arg(timeIntervalString);
      } else {
-       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v linkedobjects");
+       command = QString("cview -c %1 %2 %3").arg(cidlist).arg("-m ThreadAverage").arg("-v linkedobjects");
      }
 #if defined(HAVE_DYNINST)
   } else if (currentDisplayUsingType == displayUsingLoopType) {
      if (timeIntervalString != NULL) {
-       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v loops").arg(timeIntervalString);
+       command = QString("cview -c %1 %2 %3").arg(cidlist).arg("-m ThreadAverage").arg("-v loops").arg(timeIntervalString);
      } else {
-       command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg("-v loops");
+       command = QString("cview -c %1 %2 %3").arg(cidlist).arg("-m ThreadAverage").arg("-v loops");
      }
 #endif
   }
-//  command = QString("cview -c %1 %2 %3").arg(pidlist).arg("-m ThreadAverage").arg(timeIntervalString).arg("-v %4").arg(displayType);
-// printf("run %s\n", command.ascii() );
+
+  associateTheseCommands( command.ascii(), cview_cluster_command.ascii() );
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::clusterAnalysisSelected() about to call updateStatsPanelData, command=%s\n", 
-         command.ascii() );
+  printf("StatsPanel::clusterAnalysisSelected() about to call updateStatsPanelData, command=%s cview_cluster_command=%s\n", 
+         command.ascii(), cview_cluster_command.ascii() );
 #endif
+
+   }
+
+#ifdef DEBUG_StatsPanel
+  printf("StatsPanel::clusterAnalysisSelected() about to call updateStatsPanelData with ASSOCIATED COMMAND, command=%s cview_cluster_command=%s\n", 
+         command.ascii(), cview_cluster_command.ascii() );
+#endif
+ //}
+
   currentUserSelectedReportStr = "clusterAnalysis";
   originatingUserSelectedReportStr = "clusterAnalysis";
   toolbar_status_label->setText("Generating Comparative Analysis Report:");
@@ -3701,21 +4143,61 @@ StatsPanel::timeSliceSelected()
 
     QApplication::setOverrideCursor(QCursor::WaitCursor);
  
+#ifdef DEBUG_StatsPanel_cache
+    printf("StatsPanel::timeSliceSelected, do expCompare, about to issue a command via cli->run_Append_Input_String(), command=(%s)\n", command.ascii() );
+#endif
+
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-    clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
-    if( clip == NULL )
-    {
+
+    bool cached_clip_processing = false;
+    clip = check_for_existing_clip(command.ascii());
+
+    if (clip) {
+
+#ifdef DEBUG_StatsPanel_cache
+       std::cerr << "StatsPanel:timeSliceSelected, FOUND AN EXISTING CLIP IN THE CLIP MAP STRUCTURE, command=" << command << std::endl;
+#endif
+
+      // call process_clip here?
+      // maybe set some flags to skip the wait loop below
+      cached_clip_processing = true;
+
+    } else {
+
+
+       clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
+
+#ifdef DEBUG_StatsPanel_cache
+       std::cerr << "StatsPanel:timeSliceSelected, DID NOT FIND AN EXISTING CLIP IN THE CLIP MAP STRUCTURE" 
+                 << ", ADDING CLIP AFTER ISSUING COMMAND, (command:clip)=(" << command << ":" << clip << ")" << std::endl;
+#endif
+
+       cached_clip_processing = false;
+
+#ifdef DEBUG_StatsPanel_cache
+       std::cerr << "StatsPanel:updateStatsPanelData, after issuing command, clip=" << clip 
+                 << " sizeof(&clip)=" << sizeof(&clip) << std::endl;
+#endif
+       addClipForThisCommand(command.ascii(), clip);
+
+    }
+
+
+    if( clip == NULL ) {
       std::cerr << "No skyline available for this experiment.\n";
       QApplication::restoreOverrideCursor( );
       return;
     }
+
     Input_Line_Status status = ILO_UNKNOWN;
 
-    while( !clip->Semantics_Complete() )
-    {
-      qApp->processEvents(4000);
-      suspend();
-      //sleep(1);
+    if (!cached_clip_processing ) {
+      while( !clip->Semantics_Complete() )
+      {
+        qApp->processEvents(4000);
+        suspend();
+        //sleep(1);
+      }
     }
 
     std::list<CommandObject *>::iterator coi;
@@ -3729,6 +4211,7 @@ StatsPanel::timeSliceSelected()
     {
 // std::cerr << "TYPE: = " << (*cri)->Type() << "\n";
 //      if ((*cri)->Type() == CMD_RESULT_COLUMN_VALUES)
+
       if ((*cri)->Type() == CMD_RESULT_COLUMN_ENDER)
       {
 #ifdef DEBUG_StatsPanel
@@ -3790,7 +4273,7 @@ StatsPanel::timeSliceSelected()
       }
     }
     QApplication::restoreOverrideCursor( );
-    clip->Set_Results_Used();
+    //jeg clip->Set_Results_Used();
   
     // For now don't show text.
     skylineText.clear();
@@ -4497,16 +4980,31 @@ void StatsPanel::getRankThreadPidList(int exp_id)
   currentThreadsStrENUM = RANK;
 
 #ifdef DEBUG_StatsPanel_info
-  printf("StatsPanel::getRankThreadPidList-attempt to run (%s)\n", command.ascii() );
+  std::cerr << "StatsPanel::getRankThreadPidList-attempt to run command.ascii()" << command.ascii() << std::endl;
 #endif
 
-  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  // Check if this command has been cached already, if so the list will be updated
+  // If not, call into the CLI and Framework to get the list data required.
   list_of_pids.clear();
-  InputLineObject *clip = NULL;
-  if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-         &list_of_pids, clip, TRUE ) ) {
-    printf("Unable to run %s command.\n", command.ascii() );
-  }
+  bool list_is_cached = checkForExistingIntList( command.ascii(), list_of_pids);
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "StatsPanel::getRankThreadPidList, LIST_V_RANKS CHECK, command=" << command.ascii() << " list_is_cached=" << list_is_cached 
+            << " list_of_pids.size()=" << list_of_pids.size() << std::endl;
+#endif
+
+  if (!list_is_cached) {
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    InputLineObject *clip = NULL;
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &list_of_pids, clip, FALSE /* mark value for delete */ ) ) {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+
+    //std::cerr << "StatsPanel::getRankThreadPidList, CACHING LIST_V_RANKS, command=" << command.ascii() << " list_of_pids.size()=" << list_of_pids.size() << std::endl;
+
+    addIntListForThisCommand(command.ascii(), list_of_pids);
+  } 
 
 #ifdef DEBUG_StatsPanel_info
   printf("StatsPanel::getRankThreadPidList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
@@ -4522,14 +5020,29 @@ void StatsPanel::getRankThreadPidList(int exp_id)
 
 // printf("attempt to run (%s)\n", command.ascii() );
 
+  // Check if this command has been cached already, if so the list will be updated
+  // If not, call into the CLI and Framework to get the list data required.
+  list_of_pids.clear();
+  list_is_cached = checkForExistingIntList( command.ascii(), list_of_pids);
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "StatsPanel::getRankThreadPidList, LIST_V_THREADS CHECK, command=" << command.ascii() << " list_is_cached=" << list_is_cached 
+            << " list_of_pids.size()=" << list_of_pids.size() << std::endl;
+#endif
+
+  if (!list_is_cached) {
+
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-    list_of_pids.clear();
     InputLineObject *clip = NULL;
 
-    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-           &list_of_pids, clip, TRUE ) ) {
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &list_of_pids, clip, FALSE /* mark value for delete */ ) ) {
       printf("Unable to run %s command.\n", command.ascii() );
     }
+
+    //std::cerr << "StatsPanel::getRankThreadPidList, CACHING LIST_V_THREADS, command=" << command.ascii() << " list_of_pids.size()=" << list_of_pids.size() << std::endl;
+    addIntListForThisCommand(command.ascii(), list_of_pids);
+
+  } 
 
 #ifdef DEBUG_StatsPanel_info
   printf("StatsPanel::getRankThreadPidList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
@@ -4545,15 +5058,29 @@ void StatsPanel::getRankThreadPidList(int exp_id)
       command = QString("list -v pids -x %1").arg(focusedExpID);
     }
 
-// printf("attempt to run (%s)\n", command.ascii() );
+// printf("StatsPanel::getRankThreadPidList, attempt to run (%s)\n", command.ascii() );
+
+  // Check if this command has been cached already, if so the list will be updated
+  // If not, call into the CLI and Framework to get the list data required.
+  list_of_pids.clear();
+  list_is_cached = checkForExistingIntList( command.ascii(), list_of_pids);
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "StatsPanel::getRankThreadPidList, LIST_V_PIDS CHECK, command=" << command.ascii() << " list_is_cached=" << list_is_cached 
+            << " list_of_pids.size()=" << list_of_pids.size() << std::endl;
+#endif
+
+  if (!list_is_cached) {
 
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-    list_of_pids.clear();
     InputLineObject *clip = NULL;
-    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-           &list_of_pids, clip, TRUE ) ) {
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &list_of_pids, clip, FALSE /* mark value for delete */ ) ) {
       printf("Unable to run %s command.\n", command.ascii() );
     }
+    //std::cerr << "StatsPanel::getRankThreadPidList, CACHING LIST_V_PIDS, command=" << command.ascii() << " list_of_pids.size()=" << list_of_pids.size() << std::endl;
+    addIntListForThisCommand(command.ascii(), list_of_pids);
+
+  } 
 
 #ifdef DEBUG_StatsPanel_info
   printf("StatsPanel::getRankThreadPidList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
@@ -4568,7 +5095,7 @@ void StatsPanel::getRankThreadPidList(int exp_id)
 
       int64_t pid = (int64_t)*it;
 
-#ifdef DEBUG_StatsPanel_info
+#ifdef DEBUG_StatsPanel_info_details
       printf("StatsPanel::getRankThreadPidList, pid=(%ld)\n", pid );
 #endif
 
@@ -4607,15 +5134,30 @@ void StatsPanel::getSeparatePidList(int exp_id)
       command = QString("list -v pids -x %1").arg(focusedExpID);
     }
 
-// printf("attempt to run (%s)\n", command.ascii() );
+// printf("StatsPanel::getSeparatePidList, attempt to run (%s)\n", command.ascii() );
+
+  // Check if this command has been cached already, if so the list will be updated
+  // If not, call into the CLI and Framework to get the list data required.
+  separate_list_of_pids.clear();
+  bool list_is_cached = checkForExistingIntList( command.ascii(), separate_list_of_pids);
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "StatsPanel::getSeparatePidList, LIST_V_PIDS CHECK, command=" << command.ascii() << " list_is_cached=" << list_is_cached 
+            << " separate_list_of_pids.size()=" << separate_list_of_pids.size() << std::endl;
+#endif
+
+  if (!list_is_cached) {
 
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
     separate_list_of_pids.clear();
     InputLineObject *clip = NULL;
-    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-           &separate_list_of_pids, clip, TRUE ) ) {
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &separate_list_of_pids, clip, FALSE /* mark value for delete */ ) ) {
       printf("Unable to run %s command.\n", command.ascii() );
     }
+
+    //std::cerr << "StatsPanel::getSeparatePidList, CACHING LIST_V_THREADS, command=" << command.ascii() << " separate_list_of_pids.size()=" << separate_list_of_pids.size() << std::endl;
+    addIntListForThisCommand(command.ascii(), separate_list_of_pids);
+  } 
 
 #ifdef DEBUG_StatsPanel_info
   printf("StatsPanel::getSeparatePidList, ran %s, separate_list_of_pids.size()=%d\n", command.ascii(), separate_list_of_pids.size() );
@@ -4628,7 +5170,7 @@ void StatsPanel::getSeparatePidList(int exp_id)
 
       int64_t pid = (int64_t)*it;
 
-#ifdef DEBUG_StatsPanel_info
+#ifdef DEBUG_StatsPanel_info_details
       printf("StatsPanel::getSeparatePidList, pid=(%ld)\n", pid );
 #endif
 
@@ -4689,7 +5231,7 @@ void StatsPanel::getPartialPidList(int exp_id)
 
       int64_t pid = (int64_t)*it;
 
-#ifdef DEBUG_StatsPanel_info
+#ifdef DEBUG_StatsPanel_info_details
       printf("StatsPanel::getPartialPidList, pid=(%ld)\n", pid );
 #endif
 
@@ -4731,14 +5273,27 @@ void StatsPanel::getSeparateThreadList(int exp_id)
 
 // printf("attempt to run (%s)\n", command.ascii() );
 
+  // Check if this command has been cached already, if so the list will be updated
+  // If not, call into the CLI and Framework to get the list data required.
+  separate_list_of_threads.clear();
+  bool list_is_cached = checkForExistingIntList( command.ascii(), separate_list_of_threads);
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "StatsPanel::getSeparateThreadList, LIST_V_THREADS CHECK, command=" << command.ascii() << " list_is_cached=" << list_is_cached 
+            << " separate_list_of_threads.size()=" << separate_list_of_threads.size() << std::endl;
+#endif
+
+  if (!list_is_cached) {
+
     CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-    separate_list_of_threads.clear();
     InputLineObject *clip = NULL;
 
-    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-           &separate_list_of_threads, clip, TRUE ) ) {
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &separate_list_of_threads, clip, FALSE /* mark value for delete */ ) ) {
       printf("Unable to run %s command.\n", command.ascii() );
     }
+    //std::cerr << "StatsPanel::getSeparateThreadList, CACHING LIST_V_THREADS, command=" << command.ascii() << " separate_list_of_threads.size()=" << separate_list_of_threads.size() << std::endl;
+    addIntListForThisCommand(command.ascii(), separate_list_of_threads);
+  } 
 
 #ifdef DEBUG_StatsPanel_info
   printf("StatsPanel::getSeparateThreadList, ran %s, separate_list_of_threads.size()=%d\n", command.ascii(), separate_list_of_threads.size() );
@@ -4778,16 +5333,34 @@ void StatsPanel::getSeparateRankList(int exp_id)
 
   currentThreadsStrENUM = RANK;
 
-#ifdef DEBUG_StatsPanel_info
-  printf("StatsPanel::getSeparateRankList-attempt to run (%s)\n", command.ascii() );
+  // Check if this command has been cached already, if so the list will be updated
+  // If not, call into the CLI and Framework to get the list data required.
+  separate_list_of_ranks.clear();
+  bool list_is_cached = checkForExistingIntList( command.ascii(), separate_list_of_ranks);
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "StatsPanel::getSeparateRankList, LIST_V_RANKS CHECK, command=" << command.ascii() << " list_is_cached=" << list_is_cached 
+            << " separate_list_of_ranks.size()=" << separate_list_of_ranks.size() << std::endl;
 #endif
 
-  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-  separate_list_of_ranks.clear();
-  InputLineObject *clip = NULL;
-  if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-         &separate_list_of_ranks, clip, TRUE ) ) {
-    printf("Unable to run %s command.\n", command.ascii() );
+  if (!list_is_cached) {
+
+#ifdef DEBUG_StatsPanel_info
+    printf("StatsPanel::getSeparateRankList-attempt to run (%s)\n", command.ascii() );
+#endif
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    separate_list_of_ranks.clear();
+    InputLineObject *clip = NULL;
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
+           &separate_list_of_ranks, clip, FALSE /* mark value for delete */ ) ) {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+
+    //std::cerr << "StatsPanel::getSeparateRankList, CACHING LIST_V_RANKS, command=" << command.ascii() 
+    //          << " separate_list_of_ranks.size()=" << separate_list_of_ranks.size() << std::endl;
+
+    addIntListForThisCommand(command.ascii(), separate_list_of_ranks);
   }
 
 #ifdef DEBUG_StatsPanel_info
@@ -4834,20 +5407,35 @@ void StatsPanel::getRankThreadList(int exp_id)
   printf("StatsPanel::getRankThreadList-attempt to run (%s)\n", command.ascii() );
 #endif
 
-  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  // Check if this command has been cached already, if so the list will be updated
+  // If not, call into the CLI and Framework to get the list data required.
   rt_list_of_ranks.clear();
-  InputLineObject *clip = NULL;
-  if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-         &rt_list_of_ranks, clip, TRUE ) ) {
-    printf("Unable to run %s command.\n", command.ascii() );
+  bool list_is_cached = checkForExistingIntList( command.ascii(), rt_list_of_ranks);
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "StatsPanel::getSeparateThreadList, LIST_V_THREADS CHECK, command=" << command.ascii() << " list_is_cached=" << list_is_cached 
+            << " rt_list_of_ranks.size()=" << rt_list_of_ranks.size() << std::endl;
+#endif
+
+  if (!list_is_cached) {
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    rt_list_of_ranks.clear();
+    InputLineObject *clip = NULL;
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &rt_list_of_ranks, clip, FALSE /* mark value for delete */ ) ) {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+
+    //std::cerr << "StatsPanel::getSeparateThreadList, CACHING LIST_V_THREADS, command=" << command.ascii() << " rt_list_of_ranks.size()=" << rt_list_of_ranks.size() << std::endl;
+
+    addIntListForThisCommand(command.ascii(), rt_list_of_ranks);
   }
 
 #ifdef DEBUG_StatsPanel_info
   printf("StatsPanel::getRankThreadList, ran %s, rt_list_of_ranks.size()=%d\n", command.ascii(), rt_list_of_ranks.size() );
 #endif
 
-  if( rt_list_of_ranks.size() > 0 )
-  {
+  if( rt_list_of_ranks.size() > 0 ) {
     infoString += QString("\n Ranks and Underlying Threads: ");
     bool first_time = true;
     int rank_count = 0;
@@ -4940,14 +5528,29 @@ void StatsPanel::getHostList(int exp_id)
   printf("StatsPanel::getHostList-attempt to run (%s)\n", command.ascii() );
 #endif
 
-  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+  // Check if this command has been cached already, if so the list will be updated
+  // If not, call into the CLI and Framework to get the list data required.
   list_of_hosts.clear();
-  InputLineObject *clip = NULL;
+  bool list_is_cached = checkForExistingStringList( command.ascii(), list_of_hosts);
 
-  if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_hosts, clip, TRUE ) ) {
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "StatsPanel::getHostList, LIST_V_HOSTS CHECK, command=" << command.ascii() << " list_is_cached=" << list_is_cached 
+            << " list_of_hosts.size()=" << list_of_hosts.size() << std::endl;
+#endif
 
-    printf("Unable to run %s command.\n", command.ascii() );
+  if (!list_is_cached) {
 
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    list_of_hosts.clear();
+    InputLineObject *clip = NULL;
+
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_hosts, clip, FALSE /* mark value for delete */ ) ) {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+
+    //std::cerr << "StatsPanel::getHostList, CACHING LIST_V_HOSTS, command=" << command.ascii() << " list_of_hosts.size()=" << list_of_hosts.size() << std::endl;
+
+    addStringListForThisCommand(command.ascii(), list_of_hosts);
   }
 
 #ifdef DEBUG_StatsPanel_info
@@ -4959,7 +5562,7 @@ void StatsPanel::getHostList(int exp_id)
          it != list_of_hosts.end(); it++ ) {
       std::string host = *it;
 
-#ifdef DEBUG_StatsPanel_info
+#ifdef DEBUG_StatsPanel_info_details
       printf("StatsPanel::getHostList, host=(%s)\n", host.c_str() );
 #endif
 
@@ -5408,20 +6011,37 @@ QString StatsPanel::getPartialExperimentInfo2(int exp_id)
 
 
 #ifdef DEBUG_StatsPanel
-      printf("StatsPanel::getRankThreadList-attempt to run (%s)\n", local_ranks_command.ascii() );
+      printf("StatsPanel::getPartialExperimentInfo2-attempt to run (%s)\n", local_ranks_command.ascii() );
+#endif
+      // Check if this command has been cached already, if so the list will be updated
+      // If not, call into the CLI and Framework to get the list data required.
+      partial_list_of_ranks.clear();
+      bool list_is_cached = checkForExistingIntList( local_ranks_command.ascii(), partial_list_of_ranks);
+
+#ifdef DEBUG_StatsPanel_cache
+      std::cerr << "StatsPanel::getPartialExperimentInfo2, LIST_V_THREADS CHECK, local_ranks_command=" << local_ranks_command.ascii() 
+                << " list_is_cached=" << list_is_cached 
+                << " partial_list_of_ranks.size()=" << partial_list_of_ranks.size() << std::endl;
 #endif
 
-      currentThreadsStrENUM = RANK;
-      CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-      partial_list_of_ranks.clear();
-      InputLineObject *clip = NULL;
-      if( !cli->getIntListValueFromCLI( (char *) local_ranks_command.ascii(),
-             &partial_list_of_ranks, clip, TRUE ) ) {
-        printf("Unable to run %s local_ranks_command.\n", local_ranks_command.ascii() );
+      if (!list_is_cached) {
+        currentThreadsStrENUM = RANK;
+        CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+        partial_list_of_ranks.clear();
+        InputLineObject *clip = NULL;
+        if( !cli->getIntListValueFromCLI( (char *) local_ranks_command.ascii(),
+               &partial_list_of_ranks, clip, FALSE /* mark value for delete */ ) ) {
+          printf("Unable to run %s local_ranks_command.\n", local_ranks_command.ascii() );
+        }
+
+        //std::cerr << "StatsPanel::getPartialExperimentInfo2, CACHING LIST_V_RANKS, local_ranks_command=" << local_ranks_command.ascii() 
+        //          << " partial_list_of_ranks.size()=" << partial_list_of_ranks.size() << std::endl;
+
+        addIntListForThisCommand(local_ranks_command.ascii(), partial_list_of_ranks);
       }
 
 #ifdef DEBUG_StatsPanel
-      printf("StatsPanel::getRankThreadList, ran %s, partial_list_of_ranks.size()=%d\n", local_ranks_command.ascii(), partial_list_of_ranks.size() );
+      printf("StatsPanel::getPartialExperimentInfo2, ran %s, partial_list_of_ranks.size()=%d\n", local_ranks_command.ascii(), partial_list_of_ranks.size() );
 #endif
        int rank_cnt = partial_list_of_ranks.size();
 #else
@@ -5437,20 +6057,40 @@ QString StatsPanel::getPartialExperimentInfo2(int exp_id)
              local_command = QString("list -v threads -x %1 %2").arg(focusedExpID).arg(currentThreadsStr);
            }
 
-// printf("attempt to run (%s)\n", command.ascii() );
+// printf("attempt to run (%s)\n", local_command.ascii() );
 
-           CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+           // Check if this command has been cached already, if so the list will be updated
+           // If not, call into the CLI and Framework to get the list data required.
            partial_list_of_threads.clear();
-           InputLineObject *clip = NULL;
+           bool list_is_cached = checkForExistingIntList( local_command.ascii(), partial_list_of_threads);
 
-           if( !cli->getIntListValueFromCLI( (char *)local_command.ascii(), &partial_list_of_threads, clip, TRUE ) ) {
-             printf("Unable to run %s command.\n", local_command.ascii() );
+#ifdef DEBUG_StatsPanel_cache
+           std::cerr << "StatsPanel::getPartialExperimentInfo2, LIST_V_THREADS CHECK, local_command=" << local_command.ascii() << " list_is_cached=" << list_is_cached 
+                     << " partial_list_of_threads.size()=" << partial_list_of_threads.size() << std::endl;
+#endif
+
+           if (!list_is_cached) {
+
+             CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+             partial_list_of_threads.clear();
+             InputLineObject *clip = NULL;
+
+             if( !cli->getIntListValueFromCLI( (char *)local_command.ascii(), &partial_list_of_threads, clip, FALSE /* mark value for delete */ ) ) {
+               printf("Unable to run %s command.\n", local_command.ascii() );
+             }
+
+             //std::cerr << "StatsPanel::getPartialExperimentInfo2, CACHING LIST_V_THREADS, local_command=" << local_command.ascii() 
+             //          << " partial_list_of_threads.size()=" << partial_list_of_threads.size() << std::endl;
+
+             addIntListForThisCommand(local_command.ascii(), partial_list_of_threads);
            }
 
 #ifdef DEBUG_StatsPanel
-         printf("StatsPanel::getPartialExperimentInfo2, ran %s, partial_list_of_threads.size()=%d\n", local_command.ascii(), partial_list_of_threads.size() );
+         printf("StatsPanel::getPartialExperimentInfo2, ran %s, partial_list_of_threads.size()=%d\n", 
+                local_command.ascii(), partial_list_of_threads.size() );
 #endif
            if( partial_list_of_threads.size() > 0 ) {
+
 #ifdef DEBUG_StatsPanel
            printf("StatsPanel::getPartialExperimentInfo2, inside if, partial_list_of_threads.size()=%d\n", partial_list_of_threads.size() );
 #endif
@@ -5785,7 +6425,7 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
       host_count = host_count + 1;
       std::string host = *it;
       QString infoHostStr = QString("%1").arg(host.c_str());
-#ifdef DEBUG_StatsPanel_info
+#ifdef DEBUG_StatsPanel_info_details
       printf("StatsPanel::updateStatsPanelInfoHeader, host=(%s)\n", host.c_str() );
 #endif
       infoString += QString(" %1 ").arg(infoHostStr);
@@ -5797,18 +6437,19 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 #ifdef DEBUG_StatsPanel_info
   printf("StatsPanel::updateStatsPanelInfoHeader() , list_of_pids.size()=%d\n", list_of_pids.size());
 #endif
+
+#if 0
   if( list_of_pids.size() > 0 )
   {
     infoString += QString("\n  Processes, Ranks or Threads: ");
     bool first_time = true;
     int pid_count = 0;
-    for( std::list<int64_t>::const_iterator it = list_of_pids.begin();
-         it != list_of_pids.end(); it++ )
+    for( std::list<int64_t>::const_iterator it = list_of_pids.begin(); it != list_of_pids.end(); it++ )
     {
       pid_count = pid_count + 1;
       int64_t pid = (int64_t)*it;
       QString pidStr = QString("%1").arg(pid);
-#ifdef DEBUG_StatsPanel_info
+#ifdef DEBUG_StatsPanel_info_details
       printf("StatsPanel::updateStatsPanelInfoHeader, pid=%ld, pid_count=%d, list_of_pids.size()=%d\n", pid, pid_count, list_of_pids.size() );
 #endif
 
@@ -5830,13 +6471,13 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 
       if (pid > previous_pid ) {
 
-#ifdef DEBUG_StatsPanel_info
+#ifdef DEBUG_StatsPanel_info_details
          printf("StatsPanel::updateStatsPanelInfoHeader, pid>prev, previous_pid=%ld, pid=%ld\n", previous_pid, pid );
 #endif
 
         if (pid == previous_pid + 1  && (pid_count != list_of_pids.size()) ) {
 
-#ifdef DEBUG_StatsPanel_info
+#ifdef DEBUG_StatsPanel_info_details
           printf("StatsPanel::updateStatsPanelInfoHeader, pid==prev+1, before(max_range_pid=%ld), pid=%ld\n", max_range_pid, pid );
 #endif
           max_range_pid = pid;
@@ -5908,13 +6549,14 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
       } 
 
 
-#ifdef DEBUG_StatsPanel_info
+#ifdef DEBUG_StatsPanel_info_details
      printf("StatsPanel::updateStatsPanelInfoHeader, SET prev at end of for, previous_pid=%ld, pid=%ld\n", previous_pid, pid );
 #endif
      previous_pid = pid;
     } // end for
 
   }
+#endif
 
 // All the key data items have been processed into the infoString now...
 // We now attempt to create a summary string that will always be shown
@@ -6237,6 +6879,7 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
           infoString.ascii());
   printf("StatsPanel::updateStatsPanelInfoHeader() , exitting metaDataTextEdit->text().isEmpty()=%d\n", 
           metaDataTextEdit->text().isEmpty());
+
   if (!metaDataTextEdit->text().isEmpty()) {
     printf("StatsPanel::updateStatsPanelInfoHeader() , exitting metaDataTextEdit->text().ascii()=(%s)\n", 
             metaDataTextEdit->text().ascii());
@@ -6657,26 +7300,59 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   printf("StatsPanel::updateStatsPanelData before if,&statspanel_clip=0x%x,statspanel_clip=0x%x\n", &statspanel_clip,statspanel_clip);
 #endif
 
-  if( statspanel_clip )
-  {
+  bool cached_clip_processing = false;
+
+  if( statspanel_clip ) { 
 
 #ifdef DEBUG_StatsPanel
     printf("updateStatsPanelData,C: statspanel_clip->Set_Results_Used(), clearing statspanel_clip\n");
 #endif
 
-    statspanel_clip->Set_Results_Used();
+    //jeg statspanel_clip->Set_Results_Used();
     statspanel_clip = NULL;
+
 #ifdef DEBUG_StatsPanel
     printf("StatsPanel::updateStatsPanelData after set NULL,&statspanel_clip=0x%x,statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
 #endif
+
   }
 
-#ifdef DEBUG_StatsPanel
-  printf("StatsPanel:updateStatsPanelData, about to issue: command: (%s)\n", command.ascii() );
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "StatsPanel:updateStatsPanelData, about to issue a command via" 
+            << " cli->run_Append_Input_String(): command=" <<  command.ascii() << std::endl;
 #endif
 
-  statspanel_clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
+  //InputLineObject* statspanel_clip = check_for_existing_clip(command.ascii());
 
+  statspanel_clip = check_for_existing_clip(command.ascii());
+
+  if (statspanel_clip) {
+
+#ifdef DEBUG_StatsPanel_cache
+     std::cerr << "StatsPanel:updateStatsPanelData, FOUND AN EXISTING CLIP IN THE CLIP MAP STRUCTURE, command=" << command << std::endl;
+#endif
+
+    // call process_clip here?
+    // maybe set some flags to skip the wait loop below
+    cached_clip_processing = true;
+
+  } else {
+
+#ifdef DEBUG_StatsPanel_cache
+     std::cerr << "StatsPanel:updateStatsPanelData, DID NOT FIND AN EXISTING CLIP IN THE CLIP MAP STRUCTURE, ADDING CLIP AFTER ISSUING COMMAND, command=" << command << std::endl;
+#endif
+
+     statspanel_clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
+
+     cached_clip_processing = false;
+
+#ifdef DEBUG_StatsPanel_cache
+     std::cerr << "StatsPanel:updateStatsPanelData, after issuing command, statspanel_clip=" << statspanel_clip 
+               << " sizeof(&statspanel_clip)=" << sizeof(&statspanel_clip) << std::endl;
+#endif
+     addClipForThisCommand(command.ascii(), statspanel_clip);
+  }
+  
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::updateStatsPanelData after set with cli->run_App..,command.ascii()=%s,&statspanel_clip=0x%x, statspanel_clip=0x%x\n", command.ascii(), &statspanel_clip, statspanel_clip);
 #endif
@@ -6757,16 +7433,19 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   printf("StatsPanel::updateStatsPanelData before ref with cli->Seman..,&statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
 #endif
 
-  while( !statspanel_clip->Semantics_Complete() ) {
+  if (!cached_clip_processing ) {
+
+    while( !statspanel_clip->Semantics_Complete() ) {
 
 #ifdef DEBUG_StatsPanel
-    printf("StatsPanel::updateStatsPanelData, pinging... while( !statspanel_clip->Semantics_Complete() ), qApp=0x%x\n", qApp);
+      printf("StatsPanel::updateStatsPanelData, pinging... while( !statspanel_clip->Semantics_Complete() ), qApp=0x%x\n", qApp);
 #endif
 
-    qApp->flushX();
-    qApp->processEvents(4000);
-    suspend();
-    //sleep(1);
+      qApp->flushX();
+      qApp->processEvents(4000);
+      suspend();
+      //sleep(1);
+    }
   }
 
 #ifdef DEBUG_StatsPanel
@@ -6791,7 +7470,7 @@ StatsPanel::updateStatsPanelData(bool processing_preference, QString command)
   printf("StatsPanel::updateStatsPanelData after call to process_clip..,&statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
 #endif
 
-  statspanel_clip->Set_Results_Used();
+  //jegstatspanel_clip->Set_Results_Used();
   statspanel_clip = NULL;
 
 #ifdef DEBUG_StatsPanel
@@ -9480,6 +10159,7 @@ StatsPanel::updateThreadsList()
 {
 // Now get the threads.
   QString command = QString::null;
+  InputLineObject *clip = NULL;
 
   currentThreadsStrENUM = UNKNOWN;
   if( focusedExpID == -1 ) {
@@ -9488,41 +10168,79 @@ StatsPanel::updateThreadsList()
     command = QString("list -v ranks -x %1").arg(focusedExpID);
   }
   currentThreadsStrENUM = RANK;
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::updateThreadsList-attempt to run (%s)\n", command.ascii() );
 #endif
-  CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+
+  // Check if this command has been cached already, if so the list will be updated
+  // If not, call into the CLI and Framework to get the list data required.
   list_of_pids.clear();
-  InputLineObject *clip = NULL;
-  if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-         &list_of_pids, clip, TRUE ) )
-  {
-    printf("Unable to run %s command.\n", command.ascii() );
+  bool list_is_cached = checkForExistingIntList( command.ascii(), list_of_pids);
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "StatsPanel::updateThreadsList, LIST_V_RANKS CHECK, command=" << command.ascii() << " list_is_cached=" << list_is_cached 
+            << " list_of_pids.size()=" << list_of_pids.size() << std::endl;
+#endif
+
+  if (!list_is_cached) {
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    list_of_pids.clear();
+    clip = NULL;
+    if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &list_of_pids, clip, FALSE /* mark value for delete */ ) )
+    {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+
+    //std::cerr << "StatsPanel::updateThreadsList, CACHING LIST_V_RANKS, command=" << command.ascii() << " list_of_pids.size()=" << list_of_pids.size() << std::endl;
+
+    addIntListForThisCommand(command.ascii(), list_of_pids);
   }
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::updateThreadsList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
 #endif
-  if( list_of_pids.size() == 0 )
-  {
+
+  if( list_of_pids.size() == 0 ) {
     currentThreadsStrENUM = THREAD;
     if( focusedExpID == -1 ) {
       command = QString("list -v threads -x %1").arg(expID);
     } else {
       command = QString("list -v threads -x %1").arg(focusedExpID);
     }
+
 // printf("attempt to run (%s)\n", command.ascii() );
-    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+
+    // Check if this command has been cached already, if so the list will be updated
+    // If not, call into the CLI and Framework to get the list data required.
     list_of_pids.clear();
-    InputLineObject *clip = NULL;
-    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-           &list_of_pids, clip, TRUE ) )
-    {
-      printf("Unable to run %s command.\n", command.ascii() );
+    bool list_is_cached = checkForExistingIntList( command.ascii(), list_of_pids);
+
+#ifdef DEBUG_StatsPanel_cache
+    std::cerr << "StatsPanel::updateThreadsList, LIST_V_THREADS CHECK, command=" << command.ascii() << " list_is_cached=" << list_is_cached 
+              << " list_of_pids.size()=" << list_of_pids.size() << std::endl;
+#endif
+
+    if (!list_is_cached) {
+
+      CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+      list_of_pids.clear();
+      clip = NULL;
+
+      if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &list_of_pids, clip, FALSE /* mark value for delete */ ) ) {
+        printf("Unable to run %s command.\n", command.ascii() );
+      }
+
+      //std::cerr << "StatsPanel::updateThreadsList, CACHING LIST_V_THREADS, command=" << command.ascii() << " list_of_pids.size()=" << list_of_pids.size() << std::endl;
+
+      addIntListForThisCommand(command.ascii(), list_of_pids);
     }
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::updateThreadsList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
 #endif
+
   } 
 
   if( list_of_pids.size() == 0 ) {
@@ -9532,17 +10250,35 @@ StatsPanel::updateThreadsList()
     } else {
       command = QString("list -v pids -x %1").arg(focusedExpID);
     }
+
 #ifdef DEBUG_StatsPanel
-    printf("attempt to run (%s)\n", command.ascii() );
+    printf("StatsPanel::updateThreadsList, attempt to run (%s)\n", command.ascii() );
 #endif
-    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+
+    // Check if this command has been cached already, if so the list will be updated
+    // If not, call into the CLI and Framework to get the list data required.
     list_of_pids.clear();
-    InputLineObject *clip = NULL;
-    if( !cli->getIntListValueFromCLI( (char *)command.ascii(),
-           &list_of_pids, clip, TRUE ) )
-    {
-      printf("Unable to run %s command.\n", command.ascii() );
+    bool list_is_cached = checkForExistingIntList( command.ascii(), list_of_pids);
+
+#ifdef DEBUG_StatsPanel_cache
+    std::cerr << "StatsPanel::updateThreadsList, LIST_V_PIDS CHECK, command=" << command.ascii() << " list_is_cached=" << list_is_cached 
+              << " list_of_pids.size()=" << list_of_pids.size() << std::endl;
+#endif
+
+    if (!list_is_cached) {
+
+      CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+      list_of_pids.clear();
+      clip = NULL;
+      if( !cli->getIntListValueFromCLI( (char *)command.ascii(), &list_of_pids, clip, FALSE /* mark value for delete */ ) ) {
+        printf("Unable to run %s command.\n", command.ascii() );
+      }
+
+      //std::cerr << "StatsPanel::updateThreadsList, CACHING LIST_V_PIDS, command=" << command.ascii() << " list_of_pids.size()=" << list_of_pids.size() << std::endl;
+
+      addIntListForThisCommand(command.ascii(), list_of_pids);
     }
+
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::updateThreadsList, ran %s, list_of_pids.size()=%d\n", command.ascii(), list_of_pids.size() );
 #endif
@@ -9554,7 +10290,7 @@ StatsPanel::updateThreadsList()
          it != list_of_pids.end(); it++ )
     {
       int64_t pid = (int64_t)*it;
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_details
       printf("StatsPanel::updateThreadsList, pid=(%ld)\n", pid );
 #endif
     }
@@ -13170,6 +13906,12 @@ qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO functions by fu
 }
 
 
+// Comment out the code that retrieved text based views from the CLI and Framework.
+// That approach does not work.  However leave this code as we will be reworking this
+// code to save and reuse command objects containing the view information in the future.
+// There may be useful pieces of code here to learn from.
+#if COMMENT_OUT_VIEWS_FROM_CLI
+
 // Utility function to help with the output of a saved view.
 static void
 Determine_Location_Information (QString &vs, QString &funcName, QString &fileName, int &lineNumber)
@@ -13239,12 +13981,14 @@ Determine_Location_Information (QString &vs, QString &funcName, QString &fileNam
     }
   }
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_reuse
   printf("Determine_Location_Information: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",
                       funcName.ascii(),fileName.ascii(),lineNumber);
 #endif
 
 }
+// endif if COMMENT_OUT_VIEWS_FROM_CLI out the save/reuse go to cli to get text code
+#endif
 
 
 SourceObject *
@@ -13511,12 +14255,45 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
     command += QString(" %1").arg(currentThreadsStr);
   }
 
-#ifdef DEBUG_StatsPanel
-  printf("StatsPanel::lookUpFileHighlights, command=(%s)\n", command.ascii() );
+  bool cached_clip_processing = false;
+  InputLineObject *clip;
+
+#ifdef DEBUG_StatsPanel_cache
+  printf("StatsPanel::lookUpFileHighlights, about to issue a command via cli->run_Append_Input_String(), command=(%s)\n", command.ascii() );
 #endif
 
   CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
-  InputLineObject *clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
+
+  clip = check_for_existing_clip(command.ascii());
+
+  if (clip) {
+
+#ifdef DEBUG_StatsPanel_cache
+     std::cerr << "StatsPanel:lookUpFileHighlights, FOUND AN EXISTING CLIP IN THE CLIP MAP STRUCTURE, command=" << command << std::endl;
+#endif
+
+    // call process_clip here?
+    // maybe set some flags to skip the wait loop below
+    cached_clip_processing = true;
+
+  } else {
+
+#ifdef DEBUG_StatsPanel_cache
+     std::cerr << "StatsPanel:lookUpFileHighlights, DID NOT FIND AN EXISTING CLIP IN THE CLIP MAP STRUCTURE" 
+               << ", ADDING CLIP AFTER ISSUING COMMAND, command=" << command << std::endl;
+#endif
+
+     clip = cli->run_Append_Input_String( cli->wid, (char *)command.ascii());
+
+     cached_clip_processing = false;
+
+#ifdef DEBUG_StatsPanel_cache
+     std::cerr << "StatsPanel:updateStatsPanelData, after issuing command, clip=" << clip 
+               << " sizeof(&clip)=" << sizeof(&clip) << std::endl;
+#endif
+     addClipForThisCommand(command.ascii(), clip);
+
+  }
 
 
   if( clip == NULL ) {
@@ -13526,34 +14303,35 @@ StatsPanel::lookUpFileHighlights(QString filename, QString lineNumberStr, Highli
 
   Input_Line_Status status = ILO_UNKNOWN;
 
-  while( !clip->Semantics_Complete() )
-  {
-    status = cli->checkStatus(clip, command);
-    if( !status || status == ILO_ERROR )
-    { // An error occurred.... A message should have been posted.. return;
-      QApplication::restoreOverrideCursor();
-      if( clip ) {
-        clip->Set_Results_Used();
-        clip = NULL;
+  if (!cached_clip_processing ) {
+    while( !clip->Semantics_Complete() ) {
+      status = cli->checkStatus(clip, command);
+      if( !status || status == ILO_ERROR )
+      { // An error occurred.... A message should have been posted.. return;
+        QApplication::restoreOverrideCursor();
+        if( clip ) {
+          //clip->Set_Results_Used();
+          clip = NULL;
+        }
+        break;
       }
-      break;
-    }
 
-    qApp->processEvents(4000);
+      qApp->processEvents(4000);
 
-    if( !cli->shouldWeContinue() )
-    {
-      QApplication::restoreOverrideCursor();
-      if( clip ) {
-        clip->Set_Results_Used();
-        clip = NULL;
+      if( !cli->shouldWeContinue() )
+      {
+        QApplication::restoreOverrideCursor();
+        if( clip ) {
+          //clip->Set_Results_Used();
+          clip = NULL;
+        }
+        break;
       }
-      break;
-    }
 
-    suspend();
-    //sleep(1);
-  }
+      suspend();
+      //sleep(1);
+    }
+  } // do not do if clip is cached
 
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::lookUpFileHighlights, BEFORE calling process_clip, \n");
@@ -13715,8 +14493,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
 
 #ifdef DEBUG_StatsPanel
     dumpClipFLAG = TRUE;
-    printf("StatsPanel::process_clip entered\n");
-    printf("StatsPanel::process_clip entered &statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
+    printf("ENTER StatsPanel::process_clip,  &statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
 #endif
 
   if( __internal_debug_setting & DEBUG_CLIPS ) {
@@ -13724,8 +14501,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
   }
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::process_clip before NULL check &statspanel_clip=0x%x, statspanel_clip=0x%x\n", 
-         &statspanel_clip, statspanel_clip);
+  printf("StatsPanel::process_clip before NULL check &statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip, statspanel_clip);
 #endif
 
   if( statspanel_clip == NULL ) {
@@ -13741,8 +14517,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
   std::list<CommandObject *>::iterator coi;
 
 #ifdef DEBUG_StatsPanel
-  printf("StatsPanel::process_clip before NULL check &statspanel_clip=0x%x, statspanel_clip=0x%x\n", 
-          &statspanel_clip,statspanel_clip);
+  printf("StatsPanel::process_clip before NULL check &statspanel_clip=0x%x, statspanel_clip=0x%x\n", &statspanel_clip,statspanel_clip);
 #endif
 
   coi = statspanel_clip->CmdObj_List().begin();
@@ -13751,19 +14526,92 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
   if( co == NULL ) {
     std::cerr << "No command object in clip to process.\n";
   }
-  savedViewInfo *svi = co->SaveResultViewInfo();
 
   std::list<CommandResult *>::iterator cri;
   std::list<CommandResult *> cmd_result = co->Result_List();
 
+#ifdef DEBUG_StatsPanel_reuse
+  cri = cmd_result.begin();
+  if (*cri) {
+    std::cerr << "################ IN STATSPANEL::PROCESS_CLIP ###############, TYPE==(*cri)->Type()=" << (*cri)->Type() << std::endl;
+  }
+#endif
+
+// Comment out the code that retrieved text based views from the CLI and Framework.
+// That approach does not work.  However leave this code as we will be reworking this
+// code to save and reuse command objects containing the view information in the future.
+// There may be useful pieces of code here to learn from.
+#ifdef COMMENT_OUT_VIEWS_FROM_CLI
+
+  savedViewInfo *svi = co->SaveResultViewInfo();
+
+#if SAVE_REUSE_DATABASE
+  if (svi != NULL) {
+#else
   if ( (svi != NULL) &&
        (svi->FileName().length() > 0) ) {
+#endif
+
+#if DEBUG_StatsPanel_reuse
+   std::cerr << "In StatsPanel::process_clip, svi->FileName().c_str()=" << svi->FileName().c_str() << std::endl;
+#endif
+
    // The output has been saved in a file.
    // It needs to be read from there and prepared for display
    // rather than formatted with a call to the CLI routines.
     try {
       columnFieldList.clear();
 
+#if SAVE_REUSE_DATABASE
+      int header_length = 0;
+      QString EOC = co->SaveEoc();
+      QString EOL = co->SaveEol();
+      int min_buffer_length = (EOC.length() >= EOL.length()) ? EOC.length() : EOL.length();
+      int buffer_load_location = 0;
+      int buffer_entries = 0;
+      int buffer_entries_read = 0;
+
+#if DEBUG_StatsPanel_reuse
+   std::cerr << "In StatsPanel::process_clip, " << " EOC.ascii()=" << EOC.ascii() << " EOC.length()=" << EOC.length()
+             << " EOL.ascii()=" << EOL.ascii() << " EOL.length()=" << EOL.length() << std::endl;
+#endif
+
+      char* buffer ;
+      std::string db_name;
+      std::string orig_cmd;
+      int size_of_view_data = 0;
+      std::string buffer_string;
+      ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
+      if( eo && eo->FW() ) {
+        Experiment *fw_experiment = eo->FW();
+        // Get this experiments corresponding database name
+        db_name = fw_experiment->getName();
+        orig_cmd = svi->GenCmd();
+    // Retrieve the command's view data from the database where it was stored for reuse
+        bool get_view_success = fw_experiment->getViewFromExistingCommandEntry(db_name,  orig_cmd, buffer_string, size_of_view_data);
+        if (!get_view_success) {
+        }
+        //char* buffer = new char[buffer_string.size()+1];
+        buffer = (char *) malloc(buffer_string.size());
+        memset(buffer, 0, buffer_string.size());
+        memcpy(buffer, buffer_string.c_str(), buffer_string.size() );
+      }
+
+      // Read into the buffer, identify separate strings
+      // and perform the copy to 'columnFieldList' for display.
+      QString vs = QString::null;
+      bool looking_for_start_of_field_data = true;
+
+#if DEBUG_StatsPanel_reuse
+      std::cerr << "In StatsPanel::process_clip, after getViewFromExistingCommandEntry, num=" << buffer_string.size() << " orig_cmd=" << orig_cmd 
+                << " db_name=" << db_name << " header_length=" << header_length << std::endl;
+#endif
+
+      // use this for loop, looping through the string instead of the file read when 
+      // using the clip based save and reuse in the GUI, as opposed to the original text based database method
+      for(int num = buffer_string.size(); num > 0;) {
+
+#else
       int header_length = co->SaveResultDataOffset();
       QString EOC = co->SaveEoc();
       QString EOL = co->SaveEol();
@@ -13781,15 +14629,23 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
       Assert(source_fd != -1);
 
       // Read into the buffer, identify separate strings
-      // and perform the copy to 'columnFieldList' for disaplay.
+      // and perform the copy to 'columnFieldList' for display.
       QString vs = QString::null;
       bool looking_for_start_of_field_data = true;
+
       for(int num = 1; num > 0;) {
 
         // Read bytes from the source file
         buffer_entries_read = read(source_fd, &buffer[buffer_load_location], copyBufferSize);
         num = buffer_entries_read + buffer_load_location;
+
+#if DEBUG_StatsPanel_reuse
+        std::cerr << "In StatsPanel::process_clip, after read, num=" << num << " buffer_entries_read=" << buffer_entries_read 
+                  << " buffer_load_location=" << buffer_load_location << " header_length=" << header_length << std::endl;
+#endif
         Assert((num >= 0) || ((num == -1) && (errno == EINTR)));
+
+#endif // end of read from view file
 
         // Write bytes until none remain
         if (num > 0) {
@@ -13861,8 +14717,11 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
 
      // Destroy the copy buffer
       delete [] buffer;
-
+#if DEBUG_StatsPanel_reuse
+      std::cerr << "In StatsPanel::process_clip, EARLY RETURN AFTER PROCESS SAVED VIEW DATA" << std::endl;
+#endif
       return;
+
     } catch(const std::exception& error) { 
       std::cerr << std::endl << "Error: "
                 << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
@@ -13872,6 +14731,8 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
     }
 
   } // end 'if (co->SaveResultFile().length() > 0)'
+// endif if COMMENT_OUT_VIEWS_FROM_CLI out the save/reuse go to cli to get text code
+#endif
 
  // Process any annotations.
   bool issue_annotations = false;
@@ -14927,8 +15788,6 @@ StatsPanel::analyzeTheCView()
     getDatabaseName(expID, force_use_of_exp_id);
     QString dbnamesStr = getDBName(expID);
     infoAboutComparingString += QString(" Database Name: %1 ").arg(dbnamesStr);
-
-
 
     QString host_pid_names = QString::null;
 

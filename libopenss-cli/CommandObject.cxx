@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2012 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -19,6 +19,16 @@
 
 #include "SS_Input_Manager.hxx"
 
+// This define (DATABASE_SAVEDVIEWS) switches the code in this file making the saved view 
+// storage location to the database instead of writing disk files
+#define DATABASE_SAVEDVIEWS 1
+
+// This define (DEBUG_REUSEVIEWS) turns on save/reuse view debug code (need to uncomment)
+/*
+#define DEBUG_REUSEVIEWS 1
+#define DEBUG_REUSEVIEWS_EXTENDED 1
+*/
+
 /** * Copy a file.
  *
  * Copies the contents of one file over the contents of another. The source and
@@ -29,24 +39,76 @@
  * @param destination    File to be overwritten.
  */
 // void copyFile(std::string source, std::string destination)
-static void copyFile(std::string source, std::ostream &destination , int starting_offset )
+void CommandObject::copyFile(std::string orig_cmd, std::string source, std::ostream &destination , int starting_offset )
 {
   const int copyBufferSize = 65536;
+  int size_of_view_data = 0;
 
+#if DATABASE_SAVEDVIEWS
+
+#if DEBUG_REUSEVIEWS
+  std::cerr << "ENTER copyFile, note: skipping open of view file"  << std::endl;
+#endif
+
+#else
   // Open the source file for read-only access
   int source_fd = open(source.c_str(), O_RDONLY);
   Assert(source_fd != -1);
 
+  // Perform the copy
+  int header_length = starting_offset;
+#endif
+
   // Allocate a buffer for performing the copy
   char* buffer = new char[copyBufferSize];
 
-  // Perform the copy
-  int header_length = starting_offset;
+#if DEBUG_REUSEVIEWS
+  std::cerr << "ENTER copyFile, THIS IS WHERE WE READ FROM THE DATABASE view_data and write to the output view" 
+            << " orig_cmd=" << orig_cmd << " file to read from is=" << source.c_str() << std::endl;
+#endif
+
+  std::string buffer_string;
+  ExperimentObject *exp = Find_Experiment_Object (SaveExpId());
+
+  if (exp && exp->FW()) {
+    std::string db_name = exp->FW()->getName();
+    bool get_view_success = exp->FW()->getViewFromExistingCommandEntry(db_name,  orig_cmd, buffer_string, size_of_view_data);
+
+    if (get_view_success) {
+     
+#if DEBUG_REUSEVIEWS_EXTENDED
+      std::cerr << "size_of_view_data=" << size_of_view_data << std::endl;
+#endif
+
+    } // end if exp
+  } // end get_view_success
+
+
+#if DATABASE_SAVEDVIEWS
+   // New database method of retrieving data follows
+
+#if DEBUG_REUSEVIEWS
+  std::cerr << "IN copyFile, buffer_string.size()=" << buffer_string.size() << " size_of_view_data=" << size_of_view_data << std::endl;
+#endif
+
+  // copy the string obtained from the database to the destination stream for output
+  destination << buffer_string;
+
+#else
+  //
+  // Original method of reading from the view files follows
+  //
   for(int num = 1; num > 0;) {
 
     // Read bytes from the source file
     num = read(source_fd, buffer, copyBufferSize);
     Assert((num >= 0) || ((num == -1) && (errno == EINTR)));
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "IN copyFile, COPY TO OUTPUT VIEW, copy num=" << num << " bytes to the OUTPUT VIEW" << std::endl;
+#endif
+
+    // Perform the copy
 
     // Write bytes until none remain
     if(num > 0) {
@@ -60,12 +122,21 @@ static void copyFile(std::string source, std::ostream &destination , int startin
       if (num != copyBufferSize) break;
     }
   }
+#endif
 
   // Destroy the copy buffer
   delete [] buffer;
 
+#ifndef DATABASE_SAVEDVIEWS
   // Close the input file.
   Assert(close(source_fd) == 0);
+
+#endif
+
+#if DEBUG_REUSEVIEWS
+  std::cerr << "EXIT copyFile, COPY TO OUTPUT VIEW" << std::endl;
+#endif
+
 }
 
 
@@ -86,6 +157,10 @@ ParseRange *OpenSpeedShop::cli::Look_For_Format_Specification (std::vector<Parse
  //  Look at general modifier types for a specific KeyWord option.
   if (f_list == NULL) return NULL;
   std::vector<ParseRange>::iterator j;
+
+#if DEBUG_REUSEVIEWS
+  std::cerr << "ENTER OpenSpeedShop::cli::Look_For_Format_Specification, Key=" << Key << std::endl;
+#endif
  
   for (j=f_list->begin();j != f_list->end(); j++) {
     if ( ((*j).getParseType() == PARSE_RANGE_VALUE) &&
@@ -234,6 +309,7 @@ void CommandObject::set_Status (Command_Status S) {
  */
 void CommandObject::Print (std::ostream &mystream) {
  // Header information
+
   InputLineObject *clip = Associated_Clip;
   CMDID when = clip->Seq ();
   mystream << "X " << when << "." << Seq_Num;
@@ -497,25 +573,64 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
   bool save_for_reuse = false;
   std::ostream *tof = &to;
   savedViewInfo *svi = SaveResultViewInfo();
+
+
+#if DEBUG_REUSEVIEWS
+  std::cerr << "ENTER Print_Results, svi=" << svi << " tof=" << tof << " to=" << to 
+            << " Clip()->Who()=" << Clip()->Who() << " gui_window=" << gui_window 
+            << " command_line_window=" << command_line_window <<  std::endl;
+
+  if ( OPENSS_SAVE_EXPERIMENT_DATABASE && (svi != NULL) ) {
+     std::cerr << "ENTER Print_Results, svi->FileName().length()=" << svi->FileName().length() 
+               << " svi->DoNotSave()=" << svi->DoNotSave()
+               << " SaveResult()=" << SaveResult()
+               << " svi->FileName()=" << svi->FileName() << std::endl;
+  }
+#endif
+
   std::string SavedResultFile;
+  std::string svi_orignal_cmd;
   if ( OPENSS_SAVE_EXPERIMENT_DATABASE &&
+//       Clip()->Who() != gui_window &&
        (svi != NULL) &&
-       (!svi->DoNotSave()) &&
        (svi->FileName().length() > 0) ) {
     SavedResultFile = svi->FileName();
-    if (!SaveResult()) {
+    svi_orignal_cmd = svi->GenCmd();
+
+    if ( !SaveResult()) {
+
      // Required output has already been generated.
-      copyFile( SavedResultFile, *tof, SaveResultDataOffset() );
+
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In Print_Results, output has already been generated, READ FROM DATABASE AND WRITE TO OUTPUT STREAM (tof)," 
+                << " COPYING SavedResultFile=" << SavedResultFile 
+                << " to: tof ostream at SaveResultDataOffset()=" << SaveResultDataOffset() 
+                << " tof=" << tof << " to=" << to << std::endl;
+#endif
+
+      copyFile( svi_orignal_cmd, SavedResultFile, *tof, SaveResultDataOffset() );
       return true;
+
     } else {
+
      // The output generated here will be saved for future use.
-      save_for_reuse = TRUE;
-      tof = SaveResultOstream();
+
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In Print_Results, Follow this path to STORE VIEW TO DATABASE FOR FUTURE RETREIVAL, if view NOT already saved" 
+                << " and save the SaveResultOstream to tof" << std::endl;
+#endif
+
+      if ( (!svi->DoNotSave()) ) {
+        save_for_reuse = TRUE;
+        // Retrieve the save ostream from the saved view info structure
+        tof = SaveResultOstream();
+      }
     }
   }
 
  // Pick up information lists from CommandObject.
   std::list<CommandResult *> cmd_result = Result_List();
+
   std::list<CommandResult_RawString *> cmd_annotation = Annotation_List ();
   std::vector<ParseRange> *f_list = (P_Result() != NULL) ? P_Result()->getexpFormatList() : NULL;
 
@@ -546,6 +661,10 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
     }
   }
 
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In Print_Results, after annotation_printed checks annotation_printed=" << annotation_printed << std::endl;
+#endif
+
   if (annotation_printed &&
       (cmd_result.begin() == cmd_result.end())) {
    // There is result, but we did print something and need a new prompt.
@@ -571,6 +690,11 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
       num_columns = std::max (num_columns, cnt);
     }
   }
+
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In Print_Results, after num_columns checks num_columns=" << num_columns << std::endl;
+#endif
+
   int64_t Column_Width[num_columns];
   if (num_columns > 0) {
    // Initialize column width to defaults.
@@ -597,6 +721,10 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
     for (int64_t i = 0; i < num_columns; i++) {
       Column_Width[i] = default_value;
     }
+
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In Print_Results, after default_value checks default_value=" << default_value << std::endl;
+#endif
 
     if ( format_spec.field_size_dynamic &&
          !EOC_specified &&
@@ -634,12 +762,19 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
             min_size -= leading_blank_cnt;
             if (min_size > Column_Width[num_results]) {
               Column_Width[num_results] = min_size;
+#if DEBUG_REUSEVIEWS
+              std::cerr << "In Print_Results, during min_size checks min_size=" << min_size << " num_results=" << num_results << std::endl;
+#endif
             }
           }
         }
       }
     }
   }
+
+#if DEBUG_REUSEVIEWS
+   std::cerr << "In Print_Results, AFTER min_size checks " << std::endl;
+#endif
 
  // Print the result information
   bool data_written = false;
@@ -695,11 +830,41 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
         (list_seperator != termination_char)) {
       *tof << termination_char;
     }
-   // Be sure that all data has been transfered to output file.
+
     *tof << std::flush;
+    
+#if DEBUG_REUSEVIEWS
+    if (save_for_reuse) { std::cerr << "In Print_Results, tof is flushed-1, save_for_use is true" << std::endl;
+    } else { std::cerr << "In Print_Results, tof is flushed-1, save_for_use is false" << std::endl; } 
+#endif
+
   }
-  if (save_for_reuse) {
+
+  //jeg  *tof << std::endl << std::flush;
+
+  if (save_for_reuse ) {
+
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In Print_Results, -path 2- CALL TO ADD DATA TO THE DATABASE FOR REUSE, COPYING SavedResultFile=" 
+              << SavedResultFile << " to: to ostream to=" << to << " tof=" << tof << std::endl; 
+#endif
+
+
     *tof << std::endl << std::flush;
+
+    ExperimentObject *exp = Find_Experiment_Object (SaveExpId());
+    std::string Data_File_Name;
+    Data_File_Name = exp->FW()->getName();
+    exp->FW()->addViewCommandAndDataEntries( Data_File_Name, svi->GenCmd(), SavedResultFile, tof, SaveResultDataOffset()  );
+    // This will force the removal of the temporary file at the end of this CLI session
+    svi->setDoNotSave();
+
+     // was here but no data in *.view file  *tof << std::endl << std::flush;
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In Print_Results, tof is flushed-2" << std::endl;
+#endif
+
     delete tof;
     setSaveResult( false );
     setSaveResultOstream( NULL );
@@ -707,8 +872,20 @@ bool CommandObject::Print_Results (std::ostream &to, std::string list_seperator,
          (Clip()->Who() == command_line_window) ||
          (Clip()->Who() == tli_window) ) {
      // Copy data from save file to desired output stream.
-      copyFile( SavedResultFile, to, SaveResultDataOffset() );
+
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In Print_Results, calling copyFile to READ FROM DATABASE AND WRITE TO OUTPUT STREAM (to), to=" << to 
+                << " (if not database enabled, then use file) COPYING SavedResultFile=" << SavedResultFile 
+                << " to: to ostream at SaveResultDataOffset()=" << SaveResultDataOffset() << std::endl;
+#endif
+
+      copyFile( svi_orignal_cmd, SavedResultFile, to, SaveResultDataOffset() );
     }
   }
+
+#if DEBUG_REUSEVIEWS
+  std::cerr << "EXIT Print_Results, data_written=" << data_written << std::endl;
+#endif
+
   return data_written;
 }

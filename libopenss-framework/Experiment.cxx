@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2012,2013 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2007-2008 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2006-2014 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -56,6 +56,11 @@
 #endif
 #include <unistd.h>
 
+#include <stdio.h>
+#include <fcntl.h>
+#include <list>
+#include <string>
+
 using namespace OpenSpeedShop::Framework;
 
 
@@ -75,7 +80,7 @@ namespace {
 	"CREATE TABLE \"Open|SpeedShop\" ("
 	"    version INTEGER"
 	");",
-	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (6);",
+	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (7);",
 	
 	// Thread Table
 	"CREATE TABLE Threads ("
@@ -210,6 +215,13 @@ namespace {
 	");",
 	"CREATE INDEX IndexDataByCollectorThread ON Data (collector,thread);",
 
+        // View Reuse Table
+	"CREATE TABLE Views ("
+	"    id INTEGER PRIMARY KEY,"
+	"    view_cmd TEXT," 
+        "    view_data BLOB"
+	");",
+
 	// End Of Table Entry
 	NULL
     };
@@ -249,6 +261,10 @@ bool Experiment::is_debug_mpijob_enabled =
 /** Flag indicating if debuging for offline experiments is enabled. */
 bool Experiment::is_debug_offline_enabled = 
     (getenv("OPENSS_DEBUG_OFFLINE") != NULL);
+
+/** Flag indicating if debuging for save/reuse data views is enabled. */
+bool Experiment::is_debug_reuse_views_enabled = 
+    (getenv("OPENSS_DEBUG_REUSE_VIEWS") != NULL);
 #endif
 
 
@@ -494,6 +510,8 @@ Experiment::Experiment(const std::string& name) :
         updateToVersion5();
     if(getVersion() == 5)
         updateToVersion6();
+    if(getVersion() == 6)
+        updateToVersion7();
 
 #if (BUILD_INSTRUMENTOR == 1)
     // Iterate over each thread in this experiment
@@ -2269,6 +2287,42 @@ void Experiment::updateToVersion6() const
 }
 
 
+/**
+ * Update our schema to version 7.
+ *
+ * Updates the schema of this experiment's database to version 7. Adds empty
+ * view reuse table and updates the database's schema version number.
+ */
+void Experiment::updateToVersion7() const
+{
+    // Update procedure
+    const char* UpdateProcedure[] = {
+    // create table  VIEWS  ( id INTEGER PRIMARY KEY, view_cmd TEXT DEFAULT NULL,  view_data BLOB DEFAULT NULL); 
+
+    // View Reuse Table
+	"CREATE TABLE IF NOT EXISTS Views ("
+	"    id INTEGER PRIMARY KEY,"
+	"    view_cmd TEXT," 
+        "    view_data BLOB"
+	");",
+	
+	// Update the database's schema version number
+	"UPDATE \"Open|SpeedShop\" SET version = 7;",
+
+	// End Of Table Entry
+	NULL
+    };
+
+    // Apply the update procedure
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    for(int i = 0; UpdateProcedure[i] != NULL; ++i) {
+        dm_database->prepareStatement(UpdateProcedure[i]);
+        while(dm_database->executeStatement());
+    }
+    END_TRANSACTION(dm_database);
+}
+
+
 
 /**
  * Get MPI job information from MPT.
@@ -3010,5 +3064,641 @@ void Experiment::compressDB() const
     while(dm_database->executeStatement());
 
     END_TRANSACTION(dm_database);
+
+}
+
+
+/**
+ * Set the view command into the database as a place holder for the view data to be stored later.
+ *
+ * It searches the database Views table for a matching command.  If not found it stores the command
+ * into the database.
+ *
+ * @return   None
+ */
+
+void Experiment::setDatabaseViewHeader( std::string db_name,  std::string view_cmd_arg)
+{
+     int id_of_match = -1;
+#ifndef NDEBUG
+      if(is_debug_reuse_views_enabled) {
+         std::stringstream output;
+         output << "ENTER Experiment::setDatabaseViewHeader, db_name=" << db_name 
+                << " view_cmd_arg=" << view_cmd_arg << std::endl;
+         std::cerr << output.str();
+      }
+#endif
+
+  // If we don't find the command already in the database add it
+  id_of_match = searchForViewCommandHeaderMatch( db_name, view_cmd_arg, true /* exact match */) ;
+  if ( id_of_match < 0) {
+
+     SmartPtr<Database> database = SmartPtr<Database>(new Database(db_name));
+
+#ifndef NDEBUG
+      if(is_debug_reuse_views_enabled) {
+         std::stringstream output;
+         output << "IN Experiment::setDatabaseViewHeader, ADDING VIEW_CMD, db_name=" << db_name 
+                << " view_cmd_arg=" << view_cmd_arg << std::endl;
+         std::cerr << output.str();
+      }
+#endif
+
+
+     // Find out if there are any entries in the database table for saved views
+     // If not insert, otherwise add to the table
+     BEGIN_TRANSACTION(database);
+     database->prepareStatement(
+                   "INSERT INTO Views (view_cmd) "
+                   "VALUES (?) ;"
+                   );
+     database->bindArgument(1, view_cmd_arg);
+     while( database->executeStatement() );
+     END_TRANSACTION(database);
+
+  } else {
+
+#ifndef NDEBUG
+      if(is_debug_reuse_views_enabled) {
+         std::stringstream output;
+         output << "IN Experiment::setDatabaseViewHeader, MATCHING VIEW_CMD found for, db_name=" << db_name 
+                << " view_cmd_arg=" << view_cmd_arg << " id_of_match=" << id_of_match << std::endl;
+         std::cerr << output.str();
+      }
+#endif
+
+	  } 
+
+#ifndef NDEBUG
+      if(is_debug_reuse_views_enabled) {
+	 std::stringstream output;
+	 output << "EXIT Experiment::setDatabaseViewHeader, db_name=" << db_name 
+		<< " view_cmd_arg=" << view_cmd_arg << std::endl;
+	 std::cerr << output.str();
+      }
+#endif
+
+}
+
+/**
+ * Search to see if a saved view command corresponds to the view_cmd_arg exists in the database.
+ *
+ * It searches the database Views table for a matching command.  If found it returns true
+ * otherwise the value returned is set to false to indicate a matching command was not found.
+ *
+ * @return   The success/failure return value.
+ */
+
+int Experiment::searchForViewCommandHeaderMatch( std::string db_name,  std::string view_cmd_arg, bool exact_match )
+{
+// Search for a matching view command in the database then return the generated 
+// performance information back to the caller.
+ int id_of_match = -1;
+#ifndef NDEBUG
+      if(is_debug_reuse_views_enabled) {
+	 std::stringstream output;
+	 output << "ENTER Experiment::searchForViewCommandHeaderMatch, db_name=" << db_name 
+		<< " view_cmd_arg=" << view_cmd_arg << std::endl;
+	 std::cerr << output.str();
+      }
+#endif
+
+  SmartPtr<Database> database = SmartPtr<Database>(new Database(db_name));
+  int return_val = -1;
+
+  // Find out if there are any entries in the database table for saved views
+  // If not insert, otherwise add to the table
+
+  BEGIN_TRANSACTION(database);
+  database->prepareStatement(
+		"SELECT id, view_cmd FROM Views;"
+		);
+  while( database->executeStatement() ) {
+    if(!database->getResultIsNull(2)) {
+
+      std::string view_cmd_in_db = database->getResultAsString(2);
+
+#ifndef NDEBUG
+      if(is_debug_reuse_views_enabled) {
+	 std::stringstream output;
+	 output << " Experiment::searchForViewCommandHeaderMatch, view_cmd_in_db=" << view_cmd_in_db 
+		<< " view_cmd_arg=" << view_cmd_arg << " size of view_cmd_in_db=" << view_cmd_in_db.size() 
+		<< " size of view_cmd_arg=" << view_cmd_arg.size() << std::endl;
+	 std::cerr << output.str();
+      }
+#endif
+
+      if (exact_match && view_cmd_in_db.compare(view_cmd_arg) == 0) {
+	id_of_match = database->getResultAsInteger(1);
+
+#ifndef NDEBUG
+	if(is_debug_reuse_views_enabled) {
+	   std::stringstream output;
+	   output << " Experiment::searchForViewCommandHeaderMatch, EXACT EARLY RETURN TRUE" << std::endl;
+	   std::cerr << output.str();
+	}
+#endif
+	return_val = id_of_match;
+	break;
+      } else if (!exact_match && view_cmd_in_db.compare(0, view_cmd_arg.size(),view_cmd_arg) == 0) {
+	id_of_match = database->getResultAsInteger(1);
+#ifndef NDEBUG
+	if(is_debug_reuse_views_enabled) {
+	   std::stringstream output;
+	   output << " Experiment::searchForViewCommandHeaderMatch, SUBSTR MATCH, EARLY RETURN TRUE" << std::endl;
+	   std::cerr << output.str();
+	}
+#endif
+	return_val = id_of_match;
+	break;
+      }
+    }
+  }
+  END_TRANSACTION(database);
+
+#ifndef NDEBUG
+  if(is_debug_reuse_views_enabled) {
+      std::stringstream output;
+      output << "EXIT Experiment::searchForViewCommandHeaderMatch, return_val=" << return_val 
+	     << " view_cmd_arg=" << view_cmd_arg << std::endl;
+      std::cerr << output.str();
+  }
+#endif
+
+  return return_val;
+
+}
+
+/**
+ * Store a CLI saved view to the database that corresponds to the view_cmd_arg that is passed in.
+ *
+ * It searches the database Views table for a matching command.  If found it stores 
+ * the data view into the database for future reuse.  If a matching command is not found,
+ * the return value is false to indicate a matching command was not found.
+ *
+ * @return   The success/failure return value.
+ */
+
+bool Experiment::addViewCommandAndDataEntries(  std::string db_name,  
+						std::string view_cmd_arg, 
+						std::string view_data_filename_arg, 
+						std::ostream *view_outstream, 
+						int view_file_header_offset)
+{
+  int id_of_match = -1 ;
+
+  // Search for a matching view command in the database then store the generated 
+  // performance information into the database.
+
+  bool return_val = false;
+
+#ifndef NDEBUG
+	if(is_debug_reuse_views_enabled) {
+	     std::stringstream output;
+	     output << "ENTER Experiment::addViewCommandAndDataEntries, db_name=" << db_name 
+		    << " view_cmd_arg=" << view_cmd_arg 
+		    << " view_file_header_offset=" << view_file_header_offset 
+		    << " view_data_filename_arg=" << view_data_filename_arg << std::endl;
+	     std::cerr << output.str();
+	}
+#endif
+
+  SmartPtr<Database> database = SmartPtr<Database>(new Database(db_name));
+
+  setDatabaseViewHeader( db_name, view_cmd_arg);
+  
+
+  // Find out if there are any entries in the database table for saved views
+  // If not insert, otherwise add to the table
+
+  BEGIN_TRANSACTION(database);
+  database->prepareStatement(
+		"SELECT id, view_cmd FROM Views;"
+		);
+  while( database->executeStatement() ) {
+
+    if(!database->getResultIsNull(2)) {
+
+      std::string view_cmd_in_db = database->getResultAsString(2);
+
+      if (view_cmd_in_db.compare(view_cmd_arg) == 0) {
+	id_of_match = database->getResultAsInteger(1);
+	return_val = true;
+
+#ifndef NDEBUG
+	if(is_debug_reuse_views_enabled) {
+	     std::stringstream output;
+	     output << " Experiment::addViewCommandAndDataEntries, FOUND ID OF MATCH, id_of_match=" 
+		    << id_of_match << " view_cmd_in_db=" << view_cmd_in_db << std::endl;
+	     std::cerr << output.str();
+	}
+#endif
+
+	// break into the code to update the view blob
+	break;
+      }
+    }
+  }
+  END_TRANSACTION(database);
+
+  std::ostringstream *ostring_stream_pstr;
+//  std::string pstr ;
+  std::string pstr_temp ;
+
+#if 1
+  const int copyBufferSize = 4096;
+
+  int header_length = view_file_header_offset;
+  //FILE *fd = fopen(view_data_filename_arg.c_str(),"r");
+  int fd = open(view_data_filename_arg.c_str(),O_RDONLY);
+  char* read_buffer = (char *) malloc(copyBufferSize);
+
+  if ( fd ) {
+     //int num = read( fd, read_buffer, copyBufferSize );
+
+     //memset(read_buffer, 0, copyBufferSize);
+    for(int num = 1; num > 0;) {
+
+       //num = fread(read_buffer, 1, copyBufferSize, fd);
+       num = read( fd, read_buffer, copyBufferSize);
+       Assert((num >= 0) || ((num == -1) /* && (errno == EINTR) */));
+       //std::cerr << "In Experiment::addViewCommandAndDataEntries, READ NUM=" << num << std::endl;
+
+       if (num > 0) {
+
+#if 0
+	 std::cerr << "In Experiment::addViewCommandAndDataEntries, reading from:" 
+		 << " view_data_filename_arg=" << view_data_filename_arg 
+		 << " num=" << num << " read_buffer[0]=" << read_buffer[0] 
+		 << " read_buffer[header_length]=" << read_buffer[header_length] 
+		 <<  std::endl;
+
+	 for (int j=0; j<copyBufferSize; j++) {
+	    std::cerr << "In Experiment::addViewCommandAndDataEntries, j=" << j << " read_buffer[j]=" <<  read_buffer[j] << std::endl;
+	 }
+#endif
+
+	 //std::string ppstr(read_buffer + header_length);
+	 //pstr = ppstr;
+	 for(int i = header_length; i < num; i++) {
+	    // Write bytes to the destination file
+	    pstr_temp.push_back( read_buffer[i] ) ;
+	 }
+	 //std::cerr << "In Experiment::addViewCommandAndDataEntries, FIRST_TIME, num=" << num << " pstr_temp=" << pstr_temp << std::endl;
+	 // After first time through, the header is not a concern, only need to skip for the initial read_buffer copy.
+	 header_length = 0;
+
+	 if (num != copyBufferSize) {
+	    // need to end the string
+	    pstr_temp.push_back( '\0' ) ;
+	    break;
+	 }
+
+      } // for num
+    } // num > 0
+
+  } // fd ok
+
+#else
+  ostring_stream_pstr = (std::ostringstream*)(view_outstream);
+  pstr = ostring_stream_pstr->str();
+#endif
+
+  std::string pstr(pstr_temp.c_str());
+
+#ifndef NDEBUG
+  if(is_debug_reuse_views_enabled) {
+    std::cerr << "In Experiment::addViewCommandAndDataEntries, size of pstr=" << pstr.size() << " length of pstr=" << pstr.length() << std::endl;
+  }
+#endif
+
+  if (id_of_match > 0 && return_val == true ) {
+
+#ifndef NDEBUG
+    if(is_debug_reuse_views_enabled) {
+	 std::stringstream output;
+	 output << "In Experiment::addViewCommandAndDataEntries, stringstream, view_cmd_arg=" << view_cmd_arg 
+		<< " about to write view_data string to the database, id_of_match=" << id_of_match 
+		<< " pstr=" << pstr << std::endl;
+	 std::cerr << output.str();
+    }
+#endif
+
+    BEGIN_WRITE_TRANSACTION(database);
+       database->prepareStatement(
+	      "UPDATE Views SET view_data = ? WHERE id = ? AND view_cmd = ?;"
+       );
+       database->bindArgument(1, pstr);
+       database->bindArgument(2, id_of_match);
+       database->bindArgument(3, view_cmd_arg);
+       while(database->executeStatement());
+       END_TRANSACTION(database);
+  }
+
+#ifndef NDEBUG
+  if(is_debug_reuse_views_enabled) {
+	 std::stringstream output;
+	 output << "EXIT Experiment::addViewCommandAndDataEntries, db_name=" << db_name 
+		<< " view_cmd_arg=" << view_cmd_arg << std::endl;
+	 std::cerr << output.str();
+  }
+#endif
+
+  return return_val;
+
+}
+
+/**
+ * Get a CLI saved view from the database that corresponds to the view_cmd_arg that is passed in.
+ *
+ * Returns to the caller, the char * data that was stored in the database.
+ * It searches the database Views table for matching commands.  If found it returns 
+ * a status of true and the data through the returned_view_data data structure.
+ * If not found, the return value is false to indicate a matching command was not found.
+ *
+ * @return   The char * data that was stored in the database and the success/failure return value.
+ */
+
+bool Experiment::getViewFromExistingCommandEntry( std::string db_name,  std::string view_cmd_arg, std::string &returned_view_data, int &size_of_returned_view_data )
+{
+  int id_of_match = -1 ;
+
+  // Search for a matching view command in the database then return the generated 
+  // performance information back to the caller.
+
+  bool return_val = false;
+
+#ifndef NDEBUG
+  if(is_debug_reuse_views_enabled) {
+	 std::stringstream output;
+	 output << "ENTER Experiment::getViewFromExistingCommandEntry, db_name=" << db_name 
+		<< " view_cmd_arg=" << view_cmd_arg << std::endl;
+	 std::cerr << output.str();
+  }
+#endif
+
+  SmartPtr<Database> database = SmartPtr<Database>(new Database(db_name));
+
+  // Find out if there are any entries in the database table for saved views
+  // If so, return the saved data view data to the caller.
+
+  BEGIN_TRANSACTION(database);
+  database->prepareStatement(
+		"SELECT id, view_cmd FROM Views;"
+               );
+  while( database->executeStatement() ) {
+    if(!database->getResultIsNull(2)) {
+
+      // pull out the view command from the database to use in search for the corresponding database entry
+      std::string view_cmd_in_db = database->getResultAsString(2);
+
+      if (view_cmd_in_db.compare(view_cmd_arg) == 0) {
+       
+	id_of_match = database->getResultAsInteger(1);
+        return_val = true;
+
+#ifndef NDEBUG
+        if(is_debug_reuse_views_enabled) {
+              std::stringstream output;
+              output << "Experiment::getViewFromExistingCommandEntry, EARLY RETURN AFTER UPDATE, id_of_match=" 
+                     << id_of_match << " view_cmd_in_db=" << view_cmd_in_db << std::endl;
+              std::cerr << output.str();
+        }
+#endif
+
+        // break to get into the code to update the view blob
+        break;
+      }
+    }
+  }
+  END_TRANSACTION(database);
+
+  std::string view_cmd_tmp;
+  std::string View_String;
+  if (id_of_match > 0 && return_val == true ) {
+
+#ifndef NDEBUG
+           if(is_debug_reuse_views_enabled) {
+               std::stringstream output;
+               output << "In Experiment::getViewFromExistingCommandEntry, reading view_data string from db, db_name=" 
+                         << db_name << " view_cmd_arg=" << view_cmd_arg << std::endl;
+               std::cerr << output.str();
+           }
+#endif
+
+    BEGIN_TRANSACTION(database);
+
+       database->prepareStatement( "SELECT view_data FROM Views WHERE id = ? AND view_cmd = ?;" );
+       database->bindArgument(1, id_of_match);
+       database->bindArgument(2, view_cmd_arg);
+
+       while(database->executeStatement()) {
+         if(!database->getResultIsNull(1)) {
+           View_String = database->getResultAsString(1);
+#ifndef NDEBUG
+           if(is_debug_reuse_views_enabled) {
+               std::stringstream output;
+               output << "Experiment::getViewFromExistingCommandEntry, -1- View_String=" << View_String << std::endl;
+               std::cerr << output.str();
+           }
+#endif
+         } else {
+           return_val = false;
+         }
+       }
+  
+       if (return_val) {
+
+#ifndef NDEBUG
+         if(is_debug_reuse_views_enabled) {
+             std::stringstream output;
+             output << "Experiment::getViewFromExistingCommandEntry -2-, View_String.size()=" << View_String.size() << " View_String=" << View_String << std::endl;
+             std::cerr << output.str();
+         }
+#endif
+
+
+         size_of_returned_view_data = View_String.size();
+         returned_view_data =  (char*) View_String.c_str();
+
+#if 0
+         for (int j=0; j<200; j++) {
+            std::cerr << "In Experiment::getViewFromExistingCommandEntry, j=" << j 
+                      << " returned_view_data[j]=" << returned_view_data[j] << std::endl;
+         }
+#endif
+       }
+
+       END_TRANSACTION(database);
+  }
+
+#ifndef NDEBUG
+   if(is_debug_reuse_views_enabled) {
+      std::stringstream output;
+      output << "EXIT Experiment::getViewFromExistingCommandEntry, db_name=" << db_name 
+             << " view_cmd_arg=" << view_cmd_arg << std::endl;
+      std::cerr << output.str();
+   }
+#endif
+
+  return return_val;
+
+}
+
+
+/**
+ * Return a vector of strings containing all the known saved view commands.
+ *
+ * Returns all CLI command string representations currently saved in this database. 
+ * An empty string is returned if this database doesn't contain any saved commands.
+ *
+ * @return    CLI command strings representing the view data currently being cached in this database.
+ */
+std::vector<std::string> Experiment::getSavedCommandList(std::string db_name) const
+{
+    std::vector<std::string> cmd_list;
+    SmartPtr<Database> database = SmartPtr<Database>(new Database(db_name));
+   
+    // Find our threads
+    BEGIN_TRANSACTION(database);
+    database->prepareStatement("SELECT view_cmd FROM Views;");
+    while(database->executeStatement())
+        cmd_list.push_back( database->getResultAsString(1));
+    END_TRANSACTION(database);
+   
+    // Return the threads to the caller
+    return cmd_list;
+}
+
+
+/**
+ * Remove a single saved view table (Views) entry.
+ *
+ * Removes the specified table entry from this experiments views table. 
+ *
+ * @param input_view_cmd    View command that indicates the entry to be removed.
+ */
+void Experiment::removeViewTableEntry(const std::string view_cmd_arg, 
+                                      const int views_id_arg,
+                                      const OpenSpeedShop::Framework::SmartPtr<OpenSpeedShop::Framework::Database> database_arg) const
+{
+
+#ifndef NDEBUG
+      if(is_debug_reuse_views_enabled) {
+         std::stringstream output;
+         output << "ENTER Experiment::removeViewTableEntry, view_cmd_arg=" << view_cmd_arg 
+                << " views_id_arg=" << views_id_arg << std::endl;
+         std::cerr << output.str();
+      }
+#endif
+    
+    // Begin a multi-statement transaction
+    BEGIN_WRITE_TRANSACTION(database_arg);
+    
+    // Remove this views table entry
+    database_arg->prepareStatement("DELETE FROM Views WHERE id = ?;");
+    database_arg->bindArgument(1, views_id_arg);
+    while(database_arg->executeStatement());    
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(database_arg);
+}
+
+
+/**
+ * Remove view command and data entries from the database if they are not reliably usable across sessions.
+ *
+ * It searches the database Views table for the non-cross session commands (cview, cviewcluster, cviewcreate).  
+ * Then remove them from the database.
+ *
+ * @args     Database name
+ * @return   None
+ */
+
+void Experiment::removeNonCrossSessionViews(std::string db_name)
+{
+#ifndef NDEBUG
+      if(is_debug_reuse_views_enabled) {
+         std::stringstream output;
+         output << "ENTER Experiment::removeNonCrossSessionViews, db_name=" << db_name << std::endl;
+         std::cerr << output.str();
+      }
+#endif
+  
+  std::string view_cmd_arg ;
+  std::list<std::string> nonCrossSessionCmds ;
+  nonCrossSessionCmds.push_back(std::string("cviewcluster"));
+  nonCrossSessionCmds.push_back(std::string("cviewcreate"));
+  nonCrossSessionCmds.push_back(std::string("cview"));
+
+  std::list<std::string> all_cmds_in_db ;
+
+  SmartPtr<Database> database = SmartPtr<Database>(new Database(db_name));
+
+//  std::vector<std::string> cmd_list = getSavedCommandList();
+
+
+  // Find all the view_cmds in the database 
+  BEGIN_TRANSACTION(database);    
+  database->prepareStatement("SELECT view_cmd FROM Views;");
+  while(database->executeStatement())
+    all_cmds_in_db.push_back(database->getResultAsString(1));
+  END_TRANSACTION(database);
+    
+
+  std::string view_cmd_in_db ;
+
+  for(std::list<std::string>::const_iterator j = all_cmds_in_db.begin(); j != all_cmds_in_db.end(); ++j)
+  {
+    view_cmd_in_db = *j;
+
+    for(std::list<std::string>::const_iterator i = nonCrossSessionCmds.begin(); i != nonCrossSessionCmds.end(); ++i)
+    {
+     view_cmd_arg = *i;
+     if ( view_cmd_in_db.compare(0, view_cmd_arg.size(),view_cmd_arg) == 0) {
+
+         // If we find the command, then remove it from the database 
+         int id_of_match =  searchForViewCommandHeaderMatch( db_name, view_cmd_arg, false /* exact match */ );
+         if ( id_of_match > 0) {
+
+
+#ifndef NDEBUG
+         if(is_debug_reuse_views_enabled) {
+             std::stringstream output;
+             output << "IN Experiment::removeNonCrossSessionViews, REMOVING VIEW_CMD, db_name=" << db_name 
+                    << " view_cmd_arg=" << view_cmd_arg << std::endl;
+             std::cerr << output.str();
+          }
+#endif
+
+         removeViewTableEntry(view_cmd_arg, 
+                              id_of_match,
+                              database);
+
+         } else {
+
+#ifndef NDEBUG
+          if(is_debug_reuse_views_enabled) {
+             std::stringstream output;
+             output << "IN Experiment::removeNonCrossSessionViews, NO MATCHING VIEW_CMD found for, db_name=" << db_name 
+                    << " view_cmd_arg=" << view_cmd_arg << std::endl;
+             std::cerr << output.str();
+          }
+#endif
+
+         } 
+
+      } // end if command in db substr matches with non-cross-session commands
+    } // end loop over non-cross-session commands
+  } // end loop over commands in database
+
+#ifndef NDEBUG
+      if(is_debug_reuse_views_enabled) {
+	 std::stringstream output;
+	 output << "EXIT Experiment::removeNonCrossSessionViews, db_name=" << db_name 
+		<< " view_cmd_arg=" << view_cmd_arg << std::endl;
+	 std::cerr << output.str();
+      }
+#endif
 
 }

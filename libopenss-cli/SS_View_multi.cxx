@@ -19,6 +19,7 @@
 
 
 #include "SS_Input_Manager.hxx"
+//#define DEBUG_CLI_print 1
 
 template <class T>
 struct sort_ascending_CommandResult : public std::binary_function<T,T,bool> {
@@ -153,7 +154,7 @@ static void Calculate_Totals (
         printf("in Calculate_Totals, ci != c_items.end(), VIEWINST_Define_Total_Tmp, tmpIndex=%d\n", tmpIndex );
 #endif
           TotalValue = (*(*ci).second)[tmpIndex]->Copy();
-#if DEBUG_CLI
+#if DEBUG_CLI_print
           printf("START printing TotalValue in Copy section using  (*ci).second[tmpIndex=%d]->Print()\n", tmpIndex);
           (*(*ci).second)[tmpIndex]->Print(std::cerr);
           printf("\nEND printing TotalValue in Copy section using  (*ci).second[tmpIndex=%d]->Print()\n", tmpIndex);
@@ -167,7 +168,7 @@ static void Calculate_Totals (
         } else {
           for ( ; ci != c_items.end(); ci++) {
             TotalValue->Accumulate_Value ((*(*ci).second)[tmpIndex]);
-#if DEBUG_CLI
+#if DEBUG_CLI_print
             printf("START printing TotalValue in Accumulate_Value section using  (*ci).second[tmpIndex=%d]->Print()\n", tmpIndex);
             (*(*ci).second)[tmpIndex]->Print(std::cerr);
             printf("\nEND printing TotalValue in Accumulate_Value section using  (*ci).second[tmpIndex=%d]->Print()\n", tmpIndex);
@@ -180,7 +181,7 @@ static void Calculate_Totals (
     if (Gen_Total_Percent) {
       Assert(vp->TR() >= 0);
       Total_Values[vp->TR()] = TotalValue;
-#if DEBUG_CLI
+#if DEBUG_CLI_print
       printf("START printing TotalValue[%d] in Gen_Total_Percent section using  TotalValue->Print()\n",vp->TR());
       TotalValue->Print(std::cerr);
       printf("\nEnd printing TotalValuei[%d]=%p in Gen_Total_Percent section using  TotalValue->Print()\n",vp->TR(),Total_Values[vp->TR()]);
@@ -408,7 +409,7 @@ static void Setup_Sort(
        std::vector<std::pair<CommandResult *,
                              SmartPtr<std::vector<CommandResult *> > > >& c_items,
        std::vector<CommandResult *>& Total_Values) {
-#if DEBUG_CLI
+#if DEBUG_CLI_print
   printf("in Setup_Sort, temp_index=%d, c_items.size-%d\n", temp_index,c_items.size());
 #endif
   if (temp_index == VMulti_sort_temp) return;
@@ -419,7 +420,7 @@ static void Setup_Sort(
     std::pair<CommandResult *,
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
     CommandResult *Old = (*cp.second)[VMulti_sort_temp];
-#if DEBUG_CLI
+#if DEBUG_CLI_print
     if (Old != NULL) {
       printf("Setup_Sort, temp_index, START printing CommandResult (Old)\n");
       std::cerr << "  ";
@@ -433,7 +434,7 @@ static void Setup_Sort(
 #endif
     if (Old != NULL) delete Old;
     CommandResult *V1 = (*cp.second)[temp_index];
-#if DEBUG_CLI
+#if DEBUG_CLI_print
     if (V1 != NULL) {
       printf("Setup_Sort, temp_index, START printing CommandResult (V1)\n");
       std::cerr << "  ";
@@ -460,7 +461,7 @@ static void Setup_Sort(
        std::vector<std::pair<CommandResult *,
                              SmartPtr<std::vector<CommandResult *> > > >& c_items,
        std::vector<CommandResult *>& Total_Values) {
-#if DEBUG_CLI
+#if DEBUG_CLI_print
   printf("in Setup_Sort\n");
   if (vinst == NULL) {
     printf("\tbad instruction\n");
@@ -485,7 +486,7 @@ static void Setup_Sort(
               SmartPtr<std::vector<CommandResult *> > > cp = *vpi;
     CommandResult *Old = (*cp.second)[VMulti_sort_temp];
 
-#if DEBUG_CLI
+#if DEBUG_CLI_print
     if (Old != NULL) {
       printf("Setup_Sort, START printing CommandResult (Old)\n");
       std::cerr << "  ";
@@ -502,7 +503,7 @@ static void Setup_Sort(
     CommandResult *New = NULL;
     CommandResult *V1 = (*cp.second)[temp_index];
 
-#if DEBUG_CLI
+#if DEBUG_CLI_print
     if (V1 != NULL) {
       printf("Setup_Sort, START printing CommandResult (V1)\n");
       std::cerr << "  ";
@@ -518,7 +519,7 @@ static void Setup_Sort(
 
     if (vinst->OpCode() == VIEWINST_Display_Tmp) {
 
-#if DEBUG_CLI
+#if DEBUG_CLI_print
       printf("in Setup_Sort, VIEWINST_Display_Tmp %d\n",vinst->TMP1());
 #endif
 
@@ -529,7 +530,7 @@ static void Setup_Sort(
 
     } else if (vinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
 
-#if DEBUG_CLI
+#if DEBUG_CLI_print
       printf("in Setup_Sort, VIEWINST_Display_Percent_Tmp\n");
 #endif
 
@@ -538,7 +539,7 @@ static void Setup_Sort(
 
     } else if (vinst->OpCode() == VIEWINST_Display_Average_Tmp) {
 
-#if DEBUG_CLI
+#if DEBUG_CLI_print
       printf("in Setup_Sort, VIEWINST_Display_Average_Tmp\n");
 #endif
 
@@ -547,7 +548,7 @@ static void Setup_Sort(
       }
     } else if (vinst->OpCode() ==VIEWINST_Display_StdDeviation_Tmp) {
 
-#if DEBUG_CLI
+#if DEBUG_CLI_print
       printf("in Setup_Sort, VIEWINST_Display_StdDeviation_Tmp\n");
 #endif
 
@@ -558,7 +559,7 @@ static void Setup_Sort(
 
     } else if (vinst->OpCode() == VIEWINST_Display_Flops_Tmp) {
 
-#if DEBUG_CLI
+#if DEBUG_CLI_print
       printf("in Setup_Sort, VIEWINST_Display_Flops_Tmp\n");
 #endif
 
@@ -568,7 +569,7 @@ static void Setup_Sort(
 
     } else if (vinst->OpCode() == VIEWINST_Expression) {
 
-#if DEBUG_CLI
+#if DEBUG_CLI_print
       printf("in Setup_Sort, VIEWINST_Expression\n");
 #endif
 

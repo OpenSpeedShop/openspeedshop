@@ -1,6 +1,6 @@
 /******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2007-2010 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -17,8 +17,14 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+// use the save to database code instead of save to file for saving and reusing perf output views
+#define DATABASE_SAVEDVIEWS 1
+
+// Debug flags to enable printing debug output
 //#define DEBUG_SYNC_SIGNAL 1
 //#define DEBUG_CLI 1
+//#define DEBUG_REUSEVIEWS 1
+//#define DEBUG_REUSEVIEWS_EXTENDED 1
 
 /** @file
  *
@@ -67,6 +73,10 @@ class ExperimentObject
     char base[32];
     snprintf(base, 32, ".%lld.view", cnt);
     std::string new_name = base_name + std::string(base);
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "EXIT create_savedFileName, base_name=" << base_name << " returning new_name=" << new_name << std::endl;
+#endif
     return new_name;
   }
 
@@ -74,17 +84,36 @@ class ExperimentObject
    // Look for existing output files that were generated with the same command and saved.
     std::string first_unused_file_name = "";
     bool first_unused_file_name_found = false;
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "Enter get_savedViewInfo, found_existing_saved_files=" << found_existing_saved_files << std::endl;
+#endif
+
     if (!found_existing_saved_files) {
       found_existing_saved_files = true; // Only do this search once.
-      Saved_View_Files = (savedViewInfo **)calloc( OPENSS_SAVE_VIEWS_FILE_LIMIT,
-                                                    sizeof(savedViewInfo *) );
+      Saved_View_Files = (savedViewInfo **)calloc( OPENSS_SAVE_VIEWS_FILE_LIMIT, sizeof(savedViewInfo *) );
       maxSavedViewFiles = OPENSS_SAVE_VIEWS_FILE_LIMIT;
       std::string Data_File_Name = FW_Experiment->getName();
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In get_savedViewInfo, Data_File_Name=" << Data_File_Name << std::endl;
+#endif
  
+     int max_loop_cnt;
+#if DATABASE_SAVEDVIEWS
+     max_loop_cnt = 1;
+#else
+     max_loop_cnt = maxSavedViewFiles;
+#endif
       char* buffer = new char[OPENSS_VIEW_MAX_FIELD_SIZE]; // Create a buffer to read the header.
-      for (int64_t i = 0; i < maxSavedViewFiles; i++) {
+      for (int64_t i = 0; i < max_loop_cnt; i++) {
         std::string viewPath = create_savedFileName (Data_File_Name, i);
         int fd = open(viewPath.c_str(), O_RDONLY);
+        
+#if DEBUG_REUSEVIEWS
+        //std::cerr << "In get_savedViewInfo, LOOPING THROUGH SAVEDVIEWS viewPath=" << viewPath << " index (i)=" << i << std::endl;
+#endif
+
         if (fd != -1) {
           Saved_View_Files[i] = new savedViewInfo (viewPath, false, i);
           int num = read( fd, buffer, OPENSS_VIEW_MAX_FIELD_SIZE );
@@ -93,8 +122,14 @@ class ExperimentObject
             char *cp = (char *)(&H);
             for (int i = 0; i < sizeof(H); i ++) { cp[i] = buffer[i]; }
           }
-          if ( ( (H.type == 1) || (H.type == 2) ) &&
-               (num >= (sizeof(H) + H.data_offset)) ) {
+#if DEBUG_REUSEVIEWS
+          std::cerr << "In get_savedViewInfo, LOOPING THROUGH SAVEDVIEWS buffer=" << buffer << std::endl; 
+
+          std::cerr << "In get_savedViewInfo, LOOPING THROUGH SAVEDVIEWS viewPath=" << viewPath 
+                    << " index (i)=" << i << " H.type=" << H.type << " sizeof(H)=" << sizeof(H) 
+                    << " num=" << num << " H.data_offset=" << H.data_offset << std::endl;
+#endif
+          if ( ( (H.type == 1) || (H.type == 2) ) && (num >= (sizeof(H) + H.data_offset)) ) {
            // Set the EOC and EOL strings to end with proper string terminator.
             buffer[H.eoc_offset-1] = *("\0");
             buffer[H.eol_offset-1] = *("\0");
@@ -104,8 +139,19 @@ class ExperimentObject
             std::string new_eoc(&buffer[H.eoc_offset]);
             std::string new_eol(&buffer[H.eol_offset]);
             std::string new_cmd(&buffer[H.command_offset]);
-            Saved_View_Files[i]->setHeader(H, new_eoc, new_eol, new_cmd);
+#if DEBUG_REUSEVIEWS
+            std::cerr << "In get_savedViewInfo, Calling setHeader with new info, new_eoc=" << new_eoc 
+                      << " new_eol=" << new_eol << " new_cmd=" << new_cmd << " sizeof(buffer)=" << sizeof(buffer) << std::endl;
+#endif
+            Saved_View_Files[i]->setHeader( Data_File_Name, H, new_eoc, new_eol, new_cmd);
+
+#if DEBUG_REUSEVIEWS
+            std::cerr << "In get_savedViewInfo, Calling FW()->setDatabaseViewHeader(Data_File_Name, new_cmd)"
+                      << " Data_File_Name=" << Data_File_Name << " new_cmd=" << new_cmd << std::endl;
+#endif
+
           }
+
           Assert(close(fd) == 0);
         } else {
           Saved_View_Files[i] = NULL;
@@ -114,13 +160,39 @@ class ExperimentObject
       delete [] buffer;  // Destroy the read buffer.
 
     }
-
     found_existing_saved_files = true;
   }
 
  public:
 
   std::list<std::string> offlineCollectorList;
+
+  void deleteSavedViews() {
+
+   // Remove or save remembered views.
+    if ( found_existing_saved_files &&
+         (Saved_View_Files != NULL) ) {
+#if DEBUG_REUSEVIEWS
+      std::cerr << "In deleteSavedViews delete for maxSavedViewFiles=" << maxSavedViewFiles 
+                << " found_existing_saved_files=" << found_existing_saved_files 
+                << "Saved_View_Files=" << Saved_View_Files << std::endl;
+#endif
+      for (int64_t i=0; i<maxSavedViewFiles; i++) {
+        savedViewInfo *svi = Saved_View_Files[i];
+        if (svi != NULL) {
+#if DEBUG_REUSEVIEWS
+          std::cerr << "In deleteSavedViews delete for i=" << i << " svi=" << svi << std::endl;
+#endif
+          delete svi;
+          Saved_View_Files[i] = NULL;
+        }
+      }
+    }
+    Saved_View_Files = NULL;
+    found_existing_saved_files = NULL;
+
+  }
+
 
   ExperimentObject (std::string data_base_name = std::string(""), EXPID preferred_ID = 0) {
 
@@ -285,6 +357,16 @@ class ExperimentObject
 
   ~ExperimentObject () {
     Assert(pthread_mutex_lock(&Experiment_List_Lock) == 0);
+    if (FW_Experiment != NULL) {
+       std::string Data_File_Name = FW_Experiment->getName();
+// At some point we may want to remove commands that are not cross session safe
+// for now we are not saving cview, cviewcreate, or cviewcluster commands
+#if 0
+       if (OPENSS_SAVE_VIEWS_FOR_REUSE) {
+         FW_Experiment->removeNonCrossSessionViews(Data_File_Name);
+       }
+#endif
+    }
     ExperimentObject_list.remove (this);
     Assert(pthread_mutex_unlock(&Experiment_List_Lock) == 0);
 
@@ -315,6 +397,9 @@ class ExperimentObject
       for (int64_t i=0; i<maxSavedViewFiles; i++) {
         savedViewInfo *svi = Saved_View_Files[i];
         if (svi != NULL) {
+#if DEBUG_REUSEVIEWS
+          std::cerr << "In Experiment destructor, delete for i=" << i << " svi=" << svi << std::endl;
+#endif
           delete svi;
           Saved_View_Files[i] = NULL;
         }
@@ -611,6 +696,10 @@ class ExperimentObject
                (svi->EndTime() != 0) ) ) &&
            svi->Header_Matches( eoc_str, eol_str, cmd_str) ) {
        // Verify that the file can still be read.
+#if DEBUG_REUSEVIEWS
+        std::cerr << "In FindExisting_savedViewInfo call where Header_Matches==true for svi=" << svi << " eoc_str=" 
+                  << eoc_str << " eol_str=" << eoc_str << " cmd_str=" << cmd_str << " svi->FileName()=" << svi->FileName() << std::endl;
+#endif
         int source_fd = open(svi->FileName().c_str(), O_RDONLY);
         if (source_fd != -1) {
          // Close the input file and return the pointer to the savedViewInfo.
@@ -631,15 +720,25 @@ class ExperimentObject
     if (!found_existing_saved_files) {
       get_savedViewInfo ();
     }
-    for (int64_t i = 0; i < maxSavedViewFiles; i++) {
+    int max_loop_cnt;
+#if DATABASE_SAVEDVIEWS
+     max_loop_cnt = 1;
+#else
+     max_loop_cnt = maxSavedViewFiles;
+#endif
+    for (int64_t i = 0; i < max_loop_cnt; i++) {
       savedViewInfo *svi = Saved_View_Files[i];
+#ifndef DATABASE_SAVEDVIEWS
       if (svi == NULL) {
+#endif
         std::string Data_File_Name = FW_Experiment->getName();
         std::string viewPath = create_savedFileName (Data_File_Name, i);
         svi = new savedViewInfo (viewPath, true, i);
         Saved_View_Files[i] = svi;
         return svi;
+#ifndef DATABASE_SAVEDVIEWS
       }
+#endif
     }
     return NULL;
   }
@@ -669,6 +768,14 @@ void Filter_ThreadGroup (OpenSpeedShop::cli::ParseResult *p_result, ThreadGroup&
 inline void Mark_Cmd_With_Std_Error (CommandObject *cmd, const Exception& error) {
    cmd->Result_String ( error.getDescription() );
    cmd->set_Status(CMD_ERROR);
+   savedViewInfo *svi = cmd->SaveResultViewInfo();
+   if (svi != NULL) {
+   
+#if DEBUG_REUSEVIEWS
+     std::cerr << "In Mark_Cmd_With_Std_Error, setting DONOTSAVE, svi=" << svi << std::endl;
+#endif
+     svi->setDoNotSave();
+   } 
    
    // Put in python exception
    openss_error((char *)error.getDescription().c_str());

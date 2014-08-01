@@ -21,13 +21,17 @@
 #include "SS_View_detail.hxx"
 #include "SS_Timings.hxx"
 
+
 /* Uncomment define immediately below for debug tracing */
 /* DEBUG_CLI provides tracing info, DEBUG_DUMP_CITEMS dumps a data */
 /* entry structure and can create large trace text files, it might be
 /* wise to only use when really needing to analyse the citem 
 /* structure entries  */
-/* #define DEBUG_CLI 1 */
-/* #define DEBUG_DUMP_CITEMS 1 */
+
+/*
+#define DEBUG_CLI 1 
+#define DEBUG_DUMP_CITEMS 1 
+*/
 
 /**
  * Four templates are provided to generate the four differently formatted reports
@@ -1189,8 +1193,15 @@ bool Simple_Base_Report(
  // Get the list of desired functions.
   std::set<TOBJECT> objects;
   Determine_Objects ( cmd, exp, tgrp, objects);
+
   if (objects.empty()) {
+
+#if DEBUG_CLI
+    std::cerr << "IN Simple_Base_Report, SS_View_detail.txx, RETURN EARLY WITH no objects message." << std::endl;
+#endif
+
     Mark_Cmd_With_Soft_Error(cmd, "(There are no objects specified for the basic Detail report.)");
+
     return false;
   }
 

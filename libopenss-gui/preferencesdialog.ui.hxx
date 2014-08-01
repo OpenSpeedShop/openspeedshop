@@ -135,6 +135,10 @@ void PreferencesDialog::readPreferencesOnEntry()
 
   saveViewsForReuseCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/saveViewsForReuse") );
+
+  saveViewsTime =
+    settings->readNumEntry("/openspeedshop/general/saveViewsTime");
+  saveViewsTimeLineEdit->setText( QString("%1").arg(saveViewsTime) );
 }
 
 void PreferencesDialog::resetPreferenceDefaults()
@@ -198,6 +202,8 @@ void PreferencesDialog::resetPreferenceDefaults()
    viewFieldSizeIsDynamicCheckBox->setChecked(viewFieldSizeIsDynamic);
    saveViewsForReuse = FALSE;
    saveViewsForReuseCheckBox->setChecked(saveViewsForReuse);
+   saveViewsTime = 10;
+   saveViewsTimeLineEdit->setText(QString("%1").arg(saveViewsTime));
 
 
   // Begin reset all preferences to defaults
@@ -314,6 +320,7 @@ void PreferencesDialog::applyPreferences()
   extern int64_t OPENSS_HELP_LEVEL_DEFAULT;
   extern bool    OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC;
   extern bool    OPENSS_SAVE_VIEWS_FOR_REUSE;
+  extern int64_t OPENSS_SAVE_VIEWS_TIME;
   extern bool    OPENSS_VIEW_FULLPATH;
   extern bool    OPENSS_SAVE_EXPERIMENT_DATABASE;
   extern bool    OPENSS_ASK_ABOUT_CHANGING_ARGS;
@@ -350,6 +357,7 @@ void PreferencesDialog::applyPreferences()
     viewFullPathCheckBox->isChecked();
   OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC = viewFieldSizeIsDynamicCheckBox->isChecked();
   OPENSS_SAVE_VIEWS_FOR_REUSE = saveViewsForReuseCheckBox->isChecked();
+  OPENSS_SAVE_VIEWS_TIME = saveViewsTimeLineEdit->text().toInt();
   OPENSS_HELP_LEVEL_DEFAULT = helpLevelDefaultLineEdit->text().toInt();
   OPENSS_MAX_ASYNC_COMMANDS = maxAsyncCommandsLineEdit->text().toInt();
   if(  OPENSS_MAX_ASYNC_COMMANDS <= 0 )
@@ -473,6 +481,11 @@ void PreferencesDialog::savePreferences()
   if( !settings->writeEntry( "/openspeedshop/general/saveViewsForReuse", saveViewsForReuseCheckBox->isChecked() ) )
   {
     printf("Unable to write saveViewsForReuse.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/saveViewsTime", saveViewsTimeLineEdit->text() ) )
+  {
+    printf("Unable to write saveViewsTime.\n");
   }
 
   if( !settings->writeEntry( "/openspeedshop/general/viewFullPath", viewFullPathCheckBox->isChecked() ) )

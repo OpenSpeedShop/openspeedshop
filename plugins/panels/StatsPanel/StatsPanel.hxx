@@ -197,6 +197,51 @@ class StatsPanel  : public Panel
     //! Routine to popup dynamic menu.
     bool createPopupMenu( QPopupMenu* contextMenu, const QPoint &pos );
 
+    //! Data structure that maps the expview like command to the clip that holds the command objects for the view
+    std::map < std::string, InputLineObject *> cmdToClipMap;
+
+    //! Data structure that maps the cview cluster command to the cview -c nn command, used to cache cviewcluster views
+    std::map < std::string, std::string > associatedCommandMap;
+
+    //! Data structure that maps the list -v command to the actual int list output
+    std::map < std::string, std::list<int64_t> > cmdToIntListMap;
+
+    //! Data structure that maps the list -v command to the actual std::string list output
+    std::map < std::string, std::list<std::string> > cmdToStringListMap;
+
+    //! Routine to checks to see if the expview like command has a clip associated with it.
+    InputLineObject* check_for_existing_clip(std::string new_command);
+
+    //! Routine to pair or associate the expview like command with the clip that holds the performance data
+    void addClipForThisCommand(std::string command, InputLineObject* new_clip);
+
+    //! Routine to pair or associate the cview cluster command with the cview with -c number commands
+    void associateTheseCommands( std::string command, std::string cview_cluster_command );
+
+    //! Routine to check to see if the cview cluster command is associated with the cview with -c number commands
+    bool isCommandAssociatedWith( std::string input_cview_cluster_command);
+
+    //! Routine to return the command that is associated with the cview cluster command
+    std::string getAssociatedCommand( std::string input_cview_cluster_command);
+
+
+
+    //! Routine to checks to see if the list -v command already has a list of int's associated with it.
+    bool checkForExistingIntList(std::string command, std::list<int64_t>  &return_list);
+    //std::list<int64_t> checkForExistingIntList(std::string new_command);
+
+    //! Routine to pair or associate the list -v command with the list of ints that holds the list command results
+    void addIntListForThisCommand(std::string command, std::list<int64_t> listToSave);
+
+
+    //! Routine to checks to see if the list -v command already has a list of strings associated with it.
+    //std::list<std::string> checkForExistingStringList(std::string new_command);
+    bool checkForExistingStringList(std::string new_command, std::list<std::string> &return_list);
+
+    //! Routine to pair or associate the list -v command with the list of strings that holds the list command results
+    void addStringListForThisCommand(std::string command, std::list<std::string> listToSave);
+
+
     InputLineObject *statspanel_clip;
     void process_clip(InputLineObject *statspanel_clip, HighlightList *highlightList, bool dumpClipFLAG);
     GenericProgressDialog *pd;

@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2011 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -17,6 +17,7 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
+//#define DEBUG_REUSEVIEWS 1
 
 #include "SS_Input_Manager.hxx"
 
@@ -168,12 +169,28 @@ void ExperimentObject::Print(std::ostream &mystream) {
   Print_Waiting (mystream);
 }
 
+//
+// Find a saved view
+//
 bool Find_SavedView (CommandObject *cmd, std::string local_tag)
 {
-  if (!OPENSS_SAVE_VIEWS_FOR_REUSE) return false;
+#if DEBUG_REUSEVIEWS
+    std::cerr << "Enter Find_SavedView, local_tag=" << local_tag << std::endl;
+#endif
+
+  if (!OPENSS_SAVE_VIEWS_FOR_REUSE) {
+
+#if DEBUG_REUSEVIEWS
+     std::cerr << "EXIT Find_SavedView, Save and Reuse is not enabled." << std::endl;
+#endif
+
+     return false;
+  }
+
 
  // Determine the ExperimentObject from the command.
   InputLineObject *clip = cmd->Clip();
+  //std::cerr << "IN Find_SavedView, RETURN if NULL==clip=" << clip << std::endl;
   if (clip == NULL) return false;
   CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
   ExperimentObject *exp = NULL;
@@ -205,6 +222,9 @@ bool Find_SavedView (CommandObject *cmd, std::string local_tag)
          // However, we can attach the file to the first experiment and reuse
          // it during the current session because experiment IDs and cView
          // Ids are not reused during a session.
+#if DEBUG_REUSEVIEWS
+          std::cerr << "Enter Find_SavedView, multiple experiments, setting save_only_for_current_session=true" << std::endl;
+#endif
           save_only_for_current_session = true;
         } else {
           EXPID ExperimentID = i;
@@ -215,6 +235,9 @@ bool Find_SavedView (CommandObject *cmd, std::string local_tag)
             std::ostringstream M;
             M << "Experiment ID '-x " << ExperimentID << "' is not valid.";
             Mark_Cmd_With_Soft_Error(cmd, M.str());
+#if DEBUG_REUSEVIEWS
+            std::cerr << "IN Find_SavedView, RETURN if NULL==ExperimentID=" << ExperimentID << std::endl;
+#endif
             return false;
           }
         }
@@ -224,10 +247,15 @@ bool Find_SavedView (CommandObject *cmd, std::string local_tag)
 
   }
 
+ // NOTE/FIXME:  We will want to change this when this code is revamped to save cview commands across sessions
  // If there are any "-c" items, allow reuse only during the current session.
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   std::vector<ParseRange> *cv_list = p_result->getViewSet ();
+
   if (cv_list->begin() != cv_list->end()) {
+#if DEBUG_REUSEVIEWS
+    std::cerr << "IN Find_SavedView, there are -c items, setting save_only_for_current_session=true" << std::endl;
+#endif
     save_only_for_current_session = true;
   }
 
@@ -235,8 +263,11 @@ bool Find_SavedView (CommandObject *cmd, std::string local_tag)
       (exp->FW() == NULL)) {
    // No experiment was specified, so we can't find a useful view to generate.
     Mark_Cmd_With_Soft_Error(cmd, "No valid experiment was specified for command.");
+    //std::cerr << "IN Find_SavedView, NO valid experiment" << std::endl;
     return false;
   }
+
+  EXPID ExperimentID = exp->ExperimentObject_ID();
 
 // Is there a good chance that a matching view has been saved?
 // if (Status() == ExpStatus_Paused) return false;
@@ -273,9 +304,18 @@ bool Find_SavedView (CommandObject *cmd, std::string local_tag)
     }
   }
 
+#if DEBUG_REUSEVIEWS
+  std::cerr << "IN Find_SavedView, before strcasestr, cmdstr.c_str()=" << cmdstr.c_str() << std::endl;
+#endif
+
  // Isolate the important parts of the command.
-  std::string viewcmd("View");
-  char *cidx = strcasestr( (char *)cmdstr.c_str(), std::string("View").c_str() );
+  std::string viewcmd("cView");
+  char *cidx = strcasestr( (char *)cmdstr.c_str(), std::string("cView").c_str() );
+
+#if DEBUG_REUSEVIEWS
+  std::cerr << "after strcasestr for cView, cmdstr=" << cmdstr << " viewcmd=" << viewcmd << std::endl;
+#endif
+
   if (cidx == NULL) {
     viewcmd = "expView";
     cidx = strcasestr( (char *)cmdstr.c_str(), std::string("expView").c_str() );
@@ -285,14 +325,27 @@ bool Find_SavedView (CommandObject *cmd, std::string local_tag)
     cidx = strcasestr( (char *)cmdstr.c_str(), std::string("expCompare").c_str() );
   }
   if (cidx == NULL) {
-    viewcmd = "cviewCluster";
-    cidx = strcasestr( (char *)cmdstr.c_str(), std::string("cviewCluster").c_str() );
+    viewcmd = " cviewCluster";
+    cidx = strcasestr( (char *)cmdstr.c_str(), (char *)viewcmd.c_str() );
+  } else {
+    // we don't want to save cview type commands in the database
+    return false;
   }
   if (cidx == NULL) {
-    viewcmd = "cView";
-    cidx = strcasestr( (char *)cmdstr.c_str(), std::string("cView").c_str() );
+    viewcmd = " cView";
+    cidx = strcasestr( (char *)cmdstr.c_str(), (char *)viewcmd.c_str() );
+  } else {
+    // we don't want to save cview type commands in the database
+    return false;
   }
-  if (cidx == NULL) return false;
+
+
+  if (cidx == NULL) {
+#if DEBUG_REUSEVIEWS
+   std::cerr << "IN Find_SavedView, EXIT early if NULL==cidx" << std::endl;
+#endif
+    return false;
+  }
   cmdstr = std::string( cidx );
 
  // Remove any ending '\n'.
@@ -358,13 +411,29 @@ bool Find_SavedView (CommandObject *cmd, std::string local_tag)
  // If not empty, append 'local_tag' and do not save file after current session.
   if ( !local_tag.empty() ) {
     cmdstr = cmdstr + " " + local_tag;
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In Find_SavedView, there are local_tag is not empty, setting save_only_for_current_session=true" 
+              << " local_tag=" << local_tag << " cmdstr=" << cmdstr << std::endl;
+#endif
+
     save_only_for_current_session = true;
   }
 
+#if DEBUG_REUSEVIEWS
+    std::cerr << "Toward end of Find_SavedView, local_tag=" << local_tag << " cmdstr=" << cmdstr << std::endl;
+#endif
+
  // Look for an existing output that was generated with the same command.
   savedViewInfo *use_ViewInfo = exp->FindExisting_savedViewInfo (eoc_marker, eol_marker, cmdstr);
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "Toward end of Find_SavedView, use_ViewInfo=" << use_ViewInfo << " cmdstr=" << cmdstr << std::endl;
+#endif
+
   if (use_ViewInfo != NULL) {
     cmd->setSaveResultViewInfo(use_ViewInfo);
+    cmd->setSaveExpId( ExperimentID );
     cmd->setSaveResultFile(use_ViewInfo->FileName());
     cmd->setSaveResult(false);
     cmd->setSaveResultDataOffset( use_ViewInfo->file_offset_to_data() );
@@ -386,18 +455,40 @@ bool Find_SavedView (CommandObject *cmd, std::string local_tag)
     H.data_offset = H.eol_offset + eol_marker.length() + 1;
     H.last_sample = EndTime;
     H.generation_time = 0; // Added after generation.
-    new_ViewInfo->setHeader(H, eoc_marker, eol_marker, cmdstr);
-    if (save_only_for_current_session) new_ViewInfo->setDoNotSave();
+    new_ViewInfo->setHeader( Data_File_Name, H, eoc_marker, eol_marker, cmdstr);
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In get_savedViewInfo, Calling exp->FW()->setDatabaseViewHeader(Data_File_Name, cmdstr)"
+              << " Data_File_Name=" << Data_File_Name << " cmdstr=" << cmdstr << std::endl;
+#endif
+
+    if (save_only_for_current_session) {
+
+#if DEBUG_REUSEVIEWS
+    std::cerr << "In get_savedViewInfo, setting REMOVEENTRY because save_only_for_current_session=" << save_only_for_current_session << std::endl;
+#endif
+
+      new_ViewInfo->setRemoveEntryAtSessionEnd();
+
+    }
+
    // Preserve file name and format information in the command
    // for immediate display of the report after it has been saved.
     cmd->setSaveResultViewInfo(new_ViewInfo);
+    cmd->setSaveExpId( ExperimentID );
     cmd->setSaveResultFile(new_ViewInfo->FileName());
     cmd->setSaveResult(true);
     cmd->setSaveEoc( eoc_marker );
     cmd->setSaveEol( eol_marker );
     cmd->setSaveResultDataOffset(H.data_offset);
    // Leave file open to receive output of `expView` command.
+#if DEBUG_REUSEVIEWS
+    std::cerr << "EXIT Find_SavedView, RETURN TRUE" << std::endl;
+#endif
     return true;
   }
+#if DEBUG_REUSEVIEWS
+  std::cerr << "EXIT Find_SavedView, RETURN FALSE" << std::endl;
+#endif
   return false;
 }

@@ -1,6 +1,6 @@
 /******************************************************************************e
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2012 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -41,7 +41,7 @@ std::string OPENSS_VIEW_EOV = "\n";
 // Saving and reusing ouput of `expView` commands.
 bool    OPENSS_SAVE_VIEWS_FOR_REUSE = false;
 int64_t OPENSS_SAVE_VIEWS_FILE_LIMIT = 200;
-int64_t OPENSS_SAVE_VIEWS_TIME = 20;
+int64_t OPENSS_SAVE_VIEWS_TIME = 0;
 // Modifications of various commands.
 bool    OPENSS_SAVE_EXPERIMENT_DATABASE = true;
 bool    OPENSS_ASK_ABOUT_SAVING_THE_DATABASE = true;
@@ -544,9 +544,10 @@ void SS_Configure () {
             "no new ones will be saved. "
             "If set to 'true', existing experiment views will be resued and newly created "
             "ones will be saved, according to the values set for the preferences "
-            "'saveViewsFileLimit' and 'saveViewsTime'.  The default is 'false'.");
+            "'saveViewsFileLimit' and 'saveViewsTime'.  The default is 'true'.");
   Bvalue = settings->readBoolEntry(std::string("saveViewsForReuse"), OPENSS_SAVE_VIEWS_FOR_REUSE, &ok);
   if (ok) OPENSS_SAVE_VIEWS_FOR_REUSE = Bvalue;
+  // std::cerr << "Configuring OPENSS_SAVE_VIEWS_FOR_REUSE=" << Bvalue << std::endl;
   Record_Config_Info(configName, &OPENSS_SAVE_VIEWS_FOR_REUSE);
 
   configName = "saveViewsFileLimit";
@@ -570,7 +571,7 @@ void SS_Configure () {
             "if it is equal to 0, all files will be saved; "
             "if greater than 0, a file will be saved only if the time taken to generate "
             "it exceeded the number of seconds specified by this preference. "
-            "The default is 20.");
+            "The default is 10.");
   Ivalue = settings->readNumEntry(std::string("saveViewsTime"), OPENSS_SAVE_VIEWS_TIME, &ok);
   if (ok) OPENSS_SAVE_VIEWS_TIME = Ivalue;
   Record_Config_Info(configName, &OPENSS_SAVE_VIEWS_TIME);

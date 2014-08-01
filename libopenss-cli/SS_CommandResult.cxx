@@ -17,8 +17,9 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
-#define DEBUG_CLI 0
 #include "SS_Input_Manager.hxx"
+
+//#define DEBUG_CLI 1
 
 // Defined here so they can reference CommandResult_CallStackEntry.
   bool CommandResult_Uint::LT (CommandResult *A) {
@@ -44,7 +45,12 @@
 // as the argument but with a NULL initial value.
 // Some items are for accounting and do not represent data.
 CommandResult *CR_Init_of_CR_type( CommandResult *A )
-{ switch (A->Type()) {
+{
+#if DEBUG_CLI
+  std::cerr << "Enter CommandResultCR_Init_of_CR_type A->Type()=" <<  A->Type() 
+            << " CMD_RESULT_STRING=" << CMD_RESULT_STRING << " CMD_RESULT_FLOAT=" <<  CMD_RESULT_FLOAT << std::endl;
+#endif
+  switch (A->Type()) {
     case CMD_RESULT_ADDRESS: return new CommandResult_Address();
     case CMD_RESULT_UINT: return new CommandResult_Uint();
     case CMD_RESULT_INT: return new CommandResult_Int();

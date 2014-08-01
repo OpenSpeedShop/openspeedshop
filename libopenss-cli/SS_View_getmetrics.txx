@@ -21,6 +21,7 @@
    output in several CLI routines that
    include this include file.........
    #define DEBUG_CLI 1 
+   #define DEBUG_CLI_DETAILS 1 
 */
 
 
@@ -81,7 +82,7 @@ void ReduceMetricByThread ( SmartPtr<std::map<TO, std::map<Thread, TS > > >& ind
     for(typename std::map<TO, TS >::const_iterator i = reduced->begin(); i != reduced->end(); ++i) {
 
 
-#if DEBUG_CLI
+#if DEBUG_CLI_DETAILS
         fprintf(stderr, "ReduceMetricByThread, inside reduction loop\n");
         fflush(stderr);
 #endif
