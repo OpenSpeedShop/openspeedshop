@@ -321,7 +321,7 @@ int OpenSS_GetDLInfo(pid_t pid, char *path, uint64_t b_time, uint64_t e_time)
 	/* the victim application has performed a dlopen. */
 	if (path != NULL &&
 	    mappedpath != NULL &&
-	    (strncmp(path, mappedpath, strlen(path)) == 0) ) {
+	    (strncmp(basename(path), basename(mappedpath), strlen(basename(path))) == 0) ) {
 #ifndef NDEBUG
 	    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
 		fprintf(stderr,"OpenSS_GetDLInfo (offline_record_dlopen) DLOPEN RECORD: %s [%08lx, %08lx]\n",
