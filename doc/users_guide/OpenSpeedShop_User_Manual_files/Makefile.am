@@ -22,19 +22,19 @@ EXTRA_DIST	=  \
 	filelist.xml \
 	header.htm \
 	image001.png \
-	image002.png \
+	image002.jpg \
 	image003.png \
 	image004.png \
-	image005.png \
+	image005.jpg \
 	image006.png \
 	image007.png \
-	image008.png \
+	image008.jpg \
 	image009.png \
 	image010.png \
-	image011.png \
+	image011.jpg \
 	image012.png \
 	image013.png \
-	image014.png \
+	image014.jpg \
 	image015.png \
 	image016.png \
 	image017.png \
@@ -64,7 +64,7 @@ EXTRA_DIST	=  \
 	image041.png \
 	image042.png \
 	image043.png \
-	image044.png \
+	image044.jpg \
 	image045.png \
 	image046.png \
 	image047.png \
@@ -99,9 +99,9 @@ EXTRA_DIST	=  \
 	image076.png \
 	image077.png \
 	image078.png \
-	image079.png \
+	image079.jpg \
 	image080.png \
-	image081.png \
+	image081.jpg \
 	image082.png \
 	image083.png \
 	image084.png \
@@ -177,7 +177,7 @@ EXTRA_DIST	=  \
 	image154.png \
 	image155.png \
 	image156.png \
-	image157.png \
+	image157.jpg \
 	image158.png \
 	image159.png \
 	image160.png \
