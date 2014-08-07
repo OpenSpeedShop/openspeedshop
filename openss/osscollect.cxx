@@ -326,9 +326,9 @@ int main(int argc, char** argv)
     std::string fenodename;
     if (topology.empty()) {
       if (arch == "cray") {
-          cbtftopology.autoCreateTopology(BE_CRAY_ATTACH);
+          cbtftopology.autoCreateTopology(BE_CRAY_ATTACH,numBE);
       } else {
-          cbtftopology.autoCreateTopology(BE_ATTACH);
+          cbtftopology.autoCreateTopology(BE_ATTACH,numBE);
       }
       topology = cbtftopology.getTopologyFileName();
       fenodename =  cbtftopology.getFENodeStr();
