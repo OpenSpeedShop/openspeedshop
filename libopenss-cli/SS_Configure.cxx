@@ -41,7 +41,7 @@ std::string OPENSS_VIEW_EOV = "\n";
 // Saving and reusing ouput of `expView` commands.
 bool    OPENSS_SAVE_VIEWS_FOR_REUSE = false;
 int64_t OPENSS_SAVE_VIEWS_FILE_LIMIT = 200;
-int64_t OPENSS_SAVE_VIEWS_TIME = 0;
+int64_t OPENSS_SAVE_VIEWS_TIME = 10;
 // Modifications of various commands.
 bool    OPENSS_SAVE_EXPERIMENT_DATABASE = true;
 bool    OPENSS_ASK_ABOUT_SAVING_THE_DATABASE = true;
