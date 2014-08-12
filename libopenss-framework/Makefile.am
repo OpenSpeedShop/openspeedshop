@@ -155,7 +155,8 @@ libopenss_framework_la_LDFLAGS += \
 
 libopenss_framework_la_LIBADD += \
 	-lopenss-framework-symtabapi \
-	@MESSAGES_PERFDATA_LIBS@
+	@MESSAGES_PERFDATA_LIBS@ \
+	@MESSAGES_BASE_LIBS@
 endif
 
 # else for BUILD_INSTRUMENTOR
