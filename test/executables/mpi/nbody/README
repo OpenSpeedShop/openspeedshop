@@ -1,0 +1,41 @@
+module load openmpi-1.7.5
+mpicc -o nbody -O0 -g nbody-mpi.c -lm
+
+
+
+# OFFLINE
+module load openmpi-1.6.5
+module load openssoff21
+
+# CBTF
+module load openmpi-1.6.5
+module load osscbtf21
+
+# offline and cbtf
+osspcsamp "mpirun -np 2 ./nbody"
+ossusertime "mpirun -np 2 ./nbody"
+osshwc "mpirun -np 2 ./nbody"
+osshwc "mpirun -np 2 ./nbody" PAPI_L1_DCM 500000
+osshwcsamp "mpirun -np 2 ./nbody" 
+osshwctime "mpirun -np 2 ./nbody" 
+osshwctime "mpirun -np 2 ./nbody" PAPI_L1_DCM 750000
+ossio "mpirun -np 2 ./nbody" 
+ossiot "mpirun -np 2 ./nbody" 
+ossmpi "mpirun -np 2 ./nbody" 
+ossmpit "mpirun -np 2 ./nbody" 
+
+# cbtf only
+ossmem "mpirun -np 2 ./nbody"
+osspthreads "mpirun -np 2 ./nbody"
+ossiop "mpirun -np 2 ./nbody"
+ossmpip "mpirun -np 2 ./nbody"
+
+osscompare "nbody-usertime.openss,nbody-usertime-1.openss" viewtype=statements
+osscompare "nbody-usertime.openss,nbody-usertime-1.openss" percent
+osscompare "nbody-pcsamp.openss,nbody-pcsamp-1.openss" percent
+osscompare "nbody-pcsamp.openss,nbody-pcsamp-1.openss" percent viewtype=linkedobjects
+osscompare "nbody-pcsamp.openss,nbody-pcsamp-1.openss" percent viewtype=statements
+
+
+
+
