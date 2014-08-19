@@ -369,7 +369,7 @@ int main(int argc, char** argv)
     FW_Experiment->setInstrumentorUsesCBTF( false );
 
     Collector mycollector = FW_Experiment->createCollector(
-        (collector == "cuda") ? "io" : collector
+        (collector == "cudaio") ? "io" : collector
         );
 
     ThreadGroup tg = FW_Experiment->createProcess(program, fenodename, numBE,

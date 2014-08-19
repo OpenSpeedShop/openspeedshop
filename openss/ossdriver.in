@@ -121,10 +121,13 @@ mpiotf_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,M
 # Corresponds to OPENSS_FPE_EVENT or CBTF_FPE_EVENT
 fpe_default_events="inexact_result,division_by_zero,underflow,overflow,invalid_operation"
 
+# Corresponds to OPENSS_CUDA_CONFIG or CBTF_CUDA_CONFIG
+cuda_default_config="interval=10000000,PAPI_TOT_CYC"
 
 #
 # END DEFAULT VALUES
 #
+
 if [ -z "$OPENSS_DEBUG_DRIVER" ]
 then
   echo ""
@@ -171,8 +174,10 @@ then
    echo "        use to execute your program: but in quotes"
    echo "    For example: $0 \"mpirun -N 16 -n 256 ./smg2000 -n 50 50 50\" [extra_args]"
    echo "        where the optional \"extra_args\" is defined as follows:"
+
    if [[ "$experiment_name" != "ossio" && "$experiment_name" != "ossiot"  && 
-         "$experiment_name" != "ossmpi" && "$experiment_name" != "ossmpit" && "$experiment_name" != "ossmpiotf" ]]; then
+         "$experiment_name" != "ossmpi" && "$experiment_name" != "ossmpit" && 
+         "$experiment_name" != "ossmpiotf" && "$experiment_name" != "osscuda" ]]; then
      echo "            \"high\"     - Increase the default sampling rate or threshold "
      echo "                           value to increase the number of samples taken."
      echo "            \"low\"      - Decrease the default sampling rate or threshold "
@@ -180,11 +185,13 @@ then
      echo "            \"default\"  - Use the default sampling rate or threshold value. "
      echo "                           This will override any environment variable settings."
    fi
+
    if [[ "$experiment_name" == "osspcsamp" || "$experiment_name" == "ossusertime" ]]; then
      echo "            \"rate value\"  - Use this sampling rate"
      echo "                              instead of the default or any environment variable settings."
      echo "                                 For example: 80"
      echo "                                     for a sampling rate of 80 samples per second."
+
    elif [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwctime" ]]; then
      echo "            \"papi_event\"  - Specify the papi event."
      echo "                                 For example: PAPI_FP_OPS"
@@ -199,6 +206,7 @@ then
         echo " Available Hardware counter events are:"
         $whichpapi_avail | grep "Yes   No"
      fi
+
    elif [ "$experiment_name" == "osshwcsamp" ]; then
      echo "            \"papi_event(s)\"  - Specify the papi event or set of events up to six (6) events depending on number available on your platform."
      echo "                                 For example: PAPI_FP_OPS"
@@ -215,12 +223,40 @@ then
         echo " Available Hardware counter events are:"
         $whichpapi_avail | grep "Yes"
      fi
+
    elif [[ "$experiment_name" == "ossio" || "$experiment_name" == "ossiot" ]]; then
      echo "            \"I/O functions to trace\"  - Specify the list of I/O functions to be traced when running the io or iot experiments."
      echo "                                             For example: read,write,dup"
+
    elif [[ "$experiment_name" == "ossmpi" || "$experiment_name" == "ossmpit" || "$experiment_name" == "ossmpiotf" ]]; then
      echo "            \"MPI functions to trace\"  - Specify the list of MPI functions to be traced when running the mpi, mpit or mpiotf experiments."
      echo "                                             For example: MPI_Send,MPI_Isend,MPI_Finalize"
+
+   elif [ "$experiment_name" == "osscuda" ]; then
+     echo "            \"config\"  - Specify the hardware event sampling configuration to be"
+     echo "                        used. Consists of a comma-delimited list of parameters."
+     echo "                        The allowed parameters are:"
+     echo "                            interval=<n>   The periodic sampling interval (nS)."
+     echo "                            <event>[:<n>]  The PAPI event and, optionally, a"
+     echo "                                           overflow threshold for event-based"
+     echo "                                           PC sampling. E.g. \"PAPI_TOT_CYC\" to"
+     echo "                                           periodically sample the total cycles"
+     echo "                                           or \"PAPI_TOT_CYC:1000000\" to sample"
+     echo "                                           the PC every 1,000,000 cycles."
+     echo "                        E.g. \"interval=1000000,PAPI_TOT_CYC,PAPI_FP_OPS:100000\""
+     echo "                        would sample total cycles and floating-point operations"
+     echo "                        every 1 mS, and also sample the PC for every 100,000"
+     echo "                        floating-point operations. Trace data is collected for"
+     echo "                        all kernel executions and memory operations regardless"
+     echo "                        of whether this hardware event sampling is enabled."
+
+     whichpapi_avail=`which papi_avail`
+     if test -f $whichpapi_avail
+      then
+        echo " Available Hardware counter events are:"
+        $whichpapi_avail | grep "Yes"
+     fi
+
    fi
    echo ""
    exit
@@ -272,7 +308,8 @@ else
      use_default_flag=1
   else
      match=0
-     if [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwcsamp" || "$experiment_name" == "osshwctime" ]]; then
+     if [[ "$experiment_name" == "osshwc" || "$experiment_name" == "osshwcsamp" || 
+           "$experiment_name" == "osshwctime" ]]; then
        # check for PAPI_ in name 
        match=`expr match "$2" 'PAPI_'`
        if [ $match == 0 ]
@@ -313,14 +350,12 @@ else
           fi
           input_argument_event_or_trace_list_value=$2
        fi
+     elif [[ "$experiment_name" == "ossio" || "$experiment_name" == "ossiot" ||
+             "$experiment_name" == "ossmpi" || "$experiment_name" == "ossmpit" || 
+             "$experiment_name" == "ossmpiotf" || "$experiment_name" == "osscuda" ]]; then
+         input_argument_event_or_trace_list_value=$2
      else
-        if [[ "$experiment_name" == "ossio" || "$experiment_name" == "ossiot" ]]; then
-           input_argument_event_or_trace_list_value=$2
-        elif [[ "$experiment_name" == "ossmpi" || "$experiment_name" == "ossmpit" || "$experiment_name" == "ossmpiotf" ]]; then
-           input_argument_event_or_trace_list_value=$2
-        else
-           input_argument_rate_threshold_value=$2
-        fi
+         input_argument_rate_threshold_value=$2
      fi
   fi
 
@@ -472,6 +507,7 @@ fi
 # ------------------------------------------------------------------------------------
 # -- PCSAMP EXPERIMENT SPECIFIC CODE -------------------------------------------------
 # ------------------------------------------------------------------------------------
+
 if [ $experiment_name == "osspcsamp" ]
 then
 
@@ -627,8 +663,9 @@ then
   fi
 
 # ------------------------------------------------------------------------------------
-# -- USERTIME EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# -- USERTIME EXPERIMENT SPECIFIC CODE -----------------------------------------------
 # ------------------------------------------------------------------------------------
+
 elif  [ $experiment_name == "ossusertime" ]
 then
 
@@ -784,8 +821,9 @@ then
   fi
 
 # ------------------------------------------------------------------------------------
-# -- HWC EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# -- HWC EXPERIMENT SPECIFIC CODE ----------------------------------------------------
 # ------------------------------------------------------------------------------------
+
 elif  [ $experiment_name == "osshwc" ]
 then
 
@@ -1090,10 +1128,10 @@ then
     echo "[openss]: hwc experiment calling nothing, else clause."
   fi
 
+# ------------------------------------------------------------------------------------
+# -- HWCSAMP EXPERIMENT SPECIFIC CODE ------------------------------------------------
+# ------------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------------
-# -- HWCSAMP EXPERIMENT SPECIFIC CODE -------------------------------------------------
-# ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "osshwcsamp" ]
 then
 
@@ -1395,8 +1433,9 @@ then
   fi
 
 # ------------------------------------------------------------------------------------
-# -- HWCTIME EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# -- HWCTIME EXPERIMENT SPECIFIC CODE ------------------------------------------------
 # ------------------------------------------------------------------------------------
+
 elif  [ $experiment_name == "osshwctime" ]
 then
 
@@ -1698,9 +1737,11 @@ then
   else
     echo "[openss]: hwctime experiment calling nothing, else clause."
   fi
+
 # ------------------------------------------------------------------------------------
-# -- IO EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# -- IO EXPERIMENT SPECIFIC CODE -----------------------------------------------------
 # ------------------------------------------------------------------------------------
+
 elif  [ $experiment_name == "ossio" ]
 then
 
@@ -1819,8 +1860,9 @@ then
   fi
 
 # ------------------------------------------------------------------------------------
-# -- IOT EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# -- IOT EXPERIMENT SPECIFIC CODE ----------------------------------------------------
 # ------------------------------------------------------------------------------------
+
 elif  [ $experiment_name == "ossiot" ]
 then
 
@@ -1939,8 +1981,9 @@ then
   fi
 
 # ------------------------------------------------------------------------------------
-# -- MPI EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# -- MPI EXPERIMENT SPECIFIC CODE ----------------------------------------------------
 # ------------------------------------------------------------------------------------
+
 elif  [ $experiment_name == "ossmpi" ]
 then
   if [ $debug_flag == 1 ]
@@ -2145,8 +2188,9 @@ then
   fi
 
 # ------------------------------------------------------------------------------------
-# -- MPIP EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# -- MPIP EXPERIMENT SPECIFIC CODE ---------------------------------------------------
 # ------------------------------------------------------------------------------------
+
 elif  [ $experiment_name == "ossmpip" ]
 then
   if [ $debug_flag == 1 ]
@@ -2253,10 +2297,10 @@ then
     echo "[openss]: mpip experiment calling nothing, else clause."
   fi
 
+# ------------------------------------------------------------------------------------
+# -- MPIT EXPERIMENT SPECIFIC CODE ---------------------------------------------------
+# ------------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------------
-# -- MPIT EXPERIMENT SPECIFIC CODE -------------------------------------------------
-# ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "ossmpit" ]
 then
   if [ $debug_flag == 1 ]
@@ -2360,10 +2404,10 @@ then
     echo "[openss]: mpit experiment calling nothing, else clause."
   fi
 
-
 # ------------------------------------------------------------------------------------
 # -- MPIOTF EXPERIMENT SPECIFIC CODE -------------------------------------------------
 # ------------------------------------------------------------------------------------
+
 elif  [ $experiment_name == "ossmpiotf" ]
 then
   if [ $debug_flag == 1 ]
@@ -2467,10 +2511,10 @@ then
     echo "[openss]: mpiotf experiment calling nothing, else clause."
   fi
 
+# ------------------------------------------------------------------------------------
+# -- FPE EXPERIMENT SPECIFIC CODE ----------------------------------------------------
+# ------------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------------
-# -- FPE EXPERIMENT SPECIFIC CODE -------------------------------------------------
-# ------------------------------------------------------------------------------------
 elif  [ $experiment_name == "ossfpe" ]
 then
   if [ $debug_flag == 1 ]
@@ -2573,7 +2617,7 @@ then
   fi
 
 # ------------------------------------------------------------------------------------
-# -- IOP EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# -- IOP EXPERIMENT SPECIFIC CODE ----------------------------------------------------
 # ------------------------------------------------------------------------------------
 
 elif  [ $experiment_name == "ossiop" ]
@@ -2688,9 +2732,8 @@ then
     echo "[openss]: iop experiment calling nothing, else clause."
   fi
 
-
 # ------------------------------------------------------------------------------------
-# -- MEM EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# -- MEM EXPERIMENT SPECIFIC CODE ----------------------------------------------------
 # ------------------------------------------------------------------------------------
 
 elif  [ $experiment_name == "ossmem" ]
@@ -2805,7 +2848,7 @@ then
   fi
 
 # ------------------------------------------------------------------------------------
-# -- PTHREADS EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# -- PTHREADS EXPERIMENT SPECIFIC CODE -----------------------------------------------
 # ------------------------------------------------------------------------------------
 
 elif  [ $experiment_name == "osspthreads" ]
@@ -2921,127 +2964,136 @@ then
   fi
 
 # ------------------------------------------------------------------------------------
-# -- CUDA EXPERIMENT SPECIFIC CODE -------------------------------------------------
+# -- CUDA EXPERIMENT SPECIFIC CODE ---------------------------------------------------
 # ------------------------------------------------------------------------------------
 
-elif  [ $experiment_name == "osscuda" ]
-then
+elif  [ $experiment_name == "osscuda" ]; then
 
-  if [ $debug_flag == 1 ]
-  then
+  if [ $debug_flag == 1 ]; then
     echo "DEBUG: in CUDA EXPERIMENT SECTION, input_argument_event_or_trace_list_value=$input_argument_event_or_trace_list_value"
   fi
 
-  if [ $input_argument_event_or_trace_list_value != 0 ]
-  then
+  if [ $input_argument_event_or_trace_list_value != 0 ]; then
 
-    if [ -z  "$OPENSS_CUDA_TRACED" ]
-    then
-      echo "[openss]: cuda experiment using input cuda experiment trace function list specified on the \"osscuda\" command: \"$input_argument_event_or_trace_list_value\" overriding the default I/O function list."
+    if [ -z  "$OPENSS_CUDA_CONFIG" ]; then
+      echo "[openss]: cuda experiment using input hardware event sampling configuration specified on the \"osscuda\" command: \"$input_argument_event_or_trace_list_value\" overriding the default hardware event sampling configuration."
 
-      if [ $debug_flag == 1 ]
-      then
-         echo "DEBUG: setting OPENSS_CUDA_TRACED to $input_argument_event_or_trace_list_value and overriding the previous value of OPENSS_CUDA_TRACED"
+      if [ $debug_flag == 1 ]; then
+         echo "DEBUG: setting OPENSS_CUDA_CONFIG to $input_argument_event_or_trace_list_value and overriding the previous value of OPENSS_CUDA_CONFIG"
       fi
 
     else
+      echo "[openss]: cuda experiment using input hardware event sampling configuration specified on the \"osscuda\" command: \"$input_argument_event_or_trace_list_value\" overriding the hardware event sampling configuration specified by the environment variable: OPENSS_CUDA_CONFIG."
 
-      echo "[openss]: cuda experiment using input cuda experiment trace function list specified on the \"osscuda\" command: \"$input_argument_event_or_trace_list_value\" overriding the I/O function list specified by the environment variable: OPENSS_CUDA_TRACED."
-
-      if [ $debug_flag == 1 ]
-      then
-         echo "DEBUG: setting OPENSS_CUDA_TRACED to $input_argument_event_or_trace_list_value and overriding what was already set in OPENSS_CUDA_TRACED"
+      if [ $debug_flag == 1 ]; then
+         echo "DEBUG: setting OPENSS_CUDA_CONFIG to $input_argument_event_or_trace_list_value and overriding what was already set in OPENSS_CUDA_CONFIG"
       fi
 
     fi
 
-    OPENSS_CUDA_TRACED=$input_argument_event_or_trace_list_value
+    OPENSS_CUDA_CONFIG=$input_argument_event_or_trace_list_value
 
-  elif [ $use_default_flag == 1 ]
-  then
+  elif [ $use_default_flag == 1 ]; then
 
-    if [ -z  "$OPENSS_CUDA_TRACED" ]
-    then
-       echo "[openss]: cuda experiment using function list: \"$cuda_default_traceable_functions\" because the \"default\" parameter is specified."
-     else
-       if [ $cuda_default_traceable_functions != $OPENSS_CUDA_TRACED ]
-       then
-         echo "[openss]: cuda experiment OPENSS_CUDA_TRACED=$OPENSS_CUDA_TRACED is set and will be altered to \"$cuda_default_traceable_functions\" because the \"default\" parameter is specified."
-       fi
-     fi
-     if [ $debug_flag == 1 ]
-     then 
-       echo "DEBUG: cuda, default, cuda_traced=$cuda_default_traceable_functions"
-     fi
+    if [ -z  "$OPENSS_CUDA_CONFIG" ]; then
+       echo "[openss]: cuda experiment using hardware event sampling configuration: \"$cuda_default_config\" because the \"default\" parameter is specified."
+    elif [ $cuda_default_config != $OPENSS_CUDA_CONFIG ]; then
+      echo "[openss]: cuda experiment OPENSS_CUDA_CONFIG=$OPENSS_CUDA_CONFIG is set and will be altered to \"$cuda_default_config\" because the \"default\" parameter is specified."
+    fi
 
-     if [ "$instrumentor" == "cbtf" ]
-     then
-       CBTF_CUDA_TRACED=$cuda_default_traceable_functions
-       export CBTF_CUDA_TRACED
-     fi
+    if [ $debug_flag == 1 ]; then 
+      echo "DEBUG: cuda, default, cuda_default_config=$cuda_default_config"
+    fi
 
-     OPENSS_CUDA_TRACED=$cuda_default_traceable_functions
-     export OPENSS_CUDA_TRACED
+    OPENSS_CUDA_CONFIG=$cuda_default_config
 
-     if [ $debug_flag == 1 ]
-     then 
-       echo "DEBUG: in CUDA EXPERIMENT SECTION, RESET default, OPENSS_CUDA_TRACED=$OPENSS_CUDA_TRACED"
-     fi
+    if [ $debug_flag == 1 ]; then 
+      echo "DEBUG: in CUDA EXPERIMENT SECTION, RESET default, OPENSS_CUDA_CONFIG=$OPENSS_CUDA_CONFIG"
+    fi
 
   else
 
-    # input argument or default argument not specified
+    if [ -z  "$OPENSS_CUDA_CONFIG" ]; then
+      echo "[openss]: cuda experiment using the default hardware event sampling configuration: \"$cuda_default_config\"."
+      OPENSS_CUDA_CONFIG=$cuda_default_config
 
-    if [ -z  "$OPENSS_CUDA_TRACED" ]
-    then
-
-      echo "[openss]: cuda experiment using the default I/O experiment trace function list: \"$cuda_default_traceable_functions\"."
-      OPENSS_CUDA_TRACED=$cuda_default_traceable_functions
-
-      if [ $debug_flag == 1 ]
-      then
-        echo "DEBUG: setting OPENSS_CUDA_TRACED to default $cuda_default_traceable_functions"
+      if [ $debug_flag == 1 ]; then
+        echo "DEBUG: setting OPENSS_CUDA_CONFIG to default $cuda_default_config"
       fi
+
     else
-      echo "[openss]: cuda experiment OPENSS_CUDA_TRACED=$OPENSS_CUDA_TRACED is set and will override the default I/O function list."
-      if [ $debug_flag == 1 ]
-      then
-        echo "DEBUG: exporting already set OPENSS_CUDA_TRACED to $OPENSS_CUDA_TRACED"
+      echo "[openss]: cuda experiment OPENSS_CUDA_CONFIG=$OPENSS_CUDA_CONFIG is set and will override the default hardware event sampling configuration."
+
+      if [ $debug_flag == 1 ]; then
+        echo "DEBUG: exporting already set OPENSS_CUDA_CONFIG to $OPENSS_CUDA_CONFIG"
       fi
+
     fi
 
   fi
 
-  if [ "$instrumentor" == "cbtf" ]
-  then
-    export CBTF_CUDA_TRACED
+  if [ $debug_flag == 1 ]; then
+    echo "DEBUG: about to call openss -offline for cuda experiment, OPENSS_CUDA_CONFIG=$OPENSS_CUDA_CONFIG"
   fi
 
-  export OPENSS_CUDA_TRACED
+  if [ "$instrumentor" == "cbtf" ]; then
+    CBTF_CUDA_CONFIG=$OPENSS_CUDA_CONFIG
+    export CBTF_CUDA_CONFIG
+  fi
 
-  if [ "$instrumentor" == "cbtf" ]
-  then
+  export OPENSS_CUDA_CONFIG
+
+  if [ "$instrumentor" == "cbtf" ]; then
     echo "[openss]: cuda experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
-    then
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]; then
        osscollect --arch cray --program "$1" --collector cuda
     else
        osscollect --program "$1" --collector cuda
     fi
-  elif [ "$instrumentor" == "offline" ]
-  then
+  elif [ "$instrumentor" == "offline" ]; then
     echo "[openss]: cuda experiment is not implemented in the offline version of openss."
     #openss -offline -f "$1" cuda
   else
     echo "[openss]: cuda experiment calling nothing, else clause."
   fi
 
+fi
+
+# ------------------------------------------------------------------------------------
+# -- CUDAIO EXPERIMENT SPECIFIC CODE ---------------------------------------------------
+# ------------------------------------------------------------------------------------
+
+elif  [ $experiment_name == "osscudaio" ]; then
+
+  if [ $debug_flag == 1 ]; then
+    echo "DEBUG: in CUDAIO EXPERIMENT SECTION"
+  fi
+
+  OPENSS_CUDA_CONFIG=
+
+  if [ "$instrumentor" == "cbtf" ]; then
+    CBTF_CUDA_CONFIG=$OPENSS_CUDA_CONFIG
+    export CBTF_CUDA_CONFIG
+  fi
+
+  export OPENSS_CUDA_CONFIG
+
+  if [ "$instrumentor" == "cbtf" ]; then
+    echo "[openss]: cudaio experiment calling osscollect."
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]; then
+       osscollect --arch cray --program "$1" --collector cudaio
+    else
+       osscollect --program "$1" --collector cudaio
+    fi
+  elif [ "$instrumentor" == "offline" ]; then
+    echo "[openss]: cudaio experiment is not implemented in the offline version of openss."
+    #openss -offline -f "$1" cudaio
+  else
+    echo "[openss]: cudaio experiment calling nothing, else clause."
+  fi
 
 fi
 
-
 # ------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------
-
-
