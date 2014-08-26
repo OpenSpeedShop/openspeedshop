@@ -39,11 +39,14 @@ endif
 if !BUILD_RUNTIME_ONLY
 nodist_bin_SCRIPTS += ossdriver ossdriver_compare
 BUILT_FILES += ossdriver ossdriver_compare
+# endif for !BUILD_RUNTIME_ONLY
+endif
 if !BUILD_CBTF
 nodist_bin_SCRIPTS += ossrun
 BUILT_FILES += ossrun
+# endif for !BUILD_CBTF
 endif
-endif
+
 if HAVE_TARGET_SHARED
 nodist_bin_SCRIPTS += ossrun
 BUILT_FILES += ossrun
@@ -265,11 +268,9 @@ endif
 
 if BUILD_INSTRUMENTOR
 
-#if !BUILD_RUNTIME_ONLY
 if !BUILD_CBTF
 ossrun: ossrun.in
 endif
-#endif
 	@rm -f ossrun
 	@sed \
 		-e 's,@@machine_dependent_libdir@@,$(abi_libdir_name),' \
@@ -298,6 +299,7 @@ endif
 	@chmod 755 ossrun
 
 if !BUILD_TARGETED
+if !BUILD_RUNTIME_ONLY
 ossdriver: ossdriver.in
 	@rm -f ossdriver
 	@sed \
@@ -382,13 +384,18 @@ if BUILD_CBTF
 	@rm -f $(DESTDIR)$(bindir)/ossmpip
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver  $(DESTDIR)$(bindir)/ossmpip
 	chmod 755 $(DESTDIR)$(bindir)/ossmpip
+# endif for BUILD_CBTF
 endif
+# endif for !BUILD_MRNET
 endif
+
 # osscompare
 	@rm -f $(DESTDIR)$(bindir)/osscompare
 	$(LN_S) $(DESTDIR)$(bindir)/ossdriver_compare  $(DESTDIR)$(bindir)/osscompare
 	chmod 755 $(DESTDIR)$(bindir)/osscompare
 
+# endif for !BUILD_RUNTIME_ONLY
+endif
 # endif for !BUILD_TARGETED
 endif
 
