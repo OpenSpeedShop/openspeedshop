@@ -2967,7 +2967,8 @@ then
 # -- CUDA EXPERIMENT SPECIFIC CODE ---------------------------------------------------
 # ------------------------------------------------------------------------------------
 
-elif  [ $experiment_name == "osscuda" ]; then
+elif  [ $experiment_name == "osscuda" ]
+then
 
   if [ $debug_flag == 1 ]; then
     echo "DEBUG: in CUDA EXPERIMENT SECTION, input_argument_event_or_trace_list_value=$input_argument_event_or_trace_list_value"
@@ -3063,7 +3064,8 @@ fi
 # -- CUDAIO EXPERIMENT SPECIFIC CODE ---------------------------------------------------
 # ------------------------------------------------------------------------------------
 
-elif  [ $experiment_name == "osscudaio" ]; then
+elif  [ $experiment_name == "osscudaio" ]
+then
 
   if [ $debug_flag == 1 ]; then
     echo "DEBUG: in CUDAIO EXPERIMENT SECTION"
