@@ -2,6 +2,7 @@
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 # Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
+# Copyright (c) 2014 Argo Navis Technologies. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -778,6 +779,7 @@ case "$INSTRUMENTOR" in
         AX_MRNET()
 	AX_CBTF_MRNET()
 	AX_CBTF_MESSAGES()
+	AX_CBTF_MESSAGES_CUDA()
 	AX_CBTF_SERVICES()
 
 	AM_CONDITIONAL(BUILD_DPCL, false)
@@ -905,6 +907,7 @@ AC_CONFIG_FILES(
 	plugins/collectors/fpe/Makefile
 	plugins/collectors/mem/Makefile
 	plugins/collectors/pthreads/Makefile
+	plugins/collectors/cuda/Makefile
 	plugins/panels/Makefile
 	plugins/panels/CustomExperimentPanel/Makefile
 	plugins/panels/pcSamplePanel/Makefile
