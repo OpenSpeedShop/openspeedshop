@@ -698,6 +698,7 @@ case "$INSTRUMENTOR" in
 	AC_DEFINE(BUILD_INSTRUMENTOR, 0, [Define to 1 if you do not want an instrumentor built.])
         #AM_CONDITIONAL(HAVE_RUNTIME_DIR, false)
         INSTRUMENTOR=offline
+        AM_CONDITIONAL(HAVE_CBTF_MESSAGES_CUDA, false)
 	AX_RUNTIME_DIR()
 	;; 
 
@@ -713,6 +714,7 @@ case "$INSTRUMENTOR" in
 	AM_CONDITIONAL(BUILD_INSTRUMENTOR, true)
 	AC_DEFINE(BUILD_INSTRUMENTOR, 1, [Define to 1 if you do not want an instrumentor built.])
         AM_CONDITIONAL(HAVE_RUNTIME_DIR, false)
+        AM_CONDITIONAL(HAVE_CBTF_MESSAGES_CUDA, false)
 	;;
 
     mrnet)
@@ -734,6 +736,7 @@ case "$INSTRUMENTOR" in
 	AM_CONDITIONAL(BUILD_INSTRUMENTOR, true)
 	AC_DEFINE(BUILD_INSTRUMENTOR, 1, [Define to 1 if you do not want an instrumentor built.])
         AM_CONDITIONAL(HAVE_RUNTIME_DIR, false)
+        AM_CONDITIONAL(HAVE_CBTF_MESSAGES_CUDA, false)
 	;;
 
     offline)
@@ -755,6 +758,7 @@ case "$INSTRUMENTOR" in
 	AM_CONDITIONAL(BUILD_INSTRUMENTOR, true)
 	AC_DEFINE(BUILD_INSTRUMENTOR, 1, [Define to 1 if you do not want an instrumentor built.])
 	AX_RUNTIME_DIR()
+        AM_CONDITIONAL(HAVE_CBTF_MESSAGES_CUDA, false)
 	;;
 
     cbtf)
