@@ -47,7 +47,9 @@ AC_DEFUN([AX_CBTF_MESSAGES_CUDA], [
                       [Define to 1 if you have CBTF CUDA Messages])
         ], [
             AC_MSG_RESULT(no)
-            AC_MSG_ERROR([CBTF CUDA messages library could not be found.])
+            AM_CONDITIONAL(HAVE_CBTF_MESSAGES_CUDA, false)
+            AC_DEFINE(HAVE_CBTF_MESSAGES_CUDA, 0,
+                      [Define to 1 if you have CBTF CUDA Messages])
         ])
 
     CPPFLAGS=$messages_cuda_saved_CPPFLAGS
