@@ -3198,7 +3198,6 @@ int mpi_PMPI_File_seek_shared(
     return retval;
 }
 
-
 /*
  * MPI_File_set_view
  */
@@ -3214,7 +3213,9 @@ int mpi_PMPI_File_set_view(
     MPI_Offset disp,
     MPI_Datatype etype, 
     MPI_Datatype ftype, 
-#if MPI_VERSION >= 3
+#if defined (SGI_MPT) && MPI_VERSION >= 3
+    char* datarep, 
+#elif MPI_VERSION >= 3
     const char* datarep, 
 #else
     char* datarep, 
