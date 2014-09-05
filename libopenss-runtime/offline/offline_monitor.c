@@ -151,11 +151,19 @@ void monitor_fini_process(int how, void *data)
      * monitor_init_process and allocate TLS.
      */
     if (tls == NULL) {
-       fprintf(stderr,"Warning. monitor_fini_process called with no TLS.\n");
-       return;
+       if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+         fprintf(stderr,"Warning. monitor_fini_process called with no TLS.\n");
+       }
+         return;
     }
 #endif 
 
+
+   if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+   } else {
+	tls->debug=0;
+   }
     /*collector stop_sampling does not use the arguments param */
     if (tls->debug) {
 	fprintf(stderr,"monitor_fini_process FINISHED SAMPLING %d,%lu\n",
@@ -275,6 +283,12 @@ void monitor_fini_thread(void *ptr)
 #endif
     Assert(tls != NULL);
 
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+    } else {
+	tls->debug=0;
+    }
+
     if (tls->debug) {
 	fprintf(stderr,"monitor_fini_thread FINISHED SAMPLING %d,%lu\n",
 		tls->pid,tls->tid);
@@ -373,6 +387,12 @@ void monitor_dlopen(const char *library, int flags, void *handle)
 	return;
     }
 
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+    } else {
+	tls->debug=0;
+    }
+
     if (OpenSS_in_mpi_startup || tls->in_mpi_pre_init == 1) {
         if (tls->debug) {
 	    fprintf(stderr,"monitor_dlopen returns early due to in mpi init\n");
@@ -423,6 +443,12 @@ monitor_pre_dlopen(const char *path, int flags)
 	return;
     }
 
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+    } else {
+	tls->debug=0;
+    }
+
     if (tls->in_mpi_pre_init == 1) {
         if (tls->debug) {
 	    fprintf(stderr,"monitor_pre_dlopen returns early due to in mpi init\n");
@@ -435,6 +461,12 @@ monitor_pre_dlopen(const char *path, int flags)
 	    fprintf(stderr,"monitor_pre_dlopen ignores null path\n");
 	}
 	return;
+    }
+
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+    } else {
+	tls->debug=0;
     }
 
     if (tls->debug) {
@@ -467,6 +499,12 @@ monitor_dlclose(void *handle)
 
     if (tls == NULL || tls && tls->sampling_status == 0 ) {
 	return;
+    }
+
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+    } else {
+	tls->debug=0;
     }
 
     if (tls->in_mpi_pre_init == 1) {
@@ -530,6 +568,12 @@ monitor_post_dlclose(void *handle, int ret)
 	return;
     }
 
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+    } else {
+	tls->debug=0;
+    }
+
     if (tls->in_mpi_pre_init == 1) {
         if (tls->debug) {
 	    fprintf(stderr,"monitor_post_dlclose returns early due to in mpi init\n");
@@ -575,6 +619,11 @@ void * monitor_pre_fork(void)
 #endif
     Assert(tls != NULL);
 
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+    } else {
+	tls->debug=0;
+    }
 
     if (OpenSS_in_mpi_startup || tls->in_mpi_pre_init == 1) {
         if (tls->debug) {
@@ -606,6 +655,12 @@ void monitor_post_fork(pid_t child, void *data)
 #endif
     Assert(tls != NULL);
 
+
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+    } else {
+	tls->debug=0;
+    }
     if (OpenSS_in_mpi_startup || tls->in_mpi_pre_init == 1) {
         if (tls->debug) {
 	    fprintf(stderr,"monitor_post_fork returns early due to in mpi init\n");
@@ -643,6 +698,12 @@ void monitor_mpi_pre_init(void)
 
     tls->in_mpi_pre_init = 1;
     OpenSS_in_mpi_startup = 1;
+
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+    } else {
+	tls->debug=0;
+    }
 
     if (tls->sampling_status == OpenSS_Monitor_Started) {
         if (tls->debug) {
@@ -689,6 +750,12 @@ void monitor_fini_mpi(void)
 #endif
     Assert(tls != NULL);
 
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+    } else {
+	tls->debug=0;
+    }
+
     if (tls->debug) {
 	fprintf(stderr,"monitor_fini_mpi CALLED %d,%lu\n",
 		tls->pid,tls->tid);
@@ -714,6 +781,12 @@ void monitor_mpi_post_fini(void)
     TLS* tls = &the_tls;
 #endif
     Assert(tls != NULL);
+
+    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+    } else {
+	tls->debug=0;
+    }
 
     if (tls->debug) {
 	fprintf(stderr,"monitor_mpi_post_fini CALLED %d,%lu\n",
@@ -748,6 +821,11 @@ void monitor_mpi_pcontrol(int level)
 #endif
   Assert(tls != NULL);
 
+  if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+	tls->debug=1;
+  } else {
+	tls->debug=0;
+  }
 
   if ( (getenv("OPENSS_ENABLE_MPI_PCONTROL") != NULL)) {
 
