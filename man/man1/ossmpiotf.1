@@ -94,6 +94,22 @@ Specify a list of system MPI functions to be traced.  If the OPENSS_MPIOTF_TRACE
 is set, this value will override the function list defined by OPENSS_MPIOTF_TRACED.
 the resulting value is used as the MPI function list for the experiment being run.
 
+.nf
+MPI Category                    Argument
+--------------------------      --------------------
+All MPI Functions               all
+Collective Communicators        collective_com
+Persistent Communicators        persistent_com
+Synchronous Point to Point      synchronous_p2p
+Asynchronous Point to Point     asynchronous_p2p
+Process Topologies              process_topologies
+Groups Contexts Communicators   graphs_contexts_comms
+Environment                     environment
+Datatypes                       datatypes
+MPI File I/O                    fileio
+.fi
+
+
 .IP "default"
 Force the experiment to use the default MPI function list value when running
 the experiment. This overrides the OPENSS_MPIOTF_TRACED environment variable
