@@ -567,6 +567,15 @@ static void Setup_Sort(
       CommandResult *V2 = (*cp.second)[vinst->TMP2()];
       New = Calculate_Flops (V1, V2);
 
+    } else if (vinst->OpCode() == VIEWINST_Display_Ratio_Tmp) {
+
+#if DEBUG_CLI_print
+      printf("in Setup_Sort, VIEWINST_Display_Ratio_Tmp\n");
+#endif
+
+      CommandResult *V1 = (*cp.second)[vinst->TMP1()];
+      CommandResult *V2 = (*cp.second)[vinst->TMP2()];
+
     } else if (vinst->OpCode() == VIEWINST_Expression) {
 
 #if DEBUG_CLI_print
@@ -1160,13 +1169,11 @@ bool Generic_Multi_View (
   std::cerr << "\nEnter Generic_Multi_View, in SS_View_multi.cxx, c_items.size()= " << c_items.size() << "\n";
   std::cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
  // Dump the input callstack entries.
-  std::vector<std::pair<CommandResult *,
-                        SmartPtr<std::vector<CommandResult *> > > >::iterator jegvpi;
+  std::vector<std::pair<CommandResult *, SmartPtr<std::vector<CommandResult *> > > >::iterator jegvpi;
 
   for (jegvpi = c_items.begin(); jegvpi != c_items.end(); jegvpi++) {
    // Foreach CallStack entry, copy the desired sort value into the VMulti_sort_temp field.
-    std::pair<CommandResult *,
-              SmartPtr<std::vector<CommandResult *> > > jegcp = *jegvpi;
+    std::pair<CommandResult *, SmartPtr<std::vector<CommandResult *> > > jegcp = *jegvpi;
 /* TEST
     int64_t jegi;
     for (jegi = 0; jegi < (*jegcp.second).size(); jegi++ ) {

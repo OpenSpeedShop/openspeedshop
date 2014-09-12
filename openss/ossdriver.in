@@ -56,7 +56,7 @@ hwc_default_event="PAPI_TOT_CYC"
 hwc_default_threshold=10000
 
 # Corresponds to OPENSS_HWCSAMP_EVENTS or CBTF_HWCSAMP_EVENTS
-hwcsamp_default_events="PAPI_TOT_CYC,PAPI_FP_OPS"
+hwcsamp_default_events="PAPI_TOT_CYC,PAPI_TOT_INS"
 
 # Corresponds to OPENSS_HWCSAMP_RATE or CBTF_HWCSAMP_RATE
 hwcsamp_default_rate=100
@@ -243,7 +243,7 @@ then
      echo "                                           periodically sample the total cycles"
      echo "                                           or \"PAPI_TOT_CYC:1000000\" to sample"
      echo "                                           the PC every 1,000,000 cycles."
-     echo "                        E.g. \"interval=1000000,PAPI_TOT_CYC,PAPI_FP_OPS:100000\""
+     echo "                        E.g. \"interval=1000000,PAPI_TOT_CYC,PAPI_TOT_INS:100000\""
      echo "                        would sample total cycles and floating-point operations"
      echo "                        every 1 mS, and also sample the PC for every 100,000"
      echo "                        floating-point operations. Trace data is collected for"

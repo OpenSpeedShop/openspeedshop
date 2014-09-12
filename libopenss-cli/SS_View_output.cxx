@@ -81,6 +81,7 @@ void Construct_View_Output (CommandObject *cmd,
   int64_t num_columns = Find_Max_Column_Def (IV) + 1;
   int64_t i;
   bool report_Column_summary = false;
+  bool report_Column_summary_only = false;
 
   std::vector<ViewInstruction *> ViewInst(num_columns);
   int64_t num_input_temps = (items.empty()) ? 0 : items[0].second->size();
@@ -116,6 +117,7 @@ void Construct_View_Output (CommandObject *cmd,
         (vp->OpCode() == VIEWINST_Display_Percent_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_Average_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_Flops_Tmp) ||
+        (vp->OpCode() == VIEWINST_Display_Ratio_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
      // Assert (vp->TR() < num_input_temps);
       if (vp->TR() < num_input_temps) ViewInst[vp->TR()] = vp;
@@ -126,6 +128,10 @@ void Construct_View_Output (CommandObject *cmd,
                (vp->OpCode() == VIEWINST_Min) ||
                (vp->OpCode() == VIEWINST_Max)) {
       if (vp->TMP1() < num_input_temps) AccumulateInst[vp->TMP1()] = vp;
+    } else if (vp->OpCode() == VIEWINST_Display_Summary_Only) {
+      report_Column_summary_only = (num_input_temps != 0);
+      report_Column_summary = (num_input_temps != 0);
+    } else if (vp->OpCode() == VIEWINST_Summary_Max) {
     } else if (vp->OpCode() == VIEWINST_Display_Summary) {
       report_Column_summary = (num_input_temps != 0);
     } else if (vp->OpCode() == VIEWINST_Summary_Max) {
@@ -264,6 +270,11 @@ void Construct_View_Output (CommandObject *cmd,
           CommandResult *V1 = (*it->second)[vinst->TMP1()];
           CommandResult *V2 = (*it->second)[vinst->TMP2()];
           Next_Metric_Value = Calculate_Flops (V1, V2);
+        } else if (vinst->OpCode() == VIEWINST_Display_Ratio_Tmp) {
+          CommandResult *V1 = (*it->second)[vinst->TMP1()];
+          CommandResult *V2 = (*it->second)[vinst->TMP2()];
+          Next_Metric_Value = Calculate_Ratio (V1, V2);
+//          Next_Metric_Value = Calculate_Expression (EXPRESSION_OP_DIV, V1, V2, NULL);
         } else if (vinst->OpCode() == VIEWINST_Expression) {
           Next_Metric_Value = Calculate_Expression ( vinst->ExprOpCode(),
                                                      (*it->second)[vinst->TMP1()],
@@ -283,7 +294,9 @@ void Construct_View_Output (CommandObject *cmd,
       // C->CommandResult_Columns::Add_Column (it->first);
       C->CommandResult_Columns::Add_Column (it->first->Copy());
       // it->first = NULL;  // allow only 1 pointer to a CommandResult object
-      view_output.push_back (C);  // attach column list to output
+      if (!report_Column_summary_only) {
+        view_output.push_back (C);  // attach column list to output
+      }
 
      // Accumulate Summary Information for the selected output items.
       if (report_Column_summary) {
@@ -367,6 +380,10 @@ void Construct_View_Output (CommandObject *cmd,
           CommandResult *V1 = summary_temp[sinst->TMP1()];
           CommandResult *V2 = summary_temp[sinst->TMP2()];
           summary = Calculate_Flops (V1, V2);
+        } else if (sinst->OpCode() == VIEWINST_Display_Ratio_Tmp) {
+          CommandResult *V1 = summary_temp[sinst->TMP1()];
+          CommandResult *V2 = summary_temp[sinst->TMP2()];
+          summary = Calculate_Ratio (V1, V2);
         } else if (sinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
           CommandResult *V = summary_temp[sinst->TMP1()];
           summary = Calculate_Percent (V, Total_Value[sinst->TMP2()]);

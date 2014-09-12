@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2011 Krell Institute All Rights Reserved.
+// Copyright (c) 2011-2014 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -1812,18 +1812,18 @@ HW_CounterSampWizardPanel::appendComboBoxItems()
   printf("v_tot_cyc_index=%d\n", v_tot_cyc_index);
   printf("e_tot_cyc_index=%d\n", e_tot_cyc_index);
 #endif
-  QListBoxItem* v_fp_ops_item = vParameterPagePAPIDescriptionText->findItem("PAPI_FP_OPS");
-  QListBoxItem* e_fp_ops_item = eParameterPagePAPIDescriptionText->findItem("PAPI_FP_OPS");
-  int v_fp_ops_index = vParameterPagePAPIDescriptionText->index(v_fp_ops_item);
-  int e_fp_ops_index = eParameterPagePAPIDescriptionText->index(e_fp_ops_item);
+  QListBoxItem* v_tot_ins_item = vParameterPagePAPIDescriptionText->findItem("PAPI_TOT_INS");
+  QListBoxItem* e_tot_ins_item = eParameterPagePAPIDescriptionText->findItem("PAPI_TOT_INS");
+  int v_tot_ins_index = vParameterPagePAPIDescriptionText->index(v_tot_ins_item);
+  int e_tot_ins_index = eParameterPagePAPIDescriptionText->index(e_tot_ins_item);
 #ifdef DEBUG_HWCSampWizard
-  printf("v_fp_ops_index=%d\n", v_fp_ops_index);
-  printf("e_fp_ops_index=%d\n", e_fp_ops_index);
+  printf("v_tot_ins_index=%d\n", v_tot_ins_index);
+  printf("e_tot_ins_index=%d\n", e_tot_ins_index);
 #endif
   vParameterPagePAPIDescriptionText->setSelected(v_tot_cyc_item, TRUE);
-  vParameterPagePAPIDescriptionText->setSelected(v_fp_ops_item, TRUE);
+  vParameterPagePAPIDescriptionText->setSelected(v_tot_ins_item, TRUE);
   eParameterPagePAPIDescriptionText->setSelected(e_tot_cyc_item, TRUE);
-  eParameterPagePAPIDescriptionText->setSelected(e_fp_ops_item, TRUE);
+  eParameterPagePAPIDescriptionText->setSelected(e_tot_ins_item, TRUE);
 
 }
 

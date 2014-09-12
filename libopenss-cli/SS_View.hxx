@@ -58,7 +58,11 @@ enum ViewOpCode {
      VIEWINST_Display_Flops_Tmp,        // TmpResult is column# to display in.
                                         // TMP_index1 is row_tmp# with counts
                                         // TMP_index2 is row_tmp# with time
+     VIEWINST_Display_Ratio_Tmp,        // TmpResult is column# to display in.
+                                        // TMP_index1 is row_tmp# with counts
+                                        // TMP_index2 is row_tmp# with counts
      VIEWINST_Display_Summary,          // Generate column summary.
+     VIEWINST_Display_Summary_Only,     // Only generate and display column summary.
      VIEWINST_Sort_Ascending,           // if TMP_index1 is not 0, sort final report in ascending order
      VIEWINST_Expression,               // TmpResult is the predefined temp# that is the result of an expression evaluation
                                         // Expression_op indicates the arithmetic operation
@@ -205,7 +209,9 @@ class ViewInstruction
      case VIEWINST_Display_Average_Tmp: op = "Display_Average_Tmp"; break;
      case VIEWINST_Display_StdDeviation_Tmp: op = "Display_StdDeviation_Tmp"; break;
      case VIEWINST_Display_Flops_Tmp: op = "Display_Flops_Tmp"; break;
+     case VIEWINST_Display_Ratio_Tmp: op = "Display_Ratio_Tmp"; break;
      case VIEWINST_Display_Summary: op = "Display_Summary"; break;
+     case VIEWINST_Display_Summary_Only: op = "Display_Summary_Only"; break;
      case VIEWINST_Sort_Ascending: op = "Ascending_Sort"; break;
      case VIEWINST_Expression: op = "Expression[";
                                op += ExprOperator(Expression_op).c_str();

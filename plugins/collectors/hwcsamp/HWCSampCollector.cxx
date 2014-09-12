@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2010-2012 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2010-2014 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -123,7 +123,7 @@ Blob HWCSampCollector::getDefaultParameterValues() const
 
     // Set the default parameters
     parameters.sampling_rate = 100;
-    strncpy(parameters.hwcsamp_event,"PAPI_TOT_CYC,PAPI_FP_OPS",strlen("PAPI_TOT_CYC,PAPI_FP_OPS"));
+    strncpy(parameters.hwcsamp_event,"PAPI_TOT_CYC,PAPI_TOT_INS",strlen("PAPI_TOT_CYC,PAPI_TOT_INS"));
 
     // Return the encoded blob to the caller
     return Blob(reinterpret_cast<xdrproc_t>(xdr_hwcsamp_parameters),

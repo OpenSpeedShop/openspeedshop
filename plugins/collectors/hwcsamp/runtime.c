@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) 2010 Krell Institute.  All Rights Reserved.
+** Copyright (c) 2010-2014 Krell Institute.  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -262,7 +262,7 @@ void hwcsamp_start_sampling(const char* arguments)
 
     /* First set defaults */ 
     int hwcsamp_rate = 100;
-    char* hwcsamp_papi_event = "PAPI_TOT_CYC,PAPI_FP_OPS";
+    char* hwcsamp_papi_event = "PAPI_TOT_CYC,PAPI_TOT_INS";
 
 #if defined (OPENSS_OFFLINE)
     char* hwcsamp_event_param = getenv("OPENSS_HWCSAMP_EVENTS");
@@ -397,7 +397,7 @@ void hwcsamp_start_sampling(const char* arguments)
     } else {
 	PAPI_event_name_to_code("PAPI_TOT_CYC",&eventcode);
 	rval = PAPI_add_event(tls->EventSet,eventcode);
-	PAPI_event_name_to_code("PAPI_FP_OPS",&eventcode);
+	PAPI_event_name_to_code("PAPI_TOT_INS",&eventcode);
 	rval = PAPI_add_event(tls->EventSet,eventcode);
     }
 

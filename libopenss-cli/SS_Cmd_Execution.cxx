@@ -6760,6 +6760,11 @@ bool SS_ListWallTime(CommandObject *cmd) {
       //printf("SS_ListWallTime, found all keyword\n");
     }
 
+    bool msTime_Keyword = Look_For_KeyWord (cmd, "mstimeonly");
+    if (msTime_Keyword) {
+      //printf("SS_ListWallTime, found mstimeonly keyword\n");
+    }
+
     bool Time_Keyword = Look_For_KeyWord (cmd, "timeonly");
     if (Time_Keyword) {
       //printf("SS_ListWallTime, found timeonly keyword\n");
@@ -6797,10 +6802,11 @@ bool SS_ListWallTime(CommandObject *cmd) {
 
        int64_t elapsed_time = ((ET - ST));
        int64_t scaled_time = (elapsed_time / 1000000000);
-       CommandResult *elapsed_cr = new CommandResult_Duration (elapsed_time);
-      // Format elapsed time.
-       lt << elapsed_cr->Form();
-      // Determine resulting units.
+       CommandResult *elapsed_cr ;
+
+       //std::cerr << "BEFORE SETTING UNITS, elapsed_time=" << elapsed_time << " scaled_time=" << scaled_time << std::endl;
+
+       // Determine resulting units.
        std::string UNITS;
        if (scaled_time >= (60 * 60 * 24)) {
          UNITS = "dd:hh:mm:ss";
@@ -6815,11 +6821,41 @@ bool SS_ListWallTime(CommandObject *cmd) {
        } else {
          UNITS = "ns";
        }
+
+       //std::cerr << "msTime_Keyword=" << msTime_Keyword << " UNITS=" << UNITS 
+       //          << " elapsed_time=" << elapsed_time << " scaled_time=" << scaled_time << std::endl;
+
+       if (msTime_Keyword) {
+         double temp_double_elapsed_time = double(elapsed_time);
+         if (!strcasecmp(UNITS.c_str(), "ns")) {
+            std::cerr << "in ns block, elapsed_time=" << elapsed_time << std::endl;
+            // convert ns to ms
+            if (elapsed_time >= 1000000) {
+              temp_double_elapsed_time = temp_double_elapsed_time / 1000.0  ;
+            }
+         }
+
+         UNITS = "ms";
+         elapsed_cr = new CommandResult_Float (temp_double_elapsed_time);
+         //std::cerr << "in ms block, elapsed_time=" << elapsed_time << std::endl;
+
+       } else {
+
+         // not ms adjusted, we are using the base cli tools to give the command time duration
+         elapsed_cr = new CommandResult_Duration (elapsed_time);
+         //std::cerr << "in not ms adjusted, elapsed_time=" << elapsed_time << std::endl;
+
+       }
+         
+       // Format elapsed time.
+       lt << elapsed_cr->Form();
+
        delete elapsed_cr;
 
        st << databaseExtent.getTimeInterval().getBegin();
        et << databaseExtent.getTimeInterval().getEnd();
-       if (Time_Keyword) {
+
+       if (Time_Keyword || msTime_Keyword) {
           cmd->Result_String (lt.str());
        } else if (Range_Keyword) {
           cmd->Result_String (st.str()
@@ -7183,7 +7219,7 @@ static bool SS_ListRanksAndThreads (CommandObject *cmd) {
   if (All_KeyWord) {
    // List all the Threads on the system.
    // We have decided not to support this option.
-    Mark_Cmd_With_Soft_Error(cmd, "'list -v pidsandthreads, all' is not supported.");
+    Mark_Cmd_With_Soft_Error(cmd, "'list -v ranksandthreads, all' is not supported.");
     return false;
   } else {
    // Get the Threads for a specified Experiment or the focused Experiment.
@@ -7193,7 +7229,7 @@ static bool SS_ListRanksAndThreads (CommandObject *cmd) {
     }
 
     if (Filter_Uses_F(cmd)) {
-      Mark_Cmd_With_Soft_Error(cmd, "'list -v pidsandthreads' does not support the '-f' option.");
+      Mark_Cmd_With_Soft_Error(cmd, "'list -v ranksandthreads' does not support the '-f' option.");
       return false;
     }
 
@@ -7210,6 +7246,7 @@ static bool SS_ListRanksAndThreads (CommandObject *cmd) {
     std::string tmp_pair_r;
     std::string tmp_pair_t;
     int rankid = 0;
+    bool early_exit_no_ranks = FALSE;
     for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
 
      // Check for asynchronous abort command
@@ -7228,8 +7265,13 @@ static bool SS_ListRanksAndThreads (CommandObject *cmd) {
         // There may not be any rank information
         rankid = 0;
         std::pair<bool, int> prank = t.getMPIRank();
+        //std::cerr << "looking for ranks, prank.first=" << prank.first << std::endl;
         if (prank.first) {
           rankid = prank.second;
+          //std::cerr << "looking for ranks, prank.second=" << prank.second << std::endl;
+        } else {
+          early_exit_no_ranks = TRUE;
+          break;
         }
         std::stringstream rank_out;
         rank_out << rankid;
@@ -7252,8 +7294,13 @@ static bool SS_ListRanksAndThreads (CommandObject *cmd) {
         // There may not be any rank information
         rankid = 0;
         std::pair<bool, int> prank = t.getMPIRank();
+        //std::cerr << "looking for ranks, prank.first=" << prank.first << std::endl;
         if (prank.first) {
           rankid = prank.second;
+          //std::cerr << "looking for ranks, prank.second=" << prank.second << std::endl;
+        } else {
+          early_exit_no_ranks = TRUE;
+          break;
         }
         std::stringstream rank_out;
         rank_out << rankid;
@@ -7267,8 +7314,18 @@ static bool SS_ListRanksAndThreads (CommandObject *cmd) {
         pair_pt_set.insert (tmp_pair);
       }
     }
-    for (std::set<std::string>::iterator pair_pt_seti = pair_pt_set.begin(); pair_pt_seti != pair_pt_set.end(); pair_pt_seti++) {
-      cmd->Result_String ( *pair_pt_seti );
+    //std::cerr << "early_exit_no_ranks=" << early_exit_no_ranks << std::endl;
+    if (early_exit_no_ranks) {
+#if 0
+         std::string empty1;
+         empty1.clear();
+         cmd->Result_String ( empty1 );
+         cmd->Result_String ( *pair_pt_set );
+#endif
+    } else {
+       for (std::set<std::string>::iterator pair_pt_seti = pair_pt_set.begin(); pair_pt_seti != pair_pt_set.end(); pair_pt_seti++) {
+         cmd->Result_String ( *pair_pt_seti );
+       }
     }
 
     exp->Q_UnLock ();
@@ -7452,6 +7509,10 @@ bool SS_ListGeneric (CommandObject *cmd) {
     std::string S = *j;
 
     if (!strcasecmp(S.c_str(),"all")) {
+      continue;
+    }
+
+    if (!strcasecmp(S.c_str(),"mstimeonly")) {
       continue;
     }
 

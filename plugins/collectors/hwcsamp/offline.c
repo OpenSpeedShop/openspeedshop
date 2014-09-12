@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) 2010 The Krell Institute. All Rights Reserved.
+** Copyright (c) 2010-2014 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -248,7 +248,7 @@ void offline_finish()
     if (hwcsamp_event_param != NULL) {
         info.event = strdup(hwcsamp_event_param);
     } else {
-        info.event = strdup("PAPI_TOT_CYC,PAPI_FP_OPS");
+        info.event = strdup("PAPI_TOT_CYC,PAPI_TOT_INS");
     }
 
     /* Send the offline "info" blob */

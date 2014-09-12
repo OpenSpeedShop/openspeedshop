@@ -105,6 +105,7 @@ static std::string allowed_hwcsamp_V_options[] = {
   "Loop",
   "Loops",
   "Summary",
+  "SummaryOnly",
   "data",        // Raw data output for scripting
   ""
 };
@@ -124,7 +125,11 @@ static bool define_hwcsamp_columns (
   int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
   int64_t last_used_temp = Last_ByThread_Temp; // Track maximum temps - needed for expressions.
 
-  bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  bool Generate_Summary = false;
+  bool Generate_Summary_Only = Look_For_KeyWord(cmd, "SummaryOnly");
+  if (!Generate_Summary_Only) {
+     Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  }
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp, cmd);
   std::string ByThread_Header = Find_Metadata ( CV[0], "time" ).getShortName();
@@ -170,6 +175,7 @@ static bool define_hwcsamp_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Add, excnt_temp));
 
   for (int i=0; i < num_events ; i++) {
+    //fprintf(stderr, "pushing event_temps[i=%d]\n", i);
     IV.push_back(new ViewInstruction (VIEWINST_Add, event_temps+i));
   }
 
@@ -288,6 +294,176 @@ static bool define_hwcsamp_columns (
 
 #endif
          
+       } else if (!strcasecmp(M_Name.c_str(), "intensity")) {
+
+            int icnt = 0;
+            int tot_ins_icnt = 0;
+            int tot_cyc_icnt = 0;
+            // flops is calculated from two temps: the PAPI_TOT_INS counts and PAPI_TOT_CYC values.
+            bool found_tot_cyc = false;
+            bool found_tot_ins = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("PAPI_TOT_CYC") == 0) {
+                   found_tot_cyc = true;
+                   tot_cyc_icnt = icnt; 
+                   if (found_tot_ins) break;
+              } else if (papi_names[icnt].compare("papi_tot_cyc") == 0) {
+                   tot_cyc_icnt = icnt; 
+                   found_tot_cyc = true;
+                   if (found_tot_ins) break;
+              }
+              if (papi_names[icnt].compare("PAPI_TOT_INS") == 0) {
+                   found_tot_ins = true;
+                   tot_ins_icnt = icnt; 
+                   if (found_tot_cyc) break;
+              } else if (papi_names[icnt].compare("papi_tot_ins") == 0) {
+                   found_tot_ins = true;
+                   tot_ins_icnt = icnt; 
+                   if (found_tot_cyc) break;
+              }
+            }
+            if (found_tot_cyc && found_tot_ins) {
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+tot_cyc_icnt));
+              HV.push_back( papi_names[tot_cyc_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+tot_ins_icnt));
+              HV.push_back( papi_names[tot_ins_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+tot_ins_icnt, event_temps+tot_cyc_icnt));
+              HV.push_back("tot_ins/tot_cyc");
+            } else {
+              std::string s("The metrics (PAPI_TOT_INS and PAPI_TOT_CYC) are required to generate the intensity metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
+       } else if (!strcasecmp(M_Name.c_str(), "l1dmiss")) {
+
+            int icnt = 0;
+            int l1_dcm_icnt = 0;
+            int l1_tca_icnt = 0;
+            // flops is calculated from two temps: the PAPI_L1_DCM counts and PAPI_L1_TCA values.
+            bool found_l1_dcm = false;
+            bool found_l1_tca = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("PAPI_L1_DCM") == 0) {
+                   found_l1_dcm = true;
+                   l1_dcm_icnt = icnt; 
+                   if (found_l1_tca) break;
+              } else if (papi_names[icnt].compare("papi_l1_dcm") == 0) {
+                   l1_dcm_icnt = icnt; 
+                   found_l1_dcm = true;
+                   if (found_l1_tca) break;
+              }
+              if (papi_names[icnt].compare("PAPI_L1_TCA") == 0) {
+                   found_l1_tca = true;
+                   l1_tca_icnt = icnt; 
+                   if (found_l1_dcm) break;
+              } else if (papi_names[icnt].compare("papi_l1_tca") == 0) {
+                   found_l1_tca = true;
+                   l1_tca_icnt = icnt; 
+                   if (found_l1_dcm) break;
+              }
+            }
+            if (found_l1_dcm && found_l1_tca) {
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l1_dcm_icnt));
+              HV.push_back( papi_names[l1_dcm_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l1_tca_icnt));
+              HV.push_back( papi_names[l1_tca_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l1_dcm_icnt, event_temps+l1_tca_icnt));
+              HV.push_back("l1_dcm/l1_tca");
+            } else {
+              std::string s("The metrics (PAPI_L1_TCA and PAPI_L1_DCM) are required to generate the l1dmiss metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
+       } else if (!strcasecmp(M_Name.c_str(), "l2dmiss")) {
+
+            int icnt = 0;
+            int l2_dcm_icnt = 0;
+            int l2_tca_icnt = 0;
+            // flops is calculated from two temps: the PAPI_L2_DCM counts and PAPI_L2_TCA values.
+            bool found_l2_dcm = false;
+            bool found_l2_tca = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              //fprintf(stderr, "papi_names[icnt]=%s\n", papi_names[icnt].c_str());
+              if (papi_names[icnt].compare("PAPI_L2_DCM") == 0) {
+                   found_l2_dcm = true;
+                   l2_dcm_icnt = icnt; 
+                   //fprintf(stderr, "found_l2_dcm, icnt=%d, l2_dcm_icnt=%d\n", icnt, l2_dcm_icnt);
+                   if (found_l2_tca) break;
+              } else if (papi_names[icnt].compare("papi_l2_dcm") == 0) {
+                   l2_dcm_icnt = icnt; 
+                   //fprintf(stderr, "found_l2_dcm, icnt=%d, l2_dcm_icnt=%d\n", icnt, l2_dcm_icnt);
+                   found_l2_dcm = true;
+                   if (found_l2_tca) break;
+              }
+              if (papi_names[icnt].compare("PAPI_L2_TCA") == 0) {
+                   found_l2_tca = true;
+                   l2_tca_icnt = icnt; 
+                   //fprintf(stderr, "found_l2_tca, icnt=%d, l2_tca_icnt=%d\n", icnt, l2_tca_icnt);
+                   if (found_l2_dcm) break;
+              } else if (papi_names[icnt].compare("papi_l2_tca") == 0) {
+                   found_l2_tca = true;
+                   l2_tca_icnt = icnt; 
+                   //fprintf(stderr, "found_l2_tca, icnt=%d, l2_tca_icnt=%d\n", icnt, l2_tca_icnt);
+                   if (found_l2_dcm) break;
+              }
+            }
+            if (found_l2_dcm && found_l2_tca) {
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l2_dcm_icnt));
+              HV.push_back( papi_names[l2_dcm_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l2_tca_icnt));
+              HV.push_back( papi_names[l2_tca_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l2_dcm_icnt, event_temps+l2_tca_icnt));
+              HV.push_back("l2_dcm/l2_tca");
+            } else {
+              std::string s("The metrics (PAPI_L2_TCA and PAPI_L2_DCM) are required to generate the l2dmiss metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
+       } else if (!strcasecmp(M_Name.c_str(), "l2dhitrate")) {
+
+            int icnt = 0;
+            int l2_dcm_icnt = 0;
+            int l1_dcm_icnt = 0;
+            // flops is calculated from two temps: the PAPI_L2_DCM counts and PAPI_L1_DCM values.
+            bool found_l2_dcm = false;
+            bool found_l1_dcm = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              //fprintf(stderr, "papi_names[icnt]=%s\n", papi_names[icnt].c_str());
+              if (papi_names[icnt].compare("PAPI_L2_DCM") == 0) {
+                   found_l2_dcm = true;
+                   l2_dcm_icnt = icnt; 
+                   //fprintf(stderr, "found_l2_dcm, icnt=%d, l2_dcm_icnt=%d\n", icnt, l2_dcm_icnt);
+                   if (found_l1_dcm) break;
+              } else if (papi_names[icnt].compare("papi_l2_dcm") == 0) {
+                   l2_dcm_icnt = icnt; 
+                   //fprintf(stderr, "found_l2_dcm, icnt=%d, l2_dcm_icnt=%d\n", icnt, l2_dcm_icnt);
+                   found_l2_dcm = true;
+                   if (found_l1_dcm) break;
+              }
+              if (papi_names[icnt].compare("PAPI_L1_DCM") == 0) {
+                   found_l1_dcm = true;
+                   l1_dcm_icnt = icnt; 
+                   //fprintf(stderr, "found_l1_dcm, icnt=%d, l1_dcm_icnt=%d\n", icnt, l1_dcm_icnt);
+                   if (found_l2_dcm) break;
+              } else if (papi_names[icnt].compare("papi_l1_dcm") == 0) {
+                   found_l1_dcm = true;
+                   l1_dcm_icnt = icnt; 
+                   //fprintf(stderr, "found_l1_dcm, icnt=%d, l1_dcm_icnt=%d\n", icnt, l1_dcm_icnt);
+                   if (found_l2_dcm) break;
+              }
+            }
+            if (found_l2_dcm && found_l1_dcm) {
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l2_dcm_icnt));
+              HV.push_back( papi_names[l2_dcm_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l1_dcm_icnt));
+              HV.push_back( papi_names[l1_dcm_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l2_dcm_icnt, event_temps+l1_dcm_icnt));
+              HV.push_back("l2_dcm/l1_dcm");
+            } else {
+              std::string s("The metrics (PAPI_L1_DCM and PAPI_L2_DCM) are required to generate the l2dhitrate metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
        } else if (!strcasecmp(M_Name.c_str(), "flops")) {
 
             int icnt = 0;
@@ -311,6 +487,30 @@ static bool define_hwcsamp_columns (
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
+       } else if (!strcasecmp(M_Name.c_str(), "dflops")) {
+
+            int icnt = 0;
+            // flops is calculated from two temps: the PAPI_DP_OPS counts and exclusive time values.
+            bool found_cycles = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              //fprintf(stderr, "papi_names[icnt]=%s\n", papi_names[icnt].c_str());
+              if (papi_names[icnt].compare("PAPI_DP_OPS") == 0) {
+                   found_cycles = true;
+                   break;
+              } else if (papi_names[icnt].compare("papi_dp_ops") == 0) {
+                   found_cycles = true;
+                   break;
+              }
+            }
+            if (found_cycles) {
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+icnt));
+              HV.push_back( papi_names[icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Flops_Tmp, last_column++, event_temps+icnt, extime_temp));
+              HV.push_back("dp_ops/time");
+            } else {
+              std::string s("The metric (PAPI_DP_OPS) required to generate the flops metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
          
       } else if (!strcasecmp(M_Name.c_str(), "percent") ||
                  !strcmp(M_Name.c_str(), "%")           ||
@@ -377,10 +577,16 @@ static bool define_hwcsamp_columns (
     }
 
 #endif
-   // Total time is always displayed - also add display of the summary time.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
-
   }
+
+  // Total time is always displayed - also add display of the summary time.
+  if (Generate_Summary_Only) {
+     //std::cerr << "IN GENERATE_SUMMARY_ONLY" << std::endl;
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Summary_Only));
+   } else {
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
+   }
+
   return (last_column > 0);
 }
 
