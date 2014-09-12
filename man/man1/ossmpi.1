@@ -86,6 +86,24 @@ is set, this value will override the function list defined by OPENSS_MPI_TRACED.
 the resulting value is used as the list of functions to be traced for 
 the experiment being run.
 
+Also supported is the specification of one or more mpi category, where the options
+are:
+
+.nf
+MPI Category                    Argument
+--------------------------      --------------------
+All MPI Functions               all
+Collective Communicators        collective_com
+Persistent Communicators        persistent_com
+Synchronous Point to Point      synchronous_p2p
+Asynchronous Point to Point     asynchronous_p2p
+Process Topologies              process_topologies 
+Groups Contexts Communicators   graphs_contexts_comms
+Environment                     environment
+Datatypes                       datatypes
+MPI File I/O                    fileio
+.fi
+
 .IP "default"
 Force the experiment to use the default MPI function list value when running
 the experiment. This overrides the OPENSS_MPI_TRACED environment variable
@@ -134,7 +152,7 @@ the ossmpi will trace during the experiment run.
 The following diagnostics may be TBD:
 
 .SH QUICK START EXAMPLE
-The following command runs the MPI executable "mpi_prog" and gathers 
+The first example command runs the MPI executable "mpi_prog" and gathers 
 MPI function trace information on the 64 ranked processes.  
 When completed, a view of the aggregated information is displayed 
 to the screen.  An Open|SpeedShop database file, named 
@@ -150,9 +168,17 @@ The "mpi" experiment presents an overview of the time spent in the
 system MPI functions and where those functions were called in the
 user application.  Individual call path with their respective
 time and number of calls are also available.
+
+The second example command runs the MPI executable "smg2000" and gathers 
+information for only the MPI collective functions specified by the collective_com
+mpi category.
+
 .nf
 
 ossmpi "/opt/openmpi/bin/mpiexec -np 64 /home/user/mpi_prog"
+
+ossmpi "mpirun -np 64 smg2000 -n 60 60 60" collective_com
+
 .fi
 
 .SH BUGS
