@@ -287,7 +287,6 @@ AC_DEFUN([AX_LAMPI], [
 
 ])
 
-
 ################################################################################
 # Check for MPICH (http://www-unix.mcs.anl.gov/mpi/mpich1)
 ################################################################################
@@ -302,7 +301,7 @@ AC_DEFUN([AX_MPICH], [
     AC_ARG_WITH(mpich-driver,
 		AC_HELP_STRING([--with-mpich-driver=NAME],
 			       [MPICH driver name @<:@ch-p4@:>@]),
-		mpich_driver=$withval, mpich_driver="ch-p4")
+		mpich_driver=$withval, mpich_driver="")
 
     AC_MSG_CHECKING([for MPICH library and headers])
 
@@ -311,65 +310,58 @@ AC_DEFUN([AX_MPICH], [
     # Put -shlib into MPICH_CC, since it is needed when building the
     # tests, where $MPICH_CC is used, and is not needed when building
     # the MPI-related plugins, where $MPICH_CC is not used.
-    MPICH_CC="$mpich_dir/$mpich_driver/bin/mpicc -shlib"
-    MPICH_CPPFLAGS="-I$mpich_dir/include"
-    MPICH_LDFLAGS="-L$mpich_dir/$mpich_driver/$abi_libdir/shared"
-    MPICH_LIBDIR="$mpich_dir/$mpich_driver/$abi_libdir/shared"
+    MPICH_CC="$mpich_dir/bin/mpicc"
+    MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+    MPICH_LIBDIR="$mpich_dir/$abi_libdir"
     MPICH_LIBS="-lmpich"
-    MPICH_HEADER="$mpich_dir/include/mpi.h"
+    if (test "$abi_libdir" == "lib64" && test -d $mpich_dir/include64 && test -f $mpich_dir/include64/mpi.h) ; then
+         MPICH_HEADER="$mpich_dir/include64/mpi.h"
+         MPICH_CPPFLAGS="-I$mpich_dir/include64"
+    elif (test -e $mpich/include/mpi.h) ; then
+         MPICH_CPPFLAGS="-I$mpich/include"
+         MPICH_HEADER="$mpich/include/mpi.h"
+    elif (test -e /usr/include/mpich-$oss_hardware_platform/mpi.h) ; then
+         MPICH_CPPFLAGS="-I/usr/include/mpich-$oss_hardware_platform"
+         MPICH_HEADER="-I/usr/include/mpich-$oss_hardware_platform/mpi.h"
+    else
+         MPICH_HEADER="$mpich_dir/include/mpi.h"
+         MPICH_CPPFLAGS="-I$mpich_dir/include"
+    fi
     MPICH_DIR="$mpich_dir"
 
     # On the systems "mcr" and "thunder" at LLNL they have an MPICH variant
     # that has things moved around a bit. Handle this by allowing a "llnl"
     # pseudo-driver that makes the necessary configuration changes.
+    
     if test x"$mpich_driver" == x"llnl"; then
 	MPICH_CC="$mpich_dir/bin/mpicc -shlib"
-	# even on the Opterons/Peloton systems (x86_64) all libraries are in lib
-        # MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+        MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+        MPICH_LIBDIR="$mpich_dir/$abi_libdir"
+    fi
+
+    if test x"$mpich_driver" == x"bluegeneq"; then
+	found_mpich=1
+	MPICH_CC="cc"
+        MPICH_LIBS="-lmpich"
         MPICH_LDFLAGS="-L$mpich_dir/lib"
         MPICH_LIBDIR="$mpich_dir/lib"
     fi
 
-    if test x"$mpich_driver" == x"llnlib"; then
-	MPICH_CC="$mpich_dir/bin/mpicc -shlib"
-	# even on the Opterons/Peloton systems (x86_64) all libraries are in lib
-        # MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+    if test x"$mpich_driver" == x"bluegene"; then
+	found_mpich=1
+	MPICH_CC="cc"
+        MPICH_LIBS="-lmpich.cnk"
         MPICH_LDFLAGS="-L$mpich_dir/lib"
         MPICH_LIBDIR="$mpich_dir/lib"
-        MPICH_LIBS="-lmpich -libverbs"
-    fi
-
-    # On the systems at LANL they have an MPICH variant
-    # that has things moved around a bit. Handle this by allowing a "lanl"
-    # pseudo-driver that makes the necessary configuration changes.
-    if test x"$mpich_driver" == x"lanl"; then
-	MPICH_CC="$mpich_dir/bin/mpicc"
-        MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir/shared"
-        MPICH_LIBDIR="$mpich_dir/$alt_abi_libdir/shared"
-        MPICH_LIBS="-lfmpich"
-    fi
-
-    # On the systems at Sandia they have an MPICH variant
-    # that has things moved around a bit. Handle this by allowing a "sandia"
-    # pseudo-driver that makes the necessary configuration changes.
-    if test x"$mpich_driver" == x"sandia"; then
-	MPICH_CC="$mpich_dir/bin/mpicc"
-        MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
-        MPICH_LIBDIR="$mpich_dir/$alt_abi_libdir"
-        MPICH_LIBS="-lmpich"
     fi
 
 
-    # On the systems at Sandia they have an MPICH variant
-    # that has things moved around a bit. Handle this by allowing a "shared"
-    # pseudo-driver that makes the necessary configuration changes.
-    if test x"$mpich_driver" == x"shared"; then
-	MPICH_CC="$mpich_dir/bin/mpicc"
-        MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir/shared"
-        MPICH_LIBDIR="$mpich_dir/$abi_libdir/shared"
-        MPICH_LIBS="-lmpich"
+    if test x"$mpich_driver" == x"cray"; then
+	found_mpich=1
+	MPICH_CC="cc"
+        MPICH_LDFLAGS="-L$mpich_dir/lib"
+        MPICH_LIBDIR="$mpich_dir/lib"
     fi
-
 
     mpich_saved_CC=$CC
     mpich_saved_CPPFLAGS=$CPPFLAGS
@@ -381,88 +373,299 @@ AC_DEFUN([AX_MPICH], [
     LDFLAGS="$LDFLAGS $MPICH_LDFLAGS"
     LIBS="$MPICH_LIBS"
 
+    if test $found_mpich -eq 0; then
+
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <mpi.h>
 	]], [[
 	MPI_Initialized((int*)0);
 	]])],
 
-        if ( (test -f $mpich_dir/$abi_libdir/shared/libmpich.so) ) ; then
+        if (test -f $mpich_dir/$abi_libdir/libmpich.so) ; then
 	    found_mpich=1
+            MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+            MPICH_LIBDIR="$mpich_dir/$abi_libdir"
+        fi
+
+        if (test -f $mpich_dir/$abi_libdir/shared/libmpich.so); then
+	    found_mpich=1
+            MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir/shared -L$mpich_dir/$abi_libdir"
+            MPICH_LIBDIR="$mpich_dir/$abi_libdir/shared"
         fi 
 
 	, )
 
+    fi
 
-    if test $found_mpich -eq 1; then
-	AC_MSG_RESULT(yes)
-	AM_CONDITIONAL(HAVE_MPICH, true)
-	AC_DEFINE(HAVE_MPICH, 1, [Define to 1 if you have MPICH.])	
-    else
-        AC_MSG_RESULT([Temporary output: found_mpich=$found_mpich])
-        # Try again looking in the alternative lib dir with no driver
-        AC_MSG_CHECKING([for MPICH alternative library and headers with no mpich_driver specified])
-        MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
-        MPICH_LIBDIR="$mpich_dir/$alt_abi_libdir"
-#        MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir -L$mpich_dir/$alt_abi_libdir/libmpich.a"
-        LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
 
-        AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-    	    #include <mpi.h>
-	    ]], [[
-	    MPI_Initialized((int*)0);
-	    ]])],
+    if test $found_mpich -eq 0; then
 
-            if ( (test -f $mpich_dir/$alt_abi_libdir/libmpich.so) ) ; then
-    	        found_mpich=1
-            fi 
+       AC_MSG_CHECKING([for MPICH library (alt locations) and headers])
 
-	    , )
+       # Put -shlib into MPICH_CC, since it is needed when building the
+       # tests, where $MPICH_CC is used, and is not needed when building
+       # the MPI-related plugins, where $MPICH_CC is not used.
+       MPICH_CC="$mpich_dir/bin/mpicc"
+#       MPICH_CC="$mpich_dir/bin/mpicc -shlib"
+       MPICH_CPPFLAGS="-I$mpich_dir/include"
+       MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
+       MPICH_LIBDIR="$mpich_dir/$alt_abi_libdir"
+#       MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir -L$mpich_dir/$alt_abi_libdir/libmpich.a"
+       MPICH_LIBS="-lmpich"
+#       MPICH_LIBS=""
+       MPICH_HEADER="$mpich_dir/include/mpi.h"
+       MPICH_DIR="$mpich_dir"
+       if (test -e $mpich/include/mpi.h) ; then
+         MPICH_CPPFLAGS="-I$mpich/include"
+         MPICH_HEADER="$mpich/include/mpi.h"
+       elif (test -e /usr/include/mpich-$oss_hardware_platform/mpi.h) ; then
+         MPICH_CPPFLAGS="-I/usr/include/mpich-$oss_hardware_platform"
+         MPICH_HEADER="-I/usr/include/mpich-$oss_hardware_platform/mpi.h"
+       fi
 
-        if test $found_mpich -eq 1; then
-	  AC_MSG_RESULT(yes)
-	  AM_CONDITIONAL(HAVE_MPICH, true)
-	  AC_DEFINE(HAVE_MPICH, 1, [Define to 1 if you have MPICH.])	
+       CC="$MPICH_CC"
+       CPPFLAGS="$CPPFLAGS $MPICH_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MPICH_LDFLAGS"
+       LIBS="$MPICH_LIBS"
 
-        else
-             AC_MSG_RESULT([Temporary output: found_mpich=$found_mpich])
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]])],
 
-             # Try again looking in the normal lib dir with no driver
-             AC_MSG_CHECKING([for MPICH normal lib library and headers with no mpich_driver specified])
-             MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
-             MPICH_LIBDIR="$mpich_dir/$abi_libdir"
-#             MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir -L$mpich_dir/$abi_libdir/libmpich.a"
-             LDFLAGS="$mpich_saved_LDFLAGS $MPICH_LDFLAGS $MPICH_LIBS"
+         if (test -f $mpich_dir/$alt_abi_libdir/libmpich.so) ; then
+            MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
+            MPICH_LIBDIR="$mpich_dir/$alt_abi_libdir"
+	    found_mpich=1
+            AC_MSG_CHECKING([found MPICH library alt locations found alt_abi_libdir and headers])
+         fi
 
-             AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-                 #include <mpi.h>
-                 ]], [[
-                 MPI_Initialized((int*)0);
-                 ]])],
+         if (test -f $mpich_dir/$alt_abi_libdir/shared/libmpich.so) ; then
+            MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir/shared -L$mpich_dir/$alt_abi_libdir"
+            MPICH_LIBDIR="$mpich_dir/$alt_abi_libdir/shared"
+	    found_mpich=1
+            AC_MSG_CHECKING([found MPICH library alt locations found shared/alt_abi_libdir and headers])
+         fi 
 
-                 if ( (test -f $mpich_dir/$abi_libdir/libmpich.so) ) ; then
-	           found_mpich=1
-                 fi 
+	, )
 
-                 , )
+    fi
 
-              if test $found_mpich -eq 1; then
-                AC_MSG_RESULT(yes)
-                AM_CONDITIONAL(HAVE_MPICH, true)
-                AC_DEFINE(HAVE_MPICH, 1, [Define to 1 if you have MPICH.])
-               else
-  	         AC_MSG_RESULT(no)
-	         AM_CONDITIONAL(HAVE_MPICH, false)
-	         MPICH_CC=""
-	         MPICH_CPPFLAGS=""
-	         MPICH_LDFLAGS=""
-	         MPICH_LIBDIR=""
-	         MPICH_LIBS=""
-	         MPICH_HEADER=""
-	         MPICH_DIR=""
-               fi
-        fi
+#
+# Check now for Intel MPI version of installation for their MPICH based MPI Implementation
+#
+    if test $found_mpich -eq 0 && test "$abi_libdir" == "lib64" ; then
 
+       AC_MSG_CHECKING([for Intel MPICH 64 bit library and headers using mpigcc])
+
+       MPICH_CC="$mpich_dir/bin64/mpgicc"
+       MPICH_CPPFLAGS="-I$mpich_dir/include"
+       if (test -d $mpich_dir/$abi_libdir) ; then
+          MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+          MPICH_LIBDIR="$mpich_dir/$abi_libdir"
+       elif (test -d $mpich_dir/$alt_abi_libdir) ; then
+          MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
+          MPICH_LIBDIR="$mpich_dir/$alt_abi_libdir"
+       fi
+       MPICH_LIBS="-lmpich"
+       MPICH_HEADER="$mpich_dir/include/mpi.h"
+       MPICH_DIR="$mpich_dir"
+
+       CC="$MPICH_CC"
+       CPPFLAGS="$CPPFLAGS $MPICH_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MPICH_LDFLAGS"
+       LIBS="$MPICH_LIBS"
+
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]])],
+
+         if (test -f $mpich_dir/$abi_libdir/libmpich.so && test -f $mpich_dir/include/mpi.h) ; then
+            MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+            MPICH_LIBDIR="$mpich_dir/$abi_libdir"
+	    found_mpich=1
+            AC_MSG_CHECKING([found Intel MPICH 64 bit library and headers using mpigcc])
+         elif (test -f $mpich_dir/$alt_abi_libdir/libmpich.so && test -f $mpich_dir/include/mpi.h) ; then
+            MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
+            MPICH_LIBDIR="$mpich_dir/$alt_abi_libdir"
+	    found_mpich=1
+            AC_MSG_CHECKING([found Intel MPICH 64 bit library and headers using mpigcc])
+         fi
+
+	, )
+
+    fi
+
+#
+# Check now for Intel MPI version of installation for their MPICH based MPI Implementation with libmpi not libmpich
+#
+    if test $found_mpich -eq 0 && test "$abi_libdir" == "lib" ; then
+
+       AC_MSG_CHECKING([for Intel 32 bit MPICH library and headers using mpicc])
+
+       MPICH_CC="$mpich_dir/bin/mpicc"
+       MPICH_CPPFLAGS="-I$mpich_dir/include"
+       MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+       MPICH_LIBDIR="$mpich_dir/$abi_libdir"
+       MPICH_LIBS="-lmpi"
+       MPICH_HEADER="$mpich_dir/include/mpi.h"
+       MPICH_DIR="$mpich_dir"
+
+       CC="$MPICH_CC"
+       CPPFLAGS="$CPPFLAGS $MPICH_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MPICH_LDFLAGS"
+       LIBS="$MPICH_LIBS"
+
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]])],
+
+         if (test -f $mpich_dir/$abi_libdir/libmpi.so && test -f $mpich_dir/include/mpi.h) ; then
+            MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+            MPICH_LIBDIR="$mpich_dir/$abi_libdir"
+	    found_mpich=1
+            AC_MSG_CHECKING([found Intel 32 bit MPICH library and headers using mpicc])
+         fi
+
+	, )
+
+    fi
+
+
+#
+# Check now for Intel MPI version of installation for their MPICH based MPI Implementation
+#
+    if test $found_mpich -eq 0 && test "$abi_libdir" == "lib" ; then
+
+       AC_MSG_CHECKING([for Intel 32 bit MPICH library and headers using mpigcc])
+
+       MPICH_CC="$mpich_dir/bin/mpigcc"
+       MPICH_CPPFLAGS="-I$mpich_dir/include"
+       MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+       MPICH_LIBDIR="$mpich_dir/$abi_libdir"
+       MPICH_LIBS="-lmpich"
+       MPICH_HEADER="$mpich_dir/include/mpi.h"
+       MPICH_DIR="$mpich_dir"
+
+       CC="$MPICH_CC"
+       CPPFLAGS="$CPPFLAGS $MPICH_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MPICH_LDFLAGS"
+       LIBS="$MPICH_LIBS"
+
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]])],
+
+         if (test -f $mpich_dir/$abi_libdir/libmpich.so && test -f $mpich_dir/include/mpi.h) ; then
+            MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+            MPICH_LIBDIR="$mpich_dir/$abi_libdir"
+	    found_mpich=1
+            AC_MSG_CHECKING([found Intel 32 bit MPICH library and headers using mpigcc])
+         fi
+
+	, )
+
+    fi
+#
+# Check now for Intel MPI version of installation for their MPICH based MPI Implementation
+#
+    if test $found_mpich -eq 0 && test "$abi_libdir" == "lib64" ; then
+
+       AC_MSG_CHECKING([for Intel MPICH 64 bit library and headers using mpicc])
+
+       if ( test -d $mpich_dir/bin64 && test -f $mpich_dir/bin64/mpicc) ; then
+          MPICH_CC="$mpich_dir/bin64/mpicc"
+       elif (test -d $mpich_dir/bin && test -f $mpich_dir/bin/mpicc) ; then
+          MPICH_CC="$mpich_dir/bin/mpicc"
+       elif ( ! test -d $mpich_dir/bin ) ; then
+          MPICH_CC="cc"
+       fi
+
+       if (test -d $mpich_dir/$abi_libdir) ; then
+          MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+          MPICH_LIBDIR="$mpich_dir/$abi_libdir"
+       elif (test -d $mpich_dir/$alt_abi_libdir) ; then
+          MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
+          MPICH_LIBDIR="$mpich_dir/$alt_abi_libdir"
+       fi
+       MPICH_LIBS="-lmpich"
+       if (test "$abi_libdir" == "lib64" && test -d $mpich_dir/include64 && test -f $mpich_dir/include64/mpi.h) ; then
+         MPICH_HEADER="$mpich_dir/include64/mpi.h"
+         MPICH_CPPFLAGS="-I$mpich_dir/include64"
+       else
+         MPICH_HEADER="$mpich_dir/include/mpi.h"
+         MPICH_CPPFLAGS="-I$mpich_dir/include"
+       fi
+       MPICH_DIR="$mpich_dir"
+
+       CC="$MPICH_CC"
+       CPPFLAGS="$CPPFLAGS $MPICH_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MPICH_LDFLAGS"
+       LIBS="$MPICH_LIBS"
+
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]])],
+
+         if (test -f $mpich_dir/$abi_libdir/libmpich.so) ; then
+            MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+            MPICH_LIBDIR="$mpich_dir/$abi_libdir"
+	    found_mpich=1
+            AC_MSG_CHECKING([found Intel MPICH 64 bit library and headers using mpicc])
+         elif (test -f $mpich_dir/$alt_abi_libdir/libmpich.so) ; then
+            MPICH_LDFLAGS="-L$mpich_dir/$alt_abi_libdir"
+            MPICH_LIBDIR="$mpich_dir/$alt_abi_libdir"
+	    found_mpich=1
+            AC_MSG_CHECKING([found Intel MPICH 64 bit library and headers using mpicc])
+         fi
+
+	, )
+
+    fi
+
+#
+# Check now for Intel MPI version of installation for their MPICH based MPI Implementation
+#
+    if test $found_mpich -eq 0 && test "$abi_libdir" == "lib" ; then
+
+       AC_MSG_CHECKING([for Intel 32 bit MPICH library and headers using mpicc])
+
+       MPICH_CC="$mpich_dir/bin/mpicc"
+       MPICH_CPPFLAGS="-I$mpich_dir/include"
+       MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+       MPICH_LIBDIR="$mpich_dir/$abi_libdir"
+       MPICH_LIBS="-lmpich"
+       MPICH_HEADER="$mpich_dir/include/mpi.h"
+       MPICH_DIR="$mpich_dir"
+
+       CC="$MPICH_CC"
+       CPPFLAGS="$CPPFLAGS $MPICH_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MPICH_LDFLAGS"
+       LIBS="$MPICH_LIBS"
+
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]])],
+
+         if (test -f $mpich_dir/$abi_libdir/libmpich.so) ; then
+            MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+            MPICH_LIBDIR="$mpich_dir/$abi_libdir"
+	    found_mpich=1
+            AC_MSG_CHECKING([found Intel 32 bit MPICH library and headers using mpicc])
+         fi
+
+	, )
 
     fi
 
@@ -470,6 +673,22 @@ AC_DEFUN([AX_MPICH], [
     CPPFLAGS=$mpich_saved_CPPFLAGS
     LDFLAGS=$mpich_saved_LDFLAGS
     LIBS=$mpich_saved_LIBS
+
+    if test $found_mpich -eq 1; then
+	AC_MSG_RESULT(yes)
+	AM_CONDITIONAL(HAVE_MPICH, true)
+	AC_DEFINE(HAVE_MPICH, 1, [Define to 1 if you have MPICH.])	
+    else
+	AC_MSG_RESULT(no)
+	AM_CONDITIONAL(HAVE_MPICH, false)
+	MPICH_CC=""
+	MPICH_CPPFLAGS=""
+	MPICH_LDFLAGS=""
+	MPICH_LIBDIR=""
+	MPICH_LIBS=""
+	MPICH_HEADER=""
+	MPICH_DIR=""
+    fi
 
     AC_SUBST(MPICH_CC)
     AC_SUBST(MPICH_CPPFLAGS)
@@ -480,7 +699,6 @@ AC_DEFUN([AX_MPICH], [
     AC_SUBST(MPICH_DIR)
 
 ])
-
 
 ################################################################################
 # Check for MPICH2 (http://www-unix.mcs.anl.gov/mpi/mpich2)
