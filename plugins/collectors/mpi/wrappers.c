@@ -3213,7 +3213,7 @@ int mpi_PMPI_File_set_view(
     MPI_Offset disp,
     MPI_Datatype etype, 
     MPI_Datatype ftype, 
-#if defined (SGI_MPT) && MPI_VERSION >= 3
+#if defined (SGI_MPT) && MPI_VERSION >= 3 && MPT_MAJ_VERS == 2 && MPT_SUB_VERS == 10 
     char* datarep, 
 #elif MPI_VERSION >= 3
     const char* datarep, 

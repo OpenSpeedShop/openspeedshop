@@ -1248,6 +1248,22 @@ AC_DEFUN([AX_MPT], [
     LIBS=$mpt_saved_LIBS
 
     if test $found_mpt -eq 1; then
+
+        MPT_MAJ_VERS=2
+        MPT_SUB_VERS=0
+        tmp_value=`grep MPT_VERSION "$MPT_HEADER" 2>/dev/null | grep 2.11 2>/dev/null`
+        if test -n "$tmp_value"; then
+           MPT_SUB_VERS=11
+        fi
+        tmp_value=`grep MPT_VERSION "$MPT_HEADER" 2>/dev/null | grep 2.10 2>/dev/null`
+        if test -n "$tmp_value"; then
+           MPT_SUB_VERS=10
+        fi
+        tmp_value=`grep MPT_VERSION "$MPT_HEADER" 2>/dev/null | grep 2.08 2>/dev/null`
+        if test -n "$tmp_value"; then
+           MPT_SUB_VERS=8
+        fi
+
 	AC_MSG_RESULT(yes)
 	AM_CONDITIONAL(HAVE_MPT, true)
 	AC_DEFINE(HAVE_MPT, 1, [Define to 1 if you have MPT.])	
@@ -1261,6 +1277,8 @@ AC_DEFUN([AX_MPT], [
 	MPT_LIBS=""
 	MPT_HEADER=""
 	MPT_DIR=""
+        MPT_MAJ_VERS=""
+        MPT_SUB_VERS=""
     fi
 
     AC_SUBST(MPT_CC)
@@ -1269,6 +1287,8 @@ AC_DEFUN([AX_MPT], [
     AC_SUBST(MPT_LIBDIR)
     AC_SUBST(MPT_LIBS)
     AC_SUBST(MPT_HEADER)
+    AC_SUBST(MPT_MAJ_VERS)
+    AC_SUBST(MPT_SUB_VERS)
     AC_SUBST(MPT_DIR)
 
 ])
