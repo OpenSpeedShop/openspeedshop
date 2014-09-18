@@ -459,31 +459,37 @@ AC_DEFUN([AX_MPICH], [
 
     if test $found_mpich -eq 0; then
 
-         # Put -shlib into MPICH_CC, since it is needed when building the
-         # tests, where $MPICH_CC is used, and is not needed when building
-         # the MPI-related plugins, where $MPICH_CC is not used.
-         MPICH_CC="$mpich_dir/bin/mpicc"
-         MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
-         MPICH_LIBDIR="$mpich_dir/$abi_libdir"
-         MPICH_LIBS="-lmpich"
-         if (test "$abi_libdir" == "lib64" && test -d $mpich_dir/include64 && test -f $mpich_dir/include64/mpi.h) ; then
-              MPICH_HEADER="$mpich_dir/include64/mpi.h"
-              MPICH_CPPFLAGS="-I$mpich_dir/include64"
-         elif (test -e $mpich/include/mpi.h) ; then
-              MPICH_CPPFLAGS="-I$mpich/include"
-              MPICH_HEADER="$mpich/include/mpi.h"
-         elif (test -e /usr/include/mpich-$oss_hardware_platform/mpi.h) ; then
-              MPICH_CPPFLAGS="-I/usr/include/mpich-$oss_hardware_platform"
-              MPICH_HEADER="-I/usr/include/mpich-$oss_hardware_platform/mpi.h"
-         else
-              MPICH_HEADER="$mpich_dir/include/mpi.h"
-              MPICH_CPPFLAGS="-I$mpich_dir/include"
-         fi
-         MPICH_DIR="$mpich_dir"
+       # Restore original values before adding the new MPICH variables
+       CC=$mpich_saved_CC
+       CPPFLAGS=$mpich_saved_CPPFLAGS
+       LDFLAGS=$mpich_saved_LDFLAGS
+       LIBS=$mpich_saved_LIBS
+
+       # Put -shlib into MPICH_CC, since it is needed when building the
+       # tests, where $MPICH_CC is used, and is not needed when building
+       # the MPI-related plugins, where $MPICH_CC is not used.
+       MPICH_CC="$mpich_dir/bin/mpicc"
+       MPICH_LDFLAGS="-L$mpich_dir/$abi_libdir"
+       MPICH_LIBDIR="$mpich_dir/$abi_libdir"
+       MPICH_LIBS="-lmpich"
+       if (test "$abi_libdir" == "lib64" && test -d $mpich_dir/include64 && test -f $mpich_dir/include64/mpi.h) ; then
+            MPICH_HEADER="$mpich_dir/include64/mpi.h"
+            MPICH_CPPFLAGS="-I$mpich_dir/include64"
+       elif (test -e $mpich/include/mpi.h) ; then
+            MPICH_CPPFLAGS="-I$mpich/include"
+            MPICH_HEADER="$mpich/include/mpi.h"
+       elif (test -e /usr/include/mpich-$oss_hardware_platform/mpi.h) ; then
+            MPICH_CPPFLAGS="-I/usr/include/mpich-$oss_hardware_platform"
+            MPICH_HEADER="-I/usr/include/mpich-$oss_hardware_platform/mpi.h"
+       else
+            MPICH_HEADER="$mpich_dir/include/mpi.h"
+            MPICH_CPPFLAGS="-I$mpich_dir/include"
+       fi
+       MPICH_DIR="$mpich_dir"
 
 
-         AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-     	     #include <mpi.h>
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+   	     #include <mpi.h>
 	     ]], [[
 	     MPI_Initialized((int*)0);
 	     ]])],
@@ -500,10 +506,16 @@ AC_DEFUN([AX_MPICH], [
                  MPICH_LIBDIR="$mpich_dir/$abi_libdir/shared"
              fi 
 
-     	     , )
+       , )
     fi
 
     if test $found_mpich -eq 0; then
+
+       # Restore original values before adding the new MPICH variables
+       CC=$mpich_saved_CC
+       CPPFLAGS=$mpich_saved_CPPFLAGS
+       LDFLAGS=$mpich_saved_LDFLAGS
+       LIBS=$mpich_saved_LIBS
 
        AC_MSG_CHECKING([for MPICH library (alt locations) and headers])
 
@@ -562,6 +574,12 @@ AC_DEFUN([AX_MPICH], [
 #
     if test $found_mpich -eq 0 && test "$abi_libdir" == "lib64" ; then
 
+       # Restore original values before adding the new MPICH variables
+       CC=$mpich_saved_CC
+       CPPFLAGS=$mpich_saved_CPPFLAGS
+       LDFLAGS=$mpich_saved_LDFLAGS
+       LIBS=$mpich_saved_LIBS
+
        AC_MSG_CHECKING([for Intel MPICH 64 bit library and headers using mpigcc])
 
        MPICH_CC="$mpich_dir/bin64/mpgicc"
@@ -609,6 +627,12 @@ AC_DEFUN([AX_MPICH], [
 #
     if test $found_mpich -eq 0 && test "$abi_libdir" == "lib" ; then
 
+       # Restore original values before adding the new MPICH variables
+       CC=$mpich_saved_CC
+       CPPFLAGS=$mpich_saved_CPPFLAGS
+       LDFLAGS=$mpich_saved_LDFLAGS
+       LIBS=$mpich_saved_LIBS
+
        AC_MSG_CHECKING([for Intel 32 bit MPICH library and headers using mpicc])
 
        MPICH_CC="$mpich_dir/bin/mpicc"
@@ -647,6 +671,12 @@ AC_DEFUN([AX_MPICH], [
 #
     if test $found_mpich -eq 0 && test "$abi_libdir" == "lib" ; then
 
+       # Restore original values before adding the new MPICH variables
+       CC=$mpich_saved_CC
+       CPPFLAGS=$mpich_saved_CPPFLAGS
+       LDFLAGS=$mpich_saved_LDFLAGS
+       LIBS=$mpich_saved_LIBS
+
        AC_MSG_CHECKING([for Intel 32 bit MPICH library and headers using mpigcc])
 
        MPICH_CC="$mpich_dir/bin/mpigcc"
@@ -682,6 +712,12 @@ AC_DEFUN([AX_MPICH], [
 # Check now for Intel MPI version of installation for their MPICH based MPI Implementation
 #
     if test $found_mpich -eq 0 && test "$abi_libdir" == "lib64" ; then
+
+       # Restore original values before adding the new MPICH variables
+       CC=$mpich_saved_CC
+       CPPFLAGS=$mpich_saved_CPPFLAGS
+       LDFLAGS=$mpich_saved_LDFLAGS
+       LIBS=$mpich_saved_LIBS
 
        AC_MSG_CHECKING([for Intel MPICH 64 bit library and headers using mpicc])
 
@@ -741,6 +777,12 @@ AC_DEFUN([AX_MPICH], [
 # Check now for Intel MPI version of installation for their MPICH based MPI Implementation
 #
     if test $found_mpich -eq 0 && test "$abi_libdir" == "lib" ; then
+
+       # Restore original values before adding the new MPICH variables
+       CC=$mpich_saved_CC
+       CPPFLAGS=$mpich_saved_CPPFLAGS
+       LDFLAGS=$mpich_saved_LDFLAGS
+       LIBS=$mpich_saved_LIBS
 
        AC_MSG_CHECKING([for Intel 32 bit MPICH library and headers using mpicc])
 
