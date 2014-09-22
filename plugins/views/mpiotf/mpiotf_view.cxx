@@ -247,6 +247,7 @@ static std::string allowed_mpiotf_V_options[] = {
   "FullStacks",
   "DontExpand",
   "Summary",
+  "SummaryOnly",
   ""
 };
 

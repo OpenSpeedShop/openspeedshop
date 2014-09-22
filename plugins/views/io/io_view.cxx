@@ -335,6 +335,8 @@ static std::string allowed_io_V_options[] = {
   "FullStacks",
   "DontExpand",
   "Summary",
+  "SummaryOnly",
+  "Report",
   ""
 };
 
@@ -370,21 +372,30 @@ static bool define_io_columns (
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
-  bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  bool Generate_Summary = false;
+  bool Generate_Summary_Only = Look_For_KeyWord(cmd, "SummaryOnly");
+  if (!Generate_Summary_Only) {
+     Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  }
+
+  bool Generate_Report = Look_For_KeyWord(cmd, "Report");
   bool generate_nested_accounting = false;
   int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp, cmd);
   std::string Default_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
   std::string ByThread_Header = Find_Metadata ( CV[1], MV[1] ).getDescription();
 
-  if (Generate_Summary) {
+ if (Generate_Summary_Only) {
+    if (Generate_ButterFly) {
+      Generate_Summary_Only = false;
+      Mark_Cmd_With_Soft_Error(cmd,"Warning: 'summaryonly' is not supported with '-v ButterFly'.");
+    }
+  } else if (Generate_Summary) {
     if (Generate_ButterFly) {
       Generate_Summary = false;
       Mark_Cmd_With_Soft_Error(cmd,"Warning: 'summary' is not supported with '-v ButterFly'.");
-    } else {
-     // Total time is always displayed - also add display of the summary time.
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
     }
   }
+
 
  // Define map for metrics to metric temp.
   std::map<std::string, int64_t> MetricMap;
@@ -635,6 +646,16 @@ static bool define_io_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
     HV.push_back("% of Total");
   } else {
+
+    
+#if 0
+    // This is a mock-up and is not ready yet.
+    if (Generate_Report) {
+       Mark_Cmd_With_Soft_Error(cmd,"Time spent in I/O functions was 9.57 % of the total application time.");
+
+    }
+#endif
+
    // If nothing is requested ...
     if (vfc == VFC_Trace) {
       // Insert start and end times into report.
@@ -670,6 +691,14 @@ static bool define_io_columns (
     IV.push_back(new ViewInstruction (VIEWINST_StackExpand, intime_temp));
     IV.push_back(new ViewInstruction (VIEWINST_StackExpand, incnt_temp));
   }
+
+  // Add display of the summary time.
+  if (Generate_Summary_Only) {
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Summary_Only));
+   } else if (Generate_Summary) {
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
+   }
+
   return (HV.size() > 0);
 }
 
@@ -738,6 +767,9 @@ static std::string VIEW_io_long  =
                   "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
                   " 'CallTrees' or 'TraceBacks' will result in an additional line of output at"
                   " the end of the report that summarizes the information in each column."
+                  "\n\tThe addition of 'SummaryOnly' to the '-v' option list along with 'Functions',"
+                  " 'Statements', 'LinkedObjects' or 'Loops' or without those options will cause only the"
+                  " one line of output at the end of the report that summarizes the information in each column."
                   "\n\t'-v ButterFly' along with a '-f <function_list>' will produce a report"
                   " that summarizes the calls to a function and the calls from the function."
                   " The calling functions will be listed before the named function and the"

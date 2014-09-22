@@ -179,10 +179,12 @@ static bool define_hwcsamp_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Add, event_temps+i));
   }
 
+#if 0
   if (Generate_Summary) {
    // Total time is always displayed - also add display of the summary time.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
   }
+#endif
 
  // Determine the number of columns in the view and the information that is needed.
   if (p_slist->begin() != p_slist->end()) {
@@ -896,7 +898,7 @@ static bool define_hwcsamp_columns (
 
   } // end else for nothing specific selected
 
-  // Total time is always displayed - also add display of the summary time.
+  // Add display of the summary time.
   if (Generate_Summary_Only) {
      IV.push_back(new ViewInstruction (VIEWINST_Display_Summary_Only));
    } else {
@@ -951,6 +953,12 @@ static std::string VIEW_hwcsamp_long  =
                    "\n\t'-v Functions' will report times by function. This is the default."
                    "\n\t'-v Statements' will report times by statement."
                    "\n\t'-v Loops' will report times by loop."
+                   "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
+                   " 'Statements', 'LinkedObjects' or 'Loops' will result in an additional line of output at"
+                   " the end of the report that summarizes the information in each column."
+                   "\n\tThe addition of 'SummaryOnly' to the '-v' option list along with 'Functions',"
+                   " 'Statements', 'LinkedObjects' or 'Loops' or without those options will cause only the"
+                   " one line of output at the end of the report that summarizes the information in each column."
                   "\n\nThe information included in the report can be controlled with the"
                   " '-m' option.  More than one item can be selected but only the items"
                   " listed after the option will be printed and they will be printed in"

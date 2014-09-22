@@ -69,6 +69,7 @@ static std::string allowed_hwc_V_options[] = {
   "Loop",
   "Loops",
   "Summary",
+  "SummaryOnly",
   "data",       // Raw data output for scripting
   ""
 };
@@ -85,7 +86,12 @@ static bool define_hwc_columns (
   int64_t last_column = 0;
   int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
   int64_t last_used_temp = Last_ByThread_Temp; // Track maximum temps - needed for expressions.
-  bool Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  bool Generate_Summary = false;
+  bool Generate_Summary_Only = Look_For_KeyWord(cmd, "SummaryOnly");
+  if (!Generate_Summary_Only) {
+     Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+  }
+
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
   int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp, cmd);
 
@@ -104,10 +110,10 @@ static bool define_hwc_columns (
     Mark_Cmd_With_Soft_Error(cmd,"Warning: '-v ButterFly' is not supported with this view.");
   }
   
-  if (Generate_Summary) {
-   // Total counts is always displayed - also add display of the summary time.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
-  }
+  //if (Generate_Summary) {
+  // // Total counts is always displayed - also add display of the summary time.
+  //  IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
+  //}
 
  // Define map for metrics to metric temp.
    std::map<std::string, int64_t> MetricMap;
@@ -253,6 +259,14 @@ static bool define_hwc_columns (
     HV.push_back(std::string("Exclusive ") + H + " Counts");
     HV.push_back(std::string("% of Total ") + H + " Counts");
   }
+
+  // Add display of the summary time.
+  if (Generate_Summary_Only) {
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Summary_Only));
+   } else if (Generate_Summary) {
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
+   }
+
   return (HV.size() > 0);
 }
 
@@ -298,6 +312,12 @@ static std::string VIEW_hwc_long  =
                 "\n\t'-v Functions' will report counts by function. This is the default."
                 "\n\t'-v Statements' will report counts by statement."
                 "\n\t'-v Loops' will report counts by loop."
+                "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
+                " 'Statements', 'LinkedObjects' or 'Loops' will result in an additional line of output at"
+                " the end of the report that summarizes the information in each column."
+                "\n\tThe addition of 'SummaryOnly' to the '-v' option list along with 'Functions',"
+                " 'Statements', 'LinkedObjects' or 'Loops' or without those options will cause only the"
+                " one line of output at the end of the report that summarizes the information in each column."
                 "\n\nThe information included in the report can be controlled with the"
                 " '-m' option.  More than one item can be selected but only the items"
                 " listed after the option will be printed and they will be printed in"
