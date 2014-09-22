@@ -56,6 +56,7 @@ int64_t OPENSS_HISTORY_LIMIT = 100;
 int64_t OPENSS_HISTORY_DEFAULT = 24;
 int64_t OPENSS_MAX_ASYNC_COMMANDS = 20;
 int64_t OPENSS_HELP_LEVEL_DEFAULT = 1;
+bool    OPENSS_AUTO_CREATE_DERIVED_METRICS = false;
 
 // Remember valid user names for error cehcking of format specifiers on view commands.
 // Valid names are captured when SS_Configure.cxx looks them up with the following utilities.
@@ -725,4 +726,21 @@ void SS_Configure () {
   Ivalue = settings->readNumEntry(std::string("helpLevelDefault"), OPENSS_HELP_LEVEL_DEFAULT, &ok);
   if (ok && (Ivalue >= 0)) OPENSS_HELP_LEVEL_DEFAULT = Ivalue;
   Record_Config_Info(configName, &OPENSS_HELP_LEVEL_DEFAULT);
+
+// Creating Derived Metric Output when the necessary hardware counters are available.
+  configName = "autoCreateDerivedMetrics";
+  Add_Help (czar, "autoCreateDerivedMetrics", "a boolean, preference",
+            "Declare that OpenSpeedShop should match hardware counters to create"
+	    " derived metric values for the default 'expView' "
+            "command."
+            "If set to 'false', no derived metric output will be created and "
+            "displayed."
+            "If set to 'true', derived metrics values will be created and displayed if "
+            "the hardware counters were gathers and are programmed as key derived"
+            "metrics of importance internal to OpenSpeedShop The default is 'true'.");
+  Bvalue = settings->readBoolEntry(std::string("autoCreateDerivedMetrics"), OPENSS_AUTO_CREATE_DERIVED_METRICS, &ok);
+  if (ok) OPENSS_AUTO_CREATE_DERIVED_METRICS = Bvalue;
+  // std::cerr << "Configuring OPENSS_AUTO_CREATE_DERIVED_METRICS=" << Bvalue << std::endl;
+  Record_Config_Info(configName, &OPENSS_AUTO_CREATE_DERIVED_METRICS);
+
 }

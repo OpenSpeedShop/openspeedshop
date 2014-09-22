@@ -61,6 +61,12 @@ enum ViewOpCode {
      VIEWINST_Display_Ratio_Tmp,        // TmpResult is column# to display in.
                                         // TMP_index1 is row_tmp# with counts
                                         // TMP_index2 is row_tmp# with counts
+     VIEWINST_Display_Ratio_Percent_Tmp,// TmpResult is column# to display in.
+                                        // TMP_index1 is row_tmp# with counts
+                                        // TMP_index2 is row_tmp# with counts
+     VIEWINST_Display_Inverse_Ratio_Percent_Tmp,// TmpResult is column# to display in.
+                                        // TMP_index1 is row_tmp# with counts
+                                        // TMP_index2 is row_tmp# with counts
      VIEWINST_Display_Summary,          // Generate column summary.
      VIEWINST_Display_Summary_Only,     // Only generate and display column summary.
      VIEWINST_Sort_Ascending,           // if TMP_index1 is not 0, sort final report in ascending order

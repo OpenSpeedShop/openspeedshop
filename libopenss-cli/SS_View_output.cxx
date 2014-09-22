@@ -118,9 +118,14 @@ void Construct_View_Output (CommandObject *cmd,
         (vp->OpCode() == VIEWINST_Display_Average_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_Flops_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_Ratio_Tmp) ||
+        (vp->OpCode() == VIEWINST_Display_Ratio_Percent_Tmp) ||
+        (vp->OpCode() == VIEWINST_Display_Inverse_Ratio_Percent_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
      // Assert (vp->TR() < num_input_temps);
-      if (vp->TR() < num_input_temps) ViewInst[vp->TR()] = vp;
+      // jeg - I added the = to the check below, because we were losing
+      // a column of data when hwcsamp data had a column with no data
+      // we should watch for any problems with this change.
+      if (vp->TR() <= num_input_temps) ViewInst[vp->TR()] = vp;
     } else if (vp->OpCode() == VIEWINST_Display_Tmp) {
      // Assert (vp->TR() < num_input_temps);
       if (vp->TR() < num_input_temps) ViewInst[vp->TR()] = vp;
@@ -149,7 +154,7 @@ void Construct_View_Output (CommandObject *cmd,
   }
 
 #if DEBUG_CLI
-  std::cerr << "ViewInst are:\n";
+  std::cerr << "ViewInst.size()=" << ViewInst.size() << " ViewInst are:\n";
   for (i = 0; i < ViewInst.size(); i++) {
     std::cerr << "ViewInst[" << i << "]: ";
     if (ViewInst[i] != NULL) {
@@ -230,7 +235,13 @@ void Construct_View_Output (CommandObject *cmd,
           } else if (V == NULL) {
             V = Total_Value[CM_Index];
             Next_Metric_Value = (V != NULL) ? V = V->Copy() : V;
-            (*it->second)[CM_Index] = Next_Metric_Value->Copy();
+            // jeg - I changed this because with hwcsamp having no data in some columns would cause
+            // an abort with Next_Metric_Value being NULL.  This checks and avoids the abort.
+            if (Next_Metric_Value == NULL) {
+               Next_Metric_Value = CRPTR ("");
+            } else {
+               (*it->second)[CM_Index] = Next_Metric_Value->Copy();
+            }
 #if DEBUG_CLI
             printf("\tVIEWINST_Display_Tmp %d is NULL\n",CM_Index);
             printf("\t\t reset to %p ",V); if (V != NULL) V->Print(std::cerr,20,true);printf("\n");
@@ -274,7 +285,14 @@ void Construct_View_Output (CommandObject *cmd,
           CommandResult *V1 = (*it->second)[vinst->TMP1()];
           CommandResult *V2 = (*it->second)[vinst->TMP2()];
           Next_Metric_Value = Calculate_Ratio (V1, V2);
-//          Next_Metric_Value = Calculate_Expression (EXPRESSION_OP_DIV, V1, V2, NULL);
+        } else if (vinst->OpCode() == VIEWINST_Display_Ratio_Percent_Tmp) {
+          CommandResult *V1 = (*it->second)[vinst->TMP1()];
+          CommandResult *V2 = (*it->second)[vinst->TMP2()];
+          Next_Metric_Value = Calculate_Ratio_Percent (V1, V2);
+        } else if (vinst->OpCode() == VIEWINST_Display_Inverse_Ratio_Percent_Tmp) {
+          CommandResult *V1 = (*it->second)[vinst->TMP1()];
+          CommandResult *V2 = (*it->second)[vinst->TMP2()];
+          Next_Metric_Value = Calculate_Inverse_Ratio_Percent (V1, V2);
         } else if (vinst->OpCode() == VIEWINST_Expression) {
           Next_Metric_Value = Calculate_Expression ( vinst->ExprOpCode(),
                                                      (*it->second)[vinst->TMP1()],
@@ -346,6 +364,12 @@ void Construct_View_Output (CommandObject *cmd,
       for ( i=0; i < num_columns; i++) {
         ViewInstruction *sinst = ViewInst[i];
         CommandResult *summary = NULL;
+        // jeg - I changed this because with hwcsamp having no data in some columns would cause
+        // an abort with sinst being NULL.  This checks and avoids the abort.
+        if (sinst == NULL) {
+          summary = CRPTR ("");
+          continue;
+        }
         Assert (sinst != NULL);
         if ((sinst->OpCode() == VIEWINST_Display_Tmp) &&
             (sinst->TMP1() < num_input_temps) &&
@@ -384,6 +408,14 @@ void Construct_View_Output (CommandObject *cmd,
           CommandResult *V1 = summary_temp[sinst->TMP1()];
           CommandResult *V2 = summary_temp[sinst->TMP2()];
           summary = Calculate_Ratio (V1, V2);
+        } else if (sinst->OpCode() == VIEWINST_Display_Ratio_Percent_Tmp) {
+          CommandResult *V1 = summary_temp[sinst->TMP1()];
+          CommandResult *V2 = summary_temp[sinst->TMP2()];
+          summary = Calculate_Ratio_Percent (V1, V2);
+        } else if (sinst->OpCode() == VIEWINST_Display_Inverse_Ratio_Percent_Tmp) {
+          CommandResult *V1 = summary_temp[sinst->TMP1()];
+          CommandResult *V2 = summary_temp[sinst->TMP2()];
+          summary = Calculate_Inverse_Ratio_Percent (V1, V2);
         } else if (sinst->OpCode() == VIEWINST_Display_Percent_Tmp) {
           CommandResult *V = summary_temp[sinst->TMP1()];
           summary = Calculate_Percent (V, Total_Value[sinst->TMP2()]);

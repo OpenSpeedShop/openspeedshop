@@ -576,6 +576,24 @@ static void Setup_Sort(
       CommandResult *V1 = (*cp.second)[vinst->TMP1()];
       CommandResult *V2 = (*cp.second)[vinst->TMP2()];
 
+    } else if (vinst->OpCode() == VIEWINST_Display_Ratio_Percent_Tmp) {
+
+#if DEBUG_CLI_print
+      printf("in Setup_Sort, VIEWINST_Display_Ratio_Percent_Tmp\n");
+#endif
+
+      CommandResult *V1 = (*cp.second)[vinst->TMP1()];
+      CommandResult *V2 = (*cp.second)[vinst->TMP2()];
+
+    } else if (vinst->OpCode() == VIEWINST_Display_Inverse_Ratio_Percent_Tmp) {
+
+#if DEBUG_CLI_print
+      printf("in Setup_Sort, VIEWINST_Display_Inverse_Ratio_Percent_Tmp\n");
+#endif
+
+      CommandResult *V1 = (*cp.second)[vinst->TMP1()];
+      CommandResult *V2 = (*cp.second)[vinst->TMP2()];
+
     } else if (vinst->OpCode() == VIEWINST_Expression) {
 
 #if DEBUG_CLI_print

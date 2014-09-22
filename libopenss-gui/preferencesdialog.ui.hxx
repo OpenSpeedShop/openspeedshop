@@ -133,6 +133,9 @@ void PreferencesDialog::readPreferencesOnEntry()
   viewFieldSizeIsDynamicCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/viewFieldSizeIsDynamic") );
 
+  autoCreateDerivedMetricsCheckBox->setChecked(
+    settings->readBoolEntry( "/openspeedshop/general/autoCreateDerivedMetrics") );
+
   saveViewsForReuseCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/saveViewsForReuse") );
 
@@ -200,6 +203,7 @@ void PreferencesDialog::resetPreferenceDefaults()
    viewDateTimePrecisionLineEdit->setText(QString("%1").arg(viewDateTimePrecision));
    viewFieldSizeIsDynamic = TRUE;
    viewFieldSizeIsDynamicCheckBox->setChecked(viewFieldSizeIsDynamic);
+   autoCreateDerivedMetrics = FALSE;
    saveViewsForReuse = FALSE;
    saveViewsForReuseCheckBox->setChecked(saveViewsForReuse);
    saveViewsTime = 10;
@@ -319,6 +323,7 @@ void PreferencesDialog::applyPreferences()
   extern int64_t OPENSS_MAX_ASYNC_COMMANDS;
   extern int64_t OPENSS_HELP_LEVEL_DEFAULT;
   extern bool    OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC;
+  extern bool    OPENSS_AUTO_CREATE_DERIVED_METRICS;
   extern bool    OPENSS_SAVE_VIEWS_FOR_REUSE;
   extern int64_t OPENSS_SAVE_VIEWS_TIME;
   extern bool    OPENSS_VIEW_FULLPATH;
@@ -356,6 +361,7 @@ void PreferencesDialog::applyPreferences()
   OPENSS_VIEW_FULLPATH =
     viewFullPathCheckBox->isChecked();
   OPENSS_VIEW_FIELD_SIZE_IS_DYNAMIC = viewFieldSizeIsDynamicCheckBox->isChecked();
+  OPENSS_AUTO_CREATE_DERIVED_METRICS = autoCreateDerivedMetricsCheckBox->isChecked();
   OPENSS_SAVE_VIEWS_FOR_REUSE = saveViewsForReuseCheckBox->isChecked();
   OPENSS_SAVE_VIEWS_TIME = saveViewsTimeLineEdit->text().toInt();
   OPENSS_HELP_LEVEL_DEFAULT = helpLevelDefaultLineEdit->text().toInt();
@@ -476,6 +482,11 @@ void PreferencesDialog::savePreferences()
   if( !settings->writeEntry( "/openspeedshop/general/viewFieldSizeIsDynamic", viewFieldSizeIsDynamicCheckBox->isChecked() ) )
   {
     printf("Unable to write viewFieldSizeIsDynamic.\n");
+  }
+
+  if( !settings->writeEntry( "/openspeedshop/general/autoCreateDerivedMetrics", autoCreateDerivedMetricsCheckBox->isChecked() ) )
+  {
+    printf("Unable to write autoCreateDerivedMetrics.\n");
   }
 
   if( !settings->writeEntry( "/openspeedshop/general/saveViewsForReuse", saveViewsForReuseCheckBox->isChecked() ) )

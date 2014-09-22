@@ -398,8 +398,175 @@ CommandResult *Calculate_Ratio  (CommandResult *A, CommandResult *B) {
     break;
   }
 
+
   if (Bvalue == 0.0) return NULL;
   double result =  (Avalue / Bvalue ) ;
+
+  switch (A->Type()) {
+   case CMD_RESULT_DURATION:
+    return isnan(result) ? NULL : new CommandResult_Duration (result);
+   case CMD_RESULT_INTERVAL:
+    return isnan(result) ? NULL : new CommandResult_Interval (result);
+  }
+  return isnan(result) ? NULL : new CommandResult_Float (result);
+}
+
+
+CommandResult *Calculate_Inverse_Ratio_Percent  (CommandResult *A, CommandResult *B) {
+
+  if ((A == NULL) ||
+      (B == NULL)) {
+    return NULL;
+  }
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Ratio, A=%x, B=%x\n", A, B);
+#endif
+
+  double Avalue = 0.0;
+  double Bvalue = 1.0;
+  int64_t Ivalue = 0;
+  uint64_t Uvalue;
+  
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Ratio, A->Type()=%d, B->Type()=%d\n", 
+         A->Type(), B->Type());
+#endif
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Value(Uvalue);
+    Avalue = Uvalue;
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(Ivalue);
+    Avalue = Ivalue;
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(Avalue);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(Ivalue);
+    Avalue = Ivalue;
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(Avalue);
+    break;
+  }
+
+  switch (B->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)B)->Value(Uvalue);
+    Bvalue = Uvalue;
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)B)->Value(Ivalue);
+    Bvalue = Ivalue;
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)B)->Value(Bvalue);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)B)->Value(Ivalue);
+    Bvalue = Ivalue;
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)B)->Value(Bvalue);
+    break;
+  }
+
+
+  double result;
+  if (Bvalue == 0.0) return NULL;
+#if 1
+  result = 100.0 - ((Avalue *100) / Bvalue);
+  if (result < 0.0) result = 0.0;
+#else
+  result =  (Avalue / Bvalue ) ;
+#endif
+
+  switch (A->Type()) {
+   case CMD_RESULT_DURATION:
+    return isnan(result) ? NULL : new CommandResult_Duration (result);
+   case CMD_RESULT_INTERVAL:
+    return isnan(result) ? NULL : new CommandResult_Interval (result);
+  }
+  return isnan(result) ? NULL : new CommandResult_Float (result);
+}
+
+
+CommandResult *Calculate_Ratio_Percent  (CommandResult *A, CommandResult *B) {
+
+  if ((A == NULL) ||
+      (B == NULL)) {
+    return NULL;
+  }
+
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Ratio_Percent, A=%x, B=%x\n", A, B);
+#endif
+
+  double Avalue = 0.0;
+  double Bvalue = 1.0;
+  int64_t Ivalue = 0;
+  uint64_t Uvalue;
+  
+#if DEBUG_CLI
+  printf("In CommandResult *Calculate_Ratio_Percent, A->Type()=%d, B->Type()=%d\n", 
+         A->Type(), B->Type());
+#endif
+
+  switch (A->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)A)->Value(Uvalue);
+    Avalue = Uvalue;
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)A)->Value(Ivalue);
+    Avalue = Ivalue;
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)A)->Value(Avalue);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)A)->Value(Ivalue);
+    Avalue = Ivalue;
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)A)->Value(Avalue);
+    break;
+  }
+
+  switch (B->Type()) {
+   case CMD_RESULT_UINT:
+    ((CommandResult_Uint *)B)->Value(Uvalue);
+    Bvalue = Uvalue;
+    break;
+   case CMD_RESULT_INT:
+    ((CommandResult_Int *)B)->Value(Ivalue);
+    Bvalue = Ivalue;
+    break;
+   case CMD_RESULT_FLOAT:
+    ((CommandResult_Float *)B)->Value(Bvalue);
+    break;
+  case CMD_RESULT_DURATION:
+    ((CommandResult_Duration *)B)->Value(Ivalue);
+    Bvalue = Ivalue;
+    break;
+  case CMD_RESULT_INTERVAL:
+    ((CommandResult_Interval *)B)->Value(Bvalue);
+    break;
+  }
+
+
+  double result;
+  if (Bvalue == 0.0) return NULL;
+#if 1
+  result = (Avalue *100) / Bvalue;
+  if (result < 0.0) result = 0.0;
+#else
+  result =  (Avalue / Bvalue ) ;
+#endif
 
   switch (A->Type()) {
    case CMD_RESULT_DURATION:

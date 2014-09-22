@@ -296,10 +296,12 @@ static bool define_hwcsamp_columns (
          
        } else if (!strcasecmp(M_Name.c_str(), "intensity")) {
 
+            // generate papi_tot_ins/papi_tot_cyc
+
             int icnt = 0;
             int tot_ins_icnt = 0;
             int tot_cyc_icnt = 0;
-            // flops is calculated from two temps: the PAPI_TOT_INS counts and PAPI_TOT_CYC values.
+            // intensity is calculated from two temps: the PAPI_TOT_INS counts and PAPI_TOT_CYC values.
             bool found_tot_cyc = false;
             bool found_tot_ins = false;
             for (icnt=0; icnt < num_events; icnt++) {
@@ -325,21 +327,28 @@ static bool define_hwcsamp_columns (
             if (found_tot_cyc && found_tot_ins) {
               IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+tot_cyc_icnt));
               HV.push_back( papi_names[tot_cyc_icnt] );
+
               IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+tot_ins_icnt));
               HV.push_back( papi_names[tot_ins_icnt] );
               IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+tot_ins_icnt, event_temps+tot_cyc_icnt));
               HV.push_back("tot_ins/tot_cyc");
+#if 1
+              IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, event_temps+tot_cyc_icnt));
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+tot_cyc_icnt, totalIndex++));
+              HV.push_back("papi_tot_cyc%");
+#endif
             } else {
               std::string s("The metrics (PAPI_TOT_INS and PAPI_TOT_CYC) are required to generate the intensity metric is not available in the experiment.");
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
-       } else if (!strcasecmp(M_Name.c_str(), "l1dmiss")) {
+       } else if (!strcasecmp(M_Name.c_str(), "l1dcmiss")) {
 
+            // generate PAPI_L1_DCM/PAPI_L1_TCA
             int icnt = 0;
             int l1_dcm_icnt = 0;
             int l1_tca_icnt = 0;
-            // flops is calculated from two temps: the PAPI_L1_DCM counts and PAPI_L1_TCA values.
+            // l1dmiss is calculated from two temps: the PAPI_L1_DCM counts and PAPI_L1_TCA values.
             bool found_l1_dcm = false;
             bool found_l1_tca = false;
             for (icnt=0; icnt < num_events; icnt++) {
@@ -369,41 +378,170 @@ static bool define_hwcsamp_columns (
               HV.push_back( papi_names[l1_tca_icnt] );
               IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l1_dcm_icnt, event_temps+l1_tca_icnt));
               HV.push_back("l1_dcm/l1_tca");
+              //IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Percent_Tmp, last_column++, event_temps+l1_dcm_icnt, event_temps+l1_tca_icnt));
+              //HV.push_back("(l1_dcm/l1_tca)%");
             } else {
               std::string s("The metrics (PAPI_L1_TCA and PAPI_L1_DCM) are required to generate the l1dmiss metric is not available in the experiment.");
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
-       } else if (!strcasecmp(M_Name.c_str(), "l2dmiss")) {
+       } else if (!strcasecmp(M_Name.c_str(), "l2tcmiss")) {
 
+            // generate PAPI_L2_TCM/PAPI_L2_TCA
+            int icnt = 0;
+            int l2_tcm_icnt = 0;
+            int l2_tca_icnt = 0;
+            // l2tcmiss is calculated from two temps: the PAPI_L2_TCM counts and PAPI_L2_TCA values.
+            bool found_l2_tcm = false;
+            bool found_l2_tca = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("PAPI_L2_TCM") == 0) {
+                   found_l2_tcm = true;
+                   l2_tcm_icnt = icnt; 
+                   if (found_l2_tca) break;
+              } else if (papi_names[icnt].compare("papi_l2_tcm") == 0) {
+                   l2_tcm_icnt = icnt; 
+                   found_l2_tcm = true;
+                   if (found_l2_tca) break;
+              }
+              if (papi_names[icnt].compare("PAPI_L2_TCA") == 0) {
+                   found_l2_tca = true;
+                   l2_tca_icnt = icnt; 
+                   if (found_l2_tcm) break;
+              } else if (papi_names[icnt].compare("papi_l2_tca") == 0) {
+                   found_l2_tca = true;
+                   l2_tca_icnt = icnt; 
+                   if (found_l2_tcm) break;
+              }
+            }
+            if (found_l2_tcm && found_l2_tca) {
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l2_tcm_icnt));
+              HV.push_back( papi_names[l2_tcm_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l2_tca_icnt));
+              HV.push_back( papi_names[l2_tca_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l2_tcm_icnt, event_temps+l2_tca_icnt));
+              HV.push_back("l2_tcm/l2_tca");
+              //IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Percent_Tmp, last_column++, event_temps+l2_tcm_icnt, event_temps+l2_tca_icnt));
+              //HV.push_back("(l2_tcm/l2_tca)%");
+            } else {
+              std::string s("The metrics (PAPI_L2_TCA and PAPI_L2_TCM) are required to generate the l1dmiss metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
+       } else if (!strcasecmp(M_Name.c_str(), "l3tcmiss")) {
+
+            // generate PAPI_L3_TCM/PAPI_L3_TCA
+            int icnt = 0;
+            int l3_tcm_icnt = 0;
+            int l3_tca_icnt = 0;
+            // l3tcmiss is calculated from two temps: the PAPI_L3_TCM counts and PAPI_L3_TCA values.
+            bool found_l3_tcm = false;
+            bool found_l3_tca = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("PAPI_L3_TCM") == 0) {
+                   found_l3_tcm = true;
+                   l3_tcm_icnt = icnt; 
+                   if (found_l3_tca) break;
+              } else if (papi_names[icnt].compare("papi_l3_tcm") == 0) {
+                   l3_tcm_icnt = icnt; 
+                   found_l3_tcm = true;
+                   if (found_l3_tca) break;
+              }
+              if (papi_names[icnt].compare("PAPI_L3_TCA") == 0) {
+                   found_l3_tca = true;
+                   l3_tca_icnt = icnt; 
+                   if (found_l3_tcm) break;
+              } else if (papi_names[icnt].compare("papi_l3_tca") == 0) {
+                   found_l3_tca = true;
+                   l3_tca_icnt = icnt; 
+                   if (found_l3_tcm) break;
+              }
+            }
+            if (found_l3_tcm && found_l3_tca) {
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l3_tcm_icnt));
+              HV.push_back( papi_names[l3_tcm_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l3_tca_icnt));
+              HV.push_back( papi_names[l3_tca_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l3_tcm_icnt, event_temps+l3_tca_icnt));
+              HV.push_back("l3_tcm/l3_tca");
+              //IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Percent_Tmp, last_column++, event_temps+l3_tcm_icnt, event_temps+l3_tca_icnt));
+              //HV.push_back("(l3_tcm/l3_tca)%");
+            } else {
+              std::string s("The metrics (PAPI_L3_TCA and PAPI_L3_TCM) are required to generate the l1dmiss metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
+       } else if (!strcasecmp(M_Name.c_str(), "l3dcmiss")) {
+
+            // generate PAPI_L3_DCM/PAPI_L3_DCA
+            int icnt = 0;
+            int l3_dcm_icnt = 0;
+            int l3_dca_icnt = 0;
+            // l3dcmiss is calculated from two temps: the PAPI_L3_DCM counts and PAPI_L3_DCA values.
+            bool found_l3_dcm = false;
+            bool found_l3_dca = false;
+
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("PAPI_L3_DCM") == 0) {
+                   found_l3_dcm = true;
+                   l3_dcm_icnt = icnt; 
+                   if (found_l3_dca) break;
+              } else if (papi_names[icnt].compare("papi_l3_dcm") == 0) {
+                   l3_dcm_icnt = icnt; 
+                   found_l3_dcm = true;
+                   if (found_l3_dca) break;
+              }
+              if (papi_names[icnt].compare("PAPI_L3_DCA") == 0) {
+                   found_l3_dca = true;
+                   l3_dca_icnt = icnt; 
+                   if (found_l3_dcm) break;
+              } else if (papi_names[icnt].compare("papi_l3_dca") == 0) {
+                   found_l3_dca = true;
+                   l3_dca_icnt = icnt; 
+                   if (found_l3_dcm) break;
+              }
+            } // end for
+
+            if (found_l3_dcm && found_l3_dca) {
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l3_dcm_icnt));
+              HV.push_back( papi_names[l3_dcm_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l3_dca_icnt));
+              HV.push_back( papi_names[l3_dca_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l3_dcm_icnt, event_temps+l3_dca_icnt));
+              HV.push_back("l3_dcm/l3_dca");
+              //IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Percent_Tmp, last_column++, event_temps+l3_dcm_icnt, event_temps+l3_dca_icnt));
+              //HV.push_back("(l3_dcm/l3_dca)%");
+            } else {
+              std::string s("The metrics (PAPI_L3_DCA and PAPI_L3_DCM) are required to generate the l1dmiss metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
+       } else if (!strcasecmp(M_Name.c_str(), "l2dcmtca")) {
+
+            // generate PAPI_L2_DCM/PAPI_L2_TCA
             int icnt = 0;
             int l2_dcm_icnt = 0;
             int l2_tca_icnt = 0;
-            // flops is calculated from two temps: the PAPI_L2_DCM counts and PAPI_L2_TCA values.
+            // l2dmiss is calculated from two temps: the PAPI_L2_DCM counts and PAPI_L2_TCA values.
             bool found_l2_dcm = false;
             bool found_l2_tca = false;
             for (icnt=0; icnt < num_events; icnt++) {
-              //fprintf(stderr, "papi_names[icnt]=%s\n", papi_names[icnt].c_str());
               if (papi_names[icnt].compare("PAPI_L2_DCM") == 0) {
                    found_l2_dcm = true;
                    l2_dcm_icnt = icnt; 
-                   //fprintf(stderr, "found_l2_dcm, icnt=%d, l2_dcm_icnt=%d\n", icnt, l2_dcm_icnt);
                    if (found_l2_tca) break;
               } else if (papi_names[icnt].compare("papi_l2_dcm") == 0) {
                    l2_dcm_icnt = icnt; 
-                   //fprintf(stderr, "found_l2_dcm, icnt=%d, l2_dcm_icnt=%d\n", icnt, l2_dcm_icnt);
                    found_l2_dcm = true;
                    if (found_l2_tca) break;
               }
               if (papi_names[icnt].compare("PAPI_L2_TCA") == 0) {
                    found_l2_tca = true;
                    l2_tca_icnt = icnt; 
-                   //fprintf(stderr, "found_l2_tca, icnt=%d, l2_tca_icnt=%d\n", icnt, l2_tca_icnt);
                    if (found_l2_dcm) break;
               } else if (papi_names[icnt].compare("papi_l2_tca") == 0) {
                    found_l2_tca = true;
                    l2_tca_icnt = icnt; 
-                   //fprintf(stderr, "found_l2_tca, icnt=%d, l2_tca_icnt=%d\n", icnt, l2_tca_icnt);
                    if (found_l2_dcm) break;
               }
             }
@@ -414,41 +552,39 @@ static bool define_hwcsamp_columns (
               HV.push_back( papi_names[l2_tca_icnt] );
               IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l2_dcm_icnt, event_temps+l2_tca_icnt));
               HV.push_back("l2_dcm/l2_tca");
+              //IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Percent_Tmp, last_column++, event_temps+l2_dcm_icnt, event_temps+l2_tca_icnt));
+              //HV.push_back("(l2_dcm/l2_tca)%");
             } else {
               std::string s("The metrics (PAPI_L2_TCA and PAPI_L2_DCM) are required to generate the l2dmiss metric is not available in the experiment.");
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
-       } else if (!strcasecmp(M_Name.c_str(), "l2dhitrate")) {
+       } else if (!strcasecmp(M_Name.c_str(), "l2dchitrate")) {
 
+            // generate (1.0-(PAPI_L2_DCM/PAPI_L1_DCA))
             int icnt = 0;
             int l2_dcm_icnt = 0;
             int l1_dcm_icnt = 0;
-            // flops is calculated from two temps: the PAPI_L2_DCM counts and PAPI_L1_DCM values.
+            // l2dhitrate is calculated from two temps: the PAPI_L2_DCM counts and PAPI_L1_DCM values.
             bool found_l2_dcm = false;
             bool found_l1_dcm = false;
             for (icnt=0; icnt < num_events; icnt++) {
-              //fprintf(stderr, "papi_names[icnt]=%s\n", papi_names[icnt].c_str());
               if (papi_names[icnt].compare("PAPI_L2_DCM") == 0) {
                    found_l2_dcm = true;
                    l2_dcm_icnt = icnt; 
-                   //fprintf(stderr, "found_l2_dcm, icnt=%d, l2_dcm_icnt=%d\n", icnt, l2_dcm_icnt);
                    if (found_l1_dcm) break;
               } else if (papi_names[icnt].compare("papi_l2_dcm") == 0) {
                    l2_dcm_icnt = icnt; 
-                   //fprintf(stderr, "found_l2_dcm, icnt=%d, l2_dcm_icnt=%d\n", icnt, l2_dcm_icnt);
                    found_l2_dcm = true;
                    if (found_l1_dcm) break;
               }
               if (papi_names[icnt].compare("PAPI_L1_DCM") == 0) {
                    found_l1_dcm = true;
                    l1_dcm_icnt = icnt; 
-                   //fprintf(stderr, "found_l1_dcm, icnt=%d, l1_dcm_icnt=%d\n", icnt, l1_dcm_icnt);
                    if (found_l2_dcm) break;
               } else if (papi_names[icnt].compare("papi_l1_dcm") == 0) {
                    found_l1_dcm = true;
                    l1_dcm_icnt = icnt; 
-                   //fprintf(stderr, "found_l1_dcm, icnt=%d, l1_dcm_icnt=%d\n", icnt, l1_dcm_icnt);
                    if (found_l2_dcm) break;
               }
             }
@@ -458,7 +594,11 @@ static bool define_hwcsamp_columns (
               IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l1_dcm_icnt));
               HV.push_back( papi_names[l1_dcm_icnt] );
               IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l2_dcm_icnt, event_temps+l1_dcm_icnt));
-              HV.push_back("l2_dcm/l1_dcm");
+              HV.push_back("(l2_dcm/l1_dcm)");
+              //IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Percent_Tmp, last_column++, event_temps+l2_dcm_icnt, event_temps+l1_dcm_icnt));
+              //HV.push_back("(l2_dcm/l1_dcm)%");
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Inverse_Ratio_Percent_Tmp, last_column++, event_temps+l2_dcm_icnt, event_temps+l1_dcm_icnt));
+              HV.push_back("(1-(l2_dcm/l1_dcm))%");
             } else {
               std::string s("The metrics (PAPI_L1_DCM and PAPI_L2_DCM) are required to generate the l2dhitrate metric is not available in the experiment.");
               Mark_Cmd_With_Soft_Error(cmd,s);
@@ -466,11 +606,11 @@ static bool define_hwcsamp_columns (
 
        } else if (!strcasecmp(M_Name.c_str(), "flops")) {
 
+            // generate (PAPI_FP_OPS/time)
             int icnt = 0;
             // flops is calculated from two temps: the PAPI_FP_OPS counts and exclusive time values.
             bool found_cycles = false;
             for (icnt=0; icnt < num_events; icnt++) {
-              //fprintf(stderr, "papi_names[icnt]=%s\n", papi_names[icnt].c_str());
               if (papi_names[icnt].compare("PAPI_FP_OPS") == 0) {
                    found_cycles = true;
                    break;
@@ -489,11 +629,11 @@ static bool define_hwcsamp_columns (
 
        } else if (!strcasecmp(M_Name.c_str(), "dflops")) {
 
+            // generate (PAPI_DP_OPS/time)
             int icnt = 0;
-            // flops is calculated from two temps: the PAPI_DP_OPS counts and exclusive time values.
+            // dflops is calculated from two temps: the PAPI_DP_OPS counts and exclusive time values.
             bool found_cycles = false;
             for (icnt=0; icnt < num_events; icnt++) {
-              //fprintf(stderr, "papi_names[icnt]=%s\n", papi_names[icnt].c_str());
               if (papi_names[icnt].compare("PAPI_DP_OPS") == 0) {
                    found_cycles = true;
                    break;
@@ -552,6 +692,7 @@ static bool define_hwcsamp_columns (
 
    // If nothing is requested ...
    // Report the exclusive time and the percent.
+
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));  // first column is metric
     HV.push_back( Find_Metadata ( CV[0], "time" ).getDescription() );
    // Percent is calculated from 2 temps: time for this row and total inclusive time.
@@ -565,7 +706,6 @@ static bool define_hwcsamp_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back( std::string("% of ") + Find_Metadata ( CV[0], "time" ).getShortName() );
 
-#if 1
     // This code (copied from above) adds the individual event results into the default view
     //
     // Look for Event options.
@@ -576,12 +716,188 @@ static bool define_hwcsamp_columns (
         HV.push_back( papi_names[i] );
     }
 
-#endif
-  }
+   // If the preference for automatically creating derived metrics is on, then look for
+   // hardware counter pairs that could be used to create important derived metrics
+
+   if (OPENSS_AUTO_CREATE_DERIVED_METRICS) {
+
+    // Computational Intensity CHECKS BEGIN
+    int icnt = 0;
+    int tot_ins_icnt = 0;
+    int tot_cyc_icnt = 0;
+    // intensity is calculated from two temps: the PAPI_TOT_INS counts and PAPI_TOT_CYC values.
+    bool found_tot_cyc = false;
+    bool found_tot_ins = false;
+    for (icnt=0; icnt < num_events; icnt++) {
+      if (papi_names[icnt].compare("PAPI_TOT_CYC") == 0) {
+           found_tot_cyc = true;
+           tot_cyc_icnt = icnt; 
+           if (found_tot_ins) break;
+      } else if (papi_names[icnt].compare("papi_tot_cyc") == 0) {
+           tot_cyc_icnt = icnt; 
+           found_tot_cyc = true;
+           if (found_tot_ins) break;
+      }
+      if (papi_names[icnt].compare("PAPI_TOT_INS") == 0) {
+           found_tot_ins = true;
+           tot_ins_icnt = icnt; 
+           if (found_tot_cyc) break;
+      } else if (papi_names[icnt].compare("papi_tot_ins") == 0) {
+           found_tot_ins = true;
+           tot_ins_icnt = icnt; 
+           if (found_tot_cyc) break;
+      }
+    }
+    if (found_tot_cyc && found_tot_ins) {
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+tot_ins_icnt, event_temps+tot_cyc_icnt));
+      HV.push_back("tot_ins/tot_cyc");
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, event_temps+tot_cyc_icnt));
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+tot_cyc_icnt, totalIndex++));
+      HV.push_back("papi_tot_cyc%");
+    } 
+     // INTENSITY CHECKS END HERE
+
+     // L1 DATA CACHE MISS/ACCESS RATIO CHECKS START HERE
+    icnt = 0;
+    int l1_dcm_icnt = 0;
+    int l1_tca_icnt = 0;
+    // l1dmiss is calculated from two temps: the PAPI_L1_DCM counts and PAPI_L1_TCA values.
+    bool found_l1_dcm = false;
+    bool found_l1_tca = false;
+    for (icnt=0; icnt < num_events; icnt++) {
+      if (papi_names[icnt].compare("PAPI_L1_DCM") == 0) {
+           found_l1_dcm = true;
+           l1_dcm_icnt = icnt; 
+           if (found_l1_tca) break;
+      } else if (papi_names[icnt].compare("papi_l1_dcm") == 0) {
+           l1_dcm_icnt = icnt; 
+           found_l1_dcm = true;
+           if (found_l1_tca) break;
+      }
+      if (papi_names[icnt].compare("PAPI_L1_TCA") == 0) {
+           found_l1_tca = true;
+           l1_tca_icnt = icnt; 
+           if (found_l1_dcm) break;
+      } else if (papi_names[icnt].compare("papi_l1_tca") == 0) {
+           found_l1_tca = true;
+           l1_tca_icnt = icnt; 
+           if (found_l1_dcm) break;
+      }
+    }
+    if (found_l1_dcm && found_l1_tca) {
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l1_dcm_icnt, event_temps+l1_tca_icnt));
+      HV.push_back("l1_dcm/l1_tca");
+    } 
+     // L1 DATA CACHE MISS/ACCESS RATIO CHECKS END HERE
+
+     // L2 DATA CACHE MISS/ACCESS RATIO CHECKS START HERE
+    icnt = 0;
+    int l2_dcm_icnt = 0;
+    int l2_tca_icnt = 0;
+    // l2dmiss is calculated from two temps: the PAPI_L2_DCM counts and PAPI_L2_TCA values.
+    bool found_l2_dcm = false;
+    bool found_l2_tca = false;
+    for (icnt=0; icnt < num_events; icnt++) {
+      if (papi_names[icnt].compare("PAPI_L2_DCM") == 0) {
+           found_l2_dcm = true;
+           l2_dcm_icnt = icnt; 
+           if (found_l2_tca) break;
+      } else if (papi_names[icnt].compare("papi_l2_dcm") == 0) {
+           l2_dcm_icnt = icnt; 
+           found_l2_dcm = true;
+           if (found_l2_tca) break;
+      }
+      if (papi_names[icnt].compare("PAPI_L2_TCA") == 0) {
+           found_l2_tca = true;
+           l2_tca_icnt = icnt; 
+           if (found_l2_dcm) break;
+      } else if (papi_names[icnt].compare("papi_l2_tca") == 0) {
+           found_l2_tca = true;
+           l2_tca_icnt = icnt; 
+           if (found_l2_dcm) break;
+      }
+    }
+    if (found_l2_dcm && found_l2_tca) {
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l2_dcm_icnt, event_temps+l2_tca_icnt));
+      HV.push_back("l2_dcm/l2_tca");
+    } 
+     // L2 DATA CACHE MISS/ACCESS RATIO CHECKS END HERE
+
+
+     // TCM/TCA L2 DATA CACHE MISS/ACCESS RATIO CHECKS STARTS HERE
+     icnt = 0;
+     int l2_tcm_icnt = 0;
+     l2_tca_icnt = 0;
+     // l2tcmiss is calculated from two temps: the PAPI_L2_TCM counts and PAPI_L2_TCA values.
+     bool found_l2_tcm = false;
+     found_l2_tca = false;
+     for (icnt=0; icnt < num_events; icnt++) {
+       if (papi_names[icnt].compare("PAPI_L2_TCM") == 0) {
+            found_l2_tcm = true;
+            l2_tcm_icnt = icnt; 
+            if (found_l2_tca) break;
+       } else if (papi_names[icnt].compare("papi_l2_tcm") == 0) {
+            l2_tcm_icnt = icnt; 
+            found_l2_tcm = true;
+            if (found_l2_tca) break;
+       }
+       if (papi_names[icnt].compare("PAPI_L2_TCA") == 0) {
+            found_l2_tca = true;
+            l2_tca_icnt = icnt; 
+            if (found_l2_tcm) break;
+       } else if (papi_names[icnt].compare("papi_l2_tca") == 0) {
+            found_l2_tca = true;
+            l2_tca_icnt = icnt; 
+            if (found_l2_tcm) break;
+       }
+     }
+     if (found_l2_tcm && found_l2_tca) {
+       IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l2_tcm_icnt, event_temps+l2_tca_icnt));
+       HV.push_back("l2_tcm/l2_tca");
+     } 
+     // TCM/TCA L2 DATA CACHE MISS/ACCESS RATIO CHECKS END HERE
+
+     // DCM/DCA L3 DATA CACHE MISS/ACCESS RATIO CHECKS BEGINS HERE
+     icnt = 0;
+     int l3_dcm_icnt = 0;
+     int l3_dca_icnt = 0;
+     // l3dcma is calculated from two temps: the PAPI_L3_DCM counts and PAPI_L3_DCA values.
+     bool found_l3_dcm = false;
+     bool found_l3_dca = false;
+     for (icnt=0; icnt < num_events; icnt++) {
+       if (papi_names[icnt].compare("PAPI_L3_DCM") == 0) {
+            found_l3_dcm = true;
+            l3_dcm_icnt = icnt; 
+            if (found_l3_dca) break;
+       } else if (papi_names[icnt].compare("papi_l3_dcm") == 0) {
+            l3_dcm_icnt = icnt; 
+            found_l3_dcm = true;
+            if (found_l3_dca) break;
+       }
+       if (papi_names[icnt].compare("PAPI_L3_DCA") == 0) {
+            found_l3_dca = true;
+            l3_dca_icnt = icnt; 
+            if (found_l3_dcm) break;
+       } else if (papi_names[icnt].compare("papi_l3_dca") == 0) {
+            found_l3_dca = true;
+            l3_dca_icnt = icnt; 
+            if (found_l3_dcm) break;
+       }
+     }
+
+     if (found_l3_dcm && found_l3_dca) {
+       IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l3_dcm_icnt, event_temps+l3_dca_icnt));
+       HV.push_back("l3_dcm/l3_dca");
+     } 
+
+     // DCM/DCA L3 DATA CACHE MISS/ACCESS RATIO CHECKS ENDS HERE
+
+   } // end of OPENSS_AUTO_CREATE_DERIVED_METRICS check
+
+  } // end else for nothing specific selected
 
   // Total time is always displayed - also add display of the summary time.
   if (Generate_Summary_Only) {
-     //std::cerr << "IN GENERATE_SUMMARY_ONLY" << std::endl;
      IV.push_back(new ViewInstruction (VIEWINST_Display_Summary_Only));
    } else {
      IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));

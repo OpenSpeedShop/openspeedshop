@@ -1770,6 +1770,8 @@ ViewInstruction *Find_Column_Def (std::vector<ViewInstruction *>& IV, int64_t Co
           (vp->OpCode() == VIEWINST_Display_Average_Tmp) ||
           (vp->OpCode() == VIEWINST_Display_Flops_Tmp) ||
           (vp->OpCode() == VIEWINST_Display_Ratio_Tmp) ||
+          (vp->OpCode() == VIEWINST_Display_Ratio_Percent_Tmp) ||
+          (vp->OpCode() == VIEWINST_Display_Inverse_Ratio_Percent_Tmp) ||
           (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
 #if DEBUG_CLI
         printf("Exit Find_Column_Def - SS_View_util.cxx, return vp where i=%d\n", i);
@@ -1796,6 +1798,8 @@ int64_t Find_Max_Column_Def (std::vector<ViewInstruction *>& IV) {
         (vp->OpCode() == VIEWINST_Display_Average_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_Flops_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_Ratio_Tmp) ||
+        (vp->OpCode() == VIEWINST_Display_Ratio_Percent_Tmp) ||
+        (vp->OpCode() == VIEWINST_Display_Inverse_Ratio_Percent_Tmp) ||
         (vp->OpCode() == VIEWINST_Display_StdDeviation_Tmp)) {
       if (vp->TR() > Max_Column) Max_Column = vp->TR();
     }
@@ -1822,6 +1826,12 @@ int64_t Find_Max_Temp (std::vector<ViewInstruction *>& IV) {
       Max_Temp = std::max (Max_Temp, vp->TMP1());
       Max_Temp = std::max (Max_Temp, vp->TMP2());
     } else if (vp->OpCode() == VIEWINST_Display_Ratio_Tmp) {
+      Max_Temp = std::max (Max_Temp, vp->TMP1());
+      Max_Temp = std::max (Max_Temp, vp->TMP2());
+    } else if (vp->OpCode() == VIEWINST_Display_Ratio_Percent_Tmp) {
+      Max_Temp = std::max (Max_Temp, vp->TMP1());
+      Max_Temp = std::max (Max_Temp, vp->TMP2());
+    } else if (vp->OpCode() == VIEWINST_Display_Inverse_Ratio_Percent_Tmp) {
       Max_Temp = std::max (Max_Temp, vp->TMP1());
       Max_Temp = std::max (Max_Temp, vp->TMP2());
     } else if (vp->OpCode() == VIEWINST_Define_Total_Tmp) {

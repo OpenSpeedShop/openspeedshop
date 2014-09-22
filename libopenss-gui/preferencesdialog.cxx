@@ -66,6 +66,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    viewDateTimePrecision = 3;
    viewFieldSizeIsDynamic = TRUE;
    saveViewsForReuse = FALSE;
+   autoCreateDerivedMetrics = FALSE;
    saveViewsTime = 10;
 
    viewFieldSize = 10; 
@@ -483,6 +484,14 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     rightSideLayout->addLayout( viewDateTimePrecisionLayout );
     }
 
+    { // OPENSS_AUTO_CREATE_DERIVED_METRICS
+    autoCreateDerivedMetricsCheckBox = new QCheckBox( vpage0big_box, "autoCreateDerivedMetricsCheckBox" );
+    autoCreateDerivedMetricsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, autoCreateDerivedMetricsCheckBox->sizePolicy().hasHeightForWidth() ) );
+    autoCreateDerivedMetricsCheckBox->setChecked( FALSE );
+    autoCreateDerivedMetricsCheckBox->setText( tr( "Automatically Create Derived Metrics" ) );
+    rightSideLayout->addWidget( autoCreateDerivedMetricsCheckBox );
+    }
+
 
     generalStackPageLayout->addWidget( vpage0sv );
     stack->addWidget( generalStackPage, 0 );
@@ -556,6 +565,10 @@ void PreferencesDialog::languageChange()
   viewFieldSizeIsDynamicCheckBox->setChecked(viewFieldSizeIsDynamic);
   QToolTip::add(viewFieldSizeIsDynamicCheckBox,
                 tr("When displaying data, dynamically compute the size of the display field required to place the data into.\nThis may cost a bit more time for display but keeps the display more compact.") );
+
+  autoCreateDerivedMetricsCheckBox->setChecked(autoCreateDerivedMetrics);
+  QToolTip::add(autoCreateDerivedMetricsCheckBox,
+                tr("Automatically create derived metrics from hardware counters, if possible, based on availability.") );
 
   saveViewsForReuseCheckBox->setChecked(saveViewsForReuse);
   QToolTip::add(saveViewsForReuseCheckBox,
