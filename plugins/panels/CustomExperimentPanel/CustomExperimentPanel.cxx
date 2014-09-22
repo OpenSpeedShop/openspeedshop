@@ -800,7 +800,7 @@ if( attachFLAG ) {
           // This particualar call to loadManageProcessPanel causes the load of the Manage Process Panel at start-up time 
           // If there are a significant number of processes/ranks then it is very unfriendly to users to have the
           // Manage Process Panel TRY to raise.  It needs optimization for better scaling.
-          if (list_of_ranks.size() <= 4096 ) {
+          if (list_of_ranks.size() <= 1023 ) {
             loadManageProcessesPanel();
           }
 
