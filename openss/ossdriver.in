@@ -122,7 +122,7 @@ mpiotf_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,M
 fpe_default_events="inexact_result,division_by_zero,underflow,overflow,invalid_operation"
 
 # Corresponds to OPENSS_CUDA_CONFIG or CBTF_CUDA_CONFIG
-cuda_default_config="interval=10000000,PAPI_TOT_CYC"
+cuda_default_config="interval=10000000,TOT_CYC"
 
 #
 # END DEFAULT VALUES
