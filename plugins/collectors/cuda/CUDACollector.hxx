@@ -24,11 +24,19 @@
 #include "config.h"
 #endif
 
-#include "Address.hxx"
-#include "CollectorAPI.hxx"
-#include "PCBuffer.hxx"
-
 #include <set>
+#include <string>
+
+#include "Address.hxx"
+#include "Blob.hxx"
+#include "Collector.hxx"
+#include "CollectorImpl.hxx"
+#include "Collector.hxx"
+#include "Extent.hxx"
+#include "ExtentGroup.hxx"
+#include "PCBuffer.hxx"
+#include "Thread.hxx"
+#include "ThreadGroup.hxx"
 
 namespace OpenSpeedShop { namespace Framework {
 

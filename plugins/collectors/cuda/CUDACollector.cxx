@@ -17,12 +17,122 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /** @file Definition of the CUDACollector class. */
- 
-#include "CUDACollector.hxx"
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include <boost/ref.hpp>
+#include <cstring>
+#include <map>
+#include <vector>
+ 
 #include "KrellInstitute/Messages/CUDA_data.h"
 
+#include "AddressRange.hxx"
+#include "StackTrace.hxx"
+
+#include "CUDACollector.hxx"
+#include "CUDAExecDetail.hxx"
+#include "CUDAXferDetail.hxx"
+
+using namespace boost;
 using namespace OpenSpeedShop::Framework;
+using namespace std;
+
+
+
+/** Anonymous namespace hiding implementation details. */
+namespace {
+
+    /** Type returned for the CUDA kernel execution detail metrics. */
+    typedef map<StackTrace, vector<CUDAExecDetail> > ExecDetails;
+
+    /** Type returned for the CUDA data transfer detail metrics. */
+    typedef map<StackTrace, vector<CUDAXferDetail> > XferDetails;
+
+    /** Type of function invoked when visiting individual addresses. */
+    typedef function<void (uint64_t)> AddressVisitor;
+
+    /** Type of function invoked when visiting individual CUDA messages. */
+    typedef function<
+        void (const CBTF_cuda_data&, const CBTF_cuda_message&)
+        > MessageVisitor;
+
+    /**
+     * Visitor extracting the unique addresses referenced by a CUDA message.
+     */
+    void extractUniqueAddresses(const CBTF_cuda_data& data,
+                                const CBTF_cuda_message& message,
+                                const AddressVisitor& visitor)
+    {
+        switch (message.type)
+        {
+            
+        case EnqueueRequest:
+            {
+                const CUDA_EnqueueRequest& msg = 
+                    message.CBTF_cuda_message_u.enqueue_request;
+                
+                for (uint32_t i = msg.call_site;
+                     (i < data.stack_traces.stack_traces_len) &&
+                         (data.stack_traces.stack_traces_val[i] != 0);
+                     ++i)
+                {
+                    visitor(data.stack_traces.stack_traces_val[i]);
+                }
+            }
+            break;
+            
+        case OverflowSamples:
+            {
+                const CUDA_OverflowSamples& msg =
+                    message.CBTF_cuda_message_u.overflow_samples;
+                
+                for (uint32_t i = 0; i < msg.pcs.pcs_len; ++i)
+                {
+                    visitor(msg.pcs.pcs_val[i]);
+                }
+            }
+            break;
+            
+        default:
+            break;
+        }
+    }
+    
+    /** Visitor used to insert an address into a buffer of unique addresses. */
+    void insertIntoAddressBuffer(uint64_t address, PCBuffer& buffer)
+    {
+        UpdatePCBuffer(address, &buffer);
+    }
+
+    /** Visitor used to insert an address into a set of unique addresses. */
+    void insertIntoAddressSet(uint64_t address, set<Address>& addresses)
+    {
+        addresses.insert(address);
+    }
+    
+    /**
+     * Visit the individual CUDA messages packed within a performance data blob.
+     */
+    void visit(const Blob& blob, const MessageVisitor& visitor)
+    {
+        CBTF_cuda_data data;
+        memset(&data, 0, sizeof(data));
+
+        blob.getXDRDecoding(
+            reinterpret_cast<xdrproc_t>(xdr_CBTF_cuda_data), &data
+            );
+        
+        for (u_int i = 0; i < data.messages.messages_len; ++i)
+        {
+            visitor(data, data.messages.messages_val[i]);
+        }
+        
+        xdr_free(reinterpret_cast<xdrproc_t>(xdr_CBTF_cuda_data),
+                 reinterpret_cast<char*>(&data));        
+    }
+        
+} // namespace <anonymous>
 
 
 
@@ -55,11 +165,34 @@ CUDACollector::CUDACollector() :
                   "the ability to periodically sample hardware event counts"
                   "via PAPI for both the CPU and GPU.")
 {
-    // Declare our parameters
-    // ...
-
     // Declare our metrics
-    // ...
+    declareMetric(Metadata("exec_time",
+                           "CUDA Kernel Execution Time",
+                           "CUDA kernel execution time in seconds.",
+                           typeid(double)));
+    declareMetric(Metadata("exec_inclusive_details",
+                           "Inclusive CUDA Kernel Execution Details",
+                           "Inclusive CUDA kernel execution details.",
+                           typeid(ExecDetails)));
+    declareMetric(Metadata("exec_exclusive_details",
+                           "Exclusive CUDA Kernel Execution Details",
+                           "Exclusive CUDA kernel execution details.",
+                           typeid(ExecDetails)));
+
+    declareMetric(Metadata("xfer_time",
+                           "CUDA Data Transfer Time",
+                           "CUDA data transfer time in seconds.",
+                           typeid(double)));
+    declareMetric(Metadata("xfer_inclusive_details",
+                           "Inclusive CUDA Data Transfer Details",
+                           "Inclusive CUDA data transfer details.",
+                           typeid(XferDetails)));
+    declareMetric(Metadata("xfer_exclusive_details",
+                           "Exclusive CUDA Data Transfer Details",
+                           "Exclusive CUDA data transfer details.",
+                           typeid(XferDetails)));
+
+    // TODO: Add additional metrics for hardware counter sampling data...
 }
 
 
@@ -73,7 +206,10 @@ CUDACollector::CUDACollector() :
  */
 Blob CUDACollector::getDefaultParameterValues() const
 {
-    // ...
+    // This method's implementation is intentionally empty.
+    //
+    // The CUDA collector is only available for the CBTF-based data collection
+    // model. And that data collection model doesn't use this method.
 
     return Blob();
 }
@@ -89,10 +225,13 @@ Blob CUDACollector::getDefaultParameterValues() const
  * @param data         Blob containing the parameter values.
  * @retval ptr         Untyped pointer to the parameter value.
  */
-void CUDACollector::getParameterValue(const std::string& parameter,
+void CUDACollector::getParameterValue(const string& parameter,
                                       const Blob& data, void* ptr) const
 {
-    // ...
+    // This method's implementation is intentionally empty.
+    //
+    // The CUDA collector is only available for the CBTF-based data collection
+    // model. And that data collection model doesn't use this method.
 }
 
 
@@ -106,10 +245,13 @@ void CUDACollector::getParameterValue(const std::string& parameter,
  * @param ptr          Untyped pointer to the parameter value.
  * @retval data        Blob containing the parameter values.
  */
-void CUDACollector::setParameterValue(const std::string& parameter,
+void CUDACollector::setParameterValue(const string& parameter,
                                       const void* ptr, Blob& data) const
 {
-    // ...
+    // This method's implementation is intentionally empty.
+    //
+    // The CUDA collector is only available for the CBTF-based data collection
+    // model. And that data collection model doesn't use this method.
 }
 
 
@@ -125,7 +267,10 @@ void CUDACollector::setParameterValue(const std::string& parameter,
 void CUDACollector::startCollecting(const Collector& collector,
                                     const ThreadGroup& threads) const
 {
-    // ...
+    // This method's implementation is intentionally empty.
+    //
+    // The CUDA collector is only available for the CBTF-based data collection
+    // model. And that data collection model doesn't use this method.
 }
 
 
@@ -139,9 +284,12 @@ void CUDACollector::startCollecting(const Collector& collector,
  * @param threads      Threads for which to stop collecting data.
  */
 void CUDACollector::stopCollecting(const Collector& collector,
-				 const ThreadGroup& threads) const
+                                   const ThreadGroup& threads) const
 {
-    // ...
+    // This method's implementation is intentionally empty.
+    //
+    // The CUDA collector is only available for the CBTF-based data collection
+    // model. And that data collection model doesn't use this method.
 }
 
 
@@ -161,7 +309,7 @@ void CUDACollector::stopCollecting(const Collector& collector,
  * @param subextents    Subextents for which to get values.
  * @retval ptr          Untyped pointer to the values of the metric.
  */
-void CUDACollector::getMetricValues(const std::string& metric,
+void CUDACollector::getMetricValues(const string& metric,
                                     const Collector& collector,
                                     const Thread& thread,
                                     const Extent& extent,
@@ -169,7 +317,37 @@ void CUDACollector::getMetricValues(const std::string& metric,
                                     const ExtentGroup& subextents,
                                     void* ptr) const
 {
-    // ...
+    MessageVisitor visitor;
+
+    if (metric == "exec_time")
+    {
+        // ...
+    }
+    else if (metric == "exec_inclusive_details")
+    {
+        // ...
+    }
+    else if (metric == "exec_exclusive_details")
+    {
+        // ...
+    }
+    else if (metric == "xfer_time")
+    {
+        // ...
+    }
+    else if (metric == "xfer_inclusive_details")
+    {
+        // ...
+    }
+    else if (metric == "xfer_exclusive_details")
+    {
+        // ...
+    }
+
+    if (visitor)
+    {
+        visit(blob, visitor);
+    }
 }
 
 
@@ -182,13 +360,15 @@ void CUDACollector::getMetricValues(const std::string& metric,
  *
  * @param thread     Thread for which to get unique PC values.
  * @param blob       Blob containing the performance data.
- * @retval buffer    Buffer to the unique PC values.
+ * @retval buffer    Buffer of the unique PC values.
  */
 void CUDACollector::getUniquePCValues(const Thread& thread,
                                       const Blob& blob,
                                       PCBuffer* buffer) const
 {
-    // ...
+    AddressVisitor inserter = bind(insertIntoAddressBuffer, _1, ref(*buffer));
+    MessageVisitor visitor = bind(extractUniqueAddresses, _1, _2, inserter);
+    visit(blob, visitor);
 }
 
 
@@ -205,7 +385,9 @@ void CUDACollector::getUniquePCValues(const Thread& thread,
  */
 void CUDACollector::getUniquePCValues(const Thread& thread,
                                       const Blob& blob,
-                                      std::set<Address>& addresses) const
+                                      set<Address>& addresses) const
 {
-    // ...
+    AddressVisitor inserter = bind(insertIntoAddressSet, _1, ref(addresses));
+    MessageVisitor visitor = bind(extractUniqueAddresses, _1, _2, inserter);
+    visit(blob, visitor);
 }

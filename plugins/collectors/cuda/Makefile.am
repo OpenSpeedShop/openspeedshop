@@ -16,12 +16,16 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+noinst_PROGRAMS =
 pkglib_LTLIBRARIES =
 
 if BUILD_CBTF
+
+noinst_PROGRAMS += test
 pkglib_LTLIBRARIES += cuda.la
 
 cuda_la_CXXFLAGS = \
+	@BOOST_CPPFLAGS@ \
 	@MESSAGES_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-framework
 
@@ -35,5 +39,24 @@ cuda_la_LIBADD = \
 	-lopenss-framework
 
 cuda_la_SOURCES = \
-	CUDACollector.hxx CUDACollector.cxx
+	CUDACollector.hxx CUDACollector.cxx \
+	CUDAExecDetail.hxx \
+	CUDAXferDetail.hxx
+
+test_CXXFLAGS = \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-queries
+
+test_LDFLAGS = \
+	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-queries
+
+test_LDADD = -lopenss-framework -lopenss-queries
+
+if HAVE_OPENMP
+test_LDADD += -lgomp
+endif
+
+test_SOURCES = test.cxx
+
 endif
