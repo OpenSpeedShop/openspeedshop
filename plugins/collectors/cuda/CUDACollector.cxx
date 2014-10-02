@@ -158,11 +158,11 @@ extern "C" CollectorImpl* cuda_LTX_CollectorFactory()
  */
 CUDACollector::CUDACollector() :
     CollectorImpl("cuda", "CUDA",
-                  "Intercepts all calls to CUDA memory copy/set and kernel"
-                  "executions and records, for each call, the current stack"
-                  "trace and start/end time, as well as additional relevant"
-                  "information depending on the operation. In addition, has"
-                  "the ability to periodically sample hardware event counts"
+                  "Intercepts all calls to CUDA memory copy/set and kernel "
+                  "executions and records, for each call, the current stack "
+                  "trace and start/end time, as well as additional relevant "
+                  "information depending on the operation. In addition, has "
+                  "the ability to periodically sample hardware event counts "
                   "via PAPI for both the CPU and GPU.")
 {
     // Declare our metrics
