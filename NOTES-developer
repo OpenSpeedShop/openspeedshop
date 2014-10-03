@@ -114,3 +114,12 @@ valgrind --trace-children=yes --log-file=mylog.txt --tool=memcheck --leak-check=
 
 
 
+NOTE 11:  fPIC determination:
+
+jeg@jeg-OptiPlex-GX620:~/OpenSpeedShop_ROOT$ objdump --reloc /usr/lib/libiberty_pic.a 2>/dev/null | grep R_X86_64_32S
+jeg@jeg-OptiPlex-GX620:~/OpenSpeedShop_ROOT$ objdump --reloc /usr/lib/libiberty.a 2>/dev/null | grep R_X86_64_32S
+00000000000000f5 R_X86_64_32S      .rodata
+00000000000004b4 R_X86_64_32S      .rodata+0x00000000000000f0
+000000000000071a R_X86_64_32S      .bss+0x0000000000000080
+000000000000074f R_X86_64_32S      .bss+0x0000000000000080
+
