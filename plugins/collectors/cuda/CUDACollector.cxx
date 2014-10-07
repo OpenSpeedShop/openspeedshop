@@ -18,16 +18,15 @@
 
 /** @file Definition of the CUDACollector class. */
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/ref.hpp>
 #include <cstring>
-#include <map>
-#include <vector>
+#include <utility>
  
-#include "KrellInstitute/Messages/CUDA_data.h"
-
 #include "AddressRange.hxx"
+#include "Path.hxx"
 #include "StackTrace.hxx"
 
 #include "CUDACollector.hxx"
@@ -52,10 +51,135 @@ namespace {
     /** Type of function invoked when visiting individual addresses. */
     typedef function<void (uint64_t)> AddressVisitor;
 
+    /** Type of function invoked to process a completed kernel execution. */
+    typedef function<
+        void (const CUDACollector::Request&, const CUDA_ExecutedKernel&)
+        > ExecutedKernelVisitor;
+
+    /** Type of function invoked to process a completed memory copy. */
+    typedef function<
+        void (const CUDACollector::Request&, const CUDA_CopiedMemory&)
+        > MemoryCopyVisitor;
+
     /** Type of function invoked when visiting individual CUDA messages. */
     typedef function<
         void (const CBTF_cuda_data&, const CBTF_cuda_message&)
         > MessageVisitor;
+    
+    /** TEMPORARY DEBUGGING FUNCTION */
+    void debug(const StackTrace& trace)
+    {
+        std::cout << endl;
+        for (int i = 0; i < trace.size(); ++i)
+        {
+            pair<bool, Function> function = trace.getFunctionAt(i);
+            pair<bool, LinkedObject> linked_object = trace.getLinkedObjectAt(i);
+            
+            std::cout << "[" << i << "] "
+                      << (function.first ? function.second.getName() : "?")
+                      << " ("
+                      << (linked_object.first ? 
+                          linked_object.second.getPath().getBaseName() : "?")
+                      << ")" << std::endl;
+        }
+    }
+    
+    /** Convert a CUDA request call site into a stack trace. */
+    StackTrace toStackTrace(const Thread& thread, const Time& time,
+                            const CUDACollector::Request& request)
+    {
+        StackTrace trace(thread, time);
+
+        // Initially include ALL frames for the call site of this CUDA request
+        for (int i = 0; i < request.call_site.size(); ++i)
+        {
+            trace.push_back(request.call_site[i]);
+        }
+        
+        // TEMPORARY DEBUGGING CODE
+        std::cout << std::endl << "---" << std::endl;
+        debug(trace);
+        
+        //
+        // Trim all of the frames that preceeded the actual entry into main(),
+        // assuming, of course, that main() can actually be found.
+        //
+        
+        for (int i = 0; i < trace.size(); ++i)
+        {
+            pair<bool, Function> function = trace.getFunctionAt(i);
+            if (function.first && (function.second.getName() == "main"))
+            {
+                trace.erase(trace.begin() + i + 1, trace.end());
+                break;
+            }            
+        }
+
+        // TEMPORARY DEBUGGING CODE
+        debug(trace);
+
+        //
+        // Now iterate over the frames from main() towards the final call site,
+        // looking for the first frame that is part of the CUDA implementation
+        // or our collector. Trim the stack trace from that point all the way
+        // to the final call site.
+        //
+        
+        for (int i = trace.size(); i > 0; --i)
+        {
+            pair<bool, LinkedObject> linked_object = trace.getLinkedObjectAt(i);
+            if (linked_object.first)
+            {
+                Path base_name = linked_object.second.getPath().getBaseName();
+                if (starts_with(base_name, "cuda-collector") ||
+                    starts_with(base_name, "libcu"))
+                {
+                    trace.erase(trace.begin(), trace.begin() + i + 1);
+                    break;
+                }
+            }
+            
+            pair<bool, Function> function = trace.getFunctionAt(i);
+            if (function.first &&
+                starts_with(function.second.getName(), "__device_stub"))
+            {
+                trace.erase(trace.begin(), trace.begin() + i + 1);
+                break;
+            }
+        }
+        
+        // TEMPORARY DEBUGGING CODE
+        debug(trace);
+
+        return trace;
+    }
+    
+    /** Visitor used to compute the "exec_time" or "xfer_time" metric. */
+    template <typename T>
+    void computeTime(const CUDACollector::Request& request,
+                     const T& completion,
+                     const Thread& thread,
+                     const ExtentGroup& subextents,
+                     vector<double>& data)
+    {
+        TimeInterval interval(Time(completion.time_begin),
+                              Time(completion.time_end));
+        
+        StackTrace trace = toStackTrace(thread, interval.getBegin(), request);
+        
+        set<ExtentGroup::size_type> intersection = 
+            subextents.getIntersectionWith(
+                Extent(interval, AddressRange(trace[0]))
+                );
+        
+        for (set<ExtentGroup::size_type>::const_iterator
+                 i = intersection.begin(); i != intersection.end(); ++i)
+        {
+            data[*i] += static_cast<double>(
+                (interval & subextents[*i].getTimeInterval()).getWidth()
+                ) / 1000000000.0;
+        }
+    }
 
     /**
      * Visitor extracting the unique addresses referenced by a CUDA message.
@@ -90,6 +214,97 @@ namespace {
                 for (uint32_t i = 0; i < msg.pcs.pcs_len; ++i)
                 {
                     visitor(msg.pcs.pcs_val[i]);
+                }
+            }
+            break;
+            
+        default:
+            break;
+        }
+    }
+
+    /**
+     * Visitor handling an asynchronously executed CUDA request described by a
+     * CUDA message. Manages pushing individual requests onto, and popping them
+     * off of, the given thread-specific data's table of pending requests.
+     */
+    void handleRequests(const CBTF_cuda_data& data,
+                        const CBTF_cuda_message& message,
+                        CUDACollector::ThreadSpecificData& tsd,
+                        ExecutedKernelVisitor& executed_kernel_visitor,
+                        MemoryCopyVisitor& memory_copy_visitor)
+    {
+        switch (message.type)
+        {
+            
+        case CopiedMemory:
+            {
+                const CUDA_CopiedMemory& msg =
+                    message.CBTF_cuda_message_u.copied_memory;
+
+                if (memory_copy_visitor)
+                {
+                    for (list<CUDACollector::Request>::iterator 
+                             i = tsd.requests.begin();
+                         i != tsd.requests.end();
+                         ++i)
+                    {
+                        if ((i->message.type == MemoryCopy) &&
+                            (i->message.context == msg.context) &&
+                            (i->message.stream == msg.stream))
+                        {
+                            memory_copy_visitor(*i, msg);
+                            tsd.requests.erase(i);
+                            break;
+                        }
+                    }
+                }
+            }
+            break;
+            
+        case EnqueueRequest:
+            {
+                const CUDA_EnqueueRequest& msg = 
+                    message.CBTF_cuda_message_u.enqueue_request;
+
+                CUDACollector::Request request;
+                request.message = msg;
+                
+                for (uint32_t i = msg.call_site;
+                     (i < data.stack_traces.stack_traces_len) &&
+                         (data.stack_traces.stack_traces_val[i] != 0);
+                     ++i)
+                {
+                    request.call_site.push_back(
+                        data.stack_traces.stack_traces_val[i]
+                        );
+                }
+                
+                tsd.requests.push_back(request);
+            }
+            break;
+            
+        case ExecutedKernel:
+            {
+                const CUDA_ExecutedKernel& msg =
+                    message.CBTF_cuda_message_u.executed_kernel;
+
+                if (executed_kernel_visitor)
+                {
+                    for (list<CUDACollector::Request>::iterator 
+                             i = tsd.requests.begin();
+                         i != tsd.requests.end();
+                         ++i)
+                    {
+                        if ((i->message.type == LaunchKernel) &&
+                            (i->message.context == msg.context) &&
+                            (i->message.stream == msg.stream))
+                        {
+                            executed_kernel_visitor(*i, msg);
+                            tsd.requests.erase(i);
+                            break;
+                        }
+                    }
                 }
             }
             break;
@@ -163,7 +378,8 @@ CUDACollector::CUDACollector() :
                   "trace and start/end time, as well as additional relevant "
                   "information depending on the operation. In addition, has "
                   "the ability to periodically sample hardware event counts "
-                  "via PAPI for both the CPU and GPU.")
+                  "via PAPI for both the CPU and GPU."),
+    dm_threads()
 {
     // Declare our metrics
     declareMetric(Metadata("exec_time",
@@ -317,11 +533,66 @@ void CUDACollector::getMetricValues(const string& metric,
                                     const ExtentGroup& subextents,
                                     void* ptr) const
 {
-    MessageVisitor visitor;
+    //
+    // Locate the thread-specific data belonging to the thread for which this
+    // performance data blob was gathered, creating new thread-specific data
+    // when necessary.
+    //
+
+    ThreadTable::iterator t = dm_threads.find(thread);
+    
+    if (t == dm_threads.end())
+    {
+        t = dm_threads.insert(make_pair(thread, ThreadSpecificData())).first;
+    }
+
+    //
+    // CUDA allows requests to be executed asynchronously. Thus the issue and
+    // completion of a given request can be found within 2 separate blobs. As
+    // a consequence, it is necessary to have a stateful collector in order to
+    // correctly compute certain metrics. But the collector API isn't designed
+    // for that. I.e. there is no direct indication of whether a given call to
+    // getMetricValues() is part of a previous or new metric computation. The
+    // fix employed here is to assume:
+    //
+    //     * Each blob is seen once per metric computation.
+    //     * A blob can be unique identified by its extent.
+    //     * Blobs are visited in time order.
+    //
+    // And so when a given blob's extent is seen a 2nd time, it can be assumed
+    // that a new metric computation has begun and the thread-specific data for
+    // the thread should be cleared to reset the state.
+    //
+
+    if (t->second.extents.find(extent) != t->second.extents.end())
+    {
+        t->second = ThreadSpecificData();
+    }
+
+    t->second.extents.insert(extent);
+
+    //
+    // Compute the requested metric by processing the individual CUDA messages
+    // in the specified performance data blob. This involves constructing a set
+    // of appropriate visitors, chaining them together, and then applying them.
+    //
 
     if (metric == "exec_time")
     {
-        // ...
+        ExecutedKernelVisitor executed_kernel_visitor = bind(
+            computeTime<CUDA_ExecutedKernel>, _1, _2,
+            ref(thread), ref(subextents),
+            ref(*reinterpret_cast<vector<double>*>(ptr))
+            );
+        
+        MemoryCopyVisitor memory_copy_visitor;
+        
+        MessageVisitor visitor = bind(
+            handleRequests, _1, _2, t->second, 
+            ref(executed_kernel_visitor), ref(memory_copy_visitor)
+            );
+        
+        visit(blob, visitor);
     }
     else if (metric == "exec_inclusive_details")
     {
@@ -331,9 +602,23 @@ void CUDACollector::getMetricValues(const string& metric,
     {
         // ...
     }
+
     else if (metric == "xfer_time")
     {
-        // ...
+        ExecutedKernelVisitor executed_kernel_visitor;
+        
+        MemoryCopyVisitor memory_copy_visitor = bind(
+            computeTime<CUDA_CopiedMemory>, _1, _2,
+            ref(thread), ref(subextents),
+            ref(*reinterpret_cast<vector<double>*>(ptr))
+            );
+        
+        MessageVisitor visitor = bind(
+            handleRequests, _1, _2, t->second, 
+            ref(executed_kernel_visitor), ref(memory_copy_visitor)
+            );
+        
+        visit(blob, visitor);
     }
     else if (metric == "xfer_inclusive_details")
     {
@@ -342,11 +627,6 @@ void CUDACollector::getMetricValues(const string& metric,
     else if (metric == "xfer_exclusive_details")
     {
         // ...
-    }
-
-    if (visitor)
-    {
-        visit(blob, visitor);
     }
 }
 

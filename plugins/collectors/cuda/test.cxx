@@ -41,15 +41,6 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    cout << "WDH: Looking for collectors" << endl;
-    set<Metadata> collectors = Collector::getAvailable();
-    for (set<Metadata>::const_iterator
-             i = collectors.begin(); i != collectors.end(); ++i)
-    {
-        cout << "WDH: Found " << i->getUniqueId() << endl;
-    }
-    cout << "WDH: Finished looking for collectors" << endl;
-    
     try
     {
         Experiment experiment(argv[1]);

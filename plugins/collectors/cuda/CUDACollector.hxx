@@ -24,8 +24,13 @@
 #include "config.h"
 #endif
 
+#include <list>
+#include <map>
 #include <set>
 #include <string>
+#include <vector>
+
+#include "KrellInstitute/Messages/CUDA_data.h"
 
 #include "Address.hxx"
 #include "Blob.hxx"
@@ -54,7 +59,7 @@ namespace OpenSpeedShop { namespace Framework {
     {
         
     public:
-        
+
         CUDACollector();    
         
         virtual Blob getDefaultParameterValues() const;
@@ -79,6 +84,45 @@ namespace OpenSpeedShop { namespace Framework {
         virtual void getUniquePCValues(const Thread&, const Blob&,
                                        std::set<Address>&) const;
 
+        /**
+         * Plain old data (POD) structure describing a single pending request.
+         *
+         * @sa http://en.wikipedia.org/wiki/Plain_old_data_structure
+         */
+        struct Request
+        {
+            /** Original message describing the enqueued request. */
+            CUDA_EnqueueRequest message;
+            
+            /** Expanded call site of the request. */
+            std::vector<CBTF_Protocol_Address> call_site;
+        };
+        
+        /**
+         * Plain old data (POD) structure holding thread-specific data.
+         *
+         * @sa http://en.wikipedia.org/wiki/Plain_old_data_structure
+         */
+        struct ThreadSpecificData
+        {
+            /** Set of previously-seen extents. */
+            std::set<Extent> extents;
+
+            /** Table of pending requests. */
+            std::list<Request> requests;
+        };
+        
+    private:
+
+        /**
+         * Type of associative container used to map threads to their thread-
+         * specific data.
+         */
+        typedef std::map<Thread, ThreadSpecificData> ThreadTable;
+        
+        /** Thread-specific data for all known threads. */
+        mutable ThreadTable dm_threads;
+        
     }; // class CUDACollector
         
 } } // namespace OpenSpeedShop::Framework
