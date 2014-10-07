@@ -27,15 +27,18 @@ pkglib_LTLIBRARIES += cuda.la
 cuda_la_CXXFLAGS = \
 	@BOOST_CPPFLAGS@ \
 	@MESSAGES_CPPFLAGS@ \
+	@MESSAGES_CUDA_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-framework
 
 cuda_la_LDFLAGS = \
 	@MESSAGES_LDFLAGS@ \
+	@MESSAGES_CUDA_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-framework \
 	-no-undefined -module -avoid-version
 
 cuda_la_LIBADD = \
 	@MESSAGES_LIBS@ \
+	@MESSAGES_CUDA_LIBS@ \
 	-lopenss-framework
 
 cuda_la_SOURCES = \
