@@ -24,11 +24,13 @@
 #include "config.h"
 #endif
 
+#include <boost/tuple/tuple.hpp>
 #include <string>
 
 #include "KrellInstitute/Messages/CUDA_data.h"
 
 #include "SmartPtr.hxx"
+#include "Time.hxx"
 
 #include "CUDADeviceDetail.hxx"
 
@@ -45,6 +47,18 @@ namespace OpenSpeedShop { namespace Framework {
 
     public:
 
+        /** Enumeration of the different cache preferences. */
+        enum CachePreference {
+            InvalidCachePreference = 0,
+            NoPreference = 1,
+            PreferShared = 2,
+            PreferCache = 3,
+            PreferEqual = 4
+        };
+
+        /** Vector of three unsigned integers. */
+        typedef boost::tuple<unsigned int, unsigned int, unsigned int> Vector3u;
+        
         /** Constructor from raw CUDA messages. */
         CUDAExecDetail(const double& time,
                        const SmartPtr<CUDADeviceDetail>& device_detail,
@@ -58,8 +72,89 @@ namespace OpenSpeedShop { namespace Framework {
         {
         }
         
-        /** Read-only data member accessor function. */
-        // TODO: Add read-only data member accessor functions
+        /** Time spent in the kernel execution (in seconds). */
+        double getTime() const
+        {
+            return dm_time;
+        }
+
+        /** Device performing the kernel execution. */
+        const SmartPtr<CUDADeviceDetail>& getDevice() const
+        {
+            return dm_device_detail;
+        }
+
+        /** Time at which the kernel execution was enqueued. */
+        Time getTimeEnqueue() const
+        {
+            return dm_enqueue_request.time;
+        }
+
+        /** Time at which the kernel execution began. */
+        Time getTimeBegin() const
+        {
+            return dm_executed_kernel.time_begin;
+        }
+
+        /** Time at which the kernel execution ended. */
+        Time getTimeEnd() const
+        {
+            return dm_executed_kernel.time_end;
+        }
+
+        /** Name of the kernel function being executed. */
+        std::string getName() const
+        {
+            return dm_function;
+        }
+        
+        /** Dimensions of the grid. */
+        Vector3u getGrid() const
+        {
+            return Vector3u(dm_executed_kernel.grid[0],
+                            dm_executed_kernel.grid[1],
+                            dm_executed_kernel.grid[2]);
+        }
+        
+        /** Dimensions of each block. */
+        Vector3u getBlock() const
+        {
+            return Vector3u(dm_executed_kernel.block[0],
+                            dm_executed_kernel.block[1],
+                            dm_executed_kernel.block[2]);
+        }
+        
+        /** Cache preference used. */
+        CachePreference getCachePreference() const
+        {
+            return static_cast<CachePreference>(
+                dm_executed_kernel.cache_preference
+                );
+        }
+        
+        /** Registers required for each thread. */
+        unsigned int getRegistersPerThread() const
+        {
+            return dm_executed_kernel.registers_per_thread;
+        }
+        
+        /** Total amount (in bytes) of static shared memory reserved. */
+        unsigned long long getStaticSharedMemory() const
+        {
+            return dm_executed_kernel.static_shared_memory;
+        }
+        
+        /** Total amount (in bytes) of dynamic shared memory reserved. */
+        unsigned long long getDynamicSharedMemory() const
+        {
+            return dm_executed_kernel.dynamic_shared_memory;
+        }
+        
+        /** Total amount (in bytes) of local memory reserved. */
+        unsigned long long getLocalMemory() const
+        {
+            return dm_executed_kernel.local_memory;
+        }
         
     private:
 

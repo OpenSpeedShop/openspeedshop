@@ -43,6 +43,31 @@ namespace OpenSpeedShop { namespace Framework {
 
     public:
 
+        /** Enumeration of the different memory kinds. */
+        enum MemoryKind {     
+            InvalidMemoryKind = 0,
+            UnknownMemoryKind = 1,
+            Pageable = 2,
+            Pinned = 3,
+            Device = 4,
+            Array = 5
+        };
+        
+        /** Enumeration of the different data transfer kinds. */
+        enum TransferKind {
+            InvalidTransferKind = 0,
+            UnknownTransferKind = 1,
+            HostToDevice = 2,
+            DeviceToHost = 3,
+            HostToArray = 4,
+            ArrayToHost = 5,
+            ArrayToArray = 6,
+            ArrayToDevice = 7,
+            DeviceToArray = 8,
+            DeviceToDevice = 9,
+            HostToHost = 10
+        };
+
         /** Constructor from raw CUDA messages. */
         CUDAXferDetail(const double& time,
                        const SmartPtr<CUDADeviceDetail>& device_detail,
@@ -55,8 +80,65 @@ namespace OpenSpeedShop { namespace Framework {
         {
         }
 
-        /** Read-only data member accessor function. */
-        // TODO: Add read-only data member accessor functions
+        /** Time spent in the kernel execution (in seconds). */
+        double getTime() const
+        {
+            return dm_time;
+        }
+
+        /** Device performing the data transfer. */
+        const SmartPtr<CUDADeviceDetail>& getDevice() const
+        {
+            return dm_device_detail;
+        }
+
+        /** Time at which the data transfer was enqueued. */
+        Time getTimeEnqueue() const
+        {
+            return dm_enqueue_request.time;
+        }
+
+        /** Time at which the data transfer began. */
+        Time getTimeBegin() const
+        {
+            return dm_copied_memory.time_begin;
+        }
+
+        /** Time at which the data transfer ended. */
+        Time getTimeEnd() const
+        {
+            return dm_copied_memory.time_end;
+        }
+
+        /** Number of bytes being transferred. */
+        unsigned long long getSize() const
+        {
+            return dm_copied_memory.size;
+        }
+        
+        /** Kind of data transfer performed. */
+        TransferKind getKind() const
+        {
+            return static_cast<TransferKind>(dm_copied_memory.kind);
+        }
+        
+        /** Kind of memory from which the data transfer was performed. */
+        MemoryKind getSourceKind() const
+        {
+            return static_cast<MemoryKind>(dm_copied_memory.source_kind);
+        }
+        
+        /** Kind of memory to which the data transfer was performed. */
+        MemoryKind getDestinationKind() const
+        {
+            return static_cast<MemoryKind>(dm_copied_memory.destination_kind);
+        }
+        
+        /** Was the data transfer asynchronous? */
+        bool getAsynchronous() const
+        {
+            return dm_copied_memory.asynchronous;
+        }
         
     private:
 
