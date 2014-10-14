@@ -20,7 +20,6 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/bind.hpp>
-#include <boost/function.hpp>
 #include <boost/ref.hpp>
 #include <cstring>
 #include <utility>
@@ -51,54 +50,22 @@ namespace {
     /** Type of function invoked when visiting individual addresses. */
     typedef function<void (uint64_t)> AddressVisitor;
 
-    /** Type of function invoked to process a completed kernel execution. */
-    typedef function<
-        void (const CUDACollector::Request&, const CUDA_ExecutedKernel&)
-        > ExecutedKernelVisitor;
-
-    /** Type of function invoked to process a completed memory copy. */
-    typedef function<
-        void (const CUDACollector::Request&, const CUDA_CopiedMemory&)
-        > MemoryCopyVisitor;
-
     /** Type of function invoked when visiting individual CUDA messages. */
     typedef function<
         void (const CBTF_cuda_data&, const CBTF_cuda_message&)
         > MessageVisitor;
-    
-    /** TEMPORARY DEBUGGING FUNCTION */
-    void debug(const StackTrace& trace)
-    {
-        std::cout << endl;
-        for (int i = 0; i < trace.size(); ++i)
-        {
-            pair<bool, Function> function = trace.getFunctionAt(i);
-            pair<bool, LinkedObject> linked_object = trace.getLinkedObjectAt(i);
-            
-            std::cout << "[" << i << "] "
-                      << (function.first ? function.second.getName() : "?")
-                      << " ("
-                      << (linked_object.first ? 
-                          linked_object.second.getPath().getBaseName() : "?")
-                      << ")" << std::endl;
-        }
-    }
-    
+
     /** Convert a CUDA request call site into a stack trace. */
     StackTrace toStackTrace(const Thread& thread, const Time& time,
-                            const CUDACollector::Request& request)
+                            const std::vector<Address>& call_site)
     {
         StackTrace trace(thread, time);
 
         // Initially include ALL frames for the call site of this CUDA request
-        for (int i = 0; i < request.call_site.size(); ++i)
+        for (int i = 0; i < call_site.size(); ++i)
         {
-            trace.push_back(request.call_site[i]);
+            trace.push_back(call_site[i]);
         }
-        
-        // TEMPORARY DEBUGGING CODE
-        std::cout << std::endl << "---" << std::endl;
-        debug(trace);
         
         //
         // Trim all of the frames that preceeded the actual entry into main(),
@@ -114,9 +81,6 @@ namespace {
                 break;
             }            
         }
-
-        // TEMPORARY DEBUGGING CODE
-        debug(trace);
 
         //
         // Now iterate over the frames from main() towards the final call site,
@@ -147,17 +111,68 @@ namespace {
                 break;
             }
         }
-        
-        // TEMPORARY DEBUGGING CODE
-        debug(trace);
 
         return trace;
     }
+
+    /**
+     * Visitor used to compute [exec|xfer]_[exclusive|inclusive]_detail metrics.
+     */
+    template <typename T, typename U, bool Inclusive>
+    void computeDetails(const CUDA_EnqueueRequest& request,
+                        const T& completion,
+                        const std::vector<Address>& call_site,
+                        const SmartPtr<CUDADeviceDetail>& device,
+                        const Thread& thread,
+                        const ExtentGroup& subextents,
+                        vector<U>& data)
+    {
+        TimeInterval interval(Time(completion.time_begin),
+                              Time(completion.time_end));
+        
+        StackTrace trace = toStackTrace(
+            thread, interval.getBegin(), call_site
+            );
+
+        for (StackTrace::const_iterator
+                 i = trace.begin(); i != trace.end(); ++i)
+        {
+            if (!Inclusive && (i != trace.begin()))
+            {
+                break;
+            }
+            
+            set<ExtentGroup::size_type> intersection = 
+                subextents.getIntersectionWith(
+                    Extent(interval, AddressRange(*i))
+                    );
+            
+            for (set<ExtentGroup::size_type>::const_iterator
+                     j = intersection.begin(); j != intersection.end(); ++j)
+            {
+                double t_intersection = static_cast<double>(
+                    (interval & subextents[*j].getTimeInterval()).getWidth()
+                    ) / 1000000000.0;
+
+                typename U::iterator k = data[*j].insert(
+                    make_pair(trace, typename U::mapped_type())
+                    ).first;
+
+                typename U::mapped_type::value_type details(
+                    t_intersection, device, request, completion
+                    );
+                
+                k->second.push_back(details);
+            }
+        }
+    }
     
-    /** Visitor used to compute the "exec_time" or "xfer_time" metric. */
+    /** Visitor used to compute [exec|xfer]_time metrics. */
     template <typename T>
-    void computeTime(const CUDACollector::Request& request,
+    void computeTime(const CUDA_EnqueueRequest& request,
                      const T& completion,
+                     const std::vector<Address>& call_site,
+                     const SmartPtr<CUDADeviceDetail>& device,
                      const Thread& thread,
                      const ExtentGroup& subextents,
                      vector<double>& data)
@@ -165,7 +180,9 @@ namespace {
         TimeInterval interval(Time(completion.time_begin),
                               Time(completion.time_end));
         
-        StackTrace trace = toStackTrace(thread, interval.getBegin(), request);
+        StackTrace trace = toStackTrace(
+            thread, interval.getBegin(), call_site
+            );
         
         set<ExtentGroup::size_type> intersection = 
             subextents.getIntersectionWith(
@@ -175,18 +192,20 @@ namespace {
         for (set<ExtentGroup::size_type>::const_iterator
                  i = intersection.begin(); i != intersection.end(); ++i)
         {
-            data[*i] += static_cast<double>(
+            double t_intersection = static_cast<double>(
                 (interval & subextents[*i].getTimeInterval()).getWidth()
                 ) / 1000000000.0;
+            
+            data[*i] += t_intersection;
         }
     }
-
+    
     /**
      * Visitor extracting the unique addresses referenced by a CUDA message.
      */
     void extractUniqueAddresses(const CBTF_cuda_data& data,
                                 const CBTF_cuda_message& message,
-                                const AddressVisitor& visitor)
+                                AddressVisitor& visitor)
     {
         switch (message.type)
         {
@@ -223,97 +242,6 @@ namespace {
         }
     }
 
-    /**
-     * Visitor handling an asynchronously executed CUDA request described by a
-     * CUDA message. Manages pushing individual requests onto, and popping them
-     * off of, the given thread-specific data's table of pending requests.
-     */
-    void handleRequests(const CBTF_cuda_data& data,
-                        const CBTF_cuda_message& message,
-                        CUDACollector::ThreadSpecificData& tsd,
-                        ExecutedKernelVisitor& executed_kernel_visitor,
-                        MemoryCopyVisitor& memory_copy_visitor)
-    {
-        switch (message.type)
-        {
-            
-        case CopiedMemory:
-            {
-                const CUDA_CopiedMemory& msg =
-                    message.CBTF_cuda_message_u.copied_memory;
-
-                if (memory_copy_visitor)
-                {
-                    for (list<CUDACollector::Request>::iterator 
-                             i = tsd.requests.begin();
-                         i != tsd.requests.end();
-                         ++i)
-                    {
-                        if ((i->message.type == MemoryCopy) &&
-                            (i->message.context == msg.context) &&
-                            (i->message.stream == msg.stream))
-                        {
-                            memory_copy_visitor(*i, msg);
-                            tsd.requests.erase(i);
-                            break;
-                        }
-                    }
-                }
-            }
-            break;
-            
-        case EnqueueRequest:
-            {
-                const CUDA_EnqueueRequest& msg = 
-                    message.CBTF_cuda_message_u.enqueue_request;
-
-                CUDACollector::Request request;
-                request.message = msg;
-                
-                for (uint32_t i = msg.call_site;
-                     (i < data.stack_traces.stack_traces_len) &&
-                         (data.stack_traces.stack_traces_val[i] != 0);
-                     ++i)
-                {
-                    request.call_site.push_back(
-                        data.stack_traces.stack_traces_val[i]
-                        );
-                }
-                
-                tsd.requests.push_back(request);
-            }
-            break;
-            
-        case ExecutedKernel:
-            {
-                const CUDA_ExecutedKernel& msg =
-                    message.CBTF_cuda_message_u.executed_kernel;
-
-                if (executed_kernel_visitor)
-                {
-                    for (list<CUDACollector::Request>::iterator 
-                             i = tsd.requests.begin();
-                         i != tsd.requests.end();
-                         ++i)
-                    {
-                        if ((i->message.type == LaunchKernel) &&
-                            (i->message.context == msg.context) &&
-                            (i->message.stream == msg.stream))
-                        {
-                            executed_kernel_visitor(*i, msg);
-                            tsd.requests.erase(i);
-                            break;
-                        }
-                    }
-                }
-            }
-            break;
-            
-        default:
-            break;
-        }
-    }
-    
     /** Visitor used to insert an address into a buffer of unique addresses. */
     void insertIntoAddressBuffer(uint64_t address, PCBuffer& buffer)
     {
@@ -325,7 +253,7 @@ namespace {
     {
         addresses.insert(address);
     }
-    
+
     /**
      * Visit the individual CUDA messages packed within a performance data blob.
      */
@@ -333,7 +261,7 @@ namespace {
     {
         CBTF_cuda_data data;
         memset(&data, 0, sizeof(data));
-
+        
         blob.getXDRDecoding(
             reinterpret_cast<xdrproc_t>(xdr_CBTF_cuda_data), &data
             );
@@ -346,7 +274,7 @@ namespace {
         xdr_free(reinterpret_cast<xdrproc_t>(xdr_CBTF_cuda_data),
                  reinterpret_cast<char*>(&data));        
     }
-        
+    
 } // namespace <anonymous>
 
 
@@ -379,6 +307,8 @@ CUDACollector::CUDACollector() :
                   "information depending on the operation. In addition, has "
                   "the ability to periodically sample hardware event counts "
                   "via PAPI for both the CPU and GPU."),
+    dm_contexts(),
+    dm_devices(),
     dm_threads()
 {
     // Declare our metrics
@@ -539,7 +469,7 @@ void CUDACollector::getMetricValues(const string& metric,
     // when necessary.
     //
 
-    ThreadTable::iterator t = dm_threads.find(thread);
+    std::map<Thread, ThreadSpecificData>::iterator t = dm_threads.find(thread);
     
     if (t == dm_threads.end())
     {
@@ -577,56 +507,74 @@ void CUDACollector::getMetricValues(const string& metric,
     // of appropriate visitors, chaining them together, and then applying them.
     //
 
+    ExecutedKernelVisitor executed_kernel_visitor;    
+    MemoryCopyVisitor memory_copy_visitor;
+    MemorySetVisitor memory_set_visitor;
+
+    MessageVisitor request_visitor = bind(
+        &CUDACollector::handleRequests, this, _1, _2,
+        ref(t->second), ref(executed_kernel_visitor),
+        ref(memory_copy_visitor), ref(memory_set_visitor)
+        );
+
     if (metric == "exec_time")
     {
-        ExecutedKernelVisitor executed_kernel_visitor = bind(
-            computeTime<CUDA_ExecutedKernel>, _1, _2,
-            ref(thread), ref(subextents),
-            ref(*reinterpret_cast<vector<double>*>(ptr))
+        executed_kernel_visitor = bind(
+            &computeTime<CUDA_ExecutedKernel>, _1, _2, _3, _4, cref(thread),
+            cref(subextents), ref(*reinterpret_cast<vector<double>*>(ptr))
             );
         
-        MemoryCopyVisitor memory_copy_visitor;
-        
-        MessageVisitor visitor = bind(
-            handleRequests, _1, _2, t->second, 
-            ref(executed_kernel_visitor), ref(memory_copy_visitor)
-            );
-        
-        visit(blob, visitor);
+        visit(blob, request_visitor);
     }
     else if (metric == "exec_inclusive_details")
     {
-        // ...
+        executed_kernel_visitor = bind(
+            &computeDetails<CUDA_ExecutedKernel, ExecDetails, true>,
+            _1, _2, _3, _4, cref(thread), cref(subextents),
+            ref(*reinterpret_cast<vector<ExecDetails>*>(ptr))
+            );
+        
+        visit(blob, request_visitor);
     }
     else if (metric == "exec_exclusive_details")
     {
-        // ...
+        executed_kernel_visitor = bind(
+            &computeDetails<CUDA_ExecutedKernel, ExecDetails, false>,
+            _1, _2, _3, _4, cref(thread), cref(subextents),
+            ref(*reinterpret_cast<vector<ExecDetails>*>(ptr))
+            );
+        
+        visit(blob, request_visitor);
     }
 
     else if (metric == "xfer_time")
     {
-        ExecutedKernelVisitor executed_kernel_visitor;
-        
-        MemoryCopyVisitor memory_copy_visitor = bind(
-            computeTime<CUDA_CopiedMemory>, _1, _2,
-            ref(thread), ref(subextents),
-            ref(*reinterpret_cast<vector<double>*>(ptr))
+        memory_copy_visitor = bind(
+            &computeTime<CUDA_CopiedMemory>, _1, _2, _3, _4, cref(thread),
+            cref(subextents), ref(*reinterpret_cast<vector<double>*>(ptr))
             );
         
-        MessageVisitor visitor = bind(
-            handleRequests, _1, _2, t->second, 
-            ref(executed_kernel_visitor), ref(memory_copy_visitor)
-            );
-        
-        visit(blob, visitor);
+        visit(blob, request_visitor);
     }
     else if (metric == "xfer_inclusive_details")
     {
-        // ...
+        memory_copy_visitor = bind(
+            &computeDetails<CUDA_CopiedMemory, XferDetails, true>,
+            _1, _2, _3, _4, cref(thread), cref(subextents),
+            ref(*reinterpret_cast<vector<XferDetails>*>(ptr))
+            );
+        
+        visit(blob, request_visitor);
     }
     else if (metric == "xfer_exclusive_details")
     {
-        // ...
+        memory_copy_visitor = bind(
+            &computeDetails<CUDA_CopiedMemory, XferDetails, false>,
+            _1, _2, _3, _4, cref(thread), cref(subextents),
+            ref(*reinterpret_cast<vector<XferDetails>*>(ptr))
+            );
+        
+        visit(blob, request_visitor);
     }
 }
 
@@ -647,7 +595,9 @@ void CUDACollector::getUniquePCValues(const Thread& thread,
                                       PCBuffer* buffer) const
 {
     AddressVisitor inserter = bind(insertIntoAddressBuffer, _1, ref(*buffer));
-    MessageVisitor visitor = bind(extractUniqueAddresses, _1, _2, inserter);
+    MessageVisitor visitor = bind(
+        extractUniqueAddresses, _1, _2, ref(inserter)
+        );
     visit(blob, visitor);
 }
 
@@ -668,6 +618,188 @@ void CUDACollector::getUniquePCValues(const Thread& thread,
                                       set<Address>& addresses) const
 {
     AddressVisitor inserter = bind(insertIntoAddressSet, _1, ref(addresses));
-    MessageVisitor visitor = bind(extractUniqueAddresses, _1, _2, inserter);
+    MessageVisitor visitor = bind(
+        extractUniqueAddresses, _1, _2, ref(inserter)
+        );
     visit(blob, visitor);
+}
+
+
+
+/**
+ * Visitor handling an asynchronously executed CUDA request described by a
+ * CUDA message. Manages pushing individual requests onto, and popping them
+ * off of, the given thread-specific data's table of pending requests. Also
+ * manages the mapping of contexts to their corresponding device details.
+ */
+void CUDACollector::handleRequests(
+    const CBTF_cuda_data& data, const CBTF_cuda_message& message,
+    ThreadSpecificData& tsd,
+    ExecutedKernelVisitor& executed_kernel_visitor,
+    MemoryCopyVisitor& memory_copy_visitor,
+    MemorySetVisitor& memory_set_visitor
+    ) const
+{
+    switch (message.type)
+    {
+
+    case ContextInfo:
+        {
+            const CUDA_ContextInfo& msg =
+                message.CBTF_cuda_message_u.context_info;
+            
+            dm_contexts.insert(make_pair(msg.context, msg.device));
+        }
+        break;
+
+    case CopiedMemory:
+        {
+            const CUDA_CopiedMemory& msg =
+                message.CBTF_cuda_message_u.copied_memory;
+            
+            for (list<CUDACollector::Request>::iterator 
+                     i = tsd.requests.begin(); i != tsd.requests.end(); ++i)
+            {
+                if ((i->message.type == MemoryCopy) &&
+                    (i->message.context == msg.context) &&
+                    (i->message.stream == msg.stream))
+                {
+                    if (memory_copy_visitor)
+                    {
+                        memory_copy_visitor(
+                            cref(i->message),
+                            cref(msg),
+                            cref(i->call_site),
+                            cref(getDeviceDetail(msg.context))
+                            );
+                    }
+                    tsd.requests.erase(i);
+                    break;
+                }
+            }
+        }
+        break;
+
+    case DeviceInfo:
+        {
+            const CUDA_DeviceInfo& msg =
+                message.CBTF_cuda_message_u.device_info;
+
+            if (dm_devices.find(msg.device) != dm_devices.end())
+            {
+                dm_devices.insert(make_pair(
+                    msg.device,
+                    SmartPtr<CUDADeviceDetail>(new CUDADeviceDetail(msg))
+                    ));
+            }
+        }
+        break;
+        
+    case EnqueueRequest:
+        {
+            const CUDA_EnqueueRequest& msg = 
+                message.CBTF_cuda_message_u.enqueue_request;
+            
+            CUDACollector::Request request;
+            request.message = msg;
+            
+            for (uint32_t i = msg.call_site;
+                 (i < data.stack_traces.stack_traces_len) &&
+                     (data.stack_traces.stack_traces_val[i] != 0);
+                 ++i)
+            {
+                request.call_site.push_back(
+                    data.stack_traces.stack_traces_val[i]
+                    );
+            }
+            
+            tsd.requests.push_back(request);
+        }
+        break;
+        
+    case ExecutedKernel:
+        {
+            const CUDA_ExecutedKernel& msg =
+                message.CBTF_cuda_message_u.executed_kernel;
+            
+            for (list<CUDACollector::Request>::iterator 
+                     i = tsd.requests.begin(); i != tsd.requests.end(); ++i)
+            {
+                if ((i->message.type == LaunchKernel) &&
+                    (i->message.context == msg.context) &&
+                    (i->message.stream == msg.stream))
+                {
+                    if (executed_kernel_visitor)
+                    {
+                        executed_kernel_visitor(
+                            cref(i->message),
+                            cref(msg),
+                            cref(i->call_site),
+                            cref(getDeviceDetail(msg.context))
+                            );
+                    }
+                    tsd.requests.erase(i);
+                    break;
+                }
+            }
+        }
+        break;
+        
+    case SetMemory:
+        {
+            const CUDA_SetMemory& msg =
+                message.CBTF_cuda_message_u.set_memory;
+            
+            for (list<CUDACollector::Request>::iterator 
+                     i = tsd.requests.begin(); i != tsd.requests.end(); ++i)
+            {
+                if ((i->message.type == MemorySet) &&
+                    (i->message.context == msg.context) &&
+                    (i->message.stream == msg.stream))
+                {
+                    if (memory_set_visitor)
+                    {
+                        memory_set_visitor(
+                            cref(i->message),
+                            cref(msg),
+                            cref(i->call_site),
+                            cref(getDeviceDetail(msg.context))
+                            );
+                    }
+                    tsd.requests.erase(i);
+                    break;
+                }
+            }
+        }
+        break;
+        
+    default:
+        break;
+    }
+}
+
+
+
+/** Get the device details (if any) corresponding to the specified context. */
+SmartPtr<CUDADeviceDetail> CUDACollector::getDeviceDetail(
+    const Address& context
+    ) const
+{
+    std::map<Address, unsigned int>::const_iterator i = 
+        dm_contexts.find(context);
+    
+    if (i == dm_contexts.end())
+    {
+        return SmartPtr<CUDADeviceDetail>();
+    }
+    
+    std::map<unsigned int, SmartPtr<CUDADeviceDetail> >::const_iterator j = 
+        dm_devices.find(i->second);
+
+    if (j == dm_devices.end())
+    {
+        return SmartPtr<CUDADeviceDetail>();
+    }
+
+    return j->second;
 }

@@ -43,6 +43,7 @@ cuda_la_LIBADD = \
 
 cuda_la_SOURCES = \
 	CUDACollector.hxx CUDACollector.cxx \
+	CUDADeviceDetail.hxx \
 	CUDAExecDetail.hxx \
 	CUDAXferDetail.hxx
 

@@ -16,7 +16,7 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
-/** @file Declaration and definition of the CUDAXferDetail class. */
+/** @file Declaration and definition of the CUDADeviceDetail class. */
 
 #pragma once
 
@@ -24,34 +24,27 @@
 #include "config.h"
 #endif
 
+#include <string>
+
 #include "KrellInstitute/Messages/CUDA_data.h"
-
-#include "SmartPtr.hxx"
-
-#include "CUDADeviceDetail.hxx"
 
 namespace OpenSpeedShop { namespace Framework {
 
     /**
-     * CUDA data transfer details.
+     * CUDA device details.
      *
-     * Encapsulate the details metric (inclusive or exclusive) for CUDA data
-     * transfers recorded by the CUDA collector.
+     * Encapsulate the device details associated with CUDA kernel executions
+     * and data transfers recorded by the CUDA collector.
      */
-    class CUDAXferDetail
+    class CUDADeviceDetail
     {
 
     public:
 
-        /** Constructor from raw CUDA messages. */
-        CUDAXferDetail(const double& time,
-                       const SmartPtr<CUDADeviceDetail>& device_detail,
-                       const CUDA_EnqueueRequest& enqueue_request,
-                       const CUDA_CopiedMemory& copied_memory) :
-            dm_time(time),
-            dm_device_detail(device_detail),
-            dm_enqueue_request(enqueue_request),
-            dm_copied_memory(copied_memory)
+        /** Constructor from a raw CUDA message. */
+        CUDADeviceDetail(const CUDA_DeviceInfo& device_info):
+            dm_device_info(device_info),
+            dm_name(device_info.name)
         {
         }
 
@@ -60,18 +53,12 @@ namespace OpenSpeedShop { namespace Framework {
         
     private:
 
-        /** Time spent in the data transfer. */
-        double dm_time;
+        /** Raw CUDA message containing the device details. */
+        CUDA_DeviceInfo dm_device_info;
         
-        /** Details for the device performing the data transfer. */
-        SmartPtr<CUDADeviceDetail> dm_device_detail;
+        /** Device name stored in a copy-safe C++ string. */
+        std::string dm_name;
         
-        /** Raw CUDA message describing the enqueued request. */
-        CUDA_EnqueueRequest dm_enqueue_request;
-        
-        /** Raw CUDA message describing the data transfer. */
-        CUDA_CopiedMemory dm_copied_memory;
-
-    }; // class CUDAXferDetail
+    }; // class CUDADeviceDetail
     
 } } // namespace OpenSpeedShop::Framework

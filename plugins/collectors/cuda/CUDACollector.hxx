@@ -24,6 +24,7 @@
 #include "config.h"
 #endif
 
+#include <boost/function.hpp>
 #include <list>
 #include <map>
 #include <set>
@@ -40,8 +41,11 @@
 #include "Extent.hxx"
 #include "ExtentGroup.hxx"
 #include "PCBuffer.hxx"
+#include "SmartPtr.hxx"
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
+
+#include "CUDADeviceDetail.hxx"
 
 namespace OpenSpeedShop { namespace Framework {
 
@@ -84,6 +88,32 @@ namespace OpenSpeedShop { namespace Framework {
         virtual void getUniquePCValues(const Thread&, const Blob&,
                                        std::set<Address>&) const;
 
+    private:
+
+        /** Type of function invoked to process a completed kernel execution. */
+        typedef boost::function<
+            void (const CUDA_EnqueueRequest&,
+                  const CUDA_ExecutedKernel&,
+                  const std::vector<Address>&,
+                  const SmartPtr<CUDADeviceDetail>&)
+            > ExecutedKernelVisitor;
+
+        /** Type of function invoked to process a completed memory copy. */
+        typedef boost::function<
+            void (const CUDA_EnqueueRequest&,
+                  const CUDA_CopiedMemory&,
+                  const std::vector<Address>&,
+                  const SmartPtr<CUDADeviceDetail>&)
+            > MemoryCopyVisitor;
+
+        /** Type of function invoked to process a completed memory set. */
+        typedef boost::function<
+            void (const CUDA_EnqueueRequest&,
+                  const CUDA_SetMemory&,
+                  const std::vector<Address>&,
+                  const SmartPtr<CUDADeviceDetail>&)
+            > MemorySetVisitor;
+
         /**
          * Plain old data (POD) structure describing a single pending request.
          *
@@ -91,11 +121,11 @@ namespace OpenSpeedShop { namespace Framework {
          */
         struct Request
         {
-            /** Original message describing the enqueued request. */
+            /** Original CUDA message describing the enqueued request. */
             CUDA_EnqueueRequest message;
             
-            /** Expanded call site of the request. */
-            std::vector<CBTF_Protocol_Address> call_site;
+            /** Call site of the enqueued request. */
+            std::vector<Address> call_site;
         };
         
         /**
@@ -112,16 +142,23 @@ namespace OpenSpeedShop { namespace Framework {
             std::list<Request> requests;
         };
         
-    private:
-
-        /**
-         * Type of associative container used to map threads to their thread-
-         * specific data.
-         */
-        typedef std::map<Thread, ThreadSpecificData> ThreadTable;
+        void handleRequests(const CBTF_cuda_data&,
+                            const CBTF_cuda_message&,
+                            ThreadSpecificData&,
+                            ExecutedKernelVisitor&,
+                            MemoryCopyVisitor&,
+                            MemorySetVisitor&) const;
+        
+        SmartPtr<CUDADeviceDetail> getDeviceDetail(const Address&) const;
+        
+        /** Device for all known contexts. */
+        mutable std::map<Address, unsigned int> dm_contexts;
+        
+        /** Device details for each known device. */
+        mutable std::map<unsigned int, SmartPtr<CUDADeviceDetail> > dm_devices;
         
         /** Thread-specific data for all known threads. */
-        mutable ThreadTable dm_threads;
+        mutable std::map<Thread, ThreadSpecificData> dm_threads;
         
     }; // class CUDACollector
         

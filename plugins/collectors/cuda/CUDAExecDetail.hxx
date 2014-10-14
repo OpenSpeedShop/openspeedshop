@@ -16,7 +16,7 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
-/** @file Declaration and definition of the CUDAExecDetail structure. */
+/** @file Declaration and definition of the CUDAExecDetail class. */
 
 #pragma once
 
@@ -24,9 +24,13 @@
 #include "config.h"
 #endif
 
-#include "Time.hxx"
-#include "TimeInterval.hxx"
-#include "TotallyOrdered.hxx"
+#include <string>
+
+#include "KrellInstitute/Messages/CUDA_data.h"
+
+#include "SmartPtr.hxx"
+
+#include "CUDADeviceDetail.hxx"
 
 namespace OpenSpeedShop { namespace Framework {
 
@@ -36,28 +40,43 @@ namespace OpenSpeedShop { namespace Framework {
      * Encapsulate the details metric (inclusive or exclusive) for CUDA kernel
      * executions recorded by the CUDA collector.
      */
-    struct CUDAExecDetail :
-        public TotallyOrdered<CUDAExecDetail>
+    class CUDAExecDetail
     {
-        Time dm_enqueued;          /**< Time the execution was enqueued. */
-        TimeInterval dm_interval;  /**< Begin/End time of the execution. */
-        double dm_time;            /**< Time spent in the execution. */	
 
-        // ...
+    public:
 
-        /** Operator "<" defined for two CUDAExecDetail objects. */
-        bool operator<(const CUDAExecDetail& other) const
+        /** Constructor from raw CUDA messages. */
+        CUDAExecDetail(const double& time,
+                       const SmartPtr<CUDADeviceDetail>& device_detail,
+                       const CUDA_EnqueueRequest& enqueue_request,
+                       const CUDA_ExecutedKernel& executed_kernel) :
+            dm_time(time),
+            dm_device_detail(device_detail),
+            dm_enqueue_request(enqueue_request),
+            dm_executed_kernel(executed_kernel),
+            dm_function(executed_kernel.function)
         {
-            if (dm_enqueued < other.dm_enqueued)
-                return true;
-            if (dm_enqueued > other.dm_enqueued)
-                return false;
-            if (dm_interval < other.dm_interval)
-                return true;
-            if (dm_interval > other.dm_interval)
-                return false;
-            return dm_time < other.dm_time;
         }
+        
+        /** Read-only data member accessor function. */
+        // TODO: Add read-only data member accessor functions
+        
+    private:
+
+        /** Time spent in the kernel execution. */
+        double dm_time;
+        
+        /** Details for the device performing the kernel execution. */
+        SmartPtr<CUDADeviceDetail> dm_device_detail;
+        
+        /** Raw CUDA message describing the enqueued request. */
+        CUDA_EnqueueRequest dm_enqueue_request;
+
+        /** Raw CUDA message describing the kernel execution. */
+        CUDA_ExecutedKernel dm_executed_kernel;
+
+        /** Kernel name stored in a copy-safe C++ string. */
+        std::string dm_function;
         
     }; // class CUDAExecDetail
     
