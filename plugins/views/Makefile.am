@@ -32,6 +32,9 @@ SUBDIRS = basic \
 
 if BUILD_CBTF
 SUBDIRS += mem pthreads iop mpip
+if HAVE_CBTF_MESSAGES_CUDA
+SUBDIRS += cuda
+endif
 endif
 
 
