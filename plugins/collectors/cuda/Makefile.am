@@ -49,13 +49,15 @@ cuda_la_SOURCES = \
 
 test_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
-	-I$(top_srcdir)/libopenss-queries
+	-I$(top_srcdir)/libopenss-queries \
+	-I$(top_srcdir)/libopenss-cli
 
 test_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
-	-L$(top_srcdir)/libopenss-queries
+	-L$(top_srcdir)/libopenss-queries \
+	-L$(top_srcdir)/libopenss-cli
 
-test_LDADD = -lopenss-framework -lopenss-queries
+test_LDADD = -lopenss-framework -lopenss-queries -lopenss-cli
 
 if HAVE_OPENMP
 test_LDADD += -lgomp
