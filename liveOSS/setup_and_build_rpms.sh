@@ -189,27 +189,27 @@ elif [ "$(uname -i)" = "x86_64" ]; then
 fi
 
 #echo "..........................................."
-#echo "Checking for SOURCES/openmpi-1.4.3.tar.gz....."
+#echo "Checking for SOURCES/openmpi-1.8.2.tar.gz....."
 #echo "..........................................."
 #
-#if [ -f SOURCES/openmpi-1.4.3.tar.gz ]; then
+#if [ -f SOURCES/openmpi-1.8.2.tar.gz ]; then
 #     echo "..........................................."
-#     echo "Building RPM for openmpi-1.4.3....."
+#     echo "Building RPM for openmpi-1.8.2....."
 #     echo "..........................................."
-#     ./Build-RPM openmpi-1.4.3
+#     ./Build-RPM openmpi-1.8.2
 #else
-#     echo "No SOURCES/openmpi-1.4.3.tar.gz file was found."
-#     echo "Please place the file into SOURCES/openmpi-1.4.3.tar.gz and answer with a 'y' or 'Y' to continue."
+#     echo "No SOURCES/openmpi-1.8.2.tar.gz file was found."
+#     echo "Please place the file into SOURCES/openmpi-1.8.2.tar.gz and answer with a 'y' or 'Y' to continue."
 #     read answer
 #
 #     if [ "$answer" = Y -o "$answer" = y ]; then
 #        echo "..........................................."
-#        echo "Building RPM for openmpi-1.4.3....."
+#        echo "Building RPM for openmpi-1.8.2....."
 #        echo "..........................................."
-#        ./Build-RPM openmpi-1.4.3
+#        ./Build-RPM openmpi-1.8.2
 #     else
 #        echo "..........................................."
-#        echo "Skipping the build of the RPM for openmpi-1.4.3....."
+#        echo "Skipping the build of the RPM for openmpi-1.8.2....."
 #        echo "..........................................."
 #     fi
 #fi
