@@ -29,6 +29,8 @@ using namespace OpenSpeedShop;
 using namespace OpenSpeedShop::Framework;
 using namespace std;
 
+bool OPENSS_LESS_RESTRICTIVE_COMPARISONS = true;
+
 
 
 int main(int argc, char* argv[])
