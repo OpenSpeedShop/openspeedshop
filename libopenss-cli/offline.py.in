@@ -112,6 +112,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     default_mpi_impl = "@@ossdefaultmpi@@"
 
     program_list = program.split()
+    if offlinepy_debug != 0: print "[openss-debug]: program=" + program
+    for s in program_list:
+	if offlinepy_debug != 0: print "[openss-debug]: BEFORE loop through program_list, s=" + s
 
     # We need to see if any of the programs participating in the
     # experiment are an mpi program. If so we need to include the
@@ -135,6 +138,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    if offlinepy_debug != 0: print "[openss-debug]: replace tilde, file_arg=" + file_arg
 	    program = program.replace("~", os.path.expanduser("~"))
 	    
+	if offlinepy_debug != 0: print "[openss-debug]: BEGIN -------- of loop through path_list"
 	for p in path_list:
 	   if offlinepy_debug != 0: 
 	      print "[openss-debug]: ------------ START ------------------------"
@@ -171,7 +175,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    if offlinepy_debug != 0: print "[openss-debug]: assigning file_arg to s, s=" + s
 		    if offlinepy_debug != 0: print "[openss-debug]: assigning file_arg to s, file_arg=" + file_arg
 
-# being code to replace aliases
+	if offlinepy_debug != 0: print "[openss-debug]: END ---------- of loop through path_list"
+
+# begin code to replace aliases
 #
 #       Recognize an alias for the executable and replace the alias with the actual value
 #       We must recognize the shell the user is running and execute the alias command using
@@ -202,7 +208,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 
 	    if not os.WEXITSTATUS(isexecutable):
 		# is this the actual mpi program.
-	        if offlinepy_debug != 0: print "[openss-debug]: inside not os.WEXITSTATUS(isexecutable), check, file_arg=" + file_arg
+	        if offlinepy_debug != 0: print "[openss-debug]: (file_arg IS EXECUTABLE) inside not os.WEXITSTATUS(isexecutable), check, file_arg=" + file_arg
 		if not ismpi:
 		  ismpidriver = os.system('nm ' + file_arg + ' | grep -q -i MPIR_')
 
@@ -243,8 +249,6 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 				 if offlinepy_debug != 0: print "[openss-debug]: inside file_arg_basename is equal to mpiexec.hydra or mpiexec.hydra.real"
 				 ismpidriver = bool(1)
 				 if offlinepy_debug != 0: print "[openss-debug]: mpiexec.hydra or mpiexec.hydra.real, setting ismpidriver to bool 1"
-
-
 			if set_mpi_impl == "mpich2" or set_mpi_impl == "MPICH2":
 			     if offlinepy_debug != 0: print "[openss-debug]: inside OPENSS_MPI_IMPLEMENTATION is equal to mpich2"
 			     file_arg_basename = os.path.basename(file_arg)
@@ -372,6 +376,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    if offlinepy_debug != 0: print "[openss-debug]: mvapich2, mpi_executable is file_arg=" + file_arg
 		    break
 	    else:
+	        if offlinepy_debug != 0: print "[openss-debug]: (file_arg IS SCRIPT) inside ELSE not os.WEXITSTATUS(isexecutable), check, file_arg=" + file_arg
 		isscript = os.system('file -L ' + file_arg + ' | grep -q script')
 		if not os.WEXITSTATUS(isscript):
 		  # Lets hope the mpich2 driver always has Argonne in its copyright.
