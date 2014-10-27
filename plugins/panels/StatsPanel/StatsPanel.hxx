@@ -374,6 +374,9 @@ class StatsPanel  : public Panel
     std::list<int64_t> separate_list_of_pids;
     std::list<int64_t> separate_list_of_ranks;
     std::list<int64_t> separate_list_of_threads;
+    std::list<std::string> separate_list_of_ranksandpids;
+    std::list<std::string> separate_list_of_ranksandthreads;
+    std::list<std::string> separate_list_of_pidsandthreads;
     std::list<int64_t> rt_list_of_ranks;
     std::list<int64_t> rt_list_of_threads;
     std::list<int64_t> partial_list_of_pids;
@@ -427,6 +430,9 @@ class StatsPanel  : public Panel
     void getSeparatePidList(int expID);
     void getSeparateRankList(int expID);
     void getSeparateThreadList(int expID);
+    void getSeparateRanksAndPidsList(int expID);
+    void getSeparateRanksAndThreadsList(int expID);
+    void getSeparatePidsAndThreadsList(int expID);
     void getHostList(int expID);
     void getExecutableList(int expID);
     void updateStatsPanelInfoHeader(int expID);

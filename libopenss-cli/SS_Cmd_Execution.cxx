@@ -6049,6 +6049,49 @@ static bool SS_ListRanks (CommandObject *cmd) {
   return true;
 }
 
+int SS_getNumRanks(CommandObject *cmd, ExperimentObject *exp) {
+
+#if 1
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+#endif
+
+   // Get the list of threads used in the specified experiment.
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+   // Place every rank into a set so that it will only be listed once.
+    std::set<int64_t> rset;
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+     // Check for asynchronous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        rset.clear();
+        break;
+      }
+
+      Thread t = *ti;
+      std::pair<bool, int> prank = t.getMPIRank();
+      if (prank.first) {
+        rset.insert ( prank.second );
+      }
+    }
+
+    int64_t rank_count = 0;
+    for (std::set<int64_t>::iterator rseti = rset.begin(); rseti != rset.end(); rseti++) {
+//      printf(" list ranks, *rseti=%d\n", *rseti);
+      rank_count = rank_count + 1;
+    }
+
+#if 1
+    exp->Q_UnLock ();
+#endif
+
+    return rank_count;
+
+}
+
+
 
 
 /**
@@ -6974,6 +7017,69 @@ static bool SS_ListThreads (CommandObject *cmd) {
   return true;
 }
 
+int SS_getNumThreads (CommandObject *cmd, ExperimentObject *exp) {
+
+    int num_threads;
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
+
+   // Get the list of threads used in the specified experiment.
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+   // Place all the thread ID's into a set so each will be listed only once.
+    std::set<int64_t> tset;
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+     // Check for asynchronous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        tset.clear();
+        break;
+      }
+
+      Thread t = *ti;
+      int rankid ;
+
+      std::pair<bool, int> prank = t.getMPIRank();
+      // MPI, just check for threads with MPI involved
+      if (prank.first) {
+           rankid = prank.second;
+
+           std::pair<bool, int> pthread = t.getOpenMPThreadId();
+           int64_t pthreadid = 0;
+           if (pthread.first) {
+             // Add one thread to the count
+             num_threads = num_threads + 1;
+           } else {
+             std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
+             if (posixthread.first) {
+               // Add one thread to the count
+               num_threads = num_threads + 1;
+             }
+           }
+      } else {
+       // no mpi, just check for threads w/o MPI involved
+        std::pair<bool, int> pthread = t.getOpenMPThreadId();
+        int64_t pthreadid = 0;
+        if (pthread.first) {
+          // Add one thread to the count
+          num_threads = num_threads + 1;
+        } else {
+          std::pair<bool, pthread_t> posixthread = t.getPosixThreadId();
+          if (posixthread.first) {
+            // Add one thread to the count
+            num_threads = num_threads + 1;
+          }
+        }
+      }
+    }
+
+    exp->Q_UnLock ();
+
+    return num_threads;
+}
 
 /**
  * SemanticRoutine: SS_ListNumberOfThreads ()
@@ -7192,6 +7298,150 @@ static bool SS_ListPidsAndThreads (CommandObject *cmd) {
   return true;
 }
 
+
+
+/**
+ * SemanticRoutine: SS_ListRanksAndPids ()
+ * 
+ * List the Process ID and OpenMP or Posix thread Id's for the application
+ * attached to an experiment.  If both thread types are present,
+ * return the OpenMP thread Id..
+ *     
+ * @param   cmd - the CommandObject being processed.
+ *
+ * @return  "true" on successful complation of the command.
+ *
+ * @error   "false" is returned if no experiment can be determined
+ *          or the "-f" filter option is specified.
+ *
+ */
+static bool SS_ListRanksAndPids (CommandObject *cmd) {
+  InputLineObject *clip = cmd->Clip();
+  CMDWID WindowID = (clip != NULL) ? clip->Who() : 0;
+
+ // Look at general modifier types for "all" option.
+  Assert(cmd->P_Result() != NULL);
+  bool All_KeyWord = Look_For_KeyWord (cmd, "all");
+
+  if (All_KeyWord) {
+   // List all the Pids on the system.
+   // We have decided not to support this option.
+    Mark_Cmd_With_Soft_Error(cmd, "'list -v ranksandpids, all' is not supported.");
+    return false;
+  } else {
+   // Get the Pids for a specified Experiment or the focused Experiment.
+    ExperimentObject *exp = Find_Specified_Experiment (cmd);
+    if (exp == NULL) {
+      return false;
+    }
+
+    if (Filter_Uses_F(cmd)) {
+      Mark_Cmd_With_Soft_Error(cmd, "'list -v ranksandpids' does not support the '-f' option.");
+      return false;
+    }
+
+   // Prevent this experiment from changing until we are done.
+    exp->Q_Lock (cmd, true);
+
+   // Get the list of threads used in the specified experiment.
+    ThreadGroup tgrp = exp->FW()->getThreads();
+    Filter_ThreadGroup (cmd->P_Result(), tgrp);
+
+   // Place all the thread ID's into a set so each will be listed only once.
+    std::set<std::string> pair_pt_set;
+    std::string tmp_pair;
+    std::string tmp_pair_r;
+    std::string tmp_pair_t;
+    int rankid = 0;
+    bool early_exit_no_ranks = FALSE;
+    for (ThreadGroup::iterator ti = tgrp.begin(); ti != tgrp.end(); ti++) {
+
+     // Check for asynchronous abort command
+      if (cmd->Status() == CMD_ABORTED) {
+        pair_pt_set.clear();
+        break;
+      }
+
+      Thread t = *ti;
+      pid_t pid = t.getProcessId(); 
+      //std::pair<bool, pid_t> pid = t.getProcessId();
+      int64_t pid_id = 0;
+      if (pid > 0) {
+        pid_id = pid;
+        
+        // There may not be any rank information
+        rankid = 0;
+        std::pair<bool, int> prank = t.getMPIRank();
+        //std::cerr << "looking for ranks, prank.first=" << prank.first << std::endl;
+        if (prank.first) {
+          rankid = prank.second;
+          //std::cerr << "looking for ranks, prank.second=" << prank.second << std::endl;
+        } else {
+          early_exit_no_ranks = TRUE;
+          break;
+        }
+        std::stringstream rank_out;
+        rank_out << rankid;
+        tmp_pair_r = rank_out.str();
+
+        std::stringstream pthread_out;
+        pthread_out << pid_id;
+        tmp_pair_t = pthread_out.str();
+
+        tmp_pair = tmp_pair_r + ":" + tmp_pair_t ;
+        pair_pt_set.insert (tmp_pair);
+
+        
+      } else {
+        //std::pair<bool, pid_t> pid = t.getProcessId();
+        pid_t pid = t.getProcessId();
+        if (pid > 0) {
+          pid_id = pid;
+        }
+
+        // There may not be any rank information
+        rankid = 0;
+        std::pair<bool, int> prank = t.getMPIRank();
+        //std::cerr << "looking for ranks, prank.first=" << prank.first << std::endl;
+        if (prank.first) {
+          rankid = prank.second;
+          //std::cerr << "looking for ranks, prank.second=" << prank.second << std::endl;
+        } else {
+          early_exit_no_ranks = TRUE;
+          break;
+        }
+        std::stringstream rank_out;
+        rank_out << rankid;
+        tmp_pair_r = rank_out.str();
+
+        std::stringstream pid_out;
+        pid_out << pid_id;
+        tmp_pair_t = pid_out.str();
+
+        tmp_pair = tmp_pair_r + ":" + tmp_pair_t ;
+        pair_pt_set.insert (tmp_pair);
+      }
+    }
+    //std::cerr << "early_exit_no_ranks=" << early_exit_no_ranks << std::endl;
+    if (early_exit_no_ranks) {
+#if 0
+         std::string empty1;
+         empty1.clear();
+         cmd->Result_String ( empty1 );
+         cmd->Result_String ( *pair_pt_set );
+#endif
+    } else {
+       for (std::set<std::string>::iterator pair_pt_seti = pair_pt_set.begin(); pair_pt_seti != pair_pt_set.end(); pair_pt_seti++) {
+         cmd->Result_String ( *pair_pt_seti );
+       }
+    }
+
+    exp->Q_UnLock ();
+  }
+
+  cmd->set_Status(CMD_COMPLETE);
+  return true;
+}
 
 /**
  * SemanticRoutine: SS_ListRanksAndThreads ()
@@ -7594,6 +7844,8 @@ bool SS_ListGeneric (CommandObject *cmd) {
       result_of_first_list = SS_ListNumberOfRanks(cmd);
     } else if (!strcasecmp(S.c_str(),"ranksandthreads")) {
       result_of_first_list = SS_ListRanksAndThreads(cmd);
+    } else if (!strcasecmp(S.c_str(),"ranksandpids")) {
+      result_of_first_list = SS_ListRanksAndPids(cmd);
     } else if (!strcasecmp(S.c_str(),"savedviews")) {
       result_of_first_list = SS_ListSavedViews( cmd, Find_Specified_Experiment (cmd) );
     } else if (!strcasecmp(S.c_str(),"src")) {

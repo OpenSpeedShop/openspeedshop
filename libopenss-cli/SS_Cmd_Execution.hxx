@@ -68,6 +68,9 @@ bool SS_cvClusters (CommandObject *cmd);
 bool SS_ListGeneric (CommandObject *cmd);
 bool SS_ListCviews (CommandObject *cmd);
 
+int SS_getNumThreads (CommandObject *cmd, ExperimentObject *exp);
+int SS_getNumRanks (CommandObject *cmd, ExperimentObject *exp);
+
 // Session level commands
 bool SS_ClearBreaks (CommandObject *cmd);
 bool SS_Echo (CommandObject *cmd);

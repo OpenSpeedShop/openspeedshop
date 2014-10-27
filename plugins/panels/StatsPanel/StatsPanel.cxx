@@ -5112,6 +5112,216 @@ void StatsPanel::getRankThreadPidList(int exp_id)
 
  }
 }
+
+
+void StatsPanel::getSeparateRanksAndThreadsList(int exp_id)
+{
+
+// Now get the threads.
+
+ QString command = QString::null;
+
+#ifdef DEBUG_StatsPanel_info
+ printf("StatsPanel::getSeparateRanksAndThreadsList exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
+#endif
+
+ currentThreadsStrENUM = UNKNOWN;
+
+ if( exp_id > 0 || focusedExpID > 0 ) {
+
+  if( focusedExpID == -1 ) {
+    command = QString("list -v ranksandthreads -x %1").arg(exp_id);
+  } else {
+    command = QString("list -v ranksandthreads -x %1").arg(focusedExpID);
+  }
+
+  currentThreadsStrENUM = RANK;
+
+  // Check if this command has been cached already, if so the list will be updated
+  // If not, call into the CLI and Framework to get the list data required.
+
+  separate_list_of_ranksandthreads.clear();
+  bool list_is_cached = checkForExistingStringList( command.ascii(), separate_list_of_ranksandthreads);
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "StatsPanel::getSeparateRankList, LIST_V_RANKS CHECK, command=" << command.ascii() << " list_is_cached=" << list_is_cached
+            << " separate_list_of_ranksandthreads.size()=" << separate_list_of_ranksandthreads.size() << std::endl;
+#endif
+
+  if (!list_is_cached) {
+
+#ifdef DEBUG_StatsPanel_info
+    printf("StatsPanel::getSeparateRankList-attempt to run (%s)\n", command.ascii() );
+#endif
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    separate_list_of_ranksandthreads.clear();
+    InputLineObject *clip = NULL;
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
+           &separate_list_of_ranksandthreads, clip, FALSE /* mark value for delete */ ) ) {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+
+    //std::cerr << "StatsPanel::getSeparateRankList, CACHING LIST_V_RANKS, command=" << command.ascii()
+    //          << " separate_list_of_ranksandthreads.size()=" << separate_list_of_ranksandthreads.size() << std::endl;
+
+    addStringListForThisCommand(command.ascii(), separate_list_of_ranksandthreads);
+  }
+
+#ifdef DEBUG_StatsPanel_info
+  printf("StatsPanel::getSeparateRankList, ran %s, separate_list_of_ranksandthreads.size()=%d\n", command.ascii(), separate_list_of_ranksandthreads.size() );
+#endif
+
+
+ } else {
+    separate_list_of_ranksandthreads.clear();
+#ifdef DEBUG_StatsPanel_info
+    printf("StatsPanel::getSeparateRankList, not valid exp_id=%d, no pids/ranks/threads\n", exp_id);
+#endif
+ }
+
+}
+
+
+void StatsPanel::getSeparateRanksAndPidsList(int exp_id)
+{
+
+// Now get the threads.
+
+ QString command = QString::null;
+
+#ifdef DEBUG_StatsPanel_info
+ printf("StatsPanel::getSeparateRanksAndPidsList exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
+#endif
+
+ currentThreadsStrENUM = UNKNOWN;
+
+ if( exp_id > 0 || focusedExpID > 0 ) {
+
+  if( focusedExpID == -1 ) {
+    command = QString("list -v ranksandpids -x %1").arg(exp_id);
+  } else {
+    command = QString("list -v ranksandpids -x %1").arg(focusedExpID);
+  }
+
+  currentThreadsStrENUM = RANK;
+
+  // Check if this command has been cached already, if so the list will be updated
+  // If not, call into the CLI and Framework to get the list data required.
+
+  separate_list_of_ranksandpids.clear();
+  bool list_is_cached = checkForExistingStringList( command.ascii(), separate_list_of_ranksandpids);
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "StatsPanel::getSeparateRanksAndPidsList, LIST_V_RANKS CHECK, command=" << command.ascii() << " list_is_cached=" << list_is_cached
+            << " separate_list_of_ranksandpids.size()=" << separate_list_of_ranksandpids.size() << std::endl;
+#endif
+
+  if (!list_is_cached) {
+
+#ifdef DEBUG_StatsPanel_info
+    printf("StatsPanel::getSeparateRanksAndPidsList-attempt to run (%s)\n", command.ascii() );
+#endif
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    separate_list_of_ranksandpids.clear();
+    InputLineObject *clip = NULL;
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
+           &separate_list_of_ranksandpids, clip, FALSE /* mark value for delete */ ) ) {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+
+    //std::cerr << "StatsPanel::getSeparateRanksAndPidsList, CACHING LIST_V_RANKS, command=" << command.ascii()
+    //          << " separate_list_of_ranksandpids.size()=" << separate_list_of_ranksandpids.size() << std::endl;
+
+    addStringListForThisCommand(command.ascii(), separate_list_of_ranksandpids);
+  }
+
+#ifdef DEBUG_StatsPanel_info
+  printf("StatsPanel::getSeparateRanksAndPidsList, ran %s, separate_list_of_ranksandpids.size()=%d\n", command.ascii(), separate_list_of_ranksandpids.size() );
+#endif
+
+
+ } else {
+    separate_list_of_ranksandpids.clear();
+#ifdef DEBUG_StatsPanel_info
+    printf("StatsPanel::getSeparateRanksAndPidsList, not valid exp_id=%d, no pids/ranks/threads\n", exp_id);
+#endif
+ }
+
+}
+
+
+
+void StatsPanel::getSeparatePidsAndThreadsList(int exp_id)
+{
+
+// Now get the process and thread pairs.
+
+ QString command = QString::null;
+
+#ifdef DEBUG_StatsPanel_info
+ printf("StatsPanel::getSeparatePidsAndThreadsList exp_id=%d, focusedExpID=%d\n", exp_id, focusedExpID);
+#endif
+
+ currentThreadsStrENUM = UNKNOWN;
+
+ if( exp_id > 0 || focusedExpID > 0 ) {
+
+  if( focusedExpID == -1 ) {
+    command = QString("list -v pidsandthreads -x %1").arg(exp_id);
+  } else {
+    command = QString("list -v pidsandthreads -x %1").arg(focusedExpID);
+  }
+
+  currentThreadsStrENUM = PID;
+
+  // Check if this command has been cached already, if so the list will be updated
+  // If not, call into the CLI and Framework to get the list data required.
+
+  separate_list_of_pidsandthreads.clear();
+  bool list_is_cached = checkForExistingStringList( command.ascii(), separate_list_of_pidsandthreads);
+
+#ifdef DEBUG_StatsPanel_cache
+  std::cerr << "StatsPanel::getSeparatePidsAndThreadsList, LIST_V_PROCESSESANDTHREADS CHECK, command=" << command.ascii() << " list_is_cached=" << list_is_cached
+            << " separate_list_of_pidsandthreads.size()=" << separate_list_of_pidsandthreads.size() << std::endl;
+#endif
+
+  if (!list_is_cached) {
+
+#ifdef DEBUG_StatsPanel_info
+    printf("StatsPanel::getSeparatePidsAndThreadsList-attempt to run (%s)\n", command.ascii() );
+#endif
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    separate_list_of_pidsandthreads.clear();
+    InputLineObject *clip = NULL;
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(),
+           &separate_list_of_pidsandthreads, clip, FALSE /* mark value for delete */ ) ) {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+
+    //std::cerr << "StatsPanel::getSeparatePidsAndThreadsList, CACHING LIST_V_RANKS, command=" << command.ascii()
+    //          << " separate_list_of_pidsandthreads.size()=" << separate_list_of_pidsandthreads.size() << std::endl;
+
+    addStringListForThisCommand(command.ascii(), separate_list_of_pidsandthreads);
+  }
+
+#ifdef DEBUG_StatsPanel_info
+  printf("StatsPanel::getSeparatePidsAndThreadsList, ran %s, separate_list_of_pidsandthreads.size()=%d\n", command.ascii(), separate_list_of_pidsandthreads.size() );
+#endif
+
+
+ } else {
+    separate_list_of_pidsandthreads.clear();
+#ifdef DEBUG_StatsPanel_info
+    printf("StatsPanel::getSeparatePidsAndThreadsList, not valid exp_id=%d, no pids/ranks/threads\n", exp_id);
+#endif
+ }
+
+}
+
+
 void StatsPanel::getSeparatePidList(int exp_id)
 {
 
@@ -5989,7 +6199,7 @@ QString StatsPanel::getPartialExperimentInfo2(int exp_id)
 
     QString returnString = QString::null;
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
     printf("getPartialExperimentInfo2, before add any focus, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
 #endif
 
@@ -5997,8 +6207,9 @@ QString StatsPanel::getPartialExperimentInfo2(int exp_id)
     infoAboutString += QString("Hosts/Threads %1\n").arg(currentThreadsStr);
     int ranks_present = currentThreadsStr.find("-r", 0, TRUE);
     QString local_ranks_command = QString::null;
+
     if (ranks_present > 0) {
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
         printf("StatsPanel::getPartialExperimentInfo2, PARTIAL EXP. INFO,list_of_pids.size()=%d\n", list_of_pids.size() );
 #endif
 #if 1
@@ -6010,7 +6221,7 @@ QString StatsPanel::getPartialExperimentInfo2(int exp_id)
       }
 
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
       printf("StatsPanel::getPartialExperimentInfo2-attempt to run (%s)\n", local_ranks_command.ascii() );
 #endif
       // Check if this command has been cached already, if so the list will be updated
@@ -6040,7 +6251,7 @@ QString StatsPanel::getPartialExperimentInfo2(int exp_id)
         addIntListForThisCommand(local_ranks_command.ascii(), partial_list_of_ranks);
       }
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
       printf("StatsPanel::getPartialExperimentInfo2, ran %s, partial_list_of_ranks.size()=%d\n", local_ranks_command.ascii(), partial_list_of_ranks.size() );
 #endif
        int rank_cnt = partial_list_of_ranks.size();
@@ -6085,13 +6296,13 @@ QString StatsPanel::getPartialExperimentInfo2(int exp_id)
              addIntListForThisCommand(local_command.ascii(), partial_list_of_threads);
            }
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
          printf("StatsPanel::getPartialExperimentInfo2, ran %s, partial_list_of_threads.size()=%d\n", 
                 local_command.ascii(), partial_list_of_threads.size() );
 #endif
            if( partial_list_of_threads.size() > 0 ) {
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
            printf("StatsPanel::getPartialExperimentInfo2, inside if, partial_list_of_threads.size()=%d\n", partial_list_of_threads.size() );
 #endif
              int local_thread_count = 0;
@@ -6107,7 +6318,7 @@ QString StatsPanel::getPartialExperimentInfo2(int exp_id)
                local_thread_count = local_thread_count + 1;
                QString local_threadStr = QString("%1").arg(local_thread);
                infoAboutString += QString("Thread: %1\n").arg(local_threadStr);
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
                printf("StatsPanel::getPartialExperimentInfo2, local_thread=%ld, local_thread_count=%d, partial_list_of_threads.size()=%d\n", local_thread, local_thread_count, partial_list_of_threads.size() );
 #endif
           
@@ -6120,7 +6331,7 @@ QString StatsPanel::getPartialExperimentInfo2(int exp_id)
       returnString = QString("\n%1\n").arg(infoAboutString);
     }
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
     printf("getPartialExperimentInfo2, after add any focus, currentThreadsStr=(%s)\n", currentThreadsStr.ascii() );
 #endif
     return returnString;
@@ -6137,7 +6348,7 @@ QString StatsPanel::getPartialExperimentInfo()
 {
   QString returnString = QString::null;
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
   printf("StatsPanel::getPartialExperimentInfo, entered, aboutOutputString=(%s)\n", aboutOutputString.ascii() );
   printf("StatsPanel::getPartialExperimentInfo, entered, lastCommand=(%s)\n", lastCommand.ascii() );
   printf("StatsPanel::getPartialExperimentInfo, entered, infoAboutString=(%s)\n", infoAboutString.ascii() );
@@ -6145,14 +6356,14 @@ QString StatsPanel::getPartialExperimentInfo()
 
   int cviewinfo_index = lastCommand.find("cview ");
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
   printf("StatsPanel::getPartialExperimentInfo, cview-check, cviewinfo_index=(%d)\n", cviewinfo_index );
 #endif
 
   if( cviewinfo_index == -1 ) {
      cviewinfo_index = lastCommand.find("expView ");
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
      printf("StatsPanel::getPartialExperimentInfo, expview-check, cviewinfo_index=(%d)\n", cviewinfo_index );
 #endif
 
@@ -6160,20 +6371,20 @@ QString StatsPanel::getPartialExperimentInfo()
      // if a subset of the entire experiment is being displayed.  -h host is a check to make?
      if( cviewinfo_index != -1 ) {
         cviewinfo_index = lastCommand.find("-h");
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
         printf("StatsPanel::getPartialExperimentInfo, host-check, cviewinfo_index=(%d)\n", cviewinfo_index );
 #endif
      }
      if( cviewinfo_index == -1 ) {
         cviewinfo_index = lastCommand.find("-r");
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
         printf("StatsPanel::getPartialExperimentInfo, rank-check, cviewinfo_index=(%d)\n", cviewinfo_index );
 #endif
      }
   }
   if( cviewinfo_index != -1 ) {
 
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
         printf("StatsPanel::getPartialExperimentInfo, infoAboutComparingString.isEmpty()=(%d)\n", infoAboutComparingString.isEmpty() );
        if (!infoAboutComparingString.isEmpty()) {
           printf("StatsPanel::getPartialExperimentInfo, infoAboutComparingString.ascii()=(%s)\n", infoAboutComparingString.ascii() );
@@ -6189,7 +6400,7 @@ QString StatsPanel::getPartialExperimentInfo()
     }
 
   }
-#ifdef DEBUG_StatsPanel
+#ifdef DEBUG_StatsPanel_info
   printf("StatsPanel::getPartialExperimentInfo, return(%s)\n", returnString.ascii() );
 #endif
   return (returnString);
@@ -6203,7 +6414,7 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 
 //  if ( isHeaderInfoAlreadyProcessed(exp_id)) {
 //
-//#ifdef DEBUG_StatsPanel
+//#ifdef DEBUG_StatsPanel_info
 //     printf("StatsPanel::updateStatsPanelInfoHeader, EXIT EARLY, exp_id=(%d) already processed\n", exp_id );
 //#endif
 //     
@@ -6311,6 +6522,9 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
   getSeparatePidList(exp_id);
   getSeparateRankList(exp_id);
   getSeparateThreadList(exp_id);
+  getSeparateRanksAndThreadsList(exp_id);
+  getSeparateRanksAndPidsList(exp_id);
+  getSeparatePidsAndThreadsList(exp_id);
 
   getHostList(exp_id);
   getRankThreadPidList(exp_id);
@@ -6417,6 +6631,8 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 #endif
   if( list_of_hosts.size() > 0 )
   {
+    infoString += QString("\n  Number of Host(s): ");
+    infoString += QString(" %1 ").arg(list_of_hosts.size());
     infoString += QString("\n  Host(s): ");
     int host_count = 0;
     for( std::list<std::string>::const_iterator it = list_of_hosts.begin();
@@ -6429,7 +6645,7 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
       printf("StatsPanel::updateStatsPanelInfoHeader, host=(%s)\n", host.c_str() );
 #endif
       infoString += QString(" %1 ").arg(infoHostStr);
-//      if (host_count > 6) break;
+      if (host_count > 17) break;
     }
 
   }
@@ -6556,6 +6772,67 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
     } // end for
 
   }
+#else
+   bool there_are_multiple_threads_per_rank = false;
+   if (separate_list_of_ranksandthreads.size() > 0 && separate_list_of_ranks.size() > 0 &&
+       separate_list_of_ranks.size() > separate_list_of_ranksandthreads.size() ) {
+       there_are_multiple_threads_per_rank = true;
+   }
+   if (separate_list_of_ranksandthreads.size() > 0) {
+    if (there_are_multiple_threads_per_rank) {
+      infoString += QString("\n  Number of Rank:Thread Pairs: ");
+      infoString += QString(" %1 ").arg(separate_list_of_ranksandthreads.size());
+      infoString += QString("\n  Rank:Thread Pairs: ");
+    } else {
+      infoString += QString("\n  Number of Ranks: ");
+      infoString += QString(" %1 ").arg(separate_list_of_ranks.size());
+      infoString += QString("\n  Ranks: ");
+    }
+    bool first_time = true;
+    int rank_count = 0;
+    if (separate_list_of_ranksandthreads.size() > 0 && there_are_multiple_threads_per_rank) {
+       for( std::list<std::string>::const_iterator it = separate_list_of_ranksandthreads.begin(); it != separate_list_of_ranksandthreads.end(); it++ )
+      {
+        rank_count = rank_count + 1;
+        std::string rank_thread = (std::string)*it;
+        infoString += QString(" %1 ").arg(rank_thread);
+        if (rank_count > 16) {
+           infoString += QString(" ... ");
+           break;
+        }
+      }
+    } else {
+      // ranks only case
+      if (separate_list_of_ranks.size() > 0) {
+       for( std::list<int64_t>::const_iterator it = separate_list_of_ranks.begin(); it != separate_list_of_ranks.end(); it++ ) {
+        rank_count = rank_count + 1;
+        int64_t rank = (int64_t)*it;
+        QString local_rankStr = QString("%1").arg(rank);
+        infoString += QString(" %1 ").arg(local_rankStr);
+        if (rank_count > 16) {
+           infoString += QString(" ... ");
+           break;
+        }
+       }
+      }
+    }
+   } else if (separate_list_of_pidsandthreads.size() > 0) {
+    infoString += QString("\n  Number of Process:Thread Pairs: ");
+    infoString += QString(" %1 ").arg(separate_list_of_pidsandthreads.size());
+    infoString += QString("\n  Process:Thread Pairs: ");
+    bool first_time = true;
+    int pid_count = 0;
+    for( std::list<std::string>::const_iterator it = separate_list_of_pidsandthreads.begin(); it != separate_list_of_pidsandthreads.end(); it++ )
+    {
+      pid_count = pid_count + 1;
+      std::string pid_thread = (std::string)*it;
+      infoString += QString(" %1 ").arg(pid_thread);
+      if (pid_count > 16) {
+         infoString += QString(" ... ");
+         break;
+      }
+    }
+   }
 #endif
 
 // All the key data items have been processed into the infoString now...
@@ -6568,7 +6845,6 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 
  if( list_of_executables.size() > 0 )
   {
-//    infoSummaryStr += QString("<b>Executables:</b> ");
     infoSummaryStr += QString("Executables: ");
     for( std::list<std::string>::const_iterator it = list_of_executables.begin();
          it != list_of_executables.end(); it++ )
@@ -6603,6 +6879,9 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
    // find start/end character positions
    QString infoHostStr = QString::null;
    int host_count = infoString.contains("-h", TRUE);
+#ifdef DEBUG_StatsPanel_info
+   printf("StatsPanel::updateStatsPanelInfoHeader, after infoString.contains call, host_count=(%d)\n", host_count );
+#endif
    if (host_count > 0) {  
     index_host_start = infoString.find("-h ");
 #ifdef DEBUG_StatsPanel_info
@@ -6638,10 +6917,8 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
     }
 
     if (host_count == 1) {
-//      infoSummaryStr += QString("<b>Host:</b> ");
       infoSummaryStr += QString("Host: ");
     } else {
-//      infoSummaryStr += QString("<b>Hosts:</b>(%1) ").arg(host_count);
       infoSummaryStr += QString("Hosts:(%1) ").arg(host_count);
     }
 
@@ -6776,13 +7053,19 @@ void StatsPanel::updateStatsPanelInfoHeader(int exp_id)
 
   // Process PID/RANK/THREAD information first
 
-   if (separate_list_of_pids.size() > 0) {
+   if (separate_list_of_ranksandpids.size() > 0) {
+     infoSummaryStr += QString("Pids: %1").arg(separate_list_of_ranksandpids.size());
+   } else if (separate_list_of_pids.size() > 0) {
      infoSummaryStr += QString("Pids: %1").arg(separate_list_of_pids.size());
    }
    if (separate_list_of_ranks.size() > 0) {
      infoSummaryStr += QString(" Ranks: %1").arg(separate_list_of_ranks.size());
    }
-   if (separate_list_of_threads.size() > 0) {
+   if (separate_list_of_ranksandthreads.size() > 0) {
+     infoSummaryStr += QString(" Threads: %1").arg(separate_list_of_ranksandthreads.size());
+   } else if (separate_list_of_pidsandthreads.size() > 0) {
+     infoSummaryStr += QString(" Threads: %1").arg(separate_list_of_pidsandthreads.size());
+   } else {
      infoSummaryStr += QString(" Threads: %1").arg(separate_list_of_threads.size());
    }
 

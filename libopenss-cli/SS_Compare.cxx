@@ -23,6 +23,7 @@
 //#define DEBUG_REUSEVIEWS 1
 //#define DEBUG_COMPARE 1
 //#define DEBUG_COMPARE_SETS 1
+//#define DEBUG_CVIEWINFO 1
 
 static int64_t Get_Trailing_Int (std::string viewname, int64_t start) {
   int64_t topn = 0;
@@ -163,6 +164,72 @@ struct selectionTarget {
     to << std::endl;
   }
 };
+
+
+#if 0
+static void
+SS_printRange(std::vector<ParseRange> *p_list, const char *label, bool is_hex)
+{
+    std::vector<ParseRange>::iterator iter;
+//#if DEBUG_CLI
+    printf("SS_printRange, label=%s, is_hex=%d\n", label, is_hex);
+//#endif
+
+    if (is_hex){
+        std::cout.setf(std::ios_base::hex,std::ios_base::basefield);
+        std::cout.setf(std::ios_base::showbase);
+    }
+    else {
+        std::cout.setf(std::ios_base::dec,std::ios_base::basefield);
+        std::cout.unsetf(std::ios_base::showbase);
+    }
+
+    if (p_list->begin() != p_list->end()) {
+            std::cout << "\t\t" << label << ": " ;
+    } else {
+        //std::cerr << "SS_printRange, p_list begin and end are the same, label=" << label << " is_hex=" << is_hex << std::endl;
+    }
+
+    for (iter=p_list->begin();iter != p_list->end(); iter++) {
+        parse_range_t *p_range = iter->getRange();
+        if (p_range->is_range) {
+            parse_val_t *p_val1 = &p_range->start_range;
+            parse_val_t *p_val2 = &p_range->end_range;
+            if (p_val1->tag == VAL_STRING) {
+                std::cout << p_val1->name << ":";
+                //std::cerr << "SS_printRange, there is a range, p_val1->name=" << p_val1->name << std::endl;
+            }
+            else {
+                std::cout << p_val1->num << ":";
+                //std::cerr << "SS_printRange, there is a range, p_val1->num=" << p_val1->num << std::endl;
+            }
+            if (p_val2->tag == VAL_STRING) {
+                std::cout << p_val2->name << " ";
+                //std::cerr << "SS_printRange, there is a range, p_val2->name=" << p_val2->name << std::endl;
+            }
+            else {
+                std::cout << p_val2->num << " ";
+                //std::cerr << "SS_printRange, there is a range, p_val2->num=" << p_val2->num << std::endl;
+            }
+        }
+        else {
+            parse_val_t *p_val1 = &p_range->start_range;
+            if (p_val1->tag == VAL_STRING) {
+                std::cout << p_val1->name << " ";
+                //std::cerr << "SS_printRange, there is NOT a range, p_val1->name=" << p_val1->name << std::endl;
+            }
+            else {
+                std::cout << p_val1->num << " ";
+                //std::cerr << "SS_printRange, there is NOT a range, p_val1->num=" << p_val1->num << std::endl;
+            }
+        }
+    }
+    if (p_list->begin() != p_list->end())
+            std::cout << std::endl ;
+
+}
+#endif
+
 
 /**
  * Method: Select_ThreadGroup()
@@ -1578,9 +1645,20 @@ bool SS_cvClear (CommandObject *cmd) {
   return true;
 }
 
-static std::string CustomViewInfo (CustomView *cvp) {
+static std::string CustomViewInfo (CommandObject *cmd, CustomView *cvp) {
+
   OpenSpeedShop::cli::ParseResult *p_result = cvp->cvPr();
+
+#if DEBUG_CVIEWINFO
+  std::cerr << "CustomViewInfo, beginning of dumping p_result containing information used to build cviewinfo outputs" << std::endl;
+  if (p_result != NULL) {
+      p_result->ParseResult::dumpInfo();
+  }
+  std::cerr << "CustomViewInfo, end of dumping p_result containing information used to build cviewinfo outputs" << std::endl;
+#endif
+
   std::ostringstream S(std::ios::out);
+
  // List viewTypes.
   std::vector<std::string> *vtlist = p_result->getViewList();
   if (!vtlist->empty()) {
@@ -1613,9 +1691,16 @@ static std::string CustomViewInfo (CustomView *cvp) {
   }
 
  // Add the '-x' specifier.
+  int global_overall_num_ranks = -1;
+  int global_overall_num_threads = -1;
   EXPID ExperimentID = (p_result->isExpId()) ? p_result->getExpId() : 0;
   if (ExperimentID != 0) {
+    ExperimentObject *exp = Find_Experiment_Object (ExperimentID) ;
     S << " -x " << ExperimentID;
+    if (exp > 0) {
+      global_overall_num_ranks = SS_getNumRanks(cmd, exp);
+      global_overall_num_threads = SS_getNumThreads(cmd, exp);
+    }
   }
 
   
@@ -1624,6 +1709,7 @@ static std::string CustomViewInfo (CustomView *cvp) {
   std::vector<ParseTarget> *p_tlist = p_result->getTargetList();
   std::vector<ParseTarget>::iterator pi;
 
+#if 0
  // Add the "-h" list
   std::set<std::string> hset;
   for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
@@ -1654,17 +1740,19 @@ static std::string CustomViewInfo (CustomView *cvp) {
     first_h_item_found = true;
     S << *hseti;
   }
+#endif
 
+#if 1
  // Add the "-f" list.
   std::set<std::string> fset;
   for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
     ParseTarget pt = *pi;
-    std::vector<ParseRange> *h_list = pt.getHostList();
+    //std::vector<ParseRange> *h_list = pt.getHostList();
     std::vector<ParseRange> *f_list = pt.getFileList();
 
     if (!f_list->empty()) {
       std::vector<ParseRange>::iterator p_flist;
-      for (p_flist=h_list->begin();p_flist != h_list->end(); p_flist++) {
+      for (p_flist=f_list->begin();p_flist != f_list->end(); p_flist++) {
         parse_range_t p_range = *p_flist->getRange();
         // std::string N = Experiment::getCanonicalName(p_range.start_range.name);
         std::string N = p_range.start_range.name;
@@ -1686,7 +1774,9 @@ static std::string CustomViewInfo (CustomView *cvp) {
     first_f_item_found = true;
     S << *fseti;
   }
+#endif
 
+#if 0
  // Add the "-p" list.
   std::map<pid_t, parse_range_t> pset;
   for (pi = p_tlist->begin(); pi != p_tlist->end(); pi++) {
@@ -1789,6 +1879,177 @@ static std::string CustomViewInfo (CustomView *cvp) {
       S << ":" << p_range.end_range.num;
     }
   }
+#else
+    std::vector<ParseTarget>::iterator t_iter;
+    std::vector<ParseTarget> *compare_p_tlist = p_result->getTargetList();
+    bool use_rank_thread_pairs = false;
+    bool use_rank_only = false;
+    bool qualifies_to_use_rank_thread_pairs = false;
+    bool use_pid_thread_pairs = false;
+    bool qualifies_to_use_pid_thread_pairs = false;
+    std::vector<ParseRange>::iterator iter;
+    parse_val_t *p_val1_rank;
+    parse_val_t *p_val2_rank;
+    parse_val_t *p_val1_pid;
+    parse_val_t *p_val2_pid;
+    parse_val_t *p_val1_thread;
+    parse_val_t *p_val2_thread;
+    parse_val_t *p_val1_host;
+    parse_val_t *p_val2_host;
+
+    int64_t count = 1;
+    std::string prev_host = "";
+    for (t_iter=compare_p_tlist->begin() ;t_iter != compare_p_tlist->end(); t_iter++) {
+
+        bool have_a_host = false;
+        std::vector<ParseRange> *p_list_host = t_iter->getHostList();
+        for (iter=p_list_host->begin();iter != p_list_host->end(); iter++) {
+#if DEBUG_CVIEWINFO
+           std::cerr << "INSIDE HOST CVIEWINFO loop" << std::endl;
+#endif
+           parse_range_t *p_range = iter->getRange();
+           if (p_range->is_range) {
+#if DEBUG_CVIEWINFO
+               std::cerr << "HOSTS have a range" << std::endl;
+#endif
+               p_val1_host = &p_range->start_range;
+               p_val2_host = &p_range->end_range;
+               have_a_host = true;
+           } else {
+#if DEBUG_CVIEWINFO
+               std::cerr << "HOSTS DO NOT have a range" << std::endl;
+#endif
+               p_val1_host = &p_range->start_range;
+               have_a_host = true;
+           }
+        }
+        int host_size = sizeof(p_val1_host->name);
+           
+        if (have_a_host && p_val1_host && !p_val1_host->name.empty() && \
+            strncasecmp(prev_host.c_str(), p_val1_host->name.c_str(),host_size) != 0) {
+          S << " -h " << p_val1_host->name << " ";
+          prev_host = p_val1_host->name;
+        }
+
+        std::vector<ParseRange> *p_list_rank = t_iter->getRankList(); 
+        std::vector<ParseRange> *p_list_thread = t_iter->getThreadList(); 
+#if DEBUG_CVIEWINFO
+        std::cerr << "RANK CVIEWINFO before loop, p_list_rank->size()=" << p_list_rank->size() 
+                  << " RANK CVIEWINFO before loop, p_list_threadrank->size()=" << p_list_thread->size() << std::endl;
+#endif
+        if ((p_list_rank->size() == 1) && ((p_list_thread->size() > 1) || (global_overall_num_threads > global_overall_num_ranks))) {
+#if DEBUG_CVIEWINFO
+           std::cerr << "RANKS section, setting use_rank_thread_pairs to TRUE" << std::endl;
+#endif
+           qualifies_to_use_rank_thread_pairs = true;
+        }
+
+#if 0
+        if (qualifies_to_use_rank_thread_pairs) {
+           S << " Rank Thread pairs: " ;
+        } else {
+           S << " Ranks: " ;
+        } 
+#endif
+        for (iter=p_list_rank->begin();iter != p_list_rank->end(); iter++) {
+
+#if DEBUG_CVIEWINFO
+           std::cerr << "INSIDE RANK CVIEWINFO loop" << std::endl;
+#endif
+           parse_range_t *p_range = iter->getRange();
+           if (p_range->is_range) {
+#if DEBUG_CVIEWINFO
+               std::cerr << "RANKS have a range" << std::endl;
+#endif
+               p_val1_rank = &p_range->start_range;
+               p_val2_rank = &p_range->end_range;
+           } else {
+#if DEBUG_CVIEWINFO
+               std::cerr << "RANKS do not have a range" << std::endl;
+#endif
+               p_val1_rank = &p_range->start_range;
+               if ( p_val1_rank->num != -1 ) {
+                  if (qualifies_to_use_rank_thread_pairs ) { 
+                     use_rank_thread_pairs = true;
+                  } else {
+                     use_rank_only = true;
+                  }
+               }
+           }
+        }
+
+        if (use_rank_only) {
+          // Add the rank: to the output
+          S << " " << p_val1_rank->num ;
+        } else if (use_rank_thread_pairs) {
+          // Add the rank: to the output
+          S << " " << p_val1_rank->num << ":";
+        } else {
+          // ranks were not found look for a pid
+          std::vector<ParseRange> *p_list_pid = t_iter->getPidList(); 
+          std::vector<ParseRange> *p_list_thread = t_iter->getThreadList(); 
+#if DEBUG_CVIEWINFO
+          std::cerr << "PID CVIEWINFO before loop, p_list_pid->size()=" << p_list_rank->size() 
+                    << "PID CVIEWINFO before loop, p_list_thread->size()=" << p_list_thread->size() << std::endl;
+#endif
+        if (p_list_pid->size() == 1 && p_list_thread->size() > 1) {
+#if DEBUG_CVIEWINFO
+           std::cerr << "PIDS section, setting use_pid_thread_pairs to TRUE" << std::endl;
+#endif
+           use_pid_thread_pairs = true;
+        }
+          for (iter=p_list_pid->begin();iter != p_list_pid->end(); iter++) {
+#if DEBUG_CVIEWINFO
+             std::cerr << "INSIDE PID CVIEWINFO loop" << std::endl;
+#endif
+             parse_range_t *p_range = iter->getRange();
+             if (p_range->is_range) {
+#if DEBUG_CVIEWINFO
+                 std::cerr << "PIDS have a range" << std::endl;
+#endif
+                 p_val1_pid = &p_range->start_range;
+                 p_val2_pid = &p_range->end_range;
+             } else {
+#if DEBUG_CVIEWINFO
+                 std::cerr << "PIDS do not have a range" << std::endl;
+#endif
+                 p_val1_pid = &p_range->start_range;
+             }
+          }
+          S << " " << p_val1_pid->num << ":";
+        }
+        // now add the threads to the rank: or pid:
+        bool already_put_thread_out = false;
+        //std::vector<ParseRange> *p_list_thread = t_iter->getThreadList(); 
+        if (!use_rank_only) {
+          for (iter=p_list_thread->begin();iter != p_list_thread->end(); iter++) {
+#if DEBUG_CVIEWINFO
+             std::cerr << "INSIDE THREAD CVIEWINFO loop" << std::endl;
+#endif
+             parse_range_t *p_range = iter->getRange();
+             if (p_range->is_range) {
+#if DEBUG_CVIEWINFO
+                 std::cerr << "Threads have a range" << std::endl;
+#endif
+                 p_val1_thread = &p_range->start_range;
+                 p_val2_thread = &p_range->end_range;
+             } else {
+#if DEBUG_CVIEWINFO
+                 std::cerr << "Threads do not have a range" << std::endl;
+#endif
+                 p_val1_thread = &p_range->start_range;
+                 if (already_put_thread_out) {
+                   S << ":" << p_val1_thread->num ;
+                 } else {
+                   S << p_val1_thread->num ;
+                   already_put_thread_out = true;
+                 }
+             }
+           }
+         }  // end not use_rank_only
+    }
+
+#endif
 
  // Output the '-m' list'
   std::vector<ParseRange> *p_mlist = p_result->getexpMetricList();
@@ -1823,7 +2084,7 @@ static void Report_CustomViewInfo (CommandObject *cmd,
  // Accumulate output in a string.
   std::ostringstream S(std::ios::out);
   S << "-c " << cvp->cvId() << ":";
-  cmd->Result_String (S.str() + CustomViewInfo (cvp));
+  cmd->Result_String (S.str() + CustomViewInfo (cmd, cvp));
 }
 
 bool SS_cvInfo (CommandObject *cmd) {
