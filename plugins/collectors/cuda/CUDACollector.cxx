@@ -25,10 +25,13 @@
 #include <utility>
  
 #include "AddressRange.hxx"
+#include "Assert.hxx"
 #include "Path.hxx"
 #include "StackTrace.hxx"
+#include "TimeInterval.hxx"
 
 #include "CUDACollector.hxx"
+#include "CUDACountsDetail.hxx"
 #include "CUDAExecDetail.hxx"
 #include "CUDAXferDetail.hxx"
 
@@ -57,7 +60,7 @@ namespace {
 
     /** Convert a CUDA request call site into a stack trace. */
     StackTrace toStackTrace(const Thread& thread, const Time& time,
-                            const std::vector<Address>& call_site)
+                            const vector<Address>& call_site)
     {
         StackTrace trace(thread, time);
 
@@ -121,7 +124,7 @@ namespace {
     template <typename T, typename U, bool Inclusive>
     void computeDetails(const CUDA_EnqueueRequest& request,
                         const T& completion,
-                        const std::vector<Address>& call_site,
+                        const vector<Address>& call_site,
                         const SmartPtr<CUDADeviceDetail>& device,
                         const Thread& thread,
                         const ExtentGroup& subextents,
@@ -171,7 +174,7 @@ namespace {
     template <typename T>
     void computeTime(const CUDA_EnqueueRequest& request,
                      const T& completion,
-                     const std::vector<Address>& call_site,
+                     const vector<Address>& call_site,
                      const SmartPtr<CUDADeviceDetail>& device,
                      const Thread& thread,
                      const ExtentGroup& subextents,
@@ -242,6 +245,106 @@ namespace {
         }
     }
 
+    /**
+     * Visitor extracting periodic samples contained in a CUDA message.
+     */
+    void extractPeriodicSamples(const CBTF_cuda_data& data,
+                                const CBTF_cuda_message& message,
+                                const TimeInterval& query_interval,
+                                vector<string> event_names,
+                                vector<uint64_t> event_counts)
+    {
+        static int N[4] = { 0, 2, 3, 8 };
+        
+        switch (message.type)
+        {
+            
+        case PeriodicSamples:
+            {
+                const CUDA_PeriodicSamples& msg =
+                    message.CBTF_cuda_message_u.periodic_samples;
+
+                Assert(event_counts.size() > 0);
+
+                bool is_first = true;
+
+                const uint8_t* ptr = msg.deltas.deltas_val;
+                vector<uint64_t> deltas(1 + event_counts.size());
+
+                uint64_t t_previous = 0;
+                                
+                while (ptr < (msg.deltas.deltas_val + msg.deltas.deltas_len))
+                {
+                    for (int d = 0; d < deltas.size(); ++d)
+                    {
+                        uint8_t encoding = ptr[0] >> 6;
+
+                        if (encoding < 3)
+                        {
+                            deltas[d] = static_cast<uint64_t>(ptr[0]) & 0x3F;
+                        }
+                        else
+                        {
+                            deltas[d] = 0;
+                        }
+                        
+                        for (int i = 0; i < N[encoding]; ++i)
+                        {
+                            deltas[d] <<= 8;
+                            deltas[d] |= static_cast<uint64_t>(ptr[1 + i]);
+                        }
+
+                        ptr += 1 + N[encoding];
+                    }
+
+                    if (is_first)
+                    {
+                        is_first = false;
+                        t_previous = deltas[0];
+                    }
+                    else
+                    {                    
+                        TimeInterval sample_interval(
+                            t_previous, t_previous + deltas[0]
+                            );
+
+                        TimeInterval intersection = 
+                            query_interval & sample_interval;
+
+                        for (int d = 1; d < deltas.size(); ++d)
+                        {
+                            event_counts[d - 1] +=
+                                deltas[d] * intersection.getWidth() /
+                                sample_interval.getWidth();
+                        }
+                        
+                        t_previous += deltas[0];
+                    }
+                }
+            }
+            break;
+            
+        case SamplingConfig:
+            {
+                const CUDA_SamplingConfig& msg =
+                    message.CBTF_cuda_message_u.sampling_config;
+
+                Assert(event_names.size() == 0);
+                Assert(event_counts.size() == 0);
+
+                for (u_int i = 0; i < msg.events.events_len; ++i)
+                {
+                    event_names.push_back(msg.events.events_val[i].name);
+                    event_counts.push_back(0);
+                }
+            }
+            break;
+            
+        default:
+            break;
+        }
+    }
+    
     /** Visitor used to insert an address into a buffer of unique addresses. */
     void insertIntoAddressBuffer(uint64_t address, PCBuffer& buffer)
     {
@@ -312,6 +415,7 @@ CUDACollector::CUDACollector() :
     dm_threads()
 {
     // Declare our metrics
+
     declareMetric(Metadata("exec_time",
                            "CUDA Kernel Execution Time",
                            "CUDA kernel execution time in seconds.",
@@ -338,7 +442,11 @@ CUDACollector::CUDACollector() :
                            "Exclusive CUDA data transfer details.",
                            typeid(XferDetails)));
 
-    // TODO: Add additional metrics for hardware counter sampling data...
+    declareMetric(Metadata("count_exclusive_details",
+                           "Exclusive CUDA HWC Details",
+                           "Exclusive CUDA hardware performance counter "
+                           "details.",
+                           typeid(CUDACountsDetail)));
 }
 
 
@@ -464,12 +572,39 @@ void CUDACollector::getMetricValues(const string& metric,
                                     void* ptr) const
 {
     //
+    // The "count_exclusive_details" metric is handled different from all the
+    // others in that it doesn't require the thread-specific data, and it can't
+    // be computed for specific address ranges (only time intervals). So short-
+    // circuit everything else for this metric...
+    //
+    
+    if (metric == "count_exclusive_details")
+    {
+        vector<string> event_names;
+        vector<uint64_t> event_counts;
+        
+        MessageVisitor visitor = bind(
+            extractPeriodicSamples, _1, _2,
+            cref(subextents[0].getTimeInterval()),
+            ref(event_names), ref(event_counts)
+            );
+        visit(blob, visitor);
+
+        vector<CUDACountsDetail>& data =
+            *reinterpret_cast<vector<CUDACountsDetail>*>(ptr);
+
+        data[0] = CUDACountsDetail(event_names, event_counts);
+
+        return;
+    }
+
+    //
     // Locate the thread-specific data belonging to the thread for which this
     // performance data blob was gathered, creating new thread-specific data
     // when necessary.
     //
 
-    std::map<Thread, ThreadSpecificData>::iterator t = dm_threads.find(thread);
+    map<Thread, ThreadSpecificData>::iterator t = dm_threads.find(thread);
     
     if (t == dm_threads.end())
     {
@@ -785,15 +920,14 @@ SmartPtr<CUDADeviceDetail> CUDACollector::getDeviceDetail(
     const Address& context
     ) const
 {
-    std::map<Address, unsigned int>::const_iterator i = 
-        dm_contexts.find(context);
+    map<Address, unsigned int>::const_iterator i =  dm_contexts.find(context);
     
     if (i == dm_contexts.end())
     {
         return SmartPtr<CUDADeviceDetail>();
     }
     
-    std::map<unsigned int, SmartPtr<CUDADeviceDetail> >::const_iterator j = 
+    map<unsigned int, SmartPtr<CUDADeviceDetail> >::const_iterator j = 
         dm_devices.find(i->second);
 
     if (j == dm_devices.end())

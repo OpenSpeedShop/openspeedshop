@@ -20,6 +20,7 @@ noinst_PROGRAMS =
 pkglib_LTLIBRARIES =
 
 if BUILD_CBTF
+if HAVE_CBTF_MESSAGES_CUDA
 
 noinst_PROGRAMS += test
 pkglib_LTLIBRARIES += cuda.la
@@ -43,21 +44,20 @@ cuda_la_LIBADD = \
 
 cuda_la_SOURCES = \
 	CUDACollector.hxx CUDACollector.cxx \
+	CUDACountsDetail.hxx \
 	CUDADeviceDetail.hxx \
 	CUDAExecDetail.hxx \
 	CUDAXferDetail.hxx
 
 test_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
-	-I$(top_srcdir)/libopenss-queries \
-	-I$(top_srcdir)/libopenss-cli
+	-I$(top_srcdir)/libopenss-queries
 
 test_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
-	-L$(top_srcdir)/libopenss-queries \
-	-L$(top_srcdir)/libopenss-cli
+	-L$(top_srcdir)/libopenss-queries
 
-test_LDADD = -lopenss-framework -lopenss-queries -lopenss-cli
+test_LDADD = -lopenss-framework -lopenss-queries
 
 if HAVE_OPENMP
 test_LDADD += -lgomp
@@ -65,4 +65,5 @@ endif
 
 test_SOURCES = test.cxx
 
+endif
 endif
