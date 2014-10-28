@@ -29,6 +29,29 @@
 #define DEBUG_IOT 1
 */
 
+int64_t application_elapsed_time = 0.0;
+
+/* Start part 2 of 2 for Hack to get around inconsistent syscall definitions */
+#include <sys/syscall.h>
+#ifdef __NR_pread64  /* Newer kernels renamed but it's the same.  */
+# ifndef __NR_pread
+# define __NR_pread __NR_pread64
+# endif
+#endif
+ 
+#ifdef __NR_pwrite64  /* Newer kernels renamed but it's the same.  */ 
+# ifndef __NR_pwrite
+#  define __NR_pwrite __NR_pwrite64
+# endif
+#endif
+/* End part 2 of 2 for Hack to get around inconsistent syscall definitions */
+
+
+
+int64_t prev_max_bytesval=0;
+int64_t prev_min_bytesval=LONG_MAX;
+
+
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
 
@@ -49,8 +72,14 @@
 #define id_temp  VMulti_free_temp+13
 #define rank_temp  VMulti_free_temp+14
 #define thread_temp  VMulti_free_temp+15
+#define minbytes_temp  VMulti_free_temp+16
+#define minbytescount_temp  VMulti_free_temp+17
+#define maxbytes_temp  VMulti_free_temp+18
+#define maxbytescount_temp  VMulti_free_temp+19
+#define totbytes_temp  VMulti_free_temp+20
+#define applpercent_temp  VMulti_free_temp+21
 
-#define First_ByThread_Temp VMulti_free_temp+16
+#define First_ByThread_Temp VMulti_free_temp+22
 #define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
                                  // "2" => times reported in seconds,
                                  //  otherwise don't add anything.
@@ -72,6 +101,11 @@
             int64_t detail_syscallno = 0;        \
             int64_t detail_nsysargs = 0;         \
             int64_t detail_retval = 0;           \
+            int64_t min_bytesval = LONG_MAX;     \
+            int64_t min_bytesval_count = 0;      \
+            int64_t max_bytesval = 0;            \
+            int64_t max_bytesval_count = 0;      \
+            int64_t tot_bytesval = 0;            \
             std::string detail_pathname = "";    \         
             std::string detail_id = "";          \
             int64_t detail_rank = 0;             \
@@ -85,6 +119,31 @@
               end = std::max(end,primary.dm_interval.getEnd());       \
               vmin = std::min(vmin,v);                                \
               vmax = std::max(vmax,v);                                \
+              if (primary.dm_syscallno != SYS_close && primary.dm_syscallno != SYS_open && \
+                  primary.dm_syscallno != SYS_lseek && primary.dm_syscallno != SYS_dup && \
+                  primary.dm_syscallno != SYS_creat) {        \
+                if (primary.dm_retval > 0 ) {                 \
+                  prev_min_bytesval = min_bytesval ;          \
+                  min_bytesval = std::min(min_bytesval,(int64_t)primary.dm_retval); \
+                  if ( min_bytesval == prev_min_bytesval && primary.dm_retval == min_bytesval ) {       \
+                    min_bytesval_count = min_bytesval_count + 1;            \
+                  } else if ( min_bytesval != prev_min_bytesval && primary.dm_retval == min_bytesval ) {       \
+                    min_bytesval_count = 1;                                 \
+                  }                                                         \
+                  prev_max_bytesval = max_bytesval ;                        \
+                  max_bytesval = std::max(max_bytesval,(int64_t)primary.dm_retval); \
+                  if ( max_bytesval == prev_max_bytesval && primary.dm_retval == max_bytesval ) {                \
+                    max_bytesval_count = max_bytesval_count + 1;            \
+                  } else if ( max_bytesval != prev_max_bytesval && primary.dm_retval == max_bytesval ) {       \
+                    max_bytesval_count = 1;                                 \
+                  }                                                         \
+                  tot_bytesval = tot_bytesval + (int64_t)primary.dm_retval; \
+                }                                                           \
+              } else {                                                      \
+                    min_bytesval = 0;                                       \
+                    min_bytesval_count = 0;                                 \
+                    max_bytesval_count = 0;                                 \
+              }                                                           \
               sum_squares += v * v;                              \
               detail_syscallno = primary.dm_syscallno;           \
               detail_retval = primary.dm_retval;                 \
@@ -136,8 +195,8 @@
               if (num_temps > start_temp) {                                               \
                 int64_t x= (start.getValue() /*-base_time*/);                             \
                 value_array[start_temp] = new CommandResult_Time (x);                     \
-              }                                                                          \
-              if (num_temps > stop_temp) {                                               \
+              }                                                                           \
+              if (num_temps > stop_temp) {                                                \
                 int64_t x= (end.getValue() /*-base_time*/);                               \
                 value_array[stop_temp] = new CommandResult_Time (x);                      \
               }                                                                           \
@@ -189,7 +248,58 @@
 		CommandResult * p = CRPTR (detail_thread);				  \
 		p->SetValueIsID();							  \
 		value_array[thread_temp] = p;						  \
+              }                                                                           \
+              if (num_temps > minbytes_temp) {                                            \
+		CommandResult * p = CRPTR (min_bytesval);	                 	  \
+		value_array[minbytes_temp] = p;					          \
+              }										  \
+              if (num_temps > minbytescount_temp) {                                       \
+		CommandResult * p = CRPTR (min_bytesval_count);			          \
+		value_array[minbytescount_temp] = p;					  \
+              }										  \
+              if (num_temps > maxbytes_temp) {                                            \
+		CommandResult * p = CRPTR (max_bytesval);			          \
+		value_array[maxbytes_temp] = p;					          \
+              }										  \
+              if (num_temps > maxbytescount_temp) {                                       \
+		CommandResult * p = CRPTR (max_bytesval_count);			          \
+		value_array[maxbytescount_temp] = p;					  \
+              }										  \
+              if (num_temps > totbytes_temp) {                                            \
+		CommandResult * p = CRPTR (tot_bytesval);			          \
+		value_array[totbytes_temp] = p;					          \
+              }                                                                           \
+              if (num_temps > applpercent_temp) {                                         \
+		value_array[applpercent_temp] = new CommandResult_Interval (application_elapsed_time);      \
               }
+
+int64_t get_elapsed_time( CommandObject *cmd, ExperimentObject *exp ) {
+
+  //std::cerr << "Enter get_elapsed_time" << std::endl;
+
+  int64_t elapsed_time = 0;  
+  //int64_t scaled_time = 0;
+  float scaled_time = 0.0;
+
+  if (exp->FW() != NULL) {
+     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
+     if ((databaseExtent.getTimeInterval().getBegin() == Time::TheBeginning()) ||
+         (databaseExtent.getTimeInterval().getBegin() == databaseExtent.getTimeInterval().getEnd())) {
+            std::cerr << "There was no performance data was recorded in the database." << std::endl;
+      } else {
+
+        Time ST = databaseExtent.getTimeInterval().getBegin();
+        Time ET = databaseExtent.getTimeInterval().getEnd();
+
+        elapsed_time = ((ET - ST));
+        scaled_time = float(float (elapsed_time) / 1000000000.0);
+      }
+   }
+
+   //std::cerr << "EXIT get_elapsed_time, elapsed_time=" << elapsed_time << " scaled_time=" << scaled_time << std::endl;
+   return scaled_time;
+
+}
 
 
 // The code here restricts any view for Functions (e.g. -v Functions)
@@ -385,6 +495,8 @@ static bool define_iot_columns (
   int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
   int64_t last_used_temp = Last_ByThread_Temp; // Track maximum temps - needed for expressions.
 
+  application_elapsed_time = get_elapsed_time(cmd, exp);
+
  // Define combination instructions for predefined temporaries.
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_time_temp));
@@ -400,7 +512,14 @@ static bool define_iot_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Add, id_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, rank_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, thread_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, minbytescount_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Min, minbytes_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, maxbytescount_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Max, maxbytes_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, totbytes_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, applpercent_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
+
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
@@ -453,6 +572,12 @@ static bool define_iot_columns (
   MetricMap["maximum"] = max_temp;
   MetricMap["syscallno"] = syscallno_temp;
   MetricMap["nsysargs"] = nsysargs_temp;
+  MetricMap["min_bytes"] = minbytes_temp;
+  MetricMap["min_bytescount"] = minbytescount_temp;
+  MetricMap["max_bytes"] = maxbytes_temp;
+  MetricMap["max_bytescount"] = maxbytescount_temp;
+  MetricMap["tot_bytes"] = totbytes_temp;
+  MetricMap["appl_percent"] = applpercent_temp;
   if (vfc == VFC_Trace) {
     MetricMap["start_time"] = start_temp;
     MetricMap["stop_time"] = stop_temp;
@@ -462,6 +587,7 @@ static bool define_iot_columns (
     MetricMap["rank"] = rank_temp;
     MetricMap["thread"] = thread_temp;
   }
+
 
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
@@ -519,6 +645,30 @@ static bool define_iot_columns (
          // display max time
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, max_temp));
           HV.push_back(std::string("Maximum ") + Default_Header + "(ms)");
+        } else if (!strcasecmp(M_Name.c_str(), "min_bytes")) {
+         // display min return value
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytes_temp));
+          HV.push_back(std::string("Min_Bytes Read Written") );
+        } else if (!strcasecmp(M_Name.c_str(), "min_bytescount")) {
+         // display count of min bytes value
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytescount_temp));
+          HV.push_back(std::string(" Min_Bytes Count") );
+        } else if (!strcasecmp(M_Name.c_str(), "max_bytes")) {
+         // display max return value
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytes_temp));
+          HV.push_back(std::string("Max_Bytes Read Written") );
+        } else if (!strcasecmp(M_Name.c_str(), "max_bytescount")) {
+         // display count of max bytes value
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytescount_temp));
+          HV.push_back(std::string(" Max_Bytes Count") );
+        } else if (!strcasecmp(M_Name.c_str(), "tot_bytes")) {
+         // display total return value
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
+          HV.push_back(std::string(" Total_Bytes Read Written") );
+        } else if (!strcasecmp(M_Name.c_str(), "appl_percent")) {
+          IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, applpercent_temp));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
+          HV.push_back("% Total App Time");
         } else if ( !strcasecmp(M_Name.c_str(), "count") ||
                     !strcasecmp(M_Name.c_str(), "counts") ||
                     !strcasecmp(M_Name.c_str(), "exclusive_count") ||
@@ -691,6 +841,7 @@ static bool define_iot_columns (
 #include "SS_View_bythread_recognize.hxx"
         else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
+          return false;
         }
       }
       if (last_column == 1) {
@@ -721,11 +872,12 @@ static bool define_iot_columns (
       HV.push_back("Start Time");
       IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
     }
-   // Always display elapsed time.
+
 #ifdef DEBUG_IOT
     printf("iot_view, before for VIEWINST_Display_Tmp=%d, extime_temp=%d, last_column=%d\n", VIEWINST_Display_Tmp, intime_temp, last_column);
 #endif
 
+   // Always display elapsed time.
     if (Look_For_KeyWord(cmd, "CallTree") ||
         Look_For_KeyWord(cmd, "CallTrees")) {
       generate_nested_accounting = true;
@@ -745,7 +897,7 @@ static bool define_iot_columns (
       IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
     }
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
-    HV.push_back("% of Total Time");
+    HV.push_back("% of Total I/O Time");
 
 #if 1
     if (vfc == VFC_Trace) {
@@ -765,10 +917,59 @@ static bool define_iot_columns (
 
   // display a count of the calls to each function
     if (vfc != VFC_Trace) {
+// primary and in progress attempt at getting the percentage of application time the I/O routine took
+#if 0
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, applpercent_temp));
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
+      HV.push_back("% Total App Time");
+#endif
+
+// another attempt at getting the percentage of application time the I/O routine took
+#if 0
+      //IV.push_back(new ViewInstruction (VIEWINST_SetConstFloat, last_column++, application_elapsed_time,totalIndex++));
+      IV.push_back(new ViewInstruction (VIEWINST_SetConstFloat, totalIndex, application_elapsed_time));
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
+      HV.push_back("% of Total App Time");
+#endif
+
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
       HV.push_back("Number of Calls");
     }
+
+#if 0
+   // We could put the summary out here by default, if not requested
+   // It will be put out below because one of these flags is set, so don't do it twice
+   if (!Generate_Summary_Only && !Generate_Summary) {
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Summary));
+   }
+#endif
+
+#if 1
+    if (vfc != VFC_Trace) {
+      // display min return value
+       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytes_temp));
+       HV.push_back(std::string("Min_Bytes Read Written") );
+      // display count of min bytes value
+       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytescount_temp));
+       HV.push_back(std::string(" Min_Bytes Count") );
+      // display max return value
+       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytes_temp));
+       HV.push_back(std::string("Max_Bytes Read Written") );
+      // display count of max bytes value
+       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytescount_temp));
+       HV.push_back(std::string(" Max_Bytes Count") );
+      // display total return value
+       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
+       HV.push_back(std::string(" Total_Bytes Read Written") );
+    }
+
+#endif
+   
+
   }
+
+
+
   if (generate_nested_accounting) {
     IV.push_back(new ViewInstruction (VIEWINST_StackExpand, intime_temp));
     IV.push_back(new ViewInstruction (VIEWINST_StackExpand, incnt_temp));
@@ -920,6 +1121,7 @@ class iot_view : public ViewType {
     std::vector<std::string> MV;
     std::vector<ViewInstruction *>IV;
     std::vector<std::string> HV;
+
 
     CV.push_back (Get_Collector (exp->FW(), "iot"));  // Define the collector
     MV.push_back ("inclusive_details"); // define the metric needed for getting main time values

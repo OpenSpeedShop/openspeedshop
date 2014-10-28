@@ -352,6 +352,7 @@ static bool define_mpip_columns (
 #include "SS_View_bythread_recognize.hxx"
           else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option for 'mpip' view, '-m " + M_Name + "'");
+          return false;
         }
       }
 

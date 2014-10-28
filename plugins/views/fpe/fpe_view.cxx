@@ -705,6 +705,7 @@ static bool define_fpe_columns (
          // Mark_Cmd_With_Soft_Error(cmd,"AbsDiff option, '-m " + M_Name + "'");
         } else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
+          return false;
         }
       }
       if (last_column == 1) {

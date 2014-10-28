@@ -524,6 +524,7 @@ static bool define_mpi_columns (
 #include "SS_View_bythread_recognize.hxx"
           else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option for 'mpi' view, '-m " + M_Name + "'");
+          return false;
         }
       }
       if (last_column == 1) {
@@ -541,7 +542,25 @@ static bool define_mpi_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
     HV.push_back("% of Total");
   } else if (vfc == VFC_Function) {
+
    // Default function view - basic useful info
+#if 1
+   // Always display elapsed time.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
+    HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
+
+   // and include % of exclusive time
+    if (Filter_Uses_F(cmd)) {
+     // Use the metric needed for calculating total time.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+    } else {
+     // Sum the extime_temp values.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+    }
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
+    HV.push_back("% of MPI Total");
+#endif
+
 
    // display max time
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, max_temp));

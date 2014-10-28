@@ -47,8 +47,10 @@
 #define id_temp  VMulti_free_temp+16
 #define rank_temp  VMulti_free_temp+17
 #define thread_temp  VMulti_free_temp+18
+#define max_bytes_temp  VMulti_free_temp+19
+#define min_bytes_temp  VMulti_free_temp+20
 
-#define First_ByThread_Temp VMulti_free_temp+19
+#define First_ByThread_Temp VMulti_free_temp+21
 #define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
                                  // "2" => times reported in seconds,
                                  //  otherwise don't add anything.
@@ -69,6 +71,8 @@
             double sum_squares = 0.0;            \
             int64_t detail_source = 0;           \
             int64_t detail_destination = 0;      \
+            uint64_t max_bytes = 0;  \
+            uint64_t min_bytes = LONG_MAX;       \
             uint64_t detail_size = 0;            \
             int64_t detail_tag = 0;              \
             int64_t detail_communicator = 0;     \
@@ -87,10 +91,12 @@
               end = std::max(end,primary.dm_interval.getEnd());       \
               vmin = std::min(vmin,v);                                \
               vmax = std::max(vmax,v);                                \
-              sum_squares += v * v;                              \
-              detail_source = primary.dm_source;                 \
-              detail_destination = primary.dm_destination;       \
-              detail_size += primary.dm_size;                    \
+              sum_squares += v * v;                                   \
+              detail_source = primary.dm_source;                      \
+              detail_destination = primary.dm_destination;            \
+              detail_size += primary.dm_size;                         \
+              max_bytes = std::max(max_bytes, primary.dm_size);   \
+              min_bytes = std::min(min_bytes, primary.dm_size);   \
               detail_tag = primary.dm_tag;                       \
               detail_communicator = primary.dm_communicator;     \
               detail_datatype = primary.dm_datatype;             \
@@ -206,6 +212,12 @@
                 CommandResult * p = CRPTR (detail_thread);                                \
                 p->SetValueIsID();                                                        \
                 value_array[thread_temp] = p;                                             \
+              }                                                                           \
+              if (num_temps > max_bytes_temp) {                                           \
+                  value_array[max_bytes_temp] = CRPTR (max_bytes);                        \
+              }                                                                           \
+              if (num_temps > min_bytes_temp) {                                           \
+                  value_array[min_bytes_temp] = CRPTR (min_bytes);                        \
               }
 
 static void Determine_Objects (
@@ -330,6 +342,8 @@ static bool define_mpit_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Add, id_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, rank_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, thread_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Max, max_bytes_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Min, min_bytes_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
 
  // Most detail fields are not combinable in a meaningful way.
@@ -383,6 +397,8 @@ static bool define_mpit_columns (
   MetricMap["inclusive_counts"] = incnt_temp;
   MetricMap["max_time"] = max_temp;
   MetricMap["min_time"] = min_temp;
+  MetricMap["max_bytes"] = max_bytes_temp;
+  MetricMap["min_bytes"] = min_bytes_temp;
   if (vfc == VFC_Trace) {
     MetricMap["start_time"] = start_temp;
     MetricMap["stop_time"] = stop_temp;
@@ -451,6 +467,14 @@ static bool define_mpit_columns (
          // display min time
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, min_temp));
           HV.push_back(std::string("Minimum ") + Default_Header + "(ms)");
+        } else if (!strcasecmp(M_Name.c_str(), "max_bytes")) {
+           // display max_bytes transferred
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, max_bytes_temp));
+            HV.push_back("Max Bytes");
+        } else if (!strcasecmp(M_Name.c_str(), "min_bytes")) {
+           // display minimum bytes transferred
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, min_bytes_temp));
+            HV.push_back("Min Bytes");
         } else if (!strcasecmp(M_Name.c_str(), "max")) {
          // display max time
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, max_temp));
@@ -656,6 +680,7 @@ static bool define_mpit_columns (
 #include "SS_View_bythread_recognize.hxx"
         else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option for 'mpit' view, '-m " + M_Name + "'");
+          return false;
         }
       }
       if (last_column == 1) {
@@ -678,6 +703,23 @@ static bool define_mpit_columns (
     HV.push_back("% of Total");
   } else if (vfc == VFC_Function) {
    // Default function view - basic useful information.
+
+#if 1
+   // Always display elapsed time.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
+    HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
+
+   // and include % of exclusive time
+    if (Filter_Uses_F(cmd)) {
+     // Use the metric needed for calculating total time.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+    } else {
+     // Sum the extime_temp values.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+    }
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
+    HV.push_back("% of Total");
+#endif
 
    // display min time
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, min_temp));

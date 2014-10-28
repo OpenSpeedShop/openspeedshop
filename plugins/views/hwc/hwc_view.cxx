@@ -242,6 +242,7 @@ static bool define_hwc_columns (
       } else {
        // Unrecognized '-m' option.
         Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
+        return false;
       }
     }
 

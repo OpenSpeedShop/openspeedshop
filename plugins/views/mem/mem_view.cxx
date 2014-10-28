@@ -24,6 +24,19 @@
 #include "MemDetail.hxx"
 #include "MemTraceableFunctions.h"
 
+int64_t prev_max_bytesval=0;
+int64_t prev_min_bytesval=LONG_MAX;
+enum CBTF_mem_type {
+	CBTF_MEM_UNKNOWN = 0,
+	CBTF_MEM_MALLOC = 0 + 1,
+	CBTF_MEM_CALLOC = 0 + 2,
+	CBTF_MEM_REALLOC = 0 + 3,
+	CBTF_MEM_FREE = 0 + 4,
+	CBTF_MEM_MEMALIGN = 0 + 5,
+	CBTF_MEM_POSIX_MEMALIGN = 0 + 6,
+};
+
+
 /* Uncomment for debug traces
 #define DEBUG_Mem 1
 */
@@ -50,9 +63,14 @@
 #define id_temp  VMulti_free_temp+14
 #define rank_temp  VMulti_free_temp+15
 #define thread_temp  VMulti_free_temp+16
+#define minbytes_temp  VMulti_free_temp+17
+#define minbytescount_temp  VMulti_free_temp+18
+#define maxbytes_temp  VMulti_free_temp+19
+#define maxbytescount_temp  VMulti_free_temp+20
+#define totbytes_temp  VMulti_free_temp+21
+#define runningtot_temp  VMulti_free_temp+22
 
-
-#define First_ByThread_Temp VMulti_free_temp+17
+#define First_ByThread_Temp VMulti_free_temp+23
 #define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
                                  // "2" => times reported in seconds,
                                  // otherwise don't add anything.
@@ -74,13 +92,18 @@
             double sum_squares = 0.0;            \
             int64_t detail_memtype = 0;          \
             uint64_t detail_retval = 0;          \
+            int64_t min_bytesval = LONG_MAX;     \
+            int64_t min_bytesval_count = 0;      \
+            int64_t max_bytesval = 0;            \
+            int64_t max_bytesval_count = 0;      \
+            int64_t tot_bytesval = 0;            \
+            int64_t runningtot_val = 0;          \
             uint64_t detail_ptr = 0;             \
             uint64_t detail_size1 = 0;           \
             uint64_t detail_size2 = 0;           \
             std::string detail_id = "";          \
             int64_t detail_rank = 0;             \
             int64_t detail_thread = 0;
-
 
 #define get_Mem_invalues(primary,num_calls)                       \
               double v = primary.dm_time / num_calls;            \
@@ -90,6 +113,30 @@
               end = std::max(end,primary.dm_interval.getEnd());       \
               vmin = std::min(vmin,v);                                \
               vmax = std::max(vmax,v);                  \
+              if (primary.dm_memtype != CBTF_MEM_FREE) { \
+                if (primary.dm_size1 > 0 ) {                 \
+                  prev_min_bytesval = min_bytesval ;                \
+                  min_bytesval = std::min(min_bytesval,(int64_t)primary.dm_size1); \
+                  if ( min_bytesval == prev_min_bytesval && primary.dm_size1 == min_bytesval ) {       \
+                    min_bytesval_count = min_bytesval_count + 1;            \
+                  } else if ( min_bytesval != prev_min_bytesval && primary.dm_size1 == min_bytesval ) {       \
+                    min_bytesval_count = 1;                                 \
+                  }                                                         \
+                  prev_max_bytesval = max_bytesval ;                \
+                  max_bytesval = std::max(max_bytesval,(int64_t)primary.dm_size1); \
+                  if ( max_bytesval == prev_max_bytesval && primary.dm_size1 == max_bytesval ) {                \
+                    max_bytesval_count = max_bytesval_count + 1;            \
+                  } else if ( max_bytesval != prev_max_bytesval && primary.dm_size1 == max_bytesval ) {       \
+                    max_bytesval_count = 1;                                 \
+                  }                                                         \
+                  tot_bytesval = tot_bytesval + (int64_t)primary.dm_size1;      \
+                  runningtot_val = runningtot_val + (int64_t)primary.dm_size1;  \
+                }                                                           \
+              } else {                                                      \
+                    min_bytesval = 0; \
+                    min_bytesval_count = 0;                                 \
+                    max_bytesval_count = 0;                                 \
+              }                                                             \
               sum_squares += v * v;                     \
               detail_memtype = primary.dm_memtype;      \
               detail_retval = primary.dm_retval;        \
@@ -138,13 +185,13 @@
             }                                           \
 }
 
-#define set_Mem_values(value_array, sort_extime)                                           \
+#define set_Mem_values(value_array, sort_extime)                                          \
               if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;     \
               if (num_temps > start_temp) {                                               \
                 int64_t x= (start.getValue() /*-base_time*/);                             \
                 value_array[start_temp] = new CommandResult_Time (x);                     \
-              }                                                                          \
-              if (num_temps > stop_temp) {                                               \
+              }                                                                           \
+              if (num_temps > stop_temp) {                                                \
                 int64_t x= (end.getValue() /*-base_time*/);                               \
                 value_array[stop_temp] = new CommandResult_Time (x);                      \
               }                                                                           \
@@ -165,13 +212,13 @@
               if (num_temps > memtype_temp) {						  \
 		CommandResult * p = CRPTR (detail_memtype);				  \
 		p->SetValueIsID();							  \
-		value_array[memtype_temp] = p;					  \
+		value_array[memtype_temp] = p;					          \
               }										  \
               if (num_temps > retval_temp) {						  \
-	 	value_array[retval_temp] = new CommandResult_Address (detail_retval);   \
+	 	value_array[retval_temp] = new CommandResult_Address (detail_retval);     \
               }										  \
               if (num_temps > ptr_temp) {						  \
-	 	value_array[ptr_temp] = new CommandResult_Address (detail_ptr);   \
+	 	value_array[ptr_temp] = new CommandResult_Address (detail_ptr);           \
               }										  \
               if (num_temps > size1_temp) {						  \
 		CommandResult * p = CRPTR (detail_size1);				  \
@@ -197,9 +244,31 @@
                 CommandResult * p = CRPTR (detail_thread);                                \
                 p->SetValueIsID();                                                        \
                 value_array[thread_temp] = p;                                             \
+              }                                                                           \
+              if (num_temps > minbytes_temp) {                                            \
+                CommandResult * p = CRPTR (min_bytesval);                                 \
+                value_array[minbytes_temp] = p;                                           \
+              }                                                                           \
+              if (num_temps > maxbytescount_temp) {                                       \
+                CommandResult * p = CRPTR (max_bytesval_count);                           \
+                value_array[maxbytescount_temp] = p;                                      \
+              }                                                                           \
+              if (num_temps > maxbytes_temp) {                                            \
+                CommandResult * p = CRPTR (max_bytesval);                                 \
+                value_array[maxbytes_temp] = p;                                           \
+              }                                                                           \
+              if (num_temps > minbytescount_temp) {                                       \
+                CommandResult * p = CRPTR (min_bytesval_count);                           \
+                value_array[minbytescount_temp] = p;                                      \
+              }                                                                           \
+              if (num_temps > totbytes_temp) {                                            \
+                CommandResult * p = CRPTR (tot_bytesval);                                 \
+                value_array[totbytes_temp] = p;                                           \
+              }                                                                           \
+              if (num_temps > runningtot_temp) {                                          \
+                CommandResult * p = CRPTR (runningtot_val);                               \
+                value_array[runningtot_temp] = p;                                         \
               }
-
-
 
 // The code here restricts any view for Functions (e.g. -v Functions)
 // to the functions listed in MemTTraceablefunctions.h.  In this case,
@@ -405,6 +474,12 @@ static bool define_mem_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Add, id_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, rank_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, thread_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Min, minbytes_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, minbytescount_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Max, maxbytes_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, maxbytescount_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, totbytes_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, runningtot_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
@@ -463,6 +538,12 @@ static bool define_mem_columns (
   MetricMap["size2"] = size2_temp;
   MetricMap["retval"] = retval_temp;
   MetricMap["start_time"] = start_temp;
+  MetricMap["min_bytescount"] = minbytescount_temp;
+  MetricMap["min_bytes"] = minbytes_temp;
+  MetricMap["max_bytescount"] = maxbytescount_temp;
+  MetricMap["max_bytes"] = maxbytes_temp;
+  MetricMap["tot_bytes"] = totbytes_temp;
+  MetricMap["runningtot"] = runningtot_temp;
   if (vfc == VFC_Trace) {
     //MetricMap["start_time"] = start_temp;
     MetricMap["stop_time"] = stop_temp;
@@ -528,6 +609,30 @@ static bool define_mem_columns (
          // display max time
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, max_temp));
           HV.push_back(std::string("Maximum ") + Default_Header + "(ms)");
+        } else if (!strcasecmp(M_Name.c_str(), "min_bytescount")) {
+         // display the number of time the min allocation requested number of bytes was encountered
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytescount_temp));
+          HV.push_back(std::string("Min Request Count") );
+        } else if (!strcasecmp(M_Name.c_str(), "min_bytes")) {
+         // display the min allocation requested number of bytes
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytes_temp));
+          HV.push_back(std::string("Min Requested Bytes") );
+        } else if (!strcasecmp(M_Name.c_str(), "max_bytescount")) {
+         // display the number of time the max allocation requested number of bytes was encountered
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytescount_temp));
+          HV.push_back(std::string("Max Request Count") );
+        } else if (!strcasecmp(M_Name.c_str(), "max_bytes")) {
+         // display the max allocation requested number of bytes
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytes_temp));
+          HV.push_back(std::string("Max Requested Bytes") );
+        } else if (!strcasecmp(M_Name.c_str(), "tot_bytes")) {
+         // display total return value
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
+          HV.push_back(std::string("Total Bytes Requested") );
+        } else if (!strcasecmp(M_Name.c_str(), "runningtot")) {
+         // display high water mark?
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, runningtot_temp));
+          HV.push_back(std::string("High Water Mark") );
         } else if ( !strcasecmp(M_Name.c_str(), "count") ||
                     !strcasecmp(M_Name.c_str(), "counts") ||
                     !strcasecmp(M_Name.c_str(), "exclusive_count") ||
@@ -699,6 +804,7 @@ static bool define_mem_columns (
 #include "SS_View_bythread_recognize.hxx"
         else {
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
+          return false;
         }
       }
       if (last_column == 1) {
@@ -740,6 +846,9 @@ static bool define_mem_columns (
 
 #if 1
     if (vfc == VFC_Trace) {
+  // display function size 1 value for each function
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, size1_temp));
+      HV.push_back("Size Arg");
   // display function return values for each function
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
       HV.push_back("Function Dependent Return Value");
@@ -754,7 +863,31 @@ static bool define_mem_columns (
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
       HV.push_back("Number of Calls");
     }
-  }
+
+#if 1
+  // display the number of time the min allocation requested number of bytes was encountered
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytescount_temp));
+    HV.push_back(std::string("Min Request Count") );
+
+  // display the min allocation requested number of bytes
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytes_temp));
+    HV.push_back(std::string("Min Requested Bytes") );
+
+  // display the number of time the max allocation requested number of bytes was encountered
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytescount_temp));
+    HV.push_back(std::string("Max Request Count") );
+
+  // display the max allocation requested number of bytes
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytes_temp));
+    HV.push_back(std::string("Max Requested Bytes") );
+
+  // display total return value
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
+    HV.push_back(std::string("Total Bytes Requested") );
+#endif
+
+  } // end if nothing requested
+
   if (generate_nested_accounting) {
     IV.push_back(new ViewInstruction (VIEWINST_StackExpand, intime_temp));
     IV.push_back(new ViewInstruction (VIEWINST_StackExpand, incnt_temp));

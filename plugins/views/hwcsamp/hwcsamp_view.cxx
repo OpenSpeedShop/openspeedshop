@@ -686,6 +686,7 @@ static bool define_hwcsamp_columns (
         if (!event_found) {
          // Unrecognized '-m' option.
           Mark_Cmd_With_Soft_Error(cmd,"Warning: Unsupported option, '-m " + M_Name + "'");
+          return false;
         }
       }
     }
