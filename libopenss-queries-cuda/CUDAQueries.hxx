@@ -24,7 +24,7 @@
 #include "config.h"
 #endif
 
-#include <boost/optional.hxx>
+#include <boost/optional.hpp>
 
 #include "Collector.hxx"
 #include "Thread.hxx"
@@ -46,8 +46,9 @@ namespace OpenSpeedShop { namespace Queries {
      * @return             Metrics for evaluating the balance.
      */
     CUDAExecXferBalance GetCUDAExecXferBalance(
-        const Collector& collector, const Thread& thread,
-        const boost::optional<TimeInterval>& interval = boost::none
+        const Framework::Collector& collector,
+        const Framework::Thread& thread,
+        const boost::optional<Framework::TimeInterval>& interval = boost::none
         );
 
 } } // namespace OpenSpeedShop::Queries

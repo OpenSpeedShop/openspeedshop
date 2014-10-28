@@ -20,6 +20,7 @@
 
 #include "CUDAQueries.hxx"
 
+using namespace OpenSpeedShop;
 using namespace OpenSpeedShop::Framework;
 using namespace OpenSpeedShop::Queries;
 

@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 
-namespace OpenSpeedShop { namespace CUDAQueries {
+namespace OpenSpeedShop { namespace Queries {
 
     /**
      * Structure containing metrics for evaluating the balance between the
@@ -46,4 +46,4 @@ namespace OpenSpeedShop { namespace CUDAQueries {
         
     }; // struct CUDAExecXferBalance
 
-} } // namespace OpenSpeedShop::CUDAQueries
+} } // namespace OpenSpeedShop::Queries
