@@ -20,7 +20,6 @@
 #include <stdexcept>
 
 #include "ToolAPI.hxx"
-
 #include "CUDAQueries.hxx"
 
 using namespace OpenSpeedShop::Framework;
@@ -51,8 +50,21 @@ int main(int argc, char* argv[])
                 );
         }
 
-        // TODO: Implement!
-    
+        Thread thread = *experiment.getThreads().begin();
+
+        {
+            CUDAExecXferBalance result = 
+                GetCUDAExecXferBalance(collector, thread);
+            
+            cout << endl;
+            cout << "CUDA Kernel Execution Time (Seconds) = "
+                 << result.ExecTime << endl;
+            cout << "CUDA Data Transfer Time (Seconds)    = "
+                 << result.XferTime << endl;
+            cout << "CUDA Data Transfer Size (Bytes)      = "
+                 << result.XferSize << endl;
+        }
+        
         cout << endl << endl;           
     }
     catch (const exception& error)

@@ -38,6 +38,13 @@ namespace OpenSpeedShop { namespace Queries {
      * Get metrics for evaluating the balance between the time spent in
      * CUDA kernel executions versus the time spent in CUDA data transfers.
      *
+     * @pre    Can only be performed for a CUDA collector. An assertion
+     *         failure occurs if a different collector is used.
+     *
+     * @pre    The thread must be in the same experiment as the collector.
+     *         An assertion failure occurs if the thread is in a different
+     *         experiment than the collector.
+     *
      * @param collector    Collector for which to get the metrics.
      * @param thread       Thread for which to get the metrics.
      * @param interval     Time interval over which to get the metrics.
