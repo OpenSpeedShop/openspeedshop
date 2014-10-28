@@ -140,7 +140,7 @@ namespace {
                 
                 result.ExecTime += static_cast<double>(
                     (query_interval & event_interval).getWidth()
-                    ) / 1000000000.0 /* nS/S */;
+                    ) / 1000000000.0 /* ns/s */;
             }
             break;
 
