@@ -1,6 +1,7 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 # Copyright (c) 2006-2013 Krell Institute All Rights Reserved.
+# Copyright (c) 2014 Argo Navis Technologies. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -27,6 +28,12 @@ MESSAGE_SUBDIRS = libopenss-message
 RT_SUBDIRS = libopenss-runtime
 
 FW_SUBDIRS = libopenss-framework libopenss-queries
+
+if BUILD_CBTF
+if HAVE_CBTF_MESSAGES_CUDA
+FW_SUBDIRS += libopenss-queries-cuda
+endif
+endif
 
 CLI_SUBDIRS = libopenss-cli
 

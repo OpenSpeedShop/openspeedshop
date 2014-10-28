@@ -16,36 +16,42 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-pkglib_LTLIBRARIES =
+lib_LTLIBRARIES =
+noinst_PROGRAMS =
 
 if BUILD_CBTF
 if HAVE_CBTF_MESSAGES_CUDA
 
-pkglib_LTLIBRARIES += cuda.la
+lib_LTLIBRARIES += libopenss-queries-cuda.la
+noinst_PROGRAMS += test
 
-cuda_la_CXXFLAGS = \
+libopenss_queries_cuda_la_CXXFLAGS = \
 	@BOOST_CPPFLAGS@ \
-	@MESSAGES_CPPFLAGS@ \
-	@MESSAGES_CUDA_CPPFLAGS@ \
-	-I$(top_srcdir)/libopenss-framework
+	-I$(top_srcdir)/libopenss-framework \
+	$(LTDLINCL)
 
-cuda_la_LDFLAGS = \
-	@MESSAGES_LDFLAGS@ \
-	@MESSAGES_CUDA_LDFLAGS@ \
+libopenss_queries_cuda_la_LDFLAGS = \
+	-export-dynamic -version-info 0:0:0
+
+libopenss_queries_cuda_la_LIBADD = \
+	$(LIBLTDL)
+
+libopenss_queries_cuda_la_SOURCES = \
+	CUDAExecXferBalance.hxx \
+	CUDAQueries.hxx CUDAQueries.cxx
+
+test_CXXFLAGS =\
+	@BOOST_CPPFLAGS@ \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-queries-cuda
+
+test_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
-	-no-undefined -module -avoid-version
+	-L$(top_srcdir)/libopenss-queries-cuda
 
-cuda_la_LIBADD = \
-	@MESSAGES_LIBS@ \
-	@MESSAGES_CUDA_LIBS@ \
-	-lopenss-framework
+test_LDADD = -lopenss-framework -lopenss-queries-cuda
 
-cuda_la_SOURCES = \
-	CUDACollector.hxx CUDACollector.cxx \
-	CUDACountsDetail.hxx \
-	CUDADeviceDetail.hxx \
-	CUDAExecDetail.hxx \
-	CUDAXferDetail.hxx
+test_SOURCES = test.cxx
 
 endif
 endif

@@ -16,20 +16,16 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <iomanip>
 #include <iostream>
-#include <map>
 #include <stdexcept>
-#include <utility>
 
 #include "ToolAPI.hxx"
-#include "Queries.hxx"
 
-using namespace OpenSpeedShop;
+#include "CUDAQueries.hxx"
+
 using namespace OpenSpeedShop::Framework;
+using namespace OpenSpeedShop::Queries;
 using namespace std;
-
-bool OPENSS_LESS_RESTRICTIVE_COMPARISONS = true;
 
 
 
@@ -54,46 +50,8 @@ int main(int argc, char* argv[])
                 "The specified experiment didn't use the CUDA collector."
                 );
         }
-        
-        SmartPtr<map<Function, map<Thread, double> > > individual;
 
-        Queries::GetMetricValues(
-            collector, "exec_time",
-            TimeInterval(Time::TheBeginning(), Time::TheEnd()),
-            experiment.getThreads(),
-            experiment.getThreads().getFunctions(),
-            individual
-            );
-        
-        SmartPtr<map<Function, double> > data = Queries::Reduction::Apply(
-            individual, Queries::Reduction::Summation
-            );
-
-        individual = SmartPtr<map<Function, map<Thread, double> > >();
-        
-        multimap<double, Function> sorted;
-        for (map<Function, double>::const_iterator
-                 i = data->begin(); i != data->end(); ++i)
-            sorted.insert(make_pair(i->second, i->first));     
-        
-        cout << endl << endl
-             << setw(10) << "Time" << "    " << "Function" << endl
-             << endl;
-        
-        for (multimap<double, Function>::reverse_iterator
-                 i = sorted.rbegin(); i != sorted.rend(); ++i)
-        {        
-            cout << setw(10) << fixed << setprecision(3)
-                 << i->first << "    " << i->second.getName();
-        
-            set<Statement> definitions = i->second.getDefinitions();
-            for (set<Statement>::const_iterator
-                     i = definitions.begin(); i != definitions.end(); ++i)
-                cout << " (" << i->getPath().getBaseName()
-                     << ", " << i->getLine() << ")";
-            
-            cout << endl;
-        }
+        // TODO: Implement!
     
         cout << endl << endl;           
     }

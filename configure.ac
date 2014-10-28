@@ -891,6 +891,7 @@ AC_CONFIG_FILES(
 	libopenss-framework/mrnet/openssd/watcher/Makefile
 	libopenss-framework/offline/Makefile
 	libopenss-queries/Makefile
+    libopenss-queries-cuda/Makefile
 	man/Makefile
 	man/man1/Makefile
 	man/man3/Makefile
