@@ -88,10 +88,14 @@ class BFDSymbols {
 
     int		getBFDFunctionStatements(PCBuffer*, const LinkedObject&,
 					 SymbolTableMap&);
+    int		getBFDFunctionStatements(std::set<Address>&, const LinkedObject&,
+					 SymbolTableMap&);
     int		getFunctionSyms(PCBuffer*, bfd_vma, bfd_vma);
+    int		getFunctionSyms(std::set<Address>&, AddressRange&);
     int		initBFD(std::string);
     Path	getObjectFile(Path);
     void	getSymbols(PCBuffer*, const LinkedObject&, SymbolTableMap&);
+    void	getSymbols(std::set<Address>&, const LinkedObject&, SymbolTableMap&);
 
     private:
 

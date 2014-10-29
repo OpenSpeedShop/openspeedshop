@@ -57,6 +57,7 @@
 
 #include "OpenSSPath.cxx"
 
+
 using namespace OpenSpeedShop::Framework;
 
 namespace {
@@ -1140,15 +1141,18 @@ void OfflineExperiment::createOfflineSymbolTable()
     // unique_addresses with the head address of every loop so that later
     // getSymbols() will get the statement containing these addresses.
 #if defined(HAVE_DYNINST)
-	//std::cerr << Time::Now() << " Resolve loop address" << std::endl;
+	//std::cerr << Time::Now() << " Resolve loop addresses" << std::endl;
 	DyninstSymbols::getLoops(unique_addresses, lo, symtabmap);
+	//std::cerr << Time::Now() << " Done with loops addresses" << std::endl;
 #endif
-	//std::cerr << Time::Now() << " Resolve symbols" << std::endl;
+	//std::cerr << Time::Now() << " Resolve symtabapi symbols" << std::endl;
 	stapi_symbols.getSymbols(unique_addresses,lo,symtabmap);
-	//std::cerr << Time::Now() << " Done with loops,symbols" << std::endl;
+	//std::cerr << Time::Now() << " Done with symbols" << std::endl;
 #else
 	// If this is ever reused, it needs to use unique_addresses...
-	bfd_symbols.getSymbols(&data_addr_buffer,lo,symtabmap);
+	//std::cerr << Time::Now() << " Resolve bfd symbols" << std::endl;
+	bfd_symbols.getSymbols(unique_addresses,lo,symtabmap);
+	//std::cerr << Time::Now() << " Done with symbols" << std::endl;
 #endif
 
     } // end for threads linkedobjects
