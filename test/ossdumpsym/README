@@ -1,0 +1,3 @@
+This directory has been moved to Open|SpeedShop's top-level source directory
+where it can be built as part of the main Open|SpeedShop build. Unfortunately
+CVS won't allow the removal of empty directories...

@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute All Rights Reserved.
+# Copyright (c) 2014 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -16,14 +16,14 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-noinst_PROGRAMS = ossdumpsym
+bin_PROGRAMS = ossdumpsym
 
 ossdumpsym_CXXFLAGS = \
-	-I$(top_srcdir)/../libopenss-framework \
+	-I$(top_srcdir)/libopenss-framework \
 	@BOOST_CPPFLAGS@
 
 ossdumpsym_LDFLAGS = \
-	-L$(top_srcdir)/../libopenss-framework \
+	-L$(top_srcdir)/libopenss-framework \
 	@BOOST_LDFLAGS@
 
 ossdumpsym_LDADD = \

@@ -971,6 +971,7 @@ AC_CONFIG_FILES(
 	pyscripting/sources/Makefile
 	pyscripting/test/Makefile
 	openss/Makefile
+    ossdumpsym/Makefile
 	libopenss-guibase/Makefile
 	libopenss-guiplugin/Makefile
 	libopenss-guiexprinfo/Makefile

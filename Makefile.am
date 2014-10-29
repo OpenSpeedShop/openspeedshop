@@ -54,7 +54,8 @@ TARGET_SHARED_PLUGINS_SUBDIRS = \
                         plugins/collectors  
 
 CLIENT_SUBDIRS = \
-	openss
+	openss \
+	ossdumpsym
 
 MISC_SUBDIRS = \
 	pyscripting \
