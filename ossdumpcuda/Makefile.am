@@ -21,21 +21,27 @@ bin_PROGRAMS =
 if BUILD_CBTF
 if HAVE_CBTF_MESSAGES_CUDA
 
-bin_PROGRAMS = ossdumpcuda
+bin_PROGRAMS += ossdumpcuda
 
 ossdumpcuda_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
-	@BOOST_CPPFLAGS@
+	@BOOST_CPPFLAGS@ \
+	@MESSAGES_CPPFLAGS@ \
+	@MESSAGES_CUDA_CPPFLAGS@
 
 ossdumpcuda_LDFLAGS = \
 	-L$(top_srcdir)/libopenss-framework \
-	@BOOST_LDFLAGS@
+	@BOOST_LDFLAGS@ \
+	@MESSAGES_LDFLAGS@ \
+	@MESSAGES_CUDA_LDFLAGS@
 
 ossdumpcuda_LDADD = \
 	-lopenss-framework \
 	@BOOST_FILESYSTEM_LIB@ \
 	@BOOST_PROGRAM_OPTIONS_LIB@ \
-	@BOOST_SYSTEM_LIB@
+	@BOOST_SYSTEM_LIB@ \
+	@MESSAGES_LIBS@ \
+	@MESSAGES_CUDA_LIBS@
 
 ossdumpcuda_SOURCES = \
 	ossdumpcuda.cxx
