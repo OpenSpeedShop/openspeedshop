@@ -29,12 +29,6 @@ RT_SUBDIRS = libopenss-runtime
 
 FW_SUBDIRS = libopenss-framework libopenss-queries
 
-if BUILD_CBTF
-if HAVE_CBTF_MESSAGES_CUDA
-FW_SUBDIRS += libopenss-queries-cuda
-endif
-endif
-
 CLI_SUBDIRS = libopenss-cli
 
 GUI_SUBDIRS = \
@@ -67,6 +61,13 @@ MISC_SUBDIRS = \
 TARGET_SHARED_MISC_SUBDIRS = \
 	pyscripting \
 	sanity 
+
+if BUILD_CBTF
+if HAVE_CBTF_MESSAGES_CUDA
+FW_SUBDIRS += libopenss-queries-cuda
+CLIENT_SUBDIRS += ossdumpcuda
+endif
+endif
 
 if HAVE_QTLIB
 
