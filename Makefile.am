@@ -47,9 +47,11 @@ COLLECTOR_SUBDIRS = plugins/collectors
 TARGET_SHARED_PLUGINS_SUBDIRS = \
                         plugins/collectors  
 
-CLIENT_SUBDIRS = \
-	openss \
+CLIENT_TOOL_SUBDIRS = \
 	ossdumpsym
+
+CLIENT_SUBDIRS = \
+	openss
 
 MISC_SUBDIRS = \
 	pyscripting \
@@ -93,6 +95,7 @@ BASE_SUBDIRS += \
 	$(GUI_SUBDIRS) \
 	$(PLUGINS_SUBDIRS) \
 	$(CLIENT_SUBDIRS) \
+	$(CLIENT_TOOL_SUBDIRS) \
 	$(MISC_SUBDIRS)
 endif
 
@@ -119,6 +122,7 @@ BASE_SUBDIRS += \
 	$(CLI_SUBDIRS) \
 	$(PLUGINS_SUBDIRS) \
 	$(CLIENT_SUBDIRS) \
+	$(CLIENT_TOOL_SUBDIRS) \
 	$(MISC_SUBDIRS)
 endif
 
@@ -155,6 +159,7 @@ DIST_SUBDIRS = \
 	$(GUI_SUBDIRS) \
 	$(PLUGINS_SUBDIRS) \
 	$(CLIENT_SUBDIRS) \
+	$(CLIENT_TOOL_SUBDIRS) \
 	$(MISC_SUBDIRS)
 
 # Need the images files and the tests files in tarball.
