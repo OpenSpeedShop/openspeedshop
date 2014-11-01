@@ -47,7 +47,7 @@
             double in_time = 0.0;    \
             uint64_t in_cnt = 0;
 
-#define get_inclusive_values(primary, num_calls)        \
+#define get_inclusive_values(primary, num_calls, function_name)        \
                 in_time += primary.dm_time / num_calls; \
                 in_cnt +=  primary.dm_count;
 
@@ -376,6 +376,7 @@ static bool define_mpip_columns (
     std::string H = m.getDescription();
     HV.push_back(m.getDescription());
 
+#if 0
    // Column[1] is inclusive time
     if (!Look_For_KeyWord(cmd, "TraceBack") &&
         !Look_For_KeyWord(cmd, "TraceBacks") &&
@@ -385,6 +386,7 @@ static bool define_mpip_columns (
     }
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
     HV.push_back( Find_Metadata( CV[0], "inclusive_time" ).getDescription() );
+#endif
 
    // Column[2] is percent, calculated from 2 temps: time for this row and total inclusive time.
     if (Filter_Uses_F(cmd)) {
@@ -396,7 +398,54 @@ static bool define_mpip_columns (
     }
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back("% of Total Exclusive CPU Time");
+
+#if 1
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
+    HV.push_back("Number of Calls");
+
+    // Minimum
+    IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                      ViewReduction_min, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
+     HV.push_back(std::string("Min ") + ByThread_Header
+               + " Across " + View_ByThread_Id_name[View_ByThread_Identifier] + "s"
+               + ((ByThread_use_intervals == 1)?"(ms)":((ByThread_use_intervals == 2)?"(s)":"")));
+
+    // Rank of Minimum
+     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                       ViewReduction_imin, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, timin_temp));
+     HV.push_back(View_ByThread_Id_name[View_ByThread_Identifier] + " of Min");
+
+    // Maximum
+     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                       ViewReduction_max, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
+     HV.push_back(std::string("Max ") + ByThread_Header
+               + " Across " + View_ByThread_Id_name[View_ByThread_Identifier] + "s"
+               + ((ByThread_use_intervals == 1)?"(ms)":((ByThread_use_intervals == 2)?"(s)":"")));
+
+     // Find the Rank of the By-Thread Max.
+     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                       ViewReduction_imax, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, timax_temp));
+     HV.push_back(View_ByThread_Id_name[View_ByThread_Identifier] + " of Max");
+
+    // Average
+     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                       ViewReduction_mean, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
+     HV.push_back(std::string("Average ") + ByThread_Header
+               + " Across " + View_ByThread_Id_name[View_ByThread_Identifier] + "s"
+               + ((ByThread_use_intervals == 1)?"(ms)":((ByThread_use_intervals == 2)?"(s)":"")));
+
+#endif
+
+
+
   }
+
+
   if (generate_nested_accounting) {
     IV.push_back(new ViewInstruction (VIEWINST_StackExpand, intime_temp));
     IV.push_back(new ViewInstruction (VIEWINST_StackExpand, incnt_temp));
