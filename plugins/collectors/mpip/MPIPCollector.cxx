@@ -93,16 +93,16 @@ MPIPCollector::MPIPCollector() :
     
     // Declare our metrics
     declareMetric(Metadata("inclusive_time", "Inclusive Time",
-			   "Inclusive I/O call times in seconds.",
+			   "Inclusive MPI call times in seconds.",
 			   typeid(double)));
     declareMetric(Metadata("exclusive_time", "Exclusive Time",
-			   "Exclusive I/O call times in seconds.",
+			   "Exclusive MPI call times in seconds.",
 			   typeid(double)));
     declareMetric(Metadata("inclusive_detail", "Inclusive Detail",
-			   "Inclusive I/O call details.",
+			   "Inclusive MPI call details.",
 			   typeid(SampleDetail)));
     declareMetric(Metadata("exclusive_detail", "Exclusive Detail",
-			   "Exclusive I/O call details.",
+			   "Exclusive MPI call details.",
 			   typeid(SampleDetail)));
     declareMetric(Metadata("min", "Minimum Time",
                            "Mininum MPI call times in seconds.",
