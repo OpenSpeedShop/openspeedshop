@@ -47,9 +47,6 @@ COLLECTOR_SUBDIRS = plugins/collectors
 TARGET_SHARED_PLUGINS_SUBDIRS = \
                         plugins/collectors  
 
-CLIENT_TOOL_SUBDIRS = \
-	ossdumpsym
-
 CLIENT_SUBDIRS = \
 	openss
 
@@ -67,7 +64,8 @@ TARGET_SHARED_MISC_SUBDIRS = \
 if BUILD_CBTF
 if HAVE_CBTF_MESSAGES_CUDA
 FW_SUBDIRS += libopenss-queries-cuda
-CLIENT_SUBDIRS += ossdumpcuda
+CLIENT_SUBDIRS += ossdumpcuda 
+CLIENT_SUBDIRS += ossdumpsym 
 endif
 endif
 
@@ -95,7 +93,6 @@ BASE_SUBDIRS += \
 	$(GUI_SUBDIRS) \
 	$(PLUGINS_SUBDIRS) \
 	$(CLIENT_SUBDIRS) \
-	$(CLIENT_TOOL_SUBDIRS) \
 	$(MISC_SUBDIRS)
 endif
 
@@ -122,7 +119,6 @@ BASE_SUBDIRS += \
 	$(CLI_SUBDIRS) \
 	$(PLUGINS_SUBDIRS) \
 	$(CLIENT_SUBDIRS) \
-	$(CLIENT_TOOL_SUBDIRS) \
 	$(MISC_SUBDIRS)
 endif
 
@@ -159,7 +155,6 @@ DIST_SUBDIRS = \
 	$(GUI_SUBDIRS) \
 	$(PLUGINS_SUBDIRS) \
 	$(CLIENT_SUBDIRS) \
-	$(CLIENT_TOOL_SUBDIRS) \
 	$(MISC_SUBDIRS)
 
 # Need the images files and the tests files in tarball.
