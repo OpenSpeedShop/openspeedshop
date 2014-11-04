@@ -24,6 +24,7 @@ cuda_view_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-queries \
 	-I$(top_srcdir)/plugins/collectors/cuda \
+        @BOOST_CPPFLAGS@ \
         @MESSAGES_CPPFLAGS@ \
         @MESSAGES_CUDA_CPPFLAGS@ \
 	@PYTHON_CPPFLAGS@
