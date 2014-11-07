@@ -41,7 +41,7 @@
 #define def_hwc_values          \
             CommandResult *excnt = CRPTR (0);
 
-#define get_inclusive_values(primary, num_calls)
+#define get_inclusive_values(primary, num_calls, function_name)
 
 #define get_exclusive_hwc_values(secondary, num_calls)        \
              if (excnt == NULL) excnt =  secondary->Copy();   \

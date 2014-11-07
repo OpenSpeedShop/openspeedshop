@@ -340,7 +340,7 @@ struct ltST {
   }
 };
 
-#define  Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG)    \
+#define  Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG, function_name)    \
 {                                                                                \
                                                                                  \
    if (DEBUG_FLAG) {                                                             \
@@ -371,7 +371,7 @@ struct ltST {
     }                                                                            \
                                                                                  \
    /* Use macro to accumulate all the separate samples. */                       \
-    get_inclusive_values (details, calls_In_stack)                               \
+    get_inclusive_values (details, calls_In_stack, function_name)                \
                                                                                  \
    /* Decide if we accumulate exclusive_time, as well. */                        \
     if (topStack_In_Subextent (st, SubExtents)) {                                \
@@ -393,7 +393,7 @@ struct ltST {
     StackTraces_Processed.insert(st);                                            \
 }
 
-#define  Accumulate_CallStack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG)    \
+#define  Accumulate_CallStack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG, function_name)    \
 {                                                                                \
 										 \
    /* This define is used in the context of a calltree/traceback view request */ \
@@ -426,7 +426,7 @@ struct ltST {
    }                                                                             \
                                                                                  \
    /* Use macro to accumulate all the separate samples. */                       \
-    get_inclusive_values (details, calls_In_stack)                               \
+    get_inclusive_values (details, calls_In_stack, function_name)                \
                                                                                  \
    /* Always record exclusive_time. */                                           \
                                                                                  \

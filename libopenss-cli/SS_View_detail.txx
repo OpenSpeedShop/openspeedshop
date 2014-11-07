@@ -320,10 +320,10 @@ bool Detail_Trace_Report(
           def_Detail_values
 
 #if DEBUG_CLI
-          printf("In Detail_Trace_Report, SS_View_detail.txx, calling get_inclusive_trace, calls_In_stack=%d\n", calls_In_stack);
+          std::cerr << "In Detail_Trace_Report, SS_View_detail.txx, calling get_inclusive_trace, calls_In_stack=" << calls_In_stack << " F.getName()=" << F.getName() << std::endl;
 #endif
           // Use macro to assign to temporaries
-          get_inclusive_trace(detail, calls_In_stack);
+          get_inclusive_trace(detail, calls_In_stack, F.getName() );
  
          // JEG - the SubExtents appears to be only one range.  Should this be all the 
          // subextents for the thread?
@@ -605,9 +605,10 @@ bool Detail_Base_Report(
 #endif
 
 #if DEBUG_CLI
+        //std::cerr << "In Detail_Base_Report, SS_View_detail.txx, calling Accumulate_Stack, for F.getName=" << F.getName() << std::endl;
         printf("In Detail_Base_Report, SS_View_detail.txx, calling Accumulate_Stack, for (*si)\n");
 #endif
-        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG);
+        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG, F.getName());
       }
 
      // Use macro to construct result array
@@ -814,7 +815,7 @@ bool Detail_CallStack_Report (
       DEBUG_FLAG = true;
 #endif
 
-	Accumulate_CallStack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG);
+	Accumulate_CallStack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG, F.getName());
 
        // Use macro to set values into return structure.
         SmartPtr<std::vector<CommandResult *> > vcs
@@ -1046,7 +1047,8 @@ Dump_CallStack (std::vector<CommandResult *> *call_stack,
       DEBUG_FLAG = true;
 #endif
      // Go off and get the values 
-        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG);
+        printf("In Detail_ButterFly, SS_View_detail.txx, calling Accumulate_Stack, for (*si)\n");
+        Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG, F.getName());
 
        // Use macro to construct result array
         SmartPtr<std::vector<CommandResult *> > vcs

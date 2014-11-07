@@ -105,17 +105,17 @@ enum CBTF_mem_type {
             int64_t detail_rank = 0;             \
             int64_t detail_thread = 0;
 
-#define get_Mem_invalues(primary,num_calls)                       \
+#define get_Mem_invalues(primary,num_calls, function_name)       \
               double v = primary.dm_time / num_calls;            \
               intime += v;                                       \
               incnt++;                                           \
               start = std::min(start,primary.dm_interval.getBegin()); \
               end = std::max(end,primary.dm_interval.getEnd());       \
               vmin = std::min(vmin,v);                                \
-              vmax = std::max(vmax,v);                  \
-              if (primary.dm_memtype != CBTF_MEM_FREE) { \
-                if (primary.dm_size1 > 0 ) {                 \
-                  prev_min_bytesval = min_bytesval ;                \
+              vmax = std::max(vmax,v);                                \
+              if (primary.dm_memtype != CBTF_MEM_FREE) {              \
+                if (primary.dm_size1 > 0 ) {                          \
+                  prev_min_bytesval = min_bytesval ;                  \
                   min_bytesval = std::min(min_bytesval,(int64_t)primary.dm_size1); \
                   if ( min_bytesval == prev_min_bytesval && primary.dm_size1 == min_bytesval ) {       \
                     min_bytesval_count = min_bytesval_count + 1;            \
@@ -169,11 +169,11 @@ enum CBTF_mem_type {
               extime += secondary.dm_time / num_calls; \
               excnt++;
 
-#define get_inclusive_values(stdv, num_calls)           \
+#define get_inclusive_values(stdv, num_calls, function_name)           \
 {           int64_t len = stdv.size();                  \
             for (int64_t i = 0; i < len; i++) {         \
              /* Use macro to combine all the values. */ \
-              get_Mem_invalues(stdv[i],num_calls)        \
+              get_Mem_invalues(stdv[i],num_calls, function_name)        \
             }                                           \
 }
 

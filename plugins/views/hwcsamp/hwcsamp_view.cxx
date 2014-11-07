@@ -46,7 +46,7 @@
             { for(int hwcsamp_idx=0; hwcsamp_idx<OpenSS_NUMCOUNTERS;hwcsamp_idx++) { \
                 exevent[hwcsamp_idx] = 0; } }
 
-#define get_Hwcsamp_invalues(primary, num_calls)
+#define get_Hwcsamp_invalues(primary, num_calls, function_name)
 
 #define get_Hwcsamp_exvalues(secondary, num_calls)       \
               excnt++;                                   \
@@ -54,11 +54,11 @@
               { for(int hwcsamp_idx=0; hwcsamp_idx<OpenSS_NUMCOUNTERS;hwcsamp_idx++) { \
                   exevent[hwcsamp_idx] += secondary.dm_event_values[hwcsamp_idx]; } }
 
-#define get_inclusive_values(stdv, num_calls)           \
+#define get_inclusive_values(stdv, num_calls, function_name)           \
 {           int64_t len = stdv.size();                  \
             for (int64_t i = 0; i < len; i++) {         \
              /* Use macro to combine all the values. */ \
-              get_Hwcsamp_invalues(stdv[i],num_calls)   \
+              get_Hwcsamp_invalues(stdv[i],num_calls, function_name)   \
             }                                           \
 }
 

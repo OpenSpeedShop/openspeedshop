@@ -111,7 +111,7 @@ int64_t prev_min_bytesval=LONG_MAX;
             int64_t detail_rank = 0;             \
             int64_t detail_thread = 0;           
 
-#define get_IOT_invalues(primary,num_calls)                      \
+#define get_IOT_invalues(primary,num_calls,function_name)                      \
               double v = primary.dm_time / num_calls;            \
               intime += v;                                       \
               incnt++;                                           \
@@ -119,31 +119,69 @@ int64_t prev_min_bytesval=LONG_MAX;
               end = std::max(end,primary.dm_interval.getEnd());       \
               vmin = std::min(vmin,v);                                \
               vmax = std::max(vmax,v);                                \
-              if (primary.dm_syscallno != SYS_close && primary.dm_syscallno != SYS_open && \
-                  primary.dm_syscallno != SYS_lseek && primary.dm_syscallno != SYS_dup && \
-                  primary.dm_syscallno != SYS_creat) {        \
-                if (primary.dm_retval > 0 ) {                 \
-                  prev_min_bytesval = min_bytesval ;          \
-                  min_bytesval = std::min(min_bytesval,(int64_t)primary.dm_retval); \
-                  if ( min_bytesval == prev_min_bytesval && primary.dm_retval == min_bytesval ) {       \
-                    min_bytesval_count = min_bytesval_count + 1;            \
-                  } else if ( min_bytesval != prev_min_bytesval && primary.dm_retval == min_bytesval ) {       \
-                    min_bytesval_count = 1;                                 \
-                  }                                                         \
-                  prev_max_bytesval = max_bytesval ;                        \
-                  max_bytesval = std::max(max_bytesval,(int64_t)primary.dm_retval); \
-                  if ( max_bytesval == prev_max_bytesval && primary.dm_retval == max_bytesval ) {                \
-                    max_bytesval_count = max_bytesval_count + 1;            \
-                  } else if ( max_bytesval != prev_max_bytesval && primary.dm_retval == max_bytesval ) {       \
-                    max_bytesval_count = 1;                                 \
-                  }                                                         \
-                  tot_bytesval = tot_bytesval + (int64_t)primary.dm_retval; \
-                }                                                           \
-              } else {                                                      \
-                    min_bytesval = 0;                                       \
-                    min_bytesval_count = 0;                                 \
-                    max_bytesval_count = 0;                                 \
-              }                                                           \
+              bool have_read_write = false;                           \
+              if (1) { \
+                if (primary.dm_syscallno != SYS_close && primary.dm_syscallno != SYS_open && \
+                    primary.dm_syscallno != SYS_lseek && primary.dm_syscallno != SYS_dup && \
+                    primary.dm_syscallno != SYS_creat && primary.dm_syscallno != SYS_dup2  && \
+                    primary.dm_syscallno != SYS_pipe  ) {        \
+                  if (primary.dm_retval > 0 ) {                         \
+                    prev_min_bytesval = min_bytesval ;                  \
+                    min_bytesval = std::min(min_bytesval,(int64_t)primary.dm_retval); \
+                    if ( min_bytesval == prev_min_bytesval && primary.dm_retval == min_bytesval ) {          \
+                      min_bytesval_count = min_bytesval_count + 1;            \
+                    } else if ( min_bytesval != prev_min_bytesval && primary.dm_retval == min_bytesval ) {   \
+                      min_bytesval_count = 1;                                 \
+                    }                                                         \
+                    prev_max_bytesval = max_bytesval ;                        \
+                    max_bytesval = std::max(max_bytesval,(int64_t)primary.dm_retval); \
+                    if ( max_bytesval == prev_max_bytesval && primary.dm_retval == max_bytesval ) {           \
+                      max_bytesval_count = max_bytesval_count + 1;            \
+                    } else if ( max_bytesval != prev_max_bytesval && primary.dm_retval == max_bytesval ) {    \
+                      max_bytesval_count = 1;                                 \
+                    }                                                         \
+                    tot_bytesval = tot_bytesval + (int64_t)primary.dm_retval; \
+                  }                                                           \
+                } else {                                                      \
+                      min_bytesval = 0;                                       \
+                      max_bytesval = 0;                                       \
+                      min_bytesval_count = 0;                                 \
+                      max_bytesval_count = 0;                                 \
+                }                                                             \
+              } else {                                                        \
+                std::size_t found = function_name.find("__libc_read");        \
+                if (found!=std::string::npos) {                               \
+                   have_read_write = true;                                    \
+                }                                                             \
+                found = function_name.find("__libc_write");                   \
+                if (found!=std::string::npos) {                               \
+                   have_read_write = true;                                    \
+                }                                                             \
+                if ( have_read_write == true ) {                              \
+                  if (primary.dm_retval > 0 ) {                         \
+                    prev_min_bytesval = min_bytesval ;                  \
+                    min_bytesval = std::min(min_bytesval,(int64_t)primary.dm_retval); \
+                    if ( min_bytesval == prev_min_bytesval && primary.dm_retval == min_bytesval ) {          \
+                      min_bytesval_count = min_bytesval_count + 1;            \
+                    } else if ( min_bytesval != prev_min_bytesval && primary.dm_retval == min_bytesval ) {   \
+                      min_bytesval_count = 1;                                 \
+                    }                                                         \
+                    prev_max_bytesval = max_bytesval ;                        \
+                    max_bytesval = std::max(max_bytesval,(int64_t)primary.dm_retval); \
+                    if ( max_bytesval == prev_max_bytesval && primary.dm_retval == max_bytesval ) {           \
+                      max_bytesval_count = max_bytesval_count + 1;            \
+                    } else if ( max_bytesval != prev_max_bytesval && primary.dm_retval == max_bytesval ) {    \
+                      max_bytesval_count = 1;                                 \
+                    }                                                         \
+                    tot_bytesval = tot_bytesval + (int64_t)primary.dm_retval; \
+                  }                                                           \
+                } else {                                                      \
+                      min_bytesval = 0;                                       \
+                      max_bytesval = 0;                                       \
+                      min_bytesval_count = 0;                                 \
+                      max_bytesval_count = 0;                                 \
+                }                                                             \
+              }                                                               \
               sum_squares += v * v;                              \
               detail_syscallno = primary.dm_syscallno;           \
               detail_retval = primary.dm_retval;                 \
@@ -174,11 +212,11 @@ int64_t prev_min_bytesval=LONG_MAX;
               extime += secondary.dm_time / num_calls; \
               excnt++;
 
-#define get_inclusive_values(stdv, num_calls)           \
+#define get_inclusive_values(stdv, num_calls, Fname)           \
 {           int64_t len = stdv.size();                  \
             for (int64_t i = 0; i < len; i++) {         \
              /* Use macro to combine all the values. */ \
-              get_IOT_invalues(stdv[i],num_calls)       \
+              get_IOT_invalues(stdv[i],num_calls,Fname)       \
             }                                           \
 }
 
@@ -279,7 +317,7 @@ int64_t get_elapsed_time( CommandObject *cmd, ExperimentObject *exp ) {
 
   int64_t elapsed_time = 0;  
   //int64_t scaled_time = 0;
-  float scaled_time = 0.0;
+  double scaled_time = 0.0;
 
   if (exp->FW() != NULL) {
      Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
@@ -292,7 +330,7 @@ int64_t get_elapsed_time( CommandObject *cmd, ExperimentObject *exp ) {
         Time ET = databaseExtent.getTimeInterval().getEnd();
 
         elapsed_time = ((ET - ST));
-        scaled_time = float(float (elapsed_time) / 1000000000.0);
+        scaled_time = double(double (elapsed_time) / 1000000000.0);
       }
    }
 
@@ -946,18 +984,18 @@ static bool define_iot_columns (
 
 #if 1
     if (vfc != VFC_Trace) {
-      // display min return value
-       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytes_temp));
-       HV.push_back(std::string("Min_Bytes Read Written") );
       // display count of min bytes value
        IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytescount_temp));
        HV.push_back(std::string(" Min_Bytes Count") );
-      // display max return value
-       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytes_temp));
-       HV.push_back(std::string("Max_Bytes Read Written") );
+      // display min return value
+       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytes_temp));
+       HV.push_back(std::string("Min_Bytes Read Written") );
       // display count of max bytes value
        IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytescount_temp));
        HV.push_back(std::string(" Max_Bytes Count") );
+      // display max return value
+       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytes_temp));
+       HV.push_back(std::string("Max_Bytes Read Written") );
       // display total return value
        IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
        HV.push_back(std::string(" Total_Bytes Read Written") );

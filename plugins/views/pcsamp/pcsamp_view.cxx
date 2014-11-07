@@ -42,7 +42,7 @@
 #define def_pcsamp_values          \
             CommandResult *extime = CRPTR (0.0);
 
-#define get_inclusive_values(primary, num_calls)
+#define get_inclusive_values(primary, num_calls, function_name)
 
 #define get_exclusive_pcsamp_values(secondary, num_calls)        \
              if (extime == NULL) extime =  secondary->Copy();    \

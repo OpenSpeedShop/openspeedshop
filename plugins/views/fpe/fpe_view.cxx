@@ -171,7 +171,7 @@ class CommandResult_Fpetype :
             int64_t excnt = 0;                         \
             FPEType fpeType = Unknown;
 
-#define get_FPE_invalues(primary, num_calls)           \
+#define get_FPE_invalues(primary, num_calls, function_name)           \
               start = std::min(start,primary.dm_time);      \
               fpeType = primary.dm_type;               \
               incnt++;
@@ -179,11 +179,11 @@ class CommandResult_Fpetype :
 #define get_FPE_exvalues(secondary,num_calls)           \
               excnt++;
 
-#define get_inclusive_values(stdv, num_calls)           \
+#define get_inclusive_values(stdv, num_calls, function_name)           \
 {           int64_t len = stdv.size();                  \
             for (int64_t i = 0; i < len; i++) {         \
              /* Use macro to combine all the values. */ \
-              get_FPE_invalues(stdv[i],num_calls)       \
+              get_FPE_invalues(stdv[i],num_calls, function_name)       \
             }                                           \
 }
 

@@ -49,7 +49,7 @@
             uint64_t in_events = 0; \
             uint64_t in_cnt = 0;
 
-#define get_inclusive_values(primary, num_calls)            \
+#define get_inclusive_values(primary, num_calls, function_name)            \
                 in_events += primary.dm_events / num_calls; \
                 in_cnt +=  primary.dm_count;
 

@@ -47,7 +47,7 @@
             double in_time = 0.0;    \
             uint64_t in_cnt = 0;
 
-#define get_inclusive_values(primary, num_calls)        \
+#define get_inclusive_values(primary, num_calls, function_name)        \
                 in_time += primary.dm_time / num_calls; \
                 in_cnt +=  primary.dm_count;
 

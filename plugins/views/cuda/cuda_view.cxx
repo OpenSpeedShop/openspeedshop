@@ -78,7 +78,7 @@
             int64_t detail_rank = 0;             \
             int64_t detail_thread = 0;           
 
-#define get_CUDA_invalues(primary,num_calls)                      \
+#define get_CUDA_invalues(primary,num_calls, function_name)      \
               double v = primary.dm_time / num_calls;            \
               intime += v;                                       \
               incnt++;                                           \
@@ -116,11 +116,11 @@
               extime += secondary.dm_time / num_calls; \
               excnt++;
 
-#define get_inclusive_values(stdv, num_calls)           \
+#define get_inclusive_values(stdv, num_calls, function_name)           \
 {           int64_t len = stdv.size();                  \
             for (int64_t i = 0; i < len; i++) {         \
              /* Use macro to combine all the values. */ \
-              get_CUDA_invalues(stdv[i],num_calls)       \
+              get_CUDA_invalues(stdv[i],num_calls, function_name)       \
             }                                           \
 }
 

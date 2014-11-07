@@ -24,6 +24,8 @@
 #include "MPICollector.hxx"
 #include "MPIDetail.hxx"
 
+int64_t application_elapsed_time = 0.0;
+
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
 
@@ -40,8 +42,9 @@
 #define id_temp  VMulti_free_temp+9
 #define rank_temp  VMulti_free_temp+10
 #define thread_temp  VMulti_free_temp+11
+#define applpercent_temp  VMulti_free_temp+12
 
-#define First_ByThread_Temp VMulti_free_temp+12
+#define First_ByThread_Temp VMulti_free_temp+13
 #define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
                                  // "2" => times reported in seconds,
                                  // otherwise don't add anything.
@@ -64,7 +67,7 @@
             int64_t detail_rank = 0;             \
             int64_t detail_thread = 0;
 
-#define get_MPI_invalues(primary,num_calls)                      \
+#define get_MPI_invalues(primary,num_calls, function_name)       \
               double v = primary.dm_time / num_calls;            \
               intime += v;                                       \
               incnt++;                                           \
@@ -98,11 +101,11 @@
               extime += secondary.dm_time / num_calls; \
               excnt++;
 
-#define get_inclusive_values(stdv, num_calls)           \
+#define get_inclusive_values(stdv, num_calls, function_name)           \
 {           int64_t len = stdv.size();                  \
             for (int64_t i = 0; i < len; i++) {         \
              /* Use macro to combine all the values. */ \
-              get_MPI_invalues(stdv[i],num_calls)       \
+              get_MPI_invalues(stdv[i],num_calls, function_name)       \
             }                                           \
 }
 
@@ -152,7 +155,40 @@
                 CommandResult * p = CRPTR (detail_thread);                                \
                 p->SetValueIsID();                                                        \
                 value_array[thread_temp] = p;                                             \
+              }                                                                           \
+              if (num_temps > applpercent_temp) {                                         \
+                value_array[applpercent_temp] = new CommandResult_Interval (application_elapsed_time);      \
               }
+
+int64_t get_elapsed_time( CommandObject *cmd, ExperimentObject *exp ) {
+
+  //std::cerr << "Enter get_elapsed_time" << std::endl;
+
+  int64_t elapsed_time = 0;
+  //int64_t scaled_time = 0;
+  double scaled_time = 0.0;
+
+  if (exp->FW() != NULL) {
+     Extent databaseExtent = exp->FW()->getPerformanceDataExtent();
+     if ((databaseExtent.getTimeInterval().getBegin() == Time::TheBeginning()) ||
+         (databaseExtent.getTimeInterval().getBegin() == databaseExtent.getTimeInterval().getEnd())) {
+            std::cerr << "There was no performance data was recorded in the database." << std::endl;
+      } else {
+
+        Time ST = databaseExtent.getTimeInterval().getBegin();
+        Time ET = databaseExtent.getTimeInterval().getEnd();
+
+        elapsed_time = ((ET - ST));
+        scaled_time = double(double (elapsed_time) / 1000000000.0);
+      }
+   }
+
+   //std::cerr << "EXIT get_elapsed_time, elapsed_time=" << elapsed_time << " scaled_time=" << scaled_time << std::endl;
+   return scaled_time;
+
+}
+
+
 
 static void Determine_Objects (
                CommandObject *cmd,
@@ -262,6 +298,8 @@ static bool define_mpi_columns (
   int64_t totalIndex  = 0;  // Number of totals needed to perform % calculations.
   int64_t last_used_temp = Last_ByThread_Temp; // Track maximum temps - needed for expressions.
 
+  application_elapsed_time = get_elapsed_time(cmd, exp);
+
  // Define combination instructions for predefined temporaries.
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_time_temp));
@@ -277,6 +315,7 @@ static bool define_mpi_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Add, id_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, rank_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, thread_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, applpercent_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
@@ -327,6 +366,7 @@ static bool define_mpi_columns (
   MetricMap["inclusive_counts"] = incnt_temp;
   MetricMap["max_time"] = max_temp;
   MetricMap["min_time"] = min_temp;
+  MetricMap["appl_percent"] = applpercent_temp;
   if (vfc == VFC_Trace) {
     MetricMap["start_time"] = start_temp;
     MetricMap["stop_time"] = stop_temp;
@@ -391,6 +431,10 @@ static bool define_mpi_columns (
          // display max time
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, max_temp));
           HV.push_back(std::string("Maximum ") + Default_Header + "(ms)");
+        } else if (!strcasecmp(M_Name.c_str(), "appl_percent")) {
+          IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, applpercent_temp));
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
+          HV.push_back("% of Total App Time");
         } else if ( !strcasecmp(M_Name.c_str(), "count") ||
                     !strcasecmp(M_Name.c_str(), "counts") ||
                     !strcasecmp(M_Name.c_str(), "exclusive_count") ||
@@ -425,7 +469,7 @@ static bool define_mpi_columns (
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
           }
           IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
-          HV.push_back("% of Total Time");
+          HV.push_back("% of Total MPI Time");
         } else if (!strcasecmp(M_Name.c_str(), "%inclusive_time") ||
                    !strcasecmp(M_Name.c_str(), "%inclusive_times")) {
          // percent is calculate from 2 temps: inclusive time for this row and total inclusive time.
@@ -562,6 +606,7 @@ static bool define_mpi_columns (
 #endif
 
 
+#if 0
    // display max time
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, max_temp));
     HV.push_back(std::string("Maximum ") + Default_Header + "(ms)");
@@ -573,10 +618,49 @@ static bool define_mpi_columns (
    // average time is calculated from two temps: sum and total counts.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, incnt_temp));
     HV.push_back("Average Time(ms)");
-
-  // display a count of the calls to each function
+#else
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
     HV.push_back("Number of Calls");
+
+    // Minimum
+    IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                      ViewReduction_min, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
+     HV.push_back(std::string("Min ") + ByThread_Header
+               + " Across " + View_ByThread_Id_name[View_ByThread_Identifier] + "s"
+               + ((ByThread_use_intervals == 1)?"(ms)":((ByThread_use_intervals == 2)?"(s)":"")));
+
+    // Rank of Minimum
+     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                       ViewReduction_imin, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, timin_temp));
+     HV.push_back(View_ByThread_Id_name[View_ByThread_Identifier] + " of Min");
+
+    // Maximum
+     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                       ViewReduction_max, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
+     HV.push_back(std::string("Max ") + ByThread_Header
+               + " Across " + View_ByThread_Id_name[View_ByThread_Identifier] + "s"
+               + ((ByThread_use_intervals == 1)?"(ms)":((ByThread_use_intervals == 2)?"(s)":"")));
+
+     // Find the Rank of the By-Thread Max.
+     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                       ViewReduction_imax, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, timax_temp));
+     HV.push_back(View_ByThread_Id_name[View_ByThread_Identifier] + " of Max");
+
+    // Average
+     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                       ViewReduction_mean, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
+     HV.push_back(std::string("Average ") + ByThread_Header
+               + " Across " + View_ByThread_Id_name[View_ByThread_Identifier] + "s"
+               + ((ByThread_use_intervals == 1)?"(ms)":((ByThread_use_intervals == 2)?"(s)":"")));
+
+
+#endif
+
   } else {
    // If nothing is requested ...
     if (vfc == VFC_Trace) {
@@ -600,7 +684,7 @@ static bool define_mpi_columns (
       IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
     }
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
-    HV.push_back("% of Total");
+    HV.push_back("% of MPI Total");
 
     if (vfc != VFC_Trace) {
       // display a count of the calls to each function

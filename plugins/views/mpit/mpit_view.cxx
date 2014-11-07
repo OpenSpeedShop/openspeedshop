@@ -83,7 +83,7 @@
             int64_t detail_thread = 0;
 
 
-#define get_MPIT_invalues(primary,num_calls)                     \
+#define get_MPIT_invalues(primary,num_calls, function_name)                     \
               double v = primary.dm_time / num_calls;            \
               intime += v;                                       \
               incnt++;                                           \
@@ -95,8 +95,10 @@
               detail_source = primary.dm_source;                      \
               detail_destination = primary.dm_destination;            \
               detail_size += primary.dm_size;                         \
-              max_bytes = std::max(max_bytes, primary.dm_size);   \
-              min_bytes = std::min(min_bytes, primary.dm_size);   \
+              if ( primary.dm_size > 0 ) {                 \
+                max_bytes = std::max(max_bytes, primary.dm_size);   \
+                min_bytes = std::min(min_bytes, primary.dm_size);   \
+              }                                                  \
               detail_tag = primary.dm_tag;                       \
               detail_communicator = primary.dm_communicator;     \
               detail_datatype = primary.dm_datatype;             \
@@ -127,11 +129,11 @@
               extime += primary.dm_time / num_calls; \
               excnt++;
 
-#define get_inclusive_values(stdv, num_calls)           \
+#define get_inclusive_values(stdv, num_calls, function_name)           \
 {           int64_t len = stdv.size();                  \
             for (int64_t i = 0; i < len; i++) {         \
              /* Use macro to combine all the values. */ \
-              get_MPIT_invalues(stdv[i],num_calls)      \
+              get_MPIT_invalues(stdv[i],num_calls, function_name)      \
             }                                           \
 }
 
@@ -704,7 +706,6 @@ static bool define_mpit_columns (
   } else if (vfc == VFC_Function) {
    // Default function view - basic useful information.
 
-#if 1
    // Always display elapsed time.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
     HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
@@ -719,7 +720,50 @@ static bool define_mpit_columns (
     }
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back("% of Total");
-#endif
+
+  // display a count of the calls to each function
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
+    HV.push_back("Number of Calls");
+
+#if 1
+
+    // Minimum
+    IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                      ViewReduction_min, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
+     HV.push_back(std::string("Min ") + ByThread_Header
+               + " Across " + View_ByThread_Id_name[View_ByThread_Identifier] + "s"
+               + ((ByThread_use_intervals == 1)?"(ms)":((ByThread_use_intervals == 2)?"(s)":"")));
+
+    // Rank of Minimum
+     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                       ViewReduction_imin, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, timin_temp));
+     HV.push_back(View_ByThread_Id_name[View_ByThread_Identifier] + " of Min");
+
+    // Maximum
+     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                       ViewReduction_max, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
+     HV.push_back(std::string("Max ") + ByThread_Header
+               + " Across " + View_ByThread_Id_name[View_ByThread_Identifier] + "s"
+               + ((ByThread_use_intervals == 1)?"(ms)":((ByThread_use_intervals == 2)?"(s)":"")));
+
+     // Find the Rank of the By-Thread Max.
+     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                       ViewReduction_imax, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, timax_temp));
+     HV.push_back(View_ByThread_Id_name[View_ByThread_Identifier] + " of Max");
+
+    // Average
+     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                       ViewReduction_mean, View_ByThread_Identifier));
+     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
+     HV.push_back(std::string("Average ") + ByThread_Header
+               + " Across " + View_ByThread_Id_name[View_ByThread_Identifier] + "s"
+               + ((ByThread_use_intervals == 1)?"(ms)":((ByThread_use_intervals == 2)?"(s)":"")));
+
+#else
 
    // display min time
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, min_temp));
@@ -733,9 +777,8 @@ static bool define_mpit_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, incnt_temp));
     HV.push_back("Average Time(ms)");
 
-  // display a count of the calls to each function
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
-    HV.push_back("Number of Calls");
+#endif
+
   } else {
    // If nothing is requested ...
     if (vfc == VFC_Trace) {
