@@ -117,6 +117,19 @@ static bool isMpiExe(const std::string exe) {
 }
 
 //
+// Determine if openMP runtime library is present in this executable.
+//
+static bool isOpenMPExe(const std::string exe) {
+    SymtabAPISymbols stapi_symbols;
+    bool found_openmp = stapi_symbols.foundLibrary(exe,"libiomp5");
+    if (!found_openmp) {
+       found_openmp = stapi_symbols.foundLibrary(exe,"libgomp");
+    }
+    return found_openmp;
+}
+
+
+//
 // Determine what type of executable situation we have for running with cbtfrun.
 // Is this a pure MPI executable or are we running a sequential executable with a mpi driver?
 // We catagorize these into three types: mpi, seq runing under mpi driver, and sequential
@@ -199,6 +212,28 @@ static std::string getMPIExecutableFromCommand(std::string command) {
   return retval;
 }
 
+// Function that returns the filename of the executable file found in the "command".
+// It tokenizes the command and runs through it backwards looking for the first file that is executable.
+// That might not be sufficient in all cases.
+static std::string getSeqExecutableFromCommand(std::string command) {
+
+    std::string retval = "";
+
+    boost::char_separator<char> sep(" ");
+    boost::tokenizer<boost::char_separator<char> > btokens(command, sep);
+
+    BOOST_FOREACH (const std::string& t, btokens) {
+      if (is_executable( t )) {
+         exe_class_types local_exe_type = typeOfExecutable(command, t);
+         if (local_exe_type == SEQ_exe_type ) {
+           return t;
+         }
+      }
+    } // end foreach
+
+  return retval;
+}
+
 
 static std::string createDBName(std::string dbprefix)
 {
@@ -235,7 +270,7 @@ int main(int argc, char** argv)
 {
     unsigned int numBE;
     bool isMPI;
-    std::string topology, arch, connections, collector, program, mpiexecutable, cbtfrunpath;
+    std::string topology, arch, connections, collector, program, mpiexecutable, cbtfrunpath, seqexecutable;
 
     bool is_debug_startup_enabled = (getenv("OPENSS_DEBUG_STARTUP") != NULL);
 
@@ -419,6 +454,8 @@ int main(int argc, char** argv)
         std::cout << "fork failed";
     } else if(child == 0){
 
+        bool exe_has_openmp = false;
+
         if (!mpiexecutable.empty()) {
 
 #if 0
@@ -443,29 +480,49 @@ int main(int argc, char** argv)
             }
 
 	    pos = program.find(mpiexecutable);
+
+            exe_has_openmp = isOpenMPExe(mpiexecutable);
+
             exe_class_types appl_type =  typeOfExecutable(program, mpiexecutable);
 
             if (is_debug_startup_enabled) {
-              std::cerr << "DEBUG: osscollect, appl_type=" << appl_type << " pos=" << pos << std::endl;
+              std::cerr << "DEBUG: osscollect, appl_type=" << appl_type << " pos=" << pos << " exe_has_openmp=" << exe_has_openmp << std::endl;
             }
 
             if (appl_type == MPI_exe_type) {
-              
+
               if (!cbtfrunpath.empty()) {
-                program.insert(pos, " " + cbtfrunpath + " --mrnet --mpi -c " + collector + " \"");
+                if (exe_has_openmp) {
+                  program.insert(pos, " " + cbtfrunpath + " --mrnet --mpi -c " + collector + " --openmp" + " \"");
+                } else {
+                  program.insert(pos, " " + cbtfrunpath + " --mrnet --mpi -c " + collector + " \"");
+                }
               } else {
-                program.insert(pos, " cbtfrun --mrnet --mpi -c " + collector + " \"");
+                if (exe_has_openmp) {
+                  program.insert(pos, " cbtfrun --mrnet --mpi -c " + collector + " --openmp" + " \"");
+                } else {
+                  program.insert(pos, " cbtfrun --mrnet --mpi -c " + collector + " \"");
+                }
               }
 
             } else {
 
               if (!cbtfrunpath.empty()) {
-                program.insert(pos, " " + cbtfrunpath + " --mrnet -c " + collector + " \"");
+                if (exe_has_openmp) {
+                  program.insert(pos, " " + cbtfrunpath + " --mrnet -c " + collector + " --openmp" + " \"");
+                } else {
+                  program.insert(pos, " " + cbtfrunpath + " --mrnet -c " + collector + " \"");
+                }
               } else {
-                program.insert(pos, " cbtfrun --mrnet -c " + collector + " \"");
+                if (exe_has_openmp) {
+                  program.insert(pos, " cbtfrun --mrnet -c " + collector + " --openmp" + " \"");
+                } else {
+                  program.insert(pos, " cbtfrun --mrnet -c " + collector + " \"");
+                }
               }
 
             }
+
             program.append("\"");
             std::cerr << "executing mpi program: " << program << std::endl;
 	    
@@ -477,10 +534,24 @@ int main(int argc, char** argv)
                 command = cbtfrunpath.c_str() ;
             } 
 
-            std::cerr << "executing sequential program: "
-		<< command << " -m -c " << collector << " " << program << std::endl;
+            seqexecutable = getSeqExecutableFromCommand(program);
+            exe_has_openmp = isOpenMPExe(seqexecutable);
 
-            execlp(command,"-m", "-c", collector.c_str(), program.c_str(), NULL);
+
+            if (exe_has_openmp) {
+              std::cerr << "executing sequential program: "
+                  << command << " -m -c " << collector << " --openmp" << " " << program << std::endl;
+            } else {
+              std::cerr << "executing sequential program: "
+                  << command << " -m -c " << collector << " " << program << std::endl;
+            }
+
+            if (exe_has_openmp) {
+              execlp(command,"-m", "-c", collector.c_str(), "--openmp", program.c_str(), NULL);
+            } else {
+              execlp(command,"-m", "-c", collector.c_str(), program.c_str(), NULL);
+            }
+
 	}
     } else {
 
