@@ -700,6 +700,8 @@ case "$INSTRUMENTOR" in
         INSTRUMENTOR=offline
         AM_CONDITIONAL(HAVE_CBTF_MESSAGES_CUDA, false)
 	AX_RUNTIME_DIR()
+        AM_CONDITIONAL(HAVE_OMPT, false)
+        AM_CONDITIONAL(HAVE_LIBIOMP, false)
 	;; 
 
     dyninst)
@@ -715,6 +717,8 @@ case "$INSTRUMENTOR" in
 	AC_DEFINE(BUILD_INSTRUMENTOR, 1, [Define to 1 if you do not want an instrumentor built.])
         AM_CONDITIONAL(HAVE_RUNTIME_DIR, false)
         AM_CONDITIONAL(HAVE_CBTF_MESSAGES_CUDA, false)
+        AM_CONDITIONAL(HAVE_OMPT, false)
+        AM_CONDITIONAL(HAVE_LIBIOMP, false)
 	;;
 
     mrnet)
@@ -737,6 +741,8 @@ case "$INSTRUMENTOR" in
 	AC_DEFINE(BUILD_INSTRUMENTOR, 1, [Define to 1 if you do not want an instrumentor built.])
         AM_CONDITIONAL(HAVE_RUNTIME_DIR, false)
         AM_CONDITIONAL(HAVE_CBTF_MESSAGES_CUDA, false)
+        AM_CONDITIONAL(HAVE_OMPT, false)
+        AM_CONDITIONAL(HAVE_LIBIOMP, false)
 	;;
 
     offline)
@@ -759,6 +765,8 @@ case "$INSTRUMENTOR" in
 	AC_DEFINE(BUILD_INSTRUMENTOR, 1, [Define to 1 if you do not want an instrumentor built.])
 	AX_RUNTIME_DIR()
         AM_CONDITIONAL(HAVE_CBTF_MESSAGES_CUDA, false)
+        AM_CONDITIONAL(HAVE_OMPT, false)
+        AM_CONDITIONAL(HAVE_LIBIOMP, false)
 	;;
 
     cbtf)
@@ -785,6 +793,7 @@ case "$INSTRUMENTOR" in
 	AX_CBTF_MESSAGES()
 	AX_CBTF_MESSAGES_CUDA()
 	AX_CBTF_SERVICES()
+	AX_LIBIOMP()
 
 	AM_CONDITIONAL(BUILD_DPCL, false)
 	AM_CONDITIONAL(BUILD_MRNET, false)
