@@ -1047,7 +1047,7 @@ Dump_CallStack (std::vector<CommandResult *> *call_stack,
       DEBUG_FLAG = true;
 #endif
      // Go off and get the values 
-        printf("In Detail_ButterFly, SS_View_detail.txx, calling Accumulate_Stack, for (*si)\n");
+        //printf("In Detail_ButterFly, SS_View_detail.txx, calling Accumulate_Stack, for (*si)\n");
         Accumulate_Stack(st, details, StackTraces_Processed, SubExtents_Map, DEBUG_FLAG, F.getName());
 
        // Use macro to construct result array
