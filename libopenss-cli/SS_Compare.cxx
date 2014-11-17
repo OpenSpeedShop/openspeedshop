@@ -752,14 +752,15 @@ static bool Generate_CustomView (CommandObject *cmd,
 #if DEBUG_COMPARE_SETS
         printf("SSCOMPARE: IN Generate_CustomView, master_index section, master_index=%d\n", master_index);
 #endif
-
+       
        // Map the master_vector index to the start of data for this entry.
-        if (Quick_Compare_Set[i].merge_map[master_index] != NULL) {
+       // Warn about names that appear more than once in a view if the less restrictive comparison is not on
+        if (Quick_Compare_Set[i].merge_map[master_index] != NULL && !OPENSS_LESS_RESTRICTIVE_COMPARISONS) {
          // This is an error and should be reported.
           std::ostringstream M;
           M << "The name portion of '" << last_column->Form()
             << "' appears more than once in the view."
-            << " Only the first occurence is included in the generated comparison.";
+            << " Only the first occurrence is included in the generated comparison.";
           Mark_Cmd_With_Soft_Error(cmd, M.str());
         } else {
           Quick_Compare_Set[i].merge_map[master_index] = c;
