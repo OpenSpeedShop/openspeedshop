@@ -51,6 +51,7 @@ CBTF_SUBDIRS = \
 	ossdumpsym
 
 CUDA_SUBDIRS = \
+	libopenss-queries-cuda \
 	ossdumpcuda
 
 CLIENT_SUBDIRS = \
