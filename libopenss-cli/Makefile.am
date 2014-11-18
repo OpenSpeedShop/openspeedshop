@@ -17,6 +17,8 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+DIST_SUBDIRS = rapidxml-1.13
+
 BUILT_SOURCES = \
 	SS_Parse_Lex.cxx \
 	SS_Parse_Yacc.cxx \
@@ -93,7 +95,7 @@ libopenss_cli_direct_la_LIBADD = \
         -lpthread -lrt
 
 libopenss_cli_direct_la_SOURCES = \
-	Direct.hxx Direct.cxx \
+	ServerException.hxx Direct.hxx Direct.cxx \
 	OpenSpeedShopCLI.hxx OpenSpeedShopCLI.cxx 
 
 endif

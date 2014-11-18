@@ -900,7 +900,7 @@ AC_CONFIG_FILES(
 	libopenss-framework/mrnet/openssd/watcher/Makefile
 	libopenss-framework/offline/Makefile
 	libopenss-queries/Makefile
-    libopenss-queries-cuda/Makefile
+	libopenss-queries-cuda/Makefile
 	man/Makefile
 	man/man1/Makefile
 	man/man3/Makefile
@@ -980,8 +980,8 @@ AC_CONFIG_FILES(
 	pyscripting/sources/Makefile
 	pyscripting/test/Makefile
 	openss/Makefile
-    ossdumpcuda/Makefile
-    ossdumpsym/Makefile
+	ossdumpcuda/Makefile
+	ossdumpsym/Makefile
 	libopenss-guibase/Makefile
 	libopenss-guiplugin/Makefile
 	libopenss-guiexprinfo/Makefile
@@ -989,6 +989,7 @@ AC_CONFIG_FILES(
 	libopenss-guidialogs/Makefile
 	libopenss-guichart/Makefile
 	libopenss-cli/Makefile
+	libopenss-cli/rapidxml-1.13/Makefile
 	libopenss-gui/Makefile
 	sanity/Makefile
 	sanity/check_dpcl/Makefile
