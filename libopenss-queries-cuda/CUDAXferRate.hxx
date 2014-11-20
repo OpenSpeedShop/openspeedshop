@@ -16,7 +16,7 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
-/** @file Declaration and definition of the CUDAExecXferBalance structure. */
+/** @file Declaration and definition of the CUDAXferRate structure. */
 
 #pragma once
 
@@ -24,22 +24,22 @@
 #include "config.h"
 #endif
 
+#include <stdint.h>
+
 namespace OpenSpeedShop { namespace Queries {
 
     /**
-     * Structure containing metrics for evaluating the balance between the
-     * time spent in CUDA kernel executions versus the time spent in CUDA
-     * data transfers. The ratio (exec_time / xfer_time) should ideally be
-     * significantly larger than 1.
+     * Structure containing metrics for evaluating the CUDA data transfer rate.
+     * The data transfer rate is calculated simply as (size / time).
      */
-    struct CUDAExecXferBalance
+    struct CUDAXferRate
     {
-        /** Time (in seconds) spent in CUDA kernel executions. */
-        double exec_time;
+        /** Size (in bytes) of the CUDA data transfers. */
+        uint64_t size;
         
         /** Time (in seconds) spent in CUDA data transfers. */
-        double xfer_time;
+        double time;
         
-    }; // struct CUDAExecXferBalance
+    }; // struct CUDAXferRate
 
 } } // namespace OpenSpeedShop::Queries

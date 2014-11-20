@@ -45,8 +45,10 @@ libopenss_queries_cuda_la_LIBADD = \
 	$(LIBLTDL)
 
 libopenss_queries_cuda_la_SOURCES = \
+	CUDAData.hxx CUDAData.cxx \
 	CUDAExecXferBalance.hxx \
-	CUDAQueries.hxx CUDAQueries.cxx
+	CUDAQueries.hxx CUDAQueries.cxx \
+	CUDAXferRate.hxx
 
 test_CXXFLAGS =\
 	@BOOST_CPPFLAGS@ \

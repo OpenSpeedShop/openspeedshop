@@ -24,13 +24,12 @@
 #include "config.h"
 #endif
 
-#include <boost/optional.hpp>
-
-#include "Collector.hxx"
-#include "Thread.hxx"
+#include "Time.hxx"
 #include "TimeInterval.hxx"
 
+#include "CUDAData.hxx"
 #include "CUDAExecXferBalance.hxx"
+#include "CUDAXferRate.hxx"
 
 namespace OpenSpeedShop { namespace Queries {
 
@@ -38,24 +37,33 @@ namespace OpenSpeedShop { namespace Queries {
      * Get metrics for evaluating the balance between the time spent in
      * CUDA kernel executions versus the time spent in CUDA data transfers.
      *
-     * @pre    Can only be performed for a CUDA collector. An assertion
-     *         failure occurs if a different collector is used.
-     *
-     * @pre    The thread must be in the same experiment as the collector.
-     *         An assertion failure occurs if the thread is in a different
-     *         experiment than the collector.
-     *
-     * @param collector    Collector for which to get the metrics.
-     * @param thread       Thread for which to get the metrics.
-     * @param interval     Time interval over which to get the metrics.
-     *                     Has a default value of "none" which has the
-     *                     special meaning of "all possible time".
-     * @return             Metrics for evaluating the balance.
+     * @param data        CUDA data for which to get the metrics.
+     * @param interval    Time interval over which to get the metrics. Has
+     *                    a default value meaning of "all possible time".
+     * @return            Metrics for evaluating the balance.
      */
     CUDAExecXferBalance GetCUDAExecXferBalance(
-        const Framework::Collector& collector,
-        const Framework::Thread& thread,
-        const boost::optional<Framework::TimeInterval>& interval = boost::none
+        const CUDAData& data,
+        const Framework::TimeInterval& interval = Framework::TimeInterval(
+            Framework::Time::TheBeginning(),
+            Framework::Time::TheEnd()
+            )
         );
 
+    /**
+     * Get metrics for evaluating the CUDA data transfer rate.
+     *
+     * @param data        CUDA data for which to get the metrics.
+     * @param interval    Time interval over which to get the metrics. Has
+     *                    a default value meaning of "all possible time".
+     * @return            Metrics for evaluating the data transfer rate.
+     */
+    CUDAXferRate GetCUDAXferRate(
+        const CUDAData& data,
+        const Framework::TimeInterval& interval = Framework::TimeInterval(
+            Framework::Time::TheBeginning(),
+            Framework::Time::TheEnd()
+            )
+        );
+    
 } } // namespace OpenSpeedShop::Queries
