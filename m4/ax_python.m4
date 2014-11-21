@@ -174,6 +174,8 @@ $ac_distutils_result])
               PYTHON_LDFLAGS="-L$PYTHON_LIBPATH -lpython$py_version"
             elif test -f $PYTHON_LIBPATH/x86_64-linux-gnu/$libpython_designator$py_version$so_designator; then
               PYTHON_LDFLAGS="-L$PYTHON_LIBPATH/x86_64-linux-gnu -lpython$py_version"
+            else
+              PYTHON_LDFLAGS="-L$PYTHON_LIBPATH -lpython$py_version"
             fi
 
             #PYTHON_LDFLAGS_TMP=`$PYTHON -c "from distutils.sysconfig import *; \
@@ -187,6 +189,8 @@ $ac_distutils_result])
               python_full_path_tmp1=$PYTHON_LIBPATH/$libpython_designator$py_version
             elif test -f $PYTHON_LIBPATH/x86_64-linux-gnu/$libpython_designator$py_version$so_designator; then
               python_full_path_tmp1=$PYTHON_LIBPATH/x86_64-linux-gnu/$libpython_designator$py_version
+            else
+              python_full_path_tmp1=$PYTHON_LIBPATH/$libpython_designator$py_version
             fi
             #python_full_path_tmp1=`$PYTHON -c "from distutils.sysconfig import *; \
             #        from string import join; \
