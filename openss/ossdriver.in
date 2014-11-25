@@ -122,7 +122,7 @@ mpiotf_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,M
 fpe_default_events="inexact_result,division_by_zero,underflow,overflow,invalid_operation"
 
 # Corresponds to OPENSS_CUDA_CONFIG or CBTF_CUDA_CONFIG
-cuda_default_config="interval=10000000,TOT_CYC"
+cuda_default_config="interval=10000000,PAPI_TOT_CYC"
 
 #
 # END DEFAULT VALUES
@@ -231,31 +231,25 @@ then
    elif [[ "$experiment_name" == "ossmpi" || "$experiment_name" == "ossmpit" || "$experiment_name" == "ossmpiotf" ]]; then
      echo "            \"MPI functions to trace\"  - Specify the list of MPI functions to be traced when running the mpi, mpit or mpiotf experiments."
      echo "                                             For example: MPI_Send,MPI_Isend,MPI_Finalize"
-
    elif [ "$experiment_name" == "osscuda" ]; then
      echo "            \"config\"  - Specify the hardware event sampling configuration to be"
      echo "                        used. Consists of a comma-delimited list of parameters."
      echo "                        The allowed parameters are:"
      echo "                            interval=<n>   The periodic sampling interval (nS)."
-     echo "                            <event>[:<n>]  The PAPI event and, optionally, a"
+     echo "                            <event>[@<n>]  The PAPI event and, optionally, a"
      echo "                                           overflow threshold for event-based"
      echo "                                           PC sampling. E.g. \"PAPI_TOT_CYC\" to"
      echo "                                           periodically sample the total cycles"
-     echo "                                           or \"PAPI_TOT_CYC:1000000\" to sample"
+     echo "                                           or \"PAPI_TOT_CYC@1000000\" to sample"
      echo "                                           the PC every 1,000,000 cycles."
-     echo "                        E.g. \"interval=1000000,PAPI_TOT_CYC,PAPI_TOT_INS:100000\""
+     echo "                        E.g. \"interval=1000000,PAPI_TOT_CYC,PAPI_TOT_INS@100000\""
      echo "                        would sample total cycles and floating-point operations"
      echo "                        every 1 mS, and also sample the PC for every 100,000"
      echo "                        floating-point operations. Trace data is collected for"
      echo "                        all kernel executions and memory operations regardless"
      echo "                        of whether this hardware event sampling is enabled."
-
-     whichpapi_avail=`which papi_avail`
-     if test -f $whichpapi_avail
-      then
-        echo " Available Hardware counter events are:"
-        $whichpapi_avail | grep "Yes"
-     fi
+     echo "                        Run \"papi_avail\" and/or \"papi_native_avail\" to find"
+     echo "                        the available hardware counter events for this platform."
 
    fi
    echo ""
@@ -3059,7 +3053,7 @@ then
   fi
 
 # ------------------------------------------------------------------------------------
-# -- CUDAIO EXPERIMENT SPECIFIC CODE ---------------------------------------------------
+# -- CUDAIO EXPERIMENT SPECIFIC CODE -------------------------------------------------
 # ------------------------------------------------------------------------------------
 
 elif  [ $experiment_name == "osscudaio" ]
