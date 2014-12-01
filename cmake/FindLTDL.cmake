@@ -18,21 +18,35 @@
 
 include(FindPackageHandleStandardArgs)
 
-SET(CMAKE_FIND_LIBRARY_PREFIXES "lib")
-SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
+set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 
 
 # This project does not use Libtool directly but still uses ltdl for
 # plug-in loading.
-SET(LIB_LTDL LIB_LTDL-NOTFOUND)
-FIND_LIBRARY(LIB_LTDL libltdl${CMAKE_SHARED_LIBRARY_SUFFIX})
-IF (NOT LIB_LTDL)
-  MESSAGE(FATAL_ERROR
-    "Failed to find Libtool ltdl library, check that Libtool ltdl is installed.")
-ENDIF()
-INCLUDE(CheckIncludeFileCXX)
-CHECK_INCLUDE_FILE_CXX(ltdl.h LTDL_H_FOUND)
-IF (NOT LTDL_H_FOUND)
-  MESSAGE(FATAL_ERROR
-    "Failed to find ltdl.h, check that Libtool ltdl is installed.")
-ENDIF()
+find_library(LTDL_LIBRARY_SHARED NAMES ltdl
+    HINTS $ENV{LTDL_ROOT}
+    HINTS ${LTDL_ROOT}
+    PATHS /usr /usr/local
+    PATH_SUFFIXES lib lib64
+    )
+
+include(CheckIncludeFileCXX)
+
+find_path(LTDL_INCLUDE_DIR
+    NAMES ltdl.h
+    PATHS /usr /usr/local
+    HINTS $ENV{LTDL_ROOT}
+    HINTS ${LTDL_ROOT}
+    PATH_SUFFIXES include
+    )
+
+message(STATUS "LTDL LTDL_H_FOUND: " ${LTDL_H_FOUND})
+message(STATUS "LTDL LTDL_LIBRARY_SHARED: " ${LTDL_LIBRARY_SHARED})
+message(STATUS "LTDL LTDL_INCLUDE_DIR: " ${LTDL_INCLUDE_DIR})
+message(STATUS "LTDL LTDL_FOUND: " ${LTDL_FOUND})
+
+mark_as_advanced(
+            LTDL_INCLUDE_DIR
+	    LTDL_LIBRARY_SHARED
+            )
