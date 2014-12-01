@@ -53,7 +53,7 @@ BUILT_FILES += ossrun
 endif
 endif
 
-LDFLAGS = 
+AM_LDFLAGS = 
 
 bin_PROGRAMS =
 
@@ -197,7 +197,7 @@ CLEANFILES = $(BUILT_FILES)
 # pkglibdir can be modified at make time, so can't use
 # variable substitution at configure time
 # TODO: need to configure location of libmonitor.so
-# via "-e 's,@@libmonitordir@@,$(monitorlibdir),' \"
+# via "-e 's,@libmonitordir@,$(monitorlibdir),' \"
 
 if HAVE_RUNTIME_DIR
 oss_location=$(RUNTIME_DIR)
@@ -227,12 +227,12 @@ if BUILD_INSTRUMENTOR
 osslink: osslink.in
 	@rm -f osslink
 	@sed \
-		-e 's,@@default_mpi_impl@@,$(DEFAULT_MPI_IMPL),' \
-		-e 's,@@ossinstalldir@@,$(oss_location),' \
-		-e 's,@@libmonitordir@@,$(monitor_dir),' \
-		-e 's,@@libunwinddir@@,$(unwind_dir),' \
-		-e 's,@@osstargetos@@,$(TARGET_OS),' \
-		-e 's,@@papidir@@,$(papi_dir),' \
+		-e 's,@default_mpi_impl@,$(DEFAULT_MPI_IMPL),' \
+		-e 's,@ossinstalldir@,$(oss_location),' \
+		-e 's,@libmonitordir@,$(monitor_dir),' \
+		-e 's,@libunwinddir@,$(unwind_dir),' \
+		-e 's,@osstargetos@,$(TARGET_OS),' \
+		-e 's,@papidir@,$(papi_dir),' \
 			$(srcdir)/osslink.in > osslink
 	@chmod 755 osslink
 
@@ -273,28 +273,28 @@ ossrun: ossrun.in
 endif
 	@rm -f ossrun
 	@sed \
-		-e 's,@@machine_dependent_libdir@@,$(abi_libdir_name),' \
-		-e 's,@@alt_machine_dependent_libdir@@,$(alt_abi_libdir_name),' \
-		-e 's,@@ossinstalldir@@,$(oss_location),' \
-		-e 's,@@libmonitordir@@,$(monitor_dir),' \
-		-e 's,@@libmonitorlibdir@@,$(monitor_libdir),' \
-		-e 's,@@lamdir@@,$(LAM_DIR),' \
-		-e 's,@@lamlibdir@@,$(LAM_LIBDIR),' \
-		-e 's,@@lampidir@@,$(LAMPI_DIR),' \
-		-e 's,@@lampilibdir@@,$(LAMPI_LIBDIR),' \
-		-e 's,@@mpichdir@@,$(MPICH_DIR),' \
-		-e 's,@@mpichlibdir@@,$(MPICH_LIBDIR),' \
-		-e 's,@@mpich2dir@@,$(mpich2_dir),' \
-		-e 's,@@mpich2libdir@@,$(mpich2_libdir),' \
-		-e 's,@@mvapichdir@@,$(MVAPICH_DIR),' \
-		-e 's,@@mvapichlibdir@@,$(MVAPICH_LIBDIR),' \
-		-e 's,@@mvapich2dir@@,$(MVAPICH2_DIR),' \
-		-e 's,@@mvapich2libdir@@,$(MVAPICH2_LIBDIR),' \
-		-e 's,@@mptdir@@,$(MPT_DIR),' \
-		-e 's,@@mptlibdir@@,$(MPT_LIBDIR),' \
-		-e 's,@@openmpidir@@,$(OPENMPI_DIR),' \
-		-e 's,@@openmpilibdir@@,$(OPENMPI_LIBDIR),' \
-		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
+		-e 's,@machine_dependent_libdir@,$(abi_libdir_name),' \
+		-e 's,@alt_machine_dependent_libdir@,$(alt_abi_libdir_name),' \
+		-e 's,@ossinstalldir@,$(oss_location),' \
+		-e 's,@libmonitordir@,$(monitor_dir),' \
+		-e 's,@libmonitorlibdir@,$(monitor_libdir),' \
+		-e 's,@lamdir@,$(LAM_DIR),' \
+		-e 's,@lamlibdir@,$(LAM_LIBDIR),' \
+		-e 's,@lampidir@,$(LAMPI_DIR),' \
+		-e 's,@lampilibdir@,$(LAMPI_LIBDIR),' \
+		-e 's,@mpichdir@,$(MPICH_DIR),' \
+		-e 's,@mpichlibdir@,$(MPICH_LIBDIR),' \
+		-e 's,@mpich2dir@,$(mpich2_dir),' \
+		-e 's,@mpich2libdir@,$(mpich2_libdir),' \
+		-e 's,@mvapichdir@,$(MVAPICH_DIR),' \
+		-e 's,@mvapichlibdir@,$(MVAPICH_LIBDIR),' \
+		-e 's,@mvapich2dir@,$(MVAPICH2_DIR),' \
+		-e 's,@mvapich2libdir@,$(MVAPICH2_LIBDIR),' \
+		-e 's,@mptdir@,$(MPT_DIR),' \
+		-e 's,@mptlibdir@,$(MPT_LIBDIR),' \
+		-e 's,@openmpidir@,$(OPENMPI_DIR),' \
+		-e 's,@openmpilibdir@,$(OPENMPI_LIBDIR),' \
+		-e 's,@ossdefaultmpi@,$(DEFAULT_MPI_IMPL),' \
 			$(srcdir)/ossrun.in > ossrun
 	@chmod 755 ossrun
 
@@ -303,8 +303,8 @@ if !BUILD_RUNTIME_ONLY
 ossdriver: ossdriver.in
 	@rm -f ossdriver
 	@sed \
-		-e 's,@@oss_instrumentor@@,$(INSTRUMENTOR),' \
-		-e 's,@@oss_targetos@@,$(TARGET_OS),' \
+		-e 's,@oss_instrumentor@,$(INSTRUMENTOR),' \
+		-e 's,@oss_targetos@,$(TARGET_OS),' \
 			$(srcdir)/ossdriver.in > ossdriver
 	@chmod 755 ossdriver
 

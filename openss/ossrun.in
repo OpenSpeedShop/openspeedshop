@@ -10,12 +10,12 @@ fi
 
 # The machine dependent abi libdir name has been computed 
 # so use the information from one central location. 
-machlibdir=@@machine_dependent_libdir@@
-alt_machlibdir=@@alt_machine_dependent_libdir@@
+machlibdir=@machine_dependent_libdir@
+alt_machlibdir=@alt_machine_dependent_libdir@
 
-monitor_prefix=@@libmonitordir@@
+monitor_prefix=@libmonitordir@
 monitor_exec_prefix="${monitor_prefix}"
-libmonitor="@@libmonitorlibdir@@/libmonitor.so"
+libmonitor="@libmonitorlibdir@/libmonitor.so"
 
 if [ $ossrun_debug == 1 ]; then
    echo "OSSRUN DEBUG: a - monitor_prefix: $monitor_prefix"
@@ -23,28 +23,28 @@ if [ $ossrun_debug == 1 ]; then
 fi
 
 
-oss_prefix=@@ossinstalldir@@
-oss_libdir="${oss_prefix}/${machlibdir}"
-oss_bindir="${oss_prefix}/bin"
-oss_plugins="${oss_libdir}/openspeedshop"
+oss_prefix=@ossinstalldir@
+oss_libdir=@ossinstalldir@/@machine_dependent_libdir@
+oss_bindir=@ossinstalldir@/bin
+oss_plugins=@ossinstalldir@/@machine_dependent_libdir@/openspeedshop
 
 # Set up the MPI installation and corresponding lib directory paths
-lam_prefix=@@lamdir@@
-lam_libprefix=@@lamlibdir@@
-lampi_prefix=@@lampidir@@
-lampi_libprefix=@@lampilibdir@@
-mpich_prefix=@@mpichdir@@
-mpich_libprefix=@@mpichlibdir@@
-mpich2_prefix=@@mpich2dir@@
-mpich2_libprefix=@@mpich2libdir@@
-mvapich_prefix=@@mvapichdir@@
-mvapich_libprefix=@@mvapichlibdir@@
-mvapich2_prefix=@@mvapich2dir@@
-mvapich2_libprefix=@@mvapich2libdir@@
-mpt_prefix=@@mptdir@@
-mpt_libprefix=@@mptlibdir@@
-openmpi_prefix=@@openmpidir@@
-openmpi_libprefix=@@openmpilibdir@@
+lam_prefix=@lamdir@
+lam_libprefix=@lamlibdir@
+lampi_prefix=@lampidir@
+lampi_libprefix=@lampilibdir@
+mpich_prefix=@mpichdir@
+mpich_libprefix=@mpichlibdir@
+mpich2_prefix=@mpich2dir@
+mpich2_libprefix=@mpich2libdir@
+mvapich_prefix=@mvapichdir@
+mvapich_libprefix=@mvapichlibdir@
+mvapich2_prefix=@mvapich2dir@
+mvapich2_libprefix=@mvapich2libdir@
+mpt_prefix=@mptdir@
+mpt_libprefix=@mptlibdir@
+openmpi_prefix=@openmpidir@
+openmpi_libprefix=@openmpilibdir@
 
 #
 # Some MPI implementations require an additional library to handle Fortran MPI applications
@@ -78,11 +78,14 @@ elif test -f ${mvapich_libprefix}/libpmpich.so; then
 fi
 
 if test -f ${openmpi_libprefix}/libmpi.so; then
-  f_openmpi_libs="${openmpi_libprefix}/libmpi_mpifh.so"
   b_openmpi_libs="${openmpi_libprefix}/libmpi.so"
 elif test -f ${openmpi_libprefix}/libpmpi.so; then
-  f_openmpi_libs="${openmpi_libprefix}/libmpi_mpifh.so"
   b_openmpi_libs="${openmpi_libprefix}/libmpi.so"
+fi
+if test -f ${openmpi_libprefix}/libmpi_mpifh.so; then
+  f_openmpi_libs="${openmpi_libprefix}/libmpi_mpifh.so"
+elif test -f ${openmpi_libprefix}/libpmpi_mpifh.so; then
+  f_openmpi_libs="${openmpi_libprefix}/libpmpi_mpifh.so"
 fi
 
 if test -f ${mpt_libprefix}/libmpi.so; then
@@ -96,7 +99,7 @@ fi
 mpi_plugin=
 output_dir=
 
-default_mpi_impl=@@ossdefaultmpi@@
+default_mpi_impl=@ossdefaultmpi@
 
 if [ -n "$OPENSS_MPI_IMPLEMENTATION" ]
 then

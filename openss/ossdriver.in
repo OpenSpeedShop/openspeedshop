@@ -478,8 +478,8 @@ fi
 ################################################################################
 
 # Setup the OpenSpeedShop instrumentor variable (cbtf or offline)
-instrumentor=@@oss_instrumentor@@
-targetos=@@oss_targetos@@
+instrumentor=@oss_instrumentor@
+targetos=@oss_targetos@
 
 if [ $debug_flag == 1 ]
 then

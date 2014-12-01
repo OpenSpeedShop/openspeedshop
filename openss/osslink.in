@@ -13,7 +13,7 @@ fi
 
 mach_type=`uname -m`
 
-oss_target=@@osstargetos@@
+oss_target=@osstargetos@
 
 if test "$mach_type" == "x86_64" ; then
     machlibdir=lib64
@@ -27,18 +27,18 @@ else
 fi
 
 # TODO: handle the target prefix
-oss_prefix=@@ossinstalldir@@
+oss_prefix=@ossinstalldir@
 oss_libdir="${oss_prefix}/${machlibdir}"
 oss_bindir="${oss_prefix}/bin"
 oss_plugins="${oss_libdir}/openspeedshop"
 
-libmonitor_prefix=@@libmonitordir@@
+libmonitor_prefix=@libmonitordir@
 libmonitor_libdir="${libmonitor_prefix}/${machlibdir}"
 libmonitor="${libmonitor_libdir}/libmonitor_wrap.a"
-libunwind_prefix=@@libunwinddir@@
+libunwind_prefix=@libunwinddir@
 libunwind_libdir="${libunwind_prefix}/${machlibdir}"
 libunwind="${libunwind_libdir}/libunwind.a"
-libpapi_prefix=@@papidir@@
+libpapi_prefix=@papidir@
 if test -d ${libpapi_prefix}/${machlibdir} ; then
   libpapi_libdir="${libpapi_prefix}/${machlibdir}"
 elif test -d ${libpapi_prefix}/${altmachlibdir} ; then
@@ -114,7 +114,7 @@ mpi_plugin=
 output_dir=
 insert_files=
 
-default_mpi_impl=@@default_mpi_impl@@
+default_mpi_impl=@default_mpi_impl@
 
 if [ -n "$OPENSS_MPI_IMPLEMENTATION" ]
 then
