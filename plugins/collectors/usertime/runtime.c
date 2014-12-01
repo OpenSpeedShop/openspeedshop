@@ -202,6 +202,8 @@ static void usertimeTimerHandler(const ucontext_t* context)
 	return;
     }
 
+    //fprintf(stderr,"Enter utimeHandler context pc: %lx\n",OpenSS_GetPCFromContext(context));
+
     int framecount = 0;
     int stackindex = 0;
     uint64_t framebuf[MAXFRAMES];
@@ -226,6 +228,7 @@ static void usertimeTimerHandler(const ucontext_t* context)
     OpenSS_GetStackTraceFromContext (context, TRUE, 0,
                         MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
 #endif
+    //fprintf(stderr,"utimeHandler framecount is %d\n",framecount);
 
     bool_t stack_already_exists = FALSE;
 
@@ -277,6 +280,7 @@ static void usertimeTimerHandler(const ucontext_t* context)
     {
 	/* always add address to buffer bt */
 	tls->buffer.bt[tls->data.bt.bt_len] = framebuf[i];
+	//fprintf(stderr,"frame[%d]: %p\n",i,framebuf[i]);
 
 	/* top of stack indicated by a positive count. */
 	/* all other elements are 0 */

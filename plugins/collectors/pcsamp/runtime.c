@@ -137,7 +137,7 @@ static void pcsampTimerHandler(const ucontext_t* context)
 #ifndef NDEBUG
         if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
             fprintf(stderr,"pcsampTimerHandler sends data:\n");
-            fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] pc_len(%d) count_len(%d)\n",
+            fprintf(stderr,"time_end(%lld) addr range [%#llx, %#llx] pc_len(%d) count_len(%d)\n",
                 tls->header.time_end,tls->header.addr_begin,
 		tls->header.addr_end,tls->data.pc.pc_len,
                 tls->data.count.count_len);
@@ -264,7 +264,7 @@ void pcsamp_stop_sampling(const char* arguments)
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
 	    fprintf(stderr, "pcsamp_stop_sampling:\n");
-	    fprintf(stderr, "time_end(%#lu) addr range[%#lx, %#lx] pc_len(%d) count_len(%d)\n",
+	    fprintf(stderr, "time_end(%lld) addr range[%#llx, %#llx] pc_len(%d) count_len(%d)\n",
 		tls->header.time_end,tls->header.addr_begin,
 		tls->header.addr_end,tls->data.pc.pc_len,
 		tls->data.count.count_len);
