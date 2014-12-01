@@ -48,12 +48,12 @@ def RunCBTFOfflineExp(program="*", collector="*", installed="/usr"):
     #print "enter RunCBTFOfflineExp with program " + program \
 #	  + " collector " + collector + " installed " + installed
 
-    cbtfinstalldir = "@@cbtfinstalldir@@"
-    cbtflibdir = "@@cbtflibdir@@"
-    cbtfruncmd = "@@cbtfruncmd@@"
-    cbtfcollectors = "@@cbtfcollectors@@"
-    cbtfcomponents = "@@cbtfcomponents@@"
-    cbtfxmldir = "@@cbtfxmldir@@"
+    cbtfinstalldir = "@cbtfinstalldir@"
+    cbtflibdir = "@cbtflibdir@"
+    cbtfruncmd = "@cbtfruncmd@"
+    cbtfcollectors = "@cbtfcollectors@"
+    cbtfcomponents = "@cbtfcomponents@"
+    cbtfxmldir = "@cbtfxmldir@"
 
 
     if os.environ.has_key("OPENSS_DEBUG_CLI_PYTHON_GC"):
@@ -110,9 +110,9 @@ def RunCBTFOfflineExp(program="*", collector="*", installed="/usr"):
     # If libmonitor.so is not found in the "installed" path, then
     # fallback to /usr and try again (again, do not assume libmonitor
     # was installed into OPENSS_PREFIX.
-    libmonitor = "@@libmonitordir@@/lib64/libmonitor.so"
+    libmonitor = "@libmonitordir@/lib64/libmonitor.so"
     if not os.path.isfile(libmonitor):
-     libmonitor = "@@libmonitordir@@/lib/libmonitor.so"
+     libmonitor = "@libmonitordir@/lib/libmonitor.so"
      if not os.path.isfile(libmonitor):
       libmonitor = libdir + "/libmonitor.so"
       if not os.path.isfile(libmonitor):
@@ -129,7 +129,7 @@ def RunCBTFOfflineExp(program="*", collector="*", installed="/usr"):
     if offlinepy_debug != 0: print "[openss-debug]: special checking section, libmonitor=" + libmonitor
 
     # Set the default mpi implementation defined by the O|SS configuration.
-    default_mpi_impl = "@@ossdefaultmpi@@"
+    default_mpi_impl = "@ossdefaultmpi@"
 
     program_list = program.split()
 

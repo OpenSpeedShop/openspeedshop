@@ -94,7 +94,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	os.environ['OPENSS_RAWDATA_DIR'] = tempdir
 
     # Find libmonitor from the configure settings and the libopenss-cli Makefile operations
-    libmonitor = "@@libmonitorlibdir@@" + "/libmonitor.so"
+    libmonitor = "@libmonitorlibdir@" + "/libmonitor.so"
     if not os.path.isfile(libmonitor):
 	systemdir = "/usr"
 	libdir = systemdir + "/lib64"
@@ -109,7 +109,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     if offlinepy_debug != 0: print "[openss-debug]: special checking section, libmonitor=" + libmonitor
 
     # Set the default mpi implementation defined by the O|SS configuration.
-    default_mpi_impl = "@@ossdefaultmpi@@"
+    default_mpi_impl = "@ossdefaultmpi@"
 
     program_list = program.split()
     if offlinepy_debug != 0: print "[openss-debug]: program=" + program
@@ -335,12 +335,12 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		  if mpi_exe_implmentation == "mpich2":
 		    if offlinepy_debug != 0: print "[openss-debug]: mpich2, mpi_executable is file_arg=" + file_arg
 		    mpi_executable = file_arg
-		    mpich2_prefix_val = "@@mpich2dir@@"
-		    machine_dependent_libdir_val = "@@machine_dependent_libdir@@"
+		    mpich2_prefix_val = "@mpich2dir@"
+		    machine_dependent_libdir_val = "@machine_dependent_libdir@"
 		    fmpich_so_exists = os.system('test -f' + mpich2_prefix_val + '/' + machine_dependent_libdir_val + '/' + libfmpich.so)
 		    if not os.WEXITSTATUS(fmpich_so_exists):
 		      f_mpich2_libs = mpich2_prefix_val + '/' + machine_dependent_libdir_val + '/' + libfmpich.so
-		    alt_machine_dependent_libdir_val = "@@alt_machine_dependent_libdir@@"
+		    alt_machine_dependent_libdir_val = "@alt_machine_dependent_libdir@"
 		    fmpich_so_exists = os.system('test -f' + mpich2_prefix_val + '/' + alt_machine_dependent_libdir_val + '/' + libfmpich.so)
 		    if not os.WEXITSTATUS(fmpich_so_exists):
 		      f_mpich2_libs = mpich2_prefix_val + "/" + alt_machine_dependent_libdir_val + "/" + libfmpich.so
@@ -363,12 +363,12 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 
 		  if mpi_exe_implmentation == "mvapich2":
 		    mpi_executable = file_arg
-		    mvapich2_prefix_val = "@@mvapich2dir@@"
-		    machine_dependent_libdir_val = "@@machine_dependent_libdir@@"
+		    mvapich2_prefix_val = "@mvapich2dir@"
+		    machine_dependent_libdir_val = "@machine_dependent_libdir@"
 		    fmpich_so_exists = os.system('test -f' + mvapich2_prefix_val + "/" + machine_dependent_libdir_val + "/" + libfmpich.so)
 		    if not os.WEXITSTATUS(fmpich_so_exists):
 		      f_mvapich2_libs = mvapich2_prefix_val + "/" + machine_dependent_libdir_val + "/" + libfmpich.so
-		    alt_machine_dependent_libdir_val = "@@alt_machine_dependent_libdir@@"
+		    alt_machine_dependent_libdir_val = "@alt_machine_dependent_libdir@"
 		    fmpich_so_exists = os.system('test -f' + mvapich2_prefix_val + "/" + alt_machine_dependent_libdir_val + "/" + libfmpich.so)
 		    if not os.WEXITSTATUS(fmpich_so_exists):
 		      f_mvapich2_libs = mvapich2_prefix_val + "/" + alt_machine_dependent_libdir_val + "/" + libfmpich.so
@@ -482,12 +482,12 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    preload_files = ""
 		    mpi_exe_implmentation = "mvapich2"
 		    # See if libmpich.so exists and setup the variables for BG specific usage.  Not probably needed at this point, but in for completeness
-		    mvapich2_prefix_val = "@@mvapich2dir@@"
-		    machine_dependent_libdir_val = "@@machine_dependent_libdir@@"
+		    mvapich2_prefix_val = "@mvapich2dir@"
+		    machine_dependent_libdir_val = "@machine_dependent_libdir@"
 		    fmpich_so_exists = os.system('test -f' + mvapich2_prefix_val + "/" + machine_dependent_libdir_val + "/" + libfmpich.so)
 		    if not os.WEXITSTATUS(fmpich_so_exists):
 		      f_mvapich2_libs = mvapich2_prefix_val + "/" + machine_dependent_libdir_val + "/" + libfmpich.so
-		    alt_machine_dependent_libdir_val = "@@alt_machine_dependent_libdir@@"
+		    alt_machine_dependent_libdir_val = "@alt_machine_dependent_libdir@"
 		    fmpich_so_exists = os.system('test -f' + mvapich2_prefix_val + "/" + alt_machine_dependent_libdir_val + "/" + libfmpich.so)
 		    if not os.WEXITSTATUS(fmpich_so_exists):
 		      f_mvapich2_libs = mvapich2_prefix_val + "/" + alt_machine_dependent_libdir_val + "/" + libfmpich.so
@@ -496,12 +496,12 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 
 		    # See if libmpich.so exists and setup the variables for BG specific usage. 
 		    if mpi_exe_implementation == "mpich2":
-		      mpich2_prefix_val = "@@mpich2dir@@"
-		      machine_dependent_libdir_val = "@@machine_dependent_libdir@@"
+		      mpich2_prefix_val = "@mpich2dir@"
+		      machine_dependent_libdir_val = "@machine_dependent_libdir@"
 		      fmpich_so_exists = os.system('test -f' + mpich2_prefix_val + '/' + machine_dependent_libdir_val + '/' + libfmpich.so)
 		      if not os.WEXITSTATUS(fmpich_so_exists):
 			f_mpich2_libs = mpich2_prefix_val + '/' + machine_dependent_libdir_val + '/' + libfmpich.so
-		      alt_machine_dependent_libdir_val = "@@alt_machine_dependent_libdir@@"
+		      alt_machine_dependent_libdir_val = "@alt_machine_dependent_libdir@"
 		      fmpich_so_exists = os.system('test -f' + mpich2_prefix_val + '/' + alt_machine_dependent_libdir_val + '/' + libfmpich.so)
 		      if not os.WEXITSTATUS(fmpich_so_exists):
 			f_mpich2_libs = mpich2_prefix_val + "/" + alt_machine_dependent_libdir_val + "/" + libfmpich.so
@@ -593,10 +593,10 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     ldpreload = ""
     #if os.environ.has_key("OPENSS_TARGET_ARCH"):
     #   targ_arch = os.environ["OPENSS_TARGET_ARCH"]
-    if "@@target_os@@" == "bgq":
+    if "@target_os@" == "bgq":
 	   do_preload_here = 1
 	   if offlinepy_debug != 0: print "[openss-debug]: using target_os=bgq"
-    if "@@target_os@@" == "bgp":
+    if "@target_os@" == "bgp":
 	   do_preload_here = 1
 	   if offlinepy_debug != 0: print "[openss-debug]: using target_os=bgp"
 
@@ -629,7 +629,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 
     else:
        if offlinepy_debug != 0: print "[openss-debug]: (0)do_preload_here=%(dph)s" % {'dph':do_preload_here}
-       real_ossrun_command = "@@oss_installation_dir@@" + "/bin/ossrun" 
+       real_ossrun_command = "@oss_installation_dir@" + "/bin/ossrun" 
        if mpi_executable != "":
 	   mpi_exe_orig = mpi_executable
 	   if not mpi_executable.startswith("/") and not mpi_executable.startswith("."):

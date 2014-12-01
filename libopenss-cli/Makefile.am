@@ -29,7 +29,7 @@ BUILT_SOURCES = \
 	mrnet.py
 
 AM_YFLAGS = -d
-YFLAGS = -d
+#YFLAGS = -d
 
 programfilesdir = $(pkglibdir)
 dist_programfiles_SCRIPTS = \
@@ -238,35 +238,35 @@ endif
 cbtf-offline.py: cbtf-offline.py.in
 	@rm -f cbtf-offline.py
 	@sed \
-		-e 's,@@cbtfinstalldir@@,$(CBTF_INSTALLDIR),' \
-		-e 's,@@cbtflibdir@@,$(CBTF_LIBDIR),' \
-		-e 's,@@cbtfruncmd@@,$(CBTF_TOOLS_CBTFRUN),' \
-		-e 's,@@cbtfcollectors@@,$(CBTF_TOOLS_COLLECTORS),' \
-		-e 's,@@cbtfcomponents@@,$(CBTF_TOOLS_COMPONENTS),' \
-		-e 's,@@cbtfxmldir@@,$(CBTF_TOOLS_XML),' \
-		-e 's,@@osslibdir@@,$(pkglibdir),' \
-		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
-		-e 's,@@libmonitordir@@,$(LIBMONITOR_DIR),' \
+		-e 's,@cbtfinstalldir@,$(CBTF_INSTALLDIR),' \
+		-e 's,@cbtflibdir@,$(CBTF_LIBDIR),' \
+		-e 's,@cbtfruncmd@,$(CBTF_TOOLS_CBTFRUN),' \
+		-e 's,@cbtfcollectors@,$(CBTF_TOOLS_COLLECTORS),' \
+		-e 's,@cbtfcomponents@,$(CBTF_TOOLS_COMPONENTS),' \
+		-e 's,@cbtfxmldir@,$(CBTF_TOOLS_XML),' \
+		-e 's,@osslibdir@,$(pkglibdir),' \
+		-e 's,@ossdefaultmpi@,$(DEFAULT_MPI_IMPL),' \
+		-e 's,@libmonitordir@,$(LIBMONITOR_DIR),' \
 		$(srcdir)/cbtf-offline.py.in > cbtf-offline.py
 	@chmod 755 cbtf-offline.py
 
 offline.py: offline.py.in
 	@rm -f offline.py
 	@sed \
-		-e 's,@@target_os@@,$(TARGET_OS),' \
-		-e 's,@@oss_installation_dir@@,$(ossrun_location),' \
-		-e 's,@@machine_dependent_libdir@@,$(abi_libdir_name),' \
-		-e 's,@@osslibdir@@,$(pkglibdir),' \
-		-e 's,@@ossdefaultmpi@@,$(DEFAULT_MPI_IMPL),' \
-		-e 's,@@libmonitordir@@,$(monitor_dir),' \
-		-e 's,@@libmonitorlibdir@@,$(monitor_libdir),' \
-                -e 's,@@alt_machine_dependent_libdir@@,$(alt_abi_libdir_name),' \
-                -e 's,@@mpichdir@@,$(MPICH_DIR),' \
-                -e 's,@@mpich2dir@@,$(mpich2_dir),' \
-                -e 's,@@mvapichdir@@,$(MVAPICH_DIR),' \
-                -e 's,@@mvapich2dir@@,$(MVAPICH2_DIR),' \
-                -e 's,@@mptdir@@,$(MPT_DIR),' \
-                -e 's,@@openmpidir@@,$(OPENMPI_DIR),' \
+		-e 's,@target_os@,$(TARGET_OS),' \
+		-e 's,@oss_installation_dir@,$(ossrun_location),' \
+		-e 's,@machine_dependent_libdir@,$(abi_libdir_name),' \
+		-e 's,@osslibdir@,$(pkglibdir),' \
+		-e 's,@ossdefaultmpi@,$(DEFAULT_MPI_IMPL),' \
+		-e 's,@libmonitordir@,$(monitor_dir),' \
+		-e 's,@libmonitorlibdir@,$(monitor_libdir),' \
+                -e 's,@alt_machine_dependent_libdir@,$(alt_abi_libdir_name),' \
+                -e 's,@mpichdir@,$(MPICH_DIR),' \
+                -e 's,@mpich2dir@,$(mpich2_dir),' \
+                -e 's,@mvapichdir@,$(MVAPICH_DIR),' \
+                -e 's,@mvapich2dir@,$(MVAPICH2_DIR),' \
+                -e 's,@mptdir@,$(MPT_DIR),' \
+                -e 's,@openmpidir@,$(OPENMPI_DIR),' \
 		$(srcdir)/offline.py.in > offline.py
 	@chmod 755 offline.py
 
