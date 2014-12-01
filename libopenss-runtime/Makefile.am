@@ -20,7 +20,7 @@
 
 SUBDIRS =
 BUILT_SOURCES =
-CFLAGS =
+AM_CFLAGS =
 
 
 if BUILD_INSTRUMENTOR
@@ -58,7 +58,7 @@ library_include_HEADERS = RuntimeAPI.h
 #       under both "-O1" and "-O2" on affected systems. For now it is safest to
 #       turn off ALL optimizations for code that uses TLS.
 
-CFLAGS += -g -O0
+AM_CFLAGS += -g -O0
 
 
 lib_LTLIBRARIES =

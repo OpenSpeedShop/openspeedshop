@@ -44,7 +44,7 @@
 #include <OpenSS_Offline.h>
 
 
-#define OPENSS_USE_DL_ITERATE 1
+//#define OPENSS_USE_DL_ITERATE 1
 
 extern void offline_record_dso(const char* dsoname, uint64_t begin, uint64_t end, uint8_t is_dlopen);
 extern void offline_record_dlopen(const char* dsoname, uint64_t begin, uint64_t end, uint64_t b_time, uint64_t e_time);
@@ -112,6 +112,7 @@ static int exe_is_static()
    return 1;
 }
 
+#if defined(OPENSS_USE_DL_ITERATE)
 static int dl_cb(struct dl_phdr_info *info, size_t size, void *data)
 {
    if (new_list_size >= lists_max_size) {
@@ -258,6 +259,7 @@ static void lc(ElfW(Addr) base_address, const char *name, mem_region *regions,
 	offline_record_dso(name, regions[0].mem_addr, regions[0].mem_addr + regions[0].mem_size, is_load);
     }
 }
+#endif
 
 int OpenSS_GetDLInfo(pid_t pid, char *path, uint64_t b_time, uint64_t e_time)
 {
@@ -321,7 +323,7 @@ int OpenSS_GetDLInfo(pid_t pid, char *path, uint64_t b_time, uint64_t e_time)
 	/* the victim application has performed a dlopen. */
 	if (path != NULL &&
 	    mappedpath != NULL &&
-	    (strncmp(basename(path), basename(mappedpath), strlen(basename(path))) == 0) ) {
+	    (strncmp((char*)basename(path), (char*)basename(mappedpath), strlen((char*)basename(path))) == 0) ) {
 #ifndef NDEBUG
 	    if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
 		fprintf(stderr,"OpenSS_GetDLInfo (offline_record_dlopen) DLOPEN RECORD: %s [%08lx, %08lx]\n",

@@ -154,6 +154,20 @@ int OpenSS_GetInstrLength(uint64_t pcvalue)
     */
     return 0x10;
 
+#elif defined(__linux) && defined(__aarch64__)
+    /*
+       FROM: Arm architecture wiki page
+       Armv8 (and also including 64-bit implementations) use fixed-length 32-bit instructions
+    */
+    return 0x4;
+
+#elif defined(__linux) && defined(__arm__)
+    /*
+       FROM: Arm architecture wiki page
+       Armv7 (and also including 64-bit implementations) use fixed-length 32-bit instructions
+    */
+    return 0x4;
+
 #else
 #error "Platform/OS Combination Unsupported!"
 #endif

@@ -138,6 +138,28 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
     /* Get the current thread context */
     Assert(getcontext(&context) == 0);
     
+#elif defined(__linux) && defined( __aarch64__ )
+
+    Assert(unw_getcontext(&context) == 0);
+    skip_frames = 1;
+    skip_signal_frames = FALSE;
+
+#elif defined(__linux) && defined( __arm__ )
+
+#if 0
+    if(signal_context != NULL) {
+        memmove(&context, signal_context, sizeof(unw_context_t));
+        skip_signal_frames = FALSE;
+    } else {
+	Assert(unw_getcontext(&context) == 0);
+    }
+#else
+
+    Assert(unw_getcontext(&context) == 0);
+    skip_frames = 5;
+    skip_signal_frames = FALSE;
+#endif
+
 #else
 #error "Platform/OS Combination Unsupported!"
 #endif
@@ -216,11 +238,13 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 
 	    if (monitor_in_main_start_func_wide(pc) ||
 		monitor_in_start_func_wide(pc)) {
-		break;
+		//break;
 	    } else {
 		// adjust address for finding correct line
-		stacktrace[index++] = (uint64_t) ((char *) pc - 1);
+		//stacktrace[index++] = (uint64_t) ((char *) pc - 1);
+		stacktrace[index++] = (uint64_t) (pc);
 	    }
+            fprintf(stderr, "pc stored into stacktrace[index++] = %lx\n", (uint64_t) pc);
 #else
 	    stacktrace[index++] = (uint64_t)pc;	    
             //fprintf(stderr, "pc stored into stacktrace[index++] = %lx\n", (uint64_t) pc);
