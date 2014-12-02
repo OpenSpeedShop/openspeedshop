@@ -77,7 +77,7 @@ void OpenSS_SetPCInContext(uint64_t value, ucontext_t* context)
     
 #elif defined(__linux) && defined(__aarch64__)
     // VERIFY
-    context->uc_mcontext.arm_pc = value;
+    context->uc_mcontext.pc = value;
 #elif defined(__linux) && defined(__arm__)
     context->uc_mcontext.arm_pc = value;
 #else
