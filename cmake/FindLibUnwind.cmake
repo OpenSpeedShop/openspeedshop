@@ -62,14 +62,16 @@ set(LibUnwind_STATIC_LIBRARIES ${LibUnwind_LIBRARY_STATIC})
 set(LibUnwind_INCLUDE_DIRS ${LibUnwind_INCLUDE_DIR})
 set(LibUnwind_DEFINES "-DUNW_LOCAL_ONLY")
 
-message(STATUS "LibUnwind LibUnwind_SHARED_LIBRARIES: " ${LibUnwind_SHARED_LIBRARIES})
-message(STATUS "LibUnwind LibUnwind_STATIC_LIBRARIES: " ${LibUnwind_STATIC_LIBRARIES})
-message(STATUS "LibUnwind LibUnwind_INCLUDE_DIR: " ${LibUnwind_INCLUDE_DIR})
-message(STATUS "LibUnwind LibUnwind_FOUND: " ${LIBUNWIND_FOUND})
 
 GET_FILENAME_COMPONENT(LibUnwind_LIB_DIR ${LibUnwind_LIBRARY_SHARED} PATH )
+GET_FILENAME_COMPONENT(LibUnwind_DIR ${LibUnwind_INCLUDE_DIRS} PATH )
 
-message(STATUS "LibUnwind LibUnwind_LIB_DIR: " ${LibUnwind_LIB_DIR})
+#message(STATUS "LibUnwind LibUnwind_LIB_DIR: " ${LibUnwind_LIB_DIR})
+#message(STATUS "LibUnwind LibUnwind_SHARED_LIBRARIES: " ${LibUnwind_SHARED_LIBRARIES})
+#message(STATUS "LibUnwind LibUnwind_STATIC_LIBRARIES: " ${LibUnwind_STATIC_LIBRARIES})
+#message(STATUS "LibUnwind LibUnwind_INCLUDE_DIR: " ${LibUnwind_INCLUDE_DIR})
+message(STATUS "LibUnwind found: " ${LIBUNWIND_FOUND})
+message(STATUS "LibUnwind location: " ${LibUnwind_DIR})
 
 
 mark_as_advanced(

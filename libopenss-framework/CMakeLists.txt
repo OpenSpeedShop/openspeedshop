@@ -30,6 +30,7 @@ include_directories(
     ${Sqlite3_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}/libopenss-framework
     ${PROJECT_BUILD_DIR}/libopenss-runtime
+    ${LTDL_INCLUDE_DIR}
     )
 
 file(COPY ${PROJECT_SOURCE_DIR}/libopenss-runtime/OpenSS_DataHeader.x DESTINATION .)
@@ -138,6 +139,7 @@ add_definitions(
 target_link_libraries(openss-framework
     ${Sqlite3_SHARED_LIBRARIES}
     ${Iberty_STATIC_LIBRARIES}
+    ${LTDL_LIBRARY_SHARED}
     ${CMAKE_DL_LIBS}
     )
 

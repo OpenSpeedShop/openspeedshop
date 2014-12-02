@@ -58,14 +58,16 @@ set(Sqlite3_SHARED_LIBRARIES ${Sqlite3_LIBRARY_SHARED})
 set(Sqlite3_STATIC_LIBRARIES ${Sqlite3_LIBRARY_STATIC})
 set(Sqlite3_INCLUDE_DIRS ${Sqlite3_INCLUDE_DIR})
 
-message(STATUS "Sqlite3 Sqlite3_SHARED_LIBRARIES: " ${Sqlite3_SHARED_LIBRARIES})
-message(STATUS "Sqlite3 Sqlite3_STATIC_LIBRARIES: " ${Sqlite3_STATIC_LIBRARIES})
-message(STATUS "Sqlite3 Sqlite3_INCLUDE_DIR: " ${Sqlite3_INCLUDE_DIR})
-message(STATUS "Sqlite3 Sqlite3_FOUND: " ${SQLITE3_FOUND})
 
 GET_FILENAME_COMPONENT(Sqlite3_LIB_DIR ${Sqlite3_LIBRARY_SHARED} PATH )
+GET_FILENAME_COMPONENT(Sqlite3_DIR ${Sqlite3_INCLUDE_DIR} PATH )
 
-message(STATUS "Sqlite3 Sqlite3_LIB_DIR: " ${Sqlite3_LIB_DIR})
+#message(STATUS "Sqlite3 Sqlite3_SHARED_LIBRARIES: " ${Sqlite3_SHARED_LIBRARIES})
+#message(STATUS "Sqlite3 Sqlite3_STATIC_LIBRARIES: " ${Sqlite3_STATIC_LIBRARIES})
+#message(STATUS "Sqlite3 Sqlite3_INCLUDE_DIR: " ${Sqlite3_INCLUDE_DIR})
+#message(STATUS "Sqlite3 Sqlite3_LIB_DIR: " ${Sqlite3_LIB_DIR})
+message(STATUS "Sqlite3 found: " ${SQLITE3_FOUND})
+message(STATUS "Sqlite3 location: " ${Sqlite3_DIR})
 
 
 mark_as_advanced(

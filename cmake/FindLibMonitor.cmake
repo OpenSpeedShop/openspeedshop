@@ -61,14 +61,16 @@ set(LibMonitor_SHARED_LIBRARIES ${LibMonitor_LIBRARY_SHARED})
 set(LibMonitor_STATIC_LIBRARIES ${LibMonitor_LIBRARY_STATIC})
 set(LibMonitor_INCLUDE_DIRS ${LibMonitor_INCLUDE_DIR})
 
-message(STATUS "LibMonitor LibMonitor_SHARED_LIBRARIES: " ${LibMonitor_SHARED_LIBRARIES})
-message(STATUS "LibMonitor LibMonitor_STATIC_LIBRARIES: " ${LibMonitor_STATIC_LIBRARIES})
-message(STATUS "LibMonitor LibMonitor_INCLUDE_DIR: " ${LibMonitor_INCLUDE_DIR})
-message(STATUS "LibMonitor LibMonitor_FOUND: " ${LIBMONITOR_FOUND})
 
 GET_FILENAME_COMPONENT(LibMonitor_LIB_DIR ${LibMonitor_LIBRARY_SHARED} PATH )
+GET_FILENAME_COMPONENT(LibMonitor_DIR ${LibMonitor_INCLUDE_DIR} PATH )
 
-message(STATUS "LibMonitor LibMonitor_LIB_DIR: " ${LibMonitor_LIB_DIR})
+#message(STATUS "LibMonitor LibMonitor_SHARED_LIBRARIES: " ${LibMonitor_SHARED_LIBRARIES})
+#message(STATUS "LibMonitor LibMonitor_STATIC_LIBRARIES: " ${LibMonitor_STATIC_LIBRARIES})
+#message(STATUS "LibMonitor LibMonitor_INCLUDE_DIR: " ${LibMonitor_INCLUDE_DIR})
+#message(STATUS "LibMonitor LibMonitor_LIB_DIR: " ${LibMonitor_LIB_DIR})
+message(STATUS "LibMonitor found: " ${LIBMONITOR_FOUND})
+message(STATUS "LibMonitor location: " ${LibMonitor_DIR})
 
 
 mark_as_advanced(

@@ -73,15 +73,15 @@ if (NOT ${HAVE_DWARF})
     message(FATAL "LibDwarf does not contain the needed dwarf_next_cu_header_c symbol")
 endif()
 
-message(STATUS "LibDwarf dwarf_next_cu_header_c symbol : " ${HAVE_DWARF})
-message(STATUS "LibDwarf LibDwarf_SHARED_LIBRARIES: " ${LibDwarf_SHARED_LIBRARIES})
-message(STATUS "LibDwarf LibDwarf_STATIC_LIBRARIES: " ${LibDwarf_STATIC_LIBRARIES})
-message(STATUS "LibDwarf LibDwarf_INCLUDE_DIR: " ${LibDwarf_INCLUDE_DIR})
-message(STATUS "LibDwarf LibDwarf_FOUND: " ${LIBDWARF_FOUND})
-
 GET_FILENAME_COMPONENT(LibDwarf_LIB_DIR ${LibDwarf_LIBRARY_SHARED} PATH )
-
-message(STATUS "LibDwarf LibDwarf_LIB_DIR: " ${LibDwarf_LIB_DIR})
+GET_FILENAME_COMPONENT(LibDwarf_DIR ${LibDwarf_INCLUDE_DIR} PATH )
+#message(STATUS "LibDwarf dwarf_next_cu_header_c symbol : " ${HAVE_DWARF})
+#message(STATUS "LibDwarf LibDwarf_SHARED_LIBRARIES: " ${LibDwarf_SHARED_LIBRARIES})
+#message(STATUS "LibDwarf LibDwarf_STATIC_LIBRARIES: " ${LibDwarf_STATIC_LIBRARIES})
+#message(STATUS "LibDwarf LibDwarf_INCLUDE_DIR: " ${LibDwarf_INCLUDE_DIR})
+#message(STATUS "LibDwarf LibDwarf_LIB_DIR: " ${LibDwarf_LIB_DIR})
+message(STATUS "LibDwarf found: " ${LIBDWARF_FOUND})
+message(STATUS "LibDwarf location: " ${LibDwarf_DIR})
 
 
 mark_as_advanced(

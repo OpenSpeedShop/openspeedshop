@@ -58,14 +58,15 @@ set(Papi_SHARED_LIBRARIES ${Papi_LIBRARY_SHARED})
 set(Papi_STATIC_LIBRARIES ${Papi_LIBRARY_STATIC})
 set(Papi_INCLUDE_DIRS ${Papi_INCLUDE_DIR})
 
-message(STATUS "Papi Papi_SHARED_LIBRARIES: " ${Papi_SHARED_LIBRARIES})
-message(STATUS "Papi Papi_STATIC_LIBRARIES: " ${Papi_STATIC_LIBRARIES})
-message(STATUS "Papi Papi_INCLUDE_DIR: " ${Papi_INCLUDE_DIR})
-message(STATUS "Papi Papi_FOUND: " ${PAPI_FOUND})
-
 GET_FILENAME_COMPONENT(Papi_LIB_DIR ${Papi_LIBRARY_SHARED} PATH )
+GET_FILENAME_COMPONENT(Papi_DIR ${Papi_INCLUDE_DIR} PATH )
 
-message(STATUS "Papi Papi_LIB_DIR: " ${Papi_LIB_DIR})
+#message(STATUS "Papi Papi_SHARED_LIBRARIES: " ${Papi_SHARED_LIBRARIES})
+#message(STATUS "Papi Papi_STATIC_LIBRARIES: " ${Papi_STATIC_LIBRARIES})
+#message(STATUS "Papi Papi_INCLUDE_DIR: " ${Papi_INCLUDE_DIR})
+#message(STATUS "Papi Papi_LIB_DIR: " ${Papi_LIB_DIR})
+message(STATUS "Papi found: " ${PAPI_FOUND})
+message(STATUS "Papi location: " ${Papi_DIR})
 
 
 mark_as_advanced(

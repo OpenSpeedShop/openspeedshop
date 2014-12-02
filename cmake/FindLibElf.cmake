@@ -58,14 +58,14 @@ set(LibElf_SHARED_LIBRARIES ${LibElf_LIBRARY_SHARED})
 set(LibElf_STATIC_LIBRARIES ${LibElf_LIBRARY_STATIC})
 set(LibElf_INCLUDE_DIRS ${LibElf_INCLUDE_DIR})
 
-message(STATUS "LibElf LibElf_SHARED_LIBRARIES: " ${LibElf_SHARED_LIBRARIES})
-message(STATUS "LibElf LibElf_STATIC_LIBRARIES: " ${LibElf_STATIC_LIBRARIES})
-message(STATUS "LibElf LibElf_INCLUDE_DIR: " ${LibElf_INCLUDE_DIR})
-message(STATUS "LibElf LibElf_FOUND: " ${LIBELF_FOUND})
-
 GET_FILENAME_COMPONENT(LibElf_LIB_DIR ${LibElf_LIBRARY_SHARED} PATH )
-
-message(STATUS "LibElf LibElf_LIB_DIR: " ${LibElf_LIB_DIR})
+GET_FILENAME_COMPONENT(LibElf_DIR ${LibElf_INCLUDE_DIR} PATH )
+#message(STATUS "LibElf LibElf_SHARED_LIBRARIES: " ${LibElf_SHARED_LIBRARIES})
+#message(STATUS "LibElf LibElf_STATIC_LIBRARIES: " ${LibElf_STATIC_LIBRARIES})
+#message(STATUS "LibElf LibElf_INCLUDE_DIR: " ${LibElf_INCLUDE_DIR})
+#message(STATUS "LibElf LibElf_LIB_DIR: " ${LibElf_LIB_DIR})
+message(STATUS "LibElf found: " ${LIBELF_FOUND})
+message(STATUS "LibElf location: " ${LibElf_DIR})
 
 
 mark_as_advanced(

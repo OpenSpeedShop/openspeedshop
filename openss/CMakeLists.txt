@@ -85,6 +85,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/libopenss-framework
+    ${LTDL_INCLUDE_DIR}
     )
 
 add_executable(openss
@@ -92,7 +93,7 @@ add_executable(openss
     )
 target_link_libraries(openss
     openss-framework
-    ${LIB_LTDL}
+    ${LTDL_LIBRARY_SHARED}
     ${CMAKE_DL_LIBS}
     )
 install(TARGETS openss
