@@ -516,7 +516,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    if offlinepy_debug != 0: print "[openss-debug]: islsf orig_mpi_driver=" + orig_mpi_driver
 		    if offlinepy_debug != 0: print "[openss-debug]: islsf program=" + program
 		  # Break out of the loop that encompasses this code.  This fixes problems found at LLNL when the executable is a python script
-		  break
+		  # Commented out the break because it my fix the python script issues but it breaks detection of the application and whether
+		  # or not we are doing MPI application analysis or not.  We need to find another fix for the python scripting issues.
+		  #break
 
 
     # Set the mpiplugin to use for mpi jobs.  The OPENSS_MPI_IMPLEMENTATION
