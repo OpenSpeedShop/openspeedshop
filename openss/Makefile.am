@@ -42,15 +42,17 @@ BUILT_FILES += ossdriver ossdriver_compare
 # endif for !BUILD_RUNTIME_ONLY
 endif
 if !BUILD_CBTF
+if HAVE_TARGET_SHARED
+nodist_bin_SCRIPTS += ossrun
+BUILT_FILES += ossrun
+else
 nodist_bin_SCRIPTS += ossrun
 BUILT_FILES += ossrun
 # endif for !BUILD_CBTF
 endif
 
-if HAVE_TARGET_SHARED
-nodist_bin_SCRIPTS += ossrun
-BUILT_FILES += ossrun
 endif
+# endif for BUILD_INSTRUMENTOR
 endif
 
 AM_LDFLAGS = 
