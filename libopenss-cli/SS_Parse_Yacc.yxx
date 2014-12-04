@@ -382,6 +382,8 @@ exp_status_com:     STATUS_HEAD exp_status_arg
 exp_status_arg:     /* empty */
     	    	|   expId_list_spec
 		|   modifier_list_spec
+    	    	|   modifier_list_spec expId_list_spec
+    	    	|   expId_list_spec modifier_list_spec
     	    	;
 
     	    /** EXP_VIEW **/
