@@ -76,7 +76,6 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
  * is TRUE. 
  */
 
-    //fprintf(stderr, "Entering OpenSS_GetStackTraceFromContext\n");
 
 #if defined(TARGET_OS_BGP) 
 
@@ -141,7 +140,7 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 #elif defined(__linux) && defined( __aarch64__ )
 
     Assert(unw_getcontext(&context) == 0);
-    skip_frames = 1;
+    skip_frames = 5;
     skip_signal_frames = FALSE;
 
 #elif defined(__linux) && defined( __arm__ )
@@ -244,16 +243,13 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
 		//stacktrace[index++] = (uint64_t) ((char *) pc - 1);
 		stacktrace[index++] = (uint64_t) (pc);
 	    }
-            fprintf(stderr, "pc stored into stacktrace[index++] = %lx\n", (uint64_t) pc);
 #else
 	    stacktrace[index++] = (uint64_t)pc;	    
-            //fprintf(stderr, "pc stored into stacktrace[index++] = %lx\n", (uint64_t) pc);
 #endif
 	}
 	
 	/* Unwind to the next frame, stopping after the last frame */
 	retval = unw_step(&cursor);
-        //fprintf(stderr, "After unw_step, retval=%d\n", retval);
 	if(retval <= 0)
 	    break;
 	
@@ -261,7 +257,6 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
     
     /* Return the stack trace size to the caller */
     *stacktrace_size = index;
-    //fprintf(stderr, "Exiting OpenSS_GetStackTraceFromContext index = %d\n", index);
 
 }
 
