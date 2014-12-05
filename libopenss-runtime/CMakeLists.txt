@@ -141,6 +141,7 @@ if(LIBMONITOR_FOUND)
     )
     add_definitions(
 	-DOPENSS_OFFLINE
+	-fasynchronous-unwind-tables
     )
     add_library(openss-runtime-offline STATIC
         ${CMAKE_CURRENT_BINARY_DIR}/offline.h
