@@ -50,7 +50,7 @@ find_library(Sqlite3_LIBRARY_STATIC NAMES libsqlite3.a
 
 find_package_handle_standard_args(
     Sqlite3 DEFAULT_MSG
-    Sqlite3_LIBRARY_SHARED Sqlite3_LIBRARY_STATIC
+    Sqlite3_LIBRARY_SHARED
     Sqlite3_INCLUDE_DIR
     )
 
@@ -72,7 +72,6 @@ message(STATUS "Sqlite3 location: " ${Sqlite3_DIR})
 
 mark_as_advanced(
             Sqlite3_LIBRARY_SHARED 
-            Sqlite3_LIBRARY_STATIC
             Sqlite3_INCLUDE_DIR
             Sqlite3_LIB_DIR
             )

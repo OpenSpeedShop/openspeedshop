@@ -99,6 +99,7 @@ if(LIBMONITOR_FOUND)
 endif()
 
 add_definitions(
+  -D_GNU_SOURCE
   -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
   )
   

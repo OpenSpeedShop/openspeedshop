@@ -22,6 +22,9 @@ check_include_file("stdint.h" STDINT_H_FOUND)
 if (STDINT_H_FOUND)
     add_definitions(-DHAVE_STDINT_H=1)
 endif()
+if (OpenMP_FLAG_DETECTED)
+    add_definitions(-fopenmp)
+endif()
 
 set(QUERIES_SOURCES
         AdditionAssignment.txx

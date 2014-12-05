@@ -33,7 +33,9 @@
 
 #include <dlfcn.h>
 // Get the full path name for the python dynamic library
+#ifdef HAVE_CONFIG_H
 #include "config.h" 
+#endif
 
 using namespace OpenSpeedShop::Framework;
 

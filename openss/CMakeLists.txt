@@ -80,6 +80,12 @@ add_definitions(
   -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
   )
   
+if (OpenMP_FLAG_DETECTED)
+    add_definitions(-fopenmp)
+    set(GOMP "gomp")
+else()
+    set(GOMP "")
+endif()
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -92,7 +98,7 @@ add_executable(openss
 	openss.cxx
     )
 target_link_libraries(openss
-    openss-framework
+    ${GOMP}
     ${LTDL_LIBRARY_SHARED}
     ${CMAKE_DL_LIBS}
     )

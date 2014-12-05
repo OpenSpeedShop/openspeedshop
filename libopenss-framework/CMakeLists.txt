@@ -17,10 +17,17 @@
 ################################################################################
 
 include(CheckIncludeFile)
-
 check_include_file("stdint.h" STDINT_H_FOUND)
 if (STDINT_H_FOUND)
     add_definitions(-DHAVE_STDINT_H=1)
+endif()
+check_include_file("stat.h" STAT_H_FOUND)
+if (STAT_H_FOUND)
+    add_definitions(-DHAVE_STAT_H=1)
+endif()
+check_include_file("sys/stat.h" SYS_STAT_H_FOUND)
+if (SYS_STAT_H_FOUND)
+    add_definitions(-DHAVE_SYS_STAT_H=1)
 endif()
 
 include_directories(
@@ -132,6 +139,8 @@ add_library(openss-framework SHARED
     )
 
 add_definitions(
+ 
+  -D_GNU_SOURCE
   -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
   )
   

@@ -22,6 +22,7 @@
  *
  */
 
+#define __GNU_SOURCE
 #include "Assert.h"
 #include "RuntimeAPI.h"
 

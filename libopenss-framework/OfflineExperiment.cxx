@@ -53,7 +53,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include "OpenSS_DataHeader.h"
-#include "offline/offline.h"
+#include "offline.h"
 
 #include "OpenSSPath.cxx"
 
