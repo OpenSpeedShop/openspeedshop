@@ -206,7 +206,7 @@ static bool setparam(Collector C, std::string pname,
       } else if( m.isType(typeid(double)) ) {
         double dval;
         if (pvalue.getValType() == PARAM_VAL_STRING) {
-          sscanf ( pvalue.getSVal(), "%llf", &dval);
+          sscanf ( pvalue.getSVal(), "%lf", &dval);
         } else {
           dval = (double)(pvalue.getIVal());
         }
@@ -856,7 +856,9 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	// For offline collection we really maintain one dataqueue.
 	// So the collector runtimes need to set the header.experiment to 0.
 	// This is the first index into the DataQueue.
-	//std::cerr << "process_data enquing datablob of " << blobsize << " size for " << rawfilename << std::endl;
+	//std::cerr << "OfflineExperiment::process_data enquing datablob of " << blobsize
+	//	<< " size for " << rawfilename << std::endl;
+
 	Blob datablob(blobsize, theData);
 	DataQueues::enqueuePerformanceData(datablob);
 	if (theData) free(theData);
@@ -873,6 +875,12 @@ OfflineExperiment::process_data(const std::string rawfilename)
 
 bool OfflineExperiment::process_objects(const std::string rawfilename)
 {
+
+    if (unique_addresses.size() == 0) {
+	std::cerr << "Warning: No samples recorded in this experiment!" << std::endl;
+	return false;
+    }
+
     XDR xdrs;
     std::string host = "";
 
@@ -933,6 +941,7 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 		// in the database.
 		AddressRange range(Address(objs.objs.objs_val[i].addr_begin),
 				   Address(objs.objs.objs_val[i].addr_end)) ;
+		//std::cerr << "OBJNAME: " << objname << " range " << range << std::endl;
 		std::set<Address>::iterator it,itlow,itup;
 		itlow = unique_addresses.lower_bound (range.getBegin()); itlow--;
 		itup = unique_addresses.upper_bound (range.getEnd()); itup--;
@@ -950,7 +959,7 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 		TimeInterval time_interval(Time(objs.objs.objs_val[i].time_begin),
 					   Time(objs.objs.objs_val[i].time_end));
 		uint64_t ttime = objs.objs.objs_val[i].time_end - objs.objs.objs_val[i].time_begin;
-		if (ttime < 50000000) {
+		if (ttime < 5000000) {
 		    std::cerr << "Time interval to small for meaningful sample " << ttime << std::endl;
 		    continue;
 		}
