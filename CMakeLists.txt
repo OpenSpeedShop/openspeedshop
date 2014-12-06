@@ -141,3 +141,30 @@ install(
     DIRECTORY cmake
     DESTINATION share/KrellInstitute
     )
+
+install(DIRECTORY man
+	DESTINATION share
+	FILES_MATCHING
+	PATTERN "*.1"
+	PATTERN "*.3"
+	PATTERN "CVS" EXCLUDE
+	PATTERN "Makefile.*" EXCLUDE
+	PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+
+#demonstrations  design_doc plugin_guide  pyscripting_doc  test_plan  usability_plan  users_guide  webtutorial
+install(DIRECTORY doc
+	DESTINATION share/doc/packages/OpenSpeedShop
+	FILES_MATCHING
+	PATTERN "*.html"
+	PATTERN "*.jpg"
+	PATTERN "*.adp"
+	PATTERN "*.png"
+	PATTERN "*.dia"
+	PATTERN "*.xml"
+	PATTERN "demonstrations" EXCLUDE
+	PATTERN "design_doc" EXCLUDE
+	PATTERN "test_plan" EXCLUDE
+	PATTERN "usability_plan" EXCLUDE
+	PATTERN "CVS" EXCLUDE
+	PATTERN "Makefile.*" EXCLUDE
+	PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
