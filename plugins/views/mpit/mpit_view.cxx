@@ -725,7 +725,7 @@ static bool define_mpit_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
     HV.push_back("Number of Calls");
 
-#if 1
+#if 0
 
     // Minimum
     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,

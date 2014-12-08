@@ -606,14 +606,20 @@ static bool define_mpi_columns (
 #endif
 
 
-#if 0
-   // display max time
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, max_temp));
-    HV.push_back(std::string("Maximum ") + Default_Header + "(ms)");
+#if 1
+    if (vfc != VFC_Trace) {
+      // display a count of the calls to each function
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
+      HV.push_back("Number of Calls");
+    } 
 
    // display min time
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, min_temp));
     HV.push_back(std::string("Minimum ") + Default_Header + "(ms)");
+
+   // display max time
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, max_temp));
+    HV.push_back(std::string("Maximum ") + Default_Header + "(ms)");
 
    // average time is calculated from two temps: sum and total counts.
     IV.push_back(new ViewInstruction (VIEWINST_Display_Average_Tmp, last_column++, VMulti_time_temp, incnt_temp));
