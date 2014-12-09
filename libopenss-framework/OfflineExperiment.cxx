@@ -959,7 +959,7 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 		TimeInterval time_interval(Time(objs.objs.objs_val[i].time_begin),
 					   Time(objs.objs.objs_val[i].time_end));
 		uint64_t ttime = objs.objs.objs_val[i].time_end - objs.objs.objs_val[i].time_begin;
-		if (ttime < 5000000) {
+		if (ttime < 1000000) {
 		    std::cerr << "Time interval to small for meaningful sample " << ttime << std::endl;
 		    continue;
 		}

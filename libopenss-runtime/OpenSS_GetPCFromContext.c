@@ -74,7 +74,6 @@ uint64_t OpenSS_GetPCFromContext(const ucontext_t* context)
     
 #elif defined(__linux) && defined(__aarch64__)
     
-    // VERIFY
     /* Return PC value from Linux/arm thread context */
     return (uint64_t)(context->uc_mcontext.pc);
 

@@ -130,6 +130,10 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/offline.h
 	${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
 	DESTINATION include/openspeedshop
     )
+add_definitions(
+	-fasynchronous-unwind-tables
+	-funwind-tables
+    )
 
 if(LIBMONITOR_FOUND)
     include_directories(
@@ -141,7 +145,6 @@ if(LIBMONITOR_FOUND)
     )
     add_definitions(
 	-DOPENSS_OFFLINE
-	-fasynchronous-unwind-tables
     )
     add_library(openss-runtime-offline STATIC
         ${CMAKE_CURRENT_BINARY_DIR}/offline.h

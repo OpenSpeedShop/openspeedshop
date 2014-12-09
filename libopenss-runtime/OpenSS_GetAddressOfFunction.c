@@ -75,7 +75,6 @@ uint64_t OpenSS_GetAddressOfFunction(const void* pointer)
     
 #elif defined(__linux) && (defined(__aarch64__))
 
-    //VERIFY
     /* Return the function pointer directly on Linux/arm and Linux/aarch64 */
     return (uint64_t)((uintptr_t)pointer);
     

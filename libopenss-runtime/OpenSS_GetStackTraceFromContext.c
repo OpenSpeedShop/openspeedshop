@@ -139,25 +139,23 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
     
 #elif defined(__linux) && defined( __aarch64__ )
 
-    Assert(unw_getcontext(&context) == 0);
-    skip_frames = 5;
-    skip_signal_frames = FALSE;
-
-#elif defined(__linux) && defined( __arm__ )
-
-#if 0
-    if(signal_context != NULL) {
-        memmove(&context, signal_context, sizeof(unw_context_t));
-        skip_signal_frames = FALSE;
+    if (signal_context != NULL) {
+	Assert(unw_getcontext(&context) == 0);
+	skip_frames = 5;
+	skip_signal_frames = FALSE;
     } else {
 	Assert(unw_getcontext(&context) == 0);
     }
-#else
 
-    Assert(unw_getcontext(&context) == 0);
-    skip_frames = 5;
-    skip_signal_frames = FALSE;
-#endif
+#elif defined(__linux) && defined( __arm__ )
+
+    if (signal_context != NULL) {
+	Assert(unw_getcontext(&context) == 0);
+	skip_frames = 5;
+	skip_signal_frames = FALSE;
+    } else {
+	Assert(unw_getcontext(&context) == 0);
+    }
 
 #else
 #error "Platform/OS Combination Unsupported!"
