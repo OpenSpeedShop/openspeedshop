@@ -64,7 +64,7 @@ namespace OpenSpeedShop { namespace Queries {
             kInvalidCachePreference, kNoPreference,
             kPreferShared, kPreferCache, kPreferEqual
         };
-            
+
         /** Enumeration of the different memory copy kinds. */
         enum CopyKinds
         {
@@ -80,6 +80,15 @@ namespace OpenSpeedShop { namespace Queries {
             kInvalidMemoryKind, kUnknownMemoryKind,
             kPageable, kPinned, kDevice, kArray
         };
+
+        /** Stringify the specified CachePreferences value. */
+        static std::string stringify(CachePreferences value);
+            
+        /** Stringify the specified CopyKinds value. */
+        static std::string stringify(CopyKinds value);
+
+        /** Stringify the specified MemoryKinds value. */
+        static std::string stringify(MemoryKinds value);
         
         /** Detailed information for a CUDA device. */
         struct DeviceDetails
@@ -240,7 +249,7 @@ namespace OpenSpeedShop { namespace Queries {
             /** Number of bytes being set. */
             uint64_t size;            
         };
-
+        
         /**
          * Preprocess the data for the given collector and thread.
          *
@@ -343,6 +352,29 @@ namespace OpenSpeedShop { namespace Queries {
          */
         void visit_memory_sets(
             boost::function<void (const MemorySetDetails&)>& visitor,
+            const Framework::TimeInterval& interval = Framework::TimeInterval(
+                Framework::Time::TheBeginning(),
+                Framework::Time::TheEnd()
+                )
+            ) const;
+
+        /**
+         * Visit those hardware performance counter periodic samples whose
+         * sample time is within the specified time interval (if any).
+         *
+         * @note    The name of the counter corresponding to any particular
+         *          count in the vector passed into the visitor can be found
+         *          by using that count's index within the vector returned by
+         *          counters().
+         *
+         * @param visitor     Visitor invoked for each periodic sample.
+         * @param interval    Time interval for the visitation. Has a
+         *                    default value meaning "all possible time".
+         */
+        void visit_periodic_samples(
+            boost::function<
+                void (const Framework::Time&, const std::vector<uint64_t>&)
+                >& visitor,
             const Framework::TimeInterval& interval = Framework::TimeInterval(
                 Framework::Time::TheBeginning(),
                 Framework::Time::TheEnd()

@@ -95,107 +95,125 @@ namespace {
         }
     }
 
-    /** Find the last event whose request time preceeds or equals "t". */
+    /** Find the first|last event whose time succeeds|preceeds or equals t. */
     template <typename T>
-    typename vector<T>::const_iterator lower(const vector<T>& events,
-                                             const Time& t)
+    typename vector<T>::size_type find(const vector<T>& events,
+                                       const Time& t,
+                                       bool is_lower)
     {
-        typename vector<T>::size_type begin = 0;
-        typename vector<T>::size_type end = events.size();
-
-        while ((end - begin) > 1)
+        int64_t min = 0, max = events.size() - 1;
+        
+        while (max > min)
         {
-            typename vector<T>::size_type mid = (begin + end) / 2;
+            int64_t mid = (min + max) / 2;
             
-            if (events[mid].time > t)
+            if (events[mid].time == t)
             {
-                end = mid;
+                min = mid;
+                max = mid;
+            }
+            else if (events[mid].time < t)
+            {
+                min = mid + 1;
             }
             else
             {
-                begin = mid;
+                max = mid - 1;
             }
         }
 
-        return typename vector<T>::const_iterator(&events[begin]);
+        return is_lower ? min : max;
     }
 
-    /** Find the last sample whose time preceeds or equals "t". */
-    vector<uint64_t>::size_type lower(const vector<uint64_t>& samples,
-                                      const vector<uint64_t>::size_type& N,
-                                      const Time& t)
+    /** Find the first|last sample whose time succeeds|preceeds or equals t. */
+    vector<uint64_t>::size_type find(const vector<uint64_t>& samples,
+                                     const vector<uint64_t>::size_type& N,
+                                     const Time& t,
+                                     bool is_lower)
     {
-        vector<uint64_t>::size_type begin = 0;
-        vector<uint64_t>::size_type end = samples.size() / N;
-        
-        while ((end - begin) > 1)
+        int64_t min = 0, max = (samples.size() - 1) / N;
+
+        while (max > min)
         {
-            vector<uint64_t>::size_type mid = (begin + end) / 2;
+            int64_t mid = (min + max) / 2;
             
-            if (Time(samples[mid * N]) > t)
+            if (Time(samples[mid * N]) == t)
             {
-                end = mid;
+                min = mid;
+                max = mid;
+            }
+            else if (Time(samples[mid * N]) < t)
+            {
+                min = mid + 1;
             }
             else
             {
-                begin = mid;
-            }
-        }
-        
-        return begin * N;
-    }
-    
-    /** Find the first event whose end time succeeds or equals "t". */
-    template <typename T>
-    typename vector<T>::const_iterator upper(const vector<T>& events,
-                                             const Time& t)
-    {
-        typename vector<T>::size_type begin = 0;
-        typename vector<T>::size_type end = events.size();
-
-        while ((end - begin) > 1)
-        {
-            typename vector<T>::size_type mid = (begin + end) / 2;
-
-            if (events[mid].time_end < t)
-            {
-                begin = mid;
-            }
-            else
-            {
-                end = mid;
+                max = mid - 1;
             }
         }
 
-        return typename vector<T>::const_iterator(&events[end]);
-    }
-
-    /** Find the first sample whose time succeeds or equals "t". */
-    vector<uint64_t>::size_type upper(const vector<uint64_t>& samples,
-                                      const vector<uint64_t>::size_type& N,
-                                      const Time& t)
-    {
-        vector<uint64_t>::size_type begin = 0;
-        vector<uint64_t>::size_type end = samples.size() / N;
-        
-        while ((end - begin) > 1)
-        {
-            vector<uint64_t>::size_type mid = (begin + end) / 2;
-            
-            if (Time(samples[mid * N]) < t)
-            {
-                begin = mid;
-            }
-            else
-            {
-                end = mid;
-            }
-        }
-
-        return end * N;
+        return (is_lower ? min : max) * N;
     }
     
 } // namespace <anonymous>
+
+
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+string CUDAData::stringify(CachePreferences value)
+{
+    switch (value)
+    {
+    case kInvalidCachePreference: return "InvalidCachePreference";
+    case kNoPreference: return "NoPreference";
+    case kPreferShared: return "PreferShared";
+    case kPreferCache: return "PreferCache";
+    case kPreferEqual: return "PreferEqual";
+    }
+    return "?";
+}
+
+
+    
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+string CUDAData::stringify(CopyKinds value)
+{
+    switch (value)
+    {
+    case kInvalidCopyKind: return "InvalidCopyKind";
+    case kUnknownCopyKind: return "UnknownCopyKind";
+    case kHostToDevice: return "HostToDevice";
+    case kDeviceToHost: return "DeviceToHost";
+    case kHostToArray: return "HostToArray";
+    case kArrayToHost: return "ArrayToHost";
+    case kArrayToArray: return "ArrayToArray";
+    case kArrayToDevice: return "ArrayToDevice";
+    case kDeviceToArray: return "DeviceToArray";
+    case kDeviceToDevice: return "DeviceToDevice";
+    case kHostToHost: return "HostToHost";
+    }
+    return "?";
+}
+
+
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+string CUDAData::stringify(MemoryKinds value)
+{
+    switch (value)
+    {
+    case kInvalidMemoryKind: return "InvalidMemoryKind";
+    case kUnknownMemoryKind: return "UnknownMemoryKind";
+    case kPageable: return "Pageable";
+    case kPinned: return "Pinned";
+    case kDevice: return "Device";
+    case kArray: return "Array";
+    }
+    return "?";
+}
 
 
 
@@ -233,6 +251,9 @@ CUDAData::CUDAData(const Collector& collector, const Thread& thread) :
         blob.getXDRDecoding(
             reinterpret_cast<xdrproc_t>(xdr_CBTF_cuda_data), &data
             );
+
+        const CUDA_OverflowSamples* overflow_samples = NULL;
+        const CUDA_PeriodicSamples* periodic_samples = NULL;
         
         for (u_int i = 0; i < data.messages.messages_len; ++i)
         {
@@ -263,11 +284,37 @@ CUDAData::CUDAData(const Collector& collector, const Thread& thread) :
                 break;
 
             case OverflowSamples:
-                process(message.CBTF_cuda_message_u.overflow_samples);
+                if (overflow_samples == NULL)
+                {
+                    overflow_samples = 
+                        &message.CBTF_cuda_message_u.overflow_samples;
+                }
+#ifndef NDEBUG
+                else
+                {
+                    cerr << "WARNING: CUDAData ignored an extra "
+                         << "CUDA_OverflowSamples message within a "
+                         << "performance data blob."
+                         << endl;
+                }
+#endif
                 break;
 
             case PeriodicSamples:
-                process(message.CBTF_cuda_message_u.periodic_samples);
+                if (periodic_samples == NULL)
+                {
+                    periodic_samples =
+                        &message.CBTF_cuda_message_u.periodic_samples;
+                }
+#ifndef NDEBUG
+                else
+                {
+                    cerr << "WARNING: CUDAData ignored an extra "
+                         << "CUDA_PeriodicSamples message within a "
+                         << "performance data blob."
+                         << endl;
+                }
+#endif
                 break;
 
             case SamplingConfig:
@@ -279,6 +326,16 @@ CUDAData::CUDAData(const Collector& collector, const Thread& thread) :
                 break;
                 
             }
+        }
+
+        if (overflow_samples)
+        {
+            process(*overflow_samples);
+        }
+
+        if (periodic_samples)
+        {
+            process(*periodic_samples);
         }
         
         xdr_free(reinterpret_cast<xdrproc_t>(xdr_CBTF_cuda_data),
@@ -302,34 +359,39 @@ CUDAData::~CUDAData()
 vector<uint64_t> CUDAData::get_counts(const TimeInterval& interval) const
 {
     vector<uint64_t> counts(dm_counters.size(), 0);
-
-    if (dm_periodic_samples.size() < 2)
+    
+    if (dm_periodic_samples.empty())
     {
         return counts;
     }
-
+    
     vector<uint64_t>::size_type N = 1 + dm_counters.size();
-
+    
     vector<uint64_t>::size_type i_min = 
-        lower(dm_periodic_samples, N, interval.getBegin());
+        find(dm_periodic_samples, N, interval.getBegin(), true);
     vector<uint64_t>::size_type i_max = 
-        upper(dm_periodic_samples, N, interval.getEnd());
-
+        find(dm_periodic_samples, N, interval.getEnd(), false);
+    
+    if (i_min >= i_max)
+    {
+        return counts;
+    }
+    
     TimeInterval sample_interval(
         Time(dm_periodic_samples[i_min]), Time(dm_periodic_samples[i_max])
         );
     
     uint64_t interval_width = (interval & sample_interval).getWidth();
     uint64_t sample_width = sample_interval.getWidth();
-
+    
     for (vector<uint64_t>::size_type c = 1; c < N; ++c)
     {
         uint64_t count_delta = 
             dm_periodic_samples[i_max + c] - dm_periodic_samples[i_min + c];
-
+        
         counts[c - 1] = count_delta * interval_width / sample_width;
     }
-
+    
     return counts;
 }
 
@@ -342,17 +404,24 @@ void CUDAData::visit_kernel_executions(
     const TimeInterval& interval
     ) const
 {
-    vector<KernelExecutionDetails>::const_iterator i_begin = 
-        lower(dm_kernel_executions, interval.getBegin());
-    vector<KernelExecutionDetails>::const_iterator i_end = 
-        upper(dm_kernel_executions, interval.getEnd());
-    
-    for (vector<KernelExecutionDetails>::const_iterator
-             i = i_begin; i != i_end; ++i)
+    if (dm_kernel_executions.empty())
     {
-        if (TimeInterval(i->time, i->time_end).doesIntersect(interval))
+        return;
+    }
+
+    vector<KernelExecutionDetails>::size_type i_min = 
+        find(dm_kernel_executions, interval.getBegin(), true);
+    vector<KernelExecutionDetails>::size_type i_max = 
+        find(dm_kernel_executions, interval.getEnd(), false);
+    
+    for (vector<KernelExecutionDetails>::size_type i = i_min; i <= i_max; ++i)
+    {
+        const KernelExecutionDetails& details = dm_kernel_executions[i];
+        
+        if (TimeInterval(details.time,
+                         details.time_end).doesIntersect(interval))
         {
-            visitor(*i);
+            visitor(details);
         }
     }
 }
@@ -366,16 +435,24 @@ void CUDAData::visit_memory_copies(
     const TimeInterval& interval
     ) const
 {
-    vector<MemoryCopyDetails>::const_iterator i_begin = 
-        lower(dm_memory_copies, interval.getBegin());
-    vector<MemoryCopyDetails>::const_iterator i_end = 
-        upper(dm_memory_copies, interval.getEnd());
-    
-    for (vector<MemoryCopyDetails>::const_iterator i = i_begin; i != i_end; ++i)
+    if (dm_memory_copies.empty())
     {
-        if (TimeInterval(i->time, i->time_end).doesIntersect(interval))
+        return;
+    }
+
+    vector<MemoryCopyDetails>::size_type i_min = 
+        find(dm_memory_copies, interval.getBegin(), true);
+    vector<MemoryCopyDetails>::size_type i_max = 
+        find(dm_memory_copies, interval.getEnd(), false);
+    
+    for (vector<MemoryCopyDetails>::size_type i = i_min; i <= i_max; ++i)
+    {
+        const MemoryCopyDetails& details = dm_memory_copies[i];
+        
+        if (TimeInterval(details.time,
+                         details.time_end).doesIntersect(interval))
         {
-            visitor(*i);
+            visitor(details);
         }
     }
 }
@@ -389,16 +466,63 @@ void CUDAData::visit_memory_sets(
     const TimeInterval& interval
     ) const
 {
-    vector<MemorySetDetails>::const_iterator i_begin = 
-        lower(dm_memory_sets, interval.getBegin());
-    vector<MemorySetDetails>::const_iterator i_end = 
-        upper(dm_memory_sets, interval.getEnd());
-    
-    for (vector<MemorySetDetails>::const_iterator i = i_begin; i != i_end; ++i)
+    if (dm_memory_sets.empty())
     {
-        if (TimeInterval(i->time, i->time_end).doesIntersect(interval))
+        return;
+    }
+
+    vector<MemorySetDetails>::size_type i_min = 
+        find(dm_memory_sets, interval.getBegin(), true);
+    vector<MemorySetDetails>::size_type i_max = 
+        find(dm_memory_sets, interval.getEnd(), false);
+    
+    for (vector<MemorySetDetails>::size_type i = i_min; i <= i_max; ++i)
+    {
+        const MemorySetDetails& details = dm_memory_sets[i];
+        
+        if (TimeInterval(details.time,
+                         details.time_end).doesIntersect(interval))
         {
-            visitor(*i);
+            visitor(details);
+        }
+    }
+}
+
+
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void CUDAData::visit_periodic_samples(
+    function<void (const Time&, const vector<uint64_t>&)>& visitor,
+    const TimeInterval& interval
+    ) const
+{
+    if (dm_periodic_samples.empty())
+    {
+        return;
+    }
+    
+    vector<uint64_t>::size_type N = 1 + dm_counters.size();
+    
+    vector<uint64_t>::size_type i_min = 
+        find(dm_periodic_samples, N, interval.getBegin(), true);
+    vector<uint64_t>::size_type i_max = 
+        find(dm_periodic_samples, N, interval.getEnd(), false);
+    
+    vector<uint64_t> counts(dm_counters.size(), 0);
+    
+    for (vector<uint64_t>::size_type i = i_min; i <= i_max; i += N)
+    {
+        Time t(dm_periodic_samples[i]);
+        
+        if (interval.doesContain(t))
+        {   
+            for (vector<uint64_t>::size_type c = 1; c < N; ++c)
+            {
+                counts[c - 1] = dm_periodic_samples[i + c];
+            }
+            
+            visitor(t, counts);
         }
     }
 }
@@ -603,15 +727,38 @@ void CUDAData::process(const CUDA_EnqueueRequest& message,
         }
     }
 
-    // TODO: Determine if this call site already exists and reuse it!
+    //
+    // Search the existing call sites for this stack trace. The existing call
+    // site is reused if one is found. Otherwise this stack trace is added to
+    // the call sites.
+    //
+    // Note that a linear search is currently being employed here because the
+    // number of unique CUDA call sites is expected to be low. If that ends up
+    // not being the case, and performance is inadequate, a hash of each stack
+    // trace could be computed and used to accelerate this search.
+    //
+
+    vector<StackTrace>::size_type call_site;
+    for (call_site = 0; call_site < dm_call_sites.size(); ++call_site)
+    {
+        if (dm_call_sites[call_site] == trace)
+        {
+            break;
+        }
+    }
+
+    if (call_site == dm_call_sites.size())
+    {
+        dm_call_sites.push_back(trace);
+    }
 
     // Add this request to the list of pending requests
-    dm_call_sites.push_back(trace);
+
     Request request;
     request.message = shared_ptr<CUDA_EnqueueRequest>(
         new CUDA_EnqueueRequest(message)
         );
-    request.call_site = dm_call_sites.size() - 1;
+    request.call_site = call_site;
     dm_requests.push_back(request);
 }
 
@@ -698,11 +845,11 @@ void CUDAData::process(const CUDA_PeriodicSamples& message)
          ptr != &message.deltas.deltas_val[message.deltas.deltas_len];)
     {
         uint8_t encoding = *ptr >> 6;
-        
+
         uint64_t delta = 0;
         if (encoding < 3)
         {
-            delta = static_cast<uint64_t>(ptr[0]) & 0x3F;
+            delta = static_cast<uint64_t>(*ptr) & 0x3F;
         }
         ++ptr;
         for (int i = 0; i < kAdditionalBytes[encoding]; ++i)
@@ -710,7 +857,7 @@ void CUDAData::process(const CUDA_PeriodicSamples& message)
             delta <<= 8;
             delta |= static_cast<uint64_t>(*ptr++);
         }
-        
+
         samples[n++] += delta;
 
         if (n == N)

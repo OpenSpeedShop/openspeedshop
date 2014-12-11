@@ -16,12 +16,14 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
+bin_PROGRAMS =
 lib_LTLIBRARIES =
 noinst_PROGRAMS =
 
 if BUILD_CBTF
 if HAVE_CBTF_MESSAGES_CUDA
 
+bin_PROGRAMS += osscuda2xml
 lib_LTLIBRARIES += libopenss-queries-cuda.la
 noinst_PROGRAMS += test
 
@@ -49,6 +51,23 @@ libopenss_queries_cuda_la_SOURCES = \
 	CUDAExecXferBalance.hxx \
 	CUDAQueries.hxx CUDAQueries.cxx \
 	CUDAXferRate.hxx
+
+osscuda2xml_CXXFLAGS =\
+	@BOOST_CPPFLAGS@ \
+	-I$(top_srcdir)/libopenss-framework \
+	-I$(top_srcdir)/libopenss-queries-cuda
+
+osscuda2xml_LDFLAGS = \
+	@BOOST_LDFLAGS@ \
+	-L$(top_srcdir)/libopenss-framework \
+	-L$(top_srcdir)/libopenss-queries-cuda
+
+osscuda2xml_LDADD = \
+	@BOOST_PROGRAM_OPTIONS_LIB@ \
+	-lopenss-framework \
+	-lopenss-queries-cuda
+
+osscuda2xml_SOURCES = osscuda2xml.cxx
 
 test_CXXFLAGS =\
 	@BOOST_CPPFLAGS@ \
