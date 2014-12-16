@@ -31,6 +31,7 @@
 
 #include "SmartPtr.hxx"
 #include "Time.hxx"
+#include "TotallyOrdered.hxx"
 
 #include "CUDADeviceDetail.hxx"
 
@@ -42,7 +43,8 @@ namespace OpenSpeedShop { namespace Framework {
      * Encapsulate the details metric (inclusive or exclusive) for CUDA kernel
      * executions recorded by the CUDA collector.
      */
-    class CUDAExecDetail
+    class CUDAExecDetail :
+        public TotallyOrdered<CUDAExecDetail>
     {
 
     public:
@@ -70,6 +72,17 @@ namespace OpenSpeedShop { namespace Framework {
             dm_executed_kernel(executed_kernel),
             dm_function(executed_kernel.function)
         {
+        }
+
+        /** Operator "<" defined for two CUDAExecDetail objects. */
+        bool operator<(const CUDAExecDetail& other) const
+        {
+            if (getName() < other.getName())
+                return true;
+            if (getName() > other.getName())
+                return false;
+            return TimeInterval(getTimeBegin(), getTimeEnd()) <
+                TimeInterval(other.getTimeBegin(), other.getTimeEnd());
         }
         
         /** Time spent in the kernel execution (in seconds). */

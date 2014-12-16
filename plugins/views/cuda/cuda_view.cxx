@@ -1,5 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2014 Krell Institute. All Rights Reserved.
+** Copyright (c) 2014 Argo Navis Technologies. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -16,18 +17,13 @@
 ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *******************************************************************************/
 
-
 #include "SS_Input_Manager.hxx"
 #include "SS_View_Expr.hxx"
 #include "CUDACollector.hxx"
 #include "CUDADeviceDetail.hxx"
 #include "CUDAExecDetail.hxx"
 #include "CUDAXferDetail.hxx"
-
-/* Uncomment for debug traces
-#define DEBUG_CUDA 1
-*/
-
+#include "CUDACountsDetail.hxx"
 
 // There are 2 reserved locations in the predefined-temporay table.
 // Additional items may be defined for individual collectors.
@@ -42,296 +38,113 @@
 #define min_temp VMulti_free_temp+6
 #define max_temp VMulti_free_temp+7
 #define ssq_temp VMulti_free_temp+8
-#define syscallno_temp  VMulti_free_temp+9
-#define retval_temp  VMulti_free_temp+10
-#define nsysargs_temp  VMulti_free_temp+11
-#define pathname_temp  VMulti_free_temp+12
-#define id_temp  VMulti_free_temp+13
-#define rank_temp  VMulti_free_temp+14
-#define thread_temp  VMulti_free_temp+15
 
-#define First_ByThread_Temp VMulti_free_temp+16
+#define First_ByThread_Temp VMulti_free_temp+9
 #define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
                                  // "2" => times reported in seconds,
                                  // otherwise don't add anything.
 #include "SS_View_bythread_locations.hxx"
 #include "SS_View_bythread_setmetrics.hxx"
 
-
 // cuda view
 
-#define def_CUDA_values \
-            Time start = Time::TheEnd();         \
-            Time end = Time::TheBeginning();     \
-            double intime = 0.0;                 \
-            int64_t incnt = 0;                   \
-            double extime = 0.0;                 \
-            int64_t excnt = 0;                   \
-            double vmax = 0.0;                   \
-            double vmin = LONG_MAX;              \
-            double sum_squares = 0.0;            \
-            int64_t detail_syscallno = 0;        \
-            int64_t detail_nsysargs = 0;         \
-            int64_t detail_retval = 0;           \
-            std::string detail_pathname = "";    \         
-            std::string detail_id = "";          \
-            int64_t detail_rank = 0;             \
-            int64_t detail_thread = 0;           
+#define Determine_Objects Get_Filtered_Objects
 
-#define get_CUDA_invalues(primary,num_calls, function_name)      \
-              double v = primary.dm_time / num_calls;            \
-              intime += v;                                       \
-              incnt++;                                           \
-              start = std::min(start,primary.dm_interval.getBegin()); \
-              end = std::max(end,primary.dm_interval.getEnd());       \
-              vmin = std::min(vmin,v);                                \
-              vmax = std::max(vmax,v);                                \
-              sum_squares += v * v;                              \
-              detail_syscallno = primary.dm_syscallno;           \
-              detail_retval = primary.dm_retval;                 \
-              detail_nsysargs = primary.dm_nsysargs;		 \
-              detail_pathname = primary.dm_pathname;             \
-              std::stringstream ss1;                             \
-              std::stringstream ss2;                             \
-              std::string delim = ":";                           \
-              if ( primary.dm_id.first != -1 ) {                 \
-                ss1 << primary.dm_id.first;                      \
-                detail_rank = primary.dm_id.first;               \
-              } else {                                           \
-                ss1 << "";                                       \
-                delim = "";                                      \
-                detail_rank = -1;                                \
-              }                                                  \
-              if ( primary.dm_id.second != 0 ) {                 \
-                ss2 << primary.dm_id.second;                     \
-                detail_thread = primary.dm_id.second;            \
-              } else {                                           \
-                ss2 << "";                                       \
-                delim = "";                                      \
-                detail_thread = 0;                               \
-              }                                                  \
-              detail_id = ss1.str() + delim + ss2.str();
+#define def_CUDA_values               \
+    Time start = Time::TheEnd();      \
+    Time end = Time::TheBeginning();  \
+    double intime = 0.0;              \
+    int64_t incnt = 0;                \
+    double extime = 0.0;              \
+    int64_t excnt = 0;                \
+    double vmax = 0.0;                \
+    double vmin = LONG_MAX;           \
+    double sum_squares = 0.0;
 
-#define get_CUDA_exvalues(secondary,num_calls)          \
-              extime += secondary.dm_time / num_calls; \
-              excnt++;
+#define get_CUDA_invalues(primary, num_calls, function_name) \
+    double v = primary.getTime() / num_calls;                \
+    intime += v;                                             \
+    incnt++;                                                 \
+    start = std::min(start, primary.getTimeBegin());         \
+    end = std::max(end, primary.getTimeEnd());               \
+    vmin = std::min(vmin, v);                                \
+    vmax = std::max(vmax, v);                                \
+    sum_squares += v * v;
 
-#define get_inclusive_values(stdv, num_calls, function_name)           \
-{           int64_t len = stdv.size();                  \
-            for (int64_t i = 0; i < len; i++) {         \
-             /* Use macro to combine all the values. */ \
-              get_CUDA_invalues(stdv[i],num_calls, function_name)       \
-            }                                           \
-}
+#define get_CUDA_exvalues(secondary, num_calls) \
+    extime += secondary.getTime() / num_calls;  \
+    excnt++;
 
-#define get_exclusive_values(stdv, num_calls)           \
-{           int64_t len = stdv.size();                  \
-            for (int64_t i = 0; i < len; i++) {         \
-             /* Use macro to combine all the values. */ \
-              get_CUDA_exvalues(stdv[i],num_calls)       \
-            }                                           \
-}
-
-#define set_CUDA_values(value_array, sort_extime)                                          \
-              if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;     \
-              if (num_temps > start_temp) {                                               \
-                int64_t x= (start.getValue() /*-base_time*/);                             \
-                value_array[start_temp] = new CommandResult_Time (x);                     \
-              }                                                                          \
-              if (num_temps > stop_temp) {                                               \
-                int64_t x= (end.getValue() /*-base_time*/);                               \
-                value_array[stop_temp] = new CommandResult_Time (x);                      \
-              }                                                                           \
-              if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp]             \
-                            = new CommandResult_Interval (sort_extime ? extime : intime); \
-              if (num_temps > intime_temp) value_array[intime_temp]                       \
-                            = new CommandResult_Interval (intime);                        \
-              if (num_temps > incnt_temp) value_array[incnt_temp] = CRPTR (incnt);        \
-              if (num_temps > extime_temp) value_array[extime_temp]                       \
-                            = new CommandResult_Interval (extime);                        \
-              if (num_temps > excnt_temp) value_array[excnt_temp] = CRPTR (excnt);        \
-              if (num_temps > min_temp) value_array[min_temp]                             \
-                            = new CommandResult_Interval (vmin);                          \
-              if (num_temps > max_temp) value_array[max_temp]                             \
-                            = new CommandResult_Interval (vmax);                          \
-              if (num_temps > ssq_temp) value_array[ssq_temp]                             \
-                            = new CommandResult_Interval (sum_squares);			  \
-              if (num_temps > syscallno_temp) {						  \
-		CommandResult * p = CRPTR (detail_syscallno);				  \
-		p->SetValueIsID();							  \
-		value_array[syscallno_temp] = p;					  \
-              }										  \
-              if (num_temps > retval_temp) {						  \
-		CommandResult * p = CRPTR (detail_retval);				  \
-		p->SetValueIsID();							  \
-		value_array[retval_temp] = p;						  \
-              }										  \
-              if (num_temps > nsysargs_temp) {						  \
-		CommandResult * p = CRPTR (detail_nsysargs);				  \
-		p->SetValueIsID();							  \
-		value_array[nsysargs_temp] = p;						  \
-              }										  \
-              if (num_temps > pathname_temp) {						  \
-		CommandResult * p = CRPTR (detail_pathname);				  \
-		p->SetValueIsID();							  \
-		value_array[pathname_temp] = p;						  \
-              }                                                                           \
-              if (num_temps > id_temp) {						  \
-		CommandResult * p = CRPTR (detail_id);				          \
-		p->SetValueIsID();							  \
-		value_array[id_temp] = p;						  \
-              }                                                                           \
-              if (num_temps > rank_temp) {						  \
-		CommandResult * p = CRPTR (detail_rank);				  \
-		p->SetValueIsID();							  \
-		value_array[rank_temp] = p;						  \
-              }                                                                           \
-              if (num_temps > thread_temp) {						  \
-		CommandResult * p = CRPTR (detail_thread);				  \
-		p->SetValueIsID();							  \
-		value_array[thread_temp] = p;						  \
-              }
-
-
-// The code here restricts any view for Functions (e.g. -v Functions)
-// to the functions listed in CUDATraceablefunctions.h.  In this case,
-// the CUDA functions are the only events with data. All other functions
-// normally returned are just members of the callstacks and are displayed
-// by the various views that use the StackTrace details.
-static void Determine_Objects (
-               CommandObject *cmd,
-               ExperimentObject *exp,
-               ThreadGroup& tgrp,
-               std::set<Function>& objects) {
-
-  OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
-  std::vector<OpenSpeedShop::cli::ParseTarget> *p_tlist = p_result->getTargetList();
-  OpenSpeedShop::cli::ParseTarget pt;
-  if (p_tlist->begin() == p_tlist->end()) {
-
-    std::set<Function> cuda_objects;
-
-#if 0
-    for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i) {
-	std::string match = "*";
-	std::string f = match + TraceableFunctions[i] + match;
-	objects = exp->FW()->getFunctionsByNamePattern (f);
-	if (objects.size() > 0 ) {
-	    for (std::set<Function>::const_iterator j = objects.begin();
-		 j != objects.end(); ++j) {
-		LinkedObject lo = (*j).getLinkedObject();
-		std::string lopath = lo.getPath();
-		std::set<AddressRange> lor = lo.getAddressRange();
-		std::set<Thread> lot = lo.getThreads();
-		if (lopath.find("libpthread") != std::string::npos ||
-		    lopath.find("libc") != std::string::npos ||
-		    lopath.find("CUDA") != std::string::npos) { 
-
-#ifdef DEBUG_CUDA
-		    std::cerr << "Determine_Object CUDA INSERT " << f
-			<< " FROM LO " << lo.getPath() << std::endl;
-
-		    for (std::set<AddressRange>::const_iterator k = lor.begin();
-			 k != lor.end(); ++k) {
-			std::cerr << " @ " << (*k) << std::endl;
-		    }
-
-		    for (std::set<Thread>::const_iterator l = lot.begin();
-			 l != lot.end(); ++l) {
-			std::cerr << " PID " << (*l).getProcessId() << std::endl;
-                        std::pair<bool, int> prank = (*l).getMPIRank();
-                        int64_t rank = prank.first ? prank.second : -1;
-			std::cerr << " RANK " << rank << std::endl;
-			ExtentGroup eg = lo.getExtentIn(*l);
-			Extent bounds = eg.getBounds();
-			std::cerr << "  Bound AR: " << bounds.getAddressRange() << std::endl;
-			std::cerr << "  Bound TI: " << bounds.getTimeInterval() << std::endl;
-
-			for(std::vector<Extent>::const_iterator m = eg.begin();
-			    m != eg.end(); ++m) {
-			    std::cerr << "  E AR: " << (*m).getAddressRange() << std::endl;
-                            std::cerr << "  E TI: " << (*m).getTimeInterval() << std::endl;
-			}
-		    }
-#endif
-		    cuda_objects.insert(*j);
-		} else {
-		    cuda_objects.insert(*j);
-		}
-	    }
-	}
+#define get_inclusive_values(stdv, num_calls, function_name)     \
+    {                                                            \
+        int64_t len = stdv.size();                               \
+        for (int64_t i = 0; i < len; i++)                        \
+        {                                                        \
+            /* Use macro to combine all the values. */           \
+            get_CUDA_invalues(stdv[i], num_calls, function_name) \
+        }                                                        \
     }
-#endif
 
-    objects = cuda_objects;
-
-  } else {
-    std::vector<OpenSpeedShop::cli::ParseRange> *f_list = NULL;
-    pt = *p_tlist->begin(); // There can only be one!
-    f_list = pt.getFileList();
-
-    if ((f_list == NULL) || (f_list->empty())) {
-
-      std::set<Function> cuda_objects;
-
-#if 0
-      for(unsigned i = 0; TraceableFunctions[i] != NULL; ++i) {
-
-	std::string match = "*";
-	std::string f = match + TraceableFunctions[i] + match;
-	objects = exp->FW()->getFunctionsByNamePattern (f);
-
-	if (objects.size() > 0 ) {
-
-	    for (std::set<Function>::const_iterator j = objects.begin();
-		 j != objects.end(); ++j) {
-
-		LinkedObject lo = (*j).getLinkedObject();
-		std::string lopath = lo.getPath();
-		std::set<AddressRange> lor = lo.getAddressRange();
-		std::set<Thread> lot = lo.getThreads();
-
-		if (lopath.find("libpthread") != std::string::npos ||
-		    lopath.find("libc") != std::string::npos ||
-		    lopath.find("CUDA") != std::string::npos ) { 
-#ifdef DEBUG_CUDA
-		    std::cerr << "Determine_Object CUDA INSERT " << f
-			<< " FROM LO " << lo.getPath() << std::endl;
-
-		    for (std::set<AddressRange>::const_iterator k = lor.begin();
-			 k != lor.end(); ++k) {
-			std::cerr << " @ " << (*k) << std::endl;
-		    }
-
-		    for (std::set<Thread>::const_iterator l = lot.begin();
-			 l != lot.end(); ++l) {
-			std::cerr << " PID " << (*l).getProcessId() << std::endl;
-			ExtentGroup eg = lo.getExtentIn(*l);
-			Extent bounds = eg.getBounds();
-			std::cerr << "  Bound AR: " << bounds.getAddressRange() << std::endl;
-			std::cerr << "  Bound TI: " << bounds.getTimeInterval() << std::endl;
-
-			for(std::vector<Extent>::const_iterator m = eg.begin();
-			    m != eg.end(); ++m) {
-			    std::cerr << "  E AR: " << (*m).getAddressRange() << std::endl;
-                        std::cerr << "  E TI: " << (*m).getTimeInterval() << std::endl;
-			}
-		    }
-#endif
-		    cuda_objects.insert(*j);
-		}
-	    }
-	}
-      }
-#endif
-
-    objects = cuda_objects;
-
-    } else {
-      Get_Filtered_Objects (cmd, exp, tgrp, objects);
+#define get_exclusive_values(stdv, num_calls)          \
+    {                                                  \
+        int64_t len = stdv.size();                     \
+        for (int64_t i = 0; i < len; i++)              \
+        {                                              \
+            /* Use macro to combine all the values. */ \
+            get_CUDA_exvalues(stdv[i], num_calls)      \
+        }                                              \
     }
-  }
-}
+
+#define set_CUDA_values(value_array, sort_extime)                        \
+    if (num_temps > VMulti_sort_temp)                                    \
+    {                                                                    \
+        value_array[VMulti_sort_temp] = NULL;                            \
+    }                                                                    \
+    if (num_temps > start_temp)                                          \
+    {                                                                    \
+        int64_t x = start.getValue() /* - base_time */;                  \
+        value_array[start_temp] = new CommandResult_Time(x);             \
+    }                                                                    \
+    if (num_temps > stop_temp)                                           \
+    {                                                                    \
+        int64_t x = end.getValue() /* - base_time */;                    \
+        value_array[stop_temp] = new CommandResult_Time(x);              \
+    }                                                                    \
+    if (num_temps > VMulti_time_temp)                                    \
+    {                                                                    \
+        value_array[VMulti_time_temp] =                                  \
+            new CommandResult_Interval(sort_extime ? extime : intime);   \
+    }                                                                    \
+    if (num_temps > intime_temp)                                         \
+    {                                                                    \
+        value_array[intime_temp] = new CommandResult_Interval(intime);   \
+    }                                                                    \
+    if (num_temps > incnt_temp)                                          \
+    {                                                                    \
+        value_array[incnt_temp] = CRPTR(incnt);                          \
+    }                                                                    \
+    if (num_temps > extime_temp)                                         \
+    {                                                                    \
+        value_array[extime_temp] = new CommandResult_Interval(extime);   \
+    }                                                                    \
+    if (num_temps > excnt_temp)                                          \
+    {                                                                    \
+        value_array[excnt_temp] = CRPTR(excnt);                          \
+    }                                                                    \
+    if (num_temps > min_temp)                                            \
+    {                                                                    \
+        value_array[min_temp] = new CommandResult_Interval(vmin);        \
+    }                                                                    \
+    if (num_temps > max_temp)                                            \
+    {                                                                    \
+        value_array[max_temp] = new CommandResult_Interval(vmax);        \
+    }                                                                    \
+    if (num_temps > ssq_temp)                                            \
+    {                                                                    \
+        value_array[ssq_temp] = new CommandResult_Interval(sum_squares); \
+    }
+    
+
 
 static bool Determine_Metric_Ordering (std::vector<ViewInstruction *>& IV) {
  // Determine which metric is the primary.
@@ -404,9 +217,6 @@ static bool define_cuda_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Min, min_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Max, max_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, ssq_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Add, id_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Add, rank_temp));
-  IV.push_back(new ViewInstruction (VIEWINST_Add, thread_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
@@ -461,16 +271,9 @@ static bool define_cuda_columns (
   MetricMap["minimum"] = min_temp;
   MetricMap["min"] = min_temp;
   MetricMap["maximum"] = max_temp;
-  MetricMap["syscallno"] = syscallno_temp;
-  MetricMap["nsysargs"] = nsysargs_temp;
   if (vfc == VFC_Trace) {
     MetricMap["start_time"] = start_temp;
     MetricMap["stop_time"] = stop_temp;
-    MetricMap["retval"] = retval_temp;
-    MetricMap["pathname"] = pathname_temp;
-    MetricMap["id"] = id_temp;
-    MetricMap["rank"] = rank_temp;
-    MetricMap["thread"] = thread_temp;
   }
 
   if (p_slist->begin() != p_slist->end()) {
@@ -639,59 +442,6 @@ static bool define_cuda_columns (
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m stop_time' only supported for '-v Trace' option.");
           }
-        } else if (!strcasecmp(M_Name.c_str(), "syscallno")) {
-
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, syscallno_temp));
-            HV.push_back("Syscall Number");
-
-        } else if (!strcasecmp(M_Name.c_str(), "retval")) {
-          if (vfc == VFC_Trace) {
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
-            HV.push_back("Function Dependent Return Value");
-          } else {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m retval' only supported for '-v Trace' option.");
-          }
-        } else if (!strcasecmp(M_Name.c_str(), "nsysargs")) {
- 
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, nsysargs_temp));
-            HV.push_back("Number of System Args");
- 
-//            if (detail_nsysargs > 0) {
-//              printf("nsysargs is greater than zero\n");
-//            }
-
-        } else if ( (!strcasecmp(M_Name.c_str(), "pathname")) || (!strcasecmp(M_Name.c_str(), "pathnames")) ) {
-
-          if (vfc == VFC_Trace) {
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, pathname_temp));
-            HV.push_back("File/Path Name");
-          } else {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m pathname' only supported for '-v Trace' option.");
-          }
-        } else if ( (!strcasecmp(M_Name.c_str(), "threadid")) ) {
-
-          if (vfc == VFC_Trace) {
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, thread_temp));
-            HV.push_back("Event Identifier(s)");
-          } else {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m thread' only supported for '-v Trace' option.");
-          }
-        } else if ( (!strcasecmp(M_Name.c_str(), "rankid")) ) {
-
-          if (vfc == VFC_Trace) {
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, rank_temp));
-            HV.push_back("Event Identifier(s)");
-          } else {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m rank' only supported for '-v Trace' option.");
-          }
-        } else if ( (!strcasecmp(M_Name.c_str(), "id")) ) {
-
-          if (vfc == VFC_Trace) {
-            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
-            HV.push_back("Event Identifier(s)");
-          } else {
-            Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m id' only supported for '-v Trace' option.");
-          }
         } else if (!strcasecmp(M_Name.c_str(), "absdiff")) {
         // Ignore this because cview -c 3 -c 5 -mtime,absdiff actually works outside of this view code
         // Mark_Cmd_With_Soft_Error(cmd,"AbsDiff option, '-m " + M_Name + "'");
@@ -746,22 +496,6 @@ static bool define_cuda_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
     HV.push_back("% of Total Time");
 
-#if 1
-    if (vfc == VFC_Trace) {
-  // display function return values for each function
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
-      HV.push_back("Function Dependent Return Value");
-
-  // display function pathname for each function call
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, pathname_temp));
-      HV.push_back("File/Path Name");
-
-  // display id of event for each function call
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
-      HV.push_back("Event Identifier(s)");
-    }
-#endif
-
   // display a count of the calls to each function
     if (vfc != VFC_Trace) {
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
@@ -810,91 +544,93 @@ static bool cuda_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t
       return false;
     }
 
+    CV.push_back (Get_Collector (exp->FW(), "cuda"));  // Define the collector
+    MV.push_back ("exec_inclusive_details"); // define the metric needed for getting main time values
+    CV.push_back (Get_Collector (exp->FW(), "cuda"));  // Define the collector
+    MV.push_back ("exec_time"); // define the metric needed for calculating total time.
+
+
+
     return define_cuda_columns (cmd, exp, CV, MV, IV, HV, vfc);
 }
 
 
 static std::string VIEW_cuda_brief = "CUDA Performance Report";
-static std::string VIEW_cuda_short = "Report cuda related performance information.";
+static std::string VIEW_cuda_short = "Report CUDA related performance information.";
 static std::string VIEW_cuda_long  =
-                  "\nA positive integer can be added to the end of the keyword"
-                  " 'cuda' to indicate the maximum number of items in the report."
-                  " When the '-v Trace' option is selected, the selected items are"
-                  " the ones that use the most time.  In all other cases"
-                  " the selection will be based on the values displayed in"
-                  " left most column of the report."
-                  "\n\nThe form of the information displayed can be controlled through"
-                  " the  '-v' option.  Except for the '-v Trace' option, the report will"
-                  " be sorted in descending order of the value in the left most column"
-                  " displayed on a line. [See '-m' option for controlling this field.]"
-                  "\n\nThe form of the information displayed can be controlled through"
-                  " the  '-v' option."
-                  "\n\t'-v Functions' will produce a summary report that"
-                  " will be sorted in descending order of the value in the left most"
-                  " column (see the '-m' option).  This is the default display."
-                  "\n\t'-v Trace' will produce a report of each individual  call to an io"
-                  " function."
-                  " It will be sorted in ascending order of the starting time for the event."
-                  " The information available for display from an 'cuda' experiment is very"
-                  " limited when compared to what is available from an 'cudat' experiment."
-                  "\n\t'-v CallTrees' will produce a calling stack report that is presented"
-                  " in calling tree order - from the start of the program to the measured"
-                  " program."
-                  "\n\t'-v TraceBacks' will produce a calling stack report that is presented"
-                  " in traceback order - from the measured function to the start of the"
-                  " program."
-                  "\n\tThe addition of 'FullStack' with either 'CallTrees' of 'TraceBacks'"
-                  " will cause the report to include the full call stack for each measured"
-                  " function.  Redundant portions of a call stack are suppressed by default."
-                  "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
-                  " 'CallTrees' or 'TraceBacks' will result in an additional line of output at"
-                  " the end of the report that summarizes the information in each column."
-                  "\n\tThe addition of 'SummaryOnly' to the '-v' option list along with 'Functions',"
-                  " 'CallTrees' or 'TraceBacks' or without those options will cause only the"
-                  " one line of output at the end of the report that summarizes the information in each column."
-                  "\n\t'-v ButterFly' along with a '-f <function_list>' will produce a report"
-                  " that summarizes the calls to a function and the calls from the function."
-                  " The calling functions will be listed before the named function and the"
-                  " called functions afterwards, by default, although the addition of"
-                  " 'TraceBacks' to the '-v' specifier will reverse this ordering."
-                  "\n\nThe information included in the report can be controlled with the"
-                  " '-m' option.  More than one item can be selected but only the items"
-                  " listed after the option will be printed and they will be printed in"
-                  " the order that they are listed."
-                  " Each value pertains to the function, statement or linked object that is"
-                  " on that row of the report.  The 'Thread...' selections pertain to the"
-                  " process unit that the program was partitioned into: Pid's,"
-                  " Posix threads, Mpi threads or Ranks."
-                  " If no '-m' option is specified, the default is equivalent to"
-                  " '-m exclusive times, percent, count'."
-                  " The available '-m' options are:"
-                  " \n\t'-m exclusive_times' reports the wall clock time used in the function."
-                  " \n\t'-m min' reports the minimum time spent in the function."
-                  " \n\t'-m max' reports the maximum time spent in the function."
-                  " \n\t'-m average' reports the average time spent in the function."
-                  " \n\t'-m count' reports the number of times the function was called."
-                  " \n\t'-m percent' reports the percent of cuda time the function represents."
-                  " \n\t'-m stddev' reports the standard deviation of the average cuda time"
-                  " that the function represents."
-                  " The available '-v trace -m' options are:"
-                  " \n\t'-m syscallno' reports the system call number associated  with the function."
-                  " \n\t'-m retval' reports the value returned from the call."
-                  " \n\t'-m nsysargs' reports the number of arguments to the call."
-                  " \n\t'-m pathname' reports the pathname to the function."
-                  " \n\t'-m id' reports the rank/thread/pid of the event, rank/thread/pid the CUDA function call took place in."
-                  " \n\t'-m rankid' reports the rank number, or if rank not available then the process id of the event that the CUDA function took place in."
-                  " \n\t'-m threadid' reports the POSIX thread number that the CUDA function took place in."
+    "\n"
+    "A positive integer can be added to the end of the keyword 'cuda' to "
+    "indicate the maximum number of items in the report.  When the '-v Trace' "
+    "option is selected, the selected items are the ones that use the most "
+    "time.  In all other cases the selection will be based on the values "
+    "displayed in left most column of the report.\n"
+    "\n"
+    "The form of the information displayed can be controlled through the '-v' "
+    "option.  Except for the '-v Trace' option, the report will be sorted in "
+    "descending order of the value in the left most column displayed on a "
+    "line. [See '-m' option for controlling this field.]\n"
+    "\n"
+    "The form of the information displayed can be controlled through the '-v' "
+    "option.\n"
+    "\t'-v Functions' will produce a summary report that will be sorted in "
+    "descending order of the value in the left most column (see the '-m' "
+    "option).  This is the default display.\n"
+    "\t'-v Trace' will produce a report of each individual call to a CUDA "
+    "kernel function.  It will be sorted in ascending order of the starting "
+    "time for the event.\n"
+    "\t'-v CallTrees' will produce a calling stack report that is presented "
+    "in calling tree order - from the start of the program to the measured "
+    "program.\n"
+    "\t'-v TraceBacks' will produce a calling stack report that is presented "
+    "in traceback order - from the measured function to the start of the "
+    "program.\n"
+    "\tThe addition of 'FullStack' with either 'CallTrees' of 'TraceBacks' "
+    "will cause the report to include the full call stack for each measured "
+    "function.  Redundant portions of a call stack are suppressed by default.\n"
+    "\tThe addition of 'Summary' to the '-v' option list along with "
+    "'Functions', 'CallTrees' or 'TraceBacks' will result in an additional "
+    "line of output at the end of the report that summarizes the information "
+    "in each column.\n"
+    "\tThe addition of 'SummaryOnly' to the '-v' option list along with "
+    "'Functions', 'CallTrees' or 'TraceBacks' or without those options will "
+    "cause only the one line of output at the end of the report that "
+    "summarizes the information in each column.\n"
+    "\t'-v ButterFly' along with a '-f <function_list>' will produce a report "
+    "that summarizes the calls to a function and the calls from the function.  "
+    "The calling functions will be listed before the named function and the "
+    "called functions afterwards, by default, although the addition of "
+    "'TraceBacks' to the '-v' specifier will reverse this ordering.\n"
+    "\n"
+    "The information included in the report can be controlled with the '-m' "
+    "option.  More than one item can be selected but only the items listed "
+    "after the option will be printed and they will be printed in the order "
+    "that they are listed.  Each value pertains to the function, statement or "
+    "linked object that is on that row of the report.  The 'Thread...' "
+    "selections pertain to the process unit that the program was partitioned "
+    "into: PID's, POSIX threads, MPI threads or ranks.  If no '-m' option is "
+    "specified, the default is equivalent to '-m exclusive times, percent, "
+    "count'.  The available '-m' options are:\n"
+    "\t'-m exclusive_times' reports the wall clock time used in the function.\n"
+    "\t'-m min' reports the minimum time spent in the function.\n"
+    "\t'-m max' reports the maximum time spent in the function.\n"
+    "\t'-m average' reports the average time spent in the function.\n"
+    "\t'-m count' reports the number of times the function was called.\n"
+    "\t'-m percent' reports the percent of cuda time the function represents.\n"
+    "\t'-m stddev' reports the standard deviation of the average cuda time "
+    "that the function represents.\n"
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
                   "\n";
 static std::string VIEW_cuda_example = "\texpView cuda\n"
                                       "\texpView -v CallTrees,FullStack cuda10 -m min,max,count\n";
 static std::string VIEW_cuda_metrics[] =
-  { "time",
-    "inclusive_times",
-    "inclusive_details",
-    "exclusive_details",
-    "exclusive_times",
+  { "cuda::count_exclusive_details",
+    "cuda::exec_exclusive_details",
+    "cuda::exec_inclusive_details",
+    "cuda::exec_time",
+    "cuda::xfer_exclusive_details",
+    "cuda::xfer_inclusive_details",
+    "cuda::xfer_time",
     ""
   };
 static std::string VIEW_cuda_collectors[] =
@@ -921,9 +657,9 @@ class cuda_view : public ViewType {
     std::vector<std::string> HV;
 
     CV.push_back (Get_Collector (exp->FW(), "cuda"));  // Define the collector
-    MV.push_back ("inclusive_details"); // define the metric needed for getting main time values
+    MV.push_back ("exec_inclusive_details"); // define the metric needed for getting main time values
     CV.push_back (Get_Collector (exp->FW(), "cuda"));  // Define the collector
-    MV.push_back ("time"); // define the metric needed for calculating total time.
+    MV.push_back ("exec_time"); // define the metric needed for calculating total time.
 
     View_Form_Category vfc = Determine_Form_Category(cmd);
     if (cuda_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc)) {
@@ -935,12 +671,11 @@ class cuda_view : public ViewType {
       }
 
       std::vector<CUDAExecDetail> dummyVector;
-      CUDAExecDetail *dummyExecDetail;
-#if 0
+      CUDAExecDetail *dummyDetail;
       switch (Determine_Form_Category(cmd)) {
        case VFC_Trace:
         return Detail_Trace_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                                    Determine_Metric_Ordering(IV), dummyExecDetail, view_output);
+                                    Determine_Metric_Ordering(IV), dummyDetail, view_output);
        case VFC_CallStack:
         if (Look_For_KeyWord(cmd, "ButterFly")) {
           return Detail_ButterFly_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
@@ -955,7 +690,6 @@ class cuda_view : public ViewType {
                                    Determine_Metric_Ordering(IV), dummyObject,
                                    VFC_Function, &dummyVector, view_output);
       }
-#endif
       Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name recognized.)");
       return false;
     }
