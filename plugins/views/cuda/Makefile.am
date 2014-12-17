@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014 Argo Navis Technologies. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,25 +20,25 @@
 pkglib_LTLIBRARIES = cuda_view.la
 
 cuda_view_la_CXXFLAGS = \
+	@BOOST_CPPFLAGS@ \
+	@MESSAGES_CPPFLAGS@ \
+	@MESSAGES_CUDA_CPPFLAGS@ \
+	@PYTHON_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-cli \
 	-I$(top_srcdir)/libopenss-framework \
 	-I$(top_srcdir)/libopenss-message \
 	-I$(top_srcdir)/libopenss-queries \
-	-I$(top_srcdir)/plugins/collectors/cuda \
-        @BOOST_CPPFLAGS@ \
-        @MESSAGES_CPPFLAGS@ \
-        @MESSAGES_CUDA_CPPFLAGS@ \
-	@PYTHON_CPPFLAGS@
+	-I$(top_srcdir)/plugins/collectors/cuda
 
 cuda_view_la_LDFLAGS = \
-        @MESSAGES_LDFLAGS@ \
-        @MESSAGES_CUDA_LDFLAGS@ \
+	@MESSAGES_LDFLAGS@ \
+	@MESSAGES_CUDA_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-cli \
 	-no-undefined -module -avoid-version
 
 cuda_view_la_LIBADD = \
-        @MESSAGES_LIBS@ \
-        @MESSAGES_CUDA_LIBS@ \
+	@MESSAGES_LIBS@ \
+	@MESSAGES_CUDA_LIBS@ \
 	-lopenss-cli
 
 cuda_view_la_SOURCES = \

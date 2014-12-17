@@ -1,21 +1,23 @@
-/*******************************************************************************
-** Copyright (c) 2014 Krell Institute. All Rights Reserved.
-** Copyright (c) 2014 Argo Navis Technologies. All Rights Reserved.
-**
-** This library is free software; you can redistribute it and/or modify it under
-** the terms of the GNU Lesser General Public License as published by the Free
-** Software Foundation; either version 2.1 of the License, or (at your option)
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but WITHOUT
-** ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-** FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-** details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation, Inc.,
-** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2014 Krell Institute. All Rights Reserved.
+// Copyright (c) 2014 Argo Navis Technologies. All Rights Reserved.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation; either version 2.1 of the License, or (at your option)
+// any later version.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this library; if not, write to the Free Software Foundation, Inc.,
+// 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+////////////////////////////////////////////////////////////////////////////////
+
+#include <boost/format.hpp>
 
 #include "SS_Input_Manager.hxx"
 #include "SS_View_Expr.hxx"
@@ -26,6 +28,7 @@
 #include "CUDAXferDetail.hxx"
 #include "CUDACountsDetail.hxx"
 
+using namespace boost;
 using namespace std;
 
 
@@ -33,7 +36,7 @@ using namespace std;
 // There are 2 reserved locations in the predefined-temporary table.
 // Additional items may be defined for individual collectors.
 
-// These are needed to manage cuda collector data.
+// These are needed to manage CUDA collector data
 #define intime_temp VMulti_free_temp
 #define incnt_temp VMulti_free_temp+1
 #define extime_temp VMulti_free_temp+2
@@ -44,7 +47,16 @@ using namespace std;
 #define max_temp VMulti_free_temp+7
 #define ssq_temp VMulti_free_temp+8
 
-#define First_ByThread_Temp VMulti_free_temp+9
+// These are needed to manage CUDA kernel execution data
+#define grid_temp VMulti_free_temp+9
+#define block_temp VMulti_free_temp+10
+#define cache_temp VMulti_free_temp+11
+#define rpt_temp VMulti_free_temp+12
+#define ssm_temp VMulti_free_temp+13
+#define dsm_temp VMulti_free_temp+14
+#define lm_temp VMulti_free_temp+15
+
+#define First_ByThread_Temp VMulti_free_temp+16
 #define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
                                  // "2" => times reported in seconds,
                                  // otherwise don't add anything.
@@ -62,7 +74,14 @@ using namespace std;
     int64_t excnt = 0;                \
     double vmax = 0.0;                \
     double vmin = LONG_MAX;           \
-    double sum_squares = 0.0;
+    double sum_squares = 0.0;         \
+    string detail_grid = "";          \
+    string detail_block = "";         \
+    string detail_cache = "";         \
+    uint32_t detail_rpt = 0;          \
+    uint64_t detail_ssm = 0;          \
+    uint64_t detail_dsm = 0;          \
+    uint64_t detail_lm = 0;
 
 #define get_CUDA_invalues(primary, num_calls, function_name)  \
     double v = primary.getTime() / num_calls;                 \
@@ -72,7 +91,22 @@ using namespace std;
     end = max(end, primary.getTimeEnd());                     \
     vmin = min(vmin, v);                                      \
     vmax = max(vmax, v);                                      \
-    sum_squares += v * v;
+    sum_squares += v * v;                                     \
+    detail_grid = str(format("%1%,%2%,%3%") %                 \
+        primary.getGrid().get<0>() %                          \
+        primary.getGrid().get<1>() %                          \
+        primary.getGrid().get<2>()                            \
+        );                                                    \
+    detail_block = str(format("%1%,%2%,%3%") %                \
+        primary.getBlock().get<0>() %                         \
+        primary.getBlock().get<1>() %                         \
+        primary.getBlock().get<2>()                           \
+        );                                                    \
+    detail_cache = primary.getCachePreference();              \
+    detail_rpt = primary.getRegistersPerThread();             \
+    detail_ssm = primary.getStaticSharedMemory();             \
+    detail_dsm = primary.getDynamicSharedMemory();            \
+    detail_lm = primary.getLocalMemory();
 
 #define get_CUDA_exvalues(secondary, num_calls)  \
     extime += secondary.getTime() / num_calls;   \
@@ -145,6 +179,44 @@ using namespace std;
     if (num_temps > ssq_temp)                                             \
     {                                                                     \
         value_array[ssq_temp] = new CommandResult_Interval(sum_squares);  \
+    }                                                                     \
+    if (num_temps > grid_temp)                                            \
+    {                                                                     \
+        CommandResult* p = CRPTR(detail_grid);                            \
+        p->SetValueIsID();                                                \
+        value_array[grid_temp] = p;                                       \
+    }                                                                     \
+    if (num_temps > block_temp)                                           \
+    {                                                                     \
+        CommandResult* p = CRPTR(detail_block);                           \
+        p->SetValueIsID();                                                \
+        value_array[block_temp] = p;                                      \
+    }                                                                     \
+    if (num_temps > cache_temp)                                           \
+    {                                                                     \
+        CommandResult* p = CRPTR(detail_cache);                           \
+        p->SetValueIsID();                                                \
+        value_array[cache_temp] = p;                                      \
+    }                                                                     \
+    if (num_temps > rpt_temp)                                             \
+    {                                                                     \
+        CommandResult* p = CRPTR(detail_rpt);                             \
+        value_array[rpt_temp] = p;                                        \
+    }                                                                     \
+    if (num_temps > ssm_temp)                                             \
+    {                                                                     \
+        CommandResult* p = CRPTR(detail_ssm);                             \
+        value_array[ssm_temp] = p;                                        \
+    }                                                                     \
+    if (num_temps > dsm_temp)                                             \
+    {                                                                     \
+        CommandResult* p = CRPTR(detail_dsm);                             \
+        value_array[dsm_temp] = p;                                        \
+    }                                                                     \
+    if (num_temps > lm_temp)                                              \
+    {                                                                     \
+        CommandResult* p = CRPTR(detail_lm);                              \
+        value_array[lm_temp] = p;                                         \
     }
 
 
@@ -310,6 +382,14 @@ static bool define_cuda_columns(CommandObject* cmd,
     {
         MetricMap["start_time"] = start_temp;
         MetricMap["stop_time"] = stop_temp;
+
+        MetricMap["grid"] = grid_temp;
+        MetricMap["block"] = block_temp;
+        MetricMap["cache"] = cache_temp;
+        MetricMap["rpt"] = rpt_temp;
+        MetricMap["ssm"] = ssm_temp;
+        MetricMap["dsm"] = dsm_temp;
+        MetricMap["lm"] = lm_temp;
     }
 
     if (p_slist->begin() != p_slist->end())
@@ -568,6 +648,99 @@ static bool define_cuda_columns(CommandObject* cmd,
                              "supported for '-v Trace' option.");
                     }
                 }
+                else if (!strcasecmp(M_Name.c_str(), "grid"))
+                {
+                    if (vfc == VFC_Trace)
+                    {
+                        PUSH_IV(VIEWINST_Display_Tmp, last_column++, grid_temp);
+                        PUSH_HV("Grid Dims");
+                    }
+                    else
+                    {
+                        WARN("Warning: '-m grid' only "
+                             "supported for '-v Trace' option.");
+                    }
+                }
+                else if (!strcasecmp(M_Name.c_str(), "block"))
+                {
+                    if (vfc == VFC_Trace)
+                    {
+                        PUSH_IV(VIEWINST_Display_Tmp, last_column++,
+                                block_temp);
+                        PUSH_HV("Block Dims");
+                    }
+                    else
+                    {
+                        WARN("Warning: '-m block' only "
+                             "supported for '-v Trace' option.");
+                    }
+                }
+                else if (!strcasecmp(M_Name.c_str(), "cache"))
+                {
+                    if (vfc == VFC_Trace)
+                    {
+                        PUSH_IV(VIEWINST_Display_Tmp, last_column++,
+                                cache_temp);
+                        PUSH_HV("Cache Pref");
+                    }
+                    else
+                    {
+                        WARN("Warning: '-m cache' only "
+                             "supported for '-v Trace' option.");
+                    }
+                }
+                else if (!strcasecmp(M_Name.c_str(), "rpt"))
+                {
+                    if (vfc == VFC_Trace)
+                    {
+                        PUSH_IV(VIEWINST_Display_Tmp, last_column++, rpt_temp);
+                        PUSH_HV("Registers Per Thread");
+                    }
+                    else
+                    {
+                        WARN("Warning: '-m rpt' only "
+                             "supported for '-v Trace' option.");
+                    }
+                }
+                else if (!strcasecmp(M_Name.c_str(), "ssm"))
+                {
+                    if (vfc == VFC_Trace)
+                    {
+                        PUSH_IV(VIEWINST_Display_Tmp, last_column++, ssm_temp);
+                        PUSH_HV("Static Shared Memory");
+                    }
+                    else
+                    {
+                        WARN("Warning: '-m kernel' only "
+                             "supported for '-v Trace' option.");
+                    }
+                }
+                else if (!strcasecmp(M_Name.c_str(), "dsm"))
+                {
+                    if (vfc == VFC_Trace)
+                    {
+                        PUSH_IV(VIEWINST_Display_Tmp, last_column++, dsm_temp);
+                        PUSH_HV("Dynamic Shared Memory");
+                    }
+                    else
+                    {
+                        WARN("Warning: '-m dsm' only "
+                             "supported for '-v Trace' option.");
+                    }
+                }
+                else if (!strcasecmp(M_Name.c_str(), "lm"))
+                {
+                    if (vfc == VFC_Trace)
+                    {
+                        PUSH_IV(VIEWINST_Display_Tmp, last_column++, lm_temp);
+                        PUSH_HV("Local Memory");
+                    }
+                    else
+                    {
+                        WARN("Warning: '-m lm' only "
+                             "supported for '-v Trace' option.");
+                    }
+                }
                 else if (!strcasecmp(M_Name.c_str(), "absdiff"))
                 {
                     // Ignore this because cview -c 3 -c 5 -mtime,absdiff
@@ -647,10 +820,18 @@ static bool define_cuda_columns(CommandObject* cmd,
         PUSH_IV(VIEWINST_Display_Percent_Tmp, last_column++, extime_temp,
                 totalIndex++);
         PUSH_HV("% of Total Time");
-        
-        // Display a count of the calls to each function
-        if (vfc != VFC_Trace)
+
+        if (vfc == VFC_Trace)
         {
+            // Display CUDA kernel grid and block dimensions
+            PUSH_IV(VIEWINST_Display_Tmp, last_column++, grid_temp);
+            PUSH_HV("Grid Dims");
+            PUSH_IV(VIEWINST_Display_Tmp, last_column++, block_temp);
+            PUSH_HV("Block Dims");
+        }
+        else
+        {
+            // Display a count of the calls to each function
             PUSH_IV(VIEWINST_Display_Tmp, last_column++, excnt_temp);
             PUSH_HV("Number of Calls");
         }
@@ -692,11 +873,9 @@ static bool cuda_definition(CommandObject* cmd,
 
     if (cgrp.find(C) == cgrp.end())
     {
-        Mark_Cmd_With_Soft_Error(
-            cmd, string("The required collector, ") +
-            C.getMetadata().getUniqueId() +
-            string(", was not used in the experiment.")
-            );
+        WARN(string("The required collector, ") +
+             C.getMetadata().getUniqueId() +
+             ", was not used in the experiment.");
         return false;
     }
 
@@ -734,7 +913,7 @@ static string VIEW_cuda_brief =
     "CUDA Performance Report";
 
 static string VIEW_cuda_short =
-    "Report CUDA related performance information.";
+    "Report CUDA performance information.";
 
 static string VIEW_cuda_long  =
     "\n"
@@ -787,19 +966,31 @@ static string VIEW_cuda_long  =
     "linked object that is on that row of the report.  The 'Thread...' "
     "selections pertain to the process unit that the program was partitioned "
     "into: PID's, POSIX threads, MPI threads or ranks.  If no '-m' option is "
-    "specified, the default is equivalent to '-m exclusive times, percent, "
-    "count'.  The available '-m' options are:\n"
+    "specified, the default is equivalent to '-m exclusive_times, percent, "
+    "count', except for '-v Trace', where the default is equivalent to "
+    "'-m exclusive_times, percent, grid, block'.\n"
+    "The available '-m' options are:\n"
     "\t'-m exclusive_times' reports the wall clock time used in the function.\n"
     "\t'-m min' reports the minimum time spent in the function.\n"
     "\t'-m max' reports the maximum time spent in the function.\n"
     "\t'-m average' reports the average time spent in the function.\n"
     "\t'-m count' reports the number of times the function was called.\n"
-    "\t'-m percent' reports the percent of cuda time the function represents.\n"
-    "\t'-m stddev' reports the standard deviation of the average cuda time "
-    "that the function represents.\n"
+    "\t'-m percent' reports the percent of time the function represents.\n"
+    "\t'-m stddev' reports the standard deviation of the average time "
+    "that the function represents."
     // Get the description of the BY-Thread metrics
     #include "SS_View_bythread_help.hxx"
-    "\n";
+    "\n"
+    "The available '-v Trace -m' options are:\n"
+    "\t'-m grid' reports the dimensions of the grid.\n"
+    "\t'-m block' reports the dimensions of each block.\n"
+    "\t'-m cache' reports the cache preference used.\n"
+    "\t'-m rpt' reports the registers required for each thread.\n"
+    "\t'-m ssm' reports the total amount (in bytes) of static shared memory "
+    "reserved.\n"
+    "\t'-m dsm' reports the total amount (in bytes) of dynamic shared memory "
+    "reserved.\n"
+    "\t'-m lm' reports the total amount (in bytes) of local memory reserved.\n";
 
 static string VIEW_cuda_example =
     "\texpView cuda\n"
