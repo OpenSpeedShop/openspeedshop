@@ -49,15 +49,6 @@ namespace OpenSpeedShop { namespace Framework {
 
     public:
 
-        /** Enumeration of the different cache preferences. */
-        enum CachePreference {
-            InvalidCachePreference = 0,
-            NoPreference = 1,
-            PreferShared = 2,
-            PreferCache = 3,
-            PreferEqual = 4
-        };
-
         /** Vector of three unsigned integers. */
         typedef boost::tuple<unsigned int, unsigned int, unsigned int> Vector3u;
         
@@ -77,10 +68,6 @@ namespace OpenSpeedShop { namespace Framework {
         /** Operator "<" defined for two CUDAExecDetail objects. */
         bool operator<(const CUDAExecDetail& other) const
         {
-            if (getName() < other.getName())
-                return true;
-            if (getName() > other.getName())
-                return false;
             return TimeInterval(getTimeBegin(), getTimeEnd()) <
                 TimeInterval(other.getTimeBegin(), other.getTimeEnd());
         }
@@ -138,11 +125,9 @@ namespace OpenSpeedShop { namespace Framework {
         }
         
         /** Cache preference used. */
-        CachePreference getCachePreference() const
+        std::string getCachePreference() const
         {
-            return static_cast<CachePreference>(
-                dm_executed_kernel.cache_preference
-                );
+            return stringify(dm_executed_kernel.cache_preference);
         }
         
         /** Registers required for each thread. */
@@ -170,6 +155,20 @@ namespace OpenSpeedShop { namespace Framework {
         }
         
     private:
+
+        /** Stringify a CUDA_CachePreference. */
+        std::string stringify(const CUDA_CachePreference& value) const
+        {
+            switch (value)
+            {
+            case InvalidCachePreference: return "Invalid";
+            case NoPreference: return "None";
+            case PreferShared: return "Shared";
+            case PreferCache: return "Cache";
+            case PreferEqual: return "Equal";
+            }
+            return "?";
+        }
 
         /** Time spent in the kernel execution. */
         double dm_time;

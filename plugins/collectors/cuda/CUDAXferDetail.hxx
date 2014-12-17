@@ -24,9 +24,12 @@
 #include "config.h"
 #endif
 
+#include <string>
+
 #include "KrellInstitute/Messages/CUDA_data.h"
 
 #include "SmartPtr.hxx"
+#include "TotallyOrdered.hxx"
 
 #include "CUDADeviceDetail.hxx"
 
@@ -38,35 +41,11 @@ namespace OpenSpeedShop { namespace Framework {
      * Encapsulate the details metric (inclusive or exclusive) for CUDA data
      * transfers recorded by the CUDA collector.
      */
-    class CUDAXferDetail
+    class CUDAXferDetail :
+        public TotallyOrdered<CUDAXferDetail>
     {
 
     public:
-
-        /** Enumeration of the different memory kinds. */
-        enum MemoryKind {     
-            InvalidMemoryKind = 0,
-            UnknownMemoryKind = 1,
-            Pageable = 2,
-            Pinned = 3,
-            Device = 4,
-            Array = 5
-        };
-        
-        /** Enumeration of the different data transfer kinds. */
-        enum TransferKind {
-            InvalidTransferKind = 0,
-            UnknownTransferKind = 1,
-            HostToDevice = 2,
-            DeviceToHost = 3,
-            HostToArray = 4,
-            ArrayToHost = 5,
-            ArrayToArray = 6,
-            ArrayToDevice = 7,
-            DeviceToArray = 8,
-            DeviceToDevice = 9,
-            HostToHost = 10
-        };
 
         /** Constructor from raw CUDA messages. */
         CUDAXferDetail(const double& time,
@@ -78,6 +57,13 @@ namespace OpenSpeedShop { namespace Framework {
             dm_enqueue_request(enqueue_request),
             dm_copied_memory(copied_memory)
         {
+        }
+
+        /** Operator "<" defined for two CUDAXferDetail objects. */
+        bool operator<(const CUDAXferDetail& other) const
+        {
+            return TimeInterval(getTimeBegin(), getTimeEnd()) <
+                TimeInterval(other.getTimeBegin(), other.getTimeEnd());
         }
 
         /** Time spent in the kernel execution (in seconds). */
@@ -117,21 +103,21 @@ namespace OpenSpeedShop { namespace Framework {
         }
         
         /** Kind of data transfer performed. */
-        TransferKind getKind() const
+        std::string getKind() const
         {
-            return static_cast<TransferKind>(dm_copied_memory.kind);
+            return stringify(dm_copied_memory.kind);
         }
         
         /** Kind of memory from which the data transfer was performed. */
-        MemoryKind getSourceKind() const
+        std::string getSourceKind() const
         {
-            return static_cast<MemoryKind>(dm_copied_memory.source_kind);
+            return stringify(dm_copied_memory.source_kind);
         }
         
         /** Kind of memory to which the data transfer was performed. */
-        MemoryKind getDestinationKind() const
+        std::string getDestinationKind() const
         {
-            return static_cast<MemoryKind>(dm_copied_memory.destination_kind);
+            return stringify(dm_copied_memory.destination_kind);
         }
         
         /** Was the data transfer asynchronous? */
@@ -141,6 +127,41 @@ namespace OpenSpeedShop { namespace Framework {
         }
         
     private:
+ 
+        /** Stringify a CUDA_CopyKind. */
+        std::string stringify(const CUDA_CopyKind& value) const
+        {
+            switch (value)
+            {
+            case InvalidCopyKind: return "Invalid";
+            case UnknownCopyKind: return "Unknown";
+            case HostToDevice: return "HostToDevice";
+            case DeviceToHost: return "DeviceToHost";
+            case HostToArray: return "HostToArray";
+            case ArrayToHost: return "ArrayToHost";
+            case ArrayToArray: return "ArrayToArray";
+            case ArrayToDevice: return "ArrayToDevice";
+            case DeviceToArray: return "DeviceToArray";
+            case DeviceToDevice: return "DeviceToDevice";
+            case HostToHost: return "HostToHost";
+            }
+            return "?";
+        }
+
+        /** Stringify a CUDA_MemoryKind. */
+        std::string stringify(const CUDA_MemoryKind& value) const
+        {
+            switch (value)
+            {
+            case InvalidMemoryKind: return "Invalid";
+            case UnknownMemoryKind: return "Unknown";
+            case Pageable: return "Pageable";
+            case Pinned: return "Pinned";
+            case Device: return "Device";
+            case Array: return "Array";
+            }
+            return "?";
+        }
 
         /** Time spent in the data transfer. */
         double dm_time;
