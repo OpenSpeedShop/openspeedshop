@@ -270,7 +270,7 @@ namespace OpenSpeedShop { namespace Queries {
         virtual ~CUDAData();
         
         /** Call sites for all known CUDA requests. */       
-        const std::vector<Framework::StackTrace> call_sites() const
+        const std::vector<Framework::StackTrace>& call_sites() const
         {
             return dm_call_sites;
         }
@@ -287,6 +287,12 @@ namespace OpenSpeedShop { namespace Queries {
             return dm_devices;
         }
 
+        /** Earliest observed time. */
+        const Framework::Time& time_origin() const
+        {
+            return dm_time_origin;
+        }
+        
         /**
          * Get the counts for all sampled hardware peformance counters between
          * the specified time interval (if any).
@@ -380,7 +386,7 @@ namespace OpenSpeedShop { namespace Queries {
                 Framework::Time::TheEnd()
                 )
             ) const;
-        
+
     private:
 
         /** Description of a single pending request. */
@@ -425,6 +431,9 @@ namespace OpenSpeedShop { namespace Queries {
         /** Pending requests. */
         std::list<Request> dm_requests;
 
+        /** Earliest observed time. */
+        Framework::Time dm_time_origin;
+        
         /** Get the index in dm_devices for the specified context address. */
         std::vector<DeviceDetails>::size_type device_from_context(
             const Framework::Address& context

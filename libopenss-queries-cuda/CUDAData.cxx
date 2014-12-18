@@ -229,7 +229,8 @@ CUDAData::CUDAData(const Collector& collector, const Thread& thread) :
     dm_memory_copies(),
     dm_memory_sets(),
     dm_periodic_samples(),
-    dm_requests()
+    dm_requests(),
+    dm_time_origin(Time::TheEnd())
 {
     Assert(collector.getMetadata().getUniqueId() == "cuda");
     Assert(collector.inSameDatabase(thread));
@@ -238,7 +239,7 @@ CUDAData::CUDAData(const Collector& collector, const Thread& thread) :
         
     BEGIN_TRANSACTION(database);
     database->prepareStatement(
-        "SELECT data FROM Data WHERE collector = ? AND thread = ?;"
+        "SELECT time_begin, data FROM Data WHERE collector = ? AND thread = ?;"
         );
     database->bindArgument(1, EntrySpy(collector).getEntry());
     database->bindArgument(2, EntrySpy(thread).getEntry());
@@ -246,8 +247,14 @@ CUDAData::CUDAData(const Collector& collector, const Thread& thread) :
     {
         CBTF_cuda_data data;
         memset(&data, 0, sizeof(data));
+
+        Time t = database->getResultAsTime(1);
+        if (t < dm_time_origin)
+        {
+            dm_time_origin = t;
+        }
         
-        Blob blob = database->getResultAsBlob(1);
+        Blob blob = database->getResultAsBlob(2);
         blob.getXDRDecoding(
             reinterpret_cast<xdrproc_t>(xdr_CBTF_cuda_data), &data
             );

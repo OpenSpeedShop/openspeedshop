@@ -21,6 +21,7 @@
 #include <boost/optional.hpp>
 #include <boost/program_options.hpp>
 #include <boost/ref.hpp>
+#include <boost/shared_ptr.hpp>
 #include <cxxabi.h>
 #include <fstream>
 #include <iostream>
@@ -84,6 +85,38 @@ string xyz(const string& tag, const CUDAData::Vector3u& value)
            << " z=\"" << value.get<2>() << "\""
            << "/>" << endl;
     return stream.str();
+}
+
+
+
+/** Convert a thread into XML and output it to a stream. */
+void convert(const Thread& thread, ostream& xml)
+{
+    xml << endl << "<Thread>" << endl;
+    xml << "  <Host>" << thread.getHost() << "</Host>" << endl;
+    xml << "  <ProcessId>" << thread.getProcessId() << "</ProcessId>" << endl;
+    
+    pair<bool, pthread_t> posix = thread.getPosixThreadId();
+    if (posix.first)
+    {
+        xml << "  <PosixThreadId>" << posix.second 
+            << "</PosixThreadId>" << endl;
+    }
+
+    pair<bool, int> openmp = thread.getOpenMPThreadId();
+    if (openmp.first)
+    {
+        xml << "  <OpenMPThreadId>" << openmp.second
+            << "</OpenMPThreadId>" << endl;
+    }
+            
+    pair<bool, int> mpi = thread.getMPIRank();
+    if (mpi.first)
+    {
+        xml << "  <MPIRank>" << mpi.second << "</MPIRank>" << endl;
+    }
+    
+    xml << "</Thread>" << endl;    
 }
 
 
@@ -190,16 +223,18 @@ void convert(const vector<CUDAData::DeviceDetails>& devices, ostream& xml)
 
 /** Convert a kernel execution into XML and output it to a stream. */
 void convert_kernel_execution(
-    const CUDAData::KernelExecutionDetails& details, ostream& xml
+    const Time& time_origin,
+    const CUDAData::KernelExecutionDetails& details,
+    ostream& xml
     )
 {
     xml << endl << "<KernelExecution"
         << " call_site=\"" << details.call_site << "\""
         << " device=\"" << details.device << "\""
         ">" << endl;
-    xml << text("Time", details.time.getValue());
-    xml << text("TimeBegin", details.time_begin.getValue());
-    xml << text("TimeEnd", details.time_end.getValue());
+    xml << text("Time", details.time - time_origin);
+    xml << text("TimeBegin", details.time_begin - time_origin);
+    xml << text("TimeEnd", details.time_end - time_origin);
     xml << text("Function", demangle(details.function));
     xml << xyz("Grid", details.grid);
     xml << xyz("Block", details.block);
@@ -216,16 +251,18 @@ void convert_kernel_execution(
 
 /** Convert a memory copy into XML and output it to a stream. */
 void convert_memory_copy(
-    const CUDAData::MemoryCopyDetails& details, ostream& xml
+    const Time& time_origin,
+    const CUDAData::MemoryCopyDetails& details,
+    ostream& xml
     )
 {
     xml << endl << "<MemoryCopy"
         << " call_site=\"" << details.call_site << "\""
         << " device=\"" << details.device << "\""
         ">" << endl;
-    xml << text("Time", details.time.getValue());
-    xml << text("TimeBegin", details.time_begin.getValue());
-    xml << text("TimeEnd", details.time_end.getValue());
+    xml << text("Time", details.time - time_origin);
+    xml << text("TimeBegin", details.time_begin - time_origin);
+    xml << text("TimeEnd", details.time_end - time_origin);
     xml << text("Size", details.size);
     xml << text("Kind", CUDAData::stringify(details.kind));
     xml << text("SourceKind", CUDAData::stringify(details.source_kind));
@@ -239,16 +276,18 @@ void convert_memory_copy(
 
 /** Convert a memory set into XML and output it to a stream. */
 void convert_memory_set(
-    const CUDAData::MemorySetDetails& details, ostream& xml
+    const Time& time_origin,
+    const CUDAData::MemorySetDetails& details,
+    ostream& xml
     )
 {
     xml << endl << "<MemorySet"
         << " call_site=\"" << details.call_site << "\""
         << " device=\"" << details.device << "\""
         ">" << endl;
-    xml << text("Time", details.time.getValue());
-    xml << text("TimeBegin", details.time_begin.getValue());
-    xml << text("TimeEnd", details.time_end.getValue());
+    xml << text("Time", details.time - time_origin);
+    xml << text("TimeBegin", details.time_begin - time_origin);
+    xml << text("TimeEnd", details.time_end - time_origin);
     xml << text("Size", details.size);
     xml << "</MemorySet>" << endl;
 }
@@ -257,11 +296,14 @@ void convert_memory_set(
 
 /** Convert a periodic sample into XML and output it to a stream. */
 void convert_periodic_sample(
-    const Time& time, const vector<uint64_t>& counts, ostream& xml
+    const Time& time_origin,
+    const Time& time,
+    const vector<uint64_t>& counts,
+    ostream& xml
     )
 {
     xml << "<Sample>" << endl;
-    xml << text("Time", time.getValue());
+    xml << text("Time", time - time_origin);
     for (vector<uint64_t>::size_type i = 0; i < counts.size(); ++i)
     {
         xml << "  <Count counter=\"" << i << "\">"
@@ -273,40 +315,8 @@ void convert_periodic_sample(
 
 
 
-/** Convert a thread into XML and output it to a stream. */
-void convert(const Thread& thread, ostream& xml)
-{
-    xml << endl << "<Thread>" << endl;
-    xml << "  <Host>" << thread.getHost() << "</Host>" << endl;
-    xml << "  <ProcessId>" << thread.getProcessId() << "</ProcessId>" << endl;
-    
-    pair<bool, pthread_t> posix = thread.getPosixThreadId();
-    if (posix.first)
-    {
-        xml << "  <PosixThreadId>" << posix.second 
-            << "</PosixThreadId>" << endl;
-    }
-
-    pair<bool, int> openmp = thread.getOpenMPThreadId();
-    if (openmp.first)
-    {
-        xml << "  <OpenMPThreadId>" << openmp.second
-            << "</OpenMPThreadId>" << endl;
-    }
-            
-    pair<bool, int> mpi = thread.getMPIRank();
-    if (mpi.first)
-    {
-        xml << "  <MPIRank>" << mpi.second << "</MPIRank>" << endl;
-    }
-    
-    xml << "</Thread>" << endl;    
-}
-
-
-
 /** Convert CUDA performance data into XML and output it to a stream. */
-void convert(const CUDAData& data, ostream& xml)
+void convert(const Time& time_origin, const CUDAData& data, ostream& xml)
 {
     convert(data.call_sites(), xml);
     convert(data.counters(), xml);
@@ -315,7 +325,8 @@ void convert(const CUDAData& data, ostream& xml)
     boost::function<
         void (const CUDAData::KernelExecutionDetails&)
         > kernel_execution_visitor(
-            boost::bind(&convert_kernel_execution, _1, boost::ref(xml))
+            boost::bind(&convert_kernel_execution,
+                        boost::cref(time_origin), _1, boost::ref(xml))
             );
     
     data.visit_kernel_executions(kernel_execution_visitor);
@@ -323,7 +334,8 @@ void convert(const CUDAData& data, ostream& xml)
     boost::function<
         void (const CUDAData::MemoryCopyDetails&)
         > memory_copy_visitor(
-            boost::bind(&convert_memory_copy, _1, boost::ref(xml))
+            boost::bind(&convert_memory_copy,
+                        boost::cref(time_origin), _1, boost::ref(xml))
             );
     
     data.visit_memory_copies(memory_copy_visitor);
@@ -331,7 +343,8 @@ void convert(const CUDAData& data, ostream& xml)
     boost::function<
         void (const CUDAData::MemorySetDetails&)
         > memory_set_visitor(
-            boost::bind(&convert_memory_set, _1, boost::ref(xml))
+            boost::bind(&convert_memory_set,
+                        boost::cref(time_origin), _1, boost::ref(xml))
             );
     
     data.visit_memory_sets(memory_set_visitor);
@@ -339,7 +352,8 @@ void convert(const CUDAData& data, ostream& xml)
     boost::function<
         void (const Time&, const vector<uint64_t>&)
         > periodic_sample_visitor(
-            boost::bind(&convert_periodic_sample, _1, _2, boost::ref(xml))
+            boost::bind(&convert_periodic_sample,
+                        boost::cref(time_origin), _1, _2, boost::ref(xml))
             );
 
     xml << endl;
@@ -469,6 +483,17 @@ int main(int argc, char* argv[])
 
     *xml << "<?xml version=\"1.0\" encoding=\"utf-8\"?>" << endl;
     *xml << "<CUDA>" << endl;
+
+    //
+    // NOTE: Currently each dataset contains one (and only one) thread. Ideally
+    // in the future some sort of cluster analysis will be used to group similar
+    // performing threads together into a single dataset.
+    //
+
+    typedef vector<pair<ThreadGroup, shared_ptr<CUDAData> > > DataSets;
+    
+    Time time_origin = Time::TheEnd();
+    DataSets datasets;
     
     ThreadGroup threads = experiment.getThreads();
     for (ThreadGroup::const_iterator
@@ -479,11 +504,38 @@ int main(int argc, char* argv[])
         if (ranks.empty() || 
             (rank.first && (ranks.find(rank.second) != ranks.end())))
         {
-            *xml << endl << "<DataSet>" << endl;
-            convert(*i, *xml);
-            convert(CUDAData(*collector, *i), *xml);
-            *xml << endl << "</DataSet>" << endl;
+            ThreadGroup thread;
+            thread.insert(*i);
+
+            shared_ptr<CUDAData> data(new CUDAData(*collector, *i));
+            Time t = data->time_origin();
+            
+            if (t < time_origin)
+            {
+                time_origin = t;
+            }
+            
+            datasets.push_back(make_pair(thread, data));
         }
+    }
+
+    *xml << endl
+         << "<TimeOrigin>" << time_origin.getValue() << "</TimeOrigin>" << endl;
+
+    for (DataSets::const_iterator
+             i = datasets.begin(); i != datasets.end(); ++i)
+    {
+        *xml << endl << "<DataSet>" << endl;
+
+        for (ThreadGroup::const_iterator
+                 j = i->first.begin(); j != i->first.end(); ++j)
+        {
+            convert(*j, *xml);
+        }
+
+        convert(time_origin, *i->second.get(), *xml);
+
+        *xml << endl << "</DataSet>" << endl;        
     }
     
     *xml << endl << "</CUDA>" << endl;
