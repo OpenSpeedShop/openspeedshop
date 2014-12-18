@@ -33,6 +33,123 @@ using namespace std;
 
 
 
+static string VIEW_name = "cuda";
+static string VIEW_brief = "CUDA Performance Report";
+static string VIEW_short = "Report CUDA performance information.";
+
+static string VIEW_long  =
+    "\n"
+    "A positive integer can be added to the end of the keyword 'cuda' to "
+    "indicate the maximum number of items in the report.  When the '-v Trace' "
+    "option is selected, the selected items are the ones that use the most "
+    "time.  In all other cases the selection will be based on the values "
+    "displayed in left most column of the report.\n"
+    "\n"
+    "The form of the information displayed can be controlled through the '-v' "
+    "option.  Except for the '-v Trace' option, the report will be sorted in "
+    "descending order of the value in the left most column displayed on a "
+    "line. [See '-m' option for controlling this field.]\n"
+    "\n"
+    "The form of the information displayed can be controlled through the '-v' "
+    "option.\n"
+    "\t'-v Functions' will produce a summary report that will be sorted in "
+    "descending order of the value in the left most column (see the '-m' "
+    "option).  This is the default display.\n"
+    "\t'-v Trace' will produce a report of each individual call to a CUDA "
+    "kernel function.  It will be sorted in ascending order of the starting "
+    "time for the event.\n"
+    "\t'-v CallTrees' will produce a calling stack report that is presented "
+    "in calling tree order - from the start of the program to the measured "
+    "program.\n"
+    "\t'-v TraceBacks' will produce a calling stack report that is presented "
+    "in traceback order - from the measured function to the start of the "
+    "program.\n"
+    "\tThe addition of 'FullStack' with either 'CallTrees' of 'TraceBacks' "
+    "will cause the report to include the full call stack for each measured "
+    "function.  Redundant portions of a call stack are suppressed by default.\n"
+    "\tThe addition of 'Summary' to the '-v' option list along with "
+    "'Functions', 'CallTrees' or 'TraceBacks' will result in an additional "
+    "line of output at the end of the report that summarizes the information "
+    "in each column.\n"
+    "\tThe addition of 'SummaryOnly' to the '-v' option list along with "
+    "'Functions', 'CallTrees' or 'TraceBacks' or without those options will "
+    "cause only the one line of output at the end of the report that "
+    "summarizes the information in each column.\n"
+    "\t'-v ButterFly' along with a '-f <function_list>' will produce a report "
+    "that summarizes the calls to a function and the calls from the function.  "
+    "The calling functions will be listed before the named function and the "
+    "called functions afterwards, by default, although the addition of "
+    "'TraceBacks' to the '-v' specifier will reverse this ordering.\n"
+    "\n"
+    "The information included in the report can be controlled with the '-m' "
+    "option.  More than one item can be selected but only the items listed "
+    "after the option will be printed and they will be printed in the order "
+    "that they are listed.  Each value pertains to the function, statement or "
+    "linked object that is on that row of the report.  The 'Thread...' "
+    "selections pertain to the process unit that the program was partitioned "
+    "into: PID's, POSIX threads, MPI threads or ranks.  If no '-m' option is "
+    "specified, the default is equivalent to '-m exclusive_times, percent, "
+    "count', except for '-v Trace', where the default is equivalent to "
+    "'-m exclusive_times, percent, grid, block'.\n"
+    "The available '-m' options are:\n"
+    "\t'-m exclusive_times' reports the wall clock time used in the function.\n"
+    "\t'-m min' reports the minimum time spent in the function.\n"
+    "\t'-m max' reports the maximum time spent in the function.\n"
+    "\t'-m average' reports the average time spent in the function.\n"
+    "\t'-m count' reports the number of times the function was called.\n"
+    "\t'-m percent' reports the percent of time the function represents.\n"
+    "\t'-m stddev' reports the standard deviation of the average time "
+    "that the function represents."
+    // Get the description of the BY-Thread metrics
+    #include "SS_View_bythread_help.hxx"
+    "\n"
+    "The available '-v Trace -m' options are:\n"
+    "\t'-m grid' reports the dimensions of the grid.\n"
+    "\t'-m block' reports the dimensions of each block.\n"
+    "\t'-m cache' reports the cache preference used.\n"
+    "\t'-m rpt' reports the registers required for each thread.\n"
+    "\t'-m ssm' reports the total amount (in bytes) of static shared memory "
+    "reserved.\n"
+    "\t'-m dsm' reports the total amount (in bytes) of dynamic shared memory "
+    "reserved.\n"
+    "\t'-m lm' reports the total amount (in bytes) of local memory reserved.\n";
+
+static string VIEW_example =
+    "\texpView cuda\n"
+    "\texpView -v CallTrees,FullStack cuda10 -m min,max,count\n";
+
+static string VIEW_collectors[] = { "cuda", "" };
+
+static string VIEW_metrics[] = {
+    "cuda::count_exclusive_details",
+    "cuda::exec_exclusive_details",
+    "cuda::exec_inclusive_details",
+    "cuda::exec_time",
+    "cuda::xfer_exclusive_details",
+    "cuda::xfer_inclusive_details",
+    "cuda::xfer_time",
+    ""
+};
+
+static string VIEW_options[] = {
+    "Function",
+    "Functions",
+    "Trace",
+    "ButterFly",
+    "CallTree",
+    "CallTrees",
+    "TraceBack",
+    "TraceBacks",
+    "FullStack",
+    "FullStacks",
+    "DontExpand",
+    "Summary",
+    "SummaryOnly",
+    ""
+};
+
+
+
 // There are 2 reserved locations in the predefined-temporary table.
 // Additional items may be defined for individual collectors.
 
@@ -258,27 +375,6 @@ static bool Determine_Metric_Ordering(vector<ViewInstruction*>& IV)
 
 #include "SS_View_detail.txx"
 
-
-
-static string allowed_cuda_V_options[] = {
-    "Function",
-    "Functions",
-    "Trace",
-    "ButterFly",
-    "CallTree",
-    "CallTrees",
-    "TraceBack",
-    "TraceBacks",
-    "FullStack",
-    "FullStacks",
-    "DontExpand",
-    "Summary",
-    "SummaryOnly",
-    ""
-};
-
-
-
 #define PUSH_HV(x) HV.push_back(x)
 #define PUSH_IV(...) IV.push_back(new ViewInstruction(__VA_ARGS__))
 
@@ -401,9 +497,39 @@ static bool define_cuda_columns(CommandObject* cmd,
         vector<ParseRange>::iterator mi;
         for (mi = p_slist->begin(); mi != p_slist->end(); mi++)
         {
+            if ((*mi).getParseType() == PARSE_EXPRESSION_VALUE)
+            {
+                std::string header = "user expression";
+                ParseRange *pr = &(*mi);
+                if (pr->getOperation() == EXPRESSION_OP_HEADER)
+                {
+                    // Replace the default header with the first argument and
+                    // replace the original expression with the second argument
+                    header = pr->getExpression()->
+                        exp_operands[0]->getRange()->start_range.name;
+                    pr = pr->getExpression()->exp_operands[1];
+                }
+                
+                // Generate the instructions for the expression.
+                int64_t new_result = evaluate_parse_expression(
+                    cmd, exp, CV, MV, IV, HV, vfc,
+                    pr, last_used_temp, VIEW_name, MetricMap
+                    );
+                
+                if (new_result < 0)
+                {
+                    char s[100 + OPENSS_VIEW_FIELD_SIZE];
+                    sprintf(s, "Column %lld not be generated because "
+                            "of an error in the metric expression.",
+                            static_cast<long long int>(last_column));
+                    Mark_Cmd_With_Soft_Error(cmd, s);
+                    continue;
+                }
 
-            // Look for a metric expression and invoke processing.
-            #include "SS_View_metric_expressions.hxx"
+                PUSH_IV(VIEWINST_Display_Tmp, last_column++, new_result);
+                PUSH_HV(header);
+                continue;
+            }
 
             bool column_is_DateTime = false;
             parse_range_t* m_range = (*mi).getRange();
@@ -750,16 +876,19 @@ static bool define_cuda_columns(CommandObject* cmd,
                     //     cmd, string("AbsDiff option, '-m ") + M_Name + "'"
                     //     );
                 }
+
                 // Recognize and generate pseudo instructions to calculate and
                 // display By Thread metrics for ThreadMax, ThreadMaxIndex,
                 // ThreadMin, ThreadMinIndex, ThreadAverage and loadbalance.
                 #include "SS_View_bythread_recognize.hxx"
+
                 else
                 {
                     WARN(string("Warning: Unsupported option, '-m ") +
                          M_Name + "'");
                     return false;
                 }
+
             }
             if (last_column == 1)
             {
@@ -867,31 +996,9 @@ static bool cuda_definition(CommandObject* cmd,
                             vector<string>& HV,
                             View_Form_Category vfc)
 {
-    Assert(CV.begin() != CV.end());
-    CollectorGroup cgrp = exp->FW()->getCollectors();
-    Collector C = *CV.begin();
-
-    if (cgrp.find(C) == cgrp.end())
-    {
-        WARN(string("The required collector, ") +
-             C.getMetadata().getUniqueId() +
-             ", was not used in the experiment.");
-        return false;
-    }
-
-    string M_Name = MV[0];
-    MV.push_back(M_Name);
-
-    if (!Collector_Generates_Metric(*CV.begin(), M_Name))
-    {
-        WARN("The metrics required to generate the "
-             "view are not available in the experiment.");
-        return false;
-    }
-    
     // Warn about misspelled of meaningless options and
     // exit command processing without generating a view.
-    if (!Validate_V_Options(cmd, allowed_cuda_V_options))
+    if (!Validate_V_Options(cmd, VIEW_options))
     {
         return false;
     }
@@ -909,111 +1016,6 @@ static bool cuda_definition(CommandObject* cmd,
 
 
 
-static string VIEW_cuda_brief =
-    "CUDA Performance Report";
-
-static string VIEW_cuda_short =
-    "Report CUDA performance information.";
-
-static string VIEW_cuda_long  =
-    "\n"
-    "A positive integer can be added to the end of the keyword 'cuda' to "
-    "indicate the maximum number of items in the report.  When the '-v Trace' "
-    "option is selected, the selected items are the ones that use the most "
-    "time.  In all other cases the selection will be based on the values "
-    "displayed in left most column of the report.\n"
-    "\n"
-    "The form of the information displayed can be controlled through the '-v' "
-    "option.  Except for the '-v Trace' option, the report will be sorted in "
-    "descending order of the value in the left most column displayed on a "
-    "line. [See '-m' option for controlling this field.]\n"
-    "\n"
-    "The form of the information displayed can be controlled through the '-v' "
-    "option.\n"
-    "\t'-v Functions' will produce a summary report that will be sorted in "
-    "descending order of the value in the left most column (see the '-m' "
-    "option).  This is the default display.\n"
-    "\t'-v Trace' will produce a report of each individual call to a CUDA "
-    "kernel function.  It will be sorted in ascending order of the starting "
-    "time for the event.\n"
-    "\t'-v CallTrees' will produce a calling stack report that is presented "
-    "in calling tree order - from the start of the program to the measured "
-    "program.\n"
-    "\t'-v TraceBacks' will produce a calling stack report that is presented "
-    "in traceback order - from the measured function to the start of the "
-    "program.\n"
-    "\tThe addition of 'FullStack' with either 'CallTrees' of 'TraceBacks' "
-    "will cause the report to include the full call stack for each measured "
-    "function.  Redundant portions of a call stack are suppressed by default.\n"
-    "\tThe addition of 'Summary' to the '-v' option list along with "
-    "'Functions', 'CallTrees' or 'TraceBacks' will result in an additional "
-    "line of output at the end of the report that summarizes the information "
-    "in each column.\n"
-    "\tThe addition of 'SummaryOnly' to the '-v' option list along with "
-    "'Functions', 'CallTrees' or 'TraceBacks' or without those options will "
-    "cause only the one line of output at the end of the report that "
-    "summarizes the information in each column.\n"
-    "\t'-v ButterFly' along with a '-f <function_list>' will produce a report "
-    "that summarizes the calls to a function and the calls from the function.  "
-    "The calling functions will be listed before the named function and the "
-    "called functions afterwards, by default, although the addition of "
-    "'TraceBacks' to the '-v' specifier will reverse this ordering.\n"
-    "\n"
-    "The information included in the report can be controlled with the '-m' "
-    "option.  More than one item can be selected but only the items listed "
-    "after the option will be printed and they will be printed in the order "
-    "that they are listed.  Each value pertains to the function, statement or "
-    "linked object that is on that row of the report.  The 'Thread...' "
-    "selections pertain to the process unit that the program was partitioned "
-    "into: PID's, POSIX threads, MPI threads or ranks.  If no '-m' option is "
-    "specified, the default is equivalent to '-m exclusive_times, percent, "
-    "count', except for '-v Trace', where the default is equivalent to "
-    "'-m exclusive_times, percent, grid, block'.\n"
-    "The available '-m' options are:\n"
-    "\t'-m exclusive_times' reports the wall clock time used in the function.\n"
-    "\t'-m min' reports the minimum time spent in the function.\n"
-    "\t'-m max' reports the maximum time spent in the function.\n"
-    "\t'-m average' reports the average time spent in the function.\n"
-    "\t'-m count' reports the number of times the function was called.\n"
-    "\t'-m percent' reports the percent of time the function represents.\n"
-    "\t'-m stddev' reports the standard deviation of the average time "
-    "that the function represents."
-    // Get the description of the BY-Thread metrics
-    #include "SS_View_bythread_help.hxx"
-    "\n"
-    "The available '-v Trace -m' options are:\n"
-    "\t'-m grid' reports the dimensions of the grid.\n"
-    "\t'-m block' reports the dimensions of each block.\n"
-    "\t'-m cache' reports the cache preference used.\n"
-    "\t'-m rpt' reports the registers required for each thread.\n"
-    "\t'-m ssm' reports the total amount (in bytes) of static shared memory "
-    "reserved.\n"
-    "\t'-m dsm' reports the total amount (in bytes) of dynamic shared memory "
-    "reserved.\n"
-    "\t'-m lm' reports the total amount (in bytes) of local memory reserved.\n";
-
-static string VIEW_cuda_example =
-    "\texpView cuda\n"
-    "\texpView -v CallTrees,FullStack cuda10 -m min,max,count\n";
-
-static string VIEW_cuda_metrics[] = {
-    "cuda::count_exclusive_details",
-    "cuda::exec_exclusive_details",
-    "cuda::exec_inclusive_details",
-    "cuda::exec_time",
-    "cuda::xfer_exclusive_details",
-    "cuda::xfer_inclusive_details",
-    "cuda::xfer_time",
-    ""
-};
-
-static string VIEW_cuda_collectors[] = {
-    "cuda",
-    ""
-};
-
-
-
 class cuda_view :
     public ViewType
 {
@@ -1021,9 +1023,8 @@ class cuda_view :
 public: 
 
     cuda_view() : 
-        ViewType("cuda", VIEW_cuda_brief, VIEW_cuda_short,
-                 VIEW_cuda_long, VIEW_cuda_example,
-                 &VIEW_cuda_metrics[0], &VIEW_cuda_collectors[0], true)
+        ViewType(VIEW_name, VIEW_brief, VIEW_short, VIEW_long, VIEW_example,
+                 &VIEW_metrics[0], &VIEW_collectors[0], true)
     {
     }
     
@@ -1038,14 +1039,6 @@ public:
         vector<ViewInstruction*>IV;
         vector<string> HV;
         
-        // Define the collector and metric needed for getting main time values
-        CV.push_back(Get_Collector(exp->FW(), "cuda")); 
-        MV.push_back("exec_inclusive_details"); 
-        
-        // Define the collector and metric needed for calculating total time
-        CV.push_back(Get_Collector(exp->FW(), "cuda"));  
-        MV.push_back("exec_time"); 
-        
         View_Form_Category vfc = Determine_Form_Category(cmd);
         if (cuda_definition(cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc))
         {
@@ -1055,17 +1048,15 @@ public:
                 return false; // There is no collector, return.
             }
             
-            CUDAExecDetail* dummyDetail = NULL;
-            vector<CUDAExecDetail> dummyVector;
-            Framework::Function* dummyObject = NULL;
-            
             switch (Determine_Form_Category(cmd))
             {
                 
             case VFC_Trace:
                 return Detail_Trace_Report(
                     cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                    Determine_Metric_Ordering(IV), dummyDetail, view_output
+                    Determine_Metric_Ordering(IV),
+                    reinterpret_cast<CUDAExecDetail*>(NULL),
+                    view_output
                     );
                 
             case VFC_CallStack:
@@ -1073,22 +1064,29 @@ public:
                 {
                     return Detail_ButterFly_Report(
                         cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                        Determine_Metric_Ordering(IV), &dummyVector, view_output
+                        Determine_Metric_Ordering(IV),
+                        reinterpret_cast<vector<CUDAExecDetail>*>(NULL),
+                        view_output
                         );
                 }
                 else
                 {
                     return Detail_CallStack_Report(
                         cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                        Determine_Metric_Ordering(IV), &dummyVector, view_output
+                        Determine_Metric_Ordering(IV),
+                        reinterpret_cast<vector<CUDAExecDetail>*>(NULL),
+                        view_output
                         );
                 }
                 
             case VFC_Function:
                 return Detail_Base_Report(
                     cmd, exp, topn, tgrp, CV, MV, IV, HV,
-                    Determine_Metric_Ordering(IV), dummyObject,
-                    VFC_Function, &dummyVector, view_output
+                    Determine_Metric_Ordering(IV),
+                    reinterpret_cast<Framework::Function*>(NULL),
+                    VFC_Function,
+                    reinterpret_cast<vector<CUDAExecDetail>*>(NULL),
+                    view_output
                     );
                 
             }
