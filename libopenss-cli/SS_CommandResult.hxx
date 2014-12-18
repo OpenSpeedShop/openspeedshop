@@ -301,7 +301,7 @@ class CommandResult_Address :
 
   virtual std::string Form (int64_t fieldsize) {
     char s[OPENSS_VIEW_FIELD_SIZE];
-    sprintf ( s, "0x%llx", uint_value);
+    sprintf ( s, "0x%llx", static_cast<long long unsigned int>(uint_value));
     return std::string (s);
   }
   virtual PyObject * pyValue () {
@@ -363,7 +363,7 @@ class CommandResult_Uint :
 
   virtual std::string Form (int64_t fieldsize) {
     char s[OPENSS_VIEW_FIELD_SIZE];
-    sprintf ( s, "%lld", uint_value);
+    sprintf ( s, "%lld", static_cast<long long int>(uint_value));
     return std::string (s);
   }
   virtual PyObject * pyValue () {
@@ -434,7 +434,7 @@ class CommandResult_Int :
 
   virtual std::string Form (int64_t fieldsize) {
     char s[OPENSS_VIEW_FIELD_SIZE];
-    sprintf ( s, "%lld", int_value);
+    sprintf ( s, "%lld", static_cast<long long int>(int_value));
     return std::string (s);
   }
   virtual PyObject * pyValue () {
@@ -512,7 +512,8 @@ class CommandResult_Float :
     if (isnan(float_value)) return std::string ("nan");
     char F[20];
     F[0] = *("%"); // left justify in field
-    sprintf(&F[1], "%lld.%lldf\0", fieldsize, OPENSS_VIEW_PRECISION);
+    sprintf(&F[1], "%lld.%lldf\0", static_cast<long long int>(fieldsize),
+            static_cast<long long int>(OPENSS_VIEW_PRECISION));
 
     char s[OPENSS_VIEW_FIELD_SIZE];
     sprintf ( s, &F[0], float_value);
@@ -770,9 +771,10 @@ class CommandResult_Function :
           int64_t gotColumn = (int64_t)s.getColumn();
           char l[50];
           if (gotColumn > 0) {
-            sprintf( &l[0], "%lld:%lld", gotLine, gotColumn);
+            sprintf( &l[0], "%lld:%lld", static_cast<long long int>(gotLine),
+                     static_cast<long long int>(gotColumn));
           } else {
-            sprintf( &l[0], "%lld", gotLine);
+            sprintf( &l[0], "%lld", static_cast<long long int>(gotLine));
           }
           S = S + ": "
                 + ((OPENSS_VIEW_FULLPATH)
@@ -904,9 +906,10 @@ class CommandResult_Loop :
       int64_t gotColumn = (int64_t)s->getColumn();
       char l[50];
       if (gotColumn > 0) {
-        sprintf( &l[0], "%lld:%lld", gotLine, gotColumn);
+        sprintf( &l[0], "%lld:%lld", static_cast<long long int>(gotLine),
+                 static_cast<long long int>(gotColumn));
       } else {
-        sprintf( &l[0], "%lld", gotLine);
+        sprintf( &l[0], "%lld", static_cast<long long int>(gotLine));
       }
       S = (OPENSS_VIEW_FULLPATH) ? s->getPath() : s->getPath().getBaseName();
       S = S + "(" + std::string(l) + ")";
@@ -1037,9 +1040,10 @@ class CommandResult_Statement :
     char l[50];
 
     if (gotColumn > 0) {
-      sprintf( &l[0], "%lld:%lld", gotLine, gotColumn);
+      sprintf( &l[0], "%lld:%lld", static_cast<long long int>(gotLine),
+               static_cast<long long int>(gotColumn));
     } else {
-      sprintf( &l[0], "%lld", gotLine);
+      sprintf( &l[0], "%lld", static_cast<long long int>(gotLine));
     }
     std::string S = (OPENSS_VIEW_FULLPATH)
                         ? getPath()
@@ -1281,9 +1285,10 @@ class CommandResult_CallStackEntry : public CommandResult {
           int64_t gotColumn = (int64_t)S.getColumn();
           char l[50];
           if (gotColumn > 0) {
-            sprintf( &l[0], "%lld:%lld", gotLine, gotColumn);
+            sprintf( &l[0], "%lld:%lld", static_cast<long long int>(gotLine),
+                     static_cast<long long int>(gotColumn));
           } else {
-            sprintf( &l[0], "%lld", gotLine);
+            sprintf( &l[0], "%lld", static_cast<long long int>(gotLine));
           }
           Name = Name + " @ " + l + " in ";
         }
@@ -1291,7 +1296,7 @@ class CommandResult_CallStackEntry : public CommandResult {
         uint64_t V;
         ((CommandResult_LinkedObject *)CE)->Value(V);
         char l[50];
-        sprintf( &l[0], "+0x%llx", V);
+        sprintf( &l[0], "+0x%llx", static_cast<long long unsigned int>(V));
         std::string l_name;
         ((CommandResult_LinkedObject *)CE)->Value(l_name);
         Name = Name + " @ " + l_name + l + " in ";
@@ -1666,7 +1671,8 @@ class CommandResult_Interval : public CommandResult {
 
     char F[20];
     F[0] = *("%"); // left justify in field
-    sprintf(&F[1], "%lld.%lldf\0", fieldsize, OPENSS_VIEW_PRECISION);
+    sprintf(&F[1], "%lld.%lldf\0", static_cast<long long int>(fieldsize),
+            static_cast<long long int>(OPENSS_VIEW_PRECISION));
 
     char s[OPENSS_VIEW_FIELD_SIZE];
     sprintf ( s, &F[0], float_value);

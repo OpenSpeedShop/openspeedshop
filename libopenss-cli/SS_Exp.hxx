@@ -71,7 +71,7 @@ class ExperimentObject
 
   std::string create_savedFileName( std::string base_name, int64_t cnt ) {
     char base[32];
-    snprintf(base, 32, ".%lld.view", cnt);
+    snprintf(base, 32, ".%lld.view", static_cast<long long int>(cnt));
     std::string new_name = base_name + std::string(base);
 
 #if DEBUG_REUSEVIEWS
@@ -255,9 +255,10 @@ class ExperimentObject
       bool database_not_allocated = true;
       Data_File_Has_A_Generated_Name = !OPENSS_SAVE_EXPERIMENT_DATABASE;
       if (OPENSS_SAVE_EXPERIMENT_DATABASE) {
-        char *database_directory = getenv("OPENSS_DB_DIR");
+        const char *database_directory = getenv("OPENSS_DB_DIR");
         if (database_directory == NULL) {
-             database_directory = ".";
+            static const char* const kPeriod = ".";
+             database_directory = kPeriod;
         }
        // Try to create a file in the current directory
        // of the form "X<exp_id>.XXXX.openss".
@@ -268,7 +269,9 @@ class ExperimentObject
         char base[256];
         int64_t cnt = 0;
         for (cnt = 0; cnt < 1000; cnt++) {
-          snprintf(base, 256, "%s/X%lld.%lld.openss",database_directory, Exp_ID, cnt);
+          snprintf(base, 256, "%s/X%lld.%lld.openss", database_directory,
+                   static_cast<long long int>(Exp_ID),
+                   static_cast<long long int>(cnt));
       
           int fd;
           if ((fd = open(base, O_RDONLY)) != -1) {
@@ -438,14 +441,16 @@ class ExperimentObject
      // Create a file in /tmp, for fastest access,
      // of the form "X<exp_id>.XXXXXX.openss".
      char base[L_tmpnam];
-     snprintf(base, L_tmpnam, "X%lld.",LocalExpId);
+     snprintf(base, L_tmpnam, "X%lld.", static_cast<long long int>(LocalExpId));
      char *database_directory = getenv("OPENSS_DB_DIR");
      char *tName = NULL;
      char tmp_tName[256];
      if (database_directory) {
         int64_t cnt = 0;
         for (cnt = 0; cnt < 1000; cnt++) {
-         snprintf(tmp_tName, 256, "%s/X%lld.%lld.openss",database_directory, LocalExpId, cnt);
+         snprintf(tmp_tName, 256, "%s/X%lld.%lld.openss", database_directory,
+                  static_cast<long long int>(LocalExpId),
+                  static_cast<long long int>(cnt));
          Assert(tmp_tName != NULL);
 
          int fd;

@@ -367,7 +367,7 @@ struct ltST {
     int64_t calls_In_stack = (SubExtents.begin() == SubExtents.end())            \
                                ? 1 : stack_contains_N_calls (st, SubExtents);    \
     if (DEBUG_FLAG) {                                                            \
-       printf("IN Accumulate_Stack, calls_In_stack=%d \n", calls_In_stack);      \
+      printf("IN Accumulate_Stack, calls_In_stack=%d \n", static_cast<int>(calls_In_stack)); \
     }                                                                            \
                                                                                  \
    /* Use macro to accumulate all the separate samples. */                       \
@@ -379,13 +379,13 @@ struct ltST {
         Exclusive_time is the same as inclusive_time.                            \
         Deeper calls must go without exclusive_time. */                          \
       if (DEBUG_FLAG) {                                                          \
-         printf("IN Accumulate_Stack, before calling get_exclusive_values, calls_In_stack=%d\n", calls_In_stack);\
+        printf("IN Accumulate_Stack, before calling get_exclusive_values, calls_In_stack=%d\n", static_cast<int>(calls_In_stack)); \
       }                                                                          \
                                                                                  \
       get_exclusive_values (details, calls_In_stack)                             \
                                                                                  \
       if (DEBUG_FLAG) {                                                          \
-         printf("IN Accumulate_Stack, after calling get_exclusive_values, calls_In_stack=%d\n", calls_In_stack);\
+        printf("IN Accumulate_Stack, after calling get_exclusive_values, calls_In_stack=%d\n", static_cast<int>(calls_In_stack)); \
       }                                                                          \
     }                                                                            \
                                                                                  \
@@ -422,7 +422,7 @@ struct ltST {
     int64_t calls_In_stack = (SubExtents.begin() == SubExtents.end())            \
                                ? 1 : stack_contains_N_calls (st, SubExtents);    \
    if (DEBUG_FLAG) {                                                             \
-    printf("IN Accumulate_CallStack, calls_In_stack=%d \n", calls_In_stack);     \
+     printf("IN Accumulate_CallStack, calls_In_stack=%d \n", static_cast<int>(calls_In_stack)); \
    }                                                                             \
                                                                                  \
    /* Use macro to accumulate all the separate samples. */                       \
@@ -431,13 +431,13 @@ struct ltST {
    /* Always record exclusive_time. */                                           \
                                                                                  \
       if (DEBUG_FLAG) {                                                          \
-         printf("IN Accumulate_CallStack, before calling get_exclusive_values, calls_In_stack=%d\n", calls_In_stack);\
+        printf("IN Accumulate_CallStack, before calling get_exclusive_values, calls_In_stack=%d\n", static_cast<int>(calls_In_stack)); \
       }                                                                          \
                                                                                  \
       get_exclusive_values (details, calls_In_stack)                             \
                                                                                  \
       if (DEBUG_FLAG) {                                                          \
-         printf("IN Accumulate_CallStack, after calling get_exclusive_values, calls_In_stack=%d\n", calls_In_stack);\
+        printf("IN Accumulate_CallStack, after calling get_exclusive_values, calls_In_stack=%d\n", static_cast<int>(calls_In_stack)); \
       }                                                                          \
                                                                                  \
    /* Remember that we have now processed this particular StackTrace. */         \

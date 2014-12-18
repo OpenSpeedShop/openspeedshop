@@ -20,7 +20,7 @@
         if (new_result < 0) {
           char s[100+OPENSS_VIEW_FIELD_SIZE];
           sprintf ( s, "Column %lld not generated because of an error in the metric expression.",
-                    (last_column) );
+                    static_cast<long long int>(last_column) );
           Mark_Cmd_With_Soft_Error(cmd,s);
           continue; // Allow other columns to be generated - 'return false;' would abort view.
         }
