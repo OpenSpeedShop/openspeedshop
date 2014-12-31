@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2008-2011 The Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2015 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -132,7 +132,7 @@ void mpi_recv_init
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
 void __wrap_mpi_recv_init
 #endif
-   (void* buf, 
+   (char* buf, 
     MPI_Fint* count, 
     MPI_Datatype* datatype, 
     MPI_Fint* source, 
@@ -141,10 +141,15 @@ void __wrap_mpi_recv_init
     MPI_Request *request,
     MPI_Fint* ierr)
 {
-  *ierr = MPI_Recv_init(buf, *count, *datatype, *source, *tag, *comm, request);
+/*
+  *ierr = MPI_Recv_init(buf, *count, *datatype, *source, *tag, MPI_Comm_f2c(*comm), request);
+*/
+  MPI_Request l_request;
+  *ierr = MPI_Recv_init(buf, *count, MPI_Type_f2c(*datatype), *source, *tag, MPI_Comm_f2c(*comm), &l_request);
+  if (*ierr == MPI_SUCCESS) *request = MPI_Request_c2f(l_request); 
 }
 OSS_WRAP_FORTRAN(MPI_RECV_INIT,mpi_recv_init,__wrap_mpi_recv_init,
-   (void* buf, 
+   (char* buf, 
     MPI_Fint* count, 
     MPI_Datatype* datatype, 
     MPI_Fint* source, 
@@ -153,6 +158,7 @@ OSS_WRAP_FORTRAN(MPI_RECV_INIT,mpi_recv_init,__wrap_mpi_recv_init,
     MPI_Request *request,
     MPI_Fint* ierr),
     (buf, count, datatype, source, tag, comm, request, ierr))
+
   
 /*
  * MPI_Iprobe
@@ -269,7 +275,7 @@ OSS_WRAP_FORTRAN(MPI_BSEND,mpi_bsend,__wrap_mpi_bsend,
     MPI_Fint* datatype, 
     MPI_Fint* dest, 
     MPI_Fint* tag, 
-    MPI_Fint* comm, 
+    MPI_Comm* comm, 
     MPI_Fint* ierr),
    (buf, count, datatype, dest, tag, comm, ierr))
   
@@ -566,7 +572,6 @@ OSS_WRAP_FORTRAN(MPI_SSEND,mpi_ssend,__wrap_mpi_ssend,
    (buf, count, datatype, dest, tag, comm, ierr))
 
   
-  
 /*
  * MPI_Ssend_init
  */
@@ -642,7 +647,6 @@ OSS_WRAP_FORTRAN(MPI_WAITALL,mpi_waitall,__wrap_mpi_waitall,
     MPI_Fint array_of_statuses[][MPI_STATUS_SIZE],
     MPI_Fint* ierr),
    (count, array_of_requests, array_of_statuses, ierr))
-
 
 
 /*
@@ -861,7 +865,7 @@ void __wrap_mpi_unpack
     MPI_Fint* ierr)
 {
   *ierr = MPI_Unpack(inbuf,*insize,*position,outbuf,*outcount,
-			*datatype,MPI_Comm_f2c(*comm));
+			MPI_Type_f2c(*datatype), MPI_Comm_f2c(*comm));
 }
 OSS_WRAP_FORTRAN(MPI_UNPACK,mpi_unpack,__wrap_mpi_unpack,
    (char* inbuf, 
@@ -1111,7 +1115,6 @@ OSS_WRAP_FORTRAN(MPI_REDUCE_SCATTER,mpi_reduce_scatter,__wrap_mpi_reduce_scatter
     MPI_Fint* ierr),
    (sendbuf, recvbuf, recvcounts, datatype, op, comm, ierr))
 
-
 /*
  * MPI_Reduce
  */
@@ -1160,7 +1163,7 @@ void __wrap_mpi_pack
     char *outbuf, 
     MPI_Fint* outsize, 
     MPI_Fint *position, 
-    MPI_Fint* comm,
+    MPI_Comm* comm,
     MPI_Fint* ierr)
 {
   *ierr = MPI_Pack(inbuf,*incount, MPI_Type_f2c(*datatype),outbuf,
@@ -1173,7 +1176,7 @@ OSS_WRAP_FORTRAN(MPI_PACK,mpi_pack,__wrap_mpi_pack,
     char *outbuf, 
     MPI_Fint* outsize, 
     MPI_Fint *position, 
-    MPI_Fint* comm,
+    MPI_Comm* comm,
     MPI_Fint* ierr),
    (inbuf, incount, datatype, outbuf, outsize, position, comm, ierr))
 
@@ -1220,6 +1223,8 @@ OSS_WRAP_FORTRAN(MPI_GET_COUNT,mpi_get_count,__wrap_mpi_get_count,
    (status, datatype, count, ierr))
 
 
+/* This needs to be commented out for kestral to work (#if 0) */
+#if 1
 /*
  * MPI_Gatherv
  */
@@ -1257,6 +1262,7 @@ OSS_WRAP_FORTRAN(MPI_GATHERV,mpi_gatherv,__wrap_mpi_gatherv,
     MPI_Fint* ierr),
    (sendbuf, sendcount, sendtype, recvbuf, recvcounts, displs, recvtype, root, comm, ierr))
 
+#endif
 
 /*
  * MPI_Gather
@@ -1310,7 +1316,6 @@ int __wrap_mpi_cancel
 OSS_WRAP_FORTRAN(MPI_CANCEL,mpi_cancel,__wrap_mpi_cancel,
    (MPI_Fint *request, MPI_Fint* ierr),
    (request,ierr))
-
 
 /*
  * MPI_Bcast
@@ -1690,9 +1695,6 @@ OSS_WRAP_FORTRAN(MPI_SENDRECV_REPLACE,mpi_sendrecv_replace,__wrap_mpi_sendrecv_r
      MPI_Fint* ierr),
     (buf, count, datatype, dest, sendtag, source, recvtag, comm, status, ierr))
 
-
-#if 0
-
 /*
  *-----------------------------------------------------------------------------
  *
@@ -1741,7 +1743,6 @@ void __wrap_mpi_graph_create
                       MPI_Comm* comm_graph)
 {
 }
-#endif
 
 #if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 void mpi_intercomm_create

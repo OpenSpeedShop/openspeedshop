@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2008-2013 The Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2015 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -132,7 +132,7 @@ void mpi_recv_init
 #elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
 void __wrap_mpi_recv_init
 #endif
-   (void* buf, 
+   (char* buf, 
     MPI_Fint* count, 
     MPI_Datatype* datatype, 
     MPI_Fint* source, 
@@ -141,10 +141,12 @@ void __wrap_mpi_recv_init
     MPI_Request *request,
     MPI_Fint* ierr)
 {
-  *ierr = MPI_Recv_init(buf, *count, *datatype, *source, *tag, *comm, request);
+  MPI_Request l_request;
+  *ierr = MPI_Recv_init(buf, *count, MPI_Type_f2c(*datatype), *source, *tag, MPI_Comm_f2c(*comm), &l_request);
+  if (*ierr == MPI_SUCCESS) *request = MPI_Request_c2f(l_request); 
 }
 OSS_WRAP_FORTRAN(MPI_RECV_INIT,mpi_recv_init,__wrap_mpi_recv_init,
-   (void* buf, 
+   (char* buf, 
     MPI_Fint* count, 
     MPI_Datatype* datatype, 
     MPI_Fint* source, 
@@ -153,6 +155,7 @@ OSS_WRAP_FORTRAN(MPI_RECV_INIT,mpi_recv_init,__wrap_mpi_recv_init,
     MPI_Request *request,
     MPI_Fint* ierr),
     (buf, count, datatype, source, tag, comm, request, ierr))
+
   
 /*
  * MPI_Iprobe
@@ -269,7 +272,7 @@ OSS_WRAP_FORTRAN(MPI_BSEND,mpi_bsend,__wrap_mpi_bsend,
     MPI_Fint* datatype, 
     MPI_Fint* dest, 
     MPI_Fint* tag, 
-    MPI_Fint* comm, 
+    MPI_Comm* comm, 
     MPI_Fint* ierr),
    (buf, count, datatype, dest, tag, comm, ierr))
   
@@ -566,7 +569,6 @@ OSS_WRAP_FORTRAN(MPI_SSEND,mpi_ssend,__wrap_mpi_ssend,
    (buf, count, datatype, dest, tag, comm, ierr))
 
   
-  
 /*
  * MPI_Ssend_init
  */
@@ -642,7 +644,6 @@ OSS_WRAP_FORTRAN(MPI_WAITALL,mpi_waitall,__wrap_mpi_waitall,
     MPI_Fint array_of_statuses[][MPI_STATUS_SIZE],
     MPI_Fint* ierr),
    (count, array_of_requests, array_of_statuses, ierr))
-
 
 
 /*
@@ -861,7 +862,7 @@ void __wrap_mpi_unpack
     MPI_Fint* ierr)
 {
   *ierr = MPI_Unpack(inbuf,*insize,*position,outbuf,*outcount,
-			*datatype,MPI_Comm_f2c(*comm));
+			MPI_Type_f2c(*datatype), MPI_Comm_f2c(*comm));
 }
 OSS_WRAP_FORTRAN(MPI_UNPACK,mpi_unpack,__wrap_mpi_unpack,
    (char* inbuf, 
@@ -1111,7 +1112,6 @@ OSS_WRAP_FORTRAN(MPI_REDUCE_SCATTER,mpi_reduce_scatter,__wrap_mpi_reduce_scatter
     MPI_Fint* ierr),
    (sendbuf, recvbuf, recvcounts, datatype, op, comm, ierr))
 
-
 /*
  * MPI_Reduce
  */
@@ -1160,7 +1160,7 @@ void __wrap_mpi_pack
     char *outbuf, 
     MPI_Fint* outsize, 
     MPI_Fint *position, 
-    MPI_Fint* comm,
+    MPI_Comm* comm,
     MPI_Fint* ierr)
 {
   *ierr = MPI_Pack(inbuf,*incount, MPI_Type_f2c(*datatype),outbuf,
@@ -1173,7 +1173,7 @@ OSS_WRAP_FORTRAN(MPI_PACK,mpi_pack,__wrap_mpi_pack,
     char *outbuf, 
     MPI_Fint* outsize, 
     MPI_Fint *position, 
-    MPI_Fint* comm,
+    MPI_Comm* comm,
     MPI_Fint* ierr),
    (inbuf, incount, datatype, outbuf, outsize, position, comm, ierr))
 
@@ -1310,7 +1310,6 @@ int __wrap_mpi_cancel
 OSS_WRAP_FORTRAN(MPI_CANCEL,mpi_cancel,__wrap_mpi_cancel,
    (MPI_Fint *request, MPI_Fint* ierr),
    (request,ierr))
-
 
 /*
  * MPI_Bcast
@@ -1690,9 +1689,6 @@ OSS_WRAP_FORTRAN(MPI_SENDRECV_REPLACE,mpi_sendrecv_replace,__wrap_mpi_sendrecv_r
      MPI_Fint* ierr),
     (buf, count, datatype, dest, sendtag, source, recvtag, comm, status, ierr))
 
-
-#if 0
-
 /*
  *-----------------------------------------------------------------------------
  *
@@ -1741,7 +1737,6 @@ void __wrap_mpi_graph_create
                       MPI_Comm* comm_graph)
 {
 }
-#endif
 
 #if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
 void mpi_intercomm_create
@@ -1918,8 +1913,8 @@ OSS_WRAP_FORTRAN(MPI_STARTALL,mpi_startall,__wrap_mpi_startall,
     (count, array_of_requests, ierr))
 
 
-
-#if 0
+/* this needs to be commented out (#if 0) for kestral to work */
+#if 1
 /*
  * MPI_File_open
  */
@@ -1936,16 +1931,13 @@ void __wrap_mpi_file_open
     MPI_Fint* mfile,
     MPI_Fint* ierr)
 {
-
-  MPI_Comm local_comm;
-  MPI_Info local_info;
+#if 1
   MPI_File local_mfile;
-  local_comm = MPI_Comm_f2c(*comm);
-  local_info = MPI_Info_f2c(*info);
-
-  *ierr = MPI_File_open(local_comm, filename, *amode, local_info, &local_mfile);
+  *ierr = MPI_File_open(MPI_Comm_f2c(*comm), filename, *amode, MPI_Info_f2c(*info), &local_mfile);
   *mfile = MPI_File_c2f(local_mfile);
-
+#else
+  *ierr = MPI_File_open(MPI_Comm_f2c(*comm), filename, *amode, MPI_Info_f2c(*info), MPI_Info_c2f(*mfile));
+#endif
 }
 OSS_WRAP_FORTRAN(MPI_FILE_OPEN,mpi_file_open,__wrap_mpi_file_open,
   ( MPI_Fint* comm,
@@ -1957,43 +1949,6 @@ OSS_WRAP_FORTRAN(MPI_FILE_OPEN,mpi_file_open,__wrap_mpi_file_open,
     (comm, filename, amode, info, mfile, ierr))
 
 #endif
-
-/*
- * MPI_File_open
- */
-
-#if defined (OPENSS_OFFLINE) && !defined(OPENSS_STATIC)
-void mpi_file_open
-#elif defined (OPENSS_STATIC) && defined (OPENSS_OFFLINE)
-void __wrap_mpi_file_open
-#endif
-  ( MPI_Fint* comm,
-    char* filename,
-    MPI_Fint* amode,
-    MPI_Fint* info,
-    MPI_Fint* mfile,
-    MPI_Fint* ierr)
-{
-
-  MPI_Comm local_comm;
-  MPI_Info local_info;
-  MPI_File local_mfile;
-  local_comm = MPI_Comm_f2c(*comm);
-  local_info = MPI_Info_f2c(*info);
-
-  *ierr = MPI_File_open(local_comm, filename, *amode, local_info, &local_mfile);
-  *mfile = MPI_File_c2f(local_mfile);
-
-}
-OSS_WRAP_FORTRAN(MPI_FILE_OPEN,mpi_file_open,__wrap_mpi_file_open,
-  ( MPI_Fint* comm,
-    char* filename,
-    MPI_Fint* amode,
-    MPI_Fint* info,
-    MPI_Fint* mfile,
-    MPI_Fint *ierr),
-    (comm, filename, amode, info, mfile, ierr))
-
 
 /*
  * MPI_File_close
@@ -2008,17 +1963,22 @@ void __wrap_mpi_file_close
     MPI_Fint* ierr)
 {
 
+#if 1
   MPI_File local_mfile;
   local_mfile = MPI_File_f2c(*mfile);
 
   *ierr = MPI_File_close( &local_mfile);
   *mfile = MPI_File_c2f(local_mfile);
+#else
+  *ierr = MPI_File_close(*mfile);
+#endif
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_CLOSE,mpi_file_close,__wrap_mpi_file_close,
   ( MPI_Fint* mfile,
     MPI_Fint *ierr),
     (mfile, ierr))
+
 
 /*
  * MPI_File_delete
@@ -2030,12 +1990,11 @@ void mpi_file_delete
 void __wrap_mpi_file_delete
 #endif
   ( char* filename,
-    MPI_Info info,
+    MPI_Fint* info,
     MPI_Fint* ierr)
 {
 
-
-  *ierr = MPI_File_delete( filename, info);
+  *ierr = MPI_File_delete( filename, MPI_Info_f2c(*info));
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_DELETE,mpi_file_delete,__wrap_mpi_file_delete,
@@ -2059,10 +2018,7 @@ void __wrap_mpi_file_set_size
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
-  local_mfile = MPI_File_f2c(*mfile);
-  *ierr = MPI_File_set_size( local_mfile, size);
+  *ierr = MPI_File_set_size( MPI_File_f2c(*mfile), *size);
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_SET_SIZE,mpi_file_set_size,__wrap_mpi_file_set_size,
@@ -2085,10 +2041,7 @@ void __wrap_mpi_file_get_size
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
-  local_mfile = MPI_File_f2c(*mfile);
-  *ierr = MPI_File_get_size( local_mfile, size);
+  *ierr = MPI_File_get_size( MPI_File_f2c(*mfile), size);
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_GET_SIZE,mpi_file_get_size,__wrap_mpi_file_get_size,
@@ -2112,10 +2065,8 @@ void __wrap_mpi_file_get_group
 {
 
 
-  MPI_File local_mfile;
   MPI_Group local_group;
-  local_mfile = MPI_File_f2c(*mfile);
-  *ierr = MPI_File_get_group( local_mfile, &local_group);
+  *ierr = MPI_File_get_group( MPI_File_f2c(*mfile), &local_group);
   *group = MPI_Group_c2f(local_group);
 
 
@@ -2137,22 +2088,19 @@ void mpi_file_get_info
 void __wrap_mpi_file_get_info
 #endif
   ( MPI_Fint* mfile,
-    MPI_Info* info,
+    MPI_Fint* info,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Info local_info;
-  local_mfile = MPI_File_f2c(*mfile);
-  *ierr = MPI_File_get_info( local_mfile, &local_info);
+  *ierr = MPI_File_get_info( MPI_File_f2c(*mfile), &local_info);
   *info = MPI_Info_c2f(local_info);
 
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_GET_INFO,mpi_file_get_info,__wrap_mpi_file_get_info,
   ( MPI_Fint* mfile,
-    MPI_Info* info,
+    MPI_Fint* info,
     MPI_Fint *ierr),
     (mfile, info, ierr))
 
@@ -2175,11 +2123,9 @@ void __wrap_mpi_file_get_view
 {
 
 
-  MPI_File local_mfile;
   MPI_Datatype local_etype;
   MPI_Datatype local_filetype;
-  local_mfile = MPI_File_f2c(*mfile);
-  *ierr = MPI_File_get_view( local_mfile, offset, &local_etype, &local_filetype, datarep);
+  *ierr = MPI_File_get_view( MPI_File_f2c(*mfile), offset, &local_etype, &local_filetype, datarep);
   *filetype = MPI_Type_c2f(local_filetype);
   *etype = MPI_Type_c2f(local_etype);
 
@@ -2205,7 +2151,7 @@ void mpi_file_set_view
 void __wrap_mpi_file_set_view
 #endif
   ( MPI_Fint* mfile,
-    MPI_Offset* offset,
+    MPI_Offset offset,
     MPI_Fint* etype,
     MPI_Fint* filetype,
     char* datarep,
@@ -2213,16 +2159,7 @@ void __wrap_mpi_file_set_view
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
-  MPI_Datatype local_etype;
-  MPI_Datatype local_filetype;
-  MPI_Info local_info;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_filetype = MPI_Type_f2c(*filetype);
-  local_etype = MPI_Type_f2c(*etype);
-  local_info = MPI_Info_f2c(*info);
-  *ierr = MPI_File_set_view( local_mfile, offset, local_etype, local_filetype, datarep, local_info);
+  *ierr = MPI_File_set_view( MPI_File_f2c(*mfile), offset, MPI_Type_f2c(*etype), MPI_Type_f2c(*filetype), datarep, MPI_Info_f2c(*info));
 
 
 }
@@ -2251,11 +2188,7 @@ void __wrap_mpi_file_get_amode
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
-  local_mfile = MPI_File_f2c(*mfile);
-  *ierr = MPI_File_get_amode( local_mfile, amode);
-
+  *ierr = MPI_File_get_amode( MPI_File_f2c(*mfile), amode);
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_GET_AMODE,mpi_file_get_amode,__wrap_mpi_file_get_amode,
@@ -2276,22 +2209,17 @@ void mpi_file_set_info
 void __wrap_mpi_file_set_info
 #endif
   ( MPI_Fint* mfile,
-    MPI_Info* info,
+    MPI_Fint* info,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
-  MPI_Info local_info;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_info = MPI_Info_f2c(*info);
-  *ierr = MPI_File_set_info( local_mfile, local_info);
+  *ierr = MPI_File_set_info( MPI_File_f2c(*mfile), MPI_Info_f2c(*info));
 
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_SET_INFO,mpi_file_set_info,__wrap_mpi_file_set_info,
   ( MPI_Fint* mfile,
-    MPI_Info* info,
+    MPI_Fint* info,
     MPI_Fint *ierr),
     (mfile, info, ierr))
 
@@ -2309,17 +2237,13 @@ void __wrap_mpi_file_write
     char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
 
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_write( local_mfile, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_write( MPI_File_f2c(*mfile), buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
 
 
@@ -2329,10 +2253,9 @@ OSS_WRAP_FORTRAN(MPI_FILE_WRITE,mpi_file_write,__wrap_mpi_file_write,
     char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, buf, count, datatype, status, ierr))
-
 
 
 /*
@@ -2346,20 +2269,15 @@ void __wrap_mpi_file_write_at
 #endif
   ( MPI_Fint* mfile,
     MPI_Offset* offset, 
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_write_at( local_mfile, *offset, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_write_at( MPI_File_f2c(*mfile), *offset, buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
 
 
@@ -2367,10 +2285,10 @@ void __wrap_mpi_file_write_at
 OSS_WRAP_FORTRAN(MPI_FILE_WRITE_AT,mpi_file_write_at,__wrap_mpi_file_write_at,
   ( MPI_Fint* mfile,
     MPI_Offset* offset, 
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, offset, buf, count, datatype, status, ierr))
 
@@ -2386,20 +2304,15 @@ void __wrap_mpi_file_write_at_all
 #endif
   ( MPI_Fint* mfile,
     MPI_Offset* offset, 
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_write_at_all( local_mfile, *offset, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_write_at_all( MPI_File_f2c(*mfile), *offset, buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
 
 
@@ -2407,10 +2320,10 @@ void __wrap_mpi_file_write_at_all
 OSS_WRAP_FORTRAN(MPI_FILE_WRITE_AT_ALL,mpi_file_write_at_all,__wrap_mpi_file_write_at_all,
   ( MPI_Fint* mfile,
     MPI_Offset* offset, 
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, offset, buf, count, datatype, status, ierr))
 
@@ -2425,30 +2338,25 @@ void mpi_file_write_ordered
 void __wrap_mpi_file_write_ordered
 #endif
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_write_ordered( local_mfile, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_write_ordered( MPI_File_f2c(*mfile), buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
 
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_WRITE_ORDERED,mpi_file_write_ordered,__wrap_mpi_file_write_ordered,
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, buf, count, datatype, status, ierr))
 
@@ -2464,30 +2372,24 @@ void mpi_file_write_shared
 void __wrap_mpi_file_write_shared
 #endif
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_write_shared( local_mfile, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_write_shared( MPI_File_f2c(*mfile), buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
-
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_WRITE_SHARED,mpi_file_write_shared,__wrap_mpi_file_write_shared,
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, buf, count, datatype, status, ierr))
 
@@ -2502,33 +2404,26 @@ void mpi_file_write_all
 void __wrap_mpi_file_write_all
 #endif
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_write_all( local_mfile, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_write_all( MPI_File_f2c(*mfile), buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
-
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_WRITE_ALL,mpi_file_write_all,__wrap_mpi_file_write_all,
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, buf, count, datatype, status, ierr))
-
 
 
 /*
@@ -2541,30 +2436,24 @@ void mpi_file_read
 void __wrap_mpi_file_read
 #endif
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_read( local_mfile, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_read( MPI_File_f2c(*mfile), buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
-
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_READ,mpi_file_read,__wrap_mpi_file_read,
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, buf, count, datatype, status, ierr))
 
@@ -2579,30 +2468,24 @@ void mpi_file_read_shared
 void __wrap_mpi_file_read_shared
 #endif
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_read_shared( local_mfile, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_read_shared( MPI_File_f2c(*mfile), buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
-
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_READ_SHARED,mpi_file_read_shared,__wrap_mpi_file_read_shared,
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, buf, count, datatype, status, ierr))
 
@@ -2618,30 +2501,24 @@ void mpi_file_read_ordered
 void __wrap_mpi_file_read_ordered
 #endif
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_read_ordered( local_mfile, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_read_ordered( MPI_File_f2c(*mfile), buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
-
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_READ_ORDERED,mpi_file_read_ordered,__wrap_mpi_file_read_ordered,
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, buf, count, datatype, status, ierr))
 
@@ -2658,30 +2535,24 @@ void mpi_file_read_all
 void __wrap_mpi_file_read_all
 #endif
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_read_all( local_mfile, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_read_all( MPI_File_f2c(*mfile), buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
-
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_READ_ALL,mpi_file_read_all,__wrap_mpi_file_read_all,
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, buf, count, datatype, status, ierr))
 
@@ -2696,31 +2567,25 @@ void __wrap_mpi_file_read_at
 #endif
   ( MPI_Fint* mfile,
     MPI_Offset* offset, 
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_read_at( local_mfile, *offset, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_read_at( MPI_File_f2c(*mfile), *offset, buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
-
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_READ_AT,mpi_file_read_at,__wrap_mpi_file_read_at,
   ( MPI_Fint* mfile,
     MPI_Offset* offset, 
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, offset, buf, count, datatype, status, ierr))
 
@@ -2737,35 +2602,27 @@ void __wrap_mpi_file_read_at_all
 #endif
   ( MPI_Fint* mfile,
     MPI_Offset* offset, 
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_read_at_all( local_mfile, *offset, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_read_at_all( MPI_File_f2c(*mfile), *offset, buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
-
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_READ_AT_ALL,mpi_file_read_at_all,__wrap_mpi_file_read_at_all,
   ( MPI_Fint* mfile,
     MPI_Offset* offset, 
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, offset, buf, count, datatype, status, ierr))
-
-
 
 /*
  * MPI_File_iread_at
@@ -2778,31 +2635,25 @@ void __wrap_mpi_file_iread_at
 #endif
   ( MPI_Fint* mfile,
     MPI_Offset* offset, 
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_iread_at( local_mfile, *offset, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_iread_at( MPI_File_f2c(*mfile), *offset, buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
-
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_IREAD_AT,mpi_file_iread_at,__wrap_mpi_file_iread_at,
   ( MPI_Fint* mfile,
     MPI_Offset* offset, 
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, offset, buf, count, datatype, status, ierr))
 
@@ -2817,30 +2668,24 @@ void mpi_file_iread_shared
 void __wrap_mpi_file_iread_shared
 #endif
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_iread_shared( local_mfile, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_iread_shared( MPI_File_f2c(*mfile), buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
-
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_IREAD_SHARED,mpi_file_iread_shared,__wrap_mpi_file_iread_shared,
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, buf, count, datatype, status, ierr))
 
@@ -2855,30 +2700,24 @@ void mpi_file_iread
 void __wrap_mpi_file_iread
 #endif
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_iread( local_mfile, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_iread( MPI_File_f2c(*mfile), buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
-
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_IREAD,mpi_file_iread,__wrap_mpi_file_iread,
   ( MPI_Fint* mfile,
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, buf, count, datatype, status, ierr))
 
@@ -2895,34 +2734,28 @@ void __wrap_mpi_file_iwrite_at
 #endif
   ( MPI_Fint* mfile,
     MPI_Offset* offset, 
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
 
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_iwrite_at( local_mfile, *offset, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_iwrite_at( MPI_File_f2c(*mfile), *offset, buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
-
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_IWRITE_AT,mpi_file_iwrite_at,__wrap_mpi_file_iwrite_at,
   ( MPI_Fint* mfile,
     MPI_Offset* offset, 
-    MPI_Aint* buf, 
+    char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, offset, buf, count, datatype, status, ierr))
-
 
 
 /*
@@ -2938,17 +2771,13 @@ void __wrap_mpi_file_iwrite
     char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
 
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_iwrite( local_mfile, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_iwrite( MPI_File_f2c(*mfile), buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
 
 
@@ -2958,7 +2787,7 @@ OSS_WRAP_FORTRAN(MPI_FILE_IWRITE,mpi_file_iwrite,__wrap_mpi_file_iwrite,
     char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, buf, count, datatype, status, ierr))
 
@@ -2976,17 +2805,13 @@ void __wrap_mpi_file_iwrite_shared
     char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint* ierr)
 {
 
 
-  MPI_File local_mfile;
   MPI_Status local_status;
-  MPI_Datatype local_datatype;
-  local_mfile = MPI_File_f2c(*mfile);
-  local_datatype = MPI_Type_f2c(*datatype);
-  *ierr = MPI_File_iwrite_shared( local_mfile, buf, count, local_datatype, &local_status);
+  *ierr = MPI_File_iwrite_shared( MPI_File_f2c(*mfile), buf, *count, MPI_Type_f2c(*datatype), &local_status);
   MPI_Status_c2f(&local_status, status);
 
 
@@ -2996,7 +2821,7 @@ OSS_WRAP_FORTRAN(MPI_FILE_IWRITE_SHARED,mpi_file_iwrite_shared,__wrap_mpi_file_i
     char* buf, 
     MPI_Fint* count,
     MPI_Datatype* datatype, 
-    MPI_Status* status,
+    MPI_Fint* status,
     MPI_Fint *ierr),
     (mfile, buf, count, datatype, status, ierr))
 
@@ -3016,11 +2841,7 @@ void __wrap_mpi_file_seek
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
-  local_mfile = MPI_File_f2c(*mfile);
-  *ierr = MPI_File_seek( local_mfile, *offset, *whence);
-
+  *ierr = MPI_File_seek( MPI_File_f2c(*mfile), *offset, *whence);
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_SEEK,mpi_file_seek,__wrap_mpi_file_seek,
@@ -3047,11 +2868,7 @@ void __wrap_mpi_file_seek_shared
     MPI_Fint* ierr)
 {
 
-
-  MPI_File local_mfile;
-  local_mfile = MPI_File_f2c(*mfile);
-  *ierr = MPI_File_seek_shared( local_mfile, *offset, *whence);
-
+  *ierr = MPI_File_seek_shared( MPI_File_f2c(*mfile), *offset, *whence);
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_SEEK_SHARED,mpi_file_seek_shared,__wrap_mpi_file_seek_shared,
@@ -3076,13 +2893,9 @@ void __wrap_mpi_file_get_position
     MPI_Fint* ierr)
 {
 
-
   MPI_Offset local_offset;
-  MPI_File local_mfile;
-  local_mfile = MPI_File_f2c(*mfile);
-  *ierr = MPI_File_get_position( local_mfile, &local_offset);
+  *ierr = MPI_File_get_position( MPI_File_f2c(*mfile), &local_offset);
   *offset = local_offset;
-
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_GET_POSITION,mpi_file_get_position,__wrap_mpi_file_get_position,
@@ -3090,7 +2903,6 @@ OSS_WRAP_FORTRAN(MPI_FILE_GET_POSITION,mpi_file_get_position,__wrap_mpi_file_get
     MPI_Offset* offset,
     MPI_Fint *ierr),
     (mfile, offset, ierr))
-
 
 
 /*
@@ -3107,13 +2919,9 @@ void __wrap_mpi_file_get_position_shared
     MPI_Fint* ierr)
 {
 
-
   MPI_Offset local_offset;
-  MPI_File local_mfile;
-  local_mfile = MPI_File_f2c(*mfile);
-  *ierr = MPI_File_get_position_shared( local_mfile, &local_offset);
+  *ierr = MPI_File_get_position_shared( MPI_File_f2c(*mfile), &local_offset);
   *offset = local_offset;
-
 
 }
 OSS_WRAP_FORTRAN(MPI_FILE_GET_POSITION_SHARED,mpi_file_get_position_shared,__wrap_mpi_file_get_position_shared,

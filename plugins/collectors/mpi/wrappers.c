@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2008-2013 The Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2015 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -2901,6 +2901,8 @@ int mpi_PMPI_Startall
     return retval;
 }
 
+/* This needs to be commented out (#if 0) for Kestral to work */
+#if 1
 
 /*
  * MPI_File_open
@@ -2948,6 +2950,7 @@ int mpi_PMPI_File_open(
     return retval;
 }
 
+#endif
 
 /*
  * MPI_File_write
