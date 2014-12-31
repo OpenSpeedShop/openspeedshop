@@ -123,3 +123,28 @@ jeg@jeg-OptiPlex-GX620:~/OpenSpeedShop_ROOT$ objdump --reloc /usr/lib/libiberty.
 000000000000071a R_X86_64_32S      .bss+0x0000000000000080
 000000000000074f R_X86_64_32S      .bss+0x0000000000000080
 
+NOTE 12: Getting the devel branches for the new gui and spack:
+
+a) PTGF related GUI source git devel branch checkout information
+  git clone https://github.com/PTGF/PTGF ptgf
+  pushd ptgf
+  git checkout --track -b devel origin/devel
+  git pull
+  popd
+  git clone https://github.com/PTGF/QCustomPlot qcustomplot
+  pushd qcustomplot
+  git checkout --track -b devel origin/devel
+  popd
+  git clone https://github.com/OpenSpeedShop/gui openss
+  pushd openss
+  git checkout --track -b devel origin/devel
+  popd
+
+b) SPACK - devel branch
+
+  git clone https://github.com/scalability-llnl/spack.git
+  git checkout -t origin/develop
+
+c) Test for the active branch
+  git branch -a
+
