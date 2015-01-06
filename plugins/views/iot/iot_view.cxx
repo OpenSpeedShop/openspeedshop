@@ -18,12 +18,12 @@
 *******************************************************************************/
 
 
-#include <sstream>
 #include "SS_Input_Manager.hxx"
 #include "SS_View_Expr.hxx"
 #include "IOTCollector.hxx"
 #include "IOTDetail.hxx"
 #include "IOTTraceableFunctions.h"
+#include <sstream>
 
 /* Uncomment for debug traces 
 #define DEBUG_IOT 1
@@ -106,7 +106,7 @@ int64_t prev_min_bytesval=LONG_MAX;
             int64_t max_bytesval = 0;            \
             int64_t max_bytesval_count = 0;      \
             int64_t tot_bytesval = 0;            \
-            std::string detail_pathname = "";    \         
+            std::string detail_pathname = "";    \
             std::string detail_id = "";          \
             int64_t detail_rank = 0;             \
             int64_t detail_thread = 0;           

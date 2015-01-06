@@ -90,7 +90,7 @@ void offline_pause_sampling()
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"offline_pause_sampling setting defer_trace(0) HOST %s, PID %d, POSIX_TID %lu\n",
+        fprintf(stderr,"offline_pause_sampling setting defer_trace(0) HOST %s, PID %lld, POSIX_TID %llu\n",
         tls->dso_header.host, tls->dso_header.pid, tls->dso_header.posix_tid);
     }
 #endif
@@ -112,7 +112,7 @@ void offline_resume_sampling()
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"offline_resume_sampling setting defer_trace(1) HOST %s, PID %d, POSIX_TID %lu\n",
+        fprintf(stderr,"offline_resume_sampling setting defer_trace(1) HOST %s, PID %lld, POSIX_TID %llu\n",
         tls->dso_header.host, tls->dso_header.pid, tls->dso_header.posix_tid);
     }
 #endif
@@ -142,7 +142,7 @@ void offline_send_dsos(TLS *tls)
     /* Send the offline "info" blob */
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"offline_send_dsos SENDS DSOS for HOST %s, PID %d, POSIX_TID %lu\n",
+        fprintf(stderr,"offline_send_dsos SENDS DSOS for HOST %s, PID %lld, POSIX_TID %llu\n",
         tls->dso_header.host, tls->dso_header.pid, tls->dso_header.posix_tid);
     }
 #endif
@@ -334,7 +334,7 @@ void offline_finish()
     /* Send the offline "info" blob */
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"offline_stop_sampling SENDS INFO for HOST %s, PID %d, POSIX_TID %lu\n",
+        fprintf(stderr,"offline_stop_sampling SENDS INFO for HOST %s, PID %lld, POSIX_TID %llu\n",
         header.host, header.pid, header.posix_tid);
     }
 #endif
@@ -410,7 +410,7 @@ void offline_record_dso(const char* dsoname,
     if(newsize > OpenSS_OBJBufferSize) {
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-            fprintf(stderr,"offline_record_dso SENDS OBJS for HOST %s, PID %d, POSIX_TID %lu\n",
+            fprintf(stderr,"offline_record_dso SENDS OBJS for HOST %s, PID %lld, POSIX_TID %llu\n",
         	   tls->dso_header.host, tls->dso_header.pid, tls->dso_header.posix_tid);
 	}
 #endif
@@ -468,7 +468,7 @@ void offline_record_dlopen(const char* dsoname,
     if(newsize > OpenSS_OBJBufferSize) {
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-            fprintf(stderr,"offline_record_dlopen SENDS OBJS for HOST %s, PID %d, POSIX_TID %lu\n",
+            fprintf(stderr,"offline_record_dlopen SENDS OBJS for HOST %s, PID %lld, POSIX_TID %llu\n",
         	   tls->dso_header.host, tls->dso_header.pid, tls->dso_header.posix_tid);
 	}
 #endif

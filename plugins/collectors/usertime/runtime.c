@@ -127,8 +127,8 @@ static void send_samples(TLS *tls)
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"usertimeTimerHandler %s, %d sends data:\n",tls->header.host,tls->header.pid);
-        fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] bt_len(%d) count_len(%d)\n",
+        fprintf(stderr,"usertime send_samples %s, %lld sends data:\n",tls->header.host,tls->header.pid);
+        fprintf(stderr,"time_end(%llu) addr range [%#llx, %#llx] bt_len(%d) count_len(%d)\n",
             tls->header.time_end,tls->header.addr_begin,
 	    tls->header.addr_end,tls->data.bt.bt_len,
             tls->data.count.count_len);

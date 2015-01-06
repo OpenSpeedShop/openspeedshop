@@ -117,7 +117,7 @@ void defer_trace(int defer_tracing) {
     tls->do_trace = defer_tracing;
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"MPI setting defer_trace to %d for HOST %s, pid %d, posix_tid %#lux\n",
+        fprintf(stderr,"MPI setting defer_trace to %d for HOST %s, pid %lld, posix_tid %llu\n",
                tls->do_trace, tls->header.host, tls->header.pid, tls->header.posix_tid);
     }
 #endif
@@ -138,9 +138,9 @@ static void mpit_send_events(TLS *tls)
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-        fprintf(stderr,"MPI mpi_send_events SENDS DATA for HOST %s, pid %d, posix_tid %#lux\n",
+        fprintf(stderr,"MPI mpi_send_events SENDS DATA for HOST %s, pid %lld, posix_tid %llu\n",
                tls->header.host, tls->header.pid, tls->header.posix_tid);
-        fprintf(stderr,"time(%lu,%#lu) addr range [%#lx, %#lx] "
+        fprintf(stderr,"time(%llu,%llu) addr range [%#llx, %#llx] "
 		" stacktraces_len(%d) events_len(%d)\n",
             tls->header.time_begin,tls->header.time_end,
 	    tls->header.addr_begin,tls->header.addr_end,
@@ -290,7 +290,7 @@ void mpit_record_event(const mpit_event* event, uint64_t function)
 	   StackTraceBufferSize) {
 #ifndef NDEBUG
 	    if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-	      fprintf(stderr,"RANK (%d,%lu) SENDING DUE TO StackTraceBufferSize, %d * %d = %d\n",
+	      fprintf(stderr,"RANK (%d,%llu) SENDING DUE TO StackTraceBufferSize, %d * %d = %d\n",
 		event->source, event->start_time,
 		tls->data.stacktraces.stacktraces_len,
 		sizeof(uint64_t),
@@ -340,7 +340,7 @@ void mpit_record_event(const mpit_event* event, uint64_t function)
     if((tls->data.events.events_len ) >= EventBufferSize) {
 #ifndef NDEBUG
 	if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-	    fprintf(stderr,"RANK (%d, %lu) SENDING DUE TO EventBufferSize, %d * %d = %d\n",
+	    fprintf(stderr,"RANK (%d, %llu) SENDING DUE TO EventBufferSize, %d * %d = %d\n",
 		event->source, event->start_time,
 		tls->data.events.events_len,
 		sizeof(mpit_event),
@@ -423,7 +423,7 @@ void mpit_start_tracing(const char* arguments)
 
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
-	fprintf(stderr,"INIT HOST %s, PID %d, POSIX_TID %lu\n",
+	fprintf(stderr,"INIT HOST %s, PID %lld, POSIX_TID %llu\n",
 	tls->header.host, tls->header.pid, tls->header.posix_tid);
     }
 #endif

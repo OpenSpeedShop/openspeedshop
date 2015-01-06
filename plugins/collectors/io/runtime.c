@@ -136,7 +136,7 @@ static void io_send_events(TLS *tls)
 #ifndef NDEBUG
     if (getenv("OPENSS_DEBUG_COLLECTOR") != NULL) {
         fprintf(stderr,"IO Collector runtime sends data:\n");
-        fprintf(stderr,"time_end(%#lu) addr range [%#lx, %#lx] "
+        fprintf(stderr,"time_end(%llu) addr range [%#llx, %#llx] "
 		" stacktraces_len(%d) events_len(%d)\n",
             tls->header.time_end,tls->header.addr_begin,tls->header.addr_end,
 	    tls->data.stacktraces.stacktraces_len,
