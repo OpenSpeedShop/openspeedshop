@@ -18,16 +18,40 @@
 
 cmake_minimum_required(VERSION 2.8.0)
 
-project(OpenSpeedShop)
+project(OpenSpeedShop C CXX)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
 include(CheckIncludeFile)
+include(CheckIncludeFileCXX)
+include(CheckFunctionExists)
+include(CheckLibraryExists)
 
 check_include_file("stdint.h" STDINT_H_FOUND)
 if (STDINT_H_FOUND)
     add_definitions(-DHAVE_STDINT_H=1)
 endif()
+check_include_file(dirent.h HAVE_DIRENT_H)
+check_include_file(dlfcn.h HAVE_DLFCN_H)
+check_include_file(errno.h HAVE_ERRNO_H)
+check_include_file(execinfo.h HAVE_EXECINFO_H)
+check_include_file(fcntl.h HAVE_FCNTL_H)
+check_include_file(inttypes.h HAVE_INTTYPES_H)
+check_include_file(limits.h HAVE_LIMITS_H)
+check_include_file(link.h HAVE_LINK_H)
+check_include_file(malloc.h HAVE_MALLOC_H)
+check_include_file(malloc/malloc.h HAVE_MALLOC_MALLOC_H)
+check_function_exists(fork HAVE_FORK)
+check_library_exists(libdl __dlopen "" HAVE_DLOPEN)
+
+#-----------------------------------------------------------------------------
+# This MACRO checks IF the symbol exists in the library and IF it
+# does, allow it.
+#-----------------------------------------------------------------------------
+#MACRO (CHECK_LIBRARY_EXISTS_CONCAT LIBRARY SYMBOL VARIABLE)
+#  CHECK_LIBRARY_EXISTS ("${LIBRARY}" ${SYMBOL} "" ${VARIABLE})
+#ENDMACRO (CHECK_LIBRARY_EXISTS_CONCAT)
+
 
 
 #cmake -DVARNAME:STRING=value

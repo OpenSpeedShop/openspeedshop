@@ -77,6 +77,8 @@ if(LIBMONITOR_FOUND)
     add_definitions(
 	-DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
 	-DOPENSS_OFFLINE=1
+	-funwind-tables
+	-fasynchronous-unwind-tables
     )
 
     include_directories(

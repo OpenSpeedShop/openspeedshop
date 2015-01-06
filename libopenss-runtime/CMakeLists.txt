@@ -103,6 +103,21 @@ add_definitions(
   -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
   )
   
+if (CMAKE_HAVE_PTHREAD_CREATE)
+   add_definitions(
+	-DHAVE_TARGET_POSIX_THREADS
+	)
+endif()
+if (HAVE_DLOPEN)
+   add_definitions(
+	-DHAVE_TARGET_DLOPEN
+	)
+endif()
+if (HAVE_FORK)
+   add_definitions(
+	-DHAVE_TARGET_FORK
+	)
+endif()
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}

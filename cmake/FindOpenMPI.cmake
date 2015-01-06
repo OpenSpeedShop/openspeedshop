@@ -26,9 +26,9 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 
 find_path(OpenMPI_INCLUDE_DIR
     NAMES mpi.h
-    PATHS /usr /usr/local
     HINTS $ENV{OPENMPI_ROOT}
     HINTS ${OPENMPI_ROOT}
+    PATHS /usr /usr/local
     PATH_SUFFIXES include include/openmpi
     NO_DEFAULT_PATH
     )
