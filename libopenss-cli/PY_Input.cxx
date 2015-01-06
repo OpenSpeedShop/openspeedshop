@@ -801,7 +801,9 @@ initPYopenss (void) {
   
     // Initialize exception handler
     d = PyModule_GetDict(m);
-    OpenssError = PyErr_NewException("openss.error", NULL, NULL);
+    char oss_err[] = "openss.error";
+    OpenssError = PyErr_NewException(oss_err, NULL, NULL);
+
     if (OpenssError != NULL)
     	PyDict_SetItemString(d, "error", OpenssError);
 

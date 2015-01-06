@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2015 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -21,8 +21,11 @@
 
 //#define DEBUG_CLI 1
 
-#include "ToolAPI.hxx"
+// This must be first include due to warnings regarding redefinition
+// of certain definitions (POSIX_*)
 #include "SS_Input_Manager.hxx"
+
+#include "ToolAPI.hxx"
 
 #include "SS_Timings.hxx"
 

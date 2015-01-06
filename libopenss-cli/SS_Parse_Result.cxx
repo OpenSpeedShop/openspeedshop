@@ -1,6 +1,6 @@
 /* //////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2012 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006-2015 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -16,7 +16,7 @@
 // along with this library; if not, write to the Free Software Foundation, Inc.,
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////// */
-#define DEBUG_CLI 0
+//#define DEBUG_CLI 0
 
 /** @file
  *
@@ -24,12 +24,15 @@
  *
  */
 
+// This must be first include due to warnings regarding redefinition
+// of certain definitions (POSIX_*)
+#include "SS_Input_Manager.hxx"
+
 #include <vector>
 #include <string>
 #include <iostream>
 #include <cctype>
 
-#include "SS_Input_Manager.hxx"
 
 
 #include "SS_Message_Element.hxx"

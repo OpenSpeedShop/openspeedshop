@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2015 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -30,6 +30,10 @@
 #define DEBUG_CLI 1 
 */
 
+
+// This must be first include due to warnings regarding redefinition
+// of certain definitions (POSIX_*)
+#include "Python.h"
 
 #ifndef SS_INPUT_MANAGER_H
 #define SS_INPUT_MANAGER_H
@@ -77,8 +81,7 @@
 #define SS_SAVE_SLOTS
 #undef  slots
 #endif
-#include "Python.h"
-//include <Python.h>
+//#include "Python.h"
 #ifdef SS_SAVE_SLOTS
 #undef SS_SAVE_SLOTS
 #define slots		// it needs to be redefined and blanks seem to work.
