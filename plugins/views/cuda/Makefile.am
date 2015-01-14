@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2014 Krell Institute. All Rights Reserved.
-# Copyright (c) 2014 Argo Navis Technologies. All Rights Reserved.
+# Copyright (c) 2014,2015 Argo Navis Technologies. All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -42,4 +42,7 @@ cuda_view_la_LIBADD = \
 	-lopenss-cli
 
 cuda_view_la_SOURCES = \
+	cuda_exec_view.cxx \
+	cuda_hwpc_view.cxx \
+	cuda_xfer_view.cxx \
 	cuda_view.cxx
