@@ -624,6 +624,8 @@ std::string OpenSpeedShop::Framework::toString(
     output << thread.experiment << ":" << thread.host << ":" << thread.pid;
     if(thread.has_posix_tid)
 	output << ":" << thread.posix_tid;
+    output << ":" << thread.rank;
+    output << ":" << thread.omp_tid;
     return output.str();
 }
 

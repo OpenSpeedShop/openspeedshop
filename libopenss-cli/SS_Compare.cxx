@@ -276,7 +276,7 @@ static void Select_ThreadGroup (selectionTarget& S, ThreadGroup& base_grp, Threa
 #endif
         include_thread = (prank.first && (prank.second == S.rankId));
 
-      } else if (S.threadId != 0) {
+      } else if (S.threadId >= 0) {
        // Does it match a pthread ID?
         std::pair<bool, int> pthread = t.getOpenMPThreadId();
         bool threadHasThreadId = false;
@@ -298,7 +298,7 @@ static void Select_ThreadGroup (selectionTarget& S, ThreadGroup& base_grp, Threa
         }
         include_thread = (threadHasThreadId && (pthreadid == S.threadId));
 
-      } else if (S.pidId != 0) {
+      } else if (S.pidId >= 0) {
        // Does it match the pid?
 
 #if DEBUG_COMPARE

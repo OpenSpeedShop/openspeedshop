@@ -85,6 +85,8 @@ namespace {
         out.has_posix_tid = posix_tid.first;
         if(posix_tid.first)
             out.posix_tid = posix_tid.second;
+        out.rank = in.getMPIRank();
+        out.omp_tid = in.getOmpTid();
     }
 
 
@@ -251,6 +253,12 @@ bool updateThreads()
     {
 	
 
+	// TODO: for CBTF there is no longer an initial created process
+	// message passed up. CBTF now passes one large message
+	// representing all threads if possible. So the initial
+	// test will not result in any entry found from the database.
+	// So this logic could be removed in the future.
+	//
 	// Is there an existing placeholder for the entire process?
 	// The initial createdprocess creates the database entry for
 	// a process with the posix_tid of null. The initial thread
@@ -306,13 +314,26 @@ bool updateThreads()
 		  database->bindArgument(2, thread);
 		  while(database->executeStatement());
 		}
+
+		if ((*i).getOmpTid() >= 0 ) {
+		  database->prepareStatement(
+		    "UPDATE Threads SET openmp_tid = ? WHERE id = ?;"
+		    );
+		  database->bindArgument(
+		    1, static_cast<int>((*i).getOmpTid())
+		    );
+		  database->bindArgument(2, thread);
+		  while(database->executeStatement());
+		}
 	    }
 	}
 
 	// See if there is already an entry for this host and pid.
 	// Create a new thread entry for this posix_tid for this host:pid
-	// and include the mpi_rank. For non-mpi jobs this is -1 and
-	// is already set to that by the collector.
+	// and include the mpi_rank. For non-mpi jobs mpi_rank is -1 and
+	// is already set to that by the collector. The openmp_tid is
+	// an integer representing a thread and is used as a simple
+	// identifier for pthreads as well.
 	else {
 
 	thread = -1;
@@ -324,6 +345,7 @@ bool updateThreads()
 #if 1
 	    "  AND posix_tid = ? "
 	    "  AND mpi_rank = ? "
+	    "  AND openmp_tid = ? "
 #endif
 	    );
 
@@ -332,6 +354,7 @@ bool updateThreads()
 #if 1
 	database->bindArgument(3, static_cast<pthread_t>((*i).getPosixThreadId().second));
 	database->bindArgument(4, static_cast<int>((*i).getMPIRank()));
+	database->bindArgument(5, static_cast<int>((*i).getOmpTid()));
 #endif
 
 	while(database->executeStatement())
@@ -347,17 +370,35 @@ bool updateThreads()
 		       << " " << (*i).getHost()
 		       << ":" << (*i).getPid()
 		       << ":" << (*i).getPosixThreadId().second
-		       << ":" << (*i).getMPIRank() << std::endl;
+		       << ":" << (*i).getMPIRank()
+		       << ":" << (*i).getOmpTid()
+			<< std::endl;
 		    std::cerr << output.str();
 		}
 #endif
 	    } else if (thread == -1 ) {
+#ifndef NDEBUG
+		if(Frontend::isDebugEnabled()) {
+		    std::stringstream output;
+		    output << "[TID " << pthread_self() << "] "
+		       << "updateThreads(): " 
+		       << "INSERTING new thread into database"
+		       << " " << (*i).getHost()
+		       << ":" << (*i).getPid()
+		       << ":" << (*i).getPosixThreadId().second
+		       << ":" << (*i).getMPIRank()
+		       << ":" << (*i).getOmpTid()
+			<< std::endl;
+		    std::cerr << output.str();
+		}
+#endif
 		database->prepareStatement(
-		    "INSERT INTO Threads (host, pid, posix_tid) VALUES (?, ?, ?);"
+		    "INSERT INTO Threads (host, pid, posix_tid, openmp_tid) VALUES (?, ?, ?, ?);"
 		    );
 	        database->bindArgument(1, (*i).getHost());
 	        database->bindArgument(2, static_cast<int>((*i).getPid()));
 		database->bindArgument(3, static_cast<pthread_t>((*i).getPosixThreadId().second));
+	        database->bindArgument(4, static_cast<int>((*i).getOmpTid()));
 	        while(database->executeStatement());
 
 	        int thread = database->getLastInsertedUID();
@@ -429,7 +470,7 @@ bool updateThreads()
     END_TRANSACTION(database);
 
     // clear for any potential new threads
-    //threadvec.clear();
+    threadvec.clear();
     return true;
 }
 
@@ -607,8 +648,7 @@ static int abuftimes = 0;
 void Callbacks::addressBuffer(const AddressBuffer& in)
 {
     //std::cerr << "Callbacks::addressBuffer entered with " << in.addresscounts.size()
-    //    << " addresses" << std::endl;
- 
+     //   << " addresses" << std::endl;
     //std::cerr << "Callbacks::addressBuffer calls  updateThreads" << std::endl;
     updateThreads();
 
