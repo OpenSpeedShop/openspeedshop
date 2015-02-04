@@ -1495,6 +1495,17 @@ int64_t Determine_ByThread_Id (ExperimentObject *exp, CommandObject *cmd) {
 //      std::cerr << " Determine_ByThread_Id, fall past rank code, t1.getPosixThreadId()=" << t1.getPosixThreadId() << " t2.getPosixThreadId()=" << t2.getPosixThreadId() << std::endl;
 #endif
 
+      std::pair<bool, int> pthread1 = t1.getOpenMPThreadId();
+      std::pair<bool, int> pthread2 = t2.getOpenMPThreadId();
+      if ( pthread1.first && pthread2.first &&
+           (pthread1.second != pthread2.second) ) {
+       // Use Thread ids.
+#if DEBUG_CLI
+        std::cerr << "Determine_ByThread_Id, RETURN View_ByThread_OpenMPThread=" << View_ByThread_OpenMPThread << std::endl;
+#endif
+        return View_ByThread_OpenMPThread;
+      }
+
       std::pair<bool, pthread_t> posixthread1 = t1.getPosixThreadId();
       std::pair<bool, pthread_t> posixthread2 = t2.getPosixThreadId();
       if ( posixthread1.first && posixthread2.first &&
@@ -1506,16 +1517,6 @@ int64_t Determine_ByThread_Id (ExperimentObject *exp, CommandObject *cmd) {
         return View_ByThread_PosixThread;
       }
 
-      std::pair<bool, int> pthread1 = t1.getOpenMPThreadId();
-      std::pair<bool, int> pthread2 = t2.getOpenMPThreadId();
-      if ( pthread1.first && pthread2.first &&
-           (pthread1.second != pthread2.second) ) {
-       // Use Thread ids.
-#if DEBUG_CLI
-        std::cerr << "Determine_ByThread_Id, RETURN View_ByThread_OpenMPThread=" << View_ByThread_OpenMPThread << std::endl;
-#endif
-        return View_ByThread_OpenMPThread;
-      }
       pid_t pid1 = t1.getProcessId();
       pid_t pid2 = t2.getProcessId();
       if (pid1 != pid2) {
