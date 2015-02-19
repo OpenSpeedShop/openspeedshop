@@ -1,5 +1,5 @@
 /*******************************************************************************
- * ** Copyright (c) 2006-2012 The Krell Institue. All Rights Reserved.
+ * ** Copyright (c) 2006-2015 The Krell Institue. All Rights Reserved.
  * **
  * ** This library is free software; you can redistribute it and/or modify it under
  * ** the terms of the GNU Lesser General Public License as published by the Free
@@ -20,8 +20,25 @@
 #include "config.h"
 #endif
 
+/* 
+The Blue Gene does not have the needed /proc maps file for the normal method to work. 
+Also the code enabled by the OPENSS_USE_DL_ITERATE is called within a signal handler 
+a deadlock may occur. 
+
+dl_iterate_phdr based code was contributed by Matt LeGendre for offline Blue Gene
+platform runtime support.  This should support all platforms including the BGP/Q.  
+
+The code is currently enabled by default for the Blue Gene and can be disabled by 
+not defining OPENSS_USE_DL_ITERATE below.  However, the dl_iterate_phdr based 
+solution is required for BGP/Q so undefining OPENSS_USE_DL_ITERATE would break 
+those platforms. If not a Blue Gene platform, we fallback to the proc maps code 
+that has been used for all other platforms.  We can determine at runtime whether 
+to use the static address space or find the dsos in use (or dlopened/dlclosed).
+
+*/
+
 #if defined(TARGET_OS_BGP) || defined(TARGET_OS_BGQ)
-#define BLUEGENE 1
+#define OPENSS_USE_DL_ITERATE 1
 #endif
 
 #ifdef HAVE_INTTYPES_H
@@ -42,9 +59,6 @@
 #include <pthread.h>
 #include <link.h>
 #include <OpenSS_Offline.h>
-
-
-//#define OPENSS_USE_DL_ITERATE 1
 
 extern void offline_record_dso(const char* dsoname, uint64_t begin, uint64_t end, uint8_t is_dlopen);
 extern void offline_record_dlopen(const char* dsoname, uint64_t begin, uint64_t end, uint64_t b_time, uint64_t e_time);
