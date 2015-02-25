@@ -28,10 +28,16 @@ AC_DEFUN([AX_LIBMONITOR], [
                 libmonitor_dir=$withval, libmonitor_dir="/usr")
 
     LIBMONITOR_CPPFLAGS="-I$libmonitor_dir/include"
-    LIBMONITOR_LDFLAGS="-L$libmonitor_dir/$abi_libdir"
-    LIBMONITOR_LIBS="-lmonitor"
     LIBMONITOR_DIR="$libmonitor_dir"
-    LIBMONITOR_LIBDIR="$libmonitor_dir/$abi_libdir"
+    LIBMONITOR_LIBS="-lmonitor"
+
+    if test -f $libmonitor_dir/$abi_libdir/libmonitor.so -o -f $libmonitor_dir/$abi_libdir/libmonitor_wrap.a ; then
+       LIBMONITOR_LIBDIR="$libmonitor_dir/$abi_libdir"
+       LIBMONITOR_LDFLAGS="-L$libmonitor_dir/$abi_libdir"
+    elif test -f  $libmonitor_dir/$alt_abi_libdir/libmonitor.so -o -f $libmonitor_dir/$alt_abi_libdir/libmonitor_wrap.a ; then
+       LIBMONITOR_LIBDIR="$libmonitor_dir/$alt_abi_libdir"
+       LIBMONITOR_LDFLAGS="-L$libmonitor_dir/$alt_abi_libdir"
+    fi
 
     libmonitor_saved_CPPFLAGS=$CPPFLAGS
     libmonitor_saved_LDFLAGS=$LDFLAGS
