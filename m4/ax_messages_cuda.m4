@@ -23,8 +23,14 @@ AC_DEFUN([AX_CBTF_MESSAGES_CUDA], [
                    [CBTF CUDA messages library installation @<:@/usr@:>@]),
                messages_cuda_dir=$withval, messages_cuda_dir="/usr")
 
-    MESSAGES_CUDA_CPPFLAGS="-I$messages_cuda_dir/include"
-    MESSAGES_CUDA_LDFLAGS="-L$messages_cuda_dir/$abi_libdir"
+    if test "x${messages_cuda_dir}" == "x" || test "x${messages_cuda_dir}" == "x/usr" ; then
+      MESSAGES_CUDA_CPPFLAGS=""
+      MESSAGES_CUDA_LDFLAGS=""
+    else
+      MESSAGES_CUDA_CPPFLAGS="-I$messages_cuda_dir/include"
+      MESSAGES_CUDA_LDFLAGS="-L$messages_cuda_dir/$abi_libdir"
+    fi
+
     MESSAGES_CUDA_LIBS="-lcbtf-messages-cuda"
 
     messages_cuda_saved_CPPFLAGS=$CPPFLAGS
