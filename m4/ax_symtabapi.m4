@@ -47,16 +47,22 @@ AC_DEFUN([AX_SYMTABAPI], [
                 [ac_symtabapi_lib_path=""])
 
 
-    if test "x$ac_symtabapi_lib_path" == "x"; then
-       SYMTABAPI_LDFLAGS="-L$symtabapi_dir/$abi_libdir"
+
+    if test "x${symtabapi_dir}" == "x" || test "x${symtabapi_dir}" == "x/usr" ; then
+      SYMTABAPI_CPPFLAGS=""
+      SYMTABAPI_DIR=""
+      SYMTABAPI_LDFLAGS=""
     else
-       SYMTABAPI_LDFLAGS="-L$ac_symtabapi_lib_path"
+      SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -std=c++0x"
+      SYMTABAPI_DIR="$symtabapi_dir" 
+      SYMTABAPI_CPPFLAGS="$SYMTABAPI_CPPFLAGS -DUSE_STL_VECTOR"
+      if test "x$ac_symtabapi_lib_path" == "x"; then
+         SYMTABAPI_LDFLAGS="-L$symtabapi_dir/$abi_libdir"
+      else
+         SYMTABAPI_LDFLAGS="-L$ac_symtabapi_lib_path"
+      fi
+      SYMTABAPI_LDFLAGS+=" $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
     fi
-
-    SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -I$symtabapi_dir/include/dyninst"
-    SYMTABAPI_DIR="$symtabapi_dir" 
-    SYMTABAPI_CPPFLAGS="$SYMTABAPI_CPPFLAGS -DUSE_STL_VECTOR"
-
 
     case "$symtabapi_vers" in
 	"7.0.1")
@@ -72,20 +78,14 @@ AC_DEFUN([AX_SYMTABAPI], [
             SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
             ;;
 	"8.1.2")
-            SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -I$symtabapi_dir/include/dyninst -std=c++0x"
-            SYMTABAPI_LDFLAGS+=" $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
             SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
             SYMTABAPI_LIBS+=" $LIBDWARF_LIBS $LIBELF_LIBS"
             ;;
 	"8.2")
-            SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -I$symtabapi_dir/include/dyninst -std=c++0x"
-            SYMTABAPI_LDFLAGS+=" $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
             SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
             SYMTABAPI_LIBS+=" $LIBDWARF_LIBS $LIBELF_LIBS"
             ;;
 	*)
-            SYMTABAPI_CPPFLAGS="-I$symtabapi_dir/include -I$symtabapi_dir/include/dyninst -std=c++0x"
-            SYMTABAPI_LDFLAGS+=" $LIBDWARF_LDFLAGS $LIBELF_LDFLAGS"
             SYMTABAPI_LIBS="-lsymtabAPI -lcommon -ldynDwarf -ldynElf" 
             SYMTABAPI_LIBS+=" $LIBDWARF_LIBS $LIBELF_LIBS"
             ;;
@@ -108,8 +108,8 @@ AC_DEFUN([AX_SYMTABAPI], [
     AC_MSG_CHECKING([for symtabAPI API library and headers using $abi_libdir])
 
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-	#include "Symbol.h"
-	#include "Symtab.h"
+	#include "dyninst/Symbol.h"
+	#include "dyninst/Symtab.h"
 	using namespace Dyninst;
 	using namespace SymtabAPI;
 	
