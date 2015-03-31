@@ -62,6 +62,7 @@ libopenss_cli_la_LIBADD = \
 	-lopenss-framework \
 	-lopenss-queries \
 	$(LIBLTDL) \
+	@PYTHON_LIBS@ \
 	@PYTHON_EXTRA_LIBS@ \
 	@OPENMP_LIBS@ \
 	-lpthread -lutil

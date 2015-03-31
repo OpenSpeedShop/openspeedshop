@@ -171,11 +171,14 @@ $ac_distutils_result])
             so_designator=".so"
             libpython_designator="libpython"
             if test -f $PYTHON_LIBPATH/$libpython_designator$py_version$so_designator; then
-              PYTHON_LDFLAGS="-L$PYTHON_LIBPATH -lpython$py_version"
+              PYTHON_LDFLAGS="-L$PYTHON_LIBPATH"
+              PYTHON_LIBS="-lpython$py_version"
             elif test -f $PYTHON_LIBPATH/x86_64-linux-gnu/$libpython_designator$py_version$so_designator; then
-              PYTHON_LDFLAGS="-L$PYTHON_LIBPATH/x86_64-linux-gnu -lpython$py_version"
+              PYTHON_LDFLAGS="-L$PYTHON_LIBPATH/x86_64-linux-gnu"
+              PYTHON_LIBS="-lpython$py_version"
             else
-              PYTHON_LDFLAGS="-L$PYTHON_LIBPATH -lpython$py_version"
+              PYTHON_LDFLAGS="-L$PYTHON_LIBPATH"
+              PYTHON_LIBS="-lpython$py_version"
             fi
 
             #PYTHON_LDFLAGS_TMP=`$PYTHON -c "from distutils.sysconfig import *; \
@@ -199,9 +202,16 @@ $ac_distutils_result])
             PYTHON_FULL_PATH_LIBRARY_NAME="${python_full_path_tmp1}$so_designator"
 
     fi
+
+    if test "x${python_dir}" == "x" || test "x${python_dir}" == "x/usr" ; then
+      PYTHON_LDFLAGS=""
+    fi
+
+
     AC_MSG_RESULT([$PYTHON_LDFLAGS])
     AC_SUBST([PYTHON_LDFLAGS_TMP])
     AC_SUBST([PYTHON_LDFLAGS])
+    AC_SUBST([PYTHON_LIBS])
     AC_SUBST([PYTHON_LIBPATH])
     AC_DEFINE_UNQUOTED(PYTHON_FP_LIB_NAME, "$PYTHON_FULL_PATH_LIBRARY_NAME",
                            [Name of full path python dynamic library])
