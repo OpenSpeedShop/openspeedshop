@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
+# Copyright (c) 2006-2015 Krell Institute All Rights Reserved.
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -23,6 +24,7 @@ libopenss_framework_cbtf_la_CXXFLAGS = \
 	@BOOST_CPPFLAGS@ \
 	@CBTF_CPPFLAGS@ \
 	@CBTF_MRNET_CPPFLAGS@ \
+	@MESSAGES_CPPFLAGS@ \
 	@CBTF_XML_CPPFLAGS@ \
 	@MRNET_CPPFLAGS@
 
@@ -30,6 +32,7 @@ libopenss_framework_cbtf_la_LDFLAGS = \
 	@BOOST_LDFLAGS@ \
 	@CBTF_LDFLAGS@ \
 	@CBTF_MRNET_LDFLAGS@ \
+	@MESSAGES_LDFLAGS@ \
 	@CBTF_XML_LDFLAGS@ \
 	@MRNET_LDFLAGS@
 
@@ -38,6 +41,7 @@ libopenss_framework_cbtf_la_LIBADD = \
 	@BOOST_THREAD_LIB@ \
 	@CBTF_LIBS@ \
 	@CBTF_MRNET_LIBS@\
+	@MESSAGES_LIBS@ \
 	@CBTF_XML_LIBS@\
 	-lcbtf-core \
 	-lcbtf-core-mrnet \
