@@ -1,0 +1,24 @@
+#!/bin/bash
+#set -x
+rm -rf $1
+echo "static const char* OpenSS_Papi_ALLEvents[] = {" > $1
+# if papi_dir is not passed then skip the papi_avail 
+if [ -z "$2" ]
+then
+echo "" 
+else
+$2/bin/papi_avail -a | grep ^PAPI_ |  awk '{ printf("\""); printf($1);  printf(":"); for(i=4;i<=NF;i++) {printf("%s ",$i) } ; printf("\",\n") }' >> OpenSS_Papi_Events.h
+echo "NULL" >> $1
+fi
+echo "};" >> $1
+echo "static const char* OpenSS_Papi_NonDerivedEvents[] = {" >> $1
+# if papi_dir is not passed then skip the papi_avail 
+if  [ -z "$2" ]
+then
+echo "" 
+else
+$2/bin/papi_avail -a | grep ^PAPI_ | grep No |  awk '{ printf("\""); printf($1);  printf(":"); for(i=4;i<=NF;i++) {printf("%s ",$i) } ; printf("\",\n") }' >> OpenSS_Papi_Events.h
+echo "NULL" >> $1
+fi
+echo "};" >> $1 
+
