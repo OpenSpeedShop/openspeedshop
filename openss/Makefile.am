@@ -96,7 +96,7 @@ osscollect_CXXFLAGS = \
 	@BOOST_CPPFLAGS@ \
 	@MRNET_CPPFLAGS@ \
 	@CBTF_CPPFLAGS@ \
-	@MRNET_CPPFLAGS@ \
+	@DYNINST_CPPFLAGS@ \
 	$(LTDLINCL)
 
 osscollect_LDFLAGS = \
@@ -110,7 +110,7 @@ osscollect_LDFLAGS = \
 
 osscollect_LDADD = \
 	$(LIBLTDL) \
-        @DYNINST_LIBS@ \
+        @DYNINST_SYMTABAPI_LIBS@ \
         @LIBELF_LIBS@ \
         @LIBDWARF_LIBS@ \
 	@LIBXERCES_C@ \

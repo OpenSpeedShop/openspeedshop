@@ -22,10 +22,8 @@
 #include "config.h"
 #endif
 
-#include <sys/stat.h>
-#include <errno.h>
-
 #include <sys/param.h>
+#include <errno.h>
 #include <sys/wait.h>
 
 #include <stddef.h>
@@ -36,16 +34,18 @@
 #include <unistd.h>
 
 #include <stdio.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <boost/foreach.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/tokenizer.hpp>
 #include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/tokenizer.hpp>
+#include <boost/filesystem.hpp>
 #include "Collector.hxx"
 #include "Experiment.hxx"
 #include "FEThread.hxx"
@@ -60,18 +60,25 @@ using namespace OpenSpeedShop::Framework;
 
 enum exe_class_types { MPI_exe_type, SEQ_RunAs_MPI_exe_type, SEQ_exe_type };
 
-// Experiment Utilities.
+namespace {
+    void suspend()
+    {
+        struct timespec wait;
+        wait.tv_sec = 0;
+        wait.tv_nsec = 500 * 1000 * 1000;
+        while(nanosleep(&wait, &wait));
+    }
+
+    bool is_debug_timing_enabled = (getenv("CBTF_TIME_CLIENT_EVENTS") != NULL);
+}
+
+// Client Utilities.
 
 // Function that returns the number of BE processes that are required for LW MRNet BEs.
 // The function tokenizes the program command and searches for -np or -n.
 static int getBEcountFromCommand(std::string command) {
 
     int retval = 1;
-    bool is_debug_startup_enabled = (getenv("OPENSS_DEBUG_STARTUP") != NULL);
-
-    if (is_debug_startup_enabled) {
-      std::cerr << "DEBUG: osscollect, Enter getBEcountFromCommand, command=" << command << std::endl;
-    }
 
     boost::char_separator<char> sep(" ");
     boost::tokenizer<boost::char_separator<char> > btokens(command, sep);
@@ -84,26 +91,14 @@ static int getBEcountFromCommand(std::string command) {
 	if (found_be_count) {
 	    S = t;
 	    retval = boost::lexical_cast<int>(S);
-            if (is_debug_startup_enabled) {
-              std::cerr << "DEBUG: osscollect, IN getBEcountFromCommand, found_be_count set retval=" << retval << " S=" << S << std::endl;
-            }
 	    break;
 	} else if (!strcmp( S.c_str(), std::string("-np").c_str())) {
-            if (is_debug_startup_enabled) {
-              std::cerr << "DEBUG: osscollect, IN getBEcountFromCommand, found -np value" << std::endl;
-            }
 	    found_be_count = true;
 	} else if (!strcmp(S.c_str(), std::string("-n").c_str())) {
-            if (is_debug_startup_enabled) {
-              std::cerr << "DEBUG: osscollect, IN getBEcountFromCommand, found -n value" << std::endl;
-            }
 	    found_be_count = true;
 	}
     } // end foreach
 
-    if (is_debug_startup_enabled) {
-      std::cerr << "DEBUG: osscollect, Exit getBEcountFromCommand, retval=" << retval << std::endl;
-    }
     return retval;
 }
 
@@ -123,11 +118,10 @@ static bool isOpenMPExe(const std::string exe) {
     SymtabAPISymbols stapi_symbols;
     bool found_openmp = stapi_symbols.foundLibrary(exe,"libiomp5");
     if (!found_openmp) {
-       found_openmp = stapi_symbols.foundLibrary(exe,"libgomp");
+	found_openmp = stapi_symbols.foundLibrary(exe,"libgomp");
     }
     return found_openmp;
 }
-
 
 //
 // Determine what type of executable situation we have for running with cbtfrun.
@@ -135,23 +129,17 @@ static bool isOpenMPExe(const std::string exe) {
 // We catagorize these into three types: mpi, seq runing under mpi driver, and sequential
 //
 static exe_class_types typeOfExecutable ( std::string program, const std::string exe ) {
-
-   exe_class_types tmp_exe_type;
-
-   if ( isMpiExe(exe) ) { 
-          tmp_exe_type = MPI_exe_type;
-   } else {
-
-    if ( std::string::npos != program.find("aprun")) {
-        tmp_exe_type = SEQ_RunAs_MPI_exe_type;
+    exe_class_types tmp_exe_type;
+    if ( isMpiExe(exe) ) { 
+	tmp_exe_type = MPI_exe_type;
     } else {
-        tmp_exe_type = SEQ_exe_type;
+	if ( std::string::npos != program.find("aprun")) {
+	    tmp_exe_type = SEQ_RunAs_MPI_exe_type;
+	} else {
+	    tmp_exe_type = SEQ_exe_type;
+	}
     }
-
-  }
- 
-  return tmp_exe_type;
-
+    return tmp_exe_type;
 }
 
 // Function that returns whether the filename is an executable file.
@@ -162,11 +150,11 @@ static bool is_executable(std::string file)
 
     // Call stat with filename which will fill status_buffer
     if (stat(file.c_str(), &status_buffer) < 0)
-        return false;
+	return false;
 
     // Examine for executable status
     if ((status_buffer.st_mode & S_IEXEC) != 0 && S_ISREG(status_buffer.st_mode))
-        return true;
+	return true;
 
     return false;
 }
@@ -178,39 +166,21 @@ static std::string getMPIExecutableFromCommand(std::string command) {
 
     std::string retval = "";
 
-    bool is_debug_startup_enabled = (getenv("OPENSS_DEBUG_STARTUP") != NULL);
-
-    if (is_debug_startup_enabled) {
-      std::cerr << "DEBUG: osscollect, ENTER getMPIExecutableFromCommand, command=" << command << std::endl;
-    }
-
     boost::char_separator<char> sep(" ");
     boost::tokenizer<boost::char_separator<char> > btokens(command, sep);
 
     BOOST_FOREACH (const std::string& t, btokens) {
-      if (is_debug_startup_enabled) {
-        std::cerr << "DEBUG: osscollect, IN getMPIExecutableFromCommand, top of if is_executable, t=" << t << std::endl;
-      }
-      if (is_executable( t )) {
-         exe_class_types local_exe_type = typeOfExecutable(command, t);
-         if (is_debug_startup_enabled) {
-           std::cerr << "DEBUG: osscollect, IN getMPIExecutableFromCommand, inside checks base on if is_executable, t=" 
-                     << t << " local_exe_type=" << local_exe_type << std::endl;
-         }
-         if (local_exe_type == MPI_exe_type || local_exe_type == SEQ_RunAs_MPI_exe_type ) {
-           if (is_debug_startup_enabled) {
-             std::cerr << "DEBUG: osscollect, EXIT getMPIExecutableFromCommand, early return t=" << t << std::endl;
-           }
-           return t;
-         }
-      }
+	if (is_executable( t )) {
+	    exe_class_types local_exe_type = typeOfExecutable(command, t);
+	    if (local_exe_type == MPI_exe_type || local_exe_type == SEQ_RunAs_MPI_exe_type ) {
+		return t;
+	    }
+	}
     } // end foreach
 
-  if (is_debug_startup_enabled) {
-    std::cerr << "DEBUG: osscollect, EXIT getMPIExecutableFromCommand, bottom of routine return retval=" << retval << std::endl;
-  }
-  return retval;
+    return retval;
 }
+
 
 // Function that returns the filename of the executable file found in the "command".
 // It tokenizes the command and runs through it backwards looking for the first file that is executable.
@@ -223,15 +193,15 @@ static std::string getSeqExecutableFromCommand(std::string command) {
     boost::tokenizer<boost::char_separator<char> > btokens(command, sep);
 
     BOOST_FOREACH (const std::string& t, btokens) {
-      if (is_executable( t )) {
-         exe_class_types local_exe_type = typeOfExecutable(command, t);
-         if (local_exe_type == SEQ_exe_type ) {
-           return t;
-         }
-      }
+	if (is_executable( t )) {
+	    exe_class_types local_exe_type = typeOfExecutable(command, t);
+	    if (local_exe_type == SEQ_exe_type ) {
+		return t;
+	    }
+	}
     } // end foreach
 
-  return retval;
+    return retval;
 }
 
 
@@ -268,21 +238,29 @@ static std::string createDBName(std::string dbprefix)
 
 int main(int argc, char** argv)
 {
+#ifndef NDEBUG
+    if (is_debug_timing_enabled) {
+	std::cerr << OpenSpeedShop::Framework::Time::Now() << " osscollect client started." << std::endl;
+    }
+#endif
+
     unsigned int numBE;
     bool isMPI;
-    std::string topology, arch, connections, collector, program, mpiexecutable, cbtfrunpath, seqexecutable;
+    std::string topology, arch, connections, collector, program, mpiexecutable,
+		cbtfrunpath, seqexecutable;
 
-    bool is_debug_startup_enabled = (getenv("OPENSS_DEBUG_STARTUP") != NULL);
 
     // create a default for topology file.
-    char const* cur_dir = getenv("PWD");
-    std::string default_topology(cur_dir);
-    std::string cbtf_path(cur_dir);
+    char const* curr_dir = getenv("PWD");
 
-    default_topology += "/cbtf_topology";
+    std::string cbtf_path(curr_dir);
+
+
+    std::string default_topology(curr_dir);
+    default_topology += "/cbtfAutoTopology";
 
     // create a default for connections file.
-    std::string default_connections(cur_dir);
+    std::string default_connections(curr_dir);
     default_connections += "/attachBE_connections";
 
     // create a default for the collection type.
@@ -294,9 +272,8 @@ int main(int argc, char** argv)
         ("numBE", boost::program_options::value<unsigned int>(&numBE)->default_value(1),
 	    "Number of lightweight mrnet backends. Default is 1, For an mpi job, the number of ranks specified to the launcher will be used.")
         ("arch",
-            boost::program_options::value<std::string>(&arch)->default_value(""),
-            "automatic topology type defaults to a standard cluster.  These options are specific to a Cray or BlueGene. [cray | bluegene]")
-
+	    boost::program_options::value<std::string>(&arch)->default_value(""),
+	    "automatic topology type defaults to a standard cluster.  These options are specific to a Cray or BlueGene. [cray | bluegene]")
         ("topology",
 	    boost::program_options::value<std::string>(&topology)->default_value(""),
 	    "By default the tool will create a topology for you.  Use this option to pass a path name to a valid mrnet topology file. (i.e. from mrnet_topgen). Use this options with care.")
@@ -310,7 +287,7 @@ int main(int argc, char** argv)
 	    boost::program_options::value<std::string>(&program)->default_value(""),
 	    "Program to collect data from, Program with arguments needs double quotes.  If program is not specified this client will start the mrnet tree and wait for the user to manually attach backends in another window via cbtfrun.")
         ("cbtfrunpath",
-            boost::program_options::value<std::string>(&cbtfrunpath)->default_value(""),
+            boost::program_options::value<std::string>(&cbtfrunpath)->default_value("cbtfrun"),
             "Path to cbtfrun to collect data from, If target is cray or bluegene, use this to point to the targeted client.")
         ("mpiexecutable",
 	    boost::program_options::value<std::string>(&mpiexecutable)->default_value(""),
@@ -329,31 +306,38 @@ int main(int argc, char** argv)
 				  options(desc).positional(p).run(), vm);
     boost::program_options::notify(vm);
 
+
     // Generate the --mpiexecutable argument value if it is not set
     if (program != "" && mpiexecutable == "") {
-
-      // Find out if there is an mpi driver to key off of
-      // Then match the mpiexecutable value to the program name
-      mpiexecutable = getMPIExecutableFromCommand(program);
-      if (is_debug_startup_enabled) {
-        std::cerr << "DEBUG: osscollect, program=" << program << " mpiexecutable=" << mpiexecutable << std::endl;
-      }
-
+	// Find out if there is an mpi driver to key off of
+	// Then match the mpiexecutable value to the program name
+	mpiexecutable = getMPIExecutableFromCommand(program);
     }
 
     if (mpiexecutable != "") {
-         numBE = getBEcountFromCommand(program);
-         if (is_debug_startup_enabled) {
-           std::cerr << "DEBUG: osscollect, numBE=" << numBE << " mpiexecutable=" << mpiexecutable << std::endl;
-         }
+	numBE = getBEcountFromCommand(program);
     }
 
     if (vm.count("help")) {
-        std::cout << desc << std::endl;
-        return 1;
+	std::cout << desc << std::endl;
+	return 1;
     }
 
     bool finished = false;
+    std::string aprunLlist ="";
+
+    if (numBE == 0) {
+	std::cout << desc << std::endl;
+	return 1;
+    }
+
+    // start with a fresh connections file.
+    // FIXME: this likely would remove any connections file passed
+    // on the command line. Should we allow that any more...
+    bool connections_exists = boost::filesystem::exists(connections);
+    if (connections_exists) {
+	boost::filesystem::remove(connections);
+    }
 
     // TODO: pass numBE to CBTFTopology and record as the number
     // of application processes.
@@ -369,13 +353,10 @@ int main(int argc, char** argv)
       fenodename =  cbtftopology.getFENodeStr();
       std::cerr << "Generated topology file: " << topology << std::endl;
     } else {
-      //topology = default_topology;
       fenodename =  "localhost";
     }
-    if (is_debug_startup_enabled) {
-      std::cerr << "DEBUG: osscollect, fenodename=" << fenodename << " topology=" << topology << std::endl;
-    }
 
+    // OpenSpeedShop client specific.
     // find name of application and strip any path.
     OpenSpeedShop::Framework::Path prg(mpiexecutable);
     if (prg.empty()) {
@@ -403,6 +384,8 @@ int main(int argc, char** argv)
     FW_Experiment->setBEprocCount( numBE );
     FW_Experiment->setInstrumentorUsesCBTF( false );
 
+    // FIXME: Is this cudaio override to io still needed with
+    // the latest cuda collector?
     Collector mycollector = FW_Experiment->createCollector(
         (collector == "cudaio") ? "io" : collector
         );
@@ -416,154 +399,109 @@ int main(int argc, char** argv)
     // From this point on we run the application with cbtf and specified collector.
     // verify valid numBE.
     if (numBE == 0) {
-        std::cout << desc << std::endl;
-        return 1;
+	std::cout << desc << std::endl;
+	return 1;
     } else if (program == "" && numBE > 0) {
 	// this allows us to start the mrnet client FE
 	// and then start the program with collector in
 	// a separate window using cbtfrun.
 	fethread.start(topology,connections,collector,numBE,finished);
 	std::cout << "Running Frontend for " << collector << " collector."
-	  << "\nCreating openss database: " << dbname
-	  << "\nNumber of mrnet backends: "  << numBE
-          << "\nTopology file used: " << topology << std::endl;
+	    << "\nNumber of mrnet backends: "  << numBE
+	    << "\nTopology file used: " << topology << std::endl;
 	std::cout << "Start mrnet backends now..." << std::endl;
 	// ctrl-c to exit.  need cbtfdemo to notify us when all threads
 	// have finised.
 	while(true);
-        fethread.join();
+	fethread.join();
 	exit(0);
     } else {
-        std::cout << "Running " << collector << " collector."
-	  << "\nProgram: " << program
-	  << "\nCreating openss database: " << dbname
-	  << "\nNumber of mrnet backends: "  << numBE
-          << "\nTopology file used: " << topology << std::endl;
-    }
+	std::cout << "Running " << collector << " collector."
+	    << "\nProgram: " << program
+	    << "\nNumber of mrnet backends: "  << numBE
+            << "\nTopology file used: " << topology << std::endl;
 
-    // TODO: does cbtf cleanly terminate mrnet.
-    fethread.start(topology,connections,collector,numBE,finished);
-    sleep(3);
+	// TODO: need to cleanly terminate mrnet.
+	fethread.start(topology,connections,collector,numBE,finished);
 
-    // simple fork of process to run the program with collector.
-    pid_t child,w;
-    int status;
-
-    child = fork();
-    if(child < 0){
-        std::cout << "fork failed";
-    } else if(child == 0){
+	// sleep was not sufficient to ensure we have a connections file
+	// written by the fethread.  Without the connections file the
+	// ltwt mrnet BE's cannot connect to the netowrk.
+	// Wait for the connections file to be written before proceeding
+	// to stat the mpi job and allowing the ltwt BEs to connect to
+	// the component network instantiated by the fethread.
+	bool connections_written = boost::filesystem::exists(connections);
+	while (!connections_written) {
+	   connections_written = boost::filesystem::exists(connections);
+	}
 
         bool exe_has_openmp = false;
 
-        if (!mpiexecutable.empty()) {
-
-#if 0
-            size_t pos;
-#else
-            int64_t pos;
-#endif
-            if (cbtftopology.getIsCray()) {
-                if (std::string::npos != program.find("aprun")) {
-                    // Add in the -L list of nodes if aprun is present 
-                    // and we are not co-locating
-                    std::list<std::string> nodes = cbtftopology.getAppNodeList();
-                    std::string appNodesForAprun = "-L " + cbtftopology.createRangeCSVstring(nodes) + " ";
-                    pos = program.find("aprun ") + 6;
-                    program.insert(pos, appNodesForAprun);
-
-                    if (is_debug_startup_enabled) {
-                      std::cerr << "DEBUG: osscollect, program=" << program << " mpiexecutable=" << mpiexecutable << std::endl;
-                      std::cerr << "DEBUG: osscollect, appNodesForAprun=" << appNodesForAprun << " pos=" << pos << std::endl;
-                    }
-                }
-            }
+	if (!mpiexecutable.empty()) {
+	    size_t pos;
+	    if (cbtftopology.getIsCray()) {
+		if (std::string::npos != program.find("aprun")) {
+		    // Add in the -L list of nodes if aprun is present 
+		    // and we are not co-locating
+		    std::list<std::string> nodes = cbtftopology.getAppNodeList();
+		    std::string appNodesForAprun = "-L " + cbtftopology.createRangeCSVstring(nodes) + " "; 
+		    pos = program.find("aprun ") + 6;
+		    program.insert(pos, appNodesForAprun);
+		}
+	    }
 
 	    pos = program.find(mpiexecutable);
 
-            exe_has_openmp = isOpenMPExe(mpiexecutable);
+	    exe_has_openmp = isOpenMPExe(mpiexecutable);
 
-            exe_class_types appl_type =  typeOfExecutable(program, mpiexecutable);
+	    exe_class_types appl_type =  typeOfExecutable(program, mpiexecutable);
+ 
+	    if (appl_type == MPI_exe_type) {
+		if (exe_has_openmp) {
+		    program.insert(pos, " " + cbtfrunpath + " --mrnet --mpi -c " + collector + " --openmp" + " \"");
+		} else {
+		    program.insert(pos, " " + cbtfrunpath + " --mrnet --mpi -c " + collector + " \"");
+		}
+	    } else {
+		if (exe_has_openmp) {
+		    program.insert(pos, " " + cbtfrunpath + " --mrnet -c " + collector + " --openmp" + " \"");
+		} else {
+		    program.insert(pos, " " + cbtfrunpath + " --mrnet -c " + collector + " \"");
+		}
+	    }
 
-            if (is_debug_startup_enabled) {
-              std::cerr << "DEBUG: osscollect, appl_type=" << appl_type << " pos=" << pos << " exe_has_openmp=" << exe_has_openmp << std::endl;
-            }
+	    program.append("\"");
 
-            if (appl_type == MPI_exe_type) {
-
-              if (!cbtfrunpath.empty()) {
-                if (exe_has_openmp) {
-                  program.insert(pos, " " + cbtfrunpath + " --mrnet --mpi -c " + collector + " --openmp" + " \"");
-                } else {
-                  program.insert(pos, " " + cbtfrunpath + " --mrnet --mpi -c " + collector + " \"");
-                }
-              } else {
-                if (exe_has_openmp) {
-                  program.insert(pos, " cbtfrun --mrnet --mpi -c " + collector + " --openmp" + " \"");
-                } else {
-                  program.insert(pos, " cbtfrun --mrnet --mpi -c " + collector + " \"");
-                }
-              }
-
-            } else {
-
-              if (!cbtfrunpath.empty()) {
-                if (exe_has_openmp) {
-                  program.insert(pos, " " + cbtfrunpath + " --mrnet -c " + collector + " --openmp" + " \"");
-                } else {
-                  program.insert(pos, " " + cbtfrunpath + " --mrnet -c " + collector + " \"");
-                }
-              } else {
-                if (exe_has_openmp) {
-                  program.insert(pos, " cbtfrun --mrnet -c " + collector + " --openmp" + " \"");
-                } else {
-                  program.insert(pos, " cbtfrun --mrnet -c " + collector + " \"");
-                }
-              }
-
-            }
-
-            program.append("\"");
-            std::cerr << "executing mpi program: " << program << std::endl;
+	    std::cerr << "executing mpi program: " << program << std::endl;
 	    
-            ::system(program.c_str());
+	    ::system(program.c_str());
 
 	} else {
-    	    const char * command = "cbtfrun";
-            if (!cbtfrunpath.empty()) {
-                command = cbtfrunpath.c_str() ;
-            } 
 
-            seqexecutable = getSeqExecutableFromCommand(program);
-            exe_has_openmp = isOpenMPExe(seqexecutable);
+	    seqexecutable = getSeqExecutableFromCommand(program);
+	    exe_has_openmp = isOpenMPExe(seqexecutable);
 
+	    std::string cmdtorun;
+	    cmdtorun.append(cbtfrunpath + " -m -c " + collector);
 
-            if (exe_has_openmp) {
-              std::cerr << "executing sequential program: "
-                  << command << " -m -c " << collector << " --openmp" << " " << program << std::endl;
-            } else {
-              std::cerr << "executing sequential program: "
-                  << command << " -m -c " << collector << " " << program << std::endl;
-            }
+	    if (exe_has_openmp) {
+		cmdtorun.append(" --openmp ");
+	    } else {
+		cmdtorun.append(" ");
 
-            if (exe_has_openmp) {
-              execlp(command,"-m", "-c", collector.c_str(), "--openmp", program.c_str(), NULL);
-            } else {
-              execlp(command,"-m", "-c", collector.c_str(), program.c_str(), NULL);
-            }
+	    } 
 
+	    cmdtorun.append(program);
+	    std::cerr << "executing sequential program: " << cmdtorun << std::endl;
+	    ::system(cmdtorun.c_str());
 	}
-    } else {
 
-	do {
-	    w = waitpid(child, &status, WUNTRACED | WCONTINUED);
-	    if (w == -1) {
-		perror("waitpid");
-		exit(EXIT_FAILURE);
-	    }
-	} while (!WIFEXITED(status) && !WIFSIGNALED(status));
-
-        fethread.join();
+	fethread.join();
     }
 
+#ifndef NDEBUG
+    if (is_debug_timing_enabled) {
+	std::cerr << OpenSpeedShop::Framework::Time::Now() << " osscollect client exits." << std::endl;
+    }
+#endif
 }
