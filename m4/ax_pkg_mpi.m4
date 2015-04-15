@@ -966,6 +966,61 @@ AC_DEFUN([AX_MPICH2], [
        # tests, where $MPICH2_CC is used, and is not needed when building
        # the MPI-related plugins, where $MPICH2_CC is not used.
        MPICH2_CC="$mpich2_dir/bin/mpicc"
+       MPICH2_CPPFLAGS="-I$mpich2_dir/include"
+       MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir"
+       MPICH2_LIBDIR="$mpich2_dir/$alt_abi_libdir"
+#       MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir -L$mpich2_dir/$alt_abi_libdir/libmpich.a"
+       MPICH2_LIBS="-lmpich"
+#       MPICH2_LIBS=""
+       MPICH2_HEADER="$mpich2_dir/include/mpi.h"
+       MPICH2_DIR="$mpich2_dir"
+       if (test -e $mpich2/include/mpi.h) ; then
+         MPICH2_CPPFLAGS="-I$mpich2/include"
+         MPICH2_HEADER="$mpich2/include/mpi.h"
+       elif (test -e /usr/include/mpich2-$oss_hardware_platform/mpi.h) ; then
+         MPICH2_CPPFLAGS="-I/usr/include/mpich2-$oss_hardware_platform"
+         MPICH2_HEADER="-I/usr/include/mpich2-$oss_hardware_platform/mpi.h"
+       fi
+
+       CC="$MPICH2_CC"
+       CPPFLAGS="$CPPFLAGS $MPICH2_CPPFLAGS"
+       LDFLAGS="$LDFLAGS $MPICH2_LDFLAGS"
+       LIBS="$MPICH2_LIBS"
+
+       AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+   	  #include <mpi.h>
+	  ]], [[
+	  MPI_Initialized((int*)0);
+	  ]])],
+
+         if (test -f $mpich2_dir/$alt_abi_libdir/libmpich.so) ; then
+            MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir"
+            MPICH2_LIBDIR="$mpich2_dir/$alt_abi_libdir"
+	    found_mpich2=1
+            AC_MSG_CHECKING([found MPICH2 library alt locations found alt_abi_libdir and headers])
+         fi
+
+         if (test -f $mpich2_dir/$alt_abi_libdir/shared/libmpich.so) ; then
+            MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir/shared -L$mpich2_dir/$alt_abi_libdir"
+            MPICH2_LIBDIR="$mpich2_dir/$alt_abi_libdir/shared"
+	    found_mpich2=1
+            AC_MSG_CHECKING([found MPICH2 library alt locations found shared/alt_abi_libdir and headers])
+         fi 
+
+	, )
+
+    fi
+
+
+    if test $found_mpich2 -eq 0; then
+
+       AC_MSG_CHECKING([for MPICH2 library (alt locations) and headers])
+
+       # Put -shlib into MPICH2_CC, since it is needed when building the
+       # tests, where $MPICH2_CC is used, and is not needed when building
+       # the MPI-related plugins, where $MPICH2_CC is not used.
+       #MPICH2_CC="$mpich2_dir/bin/mpicc"
+       MPICH2_CC="gcc"
 #       MPICH2_CC="$mpich2_dir/bin/mpicc -shlib"
        MPICH2_CPPFLAGS="-I$mpich2_dir/include"
        MPICH2_LDFLAGS="-L$mpich2_dir/$alt_abi_libdir"
