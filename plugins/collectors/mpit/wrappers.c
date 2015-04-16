@@ -2063,12 +2063,8 @@ int mpit_PMPI_Gatherv(
 
     }
 
-    fprintf(stderr," MPI_Gatherv, before PMPI call sendcount= %d, recvcounts= %d,  displs= %d\n", sendcount, recvcounts, displs);
-
     retval = PMPI_Gatherv(sendbuf, sendcount, sendtype, recvbuf, 
     	    	    	  recvcounts, displs, recvtype, root, comm);
-
-    fprintf(stderr," MPI_Gatherv, after PMPI call retval=%d, sendcount=%d, recvcounts=%d,  displs=%d\n", retval, sendcount, recvcounts, displs);
 
     if (dotrace) {
 
