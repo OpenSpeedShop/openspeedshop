@@ -391,8 +391,8 @@ int main(int argc, char** argv)
         );
 
     ThreadGroup tg = FW_Experiment->createProcess(program, fenodename, numBE,
-                                                     OutputCallback(NULL,NULL),
-                                                     OutputCallback(NULL,NULL)   );
+                                                     OutputCallback((void (*)(const char*, const int&, void*))NULL,(void *)NULL),
+                                                     OutputCallback((void (*)(const char*, const int&, void*))NULL,(void *)NULL)   );
 
     FEThread fethread;
 
