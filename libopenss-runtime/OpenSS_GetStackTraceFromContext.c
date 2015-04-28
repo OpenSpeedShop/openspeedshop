@@ -269,7 +269,7 @@ void OpenSS_GetStackTrace( bool_t skip_signal_frames,
     uint64_t framebuf[max_frames];
     *stacktrace_size = unw_backtrace((void**)framebuf,max_frames);
     if (skip_frames == 0 && skip_signal_frames)
-	skip_frames = 5;
+	skip_frames = 4;
 
     int i;
     for (i = skip_frames; i < *stacktrace_size; i++) {
