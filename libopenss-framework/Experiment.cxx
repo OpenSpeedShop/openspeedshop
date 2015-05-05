@@ -3702,3 +3702,153 @@ void Experiment::removeNonCrossSessionViews(std::string db_name)
 #endif
 
 }
+
+/**
+ * Store a view to the database that represents the view_data of the pass view_cmd.
+ *
+ * It searches the database Views table for a matching command.  If found it stores 
+ * the data view into the database for future reuse.  If a matching command is not found,
+ * the return value is false to indicate a matching command was not found.
+ *
+ * @return   The success/failure return value.
+ */
+
+bool Experiment::addView(std::string& viewcommand, std::string& viewdata )
+{
+  // Search for a matching view command in the database then store the generated 
+  // performance information into the database.
+
+  int id_of_match = -1;
+  bool return_val = false;
+  bool found_cmd = true;
+
+#ifndef NDEBUG
+     std::stringstream output;
+	if(is_debug_reuse_views_enabled) {
+	     output << "ENTER Experiment::addView" << " viewcommand=" << viewcommand << std::endl;
+	     std::cerr << output.str();
+	}
+#endif
+
+
+  // Find any existing entry in the database table for saved views
+  BEGIN_TRANSACTION(dm_database);
+  dm_database->prepareStatement(
+		"SELECT id FROM Views where view_cmd = ?;"
+		);
+  
+  dm_database->bindArgument(1, viewcommand);
+  while(dm_database->executeStatement())
+	    found_cmd = (dm_database->getResultAsInteger(1) > 0);
+  END_TRANSACTION(dm_database);
+
+
+  std::ostringstream *ostring_stream_pstr;
+//  std::string pstr ;
+  std::string pstr_temp ;
+
+#if 0
+  const int copyBufferSize = 4096;
+
+  int header_length = view_file_header_offset;
+  //FILE *fd = fopen(view_data_filename_arg.c_str(),"r");
+  int fd = open(view_data_filename_arg.c_str(),O_RDONLY);
+  char* read_buffer = (char *) malloc(copyBufferSize);
+
+  if ( fd ) {
+     //int num = read( fd, read_buffer, copyBufferSize );
+
+     //memset(read_buffer, 0, copyBufferSize);
+    for(int num = 1; num > 0;) {
+
+       //num = fread(read_buffer, 1, copyBufferSize, fd);
+       num = read( fd, read_buffer, copyBufferSize);
+       Assert((num >= 0) || ((num == -1) /* && (errno == EINTR) */));
+       //std::cerr << "In Experiment::addViewCommandAndDataEntries, READ NUM=" << num << std::endl;
+
+       if (num > 0) {
+
+#if 0
+	 std::cerr << "In Experiment::addViewCommandAndDataEntries, reading from:" 
+		 << " view_data_filename_arg=" << view_data_filename_arg 
+		 << " num=" << num << " read_buffer[0]=" << read_buffer[0] 
+		 << " read_buffer[header_length]=" << read_buffer[header_length] 
+		 <<  std::endl;
+
+	 for (int j=0; j<copyBufferSize; j++) {
+	    std::cerr << "In Experiment::addViewCommandAndDataEntries, j=" << j << " read_buffer[j]=" <<  read_buffer[j] << std::endl;
+	 }
+#endif
+
+	 //std::string ppstr(read_buffer + header_length);
+	 //pstr = ppstr;
+	 for(int i = header_length; i < num; i++) {
+	    // Write bytes to the destination file
+	    pstr_temp.push_back( read_buffer[i] ) ;
+	 }
+	 //std::cerr << "In Experiment::addViewCommandAndDataEntries, FIRST_TIME, num=" << num << " pstr_temp=" << pstr_temp << std::endl;
+	 // After first time through, the header is not a concern, only need to skip for the initial read_buffer copy.
+	 header_length = 0;
+
+	 if (num != copyBufferSize) {
+	    // need to end the string
+	    pstr_temp.push_back( '\0' ) ;
+	    break;
+	 }
+
+      } // for num
+    } // num > 0
+
+  } // fd ok
+
+  std::string pstr(pstr_temp.c_str());
+
+#else
+  std::ostream *view_outstream;
+  std::string pstr ;
+  ostring_stream_pstr = (std::ostringstream*)(view_outstream);
+  pstr = ostring_stream_pstr->str();
+#endif
+
+
+#ifndef NDEBUG
+  if(is_debug_reuse_views_enabled) {
+    std::cerr << "In Experiment::addView view.size:" << pstr.size() << " pstr.length:" << pstr.length() << std::endl;
+  }
+#endif
+
+  if (id_of_match > 0 && return_val == true ) {
+
+#ifndef NDEBUG
+    if(is_debug_reuse_views_enabled) {
+	 std::stringstream output;
+	 output << "In Experiment::addView UPDATE view viewcommand:" << viewcommand 
+		<< " id:" << id_of_match 
+		<< " view:" << pstr << std::endl;
+	 std::cerr << output.str();
+    }
+#endif
+
+    BEGIN_WRITE_TRANSACTION(dm_database);
+       dm_database->prepareStatement(
+	      "UPDATE Views SET view_data = ? WHERE id = ? AND view_cmd = ?;"
+       );
+       dm_database->bindArgument(1, pstr);
+       dm_database->bindArgument(2, id_of_match);
+       dm_database->bindArgument(3, viewcommand);
+       while(dm_database->executeStatement());
+       END_TRANSACTION(dm_database);
+  }
+
+#ifndef NDEBUG
+  if(is_debug_reuse_views_enabled) {
+	 std::stringstream output;
+	 output << "EXIT Experiment::addView"
+		<< " view command:" << viewcommand << std::endl;
+	 std::cerr << output.str();
+  }
+#endif
+
+  return return_val;
+
+}

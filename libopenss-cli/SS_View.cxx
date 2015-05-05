@@ -473,6 +473,31 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
   printf("Enter SS_Generate_View in SS_View.cxx, viewname.c_str()=%s\n", viewname.c_str());
 #endif
 
+ // Look for a saved view.
+  savedViewInfo *svi = NULL;
+
+#if DEBUG_REUSEVIEWS
+  std::cerr << "In SS_Generate_View (SS_View.cxx), calling SS_Find_Previous_View if OPENSS_SAVE_VIEWS_FOR_REUSE is set" << std::endl;
+#endif
+
+  // Check to see the preference for saving views is enabled and a view for this command already exists
+  //
+  if ( OPENSS_SAVE_VIEWS_FOR_REUSE && SS_Find_Previous_View( cmd, exp ) ) {
+
+    if (!cmd->SaveResult()) {
+     // Previously generated output file found with requested view.
+      return true;
+    }
+
+   // An existing saved view is not available but provision has been made to create a new one.
+   //
+    svi = cmd->SaveResultViewInfo();
+    if (svi != NULL) {
+     // Set StartTIme to measure how long it takes to generate the view.
+      svi->setStartTime();
+    }
+  }
+
  // Determine the availability of the view.
   ViewType *vt = Find_View (viewname);
   if (vt == NULL) {
@@ -560,31 +585,6 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
 #if DEBUG_CLI
   printf("In SS_Generate_View (SS_View.cxx), after calling Filter_ThreadGroup\n");
 #endif
-
- // Look for a saved view.
-  savedViewInfo *svi = NULL;
-
-#if DEBUG_REUSEVIEWS
-  std::cerr << "In SS_Generate_View (SS_View.cxx), calling SS_Find_Previous_View if OPENSS_SAVE_VIEWS_FOR_REUSE is set" << std::endl;
-#endif
-
-  // Check to see the preference for saving views is enabled and a view for this command already exists
-  //
-  if ( OPENSS_SAVE_VIEWS_FOR_REUSE && SS_Find_Previous_View( cmd, exp ) ) {
-
-    if (!cmd->SaveResult()) {
-     // Previously generated output file found with requested view.
-      return true;
-    }
-
-   // An existing saved view is not available but provision has been made to create a new one.
-   //
-    svi = cmd->SaveResultViewInfo();
-    if (svi != NULL) {
-     // Set StartTIme to measure how long it takes to generate the view.
-      svi->setStartTime();
-    }
-  }
 
 #if DEBUG_CLI
   printf("In SS_Generate_View in SS_View.cxx, before calling vt->GenerateView\n");

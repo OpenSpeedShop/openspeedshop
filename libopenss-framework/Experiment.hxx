@@ -203,6 +203,7 @@ namespace OpenSpeedShop { namespace Framework {
         std::vector<std::string> getSavedCommandList(std::string db_name) const;
         void removeViewTableEntry(const std::string view_cmd_arg, const int views_id_arg, const OpenSpeedShop::Framework::SmartPtr<OpenSpeedShop::Framework::Database> database_arg) const;
         void removeNonCrossSessionViews(std::string db_name);
+	bool addView(std::string&, std::string& );
 		
     private:
 
