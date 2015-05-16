@@ -1057,13 +1057,17 @@ if os.path.isfile(site_specific_startup_file):
 # Load the mrnet-specific Python startup file (if it exists)
 ################################################################################
 
-site_specific_startup_file = OpenssInstallDir + "/lib/openspeedshop/mrnet.py"
-if os.path.isfile(site_specific_startup_file):
-    execfile(site_specific_startup_file)
+# JEG commented this out on May 16 2015 - it causes osscompare to not
+# work on compute node partitions because we are trying to read from 
+# the nodes in the allocation.  We do not use this version (mrnet) any longer.
 
-site_specific_startup_file = OpenssInstallDir + "/lib64/openspeedshop/mrnet.py"
-if os.path.isfile(site_specific_startup_file):
-    execfile(site_specific_startup_file)
+#site_specific_startup_file = OpenssInstallDir + "/lib/openspeedshop/mrnet.py"
+#if os.path.isfile(site_specific_startup_file):
+#    execfile(site_specific_startup_file)
+#
+#site_specific_startup_file = OpenssInstallDir + "/lib64/openspeedshop/mrnet.py"
+#if os.path.isfile(site_specific_startup_file):
+#    execfile(site_specific_startup_file)
 
 ################################################################################
 # Load the user-specific Python startup file (if it exists)
