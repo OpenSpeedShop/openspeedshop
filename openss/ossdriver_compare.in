@@ -807,18 +807,11 @@ do
        echo "DEBUG: value[$i]=" "${values[$i]}" ## print field N (numbered from 0)
     fi
     j=($i + 1)
-    dbase_name="dbase${j}_exptype.txt"
-
-    if [ $debug_flag == 1 ]
-    then
-      echo "DEBUG: dbase_name = $dbase_name"
-    fi
 
     echo "exprestore -f ${values[$i]}" > /tmp/$USER/osscompare_commands.txt
     echo "list -v exptypes > /tmp/$USER/dbase${j}_exptype.txt" >> /tmp/$USER/osscompare_commands.txt
     echo "list -v walltime" >> /tmp/$USER/osscompare_commands.txt
     echo "list -v walltime -v timeonly > /tmp/$USER/dbase${j}_walltime.txt" >> /tmp/$USER/osscompare_commands.txt
-#    echo "list -v exptypes > /tmp/$USER/$dbase_name" >> /tmp/$USER/osscompare_commands.txt
 
     openss -batch < /tmp/$USER/osscompare_commands.txt
 
@@ -830,7 +823,7 @@ do
        echo "DEBUG: database $i section line=$line"
        echo "DEBUG: type of database $i=${type_of_dbase[$i]}"
      fi
-    done < /tmp/$USER/$dbase_name
+    done < /tmp/$USER/dbase${j}_exptype.txt
   fi
 done
 
