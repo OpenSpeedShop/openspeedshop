@@ -96,6 +96,7 @@ osscollect_CXXFLAGS = \
 	@BOOST_CPPFLAGS@ \
 	@MRNET_CPPFLAGS@ \
 	@CBTF_CPPFLAGS@ \
+	@CBTF_KRELL_CPPFLAGS@ \
 	@DYNINST_CPPFLAGS@ \
 	$(LTDLINCL)
 
@@ -105,12 +106,15 @@ osscollect_LDFLAGS = \
         @LIBELF_LDFLAGS@ \
         @LIBDWARF_LDFLAGS@ \
 	@LIBXERCES_C_LDFLAGS@ \
+	@CBTF_KRELL_LDFLAGS@ \
 	@MRNET_LDFLAGS@ \
         @BOOST_LDFLAGS@
 
 osscollect_LDADD = \
 	$(LIBLTDL) \
         @DYNINST_SYMTABAPI_LIBS@ \
+	@CBTF_KRELL_CORE_SYMTABAPI_LIBS@ \
+	@CBTF_KRELL_CORE_MRNET_LIBS@ \
         @LIBELF_LIBS@ \
         @LIBDWARF_LIBS@ \
 	@LIBXERCES_C@ \
@@ -120,7 +124,6 @@ osscollect_LDADD = \
         @BOOST_THREAD_LIB@ \
 	@MRNET_LIBS@ \
 	-lopenss-framework \
-	-lcbtf-core-symtabapi \
 	-lpthread
 
 osscollect_SOURCES = \

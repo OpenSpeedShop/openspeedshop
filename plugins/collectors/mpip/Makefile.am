@@ -25,16 +25,16 @@ endif
 
 if BUILD_CBTF
 mpip_la_CXXFLAGS = \
-	@MESSAGES_CPPFLAGS@ \
+	@CBTF_KRELL_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-framework
 
 mpip_la_LDFLAGS = \
-	@MESSAGES_LDFLAGS@ \
+	@CBTF_KRELL_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-framework \
 	-no-undefined -module -avoid-version
 
 mpip_la_LIBADD = \
-	@MESSAGES_LIBS@ \
+	@CBTF_KRELL_MESSAGES_LIBS@ \
 	-lopenss-framework
 
 mpip_la_SOURCES = \

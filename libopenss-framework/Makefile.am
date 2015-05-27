@@ -18,8 +18,8 @@
 ################################################################################
 
 # CBTF needs:
-# MESSAGES_PERFDATA_LIBS
-# -I MESSAGES_CPPFLAGS
+# CBTF_KRELL_MESSAGES_PERFDATA_LIBS
+# -I CBTF_KRELL_CPPFLAGS
 #  DataHeader.h
 #
 
@@ -97,9 +97,9 @@ libopenss_framework_la_LDFLAGS = \
 
 if BUILD_CBTF
 libopenss_framework_la_CXXFLAGS += \
-	@MESSAGES_CPPFLAGS@
+	@CBTF_KRELL_CPPFLAGS@
 libopenss_framework_la_LDFLAGS += \
-	@MESSAGES_LDFLAGS@
+	@CBTF_KRELL_LDFLAGS@
 endif
 
 #
@@ -122,9 +122,9 @@ libopenss_framework_la_LDFLAGS = \
 
 if BUILD_CBTF
 libopenss_framework_la_CXXFLAGS += \
-	@MESSAGES_CPPFLAGS@
+	@CBTF_KRELL_CPPFLAGS@
 libopenss_framework_la_LDFLAGS += \
-	@MESSAGES_LDFLAGS@
+	@CBTF_KRELL_LDFLAGS@
 endif
 
 # end of the else clause for the non-symtabAPI section
@@ -155,8 +155,8 @@ libopenss_framework_la_LDFLAGS += \
 
 libopenss_framework_la_LIBADD += \
 	-lopenss-framework-symtabapi \
-	@MESSAGES_PERFDATA_LIBS@ \
-	@MESSAGES_BASE_LIBS@
+	@CBTF_KRELL_MESSAGES_PERFDATA_LIBS@ \
+	@CBTF_KRELL_MESSAGES_BASE_LIBS@
 endif
 
 # else for BUILD_INSTRUMENTOR
@@ -175,7 +175,7 @@ endif
 #
 #libopenss_framework_la_LIBADD += \
 #	-lopenss-framework-symtabapi \
-#	@MESSAGES_PERFDATA_LIBS@
+#	@CBTF_KRELL_MESSAGES_PERFDATA_LIBS@
 #endif
 #
 #else
@@ -188,7 +188,7 @@ endif
 #
 #if BUILD_CBTF
 #libopenss_framework_la_LIBADD += \
-#	@MESSAGES_PERFDATA_LIBS@
+#	@CBTF_KRELL_MESSAGES_PERFDATA_LIBS@
 #endif
 #
 ## endif for not using symtabAPI else clause

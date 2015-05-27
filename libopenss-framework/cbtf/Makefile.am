@@ -23,17 +23,17 @@ libopenss_framework_cbtf_la_CXXFLAGS = \
 	-I$(top_srcdir)/libopenss-framework \
 	@BOOST_CPPFLAGS@ \
 	@CBTF_CPPFLAGS@ \
-	@CBTF_MRNET_CPPFLAGS@ \
-	@MESSAGES_CPPFLAGS@ \
 	@CBTF_XML_CPPFLAGS@ \
+	@CBTF_MRNET_CPPFLAGS@ \
+	@CBTF_KRELL_CPPFLAGS@ \
 	@MRNET_CPPFLAGS@
 
 libopenss_framework_cbtf_la_LDFLAGS = \
 	@BOOST_LDFLAGS@ \
 	@CBTF_LDFLAGS@ \
 	@CBTF_MRNET_LDFLAGS@ \
-	@MESSAGES_LDFLAGS@ \
 	@CBTF_XML_LDFLAGS@ \
+	@CBTF_KRELL_LDFLAGS@ \
 	@MRNET_LDFLAGS@
 
 libopenss_framework_cbtf_la_LIBADD = \
@@ -41,10 +41,10 @@ libopenss_framework_cbtf_la_LIBADD = \
 	@BOOST_THREAD_LIB@ \
 	@CBTF_LIBS@ \
 	@CBTF_MRNET_LIBS@\
-	@MESSAGES_LIBS@ \
 	@CBTF_XML_LIBS@\
-	-lcbtf-core \
-	-lcbtf-core-mrnet \
+	@CBTF_KRELL_CORE_LIBS@ \
+	@CBTF_KRELL_CORE_MRNET_LIBS@ \
+	@CBTF_KRELL_MESSAGES_LIBS@ \
 	@MRNET_LIBS@
 
 libopenss_framework_cbtf_la_SOURCES = \

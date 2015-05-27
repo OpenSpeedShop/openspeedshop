@@ -35,30 +35,14 @@ AC_DEFUN([AX_CBTF], [
     CBTF_LIBS="-lcbtf"
     CBTF_INSTALLDIR="$cbtf_dir"
     CBTF_LIBDIR="$cbtf_dir/$abi_libdir"
-    CBTF_TOOLS_CBTFRUN="$cbtf_dir/bin/cbtfrun"
-    CBTF_TOOLS_XML="$cbtf_dir/share/KrellInstitute/xml"
-    CBTF_TOOLS_COLLECTORS="$cbtf_dir/$abi_libdir/KrellInstitute/Collectors"
-    CBTF_TOOLS_COMPONENTS="$cbtf_dir/$abi_libdir/KrellInstitute/Components"
 
     AC_DEFINE_UNQUOTED(CBTF_INSTALL_DIR, "$CBTF_INSTALLDIR",
                            [Name of full path to cbtf installtation])
     AC_DEFINE_UNQUOTED(CBTF_LIB_DIR, "$CBTF_LIBDIR",
                            [Name of full path to cbtf lib directory])
-    AC_DEFINE_UNQUOTED(CBTF_TOOLS_CBTFRUN_CMD, "$CBTF_TOOLS_CBTFRUN",
-                           [Name of full path to cbtfrun command])
-    AC_DEFINE_UNQUOTED(CBTF_TOOLS_XMLDIR, "$CBTF_TOOLS_XML",
-                           [Name of full path to cbtf tools xml components])
-    AC_DEFINE_UNQUOTED(CBTF_TOOLS_COLLECTORSDIR, "$CBTF_TOOLS_COLLECTORS",
-                           [Name of full path to cbtf tools collectors])
-    AC_DEFINE_UNQUOTED(CBTF_TOOLS_COMPONENTSDIR, "$CBTF_TOOLS_COMPONENTS",
-                           [Name of full path to cbtf tool components])
 
     AC_SUBST([CBTF_INSTALLDIR])
     AC_SUBST([CBTF_LIBDIR])
-    AC_SUBST([CBTF_TOOLS_XML])
-    AC_SUBST([CBTF_TOOLS_COLLECTORS])
-    AC_SUBST([CBTF_TOOLS_COMPONENTS])
-    AC_SUBST([CBTF_TOOLS_CBTFRUN])
     
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP

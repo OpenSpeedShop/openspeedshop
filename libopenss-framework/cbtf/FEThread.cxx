@@ -170,9 +170,9 @@ void FEThread::run(const std::string& topology, const std::string& connections,
     }
 
     Component::registerPlugin(
-        filesystem::path(CBTF_LIB_DIR) / "libcbtf-messages-converters-base.so");
+        filesystem::path(CBTF_KRELL_LIB_DIR) / "libcbtf-messages-converters-base.so");
     Component::registerPlugin(
-        filesystem::path(CBTF_LIB_DIR) / "libcbtf-messages-base.so");
+        filesystem::path(CBTF_KRELL_LIB_DIR) / "libcbtf-messages-base.so");
 
 
 

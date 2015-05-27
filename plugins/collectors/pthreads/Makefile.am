@@ -25,16 +25,16 @@ endif
 
 if BUILD_CBTF
 pthreads_la_CXXFLAGS = \
-	@MESSAGES_CPPFLAGS@ \
+	@CBTF_KRELL_CPPFLAGS@ \
 	-I$(top_srcdir)/libopenss-framework
 
 pthreads_la_LDFLAGS = \
-	@MESSAGES_LDFLAGS@ \
+	@CBTF_KRELL_LDFLAGS@ \
 	-L$(top_srcdir)/libopenss-framework \
 	-no-undefined -module -avoid-version
 
 pthreads_la_LIBADD = \
-	@MESSAGES_LIBS@ \
+	@CBTF_KRELL_MESSAGES_LIBS@ \
 	-lopenss-framework
 
 pthreads_la_SOURCES = \

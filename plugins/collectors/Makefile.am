@@ -28,6 +28,9 @@ else
 if !BUILD_INSTRUMENTOR
 SUBDIRS += usertime io iot
 endif
+if BUILD_CBTF
+SUBDIRS += usertime io iot
+endif
 endif
 
 if HAVE_TARGET_LIBMONITOR
@@ -61,6 +64,9 @@ if HAVE_LIBUNWIND
 SUBDIRS += mpi mpit
 else
 if !BUILD_INSTRUMENTOR
+SUBDIRS += mpi mpit
+endif
+if BUILD_CBTF
 SUBDIRS += mpi mpit
 endif
 endif
