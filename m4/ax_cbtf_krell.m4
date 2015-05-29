@@ -68,13 +68,36 @@ AC_DEFUN([AX_CBTF_KRELL], [
     CBTF_KRELL_CORE_MRNET_LIBS="$CBTF_KRELL_CORE_MRNET_LIBS"
     CBTF_KRELL_CORE_SYMTABAPI_LIBS="$CBTF_KRELL_CORE_SYMTABAPI_LIBS"
 
+    CBTF_KRELL_MESSAGES_LIBS="-lcbtf-messages-base -lcbtf-messages-collector -lcbtf-messages-events -lcbtf-messages-instrumentation -lcbtf-messages-perfdata -lcbtf-messages-symtab -lcbtf-messages-thread"
+    CBTF_KRELL_MESSAGES_BASE_LIBS="-lcbtf-messages-base"
+    CBTF_KRELL_MESSAGES_COLLECTOR_LIBS="-lcbtf-messages-collector"
+    CBTF_KRELL_MESSAGES_EVENTS_LIBS="-lcbtf-messages-events"
+    CBTF_KRELL_MESSAGES_INSTRUMENTATION_LIBS="-lcbtf-messages-instrumentation"
+    CBTF_KRELL_MESSAGES_PERFDATA_LIBS="-lcbtf-messages-perfdata"
+    CBTF_KRELL_MESSAGES_SYMTAB_LIBS="-lcbtf-messages-symtab"
+    CBTF_KRELL_MESSAGES_THREAD_LIBS="-lcbtf-messages-thread"
+
+    CBTF_KRELL_SERVICES_BINUTILS_LIBS="-lcbtf-services-binutils"
+    CBTF_KRELL_SERVICES_COMMON_LIBS="-lcbtf-services-common"
+    CBTF_KRELL_SERVICES_DATA_LIBS="-lcbtf-services-data"
+    CBTF_KRELL_SERVICES_FILEIO_LIBS="-lcbtf-services-fileio"
+    CBTF_KRELL_SERVICES_FPE_LIBS="-lcbtf-services-fpe"
+    CBTF_KRELL_SERVICES_MONITOR_LIBS="-lcbtf-services-monitor"
+    CBTF_KRELL_SERVICES_MRNET_LIBS="-lcbtf-services-mrnet"
+    CBTF_KRELL_SERVICES_OFFLINE_LIBS="-lcbtf-services-offline"
+    CBTF_KRELL_SERVICES_PAPI_LIBS="-lcbtf-services-papi"
+    CBTF_KRELL_SERVICES_SEND_LIBS="-lcbtf-services-send"
+    CBTF_KRELL_SERVICES_TIMER_LIBS="-lcbtf-services-timer"
+    CBTF_KRELL_SERVICES_UNWIND_LIBS="-lcbtf-services-unwind"
+    CBTF_KRELL_SERVICES_LIBS="$CBTF_KRELL_SERVICES_BINUTILS_LIBS $CBTF_KRELL_SERVICES_COMMON_LIBS $CBTF_KRELL_SERVICES_DATA_LIBS $CBTF_KRELL_SERVICES_FILEIO_LIBS $CBTF_KRELL_SERVICES_FPE_LIBS $CBTF_KRELL_SERVICES_MONITOR_LIBS $CBTF_KRELL_SERVICES_MRNET_LIBS $CBTF_KRELL_SERVICES_OFFLINE_LIBS $CBTF_KRELL_SERVICES_PAPI_LIBS $CBTF_KRELL_SERVICES_SEND_LIBS $CBTF_KRELL_SERVICES_TIMER_LIBS $CBTF_KRELL_SERVICES_UNWIND_LIBS"
+
     cbtf_krell_saved_CPPFLAGS=$CPPFLAGS
     cbtf_krell_saved_LDFLAGS=$LDFLAGS
     cbtf_krell_saved_LIBS=$LIBS
 
     CPPFLAGS="$CPPFLAGS $CBTF_KRELL_CPPFLAGS"
     LDFLAGS="$LDFLAGS $CBTF_KRELL_LDFLAGS"
-    LIBS="$CBTF_KRELL_CORE_LIBS -lrt -lpthread"
+    LIBS="$CBTF_KRELL_CORE_LIBS $CBTF_KRELL_MESSAGES_BASE_LIBS $CBTF_KRELL_MESSAGES_PERFDATA_LIBS -lrt -lpthread"
 
     AC_LANG_PUSH(C++)
     AC_REQUIRE_CPP
@@ -159,16 +182,6 @@ AC_DEFUN([AX_CBTF_KRELL], [
     LDFLAGS=$cbtf_krell_saved_LDFLAGS
     LIBS=$cbtf_krell_saved_LIBS
 
-
-    CBTF_KRELL_MESSAGES_LIBS="-lcbtf-messages-base -lcbtf-messages-collector -lcbtf-messages-events -lcbtf-messages-instrumentation -lcbtf-messages-perfdata -lcbtf-messages-symtab -lcbtf-messages-thread"
-    CBTF_KRELL_MESSAGES_BASE_LIBS="-lcbtf-messages-base"
-    CBTF_KRELL_MESSAGES_COLLECTOR_LIBS="-lcbtf-messages-collector"
-    CBTF_KRELL_MESSAGES_EVENTS_LIBS="-lcbtf-messages-events"
-    CBTF_KRELL_MESSAGES_INSTRUMENTATION_LIBS="-lcbtf-messages-instrumentation"
-    CBTF_KRELL_MESSAGES_PERFDATA_LIBS="-lcbtf-messages-perfdata"
-    CBTF_KRELL_MESSAGES_SYMTAB_LIBS="-lcbtf-messages-symtab"
-    CBTF_KRELL_MESSAGES_THREAD_LIBS="-lcbtf-messages-thread"
-
     cbtf_krell_saved_CPPFLAGS=$CPPFLAGS
     cbtf_krell_saved_LDFLAGS=$LDFLAGS
     cbtf_krell_saved_LIBS=$LIBS
@@ -197,22 +210,6 @@ AC_DEFUN([AX_CBTF_KRELL], [
     CPPFLAGS=$cbtf_krell_saved_CPPFLAGS
     LDFLAGS=$cbtf_krellmessages_saved_LDFLAGS
     LIBS=$cbtf_krellmessages_saved_LIBS
-
-    CBTF_KRELL_SERVICES_BINUTILS_LIBS="-lcbtf-services-binutils"
-    CBTF_KRELL_SERVICES_COMMON_LIBS="-lcbtf-services-common"
-    CBTF_KRELL_SERVICES_DATA_LIBS="-lcbtf-services-data"
-    CBTF_KRELL_SERVICES_FILEIO_LIBS="-lcbtf-services-fileio"
-    CBTF_KRELL_SERVICES_FPE_LIBS="-lcbtf-services-fpe"
-    CBTF_KRELL_SERVICES_MONITOR_LIBS="-lcbtf-services-monitor"
-    CBTF_KRELL_SERVICES_MRNET_LIBS="-lcbtf-services-mrnet"
-    CBTF_KRELL_SERVICES_OFFLINE_LIBS="-lcbtf-services-offline"
-    CBTF_KRELL_SERVICES_PAPI_LIBS="-lcbtf-services-papi"
-    CBTF_KRELL_SERVICES_SEND_LIBS="-lcbtf-services-send"
-    CBTF_KRELL_SERVICES_TIMER_LIBS="-lcbtf-services-timer"
-    CBTF_KRELL_SERVICES_UNWIND_LIBS="-lcbtf-services-unwind"
-
-
-    CBTF_KRELL_SERVICES_LIBS="$CBTF_KRELL_SERVICES_BINUTILS_LIBS $CBTF_KRELL_SERVICES_COMMON_LIBS $CBTF_KRELL_SERVICES_DATA_LIBS $CBTF_KRELL_SERVICES_FILEIO_LIBS $CBTF_KRELL_SERVICES_FPE_LIBS $CBTF_KRELL_SERVICES_MONITOR_LIBS $CBTF_KRELL_SERVICES_MRNET_LIBS $CBTF_KRELL_SERVICES_OFFLINE_LIBS $CBTF_KRELL_SERVICES_PAPI_LIBS $CBTF_KRELL_SERVICES_SEND_LIBS $CBTF_KRELL_SERVICES_TIMER_LIBS $CBTF_KRELL_SERVICES_UNWIND_LIBS"
 
     LDFLAGS="$LDFLAGS $CBTF_KRELL_LDFLAGS"
     LIBS="$CBTF_KRELL_SERVICES_COMMON_LIBS"

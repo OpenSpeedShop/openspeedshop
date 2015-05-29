@@ -114,13 +114,23 @@ endif
 endif
 
 if BUILD_CBTF
-SUBDIRS += mem pthreads iop mpip
+# SUBDIRS += mem pthreads iop mpip
+# For cbtf instrumentor, we do not build collector runtimes.
+# BUT, in spite of the configuration values for things like papi,unwind, etc,
+# we DO need to build all the collectors to get the metric routines.
+# ie. the cbtf instrumentor version should still be able to view a database
+# and this code is not dependent on the runtimes.  The individual data blobs.h 
+# for all collectors originally in OSS are a match to the cbtf xdr defines
+# so we use the existing original xdr blobs definitions.
+# For the new collectors, iop,mpip,mem,pthreads, the messages are defined for
+# xdr by cbtf and installed by cbtf-krell/messages. So there is a dependency on
+# the cbtf messages being installed...
+SUBDIRS += pcsamp usertime fpe hwc hwcsamp hwctime io iot iop mem mpi mpit mpiotf mpip pthreads
 if HAVE_CBTF_MESSAGES_CUDA
 SUBDIRS += cuda
 endif
 endif
 
-#SUBDIRS = pcsamp usertime hwc hwctime io iot mpi mpit fpe
 
 DIST_SUBDIRS = \
 	pcsamp usertime io iot iop hwc hwcsamp hwctime mpi mpip mpit mpiotf fpe mem pthreads cuda

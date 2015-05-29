@@ -182,11 +182,17 @@ AC_MSG_CHECKING([Checking for oss_hardware_platform=$oss_hardware_platform])
 AC_SUBST(oss_hardware_platform)
 
 AC_MSG_CHECKING([Checking whether to enable debug compilation])
-AC_ARG_ENABLE(debug, [  --enable-debug Turn on debug compilation], [enable_debug=yes], [enable_debug=no])
+AC_ARG_ENABLE([debug],
+    [AS_HELP_STRING([--enable-debug],
+        [Enable build with debug enabled [default=no]])],
+    [], [enable_debug=yes])
+
+AM_CONDITIONAL([BUILD_DEBUG_ENDABLED], [test x$enable_debug = xyes])
+
 if test x$enable_debug = xyes; then
-  CPPFLAGS="${CPPFLAGS} -g"
-  CFLAGS="${CFLAGS} -g"
-  CXXFLAGS="${CXXFLAGS} -g"
+  CPPFLAGS="${CPPFLAGS} -g -O2"
+  CFLAGS="${CFLAGS} -g -O2"
+  CXXFLAGS="${CXXFLAGS} -g -O2"
 else
   AC_DEFINE([NDEBUG], [1],
             [Disable any NDEBUG debug code in OpenSpeedShop.]) 
