@@ -36,7 +36,8 @@ find_package_handle_standard_args(
     )
 
 set(DyninstAPI_LIBRARIES ${DyninstAPI_LIBRARY})
-set(DyninstAPI_INCLUDE_DIRS ${DyninstAPI_INCLUDE_DIR}/dyninst)
+set(DyninstAPI_INCLUDE_DIRS ${DyninstAPI_INCLUDE_DIR})
+#set(DyninstAPI_INCLUDE_DIRS ${DyninstAPI_INCLUDE_DIR}/dyninst)
 
 mark_as_advanced(DyninstAPI_LIBRARY DyninstAPI_INCLUDE_DIR)
 

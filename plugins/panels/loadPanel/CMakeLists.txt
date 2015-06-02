@@ -42,7 +42,7 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/loadPanel.hxx
     )
 
-include_directories(
+target_include_directories(loadPanel PUBLIC
     ${QT_INCLUDE_DIR}
     ${PYTHON_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}

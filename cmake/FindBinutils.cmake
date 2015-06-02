@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -27,54 +27,39 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 find_path(Binutils_INCLUDE_DIR
     NAMES bfd.h
     PATHS /usr /usr/local
-    HINTS $ENV{BINUTILS_ROOT}
-    HINTS ${BINUTILS_ROOT}
+    HINTS $ENV{BINUTILS_DIR}
+    HINTS ${BINUTILS_DIR}
     PATH_SUFFIXES include
     )
 
 find_path(Binutils_Iberty_INCLUDE_DIR
     NAMES libiberty.h
     PATHS /usr /usr/local
-    HINTS $ENV{BINUTILS_ROOT}
-    HINTS ${BINUTILS_ROOT}
+    HINTS $ENV{BINUTILS_DIR}
+    HINTS ${BINUTILS_DIR}
     PATH_SUFFIXES include include/libiberty
     )
 
 find_library(Bfd_LIBRARY_SHARED NAMES bfd
-    HINTS $ENV{BINUTILS_ROOT}
-    HINTS ${BINUTILS_ROOT}
-    PATHS /usr /usr/local
-    PATH_SUFFIXES lib lib64
-    )
-
-find_library(Iberty_LIBRARY_SHARED NAMES iberty
-    HINTS $ENV{BINUTILS_ROOT}
-    HINTS ${BINUTILS_ROOT}
-    PATHS /usr /usr/local
-    PATH_SUFFIXES lib lib64
-    )
-
-find_library(IbertyPIC_LIBRARY_SHARED NAMES iberty_pic
-    HINTS $ENV{BINUTILS_ROOT}
-    HINTS ${BINUTILS_ROOT}
+    HINTS $ENV{BINUTILS_DIR}
+    HINTS ${BINUTILS_DIR}
     PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 
 find_library(Bfd_LIBRARY_STATIC NAMES libbfd.a
-    HINTS $ENV{BINUTILS_ROOT}
-    HINTS ${BINUTILS_ROOT}
+    HINTS $ENV{BINUTILS_DIR}
+    HINTS ${BINUTILS_DIR}
     PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 
-find_library(Iberty_LIBRARY_STATIC NAMES libiberty.a
-    HINTS $ENV{BINUTILS_ROOT}
-    HINTS ${BINUTILS_ROOT}
+find_library(Iberty_LIBRARY_STATIC NAMES libiberty_pic.a libiberty.a
+    HINTS $ENV{BINUTILS_DIR}
+    HINTS ${BINUTILS_DIR}
     PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
-
 
 
 find_package_handle_standard_args(
@@ -86,8 +71,8 @@ find_package_handle_standard_args(
 
 set(Bfd_SHARED_LIBRARIES ${Bfd_LIBRARY_SHARED})
 set(Bfd_STATIC_LIBRARIES ${Bfd_LIBRARY_STATIC})
-set(Iberty_SHARED_LIBRARIES ${Iberty_LIBRARY_SHARED})
-set(IbertyPIC_SHARED_LIBRARIES ${IbertyPIC_LIBRARY_SHARED})
+#set(Iberty_SHARED_LIBRARIES ${Iberty_LIBRARY_SHARED})
+#set(IbertyPIC_SHARED_LIBRARIES ${IbertyPIC_LIBRARY_SHARED})
 set(Iberty_STATIC_LIBRARIES ${Iberty_LIBRARY_STATIC})
 set(Binutils_INCLUDE_DIRS ${Binutils_INCLUDE_DIR})
 set(Binutils_Iberty_INCLUDE_DIRS ${Binutils_Iberty_INCLUDE_DIR})

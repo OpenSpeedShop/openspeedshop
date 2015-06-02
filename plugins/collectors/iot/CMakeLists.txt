@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -47,31 +47,33 @@ add_definitions(
   -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
   )
   
+# Do not build if only creating runtimes (RUNTIME_ONLY == true)
+if (RUNTIME_ONLY MATCHES "false")
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${PROJECT_SOURCE_DIR}/libopenss-runtime
-    ${PROJECT_SOURCE_DIR}/libopenss-framework
-    ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
-    )
-
-add_library(iot MODULE
+    add_library(iot MODULE
         ${PLUGIN_SOURCES}
     )
 
-target_link_libraries(iot
+    target_include_directories(iot PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${PROJECT_SOURCE_DIR}/libopenss-runtime
+        ${PROJECT_SOURCE_DIR}/libopenss-framework
+        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+    )
+
+    target_link_libraries(iot
 	pthread
 	openss-framework
 	${CMAKE_DL_LIBS}
     )
 
-set_target_properties(iot PROPERTIES VERSIOTN 1.1.0)
+    set_target_properties(iot PROPERTIES PREFIX "")
 
-install(TARGETS iot
+    install(TARGETS iot
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
-set_target_properties(iot PROPERTIES PREFIX "")
+endif()
 
 if(LIBMONITOR_FOUND)
     add_definitions(
@@ -81,7 +83,13 @@ if(LIBMONITOR_FOUND)
 	-funwind-tables
     )
 
-    include_directories(
+    add_library(iot-rt-offline SHARED
+        ${RT_SOURCES}
+	offline.c
+	wrappers.c
+    )
+
+    target_include_directories(iot-rt-offline PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-runtime
@@ -89,12 +97,7 @@ if(LIBMONITOR_FOUND)
 	${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
 	${LibMonitor_INCLUDE_DIRS}
 	${LibUnwind_INCLUDE_DIRS}
-    )
-
-    add_library(iot-rt-offline SHARED
-        ${RT_SOURCES}
-	offline.c
-	wrappers.c
+        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
     )
 
     target_link_libraries(iot-rt-offline
@@ -110,13 +113,56 @@ if(LIBMONITOR_FOUND)
     )
 
 
-    set_target_properties(iot-rt-offline PROPERTIES VERSIOTN 1.1.0)
+    #set_target_properties(iot-rt-offline PROPERTIES VERSIOTN 1.1.0)
+    set_target_properties(iot-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
 
     install(TARGETS iot-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
 
     set_target_properties(iot-rt-offline PROPERTIES PREFIX "")
+
+    # Create and install static library version
+
+    add_library(iot-offline STATIC
+        ${RT_SOURCES}
+	offline.c
+	wrappers.c
+    )
+
+    target_include_directories(iot-offline PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-runtime
+	${PROJECT_BUILD_DIR}/libopenss-runtime
+	${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
+	${LibMonitor_INCLUDE_DIRS}
+	${LibUnwind_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+    )
+
+    target_link_libraries(iot-offline
+	${CMAKE_DL_LIBS}
+	rt
+	pthread
+        -Wl,-whole-archive
+	openss-runtime-offline
+	openss-runtime-unwind
+        -Wl,-no-whole-archive
+	-Bdynamic
+	${LibUnwind_LIBRARY_SHARED}
+    )
+
+
+    #set_target_properties(iot-offline PROPERTIES VERSIOTN 1.1.0)
+    set_target_properties(iot-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
+
+    install(TARGETS iot-offline
+	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
+    )
+
+
+
 endif()
 
 file(COPY blobs.x DESTINATION .)

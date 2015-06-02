@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2013 Krell Institute. All Rights Reserved.
+# Copyright (c) 2013-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -19,16 +19,16 @@
 include(FindPackageHandleStandardArgs)
 
 find_library(SymtabAPI_LIBRARY NAMES libsymtabAPI.so
-    HINTS $ENV{DYNINST_ROOT}
-    HINTS ${DYNINST_ROOT}
+    HINTS $ENV{DYNINST_DIR}
+    HINTS ${DYNINST_DIR}
     PATH_SUFFIXES lib lib64
     )
 
 find_path(SymtabAPI_INCLUDE_DIR
     NAMES dyninst/Symtab.h
-    HINTS $ENV{DYNINST_ROOT}
-    HINTS ${DYNINST_ROOT}
-    PATH_SUFFIXES include 
+    HINTS $ENV{DYNINST_DIR}
+    HINTS ${DYNINST_DIR}
+    PATH_SUFFIXES include
     )
 
 find_package_handle_standard_args(
@@ -36,7 +36,7 @@ find_package_handle_standard_args(
     )
 
 set(SymtabAPI_LIBRARIES ${SymtabAPI_LIBRARY})
-set(SymtabAPI_INCLUDE_DIRS ${SymtabAPI_INCLUDE_DIR})
+set(SymtabAPI_INCLUDE_DIRS ${SymtabAPI_INCLUDE_DIR}/dyninst)
 
 mark_as_advanced(SymtabAPI_LIBRARY SymtabAPI_INCLUDE_DIR)
 

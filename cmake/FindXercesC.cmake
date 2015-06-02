@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2011,2012 Krell Institute. All Rights Reserved.
+# Copyright (c) 2011-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -19,12 +19,12 @@
 include(FindPackageHandleStandardArgs)
 
 find_library(XercesC_LIBRARY NAMES libxerces-c.so
-    HINTS $ENV{XERCESC_ROOT}
+    HINTS $ENV{XERCESC_DIR} ${XERCESC_DIR}
     PATH_SUFFIXES lib lib64
     )
 
 find_path(XercesC_INCLUDE_DIR xercesc/util/XercesVersion.hpp
-    HINTS $ENV{XERCESC_ROOT}
+    HINTS $ENV{XERCESC_DIR} ${XERCESC_DIR}
     PATH_SUFFIXES include
     )
 

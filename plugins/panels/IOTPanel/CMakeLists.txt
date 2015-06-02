@@ -32,7 +32,7 @@ add_definitions(
   -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
   )
 
-include_directories(
+target_include_directories(IOTPanel PUBLIC
     ${QT_INCLUDE_DIR}
     ${PYTHON_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}

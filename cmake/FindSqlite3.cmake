@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -27,21 +27,21 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 find_path(Sqlite3_INCLUDE_DIR
     NAMES sqlite3.h
     PATHS /usr /usr/local
-    HINTS $ENV{SQLITE3_ROOT}
-    HINTS ${SQLITE3_ROOT}
+    HINTS $ENV{SQLITE3_DIR}
+    HINTS ${SQLITE3_DIR}
     PATH_SUFFIXES include
     )
 
 find_library(Sqlite3_LIBRARY_SHARED NAMES sqlite3
-    HINTS $ENV{SQLITE3_ROOT}
-    HINTS ${SQLITE3_ROOT}
+    HINTS $ENV{SQLITE3_DIR}
+    HINTS ${SQLITE3_DIR}
     PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 
 find_library(Sqlite3_LIBRARY_STATIC NAMES libsqlite3.a
-    HINTS $ENV{SQLITE3_ROOT}
-    HINTS ${SQLITE3_ROOT}
+    HINTS $ENV{SQLITE3_DIR}
+    HINTS ${SQLITE3_DIR}
     PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )

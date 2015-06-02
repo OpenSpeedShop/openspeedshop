@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2013-2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2013-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -25,22 +25,22 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 
 
 find_path(LibDwarf_INCLUDE_DIR NAMES dwarf.h 
-    HINTS $ENV{LIBDWARF_ROOT} 
-    HINTS ${LIBDWARF_ROOT} 
+    HINTS $ENV{LIBDWARF_DIR} 
+    HINTS ${LIBDWARF_DIR}
     PATH_SUFFIXES include
     NO_DEFAULT_PATH
     )
 
 find_library(LibDwarf_LIBRARY_SHARED NAMES libdwarf.so
-    HINTS $ENV{LIBDWARF_ROOT} 
-    HINTS ${LIBDWARF_ROOT} 
+    HINTS $ENV{LIBDWARF_DIR} 
+    HINTS ${LIBDWARF_DIR} 
     PATH_SUFFIXES lib lib64
     NO_DEFAULT_PATH
     )
 
 find_library(LibDwarf_LIBRARY_STATIC NAMES libdwarf.a
-    HINTS $ENV{LIBDWARF_ROOT}
-    HINTS ${LIBDWARF_ROOT}
+    HINTS $ENV{LIBDWARF_DIR}
+    HINTS ${LIBDWARF_DIR}
     PATH_SUFFIXES lib lib64
     NO_DEFAULT_PATH
     )

@@ -48,16 +48,16 @@ add_definitions(
   )
   
 if (RUNTIME_ONLY MATCHES "false")
-    include_directories(
+    add_library(fpe MODULE
+        ${PLUGIN_SOURCES}
+    )
+
+    target_include_directories(fpe PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
         ${PROJECT_SOURCE_DIR}/libopenss-runtime
         ${PROJECT_SOURCE_DIR}/libopenss-framework
         ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
-    )
-
-    add_library(fpe MODULE
-        ${PLUGIN_SOURCES}
     )
 
     target_link_libraries(fpe
@@ -66,12 +66,11 @@ if (RUNTIME_ONLY MATCHES "false")
 	${CMAKE_DL_LIBS}
     )
 
-    set_target_properties(fpe PROPERTIES VERSION 1.1.0)
+    set_target_properties(fpe PROPERTIES PREFIX "")
 
     install(TARGETS fpe
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
-    set_target_properties(fpe PROPERTIES PREFIX "")
 endif()
 
 if(LIBMONITOR_FOUND)
@@ -82,7 +81,12 @@ if(LIBMONITOR_FOUND)
 	-funwind-tables
     )
 
-    include_directories(
+    add_library(fpe-rt-offline SHARED
+        ${RT_SOURCES}
+	offline.c
+    )
+
+    target_include_directories(fpe-rt-offline PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-runtime
@@ -91,11 +95,6 @@ if(LIBMONITOR_FOUND)
 	${LibMonitor_INCLUDE_DIRS}
 	${LibUnwind_INCLUDE_DIRS}
         ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
-    )
-
-    add_library(fpe-rt-offline SHARED
-        ${RT_SOURCES}
-	offline.c
     )
 
     target_link_libraries(fpe-rt-offline
@@ -110,7 +109,8 @@ if(LIBMONITOR_FOUND)
 	${LibUnwind_LIBRARY_SHARED}
     )
 
-    set_target_properties(fpe-rt-offline PROPERTIES VERSION 1.1.0)
+    #set_target_properties(fpe-rt-offline PROPERTIES VERSION 1.1.0)
+    set_target_properties(fpe-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
 
     install(TARGETS fpe-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -123,6 +123,17 @@ if(LIBMONITOR_FOUND)
     add_library(fpe-offline STATIC
         ${RT_SOURCES}
 	offline.c
+    )
+
+    target_include_directories(fpe-offline PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-runtime
+	${PROJECT_BUILD_DIR}/libopenss-runtime
+	${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
+	${LibMonitor_INCLUDE_DIRS}
+	${LibUnwind_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
     )
 
     target_link_libraries(fpe-offline
@@ -138,7 +149,8 @@ if(LIBMONITOR_FOUND)
     )
 
 
-    set_target_properties(fpe-offline PROPERTIES VERSION 1.1.0)
+    #set_target_properties(fpe-offline PROPERTIES VERSION 1.1.0)
+    set_target_properties(fpe-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
 
     install(TARGETS fpe-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop

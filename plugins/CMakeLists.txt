@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -18,3 +18,8 @@
 
 add_subdirectory(collectors)
 add_subdirectory(views)
+
+if(QT_FOUND)
+add_subdirectory(panels)
+add_subdirectory(wizards)
+endif()

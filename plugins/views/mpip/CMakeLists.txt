@@ -25,8 +25,9 @@ add_definitions(
 	-DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
   )
   
+add_library(mpip_view MODULE ${SOURCES})
 
-include_directories(
+target_include_directories(mpip_view PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-cli
@@ -39,8 +40,6 @@ include_directories(
 	${PYTHON_INCLUDE_DIR}
     )
 
-add_library(mpip_view MODULE ${SOURCES})
-
 target_link_libraries(mpip_view
 	pthread
 	openss-cli
@@ -49,7 +48,7 @@ target_link_libraries(mpip_view
 	${CMAKE_DL_LIBS}
     )
 
-set_target_properties(mpip_view PROPERTIES VERSION 1.1.0)
+#set_target_properties(mpip_view PROPERTIES VERSION 1.1.0)
 set_target_properties(mpip_view PROPERTIES PREFIX "")
 
 install(TARGETS mpip_view

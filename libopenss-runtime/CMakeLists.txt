@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -15,6 +15,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
+#        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_Papi_Events.h
 
 set(RT_SOURCES
 	Assert.h
@@ -119,7 +120,7 @@ if (HAVE_FORK)
 	)
 endif()
 
-include_directories(
+target_include_directories(openss-runtime PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/libopenss-runtime
@@ -133,8 +134,10 @@ target_link_libraries(openss-runtime
     ${CMAKE_DL_LIBS}
     )
 
-
 set_target_properties(openss-runtime PROPERTIES VERSION 1.1.0)
+# Add the tls defines to the compile line for this target build
+set_target_properties(openss-runtime PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
+
 #set_target_properties(openss-runtime PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_BINARY_DIR}/offline.h:${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h")
 
 install(TARGETS openss-runtime
@@ -145,13 +148,20 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/offline.h
 	${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
 	DESTINATION include/openspeedshop
     )
-add_definitions(
-	-fasynchronous-unwind-tables
-	-funwind-tables
-    )
+#add_definitions(
+#	-fasynchronous-unwind-tables
+#	-funwind-tables
+#    )
 
 if(LIBMONITOR_FOUND)
-    include_directories(
+    add_library(openss-runtime-offline STATIC
+        ${CMAKE_CURRENT_BINARY_DIR}/offline.h
+        ${CMAKE_CURRENT_BINARY_DIR}/offline.c
+	${RT_SOURCES}
+	${OFFLINE_SOURCES}
+    )
+
+    target_include_directories(openss-runtime-offline PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-runtime
@@ -161,18 +171,16 @@ if(LIBMONITOR_FOUND)
     add_definitions(
 	-DOPENSS_OFFLINE
     )
-    add_library(openss-runtime-offline STATIC
-        ${CMAKE_CURRENT_BINARY_DIR}/offline.h
-        ${CMAKE_CURRENT_BINARY_DIR}/offline.c
-	${RT_SOURCES}
-	${OFFLINE_SOURCES}
-    )
     target_link_libraries(openss-runtime-offline
 	rt
 	pthread
 	${LibMonitor_SHARED_LIBRARIES}
 	${CMAKE_DL_LIBS}
     )
+
+    # Add the tls defines to the compile line for this target build
+    set_target_properties(openss-runtime-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
+
     install(TARGETS openss-runtime-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}
     )
@@ -180,44 +188,72 @@ if(LIBMONITOR_FOUND)
 endif()
 
 if(PAPI_FOUND)
-    include_directories(
+    add_library(openss-runtime-papi STATIC
+	${PAPI_SOURCES}
+    )
+
+    target_include_directories(openss-runtime-papi PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-runtime
 	${Papi_INCLUDE_DIRS}
     )
-    add_library(openss-runtime-papi STATIC
-	${PAPI_SOURCES}
-    )
+
     target_link_libraries(openss-runtime-papi
-	papi
-	pfm
+	${Papi_SHARED_LIBRARIES}
+	${Papi_pfm_SHARED_LIBRARIES}
 	rt
 	pthread
 	${CMAKE_DL_LIBS}
     )
+
+    # Add the tls defines to the compile line for this target build
+    set_target_properties(openss-runtime-papi PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
+
     install(TARGETS openss-runtime-papi
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}
     )
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 
+    add_custom_command(
+       POST_BUILD
+       OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_Papi_Events.h
+       COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/create_events_include ${CMAKE_CURRENT_SOURCE_DIR}/OpenSS_Papi_Events.h ${PAPI_DIR}
+       DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/create_events_include
+       COMMENT "Generating OpenSS_Papi_Events.h..."
+    )
+    add_custom_target(run ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_Papi_Events.h) 
+
+else()
+    add_custom_command(
+       POST_BUILD
+       OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_Papi_Events.h
+       COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/create_events_include ${CMAKE_CURRENT_SOURCE_DIR}/OpenSS_Papi_Events.h
+       DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/create_events_include
+       COMMENT "Generating OpenSS_Papi_Events.h..."
+    )
+    add_custom_target(run ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/OpenSS_Papi_Events.h) 
 endif()
 
 if(LIBUNWIND_FOUND)
-    add_definitions(${LibUnwind_DEFINES})
-    include_directories(
+    add_library(openss-runtime-unwind STATIC
+	${UNWIND_SOURCES}
+    )
+
+    target_include_directories(openss-runtime-unwind PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-runtime
 	${LibUnwind_INCLUDE_DIRS}
     )
-    add_library(openss-runtime-unwind STATIC
-	${UNWIND_SOURCES}
-    )
     target_link_libraries(openss-runtime-unwind
 	${LibUnwind_STATIC_LIBRARIES}
 	${CMAKE_DL_LIBS}
     )
+
+    # Add the tls defines to the compile line for this target build
+    set_target_properties(openss-runtime-unwind PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES}")
+
     install(TARGETS openss-runtime-unwind
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}
     )
@@ -226,15 +262,14 @@ if(LIBUNWIND_FOUND)
 endif()
 
 if(BINUTILS_FOUND)
-    #add_definitions(${LibUnwind_DEFINES})
-    include_directories(
+    add_library(openss-runtime-binutils STATIC
+	${BINUTILS_SOURCES}
+    )
+    target_include_directories(openss-runtime-binutils PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-runtime
 	${Binutils_INCLUDE_DIRS}
-    )
-    add_library(openss-runtime-binutils STATIC
-	${BINUTILS_SOURCES}
     )
     target_link_libraries(openss-runtime-binutils
 	${Bfd_STATIC_LIBRARIES}
@@ -244,6 +279,12 @@ if(BINUTILS_FOUND)
     install(TARGETS openss-runtime-binutils
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}
     )
+
+    # Work around problem defined by:
+    # https://stackoverflow.com/questions/11748035/binutils-bfd-h-wants-config-h-now
+    # Also - Add the tls defines to the compile line for this target build
+    set_target_properties(openss-runtime-binutils PROPERTIES COMPILE_DEFINITIONS "PACKAGE=1;PACKAGE_VERSION=1;${TLS_DEFINES}")
+
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 
 endif()

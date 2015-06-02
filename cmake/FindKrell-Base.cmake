@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2013 Krell Institute. All Rights Reserved.
+# Copyright (c) 2012-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -19,12 +19,12 @@
 include(FindPackageHandleStandardArgs)
 
 find_library(KRELL_BASE_LIBRARY NAMES libkrell-base.so
-    HINTS $ENV{KRELL_ROOT}
+    HINTS $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
 
 find_path(KRELL_BASE_INCLUDE_DIR KrellInstitute/Base/Address.hpp
-    HINTS $ENV{KRELL_ROOT}
+    HINTS $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES include
     )
 

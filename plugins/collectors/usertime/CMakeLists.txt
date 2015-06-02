@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -48,32 +48,36 @@ add_definitions(
   )
   
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${PROJECT_SOURCE_DIR}/libopenss-runtime
-    ${PROJECT_SOURCE_DIR}/libopenss-framework
-    ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
-    )
-
-add_library(usertime MODULE
+# Do not build if only creating runtimes (RUNTIME_ONLY == true)
+if (RUNTIME_ONLY MATCHES "false")
+    add_library(usertime MODULE
         ${PLUGIN_SOURCES}
     )
 
-target_link_libraries(usertime
+    target_include_directories(usertime PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${PROJECT_SOURCE_DIR}/libopenss-runtime
+        ${PROJECT_SOURCE_DIR}/libopenss-framework
+        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+    )
+
+    target_link_libraries(usertime
 	pthread
 	openss-framework
 	${CMAKE_DL_LIBS}
     )
 
-set_target_properties(usertime PROPERTIES VERSION 1.1.0)
+    #set_target_properties(usertime PROPERTIES VERSION 1.1.0)
 
-install(TARGETS usertime
+    install(TARGETS usertime
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
-set_target_properties(usertime PROPERTIES PREFIX "")
+    set_target_properties(usertime PROPERTIES PREFIX "")
+endif()
 
 if(LIBMONITOR_FOUND)
+
     add_definitions(
 	-DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
 	-DOPENSS_OFFLINE=1
@@ -81,7 +85,12 @@ if(LIBMONITOR_FOUND)
 	-funwind-tables
     )
 
-    include_directories(
+    add_library(usertime-rt-offline SHARED
+        ${RT_SOURCES}
+	offline.c
+    )
+
+    target_include_directories(usertime-rt-offline PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-runtime
@@ -89,11 +98,7 @@ if(LIBMONITOR_FOUND)
 	${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
 	${LibMonitor_INCLUDE_DIRS}
 	${LibUnwind_INCLUDE_DIRS}
-    )
-
-    add_library(usertime-rt-offline SHARED
-        ${RT_SOURCES}
-	offline.c
+        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
     )
 
     target_link_libraries(usertime-rt-offline
@@ -109,13 +114,53 @@ if(LIBMONITOR_FOUND)
     )
 
 
-    set_target_properties(usertime-rt-offline PROPERTIES VERSION 1.1.0)
+    #set_target_properties(usertime-rt-offline PROPERTIES VERSION 1.1.0)
+    set_target_properties(usertime-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};USE_FASTTRACE")
 
     install(TARGETS usertime-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
 
     set_target_properties(usertime-rt-offline PROPERTIES PREFIX "")
+
+    # Create and install static library verison
+
+    add_library(usertime-offline STATIC
+        ${RT_SOURCES}
+	offline.c
+    )
+
+    target_include_directories(usertime-offline PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-runtime
+	${PROJECT_BUILD_DIR}/libopenss-runtime
+	${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
+	${LibMonitor_INCLUDE_DIRS}
+	${LibUnwind_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+    )
+
+    target_link_libraries(usertime-offline
+	${CMAKE_DL_LIBS}
+	rt
+	pthread
+        -Wl,-whole-archive
+	openss-runtime-offline
+	openss-runtime-unwind
+        -Wl,-no-whole-archive
+	-Bdynamic
+	${LibUnwind_LIBRARY_SHARED}
+    )
+
+
+    #set_target_properties(usertime-offline PROPERTIES VERSION 1.1.0)
+    set_target_properties(usertime-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};USE_FASTTRACE")
+
+    install(TARGETS usertime-offline
+	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
+    )
+
 endif()
 
 file(COPY blobs.x DESTINATION .)

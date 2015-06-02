@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2013-2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2013-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -25,8 +25,8 @@ set(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 # This project does not use Libtool directly but still uses ltdl for
 # plug-in loading.
 find_library(LTDL_LIBRARY_SHARED NAMES ltdl
-    HINTS $ENV{LTDL_ROOT}
-    HINTS ${LTDL_ROOT}
+    HINTS $ENV{LTDL_DIR}
+    HINTS ${LTDL_DIR}
     PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
@@ -36,8 +36,8 @@ include(CheckIncludeFileCXX)
 find_path(LTDL_INCLUDE_DIR
     NAMES ltdl.h
     PATHS /usr /usr/local
-    HINTS $ENV{LTDL_ROOT}
-    HINTS ${LTDL_ROOT}
+    HINTS $ENV{LTDL_DIR}
+    HINTS ${LTDL_DIR}
     PATH_SUFFIXES include
     )
 

@@ -44,19 +44,21 @@ add_definitions(
   )
   
 
-include_directories(
+target_include_directories(openss-queries-cuda PUBLIC
     ${CUDA_INCLUDE_DIR}
-    ${MESSAGES_INCLUDE_DIR}
+    ${CBTF_MESSAGES_INCLUDE_DIRS}
+    ${CBTF_MESSAGES_CUDA_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/libopenss-cli
     ${PROJECT_SOURCE_DIR}/libopenss-framework
     )
 
-target_link_libraries(openss-queries
+target_link_libraries(openss-queries-cuda
     openss-framework
     ${CUDA_LIBRARIES}
-    ${MESSAGES_LIBRARIES}
+    ${CBTF_MESSAGES_LIBRARIES}
+    ${CBTF_MESSAGES_CUDA_LIBRARIES}
     ${CMAKE_DL_LIBS}
     )
 

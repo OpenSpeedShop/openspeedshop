@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -42,38 +42,41 @@ add_custom_command(
         ${CMAKE_CURRENT_BINARY_DIR}/blobs.x
     )
 
-
 add_definitions(
   -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
   )
-  
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${PROJECT_SOURCE_DIR}/libopenss-runtime
-    ${PROJECT_SOURCE_DIR}/libopenss-framework
-    ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
-    )
+# Do not build if only creating runtimes (RUNTIME_ONLY == true)
+if (RUNTIME_ONLY MATCHES "false")
 
-add_library(io MODULE
+    add_library(io MODULE
         ${PLUGIN_SOURCES}
     )
 
-target_link_libraries(io
+    target_include_directories(io PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${PROJECT_SOURCE_DIR}/libopenss-runtime
+        ${PROJECT_SOURCE_DIR}/libopenss-framework
+        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+    )
+
+    target_link_libraries(io
 	pthread
 	openss-framework
 	${CMAKE_DL_LIBS}
     )
 
-set_target_properties(io PROPERTIES VERSION 1.1.0)
+    #set_target_properties(io PROPERTIES VERSION 1.1.0)
 
-install(TARGETS io
+    install(TARGETS io
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
-set_target_properties(io PROPERTIES PREFIX "")
+    set_target_properties(io PROPERTIES PREFIX "")
+endif()
 
 if(LIBMONITOR_FOUND)
+
     add_definitions(
 	-DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
 	-DOPENSS_OFFLINE=1
@@ -81,7 +84,13 @@ if(LIBMONITOR_FOUND)
 	-funwind-tables
     )
 
-    include_directories(
+    add_library(io-rt-offline SHARED
+        ${RT_SOURCES}
+	offline.c
+	wrappers.c
+    )
+
+    target_include_directories(io-rt-offline PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-runtime
@@ -89,12 +98,7 @@ if(LIBMONITOR_FOUND)
 	${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
 	${LibMonitor_INCLUDE_DIRS}
 	${LibUnwind_INCLUDE_DIRS}
-    )
-
-    add_library(io-rt-offline SHARED
-        ${RT_SOURCES}
-	offline.c
-	wrappers.c
+        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
     )
 
     target_link_libraries(io-rt-offline
@@ -109,14 +113,54 @@ if(LIBMONITOR_FOUND)
 	${LibUnwind_LIBRARY_SHARED}
     )
 
-
-    set_target_properties(io-rt-offline PROPERTIES VERSION 1.1.0)
+    #set_target_properties(io-rt-offline PROPERTIES VERSION 1.1.0)
+    set_target_properties(io-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
 
     install(TARGETS io-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
 
     set_target_properties(io-rt-offline PROPERTIES PREFIX "")
+
+    # Create and install static library version
+
+    add_library(io-offline STATIC
+        ${RT_SOURCES}
+	offline.c
+	wrappers.c
+    )
+
+    target_include_directories(io-offline PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-runtime
+	${PROJECT_BUILD_DIR}/libopenss-runtime
+	${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
+	${LibMonitor_INCLUDE_DIRS}
+	${LibUnwind_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+    )
+
+    target_link_libraries(io-offline
+	${CMAKE_DL_LIBS}
+	rt
+	pthread
+        -Wl,-whole-archive
+	openss-runtime-offline
+	openss-runtime-unwind
+        -Wl,-no-whole-archive
+	-Bdynamic
+	${LibUnwind_LIBRARY_SHARED}
+    )
+
+
+    #set_target_properties(io-offline PROPERTIES VERSION 1.1.0)
+    set_target_properties(io-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
+
+    install(TARGETS io-offline
+	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
+    )
+
 endif()
 
 file(COPY blobs.x DESTINATION .)

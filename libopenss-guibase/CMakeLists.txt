@@ -99,7 +99,7 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/Panel.hxx
     )
 
-include_directories(
+target_include_directories(openss-guibase PUBLIC
     ${QT_INCLUDE_DIR}
     ${PYTHON_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}

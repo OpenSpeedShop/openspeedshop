@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -28,16 +28,23 @@ add_definitions(
     -DPYTHON_FP_LIB_NAME="${PYTHON_LIBRARY}"
 )
 
-set(cbtfinstalldir ${CBTF_ROOT})
-set(cbtflibdir ${CBTF_ROOT}/lib${SUFFIX})
-set(cbtfruncmd ${CBTF_ROOT}/bin/cbtfrun)
-set(cbtfcollectors ${CBTF_ROOT}/lib${SUFFIX}/KrellInstitute/Collectors)
-set(cbtfcomponents ${CBTF_ROOT}/lib${SUFFIX}/KrellInstitute/Components)
+set(cbtfinstalldir ${CBTF_DIR})
+set(cbtflibdir ${CBTF_DIR}/lib${SUFFIX})
+set(cbtfruncmd ${CBTF_KRELL_DIR}/bin/cbtfrun)
+set(cbtfcollectors ${CBTF_KRELL_DIR}/lib${SUFFIX}/KrellInstitute/Collectors)
+set(cbtfcomponents ${CBTF_KRELL_DIR}/lib${SUFFIX}/KrellInstitute/Components)
 set(cbtfxmldir ${CBTF_ROOT}/share/KrellInstitute/XML)
-set(libmonitordir ${LIBMONITOR_ROOT})
-set(libmonitorlibdir ${LIBMONITOR_ROOT}/lib${SUFFIX})
-set(oss_installation_dir ${CMAKE_INSTALL_PREFIX})
-set(osslibdir ${CMAKE_INSTALL_PREFIX}/lib${SUFFIX})
+set(libmonitordir ${LIBMONITOR_DIR})
+set(libmonitorlibdir ${LIBMONITOR_DIR}/lib${SUFFIX})
+
+if(HAVE_RUNTIME_DIR)
+    set(oss_installation_dir ${RUNTIME_DIR})
+    set(osslibdir ${RUNTIME_LIBDIR})
+else()
+    set(oss_installation_dir ${CMAKE_INSTALL_PREFIX})
+    set(osslibdir ${CMAKE_INSTALL_PREFIX}/lib${SUFFIX})
+endif()
+
 set(machine_dependent_libdir lib${SUFFIX})
 set(alt_machine_dependent_libdir lib${SUFFIX})
 set(ossdefaultmpi ${DEFAULT_MPI_IMPL})
@@ -63,6 +70,18 @@ install(PROGRAMS
 
 set(GCC_FORMAT_CONTAINS_NUL "-Wno-format-contains-nul")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_FORMAT_CONTAINS_NUL}")
+
+set(CLI_SERVER_SOURCES
+        Socket.hxx Socket.cxx
+        SocketServer.hxx SocketServer.cxx
+        FileSystem.hxx FileSystem.cxx
+        OpenSpeedShopCLI.hxx OpenSpeedShopCLI.cxx
+)
+
+set(CLI_DIRECT_SOURCES
+        ServerException.hxx Direct.hxx Direct.cxx
+        OpenSpeedShopCLI.hxx OpenSpeedShopCLI.cxx
+)
 
 set(CLI_SOURCES
         ArgClass.hxx
@@ -137,13 +156,12 @@ add_library(openss-cli SHARED
 	${CLI_SOURCES}
     )
 
-
 add_definitions(
   -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
   )
   
 
-include_directories(
+target_include_directories(openss-cli PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${Sqlite3_INCLUDE_DIR}
@@ -158,6 +176,7 @@ include_directories(
 
 target_link_libraries(openss-cli
     openss-framework
+    openss-queries
     openss-message
     ${Sqlite3_SHARED_LIBRARIES}
     ${PYTHON_LIBRARY}
@@ -167,11 +186,92 @@ target_link_libraries(openss-cli
 
 
 set_target_properties(openss-cli PROPERTIES VERSION 1.1.0)
-set(CMAKE_SHARED_LINKER_FLAGS -Wl,"--defsym,libopenss_cli_LTX_cli_init=cli_init")
+
+if (${INSTRUMENTOR} MATCHES "cbtf")
+    set_target_properties(openss-cli PROPERTIES COMPILE_DEFINITIONS BUILD_CBTF=1)
+endif()
+
+#set(CMAKE_SHARED_LINKER_FLAGS -Wl,"--defsym,libopenss_cli_LTX_cli_init=cli_init")
 
 install(TARGETS openss-cli
     LIBRARY DESTINATION lib${LIB_SUFFIX}
     )
+
+# if building the ptgf direct dso for hook up with PTGF GUI 
+
+if(BUILD_PTGF_DIRECT)
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive -fexceptions -fPIC")
+    add_library(openss-cli-direct SHARED
+	${CLI_DIRECT_SOURCES}
+    )
+
+    target_include_directories(openss-cli-direct PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/rapidxml-1.13
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${Sqlite3_INCLUDE_DIR}
+        ${PROJECT_SOURCE_DIR}/libopenss-cli
+        ${PROJECT_SOURCE_DIR}/libopenss-framework
+        ${PROJECT_SOURCE_DIR}/libopenss-guibase
+        ${PROJECT_SOURCE_DIR}/libopenss-guiobjects
+        ${PROJECT_SOURCE_DIR}/libopenss-queries
+        ${PROJECT_SOURCE_DIR}/libopenss-message
+        ${PYTHON_INCLUDE_DIR}
+    )
+
+    target_link_libraries(openss-cli-direct
+        openss-cli
+        openss-framework
+        ltdl
+        pthread
+        rt
+        ${CMAKE_DL_LIBS}
+    )
+
+    set_target_properties(openss-cli-direct PROPERTIES VERSION 1.1.0)
+
+    install(TARGETS openss-cli-direct
+        LIBRARY DESTINATION lib${LIB_SUFFIX}
+    )
+
+endif()
+
+if(BUILD_PTGF_SERVER)
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive -fexceptions -fPIC")
+
+    add_library(openss-cli-server SHARED
+	${CLI_SERVER_SOURCES}
+    )
+
+    target_include_directories(openss-cli-server PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/rapidxml-1.13
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${Sqlite3_INCLUDE_DIR}
+        ${PROJECT_SOURCE_DIR}/libopenss-cli
+        ${PROJECT_SOURCE_DIR}/libopenss-framework
+        ${PROJECT_SOURCE_DIR}/libopenss-guibase
+        ${PROJECT_SOURCE_DIR}/libopenss-guiobjects
+        ${PROJECT_SOURCE_DIR}/libopenss-queries
+        ${PROJECT_SOURCE_DIR}/libopenss-message
+        ${PYTHON_INCLUDE_DIR}
+    )
+
+    target_link_libraries(openss-cli-server
+        ltdl
+        pthread
+        rt
+        ${CMAKE_DL_LIBS}
+    )
+
+    set_target_properties(openss-cli-server PROPERTIES VERSION 1.1.0)
+
+    install(TARGETS openss-cli-server
+        LIBRARY DESTINATION lib${LIB_SUFFIX}
+    )
+endif()
 
 if(CMAKE_HOST_UNIX) 
     install(CODE " 
@@ -180,3 +280,10 @@ if(CMAKE_HOST_UNIX)
        ) 
     ") 
 endif(CMAKE_HOST_UNIX)
+
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/rapidxml-1.13/rapidxml_utils.hpp DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/rapidxml-1.13/.)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/rapidxml-1.13/rapidxml_print.hpp DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/rapidxml-1.13/.)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/rapidxml-1.13/rapidxml_iterators.hpp DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/rapidxml-1.13/.)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/rapidxml-1.13/rapidxml.hpp DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/rapidxml-1.13/.)
+

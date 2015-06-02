@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -30,15 +30,6 @@ if (SYS_STAT_H_FOUND)
     add_definitions(-DHAVE_SYS_STAT_H=1)
 endif()
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime
-    ${Sqlite3_INCLUDE_DIR}
-    ${PROJECT_SOURCE_DIR}/libopenss-framework
-    ${PROJECT_BUILD_DIR}/libopenss-runtime
-    ${LTDL_INCLUDE_DIR}
-    )
 
 file(COPY ${PROJECT_SOURCE_DIR}/libopenss-runtime/OpenSS_DataHeader.x DESTINATION .)
 add_custom_command(
@@ -72,7 +63,6 @@ endif()
         ${CMAKE_CURRENT_BINARY_DIR}/offline.x
     )
 
-
 set(FW_SOURCES
         OpenSS_DataHeader.c
         Address.hxx
@@ -101,7 +91,6 @@ set(FW_SOURCES
         FunctionCache.hxx FunctionCache.cxx
         Guard.hxx
         Interval.hxx
-	offline/Instrumentor.cxx
         LinkedObject.hxx LinkedObject.cxx
         Lockable.hxx
         Loop.hxx Loop.cxx
@@ -131,66 +120,257 @@ set(BINUTILS_SOURCES
 	BFDSymbols.cxx
     )
 
-set(OFFLINE_SOURCES
-    )
 
-add_library(openss-framework SHARED
-	${FW_SOURCES}
+if (DYNINSTAPI_FOUND)
+set(SYMTABAPI_SOURCES
+	offline.c
+	SymtabAPISymbols.hxx 
+	SymtabAPISymbols.cxx
+	DyninstSymbols.hxx
+	DyninstSymbols.cxx
     )
+else()
+set(SYMTABAPI_SOURCES
+	offline.c
+	SymtabAPISymbols.hxx 
+	SymtabAPISymbols.cxx
+    )
+endif()
+
+set(OFFLINE_SOURCES  )
+
 
 add_definitions(
- 
   -D_GNU_SOURCE
   -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
   )
-  
 
-target_link_libraries(openss-framework
-    ${Sqlite3_SHARED_LIBRARIES}
-    ${Iberty_STATIC_LIBRARIES}
-    ${LTDL_LIBRARY_SHARED}
-    ${CMAKE_DL_LIBS}
+if(INSTRUMENTOR MATCHES "cbtf")
+
+    set(CBTF_SOURCES
+	cbtf/Callbacks.cxx
+	cbtf/FEThread.hxx
+	cbtf/Frontend.hxx
+	cbtf/ThreadTable.cxx
+	cbtf/Utility.cxx
+	cbtf/Callbacks.hxx
+	cbtf/FEThread.cxx
+	cbtf/Frontend.cxx
+	cbtf/Instrumentor.cxx
+	cbtf/ThreadTable.hxx
+	cbtf/Utility.hxx
+	Instrumentor.hxx
     )
 
-
-set_target_properties(openss-framework PROPERTIES VERSION 1.1.0)
-
-install(TARGETS openss-framework
-    LIBRARY DESTINATION lib${LIB_SUFFIX}
+    add_definitions(
+       -DCBTF_LIB_DIR="${CBTF_LIB_DIR}"
+       -DCBTF_KRELL_LIB_DIR="${CBTF_KRELL_LIBDIR}"
+       -DCBTF_TOOLS_XMLDIR="${CBTF_KRELL_DIR}/share/KrellInstitute/xml"
     )
 
-if(BINUTILS_FOUND)
+    add_library(openss-framework SHARED ${FW_SOURCES} ${CBTF_SOURCES})
 
-    #file(COPY ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime/offline.h DESTINATION ./offline)
+    target_include_directories(openss-framework PUBLIC
+        ${CBTF_MESSAGES_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime
+	${CBTF_INCLUDE_DIRS}
+        ${Sqlite3_INCLUDE_DIR}
+        ${PROJECT_SOURCE_DIR}/libopenss-framework
+        ${PROJECT_BUILD_DIR}/libopenss-runtime
+        ${LTDL_INCLUDE_DIR}
+    )
+
+    target_link_libraries(openss-framework
+        ${CBTF_MESSAGES_LIBRARIES}
+        ${CBTF_LIBRARIES}
+        ${CBTF_CORE_LIBRARIES}
+        ${Sqlite3_SHARED_LIBRARIES}
+        ${Iberty_STATIC_LIBRARIES}
+        ${LTDL_LIBRARY_SHARED}
+        ${CMAKE_DL_LIBS}
+    )
+
+    set_target_properties(openss-framework PROPERTIES VERSION 1.1.0)
+    set_target_properties(openss-framework PROPERTIES COMPILE_DEFINITIONS BUILD_CBTF=1)
+
+    install(TARGETS openss-framework
+        LIBRARY DESTINATION lib${LIB_SUFFIX}
+    )
+
+    add_library(openss-framework-cbtf STATIC ${CBTF_SOURCES})
+
+    target_include_directories(openss-framework-cbtf PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${Boost_INCLUDE_DIRS}
+	${CBTF_INCLUDE_DIRS}
+	${CBTF_MESSAGES_INCLUDE_DIRS}
+	${MRNet_INCLUDE_DIRS}
+	${PROJECT_SOURCE_DIR}/libopenss-framework
+	${PROJECT_SOURCE_DIR}/libopenss-framework/cbtf
+    )
+
+    target_link_libraries(openss-framework-cbtf
+        ${Boost_SYSTEM_LIBRARY}
+        ${Boost_THREAD_LIBRARY}
+	${CBTF_LIBRARIES}
+        ${CBTF_CORE_LIBRARIES}
+	${CBTF_CORE_MRNET_LIBRARY}
+	${MRNet_LIBRARIES}
+	${Iberty_STATIC_LIBRARIES}
+	${CMAKE_DL_LIBS}
+    )
+
+    set_target_properties(openss-framework-cbtf PROPERTIES VERSION 1.1.0)
+    set_target_properties(openss-framework-cbtf PROPERTIES COMPILE_DEFINITIONS BUILD_CBTF=1)
+
+    install(TARGETS openss-framework-cbtf
+	ARCHIVE DESTINATION lib${LIB_SUFFIX}
+    )
+
+elseif (INSTRUMENTOR MATCHES "offline")
+    add_library(openss-framework SHARED ${FW_SOURCES}
+	offline/Instrumentor.cxx
+    )
+
+    target_include_directories(openss-framework PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime
+        ${Sqlite3_INCLUDE_DIR}
+        ${PROJECT_SOURCE_DIR}/libopenss-framework
+        ${PROJECT_BUILD_DIR}/libopenss-runtime
+        ${LTDL_INCLUDE_DIR}
+    )
+
+    target_link_libraries(openss-framework
+        ${Sqlite3_SHARED_LIBRARIES}
+        ${Iberty_STATIC_LIBRARIES}
+        ${LTDL_LIBRARY_SHARED}
+        ${CMAKE_DL_LIBS}
+    )
+
+    set_target_properties(openss-framework PROPERTIES VERSION 1.1.0)
+
+    install(TARGETS openss-framework
+        LIBRARY DESTINATION lib${LIB_SUFFIX}
+    )
+
+    if(BINUTILS_FOUND)
+
+        #file(COPY ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime/offline.h DESTINATION ./offline)
 
         #${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime/offline.c
-    add_library(openss-framework-binutils SHARED
-	${BINUTILS_SOURCES}
-	OfflineExperiment.hxx
-	OfflineExperiment.cxx
-    )
+        add_library(openss-framework-binutils SHARED
+	    ${BINUTILS_SOURCES}
+	    OfflineExperiment.hxx
+	    OfflineExperiment.cxx
+        )
 
-    include_directories(
+        target_include_directories(openss-framework-binutils PUBLIC
+	    ${CMAKE_CURRENT_SOURCE_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}/offline
+	    ${Binutils_INCLUDE_DIR}
+	    ${Binutils_Iberty_INCLUDE_DIR}
+	    ${PROJECT_SOURCE_DIR}/libopenss-framework
+            ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
+        )
+
+        target_link_libraries(openss-framework-binutils
+	    ${Bfd_LIBRARY_SHARED}
+	    ${Iberty_STATIC_LIBRARIES}
+	    ${CMAKE_DL_LIBS}
+        )
+        # Without this the resulting code from OfflineExperiment.cxx calls the getSymbols function in symtabapi
+        if(SYMTABAPI_FOUND)
+           if (RESOLVE_SYMBOLS MATCHES "symtabapi")
+              add_definitions(-DOPENSS_USE_SYMTABAPI=1)
+           endif()
+        endif()
+
+        set_target_properties(openss-framework-binutils PROPERTIES VERSION 1.1.0)
+
+        # Work around problem defined by:
+        # https://stackoverflow.com/questions/11748035/binutils-bfd-h-wants-config-h-now
+        set_target_properties(openss-framework-binutils PROPERTIES COMPILE_DEFINITIONS "PACKAGE=1;PACKAGE_VERSION=1")
+
+        install(TARGETS openss-framework-binutils
+	    LIBRARY DESTINATION lib${LIB_SUFFIX}
+        )
+
+    endif()
+endif()
+
+if(SYMTABAPI_FOUND)
+    if (INSTRUMENTOR MATCHES "offline")
+	    add_library(openss-framework-symtabapi SHARED
+		${SYMTABAPI_SOURCES}
+		OfflineExperiment.hxx
+		OfflineExperiment.cxx
+    	    )
+    else()
+	    add_library(openss-framework-symtabapi SHARED
+		${SYMTABAPI_SOURCES}
+    	)
+    endif()
+
+    if (RESOLVE_SYMBOLS MATCHES "symtabapi")
+      if (DYNINSTAPI_FOUND)
+        add_definitions(-DOPENSS_USE_SYMTABAPI=1 
+                        -DHAVE_DYNINST)
+      else()
+        add_definitions(-DOPENSS_USE_SYMTABAPI=1)
+      endif()
+    endif()
+
+    if (DYNINSTAPI_FOUND)
+    target_include_directories(openss-framework-symtabapi PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}/offline
-	${Binutils_INCLUDE_DIR}
+	${Boost_INCLUDE_DIRS}
+	${SymtabAPI_INCLUDE_DIRS}
+	${DyninstAPI_INCLUDE_DIRS}
 	${Binutils_Iberty_INCLUDE_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-framework
         ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
     )
-
-    target_link_libraries(openss-framework-binutils
-	${Bfd_LIBRARY_SHARED}
-	${Iberty_LIBRARY_STATIC}
-	${CMAKE_DL_LIBS}
+    else()
+    target_include_directories(openss-framework-symtabapi PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}/offline
+	${Boost_INCLUDE_DIRS}
+	${SymtabAPI_INCLUDE_DIRS}
+	${Binutils_Iberty_INCLUDE_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-framework
+        ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
     )
+    endif()
 
+    if (DYNINSTAPI_FOUND)
+      target_link_libraries(openss-framework-symtabapi
+	${SymtabAPI_LIBRARIES}
+	${DyninstAPI_LIBRARIES}
+	${Iberty_STATIC_LIBRARIES}
+	${CMAKE_DL_LIBS}
+      )
+    else()
+      target_link_libraries(openss-framework-symtabapi
+  	${SymtabAPI_LIBRARIES}
+	${Iberty_STATIC_LIBRARIES}
+	${CMAKE_DL_LIBS}
+      )
+    endif()
 
-    set_target_properties(openss-framework-binutils PROPERTIES VERSION 1.1.0)
+    set_target_properties(openss-framework-symtabapi PROPERTIES VERSION 1.1.0)
 
-    install(TARGETS openss-framework-binutils
+    install(TARGETS openss-framework-symtabapi
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
     )
 
 endif()
+

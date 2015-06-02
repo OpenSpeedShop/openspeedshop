@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -27,26 +27,38 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 find_path(Papi_INCLUDE_DIR
     NAMES papi.h
     PATHS /usr /usr/local
-    HINTS $ENV{PAPI_ROOT}
-    HINTS ${PAPI_ROOT}
+    HINTS $ENV{PAPI_DIR}
+    HINTS ${PAPI_DIR}
     PATH_SUFFIXES include
     )
 
 find_library(Papi_LIBRARY_SHARED NAMES papi
-    HINTS $ENV{PAPI_ROOT}
-    HINTS ${PAPI_ROOT}
+    HINTS $ENV{PAPI_DIR}
+    HINTS ${PAPI_DIR}
+    PATHS /usr /usr/local
+    PATH_SUFFIXES lib lib64
+    )
+
+find_library(Papi_pfm_LIBRARY_SHARED NAMES pfm
+    HINTS $ENV{PAPI_DIR}
+    HINTS ${PAPI_DIR}
     PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 
 find_library(Papi_LIBRARY_STATIC NAMES libpapi.a
-    HINTS $ENV{PAPI_ROOT}
-    HINTS ${PAPI_ROOT}
+    HINTS $ENV{PAPI_DIR}
+    HINTS ${PAPI_DIR}
     PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 
-
+find_library(Papi_pfm_LIBRARY_STATIC NAMES libpfm.a
+    HINTS $ENV{PAPI_DIR}
+    HINTS ${PAPI_DIR}
+    PATHS /usr /usr/local
+    PATH_SUFFIXES lib lib64
+    )
 
 find_package_handle_standard_args(
     Papi DEFAULT_MSG
@@ -54,17 +66,21 @@ find_package_handle_standard_args(
     Papi_INCLUDE_DIR
     )
 
-set(Papi_SHARED_LIBRARIES ${Papi_LIBRARY_SHARED})
+set(Papi_SHARED_LIBRARIES ${Papi_LIBRARY_SHARED} ${Papi_pfm_LIBRARY_SHARED})
+set(Papi_pfm_SHARED_LIBRARIES ${Papi_pfm_LIBRARY_SHARED})
 set(Papi_STATIC_LIBRARIES ${Papi_LIBRARY_STATIC})
+set(Papi_pfm_STATIC_LIBRARIES ${Papi_pfm_LIBRARY_STATIC})
 set(Papi_INCLUDE_DIRS ${Papi_INCLUDE_DIR})
 
 GET_FILENAME_COMPONENT(Papi_LIB_DIR ${Papi_LIBRARY_SHARED} PATH )
 GET_FILENAME_COMPONENT(Papi_DIR ${Papi_INCLUDE_DIR} PATH )
 
-#message(STATUS "Papi Papi_SHARED_LIBRARIES: " ${Papi_SHARED_LIBRARIES})
-#message(STATUS "Papi Papi_STATIC_LIBRARIES: " ${Papi_STATIC_LIBRARIES})
-#message(STATUS "Papi Papi_INCLUDE_DIR: " ${Papi_INCLUDE_DIR})
-#message(STATUS "Papi Papi_LIB_DIR: " ${Papi_LIB_DIR})
+message(STATUS "Papi Papi_SHARED_LIBRARIES: " ${Papi_SHARED_LIBRARIES})
+message(STATUS "Papi Papi_STATIC_LIBRARIES: " ${Papi_STATIC_LIBRARIES})
+message(STATUS "Papi Papi_pfm_SHARED_LIBRARIES: " ${Papi_pfm_SHARED_LIBRARIES})
+message(STATUS "Papi Papi_pfm_STATIC_LIBRARIES: " ${Papi_pfm_STATIC_LIBRARIES})
+message(STATUS "Papi Papi_INCLUDE_DIR: " ${Papi_INCLUDE_DIR})
+message(STATUS "Papi Papi_LIB_DIR: " ${Papi_LIB_DIR})
 message(STATUS "Papi found: " ${PAPI_FOUND})
 message(STATUS "Papi location: " ${Papi_DIR})
 
@@ -72,6 +88,8 @@ message(STATUS "Papi location: " ${Papi_DIR})
 mark_as_advanced(
             Papi_LIBRARY_SHARED 
             Papi_LIBRARY_STATIC
+            Papi_pfm_LIBRARY_SHARED 
+            Papi_pfm_LIBRARY_STATIC
             Papi_INCLUDE_DIR
             Papi_LIB_DIR
             )

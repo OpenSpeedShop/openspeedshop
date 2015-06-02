@@ -43,8 +43,7 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/IOWizardPanel.hxx
     )
 
-
-include_directories(
+target_include_directories(IOWizardPanel PUBLIC
     ${QT_INCLUDE_DIR}
     ${PYTHON_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -69,7 +68,6 @@ target_link_libraries(IOWizardPanel
     ${QT_LIBRARIES}
     ${CMAKE_DL_LIBS}
     )
-
 
 set_target_properties(IOWizardPanel PROPERTIES PREFIX "")
 

@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -27,23 +27,23 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 find_path(LibUnwind_INCLUDE_DIR
     NAMES libunwind.h
     PATHS /usr /usr/local
-    HINTS $ENV{LIBUNWIND_ROOT}
-    HINTS ${LIBUNWIND_ROOT}
+    HINTS $ENV{LIBUNWIND_DIR}
+    HINTS ${LIBUNWIND_DIR}
     PATH_SUFFIXES include
     NO_DEFAULT_PATH
     )
 
 find_library(LibUnwind_LIBRARY_SHARED NAMES unwind
-    HINTS $ENV{LIBUNWIND_ROOT}
-    HINTS ${LIBUNWIND_ROOT}
+    HINTS $ENV{LIBUNWIND_DIR}
+    HINTS ${LIBUNWIND_DIR}
     PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     NO_DEFAULT_PATH
     )
 
 find_library(LibUnwind_LIBRARY_STATIC NAMES libunwind.a
-    HINTS $ENV{LIBUNWIND_ROOT}
-    HINTS ${LIBUNWIND_ROOT}
+    HINTS $ENV{LIBUNWIND_DIR}
+    HINTS ${LIBUNWIND_DIR}
     PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     NO_DEFAULT_PATH
@@ -60,7 +60,7 @@ find_package_handle_standard_args(
 set(LibUnwind_SHARED_LIBRARIES ${LibUnwind_LIBRARY_SHARED})
 set(LibUnwind_STATIC_LIBRARIES ${LibUnwind_LIBRARY_STATIC})
 set(LibUnwind_INCLUDE_DIRS ${LibUnwind_INCLUDE_DIR})
-set(LibUnwind_DEFINES "-DUNW_LOCAL_ONLY")
+set(LibUnwind_DEFINES "UNW_LOCAL_ONLY")
 
 
 GET_FILENAME_COMPONENT(LibUnwind_LIB_DIR ${LibUnwind_LIBRARY_SHARED} PATH )

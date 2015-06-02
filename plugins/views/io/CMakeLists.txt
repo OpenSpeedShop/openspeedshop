@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -25,8 +25,9 @@ add_definitions(
 	-DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
   )
   
+add_library(io_view MODULE ${SOURCES})
 
-include_directories(
+target_include_directories(io_view PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-cli
@@ -39,15 +40,15 @@ include_directories(
 	${PYTHON_INCLUDE_DIR}
     )
 
-add_library(io_view MODULE ${SOURCES})
-
 target_link_libraries(io_view
 	pthread
 	openss-cli
+	openss-queries
+	openss-framework
 	${CMAKE_DL_LIBS}
     )
 
-set_target_properties(io_view PROPERTIES VERSION 1.1.0)
+#set_target_properties(io_view PROPERTIES VERSION 1.1.0)
 set_target_properties(io_view PROPERTIES PREFIX "")
 
 install(TARGETS io_view

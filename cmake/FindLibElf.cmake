@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2013-2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2013-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -27,21 +27,21 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 find_path(LibElf_INCLUDE_DIR
     NAMES libelf.h elf.h 
     PATHS /usr /usr/local
-    HINTS $ENV{LIBELF_ROOT}
-    HINTS ${LIBELF_ROOT}
+    HINTS $ENV{LIBELF_DIR}
+    HINTS ${LIBELF_DIR}
     PATH_SUFFIXES include include/libelf
     )
 
 find_library(LibElf_LIBRARY_SHARED NAMES elf
-    HINTS $ENV{LIBELF_ROOT}
-    HINTS ${LIBELF_ROOT}
+    HINTS $ENV{LIBELF_DIR}
+    HINTS ${LIBELF_DIR}
     PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 
 find_library(LibElf_LIBRARY_STATIC NAMES libelf.a
-    HINTS $ENV{LIBELF_ROOT}
-    HINTS ${LIBELF_ROOT}
+    HINTS $ENV{LIBELF_DIR}
+    HINTS ${LIBELF_DIR}
     PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )

@@ -24,9 +24,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_FORMAT_CONTAINS_NUL}")
 add_definitions(
 	-DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
   )
-  
 
-include_directories(
+add_library(pthreads_view MODULE ${SOURCES})
+
+target_include_directories(pthreads_view PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-cli
@@ -39,8 +40,6 @@ include_directories(
 	${PYTHON_INCLUDE_DIR}
     )
 
-add_library(pthreads_view MODULE ${SOURCES})
-
 target_link_libraries(pthreads_view
 	pthread
 	openss-cli
@@ -49,7 +48,7 @@ target_link_libraries(pthreads_view
 	${CMAKE_DL_LIBS}
     )
 
-set_target_properties(pthreads_view PROPERTIES VERSION 1.1.0)
+#set_target_properties(pthreads_view PROPERTIES VERSION 1.1.0)
 set_target_properties(pthreads_view PROPERTIES PREFIX "")
 
 install(TARGETS pthreads_view

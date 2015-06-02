@@ -44,7 +44,7 @@ add_custom_command(
     )
 
 
-include_directories(
+target_include_directories(HW_CounterSampWizardPanel PUBLIC
     ${QT_INCLUDE_DIR}
     ${PYTHON_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}

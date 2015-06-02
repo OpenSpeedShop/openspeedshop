@@ -79,7 +79,7 @@ add_custom_command(
         ${CMAKE_CURRENT_SOURCE_DIR}/SourcePanel.hxx
     )
 
-include_directories(
+target_include_directories(SourcePanel PUBLIC
     ${QT_INCLUDE_DIR}
     ${PYTHON_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}

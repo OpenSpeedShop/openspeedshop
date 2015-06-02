@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -47,69 +47,111 @@ add_definitions(
   )
   
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${PROJECT_SOURCE_DIR}/libopenss-runtime
-    ${PROJECT_SOURCE_DIR}/libopenss-framework
-    ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+# Do not build if only creating runtimes (RUNTIME_ONLY == true)
+if (RUNTIME_ONLY MATCHES "false")
+    add_library(pcsamp MODULE
+            ${PLUGIN_SOURCES}
     )
 
-add_library(pcsamp MODULE
-        ${PLUGIN_SOURCES}
-    )
+    target_include_directories(pcsamp PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${PROJECT_SOURCE_DIR}/libopenss-runtime
+        ${PROJECT_SOURCE_DIR}/libopenss-framework
+        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+        )
 
-target_link_libraries(pcsamp
+    target_link_libraries(pcsamp
 	pthread
 	openss-framework
 	${CMAKE_DL_LIBS}
     )
 
-set_target_properties(pcsamp PROPERTIES VERSION 1.1.0)
+    set_target_properties(pcsamp PROPERTIES PREFIX "")
 
-install(TARGETS pcsamp
+    install(TARGETS pcsamp
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
-set_target_properties(pcsamp PROPERTIES PREFIX "")
-
-if(LIBMONITOR_FOUND)
-    add_definitions(
-	-DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
-	-DOPENSS_OFFLINE=1
-    )
-
-    include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_BINARY_DIR}
-	${PROJECT_SOURCE_DIR}/libopenss-runtime
-	${PROJECT_BUILD_DIR}/libopenss-runtime
-	${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
-	${LibMonitor_INCLUDE_DIRS}
-    )
-
-    add_library(pcsamp-rt-offline SHARED
-        ${RT_SOURCES}
-	offline.c
-    )
-
-    target_link_libraries(pcsamp-rt-offline
-	${CMAKE_DL_LIBS}
-	rt
-	pthread
-        -Wl,-whole-archive
-	openss-runtime-offline
-        -Wl,-no-whole-archive
-    )
-
-    #set(CMAKE_SHARED_LINKER_FLAGS -Wl,-whole-archive)
-
-    set_target_properties(pcsamp-rt-offline PROPERTIES VERSION 1.1.0)
-
-    install(TARGETS pcsamp-rt-offline
-	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
-    )
-
-    set_target_properties(pcsamp-rt-offline PROPERTIES PREFIX "")
 endif()
+
+if (INSTRUMENTOR MATCHES "offline")
+
+    if(LIBMONITOR_FOUND)
+
+        add_definitions(
+    	    -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+	    -DOPENSS_OFFLINE=1
+        )
+
+        add_library(pcsamp-rt-offline SHARED
+            ${RT_SOURCES}
+	    offline.c
+        )
+
+        target_include_directories(pcsamp-rt-offline PUBLIC
+	    ${CMAKE_CURRENT_SOURCE_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}
+	    ${PROJECT_SOURCE_DIR}/libopenss-runtime
+	    ${PROJECT_BUILD_DIR}/libopenss-runtime
+	    ${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
+	    ${LibMonitor_INCLUDE_DIRS}
+            ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+        )
+
+        target_link_libraries(pcsamp-rt-offline
+	    ${CMAKE_DL_LIBS}
+	    rt
+	    pthread
+            -Wl,-whole-archive
+	    openss-runtime-offline
+            -Wl,-no-whole-archive
+        )
+
+        #set(CMAKE_SHARED_LINKER_FLAGS -Wl,-whole-archive)
+
+        #set_target_properties(pcsamp-rt-offline PROPERTIES VERSION 1.1.0)
+        set_target_properties(pcsamp-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
+
+        install(TARGETS pcsamp-rt-offline
+    	    LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
+        )
+
+        set_target_properties(pcsamp-rt-offline PROPERTIES PREFIX "")
+
+        # Create and install static lib version
+
+        add_library(pcsamp-offline STATIC
+            ${RT_SOURCES}
+	    offline.c
+        )
+
+        target_include_directories(pcsamp-offline PUBLIC
+	    ${CMAKE_CURRENT_SOURCE_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}
+	    ${PROJECT_SOURCE_DIR}/libopenss-runtime
+	    ${PROJECT_BUILD_DIR}/libopenss-runtime
+	    ${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
+	    ${LibMonitor_INCLUDE_DIRS}
+            ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+        )
+
+        target_link_libraries(pcsamp-offline
+	    ${CMAKE_DL_LIBS}
+	    rt
+	    pthread
+            -Wl,-whole-archive
+	    openss-runtime-offline
+            -Wl,-no-whole-archive
+        )
+
+        #set_target_properties(pcsamp-offline PROPERTIES VERSION 1.1.0)
+        set_target_properties(pcsamp-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
+
+        install(TARGETS pcsamp-offline
+	    ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
+        )
+
+    endif() # endif for LIBMONITOR
+endif() # endif for INSTRUMENTOR MATCHES offline
 
 file(COPY blobs.x DESTINATION .)

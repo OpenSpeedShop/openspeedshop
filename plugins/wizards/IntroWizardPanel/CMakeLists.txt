@@ -43,7 +43,7 @@ add_custom_command(
     )
 
 
-include_directories(
+target_include_directories(IntroWizardPanel PUBLIC
     ${QT_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}

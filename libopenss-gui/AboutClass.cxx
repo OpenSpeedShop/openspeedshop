@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2011 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006-2015 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -29,7 +29,9 @@
 #include <qpushbutton.h>
 #include <qtabwidget.h>
 
+#ifdef HAVE_CONFIG_H
 #include "config.h" // For version (VERSION) number
+#endif
 
 #include "splash_noborder.xpm"
 AboutClass::AboutClass(QWidget *w) : QDialog(w, "", 0, 0)

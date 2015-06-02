@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -26,18 +26,18 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 
 find_path(OpenMPI_INCLUDE_DIR
     NAMES mpi.h
-    HINTS $ENV{OPENMPI_ROOT}
-    HINTS ${OPENMPI_ROOT}
+    HINTS $ENV{OPENMPI_DIR}
+    HINTS ${OPENMPI_DIR}
     PATHS /usr /usr/local
-    PATH_SUFFIXES include include/openmpi
+    PATH_SUFFIXES include include/openmpi include/openmpi-${oss_hardware_platform}
     NO_DEFAULT_PATH
     )
 
 find_library(OpenMPI_LIBRARY_SHARED NAMES mpi
-    HINTS $ENV{OPENMPI_ROOT}
-    HINTS ${OPENMPI_ROOT}
+    HINTS $ENV{OPENMPI_DIR}
+    HINTS ${OPENMPI_DIR}
     PATHS /usr /usr/local
-    PATH_SUFFIXES lib lib64
+    PATH_SUFFIXES lib lib64 lib/openmpi lib64/openmpi
     NO_DEFAULT_PATH
     )
 

@@ -1,6 +1,6 @@
 ################################################################################
-# Copyright (c) 2011,2012 Krell Institute. All Rights Reserved.
 # Copyright (c) 2012 Argo Navis Technologies. All Rights Reserved.
+# Copyright (c) 2011-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -20,44 +20,56 @@
 include(FindPackageHandleStandardArgs)
 
 find_library(MRNet_MRNET_LIBRARY NAMES libmrnet.so
-    HINTS $ENV{MRNET_ROOT}
-    HINTS ${MRNET_ROOT}
+    HINTS $ENV{MRNET_DIR}
+    HINTS ${MRNET_DIR}
     PATH_SUFFIXES lib lib64
     )
 
 find_library(MRNet_XPLAT_LIBRARY NAMES libxplat.so 
-    HINTS $ENV{MRNET_ROOT}
-    HINTS ${MRNET_ROOT}
+    HINTS $ENV{MRNET_DIR}
+    HINTS ${MRNET_DIR}
     PATH_SUFFIXES lib lib64
     )
 
 find_library(MRNet_MRNET_LW_SHARED_LIBRARY NAMES libmrnet_lightweight.so
-    HINTS $ENV{MRNET_ROOT}
-    HINTS ${MRNET_ROOT}
+    HINTS $ENV{MRNET_DIR}
+    HINTS ${MRNET_DIR}
     PATH_SUFFIXES lib lib64
     )
 
 find_library(MRNet_XPLAT_LW_SHARED_LIBRARY NAMES libxplat_lightweight.so
-    HINTS $ENV{MRNET_ROOT}
-    HINTS ${MRNET_ROOT}
+    HINTS $ENV{MRNET_DIR}
+    HINTS ${MRNET_DIR}
     PATH_SUFFIXES lib lib64
     )
 
 find_library(MRNet_MRNET_LW_STATIC_LIBRARY NAMES libmrnet_lightweight.a
-    HINTS $ENV{MRNET_ROOT}
-    HINTS ${MRNET_ROOT}
+    HINTS $ENV{MRNET_DIR}
+    HINTS ${MRNET_DIR}
     PATH_SUFFIXES lib lib64
     )
 
 find_library(MRNet_XPLAT_LW_STATIC_LIBRARY NAMES libxplat_lightweight.a
-    HINTS $ENV{MRNET_ROOT}
-    HINTS ${MRNET_ROOT}
+    HINTS $ENV{MRNET_DIR}
+    HINTS ${MRNET_DIR}
+    PATH_SUFFIXES lib lib64
+    )
+
+find_library(MRNet_MRNET_LWR_SHARED_LIBRARY NAMES libmrnet_lightweight_r.so
+    HINTS $ENV{MRNET_DIR}
+    HINTS ${MRNET_DIR}
+    PATH_SUFFIXES lib lib64
+    )
+
+find_library(MRNet_XPLAT_LWR_SHARED_LIBRARY NAMES libxplat_lightweight_r.so
+    HINTS $ENV{MRNET_DIR}
+    HINTS ${MRNET_DIR}
     PATH_SUFFIXES lib lib64
     )
 
 find_path(MRNet_INCLUDE_DIR mrnet/MRNet.h 
-    HINTS $ENV{MRNET_ROOT}
-    HINTS ${MRNET_ROOT}
+    HINTS $ENV{MRNET_DIR}
+    HINTS ${MRNET_DIR}
     PATH_SUFFIXES include
     )
 
@@ -109,6 +121,8 @@ endif()
 set(MRNet_LW_SHARED_LIBRARIES ${MRNet_MRNET_LW_SHARED_LIBRARY} ${MRNet_XPLAT_LW_SHARED_LIBRARY})
 
 set(MRNet_LW_STATIC_LIBRARIES ${MRNet_MRNET_LW_STATIC_LIBRARY} ${MRNet_XPLAT_LW_STATIC_LIBRARY})
+
+set(MRNet_LWR_SHARED_LIBRARIES ${MRNet_MRNET_LWR_SHARED_LIBRARY} ${MRNet_XPLAT_LWR_SHARED_LIBRARY})
 
 set(MRNet_DEFINES "-Dos_linux")
 
@@ -165,6 +179,7 @@ if(MRNET_FOUND AND DEFINED MRNet_INCLUDE_DIR)
             MRNet_MRNET_LIBRARY MRNet_XPLAT_LIBRARY
             MRNet_MRNET_LW_SHARED_LIBRARY MRNet_XPLAT_LW_SHARED_LIBRARY
             MRNet_MRNET_LW_STATIC_LIBRARY MRNet_XPLAT_LW_STATIC_LIBRARY
+            MRNet_MRNET_LWR_STATIC_LIBRARY MRNet_XPLAT_LWR_STATIC_LIBRARY
             MRNet_INCLUDE_DIR
             )
 
@@ -178,8 +193,8 @@ if(MRNET_FOUND AND DEFINED MRNet_INCLUDE_DIR)
 
         find_path(
             MRNet_MRNET_CONFIG_INCLUDE_DIR mrnet_config.h
-            HINTS $ENV{MRNET_ROOT}
-            HINTS ${MRNET_ROOT}
+            HINTS $ENV{MRNET_DIR}
+            HINTS ${MRNET_DIR}
             PATH_SUFFIXES 
                 lib/mrnet-${MRNet_VERSION_STRING}/include
                 lib64/mrnet-${MRNet_VERSION_STRING}/include
@@ -195,8 +210,8 @@ if(MRNET_FOUND AND DEFINED MRNet_INCLUDE_DIR)
 
         find_path(
             MRNet_XPLAT_CONFIG_INCLUDE_DIR xplat_config.h
-            HINTS $ENV{MRNET_ROOT}
-            HINTS ${MRNET_ROOT}
+            HINTS $ENV{MRNET_DIR}
+            HINTS ${MRNET_DIR}
             PATH_SUFFIXES 
                 lib/xplat-${MRNet_VERSION_STRING}/include
                 lib64/xplat-${MRNet_VERSION_STRING}/include
@@ -210,6 +225,10 @@ if(MRNET_FOUND AND DEFINED MRNet_INCLUDE_DIR)
                 )
         endif()
         
+
+        GET_FILENAME_COMPONENT(MRNet_LIB_DIR ${MRNet_MRNET_LIBRARY} PATH )
+        GET_FILENAME_COMPONENT(MRNet_DIR ${MRNet_INCLUDE_DIR} PATH )
+
         set(MRNet_INCLUDE_DIRS 
             ${MRNet_INCLUDE_DIR}
             ${MRNet_MRNET_CONFIG_INCLUDE_DIR}
@@ -220,9 +239,14 @@ if(MRNET_FOUND AND DEFINED MRNet_INCLUDE_DIR)
             MRNet_MRNET_LIBRARY MRNet_XPLAT_LIBRARY
             MRNet_MRNET_LW_SHARED_LIBRARY MRNet_XPLAT_LW_SHARED_LIBRARY
             MRNet_MRNET_LW_STATIC_LIBRARY MRNet_XPLAT_LW_STATIC_LIBRARY
+            MRNet_MRNET_LWR_SHARED_LIBRARY MRNet_XPLAT_LWR_SHARED_LIBRARY
+            MRNet_MRNET_LWR_SHARED_LIBRARIES 
             MRNet_INCLUDE_DIR
             MRNet_MRNET_CONFIG_INCLUDE_DIR
             MRNet_XPLAT_CONFIG_INCLUDE_DIR
+            MRNet_DIR
+            MRNet_LIB_DIR
+            MRNet_LIBRARIES
             )
         
     endif()

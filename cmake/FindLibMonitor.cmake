@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -27,23 +27,23 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 find_path(LibMonitor_INCLUDE_DIR
     NAMES monitor.h
     PATHS /usr /usr/local
-    HINTS $ENV{LIBMONITOR_ROOT}
-    HINTS ${LIBMONITOR_ROOT}
+    HINTS $ENV{LIBMONITOR_DIR}
+    HINTS ${LIBMONITOR_DIR}
     PATH_SUFFIXES include
     NO_DEFAULT_PATH
     )
 
 find_library(LibMonitor_LIBRARY_SHARED NAMES monitor
-    HINTS $ENV{LIBMONITOR_ROOT}
-    HINTS ${LIBMONITOR_ROOT}
+    HINTS $ENV{LIBMONITOR_DIR}
+    HINTS ${LIBMONITOR_DIR}
     PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     NO_DEFAULT_PATH
     )
 
 find_library(LibMonitor_LIBRARY_STATIC NAMES libmonitor_wrap.a
-    HINTS $ENV{LIBMONITOR_ROOT}
-    HINTS ${LIBMONITOR_ROOT}
+    HINTS $ENV{LIBMONITOR_DIR}
+    HINTS ${LIBMONITOR_DIR}
     PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     NO_DEFAULT_PATH

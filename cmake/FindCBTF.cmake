@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2012 Argo Navis Technologies. All Rights Reserved.
+# Copyright (c) 2012-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -19,22 +20,22 @@
 include(FindPackageHandleStandardArgs)
 
 find_library(CBTF_LIBRARY NAMES libcbtf.so
-    HINTS $ENV{CBTF_ROOT} $ENV{CBTF_PREFIX}
+    HINTS ${CBTF_DIR} $ENV{CBTF_DIR}
     PATH_SUFFIXES lib lib64
     )
 
 find_library(CBTF_XML_LIBRARY NAMES libcbtf-xml.so
-    HINTS $ENV{CBTF_ROOT} $ENV{CBTF_PREFIX}
+    HINTS ${CBTF_DIR} $ENV{CBTF_DIR}
     PATH_SUFFIXES lib lib64
     )
 
 find_library(CBTF_MRNET_LIBRARY NAMES libcbtf-mrnet.so
-    HINTS $ENV{CBTF_ROOT} $ENV{CBTF_PREFIX}
+    HINTS ${CBTF_DIR} $ENV{CBTF_DIR}
     PATH_SUFFIXES lib lib64
     )
 
 find_path(CBTF_INCLUDE_DIR KrellInstitute/CBTF/Component.hpp
-    HINTS $ENV{CBTF_ROOT} $ENV{CBTF_PREFIX}
+    HINTS ${CBTF_DIR} $ENV{CBTF_DIR}
     PATH_SUFFIXES include
     )
 
@@ -43,9 +44,10 @@ find_package_handle_standard_args(
     CBTF_LIBRARY CBTF_XML_LIBRARY CBTF_MRNET_LIBRARY CBTF_INCLUDE_DIR
     )
 
+GET_FILENAME_COMPONENT(CBTF_LIB_DIR ${CBTF_LIBRARY} PATH )
 set(CBTF_LIBRARIES ${CBTF_LIBRARY} ${CBTF_XML_LIBRARY} ${CBTF_MRNET_LIBRARY})
 set(CBTF_INCLUDE_DIRS ${CBTF_INCLUDE_DIR})
 
 mark_as_advanced(
-    CBTF_LIBRARY CBTF_XML_LIBRARY CBTF_MRNET_LIBRARY CBTF_INCLUDE_DIR
-    )
+    CBTF_LIBRARY CBTF_XML_LIBRARY CBTF_MRNET_LIBRARY CBTF_INCLUDE_DIR CBTF_LIB_DIR
+)
