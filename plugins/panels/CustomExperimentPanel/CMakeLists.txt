@@ -89,6 +89,27 @@ set_target_properties(openss-CustomExperimentPanel PROPERTIES VERSION 1.1.0)
 install(TARGETS openss-CustomExperimentPanel LIBRARY DESTINATION lib${LIB_SUFFIX}
     )
 
+target_include_directories(CustomExperimentPanel PUBLIC
+    ${QT_INCLUDE_DIR}
+    ${PYTHON_INCLUDE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/libopenss-framework
+    ${PROJECT_SOURCE_DIR}/libopenss-cli
+    ${PROJECT_SOURCE_DIR}/libopenss-framework
+    ${PROJECT_SOURCE_DIR}/libopenss-gui
+    ${PROJECT_SOURCE_DIR}/libopenss-guibase
+    ${PROJECT_SOURCE_DIR}/libopenss-guiimages
+    ${PROJECT_SOURCE_DIR}/libopenss-guiobjects
+    ${PROJECT_SOURCE_DIR}/libopenss-guidialogs
+    ${PROJECT_SOURCE_DIR}/libopenss-guiplugin
+    ${PROJECT_SOURCE_DIR}/libopenss-message
+    ${PROJECT_SOURCE_DIR}/libopenss-queries
+    ${PROJECT_SOURCE_DIR}/plugins/panels/CustomExperimentPanel
+    ${PROJECT_SOURCE_DIR}/plugins/panels/ManageProcessesPanel
+    ${PROJECT_SOURCE_DIR}/plugins/panels/SourcePanel
+    )
+
 target_link_libraries(CustomExperimentPanel
     openss-framework
     openss-guibase
