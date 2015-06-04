@@ -65,14 +65,12 @@ find_library(Iberty_LIBRARY_STATIC NAMES libiberty_pic.a libiberty.a
 find_package_handle_standard_args(
     Binutils DEFAULT_MSG
     Bfd_LIBRARY_SHARED Bfd_LIBRARY_STATIC
-    Iberty_LIBRARY_SHARED Iberty_LIBRARY_STATIC
+    Iberty_LIBRARY_STATIC
     Binutils_INCLUDE_DIR
     )
 
 set(Bfd_SHARED_LIBRARIES ${Bfd_LIBRARY_SHARED})
 set(Bfd_STATIC_LIBRARIES ${Bfd_LIBRARY_STATIC})
-#set(Iberty_SHARED_LIBRARIES ${Iberty_LIBRARY_SHARED})
-#set(IbertyPIC_SHARED_LIBRARIES ${IbertyPIC_LIBRARY_SHARED})
 set(Iberty_STATIC_LIBRARIES ${Iberty_LIBRARY_STATIC})
 set(Binutils_INCLUDE_DIRS ${Binutils_INCLUDE_DIR})
 set(Binutils_Iberty_INCLUDE_DIRS ${Binutils_Iberty_INCLUDE_DIR})
@@ -81,8 +79,6 @@ GET_FILENAME_COMPONENT(Binutils_LIB_DIR ${Bfd_LIBRARY_SHARED} PATH )
 GET_FILENAME_COMPONENT(Binutils_DIR ${Binutils_INCLUDE_DIR} PATH )
 #message(STATUS "Bfd_SHARED_LIBRARIES: " ${Bfd_LIBRARY_SHARED})
 #message(STATUS "Bfd_STATIC_LIBRARIES: " ${Bfd_LIBRARY_STATIC})
-#message(STATUS "Iberty_SHARED_LIBRARIES: " ${Iberty_LIBRARY_SHARED})
-#message(STATUS "IbertyPIC_SHARED_LIBRARIES: " ${IbertyPIC_LIBRARY_SHARED})
 #message(STATUS "Iberty_STATIC_LIBRARIES: " ${Iberty_LIBRARY_STATIC})
 #message(STATUS "Binutils Binutils_INCLUDE_DIR: " ${Binutils_INCLUDE_DIR})
 #message(STATUS "Binutils Binutils_Iberty_INCLUDE_DIR: " ${Binutils_Iberty_INCLUDE_DIR})
@@ -94,8 +90,6 @@ message(STATUS "Binutils location: " ${Binutils_DIR})
 mark_as_advanced(
             Bfd_LIBRARY_SHARED 
             Bfd_LIBRARY_STATIC 
-            Iberty_LIBRARY_SHARED
-            IbertyPIC_LIBRARY_SHARED
             Iberty_LIBRARY_STATIC
             Binutils_INCLUDE_DIR
             Binutils_LIB_DIR
