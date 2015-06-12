@@ -184,6 +184,18 @@ if(LIBMONITOR_FOUND)
     install(TARGETS openss-runtime-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}
     )
+
+    add_custom_command(
+        POST_BUILD
+        OUTPUT ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/openspeedshop/offline_monitor.o
+        COMMAND ar -x libopenss-runtime-offline.a
+        COMMAND cp offline_monitor.c.o ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/openspeedshop/offline_monitor.o
+        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libopenss-runtime-offline.a
+        COMMENT "Copying offline_monitor.o to the install directory for static linking via osslink..."
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} 
+    )
+    add_custom_target(runofflinemonitor ALL DEPENDS ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/openspeedshop/offline_monitor.o) 
+
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 endif()
 
