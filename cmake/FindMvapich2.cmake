@@ -29,33 +29,25 @@ find_path(Mvapich2_INCLUDE_DIR
     NAMES mpi.h
     HINTS $ENV{MVAPICH2_DIR}
     HINTS ${MVAPICH2_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES include 
-    NO_DEFAULT_PATH
     )
 
 find_library(Mvapich2_LIBRARY_SHARED NAMES mpich
     HINTS $ENV{MVAPICH2_DIR}
     HINTS ${MVAPICH2_DIR}
-    PATHS /usr /usr/local 
     PATH_SUFFIXES lib lib64 lib/shared lib64/shared
-    NO_DEFAULT_PATH
     )
 
 find_library(Mvapich2_verbs_LIBRARY_SHARED NAMES verbs
     HINTS $ENV{MVAPICH2_DIR}
     HINTS ${MVAPICH2_DIR}
-    PATHS /usr /usr/local 
     PATH_SUFFIXES lib lib64 lib/shared lib64/shared
-    NO_DEFAULT_PATH
     )
 
 find_library(Mvapich2_common_LIBRARY_SHARED NAMES common
     HINTS $ENV{MVAPICH2_DIR}
     HINTS ${MVAPICH2_DIR}
-    PATHS /usr /usr/local 
     PATH_SUFFIXES lib lib64 lib/shared lib64/shared
-    NO_DEFAULT_PATH
     )
 
 find_package_handle_standard_args(

@@ -17,34 +17,33 @@
 ################################################################################
 
 set(PLUGIN_SOURCES
-	MemDetail.hxx MemTraceableFunctions.h
-        MemCollector.hxx MemCollector.cxx
+    MemDetail.hxx MemTraceableFunctions.h
+    MemCollector.hxx MemCollector.cxx
 )
 
 add_library(mem MODULE
-        ${PLUGIN_SOURCES}
+    ${PLUGIN_SOURCES}
 )
 
 target_include_directories(mem PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${CBTF_MESSAGES_INCLUDE_DIRS}
-        ${PROJECT_SOURCE_DIR}/libopenss-runtime
-        ${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CBTF_MESSAGES_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/libopenss-runtime
+    ${PROJECT_SOURCE_DIR}/libopenss-framework
+    ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
 )
 
 target_link_libraries(mem
-	pthread
-	openss-framework
-        ${CBTF_MESSAGES_LIBRARIES}
-	${CMAKE_DL_LIBS}
+    pthread
+    openss-framework
+    ${CBTF_MESSAGES_LIBRARIES}
+    ${CMAKE_DL_LIBS}
 )
 
 set_target_properties(mem PROPERTIES PREFIX "")
 
 install(TARGETS mem
-	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
+    LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
 )
-
 

@@ -27,7 +27,6 @@ set(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 find_library(LTDL_LIBRARY_SHARED NAMES ltdl
     HINTS $ENV{LTDL_DIR}
     HINTS ${LTDL_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 
@@ -35,7 +34,6 @@ include(CheckIncludeFileCXX)
 
 find_path(LTDL_INCLUDE_DIR
     NAMES ltdl.h
-    PATHS /usr /usr/local
     HINTS $ENV{LTDL_DIR}
     HINTS ${LTDL_DIR}
     PATH_SUFFIXES include

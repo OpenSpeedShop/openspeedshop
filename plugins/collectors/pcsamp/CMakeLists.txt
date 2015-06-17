@@ -43,23 +43,24 @@ add_custom_command(
 
 
 add_definitions(
-  -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
-  )
+    -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+)
   
 
 # Do not build if only creating runtimes (RUNTIME_ONLY == true)
 if (RUNTIME_ONLY MATCHES "false")
+
     add_library(pcsamp MODULE
-            ${PLUGIN_SOURCES}
+	${PLUGIN_SOURCES}
     )
 
     target_include_directories(pcsamp PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${PROJECT_SOURCE_DIR}/libopenss-runtime
-        ${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
-        )
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-runtime
+	${PROJECT_SOURCE_DIR}/libopenss-framework
+	${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+    )
 
     target_link_libraries(pcsamp
 	pthread
@@ -72,86 +73,79 @@ if (RUNTIME_ONLY MATCHES "false")
     install(TARGETS pcsamp
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
+
 endif()
 
 if (INSTRUMENTOR MATCHES "offline")
 
-    if(LIBMONITOR_FOUND)
+    add_definitions(
+	-DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+	-DOPENSS_OFFLINE=1
+    )
 
-        add_definitions(
-    	    -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
-	    -DOPENSS_OFFLINE=1
-        )
+    add_library(pcsamp-rt-offline SHARED
+	${RT_SOURCES}
+	offline.c
+    )
 
-        add_library(pcsamp-rt-offline SHARED
-            ${RT_SOURCES}
-	    offline.c
-        )
+    target_include_directories(pcsamp-rt-offline PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-runtime
+	${PROJECT_BUILD_DIR}/libopenss-runtime
+	${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
+	${LibMonitor_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+    )
 
-        target_include_directories(pcsamp-rt-offline PUBLIC
-	    ${CMAKE_CURRENT_SOURCE_DIR}
-	    ${CMAKE_CURRENT_BINARY_DIR}
-	    ${PROJECT_SOURCE_DIR}/libopenss-runtime
-	    ${PROJECT_BUILD_DIR}/libopenss-runtime
-	    ${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
-	    ${LibMonitor_INCLUDE_DIRS}
-            ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
-        )
+    target_link_libraries(pcsamp-rt-offline
+	${CMAKE_DL_LIBS}
+	rt
+	pthread
+	-Wl,-whole-archive
+	openss-runtime-offline
+	-Wl,-no-whole-archive
+    )
 
-        target_link_libraries(pcsamp-rt-offline
-	    ${CMAKE_DL_LIBS}
-	    rt
-	    pthread
-            -Wl,-whole-archive
-	    openss-runtime-offline
-            -Wl,-no-whole-archive
-        )
+    set_target_properties(pcsamp-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
 
-        #set(CMAKE_SHARED_LINKER_FLAGS -Wl,-whole-archive)
+    install(TARGETS pcsamp-rt-offline
+	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
+    )
 
-        #set_target_properties(pcsamp-rt-offline PROPERTIES VERSION 1.1.0)
-        set_target_properties(pcsamp-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
+    set_target_properties(pcsamp-rt-offline PROPERTIES PREFIX "")
 
-        install(TARGETS pcsamp-rt-offline
-    	    LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
-        )
+    # Create and install static lib version
+    add_library(pcsamp-offline STATIC
+	${RT_SOURCES}
+	offline.c
+    )
 
-        set_target_properties(pcsamp-rt-offline PROPERTIES PREFIX "")
+    target_include_directories(pcsamp-offline PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-runtime
+	${PROJECT_BUILD_DIR}/libopenss-runtime
+	${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
+	${LibMonitor_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+    )
 
-        # Create and install static lib version
+    target_link_libraries(pcsamp-offline
+	${CMAKE_DL_LIBS}
+	rt
+	pthread
+        -Wl,-whole-archive
+	openss-runtime-offline
+        -Wl,-no-whole-archive
+    )
 
-        add_library(pcsamp-offline STATIC
-            ${RT_SOURCES}
-	    offline.c
-        )
+    set_target_properties(pcsamp-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
 
-        target_include_directories(pcsamp-offline PUBLIC
-	    ${CMAKE_CURRENT_SOURCE_DIR}
-	    ${CMAKE_CURRENT_BINARY_DIR}
-	    ${PROJECT_SOURCE_DIR}/libopenss-runtime
-	    ${PROJECT_BUILD_DIR}/libopenss-runtime
-	    ${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
-	    ${LibMonitor_INCLUDE_DIRS}
-            ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
-        )
+    install(TARGETS pcsamp-offline
+	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
+    )
 
-        target_link_libraries(pcsamp-offline
-	    ${CMAKE_DL_LIBS}
-	    rt
-	    pthread
-            -Wl,-whole-archive
-	    openss-runtime-offline
-            -Wl,-no-whole-archive
-        )
-
-        #set_target_properties(pcsamp-offline PROPERTIES VERSION 1.1.0)
-        set_target_properties(pcsamp-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
-
-        install(TARGETS pcsamp-offline
-	    ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
-        )
-
-    endif() # endif for LIBMONITOR
 endif() # endif for INSTRUMENTOR MATCHES offline
 
 file(COPY blobs.x DESTINATION .)

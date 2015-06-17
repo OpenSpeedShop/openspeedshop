@@ -26,7 +26,6 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 
 find_path(Binutils_INCLUDE_DIR
     NAMES bfd.h
-    PATHS /usr /usr/local
     HINTS $ENV{BINUTILS_DIR}
     HINTS ${BINUTILS_DIR}
     PATH_SUFFIXES include
@@ -34,7 +33,6 @@ find_path(Binutils_INCLUDE_DIR
 
 find_path(Binutils_Iberty_INCLUDE_DIR
     NAMES libiberty.h
-    PATHS /usr /usr/local
     HINTS $ENV{BINUTILS_DIR}
     HINTS ${BINUTILS_DIR}
     PATH_SUFFIXES include include/libiberty
@@ -43,21 +41,18 @@ find_path(Binutils_Iberty_INCLUDE_DIR
 find_library(Bfd_LIBRARY_SHARED NAMES bfd
     HINTS $ENV{BINUTILS_DIR}
     HINTS ${BINUTILS_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 
 find_library(Bfd_LIBRARY_STATIC NAMES libbfd.a
     HINTS $ENV{BINUTILS_DIR}
     HINTS ${BINUTILS_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 
 find_library(Iberty_LIBRARY_STATIC NAMES libiberty_pic.a libiberty.a
     HINTS $ENV{BINUTILS_DIR}
     HINTS ${BINUTILS_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 

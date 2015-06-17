@@ -26,27 +26,20 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 
 find_path(LibMonitor_INCLUDE_DIR
     NAMES monitor.h
-    PATHS /usr /usr/local
     HINTS $ENV{LIBMONITOR_DIR}
     HINTS ${LIBMONITOR_DIR}
     PATH_SUFFIXES include
-    NO_DEFAULT_PATH
     )
 
 find_library(LibMonitor_LIBRARY_SHARED NAMES monitor
     HINTS $ENV{LIBMONITOR_DIR}
     HINTS ${LIBMONITOR_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
-    NO_DEFAULT_PATH
     )
 
 find_library(LibMonitor_LIBRARY_STATIC NAMES libmonitor_wrap.a
     HINTS $ENV{LIBMONITOR_DIR}
     HINTS ${LIBMONITOR_DIR}
-    PATHS /usr /usr/local
-    PATH_SUFFIXES lib lib64
-    NO_DEFAULT_PATH
     )
 
 

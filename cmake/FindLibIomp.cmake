@@ -28,17 +28,13 @@ find_path(LibIomp_INCLUDE_DIR
     NAMES ompt.h
     HINTS $ENV{LIBIOMP_DIR}
     HINTS ${LIBIOMP_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES include 
-    NO_DEFAULT_PATH
     )
 
 find_library(LibIomp_LIBRARY_SHARED NAMES iomp5
     HINTS $ENV{LIBIOMP_DIR}
     HINTS ${LIBIOMP_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
-    NO_DEFAULT_PATH
     )
 
 find_package_handle_standard_args(

@@ -162,20 +162,22 @@ if(INSTRUMENTOR MATCHES "cbtf")
 	Instrumentor.hxx
     )
 
+    # CBTF-Krell.cmake now sets CBTF_KRELL_XMLDIR rather than CBTF_TOOLS_XMLDIR.
     add_definitions(
        -DCBTF_LIB_DIR="${CBTF_LIB_DIR}"
        -DCBTF_KRELL_LIB_DIR="${CBTF_KRELL_LIBDIR}"
-       -DCBTF_TOOLS_XMLDIR="${CBTF_KRELL_DIR}/share/KrellInstitute/xml"
+       #-DCBTF_TOOLS_XMLDIR="${CBTF_KRELL_DIR}/share/KrellInstitute/xml"
+       -DCBTF_KRELL_XMLDIR="${CBTF_KRELL_XMLDIR}"
     )
 
     add_library(openss-framework SHARED ${FW_SOURCES} ${CBTF_SOURCES})
 
     target_include_directories(openss-framework PUBLIC
-        ${CBTF_MESSAGES_INCLUDE_DIRS}
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime
 	${CBTF_INCLUDE_DIRS}
+        ${CBTF_KRELL_MESSAGES_INCLUDE_DIRS}
         ${Sqlite3_INCLUDE_DIR}
         ${PROJECT_SOURCE_DIR}/libopenss-framework
         ${PROJECT_BUILD_DIR}/libopenss-runtime
@@ -183,9 +185,9 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     target_link_libraries(openss-framework
-        ${CBTF_MESSAGES_LIBRARIES}
         ${CBTF_LIBRARIES}
-        ${CBTF_CORE_LIBRARIES}
+        ${CBTF_KRELL_MESSAGES_LIBRARIES}
+        ${CBTF_KRELL_CORE_LIBRARIES}
         ${Sqlite3_SHARED_LIBRARIES}
         ${Iberty_STATIC_LIBRARIES}
         ${LTDL_LIBRARY_SHARED}
@@ -206,18 +208,18 @@ if(INSTRUMENTOR MATCHES "cbtf")
 	${CMAKE_CURRENT_BINARY_DIR}
 	${Boost_INCLUDE_DIRS}
 	${CBTF_INCLUDE_DIRS}
-	${CBTF_MESSAGES_INCLUDE_DIRS}
+	${CBTF_KRELL_MESSAGES_INCLUDE_DIRS}
 	${MRNet_INCLUDE_DIRS}
 	${PROJECT_SOURCE_DIR}/libopenss-framework
 	${PROJECT_SOURCE_DIR}/libopenss-framework/cbtf
     )
 
     target_link_libraries(openss-framework-cbtf
+	${CBTF_LIBRARIES}
+        ${CBTF_KRELL_CORE_LIBRARIES}
+	${CBTF_KRELL_CORE_MRNET_LIBRARY}
         ${Boost_SYSTEM_LIBRARY}
         ${Boost_THREAD_LIBRARY}
-	${CBTF_LIBRARIES}
-        ${CBTF_CORE_LIBRARIES}
-	${CBTF_CORE_MRNET_LIBRARY}
 	${MRNet_LIBRARIES}
 	${Iberty_STATIC_LIBRARIES}
 	${CMAKE_DL_LIBS}
@@ -260,9 +262,6 @@ elseif (INSTRUMENTOR MATCHES "offline")
 
     if(BINUTILS_FOUND)
 
-        #file(COPY ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime/offline.h DESTINATION ./offline)
-
-        #${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime/offline.c
         add_library(openss-framework-binutils SHARED
 	    ${BINUTILS_SOURCES}
 	    OfflineExperiment.hxx
@@ -373,4 +372,3 @@ if(SYMTABAPI_FOUND)
     )
 
 endif()
-

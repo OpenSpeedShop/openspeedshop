@@ -44,23 +44,23 @@ add_custom_command(
 
 
 add_definitions(
-  -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
-  )
+    -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+)
   
 
 # Do not build if only creating runtimes (RUNTIME_ONLY == true)
 if (RUNTIME_ONLY MATCHES "false")
+
     add_library(hwctime MODULE
-        ${PLUGIN_SOURCES}
+	${PLUGIN_SOURCES}
     )
 
     target_include_directories(hwctime PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${PROJECT_SOURCE_DIR}/libopenss-runtime
-        ${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${Papi_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-runtime
+	${PROJECT_SOURCE_DIR}/libopenss-framework
+	${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
     )
 
     target_link_libraries(hwctime
@@ -69,15 +69,15 @@ if (RUNTIME_ONLY MATCHES "false")
 	${CMAKE_DL_LIBS}
     )
 
-    #set_target_properties(hwctime PROPERTIES VERSION 1.1.0)
+    set_target_properties(hwctime PROPERTIES PREFIX "")
 
     install(TARGETS hwctime
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
-    set_target_properties(hwctime PROPERTIES PREFIX "")
+
 endif()
 
-if(LIBMONITOR_FOUND)
+if (INSTRUMENTOR MATCHES "offline")
 
     add_definitions(
 	-DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
@@ -87,7 +87,7 @@ if(LIBMONITOR_FOUND)
     )
 
     add_library(hwctime-rt-offline SHARED
-        ${RT_SOURCES}
+	${RT_SOURCES}
 	offline.c
     )
 
@@ -107,18 +107,16 @@ if(LIBMONITOR_FOUND)
 	${CMAKE_DL_LIBS}
 	rt
 	pthread
-        -Wl,-whole-archive
+	-Wl,-whole-archive
 	openss-runtime-offline
 	openss-runtime-papi
 	openss-runtime-unwind
-        -Wl,-no-whole-archive
-	-Bdynamic
+	-Wl,-no-whole-archive
 	${LibUnwind_LIBRARY_SHARED}
         ${Papi_SHARED_LIBRARIES}
     )
 
-    #set_target_properties(hwctime-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(hwctime-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};USE_FASTTRACE")
+    set_target_properties(hwctime-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
 
     install(TARGETS hwctime-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -126,10 +124,9 @@ if(LIBMONITOR_FOUND)
 
     set_target_properties(hwctime-rt-offline PROPERTIES PREFIX "")
 
-    # Create and install static library version
-
+    # Create and install static lib version
     add_library(hwctime-offline STATIC
-        ${RT_SOURCES}
+	${RT_SOURCES}
 	offline.c
     )
 
@@ -141,8 +138,8 @@ if(LIBMONITOR_FOUND)
 	${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
 	${LibMonitor_INCLUDE_DIRS}
 	${LibUnwind_INCLUDE_DIRS}
-        ${Papi_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+	${Papi_INCLUDE_DIRS}
+	${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
     )
 
     target_link_libraries(hwctime-offline
@@ -153,19 +150,17 @@ if(LIBMONITOR_FOUND)
 	openss-runtime-offline
 	openss-runtime-papi
 	openss-runtime-unwind
-        -Wl,-no-whole-archive
-	-Bdynamic
+	-Wl,-no-whole-archive
 	${LibUnwind_LIBRARY_SHARED}
-        ${Papi_SHARED_LIBRARIES}
+	${Papi_SHARED_LIBRARIES}
     )
 
-    #set_target_properties(hwctime-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(hwctime-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};USE_FASTTRACE")
+    set_target_properties(hwctime-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
 
     install(TARGETS hwctime-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
 
-endif()
+endif() # endif for INSTRUMENTOR MATCHES offline
 
 file(COPY blobs.x DESTINATION .)

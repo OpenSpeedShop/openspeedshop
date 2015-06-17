@@ -28,17 +28,13 @@ find_path(Mpt_INCLUDE_DIR
     NAMES mpi.h
     HINTS $ENV{MPT_DIR}
     HINTS ${MPT_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES include 
-    NO_DEFAULT_PATH
     )
 
 find_library(Mpt_LIBRARY_SHARED NAMES mpi
     HINTS $ENV{MPT_DIR}
     HINTS ${MPT_DIR}
-    PATHS /usr /usr/local 
     PATH_SUFFIXES lib lib64
-    NO_DEFAULT_PATH
     )
 
 find_package_handle_standard_args(

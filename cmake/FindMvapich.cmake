@@ -29,25 +29,19 @@ find_path(Mvapich_INCLUDE_DIR
     NAMES mpi.h
     HINTS $ENV{MVAPICH_DIR}
     HINTS ${MVAPICH_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES include 
-    NO_DEFAULT_PATH
     )
 
 find_library(Mvapich_LIBRARY_SHARED NAMES mpich
     HINTS $ENV{MVAPICH_DIR}
     HINTS ${MVAPICH_DIR}
-    PATHS /usr /usr/local 
     PATH_SUFFIXES lib lib64 lib/shared lib64/shared
-    NO_DEFAULT_PATH
     )
 
 find_library(Mvapich_umad_LIBRARY_SHARED NAMES umad
     HINTS $ENV{MVAPICH_DIR}
     HINTS ${MVAPICH_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64 lib/shared lib64/shared
-    NO_DEFAULT_PATH
     )
 
 

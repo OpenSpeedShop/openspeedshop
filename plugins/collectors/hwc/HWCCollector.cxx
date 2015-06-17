@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2006-2012 Krell Institute. All Rights Reserved.
+// Copyright (c) 2006-2015 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -33,7 +33,9 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#if defined(REGISTER_HWC_EVENTS)
 #include "OpenSS_Papi_Events.h"
+#endif
 
 static bool we_dun_registered = false;
 
@@ -106,10 +108,12 @@ HWCCollector::HWCCollector() :
                            typeid(double)));
 
 
+#if defined(REGISTER_HWC_EVENTS)
     // Register the event names in the message facility.
     if (!we_dun_registered) {
     hwc_register_events_for_help();
     }
+#endif
 
 }
 
@@ -374,6 +378,7 @@ void HWCCollector::getMetricValues(const std::string& metric,
 }
 
 
+#if defined(REGISTER_HWC_EVENTS)
 typedef std::pair<std::string, std::string> papi_preset_event;
 typedef std::vector<papi_preset_event> papi_available_presets;
 
@@ -465,6 +470,7 @@ hwc_register_events_for_help()
 
     we_dun_registered = true;
 }
+#endif
 
 
 

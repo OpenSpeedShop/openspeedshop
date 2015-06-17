@@ -43,40 +43,41 @@ add_custom_command(
 
 
 add_definitions(
-  -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
-  )
+    -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+)
   
 
+# Do not build if only creating runtimes (RUNTIME_ONLY == true)
 if (RUNTIME_ONLY MATCHES "false")
+
     add_library(hwc MODULE
-        ${PLUGIN_SOURCES}
+	${PLUGIN_SOURCES}
     )
 
     target_include_directories(hwc PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${PROJECT_SOURCE_DIR}/libopenss-runtime
-        ${PROJECT_SOURCE_DIR}/libopenss-message
-        ${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-runtime
+	${PROJECT_SOURCE_DIR}/libopenss-message
+	${PROJECT_SOURCE_DIR}/libopenss-framework
+	${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
     )
 
     target_link_libraries(hwc
 	pthread
 	openss-framework
-	openss-message
 	${CMAKE_DL_LIBS}
     )
 
-    #set_target_properties(hwc PROPERTIES VERSION 1.1.0)
+    set_target_properties(hwc PROPERTIES PREFIX "")
 
     install(TARGETS hwc
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
-    set_target_properties(hwc PROPERTIES PREFIX "")
+
 endif()
 
-if(LIBMONITOR_FOUND)
+if (INSTRUMENTOR MATCHES "offline")
 
     add_definitions(
 	-DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
@@ -84,34 +85,32 @@ if(LIBMONITOR_FOUND)
     )
 
     add_library(hwc-rt-offline SHARED
-        ${RT_SOURCES}
+	${RT_SOURCES}
 	offline.c
     )
 
     target_include_directories(hwc-rt-offline PUBLIC
-        ${Papi_INCLUDE_DIRS}
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-runtime
 	${PROJECT_BUILD_DIR}/libopenss-runtime
 	${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
 	${LibMonitor_INCLUDE_DIRS}
+	${Papi_INCLUDE_DIRS}
         ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
     )
 
     target_link_libraries(hwc-rt-offline
 	${CMAKE_DL_LIBS}
-        -Wl,-whole-archive
-	openss-runtime-offline
 	openss-runtime-papi
 	${Papi_SHARED_LIBRARIES}
-	pthread
 	rt
-        -Wl,-no-whole-archive
-	-Bdynamic
+	pthread
+	-Wl,-whole-archive
+	openss-runtime-offline
+	-Wl,-no-whole-archive
     )
 
-    #set_target_properties(hwc-rt-offline PROPERTIES VERSION 1.1.0)
     set_target_properties(hwc-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
 
     install(TARGETS hwc-rt-offline
@@ -120,42 +119,40 @@ if(LIBMONITOR_FOUND)
 
     set_target_properties(hwc-rt-offline PROPERTIES PREFIX "")
 
-    # Create and install static library version
-
+    # Create and install static lib version
     add_library(hwc-offline STATIC
-        ${RT_SOURCES}
+	${RT_SOURCES}
 	offline.c
     )
 
     target_include_directories(hwc-offline PUBLIC
-        ${Papi_INCLUDE_DIRS}
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-runtime
 	${PROJECT_BUILD_DIR}/libopenss-runtime
 	${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
 	${LibMonitor_INCLUDE_DIRS}
+	${Papi_INCLUDE_DIRS}
         ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
     )
 
     target_link_libraries(hwc-offline
 	${CMAKE_DL_LIBS}
-        -Wl,-whole-archive
-	openss-runtime-offline
 	openss-runtime-papi
 	${Papi_SHARED_LIBRARIES}
-	pthread
 	rt
+	pthread
+        -Wl,-whole-archive
+	openss-runtime-offline
         -Wl,-no-whole-archive
-	-Bdynamic
     )
 
-    #set_target_properties(hwc-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(hwc-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
+    set_target_properties(hwc-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
 
     install(TARGETS hwc-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
-endif()
+
+endif() # endif for INSTRUMENTOR MATCHES offline
 
 file(COPY blobs.x DESTINATION .)

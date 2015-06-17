@@ -26,7 +26,6 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 
 find_path(Sqlite3_INCLUDE_DIR
     NAMES sqlite3.h
-    PATHS /usr /usr/local
     HINTS $ENV{SQLITE3_DIR}
     HINTS ${SQLITE3_DIR}
     PATH_SUFFIXES include
@@ -35,14 +34,12 @@ find_path(Sqlite3_INCLUDE_DIR
 find_library(Sqlite3_LIBRARY_SHARED NAMES sqlite3
     HINTS $ENV{SQLITE3_DIR}
     HINTS ${SQLITE3_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 
 find_library(Sqlite3_LIBRARY_STATIC NAMES libsqlite3.a
     HINTS $ENV{SQLITE3_DIR}
     HINTS ${SQLITE3_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 

@@ -17,34 +17,33 @@
 ################################################################################
 
 set(PLUGIN_SOURCES
-	PthreadsDetail.hxx PthreadsTraceableFunctions.h
-        PthreadsCollector.hxx PthreadsCollector.cxx
+    PthreadsDetail.hxx PthreadsTraceableFunctions.h
+    PthreadsCollector.hxx PthreadsCollector.cxx
 )
 
 add_library(pthreads MODULE
-        ${PLUGIN_SOURCES}
+    ${PLUGIN_SOURCES}
 )
 
 target_include_directories(pthreads PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${CBTF_MESSAGES_INCLUDE_DIRS}
-        ${PROJECT_SOURCE_DIR}/libopenss-runtime
-        ${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CBTF_MESSAGES_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/libopenss-runtime
+    ${PROJECT_SOURCE_DIR}/libopenss-framework
+    ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
 )
 
 target_link_libraries(pthreads
-	pthread
-	openss-framework
-        ${CBTF_MESSAGES_LIBRARIES}
-	${CMAKE_DL_LIBS}
+    pthread
+    openss-framework
+    ${CBTF_MESSAGES_LIBRARIES}
+    ${CMAKE_DL_LIBS}
 )
 
 set_target_properties(pthreads PROPERTIES PREFIX "")
 
 install(TARGETS pthreads
-	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
+    LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
 )
-
 

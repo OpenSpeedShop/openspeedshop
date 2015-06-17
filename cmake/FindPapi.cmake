@@ -26,7 +26,6 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 
 find_path(Papi_INCLUDE_DIR
     NAMES papi.h
-    PATHS /usr /usr/local
     HINTS $ENV{PAPI_DIR}
     HINTS ${PAPI_DIR}
     PATH_SUFFIXES include
@@ -35,28 +34,24 @@ find_path(Papi_INCLUDE_DIR
 find_library(Papi_LIBRARY_SHARED NAMES papi
     HINTS $ENV{PAPI_DIR}
     HINTS ${PAPI_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 
 find_library(Papi_pfm_LIBRARY_SHARED NAMES pfm
     HINTS $ENV{PAPI_DIR}
     HINTS ${PAPI_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 
 find_library(Papi_LIBRARY_STATIC NAMES libpapi.a
     HINTS $ENV{PAPI_DIR}
     HINTS ${PAPI_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 
 find_library(Papi_pfm_LIBRARY_STATIC NAMES libpfm.a
     HINTS $ENV{PAPI_DIR}
     HINTS ${PAPI_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 

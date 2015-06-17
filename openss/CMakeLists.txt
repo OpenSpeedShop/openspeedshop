@@ -23,21 +23,34 @@ if (STDINT_H_FOUND)
     add_definitions(-DHAVE_STDINT_H=1)
 endif()
 
+# FIXME: It is very likely these are used buy offline.
 set(LIBRARY_DIR "${CMAKE_INSTALL_PREFIX}")
 set(PLUGIN_DIR "openspeedshop")
 set(LIB_DIR_NAME "lib${SUFFIX}")
 
+# FIXME: Does anyone needs thes CBTF related directories.
+# and if so, it should be only needed when INSTRUMENTOR==cbtf.
 set(cbtfinstalldir ${CBTF_DIR})
 set(cbtflibdir ${CBTF_DIR}/lib${SUFFIX})
-set(cbtfruncmd ${CBTF_KRELL_DIR}/bin/cbtfrun)
-set(cbtfcollectors ${CBTF_KRELL_DIR}/lib${SUFFIX}/KrellInstitute/Collectors)
-set(cbtfcomponents ${CBTF_KRELL_DIR}/lib${SUFFIX}/KrellInstitute/Components)
-set(cbtfxmldir ${CBTF_DIR}/share/KrellInstitute/XML)
+
+# FIXME: We need to add a section for cbtf-argonavis cuda here.
+# Will the affected code be able to sue multiple paths?
+
+# FIXME: These are specific to INSTRUMENTOR==cbtf.
+# The cbtfrun, xml,Collectors,Components all have defined names now
+# in FindCBTF-Krell.cmake. 
+set(cbtfruncmd ${CBTF_KRELL_CBTFRUN})
+set(cbtfcollectors ${CBTF_KRELL_COLLECTORS})
+set(cbtfcomponents ${CBTF_KRELL_COMPONENTS})
+set(cbtfxmldir ${CBTF_KRELL_XMLDIR})
+
+# FIXME: should be only needed when INSTRUMENTOR==offline.
 set(libmonitordir ${LIBMONITOR_DIR})
 set(libmonitorlibdir ${LIBMONITOR_DIR}/lib${SUFFIX})
 set(libunwinddir ${LIBUNWIND_DIR})
 set(libunwindlibdir ${LIBUNWIND_DIR}/lib${SUFFIX})
 
+# FIXME: Who exactly sets RUNTIME_name?  Document that here.
 if (HAVE_RUNTIME_DIR MATCHES "true")
     set(oss_installation_dir ${RUNTIME_DIR})
     set(ossinstalldir ${RUNTIME_DIR})
@@ -48,6 +61,8 @@ else()
     set(osslibdir ${CMAKE_INSTALL_PREFIX}/lib${SUFFIX})
 endif()
 
+# FIXME: Any of these specific to instrumentor types?
+# if so, these should just be set per instrumentor...
 set(oss_instrumentor ${INSTRUMENTOR})
 set(machine_dependent_libdir lib${SUFFIX})
 set(machinelibdir lib${SUFFIX})
@@ -64,6 +79,10 @@ set(openmpilibdir ${OpenMPI_LIB_DIR})
 set(osstargetos ${TARGET_OS})
 
 if (RUNTIME_ONLY MATCHES "true")
+  # FIXME: In the openss world only offline instrumentor needs the
+  # ossrun and osslink scripts.  The ossanon and ossdbtool are not
+  # needed for RUNTIME_ONLY either since the runtimes do no create
+  # databases....
   configure_file(ossrun.in ossrun @ONLY)
   configure_file(osslink.in osslink @ONLY)
   install(PROGRAMS
@@ -75,6 +94,9 @@ if (RUNTIME_ONLY MATCHES "true")
 	${CMAKE_INSTALL_PREFIX}/bin)
 
 else()
+    # FIXME: ossrun, and likely osslink are offline instrumentor files.
+    # The cbtf-krell collection code uses cbtfrun (internally) and
+    # cbtflink. So we need to move ossrun and osslink to the offline section.
     configure_file(ossrun.in ossrun @ONLY)
     configure_file(osslink.in osslink @ONLY)
     configure_file(ossdriver.in ossdriver @ONLY)
@@ -167,7 +189,7 @@ else()
 	    ${Boost_INCLUDE_DIRS}
 	    ${MRNet_INCLUDE_DIRS}
 	    ${CBTF_INCLUDE_DIRS}
-	    ${CBTF_CORE_INCLUDE_DIR}
+	    ${CBTF_KRELL_CORE_INCLUDE_DIR}
 	    ${DyninstAPI_INCLUDE_DIRS}
             ${LTDL_INCLUDE_DIR}
         )
@@ -183,17 +205,18 @@ else()
             ${XercesC_LIBRARIES}
             ${MRNet_LIBRARIES}
             ${DyninstAPI_LIBRARIES}
-	    ${CBTF_CORE_SYMTABAPI_LIBRARY}
-	    ${CBTF_CORE_MRNET_LIBRARY}
+	    ${CBTF_KRELL_CORE_SYMTABAPI_LIBRARY}
+	    ${CBTF_KRELL_CORE_MRNET_LIBRARY}
 	    openss-framework
 	    openss-framework-symtabapi
             pthread
             ${CMAKE_DL_LIBS}
         )
 
-        #set(XMLDIR ${CBTF_KRELL_DIR}/share/KrellInstitute/xml)
-        set_target_properties(osscollect PROPERTIES COMPILE_DEFINITIONS XMLDIR=${CBTF_KRELL_DIR}/share/KrellInstitute/xml)
-        #set_property(TARGET osscollect APPEND PROPERTY COMPILE_DEFINITIONS BUILD_CBTF=1)
+        # This is defined in FindCBTF-Krell.cmake. Is anyone using XMLDR directly
+	# or should this be CBTF_KRELL_XMLDIR.  Will cbtf-argonavis cuda need
+	# it's own definitions here?
+        set_target_properties(osscollect PROPERTIES COMPILE_DEFINITIONS XMLDIR=${CBTF_KRELL_XMLDIR})
 
         install(TARGETS osscollect
             RUNTIME DESTINATION bin
@@ -228,6 +251,7 @@ else()
 	    WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
         install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver ossmpit
 	    WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
+	# FIXME: The mpiotf collector is not available for cbtf instrumentation!
         install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver ossmpiotf
     	    WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
 
@@ -242,6 +266,8 @@ else()
 	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
             install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver ossiop
 	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
+	    # FIXME: FOUND_CUDA is way to generic.  We really want something
+	    # specific to cbtf-argonavis cuda collector being present!
             if (FOUND_CUDA)
                 install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver osscuda
 	            WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")

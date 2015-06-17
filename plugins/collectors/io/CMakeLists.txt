@@ -42,23 +42,25 @@ add_custom_command(
         ${CMAKE_CURRENT_BINARY_DIR}/blobs.x
     )
 
+
 add_definitions(
-  -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
-  )
+    -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+)
+  
 
 # Do not build if only creating runtimes (RUNTIME_ONLY == true)
 if (RUNTIME_ONLY MATCHES "false")
 
     add_library(io MODULE
-        ${PLUGIN_SOURCES}
+	${PLUGIN_SOURCES}
     )
 
     target_include_directories(io PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${PROJECT_SOURCE_DIR}/libopenss-runtime
-        ${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-runtime
+	${PROJECT_SOURCE_DIR}/libopenss-framework
+	${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
     )
 
     target_link_libraries(io
@@ -67,15 +69,15 @@ if (RUNTIME_ONLY MATCHES "false")
 	${CMAKE_DL_LIBS}
     )
 
-    #set_target_properties(io PROPERTIES VERSION 1.1.0)
+    set_target_properties(io PROPERTIES PREFIX "")
 
     install(TARGETS io
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
-    set_target_properties(io PROPERTIES PREFIX "")
+
 endif()
 
-if(LIBMONITOR_FOUND)
+if (INSTRUMENTOR MATCHES "offline")
 
     add_definitions(
 	-DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
@@ -85,7 +87,7 @@ if(LIBMONITOR_FOUND)
     )
 
     add_library(io-rt-offline SHARED
-        ${RT_SOURCES}
+	${RT_SOURCES}
 	offline.c
 	wrappers.c
     )
@@ -105,16 +107,14 @@ if(LIBMONITOR_FOUND)
 	${CMAKE_DL_LIBS}
 	rt
 	pthread
-        -Wl,-whole-archive
+	-Wl,-whole-archive
 	openss-runtime-offline
 	openss-runtime-unwind
-        -Wl,-no-whole-archive
-	-Bdynamic
+	-Wl,-no-whole-archive
 	${LibUnwind_LIBRARY_SHARED}
     )
 
-    #set_target_properties(io-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(io-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
+    set_target_properties(io-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
 
     install(TARGETS io-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -122,10 +122,9 @@ if(LIBMONITOR_FOUND)
 
     set_target_properties(io-rt-offline PROPERTIES PREFIX "")
 
-    # Create and install static library version
-
+    # Create and install static lib version
     add_library(io-offline STATIC
-        ${RT_SOURCES}
+	${RT_SOURCES}
 	offline.c
 	wrappers.c
     )
@@ -149,18 +148,15 @@ if(LIBMONITOR_FOUND)
 	openss-runtime-offline
 	openss-runtime-unwind
         -Wl,-no-whole-archive
-	-Bdynamic
 	${LibUnwind_LIBRARY_SHARED}
     )
 
-
-    #set_target_properties(io-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(io-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
+    set_target_properties(io-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
 
     install(TARGETS io-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
 
-endif()
+endif() # endif for INSTRUMENTOR MATCHES offline
 
 file(COPY blobs.x DESTINATION .)

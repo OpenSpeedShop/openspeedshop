@@ -26,27 +26,21 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 
 find_path(LibUnwind_INCLUDE_DIR
     NAMES libunwind.h
-    PATHS /usr /usr/local
     HINTS $ENV{LIBUNWIND_DIR}
     HINTS ${LIBUNWIND_DIR}
     PATH_SUFFIXES include
-    NO_DEFAULT_PATH
     )
 
 find_library(LibUnwind_LIBRARY_SHARED NAMES unwind
     HINTS $ENV{LIBUNWIND_DIR}
     HINTS ${LIBUNWIND_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
-    NO_DEFAULT_PATH
     )
 
 find_library(LibUnwind_LIBRARY_STATIC NAMES libunwind.a
     HINTS $ENV{LIBUNWIND_DIR}
     HINTS ${LIBUNWIND_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
-    NO_DEFAULT_PATH
     )
 
 

@@ -26,7 +26,6 @@ SET(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
 
 find_path(LibElf_INCLUDE_DIR
     NAMES libelf.h elf.h 
-    PATHS /usr /usr/local
     HINTS $ENV{LIBELF_DIR}
     HINTS ${LIBELF_DIR}
     PATH_SUFFIXES include include/libelf
@@ -35,14 +34,12 @@ find_path(LibElf_INCLUDE_DIR
 find_library(LibElf_LIBRARY_SHARED NAMES elf
     HINTS $ENV{LIBELF_DIR}
     HINTS ${LIBELF_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 
 find_library(LibElf_LIBRARY_STATIC NAMES libelf.a
     HINTS $ENV{LIBELF_DIR}
     HINTS ${LIBELF_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES lib lib64
     )
 

@@ -20,10 +20,14 @@ cmake_minimum_required(VERSION 2.8.0)
 
 project(OpenSpeedShop C CXX)
 
+# define the version for this build.
+# TODO: allow this to be passed as an option via cmake for developers
+# to tag non production builds.
 add_definitions(
     -DVERSION="2.1"
 )
 
+# cmake module search path for this project.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
 include(CheckIncludeFile)
@@ -31,6 +35,7 @@ include(CheckIncludeFileCXX)
 include(CheckFunctionExists)
 include(CheckLibraryExists)
 
+# ensure these includes and defines are set for this project.
 check_include_file("stdint.h" STDINT_H_FOUND)
 if (STDINT_H_FOUND)
     add_definitions(-DHAVE_STDINT_H=1)
@@ -56,6 +61,7 @@ message(STATUS "oss_hardware_platform: " ${oss_hardware_platform} )
 
 
 
+# Some examples if needed.
 #-----------------------------------------------------------------------------
 # This MACRO checks IF the symbol exists in the library and IF it
 # does, allow it.
@@ -63,8 +69,6 @@ message(STATUS "oss_hardware_platform: " ${oss_hardware_platform} )
 #MACRO (CHECK_LIBRARY_EXISTS_CONCAT LIBRARY SYMBOL VARIABLE)
 #  CHECK_LIBRARY_EXISTS ("${LIBRARY}" ${SYMBOL} "" ${VARIABLE})
 #ENDMACRO (CHECK_LIBRARY_EXISTS_CONCAT)
-
-
 #cmake -DVARNAME:STRING=value
 
 #
@@ -76,7 +80,7 @@ message(STATUS "oss_hardware_platform: " ${oss_hardware_platform} )
 #
 set(TLS_MODEL "implicit" CACHE STRING "OpenSpeedShop tls model: [implicit,explicit]")
 if (TLS_MODEL MATCHES "explicit")
-    # Builder requsted explicit tls to be used in the runtimes and collectors
+    # Builder requested explicit tls to be used in the runtimes and collectors
     set(TLS_DEFINES "USE_EXPLICIT_TLS" )
     message(STATUS "Build runtimes using explicit TLS model.")
 elseif (TLS_MODEL MATCHES "implicit")
@@ -88,6 +92,7 @@ else()
     set(TLS_DEFINES "USE_IMPLICIT_TLS" )
     message(STATUS "Build runtimes using implicit TLS model.")
 endif()
+
 #
 #--------------------------------------------------------------------------------
 # Handle the target specific build options for building the runtimes for specific 
@@ -114,6 +119,7 @@ elseif (TARGET_OS MATCHES "cray-xe")
 else()
     message(STATUS "Build runtimes for localhost.")
 endif()
+
 #
 #--------------------------------------------------------------------------------
 # Handle the enabling of cli timing gathering and printing
@@ -124,6 +130,7 @@ if (BUILD_CLI_TIMING MATCHES "yes")
     add_definitions(-DBUILD_CLI_TIMING=1)
     message(STATUS "Build cli with timing code enabled.")
 endif()
+
 #
 #--------------------------------------------------------------------------------
 # Handle the enabling of building the Parallel Tools GUI Framework base OpenSpeedShop
@@ -143,20 +150,57 @@ endif()
 message(STATUS "BUILD_PTGF_DIRECT=" ${BUILD_PTGF_DIRECT} )
 message(STATUS "BUILD_PTGF_SERVER=" ${BUILD_PTGF_SERVER} )
 
-#cmake -DVARNAME:STRING=value
+# Set default to runtime only to false.
+set(RUNTIME_ONLY "false" CACHE STRING "Build only runtime collectors (offline instrumentor): [true,false]")
+
+set(RUNTIME_DIR "" CACHE STRING "path to targeted runtime collectors")
+
+# Default to the offline instrumentor.
 set(INSTRUMENTOR "offline" CACHE STRING "OpenSpeedShop instrumentor type: [offline,cbtf]")
+
 #
 #--------------------------------------------------------------------------------
 # Do find package calls for the dependency packages that are needed for both the 
 # offline and cbtf versions of OpenSpeedShop
 #--------------------------------------------------------------------------------
 #
-# NOTE: FIXME -- remove the MPI find_packages from here, if they are not needed for client build purposes
+# NOTE: packages that are common to both instrumentors.
 #
 if (INSTRUMENTOR MATCHES "offline" OR INSTRUMENTOR MATCHES "cbtf")
     find_package(Doxygen)
     find_package(BISON)
     find_package(FLEX)
+    find_package(PythonInterp)
+    find_package(PythonLibs)
+    find_package(LibElf)
+    find_package(LibDwarf)
+    find_package(Binutils)
+    find_package(Threads)
+    find_package(Sqlite3)
+    find_package(LTDL)
+    find_package(SymtabAPI)
+    find_package(DyninstAPI)
+    find_package(Qt3)
+endif()
+
+#
+#--------------------------------------------------------------------------------
+# Do find package calls for offline only and cbtf only versions of OpenSpeedShop 
+# in this section of the CMakeLists.txt file.
+#
+# Some packages are only needed for a particular version.  For the CBTF version 
+# of OpenSpeedShop, we need to find where the CBTF components, collectors, and 
+# runtime libraries are located.
+#--------------------------------------------------------------------------------
+#
+#--------------------------------------------------------------------------------
+# Do find package calls for offline only version of OpenSpeedShop in this section
+#--------------------------------------------------------------------------------
+#
+if (INSTRUMENTOR MATCHES "offline")
+    find_package(LibMonitor)
+    find_package(LibUnwind)
+    find_package(Papi)
     find_package(OpenMP)
     find_package(OpenMPI)
     find_package(Mpich)
@@ -164,20 +208,24 @@ if (INSTRUMENTOR MATCHES "offline" OR INSTRUMENTOR MATCHES "cbtf")
     find_package(Mpt)
     find_package(Mvapich2)
     find_package(Mvapich)
-    find_package(PythonInterp)
-    find_package(PythonLibs)
-    #find_package(Python)
-    find_package(LibElf)
-    find_package(LibDwarf)
-    find_package(LibUnwind)
-    find_package(Papi)
-    find_package(Binutils)
-    find_package(Threads)
-    find_package(Sqlite3)
-    find_package(LTDL)
-    find_package(SymtabAPI)
-    find_package(DyninstAPI)
+    find_package(CBTF-Krell)
+#
+#--------------------------------------------------------------------------------
+# Do find package calls for cbtf only version of OpenSpeedShop in this section
+#--------------------------------------------------------------------------------
+#
+elseif (INSTRUMENTOR MATCHES "cbtf")
+    add_definitions(-DBUILD_CBTF=1)
+    set(Boost_USE_MULTITHREADED    OFF)
+    find_package(Boost 1.42.0 REQUIRED
+      COMPONENTS date_time filesystem system thread unit_test_framework program_options
+    )
+    find_package(CBTF)
+    find_package(CBTF-Krell)
+    find_package(MRNet 4.0.0)
+    find_package(XercesC 3.0)
 endif()
+
 #
 #--------------------------------------------------------------------------------
 # If Dyninst was found set HAVE_DYNINST which is checked for in other 
@@ -188,15 +236,17 @@ if (DYNINSTAPI_FOUND)
     # This is needed by OfflineExperiment.cxx to call the loop processing code
     set(HAVE_DYNINST "true")
 endif()
+
 #
 #--------------------------------------------------------------------------------
 # After looking for the DyninstAPI and SymtabAPI packages, reconsile that with
 # whether or not the RESOLVE_SYMBOLS request by the builded can be met.
 #--------------------------------------------------------------------------------
 #
-#On arm/aarch64 systems, dyninst/symtabapi are not ready so default to bfd
+# On arm/aarch64 systems, dyninst/symtabapi are not ready so these architectures
+# should default to bfd. The OSS default is symtabapi otherwise.
 set(RESOLVE_SYMBOLS "symtabapi" CACHE STRING "resolve symbols using: [bfd,symtabapi]")
-#
+
 if (RESOLVE_SYMBOLS MATCHES "symtabapi")
     if(DYNINSTAPI_FOUND)
       add_definitions(-DOPENSS_USE_SYMTABAPI=1)
@@ -206,7 +256,7 @@ if (RESOLVE_SYMBOLS MATCHES "symtabapi")
     endif()
 elseif (RESOLVE_SYMBOLS MATCHES "bfd")
     message(STATUS "Resolve symbols using bfd.")
-else()
+else ()
     # No user specified choice for resolving symbol tables.  By default choose symtabapi, if available
     if(DYNINSTAPI_FOUND)
       add_definitions(-DOPENSS_USE_SYMTABAPI=1)
@@ -215,6 +265,7 @@ else()
       message(STATUS "Resolve symbols using bfd.")
     endif()
 endif()
+
 #
 #--------------------------------------------------------------------------------
 # Handle MPI settings here.  Set the appropriate flags for the rest of the tool 
@@ -285,55 +336,6 @@ message( STATUS "DEFAULT_MPI_IMPL_NAME: " ${DEFAULT_MPI_IMPL_NAME} )
 
 #
 #--------------------------------------------------------------------------------
-# Do find package calls for offline only and cbtf only versions of OpenSpeedShop 
-# in this section of the CMakeLists.txt file.
-#
-# Some packages are only needed for a particular version.  For the CBTF version 
-# of OpenSpeedShop, we need to find where the CBTF components, collectors, and 
-# runtime libraries are located.
-#--------------------------------------------------------------------------------
-#
-
-#
-#--------------------------------------------------------------------------------
-# Do find package calls for offline only version of OpenSpeedShop in this section
-#--------------------------------------------------------------------------------
-#
-if (INSTRUMENTOR MATCHES "offline")
-    find_package(LibMonitor)
-    message(STATUS "MRNET_ROOT not needed")
-#
-#--------------------------------------------------------------------------------
-# Do find package calls for cbtf only version of OpenSpeedShop in this section
-#--------------------------------------------------------------------------------
-#
-elseif (INSTRUMENTOR MATCHES "cbtf")
-    add_definitions(-DBUILD_CBTF=1)
-    set(Boost_USE_MULTITHREADED    OFF)
-    find_package(Boost 1.42.0 REQUIRED
-      COMPONENTS date_time filesystem system thread unit_test_framework program_options
-    )
-    find_package(CBTF)
-#    find_package(CBTF-Messages)
-#    find_package(CBTF-Services)
-#    find_package(CBTF-Core)
-    find_package(CUDA)
-#    find_package(CBTF-MessagesCuda)
-    find_package(CBTF-Krell)
-    find_package(MRNet 4.0.0)
-    find_package(XercesC 3.0)
-    find_package(LibIomp)
-endif()
-#
-#--------------------------------------------------------------------------------
-# Do find package call for QT3, this is needed to build the current QT3 based GUI,
-# which is the older version of the GUI used with OpenSpeedShop.  This GUI is not
-# related to the PTGF based GUI, which is slated to replace the QT3 based GUI.
-#--------------------------------------------------------------------------------
-#
-#find_package(Qt3)
-#
-#--------------------------------------------------------------------------------
 # Try to determine where the libraries created by this build should be stored.
 # The choices are lib or lib64.  Set the appropriate variables based on checking
 # the system processor type.
@@ -352,6 +354,7 @@ elseif(EXISTS /usr/lib64)
 else()
     set(CMAKE_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib)
 endif()
+
 #
 #--------------------------------------------------------------------------------
 # If RUNTIME_DIR exists, then we have built a separate version of the portion of
@@ -362,7 +365,7 @@ endif()
 # by using the "-DRUNTIME_ONLY" cmake argument in a separate build.
 #--------------------------------------------------------------------------------
 #
-if (RUNTIME_DIR)
+if (NOT RUNTIME_DIR MATCHES "")
 if(EXISTS ${RUNTIME_DIR} AND IS_DIRECTORY "${RUNTIME_DIR}")
     set( HAVE_RUNTIME_DIR "true")
     message(STATUS "RUNTIME_DIR was recognized.")
@@ -383,11 +386,11 @@ else()
     set (RUNTIME_LIBDIR  "")
 endif()
 endif()
+
 #
 #--------------------------------------------------------------------------------
 # Start building making decisions on what to build based on find_package results
 #--------------------------------------------------------------------------------
-#
 #
 #--------------------------------------------------------------------------------
 # The runtime libraries are build both when the RUNTIME_ONLY option is set and
@@ -395,7 +398,7 @@ endif()
 #--------------------------------------------------------------------------------
 #
 if(LIBUNWIND_FOUND AND LIBMONITOR_FOUND)
-    add_subdirectory(libopenss-runtime)
+#    add_subdirectory(libopenss-runtime)
 endif()
 
 #
@@ -414,25 +417,49 @@ endif()
 # How does it work?  You need to build the runtime only portion first, then
 # specify the runtime installation directory in the -DRUNTIME_DIR=<runtime_dir> cmake define when
 # building the frontend of OpenSpeedShop.
-#--------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #
 
+# TODO: This should only build runtimes for two cases.
+# 1. instrumentor == offline and RUNTIME_ONLY was not specified to cmake
+#    command line.
+# 2. instrumentor == offline and RUNTIME_ONLY was specified to cmake
+#    command line.
+# The cbtf instrumentor does not need any code from the runtime directory.
+#
 if (RUNTIME_ONLY MATCHES "true")
 
-    add_subdirectory(plugins/collectors)
-    add_subdirectory(openss)
+# only offline supports this.
+    if (INSTRUMENTOR MATCHES "offline")
+	add_subdirectory(libopenss-runtime)
+	add_subdirectory(plugins/collectors)
+	add_subdirectory(openss)
+    endif()
+
+
+# Are there really any runtime needs for cuda????
     if (INSTRUMENTOR MATCHES "cbtf")
         add_subdirectory(ossdumpsym)
-    if (CUDA_FOUND)
-    if (CBTF-MessagesCuda_FOUND)
-        add_subdirectory(libopenss-queries-cuda)
-        add_subdirectory(ossdumpcuda)
-    endif()
-    endif()
+# The cuda code for the client does not depend on the cupti or cuda
+# runtime systems.  The cuda client code does depend on the cuda messages
+# from the cbtf-argonavis package.
+#
+# For this to work we need a cbtf-argnoavis find package that sets
+# a package name var like CBTF-ArgNavis-MessagesCuda.
+#    if (CBTF-MessagesCuda_FOUND)
+#        add_subdirectory(libopenss-queries-cuda)
+#        add_subdirectory(ossdumpcuda)
+#    endif()
     endif()
 
 else()
-    set(RUNTIME_ONLY "false")
+    # In reality, RUNTIME_ONLY should default to false early on in
+    # this CMakeLists.txt....
+    #set(RUNTIME_ONLY "false")
+    if (INSTRUMENTOR MATCHES "offline")
+	add_subdirectory(libopenss-runtime)
+    endif()
+
     add_subdirectory(libopenss-message)
     add_subdirectory(libopenss-framework)
     add_subdirectory(libopenss-queries)
@@ -463,14 +490,17 @@ else()
     #--------------------------------------------------------------------------------
     add_subdirectory(openss)
 
+    # this is not quite what we would want. Instrumentor choice should not
+    # prevent a user from viewing cuda databases. Not sure if ossdumpsym
+    # should be tied to instrumentor cbtf.
     if (INSTRUMENTOR MATCHES "cbtf")
         add_subdirectory(ossdumpsym)
-    if (CUDA_FOUND)
+#   if (CUDA_FOUND)
     if (CBTF-MessagesCuda_FOUND)
         add_subdirectory(libopenss-queries-cuda)
         add_subdirectory(ossdumpcuda)
     endif()
-    endif()
+#   endif()
     endif()
 
 

@@ -28,21 +28,18 @@ find_path(LibDwarf_INCLUDE_DIR NAMES dwarf.h
     HINTS $ENV{LIBDWARF_DIR} 
     HINTS ${LIBDWARF_DIR}
     PATH_SUFFIXES include
-    NO_DEFAULT_PATH
     )
 
 find_library(LibDwarf_LIBRARY_SHARED NAMES libdwarf.so
     HINTS $ENV{LIBDWARF_DIR} 
     HINTS ${LIBDWARF_DIR} 
     PATH_SUFFIXES lib lib64
-    NO_DEFAULT_PATH
     )
 
 find_library(LibDwarf_LIBRARY_STATIC NAMES libdwarf.a
     HINTS $ENV{LIBDWARF_DIR}
     HINTS ${LIBDWARF_DIR}
     PATH_SUFFIXES lib lib64
-    NO_DEFAULT_PATH
     )
 
 find_package_handle_standard_args(

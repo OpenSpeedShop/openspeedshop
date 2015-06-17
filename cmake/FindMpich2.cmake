@@ -29,17 +29,14 @@ find_path(Mpich2_INCLUDE_DIR
     NAMES mpi.h
     HINTS $ENV{MPICH2_DIR}
     HINTS ${MPICH2_DIR}
-    PATHS /usr /usr/local
     PATH_SUFFIXES include include/mpich-${oss_hardware_platform} include/mpich2 include64 include/mpich2-${oss_hardware_platform} include/mpich 
-    NO_DEFAULT_PATH
     )
 
 find_library(Mpich2_LIBRARY_SHARED NAMES mpich
     HINTS $ENV{MPICH2_DIR}
     HINTS ${MPICH2_DIR}
-    PATHS /usr /usr/local /usr/lib64/mpich /usr/lib/mpich
+    PATHS /usr/lib64/mpich /usr/lib/mpich
     PATH_SUFFIXES lib lib64 lib/shared lib64/shared
-    NO_DEFAULT_PATH
     )
 
 find_package_handle_standard_args(

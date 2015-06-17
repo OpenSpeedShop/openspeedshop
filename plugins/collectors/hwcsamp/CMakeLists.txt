@@ -24,8 +24,8 @@ set(RT_SOURCES
 set(PLUGIN_SOURCES
         ${CMAKE_CURRENT_BINARY_DIR}/blobs.h
         ${CMAKE_CURRENT_BINARY_DIR}/blobs.c
-        HWCSampEvents.h HWCSampDetail.hxx
         HWCSampCollector.hxx HWCSampCollector.cxx
+        HWCSampEvents.h HWCSampDetail.hxx
     )
 
 add_custom_command(
@@ -44,23 +44,23 @@ add_custom_command(
 
 
 add_definitions(
-  -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
-  )
+    -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+)
   
+
 # Do not build if only creating runtimes (RUNTIME_ONLY == true)
 if (RUNTIME_ONLY MATCHES "false")
+
     add_library(hwcsamp MODULE
-        ${PLUGIN_SOURCES}
+	${PLUGIN_SOURCES}
     )
 
     target_include_directories(hwcsamp PUBLIC
-        ${Papi_INCLUDE_DIRS}
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${PROJECT_SOURCE_DIR}/libopenss-runtime
-        ${PROJECT_SOURCE_DIR}/libopenss-message
-        ${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-runtime
+	${PROJECT_SOURCE_DIR}/libopenss-framework
+	${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
     )
 
     target_link_libraries(hwcsamp
@@ -69,15 +69,15 @@ if (RUNTIME_ONLY MATCHES "false")
 	${CMAKE_DL_LIBS}
     )
 
-    #set_target_properties(hwcsamp PROPERTIES VERSION 1.1.0)
+    set_target_properties(hwcsamp PROPERTIES PREFIX "")
 
     install(TARGETS hwcsamp
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
-    set_target_properties(hwcsamp PROPERTIES PREFIX "")
+
 endif()
 
-if(LIBMONITOR_FOUND)
+if (INSTRUMENTOR MATCHES "offline")
 
     add_definitions(
 	-DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
@@ -85,7 +85,7 @@ if(LIBMONITOR_FOUND)
     )
 
     add_library(hwcsamp-rt-offline SHARED
-        ${RT_SOURCES}
+	${RT_SOURCES}
 	offline.c
     )
 
@@ -106,13 +106,11 @@ if(LIBMONITOR_FOUND)
 	${Papi_SHARED_LIBRARIES}
 	rt
 	pthread
-        -Wl,-whole-archive
+	-Wl,-whole-archive
 	openss-runtime-offline
-        -Wl,-no-whole-archive
-	-Bdynamic
+	-Wl,-no-whole-archive
     )
 
-    #set_target_properties(hwcsamp-rt-offline PROPERTIES VERSION 1.1.0)
     set_target_properties(hwcsamp-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
 
     install(TARGETS hwcsamp-rt-offline
@@ -121,10 +119,9 @@ if(LIBMONITOR_FOUND)
 
     set_target_properties(hwcsamp-rt-offline PROPERTIES PREFIX "")
 
-    # Create and install static library version
-
+    # Create and install static lib version
     add_library(hwcsamp-offline STATIC
-        ${RT_SOURCES}
+	${RT_SOURCES}
 	offline.c
     )
 
@@ -148,15 +145,14 @@ if(LIBMONITOR_FOUND)
         -Wl,-whole-archive
 	openss-runtime-offline
         -Wl,-no-whole-archive
-	-Bdynamic
     )
 
-    #set_target_properties(hwcsamp-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(hwcsamp-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
+    set_target_properties(hwcsamp-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
 
     install(TARGETS hwcsamp-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
-endif()
+
+endif() # endif for INSTRUMENTOR MATCHES offline
 
 file(COPY blobs.x DESTINATION .)

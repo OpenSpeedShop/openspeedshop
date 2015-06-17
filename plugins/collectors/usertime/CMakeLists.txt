@@ -44,22 +44,23 @@ add_custom_command(
 
 
 add_definitions(
-  -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
-  )
+    -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+)
   
 
 # Do not build if only creating runtimes (RUNTIME_ONLY == true)
 if (RUNTIME_ONLY MATCHES "false")
+
     add_library(usertime MODULE
-        ${PLUGIN_SOURCES}
+	${PLUGIN_SOURCES}
     )
 
     target_include_directories(usertime PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${PROJECT_SOURCE_DIR}/libopenss-runtime
-        ${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-runtime
+	${PROJECT_SOURCE_DIR}/libopenss-framework
+	${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
     )
 
     target_link_libraries(usertime
@@ -68,15 +69,15 @@ if (RUNTIME_ONLY MATCHES "false")
 	${CMAKE_DL_LIBS}
     )
 
-    #set_target_properties(usertime PROPERTIES VERSION 1.1.0)
+    set_target_properties(usertime PROPERTIES PREFIX "")
 
     install(TARGETS usertime
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
-    set_target_properties(usertime PROPERTIES PREFIX "")
+
 endif()
 
-if(LIBMONITOR_FOUND)
+if (INSTRUMENTOR MATCHES "offline")
 
     add_definitions(
 	-DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
@@ -86,7 +87,7 @@ if(LIBMONITOR_FOUND)
     )
 
     add_library(usertime-rt-offline SHARED
-        ${RT_SOURCES}
+	${RT_SOURCES}
 	offline.c
     )
 
@@ -105,17 +106,14 @@ if(LIBMONITOR_FOUND)
 	${CMAKE_DL_LIBS}
 	rt
 	pthread
-        -Wl,-whole-archive
+	-Wl,-whole-archive
 	openss-runtime-offline
 	openss-runtime-unwind
-        -Wl,-no-whole-archive
-	-Bdynamic
+	-Wl,-no-whole-archive
 	${LibUnwind_LIBRARY_SHARED}
     )
 
-
-    #set_target_properties(usertime-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(usertime-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};USE_FASTTRACE")
+    set_target_properties(usertime-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
 
     install(TARGETS usertime-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -123,10 +121,9 @@ if(LIBMONITOR_FOUND)
 
     set_target_properties(usertime-rt-offline PROPERTIES PREFIX "")
 
-    # Create and install static library verison
-
+    # Create and install static lib version
     add_library(usertime-offline STATIC
-        ${RT_SOURCES}
+	${RT_SOURCES}
 	offline.c
     )
 
@@ -149,18 +146,14 @@ if(LIBMONITOR_FOUND)
 	openss-runtime-offline
 	openss-runtime-unwind
         -Wl,-no-whole-archive
-	-Bdynamic
-	${LibUnwind_LIBRARY_SHARED}
     )
 
-
-    #set_target_properties(usertime-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(usertime-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};USE_FASTTRACE")
+    set_target_properties(usertime-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
 
     install(TARGETS usertime-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
 
-endif()
+endif() # endif for INSTRUMENTOR MATCHES offline
 
 file(COPY blobs.x DESTINATION .)

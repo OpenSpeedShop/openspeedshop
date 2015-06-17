@@ -44,22 +44,23 @@ add_custom_command(
 
 
 add_definitions(
-  -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
-  )
+    -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+)
   
+
 # Do not build if only creating runtimes (RUNTIME_ONLY == true)
 if (RUNTIME_ONLY MATCHES "false")
 
     add_library(iot MODULE
-        ${PLUGIN_SOURCES}
+	${PLUGIN_SOURCES}
     )
 
     target_include_directories(iot PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${PROJECT_SOURCE_DIR}/libopenss-runtime
-        ${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-runtime
+	${PROJECT_SOURCE_DIR}/libopenss-framework
+	${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
     )
 
     target_link_libraries(iot
@@ -73,9 +74,11 @@ if (RUNTIME_ONLY MATCHES "false")
     install(TARGETS iot
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
+
 endif()
 
-if(LIBMONITOR_FOUND)
+if (INSTRUMENTOR MATCHES "offline")
+
     add_definitions(
 	-DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
 	-DOPENSS_OFFLINE=1
@@ -84,7 +87,7 @@ if(LIBMONITOR_FOUND)
     )
 
     add_library(iot-rt-offline SHARED
-        ${RT_SOURCES}
+	${RT_SOURCES}
 	offline.c
 	wrappers.c
     )
@@ -104,17 +107,14 @@ if(LIBMONITOR_FOUND)
 	${CMAKE_DL_LIBS}
 	rt
 	pthread
-        -Wl,-whole-archive
+	-Wl,-whole-archive
 	openss-runtime-offline
 	openss-runtime-unwind
-        -Wl,-no-whole-archive
-	-Bdynamic
+	-Wl,-no-whole-archive
 	${LibUnwind_LIBRARY_SHARED}
     )
 
-
-    #set_target_properties(iot-rt-offline PROPERTIES VERSIOTN 1.1.0)
-    set_target_properties(iot-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
+    set_target_properties(iot-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
 
     install(TARGETS iot-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -122,10 +122,9 @@ if(LIBMONITOR_FOUND)
 
     set_target_properties(iot-rt-offline PROPERTIES PREFIX "")
 
-    # Create and install static library version
-
+    # Create and install static lib version
     add_library(iot-offline STATIC
-        ${RT_SOURCES}
+	${RT_SOURCES}
 	offline.c
 	wrappers.c
     )
@@ -149,20 +148,15 @@ if(LIBMONITOR_FOUND)
 	openss-runtime-offline
 	openss-runtime-unwind
         -Wl,-no-whole-archive
-	-Bdynamic
 	${LibUnwind_LIBRARY_SHARED}
     )
 
-
-    #set_target_properties(iot-offline PROPERTIES VERSIOTN 1.1.0)
-    set_target_properties(iot-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
+    set_target_properties(iot-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
 
     install(TARGETS iot-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )
 
-
-
-endif()
+endif() # endif for INSTRUMENTOR MATCHES offline
 
 file(COPY blobs.x DESTINATION .)

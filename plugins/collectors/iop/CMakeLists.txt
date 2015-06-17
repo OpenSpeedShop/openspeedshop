@@ -17,33 +17,33 @@
 ################################################################################
 
 set(PLUGIN_SOURCES
-	IOPDetail.hxx IOPTraceableFunctions.h
-        IOPCollector.hxx IOPCollector.cxx
+    IOPDetail.hxx IOPTraceableFunctions.h
+    IOPCollector.hxx IOPCollector.cxx
 )
 
 add_library(iop MODULE
-        ${PLUGIN_SOURCES}
+    ${PLUGIN_SOURCES}
 )
 
 target_include_directories(iop PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${CBTF_MESSAGES_INCLUDE_DIRS}
-        ${PROJECT_SOURCE_DIR}/libopenss-runtime
-        ${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CBTF_MESSAGES_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/libopenss-runtime
+    ${PROJECT_SOURCE_DIR}/libopenss-framework
+    ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
 )
 
 target_link_libraries(iop
-	pthread
-	openss-framework
-        ${CBTF_MESSAGES_LIBRARIES}
-	${CMAKE_DL_LIBS}
+    pthread
+    openss-framework
+    ${CBTF_MESSAGES_LIBRARIES}
+    ${CMAKE_DL_LIBS}
 )
 
 set_target_properties(iop PROPERTIES PREFIX "")
 
 install(TARGETS iop
-	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
+    LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
 )
 
