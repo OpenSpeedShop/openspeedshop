@@ -33,7 +33,9 @@ using namespace OpenSpeedShop::Framework;
 #include <vector>
 #include <string>
 #include <iostream>
+#if defined(REGISTER_HWC_EVENTS)
 #include "OpenSS_Papi_Events.h"
+#endif
 
 
 namespace {
