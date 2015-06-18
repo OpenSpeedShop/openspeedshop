@@ -110,7 +110,7 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 
     std::string xmlfile(collector);
     xmlfile += ".xml";
-    registerXML(filesystem::path(CBTF_TOOLS_XMLDIR) / xmlfile);
+    registerXML(filesystem::path(CBTF_KRELL_XMLDIR) / xmlfile);
 
 
     Component::registerPlugin(
