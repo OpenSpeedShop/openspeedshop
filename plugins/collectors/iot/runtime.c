@@ -60,7 +60,14 @@ const unsigned OverheadFrameCount = 2;
 /** Number of event entries in the tracing buffer. */
 /* assume a pathname has at most 256 chars with terminating NULL.*/
 /* space for pathnames */ 
-#define PathBufferSize  (OpenSS_BlobSizeFactor * 2048)
+
+/* PathBufferSize was previously defined: #define PathBufferSize(OpenSS_BlobSizeFactor*2048) */
+/* jeg via dpm - change (5/19/2015) for bug found at INL 2/23/15 with this assert:           */
+/* Assertion (*xdrproc)(&xdrs, (void*)data) == TRUE failed in file OpenSS_Send.c at line 76  */
+/* Adjust the buffer size to smaller size, which can hold 16 paths of length 256 characters. */
+#define PathBufferSize  (4096)
+
+
 /* iot_event is 80 bytes */
 #define EventBufferSize (OpenSS_BlobSizeFactor * 140)
 
