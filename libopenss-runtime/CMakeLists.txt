@@ -188,6 +188,8 @@ if(LIBMONITOR_FOUND)
     add_custom_command(
         POST_BUILD
         OUTPUT ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/openspeedshop/offline_monitor.o
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/openspeedshop
         COMMAND ar -x libopenss-runtime-offline.a
         COMMAND cp offline_monitor.c.o ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/openspeedshop/offline_monitor.o
         DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libopenss-runtime-offline.a
