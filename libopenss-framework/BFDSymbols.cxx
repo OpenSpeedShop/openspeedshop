@@ -26,14 +26,23 @@
  *
  */
 
+//
+// Note that on Ubuntu 14.04.2 systems, the inclusion of <libiberty.h> MUST
+// be before the inclusion of <bfd.h>, or <bfd.h> will pick up the version of
+// <ansidecl.h> found in /usr/include instead of /usr/include/libiberty.h, and
+// the former is missing the declaration of ATTRIBUTE_RETURNS_NONNULL, which
+// results in a compilation error. WDH 2015-06-17
+//
+#define HAVE_DECL_BASENAME 1
+#include <libiberty.h>
+
 #include "ToolAPI.hxx"
 #include "BFDSymbols.hxx"
 #include "Path.hxx"
+
 #include <bfd.h>
 #include "bfd.h"
 #include <string.h>
-#define HAVE_DECL_BASENAME 1
-#include <libiberty.h>
 
 #include <stdint.h>
 #include <dis-asm.h>
