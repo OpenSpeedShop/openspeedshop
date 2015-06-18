@@ -209,6 +209,10 @@ if (INSTRUMENTOR MATCHES "offline")
     find_package(Mvapich2)
     find_package(Mvapich)
     find_package(CBTF-Krell)
+    # Need the boost includes to compile code using the Dyninst component includes
+    if (DYNINSTAPI_FOUND)
+        find_package(Boost 1.42.0 REQUIRED)
+    endif()
 #
 #--------------------------------------------------------------------------------
 # Do find package calls for cbtf only version of OpenSpeedShop in this section
