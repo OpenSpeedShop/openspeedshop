@@ -166,11 +166,10 @@ if(INSTRUMENTOR MATCHES "cbtf")
     add_definitions(
        -DCBTF_LIB_DIR="${CBTF_LIB_DIR}"
        -DCBTF_KRELL_LIB_DIR="${CBTF_KRELL_LIBDIR}"
-       #-DCBTF_TOOLS_XMLDIR="${CBTF_KRELL_DIR}/share/KrellInstitute/xml"
        -DCBTF_KRELL_XMLDIR="${CBTF_KRELL_XMLDIR}"
     )
 
-    add_library(openss-framework SHARED ${FW_SOURCES} ${CBTF_SOURCES})
+    add_library(openss-framework SHARED ${FW_SOURCES})
 
     target_include_directories(openss-framework PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
@@ -185,9 +184,6 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     target_link_libraries(openss-framework
-        ${CBTF_LIBRARIES}
-        ${CBTF_KRELL_MESSAGES_LIBRARIES}
-        ${CBTF_KRELL_CORE_LIBRARIES}
         ${Sqlite3_SHARED_LIBRARIES}
         ${Iberty_STATIC_LIBRARIES}
         ${LTDL_LIBRARY_SHARED}
@@ -201,7 +197,7 @@ if(INSTRUMENTOR MATCHES "cbtf")
         LIBRARY DESTINATION lib${LIB_SUFFIX}
     )
 
-    add_library(openss-framework-cbtf STATIC ${CBTF_SOURCES})
+    add_library(openss-framework-cbtf SHARED ${CBTF_SOURCES})
 
     target_include_directories(openss-framework-cbtf PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
@@ -215,6 +211,7 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     target_link_libraries(openss-framework-cbtf
+        openss-framework-symtabapi
 	${CBTF_LIBRARIES}
         ${CBTF_KRELL_CORE_LIBRARIES}
 	${CBTF_KRELL_CORE_MRNET_LIBRARY}
@@ -229,7 +226,7 @@ if(INSTRUMENTOR MATCHES "cbtf")
     set_target_properties(openss-framework-cbtf PROPERTIES COMPILE_DEFINITIONS BUILD_CBTF=1)
 
     install(TARGETS openss-framework-cbtf
-	ARCHIVE DESTINATION lib${LIB_SUFFIX}
+	LIBRARY DESTINATION lib${LIB_SUFFIX}
     )
 
 elseif (INSTRUMENTOR MATCHES "offline")

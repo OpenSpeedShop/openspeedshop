@@ -137,11 +137,28 @@ else()
         ${PROJECT_SOURCE_DIR}/libopenss-framework
         ${LTDL_INCLUDE_DIR}
     )
-    target_link_libraries(openss
-        ${GOMP}
-        ${LTDL_LIBRARY_SHARED}
-        ${CMAKE_DL_LIBS}
+
+    # openss-framework-cbtf is the cbtf instrumentor dso and
+    # is built separtely from the framework. It also links
+    # openss-framework-symtabapi directly since it does not
+    # support bfd symbol resolution at this time.
+    #
+    if (${INSTRUMENTOR} MATCHES "cbtf")
+	target_link_libraries(openss
+	    openss-framework
+	    openss-framework-cbtf
+	    ${GOMP}
+	    ${LTDL_LIBRARY_SHARED}
+	    ${CMAKE_DL_LIBS}
     )
+    else()
+	target_link_libraries(openss
+	    ${GOMP}
+	    ${LTDL_LIBRARY_SHARED}
+	    ${CMAKE_DL_LIBS}
+    )
+    endif()
+
     install(TARGETS openss
         RUNTIME DESTINATION bin
     )
@@ -208,7 +225,7 @@ else()
 	    ${CBTF_KRELL_CORE_SYMTABAPI_LIBRARY}
 	    ${CBTF_KRELL_CORE_MRNET_LIBRARY}
 	    openss-framework
-	    openss-framework-symtabapi
+	    openss-framework-cbtf
             pthread
             ${CMAKE_DL_LIBS}
         )

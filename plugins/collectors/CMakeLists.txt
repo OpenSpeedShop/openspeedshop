@@ -27,10 +27,13 @@ add_subdirectory(mpi)
 add_subdirectory(mpit)
 add_subdirectory(fpe)
 
+#if (CBTF-KRELL-MESSAGES_FOUND)
+if (INSTRUMENTOR MATCHES "cbtf")
 add_subdirectory(mem)
 add_subdirectory(pthreads)
 add_subdirectory(iop)
 add_subdirectory(mpip)
+endif()
 #add_subdirectory(cuda)
 
 

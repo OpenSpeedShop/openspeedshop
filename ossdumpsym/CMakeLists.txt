@@ -31,7 +31,6 @@ target_include_directories(ossdumpsym PUBLIC
 target_link_libraries(ossdumpsym
     openss-framework
     openss-framework-cbtf
-    openss-framework-symtabapi
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
