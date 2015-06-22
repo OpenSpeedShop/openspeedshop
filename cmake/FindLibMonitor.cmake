@@ -40,6 +40,7 @@ find_library(LibMonitor_LIBRARY_SHARED NAMES monitor
 find_library(LibMonitor_LIBRARY_STATIC NAMES libmonitor_wrap.a
     HINTS $ENV{LIBMONITOR_DIR}
     HINTS ${LIBMONITOR_DIR}
+    PATH_SUFFIXES lib lib64
     )
 
 
