@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2012 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2012-2015 The Krell Institute. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -36,8 +36,6 @@
 
 
 namespace OpenSpeedShop { namespace Framework {
-//namespace OpenSpeedShop { namespace CBTF {
-
     /**
      * CBTF frontend.
      *
@@ -48,6 +46,7 @@ namespace OpenSpeedShop { namespace Framework {
 #ifndef NDEBUG
 	bool isDebugEnabled();
 	bool isTimingDebugEnabled();
+	bool isMetricDebugEnabled();
 	bool isPerfDataDebugEnabled();
 	bool isStdioDebugEnabled();
 	bool isSymbolsDebugEnabled();

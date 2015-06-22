@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2012 The KrellInstitute. All Rights Reserved.
+// Copyright (c) 2012-2015 The KrellInstitute. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -47,6 +47,9 @@ namespace {
 
     /** Flag indicating if debugging for the frontend is enabled. */
     bool is_timing_debug_enabled = false;
+
+    /** Flag indicating if debugging for the frontend is enabled. */
+    bool is_metric_debug_enabled = false;
 #endif
     
 }
@@ -79,8 +82,7 @@ bool Frontend::isTimingDebugEnabled()
 bool Frontend::isDebugEnabled()
 {
     is_frontend_debug_enabled =
-        ((getenv("OPENSS_DEBUG_MRNET") != NULL) ||
-         (getenv("OPENSS_DEBUG_MRNET_FRONTEND") != NULL));
+        (getenv("OPENSS_DEBUG_CBTF_FRONTEND") != NULL);
     return is_frontend_debug_enabled;
 }
 
@@ -96,6 +98,7 @@ bool Frontend::isDebugEnabled()
  */
 bool Frontend::isPerfDataDebugEnabled()
 {
+    is_perfdata_debug_enabled = (getenv("OPENSS_DEBUG_CBTF_PERFDATA") != NULL) ;
     return is_perfdata_debug_enabled;
 }
 
@@ -126,6 +129,21 @@ bool Frontend::isStdioDebugEnabled()
  */
 bool Frontend::isSymbolsDebugEnabled()
 {
+    is_symbols_debug_enabled = (getenv("OPENSS_DEBUG_CBTF_SYMBOLS") != NULL) ;
     return is_symbols_debug_enabled;
+}
+
+/**
+ * Get frontend debugging flag.
+ *
+ * Returns a flag indicating if debugging for the frontend is enabled.
+ *
+ * @return    Boolean "true" if debugging for the frontend is enabled,
+ *            "false" otherwise.
+ */
+bool Frontend::isMetricDebugEnabled()
+{
+    is_metric_debug_enabled = (getenv("OPENSS_DEBUG_CBTF_METRICS") != NULL) ;
+    return is_metric_debug_enabled;
 }
 #endif    

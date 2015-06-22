@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2012-14 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2012-15 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -173,6 +173,8 @@ void FEThread::run(const std::string& topology, const std::string& connections,
         filesystem::path(CBTF_KRELL_LIB_DIR) / "libcbtf-messages-converters-base.so");
     Component::registerPlugin(
         filesystem::path(CBTF_KRELL_LIB_DIR) / "libcbtf-messages-base.so");
+    Component::registerPlugin(
+        filesystem::path(CBTF_KRELL_LIB_DIR) / "libcbtf-messages-perfdata.so");
 
 
 
@@ -271,8 +273,7 @@ void FEThread::run(const std::string& topology, const std::string& connections,
     }
 
     // Test for the symboltable_xdr_output and connect it if it is
-    // defined in the network. At this time only the CUDA collector
-    // has an active symboltable_xdr_output.
+    // defined in the network.
     //
     boost::shared_ptr<SignalAdapter
 		     <boost::shared_ptr
@@ -287,6 +288,58 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 	Component::connect(network, "symboltable_xdr_output",
 			symboltable_output_component, "value");
     }
+
+    // Test for the maxfunctionvalues and connect if it is
+    // defined in the network.
+    //
+    boost::shared_ptr<SignalAdapter
+		     <boost::shared_ptr
+		     <CBTF_Protocol_FunctionThreadValues > > > maxfunctionvalues;
+    Component::Instance maxfunctionvalues_output_component;
+    if (outputs.find("maxfunctionvalues_xdr_out") != outputs.end()) {
+	maxfunctionvalues = SignalAdapter<
+	boost::shared_ptr<CBTF_Protocol_FunctionThreadValues > >::instantiate();
+        maxfunctionvalues_output_component =
+			reinterpret_pointer_cast<Component>(maxfunctionvalues);
+	maxfunctionvalues->Value.connect(Callbacks::maxFunctionValues);
+	Component::connect(network, "maxfunctionvalues_xdr_out",
+			maxfunctionvalues_output_component, "value");
+    }
+
+    // Test for the minfunctionvalues and connect if it is
+    // defined in the network.
+    //
+    boost::shared_ptr<SignalAdapter
+		     <boost::shared_ptr
+		     <CBTF_Protocol_FunctionThreadValues > > > minfunctionvalues;
+    Component::Instance minfunctionvalues_output_component;
+    if (outputs.find("minfunctionvalues_xdr_out") != outputs.end()) {
+	minfunctionvalues = SignalAdapter<
+	boost::shared_ptr<CBTF_Protocol_FunctionThreadValues > >::instantiate();
+        minfunctionvalues_output_component =
+			reinterpret_pointer_cast<Component>(minfunctionvalues);
+	minfunctionvalues->Value.connect(Callbacks::minFunctionValues);
+	Component::connect(network, "minfunctionvalues_xdr_out",
+			minfunctionvalues_output_component, "value");
+    }
+
+    // Test for the avgfunctionvalues and connect if it is
+    // defined in the network.
+    //
+    boost::shared_ptr<SignalAdapter
+		     <boost::shared_ptr
+		     <CBTF_Protocol_FunctionAvgValues > > > avgfunctionvalues;
+    Component::Instance avgfunctionvalues_output_component;
+    if (outputs.find("avgfunctionvalues_xdr_out") != outputs.end()) {
+	avgfunctionvalues = SignalAdapter<
+	boost::shared_ptr<CBTF_Protocol_FunctionAvgValues > >::instantiate();
+        avgfunctionvalues_output_component =
+			reinterpret_pointer_cast<Component>(avgfunctionvalues);
+	avgfunctionvalues->Value.connect(Callbacks::avgFunctionValues);
+	Component::connect(network, "avgfunctionvalues_xdr_out",
+			avgfunctionvalues_output_component, "value");
+    }
+
 
     *backend_attach_count = numBE;
     *backend_attach_file = connections;
@@ -325,6 +378,24 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 	    break;
 	}
     }
+
+    // FIXME: The condition above is no sufficient to allow
+    // completation of all possble work done in the connections
+    // that are made via the SignalAdapters. eg. the min,max,avg
+    // messages may not have completed by the time this thread
+    // receives the threads_finished notification.  So we may
+    // need to send additional notifications. One possible solution
+    // is to have the last callback (as of 05-3102015 this would
+    // be the avg function values) send a notification that all
+    // metrics are done.  But this creates a dependency on the
+    // ordering of message traffic out of the collector.xml
+    // distributed component networks.
+    //
+    // This sleep is a workaround to allow the thread running the
+    // distributed component network some time to finish handling
+    // any remaining message traffic before exiting here.  Without
+    // this sleep the mrnet network begins to shutdown to early.
+    sleep(3);
 
 #ifndef NDEBUG
     if (is_debug_timing_enabled) {
