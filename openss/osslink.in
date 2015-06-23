@@ -71,8 +71,16 @@ fi
 
 # monitor has --enable-fork
 monitor_wrap_fork_names="fork vfork execl execlp execle execv execvp execve"
+
 # monitor has --enable-dlfcn
-monitor_wrap_dlopen_names="dlopen dlclose"
+#
+# We changed monitor_wrap_dlopen_names list to be blank after several Cray platforms 
+# (DOD Crays and muzia at Sandia) needed this change.  
+# These routines are linked in dynamically now. (jeg 6-23-15)
+# was: monitor_wrap_dlopen_names="dlopen dlclose"
+# now:
+monitor_wrap_dlopen_names=""
+
 # monitor has --enable-signals
 monitor_wrap_signal_names="signal sigaction sigprocmask"
 # monitor has mpi. These are the base names for the non mpi collectors
@@ -536,6 +544,10 @@ case "$collector" in
     # The non mpi tracing experiments need to trace MPI_Init to
     # gather the mpi rank information needed for the mpi_rank field
     # in the THREADS table of the openss database.
+    #
+    # We changed the hwc experiment link lines after several Cray platforms (DOD Crays and muzia at Sandia)
+    # needed the change to include the dl routines from libdl.so. The dl routines are now linked in dyamically. (jeg 6-23-15)
+    #
     pcsamp)
 
     static_collector=${oss_plugins}/lib${collector}-offline.a
@@ -548,15 +560,15 @@ case "$collector" in
     ;;
     hwc)
     static_collector=${oss_plugins}/lib${collector}-offline.a
-    collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-papi -L ${libpapi_libdir} -lpapi"
+    collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-papi -L ${libpapi_libdir} -lpapi -ldl"
     ;;
     hwctime)
     static_collector=${oss_plugins}/lib${collector}-offline.a
-    collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-papi -lopenss-runtime-unwind -L ${libpapi_libdir} -lpapi -L ${libunwind_libdir} -lunwind"
+    collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-papi -lopenss-runtime-unwind -L ${libpapi_libdir} -lpapi -L ${libunwind_libdir} -lunwind -ldl"
     ;;
     hwcsamp)
     static_collector=${oss_plugins}/lib${collector}-offline.a
-    collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-papi -L ${libpapi_libdir} -lpapi"
+    collector_libs="${collector_libs} -lrt -L ${oss_libdir} -lopenss-runtime-papi -L ${libpapi_libdir} -lpapi -ldl"
     ;;
     io | iot)
     static_collector=${oss_plugins}/lib${collector}-offline.a
