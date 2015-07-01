@@ -53,11 +53,13 @@ target_include_directories(openss-guiplugin PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/libopenss-guibase
     ${PROJECT_SOURCE_DIR}/libopenss-gui
+    ${LTDL_INCLUDE_DIR}
     )
 
 target_link_libraries(openss-guiplugin
     openss-guibase
     ${QT_LIBRARIES}
+    ${LTDL_SHARED_LIBRARY}
     ${CMAKE_DL_LIBS}
     )
 

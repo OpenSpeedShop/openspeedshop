@@ -211,7 +211,7 @@ if (INSTRUMENTOR MATCHES "offline")
     find_package(CBTF-Krell)
     # Need the boost includes to compile code using the Dyninst component includes
     if (DYNINSTAPI_FOUND)
-        find_package(Boost 1.42.0 REQUIRED)
+        find_package(Boost 1.41.0 REQUIRED)
     endif()
 #
 #--------------------------------------------------------------------------------
@@ -221,7 +221,7 @@ if (INSTRUMENTOR MATCHES "offline")
 elseif (INSTRUMENTOR MATCHES "cbtf")
     add_definitions(-DBUILD_CBTF=1)
     set(Boost_USE_MULTITHREADED    OFF)
-    find_package(Boost 1.42.0 REQUIRED
+    find_package(Boost 1.41.0 REQUIRED
       COMPONENTS date_time filesystem system thread unit_test_framework program_options
     )
     find_package(CBTF)
@@ -254,17 +254,22 @@ set(RESOLVE_SYMBOLS "symtabapi" CACHE STRING "resolve symbols using: [bfd,symtab
 
 if (RESOLVE_SYMBOLS MATCHES "symtabapi")
     if(DYNINSTAPI_FOUND)
-      add_definitions(-DOPENSS_USE_SYMTABAPI=1)
+      # Use a variable to hold the settings instead of using add_definitions
+      # add_definitions is global and we only want to apply this when we want
+      # to use symtabapi.  We apply RESOLVE_SYMBOLS_DEFINES using the
+      # compile specific set_target_properties command: COMPILE_DEFIINTIONS
+      set(RESOLVE_SYMBOLS_DEFINES "OPENSS_USE_SYMTABAPI=1" )
       message(STATUS "Resolve symbols using SymtabAPI.")
     else()
       message(STATUS "Resolve symbols using bfd. No Dyninst package was found.")
     endif()
 elseif (RESOLVE_SYMBOLS MATCHES "bfd")
+    set(RESOLVE_SYMBOLS_DEFINES "" )
     message(STATUS "Resolve symbols using bfd.")
 else ()
     # No user specified choice for resolving symbol tables.  By default choose symtabapi, if available
     if(DYNINSTAPI_FOUND)
-      add_definitions(-DOPENSS_USE_SYMTABAPI=1)
+      set(RESOLVE_SYMBOLS_DEFINES "OPENSS_USE_SYMTABAPI=1" )
       message(STATUS "Resolve symbols using SymtabAPI.")
     else()
       message(STATUS "Resolve symbols using bfd.")
@@ -370,26 +375,28 @@ endif()
 # by using the "-DRUNTIME_ONLY" cmake argument in a separate build.
 #--------------------------------------------------------------------------------
 #
-if (NOT RUNTIME_DIR MATCHES "")
-if(EXISTS ${RUNTIME_DIR} AND IS_DIRECTORY "${RUNTIME_DIR}")
-    set( HAVE_RUNTIME_DIR "true")
-    message(STATUS "RUNTIME_DIR was recognized.")
-    message(STATUS "HAVE_RUNTIME_DIR is set to false.")
-    if( EXISTS ${RUNTIME_DIR}/lib${LIB_SUFFIX} AND IS_DIRECTORY "${RUNTIME_DIR}/lib${LIB_SUFFIX}")
-       set (RUNTIME_LIBDIR  ${RUNTIME_DIR}/lib${LIB_SUFFIX})
-    elseif ( EXISTS ${RUNTIME_DIR}/lib AND IS_DIRECTORY "${RUNTIME_DIR}/lib")
-       set (RUNTIME_LIBDIR  ${RUNTIME_DIR}/lib)
+if (NOT "${RUNTIME_DIR}" STREQUAL "")
+    if(EXISTS ${RUNTIME_DIR} AND IS_DIRECTORY "${RUNTIME_DIR}")
+        set( HAVE_RUNTIME_DIR "true")
+        message(STATUS "RUNTIME_DIR was recognized.")
+        message(STATUS "HAVE_RUNTIME_DIR is set to true.")
+        if( EXISTS ${RUNTIME_DIR}/lib${LIB_SUFFIX} AND IS_DIRECTORY "${RUNTIME_DIR}/lib${LIB_SUFFIX}")
+           set (RUNTIME_LIBDIR  ${RUNTIME_DIR}/lib${LIB_SUFFIX})
+        elseif ( EXISTS ${RUNTIME_DIR}/lib AND IS_DIRECTORY "${RUNTIME_DIR}/lib")
+           set (RUNTIME_LIBDIR  ${RUNTIME_DIR}/lib)
+        else()
+           set (RUNTIME_LIBDIR "")
+           set( HAVE_RUNTIME_DIR "false")
+           message(STATUS "HAVE_RUNTIME_DIR is set to false.")
+        endif()
     else()
-       set (RUNTIME_LIBDIR "")
-       set( HAVE_RUNTIME_DIR "false")
-       message(STATUS "HAVE_RUNTIME_DIR is set to false.")
+        message(STATUS "HAVE_RUNTIME_DIR is set to false.")
+        set( HAVE_RUNTIME_DIR "false")
+        set (RUNTIME_DIR  "")
+        set (RUNTIME_LIBDIR  "")
     endif()
 else()
-    message(STATUS "HAVE_RUNTIME_DIR is set to false.")
-    set( HAVE_RUNTIME_DIR "false")
-    set (RUNTIME_DIR  "")
-    set (RUNTIME_LIBDIR  "")
-endif()
+    message(STATUS "RUNTIME_DIR matches blanks.")
 endif()
 
 #

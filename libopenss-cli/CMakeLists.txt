@@ -172,6 +172,7 @@ target_include_directories(openss-cli PUBLIC
     ${PROJECT_SOURCE_DIR}/libopenss-queries
     ${PROJECT_SOURCE_DIR}/libopenss-message
     ${PYTHON_INCLUDE_DIR}
+    ${LTDL_INCLUDE_DIR}
     )
 
 target_link_libraries(openss-cli
@@ -181,7 +182,7 @@ target_link_libraries(openss-cli
     ${Sqlite3_SHARED_LIBRARIES}
     ${PYTHON_LIBRARY}
     ${CMAKE_DL_LIBS}
-    ltdl
+    ${LTDL_SHARED_LIBRARY}
     )
 
 

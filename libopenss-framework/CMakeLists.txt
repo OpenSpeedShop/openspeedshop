@@ -191,7 +191,7 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     set_target_properties(openss-framework PROPERTIES VERSION 1.1.0)
-    set_target_properties(openss-framework PROPERTIES COMPILE_DEFINITIONS BUILD_CBTF=1)
+    set_target_properties(openss-framework PROPERTIES COMPILE_DEFINITIONS BUILD_CBTF=1;${RESOLVE_SYMBOLS_DEFINES})
 
     install(TARGETS openss-framework
         LIBRARY DESTINATION lib${LIB_SUFFIX}
@@ -223,7 +223,7 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     set_target_properties(openss-framework-cbtf PROPERTIES VERSION 1.1.0)
-    set_target_properties(openss-framework-cbtf PROPERTIES COMPILE_DEFINITIONS BUILD_CBTF=1)
+    set_target_properties(openss-framework-cbtf PROPERTIES COMPILE_DEFINITIONS BUILD_CBTF=1;${RESOLVE_SYMBOLS_DEFINES})
 
     install(TARGETS openss-framework-cbtf
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
@@ -249,9 +249,11 @@ elseif (INSTRUMENTOR MATCHES "offline")
         ${Iberty_STATIC_LIBRARIES}
         ${LTDL_LIBRARY_SHARED}
         ${CMAKE_DL_LIBS}
+	rt
     )
 
     set_target_properties(openss-framework PROPERTIES VERSION 1.1.0)
+    set_target_properties(openss-framework PROPERTIES COMPILE_DEFINITIONS "${RESOLVE_SYMBOLS_DEFINES}")
 
     install(TARGETS openss-framework
         LIBRARY DESTINATION lib${LIB_SUFFIX}
@@ -273,6 +275,7 @@ elseif (INSTRUMENTOR MATCHES "offline")
 	    ${Binutils_Iberty_INCLUDE_DIR}
 	    ${PROJECT_SOURCE_DIR}/libopenss-framework
             ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
+            ${LTDL_INCLUDE_DIR}
         )
 
         target_link_libraries(openss-framework-binutils
@@ -283,7 +286,10 @@ elseif (INSTRUMENTOR MATCHES "offline")
         # Without this the resulting code from OfflineExperiment.cxx calls the getSymbols function in symtabapi
         if(SYMTABAPI_FOUND)
            if (RESOLVE_SYMBOLS MATCHES "symtabapi")
-              add_definitions(-DOPENSS_USE_SYMTABAPI=1)
+              # Not using add_definitions(-DOPENSS_USE_SYMTABAPI=1) which is
+              # global in nature and overrides the bfd symbol resolution option
+              # because the symtabapi code is built instead.
+              set(RESOLVE_SYMBOLS_DEFINES "OPENSS_USE_SYMTABAPI=1")
            endif()
         endif()
 
@@ -291,7 +297,7 @@ elseif (INSTRUMENTOR MATCHES "offline")
 
         # Work around problem defined by:
         # https://stackoverflow.com/questions/11748035/binutils-bfd-h-wants-config-h-now
-        set_target_properties(openss-framework-binutils PROPERTIES COMPILE_DEFINITIONS "PACKAGE=1;PACKAGE_VERSION=1")
+        set_target_properties(openss-framework-binutils PROPERTIES COMPILE_DEFINITIONS "PACKAGE=1;PACKAGE_VERSION=1;${RESOLVE_SYMBOLS_DEFINES}")
 
         install(TARGETS openss-framework-binutils
 	    LIBRARY DESTINATION lib${LIB_SUFFIX}
@@ -315,10 +321,9 @@ if(SYMTABAPI_FOUND)
 
     if (RESOLVE_SYMBOLS MATCHES "symtabapi")
       if (DYNINSTAPI_FOUND)
-        add_definitions(-DOPENSS_USE_SYMTABAPI=1 
-                        -DHAVE_DYNINST)
+         set(RESOLVE_SYMBOLS_DEFINES "OPENSS_USE_SYMTABAPI=1;HAVE_DYNINST")
       else()
-        add_definitions(-DOPENSS_USE_SYMTABAPI=1)
+         set(RESOLVE_SYMBOLS_DEFINES "OPENSS_USE_SYMTABAPI=1")
       endif()
     endif()
 
@@ -333,6 +338,7 @@ if(SYMTABAPI_FOUND)
 	${Binutils_Iberty_INCLUDE_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-framework
         ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
+        ${LTDL_INCLUDE_DIR}
     )
     else()
     target_include_directories(openss-framework-symtabapi PUBLIC
@@ -344,6 +350,7 @@ if(SYMTABAPI_FOUND)
 	${Binutils_Iberty_INCLUDE_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-framework
         ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
+        ${LTDL_INCLUDE_DIR}
     )
     endif()
 
@@ -363,6 +370,10 @@ if(SYMTABAPI_FOUND)
     endif()
 
     set_target_properties(openss-framework-symtabapi PROPERTIES VERSION 1.1.0)
+
+    # Work around problem defined by:
+    # https://stackoverflow.com/questions/11748035/binutils-bfd-h-wants-config-h-now
+    set_target_properties(openss-framework-symtabapi PROPERTIES COMPILE_DEFINITIONS "PACKAGE=1;PACKAGE_VERSION=1;${RESOLVE_SYMBOLS_DEFINES}")
 
     install(TARGETS openss-framework-symtabapi
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
