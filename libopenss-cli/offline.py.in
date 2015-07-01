@@ -383,6 +383,7 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		  if offlinepy_debug != 0: print "[openss-debug]: isscript section, file_arg=" + file_arg
 		  ismpich2_cray_vers1 = os.system('grep -q -i \"srun - Wrapper for Cray\" ' + file_arg)
 		  ismpich2_cray_vers2 = os.system('grep -q -i \"aprun -- A wrapper around the Cray aprun\" ' + file_arg)
+		  ismpich2_mic = os.system('grep -q -i \"MIC_LD_LIBRARY_PATH\" ' + file_arg)
 		  ismpich = os.system('grep -q -i \"MPIRUN for MPICH\" ' + file_arg)
 		  ismpich2 = os.system('grep -q -i Argonne ' + file_arg)
 		  ismvapich = os.system('grep -q -i \"Wrapper for job submission on Hert related machines\" ' + file_arg)
@@ -429,6 +430,15 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
  		    mpi_exe_implmentation = "mpich2"
 		    if offlinepy_debug != 0: print "[openss-debug]: ismpich2_cray_vers2 orig_mpi_driver=" + orig_mpi_driver
 		    if offlinepy_debug != 0: print "[openss-debug]: ismpich2_cray_vers2 program=" + program
+		  if not os.WEXITSTATUS(ismpich2_mic):
+		    ismpi = bool(1)
+		    mpi_driver = os.path.realpath(file_arg)
+		    orig_mpi_driver = s
+		    program = program.replace(s, file_arg)
+		    preload_files = ""
+		    mpi_exe_implmentation = "mpich2"
+		    if offlinepy_debug != 0: print "[openss-debug]: ismpich2_mic orig_mpi_driver=" + orig_mpi_driver
+		    if offlinepy_debug != 0: print "[openss-debug]: ismpich2_mic program=" + program
 		  if not os.WEXITSTATUS(ismpich2):
 		    ismpi = bool(1)
 		    mpi_driver = os.path.realpath(file_arg)
