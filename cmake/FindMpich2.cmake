@@ -32,10 +32,9 @@ find_path(Mpich2_INCLUDE_DIR
     PATH_SUFFIXES include include/mpich-${oss_hardware_platform} include/mpich2 include64 include/mpich2-${oss_hardware_platform} include/mpich 
     )
 
-find_library(Mpich2_LIBRARY_SHARED NAMES mpich
+find_library(Mpich2_LIBRARY_SHARED NAMES mpich mpi
     HINTS $ENV{MPICH2_DIR}
     HINTS ${MPICH2_DIR}
-    PATHS /usr/lib64/mpich /usr/lib/mpich
     PATH_SUFFIXES lib lib64 lib/shared lib64/shared
     )
 
