@@ -68,3 +68,24 @@ set_target_properties(openss-queries-cuda PROPERTIES VERSION 1.1.0)
 install(TARGETS openss-queries-cuda
     LIBRARY DESTINATION lib${LIB_SUFFIX}
     )
+
+add_executable(osscuda2xml
+    osscuda2xml.cxx
+    )
+
+target_include_directories(osscuda2xml PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../libopenss-framework
+    ${Boost_INCLUDE_DIRS}
+    )
+
+target_link_libraries(osscuda2xml
+    openss-framework
+    openss-framework-cbtf
+    openss-queries-cuda
+    ${Boost_LIBRARIES}
+    )
+
+install(TARGETS osscuda2xml
+    RUNTIME DESTINATION bin
+    )

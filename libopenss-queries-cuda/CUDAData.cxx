@@ -561,7 +561,7 @@ vector<CUDAData::DeviceDetails>::size_type CUDAData::device_from_context(
     {
 #ifndef NDEBUG
         cerr << "WARNING: CUDAData encountered an unknown CUDA "
-             << "device (" << device << ")." << endl;
+             << "device (" << i->second << ")." << endl;
 #endif
         
         return 0;

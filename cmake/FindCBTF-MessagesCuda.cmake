@@ -31,7 +31,7 @@ find_path(CBTF_MESSAGES_CUDA_INCLUDE_DIR
     )
 
 find_package_handle_standard_args(
-    CBTF-Messages DEFAULT_MSG
+    CBTF-MessagesCuda DEFAULT_MSG
     CBTF_MESSAGES_CUDA_SHARED_LIBRARY
     CBTF_MESSAGES_CUDA_INCLUDE_DIR
     )
