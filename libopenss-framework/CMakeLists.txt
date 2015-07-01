@@ -191,7 +191,7 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     set_target_properties(openss-framework PROPERTIES VERSION 1.1.0)
-    set_target_properties(openss-framework PROPERTIES COMPILE_DEFINITIONS BUILD_CBTF=1;${RESOLVE_SYMBOLS_DEFINES})
+    set_target_properties(openss-framework PROPERTIES COMPILE_DEFINITIONS "BUILD_CBTF=1;${RESOLVE_SYMBOLS_DEFINES}")
 
     install(TARGETS openss-framework
         LIBRARY DESTINATION lib${LIB_SUFFIX}
@@ -223,7 +223,7 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     set_target_properties(openss-framework-cbtf PROPERTIES VERSION 1.1.0)
-    set_target_properties(openss-framework-cbtf PROPERTIES COMPILE_DEFINITIONS BUILD_CBTF=1;${RESOLVE_SYMBOLS_DEFINES})
+    set_target_properties(openss-framework-cbtf PROPERTIES COMPILE_DEFINITIONS "BUILD_CBTF=1;${RESOLVE_SYMBOLS_DEFINES}")
 
     install(TARGETS openss-framework-cbtf
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
