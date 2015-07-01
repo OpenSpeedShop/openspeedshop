@@ -228,7 +228,15 @@ if(PAPI_FOUND)
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}
     )
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+endif()
 
+# If runtime_only is true then we have a targetted papi installation, so do
+# not call papi_avail. If we have a runtime_dir specified then we have a
+# targetted papi specified as well or could.  Might want to check on this.  On
+# some heterogeneous machines the only papi installation available is the
+# compute node version.  So, then we do not want to call papa_avail from the
+# front-end node.
+if(PAPI_FOUND AND RUNTIME_ONLY MATCHES "false" AND HAVE_RUNTIME_DIR MATCHES "false")
     add_custom_command(
        POST_BUILD
        OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_Papi_Events.h
