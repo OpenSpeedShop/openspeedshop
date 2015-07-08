@@ -236,6 +236,8 @@ if(BUILD_PTGF_DIRECT)
         LIBRARY DESTINATION lib${LIB_SUFFIX}
     )
 
+    install(FILES Direct.hxx DESTINATION include/openspeedshop)
+
 endif()
 
 if(BUILD_PTGF_SERVER)
