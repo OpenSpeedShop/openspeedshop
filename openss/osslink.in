@@ -165,6 +165,23 @@ openss manpage for a description of the available
 experiments provided by OpenSpeedShop. This is a
 mandatory option.
 
+  -i | --mpitype
+For MPI experiments, set the OPENSS_MPI_IMPLEMENTATION 
+environment variable to the MPI implementation type
+specified by one of these valid options:
+        mpich
+        mpich2
+        mvapich
+        mvapich2
+        openmpi
+        mpt
+        lam
+        lampi
+
+This value should correspond to the MPI implementation
+that was used to create the application being run through
+osslink.
+
   -v, --verbose
 
 
