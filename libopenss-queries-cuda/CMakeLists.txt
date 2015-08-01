@@ -46,6 +46,7 @@ add_definitions(
 
 target_include_directories(openss-queries-cuda PUBLIC
     ${CUDA_INCLUDE_DIR}
+    ${Boost_INCLUDE_DIRS}
     ${CBTF_MESSAGES_INCLUDE_DIRS}
     ${CBTF_MESSAGES_CUDA_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
