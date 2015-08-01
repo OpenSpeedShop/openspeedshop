@@ -154,6 +154,7 @@ message(STATUS "BUILD_PTGF_SERVER=" ${BUILD_PTGF_SERVER} )
 set(RUNTIME_ONLY "false" CACHE STRING "Build only runtime collectors (offline instrumentor): [true,false]")
 
 set(RUNTIME_DIR "" CACHE STRING "path to targeted runtime collectors")
+set(HAVE_RUNTIME_DIR "false" CACHE STRING "Was the directory path to targeted runtime collectors passed in as an argument.")
 
 # Default to the offline instrumentor.
 set(INSTRUMENTOR "offline" CACHE STRING "OpenSpeedShop instrumentor type: [offline,cbtf]")
@@ -374,7 +375,6 @@ endif()
 # components run).  We call that building targeted runtimes, and this is accomplished
 # by using the "-DRUNTIME_ONLY" cmake argument in a separate build.
 #--------------------------------------------------------------------------------
-#
 if (NOT "${RUNTIME_DIR}" STREQUAL "")
     if(EXISTS ${RUNTIME_DIR} AND IS_DIRECTORY "${RUNTIME_DIR}")
         set( HAVE_RUNTIME_DIR "true")

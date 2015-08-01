@@ -46,9 +46,14 @@ set(cbtfxmldir ${CBTF_KRELL_XMLDIR})
 
 # FIXME: should be only needed when INSTRUMENTOR==offline.
 set(libmonitordir ${LIBMONITOR_DIR})
-set(libmonitorlibdir ${LIBMONITOR_DIR}/lib${SUFFIX})
+set(libmonitorlibdir ${LibMonitor_LIB_DIR})
+
 set(libunwinddir ${LIBUNWIND_DIR})
-set(libunwindlibdir ${LIBUNWIND_DIR}/lib${SUFFIX})
+set(libunwindlibdir ${LibUnwind_LIB_DIR})
+
+set(papidir ${PAPI_DIR})
+set(papilibdir ${Papi_LIB_DIR})
+
 
 # FIXME: Who exactly sets RUNTIME_name?  Document that here.
 if (HAVE_RUNTIME_DIR MATCHES "true")
@@ -228,6 +233,7 @@ else()
 	    openss-framework-cbtf
             pthread
             ${CMAKE_DL_LIBS}
+            rt
         )
 
         # This is defined in FindCBTF-Krell.cmake. Is anyone using XMLDR directly

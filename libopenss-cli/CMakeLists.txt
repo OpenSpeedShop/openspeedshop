@@ -35,7 +35,7 @@ set(cbtfcollectors ${CBTF_KRELL_DIR}/lib${SUFFIX}/KrellInstitute/Collectors)
 set(cbtfcomponents ${CBTF_KRELL_DIR}/lib${SUFFIX}/KrellInstitute/Components)
 set(cbtfxmldir ${CBTF_ROOT}/share/KrellInstitute/XML)
 set(libmonitordir ${LIBMONITOR_DIR})
-set(libmonitorlibdir ${LIBMONITOR_DIR}/lib${SUFFIX})
+set(libmonitorlibdir ${LibMonitor_LIB_DIR})
 
 if(HAVE_RUNTIME_DIR)
     set(oss_installation_dir ${RUNTIME_DIR})

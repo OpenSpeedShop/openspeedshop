@@ -50,7 +50,13 @@ find_library(Bfd_LIBRARY_STATIC NAMES libbfd.a
     PATH_SUFFIXES lib lib64
     )
 
-find_library(Iberty_LIBRARY_STATIC NAMES libiberty_pic.a libiberty.a
+find_library(Iberty_LIBRARY_STATIC NAMES libiberty.a
+    HINTS $ENV{BINUTILS_DIR}
+    HINTS ${BINUTILS_DIR}
+    PATH_SUFFIXES lib lib64
+    )
+
+find_library(IbertyPIC_LIBRARY_STATIC NAMES libiberty_pic.a
     HINTS $ENV{BINUTILS_DIR}
     HINTS ${BINUTILS_DIR}
     PATH_SUFFIXES lib lib64
@@ -66,7 +72,13 @@ find_package_handle_standard_args(
 
 set(Bfd_SHARED_LIBRARIES ${Bfd_LIBRARY_SHARED})
 set(Bfd_STATIC_LIBRARIES ${Bfd_LIBRARY_STATIC})
-set(Iberty_STATIC_LIBRARIES ${Iberty_LIBRARY_STATIC})
+
+if(DEFINED IbertyPIC_LIBRARY_STATIC)
+  set(Iberty_STATIC_LIBRARIES ${IbertyPIC_LIBRARY_STATIC})
+else()
+  set(Iberty_STATIC_LIBRARIES ${Iberty_LIBRARY_STATIC})
+endif()
+
 set(Binutils_INCLUDE_DIRS ${Binutils_INCLUDE_DIR})
 set(Binutils_Iberty_INCLUDE_DIRS ${Binutils_Iberty_INCLUDE_DIR})
 

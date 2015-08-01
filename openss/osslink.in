@@ -33,18 +33,15 @@ oss_bindir="${oss_prefix}/bin"
 oss_plugins="${oss_libdir}/openspeedshop"
 
 libmonitor_prefix=@libmonitordir@
-libmonitor_libdir="${libmonitor_prefix}/${machlibdir}"
+libmonitor_libdir=@libmonitorlibdir@
 libmonitor="${libmonitor_libdir}/libmonitor_wrap.a"
-libunwind_prefix=@libunwinddir@
-libunwind_libdir="${libunwind_prefix}/${machlibdir}"
-libunwind="${libunwind_libdir}/libunwind.a"
-libpapi_prefix=@papidir@
-if test -d ${libpapi_prefix}/${machlibdir} ; then
-  libpapi_libdir="${libpapi_prefix}/${machlibdir}"
-elif test -d ${libpapi_prefix}/${altmachlibdir} ; then
-  libpapi_libdir="${libpapi_prefix}/${altmachlibdir}"
-fi
 
+libunwind_prefix=@libunwinddir@
+libunwind_libdir=@libunwindlibdir@
+libunwind="${libunwind_libdir}/libunwind.a"
+
+libpapi_prefix=@papidir@
+libpapi_libdir=@papilibdir@
 libpapi="${libpapi_libdir}/libpapi.a"
 
 # monitor always has these

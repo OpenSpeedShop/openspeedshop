@@ -222,7 +222,9 @@ else
 monitor_dir=$(LIBMONITOR_DIR)
 monitor_libdir=$(LIBMONITOR_LIBDIR)
 unwind_dir=$(LIBUNWIND_DIR)
+unwind_libdir=$(LIBUNWIND_LIBDIR)
 papi_dir=$(PAPI_DIR)
+papi_libdir=$(PAPI_LIBDIR)
 mpich2_dir=$(MPICH2_DIR)
 mpich2_libdir=$(MPICH2_LIBDIR)
 
@@ -235,9 +237,12 @@ osslink: osslink.in
 		-e 's,@default_mpi_impl@,$(DEFAULT_MPI_IMPL),' \
 		-e 's,@ossinstalldir@,$(oss_location),' \
 		-e 's,@libmonitordir@,$(monitor_dir),' \
+		-e 's,@libmonitorlibdir@,$(monitor_libdir),' \
 		-e 's,@libunwinddir@,$(unwind_dir),' \
+		-e 's,@libunwindlibdir@,$(unwind_libdir),' \
 		-e 's,@osstargetos@,$(TARGET_OS),' \
 		-e 's,@papidir@,$(papi_dir),' \
+		-e 's,@papilibdir@,$(papi_libdir),' \
 			$(srcdir)/osslink.in > osslink
 	@chmod 755 osslink
 
