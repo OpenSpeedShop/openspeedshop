@@ -73,7 +73,11 @@ find_package_handle_standard_args(
 set(Bfd_SHARED_LIBRARIES ${Bfd_LIBRARY_SHARED})
 set(Bfd_STATIC_LIBRARIES ${Bfd_LIBRARY_STATIC})
 
-if(DEFINED IbertyPIC_LIBRARY_STATIC)
+# If IbertyPIC_LIBRARY_STATIC was found favor that one, because we probably
+# created it.  NOTE: I (jeg) took off the DEFINED portion of the 
+# if (DEFINED IbertyPIC_LIBRARY_STATIC because it did not work.  
+# Without it, the check works.
+if(IbertyPIC_LIBRARY_STATIC)
   set(Iberty_STATIC_LIBRARIES ${IbertyPIC_LIBRARY_STATIC})
 else()
   set(Iberty_STATIC_LIBRARIES ${Iberty_LIBRARY_STATIC})
