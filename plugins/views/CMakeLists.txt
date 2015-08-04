@@ -32,5 +32,9 @@ add_subdirectory(mem)
 add_subdirectory(pthreads)
 add_subdirectory(iop)
 add_subdirectory(mpip)
-#add_subdirectory(cuda)
+# If cuda related plugins and messages were found
+# then build the cuda views.
+if (CBTF-ARGO-MESSAGESCUDA_FOUND)
+    add_subdirectory(cuda)
+endif()
 

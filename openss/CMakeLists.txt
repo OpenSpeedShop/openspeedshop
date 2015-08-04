@@ -289,9 +289,13 @@ else()
 	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
             install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver ossiop
 	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
-	    # FIXME: FOUND_CUDA is way to generic.  We really want something
-	    # specific to cbtf-argonavis cuda collector being present!
-            if (FOUND_CUDA)
+
+            # 
+            # If the Argo Navis cuda base libraries and messages were found 
+            # that means we have cuda based collectors and views, so install
+            # the osscuda convenience scripts.
+            #
+            if (CBTF-ARGO-MESSAGESCUDA_FOUND)
                 install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver osscuda
 	            WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
                 install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver osscudaio

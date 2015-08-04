@@ -229,7 +229,8 @@ elseif (INSTRUMENTOR MATCHES "cbtf")
     find_package(CBTF-Krell)
     find_package(MRNet 4.0.0)
     find_package(XercesC 3.0)
-    find_package(CBTF-MessagesCuda)
+    find_package(CBTF-Argo)
+    message(STATUS "CBTF-ARGO-MESSAGESCUDA_FOUND=" ${CBTF-ARGO-MESSAGESCUDA_FOUND} )
 endif()
 
 #
@@ -451,17 +452,20 @@ if (RUNTIME_ONLY MATCHES "true")
 
 # Are there really any runtime needs for cuda????
     if (INSTRUMENTOR MATCHES "cbtf")
+
         add_subdirectory(ossdumpsym)
-# The cuda code for the client does not depend on the cupti or cuda
-# runtime systems.  The cuda client code does depend on the cuda messages
-# from the cbtf-argonavis package.
-#
-# For this to work we need a cbtf-argnoavis find package that sets
-# a package name var like CBTF-ArgNavis-MessagesCuda.
-#    if (CBTF-MessagesCuda_FOUND)
-#        add_subdirectory(libopenss-queries-cuda)
-#        add_subdirectory(ossdumpcuda)
-#    endif()
+
+        # The cuda code for the client does not depend on the cupti or cuda
+        # runtime systems.  The cuda client code does depend on the cuda messages
+        # from the cbtf-argonavis package.
+        #
+        # For this to work we need a cbtf-argnoavis find package that sets
+        # a package name var like CBTF-ArgNavis-MessagesCuda.
+
+        if (CBTF-ARGO-MESSAGESCUDA_FOUND)
+            add_subdirectory(libopenss-queries-cuda)
+            add_subdirectory(ossdumpcuda)
+        endif()
     endif()
 
 else()
@@ -508,7 +512,7 @@ else()
     if (INSTRUMENTOR MATCHES "cbtf")
         add_subdirectory(ossdumpsym)
 #   if (CUDA_FOUND)
-    if (CBTF-MESSAGESCUDA_FOUND)
+    if (CBTF-ARGO-MESSAGESCUDA_FOUND)
         add_subdirectory(libopenss-queries-cuda)
         add_subdirectory(ossdumpcuda)
     endif()

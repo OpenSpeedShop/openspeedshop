@@ -27,13 +27,18 @@ add_subdirectory(mpi)
 add_subdirectory(mpit)
 add_subdirectory(fpe)
 
-#if (CBTF-KRELL-MESSAGES_FOUND)
 if (INSTRUMENTOR MATCHES "cbtf")
-add_subdirectory(mem)
-add_subdirectory(pthreads)
-add_subdirectory(iop)
-add_subdirectory(mpip)
+    add_subdirectory(mem)
+    add_subdirectory(pthreads)
+    add_subdirectory(iop)
+    add_subdirectory(mpip)
+
+    # If cuda related plugins and messages were found
+    # then build the client portion of the cuda collector.
+    if (CBTF-ARGO-MESSAGESCUDA_FOUND)
+        add_subdirectory(cuda)
+    endif()
 endif()
-#add_subdirectory(cuda)
+
 
 
