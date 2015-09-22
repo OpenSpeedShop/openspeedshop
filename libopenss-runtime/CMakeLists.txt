@@ -255,7 +255,7 @@ else()
        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/create_events_include
        COMMENT "Generating OpenSS_Papi_Events.h..."
     )
-    add_custom_target(run ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/OpenSS_Papi_Events.h) 
+    add_custom_target(run ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_Papi_Events.h) 
 endif()
 
 if(LIBUNWIND_FOUND)
