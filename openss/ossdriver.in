@@ -642,7 +642,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: pcsamp experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector pcsamp
     else
@@ -800,7 +800,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: usertime experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector usertime
     else
@@ -1108,7 +1108,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: hwc experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector hwc
     else
@@ -1412,7 +1412,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: hwcsamp experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector hwcsamp
     else
@@ -1718,7 +1718,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: hwctime experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector hwctime
     else
@@ -1839,7 +1839,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: io experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector io
     else
@@ -1960,7 +1960,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: iot experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector iot
     else
@@ -2167,7 +2167,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: mpi experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector mpi
     else
@@ -2277,7 +2277,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: mpip experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector mpip
     else
@@ -2384,7 +2384,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: mpit experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector mpit
     else
@@ -2491,7 +2491,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: mpiotf experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector mpiotf
     else
@@ -2596,7 +2596,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: fpe experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector fpe
     else
@@ -2712,7 +2712,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: iop experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector iop
     else
@@ -2827,7 +2827,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: mem experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector mem
     else
@@ -2943,7 +2943,7 @@ then
   if [ "$instrumentor" == "cbtf" ]
   then
     echo "[openss]: pthreads experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
     then
        osscollect --arch cray --program "$1" --collector pthreads
     else
@@ -3040,7 +3040,8 @@ then
 
   if [ "$instrumentor" == "cbtf" ]; then
     echo "[openss]: cuda experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]; then
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
+    then
        osscollect --arch cray --program "$1" --collector cuda
     else
        osscollect --program "$1" --collector cuda
@@ -3074,7 +3075,8 @@ then
 
   if [ "$instrumentor" == "cbtf" ]; then
     echo "[openss]: cudaio experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ]; then
+    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
+    then
        osscollect --arch cray --program "$1" --collector cudaio
     else
        osscollect --program "$1" --collector cudaio

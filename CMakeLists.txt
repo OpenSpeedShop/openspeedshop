@@ -24,7 +24,7 @@ project(OpenSpeedShop C CXX)
 # TODO: allow this to be passed as an option via cmake for developers
 # to tag non production builds.
 add_definitions(
-    -DVERSION="2.1"
+    -DVERSION="2.2.beta1"
 )
 
 # cmake module search path for this project.
@@ -103,21 +103,21 @@ set(TARGET_OS "" CACHE STRING "OpenSpeedShop target os: none or [bgq,bgp,mic]")
 
 if (TARGET_OS MATCHES "bgq")
     add_definitions(-DTARGET_OS=bgq)
-    message(STATUS "Build runtimes for target bgq.")
+    message(STATUS "Build runtimes for target bgq platform.")
 elseif (TARGET_OS MATCHES "bgp")
     add_definitions(-DTARGET_OS=bgp)
-    message(STATUS "Build runtimes for target bgp.")
+    message(STATUS "Build runtimes for target bgp platform.")
 elseif (TARGET_OS MATCHES "mic")
     add_definitions(-DTARGET_OS=mic)
-    message(STATUS "Build runtimes for target mic.")
+    message(STATUS "Build runtimes for target mic platform.")
+elseif (TARGET_OS MATCHES "cray")
+    message(STATUS "Build runtimes for target cray platform.")
 elseif (TARGET_OS MATCHES "cray-xk")
-    set(TARGET_OS_CRAYXK 1)
-    message(STATUS "Set TARGET_OS_CRAYXK for use internal to OpenSpeedShop.")
+    message(STATUS "Build runtimes for target cray-xk platform.")
 elseif (TARGET_OS MATCHES "cray-xe")
-    set(TARGET_OS_CRAYXE 1)
-    message(STATUS "Set TARGET_OS_CRAYXE for use internal to OpenSpeedShop.")
+    message(STATUS "Build runtimes for target cray-xe platform.")
 else()
-    message(STATUS "Build runtimes for localhost.")
+    message(STATUS "Build runtimes for localhost platform.")
 endif()
 
 #

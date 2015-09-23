@@ -60,7 +60,7 @@ fi
 # monitor has --enable-pthread
 if test "${mach_type}" == "ppc64" && test "${oss_target}" = "bgq"  ; then
    monitor_wrap_pthread_names="pthread_create pthread_exit pthread_sigmask sigwaitinfo sigtimedwait"
-elif test "${oss_target}" == "cray-xe" || test "${oss_target}" = "cray-xk"  ; then
+elif test "${oss_target}" == "cray-xe" || test "${oss_target}" = "cray-xk"  || test "${oss_target}" = "cray" ; then
    monitor_wrap_pthread_names="pthread_create pthread_exit pthread_sigmask sigwaitinfo sigtimedwait"
 else
    monitor_wrap_pthread_names="pthread_create pthread_exit pthread_sigmask"
@@ -464,6 +464,14 @@ then
   echo "DEBUG: osslink oss_target = $oss_target"
 fi
 
+# Need to undefine certain functions for cray (now generic symbol for cray-xe, cray-xk, and newer) because of link ordering
+# Leaving in cray-xt*, cray-xe, cray-xk for historical reasons but moving builders toward using the generic "cray" machine type
+if test "${oss_target}" == "cray" ; then
+   undef_args="${undef_args} -Wl,-u,__wrap_fork"
+   undef_args="${undef_args} -Wl,-u,__wrap_pthread_create"
+   undef_args="${undef_args} -Wl,-u,__wrap_open"
+fi
+
 # Need to undefine certain functions for cray-xk because of link ordering
 if test "${oss_target}" == "cray-xk" ; then
    undef_args="${undef_args} -Wl,-u,__wrap_fork"
@@ -632,7 +640,7 @@ fi
 exec $command $static_args $wrap_args $undef_args "$@" $special_args $mon_args $collector_libs
 
 
-if [ ${oss_target} = cray-xt4 || ${oss_target} = cray-xt5 || ${oss_target} = cray-xe || ${oss_target} = cray-xk ]
+if [ ${oss_target} = cray-xt4 || ${oss_target} = cray-xt5 || ${oss_target} = cray-xe || ${oss_target} = cray-xk ] || ${oss_target} = cray ]
 then
       echo
       echo "NOTE: The aprun -bb option is required when running the executable produced by osslink"
