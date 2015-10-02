@@ -50,6 +50,7 @@ namespace OpenSpeedShop { namespace Framework {
 	bool isPerfDataDebugEnabled();
 	bool isStdioDebugEnabled();
 	bool isSymbolsDebugEnabled();
+	bool isShowLoadbalanceEnabled();
 #endif
     }
     

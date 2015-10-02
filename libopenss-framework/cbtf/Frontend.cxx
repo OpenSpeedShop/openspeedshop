@@ -50,6 +50,9 @@ namespace {
 
     /** Flag indicating if debugging for the frontend is enabled. */
     bool is_metric_debug_enabled = false;
+
+    /** Flag indicating if debugging for the frontend is enabled. */
+    bool is_show_loadbalance = false;
 #endif
     
 }
@@ -145,5 +148,11 @@ bool Frontend::isMetricDebugEnabled()
 {
     is_metric_debug_enabled = (getenv("OPENSS_DEBUG_CBTF_METRICS") != NULL) ;
     return is_metric_debug_enabled;
+}
+
+bool Frontend::isShowLoadbalanceEnabled()
+{
+    is_show_loadbalance = (getenv("OPENSS_SHOW_LOADBALANCE") != NULL) ;
+    return is_show_loadbalance;
 }
 #endif    

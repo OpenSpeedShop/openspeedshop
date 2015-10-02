@@ -63,7 +63,6 @@
 #include <map>
 #include <string>
 
-
 // FIXME: Until we understand why the symboltables created by
 // cbtf components and passed to the cbtf instrumentor do not
 // work with Thread::getFunctionAt for dsos with a base offset of 0
@@ -315,10 +314,12 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 		<< std::endl;
 	    }
 	} else {
+	    if(Frontend::isSymbolsDebugEnabled()) {
 		std::cerr << "CLIENT:" << getpid()
 		<< " Callbacks::process_symvec Linked Object "
 		<< message.linked_object.path << " processed for symbols."
 		<< std::endl;
+	    }
 	}
 #endif
 
@@ -343,9 +344,13 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 		    const CBTF_Protocol_FunctionEntry& msg_function = 
 			message.functions.functions_val[j];
 
+#ifndef NDEBUG
+		    if(Frontend::isSymbolsDebugEnabled()) {
 		    std::cerr << "CLIENT:" << getpid()
 		    << " Callbacks::process_symvec INSERTS FUNCTION " << msg_function.name
 		    << std::endl;
+		    }
+#endif
 
 		    // Create the function entry
 		    database->prepareStatement(
@@ -363,11 +368,15 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 			const CBTF_Protocol_AddressBitmap& msg_bitmap =
 			    msg_function.bitmaps.bitmaps_val[k];
 
+#ifndef NDEBUG
+			if(Frontend::isSymbolsDebugEnabled()) {
 			std::cerr << "CLIENT:" << getpid()
 			<< " Callbacks::process_symvec INSERTS FUNCTIONRANGES " << msg_function.name
 			<< " range:" << OpenSpeedShop::Framework::AddressRange(msg_bitmap.range.begin,msg_bitmap.range.end)
 			<< " valid_bitmap data len:" << msg_bitmap.bitmap.data.data_len
-		       << std::endl;
+		        << std::endl;
+			}
+#endif
 
 			// Create the function ranges entry
 			database->prepareStatement(
@@ -453,9 +462,13 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 
 		    // Create the file entry if it wasn't present
 		    if(file == -1) {
+#ifndef NDEBUG
+		    if(Frontend::isSymbolsDebugEnabled()) {
 			std::cerr << "CLIENT:" << getpid()
 			<< " Callbacks::process_symvec INSERTS FILE " << msg_statement.path.path
 			<< std::endl;
+		    }
+#endif
 
 			database->prepareStatement(
 		            "INSERT INTO Files (path) VALUES (?);"
@@ -469,10 +482,14 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 		    }
 
 		    // Create the statement entry
+#ifndef NDEBUG
+		    if(Frontend::isSymbolsDebugEnabled()) {
 		    std::cerr << "CLIENT:" << getpid()
 		    << " Callbacks::process_symvec INSERTS STATEMENT " << file
 		    << ":" << msg_statement.line << ":" << msg_statement.column
 		    << std::endl;
+		    }
+#endif
 
 		    database->prepareStatement(
 	                "INSERT INTO Statements "
@@ -2008,23 +2025,23 @@ void Callbacks::maxFunctionValues(const boost::shared_ptr<CBTF_Protocol_Function
     }
 
     std::stringstream metric_output;
-    metric_output << "Max\tThread\t\tFunction" << std::endl;
+    metric_output << std::left << std::setw(20) << "Max"
+	<< std::setw(20) << "Thread"
+	<< std::setw(20) << "Function"
+	<< std::endl;
     for(FunctionThreadCount::const_iterator it = maxvals.begin(); it != maxvals.end(); ++it) {
-#if 0
-	metric_output << "Max: "
-	<< " function:" << (*it).first
-	<< " thread:" << (*it).second.first
-	<< " max:" << (*it).second.second
+	std::stringstream tmp;
+	tmp << (*it).second.first.getMPIRank() << ":"  << (*it).second.first.getOmpTid();
+	metric_output << std::left << std::setw(20) << (*it).second.second
+	<< std::setw(20) << tmp.str()
+	<< std::setw(20) << (*it).first
 	<< std::endl;
-#else
-	metric_output << (*it).second.second
-	<< "\t" << (*it).second.first.getMPIRank()
-	<< ":"  << (*it).second.first.getOmpTid()
-	<< "\t\t" << (*it).first
-	<< std::endl;
-#endif
     }
-    std::cout << metric_output.str();
+#ifndef NDEBUG
+    if(Frontend::isShowLoadbalanceEnabled()) {
+    std::cout << metric_output.str() << std::endl;
+    }
+#endif
 
     // Begin a transaction on this thread's database
     SmartPtr<Database> database = DataQueues::getDatabase(0);
@@ -2095,24 +2112,24 @@ void Callbacks::minFunctionValues(const boost::shared_ptr<CBTF_Protocol_Function
     }
 
     std::stringstream metric_output;
-    metric_output << "Min\tThread\t\tFunction" << std::endl;
+    metric_output << std::left << std::setw(20) << "Min"
+	<< std::setw(20) << "Thread"
+	<< std::setw(20) << "Function"
+	<< std::endl;
     for(FunctionThreadCount::const_iterator it = minvals.begin(); it != minvals.end(); ++it) {
-#if 0
-	metric_output << "Min: "
-	<< " function:" << (*it).first
-	<< " thread:" << (*it).second.first
-	<< " max:" << (*it).second.second
+	std::stringstream tmp;
+	tmp << (*it).second.first.getMPIRank() << ":"  << (*it).second.first.getOmpTid();
+	metric_output << std::left << std::setw(20) << (*it).second.second
+	<< std::setw(20) << tmp.str()
+	<< std::setw(20) << (*it).first
 	<< std::endl;
-#else
-	metric_output << (*it).second.second
-	<< "\t" << (*it).second.first.getMPIRank()
-	<< ":"  << (*it).second.first.getOmpTid()
-	<< "\t\t" << (*it).first
-	<< std::endl;
-#endif
     }
 
-    std::cout << metric_output.str();
+#ifndef NDEBUG
+    if(Frontend::isShowLoadbalanceEnabled()) {
+    std::cout << metric_output.str() << std::endl;;
+    }
+#endif
 
     // Begin a transaction on this thread's database
     SmartPtr<Database> database = DataQueues::getDatabase(0);
@@ -2186,26 +2203,27 @@ void Callbacks::avgFunctionValues(const boost::shared_ptr<CBTF_Protocol_Function
 
     // This output is for demo purposes.
     std::stringstream metric_output;
-    metric_output << "Average\tTotal\tThreads\tFunction" << std::endl;
+    metric_output << std::left
+	<< std::setfill(' ') << std::setw(20) << "Average"
+	<< std::setfill(' ') << std::setw(20) << "Total"
+	<< std::setfill(' ') << std::setw(10) << "Threads"
+	<< std::setfill(' ') << std::setw(20) << "Function"
+	<< std::endl;
     for(FunctionAvgMap::const_iterator it = avgvals.begin(); it != avgvals.end(); ++it) {
 	if ((*it).second.first > 0) {
-#if 0
-	    metric_output << "Avg: "
-	    << " function:" << (*it).first
-	    << " total value:" << (*it).second.first
-	    << " total count:" << (*it).second.second
-	    << " avg value:" << (*it).second.first / (*it).second.second
+	    metric_output << std::left
+	    << std::setfill(' ') << std::setw(20) << (*it).second.first / (*it).second.second
+	    << std::setfill(' ') << std::setw(20) << (*it).second.first
+	    << std::setfill(' ') << std::setw(10) << (*it).second.second
+	    << std::setfill(' ') << std::setw(20) << (*it).first
 	    << std::endl;
-#else
-	    metric_output << (*it).second.first / (*it).second.second
-	    << "\t" << (*it).second.first
-	    << "\t" << (*it).second.second
-	    << "\t" << (*it).first
-	    << std::endl;
-#endif
 	}
     }
+#ifndef NDEBUG
+    if(Frontend::isShowLoadbalanceEnabled()) {
     std::cout << metric_output.str();
+    }
+#endif
 
     // Begin a transaction on this thread's database
     SmartPtr<Database> database = DataQueues::getDatabase(0);
