@@ -33,7 +33,14 @@ set(cbtflibdir ${CBTF_DIR}/lib${SUFFIX})
 set(cbtfruncmd ${CBTF_KRELL_DIR}/bin/cbtfrun)
 set(cbtfcollectors ${CBTF_KRELL_DIR}/lib${SUFFIX}/KrellInstitute/Collectors)
 set(cbtfcomponents ${CBTF_KRELL_DIR}/lib${SUFFIX}/KrellInstitute/Components)
-set(cbtfxmldir ${CBTF_ROOT}/share/KrellInstitute/XML)
+
+# Handle targeted cbtf build where the XMLDIR is in the compute node version install
+if (BUILD_TARGET_FE MATCHES "true" )
+    set(cbtfxmldir ${CBTF_KRELL_CN_XMLDIR})
+else()
+    set(cbtfxmldir ${CBTF_KRELL_DIR}/share/KrellInstitute/XML)
+endif()
+
 set(libmonitordir ${LIBMONITOR_DIR})
 set(libmonitorlibdir ${LibMonitor_LIB_DIR})
 

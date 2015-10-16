@@ -13,7 +13,7 @@ fi
 
 mach_type=`uname -m`
 
-oss_target=@osstargetos@
+oss_target=@oss_targetos@
 
 if test "$mach_type" == "x86_64" ; then
     machlibdir=lib64

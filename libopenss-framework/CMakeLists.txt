@@ -163,11 +163,19 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     # CBTF-Krell.cmake now sets CBTF_KRELL_XMLDIR rather than CBTF_TOOLS_XMLDIR.
-    add_definitions(
-       -DCBTF_LIB_DIR="${CBTF_LIB_DIR}"
-       -DCBTF_KRELL_LIB_DIR="${CBTF_KRELL_LIBDIR}"
-       -DCBTF_KRELL_XMLDIR="${CBTF_KRELL_XMLDIR}"
-    )
+    if (BUILD_TARGETED_FE MATCHES "true" )
+        add_definitions(
+           -DCBTF_LIB_DIR="${CBTF_LIB_DIR}"
+           -DCBTF_KRELL_LIB_DIR="${CBTF_KRELL_LIBDIR}"
+           -DCBTF_KRELL_XMLDIR="${CBTF_KRELL_CN_XMLDIR}"
+        )
+    else()
+        add_definitions(
+           -DCBTF_LIB_DIR="${CBTF_LIB_DIR}"
+           -DCBTF_KRELL_LIB_DIR="${CBTF_KRELL_LIBDIR}"
+           -DCBTF_KRELL_XMLDIR="${CBTF_KRELL_XMLDIR}"
+        )
+    endif()
 
     add_library(openss-framework SHARED ${FW_SOURCES})
 

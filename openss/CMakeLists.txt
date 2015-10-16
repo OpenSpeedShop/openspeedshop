@@ -42,7 +42,11 @@ set(cbtflibdir ${CBTF_DIR}/lib${SUFFIX})
 set(cbtfruncmd ${CBTF_KRELL_CBTFRUN})
 set(cbtfcollectors ${CBTF_KRELL_COLLECTORS})
 set(cbtfcomponents ${CBTF_KRELL_COMPONENTS})
-set(cbtfxmldir ${CBTF_KRELL_XMLDIR})
+if (BUILD_TARGETED_FE MATCHES "true")
+    set(cbtfxmldir ${CBTF_KRELL_CN_XMLDIR})
+else()
+    set(cbtfxmldir ${CBTF_KRELL_XMLDIR})
+endif()
 
 # FIXME: should be only needed when INSTRUMENTOR==offline.
 set(libmonitordir ${LIBMONITOR_DIR})
@@ -80,8 +84,7 @@ set(mvapich2dir ${MVAPICH2_DIR})
 set(mptdir ${MPT_DIR})
 set(openmpidir ${OPENMPI_DIR})
 set(openmpilibdir ${OpenMPI_LIB_DIR})
-#set(target_os ${TARGET_OS})
-set(osstargetos ${TARGET_OS})
+set(oss_targetos ${TARGET_OS})
 
 if (RUNTIME_ONLY MATCHES "true")
   # FIXME: In the openss world only offline instrumentor needs the
@@ -239,7 +242,12 @@ else()
         # This is defined in FindCBTF-Krell.cmake. Is anyone using XMLDR directly
 	# or should this be CBTF_KRELL_XMLDIR.  Will cbtf-argonavis cuda need
 	# it's own definitions here?
-        set_target_properties(osscollect PROPERTIES COMPILE_DEFINITIONS XMLDIR=${CBTF_KRELL_XMLDIR})
+        # Handle cbtf targeted build where the xmldir is in the compute node version install directories
+        if (BUILD_TARGETED_FE MATCHES "true" )
+            set_target_properties(osscollect PROPERTIES COMPILE_DEFINITIONS XMLDIR=${CBTF_KRELL_CN_XMLDIR})
+        else()
+            set_target_properties(osscollect PROPERTIES COMPILE_DEFINITIONS XMLDIR=${CBTF_KRELL_XMLDIR})
+        endif()
 
         install(TARGETS osscollect
             RUNTIME DESTINATION bin

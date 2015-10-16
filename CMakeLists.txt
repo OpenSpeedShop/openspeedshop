@@ -149,6 +149,31 @@ elseif (BUILD_PTGF MATCHES "all")
 endif()
 message(STATUS "BUILD_PTGF_DIRECT=" ${BUILD_PTGF_DIRECT} )
 message(STATUS "BUILD_PTGF_SERVER=" ${BUILD_PTGF_SERVER} )
+#
+#--------------------------------------------------------------------------------
+# Try to determine where the libraries created by this build should be stored.
+# The choices are lib or lib64.  Set the appropriate variables based on checking
+# the system processor type.
+#--------------------------------------------------------------------------------
+#
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "ppc64*")
+    set(CMAKE_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib64)
+    set(LIB_SUFFIX 64)
+    set(SUFFIX 64)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "ppc*")
+    set(CMAKE_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib)
+elseif(EXISTS /usr/lib64)
+    set(LIB_SUFFIX 64)
+    set(SUFFIX 64)
+    set(CMAKE_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
+else()
+    set(CMAKE_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib)
+endif()
+
+# Setup CACHE variables that are referenced across the sub-directories of the build
+
+set(BUILD_TARGETED_FE "false" CACHE STRING "Is this a special front-end build where the targeted components are passed to the build in addition to the FE related components." )
+set(CBTF_KRELL_CN_RUNTIME_DIR "" CACHE STRING "path to targeted runtime collectors." )
 
 # Set default to runtime only to false.
 set(RUNTIME_ONLY "false" CACHE STRING "Build only runtime collectors (offline instrumentor): [true,false]")
@@ -198,7 +223,10 @@ endif()
 # Do find package calls for offline only version of OpenSpeedShop in this section
 #--------------------------------------------------------------------------------
 #
+
 if (INSTRUMENTOR MATCHES "offline")
+
+
     find_package(LibMonitor)
     find_package(LibUnwind)
     find_package(Papi)
@@ -231,6 +259,35 @@ elseif (INSTRUMENTOR MATCHES "cbtf")
     find_package(XercesC 3.0)
     find_package(CBTF-Argo)
     message(STATUS "CBTF-ARGO-MESSAGESCUDA_FOUND=" ${CBTF-ARGO-MESSAGESCUDA_FOUND} )
+
+    if (NOT "${CBTF_KRELL_CN_RUNTIME_DIR}" STREQUAL "")
+        if(EXISTS ${CBTF_KRELL_CN_RUNTIME_DIR} AND IS_DIRECTORY "${CBTF_KRELL_CN_RUNTIME_DIR}")
+            set ( BUILD_TARGETED_FE "true" )
+            if( EXISTS ${CBTF_KRELL_CN_RUNTIME_DIR}/lib${LIB_SUFFIX} AND IS_DIRECTORY "${CBTF_KRELL_CN_RUNTIME_DIR}/lib${LIB_SUFFIX}" AND EXISTS "${CBTF_KRELL_CN_RUNTIME_DIR}/lib${LIB_SUFFIX}/libcbtf-core.so")
+               set (CBTF_KRELL_CN_RUNTIME_LIBDIR ${CBTF_KRELL_CN_RUNTIME_DIR}/lib${LIB_SUFFIX} CACHE PATH "Location of compute node cbtf krell libraries.")
+               message(STATUS "CBTF_KRELL_CN_RUNTIME_DIR/lib64 was recognized.")
+            elseif ( EXISTS "${CBTF_KRELL_CN_RUNTIME_DIR}/lib" AND IS_DIRECTORY "${CBTF_KRELL_CN_RUNTIME_DIR}/lib" AND EXISTS "${CBTF_KRELL_CN_RUNTIME_DIR}/lib/libcbtf-core.so")
+               set (CBTF_KRELL_CN_RUNTIME_LIBDIR ${CBTF_KRELL_CN_RUNTIME_DIR}/lib CACHE PATH "Location of compute node cbtf krell libraries.")
+               message(STATUS "CBTF_KRELL_CN_RUNTIME_DIR/lib was recognized.")
+            else()
+               # Set BUILD_TARGETED_FE to false because we did not find libraries under the top-level directory
+               set ( BUILD_TARGETED_FE "false" )
+            endif()
+            if( EXISTS "${CBTF_KRELL_CN_RUNTIME_DIR}/share/KrellInstitute/xml" AND IS_DIRECTORY "${CBTF_KRELL_CN_RUNTIME_DIR}/share/KrellInstitute/xml")
+               # CBTF_KRELL_CN_XMLDIR is set to the compute node path to the collector xml files: {CBTF_KRELL_CN_RUNTIME_DIR}/share/KrellInstitute/xml
+               set (CBTF_KRELL_CN_XMLDIR ${CBTF_KRELL_CN_RUNTIME_DIR}/share/KrellInstitute/xml CACHE PATH "Location of compute node collector xml files.")
+            endif()
+        else()
+            # Directory specified does not exist or is not a directory
+            set ( BUILD_TARGETED_FE "false" )
+        endif()
+    else()
+        # No directory specified
+        set ( BUILD_TARGETED_FE "false" )
+    endif()
+
+    message(STATUS "BUILD_TARGETED_FE=${BUILD_TARGETED_FE}")
+
 endif()
 
 #
@@ -346,26 +403,6 @@ message( STATUS "ALL_MPI_IMPL_NAMES: " ${ALL_MPI_IMPL_NAMES} )
 message( STATUS "DEFAULT_MPI_IMPL: " ${DEFAULT_MPI_IMPL} )
 message( STATUS "DEFAULT_MPI_IMPL_NAME: " ${DEFAULT_MPI_IMPL_NAME} )
 
-#
-#--------------------------------------------------------------------------------
-# Try to determine where the libraries created by this build should be stored.
-# The choices are lib or lib64.  Set the appropriate variables based on checking
-# the system processor type.
-#--------------------------------------------------------------------------------
-#
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "ppc64*")
-    set(CMAKE_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib64)
-    set(LIB_SUFFIX 64)
-    set(SUFFIX 64)
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "ppc*")
-    set(CMAKE_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib)
-elseif(EXISTS /usr/lib64)
-    set(LIB_SUFFIX 64)
-    set(SUFFIX 64)
-    set(CMAKE_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
-else()
-    set(CMAKE_LIBRARY_PATH ${CMAKE_INSTALL_PREFIX}/lib)
-endif()
 
 #
 #--------------------------------------------------------------------------------
