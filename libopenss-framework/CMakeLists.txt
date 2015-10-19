@@ -17,6 +17,7 @@
 ################################################################################
 
 include(CheckIncludeFile)
+
 check_include_file("stdint.h" STDINT_H_FOUND)
 if (STDINT_H_FOUND)
     add_definitions(-DHAVE_STDINT_H=1)
@@ -29,7 +30,6 @@ check_include_file("sys/stat.h" SYS_STAT_H_FOUND)
 if (SYS_STAT_H_FOUND)
     add_definitions(-DHAVE_SYS_STAT_H=1)
 endif()
-
 
 file(COPY ${PROJECT_SOURCE_DIR}/libopenss-runtime/OpenSS_DataHeader.x DESTINATION .)
 add_custom_command(
@@ -143,6 +143,7 @@ set(OFFLINE_SOURCES  )
 add_definitions(
   -D_GNU_SOURCE
   -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+  -DDyninstAPI_VERSION_MAJOR=${DyninstAPI_VERSION_MAJOR}
   )
 
 if(INSTRUMENTOR MATCHES "cbtf")
@@ -330,7 +331,7 @@ if(SYMTABAPI_FOUND)
 
     if (RESOLVE_SYMBOLS MATCHES "symtabapi")
       if (DYNINSTAPI_FOUND)
-         set(RESOLVE_SYMBOLS_DEFINES "OPENSS_USE_SYMTABAPI=1;HAVE_DYNINST")
+         set(RESOLVE_SYMBOLS_DEFINES "OPENSS_USE_SYMTABAPI=1;${Dyninst_DEFINES}")
       else()
          set(RESOLVE_SYMBOLS_DEFINES "OPENSS_USE_SYMTABAPI=1")
       endif()

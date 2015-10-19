@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2013,2014 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2013-2015 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -34,6 +34,7 @@
 #include <BPatch_flowGraph.h>
 #include <BPatch_function.h>
 #include <BPatch_image.h>
+#include <BPatch_statement.h>
 #include <BPatch_module.h>
 #include <BPatch_Vector.h>
 
@@ -137,13 +138,74 @@ std::vector<LoopInfo> getLoopsAt(const Address& address, BPatch_image& image)
                 // And, of course, obtain the loop's head address and basic
                 // block address ranges...
                 
-                BPatch_basicBlock* head = loop->getLoopHead();
+
+                #if DyninstAPI_VERSION_MAJOR >= 9
+
+                   // Need to use the new dyninst API for finding the head of the loop
+                   // One possibility - from wdh - might be to call getLoopEntries() to 
+                   // get the basic block of each entry. Then, for each of these, take 
+                   // the first address of that basic block and query the source
+                   // file/line containing that address. Assuming that all line numbers are within
+                   // a single source file, the minimum line number is probably reasonably the
+                   // loop definition. And the first address in that basic block would be the one
+                   // to use for “addr_head” in the Open|SS database.
+
+                   BPatch_basicBlock* head;
+                   std::vector<BPatch_basicBlock*> entries;
+
+                   loop->getLoopEntries(entries);
+
+                   // bbe: Loop through the basic block entries 
+                   std::vector<BPatch_basicBlock*>::iterator bbe;
+
+                   // filesAndlines: Return value file names and line numbers from getSourceLines
+                   std::vector<BPatch_statement > filesAndlines ;
+                  
+                   // Loop through the loops basic blocks, get the starting address of the block
+                   // Then use that address to get the filename and line number for that address
+                   // We are looking for the minimum line number for the blocks in the loop to use
+                   // as the loop head basic block.
+
+                   head = entries[0]; // give an initial value to the loop head
+                   for (bbe = entries.begin(); bbe != entries.end(); ++bbe) {
+                     
+#if 1
+                     unsigned long module_base = (uint64_t)module->getBaseAddr();
+                     unsigned long bbstartAddr =  (*bbe)->getStartAddress() - module_base;
+#else
+                     unsigned long module_base = (uint64_t)module->getBaseAddr();
+                     unsigned long bbstartAddr = (*bbe)->getStartAddress() ;
+#endif
+                     
+                     //unsigned long bbstartAddr = Address((*bbe)->getStartAddress()) - module_base;
+                     //unsigned long bbstartAddr = Address((*bbe)->getStartAddress()) + module_base;
+
+                     bool linesFound = module->getSourceLines( bbstartAddr, filesAndlines);
+
+                     if (linesFound) {
+                        std::vector<BPatch_statement>::iterator lf_dx;
+                        for (lf_dx = filesAndlines.begin(); lf_dx != filesAndlines.end(); ++lf_dx) {
+#if 0
+                            std::cerr << "fileName=" << (*lf_dx).fileName() 
+                                      << " lineNumber=" << (*lf_dx).lineNumber() << std::endl; 
+#else
+                            continue;
+#endif
+                        }
+                         
+                      } // linesFound
+                    
+                   } // entries
+                #else
+                   BPatch_basicBlock* head = loop->getLoopHead();
+                #endif
                 
                 if (head == NULL)
                 {
                     continue;
                 }
 
+                // Use the loop head basic block to create the necessary loop information to return
                 LoopInfo info(Address(head->getStartAddress()) - module_base);
 
                 BPatch_Vector<BPatch_basicBlock*> blocks;

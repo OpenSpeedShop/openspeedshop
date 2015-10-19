@@ -43,28 +43,48 @@ mark_as_advanced(DyninstAPI_LIBRARY DyninstAPI_INCLUDE_DIR)
 
 if(DYNINSTAPI_FOUND AND DEFINED DyninstAPI_INCLUDE_DIR)
 
-    file(READ ${DyninstAPI_INCLUDE_DIR}/dyninst/BPatch.h DyninstAPI_VERSION_FILE)
+    if (EXISTS "${DyninstAPI_INCLUDE_DIR}/dyninst/version.h")
 
-    string(REGEX REPLACE
-        ".*#[ ]*define DYNINST_MAJOR[ ]+([0-9]+)\n.*" "\\1"
-        DyninstAPI_VERSION_MAJOR ${DyninstAPI_VERSION_FILE}
+        file(READ ${DyninstAPI_INCLUDE_DIR}/dyninst/version.h DyninstAPI_VERSION_FILE)
+
+        string(REGEX REPLACE
+            ".*#[ ]*define DYNINST_MAJOR_VERSION[ ]+([0-9]+)\n.*" "\\1"
+            DyninstAPI_VERSION_MAJOR ${DyninstAPI_VERSION_FILE}
         )
 
-    string(REGEX REPLACE
-        ".*#[ ]*define DYNINST_MINOR[ ]+([0-9]+)\n.*" "\\1"
-        DyninstAPI_VERSION_MINOR ${DyninstAPI_VERSION_FILE}
+        string(REGEX REPLACE
+            ".*#[ ]*define DYNINST_MINOR_VERSION[ ]+([0-9]+)\n.*" "\\1"
+            DyninstAPI_VERSION_MINOR ${DyninstAPI_VERSION_FILE}
         )
 
-    string(REGEX REPLACE
-        ".*#[ ]*define DYNINST_SUBMINOR[ ]+([0-9]+)\n.*" "\\1"
-        DyninstAPI_VERSION_PATCH ${DyninstAPI_VERSION_FILE}
+        string(REGEX REPLACE
+            ".*#[ ]*define DYNINST_PATCH_VERSION[ ]+([0-9]+)\n.*" "\\1"
+            DyninstAPI_VERSION_PATCH ${DyninstAPI_VERSION_FILE}
+        )
+else()
+
+        file(READ ${DyninstAPI_INCLUDE_DIR}/dyninst/BPatch.h DyninstAPI_VERSION_FILE)
+
+        string(REGEX REPLACE
+            ".*#[ ]*define DYNINST_MAJOR[ ]+([0-9]+)\n.*" "\\1"
+            DyninstAPI_VERSION_MAJOR ${DyninstAPI_VERSION_FILE}
         )
 
-    set(DyninstAPI_VERSION_STRING 
-${DyninstAPI_VERSION_MAJOR}.${DyninstAPI_VERSION_MINOR}.${DyninstAPI_VERSION_PATCH}
+        string(REGEX REPLACE
+            ".*#[ ]*define DYNINST_MINOR[ ]+([0-9]+)\n.*" "\\1"
+            DyninstAPI_VERSION_MINOR ${DyninstAPI_VERSION_FILE}
         )
+
+        string(REGEX REPLACE
+            ".*#[ ]*define DYNINST_SUBMINOR[ ]+([0-9]+)\n.*" "\\1"
+            DyninstAPI_VERSION_PATCH ${DyninstAPI_VERSION_FILE}
+        )
+endif()
+
+    set(DyninstAPI_VERSION_STRING ${DyninstAPI_VERSION_MAJOR}.${DyninstAPI_VERSION_MINOR}.${DyninstAPI_VERSION_PATCH})
   
     message(STATUS "DyninstAPI version: " ${DyninstAPI_VERSION_STRING})
+    message(STATUS "DyninstAPI_VERSION_MAJOR version: " ${DyninstAPI_VERSION_MAJOR})
 
     if(DEFINED DyninstAPI_FIND_VERSION)
         if(${DyninstAPI_VERSION_STRING} VERSION_LESS ${DyninstAPI_FIND_VERSION})

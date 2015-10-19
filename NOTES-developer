@@ -98,6 +98,10 @@ NOTE 8: Finding if library is compiled without -fPIC
 > objdump --reloc $i 2>/dev/null | grep R_X86_64_32S > /dev/null && echo $i;
 > done
 >
+objdump --reloc <library name> 2>/dev/null | grep R_X86_64_32S > /dev/null 
+like:
+objdump --reloc /usr/lib64/libiberty.a 2>/dev/null | grep R_X86_64_32S > /dev/null 
+
 
 
 NOTE 9: cluster analysis in the CLI:

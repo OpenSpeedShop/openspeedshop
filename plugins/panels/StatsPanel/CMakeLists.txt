@@ -153,6 +153,9 @@ target_link_libraries(StatsPanel
 
 
 set_target_properties(StatsPanel PROPERTIES PREFIX "")
+set_target_properties(StatsPanel PROPERTIES
+        COMPILE_DEFINITIONS "${Dyninst_DEFINES}")
+
 
 install(TARGETS StatsPanel LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
     )

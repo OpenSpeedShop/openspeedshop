@@ -237,6 +237,9 @@ if (INSTRUMENTOR MATCHES "offline")
     find_package(Mpt)
     find_package(Mvapich2)
     find_package(Mvapich)
+#    find_package(VT)
+#    find_package(OTF)
+#    find_package(LibZ)
     find_package(CBTF-Krell)
     # Need the boost includes to compile code using the Dyninst component includes
     if (DYNINSTAPI_FOUND)
@@ -299,6 +302,9 @@ endif()
 if (DYNINSTAPI_FOUND)
     # This is needed by OfflineExperiment.cxx to call the loop processing code
     set(HAVE_DYNINST "true")
+    set(Dyninst_DEFINES "HAVE_DYNINST=1")
+else()
+    set(Dyninst_DEFINES "")
 endif()
 
 #

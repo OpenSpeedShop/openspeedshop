@@ -37,31 +37,51 @@ find_package_handle_standard_args(
 
 set(SymtabAPI_LIBRARIES ${SymtabAPI_LIBRARY})
 set(SymtabAPI_INCLUDE_DIRS ${SymtabAPI_INCLUDE_DIR}/dyninst)
+GET_FILENAME_COMPONENT(SymtabAPI_LIB_DIR ${SymtabAPI_LIBRARY} PATH )
 
-mark_as_advanced(SymtabAPI_LIBRARY SymtabAPI_INCLUDE_DIR)
+mark_as_advanced(SymtabAPI_LIBRARY SymtabAPI_INCLUDE_DIR SymtabAPI_LIB_DIR)
 
 if(SYMTABAPI_FOUND AND DEFINED SymtabAPI_INCLUDE_DIR)
 
-    file(READ ${SymtabAPI_INCLUDE_DIR}/dyninst/Symtab.h SymtabAPI_VERSION_FILE)
+    if (EXISTS "${SymtabAPI_INCLUDE_DIR}/dyninst/version.h")
 
-    string(REGEX REPLACE
-        ".*#[ ]*define SYM_MAJOR[ ]+([0-9]+)\n.*" "\\1"
-        SymtabAPI_VERSION_MAJOR ${SymtabAPI_VERSION_FILE}
+        file(READ ${SymtabAPI_INCLUDE_DIR}/dyninst/version.h DyninstAPI_VERSION_FILE)
+
+        string(REGEX REPLACE
+            ".*#[ ]*define DYNINST_MAJOR_VERSION[ ]+([0-9]+)\n.*" "\\1"
+            SymtabAPI_VERSION_MAJOR ${DyninstAPI_VERSION_FILE}
         )
 
-    string(REGEX REPLACE
-        ".*#[ ]*define SYM_MINOR[ ]+([0-9]+)\n.*" "\\1"
-        SymtabAPI_VERSION_MINOR ${SymtabAPI_VERSION_FILE}
+        string(REGEX REPLACE
+            ".*#[ ]*define DYNINST_MINOR_VERSION[ ]+([0-9]+)\n.*" "\\1"
+            SymtabAPI_VERSION_MINOR ${DyninstAPI_VERSION_FILE}
         )
 
-    string(REGEX REPLACE
-        ".*#[ ]*define SYM_BETA[ ]+([0-9]+)\n.*" "\\1"
-        SymtabAPI_VERSION_PATCH ${SymtabAPI_VERSION_FILE}
+        string(REGEX REPLACE
+            ".*#[ ]*define DYNINST_PATCH_VERSION[ ]+([0-9]+)\n.*" "\\1"
+            SymtabAPI_VERSION_PATCH ${DyninstAPI_VERSION_FILE}
         )
 
-    set(SymtabAPI_VERSION_STRING 
-${SymtabAPI_VERSION_MAJOR}.${SymtabAPI_VERSION_MINOR}.${SymtabAPI_VERSION_PATCH}
+else()
+        file(READ ${SymtabAPI_INCLUDE_DIR}/dyninst/Symtab.h SymtabAPI_VERSION_FILE)
+
+        string(REGEX REPLACE
+            ".*#[ ]*define SYM_MAJOR[ ]+([0-9]+)\n.*" "\\1"
+            SymtabAPI_VERSION_MAJOR ${SymtabAPI_VERSION_FILE}
         )
+
+        string(REGEX REPLACE
+            ".*#[ ]*define SYM_MINOR[ ]+([0-9]+)\n.*" "\\1"
+            SymtabAPI_VERSION_MINOR ${SymtabAPI_VERSION_FILE}
+            )
+
+        string(REGEX REPLACE
+            ".*#[ ]*define SYM_BETA[ ]+([0-9]+)\n.*" "\\1"
+            SymtabAPI_VERSION_PATCH ${SymtabAPI_VERSION_FILE}
+            )
+endif()
+
+    set(SymtabAPI_VERSION_STRING ${SymtabAPI_VERSION_MAJOR}.${SymtabAPI_VERSION_MINOR}.${SymtabAPI_VERSION_PATCH})
   
     message(STATUS "SymtabAPI version: " ${SymtabAPI_VERSION_STRING})
 
