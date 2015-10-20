@@ -26,6 +26,7 @@ add_subdirectory(hwctime)
 add_subdirectory(mpi)
 add_subdirectory(mpit)
 add_subdirectory(fpe)
+add_subdirectory(mpiotf)
 
 if (INSTRUMENTOR MATCHES "cbtf")
     add_subdirectory(mem)

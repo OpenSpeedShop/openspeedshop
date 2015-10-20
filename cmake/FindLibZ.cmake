@@ -28,8 +28,13 @@ find_package_handle_standard_args(
     )
 set(LibZ_SHARED_LIBRARIES ${LibZ_LIBRARY_SHARED})
 
-
 GET_FILENAME_COMPONENT(LibZ_LIB_DIR ${LibZ_LIBRARY_SHARED} PATH )
+
+mark_as_advanced(
+    LibZ_LIB_DIR
+    LibZ_DIR
+    LibZ_LIBRARY_SHARED
+)
 
 message(STATUS "Open Trace Format Components found ${LibZ_FOUND}")
 

@@ -24,6 +24,12 @@ find_path(VT_INCLUDE_DIR
     PATH_SUFFIXES include
     )
 
+find_library(VT_LIBRARY_MPI_STATIC NAMES libvt.mpi.a
+    HINTS $ENV{VT_DIR}
+    HINTS ${VT_DIR}
+    PATH_SUFFIXES lib lib64
+    )
+
 find_library(VT_LIBRARY_STATIC NAMES libvt.a
     HINTS $ENV{VT_DIR}
     HINTS ${VT_DIR}
@@ -36,11 +42,20 @@ find_package_handle_standard_args(
     )
 
 set(VT_STATIC_LIBRARIES ${VT_LIBRARY_STATIC})
+set(VT_STATIC_MPI_LIBRARIES ${VT_LIBRARY_MPI_STATIC})
 
 set(VT_INCLUDE_DIRS ${VT_INCLUDE_DIR})
 
 GET_FILENAME_COMPONENT(VT_LIB_DIR ${VT_LIBRARY_STATIC} PATH )
 GET_FILENAME_COMPONENT(VT_DIR ${VT_INCLUDE_DIR} PATH )
 
+mark_as_advanced(
+    VT_LIB_DIR
+    VT_DIR
+    VT_LIBRARY_STATIC
+    VT_LIBRARY_MPI_STATIC
+    VT_INCLUDE_DIR
+)
 message(STATUS "Vampirtrace found ${VT_FOUND}")
+message(STATUS "Vampirtrace VT_LIB_DIR=${VT_LIB_DIR}")
 
