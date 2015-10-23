@@ -128,6 +128,9 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
     # and is not used as a bool as ismpi is (specifed, initialized above)
     ismpidriver = 1
     mpi_driver = ""
+    # Keep track of a number of python executables, we want to use the first one as the one to execute
+    first_python_executable = ""
+
     path_list = os.path.expandvars("$PATH").split(":")
 
     for s in program_list:
@@ -377,8 +380,20 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 		    break
 	    else:
 	        if offlinepy_debug != 0: print "[openss-debug]: (file_arg IS SCRIPT) inside ELSE not os.WEXITSTATUS(isexecutable), check, file_arg=" + file_arg
+		ispython = os.system('file -L ' + file_arg + ' | grep -q python')
 		isscript = os.system('file -L ' + file_arg + ' | grep -q script')
-		if not os.WEXITSTATUS(isscript):
+	        # Special case found at LLNL where users have two python scripts in the commmand line
+	        # and want the first occurence to be the one executed as the mpi executable
+	        # Here we save the first file_arg that was python for use later when deciding how to set the 
+	        # mpi_executable.  If more than one we prefer the first one we saw.  
+		if not os.WEXITSTATUS(ispython):
+		  if offlinepy_debug != 0: print "[openss-debug]: ispython section, file_arg=" + file_arg
+                  if first_python_executable == "":
+		    if offlinepy_debug != 0: print "[openss-debug]: ispython section, SETTING first_python_executable,file_arg=" + file_arg
+ 		    first_python_executable = file_arg
+                  else: 
+		    if offlinepy_debug != 0: print "[openss-debug]: ispython section, found another python executable,file_arg=" + file_arg
+		elif not os.WEXITSTATUS(isscript):
 		  # Lets hope the mpich2 driver always has Argonne in its copyright.
 		  if offlinepy_debug != 0: print "[openss-debug]: isscript section, file_arg=" + file_arg
 		  ismpich2_cray_vers1 = os.system('grep -q -i \"srun - Wrapper for Cray\" ' + file_arg)
@@ -553,7 +568,23 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 	    raise RuntimeError("[openss error]: Failed to locate the mpi program.")
 	else:
 	    if not os.WEXITSTATUS(ismpidriver):
-	       mpi_executable = file_arg
+	       # Special case found at LLNL where users have two python scripts in the commmand line
+	       # and want the first occurence to be the one executed as the mpi executable
+	       # We have saved the first file_arg that was python script above.  Now we decide, is what we are
+	       # using for the mpi_executable a python script and is it the first one we saw.  If not, then
+	       # switch the file_arg used to set mpi_executable to the first_python_executable.
+	       ispython = os.system('file -L ' + file_arg + ' | grep -q python')
+	       if not os.WEXITSTATUS(ispython):
+	         if first_python_executable == file_arg:
+	           mpi_executable = file_arg
+	           if offlinepy_debug != 0: print "[openss-debug]: mpi_executable is same as first_python_executable, file_arg=" + file_arg
+	         else:
+	           mpi_executable = first_python_executable
+	           if offlinepy_debug != 0: print "[openss-debug]: mpi_executable is NOT same as first_python_executable, file_arg=" + file_arg
+	       else:
+	         mpi_executable = file_arg
+	         if offlinepy_debug != 0: print "[openss-debug]: mpi_executable is not python based, file_arg=" + file_arg
+
 	       if offlinepy_debug != 0: print "[openss-debug]: because mpi_exe_implementation is set, mpi_executable is file_arg=" + file_arg
 	    else:
 	       raise RuntimeError("[openss error]: Failed to locate the mpi program.")
