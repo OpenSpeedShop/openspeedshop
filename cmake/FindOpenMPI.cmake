@@ -55,7 +55,11 @@ GET_FILENAME_COMPONENT(OpenMPI_DIR ${OpenMPI_INCLUDE_DIR} PATH )
 message(STATUS "OpenMPI found: " ${OPENMPI_FOUND})
 message(STATUS "OpenMPI location: " ${OpenMPI_LIB_DIR})
 
-set(OpenMPI_DEFINES "-DHAVE_OPENMPI=${OPENMPI_FOUND}")
+if (OPENMPI_FOUND)
+    set(OpenMPI_DEFINES "HAVE_OPENMPI=1")
+else()
+    set(OpenMPI_DEFINES "")
+endif()
 
 
 mark_as_advanced(

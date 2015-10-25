@@ -55,7 +55,11 @@ GET_FILENAME_COMPONENT(Mpt_DIR ${Mpt_INCLUDE_DIR} PATH )
 message(STATUS "Mpt found: " ${MPT_FOUND})
 message(STATUS "Mpt location: " ${Mpt_LIB_DIR})
 
-set(Mpt_DEFINES "-DHAVE_MPT=${MPT_FOUND}")
+if (MPT_FOUND)
+    set(Mpt_DEFINES "HAVE_MPT=1")
+else()
+    set(Mpt_DEFINES "")
+endif()
 
 if(MPT_FOUND)
   set(MPT_HEADER ${Mpt_INCLUDE_DIR}/mpi.h )

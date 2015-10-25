@@ -56,7 +56,11 @@ GET_FILENAME_COMPONENT(Mpich2_DIR ${Mpich2_INCLUDE_DIR} PATH )
 message(STATUS "Mpich2 found: " ${MPICH2_FOUND})
 message(STATUS "Mpich2 location: " ${Mpich2_LIB_DIR})
 
-set(Mpich2_DEFINES "-DHAVE_MPICH2=${MPICH2_FOUND}")
+if (MPICH2_FOUND)
+    set(Mpich2_DEFINES "HAVE_MPICH2=1")
+else()
+    set(Mpich2_DEFINES "")
+endif()
 
 
 mark_as_advanced(

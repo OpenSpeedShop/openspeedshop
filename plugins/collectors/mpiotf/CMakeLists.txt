@@ -99,10 +99,6 @@ if(LIBMONITOR_FOUND)
 
 if(HAVE_OPENMPI)
 
-    add_definitions(
-        ${OpenMPI_DEFINES}
-    )
-
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/libvt.mpi.openmpi.a
         COMMAND cp -r ${VT_LIBRARY_MPI_STATIC} ${CMAKE_CURRENT_BINARY_DIR}/libvt.mpi.openmpi.a 
@@ -152,7 +148,7 @@ if(HAVE_OPENMPI)
 	${LibUnwind_LIBRARY_SHARED}
     )
 
-    set_target_properties(mpiotf-openmpi-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
+    set_target_properties(mpiotf-openmpi-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${OpenMPI_DEFINES}") 
 
     install(TARGETS mpiotf-openmpi-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -195,7 +191,7 @@ if(HAVE_OPENMPI)
     )
 
 
-    set_target_properties(mpiotf-openmpi-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};OPENSS_STATIC") 
+    set_target_properties(mpiotf-openmpi-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${OpenMPI_DEFINES};OPENSS_STATIC") 
 
     install(TARGETS mpiotf-openmpi-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -204,10 +200,6 @@ if(HAVE_OPENMPI)
 endif()
 
 if(HAVE_MPICH2)
-
-    add_definitions(
-        ${Mpich2_DEFINES}
-    )
 
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/libvt.mpi.mpich2.a
@@ -262,7 +254,7 @@ if(HAVE_MPICH2)
 
 
     #set_target_properties(mpiotf-mpich2-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpiotf-mpich2-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
+    set_target_properties(mpiotf-mpich2-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mpich2_DEFINES}") 
 
     install(TARGETS mpiotf-mpich2-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -307,7 +299,7 @@ if(HAVE_MPICH2)
 
 
     #set_target_properties(mpiotf-mpich2-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpiotf-mpich2-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};OPENSS_STATIC") 
+    set_target_properties(mpiotf-mpich2-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mpich2_DEFINES};OPENSS_STATIC") 
 
     install(TARGETS mpiotf-mpich2-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -317,10 +309,6 @@ if(HAVE_MPICH2)
 endif()
 
 if(HAVE_MPICH)
-
-    add_definitions(
-        ${Mpich_DEFINES}
-    )
 
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/libvt.mpi.mpich.a
@@ -375,7 +363,7 @@ if(HAVE_MPICH)
 
 
     #set_target_properties(mpiotf-mpich-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpiotf-mpich-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
+    set_target_properties(mpiotf-mpich-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mpich_DEFINES}") 
 
     install(TARGETS mpiotf-mpich-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -421,7 +409,7 @@ if(HAVE_MPICH)
 
 
     #set_target_properties(mpiotf-mpich-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpiotf-mpich-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};OPENSS_STATIC") 
+    set_target_properties(mpiotf-mpich-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mpich_DEFINES};OPENSS_STATIC") 
 
     install(TARGETS mpiotf-mpich-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -430,10 +418,6 @@ if(HAVE_MPICH)
 endif()
 
 if(HAVE_MPT)
-
-    add_definitions(
-        ${Mpt_DEFINES}
-    )
 
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/libvt.mpi.mpt.a
@@ -488,7 +472,7 @@ if(HAVE_MPT)
 
 
     #set_target_properties(mpiotf-mpt-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpiotf-mpt-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
+    set_target_properties(mpiotf-mpt-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mpt_DEFINES}") 
 
     install(TARGETS mpiotf-mpt-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -534,7 +518,7 @@ if(HAVE_MPT)
 
 
     #set_target_properties(mpiotf-mpt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpiotf-mpt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};OPENSS_STATIC") 
+    set_target_properties(mpiotf-mpt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mpt_DEFINES};OPENSS_STATIC") 
 
     install(TARGETS mpiotf-mpt-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -544,10 +528,6 @@ if(HAVE_MPT)
 endif()
 
 if(HAVE_MVAPICH2)
-
-    add_definitions(
-        ${Mvapich2_DEFINES}
-    )
 
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/libvt.mpi.mvapich2.a
@@ -602,7 +582,7 @@ if(HAVE_MVAPICH2)
 
 
     #set_target_properties(mpiotf-mvapich2-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpiotf-mvapich2-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
+    set_target_properties(mpiotf-mvapich2-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mvapich2_DEFINES}") 
 
     install(TARGETS mpiotf-mvapich2-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -648,7 +628,7 @@ if(HAVE_MVAPICH2)
 
 
     #set_target_properties(mpiotf-mvapich2-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpiotf-mvapich2-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};OPENSS_STATIC") 
+    set_target_properties(mpiotf-mvapich2-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mvapich2_DEFINES};OPENSS_STATIC") 
 
     install(TARGETS mpiotf-mvapich2-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -658,10 +638,6 @@ if(HAVE_MVAPICH2)
 endif()
 
 if(HAVE_MVAPICH)
-
-    add_definitions(
-        ${Mvapich_DEFINES}
-    )
 
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/libvt.mpi.mvapich.a
@@ -716,7 +692,7 @@ if(HAVE_MVAPICH)
 
 
     #set_target_properties(mpiotf-mvapich-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpiotf-mvapich-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
+    set_target_properties(mpiotf-mvapich-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mvapich_DEFINES}") 
 
     install(TARGETS mpiotf-mvapich-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -760,7 +736,7 @@ if(HAVE_MVAPICH)
 
 
     #set_target_properties(mpiotf-mvapich-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpiotf-mvapich-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};OPENSS_STATIC") 
+    set_target_properties(mpiotf-mvapich-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mvapich_DEFINES};OPENSS_STATIC") 
 
     install(TARGETS mpiotf-mvapich-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
