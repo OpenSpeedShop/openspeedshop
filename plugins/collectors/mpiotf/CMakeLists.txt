@@ -29,8 +29,9 @@ set(RT_SOURCES
         ${CMAKE_CURRENT_BINARY_DIR}/blobs.h
         ${CMAKE_CURRENT_BINARY_DIR}/blobs.c
         runtime.h runtime.c
-        vt_mpiwrap.c vt_sync.c vt_otf_trc.c
+        vt_sync.c vt_otf_trc.c
         vt_mpireq.c vt_mpireg.c vt_mpicom.c
+        vt_mpiwrap-offline.c vt_mpireg.c vt_mpicom.c
 )
 
 set(PLUGIN_SOURCES
