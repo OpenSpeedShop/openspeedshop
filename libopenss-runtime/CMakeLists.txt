@@ -215,7 +215,6 @@ if(PAPI_FOUND)
 
     target_link_libraries(openss-runtime-papi
 	${Papi_SHARED_LIBRARIES}
-	${Papi_pfm_SHARED_LIBRARIES}
 	rt
 	pthread
 	${CMAKE_DL_LIBS}

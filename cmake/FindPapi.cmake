@@ -61,10 +61,20 @@ find_package_handle_standard_args(
     Papi_INCLUDE_DIR
     )
 
-set(Papi_SHARED_LIBRARIES ${Papi_LIBRARY_SHARED} ${Papi_pfm_LIBRARY_SHARED})
-set(Papi_pfm_SHARED_LIBRARIES ${Papi_pfm_LIBRARY_SHARED})
+# if pfm library is found set the shared libraries variables
+if (${Papi_pfm_LIBRARY_SHARED})
+    set(Papi_SHARED_LIBRARIES ${Papi_LIBRARY_SHARED} ${Papi_pfm_LIBRARY_SHARED})
+    set(Papi_pfm_SHARED_LIBRARIES ${Papi_pfm_LIBRARY_SHARED})
+else()
+    set(Papi_SHARED_LIBRARIES ${Papi_LIBRARY_SHARED})
+endif()
+
 set(Papi_STATIC_LIBRARIES ${Papi_LIBRARY_STATIC})
-set(Papi_pfm_STATIC_LIBRARIES ${Papi_pfm_LIBRARY_STATIC})
+# if pfm library is found set the static libraries variable
+if (${Papi_pfm_LIBRARY_STATIC})
+    set(Papi_pfm_STATIC_LIBRARIES ${Papi_pfm_LIBRARY_STATIC})
+endif()
+
 set(Papi_INCLUDE_DIRS ${Papi_INCLUDE_DIR})
 
 GET_FILENAME_COMPONENT(Papi_LIB_DIR ${Papi_LIBRARY_SHARED} PATH )
@@ -83,8 +93,18 @@ message(STATUS "Papi location: " ${Papi_DIR})
 mark_as_advanced(
             Papi_LIBRARY_SHARED 
             Papi_LIBRARY_STATIC
-            Papi_pfm_LIBRARY_SHARED 
-            Papi_pfm_LIBRARY_STATIC
             Papi_INCLUDE_DIR
             Papi_LIB_DIR
             )
+
+if (${Papi_pfm_LIBRARY_STATIC})
+    mark_as_advanced(
+            Papi_pfm_LIBRARY_STATIC
+   )
+endif()
+
+if (${Papi_pfm_LIBRARY_SHARED})
+    mark_as_advanced(
+            Papi_pfm_LIBRARY_SHARED
+   )
+endif()

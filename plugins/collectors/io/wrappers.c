@@ -99,7 +99,7 @@ ssize_t ioread(int fd, void *buf, size_t count)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_read));
@@ -146,7 +146,7 @@ ssize_t iowrite(int fd, void *buf, size_t count)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_write));
@@ -194,7 +194,7 @@ off_t iolseek(int fd, off_t offset, int whence)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_lseek));
@@ -241,7 +241,7 @@ __off_t iolseek64(int fd, __off_t offset, int whence)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_lseek64));
@@ -288,7 +288,7 @@ int ioopen(const char *pathname, int flags, mode_t mode)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_open));
@@ -336,7 +336,7 @@ int ioopen64(const char *pathname, int flags, mode_t mode)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_open64));
@@ -382,7 +382,7 @@ int ioclose(int fd)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_close));
@@ -429,7 +429,7 @@ int iodup(int oldfd)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_dup));
@@ -476,7 +476,7 @@ int iodup2(int oldfd, int newfd)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_dup2));
@@ -523,7 +523,7 @@ int iocreat(char *pathname, mode_t mode)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_creat));
@@ -570,7 +570,7 @@ int iocreat64(char *pathname, mode_t mode)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_creat64));
@@ -618,7 +618,7 @@ int iopipe(int filedes[2])
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pipe));
@@ -665,7 +665,7 @@ ssize_t iopread(int fd, void *buf, size_t count, off_t offset)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pread));
@@ -712,7 +712,7 @@ ssize_t iopread64(int fd, void *buf, size_t count, off_t offset)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pread64));
@@ -759,7 +759,7 @@ ssize_t iopwrite(int fd, __const void *buf, size_t count, __off64_t offset)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pwrite));
@@ -806,7 +806,7 @@ ssize_t iopwrite64(int fd, void *buf, size_t count, off_t offset)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pwrite64));
@@ -853,7 +853,7 @@ ssize_t ioreadv(int fd, const struct iovec *vector, size_t count)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_readv));
@@ -901,7 +901,7 @@ ssize_t iowritev(int fd, const struct iovec *vector, size_t count)
         event.stop_time = OpenSS_GetTime();
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         io_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         io_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_writev));

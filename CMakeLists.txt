@@ -101,20 +101,27 @@ endif()
 #
 set(TARGET_OS "" CACHE STRING "OpenSpeedShop target os: none or [bgq,bgp,mic]")
 
-if (TARGET_OS MATCHES "bgq")
+if (TARGET_OS STREQUAL "bgqfe")
+    message(STATUS "Build runtimes for target bgq front-end platform.")
+    # This is used to build the offline.py correctly when we are running on
+    # the bgq.  We execute the offline.py in the FE client of OSS.
+    set(TARGET_OS bgq)
+elseif (TARGET_OS STREQUAL "bgq")
     add_definitions(-DTARGET_OS=bgq)
+    add_definitions(-DTARGET_OS_BGQ=1)
     message(STATUS "Build runtimes for target bgq platform.")
-elseif (TARGET_OS MATCHES "bgp")
+elseif (TARGET_OS STREQUAL "bgp")
     add_definitions(-DTARGET_OS=bgp)
+    add_definitions(-DTARGET_OS_BGP=1)
     message(STATUS "Build runtimes for target bgp platform.")
-elseif (TARGET_OS MATCHES "mic")
+elseif (TARGET_OS STREQUAL "mic")
     add_definitions(-DTARGET_OS=mic)
     message(STATUS "Build runtimes for target mic platform.")
-elseif (TARGET_OS MATCHES "cray")
+elseif (TARGET_OS STREQUAL "cray")
     message(STATUS "Build runtimes for target cray platform.")
-elseif (TARGET_OS MATCHES "cray-xk")
+elseif (TARGET_OS STREQUAL "cray-xk")
     message(STATUS "Build runtimes for target cray-xk platform.")
-elseif (TARGET_OS MATCHES "cray-xe")
+elseif (TARGET_OS STREQUAL "cray-xe")
     message(STATUS "Build runtimes for target cray-xe platform.")
 else()
     message(STATUS "Build runtimes for localhost platform.")
@@ -243,7 +250,7 @@ if (INSTRUMENTOR MATCHES "offline")
     find_package(CBTF-Krell)
     # Need the boost includes to compile code using the Dyninst component includes
     if (DYNINSTAPI_FOUND)
-        find_package(Boost 1.41.0 REQUIRED)
+        find_package(Boost 1.46.0 REQUIRED)
     endif()
 #
 #--------------------------------------------------------------------------------
@@ -253,7 +260,7 @@ if (INSTRUMENTOR MATCHES "offline")
 elseif (INSTRUMENTOR MATCHES "cbtf")
     add_definitions(-DBUILD_CBTF=1)
     set(Boost_USE_MULTITHREADED    OFF)
-    find_package(Boost 1.41.0 REQUIRED
+    find_package(Boost 1.46.0 REQUIRED
       COMPONENTS date_time filesystem system thread unit_test_framework program_options
     )
     find_package(CBTF)

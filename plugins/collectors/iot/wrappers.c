@@ -167,7 +167,7 @@ ssize_t iotread(int fd, void *buf, size_t count)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_read));
@@ -245,7 +245,7 @@ ssize_t iotwrite(int fd, void *buf, size_t count)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_write));
@@ -324,7 +324,7 @@ off_t iotlseek(int fd, off_t offset, int whence)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_lseek));
@@ -401,7 +401,7 @@ off_t iotlseek64(int fd, off_t offset, int whence)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_lseek64));
@@ -460,7 +460,7 @@ int iotopen(const char *pathname, int flags, mode_t mode)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_open));
@@ -520,7 +520,7 @@ int iotopen64(const char *pathname, int flags, mode_t mode)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_open64));
@@ -596,7 +596,7 @@ int iotclose(int fd)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_close));
@@ -671,7 +671,7 @@ int iotdup(int oldfd)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_dup));
@@ -747,7 +747,7 @@ int iotdup2(int oldfd, int newfd)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_dup2));
@@ -805,7 +805,7 @@ int iotcreat(char *pathname, mode_t mode)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_creat));
@@ -862,7 +862,7 @@ int iotcreat64(char *pathname, mode_t mode)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_creat64));
@@ -918,7 +918,7 @@ int iotpipe(int filedes[2])
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pipe));
@@ -984,7 +984,7 @@ ssize_t iotpread(int fd, void *buf, size_t count, off_t offset)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pread));
@@ -1069,7 +1069,7 @@ ssize_t iotpread64(int fd, void *buf, size_t count, off_t offset)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pread64));
@@ -1154,7 +1154,7 @@ ssize_t iotpwrite(int fd, void *buf, size_t count, off_t offset)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pwrite));
@@ -1241,7 +1241,7 @@ ssize_t iotpwrite64(int fd, void *buf, size_t count, off_t offset)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_pwrite64));
@@ -1318,7 +1318,7 @@ ssize_t iotreadv(int fd, const struct iovec *vector, size_t count)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_readv));
@@ -1397,7 +1397,7 @@ ssize_t iotwritev(int fd, const struct iovec *vector, size_t count)
 
     /* Record event and it's stacktrace*/
 #if defined(TARGET_OS_BGQ)
-#if defined(HAVE_TARGET_SHARED) && ! defined (OPENSS_STATIC) 
+#if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
         iot_record_event(&event, OpenSS_GetAddressOfFunction((const void *) __real_writev));
