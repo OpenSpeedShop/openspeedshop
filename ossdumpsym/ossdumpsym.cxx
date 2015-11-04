@@ -194,7 +194,7 @@ string colorizerForStatements(const AddressRange& range,
  * @return             List of colorized strings.
  */
 vector<string> toStrings(const set<int>& rowids,
-                         const function<string (const int&)>& colorizer,
+                         const boost::function<string (const int&)>& colorizer,
                          const int& width)
 {
     vector<string> strings;
@@ -314,21 +314,21 @@ void dump(Symbols& symbols, const Function& function)
             rowids.push_back(toStrings(
                                  functions,
                                  bind(&colorizerForFunctions,
-                                      cref(j->first), cref(symbols), _1),
+                                      boost::cref(j->first), boost::cref(symbols), _1),
                                  kRowIDsWidth
                                  ));
             
             rowids.push_back(toStrings(
                                  statements,
                                  bind(&colorizerForStatements,
-                                      cref(j->first), cref(symbols), _1),
+                                      boost::cref(j->first), boost::cref(symbols), _1),
                                  kRowIDsWidth
                                  ));
             
             rowids.push_back(toStrings(
                                  loops,
                                  bind(&colorizerForLoops,
-                                      cref(j->first), cref(symbols), _1),
+                                      boost::cref(j->first), boost::cref(symbols), _1),
                                  kRowIDsWidth
                                  ));
 
