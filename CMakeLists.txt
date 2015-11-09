@@ -82,6 +82,7 @@ set(TLS_MODEL "implicit" CACHE STRING "OpenSpeedShop tls model: [implicit,explic
 if (TLS_MODEL MATCHES "explicit")
     # Builder requested explicit tls to be used in the runtimes and collectors
     set(TLS_DEFINES "USE_EXPLICIT_TLS" )
+    set(USE_EXPLICIT_TLS 1)
     message(STATUS "Build runtimes using explicit TLS model.")
 elseif (TLS_MODEL MATCHES "implicit")
     # Builder requsted implicit tls to be used in the runtimes and collectors

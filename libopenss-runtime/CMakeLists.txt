@@ -39,6 +39,10 @@ set(RT_SOURCES
 	RuntimeAPI.h
     )
 
+if (USE_EXPLICIT_TLS)
+    LIST(APPEND OFFLINE_SOURCES OpenSS_TLS.c)
+endif()
+
 set(OFFLINE_SOURCES
 	offline/OpenSS_GetDLInfo.c
 	offline/OpenSS_InitializeParameters.c
@@ -47,6 +51,11 @@ set(OFFLINE_SOURCES
 	offline/OpenSS_Monitor.h
 	offline/OpenSS_Offline.h
     )
+
+if (USE_EXPLICIT_TLS)
+    LIST(APPEND OFFLINE_SOURCES OpenSS_TLS.c)
+endif()
+
 
 set(UNWIND_SOURCES
 	OpenSS_GetStackTraceFromContext.c
