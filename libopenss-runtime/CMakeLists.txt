@@ -43,6 +43,18 @@ if (USE_EXPLICIT_TLS)
     LIST(APPEND OFFLINE_SOURCES OpenSS_TLS.c)
 endif()
 
+if (BUILD_TARGETED_BGQ)
+    LIST(APPEND RT_SOURCES OpenSS_BGQNodeName.c)
+endif()
+
+if (BUILD_TARGETED_BGP)
+    LIST(APPEND RT_SOURCES OpenSS_BGPNodeName.c)
+endif()
+
+if (BUILD_TARGETED_BGL)
+    LIST(APPEND RT_SOURCES OpenSS_BGLNodeName.c)
+endif()
+
 set(OFFLINE_SOURCES
 	offline/OpenSS_GetDLInfo.c
 	offline/OpenSS_InitializeParameters.c
@@ -129,13 +141,24 @@ if (HAVE_FORK)
 	)
 endif()
 
-target_include_directories(openss-runtime PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${PROJECT_SOURCE_DIR}/libopenss-runtime
-    ${LibMonitor_INCLUDE_DIRS}
-    ${LibUnwind_INCLUDE_DIRS}
+if (HAVE_PERSONALITY)
+    target_include_directories(openss-runtime PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${PROJECT_SOURCE_DIR}/libopenss-runtime
+        ${LibMonitor_INCLUDE_DIRS}
+        ${LibUnwind_INCLUDE_DIRS}
+        ${Personality_INCLUDE_DIRS}
     )
+else()
+    target_include_directories(openss-runtime PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${PROJECT_SOURCE_DIR}/libopenss-runtime
+        ${LibMonitor_INCLUDE_DIRS}
+        ${LibUnwind_INCLUDE_DIRS}
+    )
+endif()
 
 target_link_libraries(openss-runtime
     rt
@@ -170,13 +193,25 @@ if(LIBMONITOR_FOUND)
 	${OFFLINE_SOURCES}
     )
 
-    target_include_directories(openss-runtime-offline PUBLIC
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_BINARY_DIR}
-	${PROJECT_SOURCE_DIR}/libopenss-runtime
-	${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
-	${LibMonitor_INCLUDE_DIRS}
-    )
+    if (HAVE_PERSONALITY)
+        target_include_directories(openss-runtime-offline PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${PROJECT_SOURCE_DIR}/libopenss-runtime
+        ${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
+        ${LibMonitor_INCLUDE_DIRS}
+        ${Personality_INCLUDE_DIRS}
+        )
+    else()
+        target_include_directories(openss-runtime-offline PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${PROJECT_SOURCE_DIR}/libopenss-runtime
+        ${PROJECT_SOURCE_DIR}/libopenss-runtime/offline
+        ${LibMonitor_INCLUDE_DIRS}
+        )
+    endif()
+
     add_definitions(
 	-DOPENSS_OFFLINE
     )
