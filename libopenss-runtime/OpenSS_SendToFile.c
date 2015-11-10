@@ -26,6 +26,7 @@
 #include "Assert.h"
 #include "RuntimeAPI.h"
 
+#include <errno.h>
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <pthread.h>
@@ -112,7 +113,7 @@ void OpenSS_SetSendToFile(OpenSS_DataHeader* header,
      */
 
     if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
-	fprintf(stderr,"OpenSS_SetSendToFile creating directory for raw data files, using header->host=%s, and header->pid=%lld\n", header->host, header->pid);
+	fprintf(stderr,"OpenSS_SetSendToFile creating directory for raw data files using host:%s pid:%lld\n", header->host, header->pid);
     }
 
     openss_rawdata_dir = getenv("OPENSS_RAWDATA_DIR");
@@ -136,15 +137,51 @@ void OpenSS_SetSendToFile(OpenSS_DataHeader* header,
 
     /* Insure the directory path to contain the file exists */
     struct stat st;
+
+#if 0
+    /* this was the old method */
     if(stat(dir_path,&st) != 0) {
 	mkdir(dir_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
+#else
 
-    //fprintf(stderr,"OpenSS_SetSendToFile assumes tls->path %s\n", tls->path);
+    if (stat(dir_path, &st) == 0 && S_ISDIR (st.st_mode)) {
+
+        /* No need to make the directory.  It already exists. */
+        if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+            fprintf(stderr,"OpenSS_SetSendToFile pathname %s exists and is a directory\n",
+		dir_path);
+        }
+       
+    } else {
+        /* The directory does not exist.
+	 * Try to make the directory in this section of code.
+	 * Use a while loop to test the status of mkdir in case
+	 * it fails for some reason. On a cluster running nvidia-nmi
+	 * under the watch command (run command by default every 2 secs)
+	 * the mkdir on an NFS directory was interupted.
+	 * TODO: if some threshold of trys is exceeded, abort.
+	 */
+        int status = -1;
+        int save_errno = 0;
+        int try_count = 0;
+        while (status != 0 ) {
+   	   status = mkdir(dir_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+           save_errno = errno;
+           try_count = try_count + 1;
+        }
+        if ( (getenv("OPENSS_DEBUG_COLLECTOR") != NULL)) {
+            fprintf(stderr,"OpenSS_SetSendToFile mkdir dir_path:%s status=%d errno:%d try_count:%d\n",
+		dir_path, status, save_errno, try_count);
+        }
+    } 
+        
+#endif
+
+
     /* Insure the file itself exists */
     fd = open(tls->path, O_CREAT | O_APPEND,
 	      S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
-    //fprintf(stderr,"OpenSS_SetSendToFile get FD %d\n", fd);
     if(fd >= 0)
 	close(fd);
 }
