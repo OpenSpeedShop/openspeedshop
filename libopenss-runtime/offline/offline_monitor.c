@@ -871,9 +871,11 @@ void monitor_mpi_pcontrol(int level)
     }
   } else {
       /* early return - do not honor mpi_pcontrol */
+#if 0
       if (tls->debug) {
   	fprintf(stderr,"monitor_mpi_pcontrol CALLED OPENSS_ENABLE_MPI_PCONTROL **NOT** SET IGNORING MPI_PCONTROL CALL %d,%lu\n", tls->pid,tls->tid);
       }
+#endif
       return;
  }
 
