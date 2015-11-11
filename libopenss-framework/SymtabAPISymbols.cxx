@@ -158,7 +158,7 @@ SymtabAPISymbols::getSymbols(const std::set<Address>& addresses,
 	    std::vector<SymtabAPI::Function *>::iterator fsit;
 
 	    for(fsit = fsyms.begin(); fsit != fsyms.end(); ++fsit) {
-		int sym_size = (*fsit)->getSize();
+		unsigned int sym_size = (*fsit)->getSize();
 		Framework::Address begin((*fsit)->getOffset());
 		Framework::Address end(begin + sym_size);
 
