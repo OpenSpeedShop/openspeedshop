@@ -23,29 +23,47 @@ find_library(SymtabAPI_LIBRARY NAMES libsymtabAPI.so
     HINTS ${DYNINST_DIR}
     PATH_SUFFIXES lib lib64
     )
-
-find_path(SymtabAPI_INCLUDE_DIR
-    NAMES dyninst/Symtab.h
-    HINTS $ENV{DYNINST_DIR}
-    HINTS ${DYNINST_DIR}
-    PATH_SUFFIXES include
+#
+# NOTE: We are checking for two Dyninst include install variants
+# One where the Dyninst include file are installed into <dyn_inst_dir>/include
+# and the other where  where the Dyninst include file 
+# are installed into <dyn_inst_dir>/include/dyninst
+# We set an include_suffix variable based on the variant and use it
+# to set the SymtabAPI_INCLUDE_DIR properly.
+#
+if (EXISTS "${DYNINST_DIR}/include/dyninst")
+    find_path(SymtabAPI_INCLUDE_DIR
+        NAMES dyninst/Symtab.h
+        HINTS $ENV{DYNINST_DIR}
+        HINTS ${DYNINST_DIR}
+        PATH_SUFFIXES include
     )
+    set(include_suffix "/dyninst")
+else()
+    find_path(SymtabAPI_INCLUDE_DIR
+        NAMES Symtab.h
+        HINTS $ENV{DYNINST_DIR}
+        HINTS ${DYNINST_DIR}
+        PATH_SUFFIXES include
+    )
+    set(include_suffix "")
+endif()
 
 find_package_handle_standard_args(
     SymtabAPI DEFAULT_MSG SymtabAPI_LIBRARY SymtabAPI_INCLUDE_DIR
     )
 
 set(SymtabAPI_LIBRARIES ${SymtabAPI_LIBRARY})
-set(SymtabAPI_INCLUDE_DIRS ${SymtabAPI_INCLUDE_DIR}/dyninst)
+set(SymtabAPI_INCLUDE_DIRS ${SymtabAPI_INCLUDE_DIR}${include_suffix})
 GET_FILENAME_COMPONENT(SymtabAPI_LIB_DIR ${SymtabAPI_LIBRARY} PATH )
 
 mark_as_advanced(SymtabAPI_LIBRARY SymtabAPI_INCLUDE_DIR SymtabAPI_LIB_DIR)
 
 if(SYMTABAPI_FOUND AND DEFINED SymtabAPI_INCLUDE_DIR)
 
-    if (EXISTS "${SymtabAPI_INCLUDE_DIR}/dyninst/version.h")
+    if (EXISTS "${SymtabAPI_INCLUDE_DIR}${include_suffix}/version.h")
 
-        file(READ ${SymtabAPI_INCLUDE_DIR}/dyninst/version.h DyninstAPI_VERSION_FILE)
+        file(READ ${SymtabAPI_INCLUDE_DIR}${include_suffix}/version.h DyninstAPI_VERSION_FILE)
 
         string(REGEX REPLACE
             ".*#[ ]*define DYNINST_MAJOR_VERSION[ ]+([0-9]+)\n.*" "\\1"
@@ -63,7 +81,7 @@ if(SYMTABAPI_FOUND AND DEFINED SymtabAPI_INCLUDE_DIR)
         )
 
 else()
-        file(READ ${SymtabAPI_INCLUDE_DIR}/dyninst/Symtab.h SymtabAPI_VERSION_FILE)
+        file(READ ${SymtabAPI_INCLUDE_DIR}${include_suffix}/Symtab.h SymtabAPI_VERSION_FILE)
 
         string(REGEX REPLACE
             ".*#[ ]*define SYM_MAJOR[ ]+([0-9]+)\n.*" "\\1"

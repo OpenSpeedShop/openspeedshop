@@ -28,9 +28,10 @@
 #include "LinkedObject.hxx"
 #include "Function.hxx"
 #include "Statement.hxx"
-#include "dyninst/Symtab.h"
-#include "dyninst/LineInformation.h"
-#include "dyninst/Function.h"
+/* These are coming from the Dyninst include directory */
+#include "Symtab.h"
+#include "LineInformation.h"
+#include "Function.h"
 
 
 using namespace OpenSpeedShop::Framework;

@@ -24,28 +24,46 @@ find_library(DyninstAPI_LIBRARY NAMES libdyninstAPI.so
     PATH_SUFFIXES lib lib64
     )
 
-find_path(DyninstAPI_INCLUDE_DIR
-    NAMES dyninst/BPatch.h
-    HINTS $ENV{DYNINST_DIR}
-    HINTS ${DYNINST_DIR}
-    PATH_SUFFIXES include
+#
+# NOTE: We are checking for two Dyninst include install variants
+# One where the Dyninst include file are installed into <dyn_inst_dir>/include
+# and the other where  where the Dyninst include file 
+# are installed into <dyn_inst_dir>/include/dyninst
+# We set an include_suffix variable based on the variant and use it
+# to set the Dyninst_INCLUDE_DIR properly.
+#
+if (EXISTS "${DYNINST_DIR}/include/dyninst")
+    find_path(DyninstAPI_INCLUDE_DIR
+        NAMES dyninst/BPatch.h
+        HINTS $ENV{DYNINST_DIR}
+        HINTS ${DYNINST_DIR}
+        PATH_SUFFIXES include
     )
+    set(include_suffix "/dyninst")
+else()
+    find_path(DyninstAPI_INCLUDE_DIR
+        NAMES BPatch.h
+        HINTS $ENV{DYNINST_DIR}
+        HINTS ${DYNINST_DIR}
+        PATH_SUFFIXES include
+    )
+    set(include_suffix "")
+endif()
 
 find_package_handle_standard_args(
     DyninstAPI DEFAULT_MSG DyninstAPI_LIBRARY DyninstAPI_INCLUDE_DIR
     )
 
 set(DyninstAPI_LIBRARIES ${DyninstAPI_LIBRARY})
-set(DyninstAPI_INCLUDE_DIRS ${DyninstAPI_INCLUDE_DIR})
-#set(DyninstAPI_INCLUDE_DIRS ${DyninstAPI_INCLUDE_DIR}/dyninst)
+set(DyninstAPI_INCLUDE_DIRS ${DyninstAPI_INCLUDE_DIR}${include_suffix})
 
 mark_as_advanced(DyninstAPI_LIBRARY DyninstAPI_INCLUDE_DIR)
 
 if(DYNINSTAPI_FOUND AND DEFINED DyninstAPI_INCLUDE_DIR)
 
-    if (EXISTS "${DyninstAPI_INCLUDE_DIR}/dyninst/version.h")
+    if (EXISTS "${DyninstAPI_INCLUDE_DIR}${include_suffix}/version.h")
 
-        file(READ ${DyninstAPI_INCLUDE_DIR}/dyninst/version.h DyninstAPI_VERSION_FILE)
+        file(READ ${DyninstAPI_INCLUDE_DIR}${include_suffix}/version.h DyninstAPI_VERSION_FILE)
 
         string(REGEX REPLACE
             ".*#[ ]*define DYNINST_MAJOR_VERSION[ ]+([0-9]+)\n.*" "\\1"
@@ -63,7 +81,7 @@ if(DYNINSTAPI_FOUND AND DEFINED DyninstAPI_INCLUDE_DIR)
         )
 else()
 
-        file(READ ${DyninstAPI_INCLUDE_DIR}/dyninst/BPatch.h DyninstAPI_VERSION_FILE)
+        file(READ ${DyninstAPI_INCLUDE_DIR}${include_suffix}/BPatch.h DyninstAPI_VERSION_FILE)
 
         string(REGEX REPLACE
             ".*#[ ]*define DYNINST_MAJOR[ ]+([0-9]+)\n.*" "\\1"
