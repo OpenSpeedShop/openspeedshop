@@ -262,7 +262,7 @@ if (INSTRUMENTOR MATCHES "offline")
     find_package(CBTF-Krell)
     # Need the boost includes to compile code using the Dyninst component includes
     if (DYNINSTAPI_FOUND)
-        find_package(Boost 1.46.0 REQUIRED)
+        find_package(Boost 1.41.0 REQUIRED)
     endif()
 
     if (PERSONALITY_FOUND)
@@ -276,7 +276,7 @@ if (INSTRUMENTOR MATCHES "offline")
 elseif (INSTRUMENTOR MATCHES "cbtf")
     add_definitions(-DBUILD_CBTF=1)
     set(Boost_USE_MULTITHREADED    OFF)
-    find_package(Boost 1.46.0 REQUIRED
+    find_package(Boost 1.41.0 REQUIRED
       COMPONENTS date_time filesystem system thread unit_test_framework program_options
     )
     find_package(CBTF)
