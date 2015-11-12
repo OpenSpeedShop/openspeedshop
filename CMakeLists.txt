@@ -24,7 +24,7 @@ project(OpenSpeedShop C CXX)
 # TODO: allow this to be passed as an option via cmake for developers
 # to tag non production builds.
 add_definitions(
-    -DVERSION="2.2.beta3"
+    -DVERSION="2.2.0"
 )
 
 # cmake module search path for this project.
