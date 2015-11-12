@@ -110,11 +110,11 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 
     std::string xmlfile(collector);
     xmlfile += ".xml";
-    registerXML(filesystem::path(CBTF_KRELL_XMLDIR) / xmlfile);
+    registerXML(boost::filesystem::path(CBTF_KRELL_XMLDIR) / xmlfile);
 
 
     Component::registerPlugin(
-        filesystem::path(CBTF_LIB_DIR) / "KrellInstitute/CBTF/BasicMRNetLaunchers.so");
+        boost::filesystem::path(CBTF_LIB_DIR) / "KrellInstitute/CBTF/BasicMRNetLaunchers.so");
     
     Component::Instance network = Component::instantiate(
         Type(collector)
@@ -126,55 +126,55 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 
     std::map<std::string, Type> outputs = network->getOutputs();
 
-    shared_ptr<ValueSource<unsigned int> > backend_attach_count =
+    boost::shared_ptr<ValueSource<unsigned int> > backend_attach_count =
         ValueSource<unsigned int>::instantiate();
     Component::Instance backend_attach_count_component = 
-        reinterpret_pointer_cast<Component>(backend_attach_count);
+        boost::reinterpret_pointer_cast<Component>(backend_attach_count);
     Component::connect(
         backend_attach_count_component, "value", launcher, "BackendAttachCount"
         );
 
 
-    shared_ptr<ValueSource<filesystem::path> > backend_attach_file =
-        ValueSource<filesystem::path>::instantiate();
+    boost::shared_ptr<ValueSource<boost::filesystem::path> > backend_attach_file =
+        ValueSource<boost::filesystem::path>::instantiate();
     Component::Instance backend_attach_file_component = 
-        reinterpret_pointer_cast<Component>(backend_attach_file);
+        boost::reinterpret_pointer_cast<Component>(backend_attach_file);
     Component::connect(
         backend_attach_file_component, "value", launcher, "BackendAttachFile"
         );    
 
 
-    shared_ptr<ValueSource<filesystem::path> > topology_file =
-        ValueSource<filesystem::path>::instantiate();
+    boost::shared_ptr<ValueSource<boost::filesystem::path> > topology_file =
+        ValueSource<boost::filesystem::path>::instantiate();
     Component::Instance topology_file_component = 
-        reinterpret_pointer_cast<Component>(topology_file);
+        boost::reinterpret_pointer_cast<Component>(topology_file);
     Component::connect(
         topology_file_component, "value", launcher, "TopologyFile"
         );
     Component::connect(launcher, "Network", network, "Network");
 
-    shared_ptr<ValueSink<bool> > threads_finished =
+    boost::shared_ptr<ValueSink<bool> > threads_finished =
 					ValueSink<bool>::instantiate();
     Component::Instance threads_finished_output_component =
-            reinterpret_pointer_cast<Component>(threads_finished);
+            boost::reinterpret_pointer_cast<Component>(threads_finished);
     Component::connect(network, "threads_finished",
 				threads_finished_output_component, "value");
 
-    shared_ptr<ValueSink<bool> > symbols_finished =
+    boost::shared_ptr<ValueSink<bool> > symbols_finished =
 					ValueSink<bool>::instantiate();
     if (outputs.find("symbols_finished") != outputs.end()) {
 	Component::Instance symbols_finished_output_component =
-            reinterpret_pointer_cast<Component>(symbols_finished);
+            boost::reinterpret_pointer_cast<Component>(symbols_finished);
 	Component::connect(network, "symbols_finished",
 			symbols_finished_output_component, "value");
     }
 
     Component::registerPlugin(
-        filesystem::path(CBTF_KRELL_LIB_DIR) / "libcbtf-messages-converters-base.so");
+        boost::filesystem::path(CBTF_KRELL_LIB_DIR) / "libcbtf-messages-converters-base.so");
     Component::registerPlugin(
-        filesystem::path(CBTF_KRELL_LIB_DIR) / "libcbtf-messages-base.so");
+        boost::filesystem::path(CBTF_KRELL_LIB_DIR) / "libcbtf-messages-base.so");
     Component::registerPlugin(
-        filesystem::path(CBTF_KRELL_LIB_DIR) / "libcbtf-messages-perfdata.so");
+        boost::filesystem::path(CBTF_KRELL_LIB_DIR) / "libcbtf-messages-perfdata.so");
 
 
 
@@ -185,7 +185,7 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 	created_process =
 	SignalAdapter<boost::shared_ptr<CBTF_Protocol_CreatedProcess > >::instantiate();
 	Component::Instance created_process_output_component =
-			reinterpret_pointer_cast<Component>(created_process);
+			boost::reinterpret_pointer_cast<Component>(created_process);
 	created_process->Value.connect(Callbacks::createdProcess);
 	Component::connect(network, "created_process_xdr_output",
 			created_process_output_component, "value");
@@ -199,7 +199,7 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 	attached_to_threads =
 	SignalAdapter<boost::shared_ptr<CBTF_Protocol_AttachedToThreads > >::instantiate();
 	attached_to_threads_output_component =
-        		reinterpret_pointer_cast<Component>(attached_to_threads);
+        		boost::reinterpret_pointer_cast<Component>(attached_to_threads);
 	attached_to_threads->Value.connect(Callbacks::attachedToThreads);
 	Component::connect(network, "attached_to_threads_xdr_output",
 			attached_to_threads_output_component, "value");
@@ -213,7 +213,7 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 	perfdata_blob =
 	SignalAdapter<boost::shared_ptr<CBTF_Protocol_Blob > >::instantiate();
 	perfdata_blob_output_component =
-        		reinterpret_pointer_cast<Component>(perfdata_blob);
+        		boost::reinterpret_pointer_cast<Component>(perfdata_blob);
 	perfdata_blob->Value.connect(Callbacks::performanceData);
 	Component::connect(network, "perfdata_xdr_output",
 			perfdata_blob_output_component, "value");
@@ -227,7 +227,7 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 	loaded_linked_object =
 	SignalAdapter<boost::shared_ptr<CBTF_Protocol_LoadedLinkedObject > >::instantiate();
 	loaded_linked_object_output_component =
-        		reinterpret_pointer_cast<Component>(loaded_linked_object);
+        		boost::reinterpret_pointer_cast<Component>(loaded_linked_object);
 	loaded_linked_object->Value.connect(Callbacks::loadedLinkedObject);
 	Component::connect(network, "loaded_linkedobject_xdr_output",
 			loaded_linked_object_output_component, "value");
@@ -241,7 +241,7 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 	linked_object_group =
 	SignalAdapter<boost::shared_ptr<CBTF_Protocol_LinkedObjectGroup > >::instantiate();
 	linked_object_group_output_component =
-			reinterpret_pointer_cast<Component>(linked_object_group);
+			boost::reinterpret_pointer_cast<Component>(linked_object_group);
 	linked_object_group->Value.connect(Callbacks::linkedObjectGroup);
 	Component::connect(network, "linkedobjectgroup_xdr_output",
 			linked_object_group_output_component, "value");
@@ -254,7 +254,7 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 	linkedobjectentryvec_object =
 	SignalAdapter<LinkedObjectEntryVec >::instantiate();
 	linkedobjectentryvec_output_component =
-			reinterpret_pointer_cast<Component>(linkedobjectentryvec_object);
+			boost::reinterpret_pointer_cast<Component>(linkedobjectentryvec_object);
 	linkedobjectentryvec_object->Value.connect(Callbacks::linkedObjectEntryVec);
 	Component::connect(network, "linkedobjectentryvec_output",
 			linkedobjectentryvec_output_component, "value");
@@ -266,7 +266,7 @@ void FEThread::run(const std::string& topology, const std::string& connections,
     if (outputs.find("addressbuffer_output") != outputs.end()) {
 	addressbuffer_object = SignalAdapter<AddressBuffer >::instantiate();
 	addressbuffer_output_component =
-			reinterpret_pointer_cast<Component>(addressbuffer_object);
+			boost::reinterpret_pointer_cast<Component>(addressbuffer_object);
 	addressbuffer_object->Value.connect(Callbacks::addressBuffer);
 	Component::connect(network, "addressbuffer_output",
 			addressbuffer_output_component, "value");
@@ -283,7 +283,7 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 	symboltable = SignalAdapter<
 	boost::shared_ptr<CBTF_Protocol_SymbolTable > >::instantiate();
         symboltable_output_component =
-			reinterpret_pointer_cast<Component>(symboltable);
+			boost::reinterpret_pointer_cast<Component>(symboltable);
 	symboltable->Value.connect(Callbacks::symbolTable);
 	Component::connect(network, "symboltable_xdr_output",
 			symboltable_output_component, "value");
@@ -300,7 +300,7 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 	maxfunctionvalues = SignalAdapter<
 	boost::shared_ptr<CBTF_Protocol_FunctionThreadValues > >::instantiate();
         maxfunctionvalues_output_component =
-			reinterpret_pointer_cast<Component>(maxfunctionvalues);
+			boost::reinterpret_pointer_cast<Component>(maxfunctionvalues);
 	maxfunctionvalues->Value.connect(Callbacks::maxFunctionValues);
 	Component::connect(network, "maxfunctionvalues_xdr_out",
 			maxfunctionvalues_output_component, "value");
@@ -317,7 +317,7 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 	minfunctionvalues = SignalAdapter<
 	boost::shared_ptr<CBTF_Protocol_FunctionThreadValues > >::instantiate();
         minfunctionvalues_output_component =
-			reinterpret_pointer_cast<Component>(minfunctionvalues);
+			boost::reinterpret_pointer_cast<Component>(minfunctionvalues);
 	minfunctionvalues->Value.connect(Callbacks::minFunctionValues);
 	Component::connect(network, "minfunctionvalues_xdr_out",
 			minfunctionvalues_output_component, "value");
@@ -334,7 +334,7 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 	avgfunctionvalues = SignalAdapter<
 	boost::shared_ptr<CBTF_Protocol_FunctionAvgValues > >::instantiate();
         avgfunctionvalues_output_component =
-			reinterpret_pointer_cast<Component>(avgfunctionvalues);
+			boost::reinterpret_pointer_cast<Component>(avgfunctionvalues);
 	avgfunctionvalues->Value.connect(Callbacks::avgFunctionValues);
 	Component::connect(network, "avgfunctionvalues_xdr_out",
 			avgfunctionvalues_output_component, "value");

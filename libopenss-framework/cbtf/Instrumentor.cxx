@@ -93,7 +93,7 @@ void Instrumentor::release(const Thread& thread)
 void Instrumentor::create(const Thread& thread, 
 			  const std::string& command,
 			  const std::string& collector,
-			  const uint64_t numBE, const bool useFET,
+			  const ::uint64_t numBE, const bool useFET,
 			  const OpenSpeedShop::Framework::OutputCallback stdout_callback,
 			  const OpenSpeedShop::Framework::OutputCallback stderr_callback)
 {
@@ -323,7 +323,7 @@ void Instrumentor::stopAtEntryOrExit(const Thread& thread,
  */
 bool Instrumentor::getGlobal(const Thread& thread,
 			     const std::string& global,
-			     int64_t& value)
+			     ::int64_t& value)
 {
     return false;
 }
@@ -394,7 +394,7 @@ bool Instrumentor::getMPICHProcTable(const Thread& thread, Job& value)
  */
 void Instrumentor::setGlobal(const Thread& thread,
 			     const std::string& global,
-			     int64_t value)
+			     ::int64_t value)
 {
 }
 

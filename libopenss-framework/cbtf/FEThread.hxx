@@ -27,7 +27,7 @@
 
 #include <boost/thread.hpp>
 
-using namespace boost;
+/*using namespace boost;*/
 
 /**
  * main thread for the cbtf instrumentor.
