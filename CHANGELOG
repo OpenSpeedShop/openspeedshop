@@ -1,5 +1,353 @@
 
-New OpenSpeedShop-2.1 release
+OpenSpeedShop-2.2 release
+
+
+This is the initial release (2.2.0) of OpenSpeedShop version 2.2.
+
+There were three beta versions tested on the Tri-lab systems and other sites prior to making the new release generally available.
+
+The release consists of two versions of OpenSpeedShop, the traditional "offline" version of OpenSpeedShop that has been the default version for a few years now.
+The second version is based on the Component Based Tool Framework (CBTF) project, which is used as the underlying mechanism for gathering the performance data and sending it to the client.
+The interfaces for both versions is the same.   Gather the data using the OpenSpeedShop convenience scripts:
+
+For offline: ossusertime osspcsamp ossmpit ossmpiotf ossmpi ossiot ossio osshwctime osshwcsamp osshwc ossfpe
+Additional experiment convenience scripts in OSS/CBTF: ossmpip, ossiop, osscuda, ossmem, osspthreads
+
+
+Both the offline and CBTF versions of OpenSpeedShop have been tested on Linux x86_64 clusters.
+
+NOTE: This version is for earlier adopters, there are some issues that need investigation:
+   a) Blue Gene version is getting warning messages about data blobs (the performance information data structures) being truncated.
+   b) Cray cbtf version has only been tested on one Cray platform/machine
+   c) ARM and Intel MIC platform support is with the offline version.  We are still debugging the cbtf version.
+   d) The cuda experiment is getting revamped to work with the latest CUDA version interfaces.  It was originally developed to work with CUDA-4.2.
+
+Installation is still done via the "install-tool" as it was in the previous release.  However, when building cbtf, please use "--build-cbtf-all" now in place of the previous release's "--build-cbtf" build phrase.
+We are now using cmake as our build mechanism and that has altered how we build cbtf now.
+
+We are now dependent on cmake, version 2.12 or higher.
+
+The major changes in OpenSpeedShop 2.2 are outlined below in two sections: development tasks and maintenance tasks.
+
+
+DEVELOPMENT TASKS:
+
+Milestone 1:  Add the ability to build CBTF using cmake technology (Generic Linux clusters)
+Update and/or create the CBTF build mechanisms to use cmake technology to build and install all of the necessary CBTF components on generic Linux cluster platforms.  
+
+Milestone 2:  Add the ability to build CBTF using cmake technology on specialty platforms (Cray, Intel MIC, GPGPU)
+Update the CBTF build mechanisms to use cmake technology to build and install all of the necessary CBTF components on specialty platforms such as Cray and heterogeneous processor (Intel MIC, GPGPU) platforms.
+
+Milestone 3:  Add the ability to build Open|SpeedShop using cmake technology (Generic Linux clusters)
+Update the Open|SpeedShop build mechanisms to use cmake technology to build and install all of the necessary Open|SpeedShop components on generic Linux clusters.    
+
+Milestone 4:  Add the ability to build Open|SpeedShop using cmake technology on specialty platforms (Cray, Intel MIC, GPGPU)
+Update the Open|SpeedShop build mechanisms to use cmake technology to build and install all of the necessary Open|SpeedShop components on specialty platforms such as Cray and heterogeneous processor (Intel MIC, GPGPU) platforms.  
+
+Milestone 5:  Add the ability to build CBTF through the SPACK build package management tool on Generic Linux clusters. 
+Update the CBTF build mechanisms to use SPACK and the build and install mechanism to build and install all of the CBTF components.    
+
+Milestone 6:  Add the ability to build Open|SpeedShop through the SPACK build package management tool on Generic Linux clusters. 
+Update the Open|SpeedShop build mechanisms to use SPACK and the build and install mechanism to build and install all of the Open|SpeedShop components.    
+
+Milestone 7: Open|SpeedShop CBTF version port to ARM
+This is a ARM specific milestone which consists of porting the CBTF version of Open|SpeedShop to the ARM (aarch64) processor system and committing any source code changes to the Open|SpeedShop repositories in order to build an Open|SpeedShop version that runs on the ARM platform through the Open|SpeedShop infrastructure and send data blobs from the application to the client tool.  This represents the work that needs to be done on the Open|SpeedShop side to support running on ARM systems.
+
+NOTE (Work in progress) Milestone 8:  Run a sampling experiment using the CBTF version of Open|SpeedShop (Execution task: ARM)
+This is the execution task for one representative of the sampling experiments: pcsamp, usertime, hwc, hwctime, hwcsamp experiments.  For this task, we chose the pcsamp experiments as the representative of the sampling experiment group.  This sampling experiment (pcsamp) task shall consist of designing, developing, and committing code to the Open|SpeedShop repositories in order to build and execute the pcsamp experiment using the CBTF version of Open|SpeedShop on the ARM platform. 
+
+NOTE (Work in progress) Milestone 9:  Run a call path unwinding experiment using the CBTF version of Open|SpeedShop (Execution task: ARM)
+This is the execution task for one representative of the call path unwinding related experiments:  usertime, io, mem, mpi, pthreads experiments.  For this task, we chose the usertime experiments as the representative of the call path unwinding experiment group.  This call path unwinding experiment (usertime) task shall consist of designing, developing, and committing code to the Open|SpeedShop repositories in order to build and execute the usertime experiment using both the offine and CBTF versions of Open|SpeedShop on the ARM platform. 
+
+Milestone 13: Deploy the CBTF based version of Open|SpeedShop on the TLCC cluster platforms at the Tri-labs.
+Build, install, and test the latest CBTF based version of Open|SpeedShop on the Tri-labs cluster based systems.  Verify that the applications of interest run and produce valid performance information when run with this version of Open|SpeedShop.
+
+NASA related work:
+
+Q1.   Deliverables: 
+* Create initial CLI views for initial base GPU experiment
+
+* Create initial CLI views for CPU/GPU Utilization experiment
+
+* Enhance Intel MIC non-offload model support to include I/O and MPI experiments.
+
+* Port Open|SpeedShop CBTF version infrastructure to NASA platforms of interest
+
+Q2.   Deliverables:
+* Create initial CLI views for GPU Data Transfer / Compute Balance Experiment
+
+* Create initial CLI views for Advanced GPU Internals Analysis.
+
+* Enhance Intel MIC non-offload model support to include all offline mode experiments.
+
+* Initial Intel MIC non-offload model support in the CBTF version for the pcsamp experiment.
+
+* Continue to port Open|SpeedShop CBTF version infrastructure to NASA platforms of interest
+
+
+
+MAINTENANCE TASKS:
+
+Sep 2015:
+
+* Fix an issue with generating an empty version of the OpenSS_Papi_Events.h file when building the front-end version of OSS for a targeted build.  The PAPI on the front-end node should not be used to set up the available counters.
+
+* Additional changes for building cbtf and oss with cmake.  Also, fixes for incorrect, unprotected setting of LD_LIBRARY_PATH and PATH that have perhaps caused issues in the past.
+
+* Add latest version of libunwind and patch to match previous patches.
+
+* Update the libunwind version and clean-up.
+
+* Add changes to allow the cray targeted build to use cray as the platform designator.  Leaving in cray-xe and cray-xk for a transition period.
+
+* Changes required to build targeted compute node components for use with cray based OSS/CBTF version.
+
+* Remove old target specific install scripts to help eliminate install confusion.
+
+* Remove old versions of papi from OSS root tree.
+
+* Remove old versions of dyninst from the OSS root tree.
+
+* Remove unsupported GUI auxiliary add on package from OSS root tree.
+
+* Remove old MRNet packages from the OSS root tree.
+
+* Remove old version of cmake from root.
+
+* Update the install scripts for building cbtf and oss with cmake.  Also, update the scripts for Intel MIC and ARM builds.
+
+* Add new cbtf tarballs to root directory.   Remove the old cbtf tarballs from the root directory.
+
+* Add cmake build only OSS version 2.2 beta tarball.
+
+* Prepare for LANL and SNL training trips by building and testing on Tri-lab tlcc2 platforms.
+
+* Worked on three issues regarding moving to the latest Dyninst-9.0.0 official release:
+   * Not getting the head loop anymore via an API call with Dyninst version 9.  I've been working on changing our interface to jump through hoops to get the same information that was available via a simple call in previous Dyninst versions.  
+   * The dyninst versioning interface has also changed and at least one component is not available now.  I'm working on those changes as well.  Haven't checked this in because I didn't want to destabilize the software until the training trips are over.
+   * Dyninst will not build DyninstAPI component when targeting for the compute nodes on muzia at SNL.
+
+* Worked on building OSS on the SC15 tutorial cluster at CreativeC which is partnering with our Tri-labs team to provide a cluster for the SC tutorial and the OSS booth at SC15.
+
+* Worked with the Krell IT team to fix an issue with the OSS website:
+   * Every time I access the OpenSpeedShop website, I see that the website url has a caution sign by it and when I hover over this it says that "This website has no identity information".
+
+* Worked with Bill Hachfeld on compile issues in cbtf-argonavis CUDA code when compiled on skybridge.
+
+* I went through and deleted some of the # commented out lines in the *.in files in core/scripts. Then I removed the set for unused variables and commented the remaining set statements. Then checked in this code after a review by Don M.
+
+* Working with Ben Welton at Uwisconsin on issue with MRNet-5.0.0:
+   * We are seeing some funny behaviour with the mrnet-5.0.0 version of libxplat_lightweight_r.so.   I found the case where if I move the BUILD directory away cbtf fails.   The installed libxplat_lightweight_r.so doesn't seem to be recognized even though it is in the install directory. There is no issue like this with mrnet-4.1.0, so that is why I'm emailing you for advice.  Here is what I'm doing: (details available on request).
+
+* Add boost qualifier to shared_ptr reference in daeamonTool source file to avert compile error on muzia cray build.
+
+* Add qualifiers to the equivalent function call in ArgoNavis::Base. The compilers on SNL are not able to resolve the function to ArgoNavis::Base on their own. wdh directed fix.
+
+* Clean-up and add comments outlining how the statement in the CMakeLists.txt file will be used in the .in files.
+
+* Allow dyninst-9.0.x to be successfully found by the cmake find_package calls. The version information is in a new version.h file and symLite is no longer packaged. We can still find
+
+Aug 2015:
+
+* Add a missing Boost Include Dir line to the libopenss-queries-cuda/CMakeLists.txt file.
+
+* Continued interfacing with the Dyninst team over a couple of issues related to their new git tree version of Dyninst 9.0.0.
+
+* Loop API has changed and we need to rewrite code in the loop detection section of OSS.
+
+* Elf detection for new platforms that we will be supporting is missing.  Dyninst team has said they will add those so we can continue to use Dyninst for processing symbols.
+
+* Tested changes they added for versioning and symLite changes they added
+
+* Add a fix for the recent FindBinutils.cmake change I made.  Change the if DEFINED chec to if and add comments to explain why.
+
+* Update the autotools m4 files to return <component_name>_LIBDIR so it can be used to create cbtf-krell related scripts based on the actual library suffix being used. It turns out there are multiple versions of each m4 file. I updated the files so that all the m4 files match across the subdirectories. That is why there are several files being checked in. I tested the autotools build and executed several experiments with the autotools build to verify.
+
+* Reported problems with the 5.0.0 version of MRNet to the University of Wisconsin MRNet team:   When I try to use MRNet 5.0.0, I see these issues:
+The Types.h:# define MRNET_VERSION_MAJOR 4 - This is minor, but our FindMRNet.cmake file is doing some sanity checking and tripping up because we think this should be a 5.
+include/mrnet/Network.h is asking for libi/libi_api.h but the default MRNet build is not installing libi/libi_api.h.   Is this suppose to be installed?  Or is Network.h not supposed to reference libi_api.h if I don't ask for libi startup?
+
+* Reported dangling link on LLNL website to Blaise Barney:  I was walking through your tutorial on https://computing.llnl.gov and came across a reference to OpenSpeedShop that has changed slightly.   The Krell IT team has changed vendors for supporting the OpenSpeedShop website.  There is now no "/wp" at the end of the URL   So, in the https://computing.llnl.gov/tutorials/parallel_comp/#DesignPerformance section  http://www.openspeedshop.org/wp/  should be changed to:  https://openspeedshop.org/
+
+* Review and enhance Quick Start Guide and Flyer for OpenSpeedShop, work on tutorial slides for SC15 joint tutorial on OpenSpeedShop with laboratory personnel (Martin S, Mahesh R).
+
+* Add latest mrnet release that is announced to support ARM.  Also add patch that contains fixes for problems found while trying to build and use with CBTF and OSS.
+
+* Worked with Dyninst team on Dyninst versioning.  This is important because the API changed from 8.2.1 to 9.0.0 and we need a way to distinguish between those versions in our OSS/CBTF code.   This was fixed by the Dyninst team and tested by me.
+
+* If Dyninst is installed in its own install prefix then we need to export its library path in the cbtf mrnet commnode script. This is tested on my laptop and on NASA pfe platform.
+
+* Add find cbtf argonavis cmake file to follow the pattern we are using for cbtf and cbtf-krell.
+
+* Add cmake changes that allow the build of the cuda view, cuda client collector portion, cuda convenience scripts, and changes to use FindCBTF-Argo.cmake.
+
+Jul 2015:
+
+* Change the find binutils configuration routine to favor finding our libiberty_pic.a library.  Also, if that doesn't exist then favor the normal libiberty.a library when searching for the Iberty static library.
+
+* Change configuration for OpenSpeedShop to use the library directory variable instead of using the LIBDIR setting for the hardware platform.  Some build systems do not follow the convention, as they probably should.
+
+* Interfaced with the Dyninst team over a couple of issues related to their new git tree version of Dyninst 9.0.0.
+
+* Loop API has changed and we need to rewrite code in the loop detection section of OSS.
+
+* Elf detection for new platforms that we will be supporting is missing.  Dyninst team has said they will add those so we can continue to use Dyninst for processing symbols.
+
+* Add documentation in the osslink help per a request from Koushik Ghosh.  The dash-i option was not in the help output.
+
+* Add missing LTDL variables discovered when libltdl libs and includes were not in their normal default locations on the babbage Intel MIC testbed.  
+
+* Fix issues that caused the selection of bfd symbol resolution to be negated by add_definitions calls that set the OPENSS_USE_SYMTABAPI=1 define globally.  Now we use the set_target_properties COMPILE_DEFINITIONS argument to keep the options separated better.  Also, set the valid boost version back to 1.41.  I had inadvertently changed it to 1.42 by checking in that change by accident.
+
+* Intel  MPI implementation has a libmpi.so file but not libmpich.so.  I added recognition for libmpi.so and removed the PATH line.
+
+* If papi is targetted then do not create the OpenSS_Papi_Events.h file populated via papi_avail because the papi_avail will not run on the front-end node.  So, be more restrictive on the file creation.  Make decisions based on the RUNTIME_DIR and RUNTIME_ONLY variables.  This may need to be refined in order to give users information about the compute node papi events that are available.
+
+* Add recognition of Intel MIC MPI implementation to the offline.py.in file.   Look for Intel MIC MPI symbol and then set up the mpi driver variable etc. similar to the other MPI implementations OSS supports.
+
+* Examined the memory experiment at length, looking for more meaningful information to present to the user. 
+
+June 2015:
+
+* Fix for supporting hwc experiments on static binaries.  Problem was undefined references to __wrap_dlopen and __wrap_dlclose when osslink was used to link the OSS collectors into the static binary.   Problem found on the Cray muzia at Sandia as well as Crays on DOD systems.
+
+* Took the default cbtf-argonavis directory and added and changed a few files in order to work in the separated install directory environment.  The summary of the changes:
+
+* Create cmake subdirectory in CUDA to hold the cmake files & update CMakeLists.txt file to reflect the cmake subdirectory change  This is mainly to match what we've done in OSS, cbtf, and cbtf-krell.
+
+* Use the cmake provided find_package file to find CUDA and then infer the CUPTI location using CUDA_TOOLKIT_ROOT_DIR variable
+
+* We now have a FindCBTF-Krell.cmake file instead of finding the individual messages, services, and core.    So, we only call find_package(CBTF-Krell REQUIRED) now. 
+
+* Fix for a bug found at INL where the iot experiment asserted due to buffer size issues.  This mod adjusts the path buffer to hold 16 paths of length 256 characters.  Fix via dpm.
+
+* Add changes to install the offline_monitor object file which gets used for supporting performance analysis of static binaries via the osslink script.
+
+* Fix missing and incorrect substitution parameters and fix bad bash conditional syntax.  Issues found on muzia.sandia.gov while testing the cmake build for a Cray target.
+
+* Met a couple of times with Krell IT to help with the conversion of the Open|SpeedShop WordPress website to WPEngine (is a managed WordPress provider) to have higher availability and easier management.
+
+* Fix bad syntax in build script found while building on muzia at sandia.
+
+* Look for cbtf-krell root instead of cbtf-messages and cbtf-services when building OSS/CBTF in the install-tool build scripts.
+
+* Updates to allow cbtf instrumentor to work with cbtf-krell installed in its own location. Update handling of --enable-debug to be default and be defined as -g -O2.  Enable build and install of all collector plugins excluding runtime for instrumentor=cbtf.
+
+* Add missing target includes for the "plugin" part of this target.  Not sure if that is a valid plugin to install even if autotools builds were installing it.
+
+May 2015:
+
+* Fix an issue with the osscompare script that will allow it to work better on a SLURM partition. Another fix is necessary to allow osscompare to work under a SLURM or PBS partition.
+
+* Comment out code for a no longer used mrnet version, particularly the mrnet.py code in this file (init.py).  This was causing osscompare to fail when executed on SLURM and PBS partitions because the mrnet.py code was trying to read (unsuccessfully) from the nodes in the partition list.
+
+* Don and I fixed a couple of issues but there is still a problem with openMPI doing a “free” memory call, which is wrapped by the memory experiment.   This causes a recursive loop.  More investigation is needed.
+
+* Investigated why the cmake build needs the skip_frame count to be 5 frames and the autotools based OSS build is only successful with the skip_frame count at 4 frames.   No final determination for this issue.
+
+* Continued to build and test the cbtf version of OpenSpeedShop in order to deploy this version as the default version of OpenSpeedShop, replacing the offline version.
+
+* Update the offline specific section of the autoconf configure.ac file to set five cbtf-krell configure variables to false to appease autotools.  Without setting these false the configure fails.
+
+* Change the default build setting for the automated build process to implicit tls.
+
+* Changes to the autotools build system to support cbtf and cbtf-krell being in separate installation directories. This change properly sets up the directory paths for the usage of cbtf and cbtf-krell as individual installations in scripts and in makefiles that used to reference a combined installation directory. It also makes the tls usage default to implicit instead of explicit in services and core.
+
+* Allow OSS to configure and use a cbtf-krell install that is in a separate location from cbtf itself.  This introduces ax_cbtf_krell.m4 which handles all the needs of messages, services, and core. 
+
+* Allow saved view code views to use the command found in the views table view_commad as is and not parse it for -v.  Add a simple addView method to Experiment class for use with the cbtf instrumentor to write computed metrics into the views table.
+
+
+Apr 2015:
+
+* Add new 1.5 version tarballs for cbtf and remove 1.1 versions, update the support for install script to build 1.5 versions.  Add back in the libdwarf patch application code.
+
+* Update the openspeedshop tarball with latest changes, including m4 files fixing the unwanted creation of /usr/lib64 references after configure.
+
+* Did a large check-in of cmake changes for the OpenSpeedShop build 
+
+* Contacted the Dyninst support team about build issues with building Dyninst on laboratory machines.
+
+* Worked on Cray specific static binary experiment issues where the libdl.so library was not being included in the osslink line causing dlopen and dlclose undefined symbol errors.
+
+* Worked on a compile issue with osscollect.cxx that used to compile prior to the system update on rzmerl at LLNL.  Eventually, Don and I decided to add a cast to the two NULL references that were failing to compile.
+
+* Participated with LANL in testing scalability of the current OSS/CBTF version at LANL on moonlight with 4096 processors using the mpip experiment.
+
+* Worked on a fix for a bad usertime bug in the offline version.  Don M was able to figure it out and suggest a fix.
+
+* Investigated TLS issues with the CBTF version of OpenSpeedShop.  There were some duplication TLSKey values the were causing failures.
+
+* Fix an issue with explicit tls that is a result of previous refactoring code that split common code from the collectors into a monitor file and collector file, but did not unify the TLS key that was being used to manage the explicit tls use. Thanks to Don for his help on finding and fixing this one. Also, per Dons suggestion change the TLS keys in the io, mpi, mem, and pthreads collectors to be unique and consistent across all the collectors.
+
+* Fix an abort that occurs when there is no tls from the CBTF_GetTLS call in the explicit TLS model. We were checking for a debug flag using tls when there is no tls available.
+
+* Remove fork used to run the user program under cbtfrun control. This is uneeded and simply calling system with a modified command line is sufficient. Much code cleanup and fixing formatting of some code additions to match the existing tab and space usage. Add more comments where needed to clarify the launching of the cbtf network with the users program. Set proper defaults for some of the command line options. by Don Maghrak 
+
+* For mpi jobs collectors should defer sending threads attached message until just before first data blob is sent. by Don Maghrak 
+
+* Do not set default for toplogy as that means you have a topology file already generated...
+
+* client must ensure that the connections file is written be for allowing the ltwt BEs to be run and attempt to connect.
+
+* If connection file does not exist, call abort.
+
+* Add note to code that pads node names with 0 characters and disable that behaviour. If the need to padding is observed on any system then this must only be done under the conditions that require it.
+
+Mar 2015:
+
+* Add the latest papi release tarball (version 5.4.1).
+
+* Add the ability to force the build of dyninst, if desired.  We are finding it in /usr on some systems but it is an old version.  This allows us to use --force-dyninst-build to force it to build our version.
+
+* If messages-cuda is not specified do not default to specifying /usr in LDFLAGS and CPPFLAGS.
+
+* If symtabapi is not specified or is found in /usr do not specify /usr in LDFLAGS and CPPFLAGS.
+
+* Set the proper environment variable after building the krell externals version of boost.  An incorrect variable was set, because of that MRNet did not use the krell externals version causing problems when executing cbtf.
+
+* The detect install script was detecting dyninst proper but not detecting the dyninst libdir properly.  This mod fixes that by adding a couple of more checks for the libdir case.
+
+* When creating the install directories for root, cbtf, and OSS, change the permission of the directories to 755 instead of letting the mkdir default to the umask settings.
+
+* Add code to separate the ld flags and lib specification portions of the python m4 file.  PYTHON_LIBS was created to contain -l<python lib and version>.  The lib specification was removed from PYTHON_LDFLAGS.  Additional change to not set PYTHON_LDFLAGS if python is in /usr/<lib or lib64>. Then use the new PYTHON_LIBS when building the cli.
+
+* Add new 1.5 version tarballs for cbtf and remove 1.1 versions, update the support for install script to build 1.5 versions.  Add back in the libdwarf patch application code.
+
+* Work with the MRNet development team, Mahesh R and Don Maghrak to try to understand why our OpenSpeedShop CBTF version does not work at higher scale on chama at Sandia.  We are continuing the process with no definitive answer at this time.
+
+* Rebuilt the OpenSpeedShop CBTF versions at all the laboratories in order to debug the scaling issue seen on chama at Sandia.
+
+Feb 2015:
+
+* Updated the CBTF release on sourceforge from 1.1 to 1.5.  Updated documents and build instructions.   Tested installation and execution of new version.   
+
+* Rearrange the ordering to check if an openMP thread id exists before looking for existence of a POSIX thread id.  This fixes the loadbalance view when looking under a rank for the load balance of the underlying threads.
+
+* Update the PTGF and PTGF OpenSpeedShop tarballs with fixes from Dane. Fix for double-free crash on close.  We are now (selectively) truncating file paths to 16 chars (unless the filename itself is longer).  This is a feature used in the standard path display, and the stack trace.  ToolTips are not truncated, so the user can see the full path, if desired.  These mods also include a solution to the expansion of the stack trace into the tree views.
+
+* Update code to build from OS system installed versions of dyninst, libdwarf, papi, xerces-c without having to build the so-called root versions and instead using the rpm installed versions.  Issues were discovered when installing OSS and CBTF on a new Fedora 21 system installation
+
+* A few tweaks to the existing build scripts for finding components in their default installation locations.
+
+* Fix compile issue found on BG/Q Vulcan platform at LLNL.  Fix thanks to Don M (dpm). The define OPENSS_USE_DL_ITERATE was not being set for the Blue Gene platform.
+
+* We do not set the proper library suffix into offline.py and ossrun when libmonitor is installed into slash lib.  Found while working with the spack install mechanism.
+
+* Allow the cbtf build to find dyninst installed via OS distribution installation.
+
+* Update the find symtabapi cmake routine to look in the subdirectory dyninst for the libsymtabAPI.so file.
+
+* Update the build script for cbtf-krell to find papi and xercesc in /usr if they exist there.
+
+* We do not find xplat_config.h when mrnet is installed in slash lib. Found this while working with the spack install tool.
+
+* Fix issues with building cbtf-lanl that spack building exposed. There were references to cbtf-krell/core without the proper CPPFLAGS and LDFLAGS being set. Also, could not find mrnet when installed into lib instead of lib64.
+
+* Fix some issues with the autotools based cbtf-krell build mechanisms found while doing spack testing. We were missing some CPPFLAGS settings that were masked by installing into the same prefix. Also, improve the finding of MRNet.
+
+
+OpenSpeedShop-2.1 release
 
 1) MPI-3 standard support in the MPI wrappers.
 2) Experimental CBTF instrumentor support, if built for CBTF instrumentation
