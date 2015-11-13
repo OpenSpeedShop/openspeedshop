@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2006-2013 Krell Institute. All Rights Reserved.
+# Copyright (c) 2006-2015 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -21,7 +21,7 @@ support multiple versions of MPI.  It attempts to answer the question about
 how to configure for the various MPI implementations and/or different versions
 of the same MPI implementation.
 
-The --with-* configure options control the build process: the MPI-related
+The -D<mpi type> cmake define options control the build process: the MPI-related
 plugins' runtime libraries are built using -I and -L options pointing to the
 paths that are given for the various implementations.
  
@@ -72,16 +72,12 @@ built using said mpi version, use these configure options (taken from the output
 
   "configure option"      "MPI type"       "default directory for search" 
 
-  --with-lam=DIR          LAM installation [/usr/local]
-  --with-lampi=DIR        LAMPI installation [/usr/local]
-  --with-mpich=DIR        MPICH installation [/opt/mpich]
-  --with-mpich-driver=NAME
-                          MPICH driver name [ch-p4]
-  --with-mpich2=DIR       MPICH2 installation [/opt/mpich2]
-  --with-mvapich=DIR      MVAPICH installation [/opt/mvapich]
-  --with-mvapich2=DIR     MVAPICH2 installation [/opt/mvapich2]
-  --with-mpt=DIR          MPT installation [/usr]
-  --with-openmpi=DIR      OpenMPI installation [/usr/local]
+   -DMPICH_DIR=DIR        MPICH installation [/opt/mpich]
+   -DMPICH2_DIR=DIR       MPICH2 installation [/opt/mpich2]
+   -DMVAPICH_DIR=DIR      MVAPICH installation [/opt/mvapich]
+   -DMVAPICH2_DIR=DIR     MVAPICH installation [/opt/mvapich2]
+   -DMPT_DIR=DIR          MPT installation [/usr]
+   -DOPENMPI_DIR=DIR      OpenMPI installation [/usr/local]
 
 
 
@@ -89,14 +85,6 @@ Also, when running a MPI or MPIT experiment on an application built
 with a particular version of MPI used to require setting an environment
 variable to specify which MPI implementation the monitored application
 was built with.
-
-ONLINE VERSION:
-
-With the 1.5 version,  the Open|SpeedShop online versions no longer 
-needs to the user to tell it which implementation the application 
-is built with.  Open|SpeedShop now detects this automatically.   
-You can still use the environment varable, OPENSS_MPI_IMPLEMENTATION,
-to override the automatic detected setting, if necessary for some reason.
 
 Here are the details about how to use the environment variable: 
 
@@ -106,7 +94,7 @@ This variable specifies the MPI implementation being used by the MPI
 application whose performance is being analyzed. It can be set to one 
 of the currently supported MPI implementations:
 
-  lam, lampi, mpich, mpich2, mpt, mvapich, mvapich2, or openmpi
+  mpich, mpich2, mpt, mvapich, mvapich2, or openmpi
 
 Open|SpeedShop is able to auto-detect the MPI implementation of
 the application and this variable is only be used to override the auto-
