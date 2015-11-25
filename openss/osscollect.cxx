@@ -166,6 +166,7 @@ static std::string getMPIExecutableFromCommand(std::string command) {
 
     std::string retval = "";
 
+
     boost::char_separator<char> sep(" ");
     boost::tokenizer<boost::char_separator<char> > btokens(command, sep);
 

@@ -20,6 +20,7 @@ cmake_minimum_required(VERSION 2.8.0)
 
 project(OpenSpeedShop C CXX)
 
+
 # define the version for this build.
 # TODO: allow this to be passed as an option via cmake for developers
 # to tag non production builds.
@@ -134,6 +135,8 @@ elseif (TARGET_OS STREQUAL "cray-xk")
     message(STATUS "Build runtimes for target cray-xk platform.")
 elseif (TARGET_OS STREQUAL "cray-xe")
     message(STATUS "Build runtimes for target cray-xe platform.")
+elseif (TARGET_OS MATCHES "arm")
+    message(STATUS "Build for the ARM platform (32 bit or 64 bit).")
 else()
     message(STATUS "Build runtimes for localhost platform.")
 endif()
@@ -335,9 +338,7 @@ endif()
 # After looking for the DyninstAPI and SymtabAPI packages, reconsile that with
 # whether or not the RESOLVE_SYMBOLS request by the builded can be met.
 #--------------------------------------------------------------------------------
-#
-# On arm/aarch64 systems, dyninst/symtabapi are not ready so these architectures
-# should default to bfd. The OSS default is symtabapi otherwise.
+# 
 set(RESOLVE_SYMBOLS "symtabapi" CACHE STRING "resolve symbols using: [bfd,symtabapi]")
 
 if (RESOLVE_SYMBOLS MATCHES "symtabapi")
@@ -350,18 +351,16 @@ if (RESOLVE_SYMBOLS MATCHES "symtabapi")
       message(STATUS "Resolve symbols using SymtabAPI.")
     else()
       message(STATUS "Resolve symbols using bfd. No Dyninst package was found.")
+      #  Let the rest of OpenSpeedShop (framework and openss) know we are resolving symbols with bfd
+      #  RESOLVE_SYMBOLS was set to symtabapi, but Dyninst was not found.
+      set(RESOLVE_SYMBOLS "bfd")
     endif()
 elseif (RESOLVE_SYMBOLS MATCHES "bfd")
     set(RESOLVE_SYMBOLS_DEFINES "" )
     message(STATUS "Resolve symbols using bfd.")
 else ()
-    # No user specified choice for resolving symbol tables.  By default choose symtabapi, if available
-    if(DYNINSTAPI_FOUND)
-      set(RESOLVE_SYMBOLS_DEFINES "OPENSS_USE_SYMTABAPI=1" )
-      message(STATUS "Resolve symbols using SymtabAPI.")
-    else()
-      message(STATUS "Resolve symbols using bfd.")
-    endif()
+    # User specified choice for resolving symbol tables was not one of the allowed types, error condition.
+    message(STATUS "Incorrect RESOLVE_SYMBOLS setting: Allowed choices are: [bfd,symtabapi]")
 endif()
 
 #
@@ -431,7 +430,6 @@ set(ALL_MPI_IMPL_NAMES ${all_mpi_names})
 message( STATUS "ALL_MPI_IMPL_NAMES: " ${ALL_MPI_IMPL_NAMES} )
 message( STATUS "DEFAULT_MPI_IMPL: " ${DEFAULT_MPI_IMPL} )
 message( STATUS "DEFAULT_MPI_IMPL_NAME: " ${DEFAULT_MPI_IMPL_NAME} )
-
 
 #
 #--------------------------------------------------------------------------------

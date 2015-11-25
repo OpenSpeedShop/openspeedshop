@@ -180,10 +180,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/offline.h
 	${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
 	DESTINATION include/openspeedshop
     )
-#add_definitions(
-#	-fasynchronous-unwind-tables
-#	-funwind-tables
-#    )
 
 if(LIBMONITOR_FOUND)
     add_library(openss-runtime-offline STATIC
@@ -302,6 +298,17 @@ else()
 endif()
 
 if(LIBUNWIND_FOUND)
+
+    # For ARM based systems (arm and aarch64) these compiler definitions must be added
+    # See: https://wiki.linaro.org/KenWerner/Sandbox/libunwind for additional information
+    # And/Or: https://archive.fosdem.org/2015/schedule/event/arm_perf/
+    if (TARGET_OS MATCHES "arm")
+        add_definitions(
+        	-fasynchronous-unwind-tables
+        	-funwind-tables
+        )
+    endif()
+
     add_library(openss-runtime-unwind STATIC
 	${UNWIND_SOURCES}
     )

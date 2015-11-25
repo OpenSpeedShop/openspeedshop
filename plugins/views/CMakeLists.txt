@@ -22,9 +22,15 @@ add_subdirectory(hwc)
 add_subdirectory(hwcsamp)
 add_subdirectory(hwctime)
 add_subdirectory(io)
-add_subdirectory(iot)
+
+# FIXME iot has problems with syscall types on ARM
+if (NOT TARGET_OS MATCHES "arm")
+   add_subdirectory(iot)
+endif()
+
 add_subdirectory(mpi)
 add_subdirectory(mpit)
+
 # with cmake are we deciding to not support fpe?
 #add_subdirectory(fpe)
 

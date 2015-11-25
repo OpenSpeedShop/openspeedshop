@@ -137,7 +137,6 @@ std::vector<LoopInfo> getLoopsAt(const Address& address, BPatch_image& image)
                 // A loop containing this address has been found! Rejoice!
                 // And, of course, obtain the loop's head address and basic
                 // block address ranges...
-                
 
                 #if DyninstAPI_VERSION_MAJOR >= 9
 

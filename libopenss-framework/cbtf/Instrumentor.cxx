@@ -37,7 +37,6 @@
 #include <KrellInstitute/CBTF/XML.hpp>
 #include <boost/thread.hpp>
 
-using namespace boost;
 using namespace KrellInstitute::CBTF;
 using namespace OpenSpeedShop::Framework;
 
