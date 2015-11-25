@@ -153,6 +153,7 @@ else()
     #
     if (${INSTRUMENTOR} MATCHES "cbtf")
 	target_link_libraries(openss
+	    -Wl,--no-as-needed
 	    openss-framework
 	    openss-framework-cbtf
 	    ${GOMP}
@@ -161,6 +162,7 @@ else()
     )
     else()
 	target_link_libraries(openss
+	    -Wl,--no-as-needed
 	    ${GOMP}
 	    ${LTDL_LIBRARY_SHARED}
 	    ${CMAKE_DL_LIBS}
@@ -179,6 +181,7 @@ else()
         if (RESOLVE_SYMBOLS MATCHES "bfd")
 
             target_link_libraries(ossutil
+	        -Wl,--no-as-needed
                 openss-framework
                 openss-framework-binutils
                 ${LIB_LTDL}
@@ -187,6 +190,7 @@ else()
         else()
     
             target_link_libraries(ossutil
+	        -Wl,--no-as-needed
                 openss-framework
                 openss-framework-symtabapi
                 ${LIB_LTDL}
@@ -220,6 +224,7 @@ else()
         )
 
         target_link_libraries(osscollect
+	    -Wl,--no-as-needed
             ${LTDL_LIBRARY_SHARED}
 	    ${Boost_FILESYSTEM_LIBRARY}
 	    ${Boost_SYSTEM_LIBRARY}
@@ -239,7 +244,7 @@ else()
             rt
         )
 
-        # This is defined in FindCBTF-Krell.cmake. Is anyone using XMLDR directly
+        # This is defined in FindCBTF-Krell.cmake. Is anyone using XMLDIR directly?
 	# or should this be CBTF_KRELL_XMLDIR.  Will cbtf-argonavis cuda need
 	# it's own definitions here?
         # Handle cbtf targeted build where the xmldir is in the compute node version install directories
