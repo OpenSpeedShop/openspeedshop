@@ -119,7 +119,7 @@ if (INSTRUMENTOR MATCHES "offline")
 	${LibUnwind_LIBRARY_SHARED}
     )
 
-    set_target_properties(iot-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
+    set_target_properties(iot-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES}") 
 
     install(TARGETS iot-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -156,7 +156,7 @@ if (INSTRUMENTOR MATCHES "offline")
 	${LibUnwind_LIBRARY_SHARED}
     )
 
-    set_target_properties(iot-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}") 
+    set_target_properties(iot-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES}") 
 
     install(TARGETS iot-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop

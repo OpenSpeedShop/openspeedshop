@@ -121,7 +121,7 @@ if (INSTRUMENTOR MATCHES "offline")
         ${Papi_SHARED_LIBRARIES}
     )
 
-    set_target_properties(hwctime-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};USE_FASTTRACE=1") 
+    set_target_properties(hwctime-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};USE_FASTTRACE=1") 
 
     install(TARGETS hwctime-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -160,7 +160,7 @@ if (INSTRUMENTOR MATCHES "offline")
 	${Papi_SHARED_LIBRARIES}
     )
 
-    set_target_properties(hwctime-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};USE_FASTTRACE=1") 
+    set_target_properties(hwctime-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};USE_FASTTRACE=1") 
 
     install(TARGETS hwctime-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop

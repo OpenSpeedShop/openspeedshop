@@ -118,7 +118,7 @@ if (INSTRUMENTOR MATCHES "offline")
 	${LibUnwind_LIBRARY_SHARED}
     )
 
-    set_target_properties(usertime-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};USE_FASTTRACE=1") 
+    set_target_properties(usertime-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};USE_FASTTRACE=1") 
 
     install(TARGETS usertime-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -153,7 +153,7 @@ if (INSTRUMENTOR MATCHES "offline")
         -Wl,-no-whole-archive
     )
 
-    set_target_properties(usertime-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};USE_FASTTRACE=1") 
+    set_target_properties(usertime-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};USE_FASTTRACE=1") 
 
     install(TARGETS usertime-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop

@@ -125,7 +125,7 @@ if(HAVE_OPENMPI)
 
 
     #set_target_properties(mpit-openmpi-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpit-openmpi-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${OpenMPI_DEFINES}") 
+    set_target_properties(mpit-openmpi-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${OpenMPI_DEFINES}") 
 
     install(TARGETS mpit-openmpi-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -169,7 +169,7 @@ if(HAVE_OPENMPI)
 
 
     #set_target_properties(mpit-openmpi-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpit-openmpi-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${OpenMPI_DEFINES};OPENSS_STATIC") 
+    set_target_properties(mpit-openmpi-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${OpenMPI_DEFINES};OPENSS_STATIC") 
 
     install(TARGETS mpit-openmpi-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -211,7 +211,7 @@ if(HAVE_MPICH2)
 
 
     #set_target_properties(mpit-mpich2-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpit-mpich2-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mpich2_DEFINES}") 
+    set_target_properties(mpit-mpich2-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${Mpich2_DEFINES}") 
 
     install(TARGETS mpit-mpich2-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -253,7 +253,7 @@ if(HAVE_MPICH2)
 
 
     #set_target_properties(mpit-mpich2-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpit-mpich2-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mpich2_DEFINES};OPENSS_STATIC") 
+    set_target_properties(mpit-mpich2-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${Mpich2_DEFINES};OPENSS_STATIC") 
 
     install(TARGETS mpit-mpich2-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -296,7 +296,7 @@ if(HAVE_MPICH)
 
 
     #set_target_properties(mpit-mpich-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpit-mpich-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mpich_DEFINES}") 
+    set_target_properties(mpit-mpich-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${Mpich_DEFINES}") 
 
     install(TARGETS mpit-mpich-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -339,7 +339,7 @@ if(HAVE_MPICH)
 
 
     #set_target_properties(mpit-mpich-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpit-mpich-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mpich_DEFINES};OPENSS_STATIC") 
+    set_target_properties(mpit-mpich-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${Mpich_DEFINES};OPENSS_STATIC") 
 
     install(TARGETS mpit-mpich-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -381,7 +381,7 @@ if(HAVE_MPT)
 
 
     #set_target_properties(mpit-mpt-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpit-mpt-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mpt_DEFINES}") 
+    set_target_properties(mpit-mpt-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${Mpt_DEFINES}") 
 
     install(TARGETS mpit-mpt-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -424,7 +424,7 @@ if(HAVE_MPT)
 
 
     #set_target_properties(mpit-mpt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpit-mpt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mpt_DEFINES};OPENSS_STATIC") 
+    set_target_properties(mpit-mpt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${Mpt_DEFINES};OPENSS_STATIC") 
 
     install(TARGETS mpit-mpt-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -467,7 +467,7 @@ if(HAVE_MVAPICH2)
 
 
     #set_target_properties(mpit-mvapich2-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpit-mvapich2-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mvapich2_DEFINES}") 
+    set_target_properties(mpit-mvapich2-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${Mvapich2_DEFINES}") 
 
     install(TARGETS mpit-mvapich2-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -510,7 +510,7 @@ if(HAVE_MVAPICH2)
 
 
     #set_target_properties(mpit-mvapich2-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpit-mvapich2-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mvapich2_DEFINES};OPENSS_STATIC") 
+    set_target_properties(mpit-mvapich2-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${Mvapich2_DEFINES};OPENSS_STATIC") 
 
     install(TARGETS mpit-mvapich2-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -553,7 +553,7 @@ if(HAVE_MVAPICH)
 
 
     #set_target_properties(mpit-mvapich-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpit-mvapich-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mvapich_DEFINES}") 
+    set_target_properties(mpit-mvapich-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${Mvapich_DEFINES}") 
 
     install(TARGETS mpit-mvapich-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -594,7 +594,7 @@ if(HAVE_MVAPICH)
 
 
     #set_target_properties(mpit-mvapich-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpit-mvapich-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${Mvapich_DEFINES};OPENSS_STATIC") 
+    set_target_properties(mpit-mvapich-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${Mvapich_DEFINES};OPENSS_STATIC") 
 
     install(TARGETS mpit-mvapich-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop

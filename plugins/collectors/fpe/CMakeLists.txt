@@ -115,7 +115,7 @@ if(LIBMONITOR_FOUND)
     )
 
     #set_target_properties(fpe-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(fpe-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
+    set_target_properties(fpe-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES}")
 
     install(TARGETS fpe-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -155,7 +155,7 @@ if(LIBMONITOR_FOUND)
 
 
     #set_target_properties(fpe-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(fpe-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES}")
+    set_target_properties(fpe-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES}")
 
     install(TARGETS fpe-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
