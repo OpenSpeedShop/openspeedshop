@@ -51,16 +51,16 @@ libpapi="${libpapi_libdir}/libpapi.a"
 if test "${oss_target}" == "cray-xt5" || test "${oss_target}" == "cray-xt4" || test "${oss_target}" == "bgp"  ; then
 
   monitor_wrap_base_names="main exit _exit"
-elif test "${mach_type}" == "ppc64" && test "${oss_target}" = "bgq"  ; then
+elif test "${mach_type}" == "ppc64" && test "${oss_target}" == "bgq"  ; then
   monitor_wrap_base_names="main exit _exit system"
 else
   monitor_wrap_base_names="main exit _exit system"
 fi
 
 # monitor has --enable-pthread
-if test "${mach_type}" == "ppc64" && test "${oss_target}" = "bgq"  ; then
+if test "${mach_type}" == "ppc64" && test "${oss_target}" == "bgq"  ; then
    monitor_wrap_pthread_names="pthread_create pthread_exit pthread_sigmask sigwaitinfo sigtimedwait"
-elif test "${oss_target}" == "cray-xe" || test "${oss_target}" = "cray-xk"  || test "${oss_target}" = "cray" ; then
+elif test "${oss_target}" == "cray-xe" || test "${oss_target}" == "cray-xk"  || test "${oss_target}" == "cray" ; then
    monitor_wrap_pthread_names="pthread_create pthread_exit pthread_sigmask sigwaitinfo sigtimedwait"
 else
    monitor_wrap_pthread_names="pthread_create pthread_exit pthread_sigmask"
@@ -601,14 +601,12 @@ case "$collector" in
     done
 
     # Need to undefine open for io and iot for cray-xt4
-    if [ ${oss_target} = cray-xt4 ]
-    then
+    if test "${oss_target}" == "cray-xt4" ; then
        undef_args="${undef_args} -Wl,-u,__wrap_open"
     fi
 
     # Need to undefine open for io and iot for cray-xt5
-    if [ ${oss_target} = cray-xt5 ]
-    then
+    if test "${oss_target}" == "cray-xt5" ; then
        undef_args="${undef_args} -Wl,-u,__wrap_open"
     fi
     ;;
@@ -640,8 +638,11 @@ fi
 exec $command $static_args $wrap_args $undef_args "$@" $special_args $mon_args $collector_libs
 
 
-if [ ${oss_target} = cray-xt4 || ${oss_target} = cray-xt5 || ${oss_target} = cray-xe || ${oss_target} = cray-xk ] || ${oss_target} = cray ]
-then
+if test "${oss_target}" == "cray-xt4" || 
+   test "${oss_target}" == "cray-xt5"  || 
+   test "${oss_target}" == "cray-xe"  || 
+   test "${oss_target}" == "cray-xk"  || 
+   test "${oss_target}" == "cray" ; then
       echo
       echo "NOTE: The aprun -bb option is required when running the executable produced by osslink"
       echo
