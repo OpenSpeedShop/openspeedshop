@@ -1,5 +1,5 @@
 /*******************************************************************************
- * ** Copyright (c) 2006-2015 The Krell Institue. All Rights Reserved.
+ * ** Copyright (c) 2006-2016 The Krell Institue. All Rights Reserved.
  * **
  * ** This library is free software; you can redistribute it and/or modify it under
  * ** the terms of the GNU Lesser General Public License as published by the Free
@@ -37,7 +37,7 @@ to use the static address space or find the dsos in use (or dlopened/dlclosed).
 
 */
 
-#if defined(TARGET_OS_BGP) || defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGP) || defined(RUNTIME_PLATFORM_BGQ)
 #define OPENSS_USE_DL_ITERATE 1
 #endif
 
@@ -65,11 +65,11 @@ extern void offline_record_dlopen(const char* dsoname, uint64_t begin, uint64_t 
 
 extern const char* OpenSS_GetExecutablePath();
 
-#if defined(TARGET_OS_BGP)
+#if defined(RUNTIME_PLATFORM_BGP)
 #include <link.h>
 extern etext;
 extern edata;
-#elif defined(TARGET_OS_BGQ)
+#elif defined(RUNTIME_PLATFORM_BGQ)
 #include <link.h>
 extern etext;
 extern edata;
@@ -277,7 +277,7 @@ static void lc(ElfW(Addr) base_address, const char *name, mem_region *regions,
 
 int OpenSS_GetDLInfo(pid_t pid, char *path, uint64_t b_time, uint64_t e_time)
 {
-#if defined(TARGET_OS_BGP) || defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGP) || defined(RUNTIME_PLATFORM_BGQ)
     if (checked_for_static == 0) {
 	is_static = exe_is_static();
 	checked_for_static = 1;

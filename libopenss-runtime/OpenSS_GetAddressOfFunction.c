@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2012 Krell Institute All Rights Reserved.
+** Copyright (c) 2006-2016 Krell Institute All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -48,7 +48,7 @@ uint64_t OpenSS_GetAddressOfFunction(const void* pointer)
 {
     /* Check assertions */   
     Assert(pointer != NULL);
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
     
     /* Return the function pointer from the descriptor on Linux and BG/Q */
     return *((uint64_t*)((uintptr_t)pointer));

@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2016 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -79,7 +79,7 @@ if(LIBMONITOR_FOUND)
 	-DOPENSS_OFFLINE=1
     )
 
-    if (TARGET_OS MATCHES "arm")
+    if (RUNTIME_PLATFORM MATCHES "arm")
         add_definitions(
 	    -fasynchronous-unwind-tables
 	    -funwind-tables

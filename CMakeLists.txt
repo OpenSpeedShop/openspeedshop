@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2016 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -20,12 +20,11 @@ cmake_minimum_required(VERSION 2.8.0)
 
 project(OpenSpeedShop C CXX)
 
-
 # define the version for this build.
 # TODO: allow this to be passed as an option via cmake for developers
 # to tag non production builds.
 add_definitions(
-    -DVERSION="2.2.0"
+    -DVERSION="2.2.2"
 )
 
 # cmake module search path for this project.
@@ -101,41 +100,41 @@ endif()
 # platform compute nodes
 #--------------------------------------------------------------------------------
 #
-set(TARGET_OS "" CACHE STRING "OpenSpeedShop target os: none or [bgq,bgp,mic]")
+set(RUNTIME_PLATFORM "" CACHE STRING "OpenSpeedShop target os: none or [bgq,bgp,mic]")
 
-if (TARGET_OS STREQUAL "bgqfe")
+if (RUNTIME_PLATFORM STREQUAL "bgqfe")
     message(STATUS "Build runtimes for target bgq front-end platform.")
     # This is used to build the offline.py correctly when we are running on
     # the bgq.  We execute the offline.py in the FE client of OSS.
-    set(TARGET_OS bgq)
-elseif (TARGET_OS STREQUAL "bgq")
-    add_definitions(-DTARGET_OS=bgq)
-    add_definitions(-DTARGET_OS_BGQ=1)
+    set(RUNTIME_PLATFORM bgq)
+elseif (RUNTIME_PLATFORM STREQUAL "bgq")
+    add_definitions(-DRUNTIME_PLATFORM=bgq)
+    add_definitions(-DRUNTIME_PLATFORM_BGQ=1)
     add_definitions(-DBUILD_TARGETED_BGQ=1)
     set(BUILD_TARGETED_BGQ 1)
     message(STATUS "Build runtimes for target bgq platform.")
-elseif (TARGET_OS STREQUAL "bgp")
-    add_definitions(-DTARGET_OS=bgp)
-    add_definitions(-DTARGET_OS_BGP=1)
+elseif (RUNTIME_PLATFORM STREQUAL "bgp")
+    add_definitions(-DRUNTIME_PLATFORM=bgp)
+    add_definitions(-DRUNTIME_PLATFORM_BGP=1)
     add_definitions(-DBUILD_TARGETED_BGP=1)
     set(BUILD_TARGETED_BGP 1)
     message(STATUS "Build runtimes for target bgp platform.")
-elseif (TARGET_OS STREQUAL "bgl")
-    add_definitions(-DTARGET_OS=bgl)
-    add_definitions(-DTARGET_OS_BGL=1)
+elseif (RUNTIME_PLATFORM STREQUAL "bgl")
+    add_definitions(-DRUNTIME_PLATFORM=bgl)
+    add_definitions(-DRUNTIME_PLATFORM_BGL=1)
     add_definitions(-DBUILD_TARGETED_BGL=1)
     set(BUILD_TARGETED_BGL 1)
     message(STATUS "Build runtimes for target bgl platform.")
-elseif (TARGET_OS STREQUAL "mic")
-    add_definitions(-DTARGET_OS=mic)
+elseif (RUNTIME_PLATFORM STREQUAL "mic")
+    add_definitions(-DRUNTIME_PLATFORM=mic)
     message(STATUS "Build runtimes for target mic platform.")
-elseif (TARGET_OS STREQUAL "cray")
+elseif (RUNTIME_PLATFORM STREQUAL "cray")
     message(STATUS "Build runtimes for target cray platform.")
-elseif (TARGET_OS STREQUAL "cray-xk")
+elseif (RUNTIME_PLATFORM STREQUAL "cray-xk")
     message(STATUS "Build runtimes for target cray-xk platform.")
-elseif (TARGET_OS STREQUAL "cray-xe")
+elseif (RUNTIME_PLATFORM STREQUAL "cray-xe")
     message(STATUS "Build runtimes for target cray-xe platform.")
-elseif (TARGET_OS MATCHES "arm")
+elseif (RUNTIME_PLATFORM MATCHES "arm")
     message(STATUS "Build for the ARM platform (32 bit or 64 bit).")
 else()
     message(STATUS "Build runtimes for localhost platform.")
@@ -193,8 +192,8 @@ endif()
 
 # Setup CACHE variables that are referenced across the sub-directories of the build
 
-set(BUILD_TARGETED_FE "false" CACHE STRING "Is this a special front-end build where the targeted components are passed to the build in addition to the FE related components." )
-set(CBTF_KRELL_CN_RUNTIME_DIR "" CACHE STRING "path to targeted runtime collectors." )
+set(BUILD_FE_USING_CN_RUNTIMES "false" CACHE STRING "Special front-end build where the compute node components are passed to the build in addition to the FE related components." )
+set(CBTF_KRELL_CN_RUNTIME_DIR "" CACHE STRING "Path to targeted runtime collectors." )
 
 # Set default to runtime only to false.
 set(RUNTIME_ONLY "false" CACHE STRING "Build only runtime collectors (offline instrumentor): [true,false]")
@@ -246,8 +245,6 @@ endif()
 #
 
 if (INSTRUMENTOR MATCHES "offline")
-
-
     find_package(LibMonitor)
     find_package(LibUnwind)
     find_package(Papi)
@@ -291,16 +288,20 @@ elseif (INSTRUMENTOR MATCHES "cbtf")
 
     if (NOT "${CBTF_KRELL_CN_RUNTIME_DIR}" STREQUAL "")
         if(EXISTS ${CBTF_KRELL_CN_RUNTIME_DIR} AND IS_DIRECTORY "${CBTF_KRELL_CN_RUNTIME_DIR}")
-            set ( BUILD_TARGETED_FE "true" )
-            if( EXISTS ${CBTF_KRELL_CN_RUNTIME_DIR}/lib${LIB_SUFFIX} AND IS_DIRECTORY "${CBTF_KRELL_CN_RUNTIME_DIR}/lib${LIB_SUFFIX}" AND EXISTS "${CBTF_KRELL_CN_RUNTIME_DIR}/lib${LIB_SUFFIX}/libcbtf-core.so")
+            set ( BUILD_FE_USING_CN_RUNTIMES "true" )
+            if( EXISTS ${CBTF_KRELL_CN_RUNTIME_DIR}/lib${LIB_SUFFIX} AND
+                IS_DIRECTORY "${CBTF_KRELL_CN_RUNTIME_DIR}/lib${LIB_SUFFIX}" AND 
+                EXISTS "${CBTF_KRELL_CN_RUNTIME_DIR}/lib${LIB_SUFFIX}/KrellInstitute/Collectors/pcsamp-collector-monitor-mrnet.so")
                set (CBTF_KRELL_CN_RUNTIME_LIBDIR ${CBTF_KRELL_CN_RUNTIME_DIR}/lib${LIB_SUFFIX} CACHE PATH "Location of compute node cbtf krell libraries.")
                message(STATUS "CBTF_KRELL_CN_RUNTIME_DIR/lib64 was recognized.")
-            elseif ( EXISTS "${CBTF_KRELL_CN_RUNTIME_DIR}/lib" AND IS_DIRECTORY "${CBTF_KRELL_CN_RUNTIME_DIR}/lib" AND EXISTS "${CBTF_KRELL_CN_RUNTIME_DIR}/lib/libcbtf-core.so")
+            elseif ( EXISTS "${CBTF_KRELL_CN_RUNTIME_DIR}/lib" AND
+                     IS_DIRECTORY "${CBTF_KRELL_CN_RUNTIME_DIR}/lib" AND
+                     EXISTS "${CBTF_KRELL_CN_RUNTIME_DIR}/lib/KrellInstitute/Collectors/pcsamp-collector-monitor-mrnet.so")
                set (CBTF_KRELL_CN_RUNTIME_LIBDIR ${CBTF_KRELL_CN_RUNTIME_DIR}/lib CACHE PATH "Location of compute node cbtf krell libraries.")
                message(STATUS "CBTF_KRELL_CN_RUNTIME_DIR/lib was recognized.")
             else()
-               # Set BUILD_TARGETED_FE to false because we did not find libraries under the top-level directory
-               set ( BUILD_TARGETED_FE "false" )
+               # Set BUILD_FE_USING_CN_RUNTIMES to false because we did not find libraries under the top-level directory
+               set ( BUILD_FE_USING_CN_RUNTIMES "false" )
             endif()
             if( EXISTS "${CBTF_KRELL_CN_RUNTIME_DIR}/share/KrellInstitute/xml" AND IS_DIRECTORY "${CBTF_KRELL_CN_RUNTIME_DIR}/share/KrellInstitute/xml")
                # CBTF_KRELL_CN_XMLDIR is set to the compute node path to the collector xml files: {CBTF_KRELL_CN_RUNTIME_DIR}/share/KrellInstitute/xml
@@ -308,14 +309,14 @@ elseif (INSTRUMENTOR MATCHES "cbtf")
             endif()
         else()
             # Directory specified does not exist or is not a directory
-            set ( BUILD_TARGETED_FE "false" )
+            set ( BUILD_FE_USING_CN_RUNTIMES "false" )
         endif()
     else()
         # No directory specified
-        set ( BUILD_TARGETED_FE "false" )
+        set ( BUILD_FE_USING_CN_RUNTIMES "false" )
     endif()
 
-    message(STATUS "BUILD_TARGETED_FE=${BUILD_TARGETED_FE}")
+    message(STATUS "BUILD_FE_USING_CN_RUNTIMES=${BUILD_FE_USING_CN_RUNTIMES}")
 
 endif()
 

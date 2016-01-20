@@ -1,5 +1,5 @@
 /*******************************************************************************
- * ** Copyright (c) 2012 Krell Institute All Rights Reserved.
+ * ** Copyright (c) 2012-2016 Krell Institute All Rights Reserved.
  * **
  * ** This library is free software; you can redistribute it and/or modify it under
  * ** the terms of the GNU Lesser General Public License as published by the Free
@@ -16,7 +16,7 @@
  * ** 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * *******************************************************************************/
 
-#if defined(TARGET_OS_BGL) 
+#if defined(RUNTIME_PLATFORM_BGL) 
 #include <stdio.h>
 #include <bglpersonality.h>
 

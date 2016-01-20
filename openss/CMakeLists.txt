@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2016 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -42,7 +42,7 @@ set(cbtflibdir ${CBTF_DIR}/lib${SUFFIX})
 set(cbtfruncmd ${CBTF_KRELL_CBTFRUN})
 set(cbtfcollectors ${CBTF_KRELL_COLLECTORS})
 set(cbtfcomponents ${CBTF_KRELL_COMPONENTS})
-if (BUILD_TARGETED_FE MATCHES "true")
+if (BUILD_FE_USING_CN_RUNTIMES MATCHES "true")
     set(cbtfxmldir ${CBTF_KRELL_CN_XMLDIR})
 else()
     set(cbtfxmldir ${CBTF_KRELL_XMLDIR})
@@ -84,7 +84,7 @@ set(mvapich2dir ${MVAPICH2_DIR})
 set(mptdir ${MPT_DIR})
 set(openmpidir ${OPENMPI_DIR})
 set(openmpilibdir ${OpenMPI_LIB_DIR})
-set(oss_targetos ${TARGET_OS})
+set(oss_targetos ${RUNTIME_PLATFORM})
 
 if (RUNTIME_ONLY MATCHES "true")
   # FIXME: In the openss world only offline instrumentor needs the
@@ -129,10 +129,16 @@ else()
       )
   
     if (OpenMP_FLAG_DETECTED)
-        add_definitions(-fopenmp)
-        set(GOMP "gomp")
+        add_definitions(${OpenMP_C_FLAGS})
+        if (${OpenMP_C_FLAGS} MATCHES "-fopenmp")
+           set(OpenMP_RT_NAME "gomp")
+        elseif (${OpenMP_C_FLAGS} MATCHES "-openmp")
+           set(OpenMP_RT_NAME "iomp5")
+        else()
+           set(OpenMP_RT_NAME "gomp")
+        endif()
     else()
-        set(GOMP "")
+        set(OpenMP_RT_NAME "")
     endif()
 
     add_executable(openss
@@ -156,14 +162,14 @@ else()
 	    -Wl,--no-as-needed
 	    openss-framework
 	    openss-framework-cbtf
-	    ${GOMP}
+	    ${OpenMP_RT_NAME}
 	    ${LTDL_LIBRARY_SHARED}
 	    ${CMAKE_DL_LIBS}
     )
     else()
 	target_link_libraries(openss
 	    -Wl,--no-as-needed
-	    ${GOMP}
+	    ${OpenMP_RT_NAME}
 	    ${LTDL_LIBRARY_SHARED}
 	    ${CMAKE_DL_LIBS}
     )
@@ -184,6 +190,7 @@ else()
 	        -Wl,--no-as-needed
                 openss-framework
                 openss-framework-binutils
+	        ${OpenMP_RT_NAME}
                 ${LIB_LTDL}
                 ${CMAKE_DL_LIBS}
             )
@@ -193,6 +200,7 @@ else()
 	        -Wl,--no-as-needed
                 openss-framework
                 openss-framework-symtabapi
+	        ${OpenMP_RT_NAME}
                 ${LIB_LTDL}
                 ${CMAKE_DL_LIBS}
             )
@@ -248,7 +256,7 @@ else()
 	# or should this be CBTF_KRELL_XMLDIR.  Will cbtf-argonavis cuda need
 	# it's own definitions here?
         # Handle cbtf targeted build where the xmldir is in the compute node version install directories
-        if (BUILD_TARGETED_FE MATCHES "true" )
+        if (BUILD_FE_USING_CN_RUNTIMES MATCHES "true" )
             set_target_properties(osscollect PROPERTIES COMPILE_DEFINITIONS XMLDIR=${CBTF_KRELL_CN_XMLDIR})
         else()
             set_target_properties(osscollect PROPERTIES COMPILE_DEFINITIONS XMLDIR=${CBTF_KRELL_XMLDIR})

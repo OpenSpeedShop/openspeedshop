@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) 2010-2014 Krell Institute.  All Rights Reserved.
+** Copyright (c) 2010-2016 Krell Institute.  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -347,7 +347,7 @@ void hwcsamp_start_sampling(const char* arguments)
     }
 #endif
 
-#if !defined(TARGET_OS_BGQ) 
+#if !defined(RUNTIME_PLATFORM_BGQ) 
 /* In Component PAPI, EventSets must be assigned a component index
  * before you can fiddle with their internals. 0 is always the cpu component */
 #if (PAPI_VERSION_MAJOR(PAPI_VERSION)>=4)
@@ -360,7 +360,7 @@ void hwcsamp_start_sampling(const char* arguments)
 #endif
 
     if (getenv("OPENSS_HWCSAMP_MULTIPLEX") != NULL) {
-#if !defined(TARGET_OS_BGP) 
+#if !defined(RUNTIME_PLATFORM_BGP) 
 	rval = PAPI_set_multiplex( tls->EventSet );
 	if ( rval == PAPI_ENOSUPP) {
 	    fprintf(stderr,"OpenSS_Create_Eventset: Multiplex not supported\n");

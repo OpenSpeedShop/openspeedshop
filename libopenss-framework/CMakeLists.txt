@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2016 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -164,7 +164,7 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     # CBTF-Krell.cmake now sets CBTF_KRELL_XMLDIR rather than CBTF_TOOLS_XMLDIR.
-    if (BUILD_TARGETED_FE MATCHES "true" )
+    if (BUILD_FE_USING_CN_RUNTIMES MATCHES "true" )
         add_definitions(
            -DCBTF_LIB_DIR="${CBTF_LIB_DIR}"
            -DCBTF_KRELL_LIB_DIR="${CBTF_KRELL_LIBDIR}"

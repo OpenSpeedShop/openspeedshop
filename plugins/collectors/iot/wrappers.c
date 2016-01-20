@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2008 The Krell Institute. All Rights Reserved.
+** Copyright (c) 2008-2016 The Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -166,7 +166,7 @@ ssize_t iotread(int fd, void *buf, size_t count)
 
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -244,7 +244,7 @@ ssize_t iotwrite(int fd, void *buf, size_t count)
 
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -323,7 +323,7 @@ off_t iotlseek(int fd, off_t offset, int whence)
 
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -400,7 +400,7 @@ off_t iotlseek64(int fd, off_t offset, int whence)
 
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -459,7 +459,7 @@ int iotopen(const char *pathname, int flags, mode_t mode)
     strncpy(currentpathname,pathname,strlen(pathname));
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -519,7 +519,7 @@ int iotopen64(const char *pathname, int flags, mode_t mode)
 
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -595,7 +595,7 @@ int iotclose(int fd)
 
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -670,7 +670,7 @@ int iotdup(int oldfd)
 
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -746,7 +746,7 @@ int iotdup2(int oldfd, int newfd)
 
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -804,7 +804,7 @@ int iotcreat(char *pathname, mode_t mode)
     strncpy(currentpathname,pathname,strlen(pathname));
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -861,7 +861,7 @@ int iotcreat64(char *pathname, mode_t mode)
     strncpy(currentpathname,pathname,strlen(pathname));
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -917,7 +917,7 @@ int iotpipe(int filedes[2])
     event.retval = retval;
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -983,7 +983,7 @@ ssize_t iotpread(int fd, void *buf, size_t count, off_t offset)
     event.retval = retval;
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -1068,7 +1068,7 @@ ssize_t iotpread64(int fd, void *buf, size_t count, off_t offset)
     strncpy(currentpathname,namebuf,strlen(namebuf));
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -1153,7 +1153,7 @@ ssize_t iotpwrite(int fd, void *buf, size_t count, off_t offset)
     strncpy(currentpathname,namebuf,strlen(namebuf));
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -1240,7 +1240,7 @@ ssize_t iotpwrite64(int fd, void *buf, size_t count, off_t offset)
     strncpy(currentpathname,namebuf,strlen(namebuf));
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -1317,7 +1317,7 @@ ssize_t iotreadv(int fd, const struct iovec *vector, size_t count)
     strncpy(currentpathname,namebuf,strlen(namebuf));
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else
@@ -1396,7 +1396,7 @@ ssize_t iotwritev(int fd, const struct iovec *vector, size_t count)
 
 
     /* Record event and it's stacktrace*/
-#if defined(TARGET_OS_BGQ)
+#if defined(RUNTIME_PLATFORM_BGQ)
 #if ! defined (OPENSS_STATIC) 
         iot_record_event(&event, OpenSS_GetAddressOfFunction((*realfunc)));
 #else

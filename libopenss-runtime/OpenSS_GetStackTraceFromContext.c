@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2012 The Krell Institue. All Rights Reserved.
+** Copyright (c) 2006-2016 The Krell Institue. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -77,7 +77,7 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
  */
 
 
-#if defined(TARGET_OS_BGP) 
+#if defined(RUNTIME_PLATFORM_BGP) 
 
     if (signal_context != NULL) {
        context = *signal_context;
@@ -90,7 +90,7 @@ void OpenSS_GetStackTraceFromContext(const ucontext_t* signal_context,
     //Work-around to a libunwind bug
     context.uc_mcontext.regs->link = context.uc_mcontext.regs->nip;
 
-#elif defined(TARGET_OS_BGQ)
+#elif defined(RUNTIME_PLATFORM_BGQ)
 
     if (signal_context != NULL) {
        context = *signal_context;

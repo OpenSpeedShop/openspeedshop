@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2016 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -24,7 +24,7 @@ if (STDINT_H_FOUND)
 endif()
 
 add_definitions(
-    -DPACKAGE_STRING="OpenSpeedShop XXX"
+    -DPACKAGE_STRING="OpenSpeedShop 2.2.2"
     -DPYTHON_FP_LIB_NAME="${PYTHON_LIBRARY}"
 )
 
@@ -61,7 +61,7 @@ set(mpich2dir ${MPICH2_DIR})
 set(mvapich2dir ${MVAPICH2_DIR})
 set(mptdir ${MPT_DIR})
 set(openmpidir ${OPENMPI_DIR})
-set(target_os ${TARGET_OS})
+set(target_os ${RUNTIME_PLATFORM})
 configure_file(offline.py.in offline.py)
 configure_file(cbtf-offline.py.in cbtf-offline.py)
 configure_file(mrnet.py.in mrnet.py COPYONLY)

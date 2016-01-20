@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2016 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -21,7 +21,7 @@ add_subdirectory(usertime)
 add_subdirectory(io)
 
 # FIXME iot has problems with syscall types on ARM
-if (NOT TARGET_OS MATCHES "arm")
+if (NOT RUNTIME_PLATFORM MATCHES "arm")
    add_subdirectory(iot)
 endif()
 

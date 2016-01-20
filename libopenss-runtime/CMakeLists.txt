@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2016 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -302,7 +302,7 @@ if(LIBUNWIND_FOUND)
     # For ARM based systems (arm and aarch64) these compiler definitions must be added
     # See: https://wiki.linaro.org/KenWerner/Sandbox/libunwind for additional information
     # And/Or: https://archive.fosdem.org/2015/schedule/event/arm_perf/
-    if (TARGET_OS MATCHES "arm")
+    if (RUNTIME_PLATFORM MATCHES "arm")
         add_definitions(
         	-fasynchronous-unwind-tables
         	-funwind-tables
