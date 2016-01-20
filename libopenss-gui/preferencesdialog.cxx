@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2011 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006-2016 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -66,7 +66,7 @@ PreferencesDialog::PreferencesDialog( QWidget* parent, const char* name, bool mo
    viewDateTimePrecision = 3;
    viewFieldSizeIsDynamic = TRUE;
    saveViewsForReuse = FALSE;
-   autoCreateDerivedMetrics = FALSE;
+   autoCreateDerivedMetrics = TRUE;
    saveViewsTime = 10;
 
    viewFieldSize = 10; 
@@ -487,7 +487,7 @@ PreferencesDialog::createGeneralStackPage(QWidgetStack* stack, char *name )
     { // OPENSS_AUTO_CREATE_DERIVED_METRICS
     autoCreateDerivedMetricsCheckBox = new QCheckBox( vpage0big_box, "autoCreateDerivedMetricsCheckBox" );
     autoCreateDerivedMetricsCheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, autoCreateDerivedMetricsCheckBox->sizePolicy().hasHeightForWidth() ) );
-    autoCreateDerivedMetricsCheckBox->setChecked( FALSE );
+    autoCreateDerivedMetricsCheckBox->setChecked( TRUE );
     autoCreateDerivedMetricsCheckBox->setText( tr( "Automatically Create Derived Metrics" ) );
     rightSideLayout->addWidget( autoCreateDerivedMetricsCheckBox );
     }

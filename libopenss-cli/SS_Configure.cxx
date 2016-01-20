@@ -1,6 +1,6 @@
 /******************************************************************************e
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2016 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -56,7 +56,7 @@ int64_t OPENSS_HISTORY_LIMIT = 100;
 int64_t OPENSS_HISTORY_DEFAULT = 24;
 int64_t OPENSS_MAX_ASYNC_COMMANDS = 20;
 int64_t OPENSS_HELP_LEVEL_DEFAULT = 1;
-bool    OPENSS_AUTO_CREATE_DERIVED_METRICS = false;
+bool    OPENSS_AUTO_CREATE_DERIVED_METRICS = true;
 
 // Remember valid user names for error cehcking of format specifiers on view commands.
 // Valid names are captured when SS_Configure.cxx looks them up with the following utilities.
