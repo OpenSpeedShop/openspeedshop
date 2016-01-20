@@ -152,3 +152,9 @@ b) SPACK - devel branch
 c) Test for the active branch
   git branch -a
 
+NOTE 13: You can obtain the newest version of config.guess and config.sub 
+         from the ‘config’ project at http://savannah.gnu.org/. The commands to fetch them are
+
+$ wget -O config.guess 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
+$ wget -O config.sub 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
+
