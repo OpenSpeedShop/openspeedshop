@@ -285,8 +285,8 @@ endif()
 
 if(CMAKE_HOST_UNIX) 
     install(CODE " 
-    EXECUTE_PROCESS(COMMAND ln -sf libopenss-cli.so PYopenss.so 
-       WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib${SUFFIX} 
+    EXECUTE_PROCESS(COMMAND ln -sf ../libopenss-cli.so PYopenss.so 
+       WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib${SUFFIX}/openspeedshop 
        ) 
     ") 
 endif(CMAKE_HOST_UNIX)
