@@ -584,6 +584,9 @@ else()
 #   endif()
     endif()
 
+    # Install <openss related>.py files needed when running the OSS python interface
+    add_subdirectory(pyscripting)
+
 
     #--------------------------------------------------------------------------------
     # install the find_package related cmake files 
