@@ -183,15 +183,14 @@ target_include_directories(openss-cli PUBLIC
     )
 
 target_link_libraries(openss-cli
+    openss-message
     openss-framework
     openss-queries
-    openss-message
-    ${Sqlite3_SHARED_LIBRARIES}
-    ${PYTHON_LIBRARY}
-    ${CMAKE_DL_LIBS}
     ${LTDL_SHARED_LIBRARY}
+    ${PYTHON_LIBRARY}
+    ${Sqlite3_SHARED_LIBRARIES}
+    ${CMAKE_DL_LIBS}
     )
-
 
 set_target_properties(openss-cli PROPERTIES VERSION 1.1.0)
 
