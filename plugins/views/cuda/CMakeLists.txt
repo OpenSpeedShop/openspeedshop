@@ -19,9 +19,9 @@
 
 add_library(cuda_view MODULE
     cuda_exec_view.cxx
-	cuda_hwpc_view.cxx
-	cuda_xfer_view.cxx
-	cuda_view.cxx
+    cuda_hwpc_view.cxx
+    cuda_xfer_view.cxx
+    cuda_view.cxx
     )
 
 target_include_directories(cuda_view PUBLIC
