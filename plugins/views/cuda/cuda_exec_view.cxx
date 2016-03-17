@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2014 Krell Institute. All Rights Reserved.
-// Copyright (c) 2014,2015 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -23,8 +23,8 @@
 #include "SS_View_Expr.hxx"
 
 #include "CUDACollector.hxx"
-#include "CUDADeviceDetail.hxx"
 #include "CUDAExecDetail.hxx"
+#include "CUDAQueries.hxx"
 
 #define PUSH_HV(x) HV.push_back(x)
 #define PUSH_IV(...) IV.push_back(new ViewInstruction(__VA_ARGS__))
@@ -103,30 +103,30 @@ static const string kOptions[] = {
     uint64_t detail_dsm = 0;          \
     uint64_t detail_lm = 0;
 
-#define get_CUDA_invalues(primary, num_calls, function_name)  \
-    double v = primary.getTime() / num_calls;                 \
-    intime += v;                                              \
-    incnt++;                                                  \
-    start = min(start, primary.getTimeBegin());               \
-    end = max(end, primary.getTimeEnd());                     \
-    vmin = min(vmin, v);                                      \
-    vmax = max(vmax, v);                                      \
-    sum_squares += v * v;                                     \
-    detail_grid = str(format("%1%,%2%,%3%") %                 \
-        primary.getGrid().get<0>() %                          \
-        primary.getGrid().get<1>() %                          \
-        primary.getGrid().get<2>()                            \
-        );                                                    \
-    detail_block = str(format("%1%,%2%,%3%") %                \
-        primary.getBlock().get<0>() %                         \
-        primary.getBlock().get<1>() %                         \
-        primary.getBlock().get<2>()                           \
-        );                                                    \
-    detail_cache = primary.getCachePreference();              \
-    detail_rpt = primary.getRegistersPerThread();             \
-    detail_ssm = primary.getStaticSharedMemory();             \
-    detail_dsm = primary.getDynamicSharedMemory();            \
-    detail_lm = primary.getLocalMemory();
+#define get_CUDA_invalues(primary, num_calls, function_name)               \
+    double v = primary.getTime() / num_calls;                              \
+    intime += v;                                                           \
+    incnt++;                                                               \
+    start = min(start, Queries::ConvertFromArgoNavis(primary.time_begin)); \
+    end = max(end, Queries::ConvertFromArgoNavis(primary.time_end));       \
+    vmin = min(vmin, v);                                                   \
+    vmax = max(vmax, v);                                                   \
+    sum_squares += v * v;                                                  \
+    detail_grid = str(format("%1%,%2%,%3%") %                              \
+        primary.grid.get<0>() %                                            \
+        primary.grid.get<1>() %                                            \
+        primary.grid.get<2>()                                              \
+        );                                                                 \
+    detail_block = str(format("%1%,%2%,%3%") %                             \
+        primary.block.get<0>() %                                           \
+        primary.block.get<1>() %                                           \
+        primary.block.get<2>()                                             \
+        );                                                                 \
+    detail_cache = primary.cache_preference;                               \
+    detail_rpt = primary.registers_per_thread;                             \
+    detail_ssm = primary.static_shared_memory;                             \
+    detail_dsm = primary.dynamic_shared_memory;                            \
+    detail_lm = primary.local_memory;
 
 #define get_CUDA_exvalues(secondary, num_calls)  \
     extime += secondary.getTime() / num_calls;   \

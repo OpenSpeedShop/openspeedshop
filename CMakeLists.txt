@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2014-2016 Krell Institute. All Rights Reserved.
+# Copyright (c) 2015,2016 Argo Navis Technologies. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -283,7 +284,8 @@ elseif (INSTRUMENTOR MATCHES "cbtf")
     find_package(CBTF-Krell)
     find_package(MRNet 4.0.0)
     find_package(XercesC 3.0)
-    find_package(CBTF-Argo)
+    find_package(CBTF-ArgoNavis)
+
     message(STATUS "CBTF-ARGO-MESSAGESCUDA_FOUND=" ${CBTF-ARGO-MESSAGESCUDA_FOUND} )
 
     if (NOT "${CBTF_KRELL_CN_RUNTIME_DIR}" STREQUAL "")
@@ -514,23 +516,16 @@ if (RUNTIME_ONLY MATCHES "true")
 	add_subdirectory(openss)
     endif()
 
-
-# Are there really any runtime needs for cuda????
+    # This is not quite what we would want. Instrumentor choice should not
+    # prevent a user from viewing cuda databases. Not sure if ossdumpsym
+    # should be tied to instrumentor cbtf.
     if (INSTRUMENTOR MATCHES "cbtf")
-
         add_subdirectory(ossdumpsym)
+    endif()
 
-        # The cuda code for the client does not depend on the cupti or cuda
-        # runtime systems.  The cuda client code does depend on the cuda messages
-        # from the cbtf-argonavis package.
-        #
-        # For this to work we need a cbtf-argnoavis find package that sets
-        # a package name var like CBTF-ArgNavis-MessagesCuda.
-
-        if (CBTF-ARGO-MESSAGESCUDA_FOUND)
-            add_subdirectory(libopenss-queries-cuda)
-            add_subdirectory(ossdumpcuda)
-        endif()
+    if(BUILD_CUDA_SUPPORT)
+        add_subdirectory(libopenss-queries-cuda)
+        add_subdirectory(ossdumpcuda)
     endif()
 
 else()
@@ -571,17 +566,16 @@ else()
     #--------------------------------------------------------------------------------
     add_subdirectory(openss)
 
-    # this is not quite what we would want. Instrumentor choice should not
+    # This is not quite what we would want. Instrumentor choice should not
     # prevent a user from viewing cuda databases. Not sure if ossdumpsym
     # should be tied to instrumentor cbtf.
     if (INSTRUMENTOR MATCHES "cbtf")
         add_subdirectory(ossdumpsym)
-#   if (CUDA_FOUND)
-    if (CBTF-ARGO-MESSAGESCUDA_FOUND)
+    endif()
+
+    if(BUILD_CUDA_SUPPORT)
         add_subdirectory(libopenss-queries-cuda)
         add_subdirectory(ossdumpcuda)
-    endif()
-#   endif()
     endif()
 
     # Install <openss related>.py files needed when running the OSS python interface

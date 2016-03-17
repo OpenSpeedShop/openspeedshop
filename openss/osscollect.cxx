@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2011-2013 Krell Institute. All Rights Reserved.
+// Copyright (c) 2015,2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -385,11 +386,7 @@ int main(int argc, char** argv)
     FW_Experiment->setBEprocCount( numBE );
     FW_Experiment->setInstrumentorUsesCBTF( false );
 
-    // FIXME: Is this cudaio override to io still needed with
-    // the latest cuda collector?
-    Collector mycollector = FW_Experiment->createCollector(
-        (collector == "cudaio") ? "io" : collector
-        );
+    Collector mycollector = FW_Experiment->createCollector(collector);
 
     ThreadGroup tg = FW_Experiment->createProcess(program, fenodename, numBE,
                                                      OutputCallback((void (*)(const char*, const int&, void*))NULL,(void *)NULL),

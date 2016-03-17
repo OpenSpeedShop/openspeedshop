@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2014 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/bind.hpp>
+#include <boost/cstdint.hpp>
 #include <boost/function.hpp>
 #include <boost/optional.hpp>
 #include <boost/program_options.hpp>
@@ -31,9 +32,20 @@
 #include <utility>
 #include <vector>
 
-#include "ToolAPI.hxx"
-#include "CUDAData.hxx"
+#include <ArgoNavis/Base/StackTrace.hpp>
+#include <ArgoNavis/Base/Time.hpp>
 
+#include <ArgoNavis/CUDA/DataTransfer.hpp>
+#include <ArgoNavis/CUDA/Device.hpp>
+#include <ArgoNavis/CUDA/KernelExecution.hpp>
+#include <ArgoNavis/CUDA/PerformanceData.hpp>
+#include <ArgoNavis/CUDA/stringify.hpp>
+#include <ArgoNavis/CUDA/Vector.hpp>
+
+#include "ToolAPI.hxx"
+#include "CUDAQueries.hxx"
+
+using namespace ArgoNavis;
 using namespace boost;
 using namespace boost::program_options;
 using namespace OpenSpeedShop::Framework;
@@ -76,7 +88,7 @@ string text(const string& tag, const T& value)
 
 
 /** Create a XML element with x, y, and z attributes from a Vector3u value. */
-string xyz(const string& tag, const CUDAData::Vector3u& value)
+string xyz(const string& tag, const CUDA::Vector3u& value)
 {
     stringstream stream;
     stream << "  <" << tag
@@ -89,94 +101,14 @@ string xyz(const string& tag, const CUDAData::Vector3u& value)
 
 
 
-/** Convert a thread into XML and output it to a stream. */
-void convert(const Thread& thread, ostream& xml)
-{
-    xml << endl << "<Thread>" << endl;
-    xml << "  <Host>" << thread.getHost() << "</Host>" << endl;
-    xml << "  <ProcessId>" << thread.getProcessId() << "</ProcessId>" << endl;
-    
-    pair<bool, pthread_t> posix = thread.getPosixThreadId();
-    if (posix.first)
-    {
-        xml << "  <PosixThreadId>" << posix.second 
-            << "</PosixThreadId>" << endl;
-    }
-
-    pair<bool, int> openmp = thread.getOpenMPThreadId();
-    if (openmp.first)
-    {
-        xml << "  <OpenMPThreadId>" << openmp.second
-            << "</OpenMPThreadId>" << endl;
-    }
-            
-    pair<bool, int> mpi = thread.getMPIRank();
-    if (mpi.first)
-    {
-        xml << "  <MPIRank>" << mpi.second << "</MPIRank>" << endl;
-    }
-    
-    xml << "</Thread>" << endl;    
-}
-
-
-
-/** Convert call sites into XML and output them to a stream. */
-void convert(const vector<StackTrace>& call_sites, ostream& xml)
-{
-    for (vector<StackTrace>::size_type i = 0; i < call_sites.size(); ++i)
-    {
-        const StackTrace& trace = call_sites[i];
-
-        xml << endl << "<CallSite id=\"" << i << "\">" << endl;
-        
-        for (vector<Address>::size_type j = 0; j < trace.size(); ++j)
-        {
-            xml << "  <Frame>" << endl;
-            xml << "    <Address>" << trace[j] << "</Address>" << endl;
-
-            pair<bool, LinkedObject> linked_object = trace.getLinkedObjectAt(j);
-            if (linked_object.first)
-            {
-                xml << "    <LinkedObject>"
-                    << linked_object.second.getPath()
-                    << "</LinkedObject>" << endl;
-            }
-
-            pair<bool, Function> function = trace.getFunctionAt(j);
-            if (function.first)
-            {
-                xml << "    <Function>"
-                    << function.second.getDemangledName()
-                    << "</Function>" << endl;
-            }
-            
-            set<Statement> statements = trace.getStatementsAt(j);
-            for (set<Statement>::const_iterator
-                     k = statements.begin(); k != statements.end(); ++k)
-            {
-                xml << "    <Statement>"
-                    << k->getPath() << ", " << k->getLine()
-                    << "</Statement>" << endl;
-            }
-            
-            xml << "  </Frame>" << endl;
-        }
-
-        xml << "</CallSite>" << endl;
-    }
-}
-
-
-
 /** Convert counters into XML and output them to a stream. */
-void convert(const vector<string>& counters, ostream& xml)
+void convert_counters(const CUDA::PerformanceData& data, ostream& xml)
 {
     xml << endl;
-    for (vector<string>::size_type i = 0; i < counters.size(); ++i)
+    for (vector<string>::size_type i = 0; i < data.counters().size(); ++i)
     {
         xml << "<Counter id=\"" << i << "\">"
-            << counters[i]
+            << data.counters()[i]
             << "</Counter>" << endl;
     }
 }
@@ -184,12 +116,11 @@ void convert(const vector<string>& counters, ostream& xml)
 
 
 /** Convert devices into XML and output them to a stream. */
-void convert(const vector<CUDAData::DeviceDetails>& devices, ostream& xml)
+void convert_devices(const CUDA::PerformanceData& data, ostream& xml)
 {
-    for (vector<CUDAData::DeviceDetails>::size_type 
-             i = 0; i < devices.size(); ++i)
+    for (vector<CUDA::Device>::size_type i = 0; i < data.devices().size(); ++i)
     {
-        const CUDAData::DeviceDetails& device = devices[i];
+        const CUDA::Device& device = data.devices()[i];
         
         xml << endl << "<Device id=\"" << i << "\">" << endl;
         xml << text("Name", device.name);
@@ -209,6 +140,8 @@ void convert(const vector<CUDAData::DeviceDetails>& devices, ostream& xml)
         xml << text("MemcpyEngines", device.memcpy_engines);
         xml << text("Multiprocessors", device.multiprocessors);
         xml << text("MaxIPC", device.max_ipc);
+        xml << text("MaxWarpsPerMultiprocessor",
+                    device.max_warps_per_multiprocessor);
         xml << text("MaxBlocksPerMultiprocessor",
                     device.max_blocks_per_multiprocessor);
         xml << text("MaxRegistersPerBlock", device.max_registers_per_block);
@@ -221,89 +154,203 @@ void convert(const vector<CUDAData::DeviceDetails>& devices, ostream& xml)
 
 
 
+/** Convert call sites into Open|SpeedShop Framework StackTrace objects. */
+template <typename T>
+bool convert_sites_in_event(const CUDA::PerformanceData& data,
+                            const Thread& thread,
+                            const T& details,
+                            vector<shared_ptr<StackTrace> >& sites,
+                            size_t& sites_found)
+{
+    size_t n = details.call_site;
+    
+    if (!sites[n])
+    {
+        sites[n].reset(new StackTrace(thread, Time(details.time)));
+        
+        for (Base::StackTrace::const_iterator
+                 i = data.sites()[n].begin(); i != data.sites()[n].end(); ++i)
+        {
+            sites[n]->push_back(Address(*i));
+        }
+        
+        sites_found++;
+    }
+    
+    return sites_found < data.sites().size();
+}
+
+
+
+/** Convert call sites into Open|SpeedShop Framework StackTrace objects. */
+bool convert_sites_in_thread(const CUDA::PerformanceData& data,
+                             const map<Base::ThreadName, Thread>& threads,
+                             const Base::ThreadName& thread,
+                             vector<shared_ptr<StackTrace> >& sites,
+                             size_t& sites_found)
+{
+    data.visitDataTransfers(
+        thread, data.interval(),
+        bind(&convert_sites_in_event<CUDA::DataTransfer>,
+             cref(data), cref(threads.find(thread)->second), _1,
+             ref(sites), ref(sites_found))
+        );
+    
+    if (sites_found == data.sites().size())
+    {
+        return false;
+    }
+    
+    data.visitKernelExecutions(
+        thread, data.interval(),
+        bind(&convert_sites_in_event<CUDA::KernelExecution>,
+             cref(data), cref(threads.find(thread)->second), _1,
+             ref(sites), ref(sites_found))
+        );
+    
+    return sites_found < data.sites().size();
+}
+
+
+
+/** Convert call sites into XML and output them to a stream. */
+void convert_sites(const CUDA::PerformanceData& data, 
+                   const map<Base::ThreadName, Thread>& threads,
+                   ostream& xml)
+{
+    vector<shared_ptr<StackTrace> > sites(data.sites().size());
+    size_t sites_found = 0;
+    
+    data.visitThreads(
+        bind(&convert_sites_in_thread,
+             cref(data), cref(threads), _1, ref(sites), ref(sites_found))
+        );
+    
+    for (size_t i = 0; i < sites.size(); ++i)
+    {
+        xml << endl << "<CallSite id=\"" << i << "\">" << endl;
+
+        if (sites[i])
+        {
+            const StackTrace& trace = *sites[i];
+            
+            for (StackTrace::size_type j = 0; j < trace.size(); ++j)
+            {
+                xml << "  <Frame>" << endl;
+                xml << "    <Address>" << trace[j] << "</Address>" << endl;
+                
+                pair<bool, LinkedObject> linked_object = 
+                    trace.getLinkedObjectAt(j);
+                if (linked_object.first)
+                {
+                    xml << "    <LinkedObject>"
+                        << linked_object.second.getPath()
+                        << "</LinkedObject>" << endl;
+                }
+                
+                pair<bool, Function> function = trace.getFunctionAt(j);
+                if (function.first)
+                {
+                    xml << "    <Function>"
+                        << function.second.getDemangledName()
+                        << "</Function>" << endl;
+                }
+                
+                set<Statement> statements = trace.getStatementsAt(j);
+                for (set<Statement>::const_iterator
+                         k = statements.begin(); k != statements.end(); ++k)
+                {
+                    xml << "    <Statement>"
+                        << k->getPath() << ", " << k->getLine()
+                        << "</Statement>" << endl;
+                }
+                
+                xml << "  </Frame>" << endl;
+            }
+        }
+        else
+        {
+            const Base::StackTrace& trace = data.sites()[i];
+            
+            for (StackTrace::size_type j = 0; j < trace.size(); ++j)
+            {
+                xml << "  <Frame>" << endl;
+                xml << "    <Address>" << trace[j] << "</Address>" << endl;
+                xml << "  </Frame>" << endl;
+            }
+        }
+
+        xml << "</CallSite>" << endl;
+    }
+}
+
+
+
+/** Convert a data transfer into XML and output it to a stream. */
+bool convert_data_transfer(const Base::Time& time_origin,
+                           const CUDA::DataTransfer& details,
+                           ostream& xml)
+{
+    xml << endl << "<DataTransfer"
+        << " call_site=\"" << details.call_site << "\""
+        << " device=\"" << details.device << "\""
+        ">" << endl;
+    xml << text("Time",
+                static_cast<uint64_t>(details.time - time_origin));
+    xml << text("TimeBegin",
+                static_cast<uint64_t>(details.time_begin - time_origin));
+    xml << text("TimeEnd",
+                static_cast<uint64_t>(details.time_end - time_origin));
+    xml << text("Size", details.size);
+    xml << text("Kind", CUDA::stringify(details.kind));
+    xml << text("SourceKind", CUDA::stringify(details.source_kind));
+    xml << text("DestinationKind", CUDA::stringify(details.destination_kind));
+    xml << text("Asynchronous", (details.asynchronous ? "true" : "false"));
+    xml << "</DataTransfer>" << endl;
+
+    return true; // Always continue the visitation
+}
+
+
+
 /** Convert a kernel execution into XML and output it to a stream. */
-void convert_kernel_execution(
-    const Time& time_origin,
-    const CUDAData::KernelExecutionDetails& details,
-    ostream& xml
-    )
+bool convert_kernel_execution(const Base::Time& time_origin,
+                              const CUDA::KernelExecution& details,
+                              ostream& xml)
 {
     xml << endl << "<KernelExecution"
         << " call_site=\"" << details.call_site << "\""
         << " device=\"" << details.device << "\""
         ">" << endl;
-    xml << text("Time", details.time - time_origin);
-    xml << text("TimeBegin", details.time_begin - time_origin);
-    xml << text("TimeEnd", details.time_end - time_origin);
+    xml << text("Time",
+                static_cast<uint64_t>(details.time - time_origin));
+    xml << text("TimeBegin",
+                static_cast<uint64_t>(details.time_begin - time_origin));
+    xml << text("TimeEnd",
+                static_cast<uint64_t>(details.time_end - time_origin));
     xml << text("Function", demangle(details.function));
     xml << xyz("Grid", details.grid);
     xml << xyz("Block", details.block);
-    xml << text("CachePreference",
-                CUDAData::stringify(details.cache_preference));
+    xml << text("CachePreference", CUDA::stringify(details.cache_preference));
     xml << text("RegistersPerThread", details.registers_per_thread);
     xml << text("StaticSharedMemory", details.static_shared_memory);
     xml << text("DynamicSharedMemory", details.dynamic_shared_memory);
     xml << text("LocalMemory", details.local_memory);
     xml << "</KernelExecution>" << endl;
-}
 
-
-
-/** Convert a memory copy into XML and output it to a stream. */
-void convert_memory_copy(
-    const Time& time_origin,
-    const CUDAData::MemoryCopyDetails& details,
-    ostream& xml
-    )
-{
-    xml << endl << "<MemoryCopy"
-        << " call_site=\"" << details.call_site << "\""
-        << " device=\"" << details.device << "\""
-        ">" << endl;
-    xml << text("Time", details.time - time_origin);
-    xml << text("TimeBegin", details.time_begin - time_origin);
-    xml << text("TimeEnd", details.time_end - time_origin);
-    xml << text("Size", details.size);
-    xml << text("Kind", CUDAData::stringify(details.kind));
-    xml << text("SourceKind", CUDAData::stringify(details.source_kind));
-    xml << text("DestinationKind",
-                CUDAData::stringify(details.destination_kind));
-    xml << text("Asynchronous", (details.asynchronous ? "true" : "false"));
-    xml << "</MemoryCopy>" << endl;
-}
-
-
-
-/** Convert a memory set into XML and output it to a stream. */
-void convert_memory_set(
-    const Time& time_origin,
-    const CUDAData::MemorySetDetails& details,
-    ostream& xml
-    )
-{
-    xml << endl << "<MemorySet"
-        << " call_site=\"" << details.call_site << "\""
-        << " device=\"" << details.device << "\""
-        ">" << endl;
-    xml << text("Time", details.time - time_origin);
-    xml << text("TimeBegin", details.time_begin - time_origin);
-    xml << text("TimeEnd", details.time_end - time_origin);
-    xml << text("Size", details.size);
-    xml << "</MemorySet>" << endl;
+    return true; // Always continue the visitation
 }
 
 
 
 /** Convert a periodic sample into XML and output it to a stream. */
-void convert_periodic_sample(
-    const Time& time_origin,
-    const Time& time,
-    const vector<uint64_t>& counts,
-    ostream& xml
-    )
+bool convert_periodic_sample(const Base::Time& time_origin,
+                             const Base::Time& time,
+                             const vector<uint64_t>& counts,
+                             ostream& xml)
 {
     xml << "<Sample>" << endl;
-    xml << text("Time", time - time_origin);
+    xml << text("Time", static_cast<uint64_t>(time - time_origin));
     for (vector<uint64_t>::size_type i = 0; i < counts.size(); ++i)
     {
         xml << "  <Count counter=\"" << i << "\">"
@@ -311,53 +358,72 @@ void convert_periodic_sample(
             << "</Count>" << endl;
     }
     xml << "</Sample>" << endl;
+
+    return true; // Always continue the visitation
+}
+
+
+
+/** Convert a thread into XML and output it to a stream. */
+void convert_thread(const Base::ThreadName& thread, ostream& xml)
+{
+    xml << endl << "<Thread>" << endl;
+    xml << "  <Host>" << thread.host() << "</Host>" << endl;
+    xml << "  <ProcessId>" << thread.pid() << "</ProcessId>" << endl;
+
+    if (thread.tid())
+    {
+        xml << "  <PosixThreadId>" << *thread.tid() 
+            << "</PosixThreadId>" << endl;
+    }
+
+    if (thread.mpi_rank())
+    {
+        xml << "  <MPIRank>" << *thread.mpi_rank() << "</MPIRank>" << endl;
+    }
+    
+    if (thread.omp_rank())
+    {
+        xml << "  <OpenMPThreadId>" << *thread.omp_rank()
+            << "</OpenMPThreadId>" << endl;
+    }
+    
+    xml << "</Thread>" << endl;    
 }
 
 
 
 /** Convert CUDA performance data into XML and output it to a stream. */
-void convert(const Time& time_origin, const CUDAData& data, ostream& xml)
+bool convert_performance_data(const CUDA::PerformanceData& data,
+                              const map<Base::ThreadName, Thread>& threads,
+                              const Base::ThreadName& thread,
+                              ostream& xml)
 {
-    convert(data.call_sites(), xml);
-    convert(data.counters(), xml);
-    convert(data.devices(), xml);
+    xml << endl << "<DataSet>" << endl;
 
-    boost::function<
-        void (const CUDAData::KernelExecutionDetails&)
-        > kernel_execution_visitor(
-            boost::bind(&convert_kernel_execution,
-                        boost::cref(time_origin), _1, boost::ref(xml))
-            );
+    convert_thread(thread, xml);
+
+    data.visitDataTransfers(
+        thread, data.interval(),
+        bind(&convert_data_transfer,
+             cref(data.interval().begin()), _1, ref(xml))
+        );
+
+    data.visitKernelExecutions(
+        thread, data.interval(),
+        bind(&convert_kernel_execution,
+             cref(data.interval().begin()), _1, ref(xml))
+        );
+
+    data.visitPeriodicSamples(
+        thread, data.interval(),
+        bind(&convert_periodic_sample,
+             cref(data.interval().begin()), _1, _2, ref(xml))
+        );
     
-    data.visit_kernel_executions(kernel_execution_visitor);
+    xml << endl << "</DataSet>" << endl;
 
-    boost::function<
-        void (const CUDAData::MemoryCopyDetails&)
-        > memory_copy_visitor(
-            boost::bind(&convert_memory_copy,
-                        boost::cref(time_origin), _1, boost::ref(xml))
-            );
-    
-    data.visit_memory_copies(memory_copy_visitor);
-
-    boost::function<
-        void (const CUDAData::MemorySetDetails&)
-        > memory_set_visitor(
-            boost::bind(&convert_memory_set,
-                        boost::cref(time_origin), _1, boost::ref(xml))
-            );
-    
-    data.visit_memory_sets(memory_set_visitor);
-
-    boost::function<
-        void (const Time&, const vector<uint64_t>&)
-        > periodic_sample_visitor(
-            boost::bind(&convert_periodic_sample,
-                        boost::cref(time_origin), _1, _2, boost::ref(xml))
-            );
-
-    xml << endl;
-    data.visit_periodic_samples(periodic_sample_visitor);
+    return true; // Always continue the visitation
 }
 
 
@@ -381,8 +447,6 @@ int main(int argc, char* argv[])
            << endl;
     string kExtraHelp = stream.str();
 
-    // Parse and validate the command-line arguments
-    
     options_description kNonPositionalOptions("osscuda2xml options");
     kNonPositionalOptions.add_options()
  
@@ -463,7 +527,7 @@ int main(int argc, char* argv[])
              << endl << kNonPositionalOptions << kExtraHelp;
         return 1;        
     }
-    
+
     set<int> ranks;
     if (values.count("rank") > 0)
     {
@@ -484,62 +548,37 @@ int main(int argc, char* argv[])
     *xml << "<?xml version=\"1.0\" encoding=\"utf-8\"?>" << endl;
     *xml << "<CUDA>" << endl;
 
-    //
-    // NOTE: Currently each dataset contains one (and only one) thread. Ideally
-    // in the future some sort of cluster analysis will be used to group similar
-    // performing threads together into a single dataset.
-    //
+    CUDA::PerformanceData data;
+    map<Base::ThreadName, Thread> threads;
 
-    typedef vector<pair<ThreadGroup, shared_ptr<CUDAData> > > DataSets;
-    
-    Time time_origin = Time::TheEnd();
-    DataSets datasets;
-    
-    ThreadGroup threads = experiment.getThreads();
+    ThreadGroup all_threads = experiment.getThreads();
     for (ThreadGroup::const_iterator
-             i = threads.begin(); i != threads.end(); ++i)
+             i = all_threads.begin(); i != all_threads.end(); ++i)
     {
         pair<bool, int> rank = i->getMPIRank();
         
         if (ranks.empty() || 
             (rank.first && (ranks.find(rank.second) != ranks.end())))
         {
-            ThreadGroup thread;
-            thread.insert(*i);
-
-            shared_ptr<CUDAData> data(new CUDAData(*collector, *i));
-            Time t = data->time_origin();
-            
-            if (t < time_origin)
-            {
-                time_origin = t;
-            }
-            
-            datasets.push_back(make_pair(thread, data));
+            GetCUDAPerformanceData(*collector, *i, data);
+            threads.insert(make_pair(ConvertToArgoNavis(*i), *i));
         }
     }
 
-    *xml << endl
-         << "<TimeOrigin>" << time_origin.getValue() << "</TimeOrigin>" << endl;
-
-    for (DataSets::const_iterator
-             i = datasets.begin(); i != datasets.end(); ++i)
-    {
-        *xml << endl << "<DataSet>" << endl;
-
-        for (ThreadGroup::const_iterator
-                 j = i->first.begin(); j != i->first.end(); ++j)
-        {
-            convert(*j, *xml);
-        }
-
-        convert(time_origin, *i->second.get(), *xml);
-
-        *xml << endl << "</DataSet>" << endl;        
-    }
+    *xml << endl << "<TimeOrigin>"
+         << static_cast<uint64_t>(data.interval().begin())
+         << "</TimeOrigin>" << endl;
+    
+    convert_counters(data, *xml);
+    convert_devices(data, *xml);
+    convert_sites(data, threads, *xml);
+    
+    data.visitThreads(bind(
+        &convert_performance_data, cref(data), cref(threads), _1, ref(*xml)
+        ));
     
     *xml << endl << "</CUDA>" << endl;
-    
+
     if (values.count("xml") == 1)
     {
         delete xml;

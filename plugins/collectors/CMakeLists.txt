@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2014-2016 Krell Institute. All Rights Reserved.
+# Copyright (c) 2015,2016 Argo Navis Technologies. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -40,13 +41,8 @@ if (INSTRUMENTOR MATCHES "cbtf")
     add_subdirectory(pthreads)
     add_subdirectory(iop)
     add_subdirectory(mpip)
-
-    # If cuda related plugins and messages were found
-    # then build the client portion of the cuda collector.
-    if (CBTF-ARGO-MESSAGESCUDA_FOUND)
-        add_subdirectory(cuda)
-    endif()
 endif()
 
-
-
+if(BUILD_CUDA_SUPPORT)
+    add_subdirectory(cuda)
+endif()

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2014 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -24,7 +24,7 @@
 #include "config.h"
 #endif
 
-#include <stdint.h>
+#include <boost/cstdint.hpp>
 #include <string>
 #include <vector>
 
@@ -48,7 +48,7 @@ namespace OpenSpeedShop { namespace Framework {
        
         /** Constructor from event names and counts. */
         CUDACountsDetail(const std::vector<std::string>& event_names,
-                         const std::vector<uint64_t>& event_counts) :
+                         const std::vector<boost::uint64_t>& event_counts) :
             dm_event_names(event_names),
             dm_event_counts(event_counts)
         {
@@ -69,7 +69,7 @@ namespace OpenSpeedShop { namespace Framework {
         }
         
         /** Count for the specified event. */
-        uint64_t getEventCount(unsigned int event) const
+        boost::uint64_t getEventCount(unsigned int event) const
         {
             Assert(event < dm_event_counts.size());
             return dm_event_counts[event];
@@ -81,7 +81,7 @@ namespace OpenSpeedShop { namespace Framework {
         std::vector<std::string> dm_event_names;
         
         /** Counts for all events. */
-        std::vector<uint64_t> dm_event_counts;
+        std::vector<boost::uint64_t> dm_event_counts;
         
     }; // class CUDACountsDetail
         

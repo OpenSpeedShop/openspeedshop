@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2014-2016 Krell Institute. All Rights Reserved.
+# Copyright (c) 2015,2016 Argo Navis Technologies. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -300,7 +301,6 @@ else()
     	    WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
 
         # create oss cbtf related links here if instrumentor is cbtf
-
         if (${INSTRUMENTOR} MATCHES "cbtf")
             install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver ossmem
 	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
@@ -310,19 +310,14 @@ else()
 	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
             install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver ossiop
 	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
-
-            # 
-            # If the Argo Navis cuda base libraries and messages were found 
-            # that means we have cuda based collectors and views, so install
-            # the osscuda convenience scripts.
-            #
-            if (CBTF-ARGO-MESSAGESCUDA_FOUND)
-                install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver osscuda
-	            WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
-                install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver osscudaio
-	            WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
-            endif()
         endif()
+
+        # create cuda driver link
+        if(BUILD_CUDA_SUPPORT)
+            install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver osscuda
+            WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
+        endif()
+
     endif(CMAKE_HOST_UNIX)
 
 endif() #endif for RUNTIME_ONLY

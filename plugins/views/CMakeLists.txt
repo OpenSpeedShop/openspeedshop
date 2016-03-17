@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2014-2016 Krell Institute. All Rights Reserved.
+# Copyright (c) 2015,2016 Argo Navis Technologies. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -38,9 +39,7 @@ add_subdirectory(mem)
 add_subdirectory(pthreads)
 add_subdirectory(iop)
 add_subdirectory(mpip)
-# If cuda related plugins and messages were found
-# then build the cuda views.
-if (CBTF-ARGO-MESSAGESCUDA_FOUND)
+
+if(BUILD_CUDA_SUPPORT)
     add_subdirectory(cuda)
 endif()
-

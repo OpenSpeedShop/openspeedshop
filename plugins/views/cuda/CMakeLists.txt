@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
+# Copyright (c) 2015,2016 Argo Navis Technologies. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -16,40 +17,34 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-set(VIEW_SOURCES
-	cuda_exec_view.cxx
+add_library(cuda_view MODULE
+    cuda_exec_view.cxx
 	cuda_hwpc_view.cxx
 	cuda_xfer_view.cxx
 	cuda_view.cxx
-)
-
-add_library(cuda_view MODULE ${VIEW_SOURCES})
+    )
 
 target_include_directories(cuda_view PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${Boost_INCLUDE_DIRS}
-        ${Python_INCLUDE_DIRS}
-        ${CBTF_MESSAGES_INCLUDE_DIRS}
-        ${CBTF_MESSAGES_CUDA_INCLUDE_DIRS}
-        ${PROJECT_SOURCE_DIR}/libopenss-cli
-        ${PROJECT_SOURCE_DIR}/libopenss-runtime
-        ${PROJECT_SOURCE_DIR}/libopenss-message
-        ${PROJECT_SOURCE_DIR}/libopenss-queries
-        ${PROJECT_SOURCE_DIR}/plugins/collectors/cuda
-)
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/libopenss-cli
+    ${PROJECT_SOURCE_DIR}/libopenss-runtime
+    ${PROJECT_SOURCE_DIR}/libopenss-message
+    ${PROJECT_SOURCE_DIR}/libopenss-queries
+    ${PROJECT_SOURCE_DIR}/libopenss-queries-cuda
+    ${PROJECT_SOURCE_DIR}/plugins/collectors/cuda
+    ${Boost_INCLUDE_DIRS}
+    ${Python_INCLUDE_DIRS}
+    )
 
 target_link_libraries(cuda_view
-	pthread
-        ${CBTF_MESSAGES_LIBRARIES}
-        ${CBTF_MESSAGES_CUDA_LIBRARIES}
-	openss-cli
-	${CMAKE_DL_LIBS}
-)
+    openss-cli
+    openss-queries-cuda
+    pthread
+    ${CMAKE_DL_LIBS}
+    )
 
 set_target_properties(cuda_view PROPERTIES PREFIX "")
 
 install(TARGETS cuda_view
-	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
-)
-
+    LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
+    )

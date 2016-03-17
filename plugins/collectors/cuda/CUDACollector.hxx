@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2014 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -24,35 +24,29 @@
 #include "config.h"
 #endif
 
-#include <boost/function.hpp>
-#include <list>
-#include <map>
+#include <boost/optional.hpp>
 #include <set>
 #include <string>
-#include <vector>
+#include <utility>
 
-#include "KrellInstitute/Messages/CUDA_data.h"
+#include <ArgoNavis/CUDA/PerformanceData.hpp>
 
 #include "Address.hxx"
 #include "Blob.hxx"
 #include "Collector.hxx"
 #include "CollectorImpl.hxx"
-#include "Collector.hxx"
 #include "Extent.hxx"
 #include "ExtentGroup.hxx"
 #include "PCBuffer.hxx"
-#include "SmartPtr.hxx"
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
-
-#include "CUDADeviceDetail.hxx"
 
 namespace OpenSpeedShop { namespace Framework {
 
     /**
      * CUDA collector.
      *
-     * Intercepts all calls to CUDA memory copy/set and kernel executions and
+     * Intercepts all calls to CUDA data transfers and kernel executions and
      * records, for each call, the current stack trace and start/end time, as
      * well as additional relevant information depending on the operation. In
      * addition, has the ability to periodically sample hardware event counts
@@ -90,76 +84,15 @@ namespace OpenSpeedShop { namespace Framework {
 
     private:
 
-        /** Type of function invoked to process a completed kernel execution. */
-        typedef boost::function<
-            void (const CUDA_EnqueueRequest&,
-                  const CUDA_ExecutedKernel&,
-                  const std::vector<Address>&,
-                  const SmartPtr<CUDADeviceDetail>&)
-            > ExecutedKernelVisitor;
+        /** Current (if any) query's thread and subextents. */
+        mutable boost::optional<std::pair<Thread, ExtentGroup> > dm_current;
 
-        /** Type of function invoked to process a completed memory copy. */
-        typedef boost::function<
-            void (const CUDA_EnqueueRequest&,
-                  const CUDA_CopiedMemory&,
-                  const std::vector<Address>&,
-                  const SmartPtr<CUDADeviceDetail>&)
-            > MemoryCopyVisitor;
-
-        /** Type of function invoked to process a completed memory set. */
-        typedef boost::function<
-            void (const CUDA_EnqueueRequest&,
-                  const CUDA_SetMemory&,
-                  const std::vector<Address>&,
-                  const SmartPtr<CUDADeviceDetail>&)
-            > MemorySetVisitor;
-
-        /**
-         * Plain old data (POD) structure describing a single pending request.
-         *
-         * @sa http://en.wikipedia.org/wiki/Plain_old_data_structure
-         */
-        struct Request
-        {
-            /** Original CUDA message describing the enqueued request. */
-            CUDA_EnqueueRequest message;
-            
-            /** Call site of the enqueued request. */
-            std::vector<Address> call_site;
-        };
+        /** CUDA performance data for all known threads. */
+        mutable ArgoNavis::CUDA::PerformanceData dm_data;
         
-        /**
-         * Plain old data (POD) structure holding thread-specific data.
-         *
-         * @sa http://en.wikipedia.org/wiki/Plain_old_data_structure
-         */
-        struct ThreadSpecificData
-        {
-            /** Set of previously-seen extents. */
-            std::set<Extent> extents;
-
-            /** Table of pending requests. */
-            std::list<Request> requests;
-        };
-        
-        void handleRequests(const CBTF_cuda_data&,
-                            const CBTF_cuda_message&,
-                            ThreadSpecificData&,
-                            ExecutedKernelVisitor&,
-                            MemoryCopyVisitor&,
-                            MemorySetVisitor&) const;
-        
-        SmartPtr<CUDADeviceDetail> getDeviceDetail(const Address&) const;
-        
-        /** Device for all known contexts. */
-        mutable std::map<Address, unsigned int> dm_contexts;
-        
-        /** Device details for each known device. */
-        mutable std::map<unsigned int, SmartPtr<CUDADeviceDetail> > dm_devices;
-        
-        /** Thread-specific data for all known threads. */
-        mutable std::map<Thread, ThreadSpecificData> dm_threads;
-        
+        /** Set of all known threads. */
+        mutable std::set<Thread> dm_threads;
+                
     }; // class CUDACollector
         
 } } // namespace OpenSpeedShop::Framework

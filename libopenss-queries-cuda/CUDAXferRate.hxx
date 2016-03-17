@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2014 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -24,7 +24,7 @@
 #include "config.h"
 #endif
 
-#include <stdint.h>
+#include <boost/cstdint.hpp>
 
 namespace OpenSpeedShop { namespace Queries {
 
@@ -35,7 +35,7 @@ namespace OpenSpeedShop { namespace Queries {
     struct CUDAXferRate
     {
         /** Size (in bytes) of the CUDA data transfers. */
-        uint64_t size;
+        boost::uint64_t size;
         
         /** Time (in seconds) spent in CUDA data transfers. */
         double time;

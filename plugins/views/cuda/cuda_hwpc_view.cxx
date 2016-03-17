@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2010-2014 Krell Institute. All Rights Reserved.
-// Copyright (c) 2015 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2015,2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -21,7 +21,6 @@
 #include "SS_View_Expr.hxx"
 
 #include "CUDACollector.hxx"
-#include "CUDADeviceDetail.hxx"
 #include "CUDACountsDetail.hxx"
 
 #define PUSH_HV(x) HV.push_back(x)

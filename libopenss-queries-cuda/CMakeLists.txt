@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
+# Copyright (c) 2015,2016 Argo Navis Technologies. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -16,77 +17,46 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-include(CheckIncludeFile)
-
-check_include_file("stdint.h" STDINT_H_FOUND)
-if (STDINT_H_FOUND)
-    add_definitions(-DHAVE_STDINT_H=1)
-endif()
-if (OpenMP_FLAG_DETECTED)
-    add_definitions(-fopenmp)
-endif()
-
-set(QUERIES_CUDA_SOURCES
-	CUDAData.hxx
-	CUDAData.cxx
+add_library(openss-queries-cuda SHARED
 	CUDAExecXferBalance.hxx
-	CUDAQueries.hxx
-	CUDAQueries.cxx
+	CUDAQueries.hxx CUDAQueries.cxx
 	CUDAXferRate.hxx
     )
 
-add_library(openss-queries-cuda SHARED
-	${QUERIES_CUDA_SOURCES}
-    )
-
-add_definitions(
-  -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
-  )
-  
-
 target_include_directories(openss-queries-cuda PUBLIC
-    ${CUDA_INCLUDE_DIR}
-    ${Boost_INCLUDE_DIRS}
-    ${CBTF_MESSAGES_INCLUDE_DIRS}
-    ${CBTF_MESSAGES_CUDA_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${PROJECT_SOURCE_DIR}/libopenss-cli
     ${PROJECT_SOURCE_DIR}/libopenss-framework
+    ${Boost_INCLUDE_DIRS}
+    ${CBTF_MESSAGES_CUDA_INCLUDE_DIRS}
+    ${ARGONAVIS_BASE_INCLUDE_DIRS}
+    ${ARGONAVIS_CUDA_INCLUDE_DIRS}
     )
 
 target_link_libraries(openss-queries-cuda
     openss-framework
-    ${CUDA_LIBRARIES}
-    ${CBTF_MESSAGES_LIBRARIES}
     ${CBTF_MESSAGES_CUDA_LIBRARIES}
+    ${ARGONAVIS_BASE_LIBRARIES}
+    ${ARGONAVIS_CUDA_LIBRARIES}
     ${CMAKE_DL_LIBS}
     )
 
-
 set_target_properties(openss-queries-cuda PROPERTIES VERSION 1.1.0)
 
-install(TARGETS openss-queries-cuda
-    LIBRARY DESTINATION lib${LIB_SUFFIX}
-    )
+install(TARGETS openss-queries-cuda LIBRARY DESTINATION lib${LIB_SUFFIX})
 
-add_executable(osscuda2xml
-    osscuda2xml.cxx
-    )
+add_executable(osscuda2xml osscuda2xml.cxx)
 
 target_include_directories(osscuda2xml PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../libopenss-framework
+    ${PROJECT_SOURCE_DIR}/libopenss-framework
     ${Boost_INCLUDE_DIRS}
     )
 
 target_link_libraries(osscuda2xml
+    openss-queries-cuda
     openss-framework
     openss-framework-cbtf
-    openss-queries-cuda
     ${Boost_LIBRARIES}
     )
 
-install(TARGETS osscuda2xml
-    RUNTIME DESTINATION bin
-    )
+install(TARGETS osscuda2xml RUNTIME DESTINATION bin)

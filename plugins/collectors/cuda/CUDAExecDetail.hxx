@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2014 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -24,16 +24,11 @@
 #include "config.h"
 #endif
 
-#include <boost/tuple/tuple.hpp>
-#include <string>
+#include <ArgoNavis/Base/TimeInterval.hpp>
+#include <ArgoNavis/CUDA/Device.hpp>
+#include <ArgoNavis/CUDA/KernelExecution.hpp>
 
-#include "KrellInstitute/Messages/CUDA_data.h"
-
-#include "SmartPtr.hxx"
-#include "Time.hxx"
 #include "TotallyOrdered.hxx"
-
-#include "CUDADeviceDetail.hxx"
 
 namespace OpenSpeedShop { namespace Framework {
 
@@ -44,32 +39,33 @@ namespace OpenSpeedShop { namespace Framework {
      * executions recorded by the CUDA collector.
      */
     class CUDAExecDetail :
+        public ArgoNavis::CUDA::KernelExecution,
         public TotallyOrdered<CUDAExecDetail>
     {
 
     public:
 
-        /** Vector of three unsigned integers. */
-        typedef boost::tuple<unsigned int, unsigned int, unsigned int> Vector3u;
-        
-        /** Constructor from raw CUDA messages. */
-        CUDAExecDetail(const double& time,
-                       const SmartPtr<CUDADeviceDetail>& device_detail,
-                       const CUDA_EnqueueRequest& enqueue_request,
-                       const CUDA_ExecutedKernel& executed_kernel) :
-            dm_time(time),
-            dm_device_detail(device_detail),
-            dm_enqueue_request(enqueue_request),
-            dm_executed_kernel(executed_kernel),
-            dm_function(executed_kernel.function)
+        /** Constructor. */
+        CUDAExecDetail(const ArgoNavis::CUDA::KernelExecution& event,
+                       const ArgoNavis::CUDA::Device& device,
+                       const double& time) :
+            ArgoNavis::CUDA::KernelExecution(event),
+            dm_device(device),
+            dm_time(time)
         {
         }
 
         /** Operator "<" defined for two CUDAExecDetail objects. */
         bool operator<(const CUDAExecDetail& other) const
         {
-            return TimeInterval(getTimeBegin(), getTimeEnd()) <
-                TimeInterval(other.getTimeBegin(), other.getTimeEnd());
+            return ArgoNavis::Base::TimeInterval(time_begin, time_end) <
+                ArgoNavis::Base::TimeInterval(other.time_begin, other.time_end);
+        }
+        
+        /** Device performing the kernel execution. */
+        const ArgoNavis::CUDA::Device& getDevice() const
+        {
+            return dm_device;
         }
         
         /** Time spent in the kernel execution (in seconds). */
@@ -77,113 +73,14 @@ namespace OpenSpeedShop { namespace Framework {
         {
             return dm_time;
         }
-
-        /** Device performing the kernel execution. */
-        const SmartPtr<CUDADeviceDetail>& getDevice() const
-        {
-            return dm_device_detail;
-        }
-
-        /** Time at which the kernel execution was enqueued. */
-        Time getTimeEnqueue() const
-        {
-            return dm_enqueue_request.time;
-        }
-
-        /** Time at which the kernel execution began. */
-        Time getTimeBegin() const
-        {
-            return dm_executed_kernel.time_begin;
-        }
-
-        /** Time at which the kernel execution ended. */
-        Time getTimeEnd() const
-        {
-            return dm_executed_kernel.time_end;
-        }
-
-        /** Name of the kernel function being executed. */
-        std::string getName() const
-        {
-            return dm_function;
-        }
-        
-        /** Dimensions of the grid. */
-        Vector3u getGrid() const
-        {
-            return Vector3u(dm_executed_kernel.grid[0],
-                            dm_executed_kernel.grid[1],
-                            dm_executed_kernel.grid[2]);
-        }
-        
-        /** Dimensions of each block. */
-        Vector3u getBlock() const
-        {
-            return Vector3u(dm_executed_kernel.block[0],
-                            dm_executed_kernel.block[1],
-                            dm_executed_kernel.block[2]);
-        }
-        
-        /** Cache preference used. */
-        std::string getCachePreference() const
-        {
-            return stringify(dm_executed_kernel.cache_preference);
-        }
-        
-        /** Registers required for each thread. */
-        unsigned int getRegistersPerThread() const
-        {
-            return dm_executed_kernel.registers_per_thread;
-        }
-        
-        /** Total amount (in bytes) of static shared memory reserved. */
-        unsigned long long getStaticSharedMemory() const
-        {
-            return dm_executed_kernel.static_shared_memory;
-        }
-        
-        /** Total amount (in bytes) of dynamic shared memory reserved. */
-        unsigned long long getDynamicSharedMemory() const
-        {
-            return dm_executed_kernel.dynamic_shared_memory;
-        }
-        
-        /** Total amount (in bytes) of local memory reserved. */
-        unsigned long long getLocalMemory() const
-        {
-            return dm_executed_kernel.local_memory;
-        }
         
     private:
 
-        /** Stringify a CUDA_CachePreference. */
-        std::string stringify(const CUDA_CachePreference& value) const
-        {
-            switch (value)
-            {
-            case InvalidCachePreference: return "Invalid";
-            case NoPreference: return "None";
-            case PreferShared: return "Shared";
-            case PreferCache: return "Cache";
-            case PreferEqual: return "Equal";
-            }
-            return "?";
-        }
+        /** Device performing the kernel execution. */
+        ArgoNavis::CUDA::Device dm_device;
 
         /** Time spent in the kernel execution. */
         double dm_time;
-        
-        /** Details for the device performing the kernel execution. */
-        SmartPtr<CUDADeviceDetail> dm_device_detail;
-        
-        /** Raw CUDA message describing the enqueued request. */
-        CUDA_EnqueueRequest dm_enqueue_request;
-
-        /** Raw CUDA message describing the kernel execution. */
-        CUDA_ExecutedKernel dm_executed_kernel;
-
-        /** Kernel name stored in a copy-safe C++ string. */
-        std::string dm_function;
         
     }; // class CUDAExecDetail
     

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2014 Krell Institute. All Rights Reserved.
-// Copyright (c) 2014,2015 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -23,8 +23,8 @@
 #include "SS_View_Expr.hxx"
 
 #include "CUDACollector.hxx"
-#include "CUDADeviceDetail.hxx"
 #include "CUDAXferDetail.hxx"
+#include "CUDAQueries.hxx"
 
 #define PUSH_HV(x) HV.push_back(x)
 #define PUSH_IV(...) IV.push_back(new ViewInstruction(__VA_ARGS__))
@@ -99,20 +99,20 @@ static const string kOptions[] = {
     string detail_dest = "";          \
     string detail_async = "";
 
-#define get_CUDA_invalues(primary, num_calls, function_name)  \
-    double v = primary.getTime() / num_calls;                 \
-    intime += v;                                              \
-    incnt++;                                                  \
-    start = min(start, primary.getTimeBegin());               \
-    end = max(end, primary.getTimeEnd());                     \
-    vmin = min(vmin, v);                                      \
-    vmax = max(vmax, v);                                      \
-    sum_squares += v * v;                                     \
-    detail_size = primary.getSize();                          \
-    detail_kind = primary.getKind();                          \
-    detail_src = primary.getSourceKind();                     \
-    detail_dest = primary.getDestinationKind();               \
-    detail_async = primary.getAsynchronous() ? "Yes" : "No";
+#define get_CUDA_invalues(primary, num_calls, function_name)                \
+    double v = primary.getTime() / num_calls;                               \
+    intime += v;                                                            \
+    incnt++;                                                                \
+    start = min(start, Queries::ConvertFromArgoNavis(primary.time_begin));  \
+    end = max(end, Queries::ConvertFromArgoNavis(primary.time_end));        \
+    vmin = min(vmin, v);                                                    \
+    vmax = max(vmax, v);                                                    \
+    sum_squares += v * v;                                                   \
+    detail_size = primary.size;                                             \
+    detail_kind = Queries::ConvertFromArgoNavis(primary.kind);              \
+    detail_src = Queries::ConvertFromArgoNavis(primary.source_kind);        \
+    detail_dest = Queries::ConvertFromArgoNavis(primary.destination_kind);  \
+    detail_async = primary.asynchronous ? "Yes" : "No";
 
 #define get_CUDA_exvalues(secondary, num_calls)  \
     extime += secondary.getTime() / num_calls;   \

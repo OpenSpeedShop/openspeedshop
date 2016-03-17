@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2014-2015 Krell Institute. All Rights Reserved.
+# Copyright (c) 2015,2016 Argo Navis Technologies. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -16,42 +17,34 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-set(PLUGIN_SOURCES
-	CUDACollector.hxx CUDACollector.cxx
-	CUDACountsDetail.hxx
-	CUDADeviceDetail.hxx
-	CUDAExecDetail.hxx
-	CUDAXferDetail.hxx
+add_library(cuda MODULE
+    CUDACollector.hxx CUDACollector.cxx
+    CUDACountsDetail.hxx
+    CUDAExecDetail.hxx
+    CUDAXferDetail.hxx
     )
 
-add_library(cuda MODULE
-        ${PLUGIN_SOURCES}
-)
-
 target_include_directories(cuda PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${Boost_INCLUDE_DIRS}
-        ${CBTF_MESSAGES_INCLUDE_DIRS}
-        ${CBTF_MESSAGES_CUDA_INCLUDE_DIRS}
-        ${PROJECT_SOURCE_DIR}/libopenss-runtime
-        ${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
-)
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/libopenss-framework
+    ${PROJECT_SOURCE_DIR}/libopenss-queries-cuda
+    ${Boost_INCLUDE_DIRS}
+    ${CBTF_MESSAGES_CUDA_INCLUDE_DIRS}
+    ${ARGONAVIS_BASE_INCLUDE_DIRS}
+    ${ARGONAVIS_CUDA_INCLUDE_DIRS}
+    )
 
 target_link_libraries(cuda
-	pthread
-	openss-framework
-        ${CBTF_MESSAGES_LIBRARIES}
-        ${CBTF_MESSAGES_CUDA_LIBRARIES}
+    openss-framework
+    openss-queries-cuda
+    ${CBTF_MESSAGES_CUDA_LIBRARIES}
+    ${ARGONAVIS_BASE_LIBRARIES}
+    ${ARGONAVIS_CUDA_LIBRARIES}
 	${CMAKE_DL_LIBS}
-)
-
-#set_target_properties(cuda PROPERTIES VERSION 1.1.0)
-
-install(TARGETS cuda
-	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
-)
+    )
 
 set_target_properties(cuda PROPERTIES PREFIX "")
-
+  
+install(TARGETS cuda
+    LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
+    )
