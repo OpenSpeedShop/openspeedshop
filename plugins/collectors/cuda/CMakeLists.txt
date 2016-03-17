@@ -40,7 +40,7 @@ target_link_libraries(cuda
     ${CBTF_MESSAGES_CUDA_LIBRARIES}
     ${ARGONAVIS_BASE_LIBRARIES}
     ${ARGONAVIS_CUDA_LIBRARIES}
-	${CMAKE_DL_LIBS}
+    ${CMAKE_DL_LIBS}
     )
 
 set_target_properties(cuda PROPERTIES PREFIX "")
