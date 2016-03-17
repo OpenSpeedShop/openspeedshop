@@ -1,5 +1,6 @@
 ################################################################################
 # Copyright (c) 2012-2015 Krell Institute. All Rights Reserved.
+# Copyright (c) 2016 Argo Navis Technologies. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -53,13 +54,13 @@ find_library(CBTF_KRELL_MESSAGES_BASE_SHARED_LIBRARY
     )
   
 find_library(CBTF_KRELL_MESSAGES_BASE_STATIC_LIBRARY
-    NAMES libcbtf-messages-base-static.a
+    NAMES libcbtf-messages-base.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
   
 find_library(CBTF_KRELL_MESSAGES_COLLECTOR_STATIC_LIBRARY
-    NAMES libcbtf-messages-collector-static.a
+    NAMES libcbtf-messages-collector.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -71,7 +72,7 @@ find_library(CBTF_KRELL_MESSAGES_EVENTS_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_MESSAGES_EVENTS_STATIC_LIBRARY
-    NAMES libcbtf-messages-events-static.a
+    NAMES libcbtf-messages-events.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -83,7 +84,7 @@ find_library(CBTF_KRELL_MESSAGES_INSTRUMENTATION_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_MESSAGES_INSTRUMENTATION_STATIC_LIBRARY
-    NAMES libcbtf-messages-instrumentation-static.a
+    NAMES libcbtf-messages-instrumentation.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -95,7 +96,7 @@ find_library(CBTF_KRELL_MESSAGES_PERFDATA_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_MESSAGES_PERFDATA_STATIC_LIBRARY
-    NAMES libcbtf-messages-perfdata-static.a
+    NAMES libcbtf-messages-perfdata.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -107,7 +108,7 @@ find_library(CBTF_KRELL_MESSAGES_SYMTAB_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_MESSAGES_SYMTAB_STATIC_LIBRARY
-    NAMES libcbtf-messages-symtab-static.a
+    NAMES libcbtf-messages-symtab.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -119,7 +120,7 @@ find_library(CBTF_KRELL_MESSAGES_THREAD_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_MESSAGES_THREAD_STATIC_LIBRARY
-    NAMES libcbtf-messages-thread-static.a
+    NAMES libcbtf-messages-thread.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -190,7 +191,7 @@ find_library(CBTF_KRELL_SERVICES_BINUTILS_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_BINUTILS_STATIC_LIBRARY
-    NAMES libcbtf-services-binutils-static.a
+    NAMES libcbtf-services-binutils.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -202,7 +203,7 @@ find_library(CBTF_KRELL_SERVICES_COLLECTOR_MONITOR_FILEIO_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_COLLECTOR_MONITOR_FILEIO_STATIC_LIBRARY
-    NAMES libcbtf-services-collector-monitor-fileio-static.a
+    NAMES libcbtf-services-collector-monitor-fileio.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -214,7 +215,7 @@ find_library(CBTF_KRELL_SERVICES_COLLECTOR_MONITOR_MRNET_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_COLLECTOR_MONITOR_MRNET_STATIC_LIBRARY
-    NAMES libcbtf-services-collector-monitor-mrnet-static.a
+    NAMES libcbtf-services-collector-monitor-mrnet.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -226,7 +227,7 @@ find_library(CBTF_KRELL_SERVICES_COLLECTOR_MONITOR_MRNET_MPI_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_COLLECTOR_MONITOR_MRNET_MPI_STATIC_LIBRARY
-    NAMES libcbtf-services-collector-monitor-mrnet-mpi-static.a
+    NAMES libcbtf-services-collector-monitor-mrnet-mpi.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -238,7 +239,7 @@ find_library(CBTF_KRELL_SERVICES_COMMON_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_COMMON_STATIC_LIBRARY
-    NAMES libcbtf-services-common-static.a
+    NAMES libcbtf-services-common.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -250,7 +251,7 @@ find_library(CBTF_KRELL_SERVICES_DATA_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_DATA_STATIC_LIBRARY
-    NAMES libcbtf-services-data-static.a
+    NAMES libcbtf-services-data.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -262,7 +263,7 @@ find_library(CBTF_KRELL_SERVICES_FILEIO_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_FILEIO_STATIC_LIBRARY
-    NAMES libcbtf-services-fileio-static.a
+    NAMES libcbtf-services-fileio.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -274,7 +275,7 @@ find_library(CBTF_KRELL_SERVICES_FPE_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_FPE_STATIC_LIBRARY
-    NAMES libcbtf-services-fpe-static.a
+    NAMES libcbtf-services-fpe.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -286,7 +287,7 @@ find_library(CBTF_KRELL_SERVICES_MONITOR_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_MONITOR_STATIC_LIBRARY
-    NAMES libcbtf-services-monitor-static.a
+    NAMES libcbtf-services-monitor.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -298,7 +299,7 @@ find_library(CBTF_KRELL_SERVICES_MRNET_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_MRNET_STATIC_LIBRARY
-    NAMES libcbtf-services-mrnet-static.a
+    NAMES libcbtf-services-mrnet.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -310,7 +311,7 @@ find_library(CBTF_KRELL_SERVICES_OFFLINE_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_OFFLINE_STATIC_LIBRARY
-    NAMES libcbtf-services-offline-static.a
+    NAMES libcbtf-services-offline.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -322,7 +323,7 @@ find_library(CBTF_KRELL_SERVICES_PAPI_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_PAPI_STATIC_LIBRARY
-    NAMES libcbtf-services-papi-static.a
+    NAMES libcbtf-services-papi.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -334,7 +335,7 @@ find_library(CBTF_KRELL_SERVICES_SEND_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_SEND_STATIC_LIBRARY
-    NAMES libcbtf-services-send-static.a
+    NAMES libcbtf-services-send.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -346,7 +347,7 @@ find_library(CBTF_KRELL_SERVICES_TIMER_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_TIMER_STATIC_LIBRARY
-    NAMES libcbtf-services-timer-static.a
+    NAMES libcbtf-services-timer.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )
@@ -358,7 +359,7 @@ find_library(CBTF_KRELL_SERVICES_UNWIND_SHARED_LIBRARY
     )
 
 find_library(CBTF_KRELL_SERVICES_UNWIND_STATIC_LIBRARY
-    NAMES libcbtf-services-unwind-static.a
+    NAMES libcbtf-services-unwind.a
     HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
     PATH_SUFFIXES lib lib64
     )

@@ -286,8 +286,6 @@ elseif (INSTRUMENTOR MATCHES "cbtf")
     find_package(XercesC 3.0)
     find_package(CBTF-ArgoNavis)
 
-    message(STATUS "CBTF-ARGO-MESSAGESCUDA_FOUND=" ${CBTF-ARGO-MESSAGESCUDA_FOUND} )
-
     if (NOT "${CBTF_KRELL_CN_RUNTIME_DIR}" STREQUAL "")
         if(EXISTS ${CBTF_KRELL_CN_RUNTIME_DIR} AND IS_DIRECTORY "${CBTF_KRELL_CN_RUNTIME_DIR}")
             set ( BUILD_FE_USING_CN_RUNTIMES "true" )
