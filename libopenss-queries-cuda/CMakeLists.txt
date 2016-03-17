@@ -18,9 +18,9 @@
 ################################################################################
 
 add_library(openss-queries-cuda SHARED
-	CUDAExecXferBalance.hxx
-	CUDAQueries.hxx CUDAQueries.cxx
-	CUDAXferRate.hxx
+    CUDAExecXferBalance.hxx
+    CUDAQueries.hxx CUDAQueries.cxx
+    CUDAXferRate.hxx
     )
 
 target_include_directories(openss-queries-cuda PUBLIC
