@@ -18,7 +18,7 @@
 ################################################################################
 
 add_executable(ossdumpcuda
-	ossdumpcuda.cxx
+    ossdumpcuda.cxx
     )
 
 target_include_directories(ossdumpcuda PUBLIC
