@@ -135,7 +135,7 @@ void Queries::GetMetricValues(
 	    continue;
 	
 	// Allocate a vector to hold the evaluated metric values
-	std::vector<TM > values(extents.size(), TM());
+	std::vector<TM > values(extents.size());
 
 #ifndef HAVE_OPENMP
 
@@ -152,7 +152,7 @@ void Queries::GetMetricValues(
 	#pragma omp parallel
 	{
 	    // Vector holding the evaluated metric values for this thread
-	    std::vector<TM > local(extents.size(), TM());
+	    std::vector<TM > local(extents.size());
 	    
 	    // Iterate in parallel over each performance data blob
             #pragma omp for nowait

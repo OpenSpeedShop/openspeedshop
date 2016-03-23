@@ -393,7 +393,7 @@ namespace OpenSpeedShop { namespace Framework {
 	
 	// Insure vector of values is large enough to contain the results
 	if(values.size() < subextents.size())
-	    values.resize(subextents.size(), T());
+	    values.resize(subextents.size());
 	
 	// Get our metric values
 	getMetricValues(unique_id, thread, subextents, &values);

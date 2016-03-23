@@ -228,7 +228,7 @@ void ExtentGroup::initializeTree() const
     // Size and initialize the tree structures
     dm_next = 0;
     dm_tree.resize(2 * size(), Node());
-    dm_map.resize(size(), 0);
+    dm_map.resize(size());
     
     // Create the initial partitioning map
     for(std::vector<ExtentGroup::size_type>::size_type
