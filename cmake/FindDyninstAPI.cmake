@@ -56,6 +56,7 @@ find_package_handle_standard_args(
 
 set(DyninstAPI_LIBRARIES ${DyninstAPI_LIBRARY})
 set(DyninstAPI_INCLUDE_DIRS ${DyninstAPI_INCLUDE_DIR}${include_suffix})
+set(DyninstAPI_DEFINES "HAVE_DYNINST")
 
 mark_as_advanced(DyninstAPI_LIBRARY DyninstAPI_INCLUDE_DIR)
 
