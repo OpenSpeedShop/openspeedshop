@@ -378,7 +378,7 @@ if(HAVE_MPT)
 
 
     #set_target_properties(mpi-mpt-rt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpi-mpt-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${Mpt_DEFINES}") 
+    set_target_properties(mpi-mpt-rt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${Mpt_DEFINES};${SGIMPT_DEFINES}") 
 
     install(TARGETS mpi-mpt-rt-offline
 	LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
@@ -421,7 +421,7 @@ if(HAVE_MPT)
 
 
     #set_target_properties(mpi-mpt-offline PROPERTIES VERSION 1.1.0)
-    set_target_properties(mpi-mpt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${Mpt_DEFINES};OPENSS_STATIC") 
+    set_target_properties(mpi-mpt-offline PROPERTIES COMPILE_DEFINITIONS "${TLS_DEFINES};${LibUnwind_DEFINES};${Mpt_DEFINES};${SGIMPT_DEFINES};OPENSS_STATIC") 
 
     install(TARGETS mpi-mpt-offline
 	ARCHIVE DESTINATION lib${LIB_SUFFIX}/openspeedshop
