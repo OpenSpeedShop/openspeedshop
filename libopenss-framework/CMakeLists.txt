@@ -234,7 +234,7 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     set_target_properties(openss-framework-cbtf PROPERTIES VERSION 1.1.0)
-    set_target_properties(openss-framework-cbtf PROPERTIES COMPILE_DEFINITIONS "BUILD_CBTF=1;${RESOLVE_SYMBOLS_DEFINES}")
+    set_target_properties(openss-framework-cbtf PROPERTIES COMPILE_DEFINITIONS "BUILD_CBTF=1;${RESOLVE_SYMBOLS_DEFINES};${DyninstAPI_DEFINES}")
 
     install(TARGETS openss-framework-cbtf
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
@@ -330,14 +330,6 @@ if(SYMTABAPI_FOUND)
     	)
     endif()
 
-    if (RESOLVE_SYMBOLS MATCHES "symtabapi")
-      if (DYNINSTAPI_FOUND)
-         set(RESOLVE_SYMBOLS_DEFINES "OPENSS_USE_SYMTABAPI=1;${Dyninst_DEFINES}")
-      else()
-         set(RESOLVE_SYMBOLS_DEFINES "OPENSS_USE_SYMTABAPI=1")
-      endif()
-    endif()
-
     if (DYNINSTAPI_FOUND)
     target_include_directories(openss-framework-symtabapi PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
@@ -384,7 +376,7 @@ if(SYMTABAPI_FOUND)
 
     # Work around problem defined by:
     # https://stackoverflow.com/questions/11748035/binutils-bfd-h-wants-config-h-now
-    set_target_properties(openss-framework-symtabapi PROPERTIES COMPILE_DEFINITIONS "PACKAGE=1;PACKAGE_VERSION=1;${RESOLVE_SYMBOLS_DEFINES}")
+    set_target_properties(openss-framework-symtabapi PROPERTIES COMPILE_DEFINITIONS "PACKAGE=1;PACKAGE_VERSION=1;${RESOLVE_SYMBOLS_DEFINES};${DyninstAPI_DEFINES}")
 
     install(TARGETS openss-framework-symtabapi
 	LIBRARY DESTINATION lib${LIB_SUFFIX}

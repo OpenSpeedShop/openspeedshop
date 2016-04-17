@@ -3052,42 +3052,6 @@ then
   else
     echo "[openss]: cuda experiment calling nothing, else clause."
   fi
-
-# ------------------------------------------------------------------------------------
-# -- CUDAIO EXPERIMENT SPECIFIC CODE -------------------------------------------------
-# ------------------------------------------------------------------------------------
-
-elif  [ $experiment_name == "osscudaio" ]
-then
-
-  if [ $debug_flag == 1 ]; then
-    echo "DEBUG: in CUDAIO EXPERIMENT SECTION"
-  fi
-
-  OPENSS_CUDA_CONFIG=
-
-  if [ "$instrumentor" == "cbtf" ]; then
-    CBTF_CUDA_CONFIG=$OPENSS_CUDA_CONFIG
-    export CBTF_CUDA_CONFIG
-  fi
-
-  export OPENSS_CUDA_CONFIG
-
-  if [ "$instrumentor" == "cbtf" ]; then
-    echo "[openss]: cudaio experiment calling osscollect."
-    if [ "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" -o "$targetos" == "cray" ]
-    then
-       osscollect --arch cray --program "$1" --collector cudaio
-    else
-       osscollect --program "$1" --collector cudaio
-    fi
-  elif [ "$instrumentor" == "offline" ]; then
-    echo "[openss]: cudaio experiment is not implemented in the offline version of openss."
-    #openss -offline -f "$1" cudaio
-  else
-    echo "[openss]: cudaio experiment calling nothing, else clause."
-  fi
-
 fi
 
 # ------------------------------------------------------------------------------------
