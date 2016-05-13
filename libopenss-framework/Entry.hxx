@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2013 Krell Institute. All Rights Reserved.
+// Copyright (c) 2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -87,12 +88,14 @@ bool operator<(const Entry& other) const
 	 * subclass.
 	 */
 	enum Table {
-	    Collectors,     /**< Table of performance data collectors. */
-	    Functions,      /**< Table of source code functions. */
-	    LinkedObjects,  /**< Table of linked objects. */
-        Loops,          /**< Table of loops. */
-	    Statements,     /**< Table of source code statements. */
-	    Threads         /**< Table of threads of code execution. */
+        Clusters,          /**< Table of data clusters. */
+        ClusteringMetrics, /**< Table of data clustering metrics. */
+	    Collectors,        /**< Table of performance data collectors. */
+	    Functions,         /**< Table of source code functions. */
+	    LinkedObjects,     /**< Table of linked objects. */
+        Loops,             /**< Table of loops. */
+	    Statements,        /**< Table of source code statements. */
+	    Threads            /**< Table of threads of code execution. */
 	};
 	
 	Entry();

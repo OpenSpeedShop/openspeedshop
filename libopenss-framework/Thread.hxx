@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2012,2013 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -46,6 +47,7 @@
 namespace OpenSpeedShop { namespace Framework {
 
     class Blob;
+    class Cluster;
     class Collector;
     class CollectorGroup;
     class Database;
@@ -87,6 +89,7 @@ namespace OpenSpeedShop { namespace Framework {
     class Thread :
         public Entry
     {
+        friend class Cluster;
         friend class Collector;
         friend class DataCache;
         friend class Experiment;

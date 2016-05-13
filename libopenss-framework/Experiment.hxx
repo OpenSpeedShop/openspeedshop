@@ -2,6 +2,7 @@
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007,2008 William Hachfeld. All Rights Reserved.
 // Copyright (c) 2006-2014 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -50,6 +51,7 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
+    class ClusteringMetric;
     class Collector;
     class CollectorGroup;
     class Extent;
@@ -204,6 +206,8 @@ namespace OpenSpeedShop { namespace Framework {
         void removeViewTableEntry(const std::string view_cmd_arg, const int views_id_arg, const OpenSpeedShop::Framework::SmartPtr<OpenSpeedShop::Framework::Database> database_arg) const;
         void removeNonCrossSessionViews(std::string db_name);
 	bool addView(std::string&, std::string& );
+
+        std::set<ClusteringMetric> getClusteringMetrics() const;
 		
     private:
 
@@ -216,6 +220,7 @@ namespace OpenSpeedShop { namespace Framework {
 	void updateToVersion5() const;
 	void updateToVersion6() const;
 	void updateToVersion7() const;
+	void updateToVersion8() const;
 
 #ifndef NDEBUG
 	static bool is_debug_mpijob_enabled;

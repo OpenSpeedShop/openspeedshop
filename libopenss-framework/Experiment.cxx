@@ -2,6 +2,7 @@
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007-2008 William Hachfeld. All Rights Reserved.
 // Copyright (c) 2006-2014 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -26,6 +27,7 @@
 
 #include "AddressBitmap.hxx"
 #include "AddressSpace.hxx"
+#include "ClusteringMetric.hxx"
 #include "CollectorGroup.hxx"
 #include "DataCache.hxx"
 #include "DataQueues.hxx"
@@ -80,7 +82,7 @@ namespace {
 	"CREATE TABLE \"Open|SpeedShop\" ("
 	"    version INTEGER"
 	");",
-	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (7);",
+	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (8);",
 	
 	// Thread Table
 	"CREATE TABLE Threads ("
@@ -221,6 +223,30 @@ namespace {
 	"    view_cmd TEXT," 
         "    view_data BLOB"
 	");",
+
+    // Data Clustering Metrics Table
+    "CREATE TABLE ClusteringMetrics ("
+    "    id INTEGER PRIMARY KEY,"
+    "    name TEXT"
+	");",
+
+    // Data Clusters Table
+    "CREATE TABLE Clusters ("
+    "    id INTEGER PRIMARY KEY,"
+    "    metric INTEGER," // From ClusteringMetrics.id
+    "    representative_thread INTEGER" // From Threads.id
+	");",
+    "CREATE INDEX IndexClustersByMetric ON Clusters (metric);",
+
+    // Data Cluster Membership Table
+    "CREATE TABLE ClusterMembership ("
+    "    cluster INTEGER," // From Clusters.id
+    "    thread INTEGER" // From Threads.id
+	");",
+    "CREATE INDEX IndexClusterMembershipByCluster "
+    "  ON ClusterMembership (cluster);",
+    "CREATE INDEX IndexClusterMembershipByThread "
+    "  ON ClusterMembership (thread);",
 
 	// End Of Table Entry
 	NULL
@@ -512,6 +538,8 @@ Experiment::Experiment(const std::string& name) :
         updateToVersion6();
     if(getVersion() == 6)
         updateToVersion7();
+    if(getVersion() == 7)
+        updateToVersion8();
 
 #if (BUILD_INSTRUMENTOR == 1)
     // Iterate over each thread in this experiment
@@ -1360,6 +1388,34 @@ void Experiment::removeThread(const Thread& thread) const
 	"WHERE id NOT IN (SELECT DISTINCT file FROM LinkedObjects) "
 	"  AND id NOT IN (SELECT DISTINCT file FROM Statements);"
 	);
+    while(dm_database->executeStatement());
+
+    // Remove data cluster memberships referencing the removed thread
+    dm_database->prepareStatement(
+        "DELETE FROM ClusterMembership WHERE thread = ?;"
+        );
+    dm_database->bindArgument(1, EntrySpy(thread).getEntry());
+    while(dm_database->executeStatement());    
+
+    // Remove data clusters referencing the removed thread
+    dm_database->prepareStatement(
+        "DELETE FROM Clusters WHERE representative_thread = ?;"
+        );
+    dm_database->bindArgument(1, EntrySpy(thread).getEntry());
+    while(dm_database->executeStatement());    
+
+    // Remove unused data clusters
+    dm_database->prepareStatement(
+        "DELETE FROM Clusters "
+        "WHERE id NOT IN (SELECT DISTINCT cluster FROM ClusterMembership);"
+        );
+    while(dm_database->executeStatement());
+
+    // Remove unused data clustering metrics
+    dm_database->prepareStatement(
+        "DELETE FROM ClusteringMetrics "
+        "WHERE id NOT IN (SELECT DISTINCT metric FROM Clusters);"
+        );
     while(dm_database->executeStatement());
     
     // End this multi-statement transaction
@@ -2287,6 +2343,7 @@ void Experiment::updateToVersion6() const
 }
 
 
+
 /**
  * Update our schema to version 7.
  *
@@ -2309,6 +2366,59 @@ void Experiment::updateToVersion7() const
 	// Update the database's schema version number
 	"UPDATE \"Open|SpeedShop\" SET version = 7;",
 
+	// End Of Table Entry
+	NULL
+    };
+
+    // Apply the update procedure
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    for(int i = 0; UpdateProcedure[i] != NULL; ++i) {
+        dm_database->prepareStatement(UpdateProcedure[i]);
+        while(dm_database->executeStatement());
+    }
+    END_TRANSACTION(dm_database);
+}
+
+
+
+/**
+ * Update our schema to version 8.
+ *
+ * Updates the schema of this experiment's database to version 8. Adds empty
+ * data clustering tables and updates the database's schema version number.
+ */
+void Experiment::updateToVersion8() const
+{
+    // Update procedure
+    const char* UpdateProcedure[] = {
+
+    // Data Clustering Metrics Table
+    "CREATE TABLE ClusteringMetrics ("
+    "    id INTEGER PRIMARY KEY,"
+    "    name TEXT"
+    ");",
+
+    // Data Clusters Table
+    "CREATE TABLE Clusters ("
+    "    id INTEGER PRIMARY KEY,"
+    "    metric INTEGER," // From ClusteringMetrics.id
+    "    representative_thread INTEGER" // From Threads.id
+    ");",
+    "CREATE INDEX IndexClustersByMetric ON Clusters (metric);",
+
+    // Data Cluster Membership Table
+    "CREATE TABLE ClusterMembership ("
+    "    cluster INTEGER," // From Clusters.id
+    "    thread INTEGER" // From Threads.id
+    ");",
+    "CREATE INDEX IndexClusterMembershipByCluster "
+    "  ON ClusterMembership (cluster);",
+    "CREATE INDEX IndexClusterMembershipByThread "
+    "  ON ClusterMembership (thread);",
+
+	// Update the database's schema version number
+	"UPDATE \"Open|SpeedShop\" SET version = 8;",
+    
 	// End Of Table Entry
 	NULL
     };
@@ -3851,4 +3961,31 @@ bool Experiment::addView(std::string& viewcommand, std::string& viewdata )
 
   return return_val;
 
+}
+
+
+
+/**
+ * Get our clustering metrics.
+ *
+ * Returns all clustering metrics currently in this experiment. An empty set
+ * is returned if this experiment doesn't contain any clustering metrics.
+ *
+ * @return    Clustering metrics contained within this experiment.
+ */
+std::set<ClusteringMetric> Experiment::getClusteringMetrics() const
+{
+    std::set<ClusteringMetric> clustering_metrics;
+
+    // Find our clustering metrics
+    BEGIN_TRANSACTION(dm_database);    
+    dm_database->prepareStatement("SELECT id FROM ClusteringMetrics;");
+    while(dm_database->executeStatement())
+        clustering_metrics.insert(
+            ClusteringMetric(dm_database, dm_database->getResultAsInteger(1))
+            );
+    END_TRANSACTION(dm_database);
+    
+    // Return the clustering metrics to the caller
+    return clustering_metrics;
 }
