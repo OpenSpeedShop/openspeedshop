@@ -169,7 +169,7 @@ namespace OpenSpeedShop { namespace Framework {
 
         int numBEprocs;
 
-        int setBEprocCount(int count) {
+        void setBEprocCount(int count) {
            //std::cerr << "Enter setBEprocCount, count=" << count << std::endl;
            numBEprocs = count;
         }
@@ -183,11 +183,11 @@ namespace OpenSpeedShop { namespace Framework {
 
         int rerunCount;
 
-        int setRerunCount(int count) {
+        void setRerunCount(int count) {
            rerunCount = count;
         }
 
-        int incrementRerunCount() {
+        void incrementRerunCount() {
            rerunCount = rerunCount + 1;
         }
 
