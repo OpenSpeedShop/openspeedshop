@@ -27,7 +27,7 @@
 
 #include "AddressBitmap.hxx"
 #include "AddressSpace.hxx"
-#include "ClusteringMetric.hxx"
+#include "ClusteringCriterion.hxx"
 #include "CollectorGroup.hxx"
 #include "DataCache.hxx"
 #include "DataQueues.hxx"
@@ -224,8 +224,8 @@ namespace {
         "    view_data BLOB"
 	");",
 
-    // Data Clustering Metrics Table
-    "CREATE TABLE ClusteringMetrics ("
+    // Data Clustering Criteria Table
+    "CREATE TABLE ClusteringCriteria ("
     "    id INTEGER PRIMARY KEY,"
     "    name TEXT"
 	");",
@@ -233,10 +233,10 @@ namespace {
     // Data Clusters Table
     "CREATE TABLE Clusters ("
     "    id INTEGER PRIMARY KEY,"
-    "    metric INTEGER," // From ClusteringMetrics.id
+    "    criterion INTEGER," // From ClusteringCriteria.id
     "    representative_thread INTEGER" // From Threads.id
 	");",
-    "CREATE INDEX IndexClustersByMetric ON Clusters (metric);",
+    "CREATE INDEX IndexClustersByCriterion ON Clusters (criterion);",
 
     // Data Cluster Membership Table
     "CREATE TABLE ClusterMembership ("
@@ -1411,10 +1411,10 @@ void Experiment::removeThread(const Thread& thread) const
         );
     while(dm_database->executeStatement());
 
-    // Remove unused data clustering metrics
+    // Remove unused data clustering criteria
     dm_database->prepareStatement(
-        "DELETE FROM ClusteringMetrics "
-        "WHERE id NOT IN (SELECT DISTINCT metric FROM Clusters);"
+        "DELETE FROM ClusteringCriteria "
+        "WHERE id NOT IN (SELECT DISTINCT criterion FROM Clusters);"
         );
     while(dm_database->executeStatement());
     
@@ -2392,8 +2392,8 @@ void Experiment::updateToVersion8() const
     // Update procedure
     const char* UpdateProcedure[] = {
 
-    // Data Clustering Metrics Table
-    "CREATE TABLE ClusteringMetrics ("
+    // Data Clustering Criteria Table
+    "CREATE TABLE ClusteringCriteria ("
     "    id INTEGER PRIMARY KEY,"
     "    name TEXT"
     ");",
@@ -2401,10 +2401,10 @@ void Experiment::updateToVersion8() const
     // Data Clusters Table
     "CREATE TABLE Clusters ("
     "    id INTEGER PRIMARY KEY,"
-    "    metric INTEGER," // From ClusteringMetrics.id
+    "    criterion INTEGER," // From ClusteringCriteria.id
     "    representative_thread INTEGER" // From Threads.id
     ");",
-    "CREATE INDEX IndexClustersByMetric ON Clusters (metric);",
+    "CREATE INDEX IndexClustersByCriterion ON Clusters (criterion);",
 
     // Data Cluster Membership Table
     "CREATE TABLE ClusterMembership ("
@@ -3966,26 +3966,26 @@ bool Experiment::addView(std::string& viewcommand, std::string& viewdata )
 
 
 /**
- * Get our clustering metrics.
+ * Get our clustering criteria.
  *
- * Returns all clustering metrics currently in this experiment. An empty set
- * is returned if this experiment doesn't contain any clustering metrics.
+ * Returns all clustering criteria currently in this experiment. An empty set
+ * is returned if this experiment doesn't contain any clustering criteria.
  *
- * @return    Clustering metrics contained within this experiment.
+ * @return    Clustering criteria contained within this experiment.
  */
-std::set<ClusteringMetric> Experiment::getClusteringMetrics() const
+ std::set<ClusteringCriterion> Experiment::getClusteringCriteria() const
 {
-    std::set<ClusteringMetric> clustering_metrics;
+    std::set<ClusteringCriterion> clustering_criteria;
 
-    // Find our clustering metrics
+    // Find our clustering criteria
     BEGIN_TRANSACTION(dm_database);    
-    dm_database->prepareStatement("SELECT id FROM ClusteringMetrics;");
+    dm_database->prepareStatement("SELECT id FROM ClusteringCriteria;");
     while(dm_database->executeStatement())
-        clustering_metrics.insert(
-            ClusteringMetric(dm_database, dm_database->getResultAsInteger(1))
+        clustering_criteria.insert(
+            ClusteringCriterion(dm_database, dm_database->getResultAsInteger(1))
             );
     END_TRANSACTION(dm_database);
     
-    // Return the clustering metrics to the caller
-    return clustering_metrics;
+    // Return the clustering criteria to the caller
+    return clustering_criteria;
 }

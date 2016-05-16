@@ -18,12 +18,12 @@
 
 /** @file
  *
- * Declaration of the ClusteringMetric class.
+ * Declaration of the ClusteringCriterion class.
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_ClusteringMetric_
-#define _OpenSpeedShop_Framework_ClusteringMetric_
+#ifndef _OpenSpeedShop_Framework_ClusteringCriterion_
+#define _OpenSpeedShop_Framework_ClusteringCriterion_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -44,12 +44,13 @@ namespace OpenSpeedShop { namespace Framework {
     template <typename> class SmartPtr;
     
     /**
-     * Data clustering metric.
+     * Data clustering criterion.
      *
-     * Representation of a data clustering metric. Provides member functions for
-     * requesting information about this metric and what clusters it contains.
+     * Representation of a data clustering criterion. Provides member functions
+     * for requesting information regarding this clustering criterion and what
+     * clusters it contains.
      */
-    class ClusteringMetric :
+    class ClusteringCriterion :
         public Entry
     {
         friend class Cluster;
@@ -62,8 +63,8 @@ namespace OpenSpeedShop { namespace Framework {
         
     private:
 
-        ClusteringMetric();
-        ClusteringMetric(const SmartPtr<Database>&, const int&);
+        ClusteringCriterion();
+        ClusteringCriterion(const SmartPtr<Database>&, const int&);
         
     };
     

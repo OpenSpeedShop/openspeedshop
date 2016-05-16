@@ -23,7 +23,7 @@
  */
 
 #include "Cluster.hxx"
-#include "ClusteringMetric.hxx"
+#include "ClusteringCriterion.hxx"
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
 
@@ -32,31 +32,31 @@ using namespace OpenSpeedShop::Framework;
 
 
 /**
- * Get our clustering metric.
+ * Get our clustering criterion.
  *
- * Returns the clustering metric containing this cluster.
+ * Returns the clustering criterion containing this cluster.
  *
- * @return    Clustering metric containing this cluster.
+ * @return    Clustering criterion containing this cluster.
  */
-ClusteringMetric Cluster::getClusteringMetric() const
+ClusteringCriterion Cluster::getClusteringCriterion() const
 {
-    ClusteringMetric clustering_metric;
+    ClusteringCriterion clustering_criterion;
 
-    // Find our clustering metric
+    // Find our clustering criterion
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-        "SELECT metric FROM Clusters WHERE id = ?;"
+        "SELECT criterion FROM Clusters WHERE id = ?;"
         );
     dm_database->bindArgument(1, dm_entry);     
     while(dm_database->executeStatement())
-        clustering_metric = ClusteringMetric(
+        clustering_criterion = ClusteringCriterion(
             dm_database, dm_database->getResultAsInteger(1)
             );
     END_TRANSACTION(dm_database);
     
-    // Return the clustering metric to the caller
-    return clustering_metric;
+    // Return the clustering criterion to the caller
+    return clustering_criterion;
 }
 
 

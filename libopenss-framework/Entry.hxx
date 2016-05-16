@@ -88,14 +88,14 @@ bool operator<(const Entry& other) const
 	 * subclass.
 	 */
 	enum Table {
-        Clusters,          /**< Table of data clusters. */
-        ClusteringMetrics, /**< Table of data clustering metrics. */
-	    Collectors,        /**< Table of performance data collectors. */
-	    Functions,         /**< Table of source code functions. */
-	    LinkedObjects,     /**< Table of linked objects. */
-        Loops,             /**< Table of loops. */
-	    Statements,        /**< Table of source code statements. */
-	    Threads            /**< Table of threads of code execution. */
+        Clusters,           /**< Table of data clusters. */
+        ClusteringCriteria, /**< Table of data clustering criteria. */
+	    Collectors,         /**< Table of performance data collectors. */
+	    Functions,          /**< Table of source code functions. */
+	    LinkedObjects,      /**< Table of linked objects. */
+        Loops,              /**< Table of loops. */
+	    Statements,         /**< Table of source code statements. */
+	    Threads             /**< Table of threads of code execution. */
 	};
 	
 	Entry();

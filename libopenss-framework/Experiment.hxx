@@ -51,7 +51,7 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
-    class ClusteringMetric;
+    class ClusteringCriterion;
     class Collector;
     class CollectorGroup;
     class Extent;
@@ -207,7 +207,7 @@ namespace OpenSpeedShop { namespace Framework {
         void removeNonCrossSessionViews(std::string db_name);
 	bool addView(std::string&, std::string& );
 
-        std::set<ClusteringMetric> getClusteringMetrics() const;
+        std::set<ClusteringCriterion> getClusteringCriteria() const;
 		
     private:
 

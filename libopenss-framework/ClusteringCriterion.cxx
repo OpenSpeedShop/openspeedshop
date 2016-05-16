@@ -18,12 +18,12 @@
 
 /** @file
  *
- * Definition of the ClusteringMetric class.
+ * Definition of the ClusteringCriterion class.
  *
  */
 
 #include "Cluster.hxx"
-#include "ClusteringMetric.hxx"
+#include "ClusteringCriterion.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
@@ -32,19 +32,19 @@ using namespace OpenSpeedShop::Framework;
 /**
  * Get our name.
  *
- * Returns the name of this clustering metric.
+ * Returns the name of this clustering criterion.
  *
- * @return    Name of this clustering metric.
+ * @return    Name of this clustering criterion.
  */
-std::string ClusteringMetric::getName() const
+std::string ClusteringCriterion::getName() const
 {
     std::string name;
-
+    
     // Find our name
     BEGIN_TRANSACTION(dm_database);
     validate();
     dm_database->prepareStatement(
-        "SELECT name FROM ClusteringMetrics WHERE id = ?;"
+        "SELECT name FROM ClusteringCriteria WHERE id = ?;"
         );
     dm_database->bindArgument(1, dm_entry);
     while(dm_database->executeStatement())
@@ -60,18 +60,18 @@ std::string ClusteringMetric::getName() const
 /**
  * Get our clusters.
  *
- * Returns the clusters for this clustering metric.
+ * Returns the clusters for this clustering criterion.
  *
- * @return    Clusters for this clustering metric.
+ * @return    Clusters for this clustering criterion.
  */
-std::set<Cluster> ClusteringMetric::getClusters() const
+std::set<Cluster> ClusteringCriterion::getClusters() const
 {
     std::set<Cluster> clusters;
 
     // Find our clusters
     BEGIN_TRANSACTION(dm_database);    
     dm_database->prepareStatement(
-        "SELECT id FROM Clusters WHERE metric = ?;"
+        "SELECT id FROM Clusters WHERE criterion = ?;"
         );
     while(dm_database->executeStatement())
         clusters.insert(
@@ -88,11 +88,11 @@ std::set<Cluster> ClusteringMetric::getClusters() const
 /**
  * Default constructor.
  *
- * Constructs a ClusteringMetric that refers to a non-existent clustering
- * metric. Any use of a member function on an object constructed in this way
- * will result in an assertion failure.
+ * Constructs a ClusteringCriterion that refers to a non-existent clustering
+ * criterion. Any use of a member function on an object constructed in this
+ * way will result in an assertion failure.
  */
-ClusteringMetric::ClusteringMetric() :
+ClusteringCriterion::ClusteringCriterion() :
     Entry()
 {
 }
@@ -100,15 +100,16 @@ ClusteringMetric::ClusteringMetric() :
 
 
 /**
- * Constructor from a clustering metric entry.
+ * Constructor from a clustering criterion entry.
  *
- * Constructs a new ClusteringMetric for the specified clustering metric entry.
+ * Constructs a new ClusteringCriterion for the specified clustering criterion
+ * entry.
  *
- * @param database    Database containing this clustering metric.
- * @param entry       Identifier for this clustering metric.
+ * @param database    Database containing this clustering criterion.
+ * @param entry       Identifier for this clustering criterion.
  */
-ClusteringMetric::ClusteringMetric(const SmartPtr<Database>& database,
+ClusteringCriterion::ClusteringCriterion(const SmartPtr<Database>& database,
                                    const int& entry) :
-    Entry(database, Entry::ClusteringMetrics, entry)
+    Entry(database, Entry::ClusteringCriteria, entry)
 {
 }

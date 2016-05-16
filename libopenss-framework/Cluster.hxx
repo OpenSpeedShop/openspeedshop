@@ -35,7 +35,7 @@
 
 namespace OpenSpeedShop { namespace Framework {
 
-    class ClusteringMetric;
+    class ClusteringCriterion;
     class Database;
     template <typename> class SmartPtr;
     class Thread;
@@ -50,11 +50,11 @@ namespace OpenSpeedShop { namespace Framework {
     class Cluster :
         public Entry
     {
-        friend class ClusteringMetric;
+        friend class ClusteringCriterion;
         
     public:
         
-        ClusteringMetric getClusteringMetric() const;
+        ClusteringCriterion getClusteringCriterion() const;
         
         Thread getRepresentativeThread() const;
         ThreadGroup getThreads() const;

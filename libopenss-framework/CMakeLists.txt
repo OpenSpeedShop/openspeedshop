@@ -73,7 +73,7 @@ set(FW_SOURCES
         Assert.hxx
         Blob.hxx Blob.cxx
         Cluster.hxx Cluster.cxx
-        ClusteringMetric.hxx ClusteringMetric.cxx
+        ClusteringCriterion.hxx ClusteringCriterion.cxx
         Collector.hxx Collector.cxx
         CollectorAPI.hxx
         CollectorGroup.hxx CollectorGroup.cxx

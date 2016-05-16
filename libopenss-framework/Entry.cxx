@@ -173,8 +173,8 @@ std::string Entry::getTable() const
     switch(dm_table) {
     case Clusters:
         return "Clusters";
-    case ClusteringMetrics:
-        return "ClusteringMetrics";
+    case ClusteringCriteria:
+        return "ClusteringCriteria";
     case Collectors:
         return "Collectors";
     case Functions:
