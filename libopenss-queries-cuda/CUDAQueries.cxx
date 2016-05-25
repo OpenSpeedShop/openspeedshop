@@ -325,22 +325,22 @@ CUDAExecXferBalance Queries::GetCUDAExecXferBalance(
 
     CUDA::KernelExecutionVisitor exec_time = bind(
         &accumulateEventTime<CUDA::KernelExecution>,
-        _1, cref(interval), ref(result.exec_time)
+        _1, boost::cref(interval), boost::ref(result.exec_time)
         );
 
     Base::ThreadVisitor call_exec_time = bind(
-        &callExec, _1, cref(data), cref(interval), ref(exec_time)
+        &callExec, _1, boost::cref(data), boost::cref(interval), boost::ref(exec_time)
         );
 
     data.visitThreads(call_exec_time);
 
     CUDA::DataTransferVisitor xfer_time = bind(
         &accumulateEventTime<CUDA::DataTransfer>,
-        _1, cref(interval), ref(result.xfer_time)
+        _1, boost::cref(interval), boost::ref(result.xfer_time)
         );
 
     Base::ThreadVisitor call_xfer_time = bind(
-        &callXfer, _1, cref(data), cref(interval), ref(xfer_time)
+        &callXfer, _1, boost::cref(data), boost::cref(interval), boost::ref(xfer_time)
         );
 
     data.visitThreads(call_xfer_time);
@@ -361,11 +361,11 @@ CUDAXferRate Queries::GetCUDAXferRate(
     
     CUDA::DataTransferVisitor xfer_rate = bind(
         &accumulateXferSizeAndTime,
-        _1, cref(interval), ref(result.size), ref(result.time)
+        _1, boost::cref(interval), boost::ref(result.size), boost::ref(result.time)
         );
 
     Base::ThreadVisitor call_xfer_rate = bind(
-        &callXfer, _1, cref(data), cref(interval), ref(xfer_rate)
+        &callXfer, _1, boost::cref(data), boost::cref(interval), boost::ref(xfer_rate)
         );
 
     data.visitThreads(call_xfer_rate);
@@ -387,7 +387,7 @@ void Queries::GetCUDAUniquePCs(const Blob& blob, PCBuffer* buffer)
         );
 
     Base::AddressVisitor visitor = bind(
-        &insertIntoAddressBuffer, _1, ref(*buffer)
+        &insertIntoAddressBuffer, _1, boost::ref(*buffer)
         );
 
     CUDA::PerformanceData::visitPCs(message, visitor);
@@ -411,7 +411,7 @@ void Queries::GetCUDAUniquePCs(const Blob& blob,
         );
 
     Base::AddressVisitor visitor = bind(
-        &insertIntoAddressSet, _1, ref(addresses)
+        &insertIntoAddressSet, _1, boost::ref(addresses)
         );
 
     CUDA::PerformanceData::visitPCs(message, visitor);

@@ -159,7 +159,7 @@ template <typename T>
 bool convert_sites_in_event(const CUDA::PerformanceData& data,
                             const Thread& thread,
                             const T& details,
-                            vector<shared_ptr<StackTrace> >& sites,
+                            vector<boost::shared_ptr<StackTrace> >& sites,
                             size_t& sites_found)
 {
     size_t n = details.call_site;
@@ -186,14 +186,14 @@ bool convert_sites_in_event(const CUDA::PerformanceData& data,
 bool convert_sites_in_thread(const CUDA::PerformanceData& data,
                              const map<Base::ThreadName, Thread>& threads,
                              const Base::ThreadName& thread,
-                             vector<shared_ptr<StackTrace> >& sites,
+                             vector<boost::shared_ptr<StackTrace> >& sites,
                              size_t& sites_found)
 {
     data.visitDataTransfers(
         thread, data.interval(),
         bind(&convert_sites_in_event<CUDA::DataTransfer>,
-             cref(data), cref(threads.find(thread)->second), _1,
-             ref(sites), ref(sites_found))
+             boost::cref(data), boost::cref(threads.find(thread)->second), _1,
+             boost::ref(sites), boost::ref(sites_found))
         );
     
     if (sites_found == data.sites().size())
@@ -204,8 +204,8 @@ bool convert_sites_in_thread(const CUDA::PerformanceData& data,
     data.visitKernelExecutions(
         thread, data.interval(),
         bind(&convert_sites_in_event<CUDA::KernelExecution>,
-             cref(data), cref(threads.find(thread)->second), _1,
-             ref(sites), ref(sites_found))
+             boost::cref(data), boost::cref(threads.find(thread)->second), _1,
+             boost::ref(sites), boost::ref(sites_found))
         );
     
     return sites_found < data.sites().size();
@@ -218,12 +218,12 @@ void convert_sites(const CUDA::PerformanceData& data,
                    const map<Base::ThreadName, Thread>& threads,
                    ostream& xml)
 {
-    vector<shared_ptr<StackTrace> > sites(data.sites().size());
+    vector<boost::shared_ptr<StackTrace> > sites(data.sites().size());
     size_t sites_found = 0;
     
     data.visitThreads(
         bind(&convert_sites_in_thread,
-             cref(data), cref(threads), _1, ref(sites), ref(sites_found))
+             boost::cref(data), boost::cref(threads), _1, boost::ref(sites), boost::ref(sites_found))
         );
     
     for (size_t i = 0; i < sites.size(); ++i)
@@ -406,19 +406,19 @@ bool convert_performance_data(const CUDA::PerformanceData& data,
     data.visitDataTransfers(
         thread, data.interval(),
         bind(&convert_data_transfer,
-             cref(data.interval().begin()), _1, ref(xml))
+             boost::cref(data.interval().begin()), _1, boost::ref(xml))
         );
 
     data.visitKernelExecutions(
         thread, data.interval(),
         bind(&convert_kernel_execution,
-             cref(data.interval().begin()), _1, ref(xml))
+             boost::cref(data.interval().begin()), _1, boost::ref(xml))
         );
 
     data.visitPeriodicSamples(
         thread, data.interval(),
         bind(&convert_periodic_sample,
-             cref(data.interval().begin()), _1, _2, ref(xml))
+             boost::cref(data.interval().begin()), _1, _2, boost::ref(xml))
         );
     
     xml << endl << "</DataSet>" << endl;
@@ -574,7 +574,7 @@ int main(int argc, char* argv[])
     convert_sites(data, threads, *xml);
     
     data.visitThreads(bind(
-        &convert_performance_data, cref(data), cref(threads), _1, ref(*xml)
+        &convert_performance_data, boost::cref(data), boost::cref(threads), _1, boost::ref(*xml)
         ));
     
     *xml << endl << "</CUDA>" << endl;

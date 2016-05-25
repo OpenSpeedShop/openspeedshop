@@ -397,8 +397,8 @@ void CUDACollector::getMetricValues(const string& metric,
     {
         CUDA::KernelExecutionVisitor visitor = bind(
             &computeTime<CUDA::KernelExecution>,
-            _1, cref(dm_data), cref(thread), cref(subextents),
-            ref(*reinterpret_cast<vector<double>*>(ptr))
+            _1, boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(*reinterpret_cast<vector<double>*>(ptr))
             );
         
         dm_data.visitKernelExecutions(
@@ -412,8 +412,8 @@ void CUDACollector::getMetricValues(const string& metric,
     {
         CUDA::KernelExecutionVisitor visitor = bind(
             &computeDetails<CUDA::KernelExecution, ExecDetails, true>,
-            _1, cref(dm_data), cref(thread), cref(subextents),
-            ref(*reinterpret_cast<vector<ExecDetails>*>(ptr))
+            _1, boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(*reinterpret_cast<vector<ExecDetails>*>(ptr))
             );
         
         dm_data.visitKernelExecutions(
@@ -427,8 +427,8 @@ void CUDACollector::getMetricValues(const string& metric,
     {
         CUDA::KernelExecutionVisitor visitor = bind(
             &computeDetails<CUDA::KernelExecution, ExecDetails, false>,
-            _1, cref(dm_data), cref(thread), cref(subextents),
-            ref(*reinterpret_cast<vector<ExecDetails>*>(ptr))
+            _1, boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(*reinterpret_cast<vector<ExecDetails>*>(ptr))
             );
         
         dm_data.visitKernelExecutions(
@@ -442,8 +442,8 @@ void CUDACollector::getMetricValues(const string& metric,
     {
         CUDA::DataTransferVisitor visitor = bind(
             &computeTime<CUDA::DataTransfer>, _1,
-            cref(dm_data), cref(thread), cref(subextents),
-            ref(*reinterpret_cast<vector<double>*>(ptr))
+            boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(*reinterpret_cast<vector<double>*>(ptr))
             );
         
         dm_data.visitDataTransfers(
@@ -457,8 +457,8 @@ void CUDACollector::getMetricValues(const string& metric,
     {
         CUDA::DataTransferVisitor visitor = bind(
             &computeDetails<CUDA::DataTransfer, XferDetails, true>,
-            _1, cref(dm_data), cref(thread), cref(subextents),
-            ref(*reinterpret_cast<vector<XferDetails>*>(ptr))
+            _1, boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(*reinterpret_cast<vector<XferDetails>*>(ptr))
             );
         
         dm_data.visitDataTransfers(
@@ -472,8 +472,8 @@ void CUDACollector::getMetricValues(const string& metric,
     {
         CUDA::DataTransferVisitor visitor = bind(
             &computeDetails<CUDA::DataTransfer, XferDetails, false>,
-            _1, cref(dm_data), cref(thread), cref(subextents),
-            ref(*reinterpret_cast<vector<XferDetails>*>(ptr))
+            _1, boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(*reinterpret_cast<vector<XferDetails>*>(ptr))
             );
         
         dm_data.visitDataTransfers(
