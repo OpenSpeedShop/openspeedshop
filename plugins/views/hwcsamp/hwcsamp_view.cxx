@@ -344,6 +344,7 @@ static bool define_hwcsamp_columns (
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
+
        } else if (!strcasecmp(M_Name.c_str(), "l1dcmiss")) {
 
             // generate PAPI_L1_DCM/PAPI_L1_TCA
@@ -384,6 +385,55 @@ static bool define_hwcsamp_columns (
               //HV.push_back("(l1_dcm/l1_tca)%");
             } else {
               std::string s("The metrics (PAPI_L1_TCA and PAPI_L1_DCM) are required to generate the l1dmiss metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
+
+       } else if (!strcasecmp(M_Name.c_str(), "simdfpdpops")) {
+
+            // generate SIMD_FP_256:packed_double/PAPI_DP_OPS
+            int icnt = 0;
+            int simd_fp_256_icnt = 0;
+            int papi_dp_ops_icnt = 0;
+            // simdfp/dp_ops is calculated from two temps: the SIMD_FP_256:PACKED_DOUBLE counts and PAPI_DP_OPS values.
+            bool found_simd_fp_256 = false;
+            bool found_papi_dp_ops = false;
+
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("SIMD_FP_256:PACKED_DOUBLE") == 0) {
+                   found_simd_fp_256 = true;
+                   simd_fp_256_icnt = icnt; 
+                   if (found_papi_dp_ops) break;
+              } else if (papi_names[icnt].compare("simd_fp_256:packed_double") == 0) {
+                   simd_fp_256_icnt = icnt; 
+                   found_simd_fp_256 = true;
+                   if (found_papi_dp_ops) break;
+              } else if (papi_names[icnt].compare("simd_fp_256") == 0) {
+                   simd_fp_256_icnt = icnt; 
+                   found_simd_fp_256 = true;
+                   if (found_papi_dp_ops) break;
+              }
+              if (papi_names[icnt].compare("PAPI_DP_OPS") == 0) {
+                   found_papi_dp_ops = true;
+                   papi_dp_ops_icnt = icnt; 
+                   if (found_simd_fp_256) break;
+              } else if (papi_names[icnt].compare("papi_dp_ops") == 0) {
+                   found_papi_dp_ops = true;
+                   papi_dp_ops_icnt = icnt; 
+                   if (found_simd_fp_256) break;
+              }
+            }
+            if (found_simd_fp_256 && found_papi_dp_ops) {
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+simd_fp_256_icnt));
+              HV.push_back( papi_names[simd_fp_256_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+papi_dp_ops_icnt));
+              HV.push_back( papi_names[papi_dp_ops_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+simd_fp_256_icnt, event_temps+papi_dp_ops_icnt));
+              HV.push_back("simd_fp_256:packed_double/papi_dp_ops");
+              //IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Percent_Tmp, last_column++, event_temps+simd_fp_256_icnt, event_temps+papi_dp_ops_icnt));
+              //HV.push_back("(simd_fp_256/papi_dp_ops)%");
+            } else {
+              std::string s("The metrics (PAPI_DP_OPS and SIMD_FP_256:PACKED_DOUBLE) are required to generate the l1dmiss metric is not available in the experiment.");
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
@@ -894,6 +944,56 @@ static bool define_hwcsamp_columns (
      } 
 
      // DCM/DCA L3 DATA CACHE MISS/ACCESS RATIO CHECKS ENDS HERE
+
+
+     // SIMD_FP_256:packed_double/PAPI_DP_OPS RATIO CHECKS BEGIN HERE
+
+     // generate SIMD_FP_256:packed_double/PAPI_DP_OPS
+     icnt = 0;
+     int simd_fp_256_icnt = 0;
+     int papi_dp_ops_icnt = 0;
+     // this ratio is calculated from two temps: the SIMD_FP_256:PACKED_DOUBLE counts and PAPI_DP_OPS values.
+     bool found_simd_fp_256 = false;
+     bool found_papi_dp_ops = false;
+
+     for (icnt=0; icnt < num_events; icnt++) {
+       if (papi_names[icnt].compare("SIMD_FP_256:PACKED_DOUBLE") == 0) {
+            found_simd_fp_256 = true;
+            simd_fp_256_icnt = icnt; 
+            if (found_papi_dp_ops) break;
+       } else if (papi_names[icnt].compare("simd_fp_256:packed_double") == 0) {
+            simd_fp_256_icnt = icnt; 
+            found_simd_fp_256 = true;
+            if (found_papi_dp_ops) break;
+       } else if (papi_names[icnt].compare("simd_fp_256") == 0) {
+            simd_fp_256_icnt = icnt; 
+            found_simd_fp_256 = true;
+            if (found_papi_dp_ops) break;
+       }
+       if (papi_names[icnt].compare("PAPI_DP_OPS") == 0) {
+            found_papi_dp_ops = true;
+            papi_dp_ops_icnt = icnt; 
+            if (found_simd_fp_256) break;
+       } else if (papi_names[icnt].compare("papi_dp_ops") == 0) {
+            found_papi_dp_ops = true;
+            papi_dp_ops_icnt = icnt; 
+            if (found_simd_fp_256) break;
+       }
+     }
+     if (found_simd_fp_256 && found_papi_dp_ops) {
+       //IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+simd_fp_256_icnt));
+       //HV.push_back( papi_names[simd_fp_256_icnt] );
+       //IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+papi_dp_ops_icnt));
+       //HV.push_back( papi_names[papi_dp_ops_icnt] );
+       IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+simd_fp_256_icnt, event_temps+papi_dp_ops_icnt));
+       HV.push_back("simd_fp_256:packed_double/papi_dp_ops");
+       //IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Percent_Tmp, last_column++, event_temps+simd_fp_256_icnt, event_temps+papi_dp_ops_icnt));
+       //HV.push_back("(simd_fp_256/papi_dp_ops)%");
+     } else {
+       std::string s("The metrics (PAPI_DP_OPS and SIMD_FP_256:PACKED_DOUBLE) are required to generate the l1dmiss metric is not available in the experiment.");
+       Mark_Cmd_With_Soft_Error(cmd,s);
+     } 
+     // SIMD_FP_256:packed_double/PAPI_DP_OPS RATIO CHECKS ENDS HERE
 
    } // end of OPENSS_AUTO_CREATE_DERIVED_METRICS check
 
