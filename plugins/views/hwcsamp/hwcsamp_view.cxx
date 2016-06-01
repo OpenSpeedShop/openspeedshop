@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) 2010-2014 Krell Institute. All Rights Reserved.
+** Copyright (c) 2010-2016 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -989,9 +989,6 @@ static bool define_hwcsamp_columns (
        HV.push_back("simd_fp_256:packed_double/papi_dp_ops");
        //IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Percent_Tmp, last_column++, event_temps+simd_fp_256_icnt, event_temps+papi_dp_ops_icnt));
        //HV.push_back("(simd_fp_256/papi_dp_ops)%");
-     } else {
-       std::string s("The metrics (PAPI_DP_OPS and SIMD_FP_256:PACKED_DOUBLE) are required to generate the l1dmiss metric is not available in the experiment.");
-       Mark_Cmd_With_Soft_Error(cmd,s);
      } 
      // SIMD_FP_256:packed_double/PAPI_DP_OPS RATIO CHECKS ENDS HERE
 
