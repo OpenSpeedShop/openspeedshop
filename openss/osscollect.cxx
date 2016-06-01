@@ -50,6 +50,7 @@
 #include "Collector.hxx"
 #include "Experiment.hxx"
 #include "FEThread.hxx"
+#include "OfflineParameters.hxx"
 #include "Path.hxx"
 #include "ThreadGroup.hxx"
 #include "KrellInstitute/Core/SymtabAPISymbols.hpp"
@@ -71,6 +72,7 @@ namespace {
     }
 
     bool is_debug_timing_enabled = (getenv("CBTF_TIME_CLIENT_EVENTS") != NULL);
+    bool is_debug_client_enabled = (getenv("CBTF_DEBUG_CLIENT") != NULL);
 }
 
 // Client Utilities.
@@ -238,6 +240,271 @@ static std::string createDBName(std::string dbprefix)
      return LocalDataFileName;
 }
 
+
+/**
+ * Utility: setparam()
+ * 
+ * Taken from cli and modified for OfflineExperiment.
+ * OfflineParamVal is defined in libopens-framework/OfflineParameters.hxx.
+ * This is specific to collector experiment parameters as
+ * expressed by environment variables. Therefore the only
+ * param types in use here are char* (std::string) and int64_t (uint).
+ * We need to check the passed values to ensure that if they
+ * are not set, we do not change the parameter and leave
+ * the defaults set by the collector. eg. no 0 sampling_rate
+ * or empty event or traced list are allowed to be set as params.
+ * @param   .
+ * @return  bool
+ * @todo    Error handling.
+ *
+ */
+static bool setparam(Collector C, std::string pname,
+		     std::vector<OfflineParamVal> *value_list)
+{
+  std::set<Metadata>::const_iterator mi;
+  std::set<Metadata> md = C.getParameters();
+  for (mi = md.begin(); mi != md.end(); mi++) {
+    Metadata m = *mi;
+    if (m.getUniqueId() != pname) {
+      // Not the one we want - keep looking.
+      continue;
+    }
+
+    if ( m.isType(typeid(std::map<std::string, bool>)) ) {
+      // Set strings in the value_list to true.
+      std::map<std::string, bool> Value;
+      C.getParameterValue(pname, Value);
+
+      // Set all the booleans to true, if the corresponding name is in the list,
+      // and false otherwise.
+      bool found_name = false;
+      for (std::map<std::string, bool>::iterator
+                 im = Value.begin(); im != Value.end(); im++) {
+         bool name_in_list = false;
+        for (std::vector<OfflineParamVal>::iterator
+                iv = value_list->begin(); iv != value_list->end(); iv++) {
+          Assert (iv->getValType() == PARAM_VAL_STRING);
+          if (!strcasecmp( im->first.c_str(), iv->getSVal() )) {
+            name_in_list = true;
+            found_name = true;
+            break;
+	  }
+        }
+        im->second = name_in_list;
+      }
+      if (found_name) {
+        C.setParameterValue(pname,Value);
+      }
+    } else {
+      OfflineParamVal pvalue = (*value_list)[0];
+      if( m.isType(typeid(int)) ) {
+        int ival;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%d", &ival);
+        } else {
+          ival = (int)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(int)ival);
+      } else if( m.isType(typeid(int64_t)) ) {
+        int64_t i64val;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%lld", &i64val);
+        } else {
+          i64val = (int64_t)(pvalue.getIVal());
+        }
+	if (i64val > 0) {
+            C.setParameterValue(pname,(int64_t)i64val);
+	}
+      } else if( m.isType(typeid(uint)) ) {
+        uint uval;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%d", &uval);
+        } else {
+          uval = (uint)(pvalue.getIVal());
+        }
+	if (uval != 0) {
+           C.setParameterValue(pname,(uint)uval);
+	}
+      } else if( m.isType(typeid(uint64_t)) ) {
+        uint64_t u64val;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%lld", &u64val);
+        } else {
+          u64val = (uint64_t)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(uint64_t)u64val);
+      } else if( m.isType(typeid(float)) ) {
+        float fval;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%f", &fval);
+        } else {
+          fval = (float)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(float)fval);
+      } else if( m.isType(typeid(double)) ) {
+        double dval;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sscanf ( pvalue.getSVal(), "%lf", &dval);
+        } else {
+          dval = (double)(pvalue.getIVal());
+        }
+        C.setParameterValue(pname,(double)dval);
+      } else if( m.isType(typeid(std::string)) ) {
+        std::string sval;
+        if (pvalue.getValType() == PARAM_VAL_STRING) {
+          sval = std::string(pvalue.getSVal());
+        } else {
+          char cval[20];
+          sprintf( cval, "%d", pvalue.getIVal());
+          sval = std::string(&cval[0]);
+        }
+	if (!sval.empty()) {
+            C.setParameterValue(pname,(std::string)sval);
+	}
+      }
+    }
+    return true;
+  }
+
+  // We didn't find the named parameter in this collector.
+  return false;
+}
+
+// Helper function to update the database values for parameters
+// that may be changed at runtime by setting environment variables.
+// The values used in the collector runtimes must match those in
+// use here
+static void updateCollectorParameters(Collector &c, std::string &cname)
+{
+    int expRate = 0;
+    std::string expEvent,expTraced;
+
+    if (cname == "pcsamp") {
+	const char* sampling_rate = getenv("CBTF_PCSAMP_RATE");
+	if (sampling_rate != NULL) {
+	    expRate = atoi(sampling_rate);
+	}
+    } else if (cname == "usertime") {
+	const char* sampling_rate = getenv("CBTF_USERTIME_RATE");
+	if (sampling_rate != NULL) {
+	    expRate = atoi(sampling_rate);
+	}
+    } else if (cname == "hwc") {
+	const char* sampling_rate = getenv("CBTF_HWC_THRESHOLD");
+	if (sampling_rate != NULL) {
+	    expRate = atoi(sampling_rate);
+	}
+	char* event_param = getenv("CBTF_HWC_EVENT");
+	if (event_param != NULL) {
+	    expEvent=event_param;
+	}
+    } else if (cname == "hwctime") {
+	const char* sampling_rate = getenv("CBTF_HWCTIME_THRESHOLD");
+	if (sampling_rate != NULL) {
+	    expRate = atoi(sampling_rate);
+	}
+	char* event_param = getenv("CBTF_HWCTIME_EVENT");
+	if (event_param != NULL) {
+	    expEvent=event_param;
+	}
+    } else if (cname == "hwcsamp"){
+	const char* sampling_rate = getenv("CBTF_HWCSAMP_RATE");
+	if (sampling_rate != NULL) {
+	    expRate = atoi(sampling_rate);
+	}
+	char* event_param = getenv("CBTF_HWCSAMP_EVENTS");
+	if (event_param != NULL) {
+	    expEvent=event_param;
+	}
+    } else if (cname.compare(0,2,"io") == 0) {
+	// cbtf-krell collectors use CBTF_IO_TRACED for all io collectors.
+	// Therefore the ossdriver script must set CBTF_IO_TRACED for
+	// io,iot,iop collection if the user overrides the defaults.
+	char* traced_param = getenv("CBTF_IO_TRACED");
+	if (traced_param != NULL) {
+	    expTraced=traced_param;
+	}
+    } else if (cname.compare(0,3,"mpi") == 0) {
+	// cbtf-krell collectors use CBTF_MPI_TRACED for all mpi collectors.
+	// Therefore the ossdriver script must set CBTF_MPI_TRACED for
+	// mpi,mpit,mpip collection if the user overrides the defaults.
+	char* traced_param = getenv("CBTF_MPI_TRACED");
+	if (traced_param != NULL) {
+	    expTraced=traced_param;
+	}
+    } else if (cname == "mem"){
+	char* traced_param = getenv("CBTF_MEM_TRACED");
+	if (traced_param != NULL) {
+	    expTraced=traced_param;
+	}
+    } else if (cname == "pthreads"){
+	char* traced_param = getenv("CBTF_PTHREAD_TRACED");
+	if (traced_param != NULL) {
+	    expTraced=traced_param;
+	}
+    } else {
+    }
+
+    std::set<Metadata> md = c.getParameters();
+    std::set<Metadata>::const_iterator mi;
+    for (mi = md.begin(); mi != md.end(); mi++) {
+	Metadata mm = *mi;
+	OfflineParameters o_param((char*)cname.c_str(), (char*)mm.getUniqueId().c_str());
+	std::vector<OfflineParamVal> *value_list = o_param.getValList();
+
+
+	// Parameter sampling_rate is an integer paramter used by pcsamp,hwcsamp and
+	// usertime for timer rate and used by hwc and hwctime for threshold.
+	// Parameter traced_functions is string of functions separated by either
+	// a ":" or "," character and is used by the function tracing collectors.
+	// Parameter event is a string representing a hardware counter name(s).
+	// Multiple names if supported are delimited by a ":" or ","  character.
+	if (mm.getUniqueId() == "sampling_rate") {
+	   o_param.pushVal((int64_t) expRate);
+	} else if (mm.getUniqueId() == "traced_functions") {
+	    char *tfptr, *saveptr, *tf_token;
+	    tfptr = strdup(expTraced.c_str());
+	    for (int i = 1; ; i++, tfptr = NULL) {
+		tf_token = strtok_r(tfptr, ":,", &saveptr);
+		if (tf_token == NULL) {
+		    break;
+		} else {
+		    o_param.pushVal(tf_token);
+		}
+	    }
+
+	    if (tfptr) {
+		free(tfptr);
+	    }
+	} else if (mm.getUniqueId() == "event") {
+	    if (cname == "hwcsamp") {
+		o_param.pushVal((char*)expEvent.c_str());
+	    } else if (cname == "hwc") {
+		o_param.pushVal((char*)expEvent.c_str());
+	    } else if (cname == "hwctime") {
+		o_param.pushVal((char*)expEvent.c_str());
+	    } else {
+		char *evptr, *saveptr, *ev_token;
+		evptr = strdup(expEvent.c_str());
+		for (int i = 1; ; i++, evptr = NULL) {
+		    ev_token = strtok_r(evptr, ":,", &saveptr);
+		    if (ev_token == NULL) {
+			break;
+		    } else {
+			o_param.pushVal(ev_token);
+		    }
+		}
+
+		if (evptr) {
+		    free(evptr);
+		}
+	    }
+	}
+
+	(void) setparam(c, (char*)mm.getUniqueId().c_str(), value_list);
+    }
+}
+
 int main(int argc, char** argv)
 {
 #ifndef NDEBUG
@@ -386,11 +653,13 @@ int main(int argc, char** argv)
     FW_Experiment->setBEprocCount( numBE );
     FW_Experiment->setInstrumentorUsesCBTF( false );
 
-    Collector mycollector = FW_Experiment->createCollector(collector);
+    Collector FWcollector = FW_Experiment->createCollector(collector);
 
     ThreadGroup tg = FW_Experiment->createProcess(program, fenodename, numBE,
                                                      OutputCallback((void (*)(const char*, const int&, void*))NULL,(void *)NULL),
                                                      OutputCallback((void (*)(const char*, const int&, void*))NULL,(void *)NULL)   );
+
+    updateCollectorParameters(FWcollector, collector);
 
     FEThread fethread;
 

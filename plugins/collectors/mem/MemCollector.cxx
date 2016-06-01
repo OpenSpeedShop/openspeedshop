@@ -205,7 +205,6 @@ void MemCollector::getParameterValue(const std::string& parameter,
 void MemCollector::setParameterValue(const std::string& parameter,
 				    const void* ptr, Blob& data) const
 {
-#if 0
     // Decode the blob containing the parameter values
     CBTF_mem_parameters parameters;
     memset(&parameters, 0, sizeof(parameters));
@@ -227,13 +226,12 @@ void MemCollector::setParameterValue(const std::string& parameter,
             }
         }
         if (env_param.size() > 0) {
-            setenv("OPENSS_Mem_TRACED", (char *)env_param.c_str(), 1);
+            setenv("CBTF_MEM_TRACED", (char *)env_param.c_str(), 1);
         }
     }
     
     // Re-encode the blob containing the parameter values
     data = Blob(reinterpret_cast<xdrproc_t>(xdr_CBTF_mem_parameters), &parameters);
-#endif
 }
 
 

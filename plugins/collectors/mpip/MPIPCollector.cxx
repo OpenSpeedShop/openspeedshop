@@ -460,7 +460,7 @@ void MPIPCollector::setParameterValue(const std::string& parameter, const void* 
         } // handle individual function names
 
 	if (env_param.size() > 0) {
-	    setenv("OPENSS_MPI_TRACED", (char *)env_param.c_str(), 1);
+	    setenv("CBTF_MPI_TRACED", (char *)env_param.c_str(), 1);
 	}
 
 #if DEBUG_PARAM

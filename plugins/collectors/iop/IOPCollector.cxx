@@ -219,7 +219,7 @@ void IOPCollector::setParameterValue(const std::string& parameter,
             }
         }
         if (env_param.size() > 0) {
-            setenv("OPENSS_IOP_TRACED", (char *)env_param.c_str(), 1);
+            setenv("CBTF_IO_TRACED", (char *)env_param.c_str(), 1);
         }
     }
     
