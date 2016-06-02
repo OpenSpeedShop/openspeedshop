@@ -78,8 +78,8 @@ usertime_default_rate=35
 #
 # Corresponds to OPENSS_HWC_THRESHOLD or CBTF_HWC_THRESHOLD
 # Corresponds to OPENSS_HWCTIME_THRESHOLD or CBTF_HWCTIME_THRESHOLD
-hwc_default_threshold=1000000000
-hwctime_default_threshold=1000000000
+hwc_default_threshold=100000000
+hwctime_default_threshold=100000000
 
 # Corresponds to OPENSS_HWC_EVENT or CBTF_HWC_EVENT
 # Corresponds to OPENSS_HWCTIME_EVENT or CBTF_HWCTIME_EVENT
@@ -653,7 +653,7 @@ case "$experiment_name" in
      fi
   fi
 
-  if [ export_event == true ] ; then 
+  if [ $export_event == true ] ; then 
      if [ "$instrumentor" == "cbtf" ] ; then
        export CBTF_HWC_EVENT=$string_value
      else
@@ -687,43 +687,53 @@ case "$experiment_name" in
   fi 
 
   # echo rate choices to user.
+  export_rate=false
   if [ ! -z "$OPENSS_HWCSAMP_RATE" ]; then
       if [ "$low_flag" == true ] ; then
         echo "[openss]: $collector ignoring OPENSS_HWCSAMP_RATE because the \"low\" parameter is specified."
+	export_rate=true
       elif [ "$high_flag" == true ] ; then
         echo "[openss]: $collector ignoring OPENSS_HWCSAMP_RATE because the \"high\" parameter is specified."
+	export_rate=true
       elif [ "$use_default_flag" == true ] ; then
         echo "[openss]: $collector ignoring OPENSS_HWCSAMP_RATE because the \"default\" parameter is specified."
+	export_rate=true
       elif [ "$rate" != "$hwcsamp_default_rate" ] ; then
         echo "[openss]: $collector ignoring OPENSS_HWCSAMP_RATE because the \"rate\" parameter is specified."
       fi
   else
       if [ "$low_flag" == true ] ; then
 	echo "[openss]: $collector using low sampling rate: \"$rate\"."
+	export_rate=true
       elif [ "$high_flag" == true ] ; then
 	echo "[openss]: $collector using high sampling rate: \"$rate\"."
+	export_rate=true
       elif [ "$use_default_flag" == true ] || [ "$rate" == "$hwcsamp_default_rate" ]; then
 	echo "[openss]: $collector using default sampling rate: \"$rate\"."
       elif [ "$rate" != "$hwcsamp_default_rate" ] ; then
 	echo "[openss]: $collector using user specified sampling rate: \"$rate\"."
+	export_rate=true
       fi
   fi
 
   # echo event choices to user.
+  export_events=false
   if [ ! -z "$OPENSS_HWCSAMP_EVENTS" ] && [ "$string_value" != "" ] ; then
-         echo "[openss]: $collector ignoring OPENSS_HWCSAMP_EVENTS because the \"events\" parameter is specified."
-         echo "[openss]: $collector using user specified papi events: \"$string_value\"."
+        echo "[openss]: $collector ignoring OPENSS_HWCSAMP_EVENTS because the \"events\" parameter is specified."
+        echo "[openss]: $collector using user specified papi events: \"$string_value\"."
+	export_events=true
   elif [ ! -z "$OPENSS_HWCSAMP_EVENTS" ] && [ "$use_default_flag" == true ] ; then
-         echo "[openss]: $collector ignoring OPENSS_HWCSAMP_EVENTS because the \"default\" parameter is specified."
-         echo "[openss]: $collector using default papi events: \"$hwcsamp_default_events\"."
+        echo "[openss]: $collector ignoring OPENSS_HWCSAMP_EVENTS because the \"default\" parameter is specified."
+        echo "[openss]: $collector using default papi events: \"$hwcsamp_default_events\"."
   elif [ "$string_value" != "" ] && [ "$string_value" != "default" ] ; then
-         echo "[openss]: $collector using user specified papi events: \"$string_value\""
+        echo "[openss]: $collector using user specified papi events: \"$string_value\""
+	export_events=true
   else
-         echo "[openss]: $collector using default papi events: \"$hwcsamp_default_events\"."
+        echo "[openss]: $collector using default papi events: \"$hwcsamp_default_events\"."
   fi
 
   # exports passed on to collector runtimes.
-  if [ $rate != $hwcsamp_default_rate ] ; then
+  if [ $export_rate == true ] ; then
      if [ "$instrumentor" == "cbtf" ] ; then
        export CBTF_HWCSAMP_RATE=$rate
      else
@@ -731,7 +741,7 @@ case "$experiment_name" in
      fi
   fi
 
-  if [ "$string_value" != "$hwcsamp_default_events" ] ; then 
+  if [ $export_events == true ] ; then 
      if [ "$instrumentor" == "cbtf" ] ; then
        export CBTF_HWCSAMP_EVENTS=$string_value
      else
@@ -825,7 +835,7 @@ case "$experiment_name" in
      fi
   fi
 
-  if [ export_event == true ] ; then 
+  if [ $export_event == true ] ; then 
      if [ "$instrumentor" == "cbtf" ] ; then
        export CBTF_HWCTIME_EVENT=$string_value
      else
