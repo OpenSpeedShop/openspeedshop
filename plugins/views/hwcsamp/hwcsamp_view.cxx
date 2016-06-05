@@ -1108,10 +1108,10 @@ static bool define_hwcsamp_columns (
        }
      }
      if (found_simd_fp_256 && found_papi_fp_ops) {
-       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+simd_fp_256_icnt));
-       HV.push_back( papi_names[simd_fp_256_icnt] );
-       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+papi_fp_ops_icnt));
-       HV.push_back( papi_names[papi_fp_ops_icnt] );
+       //IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+simd_fp_256_icnt));
+       //HV.push_back( papi_names[simd_fp_256_icnt] );
+       //IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+papi_fp_ops_icnt));
+       //HV.push_back( papi_names[papi_fp_ops_icnt] );
        IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+simd_fp_256_icnt, event_temps+papi_fp_ops_icnt));
        HV.push_back("simd_fp_256:packed_single/papi_fp_ops");
        //IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Percent_Tmp, last_column++, event_temps+simd_fp_256_icnt, event_temps+papi_fp_ops_icnt));
