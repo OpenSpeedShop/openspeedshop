@@ -328,7 +328,7 @@ void IOPCollector::getMetricValues(const std::string& metric,
 		break;
 	
 	// Calculate the time (in seconds) attributable to this sample
-	double t_sample = static_cast<double>(data.time.time_val[ib]/1000000.0);
+	double t_sample = static_cast<double>(data.time.time_val[ib]/1000000000.0);
 	
 	// Get the stack trace for this sample
 	StackTrace trace(thread, extent.getTimeInterval().getBegin());

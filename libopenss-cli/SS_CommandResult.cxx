@@ -1855,6 +1855,7 @@ CommandResult *Calculate_Expression(expression_operation_t op,
    case EXPRESSION_OP_UINT: return ConvertToUint (A);
    case EXPRESSION_OP_INT: return ConvertToInt (A);
    case EXPRESSION_OP_FLOAT: return ConvertToFloat (A);
+   case EXPRESSION_OP_RATIO: return Calculate_Ratio (A, B);
    default:
     return NULL;
   }
