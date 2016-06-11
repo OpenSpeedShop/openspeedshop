@@ -241,6 +241,16 @@ if (INSTRUMENTOR MATCHES "offline" OR INSTRUMENTOR MATCHES "cbtf")
     find_package(SymtabAPI)
     find_package(DyninstAPI)
     find_package(Qt3)
+    # always check for openmp regardless of instrumentor.
+    # it is a client thing...
+    find_package(OpenMP)
+endif()
+
+# The old autotools build added this to a config.h which
+# many source files included if it existed to define exactly
+# this kind of thing.
+if (OpenMP_FLAG_DETECTED)
+    add_definitions(-DHAVE_OPENMP=1)
 endif()
 
 #
@@ -262,7 +272,6 @@ if (INSTRUMENTOR MATCHES "offline")
     find_package(LibMonitor)
     find_package(LibUnwind)
     find_package(Papi)
-    find_package(OpenMP)
     find_package(OpenMPI)
     find_package(Mpich)
     find_package(Mpich2)
