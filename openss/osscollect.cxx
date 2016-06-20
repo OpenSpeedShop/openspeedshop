@@ -305,15 +305,15 @@ static bool setparam(Collector C, std::string pname,
           ival = (int)(pvalue.getIVal());
         }
         C.setParameterValue(pname,(int)ival);
-      } else if( m.isType(typeid(int64_t)) ) {
-        int64_t i64val;
+      } else if( m.isType(typeid(boost::int64_t)) ) {
+        boost::int64_t i64val;
         if (pvalue.getValType() == PARAM_VAL_STRING) {
           sscanf ( pvalue.getSVal(), "%lld", &i64val);
         } else {
-          i64val = (int64_t)(pvalue.getIVal());
+          i64val = (boost::int64_t)(pvalue.getIVal());
         }
 	if (i64val > 0) {
-            C.setParameterValue(pname,(int64_t)i64val);
+            C.setParameterValue(pname,(boost::int64_t)i64val);
 	}
       } else if( m.isType(typeid(uint)) ) {
         uint uval;
@@ -325,14 +325,14 @@ static bool setparam(Collector C, std::string pname,
 	if (uval != 0) {
            C.setParameterValue(pname,(uint)uval);
 	}
-      } else if( m.isType(typeid(uint64_t)) ) {
-        uint64_t u64val;
+      } else if( m.isType(typeid(boost::uint64_t)) ) {
+        boost::uint64_t u64val;
         if (pvalue.getValType() == PARAM_VAL_STRING) {
           sscanf ( pvalue.getSVal(), "%lld", &u64val);
         } else {
-          u64val = (uint64_t)(pvalue.getIVal());
+          u64val = (boost::uint64_t)(pvalue.getIVal());
         }
-        C.setParameterValue(pname,(uint64_t)u64val);
+        C.setParameterValue(pname,(boost::uint64_t)u64val);
       } else if( m.isType(typeid(float)) ) {
         float fval;
         if (pvalue.getValType() == PARAM_VAL_STRING) {
@@ -460,7 +460,7 @@ static void updateCollectorParameters(Collector &c, std::string &cname)
 	// Parameter event is a string representing a hardware counter name(s).
 	// Multiple names if supported are delimited by a ":" or ","  character.
 	if (mm.getUniqueId() == "sampling_rate") {
-	   o_param.pushVal((int64_t) expRate);
+	   o_param.pushVal((boost::int64_t) expRate);
 	} else if (mm.getUniqueId() == "traced_functions") {
 	    char *tfptr, *saveptr, *tf_token;
 	    tfptr = strdup(expTraced.c_str());

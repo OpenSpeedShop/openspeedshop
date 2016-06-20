@@ -509,7 +509,7 @@ class CommandResult_Float :
   }
 
   virtual std::string Form (int64_t fieldsize) {
-    if (isnan(float_value)) return std::string ("nan");
+    if (std::isnan(float_value)) return std::string ("nan");
     char F[20];
     F[0] = *("%"); // left justify in field
     sprintf(&F[1], "%lld.%lldf\0", static_cast<long long int>(fieldsize),
@@ -1664,10 +1664,10 @@ class CommandResult_Interval : public CommandResult {
   };
 
   virtual std::string Form (int64_t fieldsize) {
-    if (isnan(interval_value)) return std::string ("nan");
+    if (std::isnan(interval_value)) return std::string ("nan");
     std::ostringstream form(std::ios::ate);
     double float_value = interval_value * 1000; // Convert to milli-seconds
-    if (isnan(float_value)) return std::string ("nan");
+    if (std::isnan(float_value)) return std::string ("nan");
 
     char F[20];
     F[0] = *("%"); // left justify in field
