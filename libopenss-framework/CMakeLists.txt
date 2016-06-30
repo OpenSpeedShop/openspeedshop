@@ -165,6 +165,7 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     # CBTF-Krell.cmake now sets CBTF_KRELL_XMLDIR rather than CBTF_TOOLS_XMLDIR.
+    # This is for the openss-framework-cbtf target.
     if (BUILD_FE_USING_CN_RUNTIMES MATCHES "true" )
         add_definitions(
            -DCBTF_LIB_DIR="${CBTF_LIB_DIR}"
@@ -181,28 +182,28 @@ if(INSTRUMENTOR MATCHES "cbtf")
 
     add_library(openss-framework SHARED ${FW_SOURCES})
 
+    # DataQueues.cxx uses DataHeader from cbtf-krell/messages
+    # for the cbtf instrumentor.
     target_include_directories(openss-framework PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime
-	${CBTF_INCLUDE_DIRS}
-        ${CBTF_KRELL_MESSAGES_INCLUDE_DIRS}
-        ${Sqlite3_INCLUDE_DIR}
-        ${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${PROJECT_BUILD_DIR}/libopenss-runtime
-        ${LTDL_INCLUDE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime
+	${CBTF_KRELL_MESSAGES_INCLUDE_DIRS}
+	${Sqlite3_INCLUDE_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-framework
+	${PROJECT_BUILD_DIR}/libopenss-runtime
+	${LTDL_INCLUDE_DIR}
     )
 
     target_link_libraries(openss-framework
-	${CBTF_KRELL_MESSAGES_LIBRARIES}
-        ${Sqlite3_SHARED_LIBRARIES}
-        ${Iberty_STATIC_LIBRARIES}
-        ${LTDL_LIBRARY_SHARED}
-        ${CMAKE_DL_LIBS}
+	${Sqlite3_SHARED_LIBRARIES}
+	${Iberty_STATIC_LIBRARIES}
+	${LTDL_LIBRARY_SHARED}
+	${CMAKE_DL_LIBS}
     )
 
     set_target_properties(openss-framework PROPERTIES VERSION 1.1.0)
-    set_target_properties(openss-framework PROPERTIES COMPILE_DEFINITIONS "BUILD_CBTF=1;${RESOLVE_SYMBOLS_DEFINES}")
+    set_target_properties(openss-framework PROPERTIES COMPILE_DEFINITIONS "BUILD_CBTF=1;")
 
     install(TARGETS openss-framework
         LIBRARY DESTINATION lib${LIB_SUFFIX}
@@ -235,7 +236,8 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     set_target_properties(openss-framework-cbtf PROPERTIES VERSION 1.1.0)
-    set_target_properties(openss-framework-cbtf PROPERTIES COMPILE_DEFINITIONS "BUILD_CBTF=1;${RESOLVE_SYMBOLS_DEFINES};${DyninstAPI_DEFINES}")
+    set_target_properties(openss-framework-cbtf PROPERTIES COMPILE_DEFINITIONS
+	"BUILD_CBTF=1;${RESOLVE_SYMBOLS_DEFINES};${DyninstAPI_DEFINES}")
 
     install(TARGETS openss-framework-cbtf
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
