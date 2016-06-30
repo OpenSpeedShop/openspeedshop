@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2011-2013 Krell Institute. All Rights Reserved.
-// Copyright (c) 2015,2016 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2011-2016 Krell Institute. All Rights Reserved.
+// Copyright (c) 2015-2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -40,6 +40,10 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <cstdio>
+#include <unistd.h>
+#include <boost/iostreams/device/file_descriptor.hpp>
+#include <boost/iostreams/stream.hpp>
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
@@ -104,6 +108,19 @@ static int getBEcountFromCommand(std::string command) {
     return retval;
 }
 
+
+// Below is the original code to find if an executable a MPI executable
+// It is maintained here for a possible fallback and may be removed
+// in the future.  The previous version (below) depends on Dyninst's
+// symtabAPI interface, but it did not find libmpi.so in some applications,
+// like simpleFoam from OpenFOAM.
+// Dyninst sets the list of dependencies from the DT_NEEDED entries in the
+// binary. Dyninst doen't follow transitive dependencies, which ldd does.
+// If you run readelf -d, you should see NEEDED entries that correspond to
+// the dependencies Dyninst finds; the Symtab model is (at present) to represent
+// what's present in the binary, not anything that's contingent on where it runs.
+//
+#if 0
 // 
 // Determine if libmpi is present in this executable.
 //
@@ -112,7 +129,6 @@ static bool isMpiExe(const std::string exe) {
     bool found_libmpi = stapi_symbols.foundLibrary(exe,"libmpi");
     return found_libmpi;
 }
-
 //
 // Determine if openMP runtime library is present in this executable.
 //
@@ -121,6 +137,80 @@ static bool isOpenMPExe(const std::string exe) {
     bool found_openmp = stapi_symbols.foundLibrary(exe,"libiomp5");
     if (!found_openmp) {
 	found_openmp = stapi_symbols.foundLibrary(exe,"libgomp");
+    }
+    return found_openmp;
+}
+#endif
+
+//
+// This routine runs the ldd command on the executable represented by the passed in executable name
+// and looks to see if the passed in library name (libname) is found in the output.
+//
+// This a boost solution for finding libraries in ldd output text.
+// 1. To enable this routine we needed to add iostreams to thise COMPONENTS list in toplevel CMakeLists.txt
+//    For the cbtf instrumentor.
+//     find_package(Boost 1.41.0 REQUIRED
+//           COMPONENTS date_time filesystem system thread unit_test_framework program_options
+//               )
+// 2. To enable this routine we needed to add the iostream lib (libboost_iostreams.so) to the
+//    openss/CMakeLists.txt for target osscollect.
+//    ${Boost_IOSTREAMS_LIBRARY}
+//
+
+namespace io = boost::iostreams;
+static bool foundLibraryFromLdd(const std::string& exename, const std::string& libname)
+{
+    // is there any chance that ldd is not installed or in the default path?
+    std::string command = "ldd ";
+
+    // create our ldd command string with passed libname.
+    command.append(exename.c_str());
+
+    // popen ldd so we can process output.
+    // make sure popen succeeds.? error checking?
+    FILE *lddOutFile = popen(command.c_str(), "r");
+
+    // get the file number
+    int fd = fileno(lddOutFile);
+    // prepare the fd for use with boost iostreams.
+    io::file_descriptor_source fds(fd, io::close_handle);
+    io::stream_buffer<io::file_descriptor_source> bis(fds);
+    // now find is libname is anywhere in ldd.  More precise find
+    // would use strings like "/libmpi.so".  However, there are versions
+    // of libmpi.so, like libmpi_dbg.so that we would miss.
+    std::istream is(&bis);
+    while (is) {
+        std::string inputline;
+        getline(is, inputline);
+        // simply find a line with passed libname.
+        // Should caller be more specific and add ".so"?
+        if (inputline.find(libname) != std::string::npos) {
+            //std::cerr << "FOUND " << libname << std::endl;
+            return true;
+        }
+    }
+    return false;
+}
+
+//
+// Determine if libmpi is present in this executable.
+// libmpi should appear as a substring "/libmpi.so" in ldd output.
+// We would like use strings like "/libmpi.so" for the search. However,
+// there are versions of libmpi.so, like libmpi_dbg.so that we would miss.
+// So, we are using "/libmpi" instead.
+//
+static bool isMpiExe(const std::string exe) {
+    bool found_libmpi = foundLibraryFromLdd(exe,"/libmpi");
+    return found_libmpi;
+}
+//
+// Determine if openMP runtime library is present in this executable.
+//
+static bool isOpenMPExe(const std::string exe) {
+    SymtabAPISymbols stapi_symbols;
+    bool found_openmp = foundLibraryFromLdd(exe,"/libomp5.so");
+    if (!found_openmp) {
+        found_openmp = foundLibraryFromLdd(exe,"/libgomp.so");
     }
     return found_openmp;
 }

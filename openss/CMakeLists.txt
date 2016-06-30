@@ -246,6 +246,7 @@ else()
 	    -Wl,--no-as-needed
             ${LTDL_LIBRARY_SHARED}
 	    ${Boost_FILESYSTEM_LIBRARY}
+	    ${Boost_IOSTREAMS_LIBRARY}
 	    ${Boost_SYSTEM_LIBRARY}
 	    ${Boost_THREAD_LIBRARY}
 	    ${Boost_PROGRAM_OPTIONS_LIBRARY}
