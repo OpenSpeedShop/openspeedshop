@@ -42,8 +42,6 @@
 #include <sstream>
 #include <cstdio>
 #include <unistd.h>
-#include <boost/iostreams/device/file_descriptor.hpp>
-#include <boost/iostreams/stream.hpp>
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
@@ -146,18 +144,6 @@ static bool isOpenMPExe(const std::string exe) {
 // This routine runs the ldd command on the executable represented by the passed in executable name
 // and looks to see if the passed in library name (libname) is found in the output.
 //
-// This a boost solution for finding libraries in ldd output text.
-// 1. To enable this routine we needed to add iostreams to thise COMPONENTS list in toplevel CMakeLists.txt
-//    For the cbtf instrumentor.
-//     find_package(Boost 1.41.0 REQUIRED
-//           COMPONENTS date_time filesystem system thread unit_test_framework program_options
-//               )
-// 2. To enable this routine we needed to add the iostream lib (libboost_iostreams.so) to the
-//    openss/CMakeLists.txt for target osscollect.
-//    ${Boost_IOSTREAMS_LIBRARY}
-//
-
-namespace io = boost::iostreams;
 static bool foundLibraryFromLdd(const std::string& exename, const std::string& libname)
 {
     // is there any chance that ldd is not installed or in the default path?
@@ -170,26 +156,29 @@ static bool foundLibraryFromLdd(const std::string& exename, const std::string& l
     // make sure popen succeeds.? error checking?
     FILE *lddOutFile = popen(command.c_str(), "r");
 
-    // get the file number
-    int fd = fileno(lddOutFile);
-    // prepare the fd for use with boost iostreams.
-    io::file_descriptor_source fds(fd, io::close_handle);
-    io::stream_buffer<io::file_descriptor_source> bis(fds);
     // now find is libname is anywhere in ldd.  More precise find
     // would use strings like "/libmpi.so".  However, there are versions
     // of libmpi.so, like libmpi_dbg.so that we would miss.
-    std::istream is(&bis);
-    while (is) {
-        std::string inputline;
-        getline(is, inputline);
-        // simply find a line with passed libname.
-        // Should caller be more specific and add ".so"?
-        if (inputline.find(libname) != std::string::npos) {
-            //std::cerr << "FOUND " << libname << std::endl;
-            return true;
-        }
+    if (lddOutFile != NULL) {
+	char buffer[BUFSIZ];
+	memset(&buffer, 0, sizeof(buffer));
+
+	while (fgets(buffer, sizeof(buffer), lddOutFile)) {
+	    std::string line(buffer);
+
+	    if (!line.empty()) {
+		if (line.find(libname) != std::string::npos) {
+		    //std::cerr << "FOUND " << libname << std::endl;
+		    return true;
+		}
+	    }
+	}
+	pclose(lddOutFile);
+	return false;
+    } else {
+	std::cerr << "WARNING: ldd on " << exename << " failed. Looking for " << libname  << std::endl;
+	return false;
     }
-    return false;
 }
 
 //
@@ -203,6 +192,7 @@ static bool isMpiExe(const std::string exe) {
     bool found_libmpi = foundLibraryFromLdd(exe,"/libmpi");
     return found_libmpi;
 }
+
 //
 // Determine if openMP runtime library is present in this executable.
 //
