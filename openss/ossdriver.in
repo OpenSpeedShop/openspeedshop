@@ -19,6 +19,8 @@ EOF
 
 # topology file support for oss with cbtf
 topology_opt=""
+# fileio option for cbtf.  used to run collectors in old offline mode.
+cbtf_offline_opt=""
 
 # Setup the OpenSpeedShop instrumentor variable (cbtf or offline)
 instrumentor=@oss_instrumentor@
@@ -163,6 +165,20 @@ do
 	    topology_opt="--topology $topology_file"
             shift ; shift
             ;;
+       --offline)
+            cbtf_offline_opt="--offline"
+	    if [ "x${CBTF_RAWDATA_DIR}" == "x" ] ; then
+		test -d "/tmp/${USER}/offline-cbtf" || mkdir -p "/tmp/${USER}/offline-cbtf"
+		export CBTF_RAWDATA_DIR="/tmp/${USER}/offline-cbtf"
+	    else
+		test -d ${CBTF_RAWDATA_DIR} || mkdir -p ${CBTF_RAWDATA_DIR}
+	    fi
+	    #rm -rf ${CBTF_RAWDATA_DIR}/cbtf-rawdata*
+	    pushd ${CBTF_RAWDATA_DIR}
+	    rm -rf ./cbtf-rawdata*
+	    popd
+            shift
+            ;;
         -- )
             shift
             break
@@ -215,6 +231,7 @@ if [[ -z "$1" || $show_help == 1 ]] ; then
          "$experiment_name" != "ossmpi" && "$experiment_name" != "ossmpit" && 
          "$experiment_name" != "ossmpip" && "$experiment_name" != "ossmem" && 
          "$experiment_name" != "osspthreads" && "$experiment_name" != "ossiop" && 
+         "$experiment_name" != "ossomptp" && 
          "$experiment_name" != "ossmpiotf" && "$experiment_name" != "osscuda" ]]; then
      echo "high        - Increase the default sampling rate or threshold "
      echo "              value to increase the number of samples taken."
@@ -1583,9 +1600,9 @@ esac
 if [ $debug_flag ==  1 ] ; then
   if [ "$instrumentor" == "cbtf" ] ; then
     if [ "$targetos" == "cray" -o "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ] ; then
-      echo "[openss debug]: executing osscollect $topology_opt --arch cray --program \"$1\" --collector $collector"
+      echo "[openss debug]: executing osscollect $topology_opt $cbtf_offline_opt --arch cray --program \"$1\" --collector $collector"
     else
-      echo "[openss debug]: executing osscollect $topology_opt --program \"$1\" --collector $collector"
+      echo "[openss debug]: executing osscollect $topology_opt $cbtf_offline_opt --program \"$1\" --collector $collector"
     fi
   else
     echo "openss -offline -f \"$1\" $collector"
@@ -1598,9 +1615,9 @@ if [ $invalid_experiment ] ; then
     echo "[openss]: in valid experiment expression"
 elif [ "$instrumentor" == "cbtf" ] ; then
     if [ "$targetos" == "cray" -o "$targetos" == "cray-xk" -o "$targetos" == "cray-xe" ] ; then
-       osscollect $topology_opt --arch cray --program "$1" --collector $collector
+       osscollect $topology_opt $cbtf_offline_opt --arch cray --program "$1" --collector $collector
     else
-       osscollect $topology_opt --program "$1" --collector $collector
+       osscollect $topology_opt $cbtf_offline_opt --program "$1" --collector $collector
     fi
 elif [ "$instrumentor" == "offline" ] ; then
     openss -offline -f "$1" $collector

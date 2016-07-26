@@ -321,19 +321,35 @@ elseif (INSTRUMENTOR MATCHES "offline")
 endif()
 
 if(SYMTABAPI_FOUND)
-    if (INSTRUMENTOR MATCHES "offline")
-	    add_library(openss-framework-symtabapi SHARED
+    add_library(openss-framework-symtabapi SHARED
 		${SYMTABAPI_SOURCES}
 		OfflineExperiment.hxx
 		OfflineExperiment.cxx
-    	    )
-    else()
-	    add_library(openss-framework-symtabapi SHARED
-		${SYMTABAPI_SOURCES}
-    	)
-    endif()
+    )
 
     if (DYNINSTAPI_FOUND)
+      if(INSTRUMENTOR MATCHES "cbtf")
+	target_include_directories(openss-framework-symtabapi PUBLIC
+	    ${CMAKE_CURRENT_SOURCE_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}/offline
+	    ${Boost_INCLUDE_DIRS}
+	    ${SymtabAPI_INCLUDE_DIRS}
+	    ${DyninstAPI_INCLUDE_DIRS}
+	    ${Binutils_Iberty_INCLUDE_DIR}
+	    ${CBTF_KRELL_MESSAGES_INCLUDE_DIRS}
+	    ${PROJECT_SOURCE_DIR}/libopenss-framework
+            ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
+            ${LTDL_INCLUDE_DIR}
+	)
+	target_link_libraries(openss-framework-symtabapi
+	    ${SymtabAPI_LIBRARIES}
+	    ${DyninstAPI_LIBRARIES}
+	    ${CBTF_KRELL_MESSAGES_EVENTS_SHARED_LIBRARY}
+	    ${Iberty_STATIC_LIBRARIES}
+	    ${CMAKE_DL_LIBS}
+	)
+      else()
 	target_include_directories(openss-framework-symtabapi PUBLIC
 	    ${CMAKE_CURRENT_SOURCE_DIR}
 	    ${CMAKE_CURRENT_BINARY_DIR}
@@ -352,7 +368,28 @@ if(SYMTABAPI_FOUND)
 	    ${Iberty_STATIC_LIBRARIES}
 	    ${CMAKE_DL_LIBS}
 	)
+      endif()
     else()
+      if(INSTRUMENTOR MATCHES "cbtf")
+	target_include_directories(openss-framework-symtabapi PUBLIC
+	    ${CMAKE_CURRENT_SOURCE_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}/offline
+	    ${Boost_INCLUDE_DIRS}
+	    ${SymtabAPI_INCLUDE_DIRS}
+	    ${Binutils_Iberty_INCLUDE_DIR}
+	    ${CBTF_KRELL_MESSAGES_INCLUDE_DIRS}
+	    ${PROJECT_SOURCE_DIR}/libopenss-framework
+	    ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
+	    ${LTDL_INCLUDE_DIR}
+	)
+	target_link_libraries(openss-framework-symtabapi
+	    ${SymtabAPI_LIBRARIES}
+	    ${CBTF_KRELL_MESSAGES_EVENTS_SHARED_LIBRARY}
+	    ${Iberty_STATIC_LIBRARIES}
+	    ${CMAKE_DL_LIBS}
+	)
+      else()
 	target_include_directories(openss-framework-symtabapi PUBLIC
 	    ${CMAKE_CURRENT_SOURCE_DIR}
 	    ${CMAKE_CURRENT_BINARY_DIR}
@@ -369,6 +406,7 @@ if(SYMTABAPI_FOUND)
 	    ${Iberty_STATIC_LIBRARIES}
 	    ${CMAKE_DL_LIBS}
 	)
+      endif()
     endif()
 
     set_target_properties(openss-framework-symtabapi PROPERTIES VERSION 1.1.0)

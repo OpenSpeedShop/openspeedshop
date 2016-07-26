@@ -258,6 +258,7 @@ else()
 	    ${CBTF_KRELL_CORE_MRNET_LIBRARY}
 	    openss-framework
 	    openss-framework-cbtf
+            openss-framework-symtabapi
             pthread
             ${CMAKE_DL_LIBS}
             rt

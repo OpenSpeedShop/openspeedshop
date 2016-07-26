@@ -49,12 +49,10 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/filesystem.hpp>
-#include "Collector.hxx"
-#include "Experiment.hxx"
+#include "ToolAPI.hxx"
 #include "FEThread.hxx"
+#include "OfflineExperiment.hxx"
 #include "OfflineParameters.hxx"
-#include "Path.hxx"
-#include "ThreadGroup.hxx"
 #include "KrellInstitute/Core/SymtabAPISymbols.hpp"
 #include "KrellInstitute/Core/CBTFTopology.hpp"
 
@@ -593,6 +591,7 @@ int main(int argc, char** argv)
 #endif
 
     unsigned int numBE;
+    bool offline_mode = false;
     bool isMPI;
     std::string topology, arch, connections, collector, program, mpiexecutable,
 		cbtfrunpath, seqexecutable;
@@ -640,6 +639,8 @@ int main(int argc, char** argv)
         ("mpiexecutable",
 	    boost::program_options::value<std::string>(&mpiexecutable)->default_value(""),
 	    "Name of the mpi executable. This must match the name of the mpi exectuable used in the program argument and implies the collection is being done on an mpi job if it is set.")
+        ("offline", boost::program_options::bool_switch()->default_value(false),
+	    "Use offline mode. Default is false.")
         ;
 
     boost::program_options::variables_map vm;
@@ -654,6 +655,7 @@ int main(int argc, char** argv)
 				  options(desc).positional(p).run(), vm);
     boost::program_options::notify(vm);
 
+    bool use_offline_mode = vm["offline"].as<bool>();
 
     // Generate the --mpiexecutable argument value if it is not set
     if (program != "" && mpiexecutable == "") {
@@ -691,7 +693,8 @@ int main(int argc, char** argv)
     // of application processes.
     CBTFTopology cbtftopology;
     std::string fenodename;
-    if (topology.empty()) {
+    if (!use_offline_mode) {
+     if (topology.empty()) {
       if (arch == "cray") {
           cbtftopology.autoCreateTopology(BE_CRAY_ATTACH,numBE);
       } else {
@@ -700,8 +703,9 @@ int main(int argc, char** argv)
       topology = cbtftopology.getTopologyFileName();
       fenodename =  cbtftopology.getFENodeStr();
       std::cerr << "Generated topology file: " << topology << std::endl;
-    } else {
+     } else {
       fenodename =  "localhost";
+     }
     }
 
     // OpenSpeedShop client specific.
@@ -744,10 +748,10 @@ int main(int argc, char** argv)
 
     // From this point on we run the application with cbtf and specified collector.
     // verify valid numBE.
-    if (numBE == 0) {
+    if (numBE == 0 && !use_offline_mode) {
 	std::cout << desc << std::endl;
 	return 1;
-    } else if (program == "" && numBE > 0) {
+    } else if (!use_offline_mode && program == "" && numBE > 0) {
 	// this allows us to start the mrnet client FE
 	// and then start the program with collector in
 	// a separate window using cbtfrun.
@@ -762,23 +766,29 @@ int main(int argc, char** argv)
 	fethread.join();
 	exit(0);
     } else {
-	std::cout << "Running " << collector << " collector."
+	if (use_offline_mode) {
+	    std::cout << "Running offline " << collector << " collector."
+	    << "\nProgram: " << program << std::endl;
+	} else {
+	    std::cout << "Running " << collector << " collector."
 	    << "\nProgram: " << program
 	    << "\nNumber of mrnet backends: "  << numBE
             << "\nTopology file used: " << topology << std::endl;
 
-	// TODO: need to cleanly terminate mrnet.
-	fethread.start(topology,connections,collector,numBE,finished);
+	    // TODO: need to cleanly terminate mrnet.
+	    fethread.start(topology,connections,collector,numBE,finished);
 
-	// sleep was not sufficient to ensure we have a connections file
-	// written by the fethread.  Without the connections file the
-	// ltwt mrnet BE's cannot connect to the netowrk.
-	// Wait for the connections file to be written before proceeding
-	// to stat the mpi job and allowing the ltwt BEs to connect to
-	// the component network instantiated by the fethread.
-	bool connections_written = boost::filesystem::exists(connections);
-	while (!connections_written) {
-	   connections_written = boost::filesystem::exists(connections);
+	    // sleep was not sufficient to ensure we have a connections file
+	    // written by the fethread.  Without the connections file the
+	    // ltwt mrnet BE's cannot connect to the netowrk.
+	    // Wait for the connections file to be written before proceeding
+	    // to stat the mpi job and allowing the ltwt BEs to connect to
+	    // the component network instantiated by the fethread.
+	    bool connections_written = boost::filesystem::exists(connections);
+	    while (!connections_written) {
+		connections_written = boost::filesystem::exists(connections);
+	    }
+
 	}
 
         bool exe_has_openmp = false;
@@ -796,30 +806,40 @@ int main(int argc, char** argv)
 		}
 	    }
 
-	    pos = program.find(mpiexecutable);
-
 	    exe_has_openmp = isOpenMPExe(mpiexecutable);
-
 	    exe_class_types appl_type =  typeOfExecutable(program, mpiexecutable);
+
+	    // build the needed options for cbtfrun.
+	    std::string cbtfrun_opts;
  
+	    // is this an MPI program?
 	    if (appl_type == MPI_exe_type) {
-		if (exe_has_openmp) {
-		    program.insert(pos, " " + cbtfrunpath + " --mrnet --mpi -c " + collector + " --openmp" + " \"");
-		} else {
-		    program.insert(pos, " " + cbtfrunpath + " --mrnet --mpi -c " + collector + " \"");
-		}
-	    } else {
-		if (exe_has_openmp) {
-		    program.insert(pos, " " + cbtfrunpath + " --mrnet -c " + collector + " --openmp" + " \"");
-		} else {
-		    program.insert(pos, " " + cbtfrunpath + " --mrnet -c " + collector + " \"");
-		}
+	        cbtfrun_opts.append(" --mpi ");
 	    }
 
-	    program.append("\"");
+	    // does the program use OpenMP?
+	    if (exe_has_openmp) {
+		cbtfrun_opts.append(" --openmp");
+	    }
 
-	    std::cerr << "executing mpi program: " << program << std::endl;
+	    // Does the user wish to run the offline version?
+	    if (use_offline_mode) {
+	        cbtfrun_opts.append(" --fileio ");
+	    } else {
+	        cbtfrun_opts.append(" --mrnet ");
+	    }
+
+	    // add the collector as last option.
+	    cbtfrun_opts.append(" -c " + collector);
+	    cbtfrun_opts.append(" ");
+
+	    // now insert the cbtfrun command and it's options before the
+	    // mpi executable.
+	    pos = program.find(mpiexecutable);
+	    program.insert(pos, " " + cbtfrunpath + " " + cbtfrun_opts);
 	    
+	    std::cout << "executing mpi program: " << program << std::endl;
+
 	    ::system(program.c_str());
 
 	} else {
@@ -828,7 +848,14 @@ int main(int argc, char** argv)
 	    exe_has_openmp = isOpenMPExe(seqexecutable);
 
 	    std::string cmdtorun;
-	    cmdtorun.append(cbtfrunpath + " -m -c " + collector);
+	    cmdtorun.append(cbtfrunpath + " -c " + collector);
+
+	    // Does the user wish to run the offline version?
+	    if (use_offline_mode) {
+	        cmdtorun.append(" --fileio ");
+	    } else {
+	        cmdtorun.append(" --mrnet ");
+	    }
 
 	    if (exe_has_openmp) {
 		cmdtorun.append(" --openmp ");
@@ -837,12 +864,33 @@ int main(int argc, char** argv)
 
 	    } 
 
+
 	    cmdtorun.append(program);
 	    std::cerr << "executing sequential program: " << cmdtorun << std::endl;
 	    ::system(cmdtorun.c_str());
 	}
 
-	fethread.join();
+	if (!use_offline_mode) {
+	    fethread.join();
+	}
+    }
+
+    if (use_offline_mode) {
+
+	std::string rawdatadir;
+	char *openss_raw_dir = getenv("OPENSS_RAWDATA_DIR");
+	char *cbtf_raw_dir = getenv("CBTF_RAWDATA_DIR");
+	if (openss_raw_dir) {
+	    rawdatadir = openss_raw_dir;
+	} else if (cbtf_raw_dir) {
+	    rawdatadir = cbtf_raw_dir;
+	} else {
+	    rawdatadir.append("/tmp/dpm/offline-cbtf");
+	    //sprintf(data_dirname,"%s","/tmp");
+	}
+
+        OfflineExperiment myOffExp(dbname,rawdatadir);
+        myOffExp.getRawDataFiles(rawdatadir);
     }
 
 #ifndef NDEBUG
