@@ -145,6 +145,8 @@ else()
            set(OpenMP_RT_NAME "gomp")
         elseif (${OpenMP_C_FLAGS} MATCHES "-openmp")
            set(OpenMP_RT_NAME "iomp5")
+        elseif (${OpenMP_C_FLAGS} MATCHES "-qopenmp")
+           set(OpenMP_RT_NAME "iomp5")
         else()
            set(OpenMP_RT_NAME "gomp")
         endif()
@@ -258,7 +260,8 @@ else()
 	    ${CBTF_KRELL_CORE_MRNET_LIBRARY}
 	    openss-framework
 	    openss-framework-cbtf
-            openss-framework-symtabapi
+	    openss-framework-symtabapi
+	    ${OpenMP_RT_NAME}
             pthread
             ${CMAKE_DL_LIBS}
             rt
