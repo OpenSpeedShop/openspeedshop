@@ -167,13 +167,25 @@ do
             ;;
        --offline)
             cbtf_offline_opt="--offline"
+
+	    # NOTE: Always place rawdata files into a subdirectory named offline-cbtf
+	    # in case user choses a common location like current working directory,
+	    # home directory, or such.
+	    #
 	    if [ "x${CBTF_RAWDATA_DIR}" == "x" ] ; then
 		test -d "/tmp/${USER}/offline-cbtf" || mkdir -p "/tmp/${USER}/offline-cbtf"
 		export CBTF_RAWDATA_DIR="/tmp/${USER}/offline-cbtf"
 	    else
-		test -d ${CBTF_RAWDATA_DIR} || mkdir -p ${CBTF_RAWDATA_DIR}
+		test -d ${CBTF_RAWDATA_DIR}/offline-cbtf || mkdir -p ${CBTF_RAWDATA_DIR}/offline-cbtf
+		export CBTF_RAWDATA_DIR=${CBTF_RAWDATA_DIR}/offline-cbtf
 	    fi
-	    #rm -rf ${CBTF_RAWDATA_DIR}/cbtf-rawdata*
+
+	    # For safety we cd to the raw directory and only remove the sub-directories
+	    # each collector creates for the rawddata files.
+	    # For the cbtf-krell offline collectors, we likely do no need the extra level
+	    # of one directory per process/thread since we write only one file now with
+	    # the naming convention: exe_name-pid-posix_tid.openss-data
+	    #
 	    pushd ${CBTF_RAWDATA_DIR}
 	    rm -rf ./cbtf-rawdata*
 	    popd
