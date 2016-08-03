@@ -168,16 +168,21 @@ do
        --offline)
             cbtf_offline_opt="--offline"
 
+	    # According to OSS documentation the published method to set and alternative
+	    # location for rawdata files (eg. for lustre) is via OPENSS_RAWDATA_DIR.
+	    # Therefore we honor that naming convention and convert as needed to
+	    # CBTF_RAWDATA_DIR for the internal implementation used in cbtf-krell code.
+	    #
 	    # NOTE: Always place rawdata files into a subdirectory named offline-cbtf
 	    # in case user choses a common location like current working directory,
 	    # home directory, or such.
 	    #
-	    if [ "x${CBTF_RAWDATA_DIR}" == "x" ] ; then
+	    if [ "x${OPENSS_RAWDATA_DIR}" == "x" ] ; then
 		test -d "/tmp/${USER}/offline-cbtf" || mkdir -p "/tmp/${USER}/offline-cbtf"
-		export CBTF_RAWDATA_DIR="/tmp/${USER}/offline-cbtf"
+		export OPENSS_RAWDATA_DIR="/tmp/${USER}/offline-cbtf"
 	    else
-		test -d ${CBTF_RAWDATA_DIR}/offline-cbtf || mkdir -p ${CBTF_RAWDATA_DIR}/offline-cbtf
-		export CBTF_RAWDATA_DIR=${CBTF_RAWDATA_DIR}/offline-cbtf
+		test -d ${OPENSS_RAWDATA_DIR}/offline-cbtf || mkdir -p ${OPENSS_RAWDATA_DIR}/offline-cbtf
+		export OPENSS_RAWDATA_DIR=${OPENSS_RAWDATA_DIR}/offline-cbtf
 	    fi
 
 	    # For safety we cd to the raw directory and only remove the sub-directories
@@ -186,9 +191,13 @@ do
 	    # of one directory per process/thread since we write only one file now with
 	    # the naming convention: exe_name-pid-posix_tid.openss-data
 	    #
-	    pushd ${CBTF_RAWDATA_DIR}
+	    pushd ${OPENSS_RAWDATA_DIR}
 	    rm -rf ./cbtf-rawdata*
 	    popd
+
+	    # The cbtf-krell collectors internally use the CBTF_RAWDATA_DIR environment
+	    # variable. So we set that here.
+	    export CBTF_RAWDATA_DIR=${OPENSS_RAWDATA_DIR}
             shift
             ;;
         -- )

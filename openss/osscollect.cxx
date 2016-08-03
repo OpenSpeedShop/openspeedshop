@@ -877,16 +877,30 @@ int main(int argc, char** argv)
 
     if (use_offline_mode) {
 
+	// NOTE: Due to documentation concerns it is advisable to
+	// continue using the published environment variable name
+	// (OPENSS_RAWDATA_DIR) for setting the location of rawdata
+	// files written by cbtf-krell collectors. The ossdriver
+	// script is responsible for handling the creation of this
+	// directory and always appends "/offline-cbtf" for cbtf-krell
+	// collection.  Additionaly the cbtf-krell collection code
+	// internally uses CBTF_RAWDATA_DIR. The ossdriver script also
+	// sets that for the benefit of cbtf-krell collectors.
+	// The default is always /tmp/$USER/ + /offline-cbtf.
 	std::string rawdatadir;
 	char *openss_raw_dir = getenv("OPENSS_RAWDATA_DIR");
 	char *cbtf_raw_dir = getenv("CBTF_RAWDATA_DIR");
+
+	// always test the documented OSS name first. In all cases
+	// where the experiment is run via a convenience script via
+	// ossdriver, OPENSS_RAWDATA_DIR will be set.
 	if (openss_raw_dir) {
 	    rawdatadir = openss_raw_dir;
 	} else if (cbtf_raw_dir) {
 	    rawdatadir = cbtf_raw_dir;
 	} else {
-	    rawdatadir.append("/tmp/dpm/offline-cbtf");
-	    //sprintf(data_dirname,"%s","/tmp");
+	    char *user_name = getenv("USER");
+	    rawdatadir = "/tmp/" + std::string(user_name) + "/offline-cbtf";
 	}
 
         OfflineExperiment myOffExp(dbname,rawdatadir);
