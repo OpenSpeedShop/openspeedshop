@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2016 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -158,6 +158,7 @@ class StatsPanel  : public Panel
  
     void generatePCSAMPmodifiers();
     void generateUSERTIMEmodifiers();
+    void generateOMPTPmodifiers();
     void generateHWCmodifiers();
     void generateHWCTIMEmodifiers();
     void generateHWCSAMPmodifiers();
@@ -173,6 +174,7 @@ class StatsPanel  : public Panel
 
     void generatePCSAMPAnnotationmodifiers();
     void generateUSERTIMEAnnotationmodifiers();
+    void generateOMPTAnnotationmodifiers();
     void generateHWCAnnotationmodifiers();
     void generateHWCTIMEAnnotationmodifiers();
     void generateHWCSAMPAnnotationmodifiers();
@@ -409,6 +411,8 @@ class StatsPanel  : public Panel
     std::list<std::string> current_list_of_pcsamp_modifiers;
     std::list<std::string> list_of_usertime_modifiers;
     std::list<std::string> current_list_of_usertime_modifiers;
+    std::list<std::string> list_of_omptp_modifiers;
+    std::list<std::string> current_list_of_omptp_modifiers;
     std::list<std::string> list_of_mem_modifiers;
     std::list<std::string> current_list_of_mem_modifiers;
     std::list<std::string> list_of_pthreads_modifiers;
@@ -533,6 +537,7 @@ class StatsPanel  : public Panel
     QPopupMenu *hwctimeModifierMenu;
     QPopupMenu *pcsampModifierMenu;
     QPopupMenu *usertimeModifierMenu;
+    QPopupMenu *omptpModifierMenu;
     QPopupMenu *fpeModifierMenu;
     QPopupMenu *genericModifierMenu;
 
@@ -547,6 +552,7 @@ class StatsPanel  : public Panel
     QPopupMenu *hwcsamp_menu;
     QPopupMenu *hwctime_menu;
     QPopupMenu *usertime_menu;
+    QPopupMenu *omptp_menu;
     QPopupMenu *pcsamp_menu;
     QPopupMenu *fpe_menu;
     QPopupMenu *generic_menu;
@@ -656,6 +662,7 @@ class StatsPanel  : public Panel
     void genericModifierSelected(int);
     void pcsampModifierSelected(int);
     void usertimeModifierSelected(int);
+    void omptpModifierSelected(int);
     void memModifierSelected(int);
     void pthreadsModifierSelected(int);
     void fpeModifierSelected(int);
@@ -672,6 +679,7 @@ class StatsPanel  : public Panel
     void collectorHWCSampReportSelected(int);
     void collectorHWCTimeReportSelected(int);
     void collectorUserTimeReportSelected(int);
+    void collectorOMPTPReportSelected(int);
     void collectorPCSampReportSelected(int);
     void collectorFPEReportSelected(int);
     void collectorGenericReportSelected(int);
@@ -717,6 +725,8 @@ class StatsPanel  : public Panel
     void addHWCTimeReports(QPopupMenu *menu);
     void generateUserTimeMenu();
     void addUserTimeReports(QPopupMenu *menu);
+    void generateOMPTPMenu();
+    void addOMPTPReports(QPopupMenu *menu);
     void generatePCSampMenu();
     void addPCSampReports(QPopupMenu *menu);
     void generateFPEMenu();

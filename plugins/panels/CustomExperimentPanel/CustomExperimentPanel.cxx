@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2016 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -3005,6 +3005,8 @@ CustomExperimentPanel::getMostImportantMetric(QString collector_name)
   if( collector_name == "pcsamp" ) {
     metric = "-m pcsamp::time";
   } else if( collector_name == "usertime" ) {
+    metric = "-m usertime::exclusive_time";
+  } else if( collector_name == "omptp" ) {
     metric = "-m usertime::exclusive_time";
   } else if( collector_name == "iop" ) {
     metric = "-m iop::exclusive_time";
