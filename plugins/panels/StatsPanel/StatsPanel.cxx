@@ -702,6 +702,9 @@ void StatsPanel::clearModifiers()
   list_of_usertime_modifiers.clear();
   current_list_of_usertime_modifiers.clear();  // This is this list of user selected modifiers.
 
+  list_of_omptp_modifiers.clear();
+  current_list_of_omptp_modifiers.clear();  // This is this list of user selected modifiers.
+
   list_of_iop_modifiers.clear();
   current_list_of_iop_modifiers.clear();  // This is this list of user selected modifiers.
 
@@ -827,6 +830,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   hwctimeModifierMenu = NULL;
   pcsampModifierMenu = NULL;
   usertimeModifierMenu = NULL;
+  omptpModifierMenu = NULL;
   fpeModifierMenu = NULL;
 
   iop_menu = NULL;
@@ -839,6 +843,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   hwctime_menu = NULL;
   pcsamp_menu = NULL;
   usertime_menu = NULL;
+  omptp_menu = NULL;
   fpe_menu = NULL;
 
 #if 1
@@ -871,6 +876,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   current_list_of_pcsamp_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_usertime_modifiers.clear();
   current_list_of_usertime_modifiers.clear();  // This is this list of user selected modifiers.
+  list_of_omptp_modifiers.clear();
+  current_list_of_omptp_modifiers.clear();  // This is this list of user selected modifiers.
 
   list_of_fpe_modifiers.clear();
   current_list_of_fpe_modifiers.clear();  // This is this list of user selected modifiers.
