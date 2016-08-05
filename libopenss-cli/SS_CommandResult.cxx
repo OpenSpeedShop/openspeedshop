@@ -152,11 +152,11 @@ CommandResult *Calculate_Average (CommandResult *A, CommandResult *B) {
 
   switch (A->Type()) {
    case CMD_RESULT_DURATION:
-    return isnan(average) ? NULL : new CommandResult_Duration (average);
+    return std::isnan(average) ? NULL : new CommandResult_Duration (average);
    case CMD_RESULT_INTERVAL:
-    return isnan(average) ? NULL : new CommandResult_Interval (average);
+    return std::isnan(average) ? NULL : new CommandResult_Interval (average);
   }
-  return isnan(average) ? NULL : new CommandResult_Float (average);
+  return std::isnan(average) ? NULL : new CommandResult_Float (average);
 }
 
 CommandResult *Calculate_StdDev  (CommandResult *A, CommandResult *B, CommandResult *C) {
@@ -250,11 +250,11 @@ CommandResult *Calculate_StdDev  (CommandResult *A, CommandResult *B, CommandRes
   double result = sqrt (((Cvalue * Bvalue) - (Avalue * Avalue)) / (Cvalue * (Cvalue -1.0)));
   switch (A->Type()) {
    case CMD_RESULT_DURATION:
-    return isnan(result) ? NULL : new CommandResult_Duration (result);
+    return std::isnan(result) ? NULL : new CommandResult_Duration (result);
    case CMD_RESULT_INTERVAL:
-    return isnan(result) ? NULL : new CommandResult_Interval (result);
+    return std::isnan(result) ? NULL : new CommandResult_Interval (result);
   }
-  return isnan(result) ? NULL : new CommandResult_Float (result);
+  return std::isnan(result) ? NULL : new CommandResult_Float (result);
 }
 
 
@@ -327,11 +327,11 @@ CommandResult *Calculate_Flops  (CommandResult *A, CommandResult *B) {
 
   switch (A->Type()) {
    case CMD_RESULT_DURATION:
-    return isnan(result) ? NULL : new CommandResult_Duration (result);
+    return std::isnan(result) ? NULL : new CommandResult_Duration (result);
    case CMD_RESULT_INTERVAL:
-    return isnan(result) ? NULL : new CommandResult_Interval (result);
+    return std::isnan(result) ? NULL : new CommandResult_Interval (result);
   }
-  return isnan(result) ? NULL : new CommandResult_Float (result);
+  return std::isnan(result) ? NULL : new CommandResult_Float (result);
 }
 
 
@@ -404,11 +404,11 @@ CommandResult *Calculate_Ratio  (CommandResult *A, CommandResult *B) {
 
   switch (A->Type()) {
    case CMD_RESULT_DURATION:
-    return isnan(result) ? NULL : new CommandResult_Duration (result);
+    return std::isnan(result) ? NULL : new CommandResult_Duration (result);
    case CMD_RESULT_INTERVAL:
-    return isnan(result) ? NULL : new CommandResult_Interval (result);
+    return std::isnan(result) ? NULL : new CommandResult_Interval (result);
   }
-  return isnan(result) ? NULL : new CommandResult_Float (result);
+  return std::isnan(result) ? NULL : new CommandResult_Float (result);
 }
 
 
@@ -487,11 +487,11 @@ CommandResult *Calculate_Inverse_Ratio_Percent  (CommandResult *A, CommandResult
 
   switch (A->Type()) {
    case CMD_RESULT_DURATION:
-    return isnan(result) ? NULL : new CommandResult_Duration (result);
+    return std::isnan(result) ? NULL : new CommandResult_Duration (result);
    case CMD_RESULT_INTERVAL:
-    return isnan(result) ? NULL : new CommandResult_Interval (result);
+    return std::isnan(result) ? NULL : new CommandResult_Interval (result);
   }
-  return isnan(result) ? NULL : new CommandResult_Float (result);
+  return std::isnan(result) ? NULL : new CommandResult_Float (result);
 }
 
 
@@ -570,11 +570,11 @@ CommandResult *Calculate_Ratio_Percent  (CommandResult *A, CommandResult *B) {
 
   switch (A->Type()) {
    case CMD_RESULT_DURATION:
-    return isnan(result) ? NULL : new CommandResult_Duration (result);
+    return std::isnan(result) ? NULL : new CommandResult_Duration (result);
    case CMD_RESULT_INTERVAL:
-    return isnan(result) ? NULL : new CommandResult_Interval (result);
+    return std::isnan(result) ? NULL : new CommandResult_Interval (result);
   }
-  return isnan(result) ? NULL : new CommandResult_Float (result);
+  return std::isnan(result) ? NULL : new CommandResult_Float (result);
 }
 
 CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
@@ -647,7 +647,7 @@ CommandResult *Calculate_Percent (CommandResult *A, CommandResult *B) {
     // if (percent > 100.0) percent = 100.0;
     if (percent < 0.0) percent = 0.0;
   }
-  return isnan(percent) ? NULL : new CommandResult_Float (percent);
+  return std::isnan(percent) ? NULL : new CommandResult_Float (percent);
 }
 
 
@@ -1616,11 +1616,11 @@ static CommandResult *Calculate_Sqrt (CommandResult *A) {
   double result = sqrt (ADvalue);
   switch (A->Type()) {
    case CMD_RESULT_DURATION:
-    return isnan(result) ? NULL : new CommandResult_Duration (result);
+    return std::isnan(result) ? NULL : new CommandResult_Duration (result);
    case CMD_RESULT_INTERVAL:
-    return isnan(result) ? NULL : new CommandResult_Interval (result);
+    return std::isnan(result) ? NULL : new CommandResult_Interval (result);
    default:
-    return isnan(result) ? NULL : new CommandResult_Float (result);
+    return std::isnan(result) ? NULL : new CommandResult_Float (result);
   }
 }
 
@@ -1855,6 +1855,7 @@ CommandResult *Calculate_Expression(expression_operation_t op,
    case EXPRESSION_OP_UINT: return ConvertToUint (A);
    case EXPRESSION_OP_INT: return ConvertToInt (A);
    case EXPRESSION_OP_FLOAT: return ConvertToFloat (A);
+   case EXPRESSION_OP_RATIO: return Calculate_Ratio (A, B);
    default:
     return NULL;
   }

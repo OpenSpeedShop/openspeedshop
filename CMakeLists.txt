@@ -25,11 +25,24 @@ project(OpenSpeedShop C CXX)
 # TODO: allow this to be passed as an option via cmake for developers
 # to tag non production builds.
 add_definitions(
-    -DVERSION="2.2.2"
+    -DVERSION="2.2.3"
 )
 
 # cmake module search path for this project.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
+
+# NOTE related to the following C++11 feature checks:
+#    This include: CheckCXX11Features.cmake is projected to be in a future version of CMake.
+#    When this does get included into the new CMake version, we will update our
+#    required CMake version and remove cmake/CheckCXX11Features* files from the cbtf repository.
+#
+include(cmake/CheckCXX11Features.cmake)
+if(NOT HAS_CXX11_AUTO)
+  message(STATUS "No support for C++11 found.")
+else()
+  message(STATUS "C++11 support found, required flags are: ${CXX11_COMPILER_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
+endif()
 
 include(CheckIncludeFile)
 include(CheckIncludeFileCXX)
@@ -228,6 +241,16 @@ if (INSTRUMENTOR MATCHES "offline" OR INSTRUMENTOR MATCHES "cbtf")
     find_package(SymtabAPI)
     find_package(DyninstAPI)
     find_package(Qt3)
+    # always check for openmp regardless of instrumentor.
+    # it is a client thing...
+    find_package(OpenMP)
+endif()
+
+# The old autotools build added this to a config.h which
+# many source files included if it existed to define exactly
+# this kind of thing.
+if (OpenMP_FLAG_DETECTED)
+    add_definitions(-DHAVE_OPENMP=1)
 endif()
 
 #
@@ -249,7 +272,6 @@ if (INSTRUMENTOR MATCHES "offline")
     find_package(LibMonitor)
     find_package(LibUnwind)
     find_package(Papi)
-    find_package(OpenMP)
     find_package(OpenMPI)
     find_package(Mpich)
     find_package(Mpich2)
@@ -276,7 +298,6 @@ if (INSTRUMENTOR MATCHES "offline")
 #
 elseif (INSTRUMENTOR MATCHES "cbtf")
     add_definitions(-DBUILD_CBTF=1)
-    set(Boost_USE_MULTITHREADED    OFF)
     find_package(Boost 1.41.0 REQUIRED
       COMPONENTS date_time filesystem system thread unit_test_framework program_options
     )

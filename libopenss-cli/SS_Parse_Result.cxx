@@ -1442,6 +1442,8 @@ ExpMetricExpr2(const char * name, ParseRange *arg1, ParseRange *arg2)
        arith_op = EXPRESSION_OP_MAX;
      } else if (!strcasecmp(name, "percent")) {
        arith_op = EXPRESSION_OP_PERCENT;
+     } else if (!strcasecmp(name, "ratio")) {
+       arith_op = EXPRESSION_OP_RATIO;
      } else {
       // This is probably an error.
        printf("Error: unrecognized operation in Metric Expression (2 arguments) '%s'\n",name);

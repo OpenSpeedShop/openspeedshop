@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
+// Copyright (c) 2006-2016 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -255,7 +255,9 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
 
         QString collector_name = (QString)*it;
 
-// printf("A: collector_name = (%s)\n", collector_name.ascii() );
+#ifdef DEBUG_GUI
+        printf("A: collector_name = (%s)\n", collector_name.ascii() );
+#endif
 
         if( collector_name == "pcsamp" ) {
           knownCollectorType = TRUE;
@@ -291,6 +293,10 @@ void OpenSpeedshop::fileOpenExperiment(int selectedID)
           break;
         } else if( collector_name == "io" ) {
           panel_type = "IO";
+          knownCollectorType = TRUE;
+          break;
+        } else if( collector_name == "omptp" ) {
+          panel_type = "OMPTP";
           knownCollectorType = TRUE;
           break;
         } else if( collector_name == "pthreads" ) {
@@ -1666,6 +1672,11 @@ OpenSpeedshop::lookForExperiment(bool hadOfflineArg)
           panel_type = "IOT";
           knownCollectorType = TRUE;
           break;
+        } else if( collector_name == "omptp" )
+        {
+          panel_type = "OMPTP";
+          knownCollectorType = TRUE;
+          break;
         } else if( collector_name == "pthreads" )
         {
           panel_type = "PTHREADS";
@@ -1713,6 +1724,9 @@ OpenSpeedshop::lookForExperiment(bool hadOfflineArg)
     ArgumentObject *ao = new ArgumentObject("ArgumentObject", expStr);
     // Set the instrumentor mode flag to what we saw on the command line
     ao->isInstrumentorOffline = hadOfflineArg;
+#ifdef DEBUG_GUI
+    printf("calling topPC->dl_create_and_add_panel, with panel_type.ascii()=\n", panel_type.ascii() );
+#endif
     topPC->dl_create_and_add_panel((char *)panel_type.ascii(), bestFitPC, ao);
     delete ao;
   }

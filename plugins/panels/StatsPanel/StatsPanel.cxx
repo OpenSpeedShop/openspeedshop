@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2016 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -702,6 +702,9 @@ void StatsPanel::clearModifiers()
   list_of_usertime_modifiers.clear();
   current_list_of_usertime_modifiers.clear();  // This is this list of user selected modifiers.
 
+  list_of_omptp_modifiers.clear();
+  current_list_of_omptp_modifiers.clear();  // This is this list of user selected modifiers.
+
   list_of_iop_modifiers.clear();
   current_list_of_iop_modifiers.clear();  // This is this list of user selected modifiers.
 
@@ -827,6 +830,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   hwctimeModifierMenu = NULL;
   pcsampModifierMenu = NULL;
   usertimeModifierMenu = NULL;
+  omptpModifierMenu = NULL;
   fpeModifierMenu = NULL;
 
   iop_menu = NULL;
@@ -839,6 +843,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   hwctime_menu = NULL;
   pcsamp_menu = NULL;
   usertime_menu = NULL;
+  omptp_menu = NULL;
   fpe_menu = NULL;
 
 #if 1
@@ -871,6 +876,8 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   current_list_of_pcsamp_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_usertime_modifiers.clear();
   current_list_of_usertime_modifiers.clear();  // This is this list of user selected modifiers.
+  list_of_omptp_modifiers.clear();
+  current_list_of_omptp_modifiers.clear();  // This is this list of user selected modifiers.
 
   list_of_fpe_modifiers.clear();
   current_list_of_fpe_modifiers.clear();  // This is this list of user selected modifiers.
@@ -2199,6 +2206,11 @@ StatsPanel::menu( QPopupMenu* contextMenu)
       printf("Generate an usertime menu.\n");
 #endif
       generateUserTimeMenu();
+    } else if( QString(collector_name.c_str()).startsWith("omptp") ) {
+#ifdef DEBUG_StatsPanel
+      printf("Generate an omptp menu.\n");
+#endif
+      generateOMPTPMenu();
     } else if( QString(collector_name.c_str()).startsWith("pcsamp") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate a pcsamp menu\n");
@@ -2582,6 +2594,8 @@ StatsPanel::getMostImportantClusterMetric(QString collector_name)
     metric = "-m pcsamp::exclusive_time";
   } else if( collector_name == "usertime" ) {
     metric = "-m usertime::exclusive_time";
+  } else if( collector_name == "omptp" ) {
+    metric = "-m omptp::exclusive_time";
   } else if( collector_name == "hwc" ) {
     metric = "-m hwc::ThreadAverage";
   } else if( collector_name == "hwctime" ) {
@@ -3756,6 +3770,21 @@ StatsPanel::optionalViewsCreationSelected()
       usertime_desired_list.insert(std::pair<std::string,int>("usertime::ThreadMin",optionalViewsDialog->usertime_ThreadMin));
       usertime_desired_list.insert(std::pair<std::string,int>("usertime::ThreadMax",optionalViewsDialog->usertime_ThreadMax));
       updateCurrentModifierList(list_of_usertime_modifiers, &current_list_of_usertime_modifiers, usertime_desired_list);
+
+     }else if( currentCollectorStr == "omptp" ) {
+      // Generate the list of omptp modifiers
+      generateOMPTPmodifiers();
+
+      std::map<std::string, bool> omptp_desired_list;
+      omptp_desired_list.clear();
+      omptp_desired_list.insert(std::pair<std::string,int>("omptp::exclusive_times",optionalViewsDialog->omptp_exclusive_times));
+      omptp_desired_list.insert(std::pair<std::string,int>("omptp::inclusive_times",optionalViewsDialog->omptp_inclusive_times));
+      omptp_desired_list.insert(std::pair<std::string,int>("omptp::percent",optionalViewsDialog->omptp_percent));
+      omptp_desired_list.insert(std::pair<std::string,int>("omptp::count",optionalViewsDialog->omptp_count));
+      omptp_desired_list.insert(std::pair<std::string,int>("omptp::ThreadAverage",optionalViewsDialog->omptp_ThreadAverage));
+      omptp_desired_list.insert(std::pair<std::string,int>("omptp::ThreadMin",optionalViewsDialog->omptp_ThreadMin));
+      omptp_desired_list.insert(std::pair<std::string,int>("omptp::ThreadMax",optionalViewsDialog->omptp_ThreadMax));
+      updateCurrentModifierList(list_of_omptp_modifiers, &current_list_of_omptp_modifiers, omptp_desired_list);
 
      }else if( currentCollectorStr == "iop" ) {
 
@@ -8711,6 +8740,69 @@ StatsPanel::HWCTimeReportSelected(int val)
   }
 }
 
+void
+StatsPanel::collectorOMPTPReportSelected(int val)
+{ 
+#ifdef DEBUG_StatsPanel
+   printf("collectorOMPTPReportSelected: val=%d\n", val);
+   printf("collectorOMPTPReportSelected: omptp_menu=(%s)\n", omptp_menu->text(val).ascii() );
+   printf("collectorOMPTPReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#endif
+
+  currentUserSelectedReportStr = QString::null;
+  currentCollectorStr = "omptp";
+  collectorStrFromMenu = QString::null;
+  currentMetricStr = QString::null;
+
+//  QString s = contextMenu->text(val).ascii();
+  QString s = QString::null;
+  s = omptp_menu->text(val).ascii();
+  if( s.isEmpty() ) {
+    s = contextMenu->text(val).ascii();
+  }
+
+// printf("OMPTPReport: (%s)\n", s.ascii() );
+
+// printf("E: s=%s\n", s.ascii() );
+  int index = s.find(":");
+  if( index != -1 )
+  {
+// printf("DD: NOW FIND :\n");
+    index = s.find(":");
+    if( index > 0 ) { // The user selected one of the metrics
+      collectorStrFromMenu = s.mid(13, index-13 );
+      currentUserSelectedReportStr = s.mid(index+2);
+// printf("UT1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+      // This one resets to all...
+    } else { // The user wants to do all the metrics on the selected threads...
+      currentMetricStr = QString::null;
+      index = s.find(":");
+      currentUserSelectedReportStr = s.mid(13, index-13);
+      if( !currentUserSelectedReportStr.contains("CallTrees by Selected Function") ) {
+        selectedFunctionStr = QString::null;
+      }
+// printf("UT2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+    }
+
+  // The status for the tool bar needs to reflect what is 
+  // going on when the same features are selected via the menu
+  if( getPreferenceShowToolbarCheckBox() == TRUE ) {
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::collectorOMPTPReportSelected, currentUserSelectedReportStr = (%s)\n", currentUserSelectedReportStr.ascii() );
+    printf("StatsPanel::collectorOMPTPReportSelected, calling updateToolBarStatus() \n");
+#endif
+    updateToolBarStatus( currentUserSelectedReportStr );
+  } 
+
+#ifdef DEBUG_StatsPanel
+  printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+  printf("Collector changed call updateStatsPanelData() \n");
+#endif
+  }
+  updateStatsPanelData(DONT_FORCE_UPDATE);
+
+}
+
 
 void
 StatsPanel::collectorUserTimeReportSelected(int val)
@@ -9763,6 +9855,66 @@ StatsPanel::usertimeModifierSelected(int val)
       current_list_of_usertime_modifiers.push_back(s);
     }
     usertimeModifierMenu->setItemChecked(val, TRUE);
+  }
+}
+
+void
+StatsPanel::omptpModifierSelected(int val)
+{ 
+#ifdef DEBUG_StatsPanel
+  printf("omptpModifierSelected val=%d\n", val);
+  printf("omptpModifierSelected: (%s)\n", omptpModifierMenu->text(val).ascii() );
+#endif
+
+  if( omptpModifierMenu->text(val).isEmpty() )
+  {
+    omptpModifierMenu->insertSeparator();
+    if( omptp_menu )
+    {
+      delete omptp_menu;
+    }
+    omptp_menu = new QPopupMenu(this);
+    omptpModifierMenu->insertItem(QString("Select omptp Reports:"), omptp_menu);
+    addOMPTPReports(omptp_menu);
+    connect(omptp_menu, SIGNAL( activated(int) ),
+      this, SLOT(collectorOMPTPReportSelected(int)) );
+    return;
+  }
+
+
+  std::string s = omptpModifierMenu->text(val).ascii();
+// printf("B1: modifierStr=(%s)\n", s.c_str() );
+
+  bool FOUND = FALSE;
+  for( std::list<std::string>::const_iterator it = current_list_of_omptp_modifiers.begin();
+       it != current_list_of_omptp_modifiers.end();  )
+  {
+    std::string modifier = (std::string)*it;
+
+    if( modifier ==  s )
+    {   // It's in the list, so take it out...
+// printf("The modifier was in the list ... take it out!\n");
+      FOUND = TRUE;
+    }
+
+    it++;
+
+    if( FOUND == TRUE )
+    {
+      current_list_of_omptp_modifiers.remove(modifier);
+      omptpModifierMenu->setItemChecked(val, FALSE);
+      break;
+    }
+  }
+
+  if( FOUND == FALSE )
+  {
+// printf("The modifier was not in the list ... add it!\n");
+    if( s != PTI )
+    {
+      current_list_of_omptp_modifiers.push_back(s);
+    }
+    omptpModifierMenu->setItemChecked(val, TRUE);
   }
 }
 
@@ -10970,7 +11122,8 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
           currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || 
           currentUserSelectedReportStr.startsWith("CallTrees") || 
           currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) )  ||
-        (currentCollectorStr == "usertime" && 
+        ((currentCollectorStr == "usertime" ||
+         currentCollectorStr == "omptp" ) && 
         ( currentUserSelectedReportStr == "Butterfly" || 
           currentUserSelectedReportStr.startsWith("TraceBacks") || 
           currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || 
@@ -12209,6 +12362,7 @@ StatsPanel::generateCommand()
 #endif
 
   } else if( currentCollectorStr == "usertime" || 
+             currentCollectorStr == "omptp" || 
              currentCollectorStr == "iop" || 
              currentCollectorStr == "mpip" || 
              currentCollectorStr == "fpe" || 
@@ -12221,14 +12375,14 @@ StatsPanel::generateCommand()
              currentCollectorStr == "mpit" ) {
 
 #ifdef DEBUG_StatsPanel
-    printf("generateCommand, usertime, iop, fpe,... to mpit, currentCollectorStr=(%s) currentUserSelectedReportStr=(%s)\n", 
+    printf("generateCommand, usertime, omptp, iop, fpe,... to mpit, currentCollectorStr=(%s) currentUserSelectedReportStr=(%s)\n", 
            currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
 
     selectedFunctionStr = findSelectedFunction();
 
     if( currentUserSelectedReportStr.isEmpty() ) { 
-      currentUserSelectedReportStr = "Functions";
+        currentUserSelectedReportStr = "Functions";
     }
 
     if( currentUserSelectedReportStr == "Butterfly" ) {
@@ -12604,6 +12758,8 @@ StatsPanel::generateCommand()
       modifier_list = &current_list_of_mem_modifiers;
     } else if( currentCollectorStr == "pthreads" ) {
       modifier_list = &current_list_of_pthreads_modifiers;
+    } else if( currentCollectorStr == "omptp" ) {
+      modifier_list = &current_list_of_omptp_modifiers;
     } else if( currentCollectorStr == "iot" ) {
 
 #ifdef DEBUG_StatsPanel
@@ -12854,6 +13010,18 @@ StatsPanel::generateUSERTIMEmodifiers()
   list_of_usertime_modifiers.push_back("usertime::ThreadMax");
 }
 
+void
+StatsPanel::generateOMPTPmodifiers()
+{
+  list_of_omptp_modifiers.clear();
+  list_of_omptp_modifiers.push_back("omptp::exclusive_times");
+  list_of_omptp_modifiers.push_back("omptp::inclusive_times");
+  list_of_omptp_modifiers.push_back("omptp::percent");
+  list_of_omptp_modifiers.push_back("omptp::count");
+  list_of_omptp_modifiers.push_back("omptp::ThreadAverage");
+  list_of_omptp_modifiers.push_back("omptp::ThreadMin");
+  list_of_omptp_modifiers.push_back("omptp::ThreadMax");
+}
 
 void
 StatsPanel::generateMPIPmodifiers()
@@ -13307,6 +13475,41 @@ StatsPanel::generateHWCTimeMenu(QString collectorName)
   generateModifierMenu(hwctimeModifierMenu, list_of_hwctime_modifiers, current_list_of_hwctime_modifiers);
   hwctime_menu->insertItem(QString("Select hwctime details:"), hwctimeModifierMenu);
 }
+void
+StatsPanel::generateOMPTPMenu()
+{
+// printf("Collector omptp_menu is being created\n");
+
+  omptp_menu = new QPopupMenu(this);
+  connect(omptp_menu, SIGNAL( activated(int) ),
+           this, SLOT(collectorOMPTPReportSelected(int)) );
+
+  QString s = QString::null;
+
+  QAction *qaction = NULL;
+
+
+  if( focusedExpID != -1 ) {
+    contextMenu->insertItem(QString("Display Options: (Exp: %1) OMPTP").arg(focusedExpID), omptp_menu);
+  } else {
+    contextMenu->insertItem(QString("Display Options: OMPTP"), omptp_menu);
+  }
+
+  generateOMPTPmodifiers();
+
+  if( omptpModifierMenu )
+  {
+    delete omptpModifierMenu;
+  }
+  omptpModifierMenu = new QPopupMenu(this);
+  addOMPTPReports(omptp_menu);
+  omptpModifierMenu->insertTearOffHandle();
+  connect(omptpModifierMenu, SIGNAL( activated(int) ),
+    this, SLOT(omptpModifierSelected(int)) );
+  generateModifierMenu(omptpModifierMenu, list_of_omptp_modifiers, current_list_of_omptp_modifiers);
+  omptp_menu->insertItem(QString("Select omptp Metrics:"), omptpModifierMenu);
+}
+
 
 void
 StatsPanel::generateUserTimeMenu()
@@ -13792,7 +13995,7 @@ qaction->setToolTip(tr("Show trace backs for each function by function"));
 qaction = new QAction(this, "showTracebacks,FullStackByFunction");
 qaction->addTo( menu );
 qaction->setText( tr("Show: TraceBacks,FullStack by Function") );
-qaction->setToolTip(tr("Show tracebacks, with full stacks, to PTHREADS functions by function."));
+qaction->setToolTip(tr("Show tracebacks, with full stacks, to POSIX thread functions by function."));
 
   qaction = new QAction(this, "showCallTrees");
   qaction->addTo( menu );
@@ -13823,8 +14026,74 @@ qaction->setToolTip(tr("Show call trees, with full stacks, to functions by funct
   qaction = new QAction(this, "showCallTreesBySelectedFunction");
   qaction->addTo( menu );
   qaction->setText( tr("Show: CallTrees by Selected Function") );
-  qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
+  qaction->setToolTip(tr("Show Call Tree to POSIX thread routine for selected function."));
 #endif // PULL
+}
+
+void
+StatsPanel::addOMPTPReports(QPopupMenu *menu )
+{
+  QAction *qaction = new QAction(this, "showFunctions");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Functions") );
+  qaction->setToolTip(tr("Show timings for Functions."));
+
+  qaction = new QAction(this, "showStatements");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Statements") );
+  qaction->setToolTip(tr("Show timings for statements."));
+
+qaction = new QAction(this, "showStatementsByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: Statements by Function") );
+qaction->setToolTip(tr("Show timings for statements by function"));
+
+  qaction = new QAction(this, "showCallTrees");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees") );
+  qaction->setToolTip(tr("Show call trees for each function."));
+
+qaction = new QAction(this, "showCallTreesByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: CallTrees by Function") );
+qaction->setToolTip(tr("Show call trees for each function by function"));
+
+  qaction = new QAction(this, "showCallTrees,FullStack");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees,FullStack") );
+  qaction->setToolTip(tr("Show call trees, with full stacks, to Functions."));
+
+qaction = new QAction(this, "showCallTrees,FullStackbyFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: CallTrees,FullStack by Function") );
+qaction->setToolTip(tr("Show call trees, with full stacks, to functions by function"));
+
+  qaction = new QAction(this, "showTraceBacks");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: TraceBacks") );
+  qaction->setToolTip(tr("Show trace backs for each function."));
+
+qaction = new QAction(this, "showTraceBacksByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: TraceBacks by Function") );
+qaction->setToolTip(tr("Show trace backs for each function by function"));
+
+
+  qaction = new QAction(this, "showTracebacks,FullStack");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: TraceBacks,FullStack") );
+  qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO Functions."));
+
+qaction = new QAction(this, "showTracebacks,FullStackByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: TraceBacks,FullStack by Function") );
+qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO functions by function."));
+
+  qaction = new QAction(this, "showButterfly");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Butterfly") );
+  qaction->setToolTip(tr("Show Butterfly by function.") );
+
 }
 
 void

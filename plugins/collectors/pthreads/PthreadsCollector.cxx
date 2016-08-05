@@ -205,7 +205,6 @@ void PthreadsCollector::getParameterValue(const std::string& parameter,
 void PthreadsCollector::setParameterValue(const std::string& parameter,
 				    const void* ptr, Blob& data) const
 {
-#if 0
     // Decode the blob containing the parameter values
     CBTF_pthreads_parameters parameters;
     memset(&parameters, 0, sizeof(parameters));
@@ -227,13 +226,12 @@ void PthreadsCollector::setParameterValue(const std::string& parameter,
             }
         }
         if (env_param.size() > 0) {
-            setenv("OPENSS_Pthreads_TRACED", (char *)env_param.c_str(), 1);
+            setenv("CBTF_PTHREADS_TRACED", (char *)env_param.c_str(), 1);
         }
     }
     
     // Re-encode the blob containing the parameter values
     data = Blob(reinterpret_cast<xdrproc_t>(xdr_CBTF_pthreads_parameters), &parameters);
-#endif
 }
 
 

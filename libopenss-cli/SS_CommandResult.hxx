@@ -23,6 +23,7 @@
  *
  */
 
+#include <cmath>
 // The CommandResult_(objects)
 
 // types of results that can be returned in a CommandObject

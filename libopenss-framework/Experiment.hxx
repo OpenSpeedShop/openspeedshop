@@ -131,6 +131,12 @@ namespace OpenSpeedShop { namespace Framework {
 			   const pthread_t&,
 			   const int&,
 			   const std::string&) const;
+	// offline mode for cbtf-krell collectors.
+	void updateThreads(const pid_t&,
+			   const pthread_t&,
+			   const int&,
+			   const int&,
+			   const std::string&) const;
 
 	// pruning unneeded entries in database.
 	void compressDB() const;
@@ -169,7 +175,7 @@ namespace OpenSpeedShop { namespace Framework {
 
         int numBEprocs;
 
-        int setBEprocCount(int count) {
+        void setBEprocCount(int count) {
            //std::cerr << "Enter setBEprocCount, count=" << count << std::endl;
            numBEprocs = count;
         }
@@ -183,11 +189,11 @@ namespace OpenSpeedShop { namespace Framework {
 
         int rerunCount;
 
-        int setRerunCount(int count) {
+        void setRerunCount(int count) {
            rerunCount = count;
         }
 
-        int incrementRerunCount() {
+        void incrementRerunCount() {
            rerunCount = rerunCount + 1;
         }
 

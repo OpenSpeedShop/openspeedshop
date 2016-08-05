@@ -39,6 +39,7 @@ add_subdirectory(mem)
 add_subdirectory(pthreads)
 add_subdirectory(iop)
 add_subdirectory(mpip)
+add_subdirectory(omptp)
 
 if(BUILD_CUDA_SUPPORT)
     add_subdirectory(cuda)

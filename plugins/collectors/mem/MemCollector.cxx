@@ -205,7 +205,6 @@ void MemCollector::getParameterValue(const std::string& parameter,
 void MemCollector::setParameterValue(const std::string& parameter,
 				    const void* ptr, Blob& data) const
 {
-#if 0
     // Decode the blob containing the parameter values
     CBTF_mem_parameters parameters;
     memset(&parameters, 0, sizeof(parameters));
@@ -227,13 +226,12 @@ void MemCollector::setParameterValue(const std::string& parameter,
             }
         }
         if (env_param.size() > 0) {
-            setenv("OPENSS_Mem_TRACED", (char *)env_param.c_str(), 1);
+            setenv("CBTF_MEM_TRACED", (char *)env_param.c_str(), 1);
         }
     }
     
     // Re-encode the blob containing the parameter values
     data = Blob(reinterpret_cast<xdrproc_t>(xdr_CBTF_mem_parameters), &parameters);
-#endif
 }
 
 
@@ -587,12 +585,18 @@ void MemCollector::getUniquePCValues( const Thread& thread,
                                      const Blob& blob,
                                      PCBuffer *buffer) const
 {
+// noop
+}
 
-#if 0
+void MemCollector::getUniquePCValues( const Thread& thread,
+                                         const Blob& blob,
+                                         std::set<Address>& uaddresses) const
+{
+
     // Decode this data blob
-    mem_data data;
+    CBTF_mem_exttrace_data data;
     memset(&data, 0, sizeof(data));
-    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mem_data), &data);
+    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_CBTF_mem_exttrace_data), &data);
 
     if (data.stacktraces.stacktraces_len == 0) {
 	// todo
@@ -601,40 +605,11 @@ void MemCollector::getUniquePCValues( const Thread& thread,
     // Iterate over each stack trace in the data blob
     for(unsigned i = 0; i < data.stacktraces.stacktraces_len; ++i) {
 	if (data.stacktraces.stacktraces_val[i] != 0) {
-	    UpdatePCBuffer(data.stacktraces.stacktraces_val[i], buffer);
+	    uaddresses.insert(Address(data.stacktraces.stacktraces_val[i]));
 	}
     }
 
     // Free the decoded data blob
-    xdr_free(reinterpret_cast<xdrproc_t>(xdr_mem_data),
-	     reinterpret_cast<char*>(&data));
-#endif
-}
-
-void MemCollector::getUniquePCValues( const Thread& thread,
-                                         const Blob& blob,
-                                         std::set<Address>& uaddresses) const
-{
-
-#if 0
-    // Decode this data blob
-    mem_exttrace_data data;
-    memset(&data, 0, sizeof(data));
-    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_mem_exttrace_data), &data);
-
-    if (data.bt.bt_len == 0) {
-	// todo
-    }
-
-    // Iterate over each stack trace in the data blob
-    for(unsigned i = 0; i < data.bt.bt_len; ++i) {
-	if (data.bt.bt_val[i] != 0) {
-	    uaddresses.insert(Address(data.bt.bt_val[i]));
-	}
-    }
-
-    // Free the decoded data blob
-    xdr_free(reinterpret_cast<xdrproc_t>(xdr_mem_exttrace_data),
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_CBTF_mem_exttrace_data),
              reinterpret_cast<char*>(&data));
-#endif
 }

@@ -57,8 +57,8 @@ namespace OpenSpeedShop { namespace Framework {
 
 	/** Default constructor. */
 	Extent() :
-	    dm_range(),
-	    dm_interval()
+	    dm_interval(),
+	    dm_range()
 	{
 	}
 

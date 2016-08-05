@@ -102,6 +102,7 @@ add_custom_command(
     DEPENDS
         ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.x
     )
+add_custom_target(rundataheader ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h)
 
 if(LIBMONITOR_FOUND)
   add_custom_command(
