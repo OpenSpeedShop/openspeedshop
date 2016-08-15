@@ -15,12 +15,11 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
-#        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_Papi_Events.h
 
 set(RT_SOURCES
 	Assert.h
         ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
-        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.c
+        ${CMAKE_CURRENT_BINARY_DIR}/offline.h
 	OpenSS_DecodeParameters.c
 	OpenSS_EncodeParameters.c
 	OpenSS_GetAddressOfFunction.c
@@ -75,6 +74,7 @@ set(UNWIND_SOURCES
     )
 
 set(PAPI_SOURCES
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_Papi_Events.h
 	OpenSS_Overflow.c
 	PapiAPI.c
 	PapiAPI.h
@@ -102,7 +102,6 @@ add_custom_command(
     DEPENDS
         ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.x
     )
-add_custom_target(rundataheader ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h)
 
 if(LIBMONITOR_FOUND)
   add_custom_command(
@@ -237,7 +236,6 @@ if(LIBMONITOR_FOUND)
         COMMENT "Copying offline_monitor.o to the install directory for static linking via osslink..."
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} 
     )
-    add_custom_target(runofflinemonitor ALL DEPENDS ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/openspeedshop/offline_monitor.o) 
 
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 endif()
@@ -285,7 +283,6 @@ if(PAPI_FOUND AND RUNTIME_ONLY MATCHES "false" AND HAVE_RUNTIME_DIR MATCHES "fal
        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/create_events_include
        COMMENT "Generating OpenSS_Papi_Events.h..."
     )
-    add_custom_target(run ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_Papi_Events.h) 
 
 else()
     add_custom_command(
@@ -295,7 +292,6 @@ else()
        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/create_events_include
        COMMENT "Generating OpenSS_Papi_Events.h..."
     )
-    add_custom_target(run ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_Papi_Events.h) 
 endif()
 
 if(LIBUNWIND_FOUND)
