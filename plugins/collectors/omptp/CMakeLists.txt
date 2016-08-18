@@ -1,6 +1,5 @@
 ################################################################################
-# Copyright (c) 2014-2016 Krell Institute. All Rights Reserved.
-# Copyright (c) 2015,2016 Argo Navis Technologies. All Rights Reserved.
+# Copyright (c) 2016 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -17,30 +16,34 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-add_subdirectory(pcsamp)
-add_subdirectory(usertime)
-add_subdirectory(hwc)
-add_subdirectory(hwcsamp)
-add_subdirectory(hwctime)
-add_subdirectory(io)
+set(PLUGIN_SOURCES
+    OmptPDetail.hxx
+    OmptPCollector.hxx OmptPCollector.cxx
+)
 
-# FIXME iot has problems with syscall types on ARM
-if (NOT RUNTIME_PLATFORM MATCHES "arm")
-   add_subdirectory(iot)
-endif()
+add_library(omptp MODULE
+    ${PLUGIN_SOURCES}
+)
 
-add_subdirectory(mpi)
-add_subdirectory(mpit)
+target_include_directories(omptp PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CBTF_MESSAGES_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/libopenss-runtime
+    ${PROJECT_SOURCE_DIR}/libopenss-framework
+    ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+)
 
-# with cmake are we deciding to not support fpe?
-#add_subdirectory(fpe)
+target_link_libraries(omptp
+    pthread
+    openss-framework
+    ${CBTF_MESSAGES_LIBRARIES}
+    ${CMAKE_DL_LIBS}
+)
 
-add_subdirectory(mem)
-add_subdirectory(pthreads)
-add_subdirectory(iop)
-add_subdirectory(mpip)
-add_subdirectory(omptp)
+set_target_properties(omptp PROPERTIES PREFIX "")
 
-if(BUILD_CUDA_SUPPORT)
-    add_subdirectory(cuda)
-endif()
+install(TARGETS omptp
+    LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
+)
+

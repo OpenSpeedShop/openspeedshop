@@ -56,4 +56,5 @@ add_subdirectory(HWCSampPanel)
 # Take out this if PAPI_FOUND check so that OSS/CBTF builds the
 # hwc* panels: endif()
 
+add_subdirectory(OMPTPPanel)
 endif()

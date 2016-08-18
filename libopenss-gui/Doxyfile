@@ -35,6 +35,7 @@ INPUT            = ../libopenss-guibase ../libopenss-guichart \
                    ../plugins/panels/pcSamplePanel ../plugins/panels/SourcePanel \
                    ../plugins/panels/StatsPanel ../plugins/panels/TemplatePanel \
                    ../plugins/panels/UserTimePanel \
+                   ../plugins/panels/OMPTPPanel \
                    ../plugins/wizards/IntroWizardPanel \
                    ../plugins/wizards/pcSampleWizardPanel \
                    ../plugins/wizards/UserTimeWizardPanel \

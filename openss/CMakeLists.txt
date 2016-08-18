@@ -324,6 +324,8 @@ else()
 	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
             install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver ossiop
 	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
+            install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver ossomptp
+	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
         endif()
 
         # create cuda driver link
