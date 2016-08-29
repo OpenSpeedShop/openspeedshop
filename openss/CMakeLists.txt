@@ -262,6 +262,7 @@ else()
 	    openss-framework-cbtf
             openss-framework-symtabapi
             pthread
+	    ${OpenMP_RT_NAME}
             ${CMAKE_DL_LIBS}
             rt
         )
