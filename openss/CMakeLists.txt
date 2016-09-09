@@ -143,6 +143,8 @@ else()
         add_definitions(${OpenMP_C_FLAGS})
         if (${OpenMP_C_FLAGS} MATCHES "-fopenmp")
            set(OpenMP_RT_NAME "gomp")
+        elseif (${OpenMP_C_FLAGS} MATCHES "-qopenmp")
+           set(OpenMP_RT_NAME "iomp5")
         elseif (${OpenMP_C_FLAGS} MATCHES "-openmp")
            set(OpenMP_RT_NAME "iomp5")
         else()
@@ -260,6 +262,7 @@ else()
 	    openss-framework-cbtf
             openss-framework-symtabapi
             pthread
+	    ${OpenMP_RT_NAME}
             ${CMAKE_DL_LIBS}
             rt
         )

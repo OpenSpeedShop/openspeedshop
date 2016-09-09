@@ -64,7 +64,9 @@ endif()
     )
 
 set(FW_SOURCES
-        OpenSS_DataHeader.c
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.c
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
+        ${CMAKE_CURRENT_BINARY_DIR}/offline.h
         Address.hxx
         AddressBitmap.hxx AddressBitmap.cxx
         AddressRange.hxx
@@ -115,6 +117,7 @@ set(FW_SOURCES
     )
 
 set(BINUTILS_SOURCES
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
 	offline.c
 	BFDSymbols.hxx
 	BFDSymbols.cxx
