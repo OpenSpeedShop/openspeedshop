@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2014 Krell Institute. All Rights Reserved.
-// Copyright (c) 2014,2015 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -56,9 +56,7 @@ static const string kLong  =
     "    HWPC     CPU/GPU hardware performance counters\n"
     "\n"
     "The form of the displayed infomation is controlled thru additional '-v'\n"
-    "options. Except for the '-v Trace' option, the report will be sorted in\n"
-    "descending order of the values in the leftmost column. These additional\n"
-    "'-v' options are:\n"
+    "options. For '-v Exec' and '-v Xfer' these additional '-v' options are:\n"
     "\n"
     "    ButterFly                Produces a report summarizing the calls to\n"
     "                             and from the one or more functions specified\n"
@@ -66,13 +64,11 @@ static const string kLong  =
     "                             functions will be listed before the named\n"
     "                             function, and called functions afterwards,\n"
     "                             by default, unless 'TraceBacks' is specified\n"
-    "                             to reverse this ordering. Does not apply to\n"
-    "                             '-v HWPC'.\n"
+    "                             to reverse this ordering.\n"
     "\n"
     "    CallTree[s]              Produces a calling stack report presented'\n"
     "                             in calling tree order, from the executable's\n"
-    "                             start toward the measurement locations. Does\n"
-    "                             not apply to '-v HWPC'.\n"
+    "                             start toward the measurement locations.\n"
     "\n"
     "    (DSO|LinkedObject)[s]    Produces a summary report by linked object.\n"
     "\n"
@@ -82,7 +78,6 @@ static const string kLong  =
     "                             Redundant call stack frames are suppressed\n"
     "                             by default if this option isn't specified.\n"
     "\n"
-
     "    Function[s]              Produces a summary report by function.\n"
     "                             This is the default.\n"
     "\n"    
@@ -101,14 +96,14 @@ static const string kLong  =
     "    Trace                    Produces a report of each individual CUDA\n"
     "                             kernel execution or data transfer, sorted in\n"
     "                             ascending order of the event's start time.\n"
-    "                             Does not apply to '-v HWPC'.\n"
     "\n"
     "    TraceBack[s]             Produces a calling stack report presented\n"
     "                             in traceback order, from the measurement\n"
     "                             locations toward the executable's start.\n"
-    "                             Does not apply to '-v HWPC'.\n"
     "\n"
-    "Multiple '-v' values can be delimited with commas. E.g. '-v Exec,Trace'.\n"
+    "Except for the '-v Trace' option, the report will be sorted in descending\n"
+    "order of the values in the leftmost column. Multiple '-v' values can be\n"
+    "delimited with commas. E.g. '-v Exec,Trace'.\n"
     "\n"
     "Finally, the columns included in the report can be controlled using the\n"
     "'-m' option. More than one column may be specified in a comma-delimited\n"
@@ -157,21 +152,30 @@ static const string kLong  =
     "    dest     Kind of memory to which the data transfer was performed\n"
     "    async    Was the data transfer asynchronous?\n"
     "\n"
-    "The following '-m' options are available for '-v HWPC':\n"
-    "\n"
-    "    ... Not Implemented Yet ...\n"
-    "\n"
     "The default columns used for various '-v' combinations are:\n"
     "\n"
     "    -v Exec,Trace                   -m start,time,%time,grid,block\n"
     "    -v Xfer,Trace                   -m start,time,%time,size,kind\n"
     "    -v (Exec|Xfer),Butterfly        -m inclusive_time,%inclusive_time\n"
     "    -v (Exec|Xfer)[,<all-other>]    -m time,%time,count\n"
+    "\n"
+    "The '-v HWPC' view works differently in that it only displays the sampled\n"
+    "CPU/GPU hardware performance counters as a function of time. I.e. it does\n"
+    "not display data as a function of source code constructs. Thus only the\n"
+    "'-v Summary' and '-v SummaryOnly' options apply.\n"
+    "\n"
+    "It also interprets the positive integer added to the end of the keyword\n"
+    "'cuda' differently. Instead of being the maximum number of reported items\n"
+    "it specifies the fixed sampling interval (in ms) at which the data should\n"
+    "be resampled before display. The default value (0) is given the special\n"
+    "meaning that the original sampling interval should be used instead.\n"
     "\n";
 
 static const string kExample =
     "\texpView cuda\n"
-    "\texpView -v Xfer,CallTrees,FullStack cuda10 -m min,max,count\n";
+    "\texpView -v Xfer,CallTrees,FullStack cuda10 -m min,max,count\n"
+    "\texpView -v HWPC,Summary cuda33\n"
+    "\n";
 
 static const string kCollectors[] = { "cuda", "" };
 

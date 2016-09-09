@@ -29,6 +29,7 @@
 #include <ArgoNavis/CUDA/DataTransferVisitor.hpp>
 #include <ArgoNavis/CUDA/KernelExecution.hpp>
 #include <ArgoNavis/CUDA/KernelExecutionVisitor.hpp>
+#include <ArgoNavis/CUDA/PeriodicSampleVisitor.hpp>
  
 #include "AddressRange.hxx"
 #include "Metadata.hxx"
@@ -59,6 +60,16 @@ namespace {
     /** Type returned for the CUDA data transfer detail metrics. */
     typedef map<StackTrace, vector<CUDAXferDetail> > XferDetails;
 
+    /** Visitor used to compute the count_exclusive_details metric. */
+    bool computeCounts(const Base::Time& time,
+                       const vector<boost::uint64_t>& counts,
+                       vector<CUDACountsDetail>& results)
+    {
+        results.push_back(CUDACountsDetail(time, counts));
+        
+        return true; // Always continue the visitation
+    }
+    
     /**
      * Visitor used to compute [exec|xfer]_[exclusive|inclusive]_detail metrics.
      */
@@ -111,9 +122,9 @@ namespace {
             }
         }
 
-        return true; // Always continue the visitation        
+        return true; // Always continue the visitation
     }
-    
+
     /** Visitor used to compute [exec|xfer]_time metrics. */
     template <typename T>
     bool computeTime(const T& info,
@@ -214,11 +225,15 @@ CUDACollector::CUDACollector() :
                            "Exclusive CUDA data transfer details.",
                            typeid(XferDetails)));
 
+    declareMetric(Metadata("count_counters",
+                           "Sampled HWC Names",
+                           "Names of all sampled hardware performance counters.",
+                           typeid(vector<string>)));
+    
     declareMetric(Metadata("count_exclusive_details",
-                           "Exclusive CUDA HWC Details",
-                           "Exclusive CUDA hardware performance counter "
-                           "details.",
-                           typeid(CUDACountsDetail)));
+                           "Exclusive HWC Details",
+                           "Exclusive hardware performance counter details.",
+                           typeid(vector<CUDACountsDetail>)));
 }
 
 
@@ -379,25 +394,41 @@ void CUDACollector::getMetricValues(const string& metric,
 
     dm_current = make_pair(thread, subextents);
 
-    if (metric == "count_exclusive_details")
+    if (metric == "count_counters")
     {
-        vector<CUDACountsDetail>& data =
-            *reinterpret_cast<vector<CUDACountsDetail>*>(ptr);
+        vector<vector<string> >& data = 
+            *reinterpret_cast<vector<vector<string> >*>(ptr);
         
-        data[0] = CUDACountsDetail(
-            dm_data.counters(),
-            dm_data.counts(
+        for (ExtentGroup::size_type i = 0; i < subextents.size(); ++i)
+        {
+            data[i] = dm_data.counters();
+        }
+    }
+
+    else if (metric == "count_exclusive_details")
+    {
+        vector<vector<CUDACountsDetail> >& data = 
+            *reinterpret_cast<vector<vector<CUDACountsDetail> >*>(ptr);
+
+        for (ExtentGroup::size_type i = 0; i < subextents.size(); ++i)
+        {
+            CUDA::PeriodicSampleVisitor visitor = bind(
+                &computeCounts, _1, _2, boost::ref(data[i])
+                );
+            
+            dm_data.visitPeriodicSamples(
                 ConvertToArgoNavis(thread),
-                ConvertToArgoNavis(subextents[0].getTimeInterval())
-                )
-            );
+                ConvertToArgoNavis(subextents[i].getTimeInterval()),
+                visitor
+                );
+        }
     }
 
     else if (metric == "exec_time")
     {
         CUDA::KernelExecutionVisitor visitor = bind(
-            &computeTime<CUDA::KernelExecution>,
-            _1, boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            &computeTime<CUDA::KernelExecution>, _1,
+            boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
             boost::ref(*reinterpret_cast<vector<double>*>(ptr))
             );
         
@@ -411,8 +442,8 @@ void CUDACollector::getMetricValues(const string& metric,
     else if (metric == "exec_inclusive_details")
     {
         CUDA::KernelExecutionVisitor visitor = bind(
-            &computeDetails<CUDA::KernelExecution, ExecDetails, true>,
-            _1, boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            &computeDetails<CUDA::KernelExecution, ExecDetails, true>, _1,
+            boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
             boost::ref(*reinterpret_cast<vector<ExecDetails>*>(ptr))
             );
         
@@ -426,8 +457,8 @@ void CUDACollector::getMetricValues(const string& metric,
     else if (metric == "exec_exclusive_details")
     {
         CUDA::KernelExecutionVisitor visitor = bind(
-            &computeDetails<CUDA::KernelExecution, ExecDetails, false>,
-            _1, boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            &computeDetails<CUDA::KernelExecution, ExecDetails, false>, _1,
+            boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
             boost::ref(*reinterpret_cast<vector<ExecDetails>*>(ptr))
             );
         
@@ -456,8 +487,8 @@ void CUDACollector::getMetricValues(const string& metric,
     else if (metric == "xfer_inclusive_details")
     {
         CUDA::DataTransferVisitor visitor = bind(
-            &computeDetails<CUDA::DataTransfer, XferDetails, true>,
-            _1, boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            &computeDetails<CUDA::DataTransfer, XferDetails, true>, _1,
+            boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
             boost::ref(*reinterpret_cast<vector<XferDetails>*>(ptr))
             );
         
@@ -471,8 +502,8 @@ void CUDACollector::getMetricValues(const string& metric,
     else if (metric == "xfer_exclusive_details")
     {
         CUDA::DataTransferVisitor visitor = bind(
-            &computeDetails<CUDA::DataTransfer, XferDetails, false>,
-            _1, boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            &computeDetails<CUDA::DataTransfer, XferDetails, false>, _1,
+            boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
             boost::ref(*reinterpret_cast<vector<XferDetails>*>(ptr))
             );
         
