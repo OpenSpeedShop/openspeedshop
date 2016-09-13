@@ -24,6 +24,7 @@
  */
 
 #include <cmath>
+
 // The CommandResult_(objects)
 
 // types of results that can be returned in a CommandObject
@@ -513,11 +514,8 @@ class CommandResult_Float :
     if (isnan(float_value)) return std::string ("nan");
     char F[20];
     F[0] = *("%"); // left justify in field
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-contains-nul"
     sprintf(&F[1], "%lld.%lldf\0", static_cast<long long int>(fieldsize),
             static_cast<long long int>(OPENSS_VIEW_PRECISION));
-#pragma GCC diagnostic pop
 
     char s[OPENSS_VIEW_FIELD_SIZE];
     sprintf ( s, &F[0], float_value);
@@ -1675,11 +1673,8 @@ class CommandResult_Interval : public CommandResult {
 
     char F[20];
     F[0] = *("%"); // left justify in field
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-contains-nul"
     sprintf(&F[1], "%lld.%lldf\0", static_cast<long long int>(fieldsize),
             static_cast<long long int>(OPENSS_VIEW_PRECISION));
-#pragma GCC diagnostic pop
 
     char s[OPENSS_VIEW_FIELD_SIZE];
     sprintf ( s, &F[0], float_value);
