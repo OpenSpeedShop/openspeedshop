@@ -189,7 +189,7 @@ static optional<Collector> get_collector(const Experiment& experiment)
 
 
 
-/** Get the counts for the specified threads (over an optional time interval). */
+/** Get the counts for the specified threads over an optional time interval. */
 static vector<set<CUDACountsDetail> > get_counts(
     const Collector& collector, const ThreadGroup& threads,
     const TimeInterval& interval = TimeInterval(Time::TheBeginning(),
@@ -277,8 +277,9 @@ pair<UInt64, vector<vector<UInt64> > > resample(
     UInt64 tinterval = (interval != 0) ? interval :
         (1000000 /* ms/ns */ * static_cast<UInt64>(
             round(
-                static_cast<double>(compute_average_sampling_interval(counts)) / 
-                1000000.0 /* ms/ns */
+                static_cast<double>(
+                    compute_average_sampling_interval(counts)
+                    ) / 1000000.0 /* ms/ns */
                 )
             ));
     
@@ -287,7 +288,7 @@ pair<UInt64, vector<vector<UInt64> > > resample(
     TimeInterval smallest = compute_smallest_time_interval(counts);
     
     UInt64 tbegin = tinterval * (smallest.getBegin().getValue() / tinterval);
-    UInt64   tend = tinterval * (1 + (smallest.getEnd().getValue() / tinterval));
+    UInt64 tend = tinterval * (1 + (smallest.getEnd().getValue() / tinterval));
     
     UInt64 nsamples = (tend - tbegin) / tinterval;
     
@@ -421,11 +422,12 @@ pair<UInt64, vector<vector<UInt64> > > resample(
                 
                 for (size_t c = 0; c < ncounters; ++c)
                 {
-                    UInt64 dc_inter = static_cast<UInt64>(
-                        round(static_cast<double>(dc_orig[c]) * 
-                              static_cast<double>(dt_inter) /
-                              static_cast<double>(dt_orig))
-                        );
+                    UInt64 dc_inter = (dt_orig == 0) ? 0 :
+                        static_cast<UInt64>(
+                            round(static_cast<double>(dc_orig[c]) * 
+                                  static_cast<double>(dt_inter) /
+                                  static_cast<double>(dt_orig))
+                            );
                     
 #if defined(DEBUG_RESAMPLING)
                     if (DoDebug)
@@ -493,7 +495,8 @@ bool generate_cuda_hwpc_view(CommandObject* command,
 
     bool show_summary_only = Look_For_KeyWord(command, "SummaryOnly");
 
-    bool show_summary = Look_For_KeyWord(command, "Summary") | show_summary_only;
+    bool show_summary =  show_summary_only |
+        Look_For_KeyWord(command, "Summary");
 
     // Get the counts for the specified threads
     vector<set<CUDACountsDetail> > counts = get_counts(*collector, threads);
@@ -536,7 +539,7 @@ bool generate_cuda_hwpc_view(CommandObject* command,
     UInt64 scale_gpu = 
         *max_element(data_gpu.begin(), data_gpu.end()) / kHistogramBins;
 
-    bool show_balance = had_cpu && had_gpu;
+    bool show_balance = had_cpu || had_gpu;
 
     // Generate the headers for the view
 
@@ -597,8 +600,8 @@ bool generate_cuda_hwpc_view(CommandObject* command,
             {
                 string balance;
                 
-                size_t ncpu = data_cpu[i] / scale_cpu;
-                size_t ngpu = data_gpu[i] / scale_gpu;
+                size_t ncpu = (scale_cpu == 0) ? 0 : (data_cpu[i] / scale_cpu);
+                size_t ngpu = (scale_gpu == 0) ? 9 : (data_gpu[i] / scale_gpu);
                 
                 balance += "|";
                 
