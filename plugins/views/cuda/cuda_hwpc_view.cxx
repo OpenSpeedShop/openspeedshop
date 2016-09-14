@@ -46,8 +46,21 @@ typedef boost::uint64_t UInt64;
 
 
 static const map<string, string> kCounters = assign::map_list_of
-    ("PAPI_FP_OPS", "CPU FLOPS")
-    ("flop_count_sp", "GPU FLOPS");
+    ("PAPI_TOT_INS", "CPU All")
+    ("PAPI_BR_INS", "CPU Branches")
+    ("PAPI_INT_INS", "CPU Integer")
+    ("PAPI_SP_OPS", "CPU Float (Single)")
+    ("PAPI_DP_OPS", "CPU Float (Double)")
+    ("PAPI_LST_INS", "CPU Load/Store")
+    ("inst_executed", "GPU All")
+    ("inst_control", "GPU Branches")
+    ("inst_integer", "GPU Integer")
+    ("flop_count_sp", "GPU Float (Single)")
+    ("flop_count_dp", "GPU Float (Double)")
+    ("ldst_executed", "GPU Load/Store")
+    ;
+
+
 
 static const string kOptions[] = {
     "HWPC", // This is the option that selects this particular sub-view
