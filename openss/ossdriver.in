@@ -140,9 +140,6 @@ mpiotf_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,M
 # Corresponds to OPENSS_FPE_EVENT or CBTF_FPE_EVENT
 fpe_default_events="inexact_result,division_by_zero,underflow,overflow,invalid_operation"
 
-# Corresponds to OPENSS_CUDA_CONFIG or CBTF_CUDA_CONFIG
-cuda_default_config="interval=10000000,PAPI_TOT_CYC"
-
 #
 # END DEFAULT VALUES
 #
@@ -340,25 +337,35 @@ if [[ -z "$1" || $show_help == 1 ]] ; then
      echo "Example: pthread_create"
 
    elif [ "$experiment_name" == "osscuda" ]; then
-     echo "            \"config\"  - Specify the hardware event sampling configuration to be"
-     echo "                        used. Consists of a comma-delimited list of parameters."
-     echo "                        The allowed parameters are:"
-     echo "                            interval=<n>   The periodic sampling interval (nS)."
-     echo "                            <event>[@<n>]  The PAPI event and, optionally, a"
-     echo "                                           overflow threshold for event-based"
-     echo "                                           PC sampling. E.g. \"PAPI_TOT_CYC\" to"
-     echo "                                           periodically sample the total cycles"
-     echo "                                           or \"PAPI_TOT_CYC@1000000\" to sample"
-     echo "                                           the PC every 1,000,000 cycles."
-     echo "                        E.g. \"interval=1000000,PAPI_TOT_CYC,PAPI_TOT_INS@100000\""
-     echo "                        would sample total cycles and floating-point operations"
-     echo "                        every 1 mS, and also sample the PC for every 100,000"
-     echo "                        floating-point operations. Trace data is collected for"
-     echo "                        all kernel executions and memory operations regardless"
-     echo "                        of whether this hardware event sampling is enabled."
-     echo "                        Run \"papi_avail\" and/or \"papi_native_avail\" to find"
-     echo "                        the available hardware counter events for this platform."
-
+     echo "The following arguments control the peroidic sampling of both CPU and GPU"
+     echo "hardware performance counters performed by the $collector collector:"
+     echo ""
+     echo "         \"all\" - Periodically sample all instructions."
+     echo "    \"branches\" - Periodically sample branch instructions."
+     echo "     \"integer\" - Periodically sample integer instructions."
+     echo "      \"single\" - Periodically sample single-precision float instructions."
+     echo "      \"double\" - Periodically sample double-precision float instructions."
+     echo "      \"memory\" - Periodically sample load/store instructions."
+     echo ""
+     echo "         \"low\" - Periodically sample the requested instructions every 100 ms."
+     echo "     \"default\" - Periodically sample the requested instruutions every 10 ms."
+     echo "        \"high\" - Periodically sample the requested instructions every 1 ms."
+     echo ""
+     echo "In addition, a custom sampling configuarion can be specified by setting"
+     echo "the OPENSS_CUDA_CONFIG environment variable to a comma-delimited list of"
+     echo "parameters. The allowed parameters are:"
+     echo ""
+     echo "     interval=<n>    The periodic sampling interval (nS)."
+     echo "    <event>[@<n>]    The PAPI or CUPTI event/metric and, optionally, a overflow"
+     echo "                     threshold for event-based PC sampling (CPU only). E.g. use"
+     echo "                     \"PAPI_TOT_CYC\" to peroidically sample CPU total cycles or"
+     echo "                     \"PAPI_TOT_CYC@1000000\" to sample the PC every 1,000,000"
+     echo "                     CPU total cycles."
+     echo ""
+     echo "Run \"papi_avail\", \"papi_native_avail\", and/or \"cupti_query\" to discover the"
+     echo "available hardware counter events available for a specific platform. Trace"
+     echo "data is collected for all kernel executions and data transfers regardless of"
+     echo "whether any hardware counter sampling has been configured."
    fi
    echo ""
    exit
@@ -1569,49 +1576,69 @@ case "$experiment_name" in
 # -- CUDA EXPERIMENT SPECIFIC CODE ---------------------------------------------------
 # ------------------------------------------------------------------------------------
 
-  osscuda|osscudaio)
+  osscuda)
 
-  if [ "$instrumentor" != "cbtf" ] ; then
-      echo "[openss]: $collector experiment not supported by instrumentor $intrumentor."
-  fi
-
-  default_config=$cuda_default_config
-  env_config_set=false
-  if [ ! -z "$OPENSS_CUDA_CONFIG" ] ; then
-    env_config_set=true
-  fi
-
-  if [ "$string_value" != "" ] ; then
-    if [ "$env_config_set" == true ] ; then
-      echo "[openss]: $collector experiment using specified configuration: \"$string_value\". Ignoring environment variable OPENSS_CUDA_CONFIG"
-      env_config_set=false
+    if [ ! -z "$OPENSS_CUDA_CONFIG" ] ; then
+      echo "[openss]: $collector using configuration from OPENSS_CUDA_CONFIG."
+      cuda_config=$OPENSS_CUDA_CONFIG
     else
-      echo "[openss]: $collector experiment using specified configuration: \"$string_value\"."
-      env_config_set=true
-    fi
-    OPENSS_CUDA_CONFIG=$string_value
-  elif [ "$use_default_flag" == 1 ] ; then
-    if [ "$env_config_set" == true ] ; then
-      echo "[openss]: $collector using default experiment configuration Ignoring environment variable OPENSS_CUDA_CONFIG"
-      env_config_set=false
-    else
-      echo "[openss]: $collector using default experiment configuration"
-      env_config_set=false
-    fi
-  else
-    if [ "$env_config_set" == true ] ; then
-      echo "[openss]: $collector using configuration from OPENSS_CUDA_CONFIG"
-    else
-      echo "[openss]: $collector using default experiment configuration"
-    fi
-  fi
 
-  if [ "$env_config_set" == true ] ; then 
-      CBTF_CUDA_CONFIG=$OPENSS_CUDA_CONFIG
-      export CBTF_CUDA_CONFIG
-  fi
+      case $string_value in
 
-  ;;
+        branches)
+	  echo "[openss]: $collector counting branch instructions for CPU and GPU."
+	  cuda_counters="PAPI_BR_INS,inst_control"
+	  ;;
+
+        integer)
+	  echo "[openss]: $collector counting integer instructions for CPU and GPU."
+	  cuda_counters="PAPI_INT_INS,inst_integer"
+	  ;;
+
+        single)
+	  echo "[openss]: $collector counting single-precision float instructions for CPU and GPU."
+	  cuda_counters="PAPI_SP_OPS,flop_count_sp"
+	  ;;
+
+        double)
+	  echo "[openss]: $collector counting double-precision float instructions for CPU and GPU."
+	  cuda_counters="PAPI_DP_OPS,flop_count_dp"
+	  ;;
+
+        memory)
+	  echo "[openss]: $collector counting load/store instructions for CPU and GPU."
+	  cuda_counters="PAPI_LST_INS,ldst_executed"
+	  ;;
+
+        *)
+	  echo "[openss]: $collector counting all instructions for CPU and GPU."
+	  cuda_counters="PAPI_TOT_INS,inst_executed"
+	  ;;
+
+      esac
+
+      if [ $low_flag == "true" ]; then
+        echo "[openss]: $collector using \"low\" periodic sampling rate (100 ms)."
+	cuda_interval=100000000
+      elif [ $high_flag == "true" ]; then
+        echo "[openss]: $collector using \"high\" periodic sampling rate (1 ms)."
+	cuda_interval=1000000
+      else
+        echo "[openss]: $collector using default periodic sampling rate (10 ms)."
+	cuda_interval=10000000
+      fi
+
+      OPENSS_CUDA_CONFIG="interval=$cuda_interval,$cuda_counters"
+      export OPENSS_CUDA_CONFIG
+
+    fi
+
+    echo "[openss]: $collector configuration: \"$OPENSS_CUDA_CONFIG\""
+
+    CBTF_CUDA_CONFIG=$OPENSS_CUDA_CONFIG
+    export CBTF_CUDA_CONFIG
+
+    ;;
 
 esac
 

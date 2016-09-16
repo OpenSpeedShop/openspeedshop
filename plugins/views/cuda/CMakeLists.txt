@@ -39,7 +39,6 @@ target_include_directories(cuda_view PUBLIC
 target_link_libraries(cuda_view
     openss-cli
     openss-queries-cuda
-    pthread
     ${CMAKE_DL_LIBS}
     )
 
