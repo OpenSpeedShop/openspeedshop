@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <algorithm>
-#include <boost/assign/list_of.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/optional.hpp>
 #include <cassert>
@@ -25,6 +24,8 @@
 #include <set>
 #include <string>
 #include <utility>
+
+#include <ArgoNavis/CUDA/stringify.hpp>
 
 #include "SS_Input_Manager.hxx"
 #include "SS_View_Expr.hxx"
@@ -42,23 +43,6 @@ using namespace OpenSpeedShop::Framework;
 using namespace std;
 
 typedef boost::uint64_t UInt64;
-
-
-
-static const map<string, string> kCounters = assign::map_list_of
-    ("PAPI_TOT_INS", "CPU All")
-    ("PAPI_BR_INS", "CPU Branches")
-    ("PAPI_INT_INS", "CPU Integer")
-    ("PAPI_SP_OPS", "CPU Float (Single)")
-    ("PAPI_DP_OPS", "CPU Float (Double)")
-    ("PAPI_LST_INS", "CPU Load/Store")
-    ("inst_executed", "GPU All")
-    ("inst_control", "GPU Branches")
-    ("inst_integer", "GPU Integer")
-    ("flop_count_sp", "GPU Float (Single)")
-    ("flop_count_dp", "GPU Float (Double)")
-    ("ldst_executed", "GPU Load/Store")
-    ;
 
 
 
@@ -251,8 +235,9 @@ static vector<string> get_counters(const Collector& collector,
     for (vector<string>::const_iterator
              i = data[0].begin(); i != data[0].end(); ++i)
     {
-        map<string, string>::const_iterator j = kCounters.find(*i);
-        counters.push_back((j == kCounters.end()) ? *i : j->second);
+        using namespace ArgoNavis::CUDA;
+
+        counters.push_back(stringify<>(CounterName(*i)));
     }
     
     return counters;
