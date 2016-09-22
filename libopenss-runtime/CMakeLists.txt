@@ -19,6 +19,7 @@
 set(RT_SOURCES
 	Assert.h
         ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.c
         ${CMAKE_CURRENT_BINARY_DIR}/offline.h
 	OpenSS_DecodeParameters.c
 	OpenSS_EncodeParameters.c
@@ -69,21 +70,18 @@ endif()
 
 
 set(UNWIND_SOURCES
-        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
 	OpenSS_GetStackTraceFromContext.c
 	UnwindAPI.h
     )
 
 set(PAPI_SOURCES
         ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_Papi_Events.h
-        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
 	OpenSS_Overflow.c
 	PapiAPI.c
 	PapiAPI.h
     )
 
 set(BINUTILS_SOURCES
-        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
 	BinutilsAPI.h 
         OpenSS_GetInstrLength.c
     )
