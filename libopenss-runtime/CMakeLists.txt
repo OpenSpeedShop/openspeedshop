@@ -238,6 +238,7 @@ if(LIBMONITOR_FOUND)
         COMMENT "Copying offline_monitor.o to the install directory for static linking via osslink..."
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} 
     )
+    add_custom_target(runofflinemonitor ALL DEPENDS ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/openspeedshop/offline_monitor.o)
 
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 endif()
