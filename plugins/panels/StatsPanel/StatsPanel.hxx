@@ -361,7 +361,7 @@ class StatsPanel  : public Panel
     ColumnValueClass columnValueClass[80];
     int *metricHeaderTypeArray;  // matches the QListView # of column entries.
 
-    std::vector< std::pair<std::string, std::string>> demangled_mangled_vector;
+    std::vector< std::pair<std::string, std::string> > demangled_mangled_vector;
 
     std::list<std::string> list_of_hosts;
     std::list<std::string> list_of_executables;
