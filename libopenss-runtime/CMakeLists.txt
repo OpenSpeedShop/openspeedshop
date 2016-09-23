@@ -70,6 +70,7 @@ endif()
 
 
 set(UNWIND_SOURCES
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
 	OpenSS_GetStackTraceFromContext.c
 	UnwindAPI.h
     )
