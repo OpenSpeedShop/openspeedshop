@@ -76,6 +76,7 @@ set(UNWIND_SOURCES
     )
 
 set(PAPI_SOURCES
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
         ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_Papi_Events.h
 	OpenSS_Overflow.c
 	PapiAPI.c
