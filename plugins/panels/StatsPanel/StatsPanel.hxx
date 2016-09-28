@@ -361,6 +361,8 @@ class StatsPanel  : public Panel
     ColumnValueClass columnValueClass[80];
     int *metricHeaderTypeArray;  // matches the QListView # of column entries.
 
+    std::vector< std::pair<std::string, std::string> > demangled_mangled_vector;
+
     std::list<std::string> list_of_hosts;
     std::list<std::string> list_of_executables;
     std::list<std::string> list_of_appcommands;
@@ -438,6 +440,9 @@ class StatsPanel  : public Panel
     void getSeparateRanksAndThreadsList(int expID);
     void getSeparatePidsAndThreadsList(int expID);
     void getHostList(int expID);
+    void getDemangledMangledNames(int expID);
+    QString getMangledFunctionNameForCLI(QString inputFuncStr);
+    QString findMangledNameForCLIcommand(std::string inputFunctionStr);
     void getExecutableList(int expID);
     void updateStatsPanelInfoHeader(int expID);
     void updateToolBarStatus(QString optionChosen);
