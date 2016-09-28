@@ -41,6 +41,6 @@ add_subdirectory(iop)
 add_subdirectory(mpip)
 add_subdirectory(omptp)
 
-if(BUILD_CUDA_SUPPORT)
+if(BUILD_CUDA_ANALYSIS)
     add_subdirectory(cuda)
 endif()

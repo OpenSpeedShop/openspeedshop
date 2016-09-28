@@ -44,6 +44,6 @@ if (INSTRUMENTOR MATCHES "cbtf")
     add_subdirectory(omptp)
 endif()
 
-if(BUILD_CUDA_SUPPORT)
+if(BUILD_CUDA_ANALYSIS)
     add_subdirectory(cuda)
 endif()
