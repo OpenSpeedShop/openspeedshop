@@ -332,7 +332,7 @@ else()
         endif()
 
         # create cuda driver link
-        if(BUILD_CUDA_SUPPORT)
+        if(BUILD_CUDA_COLLECTION)
             install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver osscuda
             WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
         endif()

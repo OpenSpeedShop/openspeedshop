@@ -19,6 +19,7 @@
 set(RT_SOURCES
 	Assert.h
         ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.c
         ${CMAKE_CURRENT_BINARY_DIR}/offline.h
 	OpenSS_DecodeParameters.c
 	OpenSS_EncodeParameters.c
@@ -75,15 +76,14 @@ set(UNWIND_SOURCES
     )
 
 set(PAPI_SOURCES
-        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_Papi_Events.h
         ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_Papi_Events.h
 	OpenSS_Overflow.c
 	PapiAPI.c
 	PapiAPI.h
     )
 
 set(BINUTILS_SOURCES
-        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
 	BinutilsAPI.h 
         OpenSS_GetInstrLength.c
     )
@@ -239,6 +239,7 @@ if(LIBMONITOR_FOUND)
         COMMENT "Copying offline_monitor.o to the install directory for static linking via osslink..."
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} 
     )
+    add_custom_target(runofflinemonitor ALL DEPENDS ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/openspeedshop/offline_monitor.o)
 
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 endif()
