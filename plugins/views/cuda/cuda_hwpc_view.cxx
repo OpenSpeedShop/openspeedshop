@@ -63,7 +63,7 @@ static void cache(const Collector& collector, const ThreadGroup& threads)
                                 AddressRange(Address::TheLowest(),
                                              Address::TheHighest())));
 
-    vector<vector<string>> data(subextents.size());
+    vector<vector<string> > data(subextents.size());
     
     for (ThreadGroup::const_iterator
              i = threads.begin(); i != threads.end(); ++i)
@@ -85,7 +85,7 @@ static void reset(const Collector& collector, const ThreadGroup& threads)
                                 AddressRange(Address::TheLowest(),
                                              Address::TheHighest() + -1)));
 
-    vector<vector<string>> data(subextents.size());
+    vector<vector<string> > data(subextents.size());
 
     collector.getMetricValues<vector<string> >(
         "count_counters", *threads.begin(), subextents, data
@@ -224,7 +224,7 @@ static vector<string> get_counters(const Collector& collector,
                                 AddressRange(Address::TheLowest(),
                                              Address::TheHighest())));
 
-    vector<vector<string>> data(subextents.size());
+    vector<vector<string> > data(subextents.size());
 
     collector.getMetricValues<vector<string> >(
         "count_counters", *threads.begin(), subextents, data
