@@ -113,14 +113,14 @@ static const string kOptions[] = {
     vmax = max(vmax, v);                                                   \
     sum_squares += v * v;                                                  \
     detail_grid = str(format("%1%,%2%,%3%") %                              \
-        primary.grid.get<0>() %                                            \
-        primary.grid.get<1>() %                                            \
-        primary.grid.get<2>()                                              \
+        primary.grid.template get<0>() %                                   \
+        primary.grid.template get<1>() %                                   \
+        primary.grid.template get<2>()                                     \
         );                                                                 \
     detail_block = str(format("%1%,%2%,%3%") %                             \
-        primary.block.get<0>() %                                           \
-        primary.block.get<1>() %                                           \
-        primary.block.get<2>()                                             \
+        primary.block.template get<0>() %                                  \
+        primary.block.template get<1>() %                                  \
+        primary.block.template get<2>()                                    \
         );                                                                 \
     detail_cache = primary.cache_preference;                               \
     detail_rpt = primary.registers_per_thread;                             \
