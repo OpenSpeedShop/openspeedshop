@@ -109,6 +109,15 @@ MemCollector::MemCollector() :
     declareMetric(Metadata("inclusive_details", "Inclusive Details",
 			   "Inclusive Mem call details.",
 			   typeid(CallDetails)));
+    declareMetric(Metadata("unique_inclusive_details", "Unique Call Path Inclusive Details",
+			   "Unique Call Path Inclusive Mem call details.",
+			   typeid(CallDetails)));
+    declareMetric(Metadata("highwater_inclusive_details", "HighWater Call Path Inclusive Details",
+			   "HighWater Call Path Inclusive Mem call details.",
+			   typeid(CallDetails)));
+    declareMetric(Metadata("leaked_inclusive_details", "Memory Leak Call Path Inclusive Details",
+			   "Memory Leak Call Path Inclusive Mem call details.",
+			   typeid(CallDetails)));
     declareMetric(Metadata("exclusive_details", "Exclusive Details",
 			   "Exclusive Mem call details.",
 			   typeid(CallDetails)));
@@ -333,28 +342,41 @@ void MemCollector::getMetricValues(const std::string& metric,
 				  void* ptr) const
 {
     // Determine which metric was specified
-    bool is_time = (metric == "time");
-    bool is_inclusive_times = (metric == "inclusive_times");
-    bool is_exclusive_times = (metric == "exclusive_times");
     bool is_inclusive_details = (metric == "inclusive_details");
-    bool is_exclusive_details = (metric == "exclusive_details");
+    bool is_unique_inclusive_details = (metric == "unique_inclusive_details");
+    bool is_leaked_inclusive_details = (metric == "leaked_inclusive_details");
+    bool is_highwater_inclusive_details = (metric == "highwater_inclusive_details");
+    bool is_details = true;
+    CBTF_mem_reason view_reason = CBTF_MEM_REASON_UNKNOWN;
+
+    bool debug_metrics = false;
+    if (getenv("OPENSS_DEBUG_MEM_METRICS") != NULL) {
+	debug_metrics = true;
+    }
 
     // Don't return anything if an invalid metric was specified
-    if(!is_time &&
-       !is_inclusive_times && !is_exclusive_times &&
-       !is_inclusive_details && !is_exclusive_details)
+    if(!is_inclusive_details &&
+       !is_unique_inclusive_details &&
+       !is_leaked_inclusive_details &&
+       !is_highwater_inclusive_details) {
 	return;
+    }
      
     // Check assertions
-    if(is_time) {
-	Assert(reinterpret_cast<std::vector<double>*>(ptr)->size() >=
-	       subextents.size());
-    }
-    else if(is_inclusive_times || is_exclusive_times) {
-	Assert(reinterpret_cast<std::vector<CallTimes>*>(ptr)->size() >=
-	       subextents.size());
-    }
-    else if(is_inclusive_details || is_exclusive_details) {
+    if(is_inclusive_details) {
+	view_reason = CBTF_MEM_REASON_UNIQUE_CALLPATH;
+	Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
+	       subextents.size()); 
+    } else if (is_unique_inclusive_details) {
+	view_reason = CBTF_MEM_REASON_UNIQUE_CALLPATH;
+	Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
+	       subextents.size()); 
+    } else if (is_leaked_inclusive_details) {
+	view_reason = CBTF_MEM_REASON_STILLALLOCATED;
+	Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
+	       subextents.size()); 
+    } else if (is_highwater_inclusive_details) {
+	view_reason = CBTF_MEM_REASON_HIGHWATER_SET;
 	Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
 	       subextents.size()); 
     }
@@ -367,46 +389,49 @@ void MemCollector::getMetricValues(const std::string& metric,
     // Iterate over each of the events
     for(unsigned i = 0; i < data.events.events_len; ++i) {
 
+	//uint64_t start_time = data.events.events_val[i].start_time;
+	//uint64_t stop_time = data.events.events_val[i].stop_time;
+	Time start(data.events.events_val[i].start_time);
+	Time stop(data.events.events_val[i].stop_time);
 #if 0
-	// Get the time interval attributable to this event
-	TimeInterval interval(Time(data.events.events_val[i].start_time),
-			      Time(data.events.events_val[i].stop_time));
-#else
-        uint64_t start_time = data.events.events_val[i].start_time;
-        uint64_t stop_time = data.events.events_val[i].stop_time;
-	TimeInterval originterval(Time(data.events.events_val[i].start_time),
-			      Time(data.events.events_val[i].stop_time));
-#if 0
-	std::cerr << "MemCOLLECTOR: start_time " << start_time
-		  << " stop_time " << stop_time << std::endl;
-#endif
-        if (start_time == stop_time) {
-            stop_time = start_time + 1;
+	if (start_time == stop_time) {
+	    // ensure a valid time interval.
+	    stop_time = start_time + 1;
         } else if (start_time >= stop_time) {
-            stop_time = start_time + 1;
-        }
-        Time start(start_time);
-        Time stop(stop_time);
-        TimeInterval interval(start, stop);
+	    // ensure a valid time interval.
+	    stop_time = start_time + 1;
+	}
+#else
+	if (start == stop || start >= stop) {
+	    stop = start + 1;
+	}
 #endif
+	//Time start(start_time);
+	//Time stop(stop_time);
+	TimeInterval interval(start, stop);
 
+	StackTrace trace(thread, interval.getBegin());
+
+      // ignore all events not CBTF_MEM_REASON_UNIQUE_CALLPATH.
+      if (data.events.events_val[i].reason == view_reason)
+      {
 
 	// Get the stack trace for this event
-	StackTrace trace(thread, interval.getBegin());
 	for(unsigned j = data.events.events_val[i].stacktrace;
 	    data.stacktraces.stacktraces_val[j] != 0;
 	    ++j) {
 	    trace.push_back(Address(data.stacktraces.stacktraces_val[j]));
 	}
+      }
 	
 	// Iterate over each of the frames in this event's stack trace
 	for(StackTrace::const_iterator 
 		j = trace.begin(); j != trace.end(); ++j) {
 
 	    // Stop after the first frame if this is "exclusive" anything
-	    if((is_time || is_exclusive_times || is_exclusive_details) &&
-	       (j != trace.begin()))
-		break;
+	    //if((is_time || is_exclusive_times || is_exclusive_details) &&
+	     //  (j != trace.begin()))
+	//	break;
 
 	    // Find the subextents that contain this frame
 	    std::set<ExtentGroup::size_type> intersection =
@@ -422,28 +447,7 @@ void MemCollector::getMetricValues(const std::string& metric,
 		double t_intersection = static_cast<double>
 		    ((interval & subextents[*k].getTimeInterval()).getWidth());
 
-		// Add this event to the results for this subextent
-		if(is_time) {
-
-		    // Add this event's time (in seconds) to the results
-		    (*reinterpret_cast<std::vector<double>*>(ptr))[*k] +=
-			t_intersection / 1000000000.0;
-		    
-		}
-		else if(is_inclusive_times || is_exclusive_times) {
-
-		    // Find this event's stack trace in the results (or add it)
-		    CallTimes::iterator l =
-			(*reinterpret_cast<std::vector<CallTimes>*>(ptr))
-			[*k].insert(
-			    std::make_pair(trace, std::vector<double>())
-			    ).first;
-
-		    // Add this event's time (in seconds) to the results
-		    l->second.push_back(t_intersection / 1000000000.0);
-
-		}
-		else if(is_inclusive_details || is_exclusive_details) {
+		if(is_details) {
 
 		    // Find this event's stack trace in the results (or add it)
 		    CallDetails::iterator l =
@@ -454,36 +458,47 @@ void MemCollector::getMetricValues(const std::string& metric,
 		    
 		    // Add this event's details structure to the results
 		    MemDetail details;
-		    details.dm_interval = interval;
-		    details.dm_time = t_intersection / 1000000000.0;
-		    details.dm_memtype = data.events.events_val[i].mem_type;
+
+                    details.dm_id.second = 0;
                     std::pair<bool, int> prank = thread.getMPIRank();
                     pid_t processID = thread.getProcessId();
                     if (prank.first) {
-                       if (getenv("OPENSS_DEBUG_MEM_METRICS") != NULL) {
+                       if (debug_metrics) {
                          std::cerr << " Rank in tgrp=" << prank.second << "\n" <<  std::endl;
                        }
                        details.dm_id.first = prank.second;
                     } else {
                        details.dm_id.first = processID;
-                       if (getenv("OPENSS_DEBUG_MEM_METRICS") != NULL) {
+                       if (debug_metrics) {
                          std::cerr << " Process ID in tgrp=" << " processID= " << processID << "\n" <<  std::endl;
                        }
                     }
-                    std::pair<bool, pthread_t> posixthread1 = thread.getPosixThreadId();
-                    if ( posixthread1.first ) {
-                       details.dm_id.second = posixthread1.second;
-                       if (getenv("OPENSS_DEBUG_MEM_METRICS") != NULL) {
-                         std::cerr << " POSIX threadid in tgrp=" << posixthread1.second << "\n" <<  std::endl;
-                       }
-                    } else {
-                       details.dm_id.second = 0;
-                       if (getenv("OPENSS_DEBUG_MEM_METRICS") != NULL) {
-                         std::cerr << " POSIX threadid in tgrp=" << " 0 " << "\n" <<  std::endl;
+                    //std::pair<bool, pthread_t> posixthread1 = thread.getPosixThreadId();
+		    std::pair<bool, int> threadID = thread.getOpenMPThreadId();
+                    if ( threadID.first ) {
+                       details.dm_id.second = threadID.second;
+                       if (debug_metrics) {
+                         std::cerr << " POSIX threadid in tgrp=" << threadID.second << "\n" <<  std::endl;
                        }
                     }
 
-#if 1
+		    details.dm_reason = data.events.events_val[i].reason;
+		    //if (data.events.events_val[i].reason == CBTF_MEM_REASON_UNIQUE_CALLPATH) {
+                     //    std::cerr << " UNIQUE_CALLPATH" << " ID:" << details.dm_id.first << std::endl;
+		    details.dm_time = t_intersection / 1000000000.0;
+		    details.dm_count = data.events.events_val[i].count;
+		    //} else {
+                         //std::cerr << " OTHER_REASON" << " ID:" << details.dm_id.first << std::endl;
+		    //details.dm_time = 0;
+		    //details.dm_count = 0;
+		    //}
+
+		    details.dm_max = data.events.events_val[i].max;
+		    details.dm_min = data.events.events_val[i].min;
+		    details.dm_memtype = data.events.events_val[i].mem_type;
+		    details.dm_interval = interval;
+		    //details.dm_total_allocation = data.events.events_val[i].total_allocation;
+
 		    switch (data.events.events_val[i].mem_type) {
 
 			case CBTF_MEM_MALLOC: {
@@ -491,6 +506,7 @@ void MemCollector::getMetricValues(const std::string& metric,
 			    details.dm_ptr = data.events.events_val[i].ptr;
 			    details.dm_size1 = data.events.events_val[i].size1;
 			    details.dm_size2 = 0;
+		            details.dm_total_allocation = data.events.events_val[i].total_allocation;
 			    l->second.push_back(details);
 			break;
 			}
@@ -500,6 +516,7 @@ void MemCollector::getMetricValues(const std::string& metric,
 			    details.dm_ptr = 0;
 			    details.dm_size1 = data.events.events_val[i].size1;
 			    details.dm_size2 = data.events.events_val[i].size2;
+		            details.dm_total_allocation = data.events.events_val[i].total_allocation;
 			    l->second.push_back(details);
 			break;
 			}
@@ -509,6 +526,7 @@ void MemCollector::getMetricValues(const std::string& metric,
 			    details.dm_ptr = data.events.events_val[i].ptr;
 			    details.dm_size1 = data.events.events_val[i].size1;
 			    details.dm_size2 = 0;
+		            details.dm_total_allocation = data.events.events_val[i].total_allocation;
 			    l->second.push_back(details);
 			break;
 			}
@@ -518,6 +536,7 @@ void MemCollector::getMetricValues(const std::string& metric,
 			    details.dm_ptr = data.events.events_val[i].ptr;
 			    details.dm_size1 = 0;
 			    details.dm_size2 = 0;
+		            details.dm_total_allocation = 0;
 			    l->second.push_back(details);
 			break;
 			}
@@ -558,14 +577,20 @@ void MemCollector::getMetricValues(const std::string& metric,
 			break;
 			}
 		    }
-#else
-			    details.dm_retval = data.events.events_val[i].retval;
-			    details.dm_ptr = data.events.events_val[i].ptr;
-			    details.dm_size1 = data.events.events_val[i].size1;
-			    details.dm_size2 = data.events.events_val[i].size2;
-		    l->second.push_back(details);
-#endif
 
+#if defined(DEBUG_DETAILS)
+std::cerr << "MEM EVENT: mem_type:" << data.events.events_val[i].mem_type
+	<< " reason:" << data.events.events_val[i].reason
+	<< " retval:" << Address(data.events.events_val[i].retval)
+	<< " ptr:" << Address(data.events.events_val[i].ptr)
+	<< " size1:" << data.events.events_val[i].size1
+	<< " size2:" << data.events.events_val[i].size2
+	<< " max_alloc:" << data.events.events_val[i].max
+	<< " min_alloc:" << data.events.events_val[i].min
+	<< " tot_alloc:" << data.events.events_val[i].total_allocation
+	<< " path_cnt:" << data.events.events_val[i].count
+	<< std::endl;
+#endif
 		    
 		}
 
