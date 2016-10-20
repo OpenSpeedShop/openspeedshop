@@ -354,91 +354,230 @@ void MemCollector::getMetricValues(const std::string& metric,
 	debug_metrics = true;
     }
 
-    // Don't return anything if an invalid metric was specified
-    if(!is_inclusive_details &&
-       !is_unique_inclusive_details &&
-       !is_leaked_inclusive_details &&
-       !is_highwater_inclusive_details) {
-	return;
-    }
-     
-    // Check assertions
-    if(is_inclusive_details) {
-	view_reason = CBTF_MEM_REASON_UNIQUE_CALLPATH;
-	Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
-	       subextents.size()); 
-    } else if (is_unique_inclusive_details) {
-	view_reason = CBTF_MEM_REASON_UNIQUE_CALLPATH;
-	Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
-	       subextents.size()); 
-    } else if (is_leaked_inclusive_details) {
-	view_reason = CBTF_MEM_REASON_STILLALLOCATED;
-	Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
-	       subextents.size()); 
-    } else if (is_highwater_inclusive_details) {
-	view_reason = CBTF_MEM_REASON_HIGHWATER_SET;
-	Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
-	       subextents.size()); 
-    }
-
     // Decode this data blob
     CBTF_mem_exttrace_data data;
     memset(&data, 0, sizeof(data));
-    blob.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_CBTF_mem_exttrace_data), &data);
+    CBTF_mem_trace_data olddata;
+    memset(&olddata, 0, sizeof(olddata));
+    unsigned datasize = blob.getAndVerifyXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_CBTF_mem_exttrace_data), &data);
 
-    // Iterate over each of the events
-    for(unsigned i = 0; i < data.events.events_len; ++i) {
-
-	//uint64_t start_time = data.events.events_val[i].start_time;
-	//uint64_t stop_time = data.events.events_val[i].stop_time;
-	Time start(data.events.events_val[i].start_time);
-	Time stop(data.events.events_val[i].stop_time);
-#if 0
-	if (start_time == stop_time) {
-	    // ensure a valid time interval.
-	    stop_time = start_time + 1;
-        } else if (start_time >= stop_time) {
-	    // ensure a valid time interval.
-	    stop_time = start_time + 1;
+    bool is_old_mem_data = false;
+    if (datasize == 0) {
+	datasize = blob.getAndVerifyXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_CBTF_mem_trace_data), &olddata);
+	if (datasize == 0) {
+	    std::cerr << "xdr_CBTF_mem_trace_data failed datasize:" << datasize << std::endl;
+	    return;
+	} else {
+	    is_old_mem_data = true;
 	}
-#else
+    }
+
+    // Don't return anything if an invalid metric was specified
+    if (is_old_mem_data) {
+	if(!is_inclusive_details) {
+	    return;
+	}
+	if(is_inclusive_details) {
+	    Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
+	       subextents.size()); 
+	}
+    } else {
+	if(!is_inclusive_details && !is_unique_inclusive_details &&
+	   !is_leaked_inclusive_details && !is_highwater_inclusive_details) {
+	    return;
+	}
+	if(is_inclusive_details) {
+	    view_reason = CBTF_MEM_REASON_UNIQUE_CALLPATH;
+	} else if (is_unique_inclusive_details) {
+	    view_reason = CBTF_MEM_REASON_UNIQUE_CALLPATH;
+	} else if (is_leaked_inclusive_details) {
+	    view_reason = CBTF_MEM_REASON_STILLALLOCATED;
+	} else if (is_highwater_inclusive_details) {
+	    view_reason = CBTF_MEM_REASON_HIGHWATER_SET;
+	}
+	Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
+	       subextents.size()); 
+    }
+     
+    // HANDLE PREVIOUS mem data from old collector.
+    if (is_old_mem_data) {
+      // Iterate over each of the events
+      for(unsigned i = 0; i < olddata.events.events_len; ++i) {
+	Time start(olddata.events.events_val[i].start_time);
+	Time stop(olddata.events.events_val[i].stop_time);
 	if (start == stop || start >= stop) {
 	    stop = start + 1;
 	}
-#endif
-	//Time start(start_time);
-	//Time stop(stop_time);
 	TimeInterval interval(start, stop);
-
 	StackTrace trace(thread, interval.getBegin());
-
-      // ignore all events not CBTF_MEM_REASON_UNIQUE_CALLPATH.
-      if (data.events.events_val[i].reason == view_reason)
-      {
-
-	// Get the stack trace for this event
-	for(unsigned j = data.events.events_val[i].stacktrace;
-	    data.stacktraces.stacktraces_val[j] != 0;
-	    ++j) {
-	    trace.push_back(Address(data.stacktraces.stacktraces_val[j]));
+        if( olddata.events.events_val[i].stacktrace < olddata.stacktraces.stacktraces_len) {
+	  for(unsigned j = olddata.events.events_val[i].stacktrace;
+	      olddata.stacktraces.stacktraces_val[j] != 0; ++j) {
+	    trace.push_back(Address(olddata.stacktraces.stacktraces_val[j]));
+	  }
 	}
-      }
-	
 	// Iterate over each of the frames in this event's stack trace
 	for(StackTrace::const_iterator 
 		j = trace.begin(); j != trace.end(); ++j) {
-
-	    // Stop after the first frame if this is "exclusive" anything
-	    //if((is_time || is_exclusive_times || is_exclusive_details) &&
-	     //  (j != trace.begin()))
-	//	break;
-
 	    // Find the subextents that contain this frame
 	    std::set<ExtentGroup::size_type> intersection =
 		subextents.getIntersectionWith(
 		    Extent(interval, AddressRange(*j))
 		    );
+	    // Iterate over each subextent in the intersection
+	    for(std::set<ExtentGroup::size_type>::const_iterator
+		    k = intersection.begin(); k != intersection.end(); ++k) {
+		// Calculate intersection time (in nS) of subextent and event
+		double t_intersection = static_cast<double>
+		    ((interval & subextents[*k].getTimeInterval()).getWidth());
+		if (is_details) {
+		    // Find this event's stack trace in the results (or add it)
+		    CallDetails::iterator l =
+			(*reinterpret_cast<std::vector<CallDetails>*>(ptr))
+			[*k].insert(
+			    std::make_pair(trace, std::vector<MemDetail>())
+			    ).first;
+		    // Add this event's details structure to the results
+		    MemDetail details;
 
+                    details.dm_id.second = 0;
+                    std::pair<bool, int> prank = thread.getMPIRank();
+                    pid_t processID = thread.getProcessId();
+                    if (prank.first) {
+                       details.dm_id.first = prank.second;
+                    } else {
+                       details.dm_id.first = processID;
+                    }
+		    std::pair<bool, int> threadID = thread.getOpenMPThreadId();
+                    if ( threadID.first ) {
+                       details.dm_id.second = threadID.second;
+                    }
+
+		    details.dm_time = t_intersection / 1000000000.0;
+		    details.dm_memtype = olddata.events.events_val[i].mem_type;
+		    details.dm_interval = interval;
+		    details.dm_count = 0;
+		    details.dm_reason = CBTF_MEM_REASON_UNKNOWN;
+		    details.dm_max = 0;
+		    details.dm_min = 0;
+		    details.dm_total_allocation = 0;
+		    switch (olddata.events.events_val[i].mem_type) {
+
+			case CBTF_MEM_MALLOC: {
+			    details.dm_retval = olddata.events.events_val[i].retval;
+			    details.dm_ptr = olddata.events.events_val[i].ptr;
+			    details.dm_size1 = olddata.events.events_val[i].size1;
+			    details.dm_size2 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+
+			case CBTF_MEM_CALLOC: {
+			    details.dm_retval = olddata.events.events_val[i].retval;
+			    details.dm_ptr = 0;
+			    details.dm_size1 = olddata.events.events_val[i].size1;
+			    details.dm_size2 = olddata.events.events_val[i].size2;
+			    l->second.push_back(details);
+			break;
+			}
+
+			case CBTF_MEM_REALLOC: {
+			    details.dm_retval = olddata.events.events_val[i].retval;
+			    details.dm_ptr = olddata.events.events_val[i].ptr;
+			    details.dm_size1 = olddata.events.events_val[i].size1;
+			    details.dm_size2 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+
+			case CBTF_MEM_FREE: {
+			    details.dm_retval = olddata.events.events_val[i].retval;
+			    details.dm_ptr = olddata.events.events_val[i].ptr;
+			    details.dm_size1 = 0;
+			    details.dm_size2 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+
+			case CBTF_MEM_MEMALIGN: {
+			    details.dm_retval = olddata.events.events_val[i].retval;
+			    details.dm_ptr = 0;
+			    details.dm_size1 = olddata.events.events_val[i].size1;
+			    details.dm_size2 = olddata.events.events_val[i].size2;
+			    l->second.push_back(details);
+			break;
+			}
+
+			case CBTF_MEM_POSIX_MEMALIGN: {
+			    details.dm_retval = olddata.events.events_val[i].retval;
+			    details.dm_ptr = olddata.events.events_val[i].ptr;
+			    details.dm_size1 = olddata.events.events_val[i].size1;
+			    details.dm_size2 = olddata.events.events_val[i].size2;
+			    l->second.push_back(details);
+			break;
+			}
+
+			case CBTF_MEM_UNKNOWN: {
+			    details.dm_retval = olddata.events.events_val[i].retval;
+			    details.dm_ptr = 0;
+			    details.dm_size1 = 0;
+			    details.dm_size2 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+
+			default: {
+			    details.dm_retval = olddata.events.events_val[i].retval;
+			    details.dm_ptr = 0;
+			    details.dm_size1 = 0;
+			    details.dm_size2 = 0;
+			    l->second.push_back(details);
+			break;
+			}
+		    }
+		} // if is_details
+	    } // for intersection
+	} // for trace
+#if 0
+std::cerr << "OLD MEM EVENT: mem_type:" << olddata.events.events_val[i].mem_type
+	<< " retval:" << Address(olddata.events.events_val[i].retval)
+	<< " ptr:" << Address(olddata.events.events_val[i].ptr)
+	<< " size1:" << olddata.events.events_val[i].size1
+	<< " size2:" << olddata.events.events_val[i].size2
+	<< std::endl;
+#endif
+      } // for events.
+
+    // HANDLE REDUCED mem data from new collector.
+    } else {
+      // Iterate over each of the events
+      for(unsigned i = 0; i < data.events.events_len; ++i) {
+	Time start(data.events.events_val[i].start_time);
+	Time stop(data.events.events_val[i].stop_time);
+	if (start == stop || start >= stop) {
+	    stop = start + 1;
+	}
+	TimeInterval interval(start, stop);
+	StackTrace trace(thread, interval.getBegin());
+
+        // ignore all events not marked with view_reason.
+        if (data.events.events_val[i].reason == view_reason) {
+	  for(unsigned j = data.events.events_val[i].stacktrace;
+	    data.stacktraces.stacktraces_val[j] != 0;
+	    ++j) {
+	    trace.push_back(Address(data.stacktraces.stacktraces_val[j]));
+	  }
+        }
+	
+	// Iterate over each of the frames in this event's stack trace
+	for(StackTrace::const_iterator 
+		j = trace.begin(); j != trace.end(); ++j) {
+	    bool is_metric_frame  = (j == trace.begin());
+	    // Find the subextents that contain this frame
+	    std::set<ExtentGroup::size_type> intersection =
+		subextents.getIntersectionWith(
+		    Extent(interval, AddressRange(*j))
+		    );
 	    // Iterate over each subextent in the intersection
 	    for(std::set<ExtentGroup::size_type>::const_iterator
 		    k = intersection.begin(); k != intersection.end(); ++k) {
@@ -448,7 +587,6 @@ void MemCollector::getMetricValues(const std::string& metric,
 		    ((interval & subextents[*k].getTimeInterval()).getWidth());
 
 		if(is_details) {
-
 		    // Find this event's stack trace in the results (or add it)
 		    CallDetails::iterator l =
 			(*reinterpret_cast<std::vector<CallDetails>*>(ptr))
@@ -458,46 +596,30 @@ void MemCollector::getMetricValues(const std::string& metric,
 		    
 		    // Add this event's details structure to the results
 		    MemDetail details;
+		    memset(&details, 0, sizeof(MemDetail));
 
                     details.dm_id.second = 0;
                     std::pair<bool, int> prank = thread.getMPIRank();
                     pid_t processID = thread.getProcessId();
                     if (prank.first) {
-                       if (debug_metrics) {
-                         std::cerr << " Rank in tgrp=" << prank.second << "\n" <<  std::endl;
-                       }
                        details.dm_id.first = prank.second;
                     } else {
                        details.dm_id.first = processID;
-                       if (debug_metrics) {
-                         std::cerr << " Process ID in tgrp=" << " processID= " << processID << "\n" <<  std::endl;
-                       }
                     }
-                    //std::pair<bool, pthread_t> posixthread1 = thread.getPosixThreadId();
 		    std::pair<bool, int> threadID = thread.getOpenMPThreadId();
                     if ( threadID.first ) {
                        details.dm_id.second = threadID.second;
-                       if (debug_metrics) {
-                         std::cerr << " POSIX threadid in tgrp=" << threadID.second << "\n" <<  std::endl;
-                       }
                     }
 
-		    details.dm_reason = data.events.events_val[i].reason;
-		    //if (data.events.events_val[i].reason == CBTF_MEM_REASON_UNIQUE_CALLPATH) {
-                     //    std::cerr << " UNIQUE_CALLPATH" << " ID:" << details.dm_id.first << std::endl;
 		    details.dm_time = t_intersection / 1000000000.0;
-		    details.dm_count = data.events.events_val[i].count;
-		    //} else {
-                         //std::cerr << " OTHER_REASON" << " ID:" << details.dm_id.first << std::endl;
-		    //details.dm_time = 0;
-		    //details.dm_count = 0;
-		    //}
+		    details.dm_interval = interval;
 
+		   if (is_metric_frame) {
+		    details.dm_memtype = data.events.events_val[i].mem_type;
+		    details.dm_count = data.events.events_val[i].count;
+		    details.dm_reason = data.events.events_val[i].reason;
 		    details.dm_max = data.events.events_val[i].max;
 		    details.dm_min = data.events.events_val[i].min;
-		    details.dm_memtype = data.events.events_val[i].mem_type;
-		    details.dm_interval = interval;
-		    //details.dm_total_allocation = data.events.events_val[i].total_allocation;
 
 		    switch (data.events.events_val[i].mem_type) {
 
@@ -577,6 +699,7 @@ void MemCollector::getMetricValues(const std::string& metric,
 			break;
 			}
 		    }
+		  } // is is_metric_frame
 
 #if defined(DEBUG_DETAILS)
 std::cerr << "MEM EVENT: mem_type:" << data.events.events_val[i].mem_type
@@ -592,17 +715,20 @@ std::cerr << "MEM EVENT: mem_type:" << data.events.events_val[i].mem_type
 	<< std::endl;
 #endif
 		    
-		}
-
-	    }
-	    
-	}
-
-    }
+		} // if is_details
+	    } // for intersection
+	} // for trace
+      } // for event
+    } // else is_old_mem_data
 
     // Free the decoded data blob
-    xdr_free(reinterpret_cast<xdrproc_t>(xdr_CBTF_mem_exttrace_data),
+    if (is_old_mem_data) {
+	xdr_free(reinterpret_cast<xdrproc_t>(xdr_CBTF_mem_trace_data),
+	     reinterpret_cast<char*>(&olddata));
+    } else {
+	xdr_free(reinterpret_cast<xdrproc_t>(xdr_CBTF_mem_exttrace_data),
 	     reinterpret_cast<char*>(&data));
+    }
 }
 
 

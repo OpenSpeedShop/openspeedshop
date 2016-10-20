@@ -89,13 +89,13 @@ const char * reasons[] = {
 // (via Mem_data.x).If this enum is changed then these names must
 // reflect those changes.
 const char * memnames[] = {
+	"unknown",
 	"malloc",
 	"calloc",
 	"realloc",
 	"free",
 	"memalign",
-	"posix_memalign",
-	"unknown"
+	"posix_memalign"
 };
 
 // mem view
@@ -350,7 +350,8 @@ static void Determine_Objects (
 		std::string lopath = lo.getPath();
 		std::set<AddressRange> lor = lo.getAddressRange();
 		std::set<Thread> lot = lo.getThreads();
-		if (1) {
+		if (lopath.find("libpthread") != std::string::npos ||
+                    lopath.find("libc") != std::string::npos) {
 
 #if 0
 		    std::cerr << "Determine_Object MemT INSERT "
@@ -1196,3 +1197,23 @@ class mem_view : public ViewType {
 extern "C" void mem_view_LTX_ViewFactory () {
   Define_New_View (new mem_view());
 }
+
+/*
+ * NOTES on viewing reduced data
+ *
+ * Default view is for all unique callpaths to memory calls.
+ * timeline of all events with all arguments.
+ * expview -vtrace -mstart_time -m time -m id -msize1,size2,ptr,retval
+ * timeline of all event calltrees with all arguments.
+ * expview -vtrace,calltrees -mstart_time -m time -m id -msize1,size2,ptr,retval
+ *
+ * timeline of all leak events with all arguments.
+ * expview -vtrace,leaked -mstart_time -m time -m id -msize1,size2,ptr,retval
+ * timeline of all leak event calltrees with all arguments.
+ * expview -vtrace,calltrees,leaked -mstart_time -m time -m id -msize1,size2,ptr,retval
+ *
+ * timeline of all highwater events with all arguments.
+ * expview -vtrace,highwater -mstart_time,allocation,time,id,size1,size2,ptr,retval
+ * timeline of all highwater event calltrees with all arguments.
+ * expview -vtrace,calltrees,highwater -mstart_time,allocation,time,id,size1,size2,ptr,retval
+ */
