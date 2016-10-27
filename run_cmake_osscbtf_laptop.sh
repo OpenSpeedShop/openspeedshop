@@ -1,15 +1,17 @@
+#!/bin/bash
+
 rm -rf build-cbtf
 mkdir build-cbtf
 pushd build-cbtf
 
-export KRELL_ROOT=/opt/DEVEL/krellroot_v2.2.2
-export MRNET_ROOT=/opt/DEVEL/krellroot_v2.2.2
-export DYNINST_ROOT=/opt/DEVEL/krellroot_v2.2.2
-export CBTF_KRELL_INSTALL_DIR=/opt/DEVEL2/cbtf_v2.2.2
-export CBTF_ARGO_INSTALL_DIR=/opt/DEVEL2/cbtf_v2.2.2
-export CBTF_INSTALL_DIR=/opt/DEVEL2/cbtf_v2.2.2
-export OSS_CBTF_INSTALL_DIR=/opt/DEVEL2/osscbtf_v2.2.2
-export XERCESC_ROOT=/opt/DEVEL/krellroot_v2.2.2
+export KRELL_ROOT=/opt/DEVEL/krellroot_v2.2.4
+export MRNET_ROOT=/opt/DEVEL/krellroot_v2.2.4
+export DYNINST_ROOT=/opt/DEVEL/krellroot_v2.2.4
+export CBTF_KRELL_INSTALL_DIR=/opt/DEVEL/cbtf_v2.2.4
+export CBTF_ARGO_INSTALL_DIR=/opt/DEVEL/cbtf_v2.2.4
+export CBTF_INSTALL_DIR=/opt/DEVEL/cbtf_v2.2.4
+export OSS_CBTF_INSTALL_DIR=/opt/DEVEL/osscbtf_v2.2.4
+export XERCESC_ROOT=/opt/DEVEL/krellroot_v2.2.4
 
 # Locate the find package files in the locations that cmake expects
 export MY_CMAKE_PREFIX_PATH="${CBTF_INSTALL_DIR}:${CBTF_KRELL_INSTALL_DIR}:${KRELL_ROOT}"
