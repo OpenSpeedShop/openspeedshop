@@ -98,6 +98,14 @@ public:
     bool usertime_ThreadMin;
     bool usertime_ThreadMax;
 
+    bool omptp_exclusive_times;
+    bool omptp_inclusive_times;
+    bool omptp_percent;
+    bool omptp_count;
+    bool omptp_ThreadAverage;
+    bool omptp_ThreadMin;
+    bool omptp_ThreadMax;
+
     bool hwc_overflows;
     bool hwc_counts;
     bool hwc_percent;
@@ -312,6 +320,14 @@ protected:
     QCheckBox *usertime_ThreadAverage_CheckBox;
     QCheckBox *usertime_ThreadMin_CheckBox;
     QCheckBox *usertime_ThreadMax_CheckBox;
+
+    QCheckBox *omptp_exclusive_times_CheckBox;
+    QCheckBox *omptp_inclusive_times_CheckBox;
+    QCheckBox *omptp_percent_CheckBox;
+    QCheckBox *omptp_count_CheckBox;
+    QCheckBox *omptp_ThreadAverage_CheckBox;
+    QCheckBox *omptp_ThreadMin_CheckBox;
+    QCheckBox *omptp_ThreadMax_CheckBox;
 
     QCheckBox *hwcsamp_time_CheckBox;
     QCheckBox *hwcsamp_allEvents_CheckBox;

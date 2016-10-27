@@ -89,6 +89,14 @@ OptionalViewsDialog::OptionalViewsDialog( QWidget* parent,
      usertime_ThreadAverage = FALSE;
      usertime_ThreadMin = FALSE;
      usertime_ThreadMax = FALSE;
+   } else if ( globalCollectorString.contains("omptp") ) {
+     omptp_exclusive_times = FALSE;
+     omptp_inclusive_times = FALSE;
+     omptp_percent = FALSE;
+     omptp_count = FALSE;
+     omptp_ThreadAverage = FALSE;
+     omptp_ThreadMin = FALSE;
+     omptp_ThreadMax = FALSE;
    } else if ( globalCollectorString.contains("hwcsamp") ) {
      hwcsamp_time = FALSE;
      hwcsamp_allEvents = FALSE;
@@ -565,6 +573,107 @@ OptionalViewsDialog::createExperimentDependentOptionalView(QWidgetStack* stack, 
     usertime_ThreadMax_CheckBox->setChecked( TRUE );
     usertime_ThreadMax_CheckBox->setText( tr( "USERTIME ThreadMax" ) );
     rightSideLayout->addWidget( usertime_ThreadMax_CheckBox );
+    }
+  } else if ( globalCollectorString.contains("omptp") ) {
+
+    VTraceGroupBox->hide();
+
+    if (isInCurrentModifierList("omptp::exclusive_times")) {
+       omptp_exclusive_times = TRUE;
+    } else {
+       omptp_exclusive_times = FALSE;
+    }
+
+    { // omptp_exclusive_times
+    omptp_exclusive_times_CheckBox = new QCheckBox( GeneralGroupBox, "omptp_exclusive_times_CheckBox" );
+    omptp_exclusive_times_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, omptp_exclusive_times_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    omptp_exclusive_times_CheckBox->setChecked( TRUE );
+    omptp_exclusive_times_CheckBox->setText( tr( "OMPTP exclusive_times" ) );
+    rightSideLayout->addWidget( omptp_exclusive_times_CheckBox );
+    }
+
+    if (isInCurrentModifierList("omptp::inclusive_times")) {
+       omptp_inclusive_times = TRUE;
+    } else {
+       omptp_inclusive_times = FALSE;
+    }
+
+    { // omptp_inclusive_times
+    omptp_inclusive_times_CheckBox = new QCheckBox( GeneralGroupBox, "omptp_inclusive_times_CheckBox" );
+    omptp_inclusive_times_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, omptp_inclusive_times_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    omptp_inclusive_times_CheckBox->setChecked( TRUE );
+    omptp_inclusive_times_CheckBox->setText( tr( "OMPTP inclusive_times" ) );
+    rightSideLayout->addWidget( omptp_inclusive_times_CheckBox );
+    }
+
+    if (isInCurrentModifierList("omptp::percent")) {
+       omptp_percent = TRUE;
+    } else {
+       omptp_percent = FALSE;
+    }
+
+    { // omptp_percent
+    omptp_percent_CheckBox = new QCheckBox( GeneralGroupBox, "omptp_percent_CheckBox" );
+    omptp_percent_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, omptp_percent_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    omptp_percent_CheckBox->setChecked( TRUE );
+    omptp_percent_CheckBox->setText( tr( "OMPTP percent" ) );
+    rightSideLayout->addWidget( omptp_percent_CheckBox );
+    }
+
+    if (isInCurrentModifierList("omptp::count")) {
+       omptp_count = TRUE;
+    } else {
+       omptp_count = FALSE;
+    }
+
+    { // omptp_count
+    omptp_count_CheckBox = new QCheckBox( GeneralGroupBox, "omptp_count_CheckBox" );
+    omptp_count_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, omptp_count_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    omptp_count_CheckBox->setChecked( TRUE );
+    omptp_count_CheckBox->setText( tr( "OMPTP count" ) );
+    rightSideLayout->addWidget( omptp_count_CheckBox );
+    }
+
+    if (isInCurrentModifierList("omptp::ThreadAverage")) {
+       omptp_ThreadAverage = TRUE;
+    } else {
+       omptp_ThreadAverage = FALSE;
+    }
+
+    { // omptp_ThreadAverage
+    omptp_ThreadAverage_CheckBox = new QCheckBox( GeneralGroupBox, "omptp_ThreadAverage_CheckBox" );
+    omptp_ThreadAverage_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, omptp_ThreadAverage_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    omptp_ThreadAverage_CheckBox->setChecked( TRUE );
+    omptp_ThreadAverage_CheckBox->setText( tr( "OMPTP ThreadAverage" ) );
+    rightSideLayout->addWidget( omptp_ThreadAverage_CheckBox );
+    }
+
+    if (isInCurrentModifierList("omptp::ThreadMin")) {
+       omptp_ThreadMin = TRUE;
+    } else {
+       omptp_ThreadMin = FALSE;
+    }
+
+    { // omptp_ThreadMin
+    omptp_ThreadMin_CheckBox = new QCheckBox( GeneralGroupBox, "omptp_ThreadMin_CheckBox" );
+    omptp_ThreadMin_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, omptp_ThreadMin_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    omptp_ThreadMin_CheckBox->setChecked( TRUE );
+    omptp_ThreadMin_CheckBox->setText( tr( "OMPTP ThreadMin" ) );
+    rightSideLayout->addWidget( omptp_ThreadMin_CheckBox );
+    }
+
+    if (isInCurrentModifierList("omptp::ThreadMax")) {
+       omptp_ThreadMax = TRUE;
+    } else {
+       omptp_ThreadMax = FALSE;
+    }
+
+    { // omptp_ThreadMax
+    omptp_ThreadMax_CheckBox = new QCheckBox( GeneralGroupBox, "omptp_ThreadMax_CheckBox" );
+    omptp_ThreadMax_CheckBox->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)7, (QSizePolicy::SizeType)0, 0, 0, omptp_ThreadMax_CheckBox->sizePolicy().hasHeightForWidth() ) );
+    omptp_ThreadMax_CheckBox->setChecked( TRUE );
+    omptp_ThreadMax_CheckBox->setText( tr( "OMPTP ThreadMax" ) );
+    rightSideLayout->addWidget( omptp_ThreadMax_CheckBox );
     }
 
   } else if ( globalCollectorString.contains("hwcsamp") ) {
@@ -2287,6 +2396,36 @@ void OptionalViewsDialog::languageChange()
     QToolTip::add(pcsamp_ThreadMax_CheckBox,
                 tr("Display Program Counter Sampling experiment maximum value of exclusive time across ranks, processes, threads.") );
 
+   } else if ( globalCollectorString.contains("omptp") ) {
+
+    omptp_exclusive_times_CheckBox->setChecked(omptp_exclusive_times);
+    QToolTip::add(omptp_exclusive_times_CheckBox,
+                tr("Display OpenMP Profile (Call Stack) Sampling experiment exclusive time.") );
+
+    omptp_inclusive_times_CheckBox->setChecked(omptp_inclusive_times);
+    QToolTip::add(omptp_inclusive_times_CheckBox,
+                tr("Display OpenMP Profile (Call Stack) Sampling experiment inclusive time.") );
+
+    omptp_percent_CheckBox->setChecked(omptp_percent);
+    QToolTip::add(omptp_percent_CheckBox,
+                tr("Display OpenMP Profile (Call Stack)  Sampling experiment percentage of exclusive time.") );
+
+    omptp_count_CheckBox->setChecked(omptp_count);
+    QToolTip::add(omptp_count_CheckBox,
+                tr("Display OpenMP Profile (Call Stack)  Sampling experiment counts.") );
+
+    omptp_ThreadAverage_CheckBox->setChecked(omptp_ThreadAverage);
+    QToolTip::add(omptp_ThreadAverage_CheckBox,
+                tr("Display OpenMP Profile (Call Stack) Sampling experiment average of exclusive time across ranks, processes, threads.") );
+
+    omptp_ThreadMin_CheckBox->setChecked(omptp_ThreadMin);
+    QToolTip::add(omptp_ThreadMin_CheckBox,
+                tr("Display OpenMP Profile (Call Stack) Sampling experiment minimum value of exclusive time across ranks, processes, threads.") );
+
+    omptp_ThreadMax_CheckBox->setChecked(omptp_ThreadMax);
+    QToolTip::add(omptp_ThreadMax_CheckBox,
+                tr("Display OpenMP Profile (Call Stack) Sampling experiment maximum value of exclusive time across ranks, processes, threads.") );
+
    } else if ( globalCollectorString.contains("usertime") ) {
 
     usertime_exclusive_times_CheckBox->setChecked(usertime_exclusive_times);
@@ -2836,6 +2975,8 @@ void OptionalViewsDialog::languageChange()
 
     if( globalCollectorString.contains("pcsamp") ) {
        GeneralGroupBox->setTitle( tr( "PCSAMP Experiment Custom Report Selection Dialog" ) );
+    } else if ( globalCollectorString.contains("omptp") ) {
+       GeneralGroupBox->setTitle( tr( "OMPTP Experiment Custom Report Selection Dialog" ) );
     } else if ( globalCollectorString.contains("usertime") ) {
        GeneralGroupBox->setTitle( tr( "USERTIME Experiment Custom Report Selection Dialog" ) );
     } else if ( globalCollectorString.contains("hwcsamp") ) {

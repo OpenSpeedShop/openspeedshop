@@ -131,6 +131,12 @@ namespace OpenSpeedShop { namespace Framework {
 			   const pthread_t&,
 			   const int&,
 			   const std::string&) const;
+	// offline mode for cbtf-krell collectors.
+	void updateThreads(const pid_t&,
+			   const pthread_t&,
+			   const int&,
+			   const int&,
+			   const std::string&) const;
 
 	// pruning unneeded entries in database.
 	void compressDB() const;

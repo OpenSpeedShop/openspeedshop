@@ -1235,7 +1235,10 @@ void Callbacks::finalize() {
     END_TRANSACTION(database);
 
     // Now run vacuum on the database cleanup after removing entries.
-    database->vacuum();
+    // FIXME: Apparently some DOD systems are crashing during vacuum; 
+    //database->vacuum();
+
+
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;

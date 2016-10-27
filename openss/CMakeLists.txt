@@ -143,6 +143,8 @@ else()
         add_definitions(${OpenMP_C_FLAGS})
         if (${OpenMP_C_FLAGS} MATCHES "-fopenmp")
            set(OpenMP_RT_NAME "gomp")
+        elseif (${OpenMP_C_FLAGS} MATCHES "-qopenmp")
+           set(OpenMP_RT_NAME "iomp5")
         elseif (${OpenMP_C_FLAGS} MATCHES "-openmp")
            set(OpenMP_RT_NAME "iomp5")
         else()
@@ -258,7 +260,9 @@ else()
 	    ${CBTF_KRELL_CORE_MRNET_LIBRARY}
 	    openss-framework
 	    openss-framework-cbtf
+            openss-framework-symtabapi
             pthread
+	    ${OpenMP_RT_NAME}
             ${CMAKE_DL_LIBS}
             rt
         )
@@ -320,10 +324,12 @@ else()
 	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
             install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver ossiop
 	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
+            install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver ossomptp
+	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
         endif()
 
         # create cuda driver link
-        if(BUILD_CUDA_SUPPORT)
+        if(BUILD_CUDA_COLLECTION)
             install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver osscuda
             WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
         endif()

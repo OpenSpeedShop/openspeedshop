@@ -25,7 +25,7 @@ project(OpenSpeedShop C CXX)
 # TODO: allow this to be passed as an option via cmake for developers
 # to tag non production builds.
 add_definitions(
-    -DVERSION="2.2.3"
+    -DVERSION="2.2.4"
 )
 
 # cmake module search path for this project.
@@ -37,12 +37,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 #    required CMake version and remove cmake/CheckCXX11Features* files from the cbtf repository.
 #
 include(cmake/CheckCXX11Features.cmake)
-if(NOT HAS_CXX11_AUTO)
-  message(STATUS "No support for C++11 found.")
-else()
-  message(STATUS "C++11 support found, required flags are: ${CXX11_COMPILER_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
-endif()
 
 include(CheckIncludeFile)
 include(CheckIncludeFileCXX)
@@ -298,7 +292,6 @@ if (INSTRUMENTOR MATCHES "offline")
 #
 elseif (INSTRUMENTOR MATCHES "cbtf")
     add_definitions(-DBUILD_CBTF=1)
-    set(Boost_USE_MULTITHREADED    OFF)
     find_package(Boost 1.41.0 REQUIRED
       COMPONENTS date_time filesystem system thread unit_test_framework program_options
     )
@@ -543,7 +536,7 @@ if (RUNTIME_ONLY MATCHES "true")
         add_subdirectory(ossdumpsym)
     endif()
 
-    if(BUILD_CUDA_SUPPORT)
+    if(BUILD_CUDA_ANALYSIS)
         add_subdirectory(libopenss-queries-cuda)
         add_subdirectory(ossdumpcuda)
     endif()
@@ -593,7 +586,7 @@ else()
         add_subdirectory(ossdumpsym)
     endif()
 
-    if(BUILD_CUDA_SUPPORT)
+    if(BUILD_CUDA_ANALYSIS)
         add_subdirectory(libopenss-queries-cuda)
         add_subdirectory(ossdumpcuda)
     endif()

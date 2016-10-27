@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2006-2015 Krell Institute. All Rights Reserved.
+# Copyright (c) 2016 Krell Institute. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -16,33 +16,34 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 ################################################################################
 
-include(FindPackageHandleStandardArgs)
+set(PLUGIN_SOURCES
+    OmptPDetail.hxx
+    OmptPCollector.hxx OmptPCollector.cxx
+)
 
-find_library(CBTF_MESSAGES_CUDA_SHARED_LIBRARY
-    NAMES libcbtf-messages-cuda.so
-    HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
-    PATH_SUFFIXES lib lib64
-    )
+add_library(omptp MODULE
+    ${PLUGIN_SOURCES}
+)
 
-find_path(CBTF_MESSAGES_CUDA_INCLUDE_DIR
-    KrellInstitute/Messages/CUDA_data.h
-    HINTS ${CBTF_KRELL_DIR} $ENV{CBTF_KRELL_DIR}
-    PATH_SUFFIXES include
-    )
+target_include_directories(omptp PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CBTF_MESSAGES_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/libopenss-runtime
+    ${PROJECT_SOURCE_DIR}/libopenss-framework
+    ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
+)
 
-find_package_handle_standard_args(
-    CBTF-MessagesCuda DEFAULT_MSG
-    CBTF_MESSAGES_CUDA_SHARED_LIBRARY
-    CBTF_MESSAGES_CUDA_INCLUDE_DIR
-    )
+target_link_libraries(omptp
+    pthread
+    openss-framework
+    ${CBTF_MESSAGES_LIBRARIES}
+    ${CMAKE_DL_LIBS}
+)
 
-set(CBTF_MESSAGES_CUDA_LIBRARIES
-    ${CBTF_MESSAGES_CUDA_SHARED_LIBRARY}
-    )
+set_target_properties(omptp PROPERTIES PREFIX "")
 
-set(CBTF_MESSAGES_CUDA_INCLUDE_DIRS ${CBTF_MESSAGES_CUDA_INCLUDE_DIR})
+install(TARGETS omptp
+    LIBRARY DESTINATION lib${LIB_SUFFIX}/openspeedshop
+)
 
-mark_as_advanced(
-    CBTF_MESSAGES_CUDA_SHARED_LIBRARY
-    CBTF_MESSAGES_INCLUDE_DIR
-    )

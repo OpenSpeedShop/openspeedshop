@@ -33,13 +33,14 @@ target_include_directories(cuda_view PUBLIC
     ${PROJECT_SOURCE_DIR}/libopenss-queries-cuda
     ${PROJECT_SOURCE_DIR}/plugins/collectors/cuda
     ${Boost_INCLUDE_DIRS}
+    ${ARGONAVIS_CUDA_INCLUDE_DIRS}
     ${Python_INCLUDE_DIRS}
     )
 
 target_link_libraries(cuda_view
     openss-cli
     openss-queries-cuda
-    pthread
+    ${ARGONAVIS_CUDA_LIBRARIES}
     ${CMAKE_DL_LIBS}
     )
 

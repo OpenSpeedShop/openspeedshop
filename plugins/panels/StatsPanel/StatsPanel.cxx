@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2014 Krell Institute All Rights Reserved.
+// Copyright (c) 2006-2016 Krell Institute All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -702,6 +702,9 @@ void StatsPanel::clearModifiers()
   list_of_usertime_modifiers.clear();
   current_list_of_usertime_modifiers.clear();  // This is this list of user selected modifiers.
 
+  list_of_omptp_modifiers.clear();
+  current_list_of_omptp_modifiers.clear();  // This is this list of user selected modifiers.
+
   list_of_iop_modifiers.clear();
   current_list_of_iop_modifiers.clear();  // This is this list of user selected modifiers.
 
@@ -827,6 +830,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   hwctimeModifierMenu = NULL;
   pcsampModifierMenu = NULL;
   usertimeModifierMenu = NULL;
+  omptpModifierMenu = NULL;
   fpeModifierMenu = NULL;
 
   iop_menu = NULL;
@@ -839,6 +843,7 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   hwctime_menu = NULL;
   pcsamp_menu = NULL;
   usertime_menu = NULL;
+  omptp_menu = NULL;
   fpe_menu = NULL;
 
 #if 1
@@ -871,13 +876,15 @@ StatsPanel::StatsPanel(PanelContainer *pc, const char *n, ArgumentObject *ao) : 
   current_list_of_pcsamp_modifiers.clear();  // This is this list of user selected modifiers.
   list_of_usertime_modifiers.clear();
   current_list_of_usertime_modifiers.clear();  // This is this list of user selected modifiers.
+  list_of_omptp_modifiers.clear();
+  current_list_of_omptp_modifiers.clear();  // This is this list of user selected modifiers.
 
   list_of_fpe_modifiers.clear();
   current_list_of_fpe_modifiers.clear();  // This is this list of user selected modifiers.
 
   current_list_of_modifiers.clear();  // This is this list of user selected modifiers.
 #endif
-
+  demangled_mangled_vector.clear();
 
   selectedFunctionStr = QString::null;
   threadMenu = NULL;
@@ -1527,6 +1534,104 @@ StatsPanel::displayUsingLoop()
 
 #endif
 
+//
+// Call to the CLI with the list -v mangled command
+// Then use the results to fill in the std::vector with the demangled 
+// and mangled names from the list -v mangled command
+//
+void StatsPanel::getDemangledMangledNames(int exp_id)
+{
+
+// Now get the list of mangled and demangled names
+
+ QString command = QString::null;
+
+ if( exp_id > 0 || focusedExpID > 0 ) {
+  if( focusedExpID == -1 ) {
+    command = QString("list -v mangled -x %1").arg(exp_id);
+  } else {
+    command = QString("list -v mangled -x %1").arg(focusedExpID);
+  }
+
+  // Check if this command has been cached already, if so the list will be updated
+  // If not, call into the CLI and Framework to get the list data required.
+  std::list<std::string> list_of_demangled_mangled_names;
+  list_of_demangled_mangled_names.clear();
+
+  bool list_is_cached = checkForExistingStringList( command.ascii(), list_of_demangled_mangled_names);
+
+  if (!list_is_cached) {
+
+    CLIInterface *cli = getPanelContainer()->getMainWindow()->cli;
+    list_of_demangled_mangled_names.clear();
+    InputLineObject *clip = NULL;
+
+    if( !cli->getStringListValueFromCLI( (char *)command.ascii(), &list_of_demangled_mangled_names, clip, FALSE /* mark value for delete */ ) ) {
+      printf("Unable to run %s command.\n", command.ascii() );
+    }
+
+    addStringListForThisCommand(command.ascii(), list_of_demangled_mangled_names);
+  }
+
+  if( list_of_demangled_mangled_names.size() > 1 ) {
+    for( std::list<std::string>::const_iterator it = list_of_demangled_mangled_names.begin();
+                                                it != list_of_demangled_mangled_names.end(); it++ ) {
+      std::string mangled_demangled_item = *it;
+      std::string mangled = mangled_demangled_item.substr(mangled_demangled_item.find(";") + 1);
+      std::string demangled = mangled_demangled_item.substr(0, mangled_demangled_item.find(";", 0));
+
+#ifdef DEBUG_StatsPanel
+      std::cerr << "StatsPanel::getDemangledMangledNames, \n"
+                <<  " mangled="  << mangled << "\n"
+                <<  " demangled=" << demangled << "\n"
+                <<  " mangled_demangled_item=" << mangled_demangled_item << std::endl;
+#endif
+
+      // Fill in the std::vector with the demangled and mangled names from the list -v mangled command
+      // This will be used when a function name is required for one of the GUI actions.
+      // We will try to match the demangled name and then return the mangled to use for calls to the CLI
+      // because the CLI can't handle :: syntax.
+      demangled_mangled_vector.push_back(std::make_pair(demangled, mangled));
+
+    }
+  }
+ } 
+
+}
+
+//
+// This function is called when a function name is required for one of the GUI actions.
+// We will try to match the demangled name and then return the mangled to use for calls to the CLI
+// because the CLI can't handle :: syntax.
+// First match the sizes, that should eliminate some search time.
+// Then look for a match:  string to string
+//
+QString StatsPanel::findMangledNameForCLIcommand(std::string inputFunctionStr)
+{
+#ifdef DEBUG_StatsPanel
+    std::cerr << "ENTER StatsPanel::findMangledNameForCLIcommand, inputFunctionStr=" << inputFunctionStr
+              << " inputFunctionStr.length()=" << inputFunctionStr.length() << std::endl;
+#endif
+
+    for(std::vector<std::pair<std::string, std::string> >::iterator j = demangled_mangled_vector.begin(); 
+                                                                     j != demangled_mangled_vector.end(); ++j) {
+        //std::cerr << "StatsPanel::findMangledNameForCLIcommand, j->first.size()=" << j->first.size() 
+        //          << " inputFunctionStr.length()=" << inputFunctionStr.length()
+        //          << " j->first=" << j->first 
+        //          << " j->second=" << j->second 
+        //          << std::endl;
+
+        if (j->first.size() == inputFunctionStr.length() && 
+            (j->first.compare(inputFunctionStr) == 0)) {
+
+           //std::cerr << "StatsPanel::findMangledNameForCLIcommand, return=" << j->second 
+           //          << " inputFunctionStr=" << inputFunctionStr << std::endl;
+
+           return QString(j->second) ;
+        }               
+    }               
+    return QString::null;
+}
 
 /*! When a message has been sent (from anyone) and the message broker is
     notifying panels that they may want to know about the message, this is the
@@ -1976,6 +2081,11 @@ if( start_index != -1 ) {
     printf("StatsPanel::listener, UPDATE-EXPERIMENT-DATA-OBJECT msgType=(%s)\n", msgObject->msgType.ascii() );
 #endif // DEBUG_StatsPanel
 
+
+    // Find the demangled/mangled names using the "list -v mangled" command
+    // Create a vector of std:string, std::string which represents the demangled, mangled pairs
+    getDemangledMangledNames(expID);
+
     updateStatsPanelData(DONT_FORCE_UPDATE);
 
 #ifdef DEBUG_StatsPanel
@@ -2199,6 +2309,11 @@ StatsPanel::menu( QPopupMenu* contextMenu)
       printf("Generate an usertime menu.\n");
 #endif
       generateUserTimeMenu();
+    } else if( QString(collector_name.c_str()).startsWith("omptp") ) {
+#ifdef DEBUG_StatsPanel
+      printf("Generate an omptp menu.\n");
+#endif
+      generateOMPTPMenu();
     } else if( QString(collector_name.c_str()).startsWith("pcsamp") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate a pcsamp menu\n");
@@ -2582,6 +2697,8 @@ StatsPanel::getMostImportantClusterMetric(QString collector_name)
     metric = "-m pcsamp::exclusive_time";
   } else if( collector_name == "usertime" ) {
     metric = "-m usertime::exclusive_time";
+  } else if( collector_name == "omptp" ) {
+    metric = "-m omptp::exclusive_time";
   } else if( collector_name == "hwc" ) {
     metric = "-m hwc::ThreadAverage";
   } else if( collector_name == "hwctime" ) {
@@ -3756,6 +3873,21 @@ StatsPanel::optionalViewsCreationSelected()
       usertime_desired_list.insert(std::pair<std::string,int>("usertime::ThreadMin",optionalViewsDialog->usertime_ThreadMin));
       usertime_desired_list.insert(std::pair<std::string,int>("usertime::ThreadMax",optionalViewsDialog->usertime_ThreadMax));
       updateCurrentModifierList(list_of_usertime_modifiers, &current_list_of_usertime_modifiers, usertime_desired_list);
+
+     }else if( currentCollectorStr == "omptp" ) {
+      // Generate the list of omptp modifiers
+      generateOMPTPmodifiers();
+
+      std::map<std::string, bool> omptp_desired_list;
+      omptp_desired_list.clear();
+      omptp_desired_list.insert(std::pair<std::string,int>("omptp::exclusive_times",optionalViewsDialog->omptp_exclusive_times));
+      omptp_desired_list.insert(std::pair<std::string,int>("omptp::inclusive_times",optionalViewsDialog->omptp_inclusive_times));
+      omptp_desired_list.insert(std::pair<std::string,int>("omptp::percent",optionalViewsDialog->omptp_percent));
+      omptp_desired_list.insert(std::pair<std::string,int>("omptp::count",optionalViewsDialog->omptp_count));
+      omptp_desired_list.insert(std::pair<std::string,int>("omptp::ThreadAverage",optionalViewsDialog->omptp_ThreadAverage));
+      omptp_desired_list.insert(std::pair<std::string,int>("omptp::ThreadMin",optionalViewsDialog->omptp_ThreadMin));
+      omptp_desired_list.insert(std::pair<std::string,int>("omptp::ThreadMax",optionalViewsDialog->omptp_ThreadMax));
+      updateCurrentModifierList(list_of_omptp_modifiers, &current_list_of_omptp_modifiers, omptp_desired_list);
 
      }else if( currentCollectorStr == "iop" ) {
 
@@ -8711,6 +8843,69 @@ StatsPanel::HWCTimeReportSelected(int val)
   }
 }
 
+void
+StatsPanel::collectorOMPTPReportSelected(int val)
+{ 
+#ifdef DEBUG_StatsPanel
+   printf("collectorOMPTPReportSelected: val=%d\n", val);
+   printf("collectorOMPTPReportSelected: omptp_menu=(%s)\n", omptp_menu->text(val).ascii() );
+   printf("collectorOMPTPReportSelected: contextMenu=(%s)\n", contextMenu->text(val).ascii() );
+#endif
+
+  currentUserSelectedReportStr = QString::null;
+  currentCollectorStr = "omptp";
+  collectorStrFromMenu = QString::null;
+  currentMetricStr = QString::null;
+
+//  QString s = contextMenu->text(val).ascii();
+  QString s = QString::null;
+  s = omptp_menu->text(val).ascii();
+  if( s.isEmpty() ) {
+    s = contextMenu->text(val).ascii();
+  }
+
+// printf("OMPTPReport: (%s)\n", s.ascii() );
+
+// printf("E: s=%s\n", s.ascii() );
+  int index = s.find(":");
+  if( index != -1 )
+  {
+// printf("DD: NOW FIND :\n");
+    index = s.find(":");
+    if( index > 0 ) { // The user selected one of the metrics
+      collectorStrFromMenu = s.mid(13, index-13 );
+      currentUserSelectedReportStr = s.mid(index+2);
+// printf("UT1: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+      // This one resets to all...
+    } else { // The user wants to do all the metrics on the selected threads...
+      currentMetricStr = QString::null;
+      index = s.find(":");
+      currentUserSelectedReportStr = s.mid(13, index-13);
+      if( !currentUserSelectedReportStr.contains("CallTrees by Selected Function") ) {
+        selectedFunctionStr = QString::null;
+      }
+// printf("UT2: currentCollectorStr=(%s) currentMetricStr=(%s)\n", currentCollectorStr.ascii(), currentMetricStr.ascii() );
+    }
+
+  // The status for the tool bar needs to reflect what is 
+  // going on when the same features are selected via the menu
+  if( getPreferenceShowToolbarCheckBox() == TRUE ) {
+#ifdef DEBUG_StatsPanel
+    printf("StatsPanel::collectorOMPTPReportSelected, currentUserSelectedReportStr = (%s)\n", currentUserSelectedReportStr.ascii() );
+    printf("StatsPanel::collectorOMPTPReportSelected, calling updateToolBarStatus() \n");
+#endif
+    updateToolBarStatus( currentUserSelectedReportStr );
+  } 
+
+#ifdef DEBUG_StatsPanel
+  printf("currentCollectorStr = (%s)\n", currentCollectorStr.ascii() );
+  printf("Collector changed call updateStatsPanelData() \n");
+#endif
+  }
+  updateStatsPanelData(DONT_FORCE_UPDATE);
+
+}
+
 
 void
 StatsPanel::collectorUserTimeReportSelected(int val)
@@ -9763,6 +9958,66 @@ StatsPanel::usertimeModifierSelected(int val)
       current_list_of_usertime_modifiers.push_back(s);
     }
     usertimeModifierMenu->setItemChecked(val, TRUE);
+  }
+}
+
+void
+StatsPanel::omptpModifierSelected(int val)
+{ 
+#ifdef DEBUG_StatsPanel
+  printf("omptpModifierSelected val=%d\n", val);
+  printf("omptpModifierSelected: (%s)\n", omptpModifierMenu->text(val).ascii() );
+#endif
+
+  if( omptpModifierMenu->text(val).isEmpty() )
+  {
+    omptpModifierMenu->insertSeparator();
+    if( omptp_menu )
+    {
+      delete omptp_menu;
+    }
+    omptp_menu = new QPopupMenu(this);
+    omptpModifierMenu->insertItem(QString("Select omptp Reports:"), omptp_menu);
+    addOMPTPReports(omptp_menu);
+    connect(omptp_menu, SIGNAL( activated(int) ),
+      this, SLOT(collectorOMPTPReportSelected(int)) );
+    return;
+  }
+
+
+  std::string s = omptpModifierMenu->text(val).ascii();
+// printf("B1: modifierStr=(%s)\n", s.c_str() );
+
+  bool FOUND = FALSE;
+  for( std::list<std::string>::const_iterator it = current_list_of_omptp_modifiers.begin();
+       it != current_list_of_omptp_modifiers.end();  )
+  {
+    std::string modifier = (std::string)*it;
+
+    if( modifier ==  s )
+    {   // It's in the list, so take it out...
+// printf("The modifier was in the list ... take it out!\n");
+      FOUND = TRUE;
+    }
+
+    it++;
+
+    if( FOUND == TRUE )
+    {
+      current_list_of_omptp_modifiers.remove(modifier);
+      omptpModifierMenu->setItemChecked(val, FALSE);
+      break;
+    }
+  }
+
+  if( FOUND == FALSE )
+  {
+// printf("The modifier was not in the list ... add it!\n");
+    if( s != PTI )
+    {
+      current_list_of_omptp_modifiers.push_back(s);
+    }
+    omptpModifierMenu->setItemChecked(val, TRUE);
   }
 }
 
@@ -10970,7 +11225,8 @@ StatsPanel::outputCLIData(QString xxxfuncName, QString xxxfileName, int xxxlineN
           currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || 
           currentUserSelectedReportStr.startsWith("CallTrees") || 
           currentUserSelectedReportStr.startsWith("CallTrees,FullStack") ) )  ||
-        (currentCollectorStr == "usertime" && 
+        ((currentCollectorStr == "usertime" ||
+         currentCollectorStr == "omptp" ) && 
         ( currentUserSelectedReportStr == "Butterfly" || 
           currentUserSelectedReportStr.startsWith("TraceBacks") || 
           currentUserSelectedReportStr.startsWith("TraceBacks,FullStack") || 
@@ -11501,78 +11757,34 @@ StatsPanel::findSelectedFunction()
   if( selected_function_item ) {
     SPListViewItem *spitem = (SPListViewItem *)selected_function_item;
 #ifdef DEBUG_StatsPanel
-   printf("StatsPanel::findSelectedFunction, spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
-   printf("StatsPanel::findSelectedFunction, spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
-   printf("StatsPanel::findSelectedFunction, spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
+    std::cerr << "StatsPanel::findSelectedFunction, spitem->funcName=" << spitem->funcName.ascii() << std::endl;
+    std::cerr << "StatsPanel::findSelectedFunction, spitem->fileName=" << spitem->fileName.ascii() << std::endl;; 
+    std::cerr << "StatsPanel::findSelectedFunction, spitem->lineNumber=" << spitem->lineNumber << std::endl;
 #endif
 
+// 
+// This section of code was causing std template library names to have (unsigned long) type
+// information trimmed off, causing failures in per function commands like butterfly and calltree views 
+// We are not sure what this was trying to clean 
+// 9/20/2016
+#if 0
     // Clean up the function name if it needs to be...
     int index = spitem->funcName.find("(");
-#ifdef DEBUG_StatsPanel
     printf("StatsPanel::findSelectedFunction, index from spitem->funcName.find()=%d\n", index);
-#endif
     if( index != -1 ) {
-//      QString clean_funcName = spitem->funcName.mid(0, index-1);
       QString clean_funcName = spitem->funcName.mid(0, index);
-#ifdef DEBUG_StatsPanel
-      printf("StatsPanel::findSelectedFunction, Return the cleaned funcName (%s)\n", clean_funcName.ascii() );
-#endif
       return( clean_funcName );
     } else {
+#endif
       return( spitem->funcName );
+#if 0
     }
+#endif
   } else {
     return( QString::null );
   }
   return( QString::null );
 }
-
-#if JEG
-QString
-StatsPanel::findSelectedFileName()
-{
-#ifdef DEBUG_StatsPanel
-  printf("findSelectedFileName() entered\n");
-#endif
-  QString filenameStr = QString::null;
-  QListViewItem *selected_filename_item = NULL;
-  QListViewItemIterator it( splv, QListViewItemIterator::Selected );
-  while( it.current() ) {
-    int i = 0;
-    selected_filename_item = it.current();
-    break;  // only select one for now...
-    ++it;
-  }
-
-  if( selected_filename_item ) {
-    SPListViewItem *spitem = (SPListViewItem *)selected_filename_item;
-#ifdef DEBUG_StatsPanel
-   printf("StatsPanel::findSelectedFileName, spitem->funcName=(%s)\n", spitem->funcName.ascii() ); 
-   printf("StatsPanel::findSelectedFileName, spitem->fileName=(%s)\n", spitem->fileName.ascii() ); 
-   printf("StatsPanel::findSelectedFileName, spitem->lineNumber=(%d)\n", spitem->lineNumber ); 
-#endif
-
-    // Clean up the filename name if it needs to be...
-    int index = spitem->funcName.find("(");
-#ifdef DEBUG_StatsPanel
-    printf("StatsPanel::findSelectedFileName, index from spitem->funcName.find()=%d\n", index);
-#endif
-    if( index != -1 ) {
-//      QString clean_funcName = spitem->funcName.mid(0, index-1);
-      QString clean_funcName = spitem->funcName.mid(0, index);
-#ifdef DEBUG_StatsPanel
-      printf("StatsPanel::findSelectedFileName, Return the cleaned funcName (%s)\n", clean_funcName.ascii() );
-#endif
-      return( clean_funcName );
-    } else {
-      return( spitem->funcName );
-    }
-  } else {
-    return( QString::null );
-  }
-  return( QString::null );
-}
-#endif
 
 void
 StatsPanel::resetRedirect()
@@ -11597,6 +11809,7 @@ StatsPanel::getFilenameFromString( QString selected_qstring )
 // This is format of string: tdot_ (matmulMOD: matmulMOD.f90,5301)
 // But must also consider this form: ggGridIterator<mrSurface*>::Next(mrSurface*&, double&, double&) (eon: ggGrid.h,259)
 
+  printf("-------------------------- StatsPanel::getFilenameFromString: Get filename from (%s)\n", selected_qstring.ascii() );
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getFilenameFromString: Get filename from (%s)\n", selected_qstring.ascii() );
 #endif
@@ -11820,7 +12033,7 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
 // This is format of string: tdot_ (matmulMOD: matmulMOD.f90,5301)
 
 #ifdef DEBUG_StatsPanel
-  printf("Get funcString from %s\n", selected_qstring.ascii() );
+  printf("StatsPanel::getFunctionNameFromString, Get funcString from %s\n", selected_qstring.ascii() );
 #endif
 
   QString funcString = QString::null;
@@ -11831,7 +12044,7 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
   sfi = selected_qstring.find(" in ");
 
 #ifdef DEBUG_StatsPanel
-  printf("sfi=%d (Was there an \" in \"\n", sfi );
+  printf("StatsPanel::getFunctionNameFromString, sfi=%d (Was there an \" in \"\n", sfi );
 #endif
 
   if( sfi != -1 ) {
@@ -11841,21 +12054,21 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
   }
 
 #ifdef DEBUG_StatsPanel
-  printf("Start you function lookup from (%s)\n", workString.ascii() );
+  printf("StatsPanel::getFunctionNameFromString, Start your function lookup from (%s)\n", workString.ascii() );
 #endif
 
   funcString = workString.section(' ', 0, 0, QString::SectionSkipEmpty);
   std::string selected_function = funcString.ascii();
 
 #ifdef DEBUG_StatsPanel
-  printf("funcString=(%s)\n", funcString.ascii() );
+  printf("StatsPanel::getFunctionNameFromString, funcString=(%s)\n", funcString.ascii() );
 #endif
 
   int efi = workString.find("(");
   QString function_name = workString.mid(0,efi);
 
 #ifdef DEBUG_StatsPanel
-   printf("function_name=(%s)\n", function_name.ascii() );
+   printf("StatsPanel::getFunctionNameFromString, function_name=(%s)\n", function_name.ascii() );
 #endif
 
   if( ( currentCollectorStr == "mpi" || 
@@ -11872,7 +12085,7 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
     int eof = workString.find('(');
 
 #ifdef DEBUG_StatsPanel
-    printf("eof=%d\n", eof);
+    printf("StatsPanel::getFunctionNameFromString, eof=%d\n", eof);
 #endif
 
     if( eof == -1 ) {
@@ -11882,13 +12095,13 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
 
       QString tempString = workString.mid(0,eof);
 #ifdef DEBUG_StatsPanel
-       printf("tempString=%s\n", tempString.ascii() );
+       printf("StatsPanel::getFunctionNameFromString, tempString=%s\n", tempString.ascii() );
 #endif
 
       QRegExp rxp = QRegExp( "[ >]");
       bof = tempString.findRev(rxp, eof);
 #ifdef DEBUG_StatsPanel
-      printf("bof=%d\n", bof);
+      printf("StatsPanel::getFunctionNameFromString, bof=%d\n", bof);
 #endif
       if( bof == -1 ) {
         bof = 0;
@@ -11898,7 +12111,7 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
     }
     function_name = workString.mid(bof,eof-bof);
 #ifdef DEBUG_StatsPanel
-      printf("bof=%d, eof-bof=%d, workString.mid(bof,eof-bof)=%s\n", bof, eof-bof, function_name.ascii());
+      printf("StatsPanel::getFunctionNameFromString, bof=%d, eof-bof=%d, workString.mid(bof,eof-bof)=%s\n", bof, eof-bof, function_name.ascii());
 #endif
 
     int boln = workString.find('@');
@@ -11907,18 +12120,33 @@ StatsPanel::getFunctionNameFromString( QString selected_qstring, QString &lineNu
     lineNumberStr = workString.mid(boln,eoln-boln).stripWhiteSpace();
 
 #ifdef DEBUG_StatsPanel
-    printf("lineNumberStr=(%s)\n", lineNumberStr.ascii() );
-    printf("mpi: function_name=(%s)\n", function_name.ascii() );
+    printf("StatsPanel::getFunctionNameFromString, lineNumberStr=(%s)\n", lineNumberStr.ascii() );
+    printf("StatsPanel::getFunctionNameFromString, mpi: function_name=(%s)\n", function_name.ascii() );
 #endif
 
 
   }
 
 #ifdef DEBUG_StatsPanel
-  printf("returning function_name=(%s) lineNumberStr=(%s)\n", function_name.ascii(), lineNumberStr.ascii() );
+  printf("StatsPanel::getFunctionNameFromString, returning function_name=(%s) lineNumberStr=(%s)\n", function_name.ascii(), lineNumberStr.ascii() );
 #endif
 
   return(function_name);
+}
+
+//
+// Check for mangled name and return the mangled name, otherwise return the input QString
+// as the function name to use in the CLI call.
+//
+QString StatsPanel::getMangledFunctionNameForCLI(QString inputFuncStr)
+{
+QString newMangledFuncStr = findMangledNameForCLIcommand(inputFuncStr.ascii());
+if (newMangledFuncStr == QString::null) {
+    newMangledFuncStr = inputFuncStr;
+}
+
+return newMangledFuncStr;
+
 }
 
 QString
@@ -12175,10 +12403,9 @@ StatsPanel::generateCommand()
 
       }
 
-      command = QString("expView -x %1 %4%2 -v statements -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
-#ifdef DEBUG_StatsPanel
-     printf("generateCommand, StatementsByFunction, command=(%s)\n", command.ascii() );
-#endif
+      QString newSelectedFunctionStr = getMangledFunctionNameForCLI(selectedFunctionStr);
+
+      command = QString("expView -x %1 %4%2 -v statements -f \"%3\"").arg(exp_id).arg(items_to_display).arg(newSelectedFunctionStr).arg(currentCollectorStr);
 
     } else if( currentUserSelectedReportStr == "minMaxAverage" ) {
 
@@ -12209,6 +12436,7 @@ StatsPanel::generateCommand()
 #endif
 
   } else if( currentCollectorStr == "usertime" || 
+             currentCollectorStr == "omptp" || 
              currentCollectorStr == "iop" || 
              currentCollectorStr == "mpip" || 
              currentCollectorStr == "fpe" || 
@@ -12221,14 +12449,14 @@ StatsPanel::generateCommand()
              currentCollectorStr == "mpit" ) {
 
 #ifdef DEBUG_StatsPanel
-    printf("generateCommand, usertime, iop, fpe,... to mpit, currentCollectorStr=(%s) currentUserSelectedReportStr=(%s)\n", 
+    printf("generateCommand, usertime, omptp, iop, fpe,... to mpit, currentCollectorStr=(%s) currentUserSelectedReportStr=(%s)\n", 
            currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
 #endif
 
     selectedFunctionStr = findSelectedFunction();
 
     if( currentUserSelectedReportStr.isEmpty() ) { 
-      currentUserSelectedReportStr = "Functions";
+        currentUserSelectedReportStr = "Functions";
     }
 
     if( currentUserSelectedReportStr == "Butterfly" ) {
@@ -12248,11 +12476,9 @@ StatsPanel::generateCommand()
         } 
       }
 
-#ifdef DEBUG_StatsPanel
-      printf("generateCommand, selectedFunctionStr=(%s)\n", selectedFunctionStr.ascii() );
-#endif
+      QString newSelectedFunctionStr = getMangledFunctionNameForCLI(selectedFunctionStr);
 
-      command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
+      command = QString("expView -x %1 %4%2 -v Butterfly -f \"%3\"").arg(exp_id).arg(items_to_display).arg(newSelectedFunctionStr).arg(currentCollectorStr);
 
     } else if( currentUserSelectedReportStr == "Statements by Function" ) {
 
@@ -12275,11 +12501,10 @@ StatsPanel::generateCommand()
         } 
 
       } 
-      command = QString("expView -x %1 %4%2 -v statements -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
 
-#ifdef DEBUG_StatsPanel
-     printf("generateCommand, StatementsByFunction, command=(%s)\n", command.ascii() );
-#endif
+      QString newSelectedFunctionStr = getMangledFunctionNameForCLI(selectedFunctionStr);
+
+      command = QString("expView -x %1 %4%2 -v statements -f \"%3\"").arg(exp_id).arg(items_to_display).arg(newSelectedFunctionStr).arg(currentCollectorStr);
 
 
     } else if( currentUserSelectedReportStr == "CallTrees by Function" ) {
@@ -12302,7 +12527,10 @@ StatsPanel::generateCommand()
           return( QString::null );
         } 
       } 
-      command = QString("expView -x %1 %4%2 -v CallTrees -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
+
+      QString newSelectedFunctionStr = getMangledFunctionNameForCLI(selectedFunctionStr);
+
+      command = QString("expView -x %1 %4%2 -v CallTrees -f \"%3\"").arg(exp_id).arg(items_to_display).arg(newSelectedFunctionStr).arg(currentCollectorStr);
 
     } else if( currentUserSelectedReportStr == "CallTrees,FullStack by Function" ) {
 
@@ -12325,7 +12553,10 @@ StatsPanel::generateCommand()
           return( QString::null );
         } 
       } 
-      command = QString("expView -x %1 %4%2 -v CallTrees,FullStack -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
+
+      QString newSelectedFunctionStr = getMangledFunctionNameForCLI(selectedFunctionStr);
+
+      command = QString("expView -x %1 %4%2 -v CallTrees,FullStack -f \"%3\"").arg(exp_id).arg(items_to_display).arg(newSelectedFunctionStr).arg(currentCollectorStr);
 
     } else if( currentUserSelectedReportStr == "TraceBacks by Function" ) {
 
@@ -12347,8 +12578,10 @@ StatsPanel::generateCommand()
           return( QString::null );
         } 
       } 
-      command = QString("expView -x %1 %4%2 -v Tracebacks -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
 
+      QString newSelectedFunctionStr = getMangledFunctionNameForCLI(selectedFunctionStr);
+
+      command = QString("expView -x %1 %4%2 -v Tracebacks -f \"%3\"").arg(exp_id).arg(items_to_display).arg(newSelectedFunctionStr).arg(currentCollectorStr);
 
     } else if( currentUserSelectedReportStr == "TraceBacks,FullStack by Function" ) {
 
@@ -12370,7 +12603,10 @@ StatsPanel::generateCommand()
           return( QString::null );
         } 
       }
-      command = QString("expView -x %1 %4%2 -v Tracebacks,FullStack -f \"%3\"").arg(exp_id).arg(items_to_display).arg(selectedFunctionStr).arg(currentCollectorStr);
+
+      QString newSelectedFunctionStr = getMangledFunctionNameForCLI(selectedFunctionStr);
+
+      command = QString("expView -x %1 %4%2 -v Tracebacks,FullStack -f \"%3\"").arg(exp_id).arg(items_to_display).arg(newSelectedFunctionStr).arg(currentCollectorStr);
 
     } else if( currentUserSelectedReportStr == "minMaxAverage" ) {
 
@@ -12440,6 +12676,7 @@ StatsPanel::generateCommand()
     } else if ( currentUserSelectedReportStr == "CallTrees by Selected Function" ) {
 
       selectedFunctionStr = findSelectedFunction();
+
       if( selectedFunctionStr.isEmpty() ) {
         bool ok = FALSE;
         selectedFunctionStr = QInputDialog::getText("Enter Filename or Function Name Dialog:", 
@@ -12451,10 +12688,12 @@ StatsPanel::generateCommand()
         } 
       }
 
+      QString newSelectedFunctionStr = getMangledFunctionNameForCLI(selectedFunctionStr);
+
       if( items_to_display > 0 ) {
-        command = QString("expView -x %1 %2%3 -v CallTrees -f %4").arg(exp_id).arg(currentCollectorStr).arg(items_to_display).arg(selectedFunctionStr);
+        command = QString("expView -x %1 %2%3 -v CallTrees -f %4").arg(exp_id).arg(currentCollectorStr).arg(items_to_display).arg(newSelectedFunctionStr);
       } else {
-        command = QString("expView -x %1 %2 -v CallTrees -f %4").arg(exp_id).arg(currentCollectorStr).arg(selectedFunctionStr);
+        command = QString("expView -x %1 %2 -v CallTrees -f %4").arg(exp_id).arg(currentCollectorStr).arg(newSelectedFunctionStr);
       }
 
     } else if ( currentUserSelectedReportStr == "TraceBacks" ) {
@@ -12490,13 +12729,15 @@ StatsPanel::generateCommand()
         } 
       }
 
+      QString newSelectedFunctionStr = getMangledFunctionNameForCLI(selectedFunctionStr);
+
       if( items_to_display > 0 ) {
 
-        command = QString("expView -x %1 %2%3 -v Butterfly -f \"%4\"").arg(exp_id).arg(currentCollectorStr).arg(items_to_display).arg(selectedFunctionStr);
+        command = QString("expView -x %1 %2%3 -v Butterfly -f \"%4\"").arg(exp_id).arg(currentCollectorStr).arg(items_to_display).arg(newSelectedFunctionStr);
 
       } else {
 
-        command = QString("expView -x %1 %2 -v Butterfly -f \"%4\"").arg(exp_id).arg(currentCollectorStr).arg(selectedFunctionStr);
+        command = QString("expView -x %1 %2 -v Butterfly -f \"%4\"").arg(exp_id).arg(currentCollectorStr).arg(newSelectedFunctionStr);
 
       }
 
@@ -12604,6 +12845,8 @@ StatsPanel::generateCommand()
       modifier_list = &current_list_of_mem_modifiers;
     } else if( currentCollectorStr == "pthreads" ) {
       modifier_list = &current_list_of_pthreads_modifiers;
+    } else if( currentCollectorStr == "omptp" ) {
+      modifier_list = &current_list_of_omptp_modifiers;
     } else if( currentCollectorStr == "iot" ) {
 
 #ifdef DEBUG_StatsPanel
@@ -12854,6 +13097,18 @@ StatsPanel::generateUSERTIMEmodifiers()
   list_of_usertime_modifiers.push_back("usertime::ThreadMax");
 }
 
+void
+StatsPanel::generateOMPTPmodifiers()
+{
+  list_of_omptp_modifiers.clear();
+  list_of_omptp_modifiers.push_back("omptp::exclusive_times");
+  list_of_omptp_modifiers.push_back("omptp::inclusive_times");
+  list_of_omptp_modifiers.push_back("omptp::percent");
+  list_of_omptp_modifiers.push_back("omptp::count");
+  list_of_omptp_modifiers.push_back("omptp::ThreadAverage");
+  list_of_omptp_modifiers.push_back("omptp::ThreadMin");
+  list_of_omptp_modifiers.push_back("omptp::ThreadMax");
+}
 
 void
 StatsPanel::generateMPIPmodifiers()
@@ -13307,6 +13562,41 @@ StatsPanel::generateHWCTimeMenu(QString collectorName)
   generateModifierMenu(hwctimeModifierMenu, list_of_hwctime_modifiers, current_list_of_hwctime_modifiers);
   hwctime_menu->insertItem(QString("Select hwctime details:"), hwctimeModifierMenu);
 }
+void
+StatsPanel::generateOMPTPMenu()
+{
+// printf("Collector omptp_menu is being created\n");
+
+  omptp_menu = new QPopupMenu(this);
+  connect(omptp_menu, SIGNAL( activated(int) ),
+           this, SLOT(collectorOMPTPReportSelected(int)) );
+
+  QString s = QString::null;
+
+  QAction *qaction = NULL;
+
+
+  if( focusedExpID != -1 ) {
+    contextMenu->insertItem(QString("Display Options: (Exp: %1) OMPTP").arg(focusedExpID), omptp_menu);
+  } else {
+    contextMenu->insertItem(QString("Display Options: OMPTP"), omptp_menu);
+  }
+
+  generateOMPTPmodifiers();
+
+  if( omptpModifierMenu )
+  {
+    delete omptpModifierMenu;
+  }
+  omptpModifierMenu = new QPopupMenu(this);
+  addOMPTPReports(omptp_menu);
+  omptpModifierMenu->insertTearOffHandle();
+  connect(omptpModifierMenu, SIGNAL( activated(int) ),
+    this, SLOT(omptpModifierSelected(int)) );
+  generateModifierMenu(omptpModifierMenu, list_of_omptp_modifiers, current_list_of_omptp_modifiers);
+  omptp_menu->insertItem(QString("Select omptp Metrics:"), omptpModifierMenu);
+}
+
 
 void
 StatsPanel::generateUserTimeMenu()
@@ -13792,7 +14082,7 @@ qaction->setToolTip(tr("Show trace backs for each function by function"));
 qaction = new QAction(this, "showTracebacks,FullStackByFunction");
 qaction->addTo( menu );
 qaction->setText( tr("Show: TraceBacks,FullStack by Function") );
-qaction->setToolTip(tr("Show tracebacks, with full stacks, to PTHREADS functions by function."));
+qaction->setToolTip(tr("Show tracebacks, with full stacks, to POSIX thread functions by function."));
 
   qaction = new QAction(this, "showCallTrees");
   qaction->addTo( menu );
@@ -13823,8 +14113,74 @@ qaction->setToolTip(tr("Show call trees, with full stacks, to functions by funct
   qaction = new QAction(this, "showCallTreesBySelectedFunction");
   qaction->addTo( menu );
   qaction->setText( tr("Show: CallTrees by Selected Function") );
-  qaction->setToolTip(tr("Show Call Tree to MPI routine for selected function."));
+  qaction->setToolTip(tr("Show Call Tree to POSIX thread routine for selected function."));
 #endif // PULL
+}
+
+void
+StatsPanel::addOMPTPReports(QPopupMenu *menu )
+{
+  QAction *qaction = new QAction(this, "showFunctions");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Functions") );
+  qaction->setToolTip(tr("Show timings for Functions."));
+
+  qaction = new QAction(this, "showStatements");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Statements") );
+  qaction->setToolTip(tr("Show timings for statements."));
+
+qaction = new QAction(this, "showStatementsByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: Statements by Function") );
+qaction->setToolTip(tr("Show timings for statements by function"));
+
+  qaction = new QAction(this, "showCallTrees");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees") );
+  qaction->setToolTip(tr("Show call trees for each function."));
+
+qaction = new QAction(this, "showCallTreesByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: CallTrees by Function") );
+qaction->setToolTip(tr("Show call trees for each function by function"));
+
+  qaction = new QAction(this, "showCallTrees,FullStack");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: CallTrees,FullStack") );
+  qaction->setToolTip(tr("Show call trees, with full stacks, to Functions."));
+
+qaction = new QAction(this, "showCallTrees,FullStackbyFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: CallTrees,FullStack by Function") );
+qaction->setToolTip(tr("Show call trees, with full stacks, to functions by function"));
+
+  qaction = new QAction(this, "showTraceBacks");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: TraceBacks") );
+  qaction->setToolTip(tr("Show trace backs for each function."));
+
+qaction = new QAction(this, "showTraceBacksByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: TraceBacks by Function") );
+qaction->setToolTip(tr("Show trace backs for each function by function"));
+
+
+  qaction = new QAction(this, "showTracebacks,FullStack");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: TraceBacks,FullStack") );
+  qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO Functions."));
+
+qaction = new QAction(this, "showTracebacks,FullStackByFunction");
+qaction->addTo( menu );
+qaction->setText( tr("Show: TraceBacks,FullStack by Function") );
+qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO functions by function."));
+
+  qaction = new QAction(this, "showButterfly");
+  qaction->addTo( menu );
+  qaction->setText( tr("Show: Butterfly") );
+  qaction->setToolTip(tr("Show Butterfly by function.") );
+
 }
 
 void
@@ -14188,90 +14544,6 @@ qaction->setToolTip(tr("Show tracebacks, with full stacks, to IO functions by fu
 
 }
 
-
-// Comment out the code that retrieved text based views from the CLI and Framework.
-// That approach does not work.  However leave this code as we will be reworking this
-// code to save and reuse command objects containing the view information in the future.
-// There may be useful pieces of code here to learn from.
-#if COMMENT_OUT_VIEWS_FROM_CLI
-
-// Utility function to help with the output of a saved view.
-static void
-Determine_Location_Information (QString &vs, QString &funcName, QString &fileName, int &lineNumber)
-{
-  int vsLength = vs.length();
-  funcName = QString::null;
-  fileName = QString::null;
-  lineNumber = -1;
-  int paren_pos = vs.find("(");
-  if (paren_pos <= 0) paren_pos = vsLength;
-  if (paren_pos) {
-    char *s = (char *)(vs.ascii());
-
-   // Extract function name.
-    bool start_of_string_found = false;
-    for (int k = 0; k < paren_pos; k++) {
-      if (!start_of_string_found) {
-        if (s[k] == *">") continue;
-        if (s[k] == *"<") continue;
-        if (s[k] == *" ") continue;
-        if (s[k] == *"@") {
-          for ( ; k < (paren_pos - 2); k++) {
-            if ( (s[k] == *"i") && (s[k+1] == *"n") ) {
-              k += 2;
-              break;
-            }
-          }
-          continue;
-        }
-      }
-      if (s[k] == *" ") continue;
-      start_of_string_found = true;
-      funcName += s[k];
-    }
-
-   // Extract file name.
-    int colon_pos = vsLength;
-    for (int k = paren_pos+1; k < vsLength; k++) {
-      if (s[k] == *")") break;
-      if (s[k] == *":")  {
-        colon_pos = k;
-        break;
-      }
-    }
-    int comma_pos = vsLength;
-    for (int k = colon_pos+1; k < vsLength; k++) {
-      if (s[k] == *")") break;
-      if (s[k] == *",") {
-       // Found start of line number field.
-        comma_pos = k;
-        break;
-      }
-      if (s[k] == *" ") continue;
-      fileName += s[k];
-    }
-
-   // Extract line number.
-    lineNumber = 0;
-    for (int k = comma_pos+1; k < vsLength; k++) {
-      if (s[k] == *")") break;
-      if (s[k] == *":") break;
-      if (s[k] == *",") break;
-      if (s[k] == *" ") continue;
-      if (s[k] <  *"0") continue;
-      if (s[k] >  *"9") continue;
-      lineNumber = lineNumber*10 + ((s[k]) - *"0");
-    }
-  }
-
-#ifdef DEBUG_StatsPanel_reuse
-  printf("Determine_Location_Information: xxxfuncName=%s, xxxfileName=%s, xxxlineNumber=%d\n",
-                      funcName.ascii(),fileName.ascii(),lineNumber);
-#endif
-
-}
-// endif if COMMENT_OUT_VIEWS_FROM_CLI out the save/reuse go to cli to get text code
-#endif
 
 
 SourceObject *
@@ -14820,202 +15092,6 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
   }
 #endif
 
-// Comment out the code that retrieved text based views from the CLI and Framework.
-// That approach does not work.  However leave this code as we will be reworking this
-// code to save and reuse command objects containing the view information in the future.
-// There may be useful pieces of code here to learn from.
-#ifdef COMMENT_OUT_VIEWS_FROM_CLI
-
-  savedViewInfo *svi = co->SaveResultViewInfo();
-
-#if SAVE_REUSE_DATABASE
-  if (svi != NULL) {
-#else
-  if ( (svi != NULL) &&
-       (svi->FileName().length() > 0) ) {
-#endif
-
-#if DEBUG_StatsPanel_reuse
-   std::cerr << "In StatsPanel::process_clip, svi->FileName().c_str()=" << svi->FileName().c_str() << std::endl;
-#endif
-
-   // The output has been saved in a file.
-   // It needs to be read from there and prepared for display
-   // rather than formatted with a call to the CLI routines.
-    try {
-      columnFieldList.clear();
-
-#if SAVE_REUSE_DATABASE
-      int header_length = 0;
-      QString EOC = co->SaveEoc();
-      QString EOL = co->SaveEol();
-      int min_buffer_length = (EOC.length() >= EOL.length()) ? EOC.length() : EOL.length();
-      int buffer_load_location = 0;
-      int buffer_entries = 0;
-      int buffer_entries_read = 0;
-
-#if DEBUG_StatsPanel_reuse
-   std::cerr << "In StatsPanel::process_clip, " << " EOC.ascii()=" << EOC.ascii() << " EOC.length()=" << EOC.length()
-             << " EOL.ascii()=" << EOL.ascii() << " EOL.length()=" << EOL.length() << std::endl;
-#endif
-
-      char* buffer ;
-      std::string db_name;
-      std::string orig_cmd;
-      int size_of_view_data = 0;
-      std::string buffer_string;
-      ExperimentObject *eo = Find_Experiment_Object((EXPID)expID);
-      if( eo && eo->FW() ) {
-        Experiment *fw_experiment = eo->FW();
-        // Get this experiments corresponding database name
-        db_name = fw_experiment->getName();
-        orig_cmd = svi->GenCmd();
-    // Retrieve the command's view data from the database where it was stored for reuse
-        bool get_view_success = fw_experiment->getViewFromExistingCommandEntry(db_name,  orig_cmd, buffer_string, size_of_view_data);
-        if (!get_view_success) {
-        }
-        //char* buffer = new char[buffer_string.size()+1];
-        buffer = (char *) malloc(buffer_string.size());
-        memset(buffer, 0, buffer_string.size());
-        memcpy(buffer, buffer_string.c_str(), buffer_string.size() );
-      }
-
-      // Read into the buffer, identify separate strings
-      // and perform the copy to 'columnFieldList' for display.
-      QString vs = QString::null;
-      bool looking_for_start_of_field_data = true;
-
-#if DEBUG_StatsPanel_reuse
-      std::cerr << "In StatsPanel::process_clip, after getViewFromExistingCommandEntry, num=" << buffer_string.size() << " orig_cmd=" << orig_cmd 
-                << " db_name=" << db_name << " header_length=" << header_length << std::endl;
-#endif
-
-      // use this for loop, looping through the string instead of the file read when 
-      // using the clip based save and reuse in the GUI, as opposed to the original text based database method
-      for(int num = buffer_string.size(); num > 0;) {
-
-#else
-      int header_length = co->SaveResultDataOffset();
-      QString EOC = co->SaveEoc();
-      QString EOL = co->SaveEol();
-      int min_buffer_length = (EOC.length() >= EOL.length()) ? EOC.length() : EOL.length();
-      int buffer_load_location = 0;
-      int buffer_entries = 0;
-      int buffer_entries_read = 0;
-
-      // Allocate a buffer for performing the copy
-      const int copyBufferSize = 65536;
-      char* buffer = new char[copyBufferSize + min_buffer_length];
-
-      // Open the source file for read-only access
-      int source_fd = open(svi->FileName().c_str(), O_RDONLY);
-      Assert(source_fd != -1);
-
-      // Read into the buffer, identify separate strings
-      // and perform the copy to 'columnFieldList' for display.
-      QString vs = QString::null;
-      bool looking_for_start_of_field_data = true;
-
-      for(int num = 1; num > 0;) {
-
-        // Read bytes from the source file
-        buffer_entries_read = read(source_fd, &buffer[buffer_load_location], copyBufferSize);
-        num = buffer_entries_read + buffer_load_location;
-
-#if DEBUG_StatsPanel_reuse
-        std::cerr << "In StatsPanel::process_clip, after read, num=" << num << " buffer_entries_read=" << buffer_entries_read 
-                  << " buffer_load_location=" << buffer_load_location << " header_length=" << header_length << std::endl;
-#endif
-        Assert((num >= 0) || ((num == -1) && (errno == EINTR)));
-
-#endif // end of read from view file
-
-        // Write bytes until none remain
-        if (num > 0) {
-          int last_i = 0;
-            for(int i = header_length; i < (num - min_buffer_length); last_i = i, i++) {
-              if  (strncasecmp( &buffer[i], EOL.ascii(), EOL.length() ) == 0) {
-               // found line separator
-                if (!looking_for_start_of_field_data) {
-                  Determine_Location_Information (vs, xxxfuncName, xxxfileName, xxxlineNumber);
-                  columnFieldList.push_back(vs);
-                  outputCLIData( xxxfuncName, xxxfileName, xxxlineNumber );
-                  columnFieldList.clear();
-                  xxxfuncName = QString::null;
-                  xxxfileName = QString::null;
-                  xxxlineNumber = -1;
-                  vs = QString::null;
-                  looking_for_start_of_field_data = true;
-                }
-                i = i + EOL.length() - 1;
-                continue;
-              } else if (strncasecmp( &buffer[i], EOC.ascii(), EOC.length() ) == 0) {
-               // found column separator
-                columnFieldList.push_back(vs);
-                vs = QString::null;
-                looking_for_start_of_field_data = true;
-                i = i + EOC.length() - 1;
-                continue;
-              } else if ( looking_for_start_of_field_data &&
-                          (strcasecmp( &buffer[i], " ") == 0) ) {
-               // insignificant leading blank
-                continue;
-              } else {
-               // We are in or starting a data item.
-                looking_for_start_of_field_data = false;
-                vs = vs + buffer[i];
-              }
-            }
-
-           // The previous read may have not added any characters to the buffer.
-            if (buffer_entries_read == 0) {
-             // Flush any final output line that may not have been terminated with an EOL.
-              if (vs.length() > 0) {
-                Determine_Location_Information (vs, xxxfuncName, xxxfileName, xxxlineNumber);
-                columnFieldList.push_back(vs);
-              }
-              if (columnFieldList.count() != 0) {
-                outputCLIData( xxxfuncName, xxxfileName, xxxlineNumber );
-                columnFieldList.clear();
-                xxxfuncName = QString::null;
-                xxxfileName = QString::null;
-                xxxlineNumber = -1;
-                vs = QString::null;
-              }
-              break;
-            }
-
-           // There may be more data if the last read filled the buffer.
-           // Next read into buffer appends to unprocessed characters.
-            buffer_load_location = 0;
-           // Move unprocessed characters to start of buffer.
-            for(int i = 0, j = (last_i + 1); (j < num); i++, j++) {
-              buffer[i] = buffer[j];
-              buffer_load_location++;
-            }
-           // Next processing cycle starts with unprocessed characters.
-            header_length = 0;
-        } // end of 'if(num > 0)'
-      } // end of 'for(int num = 1; num > 0;)'
-
-     // Destroy the copy buffer
-      delete [] buffer;
-#if DEBUG_StatsPanel_reuse
-      std::cerr << "In StatsPanel::process_clip, EARLY RETURN AFTER PROCESS SAVED VIEW DATA" << std::endl;
-#endif
-      return;
-
-    } catch(const std::exception& error) { 
-      std::cerr << std::endl << "Error: "
-                << (((error.what() == NULL) || (strlen(error.what()) == 0)) ?
-                "Unknown runtime error." : error.what()) << std::endl
-                << std::endl << std::flush;
-      return;
-    }
-
-  } // end 'if (co->SaveResultFile().length() > 0)'
-// endif if COMMENT_OUT_VIEWS_FROM_CLI out the save/reuse go to cli to get text code
-#endif
 
  // Process any annotations.
   bool issue_annotations = false;
@@ -15298,8 +15374,7 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
             int64_t sz = CSV->size();
             std::vector<CommandResult *> *C1 = CSV;
 	    if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "  CMD_RESULT_CALLTRACE: Form ="
-				   << CSE->Form().c_str() << "sz= " <<
-				   sz << "\n";
+				   << CSE->Form().c_str() << " sz= " << sz << "\n";
 
             CommandResult *CE = (*C1)[sz - 1];
 #ifdef DEBUG_StatsPanel
@@ -15308,38 +15383,27 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
 #endif
             if( CE->Type() == CMD_RESULT_FUNCTION )
             {
-              if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "  CMD_RESULT_CALLTRACE: sz=" << sz
+              if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "  CMD_RESULT_CALLTRACE with CE->Type() == CMD_RESULT_FUNCTION: sz=" << sz
 				     << " and function ="
 				     << CE->Form().c_str() << "\n";
 
-              std::string S = ((CommandResult_Function *)CE)->getName();
+
+              //std::string S = ((CommandResult_Function *)CE)->Value();
+              std::string S;
+              ((CommandResult_Function *)CE)->Value(S);
+
+#ifdef DEBUG_StatsPanel
+              std::cerr << "DCLIP: AFTER Assigning S to ((CommandResult_Function *)CE)->getName(), S=" << S << std::endl;
+#endif
+
               xxxfuncName = S.c_str();
+
               if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "((CommandResult_Function *)CE)->getName() == S=" << S << "\n";
 
-//            LinkedObject L = ((CommandResult_Function *)CE)->getLinkedObject(); 
-//            if( dumpClipFLAG) std::cerr << "    L.getPath()=" << L.getPath() << "\n";
 
 #ifdef DEBUG_StatsPanel
               LinkedObject L = ((CommandResult_Function *)CE)->getLinkedObject(); 
               if( dumpClipFLAG) std::cerr << "DCLIP: " <<  "    L.getPath()=" << L.getPath() << "\n";
-#endif
-
-#if 0
-              std::set<Statement> T = ((CommandResult_Function *)CE)->getDefinitions();
-              if( T.size() > 0 )
-              {
-                std::set<Statement>::const_iterator ti = T.begin();
-                Statement s = *ti;
-                if( dumpClipFLAG) std::cerr << "    s.getPath()=" << s.getPath() << "\n";
-                if( dumpClipFLAG) std::cerr << "    (int64_t)s.getLine()=" << (int64_t)s.getLine() << "\n";
-
-                xxxfileName = QString( s.getPath().c_str() );
-//                xxxfileName = QString( s.getPath().getBaseName().c_str() );
-                xxxlineNumber = s.getLine();
-	        if( dumpClipFLAG) std::cerr <<
-			"  CMD_RESULT_CALLTRACE lineNumber via getDefinitions "
-			<< xxxlineNumber << "\n";
-              }
 #endif
 
 	      // IMPORTANT: This will focus on the actual linenumber that
