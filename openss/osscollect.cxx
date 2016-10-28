@@ -72,6 +72,7 @@ namespace {
 
     bool is_debug_timing_enabled = (getenv("CBTF_TIME_CLIENT_EVENTS") != NULL);
     bool is_debug_client_enabled = (getenv("CBTF_DEBUG_CLIENT") != NULL);
+    bool defer_view = (getenv("OPENSS_DEFER_VIEW") != NULL);
 }
 
 // Client Utilities.
@@ -905,6 +906,14 @@ int main(int argc, char** argv)
 
         OfflineExperiment myOffExp(dbname,rawdatadir);
         myOffExp.getRawDataFiles(rawdatadir);
+    }
+
+    if (!defer_view) {
+	std::string viewcmd;
+	viewcmd.append("openss -batch -f " + dbname);
+	//viewcmd.append(dbname);
+	std::cerr << "default view for " << dbname << std::endl;
+	::system(viewcmd.c_str());
     }
 
 #ifndef NDEBUG
