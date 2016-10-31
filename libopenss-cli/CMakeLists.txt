@@ -24,7 +24,7 @@ if (STDINT_H_FOUND)
 endif()
 
 add_definitions(
-    -DPACKAGE_STRING="OpenSpeedShop 2.2.4"
+    -DPACKAGE_STRING="OpenSpeedShop 2.3.0"
     -DPYTHON_FP_LIB_NAME="${PYTHON_LIBRARY}"
 )
 
