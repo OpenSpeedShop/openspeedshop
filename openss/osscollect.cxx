@@ -197,9 +197,9 @@ static bool isMpiExe(const std::string exe) {
 //
 static bool isOpenMPExe(const std::string exe) {
     SymtabAPISymbols stapi_symbols;
-    bool found_openmp = foundLibraryFromLdd(exe,"/libomp5.so");
+    bool found_openmp = foundLibraryFromLdd(exe,"/libomp5");
     if (!found_openmp) {
-        found_openmp = foundLibraryFromLdd(exe,"/libgomp.so");
+        found_openmp = foundLibraryFromLdd(exe,"/libgomp");
     }
     return found_openmp;
 }

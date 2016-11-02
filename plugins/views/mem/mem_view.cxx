@@ -24,18 +24,8 @@
 #include "MemDetail.hxx"
 #include "MemTraceableFunctions.h"
 
-int64_t prev_max_bytesval=0;
-int64_t prev_min_bytesval=LONG_MAX;
-enum CBTF_mem_type {
-	CBTF_MEM_UNKNOWN = 0,
-	CBTF_MEM_MALLOC = 0 + 1,
-	CBTF_MEM_CALLOC = 0 + 2,
-	CBTF_MEM_REALLOC = 0 + 3,
-	CBTF_MEM_FREE = 0 + 4,
-	CBTF_MEM_MEMALIGN = 0 + 5,
-	CBTF_MEM_POSIX_MEMALIGN = 0 + 6,
-};
-
+uint64_t prev_max_bytesval=0;
+uint64_t prev_min_bytesval=LONG_MAX;
 
 /* Uncomment for debug traces
 #define DEBUG_Mem 1
@@ -69,14 +59,44 @@ enum CBTF_mem_type {
 #define maxbytescount_temp  VMulti_free_temp+20
 #define totbytes_temp  VMulti_free_temp+21
 #define runningtot_temp  VMulti_free_temp+22
+#define count_temp  VMulti_free_temp+23
+#define max_alloc_temp  VMulti_free_temp+24
+#define min_alloc_temp  VMulti_free_temp+25
+#define total_alloc_temp  VMulti_free_temp+26
+#define reason_temp  VMulti_free_temp+27
 
-#define First_ByThread_Temp VMulti_free_temp+23
+#define First_ByThread_Temp VMulti_free_temp+28
 #define ByThread_use_intervals 1 // "1" => times reported in milliseconds,
                                  // "2" => times reported in seconds,
                                  // otherwise don't add anything.
 #include "SS_View_bythread_locations.hxx"
 #include "SS_View_bythread_setmetrics.hxx"
 
+// this is based on the enum CBTF_mem_reason defined in the Mem_data.h
+// (via Mem_data.x).If this enum is changed then these names must
+// reflect those changes.
+const char * reasons[] = {
+	"Memory Leak",
+	"Unique Call Path",
+	"Duration of Allocation",
+	"Max Allocation",
+	"Min Allocation",
+	"New Highwater",
+	"Unique Allocation Address",
+	"Unknown Reason"
+};
+// this is based on the enum CBTF_mem_type defined in the Mem_data.h
+// (via Mem_data.x).If this enum is changed then these names must
+// reflect those changes.
+const char * memnames[] = {
+	"unknown",
+	"malloc",
+	"calloc",
+	"realloc",
+	"free",
+	"memalign",
+	"posix_memalign"
+};
 
 // mem view
 
@@ -84,26 +104,31 @@ enum CBTF_mem_type {
             Time start = Time::TheEnd();         \
             Time end = Time::TheBeginning();     \
             double intime = 0.0;                 \
-            int64_t incnt = 0;                   \
+            uint64_t incnt = 0;                   \
             double extime = 0.0;                 \
-            int64_t excnt = 0;                   \
+            uint64_t excnt = 0;                   \
             double vmax = 0.0;                   \
             double vmin = LONG_MAX;              \
             double sum_squares = 0.0;            \
-            int64_t detail_memtype = 0;          \
+            uint64_t detail_memtype = 0;          \
+            uint64_t detail_reason = 0;          \
             uint64_t detail_retval = 0;          \
-            int64_t min_bytesval = LONG_MAX;     \
-            int64_t min_bytesval_count = 0;      \
-            int64_t max_bytesval = 0;            \
-            int64_t max_bytesval_count = 0;      \
-            int64_t tot_bytesval = 0;            \
-            int64_t runningtot_val = 0;          \
+            uint64_t min_bytesval = LONG_MAX;     \
+            uint64_t min_bytesval_count = 0;      \
+            uint64_t max_bytesval = 0;            \
+            uint64_t max_bytesval_count = 0;      \
+            uint64_t tot_bytesval = 0;            \
+            uint64_t runningtot_val = 0;          \
             uint64_t detail_ptr = 0;             \
             uint64_t detail_size1 = 0;           \
             uint64_t detail_size2 = 0;           \
+            uint64_t detail_count = 0;           \
+            uint64_t detail_max_alloc = 0;           \
+            uint64_t detail_min_alloc = 0;           \
+            uint64_t detail_total_alloc = 0;           \
             std::string detail_id = "";          \
             int64_t detail_rank = 0;             \
-            int64_t detail_thread = 0;
+            uint64_t detail_thread = 0;
 
 #define get_Mem_invalues(primary,num_calls, function_name)       \
               double v = primary.dm_time / num_calls;            \
@@ -116,21 +141,21 @@ enum CBTF_mem_type {
               if (primary.dm_memtype != CBTF_MEM_FREE) {              \
                 if (primary.dm_size1 > 0 ) {                          \
                   prev_min_bytesval = min_bytesval ;                  \
-                  min_bytesval = std::min(min_bytesval,(int64_t)primary.dm_size1); \
+                  min_bytesval = std::min(min_bytesval,(uint64_t)primary.dm_size1); \
                   if ( min_bytesval == prev_min_bytesval && primary.dm_size1 == min_bytesval ) {       \
                     min_bytesval_count = min_bytesval_count + 1;            \
                   } else if ( min_bytesval != prev_min_bytesval && primary.dm_size1 == min_bytesval ) {       \
                     min_bytesval_count = 1;                                 \
                   }                                                         \
                   prev_max_bytesval = max_bytesval ;                \
-                  max_bytesval = std::max(max_bytesval,(int64_t)primary.dm_size1); \
+                  max_bytesval = std::max(max_bytesval,(uint64_t)primary.dm_size1); \
                   if ( max_bytesval == prev_max_bytesval && primary.dm_size1 == max_bytesval ) {                \
                     max_bytesval_count = max_bytesval_count + 1;            \
                   } else if ( max_bytesval != prev_max_bytesval && primary.dm_size1 == max_bytesval ) {       \
                     max_bytesval_count = 1;                                 \
                   }                                                         \
-                  tot_bytesval = tot_bytesval + (int64_t)primary.dm_size1;      \
-                  runningtot_val = runningtot_val + (int64_t)primary.dm_size1;  \
+                  tot_bytesval = tot_bytesval + (uint64_t)primary.dm_size1;      \
+                  runningtot_val = runningtot_val + (uint64_t)primary.dm_size1;  \
                 }                                                           \
               } else {                                                      \
                     min_bytesval = 0; \
@@ -139,6 +164,11 @@ enum CBTF_mem_type {
               }                                                             \
               sum_squares += v * v;                     \
               detail_memtype = primary.dm_memtype;      \
+              detail_reason = primary.dm_reason;      \
+              detail_count += primary.dm_count;      \
+              detail_total_alloc += primary.dm_total_allocation;      \
+              detail_max_alloc = primary.dm_max;      \
+              detail_min_alloc = primary.dm_min;      \
               detail_retval = primary.dm_retval;        \
               detail_ptr = primary.dm_ptr;		\
               detail_size1 = primary.dm_size1;		\
@@ -154,7 +184,7 @@ enum CBTF_mem_type {
                 delim = "";                                      \
                 detail_rank = -1;                                \
               }                                                  \
-              if ( primary.dm_id.second != 0 ) {                 \
+              if ( primary.dm_id.second >= 0 ) {                 \
                 ss2 << primary.dm_id.second;                     \
                 detail_thread = primary.dm_id.second;            \
               } else {                                           \
@@ -170,16 +200,16 @@ enum CBTF_mem_type {
               excnt++;
 
 #define get_inclusive_values(stdv, num_calls, function_name)           \
-{           int64_t len = stdv.size();                  \
-            for (int64_t i = 0; i < len; i++) {         \
+{           uint64_t len = stdv.size();                  \
+            for (uint64_t i = 0; i < len; i++) {         \
              /* Use macro to combine all the values. */ \
               get_Mem_invalues(stdv[i],num_calls, function_name)        \
             }                                           \
 }
 
 #define get_exclusive_values(stdv, num_calls)           \
-{           int64_t len = stdv.size();                  \
-            for (int64_t i = 0; i < len; i++) {         \
+{           uint64_t len = stdv.size();                  \
+            for (uint64_t i = 0; i < len; i++) {         \
              /* Use macro to combine all the values. */ \
               get_Mem_exvalues(stdv[i],num_calls)        \
             }                                           \
@@ -188,11 +218,11 @@ enum CBTF_mem_type {
 #define set_Mem_values(value_array, sort_extime)                                          \
               if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;     \
               if (num_temps > start_temp) {                                               \
-                int64_t x= (start.getValue() /*-base_time*/);                             \
+                uint64_t x= (start.getValue() /*-base_time*/);                             \
                 value_array[start_temp] = new CommandResult_Time (x);                     \
               }                                                                           \
               if (num_temps > stop_temp) {                                                \
-                int64_t x= (end.getValue() /*-base_time*/);                               \
+                uint64_t x= (end.getValue() /*-base_time*/);                               \
                 value_array[stop_temp] = new CommandResult_Time (x);                      \
               }                                                                           \
               if (num_temps > VMulti_time_temp) value_array[VMulti_time_temp]             \
@@ -210,9 +240,14 @@ enum CBTF_mem_type {
               if (num_temps > ssq_temp) value_array[ssq_temp]                             \
                             = new CommandResult_Interval (sum_squares);			  \
               if (num_temps > memtype_temp) {						  \
-		CommandResult * p = CRPTR (detail_memtype);				  \
+		CommandResult * p = CRPTR (memnames[detail_memtype]);				  \
 		p->SetValueIsID();							  \
 		value_array[memtype_temp] = p;					          \
+              }										  \
+              if (num_temps > reason_temp) {						  \
+		CommandResult * p = CRPTR (reasons[detail_reason]);				  \
+		p->SetValueIsID();							  \
+		value_array[reason_temp] = p;					          \
               }										  \
               if (num_temps > retval_temp) {						  \
 	 	value_array[retval_temp] = new CommandResult_Address (detail_retval);     \
@@ -229,6 +264,22 @@ enum CBTF_mem_type {
 		CommandResult * p = CRPTR (detail_size2);				  \
 		p->SetValueIsID();							  \
 		value_array[size2_temp] = p;						  \
+              }										  \
+              if (num_temps > count_temp) {						  \
+		CommandResult * p = CRPTR (detail_count);				  \
+		value_array[count_temp] = p;						  \
+              }										  \
+              if (num_temps > total_alloc_temp) {						  \
+		CommandResult * p = CRPTR (detail_total_alloc);				  \
+		value_array[total_alloc_temp] = p;						  \
+              }										  \
+              if (num_temps > max_alloc_temp) {						  \
+		CommandResult * p = CRPTR (detail_max_alloc);				  \
+		value_array[max_alloc_temp] = p;						  \
+              }										  \
+              if (num_temps > min_alloc_temp) {						  \
+		CommandResult * p = CRPTR (detail_min_alloc);				  \
+		value_array[min_alloc_temp] = p;						  \
               }										  \
               if (num_temps > id_temp) {                                                  \
                 CommandResult * p = CRPTR (detail_id);                                    \
@@ -299,7 +350,8 @@ static void Determine_Objects (
 		std::string lopath = lo.getPath();
 		std::set<AddressRange> lor = lo.getAddressRange();
 		std::set<Thread> lot = lo.getThreads();
-		if (1) {
+		if (lopath.find("libpthread") != std::string::npos ||
+                    lopath.find("libc") != std::string::npos) {
 
 #if 0
 		    std::cerr << "Determine_Object MemT INSERT "
@@ -444,6 +496,9 @@ static std::string allowed_mem_V_options[] = {
   "DontExpand",
   "Summary",
   "SummaryOnly",
+  "Unique",
+  "Leaked",
+  "HighWater",
   ""
 };
 
@@ -480,6 +535,10 @@ static bool define_mem_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Add, maxbytescount_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, totbytes_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, runningtot_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Max, max_alloc_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Min, min_alloc_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, total_alloc_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, count_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Summary_Max, intime_temp));
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
@@ -494,7 +553,7 @@ static bool define_mem_columns (
   bool generate_nested_accounting = false;
   int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp, cmd);
   std::string Default_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
-  std::string ByThread_Header = Find_Metadata ( CV[1], MV[1] ).getDescription();
+  std::string ByThread_Header = Find_Metadata ( CV[0], MV[1] ).getDescription();
 
  if (Generate_Summary_Only) {
     if (Generate_ButterFly) {
@@ -544,13 +603,18 @@ static bool define_mem_columns (
   MetricMap["max_bytes"] = maxbytes_temp;
   MetricMap["tot_bytes"] = totbytes_temp;
   MetricMap["runningtot"] = runningtot_temp;
+  MetricMap["allocation"] = total_alloc_temp;
+  MetricMap["max_allocation"] = max_alloc_temp;
+  MetricMap["min_allocation"] = min_alloc_temp;
+  MetricMap["reason"] = reason_temp;
+  MetricMap["path_counts"] = count_temp;
+
+  // these are only valid for a trace view.
   if (vfc == VFC_Trace) {
-    //MetricMap["start_time"] = start_temp;
     MetricMap["stop_time"] = stop_temp;
     MetricMap["id"] = id_temp;
     MetricMap["rank"] = rank_temp;
     MetricMap["thread"] = thread_temp;
-    //MetricMap["retval"] = retval_temp;
   }
 
   if (p_slist->begin() != p_slist->end()) {
@@ -659,7 +723,8 @@ static bool define_mem_columns (
          // percent is calculate from 2 temps: time for this row and total time.
           if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
            // Use the metric needed for calculating total time.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+            //IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
           } else {
            // Sum the extime_temp values.
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
@@ -671,7 +736,8 @@ static bool define_mem_columns (
          // percent is calculate from 2 temps: time for this row and total time.
           if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
            // Use the metric needed for calculating total time.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+            //IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
           } else {
            // Sum the extime_temp values.
             IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
@@ -683,7 +749,8 @@ static bool define_mem_columns (
          // percent is calculate from 2 temps: number of counts for this row and total inclusive counts.
           if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
            // Use the metric needed for calculating total time.
-            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+            //IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+            IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
           } else {
            // Sum the extime_temp values.
             generate_nested_accounting = true;
@@ -698,6 +765,7 @@ static bool define_mem_columns (
          // percent is calculate from 2 temps: counts for this row and total counts.
           if (!Generate_ButterFly && Filter_Uses_F(cmd)) {
            // There is no metric available for calculating total counts.
+           // WHOA! Why is this not allowed but %times above are???
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m exclusive_counts' is not supported with '-f' option.");
             continue;
           } else {
@@ -746,7 +814,12 @@ static bool define_mem_columns (
         } else if (!strcasecmp(M_Name.c_str(), "memtype")) {
 
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, memtype_temp));
-            HV.push_back("Mem Enum");
+            HV.push_back("Mem Call");
+
+        } else if (!strcasecmp(M_Name.c_str(), "reason")) {
+
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, reason_temp));
+            HV.push_back("Reason");
 
         } else if (!strcasecmp(M_Name.c_str(), "retval")) {
           if (1 || vfc == VFC_Trace) {
@@ -770,11 +843,31 @@ static bool define_mem_columns (
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, size2_temp));
             HV.push_back("Size Arg");
  
+        } else if (!strcasecmp(M_Name.c_str(), "max_allocation")) {
+ 
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, max_alloc_temp));
+            HV.push_back("Max Allocation");
+ 
+        } else if (!strcasecmp(M_Name.c_str(), "min_allocation")) {
+ 
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, min_alloc_temp));
+            HV.push_back("Min Allocation");
+ 
+        } else if (!strcasecmp(M_Name.c_str(), "allocation")) {
+ 
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, total_alloc_temp));
+            HV.push_back("Total Allocation");
+ 
+        } else if (!strcasecmp(M_Name.c_str(), "path_counts")) {
+ 
+            IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, count_temp));
+            HV.push_back("Counts This Path");
+ 
         } else if ( (!strcasecmp(M_Name.c_str(), "threadid")) ) {
 
           if (vfc == VFC_Trace) {
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, thread_temp));
-            HV.push_back("Event Identifier(s)");
+            HV.push_back("Thread");
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m thread' only supported for '-v Trace' option.");
           }
@@ -782,7 +875,7 @@ static bool define_mem_columns (
 
           if (vfc == VFC_Trace) {
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, rank_temp));
-            HV.push_back("Event Identifier(s)");
+            HV.push_back("Rank");
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m rank' only supported for '-v Trace' option.");
           }
@@ -790,7 +883,7 @@ static bool define_mem_columns (
 
           if (vfc == VFC_Trace) {
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
-            HV.push_back("Event Identifier(s)");
+            HV.push_back("Id");
           } else {
             Mark_Cmd_With_Soft_Error(cmd,"Warning: '-m id' only supported for '-v Trace' option.");
           }
@@ -828,43 +921,46 @@ static bool define_mem_columns (
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
       HV.push_back("Start Time(d:h:m:s)");
       IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
-    }
-   // Always display elapsed time.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
-    HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
-
-  // and include % of exclusive time
-    if (Filter_Uses_F(cmd)) {
-     // Use the metric needed for calculating total time.
-      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
-    } else {
-     // Sum the extime_temp values.
-      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
-    }
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
-    HV.push_back("% of Total Time");
-
-#if 1
-    if (vfc == VFC_Trace) {
   // display function size 1 value for each function
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, size1_temp));
-      HV.push_back("Size Arg");
+      HV.push_back("Size Arg1");
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, size2_temp));
+      HV.push_back("Size Arg2");
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, ptr_temp));
+      HV.push_back("Ptr Arg");
   // display function return values for each function
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
       HV.push_back("Function Dependent Return Value");
   // display id of event for each function call
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
-      HV.push_back("Event Identifier(s)");
+      HV.push_back("Event Ids");
     }
-#endif
 
-  // display a count of the calls to each function
     if (vfc != VFC_Trace) {
+   // Always display elapsed time.
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
+    // removing Default_Header from display since all metrics are compured via inclusive_details.
+    HV.push_back(std::string("Exclusive ") + "(ms)");
+
+  // and include % of exclusive time
+    // filter while view type is VFC_Function should not show percent anything.
+    if (Filter_Uses_F(cmd) && vfc == VFC_Function) {
+     // Use the metric needed for calculating total time.
+      //IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+      //IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+    } else {
+     // Sum the extime_temp values.
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
+    HV.push_back("% of Total Time");
+    }
+  // display a count of the calls to each function
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
       HV.push_back("Number of Calls");
     }
 
-#if 1
+    if (vfc == VFC_Function) {
+
   // display the number of time the min allocation requested number of bytes was encountered
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytescount_temp));
     HV.push_back(std::string("Min Request Count") );
@@ -884,7 +980,7 @@ static bool define_mem_columns (
   // display total return value
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
     HV.push_back(std::string("Total Bytes Requested") );
-#endif
+    }
 
   } // end if nothing requested
 
@@ -1043,10 +1139,20 @@ class mem_view : public ViewType {
     std::vector<ViewInstruction *>IV;
     std::vector<std::string> HV;
 
-    CV.push_back (Get_Collector (exp->FW(), "mem"));  // Define the collector
-    MV.push_back ("inclusive_details"); // define the metric needed for getting main time values
-    CV.push_back (Get_Collector (exp->FW(), "mem"));  // Define the collector
-    MV.push_back ("time"); // define the metric needed for calculating total time.
+   CV.push_back (Get_Collector (exp->FW(), "mem"));  // Define the collector
+   if (Look_For_KeyWord(cmd, "Unique")) {
+	MV.push_back ("unique_inclusive_details"); // define the basic mem metric needed
+   } else if (Look_For_KeyWord(cmd, "HighWater")) {
+	MV.push_back ("highwater_inclusive_details"); // define the basic mem metric needed
+   } else if (Look_For_KeyWord(cmd, "Leaked")) {
+	MV.push_back ("leaked_inclusive_details"); // define the basic mem metric needed
+   } else {
+	// this default to unique callpath events.
+	MV.push_back ("inclusive_details"); // define the basic mem metric needed
+   }
+
+    //CV.push_back (Get_Collector (exp->FW(), "mem"));  // Define the collector
+    //MV.push_back ("time"); // define the metric needed for calculating total time.
 
     View_Form_Category vfc = Determine_Form_Category(cmd);
     if (mem_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc)) {
@@ -1091,3 +1197,23 @@ class mem_view : public ViewType {
 extern "C" void mem_view_LTX_ViewFactory () {
   Define_New_View (new mem_view());
 }
+
+/*
+ * NOTES on viewing reduced data
+ *
+ * Default view is for all unique callpaths to memory calls.
+ * timeline of all events with all arguments.
+ * expview -vtrace -mstart_time -m time -m id -msize1,size2,ptr,retval
+ * timeline of all event calltrees with all arguments.
+ * expview -vtrace,calltrees -mstart_time -m time -m id -msize1,size2,ptr,retval
+ *
+ * timeline of all leak events with all arguments.
+ * expview -vtrace,leaked -mstart_time -m time -m id -msize1,size2,ptr,retval
+ * timeline of all leak event calltrees with all arguments.
+ * expview -vtrace,calltrees,leaked -mstart_time -m time -m id -msize1,size2,ptr,retval
+ *
+ * timeline of all highwater events with all arguments.
+ * expview -vtrace,highwater -mstart_time,allocation,time,id,size1,size2,ptr,retval
+ * timeline of all highwater event calltrees with all arguments.
+ * expview -vtrace,calltrees,highwater -mstart_time,allocation,time,id,size1,size2,ptr,retval
+ */

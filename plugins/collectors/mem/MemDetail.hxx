@@ -30,6 +30,8 @@
 #endif
 
 #include "TotallyOrdered.hxx"
+#include "KrellInstitute/Messages/Mem.h"
+#include "KrellInstitute/Messages/Mem_data.h"
 
 
 namespace OpenSpeedShop { namespace Framework {
@@ -49,7 +51,12 @@ namespace OpenSpeedShop { namespace Framework {
 	uint64_t dm_ptr;          /**< ptr arg */
 	uint64_t dm_size1;        /**< size 1 arg*/
 	uint64_t dm_size2;        /**< size 2 arg*/
-	int dm_memtype;   /**< enumerated val which mem call is it */
+	uint64_t dm_max;        /**< max allocation seen*/
+	uint64_t dm_min;        /**< min allocation seen*/
+	uint64_t dm_total_allocation;        /**< total_allocation allocation*/
+	uint32_t dm_count;        /**< count of call down this path */
+	CBTF_mem_type dm_memtype;		  /**< enumerated val which mem call is it */
+	CBTF_mem_reason dm_reason;
         std::pair<int, uint64_t> dm_id;  /**< Rank(or Pid) and pthread id of the Event */
 
 
