@@ -87,9 +87,9 @@ extern "C" CollectorImpl* mem_LTX_CollectorFactory()
 MemCollector::MemCollector() :
     CollectorImpl("mem",
                   "Mem Event Tracing",
-		  "Intercepts all calls to Mem functions that perform any "
-		  "significant amount of work and records for each call, "
-		  "the current stack trace and start/end time.")
+		  "Intercepts all calls to Mem functions. "
+		  "Records for each call, details of call, "
+		  "a stacktrace and the start/end time.")
 {
     // Declare our parameters
     declareParameter(Metadata("traced_functions", "Traced Functions",
@@ -97,6 +97,15 @@ MemCollector::MemCollector() :
 			      typeid(std::map<std::string, bool>)));
     
     // Declare our metrics
+    declareMetric(Metadata("unique_inclusive_details", "Unique Call Path Inclusive Details",
+                          "Unique Call Path Inclusive Mem call details.",
+                          typeid(CallDetails)));
+    declareMetric(Metadata("highwater_inclusive_details", "HighWater Call Path Inclusive Details",
+                          "HighWater Call Path Inclusive Mem call details.",
+                          typeid(CallDetails)));
+    declareMetric(Metadata("leaked_inclusive_details", "Memory Leak Call Path Inclusive Details",
+                          "Memory Leak Call Path Inclusive Mem call details.",
+                          typeid(CallDetails)));
     declareMetric(Metadata("time", "Mem Call Time",
 			   "Exclusive Mem call time in seconds.",
 			   typeid(double)));
@@ -108,15 +117,6 @@ MemCollector::MemCollector() :
 			   typeid(CallTimes)));
     declareMetric(Metadata("inclusive_details", "Inclusive Details",
 			   "Inclusive Mem call details.",
-			   typeid(CallDetails)));
-    declareMetric(Metadata("unique_inclusive_details", "Unique Call Path Inclusive Details",
-			   "Unique Call Path Inclusive Mem call details.",
-			   typeid(CallDetails)));
-    declareMetric(Metadata("highwater_inclusive_details", "HighWater Call Path Inclusive Details",
-			   "HighWater Call Path Inclusive Mem call details.",
-			   typeid(CallDetails)));
-    declareMetric(Metadata("leaked_inclusive_details", "Memory Leak Call Path Inclusive Details",
-			   "Memory Leak Call Path Inclusive Mem call details.",
 			   typeid(CallDetails)));
     declareMetric(Metadata("exclusive_details", "Exclusive Details",
 			   "Exclusive Mem call details.",
@@ -144,6 +144,23 @@ MemCollector::MemCollector() :
 			   typeid(double)));
     declareMetric(Metadata("count", "Number of Calls",
 			   "Number of calls to this function.",
+			   typeid(uint64_t)));
+    declareMetric(Metadata("size1", "Value of size_t (1)",
+			   "Value of the first or only size_t argument."
+			   " Only meaningfull for malloc,calloc,realloc,memalign,posix_memalign.",
+			   typeid(uint64_t)));
+    declareMetric(Metadata("size2", "Value of size_t (2)",
+			   "Value of the second size_t argument."
+			   " Only meaningfull for calloc,memalign,posix_memalign.",
+			   typeid(uint64_t)));
+    declareMetric(Metadata("ptr", "Value of ptr",
+			   "Value of the ptr argument."
+			   " Only meaningfull for realloc,free,posix_memalign.",
+			   typeid(uint64_t)));
+    declareMetric(Metadata("retval", "Call dependent return value",
+			   "Call dependent return value of this memory call."
+			   " A pointer to memory is returned by malloc,calloc,realloc,memalign."
+			   " The free call returns no value.",
 			   typeid(uint64_t)));
 }
 
@@ -613,10 +630,10 @@ std::cerr << "OLD MEM EVENT: mem_type:" << olddata.events.events_val[i].mem_type
 
 		    details.dm_time = t_intersection / 1000000000.0;
 		    details.dm_interval = interval;
+		    details.dm_count = data.events.events_val[i].count;
 
 		   if (is_metric_frame) {
 		    details.dm_memtype = data.events.events_val[i].mem_type;
-		    details.dm_count = data.events.events_val[i].count;
 		    details.dm_reason = data.events.events_val[i].reason;
 		    details.dm_max = data.events.events_val[i].max;
 		    details.dm_min = data.events.events_val[i].min;

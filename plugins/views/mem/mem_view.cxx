@@ -166,7 +166,7 @@ const char * memnames[] = {
               detail_memtype = primary.dm_memtype;      \
               detail_reason = primary.dm_reason;      \
               detail_count += primary.dm_count;      \
-              detail_total_alloc += primary.dm_total_allocation;      \
+              detail_total_alloc = primary.dm_total_allocation;      \
               detail_max_alloc = primary.dm_max;      \
               detail_min_alloc = primary.dm_min;      \
               detail_retval = primary.dm_retval;        \
@@ -544,6 +544,8 @@ static bool define_mem_columns (
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
   bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
+  bool ViewLeaks = Look_For_KeyWord(cmd, "leaked");
+  bool ViewHighwater = Look_For_KeyWord(cmd, "highwater");
   bool Generate_Summary = false;
   bool Generate_Summary_Only = Look_For_KeyWord(cmd, "SummaryOnly");
   if (!Generate_Summary_Only) {
@@ -665,6 +667,20 @@ static bool define_mem_columns (
           generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
           HV.push_back(std::string("Inclusive ") + Default_Header + "(ms)");
+        } else if (!strcasecmp(M_Name.c_str(), "leaks") ||
+		   !strcasecmp(M_Name.c_str(), "leaked_inclusive_detail") ||
+                   !strcasecmp(M_Name.c_str(), "leaked_inclusive_details")) {
+         // display LEAKS DEFAULT
+          generate_nested_accounting = true;
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
+          HV.push_back("Number of Leaks");
+          IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
+          HV.push_back(std::string("Total Bytes Leaked") );
+        } else if (!strcasecmp(M_Name.c_str(), "highwater") ||
+		   !strcasecmp(M_Name.c_str(), "highwater_inclusive_detail") ||
+                   !strcasecmp(M_Name.c_str(), "highwater_inclusive_details")) {
+         // display HIGHWATER DEFAULT
+          generate_nested_accounting = true;
         } else if (!strcasecmp(M_Name.c_str(), "min")) {
          // display min time
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, min_temp));
@@ -917,69 +933,98 @@ static bool define_mem_columns (
   } else {
    // If nothing is requested ...
     if (vfc == VFC_Trace) {
-      // Insert start and end times into report.
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
-      HV.push_back("Start Time(d:h:m:s)");
-      IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
-  // display function size 1 value for each function
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, size1_temp));
-      HV.push_back("Size Arg1");
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, size2_temp));
-      HV.push_back("Size Arg2");
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, ptr_temp));
-      HV.push_back("Ptr Arg");
-  // display function return values for each function
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
-      HV.push_back("Function Dependent Return Value");
-  // display id of event for each function call
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
-      HV.push_back("Event Ids");
+	// Insert start and end times into report.
+	IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
+	HV.push_back("Start Time(d:h:m:s)");
+	IV.push_back(new ViewInstruction (VIEWINST_Sort_Ascending, 1)); // final report in ascending time order
+	// display id of event for each function call
+	IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
+	HV.push_back("Event Ids");
+	if (!ViewHighwater && !ViewLeaks) {
+	    // display function size 1 value for each function
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, size1_temp));
+	    HV.push_back("Size Arg1");
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, size2_temp));
+	    HV.push_back("Size Arg2");
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, ptr_temp));
+	    HV.push_back("Ptr Arg");
+	    // display function return values for each function
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
+	    HV.push_back("Return Value");
+	    // display a count of the calls to each function
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, count_temp));
+	    HV.push_back("Number of Calls");
+	    // display total return value
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, total_alloc_temp));
+	    HV.push_back(std::string("Bytes Allocated") );
+	}
+	if (ViewHighwater) {
+	    // display total return value
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, total_alloc_temp));
+	    HV.push_back(std::string("New Highwater") );
+	}
     }
 
     if (vfc != VFC_Trace) {
-   // Always display elapsed time.
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
-    // removing Default_Header from display since all metrics are compured via inclusive_details.
-    HV.push_back(std::string("Exclusive ") + "(ms)");
+	// Always display elapsed time.
+	IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
+	// removing Default_Header from display since all metrics are compured via inclusive_details.
+	HV.push_back(std::string("Exclusive ") + "(ms)");
 
-  // and include % of exclusive time
-    // filter while view type is VFC_Function should not show percent anything.
-    if (Filter_Uses_F(cmd) && vfc == VFC_Function) {
-     // Use the metric needed for calculating total time.
-      //IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
-      //IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
-    } else {
-     // Sum the extime_temp values.
-      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
-    HV.push_back("% of Total Time");
-    }
-  // display a count of the calls to each function
-      IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
-      HV.push_back("Number of Calls");
+	// and include % of exclusive time
+	// filter while view type is VFC_Function should not show percent anything.
+	// FIXME: This makes no sense if we are in vfc == VFC_Trace!
+	if (Filter_Uses_F(cmd) && vfc == VFC_Function) {
+	    // Use the metric needed for calculating total time.
+	    //IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+	    //IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+	} else {
+	    // Sum the extime_temp values.
+	    IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
+	    HV.push_back("% of Total Time");
+	}
+	if (ViewLeaks) {
+	    // display a count of the calls to each function
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
+	    HV.push_back("Number of Leaks");
+	} else if (ViewHighwater) {
+	    // display a count of the calls to each function
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
+	    HV.push_back("Number of Calls");
+	} else {
+	    // display a count of the calls to each function
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, count_temp));
+	    HV.push_back("Number of Calls");
+	}
     }
 
     if (vfc == VFC_Function) {
-
-  // display the number of time the min allocation requested number of bytes was encountered
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytescount_temp));
-    HV.push_back(std::string("Min Request Count") );
-
-  // display the min allocation requested number of bytes
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytes_temp));
-    HV.push_back(std::string("Min Requested Bytes") );
-
-  // display the number of time the max allocation requested number of bytes was encountered
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytescount_temp));
-    HV.push_back(std::string("Max Request Count") );
-
-  // display the max allocation requested number of bytes
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytes_temp));
-    HV.push_back(std::string("Max Requested Bytes") );
-
-  // display total return value
-    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
-    HV.push_back(std::string("Total Bytes Requested") );
+	if (ViewLeaks) {
+	    // display total leaked value
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
+	    HV.push_back(std::string("Total Bytes Leaked") );
+	} else if (ViewHighwater) {
+	    // display total return value
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, total_alloc_temp));
+	    HV.push_back(std::string("Total Bytes Allocated") );
+	} else {
+	    // display the number of time the min allocation requested number of bytes was encountered
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytescount_temp));
+	    HV.push_back(std::string("Min Request Count") );
+	    // display the min allocation requested number of bytes
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytes_temp));
+	    HV.push_back(std::string("Min Requested Bytes") );
+	    // display the number of time the max allocation requested number of bytes was encountered
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytescount_temp));
+	    HV.push_back(std::string("Max Request Count") );
+	    // display the max allocation requested number of bytes
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytes_temp));
+	    HV.push_back(std::string("Max Requested Bytes") );
+	    // display total return value
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
+	    HV.push_back(std::string("Total Bytes Requested") );
+	}
     }
 
   } // end if nothing requested
