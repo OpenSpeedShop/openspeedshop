@@ -2314,6 +2314,11 @@ StatsPanel::menu( QPopupMenu* contextMenu)
       printf("Generate an omptp menu.\n");
 #endif
       generateOMPTPMenu();
+    } else if( QString(collector_name.c_str()).startsWith("mem") ) {
+#ifdef DEBUG_StatsPanel
+      printf("Generate a mem menu.\n");
+#endif
+      generateMEMMenu(QString(collector_name.c_str()));
     } else if( QString(collector_name.c_str()).startsWith("pcsamp") ) {
 #ifdef DEBUG_StatsPanel
       printf("Generate a pcsamp menu\n");
@@ -13666,6 +13671,41 @@ StatsPanel::generateIOPMenu()
     this, SLOT(iopModifierSelected(int)) );
   generateModifierMenu(iopModifierMenu, list_of_iop_modifiers, current_list_of_iop_modifiers);
   iop_menu->insertItem(QString("Select iop Metrics:"), iopModifierMenu);
+}
+
+void
+StatsPanel::generateMEMMenu(QString collectorName)
+{
+// printf("Collector mem_menu is being created\n");
+
+  mem_menu = new QPopupMenu(this);
+  connect(mem_menu, SIGNAL( activated(int) ),
+           this, SLOT(collectorMEMReportSelected(int)) );
+
+  QString s = QString::null;
+
+  QAction *qaction = NULL;
+
+
+  if( focusedExpID != -1 ) {
+    contextMenu->insertItem(QString("Display Options: (Exp: %1) MEM").arg(focusedExpID), mem_menu);
+  } else {
+    contextMenu->insertItem(QString("Display Options: MEM"), mem_menu);
+  }
+
+  generateMEMmodifiers();
+
+  if( memModifierMenu )
+  {
+    delete memModifierMenu;
+  }
+  memModifierMenu = new QPopupMenu(this);
+  addMEMReports(mem_menu);
+  memModifierMenu->insertTearOffHandle();
+  connect(memModifierMenu, SIGNAL( activated(int) ),
+    this, SLOT(memModifierSelected(int)) );
+  generateModifierMenu(memModifierMenu, list_of_mem_modifiers, current_list_of_mem_modifiers);
+  mem_menu->insertItem(QString("Select mem Metrics:"), memModifierMenu);
 }
 
 void
