@@ -87,6 +87,9 @@
 #include "optional_views_icon.xpm"
 #include "sourceAnnotation_icon.xpm"
 #include "hotcallpath_icon.xpm"
+#include "memLeaked_icon.xpm"
+#include "memHighwater_icon.xpm"
+#include "memUnique_icon.xpm"
 
 
 class MetricHeaderInfo;
@@ -12293,6 +12296,18 @@ StatsPanel::generateCommand()
      items_to_display = 5;
      currentUserSelectedReportStr = "CallTrees,FullStack";
   }
+  // Show memory leaked view
+  if (currentUserSelectedReportStr == "memLeakedPath") {
+     currentUserSelectedReportStr = "Leaked,FullStack";
+  }
+  // Show memory highwater view
+  if (currentUserSelectedReportStr == "memHighwaterPath") {
+     currentUserSelectedReportStr = "Highwater,FullStack";
+  }
+  // Show memory unique call paths view
+  if (currentUserSelectedReportStr == "memUniquePath") {
+     currentUserSelectedReportStr = "Unique,FullStack";
+  }
 
   if( currentCollectorStr.isEmpty() ) {
     if( items_to_display > 0 ) {
@@ -16761,6 +16776,17 @@ if (currentCollectorStr != lastCollectorStr ||
 
     QPixmap *hotcallpath_icon = new QPixmap( hotcallpath_icon_xpm );
     new QToolButton(*hotcallpath_icon, "SHOW HOT CALL PATH: Show the top five (5) time taking callpaths in this program:\nThis view displays the most expensive call paths in your program.\n", QString::null, this, SLOT( hotCallpathSelected()), fileTools, "hot call path");
+  if(  currentCollectorStr == "mem" ) {
+    QPixmap *memLeaked_icon = new QPixmap( memLeaked_icon_xpm );
+    new QToolButton(*memLeaked_icon, "SHOW MEMORY LEAKED PATH: Show the call paths where memory leaked in this program:\nThis view displays the call paths in your program where memory leaked.\n", QString::null, this, SLOT( memLeakedpathSelected()), fileTools, "memory leaked call path");
+
+    QPixmap *memHighwater_icon = new QPixmap( memHighwater_icon_xpm );
+    new QToolButton(*memHighwater_icon, "SHOW MEMORY HIGHWATER PATHS: Show the call paths where memory changed to the highwater mark in this program:\nThis view displays the call paths in your program where memory changed to the highwater point.\n", QString::null, this, SLOT( memHighwaterpathSelected()), fileTools, "memory highwater call path");
+
+    QPixmap *memUnique_icon = new QPixmap( memUnique_icon_xpm );
+    new QToolButton(*memUnique_icon, "SHOW MEMORY UNIQUE CALL PATHS: Show where unique memory call paths existed in this program:\nThis view displays the call paths in your program where unique memory call paths existed.\n", QString::null, this, SLOT( memUniquepathSelected()), fileTools, "memory unique call paths");
+
+  }
 
   if ( getPreferenceAdvancedToolbarCheckBox() == TRUE ) {
     QPixmap *tracebacks_icon = new QPixmap( tracebacks_xpm );
@@ -16824,11 +16850,13 @@ if (currentCollectorStr != lastCollectorStr ||
 
   if ( ( list_of_pids.size() > 1 ) || ( list_of_pids.size() == 1 && separate_list_of_threads.size() > 1) ) {
 
-    QPixmap *load_balance_icon = new QPixmap( load_balance_icon_xpm );
-    new QToolButton(*load_balance_icon, "LOAD BALANCE: Show minimum, maximum, and average statistics across ranks,\nthreads, processes: generate a performance statistics report for these metric\nvalues, creating comparison columns for each value.\nUse the View/Display Choice options to see the data for statements or linked objects.\n\nNOTE: To clear \"sticky\" view settings, such as, specific function setting,\ntime segment settings, per event display settings, specific ranks, threads,\nor processes that were focused from the Manage Process Panel, etc..\nuse the CL (Clear auxiliary settings) icon.  The CL icon will set\nthe view back to the original aggregated data view.", QString::null, this, SLOT( minMaxAverageSelected()), fileTools, "Show min, max, average statistics across ranks, threads, processes.");
+    if( currentCollectorStr != "mem") { 
+        QPixmap *load_balance_icon = new QPixmap( load_balance_icon_xpm );
+        new QToolButton(*load_balance_icon, "LOAD BALANCE: Show minimum, maximum, and average statistics across ranks,\nthreads, processes: generate a performance statistics report for these metric\nvalues, creating comparison columns for each value.\nUse the View/Display Choice options to see the data for statements or linked objects.\n\nNOTE: To clear \"sticky\" view settings, such as, specific function setting,\ntime segment settings, per event display settings, specific ranks, threads,\nor processes that were focused from the Manage Process Panel, etc..\nuse the CL (Clear auxiliary settings) icon.  The CL icon will set\nthe view back to the original aggregated data view.", QString::null, this, SLOT( minMaxAverageSelected()), fileTools, "Show min, max, average statistics across ranks, threads, processes.");
 
-    QPixmap *compare_and_analyze_icon = new QPixmap( compare_and_analyze_xpm );
-    new QToolButton(*compare_and_analyze_icon, "COMPARE AND ANALYZE: Show Comparison and Analysis across ranks, threads,\nprocesses: generate a performance statistics report as the result of a \ncluster analysis algorithm to group ranks, threads or processes that have\nsimilar performance statistic characteristics.\nUse the View/Display Choice options to see the data for statements or linked objects.\n\nNOTE: To clear \"sticky\" view settings, such as, specific function setting,\ntime segment settings, per event display settings, specific ranks, threads,\nor processes that were focused from the Manage Process Panel, etc..\nuse the CL (Clear auxiliary settings) icon.  The CL icon will set\nthe view back to the original aggregated data view.", QString::null, this, SLOT( clusterAnalysisSelected()), fileTools, "show comparison analysis");
+        QPixmap *compare_and_analyze_icon = new QPixmap( compare_and_analyze_xpm );
+        new QToolButton(*compare_and_analyze_icon, "COMPARE AND ANALYZE: Show Comparison and Analysis across ranks, threads,\nprocesses: generate a performance statistics report as the result of a \ncluster analysis algorithm to group ranks, threads or processes that have\nsimilar performance statistic characteristics.\nUse the View/Display Choice options to see the data for statements or linked objects.\n\nNOTE: To clear \"sticky\" view settings, such as, specific function setting,\ntime segment settings, per event display settings, specific ranks, threads,\nor processes that were focused from the Manage Process Panel, etc..\nuse the CL (Clear auxiliary settings) icon.  The CL icon will set\nthe view back to the original aggregated data view.", QString::null, this, SLOT( clusterAnalysisSelected()), fileTools, "show comparison analysis");
+    } // not for mem experiment
   }
 
   QPixmap *custom_comparison_icon = new QPixmap( custom_comparison_xpm );
@@ -17419,5 +17447,72 @@ StatsPanel::hotCallpathSelected()
   updateStatsPanelData(DONT_FORCE_UPDATE);
 
   toolbar_status_label->setText("Showing Hot Callpath Report:");
+}
+
+void
+StatsPanel::memLeakedpathSelected()
+{
+#ifdef DEBUG_StatsPanel
+ printf("memLeakedpathSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
+  originatingUserSelectedReportStr = "memLeakedPath";
+  currentUserSelectedReportStr = "memLeakedPath";
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
+
+  toolbar_status_label->setText("Generating Memory Leaked Report:");
+
+  updateStatsPanelData(DONT_FORCE_UPDATE);
+
+  toolbar_status_label->setText("Showing Memory Leaked Report:");
+}
+
+void
+StatsPanel::memHighwaterpathSelected()
+{
+#ifdef DEBUG_StatsPanel
+ printf("memHighwaterpathSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
+  originatingUserSelectedReportStr = "memHighwaterPath";
+  currentUserSelectedReportStr = "memHighwaterPath";
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
+
+  toolbar_status_label->setText("Generating Memory Highwater Report:");
+
+  updateStatsPanelData(DONT_FORCE_UPDATE);
+
+  toolbar_status_label->setText("Showing Memory Highwater Report:");
+}
+
+
+void
+StatsPanel::memUniquepathSelected()
+{
+#ifdef DEBUG_StatsPanel
+ printf("memUniquepathSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
+  originatingUserSelectedReportStr = "memUniquePath";
+  currentUserSelectedReportStr = "memUniquePath";
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
+
+  toolbar_status_label->setText("Generating Memory Unique Paths Report:");
+
+  updateStatsPanelData(DONT_FORCE_UPDATE);
+
+  toolbar_status_label->setText("Showing Memory Unique Paths Report:");
 }
 
