@@ -140,22 +140,26 @@ const char * memnames[] = {
               vmax = std::max(vmax,v);                                \
               if (primary.dm_memtype != CBTF_MEM_FREE) {              \
                 if (primary.dm_size1 > 0 ) {                          \
+		  uint64_t realsize = (uint64_t)primary.dm_size1; \
+		  if (primary.dm_memtype == CBTF_MEM_CALLOC) {              \
+		    realsize = (uint64_t)primary.dm_size1 * (uint64_t)primary.dm_size2; \
+                  }                                                         \
                   prev_min_bytesval = min_bytesval ;                  \
-                  min_bytesval = std::min(min_bytesval,(uint64_t)primary.dm_size1); \
-                  if ( min_bytesval == prev_min_bytesval && primary.dm_size1 == min_bytesval ) {       \
+                  min_bytesval = std::min(min_bytesval,realsize); \
+                  if ( min_bytesval == prev_min_bytesval && realsize == min_bytesval ) {       \
                     min_bytesval_count = min_bytesval_count + 1;            \
-                  } else if ( min_bytesval != prev_min_bytesval && primary.dm_size1 == min_bytesval ) {       \
+                  } else if ( min_bytesval != prev_min_bytesval && realsize == min_bytesval ) {       \
                     min_bytesval_count = 1;                                 \
                   }                                                         \
                   prev_max_bytesval = max_bytesval ;                \
-                  max_bytesval = std::max(max_bytesval,(uint64_t)primary.dm_size1); \
-                  if ( max_bytesval == prev_max_bytesval && primary.dm_size1 == max_bytesval ) {                \
+                  max_bytesval = std::max(max_bytesval,realsize); \
+                  if ( max_bytesval == prev_max_bytesval && realsize == max_bytesval ) {                \
                     max_bytesval_count = max_bytesval_count + 1;            \
-                  } else if ( max_bytesval != prev_max_bytesval && primary.dm_size1 == max_bytesval ) {       \
+                  } else if ( max_bytesval != prev_max_bytesval && realsize == max_bytesval ) {       \
                     max_bytesval_count = 1;                                 \
                   }                                                         \
-                  tot_bytesval = tot_bytesval + (uint64_t)primary.dm_size1;      \
-                  runningtot_val = runningtot_val + (uint64_t)primary.dm_size1;  \
+                  tot_bytesval += realsize;      \
+                  runningtot_val += realsize;  \
                 }                                                           \
               } else {                                                      \
                     min_bytesval = 0; \
@@ -166,7 +170,7 @@ const char * memnames[] = {
               detail_memtype = primary.dm_memtype;      \
               detail_reason = primary.dm_reason;      \
               detail_count += primary.dm_count;      \
-              detail_total_alloc = primary.dm_total_allocation;      \
+              detail_total_alloc += primary.dm_total_allocation;      \
               detail_max_alloc = primary.dm_max;      \
               detail_min_alloc = primary.dm_min;      \
               detail_retval = primary.dm_retval;        \
@@ -660,15 +664,23 @@ static bool define_mem_columns (
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
           HV.push_back(std::string("Exclusive ") + Default_Header + "(ms)");
         } else if (!strcasecmp(M_Name.c_str(), "inclusive_time") ||
-                   !strcasecmp(M_Name.c_str(), "inclusive_times") ||
-                   !strcasecmp(M_Name.c_str(), "inclusive_detail") ||
-                   !strcasecmp(M_Name.c_str(), "inclusive_details")) {
+                   !strcasecmp(M_Name.c_str(), "inclusive_times") ) {
          // display times
           generate_nested_accounting = true;
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, intime_temp));
           HV.push_back(std::string("Inclusive ") + Default_Header + "(ms)");
-        } else if (!strcasecmp(M_Name.c_str(), "leaks") ||
-		   !strcasecmp(M_Name.c_str(), "leaked_inclusive_detail") ||
+        } else if (!strcasecmp(M_Name.c_str(), "unique_inclusive_details") ||
+		   !strcasecmp(M_Name.c_str(), "inclusive_details") ||
+		   !strcasecmp(M_Name.c_str(), "inclusive_detail") ) {
+         // display times
+          //generate_nested_accounting = true;
+	    // display a count of the calls to each function
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, count_temp));
+	    HV.push_back("Number of Calls");
+	    // display total return value
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
+	    HV.push_back(std::string("Total Bytes Allocated") );
+        } else if (!strcasecmp(M_Name.c_str(), "leaked_inclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "leaked_inclusive_details")) {
          // display LEAKS DEFAULT
           generate_nested_accounting = true;
@@ -676,11 +688,16 @@ static bool define_mem_columns (
           HV.push_back("Number of Leaks");
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
           HV.push_back(std::string("Total Bytes Leaked") );
-        } else if (!strcasecmp(M_Name.c_str(), "highwater") ||
-		   !strcasecmp(M_Name.c_str(), "highwater_inclusive_detail") ||
+        } else if (!strcasecmp(M_Name.c_str(), "highwater_inclusive_detail") ||
                    !strcasecmp(M_Name.c_str(), "highwater_inclusive_details")) {
          // display HIGHWATER DEFAULT
           generate_nested_accounting = true;
+	  // display a count of the calls to each function
+	  IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
+	  HV.push_back("Number of Calls");
+	  // display total return value
+	  IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
+	  HV.push_back(std::string("Total Bytes Allocated") );
         } else if (!strcasecmp(M_Name.c_str(), "min")) {
          // display min time
           IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, min_temp));
@@ -810,7 +827,7 @@ static bool define_mem_columns (
                                             VMulti_time_temp, ssq_temp, incnt_temp));
           HV.push_back("Standard Deviation");
         } else if (!strcasecmp(M_Name.c_str(), "start_time")) {
-          if (1 || vfc == VFC_Trace) {
+          if (vfc == VFC_Trace) {
            // display start time
             IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, start_temp));
             HV.push_back("Start Time(d:h:m:s)");
@@ -940,7 +957,7 @@ static bool define_mem_columns (
 	// display id of event for each function call
 	IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, id_temp));
 	HV.push_back("Event Ids");
-	if (!ViewHighwater && !ViewLeaks) {
+	if (ViewHighwater || ViewLeaks) {
 	    // display function size 1 value for each function
 	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, size1_temp));
 	    HV.push_back("Size Arg1");
@@ -951,6 +968,8 @@ static bool define_mem_columns (
 	    // display function return values for each function
 	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
 	    HV.push_back("Return Value");
+	}
+	if (!ViewHighwater && !ViewLeaks) {
 	    // display a count of the calls to each function
 	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, count_temp));
 	    HV.push_back("Number of Calls");
@@ -966,24 +985,6 @@ static bool define_mem_columns (
     }
 
     if (vfc != VFC_Trace) {
-	// Always display elapsed time.
-	IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
-	// removing Default_Header from display since all metrics are compured via inclusive_details.
-	HV.push_back(std::string("Exclusive ") + "(ms)");
-
-	// and include % of exclusive time
-	// filter while view type is VFC_Function should not show percent anything.
-	// FIXME: This makes no sense if we are in vfc == VFC_Trace!
-	if (Filter_Uses_F(cmd) && vfc == VFC_Function) {
-	    // Use the metric needed for calculating total time.
-	    //IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
-	    //IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
-	} else {
-	    // Sum the extime_temp values.
-	    IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
-	    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
-	    HV.push_back("% of Total Time");
-	}
 	if (ViewLeaks) {
 	    // display a count of the calls to each function
 	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
@@ -993,6 +994,25 @@ static bool define_mem_columns (
 	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
 	    HV.push_back("Number of Calls");
 	} else {
+	    // Always display elapsed time.
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
+	    // removing Default_Header from display since all metrics are compured via inclusive_details.
+	    HV.push_back(std::string("Exclusive ") + "(ms)");
+
+	    // and include % of exclusive time
+	    // filter while view type is VFC_Function should not show percent anything.
+	    // FIXME: This makes no sense if we are in vfc == VFC_Trace!
+	    if (Filter_Uses_F(cmd) && vfc == VFC_Function) {
+	    // Use the metric needed for calculating total time.
+	    //IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Metric, totalIndex, 1));
+	    //IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+	    } else {
+	    // Sum the extime_temp values.
+	    IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, extime_temp));
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
+	    HV.push_back("% of Total Time");
+	    }
+
 	    // display a count of the calls to each function
 	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, count_temp));
 	    HV.push_back("Number of Calls");
@@ -1006,7 +1026,8 @@ static bool define_mem_columns (
 	    HV.push_back(std::string("Total Bytes Leaked") );
 	} else if (ViewHighwater) {
 	    // display total return value
-	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, total_alloc_temp));
+	    //IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, total_alloc_temp));
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
 	    HV.push_back(std::string("Total Bytes Allocated") );
 	} else {
 	    // display the number of time the min allocation requested number of bytes was encountered
@@ -1022,7 +1043,8 @@ static bool define_mem_columns (
 	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, maxbytes_temp));
 	    HV.push_back(std::string("Max Requested Bytes") );
 	    // display total return value
-	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
+	    //IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, totbytes_temp));
+	    IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, total_alloc_temp));
 	    HV.push_back(std::string("Total Bytes Requested") );
 	}
     }
@@ -1184,12 +1206,53 @@ class mem_view : public ViewType {
     std::vector<ViewInstruction *>IV;
     std::vector<std::string> HV;
 
+   bool use_highwater = false;
+   bool use_leaked = false;
+   bool use_unique = false;
+   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
+   std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
+   if (p_slist->begin() != p_slist->end()) {
+   // Add modifiers to output list.
+    int64_t i = 0;
+    std::vector<ParseRange>::iterator mi;
+    for (mi = p_slist->begin(); mi != p_slist->end(); mi++) {
+      parse_range_t *m_range = (*mi).getRange();
+      std::string C_Name;
+      std::string M_Name;
+      if (m_range->is_range) {
+        C_Name = m_range->start_range.name;
+        if (!strcasecmp(M_Name.c_str(), "mem")) {
+         // We only know what to do with the mem collector.
+          std::string s("The specified collector, " + C_Name +
+                        ", can not be displayed as part of a 'mem' view.");
+          Mark_Cmd_With_Soft_Error(cmd,s);
+          continue;
+        }
+        M_Name = m_range->end_range.name;
+      } else {
+        M_Name = m_range->start_range.name;
+      }
+
+      if (M_Name.length() > 0) {
+        if (!strcasecmp(M_Name.c_str(), "leaked_inclusive_detail") ||
+	    !strcasecmp(M_Name.c_str(), "leaked_inclusive_details")) {
+	    use_leaked = true;
+        } else if (!strcasecmp(M_Name.c_str(), "highwater_inclusive_detail") ||
+                   !strcasecmp(M_Name.c_str(), "highwater_inclusive_details")) {
+	    use_highwater = true;
+	} else {
+	    use_unique = true;
+	}
+      }
+    }
+   }
+
    CV.push_back (Get_Collector (exp->FW(), "mem"));  // Define the collector
-   if (Look_For_KeyWord(cmd, "Unique")) {
+   if (Look_For_KeyWord(cmd, "Unique") || use_unique) {
 	MV.push_back ("unique_inclusive_details"); // define the basic mem metric needed
-   } else if (Look_For_KeyWord(cmd, "HighWater")) {
+   } else if (Look_For_KeyWord(cmd, "HighWater") || use_highwater) {
 	MV.push_back ("highwater_inclusive_details"); // define the basic mem metric needed
-   } else if (Look_For_KeyWord(cmd, "Leaked")) {
+   } else if (Look_For_KeyWord(cmd, "Leaked") || use_leaked) {
 	MV.push_back ("leaked_inclusive_details"); // define the basic mem metric needed
    } else {
 	// this default to unique callpath events.
