@@ -586,9 +586,25 @@ else()
         add_subdirectory(ossdumpsym)
     endif()
 
+    # install include files
+    install(DIRECTORY plugins/collectors libopenss-cli libopenss-framework libopenss-message libopenss-queries
+        DESTINATION include
+        FILES_MATCHING
+        PATTERN "*.hxx"
+        PATTERN "*.txx"
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+
     if(BUILD_CUDA_ANALYSIS)
         add_subdirectory(libopenss-queries-cuda)
         add_subdirectory(ossdumpcuda)
+
+        # install include files
+        install(DIRECTORY libopenss-queries-cuda
+            DESTINATION include
+            FILES_MATCHING
+            PATTERN "*.hxx"
+            PATTERN "*.txx"
+            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ) 
     endif()
 
     # Install <openss related>.py files needed when running the OSS python interface
