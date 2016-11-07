@@ -1,4 +1,79 @@
 
+
+OpenSpeedShop-2.3 release
+
+
+We have moved from using GNU autotools to build OpenSpeedShop 
+to the cmake build tool.  There we additional refinements and
+fixes to the initial deployment in version 2.2.
+
+Many changes to the Component Framework Tool Framework 
+(CBTF) software to support the usage of CBTF in the OpenSpeedShop
+tools.  
+
+A new experiment (omptp) that targets displaying OpenMP specific 
+information for applications that use OpenMP.  Details are:
+   * Report task idle, barrier, and barrier wait times per OpenMP thread 
+     and attribute those times to the OpenMP parallel regions.
+
+Refinements to the memory analysis (mem) experiment.  Details are:
+   * Tracks potential memory allocation call that is not later destroyed (leak). 
+   * Records any memory allocation event that set a new high-water of allocated 
+     memory current thread or process.
+   * Creates an event for each unique call path to a traced memory call and 
+     records the total number of times this call path was followed, the 
+     max allocation size, the min allocation size, and the total allocation, 
+     the total time spent in the call path, and the start time for the first call.
+
+Updates to the cuda experiment:
+   * Periodically samples both CPU and GPU hardware performance counter events.    
+   * Traces all NVIDIA CUDA kernel executions and the data transfers between main 
+     memory and the GPU. 
+   * Records the call sites, time spent, and data transfer sizes.
+   * New graphical user interface focused on the cuda experiment.
+
+Fixes to numerous issues and bugs.   Some of note:
+   *  Fix issue where clicking on StatsPanel stats lines would fail to show the 
+      view because the CLI can not handle STL names or names containing ::.  
+      This mod creates a set of mandled and demangled name pairs and then when a 
+      user clicks on a stats line we look for a mangled name and send that name 
+      to the CLI instead of the demangled name.  This avoids the issue and allows 
+      more success for users when trying to use a view where a function name 
+      is required.
+
+   * The original code for finding if an executable a MPI executable depends on 
+     the Dyninst symtabAPI interface, but it did not find libmpi.so in some 
+     applications, like simpleFoam from OpenFOAM. Dyninst sets the list of 
+     dependencies from the DT_NEEDED entries in the binary. Dyninst does not 
+     follow transitive dependencies, which ldd does. If you run readelf -d, 
+     you should see NEEDED entries that correspond to the dependencies Dyninst 
+     finds; the Symtab model is (at present) to represent what is present in the 
+     binary, not anything that is contingent on where it runs.  We have replaced 
+     the Dyninst usage with code that does a ldd command and parses the library 
+     list to see if libmpi is present.  We also use this same routine to find 
+     libgomp and/or libomp5 the openMP runtime libraries (GNU and Intel 
+     respectively).
+
+   * On some platforms the PBS supplied node names are host.dns.domain and the 
+     front-end node name is only a host name.  This causes problems when 
+     using the two differing node name forms.  So, here we reduce the PBS 
+     supplied names to match the host only form so we have a successful topology
+     created.
+
+   * Fix issue that prevented cuda experiment from working with mpi
+     applications. Essentially, for mpi and mrnet if any thread starts
+     before before the main thread has attained an mpi rank value used
+     for ltwt mrnet connections, we must wait until the main thread
+     connects to mrnet before attempting to send the attatched thread
+     message.
+
+   * Adds a --offline mode to OSS when configured for "cbtf"
+     instrumentor. This will deprecate the OSS collectors and runtimes
+     in the future as all collectors will be supported by the cbtf-krell
+     collection infrastructure. This hardens the dependency of cbtf-krell
+     for OSS regardless of the configured instrumentor.
+
+
 OpenSpeedShop-2.2 release
 
 

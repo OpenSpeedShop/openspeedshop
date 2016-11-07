@@ -4,50 +4,9 @@ and install information.  That document is based on the "pdf" version
 of the Build and Install Guide that is available in the Files download 
 area for this OpenSpeedShop release on sourceforge.
 
-Both documents have valid Open|SpeedShop-2.2 release information.
+Both documents have valid Open|SpeedShop-2.3 release information.
 
 These are some sample cmake build scripts to use as an example:
-
--------------------------------------------------------------------
-BUILDING OPENSPEEDSHOP for the offline instrumentor:
--------------------------------------------------------------------
-
-LISTING OF THE SCRIPT:
-
-$ cat run_cmake_ossoff_laptop.sh
-rm -rf build_off
-mkdir build_off
-pushd build_off
-
-export KRELL_ROOT=/opt/krellroot_v2.2.2
-export OPENSS_INSTALL_DIR=/opt/ossoff_222
-export OPENMPI_ROOT=/opt/openmpi-1.8.2
-
-cmake .. \
-       -DCMAKE_BUILD_TYPE=None \
-       -DCMAKE_CXX_FLAGS="-g -O2" \
-       -DCMAKE_C_FLAGS="-g -O2" \
-       -DINSTRUMENTOR="offline" \
-       -DRESOLVE_SYMBOLS=symtabapi \
-       -DCMAKE_INSTALL_PREFIX=${OPENSS_INSTALL_DIR} \
-       -DCMAKE_PREFIX_PATH=${KRELL_ROOT} \
-       -DBINUTILS_DIR=${KRELL_ROOT} \
-       -DLIBELF_DIR=${KRELL_ROOT} \
-       -DLIBDWARF_DIR=${KRELL_ROOT} \
-       -DLIBUNWIND_DIR=${KRELL_ROOT} \
-       -DLIBMONITOR_DIR=${KRELL_ROOT} \
-       -DPAPI_DIR=${KRELL_ROOT} \
-       -DDYNINST_DIR=${KRELL_ROOT} \
-       -DVT_DIR=${KRELL_ROOT} \
-       -DOTF_DIR=${KRELL_ROOT} \
-       -DOPENMPI_DIR=${OPENMPI_ROOT}
-
-make clean
-make
-make install
-
-RUN THE SCRIPT TO BUILD:
-$ sh run_cmake_ossoff_laptop.sh
 
 -------------------------------------------------------------------
 
@@ -62,13 +21,13 @@ rm -rf build-cbtf
 mkdir build-cbtf
 pushd build-cbtf
 
-export KRELL_ROOT=/opt/krellroot_v2.2.2
-export MRNET_ROOT=/opt/krellroot_v2.2.2
-export DYNINST_ROOT=/opt/krellroot_v2.2.2
-export CBTF_KRELL_INSTALL_DIR=/opt/cbtf_v2.2.2
-export CBTF_ARGO_INSTALL_DIR=/opt/cbtf_v2.2.2
-export CBTF_INSTALL_DIR=/opt/cbtf_v2.2.2
-export OSS_CBTF_INSTALL_DIR=/opt/osscbtf_v2.2.2
+export KRELL_ROOT=/opt/krellroot_v2.3.0
+export MRNET_ROOT=/opt/krellroot_v2.3.0
+export DYNINST_ROOT=/opt/krellroot_v2.3.0
+export CBTF_KRELL_INSTALL_DIR=/opt/cbtf_v2.3.0
+export CBTF_ARGO_INSTALL_DIR=/opt/cbtf_v2.3.0
+export CBTF_INSTALL_DIR=/opt/cbtf_v2.3.0
+export OSS_CBTF_INSTALL_DIR=/opt/osscbtf_v2.3.0
 
 # Locate the find package files in the locations that cmake expects
 export MY_CMAKE_PREFIX_PATH="${CBTF_INSTALL_DIR}:${CBTF_KRELL_INSTALL_DIR}:${KRELL_ROOT}"
