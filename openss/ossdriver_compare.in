@@ -45,7 +45,7 @@ input_argument_compare_view_type=0
 compare_default_metric="time"
 
 # Corresponds to OPENSS_COMPARE_VIEW_TYPE
-# Options vary by experiment: functions is default, statements and linkedobjects are alternatives
+# Options vary by experiment: functions is default, statements, linkedobjects, and loops are alternatives
 compare_default_view_type="functions"
 
 # Indicate whether or not there was a metric specified on the osscompare command (used for hwcsamp, currently)
@@ -182,6 +182,7 @@ then
      echo "            \"functions\"  - The view type granualarity is per function"
      echo "            \"statements\"  - The view type granualarity is per statement"
      echo "            \"linkedobjects\"  - The view type granualarity is per library (linked object)"
+     echo "            \"loops\"  - The view type granualarity is per loop"
      echo ""
      echo "Example: osscompare \"nbody-usertime.openss,nbody-usertime-1.openss\"" percent
      echo "         This example compares the two specified databases using the metric:"
@@ -302,7 +303,7 @@ else
                 echo "row_limit=${row_limit}"
              fi
            elif [[ $match_oname == 0 && $match_rows == 0 && $match_viewtype != 0 ]]; then
-             # need to parse off the view type: must be functions or statements or linkedobjects
+             # need to parse off the view type: must be functions or statements or linkedobjects or loops
              if [ $debug_flag == 1 ]
              then
                echo "DEBUG: SETTING view type value specified in argument 2=$2"
@@ -310,6 +311,7 @@ else
              match_viewtype_functions=`expr match "$2" 'viewtype=functions'`
              match_viewtype_statements=`expr match "$2" 'viewtype=statements'`
              match_viewtype_linkedobjects=`expr match "$2" 'viewtype=linkedobjects'`
+             match_viewtype_loops=`expr match "$2" 'viewtype=loops'`
              if  [ $match_viewtype_functions != 0 ]
              then
                 input_argument_compare_view_type="functions"
@@ -319,6 +321,9 @@ else
              elif  [ $match_viewtype_linkedobjects != 0 ]
              then
                 input_argument_compare_view_type="linkedobjects"
+             elif  [ $match_viewtype_loops != 0 ]
+             then
+                input_argument_compare_view_type="loops"
              else
                 echo "WARNING: SETTING for viewtype was incorrect using functions instead of input argument 2 was: $2"
                 if [ $debug_flag == 1 ]
