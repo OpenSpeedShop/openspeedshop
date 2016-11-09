@@ -331,6 +331,7 @@ else
                   echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_functions: $match_viewtype_functions"
                   echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_statements: $match_viewtype_statements"
                   echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_linkedobjects: $match_viewtype_linkedobjects"
+                  echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_loops: $match_viewtype_loops"
                 fi
                 input_argument_compare_view_type=$compare_default_view_type
              fi
@@ -409,6 +410,7 @@ else
              match_viewtype_functions=`expr match "$3" 'viewtype=functions'`
              match_viewtype_statements=`expr match "$3" 'viewtype=statements'`
              match_viewtype_linkedobjects=`expr match "$3" 'viewtype=linkedobjects'`
+             match_viewtype_loops=`expr match "$3" 'viewtype=loops'`
              if  [ $match_viewtype_functions != 0 ]
              then
                 input_argument_compare_view_type="functions"
@@ -418,6 +420,9 @@ else
              elif  [ $match_viewtype_linkedobjects != 0 ]
              then
                 input_argument_compare_view_type="linkedobjects"
+             elif  [ $match_viewtype_loops != 0 ]
+             then
+                input_argument_compare_view_type="loops"
              else
                 echo "WARNING: SETTING for viewtype was incorrect using functions instead of input argument 3 was: $3"
                 if [ $debug_flag == 1 ]
@@ -425,6 +430,7 @@ else
                    echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_functions: $match_viewtype_functions"
                    echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_statements: $match_viewtype_statements"
                    echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_linkedobjects: $match_viewtype_linkedobjects"
+                   echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_loops: $match_viewtype_loops"
                 fi
                 input_argument_compare_view_type=$compare_default_view_type
              fi
@@ -496,6 +502,7 @@ else
           match_viewtype_functions=`expr match "$3" 'viewtype=functions'`
           match_viewtype_statements=`expr match "$3" 'viewtype=statements'`
           match_viewtype_linkedobjects=`expr match "$3" 'viewtype=linkedobjects'`
+          match_viewtype_loops=`expr match "$3" 'viewtype=loops'`
           if  [ $match_viewtype_functions != 0 ]
           then
              input_argument_compare_view_type="functions"
@@ -505,6 +512,9 @@ else
           elif  [ $match_viewtype_linkedobjects != 0 ]
           then
              input_argument_compare_view_type="linkedobjects"
+          elif  [ $match_viewtype_loops != 0 ]
+          then
+             input_argument_compare_view_type="loops"
           else
              echo "WARNING: SETTING for viewtype was incorrect using functions instead of input argument 3 was: $3"
              if [ $debug_flag == 1 ]
@@ -512,6 +522,7 @@ else
                 echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_functions: $match_viewtype_functions"
                 echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_statements: $match_viewtype_statements"
                 echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_linkedobjects: $match_viewtype_linkedobjects"
+                echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_loops: $match_viewtype_loops"
              fi
              input_argument_compare_view_type=$compare_default_view_type
           fi
@@ -581,6 +592,7 @@ else
           match_viewtype_functions=`expr match "$3" 'viewtype=functions'`
           match_viewtype_statements=`expr match "$3" 'viewtype=statements'`
           match_viewtype_linkedobjects=`expr match "$3" 'viewtype=linkedobjects'`
+          match_viewtype_loops=`expr match "$3" 'viewtype=loops'`
           if  [ $match_viewtype_functions != 0 ]
           then
              input_argument_compare_view_type="functions"
@@ -590,6 +602,9 @@ else
           elif  [ $match_viewtype_linkedobjects != 0 ]
           then
              input_argument_compare_view_type="linkedobjects"
+          elif  [ $match_viewtype_loops != 0 ]
+          then
+             input_argument_compare_view_type="loops"
           else
              echo "WARNING: SETTING for viewtype was incorrect using functions instead of input argument 3 was: $3"
              if [ $debug_flag == 1 ]
@@ -597,6 +612,7 @@ else
                 echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_functions: $match_viewtype_functions"
                 echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_statements: $match_viewtype_statements"
                 echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_linkedobjects: $match_viewtype_linkedobjects"
+                echo "WARNING: SETTING for viewtype was incorrect using functions match_viewtype_loops: $match_viewtype_loops"
              fi
              input_argument_compare_view_type=$compare_default_view_type
           fi
