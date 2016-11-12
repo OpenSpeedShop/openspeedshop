@@ -11817,7 +11817,6 @@ StatsPanel::getFilenameFromString( QString selected_qstring )
 // This is format of string: tdot_ (matmulMOD: matmulMOD.f90,5301)
 // But must also consider this form: ggGridIterator<mrSurface*>::Next(mrSurface*&, double&, double&) (eon: ggGrid.h,259)
 
-  printf("-------------------------- StatsPanel::getFilenameFromString: Get filename from (%s)\n", selected_qstring.ascii() );
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getFilenameFromString: Get filename from (%s)\n", selected_qstring.ascii() );
 #endif
