@@ -559,7 +559,8 @@ static bool define_mem_columns (
   bool generate_nested_accounting = false;
   int64_t View_ByThread_Identifier = Determine_ByThread_Id (exp, cmd);
   std::string Default_Header = Find_Metadata ( CV[0], MV[1] ).getShortName();
-  std::string ByThread_Header = Find_Metadata ( CV[0], MV[1] ).getDescription();
+  //std::string ByThread_Header = Find_Metadata ( CV[1], MV[1] ).getDescription();
+  std::string ByThread_Header = Default_Header;
 
  if (Generate_Summary_Only) {
     if (Generate_ButterFly) {
@@ -1098,7 +1099,11 @@ static bool mem_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t 
 
 
 static std::string VIEW_mem_brief = "Memory Tracing (mem) Report";
-static std::string VIEW_mem_short = "Report the time spent in each memory allocation and deallocation function.";
+static std::string VIEW_mem_short = "Report general statictics on all unique callpaths to the"
+				    "traced memory calls.  Report on potential leaked memory"
+				    "allocations.  Report timeline of all allocations that set"
+				    "a new highwater memory mark."
+					;
 static std::string VIEW_mem_long  =
                   "\nA positive integer can be added to the end of the keyword"
                   " 'mem' to indicate the maximum number of items in the report."
@@ -1174,11 +1179,20 @@ static std::string VIEW_mem_long  =
 #include "SS_View_bythread_help.hxx"
                   "\n"; 
 static std::string VIEW_mem_example = "\texpView mem\n"
-                                      "\texpView -v CallTrees,FullStack mem10 -m min,max,count\n";
+                                      "\texpView -vtrace,unique\n"
+                                      "\texpView -vleaked\n"
+                                      "\texpView -vtrace,leaked\n"
+                                      "\texpView -vtrace,fullstack,leaked > leakedTraceWFullstacks.txt\n"
+                                      "\texpView -vhighwater\n"
+                                      "\texpView -vtrace,highwater\n"
+					;
 static std::string VIEW_mem_metrics[] =
   { "time",
     "inclusive_times",
     "inclusive_details",
+    "unique_inclusive_details",
+    "leaked_inclusive_details",
+    "highwater_inclusive_details",
     "exclusive_times",
     "exclusive_details",
     ""
@@ -1259,8 +1273,8 @@ class mem_view : public ViewType {
 	MV.push_back ("inclusive_details"); // define the basic mem metric needed
    }
 
-    //CV.push_back (Get_Collector (exp->FW(), "mem"));  // Define the collector
-    //MV.push_back ("time"); // define the metric needed for calculating total time.
+    CV.push_back (Get_Collector (exp->FW(), "mem"));  // Define the collector
+    MV.push_back ("time"); // define the metric needed for calculating total time.
 
     View_Form_Category vfc = Determine_Form_Category(cmd);
     if (mem_definition (cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc)) {
