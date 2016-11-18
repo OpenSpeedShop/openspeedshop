@@ -359,12 +359,13 @@ void MemCollector::getMetricValues(const std::string& metric,
 				  void* ptr) const
 {
     // Determine which metric was specified
+    bool is_time = (metric == "time");
     bool is_inclusive_details = (metric == "inclusive_details");
     bool is_unique_inclusive_details = (metric == "unique_inclusive_details");
     bool is_leaked_inclusive_details = (metric == "leaked_inclusive_details");
     bool is_highwater_inclusive_details = (metric == "highwater_inclusive_details");
     bool is_details = true;
-    CBTF_mem_reason view_reason = CBTF_MEM_REASON_UNKNOWN;
+    CBTF_mem_reason view_reason = CBTF_MEM_REASON_UNIQUE_CALLPATH;
 
     bool debug_metrics = false;
     if (getenv("OPENSS_DEBUG_MEM_METRICS") != NULL) {
@@ -391,29 +392,38 @@ void MemCollector::getMetricValues(const std::string& metric,
 
     // Don't return anything if an invalid metric was specified
     if (is_old_mem_data) {
-	if(!is_inclusive_details) {
+	if(!is_time && !is_inclusive_details) {
 	    return;
+	}
+	if(is_time) {
+	    Assert(reinterpret_cast<std::vector<double>*>(ptr)->size() >=
+	       subextents.size());
 	}
 	if(is_inclusive_details) {
 	    Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
 	       subextents.size()); 
 	}
     } else {
-	if(!is_inclusive_details && !is_unique_inclusive_details &&
+	if(!is_time && !is_inclusive_details && !is_unique_inclusive_details &&
 	   !is_leaked_inclusive_details && !is_highwater_inclusive_details) {
 	    return;
 	}
-	if(is_inclusive_details) {
+	if(is_time) {
+	    Assert(reinterpret_cast<std::vector<double>*>(ptr)->size() >=
+	       subextents.size());
+	} else {
+	    if(is_inclusive_details) {
 	    view_reason = CBTF_MEM_REASON_UNIQUE_CALLPATH;
-	} else if (is_unique_inclusive_details) {
+	    } else if (is_unique_inclusive_details) {
 	    view_reason = CBTF_MEM_REASON_UNIQUE_CALLPATH;
-	} else if (is_leaked_inclusive_details) {
+	    } else if (is_leaked_inclusive_details) {
 	    view_reason = CBTF_MEM_REASON_STILLALLOCATED;
-	} else if (is_highwater_inclusive_details) {
+	    } else if (is_highwater_inclusive_details) {
 	    view_reason = CBTF_MEM_REASON_HIGHWATER_SET;
-	}
-	Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
+	    }
+	    Assert(reinterpret_cast<std::vector<CallDetails>*>(ptr)->size() >=
 	       subextents.size()); 
+	}
     }
      
     // HANDLE PREVIOUS mem data from old collector.
@@ -473,7 +483,7 @@ void MemCollector::getMetricValues(const std::string& metric,
 		    details.dm_time = t_intersection / 1000000000.0;
 		    details.dm_memtype = olddata.events.events_val[i].mem_type;
 		    details.dm_interval = interval;
-		    details.dm_count = 0;
+		    details.dm_count = data.events.events_val[i].count;
 		    details.dm_reason = CBTF_MEM_REASON_UNKNOWN;
 		    details.dm_max = 0;
 		    details.dm_min = 0;
@@ -589,6 +599,13 @@ std::cerr << "OLD MEM EVENT: mem_type:" << olddata.events.events_val[i].mem_type
 	// Iterate over each of the frames in this event's stack trace
 	for(StackTrace::const_iterator 
 		j = trace.begin(); j != trace.end(); ++j) {
+
+            // Stop after the first frame if this is "exclusive" anything
+            if((is_time /*|| is_exclusive_times || is_exclusive_details*/) &&
+                 (j != trace.begin())) {
+                break;
+	    }
+
 	    bool is_metric_frame  = (j == trace.begin());
 	    // Find the subextents that contain this frame
 	    std::set<ExtentGroup::size_type> intersection =
@@ -603,7 +620,12 @@ std::cerr << "OLD MEM EVENT: mem_type:" << olddata.events.events_val[i].mem_type
 		double t_intersection = static_cast<double>
 		    ((interval & subextents[*k].getTimeInterval()).getWidth());
 
-		if(is_details) {
+                if(is_time) {
+
+                    (*reinterpret_cast<std::vector<double>*>(ptr))[*k] +=
+                        t_intersection / 1000000000.0;
+
+                } else if (is_details) {
 		    // Find this event's stack trace in the results (or add it)
 		    CallDetails::iterator l =
 			(*reinterpret_cast<std::vector<CallDetails>*>(ptr))

@@ -87,6 +87,9 @@
 #include "optional_views_icon.xpm"
 #include "sourceAnnotation_icon.xpm"
 #include "hotcallpath_icon.xpm"
+#include "memLeaked_icon.xpm"
+#include "memHighwater_icon.xpm"
+#include "memUnique_icon.xpm"
 
 
 class MetricHeaderInfo;
@@ -11814,7 +11817,6 @@ StatsPanel::getFilenameFromString( QString selected_qstring )
 // This is format of string: tdot_ (matmulMOD: matmulMOD.f90,5301)
 // But must also consider this form: ggGridIterator<mrSurface*>::Next(mrSurface*&, double&, double&) (eon: ggGrid.h,259)
 
-  printf("-------------------------- StatsPanel::getFilenameFromString: Get filename from (%s)\n", selected_qstring.ascii() );
 #ifdef DEBUG_StatsPanel
   printf("StatsPanel::getFilenameFromString: Get filename from (%s)\n", selected_qstring.ascii() );
 #endif
@@ -12292,6 +12294,18 @@ StatsPanel::generateCommand()
   if (currentUserSelectedReportStr == "HotCallPath") {
      items_to_display = 5;
      currentUserSelectedReportStr = "CallTrees,FullStack";
+  }
+  // Show memory leaked view
+  if (currentUserSelectedReportStr == "memLeakedPath") {
+     currentUserSelectedReportStr = "Leaked,FullStack";
+  }
+  // Show memory highwater view
+  if (currentUserSelectedReportStr == "memHighwaterPath") {
+     currentUserSelectedReportStr = "Highwater,FullStack";
+  }
+  // Show memory unique call paths view
+  if (currentUserSelectedReportStr == "memUniquePath") {
+     currentUserSelectedReportStr = "Unique,FullStack";
   }
 
   if( currentCollectorStr.isEmpty() ) {
@@ -16761,6 +16775,17 @@ if (currentCollectorStr != lastCollectorStr ||
 
     QPixmap *hotcallpath_icon = new QPixmap( hotcallpath_icon_xpm );
     new QToolButton(*hotcallpath_icon, "SHOW HOT CALL PATH: Show the top five (5) time taking callpaths in this program:\nThis view displays the most expensive call paths in your program.\n", QString::null, this, SLOT( hotCallpathSelected()), fileTools, "hot call path");
+  if(  currentCollectorStr == "mem" ) {
+    QPixmap *memLeaked_icon = new QPixmap( memLeaked_icon_xpm );
+    new QToolButton(*memLeaked_icon, "SHOW MEMORY LEAKED PATH: Show the call paths where memory leaked in this program:\nThis view displays the call paths in your program where memory leaked.\n", QString::null, this, SLOT( memLeakedpathSelected()), fileTools, "memory leaked call path");
+
+    QPixmap *memHighwater_icon = new QPixmap( memHighwater_icon_xpm );
+    new QToolButton(*memHighwater_icon, "SHOW MEMORY HIGHWATER PATHS: Show the call paths where memory changed to the highwater mark in this program:\nThis view displays the call paths in your program where memory changed to the highwater point.\n", QString::null, this, SLOT( memHighwaterpathSelected()), fileTools, "memory highwater call path");
+
+    QPixmap *memUnique_icon = new QPixmap( memUnique_icon_xpm );
+    new QToolButton(*memUnique_icon, "SHOW MEMORY UNIQUE CALL PATHS: Show where unique memory call paths existed in this program:\nThis view displays the call paths in your program where unique memory call paths existed.\n", QString::null, this, SLOT( memUniquepathSelected()), fileTools, "memory unique call paths");
+
+  }
 
   if ( getPreferenceAdvancedToolbarCheckBox() == TRUE ) {
     QPixmap *tracebacks_icon = new QPixmap( tracebacks_xpm );
@@ -17419,5 +17444,72 @@ StatsPanel::hotCallpathSelected()
   updateStatsPanelData(DONT_FORCE_UPDATE);
 
   toolbar_status_label->setText("Showing Hot Callpath Report:");
+}
+
+void
+StatsPanel::memLeakedpathSelected()
+{
+#ifdef DEBUG_StatsPanel
+ printf("memLeakedpathSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
+  originatingUserSelectedReportStr = "memLeakedPath";
+  currentUserSelectedReportStr = "memLeakedPath";
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
+
+  toolbar_status_label->setText("Generating Memory Leaked Report:");
+
+  updateStatsPanelData(DONT_FORCE_UPDATE);
+
+  toolbar_status_label->setText("Showing Memory Leaked Report:");
+}
+
+void
+StatsPanel::memHighwaterpathSelected()
+{
+#ifdef DEBUG_StatsPanel
+ printf("memHighwaterpathSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
+  originatingUserSelectedReportStr = "memHighwaterPath";
+  currentUserSelectedReportStr = "memHighwaterPath";
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
+
+  toolbar_status_label->setText("Generating Memory Highwater Report:");
+
+  updateStatsPanelData(DONT_FORCE_UPDATE);
+
+  toolbar_status_label->setText("Showing Memory Highwater Report:");
+}
+
+
+void
+StatsPanel::memUniquepathSelected()
+{
+#ifdef DEBUG_StatsPanel
+ printf("memUniquepathSelected()\n");
+ printf("  currentCollectorStr=(%s) currentUserSelectedReportStr(%s)\n", currentCollectorStr.ascii(), currentUserSelectedReportStr.ascii() );
+#endif
+  originatingUserSelectedReportStr = "memUniquePath";
+  currentUserSelectedReportStr = "memUniquePath";
+
+  // Clear all trace display - this should be a purely function view
+  traceAddition = QString::null;
+  // Clear all thread specific options
+  currentThreadsStr = QString::null;
+
+  toolbar_status_label->setText("Generating Memory Unique Paths Report:");
+
+  updateStatsPanelData(DONT_FORCE_UPDATE);
+
+  toolbar_status_label->setText("Showing Memory Unique Paths Report:");
 }
 

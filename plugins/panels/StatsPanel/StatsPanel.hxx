@@ -651,6 +651,9 @@ class StatsPanel  : public Panel
     void butterflySelected();
     void infoEditHeaderMoreButtonSelected();
     void hotCallpathSelected();
+    void memLeakedpathSelected();
+    void memHighwaterpathSelected();
+    void memUniquepathSelected();
 
   private slots:
     void threadSelected(int);

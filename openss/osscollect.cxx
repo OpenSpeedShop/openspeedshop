@@ -663,6 +663,13 @@ int main(int argc, char** argv)
 	// Find out if there is an mpi driver to key off of
 	// Then match the mpiexecutable value to the program name
 	mpiexecutable = getMPIExecutableFromCommand(program);
+	seqexecutable = getSeqExecutableFromCommand(program);
+    }
+
+    if (mpiexecutable == "" && seqexecutable == "") {
+        std::cerr << "Could not find executable to run from the specified input run command:" << std::endl;
+        std::cerr << program << std::endl;
+        return 1;
     }
 
     if (mpiexecutable != "") {
