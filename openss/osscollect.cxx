@@ -167,7 +167,7 @@ static bool foundLibraryFromLdd(const std::string& exename, const std::string& l
 
 	    if (!line.empty()) {
 		if (line.find(libname) != std::string::npos) {
-		    //std::cerr << "FOUND " << libname << std::endl;
+		    //std::cerr << "FOUND " << libname << " line=" << line << std::endl;
 		    return true;
 		}
 	    }
@@ -197,7 +197,7 @@ static bool isMpiExe(const std::string exe) {
 //
 static bool isOpenMPExe(const std::string exe) {
     SymtabAPISymbols stapi_symbols;
-    bool found_openmp = foundLibraryFromLdd(exe,"/libomp5");
+    bool found_openmp = foundLibraryFromLdd(exe,"/libiomp5");
     if (!found_openmp) {
         found_openmp = foundLibraryFromLdd(exe,"/libgomp");
     }
