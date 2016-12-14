@@ -206,8 +206,10 @@ set(CBTF_KRELL_CN_RUNTIME_DIR "" CACHE STRING "Path to targeted runtime collecto
 # Set default to runtime only to false.
 set(RUNTIME_ONLY "false" CACHE STRING "Build only runtime collectors (offline instrumentor): [true,false]")
 
+# Offline related - for finding the compute node versions of OSS and libmonitor
 set(RUNTIME_DIR "" CACHE STRING "path to targeted runtime collectors")
 set(HAVE_RUNTIME_DIR "false" CACHE STRING "Was the directory path to targeted runtime collectors passed in as an argument.")
+set(HAVE_CN_LIBMONITOR "false" CACHE STRING "Was the directory path to targeted libmonitor passed in as an argument.")
 
 # Default to the offline instrumentor.
 set(INSTRUMENTOR "offline" CACHE STRING "OpenSpeedShop instrumentor type: [offline,cbtf]")
@@ -285,6 +287,31 @@ if (INSTRUMENTOR MATCHES "offline")
     if (PERSONALITY_FOUND)
         set(HAVE_PERSONALITY 1)
     endif()
+
+    if (NOT "${LIBMONITOR_CN_RUNTIME_DIR}" STREQUAL "")
+        if(EXISTS ${LIBMONITOR_CN_RUNTIME_DIR} AND IS_DIRECTORY "${LIBMONITOR_CN_RUNTIME_DIR}")
+            set (HAVE_CN_LIBMONITOR "true")
+            if( EXISTS ${LIBMONITOR_CN_RUNTIME_DIR}/lib${LIB_SUFFIX} AND IS_DIRECTORY "${LIBMONITOR_CN_RUNTIME_DIR}/lib${LIB_SUFFIX}" AND EXISTS "${LIBMONITOR_CN_RUNTIME_DIR}/lib${LIB_SUFFIX}/libmonitor.so")
+               # LIBMONITOR_CN_RUNTIME_DIR/lib64 was recognized.
+               set (LIBMONITOR_CN_RUNTIME_LIBDIR ${LIBMONITOR_CN_RUNTIME_DIR}/lib${LIB_SUFFIX} CACHE PATH "Location of compute node libmonitor libraries.")
+            elseif ( EXISTS ${LIBMONITOR_CN_RUNTIME_DIR}/lib AND IS_DIRECTORY "${LIBMONITOR_CN_RUNTIME_DIR}/lib" AND EXISTS "${LIBMONITOR_CN_RUNTIME_DIR}/lib/libmonitor.so")
+               # LIBMONITOR_CN_RUNTIME_DIR/lib was recognized.
+               set (LIBMONITOR_CN_RUNTIME_LIBDIR ${LIBMONITOR_CN_RUNTIME_DIR}/lib CACHE PATH "Location of compute node libmonitor libraries.")
+            else()
+               # Override the settings we had up until now.  We need to find all the targeted libraries to succeed.
+               set (HAVE_CN_LIBMONITOR "false")
+            endif()
+        else()
+            set (HAVE_CN_LIBMONITOR "false")
+        endif()
+    else()
+        set (HAVE_CN_LIBMONITOR "false")
+    endif()
+    message( STATUS "LIBMONITOR_CN_RUNTIME_DIR: " ${LIBMONITOR_CN_RUNTIME_DIR} )
+    message( STATUS "HAVE_CN_LIBMONITOR: " ${HAVE_CN_LIBMONITOR} )
+
+
+
 #
 #--------------------------------------------------------------------------------
 # Do find package calls for cbtf only version of OpenSpeedShop in this section
