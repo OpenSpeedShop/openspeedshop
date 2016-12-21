@@ -28,6 +28,23 @@ add_definitions(
     -DPYTHON_FP_LIB_NAME="${PYTHON_LIBRARY}"
 )
 
+if (OpenMP_FLAG_DETECTED)
+    add_definitions(${OpenMP_C_FLAGS})
+    if (${OpenMP_C_FLAGS} MATCHES "-fopenmp")
+	set(OpenMP_RT_LIB_NAME "gomp")
+    elseif (${OpenMP_C_FLAGS} MATCHES "-qopenmp")
+	set(OpenMP_RT_LIB_NAME "iomp5")
+    elseif (${OpenMP_C_FLAGS} MATCHES "-openmp")
+	set(OpenMP_RT_LIB_NAME "iomp5")
+    elseif (${OpenMP_C_FLAGS} MATCHES "-qopenmp")
+	set(OpenMP_RT_LIB_NAME "iomp5")
+    else()
+	set(OpenMP_RT_LIB_NAME "")
+    endif()
+else()
+	set(OpenMP_RT_LIB_NAME "")
+endif()
+
 set(cbtfinstalldir ${CBTF_DIR})
 set(cbtflibdir ${CBTF_DIR}/lib${SUFFIX})
 set(cbtfruncmd ${CBTF_KRELL_DIR}/bin/cbtfrun)
@@ -56,6 +73,7 @@ else()
     set(oss_installation_dir ${CMAKE_INSTALL_PREFIX})
     set(osslibdir ${CMAKE_INSTALL_PREFIX}/lib${SUFFIX})
 endif()
+set(osscollectcmd ${CMAKE_INSTALL_PREFIX}/bin/osscollect)
 
 set(machine_dependent_libdir lib${SUFFIX})
 set(alt_machine_dependent_libdir lib${SUFFIX})
@@ -190,7 +208,9 @@ target_include_directories(openss-cli PUBLIC
 target_link_libraries(openss-cli
     openss-message
     openss-framework
+    openss-framework-cbtf
     openss-queries
+    ${OpenMP_RT_LIB_NAME}
     ${LTDL_SHARED_LIBRARY}
     ${PYTHON_LIBRARY}
     ${Sqlite3_SHARED_LIBRARIES}

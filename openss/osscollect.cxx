@@ -297,7 +297,11 @@ static std::string createDBName(std::string dbprefix)
      if (database_directory) {
 	LocalDataFileName = database_directory;
      } else {
-	LocalDataFileName = ".";
+	// Was simply . for current directory. Not really a good choice
+	// if other scripts or code wish to use the path to the database.
+	//LocalDataFileName = ".";
+	boost::filesystem::path full_path( boost::filesystem::current_path() );
+	LocalDataFileName = full_path.c_str();
      }
 
      int cnt = 0;
