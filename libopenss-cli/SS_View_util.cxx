@@ -1360,7 +1360,7 @@ bool Determine_TraceBack_Ordering (CommandObject *cmd) {
 std::string View_ByThread_Id_name[5] = {
        "??",
        "Rank",
-       "OpenMP ThreadId",
+       "ThreadId",
        "Posix ThreadId",
        "ProccessId" }; 
 int64_t Determine_ByThread_Id (ExperimentObject *exp, CommandObject *cmd) {
