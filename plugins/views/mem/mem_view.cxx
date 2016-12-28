@@ -1170,9 +1170,9 @@ static std::string VIEW_mem_long  =
                   " \n\t'-m size2' reports  a second size argument to the function."
                   " \n\t'-m start_time' reports the time the event started."
                   " \n\t'-m stop_time' reports the time of the event ended."
-                  " \n\t'-m id' reports the rank/thread/pid of the event, rank/thread/pid the memory function call took place in."
-                  " \n\t'-m rankid' reports the rank number, or if rank not available then the process id of the event that the memory function took place in."
-                  " \n\t'-m threadid' reports the POSIX thread number that the memory function took place in."
+                  " \n\t'-m id' reports the rank/pid thread pair of the event."
+                  " \n\t'-m rankid' reports the rank number, or if rank not available then the process id of the event."
+                  " \n\t'-m threadid' reports the thread number of the event."
 
 
 // Get the description of the BY-Thread metrics.
