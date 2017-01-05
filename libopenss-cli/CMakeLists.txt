@@ -205,17 +205,30 @@ target_include_directories(openss-cli PUBLIC
     ${LTDL_INCLUDE_DIR}
     )
 
-target_link_libraries(openss-cli
-    openss-message
-    openss-framework
-    openss-framework-cbtf
-    openss-queries
-    ${OpenMP_RT_LIB_NAME}
-    ${LTDL_SHARED_LIBRARY}
-    ${PYTHON_LIBRARY}
-    ${Sqlite3_SHARED_LIBRARIES}
-    ${CMAKE_DL_LIBS}
-    )
+if (${INSTRUMENTOR} MATCHES "cbtf")
+    target_link_libraries(openss-cli
+	openss-message
+	openss-framework
+	openss-framework-cbtf
+	openss-queries
+	${OpenMP_RT_LIB_NAME}
+	${LTDL_SHARED_LIBRARY}
+	${PYTHON_LIBRARY}
+	${Sqlite3_SHARED_LIBRARIES}
+	${CMAKE_DL_LIBS}
+	)
+else()
+    target_link_libraries(openss-cli
+	openss-message
+	openss-framework
+	openss-queries
+	${OpenMP_RT_LIB_NAME}
+	${LTDL_SHARED_LIBRARY}
+	${PYTHON_LIBRARY}
+	${Sqlite3_SHARED_LIBRARIES}
+	${CMAKE_DL_LIBS}
+	)
+endif()
 
 set_target_properties(openss-cli PROPERTIES VERSION 1.1.0)
 
