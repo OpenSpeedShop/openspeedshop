@@ -22,31 +22,29 @@
 #include "SS_Input_Manager.hxx"
 #include "SS_View_Expr.hxx"
 
-using namespace std;
-
 
 
 extern bool generate_cuda_exec_view(CommandObject*, ExperimentObject*,
                                     boost::int64_t, ThreadGroup&,
-                                    list<CommandResult*>&);
+                                    std::list<CommandResult*>&);
 
 extern bool generate_cuda_hwpc_view(CommandObject*, ExperimentObject*,
                                     boost::int64_t, ThreadGroup&,
-                                    list<CommandResult*>&);
+                                    std::list<CommandResult*>&);
 
 extern bool generate_cuda_xfer_view(CommandObject*, ExperimentObject*,
                                     boost::int64_t, ThreadGroup&,
-                                    list<CommandResult*>&);
+                                    std::list<CommandResult*>&);
 
 
 
-static const string kName = "cuda";
-static const string kBrief = "CUDA Performance Report";
-static const string kShort = 
+static const std::string kName = "cuda";
+static const std::string kBrief = "CUDA Performance Report";
+static const std::string kShort = 
     "Report CUDA kernel execution, CUDA data transfer, and CPU/GPU hardware\n"
     "performance counter data gathered by the 'cuda' collector.\n";
 
-static const string kLong  =
+static const std::string kLong  =
     "\n"
     "A positive integer may be added to the end of the keyword 'cuda' to\n"
     "indicate the maximum number of items to report. When the '-v Trace'\n"
@@ -176,15 +174,15 @@ static const string kLong  =
     "meaning that the original sampling interval should be used instead.\n"
     "\n";
 
-static const string kExample =
+static const std::string kExample =
     "\texpView cuda\n"
     "\texpView -v Xfer,CallTrees,FullStack cuda10 -m min,max,count\n"
     "\texpView -v HWPC,Summary cuda33\n"
     "\n";
 
-static const string kCollectors[] = { "cuda", "" };
+static const std::string kCollectors[] = { "cuda", "" };
 
-static string kMetrics[] = {
+static std::string kMetrics[] = {
     "cuda::count_exclusive_details",
     "cuda::exec_exclusive_details",
     "cuda::exec_inclusive_details",
@@ -205,8 +203,8 @@ public:
 
     cuda_view() : 
         ViewType(kName, kBrief, kShort, kLong, kExample,
-                 const_cast<string*>(&kMetrics[0]),
-                 const_cast<string*>(&kCollectors[0]),
+                 const_cast<std::string*>(&kMetrics[0]),
+                 const_cast<std::string*>(&kCollectors[0]),
                  true)
     {
     }
@@ -215,7 +213,7 @@ public:
                               ExperimentObject* experiment,
                               boost::int64_t top_n,
                               ThreadGroup& threads,
-                              list<CommandResult*>& view)
+                              std::list<CommandResult*>& view)
     {
         // Select the appropriate sub-view
         if (Look_For_KeyWord(command, "Exec"))

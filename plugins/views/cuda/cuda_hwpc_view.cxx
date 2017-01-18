@@ -38,15 +38,11 @@
 
 #define WARN(x) Mark_Cmd_With_Soft_Error(command, x);
 
-using namespace boost;
 using namespace OpenSpeedShop::Framework;
-using namespace std;
-
-typedef boost::uint64_t UInt64;
 
 
 
-static const string kOptions[] = {
+static const std::string kOptions[] = {
     "HWPC", // This is the option that selects this particular sub-view
     "Summary", "SummaryOnly",
     ""
@@ -62,13 +58,13 @@ static void cache(const Collector& collector, const ThreadGroup& threads)
                                              Time::TheEnd()),
                                 AddressRange(Address::TheLowest(),
                                              Address::TheHighest())));
-
-    vector<vector<string> > data(subextents.size());
+    
+    std::vector<std::vector<std::string> > data(subextents.size());
     
     for (ThreadGroup::const_iterator
              i = threads.begin(); i != threads.end(); ++i)
     {
-        collector.getMetricValues<vector<string> >(
+        collector.getMetricValues<std::vector<std::string> >(
             "count_counters", *i, subextents, data
             );
     }
@@ -85,9 +81,9 @@ static void reset(const Collector& collector, const ThreadGroup& threads)
                                 AddressRange(Address::TheLowest(),
                                              Address::TheHighest() + -1)));
 
-    vector<vector<string> > data(subextents.size());
+    std::vector<std::vector<std::string> > data(subextents.size());
 
-    collector.getMetricValues<vector<string> >(
+    collector.getMetricValues<std::vector<std::string> >(
         "count_counters", *threads.begin(), subextents, data
         );
 }
@@ -95,17 +91,17 @@ static void reset(const Collector& collector, const ThreadGroup& threads)
 
 
 /** Compute the average sampling interval of the specified counts. */
-UInt64 compute_average_sampling_interval(
-    const vector<set<CUDACountsDetail> >& counts
+boost::uint64_t compute_average_sampling_interval(
+    const std::vector<std::set<CUDACountsDetail> >& counts
     )
 {
-    UInt64 sum = 0, n = 0;
+    boost::uint64_t sum = 0, n = 0;
     
-    for (vector<set<CUDACountsDetail> >::const_iterator
+    for (std::vector<std::set<CUDACountsDetail> >::const_iterator
              i = counts.begin(); i != counts.end(); ++i)
     {
         Time previous;
-        for (set<CUDACountsDetail>::const_iterator
+        for (std::set<CUDACountsDetail>::const_iterator
                  j = i->begin(); j != i->end(); ++j)
         {
             Time current = Queries::ConvertFromArgoNavis(j->getTime());
@@ -120,7 +116,7 @@ UInt64 compute_average_sampling_interval(
         }
     }
 
-    return static_cast<UInt64>(
+    return static_cast<boost::uint64_t>(
         round(static_cast<double>(sum) / static_cast<double>(n))
         );
 }
@@ -129,12 +125,12 @@ UInt64 compute_average_sampling_interval(
 
 /** Compute the smallest time interval enclosing all of the specified counts. */
 TimeInterval compute_smallest_time_interval(
-    const vector<set<CUDACountsDetail> >& counts
+    const std::vector<std::set<CUDACountsDetail> >& counts
     )
 {
     TimeInterval interval;
 
-    for (vector<set<CUDACountsDetail> >::const_iterator
+    for (std::vector<std::set<CUDACountsDetail> >::const_iterator
              i = counts.begin(); i != counts.end(); ++i)
     {
         if (!i->empty())
@@ -155,7 +151,7 @@ TimeInterval compute_smallest_time_interval(
 
 
 /** Get the CUDA collector. */
-static optional<Collector> get_collector(const Experiment& experiment)
+static boost::optional<Collector> get_collector(const Experiment& experiment)
 {
     CollectorGroup collectors = experiment.getCollectors();
 
@@ -168,13 +164,13 @@ static optional<Collector> get_collector(const Experiment& experiment)
         }
     }
 
-    return none;
+    return boost::none;
 }
 
 
 
 /** Get the counts for the specified threads over an optional time interval. */
-static vector<set<CUDACountsDetail> > get_counts(
+static std::vector<std::set<CUDACountsDetail> > get_counts(
     const Collector& collector, const ThreadGroup& threads,
     const TimeInterval& interval = TimeInterval(Time::TheBeginning(),
                                                 Time::TheEnd())
@@ -186,21 +182,21 @@ static vector<set<CUDACountsDetail> > get_counts(
     subextents.push_back(Extent(interval, AddressRange(Address::TheLowest(),
                                                        Address::TheHighest())));
     
-    vector<set<CUDACountsDetail> > counts;
+    std::vector<std::set<CUDACountsDetail> > counts;
     
     for (ThreadGroup::const_iterator
              i = threads.begin(); i != threads.end(); ++i)
     {
-        vector<vector<CUDACountsDetail> > data(subextents.size());
+        std::vector<std::vector<CUDACountsDetail> > data(subextents.size());
 
-        collector.getMetricValues<vector<CUDACountsDetail> >(
+        collector.getMetricValues<std::vector<CUDACountsDetail> >(
             "count_exclusive_details", *i, subextents, data
             );
         
-        counts.push_back(set<CUDACountsDetail>());
-        set<CUDACountsDetail>& thread_counts = counts[counts.size() - 1];
+        counts.push_back(std::set<CUDACountsDetail>());
+        std::set<CUDACountsDetail>& thread_counts = counts[counts.size() - 1];
 
-        for (vector<CUDACountsDetail>::const_iterator
+        for (std::vector<CUDACountsDetail>::const_iterator
                  j = data[0].begin(); j != data[0].end(); ++j)
         {
             thread_counts.insert(*j);
@@ -213,8 +209,8 @@ static vector<set<CUDACountsDetail> > get_counts(
 
 
 /** Get the names of the sampled counters. */
-static vector<string> get_counters(const Collector& collector,
-                                   const ThreadGroup& threads)
+static std::vector<std::string> get_counters(const Collector& collector,
+                                             const ThreadGroup& threads)
 {
     reset(collector, threads);
 
@@ -224,15 +220,15 @@ static vector<string> get_counters(const Collector& collector,
                                 AddressRange(Address::TheLowest(),
                                              Address::TheHighest())));
 
-    vector<vector<string> > data(subextents.size());
+    std::vector<std::vector<std::string> > data(subextents.size());
 
-    collector.getMetricValues<vector<string> >(
+    collector.getMetricValues<std::vector<std::string> >(
         "count_counters", *threads.begin(), subextents, data
         );
     
-    vector<string> counters;
+    std::vector<std::string> counters;
 
-    for (vector<string>::const_iterator
+    for (std::vector<std::string>::const_iterator
              i = data[0].begin(); i != data[0].end(); ++i)
     {
         using namespace ArgoNavis::CUDA;
@@ -250,17 +246,17 @@ static vector<string> get_counters(const Collector& collector,
  * interval. If no sampling interval is provided, the average sampling
  * interval (to the neareset ms) is used.
  */
-pair<UInt64, vector<vector<UInt64> > > resample(
-    const vector<set<CUDACountsDetail> >& counts, UInt64 interval = 0
-    )
+std::pair<boost::uint64_t, std::vector<std::vector<boost::uint64_t> > >
+resample(const std::vector<std::set<CUDACountsDetail> >& counts,
+         boost::uint64_t interval = 0)
 {
     //
     // Use the average sampling interval (to the nearest ms) as the resampling
     // interval if no explicit resampling interval was provided.
     //
     
-    UInt64 tinterval = (interval != 0) ? interval :
-        (1000000 /* ms/ns */ * static_cast<UInt64>(
+    boost::uint64_t tinterval = (interval != 0) ? interval :
+        (1000000 /* ms/ns */ * static_cast<boost::uint64_t>(
             round(
                 static_cast<double>(
                     compute_average_sampling_interval(counts)
@@ -272,16 +268,19 @@ pair<UInt64, vector<vector<UInt64> > > resample(
     
     TimeInterval smallest = compute_smallest_time_interval(counts);
     
-    UInt64 tbegin = tinterval * (smallest.getBegin().getValue() / tinterval);
-    UInt64 tend = tinterval * (1 + (smallest.getEnd().getValue() / tinterval));
+    boost::uint64_t tbegin = tinterval *
+        (smallest.getBegin().getValue() / tinterval);
+
+    boost::uint64_t tend = tinterval *
+        (1 + (smallest.getEnd().getValue() / tinterval));
     
-    UInt64 nsamples = (tend - tbegin) / tinterval;
+    boost::uint64_t nsamples = (tend - tbegin) / tinterval;
     
     // Determine the number of sampled counters
     
-    size_t ncounters = 0;
+    std::size_t ncounters = 0;
     
-    for (vector<set<CUDACountsDetail> >::const_iterator
+    for (std::vector<std::set<CUDACountsDetail> >::const_iterator
              i = counts.begin(); i != counts.end(); ++i)
     {
         if (!i->empty())
@@ -303,22 +302,24 @@ pair<UInt64, vector<vector<UInt64> > > resample(
 #endif
     
     // Allocate vectors to hold the resampled counts    
-    vector<vector<UInt64> > resampled(nsamples, vector<UInt64>(ncounters, 0));
+    std::vector<std::vector<boost::uint64_t> > resampled(
+        nsamples, std::vector<boost::uint64_t>(ncounters, 0)
+        );
 
     // Iterate over each thread's set of original samples
-    for (vector<set<CUDACountsDetail> >::const_iterator
+    for (std::vector<std::set<CUDACountsDetail> >::const_iterator
              i = counts.begin(); i != counts.end(); ++i)
     {
         // Initialize structures for tracking the previous original sample
-        UInt64 tprevious = tbegin;
-        vector<UInt64> cprevious(ncounters, 0);
+        boost::uint64_t tprevious = tbegin;
+        std::vector<boost::uint64_t> cprevious(ncounters, 0);
         
 #if defined(DEBUG_RESAMPLING)
         int DebugCount = 10;
 #endif
 
         // Iterate over each of this thread's original samples
-        for (set<CUDACountsDetail>::const_iterator
+        for (std::set<CUDACountsDetail>::const_iterator
                  j = i->begin(); j != i->end(); ++j)
         {
 #if defined(DEBUG_RESAMPLING)
@@ -326,19 +327,21 @@ pair<UInt64, vector<vector<UInt64> > > resample(
                 (j == i->begin()) || (j == --i->end()) || (DebugCount-- > 0);
 #endif
 
-            UInt64 t = Queries::ConvertFromArgoNavis(j->getTime()).getValue();
+            boost::uint64_t t = Queries::ConvertFromArgoNavis(
+                j->getTime()
+                ).getValue();
 
             // Compute the time range covered by the original sample
-            UInt64 tb_orig = tprevious;
-            UInt64 te_orig = t;
+            boost::uint64_t tb_orig = tprevious;
+            boost::uint64_t te_orig = t;
             
             // Compute the range of new samples covering this original sample
-            UInt64 kbegin = (tprevious - tbegin) / tinterval;
-            UInt64   kend = 1 + ((t - tbegin) / tinterval);
+            boost::uint64_t kbegin = (tprevious - tbegin) / tinterval;
+            boost::uint64_t   kend = 1 + ((t - tbegin) / tinterval);
 
             // Compute the deltas (time and counters) for the original sample
-            UInt64 dt_orig = te_orig - tb_orig;
-            vector<UInt64> dc_orig(ncounters, 0);
+            boost::uint64_t dt_orig = te_orig - tb_orig;
+            std::vector<boost::uint64_t> dc_orig(ncounters, 0);
             for (size_t c = 0; c < ncounters; ++c)
             {
                 dc_orig[c] = j->getCounts()[c] - cprevious[c];
@@ -373,12 +376,12 @@ pair<UInt64, vector<vector<UInt64> > > resample(
             for (size_t k = kbegin; k < kend; ++k)
             {
                 // Compute the time range covered by this new sample
-                UInt64 tb_new = tbegin + (k * tinterval);
-                UInt64 te_new = tbegin + ((k + 1) * tinterval);
+                boost::uint64_t tb_new = tbegin + (k * tinterval);
+                boost::uint64_t te_new = tbegin + ((k + 1) * tinterval);
 
                 // Compute the intersection of the new and original samples
-                UInt64 tb_inter = max<>(tb_orig, tb_new);
-                UInt64 te_inter = min<>(te_orig, te_new);
+                boost::uint64_t tb_inter = std::max<>(tb_orig, tb_new);
+                boost::uint64_t te_inter = std::min<>(te_orig, te_new);
                 
 #if defined(DEBUG_RESAMPLING)
                 if (DoDebug)
@@ -396,7 +399,7 @@ pair<UInt64, vector<vector<UInt64> > > resample(
                     continue;
                 }
 
-                UInt64 dt_inter = te_inter - tb_inter;
+                boost::uint64_t dt_inter = te_inter - tb_inter;
                 
 #if defined(DEBUG_RESAMPLING)
                 if (DoDebug)
@@ -407,8 +410,8 @@ pair<UInt64, vector<vector<UInt64> > > resample(
                 
                 for (size_t c = 0; c < ncounters; ++c)
                 {
-                    UInt64 dc_inter = (dt_orig == 0) ? 0 :
-                        static_cast<UInt64>(
+                    boost::uint64_t dc_inter = (dt_orig == 0) ? 0 :
+                        static_cast<boost::uint64_t>(
                             round(static_cast<double>(dc_orig[c]) * 
                                   static_cast<double>(dt_inter) /
                                   static_cast<double>(dt_orig))
@@ -447,18 +450,18 @@ bool generate_cuda_hwpc_view(CommandObject* command,
                              ExperimentObject* experiment,
                              boost::int64_t top_n,
                              ThreadGroup& threads,
-                             list<CommandResult*>& view)
+                             std::list<CommandResult*>& view)
 {
     const size_t kHistogramBins = 20;
     
     // Proceed no further if invalid options were specified
-    if (!Validate_V_Options(command, const_cast<string*>(kOptions)))
+    if (!Validate_V_Options(command, const_cast<std::string*>(kOptions)))
     {
         return false;
     }
 
     // Proceed no further if the CUDA collector cannot be found
-    optional<Collector> collector = get_collector(*experiment->FW());
+    boost::optional<Collector> collector = get_collector(*experiment->FW());
     if (!collector)
     {
         WARN("(There are no metrics specified to report.)");
@@ -469,7 +472,7 @@ bool generate_cuda_hwpc_view(CommandObject* command,
     cache(*collector, threads);
     
     // Proceed no further if no counters were sampled
-    vector<string> counters = get_counters(*collector, threads);
+    std::vector<std::string> counters = get_counters(*collector, threads);
     if (counters.empty())
     {
         WARN("(There are no metrics specified to report.)");
@@ -484,23 +487,27 @@ bool generate_cuda_hwpc_view(CommandObject* command,
         Look_For_KeyWord(command, "Summary");
 
     // Get the counts for the specified threads
-    vector<set<CUDACountsDetail> > counts = get_counts(*collector, threads);
+    std::vector<std::set<CUDACountsDetail> > counts = get_counts(
+        *collector, threads
+        );
 
     // Resample these counts using the requested fixed sampling interval
-    pair<UInt64, vector<vector<UInt64> > > resampled = 
-        resample(counts, static_cast<UInt64>(top_n) * 1000000 /* ms/ns */);
-
+    std::pair<boost::uint64_t, std::vector<std::vector<boost::uint64_t> > >
+        resampled = resample(
+            counts, static_cast<boost::uint64_t>(top_n) * 1000000 /* ms/ns */
+            );
+    
     // Generate the CPU/GPU balance histogram statistics
     
     bool had_cpu = false;
     bool had_gpu = false;
-
-    vector<UInt64> data_cpu(resampled.second.size(), 0);
-    vector<UInt64> data_gpu(resampled.second.size(), 0);
+    
+    std::vector<boost::uint64_t> data_cpu(resampled.second.size(), 0);
+    std::vector<boost::uint64_t> data_gpu(resampled.second.size(), 0);
 
     for (size_t i = 0; i < counters.size(); ++i)
     {
-        if (counters[i].find("CPU") != string::npos)
+        if (counters[i].find("CPU") != std::string::npos)
         {
             had_cpu = true;
             for (size_t j = 0; j < resampled.second.size(); ++j)
@@ -508,7 +515,7 @@ bool generate_cuda_hwpc_view(CommandObject* command,
                 data_cpu[j] += resampled.second[j][i];                
             }
         }
-        else if (counters[i].find("GPU") != string::npos)
+        else if (counters[i].find("GPU") != std::string::npos)
         {
             had_gpu = true;            
             for (size_t j = 0; j < resampled.second.size(); ++j)
@@ -518,10 +525,10 @@ bool generate_cuda_hwpc_view(CommandObject* command,
         }
     }
     
-    UInt64 scale_cpu =
+    boost::uint64_t scale_cpu =
         *max_element(data_cpu.begin(), data_cpu.end()) / kHistogramBins;
 
-    UInt64 scale_gpu = 
+    boost::uint64_t scale_gpu = 
         *max_element(data_gpu.begin(), data_gpu.end()) / kHistogramBins;
 
     bool show_balance = had_cpu || had_gpu;
@@ -540,7 +547,7 @@ bool generate_cuda_hwpc_view(CommandObject* command,
     if (!show_summary_only && show_balance)
     {
         assert(kHistogramBins >= 7);
-        string balance;
+        std::string balance;
 
         balance += "|<";
 
@@ -570,7 +577,7 @@ bool generate_cuda_hwpc_view(CommandObject* command,
         {
             CommandResult_Columns* columns = new CommandResult_Columns();
             
-            UInt64 t = (i * resampled.first) / 1000000 /* ms/ns */;
+            boost::uint64_t t = (i * resampled.first) / 1000000 /* ms/ns */;
             
             columns->Add_Column(new CommandResult_Uint(t));
             
@@ -583,7 +590,7 @@ bool generate_cuda_hwpc_view(CommandObject* command,
             
             if (show_balance)
             {
-                string balance;
+                std::string balance;
                 
                 size_t ncpu = (scale_cpu == 0) ? 0 : (data_cpu[i] / scale_cpu);
                 size_t ngpu = (scale_gpu == 0) ? 9 : (data_gpu[i] / scale_gpu);
@@ -614,10 +621,10 @@ bool generate_cuda_hwpc_view(CommandObject* command,
     // Generate the enders for the view
     if (show_summary)
     {
-        UInt64 t = 
+        boost::uint64_t t = 
             (resampled.second.size() * resampled.first) / 1000000 /* ms/ns */;
         
-        vector<UInt64> totals(counters.size(), 0);
+        std::vector<boost::uint64_t> totals(counters.size(), 0);
         
         for (size_t i = 0; i < resampled.second.size(); ++i)
         {

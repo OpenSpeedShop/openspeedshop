@@ -32,12 +32,9 @@
 
 #define WARN(x) Mark_Cmd_With_Soft_Error(cmd, x);
 
-using namespace boost;
-using namespace std;
 
 
-
-static const string kOptions[] = {
+static const std::string kOptions[] = {
     "Xfer", // This is the option that selects this particular sub-view
     "ButterFly",
     "CallTree", "CallTrees",
@@ -95,24 +92,24 @@ static const string kOptions[] = {
     double vmin = LONG_MAX;           \
     double sum_squares = 0.0;         \
     boost::uint64_t detail_size = 0;  \
-    string detail_kind = "";          \
-    string detail_src = "";           \
-    string detail_dest = "";          \
-    string detail_async = "";
+    std::string detail_kind = "";     \
+    std::string detail_src = "";      \
+    std::string detail_dest = "";     \
+    std::string detail_async = "";
 
-#define get_CUDA_invalues(primary, num_calls, function_name)                \
-    double v = primary.getTime() / num_calls;                               \
-    intime += v;                                                            \
-    incnt++;                                                                \
-    start = min(start, Queries::ConvertFromArgoNavis(primary.time_begin));  \
-    end = max(end, Queries::ConvertFromArgoNavis(primary.time_end));        \
-    vmin = min(vmin, v);                                                    \
-    vmax = max(vmax, v);                                                    \
-    sum_squares += v * v;                                                   \
-    detail_size = primary.size;                                             \
-    detail_kind = Queries::ConvertFromArgoNavis(primary.kind);              \
-    detail_src = Queries::ConvertFromArgoNavis(primary.source_kind);        \
-    detail_dest = Queries::ConvertFromArgoNavis(primary.destination_kind);  \
+#define get_CUDA_invalues(primary, num_calls, function_name)                   \
+    double v = primary.getTime() / num_calls;                                  \
+    intime += v;                                                               \
+    incnt++;                                                                   \
+    start = std::min(start, Queries::ConvertFromArgoNavis(primary.time_begin));\
+    end = std::max(end, Queries::ConvertFromArgoNavis(primary.time_end));      \
+    vmin = std::min(vmin, v);                                                  \
+    vmax = std::max(vmax, v);                                                  \
+    sum_squares += v * v;                                                      \
+    detail_size = primary.size;                                                \
+    detail_kind = Queries::ConvertFromArgoNavis(primary.kind);                 \
+    detail_src = Queries::ConvertFromArgoNavis(primary.source_kind);           \
+    detail_dest = Queries::ConvertFromArgoNavis(primary.destination_kind);     \
     detail_async = primary.asynchronous ? "Yes" : "No";
 
 #define get_CUDA_exvalues(secondary, num_calls)  \
@@ -218,7 +215,7 @@ static const string kOptions[] = {
 
 
 
-static bool Determine_Metric_Ordering(vector<ViewInstruction*>& IV)
+static bool Determine_Metric_Ordering(std::vector<ViewInstruction*>& IV)
 {
     // Determine which metric is the primary.
     boost::int64_t master_temp = 0;
@@ -259,10 +256,10 @@ static bool Determine_Metric_Ordering(vector<ViewInstruction*>& IV)
 
 static bool define_cuda_columns(CommandObject* cmd,
                                 ExperimentObject* exp,
-                                vector<Collector>& CV,
-                                vector<string>& MV,
-                                vector<ViewInstruction*>& IV,
-                                vector<string>& HV,
+                                std::vector<Collector>& CV,
+                                std::vector<std::string>& MV,
+                                std::vector<ViewInstruction*>& IV,
+                                std::vector<std::string>& HV,
                                 View_Form_Category vfc)
 {
     boost::int64_t last_column = 0;  // # of columns of information displayed
@@ -286,7 +283,7 @@ static bool define_cuda_columns(CommandObject* cmd,
     PUSH_IV(VIEWINST_Summary_Max, intime_temp);
     
     OpenSpeedShop::cli::ParseResult* p_result = cmd->P_Result();
-    vector<ParseRange>* p_slist = p_result->getexpMetricList();
+    std::vector<ParseRange>* p_slist = p_result->getexpMetricList();
 
     bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
     bool Generate_Summary = false;
@@ -300,8 +297,8 @@ static bool define_cuda_columns(CommandObject* cmd,
     bool generate_nested_accounting = false;
 
     boost::int64_t View_ByThread_Identifier = Determine_ByThread_Id(exp, cmd);
-    string Default_Header = Find_Metadata(CV[0], MV[1]).getShortName();
-    string ByThread_Header = Default_Header;
+    std::string Default_Header = Find_Metadata(CV[0], MV[1]).getShortName();
+    std::string ByThread_Header = Default_Header;
     
     if (Generate_Summary_Only)
     {
@@ -325,7 +322,7 @@ static bool define_cuda_columns(CommandObject* cmd,
         }
     }
     
-    map<string, boost::int64_t> MetricMap;
+    std::map<std::string, boost::int64_t> MetricMap;
 
     MetricMap["count"] = excnt_temp;
     MetricMap["counts"] = excnt_temp;
@@ -370,12 +367,12 @@ static bool define_cuda_columns(CommandObject* cmd,
         boost::int64_t i = 0;
         bool time_metric_selected = false;
 
-        vector<ParseRange>::iterator mi;
+        std::vector<ParseRange>::iterator mi;
         for (mi = p_slist->begin(); mi != p_slist->end(); mi++)
         {
             if ((*mi).getParseType() == PARSE_EXPRESSION_VALUE)
             {
-                string header = "user expression";
+                std::string header = "user expression";
                 ParseRange* pr = &(*mi);
                 if (pr->getOperation() == EXPRESSION_OP_HEADER)
                 {
@@ -409,7 +406,7 @@ static bool define_cuda_columns(CommandObject* cmd,
 
             bool column_is_DateTime = false;
             parse_range_t* m_range = (*mi).getRange();
-            string C_Name, M_Name;
+            std::string C_Name, M_Name;
 
             if (m_range->is_range)
             {
@@ -417,7 +414,7 @@ static bool define_cuda_columns(CommandObject* cmd,
                 if (!strcasecmp(M_Name.c_str(), "cuda"))
                 {
                     // We only know what to do with the cuda collector.
-                    WARN(string("The specified collector, ") + C_Name + 
+                    WARN(std::string("The specified collector, ") + C_Name + 
                          ", can not be displayed as part of a 'cuda' view.");
                     continue;
                 }
@@ -683,7 +680,7 @@ static bool define_cuda_columns(CommandObject* cmd,
 
                 else
                 {
-                    WARN(string("Warning: Unsupported option, '-m ") +
+                    WARN(std::string("Warning: Unsupported option, '-m ") +
                          M_Name + "'");
                     return false;
                 }
@@ -779,15 +776,15 @@ static bool cuda_definition(CommandObject* cmd,
                             ExperimentObject* exp,
                             boost::int64_t topn,
                             ThreadGroup& tgrp,
-                            vector<Collector>& CV,
-                            vector<string>& MV,
-                            vector<ViewInstruction*>& IV,
-                            vector<string>& HV,
+                            std::vector<Collector>& CV,
+                            std::vector<std::string>& MV,
+                            std::vector<ViewInstruction*>& IV,
+                            std::vector<std::string>& HV,
                             View_Form_Category vfc)
 {
     // Warn about misspelled of meaningless options and
     // exit command processing without generating a view.
-    if (!Validate_V_Options(cmd, const_cast<string*>(kOptions)))
+    if (!Validate_V_Options(cmd, const_cast<std::string*>(kOptions)))
     {
         return false;
     }
@@ -809,12 +806,12 @@ bool generate_cuda_xfer_view(CommandObject* cmd,
                              ExperimentObject* exp,
                              boost::int64_t topn,
                              ThreadGroup& tgrp,
-                             list<CommandResult*>& view_output)
+                             std::list<CommandResult*>& view_output)
 {
-    vector<Collector> CV;
-    vector<string> MV;
-    vector<ViewInstruction*> IV;
-    vector<string> HV;
+    std::vector<Collector> CV;
+    std::vector<std::string> MV;
+    std::vector<ViewInstruction*> IV;
+    std::vector<std::string> HV;
     
     View_Form_Category vfc = Determine_Form_Category(cmd);
     if (cuda_definition(cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc))
@@ -834,7 +831,8 @@ bool generate_cuda_xfer_view(CommandObject* cmd,
                 return Detail_ButterFly_Report(
                     cmd, exp, topn, tgrp, CV, MV, IV, HV,
                     Determine_Metric_Ordering(IV),
-                    reinterpret_cast<vector<CUDAXferDetail>*>(NULL), view_output
+                    reinterpret_cast<std::vector<CUDAXferDetail>*>(NULL),
+                    view_output
                     );
             }
             else
@@ -842,7 +840,8 @@ bool generate_cuda_xfer_view(CommandObject* cmd,
                 return Detail_CallStack_Report(
                     cmd, exp, topn, tgrp, CV, MV, IV, HV,
                     Determine_Metric_Ordering(IV),
-                    reinterpret_cast<vector<CUDAXferDetail>*>(NULL), view_output
+                    reinterpret_cast<std::vector<CUDAXferDetail>*>(NULL),
+                    view_output
                     );
             }
             
@@ -851,7 +850,8 @@ bool generate_cuda_xfer_view(CommandObject* cmd,
                 cmd, exp, topn, tgrp, CV, MV, IV, HV,
                 Determine_Metric_Ordering(IV),
                 reinterpret_cast<Framework::Function*>(NULL), vfc,
-                reinterpret_cast<vector<CUDAXferDetail>*>(NULL), view_output
+                reinterpret_cast<std::vector<CUDAXferDetail>*>(NULL),
+                view_output
                 );
 
         case VFC_LinkedObject:
@@ -859,7 +859,8 @@ bool generate_cuda_xfer_view(CommandObject* cmd,
                 cmd, exp, topn, tgrp, CV, MV, IV, HV,
                 Determine_Metric_Ordering(IV),
                 reinterpret_cast<Framework::LinkedObject*>(NULL), vfc,
-                reinterpret_cast<vector<CUDAXferDetail>*>(NULL), view_output
+                reinterpret_cast<std::vector<CUDAXferDetail>*>(NULL),
+                view_output
                 );
         
         case VFC_Loop:
@@ -867,7 +868,8 @@ bool generate_cuda_xfer_view(CommandObject* cmd,
                 cmd, exp, topn, tgrp, CV, MV, IV, HV,
                 Determine_Metric_Ordering(IV),
                 reinterpret_cast<Framework::Loop*>(NULL), vfc,
-                reinterpret_cast<vector<CUDAXferDetail>*>(NULL), view_output
+                reinterpret_cast<std::vector<CUDAXferDetail>*>(NULL),
+                view_output
                 );
         
         case VFC_Statement:
@@ -875,7 +877,8 @@ bool generate_cuda_xfer_view(CommandObject* cmd,
                 cmd, exp, topn, tgrp, CV, MV, IV, HV,
                 Determine_Metric_Ordering(IV),
                 reinterpret_cast<Framework::Statement*>(NULL), vfc,
-                reinterpret_cast<vector<CUDAXferDetail>*>(NULL), view_output
+                reinterpret_cast<std::vector<CUDAXferDetail>*>(NULL),
+                view_output
                 );
 
         case VFC_Trace:
