@@ -17,7 +17,6 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/cstdint.hpp>
 #include <boost/format.hpp>
 
 #include "SS_Input_Manager.hxx"
@@ -118,8 +117,8 @@ static const std::string kOptions[] = {
 
 #define get_inclusive_values(stdv, num_calls, function_name)      \
     {                                                             \
-        boost::int64_t len = stdv.size();                         \
-        for (boost::int64_t i = 0; i < len; i++)                  \
+        int64_t len = stdv.size();                                \
+        for (int64_t i = 0; i < len; i++)                         \
         {                                                         \
             /* Use macro to combine all the values. */            \
             get_CUDA_invalues(stdv[i], num_calls, function_name)  \
@@ -128,8 +127,8 @@ static const std::string kOptions[] = {
 
 #define get_exclusive_values(stdv, num_calls)           \
     {                                                   \
-        boost::int64_t len = stdv.size();               \
-        for (boost::int64_t i = 0; i < len; i++)        \
+        int64_t len = stdv.size();                      \
+        for (int64_t i = 0; i < len; i++)               \
         {                                               \
             /* Use macro to combine all the values. */  \
             get_CUDA_exvalues(stdv[i], num_calls)       \
@@ -143,12 +142,12 @@ static const std::string kOptions[] = {
     }                                                                     \
     if (num_temps > start_temp)                                           \
     {                                                                     \
-        boost::int64_t x = start.getValue() /* - base_time */;            \
+        int64_t x = start.getValue() /* - base_time */;                   \
         value_array[start_temp] = new CommandResult_Time(x);              \
     }                                                                     \
     if (num_temps > stop_temp)                                            \
     {                                                                     \
-        boost::int64_t x = end.getValue() /* - base_time */;              \
+        int64_t x = end.getValue() /* - base_time */;                     \
         value_array[stop_temp] = new CommandResult_Time(x);               \
     }                                                                     \
     if (num_temps > VMulti_time_temp)                                     \
@@ -218,8 +217,8 @@ static const std::string kOptions[] = {
 static bool Determine_Metric_Ordering(std::vector<ViewInstruction*>& IV)
 {
     // Determine which metric is the primary.
-    boost::int64_t master_temp = 0;
-    boost::int64_t search_column = 0;
+    int64_t master_temp = 0;
+    int64_t search_column = 0;
 
     while ((search_column == 0) && (search_column < IV.size()))
     {
@@ -262,11 +261,11 @@ static bool define_cuda_columns(CommandObject* cmd,
                                 std::vector<std::string>& HV,
                                 View_Form_Category vfc)
 {
-    boost::int64_t last_column = 0;  // # of columns of information displayed
-    boost::int64_t totalIndex  = 0;  // # of totals needed to perform % calcs
+    int64_t last_column = 0;  // # of columns of information displayed
+    int64_t totalIndex  = 0;  // # of totals needed to perform % calcs
 
     // Track maximum temps - needed for expressions
-    boost::int64_t last_used_temp = Last_ByThread_Temp;
+    int64_t last_used_temp = Last_ByThread_Temp;
         
     // Define combination instructions for predefined temporaries
     PUSH_IV(VIEWINST_Add, VMulti_sort_temp);
@@ -296,7 +295,7 @@ static bool define_cuda_columns(CommandObject* cmd,
     
     bool generate_nested_accounting = false;
 
-    boost::int64_t View_ByThread_Identifier = Determine_ByThread_Id(exp, cmd);
+    int64_t View_ByThread_Identifier = Determine_ByThread_Id(exp, cmd);
     std::string Default_Header = Find_Metadata(CV[0], MV[1]).getShortName();
     std::string ByThread_Header = Default_Header;
     
@@ -322,7 +321,7 @@ static bool define_cuda_columns(CommandObject* cmd,
         }
     }
     
-    std::map<std::string, boost::int64_t> MetricMap;
+    std::map<std::string, int64_t> MetricMap;
 
     MetricMap["count"] = excnt_temp;
     MetricMap["counts"] = excnt_temp;
@@ -364,7 +363,7 @@ static bool define_cuda_columns(CommandObject* cmd,
     if (p_slist->begin() != p_slist->end())
     {
         // Add modifiers to output list.
-        boost::int64_t i = 0;
+        int64_t i = 0;
         bool time_metric_selected = false;
 
         std::vector<ParseRange>::iterator mi;
@@ -384,7 +383,7 @@ static bool define_cuda_columns(CommandObject* cmd,
                 }
                 
                 // Generate the instructions for the expression.
-                boost::int64_t new_result = evaluate_parse_expression(
+                int64_t new_result = evaluate_parse_expression(
                     cmd, exp, CV, MV, IV, HV, vfc,
                     pr, last_used_temp, "cuda", MetricMap
                     );
@@ -689,7 +688,7 @@ static bool define_cuda_columns(CommandObject* cmd,
             if (last_column == 1)
             {
                 PUSH_IV(VIEWINST_Sort_Ascending,
-                        (boost::int64_t)(column_is_DateTime) ? 1 : 0);
+                        (int64_t)(column_is_DateTime) ? 1 : 0);
             }
         }
     }
@@ -774,7 +773,7 @@ static bool define_cuda_columns(CommandObject* cmd,
 
 static bool cuda_definition(CommandObject* cmd,
                             ExperimentObject* exp,
-                            boost::int64_t topn,
+                            int64_t topn,
                             ThreadGroup& tgrp,
                             std::vector<Collector>& CV,
                             std::vector<std::string>& MV,
@@ -804,7 +803,7 @@ static bool cuda_definition(CommandObject* cmd,
 
 bool generate_cuda_xfer_view(CommandObject* cmd,
                              ExperimentObject* exp,
-                             boost::int64_t topn,
+                             int64_t topn,
                              ThreadGroup& tgrp,
                              std::list<CommandResult*>& view_output)
 {
