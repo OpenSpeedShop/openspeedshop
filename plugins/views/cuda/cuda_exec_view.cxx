@@ -87,19 +87,19 @@ static const std::string kOptions[] = {
     Time start = Time::TheEnd();      \
     Time end = Time::TheBeginning();  \
     double intime = 0.0;              \
-    boost::int64_t incnt = 0;         \
+    int64_t incnt = 0;                \
     double extime = 0.0;              \
-    boost::int64_t excnt = 0;         \
+    int64_t excnt = 0;                \
     double vmax = 0.0;                \
     double vmin = LONG_MAX;           \
     double sum_squares = 0.0;         \
     std::string detail_grid = "";     \
     std::string detail_block = "";    \
     std::string detail_cache = "";    \
-    boost::uint32_t detail_rpt = 0;   \
-    boost::uint64_t detail_ssm = 0;   \
-    boost::uint64_t detail_dsm = 0;   \
-    boost::uint64_t detail_lm = 0;
+    uint32_t detail_rpt = 0;          \
+    uint64_t detail_ssm = 0;          \
+    uint64_t detail_dsm = 0;          \
+    uint64_t detail_lm = 0;
 
 #define get_CUDA_invalues(primary, num_calls, function_name)                   \
     double v = primary.getTime() / num_calls;                                  \
