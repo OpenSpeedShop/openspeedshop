@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2014 Krell Institute. All Rights Reserved.
-// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -17,6 +17,7 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/cstdint.hpp>
 #include <boost/format.hpp>
 
 #include "SS_Input_Manager.hxx"
@@ -87,13 +88,13 @@ static const string kOptions[] = {
     Time start = Time::TheEnd();      \
     Time end = Time::TheBeginning();  \
     double intime = 0.0;              \
-    int64_t incnt = 0;                \
+    boost::int64_t incnt = 0;         \
     double extime = 0.0;              \
-    int64_t excnt = 0;                \
+    boost::int64_t excnt = 0;         \
     double vmax = 0.0;                \
     double vmin = LONG_MAX;           \
     double sum_squares = 0.0;         \
-    uint64_t detail_size = 0;         \
+    boost::uint64_t detail_size = 0;  \
     string detail_kind = "";          \
     string detail_src = "";           \
     string detail_dest = "";          \
@@ -120,8 +121,8 @@ static const string kOptions[] = {
 
 #define get_inclusive_values(stdv, num_calls, function_name)      \
     {                                                             \
-        int64_t len = stdv.size();                                \
-        for (int64_t i = 0; i < len; i++)                         \
+        boost::int64_t len = stdv.size();                         \
+        for (boost::int64_t i = 0; i < len; i++)                  \
         {                                                         \
             /* Use macro to combine all the values. */            \
             get_CUDA_invalues(stdv[i], num_calls, function_name)  \
@@ -130,8 +131,8 @@ static const string kOptions[] = {
 
 #define get_exclusive_values(stdv, num_calls)           \
     {                                                   \
-        int64_t len = stdv.size();                      \
-        for (int64_t i = 0; i < len; i++)               \
+        boost::int64_t len = stdv.size();               \
+        for (boost::int64_t i = 0; i < len; i++)        \
         {                                               \
             /* Use macro to combine all the values. */  \
             get_CUDA_exvalues(stdv[i], num_calls)       \
@@ -145,12 +146,12 @@ static const string kOptions[] = {
     }                                                                     \
     if (num_temps > start_temp)                                           \
     {                                                                     \
-        int64_t x = start.getValue() /* - base_time */;                   \
+        boost::int64_t x = start.getValue() /* - base_time */;            \
         value_array[start_temp] = new CommandResult_Time(x);              \
     }                                                                     \
     if (num_temps > stop_temp)                                            \
     {                                                                     \
-        int64_t x = end.getValue() /* - base_time */;                     \
+        boost::int64_t x = end.getValue() /* - base_time */;              \
         value_array[stop_temp] = new CommandResult_Time(x);               \
     }                                                                     \
     if (num_temps > VMulti_time_temp)                                     \
@@ -220,8 +221,8 @@ static const string kOptions[] = {
 static bool Determine_Metric_Ordering(vector<ViewInstruction*>& IV)
 {
     // Determine which metric is the primary.
-    int64_t master_temp = 0;
-    int64_t search_column = 0;
+    boost::int64_t master_temp = 0;
+    boost::int64_t search_column = 0;
 
     while ((search_column == 0) && (search_column < IV.size()))
     {
@@ -264,11 +265,11 @@ static bool define_cuda_columns(CommandObject* cmd,
                                 vector<string>& HV,
                                 View_Form_Category vfc)
 {
-    int64_t last_column = 0;  // # of columns of information displayed
-    int64_t totalIndex  = 0;  // # of totals needed to perform % calculations
+    boost::int64_t last_column = 0;  // # of columns of information displayed
+    boost::int64_t totalIndex  = 0;  // # of totals needed to perform % calcs
 
     // Track maximum temps - needed for expressions
-    int64_t last_used_temp = Last_ByThread_Temp;
+    boost::int64_t last_used_temp = Last_ByThread_Temp;
         
     // Define combination instructions for predefined temporaries
     PUSH_IV(VIEWINST_Add, VMulti_sort_temp);
@@ -298,7 +299,7 @@ static bool define_cuda_columns(CommandObject* cmd,
     
     bool generate_nested_accounting = false;
 
-    int64_t View_ByThread_Identifier = Determine_ByThread_Id(exp, cmd);
+    boost::int64_t View_ByThread_Identifier = Determine_ByThread_Id(exp, cmd);
     string Default_Header = Find_Metadata(CV[0], MV[1]).getShortName();
     string ByThread_Header = Default_Header;
     
@@ -324,7 +325,7 @@ static bool define_cuda_columns(CommandObject* cmd,
         }
     }
     
-    map<string, int64_t> MetricMap;
+    map<string, boost::int64_t> MetricMap;
 
     MetricMap["count"] = excnt_temp;
     MetricMap["counts"] = excnt_temp;
@@ -366,7 +367,7 @@ static bool define_cuda_columns(CommandObject* cmd,
     if (p_slist->begin() != p_slist->end())
     {
         // Add modifiers to output list.
-        int64_t i = 0;
+        boost::int64_t i = 0;
         bool time_metric_selected = false;
 
         vector<ParseRange>::iterator mi;
@@ -386,7 +387,7 @@ static bool define_cuda_columns(CommandObject* cmd,
                 }
                 
                 // Generate the instructions for the expression.
-                int64_t new_result = evaluate_parse_expression(
+                boost::int64_t new_result = evaluate_parse_expression(
                     cmd, exp, CV, MV, IV, HV, vfc,
                     pr, last_used_temp, "cuda", MetricMap
                     );
@@ -691,7 +692,7 @@ static bool define_cuda_columns(CommandObject* cmd,
             if (last_column == 1)
             {
                 PUSH_IV(VIEWINST_Sort_Ascending,
-                        (int64_t)(column_is_DateTime) ? 1 : 0);
+                        (boost::int64_t)(column_is_DateTime) ? 1 : 0);
             }
         }
     }
@@ -776,7 +777,7 @@ static bool define_cuda_columns(CommandObject* cmd,
 
 static bool cuda_definition(CommandObject* cmd,
                             ExperimentObject* exp,
-                            int64_t topn,
+                            boost::int64_t topn,
                             ThreadGroup& tgrp,
                             vector<Collector>& CV,
                             vector<string>& MV,
@@ -806,7 +807,7 @@ static bool cuda_definition(CommandObject* cmd,
 
 bool generate_cuda_xfer_view(CommandObject* cmd,
                              ExperimentObject* exp,
-                             int64_t topn,
+                             boost::int64_t topn,
                              ThreadGroup& tgrp,
                              list<CommandResult*>& view_output)
 {

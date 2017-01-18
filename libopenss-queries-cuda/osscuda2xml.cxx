@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -296,11 +296,11 @@ bool convert_data_transfer(const Base::Time& time_origin,
         << " device=\"" << details.device << "\""
         ">" << endl;
     xml << text("Time",
-                static_cast<uint64_t>(details.time - time_origin));
+                static_cast<boost::uint64_t>(details.time - time_origin));
     xml << text("TimeBegin",
-                static_cast<uint64_t>(details.time_begin - time_origin));
+                static_cast<boost::uint64_t>(details.time_begin - time_origin));
     xml << text("TimeEnd",
-                static_cast<uint64_t>(details.time_end - time_origin));
+                static_cast<boost::uint64_t>(details.time_end - time_origin));
     xml << text("Size", details.size);
     xml << text("Kind", CUDA::stringify(details.kind));
     xml << text("SourceKind", CUDA::stringify(details.source_kind));
@@ -323,11 +323,11 @@ bool convert_kernel_execution(const Base::Time& time_origin,
         << " device=\"" << details.device << "\""
         ">" << endl;
     xml << text("Time",
-                static_cast<uint64_t>(details.time - time_origin));
+                static_cast<boost::uint64_t>(details.time - time_origin));
     xml << text("TimeBegin",
-                static_cast<uint64_t>(details.time_begin - time_origin));
+                static_cast<boost::uint64_t>(details.time_begin - time_origin));
     xml << text("TimeEnd",
-                static_cast<uint64_t>(details.time_end - time_origin));
+                static_cast<boost::uint64_t>(details.time_end - time_origin));
     xml << text("Function", demangle(details.function));
     xml << xyz("Grid", details.grid);
     xml << xyz("Block", details.block);
@@ -346,12 +346,12 @@ bool convert_kernel_execution(const Base::Time& time_origin,
 /** Convert a periodic sample into XML and output it to a stream. */
 bool convert_periodic_sample(const Base::Time& time_origin,
                              const Base::Time& time,
-                             const vector<uint64_t>& counts,
+                             const vector<boost::uint64_t>& counts,
                              ostream& xml)
 {
     xml << "<Sample>" << endl;
-    xml << text("Time", static_cast<uint64_t>(time - time_origin));
-    for (vector<uint64_t>::size_type i = 0; i < counts.size(); ++i)
+    xml << text("Time", static_cast<boost::uint64_t>(time - time_origin));
+    for (vector<boost::uint64_t>::size_type i = 0; i < counts.size(); ++i)
     {
         xml << "  <Count counter=\"" << i << "\">"
             << counts[i]
@@ -566,7 +566,7 @@ int main(int argc, char* argv[])
     }
 
     *xml << endl << "<TimeOrigin>"
-         << static_cast<uint64_t>(data.interval().begin())
+         << static_cast<boost::uint64_t>(data.interval().begin())
          << "</TimeOrigin>" << endl;
     
     convert_counters(data, *xml);

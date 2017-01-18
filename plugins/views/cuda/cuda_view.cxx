@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2014 Krell Institute. All Rights Reserved.
-// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -17,6 +17,8 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/cstdint.hpp>
+
 #include "SS_Input_Manager.hxx"
 #include "SS_View_Expr.hxx"
 
@@ -24,14 +26,17 @@ using namespace std;
 
 
 
-extern bool generate_cuda_exec_view(CommandObject*, ExperimentObject*, int64_t,
-                                    ThreadGroup&, list<CommandResult*>&);
+extern bool generate_cuda_exec_view(CommandObject*, ExperimentObject*,
+                                    boost::int64_t, ThreadGroup&,
+                                    list<CommandResult*>&);
 
-extern bool generate_cuda_hwpc_view(CommandObject*, ExperimentObject*, int64_t,
-                                    ThreadGroup&, list<CommandResult*>&);
+extern bool generate_cuda_hwpc_view(CommandObject*, ExperimentObject*,
+                                    boost::int64_t, ThreadGroup&,
+                                    list<CommandResult*>&);
 
-extern bool generate_cuda_xfer_view(CommandObject*, ExperimentObject*, int64_t,
-                                    ThreadGroup&, list<CommandResult*>&);
+extern bool generate_cuda_xfer_view(CommandObject*, ExperimentObject*,
+                                    boost::int64_t, ThreadGroup&,
+                                    list<CommandResult*>&);
 
 
 
@@ -208,7 +213,7 @@ public:
     
     virtual bool GenerateView(CommandObject* command,
                               ExperimentObject* experiment,
-                              int64_t top_n,
+                              boost::int64_t top_n,
                               ThreadGroup& threads,
                               list<CommandResult*>& view)
     {

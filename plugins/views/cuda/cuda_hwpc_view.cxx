@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2016 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2016-2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -445,7 +445,7 @@ pair<UInt64, vector<vector<UInt64> > > resample(
 
 bool generate_cuda_hwpc_view(CommandObject* command,
                              ExperimentObject* experiment,
-                             ::int64_t top_n,
+                             boost::int64_t top_n,
                              ThreadGroup& threads,
                              list<CommandResult*>& view)
 {
