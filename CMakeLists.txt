@@ -320,7 +320,7 @@ if (INSTRUMENTOR MATCHES "offline")
 elseif (INSTRUMENTOR MATCHES "cbtf")
     add_definitions(-DBUILD_CBTF=1)
     find_package(Boost 1.41.0 REQUIRED
-      COMPONENTS date_time filesystem system thread unit_test_framework program_options
+      COMPONENTS date_time filesystem system thread program_options
     )
     find_package(CBTF)
     find_package(CBTF-Krell)
