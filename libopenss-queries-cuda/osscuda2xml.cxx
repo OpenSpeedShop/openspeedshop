@@ -46,18 +46,15 @@
 #include "CUDAQueries.hxx"
 
 using namespace ArgoNavis;
-using namespace boost;
-using namespace boost::program_options;
 using namespace OpenSpeedShop::Framework;
 using namespace OpenSpeedShop::Queries;
-using namespace std;
 
 
 
 /** Demangle a C++ function name. */
-string demangle(const string& mangled)
+std::string demangle(const std::string& mangled)
 {
-    string demangled = mangled;
+    std::string demangled = mangled;
 
     int status = -2;
     char* tmp = abi::__cxa_demangle(mangled.c_str(), NULL, NULL, &status);
@@ -78,56 +75,56 @@ string demangle(const string& mangled)
 
 /** Create an XML element containing a text value. */
 template <typename T>
-string text(const string& tag, const T& value)
+std::string text(const std::string& tag, const T& value)
 {
-    stringstream stream;
-    stream << "  <" << tag << ">" << value << "</" << tag << ">" << endl;
+    std::stringstream stream;
+    stream << "  <" << tag << ">" << value << "</" << tag << ">" << std::endl;
     return stream.str();
 }
 
 
 
 /** Create a XML element with x, y, and z attributes from a Vector3u value. */
-string xyz(const string& tag, const CUDA::Vector3u& value)
+std::string xyz(const std::string& tag, const CUDA::Vector3u& value)
 {
-    stringstream stream;
+    std::stringstream stream;
     stream << "  <" << tag
            << " x=\"" << value.get<0>() << "\""
            << " y=\"" << value.get<1>() << "\""
            << " z=\"" << value.get<2>() << "\""
-           << "/>" << endl;
+           << "/>" << std::endl;
     return stream.str();
 }
 
 
 
 /** Convert counters into XML and output them to a stream. */
-void convert_counters(const CUDA::PerformanceData& data, ostream& xml)
+void convert_counters(const CUDA::PerformanceData& data, std::ostream& xml)
 {
-    xml << endl;
-    for (vector<string>::size_type i = 0; i < data.counters().size(); ++i)
+    xml << std::endl;
+    for (std::vector<std::string>::size_type i = 0; i < data.counters().size(); ++i)
     {
         xml << "<Counter id=\"" << i << "\">"
             << data.counters()[i]
-            << "</Counter>" << endl;
+            << "</Counter>" << std::endl;
     }
 }
 
 
 
 /** Convert devices into XML and output them to a stream. */
-void convert_devices(const CUDA::PerformanceData& data, ostream& xml)
+void convert_devices(const CUDA::PerformanceData& data, std::ostream& xml)
 {
-    for (vector<CUDA::Device>::size_type i = 0; i < data.devices().size(); ++i)
+    for (std::vector<CUDA::Device>::size_type i = 0; i < data.devices().size(); ++i)
     {
         const CUDA::Device& device = data.devices()[i];
         
-        xml << endl << "<Device id=\"" << i << "\">" << endl;
+        xml << std::endl << "<Device id=\"" << i << "\">" << std::endl;
         xml << text("Name", device.name);
         xml << "  <ComputeCapability"
             << " major=\"" << device.compute_capability.get<0>() << "\""
             << " minor=\"" << device.compute_capability.get<1>() << "\""
-            << "/>" << endl;
+            << "/>" << std::endl;
         xml << xyz("MaxGrid", device.max_grid);
         xml << xyz("MaxBlock", device.max_block);
         xml << text("GlobalMemoryBandwidth",
@@ -148,7 +145,7 @@ void convert_devices(const CUDA::PerformanceData& data, ostream& xml)
         xml << text("MaxSharedMemoryPerBlock",
                     device.max_shared_memory_per_block);
         xml << text("MaxThreadsPerBlock", device.max_threads_per_block);
-        xml << "</Device>" << endl;
+        xml << "</Device>" << std::endl;
     }
 }
 
@@ -159,7 +156,7 @@ template <typename T>
 bool convert_sites_in_event(const CUDA::PerformanceData& data,
                             const Thread& thread,
                             const T& details,
-                            vector<boost::shared_ptr<StackTrace> >& sites,
+                            std::vector<boost::shared_ptr<StackTrace> >& sites,
                             size_t& sites_found)
 {
     size_t n = details.call_site;
@@ -184,14 +181,14 @@ bool convert_sites_in_event(const CUDA::PerformanceData& data,
 
 /** Convert call sites into Open|SpeedShop Framework StackTrace objects. */
 bool convert_sites_in_thread(const CUDA::PerformanceData& data,
-                             const map<Base::ThreadName, Thread>& threads,
+                             const std::map<Base::ThreadName, Thread>& threads,
                              const Base::ThreadName& thread,
-                             vector<boost::shared_ptr<StackTrace> >& sites,
+                             std::vector<boost::shared_ptr<StackTrace> >& sites,
                              size_t& sites_found)
 {
     data.visitDataTransfers(
         thread, data.interval(),
-        bind(&convert_sites_in_event<CUDA::DataTransfer>,
+        boost::bind(&convert_sites_in_event<CUDA::DataTransfer>,
              boost::cref(data), boost::cref(threads.find(thread)->second), _1,
              boost::ref(sites), boost::ref(sites_found))
         );
@@ -203,7 +200,7 @@ bool convert_sites_in_thread(const CUDA::PerformanceData& data,
     
     data.visitKernelExecutions(
         thread, data.interval(),
-        bind(&convert_sites_in_event<CUDA::KernelExecution>,
+        boost::bind(&convert_sites_in_event<CUDA::KernelExecution>,
              boost::cref(data), boost::cref(threads.find(thread)->second), _1,
              boost::ref(sites), boost::ref(sites_found))
         );
@@ -215,20 +212,20 @@ bool convert_sites_in_thread(const CUDA::PerformanceData& data,
 
 /** Convert call sites into XML and output them to a stream. */
 void convert_sites(const CUDA::PerformanceData& data, 
-                   const map<Base::ThreadName, Thread>& threads,
-                   ostream& xml)
+                   const std::map<Base::ThreadName, Thread>& threads,
+                   std::ostream& xml)
 {
-    vector<boost::shared_ptr<StackTrace> > sites(data.sites().size());
+    std::vector<boost::shared_ptr<StackTrace> > sites(data.sites().size());
     size_t sites_found = 0;
     
     data.visitThreads(
-        bind(&convert_sites_in_thread,
+        boost::bind(&convert_sites_in_thread,
              boost::cref(data), boost::cref(threads), _1, boost::ref(sites), boost::ref(sites_found))
         );
     
     for (size_t i = 0; i < sites.size(); ++i)
     {
-        xml << endl << "<CallSite id=\"" << i << "\">" << endl;
+        xml << std::endl << "<CallSite id=\"" << i << "\">" << std::endl;
 
         if (sites[i])
         {
@@ -236,36 +233,36 @@ void convert_sites(const CUDA::PerformanceData& data,
             
             for (StackTrace::size_type j = 0; j < trace.size(); ++j)
             {
-                xml << "  <Frame>" << endl;
-                xml << "    <Address>" << trace[j] << "</Address>" << endl;
+                xml << "  <Frame>" << std::endl;
+                xml << "    <Address>" << trace[j] << "</Address>" << std::endl;
                 
-                pair<bool, LinkedObject> linked_object = 
+                std::pair<bool, LinkedObject> linked_object = 
                     trace.getLinkedObjectAt(j);
                 if (linked_object.first)
                 {
                     xml << "    <LinkedObject>"
                         << linked_object.second.getPath()
-                        << "</LinkedObject>" << endl;
+                        << "</LinkedObject>" << std::endl;
                 }
                 
-                pair<bool, Function> function = trace.getFunctionAt(j);
+                std::pair<bool, Function> function = trace.getFunctionAt(j);
                 if (function.first)
                 {
                     xml << "    <Function>"
                         << function.second.getDemangledName()
-                        << "</Function>" << endl;
+                        << "</Function>" << std::endl;
                 }
                 
-                set<Statement> statements = trace.getStatementsAt(j);
-                for (set<Statement>::const_iterator
+                std::set<Statement> statements = trace.getStatementsAt(j);
+                for (std::set<Statement>::const_iterator
                          k = statements.begin(); k != statements.end(); ++k)
                 {
                     xml << "    <Statement>"
                         << k->getPath() << ", " << k->getLine()
-                        << "</Statement>" << endl;
+                        << "</Statement>" << std::endl;
                 }
                 
-                xml << "  </Frame>" << endl;
+                xml << "  </Frame>" << std::endl;
             }
         }
         else
@@ -274,13 +271,13 @@ void convert_sites(const CUDA::PerformanceData& data,
             
             for (StackTrace::size_type j = 0; j < trace.size(); ++j)
             {
-                xml << "  <Frame>" << endl;
-                xml << "    <Address>" << trace[j] << "</Address>" << endl;
-                xml << "  </Frame>" << endl;
+                xml << "  <Frame>" << std::endl;
+                xml << "    <Address>" << trace[j] << "</Address>" << std::endl;
+                xml << "  </Frame>" << std::endl;
             }
         }
 
-        xml << "</CallSite>" << endl;
+        xml << "</CallSite>" << std::endl;
     }
 }
 
@@ -289,24 +286,24 @@ void convert_sites(const CUDA::PerformanceData& data,
 /** Convert a data transfer into XML and output it to a stream. */
 bool convert_data_transfer(const Base::Time& time_origin,
                            const CUDA::DataTransfer& details,
-                           ostream& xml)
+                           std::ostream& xml)
 {
-    xml << endl << "<DataTransfer"
+    xml << std::endl << "<DataTransfer"
         << " call_site=\"" << details.call_site << "\""
         << " device=\"" << details.device << "\""
-        ">" << endl;
+        ">" << std::endl;
     xml << text("Time",
-                static_cast<uint64_t>(details.time - time_origin));
+                static_cast<boost::uint64_t>(details.time - time_origin));
     xml << text("TimeBegin",
-                static_cast<uint64_t>(details.time_begin - time_origin));
+                static_cast<boost::uint64_t>(details.time_begin - time_origin));
     xml << text("TimeEnd",
-                static_cast<uint64_t>(details.time_end - time_origin));
+                static_cast<boost::uint64_t>(details.time_end - time_origin));
     xml << text("Size", details.size);
     xml << text("Kind", CUDA::stringify(details.kind));
     xml << text("SourceKind", CUDA::stringify(details.source_kind));
     xml << text("DestinationKind", CUDA::stringify(details.destination_kind));
     xml << text("Asynchronous", (details.asynchronous ? "true" : "false"));
-    xml << "</DataTransfer>" << endl;
+    xml << "</DataTransfer>" << std::endl;
 
     return true; // Always continue the visitation
 }
@@ -316,18 +313,18 @@ bool convert_data_transfer(const Base::Time& time_origin,
 /** Convert a kernel execution into XML and output it to a stream. */
 bool convert_kernel_execution(const Base::Time& time_origin,
                               const CUDA::KernelExecution& details,
-                              ostream& xml)
+                              std::ostream& xml)
 {
-    xml << endl << "<KernelExecution"
+    xml << std::endl << "<KernelExecution"
         << " call_site=\"" << details.call_site << "\""
         << " device=\"" << details.device << "\""
-        ">" << endl;
+        ">" << std::endl;
     xml << text("Time",
-                static_cast<uint64_t>(details.time - time_origin));
+                static_cast<boost::uint64_t>(details.time - time_origin));
     xml << text("TimeBegin",
-                static_cast<uint64_t>(details.time_begin - time_origin));
+                static_cast<boost::uint64_t>(details.time_begin - time_origin));
     xml << text("TimeEnd",
-                static_cast<uint64_t>(details.time_end - time_origin));
+                static_cast<boost::uint64_t>(details.time_end - time_origin));
     xml << text("Function", demangle(details.function));
     xml << xyz("Grid", details.grid);
     xml << xyz("Block", details.block);
@@ -336,7 +333,7 @@ bool convert_kernel_execution(const Base::Time& time_origin,
     xml << text("StaticSharedMemory", details.static_shared_memory);
     xml << text("DynamicSharedMemory", details.dynamic_shared_memory);
     xml << text("LocalMemory", details.local_memory);
-    xml << "</KernelExecution>" << endl;
+    xml << "</KernelExecution>" << std::endl;
 
     return true; // Always continue the visitation
 }
@@ -346,18 +343,18 @@ bool convert_kernel_execution(const Base::Time& time_origin,
 /** Convert a periodic sample into XML and output it to a stream. */
 bool convert_periodic_sample(const Base::Time& time_origin,
                              const Base::Time& time,
-                             const vector<uint64_t>& counts,
-                             ostream& xml)
+                             const std::vector<boost::uint64_t>& counts,
+                             std::ostream& xml)
 {
-    xml << "<Sample>" << endl;
-    xml << text("Time", static_cast<uint64_t>(time - time_origin));
-    for (vector<uint64_t>::size_type i = 0; i < counts.size(); ++i)
+    xml << "<Sample>" << std::endl;
+    xml << text("Time", static_cast<boost::uint64_t>(time - time_origin));
+    for (std::vector<boost::uint64_t>::size_type i = 0; i < counts.size(); ++i)
     {
         xml << "  <Count counter=\"" << i << "\">"
             << counts[i]
-            << "</Count>" << endl;
+            << "</Count>" << std::endl;
     }
-    xml << "</Sample>" << endl;
+    xml << "</Sample>" << std::endl;
 
     return true; // Always continue the visitation
 }
@@ -365,63 +362,65 @@ bool convert_periodic_sample(const Base::Time& time_origin,
 
 
 /** Convert a thread into XML and output it to a stream. */
-void convert_thread(const Base::ThreadName& thread, ostream& xml)
+void convert_thread(const Base::ThreadName& thread, std::ostream& xml)
 {
-    xml << endl << "<Thread>" << endl;
-    xml << "  <Host>" << thread.host() << "</Host>" << endl;
-    xml << "  <ProcessId>" << thread.pid() << "</ProcessId>" << endl;
+    xml << std::endl << "<Thread>" << std::endl;
+    xml << "  <Host>" << thread.host() << "</Host>" << std::endl;
+    xml << "  <ProcessId>" << thread.pid() << "</ProcessId>" << std::endl;
 
     if (thread.tid())
     {
         xml << "  <PosixThreadId>" << *thread.tid() 
-            << "</PosixThreadId>" << endl;
+            << "</PosixThreadId>" << std::endl;
     }
 
     if (thread.mpi_rank())
     {
-        xml << "  <MPIRank>" << *thread.mpi_rank() << "</MPIRank>" << endl;
+        xml << "  <MPIRank>" << *thread.mpi_rank() << "</MPIRank>" << std::endl;
     }
     
     if (thread.omp_rank())
     {
         xml << "  <OpenMPThreadId>" << *thread.omp_rank()
-            << "</OpenMPThreadId>" << endl;
+            << "</OpenMPThreadId>" << std::endl;
     }
     
-    xml << "</Thread>" << endl;    
+    xml << "</Thread>" << std::endl;    
 }
 
 
 
 /** Convert CUDA performance data into XML and output it to a stream. */
 bool convert_performance_data(const CUDA::PerformanceData& data,
-                              const map<Base::ThreadName, Thread>& threads,
+                              const std::map<Base::ThreadName, Thread>& threads,
                               const Base::ThreadName& thread,
-                              ostream& xml)
+                              std::ostream& xml)
 {
-    xml << endl << "<DataSet>" << endl;
+    xml << std::endl << "<DataSet>" << std::endl;
 
     convert_thread(thread, xml);
 
     data.visitDataTransfers(
         thread, data.interval(),
-        bind(&convert_data_transfer,
+        boost::bind(&convert_data_transfer,
              boost::cref(data.interval().begin()), _1, boost::ref(xml))
         );
 
     data.visitKernelExecutions(
         thread, data.interval(),
-        bind(&convert_kernel_execution,
+        boost::bind(&convert_kernel_execution,
              boost::cref(data.interval().begin()), _1, boost::ref(xml))
         );
 
+#if 0
     data.visitPeriodicSamples(
         thread, data.interval(),
-        bind(&convert_periodic_sample,
+        boost::bind(&convert_periodic_sample,
              boost::cref(data.interval().begin()), _1, _2, boost::ref(xml))
         );
+#endif
     
-    xml << endl << "</DataSet>" << endl;
+    xml << std::endl << "</DataSet>" << std::endl;
 
     return true; // Always continue the visitation
 }
@@ -438,27 +437,27 @@ bool convert_performance_data(const CUDA::PerformanceData& data,
  */
 int main(int argc, char* argv[])
 {
-    stringstream stream;
-    stream << endl
+    std::stringstream stream;
+    stream << std::endl
            << "This tool converts CUDA performance data from the specified "
-           << "Open|SpeedShop" << endl
+           << "Open|SpeedShop" << std::endl
            << "database into XML for further processing and/or visualization."
-           << endl
-           << endl;
-    string kExtraHelp = stream.str();
+           << std::endl
+           << std::endl;
+    std::string kExtraHelp = stream.str();
 
-    options_description kNonPositionalOptions("osscuda2xml options");
+    boost::program_options::options_description kNonPositionalOptions("osscuda2xml options");
     kNonPositionalOptions.add_options()
  
-        ("database", value<string>(),
+        ("database", boost::program_options::value<std::string>(),
          "Open|SpeedShop experiment database to be converted. May also be "
          "specified as a positional argument.")
 
-        ("rank", value< vector<int> >(),
+        ("rank", boost::program_options::value< std::vector<int> >(),
          "Restrict the conversion to CUDA performance data for this MPI rank. "
          "Multiple ranks may be specified.")
 
-        ("xml", value<string>(),
+        ("xml", boost::program_options::value<std::string>(),
          "XML file to contain the converted CUDA performance data. The XML "
          "output is sent to the standard output stream if this argument is "
          "not specified.")
@@ -467,48 +466,48 @@ int main(int argc, char* argv[])
         
         ;
     
-    positional_options_description kPositionalOptions;
+    boost::program_options::positional_options_description kPositionalOptions;
     kPositionalOptions.add("database", 1);
     
-    variables_map values;
+    boost::program_options::variables_map values;
     
     try
     {
-        store(command_line_parser(argc, argv).options(kNonPositionalOptions).
+        boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(kNonPositionalOptions).
               positional(kPositionalOptions).run(), values);       
-        notify(values);
+        boost::program_options::notify(values);
     }
     catch (const std::exception& error)
     {
-        cout << endl << "ERROR: " << error.what() << endl 
-             << endl << kNonPositionalOptions << kExtraHelp;
+        std::cout << std::endl << "ERROR: " << error.what() << std::endl 
+             << std::endl << kNonPositionalOptions << kExtraHelp;
         return 1;
     }
     
     if (values.count("help") > 0)
     {
-        cout << endl << kNonPositionalOptions << kExtraHelp;
+        std::cout << std::endl << kNonPositionalOptions << kExtraHelp;
         return 1;
     }
     
     if (values.count("database") == 0)
     {
-        cout << endl << "ERROR: database must be specified" << endl 
-             << endl << kNonPositionalOptions << kExtraHelp;
+        std::cout << std::endl << "ERROR: database must be specified" << std::endl 
+             << std::endl << kNonPositionalOptions << kExtraHelp;
         return 1;
     }
     
-    if (!Experiment::isAccessible(values["database"].as<string>()))
+    if (!Experiment::isAccessible(values["database"].as<std::string>()))
     {
-        cout << endl << "ERROR: " << values["database"].as<string>()
-             << " isn't a database" << endl 
-             << endl << kNonPositionalOptions << kExtraHelp;
+        std::cout << std::endl << "ERROR: " << values["database"].as<std::string>()
+             << " isn't a database" << std::endl 
+             << std::endl << kNonPositionalOptions << kExtraHelp;
         return 1;
     }
 
-    Experiment experiment(values["database"].as<string>());
+    Experiment experiment(values["database"].as<std::string>());
 
-    optional<Collector> collector;
+    boost::optional<Collector> collector;
     CollectorGroup collectors = experiment.getCollectors();
     for (CollectorGroup::const_iterator
              i = collectors.begin(); i != collectors.end(); ++i)
@@ -522,62 +521,62 @@ int main(int argc, char* argv[])
 
     if (!collector)
     {
-        cout << endl << "ERROR: database " << values["database"].as<string>()
-             << " doesn't contain CUDA performance data" << endl 
-             << endl << kNonPositionalOptions << kExtraHelp;
+        std::cout << std::endl << "ERROR: database " << values["database"].as<std::string>()
+             << " doesn't contain CUDA performance data" << std::endl 
+             << std::endl << kNonPositionalOptions << kExtraHelp;
         return 1;        
     }
 
-    set<int> ranks;
+    std::set<int> ranks;
     if (values.count("rank") > 0)
     {
-        vector<int> temp = values["rank"].as< vector<int> >();
-        ranks = set<int>(temp.begin(), temp.end());
+        std::vector<int> temp = values["rank"].as< std::vector<int> >();
+        ranks = std::set<int>(temp.begin(), temp.end());
     }
 
-    ostream* xml = NULL;
+    std::ostream* xml = NULL;
     if (values.count("xml") == 1)
     {
-        xml = new ofstream(values["xml"].as<string>().c_str());
+        xml = new std::ofstream(values["xml"].as<std::string>().c_str());
     }
     else
     {
-        xml = &cout;
+        xml = &std::cout;
     }
 
-    *xml << "<?xml version=\"1.0\" encoding=\"utf-8\"?>" << endl;
-    *xml << "<CUDA>" << endl;
+    *xml << "<?xml version=\"1.0\" encoding=\"utf-8\"?>" << std::endl;
+    *xml << "<CUDA>" << std::endl;
 
     CUDA::PerformanceData data;
-    map<Base::ThreadName, Thread> threads;
+    std::map<Base::ThreadName, Thread> threads;
 
     ThreadGroup all_threads = experiment.getThreads();
     for (ThreadGroup::const_iterator
              i = all_threads.begin(); i != all_threads.end(); ++i)
     {
-        pair<bool, int> rank = i->getMPIRank();
+        std::pair<bool, int> rank = i->getMPIRank();
         
         if (ranks.empty() || 
             (rank.first && (ranks.find(rank.second) != ranks.end())))
         {
             GetCUDAPerformanceData(*collector, *i, data);
-            threads.insert(make_pair(ConvertToArgoNavis(*i), *i));
+            threads.insert(std::make_pair(ConvertToArgoNavis(*i), *i));
         }
     }
 
-    *xml << endl << "<TimeOrigin>"
-         << static_cast<uint64_t>(data.interval().begin())
-         << "</TimeOrigin>" << endl;
+    *xml << std::endl << "<TimeOrigin>"
+         << static_cast<boost::uint64_t>(data.interval().begin())
+         << "</TimeOrigin>" << std::endl;
     
     convert_counters(data, *xml);
     convert_devices(data, *xml);
     convert_sites(data, threads, *xml);
     
-    data.visitThreads(bind(
+    data.visitThreads(boost::bind(
         &convert_performance_data, boost::cref(data), boost::cref(threads), _1, boost::ref(*xml)
         ));
     
-    *xml << endl << "</CUDA>" << endl;
+    *xml << std::endl << "</CUDA>" << std::endl;
 
     if (values.count("xml") == 1)
     {
