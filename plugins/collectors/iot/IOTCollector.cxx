@@ -509,50 +509,38 @@ void IOTCollector::getMetricValues(const std::string& metric,
 		    details.dm_retval = data.events.events_val[i].retval;
 		    details.dm_nsysargs = data.events.events_val[i].nsysargs;
 		    details.dm_syscallno = data.events.events_val[i].syscallno;
+
+		    // The dm_id detail is used to display the pid or rank and
+		    // thread id of a -v trace event.
                     std::pair<bool, int> prank = thread.getMPIRank();
                     pid_t processID = thread.getProcessId();
                     if (prank.first) {
-                       if (getenv("OPENSS_DEBUG_IOT_METRICS") != NULL) {
-                         std::cerr << " Rank in tgrp=" << prank.second << "\n" <<  std::endl;
-                       }
 		       details.dm_id.first = prank.second;
                     } else {
 		       details.dm_id.first = processID;
-                       if (getenv("OPENSS_DEBUG_IOT_METRICS") != NULL) {
-                         std::cerr << " Process ID in tgrp=" << " processID= " << processID << "\n" <<  std::endl;
-                       }
                     } 
-                    std::pair<bool, pthread_t> posixthread1 = thread.getPosixThreadId();
-                    if ( posixthread1.first ) {
-		       details.dm_id.second = posixthread1.second;
-                       if (getenv("OPENSS_DEBUG_IOT_METRICS") != NULL) {
-                         std::cerr << " POSIX threadid in tgrp=" << posixthread1.second << "\n" <<  std::endl;
-                       }
-                    } else {
-		       details.dm_id.second = 0;
-                       if (getenv("OPENSS_DEBUG_IOT_METRICS") != NULL) {
-                         std::cerr << " POSIX threadid in tgrp=" << " 0 " << "\n" <<  std::endl;
-                       }
-                    }
 
+		    // Prefer simple int thread id.
+		    details.dm_id.second = 0;
+		    std::pair<bool, int> threadID = thread.getOpenMPThreadId();
+		    if ( threadID.first ) {
+			details.dm_id.second = threadID.second;
+		    }
 
                     int pidx = data.events.events_val[i].pathindex;
 
-                    if (getenv("OPENSS_DEBUG_IOT_METRICS") != NULL) {
-                      std::cerr << "IOTCollector::getMetricValues, pidx=" << pidx << " i=" << i << " syscallno=" << details.dm_syscallno << std::endl;
-                    }
-
                     if (pidx != 0) {
-		     // By eliminating duplicates the memory usage is reduced.`
-		      std::string s = std::string(&data.pathnames.pathnames_val[pidx]);
-		      details.dm_pathname = findPathNameString( s );
+			// By eliminating duplicates the memory usage is reduced.
+			std::string s = std::string(&data.pathnames.pathnames_val[pidx]);
+			details.dm_pathname = findPathNameString( s );
                     }
 
 		    for(int sysarg = 0;
 			sysarg < data.events.events_val[i].nsysargs;
-			sysarg++)
+			sysarg++) {
 			details.dm_sysargs[sysarg] =
 			    data.events.events_val[i].sysargs[sysarg];
+		    }
 		    l->second.push_back(details);
 		    
 		}

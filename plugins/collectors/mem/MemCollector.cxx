@@ -467,7 +467,8 @@ void MemCollector::getMetricValues(const std::string& metric,
 		    // Add this event's details structure to the results
 		    MemDetail details;
 
-                    details.dm_id.second = 0;
+		    // The dm_id detail is used to display the pid or rank and
+		    // thread id of a -v trace event.
                     std::pair<bool, int> prank = thread.getMPIRank();
                     pid_t processID = thread.getProcessId();
                     if (prank.first) {
@@ -475,6 +476,9 @@ void MemCollector::getMetricValues(const std::string& metric,
                     } else {
                        details.dm_id.first = processID;
                     }
+
+		    // Prefer simple int thread id.
+                    details.dm_id.second = 0;
 		    std::pair<bool, int> threadID = thread.getOpenMPThreadId();
                     if ( threadID.first ) {
                        details.dm_id.second = threadID.second;

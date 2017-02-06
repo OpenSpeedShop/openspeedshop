@@ -1124,9 +1124,9 @@ static std::string VIEW_iot_long  =
                   " \n\t'-m retval' reports the value returned from the call."
                   " \n\t'-m nsysargs' reports the number of arguments to the call."
                   " \n\t'-m pathname' reports the pathname to the function."
-                  " \n\t'-m id' reports the rank/thread/pid of the event, rank/thread/pid the I/O function call took place in."
-                  " \n\t'-m rankid' reports the rank number, or if rank not available then the process id of the event that the I/O function took place in."
-                  " \n\t'-m threadid' reports the POSIX thread number that the I/O function took place in."
+                  " \n\t'-m id' reports the rank/pid  thread pair of the event."
+                  " \n\t'-m rankid' reports the rank number, or if rank not available then the process id of the event."
+                  " \n\t'-m threadid' reports the thread number of the event."
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
                   "\n";

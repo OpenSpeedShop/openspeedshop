@@ -24,9 +24,26 @@ if (STDINT_H_FOUND)
 endif()
 
 add_definitions(
-    -DPACKAGE_STRING="OpenSpeedShop 2.3.0"
+    -DPACKAGE_STRING="OpenSpeedShop 2.3.1"
     -DPYTHON_FP_LIB_NAME="${PYTHON_LIBRARY}"
 )
+
+if (OpenMP_FLAG_DETECTED)
+    add_definitions(${OpenMP_C_FLAGS})
+    if (${OpenMP_C_FLAGS} MATCHES "-fopenmp")
+	set(OpenMP_RT_LIB_NAME "gomp")
+    elseif (${OpenMP_C_FLAGS} MATCHES "-qopenmp")
+	set(OpenMP_RT_LIB_NAME "iomp5")
+    elseif (${OpenMP_C_FLAGS} MATCHES "-openmp")
+	set(OpenMP_RT_LIB_NAME "iomp5")
+    elseif (${OpenMP_C_FLAGS} MATCHES "-qopenmp")
+	set(OpenMP_RT_LIB_NAME "iomp5")
+    else()
+	set(OpenMP_RT_LIB_NAME "")
+    endif()
+else()
+	set(OpenMP_RT_LIB_NAME "")
+endif()
 
 set(cbtfinstalldir ${CBTF_DIR})
 set(cbtflibdir ${CBTF_DIR}/lib${SUFFIX})
@@ -41,8 +58,13 @@ else()
     set(cbtfxmldir ${CBTF_KRELL_DIR}/share/KrellInstitute/XML)
 endif()
 
-set(libmonitordir ${LIBMONITOR_DIR})
-set(libmonitorlibdir ${LibMonitor_LIB_DIR})
+if (INSTRUMENTOR MATCHES "offline" AND HAVE_CN_LIBMONITOR)
+    set(libmonitordir ${LIBMONITOR_CN_RUNTIME_DIR})
+    set(libmonitorlibdir ${LIBMONITOR_CN_RUNTIME_LIBDIR})
+else()
+    set(libmonitordir ${LIBMONITOR_DIR})
+    set(libmonitorlibdir ${LibMonitor_LIB_DIR})
+endif()
 
 if(HAVE_RUNTIME_DIR)
     set(oss_installation_dir ${RUNTIME_DIR})
@@ -51,6 +73,7 @@ else()
     set(oss_installation_dir ${CMAKE_INSTALL_PREFIX})
     set(osslibdir ${CMAKE_INSTALL_PREFIX}/lib${SUFFIX})
 endif()
+set(osscollectcmd ${CMAKE_INSTALL_PREFIX}/bin/osscollect)
 
 set(machine_dependent_libdir lib${SUFFIX})
 set(alt_machine_dependent_libdir lib${SUFFIX})
@@ -182,15 +205,30 @@ target_include_directories(openss-cli PUBLIC
     ${LTDL_INCLUDE_DIR}
     )
 
-target_link_libraries(openss-cli
-    openss-message
-    openss-framework
-    openss-queries
-    ${LTDL_SHARED_LIBRARY}
-    ${PYTHON_LIBRARY}
-    ${Sqlite3_SHARED_LIBRARIES}
-    ${CMAKE_DL_LIBS}
-    )
+if (${INSTRUMENTOR} MATCHES "cbtf")
+    target_link_libraries(openss-cli
+	openss-message
+	openss-framework
+	openss-framework-cbtf
+	openss-queries
+	${OpenMP_RT_LIB_NAME}
+	${LTDL_SHARED_LIBRARY}
+	${PYTHON_LIBRARY}
+	${Sqlite3_SHARED_LIBRARIES}
+	${CMAKE_DL_LIBS}
+	)
+else()
+    target_link_libraries(openss-cli
+	openss-message
+	openss-framework
+	openss-queries
+	${OpenMP_RT_LIB_NAME}
+	${LTDL_SHARED_LIBRARY}
+	${PYTHON_LIBRARY}
+	${Sqlite3_SHARED_LIBRARIES}
+	${CMAKE_DL_LIBS}
+	)
+endif()
 
 set_target_properties(openss-cli PROPERTIES VERSION 1.1.0)
 

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -412,13 +412,11 @@ bool convert_performance_data(const CUDA::PerformanceData& data,
              boost::cref(data.interval().begin()), _1, boost::ref(xml))
         );
 
-#if 0
     data.visitPeriodicSamples(
         thread, data.interval(),
         boost::bind(&convert_periodic_sample,
              boost::cref(data.interval().begin()), _1, _2, boost::ref(xml))
         );
-#endif
     
     xml << std::endl << "</DataSet>" << std::endl;
 

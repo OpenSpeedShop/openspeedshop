@@ -794,8 +794,8 @@ static bool pthreads_definition ( CommandObject *cmd, ExperimentObject *exp, int
 }
 
 
-static std::string VIEW_pthreads_brief = "POSIX Thread (pthreads) Report";
-static std::string VIEW_pthreads_short = "Report the time spent in each POSIX thread function.";
+static std::string VIEW_pthreads_brief = "Posix Thread (pthreads) Report";
+static std::string VIEW_pthreads_short = "Report the time spent in each Posix thread function.";
 static std::string VIEW_pthreads_long  =
                   "\nA positive integer can be added to the end of the keyword"
                   " 'pthreads' to indicate the maximum number of items in the report."
@@ -862,9 +862,9 @@ static std::string VIEW_pthreads_long  =
                   " \n\t'-m size2' reports  a second size argument to the function."
                   " \n\t'-m start_time' reports the time the event started."
                   " \n\t'-m stop_time' reports the time of the event ended."
-                  " \n\t'-m id' reports the rank/thread/pid of the event, rank/thread/pid the POSIX thread function call took place in."
-                  " \n\t'-m rankid' reports the rank number, or if rank not available then the process id of the event that the POSIX thread function took place in."
-                  " \n\t'-m threadid' reports the POSIX thread number that the POSIX thread function took place in."
+                  " \n\t'-m id' reports the rank/pid thread pair of the event."
+                  " \n\t'-m rankid' reports the rank number, or if rank not available then the process id of the event."
+                  " \n\t'-m threadid' reports the thread number of the event."
 
 
 // Get the description of the BY-Thread metrics.

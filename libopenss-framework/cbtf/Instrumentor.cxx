@@ -96,7 +96,7 @@ void Instrumentor::create(const Thread& thread,
 			  const OpenSpeedShop::Framework::OutputCallback stdout_callback,
 			  const OpenSpeedShop::Framework::OutputCallback stderr_callback)
 {
-  
+#if 0 
     // Add this thread to the thread table
     ThreadTable::TheTable.addThread(thread, stdout_callback, stderr_callback);
     ThreadTable::TheTable.setConnecting(thread);
@@ -124,6 +124,7 @@ void Instrumentor::create(const Thread& thread,
 	//std::cerr << "Instrumentor::create: calling fethread for collector " << collector << std::endl;
 	fethread.start(collector,numBE,finished);
     }
+#endif
 }
 
 

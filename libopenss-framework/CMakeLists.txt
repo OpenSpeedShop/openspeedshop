@@ -207,6 +207,7 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     target_link_libraries(openss-framework
+	${CBTF_KRELL_MESSAGES_PERFDATA_SHARED_LIBRARY}
 	${Sqlite3_SHARED_LIBRARIES}
 	${Iberty_STATIC_LIBRARIES}
 	${LTDL_LIBRARY_SHARED}
