@@ -685,24 +685,31 @@ static int64_t Match_Call_Stack (std::vector<CommandResult *> *cs,
   int64_t csz = cs->size();
   int64_t ncsz = ncs->size();
 #if DEBUG_CLI
-  printf("in Match_Call_Stack, csz=%d, ncsz=%d\n", csz, ncsz);
+//std::cerr << "Match_Call_Stack cs.size:" << csz << " ncs.size:" << ncsz << std::endl;
 #endif
   int64_t minsz = std::min(csz, ncsz);
   for (int64_t i = 0; i < minsz; i++) {
     CommandResult *cse = (*cs)[i];
     CommandResult *ncse = (*ncs)[i];
     cmd_result_type_enum ty = cse->Type();
-    if (ty != ncse->Type()) return (i - 1);
+    if (ty != ncse->Type()) {
+	//std::cerr << "Match_Call_Stack cse.type:" << ty << " !=  ncse.type:" << ncse->Type() << std::endl;
+	return (i - 1);
+    }
 
     if (ty == CMD_RESULT_FUNCTION) {
      // Compare functions and Statements.
-      if (*((CommandResult_Function *)cse) != *((CommandResult_Function *)ncse)) return (i - 1);
+      if (*((CommandResult_Function *)cse) != *((CommandResult_Function *)ncse)) {
+	//std::cerr << "Match_Call_Stack cse.CommandResult_Function !=  ncse.CommandResult_Function" << std::endl;
+	return (i - 1);
+      }
 
      // To match, the calls must be on the same line.
       int64_t leftLine = ((CommandResult_Function *)cse)->getLine();
       int64_t rightLine = ((CommandResult_Function *)ncse)->getLine();
       if (leftLine != rightLine) {
        // Line numbers, and therefore, the callstacks are different.
+	//std::cerr << "Match_Call_Stack leftLine != rightLine" << std::endl;
         return (i - 1);
       }
      // To match, the calls must be at the same address.
@@ -712,6 +719,7 @@ static int64_t Match_Call_Stack (std::vector<CommandResult *> *cs,
            (rightColumn != 0) &&
            (leftColumn != rightColumn) ) {
        // Column numbers, and therefore, the callstacks are different.
+	//std::cerr << "Match_Call_Stack columns do not match" << std::endl;
         return (i - 1);
       }
     } else if (ty == CMD_RESULT_LINKEDOBJECT) {
@@ -720,24 +728,47 @@ static int64_t Match_Call_Stack (std::vector<CommandResult *> *cs,
       uint64_t NV;
       ((CommandResult_LinkedObject *)cse)->Value(V);
       ((CommandResult_LinkedObject *)ncse)->Value(NV);
-      if (V != NV) return (i - 1);
-      if (*((CommandResult_LinkedObject *)cse) != *((CommandResult_LinkedObject *)ncse)) return (i - 1);
+      if (V != NV) {
+	//std::cerr << "Match_Call_Stack LO V:" << V << " !=  NV:" << NV << std::endl;
+	return (i - 1);
+      }
+      if (*((CommandResult_LinkedObject *)cse) != *((CommandResult_LinkedObject *)ncse)) {
+	//std::cerr << "Match_Call_Stack cse.CommandResult_LO !=  ncse.CommandResult_LO" << std::endl;
+	return (i - 1);
+      }
+    } else if (ty == CMD_RESULT_ADDRESS) {
+     // Compare absolute addresses.
+      uint64_t V;
+      uint64_t NV;
+      ((CommandResult_Uint *)cse)->Value(V);
+      ((CommandResult_Uint *)ncse)->Value(NV);
+      if (V != NV) {
+	//std::cerr << "Match_Call_Stack UINT V:" << V << " !=  NV:" << NV << std::endl;
+	return (i - 1);
+      }
     } else if (ty == CMD_RESULT_UINT) {
      // Compare absolute addresses.
       uint64_t V;
       uint64_t NV;
       ((CommandResult_Uint *)cse)->Value(V);
       ((CommandResult_Uint *)ncse)->Value(NV);
-      if (V != NV) return (i - 1);
+      if (V != NV) {
+	//std::cerr << "Match_Call_Stack UINT V:" << V << " !=  NV:" << NV << std::endl;
+	return (i - 1);
+      }
     } else if (ty == CMD_RESULT_STRING) {
      // Compare characters.
       std::string V;
       std::string NV;
       ((CommandResult_String *)cse)->Value(V);
       ((CommandResult_String *)ncse)->Value(NV);
-      if (V != NV) return (i - 1);
+      if (V != NV) {
+	//std::cerr << "Match_Call_Stack STRING V:" << V << " !=  NV:" << NV << std::endl;
+	return (i - 1);
+      }
     } else {
-      return (i - 1);
+	//std::cerr << "Match_Call_Stack DEFAULT" << std::endl;
+	return (i - 1);
     }
 
   }
@@ -791,9 +822,6 @@ static bool Match_Field_Requirements (std::vector<ViewInstruction *>& IV,
                                       std::vector<CommandResult *>& A,
                                       std::vector<CommandResult *>& B) {
   int64_t len =IV.size();
-#if DEBUG_CLI
-  printf("in Match_Field_Requirements, len=%d\n", len);
-#endif
   for (int64_t i = 0; i < len; i++) {
     ViewInstruction *vp = IV[i];
     if (vp->OpCode() == VIEWINST_Require_Field_Equal) {

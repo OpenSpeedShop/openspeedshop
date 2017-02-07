@@ -51,6 +51,11 @@
 /** Man number of frames for callstack collection */
 #define MAXFRAMES 100
 
+#define OPENSS_HANDLE_UNWIND_SEGV 1
+#if defined(OPENSS_HANDLE_UNWIND_SEGV)
+#include <setjmp.h>
+#endif
+
 /** Type defining the items stored in thread-local storage. */
 typedef struct {
 
@@ -67,6 +72,14 @@ typedef struct {
     } buffer;    
 
     bool_t defer_sampling;
+
+#if defined(OPENSS_HANDLE_UNWIND_SEGV)
+    sigjmp_buf unwind_jmp;
+    int unwind_segvcount;
+    bool_t is_unwinding;
+    int sample_count;
+#endif
+
 } TLS;
 
 #ifdef USE_EXPLICIT_TLS
@@ -118,6 +131,58 @@ void usertime_stop_timer()
     tls->defer_sampling=TRUE;
 }
 #endif
+
+
+#if defined(OPENSS_HANDLE_UNWIND_SEGV)
+int OpenSS_Usertime_SEGVhandler(int sig, siginfo_t *siginfo, void *context)
+{
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    if (tls == NULL) {
+	return 1;
+    }
+
+    if (tls != NULL && tls->is_unwinding) {
+        tls->unwind_segvcount++;
+        siglongjmp(tls->unwind_jmp,9);
+	return 0;
+    }
+    return 1;
+}
+
+// Implement a sigsegv,sigbus handler specific to usertime.
+// We see both sigsegv or sigbus when unwinding fails do to
+// any number of reasons (libunwind).  So install a handler for both.
+// libmonitor provides an easy to use sigaction override so use it.:)
+int OpenSS_Usertime_SetSEGVhandler(void)
+{
+    /* Access our thread-local storage */
+#ifdef USE_EXPLICIT_TLS
+    TLS* tls = OpenSS_GetTLS(TLSKey);
+#else
+    TLS* tls = &the_tls;
+#endif
+    if (tls == NULL)
+	return;
+    tls->is_unwinding = FALSE;
+    tls->unwind_segvcount = 0;
+
+    int rval = monitor_sigaction(SIGSEGV, &OpenSS_Usertime_SEGVhandler, 0, NULL);
+    if (rval != 0) {
+        fprintf(stderr,"usertime unwinder SIGSEGV handler failed to install\n");
+    }
+    rval = monitor_sigaction(SIGBUS, &OpenSS_Usertime_SEGVhandler, 0, NULL);
+    if (rval != 0) {
+        fprintf(stderr,"usertime unwinder SIGBUS handler failed to install\n");
+    }
+    return rval;
+}
+#endif
+
 
 /* utility to send samples when needed */
 static void send_samples(TLS *tls)
@@ -212,6 +277,15 @@ static void usertimeTimerHandler(const ucontext_t* context)
 
     memset(framebuf,0, sizeof(framebuf));
 
+#if defined(OPENSS_HANDLE_UNWIND_SEGV)
+    tls->sample_count++;
+    /* flag handling of unwind */
+    tls->is_unwinding = TRUE;
+
+    int ourlongjmp = sigsetjmp(tls->unwind_jmp, 1);
+    if (ourlongjmp == 0 ) {
+#endif
+
     /* get stack address for current context and store them into framebuf. */
 
 #if defined(__linux) && defined(__x86_64)
@@ -229,6 +303,15 @@ static void usertimeTimerHandler(const ucontext_t* context)
                         MAXFRAMES /* maxframes*/, &framecount, framebuf) ;
 #endif
     //fprintf(stderr,"utimeHandler framecount is %d\n",framecount);
+
+#if defined(OPENSS_HANDLE_UNWIND_SEGV)
+    } else {
+    }
+
+    /* flag handling of unwind */
+    tls->is_unwinding = FALSE;
+#endif
+
 
     bool_t stack_already_exists = FALSE;
 
@@ -361,6 +444,16 @@ void usertime_start_sampling(const char* arguments)
     /* Initialize the sampling buffer */
     memset(tls->buffer.bt, 0, sizeof(tls->buffer.bt));
     memset(tls->buffer.count, 0, sizeof(tls->buffer.count));
+
+#if defined(OPENSS_HANDLE_UNWIND_SEGV)
+    memset((void *)tls->unwind_jmp, '\0', sizeof(tls->unwind_jmp));
+    /* install segv handler */
+    int rval = OpenSS_Usertime_SetSEGVhandler();
+    if (rval != 0) {
+        fprintf(stderr,"No handler for unwind SIGSEGV\n");
+    }
+    tls->sample_count = 0;
+#endif
 
     /* Begin sampling */
     tls->header.time_begin = OpenSS_GetTime();

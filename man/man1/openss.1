@@ -1,13 +1,13 @@
 .\" Process this file with
 .\" groff -man -Tascii openss.1
 .\"
-.TH OPENSS 1 "JUNE 2009" Linux "User Manuals"
+.TH OPENSS 1 "JANUARY 2017" Linux "User Manuals"
 .SH NAME
 openss \- Open|SpeedShop Application Performance Tool
 .SH SYNOPSIS
 .nf
 
-.B openss [ [-online|-offline [-gui|-cli] ] | -gui | -cli ] 
+.B openss [ [-gui|-cli] ] | -gui | -cli ] 
          [-f executable experiment_type] [-f openss_database] 
 
 .B openss [-batch  [ -f executable experiment_type ] | < command_file]
@@ -26,18 +26,23 @@ and
 
 .SH TYPICAL USAGE FORM
 
-For the Open|SpeedShop-1.9.2 release the suggested usage is 
-to run Open|SpeedShop using the offline mode to gather the performance
-information of your choice and then use the Open|SpeedShop
-graphical user interface (GUI) or the Open|SpeedShop command
-line interface (CLI) to view the performance analysis results.
+For the Open|SpeedShop-2.3.0 release the suggested usage is 
+to run Open|SpeedShop to gather the performance information 
+of your choice and then use the Open|SpeedShop graphical user 
+interface (GUI) or the Open|SpeedShop command line interface 
+(CLI) to view the performance analysis results.
 .nf
 
-Run the application using Open|SpeedShop's offline mode:
+Run the application using Open|SpeedShop's convenience scripts, which
+use the openss command inside each of the conveniences scripts.
 
-openss -offline -f "executable" pcsamp
+osspcsamp "executable"
+ossusertime "executable"
+osshwc "executable"
+...
 
-and
+
+and then:
 
 View the performance analysis results by viewing the 
 Open|SpeedShop database created during the command above.
@@ -120,6 +125,14 @@ mpi                The MPI experiment captures the time spent in and
                    is presented individually showing the start time
                    and end time for the MPI function call.
 
+mpip               The MPI experiment captures the time spent in and 
+                   the number of times each MPI function is called in
+                   the user's application program.  This experiment is
+                   a lightweight MPI function profiling experiment, where
+                   individual call information is not saved.  The data is
+                   aggregated in order to save space and keep the database
+                   sizes smaller.
+
 mpit               This experiment captures each MPI function call 
                    event and records specific data corresponding to 
                    that particular call.  The user is then able to 
@@ -144,18 +157,10 @@ fpe                Use to find where floating point exceptions are
 
 There are convenience command scripts that correspond to each of the
 experiment types above.  These script hide all arguments to openss 
-but the executable argument.  For illustration, take his usage of 
-the pcsamp convenience command script compared to its equivalent 
-openss command syntax: 
+but the executable argument.  
 .nf
 
            osspcsamp "executable"
-
-.fi
-is equivalent to:
-.nf
-
-           openss -offline -f "executable" pcsamp
 
 .fi
 
@@ -170,11 +175,6 @@ Graphical User Interface (GUI) to be raised and Open|SpeedShop
 then operates in wizard mode.  The Open|SpeedShop wizards guide
 the user through the creation and execution of a performance 
 monitoring experiment.
-
-.IP -offline
-Use the offline mode of operation for openss.  Link in the 
-performance data collection runtimes statically at application
-start-up time.
 
 .IP -gui
 Raise the Open|SpeedShop Graphical User Interface (GUI) when this
@@ -229,7 +229,7 @@ This option specifies the type of performance information to be
 gathered while the Open|SpeedShop performance experiment is applied
 to the user application.  The supported experiment types are:
 
-pcsamp, usertime, hwc, hwctime, io, iot, mpi, mpit, mpiotf, fpe
+pcsamp, usertime, hwc, hwctime, io, iot, mpi, mpip, mpit, mpiotf, fpe
 
 The details for these options are described above in the Description
 section of this man page.   See the Open|SpeedShop Users Guide for
@@ -262,7 +262,7 @@ preferences available.
 .RE
 
 .SH ENVIRONMENT
-.IP OPENSS_RAWDATA_DIR
+.IP OPENSS_RAWDATA_DIR (offline mode of operation only)
 On a cluster where /tmp is not shared across nodes, this
 environment variable needs to be set to a path to a shared
 file system that is accessible from all the nodes of the
@@ -307,7 +307,9 @@ can then be used to choose another of the Open|SpeedShop experiments
 to further focus in on the application bottleneck(s).
 .nf
 
-openss -offline -f "/opt/openmpi/bin/mpiexec -np 64 /home/user/mpi_prog" pcsamp
+Please use one of the OpenSpeedShop convenience scripts:
+osspcsamp "/opt/openmpi/bin/mpiexec -np 64 /home/user/mpi_prog"
+
 .fi
 
 .SH BUGS
@@ -323,6 +325,7 @@ Open|SpeedShop Team <oss-questions@openspeedshop.org>
 .BR ossio (1)
 .BR ossiot (1)
 .BR ossmpi (1)
+.BR ossmpip (1)
 .BR ossmpit (1)
 .BR ossmpiotf (1)
 .BR ossfpe (1)

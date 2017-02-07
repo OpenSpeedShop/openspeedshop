@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -76,7 +76,7 @@ namespace {
     /** Visitor used to accumulate the total data transfer size and time. */
     bool accumulateXferSizeAndTime(const CUDA::DataTransfer& details,
                                    const TimeInterval& query_interval,
-                                   uint64_t& size, double& time)
+                                   boost::uint64_t& size, double& time)
     {
         size += details.size;
 
@@ -251,12 +251,16 @@ Base::ThreadName Queries::ConvertToArgoNavis(const Thread& thread)
     
     return Base::ThreadName(
         thread.getHost(),
-        static_cast<uint64_t>(thread.getProcessId()),
+        static_cast<boost::uint64_t>(thread.getProcessId()),
         tid.first ?
-            optional<uint64_t>(static_cast<uint64_t>(tid.second)) :
+            optional<boost::uint64_t>(
+                static_cast<boost::uint64_t>(tid.second)
+                ) :
             none,
         rank.first ?
-            optional<uint32_t>(static_cast<uint32_t>(rank.second)) : 
+            optional<boost::uint32_t>(
+                static_cast<boost::uint32_t>(rank.second)
+                ) : 
             none
         );
 }

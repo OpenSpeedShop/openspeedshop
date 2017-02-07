@@ -25,6 +25,7 @@
 #include "Assert.hxx"
 #include "Blob.hxx"
 
+#include <iostream>
 #include <string.h>
 
 using namespace OpenSpeedShop::Framework;
@@ -245,6 +246,47 @@ unsigned Blob::getXDRDecoding(const xdrproc_t xdrproc, void* data) const
     // Close the XDR stream
     xdr_destroy(&xdrs);    
     
+    // Return the decoding size to the caller
+    return size;
+}
+
+/**
+ * Get XDR decoding of contents.
+ *
+ * @note    Same comments apply as for getXDRDecoding.
+ *          The exception here is that we relax the xdrproc
+ *          assert to allow a caller to decide what to do by
+ *          returning 0 for the failed xdrproc. It is required
+ *          by the caller to handle the case where 0 is returned.
+ *
+ * @param xdrproc    XDR procedure for the returned data type.
+ * @retval data      Pointer to the decoded data structure.
+ * @return           Decoding size (in bytes).
+ */
+unsigned Blob::getAndVerifyXDRDecoding(const xdrproc_t xdrproc, void* data) const
+{
+    // Check assertions
+    Assert(xdrproc != NULL);
+    Assert(data != NULL);
+
+    // Open an XDR stream using our contents
+    XDR xdrs;
+    xdrmem_create(&xdrs, reinterpret_cast<char*>(dm_contents),
+		  dm_size, XDR_DECODE);
+
+    // Decode the data structure from this stream
+    // Return 0 if this fails and calling code must decide what to do.
+    if((*xdrproc)(&xdrs, data) != TRUE) {
+	//std::cerr << "Blob::getXDRDecoding is FALSE" << std::endl;
+	return 0;
+    }
+
+    // Get the decoding size
+    unsigned size = xdr_getpos(&xdrs);
+
+    // Close the XDR stream
+    xdr_destroy(&xdrs);
+
     // Return the decoding size to the caller
     return size;
 }

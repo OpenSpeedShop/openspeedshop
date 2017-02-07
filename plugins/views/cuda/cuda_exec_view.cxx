@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2014 Krell Institute. All Rights Reserved.
-// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -31,12 +31,9 @@
 
 #define WARN(x) Mark_Cmd_With_Soft_Error(cmd, x);
 
-using namespace boost;
-using namespace std;
 
 
-
-static const string kOptions[] = {
+static const std::string kOptions[] = {
     "Exec", // This is the option that selects this particular sub-view
     "ButterFly",
     "CallTree", "CallTrees",
@@ -95,37 +92,37 @@ static const string kOptions[] = {
     double vmax = 0.0;                \
     double vmin = LONG_MAX;           \
     double sum_squares = 0.0;         \
-    string detail_grid = "";          \
-    string detail_block = "";         \
-    string detail_cache = "";         \
+    std::string detail_grid = "";     \
+    std::string detail_block = "";    \
+    std::string detail_cache = "";    \
     uint32_t detail_rpt = 0;          \
     uint64_t detail_ssm = 0;          \
     uint64_t detail_dsm = 0;          \
     uint64_t detail_lm = 0;
 
-#define get_CUDA_invalues(primary, num_calls, function_name)               \
-    double v = primary.getTime() / num_calls;                              \
-    intime += v;                                                           \
-    incnt++;                                                               \
-    start = min(start, Queries::ConvertFromArgoNavis(primary.time_begin)); \
-    end = max(end, Queries::ConvertFromArgoNavis(primary.time_end));       \
-    vmin = min(vmin, v);                                                   \
-    vmax = max(vmax, v);                                                   \
-    sum_squares += v * v;                                                  \
-    detail_grid = str(format("%1%,%2%,%3%") %                              \
-        primary.grid.get<0>() %                                            \
-        primary.grid.get<1>() %                                            \
-        primary.grid.get<2>()                                              \
-        );                                                                 \
-    detail_block = str(format("%1%,%2%,%3%") %                             \
-        primary.block.get<0>() %                                           \
-        primary.block.get<1>() %                                           \
-        primary.block.get<2>()                                             \
-        );                                                                 \
-    detail_cache = primary.cache_preference;                               \
-    detail_rpt = primary.registers_per_thread;                             \
-    detail_ssm = primary.static_shared_memory;                             \
-    detail_dsm = primary.dynamic_shared_memory;                            \
+#define get_CUDA_invalues(primary, num_calls, function_name)                   \
+    double v = primary.getTime() / num_calls;                                  \
+    intime += v;                                                               \
+    incnt++;                                                                   \
+    start = std::min(start, Queries::ConvertFromArgoNavis(primary.time_begin));\
+    end = std::max(end, Queries::ConvertFromArgoNavis(primary.time_end));      \
+    vmin = std::min(vmin, v);                                                  \
+    vmax = std::max(vmax, v);                                                  \
+    sum_squares += v * v;                                                      \
+    detail_grid = boost::str(boost::format("%1%,%2%,%3%") %                    \
+        primary.grid.template get<0>() %                                       \
+        primary.grid.template get<1>() %                                       \
+        primary.grid.template get<2>()                                         \
+        );                                                                     \
+    detail_block = boost::str(boost::format("%1%,%2%,%3%") %                   \
+        primary.block.template get<0>() %                                      \
+        primary.block.template get<1>() %                                      \
+        primary.block.template get<2>()                                        \
+        );                                                                     \
+    detail_cache = primary.cache_preference;                                   \
+    detail_rpt = primary.registers_per_thread;                                 \
+    detail_ssm = primary.static_shared_memory;                                 \
+    detail_dsm = primary.dynamic_shared_memory;                                \
     detail_lm = primary.local_memory;
 
 #define get_CUDA_exvalues(secondary, num_calls)  \
@@ -159,12 +156,12 @@ static const string kOptions[] = {
     }                                                                     \
     if (num_temps > start_temp)                                           \
     {                                                                     \
-        int64_t x = start.getValue() /* - base_time */;                   \
+        int64_t x = start.getValue() /* - base_time */;            \
         value_array[start_temp] = new CommandResult_Time(x);              \
     }                                                                     \
     if (num_temps > stop_temp)                                            \
     {                                                                     \
-        int64_t x = end.getValue() /* - base_time */;                     \
+        int64_t x = end.getValue() /* - base_time */;              \
         value_array[stop_temp] = new CommandResult_Time(x);               \
     }                                                                     \
     if (num_temps > VMulti_time_temp)                                     \
@@ -241,7 +238,7 @@ static const string kOptions[] = {
 
 
 
-static bool Determine_Metric_Ordering(vector<ViewInstruction*>& IV)
+static bool Determine_Metric_Ordering(std::vector<ViewInstruction*>& IV)
 {
     // Determine which metric is the primary.
     int64_t master_temp = 0;
@@ -282,14 +279,14 @@ static bool Determine_Metric_Ordering(vector<ViewInstruction*>& IV)
 
 static bool define_cuda_columns(CommandObject* cmd,
                                 ExperimentObject* exp,
-                                vector<Collector>& CV,
-                                vector<string>& MV,
-                                vector<ViewInstruction*>& IV,
-                                vector<string>& HV,
+                                std::vector<Collector>& CV,
+                                std::vector<std::string>& MV,
+                                std::vector<ViewInstruction*>& IV,
+                                std::vector<std::string>& HV,
                                 View_Form_Category vfc)
 {
     int64_t last_column = 0;  // # of columns of information displayed
-    int64_t totalIndex  = 0;  // # of totals needed to perform % calculations
+    int64_t totalIndex  = 0;  // # of totals needed to perform % calcs
 
     // Track maximum temps - needed for expressions
     int64_t last_used_temp = Last_ByThread_Temp;
@@ -309,8 +306,8 @@ static bool define_cuda_columns(CommandObject* cmd,
     PUSH_IV(VIEWINST_Summary_Max, intime_temp);
     
     OpenSpeedShop::cli::ParseResult* p_result = cmd->P_Result();
-    vector<ParseRange>* p_slist = p_result->getexpMetricList();
-
+    std::vector<ParseRange>* p_slist = p_result->getexpMetricList();
+    
     bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
     bool Generate_Summary = false;
     bool Generate_Summary_Only = Look_For_KeyWord(cmd, "SummaryOnly");
@@ -323,8 +320,8 @@ static bool define_cuda_columns(CommandObject* cmd,
     bool generate_nested_accounting = false;
 
     int64_t View_ByThread_Identifier = Determine_ByThread_Id(exp, cmd);
-    string Default_Header = Find_Metadata(CV[0], MV[1]).getShortName();
-    string ByThread_Header = Default_Header;
+    std::string Default_Header = Find_Metadata(CV[0], MV[1]).getShortName();
+    std::string ByThread_Header = Default_Header;
     
     if (Generate_Summary_Only)
     {
@@ -348,7 +345,7 @@ static bool define_cuda_columns(CommandObject* cmd,
         }
     }
     
-    map<string, int64_t> MetricMap;
+    std::map<std::string, int64_t> MetricMap;
 
     MetricMap["count"] = excnt_temp;
     MetricMap["counts"] = excnt_temp;
@@ -395,12 +392,12 @@ static bool define_cuda_columns(CommandObject* cmd,
         int64_t i = 0;
         bool time_metric_selected = false;
 
-        vector<ParseRange>::iterator mi;
+        std::vector<ParseRange>::iterator mi;
         for (mi = p_slist->begin(); mi != p_slist->end(); mi++)
         {
             if ((*mi).getParseType() == PARSE_EXPRESSION_VALUE)
             {
-                string header = "user expression";
+                std::string header = "user expression";
                 ParseRange* pr = &(*mi);
                 if (pr->getOperation() == EXPRESSION_OP_HEADER)
                 {
@@ -434,7 +431,7 @@ static bool define_cuda_columns(CommandObject* cmd,
 
             bool column_is_DateTime = false;
             parse_range_t* m_range = (*mi).getRange();
-            string C_Name, M_Name;
+            std::string C_Name, M_Name;
 
             if (m_range->is_range)
             {
@@ -442,7 +439,7 @@ static bool define_cuda_columns(CommandObject* cmd,
                 if (!strcasecmp(M_Name.c_str(), "cuda"))
                 {
                     // We only know what to do with the cuda collector.
-                    WARN(string("The specified collector, ") + C_Name + 
+                    WARN(std::string("The specified collector, ") + C_Name + 
                          ", can not be displayed as part of a 'cuda' view.");
                     continue;
                 }
@@ -735,7 +732,7 @@ static bool define_cuda_columns(CommandObject* cmd,
 
                 else
                 {
-                    WARN(string("Warning: Unsupported option, '-m ") +
+                    WARN(std::string("Warning: Unsupported option, '-m ") +
                          M_Name + "'");
                     return false;
                 }
@@ -831,15 +828,15 @@ static bool cuda_definition(CommandObject* cmd,
                             ExperimentObject* exp,
                             int64_t topn,
                             ThreadGroup& tgrp,
-                            vector<Collector>& CV,
-                            vector<string>& MV,
-                            vector<ViewInstruction*>& IV,
-                            vector<string>& HV,
+                            std::vector<Collector>& CV,
+                            std::vector<std::string>& MV,
+                            std::vector<ViewInstruction*>& IV,
+                            std::vector<std::string>& HV,
                             View_Form_Category vfc)
 {
     // Warn about misspelled of meaningless options and
     // exit command processing without generating a view.
-    if (!Validate_V_Options(cmd, const_cast<string*>(kOptions)))
+    if (!Validate_V_Options(cmd, const_cast<std::string*>(kOptions)))
     {
         return false;
     }
@@ -861,12 +858,12 @@ bool generate_cuda_exec_view(CommandObject* cmd,
                              ExperimentObject* exp,
                              int64_t topn,
                              ThreadGroup& tgrp,
-                             list<CommandResult*>& view_output)
+                             std::list<CommandResult*>& view_output)
 {
-    vector<Collector> CV;
-    vector<string> MV;
-    vector<ViewInstruction*> IV;
-    vector<string> HV;
+    std::vector<Collector> CV;
+    std::vector<std::string> MV;
+    std::vector<ViewInstruction*> IV;
+    std::vector<std::string> HV;
     
     View_Form_Category vfc = Determine_Form_Category(cmd);
     if (cuda_definition(cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc))
@@ -886,7 +883,8 @@ bool generate_cuda_exec_view(CommandObject* cmd,
                 return Detail_ButterFly_Report(
                     cmd, exp, topn, tgrp, CV, MV, IV, HV,
                     Determine_Metric_Ordering(IV),
-                    reinterpret_cast<vector<CUDAExecDetail>*>(NULL), view_output
+                    reinterpret_cast<std::vector<CUDAExecDetail>*>(NULL),
+                    view_output
                     );
             }
             else
@@ -894,7 +892,8 @@ bool generate_cuda_exec_view(CommandObject* cmd,
                 return Detail_CallStack_Report(
                     cmd, exp, topn, tgrp, CV, MV, IV, HV,
                     Determine_Metric_Ordering(IV),
-                    reinterpret_cast<vector<CUDAExecDetail>*>(NULL), view_output
+                    reinterpret_cast<std::vector<CUDAExecDetail>*>(NULL),
+                    view_output
                     );
             }
             
@@ -903,7 +902,8 @@ bool generate_cuda_exec_view(CommandObject* cmd,
                 cmd, exp, topn, tgrp, CV, MV, IV, HV,
                 Determine_Metric_Ordering(IV),
                 reinterpret_cast<Framework::Function*>(NULL), vfc,
-                reinterpret_cast<vector<CUDAExecDetail>*>(NULL), view_output
+                reinterpret_cast<std::vector<CUDAExecDetail>*>(NULL),
+                view_output
                 );
 
         case VFC_LinkedObject:
@@ -911,7 +911,8 @@ bool generate_cuda_exec_view(CommandObject* cmd,
                 cmd, exp, topn, tgrp, CV, MV, IV, HV,
                 Determine_Metric_Ordering(IV),
                 reinterpret_cast<Framework::LinkedObject*>(NULL), vfc,
-                reinterpret_cast<vector<CUDAExecDetail>*>(NULL), view_output
+                reinterpret_cast<std::vector<CUDAExecDetail>*>(NULL),
+                view_output
                 );
         
         case VFC_Loop:
@@ -919,7 +920,8 @@ bool generate_cuda_exec_view(CommandObject* cmd,
                 cmd, exp, topn, tgrp, CV, MV, IV, HV,
                 Determine_Metric_Ordering(IV),
                 reinterpret_cast<Framework::Loop*>(NULL), vfc,
-                reinterpret_cast<vector<CUDAExecDetail>*>(NULL), view_output
+                reinterpret_cast<std::vector<CUDAExecDetail>*>(NULL),
+                view_output
                 );
         
         case VFC_Statement:
@@ -927,7 +929,8 @@ bool generate_cuda_exec_view(CommandObject* cmd,
                 cmd, exp, topn, tgrp, CV, MV, IV, HV,
                 Determine_Metric_Ordering(IV),
                 reinterpret_cast<Framework::Statement*>(NULL), vfc,
-                reinterpret_cast<vector<CUDAExecDetail>*>(NULL), view_output
+                reinterpret_cast<std::vector<CUDAExecDetail>*>(NULL),
+                view_output
                 );
 
         case VFC_Trace:

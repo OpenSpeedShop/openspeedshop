@@ -403,41 +403,43 @@ static bool define_mpip_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, excnt_temp));
     HV.push_back("Number of Calls");
 
-    // Minimum
-    IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
-                                      ViewReduction_min, View_ByThread_Identifier));
-     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
-     HV.push_back(std::string("Min ") + ByThread_Header
+    if (vfc != VFC_CallStack) {
+	// Minimum
+	IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+                                          ViewReduction_min, View_ByThread_Identifier));
+	IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmin_temp));
+	HV.push_back(std::string("Min ") + ByThread_Header
                + " Across " + View_ByThread_Id_name[View_ByThread_Identifier] + "s"
                + ((ByThread_use_intervals == 1)?"(ms)":((ByThread_use_intervals == 2)?"(s)":"")));
 
-    // Rank of Minimum
-     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+	// Rank of Minimum
+	IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
                                        ViewReduction_imin, View_ByThread_Identifier));
-     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, timin_temp));
-     HV.push_back(View_ByThread_Id_name[View_ByThread_Identifier] + " of Min");
+	IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, timin_temp));
+	HV.push_back(View_ByThread_Id_name[View_ByThread_Identifier] + " of Min");
 
-    // Maximum
-     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+	// Maximum
+	IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
                                        ViewReduction_max, View_ByThread_Identifier));
-     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
-     HV.push_back(std::string("Max ") + ByThread_Header
-               + " Across " + View_ByThread_Id_name[View_ByThread_Identifier] + "s"
+	IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmax_temp));
+	HV.push_back(std::string("Max ") + ByThread_Header
+              + " Across " + View_ByThread_Id_name[View_ByThread_Identifier] + "s"
                + ((ByThread_use_intervals == 1)?"(ms)":((ByThread_use_intervals == 2)?"(s)":"")));
 
-     // Find the Rank of the By-Thread Max.
-     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+	// Find the Rank of the By-Thread Max.
+	IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
                                        ViewReduction_imax, View_ByThread_Identifier));
-     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, timax_temp));
-     HV.push_back(View_ByThread_Id_name[View_ByThread_Identifier] + " of Max");
+	IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, timax_temp));
+	HV.push_back(View_ByThread_Id_name[View_ByThread_Identifier] + " of Max");
 
-    // Average
-     IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
+	// Average
+	IV.push_back(new ViewInstruction (VIEWINST_Define_ByThread_Metric, -1, 1,
                                        ViewReduction_mean, View_ByThread_Identifier));
-     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
-     HV.push_back(std::string("Average ") + ByThread_Header
+	IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, tmean_temp));
+	HV.push_back(std::string("Average ") + ByThread_Header
                + " Across " + View_ByThread_Id_name[View_ByThread_Identifier] + "s"
                + ((ByThread_use_intervals == 1)?"(ms)":((ByThread_use_intervals == 2)?"(s)":"")));
+    }
 
 #endif
 

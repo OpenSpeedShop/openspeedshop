@@ -25,7 +25,7 @@ project(OpenSpeedShop C CXX)
 # TODO: allow this to be passed as an option via cmake for developers
 # to tag non production builds.
 add_definitions(
-    -DVERSION="2.2.4"
+    -DVERSION="2.3.1"
 )
 
 # cmake module search path for this project.
@@ -37,12 +37,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 #    required CMake version and remove cmake/CheckCXX11Features* files from the cbtf repository.
 #
 include(cmake/CheckCXX11Features.cmake)
-if(NOT HAS_CXX11_AUTO)
-  message(STATUS "No support for C++11 found.")
-else()
-  message(STATUS "C++11 support found, required flags are: ${CXX11_COMPILER_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
-endif()
 
 include(CheckIncludeFile)
 include(CheckIncludeFileCXX)
@@ -212,8 +206,10 @@ set(CBTF_KRELL_CN_RUNTIME_DIR "" CACHE STRING "Path to targeted runtime collecto
 # Set default to runtime only to false.
 set(RUNTIME_ONLY "false" CACHE STRING "Build only runtime collectors (offline instrumentor): [true,false]")
 
+# Offline related - for finding the compute node versions of OSS and libmonitor
 set(RUNTIME_DIR "" CACHE STRING "path to targeted runtime collectors")
 set(HAVE_RUNTIME_DIR "false" CACHE STRING "Was the directory path to targeted runtime collectors passed in as an argument.")
+set(HAVE_CN_LIBMONITOR "false" CACHE STRING "Was the directory path to targeted libmonitor passed in as an argument.")
 
 # Default to the offline instrumentor.
 set(INSTRUMENTOR "offline" CACHE STRING "OpenSpeedShop instrumentor type: [offline,cbtf]")
@@ -291,6 +287,31 @@ if (INSTRUMENTOR MATCHES "offline")
     if (PERSONALITY_FOUND)
         set(HAVE_PERSONALITY 1)
     endif()
+
+    if (NOT "${LIBMONITOR_CN_RUNTIME_DIR}" STREQUAL "")
+        if(EXISTS ${LIBMONITOR_CN_RUNTIME_DIR} AND IS_DIRECTORY "${LIBMONITOR_CN_RUNTIME_DIR}")
+            set (HAVE_CN_LIBMONITOR "true")
+            if( EXISTS ${LIBMONITOR_CN_RUNTIME_DIR}/lib${LIB_SUFFIX} AND IS_DIRECTORY "${LIBMONITOR_CN_RUNTIME_DIR}/lib${LIB_SUFFIX}" AND EXISTS "${LIBMONITOR_CN_RUNTIME_DIR}/lib${LIB_SUFFIX}/libmonitor.so")
+               # LIBMONITOR_CN_RUNTIME_DIR/lib64 was recognized.
+               set (LIBMONITOR_CN_RUNTIME_LIBDIR ${LIBMONITOR_CN_RUNTIME_DIR}/lib${LIB_SUFFIX} CACHE PATH "Location of compute node libmonitor libraries.")
+            elseif ( EXISTS ${LIBMONITOR_CN_RUNTIME_DIR}/lib AND IS_DIRECTORY "${LIBMONITOR_CN_RUNTIME_DIR}/lib" AND EXISTS "${LIBMONITOR_CN_RUNTIME_DIR}/lib/libmonitor.so")
+               # LIBMONITOR_CN_RUNTIME_DIR/lib was recognized.
+               set (LIBMONITOR_CN_RUNTIME_LIBDIR ${LIBMONITOR_CN_RUNTIME_DIR}/lib CACHE PATH "Location of compute node libmonitor libraries.")
+            else()
+               # Override the settings we had up until now.  We need to find all the targeted libraries to succeed.
+               set (HAVE_CN_LIBMONITOR "false")
+            endif()
+        else()
+            set (HAVE_CN_LIBMONITOR "false")
+        endif()
+    else()
+        set (HAVE_CN_LIBMONITOR "false")
+    endif()
+    message( STATUS "LIBMONITOR_CN_RUNTIME_DIR: " ${LIBMONITOR_CN_RUNTIME_DIR} )
+    message( STATUS "HAVE_CN_LIBMONITOR: " ${HAVE_CN_LIBMONITOR} )
+
+
+
 #
 #--------------------------------------------------------------------------------
 # Do find package calls for cbtf only version of OpenSpeedShop in this section
@@ -299,7 +320,7 @@ if (INSTRUMENTOR MATCHES "offline")
 elseif (INSTRUMENTOR MATCHES "cbtf")
     add_definitions(-DBUILD_CBTF=1)
     find_package(Boost 1.41.0 REQUIRED
-      COMPONENTS date_time filesystem system thread unit_test_framework program_options
+      COMPONENTS date_time filesystem system thread program_options
     )
     find_package(CBTF)
     find_package(CBTF-Krell)
@@ -542,7 +563,7 @@ if (RUNTIME_ONLY MATCHES "true")
         add_subdirectory(ossdumpsym)
     endif()
 
-    if(BUILD_CUDA_SUPPORT)
+    if(BUILD_CUDA_ANALYSIS)
         add_subdirectory(libopenss-queries-cuda)
         add_subdirectory(ossdumpcuda)
     endif()
@@ -592,9 +613,25 @@ else()
         add_subdirectory(ossdumpsym)
     endif()
 
-    if(BUILD_CUDA_SUPPORT)
+    # install include files
+    install(DIRECTORY plugins/collectors libopenss-cli libopenss-framework libopenss-message libopenss-queries
+        DESTINATION include
+        FILES_MATCHING
+        PATTERN "*.hxx"
+        PATTERN "*.txx"
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+
+    if(BUILD_CUDA_ANALYSIS)
         add_subdirectory(libopenss-queries-cuda)
         add_subdirectory(ossdumpcuda)
+
+        # install include files
+        install(DIRECTORY libopenss-queries-cuda
+            DESTINATION include
+            FILES_MATCHING
+            PATTERN "*.hxx"
+            PATTERN "*.txx"
+            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ) 
     endif()
 
     # Install <openss related>.py files needed when running the OSS python interface

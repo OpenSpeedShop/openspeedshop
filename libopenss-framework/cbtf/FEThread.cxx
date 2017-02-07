@@ -70,7 +70,7 @@ void FEThread::start( const std::string& collector, const unsigned int& numBE,
     
     // create a default for topology file.
     std::string default_topology(cur_dir), topology;
-    default_topology += "/cbtf_topology";
+    default_topology += "/cbtfAutoTopology";
     topology = default_topology;
     //
     // create a default for connections file.
