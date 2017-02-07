@@ -315,8 +315,8 @@ class PanelContainer : public QWidget
     //! This routine closes the empty PanelContainer and window.
     void closeWindow(PanelContainer *pc=NULL);
 
-  AnimatedQPushButton *deleteButton;
   protected:
+  	AnimatedQPushButton *deleteButton;
 
   private slots:
     //! This is the routine that does the actual split.

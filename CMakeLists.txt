@@ -619,6 +619,14 @@ else()
 	PATTERN "Makefile.*" EXCLUDE
 	PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
 
+    # install include files
+    install(DIRECTORY plugins/collectors libopenss-cli libopenss-framework libopenss-message libopenss-queries libopenss-queries-cuda
+        DESTINATION include
+        FILES_MATCHING
+        PATTERN "*.hxx"
+        PATTERN "*.txx"
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ) 
+
     # demonstrations  design_doc plugin_guide  pyscripting_doc  
     # test_plan  usability_plan  users_guide  webtutorial
     install(DIRECTORY doc
