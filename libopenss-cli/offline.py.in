@@ -417,7 +417,12 @@ def RunOfflineExp(program="*", collector="*", installed="/usr"):
 
 		  ismpt = os.system('grep -q -i \"SGI Message Passing Toolkit\" ' + file_arg)
 		  isMPT = os.system('grep -q -i sgimpirun ' + file_arg)
+
 		  isopenmpi = os.system('grep -q -i orterun ' + file_arg)
+                  # If openmpi not found by the above then try to find Power openmpi from mpirun script
+ 		  if os.WEXITSTATUS(isopenmpi):
+ 		    isopenmpi = os.system('grep -q -i ibm\/spectrum_mpi ' + file_arg)
+
 		  if not os.WEXITSTATUS(ismpich):
 		    ismpi = bool(1)
 		    mpi_driver = os.path.realpath(file_arg)
