@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -21,15 +21,19 @@
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
 #include <map>
+#include <stddef.h>
 #include <utility>
 #include <vector>
 
+#include <ArgoNavis/Base/PeriodicSamplesGroup.hpp>
+#include <ArgoNavis/Base/PeriodicSamples.hpp>
+#include <ArgoNavis/Base/PeriodicSampleVisitor.hpp>
 #include <ArgoNavis/Base/TimeInterval.hpp>
+
 #include <ArgoNavis/CUDA/DataTransfer.hpp>
 #include <ArgoNavis/CUDA/DataTransferVisitor.hpp>
 #include <ArgoNavis/CUDA/KernelExecution.hpp>
 #include <ArgoNavis/CUDA/KernelExecutionVisitor.hpp>
-#include <ArgoNavis/CUDA/PeriodicSampleVisitor.hpp>
  
 #include "AddressRange.hxx"
 #include "Metadata.hxx"
@@ -227,13 +231,18 @@ CUDACollector::CUDACollector() :
 
     declareMetric(Metadata("count_counters",
                            "Sampled HWC Names",
-                           "Names of all sampled hardware performance counters.",
+                          "Names of all sampled hardware performance counters.",
                            typeid(vector<string>)));
     
     declareMetric(Metadata("count_exclusive_details",
                            "Exclusive HWC Details",
                            "Exclusive hardware performance counter details.",
                            typeid(vector<CUDACountsDetail>)));
+
+    declareMetric(Metadata("periodic_samples",
+                           "Periodic HWC Samples",
+                           "Periodic hardware performance counter samples.",
+                           typeid(vector<Base::PeriodicSamplesGroup>)));
 }
 
 
@@ -401,7 +410,12 @@ void CUDACollector::getMetricValues(const string& metric,
         
         for (ExtentGroup::size_type i = 0; i < subextents.size(); ++i)
         {
-            data[i] = dm_data.counters();
+            data[i].clear();
+
+            for (std::size_t j = 0; j < dm_data.counters().size(); ++j)
+            {
+                data[i].push_back(dm_data.counters()[j].name);
+            }
         }
     }
 
@@ -412,7 +426,7 @@ void CUDACollector::getMetricValues(const string& metric,
 
         for (ExtentGroup::size_type i = 0; i < subextents.size(); ++i)
         {
-            CUDA::PeriodicSampleVisitor visitor = bind(
+            Base::PeriodicSampleVisitor visitor = bind(
                 &computeCounts, _1, _2, boost::ref(data[i])
                 );
             
@@ -512,6 +526,30 @@ void CUDACollector::getMetricValues(const string& metric,
             ConvertToArgoNavis(subextents.getBounds().getTimeInterval()),
             visitor
             );
+    }
+
+    else if (metric == "periodic_samples")
+    {
+        vector<Base::PeriodicSamplesGroup>& data = 
+            *reinterpret_cast<vector<Base::PeriodicSamplesGroup>*>(ptr);
+
+        for (ExtentGroup::size_type i = 0; i < subextents.size(); ++i)
+        {
+            data[i].clear();
+
+            for (std::size_t j = 0; j < dm_data.counters().size(); ++j)
+            {
+                Base::PeriodicSamples samples = dm_data.periodic(
+                    ConvertToArgoNavis(thread),
+                    ConvertToArgoNavis(subextents[i].getTimeInterval()), j
+                    );
+
+                if (samples.size() > 0)
+                {
+                    data[i].push_back(samples);
+                }
+            }
+        }
     }
 }
 
