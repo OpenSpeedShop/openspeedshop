@@ -279,6 +279,7 @@ if (INSTRUMENTOR MATCHES "offline")
     find_package(LibZ)
     find_package(Personality)
     find_package(CBTF-Krell)
+    find_package(Boost 1.41.0 REQUIRED)
     # Need the boost includes to compile code using the Dyninst component includes
     if (DYNINSTAPI_FOUND)
         find_package(Boost 1.41.0 REQUIRED)
