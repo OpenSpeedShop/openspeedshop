@@ -21,8 +21,6 @@
 #include <boost/cstdint.hpp>
 #include <boost/optional.hpp>
 #include <boost/ref.hpp>
-//#include <cassert>
-//#include <cmath>
 #include <map>
 #include <set>
 #include <string>
@@ -30,7 +28,7 @@
 #include <vector>
 
 #include <ArgoNavis/Base/PeriodicSamplesGroup.hpp>
-//#include <ArgoNavis/Base/PeriodicSamples.hpp>
+#include <ArgoNavis/Base/PeriodicSamples.hpp>
 
 #include <ArgoNavis/CUDA/stringify.hpp>
 
@@ -250,10 +248,12 @@ bool generate_cuda_hwpc_view(CommandObject* command,
     // Get the counts for the specified threads and resample them using the
     // requested fixed sampling interval. Then flatten the data into arrays.
 
-    ArgoNavis::Base::PeriodicSamplesGroup samples = get_samples(
-        *collector, threads, boost::none, Time(top_n * 1000000 /* ms/ns */)
-        );
-
+    ArgoNavis::Base::PeriodicSamplesGroup samples = (top_n == 0) ?
+        get_samples(*collector, threads, boost::none, boost::none) :
+        get_samples(
+            *collector, threads, boost::none, Time(top_n * 1000000 /* ms/ns */)
+            );
+    
     FlattenedData data = get_flattened(samples);
 
     const std::size_t kNumCounters = samples.size();
@@ -274,6 +274,19 @@ bool generate_cuda_hwpc_view(CommandObject* command,
         for (std::size_t c = 0; c < kNumCounters; ++c)
         {
             data_values[s][c] = i->second[c];
+        }
+    }
+
+    for (std::size_t c = 0; c < kNumCounters; ++c)
+    {
+        if (samples[c].kind() == ArgoNavis::Base::PeriodicSamples::kCount)
+        {
+            for (std::size_t s = kNumSamples - 1; s > 0; --s)
+            {
+                data_values[s][c] -= data_values[s - 1][c];
+            }
+
+            data_values[0][c] = 0;
         }
     }
     
@@ -367,7 +380,8 @@ bool generate_cuda_hwpc_view(CommandObject* command,
         {
             CommandResult_Columns* columns = new CommandResult_Columns();
 
-            boost::uint64_t t = data_times[s] / 1000000 /* ms/ns */;
+            boost::uint64_t t =
+                (data_times[s] - data_times[0]) / 1000000 /* ms/ns */;
             
             columns->Add_Column(new CommandResult_Uint(t));
             

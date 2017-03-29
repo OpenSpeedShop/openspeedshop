@@ -242,7 +242,7 @@ CUDACollector::CUDACollector() :
     declareMetric(Metadata("periodic_samples",
                            "Periodic HWC Samples",
                            "Periodic hardware performance counter samples.",
-                           typeid(vector<Base::PeriodicSamplesGroup>)));
+                           typeid(Base::PeriodicSamplesGroup)));
 }
 
 
