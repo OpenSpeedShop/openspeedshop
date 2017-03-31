@@ -395,7 +395,7 @@ bool generate_cuda_hwpc_view(CommandObject* command,
                 std::string balance;
                 
                 size_t ncpu = (scale_cpu == 0) ? 0 : (data_cpu[s] / scale_cpu);
-                size_t ngpu = (scale_gpu == 0) ? 9 : (data_gpu[s] / scale_gpu);
+                size_t ngpu = (scale_gpu == 0) ? 0 : (data_gpu[s] / scale_gpu);
                 
                 balance += "|";
                 
