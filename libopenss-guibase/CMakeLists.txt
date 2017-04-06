@@ -46,6 +46,7 @@ add_definitions(
   )
 
 add_custom_command(
+    OUTPUT "QT_MOC_EXECUTABLE=" QT_MOC_EXECUTABLE
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/moc_TopWidget.cxx
     COMMAND ${QT_MOC_EXECUTABLE}
     ARGS -o ${CMAKE_CURRENT_BINARY_DIR}/moc_TopWidget.cxx ${CMAKE_CURRENT_SOURCE_DIR}/TopWidget.hxx
