@@ -158,3 +158,13 @@ NOTE 13: You can obtain the newest version of config.guess and config.sub
 $ wget -O config.guess 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
 $ wget -O config.sub 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
 
+NOTE 14: Finding the format of a binary/executable:
+
+bint01 448% objdump -af nbody.mic2
+
+nbody.mic2:     file format elf64-little
+nbody.mic2
+architecture: UNKNOWN!, flags 0x00000112:
+EXEC_P, HAS_SYMS, D_PAGED
+start address 0x0000000000401310
+

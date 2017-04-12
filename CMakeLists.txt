@@ -25,7 +25,7 @@ project(OpenSpeedShop C CXX)
 # TODO: allow this to be passed as an option via cmake for developers
 # to tag non production builds.
 add_definitions(
-    -DVERSION="2.3.1.beta1"
+    -DVERSION="2.3.1"
 )
 
 # cmake module search path for this project.
@@ -320,7 +320,7 @@ if (INSTRUMENTOR MATCHES "offline")
 elseif (INSTRUMENTOR MATCHES "cbtf")
     add_definitions(-DBUILD_CBTF=1)
     find_package(Boost 1.41.0 REQUIRED
-      COMPONENTS date_time filesystem system thread unit_test_framework program_options
+      COMPONENTS date_time filesystem system thread program_options
     )
     find_package(CBTF)
     find_package(CBTF-Krell)
