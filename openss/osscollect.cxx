@@ -86,11 +86,31 @@ static int getBEcountFromCommand(std::string command) {
     boost::char_separator<char> sep(" ");
     boost::tokenizer<boost::char_separator<char> > btokens(command, sep);
     std::string S = "";
+    std::string n_token = "-n";
+    std::string np_token = "-np";
 
     bool found_be_count = false;
 
     BOOST_FOREACH (const std::string& t, btokens) {
 	S = t;
+
+	// This handles clients that allow both -n2 on the command line.
+	// For openmpi, -n2 or -np2 is in fact rejected by the openmpi mpirun command.
+	// If we find the -n case with no space, get the value just after -n and
+	// return it as an int while terminating loop.
+	std::string::size_type n_token_pos = S.find(n_token);
+	if (S.find(np_token) == std::string::npos &&
+	    n_token_pos != std::string::npos) {
+
+	    std::string::size_type token_size = n_token.length();
+	    if (S.substr( n_token_pos+token_size, std::string::npos ).size() > 0) {
+	        retval = boost::lexical_cast<int>(S.substr( n_token_pos+token_size, std::string::npos ));
+		break;
+	    }
+	}
+
+	// This handles the cases where there is a space after the -n or -np.
+	// In fact, openmpi's mpirun requires the space.
 	if (found_be_count) {
 	    S = t;
 	    retval = boost::lexical_cast<int>(S);

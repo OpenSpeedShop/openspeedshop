@@ -154,12 +154,16 @@ void Queries::GetMetricValues(
 	    // Vector holding the evaluated metric values for this thread
 	    std::vector<TM > local(extents.size());
 	    
+            // Make a copy of the extents. This is necessary because
+            // the Kd-tree contruction in ExtentGroup isn't thread safe.
+            Framework::ExtentGroup copy(extents);
+
 	    // Iterate in parallel over each performance data blob
             #pragma omp for nowait
 	    for(int j = 0; j < identifiers.size(); ++j) {
 		
 		// Evalute the metric values for the necessary extents
-		collector.getMetricValues(metric, *i, extents,
+		collector.getMetricValues(metric, *i, copy,
 					  identifiers[j], local);
 
 	    }
