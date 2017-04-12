@@ -362,7 +362,7 @@ if [[ -z "$1" || $show_help == 1 ]] ; then
      echo "                     \"PAPI_TOT_CYC@1000000\" to sample the PC every 1,000,000"
      echo "                     CPU total cycles."
      echo ""
-     echo "Run \"papi_avail\", \"papi_native_avail\", and/or \"cupti_query\" to discover the"
+     echo "Run \"papi_avail\", \"papi_native_avail\", and/or \"cupti_avail\" to discover the"
      echo "available hardware counter events available for a specific platform. Trace"
      echo "data is collected for all kernel executions and data transfers regardless of"
      echo "whether any hardware counter sampling has been configured."
