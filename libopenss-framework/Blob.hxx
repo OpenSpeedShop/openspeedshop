@@ -74,6 +74,7 @@ namespace OpenSpeedShop { namespace Framework {
 	}
 
 	unsigned getXDRDecoding(const xdrproc_t, void*) const;
+	unsigned getAndVerifyXDRDecoding(const xdrproc_t, void*) const;
 	std::string getStringEncoding() const;
 
 	bool isEmpty() const;

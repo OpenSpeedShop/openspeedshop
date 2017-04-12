@@ -290,6 +290,25 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 		rawdirs[0].find("/openss-rawdata-", 0);
     std::string basedir = rawdirs[0].substr(0,basedirpos);
 
+    std::string dsosuffix("openss-dsos");
+    std::string datasuffix("openss-data");
+    std::string infosuffix("openss-info");
+    if (rawdirs.size() == 0 ) {
+	basedirpos = rawdirs[0].find("/cbtf-rawdata-", 0);
+	basedir = rawdirs[0].substr(0,basedirpos);
+    } else {
+	// must be data from oss offline collectors.
+	is_cbtf_data = false;
+    }
+
+    if (rawdirs.size() == 0 ) {
+	std::cerr << "RETURNING DUE TO NO RAW DATA" << std::endl;
+	return -1;
+    } else {
+	// must be data from cbtf collectors.
+	is_cbtf_data = true;
+    }
+
     for (unsigned int i = 0;i < rawdirs.size();i++) {
 
 	if((dpsub  = opendir(rawdirs[i].c_str())) == NULL) {
@@ -306,9 +325,9 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 	    bool is_dir = S_ISDIR(file_info.st_mode);
 
 	    if (rawfile.find("-") != 0 && 
-                rawfile.find(".openss-data") != std::string::npos ||
-		rawfile.find(".openss-info") != std::string::npos ||
-		rawfile.find(".openss-dsos") != std::string::npos ) {
+                rawfile.find(datasuffix) != std::string::npos ||
+		rawfile.find(infosuffix) != std::string::npos ||
+		rawfile.find(dsosuffix) != std::string::npos ) {
 
 		rawfiles.push_back(std::string(rawfile));
 
@@ -324,7 +343,7 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 	for (unsigned int i = 0;i < rawfiles.size();++i) {
 
 	    // create the master list of info files.
-	    if (rawfiles[i].find(".openss-info") != std::string::npos) {
+	    if (rawfiles[i].find(infosuffix) != std::string::npos) {
 		rawname = rawdatadir + "/" + rawfiles[i];
 		struct stat stat_record;
 		stat(rawname.c_str(), &stat_record);
@@ -335,7 +354,7 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 
 	    // create the master list of data files.
 	    // update list of unique executables found.
-	    if (rawfiles[i].find(".openss-data") != std::string::npos) {
+	    if (rawfiles[i].find(datasuffix) != std::string::npos) {
 		rawname = rawdatadir + "/" + rawfiles[i];
 
 		std::string::size_type pos = rawfiles[i].find_first_of("-", 0);
@@ -358,7 +377,7 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 	    }
 
 	    // create the master list of dsos files.
-	    if (rawfiles[i].find(".openss-dsos") != std::string::npos) {
+	    if (rawfiles[i].find(dsosuffix) != std::string::npos) {
 		rawname = rawdatadir + "/" + rawfiles[i];
 		struct stat stat_record;
 		stat(rawname.c_str(), &stat_record);
@@ -394,6 +413,7 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 	}
 
 
+#if !defined(BUILD_CBTF)
         for( ssii = infoList.begin(); ssii != infoList.end(); ++ssii) {
 	    //std::cerr << "INFO find " << *ssi << " in " << *ssii << std::endl;
 	    if( (*ssii).find((*ssi)) != std::string::npos) {
@@ -432,8 +452,11 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 		}
 	    }
 	}
+#endif // !BUILD_CBTF
+
         convertToOpenSSDB();
         createOfflineSymbolTable();
+	finalizeDB();
 	rawfiles.clear();
 	threads_processed.clear();
     }
@@ -514,6 +537,8 @@ int OfflineExperiment::convertToOpenSSDB()
 
     // process offline info blobs first.
     std::cerr << "Processing processes and threads ..." << std::endl;
+#if !defined(BUILD_CBTF)
+	    // cbtf offline collections does not drop openss-info files
     for (unsigned int i = 0;i < rawfiles.size();++i) {
 	bool_t found_infofile = false;
 	if (rawfiles[i].find(".openss-info") != std::string::npos) {
@@ -523,7 +548,9 @@ int OfflineExperiment::convertToOpenSSDB()
 	} 
 
         if (found_infofile) {
-            bool_t rval = process_expinfo(rawname);
+            bool_t rval;
+	    rval = process_expinfo(rawname);
+	    
             if (!rval) {
     	        std::cerr << "Could not process experiment info for: "
 		    << rawname << std::endl;
@@ -531,7 +558,6 @@ int OfflineExperiment::convertToOpenSSDB()
 
             // add this pid and host to database.
             theExperiment->updateThreads(expPid,expPosixTid,expRank,expHost);
-        } else {
 	}
     }
 
@@ -644,6 +670,7 @@ int OfflineExperiment::convertToOpenSSDB()
 	    (void) setparam(c, param_name, value_list);
 	}
     }
+#endif // !BUILD_CBTF
 
     // Process data first so we can find the unique pc values
     // found in this experiments performance date.  These pc values
@@ -661,7 +688,18 @@ int OfflineExperiment::convertToOpenSSDB()
 	} 
 
         if (found_datafile) {
-            bool_t rval = process_data(rawname);
+          bool_t rval = process_data(rawname);
+#if defined(BUILD_CBTF)
+            if (!rval && rawfiles[i].find(".openss-dsos") != std::string::npos) {
+// DEBUG
+#ifndef NDEBUG
+		if(is_debug_offline_enabled) {
+	            std::cerr << "Could not process experiment data for: "
+		        << rawname << std::endl;
+		}
+#endif
+	    }
+#else // BUILD_CBTF
             if (!rval &&
 		(rawfiles[i].find(".openss-info") != std::string::npos ||
 		 rawfiles[i].find(".openss-dsos") != std::string::npos)) {
@@ -672,12 +710,17 @@ int OfflineExperiment::convertToOpenSSDB()
 		        << rawname << std::endl;
 		}
 #endif
-            } else {
 	    }
+#endif // BUILD_CBTF
         }
     }
 
+#if defined(BUILD_CBTF)
+    DataQueues::flushPerformanceData();
+#else
     theExperiment->flushPerformanceData();
+#endif
+
     // create unique addresses here. 51013.
     // this allows us to exclude unneeded entries in DsoVec.
     findUniqueAddresses();
@@ -686,16 +729,25 @@ int OfflineExperiment::convertToOpenSSDB()
     std::cerr << "Processing symbols ..." << std::endl;
     for (unsigned int i = 0;i < rawfiles.size();i++) {
 	bool_t found_dsofile = false;
+#if defined(BUILD_CBTF)
+	if (rawfiles[i].find(".openss-data") != std::string::npos) {
+#else
 	if (rawfiles[i].find(".openss-dsos") != std::string::npos) {
+#endif
 	    //std::cout << "processing " << rawfiles[i] << std::endl;
 	    rawname = rawfiles[i];
 	    found_dsofile = true;
 	} 
 
         if (found_dsofile) {
-            bool_t rval = process_objects(rawname);
+            bool_t rval;
+#if defined(BUILD_CBTF)
+	    rval = process_cbtf_objects(rawname);
+#else
+	    rval = process_objects(rawname);
+#endif
             if (!rval) {
-	        std::cerr << "Could not process experiment info for: "
+	        std::cerr << "Could not process experiment dsos for: "
 	    	    << rawname << std::endl;
             }
         }
@@ -797,6 +849,8 @@ OfflineExperiment::process_expinfo(const std::string rawfilename)
     return true;
 }
 
+
+
 /*
  *
  * We handle specific xdr routines for the collector named
@@ -822,12 +876,13 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	    break;
 	}
 
-	// FIXME: At large scales (1024 pe) usertime data blobs can
+	// NOTE: At large scales (1024 pe) usertime data blobs can
 	// be written to the database of size 0 or 1. These are not
 	// valid and will cause an assert in the DataQueue.
 	// Problem found with smg2000 -n 40 40 40 using intel compilers
 	// on a 128 node parition. Why did such a small blob
 	// get written to the openss-data file?
+	// A typical datablob header is greater than 1024.
 	if (blobsize < 1024 ) {
 	    std::cerr << "[ossutil] Warning: Data blob possibly corrupt from " << rawfilename
 		<< ". Unexpected blobsize is " << blobsize << std::endl;
@@ -853,14 +908,71 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	    continue;
 	}
 
-	// For offline collection we really maintain one dataqueue.
+	// For offline collection we only maintain one dataqueue.
 	// So the collector runtimes need to set the header.experiment to 0.
 	// This is the first index into the DataQueue.
-	//std::cerr << "OfflineExperiment::process_data enquing datablob of " << blobsize
-	//	<< " size for " << rawfilename << std::endl;
-
 	Blob datablob(blobsize, theData);
+
+#if defined(BUILD_CBTF)
+	// The openss-data file for cbtf-krell based offline collectors
+	// writes the performance data blobs into the raw data file
+	// first and then writes the linkedobject group blob as the
+	// last entry.  Therefore there could be multiple performance
+	// data blobs to enque into the DataQueue before we see the
+	// linkedobject group blob.
+        CBTF_DataHeader header;
+        memset(&header, 0, sizeof(header));
+        unsigned header_size = datablob.getXDRDecoding(
+            reinterpret_cast<xdrproc_t>(xdr_CBTF_DataHeader), &header
+            );
+
+	// The CBTF_DataHeader contains more than thread info and
+	// includes this "id" entry which is the collector name.
+	// This works to identify the performance data blobs.
+	// It is assumed that any remaining blobs (typically 1) are
+	// the linked object group blobs and are stored into a
+	// vector of blobs that represent all the linked object groups
+	// recorded for each thread of execution.
+	if (std::string(header.id) != "") {
+	    // This is a performance data blob.  Use its header to
+	    // update the thread table.  This eliminates the old
+	    // .openss-info files that performed this task before
+	    // (in addition to updating the parameters which is
+	    // no handled by the osscollect client).
+	    expPid = header.pid;
+	    expRank = header.rank;
+	    expPosixTid = header.posix_tid;
+	    expHost = header.host;
+	    expOmpTid = header.omp_tid;
+#ifndef NDEBUG
+	    if(is_debug_offline_enabled) {
+	        std::cerr << "OfflineExperiment::process_data updates threads for "
+		<< expHost << ":" << expPid << ":" << expRank << ":"
+		<< expPosixTid << ":" << expOmpTid << std::endl;
+	        std::cerr << "OfflineExperiment::process_data enquing datablob size:"
+		<< blobsize << " bytesRead:" << bytesRead << " from " << rawfilename
+		<< std::endl;
+	    }
+#endif
+	    theExperiment->updateThreads(expPid,expPosixTid,expOmpTid,expRank,expHost);
+	    DataQueues::enqueuePerformanceData(datablob);
+	} else {
+	    // There will typically be one linkedobject group blob per thread.
+	    // We will store these into a vector of blobs and process them
+	    // later via process_cbtf_objects.
+	    cbtf_objs_blobs.push_back(datablob);
+	}
+#else
+	// The openspeedshop collector runtime generated performance data blobs are queued here.
+#ifndef NDEBUG
+	if(is_debug_offline_enabled) {
+	    std::cerr << "OfflineExperiment::process_data enquing datablob size:"
+		<< blobsize << " bytesRead:" << bytesRead
+		<< " from " << rawfilename << std::endl;
+	}
+#endif
 	DataQueues::enqueuePerformanceData(datablob);
+#endif
 	if (theData) free(theData);
 	done = true;
 
@@ -873,6 +985,8 @@ OfflineExperiment::process_data(const std::string rawfilename)
     return done;
 }
 
+// The processing of objects for the OSS offline files generated
+// by the OSS collector runtimes.
 bool OfflineExperiment::process_objects(const std::string rawfilename)
 {
 
@@ -1007,6 +1121,145 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
     return true;
 }
 
+
+#if defined(BUILD_CBTF)
+// The cbtf-krell collector generated offline data consists of one file
+// name with the extention .openss-data.  The last entry in the file
+// is essentially the addressspace of the thread in question.
+bool OfflineExperiment::process_cbtf_objects(const std::string rawfilename)
+{
+
+    // If the datablobs did not contain any valid sample data then
+    // return early.
+    if (unique_addresses.size() == 0) {
+	std::cerr << "Warning: No samples recorded in this experiment!" << std::endl;
+	return false;
+    }
+
+    // This handles a group of linkedobjects loaded into a thread.
+    // cbtf uses: CBTF_Protocol_LinkedObjectGroup which is an
+    // arrary of CBTF_Protocol_LinkedObject. This matches offline_objects
+    // except address begin,end is a a range.
+    // TODO: Currently using CBTF_Protocol_Offline_LinkedObjectGroup.
+    // This could be changed to use the same group as cbtf. That requires
+    // changes in the cbtf-krell collector code.
+    for(std::vector<Blob>::const_iterator i = cbtf_objs_blobs.begin();
+					  i != cbtf_objs_blobs.end(); ++i) {
+	CBTF_EventHeader objsheader;
+	memset(&objsheader, 0, sizeof(objsheader));
+	unsigned objsheader_size = (*i).getXDRDecoding(
+	    reinterpret_cast<xdrproc_t>(xdr_CBTF_EventHeader), &objsheader);
+	unsigned objs_size = (*i).getSize() - objsheader_size;
+	const void* objs_ptr =
+	    &(reinterpret_cast<const char*>((*i).getContents())[objsheader_size]);
+
+
+	Blob objsblob(objs_size,objs_ptr);
+	CBTF_Protocol_Offline_LinkedObjectGroup objs;
+	memset(&objs, 0, sizeof(objs));
+	objsblob.getXDRDecoding(
+	    reinterpret_cast<xdrproc_t>(xdr_CBTF_Protocol_Offline_LinkedObjectGroup),
+	    &objs);
+
+#ifndef NDEBUG
+	if(is_debug_offline_enabled) {
+	    std::cerr << "OfflineExperiment::process_cbtf_objects: objsheader size:"
+	    << objsheader_size << " objs_size:" << objs_size
+	    << " objs length:" << objs.linkedobjects.linkedobjects_len
+	    << " from " << rawfilename << std::endl;
+	}
+#endif
+
+	if (objs.linkedobjects.linkedobjects_len > 0) {
+	    for(int i = 0; i < objs.linkedobjects.linkedobjects_len; i++) {
+
+	        std::string objname = objs.linkedobjects.linkedobjects_val[i].objname;
+		if (objname.empty()) {
+		    continue;
+		}
+
+
+		// The code below is limiting entries into the AddressSpace
+		// table of the database to linkedobjects for which a sample
+		// address is present and the linkedobject time was long enough
+		// to sample and address or event.
+		//
+		// range is the address range of this linkedobject.
+		// itlow and itup are iterators to the unique address set
+		// that are used see if an sample address is in the range
+		// of the linked object. If so, the linked object is included
+		// in the database.
+		AddressRange range(objs.linkedobjects.linkedobjects_val[i].addr_begin,
+				   objs.linkedobjects.linkedobjects_val[i].addr_end);
+
+		//std::cerr << "OBJNAME: " << objname << " range " << range << std::endl;
+		std::set<Address>::iterator it,itlow,itup;
+		itlow = unique_addresses.lower_bound (range.getBegin()); itlow--;
+		itup = unique_addresses.upper_bound (range.getEnd()); itup--;
+		if ( !(range.doesContain(*itlow) || range.doesContain(*itup)) ) {
+		    //std::cerr << "range " << range << " DOES NOT contain " << *itlow << " Or " << *itup << std::endl;
+		    continue;
+		}
+
+		// In some codes like openss itself, a plugin table is created by opening
+		// and closing a dso very quickly.  ie. no samples are taken.  This leads
+		// to overlapping addresspace entries, multiple addressspace entries where
+		// no work was recorded but we need to instersect with in metric views, and
+		// in general, polluting the addresspace table wih entries.  This prevents
+		// recording such entries.
+		TimeInterval time_interval(Time(objs.linkedobjects.linkedobjects_val[i].time_begin),
+					   Time(objs.linkedobjects.linkedobjects_val[i].time_end));
+		uint64_t ttime = objs.linkedobjects.linkedobjects_val[i].time_end - objs.linkedobjects.linkedobjects_val[i].time_begin;
+		if (ttime < 1000000) {
+		    std::cerr << "Time interval to small for meaningful sample " << ttime << std::endl;
+		    continue;
+		}
+
+// DEBUG
+#ifndef NDEBUG
+		if(is_debug_offline_enabled) {
+		  std::cerr << std::endl;
+		  std::cerr << "DSONAME " << objname << std::endl;
+		  std::cerr << "ADDR " << range << std::endl;
+		  std::cerr << "TIME " << time_interval << std::endl;
+		  std::cerr << "DLOPEN " << (int) objs.linkedobjects.linkedobjects_val[i].is_open  << std::endl;
+		  std::cerr << std::endl;
+		}
+#endif
+
+		if(objs.linkedobjects.linkedobjects_val[i].is_executable) {
+		    expExecutableName.insert(objname);
+		}
+
+		if (objname.find("[vdso]") == std::string::npos &&
+		    objname.find("[vsyscall]") == std::string::npos &&
+		    objname.find("[stack]") == std::string::npos &&
+		    objname.find("[heap]") == std::string::npos &&
+		    objname.compare("unknown") != 0 ) {
+
+		    DsoEntry e(objname,objsheader.host, objsheader.pid,
+				objsheader.posix_tid, range,time_interval,
+				objs.linkedobjects.linkedobjects_val[i].is_open);
+		    dsoVec.push_back(e);
+//DEBUG
+#ifndef NDEBUG
+		    if(is_debug_offline_enabled) {
+			std::cout << "dsoVec inserts " << objname << ", " << range
+			<< ", " << objsheader.host << ":"
+			<< objsheader.pid << ":" << objsheader.posix_tid << std::endl;
+		    }
+#endif
+		}
+
+	    }
+
+	    xdr_free(reinterpret_cast<xdrproc_t>(xdr_CBTF_Protocol_Offline_LinkedObjectGroup),
+		      reinterpret_cast<char*>(&objs));
+	}
+    } // for linkedobject in group.
+    return true;
+}
+#endif // defined BUILD_CBTF
 
 /**
  * Create the symbol table for the experiment database.
@@ -1385,4 +1638,69 @@ void OfflineExperiment::createOfflineSymbolTable()
         } // f
     }
 #endif
+}
+
+
+
+void OfflineExperiment::finalizeDB()
+{
+
+    SmartPtr<Database> database(new Database(theExperiment->getName()));
+
+    // Now clean up any remaining linkedobjects, files, addressspaces,
+    // and threads that do not contain any sample date, functions or statements.
+    // Begin a multi-statement transaction
+    BEGIN_WRITE_TRANSACTION(database);
+
+    // delete any thread entries where no sample data was recorded.
+    database->prepareStatement(
+	"DELETE FROM Threads "
+	"WHERE id NOT IN (SELECT DISTINCT thread FROM Data);"
+	);
+    while(database->executeStatement());
+
+    // This code has issues with the symboltables passed from the cbtf
+    // component network. Until those issues are  resolved, only allow
+    // this cleanup of unneeded entries in the database for the symbols
+    // resolved here in the the cbtf instrumentor FE.
+#ifdef OPENSS_CBTF_FE_RESOLVE_SYMBOLS
+    // delete any linkedobject entries where no functions or statements
+    // where recorded.
+    database->prepareStatement(
+	"DELETE FROM LinkedObjects "
+	"WHERE id NOT IN (SELECT DISTINCT linked_object FROM Functions) "
+	"  AND id NOT IN (SELECT DISTINCT linked_object FROM Statements);"
+	);
+    while(database->executeStatement());
+
+    // delete any file entries where no linkedobjects or statements
+    // where recorded.
+    database->prepareStatement(
+	"DELETE FROM Files "
+	"WHERE id NOT IN (SELECT DISTINCT file FROM LinkedObjects) "
+	"  AND id NOT IN (SELECT DISTINCT file FROM Statements);"
+	);
+    while(database->executeStatement());
+
+    // delete any addresspace entries where no linkedobjects or statements
+    // where recorded.
+    database->prepareStatement(
+	"DELETE FROM AddressSpaces "
+	"WHERE linked_object NOT IN (SELECT DISTINCT id FROM LinkedObjects) "
+	"  AND linked_object NOT IN (SELECT DISTINCT linked_object FROM Statements);"
+	);
+    while(database->executeStatement());
+
+    // delete any addresspace entries for threads where no data
+    // was recorded.
+    database->prepareStatement(
+	"DELETE FROM AddressSpaces "
+	"WHERE thread NOT IN (SELECT DISTINCT id FROM Threads);"
+	);
+    while(database->executeStatement());
+#endif
+
+    // TODO:  Could look at removing any thread entries for which there
+    // are no performance data blobs in the data table.
+    END_TRANSACTION(database);
 }

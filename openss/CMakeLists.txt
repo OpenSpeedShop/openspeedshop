@@ -128,18 +128,45 @@ else()
     add_definitions(
       -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
       )
-  
-    if (OpenMP_FLAG_DETECTED)
+
+#
+# The info below is not quite accurate.  While $pragma omp parallel is used
+# in the Queries::GetMetricValues function, it is not actuall compiled into
+# libopenss-queries even if -fopenmp is used.  But the actual callsites
+# in the cli that call Queries::GetMetricValues (via Queries.hxx include)
+# will in fact use openmp if the cli if built with -fopenmp. Also, if the
+# libopenss-cli is linked with the openmp runtime library then the openss
+# client does not need to do any of this openmp stuff here.
+#
+# We use openmp in the queries library to speedup the getMetricValues calls.
+# NOTE: Ideally those libraries (e.g. libopenss-queries) that use OpenMP would
+#       be linked (via @OPENMP_LDFLAGS@ and @OPENMP_LIBS@) to its runtime. For
+#       some unknown reason, however, that runtime cannot be dlopen()ed into a
+#       process. The error "libgomp.so.1: shared object cannot be dlopen()ed"
+#       is produced and the process immediately aborts. The fix is to have the
+#       main "openss" executable link to the runtime, thus indirectly providing
+#       the runtime for the other libraries that actually use it.
+#
+
+    # AFAICT, no code in the openss directory is using openmp.
+    # Shutting this down for cbtf instrumentor builds...
+    if (${INSTRUMENTOR} MATCHES "offline")
+      if (OpenMP_FLAG_DETECTED)
         add_definitions(${OpenMP_C_FLAGS})
         if (${OpenMP_C_FLAGS} MATCHES "-fopenmp")
            set(OpenMP_RT_NAME "gomp")
+        elseif (${OpenMP_C_FLAGS} MATCHES "-qopenmp")
+           set(OpenMP_RT_NAME "iomp5")
         elseif (${OpenMP_C_FLAGS} MATCHES "-openmp")
            set(OpenMP_RT_NAME "iomp5")
+        elseif (${OpenMP_C_FLAGS} MATCHES "-qopenmp")
+           set(OpenMP_RT_NAME "iomp5")
         else()
-           set(OpenMP_RT_NAME "gomp")
+           set(OpenMP_RT_NAME "")
         endif()
-    else()
+      else()
         set(OpenMP_RT_NAME "")
+      endif()
     endif()
 
     add_executable(openss
@@ -163,7 +190,6 @@ else()
 	    -Wl,--no-as-needed
 	    openss-framework
 	    openss-framework-cbtf
-	    ${OpenMP_RT_NAME}
 	    ${LTDL_LIBRARY_SHARED}
 	    ${CMAKE_DL_LIBS}
     )
@@ -248,7 +274,10 @@ else()
 	    ${CBTF_KRELL_CORE_MRNET_LIBRARY}
 	    openss-framework
 	    openss-framework-cbtf
+	    openss-framework-symtabapi
+	    ${OpenMP_RT_NAME}
             pthread
+	    ${OpenMP_RT_NAME}
             ${CMAKE_DL_LIBS}
             rt
         )
@@ -310,10 +339,12 @@ else()
 	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
             install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver ossiop
 	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
+            install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver ossomptp
+	        WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
         endif()
 
         # create cuda driver link
-        if(BUILD_CUDA_SUPPORT)
+        if(BUILD_CUDA_COLLECTION)
             install(CODE " EXECUTE_PROCESS(COMMAND ln -sf ossdriver osscuda
             WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin) ")
         endif()

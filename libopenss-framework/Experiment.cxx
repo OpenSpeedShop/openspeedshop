@@ -2700,6 +2700,49 @@ void Experiment::updateThreads(const pid_t& pid,
     END_TRANSACTION(dm_database); 
 }
 
+// Used to update the THREAD table for offline experiments.
+void Experiment::updateThreads(const pid_t& pid,
+			       const pthread_t& tid,
+			       const int& omptid,
+			       const int& rank,
+                               const std::string& host) const
+{
+    std::string canonical = getCanonicalName(host);
+
+    // Begin a multi-statement transaction
+    BEGIN_WRITE_TRANSACTION(dm_database);
+
+
+    if (rank < 0 ) {
+
+	// Create a thread entry in the database with no rank
+	dm_database->prepareStatement(
+            "INSERT INTO Threads (host, pid, posix_tid, openmp_tid) VALUES (?, ?, ?, ?);"
+	    );
+	dm_database->bindArgument(1, canonical);
+	dm_database->bindArgument(2, pid);
+	dm_database->bindArgument(3, tid);
+	dm_database->bindArgument(4, omptid);
+	while(dm_database->executeStatement());
+
+    } else {
+
+	// Create a thread entry in the database with mpi rank
+	dm_database->prepareStatement(
+            "INSERT INTO Threads (host, pid, posix_tid, openmp_tid, mpi_rank) VALUES (?, ?, ?, ? ,?);"
+	    );
+	dm_database->bindArgument(1, canonical);
+	dm_database->bindArgument(2, pid);
+	dm_database->bindArgument(3, tid);
+	dm_database->bindArgument(4, omptid);
+	dm_database->bindArgument(5, rank);
+	while(dm_database->executeStatement());
+
+    }
+
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database); 
+}
 
 
 //

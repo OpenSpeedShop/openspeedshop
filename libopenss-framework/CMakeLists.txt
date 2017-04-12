@@ -32,6 +32,14 @@ if (SYS_STAT_H_FOUND)
     add_definitions(-DHAVE_SYS_STAT_H=1)
 endif()
 
+if(NOT HAS_CXX11_AUTO)
+  message(STATUS "No support for C++11 found.")
+else()
+  message(STATUS "C++11 support found, required flags are: ${CXX11_COMPILER_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
+endif()
+
+
 file(COPY ${PROJECT_SOURCE_DIR}/libopenss-runtime/OpenSS_DataHeader.x DESTINATION .)
 add_custom_command(
     OUTPUT
@@ -65,7 +73,9 @@ endif()
     )
 
 set(FW_SOURCES
-        OpenSS_DataHeader.c
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.c
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
+        ${CMAKE_CURRENT_BINARY_DIR}/offline.h
         Address.hxx
         AddressBitmap.hxx AddressBitmap.cxx
         AddressRange.hxx
@@ -118,14 +128,15 @@ set(FW_SOURCES
     )
 
 set(BINUTILS_SOURCES
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
 	offline.c
 	BFDSymbols.hxx
 	BFDSymbols.cxx
     )
 
-
 if (DYNINSTAPI_FOUND)
 set(SYMTABAPI_SOURCES
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
 	offline.c
 	SymtabAPISymbols.hxx 
 	SymtabAPISymbols.cxx
@@ -134,6 +145,7 @@ set(SYMTABAPI_SOURCES
     )
 else()
 set(SYMTABAPI_SOURCES
+        ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
 	offline.c
 	SymtabAPISymbols.hxx 
 	SymtabAPISymbols.cxx
@@ -167,6 +179,7 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     # CBTF-Krell.cmake now sets CBTF_KRELL_XMLDIR rather than CBTF_TOOLS_XMLDIR.
+    # This is for the openss-framework-cbtf target.
     if (BUILD_FE_USING_CN_RUNTIMES MATCHES "true" )
         add_definitions(
            -DCBTF_LIB_DIR="${CBTF_LIB_DIR}"
@@ -183,28 +196,29 @@ if(INSTRUMENTOR MATCHES "cbtf")
 
     add_library(openss-framework SHARED ${FW_SOURCES})
 
+    # DataQueues.cxx uses DataHeader from cbtf-krell/messages
+    # for the cbtf instrumentor.
     target_include_directories(openss-framework PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime
-	${CBTF_INCLUDE_DIRS}
-        ${CBTF_KRELL_MESSAGES_INCLUDE_DIRS}
-        ${Sqlite3_INCLUDE_DIR}
-        ${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${PROJECT_BUILD_DIR}/libopenss-runtime
-        ${LTDL_INCLUDE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime
+	${CBTF_KRELL_MESSAGES_INCLUDE_DIRS}
+	${Sqlite3_INCLUDE_DIR}
+	${PROJECT_SOURCE_DIR}/libopenss-framework
+	${PROJECT_BUILD_DIR}/libopenss-runtime
+	${LTDL_INCLUDE_DIR}
     )
 
     target_link_libraries(openss-framework
-	    ${CBTF_KRELL_MESSAGES_LIBRARIES}
-        ${Sqlite3_SHARED_LIBRARIES}
-        ${Iberty_STATIC_LIBRARIES}
-        ${LTDL_LIBRARY_SHARED}
-        ${CMAKE_DL_LIBS}
+	${CBTF_KRELL_MESSAGES_PERFDATA_SHARED_LIBRARY}
+	${Sqlite3_SHARED_LIBRARIES}
+	${Iberty_STATIC_LIBRARIES}
+	${LTDL_LIBRARY_SHARED}
+	${CMAKE_DL_LIBS}
     )
 
     set_target_properties(openss-framework PROPERTIES VERSION 1.1.0)
-    set_target_properties(openss-framework PROPERTIES COMPILE_DEFINITIONS "BUILD_CBTF=1;${RESOLVE_SYMBOLS_DEFINES}")
+    set_target_properties(openss-framework PROPERTIES COMPILE_DEFINITIONS "BUILD_CBTF=1;")
 
     install(TARGETS openss-framework
         LIBRARY DESTINATION lib${LIB_SUFFIX}
@@ -237,7 +251,8 @@ if(INSTRUMENTOR MATCHES "cbtf")
     )
 
     set_target_properties(openss-framework-cbtf PROPERTIES VERSION 1.1.0)
-    set_target_properties(openss-framework-cbtf PROPERTIES COMPILE_DEFINITIONS "BUILD_CBTF=1;${RESOLVE_SYMBOLS_DEFINES};${DyninstAPI_DEFINES}")
+    set_target_properties(openss-framework-cbtf PROPERTIES COMPILE_DEFINITIONS
+	"BUILD_CBTF=1;${RESOLVE_SYMBOLS_DEFINES};${DyninstAPI_DEFINES}")
 
     install(TARGETS openss-framework-cbtf
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
@@ -321,58 +336,92 @@ elseif (INSTRUMENTOR MATCHES "offline")
 endif()
 
 if(SYMTABAPI_FOUND)
-    if (INSTRUMENTOR MATCHES "offline")
-	    add_library(openss-framework-symtabapi SHARED
+    add_library(openss-framework-symtabapi SHARED
 		${SYMTABAPI_SOURCES}
 		OfflineExperiment.hxx
 		OfflineExperiment.cxx
-    	    )
-    else()
-	    add_library(openss-framework-symtabapi SHARED
-		${SYMTABAPI_SOURCES}
-    	)
-    endif()
+    )
 
     if (DYNINSTAPI_FOUND)
-    target_include_directories(openss-framework-symtabapi PUBLIC
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_BINARY_DIR}/offline
-	${Boost_INCLUDE_DIRS}
-	${SymtabAPI_INCLUDE_DIRS}
-	${DyninstAPI_INCLUDE_DIRS}
-	${Binutils_Iberty_INCLUDE_DIR}
-	${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
-        ${LTDL_INCLUDE_DIR}
-    )
+      if(INSTRUMENTOR MATCHES "cbtf")
+	target_include_directories(openss-framework-symtabapi PUBLIC
+	    ${CMAKE_CURRENT_SOURCE_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}/offline
+	    ${Boost_INCLUDE_DIRS}
+	    ${SymtabAPI_INCLUDE_DIRS}
+	    ${DyninstAPI_INCLUDE_DIRS}
+	    ${Binutils_Iberty_INCLUDE_DIR}
+	    ${CBTF_KRELL_MESSAGES_INCLUDE_DIRS}
+	    ${PROJECT_SOURCE_DIR}/libopenss-framework
+            ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
+            ${LTDL_INCLUDE_DIR}
+	)
+	target_link_libraries(openss-framework-symtabapi
+	    ${SymtabAPI_LIBRARIES}
+	    ${DyninstAPI_LIBRARIES}
+	    ${CBTF_KRELL_MESSAGES_EVENTS_SHARED_LIBRARY}
+	    ${Iberty_STATIC_LIBRARIES}
+	    ${CMAKE_DL_LIBS}
+	)
+      else()
+	target_include_directories(openss-framework-symtabapi PUBLIC
+	    ${CMAKE_CURRENT_SOURCE_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}/offline
+	    ${Boost_INCLUDE_DIRS}
+	    ${SymtabAPI_INCLUDE_DIRS}
+	    ${DyninstAPI_INCLUDE_DIRS}
+	    ${Binutils_Iberty_INCLUDE_DIR}
+	    ${PROJECT_SOURCE_DIR}/libopenss-framework
+            ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
+            ${LTDL_INCLUDE_DIR}
+	)
+	target_link_libraries(openss-framework-symtabapi
+	    ${SymtabAPI_LIBRARIES}
+	    ${DyninstAPI_LIBRARIES}
+	    ${Iberty_STATIC_LIBRARIES}
+	    ${CMAKE_DL_LIBS}
+	)
+      endif()
     else()
-    target_include_directories(openss-framework-symtabapi PUBLIC
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_BINARY_DIR}/offline
-	${Boost_INCLUDE_DIRS}
-	${SymtabAPI_INCLUDE_DIRS}
-	${Binutils_Iberty_INCLUDE_DIR}
-	${PROJECT_SOURCE_DIR}/libopenss-framework
-        ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
-        ${LTDL_INCLUDE_DIR}
-    )
-    endif()
-
-    if (DYNINSTAPI_FOUND)
-      target_link_libraries(openss-framework-symtabapi
-	${SymtabAPI_LIBRARIES}
-	${DyninstAPI_LIBRARIES}
-	${Iberty_STATIC_LIBRARIES}
-	${CMAKE_DL_LIBS}
-      )
-    else()
-      target_link_libraries(openss-framework-symtabapi
-  	${SymtabAPI_LIBRARIES}
-	${Iberty_STATIC_LIBRARIES}
-	${CMAKE_DL_LIBS}
-      )
+      if(INSTRUMENTOR MATCHES "cbtf")
+	target_include_directories(openss-framework-symtabapi PUBLIC
+	    ${CMAKE_CURRENT_SOURCE_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}/offline
+	    ${Boost_INCLUDE_DIRS}
+	    ${SymtabAPI_INCLUDE_DIRS}
+	    ${Binutils_Iberty_INCLUDE_DIR}
+	    ${CBTF_KRELL_MESSAGES_INCLUDE_DIRS}
+	    ${PROJECT_SOURCE_DIR}/libopenss-framework
+	    ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
+	    ${LTDL_INCLUDE_DIR}
+	)
+	target_link_libraries(openss-framework-symtabapi
+	    ${SymtabAPI_LIBRARIES}
+	    ${CBTF_KRELL_MESSAGES_EVENTS_SHARED_LIBRARY}
+	    ${Iberty_STATIC_LIBRARIES}
+	    ${CMAKE_DL_LIBS}
+	)
+      else()
+	target_include_directories(openss-framework-symtabapi PUBLIC
+	    ${CMAKE_CURRENT_SOURCE_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}
+	    ${CMAKE_CURRENT_BINARY_DIR}/offline
+	    ${Boost_INCLUDE_DIRS}
+	    ${SymtabAPI_INCLUDE_DIRS}
+	    ${Binutils_Iberty_INCLUDE_DIR}
+	    ${PROJECT_SOURCE_DIR}/libopenss-framework
+	    ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
+	    ${LTDL_INCLUDE_DIR}
+	)
+	target_link_libraries(openss-framework-symtabapi
+	    ${SymtabAPI_LIBRARIES}
+	    ${Iberty_STATIC_LIBRARIES}
+	    ${CMAKE_DL_LIBS}
+	)
+      endif()
     endif()
 
     set_target_properties(openss-framework-symtabapi PROPERTIES VERSION 1.1.0)

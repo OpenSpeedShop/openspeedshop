@@ -1360,7 +1360,7 @@ bool Determine_TraceBack_Ordering (CommandObject *cmd) {
 std::string View_ByThread_Id_name[5] = {
        "??",
        "Rank",
-       "OpenMpi ThreadId",
+       "ThreadId",
        "Posix ThreadId",
        "ProccessId" }; 
 int64_t Determine_ByThread_Id (ExperimentObject *exp, CommandObject *cmd) {
@@ -1495,6 +1495,8 @@ int64_t Determine_ByThread_Id (ExperimentObject *exp, CommandObject *cmd) {
 //      std::cerr << " Determine_ByThread_Id, fall past rank code, t1.getPosixThreadId()=" << t1.getPosixThreadId() << " t2.getPosixThreadId()=" << t2.getPosixThreadId() << std::endl;
 #endif
 
+      // NOTE: Always prefer this openmp thread id... therefore is should
+      // always preceed check for posix thread id.
       std::pair<bool, int> pthread1 = t1.getOpenMPThreadId();
       std::pair<bool, int> pthread2 = t2.getOpenMPThreadId();
       if ( pthread1.first && pthread2.first &&
@@ -1506,6 +1508,7 @@ int64_t Determine_ByThread_Id (ExperimentObject *exp, CommandObject *cmd) {
         return View_ByThread_OpenMPThread;
       }
 
+      // NOTE: In reality we really never want to use posix thread ids as an id.
       std::pair<bool, pthread_t> posixthread1 = t1.getPosixThreadId();
       std::pair<bool, pthread_t> posixthread2 = t2.getPosixThreadId();
       if ( posixthread1.first && posixthread2.first &&
@@ -1536,14 +1539,9 @@ int64_t Determine_ByThread_Id (ExperimentObject *exp, CommandObject *cmd) {
 #endif
         return View_ByThread_Rank;
       }
-      std::pair<bool, pthread_t> posixthread1 = t1.getPosixThreadId();
-      if ( posixthread1.first ) {
-       // Use Thread.
-#if DEBUG_CLI
-        std::cerr << "Determine_ByThread_Id, 2RETURN View_ByThread_PosixThread=" << View_ByThread_PosixThread << std::endl;
-#endif
-        return View_ByThread_PosixThread;
-      }
+
+      // NOTE: Always prefer this openmp thread id... therefore is should
+      // always preceed check for posix thread id.
       std::pair<bool, int> pthread1 = t1.getOpenMPThreadId();
       if ( pthread1.first ) {
        // Use Thread.
@@ -1551,6 +1549,16 @@ int64_t Determine_ByThread_Id (ExperimentObject *exp, CommandObject *cmd) {
         std::cerr << "Determine_ByThread_Id, 2RETURN View_ByThread_OpenMPThread=" << View_ByThread_OpenMPThread << std::endl;
 #endif
         return View_ByThread_OpenMPThread;
+      }
+
+      // NOTE: In reality we really never want to use posix thread ids as an id.
+      std::pair<bool, pthread_t> posixthread1 = t1.getPosixThreadId();
+      if ( posixthread1.first ) {
+       // Use Thread.
+#if DEBUG_CLI
+        std::cerr << "Determine_ByThread_Id, 2RETURN View_ByThread_PosixThread=" << View_ByThread_PosixThread << std::endl;
+#endif
+        return View_ByThread_PosixThread;
       }
       pid_t pid1 = t1.getProcessId();
       if ( pid1 ) {

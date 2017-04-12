@@ -31,6 +31,12 @@
 
 #include "SymbolTable.hxx"
 #include "OfflineParameters.hxx"
+#if defined(BUILD_CBTF)
+#include "KrellInstitute/Messages/DataHeader.h"
+#include "KrellInstitute/Messages/EventHeader.h"
+#include "KrellInstitute/Messages/LinkedObjectEvents.h"
+#include "KrellInstitute/Messages/OfflineEvents.h"
+#endif
 
 namespace OpenSpeedShop { namespace Framework {
 
@@ -75,6 +81,7 @@ class OfflineExperiment
     int		getRawDataFiles(std::string dir);
     int		convertToOpenSSDB();
     void	createOfflineSymbolTable();
+    void	finalizeDB();
     void	findThreadsForExe(std::set<std::pair<LinkedObject,ThreadGroup> > &);
     void	processOfflineSymbolTable();
     void	getAddressesForThreads(ThreadGroup&, PCBuffer *);
@@ -96,6 +103,13 @@ class OfflineExperiment
     bool	process_expinfo(const std::string rawfilename);
     bool	process_data(const std::string rawfilename);
     bool	process_objects(const std::string rawfilename);
+#if defined(BUILD_CBTF)
+    // with cbtf-krell collection we use only one file to
+    // record performance data and then append the linked object
+    // information to that file (.openss-data).
+    bool	process_cbtf_objects(const std::string rawfilename);
+    std::vector<Blob>        cbtf_objs_blobs;
+#endif
 
     Experiment *theExperiment;
 
@@ -111,6 +125,8 @@ class OfflineExperiment
 
     // mpi experiments create multiple directories
     std::vector<std::string> rawdirs;
+
+    bool is_cbtf_data;
 
 #ifndef NDEBUG
     static bool is_debug_offlinesymbols_enabled;

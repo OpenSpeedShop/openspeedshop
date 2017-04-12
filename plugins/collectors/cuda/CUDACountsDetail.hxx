@@ -28,7 +28,10 @@
 #include <string>
 #include <vector>
 
+#include <ArgoNavis/Base/Time.hpp>
+
 #include "Assert.hxx"
+#include "TotallyOrdered.hxx"
 
 namespace OpenSpeedShop { namespace Framework {
 
@@ -38,50 +41,48 @@ namespace OpenSpeedShop { namespace Framework {
      * Encapsulate the detail metric (exclusive only) for hardware performance
      * counter data recorded by the CUDA collector.
      */
-    class CUDACountsDetail
+    class CUDACountsDetail :
+        public TotallyOrdered<CUDACountsDetail>
     {
 
     public:
 
         /** Default constructor. */
-        CUDACountsDetail() : dm_event_names(), dm_event_counts() { }
+        CUDACountsDetail() : dm_time(), dm_counts() { }
        
         /** Constructor from event names and counts. */
-        CUDACountsDetail(const std::vector<std::string>& event_names,
-                         const std::vector<boost::uint64_t>& event_counts) :
-            dm_event_names(event_names),
-            dm_event_counts(event_counts)
+        CUDACountsDetail(const ArgoNavis::Base::Time& time,
+                         const std::vector<boost::uint64_t>& counts) :
+            dm_time(time),
+            dm_counts(counts)
         {
+        }
+        
+        /** Operator "<" defined for two CUDACountsDetail objects. */
+        bool operator<(const CUDACountsDetail& other) const
+        {
+            return dm_time < other.dm_time;
         }
 
-        /** Number of sampled events. */
-        unsigned int getEventCount() const
+        /** Time at which this sample was taken. */
+        const ArgoNavis::Base::Time& getTime() const
         {
-            Assert(dm_event_names.size() == dm_event_counts.size());
-            return dm_event_names.size();
+            return dm_time;
         }
-        
-        /** Name of the specified event. */
-        std::string getEventName(unsigned int event) const
+
+        /** Counts for all events. */
+        const std::vector<boost::uint64_t>& getCounts() const
         {
-            Assert(event < dm_event_names.size());
-            return dm_event_names[event];
-        }
-        
-        /** Count for the specified event. */
-        boost::uint64_t getEventCount(unsigned int event) const
-        {
-            Assert(event < dm_event_counts.size());
-            return dm_event_counts[event];
+            return dm_counts;
         }
         
     private:
-        
-        /** Name of all events. */
-        std::vector<std::string> dm_event_names;
+
+        /** Time at which this sample was taken. */
+        ArgoNavis::Base::Time dm_time;
         
         /** Counts for all events. */
-        std::vector<boost::uint64_t> dm_event_counts;
+        std::vector<boost::uint64_t> dm_counts;
         
     }; // class CUDACountsDetail
         

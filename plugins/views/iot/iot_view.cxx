@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2016 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -897,7 +897,9 @@ static bool define_iot_columns (
     IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, intime_temp, totalIndex++));
     HV.push_back("% of Total Inclusive Time");
   } else {
+
    // If nothing is requested ...
+
     if (vfc == VFC_Trace) {
       // Insert start and end times into report.
 #ifdef DEBUG_IOT
@@ -920,6 +922,7 @@ static bool define_iot_columns (
         Look_For_KeyWord(cmd, "CallTrees")) {
       generate_nested_accounting = true;
     }
+
     IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
 #ifdef DEBUG_IOT
     printf("iot_view, after for extime_temp=%d, last_column=%d\n", extime_temp, last_column);
@@ -938,6 +941,7 @@ static bool define_iot_columns (
     HV.push_back("% of Total I/O Time");
 
 #if 1
+   
     if (vfc == VFC_Trace) {
   // display function return values for each function
       IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, retval_temp));
@@ -964,8 +968,10 @@ static bool define_iot_columns (
 
 // another attempt at getting the percentage of application time the I/O routine took
 #if 0
+      std::cerr << "pushing back elapsed_time=" << application_elapsed_time << std::endl;
       //IV.push_back(new ViewInstruction (VIEWINST_SetConstFloat, last_column++, application_elapsed_time,totalIndex++));
       IV.push_back(new ViewInstruction (VIEWINST_SetConstFloat, totalIndex, application_elapsed_time));
+      //IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, totalIndex, application_elapsed_time));
       IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, extime_temp, totalIndex++));
       HV.push_back("% of Total App Time");
 #endif
@@ -983,7 +989,7 @@ static bool define_iot_columns (
 #endif
 
 #if 1
-    if (vfc != VFC_Trace) {
+    if (vfc != VFC_Trace && vfc != VFC_CallStack) {
       // display count of min bytes value
        IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, minbytescount_temp));
        HV.push_back(std::string(" Min_Bytes Count") );
@@ -1002,11 +1008,8 @@ static bool define_iot_columns (
     }
 
 #endif
-   
 
   }
-
-
 
   if (generate_nested_accounting) {
     IV.push_back(new ViewInstruction (VIEWINST_StackExpand, intime_temp));
@@ -1121,9 +1124,9 @@ static std::string VIEW_iot_long  =
                   " \n\t'-m retval' reports the value returned from the call."
                   " \n\t'-m nsysargs' reports the number of arguments to the call."
                   " \n\t'-m pathname' reports the pathname to the function."
-                  " \n\t'-m id' reports the rank/thread/pid of the event, rank/thread/pid the I/O function call took place in."
-                  " \n\t'-m rankid' reports the rank number, or if rank not available then the process id of the event that the I/O function took place in."
-                  " \n\t'-m threadid' reports the POSIX thread number that the I/O function took place in."
+                  " \n\t'-m id' reports the rank/pid  thread pair of the event."
+                  " \n\t'-m rankid' reports the rank number, or if rank not available then the process id of the event."
+                  " \n\t'-m threadid' reports the thread number of the event."
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
                   "\n";

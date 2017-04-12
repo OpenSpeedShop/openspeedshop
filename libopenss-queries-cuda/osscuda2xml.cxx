@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -108,7 +108,7 @@ void convert_counters(const CUDA::PerformanceData& data, ostream& xml)
     for (vector<string>::size_type i = 0; i < data.counters().size(); ++i)
     {
         xml << "<Counter id=\"" << i << "\">"
-            << data.counters()[i]
+            << data.counters()[i].name
             << "</Counter>" << endl;
     }
 }
@@ -159,7 +159,7 @@ template <typename T>
 bool convert_sites_in_event(const CUDA::PerformanceData& data,
                             const Thread& thread,
                             const T& details,
-                            vector<shared_ptr<StackTrace> >& sites,
+                            vector<boost::shared_ptr<StackTrace> >& sites,
                             size_t& sites_found)
 {
     size_t n = details.call_site;
@@ -186,14 +186,14 @@ bool convert_sites_in_event(const CUDA::PerformanceData& data,
 bool convert_sites_in_thread(const CUDA::PerformanceData& data,
                              const map<Base::ThreadName, Thread>& threads,
                              const Base::ThreadName& thread,
-                             vector<shared_ptr<StackTrace> >& sites,
+                             vector<boost::shared_ptr<StackTrace> >& sites,
                              size_t& sites_found)
 {
     data.visitDataTransfers(
         thread, data.interval(),
         bind(&convert_sites_in_event<CUDA::DataTransfer>,
-             cref(data), cref(threads.find(thread)->second), _1,
-             ref(sites), ref(sites_found))
+             boost::cref(data), boost::cref(threads.find(thread)->second), _1,
+             boost::ref(sites), boost::ref(sites_found))
         );
     
     if (sites_found == data.sites().size())
@@ -204,8 +204,8 @@ bool convert_sites_in_thread(const CUDA::PerformanceData& data,
     data.visitKernelExecutions(
         thread, data.interval(),
         bind(&convert_sites_in_event<CUDA::KernelExecution>,
-             cref(data), cref(threads.find(thread)->second), _1,
-             ref(sites), ref(sites_found))
+             boost::cref(data), boost::cref(threads.find(thread)->second), _1,
+             boost::ref(sites), boost::ref(sites_found))
         );
     
     return sites_found < data.sites().size();
@@ -218,12 +218,12 @@ void convert_sites(const CUDA::PerformanceData& data,
                    const map<Base::ThreadName, Thread>& threads,
                    ostream& xml)
 {
-    vector<shared_ptr<StackTrace> > sites(data.sites().size());
+    vector<boost::shared_ptr<StackTrace> > sites(data.sites().size());
     size_t sites_found = 0;
     
     data.visitThreads(
         bind(&convert_sites_in_thread,
-             cref(data), cref(threads), _1, ref(sites), ref(sites_found))
+             boost::cref(data), boost::cref(threads), _1, boost::ref(sites), boost::ref(sites_found))
         );
     
     for (size_t i = 0; i < sites.size(); ++i)
@@ -296,11 +296,11 @@ bool convert_data_transfer(const Base::Time& time_origin,
         << " device=\"" << details.device << "\""
         ">" << endl;
     xml << text("Time",
-                static_cast<uint64_t>(details.time - time_origin));
+                static_cast<boost::uint64_t>(details.time - time_origin));
     xml << text("TimeBegin",
-                static_cast<uint64_t>(details.time_begin - time_origin));
+                static_cast<boost::uint64_t>(details.time_begin - time_origin));
     xml << text("TimeEnd",
-                static_cast<uint64_t>(details.time_end - time_origin));
+                static_cast<boost::uint64_t>(details.time_end - time_origin));
     xml << text("Size", details.size);
     xml << text("Kind", CUDA::stringify(details.kind));
     xml << text("SourceKind", CUDA::stringify(details.source_kind));
@@ -323,11 +323,11 @@ bool convert_kernel_execution(const Base::Time& time_origin,
         << " device=\"" << details.device << "\""
         ">" << endl;
     xml << text("Time",
-                static_cast<uint64_t>(details.time - time_origin));
+                static_cast<boost::uint64_t>(details.time - time_origin));
     xml << text("TimeBegin",
-                static_cast<uint64_t>(details.time_begin - time_origin));
+                static_cast<boost::uint64_t>(details.time_begin - time_origin));
     xml << text("TimeEnd",
-                static_cast<uint64_t>(details.time_end - time_origin));
+                static_cast<boost::uint64_t>(details.time_end - time_origin));
     xml << text("Function", demangle(details.function));
     xml << xyz("Grid", details.grid);
     xml << xyz("Block", details.block);
@@ -346,12 +346,12 @@ bool convert_kernel_execution(const Base::Time& time_origin,
 /** Convert a periodic sample into XML and output it to a stream. */
 bool convert_periodic_sample(const Base::Time& time_origin,
                              const Base::Time& time,
-                             const vector<uint64_t>& counts,
+                             const vector<boost::uint64_t>& counts,
                              ostream& xml)
 {
     xml << "<Sample>" << endl;
-    xml << text("Time", static_cast<uint64_t>(time - time_origin));
-    for (vector<uint64_t>::size_type i = 0; i < counts.size(); ++i)
+    xml << text("Time", static_cast<boost::uint64_t>(time - time_origin));
+    for (vector<boost::uint64_t>::size_type i = 0; i < counts.size(); ++i)
     {
         xml << "  <Count counter=\"" << i << "\">"
             << counts[i]
@@ -406,19 +406,19 @@ bool convert_performance_data(const CUDA::PerformanceData& data,
     data.visitDataTransfers(
         thread, data.interval(),
         bind(&convert_data_transfer,
-             cref(data.interval().begin()), _1, ref(xml))
+             boost::cref(data.interval().begin()), _1, boost::ref(xml))
         );
 
     data.visitKernelExecutions(
         thread, data.interval(),
         bind(&convert_kernel_execution,
-             cref(data.interval().begin()), _1, ref(xml))
+             boost::cref(data.interval().begin()), _1, boost::ref(xml))
         );
 
     data.visitPeriodicSamples(
         thread, data.interval(),
         bind(&convert_periodic_sample,
-             cref(data.interval().begin()), _1, _2, ref(xml))
+             boost::cref(data.interval().begin()), _1, _2, boost::ref(xml))
         );
     
     xml << endl << "</DataSet>" << endl;
@@ -566,7 +566,7 @@ int main(int argc, char* argv[])
     }
 
     *xml << endl << "<TimeOrigin>"
-         << static_cast<uint64_t>(data.interval().begin())
+         << static_cast<boost::uint64_t>(data.interval().begin())
          << "</TimeOrigin>" << endl;
     
     convert_counters(data, *xml);
@@ -574,7 +574,7 @@ int main(int argc, char* argv[])
     convert_sites(data, threads, *xml);
     
     data.visitThreads(bind(
-        &convert_performance_data, cref(data), cref(threads), _1, ref(*xml)
+        &convert_performance_data, boost::cref(data), boost::cref(threads), _1, boost::ref(*xml)
         ));
     
     *xml << endl << "</CUDA>" << endl;

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2014-2016 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2014-2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -21,10 +21,15 @@
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
 #include <map>
+#include <stddef.h>
 #include <utility>
 #include <vector>
 
+#include <ArgoNavis/Base/PeriodicSamplesGroup.hpp>
+#include <ArgoNavis/Base/PeriodicSamples.hpp>
+#include <ArgoNavis/Base/PeriodicSampleVisitor.hpp>
 #include <ArgoNavis/Base/TimeInterval.hpp>
+
 #include <ArgoNavis/CUDA/DataTransfer.hpp>
 #include <ArgoNavis/CUDA/DataTransferVisitor.hpp>
 #include <ArgoNavis/CUDA/KernelExecution.hpp>
@@ -59,6 +64,16 @@ namespace {
     /** Type returned for the CUDA data transfer detail metrics. */
     typedef map<StackTrace, vector<CUDAXferDetail> > XferDetails;
 
+    /** Visitor used to compute the count_exclusive_details metric. */
+    bool computeCounts(const Base::Time& time,
+                       const vector<boost::uint64_t>& counts,
+                       vector<CUDACountsDetail>& results)
+    {
+        results.push_back(CUDACountsDetail(time, counts));
+        
+        return true; // Always continue the visitation
+    }
+    
     /**
      * Visitor used to compute [exec|xfer]_[exclusive|inclusive]_detail metrics.
      */
@@ -111,9 +126,9 @@ namespace {
             }
         }
 
-        return true; // Always continue the visitation        
+        return true; // Always continue the visitation
     }
-    
+
     /** Visitor used to compute [exec|xfer]_time metrics. */
     template <typename T>
     bool computeTime(const T& info,
@@ -214,11 +229,20 @@ CUDACollector::CUDACollector() :
                            "Exclusive CUDA data transfer details.",
                            typeid(XferDetails)));
 
+    declareMetric(Metadata("count_counters",
+                           "Sampled HWC Names",
+                          "Names of all sampled hardware performance counters.",
+                           typeid(vector<string>)));
+    
     declareMetric(Metadata("count_exclusive_details",
-                           "Exclusive CUDA HWC Details",
-                           "Exclusive CUDA hardware performance counter "
-                           "details.",
-                           typeid(CUDACountsDetail)));
+                           "Exclusive HWC Details",
+                           "Exclusive hardware performance counter details.",
+                           typeid(vector<CUDACountsDetail>)));
+
+    declareMetric(Metadata("periodic_samples",
+                           "Periodic HWC Samples",
+                           "Periodic hardware performance counter samples.",
+                           typeid(Base::PeriodicSamplesGroup)));
 }
 
 
@@ -379,26 +403,47 @@ void CUDACollector::getMetricValues(const string& metric,
 
     dm_current = make_pair(thread, subextents);
 
-    if (metric == "count_exclusive_details")
+    if (metric == "count_counters")
     {
-        vector<CUDACountsDetail>& data =
-            *reinterpret_cast<vector<CUDACountsDetail>*>(ptr);
+        vector<vector<string> >& data = 
+            *reinterpret_cast<vector<vector<string> >*>(ptr);
         
-        data[0] = CUDACountsDetail(
-            dm_data.counters(),
-            dm_data.counts(
+        for (ExtentGroup::size_type i = 0; i < subextents.size(); ++i)
+        {
+            data[i].clear();
+
+            for (std::size_t j = 0; j < dm_data.counters().size(); ++j)
+            {
+                data[i].push_back(dm_data.counters()[j].name);
+            }
+        }
+    }
+
+    else if (metric == "count_exclusive_details")
+    {
+        vector<vector<CUDACountsDetail> >& data = 
+            *reinterpret_cast<vector<vector<CUDACountsDetail> >*>(ptr);
+
+        for (ExtentGroup::size_type i = 0; i < subextents.size(); ++i)
+        {
+            Base::PeriodicSampleVisitor visitor = bind(
+                &computeCounts, _1, _2, boost::ref(data[i])
+                );
+            
+            dm_data.visitPeriodicSamples(
                 ConvertToArgoNavis(thread),
-                ConvertToArgoNavis(subextents[0].getTimeInterval())
-                )
-            );
+                ConvertToArgoNavis(subextents[i].getTimeInterval()),
+                visitor
+                );
+        }
     }
 
     else if (metric == "exec_time")
     {
         CUDA::KernelExecutionVisitor visitor = bind(
-            &computeTime<CUDA::KernelExecution>,
-            _1, cref(dm_data), cref(thread), cref(subextents),
-            ref(*reinterpret_cast<vector<double>*>(ptr))
+            &computeTime<CUDA::KernelExecution>, _1,
+            boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(*reinterpret_cast<vector<double>*>(ptr))
             );
         
         dm_data.visitKernelExecutions(
@@ -411,9 +456,9 @@ void CUDACollector::getMetricValues(const string& metric,
     else if (metric == "exec_inclusive_details")
     {
         CUDA::KernelExecutionVisitor visitor = bind(
-            &computeDetails<CUDA::KernelExecution, ExecDetails, true>,
-            _1, cref(dm_data), cref(thread), cref(subextents),
-            ref(*reinterpret_cast<vector<ExecDetails>*>(ptr))
+            &computeDetails<CUDA::KernelExecution, ExecDetails, true>, _1,
+            boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(*reinterpret_cast<vector<ExecDetails>*>(ptr))
             );
         
         dm_data.visitKernelExecutions(
@@ -426,9 +471,9 @@ void CUDACollector::getMetricValues(const string& metric,
     else if (metric == "exec_exclusive_details")
     {
         CUDA::KernelExecutionVisitor visitor = bind(
-            &computeDetails<CUDA::KernelExecution, ExecDetails, false>,
-            _1, cref(dm_data), cref(thread), cref(subextents),
-            ref(*reinterpret_cast<vector<ExecDetails>*>(ptr))
+            &computeDetails<CUDA::KernelExecution, ExecDetails, false>, _1,
+            boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(*reinterpret_cast<vector<ExecDetails>*>(ptr))
             );
         
         dm_data.visitKernelExecutions(
@@ -442,8 +487,8 @@ void CUDACollector::getMetricValues(const string& metric,
     {
         CUDA::DataTransferVisitor visitor = bind(
             &computeTime<CUDA::DataTransfer>, _1,
-            cref(dm_data), cref(thread), cref(subextents),
-            ref(*reinterpret_cast<vector<double>*>(ptr))
+            boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(*reinterpret_cast<vector<double>*>(ptr))
             );
         
         dm_data.visitDataTransfers(
@@ -456,9 +501,9 @@ void CUDACollector::getMetricValues(const string& metric,
     else if (metric == "xfer_inclusive_details")
     {
         CUDA::DataTransferVisitor visitor = bind(
-            &computeDetails<CUDA::DataTransfer, XferDetails, true>,
-            _1, cref(dm_data), cref(thread), cref(subextents),
-            ref(*reinterpret_cast<vector<XferDetails>*>(ptr))
+            &computeDetails<CUDA::DataTransfer, XferDetails, true>, _1,
+            boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(*reinterpret_cast<vector<XferDetails>*>(ptr))
             );
         
         dm_data.visitDataTransfers(
@@ -471,9 +516,9 @@ void CUDACollector::getMetricValues(const string& metric,
     else if (metric == "xfer_exclusive_details")
     {
         CUDA::DataTransferVisitor visitor = bind(
-            &computeDetails<CUDA::DataTransfer, XferDetails, false>,
-            _1, cref(dm_data), cref(thread), cref(subextents),
-            ref(*reinterpret_cast<vector<XferDetails>*>(ptr))
+            &computeDetails<CUDA::DataTransfer, XferDetails, false>, _1,
+            boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(*reinterpret_cast<vector<XferDetails>*>(ptr))
             );
         
         dm_data.visitDataTransfers(
@@ -481,6 +526,30 @@ void CUDACollector::getMetricValues(const string& metric,
             ConvertToArgoNavis(subextents.getBounds().getTimeInterval()),
             visitor
             );
+    }
+
+    else if (metric == "periodic_samples")
+    {
+        vector<Base::PeriodicSamplesGroup>& data = 
+            *reinterpret_cast<vector<Base::PeriodicSamplesGroup>*>(ptr);
+
+        for (ExtentGroup::size_type i = 0; i < subextents.size(); ++i)
+        {
+            data[i].clear();
+
+            for (std::size_t j = 0; j < dm_data.counters().size(); ++j)
+            {
+                Base::PeriodicSamples samples = dm_data.periodic(
+                    ConvertToArgoNavis(thread),
+                    ConvertToArgoNavis(subextents[i].getTimeInterval()), j
+                    );
+
+                if (samples.size() > 0)
+                {
+                    data[i].push_back(samples);
+                }
+            }
+        }
     }
 }
 

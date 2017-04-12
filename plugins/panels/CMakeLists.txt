@@ -46,10 +46,15 @@ add_subdirectory(MPIPPanel)
 add_subdirectory(MEMPanel)
 add_subdirectory(PTHREADSPanel)
 
-if(PAPI_FOUND)
+# Take out this if PAPI_FOUND check so that OSS/CBTF builds the
+# hwc* panels: if(PAPI_FOUND)
+
 add_subdirectory(HW_CounterPanel)
 add_subdirectory(HWCTimePanel)
 add_subdirectory(HWCSampPanel)
-endif()
 
+# Take out this if PAPI_FOUND check so that OSS/CBTF builds the
+# hwc* panels: endif()
+
+add_subdirectory(OMPTPPanel)
 endif()

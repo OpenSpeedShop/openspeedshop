@@ -1,6 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2010-2014 Krell Institute. All Rights Reserved.
-// Copyright (c) 2015,2016 Argo Navis Technologies. All Rights Reserved.
+// Copyright (c) 2016-2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -17,460 +16,443 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <algorithm>
+#include <boost/bind.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/optional.hpp>
+#include <boost/ref.hpp>
+#include <map>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <ArgoNavis/Base/PeriodicSamplesGroup.hpp>
+#include <ArgoNavis/Base/PeriodicSamples.hpp>
+
+#include <ArgoNavis/CUDA/stringify.hpp>
+
 #include "SS_Input_Manager.hxx"
 #include "SS_View_Expr.hxx"
 
 #include "CUDACollector.hxx"
 #include "CUDACountsDetail.hxx"
+#include "CUDAQueries.hxx"
 
-#define PUSH_HV(x) HV.push_back(x)
-#define PUSH_IV(...) IV.push_back(new ViewInstruction(__VA_ARGS__))
+#define WARN(x) Mark_Cmd_With_Soft_Error(command, x);
 
-#define WARN(x) Mark_Cmd_With_Soft_Error(cmd, x);
+using namespace OpenSpeedShop::Framework;
 
-using namespace std;
+/** Typed used to hold a flattened PeriodicSamplesGroup. */
+typedef std::map<Time, std::vector<boost::uint64_t> > FlattenedData;
 
 
 
-static const string kOptions[] = {
+static const std::string kOptions[] = {
     "HWPC", // This is the option that selects this particular sub-view
-    "Dso", "Dsos",
-    "Function", "Functions",
-    "LinkedObject", "LinkedObjects",
-    "Loop", "Loops",
-    "Statement", "Statements",
     "Summary", "SummaryOnly",
     ""
 };
 
 
 
-#if defined(DISABLE_FOR_NOW)
-
-// There are 2 reserved locations in the predefined-temporay table.
-// Additional items may be defined for individual collectors.
-
-// These are needed to manage cuda collector data.
-#define excnt_temp   VMulti_free_temp
-#define extime_temp  VMulti_free_temp+1
-#define event_temps  VMulti_free_temp+2
-
-#define First_ByThread_Temp VMulti_free_temp+OpenSS_NUMCOUNTERS+3
-#define ByThread_use_intervals 2 // "1" => times reported in milliseconds,
-                                 // "2" => times reported in seconds,
-                                 // otherwise don't add anything.
-#include "SS_View_bythread_locations.hxx"
-#include "SS_View_bythread_setmetrics.hxx"
-
-#define Determine_Objects Get_Filtered_Objects
-
-#define def_CUDA_values                                                 \
-    double extime = 0.0;                                                \
-    uint64_t excnt = 0;                                                 \
-    uint64_t exevent[OpenSS_NUMCOUNTERS];                               \
-    {                                                                   \
-        for (int i = 0; i < OpenSS_NUMCOUNTERS; ++i)                    \
-        {                                                               \
-            exevent[i] = 0;                                             \
-        }                                                               \
-    }
-
-#define get_CUDA_invalues(primary, num_calls, function_name)
-
-#define get_CUDA_exvalues(secondary, num_calls)                         \
-    extime += secondary.dm_time / num_calls;                            \
-    excnt++;                                                            \
-    {                                                                   \
-        for (int i = 0; i < OpenSS_NUMCOUNTERS; ++i)                    \
-        {                                                               \
-            exevent[i] += secondary.dm_event_values[i];                 \
-        }                                                               \
-    }
-
-#define get_inclusive_values(stdv, num_calls, function_name)            \
-    {                                                                   \
-        int64_t len = stdv.size();                                      \
-        for (int64_t i = 0; i < len; i++)                               \
-        {                                                               \
-            get_CUDA_invalues(stdv[i], num_calls, function_name)        \
-        }                                                               \
-    }
-
-#define get_exclusive_values(stdv, num_calls)           \
-    {                                                   \
-        int64_t len = stdv.size();                      \
-        for (int64_t i = 0; i < len; i++)               \
-        {                                               \
-            get_CUDA_exvalues(stdv[i], num_calls)       \
-        }                                               \
-    }
-
-#define set_CUDA_values(value_array, sort_excnt)                        \
-    if (num_temps > VMulti_sort_temp)                                   \
-    {                                                                   \
-        value_array[VMulti_sort_temp] = NULL;                           \
-    }                                                                   \
-    if (num_temps > VMulti_time_temp)                                   \
-    {                                                                   \
-        value_array[VMulti_time_temp] = CRPTR(extime);                  \
-    }                                                                   \
-    if (num_temps > extime_temp)                                        \
-    {                                                                   \
-        value_array[extime_temp] = CRPTR(extime);                       \
-    }                                                                   \
-    if (num_temps > excnt_temp)                                         \ 
-    {                                                                   \
-        value_array[excnt_temp] = CRPTR(excnt);                         \
-    }                                                                   \
-    if (num_temps > event_temps)                                        \
-    {                                                                   \
-        for (int i = 0; i < OpenSS_NUMCOUNTERS; ++i)                    \ 
-        {                                                               \
-            if (num_temps <= (event_temps + i))                         \
-            {                                                           \
-                break;                                                  \
-            }                                                           \
-            value_array[event_temps + i] = CRPTR(exevent[i]);           \
-        }                                                               \
-    }
-
-#define def_Detail_values def_CUDA_values
-#define get_inclusive_trace get_inclusive_values
-#define get_exclusive_trace get_exclusive_values
-#define set_Detail_values set_CUDA_values
-
-#include "SS_View_detail.txx"
-
-
-
-static bool define_cuda_columns(CommandObject* cmd,
-                                ExperimentObject* exp,
-                                vector<Collector>& CV,
-                                vector<string>& MV,
-                                vector<ViewInstruction*>& IV,
-                                vector<string>& HV,
-                                View_Form_Category vfc)
+/** Cache all of the CUDA performance data for the specified threads. */
+static void cache(const Collector& collector, const ThreadGroup& threads)
 {
-    int64_t last_column = 0;  // # of columns of information displayed
-    int64_t totalIndex  = 0;  // # of totals needed to perform % calculations
-
-    // Track maximum temps - needed for expressions
-    int64_t last_used_temp = Last_ByThread_Temp;
-
-    // Define combination instructions for predefined temporaries
-    PUSH_IV(VIEWINST_Add, VMulti_sort_temp);
-    PUSH_IV(VIEWINST_Add, VMulti_time_temp);
-    PUSH_IV(VIEWINST_Add, extime_temp);
-    PUSH_IV(VIEWINST_Add, excnt_temp);
-
-    OpenSpeedShop::cli::ParseResult* p_result = cmd->P_Result();
-    vector<ParseRange>* p_slist = p_result->getexpMetricList();
+    ExtentGroup subextents;
+    subextents.push_back(Extent(TimeInterval(Time::TheBeginning(),
+                                             Time::TheEnd()),
+                                AddressRange(Address::TheLowest(),
+                                             Address::TheHighest())));
     
-    bool Generate_ButterFly = Look_For_KeyWord(cmd, "ButterFly");
-    bool Generate_Summary = false;
-    bool Generate_Summary_Only = Look_For_KeyWord(cmd, "SummaryOnly");
-
-    if (!Generate_Summary_Only)
+    std::vector<std::vector<std::string> > data(subextents.size());
+    
+    for (ThreadGroup::const_iterator
+             i = threads.begin(), i_end = threads.end(); i != i_end; ++i)
     {
-        Generate_Summary = Look_For_KeyWord(cmd, "Summary");
+        collector.getMetricValues<std::vector<std::string> >(
+            "count_counters", *i, subextents, data
+            );
     }
-
-    int64_t View_ByThread_Identifier = Determine_ByThread_Id(exp, cmd);
-    string ByThread_Header = Find_Metadata(CV[0], "time").getShortName();
-    
-    if (Generate_ButterFly)
-    {
-        Generate_ButterFly = FALSE;
-        WARN("Warning: '-v ButterFly' is not supported with this view.");
-    }
-    
-    map<string, int64_t> MetricMap;
-    
-    MetricMap["time"] = extime_temp;
-    MetricMap["times"] = extime_temp;
-
-    // Determine the available events for the detail metric.
-
-    int64_t num_events = 0;
-    string papi_names[OpenSS_NUMCOUNTERS];
-    Collector c = CV[0];
-    string Value;
-    CV[0].getParameterValue("event", Value);
-    
-    istringstream evStream(Value);
-    string evElement;
-    while (getline(evStream, evElement, ','))
-    {
-        string event_name = lowerstring(evElement);
-        papi_names[num_events] = event_name;
-        MetricMap[event_name] = event_temps + num_events;
-        num_events++;
-    }
-    
-    for (int i = 0; i < num_events; i++)
-    {
-        PUSH_IV(VIEWINST_Add, event_temps + i);
-    }
-    
-    if (p_slist->begin() != p_slist->end())
-    {
-        // Add modifiers to output list.
-        vector<ParseRange>::iterator mi;
-        for (mi = p_slist->begin(); mi != p_slist->end(); mi++)
-        {
-            if ((*mi).getParseType() == PARSE_EXPRESSION_VALUE)
-            {
-                string header = "user expression";
-                ParseRange* pr = &(*mi);
-                if (pr->getOperation() == EXPRESSION_OP_HEADER)
-                {
-                    // Replace the default header with the first argument and
-                    // replace the original expression with the second argument
-                    header = pr->getExpression()->
-                        exp_operands[0]->getRange()->start_range.name;
-                    pr = pr->getExpression()->exp_operands[1];
-                }
-                
-                // Generate the instructions for the expression.
-                int64_t new_result = evaluate_parse_expression(
-                    cmd, exp, CV, MV, IV, HV, vfc,
-                    pr, last_used_temp, "cuda", MetricMap
-                    );
-                
-                if (new_result < 0)
-                {
-                    char s[100 + OPENSS_VIEW_FIELD_SIZE];
-                    sprintf(s, "Column %lld not be generated because "
-                            "of an error in the metric expression.",
-                            static_cast<long long int>(last_column));
-                    WARN(s);
-                    continue;
-                }
-                
-                PUSH_IV(VIEWINST_Display_Tmp, last_column++, new_result);
-                PUSH_HV(header);
-                continue;
-            }
-
-            parse_range_t* m_range = (*mi).getRange();
-            string C_Name, M_name;
-
-            if (m_range->is_range)
-            {
-                C_Name = m_range->start_range.name;
-                if (!strcasecmp(M_Name.c_str(), "cuda"))
-                {
-                    // We only know what to do with the cuda collector.
-                    WARN(string("The specified collector, ") + C_Name + 
-                         ", can not be displayed as part of a 'cuda' view.");
-                    continue;
-                }
-                M_Name = m_range->end_range.name;
-            }
-            else
-            {
-                M_Name = m_range->start_range.name;
-            }
-
-            // Try to match the name with built in values
-            if (M_Name.length() > 0)
-            {
-                // Select temp values for columns and build column headers
-                if (!strcasecmp(M_Name.c_str(), "time") ||
-                    !strcasecmp(M_Name.c_str(), "times"))
-                {                    
-                    PUSH_IV(VIEWINST_Display_Tmp, last_column++, extime_temp);
-                    PUSH_HV("Exclusive Time (ms)");
-                }
-                else if (!strcasecmp(M_Name.c_str(), "%time") ||
-                         !strcasecmp(M_Name.c_str(), "%times"))
-                {
-                    // Percent is calculate from 2 temps:
-                    //     time for this row and total time
-                    PUSH_IV(VIEWINST_Define_Total_Tmp, totalIndex, extime_temp);
-                    PUSH_IV(VIEWINST_Display_Percent_Tmp, last_column++,
-                            extime_temp, totalIndex++);
-                    PUSH_HV("% of Total Exclusive Time");
-                }
-                
-                // Recognize and generate pseudo instructions to calculate and
-                // display by-thread metrics for ThreadMax, ThreadMaxIndex,
-                // ThreadMin, ThreadMinIndex, ThreadAverage and LoadBalance.
-                #include "SS_View_bythread_recognize.hxx"
-
-                else
-                {
-                    // Look for Event options.
-                    bool event_found = false;
-                    for (int i = 0; i < num_events; i++)
-                    {
-                        const char *c = papi_names[i].c_str();
-                        
-                        if (c == NULL)
-                        {
-                            break;
-                        }
-
-                        if (!strcasecmp(M_Name.c_str(), c) ||
-                            !strcasecmp(M_Name.c_str(), "AllEvents")) 
-                        {
-                            event_found = true;
-                            PUSH_IV(VIEWINST_Display_Tmp, last_column++,
-                                    event_temps + i);
-                            PUSG_HV(papi_names[i]);
-                        }
-                    }
-                    
-                    if (!event_found)
-                    {
-                        // Unrecognized '-m' option.
-                        WARN("Warning: Unsupported option, '-m " + 
-                             M_Name + "'");
-                        return false;
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        // If nothing is requested ...
-
-        PUSH_IV(VIEWINST_Display_Tmp, last_column++, extime_temp);
-        PUSH_HV(Find_Metadata(CV[0], "time").getDescription());
-
-        if (Filter_Uses_F(cmd))
-        {
-            PUSH_IV(VIEWINST_Define_Total_Metric, totalIndex, 1);
-        }
-        else
-        {
-            PUSH_IV(VIEWINST_Define_Total_Tmp, totalIndex, extime_temp);
-        }
-        
-        PUSH_IV(VIEWINST_Display_Percent_Tmp, last_column++, extime_temp,
-                totalIndex++);
-        PUSH_HV(string("% of ") + Find_Metadata(CV[0], "time").getShortName());
-        
-        // This code (copied from above) adds the individual event results
-        // into the default view
-
-        // Look for Event options.
-        for (int i = 0; i < num_events; i++)
-        {
-            const char *c = papi_names[i].c_str();
-
-            if (c == NULL)
-            {
-                break;
-            }
-
-            PUSH_IV(VIEWINST_Display_Tmp, last_column++, event_temps + i);
-            PUSH_HV(papi_names[i]);
-        }
-    }
-    
-    if (Generate_Summary_Only)
-    {
-        PUSH_IV(VIEWINST_Display_Summary_Only);
-    }
-    else
-    {
-        PUSH_IV(VIEWINST_Display_Summary);
-    }
-    
-    return last_column > 0;
 }
 
 
 
-static bool cuda_definition(CommandObject* cmd,
-                            ExperimentObject* exp,
-                            int64_t topn,
-                            ThreadGroup& tgrp,
-                            vector<Collector>& CV,
-                            vector<string>& MV,
-                            vector<ViewInstruction*>& IV,
-                            vector<string>& HV,
-                            View_Form_Category vfc)
+/** Visitor used to flatten a PeriodicSamplesGroup. */
+bool flatten(const ArgoNavis::Base::Time& time,
+             const std::vector<boost::uint64_t>& values,
+             const std::size_t& n, const std::size_t& N,
+             FlattenedData& data)
 {
-    // Warn about misspelled of meaningless options and
-    // exit command processing without generating a view.
-    if (!Validate_V_Options(cmd, const_cast<string*>(kOptions)))
-    {
-        return false;
-    }
-
-    // Define the collector and metric needed for getting event counts
-    CV.push_back(Get_Collector(exp->FW(), "cuda"));
-    MV.push_back("count_exclusive_details");
+    FlattenedData::iterator i = data.find(Queries::ConvertFromArgoNavis(time));
     
-    return define_cuda_columns(cmd, exp, CV, MV, IV, HV, vfc);
+    if (i == data.end())
+    {
+        i = data.insert(std::make_pair(
+                            Queries::ConvertFromArgoNavis(time),
+                            std::vector<boost::uint64_t>(N, 0)
+                            )).first;            
+    }
+    
+    i->second[n] = values[0];
+    
+    return true;
 }
 
-#endif
 
 
-
-bool generate_cuda_hwpc_view(CommandObject* cmd,
-                             ExperimentObject* exp,
-                             int64_t topn,
-                             ThreadGroup& tgrp,
-                             list<CommandResult*>& view_output)
+/** Reset the CUDA collector getMetric() state. */
+static void reset(const Collector& collector, const ThreadGroup& threads)
 {
-#if defined(DISABLE_FOR_NOW)
-    vector<Collector> CV;
-    vector<string> MV;
-    vector<ViewInstruction*> IV;
-    vector<string> HV;
+    ExtentGroup subextents;
+    subextents.push_back(Extent(TimeInterval(Time::TheBeginning(),
+                                             Time::TheEnd()),
+                                AddressRange(Address::TheLowest(),
+                                             Address::TheHighest() + -1)));
 
-    View_Form_Category vfc = Determine_Form_Category(cmd);
-    if (cuda_definition(cmd, exp, topn, tgrp, CV, MV, IV, HV, vfc))
+    std::vector<std::vector<std::string> > data(subextents.size());
+
+    collector.getMetricValues<std::vector<std::string> >(
+        "count_counters", *threads.begin(), subextents, data
+        );
+}
+
+
+
+/** Get the CUDA collector. */
+static boost::optional<Collector> get_collector(const Experiment& experiment)
+{
+    CollectorGroup collectors = experiment.getCollectors();
+
+    for (CollectorGroup::const_iterator
+             i = collectors.begin(), i_end = collectors.end(); i != i_end; ++i)
     {
-        if (CV.empty() || MV.empty())
+        if (i->getMetadata().getUniqueId() == "cuda")
         {
-            WARN("(There are no metrics specified to report.)");
-            return false;
+            return *i;
         }
+    }
+    
+    return boost::none;
+}
+
+
+
+/** Flatten the specified group of periodic samples. */
+static FlattenedData get_flattened(
+    const ArgoNavis::Base::PeriodicSamplesGroup& group
+    )
+{
+    FlattenedData flattened;
+    
+    for (std::size_t n = 0, N = group.size(); n < N; ++n)
+    {
+        group[n].visit(
+            group[n].interval(),
+            boost::bind(flatten, _1, _2,
+                        boost::cref(n), boost::cref(N), boost::ref(flattened))
+            );
+    }
+    
+    return flattened;
+}
+
+
+
+/**
+ * Get the samples for the specified threads over an optional time interval,
+ * and then resample them at the given optional fixed sampling rate.
+ */
+static ArgoNavis::Base::PeriodicSamplesGroup get_samples(
+    const Collector& collector, const ThreadGroup& threads,
+    const boost::optional<TimeInterval>& interval_,
+    const boost::optional<Time>& rate_
+    )
+{
+    using ArgoNavis::Base::PeriodicSamplesGroup;
+    
+    reset(collector, threads);
+
+    PeriodicSamplesGroup group;
+    
+    ExtentGroup subextents;
+    subextents.push_back(Extent(
+        interval_ ?
+            *interval_ : TimeInterval(Time::TheBeginning(), Time::TheEnd()),
+        AddressRange(Address::TheLowest(), Address::TheHighest())
+        ));
+    
+    for (ThreadGroup::const_iterator
+             i = threads.begin(), i_end = threads.end(); i != i_end; ++i)
+    {
+        std::vector<PeriodicSamplesGroup> data(subextents.size());
         
-        switch (vfc)
-        {
-   
-        case VFC_Function:
-            return Detail_Base_Report(
-                cmd, exp, topn, tgrp, CV, MV, IV, HV, false,
-                reinterpret_cast<Framework::Function*>(NULL), vfc,
-                reinterpret_cast<vector<CUDACountsDetail>*>(NULL), view_output
-                );
+        collector.getMetricValues<PeriodicSamplesGroup>(
+            "periodic_samples", *i, subextents, data
+            );
+        
+        group.insert(group.end(), data[0].begin(), data[0].end());
+    }
 
-        case VFC_LinkedObject:
-            return Detail_Base_Report(
-                cmd, exp, topn, tgrp, CV, MV, IV, HV, false,
-                reinterpret_cast<Framework::LinkedObject*>(NULL), vfc,
-                reinterpret_cast<vector<CUDACountsDetail>*>(NULL), view_output
-                );
+    boost::optional<ArgoNavis::Base::TimeInterval> interval = boost::none;
 
-        case VFC_Loop:
-            return Detail_Base_Report(
-                cmd, exp, topn, tgrp, CV, MV, IV, HV, false,
-                reinterpret_cast<Framework::Loop*>(NULL), vfc,
-                reinterpret_cast<vector<CUDACountsDetail>*>(NULL), view_output
-                );
-            
-        case VFC_Statement:
-            return Detail_Base_Report(
-                cmd, exp, topn, tgrp, CV, MV, IV, HV, false,
-                reinterpret_cast<Framework::Statement*>(NULL), vfc,
-                reinterpret_cast<vector<CUDACountsDetail>*>(NULL), view_output
-                );
-            
-        }
-          
-        WARN("(There is no supported view name recognized.)");
+    if (interval_)
+    {
+        interval = Queries::ConvertToArgoNavis(*interval_);
+    }
+    
+    boost::optional<ArgoNavis::Base::Time> rate = boost::none;
+
+    if (rate_)
+    {
+        rate = ArgoNavis::Base::Time(rate_->getValue());
+    }
+    
+    return ArgoNavis::Base::getResampledAndCombined(group, interval, rate);    
+}
+
+
+
+bool generate_cuda_hwpc_view(CommandObject* command,
+                             ExperimentObject* experiment,
+                             boost::int64_t top_n,
+                             ThreadGroup& threads,
+                             std::list<CommandResult*>& view)
+{
+    const size_t kHistogramBins = 20;
+    
+    // Proceed no further if invalid options were specified
+    if (!Validate_V_Options(command, const_cast<std::string*>(kOptions)))
+    {
         return false;
     }
-#endif
+
+    // Proceed no further if the CUDA collector cannot be found
+    boost::optional<Collector> collector = get_collector(*experiment->FW());
+    if (!collector)
+    {
+        WARN("(There are no metrics specified to report.)");
+        return false;
+    }
+
+    // Parse some of the additional options
+
+    bool show_summary_only = Look_For_KeyWord(command, "SummaryOnly");
+
+    bool show_summary =  show_summary_only |
+        Look_For_KeyWord(command, "Summary");
     
-    WARN("(We couldn't determine what information to report for 'cuda' view.)");
-    return false;
+    // Cache all of the CUDA performance data for the specified threads
+    cache(*collector, threads);
+
+    // Get the counts for the specified threads and resample them using the
+    // requested fixed sampling interval. Then flatten the data into arrays.
+
+    ArgoNavis::Base::PeriodicSamplesGroup samples = (top_n == 0) ?
+        get_samples(*collector, threads, boost::none, boost::none) :
+        get_samples(
+            *collector, threads, boost::none, Time(top_n * 1000000 /* ms/ns */)
+            );
+    
+    FlattenedData data = get_flattened(samples);
+
+    const std::size_t kNumCounters = samples.size();
+    const std::size_t kNumSamples = data.size();
+        
+    std::vector<boost::uint64_t> data_times(kNumSamples, 0);
+
+    std::vector<std::vector<boost::uint64_t> > data_values(
+        kNumSamples, std::vector<boost::uint64_t>(kNumCounters, 0)
+        );
+
+    std::size_t s = 0;
+    for (FlattenedData::const_iterator
+             i = data.begin(), i_end = data.end(); i != i_end; ++i, ++s)
+    {
+        data_times[s] = i->first.getValue();
+
+        for (std::size_t c = 0; c < kNumCounters; ++c)
+        {
+            data_values[s][c] = i->second[c];
+        }
+    }
+
+    for (std::size_t c = 0; c < kNumCounters; ++c)
+    {
+        if (samples[c].kind() == ArgoNavis::Base::PeriodicSamples::kCount)
+        {
+            for (std::size_t s = kNumSamples - 1; s > 0; --s)
+            {
+                data_values[s][c] -= data_values[s - 1][c];
+            }
+
+            data_values[0][c] = 0;
+        }
+    }
+    
+    // Generate the CPU/GPU balance histogram statistics
+    
+    bool had_cpu = false;
+    bool had_gpu = false;
+
+    std::vector<boost::uint64_t> data_cpu(kNumSamples, 0);
+    std::vector<boost::uint64_t> data_gpu(kNumSamples, 0);
+
+    for (std::size_t c = 0; c < kNumCounters; ++c)
+    {
+        std::string name = ArgoNavis::CUDA::stringify<>(
+            ArgoNavis::CUDA::CounterName(samples[c].name())
+            );
+            
+        if (name.find("CPU") != std::string::npos)
+        {
+            had_cpu = true;
+
+            for (std::size_t s = 0; s < kNumSamples; ++s)
+            {
+                data_cpu[s] += data_values[s][c];
+            }
+        }
+        else if (name.find("GPU") != std::string::npos)
+        {
+            had_gpu = true;            
+
+            for (std::size_t s = 0; s < kNumSamples; ++s)
+            {
+                data_gpu[s] += data_values[s][c];
+            }
+        }
+    }
+    
+    boost::uint64_t scale_cpu =
+        *max_element(data_cpu.begin(), data_cpu.end()) / kHistogramBins;
+
+    boost::uint64_t scale_gpu = 
+        *max_element(data_gpu.begin(), data_gpu.end()) / kHistogramBins;
+
+    bool show_balance = had_cpu || had_gpu;
+
+    // Generate the headers for the view
+
+    CommandResult_Headers* headers = new CommandResult_Headers();
+
+    headers->Add_Header(new CommandResult_String("Time (ms)"));
+
+    for (std::size_t c = 0; c < kNumCounters; ++c)
+    {
+        std::string name = ArgoNavis::CUDA::stringify<>(
+            ArgoNavis::CUDA::CounterName(samples[c].name())
+            );
+        
+        headers->Add_Header(new CommandResult_String(name));
+    }
+
+    if (!show_summary_only && show_balance)
+    {
+        assert(kHistogramBins >= 7);
+        std::string balance;
+
+        balance += "|<";
+
+        for (std::size_t i = 0; i < (kHistogramBins - 7); ++i)
+        {
+            balance += "-";
+        }
+
+        balance += "CPU---|---GPU";
+
+        for (std::size_t i = 0; i < (kHistogramBins - 7); ++i)
+        {
+            balance += "-";
+        }
+        
+        balance += ">|";
+
+        headers->Add_Header(new CommandResult_String(balance));
+    }
+
+    view.push_back(headers);
+
+    // Generate the data columns for the view
+    if (!show_summary_only)
+    {
+        for (std::size_t s = 0; s < kNumSamples; ++s)
+        {
+            CommandResult_Columns* columns = new CommandResult_Columns();
+
+            boost::uint64_t t =
+                (data_times[s] - data_times[0]) / 1000000 /* ms/ns */;
+            
+            columns->Add_Column(new CommandResult_Uint(t));
+            
+            for (std::size_t c = 0; c < kNumCounters; ++c)
+            {
+                columns->Add_Column(new CommandResult_Uint(data_values[s][c]));
+            }
+            
+            if (show_balance)
+            {
+                std::string balance;
+                
+                size_t ncpu = (scale_cpu == 0) ? 0 : (data_cpu[s] / scale_cpu);
+                size_t ngpu = (scale_gpu == 0) ? 0 : (data_gpu[s] / scale_gpu);
+                
+                balance += "|";
+                
+                for (std::size_t i = 0; i < kHistogramBins; ++i)
+                {
+                    balance += (ncpu > (kHistogramBins - i - 1)) ? "*" : " ";
+                }
+                
+                balance += "|";
+
+                for (std::size_t i = 0; i < kHistogramBins; ++i)
+                {
+                    balance += (ngpu > i) ? "*" : " ";
+                }
+                
+                balance += "|";
+                
+                columns->Add_Column(new CommandResult_String(balance));
+            }
+            
+            view.push_back(columns);
+        }
+    }
+
+    // Generate the enders for the view
+    if (show_summary)
+    {
+        boost::uint64_t t =
+            (data_times[kNumSamples - 1] - data_times[0]) / 1000000 /* ms/ns */;
+        
+        std::vector<boost::uint64_t> totals(kNumCounters, 0);
+
+        for (std::size_t c = 0; c < kNumCounters; ++c)
+        {
+            for (std::size_t s = 0; s < kNumSamples; ++s)
+            {
+                totals[c] += data_values[s][c];
+            }
+        }
+        
+        CommandResult_Enders* enders = new CommandResult_Enders();
+        
+        enders->Add_Ender(new CommandResult_Uint(t));
+        
+        for (std::size_t c = 0; c < kNumCounters; ++c)
+        {
+            enders->Add_Ender(new CommandResult_Uint(totals[c]));
+        }
+        
+        if (show_balance)
+        {
+            enders->Add_Ender(new CommandResult_String("Report Summary"));
+        }
+        
+        view.push_back(enders);
+    }
+    
+    // Done!
+    return true;
 }

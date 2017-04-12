@@ -394,7 +394,7 @@ bool Start_COMMAND_LINE_Mode (CMDWID my_window,
 #ifdef DEBUG_CLI_OPTIONS
     printf(" Start_COMMAND_LINE_Mode, adding expGo, expView to the input stack, oss_start_mode (batch)=%d\n", oss_start_mode);
 #endif
-    if ((NULL == Append_Input_String (my_window, "expStatus\n", NULL,
+    if ((NULL == Append_Input_String (my_window, "list -v walltime\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ||
         (NULL == Append_Input_String (my_window, "expview\n", NULL,
                                       &Default_TLI_Line_Output, &Default_TLI_Command_Output)) ) {
