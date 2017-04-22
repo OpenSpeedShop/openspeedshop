@@ -236,7 +236,7 @@ if (INSTRUMENTOR MATCHES "offline" OR INSTRUMENTOR MATCHES "cbtf")
     find_package(LTDL)
     find_package(SymtabAPI)
     find_package(DyninstAPI)
-    find_package(Qt3)
+    #find_package(Qt3)
     # always check for openmp regardless of instrumentor.
     # it is a client thing...
     find_package(OpenMP)
