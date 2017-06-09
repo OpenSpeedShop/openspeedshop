@@ -31,7 +31,7 @@ find_path(OpenMPI_INCLUDE_DIR
     PATH_SUFFIXES include include/openmpi include/openmpi-${oss_hardware_platform}
     )
 
-find_library(OpenMPI_LIBRARY_SHARED NAMES mpi
+find_library(OpenMPI_LIBRARY_SHARED NAMES mpi mpi_ibm
     HINTS $ENV{OPENMPI_DIR}
     HINTS ${OPENMPI_DIR}
     PATH_SUFFIXES lib lib64 lib/openmpi lib64/openmpi
