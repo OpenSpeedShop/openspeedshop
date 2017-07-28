@@ -1,6 +1,6 @@
 ################################################################################
 # Copyright (c) 2014-2016 Krell Institute. All Rights Reserved.
-# Copyright (c) 2016 Argo Navis Technologies. All Rights Reserved.
+# Copyright (c) 2016-2017 Argo Navis Technologies. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -258,6 +258,16 @@ if(INSTRUMENTOR MATCHES "cbtf")
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
     )
 
+if (CBTF-MESSAGES-CLUSTERING_FOUND)
+    add_definitions(-DHAVE_CLUSTERING=1)
+    target_include_directories(openss-framework-cbtf PUBLIC
+        ${CBTF_MESSAGES_CLUSTERING_INCLUDE_DIRS}
+        )
+    target_link_libraries(openss-framework-cbtf
+        ${CBTF_MESSAGES_CLUSTERING_LIBRARIES}
+        )
+endif()
+    
 elseif (INSTRUMENTOR MATCHES "offline")
     add_library(openss-framework SHARED ${FW_SOURCES}
 	offline/Instrumentor.cxx

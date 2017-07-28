@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2012-15 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -340,7 +341,29 @@ void FEThread::run(const std::string& topology, const std::string& connections,
 			avgfunctionvalues_output_component, "value");
     }
 
+#if defined(HAVE_CLUSTERING)
+    // Test whether the component network has a "clustering_criterion"
+    // output and, if it does, connect it to the appropriate callback. 
 
+    boost::shared_ptr<
+        SignalAdapter<boost::shared_ptr<Clustering_Criterion> >
+        > clustering_criterion;
+
+    if (outputs.find("clustering_criterion") != outputs.end())
+    {
+        clustering_criterion = SignalAdapter<
+            boost::shared_ptr<Clustering_Criterion>
+            >::instantiate();
+
+        clustering_criterion->Value.connect(Callbacks::clusteringCriterion);
+
+        Component::Instance component =
+            boost::reinterpret_pointer_cast<Component>(clustering_criterion);
+
+        Component::connect(network, "clustering_criterion", component, "value");
+    }
+#endif
+    
     *backend_attach_count = numBE;
     *backend_attach_file = connections;
     *topology_file = topology;

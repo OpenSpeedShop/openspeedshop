@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
 // Copyright (c) 2012 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -48,6 +49,10 @@
 #include "KrellInstitute/Core/AddressBuffer.hpp"
 #include "KrellInstitute/Core/LinkedObjectEntry.hpp"
 
+#if defined(HAVE_CLUSTERING)
+#include "KrellInstitute/Messages/Clustering.h"
+#endif    
+
 
 
 namespace OpenSpeedShop { namespace Framework {
@@ -76,6 +81,11 @@ namespace OpenSpeedShop { namespace Framework {
 	void avgFunctionValues(const boost::shared_ptr<CBTF_Protocol_FunctionAvgValues> & in);
 	void process_addressspace(const std::set<Address> addresses);
 	void finalize();
+
+#if defined(HAVE_CLUSTERING)
+    void clusteringCriterion(const boost::shared_ptr<Clustering_Criterion>&);
+#endif
+    
     }
     
 } }

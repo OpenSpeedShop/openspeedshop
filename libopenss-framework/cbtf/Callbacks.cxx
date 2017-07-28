@@ -1,5 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2012-2015  The Krell Institute. All Rights Reserved.
+// Copyright (c) 2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -2254,3 +2255,55 @@ void Callbacks::avgFunctionValues(const boost::shared_ptr<CBTF_Protocol_Function
     std::cerr << output.str();
 #endif
 }
+
+
+
+#if defined(HAVE_CLUSTERING)
+void Callbacks::clusteringCriterion(
+    const boost::shared_ptr<Clustering_Criterion>& message
+    )
+{
+    SmartPtr<Database> database = DataQueues::getDatabase(0);
+
+    BEGIN_WRITE_TRANSACTION(database);
+
+    database->prepareStatement(
+        "INSERT INTO ClusteringCritiera (name) VALUES (?);"
+        );
+    database->bindArgument(1, message->name);
+    while (database->executeStatement());
+    int criterion = database->getLastInsertedUID();
+    
+    for (u_int c = 0; c < message->clusters.clusters_len; ++c)
+    {
+        ::Cluster& entry = message->clusters.clusters_val[c];
+        
+        int representative_thread =
+            getThreadIdentifier(database, entry.representative);
+
+        database->prepareStatement(
+            "INSERT INTO Clusters (criterion, representative_thread) "
+            "    VALUES (?, ?);"
+            );
+        database->bindArgument(1, criterion);
+        database->bindArgument(2, representative_thread);
+        while (database->executeStatement());
+        int cluster = database->getLastInsertedUID();
+        
+        for (u_int t = 0; t < entry.threads.threads_len; ++t)
+        {
+            int thread =
+                getThreadIdentifier(database, entry.threads.threads_val[t]);
+
+            database->prepareStatement(
+                "INSERT INTO ClusterMembership (cluster, thread) VALUES (?, ?);"
+                );
+            database->bindArgument(1, cluster);
+            database->bindArgument(2, thread);
+            while (database->executeStatement());
+        }
+    }
+
+    END_TRANSACTION(database);
+}
+#endif
