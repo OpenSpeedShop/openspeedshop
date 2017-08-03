@@ -522,31 +522,43 @@ case "$experiment_name" in
   rate=$rate_threshold_value
   default_rate=$pcsamp_default_rate
   if [ "$rate" == "0" ] ; then
-      rate=$default_rate
+      if [ ! -z "$OPENSS_PCSAMP_RATE" ] ; then
+          rate=$OPENSS_PCSAMP_RATE
+      elif [ ! -z "$CBTF_PCSAMP_RATE" ] ; then
+          rate=$CBTF_PCSAMP_RATE
+      else
+          rate=$default_rate
+      fi
   fi
   # the precedent is that when low, high, or default is specified to the driver
   # we will always override the environment variabe for rate.
-  if [ $low_flag == 1 ] ; then
+  if [ $low_flag == true ] ; then
      let rate=10
      if [ -z "$OPENSS_PCSAMP_RATE" ] ; then
        echo "[openss]: $collector experiment using sampling rate: \"$rate\" because the \"low\" parameter is specified."
-     else
+     elif [ ! -z "$OPENSS_PCSAMP_RATE" ] ; then
        echo "[openss]: $collector experiment OPENSS_PCSAMP_RATE ignored because the \"low\" parameter is specified."
+     elif [ ! -z "$CBTF_PCSAMP_RATE" ] ; then
+       echo "[openss]: $collector experiment CBTF_PCSAMP_RATE ignored because the \"low\" parameter is specified."
      fi
-  elif [ $high_flag == 1 ] ; then
+  elif [ $high_flag == true ] ; then
      let rate=200
      if [ -z "$OPENSS_PCSAMP_RATE" ] ; then
        echo "[openss]: $collector experiment using sampling rate: \"$rate\" because the \"high\" parameter is specified."
-     else
+     elif [ ! -z "$OPENSS_PCSAMP_RATE" ] ; then
        echo "[openss]: $collector experiment OPENSS_PCSAMP_RATE ignored because the \"high\" parameter is specified."
+     elif [ ! -z "$CBTF_PCSAMP_RATE" ] ; then
+       echo "[openss]: $collector experiment CBTF_PCSAMP_RATE ignored because the \"high\" parameter is specified."
      fi
 
-  elif [ $use_default_flag == 1 ] ; then
+  elif [ $use_default_flag == true ] ; then
      if [ -z "$OPENSS_PCSAMP_RATE" ] ; then
        echo "[openss]: $collector experiment using sampling rate: \"$rate\" because the \"default\" parameter is specified."
      else
        if [ $default_rate != $OPENSS_PCSAMP_RATE ] ; then
          echo "[openss]: $collector experiment OPENSS_PCSAMP_RATE ignored because the \"default\" parameter is specified."
+       elif [ $default_rate != $CBTF_PCSAMP_RATE ] ; then
+         echo "[openss]: $collector experiment CBTF_PCSAMP_RATE ignored because the \"default\" parameter is specified."
        fi
      fi
   else
@@ -578,24 +590,30 @@ case "$experiment_name" in
   rate=$rate_threshold_value
   default_rate=$usertime_default_rate
   if [ "$rate" == "0" ] ; then
-      rate=$default_rate
+      if [ ! -z "$OPENSS_USERTIME_ATE" ] ; then
+          rate=$OPENSS_USERTIME_RATE
+      elif [ ! -z "$CBTF_USERTIME_RATE" ] ; then
+          rate=$CBTF_USERTIME_RATE
+      else
+          rate=$default_rate
+      fi
   fi
 
-  if [ $low_flag == 1 ] ; then
+  if [ $low_flag == true ] ; then
      let rate=10
      if [ -z "$OPENSS_USERTIME_RATE" ] ; then
        echo "[openss]: $collector experiment using sampling rate: \"$rate\" because the \"low\" parameter is specified."
      else
        echo "[openss]: $collector experiment OPENSS_USERTIME_RATE ignored because the \"low\" parameter is specified."
      fi
-  elif [ $high_flag == 1 ] ; then
+  elif [ $high_flag == true ] ; then
      let rate=200
      if [ -z "$OPENSS_USERTIME_RATE" ] ; then
        echo "[openss]: $collector experiment using sampling rate: \"$rate\" because the \"high\" parameter is specified."
      else
        echo "[openss]: $collector experiment OPENSS_USERTIME_RATE=$OPENSS_USERTIME_RATE ignored because the \"high\" parameter is specified."
      fi
-  elif [ $use_default_flag == 1 ] ; then
+  elif [ $use_default_flag == true ] ; then
      if [ -z "$OPENSS_USERTIME_RATE" ] ; then
        echo "[openss]: $collector experiment using sampling rate: \"$rate\" because the \"default\" parameter is specified."
      else
@@ -921,7 +939,7 @@ case "$experiment_name" in
     fi
     OPENSS_FPE_EVENT=$string_value
     env_events_set=true
-  elif [ $use_default_flag == 1 ] ; then
+  elif [ $use_default_flag == true ] ; then
     if [ $env_events_set == true ] ; then
       echo "[openss]: $collector using default experiment trace function list. Ignoring environment variable OPENSS_FPE_EVENT"
       env_events_set=false
@@ -968,7 +986,7 @@ case "$experiment_name" in
     fi
     OPENSS_IO_TRACED=$string_value
     env_trace_events_set=true
-  elif [ $use_default_flag == 1 ] ; then
+  elif [ $use_default_flag == true ] ; then
     if [ $env_trace_events_set == true ] ; then
       echo "[openss]: $collector using default experiment trace function list. Ignoring environment variable OPENSS_IO_TRACED."
       env_trace_events_set=false
@@ -1016,7 +1034,7 @@ case "$experiment_name" in
     fi
     OPENSS_IOT_TRACED=$string_value
     env_trace_events_set=true
-  elif [ $use_default_flag == 1 ] ; then
+  elif [ $use_default_flag == true ] ; then
     if [ $env_trace_events_set == true ] ; then
       echo "[openss]: $collector using default experiment trace function list. Ignoring environment variable OPENSS_IOT_TRACED."
       env_trace_events_set=false
@@ -1068,7 +1086,7 @@ case "$experiment_name" in
     fi
     OPENSS_IOP_TRACED=$string_value
     env_trace_events_set=true
-  elif [ $use_default_flag == 1 ] ; then
+  elif [ $use_default_flag == true ] ; then
     if [ $env_trace_events_set == true ] ; then
       echo "[openss]: $collector using default experiment trace function list. Ignoring environment variable OPENSS_IOP_TRACED."
       env_trace_events_set=false
@@ -1119,7 +1137,7 @@ case "$experiment_name" in
     fi
     OPENSS_MEM_TRACED=$string_value
     env_trace_events_set=true
-  elif [ $use_default_flag == 1 ] ; then
+  elif [ $use_default_flag == true ] ; then
     if [ $env_trace_events_set == true ] ; then
       echo "[openss]: $collector using default experiment trace function list. Ignoring environment variable OPENSS_MEM_TRACED."
       env_trace_events_set=false
@@ -1169,7 +1187,7 @@ case "$experiment_name" in
     fi
     OPENSS_PTHREADS_TRACED=$string_value
     env_trace_events_set=true
-  elif [ $use_default_flag == 1 ] ; then
+  elif [ $use_default_flag == true ] ; then
     if [ $env_trace_events_set == true ] ; then
       echo "[openss]: $collector using default experiment trace function list. Ignoring environment variable OPENSS_PTHREADS_TRACED."
       env_trace_events_set=false
@@ -1271,7 +1289,7 @@ case "$experiment_name" in
       
     esac
 
-  elif [ $use_default_flag == 1 ] ; then
+  elif [ $use_default_flag == true ] ; then
     if [ $env_trace_events_set == true ] ; then
       echo "[openss]: $collector using default experiment trace function list. Ignoring environment variable OPENSS_MPI_TRACED."
       env_trace_events_set=false
@@ -1372,7 +1390,7 @@ case "$experiment_name" in
       
     esac
 
-  elif [ $use_default_flag == 1 ] ; then
+  elif [ $use_default_flag == true ] ; then
     if [ $env_trace_events_set == true ] ; then
       echo "[openss]: $collector using default experiment trace function list. Ignoring environment variable OPENSS_MPIP_TRACED."
       env_trace_events_set=false
@@ -1471,7 +1489,7 @@ case "$experiment_name" in
       
     esac
 
-  elif [ $use_default_flag == 1 ] ; then
+  elif [ $use_default_flag == true ] ; then
     if [ $env_trace_events_set == true ] ; then
       echo "[openss]: $collector using default experiment trace function list. Ignoring environment variable OPENSS_MPIT_TRACED."
       env_trace_events_set=false
@@ -1570,7 +1588,7 @@ case "$experiment_name" in
       
     esac
 
-  elif [ $use_default_flag == 1 ] ; then
+  elif [ $use_default_flag == true ] ; then
     if [ $env_trace_events_set == true ] ; then
       echo "[openss]: $collector using default experiment trace function list. Ignoring environment variable OPENSS_MPIOTF_TRACED"
       env_trace_events_set=false
