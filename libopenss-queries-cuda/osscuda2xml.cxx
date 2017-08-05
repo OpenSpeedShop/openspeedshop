@@ -105,8 +105,8 @@ void convert_counters(const CUDA::PerformanceData& data, std::ostream& xml)
     for (std::vector<std::string>::size_type i = 0; i < data.counters().size(); ++i)
     {
         xml << "<Counter id=\"" << i << "\">"
-            << data.counters()[i]
-            << "</Counter>" << std::endl;
+            << data.counters()[i].name
+            << "</Counter>" << endl;
     }
 }
 

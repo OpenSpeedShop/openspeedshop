@@ -205,6 +205,7 @@ set(CBTF_KRELL_CN_RUNTIME_DIR "" CACHE STRING "Path to targeted runtime collecto
 
 # Set default to runtime only to false.
 set(RUNTIME_ONLY "false" CACHE STRING "Build only runtime collectors (offline instrumentor): [true,false]")
+set(BUILD_QT3_GUI "true" CACHE STRING "Build the Qt3 GUI: [true,false]")
 
 # Offline related - for finding the compute node versions of OSS and libmonitor
 set(RUNTIME_DIR "" CACHE STRING "path to targeted runtime collectors")
@@ -236,11 +237,15 @@ if (INSTRUMENTOR MATCHES "offline" OR INSTRUMENTOR MATCHES "cbtf")
     find_package(LTDL)
     find_package(SymtabAPI)
     find_package(DyninstAPI)
-    find_package(Qt3)
+    if ("${BUILD_QT3_GUI}" STREQUAL "true")
+       find_package(Qt3)
+    endif()
     # always check for openmp regardless of instrumentor.
     # it is a client thing...
     find_package(OpenMP)
 endif()
+
+message(STATUS "BUILD_QT3_GUI: " ${BUILD_QT3_GUI} )
 
 # The old autotools build added this to a config.h which
 # many source files included if it existed to define exactly

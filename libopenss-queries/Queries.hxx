@@ -88,7 +88,8 @@ namespace OpenSpeedShop {
 				 bool>
 	{
 	    bool operator()(const Framework::Function&,
-			    const Framework::Function&) const;
+			    const Framework::Function&,
+                            bool) const;
 	};
 
 	/**
@@ -105,7 +106,8 @@ namespace OpenSpeedShop {
 				 bool>
 	{
 	    bool operator()(const Framework::Statement&,
-			    const Framework::Statement&) const;
+			    const Framework::Statement&,
+                            bool ) const;
 	};
 
 	/**
@@ -122,7 +124,8 @@ namespace OpenSpeedShop {
 				 bool>
 	{
 	    bool operator()(const Framework::Loop&,
-			    const Framework::Loop&) const;
+			    const Framework::Loop&,
+                            bool ) const;
 	};
 
 
