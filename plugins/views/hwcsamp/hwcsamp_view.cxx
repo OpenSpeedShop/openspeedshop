@@ -1,5 +1,5 @@
 /*******************************************************************************
-** Copyright (c) 2010-2016 Krell Institute. All Rights Reserved.
+** Copyright (c) 2010-2017 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -1202,7 +1202,26 @@ static std::string VIEW_hwcsamp_long  =
                   " \n\t'-m allEvents' reports all the counter values for all the processes."
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
+                  "\n"
+                  "The hwcsamp views can also display derived metrics."
+                  " The hwcsamp view code has logic to recognize special hardware"
+                  " counter combinations, if present, and apply mathematical formulas"
+                  " to the data from those combinations of PAPI hardware counters."
+                  " Those hardware counters need to be specified on the osshwcsamp"
+                  " convenience script as the counters that O|SS will gather data for."
+                  " O|SS will apply mathematical formulas to the special counter combinations "
+                  " and create a new data metrics, whose results can be presented in the output "
+                  " in the CLI views.  Many of these derived metrics are output automatically "
+                  " if the data from the hardware counters needed for the computation are available. "
+                  " The list of displayed derived metric values are as follows:"
+                  "\n"
+                  "The metric names that need to be used and the hardware counters needed to satisfy the view:"
+                  " \n\t'-m intensity' reports computational intensity.  Hardware counters: PAPI_TOT_INS,PAPI_TOT_CYC are needed."
+                  " \n\t'-m l1dcmiss' reports the level 1 data cache miss ratio. Hardware counters: PAPI_L1_DCM,PAPI_L1_TCA are needed."
+                  " \n\t'-m l2tcmiss' reports level 2 total cache to cache access ratio. Hardware counters: PAPI_L2_TCM,PAPI_L2_TCA are needed."
+                  " \n\t'-m l3tcmiss' reports level 3 total cache to cache access ratio. Hardware counters: PAPI_L3_TCM,PAPI_L3_TCA are needed."
                   "\n";
+
 static std::string VIEW_hwcsamp_example = "\texpView hwcsamp\n"
                                          "\texpView -v statements hwcsamp10\n";
 static std::string VIEW_hwcsamp_metrics[] =
