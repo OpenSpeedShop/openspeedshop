@@ -52,6 +52,7 @@ FIND_LIBRARY(
     HINTS ${PYTHON_DIR} $ENV{PYTHON_DIR}
     PATHS
         ${_LIBDIR}
+        ${_PREFIX}/lib64
         ${_PREFIX}/lib
         ${_PREFIX}/libs
         [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${_CURRENT_VERSION}\\InstallPath]/libs

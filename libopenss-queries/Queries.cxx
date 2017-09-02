@@ -93,7 +93,8 @@ bool Queries::CompareLinkedObjects::operator()(
  */
 bool Queries::CompareFunctions::operator()(
     const Framework::Function& lhs,
-    const Framework::Function& rhs) const
+    const Framework::Function& rhs,
+    bool less_restrictive_comparisons) const
 {
 
 #if DEBUG_Queries
@@ -117,11 +118,8 @@ bool Queries::CompareFunctions::operator()(
 	return false;
     }
     
-
-
-
     bool compareOnlyFunctionName = FALSE;
-    if (OPENSS_LESS_RESTRICTIVE_COMPARISONS) {
+    if (less_restrictive_comparisons) {
        compareOnlyFunctionName = TRUE;
     }
 
@@ -160,10 +158,11 @@ bool Queries::CompareFunctions::operator()(
  */
 bool Queries::CompareStatements::operator()(
     const Framework::Statement& lhs,
-    const Framework::Statement& rhs) const
+    const Framework::Statement& rhs,
+    bool less_restrictive_comparisons) const
 {
     bool compareOnlyStmtLine = FALSE;
-    if (OPENSS_LESS_RESTRICTIVE_COMPARISONS) {
+    if (less_restrictive_comparisons) {
        compareOnlyStmtLine = TRUE;
     }
 
@@ -214,10 +213,11 @@ bool Queries::CompareStatements::operator()(
  */
 bool Queries::CompareLoops::operator()(
     const Framework::Loop& lhs,
-    const Framework::Loop& rhs) const
+    const Framework::Loop& rhs,
+    bool less_restrictive_comparisons) const
 {
     bool compareOnlyLoopLine = FALSE;
-    if (OPENSS_LESS_RESTRICTIVE_COMPARISONS) {
+    if (less_restrictive_comparisons) {
        compareOnlyLoopLine = TRUE;
     }
 

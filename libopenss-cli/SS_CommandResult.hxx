@@ -719,18 +719,21 @@ class CommandResult_Function :
       return A->GT(this);
     }
     return OpenSpeedShop::Queries::CompareFunctions()(*this,
-                                                      *((CommandResult_Function *)A)); }
+                                                      *((CommandResult_Function *)A),
+                                                      OPENSS_LESS_RESTRICTIVE_COMPARISONS); }
   virtual bool GT (CommandResult *A) {
     if (A->Type() != CMD_RESULT_FUNCTION) {
       Assert (A->Type() == CMD_RESULT_CALLTRACE);
       return A->LT(this);
     }
     if (OpenSpeedShop::Queries::CompareFunctions()(*((CommandResult_Function *)A),
-                                                   *this)) {
+                                                   *this,
+                                                   OPENSS_LESS_RESTRICTIVE_COMPARISONS)) {
       return true;
     }
     if (OpenSpeedShop::Queries::CompareFunctions()(*this,
-                                                   *((CommandResult_Function *)A))) {
+                                                   *((CommandResult_Function *)A),
+                                                   OPENSS_LESS_RESTRICTIVE_COMPARISONS)) {
       return false;
     }
     int64_t Ls = Line;
@@ -870,18 +873,21 @@ class CommandResult_Loop :
       return A->GT(this);
     }
     return OpenSpeedShop::Queries::CompareLoops()(*this,
-                                                  *((CommandResult_Loop *)A)); }
+                                                  *((CommandResult_Loop *)A),
+                                                   OPENSS_LESS_RESTRICTIVE_COMPARISONS); }
   virtual bool GT (CommandResult *A) {
     if (A->Type() != CMD_RESULT_LOOP) {
       Assert (A->Type() == CMD_RESULT_CALLTRACE);
       return A->LT(this);
     }
     if (OpenSpeedShop::Queries::CompareLoops()(*((CommandResult_Loop *)A),
-                                               *this)) {
+                                               *this,
+                                               OPENSS_LESS_RESTRICTIVE_COMPARISONS)) {
       return true;
     }
     if (OpenSpeedShop::Queries::CompareLoops()(*this,
-                                               *((CommandResult_Loop *)A))) {
+                                               *((CommandResult_Loop *)A),
+                                               OPENSS_LESS_RESTRICTIVE_COMPARISONS)) {
       return false;
     }
     int64_t Ls = Line;
@@ -1023,14 +1029,16 @@ class CommandResult_Statement :
       return A->GT(this);
     }
     return OpenSpeedShop::Queries::CompareStatements()(*this,
-                                                       *((CommandResult_Statement *)A)); }
+                                                       *((CommandResult_Statement *)A),
+                                                       OPENSS_LESS_RESTRICTIVE_COMPARISONS); }
   virtual bool GT (CommandResult *A) {
     if (A->Type() != CMD_RESULT_STATEMENT) {
       Assert (A->Type() == CMD_RESULT_CALLTRACE);
       return A->LT(this);
     }
     return OpenSpeedShop::Queries::CompareStatements()(*((CommandResult_Statement *)A),
-                                                       *this); }
+                                                       *this,
+                                                       OPENSS_LESS_RESTRICTIVE_COMPARISONS); }
 
   void Value (int64_t& L) {
     L = (int64_t)getLine();

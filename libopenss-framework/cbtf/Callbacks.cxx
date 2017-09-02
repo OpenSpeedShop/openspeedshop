@@ -603,8 +603,8 @@ bool updateThreads()
     std::vector<ThreadName>::const_iterator i;
     for(i=threadvec.begin(); i != threadvec.end(); i++)
     {
+        std::string host = Experiment::getCanonicalName(i->getHost());
 	
-
 	// TODO: for CBTF there is no longer an initial created process
 	// message passed up. CBTF now passes one large message
 	// representing all threads if possible. So the initial
@@ -626,7 +626,7 @@ bool updateThreads()
 	    "  AND pid = ? "
 	    "  AND posix_tid ISNULL;"
 	    );
-	database->bindArgument(1, (*i).getHost());
+	database->bindArgument(1, host);
 	database->bindArgument(2, static_cast<int>((*i).getPid()));
 	while(database->executeStatement())
 	    thread = database->getResultAsInteger(1);
@@ -700,7 +700,7 @@ bool updateThreads()
 	    "  AND openmp_tid = ? "
 	    );
 
-	database->bindArgument(1, (*i).getHost());
+	database->bindArgument(1, host);
 	database->bindArgument(2, static_cast<int>((*i).getPid()));
 	database->bindArgument(3, static_cast<pthread_t>((*i).getPosixThreadId().second));
 	database->bindArgument(4, static_cast<int>((*i).getMPIRank()));
@@ -715,7 +715,7 @@ bool updateThreads()
 		    std::stringstream output;
 		    output << "CLIENT:" << getpid()
 		       << " updateThreads: FOUND existing thread in database"
-		       << " " << (*i).getHost()
+		       << " " << host
 		       << ":" << (*i).getPid()
 		       << ":" << (*i).getPosixThreadId().second
 		       << ":" << (*i).getMPIRank()
@@ -730,7 +730,7 @@ bool updateThreads()
 		    std::stringstream output;
 		    output << "CLIENT:" << getpid()
 		       << " updateThreads: INSERT INTO Threads"
-		       << " " << (*i).getHost()
+		       << " " << host
 		       << ":" << (*i).getPid()
 		       << ":" << (*i).getPosixThreadId().second
 		       << ":" << (*i).getMPIRank()
@@ -742,7 +742,7 @@ bool updateThreads()
 		database->prepareStatement(
 		    "INSERT INTO Threads (host, pid, posix_tid, openmp_tid) VALUES (?, ?, ?, ?);"
 		    );
-	        database->bindArgument(1, (*i).getHost());
+	        database->bindArgument(1, host);
 	        database->bindArgument(2, static_cast<int>((*i).getPid()));
 		database->bindArgument(3, static_cast<pthread_t>((*i).getPosixThreadId().second));
 	        database->bindArgument(4, static_cast<int>((*i).getOmpTid()));
@@ -770,7 +770,7 @@ bool updateThreads()
 		    std::stringstream output;
 		    output << "CLIENT " << getpid()
 		       << " updateThreads(): New Thread - INSERTING"
-		       << " " << (*i).getHost()
+		       << " " << host
 		       << ":" << (*i).getPid()
 		       << ":" << (*i).getMPIRank()
 		       << ":" << static_cast<pthread_t>((*i).getPosixThreadId().second)
@@ -783,7 +783,7 @@ bool updateThreads()
 		    "INSERT INTO Threads (host, pid) VALUES (?, ?);"
 		    );
 
-	        database->bindArgument(1, (*i).getHost());
+	        database->bindArgument(1, host);
 	        database->bindArgument(2, static_cast<int>((*i).getPid()));
 	        while(database->executeStatement());
 

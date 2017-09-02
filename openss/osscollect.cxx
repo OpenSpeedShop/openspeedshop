@@ -72,6 +72,7 @@ namespace {
 
     bool is_debug_timing_enabled = (getenv("CBTF_TIME_CLIENT_EVENTS") != NULL);
     bool is_debug_client_enabled = (getenv("CBTF_DEBUG_CLIENT") != NULL);
+    bool defer_view = (getenv("OPENSS_DEFER_VIEW") != NULL);
 }
 
 // Client Utilities.
@@ -85,11 +86,31 @@ static int getBEcountFromCommand(std::string command) {
     boost::char_separator<char> sep(" ");
     boost::tokenizer<boost::char_separator<char> > btokens(command, sep);
     std::string S = "";
+    std::string n_token = "-n";
+    std::string np_token = "-np";
 
     bool found_be_count = false;
 
     BOOST_FOREACH (const std::string& t, btokens) {
 	S = t;
+
+	// This handles clients that allow both -n2 on the command line.
+	// For openmpi, -n2 or -np2 is in fact rejected by the openmpi mpirun command.
+	// If we find the -n case with no space, get the value just after -n and
+	// return it as an int while terminating loop.
+	std::string::size_type n_token_pos = S.find(n_token);
+	if (S.find(np_token) == std::string::npos &&
+	    n_token_pos != std::string::npos) {
+
+	    std::string::size_type token_size = n_token.length();
+	    if (S.substr( n_token_pos+token_size, std::string::npos ).size() > 0) {
+	        retval = boost::lexical_cast<int>(S.substr( n_token_pos+token_size, std::string::npos ));
+		break;
+	    }
+	}
+
+	// This handles the cases where there is a space after the -n or -np.
+	// In fact, openmpi's mpirun requires the space.
 	if (found_be_count) {
 	    S = t;
 	    retval = boost::lexical_cast<int>(S);
@@ -166,7 +187,7 @@ static bool foundLibraryFromLdd(const std::string& exename, const std::string& l
 
 	    if (!line.empty()) {
 		if (line.find(libname) != std::string::npos) {
-		    //std::cerr << "FOUND " << libname << std::endl;
+		    //std::cerr << "FOUND " << libname << " line=" << line << std::endl;
 		    return true;
 		}
 	    }
@@ -196,9 +217,9 @@ static bool isMpiExe(const std::string exe) {
 //
 static bool isOpenMPExe(const std::string exe) {
     SymtabAPISymbols stapi_symbols;
-    bool found_openmp = foundLibraryFromLdd(exe,"/libomp5.so");
+    bool found_openmp = foundLibraryFromLdd(exe,"/libiomp5");
     if (!found_openmp) {
-        found_openmp = foundLibraryFromLdd(exe,"/libgomp.so");
+        found_openmp = foundLibraryFromLdd(exe,"/libgomp");
     }
     return found_openmp;
 }
@@ -296,7 +317,11 @@ static std::string createDBName(std::string dbprefix)
      if (database_directory) {
 	LocalDataFileName = database_directory;
      } else {
-	LocalDataFileName = ".";
+	// Was simply . for current directory. Not really a good choice
+	// if other scripts or code wish to use the path to the database.
+	//LocalDataFileName = ".";
+	boost::filesystem::path full_path( boost::filesystem::current_path() );
+	LocalDataFileName = full_path.c_str();
      }
 
      int cnt = 0;
@@ -662,6 +687,13 @@ int main(int argc, char** argv)
 	// Find out if there is an mpi driver to key off of
 	// Then match the mpiexecutable value to the program name
 	mpiexecutable = getMPIExecutableFromCommand(program);
+	seqexecutable = getSeqExecutableFromCommand(program);
+    }
+
+    if (mpiexecutable == "" && seqexecutable == "") {
+        std::cerr << "Could not find executable to run from the specified input run command:" << std::endl;
+        std::cerr << program << std::endl;
+        return 1;
     }
 
     if (mpiexecutable != "") {
@@ -905,6 +937,14 @@ int main(int argc, char** argv)
 
         OfflineExperiment myOffExp(dbname,rawdatadir);
         myOffExp.getRawDataFiles(rawdatadir);
+    }
+
+    if (!defer_view) {
+	std::string viewcmd;
+	viewcmd.append("openss -batch -f " + dbname);
+	//viewcmd.append(dbname);
+	std::cerr << "default view for " << dbname << std::endl;
+	::system(viewcmd.c_str());
     }
 
 #ifndef NDEBUG

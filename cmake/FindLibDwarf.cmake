@@ -64,6 +64,12 @@ if(LIBDWARF_FOUND)
     CHECK_SYMBOL_EXISTS(dwarf_next_cu_header_c "libdwarf.h" HAVE_DWARF)
     #CHECK_FUNCTION_EXISTS(dwarf_next_cu_header_c HAVE_DWARF)
     message(STATUS "LibDwarf HAVE_dwarf_next_cu_header_c : " ${HAVE_DWARF})
+
+# Clean up, so that future find_package calls do not find the settings
+# (used above) for these variables
+    SET(CMAKE_REQUIRED_LIBRARIES "")
+    SET(CMAKE_REQUIRED_INCLUDES "")
+
 endif()
 
 if (NOT ${HAVE_DWARF})

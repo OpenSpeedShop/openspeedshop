@@ -35,11 +35,13 @@ add_subdirectory(mpit)
 # with cmake are we deciding to not support fpe?
 #add_subdirectory(fpe)
 
-add_subdirectory(mem)
-add_subdirectory(pthreads)
-add_subdirectory(iop)
-add_subdirectory(mpip)
-add_subdirectory(omptp)
+if (INSTRUMENTOR MATCHES "cbtf")
+    add_subdirectory(mem)
+    add_subdirectory(pthreads)
+    add_subdirectory(iop)
+    add_subdirectory(mpip)
+    add_subdirectory(omptp)
+endif()
 
 if(BUILD_CUDA_ANALYSIS)
     add_subdirectory(cuda)
