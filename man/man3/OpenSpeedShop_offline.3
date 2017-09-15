@@ -10,11 +10,12 @@ OpenSpeedShop \- Application Performance Tool Offline Mode of Operation
 
 .BR Overview
 
-The Open|SpeedShop performance tool gathers information about the user 
-application performance such as inclusive and exclusive CPU time, hardware 
-counter events and time, detailed information about I/O events/calls, 
-detailed information about MPI events/calls, and floating point exceptions 
-that occurred in the user application.  The term experiment is used to 
+Open|SpeedShop gathers information about the user application performance
+such as inclusive and exclusive CPU time, hardware counter events and
+time, detailed information about I/O events/calls, detailed information
+about MPI events/calls, memory leaks and highwater marks, OpenMP specific
+wait and idle information, POSIX thread information, and NVIDIA CUDA event 
+and data transfer information.  The term experiment is used to 
 describe the application and the type of performance data being gathered.   
 
 One of the ways Open|SpeedShop uses to gather the performance data, offline,
@@ -24,12 +25,12 @@ the application execution to produce performance information, in addition to
 the applications normal output.  In the offline mode of operation, the 
 Open|SpeedShop performance data collectors are linked into the user application 
 through the libMonitor component (by the use of LD_PRELOAD) in Open|SpeedShop.  
-When the offline mode of operation is used (-offline option to openss), the 
-application needs to be started from the beginning and run from beginning to end
-in order for the performance gathering to complete properly.
+When the offline mode of operation is used (-offline option to the Open|SpeedShop
+ convenience scripts), the application runs from beginning to end in order for 
+the performance gathering to complete properly.
 
 One of the advantages of using the offline mode of operation is that there are no
-daemons needed on any of the nodes of the cluster that the user application job 
+daemons/processes needed on any of the nodes of the cluster that the user application job 
 is running.  The Open|SpeedShop collectors that are linked into the user application
 write any performance information gathered to a shared file system and that data
 is then processed at application termination.  The raw data files written to the
@@ -38,7 +39,7 @@ symbol information for the application.   This database file has all the informa
 to view the performance experiment results later, without needed the application
 to be available.
 
-openss -offline -f "executable" <experiment_type>
+oss<experiment_type> -offline "executable"
 
 is the syntax for invocation of the offline version of Open|SpeedShop.
 
@@ -50,11 +51,7 @@ oss<experiment_type> "executable"
 
 For example:
 
-osspcsamp "/opt/openmpi/bin/mpirun -np 32 ./sweep3d.mpi"
-
-is equivalent to:
-
-openss -offline -f "/opt/openmpi/bin/mpirun -np 32 ./sweep3d.mpi" pcsamp
+osspcsamp --offline "/opt/openmpi/bin/mpirun -np 32 ./sweep3d.mpi"
 
 Please view the man pages for any of the convenience scripts that
 might be of interest to you.  They are listed below in the SEE ALSO section.
@@ -64,18 +61,22 @@ might be of interest to you.  They are listed below in the SEE ALSO section.
 
 The OpenSpeedShop Web site: www.openspeedshop.org
 
+.BR OpenSpeedShop (3)
+.BR OpenSpeedShop_cbtf (3)
 .BR openss (1),
 .BR osspcsamp (1),
 .BR ossusertime (1),
 .BR osshwc (1),
+.BR osshwcsamp (1),
 .BR osshwctime (1),
 .BR ossio (1),
+.BR ossiop (1),
 .BR ossiot (1),
+.BR ossmem (1),
 .BR ossmpi (1),
+.BR ossmpip (1),
 .BR ossmpit (1),
-.BR ossmpiotf (1),
-.BR ossfpe (1)
-.BR OpenSpeedShop (3)
-.BR OpenSpeedShop_online (3)
-
+.BR ossomptp (1)
+.BR osspthreads (1)
+.BR osscuda (1)
 
