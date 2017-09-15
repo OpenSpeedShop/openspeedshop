@@ -1,7 +1,7 @@
 .\" Process this file with
 .\" groff -man -Tascii oss.1
 .\"
-.TH OSS 1 "JANUARY 2017" Linux "User Manuals"
+.TH OSS 1 "SEPTEMBER 2017" Linux "User Manuals"
 .SH NAME
 oss \- Open|SpeedShop convenience script overview
 .SH SYNOPSIS
@@ -18,12 +18,15 @@ osshwc "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
 osshwcsamp "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
 osshwctime "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
 ossio "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
+ossiop "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
 ossiot "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
+ossmem "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
 ossmpi "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
 ossmpip "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
 ossmpit "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
-ossmpiotf "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
-ossfpe "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
+ossomptp "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
+osspthreads "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
+osscuda "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
 
 osscompare "database_file, database_file" [ time, percent ]
 
@@ -48,15 +51,20 @@ Open|SpeedShop Team <oss-questions@openspeedshop.org>
 .BR openss (1),
 .BR osspcsamp (1),
 .BR ossusertime (1),
-.BR osshwc (1)
-.BR osshwctime (1)
-.BR ossio (1)
-.BR ossiot (1)
-.BR ossmpi (1)
-.BR ossmpip (1)
-.BR ossmpit (1)
-.BR ossmpiotf (1)
-.BR ossfpe (1)
+.BR osshwc (1),
+.BR osshwcsamp (1),
+.BR osshwctime (1),
+.BR ossio (1),
+.BR ossiop (1),
+.BR ossiot (1),
+.BR ossmem (1),
+.BR ossmpi (1),
+.BR ossmpip (1),
+.BR ossmpit (1),
+.BR ossomptp (1)
+.BR osspthreads (1)
+.BR osscuda (1)
 .BR osscompare (1)
-
-
+.BR OpenSpeedShop (3)
+.BR OpenSpeedShop_offline (3)
+.BR OpenSpeedShop_cbtf (3)

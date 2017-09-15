@@ -26,7 +26,7 @@ and
 
 .SH TYPICAL USAGE FORM
 
-For the Open|SpeedShop-2.3.0 release the suggested usage is 
+For the Open|SpeedShop-2.3.1 release the suggested usage is 
 to run Open|SpeedShop to gather the performance information 
 of your choice and then use the Open|SpeedShop graphical user 
 interface (GUI) or the Open|SpeedShop command line interface 
@@ -66,10 +66,11 @@ the application being monitored and reports that information back to the
 user in order to locate performance bottlenecks in user applications.
 
 Open|SpeedShop gathers information about the user application performance
-such as inclusive and exclusive CPU time, hardware counter events and 
-time, detailed information about I/O events/calls, detailed information 
-about MPI events/calls, and floating point exceptions that occurred 
-in the user application.  The term experiment is used to describe the
+such as inclusive and exclusive CPU time, hardware counter events and
+time, detailed information about I/O events/calls, detailed information
+about MPI events/calls, memory leaks and highwater marks, OpenMP specific
+wait and idle information, POSIX thread information, and NVIDIA CUDA event 
+and data transfer information.  The term experiment is used to describe the
 application and the type of performance data being gathered.
 
 To access the specific information the user specifies the experiment
@@ -111,11 +112,20 @@ io                 Use to find I/O performance bottlenecks.
                    time spent in the I/O routine is reported as wall 
                    clock time.
 
+iop                Similar to io experiment, except that information
+                   about each individual I/O call is not preserved in
+                   the database file.  This is experiment intends to
+                   be lightweight, while providing an overview of the
+                   I/O usage in the application being profiled.
+
+
 iot                Similar to io experiment, except that additional 
                    information about the I/O call is gathered.  
                    Information such as bytes read or written, the name
                    of the file being read from or written to, and other
                    I/O call specific information are available.
+
+mem                The mem experiment..
 
 mpi                The MPI experiment captures the time spent in and 
                    the number of times each MPI function is called in
@@ -129,9 +139,9 @@ mpip               The MPI experiment captures the time spent in and
                    the number of times each MPI function is called in
                    the user's application program.  This experiment is
                    a lightweight MPI function profiling experiment, where
-                   individual call information is not saved.  The data is
-                   aggregated in order to save space and keep the database
-                   sizes smaller.
+                   individual call information is not perserved in the
+                   database file.  The data is aggregated in order 
+                   to save space and keep the database size smaller.
 
 mpit               This experiment captures each MPI function call 
                    event and records specific data corresponding to 
@@ -140,20 +150,11 @@ mpit               This experiment captures each MPI function call
                    through the Open|SpeedShop GUI or command line 
                    interface (CLI).
 
-mpiotf             Traces and times calls to various MPI routines and 
-                   generates Open Trace Format (OTF) files using 
-                   VampirTrace as the underlying gathering tool.  The
-                   resulting output OTF files can be viewed with the 
-                   Vampir tool or converted to another format to be 
-                   viewed by other tools.   Open|SpeedShop does not 
-                   read OTF format files at this time.
+omptp              The omptp experiment..
 
-fpe                Use to find where floating point exceptions are
-                   slowing the user application.  A floating-point 
-                   exception trace collects each floating-point 
-                   exception with the exception type and the call 
-                   stack at the time of the exception.  These 
-                   measurements are exact, not statistical.
+pthreads           The pthreads experiment..
+
+cuda               The cuda experiment..
 
 There are convenience command scripts that correspond to each of the
 experiment types above.  These script hide all arguments to openss 
@@ -229,7 +230,8 @@ This option specifies the type of performance information to be
 gathered while the Open|SpeedShop performance experiment is applied
 to the user application.  The supported experiment types are:
 
-pcsamp, usertime, hwc, hwctime, io, iot, mpi, mpip, mpit, mpiotf, fpe
+pcsamp, usertime, hwc, hwctime, io, iop, iot, mem, mpi, mpip, mpit, 
+omptp, pthreads, cuda
 
 The details for these options are described above in the Description
 section of this man page.   See the Open|SpeedShop Users Guide for
@@ -320,14 +322,20 @@ Open|SpeedShop Team <oss-questions@openspeedshop.org>
 .SH "SEE ALSO"
 .BR osspcsamp (1),
 .BR ossusertime (1),
-.BR osshwc (1)
-.BR osshwctime (1)
-.BR ossio (1)
-.BR ossiot (1)
-.BR ossmpi (1)
-.BR ossmpip (1)
-.BR ossmpit (1)
-.BR ossmpiotf (1)
-.BR ossfpe (1)
-
-
+.BR osshwc (1),
+.BR osshwcsamp (1),
+.BR osshwctime (1),
+.BR ossio (1),
+.BR ossiop (1),
+.BR ossiot (1),
+.BR ossmem (1),
+.BR ossmpi (1),
+.BR ossmpip (1),
+.BR ossmpit (1),
+.BR ossomptp (1)
+.BR osspthreads (1)
+.BR osscuda (1)
+.BR osscompare (1)
+.BR OpenSpeedShop (3)
+.BR OpenSpeedShop_offline (3)
+.BR OpenSpeedShop_cbtf (3)
