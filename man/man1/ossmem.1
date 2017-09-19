@@ -1,0 +1,220 @@
+.\" Process this file with
+.\" groff -man -Tascii ossmem.1
+.\"
+.TH OSSMEM 1 "SEPTEMBER 2017" Linux "User Manuals"
+.SH NAME
+ossmem \- Open|SpeedShop Input/Output Tracing Detailed experiment script
+.SH SYNOPSIS
+.nf
+.IP "ossmem simple_executable [ MEM_FUNCTION_LIST ]"
+.IP "ossmem ""executable args"" [ MEM_FUNCTION_LIST ] "
+.IP "ossmem ""multi_executable"" [ MEM_FUNCTION_LIST ] "
+.fi
+
+.SH TYPICAL USAGE FORM
+.nf
+
+ossmem "multi_executable"
+
+For example:
+
+ossmem "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog" 
+
+.fi
+.SH DESCRIPTION
+.B ossmem
+
+ossmem is a convenience command script that invokes the 
+Open|SpeedShop application level performance tool to gather 
+POSIX memory function trace performance information about
+the application being monitored and reports that information 
+back to the user in order to locate memory performance 
+bottlenecks in user applications.
+
+ossmem reports general statistics on all unique callpaths to 
+the traced memory calls.  ossmem also reports potential leaked memory
+ allocations and provides a timeline of all allocations that set a 
+new highwater memory mark.
+
+Information that is presented by default after the execution of the "mem"
+experiment is a summary of all the unique calls to POSIX memory functions
+during the execution of the application being monitored.
+
+Information included consists of a list of the POSIX memory functions called,
+the number of times the functions were called, the minimum requested bytes read
+or written, the number of times the minimum requested bytes were read or written,
+the maximum number of bytes were read or written, the the number of times the 
+maximum requested bytes were read or written, and the total bytes requested.
+
+In order to see the leak and high-water mark information a view must be requested 
+within the command line interface.  That information can be found below.
+
+
+.SH OPTIONS
+
+.IP "simple_executable"
+This option specifies the simple executable to be run. By 
+simple executable we mean a one word command with no arguments.
+No quotes around the executable name are needed when the command
+is a single word command with no arguments.
+
+.IP " ""executable args"" "
+This option specifies an executable with arguments to be run. In
+this case the executable can be a one word command or a multiple word
+(multiple tokens) command, such as a mpi command specification. 
+For example:
+
+        "simple_executable -n 40 40 40"
+
+or
+
+        "/opt/mpi/mpirun -np 64 ./executable_name" 
+
+Open|SpeedShop requires quotes around the executable and arguments when 
+the executable command is not simple.
+
+.IP " ""multi_executable [args]"" "
+This option specifies a multiple word executable with or without
+arguments to be run. In this case the executable is multiple word 
+command or a multiple word command, such as a mpi command 
+specification. For example: 
+
+        "/opt/mpi/mpirun -np 64 ./executable_name" 
+
+Open|SpeedShop requires quotes around the executable and arguments when 
+the executable command is not simple.
+
+.IP "MEM_FUNCTION_LIST"
+Specify a list of system POSIX memory functions to be traced.  If the OPENSS_MEM_TRACED
+is set, this value will override the function list defined by OPENSS_MEM_TRACED.
+the resulting value is used as the I/O function list for the experiment being run.
+
+.IP "default"
+Force the experiment to use the default I/O function list value when running
+the experiment. This overrides the OPENSS_MEM_TRACED environment variable
+if it was set.
+
+.IP "<no arguments>"
+If no optional arguments are specified then the default I/O function 
+list value is used in the experiment run.  However, if the OPENSS_MEM_TRACED
+environment variable is set then that I/O function list value will be 
+used in the experiment run.
+
+
+.SH FILES
+.IP ~/.qt/openspeedshoprc
+.RS
+The Open|SpeedShop preference configuration file which is 
+accessed through the Open|SpeedShop GUI Preferences menu item.
+This file contains several options which allow the user to 
+configure Open|SpeedShop to better fit their needs.
+
+See the Open|SpeedShop Users Guide for full details on the
+preferences available.
+.RE
+
+.SH ENVIRONMENT
+.IP OPENSS_RAWDATA_DIR (offline mode of operation only)
+On a cluster where /tmp is not shared across nodes, this
+environment variable needs to be set to a path to a shared
+file system that is accessible from all the nodes of the
+cluster.  The offline mode of operation for Open|SpeedShop
+needs a shared file system location to write the files containing
+the performance information from each process on all the
+nodes of the cluster involved in the experiment.  The online
+version of Open|SpeedShop can also use this variable to take
+advantage of faster file systems, but it is not required in the
+same sense as it is when running in offline mode.  If /tmp is not
+a shared file system and OPENSS_RAWDATA_DIR is not set, then the
+performance data from the nodes where /tmp is not shared will not
+be available in the Open|SpeedShop view of the experiment data.
+
+.IP OPENSS_MEM_TRACED
+This environment variable specifies the POSIX memory function list that
+the ossmem will trace during the experiment run.
+
+.SH DIAGNOSTICS
+The following diagnostics may be TBD:
+
+.SH QUICK START EXAMPLE
+The following command runs the MPI executable "mpi_prog" and gathers 
+POSIX memory function trace information on the 64 ranked processes.  
+When completed, a view of the aggregated information is displayed 
+to the screen.  
+
+ossmem "/opt/openmpi/bin/mpiexec -np 64 /home/user/mpi_prog"
+
+An Open|SpeedShop database file, named "mpi_prog-mem.openss" will be 
+created.  This database contains all the information to 
+view the experiment performance data postmortem.  The 
+database file may be used to view the performance 
+data for this experiment with the default view or using the several 
+different viewing options which allow rank to rank comparisons or 
+the ability to view performance information for individual ranks 
+or groups of ranks.
+
+The "mem" experiment presents an overview of the counts, memory statistic, 
+and the time spent in the POSIX memory functions and where those functions
+were called in the user application.  In addition, individual call path 
+with their respective time and number of calls are available.  Optional, 
+memory function call specific information is also available.
+
+.nf
+The mem views also include three key metrics specific to the memory experiment. 
+The list of specific memory views are as follows:
+The view names and combination views that can be used and the description of 
+the information displayed in the view follow: 
+
+	'-v unique' Show times, call counts per path, min,max bytes allocation, total allocation  
+	 to all unique paths to memory calls that the mem collector saw.
+                                     
+	'-v leaked' Show function view of allocations that were not released while the mem collector was active.
+                                     
+	'-v leaked,trace' Will show a timeline of any allocation calls that were not released.
+                                     
+	'-v leaked,fullstack' Display a full callpath to each unique leaked allocation.
+                                     
+	'-m highwater,trace' Is a timeline of mem calls that set a new high-water 
+	 The last entry is the allocation call that the set the high-water for the complete run 
+	 Investigate the last calls in the timeline and look at allocations that have the largest 
+	 allocation size (size1,size2,etc) if your application is consuming lots of system ram.
+
+Examples:
+
+	expView mem
+	expView -vtrace,unique
+	expView -vleaked
+	expView -vtrace,leaked
+	expView -vtrace,fullstack,leaked > leakedTraceWFullstacks.txt
+	expView -vhighwater
+	expView -vtrace,highwater
+
+.fi
+
+.SH BUGS
+TBD
+
+.SH AUTHOR
+Open|SpeedShop Team <oss-questions@openspeedshop.org>
+.SH "SEE ALSO"
+.BR openss (1),
+.BR osspcsamp (1),
+.BR ossusertime (1),
+.BR osshwc (1),
+.BR osshwcsamp (1),
+.BR osshwctime (1),
+.BR ossio (1),
+.BR ossiop (1),
+.BR ossiot (1),
+.BR ossmem (1),
+.BR ossmpi (1),
+.BR ossmpip (1),
+.BR ossmpit (1),
+.BR ossomptp (1)
+.BR osspthreads (1)
+.BR osscuda (1)
+.BR osscompare (1)
+.BR OpenSpeedShop (3)
+.BR OpenSpeedShop_offline (3)
+.BR OpenSpeedShop_cbtf (3)
+
