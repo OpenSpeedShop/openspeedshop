@@ -61,9 +61,13 @@ mark_as_advanced(SymtabAPI_LIBRARY SymtabAPI_INCLUDE_DIR SymtabAPI_LIB_DIR)
 
 if(SYMTABAPI_FOUND AND DEFINED SymtabAPI_INCLUDE_DIR)
 
-    if (EXISTS "${SymtabAPI_INCLUDE_DIR}${include_suffix}/version.h")
+    if (EXISTS "${SymtabAPI_INCLUDE_DIR}${include_suffix}/version.h" OR EXISTS "${SymtabAPI_INCLUDE_DIR}${include_suffix}/dyninstversion.h")
 
-        file(READ ${SymtabAPI_INCLUDE_DIR}${include_suffix}/version.h DyninstAPI_VERSION_FILE)
+        if (EXISTS "${SymtabAPI_INCLUDE_DIR}${include_suffix}/version.h")
+            file(READ ${SymtabAPI_INCLUDE_DIR}${include_suffix}/version.h DyninstAPI_VERSION_FILE)
+        elseif (EXISTS "${SymtabAPI_INCLUDE_DIR}${include_suffix}/dyninstversion.h")
+            file(READ ${SymtabAPI_INCLUDE_DIR}${include_suffix}/dyninstversion.h DyninstAPI_VERSION_FILE)
+        endif()
 
         string(REGEX REPLACE
             ".*#[ ]*define DYNINST_MAJOR_VERSION[ ]+([0-9]+)\n.*" "\\1"

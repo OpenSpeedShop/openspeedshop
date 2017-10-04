@@ -62,9 +62,13 @@ mark_as_advanced(DyninstAPI_LIBRARY DyninstAPI_INCLUDE_DIR)
 
 if(DYNINSTAPI_FOUND AND DEFINED DyninstAPI_INCLUDE_DIR)
 
-    if (EXISTS "${DyninstAPI_INCLUDE_DIR}${include_suffix}/version.h")
+    if (EXISTS "${DyninstAPI_INCLUDE_DIR}${include_suffix}/version.h" OR EXISTS "${DyninstAPI_INCLUDE_DIR}${include_suffix}/dyninstversion.h")
 
-        file(READ ${DyninstAPI_INCLUDE_DIR}${include_suffix}/version.h DyninstAPI_VERSION_FILE)
+        if (EXISTS "${DyninstAPI_INCLUDE_DIR}${include_suffix}/version.h")
+            file(READ ${DyninstAPI_INCLUDE_DIR}${include_suffix}/version.h DyninstAPI_VERSION_FILE)
+        elseif (EXISTS "${DyninstAPI_INCLUDE_DIR}${include_suffix}/dyninstversion.h")
+            file(READ ${DyninstAPI_INCLUDE_DIR}${include_suffix}/dyninstversion.h DyninstAPI_VERSION_FILE)
+        endif()
 
         string(REGEX REPLACE
             ".*#[ ]*define DYNINST_MAJOR_VERSION[ ]+([0-9]+)\n.*" "\\1"
