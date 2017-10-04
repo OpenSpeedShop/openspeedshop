@@ -1099,9 +1099,9 @@ static bool mem_definition ( CommandObject *cmd, ExperimentObject *exp, int64_t 
 
 
 static std::string VIEW_mem_brief = "Memory Tracing (mem) Report";
-static std::string VIEW_mem_short = "Report general statictics on all unique callpaths to the"
-				    "traced memory calls.  Report on potential leaked memory"
-				    "allocations.  Report timeline of all allocations that set"
+static std::string VIEW_mem_short = "Report general statictics on all unique callpaths to the "
+				    "traced memory calls.  Report on potential leaked memory "
+				    "allocations.  Report timeline of all allocations that set "
 				    "a new highwater memory mark."
 					;
 static std::string VIEW_mem_long  =
@@ -1177,7 +1177,26 @@ static std::string VIEW_mem_long  =
 
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
-                  "\n"; 
+                  "\n"
+                  " \nThe mem views also include three key metrics specific to the memory experiment."
+                  " \nThe list of specific memory views are as follows:"
+                  "\n"
+                  "The view names and combination views that can be used and the description of the information displayed in the view follow:"
+                  " \n\t'-v unique' Show times, call counts per path, min,max bytes allocation, total allocation "
+                  " \n\t to all unique paths to memory calls that the mem collector saw."
+                   "\n                                    "
+                  " \n\t'-v leaked' Show function view of allocations that were not released while the mem collector was active."
+                   "\n                                    "
+                  " \n\t'-v leaked,trace' Will show a timeline of any allocation calls that were not released."
+                   "\n                                    "
+                  " \n\t'-v leaked,fullstack' Display a full callpath to each unique leaked allocation."
+                   "\n                                    "
+                  " \n\t'-m highwater,trace' Is a timeline of mem calls that set a new high-water"
+                  " \n\t The last entry is the allocation call that the set the high-water for the complete run"
+                  " \n\t Investigate the last calls in the timeline and look at allocations that have the largest"
+                  " \n\t allocation size (size1,size2,etc) if your application is consuming lots of system ram."
+                  "\n" ;
+
 static std::string VIEW_mem_example = "\texpView mem\n"
                                       "\texpView -vtrace,unique\n"
                                       "\texpView -vleaked\n"

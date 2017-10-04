@@ -1,49 +1,49 @@
 .\" Process this file with
-.\" groff -man -Tascii ossmpip.1
+.\" groff -man -Tascii osspthreads.1
 .\"
-.TH OSSMPIP 1 "JANUARY 2017" Linux "User Manuals"
+.TH OSSPTHREADS 1 "SEPTEMBER 2019" Linux "User Manuals"
 .SH NAME
-ossmpit \- Open|SpeedShop MPI Profiling experiment script
+osspthreads \- Open|SpeedShop POSIX thread Function Tracing experiment script
 .SH SYNOPSIS
 .nf
-.IP "ossmpip simple_executable [ MPIP_FUNCTION_LIST ]"
-.IP "ossmpip ""executable args"" [ MPIP_FUNCTION_LIST ] "
-.IP "ossmpip ""multi_executable"" [ MPIP_FUNCTION_LIST ] "
+.IP "osspthreads simple_executable [ PTHREADS_FUNCTION_LIST ]"
+.IP "osspthreads ""executable args"" [ PTHREADS_FUNCTION_LIST ] "
+.IP "osspthreads ""multi_executable"" [ PTHREADS_FUNCTION_LIST ] "
 .fi
 
 .SH TYPICAL USAGE FORM
 .nf
 
-ossmpip "multi_executable"
+osspthreads "multi_executable"
 
 For example:
 
-ossmpip "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog" 
+osspthreads "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog" 
 
 .fi
 .SH DESCRIPTION
-.B ossmpip
+.B osspthreads
 
-ossmpip is a convenience command script that invokes the 
+osspthreads is a convenience command script that invokes the 
 Open|SpeedShop application level performance tool to gather 
-MPI function profiling performance information about
+POSIX thread function trace performance information about
 the application being monitored and reports that information 
-back to the user in order to locate MPI performance 
+back to the user in order to locate POSIX thread performance 
 bottlenecks in user applications.
 
-ossmpip captures several of the MPI system calls 
-and records the time spent and the number of calls in each routine.
-The call path/stack is also recorded.  This allows the user to 
-interrogate the call paths/stacks to find out where each MPI call 
-has been made in the application program. 
+osspthreads captures several of the POSIX thread system calls 
+and records the time spent and the number 
+of calls in each routine.  The call path/stack is also recorded.  
+This allows the user to interrogate the call paths/stacks to find 
+out where each call has been made in the application program
 
-Information that is presented after the execution of the "mpip"
+Information that is presented after the execution of the "pthreads"
 experiment is the exclusive CPU time spent inside all the system
-MPI functions, specified to be profiled, in the users application program. 
-In addition, to the time spent in the MPI functions, the call paths to
-where the MPI function was called in the user application is also presented
+POSIX thread functions, specified to be traced, in the users application program. 
+In addition, to the time spent in the POSIX thread functions, the call paths to
+where the POSIX thread function was called in the user application is also presented
 to the user.  Individual call paths and their respective times are
-also available.  
+also available.
 
 
 .SH OPTIONS
@@ -80,36 +80,20 @@ specification. For example:
 Open|SpeedShop requires quotes around the executable and arguments when 
 the executable command is not simple.
 
-.IP "MPIP_FUNCTION_LIST"
-Specify a list of system MPI functions to be profiled.  If the OPENSS_MPIP_TRACED
-is set, this value will override the function list defined by OPENSS_MPIP_TRACED.
-the resulting value is used as the MPI function list for the experiment being run.
-
-.nf
-MPI Category                    Argument
---------------------------      --------------------
-All MPI Functions               all
-Collective Communicators        collective_com
-Persistent Communicators        persistent_com
-Synchronous Point to Point      synchronous_p2p
-Asynchronous Point to Point     asynchronous_p2p
-Asynchronous Non-blocking       async_nonblocking
-Process Topologies              process_topologies
-Groups Contexts Communicators   graphs_contexts_comms
-Environment                     environment
-Datatypes                       datatypes
-MPI File I/O                    fileio
-.fi
+.IP "PTHREADS_FUNCTION_LIST"
+Specify a list of system POSIX thread functions to be traced.  If the OPENSS_PTHREADS_TRACED
+is set, this value will override the POSIX thread function list defined by OPENSS_PTHREADS_TRACED.
+the resulting value is used as the POSIX thread function list for the experiment being run.
 
 .IP "default"
-Force the experiment to use the default MPI function list value when running
-the experiment. This overrides the OPENSS_MPIP_TRACED environment variable
+Force the experiment to use the default POSIX thread function list value when running
+the experiment. This overrides the OPENSS_PTHREADS_TRACED environment variable
 if it was set.
 
 .IP "<no arguments>"
-If no optional arguments are specified then the default MPI function 
-list value is used in the experiment run.  However, if the OPENSS_MPIP_TRACED
-environment variable is set then that MPI function list value will be 
+If no optional arguments are specified then the default POSIX thread function 
+list value is used in the experiment run.  However, if the OPENSS_PTHREADS_TRACED
+environment variable is set then that POSIX thread function list value will be 
 used in the experiment run.
 
 
@@ -141,19 +125,19 @@ a shared file system and OPENSS_RAWDATA_DIR is not set, then the
 performance data from the nodes where /tmp is not shared will not
 be available in the Open|SpeedShop view of the experiment data.
 
-.IP OPENSS_MPIP_TRACED
-This environment variable specifies the MPI function list that
-the ossmpip will trace during the experiment run.
+.IP OPENSS_PTHREADS_TRACED
+This environment variable specifies the POSIX thread function list that
+the osspthreads will trace during the experiment run.
 
 .SH DIAGNOSTICS
 The following diagnostics may be TBD:
 
 .SH QUICK START EXAMPLE
 The following command runs the MPI executable "mpi_prog" and gathers 
-MPI function trace information on the 64 ranked processes.  
+POSIX thread function trace information on the 64 ranked processes.  
 When completed, a view of the aggregated information is displayed 
 to the screen.  An Open|SpeedShop database file, named 
-"mpi_prog-mpit.openss" will be created.  This database 
+"mpi_prog-io.openss" will be created.  This database 
 contains all the information to view the experiment performance data
 postmortem.  The database file may be used to view the performance 
 data for this experiment with the default view or using the several 
@@ -161,13 +145,13 @@ different viewing options which allow rank to rank comparisons or
 the ability to view performance information for individual ranks 
 or groups of ranks.
 
-The "mpip" experiment presents an overview of the time spent in the
-system MPI functions and where those functions were called in the
-user application.  In addition, individual call path with their respective
-time and number of calls are available. 
+The "pthreads" experiment presents an overview of the time spent in the
+system POSIX thread functions and where those functions were called in the
+user application.  Individual call path with their respective
+time and number of calls are also available.
 .nf
 
-ossmpip "/opt/openmpi/bin/mpiexec -np 64 /home/user/mpi_prog"
+osspthreads "/opt/openmpi/bin/mpiexec -np 64 /home/user/mpi_prog"
 .fi
 
 .SH BUGS
@@ -175,6 +159,7 @@ TBD
 
 .SH AUTHOR
 Open|SpeedShop Team <oss-questions@openspeedshop.org>
+
 .SH "SEE ALSO"
 .BR openss (1),
 .BR osspcsamp (1),
@@ -187,6 +172,7 @@ Open|SpeedShop Team <oss-questions@openspeedshop.org>
 .BR ossiot (1),
 .BR ossmem (1),
 .BR ossmpi (1),
+.BR ossmpip (1),
 .BR ossmpit (1),
 .BR ossomptp (1)
 .BR osspthreads (1)
@@ -195,3 +181,4 @@ Open|SpeedShop Team <oss-questions@openspeedshop.org>
 .BR OpenSpeedShop (3)
 .BR OpenSpeedShop_offline (3)
 .BR OpenSpeedShop_cbtf (3)
+

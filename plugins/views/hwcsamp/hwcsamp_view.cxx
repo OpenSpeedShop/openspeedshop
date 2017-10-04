@@ -218,14 +218,19 @@ static bool define_hwcsamp_columns (
         IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
         HV.push_back(Find_Metadata ( CV[0], "time" ).getDescription());
 
-       } else if (!strcasecmp(M_Name.c_str(), "cmpercent")) {
+       } else if (!strcasecmp(M_Name.c_str(), "L1DataCacheReadMissRatio") ||
+                  !strcasecmp(M_Name.c_str(), "l1dcrmiss")) {
 
             int icnt = 0;
             int l1_dcm_icnt = 0;
-         // cmpercent is calculated from two temps: the PAPI_L1_DCM counts and PAPI_L1_DCA counts.
+         // L1 data cache read miss ratio is calculated from two temps: the PAPI_L1_DCM counts and PAPI_L1_DCA counts.
             bool found_misses = false;
             for (icnt=0; icnt < num_events; icnt++) {
               if (papi_names[icnt].compare("PAPI_L1_DCM") == 0) {
+                   found_misses = true;
+                   l1_dcm_icnt = icnt;
+                   break;
+              } else if (papi_names[icnt].compare("papi_l1_dcm") == 0) {
                    found_misses = true;
                    l1_dcm_icnt = icnt;
                    break;
@@ -236,6 +241,10 @@ static bool define_hwcsamp_columns (
             bool found_accesses = false;
             for (icnt=0; icnt < num_events; icnt++) {
               if (papi_names[icnt].compare("PAPI_L1_DCA") == 0) {
+                   found_accesses = true;
+                   l1_dca_icnt = icnt;
+                   break;
+              } else if (papi_names[icnt].compare("papi_l1_dca") == 0) {
                    found_accesses = true;
                    l1_dca_icnt = icnt;
                    break;
@@ -245,60 +254,22 @@ static bool define_hwcsamp_columns (
             if (found_misses & found_accesses) {
               IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, event_temps+l1_dcm_icnt));
               IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+l1_dcm_icnt, totalIndex++));
-              HV.push_back("L1 CacheMiss Percent");
+              HV.push_back("L1 Data Cache Read Miss Ratio");
 #if 0
               IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+l1_dcm_icnt, event_temps+l1_dca_icnt));
-              HV.push_back("L1 CacheMiss Percent");
+              HV.push_back("L1 Data Cache Read Miss Percent");
 #endif
             } else {
-              std::string s("The metric (PAPI_L1_DCM and PAPI_L1_DCA) required to generate the L1 Cache Miss percentage metric is not available in the experiment.");
+              std::string s("The metric (PAPI_L1_DCM and PAPI_L1_DCA) required to generate the L1 Cache Read Miss Ratio metric is not available in the experiment.");
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
          
-#if 0
-       } else if (!strcasecmp(M_Name.c_str(), "cmcapercent")) {
-
-            int icnt = 0;
-            int l1_dcm_icnt = 0;
-         // cmpercent is calculated from two temps: the PAPI_L1_DCM counts and PAPI_L1_DCA counts.
-            bool found_misses = false;
-            for (icnt=0; icnt < num_events; icnt++) {
-              if (papi_names[icnt].compare("PAPI_L1_DCM") == 0) {
-                   found_misses = true;
-                   l1_dcm_icnt = icnt;
-                   break;
-              }
-            }
-            icnt = 0;
-            int l1_dca_icnt = 0;
-            bool found_accesses = false;
-            for (icnt=0; icnt < num_events; icnt++) {
-              if (papi_names[icnt].compare("PAPI_L1_DCA") == 0) {
-                   found_accesses = true;
-                   l1_dca_icnt = icnt;
-                   break;
-              }
-            }
-
-            if (found_misses & found_accesses) {
-//              IV.push_back(new ViewInstruction (VIEWINST_Define_Tmp, totalIndex, event_temps+l1_dcm_icnt));
-              IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+l1_dca_icnt, totalIndex++));
-              HV.push_back("L1 Cache Misses/Accesses Percent");
-#if 0
-              IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+l1_dcm_icnt, event_temps+l1_dca_icnt));
-              HV.push_back("L1 CacheMiss Percent");
-#endif
-            } else {
-              std::string s("The metric (PAPI_L1_DCM and PAPI_L1_DCA) required to generate the L1 Cache Miss percentage metric is not available in the experiment.");
-              Mark_Cmd_With_Soft_Error(cmd,s);
-            } 
-
-#endif
          
-       } else if (!strcasecmp(M_Name.c_str(), "intensity")) {
+       } else if (!strcasecmp(M_Name.c_str(), "intensity") ||
+                  !strcasecmp(M_Name.c_str(), "Intensity")) {
 
-            // generate papi_tot_ins/papi_tot_cyc
+            // generate papi_tot_ins/papi_tot_cyc (computational intensity)
 
             int icnt = 0;
             int tot_ins_icnt = 0;
@@ -333,7 +304,8 @@ static bool define_hwcsamp_columns (
               IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+tot_ins_icnt));
               HV.push_back( papi_names[tot_ins_icnt] );
               IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+tot_ins_icnt, event_temps+tot_cyc_icnt));
-              HV.push_back("tot_ins/tot_cyc");
+              //HV.push_back("tot_ins/tot_cyc");
+              HV.push_back("Comp. Intensity");
 #if 1
               IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, event_temps+tot_cyc_icnt));
               IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+tot_cyc_icnt, totalIndex++));
@@ -344,10 +316,155 @@ static bool define_hwcsamp_columns (
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
+       } else if (!strcasecmp(M_Name.c_str(), "GradFPInstrPerCycle") ||
+                  !strcasecmp(M_Name.c_str(), "gradfpinst")) {
 
-       } else if (!strcasecmp(M_Name.c_str(), "l1dcmiss")) {
+            // generate papi_fp_ins/papi_tot_cyc (Graduated floating point instructions per cycle)
 
-            // generate PAPI_L1_DCM/PAPI_L1_TCA
+            int icnt = 0;
+            int fp_ins_icnt = 0;
+            int tot_cyc_icnt = 0;
+            // graduated fp instr per cycle is calculated from two temps: the PAPI_FP_INS counts and PAPI_TOT_CYC values.
+            bool found_tot_cyc = false;
+            bool found_fp_ins = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("PAPI_TOT_CYC") == 0) {
+                   found_tot_cyc = true;
+                   tot_cyc_icnt = icnt; 
+                   if (found_fp_ins) break;
+              } else if (papi_names[icnt].compare("papi_tot_cyc") == 0) {
+                   tot_cyc_icnt = icnt; 
+                   found_tot_cyc = true;
+                   if (found_fp_ins) break;
+              }
+              if (papi_names[icnt].compare("PAPI_FP_INS") == 0) {
+                   found_fp_ins = true;
+                   fp_ins_icnt = icnt; 
+                   if (found_tot_cyc) break;
+              } else if (papi_names[icnt].compare("papi_fp_ins") == 0) {
+                   found_fp_ins = true;
+                   fp_ins_icnt = icnt; 
+                   if (found_tot_cyc) break;
+              }
+            }
+            if (found_tot_cyc && found_fp_ins) {
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+fp_ins_icnt));
+              HV.push_back( papi_names[fp_ins_icnt] );
+
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+tot_cyc_icnt));
+              HV.push_back( papi_names[tot_cyc_icnt] );
+
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+fp_ins_icnt, event_temps+tot_cyc_icnt));
+              //HV.push_back("fp_ins/tot_cyc");
+              HV.push_back("GradFPInstrCyc");
+            } else {
+              std::string s("The metrics (PAPI_FP_INS and PAPI_TOT_CYC) are required to generate the graduated fp metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
+       } else if (!strcasecmp(M_Name.c_str(), "FPInstrPerTotInstrRatio") ||
+                  !strcasecmp(M_Name.c_str(), "fpinstratio")) {
+
+            // generate papi_fp_ins/papi_tot_ins (ratio of floating point instructions to total instructions)
+
+            int icnt = 0;
+            int fp_ins_icnt = 0;
+            int tot_ins_icnt = 0;
+            // graduated fp instr per tot instructions is calculated from two temps: the PAPI_FP_INS counts and PAPI_TOT_CYC values.
+            bool found_tot_ins = false;
+            bool found_fp_ins = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("PAPI_TOT_INS") == 0) {
+                   found_tot_ins = true;
+                   tot_ins_icnt = icnt; 
+                   if (found_fp_ins) break;
+              } else if (papi_names[icnt].compare("papi_tot_ins") == 0) {
+                   tot_ins_icnt = icnt; 
+                   found_tot_ins = true;
+                   if (found_fp_ins) break;
+              }
+              if (papi_names[icnt].compare("PAPI_FP_INS") == 0) {
+                   found_fp_ins = true;
+                   fp_ins_icnt = icnt; 
+                   if (found_tot_ins) break;
+              } else if (papi_names[icnt].compare("papi_fp_ins") == 0) {
+                   found_fp_ins = true;
+                   fp_ins_icnt = icnt; 
+                   if (found_tot_ins) break;
+              }
+            }
+            if (found_tot_ins && found_fp_ins) {
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+fp_ins_icnt));
+              HV.push_back( papi_names[fp_ins_icnt] );
+
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+tot_ins_icnt));
+              HV.push_back( papi_names[tot_ins_icnt] );
+
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+fp_ins_icnt, event_temps+tot_ins_icnt));
+              //HV.push_back("fp_ins/tot_ins");
+              HV.push_back("FP/TOT INS");
+            } else {
+              std::string s("The metrics (PAPI_FP_INS and PAPI_TOT_INS) are required to generate the graduated fp metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
+       } else if (!strcasecmp(M_Name.c_str(), "DataRefPerInstr") ||
+                  !strcasecmp(M_Name.c_str(), "datarefperinstr")) {
+
+            // generate papi_l1_dca/papi_tot_ins
+
+            int icnt = 0;
+            int tot_ins_icnt = 0;
+            int l1_dca_icnt = 0;
+            // Data References per Instruction is calculated from two temps: the PAPI_TOT_INS counts and PAPI_L1_DCA values.
+            bool found_l1_dca = false;
+            bool found_tot_ins = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("PAPI_L1_DCA") == 0) {
+                   found_l1_dca = true;
+                   l1_dca_icnt = icnt; 
+                   if (found_tot_ins) break;
+              } else if (papi_names[icnt].compare("papi_l1_dca") == 0) {
+                   l1_dca_icnt = icnt; 
+                   found_l1_dca = true;
+                   if (found_tot_ins) break;
+              }
+              if (papi_names[icnt].compare("PAPI_TOT_INS") == 0) {
+                   found_tot_ins = true;
+                   tot_ins_icnt = icnt; 
+                   if (found_l1_dca) break;
+              } else if (papi_names[icnt].compare("papi_tot_ins") == 0) {
+                   found_tot_ins = true;
+                   tot_ins_icnt = icnt; 
+                   if (found_l1_dca) break;
+              }
+            }
+            if (found_l1_dca && found_tot_ins) {
+
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l1_dca_icnt));
+              HV.push_back( papi_names[l1_dca_icnt] );
+
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+tot_ins_icnt));
+              HV.push_back( papi_names[tot_ins_icnt] );
+
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l1_dca_icnt, event_temps+tot_ins_icnt));
+              //HV.push_back("l1_dca/tot_ins");
+              HV.push_back("Data Ref per Instr");
+#if 1
+              IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, event_temps+tot_ins_icnt));
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+tot_ins_icnt, totalIndex++));
+              HV.push_back("papi_tot_ins%");
+#endif
+            } else {
+              std::string s("The metrics (PAPI_TOT_INS and PAPI_L1_DCA) are required to generate the data references per instruction metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
+
+       } else if (!strcasecmp(M_Name.c_str(), "l1dcmiss") ||
+                  !strcasecmp(M_Name.c_str(), "L1DataCacheMissToTotalCacheAccessRatio")) {
+
+            // generate PAPI_L1_DCM/PAPI_L1_TCA (Level 1 Data Cache miss to Total Cache Access Ratio
             int icnt = 0;
             int l1_dcm_icnt = 0;
             int l1_tca_icnt = 0;
@@ -385,6 +502,50 @@ static bool define_hwcsamp_columns (
               //HV.push_back("(l1_dcm/l1_tca)%");
             } else {
               std::string s("The metrics (PAPI_L1_TCA and PAPI_L1_DCM) are required to generate the l1dmiss metric is not available in the experiment.");
+              Mark_Cmd_With_Soft_Error(cmd,s);
+            } 
+
+       } else if (!strcasecmp(M_Name.c_str(), "mispredicted") ||
+                  !strcasecmp(M_Name.c_str(), "MispredictedBranchesToPredictedBranchesRatio")) {
+
+            // generate PAPI_BR_MSP/PAPI_BR_PRC (Ratio of mispredicted to correctly predicted branches)
+            int icnt = 0;
+            int br_msp_icnt = 0;
+            int br_prc_icnt = 0;
+            // mispredicted branch metric is calculated from two temps: the PAPI_BR_MSP counts and PAPI_BR_PRC values.
+            bool found_br_msp = false;
+            bool found_br_prc = false;
+            for (icnt=0; icnt < num_events; icnt++) {
+              if (papi_names[icnt].compare("PAPI_BR_MSP") == 0) {
+                   found_br_msp = true;
+                   br_msp_icnt = icnt; 
+                   if (found_br_prc) break;
+              } else if (papi_names[icnt].compare("papi_br_msp") == 0) {
+                   br_msp_icnt = icnt; 
+                   found_br_msp = true;
+                   if (found_br_prc) break;
+              }
+              if (papi_names[icnt].compare("PAPI_BR_PRC") == 0) {
+                   found_br_prc = true;
+                   br_prc_icnt = icnt; 
+                   if (found_br_msp) break;
+              } else if (papi_names[icnt].compare("papi_br_prc") == 0) {
+                   found_br_prc = true;
+                   br_prc_icnt = icnt; 
+                   if (found_br_msp) break;
+              }
+            }
+            if (found_br_msp && found_br_prc) {
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+br_msp_icnt));
+              HV.push_back( papi_names[br_msp_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+br_prc_icnt));
+              HV.push_back( papi_names[br_prc_icnt] );
+              IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+br_msp_icnt, event_temps+br_prc_icnt));
+              HV.push_back("MispredBR Ratio");
+              //IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Percent_Tmp, last_column++, event_temps+br_msp_icnt, event_temps+br_prc_icnt));
+              //HV.push_back("(br_msp/br_prc)%");
+            } else {
+              std::string s("The metrics (PAPI_BR_PRC and PAPI_BR_MSP) are required to generate the mispredicted branch metric is not available in the experiment.");
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
@@ -484,9 +645,10 @@ static bool define_hwcsamp_columns (
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
-       } else if (!strcasecmp(M_Name.c_str(), "l2tcmiss")) {
+       } else if (!strcasecmp(M_Name.c_str(), "l2tcmiss") ||
+                  !strcasecmp(M_Name.c_str(), "L2CacheMissRatio")) {
 
-            // generate PAPI_L2_TCM/PAPI_L2_TCA
+            // generate PAPI_L2_TCM/PAPI_L2_TCA (L2 cache miss ratio)
             int icnt = 0;
             int l2_tcm_icnt = 0;
             int l2_tca_icnt = 0;
@@ -527,13 +689,14 @@ static bool define_hwcsamp_columns (
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
-       } else if (!strcasecmp(M_Name.c_str(), "l3tcmiss")) {
+       } else if (!strcasecmp(M_Name.c_str(), "L3TotalCacheMissRatio") ||
+                  !strcasecmp(M_Name.c_str(), "l3tcmiss")) {
 
             // generate PAPI_L3_TCM/PAPI_L3_TCA
             int icnt = 0;
             int l3_tcm_icnt = 0;
             int l3_tca_icnt = 0;
-            // l3tcmiss is calculated from two temps: the PAPI_L3_TCM counts and PAPI_L3_TCA values.
+            // L3 cache miss ratio is calculated from two temps: the PAPI_L3_TCM counts and PAPI_L3_TCA values.
             bool found_l3_tcm = false;
             bool found_l3_tca = false;
             for (icnt=0; icnt < num_events; icnt++) {
@@ -570,7 +733,8 @@ static bool define_hwcsamp_columns (
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
-       } else if (!strcasecmp(M_Name.c_str(), "l3tcmiss")) {
+       } else if (!strcasecmp(M_Name.c_str(), "l3tdcmiss") ||
+                  !strcasecmp(M_Name.c_str(), "L3TotalCacheMissDataCacheAccessRatio")) {
 
             // generate PAPI_L3_TCM/PAPI_L3_DCA
             int icnt = 0;
@@ -615,7 +779,8 @@ static bool define_hwcsamp_columns (
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
-       } else if (!strcasecmp(M_Name.c_str(), "l2dcmtca")) {
+       } else if (!strcasecmp(M_Name.c_str(), "l2dcmiss") ||
+                  !strcasecmp(M_Name.c_str(), "L2DataCacheMissTotalCacheAccessRatio")) {
 
             // generate PAPI_L2_DCM/PAPI_L2_TCA
             int icnt = 0;
@@ -658,7 +823,8 @@ static bool define_hwcsamp_columns (
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
-       } else if (!strcasecmp(M_Name.c_str(), "l2dchitrate")) {
+       } else if (!strcasecmp(M_Name.c_str(), "l2dchitrate") ||
+                  !strcasecmp(M_Name.c_str(), "L2DataCacheMissL1DataCacheAccessHitRate")) {
 
             // generate (1.0-(PAPI_L2_DCM/PAPI_L1_DCA))
             int icnt = 0;
@@ -703,7 +869,8 @@ static bool define_hwcsamp_columns (
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
-       } else if (!strcasecmp(M_Name.c_str(), "flops")) {
+       } else if (!strcasecmp(M_Name.c_str(), "flops") ||
+                  !strcasecmp(M_Name.c_str(), "Flops")) {
 
             // generate (PAPI_FP_OPS/time)
             int icnt = 0;
@@ -726,7 +893,8 @@ static bool define_hwcsamp_columns (
               Mark_Cmd_With_Soft_Error(cmd,s);
             } 
 
-       } else if (!strcasecmp(M_Name.c_str(), "dflops")) {
+       } else if (!strcasecmp(M_Name.c_str(), "dflops") ||
+                  !strcasecmp(M_Name.c_str(), "Dflops")) {
 
             // generate (PAPI_DP_OPS/time)
             int icnt = 0;
@@ -850,7 +1018,8 @@ static bool define_hwcsamp_columns (
     }
     if (found_tot_cyc && found_tot_ins) {
       IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+tot_ins_icnt, event_temps+tot_cyc_icnt));
-      HV.push_back("tot_ins/tot_cyc");
+      //HV.push_back("tot_ins/tot_cyc");
+      HV.push_back("Comp. Intensity");
       IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, event_temps+tot_cyc_icnt));
       IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+tot_cyc_icnt, totalIndex++));
       HV.push_back("papi_tot_cyc%");
@@ -1118,7 +1287,193 @@ static bool define_hwcsamp_columns (
        //HV.push_back("(simd_fp_256/papi_fp_ops)%");
      } 
 
-     // SIMD_FP_256:packed_single/PAPI_FP_OPS RATIO CHECKS ENDS HERE
+    // SIMD_FP_256:packed_single/PAPI_FP_OPS RATIO CHECKS ENDS HERE
+
+    // Graduated FP Instructions CHECKS ENDS HERE
+
+    // generate papi_fp_ins/papi_tot_cyc (Graduated floating point instructions per cycle)
+
+    icnt = 0;
+    int fp_ins_icnt = 0;
+    tot_cyc_icnt = 0;
+    // Graduated FP Instructions are calculated from two temps: the PAPI_FP_INS counts and PAPI_TOT_CYC values.
+    found_tot_cyc = false;
+    bool found_fp_ins = false;
+    for (icnt=0; icnt < num_events; icnt++) {
+      if (papi_names[icnt].compare("PAPI_TOT_CYC") == 0) {
+           found_tot_cyc = true;
+           tot_cyc_icnt = icnt; 
+           if (found_fp_ins) break;
+      } else if (papi_names[icnt].compare("papi_tot_cyc") == 0) {
+           tot_cyc_icnt = icnt; 
+           found_tot_cyc = true;
+           if (found_fp_ins) break;
+      }
+      if (papi_names[icnt].compare("PAPI_FP_INS") == 0) {
+           found_fp_ins = true;
+           fp_ins_icnt = icnt; 
+           if (found_tot_cyc) break;
+      } else if (papi_names[icnt].compare("papi_fp_ins") == 0) {
+           found_fp_ins = true;
+           fp_ins_icnt = icnt; 
+           if (found_tot_cyc) break;
+      }
+    }
+    if (found_tot_cyc && found_fp_ins) {
+      //IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+fp_ins_icnt));
+      //HV.push_back( papi_names[fp_ins_icnt] );
+
+      //IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+tot_cyc_icnt));
+      //HV.push_back( papi_names[tot_cyc_icnt] );
+
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+fp_ins_icnt, event_temps+tot_cyc_icnt));
+      //HV.push_back("fp_ins/tot_cyc");
+      HV.push_back("GradFPInstrCyc");
+#if 1
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, event_temps+tot_cyc_icnt));
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+tot_cyc_icnt, totalIndex++));
+      HV.push_back("papi_tot_cyc%");
+
+      IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, event_temps+fp_ins_icnt));
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+fp_ins_icnt, totalIndex++));
+      HV.push_back("papi_fp_ins%");
+#endif
+    } 
+
+    // Graduated FP Instructions CHECKS ENDS HERE
+
+    // Data References per Instruction CHECKS BEGINS HERE
+    // generate papi_l1_dca/papi_tot_ins
+
+    icnt = 0;
+    tot_ins_icnt = 0;
+    int l1_dca_icnt = 0;
+    // Data References per Instruction is calculated from two temps: the PAPI_TOT_INS counts and PAPI_L1_DCA values.
+    bool found_l1_dca = false;
+    found_tot_ins = false;
+    for (icnt=0; icnt < num_events; icnt++) {
+      if (papi_names[icnt].compare("PAPI_L1_DCA") == 0) {
+           found_l1_dca = true;
+           l1_dca_icnt = icnt; 
+           if (found_tot_ins) break;
+      } else if (papi_names[icnt].compare("papi_l1_dca") == 0) {
+           l1_dca_icnt = icnt; 
+           found_l1_dca = true;
+           if (found_tot_ins) break;
+      }
+      if (papi_names[icnt].compare("PAPI_TOT_INS") == 0) {
+           found_tot_ins = true;
+           tot_ins_icnt = icnt; 
+           if (found_l1_dca) break;
+      } else if (papi_names[icnt].compare("papi_tot_ins") == 0) {
+           found_tot_ins = true;
+           tot_ins_icnt = icnt; 
+           if (found_l1_dca) break;
+      }
+    }
+    if (found_l1_dca && found_tot_ins) {
+
+      //IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l1_dca_icnt));
+      //std::cerr << "IV.size()=" << IV.size() << std::endl;
+      //HV.push_back( papi_names[l1_dca_icnt] );
+
+      //IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+tot_ins_icnt));
+      //std::cerr << "IV.size()=" << IV.size() << std::endl;
+      //HV.push_back( papi_names[tot_ins_icnt] );
+
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l1_dca_icnt, event_temps+tot_ins_icnt));
+      //HV.push_back("l1_dca/tot_ins");
+      HV.push_back("Data Ref per Instr");
+#if 1
+      //IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, event_temps+tot_ins_icnt));
+      //IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, event_temps+tot_ins_icnt, totalIndex++));
+      //HV.push_back("papi_tot_ins%");
+#endif
+    }
+
+    // Data References per Instruction CHECKS ENDS HERE
+
+    // Mispredicted Branches  CHECKS BEGINS HERE
+    // generate PAPI_BR_MSP/PAPI_BR_PRC (Ratio of mispredicted to correctly predicted branches)
+    icnt = 0;
+    int br_msp_icnt = 0;
+    int br_prc_icnt = 0;
+    // mispredicted branch metric is calculated from two temps: the PAPI_BR_MSP counts and PAPI_BR_PRC values.
+    bool found_br_msp = false;
+    bool found_br_prc = false;
+    for (icnt=0; icnt < num_events; icnt++) {
+      if (papi_names[icnt].compare("PAPI_BR_MSP") == 0) {
+           found_br_msp = true;
+           br_msp_icnt = icnt; 
+           if (found_br_prc) break;
+      } else if (papi_names[icnt].compare("papi_br_msp") == 0) {
+           br_msp_icnt = icnt; 
+           found_br_msp = true;
+           if (found_br_prc) break;
+      }
+      if (papi_names[icnt].compare("PAPI_BR_PRC") == 0) {
+           found_br_prc = true;
+           br_prc_icnt = icnt; 
+           if (found_br_msp) break;
+      } else if (papi_names[icnt].compare("papi_br_prc") == 0) {
+           found_br_prc = true;
+           br_prc_icnt = icnt; 
+           if (found_br_msp) break;
+      }
+    }
+    if (found_br_msp && found_br_prc) {
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+br_msp_icnt, event_temps+br_prc_icnt));
+      HV.push_back("MispredBR Ratio");
+      //IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Percent_Tmp, last_column++, event_temps+br_msp_icnt, event_temps+br_prc_icnt));
+      //HV.push_back("(br_msp/br_prc)%");
+    } 
+
+    // Mispredicted Branches  CHECKS ENDS HERE
+
+    // L2 cache data hit rate CHECKS BEGINS HERE
+
+    // generate (1.0-(PAPI_L2_DCM/PAPI_L1_DCA))
+    icnt = 0;
+    l2_dcm_icnt = 0;
+    l1_dcm_icnt = 0;
+    // l2dhitrate is calculated from two temps: the PAPI_L2_DCM counts and PAPI_L1_DCM values.
+    found_l2_dcm = false;
+    found_l1_dcm = false;
+    for (icnt=0; icnt < num_events; icnt++) {
+      if (papi_names[icnt].compare("PAPI_L2_DCM") == 0) {
+           found_l2_dcm = true;
+           l2_dcm_icnt = icnt; 
+           if (found_l1_dcm) break;
+      } else if (papi_names[icnt].compare("papi_l2_dcm") == 0) {
+           l2_dcm_icnt = icnt; 
+           found_l2_dcm = true;
+           if (found_l1_dcm) break;
+      }
+      if (papi_names[icnt].compare("PAPI_L1_DCM") == 0) {
+           found_l1_dcm = true;
+           l1_dcm_icnt = icnt; 
+           if (found_l2_dcm) break;
+      } else if (papi_names[icnt].compare("papi_l1_dcm") == 0) {
+           found_l1_dcm = true;
+           l1_dcm_icnt = icnt; 
+           if (found_l2_dcm) break;
+      }
+    }
+    if (found_l2_dcm && found_l1_dcm) {
+      //IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l2_dcm_icnt));
+      //HV.push_back( papi_names[l2_dcm_icnt] );
+      //IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, event_temps+l1_dcm_icnt));
+      //HV.push_back( papi_names[l1_dcm_icnt] );
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Tmp, last_column++, event_temps+l2_dcm_icnt, event_temps+l1_dcm_icnt));
+      HV.push_back("(l2_dcm/l1_dcm)");
+      //IV.push_back(new ViewInstruction (VIEWINST_Display_Ratio_Percent_Tmp, last_column++, event_temps+l2_dcm_icnt, event_temps+l1_dcm_icnt));
+      //HV.push_back("(l2_dcm/l1_dcm)%");
+      IV.push_back(new ViewInstruction (VIEWINST_Display_Inverse_Ratio_Percent_Tmp, last_column++, event_temps+l2_dcm_icnt, event_temps+l1_dcm_icnt));
+      HV.push_back("(1-(l2_dcm/l1_dcm))%");
+    }
+
+    // L2 cache data hit rate CHECKS ENDS HERE
+
 
    } // end of OPENSS_AUTO_CREATE_DERIVED_METRICS check
 
@@ -1168,58 +1523,134 @@ static bool hwcsamp_definition ( CommandObject *cmd, ExperimentObject *exp, int6
 static std::string VIEW_hwcsamp_brief = "HWC (Hardware Counter) report";
 static std::string VIEW_hwcsamp_short = "Report hardware counts and the amount and percent of program time spent in a code unit.";
 static std::string VIEW_hwcsamp_long  =
-                   "The report is sorted in descending order by the amount of time that"
-                   " was used in each unit. Also included in the report is the"
-                   " percent of total time that each unit uses."
-                   " A positive integer can be added to the end of the keyword"
-                   " 'hwcsamp' to indicate the maximum number of items in the report."
-                   "\n\nThe type of unit displayed can be selected with the '-v'"
-                   " option."
-                   "\n\t'-v LinkedObjects' will report times by linked object."
-                   "\n\t'-v Functions' will report times by function. This is the default."
-                   "\n\t'-v Statements' will report times by statement."
-                   "\n\t'-v Loops' will report times by loop."
-                   "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
-                   " 'Statements', 'LinkedObjects' or 'Loops' will result in an additional line of output at"
-                   " the end of the report that summarizes the information in each column."
-                   "\n\tThe addition of 'SummaryOnly' to the '-v' option list along with 'Functions',"
-                   " 'Statements', 'LinkedObjects' or 'Loops' or without those options will cause only the"
-                   " one line of output at the end of the report that summarizes the information in each column."
-                  "\n\nThe information included in the report can be controlled with the"
-                  " '-m' option.  More than one item can be selected but only the items"
-                  " listed after the option will be printed and they will be printed in"
-                  " the order that they are listed."
-                  " If no '-m' option is specified, the default is equivalent to"
-                  " '-m time, percent'."
-                  " Each value pertains to the function, statement or linked object that is"
-                  " on that row of the report.  The 'Thread...' selections pertain to the"
-                  " process unit that the program was partitioned into: Pid's,"
-                  " Posix threads, Mpi threads or Ranks."
-                  " \n\t'-m time' reports the total cpu time for all the processes."
-                  " \n\t'-m percent' reports the percent of total cpu time for all the processes."
-                  " \n\t'-m <event_name>' reports counts associated with the named event for all"
-                  " the processes. (Use 'expStatus' to see active event counters.>"
-                  " \n\t'-m allEvents' reports all the counter values for all the processes."
+                  "The report is sorted in descending order by the amount of time that"
+                  " was used in each unit. Also included in the report is the"
+                  "percent of total time that each unit uses."
+                  " A positive integer can be added to the end of the keyword: "
+                  "'hwcsamp' to indicate the maximum number of items in the report."
+                  "\n\nThe type of unit displayed can be selected with the '-v'"
+                  "option."
+                  "\n\t'-v LinkedObjects' will report times by linked object."
+                  "\n\t'-v Functions' will report times by function. This is the default."
+                  "\n\t'-v Statements' will report times by statement."
+                  "\n\t'-v Loops' will report times by loop."
+                  "\n"
+                  "The addition of 'Summary' to the '-v' option list along with 'Functions',"
+                  "\n'Statements', 'LinkedObjects' or 'Loops' will result in an additional line of output at"
+                  "\nthe end of the report that summarizes the information in each column."
+                  "\n"
+                  "\nThe addition of 'SummaryOnly' to the '-v' option list along with 'Functions',"
+                  "\n'Statements', 'LinkedObjects' or 'Loops' or without those options will cause only the"
+                  "\none line of output at the end of the report that summarizes the information in each column."
+                  "\n"
+                  "\nThe information included in the report can be controlled with the"
+                  "\n'-m' option.  More than one item can be selected but only the items"
+                  "\nlisted after the option will be printed and they will be printed in"
+                  "\nthe order that they are listed."
+                  "\n"
+                  "\nIf no '-m' option is specified, the default is equivalent to"
+                  "\n'-m time, percent'."
+                  "\n"
+                  "\nEach value pertains to the function, statement or linked object that is"
+                  "\non that row of the report.  The 'Thread...' selections pertain to the"
+                  "\nprocess unit that the program was partitioned into: Pid's,"
+                  "\nPosix threads, Mpi threads or Ranks. These are the typical metric options:"
+                  "\n\t'-m time' reports the total cpu time for all the processes."
+                  "\n\t'-m percent' reports the percent of total cpu time for all the processes."
+                  "\n\t'-m <event_name>' reports counts associated with the named event for all"
+                  "\n\t the processes. (Use 'expStatus' to see active event counters.>"
+                  "\n\t'-m allEvents' reports all the counter values for all the processes."
 // Get the description of the BY-Thread metrics.
 #include "SS_View_bythread_help.hxx"
                   "\n"
-                  "The hwcsamp views can also display derived metrics."
-                  " The hwcsamp view code has logic to recognize special hardware"
-                  " counter combinations, if present, and apply mathematical formulas"
-                  " to the data from those combinations of PAPI hardware counters."
-                  " Those hardware counters need to be specified on the osshwcsamp"
-                  " convenience script as the counters that O|SS will gather data for."
-                  " O|SS will apply mathematical formulas to the special counter combinations "
-                  " and create a new data metrics, whose results can be presented in the output "
-                  " in the CLI views.  Many of these derived metrics are output automatically "
-                  " if the data from the hardware counters needed for the computation are available. "
-                  " The list of displayed derived metric values are as follows:"
+                  " \nThe hwcsamp views can also display derived metrics."
+                  " \nThe hwcsamp view code has logic to recognize special hardware"
+                  " \ncounter combinations, if present, and apply mathematical formulas"
+                  " \nto the data from those combinations of PAPI hardware counters."
+                  " \nThose hardware counters need to be specified on the osshwcsamp"
+                  " \nconvenience script as the counters that O|SS will gather data for."
+                  " \nO|SS will apply mathematical formulas to the special counter combinations "
+                  " \nand create a new data metrics, whose results can be presented in the output "
+                  " \nin the CLI views.  Many of these derived metrics are output automatically "
+                  " \nif the data from the hardware counters needed for the computation are available. "
+                  " \nNOTE: derived metrics are dependent on:"
+                  " \n  1. The events are available on the target CPU when the data was collected."
+                  " \n  2. The events if available where actually selected for collection."
+                  " \n     a. Sometimes hardware counters share the same internal hardware."
+                  " \n        If two events are requested and they share the same internal hardware"
+                  " \n        one of the counters will not be able to accumulate counts and will return no data."
+                  " \nThe list of displayed derived metric values are as follows:"
                   "\n"
                   "The metric names that need to be used and the hardware counters needed to satisfy the view:"
-                  " \n\t'-m intensity' reports computational intensity.  Hardware counters: PAPI_TOT_INS,PAPI_TOT_CYC are needed."
-                  " \n\t'-m l1dcmiss' reports the level 1 data cache miss ratio. Hardware counters: PAPI_L1_DCM,PAPI_L1_TCA are needed."
-                  " \n\t'-m l2tcmiss' reports level 2 total cache to cache access ratio. Hardware counters: PAPI_L2_TCM,PAPI_L2_TCA are needed."
-                  " \n\t'-m l3tcmiss' reports level 3 total cache to cache access ratio. Hardware counters: PAPI_L3_TCM,PAPI_L3_TCA are needed."
+                  " \n\t'-m DataRefPerInstr' reports data references per instruction."
+                  " \n\t        Alternative metric name: datarefperinstr"
+                  " \n\t        Hardware counters: PAPI_L1_DCA,PAPI_TOT_INS are needed."
+                  " \n\t        Formula: PAPI_L1_DCA / PAPI_TOT_INS"
+                  " \n\t'-m Dflops' reports double precision flops."
+                  " \n\t        Alternative metric name: dflops"
+                  " \n\t        Hardware counter: PAPI_DP_OPS is needed."
+                  " \n\t        Formula: PAPI_DP_OPS / time"
+                  " \n\t'-m Flops' reports single precision flops."
+                  " \n\t        Alternative metric name: flops"
+                  " \n\t        Hardware counter: PAPI_FP_OPS is needed."
+                  " \n\t        Formula: PAPI_FP_OPS / time"
+                  " \n\t'-m FPInstrPerTotInstrRatio' reports ratio of floating point instructions to total instructions."
+                  " \n\t        Alternative metric name: fpinstratio"
+                  " \n\t        Hardware counters: PAPI_FP_INS,PAPI_TOT_INS are needed."
+                  " \n\t        Formula: PAPI_FP_INS / PAPI_TOT_INS"
+                  " \n\t'-m GradFPInstrPerCycle' reports graduated floating point instructions per cycle."
+                  " \n\t        Alternative metric name: gradfpinst"
+                  " \n\t        Hardware counters: PAPI_FP_INS,PAPI_TOT_CYC are needed."
+                  " \n\t        Formula: PAPI_FP_INS / PAPI_TOT_CYC"
+                  " \n\t'-m Intensity' reports computational intensity."
+                  " \n\t        Alternative metric name: intensity"
+                  " \n\t        Hardware counters: PAPI_TOT_INS,PAPI_TOT_CYC are needed."
+                  " \n\t        Formula: PAPI_TOT_INS / PAPI_TOT_CYC"
+                  " \n\t'-m L1DataCacheReadMissRatio' reports L1 data cache read miss ratios."
+                  " \n\t        Alternative metric name: l1dcrmiss"
+                  " \n\t        Hardware counters: PAPI_L1_DCA,PAPI_L1_DCM are needed."
+                  " \n\t        Formula: PAPI_L1_DCM / PAPI_L1_DCA"
+                  " \n\t'-m L1DataCacheMissToTotalCacheAccessRatio' reports level 1 data cache to total cache miss ratio."
+                  " \n\t        Alternative metric name: l1dcmiss"
+                  " \n\t        Hardware counters: PAPI_L1_DCM,PAPI_L1_TCA are needed."
+                  " \n\t        Formula: PAPI_L1_DCM / PAPI_L1_TCA"
+                  " \n\t'-m L2CacheMissRatio' reports level 2 cache miss ratio."
+                  " \n\t        Alternative metric name: l2tcmiss"
+                  " \n\t        Hardware counters: PAPI_L2_TCM,PAPI_L2_TCA are needed."
+                  " \n\t        Formula: PAPI_L2_TCM / PAPI_L2_TCA"
+                  " \n\t'-m L2DataCacheMissTotalCacheAccessRatio' reports level 2 data cache miss ratio."
+                  " \n\t        Alternative metric name: l2dcmiss"
+                  " \n\t        Hardware counters: PAPI_L2_DCM,PAPI_L2_TCA are needed."
+                  " \n\t        Formula: PAPI_L2_DCM / PAPI_L2_TCA"
+                  " \n\t'-m L2DataCacheMissL1DataCacheAccessHitRate' reports L2 cache data hit rate."
+                  " \n\t        Alternative metric name: l2dchitrate"
+                  " \n\t        Hardware counters: PAPI_L2_DCM,PAPI_L1_DCM are needed."
+                  " \n\t        Formula: (1.0 - (PAPI_L2_DCM / PAPI_L1_DCA))"
+                  " \n\t'-m L3TotalCacheMissDataCacheAccessRatio' reports level 3 total cache to data cache access ratio."
+                  " \n\t        Alternative metric name: l3tdcmiss"
+                  " \n\t        Hardware counters: PAPI_L3_TCM,PAPI_L3_DCA are needed."
+                  " \n\t        Formula: PAPI_L3_TCM / PAPI_L3_DCA"
+                  " \n\t'-m L3TotalCacheMissRatio' reports level 3 total cache to cache access ratio."
+                  " \n\t        Alternative metric name: l3tcmiss"
+                  " \n\t        Hardware counters: PAPI_L3_TCM,PAPI_L3_TCA are needed."
+                  " \n\t        Formula: PAPI_L3_TCM / PAPI_L3_TCA"
+                  " \n\t'-m MispredictedBranchesToPredictedBranchesRatio' reports ratio of mispredicted to correctly predicted branches."
+                  " \n\t        Alternative metric name: mispredicted"
+                  " \n\t        Hardware counters: PAPI_BR_MSP,PAPI_BR_PRC are needed."
+                  " \n\t        Formula: PAPI_BR_MSP / PAPI_BR_PRC"
+                  " \n\t'-m simdfpfpops' reports SIMD_FP_256:packed_single/PAPI_FP_OPS."
+                  " \n\t        Alternative metric name: <none>"
+                  " \n\t        Hardware counters: SIMD_FP_256:packed_single,PAPI_FP_OPS are needed."
+                  " \n\t        Formula: SIMD_FP_256:packed_single/PAPI_FP_OPS"
+                  " \n\t'-m simdfpdpops' reports SIMD_FP_256:packed_double/PAPI_DP_OPS."
+                  " \n\t        Alternative metric name: <none>"
+                  " \n\t        Hardware counters: SIMD_FP_256:packed_double,PAPI_DP_OPS are needed."
+                  " \n\t        Formula: SIMD_FP_256:packed_double/PAPI_DP_OPS"
+                   "\n                                    "
+                  " \nNote: One can also create derived metrics via the OpenSpeedShop derived metric expression syntax."
+                  " \n      Please type: help metric_expression in the command line interface (CLI) for"
+                  " \n      that information."
+                   "\n                                    "
                   "\n";
 
 static std::string VIEW_hwcsamp_example = "\texpView hwcsamp\n"

@@ -1,0 +1,205 @@
+.\" Process this file with
+.\" groff -man -Tascii osscuda.1
+.\"
+.TH OSSCUDA 1 "SEPTEMBER 2017" Linux "User Manuals"
+.SH NAME
+osscuda \- Open|SpeedShop NVIDIA CUDA profiling and tracing script
+.SH SYNOPSIS
+.nf
+.IP "osscuda simple_cuda_executable"
+.IP "osscuda ""cuda_executable args"" "
+.IP "osscuda ""multi_cuda_executable"" "
+.fi
+
+.SH TYPICAL USAGE FORM
+.nf
+
+osscuda "multi_cuda_executable"
+
+For example:
+
+osscuda "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog" 
+osscuda "mpiexec_mpt -n 4 ./GEMM"
+
+
+.fi
+.SH DESCRIPTION
+.B osscuda
+
+osscuda is a convenience command script that invokes the 
+Open|SpeedShop application level performance tool to gather 
+NVIDIA CUDA based GPU performance information about the 
+application being monitored and reports that information back to the
+user in order to locate performance bottlenecks in user applications.
+
+osscuda reports CUDA kernel execution, CUDA data transfers, and 
+CPU/GPU hardware performance counter data gathered by the 'cuda' collector.
+
+
+.SH OPTIONS
+
+.IP "simple_cuda_executable"
+This option specifies the simple executable to be run. By 
+simple executable we mean a one word command with no arguments.
+No quotes around the executable name are needed when the command
+is a single word command with no arguments.
+
+.IP " ""cuda_executable args"" "
+This option specifies a cuda executable with arguments to be run. In
+this case the executable can be a one word command or a multiple word
+(multiple tokens) command, such as a mpi command specification. 
+For example:
+
+        "simple_cuda_executable -n 40 40 40"
+
+or
+
+        "/opt/mpi/mpirun -np 64 ./cuda_executable_name" 
+
+Open|SpeedShop requires quotes around the executable and arguments when 
+the executable command is not simple.
+
+.IP " ""multi_cuda_executable [args]"" "
+This option specifies a multiple word executable with or without
+arguments to be run. In this case the executable is multiple word 
+command or a multiple word command, such as a mpi command 
+specification. For example: 
+
+        "/opt/mpi/mpirun -np 64 ./cuda_executable_name" 
+
+Open|SpeedShop requires quotes around the executable and arguments when 
+the executable command is not simple.
+
+
+.IP "<no arguments>"
+If no optional arguments are specified then the default cuda experiment arguments
+are used in the experiment run.  However, if the OPENSS_CUDA_CONFIG
+environment variable is set then that value will be used in the experiment run.
+
+
+.SH FILES
+.IP ~/.qt/openspeedshoprc
+.RS
+The Open|SpeedShop preference configuration file which is 
+accessed through the Open|SpeedShop GUI Preferences menu item.
+This file contains several options which allow the user to 
+configure Open|SpeedShop to better fit their needs.
+
+See the Open|SpeedShop Users Guide for full details on the
+preferences available.
+.RE
+
+.SH ENVIRONMENT
+
+.IP OPENSS_CUDA_CONFIG
+.nf
+A custom sampling configuarion can be specified by setting the 
+OPENSS_CUDA_CONFIG environment variable to a comma-delimited list of
+parameters. The allowed parameters are:
+
+     interval=<n>    The periodic sampling interval (nS).
+    <event>[@<n>]    The PAPI or CUPTI event/metric and, optionally, a overflow
+                     threshold for event-based PC sampling (CPU only). E.g. use
+                     \"PAPI_TOT_CYC\" to peroidically sample CPU total cycles or
+                     \"PAPI_TOT_CYC@1000000\" to sample the PC every 1,000,000
+                     CPU total cycles.
+
+For example:
+setenv OPENSS_CUDA_CONFIG "interval=10000000,PAPI_FP_OPS,flop_count_sp"
+
+This tells Open|SpeedShop to gather floating-point operations on the CPU 
+(PAPI_FP_OPS) and single-precision floating-point operators on the GPU 
+(flop_count_sp).
+
+Defaults are:
+An interval equal to: 10000000 (10 samples per second)
+CPU counter equal to: PAPI_TOT_INS (CPU: Total instructions executed)
+GPU counter equal to: inst_executed (GPU: Total instructions executed)
+
+Options to osscuda can change the defaults as described above. However, there are
+preset values that are gathered when a keyword string follows the osscuda command.
+    osscuda "how you run your application" keyword
+The valid keyword strings and there preset counters follows:
+ 
+keyword                  OPENSS_CUDA_CONFIG setting
+-------                  - CPU --------- GPU ------
+branches                 PAPI_BR_INS   inst_control
+integer                  PAPI_INT_INS  inst_integer
+single                   PAPI_SP_OPS   flop_count_sp
+double                   PAPI_DP_OPS   flop_count_dp
+memory                   PAPI_LST_INS  ldst_executed
+
+.fi
+.SH DIAGNOSTICS
+The following diagnostics may be TBD:
+
+.SH QUICK START EXAMPLE
+The following command runs the MPI CUDA executable "GEMM" and gathers 
+NVIDIA CUDA number of data transfers and time to transfer, number of 
+cuda kernel executions and time spent in the GPU, performance counter
+information for both the CPU and GPU.  
+.nf
+osscuda "mpiexec_mpt -np 4 ./GEMM"
+.fi
+The type of counter information gathered is controled by the 
+OPENSS_CUDA_CONFIG environment variable.  When the run has completed, 
+a default view of the aggregated information is displayed to the screen.  
+An Open|SpeedShop database file, named "GEMM-cuda.openss" will be created.  
+This database contains all the information to view the experiment 
+performance data postmortem.  The database file may be used to view 
+the performance data for this experiment with the default view or 
+using the several different viewing options which allow rank to rank 
+comparisons or the ability to view performance information for 
+individual ranks or groups of ranks.
+
+Analyzing the output from this experiment can be done using the 
+Command Line Interface (CLI) tool.  
+
+When in the CLI, a positive integer may be added to the end of the 
+keyword 'cuda' to indicate the maximum number of items to report. 
+When the '-v Trace' option is given, the selected items are those 
+that use the most time.  In all other cases the selection is based 
+on the values displayed in the report's leftmost column.
+
+The type of data displayed can be controlled through the '-v' options:
+
+    Exec     CUDA kernel executions (this is the default)
+    Xfer     CUDA data transfers
+    HWPC     CPU/GPU hardware performance counters 
+
+Starting with version 2.3.1 a graphical user interface is available to
+be used to view cuda exoeriment databases.   openss-gui is the name of 
+the GUI client tool.  To view a cuda database use a command similar to 
+this:
+.nf
+openss-gui -f <database name>
+.fi
+
+.SH BUGS
+TBD
+
+.SH AUTHOR
+Open|SpeedShop Team <oss-questions@openspeedshop.org>
+.SH "SEE ALSO"
+.BR openss (1),
+.BR osspcsamp (1),
+.BR ossusertime (1),
+.BR osshwc (1),
+.BR osshwcsamp (1),
+.BR osshwctime (1),
+.BR ossio (1),
+.BR ossiop (1),
+.BR ossiot (1),
+.BR ossmem (1),
+.BR ossmpi (1),
+.BR ossmpip (1),
+.BR ossmpit (1),
+.BR ossmpiotf (1),
+.BR osspthreads (1)
+.BR ossomptp (1)
+.BR osscompare (1)
+.BR OpenSpeedShop (3)
+.BR OpenSpeedShop_offline (3)
+.BR OpenSpeedShop_cbtf (3)
+
+

@@ -1,0 +1,78 @@
+.\" Process this file with
+.\" groff -man -Tascii OpenSpeedShop_cbtf.3
+.\"
+.TH OpenSpeedShop_cbtf 3 "September, 2017" "Open|SpeedShop Reference" "Open|SpeedShop"
+
+.SH NAME
+OpenSpeedShop \- Application Performance Tool CBTF Mode of Operation
+
+.SH SYNOPSIS
+
+.BR Overview
+
+Open|SpeedShop gathers information about the user application performance
+such as inclusive and exclusive CPU time, hardware counter events and
+time, detailed information about I/O events/calls, detailed information
+about MPI events/calls, memory leaks and highwater marks, OpenMP specific
+wait and idle information, POSIX thread information, and NVIDIA CUDA event 
+and data transfer information.  The term, experiment, is used to 
+describe the application and the type of performance data being gathered.   
+
+One of the ways Open|SpeedShop uses to gather the performance data, CBTF
+(Component Based Tool Framework), is the topic of this man page.  The 
+mode of instrumentation in Open|SpeedShop refers to the manner in which 
+the user application is instrumented to allow the application execution to 
+produce performance information, in addition to the applications normal 
+output.  In the CBTF mode, the Open|SpeedShop performance data is transported
+back to the Open|SpeedShop client tool via a multicast reduction network based
+on the MRNet component developed by the University of Wisconsin.  CBTF adds
+code around MRNet to make it easier for tool developers to send and filter
+the information that is sent from the user application to the client tool.
+When the CBTF mode of operation is used (--cbtf option, currently the default),
+then the performance information is tranferred via this multicast network
+from the user application to the client tool.  CBTF communication node processes
+can and do filter the performance information to reduce or annotate the 
+performance information in parallel before the data arrives at the Open|SpeedShop
+client (openss).
+
+Here are a few examples of how to invoke Open|SpeedShop in online mode:
+.nf
+
+oss<experiment_type> --cbtf "executable"
+
+.fi
+is the syntax for invocation of the CBTF version of Open|SpeedShop when
+starting an application from the beginning.  A "real" experiment command
+might look like this:
+
+.nf
+osspcsamp "/opt/openmpi/bin/mpirun -np 64 /home/jeg/sweep3d.mpi"
+.fi
+
+
+.SH SEE ALSO
+
+The OpenSpeedShop Web site: www.openspeedshop.org
+
+.BR openss (1),
+.BR OpenSpeedShop (3)
+.BR OpenSpeedShop_offline (3)
+.BR osspcsamp (1),
+.BR ossusertime (1),
+.BR osshwc (1),
+.BR osshwcsamp (1),
+.BR osshwctime (1),
+.BR ossio (1),
+.BR ossiop (1),
+.BR ossiot (1),
+.BR ossmem (1),
+.BR ossmpi (1),
+.BR ossmpip (1),
+.BR ossmpit (1),
+.BR ossomptp (1)
+.BR osspthreads (1)
+.BR osscuda (1)
+
+
+
+
