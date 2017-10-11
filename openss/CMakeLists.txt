@@ -265,8 +265,6 @@ else()
 	    ${Boost_SYSTEM_LIBRARY}
 	    ${Boost_THREAD_LIBRARY}
 	    ${Boost_PROGRAM_OPTIONS_LIBRARY}
-            ${LibElf_SHARED_LIBRARIES}
-            ${LibDwarf_SHARED_LIBRARIES}
             ${XercesC_LIBRARIES}
             ${MRNet_LIBRARIES}
             ${DyninstAPI_LIBRARIES}
