@@ -21,6 +21,48 @@ EOF
 topology_opt=""
 # fileio option for cbtf.  used to run collectors in old offline mode.
 cbtf_offline_opt=""
+# default to using cbtf for all experiments. By default we will use --offline
+# for pcsamp,hwcsamp, and usertime due to signal handler safety issues with
+# ltwt mrnet sends.  We can override this using --cbtf which should force
+# cbtf usage for those experiments.
+force_cbtf_flag=false
+
+################################################################################
+# Setup thee offline directories
+################################################################################
+setup_offline()
+{
+	    # According to OSS documentation the published method to set and alternative
+	    # location for rawdata files (eg. for lustre) is via OPENSS_RAWDATA_DIR.
+	    # Therefore we honor that naming convention and convert as needed to
+	    # CBTF_RAWDATA_DIR for the internal implementation used in cbtf-krell code.
+	    #
+	    # NOTE: Always place rawdata files into a subdirectory named offline-cbtf
+	    # in case user choses a common location like current working directory,
+	    # home directory, or such.
+	    #
+	    if [ "x${OPENSS_RAWDATA_DIR}" == "x" ] ; then
+		test -d "/tmp/${USER}/offline-cbtf" || mkdir -p "/tmp/${USER}/offline-cbtf"
+		export OPENSS_RAWDATA_DIR="/tmp/${USER}/offline-cbtf"
+	    else
+		test -d ${OPENSS_RAWDATA_DIR}/offline-cbtf || mkdir -p ${OPENSS_RAWDATA_DIR}/offline-cbtf
+		export OPENSS_RAWDATA_DIR=${OPENSS_RAWDATA_DIR}/offline-cbtf
+	    fi
+
+	    # For safety we cd to the raw directory and only remove the sub-directories
+	    # each collector creates for the rawddata files.
+	    # For the cbtf-krell offline collectors, we likely do no need the extra level
+	    # of one directory per process/thread since we write only one file now with
+	    # the naming convention: exe_name-pid-posix_tid.openss-data
+	    #
+	    pushd ${OPENSS_RAWDATA_DIR}
+	    rm -rf ./cbtf-rawdata*
+	    popd
+
+	    # The cbtf-krell collectors internally use the CBTF_RAWDATA_DIR environment
+	    # variable. So we set that here.
+	    export CBTF_RAWDATA_DIR=${OPENSS_RAWDATA_DIR}
+}
 
 # Setup the OpenSpeedShop instrumentor variable (cbtf or offline)
 instrumentor=@oss_instrumentor@
@@ -175,37 +217,17 @@ do
             ;;
        --offline)
             cbtf_offline_opt="--offline"
-
-	    # According to OSS documentation the published method to set and alternative
-	    # location for rawdata files (eg. for lustre) is via OPENSS_RAWDATA_DIR.
-	    # Therefore we honor that naming convention and convert as needed to
-	    # CBTF_RAWDATA_DIR for the internal implementation used in cbtf-krell code.
-	    #
-	    # NOTE: Always place rawdata files into a subdirectory named offline-cbtf
-	    # in case user choses a common location like current working directory,
-	    # home directory, or such.
-	    #
-	    if [ "x${OPENSS_RAWDATA_DIR}" == "x" ] ; then
-		test -d "/tmp/${USER}/offline-cbtf" || mkdir -p "/tmp/${USER}/offline-cbtf"
-		export OPENSS_RAWDATA_DIR="/tmp/${USER}/offline-cbtf"
-	    else
-		test -d ${OPENSS_RAWDATA_DIR}/offline-cbtf || mkdir -p ${OPENSS_RAWDATA_DIR}/offline-cbtf
-		export OPENSS_RAWDATA_DIR=${OPENSS_RAWDATA_DIR}/offline-cbtf
-	    fi
-
-	    # For safety we cd to the raw directory and only remove the sub-directories
-	    # each collector creates for the rawddata files.
-	    # For the cbtf-krell offline collectors, we likely do no need the extra level
-	    # of one directory per process/thread since we write only one file now with
-	    # the naming convention: exe_name-pid-posix_tid.openss-data
-	    #
-	    pushd ${OPENSS_RAWDATA_DIR}
-	    rm -rf ./cbtf-rawdata*
-	    popd
-
-	    # The cbtf-krell collectors internally use the CBTF_RAWDATA_DIR environment
-	    # variable. So we set that here.
-	    export CBTF_RAWDATA_DIR=${OPENSS_RAWDATA_DIR}
+	    force_cbtf_flag=false
+	    setup_offline
+            shift
+            ;;
+       --cbtf)
+	    # --cbtf and --offline can not be used at same time.
+	    # last one on command line will be used.
+	    # at this time we are forcing --offline for pcsamp,hwcsamp, and
+	    # usertime since the ltwt mrnet send is not safe in a sighandler.
+            cbtf_offline_opt=""
+	    force_cbtf_flag=true
             shift
             ;;
         -- )
@@ -579,6 +601,11 @@ case "$experiment_name" in
 	fi
   fi
 
+  # default to offline unless --cbtf was used on commandline.
+  if [ $force_cbtf_flag == false ] ; then
+    cbtf_offline_opt="--offline"
+    setup_offline
+  fi
   ;;
 
 # ------------------------------------------------------------------------------------
@@ -640,6 +667,11 @@ case "$experiment_name" in
 	fi
   fi
 
+  # default to offline unless --cbtf was used on commandline.
+  if [ $force_cbtf_flag == false ] ; then
+    cbtf_offline_opt="--offline"
+    setup_offline
+  fi
   ;;
 
 # ------------------------------------------------------------------------------------
@@ -823,6 +855,11 @@ case "$experiment_name" in
      fi
   fi
 
+  # default to offline unless --cbtf was used on commandline.
+  if [ $force_cbtf_flag == false ] ; then
+    cbtf_offline_opt="--offline"
+    setup_offline
+  fi
   ;;
 
 # ------------------------------------------------------------------------------------
