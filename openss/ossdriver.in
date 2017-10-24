@@ -373,6 +373,8 @@ if [[ -z "$1" || $show_help == 1 ]] ; then
      echo "The following arguments control the peroidic sampling of both CPU and GPU"
      echo "hardware performance counters performed by the $collector collector:"
      echo ""
+     echo "        \"none\" - Disable use of CPU and GPU hardware performance counters."
+     echo ""
      echo "         \"all\" - Periodically sample all instructions."
      echo "    \"branches\" - Periodically sample branch instructions."
      echo "     \"integer\" - Periodically sample integer instructions."
@@ -384,7 +386,7 @@ if [[ -z "$1" || $show_help == 1 ]] ; then
      echo "     \"default\" - Periodically sample the requested instruutions every 10 ms."
      echo "        \"high\" - Periodically sample the requested instructions every 1 ms."
      echo ""
-     echo "In addition, a custom sampling configuarion can be specified by setting"
+     echo "In addition, a custom sampling configuration can be specified by setting"
      echo "the OPENSS_CUDA_CONFIG environment variable to a comma-delimited list of"
      echo "parameters. The allowed parameters are:"
      echo ""
@@ -1660,67 +1662,79 @@ case "$experiment_name" in
 
   osscuda)
 
-    if [ ! -z "$OPENSS_CUDA_CONFIG" ] ; then
-      echo "[openss]: $collector using configuration from OPENSS_CUDA_CONFIG."
-      cuda_config=$OPENSS_CUDA_CONFIG
-    else
-
-      case $string_value in
-
-        branches)
-	  echo "[openss]: $collector counting branch instructions for CPU and GPU."
-	  cuda_counters="PAPI_BR_INS,inst_control"
-	  ;;
-
-        integer)
-	  echo "[openss]: $collector counting integer instructions for CPU and GPU."
-	  cuda_counters="PAPI_INT_INS,inst_integer"
-	  ;;
-
-        single)
-	  echo "[openss]: $collector counting single-precision float instructions for CPU and GPU."
-	  cuda_counters="PAPI_SP_OPS,flop_count_sp"
-	  ;;
-
-        double)
-	  echo "[openss]: $collector counting double-precision float instructions for CPU and GPU."
-	  cuda_counters="PAPI_DP_OPS,flop_count_dp"
-	  ;;
-
-        memory)
-	  echo "[openss]: $collector counting load/store instructions for CPU and GPU."
-	  cuda_counters="PAPI_LST_INS,ldst_executed"
-	  ;;
-
-        *)
-	  echo "[openss]: $collector counting all instructions for CPU and GPU."
-	  cuda_counters="PAPI_TOT_INS,inst_executed"
-	  ;;
-
-      esac
-
-      if [ $low_flag == "true" ]; then
-        echo "[openss]: $collector using \"low\" periodic sampling rate (100 ms)."
-	cuda_interval=100000000
-      elif [ $high_flag == "true" ]; then
-        echo "[openss]: $collector using \"high\" periodic sampling rate (1 ms)."
-	cuda_interval=1000000
+      if [ ! -z "$OPENSS_CUDA_CONFIG" ] ; then
+          echo "[openss]: $collector using configuration from OPENSS_CUDA_CONFIG."
+          cuda_config=$OPENSS_CUDA_CONFIG
       else
-        echo "[openss]: $collector using default periodic sampling rate (10 ms)."
-	cuda_interval=10000000
+          
+          case $string_value in
+
+              none)
+                  echo "[openss]: $collector disabled use of CPU and GPU hardware performance counters."
+                  cuda_counters=""
+                  ;;
+              
+              branches)
+                  echo "[openss]: $collector counting branch instructions for CPU and GPU."
+	              cuda_counters="PAPI_BR_INS,inst_control"
+	              ;;
+
+              integer)
+	              echo "[openss]: $collector counting integer instructions for CPU and GPU."
+	              cuda_counters="PAPI_INT_INS,inst_integer"
+	              ;;
+              
+              single)
+	              echo "[openss]: $collector counting single-precision float instructions for CPU and GPU."
+	              cuda_counters="PAPI_SP_OPS,flop_count_sp"
+	              ;;
+              
+              double)
+	              echo "[openss]: $collector counting double-precision float instructions for CPU and GPU."
+	              cuda_counters="PAPI_DP_OPS,flop_count_dp"
+	              ;;
+              
+              memory)
+	              echo "[openss]: $collector counting load/store instructions for CPU and GPU."
+	              cuda_counters="PAPI_LST_INS,ldst_executed"
+	              ;;
+              
+              *)
+	              echo "[openss]: $collector counting all instructions for CPU and GPU."
+	              cuda_counters="PAPI_TOT_INS,inst_executed"
+	              ;;
+              
+          esac
+
+          OPENSS_CUDA_CONFIG=""
+          
+          if [ ! -z "$cuda_counters" ] ; then
+
+              if [ $low_flag == "true" ]; then
+                  echo "[openss]: $collector using \"low\" periodic sampling rate (100 ms)."
+	              cuda_interval=100000000
+              elif [ $high_flag == "true" ]; then
+                  echo "[openss]: $collector using \"high\" periodic sampling rate (1 ms)."
+	              cuda_interval=1000000
+              else
+                  echo "[openss]: $collector using default periodic sampling rate (10 ms)."
+	              cuda_interval=10000000
+              fi
+              
+              OPENSS_CUDA_CONFIG="interval=$cuda_interval,$cuda_counters"
+
+          fi
+          
+          export OPENSS_CUDA_CONFIG
+          
       fi
+    
+      echo "[openss]: $collector configuration: \"$OPENSS_CUDA_CONFIG\""
 
-      OPENSS_CUDA_CONFIG="interval=$cuda_interval,$cuda_counters"
-      export OPENSS_CUDA_CONFIG
-
-    fi
-
-    echo "[openss]: $collector configuration: \"$OPENSS_CUDA_CONFIG\""
-
-    CBTF_CUDA_CONFIG=$OPENSS_CUDA_CONFIG
-    export CBTF_CUDA_CONFIG
-
-    ;;
+      CBTF_CUDA_CONFIG=$OPENSS_CUDA_CONFIG
+      export CBTF_CUDA_CONFIG
+      
+      ;;
 
 esac
 
