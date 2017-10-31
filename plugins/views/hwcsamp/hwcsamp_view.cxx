@@ -826,7 +826,7 @@ static bool define_hwcsamp_columns (
        } else if (!strcasecmp(M_Name.c_str(), "l2dchitrate") ||
                   !strcasecmp(M_Name.c_str(), "L2DataCacheMissL1DataCacheAccessHitRate")) {
 
-            // generate (1.0-(PAPI_L2_DCM/PAPI_L1_DCA))
+            // generate (1.0-(PAPI_L2_DCM/PAPI_L1_DCM))
             int icnt = 0;
             int l2_dcm_icnt = 0;
             int l1_dcm_icnt = 0;
@@ -1625,7 +1625,7 @@ static std::string VIEW_hwcsamp_long  =
                   " \n\t'-m L2DataCacheMissL1DataCacheAccessHitRate' reports L2 cache data hit rate."
                   " \n\t        Alternative metric name: l2dchitrate"
                   " \n\t        Hardware counters: PAPI_L2_DCM,PAPI_L1_DCM are needed."
-                  " \n\t        Formula: (1.0 - (PAPI_L2_DCM / PAPI_L1_DCA))"
+                  " \n\t        Formula: (1.0 - (PAPI_L2_DCM / PAPI_L1_DCM))"
                   " \n\t'-m L3TotalCacheMissDataCacheAccessRatio' reports level 3 total cache to data cache access ratio."
                   " \n\t        Alternative metric name: l3tdcmiss"
                   " \n\t        Hardware counters: PAPI_L3_TCM,PAPI_L3_DCA are needed."
