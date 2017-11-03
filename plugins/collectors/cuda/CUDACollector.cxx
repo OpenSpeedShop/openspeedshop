@@ -64,6 +64,9 @@ namespace {
     /** Type returned for the CUDA data transfer detail metrics. */
     typedef map<StackTrace, vector<CUDAXferDetail> > XferDetails;
 
+    /** Type used for caching call site to StackTrace mappings. */
+    typedef map<size_t, StackTrace> StackTraceCache;
+
     /** Visitor used to compute the count_exclusive_details metric. */
     bool computeCounts(const Base::Time& time,
                        const vector<boost::uint64_t>& counts,
@@ -82,17 +85,27 @@ namespace {
                         const CUDA::PerformanceData& data,
                         const Thread& thread,
                         const ExtentGroup& subextents,
+                        StackTraceCache& cache,
                         vector<U>& results)
     {
         TimeInterval interval = ConvertFromArgoNavis(
             Base::TimeInterval(info.time_begin, info.time_end)
             );
         
-        StackTrace trace = ConvertFromArgoNavis(
-            data.sites()[info.call_site],
-            thread,
-            ConvertFromArgoNavis(info.time)
-            );
+        StackTraceCache::iterator k = cache.find(info.call_site);
+
+        if (k == cache.end())
+        {
+            StackTrace trace = ConvertFromArgoNavis(
+                data.sites()[info.call_site],
+                thread,
+                ConvertFromArgoNavis(info.time)
+                );
+            
+            k = cache.insert(make_pair(info.call_site, trace)).first;
+        }
+
+        StackTrace& trace = k->second;
 
         for (StackTrace::const_iterator
                  i = trace.begin(); i != trace.end(); ++i)
@@ -135,18 +148,28 @@ namespace {
                      const CUDA::PerformanceData& data,
                      const Thread& thread,
                      const ExtentGroup& subextents,
+                     StackTraceCache& cache,
                      vector<double>& results)
     {
         TimeInterval interval = ConvertFromArgoNavis(
             Base::TimeInterval(info.time_begin, info.time_end)
             );
         
-        StackTrace trace = ConvertFromArgoNavis(
-            data.sites()[info.call_site],
-            thread,
-            ConvertFromArgoNavis(info.time)
-            );
-        
+        StackTraceCache::iterator k = cache.find(info.call_site);
+            
+        if (k == cache.end())
+        {
+            StackTrace trace = ConvertFromArgoNavis(
+                data.sites()[info.call_site],
+                thread,
+                ConvertFromArgoNavis(info.time)
+                );
+            
+            k = cache.insert(make_pair(info.call_site, trace)).first;
+        }
+
+        StackTrace& trace = k->second;
+                    
         set<ExtentGroup::size_type> intersection = 
             subextents.getIntersectionWith(
                 Extent(interval, AddressRange(trace[0]))
@@ -440,9 +463,12 @@ void CUDACollector::getMetricValues(const string& metric,
 
     else if (metric == "exec_time")
     {
+        StackTraceCache cache;
+
         CUDA::KernelExecutionVisitor visitor = bind(
             &computeTime<CUDA::KernelExecution>, _1,
             boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(cache),
             boost::ref(*reinterpret_cast<vector<double>*>(ptr))
             );
         
@@ -455,9 +481,12 @@ void CUDACollector::getMetricValues(const string& metric,
 
     else if (metric == "exec_inclusive_details")
     {
+        StackTraceCache cache;
+        
         CUDA::KernelExecutionVisitor visitor = bind(
             &computeDetails<CUDA::KernelExecution, ExecDetails, true>, _1,
             boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(cache),
             boost::ref(*reinterpret_cast<vector<ExecDetails>*>(ptr))
             );
         
@@ -470,9 +499,12 @@ void CUDACollector::getMetricValues(const string& metric,
 
     else if (metric == "exec_exclusive_details")
     {
+        StackTraceCache cache;
+        
         CUDA::KernelExecutionVisitor visitor = bind(
             &computeDetails<CUDA::KernelExecution, ExecDetails, false>, _1,
             boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(cache),
             boost::ref(*reinterpret_cast<vector<ExecDetails>*>(ptr))
             );
         
@@ -485,9 +517,12 @@ void CUDACollector::getMetricValues(const string& metric,
 
     else if (metric == "xfer_time")
     {
+        StackTraceCache cache;
+        
         CUDA::DataTransferVisitor visitor = bind(
             &computeTime<CUDA::DataTransfer>, _1,
             boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(cache),
             boost::ref(*reinterpret_cast<vector<double>*>(ptr))
             );
         
@@ -500,9 +535,12 @@ void CUDACollector::getMetricValues(const string& metric,
 
     else if (metric == "xfer_inclusive_details")
     {
+        StackTraceCache cache;
+        
         CUDA::DataTransferVisitor visitor = bind(
             &computeDetails<CUDA::DataTransfer, XferDetails, true>, _1,
             boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(cache),
             boost::ref(*reinterpret_cast<vector<XferDetails>*>(ptr))
             );
         
@@ -515,9 +553,12 @@ void CUDACollector::getMetricValues(const string& metric,
 
     else if (metric == "xfer_exclusive_details")
     {
+        StackTraceCache cache;
+        
         CUDA::DataTransferVisitor visitor = bind(
             &computeDetails<CUDA::DataTransfer, XferDetails, false>, _1,
             boost::cref(dm_data), boost::cref(thread), boost::cref(subextents),
+            boost::ref(cache),
             boost::ref(*reinterpret_cast<vector<XferDetails>*>(ptr))
             );
         
