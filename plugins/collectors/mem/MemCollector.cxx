@@ -42,6 +42,7 @@ namespace {
     /** Type returned for the Mem call detail metrics. */
     typedef std::map<StackTrace, std::vector<MemDetail> > CallDetails;
     
+    bool debug_metrics = false;
     
 
     /**
@@ -91,6 +92,11 @@ MemCollector::MemCollector() :
 		  "Records for each call, details of call, "
 		  "a stacktrace and the start/end time.")
 {
+
+    if (getenv("OPENSS_DEBUG_MEM_METRICS") != NULL) {
+	debug_metrics = true;
+    }
+
     // Declare our parameters
     declareParameter(Metadata("traced_functions", "Traced Functions",
 			      "Set of Mem functions to be traced.",
@@ -367,10 +373,12 @@ void MemCollector::getMetricValues(const std::string& metric,
     bool is_details = true;
     CBTF_mem_reason view_reason = CBTF_MEM_REASON_UNIQUE_CALLPATH;
 
+#if 0
     bool debug_metrics = false;
     if (getenv("OPENSS_DEBUG_MEM_METRICS") != NULL) {
 	debug_metrics = true;
     }
+#endif
 
     // Decode this data blob
     CBTF_mem_exttrace_data data;
@@ -586,7 +594,12 @@ std::cerr << "OLD MEM EVENT: mem_type:" << olddata.events.events_val[i].mem_type
 	Time start(data.events.events_val[i].start_time);
 	Time stop(data.events.events_val[i].stop_time);
 	if (start == stop || start >= stop) {
-	    stop = start + 1;
+	    //stop = start + 1;
+	    // there are extremely rare cases where we are seeing invalid
+	    // time intervals for leaked and highwater events.
+	    // These are causing a crash. So we will ignore these until
+	    // we find the cause (likely in the mem component of cbtf-krell).
+	    continue;
 	}
 	TimeInterval interval(start, stop);
 	StackTrace trace(thread, interval.getBegin());
@@ -744,8 +757,9 @@ std::cerr << "OLD MEM EVENT: mem_type:" << olddata.events.events_val[i].mem_type
 		    }
 		  } // is is_metric_frame
 
-#if defined(DEBUG_DETAILS)
-std::cerr << "MEM EVENT: mem_type:" << data.events.events_val[i].mem_type
+#ifndef NDEBUG
+if (debug_metrics) {
+	std::cerr << "MEM EVENT: mem_type:" << data.events.events_val[i].mem_type
 	<< " reason:" << data.events.events_val[i].reason
 	<< " retval:" << Address(data.events.events_val[i].retval)
 	<< " ptr:" << Address(data.events.events_val[i].ptr)
@@ -756,6 +770,7 @@ std::cerr << "MEM EVENT: mem_type:" << data.events.events_val[i].mem_type
 	<< " tot_alloc:" << data.events.events_val[i].total_allocation
 	<< " path_cnt:" << data.events.events_val[i].count
 	<< std::endl;
+}
 #endif
 		    
 		} // if is_details
