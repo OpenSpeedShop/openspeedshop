@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008-2014 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2008-2017 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -1404,7 +1404,14 @@ void OfflineExperiment::createOfflineSymbolTable()
     // getSymbols() will get the statement containing these addresses.
 #if defined(HAVE_DYNINST)
 	//std::cerr << Time::Now() << " Resolve loop addresses" << std::endl;
-	DyninstSymbols::getLoops(unique_addresses, lo, symtabmap);
+        if ( (getenv("OPENSS_NO_LOOPS") != NULL)) {
+            std::stringstream output;
+            output << "Skipping loop analysis due to the environment variable: OPENSS_NO_LOOPS is set" << std::endl;
+                    std::cerr << output.str();
+        } else {
+	    DyninstSymbols::getLoops(unique_addresses, lo, symtabmap);
+        } 
+
 	//std::cerr << Time::Now() << " Done with loops addresses" << std::endl;
 #endif
 	//std::cerr << Time::Now() << " Resolve symtabapi symbols" << std::endl;

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2012-2015  The Krell Institute. All Rights Reserved.
+// Copyright (c) 2012-2017  The Krell Institute. All Rights Reserved.
 //
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -1114,7 +1114,13 @@ void Callbacks::finalize() {
         for(std::set<LinkedObject>::const_iterator li = le.begin();
 		li != le.end(); ++li) {
 #if defined(HAVE_DYNINST)
-	    DyninstSymbols::getLoops(addresses, *li, symtabmap);
+            if ( (getenv("OPENSS_NO_LOOPS") != NULL)) {
+		std::stringstream output;
+		output << "Skipping loop analysis due to the environment variable: OPENSS_NO_LOOPS is set" << std::endl;
+			std::cerr << output.str();
+            } else {
+   	        DyninstSymbols::getLoops(addresses, *li, symtabmap);
+            } 
 #endif
 	    stapi_symbols.getSymbols(addresses,*li,symtabmap);
 	}
