@@ -88,23 +88,44 @@ static int getBEcountFromCommand(std::string command) {
     std::string S = "";
     std::string n_token = "-n";
     std::string np_token = "-np";
+    std::string ntasks_token = "--ntasks=";
 
     bool found_be_count = false;
 
     BOOST_FOREACH (const std::string& t, btokens) {
 	S = t;
 
-	// This handles clients that allow both -n2 on the command line.
 	// For openmpi, -n2 or -np2 is in fact rejected by the openmpi mpirun command.
 	// If we find the -n case with no space, get the value just after -n and
 	// return it as an int while terminating loop.
-	std::string::size_type n_token_pos = S.find(n_token);
-	if (S.find(np_token) == std::string::npos &&
-	    n_token_pos != std::string::npos) {
 
+	std::string::size_type ntasks_token_pos = S.find(ntasks_token);
+	std::string::size_type n_token_pos = S.find(n_token);
+	std::string::size_type np_token_pos = S.find(np_token);
+
+	if (S.size() > 2 && S[n_token_pos-1] == '-' ) {
+
+	// this is a -- command, so skip unless it is --ntasks=nn.
+	// We want to get the number of ranks from the --ntasks= phrase
+
+	    if (S.size() > 9 && S[n_token_pos+2] == 't' && S[n_token_pos+3] == 'a' && S[n_token_pos+4] == 's' ) {
+		if (ntasks_token_pos != std::string::npos) {
+		    std::string::size_type token_size = ntasks_token.length();
+		    if (S.substr( ntasks_token_pos+token_size, std::string::npos ).size() > 0) {
+			retval = boost::lexical_cast<int>(S.substr( ntasks_token_pos+token_size, std::string::npos ));
+			break;
+		    }
+		}
+	    } else {
+		// SKIP -- token phrases
+		continue;
+	    }
+	}
+ 
+	if (np_token_pos == std::string::npos && n_token_pos != std::string::npos) {
 	    std::string::size_type token_size = n_token.length();
 	    if (S.substr( n_token_pos+token_size, std::string::npos ).size() > 0) {
-	        retval = boost::lexical_cast<int>(S.substr( n_token_pos+token_size, std::string::npos ));
+		retval = boost::lexical_cast<int>(S.substr( n_token_pos+token_size, std::string::npos ));
 		break;
 	    }
 	}
@@ -115,6 +136,8 @@ static int getBEcountFromCommand(std::string command) {
 	    S = t;
 	    retval = boost::lexical_cast<int>(S);
 	    break;
+	} else if (!strcmp(S.c_str(), std::string("--ntasks").c_str())) {
+	    found_be_count = true;
 	} else if (!strcmp( S.c_str(), std::string("-np").c_str())) {
 	    found_be_count = true;
 	} else if (!strcmp(S.c_str(), std::string("-n").c_str())) {
