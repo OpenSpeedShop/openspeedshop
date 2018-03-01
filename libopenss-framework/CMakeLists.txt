@@ -212,6 +212,8 @@ if(INSTRUMENTOR MATCHES "cbtf")
 	${Iberty_STATIC_LIBRARIES}
 	${LTDL_LIBRARY_SHARED}
 	${CMAKE_DL_LIBS}
+	openss-framework-cbtf
+	rt
     )
 
     set_target_properties(openss-framework PROPERTIES VERSION 1.1.0)
