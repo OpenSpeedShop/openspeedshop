@@ -176,7 +176,14 @@ namespace {
 	    database->prepareStatement(
 	        "SELECT id FROM Threads WHERE host = ? AND pid = ?;"
 		);
-	database->bindArgument(1, thread.host);
+
+	// Canonicalize the host name here to handle cases where the
+	// performance data blobs and thread names contain different
+	// variants of the same host name.  WDH 2018-MAY-9
+
+	std::string host = Experiment::getCanonicalName(thread.host);
+	database->bindArgument(1, host);
+
 	database->bindArgument(2, static_cast<int>(thread.pid));
 	if(thread.has_posix_tid)
 	    database->bindArgument(3, static_cast<pthread_t>(thread.posix_tid));
