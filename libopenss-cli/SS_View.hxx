@@ -262,13 +262,7 @@ class ViewType
  public:
   // The call to generate the view must have this form.
   virtual bool GenerateView (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
-                             ThreadGroup& tgrp, std::list<CommandResult *>& view_output) {
-    {
-    	std::string s("The requested view has not been implemented.");
-    	Mark_Cmd_With_Soft_Error(cmd,s);
-    }
-    return false;
-  }
+                             ThreadGroup& tgrp, std::list<CommandResult *>& view_output) = 0;
 
  private:
   ViewType() {}
