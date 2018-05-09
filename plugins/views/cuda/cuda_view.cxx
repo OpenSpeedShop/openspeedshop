@@ -17,21 +17,23 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/cstdint.hpp>
+
 #include "SS_Input_Manager.hxx"
 #include "SS_View_Expr.hxx"
 
 
 
 extern bool generate_cuda_exec_view(CommandObject*, ExperimentObject*,
-                                    int64_t, ThreadGroup&,
+                                    boost::int64_t, ThreadGroup&,
                                     std::list<CommandResult*>&);
 
 extern bool generate_cuda_hwpc_view(CommandObject*, ExperimentObject*,
-                                    int64_t, ThreadGroup&,
+                                    boost::int64_t, ThreadGroup&,
                                     std::list<CommandResult*>&);
 
 extern bool generate_cuda_xfer_view(CommandObject*, ExperimentObject*,
-                                    int64_t, ThreadGroup&,
+                                    boost::int64_t, ThreadGroup&,
                                     std::list<CommandResult*>&);
 
 

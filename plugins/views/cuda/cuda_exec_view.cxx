@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2014 Krell Institute. All Rights Reserved.
+// Copyright (c) 2014,2018 Krell Institute. All Rights Reserved.
 // Copyright (c) 2014-2017 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
@@ -17,6 +17,7 @@
 // 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/cstdint.hpp>
 #include <boost/format.hpp>
 
 #include "SS_Input_Manager.hxx"
@@ -826,7 +827,7 @@ static bool define_cuda_columns(CommandObject* cmd,
 
 static bool cuda_definition(CommandObject* cmd,
                             ExperimentObject* exp,
-                            int64_t topn,
+                            boost::int64_t topn,
                             ThreadGroup& tgrp,
                             std::vector<Collector>& CV,
                             std::vector<std::string>& MV,
@@ -856,7 +857,7 @@ static bool cuda_definition(CommandObject* cmd,
 
 bool generate_cuda_exec_view(CommandObject* cmd,
                              ExperimentObject* exp,
-                             int64_t topn,
+                             boost::int64_t topn,
                              ThreadGroup& tgrp,
                              std::list<CommandResult*>& view_output)
 {
