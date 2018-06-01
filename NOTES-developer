@@ -24,6 +24,20 @@ sqlite> select count (view_data) from Views;
 sqlite> select count (view_cmd) from Views;
 1
 
+# get index information about table entries
+sqlite> PRAGMA INDEX_LIST('table_name');
+Returns a table with 3 columns:
+    seq Unique numeric ID of index
+    name Name of the index
+    unique Uniqueness flag (nonzero if UNIQUE index.)
+sqlite> PRAGMA INDEX_LIST('VectorInstrs');
+0|IndexVectorInstrsByLinkedObject|0|c|0
+sqlite> PRAGMA INDEX_LIST('Loops');
+0|IndexLoopsByLinkedObject|0|c|0
+
+# get version of database
+SELECT version FROM "Open|SpeedShop";
+
 
 an so on an so forth...
 
