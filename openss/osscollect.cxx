@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2011-2016 Krell Institute. All Rights Reserved.
+// Copyright (c) 2011-2018 Krell Institute. All Rights Reserved.
 // Copyright (c) 2015-2016 Argo Navis Technologies. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
@@ -89,6 +89,8 @@ static int getBEcountFromCommand(std::string command) {
     std::string n_token = "-n";
     std::string np_token = "-np";
     std::string ntasks_token = "--ntasks=";
+    std::string dashdashn_token = "--n";
+
 
     bool found_be_count = false;
 
@@ -98,17 +100,19 @@ static int getBEcountFromCommand(std::string command) {
 	// For openmpi, -n2 or -np2 is in fact rejected by the openmpi mpirun command.
 	// If we find the -n case with no space, get the value just after -n and
 	// return it as an int while terminating loop.
+        // --ntasks=nn is a srun option
 
 	std::string::size_type ntasks_token_pos = S.find(ntasks_token);
 	std::string::size_type n_token_pos = S.find(n_token);
 	std::string::size_type np_token_pos = S.find(np_token);
+        std::string::size_type dashdashn_token_pos = S.find(dashdashn_token);
 
-	if (S.size() > 2 && S[n_token_pos-1] == '-' ) {
+	if (S.size() > 2 && S[n_token_pos-1] == '-' && (S[n_token_pos] == '-' || S[ntasks_token_pos+1] == '-')  ) {
 
-	// this is a -- command, so skip unless it is --ntasks=nn.
-	// We want to get the number of ranks from the --ntasks= phrase
+ 	    // this is a -- command, so skip unless it is --ntasks=nn.
+	    // We want to get the number of ranks from the --ntasks= phrase
 
-	    if (S.size() > 9 && S[n_token_pos+2] == 't' && S[n_token_pos+3] == 'a' && S[n_token_pos+4] == 's' ) {
+	    if (S.size() == 9 && S[ntasks_token_pos+2] == 'n' && S[n_token_pos+3] == 't' && S[n_token_pos+4] == 'a' ) {
 		if (ntasks_token_pos != std::string::npos) {
 		    std::string::size_type token_size = ntasks_token.length();
 		    if (S.substr( ntasks_token_pos+token_size, std::string::npos ).size() > 0) {
@@ -116,6 +120,14 @@ static int getBEcountFromCommand(std::string command) {
 			break;
 		    }
 		}
+            } else if (S.size() == 3 && S[dashdashn_token_pos+1] == '-' && S[dashdashn_token_pos+2] == 'n' ) {
+                if (dashdashn_token_pos != std::string::npos) {
+                    std::string::size_type token_size = dashdashn_token.length();
+                    if (S.substr( dashdashn_token_pos+token_size, std::string::npos ).size() > 0) {
+                        retval = boost::lexical_cast<int>(S.substr( dashdashn_token_pos+token_size, std::string::npos ));
+                        break;
+                    }
+                }
 	    } else {
 		// SKIP -- token phrases
 		continue;
@@ -137,6 +149,8 @@ static int getBEcountFromCommand(std::string command) {
 	    retval = boost::lexical_cast<int>(S);
 	    break;
 	} else if (!strcmp(S.c_str(), std::string("--ntasks").c_str())) {
+	    found_be_count = true;
+	} else if (!strcmp(S.c_str(), std::string("--n").c_str())) {
 	    found_be_count = true;
 	} else if (!strcmp( S.c_str(), std::string("-np").c_str())) {
 	    found_be_count = true;
