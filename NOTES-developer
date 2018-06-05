@@ -1,3 +1,22 @@
+INDEX of notes to help remember how to information:
+
+    NOTE 1: Here are commands to help in examining the 
+    NOTE 2: How to create an Open|SpeedShop patch
+    NOTE 3: TEST FOR FILE LOCKING TO SEE IF SQLITE CAN CREATE A DATABASE FILE
+    NOTE 4: HOW TO BOOTSTRAP:
+    NOTE 5: HOW TO BUILD CBTF INSTRUMENTOR VERSION: (example configure)
+    NOTE 6: HOW to cvs tag the release: (11-15-13 jeg)
+    NOTE 7: Finding undefined symbols in openss
+    NOTE 8: Finding if library is compiled without -fPIC
+    NOTE 9: cluster analysis in the CLI:
+    NOTE 10: Using valgrind for finding memory bugs:
+    NOTE 11:  fPIC determination:
+    NOTE 12: Getting the devel branches for the new gui and spack:
+    NOTE 13: You can obtain the newest version of config.guess and config.sub 
+    NOTE 14: Finding the format of a binary/executable:
+    NOTE 15: Technique to see the source from the cli.
+    NOTE 16: TBD
+
 
 NOTE 1: Here are commands to help in examining the 
         openspeedshop database file with sqlite:
@@ -182,3 +201,22 @@ architecture: UNKNOWN!, flags 0x00000112:
 EXEC_P, HAS_SYMS, D_PAGED
 start address 0x0000000000401310
 
+NOTE 15: Technique to see the source from the cli.
+
+a) 1 line:  !sed -n line#p filename
+
+b) range of lines for context:  !sed -n begin#,end# filename
+
+Here is a single line example:
+openss>>!sed -n 2356p lulesh.cc 
+
+Here is a multiple line example:
+openss>>!sed -n 2350,2355p lulesh.cc
+    {
+       // Bound the updated relative volumes with eosvmin/max
+       if (eosvmin != Real_t(0.)) {
+#pragma omp for firstprivate(numElem)
+          for(Index_t i=0 ; i<numElem ; ++i) {
+             if (vnew[i] < eosvmin) 
+
+NOTE 16: TBD
