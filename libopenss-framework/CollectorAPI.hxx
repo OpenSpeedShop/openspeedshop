@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2013 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2013-2018 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -36,10 +36,12 @@
 #include "CollectorImpl.hxx"
 #include "Function.hxx"
 #include "LinkedObject.hxx"
+#include "Loop.hxx"
 #include "StackTrace.hxx"
 #include "Statement.hxx"
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
+#include "VectorInstr.hxx"
 
 
 

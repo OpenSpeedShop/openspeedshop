@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2018 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -23,7 +23,6 @@
    #define DEBUG_CLI 1 
    #define DEBUG_CLI_DETAILS 1 
 */
-
 
 template <typename TO, typename TS>
 void GetMetricInThreadGroupByThread (

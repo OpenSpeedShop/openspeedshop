@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2018 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -31,8 +31,9 @@
 
 // These are needed to manage pcsamp collector data.
 #define extime_temp VMulti_free_temp
+#define vitime_temp VMulti_free_temp+1
 
-#define First_ByThread_Temp VMulti_free_temp+1
+#define First_ByThread_Temp VMulti_free_temp+2
 #define ByThread_use_intervals 2 // "1" => times reported in milliseconds,
                                  // "2" => times reported in seconds,
                                  //  otherwise don't add anything.
@@ -40,17 +41,20 @@
 #include "SS_View_bythread_setmetrics.hxx"
 
 #define def_pcsamp_values          \
-            CommandResult *extime = CRPTR (0.0);
+            CommandResult *extime = CRPTR (0.0);\
+            CommandResult *vitime = CRPTR (1.0);
 
 #define get_inclusive_values(primary, num_calls, function_name)
 
 #define get_exclusive_pcsamp_values(secondary, num_calls)        \
              if (extime == NULL) extime =  secondary->Copy();    \
-             else extime->Accumulate_Value (secondary);
+             else extime->Accumulate_Value (secondary);          
+
 
 #define set_pcsamp_values(value_array, sort_extime)                                    \
               if (num_temps > VMulti_sort_temp) value_array[VMulti_sort_temp] = NULL;  \
-              if (num_temps > extime_temp) value_array[extime_temp] = extime;
+              if (num_temps > extime_temp) value_array[extime_temp] = extime; \
+              if (num_temps > vitime_temp) value_array[vitime_temp] = vitime; 
 
 #define def_Detail_values def_pcsamp_values
 #define set_Detail_values set_pcsamp_values
@@ -69,6 +73,8 @@ static std::string allowed_pcsamp_V_options[] = {
   "Statements",
   "Loop",
   "Loops",
+  "VectorInstr",
+  "VectorInstrs",
   "Summary",
   "SummaryOnly",
   "data",       // Raw data output for scripting
@@ -100,6 +106,7 @@ static bool define_pcsamp_columns (
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_sort_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, VMulti_time_temp));
   IV.push_back(new ViewInstruction (VIEWINST_Add, extime_temp));
+  IV.push_back(new ViewInstruction (VIEWINST_Add, vitime_temp));
 
   OpenSpeedShop::cli::ParseResult *p_result = cmd->P_Result();
   std::vector<ParseRange> *p_slist = p_result->getexpMetricList();
@@ -122,6 +129,8 @@ static bool define_pcsamp_columns (
    std::map<std::string, int64_t> MetricMap;
    MetricMap["time"] = extime_temp;
    MetricMap["times"] = extime_temp;
+   MetricMap["vi"] = vitime_temp;
+   MetricMap["vis"] = vitime_temp;
 
   if (p_slist->begin() != p_slist->end()) {
    // Add modifiers to output list.
@@ -130,6 +139,8 @@ static bool define_pcsamp_columns (
 
 // Look for a metric expression and invoke processing.
 #include "SS_View_metric_expressions.hxx"
+
+      ParseRange* pr = &(*mi);
 
       parse_range_t *m_range = (*mi).getRange();
       std::string C_Name;
@@ -148,6 +159,12 @@ static bool define_pcsamp_columns (
         M_Name = m_range->start_range.name;
       }
 
+      std::cerr << "--------------------------------before listing metrics pcsamp view" << std::endl;
+      std::cerr << "M_Name=" << M_Name << " C_Name=" << C_Name << std::endl;
+      std::cerr << "(*mi).getParseType()=" << (*mi).getParseType() << " last_used_temp=" << last_used_temp 
+                << " vitime_temp=" << vitime_temp << std::endl;
+      std::cerr << "--------------------------------after listing metrics pcsamp view" << std::endl;
+
       if (!strcasecmp(M_Name.c_str(), "time") ||
           !strcasecmp(M_Name.c_str(), "times")) {
         IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
@@ -163,7 +180,24 @@ static bool define_pcsamp_columns (
       } else if (!strcasecmp(M_Name.c_str(), "absdiff")) {
         // Ignore this because cview -c 3 -c 5 -mtime,absdiff actually works outside of this view code
         //Mark_Cmd_With_Soft_Error(cmd,"AbsDiff option, '-m " + M_Name + "'");
-      }
+
+      } else if (!strcasecmp(M_Name.c_str(), "vi") ||
+                 !strcasecmp(M_Name.c_str(), "vis")) {
+
+        // FIXME JEG - need a way to get the vector instruction times per function into this vitime_temp
+        // But, since the simple base view is being generated with vfc == VFC_Function, how to do it?
+        //std::set<VectorInstr> Function::getVectorInstrs() const
+
+        // Generate the instructions for the expression.
+        IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, vitime_temp));
+        HV.push_back("VectorInstr Time");
+       
+      } else if (!strcasecmp(M_Name.c_str(), "vipercent") ||
+                 !strcasecmp(M_Name.c_str(), "vispercent")) {
+        IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, vitime_temp));
+        IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, vitime_temp, totalIndex++));
+        HV.push_back("% of VectorInstr Time");
+     }
 
 // Recognize and generate pseudo instructions to calculate and display By Thread metrics for
 // ThreadMax, ThreadMaxIndex, ThreadMin, ThreadMinIndex, ThreadAverage and loadbalance.
@@ -232,12 +266,16 @@ static std::string VIEW_pcsamp_long  =
                    "\n\t'-v Functions' will report times by function. This is the default."
                    "\n\t'-v Statements' will report times by statement."
                    "\n\t'-v Loops' will report times by loop."
+                   "\n\t'-v VectorInstrs' will report times by vector instruction (Intel processor only)."
+                   "\n"
                    "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
-                   " 'Statements', 'LinkedObjects' or 'Loops' will result in an additional line of output at"
-                   " the end of the report that summarizes the information in each column."
+                   " 'Statements', 'LinkedObjects', 'Loops' or 'VectorInstrs' will result in an"
+                   " additional line of output at the end of the report that summarizes the information"
+                   " in each column."
                    "\n\tThe addition of 'SummaryOnly' to the '-v' option list along with 'Functions',"
-                   " 'Statements', 'LinkedObjects' or 'Loops' or without those options will cause only the"
-                   " one line of output at the end of the report that summarizes the information in each column."
+                   " 'Statements', 'LinkedObjects', 'Loops' or 'VectorInstrs' or without those options will"
+                   " cause only the one line of output at the end of the report that summarizes"
+                   " the information in each column."
                   "\n\nThe information included in the report can be controlled with the"
                   " '-m' option.  More than one item can be selected but only the items"
                   " listed after the option will be printed and they will be printed in"
@@ -314,6 +352,13 @@ class pcsamp_view : public ViewType {
         Loop *loopp;
         return Simple_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                    false, loopp, vfc, view_output);
+       case VFC_VectorInstr:
+#ifdef DEBUG_CLI
+        printf("In pcsamp-> CASE VFC_VectorInstr, calling Simple_Base_Report\n");
+#endif
+	VectorInstr *vinstr;
+	return Simple_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+				   false, vinstr, vfc, view_output);
       }
       Mark_Cmd_With_Soft_Error(cmd, "(We could not determine which format to use for the report.)");
       return false;

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007-2008 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2006-2014 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2006-2018 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -43,6 +43,8 @@
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
 #include "ThreadName.hxx"
+#include "VectorInstr.hxx"
+#include "VectorInstrCache.hxx"
 
 #ifdef HAVE_ARRAYSVCS
 #include <arraysvcs.h>
@@ -80,7 +82,7 @@ namespace {
 	"CREATE TABLE \"Open|SpeedShop\" ("
 	"    version INTEGER"
 	");",
-	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (7);",
+	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (8);",
 	
 	// Thread Table
 	"CREATE TABLE Threads ("
@@ -136,26 +138,26 @@ namespace {
 	"    addr_end INTEGER,"
 	"    valid_bitmap BLOB"
 	");",
-    "CREATE INDEX IndexFunctionRangesByFunction "
+        "CREATE INDEX IndexFunctionRangesByFunction "
 	"  ON FunctionRanges (function);",
 	
-    // Loop Table
+        // Loop Table
 	"CREATE TABLE Loops ("
 	"    id INTEGER PRIMARY KEY,"
 	"    linked_object INTEGER," // From LinkedObjects.id
-    "    addr_head INTEGER"
+        "    addr_head INTEGER"
 	");",
 	"CREATE INDEX IndexLoopsByLinkedObject "
 	"  ON Loops (linked_object);",
     
-    // Loop Range Table
+        // Loop Range Table
 	"CREATE TABLE LoopRanges ("
 	"    loop INTEGER," // From Loops.id
 	"    addr_begin INTEGER,"
 	"    addr_end INTEGER,"
 	"    valid_bitmap BLOB"
 	");",
-    "CREATE INDEX IndexLoopRangesByLoop "
+        "CREATE INDEX IndexLoopRangesByLoop "
 	"  ON LoopRanges (loop);",
 	
 	// Statement Table
@@ -176,8 +178,29 @@ namespace {
 	"    addr_end INTEGER,"
 	"    valid_bitmap BLOB"
 	");",
-    "CREATE INDEX IndexStatementRangesByStatement "
+        "CREATE INDEX IndexStatementRangesByStatement "
 	"  ON StatementRanges (statement);",
+	
+        // Vector Instruction Table
+	"CREATE TABLE VectorInstrs ("
+	"    id INTEGER PRIMARY KEY,"
+	"    linked_object INTEGER," // From LinkedObjects.id
+	"    addr_begin INTEGER,"
+	"    addr_end INTEGER,"
+        "    opcode TEXT,"
+        "    max_instr_vl INTEGER"
+	");",
+	"CREATE INDEX IndexVectorInstrsByLinkedObject "
+	"  ON VectorInstrs (linked_object);",
+        // VectorInstr Range Table
+        "CREATE TABLE VectorInstrRanges ("
+        "    vectorinstr INTEGER," // From VectorInstr.id
+        "    addr_begin INTEGER,"
+        "    addr_end INTEGER,"
+        "    valid_bitmap BLOB"
+        ");",
+        "CREATE INDEX IndexVectorInstrRangesByInstr "
+        "  ON VectorInstrRanges (vectorinstr);",
 	
 	// File Table
 	"CREATE TABLE Files ("
@@ -1354,6 +1377,15 @@ void Experiment::removeThread(const Thread& thread) const
 	);
     while(dm_database->executeStatement());
 
+    // Remove unused vector instructions
+    dm_database->prepareStatement(
+        "DELETE FROM VectorInstrs "
+        "WHERE linked_object "
+        "  NOT IN (SELECT DISTINCT linked_object FROM AddressSpaces);"
+        );
+    while(dm_database->executeStatement());
+
+
     // Remove unused files
     dm_database->prepareStatement(
 	"DELETE FROM Files "
@@ -2308,6 +2340,58 @@ void Experiment::updateToVersion7() const
 	
 	// Update the database's schema version number
 	"UPDATE \"Open|SpeedShop\" SET version = 7;",
+
+	// End Of Table Entry
+	NULL
+    };
+
+    // Apply the update procedure
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    for(int i = 0; UpdateProcedure[i] != NULL; ++i) {
+        dm_database->prepareStatement(UpdateProcedure[i]);
+        while(dm_database->executeStatement());
+    }
+    END_TRANSACTION(dm_database);
+}
+
+
+
+/**
+ * Update our schema to version 8.
+ *
+ * Updates the schema of this experiment's database to version 8. Adds vector
+ * instruction tables and indecies and updates the database's schema version number.
+ */
+void Experiment::updateToVersion8() const
+{
+    // Update procedure
+    const char* UpdateProcedure[] = {
+    // create table  VIEWS  ( id INTEGER PRIMARY KEY, view_cmd TEXT DEFAULT NULL,  view_data BLOB DEFAULT NULL); 
+
+        // Vector Instruction Table
+	"CREATE TABLE VectorInstrs ("
+	"    id INTEGER PRIMARY KEY,"
+	"    linked_object INTEGER," // From LinkedObjects.id
+	"    addr_begin INTEGER,"
+	"    addr_end INTEGER,"
+        "    opcode TEXT,"
+        "    max_instr_vl INTEGER"
+	");",
+	"CREATE INDEX IndexVectorInstrsByLinkedObject "
+	"  ON VectorInstrs (linked_object);",
+        // VectorInstr Range Table
+        "CREATE TABLE VectorInstrRanges ("
+        "    vectorinstr INTEGER," // From VectorInstr.id
+        "    addr_begin INTEGER,"
+        "    addr_end INTEGER,"
+        "    valid_bitmap BLOB"
+        ");",
+        "CREATE INDEX IndexVectorInstrRangesByInstr "
+        "  ON VectorInstrRanges (vectorinstr);"
+	");",
+	
+	// Update the database's schema version number
+	"UPDATE \"Open|SpeedShop\" SET version = 8;",
 
 	// End Of Table Entry
 	NULL

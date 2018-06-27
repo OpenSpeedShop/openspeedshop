@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2006-2014 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2006-2018 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -42,7 +42,6 @@
 #include "Statement.hxx"
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
-
-
+#include "VectorInstr.hxx"
 
 #endif

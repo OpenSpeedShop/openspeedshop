@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2013,2014 The Krell Institue. All Rights Reserved.
+// Copyright (c) 2013-2018 The Krell Institue. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -67,9 +67,10 @@ namespace OpenSpeedShop { namespace Framework {
 	SymbolTable(const AddressRange&);
 	
 	void addFunction(const Address&, const Address&, const std::string&);
-    void addLoop(const Address&, const Address&, const Address&);
+        void addLoop(const Address&, const Address&, const Address&);
 	void addStatement(const Address&, const Address&,
 			  const Path&, const int&, const int&);
+	void addVectorInstr(const Address&, const int32_t&, const int32_t&, const std::string&);
 	
 	void processAndStore(const LinkedObject&);
 
@@ -151,11 +152,41 @@ namespace OpenSpeedShop { namespace Framework {
 
 	};
 
+	/**
+	 * Vector Instruction entry.
+	 *
+	 * Structure for a vector instruction entry in the symbol table's
+	 * internal tables. Contains the instruction op-code, maximum 
+         * physical instruction vector length, and the actual vector length
+         * used (deferred implementation).
+	 */
+	struct VectorInstrEntry
+	{
+	    
+	    std::string dm_instr_opcode; /**< This vector instructions opcode renderred for string viewing */
+	    int dm_max_instr_vl;    /**< Maximum hardware instruction vector length value. */
+	    int dm_actual_vl;       /**< Actual vector length for this instruction detected by O|SS */
+
+	    /** Constructor from fields. */
+	    VectorInstrEntry(const std::string& vopcode, 
+			   const int& max_vinstr_vl, 
+			   const int& actual_vinstr_vl) :
+		dm_instr_opcode(vopcode),
+		dm_max_instr_vl(max_vinstr_vl),
+		dm_actual_vl(actual_vinstr_vl)
+	    {
+	    }
+        };
+	    
+
     /** Loops in this symbol table. */
     std::map<Address, std::vector<AddressRange> > dm_loops;
 	
-	/** Statements in this symbol table. */
-	std::map<StatementEntry, std::vector<AddressRange> > dm_statements;
+    /** Statements in this symbol table. */
+    std::map<StatementEntry, std::vector<AddressRange> > dm_statements;
+
+    /** Vector Instructions in this symbol table. */
+    std::map<Address, VectorInstrEntry > dm_vectorInstrs;
 	
     };
 

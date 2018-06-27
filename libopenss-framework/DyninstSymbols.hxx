@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2013,2014 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2013-2018 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -50,7 +50,8 @@ namespace OpenSpeedShop { namespace Framework {
      */
     namespace DyninstSymbols {
 
-        void getLoops(std::set<Address>&, const LinkedObject&, SymbolTableMap&);
+	void getLoops(std::set<Address>&, const LinkedObject&, SymbolTableMap&);
+	void getVectorInstrs(std::set<Address>&, const LinkedObject&, SymbolTableMap&);
         
     }
     

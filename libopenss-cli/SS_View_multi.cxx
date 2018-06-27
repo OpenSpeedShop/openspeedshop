@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2018 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -19,7 +19,7 @@
 
 
 #include "SS_Input_Manager.hxx"
-//#define DEBUG_CLI_print 1
+/* #define DEBUG_CLI_print 1 */
 
 template <class T>
 struct sort_ascending_CommandResult : public std::binary_function<T,T,bool> {
@@ -520,7 +520,7 @@ static void Setup_Sort(
     if (vinst->OpCode() == VIEWINST_Display_Tmp) {
 
 #if DEBUG_CLI_print
-      printf("in Setup_Sort, VIEWINST_Display_Tmp %d\n",vinst->TMP1());
+      printf("in Setup_Sort, aa VIEWINST_Display_Tmp %d, (V1!=NULL)=%d\n",vinst->TMP1(), V1 != NULL);
 #endif
 
       if (V1 == NULL) {
@@ -1210,7 +1210,8 @@ bool Generic_Multi_View (
            std::list<CommandResult *>& view_output) {
   bool success = false;
 #if DEBUG_CLI
-  std::cerr << "Enter Generic_Multi_View, in SS_View_multi.cxx, begin calling Print_View_Params" << std::endl;
+  std::cerr << "Enter Generic_Multi_View, in SS_View_multi.cxx, vfc=" << vfc 
+            << " begin calling Print_View_Params" << std::endl;
   Print_View_Params (std::cerr, CV,MV,IV);
   std::cerr << "\nEnter Generic_Multi_View, in SS_View_multi.cxx, c_items.size()= " << c_items.size() << "\n";
   std::cerr << "\nDump items.  Number of items is " << c_items.size() << "\n";
@@ -1484,6 +1485,8 @@ TEST */
        EO_Title = "Function (defining location)";
      } else if (vfc == VFC_Loop) {
        EO_Title = "Loop Start Location (Line Number)";
+     } else if (vfc == VFC_VectorInstr) {
+       EO_Title = "Vector Instr Location (Line Number/Addr : OpCode  : Max Operand Size (bits))";
      } else if (vfc == VFC_Statement) {
        EO_Title = "Statement Location (Line Number)";
      } else if (vfc == VFC_LinkedObject) {

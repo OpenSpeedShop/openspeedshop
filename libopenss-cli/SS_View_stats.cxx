@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2018 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -25,7 +25,8 @@ enum View_Granularity {
   VIEW_FUNCTIONS,
   VIEW_STATEMENTS,
   VIEW_LINKEDOBJECTS,
-  VIEW_LOOPS
+  VIEW_LOOPS,
+  VIEW_VECTORINSTRS
 };
 
 template <class T>
@@ -432,6 +433,8 @@ static std::string allowed_stats_V_options[] = {
   "Statements",
   "Loop",
   "Loops",
+  "VectorInstr",
+  "VectorInstrs",
   "Summary",
   "data",   	// Raw data output for scripting
   ""
@@ -483,6 +486,7 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
   std::vector<std::pair<Statement, CommandResult *> > s_items;
   std::vector<std::pair<Loop, CommandResult *> > loop_items;
   std::vector<std::pair<LinkedObject, CommandResult *> > l_items;
+  std::vector<std::pair<VectorInstr, CommandResult *> > vinstr_items;
   int64_t i;
   if (topn == 0) topn = INT_MAX;
 
@@ -532,6 +536,9 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
     } else if (Look_For_KeyWord(cmd, "Loop") ||
                Look_For_KeyWord(cmd, "Loops")) {
       vg = VIEW_LOOPS;
+    } else if (Look_For_KeyWord(cmd, "VectorInstr") ||
+               Look_For_KeyWord(cmd, "VectorInstrs")) {
+      vg = VIEW_VECTORINSTRS;
     }
 
    // Acquire base set of metric values.
@@ -577,7 +584,21 @@ bool Generic_View (CommandObject *cmd, ExperimentObject *exp, int64_t topn,
         loop_items.erase ( (loop_items.begin() + topn), loop_items.end());
       }
       topn = (int64_t)loop_items.size();
-      EO_Title = "Loop Definition Location (Line Number)";
+      EO_Title = "Loop Definition Location (Line Number/Addr)";
+      break;
+     }
+     case VIEW_VECTORINSTRS: {
+#if DEBUG_CLI
+  printf("In Generic_View, VIEW_VECTORINSTRS case block \n");
+#endif
+      std::set<VectorInstr> vinstr_objects;
+      Get_Filtered_Objects (cmd, exp, tgrp, vinstr_objects);
+      first_column_found = First_Column (cmd, exp, tgrp, CV, MV, IV, vinstr_objects, vinstr_items);
+      if (topn < (int64_t)vinstr_items.size()) {
+        vinstr_items.erase ( (vinstr_items.begin() + topn), vinstr_items.end());
+      }
+      topn = (int64_t)vinstr_items.size();
+      EO_Title = "Vector Instr Definition Location (Line Number/Addr : OpCode  : Max Operand Size (bits))";
       break;
      }
      default: {

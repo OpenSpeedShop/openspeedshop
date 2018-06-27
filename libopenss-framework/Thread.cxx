@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2007-2014 The Krell Institute. All Rights Reserved.
 // Copyright (c) 2008 William Hachfeld. All Rights Reserved.
+// Copyright (c) 2007-2018 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -34,6 +34,7 @@
 #include "Statement.hxx"
 #include "Thread.hxx"
 #include "ThreadGroup.hxx"
+#include "VectorInstr.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
@@ -473,6 +474,58 @@ std::set<Statement> Thread::getStatements() const
 
     // Return the statements to the caller
     return statements;
+}
+
+
+
+/**
+ * Get our vector instructions.
+ *
+ * Returns the vector instructions contained within this thread. An empty set is returned
+ * if no vector instructions are found.
+ *
+ * @return    vector instructions contained within this thread.
+ */
+std::set<VectorInstr> Thread::getVectorInstrs() const
+{
+    std::set<VectorInstr> vectorInstructions;
+
+    // Note: This query could be, and in fact used to be, implemented in a
+    //       more concise manner as:
+    //
+    //       SELECT VectorInstrs.id
+    //       FROM VectorInstrs
+    //         JOIN AddressSpaces
+    //       ON VectorInstrs.linked_object = AddressSpaces.linked_object
+    //       WHERE AddressSpaces.thread = <dm_entry>
+    //
+    //       However the implementation below was found to be quite a bit
+    //       faster.
+
+    // Find our linked objects
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+	"SELECT linked_object FROM AddressSpaces WHERE thread = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement()) {
+	int linked_object = dm_database->getResultAsInteger(1);
+	
+	// Find all the vector instructions in this linked object
+	dm_database->prepareStatement(
+	    "SELECT id FROM VectorInstrs WHERE linked_object = ?;"
+	    );
+	dm_database->bindArgument(1, linked_object);
+	while(dm_database->executeStatement())
+	    vectorInstructions.insert(VectorInstr(dm_database,
+					dm_database->getResultAsInteger(1)));
+	
+    }
+    END_TRANSACTION(dm_database);
+
+    // Return the vector instructions to the caller
+    return vectorInstructions;
 }
 
 

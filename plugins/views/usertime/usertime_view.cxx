@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute. All Rights Reserved.
+** Copyright (c) 2006-2018 Krell Institute. All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -107,6 +107,8 @@ static std::string allowed_usertime_V_options[] = {
   "Statements",
   "Loop",
   "Loops",
+  "VectorInstr",
+  "VectorInstrs",
   "ButterFly",
   "CallTree",
   "CallTrees",
@@ -447,6 +449,7 @@ static std::string VIEW_usertime_long  =
                   "\n\t'-v LinkedObjects' will report times by linked object."
                   "\n\t'-v Statements' will report times by statement."
                   "\n\t'-v Loops' will report times by loop."
+                  "\n\t'-v VectorInstrs' will report times by vector instruction (Intel processor only)."
                   "\n\t'-v Functions' will report times by function. This is the default."
                   " will be sorted in descending order of the value in the left most"
                   " column (see the '-m' option).  This is the default display."
@@ -562,6 +565,12 @@ class usertime_view : public ViewType {
         Loop *loopp;
         return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                    Determine_Metric_Ordering(IV), loopp, vfc, dummyDetail, view_output);
+
+       case VFC_VectorInstr:
+        VectorInstr *vinstr;
+        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                   Determine_Metric_Ordering(IV), vinstr, vfc, dummyDetail, view_output);
+
       }
       Mark_Cmd_With_Soft_Error(cmd, "(We could not determine which format to use for the report.)");
       return false;
