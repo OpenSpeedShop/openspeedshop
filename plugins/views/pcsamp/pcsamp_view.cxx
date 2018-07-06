@@ -181,7 +181,9 @@ static bool define_pcsamp_columns (
         // Ignore this because cview -c 3 -c 5 -mtime,absdiff actually works outside of this view code
         //Mark_Cmd_With_Soft_Error(cmd,"AbsDiff option, '-m " + M_Name + "'");
 
-      } else if (!strcasecmp(M_Name.c_str(), "vi") ||
+      } else if (!strcasecmp(M_Name.c_str(), "vi")  ||
+                 !strcasecmp(M_Name.c_str(), "vectorinstr")  ||
+                 !strcasecmp(M_Name.c_str(), "vectorinstrs")  ||
                  !strcasecmp(M_Name.c_str(), "vis")) {
 
         // FIXME JEG - need a way to get the vector instruction times per function into this vitime_temp
@@ -193,6 +195,8 @@ static bool define_pcsamp_columns (
         HV.push_back("VectorInstr Time");
        
       } else if (!strcasecmp(M_Name.c_str(), "vipercent") ||
+                 !strcasecmp(M_Name.c_str(), "vectorinstrpercent") ||
+                 !strcasecmp(M_Name.c_str(), "vectorinstrspercent") ||
                  !strcasecmp(M_Name.c_str(), "vispercent")) {
         IV.push_back(new ViewInstruction (VIEWINST_Define_Total_Tmp, totalIndex, vitime_temp));
         IV.push_back(new ViewInstruction (VIEWINST_Display_Percent_Tmp, last_column++, vitime_temp, totalIndex++));
