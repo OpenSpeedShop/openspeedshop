@@ -159,12 +159,6 @@ static bool define_pcsamp_columns (
         M_Name = m_range->start_range.name;
       }
 
-      std::cerr << "--------------------------------before listing metrics pcsamp view" << std::endl;
-      std::cerr << "M_Name=" << M_Name << " C_Name=" << C_Name << std::endl;
-      std::cerr << "(*mi).getParseType()=" << (*mi).getParseType() << " last_used_temp=" << last_used_temp 
-                << " vitime_temp=" << vitime_temp << std::endl;
-      std::cerr << "--------------------------------after listing metrics pcsamp view" << std::endl;
-
       if (!strcasecmp(M_Name.c_str(), "time") ||
           !strcasecmp(M_Name.c_str(), "times")) {
         IV.push_back(new ViewInstruction (VIEWINST_Display_Tmp, last_column++, extime_temp));
