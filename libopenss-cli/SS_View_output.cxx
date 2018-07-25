@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2018 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -18,6 +18,7 @@
 *******************************************************************************/
 
 
+/*#define DEBUG_CLI 1 */
 #include "SS_Input_Manager.hxx"
 
 static void Accumulate_PreDefined_Temps (std::vector<ViewInstruction *>& IV,
@@ -70,7 +71,7 @@ void Construct_View_Output (CommandObject *cmd,
                                                   SmartPtr<std::vector<CommandResult *> > > >& items,
                             std::list<CommandResult *>& view_output ) {
 #if DEBUG_CLI
-  printf("Enter Construct_View_Output, before calling Print_View_Params\n");
+  printf("Enter Construct_View_Output, SS_View_output.cxx, before calling Print_View_Params\n");
   Print_View_Params (std::cerr, CV,MV,IV);
   printf("Enter Construct_View_Output, after calling Print_View_Params\n");
 #endif

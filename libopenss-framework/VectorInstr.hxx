@@ -18,22 +18,19 @@
 
 /** @file
  *
- * Declaration of the Loop class.
+ * Declaration of the VectorInstr class.
  *
  */
 
-#ifndef _OpenSpeedShop_Framework_Loop_
-#define _OpenSpeedShop_Framework_Loop_
+#ifndef _OpenSpeedShop_Framework_VectorInstr_
+#define _OpenSpeedShop_Framework_VectorInstr_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include "Entry.hxx"
-
 #include <set>
-
-
 
 namespace OpenSpeedShop { namespace Framework {
 
@@ -41,34 +38,35 @@ namespace OpenSpeedShop { namespace Framework {
     class Experiment;
     class ExtentGroup;
     class Function;
+    class Loop;
     class LoopCache;
     class LinkedObject;
     template <typename> class SmartPtr;
     class Statement;
     class Thread;
     class ThreadGroup;
-    class VectorInstr;
     
     /**
-     * Source code loop.
+     * Source code vector instruction augmentation.
      *
-     * Representation of a source code loop. Provides member functions for
-     * requesting information about this loop, where it is contained, and what
-     * it contains.
+     * Representation of a source code statement that is executing vector instructions. 
+     * Provides member functions for requesting information about this statement, 
+     * where it is located, and what it contains.
      *
      * @ingroup CollectorAPI ToolAPI
      */
-    class Loop :
+    class VectorInstr :
 	public Entry
     {
 	friend class Experiment;
 	friend class Function;
+	friend class Loop;
 	friend class LoopCache;
 	friend class LinkedObject;
 	friend class Statement;
 	friend class Thread;
 	friend class ThreadGroup;
-	friend class VectorInstr;
+	friend class VectorInstrCache;
         
     public:
 	
@@ -77,23 +75,24 @@ namespace OpenSpeedShop { namespace Framework {
 	LinkedObject getLinkedObject() const;
 
 	std::set<Statement> getDefinitions() const;
+	int getMaxOperandSize() const;
+	std::string getOpCode() const;
+
 	std::set<Function> getFunctions() const;
 	std::set<Statement> getStatements() const;
-	std::set<VectorInstr> getVectorInstrs() const;
+	std::set<Loop> getLoops() const;
                 
     private:
         
-	static LoopCache TheCache;
+	static VectorInstrCache TheCache;
         
-	Loop();
-	Loop(const SmartPtr<Database>&, const int&);
+	VectorInstr();
+	VectorInstr(const SmartPtr<Database>&, const int&);
 
 	void getLinkedObjectAndExtent(LinkedObject&, ExtentGroup&) const;
         
     };
         
 } }
-
-
 
 #endif

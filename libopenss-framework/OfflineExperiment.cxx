@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2008-2017 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2008-2018 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -1392,25 +1392,32 @@ void OfflineExperiment::createOfflineSymbolTable()
     // BFD_SYMBOLS
 #endif
 
-
     for(std::set<LinkedObject>::const_iterator j = ttgrp_lo.begin();
 					       j != ttgrp_lo.end(); ++j) {
 	LinkedObject lo = (*j);
 	std::cerr << "Resolving symbols for " << lo.getPath() << std::endl;
+
 #if defined(OPENSS_USE_SYMTABAPI)
     // Note that DyninstSymbols::getLoops() must be called before calling
     // SymtabAPISymbols::getSymbols(). This is because getLoops() updates
     // unique_addresses with the head address of every loop so that later
     // getSymbols() will get the statement containing these addresses.
+
 #if defined(HAVE_DYNINST)
+
+	// Look for vector instructions that correspond to the sampled addresses
+	// Current focus is on AVX512 detection and reporting
+	DyninstSymbols::getVectorInstrs(unique_addresses, lo, symtabmap);
+
 	//std::cerr << Time::Now() << " Resolve loop addresses" << std::endl;
-        if ( (getenv("OPENSS_NO_LOOPS") != NULL)) {
-            std::stringstream output;
-            output << "Skipping loop analysis due to the environment variable: OPENSS_NO_LOOPS is set" << std::endl;
-                    std::cerr << output.str();
-        } else {
+	if ( (getenv("OPENSS_NO_LOOPS") != NULL)) {
+	    std::stringstream output;
+	    output << "Skipping loop analysis due to the environment variable: OPENSS_NO_LOOPS is set" 
+		   << std::endl;
+		std::cerr << output.str();
+	} else {
 	    DyninstSymbols::getLoops(unique_addresses, lo, symtabmap);
-        } 
+	} 
 
 	//std::cerr << Time::Now() << " Done with loops addresses" << std::endl;
 #endif

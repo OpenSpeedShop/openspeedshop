@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2013 Krell Institute. All Rights Reserved.
+// Copyright (c) 2013-2018 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -50,6 +50,7 @@ namespace OpenSpeedShop { namespace Framework {
     class StatementCache;
     class Thread;
     class ThreadGroup;
+    class VectorInstr;
     
     /**
      * Source code statement.
@@ -61,37 +62,39 @@ namespace OpenSpeedShop { namespace Framework {
      * @ingroup CollectorAPI ToolAPI
      */
     class Statement :
-        public Entry
+	public Entry
     {
-        friend class Experiment;
-        friend class Function;
-        friend class LinkedObject;
-        friend class Loop;
-        friend class StatementCache;
-        friend class Thread;
-        friend class ThreadGroup;
+	friend class Experiment;
+	friend class Function;
+	friend class LinkedObject;
+	friend class Loop;
+	friend class StatementCache;
+	friend class Thread;
+	friend class ThreadGroup;
+	friend class VectorInstr;
 	
     public:
 
-        std::set<Thread> getThreads() const;
-        ExtentGroup getExtentIn(const Thread&) const;
-        LinkedObject getLinkedObject() const;
+	std::set<Thread> getThreads() const;
+	ExtentGroup getExtentIn(const Thread&) const;
+	LinkedObject getLinkedObject() const;
 
-        Path getPath() const;
-        int getLine() const;
-        int getColumn() const;
+	Path getPath() const;
+	int getLine() const;
+	int getColumn() const;
 
-        std::set<Function> getFunctions() const;
-        std::set<Loop> getLoops() const;
+	std::set<Function> getFunctions() const;
+	std::set<Loop> getLoops() const;
+	std::set<VectorInstr> getVectorInstrs() const;
         
     private:
         
-        static StatementCache TheCache;
+	static StatementCache TheCache;
         
-        Statement();
-        Statement(const SmartPtr<Database>&, const int&);
+	Statement();
+	Statement(const SmartPtr<Database>&, const int&);
 
-        void getLinkedObjectAndExtent(LinkedObject&, ExtentGroup&) const;
+	void getLinkedObjectAndExtent(LinkedObject&, ExtentGroup&) const;
         
     };
         

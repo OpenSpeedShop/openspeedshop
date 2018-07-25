@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2013 Krell Institute. All Rights Reserved.
+// Copyright (c) 2013-2018 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -53,6 +53,8 @@ namespace OpenSpeedShop { namespace Framework {
     class StatementCache;
     class Thread;
     class ThreadGroup;
+    class VectorInstr;
+    class VectorInstrCache;
     
     /**
      * Linked object.
@@ -64,37 +66,40 @@ namespace OpenSpeedShop { namespace Framework {
      * @ingroup CollectorAPI ToolAPI
      */
     class LinkedObject :
-        public Entry
+	public Entry
     {
-        friend class AddressSpace;
-        friend class Experiment;
-        friend class Function;
-        friend class FunctionCache;
-        friend class Loop;
-        friend class LoopCache;
-        friend class Statement;
-        friend class StatementCache;
-        friend class Thread;
-        friend class ThreadGroup;
+	friend class AddressSpace;
+	friend class Experiment;
+	friend class Function;
+	friend class FunctionCache;
+	friend class Loop;
+	friend class LoopCache;
+	friend class Statement;
+	friend class StatementCache;
+	friend class Thread;
+	friend class ThreadGroup;
+	friend class VectorInstr;
+	friend class VectorInstrCache;
 	
     public:
 
-        std::set<Thread> getThreads() const;
-        ExtentGroup getExtentIn(const Thread&) const;
+	std::set<Thread> getThreads() const;
+	ExtentGroup getExtentIn(const Thread&) const;
 	
-        Path getPath() const;
-        bool isExecutable() const;
+	Path getPath() const;
+	bool isExecutable() const;
 	
-        std::set<Function> getFunctions() const;
-        std::set<Loop> getLoops() const;
-        std::set<Statement> getStatements() const;
+	std::set<Function> getFunctions() const;
+	std::set<Loop> getLoops() const;
+	std::set<VectorInstr> getVectorInstrs() const;
+	std::set<Statement> getStatements() const;
 
-        std::set<AddressRange> getAddressRange() const;
+	std::set<AddressRange> getAddressRange() const;
         
     private:
 
-        LinkedObject();
-        LinkedObject(const SmartPtr<Database>&, const int&);
+	LinkedObject();
+	LinkedObject(const SmartPtr<Database>&, const int&);
         
     };
     

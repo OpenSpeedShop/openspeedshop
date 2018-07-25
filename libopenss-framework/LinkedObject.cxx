@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2013 Krell Institute. All Rights Reserved.
+// Copyright (c) 2013-2018 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -33,6 +33,7 @@
 #include "Path.hxx"
 #include "Statement.hxx"
 #include "Thread.hxx"
+#include "VectorInstr.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
@@ -276,6 +277,34 @@ std::set<Statement> LinkedObject::getStatements() const
     
     // Return the statements to the caller
     return statements;
+}
+
+
+/**
+ * Get our vector instructions.
+ *
+ * Returns the vector instructions contained within this linked object. An empty set is
+ * returned if no vector instructions are found within this linked object.
+ *
+ * @return    Vector instructions contained within this linked object.
+ */
+std::set<VectorInstr> LinkedObject::getVectorInstrs() const
+{
+    std::set<VectorInstr> vectorInstructions;
+    
+    // Find our vector instructions
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+        "SELECT id FROM VectorInstrs WHERE linked_object = ?;"
+        );	
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+        vectorInstructions.insert(VectorInstr(dm_database, dm_database->getResultAsInteger(1)));
+    END_TRANSACTION(dm_database);
+    
+    // Return the VectorInstrs to the caller
+    return vectorInstructions;
 }
 
 

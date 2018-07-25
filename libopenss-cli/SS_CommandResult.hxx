@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2018 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -40,15 +40,16 @@ enum cmd_result_type_enum {
 /* 8 */  CMD_RESULT_STATEMENT,
 /* 9 */  CMD_RESULT_LINKEDOBJECT,
 /* 10 */ CMD_RESULT_LOOP,
-/* 11 */ CMD_RESULT_CALLTRACE,
-/* 12 */ CMD_RESULT_TIME,
+/* 11 */ CMD_RESULT_VECTORINSTR,
+/* 12 */ CMD_RESULT_CALLTRACE,
+/* 13 */ CMD_RESULT_TIME,
 /* 13 */ CMD_RESULT_DURATION,
-/* 14 */ CMD_RESULT_INTERVAL,
-/* 15 */ CMD_RESULT_TITLE,
-/* 16 */ CMD_RESULT_COLUMN_HEADER,
-/* 17 */ CMD_RESULT_COLUMN_VALUES,
-/* 18 */ CMD_RESULT_COLUMN_ENDER,
-/* 19 */ CMD_RESULT_EXTENSION,
+/* 15 */ CMD_RESULT_INTERVAL,
+/* 16 */ CMD_RESULT_TITLE,
+/* 17 */ CMD_RESULT_COLUMN_HEADER,
+/* 18 */ CMD_RESULT_COLUMN_VALUES,
+/* 19 */ CMD_RESULT_COLUMN_ENDER,
+/* 20 */ CMD_RESULT_EXTENSION,
 };
 
 class PrintControl {
@@ -966,6 +967,198 @@ class CommandResult_Loop :
       S += ")";
 
     }
+    return S;
+  }
+
+
+  virtual PyObject * pyValue () {
+    std::string S = Form (OPENSS_VIEW_FIELD_SIZE);
+    return Py_BuildValue("s", S.c_str());
+  }
+
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
+    std::string string_value = Form (fieldsize);
+    if (fieldsize == 0) fieldsize = string_value.length();
+    if (leftjustified) {
+     // Left justification is only done on the last column of a report.
+     // Don't truncate the string if it is bigger than the field size.
+     // This is done to make sure everything gets printed.
+
+      to << std::setiosflags(std::ios::left) << string_value;
+
+     // If there is unused space in the field, pad with blanks.
+      if ((string_value.length() < fieldsize) &&
+          (string_value[string_value.length()-1] != *("\n"))) {
+        for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";
+      }
+
+    } else {
+     // Right justify the string in the field.
+     // Don't let it exceed the size of the field.
+     // Also, limit the size based on our internal buffer size.
+      to << std::setiosflags(std::ios::right) << std::setw(fieldsize)
+         << ((string_value.length() <= fieldsize) ? string_value : string_value.substr(0, fieldsize));
+    }
+  }
+};
+
+
+class CommandResult_VectorInstr :
+     public CommandResult,
+     public VectorInstr {
+  std::set<Statement> ST;
+  int64_t Line;    // Line number of first statement in set.
+  int64_t Column;  // Column number of first statement in set.
+
+ public:
+
+  CommandResult_VectorInstr (VectorInstr VI) :
+       Framework::VectorInstr(VI),
+       CommandResult(CMD_RESULT_VECTORINSTR) {
+    Line = 0;
+    Column = 0;
+  }
+
+  CommandResult_VectorInstr  (VectorInstr VI, std::set<Statement>& st) :
+       Framework::VectorInstr(VI),
+       CommandResult(CMD_RESULT_VECTORINSTR) {
+    ST = st;
+    Line = 0;
+    Column = 0;
+    if (ST.begin() != ST.end()) {
+      std::set<Statement>::const_iterator STi = ST.begin();
+      Line = (int64_t)((*STi).getLine());
+      Column = (int64_t)((*STi).getColumn());
+    }
+  }
+  CommandResult_VectorInstr  (CommandResult_VectorInstr *VI) :
+       Framework::VectorInstr(*VI),
+       CommandResult(CMD_RESULT_VECTORINSTR) {
+    ST = VI->ST;
+    Line = VI->Line;
+    Column = VI->Column;
+    if (VI->IsValueID()) SetValueIsID();
+  }
+  virtual ~CommandResult_VectorInstr () { }
+
+  virtual CommandResult *Copy () { return new CommandResult_VectorInstr (this); }
+  virtual bool LT (CommandResult *A) {
+    if (A->Type() != CMD_RESULT_VECTORINSTR) {
+      Assert (A->Type() == CMD_RESULT_CALLTRACE);
+      return A->GT(this);
+    }
+    return OpenSpeedShop::Queries::CompareVectorInstrs()(*this,
+                                                  *((CommandResult_VectorInstr *)A),
+                                                   OPENSS_LESS_RESTRICTIVE_COMPARISONS); }
+  virtual bool GT (CommandResult *A) {
+    if (A->Type() != CMD_RESULT_VECTORINSTR) {
+      Assert (A->Type() == CMD_RESULT_CALLTRACE);
+      return A->LT(this);
+    }
+    if (OpenSpeedShop::Queries::CompareVectorInstrs()(*((CommandResult_VectorInstr *)A),
+                                               *this,
+                                               OPENSS_LESS_RESTRICTIVE_COMPARISONS)) {
+      return true;
+    }
+    if (OpenSpeedShop::Queries::CompareVectorInstrs()(*this,
+                                               *((CommandResult_VectorInstr *)A),
+                                               OPENSS_LESS_RESTRICTIVE_COMPARISONS)) {
+      return false;
+    }
+    int64_t Ls = Line;
+    int64_t Rs = (int64_t)(((CommandResult_VectorInstr *)A)->getLine());
+    return (Ls > Rs);
+  }
+
+  void Value (std::set<Statement>& st) {
+    st = ST;
+  }
+  int64_t getLine () {
+    return Line;
+  }
+  int64_t getColumn () {
+    return Column;
+  }
+
+  virtual std::string Form (int64_t fieldsize) {
+    std::string S = "";
+    std::string Sfile = "";
+    std::set<Statement> DEF = getDefinitions();
+    std::string OPCODE = getOpCode();
+    char vl[50];
+    int MACHINE_VL = getMaxOperandSize();
+    std::set<Statement>::const_iterator s = DEF.begin();
+    // There are no statements associated with the vector instruction, at least in the symbol information.
+    // See if we can put out the function name and if not then the linked object name with
+    // the address of the vector instruction.
+
+    std::set<Function> thisFunction = getFunctions();
+    std::set<Function>::const_iterator f = thisFunction.begin();
+    std::string Fname = "";
+    if ( ! thisFunction.empty() ) {
+      Fname = f->getName();
+#if DEBUG_CLI
+      if ( Fname.size() ) {
+         std::cerr << "SS_CommandResult_VectorInstr, Form, Function was found, Fname=" << Fname << std::endl;
+      }
+#endif
+    }
+
+    //std::cerr << "Function for null vector instruction is not defined?" << std::endl;
+    LinkedObject thisLinkedObject = getLinkedObject();
+    std::string linkedOname = ((OPENSS_VIEW_FULLPATH) ? thisLinkedObject.getPath() : thisLinkedObject.getPath().getBaseName());
+
+#if DEBUG_CLI
+    std::cerr << "SS_CommandResult_VectorInstr, Form, We have a linked object=" << linkedOname << std::endl;
+#endif
+
+    // Get the thread that the vector instr is in then use that to get
+    // the address range and print out the beginning address
+    // for the vector instr within the linked object file.
+
+    std::set<Thread> vinstr_threads = getThreads();
+    std::set<Thread>:: iterator ti = vinstr_threads.begin();
+    Thread t = *ti;
+    AddressRange ar = getExtentIn(t).getBounds().getAddressRange();
+    std::stringstream ssa;
+    ssa << ar.getBegin();
+    S += ssa.str();
+    S += " (";
+    if ( Fname.size() ) {
+      S += Fname;
+      S += " : ";
+    }
+    S += linkedOname;
+    S += ")";
+
+    if ( ! DEF.empty()) {
+      int64_t gotLine = (int64_t)s->getLine();
+      int64_t gotColumn = (int64_t)s->getColumn();
+      char l[50];
+      if (gotColumn > 0) {
+        sprintf( &l[0], "%lld:%lld", static_cast<long long int>(gotLine),
+                 static_cast<long long int>(gotColumn));
+      } else {
+        sprintf( &l[0], "%lld", static_cast<long long int>(gotLine));
+      }
+
+      Sfile = (OPENSS_VIEW_FULLPATH) ? s->getPath() : s->getPath().getBaseName();
+      Sfile = Sfile + "(" + std::string(l) + ")";
+      S = S + " : " + Sfile ;
+    } 
+    if ( ! OPCODE.empty()) {
+      S = S + " : " + OPCODE ;
+    }
+    if ( MACHINE_VL) {
+      sprintf( &vl[0], "%lld", static_cast<long long int>(MACHINE_VL * 8));
+      S = S + " : " + vl ;
+    }
+
     return S;
   }
 
@@ -2072,6 +2265,7 @@ inline CommandResult *CRPTR (std::string& V) { return new CommandResult_String (
 inline CommandResult *CRPTR (Function& V) { return new CommandResult_Function (V); }
 inline CommandResult *CRPTR (Statement& V) { return new CommandResult_Statement (V); }
 inline CommandResult *CRPTR (Loop& V) { return new CommandResult_Loop (V); }
+inline CommandResult *CRPTR (VectorInstr& V) { return new CommandResult_VectorInstr (V); }
 inline CommandResult *CRPTR (LinkedObject& V) { return new CommandResult_LinkedObject (V); }
 inline CommandResult* CRPTR (Time& V) { return new CommandResult_Time (V); }
 

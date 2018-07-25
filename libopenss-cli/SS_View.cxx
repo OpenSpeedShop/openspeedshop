@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2018 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -608,7 +608,8 @@ bool SS_Generate_View (CommandObject *cmd, ExperimentObject *exp, std::string vi
 
 #if DEBUG_REUSEVIEWS
     // Print out how long it took the view to be generated
-    std::cerr << "In Print_Results, ((svi->EndTime()-svi->StartTime())/1000000000)=" << ((svi->EndTime()-svi->StartTime())/1000000000)
+    std::cerr << "In SS_Generate_View in SS_View.cxx, ((svi->EndTime()-svi->StartTime())/1000000000)=" 
+              << ((svi->EndTime()-svi->StartTime())/1000000000)
               << " OPENSS_SAVE_VIEWS_TIME=" << OPENSS_SAVE_VIEWS_TIME << std::endl;
 #endif
 

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2013 Krell Institute. All Rights Reserved.
+// Copyright (c) 2013-2018 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -171,19 +171,21 @@ std::string Entry::getTable() const
 {
     switch(dm_table) {
     case Collectors:
-        return "Collectors";
+	return "Collectors";
     case Functions:
-        return "Functions";
+	return "Functions";
     case LinkedObjects:
-        return "LinkedObjects";
+	return "LinkedObjects";
     case Loops:
-        return "Loops";
+	return "Loops";
     case Statements:
-        return "Statements";
+	return "Statements";
     case Threads:
-        return "Threads";
+	return "Threads";
+    case VectorInstrs:
+	return "VectorInstrs";
     default:
-        return "";
+	return "";
     }
 }
 

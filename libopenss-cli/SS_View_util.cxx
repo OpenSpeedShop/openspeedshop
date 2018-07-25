@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2018 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -174,6 +174,22 @@ void GetMetricByObjectSet (CommandObject *cmd,
 }
 
 
+void GetMetricByObjectSet (CommandObject *cmd,
+                           ExperimentObject *exp,
+                           ThreadGroup& tgrp,
+                           Collector& collector,
+                           std::string& metric,
+                           std::set<VectorInstr>& objects,
+                           SmartPtr<std::map<VectorInstr, CommandResult *> >& items) {
+#if DEBUG_CLI
+  printf("Enter GetMetricByObjectSet5 - SS_View_util.cxx, metric=%s\n", metric.c_str());
+#endif
+  GetMetricBySet (cmd, exp, tgrp, collector, metric, objects, items);
+#if DEBUG_CLI
+  printf("Exit GetMetricByObjectSet5 - SS_View_util.cxx, metric=%s, objects.size()=%d\n", metric.c_str(), objects.size());
+#endif
+}
+
 template <typename TE>
 bool GetAllReducedMetrics(
                        CommandObject *cmd,
@@ -309,6 +325,20 @@ bool GetReducedMetrics(CommandObject *cmd,
                        std::vector<SmartPtr<std::map<Loop, CommandResult *> > >& Values) {
 #if DEBUG_CLI
   printf("Enter GetReducedMetrics4  - SS_View_util.cxx\n");
+#endif
+  return GetAllReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Values);
+}
+
+bool GetReducedMetrics(CommandObject *cmd,
+                       ExperimentObject *exp,
+                       ThreadGroup& tgrp,
+                       std::vector<Collector>& CV,
+                       std::vector<std::string>& MV,
+                       std::vector<ViewInstruction *>& IV,
+                       std::set<VectorInstr>& objects,
+                       std::vector<SmartPtr<std::map<VectorInstr, CommandResult *> > >& Values) {
+#if DEBUG_CLI
+  printf("Enter GetReducedMetrics5  - SS_View_util.cxx\n");
 #endif
   return GetAllReducedMetrics (cmd, exp, tgrp, CV, MV, IV, objects, Values);
 }
@@ -728,6 +758,11 @@ static void Merge_LinkedObject_Into_Objects (std::set<LinkedObject>& named_linke
 }
 
 static void Merge_LinkedObject_Into_Objects (std::set<LinkedObject>& named_linkedobjects,
+                                             std::set<VectorInstr>& objects) {
+ // This routine should never be called.
+}
+
+static void Merge_LinkedObject_Into_Objects (std::set<LinkedObject>& named_linkedobjects,
                                              std::set<Function>& objects) {
  // This routine should never be called.
 }
@@ -756,6 +791,21 @@ static void Get_Objects_By_Function (std::set<Function>& named_functions,
     std::set<Loop> l = f.getLoops();
     if (!l.empty()) {
       objects.insert (l.begin(), l.end());
+    }
+  }
+}
+
+static void Get_Objects_By_Function (std::set<Function>& named_functions,
+                                     std::set<VectorInstr>& objects) {
+#if DEBUG_CLI
+  printf("Get_Objects_By_Function  - SS_View_util.cxx, VectorInstr\n");
+#endif
+  std::set<Function>::iterator fi;
+  for (fi = named_functions.begin(); fi != named_functions.end(); fi++) {
+    Function f = *fi;
+    std::set<VectorInstr> ivi = f.getVectorInstrs();
+    if (!ivi.empty()) {
+      objects.insert (ivi.begin(), ivi.end());
     }
   }
 }
@@ -812,6 +862,18 @@ static void Get_Source_Objects(const Thread& thread,
 #endif
 }
 
+static void Get_Source_Objects(const Thread& thread,
+			       std::set<VectorInstr>& objects)
+{
+#if DEBUG_CLI
+    printf("Enter Get_Source_Objects-SS_View_util.cxx, VectorInstr, objects.size()=%d\n", objects.size());
+#endif
+    objects = thread.getVectorInstrs();
+#if DEBUG_CLI
+    printf("Exit Get_Source_Objects-SS_View_util.cxx, VectorInstr, objects.size()=%d\n", objects.size());
+#endif
+}
+
 static void Get_TGRP_Source_Objects(const ThreadGroup& tgrp,
 			       std::set<LinkedObject>& objects)
 {
@@ -843,11 +905,24 @@ static void Get_TGRP_Source_Objects(const ThreadGroup& tgrp,
 #endif
 }
 
+static void Get_TGRP_Source_Objects(const ThreadGroup& tgrp,
+			       std::set<VectorInstr>& objects)
+{
+#if DEBUG_CLI
+    printf("Enter Get_TGRP_Source_Objects-SS_View_util.cxx, VectorInstr, objects.size()=%d\n", objects.size());
+#endif
+    objects = tgrp.getVectorInstrs();
+#if DEBUG_CLI
+    printf("Exit Get_TGRP_Source_Objects-SS_View_util.cxx, VectorInstr, objects.size()=%d\n", objects.size());
+#endif
+}
+
 
 static inline bool Object_Is_LinkedObject (std::set<LinkedObject>& objects) { return true; }
 static inline bool Object_Is_LinkedObject (std::set<Function>& objects) { return false; }
 static inline bool Object_Is_LinkedObject (std::set<Statement>& objects) { return false; }
 static inline bool Object_Is_LinkedObject (std::set<Loop>& objects) { return false; }
+static inline bool Object_Is_LinkedObject (std::set<VectorInstr>& objects) { return false; }
 
 /**
  * Template: Filtered_Objects
@@ -1178,7 +1253,8 @@ void Filtered_Objects (CommandObject *cmd,
 /**
  * Utility: Get_Filtered_Objects
  *
- * Overloaded function for types: LinkedObject, Function, Statement or Loop.
+ * Overloaded function for types: LinkedObject, Function, Statement, Loop
+ * or Vector Instruction.
  *
  * The call to these routines is made after determining which type
  * is needed for a view that is being generated, and after first calling
@@ -1217,6 +1293,14 @@ void Get_Filtered_Objects (CommandObject *cmd,
                            std::set<Loop>& objects ) {
   Filtered_Objects ( cmd, exp, tgrp, objects);
 }
+
+void Get_Filtered_Objects (CommandObject *cmd,
+                           ExperimentObject *exp,
+                           ThreadGroup& tgrp,
+                           std::set<VectorInstr>& objects ) {
+  Filtered_Objects ( cmd, exp, tgrp, objects);
+}
+
 
 // Utilites to deciding what data to retrieve from a database.
 
@@ -1309,6 +1393,9 @@ View_Form_Category Determine_Form_Category (CommandObject *cmd) {
   } else if (Look_For_KeyWord(cmd, "Loop") ||
              Look_For_KeyWord(cmd, "Loops")) {
     return VFC_Loop;
+  } else if (Look_For_KeyWord(cmd, "VectorInstr") ||
+             Look_For_KeyWord(cmd, "VectorInstrs")) {
+    return VFC_VectorInstr;
   }
   return VFC_Function;
 }
@@ -1910,14 +1997,16 @@ void Print_View_Params (std::ostream &to,
             std::map<std::string, int64_t> &MetricMap) {
   if (pr->getParseType() == PARSE_EXPRESSION_VALUE) {
    // It must be a nested expression.
-
+    std::cerr << "In evaluate_parse_expression, inside PARSE_EXPRESSION_VALUE" << std::endl;
     if (pr->getOperation() == EXPRESSION_OP_ERROR) {
      // Error has already been detected and reported.
+      std::cerr << "In evaluate_parse_expression, EXPRESSION_OP_ERROR - EARLY RETURN" << std::endl;
       return -1;
     }
    
     if (pr->getOperation() == EXPRESSION_OP_CONST) {
      // These should not make it past the parser.
+      std::cerr << "In evaluate_parse_expression, EXPRESSION_OP_CONST - EARLY RETURN" << std::endl;
       return -1;
     }
 
@@ -1925,9 +2014,14 @@ void Print_View_Params (std::ostream &to,
      // Not meaningful to nest headers.
       std::string s("A HEADER expression may not be nested within another expression.");
       Mark_Cmd_With_Soft_Error(cmd,s);
+      std::cerr << "In evaluate_parse_expression, EXPRESSION_OP_HEADER - EARLY RETURN" << std::endl;
       return -1;
     }
    
+#if DEBUG_CLI
+    std::cerr << "IN evaluate_parse_expression, vfc=" << vfc << " view_for_collector=" << view_for_collector << std::endl;
+#endif
+
    // Evaluate the nested expression.
     parse_expression_t *prt = pr->getExpression();
     std::vector<ParseRange *> *prexp = &(prt->exp_operands);

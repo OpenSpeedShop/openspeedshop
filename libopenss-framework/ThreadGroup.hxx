@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2013 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2013-2018 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -48,6 +48,7 @@ namespace OpenSpeedShop { namespace Framework {
     class LinkedObject;
     class Loop;
     class Statement;
+    class VectorInstr;
 
     /**
      * Arbitrary group of threads.
@@ -86,6 +87,7 @@ namespace OpenSpeedShop { namespace Framework {
         std::set<Function> getFunctions() const;
         std::set<Loop> getLoops() const;
         std::set<Statement> getStatements() const;
+	std::set<VectorInstr> getVectorInstrs() const;
 
         ExtentTable<Thread, LinkedObject> getExtentsOf(
             const std::set<LinkedObject>&, const Extent&) const;
@@ -95,6 +97,8 @@ namespace OpenSpeedShop { namespace Framework {
             const std::set<Loop>&, const Extent&) const;
         ExtentTable<Thread, Statement> getExtentsOf(
             const std::set<Statement>&, const Extent&) const;
+	ExtentTable<Thread, VectorInstr> getExtentsOf(
+	    const std::set<VectorInstr>&, const Extent&) const;
 	
     };
     

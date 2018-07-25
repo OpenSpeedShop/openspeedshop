@@ -1,6 +1,6 @@
 /********************************************************************************
 ** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2018 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -1279,6 +1279,10 @@ bool Simple_Base_Report(
       TOBJECT F = (*fi).first;
       get_exclusive_values ((*fi).second, 1)
       CommandResult *second = (*fi).second;
+
+#if DEBUG_CLI
+      std::cerr << "In Simple_Base_Report,  exclusive value=" << (*fi).second << std::endl;
+#endif
 
      // Use macro to construct result array
       SmartPtr<std::vector<CommandResult *> > vcs

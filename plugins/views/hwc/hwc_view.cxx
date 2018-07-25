@@ -68,6 +68,8 @@ static std::string allowed_hwc_V_options[] = {
   "Statements",
   "Loop",
   "Loops",
+  "VectorInstr",
+  "VectorInstrs",
   "Summary",
   "SummaryOnly",
   "data",       // Raw data output for scripting
@@ -313,12 +315,16 @@ static std::string VIEW_hwc_long  =
                 "\n\t'-v Functions' will report counts by function. This is the default."
                 "\n\t'-v Statements' will report counts by statement."
                 "\n\t'-v Loops' will report counts by loop."
+                "\n\t'-v VectorInstrs' will report times by vector instruction (Intel processor only)."
+                "\n"
                 "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
-                " 'Statements', 'LinkedObjects' or 'Loops' will result in an additional line of output at"
-                " the end of the report that summarizes the information in each column."
+                " 'Statements', 'LinkedObjects', 'Loops' or 'VectorInstrs' will result in an" 
+                " additional line of output at the end of the report that summarizes the information" 
+                " in each column."
                 "\n\tThe addition of 'SummaryOnly' to the '-v' option list along with 'Functions',"
-                " 'Statements', 'LinkedObjects' or 'Loops' or without those options will cause only the"
-                " one line of output at the end of the report that summarizes the information in each column."
+                " 'Statements', 'LinkedObjects', 'Loops' or 'VectorInstrs' or without those options"
+                " will cause only the one line of output at the end of the report that summarizes"
+                " the information in each column."
                 "\n\nThe information included in the report can be controlled with the"
                 " '-m' option.  More than one item can be selected but only the items"
                 " listed after the option will be printed and they will be printed in"
@@ -394,6 +400,10 @@ class hwc_view : public ViewType {
         Loop *loopp;
         return Simple_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                    true, loopp, vfc, view_output);
+       case VFC_VectorInstr:
+        VectorInstr *vinstr;
+        return Simple_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                   true, vinstr, vfc, view_output);
       }
       Mark_Cmd_With_Soft_Error(cmd, "(We could not determine which format to use for the report.)");
       return false;

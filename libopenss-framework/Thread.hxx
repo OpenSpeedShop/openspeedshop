@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
-// Copyright (c) 2012,2013 The Krell Institute. All Rights Reserved.
+// Copyright (c) 2012-2018 The Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -59,6 +59,7 @@ namespace OpenSpeedShop { namespace Framework {
     template <typename> class SmartPtr;
     class Statement;
     class ThreadGroup;
+    class VectorInstr;
 
     namespace Callbacks {
         void attachedToThreads(const Blob&);
@@ -96,6 +97,7 @@ namespace OpenSpeedShop { namespace Framework {
         friend class Process;
         friend class Statement;
         friend class ThreadGroup;
+        friend class VectorInstr;
         
         friend void Callbacks::attachedToThreads(const Blob&);
 	
@@ -136,6 +138,7 @@ namespace OpenSpeedShop { namespace Framework {
         std::set<Function> getFunctions() const;
         std::set<Loop> getLoops() const;
         std::set<Statement> getStatements() const;
+        std::set<VectorInstr> getVectorInstrs() const;
         
         std::pair<bool, LinkedObject> getLinkedObjectAt(
             const Address&, const Time& = Time::Now()) const;
@@ -156,6 +159,7 @@ namespace OpenSpeedShop { namespace Framework {
         std::pair<bool, Function> getFunctionByName(const std::string&) const;
         std::set<Loop> getLoopsBySourceFile(const Path&) const;
         std::set<Statement> getStatementsBySourceFile(const Path&) const;
+        std::set<VectorInstr> getVectorInstrsBySourceFile(const Path&) const;
         
         CollectorGroup getCollectors() const;
         CollectorGroup getPostponedCollectors() const;

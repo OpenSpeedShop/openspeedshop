@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2007 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2007-2012 Krell Institute  All Rights Reserved.
+// Copyright (c) 2007-2018 Krell Institute  All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -252,7 +252,7 @@ void PCSampCollector::getMetricValues(const std::string& metric,
 				      const ExtentGroup& subextents,
 				      void* ptr) const
 {
-//std::cerr << "Entered PCSampCollector::getMetricValues" << std::endl;
+    //std::cerr << "Entered PCSampCollector::getMetricValues, metric=" << metric << std::endl;
     // Only the "time" metric returns anything
     if(metric != "time")
 	return;
@@ -322,7 +322,8 @@ void PCSampCollector::getMetricValues(const std::string& metric,
 	    double t_intersection = static_cast<double>
 		((extent.getTimeInterval() & 
 		  subextents[*j].getTimeInterval()).getWidth());	    
- //   std::cerr << "INTESECTION INTERVAL TIME = " << t_intersection << std::endl;
+
+            //std::cerr << "INTESECTION INTERVAL TIME = " << t_intersection << std::endl;
 
 	    // Add (to the subextent's metric value) the appropriate fraction
 	    // of the total time attributable to this sample
@@ -345,6 +346,7 @@ void PCSampCollector::getMetricValues(const std::string& metric,
     // Free the decoded data blob
     xdr_free(reinterpret_cast<xdrproc_t>(xdr_pcsamp_data),
 	     reinterpret_cast<char*>(&data));
+    //std::cerr << "Exited PCSampCollector::getMetricValues, metric=" << metric << std::endl;
 }
 
 void PCSampCollector::getUniquePCValues( const Thread& thread,

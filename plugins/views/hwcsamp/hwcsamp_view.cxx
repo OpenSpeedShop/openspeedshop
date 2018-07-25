@@ -104,6 +104,8 @@ static std::string allowed_hwcsamp_V_options[] = {
   "Statements",
   "Loop",
   "Loops",
+  "VectorInstr",
+  "VectorInstrs",
   "Summary",
   "SummaryOnly",
   "data",        // Raw data output for scripting
@@ -1534,14 +1536,16 @@ static std::string VIEW_hwcsamp_long  =
                   "\n\t'-v Functions' will report times by function. This is the default."
                   "\n\t'-v Statements' will report times by statement."
                   "\n\t'-v Loops' will report times by loop."
+                  "\n\t'-v VectorInstrs' will report times by vector instruction (Intel processor only)."
                   "\n"
-                  "The addition of 'Summary' to the '-v' option list along with 'Functions',"
-                  "\n'Statements', 'LinkedObjects' or 'Loops' will result in an additional line of output at"
-                  "\nthe end of the report that summarizes the information in each column."
-                  "\n"
-                  "\nThe addition of 'SummaryOnly' to the '-v' option list along with 'Functions',"
-                  "\n'Statements', 'LinkedObjects' or 'Loops' or without those options will cause only the"
-                  "\none line of output at the end of the report that summarizes the information in each column."
+                  "\n\tThe addition of 'Summary' to the '-v' option list along with 'Functions',"
+                  " 'Statements', 'LinkedObjects', 'Loops' or 'VectorInstrs' will result in an" 
+                  " additional line of output at the end of the report that summarizes the information" 
+                  " in each column."
+                  "\n\tThe addition of 'SummaryOnly' to the '-v' option list along with 'Functions',"
+                  " 'Statements', 'LinkedObjects', 'Loops' or 'VectorInstrs' or without those options"
+                  " will cause only the one line of output at the end of the report that summarizes"
+                  " the information in each column."
                   "\n"
                   "\nThe information included in the report can be controlled with the"
                   "\n'-m' option.  More than one item can be selected but only the items"
@@ -1717,6 +1721,10 @@ class hwcsamp_view : public ViewType {
         Loop *loopp;
         return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
                                    false, loopp, vfc, &dummyVector, view_output);
+       case VFC_VectorInstr:
+        VectorInstr *vinstr;
+        return Detail_Base_Report (cmd, exp, topn, tgrp, CV, MV, IV, HV,
+                                   false, vinstr, vfc, &dummyVector, view_output);
       }
       Mark_Cmd_With_Soft_Error(cmd, "(There is no supported view name supplied.)");
       return false;

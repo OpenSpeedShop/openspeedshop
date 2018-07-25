@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2005 Silicon Graphics, Inc. All Rights Reserved.
 // Copyright (c) 2008 William Hachfeld. All Rights Reserved.
-// Copyright (c) 2012,2014 The Krell Institue. All Rights Reserved.
+// Copyright (c) 2012-2018 The Krell Institue. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -37,6 +37,9 @@
 
 using namespace OpenSpeedShop::Framework;
 
+#ifndef NDEBUG
+bool is_debug_vector_details_enabled = (getenv("OPENSS_DEBUG_VECTOR_DETAILS") != NULL);
+#endif
 
 
 /**
@@ -52,7 +55,8 @@ SymbolTable::SymbolTable(const AddressRange& range) :
     dm_range(range),
     dm_functions(),
     dm_loops(),
-    dm_statements()
+    dm_statements(),
+    dm_vectorInstrs()
 {
 }
 
@@ -146,6 +150,21 @@ void SymbolTable::addLoop(const Address& begin, const Address& end,
     i->second.push_back(range);
 }
 
+/**
+ * Add a vector instruction.
+ *
+ * Adds the specified vector instruction with its associated address to this symbol
+ * table. 
+ *
+ * @param begin    Address associated with this vector instruction.
+ */
+void SymbolTable::addVectorInstr(const Address& vinstrAddr, const int32_t& max_instr_vl, const int32_t& actual_instr_vl, const std::string& vopcode)
+{
+    // Add this vector instruction to the symbol table with its vector entry information
+    std::map<Address, VectorInstrEntry >::iterator i = 
+		dm_vectorInstrs.insert(std::make_pair(Address(vinstrAddr), 
+				VectorInstrEntry(vopcode, max_instr_vl, actual_instr_vl) ) ).first ;
+}
 
 
 /**
@@ -387,12 +406,55 @@ void SymbolTable::processAndStore(const LinkedObject& linked_object)
 
 
     }
+
+
+    // Iterate over each vector instruction entry
+    for(std::map<Address, VectorInstrEntry >::const_iterator m = dm_vectorInstrs.begin(); m != dm_vectorInstrs.end(); ++m) {
+
+#ifndef NDEBUG
+	if (is_debug_vector_details_enabled) {
+ 	    std::cerr << "dm_vectorInstrs outputs:" 
+		      << " dm_vector_addr=" << m->first
+		      << " dm_max_instr_vl=" << m->second.dm_max_instr_vl
+		      << " dm_instr_opcode="
+		      << m->second.dm_instr_opcode
+		      << std::endl;
+	}
+#endif
+	// Create the VectorInstrs entry
+	database->prepareStatement(
+	    "INSERT INTO VectorInstrs (linked_object, addr_begin, addr_end, opcode, max_instr_vl) VALUES (?, ?, ?, ?, ?);"
+	    );
+	database->bindArgument(1, EntrySpy(linked_object).getEntry());
+	database->bindArgument(2, m->first);
+	database->bindArgument(3, m->first+1);
+	database->bindArgument(4, m->second.dm_instr_opcode);
+	database->bindArgument(5, m->second.dm_max_instr_vl);
+	while(database->executeStatement());	
+	int vectorinstr = database->getLastInsertedUID();
+
+	// Create and populate an address bitmap for this address set
+	AddressBitmap valid_bitmap(AddressRange(m->first , m->first+1 ));
+	valid_bitmap.setValue(m->first, true);
+	    
+	// Create the vector instruction ranges entry
+	database->prepareStatement(
+	    "INSERT INTO VectorInstrRanges "
+	    "  (vectorinstr, addr_begin, addr_end, valid_bitmap) "
+	    "VALUES (?, ?, ?, ?);"
+	    );
+	database->bindArgument(1, vectorinstr);
+	database->bindArgument(2, valid_bitmap.getRange().getBegin());
+	database->bindArgument(3, valid_bitmap.getRange().getEnd());
+	database->bindArgument(4, valid_bitmap.getBlob());
+	while(database->executeStatement());
+
+    } // end for
+
     
     // End the transaction on this database
     END_TRANSACTION(database);    
 }
-
-
 
 /**
  * Partition an address set.

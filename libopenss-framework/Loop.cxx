@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2013-2014 Krell Institute. All Rights Reserved.
+// Copyright (c) 2013-2018 Krell Institute. All Rights Reserved.
 //
 // This library is free software; you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -35,6 +35,8 @@
 #include "Statement.hxx"
 #include "StatementCache.hxx"
 #include "Thread.hxx"
+#include "VectorInstr.hxx"
+#include "VectorInstrCache.hxx"
 
 using namespace OpenSpeedShop::Framework;
 
@@ -314,6 +316,30 @@ std::set<Statement> Loop::getStatements() const
     
     // Return the statements to the caller
     return statements;
+}
+
+
+/**
+ * Get our vector instructions.
+ *
+ * Returns the vector instructions contained in this loop. An empty set is returned if no
+ * vector instructions are contained in this loop.
+ *
+ * @return    Vector instructions contained in this loop.
+ */
+std::set<VectorInstr> Loop::getVectorInstrs() const
+{
+    // Find our linked object and extent
+    LinkedObject linked_object;
+    ExtentGroup extent;
+    getLinkedObjectAndExtent(linked_object, extent);
+    
+    // Use the vector instruction cache to find our vector instructions
+    std::set<VectorInstr> vectorInstructions =
+	VectorInstr::TheCache.getVectorInstrs(linked_object, extent);
+    
+    // Return the vector instructions to the caller
+    return vectorInstructions;
 }
 
 

@@ -1,6 +1,6 @@
 /*******************************************************************************
 ** Copyright (c) 2006 Silicon Graphics, Inc. All Rights Reserved.
-** Copyright (c) 2006-2014 Krell Institute  All Rights Reserved.
+** Copyright (c) 2006-2018 Krell Institute  All Rights Reserved.
 **
 ** This library is free software; you can redistribute it and/or modify it under
 ** the terms of the GNU Lesser General Public License as published by the Free
@@ -23,7 +23,6 @@
  * Definition of the inlined function topCallStack_In_Subextent
  *
  */
-
 
 /* Uncomment these lines if you want to get debugging traces
 #include "EntrySpy.hxx"
