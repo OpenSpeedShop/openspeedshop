@@ -203,10 +203,23 @@ std::vector<VectorInstrInfo> detectVectorInstructions(const OpenSpeedShop::Frame
 				// This is the spot where we can determine what size of operand we 
 				// are looking for vector detection would require checking 
 				// for max_size == 64, if finding AVX512 instructions.
-				//
-				if (max_size >= 4) {
+				// Here we default to AVX512 by setting these variables.  This is
+				// a failsafe, as OPENSS_VINSTR_OPSIZE should always be set by
+				// ossdriver.in.
+
+				// ossdriver.in sets OPENSS_VINSTR_OPSIZE to either 512, 256, or
+				// 128.   Since Dyninst uses byte sizes, we divide by BITSPERBYTE.
+
+				int64_t vinstr_opsize_in_bytes = 512 ;
+				int64_t vinstr_opsize_in_bits = 512 ;
+				if (getenv("OPENSS_VINSTR_OPSIZE") != NULL) {
+				    vinstr_opsize_in_bits = atoi(getenv("OPENSS_VINSTR_OPSIZE"));
+				}
+				vinstr_opsize_in_bytes = vinstr_opsize_in_bits / BITSPERBYTE ;
+
+				if (max_size >= vinstr_opsize_in_bytes) {
 				    // Use the normalized address to create the necessary 
-                                    // vector information to return.  
+				    // vector information to return.
 				    VectorInstrInfo info(address);
 				    info.dm_vector_addr = address;
 				    info.dm_max_instr_vl = max_size;

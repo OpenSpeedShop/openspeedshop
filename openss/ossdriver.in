@@ -204,6 +204,9 @@ mpiotf_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,M
 # Corresponds to OPENSS_FPE_EVENT or CBTF_FPE_EVENT
 fpe_default_events="inexact_result,division_by_zero,underflow,overflow,invalid_operation"
 
+# Corresponds to OPENSS_VINSTR_OPSIZE - this is the bit size of the vector instruction operands that use while searching
+vinstr_default_opsize=512
+
 #
 # END DEFAULT VALUES
 #
@@ -544,7 +547,23 @@ if [ $debug_flag == 1 ] ; then
   echo "[openss debug]: instrumentor=$instrumentor"
 fi
 
-
+# ------------------------------------------------------------------------------------
+# -- FOR VECTOR INSTRUCTION SEARCHES --- SETUP THE OPERAND SIZE SEARCH VALUE ---------
+# ------------------------------------------------------------------------------------
+if [ -z $OPENSS_VINSTR_OPSIZE ] ; then
+  echo "[openss]: $collector experiment using default vector instruction detection operand size: \"$vinstr_default_opsize\" setting."
+  export OPENSS_VINSTR_OPSIZE=$vinstr_default_opsize
+else
+  if [ "$OPENSS_VINSTR_OPSIZE" == "512" ] ||
+     [ "$OPENSS_VINSTR_OPSIZE" == "256" ] ||
+     [ "$OPENSS_VINSTR_OPSIZE" == "128" ] ; then
+      echo "[openss]: $collector experiment using vector instruction detection operand size: \"$OPENSS_VINSTR_OPSIZE\" because environment variable OPENSS_VINSTR_OPSIZE is specified."
+  else
+      echo "[openss]: $collector experiment WARNING: OPENSS_VINSTR_OPSIZE is not 128, 256, or 512 using the default OPENSS_VINSTR_OPSIZE value."
+      echo "[openss]: $collector experiment using default vector instruction detection operand size: \"$vinstr_default_opsize\" setting."
+      export OPENSS_VINSTR_OPSIZE=$vinstr_default_opsize
+  fi
+fi
 
 # ------------------------------------------------------------------------------------
 # -- PCSAMP EXPERIMENT SPECIFIC CODE -------------------------------------------------
