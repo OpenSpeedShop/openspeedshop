@@ -1404,22 +1404,14 @@ void OfflineExperiment::createOfflineSymbolTable()
     // getSymbols() will get the statement containing these addresses.
 
 #if defined(HAVE_DYNINST)
-
 	// Look for vector instructions that correspond to the sampled addresses
 	// Current focus is on AVX512 detection and reporting
-	DyninstSymbols::getVectorInstrs(unique_addresses, lo, symtabmap);
-
-	//std::cerr << Time::Now() << " Resolve loop addresses" << std::endl;
-	if ( (getenv("OPENSS_NO_LOOPS") != NULL)) {
-	    std::stringstream output;
-	    output << "Skipping loop analysis due to the environment variable: OPENSS_NO_LOOPS is set" 
-		   << std::endl;
-		std::cerr << output.str();
-	} else {
+	if (!(getenv("OPENSS_NO_VINSTR") != NULL)) {
+		DyninstSymbols::getVectorInstrs(unique_addresses, lo, symtabmap);
+	} 
+	if (!(getenv("OPENSS_NO_LOOPS") != NULL)) {
 	    DyninstSymbols::getLoops(unique_addresses, lo, symtabmap);
 	} 
-
-	//std::cerr << Time::Now() << " Done with loops addresses" << std::endl;
 #endif
 	//std::cerr << Time::Now() << " Resolve symtabapi symbols" << std::endl;
 	stapi_symbols.getSymbols(unique_addresses,lo,symtabmap);

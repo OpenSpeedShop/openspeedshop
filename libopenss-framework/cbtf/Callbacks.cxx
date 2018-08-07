@@ -1123,13 +1123,10 @@ void Callbacks::finalize() {
 #if defined(HAVE_DYNINST)
 	    // Look for vector instructions that correspond to the sampled addresses
 	    // Current focus is on AVX512 detection and reporting
-	    DyninstSymbols::getVectorInstrs(addresses, *li, symtabmap);
-
-            if ( (getenv("OPENSS_NO_LOOPS") != NULL)) {
-		std::stringstream output;
-		output << "Skipping loop analysis due to the environment variable: OPENSS_NO_LOOPS is set" << std::endl;
-			std::cerr << output.str();
-            } else {
+	    if (!(getenv("OPENSS_NO_VINSTR") != NULL)) {
+		DyninstSymbols::getVectorInstrs(addresses, *li, symtabmap);
+            }
+            if (!(getenv("OPENSS_NO_LOOPS") != NULL)) {
    	        DyninstSymbols::getLoops(addresses, *li, symtabmap);
             } 
 #endif

@@ -471,11 +471,16 @@ fi
 is_tracing_experiment=false
 is_sampling_experiment=false
 is_hwc_experiment=false
+is_hwc_threshold_experiment=false
+is_hwc_sampling_experiment=false
 is_cuda_experiment=false
 
 case $collector in
     io*|mpi*|mem|fpe|pthreads) is_tracing_experiment=true;;
     hwc*) is_hwc_experiment=true;;
+    hwc) is_hwc_threshold_experiment=true;;
+    hwctime) is_hwc_threshold_experiment=true;;
+    hwcsamp) is_hwc_sampling_experiment=true;;
     cuda*) is_cuda_experiment=true;;
     *) is_sampling_experiment=true;;
 esac
@@ -545,25 +550,58 @@ if [ $debug_flag == 1 ] ; then
   echo "[openss debug]: use_default_flag=$use_default_flag"
   echo "[openss debug]: string_value=$string_value"
   echo "[openss debug]: instrumentor=$instrumentor"
+  echo "[openss debug]: is_tracing_experiment=$is_tracing_experiment"
+  echo "[openss debug]: is_cuda_experiment=$is_cuda_experiment"
+  echo "[openss debug]: is_hwc_experiment=$is_hwc_experiment"
+  echo "[openss debug]: is_hwc_threshold_experiment=$is_hwc_threshold_experiment"
+  echo "[openss debug]: is_hwc_sampling_experiment=$is_hwc_sampling_experiment"
+  echo "[openss debug]: is_sampling_experiment=$is_sampling_experiment"
 fi
+#
+# Handle vector instruction related environment variables
+# OPENSS_NO_VINSTR, OPENSS_NO_LOOPS, and OPENSS_VINSTR_OPSIZE
+# are examined in libopenss/framework files:
+# DyninstSymbols.cxx, OfflineExperiment.cxx and cbtf/Callbacks.cxx
+#
+if [ is_tracing_experiment ] || [ is_cuda_experiment ] ; then
 
-# ------------------------------------------------------------------------------------
-# -- FOR VECTOR INSTRUCTION SEARCHES --- SETUP THE OPERAND SIZE SEARCH VALUE ---------
-# ------------------------------------------------------------------------------------
-if [ -z $OPENSS_VINSTR_OPSIZE ] ; then
-  echo "[openss]: $collector experiment using default vector instruction detection operand size: \"$vinstr_default_opsize\" setting."
-  export OPENSS_VINSTR_OPSIZE=$vinstr_default_opsize
+  # These experiments do not display at the loop level,
+  # therefore don't scan the executable to find loops
+  export OPENSS_NO_LOOPS=1
+  # These experiments do not display vector instructions,
+  # therefore don't scan the executable to find vector instructions
+  export OPENSS_NO_VINSTR=1
+
 else
-  if [ "$OPENSS_VINSTR_OPSIZE" == "512" ] ||
-     [ "$OPENSS_VINSTR_OPSIZE" == "256" ] ||
-     [ "$OPENSS_VINSTR_OPSIZE" == "128" ] ; then
-      echo "[openss]: $collector experiment using vector instruction detection operand size: \"$OPENSS_VINSTR_OPSIZE\" because environment variable OPENSS_VINSTR_OPSIZE is specified."
+
+  # ------------------------------------------------------------------------------------
+  # -- FOR VECTOR INSTRUCTION TOGGLE ON/OFF AND LOOP DETECTION TOGGLE ON/OFF -----------
+  # ------------------------------------------------------------------------------------
+  if [ ! -z "$OPENSS_NO_VINSTR" ] ; then
+    echo "[openss]: $collector experiment turning off vector instruction detection because environment variable OPENSS_NO_VINSTR is specified."
+  fi
+  if [ ! -z "$OPENSS_NO_LOOPS" ] ; then
+    echo "[openss]: $collector experiment turning off loop detection because environment variable OPENSS_NO_LOOPS is specified."
+  fi
+
+  # ------------------------------------------------------------------------------------
+  # -- FOR VECTOR INSTRUCTION SEARCHES --- SETUP THE OPERAND SIZE SEARCH VALUE ---------
+  # ------------------------------------------------------------------------------------
+  if [ -z "$OPENSS_VINSTR_OPSIZE" ] ; then
+    export OPENSS_VINSTR_OPSIZE=$vinstr_default_opsize
   else
-      echo "[openss]: $collector experiment WARNING: OPENSS_VINSTR_OPSIZE is not 128, 256, or 512 using the default OPENSS_VINSTR_OPSIZE value."
-      echo "[openss]: $collector experiment using default vector instruction detection operand size: \"$vinstr_default_opsize\" setting."
-      export OPENSS_VINSTR_OPSIZE=$vinstr_default_opsize
+    if [ "$OPENSS_VINSTR_OPSIZE" == "512" ] ||
+       [ "$OPENSS_VINSTR_OPSIZE" == "256" ] ||
+       [ "$OPENSS_VINSTR_OPSIZE" == "128" ] ; then
+        echo "[openss]: $collector experiment using vector instruction detection operand size: \"$OPENSS_VINSTR_OPSIZE\" because environment variable OPENSS_VINSTR_OPSIZE is specified."
+    else
+        echo "[openss]: $collector experiment WARNING: OPENSS_VINSTR_OPSIZE is not 128, 256, or 512 using the default OPENSS_VINSTR_OPSIZE value."
+        echo "[openss]: $collector experiment using default vector instruction detection operand size: \"$vinstr_default_opsize\" setting."
+        export OPENSS_VINSTR_OPSIZE=$vinstr_default_opsize
+    fi
   fi
 fi
+
 
 # ------------------------------------------------------------------------------------
 # -- PCSAMP EXPERIMENT SPECIFIC CODE -------------------------------------------------
