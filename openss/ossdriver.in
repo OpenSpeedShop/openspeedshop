@@ -471,16 +471,11 @@ fi
 is_tracing_experiment=false
 is_sampling_experiment=false
 is_hwc_experiment=false
-is_hwc_threshold_experiment=false
-is_hwc_sampling_experiment=false
 is_cuda_experiment=false
 
 case $collector in
     io*|mpi*|mem|fpe|pthreads) is_tracing_experiment=true;;
     hwc*) is_hwc_experiment=true;;
-    hwc) is_hwc_threshold_experiment=true;;
-    hwctime) is_hwc_threshold_experiment=true;;
-    hwcsamp) is_hwc_sampling_experiment=true;;
     cuda*) is_cuda_experiment=true;;
     *) is_sampling_experiment=true;;
 esac
@@ -553,8 +548,6 @@ if [ $debug_flag == 1 ] ; then
   echo "[openss debug]: is_tracing_experiment=$is_tracing_experiment"
   echo "[openss debug]: is_cuda_experiment=$is_cuda_experiment"
   echo "[openss debug]: is_hwc_experiment=$is_hwc_experiment"
-  echo "[openss debug]: is_hwc_threshold_experiment=$is_hwc_threshold_experiment"
-  echo "[openss debug]: is_hwc_sampling_experiment=$is_hwc_sampling_experiment"
   echo "[openss debug]: is_sampling_experiment=$is_sampling_experiment"
 fi
 #
