@@ -525,7 +525,7 @@ fi
 # name. So at this time the hwc collectors make no use of has_papi.
 has_papi=false
 if [ has_string ] ; then
-  if [ is_hwc_experiment ] ; then
+  if [ $is_hwc_experiment ] ; then
       match=`expr match "$string_value" 'PAPI_'`
       if [ $match != 0 ] ; then
 	has_papi=true
@@ -556,16 +556,7 @@ fi
 # are examined in libopenss/framework files:
 # DyninstSymbols.cxx, OfflineExperiment.cxx and cbtf/Callbacks.cxx
 #
-if [ is_tracing_experiment ] || [ is_cuda_experiment ] ; then
-
-  # These experiments do not display at the loop level,
-  # therefore don't scan the executable to find loops
-  export OPENSS_NO_LOOPS=1
-  # These experiments do not display vector instructions,
-  # therefore don't scan the executable to find vector instructions
-  export OPENSS_NO_VINSTR=1
-
-else
+if [ $is_sampling_experiment ] || [ $is_hwc_experiment ] ; then
 
   # ------------------------------------------------------------------------------------
   # -- FOR VECTOR INSTRUCTION TOGGLE ON/OFF AND LOOP DETECTION TOGGLE ON/OFF -----------
@@ -593,6 +584,16 @@ else
         export OPENSS_VINSTR_OPSIZE=$vinstr_default_opsize
     fi
   fi
+
+else
+
+  # These experiments do not display at the loop level,
+  # therefore don't scan the executable to find loops
+  export OPENSS_NO_LOOPS=1
+  # These experiments do not display vector instructions,
+  # therefore don't scan the executable to find vector instructions
+  export OPENSS_NO_VINSTR=1
+
 fi
 
 
