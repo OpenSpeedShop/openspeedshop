@@ -71,12 +71,12 @@ class OfflineParamVal {
 	    	    {return dm_val_type;}
 
     private:
-    	/** type of value */
-    	oss_param_val_enum dm_val_type;
-
     	char * dm_sval;
     	int    dm_ival;
     	double dm_dval;
+
+    	/** type of value */
+    	oss_param_val_enum dm_val_type;
 };
 
 /**
@@ -145,8 +145,8 @@ class OfflineParameters {
     	char * dm_exptype;
     	char * dm_param_type;
 
-    	/** Container of param values */
-    	std::vector<OfflineParamVal> dm_param_val_list;
+	/** Container of param values */
+	std::vector<OfflineParamVal> dm_param_val_list;
 };
 
 #endif // __OfflineParameters_HXX__
