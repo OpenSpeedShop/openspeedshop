@@ -265,6 +265,7 @@ std::vector<VectorInstrInfo> detectVectorInstructions(const OpenSpeedShop::Frame
 	std::cerr << "" << std::endl;
     }
 #endif
+    return retval;
 }
 
 /** Get the loops containing the specified address. */
