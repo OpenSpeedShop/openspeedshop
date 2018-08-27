@@ -525,7 +525,7 @@ fi
 # name. So at this time the hwc collectors make no use of has_papi.
 has_papi=false
 if [ has_string ] ; then
-  if [ $is_hwc_experiment ] ; then
+  if [ $is_hwc_experiment == true ] ; then
       match=`expr match "$string_value" 'PAPI_'`
       if [ $match != 0 ] ; then
 	has_papi=true
@@ -556,7 +556,7 @@ fi
 # are examined in libopenss/framework files:
 # DyninstSymbols.cxx, OfflineExperiment.cxx and cbtf/Callbacks.cxx
 #
-if [ $is_sampling_experiment ] || [ $is_hwc_experiment ] ; then
+if [ $is_sampling_experiment == true ] || [ $is_hwc_experiment == true ] ; then
 
   # ------------------------------------------------------------------------------------
   # -- FOR VECTOR INSTRUCTION TOGGLE ON/OFF AND LOOP DETECTION TOGGLE ON/OFF -----------
