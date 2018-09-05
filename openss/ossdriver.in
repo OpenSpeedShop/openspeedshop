@@ -204,8 +204,19 @@ mpiotf_default_traceable_functions="MPI_Allgather,MPI_Allgatherv,MPI_Allreduce,M
 # Corresponds to OPENSS_FPE_EVENT or CBTF_FPE_EVENT
 fpe_default_events="inexact_result,division_by_zero,underflow,overflow,invalid_operation"
 
-# Corresponds to OPENSS_VINSTR_OPSIZE - this is the bit size of the vector instruction operands that use while searching
+# Corresponds to OPENSS_VINSTR_OPSIZE - This is the bit size of 
+# the vector instruction operands that use while searching
 vinstr_default_opsize=512
+
+# Scanning the executable for loops or vinstr is optional, off by default
+# These are the variables that determine whether loop and vinstr detection
+# is on (set to true) or off (set to false) by default.
+scan_for_loops=false
+scan_for_vinstr=false
+
+# If the --noloops option was seen, then this variable is set to true
+# This is used only to put out the message that loop detection is turned off
+force_noloops_flag=false
 
 #
 # END DEFAULT VALUES
@@ -242,6 +253,38 @@ do
 	    # usertime since the ltwt mrnet send is not safe in a sighandler.
             cbtf_offline_opt=""
 	    force_cbtf_flag=true
+            shift
+            ;;
+       --loops)
+	    # Enable the executable post-processing for loop detection
+	    scan_for_loops=true
+            shift
+            ;;
+       --noloops)
+	    # Disable the executable post-processing for loop detection
+	    scan_for_loops=false
+	    force_noloops_flag=true
+            shift
+            ;;
+       --vinstr128)
+	    # Enable the executable post-processing for vector instruction
+	    # detection for instructions with 128 bit or larger operands
+	    scan_for_vinstr=true
+	    vector_opsize=128
+            shift
+            ;;
+       --vinstr256)
+	    # Enable the executable post-processing for vector instruction
+	    # detection for instructions with 256 bit or larger operands
+	    scan_for_vinstr=true
+	    vector_opsize=256
+            shift
+            ;;
+       --vinstr512)
+	    # Enable the executable post-processing for vector instruction
+	    # detection for instructions with 512 bit or larger operands
+	    scan_for_vinstr=true
+	    vector_opsize=512
             shift
             ;;
         -- )
@@ -282,12 +325,47 @@ collector=${experiment_name:3}
 
 real_name=`basename "$0"`
 if [[ -z "$1" || $show_help == 1 ]] ; then
+
    echo ""
-   echo "Usage: $real_name \"executable\" [extra_args]"
-   echo "Usage: $real_name help or --help"
+   echo "Common Usage: $real_name \"executable\" [extra_args]"
+   echo "Common Usage: $real_name help or --help"
+
+   if [[ "$experiment_name" != "ossomptp" &&  "$experiment_name" != "ossmem" ]]; then
+      echo "Alternative Usage: $real_name --offline \"executable\" [extra_args]"
+   fi
+
+   echo "Alternative Usage: $real_name --cbtf \"executable\" [extra_args]"
+
+   if [[ "$experiment_name" == "osspcsamp" || "$experiment_name" == "ossusertime"   ||
+         "$experiment_name" == "osshwcsamp"   || "$experiment_name" == "osshwc"   || 
+         "$experiment_name" == "osshwctime" ]]; then
+      echo "Alternative Usage: $real_name --loops \"executable\" [extra_args]"
+      echo "Alternative Usage: $real_name --vinstr128 \"executable\" [extra_args]"
+      echo "Alternative Usage: $real_name --vinstr256 \"executable\" [extra_args]"
+      echo "Alternative Usage: $real_name --vinstr512 \"executable\" [extra_args]"
+   fi
+
    echo ""
    echo "Where \"executable\" is defined as the command that you normally"
-   echo "use to execute your program but placed in quotes"
+   echo "      use to execute your program but placed in quotes"
+
+   if [[ "$experiment_name" != "ossomptp" &&  "$experiment_name" != "ossmem" ]]; then
+      echo "Where --offline enables O|SS to run in a mode that writes raw"
+      echo "      performance data to a shared filesystem and read a program end."
+   fi
+
+   echo "Where --cbtf enables O|SS to run in a mode that transfers raw performance"
+   echo "      data to the O|SS client via a multicast network."
+
+   if [[ "$experiment_name" == "osspcsamp" || "$experiment_name" == "ossusertime"   ||
+         "$experiment_name" == "osshwcsamp"   || "$experiment_name" == "osshwc"   || 
+         "$experiment_name" == "osshwctime" ]]; then
+      echo "Where --loops enables loop detection and viewing capabilities"
+      echo "Where --vinstr128 enables vector instruction detection for 128 bit or greater operands."
+      echo "Where --vinstr256 enables vector instruction detection for 256 bit or greater operands."
+      echo "Where --vinstr512 enables vector instruction detection for 512 bit or greater operands."
+   fi
+   echo ""
    echo "Example: $real_name \"mpirun -N 16 -n 256 ./smg2000 -n 50 50 50\" [extra_args]"
    echo "The optional \"extra_args\" are defined as follows:"
    echo ""
@@ -549,6 +627,8 @@ if [ $debug_flag == 1 ] ; then
   echo "[openss debug]: is_cuda_experiment=$is_cuda_experiment"
   echo "[openss debug]: is_hwc_experiment=$is_hwc_experiment"
   echo "[openss debug]: is_sampling_experiment=$is_sampling_experiment"
+  echo "[openss debug]: scan_for_loops=$scan_for_loops"
+  echo "[openss debug]: scan_for_vinstr=$scan_for_vinstr"
 fi
 #
 # Handle vector instruction related environment variables
@@ -558,34 +638,39 @@ fi
 #
 if [ $is_sampling_experiment == true ] || [ $is_hwc_experiment == true ] ; then
 
-  # ------------------------------------------------------------------------------------
-  # -- FOR VECTOR INSTRUCTION TOGGLE ON/OFF AND LOOP DETECTION TOGGLE ON/OFF -----------
-  # ------------------------------------------------------------------------------------
-  if [ ! -z "$OPENSS_NO_VINSTR" ] ; then
-    echo "[openss]: $collector experiment turning off vector instruction detection because environment variable OPENSS_NO_VINSTR is specified."
-  fi
-  if [ ! -z "$OPENSS_NO_LOOPS" ] ; then
-    echo "[openss]: $collector experiment turning off loop detection because environment variable OPENSS_NO_LOOPS is specified."
+  if [ $scan_for_loops == true ] ; then
+    echo "[openss]: $collector experiment enabling loop detection because --loops is specified."
+  else
+    if [ $force_noloops_flag == true ] ; then
+       echo "[openss]: $collector experiment disabling loop detection because --noloops is specified."
+    fi
+    export OPENSS_NO_LOOPS=1
   fi
 
-  # ------------------------------------------------------------------------------------
-  # -- FOR VECTOR INSTRUCTION SEARCHES --- SETUP THE OPERAND SIZE SEARCH VALUE ---------
-  # ------------------------------------------------------------------------------------
-  if [ -z "$OPENSS_VINSTR_OPSIZE" ] ; then
-    export OPENSS_VINSTR_OPSIZE=$vinstr_default_opsize
-  else
-    if [ "$OPENSS_VINSTR_OPSIZE" == "512" ] ||
-       [ "$OPENSS_VINSTR_OPSIZE" == "256" ] ||
-       [ "$OPENSS_VINSTR_OPSIZE" == "128" ] ; then
-        echo "[openss]: $collector experiment using vector instruction detection operand size: \"$OPENSS_VINSTR_OPSIZE\" because environment variable OPENSS_VINSTR_OPSIZE is specified."
-    else
-        echo "[openss]: $collector experiment WARNING: OPENSS_VINSTR_OPSIZE is not 128, 256, or 512 using the default OPENSS_VINSTR_OPSIZE value."
-        echo "[openss]: $collector experiment using default vector instruction detection operand size: \"$vinstr_default_opsize\" setting."
-        export OPENSS_VINSTR_OPSIZE=$vinstr_default_opsize
+  if [ $scan_for_vinstr == true ] ; then
+    # Only these three operand sizes are recognized by the command line parsing
+    if [ $vector_opsize == "512" ]; then
+      export OPENSS_VINSTR_OPSIZE=512
+      echo "[openss]: $collector experiment enabling vector instruction detection for 512 bit operands because --vinstr512 is specified."
+    elif [ $vector_opsize == "256" ]; then
+      export OPENSS_VINSTR_OPSIZE=256
+      echo "[openss]: $collector experiment enabling vector instruction detection for 256 bit and greater operands because --vinstr256 is specified."
+    elif [ $vector_opsize == "128" ]; then
+      export OPENSS_VINSTR_OPSIZE=128
+      echo "[openss]: $collector experiment enabling vector instruction detection for 128 bit and greater operands because --vinstr128 is specified."
     fi
+  else
+    export OPENSS_NO_VINSTR=1
   fi
 
 else
+
+  if [ $scan_for_loops == true ] ; then
+    echo "[openss]: $collector experiment ignoring --loops option, it not valid for this experiment."
+  fi
+  if [ $scan_for_vinstr == true ] ; then
+    echo "[openss]: $collector experiment ignoring --vinstr[128,256,512] option, it not valid for this experiment."
+  fi
 
   # These experiments do not display at the loop level,
   # therefore don't scan the executable to find loops
@@ -1326,9 +1411,6 @@ case "$experiment_name" in
   if [ ! -z "$OPENSS_MPI_TRACED" ] ; then
     env_trace_events_set=true
   fi
-
-  echo use_default_flag=$use_default_flag
-  echo string_value=$string_value
 
   if [ "$string_value" != "" ] ; then
     if [ $env_trace_events_set == true ] ; then
