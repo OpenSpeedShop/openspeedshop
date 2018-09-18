@@ -85,6 +85,7 @@ namespace OpenSpeedShop { namespace Framework {
         
         std::set<LinkedObject> getLinkedObjects() const;
         std::set<Function> getFunctions() const;
+        std::set<InlineFunction> getInlineFunctions() const;
         std::set<Loop> getLoops() const;
         std::set<Statement> getStatements() const;
 	std::set<VectorInstr> getVectorInstrs() const;
@@ -93,6 +94,8 @@ namespace OpenSpeedShop { namespace Framework {
             const std::set<LinkedObject>&, const Extent&) const;
         ExtentTable<Thread, Function> getExtentsOf(
             const std::set<Function>&, const Extent&) const;
+        ExtentTable<Thread, InlineFunction> getExtentsOf(
+            const std::set<InlineFunction>&, const Extent&) const;
         ExtentTable<Thread, Loop> getExtentsOf(
             const std::set<Loop>&, const Extent&) const;
         ExtentTable<Thread, Statement> getExtentsOf(

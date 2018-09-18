@@ -100,6 +100,8 @@ set(FW_SOURCES
         Function.hxx Function.cxx
         FunctionCache.hxx FunctionCache.cxx
         Guard.hxx
+        InlineFunction.hxx InlineFunction.cxx
+        InlineFunctionCache.hxx InlineFunctionCache.cxx
         Interval.hxx
         LinkedObject.hxx LinkedObject.cxx
         Lockable.hxx

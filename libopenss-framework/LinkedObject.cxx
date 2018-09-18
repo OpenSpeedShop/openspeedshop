@@ -28,6 +28,7 @@
 #include "Exception.hxx"
 #include "ExtentGroup.hxx"
 #include "Function.hxx"
+#include "InlineFunction.hxx"
 #include "LinkedObject.hxx"
 #include "Loop.hxx"
 #include "Path.hxx"
@@ -218,6 +219,36 @@ std::set<Function> LinkedObject::getFunctions() const
     
     // Return the functions to the caller
     return functions;
+}
+
+
+
+/**
+ * Get our inline functions.
+ *
+ * Returns the inline functions contained within this linked object. An empty set is
+ * returned if no inline functions are found within this linked object.
+ *
+ * @return    inline functions contained within this linked object.
+ */
+std::set<InlineFunction> LinkedObject::getInlineFunctions() const
+{
+    std::set<InlineFunction> inlines;
+
+    // Find our inlines
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+        "SELECT id FROM InlinedFunctions WHERE linked_object = ?;"
+        );	
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement())
+        inlines.insert(InlineFunction(dm_database,
+                                    dm_database->getResultAsInteger(1)));
+    END_TRANSACTION(dm_database);
+    
+    // Return the statements to the caller
+    return inlines;
 }
 
 

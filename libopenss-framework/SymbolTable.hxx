@@ -70,9 +70,12 @@ namespace OpenSpeedShop { namespace Framework {
         void addLoop(const Address&, const Address&, const Address&);
 	void addStatement(const Address&, const Address&,
 			  const Path&, const int&, const int&);
+	void addInlinedFunction(const std::string&, const Address&, const Address&,
+			  const Path&, const int&, const int&);
 	void addVectorInstr(const Address&, const int32_t&, const int32_t&, const std::string&);
 	
 	void processAndStore(const LinkedObject&);
+	AddressRange getAddressRange() { return dm_range;};
 
 	// Offline uses this while checking that all sampled
 	// addresses have been resolved for function symbols.
@@ -153,6 +156,50 @@ namespace OpenSpeedShop { namespace Framework {
 	};
 
 	/**
+	 * Inline entry.
+	 *
+	 * Structure for an inlined function entry in the symbol table's
+	 * internal tables. Contains the inlined function name, full path name, line number,
+	 * and column number of the inlined function source statement.
+	 */
+	struct InlineEntry
+	{
+	    
+	    std::string dm_name;/**< Inlined function name. */
+	    Path dm_path;	/**< Path name of this inlined function's source file. */
+	    int dm_line;	/**< Line number of this inlined function statement. */
+	    int dm_column;	/**< Column number of this inlined function statement. */
+	    
+	    /** Constructor from fields. */
+	    InlineEntry(const std::string& name,
+			   const Path& path, 
+			   const int& line, 
+			   const int& column) :
+		dm_name(name),
+		dm_path(path),
+		dm_line(line),
+		dm_column(column)
+	    {
+	    }
+
+	    /** Operator "<" defined for two InlineEntry objects. */
+	    bool operator<(const InlineEntry& other) const
+	    {
+		if(dm_path < other.dm_path)
+		    return true;
+		if(dm_path > other.dm_path)
+		    return false;
+		if(dm_line < other.dm_line)
+		    return true;
+		if(dm_line > other.dm_line)
+		    return false;
+		return dm_column < other.dm_column;		
+	    }
+
+	};
+
+
+	/**
 	 * Vector Instruction entry.
 	 *
 	 * Structure for a vector instruction entry in the symbol table's
@@ -184,6 +231,8 @@ namespace OpenSpeedShop { namespace Framework {
 	
     /** Statements in this symbol table. */
     std::map<StatementEntry, std::vector<AddressRange> > dm_statements;
+    /** Inlines Functions in this symbol table. */
+    std::map<InlineEntry, std::vector<AddressRange> > dm_inlined_functions;
 
     /** Vector Instructions in this symbol table. */
     std::map<Address, VectorInstrEntry > dm_vectorInstrs;

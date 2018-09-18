@@ -93,7 +93,8 @@ bool operator<(const Entry& other) const
             Loops,          /**< Table of loops. */
 	    Statements,     /**< Table of source code statements. */
 	    Threads,        /**< Table of threads of code execution. */
-	    VectorInstrs    /**< Table of vector instructions of code execution. */
+	    VectorInstrs,   /**< Table of vector instructions of code execution. */
+	    InlineFunctions /**< Table of inlined functions. */
 	};
 	
 	Entry();

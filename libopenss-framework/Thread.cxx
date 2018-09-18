@@ -27,6 +27,7 @@
 #include "AddressBitmap.hxx"
 #include "CollectorGroup.hxx"
 #include "Function.hxx"
+#include "InlineFunction.hxx"
 #include "Instrumentor.hxx"
 #include "LinkedObject.hxx"
 #include "Loop.hxx"
@@ -380,6 +381,191 @@ std::set<Function> Thread::getFunctions() const
 
     // Return the functions to the caller
     return functions;
+}
+
+
+
+/**
+ * Get our inline functions.
+ *
+ * Returns the inline functions contained within this thread. An empty set is returned
+ * if no inline functions are found.
+ *
+ * @return    inline functions contained within this thread.
+ */
+std::set<InlineFunction> Thread::getInlineFunctions() const
+{
+    std::set<InlineFunction> inlines;
+
+    // Note: This query could be, and in fact used to be, implemented in a
+    //       more concise manner as:
+    //
+    //       See comments for getStatements.
+    //
+    //       However the implementation below was found to be quite a bit
+    //       faster.
+
+    // Find our linked objects
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+	"SELECT linked_object FROM AddressSpaces WHERE thread = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    while(dm_database->executeStatement()) {
+	int linked_object = dm_database->getResultAsInteger(1);
+	
+	// Find all the statements in this linked object
+	dm_database->prepareStatement(
+	    "SELECT id FROM InlinedFunctions WHERE linked_object = ?;"
+	    );
+	dm_database->bindArgument(1, linked_object);
+	while(dm_database->executeStatement())
+	    inlines.insert(InlineFunction(dm_database,
+					dm_database->getResultAsInteger(1)));
+	
+    }
+    END_TRANSACTION(dm_database);
+
+    // Return the statements to the caller
+    return inlines;
+}
+
+
+
+/**
+ * Get the inlined functions at an address.
+ *
+ * Returns the inlined functions containing the specified address at a particular
+ * moment in time. An empty set is returned if no inlined functions are found.
+ *
+ * @param address    Address to be found.
+ * @param time       Time at which to find this address.
+ * @return           inlined functions containing this address.
+ */
+std::set<InlineFunction>
+Thread::getInlineFunctionsAt(const Address& address, const Time& time) const
+{
+    std::set<InlineFunction> inlines;
+
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    
+    // Find the linked object containing the requested address/time
+    bool found_linked_object = false; 
+    int linked_object;
+    Address addr_begin;    
+    dm_database->prepareStatement(
+	"SELECT linked_object, "
+	"       addr_begin "
+	"FROM AddressSpaces "
+	"WHERE thread = ? "
+	"  AND ? >= time_begin "
+	"  AND ? < time_end "
+	"  AND ? >= addr_begin "
+	"  AND ? < addr_end;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, time);
+    dm_database->bindArgument(3, time);
+    dm_database->bindArgument(4, address);
+    dm_database->bindArgument(5, address);	
+    while(dm_database->executeStatement()) {
+#if 0
+	if(found_linked_object)
+	    throw Exception(Exception::EntryOverlapping, "AddressSpaces");
+#else
+	if(found_linked_object) break;
+#endif
+	found_linked_object = true;
+	linked_object = dm_database->getResultAsInteger(1);
+	addr_begin = dm_database->getResultAsAddress(2);
+    }
+
+    // Did we find the linked object?
+    if(found_linked_object) {
+
+	// Find the statements containing the requested address    
+	dm_database->prepareStatement(
+	    "SELECT InlinedFunctions.id, "
+	    "       InlinedFunctionsRanges.addr_begin, "
+	    "       InlinedFunctionsRanges.addr_end, "
+	    "       InlinedFunctionsRanges.valid_bitmap "
+	    "FROM InlinedFunctionsRanges "
+	    "  JOIN InlinedFunctions "
+	    "ON InlinedFunctionsRanges.inline = InlinedFunctions.id "
+	    "WHERE InlinedFunctions.linked_object = ? "
+	    "  AND ? >= InlinedFunctionsRanges.addr_begin "
+	    "  AND ? < InlinedFunctionsRanges.addr_end;"
+	    );
+	dm_database->bindArgument(1, linked_object);
+	dm_database->bindArgument(2, Address(address - addr_begin));
+	dm_database->bindArgument(3, Address(address - addr_begin));
+	while(dm_database->executeStatement()) {
+	    
+	    AddressBitmap bitmap(
+		AddressRange(dm_database->getResultAsAddress(2),
+			     dm_database->getResultAsAddress(3)),
+		dm_database->getResultAsBlob(4)
+		);
+	    
+	    if(bitmap.getValue(address - addr_begin))
+		inlines.insert(
+		    InlineFunction(dm_database,
+			      dm_database->getResultAsInteger(1))
+		    );
+	    
+	}
+
+    }
+
+    // End this multi-statement transaction
+    END_TRANSACTION(dm_database);
+
+    // Return the statements to the caller
+    return inlines;
+}
+
+
+
+
+/**
+ * Get inline functions by source file.
+ *
+ * Returns the inline functions in the passed source file. An empty set is returned
+ * if the source file cannot be found.
+ *
+ * @param path    Source file for which to obtain inline functions.
+ * @return        inline functions in this source file.
+ */
+std::set<InlineFunction>
+Thread::getInlineFunctionsBySourceFile(const Path& file) const
+{
+    std::set<InlineFunction> inlines;
+    
+    // Find the statements contained within this source file
+    BEGIN_TRANSACTION(dm_database);
+    validate();
+    dm_database->prepareStatement(
+	"SELECT InlinedFunctions.id "
+	"FROM Files "
+	"  JOIN InlinedFunctions "
+	"  JOIN AddressSpaces "
+	"ON Files.id = InlinedFunctions.file "
+	"  AND InlinedFunctions.linked_object = AddressSpaces.linked_object "	
+	"WHERE AddressSpaces.thread = ? "
+	"  AND Files.path = ?;"
+	);
+    dm_database->bindArgument(1, dm_entry);
+    dm_database->bindArgument(2, file);
+    while(dm_database->executeStatement())
+	inlines.insert(InlineFunction(dm_database,
+				    dm_database->getResultAsInteger(1)));
+    END_TRANSACTION(dm_database);
+    
+    // Return the statements to the caller
+    return inlines;
 }
 
 

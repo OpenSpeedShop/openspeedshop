@@ -56,6 +56,7 @@ SymbolTable::SymbolTable(const AddressRange& range) :
     dm_functions(),
     dm_loops(),
     dm_statements(),
+    dm_inlined_functions(),
     dm_vectorInstrs()
 {
 }
@@ -98,12 +99,11 @@ void SymbolTable::addFunction(const Address& begin,
 	return;
     
     // Discard functions overlapping functions already in this symbol table
-    if(dm_functions.find(range) != dm_functions.end())
+    if(dm_functions.find(range) != dm_functions.end()) {
 	return;
+    }
     
     // Add this function to the symbol table
-    //std::cerr << "SymbolTable::addFunction INSERTS to dm_functions "
-    //    << name << std::endl;
     dm_functions.insert(std::make_pair(range, name));
 }
 
@@ -212,14 +212,58 @@ void SymbolTable::addStatement(const Address& begin,
 		std::vector<AddressRange>())
 	    ).first;
     
-#if 0
-    std::cerr << "SymbolTable::addStatment INSERTS to dm_statements " << path
-	<< ":" << line
-	<< ":" << column
-	<< " range: " << range
-	 << std::endl;
-#endif
+    // Add this address range to the statement
+    i->second.push_back(range);
+}
 
+
+/**
+ * Add an inlined function.
+ *
+ * Adds the specified statement with its associated address range to this symbol
+ * table. Statements are discarded when they have an invalid address range, or
+ * are not contained entirely within this symbol table.
+ *
+ * @note    In theory a symbol table will never contain invalid address ranges,
+ *          or address ranges outside the address range of the symbol table
+ *          itself. There are various cases, however, where bogus symbol
+ *          information results in this happening. This function contains
+ *          sanity checks that help keep the experiment database, if not 100%
+ *          correct, at least useable under such circumstances.
+ *
+ * @param name      The inlined function name.
+ * @param begin     Beginning address associated with this statement.
+ * @param end       Ending address associated with this statement.
+ * @param path      Full path name of this statement's source file.
+ * @param line      Line number of this statement.
+ * @param column    Column number of this statement.
+ */
+void SymbolTable::addInlinedFunction(const std::string& name,
+			       const Address& begin, 
+			       const Address& end,
+			       const Path& path, 
+			       const int& line, 
+			       const int& column)
+{
+    // Discard statements where (end <= begin)
+    if(end <= begin)
+	return;
+    
+    // Construct the address range [begin, end)
+    AddressRange range(begin, end);
+
+    // Discard statements not contained entirely within this symbol table
+    if(!dm_range.doesContain(range))
+	return;
+    
+    // Add this statement to the symbol table (or find the existing statement)
+    std::map<InlineEntry, std::vector<AddressRange> >::iterator
+	i = dm_inlined_functions.insert(
+	    std::make_pair(
+		InlineEntry(name, path, line, column),
+		std::vector<AddressRange>())
+	    ).first;
+    
     // Add this address range to the statement
     i->second.push_back(range);
 }
@@ -287,6 +331,7 @@ void SymbolTable::processAndStore(const LinkedObject& linked_object)
 
     }
 
+
     // Iterate over each loop entry
     for(std::map<Address, std::vector<AddressRange> >::const_iterator
             i = dm_loops.begin(); i != dm_loops.end(); ++i) {
@@ -335,6 +380,7 @@ void SymbolTable::processAndStore(const LinkedObject& linked_object)
             while(database->executeStatement());
         }
     }
+
 
     // Iterate over each statement entry
     for(std::map<StatementEntry, std::vector<AddressRange> >::const_iterator
@@ -403,10 +449,80 @@ void SymbolTable::processAndStore(const LinkedObject& linked_object)
 	    while(database->executeStatement());
 	    
 	}
-
-
     }
 
+
+
+    // Iterate over each inlined function entry
+    for(std::map<InlineEntry, std::vector<AddressRange> >::const_iterator
+	    i = dm_inlined_functions.begin(); i != dm_inlined_functions.end(); ++i) {
+
+	// Is there an existing file in the database?
+	int file = -1;
+	database->prepareStatement("SELECT id FROM Files WHERE path = ?;");
+	database->bindArgument(1, i->first.dm_path);
+	while(database->executeStatement())
+	    file = database->getResultAsInteger(1);	    
+	
+	// Create the file entry if it wasn't present in the database
+	if(file == -1) {
+	    database->prepareStatement("INSERT INTO Files (path) VALUES (?);");
+	    database->bindArgument(1, i->first.dm_path);
+	    while(database->executeStatement());
+	    file = database->getLastInsertedUID();
+	}
+
+	// Create the inlinefunc entry
+	database->prepareStatement(
+	    "INSERT INTO InlinedFunctions "
+	    "  (linked_object, name, file, line, \"column\") "
+	    "VALUES (?, ?, ?, ?, ?);"
+	    );
+	database->bindArgument(1, EntrySpy(linked_object).getEntry());
+	database->bindArgument(2, i->first.dm_name);
+	//database->bindArgument(2, fname);
+	database->bindArgument(3, file);
+	database->bindArgument(4, i->first.dm_line);
+	database->bindArgument(5, i->first.dm_column);
+	while(database->executeStatement());	
+	int inlinefunc = database->getLastInsertedUID();
+
+	// Construct the set of unique addresses for this inlinefunc
+	std::set<Address> addresses;
+	for(std::vector<AddressRange>::const_iterator
+		j = i->second.begin(); j != i->second.end(); ++j)
+	    for(Address k = j->getBegin(); k != j->getEnd(); ++k)
+		addresses.insert(Address(k - dm_range.getBegin()));
+	
+	// Partition this inlinefunc's address set
+	std::vector<std::set<Address> > address_sets =
+	    partitionAddressSet(addresses);
+	
+	// Iterate over each partitioned address set
+	for(std::vector<std::set<Address> >::const_iterator
+		j = address_sets.begin(); j != address_sets.end(); ++j) {
+	    
+	    // Create and populate an address bitmap for this address set
+	    AddressBitmap valid_bitmap(AddressRange(*(j->begin()),
+						    *(j->rbegin()) + 1));
+	    for(std::set<Address>::const_iterator
+		    k = j->begin(); k != j->end(); ++k)
+		valid_bitmap.setValue(*k, true);
+	    
+	    // Create the inlinefunc ranges entry
+	    database->prepareStatement(
+		"INSERT INTO InlinedFunctionsRanges "
+		"  (inline, addr_begin, addr_end, valid_bitmap) "
+		"VALUES (?, ?, ?, ?);"
+		);
+	    database->bindArgument(1, inlinefunc);
+	    database->bindArgument(2, valid_bitmap.getRange().getBegin());
+	    database->bindArgument(3, valid_bitmap.getRange().getEnd());
+	    database->bindArgument(4, valid_bitmap.getBlob());
+	    while(database->executeStatement());
+	    
+	}
+    }
 
     // Iterate over each vector instruction entry
     for(std::map<Address, VectorInstrEntry >::const_iterator m = dm_vectorInstrs.begin(); m != dm_vectorInstrs.end(); ++m) {

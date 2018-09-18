@@ -30,6 +30,7 @@
 #include "ExtentTable.hxx"
 #include "Instrumentor.hxx"
 #include "Function.hxx"
+#include "InlineFunction.hxx"
 #include "LinkedObject.hxx"
 #include "Loop.hxx"
 #include "Statement.hxx"
@@ -338,6 +339,66 @@ std::set<Function> ThreadGroup::getFunctions() const
     
     // Return the functions to the caller
     return functions;
+}
+
+
+
+/**
+ * Get inline functions for all threads.
+ *
+ * Returns the inline functions within the threads in the group. An empty set is
+ * returned if no inline functions are found.
+ *
+ * @pre    All threads in the thread group must be from the same experiment. An
+ *         assertion failure occurs if more than one experiment is implied.
+ *
+ * @return    inline functions contained within this group.
+ */
+std::set<InlineFunction> ThreadGroup::getInlineFunctions() const
+{
+    std::set<InlineFunction> inlines;
+    
+    // Handle special case of an empty thread group
+    if(empty())
+	return inlines;
+
+    // Check preconditions
+    SmartPtr<Database> database = EntrySpy(*begin()).getDatabase();
+    for(ThreadGroup::const_iterator i = begin(); i != end(); ++i)
+	Assert(EntrySpy(*i).getDatabase() == database);
+
+    // Begin a multi-statement transaction
+    BEGIN_TRANSACTION(database);
+    
+    // Find all of the linked objects within any thread of this group
+    std::set<int> linked_objects;
+    database->prepareStatement(
+	"SELECT thread, "
+	"       linked_object "
+	"FROM AddressSpaces;"
+	);
+    while(database->executeStatement())
+	if(find(Thread(database, database->getResultAsInteger(1))) != end())
+	    linked_objects.insert(database->getResultAsInteger(2));
+
+    // Find all of the inlines in any of these linked objects
+    database->prepareStatement(
+	"SELECT id, "
+	"       linked_object "
+	"FROM InlinedFunctions;"
+	);
+    while(database->executeStatement())
+	if(linked_objects.find(database->getResultAsInteger(2)) !=
+	   linked_objects.end())
+	    inlines.insert(
+		InlineFunction(database, database->getResultAsInteger(1))
+		);
+    
+    // End this multi-statement transaction
+    END_TRANSACTION(database);
+    
+    // Return the inlines to the caller
+    return inlines;
 }
 
 

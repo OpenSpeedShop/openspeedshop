@@ -31,6 +31,8 @@
 #include "ExtentGroup.hxx"
 #include "Function.hxx"
 #include "FunctionCache.hxx"
+#include "InlineFunction.hxx"
+#include "InlineFunctionCache.hxx"
 #include "LinkedObject.hxx"
 #include "Loop.hxx"
 #include "LoopCache.hxx"
@@ -395,6 +397,31 @@ std::set<Statement> Function::getStatements() const
     
     // Return the statements to the caller
     return statements;
+}
+
+
+
+/**
+ * Get our inline functions.
+ *
+ * Returns the inline functions associated with this function. An empty set is
+ * returned if no inline functions are associated with this function.
+ *
+ * @return    inline functions associated with this function.
+ */
+std::set<InlineFunction> Function::getInlineFunctions() const
+{
+    // Find our linked object and extent
+    LinkedObject linked_object;
+    ExtentGroup extent;
+    getLinkedObjectAndExtent(linked_object, extent);
+    
+    // Use the inline function cache to find our inlines
+    std::set<InlineFunction> inlines =
+        InlineFunction::TheCache.getInlineFunctions(linked_object, extent);
+    
+    // Return the inlines to the caller
+    return inlines;
 }
 
 

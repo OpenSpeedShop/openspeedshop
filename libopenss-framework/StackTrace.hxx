@@ -31,6 +31,7 @@
 
 #include "Address.hxx"
 #include "Function.hxx"
+#include "InlineFunction.hxx"
 #include "LinkedObject.hxx"
 #include "Statement.hxx"
 #include "Thread.hxx"
@@ -101,6 +102,12 @@ namespace OpenSpeedShop { namespace Framework {
 	std::set<Statement> getStatementsAt(const size_type& index) const
 	{
 	    return dm_thread.getStatementsAt((*this)[index], dm_time);
+	}
+
+	/** Get the inlines containing one of the stack trace entries. */
+	std::set<InlineFunction> getInlineFunctionsAt(const size_type& index) const
+	{
+	    return dm_thread.getInlineFunctionsAt((*this)[index], dm_time);
 	}
 
     private:

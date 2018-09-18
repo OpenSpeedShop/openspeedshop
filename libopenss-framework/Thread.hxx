@@ -52,6 +52,7 @@ namespace OpenSpeedShop { namespace Framework {
     class DataCache;
     class Experiment;
     class Function;
+    class InlineFunction;
     class LinkedObject;
     class Loop;
     class Path;
@@ -92,6 +93,7 @@ namespace OpenSpeedShop { namespace Framework {
         friend class DataCache;
         friend class Experiment;
         friend class Function;
+        friend class InlineFunction;
         friend class LinkedObject;
         friend class Loop;
         friend class Process;
@@ -136,6 +138,7 @@ namespace OpenSpeedShop { namespace Framework {
         
         std::set<LinkedObject> getLinkedObjects() const;
         std::set<Function> getFunctions() const;
+        std::set<InlineFunction> getInlineFunctions() const;
         std::set<Loop> getLoops() const;
         std::set<Statement> getStatements() const;
         std::set<VectorInstr> getVectorInstrs() const;
@@ -143,6 +146,8 @@ namespace OpenSpeedShop { namespace Framework {
         std::pair<bool, LinkedObject> getLinkedObjectAt(
             const Address&, const Time& = Time::Now()) const;
         std::pair<bool, Function> getFunctionAt(
+            const Address&, const Time& = Time::Now()) const;
+        std::set<InlineFunction> getInlineFunctionsAt(
             const Address&, const Time& = Time::Now()) const;
         std::set<Loop> getLoopsAt(
             const Address&, const Time& = Time::Now()) const;
@@ -157,6 +162,7 @@ namespace OpenSpeedShop { namespace Framework {
         std::pair<bool, LinkedObject> getExecutable(
             const Time& = Time::Now()) const;	
         std::pair<bool, Function> getFunctionByName(const std::string&) const;
+        std::set<InlineFunction> getInlineFunctionsBySourceFile(const Path&) const;
         std::set<Loop> getLoopsBySourceFile(const Path&) const;
         std::set<Statement> getStatementsBySourceFile(const Path&) const;
         std::set<VectorInstr> getVectorInstrsBySourceFile(const Path&) const;

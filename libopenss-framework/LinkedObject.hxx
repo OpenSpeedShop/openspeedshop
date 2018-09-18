@@ -45,6 +45,8 @@ namespace OpenSpeedShop { namespace Framework {
     class ExtentGroup;
     class Function;
     class FunctionCache;
+    class InlineFunction;
+    class InlineFunctionCache;
     class Loop;
     class LoopCache;
     class Path;
@@ -72,6 +74,8 @@ namespace OpenSpeedShop { namespace Framework {
 	friend class Experiment;
 	friend class Function;
 	friend class FunctionCache;
+	friend class InlineFunction;
+	friend class InlineFunctionCache;
 	friend class Loop;
 	friend class LoopCache;
 	friend class Statement;
@@ -93,6 +97,7 @@ namespace OpenSpeedShop { namespace Framework {
 	std::set<Loop> getLoops() const;
 	std::set<VectorInstr> getVectorInstrs() const;
 	std::set<Statement> getStatements() const;
+	std::set<InlineFunction> getInlineFunctions() const;
 
 	std::set<AddressRange> getAddressRange() const;
         

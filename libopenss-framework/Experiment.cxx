@@ -140,7 +140,7 @@ namespace {
 	");",
         "CREATE INDEX IndexFunctionRangesByFunction "
 	"  ON FunctionRanges (function);",
-	
+
         // Loop Table
 	"CREATE TABLE Loops ("
 	"    id INTEGER PRIMARY KEY,"
@@ -181,6 +181,28 @@ namespace {
         "CREATE INDEX IndexStatementRangesByStatement "
 	"  ON StatementRanges (statement);",
 	
+	// Inlined Functions Table
+	"CREATE TABLE InlinedFunctions ("
+	"    id INTEGER PRIMARY KEY,"
+	"    linked_object INTEGER," // From LinkedObjects.id
+	"    name TEXT,"          // inlined function name
+	"    file INTEGER,"          // From Files.id
+	"    line INTEGER,"
+	"    \"column\" INTEGER"
+	");",
+	"CREATE INDEX IndexInlinedFunctionsByLinkedObject "
+	"  ON InlinedFunctions (linked_object);",
+
+	// Inlined Functions Range Table
+	"CREATE TABLE InlinedFunctionsRanges ("
+	"    inline INTEGER,"        // From InlinedFunctions.id
+	"    addr_begin INTEGER,"
+	"    addr_end INTEGER,"
+	"    valid_bitmap BLOB"
+	");",
+        "CREATE INDEX IndexInlinedFunctionsRangesByStatement "
+	"  ON InlinedFunctionsRanges (inline);",
+
         // Vector Instruction Table
 	"CREATE TABLE VectorInstrs ("
 	"    id INTEGER PRIMARY KEY,"
@@ -192,6 +214,7 @@ namespace {
 	");",
 	"CREATE INDEX IndexVectorInstrsByLinkedObject "
 	"  ON VectorInstrs (linked_object);",
+
         // VectorInstr Range Table
         "CREATE TABLE VectorInstrRanges ("
         "    vectorinstr INTEGER," // From VectorInstr.id
@@ -535,6 +558,10 @@ Experiment::Experiment(const std::string& name) :
         updateToVersion6();
     if(getVersion() == 6)
         updateToVersion7();
+    if(getVersion() == 7)
+        updateToVersion8();
+    if(getVersion() == 8)
+        updateToVersion9();
 
 #if (BUILD_INSTRUMENTOR == 1)
     // Iterate over each thread in this experiment
@@ -2369,7 +2396,7 @@ void Experiment::updateToVersion8() const
     // create table  VIEWS  ( id INTEGER PRIMARY KEY, view_cmd TEXT DEFAULT NULL,  view_data BLOB DEFAULT NULL); 
 
         // Vector Instruction Table
-	"CREATE TABLE VectorInstrs ("
+	"CREATE TABLE IF NOT EXISTS VectorInstrs ("
 	"    id INTEGER PRIMARY KEY,"
 	"    linked_object INTEGER," // From LinkedObjects.id
 	"    addr_begin INTEGER,"
@@ -2380,15 +2407,14 @@ void Experiment::updateToVersion8() const
 	"CREATE INDEX IndexVectorInstrsByLinkedObject "
 	"  ON VectorInstrs (linked_object);",
         // VectorInstr Range Table
-        "CREATE TABLE VectorInstrRanges ("
+        "CREATE TABLE IF NOT EXISTS VectorInstrRanges ("
         "    vectorinstr INTEGER," // From VectorInstr.id
         "    addr_begin INTEGER,"
         "    addr_end INTEGER,"
         "    valid_bitmap BLOB"
         ");",
         "CREATE INDEX IndexVectorInstrRangesByInstr "
-        "  ON VectorInstrRanges (vectorinstr);"
-	");",
+        "  ON VectorInstrRanges (vectorinstr);",
 	
 	// Update the database's schema version number
 	"UPDATE \"Open|SpeedShop\" SET version = 8;",
@@ -2406,6 +2432,55 @@ void Experiment::updateToVersion8() const
     END_TRANSACTION(dm_database);
 }
 
+/**
+ * Update our schema to version 9.
+ *
+ * Updates the schema of this experiment's database to version 9.
+ * Adds tables for inline functions and their inline statements.
+ * Updates the database's schema version number.
+ */
+void Experiment::updateToVersion9() const
+{
+    // Update procedure
+    const char* UpdateProcedure[] = {
+
+	// Inlined Functions Table
+	"CREATE TABLE InlinedFunctions ("
+	"    id INTEGER PRIMARY KEY,"
+	"    linked_object INTEGER," // From LinkedObjects.id
+	"    name TEXT,"          // inlined function name
+	"    file INTEGER,"          // From Files.id
+	"    line INTEGER,"
+	"    \"column\" INTEGER"
+	");",
+	"CREATE INDEX IndexInlinedFunctionsByLinkedObject "
+	"  ON InlinedFunctions (linked_object);",
+
+	// Inlined Functions Range Table
+	"CREATE TABLE InlinedFunctionsRanges ("
+	"    inline INTEGER,"        // From InlinedFunctions.id
+	"    addr_begin INTEGER,"
+	"    addr_end INTEGER,"
+	"    valid_bitmap BLOB"
+	");",
+        "CREATE INDEX IndexInlinedFunctionsRangesByStatement "
+	"  ON InlinedFunctionsRanges (inline);",
+
+	// Update the database's schema version number
+	"UPDATE \"Open|SpeedShop\" SET version = 9;",
+
+	// End Of Table Entry
+	NULL
+    };
+
+    // Apply the update procedure
+    BEGIN_WRITE_TRANSACTION(dm_database);
+    for(int i = 0; UpdateProcedure[i] != NULL; ++i) {
+	dm_database->prepareStatement(UpdateProcedure[i]);
+	while(dm_database->executeStatement());
+    }
+    END_TRANSACTION(dm_database);
+}
 
 
 /**

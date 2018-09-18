@@ -281,13 +281,14 @@ namespace {
     int num_attachedthreads = 0;
 }
 
-void process_symvec(const CBTF_Protocol_SymbolTable& message) {
+static void process_symvec(const CBTF_Protocol_SymbolTable& message)
+{
+#if !defined(OPENSS_CBTF_FE_RESOLVE_SYMBOLS)
 #ifndef NDEBUG
     std::stringstream output;
     if(Frontend::isTimingDebugEnabled()) {
 
 	std::cerr << "TIME " << KrellInstitute::Core::Time::Now()
-	<< " CLIENT:" << getpid()
 	<< " Callbacks process_symvec entered"
 	<< std::endl;
     }
@@ -298,8 +299,7 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 
 #ifndef NDEBUG
 	    if(Frontend::isSymbolsDebugEnabled()) {
-		std::cerr << "CLIENT:" << getpid()
-		<< " Callbacks::process_symvec Experiment "
+		std::cerr << "Callbacks::process_symvec Experiment "
 		<< " no longer exists."
 		<< std::endl;
 	    }
@@ -314,16 +314,14 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 #ifndef NDEBUG
 	if(linked_object == -1) {
 	    if(Frontend::isSymbolsDebugEnabled()) {
-		std::cerr << "CLIENT:" << getpid()
-		<< " Callbacks::process_symvec Linked Object "
+		std::cerr << "Callbacks::process_symvec Linked Object "
 		<< toString(message.linked_object) 
 		<< " no longer exists."
 		<< std::endl;
 	    }
 	} else {
 	    if(Frontend::isSymbolsDebugEnabled()) {
-		std::cerr << "CLIENT:" << getpid()
-		<< " Callbacks::process_symvec Linked Object "
+		std::cerr << "Callbacks::process_symvec Linked Object "
 		<< message.linked_object.path << " processed for symbols."
 		<< std::endl;
 	    }
@@ -353,8 +351,7 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 
 #ifndef NDEBUG
 		    if(Frontend::isSymbolsDebugEnabled()) {
-		    std::cerr << "CLIENT:" << getpid()
-		    << " Callbacks::process_symvec INSERTS FUNCTION " << msg_function.name
+		    std::cerr << "Callbacks::process_symvec INSERTS FUNCTION " << msg_function.name
 		    << std::endl;
 		    }
 #endif
@@ -377,8 +374,7 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 
 #ifndef NDEBUG
 			if(Frontend::isSymbolsDebugEnabled()) {
-			std::cerr << "CLIENT:" << getpid()
-			<< " Callbacks::process_symvec INSERTS FUNCTIONRANGES " << msg_function.name
+			std::cerr << "Callbacks::process_symvec INSERTS FUNCTIONRANGES " << msg_function.name
 			<< " range:" << OpenSpeedShop::Framework::AddressRange(msg_bitmap.range.begin,msg_bitmap.range.end)
 			<< " valid_bitmap data len:" << msg_bitmap.bitmap.data.data_len
 		        << std::endl;
@@ -411,8 +407,7 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 	    } else {
 #ifndef NDEBUG
 		if(Frontend::isSymbolsDebugEnabled()) {
-		    std::cerr << "CLIENT:" << getpid()
-		    << " Callbacks::process_symvec() Experiment "
+		    std::cerr << "Callbacks::process_symvec() Experiment "
 		    << " DB already has these functions!." << std::endl;
 		}
 #endif
@@ -432,8 +427,7 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 	    if(!has_statements) {
 #ifndef NDEBUG
 		if(Frontend::isSymbolsDebugEnabled()) {
-		    std::cerr << "CLIENT:" << getpid()
-		    << " Callbacks::process_symvec message.statements.statements_len "
+		    std::cerr << "Callbacks::process_symvec message.statements.statements_len "
 		    << message.statements.statements_len
 		    << std::endl;
 		}
@@ -446,8 +440,7 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 
 #ifndef NDEBUG
 		    if(Frontend::isSymbolsDebugEnabled()) {
-			std::cerr << "CLIENT:" << getpid()
-			<< " Callbacks::process_symvec"
+			std::cerr << "Callbacks::process_symvec"
 			<< " FILE " << msg_statement.path.path
 			<< " LINE " << msg_statement.line
 			<< " COL " << msg_statement.column
@@ -471,8 +464,7 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 		    if(file == -1) {
 #ifndef NDEBUG
 		    if(Frontend::isSymbolsDebugEnabled()) {
-			std::cerr << "CLIENT:" << getpid()
-			<< " Callbacks::process_symvec INSERTS FILE " << msg_statement.path.path
+			std::cerr << "Callbacks::process_symvec INSERTS FILE " << msg_statement.path.path
 			<< std::endl;
 		    }
 #endif
@@ -491,8 +483,7 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 		    // Create the statement entry
 #ifndef NDEBUG
 		    if(Frontend::isSymbolsDebugEnabled()) {
-		    std::cerr << "CLIENT:" << getpid()
-		    << " Callbacks::process_symvec INSERTS STATEMENT " << file
+		    std::cerr << "Callbacks::process_symvec INSERTS STATEMENT " << file
 		    << ":" << msg_statement.line << ":" << msg_statement.column
 		    << std::endl;
 		    }
@@ -541,8 +532,7 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 	    } else {
 #ifndef NDEBUG
 		if(Frontend::isSymbolsDebugEnabled()) {
-		    std::cerr << "CLIENT:" << getpid()
-		    << " Callbacks::process_symvec Experiment "
+		    std::cerr << "Callbacks::process_symvec Experiment "
 		    << " DB already has these statements!." << std::endl;
 		}
 #endif
@@ -556,9 +546,11 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
 	std::cerr << "TIME " << KrellInstitute::Core::Time::Now()
-	    << " CLIENT:" << getpid() << " Callbacks process_symvec() exits"
+	    << "Callbacks process_symvec() exits"
 	    << std::endl;
     }
+#endif
+
 #endif
 }
 
@@ -566,7 +558,7 @@ void process_symvec(const CBTF_Protocol_SymbolTable& message) {
 // of ThreadNames created by the attachToThreads callback.
 // Threads are queued in the threadvec and not flush to the database until
 // we need to (like when a data blob needs to be added to the DataQueue).
-bool updateThreads()
+static bool updateThreads()
 {
     // thread vector is empty so no need to access database.
     if (threadvec.empty()) {
@@ -582,7 +574,7 @@ bool updateThreads()
     if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
 	output << "TIME " << OpenSpeedShop::Framework::Time::Now()
-	<< " CLIENT:" << getpid() << " entered updateThreads with "
+	<< " entered updateThreads with "
 	<< threadvec.size() << " threads" << std::endl;
 	std::cerr << output.str();
     }
@@ -595,8 +587,7 @@ bool updateThreads()
 #ifndef NDEBUG
 	    if(Frontend::isDebugEnabled()) {
 		std::stringstream output;
-		output << "CLIENT:" << getpid()
-		<< " updateThreads(): Experiment " << 0 
+		output << "updateThreads(): Experiment " << 0 
 		<< " no longer exists." << std::endl;
 		std::cerr << output.str();
 	    }
@@ -645,8 +636,7 @@ bool updateThreads()
 #ifndef NDEBUG
 		if(Frontend::isDebugEnabled()) {
 		    std::stringstream output;
-		    output << "CLIENT::" << getpid()
-		       << " updateThreads() UPDATE Threads SET "
+		    output << "updateThreads() UPDATE Threads SET "
 		       << " rank:" << (*i).getMPIRank()
 		       << " posix_tid:" << (*i).getPosixThreadId().second
 		       << " omp_tid:" << (*i).getOmpTid()
@@ -720,8 +710,7 @@ bool updateThreads()
 #ifndef NDEBUG
 		if(Frontend::isDebugEnabled()) {
 		    std::stringstream output;
-		    output << "CLIENT:" << getpid()
-		       << " updateThreads: FOUND existing thread in database"
+		    output << "updateThreads: FOUND existing thread in database"
 		       << " " << host
 		       << ":" << (*i).getPid()
 		       << ":" << (*i).getPosixThreadId().second
@@ -735,8 +724,7 @@ bool updateThreads()
 #ifndef NDEBUG
 		if(Frontend::isDebugEnabled()) {
 		    std::stringstream output;
-		    output << "CLIENT:" << getpid()
-		       << " updateThreads: INSERT INTO Threads"
+		    output << "updateThreads: INSERT INTO Threads"
 		       << " " << host
 		       << ":" << (*i).getPid()
 		       << ":" << (*i).getPosixThreadId().second
@@ -775,8 +763,7 @@ bool updateThreads()
 #ifndef NDEBUG
 		if(Frontend::isDebugEnabled()) {
 		    std::stringstream output;
-		    output << "CLIENT " << getpid()
-		       << " updateThreads(): New Thread - INSERTING"
+		    output << "updateThreads(): New Thread - INSERTING"
 		       << " " << host
 		       << ":" << (*i).getPid()
 		       << ":" << (*i).getMPIRank()
@@ -863,7 +850,7 @@ void Callbacks::attachedToThreads(const boost::shared_ptr<CBTF_Protocol_Attached
     if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
 	output << "TIME " << Time::Now()
-		<< " CLIENT:" << getpid() << " Callbacks::attachedToThreads"
+		<< " Callbacks::attachedToThreads"
 		<< " ENTERED message threads:" << message.threads.names.names_len
 		<< " num_attachedthreads:" << num_attachedthreads
 		<< std::endl;
@@ -911,7 +898,7 @@ void Callbacks::createdProcess(const boost::shared_ptr<CBTF_Protocol_CreatedProc
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
-	output << "TIME " << Time::Now() << " CLIENT:" << getpid() << " Callbacks::"
+	output << "TIME " << Time::Now() << " Callbacks::"
 	       << toString(message);
 	std::cerr << output.str();
     }
@@ -925,7 +912,7 @@ void Callbacks::createdProcess(const boost::shared_ptr<CBTF_Protocol_CreatedProc
 #ifndef NDEBUG
 	if(Frontend::isDebugEnabled()) {
 	    std::stringstream output;
-	    output << "CLIENT:" << getpid() << " Callbacks::"
+	    output << "Callbacks::"
 		   << "createdProcess(): Experiment " 
 		   << message.original_thread.experiment 
 		   << " no longer exists." << std::endl;
@@ -958,8 +945,7 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
-	std::cerr << "TIME " << Time::Now() << " CLIENT:" << getpid()
-	<< " Callbacks::addressBuffer entered"
+	std::cerr << "TIME " << Time::Now() << " Callbacks::addressBuffer entered"
 	<< " with " << in.addresscounts.size() << " addresses"
 	 << std::endl;
     }
@@ -989,8 +975,7 @@ void Callbacks::addressBuffer(const AddressBuffer& in)
 
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
-	std::cerr << "TIME " << Time::Now() << " CLIENT:" << getpid()
-	       << " Callbacks::addressBuffer exits" << std::endl;
+	std::cerr << "TIME " << Time::Now() << " Callbacks::addressBuffer exits" << std::endl;
     }
 #endif
 }
@@ -1025,7 +1010,7 @@ void Callbacks::finalize() {
 
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
-	std::cerr << "TIME " << Time::Now() << " CLIENT:" << getpid()
+	std::cerr << "TIME " << Time::Now()
 	       << " Callbacks::finalize find symbol tables for "
 	       << ttgrp_lo.size() << " linked objects from  "
 	       << threads.size() << " threads."
@@ -1064,9 +1049,10 @@ void Callbacks::finalize() {
 
 #ifndef NDEBUG
 		    if(Frontend::isTimingDebugEnabled()) {
-			output << "TIME " << Time::Now() << " CLIENT:" << getpid()
-			    << " Callbacks::finalize insert symtab " <<
-			    (*li).getPath() << std::endl;
+			output << "TIME " << Time::Now()
+			    << " Callbacks::finalize insert symtab " << (*li).getPath()
+			    << " range:" << *ar
+			    << std::endl;
 		    }
 #endif
 		    stlo.insert(*li);
@@ -1076,7 +1062,7 @@ void Callbacks::finalize() {
 		}
 
 		foundaddress = true;
-		break;
+		//break;
 
 	      }
 
@@ -1098,7 +1084,7 @@ void Callbacks::finalize() {
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
-	output << "TIME " << Time::Now() << " CLIENT:" << getpid()
+	output << "TIME " << Time::Now()
 #if defined(HAVE_DYNINST)
 	       << " Callbacks::finalize resolving functions,statements,loops" << std::endl;
 #else
@@ -1177,19 +1163,20 @@ void Callbacks::finalize() {
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
-	output << "TIME " << Time::Now() << " CLIENT:" << getpid()
+	output << "TIME " << Time::Now()
 	       << " Callbacks::finalize finished resolving symbols" << std::endl;
 	std::cerr << output.str();
     }
 #endif
 
-#endif  // OPENSS_CBTF_FE_RESOLVE_SYMBOLS
+#else  // OPENSS_CBTF_FE_RESOLVE_SYMBOLS
 
-    // process that symboltable here...
+    // process that symboltable here from CBTF network...
     for(std::vector<CBTF_Protocol_SymbolTable>::const_iterator si = symvec.begin();
 	si != symvec.end(); si++) {
 	process_symvec(*si);
     }
+#endif
 
     // Now clean up any remaining linkedobjects, files, addressspaces,
     // and threads that do not contain any sample date, functions or statements.
@@ -1213,7 +1200,8 @@ void Callbacks::finalize() {
     database->prepareStatement(
 	"DELETE FROM LinkedObjects "
 	"WHERE id NOT IN (SELECT DISTINCT linked_object FROM Functions) "
-	"  AND id NOT IN (SELECT DISTINCT linked_object FROM Statements);"
+	"  AND id NOT IN (SELECT DISTINCT linked_object FROM Statements) "
+	"  AND id NOT IN (SELECT DISTINCT linked_object FROM InlinedFunctions);"
 	);
     while(database->executeStatement());
 
@@ -1222,7 +1210,8 @@ void Callbacks::finalize() {
     database->prepareStatement(
 	"DELETE FROM Files "
 	"WHERE id NOT IN (SELECT DISTINCT file FROM LinkedObjects) "
-	"  AND id NOT IN (SELECT DISTINCT file FROM Statements);"
+	"  AND id NOT IN (SELECT DISTINCT file FROM Statements) "
+	"  AND id NOT IN (SELECT DISTINCT file FROM InlinedFunctions);"
 	);
     while(database->executeStatement());
 
@@ -1256,8 +1245,7 @@ void Callbacks::finalize() {
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
-	output << "TIME " << Time::Now() << " CLIENT:" << getpid()
-	       << " Callbacks::finalize exits" << std::endl;
+	output << "TIME " << Time::Now() << " Callbacks::finalize exits" << std::endl;
 	std::cerr << output.str();
     }
 #endif
@@ -1283,8 +1271,7 @@ void Callbacks::loadedLinkedObject(const boost::shared_ptr<CBTF_Protocol_LoadedL
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
-	output << "TIME " << Time::Now() << " CLIENT:" << getpid() << " Callbacks::"
-	       << toString(message);
+	output << "TIME " << Time::Now() << " Callbacks::" << toString(message);
 	std::cerr << output.str();
     }
 #endif
@@ -1320,8 +1307,7 @@ void Callbacks::loadedLinkedObject(const boost::shared_ptr<CBTF_Protocol_LoadedL
 
 #ifndef NDEBUG
 	    if(Frontend::isDebugEnabled()) {
-		output << "CLIENT:" << getpid() << " Callbacks::"
-		       << "loadedLinkedObject(): Experiment "
+		output << "Callbacks::loadedLinkedObject: Experiment "
 		       << msg_thread.experiment
 		       << " no longer exists." << std::endl;
 	    }
@@ -1329,6 +1315,7 @@ void Callbacks::loadedLinkedObject(const boost::shared_ptr<CBTF_Protocol_LoadedL
 
 	    continue;
 	}
+
 	BEGIN_WRITE_TRANSACTION(database);
 
 	// Find the existing thread in the database
@@ -1336,8 +1323,7 @@ void Callbacks::loadedLinkedObject(const boost::shared_ptr<CBTF_Protocol_LoadedL
 #ifndef NDEBUG
 	if(thread == -1) {
 	    if(Frontend::isDebugEnabled()) {
-		output << "CLIENT:" << getpid() << " Callbacks::"
-		       << "loadedLinkedObject(): Thread "
+		output << "Callbacks::loadedLinkedObject: Thread "
 		       << toString(msg_thread) 
 		       << " no longer exists." << std::endl;
 	    }
@@ -1377,10 +1363,19 @@ void Callbacks::loadedLinkedObject(const boost::shared_ptr<CBTF_Protocol_LoadedL
 		database->bindArgument(3, message.is_executable);
 		while(database->executeStatement());
 		linked_object = database->getLastInsertedUID();
+		output << "Callbacks::loadedLinkedObject INSERT"
+		<< " Files:" << message.linked_object.path
+		<< " LinkedObjects:" << AddressRange(0, Address(message.range.end - message.range.begin))
+		<< " isExe:" << message.is_executable
+		<< std::endl;
 		
 	    }
 
 	    // Create an address space entry for this load
+		output << "Callbacks::loadedLinkedObject INSERT"
+		<< " AddressSpaces:" << " thread:" << thread
+		<< " range:" << AddressRange(Address(message.range.begin), Address(message.range.end))
+		<< std::endl;
 	    database->prepareStatement(
 	        "INSERT INTO AddressSpaces "
 	        "  (thread, time_begin, time_end, "
@@ -1426,12 +1421,15 @@ void Callbacks::linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedOb
     memcpy(&message, in.get(),sizeof(CBTF_Protocol_LinkedObjectGroup)); 
 
     ++num_linkedobjectgroups;
+#ifndef NDEBUG
+    std::stringstream output;
+#endif
 
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
-	std::stringstream output;
+        std::stringstream output;
 	output << "TIME " << Time::Now()
-	       << " CLIENT:" << getpid() << " Callbacks::linkedObjectGroup"
+	       << " Callbacks::linkedObjectGroup"
 	       << " message objs:" << message.linkedobjects.linkedobjects_len
 	       << " num_linkedobjectgroups:" << num_linkedobjectgroups
 	       << " num_attachedthreads:" << num_attachedthreads
@@ -1444,20 +1442,13 @@ void Callbacks::linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedOb
     ThreadName tname(msg_thread);
 
     // Begin a transaction on this thread's database
-#if 1
     SmartPtr<Database> database = DataQueues::getDatabase(0);
-#else
-    SmartPtr<Database> database = 
-	    DataQueues::getDatabase(msg_thread.experiment);
-#endif
-
 
     if(database.isNull()) {
 #ifndef NDEBUG
 	if(Frontend::isDebugEnabled()) {
 		std::stringstream output;
-		output << "CLIENT:" << getpid() << " Callbacks::"
-		       << "linkedObjectGroup(): Experiment "
+		output << "Callbacks::linkedObjectGroup(): Experiment "
 		       << msg_thread.experiment
 		       << " no longer exists." << std::endl;
 		std::cerr << output.str();
@@ -1484,11 +1475,11 @@ void Callbacks::linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedOb
 
 	    // Create this linked object if it wasn't present in the database
 	    if(linked_object == -1) {
-#if 0
-		std::cerr << "INSERT INTO Files:" << msg_lo.linked_object.path
-		<< " INSERT INTO LinkedObjects: " << Address(msg_lo.range.end -msg_lo.range.begin)
-		<< " isEXE:" << msg_lo.is_executable
+#ifndef NDEBUG
+		if(Frontend::isDebugEnabled()) {
+		output << "Callbacks::linkedObjectGroup INSERT INTO Files:" << msg_lo.linked_object.path
 		<< std::endl;
+		}
 #endif
 		// Create the file entry
 		database->prepareStatement(
@@ -1513,10 +1504,28 @@ void Callbacks::linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedOb
 		database->bindArgument(3, msg_lo.is_executable);
 		while(database->executeStatement());
 		linked_object = database->getLastInsertedUID();
+#ifndef NDEBUG
+		if(Frontend::isDebugEnabled()) {
+		output << "Callbacks::linkedObjectGroup INSERT"
+		<< " LinkedObjects:" << AddressRange(0, Address(msg_lo.range.end - msg_lo.range.begin))
+		<< " isExe:" << msg_lo.is_executable
+		<< std::endl;
+		}
+#endif
 		
 	    }
 
 	    // Create an address space entry for this load
+#ifndef NDEBUG
+	    if(Frontend::isDebugEnabled()) {
+		output << "Callbacks::linkedObjectGroup INSERT"
+		<< " AddressSpaces:" << " thread:" << thread
+		<< " range:" << AddressRange(Address(msg_lo.range.begin), Address(msg_lo.range.end))
+		<< " symtab range:" << AddressRange(Address(0), Address(msg_lo.range.end) - msg_lo.range.begin )
+		<< " path:" << msg_lo.linked_object.path
+		<< std::endl;
+	    }
+#endif
 	    database->prepareStatement(
 	        "INSERT INTO AddressSpaces "
 	        "  (thread, time_begin, time_end, "
@@ -1531,6 +1540,9 @@ void Callbacks::linkedObjectGroup(const boost::shared_ptr<CBTF_Protocol_LinkedOb
 	    database->bindArgument(6, linked_object);
 	    while(database->executeStatement());
 	}
+#ifndef NDEBUG
+    std::cerr << output.str();
+#endif
     }
 
     // End the transaction on this thread's database
@@ -1551,7 +1563,7 @@ void Callbacks::linkedObjectEntryVec(const KrellInstitute::Core::LinkedObjectEnt
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
-	output << "TIME " << Time::Now() << " CLIENT:" << getpid()
+	output << "TIME " << Time::Now()
 	<< " Callbacks::linkedObjectEntryVec"
 	<< " input vector size is " << in.size()
 	<< std::endl;;
@@ -1580,7 +1592,7 @@ void Callbacks::process_addressspace(const std::set<OpenSpeedShop::Framework::Ad
     std::stringstream output;
     if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
-	output << "TIME " << Time::Now() << " CLIENT:" << getpid()
+	output << "TIME " << Time::Now()
 	<<  " Callbacks::process_addressspace entered addresses:"
 	<< addresses.size() << std::endl;
 	std::cerr << output.str();
@@ -1703,7 +1715,7 @@ void Callbacks::process_addressspace(const std::set<OpenSpeedShop::Framework::Ad
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
-	output << "TIME " << Time::Now() << " CLIENT:" << getpid()
+	output << "TIME " << Time::Now()
 	       <<  " Callbacks::process_addresspace exits" << std::endl;
 	std::cerr << output.str();
     }
@@ -1813,7 +1825,7 @@ void Callbacks::unloadedLinkedObject(const Blob& blob)
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
 	std::stringstream output;
-	output << "TIME " << Time::Now() << " CLIENT:" << getpid()
+	output << "TIME " << Time::Now()
 	<< " Callbacks::" << toString(message);
 	std::cerr << output.str();
     }
@@ -1832,8 +1844,7 @@ void Callbacks::unloadedLinkedObject(const Blob& blob)
 #ifndef NDEBUG
 	    if(Frontend::isDebugEnabled()) {
 		std::stringstream output;
-		output << "CLIENT:" << getpid()
-		<< " Callbacks::unloadedLinkedObject(): Experiment "
+		output << "Callbacks::unloadedLinkedObject(): Experiment "
 		<< msg_thread.experiment << " no longer exists."
 		<< std::endl;
 		std::cerr << output.str();
@@ -1850,8 +1861,7 @@ void Callbacks::unloadedLinkedObject(const Blob& blob)
 	if(thread == -1) {
 	    if(Frontend::isDebugEnabled()) {
 		std::stringstream output;
-		output << "CLIENT:" << getpid()
-		<< " Callbacks::unloadedLinkedObject(): Thread "
+		output << "Callbacks::unloadedLinkedObject(): Thread "
 		<< toString(msg_thread) << " no longer exists."
 		<< std::endl;
 		std::cerr << output.str();
@@ -1866,8 +1876,7 @@ void Callbacks::unloadedLinkedObject(const Blob& blob)
 	if(linked_object == -1) {
 	    if(Frontend::isDebugEnabled()) {
 		std::stringstream output;
-		output << "CLIENT:" << getpid()
-		<< " Callbacks::unloadedLinkedObject(): Linked Object "
+		output << "Callbacks::unloadedLinkedObject(): Linked Object "
 		<< toString(message.linked_object) << " no longer exists."
 		<< std::endl;
 		std::cerr << output.str();
@@ -1923,7 +1932,7 @@ void Callbacks::performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & in
     if(Frontend::isTimingDebugEnabled()) {
 
 	std::stringstream output;
-	output << "TIME " << Time::Now() << " CLIENT:" << getpid()
+	output << "TIME " << Time::Now()
 	<< " Callbacks::performanceData entered with data blob size:"
 	<< message.data.data_len
 	<< std::endl;
@@ -1960,8 +1969,7 @@ void Callbacks::performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & in
     if(Frontend::isTimingDebugEnabled()) {
 
 	std::stringstream output;
-	output << "TIME " << Time::Now() << " CLIENT:" << getpid()
-	<< " Callbacks::performanceData exits"
+	output << "TIME " << Time::Now() << " Callbacks::performanceData exits"
 	<< std::endl;
 	std::cerr << output.str();
     }
@@ -1970,12 +1978,13 @@ void Callbacks::performanceData(const boost::shared_ptr<CBTF_Protocol_Blob> & in
 
 void Callbacks::symbolTable(const boost::shared_ptr<CBTF_Protocol_SymbolTable> & in)
 {
+#if !defined(OPENSS_CBTF_FE_RESOLVE_SYMBOLS)
 #ifndef NDEBUG
     std::stringstream output;
     if(Frontend::isTimingDebugEnabled()) {
 
-	output << "TIME " << Time::Now() << " CLIENT:" << getpid()
-	<< " Callbacks::symbolTable entered" << std::endl;
+	output << "TIME " << Time::Now()
+	<< "Callbacks::symbolTable entered" << std::endl;
 	std::cerr << output.str();
     }
 #endif
@@ -1989,10 +1998,12 @@ void Callbacks::symbolTable(const boost::shared_ptr<CBTF_Protocol_SymbolTable> &
 
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
-	output << "TIME " << Time::Now() << " CLIENT:" << getpid()
-	<< " Callbacks::symbolTable exits" << std::endl;
+	output << "TIME " << Time::Now()
+	<< "Callbacks::symbolTable exits" << std::endl;
     }
     std::cerr << output.str();
+#endif
+
 #endif
 }
 
@@ -2005,8 +2016,8 @@ void Callbacks::maxFunctionValues(const boost::shared_ptr<CBTF_Protocol_Function
     std::stringstream output;
     if(Frontend::isTimingDebugEnabled()) {
 
-	output << "TIME " << KrellInstitute::Core::Time::Now() << " CLIENT:" << getpid()
-	<< " Callbacks::maxFunctionValues entered" << std::endl;
+	output << "TIME " << KrellInstitute::Core::Time::Now()
+	<< "Callbacks::maxFunctionValues entered" << std::endl;
 	std::cerr << output.str();
     }
 #endif
@@ -2066,8 +2077,7 @@ void Callbacks::maxFunctionValues(const boost::shared_ptr<CBTF_Protocol_Function
 #ifndef NDEBUG
 	if(Frontend::isDebugEnabled()) {
 	std::stringstream output;
-	    output << "CLIENT:" << getpid()
-	    << " Callbacks::maxFunctionValues(): Experiment "
+	    output << "Callbacks::maxFunctionValues(): Experiment "
 	    << 0 << " no longer exists." << std::endl;
 	    std::cerr << output.str();
 	}
@@ -2080,8 +2090,8 @@ void Callbacks::maxFunctionValues(const boost::shared_ptr<CBTF_Protocol_Function
 
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
-	output << "TIME " << KrellInstitute::Core::Time::Now() << " CLIENT:" << getpid()
-	<< " Callbacks::maxFunctionValues exits" << std::endl;
+	output << "TIME " << KrellInstitute::Core::Time::Now()
+	<< "Callbacks::maxFunctionValues exits" << std::endl;
     }
     std::cerr << output.str();
 #endif
@@ -2093,8 +2103,8 @@ void Callbacks::minFunctionValues(const boost::shared_ptr<CBTF_Protocol_Function
     std::stringstream output;
     if(Frontend::isTimingDebugEnabled()) {
 
-	output << "TIME " << KrellInstitute::Core::Time::Now() << " CLIENT:" << getpid()
-	<< " Callbacks::minFunctionValues entered" << std::endl;
+	output << "TIME " << KrellInstitute::Core::Time::Now()
+	<< "Callbacks::minFunctionValues entered" << std::endl;
 	std::cerr << output.str();
     }
 #endif
@@ -2154,8 +2164,7 @@ void Callbacks::minFunctionValues(const boost::shared_ptr<CBTF_Protocol_Function
 #ifndef NDEBUG
 	if(Frontend::isDebugEnabled()) {
 	std::stringstream output;
-	    output << "CLIENT:" << getpid()
-	    << " Callbacks::maxFunctionValues(): Experiment "
+	    output << "Callbacks::maxFunctionValues(): Experiment "
 	    << 0 << " no longer exists." << std::endl;
 	    std::cerr << output.str();
 	}
@@ -2168,8 +2177,8 @@ void Callbacks::minFunctionValues(const boost::shared_ptr<CBTF_Protocol_Function
 
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
-	output << "TIME " << KrellInstitute::Core::Time::Now() << " CLIENT:" << getpid()
-	<< " Callbacks::minFunctionValues exits" << std::endl;
+	output << "TIME " << KrellInstitute::Core::Time::Now()
+	<< "Callbacks::minFunctionValues exits" << std::endl;
     }
     std::cerr << output.str();
 #endif
@@ -2182,8 +2191,8 @@ void Callbacks::avgFunctionValues(const boost::shared_ptr<CBTF_Protocol_Function
     std::stringstream output;
     if(Frontend::isTimingDebugEnabled()) {
 
-	output << "TIME " << KrellInstitute::Core::Time::Now() << " CLIENT:" << getpid()
-	<< " Callbacks::avgFunctionValues entered" << std::endl;
+	output << "TIME " << KrellInstitute::Core::Time::Now()
+	<< "Callbacks::avgFunctionValues entered" << std::endl;
 	std::cerr << output.str();
     }
 #endif
@@ -2248,8 +2257,7 @@ void Callbacks::avgFunctionValues(const boost::shared_ptr<CBTF_Protocol_Function
 #ifndef NDEBUG
 	if(Frontend::isDebugEnabled()) {
 	std::stringstream output;
-	    output << "CLIENT:" << getpid()
-	    << " Callbacks::maxFunctionValues(): Experiment "
+	    output << "Callbacks::maxFunctionValues(): Experiment "
 	    << 0 << " no longer exists." << std::endl;
 	    std::cerr << output.str();
 	}
@@ -2262,8 +2270,8 @@ void Callbacks::avgFunctionValues(const boost::shared_ptr<CBTF_Protocol_Function
 
 #ifndef NDEBUG
     if(Frontend::isTimingDebugEnabled()) {
-	output << "TIME " << KrellInstitute::Core::Time::Now() << " CLIENT:" << getpid()
-	<< " Callbacks::avgFunctionValues exits" << std::endl;
+	output << "TIME " << KrellInstitute::Core::Time::Now()
+	<< "Callbacks::avgFunctionValues exits" << std::endl;
     }
     std::cerr << output.str();
 #endif

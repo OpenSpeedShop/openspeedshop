@@ -393,7 +393,7 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 
     std::set<std::string>::iterator ssi,ssii, temp;
     for( ssi = executables_used.begin(); ssi != executables_used.end(); ++ssi) {
-	std::cerr << "Processing raw data for " << (*ssi) << " ..." << std::endl;
+	std::cout << "Processing raw data for " << (*ssi) << " ..." << std::endl;
         for( ssii = dataList.begin(); ssii != dataList.end(); ++ssii) {
 	    // Need to base the test for existence on the basename
 	    // of the dataList file.  Who knows what may be in the
@@ -415,7 +415,6 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 
 #if !defined(BUILD_CBTF)
         for( ssii = infoList.begin(); ssii != infoList.end(); ++ssii) {
-	    //std::cerr << "INFO find " << *ssi << " in " << *ssii << std::endl;
 	    if( (*ssii).find((*ssi)) != std::string::npos) {
 		// restrict list to only those for which a matching
 		// openss-data file exists.
@@ -434,7 +433,6 @@ OfflineExperiment::getRawDataFiles (std::string dir)
 	}
 
         for( ssii = dsosList.begin(); ssii != dsosList.end(); ++ssii) {
-	    //std::cerr << "DSOS find " << *ssi << " in " << *ssii << std::endl;
 	    if( (*ssii).find((*ssi)) != std::string::npos) {
 		// restrict list to only those for which a matching
 		// openss-data file exists.
@@ -536,13 +534,12 @@ int OfflineExperiment::convertToOpenSSDB()
     std::string rawname;
 
     // process offline info blobs first.
-    std::cerr << "Processing processes and threads ..." << std::endl;
+    std::cout << "Processing processes and threads ..." << std::endl;
 #if !defined(BUILD_CBTF)
 	    // cbtf offline collections does not drop openss-info files
     for (unsigned int i = 0;i < rawfiles.size();++i) {
 	bool_t found_infofile = false;
 	if (rawfiles[i].find(".openss-info") != std::string::npos) {
-	    //std::cerr << "processing " << rawfiles[i] << std::endl;
 	    rawname = rawfiles[i];
 	    found_infofile = true;
 	} 
@@ -678,11 +675,10 @@ int OfflineExperiment::convertToOpenSSDB()
     // linked objects, addressspaces, files, functions, statements
     // where performance data was collected.
 
-    std::cerr << "Processing performance data ..." << std::endl;
+    std::cout << "Processing performance data ..." << std::endl;
     for (unsigned int i = 0;i < rawfiles.size();i++) {
 	bool_t found_datafile = false;
 	if (rawfiles[i].find(".openss-data") != std::string::npos) {
-	    //std::cout << "processing " << rawfiles[i] << std::endl;
 	    rawname = rawfiles[i];
 	    found_datafile = true;
 	} 
@@ -699,7 +695,7 @@ int OfflineExperiment::convertToOpenSSDB()
 		}
 #endif
 	    }
-#else // BUILD_CBTF
+#else // BUILD_CBTF (handle old offline mode here)
             if (!rval &&
 		(rawfiles[i].find(".openss-info") != std::string::npos ||
 		 rawfiles[i].find(".openss-dsos") != std::string::npos)) {
@@ -726,32 +722,30 @@ int OfflineExperiment::convertToOpenSSDB()
     findUniqueAddresses();
  
     // Process the list of dsos and address ranges for this experiment.
-    std::cerr << "Processing symbols ..." << std::endl;
+    std::cout << "Processing symbols ..." << std::endl;
+#if !defined(BUILD_CBTF)
     for (unsigned int i = 0;i < rawfiles.size();i++) {
-	bool_t found_dsofile = false;
-#if defined(BUILD_CBTF)
-	if (rawfiles[i].find(".openss-data") != std::string::npos) {
-#else
-	if (rawfiles[i].find(".openss-dsos") != std::string::npos) {
-#endif
+	bool found_dsofile = false;
+	if (rawfiles[i].find(".openss-dsos") != std::string::npos)
+	{
 	    //std::cout << "processing " << rawfiles[i] << std::endl;
 	    rawname = rawfiles[i];
 	    found_dsofile = true;
 	} 
 
         if (found_dsofile) {
-            bool_t rval;
-#if defined(BUILD_CBTF)
-	    rval = process_cbtf_objects(rawname);
-#else
-	    rval = process_objects(rawname);
-#endif
+            bool rval = process_objects(rawname);
             if (!rval) {
 	        std::cerr << "Could not process experiment dsos for: "
 	    	    << rawname << std::endl;
             }
         }
     }
+#else
+    // Earlier we created a vector of datablobs that we now
+    // process for the linked objet groups.
+    bool rval = process_cbtf_objects();
+#endif
 
     return(0);
 }
@@ -960,6 +954,13 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	    // There will typically be one linkedobject group blob per thread.
 	    // We will store these into a vector of blobs and process them
 	    // later via process_cbtf_objects.
+#ifndef NDEBUG
+	    if(is_debug_offline_enabled) {
+	        std::cerr << "OfflineExperiment::process_data pushback blob to cbtf_objs_blobs:"
+		<< " from " << rawfilename
+		<< std::endl;
+	    }
+#endif
 	    cbtf_objs_blobs.push_back(datablob);
 	}
 #else
@@ -1055,7 +1056,6 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 		// in the database.
 		AddressRange range(Address(objs.objs.objs_val[i].addr_begin),
 				   Address(objs.objs.objs_val[i].addr_end)) ;
-		//std::cerr << "OBJNAME: " << objname << " range " << range << std::endl;
 		std::set<Address>::iterator it,itlow,itup;
 		itlow = unique_addresses.lower_bound (range.getBegin()); itlow--;
 		itup = unique_addresses.upper_bound (range.getEnd()); itup--;
@@ -1103,7 +1103,7 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 //DEBUG
 #ifndef NDEBUG
 		    if(is_debug_offline_enabled) {
-			std::cout << "dsoVec inserts " << objname << ", " << range
+			std::cerr << "dsoVec inserts " << objname << ", " << range
 			<< ", " << objsheader.host << ":"
 			<< objsheader.pid << ":" << objsheader.posix_tid << std::endl;
 		    }
@@ -1126,20 +1126,29 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 // The cbtf-krell collector generated offline data consists of one file
 // name with the extention .openss-data.  The last entry in the file
 // is essentially the addressspace of the thread in question.
-bool OfflineExperiment::process_cbtf_objects(const std::string rawfilename)
+//bool OfflineExperiment::process_cbtf_objects(const std::string rawfilename)
+bool OfflineExperiment::process_cbtf_objects()
 {
 
     // If the datablobs did not contain any valid sample data then
     // return early.
     if (unique_addresses.size() == 0) {
-	std::cerr << "Warning: No samples recorded in this experiment!" << std::endl;
+	std::cerr << "OfflineExperiment::process_cbtf_objects Warning: No samples recorded in this experiment!" << std::endl;
 	return false;
     }
+
+#ifndef NDEBUG
+    if(is_debug_offline_enabled) {
+	std::cerr << "OfflineExperiment::process_cbtf_objects:"
+	    << " cbtf_objs_blobs size:" << cbtf_objs_blobs.size()
+	    << std::endl;
+    }
+#endif
 
     // This handles a group of linkedobjects loaded into a thread.
     // cbtf uses: CBTF_Protocol_LinkedObjectGroup which is an
     // arrary of CBTF_Protocol_LinkedObject. This matches offline_objects
-    // except address begin,end is a a range.
+    // except address begin,end is a range.
     // TODO: Currently using CBTF_Protocol_Offline_LinkedObjectGroup.
     // This could be changed to use the same group as cbtf. That requires
     // changes in the cbtf-krell collector code.
@@ -1166,7 +1175,7 @@ bool OfflineExperiment::process_cbtf_objects(const std::string rawfilename)
 	    std::cerr << "OfflineExperiment::process_cbtf_objects: objsheader size:"
 	    << objsheader_size << " objs_size:" << objs_size
 	    << " objs length:" << objs.linkedobjects.linkedobjects_len
-	    << " from " << rawfilename << std::endl;
+	    << std::endl;
 	}
 #endif
 
@@ -1175,6 +1184,7 @@ bool OfflineExperiment::process_cbtf_objects(const std::string rawfilename)
 
 	        std::string objname = objs.linkedobjects.linkedobjects_val[i].objname;
 		if (objname.empty()) {
+		    std::cerr << "OfflineExperiment::process_cbtf_objects recieved object with no name." << std::endl;
 		    continue;
 		}
 
@@ -1192,12 +1202,16 @@ bool OfflineExperiment::process_cbtf_objects(const std::string rawfilename)
 		AddressRange range(objs.linkedobjects.linkedobjects_val[i].addr_begin,
 				   objs.linkedobjects.linkedobjects_val[i].addr_end);
 
-		//std::cerr << "OBJNAME: " << objname << " range " << range << std::endl;
 		std::set<Address>::iterator it,itlow,itup;
 		itlow = unique_addresses.lower_bound (range.getBegin()); itlow--;
 		itup = unique_addresses.upper_bound (range.getEnd()); itup--;
 		if ( !(range.doesContain(*itlow) || range.doesContain(*itup)) ) {
-		    //std::cerr << "range " << range << " DOES NOT contain " << *itlow << " Or " << *itup << std::endl;
+#ifndef NDEBUG
+		    if(is_debug_offline_enabled) {
+			std::cerr << "OfflineExperiment::process_cbtf_objects range:" << range
+			<< " DOES NOT contain:" << *itlow << " Or:" << *itup << std::endl;
+		    }
+#endif
 		    continue;
 		}
 
@@ -1218,12 +1232,11 @@ bool OfflineExperiment::process_cbtf_objects(const std::string rawfilename)
 // DEBUG
 #ifndef NDEBUG
 		if(is_debug_offline_enabled) {
-		  std::cerr << std::endl;
-		  std::cerr << "DSONAME " << objname << std::endl;
-		  std::cerr << "ADDR " << range << std::endl;
-		  std::cerr << "TIME " << time_interval << std::endl;
-		  std::cerr << "DLOPEN " << (int) objs.linkedobjects.linkedobjects_val[i].is_open  << std::endl;
-		  std::cerr << std::endl;
+		  std::cerr << "OfflineExperiment::process_cbtf_objects obj:" << objname
+		  << " range:" << range
+		  << " interval:" << time_interval
+		  << " is_dlopen:" << (int) objs.linkedobjects.linkedobjects_val[i].is_open
+		  << std::endl;
 		}
 #endif
 
@@ -1244,7 +1257,7 @@ bool OfflineExperiment::process_cbtf_objects(const std::string rawfilename)
 //DEBUG
 #ifndef NDEBUG
 		    if(is_debug_offline_enabled) {
-			std::cout << "dsoVec inserts " << objname << ", " << range
+			std::cout << "OfflineExperiment::process_cbtf_objects dsoVec inserts " << objname << ", " << range
 			<< ", " << objsheader.host << ":"
 			<< objsheader.pid << ":" << objsheader.posix_tid << std::endl;
 		    }
@@ -1348,6 +1361,16 @@ void OfflineExperiment::createOfflineSymbolTable()
 	    std::set<Address>::iterator itlow,itup;
 	    itlow = unique_addresses.lower_bound (ar->getBegin()); --itlow;
 	    itup = unique_addresses.upper_bound (ar->getEnd()); --itup;
+// DEBUG
+#ifndef NDEBUG
+		if(is_debug_offlinesymbols_enabled) {
+		    std::cerr << "OfflineExperiment::createOfflineSymbolTable "
+			<< " obj:" << (*li).getPath()
+			<< " examine range ar:" << ar->getBegin() << ":" << ar->getEnd()
+			<< " for low:" << *itlow << " up:" << *itup
+			<< std::endl;
+		}
+#endif
 	    if (ar->doesContain(*itlow) || ar->doesContain(*itup)) {
 		    std::set<LinkedObject> stlo;
 		    std::pair<std::set<std::string>::iterator,bool> ret = linkedobjs.insert((*li).getPath());
@@ -1364,7 +1387,28 @@ void OfflineExperiment::createOfflineSymbolTable()
 		        symtabmap.insert(std::make_pair(*ar,
 				     std::make_pair(SymbolTable(*ar), stlo)
 				    ));
+		    } else {
+// DEBUG
+#ifndef NDEBUG
+			if(is_debug_offlinesymbols_enabled) {
+			    std::cerr << "OfflineExperiment::createOfflineSymbolTable "
+				<< " symtab for " << (*li).getPath()
+				<< " does not have ret.second"
+				<< std::endl;
+			}
+#endif
 		    }
+	    } else {
+// DEBUG
+#ifndef NDEBUG
+		if(is_debug_offlinesymbols_enabled) {
+		    std::cerr << "OfflineExperiment::createOfflineSymbolTable "
+			<< " obj:" << (*li).getPath()
+			<< " examine range ar:" << ar->getBegin() << ":" << ar->getEnd()
+			<< " does not contain low:" << *itlow << " up:" << *itup
+			<< std::endl;
+		}
+#endif
 	    }
 	}
     }
@@ -1395,7 +1439,7 @@ void OfflineExperiment::createOfflineSymbolTable()
     for(std::set<LinkedObject>::const_iterator j = ttgrp_lo.begin();
 					       j != ttgrp_lo.end(); ++j) {
 	LinkedObject lo = (*j);
-	std::cerr << "Resolving symbols for " << lo.getPath() << std::endl;
+	std::cout << "Resolving symbols for " << lo.getPath() << std::endl;
 
 #if defined(OPENSS_USE_SYMTABAPI)
     // Note that DyninstSymbols::getLoops() must be called before calling
@@ -1425,7 +1469,7 @@ void OfflineExperiment::createOfflineSymbolTable()
 
     } // end for threads linkedobjects
 
-    std::cerr << "Updating database with symbols ... " << std::endl;
+    std::cout << "Updating database with symbols ... " << std::endl;
 
     // Now update the database with all our functions and statements...
     std::map<AddressRange, std::string> allfuncs; // used to verify symbols.
@@ -1471,7 +1515,7 @@ void OfflineExperiment::createOfflineSymbolTable()
 
     // clear names to range for our next linked object.
     dsoVec.clear();
-    std::cerr << "Finished ... " << std::endl;
+    std::cout << "Finished ... " << std::endl;
 
 #ifndef NDEBUG
     // Show the raw symbol information in the database if requested
@@ -1675,18 +1719,22 @@ void OfflineExperiment::finalizeDB()
     database->prepareStatement(
 	"DELETE FROM LinkedObjects "
 	"WHERE id NOT IN (SELECT DISTINCT linked_object FROM Functions) "
-	"  AND id NOT IN (SELECT DISTINCT linked_object FROM Statements);"
+	"  AND id NOT IN (SELECT DISTINCT linked_object FROM Statements) "
+	"  AND id NOT IN (SELECT DISTINCT linked_object FROM InlinedFunctions);"
 	);
     while(database->executeStatement());
 
+#if 0
     // delete any file entries where no linkedobjects or statements
     // where recorded.
     database->prepareStatement(
 	"DELETE FROM Files "
 	"WHERE id NOT IN (SELECT DISTINCT file FROM LinkedObjects) "
-	"  AND id NOT IN (SELECT DISTINCT file FROM Statements);"
+	"  AND id NOT IN (SELECT DISTINCT file FROM Statements) "
+	"  AND id NOT IN (SELECT DISTINCT file FROM InlinedFunctions);"
 	);
     while(database->executeStatement());
+#endif
 
     // delete any addresspace entries where no linkedobjects or statements
     // where recorded.

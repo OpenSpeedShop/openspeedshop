@@ -35,6 +35,7 @@
 #include "Experiment.hxx"
 #include "ExtentTable.hxx"
 #include "Function.hxx"
+#include "InlineFunction.hxx"
 #include "LinkedObject.hxx"
 #include "Path.hxx"
 #include "StackTrace.hxx"

@@ -35,6 +35,7 @@
 #include "Collector.hxx"
 #include "CollectorImpl.hxx"
 #include "Function.hxx"
+#include "InlineFunction.hxx"
 #include "LinkedObject.hxx"
 #include "Loop.hxx"
 #include "StackTrace.hxx"

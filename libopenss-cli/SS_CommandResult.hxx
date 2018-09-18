@@ -41,15 +41,16 @@ enum cmd_result_type_enum {
 /* 9 */  CMD_RESULT_LINKEDOBJECT,
 /* 10 */ CMD_RESULT_LOOP,
 /* 11 */ CMD_RESULT_VECTORINSTR,
-/* 12 */ CMD_RESULT_CALLTRACE,
-/* 13 */ CMD_RESULT_TIME,
-/* 13 */ CMD_RESULT_DURATION,
-/* 15 */ CMD_RESULT_INTERVAL,
-/* 16 */ CMD_RESULT_TITLE,
-/* 17 */ CMD_RESULT_COLUMN_HEADER,
-/* 18 */ CMD_RESULT_COLUMN_VALUES,
-/* 19 */ CMD_RESULT_COLUMN_ENDER,
-/* 20 */ CMD_RESULT_EXTENSION,
+/* 12 */ CMD_RESULT_INLINEFUNCTION,
+/* 13 */ CMD_RESULT_CALLTRACE,
+/* 14 */ CMD_RESULT_TIME,
+/* 15 */ CMD_RESULT_DURATION,
+/* 16 */ CMD_RESULT_INTERVAL,
+/* 17 */ CMD_RESULT_TITLE,
+/* 18 */ CMD_RESULT_COLUMN_HEADER,
+/* 19 */ CMD_RESULT_COLUMN_VALUES,
+/* 20 */ CMD_RESULT_COLUMN_ENDER,
+/* 21 */ CMD_RESULT_EXTENSION,
 };
 
 class PrintControl {
@@ -222,6 +223,11 @@ void Reclaim_CR_Space ( std::vector<TV>& V) {
 
 template  <typename TS>
 void Reclaim_CR_Space ( std::pair<Function, TS>& P ) {
+  Reclaim_CR_Space (P.second);
+}
+
+template  <typename TS>
+void Reclaim_CR_Space ( std::pair<InlineFunction, TS>& P ) {
   Reclaim_CR_Space (P.second);
 }
 
@@ -679,9 +685,10 @@ class CommandResult_RawString :
 class CommandResult_Function :
      public CommandResult,
      public Function {
-  std::set<Statement> ST;
-  int64_t Line;    // Line number of first statement in set.
-  int64_t Column;  // Column number of first statement in set.
+  std::set<Statement> ST;  // any statements for the Function.
+  std::set<InlineFunction> SI; // inlines for the function (implies no statements in ST).
+  int64_t Line;    // Line number of first statement in actual function statement set.
+  int64_t Column;  // Column number of first statement in actual function statement set.
 
  public:
 
@@ -703,9 +710,25 @@ class CommandResult_Function :
       Column = (int64_t)((*STi).getColumn());
     }
   }
+
+  CommandResult_Function  (Function F, std::set<InlineFunction>& st) :
+       Framework::Function(F),
+       CommandResult(CMD_RESULT_FUNCTION) {
+    SI = st;  // the inlines
+    std::set<Statement> stmts = getStatements(); // used for actual frame function.
+    Line = 0;
+    Column = 0;
+    if (stmts.begin() != stmts.end()) {
+      std::set<Statement>::const_iterator SIi = stmts.begin();
+      Line = (int64_t)((*SIi).getLine());
+      Column = (int64_t)((*SIi).getColumn());
+    }
+  }
+
   CommandResult_Function  (CommandResult_Function *C) :
        Framework::Function(*C),
        CommandResult(CMD_RESULT_FUNCTION) {
+    SI = C->SI;
     ST = C->ST;
     Line = C->Line;
     Column = C->Column;
@@ -747,6 +770,9 @@ class CommandResult_Function :
   }
   void Value (std::set<Statement>& st) {
     st = ST;
+  }
+  void Value (std::set<InlineFunction>& st) {
+    st = SI;
   }
   int64_t getLine () {
     return Line;
@@ -1290,6 +1316,107 @@ class CommandResult_Statement :
   }
 };
 
+class CommandResult_InlineFunction :
+     public CommandResult,
+     public Framework::InlineFunction {
+
+ public:
+  CommandResult_InlineFunction (InlineFunction S) :
+       Framework::InlineFunction(S),
+       CommandResult(CMD_RESULT_INLINEFUNCTION) {
+  }
+  CommandResult_InlineFunction (CommandResult_InlineFunction *C) :
+       Framework::InlineFunction(*C),
+       CommandResult(CMD_RESULT_INLINEFUNCTION) {
+    if (C->IsValueID()) SetValueIsID();
+  }
+  virtual ~CommandResult_InlineFunction () { }
+
+  virtual CommandResult *Copy () { return new CommandResult_InlineFunction (this); }
+  virtual bool LT (CommandResult *A) {
+    if (A->Type() != CMD_RESULT_INLINEFUNCTION) {
+      Assert (A->Type() == CMD_RESULT_CALLTRACE);
+      return A->GT(this);
+    }
+#if 0
+    return OpenSpeedShop::Queries::CompareInlineFunctions()(*this,
+                                                       *((CommandResult_InlineFunction *)A),
+                                                       OPENSS_LESS_RESTRICTIVE_COMPARISONS);
+#else
+    return false;
+#endif
+  }
+  virtual bool GT (CommandResult *A) {
+    if (A->Type() != CMD_RESULT_INLINEFUNCTION) {
+      Assert (A->Type() == CMD_RESULT_CALLTRACE);
+      return A->LT(this);
+    }
+#if 0
+    return OpenSpeedShop::Queries::CompareInlineFunctions()(*((CommandResult_InlineFunction *)A),
+                                                       *this,
+                                                       OPENSS_LESS_RESTRICTIVE_COMPARISONS);
+#else
+    return false;
+#endif
+  }
+
+  void Value (int64_t& L) {
+    L = (int64_t)getLine();
+  }
+
+  virtual std::string Form (int64_t fieldsize) {
+    int64_t gotLine = (int64_t)getLine();
+    int64_t gotColumn = (int64_t)getColumn();
+    char l[50];
+
+    if (gotColumn > 0) {
+      sprintf( &l[0], "%lld:%lld", static_cast<long long int>(gotLine),
+               static_cast<long long int>(gotColumn));
+    } else {
+      sprintf( &l[0], "%lld", static_cast<long long int>(gotLine));
+    }
+    std::string S = (OPENSS_VIEW_FULLPATH)
+                        ? getPath()
+                        : getPath().getBaseName();
+    S = S + "(" + std::string(l) + ")";
+    return S;
+  }
+
+  virtual PyObject * pyValue () {
+    std::string S = Form (OPENSS_VIEW_FIELD_SIZE);
+    return Py_BuildValue("s", S.c_str());
+  }
+
+  virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
+    int64_t fieldsize = pc.field_size;
+    if ( (pc.column_widths != NULL) &&
+         (column >= 0) ) fieldsize = pc.column_widths[column];
+    bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
+    std::string string_value = Form (fieldsize);
+    if (fieldsize == 0) fieldsize = string_value.length();
+    if (leftjustified) {
+     // Left justification is only done on the last column of a report.
+     // Don't truncate the string if it is bigger than the field size.
+     // This is done to make sure everything gets printed.
+
+      to << std::setiosflags(std::ios::left) << string_value;
+
+     // If there is unused space in the field, pad with blanks.
+      if ((string_value.length() < fieldsize) &&
+          (string_value[string_value.length()-1] != *("\n"))) {
+        for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";
+      }
+
+    } else {
+     // Right justify the string in the field.
+     // Don't let it exceed the size of the field.
+     // Also, limit the size based on our internal buffer size.
+      to << std::setiosflags(std::ios::right) << std::setw(fieldsize)
+         << ((string_value.length() <= fieldsize) ? string_value : string_value.substr(0, fieldsize));
+    }
+  }
+};
+
 class CommandResult_LinkedObject :
      public CommandResult,
      public LinkedObject {
@@ -1479,6 +1606,57 @@ class CommandResult_CallStackEntry : public CommandResult {
    // Add line number.
     if (sz > 1) {
       if (CE->Type() == CMD_RESULT_FUNCTION) {
+	// Check for inlined function frames first. If there are inlines there
+	// will be no statements. Any inline frames are inserted into the
+	// formatted string before the actual inlined frame in the passed
+	// fullstack.
+        std::set<InlineFunction> I;
+        ((CommandResult_Function *)CE)->Value(I);
+        if (I.begin() != I.end()) {
+	    int count = 0;
+	    std::set<InlineFunction>::const_iterator ifi;
+		std::string indent = Name;  // capture the current ">" level.
+		std::string atop = " @ ";   // the @ notation.
+		std::string padding;        // the padding: sizeof each column + 2
+		for (int64_t i = 0; i < fieldsize; i++) {
+		    padding += " ";
+		}
+	    for (ifi = I.begin(); ifi != I.end(); ifi++) {
+		// access the information for the inlining.
+		InlineFunction F = *ifi;
+		std::string fname = F.getName();
+		std::string path = F.getPath();
+		int gotLine = F.getLine();
+		int gotColumn = F.getColumn();
+		// format the line:column or line info.
+		char l[50];
+		if (gotColumn > 0) {
+		    sprintf( &l[0], "%lld:%lld", static_cast<long long int>(gotLine),
+			    static_cast<long long int>(gotColumn));
+		} else {
+		    sprintf( &l[0], "%lld", static_cast<long long int>(gotLine));
+		}
+		// if count is > 0, we need to pad new inserted lines and add indent
+		// for count == 0, we are already padded and have the callstack indent set.
+		// Notate these as inline frames.
+		if (count > 0)
+		    Name += padding + indent + atop + l + " inline " + fname + " (" + path + ")" + "\n";
+		else
+		    Name += atop + l + " inline " + fname + " (" + path + ")" + "\n";
+		++count;
+	    }
+	    // Now pad and indent the original function and notate as inlined.
+	    // The inline and original frames all share the same callstack indent.
+	    // Currently the first inline frame shows the metric and any remaining
+	    // inine frames and the inlined frame follow that in the display.
+	    // This is due to limitations on the code that prints the formatted display.
+
+	    char l[50];
+	    int64_t line = ((CommandResult_Function *)CE)->getLine();
+	    sprintf( &l[0], "%lld", static_cast<long long int>(line));
+	    Name += padding + indent + atop + l + " inlined ";
+	}
+
         std::set<Statement> T;
         ((CommandResult_Function *)CE)->Value(T);
         if (T.begin() != T.end()) {
@@ -1520,10 +1698,23 @@ class CommandResult_CallStackEntry : public CommandResult {
   }
   virtual void Print (std::ostream& to, PrintControl &pc, int64_t column) {
     int64_t fieldsize = pc.field_size;
+    int64_t width_metric_columns = 0;
     if ( (pc.column_widths != NULL) &&
-         (column >= 0) ) fieldsize = pc.column_widths[column];
+         (column >= 0) ) {
+	fieldsize = pc.column_widths[column];
+	// compute the width of the metric columns.  The last column
+	// is where the stacktrace strings go so we need to be able
+	// to pad any inline frame strings with this value.
+	for (int i = 0; i < pc.num_columns-1; i++) {
+	    width_metric_columns += pc.column_widths[i];
+	    width_metric_columns += 2;
+	}
+    }
     bool leftjustified = (column == (pc.num_columns-1)) ? true : pc.left_justify_all;
-    std::string string_value = Form (fieldsize);
+    // In the past Form was called with fieldsize.  This is insufficient
+    // for inserting inline frames that may be preset (add as new lines).
+    // Therefore we need to pass the width of the metric columns.
+    std::string string_value = Form (width_metric_columns);
     if (fieldsize == 0) fieldsize = string_value.length();
     if (leftjustified) {
      // Left justification is only done on the last column of a report.
@@ -1533,9 +1724,10 @@ class CommandResult_CallStackEntry : public CommandResult {
       to << std::setiosflags(std::ios::left) << string_value;
 
      // If there is unused space in the field, pad with blanks.
-      if ((string_value.length() < fieldsize) &&
-          (string_value[string_value.length()-1] != *("\n"))) {
-        for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";      }
+      if ((string_value.length() < fieldsize) /*&&
+          (string_value[string_value.length()-1] != *("\n"))*/) {
+        for (int64_t i = string_value.length(); i < fieldsize; i++) to << " ";
+      }
 
     } else {
      // Right justify the string in the field.
@@ -2263,6 +2455,7 @@ inline CommandResult *CRPTR (double V) { return new CommandResult_Float (V); }
 inline CommandResult *CRPTR (const char *V) { return new CommandResult_String (std::string(V)); }
 inline CommandResult *CRPTR (std::string& V) { return new CommandResult_String (V); }
 inline CommandResult *CRPTR (Function& V) { return new CommandResult_Function (V); }
+inline CommandResult *CRPTR (InlineFunction& V) { return new CommandResult_InlineFunction (V); }
 inline CommandResult *CRPTR (Statement& V) { return new CommandResult_Statement (V); }
 inline CommandResult *CRPTR (Loop& V) { return new CommandResult_Loop (V); }
 inline CommandResult *CRPTR (VectorInstr& V) { return new CommandResult_VectorInstr (V); }

@@ -107,7 +107,11 @@ class OfflineExperiment
     // with cbtf-krell collection we use only one file to
     // record performance data and then append the linked object
     // information to that file (.openss-data).
-    bool	process_cbtf_objects(const std::string rawfilename);
+    bool	process_cbtf_objects();
+    // This vector contains the data blobs from all rawfiles.
+    // This may be a memory issue so we could strip dso data
+    // from the data blobs and place just those here.
+    // Essentially the dso data encodings are the addressspaces.
     std::vector<Blob>        cbtf_objs_blobs;
 #endif
 

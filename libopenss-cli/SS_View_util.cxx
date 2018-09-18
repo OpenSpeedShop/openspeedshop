@@ -1697,17 +1697,23 @@ CommandResult *Build_CallBack_Entry (Framework::StackTrace& st, int64_t i, bool 
 
      // Use Function.
       if (add_stmts) {
-       // Include associated statements.
-#if DEBUG_CLI
-        printf("Build_CallBack_Entry  - SS_View_util.cxx, calling getStatementsAt, i=%d\n", i);
-#endif
-        std::set<Statement> ss = st.getStatementsAt(i);
-        SE = new CommandResult_Function (fp.second, ss);
+        // Include associated inline functions if found, else
+        // get any statements for function at this frame.
+        std::set<InlineFunction> sif = st.getInlineFunctionsAt(i);
+	if (sif.size() > 0) {
+	    SE = new CommandResult_Function (fp.second, sif);
+	} else {
+	    std::set<Statement> ss = st.getStatementsAt(i);
+	    SE = new CommandResult_Function (fp.second, ss);
+	}
       } else {
         SE = new CommandResult_Function (fp.second);
       }
     } else {
      // There is no Function entry available - use the absolute address.
+     // FIXME:  We really could maybe return the linkedobject at this
+     // address and let the callstack view print the address and object.
+     // Better yet, print unknown function in object at address.
       SE = new CommandResult_Address (st[i].getValue());
     }
     return SE;

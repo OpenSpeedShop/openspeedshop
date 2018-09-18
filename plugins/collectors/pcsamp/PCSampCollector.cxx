@@ -252,7 +252,6 @@ void PCSampCollector::getMetricValues(const std::string& metric,
 				      const ExtentGroup& subextents,
 				      void* ptr) const
 {
-    //std::cerr << "Entered PCSampCollector::getMetricValues, metric=" << metric << std::endl;
     // Only the "time" metric returns anything
     if(metric != "time")
 	return;
@@ -274,26 +273,19 @@ void PCSampCollector::getMetricValues(const std::string& metric,
     // Calculate time (in nS) of data blob's extent
     double t_blob = static_cast<double>(extent.getTimeInterval().getWidth());
    
-   // std::cerr << "PASSED EXTENT TIME = " << t_blob << std::endl;
- 
     // Iterate over each of the samples
     for(unsigned i = 0; i < data.pc.pc_len; ++i) {
 
 
 #ifdef DEBUG_OVERLAP
-           std::cout << "pcsamp::getMetricValues,----------------> start function section <------------------------"  << std::endl;
-           Time first_time = extent.getTimeInterval().getBegin();
-           Time last_time = extent.getTimeInterval().getEnd();
-           std::cout << "pcsamp::getMetricValues,------> startTime=" << extent.getTimeInterval().getBegin() << std::endl;
-           std::cout << "pcsamp::getMetricValues,------> endTime="   << extent.getTimeInterval().getEnd() <<  std::endl;
-           std::cout << "pcsamp::getMetricValues,------> startAddr=" << extent.getAddressRange().getBegin() <<  std::endl;
-           std::cout << "pcsamp::getMetricValues,------> endAddr=" << extent.getAddressRange().getEnd() <<  std::endl;
-           std::pair<bool, Function> tf = thread.getFunctionAt(Address(data.pc.pc_val[i]), extent.getTimeInterval().getBegin());
-           if (tf.first) {
-              std::cerr << "Function tf.second.getName()=" << tf.second.getName() << "\n" <<  std::endl;
-	   }
-           std::cout << "pcsamp::getMetricValues,----------------> end function section <------------------------"  << std::endl;
-           std::cout << "pcsamp::getMetricValues,----------------------------------------------------------------"  << std::endl;
+	std::pair<bool, Function> tf = thread.getFunctionAt(Address(data.pc.pc_val[i]), extent.getTimeInterval().getBegin());
+	std::cerr << "PCSampCollector::getMetricValues PC:" << Address(data.pc.pc_val[i])
+	    << " extentTimeInterval:" << extent.getTimeInterval()
+	    << " extentAddrRange:" << extent.getAddressRange()
+	    << " timeBegin:" << extent.getTimeInterval().getBegin().getValue()
+	    << " timeEnd:" << extent.getTimeInterval().getEnd().getValue()
+	    << " function at TI:" << (tf.first ? tf.second.getName() : "FUNCTION NOT FOUND")
+	    << std::endl;
 #endif
 	
 	// Find the subextents that contain this sample
@@ -306,8 +298,8 @@ void PCSampCollector::getMetricValues(const std::string& metric,
 	// Calculate the time (in seconds) attributable to this sample
 	double t_sample = static_cast<double>(data.count.count_val[i]) *
 	    static_cast<double>(data.interval) / 1000000000.0;
-#if 0
-  std::cerr << "BLOB DATA INTERVAL TIME = " << t_sample
+#if DEBUG_BLOB
+	std::cerr << "BLOB DATA INTERVAL TIME = " << t_sample
 	<< " COUNT " <<  static_cast<double> (data.count.count_val[i])
 	<< " * data.interval " << static_cast<double>(data.interval)
 	<< " / 1000000000.0"
@@ -323,20 +315,18 @@ void PCSampCollector::getMetricValues(const std::string& metric,
 		((extent.getTimeInterval() & 
 		  subextents[*j].getTimeInterval()).getWidth());	    
 
-            //std::cerr << "INTESECTION INTERVAL TIME = " << t_intersection << std::endl;
-
 	    // Add (to the subextent's metric value) the appropriate fraction
 	    // of the total time attributable to this sample
 	    (*values)[*j] += t_sample * (t_intersection / t_blob);
-#if 0
-    std::cerr << "COMPUTED TIME = " << (*values)[*j]
-	<< " t_sample " << t_sample
-	<< " * ( t_intersection " << t_intersection
-	<< " / t_blob " << t_blob
-	<< " )"
-	<< "\nCOUNT FOR " << i << " is " << static_cast<double>(data.count.count_val[i])
-	<< "\nADDR for " << i << " is " << Address(data.pc.pc_val[i])
-	<< std::endl;
+#if DEBUG_BLOB
+	    std::cerr << "COMPUTED TIME = " << (*values)[*j]
+		<< " t_sample " << t_sample
+		<< " * ( t_intersection " << t_intersection
+		<< " / t_blob " << t_blob
+		<< " )"
+		<< "\nCOUNT:" << i << " " << static_cast<double>(data.count.count_val[i])
+		<< "\nADDR:" << i << " " << Address(data.pc.pc_val[i])
+		<< std::endl;
 #endif
 	    
 	}
@@ -346,7 +336,6 @@ void PCSampCollector::getMetricValues(const std::string& metric,
     // Free the decoded data blob
     xdr_free(reinterpret_cast<xdrproc_t>(xdr_pcsamp_data),
 	     reinterpret_cast<char*>(&data));
-    //std::cerr << "Exited PCSampCollector::getMetricValues, metric=" << metric << std::endl;
 }
 
 void PCSampCollector::getUniquePCValues( const Thread& thread,
