@@ -1,7 +1,7 @@
 .\" Process this file with
 .\" groff -man -Tascii osshwcsamp.1
 .\"
-.TH OSSHWCSAMP 1 "September 2014" Linux "User Manuals"
+.TH OSSHWCSAMP 1 "SEPTEMBER 2018" Linux "User Manuals"
 .SH NAME
 osshwcsamp \- Open|SpeedShop Hardware Counter Sampling experiment script
 .SH SYNOPSIS
@@ -26,9 +26,28 @@ For example, run with alternative papi event and threshold:
 
 osshwcsamp "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog" PAPI_FP_OPS,PAPI_LD_INS 120
 
+NOTE: In order to see loop or vector instruction information when 
+using this convenience script, these options must be used.
+
+This is one option that will enable loop detection:
+   --loops      Enables loop level information to be gathered and 
+                subsequently viewed.   
+
+                For example:  
+                osshwcsamp --loops “mpirun -np 256 ./smg2000 -n 5 5 5”
+
+There are three options that will enable the vector instruction 
+detection feature at different levels of detection: (INTEL ONLY)
+   --vinstr128  Find vector instructions with operand sizes that 
+                are 128 bits or greater
+   --vinstr256  Find vector instructions with operand sizes that
+                are 256 bits or greater
+   --vinstr512  Find vector instructions with operand sizes that
+                are 512 bits or greater
+                
+                For example:  
+                osshwcsamp –vinstr512 “mpirun -np 256 ./smg2000 -n 5 5 5”
 .fi
-
-
 
 .SH DESCRIPTION
 .B osshwcsamp
@@ -202,13 +221,19 @@ Open|SpeedShop Team <oss-questions@openspeedshop.org>
 .BR osspcsamp (1),
 .BR ossusertime (1)
 .BR osshwc (1)
+.BR osshwcsamp (1)
 .BR osshwctime (1)
 .BR ossio (1)
+.BR ossiop (1)
 .BR ossiot (1)
 .BR ossmpi (1)
 .BR ossmpip (1)
 .BR ossmpit (1)
-.BR ossmpiotf (1)
-.BR ossfpe (1)
-
+.BR ossomptp (1)
+.BR osspthreads (1)
+.BR osscuda (1)
+.BR osscompare (1)
+.BR OpenSpeedShop (3)
+.BR OpenSpeedShop_offline (3)
+.BR OpenSpeedShop_cbtf (3)
 

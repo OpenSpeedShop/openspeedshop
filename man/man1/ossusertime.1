@@ -1,7 +1,7 @@
 .\" Process this file with
 .\" groff -man -Tascii ossusertime.1
 .\"
-.TH OSSUSERTIME 1 "JANUARY 2017" Linux "User Manuals"
+.TH OSSUSERTIME 1 "SEPTEMBER 2018" Linux "User Manuals"
 .SH NAME
 ossusertime \- Open|SpeedShop Call Path Analysis experiment script
 .SH SYNOPSIS
@@ -20,9 +20,29 @@ For example:
 
 ossusertime "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog"
 
+NOTE: In order to see loop or vector instruction information
+when using this convenience script, these options must be used.
+
+This is one option that will enable loop detection:
+   --loops      Enables loop level information to be gathered and
+                subsequently viewed.
+
+                For example:
+                ossusertime --loops “mpirun -np 256 ./smg2000 -n 5 5 5”
+
+There are three options that will enable the vector instruction
+detection feature at different levels of detection: (INTEL ONLY)
+   --vinstr128  Find vector instructions with operand sizes that
+                are 128 bits or greater
+   --vinstr256  Find vector instructions with operand sizes that
+                are 256 bits or greater
+   --vinstr512  Find vector instructions with operand sizes that
+                are 512 bits or greater
+
+                For example:
+                ossusertime –vinstr512 “mpirun -np 256 ./smg2000 -n 5 5 5”
+
 .fi
-
-
 
 .SH DESCRIPTION
 .B ossusertime
@@ -194,7 +214,6 @@ Open|SpeedShop Team <oss-questions@openspeedshop.org>
 .BR ossmpi (1),
 .BR ossmpip (1),
 .BR ossmpit (1),
-.BR ossmpiotf (1),
 .BR ossomptp (1)
 .BR osspthreads (1)
 .BR osscuda (1)

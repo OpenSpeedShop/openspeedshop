@@ -1,5 +1,5 @@
 ################################################################################
-# Copyright (c) 2014-2016 Krell Institute. All Rights Reserved.
+# Copyright (c) 2014-2018 Krell Institute. All Rights Reserved.
 # Copyright (c) 2015,2016 Argo Navis Technologies. All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -25,7 +25,7 @@ project(OpenSpeedShop C CXX)
 # TODO: allow this to be passed as an option via cmake for developers
 # to tag non production builds.
 add_definitions(
-    -DVERSION="2.3.1"
+    -DVERSION="2.4.0"
 )
 
 # cmake module search path for this project.

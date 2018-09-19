@@ -42,6 +42,28 @@ osscompare "smg2000-pcsamp-64.openss, smg2000-pcsamp-128.openss" percent
 See all the specific oss convenience command scripts for more detail about 
 each individual script/experiment. 
 
+NOTE: In order to see loop or vector instruction information when using the 
+sampling convenience scripts, these options must be used.
+
+This is one option that will enable loop detection:
+   --loops	Enables loop level information to be gathered and
+                subsequently viewed.   
+
+                For example:  
+                osspcsamp --loops “mpirun -np 256 ./smg2000 -n 5 5 5”
+
+There are three options that will enable the vector instruction 
+detection feature at different levels of detection: (INTEL ONLY)
+   --vinstr128	Find vector instructions with operand sizes that 
+                are 128 bits or greater
+   --vinstr256	Find vector instructions with operand sizes that
+                are 256 bits or greater
+   --vinstr512	Find vector instructions with operand sizes that
+                are 512 bits or greater
+
+                For example:  
+                osspcsamp –vinstr512 “mpirun -np 256 ./smg2000 -n 5 5 5”
+
 .SH BUGS
 TBD
 

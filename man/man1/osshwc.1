@@ -1,7 +1,7 @@
 .\" Process this file with
 .\" groff -man -Tascii osshwc.1
 .\"
-.TH OSSHWC 1 "JUNE 2009" Linux "User Manuals"
+.TH OSSHWC 1 "SEPTEMBER 2018" Linux "User Manuals"
 .SH NAME
 osshwc \- Open|SpeedShop Hardware Counter Sampling experiment script
 .SH SYNOPSIS
@@ -25,6 +25,28 @@ osshwc "multi_executable" PAPI_EVENT PAPI_THRESHOLD
 For example, run with alternative papi event and threshold:
 
 osshwc "/opt/openmpi/bin/mpirun -np 4 /u/user/mpi_prog" PAPI_FP_OPS 12000
+
+NOTE: In order to see loop or vector instruction information when using 
+this convenience script, these options must be used.
+
+This is one option that will enable loop detection:
+   --loops      Enables loop level information to be gathered and
+                subsequently viewed.
+
+                For example:
+                osshwc --loops “mpirun -np 256 ./smg2000 -n 5 5 5”
+
+There are three options that will enable the vector instruction
+detection feature at different levels of detection: (INTEL ONLY)
+   --vinstr128  Find vector instructions with operand sizes that
+                are 128 bits or greater
+   --vinstr256  Find vector instructions with operand sizes that
+                are 256 bits or greater
+   --vinstr512  Find vector instructions with operand sizes that
+                are 512 bits or greater
+
+                For example:
+                osshwc –vinstr512 “mpirun -np 256 ./smg2000 -n 5 5 5”
 
 .fi
 
@@ -211,7 +233,12 @@ Open|SpeedShop Team <oss-questions@openspeedshop.org>
 .BR ossmpi (1)
 .BR ossmpip (1)
 .BR ossmpit (1)
-.BR ossmpiotf (1)
-.BR ossfpe (1)
+.BR ossomptp (1)
+.BR osspthreads (1)
+.BR osscuda (1)
+.BR osscompare (1)
+.BR OpenSpeedShop (3)
+.BR OpenSpeedShop_offline (3)
+.BR OpenSpeedShop_cbtf (3)
 
 

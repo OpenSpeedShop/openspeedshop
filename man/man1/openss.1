@@ -1,7 +1,7 @@
 .\" Process this file with
 .\" groff -man -Tascii openss.1
 .\"
-.TH OPENSS 1 "JANUARY 2017" Linux "User Manuals"
+.TH OPENSS 1 "SEPTEMBER 2018" Linux "User Manuals"
 .SH NAME
 openss \- Open|SpeedShop Application Performance Tool
 .SH SYNOPSIS
@@ -26,7 +26,7 @@ and
 
 .SH TYPICAL USAGE FORM
 
-For the Open|SpeedShop-2.3.1 release the suggested usage is 
+For the Open|SpeedShop-2.4.0 release the suggested usage is
 to run Open|SpeedShop to gather the performance information 
 of your choice and then use the Open|SpeedShop graphical user 
 interface (GUI) or the Open|SpeedShop command line interface 
@@ -125,7 +125,16 @@ iot                Similar to io experiment, except that additional
                    of the file being read from or written to, and other
                    I/O call specific information are available.
 
-mem                The mem experiment..
+mem                The mem experiment tracks potential memory allocation
+                   call that is not later destroyed (leak). Records any
+                   memory allocation event that set a new high-water
+                   of allocated memory current thread or process. Creates
+                   an event for each unique call path to a traced memory
+                   call and records the total number of times this call
+                   path was followed, the max allocation size, the min
+                   allocation size, and the total allocation, the total
+                   time spent in the call path, and the start time for
+                   the first call.
 
 mpi                The MPI experiment captures the time spent in and 
                    the number of times each MPI function is called in
@@ -150,11 +159,20 @@ mpit               This experiment captures each MPI function call
                    through the Open|SpeedShop GUI or command line 
                    interface (CLI).
 
-omptp              The omptp experiment..
+omptp              The omptp experiment reports task idle, barrier,
+                   and barrier wait times per OpenMP thread and
+                   attributes those times to the OpenMP parallel
+                   regions.
 
-pthreads           The pthreads experiment..
+pthreads           The pthreads experiment reports POSIX thread
+                   related performance information.
 
-cuda               The cuda experiment..
+cuda               The cuda experiment periodically samples both
+                   CPU and GPU hardware performance counter events.
+                   Traces all NVIDIA CUDA kernel executions and
+                   the data transfers between main memory and the
+                   GPU. Records the call sites, time spent, and
+                   data transfer sizes.
 
 There are convenience command scripts that correspond to each of the
 experiment types above.  These script hide all arguments to openss 
