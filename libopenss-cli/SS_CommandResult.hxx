@@ -1542,7 +1542,6 @@ class CommandResult_CallStackEntry : public CommandResult {
   }
   CommandResult_CallStackEntry (CommandResult_CallStackEntry *CSE)
       : CommandResult(CMD_RESULT_CALLTRACE) {
-    int64_t len = CSE->CallStack->CSV->size();
     Bottom_up = CSE->Bottom_up;
     CallStack = CSE->CallStack;
     if (CSE->IsValueID()) SetValueIsID();
@@ -1604,6 +1603,7 @@ class CommandResult_CallStackEntry : public CommandResult {
       Name += ((Bottom_up) ? "<" : ">");
     }
    // Add line number.
+    bool has_inline = false;
     if (sz > 1) {
       if (CE->Type() == CMD_RESULT_FUNCTION) {
 	// Check for inlined function frames first. If there are inlines there
@@ -1613,15 +1613,29 @@ class CommandResult_CallStackEntry : public CommandResult {
         std::set<InlineFunction> I;
         ((CommandResult_Function *)CE)->Value(I);
         if (I.begin() != I.end()) {
+	    // Need to read these back in reverse order of how they where stored.
+	    std::set<InlineFunction>::reverse_iterator ifi;
+	    std::string indent = Name;  // capture the current ">" level.
+	    std::string atop = " @ ";   // the @ notation.
+	    std::string padding;        // the padding: sizeof each column + 2
+	    LinkedObject L = ((CommandResult_Function *)CE)->getLinkedObject();
+	    std::string linkedobj = L.getPath().getBaseName();
+	    for (int64_t i = 0; i < fieldsize; i++) {
+		padding += " ";
+	    }
+
+	    // flag to defer the to call Form on the returned result string.
+	    has_inline = true;
+	    char l[50];
+	    int64_t line = ((CommandResult_Function *)CE)->getLine();
+	    sprintf( &l[0], "%lld", static_cast<long long int>(line));
+	    Name += atop + l + " in ";
+	    Name += CE->Form();
+	    Name += "\n";
+
 	    int count = 0;
-	    std::set<InlineFunction>::const_iterator ifi;
-		std::string indent = Name;  // capture the current ">" level.
-		std::string atop = " @ ";   // the @ notation.
-		std::string padding;        // the padding: sizeof each column + 2
-		for (int64_t i = 0; i < fieldsize; i++) {
-		    padding += " ";
-		}
-	    for (ifi = I.begin(); ifi != I.end(); ifi++) {
+	    // Need to read these back in reverse order of how they where stored.
+	    for (ifi = I.rbegin(); ifi != I.rend(); ifi++) {
 		// access the information for the inlining.
 		InlineFunction F = *ifi;
 		std::string fname = F.getName();
@@ -1636,25 +1650,13 @@ class CommandResult_CallStackEntry : public CommandResult {
 		} else {
 		    sprintf( &l[0], "%lld", static_cast<long long int>(gotLine));
 		}
-		// if count is > 0, we need to pad new inserted lines and add indent
-		// for count == 0, we are already padded and have the callstack indent set.
-		// Notate these as inline frames.
-		if (count > 0)
-		    Name += padding + indent + atop + l + " inline " + fname + " (" + path + ")" + "\n";
-		else
-		    Name += atop + l + " inline " + fname + " (" + path + ")" + "\n";
 		++count;
+		// do not add a newline for last inline...
+		if (count == I.size())
+		    Name += padding + indent + atop + l + " in "  + fname + " (" + linkedobj + ": " + path + ")";
+		else
+		    Name += padding + indent + atop + l + " in "  + fname + " (" + linkedobj + ": " + path + ")" + "\n";
 	    }
-	    // Now pad and indent the original function and notate as inlined.
-	    // The inline and original frames all share the same callstack indent.
-	    // Currently the first inline frame shows the metric and any remaining
-	    // inine frames and the inlined frame follow that in the display.
-	    // This is due to limitations on the code that prints the formatted display.
-
-	    char l[50];
-	    int64_t line = ((CommandResult_Function *)CE)->getLine();
-	    sprintf( &l[0], "%lld", static_cast<long long int>(line));
-	    Name += padding + indent + atop + l + " inlined ";
 	}
 
         std::set<Statement> T;
@@ -1686,7 +1688,9 @@ class CommandResult_CallStackEntry : public CommandResult {
       }
     }
    // Add function name and location information.
-    Name += CE->Form();
+    if (!has_inline) {
+	Name += CE->Form();
+    }
     return Name;
   }
   virtual std::string Form () {
