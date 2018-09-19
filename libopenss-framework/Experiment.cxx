@@ -82,7 +82,7 @@ namespace {
 	"CREATE TABLE \"Open|SpeedShop\" ("
 	"    version INTEGER"
 	");",
-	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (8);",
+	"INSERT INTO \"Open|SpeedShop\" (version) VALUES (9);",
 	
 	// Thread Table
 	"CREATE TABLE Threads ("
