@@ -15,7 +15,8 @@ INDEX of notes to help remember how to information:
     NOTE 13: You can obtain the newest version of config.guess and config.sub 
     NOTE 14: Finding the format of a binary/executable:
     NOTE 15: Technique to see the source from the cli.
-    NOTE 16: TBD
+    NOTE 16: spack build from a file.
+    NOTE 17: TBD
 
 
 NOTE 1: Here are commands to help in examining the 
@@ -219,4 +220,10 @@ openss>>!sed -n 2350,2355p lulesh.cc
           for(Index_t i=0 ; i<numElem ; ++i) {
              if (vnew[i] < eosvmin) 
 
-NOTE 16: TBD
+NOTE 16: Spack build from a file
+    # Optional mirror template
+    url = "file:/home/jeg/openspeedshop-develop.tar.gz"
+    version('develop', '517a7798507241ad8abd8b0626a4d2cf')
+
+NOTE 17: TBD
+
