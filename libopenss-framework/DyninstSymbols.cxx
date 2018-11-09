@@ -182,16 +182,28 @@ std::vector<VectorInstrInfo> detectVectorInstructions(const OpenSpeedShop::Frame
 				std::cerr << "detectVectorInstructions address match for:" 
 					  << std::hex << instruction.first
 				          << " vector instr opcode:" 
+#if DyninstAPI_VERSION_MAJOR >= 10
+					  << instruction.second.format(instruction.first).c_str() 
+#else
 					  << instruction.second->format(instruction.first).c_str() 
+#endif
 					  << std::endl;
 			    }
 #endif
 			    // Get the instruction category and see if this instruction is vector
 			    // Then look at the operand sizes for each operand in the instruction
+#if DyninstAPI_VERSION_MAJOR >= 10
+			    InsnCategory category = instruction.second.getCategory();
+#else
 			    InsnCategory category = instruction.second->getCategory();
+#endif
 			    if (category == c_VectorInsn) {
 				std::vector<InstructionAPI::Operand> operands;
+#if DyninstAPI_VERSION_MAJOR >= 10
+				instruction.second.getOperands(operands);
+#else
 				instruction.second->getOperands(operands);
+#endif
 				int max_size = 0;
 				for (unsigned i = 0; i < operands.size(); i++) {
 				    InstructionAPI::Expression::Ptr value = operands[i].getValue();
@@ -224,7 +236,11 @@ std::vector<VectorInstrInfo> detectVectorInstructions(const OpenSpeedShop::Frame
 				    info.dm_vector_addr = address;
 				    info.dm_max_instr_vl = max_size;
 				    info.dm_actual_vl = 0;
+#if DyninstAPI_VERSION_MAJOR >= 10
+				    info.dm_instr_opcode = instruction.second.format(instruction.first);
+#else
 				    info.dm_instr_opcode = instruction.second->format(instruction.first);
+#endif
 #ifndef NDEBUG
 				    if (is_debug_vector_enabled) {
 					std::cerr << "detectVectorInstructions module_base:" << module_base
