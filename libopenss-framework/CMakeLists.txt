@@ -347,19 +347,36 @@ if(SYMTABAPI_FOUND)
 
     if (DYNINSTAPI_FOUND)
       if(INSTRUMENTOR MATCHES "cbtf")
-	target_include_directories(openss-framework-symtabapi PUBLIC
-	    ${CMAKE_CURRENT_SOURCE_DIR}
-	    ${CMAKE_CURRENT_BINARY_DIR}
-	    ${CMAKE_CURRENT_BINARY_DIR}/offline
-	    ${Boost_INCLUDE_DIRS}
-	    ${SymtabAPI_INCLUDE_DIRS}
-	    ${DyninstAPI_INCLUDE_DIRS}
-	    ${Binutils_Iberty_INCLUDE_DIR}
-	    ${CBTF_KRELL_MESSAGES_INCLUDE_DIRS}
-	    ${PROJECT_SOURCE_DIR}/libopenss-framework
-            ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
-            ${LTDL_INCLUDE_DIR}
-	)
+        if (TBB_FOUND)
+	    target_include_directories(openss-framework-symtabapi PUBLIC
+	        ${CMAKE_CURRENT_SOURCE_DIR}
+	        ${CMAKE_CURRENT_BINARY_DIR}
+	        ${CMAKE_CURRENT_BINARY_DIR}/offline
+	        ${Boost_INCLUDE_DIRS}
+	        ${TBB_INCLUDE_DIRS}
+	        ${SymtabAPI_INCLUDE_DIRS}
+	        ${DyninstAPI_INCLUDE_DIRS}
+	        ${Binutils_Iberty_INCLUDE_DIR}
+	        ${CBTF_KRELL_MESSAGES_INCLUDE_DIRS}
+	        ${PROJECT_SOURCE_DIR}/libopenss-framework
+                ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
+                ${LTDL_INCLUDE_DIR}
+	    )
+        else()
+	    target_include_directories(openss-framework-symtabapi PUBLIC
+	        ${CMAKE_CURRENT_SOURCE_DIR}
+	        ${CMAKE_CURRENT_BINARY_DIR}
+	        ${CMAKE_CURRENT_BINARY_DIR}/offline
+	        ${Boost_INCLUDE_DIRS}
+	        ${SymtabAPI_INCLUDE_DIRS}
+	        ${DyninstAPI_INCLUDE_DIRS}
+	        ${Binutils_Iberty_INCLUDE_DIR}
+	        ${CBTF_KRELL_MESSAGES_INCLUDE_DIRS}
+	        ${PROJECT_SOURCE_DIR}/libopenss-framework
+                ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
+                ${LTDL_INCLUDE_DIR}
+	    )
+        endif()
 	target_link_libraries(openss-framework-symtabapi
 	    ${SymtabAPI_LIBRARIES}
 	    ${DyninstAPI_LIBRARIES}
@@ -368,18 +385,34 @@ if(SYMTABAPI_FOUND)
 	    ${CMAKE_DL_LIBS}
 	)
       else()
-	target_include_directories(openss-framework-symtabapi PUBLIC
-	    ${CMAKE_CURRENT_SOURCE_DIR}
-	    ${CMAKE_CURRENT_BINARY_DIR}
-	    ${CMAKE_CURRENT_BINARY_DIR}/offline
-	    ${Boost_INCLUDE_DIRS}
-	    ${SymtabAPI_INCLUDE_DIRS}
-	    ${DyninstAPI_INCLUDE_DIRS}
-	    ${Binutils_Iberty_INCLUDE_DIR}
-	    ${PROJECT_SOURCE_DIR}/libopenss-framework
-            ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
-            ${LTDL_INCLUDE_DIR}
-	)
+        if (TBB_FOUND)
+	    target_include_directories(openss-framework-symtabapi PUBLIC
+	        ${CMAKE_CURRENT_SOURCE_DIR}
+	        ${CMAKE_CURRENT_BINARY_DIR}
+	        ${CMAKE_CURRENT_BINARY_DIR}/offline
+	        ${Boost_INCLUDE_DIRS}
+	        ${TBB_INCLUDE_DIRS}
+	        ${SymtabAPI_INCLUDE_DIRS}
+	        ${DyninstAPI_INCLUDE_DIRS}
+	        ${Binutils_Iberty_INCLUDE_DIR}
+	        ${PROJECT_SOURCE_DIR}/libopenss-framework
+                ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
+                ${LTDL_INCLUDE_DIR}
+	    )
+        else()
+	    target_include_directories(openss-framework-symtabapi PUBLIC
+	        ${CMAKE_CURRENT_SOURCE_DIR}
+	        ${CMAKE_CURRENT_BINARY_DIR}
+	        ${CMAKE_CURRENT_BINARY_DIR}/offline
+	        ${Boost_INCLUDE_DIRS}
+	        ${SymtabAPI_INCLUDE_DIRS}
+	        ${DyninstAPI_INCLUDE_DIRS}
+	        ${Binutils_Iberty_INCLUDE_DIR}
+	        ${PROJECT_SOURCE_DIR}/libopenss-framework
+                ${CMAKE_CURRENT_BINARY_DIR}/../libopenss-framework
+                ${LTDL_INCLUDE_DIR}
+	    )
+        endif()
 	target_link_libraries(openss-framework-symtabapi
 	    ${SymtabAPI_LIBRARIES}
 	    ${DyninstAPI_LIBRARIES}
