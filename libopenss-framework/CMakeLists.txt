@@ -72,6 +72,7 @@ endif()
     )
 
 set(FW_SOURCES
+        ${Libtirpc_INCLUDE_DIRS}
         ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.c
         ${CMAKE_CURRENT_BINARY_DIR}/OpenSS_DataHeader.h
         ${CMAKE_CURRENT_BINARY_DIR}/offline.h
@@ -349,6 +350,7 @@ if(SYMTABAPI_FOUND)
       if(INSTRUMENTOR MATCHES "cbtf")
         if (TBB_FOUND)
 	    target_include_directories(openss-framework-symtabapi PUBLIC
+		${Libtirpc_INCLUDE_DIRS}
 	        ${CMAKE_CURRENT_SOURCE_DIR}
 	        ${CMAKE_CURRENT_BINARY_DIR}
 	        ${CMAKE_CURRENT_BINARY_DIR}/offline
@@ -364,6 +366,7 @@ if(SYMTABAPI_FOUND)
 	    )
         else()
 	    target_include_directories(openss-framework-symtabapi PUBLIC
+		${Libtirpc_INCLUDE_DIRS}
 	        ${CMAKE_CURRENT_SOURCE_DIR}
 	        ${CMAKE_CURRENT_BINARY_DIR}
 	        ${CMAKE_CURRENT_BINARY_DIR}/offline
@@ -387,6 +390,7 @@ if(SYMTABAPI_FOUND)
       else()
         if (TBB_FOUND)
 	    target_include_directories(openss-framework-symtabapi PUBLIC
+		${Libtirpc_INCLUDE_DIRS}
 	        ${CMAKE_CURRENT_SOURCE_DIR}
 	        ${CMAKE_CURRENT_BINARY_DIR}
 	        ${CMAKE_CURRENT_BINARY_DIR}/offline
@@ -401,6 +405,7 @@ if(SYMTABAPI_FOUND)
 	    )
         else()
 	    target_include_directories(openss-framework-symtabapi PUBLIC
+		${Libtirpc_INCLUDE_DIRS}
 	        ${CMAKE_CURRENT_SOURCE_DIR}
 	        ${CMAKE_CURRENT_BINARY_DIR}
 	        ${CMAKE_CURRENT_BINARY_DIR}/offline

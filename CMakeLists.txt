@@ -244,6 +244,10 @@ if (INSTRUMENTOR MATCHES "offline" OR INSTRUMENTOR MATCHES "cbtf")
     # always check for openmp regardless of instrumentor.
     # it is a client thing...
     find_package(OpenMP)
+    find_package(Libtirpc)
+    message(STATUS "Libtirpc_FOUND: " ${Libtirpc_FOUND} )
+    message(STATUS "Libtirpc_INCLUDE_DIRS:" ${Libtirpc_INCLUDE_DIRS})
+
 endif()
 
 message(STATUS "BUILD_QT3_GUI: " ${BUILD_QT3_GUI} )

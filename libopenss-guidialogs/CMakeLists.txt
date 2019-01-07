@@ -155,6 +155,7 @@ add_custom_command(
     )
 
 target_include_directories(openss-guidialogs PUBLIC
+    ${Libtirpc_INCLUDE_DIRS}
     ${QT_INCLUDE_DIR}
     ${PYTHON_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}

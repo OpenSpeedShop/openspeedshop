@@ -22,6 +22,7 @@ add_executable(ossdumpcuda
     )
 
 target_include_directories(ossdumpcuda PUBLIC
+    ${Libtirpc_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/libopenss-framework
     ${Boost_INCLUDE_DIRS}
@@ -31,6 +32,7 @@ target_include_directories(ossdumpcuda PUBLIC
     )
 
 target_link_libraries(ossdumpcuda
+    ${Libtirpc_LIBRARIES}
     openss-framework
     openss-framework-cbtf
     openss-framework-symtabapi
