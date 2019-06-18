@@ -66,7 +66,6 @@ void PreferencesDialog::readPreferencesOnEntry()
   globalFontItalic =
      settings->readBoolEntry("/openspeedshop/general/globalFontItalic");
 
-
   viewFieldSize =
     settings->readNumEntry("/openspeedshop/general/viewFieldSize");
   viewFieldSizeLineEdit->setText( QString("%1").arg(viewFieldSize) );
@@ -129,6 +128,7 @@ void PreferencesDialog::readPreferencesOnEntry()
 
   viewDateTimePrecision =
     settings->readNumEntry("/openspeedshop/general/viewDateTimePrecision");
+  viewDateTimePrecisionLineEdit->setText(QString("%1").arg(viewDateTimePrecision));
 
   viewFieldSizeIsDynamicCheckBox->setChecked(
     settings->readBoolEntry( "/openspeedshop/general/viewFieldSizeIsDynamic") );
