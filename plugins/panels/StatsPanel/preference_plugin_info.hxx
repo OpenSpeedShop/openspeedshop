@@ -517,7 +517,8 @@ extern "C"
   }
 
 
-  int save_preferences_entry_point(QSettings *settings, char *name)
+  // was returning int???
+  void save_preferences_entry_point(QSettings *settings, char *name)
   {
 // printf("save_preferences_entry_point(0x%x %s) entered\n", settings, name);
 

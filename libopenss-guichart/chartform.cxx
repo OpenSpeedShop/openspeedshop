@@ -571,7 +571,7 @@ void ChartForm::helpAboutQt()
     QMessageBox::aboutQt( this, "Chart -- About Qt" );
 }
 
-int ChartForm::mouseClicked(int item)
+void ChartForm::mouseClicked(int item)
 {
 // printf("ChartForm::mouseClicked(%d) entered.\n", item);
 }

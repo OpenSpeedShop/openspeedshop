@@ -666,7 +666,9 @@ static CMDID Scripting_Sequence_Number = 0;
 
     return result;
   }
-  catch (std::bad_alloc) {
+  //catch (std::bad_alloc)
+  catch (const std::bad_alloc&)
+  {
     Shut_Down = true;
 
    // I should be reporting exactly what went wrong here.

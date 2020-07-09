@@ -91,7 +91,9 @@ class OfflineExperiment
     std::set<std::string> expExecutableName;
 
     int		expPid;
+    // this is an int64_t in the cbtf dataheaders.
     uint64_t	expPosixTid;
+    //int64_t	expPosixTid;
     int		expExpId;
     int		expColId;
     int		expRate;

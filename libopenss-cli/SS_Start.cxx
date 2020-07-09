@@ -1093,7 +1093,8 @@ extern "C"
       exit(0);
     }
 
-    catch (std::bad_alloc) {
+    catch (const std::bad_alloc&)
+    {
       std::cerr << "ERROR: A Memory Allocation Error Has Occurred" << std::endl;
       abort();
     }

@@ -122,15 +122,15 @@ class SS_Message_Element {
 
 	/** Topic string. */
     	std::string dm_topic;
+	
+	/** Possible id number. */
+    	int dm_id_num;
 
 	/** Is this itself a topic. */
     	bool dm_is_topic;
 	
 	/** Related keyword strings. */
     	std::vector <std::string> dm_related_keyword_list;
-	
-	/** Possible id number. */
-    	int dm_id_num;
 	
 	/** One line brief message. */
     	std::string dm_brief_message;

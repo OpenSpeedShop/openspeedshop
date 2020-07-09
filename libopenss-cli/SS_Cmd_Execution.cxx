@@ -6914,6 +6914,7 @@ bool SS_ListWallTime(CommandObject *cmd) {
        std::ostringstream et(std::ios::out);
        Time ST = databaseExtent.getTimeInterval().getBegin();
        Time ET = databaseExtent.getTimeInterval().getEnd();
+       std::cerr << "ST:" << ST << " ET:" << ET << std::endl;
 
        int64_t elapsed_time = ((ET - ST));
        int64_t scaled_time = (elapsed_time / 1000000000);

@@ -77,7 +77,7 @@ public:
 
     int getItemFromPos( QPoint pos );
 
-    virtual int mouseClicked(int item);
+    virtual void mouseClicked(int item);
     virtual void contentsContextMenuEvent( QContextMenuEvent *e );
     virtual QPopupMenu *createPopupMenu(const QPoint & pos);
     QPopupMenu *optionsMenu; // Why public? See canvasview.cpp

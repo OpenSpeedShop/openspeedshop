@@ -427,7 +427,7 @@ class ParseResult {
     	void pushHelpModifier(const char * name);
 
     	/** Set/Get copy redirect target string. */
-	bool setRedirectTarget(const char *name) {
+	void setRedirectTarget(const char *name) {
 	    dm_redirect = name;
 	}
 	std::string * getRedirectTarget() {
@@ -435,7 +435,7 @@ class ParseResult {
 	}
 
     	/** Set/Get append redirect target string. */
-	bool setAppendTarget(const char *name) {
+	void setAppendTarget(const char *name) {
 	    dm_append = name;
 	}
 	std::string * getAppendTarget() {

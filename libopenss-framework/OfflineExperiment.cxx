@@ -499,12 +499,37 @@ void OfflineExperiment::findUniqueAddresses()
                         iu);
 
     if (threads.size() == 0) {
+#ifndef NDEBUG
+    if(is_debug_offlinesymbols_enabled) {
+        std::cerr << "OfflineExperiment::findUniqueAddresses "
+	<< "thread size:0  threads_processed size: " << threads_processed.size()
+	<< " original size: " << original.size()
+	<< std::endl;
+    }
+#endif
 	return;
     }
 
     // ExtentGroup for use with getUniquePCValues.
+    Extent extnt = theExperiment->getPerformanceDataExtent();
+    if (!extnt.isEmpty()) {
+        std::cerr << "OfflineExperiment::findUniqueAddresses: extent timeinterval:" << extnt.getTimeInterval() << " extent addressrange:" << extnt.getAddressRange() << std::endl;
+    } else {
+	std::cerr << "OfflineExperiment::findUniqueAddresses: NO DATA EXTENT!" << std::endl;
+    }
+
     ExtentGroup eg;
-    eg.push_back(theExperiment->getPerformanceDataExtent());
+    //eg.push_back(theExperiment->getPerformanceDataExtent());
+    eg.push_back(extnt);
+
+    for (Framework::ExtentGroup::iterator debug_ei = eg.begin(); debug_ei != eg.end(); debug_ei++) {
+         Framework::Extent check = *debug_ei;
+            if (!check.isEmpty()) {
+              Framework::TimeInterval time = check.getTimeInterval();
+              Framework::AddressRange addr = check.getAddressRange();
+              std::cerr << "OfflineExperiment::findUniqueAddresses: time interval:" << time << " address range:" << addr << std::endl;
+           }
+    }
 
     CollectorGroup cgrp = theExperiment->getCollectors();
     CollectorGroup::iterator ci = cgrp.begin();
@@ -517,9 +542,15 @@ void OfflineExperiment::findUniqueAddresses()
                                     i != threads.end(); ++i) {
 	Instrumentor::retain(*i);
 
+
 	// add performance sample addresses to address buffer
 	// for this thread group.
 	c.getUniquePCValues(*i,eg,unique_addresses);
+#ifndef NDEBUG
+    if(is_debug_offlinesymbols_enabled) {
+	std::cerr << "findUniqueAddresses: unique_addresses:" << unique_addresses.size() << " for thread: " << (*i).getPosixThreadId().second << std::endl;
+    }
+#endif
     }
 
 #ifndef NDEBUG
@@ -942,7 +973,7 @@ OfflineExperiment::process_data(const std::string rawfilename)
 	    if(is_debug_offline_enabled) {
 	        std::cerr << "OfflineExperiment::process_data updates threads for "
 		<< expHost << ":" << expPid << ":" << expRank << ":"
-		<< expPosixTid << ":" << expOmpTid << std::endl;
+		<< expPosixTid << ":" << expOmpTid << " header.posix_tid:" << header.posix_tid << std::endl;
 	        std::cerr << "OfflineExperiment::process_data enquing datablob size:"
 		<< blobsize << " bytesRead:" << bytesRead << " from " << rawfilename
 		<< std::endl;
@@ -1072,7 +1103,8 @@ bool OfflineExperiment::process_objects(const std::string rawfilename)
 		// recording such entries.
 		TimeInterval time_interval(Time(objs.objs.objs_val[i].time_begin),
 					   Time(objs.objs.objs_val[i].time_end));
-		uint64_t ttime = objs.objs.objs_val[i].time_end - objs.objs.objs_val[i].time_begin;
+		// subtracting two uint64_t values should result in an int64_t value.
+		int64_t ttime = objs.objs.objs_val[i].time_end - objs.objs.objs_val[i].time_begin;
 		if (ttime < 1000000) {
 		    std::cerr << "Time interval to small for meaningful sample " << ttime << std::endl;
 		    continue;
@@ -1134,6 +1166,9 @@ bool OfflineExperiment::process_cbtf_objects()
     // return early.
     if (unique_addresses.size() == 0) {
 	std::cerr << "OfflineExperiment::process_cbtf_objects Warning: No samples recorded in this experiment!" << std::endl;
+	std::cerr << "OfflineExperiment::process_cbtf_objects:"
+	    << " cbtf_objs_blobs size:" << cbtf_objs_blobs.size()
+	    << std::endl;
 	return false;
     }
 
@@ -1207,10 +1242,12 @@ bool OfflineExperiment::process_cbtf_objects()
 		itup = unique_addresses.upper_bound (range.getEnd()); itup--;
 		if ( !(range.doesContain(*itlow) || range.doesContain(*itup)) ) {
 #ifndef NDEBUG
+#if 0
 		    if(is_debug_offline_enabled) {
 			std::cerr << "OfflineExperiment::process_cbtf_objects range:" << range
 			<< " DOES NOT contain:" << *itlow << " Or:" << *itup << std::endl;
 		    }
+#endif
 #endif
 		    continue;
 		}
@@ -1223,7 +1260,8 @@ bool OfflineExperiment::process_cbtf_objects()
 		// recording such entries.
 		TimeInterval time_interval(Time(objs.linkedobjects.linkedobjects_val[i].time_begin),
 					   Time(objs.linkedobjects.linkedobjects_val[i].time_end));
-		uint64_t ttime = objs.linkedobjects.linkedobjects_val[i].time_end - objs.linkedobjects.linkedobjects_val[i].time_begin;
+		// subtracting two uint64_t values should result in an int64_t value.
+		int64_t ttime = objs.linkedobjects.linkedobjects_val[i].time_end - objs.linkedobjects.linkedobjects_val[i].time_begin;
 		if (ttime < 1000000) {
 		    std::cerr << "Time interval to small for meaningful sample " << ttime << std::endl;
 		    continue;

@@ -197,6 +197,7 @@ namespace OpenSpeedShop { namespace Framework {
 		PCBuffer *buf) const = 0;
 	virtual void getUniquePCValues( const Thread& thread, const Blob& blob,
 		std::set<Address>& uaddress) const = 0;
+	virtual ~CollectorImpl();
 	
     protected:
 

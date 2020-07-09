@@ -21,6 +21,10 @@ set(PLUGIN_SOURCES
     OmptPCollector.hxx OmptPCollector.cxx
 )
 
+add_definitions(
+    -DOpenSpeedShop_LIBRARY_FILE_DIR="${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+)
+
 add_library(omptp MODULE
     ${PLUGIN_SOURCES}
 )
@@ -29,15 +33,14 @@ target_include_directories(omptp PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CBTF_MESSAGES_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/libopenss-runtime
     ${PROJECT_SOURCE_DIR}/libopenss-framework
-    ${CMAKE_CURRENT_BINARY_DIR}/../../../libopenss-runtime
 )
 
 target_link_libraries(omptp
     pthread
     openss-framework
-    ${CBTF_MESSAGES_LIBRARIES}
+    ${CBTF_KRELL_MESSAGES_BASE_SHARED_LIBRARY}
+    ${CBTF_KRELL_MESSAGES_PERFDATA_SHARED_LIBRARY}
     ${CMAKE_DL_LIBS}
 )
 

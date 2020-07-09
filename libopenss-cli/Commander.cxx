@@ -2567,7 +2567,7 @@ void SS_Direct_stdin_Input (void * attachtowindow) {
    // Infinite loop to read user input.
     for(;;) {
       // usleep (10000); /* DEBUG - give testing code time to react before splashing screen with prompt */
-      Buffer[0] == *("\0");
+      Buffer[0] = *("\0");
       pthread_testcancel();
       char *read_result = fgets (&Buffer[0], Buffer_Size, ttyin);
 //      char *read_result = (getline (&Buffer, &Buffer_Size, ttyin) >= 0) ? Buffer : NULL;
@@ -2886,7 +2886,9 @@ read_another_window:
 
     return clip;
   }
-  catch (std::bad_alloc) {
+  //catch (std::bad_alloc)
+  catch (const std::bad_alloc&)
+  {
     std::cerr << "ERROR: Unable to allocate memory to process input." << std::endl;
     return NULL;
   }

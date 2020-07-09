@@ -466,7 +466,7 @@ class StatsPanel  : public Panel
        return advancedToolBar;
     }
 
-    bool setAdvancedToolBar(bool flag)
+    void setAdvancedToolBar(bool flag)
     {
        advancedToolBar = flag;
     }

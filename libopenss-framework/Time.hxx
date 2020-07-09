@@ -127,8 +127,12 @@ namespace OpenSpeedShop { namespace Framework {
 	difference_type operator-(const Time& other) const
 	{
 	    difference_type result = dm_value - other.dm_value;
+            //std::cerr << "this:" << *this << " other:" << other << " result:" << result << std::endl;
+            //std::cerr << "dm_value:" << dm_value << " other.dm_value:" << other.dm_value << " result:" << result << std::endl;
+#if 0
 	    Assert((*this > other) || (result <= 0));
             Assert((*this < other) || (result >= 0));
+#endif
 	    return result;
 	}
 

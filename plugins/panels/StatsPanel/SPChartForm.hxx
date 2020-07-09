@@ -42,7 +42,7 @@ public:
 
   StatsPanel *statsPanel;
 
-  int mouseClicked( int );
+  void mouseClicked( int ); // was returning int but is not needed.
   void contentsContextMenuEvent( QContextMenuEvent *e );
   QPopupMenu* createPopupMenu( const QPoint & pos );
   QPopupMenu* createPopupMenu( ) { /* obsoleted function. */ return NULL; };

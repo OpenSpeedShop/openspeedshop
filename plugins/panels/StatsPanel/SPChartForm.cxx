@@ -60,7 +60,8 @@ SPChartForm::~SPChartForm( )
 #endif
 }
 
-int
+//int
+void
 SPChartForm::mouseClicked( int item )
 {
   nprintf(DEBUG_PANELS) ("SPChartForm::mouseClicked(item=%d) called.\n", item);

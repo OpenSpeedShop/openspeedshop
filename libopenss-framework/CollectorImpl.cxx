@@ -122,6 +122,10 @@ CollectorImpl::CollectorImpl(const std::string& unique_id,
 }
 
 
+CollectorImpl::~CollectorImpl()
+{
+}
+
 
 /**
  * Declare a parameter.

@@ -1600,6 +1600,7 @@ ExpMetricExpr(const char * name, ParseRange *arg1, ParseRange *arg2, ParseRange 
        printf("Error: unrecognized operation in Metric Expression '%s'\n",name);
      }
    }
+   return NULL;
 }
 
 /**

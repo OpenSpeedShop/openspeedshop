@@ -183,6 +183,7 @@ QString CustomExperimentPanel::getDBName(int exp_id)
     }
 
   }
+  return NULL;
 }
 
 bool
@@ -592,7 +593,7 @@ if( attachFLAG ) {
         pco->runButton->enabledFLAG = FALSE;
         pco->continueButton->setEnabled(FALSE);
         pco->continueButton->enabledFLAG = FALSE;
-        staticDataFLAG == TRUE;
+        staticDataFLAG = TRUE;
       } else {
         statusLabelText->setText( tr(QString("Loaded:  "))+mw->executableName+tr(QString("  Click on the \"Run\" button to begin the experiment.")) );
         runnableFLAG = TRUE;

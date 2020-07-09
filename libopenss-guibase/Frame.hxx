@@ -48,7 +48,9 @@ public:
 
     //! Convienience member function to return the name of this Frame.
     PanelContainer *getPanelContainer() { return _panelContainer; }
-    PanelContainer *setPanelContainer(PanelContainer *pc) { _panelContainer = pc; }
+    //PanelContainer *setPanelContainer(PanelContainer *pc) { _panelContainer = pc; }
+    void setPanelContainer(PanelContainer *pc) { _panelContainer = pc; }
+
     //! Convienience member function to return the this flag setting.
     bool isDragEnabled() { return _dragEnabled; }
     void setDragEnabled(bool setting) { _dragEnabled = setting; }

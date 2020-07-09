@@ -339,6 +339,7 @@ std::string StatsPanel::getAssociatedCommand( std::string input_cview_cluster_co
 
   }
 
+  return NULL;
 }
 
 /**
@@ -1317,7 +1318,7 @@ StatsPanel::findExperimentID(QString command)
 
      int end_index = s.find(" ");
      if( end_index == -1 ) {
-       end_index == 99999;
+       end_index = 99999;
      }
 
      QString exp_x = s.mid(0, end_index);
@@ -1330,6 +1331,7 @@ StatsPanel::findExperimentID(QString command)
      return (expID);
   }
  }
+ return -1;
 }
 
 /*! The user clicked.  -unused. */
@@ -1883,7 +1885,12 @@ StatsPanel::listener(void *msg)
 
   // Now call the match routine, this should focus any source panels, if the 
   // focus source panel preference is set
-
+  // FIXME: since matchSelectedItem claims to return a bool but actually never does
+  // this is pretty undefined behaviour.  Seems that matchSelectedItem is just
+  // needs to set a flag when in fact it does find a match and returns that.
+  // just not clear where to set that flag in matchSelectedItem.  And there is
+  // an additional call in this code that calls matchSelectedItem but does not
+  // look at it's return value.  sigh....
   if( getPreferencesFocusSourcePanel() &&  
       item && matchSelectedItem( item, std::string(item->text(fieldCount-1).ascii()) )) {
 
@@ -1997,7 +2004,7 @@ if( start_index != -1 ) {
   int end_index = s.find(" ");
   if( end_index == -1 )
   {
-    end_index == 99999;
+    end_index = 99999;
   }
 
   QString exp_x = s.mid(0, end_index);
@@ -3564,7 +3571,7 @@ StatsPanel::updatePanel()
 QString
 StatsPanel::getCollectorName()
 {
-
+ return NULL;  // is this method really needed???
 }
 
 
@@ -4835,6 +4842,18 @@ StatsPanel::doOption(int id)
   } 
 }
 
+// WTF.  This is supposed to return a bool.  but it returns NOTHING.
+//
+//  here it is used as a bollean test around line 1890.
+//  if( getPreferencesFocusSourcePanel() &&
+//      item && matchSelectedItem( item, std::string(item->text(fieldCount-1).ascii()) ))
+//
+//    here it is just setting a matched item??? around line 4805/
+//    matchSelectedItem( item, std::string(item->text(fieldCount-1).ascii()) );
+//
+//  no where in this code below do I see where to actually set a bool flag
+//  and when to return??
+//
 bool
 StatsPanel::matchSelectedItem(QListViewItem *item, std::string sf )
 {
@@ -6228,6 +6247,7 @@ QString StatsPanel::getDBName(int exp_id)
     }
 
   }
+  return NULL;
 }
 #endif
 
@@ -15188,7 +15208,8 @@ StatsPanel::process_clip(InputLineObject *statspanel_clip,
         }
         s += vs;
       }
-      catch(std::bad_alloc)
+      //catch(std::bad_alloc)
+      catch(const std::bad_alloc&)
       { // Try to issue what might already have been placed in string.
         break;
       }

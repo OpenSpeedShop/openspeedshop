@@ -35,7 +35,7 @@ if(NOT HAS_CXX11_AUTO)
   message(STATUS "No support for C++11 found.")
 else()
   message(STATUS "C++11 support found, required flags are: ${CXX11_COMPILER_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
+  #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
 endif()
 
 
@@ -203,22 +203,22 @@ if(INSTRUMENTOR MATCHES "cbtf")
     target_include_directories(openss-framework PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime
+	#${CMAKE_CURRENT_BINARY_DIR}/../libopenss-runtime
 	${CBTF_KRELL_MESSAGES_INCLUDE_DIRS}
 	${Sqlite3_INCLUDE_DIR}
 	${PROJECT_SOURCE_DIR}/libopenss-framework
-	${PROJECT_BUILD_DIR}/libopenss-runtime
+	#${PROJECT_BUILD_DIR}/libopenss-runtime
 	${LTDL_INCLUDE_DIR}
     )
 
     target_link_libraries(openss-framework
+	openss-framework-cbtf
 	${CBTF_KRELL_MESSAGES_PERFDATA_SHARED_LIBRARY}
 	${Sqlite3_SHARED_LIBRARIES}
 	${Iberty_STATIC_LIBRARIES}
 	${LTDL_LIBRARY_SHARED}
-	${CMAKE_DL_LIBS}
-	openss-framework-cbtf
 	rt
+	${CMAKE_DL_LIBS}
     )
 
     set_target_properties(openss-framework PROPERTIES VERSION 1.1.0)

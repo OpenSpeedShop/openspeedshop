@@ -1469,7 +1469,7 @@ CollectorGroup Experiment::getCollectors() const
 Collector Experiment::createCollector(const std::string& unique_id) const
 {
     Collector collector;
-
+    //std::cerr << "Atempting to create collector: " << unique_id << std::endl;
     // Begin a multi-statement transaction
     BEGIN_WRITE_TRANSACTION(dm_database);
 
@@ -1483,12 +1483,16 @@ Collector Experiment::createCollector(const std::string& unique_id) const
 
     // Check preconditions
     if(collector.dm_impl == NULL) {
+        //std::cerr << "collector NULL!!!: " << unique_id << std::endl;
 	collector.instantiateImpl();
-	if(collector.dm_impl == NULL)
+	if(collector.dm_impl == NULL) {
+	//std::cerr << "collector did not INSTANTIATE!!!: " << unique_id << std::endl;
 	    throw Exception(Exception::CollectorUnavailable, unique_id);
+	}
     }   
 
     // Update collector with default parameter values
+    //std::cerr << "collector setParams " << unique_id << std::endl;
     collector.setParameterData(collector.dm_impl->getDefaultParameterValues());
     
     // End this multi-statement transaction

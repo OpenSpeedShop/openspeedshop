@@ -647,7 +647,9 @@ try {
   }
 
 }
-catch (std::bad_alloc) {
+//catch (std::bad_alloc)
+catch (const std::bad_alloc&)
+{
   Mark_Cmd_With_Soft_Error(cmd,"The command could not be executed because a memory allocation error has occurred.");
   cmd_successful = false;
 }
@@ -1034,7 +1036,9 @@ void SS_Execute_Cmd (CommandObject *cmd) {
               EXT_Created++;
             }
           }
-          catch (std::bad_alloc) {
+          //catch (std::bad_alloc)
+          catch (const std::bad_alloc&)
+	  {
             if (EXT_Allocated <= 1) {
              // Attempt to gracefully terminate.
               stat = -1;
@@ -1042,7 +1046,7 @@ void SS_Execute_Cmd (CommandObject *cmd) {
              // Silently recover and continue executing with the existing execution threads.
               EXT_Allocated--;
               OPENSS_MAX_ASYNC_COMMANDS = EXT_Allocated;
-              stat == 0;
+              stat = 0;
             }
           }
           if (stat != 0) {

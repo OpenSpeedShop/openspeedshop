@@ -60,7 +60,8 @@ public:
     Frame *getBaseWidgetFrame() { return baseWidgetFrame; }
 
     //! A convience function to return the baseWidgetFrame.
-    Frame *setBaseWidgetFrame(Frame *f) { baseWidgetFrame = f; }
+    //Frame *setBaseWidgetFrame(Frame *f) { baseWidgetFrame = f; }
+    void setBaseWidgetFrame(Frame *f) { baseWidgetFrame = f; }
 
     //! Adds use panel menus (if any).
     virtual bool menu(QPopupMenu* contextMenu);

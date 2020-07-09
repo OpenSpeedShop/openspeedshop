@@ -53,6 +53,7 @@ namespace {
      */
     int foreachCallback(const char* filename, lt_ptr data)
     {
+	//std::cerr << "::foreachCallback char* filename is: " << filename << std::endl;
 	// Re-route the callback to the actual PluginTable object
 	CollectorPluginTable* table =
 	    reinterpret_cast<CollectorPluginTable*>(data);
@@ -168,6 +169,7 @@ std::set<Metadata> CollectorPluginTable::getAvailable()
  */
 CollectorImpl* CollectorPluginTable::instantiate(const std::string& unique_id)
 {
+    // std::cerr << "CollectorPluginTable::instantiate ENTERED for " << unique_id << std::endl;
     CollectorImpl* instance = NULL;
     // Build the collector plugin table if necessary
     if(!dm_is_built)
@@ -175,14 +177,17 @@ CollectorImpl* CollectorPluginTable::instantiate(const std::string& unique_id)
     Assert(dm_is_built);
     
     // Find the entry for this unique identifier's plugin
+    // std::cerr << "CollectorPluginTable::instantiate FIND ENTRY for " << unique_id << std::endl;
     std::map<std::string, Entry>::iterator
 	i = dm_unique_id_to_entry.find(unique_id);
     if(i == dm_unique_id_to_entry.end()) {
+	std::cerr << "CollectorPluginTable::instantiate i == dm_unique_id_to_entry.end for " << unique_id << std::endl;
 	return NULL;
     }
     
     // Critical section touching the collector plugin's entry
     {
+        // std::cerr << "CollectorPluginTable::instantiate CRITICAL section for " << unique_id << std::endl;
 	Guard guard_myself(this);
 		
 	// Is this the first instance of this collector implementation?
@@ -190,8 +195,11 @@ CollectorImpl* CollectorPluginTable::instantiate(const std::string& unique_id)
 	    
 	    // Load the plugin into memory
 	    i->second.dm_handle = lt_dlopenext(i->second.dm_path.c_str());
-	    if(i->second.dm_handle == NULL)
+	    if(i->second.dm_handle == NULL) {
+
+		//std::cerr << "CollectorPluginTable::instantiate i->second.dm_handle == NULL " << unique_id << std::endl;
 		return NULL;
+	    }
 	    
 	}
 		
@@ -200,13 +208,17 @@ CollectorImpl* CollectorPluginTable::instantiate(const std::string& unique_id)
 	Assert(handle != NULL);
 	CollectorImpl* (*factory)() = (CollectorImpl* (*)())
 	    lt_dlsym(handle, "CollectorFactory");
-	if(factory == NULL)
+	if(factory == NULL) {
+	    //std::cerr << "CollectorPluginTable::instantiate factory == NULL " << unique_id << std::endl;
 	    return NULL;
+	}
 	
 	// Create an instance of this collector
 	instance = (*factory)();
-	if(i->second.dm_metadata != *instance)
+	if(i->second.dm_metadata != *instance) {
+	    //std::cerr << "CollectorPluginTable::instantiate i->second.dm_metadata != *instance " << unique_id << std::endl;
 	    return NULL;
+	}
 		
 	// Increment the plugin's instance count
 	i->second.dm_instances++;    
@@ -214,6 +226,7 @@ CollectorImpl* CollectorPluginTable::instantiate(const std::string& unique_id)
     }
     
     // Return the instance to the caller
+    //std::cerr << "CollectorPluginTable::instantiate normal return of instance " << unique_id << std::endl;
     return instance;
 }
 
@@ -285,31 +298,39 @@ void CollectorPluginTable::destroy(CollectorImpl* impl)
 void CollectorPluginTable::foreachCallback(const std::string& filename)
 {
 
-//    std::cout << "coming in CollectorPluginTable, filename=" << filename << std::endl;
+    //std::cerr << "coming in CollectorPluginTable, filename=" << filename << std::endl;
 
     // Only examine the framework related plugins.
     if (filename.find("_view") != std::string::npos ||
 	filename.find("Panel") != std::string::npos ||
 	filename.find("-rt") != std::string::npos ||
+	filename.find("offline") != std::string::npos ||
+	filename.find("openss") != std::string::npos ||
+	filename.find("_init_") != std::string::npos ||
 	filename.find("libmonitor") != std::string::npos) {
         return;
     }
 
-//    std::cout << "after filter, CollectorPluginTable, filename=" << filename << std::endl;
 
     // Create an entry for this possible collector plugin
     Entry entry;
-    entry.dm_path = filename;
+    Path fpath(filename);
+    //entry.dm_path = filename;
+    entry.dm_path = fpath;
+    //std::cerr << "after filter, CollectorPluginTable, filename=" << filename <<  " entry.dm_path.c_str():" << entry.dm_path.c_str() << std::endl;
 	    
     // Can we open this file as a libltdl module?
     lt_dlhandle handle = lt_dlopenext(entry.dm_path.c_str());
-    if(handle == NULL)
+    if(handle == NULL) {
+        //std::cerr << "HANDLE NULL, CollectorPluginTable, filename=" << filename << " lt_dlopenext entry.dm_path.c_str():" << lt_dlopenext(entry.dm_path.c_str()) << std::endl;
 	return;
+    }
     
     // Is there a collector factory method in this module?
     CollectorImpl* (*factory)() = (CollectorImpl* (*)())
 	lt_dlsym(handle, "CollectorFactory");
     if(factory == NULL) {
+        //std::cerr << "NO CollectorFactory, CollectorPluginTable, filename=" << filename << std::endl;
 	Assert(lt_dlclose(handle) == 0);
 	return;
     }

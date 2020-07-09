@@ -146,6 +146,9 @@ void OmptPCollector::getParameterValue(const std::string& parameter,
     data.getXDRDecoding(reinterpret_cast<xdrproc_t>(xdr_CBTF_ompt_parameters),
                         &parameters);
 
+    // Free the decoded parameters blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_CBTF_ompt_parameters),
+	     reinterpret_cast<char*>(&parameters));
 }
 
 
@@ -170,6 +173,10 @@ void OmptPCollector::setParameterValue(const std::string& parameter,
     
     // Re-encode the blob containing the parameter values
     data = Blob(reinterpret_cast<xdrproc_t>(xdr_CBTF_ompt_parameters), &parameters);
+
+    // Free the decoded parameters blob
+    xdr_free(reinterpret_cast<xdrproc_t>(xdr_CBTF_ompt_parameters),
+	     reinterpret_cast<char*>(&parameters));
 }
 
 
