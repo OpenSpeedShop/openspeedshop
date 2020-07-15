@@ -276,3 +276,7 @@ NOTE 17: Installing GCC the C compiler on Ubuntu 20.04 step by step instructions
     $ g++ --version
 
 
+NOTE 18: Get rid of PackageKit cache file storage on Fedora
+https://anglehit.com/how-to-clean-up-packagekit-in-fedora-os-the-right-way/
+> pkcon refresh force
+
