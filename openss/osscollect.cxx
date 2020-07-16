@@ -258,6 +258,10 @@ static bool isOpenMPExe(const std::string exe) {
     if (!found_openmp) {
         found_openmp = foundLibraryFromLdd(exe,"/libgomp");
     }
+    // Added this to find PGI openmp runtime library
+    if (!found_openmp) {
+        found_openmp = foundLibraryFromLdd(exe,"/libomp");
+    }
     return found_openmp;
 }
 
