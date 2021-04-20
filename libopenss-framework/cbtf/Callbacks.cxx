@@ -1363,19 +1363,27 @@ void Callbacks::loadedLinkedObject(const boost::shared_ptr<CBTF_Protocol_LoadedL
 		database->bindArgument(3, message.is_executable);
 		while(database->executeStatement());
 		linked_object = database->getLastInsertedUID();
-		output << "Callbacks::loadedLinkedObject INSERT"
-		<< " Files:" << message.linked_object.path
-		<< " LinkedObjects:" << AddressRange(0, Address(message.range.end - message.range.begin))
-		<< " isExe:" << message.is_executable
-		<< std::endl;
+#ifndef NDEBUG
+		if(Frontend::isDebugEnabled()) {
+		    output << "Callbacks::loadedLinkedObject INSERT"
+		    << " Files:" << message.linked_object.path
+		    << " LinkedObjects:" << AddressRange(0, Address(message.range.end - message.range.begin))
+		    << " isExe:" << message.is_executable
+		    << std::endl;
+		}
+#endif
 		
 	    }
 
 	    // Create an address space entry for this load
-		output << "Callbacks::loadedLinkedObject INSERT"
-		<< " AddressSpaces:" << " thread:" << thread
-		<< " range:" << AddressRange(Address(message.range.begin), Address(message.range.end))
-		<< std::endl;
+#ifndef NDEBUG
+		if(Frontend::isDebugEnabled()) {
+		    output << "Callbacks::loadedLinkedObject INSERT"
+		    << " AddressSpaces:" << " thread:" << thread
+		    << " range:" << AddressRange(Address(message.range.begin), Address(message.range.end))
+		    << std::endl;
+		}
+#endif
 	    database->prepareStatement(
 	        "INSERT INTO AddressSpaces "
 	        "  (thread, time_begin, time_end, "
