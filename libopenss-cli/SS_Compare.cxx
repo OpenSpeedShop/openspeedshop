@@ -1698,7 +1698,7 @@ static std::string CustomViewInfo (CommandObject *cmd, CustomView *cvp) {
   if (ExperimentID != 0) {
     ExperimentObject *exp = Find_Experiment_Object (ExperimentID) ;
     S << " -x " << ExperimentID;
-    if (exp > 0) {
+    if (exp != NULL) {
       global_overall_num_ranks = SS_getNumRanks(cmd, exp);
       global_overall_num_threads = SS_getNumThreads(cmd, exp);
     }
